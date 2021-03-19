@@ -893,6 +893,7 @@ public class ClusterService implements InitializingBean {
                         if(componentVO.getComponentTypeCode().equals(config.getComponentType())){
                             componentVO.setPrincipal(config.getPrincipal());
                             componentVO.setPrincipals(config.getPrincipals());
+                            componentVO.setMergeKrb5Content(config.getMergeKrbContent());
                         }
                     }
                 }
