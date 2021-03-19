@@ -26,6 +26,8 @@ public class ComponentConfigUtils {
     private final static String DEPLOY_MODE = "deploymode";
     private final static String dependencySeparator = "$";
     private static Predicate<String> isOtherControl = s -> "typeName".equalsIgnoreCase(s) || "md5Key".equalsIgnoreCase(s);
+    private static Predicate<ClientTemplate> isAuth = c -> c.getKey().equalsIgnoreCase("password") || c.getKey().equalsIgnoreCase("rsaPath");
+
 
 
     /**
@@ -338,7 +340,7 @@ public class ComponentConfigUtils {
         }
         if (isOtherControl.test(componentConfig.getKey())) {
             componentConfig.setType(EFrontType.OTHER.name());
-        } else if (EFrontType.PASSWORD.name().equalsIgnoreCase(componentConfig.getKey())) {
+        } else if (EFrontType.PASSWORD.name().equalsIgnoreCase(componentConfig.getKey()) && StringUtils.isBlank(componentConfig.getDependencyKey())) {
             //key password的控件转换为加密显示
             componentConfig.setType(EFrontType.PASSWORD.name());
         } else {
@@ -387,7 +389,8 @@ public class ComponentConfigUtils {
     }
 
     /**
-     * 原sftp数据clientTemplate结构变更 无法做转换 强制内嵌一层
+     * 原sftp数据clientTemplate结构变更无法做转换
+     * 将原来数据的password 和rsaPath移除 将其内嵌到auth下的input
      *
      * @param clientTemplates
      * @return
@@ -397,6 +400,9 @@ public class ComponentConfigUtils {
         if (CollectionUtils.isEmpty(clientTemplates)) {
             return;
         }
+        Map<String, ClientTemplate> authMapping = clientTemplates.stream()
+                .filter(isAuth)
+                .collect(Collectors.toMap(ClientTemplate::getKey, c2 -> c2));
         for (ClientTemplate clientTemplate : clientTemplates) {
             if (clientTemplate.getKey().equalsIgnoreCase("auth")) {
                 clientTemplate.setType(EFrontType.RADIO_LINKAGE.name());
@@ -404,14 +410,30 @@ public class ComponentConfigUtils {
                 if (!CollectionUtils.isEmpty(values)) {
                     for (ClientTemplate value : values) {
                         value.setType("");
-                        //将目前的radio 选择指内嵌一层
-                        ClientTemplate sonTemplates = buildCustom(value.getKey(), value.getValue(), EFrontType.INPUT.name());
-                        value.setValue(value.getDependencyValue());
-                        value.setValues(Lists.newArrayList(sonTemplates));
+                        if (MapUtils.isEmpty(authMapping)) {
+                            //dependencyKey value 都不为空 内嵌一层
+                            ClientTemplate sonTemplates = buildCustom(value.getKey(), value.getValue(), EFrontType.INPUT.name());
+                            value.setValue(value.getDependencyValue());
+                            value.setValues(Lists.newArrayList(sonTemplates));
+                        } else {
+                            //dependencyKey value 有缺失 特殊处理
+                            value.setRequired(true);
+                            //设置 dependencyKey dependencyValue的值
+                            value.setDependencyKey("auth");
+                            value.setValue("password".equalsIgnoreCase(value.getKey()) ? 1 : 2);
+                            value.setDependencyValue(String.valueOf(value.getValue()));
+                            //将目前的auth 或 password 内嵌一层到auth下
+                            ClientTemplate realClientTemplate = authMapping.get(value.getKey());
+                            Object realValue = realClientTemplate == null ? value.getValue() : realClientTemplate.getValue();
+                            ClientTemplate sonTemplates = buildCustom(value.getKey(), realValue, EFrontType.INPUT.name());
+                            value.setValues(Lists.newArrayList(sonTemplates));
+                        }
                     }
                 }
             }
         }
+        //移除auth  和 password
+        clientTemplates.removeIf(isAuth);
     }
 
     public static ClientTemplate buildOthers(String key, String value) {
