@@ -123,10 +123,6 @@ public class ComponentServiceTest extends AbstractTest {
         ComponentTestResult componentTestResult = new ComponentTestResult();
         componentTestResult.setResult(true);
         when(clientOperator.testConnect(any(), any())).thenReturn(componentTestResult);
-        List<ClientTemplate> templates = new ArrayList<>();
-        ClientTemplate clientTemplate = new ClientTemplate();
-        templates.add(clientTemplate);
-        when(clientOperator.getDefaultPluginConfig(any(), any())).thenReturn(templates);
     }
 
     @Test

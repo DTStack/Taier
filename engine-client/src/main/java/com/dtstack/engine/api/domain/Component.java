@@ -1,6 +1,5 @@
 package com.dtstack.engine.api.domain;
 
-import com.dtstack.engine.api.annotation.Unique;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
