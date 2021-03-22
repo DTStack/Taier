@@ -59,11 +59,12 @@ const List = () => {
       setLoading(true);
       const { success, data, message } = await API.getModelList(requestParams);
       if(success) {
-        setModelList(data.contentList);
+        console.log(data);
+        setModelList(data.data);
         setPagination({
-          current: data.current,
-          size: data.size,
-          total: data.total
+          current: data.currentPage,
+          size: data.pageSize,
+          total: data.totalCount
         })
       } else {
         Message.error(message);
