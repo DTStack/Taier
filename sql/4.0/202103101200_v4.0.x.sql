@@ -567,3 +567,4 @@ update console_component_config set `value` = '-XX:+UseConcMarkSweepGC -XX:+CMSP
 
 update console_component set hadoop_version = '2.7.6' where hadoop_version = 'hadoop2' or hadoop_version = 'Hadoop2';
 update console_component set hadoop_version = '3.0.0' where hadoop_version = 'hadoop3' or hadoop_version = 'Hadoop3';
+update console_component set hadoop_version = '2.x' where component_type_code = 9 and hadoop_version = '';
