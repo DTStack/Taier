@@ -1,12 +1,16 @@
 package com.dtstack.learning.AM;
 
+import com.alibaba.fastjson.JSON;
 import com.dtstack.engine.common.exception.ExceptionUtil;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.learning.AM.ApplicationContainerListener;
 import com.dtstack.learning.AM.ApplicationMessageService;
 import com.dtstack.learning.AM.ApplicationWebService;
 import com.dtstack.learning.AM.NMCallbackHandler;
 import com.dtstack.learning.AM.RMCallbackHandler;
 import com.dtstack.learning.api.ApplicationContext;
+import com.dtstack.learning.common.AppEnvConstant;
 import com.dtstack.learning.common.AppType;
 import com.dtstack.learning.common.exceptions.XLearningExecException;
 import com.dtstack.learning.conf.LearningConfiguration;
@@ -70,6 +74,8 @@ import java.math.RoundingMode;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.URI;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
@@ -77,6 +83,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -124,6 +131,10 @@ public class ApplicationMaster extends CompositeService {
   // location of cacheArchive on HDFS
   String appCacheArchivesRemoteLocation;
   String xlearningCommand;
+  /**
+   * envs str. need trans to map.
+   */
+  String xlearningAppEnvStr;
   String dmlcPsRootUri;
   int dmlcPsRootPort;
   String dmlcTrackerUri;
@@ -306,6 +317,11 @@ public class ApplicationMaster extends CompositeService {
     if (envs.containsKey(LearningConstants.Environment.XLEARNING_EXEC_CMD.toString())) {
       xlearningCommand = envs.get(LearningConstants.Environment.XLEARNING_EXEC_CMD.toString());
       LOG.info("XLearning exec command: " + xlearningCommand);
+    }
+
+    if (envs.containsKey(LearningConstants.Environment.XLEARNING_APP_ENV.toString())) {
+      xlearningAppEnvStr = envs.get(LearningConstants.Environment.XLEARNING_APP_ENV.toString());
+      LOG.info("XLearning app env: " + xlearningAppEnvStr);
     }
 
     if (envs.containsKey(LearningConstants.Environment.XLEARNING_APP_TYPE.toString())) {
@@ -1133,12 +1149,50 @@ public class ApplicationMaster extends CompositeService {
     }
   }
 
+  /**
+   * 1.parse cmd.
+   * 2.add key-value into container envs.
+   * @param appEnv
+   */
+  private void parseAppEnv(String appEnv, Map<String,String> containerEnv) {
+    if (appEnv == null) {
+      return;
+    }
+
+    try {
+      // envJson is encode, we need decode it.
+      appEnv = URLDecoder.decode(appEnv, "UTF-8");
+      LOG.info("cmdStr decoded is : " + appEnv);
+      Map<String,Object> envMap = JSON.parseObject(appEnv.trim());
+      Iterator entries = envMap.entrySet().iterator();
+      while (entries.hasNext()) {
+        Map.Entry entry = (Map.Entry) entries.next();
+        String key = (String) entry.getKey();
+        String value;
+        if (AppEnvConstant.MODEL_PARAM.equals(key)) {
+          value = URLEncoder.encode((String) entry.getValue(), "UTF-8");
+        } else {
+          value = (String) entry.getValue();
+        }
+        //add prefix for app env, make it indetifier
+        containerEnv.put(AppEnvConstant.SUB_PROCESS_ENV.concat(key) , value);
+      }
+    } catch (Exception e) {
+      String message = String.format("Could't parse {%s} to json format. Reason : {%s}", appEnv , e.getMessage());
+      LOG.error(message);
+      throw new RuntimeException(message, e);
+    }
+  }
+
+
   private Map<String, String> buildContainerEnv(String role) {
     LOG.info("Setting environments for the Container");
     Map<String, String> containerEnv = new HashMap<>();
     containerEnv.put(LearningConstants.Environment.HADOOP_USER_NAME.toString(), conf.get("hadoop.job.ugi").split(",")[0]);
     containerEnv.put(LearningConstants.Environment.XLEARNING_TF_ROLE.toString(), role);
     containerEnv.put(LearningConstants.Environment.XLEARNING_EXEC_CMD.toString(), xlearningCommand);
+    // set cmd into container envs
+    parseAppEnv(xlearningAppEnvStr,containerEnv);
     containerEnv.put(LearningConstants.Environment.XLEARNING_APP_TYPE.toString(), xlearningAppType.name());
 
     if (role.equals(LearningConstants.PS)) {
