@@ -12,6 +12,8 @@ public class NotDeleteTaskVO {
 
     private String projectAlias;
 
+    private String projectName;
+
     private String taskName;
 
     private Integer appType;
@@ -46,5 +48,13 @@ public class NotDeleteTaskVO {
 
     public void setAppType(Integer appType) {
         this.appType = appType;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
     }
 }

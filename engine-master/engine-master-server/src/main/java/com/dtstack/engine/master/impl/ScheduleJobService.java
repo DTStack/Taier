@@ -29,6 +29,7 @@ import com.dtstack.engine.dao.*;
 import com.dtstack.engine.domain.ScheduleEngineProject;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
 import com.dtstack.engine.master.queue.JobPartitioner;
 import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
@@ -58,6 +59,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -3024,6 +3026,102 @@ public class ScheduleJobService {
             logInfo+= "===============================================================\n";
             logInfo+=addLog;
             return logInfo;
+        }
+    }
+
+
+    public List<ScheduleJobBeanVO> findTaskRuleJobAndFlow(String jobId) {
+        // 查询 jobId 的所有子节点
+        ScheduleJob scheduleJob = scheduleJobDao.getByJobId(jobId, Deleted.NORMAL.getStatus());
+
+        List<ScheduleJobBeanVO> vos = Lists.newArrayList();
+        if (scheduleJob == null) {
+            throw new RdosDefineException("job not exist,please checking jobId");
+        }
+
+        // 查询是否是工作流对象
+        if (StringUtils.equals("0",scheduleJob.getFlowJobId())) {
+            // 查询所有工作流子节点
+            List<ScheduleJob> subJobsAndStatusByFlowId = getSubJobsAndStatusByFlowId(scheduleJob.getFlowJobId());
+            buildScheduleJobBeanVOs(vos,subJobsAndStatusByFlowId);
+        }
+
+        // 查询该任务下所有的规则任务
+        List<ScheduleJob> scheduleJobs = getTaskRuleSonJob(scheduleJob);
+
+        buildScheduleJobBeanVOs(vos,scheduleJobs);
+        return vos;
+    }
+
+    public List<ScheduleJob> getTaskRuleSonJob(ScheduleJob scheduleJob) {
+        List<ScheduleJob> scheduleJobs = Lists.newArrayList();
+        List<ScheduleJobJob> jobJobs = scheduleJobJobDao.listByParentJobKey(scheduleJob.getJobKey());
+        if (CollectionUtils.isNotEmpty(jobJobs)) {
+            List<String> jobKeys = jobJobs.stream().map(ScheduleJobJob::getJobKey).collect(Collectors.toList());
+            List<ScheduleJob> jobs = scheduleJobDao.listJobByJobKeys(jobKeys);
+
+            for (ScheduleJob job : jobs) {
+                if (!TaskRuleEnum.NO_RULE.getCode().equals(job.getTaskRule())) {
+                    scheduleJobs.add(job);
+                }
+            }
+        }
+        return scheduleJobs;
+    }
+
+    private ScheduleJobBeanVO buildScheduleJobBeanVO(ScheduleJob job) {
+        ScheduleJobBeanVO vo = new ScheduleJobBeanVO();
+        if (job != null) {
+            BeanUtils.copyProperties(job, vo);
+        }
+        return vo;
+    }
+
+    private void buildScheduleJobBeanVOs(List<ScheduleJobBeanVO> vos, List<ScheduleJob> subJobsAndStatusByFlowId) {
+        if (CollectionUtils.isNotEmpty(subJobsAndStatusByFlowId)) {
+            for (ScheduleJob scheduleJob : subJobsAndStatusByFlowId) {
+                vos.add(buildScheduleJobBeanVO(scheduleJob));
+            }
+        }
+    }
+
+    public ScheduleJobDetailsVO findTaskRuleJob(String jobId) {
+        // 查询 jobId 的所有子节点
+        ScheduleJob scheduleJob = scheduleJobDao.getByJobId(jobId, Deleted.NORMAL.getStatus());
+        List<ScheduleJob> taskRuleSonJob = getTaskRuleSonJob(scheduleJob);
+        ScheduleJobDetailsVO vo = new ScheduleJobDetailsVO();
+
+        buildScheduleJobDetailsVO(vo, scheduleJob);
+
+        List<ScheduleJobDetailsVO> vos = Lists.newArrayList();
+        for (ScheduleJob job : taskRuleSonJob) {
+            ScheduleJobDetailsVO voSon = new ScheduleJobDetailsVO();
+            buildScheduleJobDetailsVO(voSon, job);
+            vos.add(voSon);
+        }
+
+        vo.setScheduleJobDetailsVOList(vos);
+        return vo;
+    }
+
+    private void buildScheduleJobDetailsVO(ScheduleJobDetailsVO vo, ScheduleJob scheduleJob) {
+        if (scheduleJob != null) {
+            vo.setAppType(scheduleJob.getAppType());
+            vo.setName(scheduleJob.getJobName());
+            vo.setTaskRule(scheduleJob.getTaskRule());
+            vo.setTaskType(scheduleJob.getTaskType());
+
+            Tenant byDtUicTenantId = tenantDao.getByDtUicTenantId(scheduleJob.getDtuicTenantId());
+
+            if (byDtUicTenantId != null) {
+                vo.setTenantName(byDtUicTenantId.getTenantName());
+            }
+
+            ScheduleEngineProject projectByProjectIdAndApptype = scheduleEngineProjectDao.getProjectByProjectIdAndApptype(scheduleJob.getProjectId(), scheduleJob.getAppType());
+
+            if (projectByProjectIdAndApptype != null) {
+                vo.setProjectName(projectByProjectIdAndApptype.getProjectName());
+            }
         }
     }
 }

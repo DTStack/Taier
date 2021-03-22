@@ -2,6 +2,7 @@ package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.param.ScheduleEngineProjectParam;
+import com.dtstack.engine.api.vo.project.NotDeleteProjectVO;
 import com.dtstack.engine.api.vo.project.ScheduleEngineProjectVO;
 import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
 import com.dtstack.engine.common.env.EnvironmentContext;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author yuebai
@@ -201,7 +203,7 @@ public class ProjectService {
         return vo;
     }
 
-    public List<NotDeleteTaskVO> getNotDeleteTaskByProjectId(Long projectId, Integer appType) {
+    public List<NotDeleteProjectVO> getNotDeleteTaskByProjectId(Long projectId, Integer appType) {
         if (appType == null) {
             throw new RdosDefineException("appType must be passed");
         }
@@ -210,9 +212,21 @@ public class ProjectService {
             throw new RdosDefineException("projectId must be passed");
         }
 
+        List<NotDeleteProjectVO> notDeleteTaskVOS = Lists.newArrayList();
+
         List<ScheduleTaskShade> scheduleTaskShades = scheduleTaskShadeService.getTaskOtherPlatformByProjectId(projectId, appType, environmentContext.getListChildTaskLimit());
 
-        return scheduleTaskShadeService.buildNotDeleteTaskVO(scheduleTaskShades,appType);
+        for (ScheduleTaskShade scheduleTaskShade : scheduleTaskShades) {
+            List<NotDeleteTaskVO> notDeleteTask = scheduleTaskShadeService.getNotDeleteTask(scheduleTaskShade.getTaskId(), scheduleTaskShade.getAppType());
+            NotDeleteProjectVO notDeleteProjectVO = new NotDeleteProjectVO();
+
+            notDeleteProjectVO.setTaskName(scheduleTaskShade.getName());
+            notDeleteProjectVO.setNotDeleteTaskVOList(notDeleteTask);
+            notDeleteTaskVOS.add(notDeleteProjectVO);
+        }
+
+        return notDeleteTaskVOS;
     }
+
 }
 
