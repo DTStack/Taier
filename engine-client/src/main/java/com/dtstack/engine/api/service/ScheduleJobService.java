@@ -475,5 +475,5 @@ public interface ScheduleJobService extends DtInsightServer {
     ApiResponse<List<ScheduleJobBeanVO>> findTaskRuleJobById(@Param("id") Long id);
 
     @RequestLine("POST /node/scheduleJob/findTaskRuleJob")
-    ApiResponse<ScheduleJobDetailsVO> findTaskRuleJob(@Param("jobId") String jobId);
+    ApiResponse<ScheduleDetailsVO> findTaskRuleJob(@Param("jobId") String jobId);
 }

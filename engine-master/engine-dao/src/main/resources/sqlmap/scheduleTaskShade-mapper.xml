@@ -794,6 +794,39 @@
         LIMIT #{limit}
     </select>
 
+    <select id="listTaskRuleTask" resultType="com.dtstack.engine.api.domain.ScheduleTaskShade">
+        SELECT
+            t.id,
+            t.tenant_id,
+            t.project_id,
+            t.name,
+            t.task_type,
+            t.engine_type,
+            t.compute_type,
+            t.period_type,
+            t.schedule_conf,
+            t.task_id,
+            t.app_type,
+            t.schedule_status,
+            t.project_schedule_status,
+            t.submit_status,
+            t.gmt_create,
+            t.gmt_modified,
+            t.modify_user_id,
+            t.create_user_id,
+            t.owner_user_id,
+            t.version_id,
+            t.is_deleted,
+            t.flow_id,
+            t.is_publish_to_produce,
+            t.dtuic_tenant_id,
+            t.task_rule
+        FROM `schedule_task_shade` t
+        LEFT JOIN `schedule_task_task_shade`  tt
+        ON  t.task_id = tt.task_id  AND tt.is_deleted = 0
+        WHERE t.is_deleted = 0 AND tt.parent_app_type = 8 AND tt.parent_task_id = 1659
+    </select>
+
 
     <update id="updateProjectScheduleStatus">
         update schedule_task_shade

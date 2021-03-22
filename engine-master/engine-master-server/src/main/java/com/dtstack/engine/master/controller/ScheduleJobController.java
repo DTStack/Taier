@@ -412,7 +412,7 @@ public class ScheduleJobController {
     }
 
     @RequestMapping(value = "/findTaskRuleJob", method = {RequestMethod.POST})
-    public ScheduleJobDetailsVO findTaskRuleJob(@DtRequestParam("jobId") String jobId) {
+    public ScheduleDetailsVO findTaskRuleJob(@DtRequestParam("jobId") String jobId) {
         return scheduleJobService.findTaskRuleJob(jobId);
     }
 

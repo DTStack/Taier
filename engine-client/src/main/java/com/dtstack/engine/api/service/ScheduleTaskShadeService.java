@@ -3,6 +3,7 @@ package com.dtstack.engine.api.service;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.vo.ScheduleDetailsVO;
 import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
@@ -226,4 +227,6 @@ public interface ScheduleTaskShadeService extends DtInsightServer {
                                                                             @Param("uicTenantId") Long uicTenantId,
                                                                             @Param("projectId") Long projectId);
 
+    @RequestLine("POST /node/scheduleTaskShade/findTaskRuleTask")
+    ApiResponse<ScheduleDetailsVO> findTaskRuleTask(@Param("taskId") Long taskId, @Param("appType") Integer appType);
 }

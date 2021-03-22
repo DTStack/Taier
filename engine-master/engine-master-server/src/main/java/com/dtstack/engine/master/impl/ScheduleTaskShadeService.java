@@ -3,8 +3,10 @@ package com.dtstack.engine.master.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
+import com.dtstack.engine.api.enums.TaskRuleEnum;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.vo.ScheduleDetailsVO;
 import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
@@ -863,5 +865,61 @@ public class ScheduleTaskShadeService {
 
     public List<ScheduleTaskShade> getTaskOtherPlatformByProjectId(Long projectId, Integer appType, Integer listChildTaskLimit) {
         return scheduleTaskShadeDao.getTaskOtherPlatformByProjectId(projectId,appType,listChildTaskLimit);
+    }
+
+    public ScheduleDetailsVO findTaskRuleTask(Long taskId, Integer appType) {
+
+        if (appType == null) {
+            throw new RdosDefineException("appType must be passed");
+        }
+
+        if (taskId == null) {
+            throw new RdosDefineException("taskId must be passed");
+        }
+
+        ScheduleTaskShade shadeDaoOne = scheduleTaskShadeDao.getOne(taskId, appType);
+
+        if (shadeDaoOne == null) {
+            throw new RdosDefineException("task not exist");
+        }
+
+        ScheduleDetailsVO vo = buildScheduleDetailsVO(shadeDaoOne);
+        List<ScheduleDetailsVO> vos =Lists.newArrayList();
+        List<ScheduleTaskShade> scheduleTaskShades = scheduleTaskShadeDao.listTaskRuleTask(taskId, appType);
+
+        for (ScheduleTaskShade taskShade : scheduleTaskShades) {
+            if (!TaskRuleEnum.NO_RULE.getCode().equals(taskShade.getTaskRule())) {
+                ScheduleDetailsVO voSon = buildScheduleDetailsVO(taskShade);
+                if (voSon != null) {
+                    vos.add(voSon);
+                }
+            }
+        }
+        vo.setScheduleDetailsVOList(vos);
+        return vo;
+    }
+
+    private ScheduleDetailsVO buildScheduleDetailsVO(ScheduleTaskShade taskShade) {
+        if (taskShade != null) {
+            ScheduleDetailsVO vo = new ScheduleDetailsVO();
+            vo.setAppType(taskShade.getAppType());
+            vo.setName(taskShade.getName());
+            vo.setTaskRule(taskShade.getTaskRule());
+            vo.setTaskType(taskShade.getTaskType());
+
+            Tenant byDtUicTenantId = tenantDao.getByDtUicTenantId(taskShade.getDtuicTenantId());
+
+            if (byDtUicTenantId != null) {
+                vo.setTenantName(byDtUicTenantId.getTenantName());
+            }
+
+            ScheduleEngineProject projectByProjectIdAndApptype = scheduleEngineProjectDao.getProjectByProjectIdAndApptype(taskShade.getProjectId(), taskShade.getAppType());
+
+            if (projectByProjectIdAndApptype != null) {
+                vo.setProjectName(projectByProjectIdAndApptype.getProjectName());
+            }
+            return vo;
+        }
+        return null;
     }
 }

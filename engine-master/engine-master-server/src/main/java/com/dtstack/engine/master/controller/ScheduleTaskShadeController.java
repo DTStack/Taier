@@ -3,6 +3,7 @@ package com.dtstack.engine.master.controller;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.vo.ScheduleDetailsVO;
 import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
@@ -16,9 +17,6 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.dtstack.engine.master.router.DtRequestParam;
-import org.springframework.validation.BindException;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -204,5 +202,11 @@ public class ScheduleTaskShadeController {
                                                                       @DtRequestParam("uicTenantId") Long uicTenantId,
                                                                       @DtRequestParam("projectId") Long projectId) {
         return scheduleTaskShadeService.findFuzzyTaskNameByCondition(name, appType, uicTenantId, projectId);
+    }
+
+    @RequestMapping(value = "/findTaskRuleTask", method = {RequestMethod.POST})
+    public ScheduleDetailsVO findTaskRuleTask(@DtRequestParam("taskId") Long taskId,
+                                                          @DtRequestParam("appType") Integer appType) {
+        return scheduleTaskShadeService.findTaskRuleTask(taskId, appType);
     }
 }
