@@ -3030,20 +3030,13 @@ public class ScheduleJobService {
     }
 
 
-    public List<ScheduleJobBeanVO> findTaskRuleJobAndFlow(String jobId) {
+    public List<ScheduleJobBeanVO> findTaskRuleJobById(Long id) {
         // 查询 jobId 的所有子节点
-        ScheduleJob scheduleJob = scheduleJobDao.getByJobId(jobId, Deleted.NORMAL.getStatus());
+        ScheduleJob scheduleJob = getJobById(id);
 
         List<ScheduleJobBeanVO> vos = Lists.newArrayList();
         if (scheduleJob == null) {
             throw new RdosDefineException("job not exist,please checking jobId");
-        }
-
-        // 查询是否是工作流对象
-        if (StringUtils.equals("0",scheduleJob.getFlowJobId())) {
-            // 查询所有工作流子节点
-            List<ScheduleJob> subJobsAndStatusByFlowId = getSubJobsAndStatusByFlowId(scheduleJob.getFlowJobId());
-            buildScheduleJobBeanVOs(vos,subJobsAndStatusByFlowId);
         }
 
         // 查询该任务下所有的规则任务
