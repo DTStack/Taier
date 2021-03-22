@@ -59,7 +59,6 @@ const List = () => {
       setLoading(true);
       const { success, data, message } = await API.getModelList(requestParams);
       if(success) {
-        console.log(data);
         setModelList(data.data);
         setPagination({
           current: data.currentPage,

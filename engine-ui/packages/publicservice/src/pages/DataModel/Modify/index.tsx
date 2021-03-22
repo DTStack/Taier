@@ -141,7 +141,6 @@ const Modify = (props: IPropsModify) => {
   }, [])
 
   const restoreFormValue = (keys: string[]) => {
-    console.log(keys, current)
     props.form.setFieldsValue(keys.reduce((temp, key) => {
       temp[key] = formValue[key]
       return temp;
