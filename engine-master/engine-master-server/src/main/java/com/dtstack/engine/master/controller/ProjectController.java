@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.controller;
 
 import com.dtstack.engine.api.param.ScheduleEngineProjectParam;
+import com.dtstack.engine.api.vo.project.NotDeleteProjectVO;
 import com.dtstack.engine.api.vo.project.ScheduleEngineProjectVO;
 import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
 import com.dtstack.engine.master.impl.ProjectService;
@@ -38,7 +39,7 @@ public class ProjectController {
     }
 
     @RequestMapping(value = "/getNotDeleteTaskByProjectId", method = {RequestMethod.POST})
-    public List<NotDeleteTaskVO> getNotDeleteTaskByProjectId(@DtRequestParam("projectId") Long projectId, @DtRequestParam("appType") Integer appType) {
+    public List<NotDeleteProjectVO> getNotDeleteTaskByProjectId(@DtRequestParam("projectId") Long projectId, @DtRequestParam("appType") Integer appType) {
         return projectService.getNotDeleteTaskByProjectId(projectId,appType);
     }
 

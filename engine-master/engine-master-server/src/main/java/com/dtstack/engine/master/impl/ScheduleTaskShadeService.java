@@ -148,6 +148,7 @@ public class ScheduleTaskShadeService {
                 ScheduleEngineProject scheduleEngineProject = scheduleEngineProjectMap.get(shade.getProjectId());
                 if (scheduleEngineProject != null) {
                     notDeleteTaskVO.setProjectAlias(scheduleEngineProject.getProjectAlias());
+                    notDeleteTaskVO.setProjectName(scheduleEngineProject.getProjectName());
                 }
                 Tenant tenant = tenantMap.get(shade.getDtuicTenantId());
                 if (tenant != null) {

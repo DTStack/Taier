@@ -5,17 +5,7 @@ import com.dtstack.engine.api.dto.ScheduleJobDTO;
 import com.dtstack.engine.api.dto.QueryJobDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.vo.ScheduleFillDataJobDetailVO;
-import com.dtstack.engine.api.vo.ScheduleFillDataJobPreViewVO;
-import com.dtstack.engine.api.vo.ScheduleJobChartVO;
-import com.dtstack.engine.api.vo.ScheduleJobVO;
-import com.dtstack.engine.api.vo.SchedulePeriodInfoVO;
-import com.dtstack.engine.api.vo.ScheduleRunDetailVO;
-import com.dtstack.engine.api.vo.ScheduleServerLogVO;
-import com.dtstack.engine.api.vo.ChartDataVO;
-import com.dtstack.engine.api.vo.JobTopErrorVO;
-import com.dtstack.engine.api.vo.JobTopOrderVO;
-import com.dtstack.engine.api.vo.RestartJobVO;
+import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.sdk.core.common.ApiResponse;
@@ -479,5 +469,8 @@ public interface ScheduleJobService extends DtInsightServer {
     ApiResponse<String> getJobGraphJSON(@Param("jobId") String jobId);
 
     @RequestLine("POST /node/scheduleJob/updateNotRuleResult")
-    ApiResponse<Void> updateNotRuleResult(@Param("jobId") String jobId,@Param("rule") Integer rule,@Param("resultLog") String resultLog);
+    ApiResponse<Void> updateNotRuleResult(@Param("jobId") String jobId, @Param("rule") Integer rule, @Param("resultLog") String resultLog);
+
+    @RequestLine("POST /node/scheduleJob/updateNotRuleResult")
+    ApiResponse<List<ScheduleJobBeanVO>> findTaskRuleJob(@Param("jobId") String jobId);
 }

@@ -58,6 +58,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -2903,4 +2904,53 @@ public class ScheduleJobService {
             return logInfo;
         }
     }
+
+
+    public List<ScheduleJobBeanVO> findTaskRuleJobAndFlow(String jobId) {
+        // 查询 jobId 的所有子节点
+        ScheduleJob scheduleJob = scheduleJobDao.getByJobId(jobId, Deleted.NORMAL.getStatus());
+
+        List<ScheduleJobBeanVO> vos = Lists.newArrayList();
+        if (scheduleJob == null) {
+            throw new RdosDefineException("job not exist,please checking jobId");
+        }
+
+        // 查询是否是工作流对象
+        if (StringUtils.equals("0",scheduleJob.getFlowJobId())) {
+            // 查询所有工作流子节点
+            List<ScheduleJob> subJobsAndStatusByFlowId = getSubJobsAndStatusByFlowId(scheduleJob.getFlowJobId());
+            buildScheduleJobBeanVOs(vos,subJobsAndStatusByFlowId);
+        }
+
+        // 查询该任务下所有的规则任务
+        List<ScheduleJobJob> jobJobs = scheduleJobJobDao.listByParentJobKey(scheduleJob.getJobKey());
+        if (CollectionUtils.isNotEmpty(jobJobs)) {
+            List<String> jobKeys = jobJobs.stream().map(ScheduleJobJob::getJobKey).collect(Collectors.toList());
+            List<ScheduleJob> jobs = scheduleJobDao.listJobByJobKeys(jobKeys);
+
+            for (ScheduleJob job : jobs) {
+                if (!TaskRuleEnum.NO_RULE.getCode().equals(job.getTaskRule())) {
+                    vos.add(buildScheduleJobBeanVO(job));
+                }
+            }
+        }
+        return vos;
+    }
+
+    private ScheduleJobBeanVO buildScheduleJobBeanVO(ScheduleJob job) {
+        ScheduleJobBeanVO vo = new ScheduleJobBeanVO();
+        if (job != null) {
+            BeanUtils.copyProperties(job, vo);
+        }
+        return vo;
+    }
+
+    private void buildScheduleJobBeanVOs(List<ScheduleJobBeanVO> vos, List<ScheduleJob> subJobsAndStatusByFlowId) {
+        if (CollectionUtils.isNotEmpty(subJobsAndStatusByFlowId)) {
+            for (ScheduleJob scheduleJob : subJobsAndStatusByFlowId) {
+                vos.add(buildScheduleJobBeanVO(scheduleJob));
+            }
+        }
+    }
+
 }
