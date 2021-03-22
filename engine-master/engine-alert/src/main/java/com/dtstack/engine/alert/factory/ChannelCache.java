@@ -1,10 +1,13 @@
 package com.dtstack.engine.alert.factory;
 
-import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.domain.ComponentConfig;
 import com.dtstack.engine.common.constrant.GlobalConst;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.sftp.SftpFileManage;
+import com.dtstack.engine.common.util.ComponentConfigUtils;
+import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.dao.ComponentConfigDao;
 import com.dtstack.engine.dao.ComponentDao;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -15,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -40,6 +45,9 @@ public class ChannelCache {
     @Autowired
     private EnvironmentContext environmentContext;
 
+    @Autowired
+    private ComponentConfigDao componentConfigDao;
+
     @Value("${user.dir}")
     private String uploadPath;
 
@@ -60,16 +68,21 @@ public class ChannelCache {
             String ifPresent = cacheSftpJar.getIfPresent(jarPath);
             if (StringUtils.isBlank(ifPresent)) {
                 com.dtstack.engine.api.domain.Component sftpComponent = componentDao.getByClusterIdAndComponentType(-1L, 10);
-                SftpConfig sftpConfig = JSONObject.parseObject(sftpComponent.getComponentConfig(), SftpConfig.class);
-                if (sftpConfig != null) {
-                    try {
-                        SftpFileManage sftpManager = SftpFileManage.getSftpManager(sftpConfig);
-                        sftpManager.downloadFile(sftpPath, destPath);
-                        cacheSftpJar.put(jarPath, System.currentTimeMillis() + "");
-                    } catch (Exception e) {
-                        logger.error("下载sftp失败:", e);
+                if (sftpComponent != null) {
+                    List<ComponentConfig> componentConfigs = componentConfigDao.listByComponentId(sftpComponent.getId(), false);
+                    Map<String, Object> sftpConfigMap = ComponentConfigUtils.convertComponentConfigToMap(componentConfigs);
+                    SftpConfig sftpConfig = PublicUtil.mapToObject(sftpConfigMap,SftpConfig.class);
+                    if (sftpConfig != null) {
+                        try {
+                            SftpFileManage sftpManager = SftpFileManage.getSftpManager(sftpConfig);
+                            sftpManager.downloadFile(sftpPath, destPath);
+                            cacheSftpJar.put(jarPath, System.currentTimeMillis() + "");
+                        } catch (Exception e) {
+                            logger.error("下载sftp失败:", e);
+                        }
                     }
                 }
+
             }
         }
 

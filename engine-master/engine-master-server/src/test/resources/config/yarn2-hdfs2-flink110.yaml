@@ -1,0 +1,171 @@
+deploymode:
+  controls: checkbox
+  value: [ perjob,session,standalone ]
+  values:
+    perjob:
+      dependencyKey: deploymode
+      dependencyValue: perjob
+      controls: group
+      required:
+        flinkJarPath: /data/insight_plugin/flink110_lib
+        jobmanager.archive.fs.dir: hdfs://ns1/dtInsight/flink110/completed-jobs
+        flinkPluginRoot: /data/insight_plugin
+        remotePluginRootDir: /data/insight_plugin
+
+        high-availability.cluster-id: /default
+        high-availability.zookeeper.path.root: /flink110
+        high-availability.zookeeper.quorum:
+        high-availability.storageDir: hdfs://ns1/dtInsight/flink110/ha
+
+        state.checkpoints.dir: hdfs://ns1/dtInsight/flink110/checkpoints
+        state.checkpoints.num-retained: 11
+
+        akka.ask.timeout: 60 s
+        metrics.reporter.promgateway.class: org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter
+        metrics.reporter.promgateway.host:
+        metrics.reporter.promgateway.port: 9091
+        metrics.reporter.promgateway.jobName: 110job
+        metrics.reporter.promgateway.randomJobNameSuffix:
+          controls: select
+          values: [ true,false ]
+        metrics.reporter.promgateway.deleteOnShutdown:
+          controls: select
+          values: [ true,false ]
+        clusterMode: perjob
+
+      optional:
+        jarTmpDir: ./tmp110
+        pluginLoadMode: shipfile
+        submitTimeout: 5
+        yarnAccepterTaskNumber: 3
+        classloader.resolve-order: child-first
+        classloader.dtstack-cache: true
+
+        state.backend: RocksDB
+        state.savepoints.dir: hdfs://ns1/dtInsight/flink110/savepoints
+        state.backend.incremental: true
+
+        prometheusHost:
+        prometheusPort: 9090
+
+        flink.env.java.opts: -XX:MaxMetaspaceSize=500m
+        prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter
+        gatewayJobName: pushgateway
+        yarn.application-attempts: 3
+        yarn.application-attempt-failures-validity-interval: 3600000
+        high-availability: ZOOKEEPER
+
+        monitorAcceptedApp: false
+
+    session:
+      dependencyKey: deploymode
+      dependencyValue: session
+      controls: group
+      required:
+        flinkSessionSlotCount: 10
+        flinkJarPath: /data/insight_plugin/flink110_lib
+        jobmanager.archive.fs.dir: hdfs://ns1/dtInsight/flink110/completed-jobs
+        flinkPluginRoot: /data/insight_plugin
+        remotePluginRootDir: /data/insight_plugin
+
+        high-availability.cluster-id: /default
+        high-availability.zookeeper.path.root: /flink110
+        high-availability.zookeeper.quorum:
+        high-availability.storageDir: hdfs://ns1/dtInsight/flink110/ha
+
+        state.checkpoints.dir: hdfs://ns1/dtInsight/flink110/checkpoints
+        state.checkpoints.num-retained: 11
+
+        metrics.reporter.promgateway.class: org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter
+        metrics.reporter.promgateway.host:
+        metrics.reporter.promgateway.port: 9091
+        metrics.reporter.promgateway.jobName: 110job
+        metrics.reporter.promgateway.randomJobNameSuffix:
+          controls: select
+          values: [ true,false ]
+        metrics.reporter.promgateway.deleteOnShutdown:
+          controls: select
+          values: [ true,false ]
+        clusterMode: session
+        sessionStartAuto: true
+        checkSubmitJobGraphInterval: 60
+
+      optional:
+        jarTmpDir: ./tmp110
+        web.timeout: 100000
+        blob.service.cleanup.interval: 900
+        jobstore.expiration-time: 900
+        pluginLoadMode: shipfile
+        submitTimeout: 5
+        yarnAccepterTaskNumber: 3
+        sessionRetryNum: 6
+        classloader.resolve-order: parent-first
+        classloader.dtstack-cache: true
+
+        state.backend: RocksDB
+        state.savepoints.dir: hdfs://ns1/dtInsight/flink110/savepoints
+        state.backend.incremental: true
+
+        prometheusHost:
+        prometheusPort: 9090
+
+        taskmanager.memory.mb: 1024
+        jobmanager.memory.mb: 2048
+
+        taskmanager.numberOfTaskSlots: 1
+
+        flink.env.java.opts: -XX:MaxMetaspaceSize=500m
+        prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter
+        gatewayJobName: pushgateway
+        yarn.application-attempts: 3
+        yarn.application-attempt-failures-validity-interval: 3600000
+        high-availability: ZOOKEEPER
+
+        monitorAcceptedApp: false
+
+    standalone:
+      dependencyKey: deploymode
+      dependencyValue: standalone
+      controls: group
+      required:
+        flinkJarPath: /data/insight_plugin/flink110_lib
+        jobmanager.archive.fs.dir: hdfs://ns1/dtInsight/flink110/completed-jobs
+        flinkPluginRoot: /data/insight_plugin
+        remotePluginRootDir: /data/insight_plugin
+
+        high-availability: zookeeper
+        high-availability.cluster-id: /default
+        high-availability.zookeeper.path.root: /flink110
+        high-availability.zookeeper.quorum:
+        high-availability.storageDir: hdfs://ns1/dtInsight/flink110/ha
+
+        state.checkpoints.dir: hdfs://ns1/dtInsight/flink110/checkpoints
+        state.checkpoints.num-retained: 11
+
+        metrics.reporter.promgateway.class: org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter
+        metrics.reporter.promgateway.host:
+        metrics.reporter.promgateway.port: 9091
+        metrics.reporter.promgateway.jobName: 110job
+        metrics.reporter.promgateway.randomJobNameSuffix:
+          controls: select
+          values: [ true,false ]
+        metrics.reporter.promgateway.deleteOnShutdown:
+          controls: select
+          values: [ true,false ]
+        clusterMode: standalone
+
+      optional:
+        state.backend: RocksDB
+        state.savepoints.dir: hdfs://ns1/dtInsight/flink110/savepoints
+        state.backend.incremental: true
+
+        yarnAccepterTaskNumber: 3
+        prometheusHost:
+        prometheusPort: 9090
+
+        taskmanager.heap.mb: 1024
+        jobmanager.heap.mb: 1024
+
+        flink.env.java.opts: -XX:MaxMetaspaceSize=500m
+        prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter
+        gatewayJobName: pushgateway

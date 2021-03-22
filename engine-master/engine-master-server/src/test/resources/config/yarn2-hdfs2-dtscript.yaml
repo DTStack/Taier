@@ -8,8 +8,8 @@ commonConf:
 pythonConf:
   controls: group
   optional:
-    python2.path: /data/anaconda2/bin/python2
-    python3.path: /data/anaconda3/bin/python3
+    python2.path: /data/miniconda2/bin/python2
+    python3.path: /data/miniconda2/bin/python3
 
 jupyterConf:
   controls: group
@@ -17,10 +17,10 @@ jupyterConf:
     jupyter.path: "'/data/anaconda3/bin/jupyter-lab'"
     c.NotebookApp.open_browser:
       controls: select
-      values: ["True","False"]
+      values: [ "True","False" ]
     c.NotebookApp.allow_remote_access:
       controls: select
-      values: ["True","False"]
+      values: [ "True","False" ]
     c.NotebookApp.ip: "'*'"
     c.NotebookApp.token: "''"
     c.NotebookApp.default_url: "'/lab'"
