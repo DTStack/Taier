@@ -197,6 +197,7 @@ public class FlinkClient extends AbstractClient {
         if(StringUtils.isNotBlank(args)){
             programArgList.addAll(Arrays.asList(args.split("\\s+")));
         }
+
         //如果jar包里面未指定mainclass,需要设置该参数
         String entryPointClass = jobParam.getMainClass();
 

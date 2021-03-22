@@ -79,6 +79,7 @@ public class ConfigConstrant {
     // Kerberos Configs
     // ------------------------------------------------------------------------
 
+    public static final String OPEN_KERBEROS_KEY = "openKerberos";
     public static final String KAFKA_SFTP_KEYTAB = "kafka.sftp.keytab";
     public static final String SECURITY_KERBEROS_LOGIN_KEYTAB= "security.kerberos.login.keytab";
 

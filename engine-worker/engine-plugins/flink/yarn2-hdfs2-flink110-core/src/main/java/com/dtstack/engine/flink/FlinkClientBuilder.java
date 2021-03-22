@@ -90,6 +90,8 @@ public class FlinkClientBuilder {
             }
         }
 
+        config.setBoolean(ConfigConstrant.OPEN_KERBEROS_KEY, flinkConfig.isOpenKerberos());
+
         try {
             FileSystem.initialize(config);
         } catch (Exception e) {
