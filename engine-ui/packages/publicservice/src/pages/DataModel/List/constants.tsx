@@ -64,7 +64,6 @@ export const columnsGenerator = ({ handleModelAction, handleDeleteBtnClick, hand
         return record.modelStatus === value;
       },
       render: (modelStatus) => {
-<<<<<<< HEAD
         return (
           <div>
             <div
@@ -80,25 +79,6 @@ export const columnsGenerator = ({ handleModelAction, handleDeleteBtnClick, hand
     { title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 200 },
     { title: '更新时间', dataIndex: 'updateTime', key: 'updateTime', width: 200 },
     { title: '备注', dataIndex: 'remark', key: 'remark', width: 200 },
-=======
-        return modelStatusMap.get(modelStatus);
-      },
-    },
-    { title: '创建人', dataIndex: 'creator', key: 'creator', width: 120 },
-    {
-      title: '创建时间',
-      dataIndex: 'createTime',
-      key: 'createTime',
-      width: 120,
-    },
-    {
-      title: '更新时间',
-      dataIndex: 'updateTime',
-      key: 'updateTime',
-      width: 120,
-    },
-    { title: '备注', dataIndex: 'remark', key: 'remark', width: 120 },
->>>>>>> dev
     {
       title: '操作',
       key: 'operation',
@@ -107,41 +87,10 @@ export const columnsGenerator = ({ handleModelAction, handleDeleteBtnClick, hand
       render: (text, record) => {
         const isPublished = record.modelStatus === 1;
         const btnRelease = (
-<<<<<<< HEAD
           <a onClick={() => handleModelAction({ type: EnumModelActionType.RELEASE, id: record.id })}>发布</a>
         );
         const btnUnrelease = (
           <a onClick={() => handleModelAction({ type: EnumModelActionType.UNRELEASE, id: record.id })}>下线</a>
-=======
-          <a
-            onClick={() =>
-              handleModelAction({
-                type: EnumModalActionType.RELEASE,
-                id: record.id,
-              })
-            }>
-            发布
-          </a>
-        );
-        const btnUnrelease = (
-          <a
-            onClick={() =>
-              handleModelAction({
-                type: EnumModalActionType.UNRELEASE,
-                id: record.id,
-              })
-            }>
-            下线
-          </a>
-        );
-        const btnDelete = (
-          <a
-            onClick={() => {
-              handleDeleteBtnClick(record.id);
-            }}>
-            删除
-          </a>
->>>>>>> dev
         );
         const btnDelete = (isPublish: boolean) => {
           if(!isPublish) {
@@ -156,7 +105,6 @@ export const columnsGenerator = ({ handleModelAction, handleDeleteBtnClick, hand
         }
         // TODO:
         const btnEdit = (
-<<<<<<< HEAD
           <a onClick={() => {
             alert('编辑')
           }}>编辑</a>
@@ -170,34 +118,6 @@ export const columnsGenerator = ({ handleModelAction, handleDeleteBtnClick, hand
             {btnDelete(isPublished)}
           </span>
         )
-=======
-          <a
-            onClick={() => {
-              alert('编辑');
-            }}>
-            编辑
-          </a>
-        );
-        if (!isPublished) {
-          return (
-            <span>
-              {btnRelease}
-              <Divider type="vertical" />
-              {btnEdit}
-              <Divider type="vertical" />
-              {btnDelete}
-            </span>
-          );
-        } else {
-          return (
-            <span>
-              {btnUnrelease}
-              <Divider type="vertical" />
-              {btnEdit}
-            </span>
-          );
-        }
->>>>>>> dev
       },
     },
   ];
