@@ -222,6 +222,7 @@ public class ProjectService {
 
             notDeleteProjectVO.setTaskName(scheduleTaskShade.getName());
             notDeleteProjectVO.setNotDeleteTaskVOList(notDeleteTask);
+            notDeleteTaskVOS.add(notDeleteProjectVO);
         }
 
         return notDeleteTaskVOS;

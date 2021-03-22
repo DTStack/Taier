@@ -406,8 +406,14 @@ public class ScheduleJobController {
         scheduleJobService.updateNotRuleResult(jobId, rule, result);
     }
 
-    @RequestMapping(value = "/findTaskRuleJob", method = {RequestMethod.POST})
-    public List<ScheduleJobBeanVO> findTaskRuleJob(@DtRequestParam("jobId") String jobId) {
+    @RequestMapping(value = "/findTaskRuleJobAndFlow", method = {RequestMethod.POST})
+    public List<ScheduleJobBeanVO> findTaskRuleJobAndFlow(@DtRequestParam("jobId") String jobId) {
         return scheduleJobService.findTaskRuleJobAndFlow(jobId);
     }
+
+    @RequestMapping(value = "/findTaskRuleJob", method = {RequestMethod.POST})
+    public ScheduleJobDetailsVO findTaskRuleJob(@DtRequestParam("jobId") String jobId) {
+        return scheduleJobService.findTaskRuleJob(jobId);
+    }
+
 }
