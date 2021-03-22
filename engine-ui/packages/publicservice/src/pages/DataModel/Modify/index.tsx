@@ -155,8 +155,9 @@ const Modify = (props: IPropsModify) => {
         break;
       case EnumModifyStep.RELATION_TABLE_STEP:
         restoreFormValue(['schema', 'table', 'updateType']);
+        break;
       default:
-        props.form.setFieldsValue(formValue);
+        props.form.setFieldsValue({});
     }
   }, [current]);
 
@@ -241,7 +242,6 @@ const Modify = (props: IPropsModify) => {
                     if(err) {
                       return;
                     }
-                    console.log(data);
                     setCurrent(prev => prev + 1);
                     setFormValue(prev => ({
                       ...prev,
