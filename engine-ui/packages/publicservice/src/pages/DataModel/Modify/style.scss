@@ -1,0 +1,74 @@
+.dm-model-modify {
+  width: 100%;
+  height: 100%;
+  .content {
+    margin-top: 12px;
+    width: 100%;
+    height: calc(100% - 32px);
+    background: #fff;
+    .step-header {
+      width: 100%;
+      height: 52px;
+      padding: 10px 115px 0;
+    }
+    .step-content {
+      width: 100%;
+      height: calc(100% - 107px);
+      background: #FAFAFA;
+      border-radius: 0px 0px 2px 2px;
+      .inner-container {
+        width: 100%;
+        height: 100%;
+        .form-area {
+          width: 680px;
+          margin-left: 50%;
+          transform: translateX(-50%);
+          .btn-link {
+            font-size: 12px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: #3F87FF;
+            line-height: 20px;
+            margin-top: 20px;
+            margin-bottom: 13px;
+          }
+        }
+        .relation-list {
+          margin-top: 13px;
+        }
+      }
+    }
+    .step-footer {
+      position: relative;
+      width: 100%;
+      height: 55px;
+      background-color: #FAFAFA;
+      border-top: 1px solid #E8E8E8;
+      .button-area {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        .margin-right-8 {
+          margin-right: 8px;
+        }
+        .width-80 {
+          width: 80px;
+        }
+      }
+    }
+  }
+}
+
+.form-item {
+  &-INPUT {
+    width: 600px;
+  }
+  &-SELECT {
+    width: 600px;
+  }
+  &-TEXT_AREA {
+    width: 600px;
+    height: 92px!important;
+  }
+}

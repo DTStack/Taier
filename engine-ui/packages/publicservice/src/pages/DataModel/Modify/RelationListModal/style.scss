@@ -1,0 +1,39 @@
+.relation-table-modal-subtitle {
+  width: 84px;
+  height: 20px;
+  font-size: 14px;
+  font-family: PingFangSC-Medium, PingFang SC;
+  font-weight: 500;
+  color: #333333;
+  line-height: 20px;
+}
+
+.dynamic-select-list {
+  .icon {
+    font-size: 14px;
+    margin-left: 10px;
+    cursor: pointer;
+    &-plus-circle {
+      color: #3F87FF;
+    }
+    &-minus-circle {
+      color: #999999;
+    }
+  }
+  .operation {
+    width: 60px;
+    height: 32px;
+    display: inline-block;
+    position: absolute;
+    line-height: 32px;
+  }
+  .text-equal {
+    text-align: center;
+    vertical-align: middle;
+    line-height: 32px;
+  }
+}
+
+.white-space-nowrap {
+  white-space: nowrap;
+}
