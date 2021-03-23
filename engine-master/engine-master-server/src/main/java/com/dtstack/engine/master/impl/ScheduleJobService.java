@@ -3078,26 +3078,26 @@ public class ScheduleJobService {
         }
     }
 
-    public ScheduleJobDetailsVO findTaskRuleJob(String jobId) {
+    public ScheduleDetailsVO findTaskRuleJob(String jobId) {
         // 查询 jobId 的所有子节点
         ScheduleJob scheduleJob = scheduleJobDao.getByJobId(jobId, Deleted.NORMAL.getStatus());
         List<ScheduleJob> taskRuleSonJob = getTaskRuleSonJob(scheduleJob);
-        ScheduleJobDetailsVO vo = new ScheduleJobDetailsVO();
+        ScheduleDetailsVO vo = new ScheduleDetailsVO();
 
         buildScheduleJobDetailsVO(vo, scheduleJob);
 
-        List<ScheduleJobDetailsVO> vos = Lists.newArrayList();
+        List<ScheduleDetailsVO> vos = Lists.newArrayList();
         for (ScheduleJob job : taskRuleSonJob) {
-            ScheduleJobDetailsVO voSon = new ScheduleJobDetailsVO();
+            ScheduleDetailsVO voSon = new ScheduleDetailsVO();
             buildScheduleJobDetailsVO(voSon, job);
             vos.add(voSon);
         }
 
-        vo.setScheduleJobDetailsVOList(vos);
+        vo.setScheduleDetailsVOList(vos);
         return vo;
     }
 
-    private void buildScheduleJobDetailsVO(ScheduleJobDetailsVO vo, ScheduleJob scheduleJob) {
+    private void buildScheduleJobDetailsVO(ScheduleDetailsVO vo, ScheduleJob scheduleJob) {
         if (scheduleJob != null) {
             vo.setAppType(scheduleJob.getAppType());
             vo.setName(scheduleJob.getJobName());

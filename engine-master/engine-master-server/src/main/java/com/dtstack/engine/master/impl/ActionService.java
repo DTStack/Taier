@@ -188,6 +188,8 @@ public class ActionService {
 
         paramActionExt.setCycTime(scheduleJob.getCycTime());
         paramActionExt.setTaskSourceId(batchTask.getTaskId());
+        paramActionExt.setProjectId(batchTask.getProjectId());
+        paramActionExt.setDtuicTenantId(batchTask.getDtuicTenantId());
         return paramActionExt;
     }
 

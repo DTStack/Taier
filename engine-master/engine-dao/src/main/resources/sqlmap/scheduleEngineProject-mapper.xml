@@ -59,7 +59,7 @@
                 `is_deleted` = #{scheduleEngineProject.isDeleted},
             </if>
         </set>
-        where `id` = #{scheduleEngineProject.id} AND `is_deleted` = 0
+        where `project_id` = #{scheduleEngineProject.projectId} AND `app_type` = #{scheduleEngineProject.appType} AND `is_deleted` = 0
     </update>
 
     <delete id="deleteByProjectIdAppType">

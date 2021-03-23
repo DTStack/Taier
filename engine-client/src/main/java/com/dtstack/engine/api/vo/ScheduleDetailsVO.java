@@ -8,7 +8,7 @@ import java.util.List;
  * @Email:dazhi@dtstack.com
  * @Description:
  */
-public class ScheduleJobDetailsVO {
+public class ScheduleDetailsVO {
 
     private String name;
 
@@ -22,7 +22,7 @@ public class ScheduleJobDetailsVO {
 
     private Integer taskRule;
 
-    private List<ScheduleJobDetailsVO> scheduleJobDetailsVOList;
+    private List<ScheduleDetailsVO> scheduleDetailsVOList;
 
     public String getName() {
         return name;
@@ -72,11 +72,11 @@ public class ScheduleJobDetailsVO {
         this.taskRule = taskRule;
     }
 
-    public List<ScheduleJobDetailsVO> getScheduleJobDetailsVOList() {
-        return scheduleJobDetailsVOList;
+    public List<ScheduleDetailsVO> getScheduleDetailsVOList() {
+        return scheduleDetailsVOList;
     }
 
-    public void setScheduleJobDetailsVOList(List<ScheduleJobDetailsVO> scheduleJobDetailsVOList) {
-        this.scheduleJobDetailsVOList = scheduleJobDetailsVOList;
+    public void setScheduleDetailsVOList(List<ScheduleDetailsVO> scheduleDetailsVOList) {
+        this.scheduleDetailsVOList = scheduleDetailsVOList;
     }
 }
