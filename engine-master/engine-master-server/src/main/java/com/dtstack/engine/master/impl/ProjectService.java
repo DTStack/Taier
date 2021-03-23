@@ -132,9 +132,9 @@ public class ProjectService {
         if (projectId == null) {
             throw new RdosDefineException("projectId must be passed");
         }
-        List<ScheduleTaskShade> scheduleTaskShades = scheduleTaskShadeDao.getTaskOtherPlatformByProjectId(projectId, appType, environmentContext.getListChildTaskLimit());
+        List<NotDeleteProjectVO> deleteProjectVOS = getNotDeleteTaskByProjectId(projectId, appType);
 
-        if (CollectionUtils.isNotEmpty(scheduleTaskShades)) {
+        if (CollectionUtils.isNotEmpty(deleteProjectVOS)) {
             throw new RdosDefineException("there is bound data and cannot be deleted");
         }
 
@@ -215,6 +215,10 @@ public class ProjectService {
         List<NotDeleteProjectVO> notDeleteTaskVOS = Lists.newArrayList();
 
         List<ScheduleTaskShade> scheduleTaskShades = scheduleTaskShadeService.getTaskOtherPlatformByProjectId(projectId, appType, environmentContext.getListChildTaskLimit());
+
+        if (CollectionUtils.isNotEmpty(scheduleTaskShades)) {
+//            scheduleTaskShades = scheduleTaskShades.stream().filter(distinctByKey(ScheduleTaskShade));
+        }
 
         for (ScheduleTaskShade scheduleTaskShade : scheduleTaskShades) {
             List<NotDeleteTaskVO> notDeleteTask = scheduleTaskShadeService.getNotDeleteTask(scheduleTaskShade.getTaskId(), scheduleTaskShade.getAppType());

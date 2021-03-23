@@ -509,4 +509,8 @@ public class EnvironmentContext {
     public Integer getListChildTaskLimit() {
         return Integer.parseInt(environment.getProperty("list.child.task.limit", "20"));
     }
+
+    public boolean getOpenDummy() {
+        return Boolean.parseBoolean(environment.getProperty("open.dummy", "false"));
+    }
 }
