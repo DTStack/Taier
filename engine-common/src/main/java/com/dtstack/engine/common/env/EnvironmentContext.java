@@ -517,4 +517,5 @@ public class EnvironmentContext {
     public boolean getOpenDummy() {
         return Boolean.parseBoolean(environment.getProperty("open.dummy", "false"));
     }
+
 }

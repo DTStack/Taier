@@ -467,7 +467,6 @@ public interface ScheduleJobService extends DtInsightServer {
 
     @RequestLine("POST /node/scheduleJob/getJobGraphJSON")
     ApiResponse<String> getJobGraphJSON(@Param("jobId") String jobId);
-    
 
     @RequestLine("POST /node/scheduleJob/syncRestartJob")
     ApiResponse<Boolean> syncRestartJob(@Param("id") Long id, @Param("justRunChild") Boolean justRunChild, @Param("setSuccess") Boolean setSuccess, @Param("subJobIds") List<Long> subJobIds);
