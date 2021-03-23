@@ -1,14 +1,26 @@
-.relation-table-modal-subtitle {
-  width: 84px;
-  height: 20px;
-  font-size: 14px;
-  font-family: PingFangSC-Medium, PingFang SC;
-  font-weight: 500;
-  color: #333333;
-  line-height: 20px;
+.relation-table-modal {
+  width: 100%;
+  padding: 0 68px 0 44px;
+  &-subtitle {
+    width: 84px;
+    height: 20px;
+    font-size: 14px;
+    font-family: PingFangSC-Medium, PingFang SC;
+    font-weight: 500;
+    color: #333333;
+    line-height: 20px;
+  }
+  .special-form-item {
+    margin-bottom: 0;
+    .ant-form-explain {
+      position: absolute;
+    }
+  }
 }
 
+
 .dynamic-select-list {
+  margin-top: 12px;
   .icon {
     font-size: 14px;
     margin-left: 10px;
@@ -36,4 +48,8 @@
 
 .white-space-nowrap {
   white-space: nowrap;
+}
+
+.text-align-center {
+  text-align: center;
 }

@@ -1,12 +1,14 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Container from 'pages/DataModel/components/Container';
 import { Breadcrumb, Steps, Button, Form, Modal } from 'antd';
 import './style';
 import FormRender from './FormRender';
 import RelationTableModal from './RelationListModal';
-import { relationFormListGenerator, basicInfoFormListGenerator } from './constants';
+import { relationFormListGenerator, basicInfoFormListGenerator, joinItemParser } from './constants';
 import { API } from '@/services';
 import Message from 'pages/DataModel/components/Message';
+import _ from 'lodash';
+import { TableJoinInfo } from 'pages/DataModel/types';
 
 enum EnumModifyStep {
   BASIC_STEP = 0,
@@ -55,13 +57,14 @@ const stepContentRender = (step: EnumModifyStep, props: any) => {
 const Modify = (props: IPropsModify) => {
   const [current, setCurrent] = useState<EnumModifyStep>(EnumModifyStep.BASIC_STEP);
   const [visibleRelationModal, setVisibleRelationModal] = useState(false);
-  const { validateFields, getFieldsValue } = props.form;
+  const { validateFields, getFieldsValue, setFieldsValue } = props.form;
   const [formValue, setFormValue] = useState<any>({});
   const [dataSourceList, setdataSourceList] = useState([]);
   const [schemaList, setSchemaList] = useState([]);
   const [tableList, setTableList] = useState([]);
   const [updateTypeList, setUpdateTypeList] = useState([]);
-
+  const [visibleUpdateType] = useState(true);
+  const [editJoinItem, setEditJoinItem] = useState<null | TableJoinInfo>(null);
 
   const getSchemaList = async (datasourceId: number) => {
     if(!datasourceId) return;
@@ -147,6 +150,38 @@ const Modify = (props: IPropsModify) => {
     }, {}))
   }
 
+  const onSchemaChange = () => {
+    // 当schema变化时重置表
+    setFieldsValue({
+      table: undefined,
+    })
+  }
+
+  const onRelationListDelete = useCallback((id: number) => {
+    setFormValue(formValue => {
+      const joinList = formValue.joinList || [];
+      return {
+        ...formValue,
+        joinList: joinList.filter(joinItem => joinItem.id !== id),
+      }
+    });
+  }, [])
+
+  const onRelationListEdit = useCallback((id: number) => {
+    let joinList = [];
+    // TODO:获取当亲啊的formValue值,触发了一次更新
+    setFormValue(formValue => {
+      joinList = formValue.joinList || [];
+      return {
+        ...formValue
+      }
+    })
+    const joinItem = joinList.find(item => item.id === id);
+    if(!joinItem) return;
+    setEditJoinItem(joinItem);
+    setVisibleRelationModal(true);
+  }, [])
+
   // 恢复对应的form value
   useEffect(() => {
     switch(current) {
@@ -179,6 +214,8 @@ const Modify = (props: IPropsModify) => {
   useEffect(() => {
     getSchemaList(formValue.dataSource);
   }, [formValue.dataSource])
+
+  const childRef = useRef(null);
 
   return (
     <Container>
@@ -216,19 +253,45 @@ const Modify = (props: IPropsModify) => {
                         updateTyleListOptions: updateTypeList,
                         schemaListOptions: schemaList,
                         tableListOptions: tableList,
+                        onSchemaChange,
+                        visibleUpdateType,
+                        joinList: formValue.joinList,
+                        onRelationListDelete,
+                        onRelationListEdit,
                       })
                     ),
                     form: props.form,
                   })
                 }
               </Form>
-              <Modal
-                title="添加关联表"
-                visible={visibleRelationModal}
-                onCancel={() => setVisibleRelationModal(false)}
-              >
-                <RelationTableModal />
-              </Modal>
+              {
+                visibleRelationModal ? (
+                  <Modal
+                    title="添加关联表"
+                    visible={visibleRelationModal}
+                    onCancel={() => {
+                      setVisibleRelationModal(false);
+                      setEditJoinItem(null);
+                    }}
+                    onOk={() => {
+                      childRef.current.validate((err, data) => {
+                        if(err) return;
+                        // form数据转化
+                        const joinItem = joinItemParser(data);
+                        const joinList = formValue.joinList || [];
+                        joinList.push(joinItem);
+                        setFormValue(formValue => ({
+                          ...formValue,
+                          joinList,
+                        }))
+                        setVisibleRelationModal(false);
+                      });
+                    }}
+                  >
+                    <RelationTableModal cref={ref => childRef.current = ref} data={editJoinItem} />
+                  </Modal>
+                ) : null
+              }
             </div>
           </div>
           <footer className="step-footer">
@@ -239,9 +302,7 @@ const Modify = (props: IPropsModify) => {
                 }}>上一步</Button> : null }
                 <Button className="margin-right-8 width-80" type="primary" onClick={() => {
                   validateFields((err, data) => {
-                    if(err) {
-                      return;
-                    }
+                    if(err) return;
                     setCurrent(prev => prev + 1);
                     setFormValue(prev => ({
                       ...prev,

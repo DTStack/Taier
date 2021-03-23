@@ -30,9 +30,10 @@ const FormRender = (props: IPropsFormRender) => {
           const FormComponent = getComponentByFormItemType(item.type);
           const isRequired = item.rules && item.rules.findIndex(rule => rule.required === true) > -1;
           const className = `form-item-${item.type}`;
+          const visible = item.visible === undefined ? true : item.visible;
           const ext = item.ext ? item.ext : {};
           return (
-            item.label !== '' ? (
+            visible && item.label !== '' ? (
               <Form.Item required={isRequired} label={item.label}>
                 {
                   form.getFieldDecorator(item.key, {
@@ -54,7 +55,7 @@ const FormRender = (props: IPropsFormRender) => {
               </Form.Item>
             ) : (
               // 非form组件，不渲染Form.Item
-              <FormComponent className={className} {...ext} />
+              visible ? <FormComponent className={className} {...ext} /> : null
             )
           )
         })

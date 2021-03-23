@@ -26,13 +26,13 @@ interface JoinKeyItem {
 }
 
 // 关联键信息
-interface JoinKey {
+export interface JoinKey {
     leftValue: JoinKeyItem;
     rightValue: JoinKeyItem;
 }
 
 // 表关联方式
-enum JoinType {
+export enum JoinType {
     LEFT_JOIN = 1,
     RIGHT_JOIN = 2,
     INNER_JOIN = 3,
@@ -40,7 +40,7 @@ enum JoinType {
 }
 
 // 表关联信息
-interface TableJoinInfo {
+export interface TableJoinInfo {
     leftTable: string;
     joinType: JoinType;
     schema: string;

@@ -7,6 +7,7 @@ export enum EnumFormItemType {
 
 export interface IFormItem {
   key: string;
+  visible?: boolean;
   type: EnumFormItemType;
   label: string;
   placeholder?: string;
