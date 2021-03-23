@@ -7,11 +7,13 @@ import com.dtstack.engine.dtscript.common.SecurityUtil;
 import com.dtstack.engine.dtscript.container.DtContainer;
 import com.dtstack.engine.dtscript.container.DtContainerId;
 import com.dtstack.engine.dtscript.util.DebugUtil;
+import com.dtstack.engine.dtscript.util.KrbUtils;
 import com.dtstack.engine.dtscript.util.Utilities;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.net.NetUtils;
 import org.apache.hadoop.security.UserGroupInformation;
@@ -255,6 +257,11 @@ public class ApplicationMaster extends CompositeService {
         Map<String, LocalResource> containerLocalResource = buildContainerLocalResource();
         Map<String, String> workerContainerEnv = new ContainerEnvBuilder(DtYarnConstants.WORKER, this).build();
 
+        // Kerberos
+        if (KrbUtils.hasKrb(envs)) {
+            workerContainerEnv.put(DtYarnConstants.ENV_PRINCIPAL, envs.get(DtYarnConstants.ENV_PRINCIPAL));
+            setKrbLocalResource(containerLocalResource);
+        }
 
         List<Container> acquiredWorkerContainers = handleRmCallbackOfContainerRequest(appArguments.workerNum, workerContainerRequest, interval);
 
@@ -411,10 +418,37 @@ public class ApplicationMaster extends CompositeService {
                                     LocalResourceType.FILE));
                 }
             }
+
         } catch (IOException e) {
             throw new RuntimeException("Error while build container local resource", e);
         }
         return containerLocalResource;
+    }
+
+    /**
+     * 设置Worker节点所需本地化的kerberos相关文件资源
+     * @param containerLocalResource
+     * @throws IOException
+     */
+    private void setKrbLocalResource(Map<String, LocalResource> containerLocalResource) throws IOException {
+        setSingleLocalResource(DtYarnConstants.LOCALIZED_KEYTAB_PATH, containerLocalResource);
+        setSingleLocalResource(DtYarnConstants.LOCALIZED_KR5B_PATH, containerLocalResource);
+
+        String appType = envs.get(DtYarnConstants.Environment.APP_TYPE.toString());
+        if (KrbUtils.isPythonType(appType)) {
+            setSingleLocalResource(DtYarnConstants.LOCALIZED_GATEWAY_PATH, containerLocalResource);
+        }
+    }
+
+    private void setSingleLocalResource(String fileName, Map<String, LocalResource> containerLocalResource) throws IOException {
+        FileSystem fs = appArguments.appJarRemoteLocation.getFileSystem(conf);
+        Path remotePath = Utilities.getRemotePath(
+                (YarnConfiguration) this.conf,
+                this.applicationAttemptId.getApplicationId(),
+                fileName);
+        containerLocalResource.put(
+                fileName,
+                Utilities.createApplicationResource(fs, remotePath, LocalResourceType.FILE));
     }
 
     /**

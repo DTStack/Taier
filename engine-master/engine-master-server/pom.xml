@@ -74,7 +74,6 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-redis</artifactId>
-            <version>1.6.2.RELEASE</version>
         </dependency>
 
         <dependency>
@@ -91,7 +90,7 @@
         <dependency>
             <artifactId>jedis</artifactId>
             <groupId>redis.clients</groupId>
-            <version>2.9.0</version>
+            <version>3.1.0</version>
         </dependency>
 
         <dependency>

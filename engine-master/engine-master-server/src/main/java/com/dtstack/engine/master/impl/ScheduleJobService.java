@@ -62,7 +62,8 @@ import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import redis.clients.jedis.JedisCommands;
+import redis.clients.jedis.commands.JedisCommands;
+import redis.clients.jedis.params.SetParams;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -2774,7 +2775,9 @@ public class ScheduleJobService {
         }
         redisTemplate.execute((RedisCallback<String>) connection -> {
             JedisCommands commands = (JedisCommands) connection.getNativeConnection();
-            return commands.set(key, "-1", "NX", "EX", environmentContext.getForkJoinResultTimeOut() * 2);
+            SetParams setParams = SetParams.setParams();
+            setParams.nx().ex((int)environmentContext.getForkJoinResultTimeOut() * 2);
+            return commands.set(key, "-1", setParams);
         });
         if (BooleanUtils.isTrue(justRunChild) && null != id) {
             if (null == subJobIds) {

@@ -3,6 +3,7 @@ package com.dtstack.engine.learning;
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.engine.base.util.HadoopConfTool;
+import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -114,25 +115,39 @@ public class LearningClient extends AbstractClient {
     private JobResult submitPythonJob(JobClient jobClient){
         LOG.info("LearningClient.submitPythonJob");
         try {
-            String[] args = LearningUtil.buildPythonArgs(jobClient);
-            System.out.println(Arrays.asList(args));
-            String jobId = client.submit(args);
-            return JobResult.createSuccessResult(jobId);
-        } catch(Exception ex) {
-            LOG.info("", ex);
-            return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(ex));
+            return KerberosUtils.login(configMap, () -> {
+                try {
+                    String[] args = LearningUtil.buildPythonArgs(jobClient);
+                    LOG.info(String.valueOf(Arrays.asList(args)));
+                    String jobId = client.submit(args);
+                    return JobResult.createSuccessResult(jobId);
+                } catch (Exception e) {
+                    LOG.info("", e);
+                    return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(e));
+                }
+            }, conf);
+        } catch (Exception e) {
+            LOG.info("", e);
+            return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(e));
         }
     }
 
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
-        String jobId = jobIdentifier.getEngineJobId();
         try {
-            client.kill(jobId);
-            return JobResult.createSuccessResult(jobId);
+            return KerberosUtils.login(configMap, ()->{
+                String jobId = jobIdentifier.getEngineJobId();
+                try {
+                    client.kill(jobId);
+                    return JobResult.createSuccessResult(jobId);
+                } catch (Exception e) {
+                    LOG.error("", e);
+                    return JobResult.createErrorResult(e.getMessage());
+                }
+            }, conf);
         } catch (Exception e) {
-            LOG.error("", e);
-            return JobResult.createErrorResult(e.getMessage());
+            LOG.error("cancelJob error:", e);
+            return JobResult.createErrorResult(e);
         }
     }
 
@@ -143,43 +158,51 @@ public class LearningClient extends AbstractClient {
         if(org.apache.commons.lang3.StringUtils.isEmpty(jobId)){
             return null;
         }
-        try {
-            ApplicationReport report = client.getApplicationReport(jobId);
-            YarnApplicationState applicationState = report.getYarnApplicationState();
-            switch(applicationState) {
-                case KILLED:
-                    return RdosTaskStatus.KILLED;
-                case NEW:
-                case NEW_SAVING:
-                    return RdosTaskStatus.CREATED;
-                case SUBMITTED:
-                    //FIXME 特殊逻辑,认为已提交到计算引擎的状态为等待资源状态
-                    return RdosTaskStatus.WAITCOMPUTE;
-                case ACCEPTED:
-                    return RdosTaskStatus.SCHEDULED;
-                case RUNNING:
-                    return RdosTaskStatus.RUNNING;
-                case FINISHED:
-                    //state 为finished状态下需要兼顾判断finalStatus.
-                    FinalApplicationStatus finalApplicationStatus = report.getFinalApplicationStatus();
-                    if(finalApplicationStatus == FinalApplicationStatus.FAILED){
-                        return RdosTaskStatus.FAILED;
-                    }else if(finalApplicationStatus == FinalApplicationStatus.SUCCEEDED){
-                        return RdosTaskStatus.FINISHED;
-                    }else if(finalApplicationStatus == FinalApplicationStatus.KILLED){
-                        return RdosTaskStatus.KILLED;
-                    }else{
-                        return RdosTaskStatus.RUNNING;
-                    }
 
-                case FAILED:
-                    return RdosTaskStatus.FAILED;
-                default:
-                    throw new RdosDefineException("Unsupported application state");
-            }
-        } catch (YarnException e) {
+        try {
+            return KerberosUtils.login(configMap, () -> {
+                try {
+                    ApplicationReport report = client.getApplicationReport(jobId);
+                    YarnApplicationState applicationState = report.getYarnApplicationState();
+                    switch(applicationState) {
+                        case KILLED:
+                            return RdosTaskStatus.KILLED;
+                        case NEW:
+                        case NEW_SAVING:
+                            return RdosTaskStatus.CREATED;
+                        case SUBMITTED:
+                            //FIXME 特殊逻辑,认为已提交到计算引擎的状态为等待资源状态
+                            return RdosTaskStatus.WAITCOMPUTE;
+                        case ACCEPTED:
+                            return RdosTaskStatus.SCHEDULED;
+                        case RUNNING:
+                            return RdosTaskStatus.RUNNING;
+                        case FINISHED:
+                            //state 为finished状态下需要兼顾判断finalStatus.
+                            FinalApplicationStatus finalApplicationStatus = report.getFinalApplicationStatus();
+                            if(finalApplicationStatus == FinalApplicationStatus.FAILED){
+                                return RdosTaskStatus.FAILED;
+                            }else if(finalApplicationStatus == FinalApplicationStatus.SUCCEEDED){
+                                return RdosTaskStatus.FINISHED;
+                            }else if(finalApplicationStatus == FinalApplicationStatus.KILLED){
+                                return RdosTaskStatus.KILLED;
+                            }else{
+                                return RdosTaskStatus.RUNNING;
+                            }
+
+                        case FAILED:
+                            return RdosTaskStatus.FAILED;
+                        default:
+                            throw new RdosDefineException("Unsupported application state");
+                    }
+                } catch (Exception e1) {
+                    LOG.error("", e1);
+                    return RdosTaskStatus.NOTFOUND;
+                }
+            },conf);
+        } catch (Exception e) {
             LOG.error("", e);
-            return RdosTaskStatus.NOTFOUND;
+            return RdosTaskStatus.RUNNING;
         }
     }
 
@@ -196,12 +219,19 @@ public class LearningClient extends AbstractClient {
     @Override
     public JudgeResult judgeSlots(JobClient jobClient) {
         try {
-            LearningResourceInfo resourceInfo = LearningResourceInfo.LearningResourceInfoBuilder()
-                    .withYarnClient(client.getYarnClient())
-                    .withQueueName(conf.get(LearningConfiguration.XLEARNING_APP_QUEUE))
-                    .withYarnAccepterTaskNumber(conf.getInt(LearningResourceInfo.DT_APP_YARN_ACCEPTER_TASK_NUMBER, 1))
-                    .build();
-            return resourceInfo.judgeSlots(jobClient);
+            return KerberosUtils.login(configMap, () -> {
+                try {
+                    LearningResourceInfo resourceInfo = LearningResourceInfo.LearningResourceInfoBuilder()
+                        .withYarnClient(client.getYarnClient())
+                        .withQueueName(conf.get(LearningConfiguration.XLEARNING_APP_QUEUE))
+                        .withYarnAccepterTaskNumber(conf.getInt(LearningResourceInfo.DT_APP_YARN_ACCEPTER_TASK_NUMBER, 1))
+                        .build();
+                    return resourceInfo.judgeSlots(jobClient);
+                } catch (Exception e) {
+                    LOG.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
+                    return JudgeResult.exception("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
+                }
+            }, conf);
         } catch (Exception e) {
             LOG.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
             return JudgeResult.exception("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
@@ -210,16 +240,25 @@ public class LearningClient extends AbstractClient {
 
     @Override
     public String getJobLog(JobIdentifier jobIdentifier) {
-        String jobId = jobIdentifier.getEngineJobId();
-        Map<String,Object> jobLog = new HashMap<>();
         try {
-            ApplicationReport applicationReport = client.getApplicationReport(jobId);
-            jobLog.put("msg_info", applicationReport.getDiagnostics());
+            return KerberosUtils.login(configMap, ()-> {
+                String jobId = jobIdentifier.getEngineJobId();
+                Map<String,Object> jobLog = new HashMap<>();
+                try {
+                    ApplicationReport applicationReport = client.getApplicationReport(jobId);
+                    jobLog.put("msg_info", applicationReport.getDiagnostics());
+                } catch (Exception e) {
+                    LOG.error("", e);
+                    jobLog.put("msg_info", e.getMessage());
+                }
+                return GSON.toJson(jobLog, Map.class);
+            }, conf);
         } catch (Exception e) {
             LOG.error("", e);
+            Map<String, Object> jobLog = new HashMap<>();
             jobLog.put("msg_info", e.getMessage());
+            return GSON.toJson(jobLog, Map.class);
         }
-        return GSON.toJson(jobLog, Map.class);
     }
 
 }

@@ -70,7 +70,7 @@
         FROM alert_channel
         WHERE `is_deleted` = ${isDefault} AND   `alert_gate_source` IN
         <foreach collection="alertGateSources" item="alertGateSource" open="(" close=")" separator="," >
-            ${alertGateSources}
+            #{alertGateSource}
         </foreach>
     </select>
 
@@ -85,7 +85,7 @@
         <if test="alertGateTypes!=null and alertGateTypes.size()>0">
             AND `alert_gate_type` IN
             <foreach collection="alertGateTypes" item="alertGateType" open="(" close=")" separator="," >
-                ${alertGateType}
+                #{alertGateType}
             </foreach>
         </if>
 

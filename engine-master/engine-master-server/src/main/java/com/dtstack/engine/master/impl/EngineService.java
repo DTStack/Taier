@@ -7,6 +7,8 @@ import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.QueueVO;
 import com.dtstack.engine.api.vo.engine.EngineSupportVO;
+import com.dtstack.engine.common.enums.MultiEngineType;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.EngineDao;
 import com.dtstack.engine.dao.EngineTenantDao;
 import com.dtstack.engine.dao.QueueDao;
@@ -118,6 +120,7 @@ public class EngineService {
 
         engineDao.update(engine);
     }
+
 
     public Engine getOne(Long engineId) {
         return engineDao.getOne(engineId);

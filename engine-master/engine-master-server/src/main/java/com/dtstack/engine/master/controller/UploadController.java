@@ -32,8 +32,9 @@ public class UploadController {
 
     @RequestMapping(value="/component/config", method = {RequestMethod.POST})
     @ApiOperation(value = "解析zip中xml或者json")
-    public List<Object> upload(@RequestParam("fileName") List<MultipartFile> files, @RequestParam("componentType") Integer componentType, @RequestParam(value = "autoDelete", required = false) Boolean autoDelete) {
-        return componentService.config(getResourcesFromFiles(files), componentType, autoDelete);
+    public List<Object> upload(@RequestParam("fileName") List<MultipartFile> files, @RequestParam("componentType") Integer componentType,
+                               @RequestParam(value = "autoDelete", required = false) Boolean autoDelete,@RequestParam(value = "version", required = false) String version) {
+        return componentService.config(getResourcesFromFiles(files), componentType, autoDelete,version);
     }
 
     @RequestMapping(value="/component/addOrUpdateComponent", method = {RequestMethod.POST})

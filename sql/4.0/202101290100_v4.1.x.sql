@@ -21,6 +21,7 @@ CREATE TABLE `alert_record` (
   `tenant_id` int(11) NOT NULL DEFAULT '0' COMMENT '租户id',
   `app_type` int(11) NOT NULL DEFAULT '0' COMMENT '应用类型，1：RDOS, 2:数据质量, 3:数据API ,4: 标签工程 ,5:数据地图',
   `user_id` int(11) NOT NULL DEFAULT '0' COMMENT '接收人id',
+  `read_id` int(11) NOT NULL DEFAULT '0' COMMENT '应用记录id',
   `read_status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0:未读 1:已读',
   `title` varchar(32) NOT NULL DEFAULT '' COMMENT '标题',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '触发类型',
@@ -61,7 +62,7 @@ CREATE TABLE `alert_channel` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='告警通道';
 
 -- 迁移 通道表
-INSERT INTO `alert_channel` ( `id`, `cluster_id`, `alert_gate_name`, `alert_gate_type`, `alert_gate_code`, `alert_gate_json`, `alert_gate_source`, `file_path`, `is_default`, `is_deleted`, `gmt_created`, `gmt_modified`,alert_template )
+INSERT  IGNORE INTO `alert_channel` ( `id`, `cluster_id`, `alert_gate_name`, `alert_gate_type`, `alert_gate_code`, `alert_gate_json`, `alert_gate_source`, `file_path`, `is_default`, `is_deleted`, `gmt_created`, `gmt_modified`,alert_template )
 SELECT
 g.id,
 a.cluster_id,
@@ -75,19 +76,19 @@ a.is_default,
 g.is_deleted,
 g.gmt_created,
 g.gmt_modified,
-(select t.alert_template from dt_alert_template t WHERE g.alert_gate_source = t.alert_gate_source AND g.is_deleted = 0 ) alert_template
+(select t.alert_template from dt_alert_template t WHERE g.alert_gate_source = t.alert_gate_source AND g.is_deleted = 0 AND t.is_deleted = 0 LIMIT 1 ) alert_template
 FROM
 	`dt_alert_gate` g,
 	`dt_cluster_alert` a
 WHERE
-	g.id = a.alert_id AND g.is_deleted = 0
+	g.id = a.alert_id AND g.is_deleted = 0;
 
 -- 迁移内容表
-INSERT INTO `alert_content` (`id`,`tenant_id`,`project_id`,`app_type`,`content`,`status`,`gmt_create`,`gmt_modified`,`is_deleted`)
-SELECT * FROM dt_notify_record_content
+INSERT IGNORE INTO `alert_content` (`id`,`tenant_id`,`project_id`,`app_type`,`content`,`status`,`gmt_create`,`gmt_modified`,`is_deleted`)
+SELECT * FROM dt_notify_record_content;
 
 -- 迁移记录表
-INSERT INTO `alert_record`(`id`,`alert_content_id`,`tenant_id`,`app_type`,`user_id`,`read_status`,`status`,`context`,`alert_record_status`,`alert_record_send_status`,`is_deleted`,`node_address`)
+INSERT IGNORE INTO `alert_record`(`id`,`alert_content_id`,`tenant_id`,`app_type`,`user_id`,`read_status`,`status`,`context`,`alert_record_status`,`alert_record_send_status`,`is_deleted`,`node_address`,`read_id`,`gmt_created`,`gmt_modified`)
 SELECT
 r.id,
 r.content_id alert_channel_id ,
@@ -96,10 +97,13 @@ r.app_type,
 r.user_id,
 r.read_status,
 0,
-CONCAT("{\"content\":\"",(SELECT c.content FROM dt_notify_record_content c WHERE r.content_id = c.id),"\"}" )  context,
+CONCAT("{\"content\":\"",(SELECT c.content FROM dt_notify_record_content c WHERE r.content_id = c.id LIMIT 1),"\"}" )  context,
 3,
 1,
 r.is_deleted,
-""
+"",
+r.notify_record_id,
+r.gmt_create,
+r.gmt_modified
 FROM dt_notify_record_read r
-WHERE r.is_deleted = 0
+WHERE r.is_deleted = 0;

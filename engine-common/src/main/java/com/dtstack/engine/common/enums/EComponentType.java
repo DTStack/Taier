@@ -233,4 +233,11 @@ public enum EComponentType {
     public static List<EComponentType> noQueueComponents = Lists.newArrayList(EComponentType.ORACLE_SQL,EComponentType.TIDB_SQL,EComponentType.LIBRA_SQL,
             EComponentType.GREENPLUM_SQL, EComponentType.PRESTO_SQL);
 
+    //没有控件渲染的组件
+    public static List<EComponentType> noControlComponents = Lists.newArrayList(EComponentType.YARN, EComponentType.KUBERNETES,EComponentType.HDFS);
+
+    //多hadoop版本选择组件
+    public static List<EComponentType> hadoopVersionComponents = Lists.newArrayList(EComponentType.YARN,EComponentType.HDFS);
+
+
 }
