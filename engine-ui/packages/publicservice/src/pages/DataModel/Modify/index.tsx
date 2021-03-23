@@ -1,61 +1,50 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import Container from 'pages/DataModel/components/Container';
 import { Breadcrumb, Steps, Button, Form, Modal } from 'antd';
 import './style';
-import FormRender from './FormRender';
 import RelationTableModal from './RelationListModal';
-import { relationFormListGenerator, basicInfoFormListGenerator, joinItemParser } from './constants';
+import { relationFormListGenerator, basicInfoFormListGenerator, joinItemParser, stepContentRender } from './constants';
 import { API } from '@/services';
 import Message from 'pages/DataModel/components/Message';
 import _ from 'lodash';
 import { TableJoinInfo } from 'pages/DataModel/types';
-
-enum EnumModifyStep {
-  BASIC_STEP = 0,
-  RELATION_TABLE_STEP = 1,
-  DIMENSION_STEP = 2,
-  METRIC_STRP = 3,
-  SETTING_STRP = 4,
-}
+import { EnumModifyStep } from './types';
+// import Setting from './Setting';
 
 interface IPropsModify {
   form: any;
 }
 
-const formItemLayout = {
-  labelCol: { span: 3 },
-  wrapperCol: { span: 21 },
+// const formItemLayout = 
+
+const layoutGenerator = (step: EnumModifyStep) => {
+  switch(step) {
+    case EnumModifyStep.BASIC_STEP:
+    case EnumModifyStep.RELATION_TABLE_STEP:
+      return {
+        labelCol: { span: 3 },
+        wrapperCol: { span: 21 },
+      };
+    case EnumModifyStep.SETTING_STEP:
+      return {
+        labelCol: { span: 5 },
+        wrapperCol: { span: 19 },
+      }
+  }
 }
 const { Step } = Steps;
 
-const stepContentRender = (step: EnumModifyStep, props: any) => {
-  const { form } = props;
-  switch(step) {
-    case EnumModifyStep.BASIC_STEP:
-      return (
-        <FormRender form={form} formList={props.formList || []} />
-      );
-    case EnumModifyStep.RELATION_TABLE_STEP:
-      return (
-        <FormRender form={form} formList={props.formList || []} />
-      );
-    case EnumModifyStep.DIMENSION_STEP:
-      return (
-        <div>this is dimension....</div>
-      );
-    case EnumModifyStep.METRIC_STRP:
-      return (
-        <div>this is metric....</div>
-      );
-    case EnumModifyStep.SETTING_STRP:
-      return (
-        <div>hello, this is setting step....</div>
-      )
-  }
-}
+const restoreKeysMap = new Map([
+  [EnumModifyStep.BASIC_STEP, ['modelName', 'modelEnName', 'dataSource', 'remark']],
+  [EnumModifyStep.RELATION_TABLE_STEP, ['schema', 'table', 'updateType']],
+  [EnumModifyStep.DIMENSION_STEP, ['dimensionColumns']],
+  [EnumModifyStep.METRIC_STEP, ['metricColumns']],
+  [EnumModifyStep.SETTING_STEP, ['modelPartition']],
+])
 
 const Modify = (props: IPropsModify) => {
-  const [current, setCurrent] = useState<EnumModifyStep>(EnumModifyStep.BASIC_STEP);
+  // const [current, setCurrent] = useState<EnumModifyStep>(EnumModifyStep.BASIC_STEP);
+  const [current, setCurrent] = useState<EnumModifyStep>(EnumModifyStep.SETTING_STEP);
   const [visibleRelationModal, setVisibleRelationModal] = useState(false);
   const { validateFields, getFieldsValue, setFieldsValue } = props.form;
   const [formValue, setFormValue] = useState<any>({});
@@ -65,7 +54,7 @@ const Modify = (props: IPropsModify) => {
   const [updateTypeList, setUpdateTypeList] = useState([]);
   const [visibleUpdateType] = useState(true);
   const [editJoinItem, setEditJoinItem] = useState<null | TableJoinInfo>(null);
-
+  const formItemLayout = useMemo(() => layoutGenerator(current), [current]);
   const getSchemaList = async (datasourceId: number) => {
     if(!datasourceId) return;
     try {
@@ -182,18 +171,38 @@ const Modify = (props: IPropsModify) => {
     setVisibleRelationModal(true);
   }, [])
 
-  // 恢复对应的form value
-  useEffect(() => {
+  const handleNextStep = () => {
     switch(current) {
       case EnumModifyStep.BASIC_STEP:
-        restoreFormValue(['modelName', 'modelEnName', 'dataSource', 'remark']);
-        break;
       case EnumModifyStep.RELATION_TABLE_STEP:
-        restoreFormValue(['schema', 'table', 'updateType']);
+        validateFields((err, data) => {
+          if(err) return;
+          setCurrent(prev => prev + 1);
+          setFormValue(prev => ({
+            ...prev,
+            ...props.form.getFieldsValue(),
+          }))
+        });
         break;
-      default:
-        props.form.setFieldsValue({});
+      case EnumModifyStep.DIMENSION_STEP:
+      case EnumModifyStep.METRIC_STEP:
+        const datasource = cref.current.getValue();
+        const key = current === EnumModifyStep.DIMENSION_STEP ? 'dimensionColumns' : 'metricColumns';
+        setFormValue(formValue => ({
+          ...formValue,
+          [key]: datasource
+        }))
+        setCurrent(current => current + 1);
+        break;
+      case EnumModifyStep.SETTING_STEP:
+        break;
     }
+  }
+
+  // 恢复对应的form value
+  useEffect(() => {
+    const formKeys = restoreKeysMap.get(current);
+    restoreFormValue(formKeys);
   }, [current]);
 
   useEffect(() => {
@@ -215,6 +224,7 @@ const Modify = (props: IPropsModify) => {
     getSchemaList(formValue.dataSource);
   }, [formValue.dataSource])
 
+  const cref = useRef(null);
   const childRef = useRef(null);
 
   return (
@@ -261,6 +271,8 @@ const Modify = (props: IPropsModify) => {
                       })
                     ),
                     form: props.form,
+                    cref: ref => cref.current = ref,
+                    formValue,
                   })
                 }
               </Form>
@@ -300,16 +312,7 @@ const Modify = (props: IPropsModify) => {
                 { current !== EnumModifyStep.BASIC_STEP ? <Button className="margin-right-8 width-80" onClick={() => {
                   setCurrent(prev => prev - 1)
                 }}>上一步</Button> : null }
-                <Button className="margin-right-8 width-80" type="primary" onClick={() => {
-                  validateFields((err, data) => {
-                    if(err) return;
-                    setCurrent(prev => prev + 1);
-                    setFormValue(prev => ({
-                      ...prev,
-                      ...props.form.getFieldsValue(),
-                    }))
-                  })
-                }}>下一步</Button>
+                <Button className="margin-right-8 width-80" type="primary" onClick={handleNextStep}>下一步</Button>
                 <Button onClick={() => {
 
                 }} type="primary">保存并退出</Button>

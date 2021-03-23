@@ -1,6 +1,9 @@
+import React from 'react';
 import { IFormItem, EnumFormItemType } from './FormRender/types';
 import _ from 'lodash';
-
+import FormRender from './FormRender';
+import { EnumModifyStep } from './types';
+import DimensionSelect from './FieldsSelect';
 const idGenerator = () => {
   let _id = 0;
   return () => {
@@ -114,6 +117,38 @@ export const relationFormListGenerator = ({
   ]
 }
 
+export const settingFormList: IFormItem[] = [
+  {
+    type: EnumFormItemType.SELECT,
+    label: '分区字段（日期）',
+    placeholder: '请选择分区字段（日期）',
+    key: 'datePartitionColumn',
+  },
+  {
+    key: 'dadteFmt',
+    label: '日期格式',
+    placeholder: '请选择日期格式',
+    type: EnumFormItemType.SELECT,
+  },
+  {
+    key: 'timePartition',
+    type: EnumFormItemType.SWITCH,
+    label: '是否设置时间分区',
+  },
+  {
+    type: EnumFormItemType.SELECT,
+    label: '分区字段（时间）',
+    placeholder: '请选择分区字段（时间）',
+    key: 'timePartitionColumn',
+  },
+  {
+    key: 'timeFmt',
+    label: '时间格式',
+    placeholder: '请选择时间格式',
+    type: EnumFormItemType.SELECT,
+  },
+]
+
 // 添加关联表，form数据转换
 export const joinItemParser = (data) => {
   const filterKeys = [];
@@ -153,4 +188,30 @@ export const joinItemParser = (data) => {
       }, {})
     })
   return target;
+}
+
+export const stepContentRender = (step: EnumModifyStep, props: any) => {
+  const { form, cref, formValue } = props;
+  switch(step) {
+    case EnumModifyStep.BASIC_STEP:
+      return (
+        <FormRender form={form} formList={props.formList || []} />
+      );
+    case EnumModifyStep.RELATION_TABLE_STEP:
+      return (
+        <FormRender form={form} formList={props.formList || []} />
+      );
+    case EnumModifyStep.DIMENSION_STEP:
+      return (
+        <DimensionSelect cref={cref} formValue={formValue} />
+      );
+    case EnumModifyStep.METRIC_STEP:
+      return (
+        <DimensionSelect cref={cref} formValue={formValue} />
+      );
+    case EnumModifyStep.SETTING_STEP:
+      return (
+        <FormRender form={form} formList={settingFormList} />
+      )
+  }
 }

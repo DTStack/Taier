@@ -39,6 +39,15 @@ export enum JoinType {
     // OUTTER_JOIN,
 }
 
+export interface FieldColumn {
+    id?: number;
+    columnComment: string;
+    columnName: string;
+    columnType: string;
+    schema: string;
+    tableName: string;
+}
+
 // 表关联信息
 export interface TableJoinInfo {
     leftTable: string;
@@ -62,7 +71,7 @@ export interface IModelDetail {
     tableName: string;
     updateType: UPDATA_TYPE;
     joinList: TableJoinInfo[];
-    dimensionColumns: [];
-    metricColumns: [];
+    dimensionColumns: Partial<FieldColumn>[];
+    metricColumns: Partial<FieldColumn>[];
     creator: string;
 }

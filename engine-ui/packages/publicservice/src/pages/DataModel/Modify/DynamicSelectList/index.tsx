@@ -67,7 +67,6 @@ const DynamicSelectList = (props: IPropsDynamicSelectList) => {
                     <Form.Item wrapperCol={{ span: 24 }}>
                       {
                         getFieldDecorator(`relation-key-left_${index}`, {
-                          initValue: item.leftValue,
                           rules: [
                             { required: true, message: '请选择关联条件' }
                           ]
@@ -89,7 +88,6 @@ const DynamicSelectList = (props: IPropsDynamicSelectList) => {
                     <Form.Item wrapperCol={{ span: 24 }}>
                       {
                         getFieldDecorator(`relation-key-right_${index}`, {
-                          initValue: item.rightValue,
                           rules: [
                             { required: true, message: '请选择关联条件' }
                           ]
