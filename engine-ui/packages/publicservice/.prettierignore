@@ -1,7 +1,3 @@
 /.vscode/
-*.md
-*.json
-*.css
-*.less
-*.sass
-*.html
+/dll/
+/public/
