@@ -59,6 +59,8 @@ public class ScheduleJobVO extends TenantProjectEntity {
 
     private Integer taskType;
 
+    private Integer appType;
+
     public Integer getRetryNum() {
         return retryNum;
     }
@@ -331,5 +333,13 @@ public class ScheduleJobVO extends TenantProjectEntity {
 
     public void setTaskRule(Integer taskRule) {
         this.taskRule = taskRule;
+    }
+
+    public Integer getAppType() {
+        return appType;
+    }
+
+    public void setAppType(Integer appType) {
+        this.appType = appType;
     }
 }
