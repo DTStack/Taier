@@ -501,7 +501,12 @@ public class ScheduleJobService {
                     //dealFlowWorkJobs(vos, shadeMap);
                 }
                 if (CollectionUtils.isNotEmpty(batchJobVOS)) {
-                    batchJobVOS.forEach(batchJobVO -> result.add(batchJobVO));
+                    for (ScheduleJobVO batchJobVO : batchJobVOS) {
+                        if (RdosTaskStatus.RUNNING_TASK_RULE.getStatus().equals(batchJobVO.getStatus())) {
+                            batchJobVO.setStatus(RdosTaskStatus.RUNNING.getStatus());
+                        }
+                        result.add(batchJobVO);
+                    }
                 }
             }
         }
@@ -539,7 +544,12 @@ public class ScheduleJobService {
                     //dealFlowWorkJobs(vos, shadeMap);
                 }
                 if (CollectionUtils.isNotEmpty(batchJobVOS)) {
-                    batchJobVOS.forEach(batchJobVO -> result.add(batchJobVO));
+                    for (ScheduleJobVO batchJobVO : batchJobVOS) {
+                        if (RdosTaskStatus.RUNNING_TASK_RULE.getStatus().equals(batchJobVO.getStatus())) {
+                            batchJobVO.setStatus(RdosTaskStatus.RUNNING.getStatus());
+                        }
+                        result.add(batchJobVO);
+                    }
                 }
             }
         }
