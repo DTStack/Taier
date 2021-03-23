@@ -2792,21 +2792,32 @@ public class ScheduleJobService {
         return Lists.newArrayList();
     }
 
-    public Map<String, List<ScheduleJob>> getParantJobKeyMap(List<String> parentJobKeys) {
-        return null;
+    public Map<String, List<ScheduleJob>> getParentJobKeyMap(List<String> parentJobKeys) {
+        Map<String, List<ScheduleJob>> parentAndSon = Maps.newHashMap();
+        for (String parentJobKey : parentJobKeys) {
+            List<ScheduleJobJob> scheduleJobJobs = scheduleJobJobDao.listByParentJobKey(parentJobKey);
+            List<String> jobKeySon = scheduleJobJobs.stream().map(ScheduleJobJob::getJobKey).collect(Collectors.toList());
+
+            List<ScheduleJob> scheduleJobs = scheduleJobDao.listJobByJobKeys(jobKeySon);
+
+            if (CollectionUtils.isNotEmpty(scheduleJobs)) {
+                parentAndSon.put(parentJobKey,scheduleJobs);
+            }
+        }
+        return parentAndSon;
     }
 
 
     public void handleTaskRule(ScheduleJob scheduleJob,Integer bottleStatus) {
         String jobKey = scheduleJob.getJobKey();
         // 查询当前任务的所有父任务的运行状态
-        List<ScheduleJobJob> scheduleJobJobs = scheduleJobJobDao.listByParentJobKey(jobKey);
+        List<ScheduleJobJob> scheduleJobJobs = scheduleJobJobDao.listByJobKey(jobKey);
         if (CollectionUtils.isNotEmpty(scheduleJobJobs)) {
-            List<String> parentJobKeys = scheduleJobJobs.stream().map(ScheduleJobJob::getJobKey).collect(Collectors.toList());
+            List<String> parentJobKeys = scheduleJobJobs.stream().map(ScheduleJobJob::getParentJobKey).collect(Collectors.toList());
             // 查询所有父任务
             List<ScheduleJob> scheduleJobs = this.listJobByJobKeys(parentJobKeys);
             // 查询所有父任务下的子任务关系
-            Map<String,List<ScheduleJob>> parentAndSon = this.getParantJobKeyMap(parentJobKeys);
+            Map<String,List<ScheduleJob>> parentAndSon = this.getParentJobKeyMap(parentJobKeys);
 
             for (ScheduleJob scheduleJobParent : scheduleJobs) {
                 // 判断状态父任务的状态
@@ -2834,11 +2845,11 @@ public class ScheduleJobService {
 
                     if (CollectionUtils.isEmpty(noFinishJobs)) {
                         // 为查到未完成的任务
-                        String log = String.format(LOG_TEM, currentScheduleJob.getJobName(), "运行成功", nameByDtUicTenantId, project.getProjectAlias());
+                        String log = String.format(LOG_TEM, currentScheduleJob.getJobName(), "运行成功", StringUtils.isBlank(nameByDtUicTenantId)?"":nameByDtUicTenantId,project==null? "":project.getProjectAlias());
                         this.updateStatusAndLogInfoById(fatherScheduleJob.getJobId(), RdosTaskStatus.FINISHED.getStatus(), addLog(fatherScheduleJob.getLogInfo(),log));
                     }
                 } else {
-                    String log = String.format(LOG_TEM, currentScheduleJob.getJobName(), "运行成功", nameByDtUicTenantId, project.getProjectAlias());
+                    String log = String.format(LOG_TEM, currentScheduleJob.getJobName(), "运行成功", StringUtils.isBlank(nameByDtUicTenantId)?"":nameByDtUicTenantId,project==null? "":project.getProjectAlias());
                     this.updateStatusAndLogInfoById(fatherScheduleJob.getJobId(), RdosTaskStatus.FINISHED.getStatus(), addLog(fatherScheduleJob.getLogInfo(),log));
                 }
             }
@@ -2861,7 +2872,7 @@ public class ScheduleJobService {
                 for (ScheduleJob job : jobs) {
                     if (RdosTaskStatus.FAILED_STATUS.contains(job.getStatus())) {
                         // 存在空任务失败的情况
-                        addLog = String.format(addLog, currentScheduleJob.getJobName(), "校验不通过", nameByDtUicTenantId, project.getProjectAlias());
+                        addLog = String.format(addLog, currentScheduleJob.getJobName(), "校验不通过", StringUtils.isBlank(nameByDtUicTenantId)?"":nameByDtUicTenantId,project==null? "":project.getProjectAlias());
                         isRule = Boolean.TRUE;
                         break;
                     }
