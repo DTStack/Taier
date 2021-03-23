@@ -857,6 +857,18 @@ public class ScheduleTaskShadeService {
             vo.setEngineType(task.getEngineType());
             vo.setComputeType(task.getComputeType());
 
+            Tenant tenant = tenantDao.getByDtUicTenantId(task.getDtuicTenantId());
+
+            if (tenant != null) {
+                vo.setTenantName(tenant.getTenantName());
+            }
+
+            ScheduleEngineProject scheduleEngineProject = scheduleEngineProjectDao.getProjectByProjectIdAndApptype(task.getProjectId(), task.getAppType());
+
+            if (scheduleEngineProject != null) {
+                vo.setProjectName(scheduleEngineProject.getProjectName());
+            }
+
             vos.add(vo);
 
         }

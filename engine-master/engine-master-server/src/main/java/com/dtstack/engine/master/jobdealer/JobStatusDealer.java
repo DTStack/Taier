@@ -325,6 +325,7 @@ public class  JobStatusDealer implements Runnable {
         this.scheduleJobService = applicationContext.getBean(ScheduleJobService.class);
         this.scheduleJobJobDao = applicationContext.getBean(ScheduleJobJobDao.class);
         this.batchJobService = applicationContext.getBean(ScheduleJobService.class);
+        this.scheduleTaskShadeDao = applicationContext.getBean(ScheduleTaskShadeDao.class);;
 
     }
 

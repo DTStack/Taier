@@ -26,6 +26,10 @@ public class ScheduleTaskShadeTypeVO {
 
     private Integer computeType;
 
+    private String tenantName;
+
+    private String projectName;
+
     public Long getId() {
         return id;
     }
@@ -96,5 +100,21 @@ public class ScheduleTaskShadeTypeVO {
 
     public void setComputeType(Integer computeType) {
         this.computeType = computeType;
+    }
+
+    public String getTenantName() {
+        return tenantName;
+    }
+
+    public void setTenantName(String tenantName) {
+        this.tenantName = tenantName;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
     }
 }
