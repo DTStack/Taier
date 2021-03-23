@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.engine.common.client.config;
+package com.dtstack.engine.config;
 
 import org.yaml.snakeyaml.Yaml;
 
@@ -29,7 +29,7 @@ import java.util.Map;
  * Company: www.dtstack.com
  * @author maqi
  */
-public class YamlConfigParser extends AbstractConfigParser{
+public class YamlConfigParser extends AbstractConfigParser {
 
     @Override
     public Map<String, Object> loadFile(InputStream file) {

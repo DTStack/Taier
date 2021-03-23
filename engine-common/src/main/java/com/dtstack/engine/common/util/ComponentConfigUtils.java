@@ -4,9 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ComponentConfig;
 import com.dtstack.engine.api.pojo.ClientTemplate;
-import com.dtstack.engine.common.client.config.AbstractConfigParser;
 import com.dtstack.engine.common.enums.EFrontType;
-import com.google.common.collect.Lists;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -55,7 +53,7 @@ public class ComponentConfigUtils {
             deepToBuildClientTemplate(dependencyMapping, dependencyMapping.size(), clientTemplate, clientTemplate.getKey());
             reduceTemplate.add(clientTemplate);
         }
-        return AbstractConfigParser.sortByKey(reduceTemplate);
+        return sortByKey(reduceTemplate);
     }
 
 
@@ -443,6 +441,23 @@ public class ComponentConfigUtils {
         componentConfig.setKey(key);
         componentConfig.setValue(value);
         return componentConfig;
+    }
+
+    /**
+     * 根据key值来排序
+     *
+     * @param clientTemplates
+     * @return
+     */
+    public static List<ClientTemplate> sortByKey(List<ClientTemplate> clientTemplates) {
+        if (CollectionUtils.isEmpty(clientTemplates)) {
+            return clientTemplates;
+        }
+        clientTemplates.sort(Comparator.nullsFirst(Comparator.comparing(ClientTemplate::getKey, Comparator.nullsFirst(String.CASE_INSENSITIVE_ORDER))));
+        for (ClientTemplate clientTemplate : clientTemplates) {
+            ComponentConfigUtils.sortByKey(clientTemplate.getValues());
+        }
+        return clientTemplates;
     }
 
 }

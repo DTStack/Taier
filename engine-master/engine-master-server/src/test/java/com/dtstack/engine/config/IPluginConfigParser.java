@@ -1,4 +1,4 @@
-package com.dtstack.engine.common.client.config;
+package com.dtstack.engine.config;
 
 
 /**
