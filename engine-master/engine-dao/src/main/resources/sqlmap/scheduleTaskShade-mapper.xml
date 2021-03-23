@@ -755,7 +755,7 @@
             t.task_rule
         FROM `schedule_task_shade` t
         LEFT JOIN `schedule_task_task_shade`  tt
-        ON tt.app_type != tt.parent_app_type AND t.task_id = tt.task_id
+        ON t.task_id = tt.task_id
         WHERE t.is_deleted = 0 and tt.parent_task_id = #{taskId} AND tt.parent_app_type = #{appType}
         LIMIT #{limit}
     </select>
@@ -795,8 +795,8 @@
             LEFT JOIN `schedule_task_task_shade`  tt
             ON  tt.app_type != tt.parent_app_type
             WHERE t.is_deleted = 0 AND t.project_id = #{projectId}  AND t.app_type = #{appType} AND t.task_id = tt.parent_task_id
-            LIMIT #{limit}
         )
+        LIMIT #{limit}
     </select>
 
     <select id="listTaskRuleTask" resultType="com.dtstack.engine.api.domain.ScheduleTaskShade">
