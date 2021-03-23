@@ -39,14 +39,15 @@ public class FlinkUtil {
 
     private final static String tmpK8sConfigDir = "tmpK8sConf";
 
-    public static PackagedProgram buildProgram(String jarPath, List<URL> classpaths, EJobType jobType,
+    public static PackagedProgram buildProgram(String fromPath, String localDir, List<URL> classpaths, EJobType jobType,
                                                String entryPointClass, String[] programArgs,
                                                SavepointRestoreSettings spSetting, org.apache.flink.configuration.Configuration flinkConfiguration, FilesystemManager filesystemManager)
             throws IOException, ProgramInvocationException {
-        if (jarPath == null) {
+        if (fromPath == null) {
             throw new IllegalArgumentException("The program JAR file was not specified.");
         }
-        File jarFile = new File(jarPath);
+
+        File jarFile = downloadJar(fromPath, localDir, filesystemManager, true);
 
         String classloaderCache = flinkConfiguration.getString(ClassLoaderType.CLASSLOADER_DTSTACK_CACHE, ClassLoaderType.CLASSLOADER_DTSTACK_CACHE_TRUE);
         flinkConfiguration.setString(ClassLoaderType.CLASSLOADER_DTSTACK_CACHE, classloaderCache);
