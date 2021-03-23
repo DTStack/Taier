@@ -23,7 +23,7 @@
 
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>lineage-service</artifactId>
+            <artifactId>engine-lineage-service</artifactId>
             <version>1.0.0</version>
             <exclusions>
                 <exclusion>

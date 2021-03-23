@@ -9,6 +9,7 @@ import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.enums.ClusterMode;
 import com.dtstack.engine.flink.util.HadoopConf;
 import com.sun.istack.NotNull;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.CoreOptions;
 import org.apache.flink.core.fs.FileSystem;
@@ -73,11 +74,16 @@ public class FlinkClientBuilder {
         config.setLong("submitTimeout", 5);
 
         if (extProp != null) {
-            extProp.forEach((key, value) -> {
-                if (!FlinkConfig.getEngineFlinkConfigs().contains(key.toString())) {
-                    config.setString(key.toString(), value.toString());
+            for (Object key : extProp.keySet()) {
+                String newKey = (String) key;
+                String value = extProp.getProperty(newKey);
+                if (StringUtils.isEmpty(value)) {
+                    continue;
                 }
-            });
+                if (!FlinkConfig.getEngineFlinkConfigs().contains(key.toString())) {
+                    config.setString(newKey, value);
+                }
+            }
         }
 
         try {

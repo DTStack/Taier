@@ -513,4 +513,8 @@ public class EnvironmentContext {
     public boolean getOpenDummy() {
         return Boolean.parseBoolean(environment.getProperty("open.dummy", "false"));
     }
+
+    public long getForkJoinResultTimeOut() {
+        return Long.parseLong(environment.getProperty("fork.join.timeout", Long.toString(60 * 5)));
+    }
 }

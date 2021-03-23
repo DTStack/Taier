@@ -26,10 +26,10 @@ public class Template {
         sj.setJobName("Python");
         sj.setCreateUserId(0L);
         sj.setIsDeleted(0);
-        sj.setBusinessDate("20200608234500");
+        sj.setBusinessDate(DateUtil.getUnStandardFormattedDate(System.currentTimeMillis()));
         sj.setCycTime(DateUtil.getUnStandardFormattedDate(System.currentTimeMillis()));
         sj.setTaskType(EJobType.SQL.getType());
-        sj.setAppType(0);
+        sj.setAppType(1);
         sj.setType(0);
         sj.setIsRestart(0);
         sj.setDependencyType(0);
@@ -71,7 +71,7 @@ public class Template {
         EngineJobCheckpoint jc = new EngineJobCheckpoint();
         jc.setTaskId("taskId");
         jc.setTaskEngineId("te-9991");
-        jc.setCheckpointId("savepointId");
+        jc.setCheckpointId("2");
         jc.setCheckpointTrigger(Timestamp.valueOf("2020-06-14 12:12:12"));
         jc.setCheckpointSavepath("hdfs://ns1/dtInsight/flink110/savepoints/savepoint-77aea4-a0b9f689989c");
         jc.setCheckpointCounts("2");

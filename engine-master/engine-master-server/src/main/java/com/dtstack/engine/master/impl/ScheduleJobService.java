@@ -19,6 +19,7 @@ import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.common.constrant.GlobalConst;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.*;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.DateUtil;
@@ -34,6 +35,7 @@ import com.dtstack.engine.master.queue.JobPartitioner;
 import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
+import com.dtstack.engine.master.sync.RestartRunnable;
 import com.dtstack.engine.master.vo.BatchSecienceJobChartVO;
 import com.dtstack.engine.master.vo.ScheduleJobVO;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
@@ -47,6 +49,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -58,8 +61,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisCallback;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import redis.clients.jedis.JedisCommands;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -145,6 +151,10 @@ public class ScheduleJobService {
 
     @Autowired
     private ScheduleEngineProjectDao scheduleEngineProjectDao;
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
 
     private final static List<Integer> FINISH_STATUS = Lists.newArrayList(RdosTaskStatus.FINISHED.getStatus(), RdosTaskStatus.MANUALSUCCESS.getStatus(), RdosTaskStatus.CANCELLING.getStatus(), RdosTaskStatus.CANCELED.getStatus());
     private final static List<Integer> FAILED_STATUS = Lists.newArrayList(RdosTaskStatus.FAILED.getStatus(), RdosTaskStatus.SUBMITFAILD.getStatus(), RdosTaskStatus.KILLED.getStatus());
@@ -1207,20 +1217,12 @@ public class ScheduleJobService {
 
 
     @Transactional(rollbackFor = Exception.class)
-    public int batchStopJobs( List<Long> jobIdList) {
+    public int batchStopJobs(List<Long> jobIdList) {
         if (CollectionUtils.isEmpty(jobIdList)) {
             return 0;
         }
         List<ScheduleJob> jobs = new ArrayList<>(scheduleJobDao.listByJobIds(jobIdList));
-
-        List<String> flowJobIds = scheduleJobDao.getWorkFlowJobId(jobIdList, SPECIAL_TASK_TYPES);
-        if (CollectionUtils.isNotEmpty(flowJobIds)) {
-            List<ScheduleJob> subJobs = scheduleJobDao.getSubJobsByFlowIds(flowJobIds);
-            if (CollectionUtils.isNotEmpty(subJobs)) {
-                //将子任务实例加入
-                jobs.addAll(subJobs);
-            }
-        }
+        listByJobIdFillFlowSubJobs(jobs);
         return jobStopDealer.addStopJobs(jobs);
     }
 
@@ -3002,4 +3004,133 @@ public class ScheduleJobService {
             }
         }
     }
+
+    /**
+     * 异步重跑任务
+     *
+     * @param id           需要重跑任务的id
+     * @param justRunChild 是否只重跑当前
+     * @param setSuccess   是否置成功 true的时候 justRunChild 也为true
+     * @param subJobIds    重跑当前任务 subJobIds不为空
+     * @return
+     */
+    public boolean syncRestartJob(Long id, Boolean justRunChild, Boolean setSuccess, List<Long> subJobIds) {
+        String key = "syncRestartJob" + id;
+        if (redisTemplate.hasKey(key)) {
+            logger.info("syncRestartJob  {}  is doing ", key);
+            return false;
+        }
+        redisTemplate.execute((RedisCallback<String>) connection -> {
+            JedisCommands commands = (JedisCommands) connection.getNativeConnection();
+            return commands.set(key, "-1", "NX", "EX", environmentContext.getForkJoinResultTimeOut() * 2);
+        });
+        if (BooleanUtils.isTrue(justRunChild) && null != id) {
+            if (null == subJobIds) {
+                subJobIds = new ArrayList<>();
+            }
+            subJobIds.add(id);
+        }
+        CompletableFuture.runAsync(new RestartRunnable(id, justRunChild, setSuccess, subJobIds, scheduleJobDao, scheduleTaskShadeDao,
+                scheduleJobJobDao, environmentContext, key, redisTemplate));
+        return true;
+    }
+
+
+    public Integer stopJobByCondition(ScheduleJobKillJobVO vo) {
+        ScheduleJobDTO query = createKillQuery(vo);
+        PageQuery<ScheduleJobDTO> pageQuery = new PageQuery<>(query);
+        pageQuery.setModel(query);
+        query.setPageQuery(false);
+        int count = scheduleJobDao.generalCount(query);
+        if (count > 0) {
+            int pageSize = 50;
+            int stopSize = 0;
+            if (count > pageSize) {
+                //分页查询
+                int pageCount = (count / pageSize) + (count % pageSize == 0 ? 0 : 1);
+                stopSize = count;
+                query.setPageQuery(true);
+                for (int i = 0; i < pageCount; i++) {
+                    PageQuery<ScheduleJobDTO> finalQuery = new PageQuery<>(query);
+                    finalQuery.setModel(query);
+                    finalQuery.setPageSize(pageSize);
+                    finalQuery.setPage(i + 1);
+                    CompletableFuture.runAsync(() -> {
+                        try {
+                            List<ScheduleJob> scheduleJobs = scheduleJobDao.generalQuery(finalQuery);
+                            listByJobIdFillFlowSubJobs(scheduleJobs);
+                            jobStopDealer.addStopJobs(scheduleJobs);
+                        } catch (Exception e) {
+                            logger.info("stopJobByCondition  {}  error ", JSONObject.toJSONString(finalQuery));
+                        }
+                    });
+                }
+            } else {
+                List<ScheduleJob> scheduleJobs = scheduleJobDao.generalQuery(pageQuery);
+                listByJobIdFillFlowSubJobs(scheduleJobs);
+                stopSize = jobStopDealer.addStopJobs(scheduleJobs);
+            }
+            return stopSize;
+        }
+        return 0;
+    }
+
+    /**
+     * 填充jobs中的工作流和算法类型任务的子任务
+     *
+     * @param scheduleJobs
+     */
+    private void listByJobIdFillFlowSubJobs(List<ScheduleJob> scheduleJobs) {
+        if (CollectionUtils.isEmpty(scheduleJobs)) {
+            return;
+        }
+        List<String> flowJobIds = scheduleJobs
+                .stream()
+                .filter(s -> SPECIAL_TASK_TYPES.contains(s.getTaskType()))
+                .map(ScheduleJob::getJobId)
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(flowJobIds)) {
+            return;
+        }
+        List<ScheduleJob> flowSubJobIds = scheduleJobDao.getWorkFlowSubJobId(flowJobIds);
+        if (CollectionUtils.isNotEmpty(flowSubJobIds)) {
+            //将子任务实例加入
+            scheduleJobs.addAll(flowSubJobIds);
+        }
+    }
+
+
+    private ScheduleJobDTO createKillQuery(ScheduleJobKillJobVO vo) {
+        ScheduleJobDTO ScheduleJobDTO = new ScheduleJobDTO();
+        ScheduleJobDTO.setTenantId(vo.getTenantId());
+        ScheduleJobDTO.setProjectId(vo.getProjectId());
+        ScheduleJobDTO.setType(EScheduleType.NORMAL_SCHEDULE.getType());
+        ScheduleJobDTO.setTaskPeriodId(convertStringToList(vo.getTaskPeriodId()));
+        ScheduleJobDTO.setAppType(vo.getAppType());
+        //筛选任务名称
+        ScheduleJobDTO.setTaskIds(vo.getTaskIds());
+        setBizDay(ScheduleJobDTO, vo.getBizStartDay(), vo.getBizEndDay(), vo.getTenantId(), vo.getProjectId());
+        //任务状态
+        if (StringUtils.isNotBlank(vo.getJobStatuses())) {
+            List<Integer> statues = new ArrayList<>();
+            String[] statuses = vo.getJobStatuses().split(",");
+            // 根据失败状态拆分标记来确定具体是哪一个状态map
+            Map<Integer, List<Integer>> statusMap = this.getStatusMap(false);
+            for (String status : statuses) {
+                List<Integer> statusList = statusMap.get(new Integer(status));
+                if (CollectionUtils.isNotEmpty(statusList)) {
+                    statues.addAll(statusList);
+                }
+            }
+            ScheduleJobDTO.setJobStatuses(statues);
+        } else {
+            ScheduleJobDTO.setJobStatuses(RdosTaskStatus.getCanStopStatus());
+        }
+        return ScheduleJobDTO;
+    }
+
 }
+
+
+
+
