@@ -67,13 +67,6 @@ public class JobService extends AbstractActor {
                     }
                     sender().tell(containerInfos, getSelf());
                 })
-                .match(MessageGetPluginDefaultConfig.class, msg -> {
-                    List<ClientTemplate> defaultPluginConfig = ClientOperator.getInstance().getDefaultPluginConfig(msg.getEngineType(),msg.getConfigType());
-                    if (null == defaultPluginConfig) {
-                        defaultPluginConfig = new ArrayList<>(0);
-                    }
-                    sender().tell(defaultPluginConfig, getSelf());
-                })
                 .match(MessageTestConnectInfo.class,msg ->{
                     ComponentTestResult execute = ClientOperator.getInstance().testConnect(msg.getEngineType(), msg.getPluginInfo());
                     if(null == execute){

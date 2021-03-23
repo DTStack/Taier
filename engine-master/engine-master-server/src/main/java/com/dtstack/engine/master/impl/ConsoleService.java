@@ -22,6 +22,7 @@ import com.dtstack.engine.master.config.TaskResourceBeanConfig;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
+import com.dtstack.engine.master.jobdealer.resource.JobComputeResourcePlain;
 import com.dtstack.engine.master.plugininfo.PluginWrapper;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.vo.TaskTypeResourceTemplateVO;
@@ -90,6 +91,11 @@ public class ConsoleService {
 
     @Autowired
     private PluginWrapper pluginWrapper;
+
+    @Autowired
+    private JobComputeResourcePlain jobComputeResourcePlain;
+
+    private static long DELAULT_TENANT  = -1L;
 
     public Boolean finishJob(String jobId, Integer status) {
         if (!RdosTaskStatus.isStopped(status)) {
@@ -214,19 +220,7 @@ public class ConsoleService {
     }
 
     private boolean isBelongCluster(String clusterName,String jobResource){
-        if(StringUtils.isBlank(clusterName)){
-            return false;
-        }
-        if(StringUtils.isBlank(jobResource)){
-            return false;
-        }
-        String[] split = jobResource.split(ConfigConstant.SPLIT);
-        if(split.length <= 1){
-            return false;
-        }
-        //第二位为集群名
-        String jobResourceClusterName = split[1];
-        return clusterName.equalsIgnoreCase(jobResourceClusterName);
+        return clusterName.equalsIgnoreCase(jobComputeResourcePlain.parseClusterFromJobResource(jobResource));
     }
 
 
@@ -477,20 +471,19 @@ public class ConsoleService {
             throw new RdosDefineException(ErrorCode.DATA_NOT_FIND);
         }
 
-        Component yarnComponent = componentService.getComponentByClusterId(cluster.getId(), EComponentType.YARN.getTypeCode());
+        Component yarnComponent = getYarnComponent(cluster.getId());
         if (yarnComponent == null) {
             return null;
         }
-
-        return getResources(yarnComponent, cluster);
+        JSONObject yarnConfigStr = componentService.getComponentByClusterId(cluster.getId(), EComponentType.YARN.getTypeCode(), false, JSONObject.class);
+        return getResources(yarnComponent, cluster,yarnConfigStr);
     }
 
-    public ClusterResource getResources(Component yarnComponent, Cluster cluster) {
+    public ClusterResource getResources(Component yarnComponent, Cluster cluster,JSONObject componentConfig) {
         try {
             JSONObject pluginInfo = new JSONObject();
-            JSONObject componentConfig = JSONObject.parseObject(yarnComponent.getComponentConfig());
             pluginInfo.put(EComponentType.YARN.getConfName(), componentConfig);
-            String typeName = componentConfig.getString(ComponentService.TYPE_NAME);
+            String typeName = Optional.ofNullable(componentConfig).orElse(new JSONObject()).getString(ConfigConstant.TYPE_NAME_KEY);
             if (StringUtils.isBlank(typeName)) {
                 //获取对应的插件名称
                 Component hdfsComponent = componentService.getComponentByClusterId(cluster.getId(), EComponentType.HDFS.getTypeCode());
@@ -503,10 +496,10 @@ public class ConsoleService {
                             EComponentType.HDFS.getTypeCode(), hdfsComponent.getHadoopVersion(),hdfsComponent.getStoreType());
                 }
             }
-            pluginInfo.put(ComponentService.TYPE_NAME,typeName);
+            pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,typeName);
             return workerOperator.clusterResource(typeName, pluginInfo.toJSONString());
         } catch (Exception e) {
-            LOGGER.error("getResources error: ", e);
+            logger.error("getResources error: ", e);
             throw new RdosDefineException("acquire flink resources error.");
         }
     }

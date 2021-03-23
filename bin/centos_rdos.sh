@@ -14,6 +14,7 @@ checkuser() {
    exit 1
   fi
 }
+
 checkuser
 
 LS_HOME=$CMD_HOME
@@ -43,11 +44,12 @@ quiet() {
   return $?
 }
 
+
 start() {
   COMPONENT=$1
   if [ -z $COMPONENT ] ; then
     COMPONENT="entrance"
-  fi  
+  fi
 
   echo -n "Starting $name component is $COMPONENT, "
 

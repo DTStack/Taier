@@ -5,6 +5,7 @@ import com.dtstack.channel.IDingChannel;
 import com.dtstack.engine.alert.AlterContext;
 import com.dtstack.engine.alert.client.ding.AbstractDingAlterClient;
 import com.dtstack.engine.alert.client.ding.AlterSendDingBean;
+import com.dtstack.engine.alert.client.sms.AbstractSmsAlterClient;
 import com.dtstack.engine.alert.enums.AlertGateCode;
 import com.dtstack.engine.alert.enums.DingTypeEnums;
 import com.dtstack.engine.alert.exception.AlterException;
@@ -33,6 +34,11 @@ public class JarDingAlterClient extends AbstractDingAlterClient {
         }
 
         String jarPath = alterContext.getJarPath();
+
+        if (jarPath.contains(ConstDingAlter.PATH_CUT)) {
+            jarPath = jarPath.substring(0, jarPath.indexOf(ConstDingAlter.PATH_CUT));
+        }
+
         if (StringUtils.isBlank(jarPath)) {
             throw new AlterException("Custom jar must be passed in the jar path");
         }

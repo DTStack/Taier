@@ -96,6 +96,39 @@ org.apache.flink.util.ChildFirstClassLoader
     2. 更改loadClass方法中类加载逻辑，现判断是否由子加载器加载在判断是否父加载器加载
 ```
 
+org.apache.flink.streaming.api.graph.StreamingJobGraphGenerator
+
+```
+更改项：
+    1.  重载createChainedName方法。增加入参 Integer startNodeId、Map<Integer, byte[]> hashes。
+将每个JobVertex所包含的operatorNames以map的形式保存。
+```
+
+org.apache.flink.runtime.jobgraph.JobGraph
+
+```
+更改项：
+    1. 增加vertexOperatorNames属性以及getter、setter方法。该属性用来存放JobVertex以及所包含的OperatorNames。
+    增加如下代码：
+          byte[] hash = hashes.get(startNodeId);
+    
+            if (hash == null) {
+                throw new IllegalStateException("Cannot find node hash. " +
+                        "Did you generate them before calling this method?");
+            }
+    
+            JobVertexID jobVertexID = new JobVertexID(hash);
+    
+            String operatorName = streamGraph.getStreamNode(vertexID).getOperatorName();
+            if (chainedOperatorNames.get(jobVertexID) == null) {
+                List<String> operatorNames = new ArrayList<>();
+                operatorNames.add(operatorName);
+                chainedOperatorNames.put(jobVertexID, operatorNames);
+            } else {
+                chainedOperatorNames.get(jobVertexID).add(operatorName);
+            }
+```
+
 calcite
 ----------------------
 org.apache.calcite.plan.volcano.VolcanoRuleCall

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.channel.ICustomizeChannel;
 import com.dtstack.engine.alert.AlterContext;
 import com.dtstack.engine.alert.client.AbstractAlterClient;
+import com.dtstack.engine.alert.client.sms.AbstractSmsAlterClient;
 import com.dtstack.engine.alert.enums.AlertGateCode;
 import com.dtstack.engine.alert.exception.AlterException;
 import com.dtstack.engine.alert.load.JarCache;
@@ -35,6 +36,10 @@ public class CustomizeAlterClient extends AbstractAlterClient {
             throw new AlterException("The custom jar must be passed in the jarPath");
         }
 
+        if (jarPath.contains(ConstCustomizeAlter.PATH_CUT)) {
+            jarPath = jarPath.substring(0, jarPath.indexOf(ConstCustomizeAlter.PATH_CUT));
+        }
+
         String content = alterContext.getContent();
         if (StringUtils.isBlank(content)) {
             throw new AlterException("Custom jar must be passed in alarm content");
@@ -60,6 +65,8 @@ public class CustomizeAlterClient extends AbstractAlterClient {
     protected static class ConstCustomizeAlter {
 
         public static String CUSTOMIZE_CLASS = "className";
+
+        public static String PATH_CUT = "&sftp:";
 
     }
 
