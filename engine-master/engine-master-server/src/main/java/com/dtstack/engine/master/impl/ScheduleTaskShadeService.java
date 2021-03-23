@@ -114,17 +114,12 @@ public class ScheduleTaskShadeService {
      * task删除时触发同步清理
      */
     public void deleteTask(Long taskId, long modifyUserId, Integer appType) {
-        List<ScheduleTaskTaskShade> shades = getOtherTask(taskId, appType);
-        if (CollectionUtils.isNotEmpty(shades)) {
+        List<NotDeleteTaskVO> notDeleteTask = getNotDeleteTask(taskId, appType);
+        if (CollectionUtils.isNotEmpty(notDeleteTask)) {
             throw new RdosDefineException("there is bound data and cannot be deleted");
         }
         scheduleTaskShadeDao.delete(taskId, modifyUserId, appType);
         scheduleTaskTaskShadeService.clearDataByTaskId(taskId, appType);
-    }
-
-    private List<ScheduleTaskTaskShade> getOtherTask(Long taskId, Integer appType) {
-        List<ScheduleTaskTaskShade> taskTaskShades = scheduleTaskTaskShadeService.listChildTask(taskId, appType,environmentContext.getListChildTaskLimit());
-        return taskTaskShades.stream().filter(taskTaskShade -> !taskTaskShade.getAppType().equals(taskTaskShade.getParentAppType())).collect(Collectors.toList());
     }
 
     public List<NotDeleteTaskVO> getNotDeleteTask(Long taskId, Integer appType) {

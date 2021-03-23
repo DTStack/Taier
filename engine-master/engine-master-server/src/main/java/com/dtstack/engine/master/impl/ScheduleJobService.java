@@ -2964,7 +2964,7 @@ public class ScheduleJobService {
                 this.updateStatusAndLogInfoById(fatherScheduleJob.getJobId(), RdosTaskStatus.FAILED.getStatus(), log);
             } else if (RdosTaskStatus.FINISH_STATUS.contains(bottleStatus)) {
                 // 当前任务执行成功,判断父任务下其他子任务是否有强规则任务
-                List<ScheduleJob> jobs = sonScheduleJobs.stream().filter(job -> TaskRuleEnum.STRONG_RULE.getCode().equals(job.getTaskRule()) && job.getJobKey().equals(currentScheduleJob.getJobKey())).collect(Collectors.toList());
+                List<ScheduleJob> jobs = sonScheduleJobs.stream().filter(job -> TaskRuleEnum.STRONG_RULE.getCode().equals(job.getTaskRule()) && !job.getJobKey().equals(currentScheduleJob.getJobKey())).collect(Collectors.toList());
 
                 if (CollectionUtils.isNotEmpty(jobs)) {
                     List<ScheduleJob> noFinishJobs = jobs.stream().filter(job -> !RdosTaskStatus.FINISH_STATUS.contains(job.getStatus())).collect(Collectors.toList());
