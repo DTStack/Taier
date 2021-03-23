@@ -245,22 +245,6 @@ public class WorkerOperator {
         }
     }
 
-    public List<ClientTemplate> getDefaultPluginConfig(String engineType, String configType) {
-        if (AkkaConfig.isLocalMode()) {
-            List<ClientTemplate> defaultPluginConfig = clientOperator.getDefaultPluginConfig(engineType, configType);
-            if (CollectionUtils.isEmpty(defaultPluginConfig)) {
-                return new ArrayList<>(0);
-            }
-            return defaultPluginConfig;
-        }
-        try {
-            return (List<ClientTemplate>) masterServer.sendMessage(new MessageGetPluginDefaultConfig(engineType, configType));
-        } catch (Exception e) {
-            LOGGER.error("getDefaultPluginConfig failed!", e);
-            return null;
-        }
-    }
-
     public ComponentTestResult testConnect(String engineType, String pluginInfo) {
         if (AkkaConfig.isLocalMode()) {
             ComponentTestResult testResult = clientOperator.testConnect(engineType, pluginInfo);

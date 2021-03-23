@@ -209,7 +209,7 @@ public class CacheConfig extends CachingConfigurerSupport {
         }
 
         public void logError(RuntimeException e, Cache cache, Object key, String operator) {
-            logger.error(String.format("operator %s cacheName:%s,cacheKey:%s", operator, cache == null ? "null" : cache.getName(), key), e);
+            LOGGER.error(String.format("operator %s cacheName:%s,cacheKey:%s", operator, cache == null ? "null" : cache.getName(), key), e);
         }
     }
 }

@@ -538,16 +538,6 @@ public class EnvironmentContext {
     public long getForkJoinResultTimeOut() {
         return Long.parseLong(environment.getProperty("fork.join.timeout", Long.toString(60 * 5)));
     }
-
-    /**
-     * 是否开启任务调度
-     *
-     * @return
-     */
-    public boolean openJobSchedule() {
-        return Boolean.parseBoolean(environment.getProperty("job.schedule", "true"));
-    }
-
     /**
      * 是否根据版本加载默认的配置
      *

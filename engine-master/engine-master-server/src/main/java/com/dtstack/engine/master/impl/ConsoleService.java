@@ -471,7 +471,7 @@ public class ConsoleService {
             throw new RdosDefineException(ErrorCode.DATA_NOT_FIND);
         }
 
-        Component yarnComponent = getYarnComponent(cluster.getId());
+        Component yarnComponent = componentService.getComponentByClusterId(cluster.getId(),EComponentType.YARN.getTypeCode());
         if (yarnComponent == null) {
             return null;
         }
@@ -499,7 +499,7 @@ public class ConsoleService {
             pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,typeName);
             return workerOperator.clusterResource(typeName, pluginInfo.toJSONString());
         } catch (Exception e) {
-            logger.error("getResources error: ", e);
+            LOGGER.error("getResources error: ", e);
             throw new RdosDefineException("acquire flink resources error.");
         }
     }

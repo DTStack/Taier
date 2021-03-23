@@ -72,7 +72,7 @@ public class SftpDownloadEvent extends AdapterEventMonitor {
                 }
             }
         } catch (Exception e) {
-            logger.error(ExceptionUtil.getErrorMessage(e));
+            LOGGER.error(ExceptionUtil.getErrorMessage(e));
         }
     }
 
