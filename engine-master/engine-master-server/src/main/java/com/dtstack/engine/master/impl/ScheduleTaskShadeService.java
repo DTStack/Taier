@@ -115,10 +115,6 @@ public class ScheduleTaskShadeService {
      * task删除时触发同步清理
      */
     public void deleteTask(Long taskId, long modifyUserId, Integer appType) {
-        List<NotDeleteTaskVO> notDeleteTask = getNotDeleteTask(taskId, appType);
-        if (CollectionUtils.isNotEmpty(notDeleteTask)) {
-            throw new RdosDefineException("there is bound data and cannot be deleted");
-        }
         scheduleTaskShadeDao.delete(taskId, modifyUserId, appType);
         scheduleTaskTaskShadeService.clearDataByTaskId(taskId, appType);
     }
