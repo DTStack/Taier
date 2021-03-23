@@ -72,4 +72,13 @@ public class StreamTaskController {
     public List<String> getRunningTaskLogUrl(@DtRequestParam("taskId") String taskId) {
         return streamTaskService.getRunningTaskLogUrl(taskId);
     }
+
+    @RequestMapping(value="/grammarCheck", method = {RequestMethod.POST})
+    @ApiOperation(value = "语法检测")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="paramActionExt",value="语法检测相关参数信息",required=true, paramType="body", dataType = "ParamActionExt")
+    })
+    public CheckResult grammarCheck(@RequestBody ParamActionExt paramActionExt) {
+        return streamTaskService.grammarCheck(paramActionExt);
+    }
 }

@@ -32,6 +32,19 @@ public class EngineJobCheckpoint extends DataObject {
 
     private Timestamp triggerEnd;
 
+    /**
+     * page size
+     */
+    private Integer size;
+
+    public Integer getSize() {
+        return size;
+    }
+
+    public void setSize(Integer size) {
+        this.size = size;
+    }
+
     public String getTaskId() {
         return taskId;
     }

@@ -333,6 +333,12 @@ public interface DataCollection {
     }
 
     @DatabaseInsertOperation(dao = TestEngineJobCheckpointDao.class)
+    default EngineJobCheckpoint getFailedEngineJobCheckpoint() {
+        EngineJobCheckpoint jc = Template.getFailedEngineJobCheckpointTemplate();
+        return jc;
+    }
+
+    @DatabaseInsertOperation(dao = TestEngineJobCheckpointDao.class)
     default EngineJobCheckpoint getEngineJobSavepoint() {
         EngineJobCheckpoint jc = Template.getEngineJobSavepointTemplate();
         return jc;

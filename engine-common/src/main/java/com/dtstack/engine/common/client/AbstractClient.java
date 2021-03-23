@@ -148,4 +148,9 @@ public abstract class AbstractClient implements IClient {
     public List<Column> getAllColumns(String tableName,String schemaName, String dbName) {
         return null;
     }
+
+    @Override
+    public CheckResult grammarCheck(JobClient jobClient){
+        return null;
+    }
 }
