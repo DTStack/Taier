@@ -57,7 +57,7 @@ export const columns = [
         <a>删除</a>
       </span>
     ),
-  }
+  },
 ];
 
 export const data = [
@@ -78,5 +78,5 @@ export const data = [
     name: 'Joe Black',
     age: 32,
     address: 'Sidney No. 1 Lake Park',
-  }
+  },
 ];

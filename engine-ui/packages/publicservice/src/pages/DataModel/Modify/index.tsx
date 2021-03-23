@@ -4,7 +4,10 @@ import { Breadcrumb, Steps, Button, Form, Modal } from 'antd';
 import './style';
 import FormRender from './FormRender';
 import RelationTableModal from './RelationListModal';
-import { relationFormListGenerator, basicInfoFormListGenerator } from './constants';
+import {
+  relationFormListGenerator,
+  basicInfoFormListGenerator,
+} from './constants';
 import { API } from '@/services';
 import Message from 'pages/DataModel/components/Message';
 
@@ -23,37 +26,29 @@ interface IPropsModify {
 const formItemLayout = {
   labelCol: { span: 3 },
   wrapperCol: { span: 21 },
-}
+};
 const { Step } = Steps;
 
 const stepContentRender = (step: EnumModifyStep, props: any) => {
   const { form } = props;
-  switch(step) {
+  switch (step) {
     case EnumModifyStep.BASIC_STEP:
-      return (
-        <FormRender form={form} formList={props.formList || []} />
-      );
+      return <FormRender form={form} formList={props.formList || []} />;
     case EnumModifyStep.RELATION_TABLE_STEP:
-      return (
-        <FormRender form={form} formList={props.formList || []} />
-      );
+      return <FormRender form={form} formList={props.formList || []} />;
     case EnumModifyStep.DIMENSION_STEP:
-      return (
-        <div>this is dimension....</div>
-      );
+      return <div>this is dimension....</div>;
     case EnumModifyStep.METRIC_STRP:
-      return (
-        <div>this is metric....</div>
-      );
+      return <div>this is metric....</div>;
     case EnumModifyStep.SETTING_STRP:
-      return (
-        <div>hello, this is setting step....</div>
-      )
+      return <div>hello, this is setting step....</div>;
   }
-}
+};
 
 const Modify = (props: IPropsModify) => {
-  const [current, setCurrent] = useState<EnumModifyStep>(EnumModifyStep.BASIC_STEP);
+  const [current, setCurrent] = useState<EnumModifyStep>(
+    EnumModifyStep.BASIC_STEP
+  );
   const [visibleRelationModal, setVisibleRelationModal] = useState(false);
   const { validateFields, getFieldsValue } = props.form;
   const [formValue, setFormValue] = useState<any>({});
@@ -62,31 +57,34 @@ const Modify = (props: IPropsModify) => {
   const [tableList, setTableList] = useState([]);
   const [updateTypeList, setUpdateTypeList] = useState([]);
 
-
   const getSchemaList = async (datasourceId: number) => {
-    if(!datasourceId) return;
+    if (!datasourceId) return;
     try {
-      const { success, data, message } = await API.getDataModelSchemaList({ datasourceId: datasourceId });
-      if(success) {
-        setSchemaList(data.map(item => ({
-          key: item,
-          value: item,
-          label: item,
-        })))
+      const { success, data, message } = await API.getDataModelSchemaList({
+        datasourceId: datasourceId,
+      });
+      if (success) {
+        setSchemaList(
+          data.map((item) => ({
+            key: item,
+            value: item,
+            label: item,
+          }))
+        );
       } else {
         Message.error(message);
       }
-    } catch(error) {
+    } catch (error) {
       Message.error(error.message);
     }
-  }
+  };
 
   const getUpdataTypeEnum = async () => {
     try {
       const { success, message, data } = await API.getDataModelUpdateTypeList();
-      if(success) {
+      if (success) {
         setUpdateTypeList(
-          data.map(item => ({
+          data.map((item) => ({
             key: item.leftValue,
             value: item.leftValue,
             label: item.rightValue,
@@ -95,61 +93,70 @@ const Modify = (props: IPropsModify) => {
       } else {
         Message.error(message);
       }
-    } catch(error) {
+    } catch (error) {
       Message.error(error.message);
     }
-  }
+  };
 
   const getTableList = async (datasourceId: number, schema: string) => {
-    if(!datasourceId || !schema) return;
+    if (!datasourceId || !schema) return;
     try {
-      const  { success, data, message } = await API.getDataModelTableList({ datasourceId, schema })
-      if(success) {
+      const { success, data, message } = await API.getDataModelTableList({
+        datasourceId,
+        schema,
+      });
+      if (success) {
         setTableList(
-          data.map(item => ({
+          data.map((item) => ({
             key: item.tableName,
             value: item.tableName,
             label: item.tableName,
             partition: item.partition,
           }))
-        )
+        );
       } else {
         Message.error(message);
       }
-    } catch(error) {
+    } catch (error) {
       Message.error(error.message);
     }
-  }
+  };
 
   // 获取所有可用的数据源列表
   const getAllDataSourceList = useCallback(async () => {
     try {
-      const { success, data, message } = await API.getDataModelUsedDataSourceList();
-      if(success) {
-        const dataSourceList = data.map(item => ({
+      const {
+        success,
+        data,
+        message,
+      } = await API.getDataModelUsedDataSourceList();
+      if (success) {
+        const dataSourceList = data.map((item) => ({
           key: item.id,
           value: item.id,
           label: `${item.name}(${item.dsTypeName})`,
-        }))
+        }));
         setdataSourceList(dataSourceList);
       } else {
         Message.error(message);
       }
-    } catch(error) {
+    } catch (error) {
       Message.error(error.message);
     }
-  }, [])
+  }, []);
 
   const restoreFormValue = (keys: string[]) => {
-    props.form.setFieldsValue(keys.reduce((temp, key) => {
-      temp[key] = formValue[key]
-      return temp;
-    }, {}))
-  }
+    props.form.setFieldsValue(
+      keys.reduce((temp, key) => {
+        temp[key] = formValue[key];
+        return temp;
+      }, {})
+    );
+  };
 
   // 恢复对应的form value
   useEffect(() => {
-    switch(current) {
+    switch (current) {
       case EnumModifyStep.BASIC_STEP:
         restoreFormValue(['modelName', 'modelEnName', 'dataSource', 'remark']);
         break;
@@ -161,14 +168,14 @@ const Modify = (props: IPropsModify) => {
   }, [current]);
 
   useEffect(() => {
-    getSchemaList(formValue.dataSource)
-  }, [])
+    getSchemaList(formValue.dataSource);
+  }, []);
 
   useEffect(() => {
     getAllDataSourceList();
     getUpdataTypeEnum();
   }, []);
-  
+
   const currentFormValue = getFieldsValue();
 
   useEffect(() => {
@@ -177,7 +184,7 @@ const Modify = (props: IPropsModify) => {
 
   useEffect(() => {
     getSchemaList(formValue.dataSource);
-  }, [formValue.dataSource])
+  }, [formValue.dataSource]);
 
   return (
     <Container>
@@ -204,60 +211,74 @@ const Modify = (props: IPropsModify) => {
           </header>
           <div className="step-content padding-tb-20">
             <div className="inner-container overflow-auto">
-              <Form layout="horizontal" className="form-area" {...formItemLayout}>
-                {
-                  stepContentRender(current, {
-                    formList: current === EnumModifyStep.BASIC_STEP ? (
-                      basicInfoFormListGenerator(dataSourceList)
-                    ) : (
-                      relationFormListGenerator({
-                        handleClick: () => {setVisibleRelationModal(true)},
-                        updateTyleListOptions: updateTypeList,
-                        schemaListOptions: schemaList,
-                        tableListOptions: tableList,
-                      })
-                    ),
-                    form: props.form,
-                  })
-                }
+              <Form
+                layout="horizontal"
+                className="form-area"
+                {...formItemLayout}>
+                {stepContentRender(current, {
+                  formList:
+                    current === EnumModifyStep.BASIC_STEP
+                      ? basicInfoFormListGenerator(dataSourceList)
+                      : relationFormListGenerator({
+                          handleClick: () => {
+                            setVisibleRelationModal(true);
+                          },
+                          updateTyleListOptions: updateTypeList,
+                          schemaListOptions: schemaList,
+                          tableListOptions: tableList,
+                        }),
+                  form: props.form,
+                })}
               </Form>
               <Modal
                 title="添加关联表"
                 visible={visibleRelationModal}
-                onCancel={() => setVisibleRelationModal(false)}
-              >
+                onCancel={() => setVisibleRelationModal(false)}>
                 <RelationTableModal />
               </Modal>
             </div>
           </div>
           <footer className="step-footer">
-              <div className="button-area">
-                { current === EnumModifyStep.BASIC_STEP ? <Button className="margin-right-8 width-80">取消</Button> : null }
-                { current !== EnumModifyStep.BASIC_STEP ? <Button className="margin-right-8 width-80" onClick={() => {
-                  setCurrent(prev => prev - 1)
-                }}>上一步</Button> : null }
-                <Button className="margin-right-8 width-80" type="primary" onClick={() => {
+            <div className="button-area">
+              {current === EnumModifyStep.BASIC_STEP ? (
+                <Button className="margin-right-8 width-80">取消</Button>
+              ) : null}
+              {current !== EnumModifyStep.BASIC_STEP ? (
+                <Button
+                  className="margin-right-8 width-80"
+                  onClick={() => {
+                    setCurrent((prev) => prev - 1);
+                  }}>
+                  上一步
+                </Button>
+              ) : null}
+              <Button
+                className="margin-right-8 width-80"
+                type="primary"
+                onClick={() => {
                   validateFields((err, data) => {
-                    if(err) {
+                    if (err) {
                       return;
                     }
                     console.log(data);
-                    setCurrent(prev => prev + 1);
-                    setFormValue(prev => ({
+                    setCurrent((prev) => prev + 1);
+                    setFormValue((prev) => ({
                       ...prev,
                       ...props.form.getFieldsValue(),
-                    }))
-                  })
-                }}>下一步</Button>
-                <Button onClick={() => {
-
-                }} type="primary">保存并退出</Button>
-              </div>
+                    }));
+                  });
+                }}>
+                下一步
+              </Button>
+              <Button onClick={() => {}} type="primary">
+                保存并退出
+              </Button>
+            </div>
           </footer>
         </div>
       </div>
     </Container>
-  )
-}
+  );
+};
 
 export default Form.create()(Modify);

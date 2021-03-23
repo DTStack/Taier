@@ -27,9 +27,7 @@ class HeaderBar extends React.Component<IProps, IState> {
   render() {
     const selfMenu = (
       <Menu onClick={this.handleItemClick}>
-        <Menu.Item key="logout">
-          退出登录
-        </Menu.Item>
+        <Menu.Item key="logout">退出登录</Menu.Item>
       </Menu>
     );
     return (

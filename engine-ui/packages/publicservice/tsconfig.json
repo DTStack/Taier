@@ -1,56 +1,40 @@
 {
-    "compilerOptions": {
-        "target": "es5",
-        "lib": ["esnext", "dom"],
-        "sourceMap": true,
-        "allowJs": false,
-        "removeComments": false,
-        "baseUrl": ".",   
-        "jsx": "react",
-        "importHelpers": true,
-        "skipLibCheck": true,
-        "allowSyntheticDefaultImports": true,
-        "esModuleInterop": true,
-        "forceConsistentCasingInFileNames": true,
-        "noUnusedLocals": true,
-        "experimentalDecorators": true,
-        "downlevelIteration": true,
-        "typeRoots": [
-            "node",
-            "node_modules/@types",
-            "./typings"
-        ],
-        "paths": {
-            "@/*": [
-                "./src/*"
-            ],
-            "assets/*": [
-                "./public/assets/*"
-            ],
-            "components/*": [
-                "./src/components/*"
-            ],
-            "pages/*": [
-                "./src/pages/*"
-            ],
-            "services/*": [
-                "./src/services/*"
-            ],
-            "utils/*": [
-                "./src/utils/*"
-            ],
-            "constants/*": [
-                "./src/constants/*"
-            ],
-            "layouts/*": [
-                "./src/layouts/*"
-            ],
-        },
-    },
-    "include": [
-        "./**/*.ts",
-        "./**/*.tsx",
-        "./src/**/*.js"
-    ],
-    "exclude": ["node_modules", "build", "dist", "scripts", "test", "webpack", "jest"]
+  "compilerOptions": {
+    "target": "es5",
+    "lib": ["esnext", "dom"],
+    "sourceMap": true,
+    "allowJs": false,
+    "removeComments": false,
+    "baseUrl": ".",
+    "jsx": "react",
+    "importHelpers": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "noUnusedLocals": true,
+    "experimentalDecorators": true,
+    "downlevelIteration": true,
+    "typeRoots": ["node", "node_modules/@types", "./typings"],
+    "paths": {
+      "@/*": ["./src/*"],
+      "assets/*": ["./public/assets/*"],
+      "components/*": ["./src/components/*"],
+      "pages/*": ["./src/pages/*"],
+      "services/*": ["./src/services/*"],
+      "utils/*": ["./src/utils/*"],
+      "constants/*": ["./src/constants/*"],
+      "layouts/*": ["./src/layouts/*"]
+    }
+  },
+  "include": ["./**/*.ts", "./**/*.tsx", "./src/**/*.js"],
+  "exclude": [
+    "node_modules",
+    "build",
+    "dist",
+    "scripts",
+    "test",
+    "webpack",
+    "jest"
+  ]
 }

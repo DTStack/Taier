@@ -24,35 +24,33 @@ const Detail = (props: IPropsDetail) => {
   const [loading, setLoading] = useState(false);
 
   const getModelDetail = async (id: number) => {
-    if(id === -1) return;
+    if (id === -1) return;
     setLoading(true);
     try {
       const { success, data, message } = await API.getModelDetail({ id });
-      if(success) {
+      if (success) {
         setModelDetail(data as IModelDetail);
       } else {
         Message.error(message);
       }
-    } catch(error) {
+    } catch (error) {
       Message.error(error.message);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     getModelDetail(modelId);
-  }, [modelId])
+  }, [modelId]);
   return (
     <div className="dm-detail">
       <div className="card-container">
-        {
-          loading ? (
-            <div className="dm-modal">
-              <Spin className="center" />
-            </div>
-          ) : null
-        }
+        {loading ? (
+          <div className="dm-modal">
+            <Spin className="center" />
+          </div>
+        ) : null}
         <Tabs type="card">
           <TabPane tab="基本信息" key="1">
             <div className="pane-container">
@@ -84,7 +82,7 @@ const Detail = (props: IPropsDetail) => {
         </Tabs>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default Detail;
