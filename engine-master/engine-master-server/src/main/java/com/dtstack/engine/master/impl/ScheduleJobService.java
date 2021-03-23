@@ -3031,7 +3031,7 @@ public class ScheduleJobService {
             subJobIds.add(id);
         }
         CompletableFuture.runAsync(new RestartRunnable(id, justRunChild, setSuccess, subJobIds, scheduleJobDao, scheduleTaskShadeDao,
-                scheduleJobJobDao, environmentContext, key, redisTemplate));
+                scheduleJobJobDao, environmentContext, key, redisTemplate,this));
         return true;
     }
 
