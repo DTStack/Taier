@@ -193,9 +193,4 @@ public class ClientOperator {
             throw new RdosDefineException("get job rollingLogBaseInfo:" + jobIdentifier.getEngineJobId() + " exception:" + ExceptionUtil.getErrorMessage(e));
         }
     }
-
-    public CheckResult grammarCheck(JobClient jobClient) throws ClientAccessException {
-        IClient clusterClient = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
-        return clusterClient.grammarCheck(jobClient);
-    }
 }

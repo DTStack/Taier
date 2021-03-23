@@ -81,16 +81,6 @@ public class ParamAction {
 
     private Integer appType;
 
-	/**
-	 * 重试超时时间
-	 */
-	private long submitExpiredTime;
-
-	/**
-	 * 重试间隔时间
-	 */
-	private Long retryIntervalTime;
-
     public Integer getAppType() {
         return appType;
     }
@@ -315,22 +305,6 @@ public class ParamAction {
 
 	public void setSourceType(Integer sourceType) {
 		this.sourceType = sourceType;
-	}
-
-	public long getSubmitExpiredTime() {
-		return submitExpiredTime;
-	}
-
-	public void setSubmitExpiredTime(long submitExpiredTime) {
-		this.submitExpiredTime = submitExpiredTime;
-	}
-
-	public Long getRetryIntervalTime() {
-		return retryIntervalTime;
-	}
-
-	public void setRetryIntervalTime(Long retryIntervalTime) {
-		this.retryIntervalTime = retryIntervalTime;
 	}
 
 	@Override

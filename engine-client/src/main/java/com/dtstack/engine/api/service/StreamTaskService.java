@@ -2,12 +2,8 @@ package com.dtstack.engine.api.service;
 
 import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.pojo.CheckResult;
-import com.dtstack.engine.api.pojo.ParamActionExt;
-import com.dtstack.engine.api.pojo.ParamTaskAction;
 import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sdk.core.common.DtInsightServer;
-import com.dtstack.sdk.core.feign.Headers;
 import com.dtstack.sdk.core.feign.Param;
 import com.dtstack.sdk.core.feign.RequestLine;
 
@@ -63,16 +59,4 @@ public interface StreamTaskService extends DtInsightServer {
      */
     @RequestLine("POST /node/streamTask/getRunningTaskLogUrl")
     ApiResponse<List<String>> getRunningTaskLogUrl(@Param("taskId") String taskId);
-
-    /**
-     * 语法检测
-     *
-     * @param paramActionExt
-     * @return
-     */
-    @RequestLine("POST /node/streamTask/grammarCheck")
-    @Headers(value={"Content-Type: application/json"})
-    ApiResponse<CheckResult> grammarCheck(ParamActionExt paramActionExt);
-
-
 }

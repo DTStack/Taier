@@ -162,22 +162,4 @@ public class TestJobCheckpointDealer extends AbstractTest {
 
         jobCheckpointDealer.updateJobCheckpoints(jobIdentifier);
     }
-
-    @Test
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-    @Rollback
-    public void testUpdateJobCheckpointsFailed(){
-        EngineJobCache engineJobCache2 = DataCollection.getData().getEngineJobCache2();
-        ScheduleJob jobId = DataCollection.getData().getScheduleJobDefiniteJobId();
-        JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineJobCache2.getJobId(), jobId.getApplicationId(), engineJobCache2.getJobId());
-        when(workerOperator.getCheckpoints(any())).thenReturn("{\"restored\":0,\"total\":13,\"in_progress\":0,\"completed\":11," +
-                "\"failed\":2,\"history\":[{\"id\":1,;;32422\"trigger_timestamp\":101313,\"external_path\":\"Users\",\"status\":2}]}");
-
-        jobCheckpointDealer.updateJobCheckpoints(jobIdentifier);
-
-        List<EngineJobCheckpoint> engineJobCheckpoints = engineJobCheckpointDao.listFailedByTaskIdAndRangeTime(jobIdentifier.getTaskId(), null, null, 5);
-        System.out.println(engineJobCheckpoints.get(0));
-    }
-
-
 }

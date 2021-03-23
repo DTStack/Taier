@@ -126,7 +126,7 @@ public class JobSubmitDealer implements Runnable {
     }
 
     public boolean tryPutRestartJob(JobClient jobClient) {
-        boolean tryPut = delayJobQueue.tryPut(new SimpleJobDelay<>(jobClient, EJobCacheStage.RESTART.getStage(), Objects.isNull(jobClient.getRetryIntervalTime()) ? jobRestartDelay : jobClient.getRetryIntervalTime()));
+        boolean tryPut = delayJobQueue.tryPut(new SimpleJobDelay<>(jobClient, EJobCacheStage.RESTART.getStage(), jobRestartDelay));
         logger.info("jobId:{} {} add job to restart delayJobQueue.", jobClient.getTaskId(), tryPut ? "success" : "failed");
         if (tryPut) {
             //restart的状态修改会在外面处理，这里只需要set stage
@@ -161,7 +161,7 @@ public class JobSubmitDealer implements Runnable {
                 if (checkIsFinished(jobClient)) {
                     continue;
                 }
-                if (checkJobSubmitExpired(jobClient)){
+                if (checkJobSubmitExpired(jobClient.getGenerateTime())) {
                     shardCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.AUTOCANCELED.getStatus());
                     jobClient.doStatusCallBack(RdosTaskStatus.AUTOCANCELED.getStatus());
                     engineJobCacheDao.delete(jobClient.getTaskId());
@@ -230,15 +230,13 @@ public class JobSubmitDealer implements Runnable {
         return false;
     }
 
-    private boolean checkJobSubmitExpired(JobClient jobClient) {
-        long submitExpiredTime = jobClient.getSubmitExpiredTime();
-        if(submitExpiredTime > 0){
-            return System.currentTimeMillis() - jobClient.getGenerateTime() > submitExpiredTime;
-        }
+    private boolean checkJobSubmitExpired(long generateTime) {
         if (jobSubmitExpired <= 0) {
             return false;
         }
-        return System.currentTimeMillis() - jobClient.getGenerateTime() > jobSubmitExpired;
+        long diff = System.currentTimeMillis() - generateTime;
+        return diff > jobSubmitExpired;
+
     }
 
     private boolean checkMaxPriority(String jobResource) {

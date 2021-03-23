@@ -216,7 +216,6 @@ public class JobCheckpointDealer implements InitializingBean {
                 }
             }
         } catch (IOException e) {
-            engineJobCheckpointDao.insert(taskId, engineTaskId, null, null, null, null);
             logger.error("taskID:{} ,engineTaskId:{}, error:", taskId, engineTaskId, e);
         }
     }

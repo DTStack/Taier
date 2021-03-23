@@ -183,16 +183,4 @@ public class StreamTaskService {
         }
 
     }
-
-    public CheckResult grammarCheck(ParamActionExt paramActionExt) {
-        logger.info("grammarCheck actionParam: {}", JSONObject.toJSONString(paramActionExt));
-        CheckResult checkResult = null;
-        try {
-            JobClient jobClient = new JobClient(paramActionExt);
-            checkResult = workerOperator.grammarCheck(jobClient);
-        } catch (Exception e) {
-            checkResult = CheckResult.exception(ExceptionUtil.getErrorMessage(e));
-        }
-        return checkResult;
-    }
 }

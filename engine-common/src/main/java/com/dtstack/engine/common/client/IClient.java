@@ -52,6 +52,4 @@ public interface IClient {
 	List<String> getRollingLogBaseInfo(JobIdentifier jobIdentifier);
 
 	List<Column> getAllColumns(String tableName,String schemaName,String dbName);
-
-	CheckResult grammarCheck(JobClient jobClient);
 }
