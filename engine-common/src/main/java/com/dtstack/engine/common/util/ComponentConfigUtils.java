@@ -26,7 +26,8 @@ public class ComponentConfigUtils {
     private final static String DEPLOY_MODE = "deploymode";
     private final static String dependencySeparator = "$";
     private static Predicate<String> isOtherControl = s -> "typeName".equalsIgnoreCase(s) || "md5Key".equalsIgnoreCase(s);
-    private static Predicate<ClientTemplate> isAuth = c -> c.getKey().equalsIgnoreCase("password") || c.getKey().equalsIgnoreCase("rsaPath");
+    private static Predicate<ClientTemplate> isAuth = c -> (c.getKey().equalsIgnoreCase("password") || c.getKey().equalsIgnoreCase("rsaPath"))
+            && "auth".equalsIgnoreCase(c.getDependencyKey());
 
 
 
@@ -392,48 +393,44 @@ public class ComponentConfigUtils {
      * 原sftp数据clientTemplate结构变更无法做转换
      * 将原来数据的password 和rsaPath移除 将其内嵌到auth下的input
      *
-     * @param clientTemplates
+     * @param componentConfig
      * @return
      */
     @Deprecated
-    public static void convertOldSftpTemplate(List<ClientTemplate> clientTemplates) {
-        if (CollectionUtils.isEmpty(clientTemplates)) {
-            return;
+    public static List<ClientTemplate> convertOldSftpTemplate(String componentConfig) {
+        if (StringUtils.isEmpty(componentConfig)) {
+            return new ArrayList<>(0);
         }
-        Map<String, ClientTemplate> authMapping = clientTemplates.stream()
-                .filter(isAuth)
-                .collect(Collectors.toMap(ClientTemplate::getKey, c2 -> c2));
+        String templateStr = "[{\"key\":\"auth\",\"required\":true,\"type\":\"RADIO_LINKAGE\",\"value\":\"2\",\"values\":[{\"dependencyKey\":\"auth\",\"dependencyValue\":\"1\",\"key\":\"password\",\"required\":true,\"type\":\"\"," +
+                "\"value\":\"1\",\"values\":[{\"dependencyKey\":\"auth$password\",\"dependencyValue\":\"\",\"key\":\"password\",\"required\":true,\"type\":\"PASSWORD\",\"value\":\"\"}]}," +
+                "{\"dependencyKey\":\"auth\",\"dependencyValue\":\"2\",\"key\":\"rsaPath\",\"required\":true,\"type\":\"\",\"value\":\"2\",\"values\":[{\"dependencyKey\":\"auth$rsaPath\"," +
+                "\"dependencyValue\":\"\",\"key\":\"rsaPath\",\"required\":true,\"type\":\"INPUT\",\"value\":\"\"}]}]},{\"key\":\"fileTimeout\",\"required\":true,\"type\":\"INPUT\",\"value\":\"300000\"}," +
+                "{\"key\":\"host\",\"required\":true,\"type\":\"INPUT\",\"value\":\"\"},{\"key\":\"isUsePool\",\"required\":true,\"type\":\"INPUT\",\"value\":\"true\"}," +
+                "{\"key\":\"maxIdle\",\"required\":true,\"type\":\"INPUT\",\"value\":\"16\"},{\"key\":\"maxTotal\",\"required\":true,\"type\":\"INPUT\",\"value\":\"16\"}," +
+                "{\"key\":\"maxWaitMillis\",\"required\":true,\"type\":\"INPUT\",\"value\":\"3600000\"},{\"key\":\"minIdle\",\"required\":true,\"type\":\"INPUT\",\"value\":\"16\"}," +
+                "{\"key\":\"path\",\"required\":true,\"type\":\"INPUT\",\"value\":\"\"},{\"key\":\"port\",\"required\":true,\"type\":\"INPUT\",\"value\":\"22\"}," +
+                "{\"key\":\"timeout\",\"required\":true,\"type\":\"INPUT\",\"value\":\"0\"},{\"key\":\"username\",\"required\":true,\"type\":\"INPUT\",\"value\":\"\"}]\n";
+        List<ClientTemplate> clientTemplates = JSONObject.parseArray(templateStr, ClientTemplate.class);
+        JSONObject originConfig = JSONObject.parseObject(componentConfig);
         for (ClientTemplate clientTemplate : clientTemplates) {
-            if (clientTemplate.getKey().equalsIgnoreCase("auth")) {
-                clientTemplate.setType(EFrontType.RADIO_LINKAGE.name());
-                List<ClientTemplate> values = clientTemplate.getValues();
-                if (!CollectionUtils.isEmpty(values)) {
-                    for (ClientTemplate value : values) {
-                        value.setType("");
-                        if (MapUtils.isEmpty(authMapping)) {
-                            //dependencyKey value 都不为空 内嵌一层
-                            ClientTemplate sonTemplates = buildCustom(value.getKey(), value.getValue(), EFrontType.INPUT.name());
-                            value.setValue(value.getDependencyValue());
-                            value.setValues(Lists.newArrayList(sonTemplates));
-                        } else {
-                            //dependencyKey value 有缺失 特殊处理
-                            value.setRequired(true);
-                            //设置 dependencyKey dependencyValue的值
-                            value.setDependencyKey("auth");
-                            value.setValue("password".equalsIgnoreCase(value.getKey()) ? 1 : 2);
-                            value.setDependencyValue(String.valueOf(value.getValue()));
-                            //将目前的auth 或 password 内嵌一层到auth下
-                            ClientTemplate realClientTemplate = authMapping.get(value.getKey());
-                            Object realValue = realClientTemplate == null ? value.getValue() : realClientTemplate.getValue();
-                            ClientTemplate sonTemplates = buildCustom(value.getKey(), realValue, EFrontType.INPUT.name());
-                            value.setValues(Lists.newArrayList(sonTemplates));
-                        }
-                    }
+            fillClientTemplate(clientTemplate, originConfig);
+        }
+        return clientTemplates;
+    }
+
+
+    public static void fillClientTemplate(ClientTemplate clientTemplate, JSONObject config) {
+        String value = config.getString(clientTemplate.getKey());
+        if (StringUtils.isNotBlank(value)) {
+            if(!isAuth.test(clientTemplate)){
+                clientTemplate.setValue(value);
+            }
+            if (!CollectionUtils.isEmpty(clientTemplate.getValues())) {
+                for (ClientTemplate clientTemplateValue : clientTemplate.getValues()) {
+                    fillClientTemplate(clientTemplateValue, config);
                 }
             }
         }
-        //移除auth  和 password
-        clientTemplates.removeIf(isAuth);
     }
 
     public static ClientTemplate buildOthers(String key, String value) {

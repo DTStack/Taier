@@ -106,9 +106,11 @@ public class ComponentConfigService {
                 clientTemplate.setType(EFrontType.CUSTOM_CONTROL.name());
             }
         }
-        clientTemplates = ComponentConfigUtils.convertOldClientTemplateToTree(clientTemplates);
+
         if (EComponentType.SFTP.getTypeCode().equals(componentTypeCode)) {
-            ComponentConfigUtils.convertOldSftpTemplate(clientTemplates);
+            clientTemplates = ComponentConfigUtils.convertOldSftpTemplate(componentConfig);
+        } else {
+            clientTemplates = ComponentConfigUtils.convertOldClientTemplateToTree(clientTemplates);
         }
         //提取typeName
         if (StringUtils.isNotBlank(componentConfig)) {
