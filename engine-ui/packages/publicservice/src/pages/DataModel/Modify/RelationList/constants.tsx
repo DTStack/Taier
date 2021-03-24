@@ -3,10 +3,7 @@ import { Divider } from 'antd';
 
 // export const columns = ;
 
-export const columnsGenerator = ({
-  onDelete,
-  onEdit,
-}) => {
+export const columnsGenerator = ({ onDelete, onEdit }) => {
   return [
     {
       title: '序号',
@@ -50,10 +47,15 @@ export const columnsGenerator = ({
       width: 160,
       ellipsis: true,
       render: (value) => {
-        return value && value.reduce((temp, cur) => {
-          return `${temp}${cur.leftValue} = ${cur.rightValue} and `
-        }, '').replace(/ and $/, '')
-      }
+        return (
+          value &&
+          value
+            .reduce((temp, cur) => {
+              return `${temp}${cur.leftValue} = ${cur.rightValue} and `;
+            }, '')
+            .replace(/ and $/, '')
+        );
+      },
     },
     {
       title: '操作',
@@ -68,6 +70,6 @@ export const columnsGenerator = ({
           <a onClick={() => onDelete(record.id)}>删除</a>
         </span>
       ),
-    }
-  ]
-}
+    },
+  ];
+};

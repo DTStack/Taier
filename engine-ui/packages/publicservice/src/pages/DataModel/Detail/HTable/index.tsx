@@ -31,10 +31,12 @@ const HTable = (props: IPropsHTable) => {
       </tr>
       <tr>
         <td className="label">备注</td>
-        <td className="value" colSpan={3}>{detail.remark}</td>
+        <td className="value" colSpan={3}>
+          {detail.remark}
+        </td>
       </tr>
     </table>
-  )
-}
+  );
+};
 
 export default HTable;

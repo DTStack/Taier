@@ -25,8 +25,8 @@ export const relationListColumns = [
     key: 'joinPairs',
     render: () => {
       return '--';
-    }
-  }
+    },
+  },
 ];
 
 export const dimensionListColumns = [
@@ -43,13 +43,13 @@ export const dimensionListColumns = [
   {
     title: '字段别名',
     dataIndex: '',
-    key: 'alias'
+    key: 'alias',
   },
   {
     title: '字段类型',
     dataIndex: 'columnType',
     key: 'columnType',
-  }
+  },
 ];
 
 export const metricListColumns = [
@@ -72,5 +72,5 @@ export const metricListColumns = [
     title: '字段类型',
     dataInedx: 'columnType',
     key: 'columnType',
-  }
+  },
 ];

@@ -10,15 +10,15 @@ export const modelStatusMap = new Map([
 ]);
 
 const getColorByModelStatus = (status: EnumModelStatus) => {
-  switch(status) {
+  switch (status) {
     case EnumModelStatus.RELEASE:
       return '#12BC6A';
     case EnumModelStatus.UNRELEASE:
       return '#FF5F5C';
     case EnumModelStatus.OFFLINE:
-      return '#BFBFBF'
+      return '#BFBFBF';
   }
-}
+};
 
 export const columnsGenerator = ({
   handleModelAction,
@@ -34,12 +34,17 @@ export const columnsGenerator = ({
       width: 240,
       fixed: true,
       render: (modelName, record) => {
-        return <a onClick={() => handleModelNameClick(record.id)}>
-          {modelName}
-        </a>
-      }
+        return (
+          <a onClick={() => handleModelNameClick(record.id)}>{modelName}</a>
+        );
+      },
     },
-    { title: '模型英文名', dataIndex: 'modelEnName', key: 'modelEnName', width: 200 },
+    {
+      title: '模型英文名',
+      dataIndex: 'modelEnName',
+      key: 'modelEnName',
+      width: 200,
+    },
     {
       title: '数据源',
       dataIndex: 'dataSourceType',
@@ -61,7 +66,10 @@ export const columnsGenerator = ({
       key: 'modelStatus',
       width: 160,
       // TODO:
-      filters: Array.from(modelStatusMap).map(item => ({ text: item[1], value: item[0] })),
+      filters: Array.from(modelStatusMap).map((item) => ({
+        text: item[1],
+        value: item[0],
+      })),
       filterMultiple: true,
       render: (modelStatus) => {
         return (
@@ -72,12 +80,22 @@ export const columnsGenerator = ({
             />
             {modelStatusMap.get(modelStatus)}
           </div>
-        )
-      }
+        );
+      },
     },
     { title: '创建人', dataIndex: 'creator', key: 'creator', width: 160 },
-    { title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 200 },
-    { title: '更新时间', dataIndex: 'updateTime', key: 'updateTime', width: 200 },
+    {
+      title: '创建时间',
+      dataIndex: 'createTime',
+      key: 'createTime',
+      width: 200,
+    },
+    {
+      title: '更新时间',
+      dataIndex: 'updateTime',
+      key: 'updateTime',
+      width: 200,
+    },
     { title: '备注', dataIndex: 'remark', key: 'remark', width: 200 },
     {
       title: '操作',
@@ -87,37 +105,59 @@ export const columnsGenerator = ({
       render: (text, record) => {
         const isPublished = record.modelStatus === 1;
         const btnRelease = (
-          <a onClick={() => handleModelAction({ type: EnumModelActionType.RELEASE, id: record.id })}>发布</a>
+          <a
+            onClick={() =>
+              handleModelAction({
+                type: EnumModelActionType.RELEASE,
+                id: record.id,
+              })
+            }>
+            发布
+          </a>
         );
         const btnUnrelease = (
-          <a onClick={() => handleModelAction({ type: EnumModelActionType.UNRELEASE, id: record.id })}>下线</a>
+          <a
+            onClick={() =>
+              handleModelAction({
+                type: EnumModelActionType.UNRELEASE,
+                id: record.id,
+              })
+            }>
+            下线
+          </a>
         );
         const btnDelete = (isPublish: boolean) => {
-          if(!isPublish) {
+          if (!isPublish) {
             return (
-              <a onClick={() => {
-                handleDeleteBtnClick(record.id);
-              }}>删除</a>
-            )
+              <a
+                onClick={() => {
+                  handleDeleteBtnClick(record.id);
+                }}>
+                删除
+              </a>
+            );
           } else {
-            return <span className="btn-disabled">删除</span>
+            return <span className="btn-disabled">删除</span>;
           }
-        }
+        };
         // TODO:
         const btnEdit = (
-          <a onClick={() => {
-            alert('编辑')
-          }}>编辑</a>
-        )
+          <a
+            onClick={() => {
+              alert('编辑');
+            }}>
+            编辑
+          </a>
+        );
         return (
           <span>
-            { isPublished ? btnUnrelease : btnRelease }
+            {isPublished ? btnUnrelease : btnRelease}
             <Divider type="vertical" />
             {btnEdit}
             <Divider type="vertical" />
             {btnDelete(isPublished)}
           </span>
-        )
+        );
       },
     },
   ];

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Container from '../components/Container';
-import { Input, Table, Pagination, Modal, Drawer, Button } from 'antd'
+import { Input, Table, Pagination, Modal, Drawer, Button } from 'antd';
 import { IModelData } from '../types';
 import { EnumModelActionType } from './types';
 import { columnsGenerator } from './constants';
@@ -28,8 +28,8 @@ interface IReqParams {
   // modelStatus: 0 | 1 | 2;
 }
 interface IModelAction {
-  type: EnumModelActionType,
-  id: number,
+  type: EnumModelActionType;
+  id: number;
 }
 
 const List = () => {
@@ -44,8 +44,8 @@ const List = () => {
   const [requestParams, setRequestParams] = useState<IReqParams>({
     asc: true,
     current: 1,
-    field: "",
-    search: "",
+    field: '',
+    search: '',
     size: 10,
     // dataSourceId: '',
     // modelStatus: 0,
@@ -59,19 +59,19 @@ const List = () => {
 
   /**
    * 获取数据模型列表
-   * @param requestParams 
+   * @param requestParams
    */
   const fetchModelList = async (requestParams: IReqParams) => {
     try {
       setLoading(true);
       const { success, data, message } = await API.getModelList(requestParams);
-      if(success) {
+      if (success) {
         setModelList(data.data);
         setPagination({
           current: data.currentPage,
           size: data.pageSize,
-          total: data.totalCount
-        })
+          total: data.totalCount,
+        });
       } else {
         Message.error(message);
       }
@@ -80,37 +80,41 @@ const List = () => {
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   const fetchFilterDataSourceList = async () => {
     try {
-      const { success, data, message } = await API.getDataModelUsedDataSourceList();
+      const {
+        success,
+        data,
+        message,
+      } = await API.getDataModelUsedDataSourceList();
       if (success) {
         setUsedDatasourceList(data);
       } else {
         Message.error(message);
       }
-    } catch(error) {
+    } catch (error) {
       Message.error(error.message);
     }
-  }
+  };
 
   useEffect(() => {
     fetchFilterDataSourceList();
-  }, [])
+  }, []);
 
   // TODO: icon,toast位置
   const handleModelAction = useCallback(async (action: IModelAction) => {
     const { type, id } = action;
     let apiAction, msg;
-    switch(type) {
+    switch (type) {
       case EnumModelActionType.DELETE:
         apiAction = API.deleteModel;
-        msg = '模型删除成功'
+        msg = '模型删除成功';
         break;
       case EnumModelActionType.RELEASE:
         apiAction = API.releaseModel;
-        msg = '发布成功'
+        msg = '发布成功';
         break;
       case EnumModelActionType.UNRELEASE:
         apiAction = API.unreleaseModel;
@@ -120,15 +124,15 @@ const List = () => {
 
     try {
       const { success, message } = await apiAction({ id });
-      if(success) {
+      if (success) {
         Message.success(msg);
       } else {
         Message.error(message);
       }
-    } catch(error) {
+    } catch (error) {
       Message.error(error.message);
     }
-  }, [])
+  }, []);
 
   // 删除按钮点击事件处理，二次确认弹窗
   const handleDeleteBtnClick = (id) => {
@@ -139,11 +143,11 @@ const List = () => {
       onOk() {
         handleModelAction({
           type: EnumModelActionType.DELETE,
-          id
-        })
+          id,
+        });
       },
-    })
-  }
+    });
+  };
 
   /**
    * 更新模型详情ID
@@ -154,87 +158,103 @@ const List = () => {
     setDrawer({
       visible: true,
       modelId: id,
-    })
-  }
+    });
+  };
 
   const columns = useMemo(() => {
     return columnsGenerator({
       handleModelAction,
       handleDeleteBtnClick,
       handleModelNameClick,
-      dataSourceFilterOptions: _.uniqBy(usedDataSourceList, 'dsType').map(item => ({ text: item.dsTypeName, value: item.dsType })),
+      dataSourceFilterOptions: _.uniqBy(
+        usedDataSourceList,
+        'dsType'
+      ).map((item) => ({ text: item.dsTypeName, value: item.dsType })),
     });
-  }, [handleModelAction, handleDeleteBtnClick, handleModelNameClick, usedDataSourceList]);
+  }, [
+    handleModelAction,
+    handleDeleteBtnClick,
+    handleModelNameClick,
+    usedDataSourceList,
+  ]);
 
   useEffect(() => {
     fetchModelList(requestParams);
   }, [requestParams]);
 
-  return <div className="dm-list">
-    <Container>
-      <header className="search-area">
-        <Search
-          className="search"
-          placeholder="模型名称/英文名"
-          onSearch={value => setRequestParams(prev => ({ ...prev, search: value }))}
-        />
-        <Button className="float-right" type="primary">新建模型</Button>
-      </header>
-      <div className="table-area">
-        <Table
-          rowKey="id"
-          className="table dt-table-border"
-          columns={columns as any}
-          loading={loading}
-          dataSource={modelList}
-          pagination={false}
-          scroll={{ x: 1300, y: 800 }}
-          onChange={(pagination, filters) => {
-            // TODO: 
-            // setRequestParams(reqParams => ({
-            //   ...reqParams,
-            //   modelStatus: filters.modelStatus as any,
-            //   dataSourceId: (filters as any).dataSourceType
-            // }))
-          }}
-        />
-        <Drawer
-          closable={false}
-          visible={drawer.visible}
-          className="drawer"
-          width={1000}
-          getContainer={() => document.querySelector('.table-area')}
-          mask={false}
-          onClose={() => {
-            setDrawer({
-              visible: false,
-              modelId: -1
-            })
-          }}
-        >
-          {/* TODO: ICON */}
-          <div className="slider" onClick={() => setDrawer({ visible: false, modelId: -1 })} />
-          <Detail modelId={drawer.modelId} />
-        </Drawer>
-        <div className="pagination-container">
-          <Pagination
-            className="pagination"
-            current={pagination.current}
-            pageSize={pagination.size}
-            total={pagination.total}
-            size="small"
-            onChange={(current, size) => {
-              setRequestParams(prev => ({
-                ...prev,
-                current,
-                size
-              }))
+  return (
+    <div className="dm-list">
+      <Container>
+        <header className="search-area">
+          <Search
+            className="search"
+            placeholder="模型名称/英文名"
+            onSearch={(value) =>
+              setRequestParams((prev) => ({ ...prev, search: value }))
+            }
+          />
+          <Button className="float-right" type="primary">
+            新建模型
+          </Button>
+        </header>
+        <div className="table-area">
+          <Table
+            rowKey="id"
+            className="table dt-table-border"
+            columns={columns as any}
+            loading={loading}
+            dataSource={modelList}
+            pagination={false}
+            scroll={{ x: 1300, y: 800 }}
+            onChange={(pagination, filters) => {
+              // TODO:
+              // setRequestParams(reqParams => ({
+              //   ...reqParams,
+              //   modelStatus: filters.modelStatus as any,
+              //   dataSourceId: (filters as any).dataSourceType
+              // }))
             }}
           />
+          <Drawer
+            closable={false}
+            visible={drawer.visible}
+            className="drawer"
+            width={1000}
+            getContainer={() => document.querySelector('.table-area')}
+            mask={false}
+            onClose={() => {
+              setDrawer({
+                visible: false,
+                modelId: -1,
+              });
+            }}>
+            {/* TODO: ICON */}
+            <div
+              className="slider"
+              onClick={() => setDrawer({ visible: false, modelId: -1 })}
+            />
+            <Detail modelId={drawer.modelId} />
+          </Drawer>
+          <div className="pagination-container">
+            <Pagination
+              className="pagination"
+              current={pagination.current}
+              pageSize={pagination.size}
+              total={pagination.total}
+              size="small"
+              onChange={(current, size) => {
+                setRequestParams((prev) => ({
+                  ...prev,
+                  current,
+                  size,
+                }));
+              }}
+            />
+          </div>
         </div>
-      </div>
-    </Container>
-  </div>
-}
+      </Container>
+    </div>
+  );
+};
 
 export default List;

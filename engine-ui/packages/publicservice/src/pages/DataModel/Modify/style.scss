@@ -14,7 +14,7 @@
     .step-content {
       width: 100%;
       height: calc(100% - 107px);
-      background: #FAFAFA;
+      background: #fafafa;
       border-radius: 0px 0px 2px 2px;
       .inner-container {
         width: 100%;
@@ -27,7 +27,7 @@
             font-size: 12px;
             font-family: PingFangSC-Regular, PingFang SC;
             font-weight: 400;
-            color: #3F87FF;
+            color: #3f87ff;
             line-height: 20px;
             margin-top: 20px;
             margin-bottom: 13px;
@@ -42,8 +42,8 @@
       position: relative;
       width: 100%;
       height: 55px;
-      background-color: #FAFAFA;
-      border-top: 1px solid #E8E8E8;
+      background-color: #fafafa;
+      border-top: 1px solid #e8e8e8;
       .button-area {
         position: absolute;
         left: 50%;
@@ -69,6 +69,6 @@
   }
   &-TEXT_AREA {
     width: 600px;
-    height: 92px!important;
+    height: 92px !important;
   }
 }

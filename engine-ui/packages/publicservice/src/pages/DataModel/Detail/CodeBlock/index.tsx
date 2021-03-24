@@ -15,23 +15,24 @@ const CodeBlock = (props: IPropsCodeBlock) => {
   const dom = useRef(null);
 
   useEffect(() => {
-    if(!dom.current) return;
+    if (!dom.current) return;
     hljs.highlightBlock(dom.current);
-  }, [])
+  }, []);
   return (
     <div className="code-block">
       <div className="code-container">
         <pre className="pre">
-          <code ref={dom}
+          <code
+            ref={dom}
             className="code"
             dangerouslySetInnerHTML={{
-              __html: code
+              __html: code,
             }}
           />
         </pre>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default CodeBlock;

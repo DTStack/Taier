@@ -12,7 +12,7 @@ const PaneTitle = (props: IPropsPaneTitle) => {
       <div className="block" />
       <span className="title">{title}</span>
     </div>
-  )
-}
+  );
+};
 
 export default PaneTitle;

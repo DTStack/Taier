@@ -9,7 +9,7 @@ interface IPropsFormRender {
 }
 
 const getComponentByFormItemType = (type: EnumFormItemType) => {
-  switch(type) {
+  switch (type) {
     case EnumFormItemType.INPUT:
       return Input;
     case EnumFormItemType.SELECT:
@@ -21,49 +21,46 @@ const getComponentByFormItemType = (type: EnumFormItemType) => {
     case EnumFormItemType.RELATION_LIST:
       return RelationList;
   }
-}
+};
 
 const FormRender = (props: IPropsFormRender) => {
   const { formList, form } = props;
   return (
     <>
-      {
-        formList.map(item => {
-          const FormComponent = getComponentByFormItemType(item.type);
-          const isRequired = item.rules && item.rules.findIndex(rule => rule.required === true) > -1;
-          const className = `form-item-${item.type}`;
-          const visible = item.visible === undefined ? true : item.visible;
-          const ext = item.ext ? item.ext : {};
-          return (
-            visible && item.label !== '' ? (
-              <Form.Item required={isRequired} label={item.label}>
-                {
-                  form.getFieldDecorator(item.key, {
-                    rules: item.rules,
-                  })(
-                    <FormComponent className={className} placeholder={item.placeholder} {...ext} >
-                      {
-                        FormComponent === Select && item.options ? (
-                          item.options.map(option => (
-                            <Select.Option key={option.key} value={option.value}>
-                              {option.label}
-                            </Select.Option>
-                          ))
-                        ) : null
-                      }
-                    </FormComponent>
-                  )
-                }
-              </Form.Item>
-            ) : (
-              // 非form组件，不渲染Form.Item
-              visible ? <FormComponent className={className} {...ext} /> : null
-            )
-          )
-        })
-      }
+      {formList.map((item) => {
+        const FormComponent = getComponentByFormItemType(item.type);
+        const isRequired =
+          item.rules &&
+          item.rules.findIndex((rule) => rule.required === true) > -1;
+        const className = `form-item-${item.type}`;
+        const visible = item.visible === undefined ? true : item.visible;
+        const ext = item.ext ? item.ext : {};
+        return visible && item.label !== '' ? (
+          <Form.Item required={isRequired} label={item.label}>
+            {form.getFieldDecorator(item.key, {
+              rules: item.rules,
+            })(
+              <FormComponent
+                className={className}
+                placeholder={item.placeholder}
+                {...ext}>
+                {FormComponent === Select && item.options
+                  ? item.options.map((option) => (
+                      <Select.Option key={option.key} value={option.value}>
+                        {option.label}
+                      </Select.Option>
+                    ))
+                  : null}
+              </FormComponent>
+            )}
+          </Form.Item>
+        ) : // 非form组件，不渲染Form.Item
+        visible ? (
+          <FormComponent className={className} {...ext} />
+        ) : null;
+      })}
     </>
-  )
-}
+  );
+};
 
 export default FormRender;

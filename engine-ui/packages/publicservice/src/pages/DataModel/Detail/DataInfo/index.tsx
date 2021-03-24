@@ -7,7 +7,6 @@ import {
   dimensionListColumns,
 } from './constants';
 
-
 interface ITableItem {
   title: string;
   columns: any[];
@@ -18,19 +17,19 @@ const tableList: ITableItem[] = [
   {
     title: '关联表',
     columns: relationListColumns,
-    dataSource: []
+    dataSource: [],
   },
   {
     title: '维度',
     columns: dimensionListColumns,
-    dataSource: []
+    dataSource: [],
   },
   {
     title: '度量',
     columns: metricListColumns,
-    dataSource: []
-  }
-]
+    dataSource: [],
+  },
+];
 
 interface IPropsDataInfo {
   relationTableList: any[];
@@ -48,23 +47,19 @@ const DataInfo = (props: IPropsDataInfo) => {
 
   return (
     <div className="data-info">
-      {
-        tableList.map(item => (
-          <>
-            <div className="title">
-              {item.title}
-            </div>
-            <Table
-              rowKey={(record, index) => index.toString()}
-              columns={item.columns}
-              dataSource={item.dataSource}
-              pagination={false}
-            />
-          </>
-        ))
-      }
+      {tableList.map((item) => (
+        <>
+          <div className="title">{item.title}</div>
+          <Table
+            rowKey={(record, index) => index.toString()}
+            columns={item.columns}
+            dataSource={item.dataSource}
+            pagination={false}
+          />
+        </>
+      ))}
     </div>
-  )
-}
+  );
+};
 
 export default DataInfo;

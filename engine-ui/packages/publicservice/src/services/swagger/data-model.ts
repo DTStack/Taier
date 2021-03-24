@@ -54,5 +54,5 @@ export default {
   previewSql: {
     method: 'post',
     url: `${prefix}/sqlPreview`,
-  }
+  },
 };

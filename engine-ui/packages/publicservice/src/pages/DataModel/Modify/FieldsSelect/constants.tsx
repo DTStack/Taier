@@ -30,13 +30,13 @@ export const data: FieldColumn[] = [
     columnType: 'ccc',
     schema: 'schema',
     tableName: 'tableName',
-  }
+  },
 ];
 
 export const idGenerator = () => {
   let _id = 0;
   return () => ++_id;
-}
+};
 
 export const columnsGenerator = ({ onInputBlur }): Column[] => {
   return [
@@ -61,14 +61,17 @@ export const columnsGenerator = ({ onInputBlur }): Column[] => {
       width: 160,
       render: (comment, record) => {
         return (
-          <Input defaultValue={comment} onBlur={(e) => onInputBlur(record.id, e.currentTarget.value)} />
-        )
-      }
+          <Input
+            defaultValue={comment}
+            onBlur={(e) => onInputBlur(record.id, e.currentTarget.value)}
+          />
+        );
+      },
     },
     {
       title: '字段类型',
       dataIndex: 'columnType',
       width: 120,
-    }
+    },
   ];
-}
+};

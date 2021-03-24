@@ -10,16 +10,21 @@ interface IPropsRelationList {
 }
 
 const RelationList = (props: IPropsRelationList) => {
-
-  const columns = useMemo(() => columnsGenerator({
-    onDelete: props.onRelationListDelete,
-    onEdit: props.onRelationListEdit,
-  }), []);
+  const columns = useMemo(
+    () =>
+      columnsGenerator({
+        onDelete: props.onRelationListDelete,
+        onEdit: props.onRelationListEdit,
+      }),
+    []
+  );
 
   const { onClick = () => {}, data = [] } = props;
   return (
     <>
-      <span className="btn-link" onClick={onClick}>+ 添加关联表</span>
+      <span className="btn-link" onClick={onClick}>
+        + 添加关联表
+      </span>
       <Table
         rowKey="id"
         className="relation-list dt-table-border"
@@ -29,7 +34,7 @@ const RelationList = (props: IPropsRelationList) => {
         scroll={{ x: 600, y: 300 }}
       />
     </>
-  )
-}
+  );
+};
 
 export default RelationList;
