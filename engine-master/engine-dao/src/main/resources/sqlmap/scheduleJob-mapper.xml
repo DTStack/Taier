@@ -1639,7 +1639,7 @@
         <if test="appType != null">
             and bj.app_type = #{appType}
         </if>
-        and bj.is_deleted=0;
+        and bj.is_deleted=0 and bj.status != 0
     </select>
 
     <select id="getListMinId" resultType="java.lang.Long">
