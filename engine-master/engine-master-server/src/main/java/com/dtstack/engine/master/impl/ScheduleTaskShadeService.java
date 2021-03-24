@@ -890,6 +890,12 @@ public class ScheduleTaskShadeService {
 
         ScheduleDetailsVO vo = buildScheduleDetailsVO(shadeDaoOne);
         List<ScheduleDetailsVO> vos =Lists.newArrayList();
+        build(taskId, appType, vos);
+        vo.setScheduleDetailsVOList(vos);
+        return vo;
+    }
+
+    private void build(Long taskId, Integer appType, List<ScheduleDetailsVO> vos) {
         List<ScheduleTaskShade> scheduleTaskShades = scheduleTaskShadeDao.listTaskRuleTask(taskId, appType);
 
         for (ScheduleTaskShade taskShade : scheduleTaskShades) {
@@ -900,8 +906,6 @@ public class ScheduleTaskShadeService {
                 }
             }
         }
-        vo.setScheduleDetailsVOList(vos);
-        return vo;
     }
 
     private ScheduleDetailsVO buildScheduleDetailsVO(ScheduleTaskShade taskShade) {
@@ -926,5 +930,25 @@ public class ScheduleTaskShadeService {
             return vo;
         }
         return null;
+    }
+
+    public List<ScheduleTaskShade> findChildTaskRuleByTaskId(Long taskId, Integer appType) {
+        if (appType == null) {
+            throw new RdosDefineException("appType must be passed");
+        }
+
+        if (taskId == null) {
+            throw new RdosDefineException("taskId must be passed");
+        }
+        List<ScheduleTaskShade> taskShades = Lists.newArrayList();
+        List<ScheduleTaskShade> scheduleTaskShades = scheduleTaskShadeDao.listTaskRuleTask(taskId, appType);
+
+        for (ScheduleTaskShade taskShade : scheduleTaskShades) {
+            if (!TaskRuleEnum.NO_RULE.getCode().equals(taskShade.getTaskRule())) {
+                taskShades.add(taskShade);
+            }
+        }
+
+        return taskShades;
     }
 }
