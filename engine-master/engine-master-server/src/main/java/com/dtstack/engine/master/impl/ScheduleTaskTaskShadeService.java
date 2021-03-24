@@ -110,7 +110,7 @@ public class ScheduleTaskTaskShadeService {
             directType = 0;
         }
         if(context.getUseOptimize()) {
-            return this.getOffSpringNew(task, level, directType, projectId, appType,new ArrayList<>());
+            return this.getOffSpringNew(task, level, directType, projectId, appType, new ArrayList<>());
         }else{
             return this.getOffSpring(task,level,directType,projectId,appType);
         }
@@ -176,6 +176,10 @@ public class ScheduleTaskTaskShadeService {
             if (CollectionUtils.isNotEmpty(parentTaskList) && parentTaskList.get(0) != null) {
                 vo.setTaskVOS(parentTaskList);
             }
+
+            if (CollectionUtils.isNotEmpty(taskRuleList) && taskRuleList.get(0) != null) {
+                vo.setTaskRuleList(taskRuleList);
+            }
         }
         if (!CollectionUtils.isEmpty(childTaskTasks)) {
             //向下展开
@@ -183,6 +187,10 @@ public class ScheduleTaskTaskShadeService {
             childTaskList = getRefTaskNew(listMap, level, DisplayDirect.CHILD.getType(), currentProjectId, taskIdRelations,taskRuleList);
             if (CollectionUtils.isNotEmpty(childTaskList) && childTaskList.get(0) != null) {
                 vo.setSubTaskVOS(childTaskList);
+            }
+
+            if (CollectionUtils.isNotEmpty(taskRuleList) && taskRuleList.get(0) != null) {
+                vo.setTaskRuleList(taskRuleList);
             }
         }
         return vo;
@@ -279,11 +287,6 @@ public class ScheduleTaskTaskShadeService {
 
     public List<ScheduleTaskVO> getRefTaskNew(Map<Integer, List<ScheduleTaskTaskShade>> listMap, int level, Integer directType,
                                               Long currentProjectId,List<String> taskIdRelations,List<ScheduleTaskVO> taskVOList){
-
-        if (CollectionUtils.isEmpty(taskVOList)) {
-            taskVOList = Lists.newArrayList();
-        }
-
         List<ScheduleTaskShade> tasks = getScheduleTaskShades(listMap);
 
         if (CollectionUtils.isEmpty(tasks)) {

@@ -1106,9 +1106,13 @@ public class JobGraphBuilder {
         Map<String, ScheduleBatchJob> result = new HashMap<>(16);
         if (jsonObject != null && jsonObject.size() > 0) {
             for (JsonNode jsonNode : jsonObject) {
+                if (jsonObject.has("appType")) {
+                    JsonNode node = jsonObject.get(appType);
+                    appType = node.asInt();
+                }
 
-                    Map<String, ScheduleBatchJob> stringScheduleBatchJobMap = buildFillDataJobGraph(jsonNode, fillJobName, needFather, triggerDay, createUserId, beginTime, endTime, projectId, tenantId, isRoot,appType,fillId,dtuicTenantId);
-                    result.putAll(stringScheduleBatchJobMap);
+                Map<String, ScheduleBatchJob> stringScheduleBatchJobMap = buildFillDataJobGraph(jsonNode, fillJobName, needFather, triggerDay, createUserId, beginTime, endTime, projectId, tenantId, isRoot,appType,fillId,dtuicTenantId);
+                result.putAll(stringScheduleBatchJobMap);
             }
         }
         return result;
@@ -1120,6 +1124,11 @@ public class JobGraphBuilder {
         Map<String, ScheduleBatchJob> result = new HashMap<>();
         if (jsonObject != null && jsonObject.size() > 0) {
             for (JsonNode jsonNode : jsonObject) {
+                if (jsonObject.has("appType")) {
+                    JsonNode node = jsonObject.get(appType);
+                    appType = node.asInt();
+                }
+
                 Map<String, ScheduleBatchJob> stringScheduleBatchJobMap = buildFillDataJobGraph(jsonNode, fillJobName, needFather, triggerDay, createUserId, null, null, projectId, tenantId, isRoot,appType,fillId,dtuicTenantId);
                 result.putAll(stringScheduleBatchJobMap);
             }
