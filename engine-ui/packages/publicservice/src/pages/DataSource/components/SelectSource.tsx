@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
-import SearchInput from "@/components/SearchInput";
-import { Menu, List, notification } from "antd";
-import { API } from "@/services";
-import { getSaveStatus } from "../utils/handelSession";
+import React, { useEffect, useState } from 'react';
+import SearchInput from '@/components/SearchInput';
+import { Menu, List, notification } from 'antd';
+import { API } from '@/services';
+import { getSaveStatus } from '../utils/handelSession';
+import showimg  from "./images/DB2.png"
 
 export default function SelectSource(props) {
   const { nextType } = props;
@@ -23,19 +24,19 @@ export default function SelectSource(props) {
         setCurrent(echoCurrent); //左侧菜单列表选择的id
         setDefaultMenu(data[0].classifyId); //左侧菜单全部选项id
 
-        queryDsTypeByClassify(echoCurrent, "", saveStatus.sqlType?.typeId);
+        queryDsTypeByClassify(echoCurrent, '', saveStatus.sqlType?.typeId);
       }
     } catch (error) {
       notification.error({
-        message: "错误！",
-        description: "获取数据源分类类目列表失败！",
+        message: '错误！',
+        description: '获取数据源分类类目列表失败！',
       });
     }
   };
 
   const queryDsTypeByClassify = async (
     classifyId: number,
-    search: string = "",
+    search: string = '',
     echoTypeId?: string
   ) => {
     try {
@@ -47,15 +48,15 @@ export default function SelectSource(props) {
       if (success) {
         data.forEach((ele) => {
           ele.selected = ele.typeId === echoTypeId ? true : false;
-          ele.imgUrl = window.location.origin + "/assets/imgs/" + ele.imgUrl;
+          ele.imgUrl = window.location.origin +"/public/assets/imgs/" + ele.imgUrl;
         });
 
         setIconList(data || []);
       }
     } catch (error) {
       notification.error({
-        message: "错误！",
-        description: "根据分类获取数据源类型失败！",
+        message: '错误！',
+        description: '根据分类获取数据源类型失败！',
       });
     }
   };
@@ -75,7 +76,7 @@ export default function SelectSource(props) {
     setCurrent(e.key);
     queryDsTypeByClassify(e.key);
 
-    sessionStorage.setItem("current", e.key); //菜单回显
+    sessionStorage.setItem('current', e.key); //菜单回显
   };
 
   //选择对应类型
@@ -91,8 +92,8 @@ export default function SelectSource(props) {
 
     setIconList(data);
     nextType(true); //显示下一步
-    sessionStorage.setItem("sqlType", JSON.stringify(item)); //存储数据源
-    sessionStorage.removeItem("version");
+    sessionStorage.setItem('sqlType', JSON.stringify(item)); //存储数据源
+    sessionStorage.removeItem('version');
   };
 
   return (
@@ -100,16 +101,14 @@ export default function SelectSource(props) {
       <SearchInput
         placeholder="按数据源名称搜索"
         onSearch={(value) => onSearch(value)}
-        width={220}
-      ></SearchInput>
+        width={220}></SearchInput>
 
       <div className="show-type">
         <div className="left-menu">
           <Menu
             selectedKeys={[String(current)]}
             mode="inline"
-            onClick={handleMenuClick}
-          >
+            onClick={handleMenuClick}>
             {list.length > 0 &&
               list.map((item) => {
                 return (
@@ -131,9 +130,9 @@ export default function SelectSource(props) {
                     <img
                       src={item.imgUrl}
                       alt="图片显示失败"
-                      className={item.selected ? "selected" : ""}
+                      className={item.selected ? 'selected' : ''}
                     />
-                    <p style={{ textAlign: "center", width: 216 }}>
+                    <p style={{ textAlign: 'center', width: 216 }}>
                       {item.dataType}
                     </p>
                   </div>

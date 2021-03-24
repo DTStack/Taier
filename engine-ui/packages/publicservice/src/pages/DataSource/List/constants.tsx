@@ -1,7 +1,7 @@
 import React from "react";
 import { Divider, Popconfirm, Icon, Tag, Badge, notification } from "antd";
 import "./style.scss";
-import { ExtTableCell } from "./extTableCell";
+import { ExtTableCell } from "./components/extTableCell";
 
 const columns = (props: any) => {
   const { toEdit, toAuth, toDelete, left, right, filters } = props;

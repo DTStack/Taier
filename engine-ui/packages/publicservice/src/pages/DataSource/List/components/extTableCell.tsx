@@ -1,6 +1,6 @@
 import React from "react";
 
-import { DATA_SOURCE } from "../constants/index";
+import { DATA_SOURCE } from "../../constants/index";
 
 const showMapArr: any = {
   [DATA_SOURCE.MYSQL]: [
