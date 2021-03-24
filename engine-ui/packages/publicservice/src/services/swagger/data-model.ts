@@ -49,5 +49,10 @@ export default {
   getDataModelTableList: {
     method: 'get',
     url: `${prefix}/data/tables`,
+  },
+  // SQL预览
+  previewSql: {
+    method: 'post',
+    url: `${prefix}/sqlPreview`,
   }
 };

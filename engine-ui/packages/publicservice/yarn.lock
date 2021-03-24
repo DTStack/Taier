@@ -5543,6 +5543,11 @@ hex-color-regex@^1.1.0:
   resolved "http://registry.npm.dtstack.com/hex-color-regex/-/hex-color-regex-1.1.0.tgz#4c06fccb4602fe2602b3c93df82d7e7dbf1a8a8e"
   integrity sha1-TAb8y0YC/iYCs8k9+C1+fb8aio4=
 
+highlight.js@^10.7.1:
+  version "10.7.1"
+  resolved "http://registry.npm.dtstack.com/highlight.js/-/highlight.js-10.7.1.tgz#a8ec4152db24ea630c90927d6cae2a45f8ecb955"
+  integrity sha1-qOxBUtsk6mMMkJJ9bK4qRfjsuVU=
+
 history@^4.9.0:
   version "4.10.1"
   resolved "http://registry.npm.dtstack.com/history/-/history-4.10.1.tgz#33371a65e3a83b267434e2b3f3b1b4c58aad4cf3"

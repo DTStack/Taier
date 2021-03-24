@@ -1,0 +1,19 @@
+$panel-height: calc(100vh - 64px - 40px - 44px);
+.code-block {
+  border-radius: 2px;
+  border: 1px solid #DDDDDD;
+  padding: 20px;
+  overflow: hidden;
+  max-height: 100%;
+  .code-container {
+    width: 100%;
+    max-height: calc(#{$panel-height} - 40px - 37px - 40px);
+    overflow: auto;
+    .pre {
+      margin: 0;
+      .code {
+        padding: 0;
+      }
+    }
+  }
+}
