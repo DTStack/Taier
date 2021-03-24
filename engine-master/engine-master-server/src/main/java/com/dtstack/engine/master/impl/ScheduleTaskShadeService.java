@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -714,7 +715,7 @@ public class ScheduleTaskShadeService {
         return exceedMessage;
     }
 
-    public String addOrUpdateBatchTask(List<ScheduleTaskShadeDTO> batchTaskShadeDTOs) {
+    public String addOrUpdateBatchTask(List<ScheduleTaskShadeDTO> batchTaskShadeDTOs, String commitId) {
         if (CollectionUtils.isEmpty(batchTaskShadeDTOs)) {
             return null;
         }
@@ -723,7 +724,10 @@ public class ScheduleTaskShadeService {
             throw new RdosDefineException("The number of tasks added or modified in batch cannot exceed:" + environmentContext.getMaxBatchTask());
         }
 
-        String commitId = UUID.randomUUID().toString();
+        if (StringUtils.isBlank(commitId)) {
+            LOGGER.info("commitId未传，自动生成commitId");
+            commitId = UUID.randomUUID().toString();
+        }
 
         try {
             List<ScheduleTaskCommit> scheduleTaskCommits = Lists.newArrayList();
@@ -770,7 +774,7 @@ public class ScheduleTaskShadeService {
         }
     }
 
-
+    @Transactional
     public Boolean taskCommit(String commitId) {
         LOGGER.info("submit task commitId:{}",commitId);
         Long minId = scheduleTaskCommitMapper.findMinIdOfTaskCommitByCommitId(commitId);

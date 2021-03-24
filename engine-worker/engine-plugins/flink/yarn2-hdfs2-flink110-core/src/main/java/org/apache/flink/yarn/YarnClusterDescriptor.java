@@ -111,16 +111,7 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.flink.configuration.ConfigConstants.DEFAULT_FLINK_USR_LIB_DIR;
@@ -459,7 +450,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 	}
 
 	private boolean isSecurityEnabled() {
-		return flinkConfiguration.getBoolean("openKerberos", false);
+		return flinkConfiguration.getBoolean(ConfigConstrant.OPEN_KERBEROS_KEY, false);
 	}
 
 	/**

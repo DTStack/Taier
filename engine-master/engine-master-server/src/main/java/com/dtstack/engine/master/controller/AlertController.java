@@ -22,6 +22,7 @@ import com.dtstack.lang.data.R;
 import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,36 +71,40 @@ public class AlertController {
     @PostMapping("/edit")
     public Boolean edit(@RequestParam(value = "file", required = false) MultipartFile file,
                                     AlertGateVO alertGateVO) throws Exception {
-        CheckUtils.checkAlertGateVOFormat(alertGateVO);
-        if (alertGateVO.getId() == null) {
-            Assert.isTrue(!alertChannelService.checkAlertGateSourceExist(alertGateVO.getAlertGateSource()), "通道标识以重复，请修改通道标识");
-        }
+        try {
+            CheckUtils.checkAlertGateVOFormat(alertGateVO);
+            if (alertGateVO.getId() == null) {
+                Assert.isTrue(!alertChannelService.checkAlertGateSourceExist(alertGateVO.getAlertGateSource()), "通道标识以重复，请修改通道标识");
+            }
 
-        if (file != null) {
-            String filePath = mvcConfig.getPluginPath(false,alertGateVO.getAlertGateSource());
-            String destPath = filePath + "/" + file.getOriginalFilename();
-            File destFile = new File(destPath);
-            if (!destFile.exists()) {
-                if (!destFile.getParentFile().exists()) {
-                    destFile.getParentFile().mkdirs();
+            if (file != null) {
+                String filePath = mvcConfig.getPluginPath(false,alertGateVO.getAlertGateSource());
+                String destPath = filePath + "/" + file.getOriginalFilename();
+                File destFile = new File(destPath);
+                if (!destFile.exists()) {
+                    if (!destFile.getParentFile().exists()) {
+                        destFile.getParentFile().mkdirs();
+                    }
+                    destFile.createNewFile();
                 }
-                destFile.createNewFile();
-            }
-            file.transferTo(destFile);
+                file.transferTo(destFile);
 
-            String dbPath = destPath;
-            // 上传sftp
-            if (environmentContext.getOpenConsoleSftp() && sftpDownloadEvent != null) {
-                // 查询默认集群的sftp
-                dbPath = sftpDownloadEvent.uploadFileToSftp(file, filePath, destPath, dbPath);
+                String dbPath = destPath;
+                // 上传sftp
+                if (environmentContext.getOpenConsoleSftp() && sftpDownloadEvent != null) {
+                    // 查询默认集群的sftp
+                    dbPath = sftpDownloadEvent.uploadFileToSftp(file, filePath, destPath, dbPath);
+                }
+
+                alertGateVO.setFilePath(dbPath);
+            } else {
+                alertGateVO.setFilePath(null);
             }
 
-            alertGateVO.setFilePath(dbPath);
-        } else {
-            alertGateVO.setFilePath(null);
+            return alertChannelService.addChannelOrEditChannel(alertGateVO);
+        } catch (Exception e) {
+            throw new RdosDefineException(e.getMessage());
         }
-
-        return alertChannelService.addChannelOrEditChannel(alertGateVO);
     }
 
     @ApiOperation("设为默认告警通道 用于取代console接口: /api/console/service/alert/setDefaultAlert")
@@ -118,7 +123,13 @@ public class AlertController {
     @ApiOperation("告警通道详情 用于取代console接口: /api/console/service/alert/getByAlertId")
     @PostMapping("/getByAlertId")
     public AlertGateVO getByAlertId(@RequestBody AlertGateVO alertGateVO) {
-        return alertChannelService.getGateById(alertGateVO.getId());
+        AlertGateVO gateById = alertChannelService.getGateById(alertGateVO.getId());
+        String filePath = gateById.getFilePath();
+        if (StringUtils.isNotBlank(filePath)) {
+            String[] split = StringUtils.split(filePath, File.separator);
+            gateById.setFilePath(split[split.length - 1]);
+        }
+        return gateById;
     }
 
 
@@ -183,11 +194,21 @@ public class AlertController {
         AlterContext alertParam = buildTestAlterContext(alertGateTestVO);
         List<EventMonitor> eventMonitors = Lists.newArrayList();
         eventMonitors.add(contentReplaceEvent);
-        R send = alterSender.sendSyncAlter(alertParam,eventMonitors);
-        if (send.isSuccess()) {
-            return;
+        R send = null;
+        try {
+            send = alterSender.sendSyncAlter(alertParam,eventMonitors);
+        } catch (Exception e) {
+            throw new RdosDefineException(e.getMessage());
         }
-        throw new RdosDefineException(send.getMessage());
+
+        if (send == null) {
+            throw new RdosDefineException("未知错误");
+        }
+
+        if (!send.isSuccess()) {
+            throw new RdosDefineException(send.getMessage());
+        }
+
     }
 
     private AlterContext buildTestAlterContext(AlertGateTestVO alertGateTestVO) {
@@ -224,6 +245,7 @@ public class AlertController {
         result.setAlertGateCode(parse);
         result.setAlertGateJson(alertGateTestVO.getAlertGateJson());
         result.setJarPath(alertGateTestVO.getFilePath());
+        result.setAlertTemplate(alertGateTestVO.getAlertTemplate());
         return result;
     }
 }

@@ -43,9 +43,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.dtstack.engine.common.constrant.ConfigConstant.LDAP_USER_NAME;
-import static com.dtstack.engine.common.constrant.ConfigConstant.MERGE_KRB5_CONTENT_KEY;
-import static com.dtstack.engine.master.impl.ComponentService.TYPE_NAME;
+import static com.dtstack.engine.common.constrant.ConfigConstant.*;
 import static java.lang.String.format;
 
 @Service
@@ -101,6 +99,9 @@ public class ClusterService implements InitializingBean {
 
     @Autowired
     private DtUicUserConnect dtUicUserConnect;
+
+    @Autowired
+    private ComponentConfigService componentConfigService;
 
 
     @Override
@@ -212,7 +213,7 @@ public class ClusterService implements InitializingBean {
 
         if (EngineType.Dummy.name().equalsIgnoreCase(engineTypeStr) || environmentContext.getOpenDummy()) {
             JSONObject dummy = new JSONObject();
-            dummy.put(TYPE_NAME, EngineType.Dummy.name().toLowerCase());
+            dummy.put(TYPE_NAME_KEY, EngineType.Dummy.name().toLowerCase());
             return dummy;
         }
         EngineTypeComponentType type = EngineTypeComponentType.getByEngineName(engineTypeStr);
@@ -292,7 +293,7 @@ public class ClusterService implements InitializingBean {
             if(null == componentType){
                 componentType = EComponentType.SPARK_THRIFT.getTypeCode();
             }
-            Map<String, String> sftpConfig = componentService.getSFTPConfig(clusterId);
+            Map<String, String> sftpConfig = componentService.getComponentByClusterId(clusterId,EComponentType.SFTP.getTypeCode(),false,Map.class);
             if (sftpConfig != null) {
                 KerberosConfig kerberosDaoByComponentType = kerberosDao.getByComponentType(clusterId, componentType);
                 if(null != kerberosDaoByComponentType){
@@ -350,11 +351,7 @@ public class ClusterService implements InitializingBean {
             if (null == clusterId) {
                 return null;
             }
-            Component component = componentService.getComponentByClusterId(clusterId, type.getComponentType().getTypeCode());
-            if (null == component) {
-                return null;
-            }
-            JSONObject componentConf = JSONObject.parseObject(component.getComponentConfig());
+            JSONObject componentConf = componentService.getComponentByClusterId(clusterId,type.getComponentType().getTypeCode(),false,JSONObject.class);
             if (null == componentConf) {
                 return null;
             }
@@ -432,7 +429,8 @@ public class ClusterService implements InitializingBean {
                 if (CollectionUtils.isNotEmpty(components)) {
                     for (Component component : components) {
                         EComponentType type = EComponentType.getByCode(component.getComponentTypeCode());
-                        config.put(type.getConfName(), JSONObject.parseObject(component.getComponentConfig()));
+                        JSONObject componentConfig = componentService.getComponentByClusterId(cluster.getClusterId(), component.getComponentTypeCode(), false, JSONObject.class);
+                        config.put(type.getConfName(), componentConfig);
                     }
                 }
             }
@@ -476,7 +474,7 @@ public class ClusterService implements InitializingBean {
         if (null == component) {
             return "{}";
         }
-        JSONObject configObj = JSONObject.parseObject(component.getComponentConfig());
+        JSONObject configObj = componentService.getComponentByClusterId(clusterId, component.getComponentTypeCode(), false, JSONObject.class);
         if (configObj != null) {
             KerberosConfig kerberosConfig = null;
             if (StringUtils.isNotBlank(component.getKerberosFileName())) {
@@ -484,12 +482,12 @@ public class ClusterService implements InitializingBean {
                 kerberosConfig = kerberosDao.getByComponentType(clusterId, componentType.getTypeCode());
             }
             //返回版本
-            configObj.put("version", component.getHadoopVersion());
-            //维持各个应用原来数据接口
+            configObj.put(ComponentService.VERSION, component.getHadoopVersion());
+            // 添加组件的kerberos配置信息 应用层使用
             addKerberosConfigWithHdfs(key, clusterId, kerberosConfig, configObj);
             //填充sftp配置项
-            Map sftpMap = getSftpMap(clusterId);
-            if(MapUtils.isNotEmpty(sftpMap)){
+            Map sftpMap = componentService.getComponentByClusterId(clusterId, EComponentType.SFTP.getTypeCode(), false, Map.class);
+            if (MapUtils.isNotEmpty(sftpMap)) {
                 configObj.put(EComponentType.SFTP.getConfName(), sftpMap);
             }
             return configObj.toJSONString();
@@ -497,17 +495,6 @@ public class ClusterService implements InitializingBean {
         return "{}";
     }
 
-    private Map getSftpMap(Long clusterId) {
-        Component sftpComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.SFTP.getTypeCode());
-        if (null != sftpComponent) {
-            try {
-                return PublicUtil.strToObject(sftpComponent.getComponentConfig(), Map.class);
-            } catch (Exception e) {
-                LOGGER.error("clusterId:{} getSftp Config error ", clusterId, e);
-            }
-        }
-        return null;
-    }
 
 
     /**
@@ -522,11 +509,11 @@ public class ClusterService implements InitializingBean {
         if (Objects.nonNull(kerberosConfig)) {
             KerberosConfigVO kerberosConfigVO = KerberosConfigVO.toVO(kerberosConfig);
             if (!Objects.equals(EComponentType.HDFS.getConfName(), key)) {
-                Component hdfsComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.HDFS.getTypeCode());
-                if (Objects.isNull(hdfsComponent)) {
+                Map hdfsComponent = componentService.getComponentByClusterId(clusterId, EComponentType.HDFS.getTypeCode(),false,Map.class);
+                if (MapUtils.isEmpty(hdfsComponent)) {
                     throw new RdosDefineException("开启kerberos后需要预先保存hdfs组件");
                 }
-                kerberosConfigVO.setHdfsConfig(JSONObject.parseObject(hdfsComponent.getComponentConfig()));
+                kerberosConfigVO.setHdfsConfig(hdfsComponent);
             }
             kerberosConfigVO.setKerberosFileTimestamp(kerberosConfig.getGmtModified());
             configObj.put("kerberosConfig", kerberosConfigVO);
@@ -661,7 +648,7 @@ public class ClusterService implements InitializingBean {
         }
         String typeName = flinkConf.getString(TYPE_NAME);
         if (!StringUtils.isBlank(typeName)) {
-            pluginInfo.put(TYPE_NAME, typeName);
+            pluginInfo.put(TYPE_NAME_KEY, typeName);
         }
         if (EComponentType.SPARK.equals(type.getComponentType())) {
             JSONObject sftpConfig = clusterConfigJson.getJSONObject(EComponentType.SFTP.getConfName());
@@ -834,51 +821,44 @@ public class ClusterService implements InitializingBean {
         }
         List<Long> engineIds = engines.stream().map(Engine::getId).collect(Collectors.toList());
         List<Component> components = componentDao.listByEngineIds(engineIds);
+        List<ComponentVO> componentConfigs = componentConfigService.getComponentVoByComponent(components,
+                null == removeTypeName || removeTypeName , clusterId,true);
         List<KerberosConfig> kerberosConfigs = null;
         if(isFullPrincipal){
             kerberosConfigs =  kerberosDao.getByClusters(clusterId);
         }
 
-        Map<EComponentScheduleType, List<Component>> scheduleType = new HashMap<>();
-        if (CollectionUtils.isNotEmpty(components)) {
-            scheduleType = components.stream().collect(Collectors.groupingBy(c -> EComponentType.getScheduleTypeByComponent(c.getComponentTypeCode())));
+        Map<EComponentScheduleType, List<ComponentVO>> scheduleType = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(componentConfigs)) {
+            scheduleType = componentConfigs.stream().collect(Collectors.groupingBy(c -> EComponentType.getScheduleTypeByComponent(c.getComponentTypeCode())));
         }
-        List<SchedulingVo> schedulingVos = convertComponentToScheduling(removeTypeName, kerberosConfigs, scheduleType);
+        List<SchedulingVo> schedulingVos = convertComponentToScheduling(kerberosConfigs, scheduleType);
         clusterVO.setScheduling(schedulingVos);
         return clusterVO;
     }
 
-    private List<SchedulingVo> convertComponentToScheduling(Boolean removeTypeName, List<KerberosConfig> kerberosConfigs, Map<EComponentScheduleType, List<Component>> scheduleType) {
+    private List<SchedulingVo> convertComponentToScheduling(List<KerberosConfig> kerberosConfigs, Map<EComponentScheduleType, List<ComponentVO>> scheduleType) {
         List<SchedulingVo> schedulingVos = new ArrayList<>();
         //为空也返回
         for (EComponentScheduleType value : EComponentScheduleType.values()) {
             SchedulingVo schedulingVo = new SchedulingVo();
             schedulingVo.setSchedulingCode(value.getType());
             schedulingVo.setSchedulingName(value.getName());
-
-            List<Component> componentsSchedule = scheduleType.get(value);
-            if(CollectionUtils.isEmpty(componentsSchedule)){
-                componentsSchedule = new ArrayList<>();
-            }
-            List<ComponentVO> componentVOS = new ArrayList<>();
-            for (Component component : componentsSchedule) {
-                // hdfs yarn 才将自定义参数移除 过滤返回给前端
-                boolean removeSelfParams = EComponentType.HDFS.getTypeCode().equals(component.getComponentTypeCode())
-                        || EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode());
-                ComponentVO componentVO = ComponentVO.toVO(component,null == removeTypeName || removeTypeName,removeSelfParams);
-                componentVOS.add(componentVO);
-            }
+            schedulingVo.setComponents(scheduleType.getOrDefault(value,new ArrayList<>(0)));
+            List<ComponentVO> componentVOS = scheduleType.get(value);
             if(CollectionUtils.isNotEmpty(componentVOS) && CollectionUtils.isNotEmpty(kerberosConfigs)){
                 for (ComponentVO componentVO : componentVOS) {
                     for (KerberosConfig config : kerberosConfigs) {
                         if(componentVO.getComponentTypeCode().equals(config.getComponentType())){
                             componentVO.setPrincipal(config.getPrincipal());
                             componentVO.setPrincipals(config.getPrincipals());
+                            componentVO.setMergeKrb5Content(config.getMergeKrbContent());
                         }
                     }
                 }
             }
             schedulingVo.setComponents(componentVOS);
+            schedulingVo.setComponents(scheduleType.getOrDefault(value,new ArrayList<>(0)));
             schedulingVos.add(schedulingVo);
         }
         return schedulingVos;

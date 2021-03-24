@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.event;
 
-import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.alert.AdapterEventMonitor;
 import com.dtstack.engine.alert.AlterContext;
 import com.dtstack.engine.common.constrant.GlobalConst;
@@ -58,17 +57,15 @@ public class SftpDownloadEvent extends AdapterEventMonitor {
 
             String ifPresent = cacheSftpJar.getIfPresent(jarPath);
             if (StringUtils.isBlank(ifPresent)) {
-                com.dtstack.engine.api.domain.Component sftpComponent = componentService.getComponentByClusterId(-1L, 10);
-                if (sftpComponent != null) {
-                    SftpConfig sftpConfig = JSONObject.parseObject(sftpComponent.getComponentConfig(), SftpConfig.class);
-                    if (sftpConfig != null) {
-                        try {
-                            SftpFileManage sftpManager = SftpFileManage.getSftpManager(sftpConfig);
-                            sftpManager.downloadFile(sftpPath, destPath);
-                            cacheSftpJar.put(jarPath, System.currentTimeMillis() + "");
-                        } catch (Exception e) {
-                            LOGGER.error("sftp download failed:", e);
-                        }
+                SftpConfig sftpConfig = componentService.getComponentByClusterId(-1L, EComponentType.SFTP.getTypeCode(), false, SftpConfig.class);
+
+                if (sftpConfig != null) {
+                    try {
+                        SftpFileManage sftpManager = SftpFileManage.getSftpManager(sftpConfig);
+                        sftpManager.downloadFile(sftpPath, destPath);
+                        cacheSftpJar.put(jarPath, System.currentTimeMillis() + "");
+                    } catch (Exception e) {
+                        LOGGER.error("sftp download failed:", e);
                     }
                 } else {
                     LOGGER.error("not configured sftp");
@@ -80,20 +77,17 @@ public class SftpDownloadEvent extends AdapterEventMonitor {
     }
 
     public String uploadFileToSftp(MultipartFile file, String filePath, String destPath, String dbPath) {
-        com.dtstack.engine.api.domain.Component sftpComponent = componentService.getComponentByClusterId(-1L, EComponentType.SFTP.getTypeCode());
-        if (sftpComponent != null) {
-            SftpConfig sftpConfig = JSONObject.parseObject(sftpComponent.getComponentConfig(), SftpConfig.class);
-            if (sftpConfig != null) {
-                try {
-                    String remoteDir = sftpConfig.getPath() + File.separator + filePath;
-                    SftpFileManage sftpManager = SftpFileManage.getSftpManager(sftpConfig);
-                    sftpManager.uploadFile(remoteDir ,destPath);
+        SftpConfig sftpConfig = componentService.getComponentByClusterId(-1L, EComponentType.SFTP.getTypeCode(), false, SftpConfig.class);
+        if (sftpConfig != null) {
+            try {
+                String remoteDir = sftpConfig.getPath() + File.separator + filePath;
+                SftpFileManage sftpManager = SftpFileManage.getSftpManager(sftpConfig);
+                sftpManager.uploadFile(remoteDir ,destPath);
 
-                    dbPath = dbPath + GlobalConst.PATH_CUT + remoteDir + File.separator + file.getOriginalFilename();
-                    setCache(dbPath);
-                } catch (Exception e) {
-                    LOGGER.error("sftp upload failed:",e);
-                }
+                dbPath = dbPath + GlobalConst.PATH_CUT + remoteDir + File.separator + file.getOriginalFilename();
+                setCache(dbPath);
+            } catch (Exception e) {
+                LOGGER.error("sftp upload failed:",e);
             }
         }
         return dbPath;

@@ -126,7 +126,7 @@ public class JobSubmitDealer implements Runnable {
     }
 
     public boolean tryPutRestartJob(JobClient jobClient) {
-        boolean tryPut = delayJobQueue.tryPut(new SimpleJobDelay<>(jobClient, EJobCacheStage.RESTART.getStage(), jobRestartDelay));
+        boolean tryPut = delayJobQueue.tryPut(new SimpleJobDelay<>(jobClient, EJobCacheStage.RESTART.getStage(), Objects.isNull(jobClient.getRetryIntervalTime()) ? jobRestartDelay : jobClient.getRetryIntervalTime()));
         LOGGER.info("jobId:{} {} add job to restart delayJobQueue.", jobClient.getTaskId(), tryPut ? "success" : "failed");
         if (tryPut) {
             //restart的状态修改会在外面处理，这里只需要set stage
@@ -231,14 +231,13 @@ public class JobSubmitDealer implements Runnable {
     }
 
     private boolean checkJobSubmitExpired(JobClient jobClient) {
-        long submitExpiredTime = jobClient.getSubmitExpiredTime();
-        if(submitExpiredTime > 0){
+        long submitExpiredTime;
+        if ((submitExpiredTime = jobClient.getSubmitExpiredTime()) > 0){
             return System.currentTimeMillis() - jobClient.getGenerateTime() > submitExpiredTime;
+        } else if (jobSubmitExpired > 0) {
+            return System.currentTimeMillis() - jobClient.getGenerateTime() > jobSubmitExpired;
         }
-        if (jobSubmitExpired <= 0) {
-            return false;
-        }
-        return System.currentTimeMillis() - jobClient.getGenerateTime() > jobSubmitExpired;
+        return false;
     }
 
     private boolean checkMaxPriority(String jobResource) {
@@ -376,3 +375,5 @@ public class JobSubmitDealer implements Runnable {
         return submittedQueue;
     }
 }
+
+

@@ -38,6 +38,8 @@ import com.dtstack.engine.master.scheduler.JobRichOperator;
 import com.dtstack.engine.master.sync.RestartRunnable;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.master.utils.JobGraphUtils;
+import com.dtstack.engine.master.utils.JobGraphUtils;
+import com.dtstack.engine.master.sync.RestartRunnable;
 import com.dtstack.engine.master.vo.BatchSecienceJobChartVO;
 import com.dtstack.engine.master.vo.ScheduleJobVO;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
@@ -67,7 +69,8 @@ import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import redis.clients.jedis.JedisCommands;
+import redis.clients.jedis.commands.JedisCommands;
+import redis.clients.jedis.params.SetParams;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -624,7 +627,7 @@ public class ScheduleJobService {
         }
         ScheduleJobVO batchJobVO = transfer.get(0);
 
-        if (EScheduleJobType.WORK_FLOW.getVal().intValue() == batchJobVO.getBatchTask().getTaskType()) {
+        if (EScheduleJobType.WORK_FLOW.getVal().equals(batchJobVO.getBatchTask().getTaskType())) {
             vo.setSplitFiledFlag(true);
             //除去任务类型中的工作流类型的条件，用于展示下游节点
             if (StringUtils.isNotBlank(vo.getTaskType())) {
@@ -3080,7 +3083,9 @@ public class ScheduleJobService {
         }
         redisTemplate.execute((RedisCallback<String>) connection -> {
             JedisCommands commands = (JedisCommands) connection.getNativeConnection();
-            return commands.set(key, "-1", "NX", "EX", environmentContext.getForkJoinResultTimeOut() * 2);
+            SetParams setParams = SetParams.setParams();
+            setParams.nx().ex((int)environmentContext.getForkJoinResultTimeOut() * 2);
+            return commands.set(key, "-1", setParams);
         });
         if (BooleanUtils.isTrue(justRunChild) && null != id) {
             if (null == subJobIds) {

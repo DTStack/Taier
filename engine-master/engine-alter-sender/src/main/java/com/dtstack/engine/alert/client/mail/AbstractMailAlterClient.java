@@ -78,6 +78,8 @@ public abstract class AbstractMailAlterClient extends AbstractAlterClient {
 
         public static String MAIL_CLASS = "className";
 
+        public static String PATH_CUT = "&sftp:";
+
     }
 
     /**

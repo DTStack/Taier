@@ -21,6 +21,7 @@ package org.apache.flink.yarn;
 import avro.shaded.com.google.common.collect.Sets;
 import com.dtstack.engine.base.enums.ClassLoaderType;
 import com.dtstack.engine.base.util.HadoopConfTool;
+import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.google.common.base.Strings;
@@ -154,6 +155,9 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
 
     private boolean detached;
 
+    /** dt type of flink job*/
+    private EJobType jobType;
+
     private String customName;
 
     private String zookeeperNamespace;
@@ -251,6 +255,18 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
                         + " Currently only file:/// URLs are supported.");
             }
         }
+    }
+
+    public EJobType getJobType() {
+        return jobType;
+    }
+
+    /**
+     * set current flink job's dt jobType eg: SQL、MR、SYNC...
+     * @param jobType
+     */
+    public void setJobType(EJobType jobType) {
+        this.jobType = jobType;
     }
 
     public String getDynamicPropertiesEncoded() {
@@ -439,7 +455,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
     }
 
     private boolean isSecurityEnabled() {
-        return flinkConfiguration.getBoolean("openKerberos", false);
+        return flinkConfiguration.getBoolean(ConfigConstrant.OPEN_KERBEROS_KEY, false);
     }
 
     /**
@@ -560,7 +576,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
     }
 
     private JobGraph getJobGraph(String appId,ClusterSpecification clusterSpecification) throws Exception{
-        String url = getUrlFormat(clusterSpecification.getYarnConfiguration()) + "/" + appId;
+        String url = getUrlFormat(clusterSpecification) + "/" + appId;
         LOG.info("AppId is {}, MonitorUrl is {}", appId, url);
         PackagedProgram program = buildProgram(url, clusterSpecification);
         clusterSpecification.setProgram(program);
@@ -630,7 +646,8 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         return program;
     }
 
-    private String getUrlFormat(YarnConfiguration yarnConf){
+    private String getUrlFormat(ClusterSpecification clusterSpecification){
+        YarnConfiguration yarnConf = clusterSpecification.getYarnConfiguration();
         try{
             Field rmClientField = yarnClient.getClass().getDeclaredField("rmClient");
             rmClientField.setAccessible(true);
@@ -672,9 +689,11 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         }catch (Exception e){
             LOG.error("get proxyDescriptor error: {}", e);
             String  addr = yarnConf.get("yarn.resourcemanager.webapp.address");
-//            if (addr == null) {
-//                throw new YarnDeploymentException("Couldn't get rm web app address.Please check rm web address whether be confituration.");
-//            }
+            if (addr == null && EJobType.SYNC == jobType) {
+                throw new YarnDeploymentException("Couldn't get rm web app address. " +
+                        "it's required when batch job run on per_job mode. " +
+                        "Please check rm web address whether be confituration.");
+            }
             return String.format("http://%s/proxy",addr);
         }
     }

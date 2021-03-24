@@ -641,7 +641,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                 }
 
                 JSONObject pluginInfoWithComponentType = clusterService.pluginInfoJSON(dtuicTenantId,ScheduleEngineType.Hadoop.getEngineName(),null,null);
-                String typeName = pluginInfoWithComponentType.getString(ComponentService.TYPE_NAME);
+                String typeName = pluginInfoWithComponentType.getString(ConfigConstant.TYPE_NAME_KEY);
                 String hdfsUploadPath = workerOperator.uploadStringToHdfs(typeName, pluginInfoWithComponentType.toJSONString(), content, hdfsPath);
                 if(StringUtils.isBlank(hdfsUploadPath)){
                     throw new RdosDefineException("Update task to HDFS failure hdfsUploadPath is blank");
