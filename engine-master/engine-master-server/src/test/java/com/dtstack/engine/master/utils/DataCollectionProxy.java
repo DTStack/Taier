@@ -79,4 +79,6 @@ public class DataCollectionProxy implements InvocationHandler, DataCollection {
     private static String getEntityKey(String methodName, String classSimpleName) {
         return methodName + "_" + classSimpleName;
     }
+
+
 }

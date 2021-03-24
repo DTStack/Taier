@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  * Utility class to initialize system resource metrics.
  */
 public class SystemResourcesMetricsAnalyzer implements Runnable {
-    private static final Logger LOG = LoggerFactory.getLogger(SystemResourcesMetricsAnalyzer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SystemResourcesMetricsAnalyzer.class);
 
     private final Map<String, Object> metrics = new HashMap<>();
 
@@ -53,12 +53,12 @@ public class SystemResourcesMetricsAnalyzer implements Runnable {
             SystemInfo systemInfo = new SystemInfo();
             hardwareAbstractionLayer = systemInfo.getHardware();
         } catch (NoClassDefFoundError ex) {
-            LOG.warn(
+            LOGGER.warn(
                     "Failed to initialize system resource metrics because of missing class definitions." +
                             " Did you forget to explicitly add the oshi-core optional dependency?",
                     ex);
         } catch (Exception e) {
-            LOG.error("instantiateSystemMetrics error:", e);
+            LOGGER.error("instantiateSystemMetrics error:", e);
         }
     }
 
@@ -107,7 +107,7 @@ public class SystemResourcesMetricsAnalyzer implements Runnable {
             instantiateCPUMetrics(systemResourcesCounter);
             instantiateNetworkMetrics(systemResourcesCounter);
         } catch (Throwable e) {
-            LOG.error("SystemResourcesMetricsAnalyzer running error:", e);
+            LOGGER.error("SystemResourcesMetricsAnalyzer running error:", e);
         }
     }
 }

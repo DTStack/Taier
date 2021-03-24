@@ -31,7 +31,7 @@ public class RdosSubscribe implements MessageListener {
                 sessionCache.remove(itemValue.toString());
             }
         } catch (Exception e) {
-            LOGGER.error("{}", e);
+            LOGGER.error("", e);
         }
     }
 
@@ -42,4 +42,5 @@ public class RdosSubscribe implements MessageListener {
     public void setSessionCache(SessionCache sessionCache) {
         this.sessionCache = sessionCache;
     }
+
 }

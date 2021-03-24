@@ -24,7 +24,7 @@ import org.springframework.data.redis.core.RedisTemplate;
  */
 public class SessionCache implements InitializingBean {
 
-    private static Logger logger = LoggerFactory.getLogger(SessionCache.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(SessionCache.class);
 
     private int expire = 30 * 60;//seconds
 
@@ -48,7 +48,7 @@ public class SessionCache implements InitializingBean {
             uaCache.put(cacheKey, data);
             redisTemplate.opsForValue().set(cacheKey, objectMapper.writeValueAsString(data), expire, TimeUnit.SECONDS);
         } catch (Throwable e) {
-            logger.error("{}", e);
+            LOGGER.error("", e);
         }
     }
 
@@ -78,7 +78,7 @@ public class SessionCache implements InitializingBean {
             }
             return (T) data.get(key);
         } catch (Throwable e) {
-            logger.error("{}", e);
+            LOGGER.error("", e);
         }
         return null;
     }
@@ -95,7 +95,7 @@ public class SessionCache implements InitializingBean {
                 redisTemplate.delete(cacheKey);
             }
         } catch (Throwable e) {
-            logger.error("{}", e);
+            LOGGER.error("", e);
         }
     }
 

@@ -2,6 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dtstack.engine.dao.NodeMachineDao">
 
+    <sql id="filed">
+        `id`,`ip`,`port`,`machine_type`,`is_deleted`,`gmt_create`,`gmt_modified`,`app_type`,`deploy_info`
+    </sql>
+
     <insert id="insert" parameterType="NodeMachine" useGeneratedKeys="true" keyProperty="id">
 	    replace into schedule_node_machine(gmt_create,gmt_modified,ip,port,machine_type,app_type,deploy_info)
 	    values(now(),now(),#{ip},#{port},#{machineType},#{appType}, #{deployInfo})
@@ -28,12 +32,16 @@
     </update>
 
     <select id="listByAppType" resultType="NodeMachine">
-        SELECT * FROM schedule_node_machine
+        SELECT
+        <include refid="filed" />
+        FROM schedule_node_machine
         WHERE is_deleted=0 AND app_type=#{appType} ORDER BY machine_type ASC
     </select>
 
     <select id="getByAppTypeAndMachineType" resultType="NodeMachine">
-        SELECT * FROM schedule_node_machine
+        SELECT
+        <include refid="filed" />
+        FROM schedule_node_machine
         WHERE is_deleted=0 AND app_type=#{appType} AND machine_type=#{machineType} limit 1
     </select>
 </mapper>

@@ -118,7 +118,7 @@
                 LEFT JOIN console_engine_tenant cet ON cet.engine_id = ce.id
                 LEFT JOIN console_dtuic_tenant cdt on cdt.id = cet.tenant_id
         WHERE
-            cdt.dt_uic_tenant_id= #{tenantId}
+            cdt.dt_uic_tenant_id= #{dtuicTenantId}
         LIMIT 1
     </select>
 

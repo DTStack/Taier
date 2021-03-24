@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class MasterListener implements LeaderLatchListener, Listener {
 
-    private static final Logger logger = LoggerFactory.getLogger(MasterListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MasterListener.class);
 
     private final static int CHECK_INTERVAL = 10000;
 
@@ -76,7 +76,7 @@ public class MasterListener implements LeaderLatchListener, Listener {
 
     @Override
     public void run() {
-        logger.info("i am master:{} ...", isMaster.get());
+        LOGGER.info("i am master:{} ...", isMaster.get());
 
         failoverStrategy.setIsMaster(isMaster.get());
         scheduleJobBack.setIsMaster(isMaster.get());

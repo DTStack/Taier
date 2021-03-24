@@ -42,7 +42,7 @@ import java.util.concurrent.*;
  */
 public class JobSubmitDealer implements Runnable {
 
-    private static final Logger logger = LoggerFactory.getLogger(JobSubmitDealer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobSubmitDealer.class);
 
     /**
      * 用于taskListener处理, 此处为static修饰，全局共用一个
@@ -112,13 +112,13 @@ public class JobSubmitDealer implements Runnable {
                     if (jobClient != null) {
                         jobClient.setQueueSourceType(EQueueSourceType.DELAY.getCode());
                         queue.put(jobClient);
-                        logger.info("jobId:{} stage:{} take job from delayJobQueue queue size:{} and add to priorityQueue.", jobClient.getTaskId(), simpleJobDelay.getStage(), delayJobQueue.size());
+                        LOGGER.info("jobId:{} stage:{} take job from delayJobQueue queue size:{} and add to priorityQueue.", jobClient.getTaskId(), simpleJobDelay.getStage(), delayJobQueue.size());
                     }
                 } catch (Exception e) {
                     if (simpleJobDelay != null && jobClient != null) {
-                        logger.error("jobId:{} stage:{}", jobClient.getTaskId(), simpleJobDelay.getStage(), e);
+                        LOGGER.error("jobId:{} stage:{}", jobClient.getTaskId(), simpleJobDelay.getStage(), e);
                     } else {
-                        logger.error("{}", e);
+                        LOGGER.error("", e);
                     }
                 }
             }
@@ -126,8 +126,9 @@ public class JobSubmitDealer implements Runnable {
     }
 
     public boolean tryPutRestartJob(JobClient jobClient) {
-        boolean tryPut = delayJobQueue.tryPut(new SimpleJobDelay<>(jobClient, EJobCacheStage.RESTART.getStage(), Objects.isNull(jobClient.getRetryIntervalTime()) ? jobRestartDelay : jobClient.getRetryIntervalTime()));
-        logger.info("jobId:{} {} add job to restart delayJobQueue.", jobClient.getTaskId(), tryPut ? "success" : "failed");
+        boolean tryPut = delayJobQueue.tryPut(new SimpleJobDelay<>(jobClient, EJobCacheStage.RESTART.getStage(), jobRestartDelay));
+        LOGGER.info("jobId:{} {} add job to restart delayJobQueue.", jobClient.getTaskId(), tryPut ? "success" : "failed");
+
         if (tryPut) {
             //restart的状态修改会在外面处理，这里只需要set stage
             engineJobCacheDao.updateStage(jobClient.getTaskId(), EJobCacheStage.RESTART.getStage(), localAddress, jobClient.getPriority(), null);
@@ -143,9 +144,9 @@ public class JobSubmitDealer implements Runnable {
             jobClient.doStatusCallBack(RdosTaskStatus.LACKING.getStatus());
         } catch (InterruptedException e) {
             queue.put(jobClient);
-            logger.error("jobId:{} delayJobQueue.put failed.",jobClient.getTaskId(), e);
+            LOGGER.error("jobId:{} delayJobQueue.put failed.",jobClient.getTaskId(), e);
         }
-        logger.info("jobId:{} success add job to lacking delayJobQueue, job's lackingCount:{}.", jobClient.getTaskId(), jobClient.getLackingCount());
+        LOGGER.info("jobId:{} success add job to lacking delayJobQueue, job's lackingCount:{}.", jobClient.getTaskId(), jobClient.getLackingCount());
     }
 
     public int getDelayJobQueueSize() {
@@ -157,7 +158,7 @@ public class JobSubmitDealer implements Runnable {
         while (true) {
             try {
                 JobClient jobClient = queue.take();
-                logger.info("jobId:{} jobResource:{} queue size:{} take job from priorityQueue.", jobClient.getTaskId(), jobResource, queue.size());
+                LOGGER.info("jobId:{} jobResource:{} queue size:{} take job from priorityQueue.", jobClient.getTaskId(), jobResource, queue.size());
                 if (checkIsFinished(jobClient)) {
                     continue;
                 }
@@ -165,11 +166,11 @@ public class JobSubmitDealer implements Runnable {
                     shardCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.AUTOCANCELED.getStatus());
                     jobClient.doStatusCallBack(RdosTaskStatus.AUTOCANCELED.getStatus());
                     engineJobCacheDao.delete(jobClient.getTaskId());
-                    logger.info("jobId:{} checkJobSubmitExpired is true, job ignore to submit.", jobClient.getTaskId());
+                    LOGGER.info("jobId:{} checkJobSubmitExpired is true, job ignore to submit.", jobClient.getTaskId());
                     continue;
                 }
                 if (!checkMaxPriority(jobResource)) {
-                    logger.info("jobId:{} checkMaxPriority is false, wait other node job which priority higher.", jobClient.getTaskId());
+                    LOGGER.info("jobId:{} checkMaxPriority is false, wait other node job which priority higher.", jobClient.getTaskId());
                     queue.put(jobClient);
                     Thread.sleep(jobLackingInterval);
                     continue;
@@ -177,7 +178,7 @@ public class JobSubmitDealer implements Runnable {
                 //提交任务
                 submitJob(jobClient);
             } catch (Exception e) {
-                logger.error("", e);
+                LOGGER.error("", e);
             }
         }
     }
@@ -189,14 +190,14 @@ public class JobSubmitDealer implements Runnable {
                 if (null == engineJobCache) {
                     shardCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
                     jobClient.doStatusCallBack(RdosTaskStatus.CANCELED.getStatus());
-                    logger.info("jobId:{} checkIsFinished is true, job is Finished.", jobClient.getTaskId());
+                    LOGGER.info("jobId:{} checkIsFinished is true, job is Finished.", jobClient.getTaskId());
                     return true;
                 }
             } else {
                 if (null == engineJobCache) {
                     //如果任务出现资源不足 一直deploy加大延时  界面杀死重跑立马完成之后 deployQueue数据未移除
                     //重新放入之后直接取消 导致状态更新waitEngine 状态不一致 所以需要判断下数据是否存在
-                    logger.info("jobId:{} stage:{} take job from delayJobQueue  but engine job cache has deleted", jobClient.getTaskId(), delayJobQueue.size());
+                    LOGGER.info("jobId:{} stage:{} take job from delayJobQueue  but engine job cache has deleted", jobClient.getTaskId(), delayJobQueue.size());
                     return true;
                 } else {
                     //如果任务存在 还需要判断cache表数据是否为重跑后插入生成的
@@ -212,7 +213,7 @@ public class JobSubmitDealer implements Runnable {
                         return false;
                     } else {
                         //插入cache表的时间 比 jobClient 第一次提交时间晚 认为任务重新提交过 当前延时队列的jobClient 抛弃 不做任何处理
-                        logger.info("jobId:{} checkIsFinished is true checkCanSubmit is false jobClient cacheSubmitTime {} cacheDB SubmitTime {}, job is Finished.",
+                        LOGGER.info("jobId:{} checkIsFinished is true checkCanSubmit is false jobClient cacheSubmitTime {} cacheDB SubmitTime {}, job is Finished.",
                                 jobClient.getTaskId(), jobClient.getSubmitCacheTime(), engineJobCache.getGmtCreate().getTime());
                         return true;
                     }
@@ -223,7 +224,7 @@ public class JobSubmitDealer implements Runnable {
             //重置状态
             jobClient.setQueueSourceType(EQueueSourceType.NORMAL.getCode());
             if (null != engineJobCache && null == jobClient.getSubmitCacheTime()) {
-                logger.info("jobId:{} set submitCacheTime is {},", jobClient.getTaskId(), engineJobCache.getGmtCreate().getTime());
+                LOGGER.info("jobId:{} set submitCacheTime is {},", jobClient.getTaskId(), engineJobCache.getGmtCreate().getTime());
                 jobClient.setSubmitCacheTime(engineJobCache.getGmtCreate().getTime());
             }
         }
@@ -284,7 +285,7 @@ public class JobSubmitDealer implements Runnable {
             // 判断资源
             JudgeResult judgeResult = workerOperator.judgeSlots(jobClient);
             if (JudgeResult.JudgeType.OK == judgeResult.getResult()) {
-                logger.info("jobId:{} engineType:{} submit jobClient:{} to engine start.", jobClient.getTaskId(), jobClient.getEngineType(), jobClient);
+                LOGGER.info("jobId:{} engineType:{} submit jobClient:{} to engine start.", jobClient.getTaskId(), jobClient.getEngineType(), jobClient);
 
                 jobClient.doStatusCallBack(RdosTaskStatus.COMPUTING.getStatus());
 
@@ -293,26 +294,26 @@ public class JobSubmitDealer implements Runnable {
                 // 提交任务
                 jobResult = workerOperator.submitJob(jobClient);
 
-                logger.info("jobId:{} engineType:{} submit jobResult:{}.", jobClient.getTaskId(), jobClient.getEngineType(), jobResult);
+                LOGGER.info("jobId:{} engineType:{} submit jobResult:{}.", jobClient.getTaskId(), jobClient.getEngineType(), jobResult);
 
                 String jobId = jobResult.getData(JobResult.JOB_ID_KEY);
                 jobClient.setEngineTaskId(jobId);
                 addToTaskListener(jobClient, jobResult);
-                logger.info("jobId:{} engineType:{} submit to engine end.", jobClient.getTaskId(), jobClient.getEngineType());
+                LOGGER.info("jobId:{} engineType:{} submit to engine end.", jobClient.getTaskId(), jobClient.getEngineType());
             } else if (JudgeResult.JudgeType.LIMIT_ERROR == judgeResult.getResult()) {
-                logger.info("jobId:{} engineType:{} submitJob happens system limitError:{}", jobClient.getTaskId(), jobClient.getEngineType(), judgeResult.getReason());
+                LOGGER.info("jobId:{} engineType:{} submitJob happens system limitError:{}", jobClient.getTaskId(), jobClient.getEngineType(), judgeResult.getReason());
                 jobClient.setEngineTaskId(null);
                 jobResult = JobResult.createErrorResult(false, judgeResult.getReason());
                 addToTaskListener(jobClient, jobResult);
             } else if (JudgeResult.JudgeType.EXCEPTION == judgeResult.getResult()) {
-                logger.info("jobId:{} engineType:{} judgeSlots result is exception {}", jobClient.getTaskId(), jobClient.getEngineType(), judgeResult.getReason());
+                LOGGER.info("jobId:{} engineType:{} judgeSlots result is exception {}", jobClient.getTaskId(), jobClient.getEngineType(), judgeResult.getReason());
                 handlerFailedWithRetry(jobClient, true, new Exception(judgeResult.getReason()));
             } else {
-                logger.info("jobId:{} engineType:{} judgeSlots result is false.", jobClient.getTaskId(), jobClient.getEngineType());
+                LOGGER.info("jobId:{} engineType:{} judgeSlots result is false.", jobClient.getTaskId(), jobClient.getEngineType());
                 handlerNoResource(jobClient, judgeResult);
             }
         } catch (WorkerAccessException e) {
-            logger.info(" jobId:{} engineType:{} worker not find.", jobClient.getTaskId(), jobClient.getEngineType());
+            LOGGER.info(" jobId:{} engineType:{} worker not find.", jobClient.getTaskId(), jobClient.getEngineType());
             handlerNoResource(jobClient, workerNotFindResult);
         } catch (ClientAccessException | ClientArgumentException e) {
             handlerFailedWithRetry(jobClient, false, e);
@@ -333,19 +334,19 @@ public class JobSubmitDealer implements Runnable {
             }
             String ldapUserName = pluginInfo.getString(ConfigConstant.LDAP_USER_NAME);
             if (StringUtils.isNotBlank(ldapUserName)) {
-                logger.info("update jobId {} ldap userName {}", jobClient.getTaskId(), ldapUserName);
+                LOGGER.info("update jobId {} ldap userName {}", jobClient.getTaskId(), ldapUserName);
                 ScheduleJob updateJob = new ScheduleJob();
                 updateJob.setJobId(jobClient.getTaskId());
                 updateJob.setSubmitUserName(ldapUserName);
                 scheduleJobDao.update(updateJob);
             }
         } catch (Exception e) {
-            logger.info("update jobId {} ldap userName error", jobClient.getTaskId(), e);
+            LOGGER.info("update jobId {} ldap userName error", jobClient.getTaskId(), e);
         }
     }
 
     private void handlerFailedWithRetry(JobClient jobClient, boolean checkRetry, Throwable e) {
-        logger.error("jobId:{} engineType:{} submitJob happens system error:", jobClient.getTaskId(), jobClient.getEngineType(), e);
+        LOGGER.error("jobId:{} engineType:{} submitJob happens system error:", jobClient.getTaskId(), jobClient.getEngineType(), e);
         jobClient.setEngineTaskId(null);
         addToTaskListener(jobClient, JobResult.createErrorResult(checkRetry, e));
     }
@@ -361,7 +362,8 @@ public class JobSubmitDealer implements Runnable {
             engineJobCacheDao.updateStage(jobClient.getTaskId(), EJobCacheStage.PRIORITY.getStage(), localAddress, jobClient.getPriority(), null);
             queue.put(jobClient);
             SleepUtil.sleep(jobLackingInterval);
-            logger.info("jobId:{} unlimited_lackingCount:{} add to priorityQueue.", jobClient.getTaskId(), jobClient.getLackingCount());
+            LOGGER.info("jobId:{} unlimited_lackingCount:{} add to priorityQueue.", jobClient.getTaskId(), jobClient.getLackingCount());
+
         }
     }
 

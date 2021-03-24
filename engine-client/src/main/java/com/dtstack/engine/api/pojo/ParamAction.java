@@ -18,7 +18,7 @@ import java.util.Map;
 @ApiModel
 public class ParamAction {
 
-    private static final Logger logger = LoggerFactory.getLogger(ParamAction.class);
+	private static final Logger logger = LoggerFactory.getLogger(ParamAction.class);
 
 	private String taskId;
 
@@ -65,21 +65,21 @@ public class ParamAction {
 
 	private long lackingCount;
 
-    private Long tenantId;
+	private Long tenantId;
 
-    private Long dtuicTenantId;
+	private Long dtuicTenantId;
 
-    private Long userId;
+	private Long userId;
 
-    private String ldapUserName;
+	private String ldapUserName;
 
-    private String ldapPassword;
+	private String ldapPassword;
 
-    private String deployMode;
+	private String deployMode;
 
-    private String dbName;
+	private String dbName;
 
-    private Integer appType;
+	private Integer appType;
 
 	/**
 	 * 重试超时时间
@@ -95,51 +95,52 @@ public class ParamAction {
         return appType;
     }
 
-    public void setAppType(Integer appType) {
-        this.appType = appType;
-    }
 
-    public String getLdapUserName() {
-        return ldapUserName;
-    }
+	public void setAppType(Integer appType) {
+		this.appType = appType;
+	}
 
-    public void setLdapUserName(String ldapUserName) {
-        this.ldapUserName = ldapUserName;
-    }
+	public String getLdapUserName() {
+		return ldapUserName;
+	}
 
-    public String getLdapPassword() {
-        return ldapPassword;
-    }
+	public void setLdapUserName(String ldapUserName) {
+		this.ldapUserName = ldapUserName;
+	}
 
-    public void setLdapPassword(String ldapPassword) {
-        this.ldapPassword = ldapPassword;
-    }
+	public String getLdapPassword() {
+		return ldapPassword;
+	}
 
-    public String getDeployMode() {
-        return deployMode;
-    }
+	public void setLdapPassword(String ldapPassword) {
+		this.ldapPassword = ldapPassword;
+	}
 
-    public void setDeployMode(String deployMode) {
-        this.deployMode = deployMode;
-    }
+	public String getDeployMode() {
+		return deployMode;
+	}
 
-    public String getDbName() {
-        return dbName;
-    }
+	public void setDeployMode(String deployMode) {
+		this.deployMode = deployMode;
+	}
 
-    public void setDbName(String dbName) {
-        this.dbName = dbName;
-    }
+	public String getDbName() {
+		return dbName;
+	}
 
-    public Long getUserId() {
-        return userId;
-    }
+	public void setDbName(String dbName) {
+		this.dbName = dbName;
+	}
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
+	public Long getUserId() {
+		return userId;
+	}
 
-    public Integer getRequestStart() {
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public Integer getRequestStart() {
 		return requestStart;
 	}
 
@@ -212,12 +213,12 @@ public class ParamAction {
 	}
 
 	public String getEngineType() {
-        return engineType;
-    }
+		return engineType;
+	}
 
-    public void setEngineType(String engineType) {
-        this.engineType = engineType;
-    }
+	public void setEngineType(String engineType) {
+		this.engineType = engineType;
+	}
 
 
 	public String getExeArgs() {
@@ -229,13 +230,13 @@ public class ParamAction {
 		this.exeArgs = exeArgs;
 	}
 
-    public String getGroupName() {
-        return groupName;
-    }
+	public String getGroupName() {
+		return groupName;
+	}
 
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
-    }
+	public void setGroupName(String groupName) {
+		this.groupName = groupName;
+	}
 
 	public Map<String, Object> getPluginInfo() {
 		return pluginInfo;
@@ -293,21 +294,21 @@ public class ParamAction {
 		this.lackingCount = lackingCount;
 	}
 
-    public Long getTenantId() {
-        return tenantId;
-    }
+	public Long getTenantId() {
+		return tenantId;
+	}
 
-    public void setTenantId(Long tenantId) {
-        this.tenantId = tenantId;
-    }
+	public void setTenantId(Long tenantId) {
+		this.tenantId = tenantId;
+	}
 
-    public Long getDtuicTenantId() {
-        return dtuicTenantId;
-    }
+	public Long getDtuicTenantId() {
+		return dtuicTenantId;
+	}
 
-    public void setDtuicTenantId(Long dtuicTenantId) {
-        this.dtuicTenantId = dtuicTenantId;
-    }
+	public void setDtuicTenantId(Long dtuicTenantId) {
+		this.dtuicTenantId = dtuicTenantId;
+	}
 
 	public Integer getSourceType() {
 		return sourceType;
@@ -334,15 +335,15 @@ public class ParamAction {
 	}
 
 	@Override
-    public String toString() {
-	    String jsonStr = "";
-	    try{
-            jsonStr = JSONObject.toJSONString(this);
-        }catch (Exception e){
-	        //不应该发生
-            logger.error("", e);
-        }
+	public String toString() {
+		String jsonStr = "";
+		try{
+			jsonStr = JSONObject.toJSONString(this);
+		}catch (Exception e){
+			//不应该发生
+			logger.error("", e);
+		}
 
-        return jsonStr;
-    }
+		return jsonStr;
+	}
 }

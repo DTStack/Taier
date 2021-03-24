@@ -7,6 +7,13 @@ import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.pojo.CheckResult;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.pojo.ParamActionExt;
+import com.dtstack.engine.api.pojo.CheckResult;
+import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.api.pojo.ParamActionExt;
+import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.ExceptionUtil;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.ComputeType;
@@ -40,7 +47,7 @@ import java.util.List;
 @Service
 public class StreamTaskService {
 
-    private static final Logger logger = LoggerFactory.getLogger(StreamTaskService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StreamTaskService.class);
 
     @Autowired
     private EngineJobCheckpointDao engineJobCheckpointDao;
@@ -185,7 +192,7 @@ public class StreamTaskService {
     }
 
     public CheckResult grammarCheck(ParamActionExt paramActionExt) {
-        logger.info("grammarCheck actionParam: {}", JSONObject.toJSONString(paramActionExt));
+        LOGGER.info("grammarCheck actionParam: {}", JSONObject.toJSONString(paramActionExt));
         CheckResult checkResult = null;
         try {
             JobClient jobClient = new JobClient(paramActionExt);

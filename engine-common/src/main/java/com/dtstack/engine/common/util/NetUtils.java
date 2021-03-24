@@ -6,12 +6,12 @@ import org.slf4j.LoggerFactory;
 
 public class NetUtils {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NetUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NetUtils.class);
 
     public static int getAvailablePortRange(String hostname, int portStart, int portEnd) {
         while (true) {
             if (!AddressUtil.telnet(hostname, portStart)) {
-                LOG.warn("Akka availablePort port:" + portStart);
+                LOGGER.warn("Akka availablePort port:" + portStart);
                 return portStart;
             }
             portStart++;

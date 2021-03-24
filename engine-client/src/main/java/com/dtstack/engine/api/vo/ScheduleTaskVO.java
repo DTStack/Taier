@@ -101,7 +101,6 @@ public class ScheduleTaskVO extends ScheduleTaskShade {
     private List<ScheduleTaskVO> taskVOS;
     private List<ScheduleTaskVO> subTaskVOS;
     protected String cron;
-
     public boolean getCurrentProject() {
         return currentProject;
     }

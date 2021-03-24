@@ -29,7 +29,7 @@ import java.util.Objects;
 @Component
 public class PluginWrapper{
 
-    private static final Logger logger = LoggerFactory.getLogger(PluginWrapper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PluginWrapper.class);
 
     private static final String PARAMS_DELIM = "&";
     private static final String URI_PARAMS_DELIM = "?";
@@ -109,7 +109,7 @@ public class PluginWrapper{
         Integer appType = MapUtils.getInteger(actionParam, "appType");
         ScheduleJob scheduleJob = scheduleJobService.getByJobId(jobId, Deleted.NORMAL.getStatus());
         if(null == scheduleJob || null == appType){
-            logger.info("dbUrl {} jobId {} appType or scheduleJob is null",dbUrl,jobId);
+            LOGGER.info("dbUrl {} jobId {} appType or scheduleJob is null",dbUrl,jobId);
             return;
         }
         JSONObject info = JSONObject.parseObject(scheduleTaskShadeDao.getExtInfoByTaskId(scheduleJob.getTaskId(), appType));
@@ -134,7 +134,7 @@ public class PluginWrapper{
             //TiDB 没有currentSchema
             String currentSchema = paramsJson.getString("currentSchema");
             if(StringUtils.isBlank(currentSchema)){
-                throw new RdosDefineException("tidb currentSchema 不允许为空");
+                throw new RdosDefineException("tidb currentSchema Not allowed to be empty");
             }
             if (dbUrl.endsWith(currentSchema)) {
                 pluginInfoJson.put("jdbcUrl", dbUrl);
@@ -144,7 +144,7 @@ public class PluginWrapper{
                 return;
             }
 
-            throw new RdosDefineException("tidb jdbcUrl 参数不合法 需要 / 结尾");
+            throw new RdosDefineException("tidb jdbcUrl The parameter is invalid need / end");
         }
 
         if (MultiEngineType.PRESTO.getName().equalsIgnoreCase((String)actionParam.get("engineType"))){
@@ -250,7 +250,7 @@ public class PluginWrapper{
             });
 
         } catch (Exception e) {
-            logger.error("getPluginInfo tenantId {} engineType {} error ", tenantId, engineType);
+            LOGGER.error("getPluginInfo tenantId {} engineType {} error ", tenantId, engineType);
         }
         return "";
     }

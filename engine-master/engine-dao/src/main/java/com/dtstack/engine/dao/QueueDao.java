@@ -11,7 +11,7 @@ public interface QueueDao {
 
     List<Queue> listByEngineId(@Param("engineId") Long engineId);
 
-    List<Queue> listByEngineIdWithLeaf(@Param("engineId") Long engineId);
+    List<Queue> listByEngineIdWithLeaf(@Param("engineIds") List<Long> engineIds);
 
     Integer update(Queue oldQueue);
 

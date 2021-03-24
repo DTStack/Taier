@@ -2,14 +2,18 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
+import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.engine.api.enums.TaskRuleEnum;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.common.enums.DisplayDirect;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.dao.ScheduleEngineProjectDao;
 import com.dtstack.engine.dao.ScheduleTaskTaskShadeDao;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.dao.TenantDao;
+import com.dtstack.engine.domain.ScheduleEngineProject;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -45,6 +49,12 @@ public class ScheduleTaskTaskShadeService {
 
     @Autowired
     private EnvironmentContext context;
+
+    @Autowired
+    private TenantDao tenantDao;
+
+    @Autowired
+    private ScheduleEngineProjectDao scheduleEngineProjectDao;
 
     public void clearDataByTaskId( Long taskId,Integer appType) {
         scheduleTaskTaskShadeDao.deleteByTaskId(taskId,appType);
@@ -229,6 +239,7 @@ public class ScheduleTaskTaskShadeService {
 
         com.dtstack.engine.master.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO(taskShade, true);
         vo.setCurrentProject(currentProjectId.equals(taskShade.getProjectId()));
+        setTenantAndProjeck(vo,taskShade);
         if (EScheduleJobType.WORK_FLOW.getVal().equals(taskShade.getTaskType())) {
             //如果是工作流，则获取工作流及其子节点
             com.dtstack.engine.master.vo.ScheduleTaskVO subTaskVO = getAllFlowSubTasks(taskShade.getTaskId(),taskShade.getAppType());
@@ -283,6 +294,20 @@ public class ScheduleTaskTaskShadeService {
         }
 
         return vo;
+    }
+
+    private void setTenantAndProjeck(com.dtstack.engine.master.vo.ScheduleTaskVO vo, ScheduleTaskShade taskShade) {
+        Tenant byDtUicTenantId = tenantDao.getByDtUicTenantId(taskShade.getDtuicTenantId());
+
+        if (byDtUicTenantId != null) {
+            vo.setTenantName(byDtUicTenantId.getTenantName());
+        }
+
+        ScheduleEngineProject projectByProjectIdAndApptype = scheduleEngineProjectDao.getProjectByProjectIdAndApptype(taskShade.getProjectId(), taskShade.getAppType());
+
+        if (projectByProjectIdAndApptype != null) {
+            vo.setProjectName(projectByProjectIdAndApptype.getProjectName());
+        }
     }
 
     public List<ScheduleTaskVO> getRefTaskNew(Map<Integer, List<ScheduleTaskTaskShade>> listMap, int level, Integer directType,

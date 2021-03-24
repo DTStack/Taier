@@ -12,6 +12,10 @@ public class PageParam {
     private Integer pageSize;
 
     public Integer getCurrentPage() {
+        if (currentPage ==null || currentPage<=0) {
+            currentPage = 1;
+        }
+
         return currentPage;
     }
 
@@ -20,6 +24,9 @@ public class PageParam {
     }
 
     public Integer getPageSize() {
+        if (pageSize ==null || pageSize<=0) {
+            pageSize = 10;
+        }
         return pageSize;
     }
 

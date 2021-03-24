@@ -19,7 +19,6 @@
 package com.dtstack.engine.flink.factory;
 
 
-import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.base.enums.ClassLoaderType;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.JobIdentifier;
@@ -32,9 +31,7 @@ import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.flink.FlinkClientBuilder;
 import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
-import com.dtstack.engine.flink.enums.FlinkYarnMode;
 import com.dtstack.engine.flink.util.FileUtil;
-import com.dtstack.engine.flink.util.FlinkUtil;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
@@ -103,15 +100,9 @@ public class PerJobClientFactory extends AbstractClientFactory {
             clusterClient = KerberosUtils.login(flinkConfig, () -> {
                 try {
                     return perJobClientCache.get(applicationId, () -> {
-                        ParamAction action = new ParamAction();
-                        action.setTaskId(taskId);
-                        action.setName("taskId-" + taskId);
-                        action.setTaskType(EJobType.SQL.getType());
-                        action.setComputeType(ComputeType.STREAM.getType());
-                        action.setTenantId(-1L);
-                        String taskParams = "flinkTaskRunMode=per_job";
-                        action.setTaskParams(taskParams);
-                        JobClient jobClient = new JobClient(action);
+                        JobClient jobClient = new JobClient();
+                        jobClient.setTaskId(taskId);
+                        jobClient.setJobName("taskId-" + taskId);
                         try (
                                 AbstractYarnClusterDescriptor perJobYarnClusterDescriptor = this.createPerJobClusterDescriptor(jobClient);
                         ) {
@@ -124,9 +115,9 @@ public class PerJobClientFactory extends AbstractClientFactory {
             }, flinkClientBuilder.getYarnConf());
         } catch (Exception e) {
             LOG.error("job[{}] get perJobClient exception:{}", taskId, e.getMessage());
-            throw new RdosDefineException(e);
         }
 
+        Preconditions.checkNotNull(clusterClient, "Get perJobClient is null!");
         return clusterClient;
     }
 
@@ -211,9 +202,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
             }
         }
 
-        FlinkYarnMode taskRunMode = FlinkUtil.getTaskRunMode(jobClient.getConfProperties(), jobClient.getComputeType());
-        Boolean isPerjob = FlinkYarnMode.isPerJob(taskRunMode);
-        if (!flinkConfig.getFlinkHighAvailability() && !isPerjob) {
+        if (!flinkConfig.getFlinkHighAvailability() && ComputeType.BATCH == jobClient.getComputeType()) {
             setNoneHaModeConfig(configuration);
         } else {
             configuration.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
