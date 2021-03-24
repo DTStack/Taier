@@ -5,6 +5,10 @@ import Entry from 'pages/entry/index';
 import ModelList from 'pages/DataModel/List';
 import ModelModify from '@/pages/DataModel/Modify';
 
+import dataSource from "pages/DataSource/List"
+import addSource from "pages/DataSource/AddSource"
+import editSource from "@/pages/DataSource/EditSource"
+
 const Layout = createLayout(true, false);
 
 const PageNotFound = () => (
@@ -16,6 +20,22 @@ const routerConf = [
     path: '/',
     layout: Layout,
     component: Entry,
+  },
+  //数据源项目路径
+  {
+    path: '/data-source',
+    // layout: Layout,
+    component: dataSource,
+  },
+  {
+    path: '/add-source',
+    // layout: Layout,
+    component: addSource,
+  },
+  {
+    path: '/edit-source',
+    // layout: Layout,
+    component: editSource,
   },
   {
     path: '/data-model',

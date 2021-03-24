@@ -17,6 +17,7 @@
     "ant-design-dtinsight-theme": "1.1.2",
     "antd": "3.26.13",
     "classnames": "^2.2.6",
+    "copy-to-clipboard": "^3.3.1",
     "core-js": "^3.8.1",
     "history": "^5.0.0",
     "immutable": "~3.8.2",
