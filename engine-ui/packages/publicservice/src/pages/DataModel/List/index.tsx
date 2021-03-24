@@ -8,6 +8,7 @@ import Message from 'pages/DataModel/components/Message';
 import Detail from '../Detail';
 import { API } from '@/services';
 import './style';
+import _ from 'lodash';
 const { Search } = Input;
 
 interface IPagination {
@@ -22,6 +23,9 @@ interface IReqParams {
   field: string;
   search: string;
   size: number;
+  // TODO:筛选字段名称参数需要变更
+  // dataSourceId: string | number;
+  // modelStatus: 0 | 1 | 2;
 }
 interface IModelAction {
   type: EnumModelActionType,
@@ -35,15 +39,18 @@ const List = () => {
     current: 1,
     size: 10,
     total: 0,
-  })
+  });
 
   const [requestParams, setRequestParams] = useState<IReqParams>({
     asc: true,
     current: 1,
     field: "",
     search: "",
-    size: 10
-  })
+    size: 10,
+    // dataSourceId: '',
+    // modelStatus: 0,
+  });
+  const [usedDataSourceList, setUsedDatasourceList] = useState([]);
 
   const [drawer, setDrawer] = useState({
     visible: false,
@@ -74,6 +81,23 @@ const List = () => {
       setLoading(false);
     }
   }
+
+  const fetchFilterDataSourceList = async () => {
+    try {
+      const { success, data, message } = await API.getDataModelUsedDataSourceList();
+      if (success) {
+        setUsedDatasourceList(data);
+      } else {
+        Message.error(message);
+      }
+    } catch(error) {
+      Message.error(error.message);
+    }
+  }
+
+  useEffect(() => {
+    fetchFilterDataSourceList();
+  }, [])
 
   // TODO: icon,toast位置
   const handleModelAction = useCallback(async (action: IModelAction) => {
@@ -134,8 +158,13 @@ const List = () => {
   }
 
   const columns = useMemo(() => {
-    return columnsGenerator({ handleModelAction, handleDeleteBtnClick, handleModelNameClick });
-  }, [handleModelAction, handleDeleteBtnClick, handleModelNameClick]);
+    return columnsGenerator({
+      handleModelAction,
+      handleDeleteBtnClick,
+      handleModelNameClick,
+      dataSourceFilterOptions: _.uniqBy(usedDataSourceList, 'dsType').map(item => ({ text: item.dsTypeName, value: item.dsType })),
+    });
+  }, [handleModelAction, handleDeleteBtnClick, handleModelNameClick, usedDataSourceList]);
 
   useEffect(() => {
     fetchModelList(requestParams);
@@ -160,15 +189,21 @@ const List = () => {
           dataSource={modelList}
           pagination={false}
           scroll={{ x: 1300, y: 800 }}
+          onChange={(pagination, filters) => {
+            // TODO: 
+            // setRequestParams(reqParams => ({
+            //   ...reqParams,
+            //   modelStatus: filters.modelStatus as any,
+            //   dataSourceId: (filters as any).dataSourceType
+            // }))
+          }}
         />
         <Drawer
           closable={false}
           visible={drawer.visible}
           className="drawer"
           width={1000}
-          getContainer={() => {
-            return document.querySelector('.table-area')
-          }}
+          getContainer={() => document.querySelector('.table-area')}
           mask={false}
           onClose={() => {
             setDrawer({

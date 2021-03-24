@@ -1,6 +1,7 @@
 import React from 'react';
 import { Divider } from 'antd';
 import { EnumModelActionType, EnumModelStatus } from './types';
+import _ from 'lodash';
 
 export const modelStatusMap = new Map([
   [EnumModelStatus.UNRELEASE, '未发布'],
@@ -19,7 +20,12 @@ const getColorByModelStatus = (status: EnumModelStatus) => {
   }
 }
 
-export const columnsGenerator = ({ handleModelAction, handleDeleteBtnClick, handleModelNameClick }) => {
+export const columnsGenerator = ({
+  handleModelAction,
+  handleDeleteBtnClick,
+  handleModelNameClick,
+  dataSourceFilterOptions,
+}) => {
   return [
     {
       title: '模型名称',
@@ -36,14 +42,11 @@ export const columnsGenerator = ({ handleModelAction, handleDeleteBtnClick, hand
     { title: '模型英文名', dataIndex: 'modelEnName', key: 'modelEnName', width: 200 },
     {
       title: '数据源',
-      dataIndex: '',
+      dataIndex: 'dataSourceType',
       width: 200,
       ellipsis: true,
-      // TODO:
-      filters: [
-        {text: 'aaa', value: 1},
-        {text: 'bbb', value: 2},
-      ],
+      filters: dataSourceFilterOptions,
+      ilterMultiple: true,
       render: (text, record) => {
         return (
           <span>
@@ -60,9 +63,6 @@ export const columnsGenerator = ({ handleModelAction, handleDeleteBtnClick, hand
       // TODO:
       filters: Array.from(modelStatusMap).map(item => ({ text: item[1], value: item[0] })),
       filterMultiple: true,
-      onFilter: (value, record) => {
-        return record.modelStatus === value;
-      },
       render: (modelStatus) => {
         return (
           <div>
