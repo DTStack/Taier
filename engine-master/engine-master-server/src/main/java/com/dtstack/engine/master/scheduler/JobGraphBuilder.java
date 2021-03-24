@@ -1,19 +1,21 @@
 package com.dtstack.engine.master.scheduler;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.vo.ScheduleDetailsVO;
+import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.domain.ScheduleJobJob;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.DependencyType;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
-import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.*;
 import com.dtstack.engine.master.scheduler.parser.*;
 import com.dtstack.schedule.common.enums.EProjectScheduleStatus;
@@ -1104,6 +1106,7 @@ public class JobGraphBuilder {
         Map<String, ScheduleBatchJob> result = new HashMap<>(16);
         if (jsonObject != null && jsonObject.size() > 0) {
             for (JsonNode jsonNode : jsonObject) {
+
                     Map<String, ScheduleBatchJob> stringScheduleBatchJobMap = buildFillDataJobGraph(jsonNode, fillJobName, needFather, triggerDay, createUserId, beginTime, endTime, projectId, tenantId, isRoot,appType,fillId,dtuicTenantId);
                     result.putAll(stringScheduleBatchJobMap);
             }
@@ -1146,23 +1149,33 @@ public class JobGraphBuilder {
 
         NumericNode fatherNode = (NumericNode) jsonObject.get("task");
         //生成jobList
-        Long taskId = fatherNode.asLong();
-        ScheduleTaskShade batchTask = batchTaskShadeService.getBatchTaskById(taskId, appType);
+        ScheduleTaskShade batchTask = batchTaskShadeService.getBatchTaskById(fatherNode.asLong(), appType);
 
         String preStr = FILL_DATA_TYPE + "_" + fillJobName;
         Map<String, ScheduleBatchJob> result = Maps.newLinkedHashMap();
         Map<String, String> flowJobId = Maps.newHashMap();
-        List<ScheduleBatchJob> batchJobs = Lists.newArrayList();
-        // 生成周期实例
-        batchJobs.addAll(generateJob(fillJobName, needFather, triggerDay, createUserId, beginTime, endTime, projectId, tenantId, appType, batchTask, preStr, flowJobId));
-
-        // 生成子节点规则任务
-        List<ScheduleTaskShade> taskRuleTask = batchTaskShadeService.findChildTaskRuleByTaskId(taskId, appType);
-
-        for (ScheduleTaskShade scheduleTaskShade : taskRuleTask) {
-            batchJobs.addAll(generateJob(fillJobName, needFather, triggerDay, createUserId, beginTime, endTime, projectId, tenantId, scheduleTaskShade.getAppType(), scheduleTaskShade, preStr, flowJobId));
+        List<ScheduleBatchJob> batchJobs;
+        if (StringUtils.isNotBlank(beginTime) && StringUtils.isNotBlank(endTime)) {
+            batchJobs = buildJobRunBean(batchTask, preStr, EScheduleType.FILL_DATA, needFather,
+                    true, triggerDay, fillJobName, createUserId, beginTime, endTime, projectId, tenantId);
+        } else {
+            batchJobs = buildJobRunBean(batchTask, preStr, EScheduleType.FILL_DATA, needFather,
+                    true, triggerDay, fillJobName, createUserId, projectId, tenantId);
         }
-
+        //针对专门补工作流子节点
+        doSetFlowJobIdForSubTasks(batchJobs, flowJobId);
+        //工作流情况的处理
+        if (batchTask.getTaskType().intValue() == EScheduleJobType.WORK_FLOW.getVal() ||
+                batchTask.getTaskType().intValue() == EScheduleJobType.ALGORITHM_LAB.getVal()) {
+            for (ScheduleBatchJob jobRunBean : batchJobs) {
+                flowJobId.put(batchTask.getTaskId() + "_" + jobRunBean.getCycTime() + "_" + batchTask.getAppType(), jobRunBean.getJobId());
+            }
+            //将工作流下的子任务生成补数据任务实例
+            List<ScheduleBatchJob> subTaskJobs = buildSubTasksJobForFlowWork(batchTask.getTaskId(), preStr, fillJobName, triggerDay, createUserId, beginTime, endTime, projectId, tenantId, appType);
+            logger.error("buildFillDataJobGraph for flowTask with flowJobId map [{}]", flowJobId);
+            doSetFlowJobIdForSubTasks(subTaskJobs, flowJobId);
+            batchJobs.addAll(subTaskJobs);
+        }
         for (ScheduleBatchJob batchJob : batchJobs) {
             if (batchJob.getScheduleJob() != null) {
                 batchJob.getScheduleJob().setFillId(fillId);
@@ -1189,32 +1202,6 @@ public class JobGraphBuilder {
         }
 
         return result;
-    }
-
-    private List<ScheduleBatchJob> generateJob(String fillJobName, boolean needFather, String triggerDay, Long createUserId, String beginTime, String endTime, Long projectId, Long tenantId, @Param("appType") Integer appType, ScheduleTaskShade batchTask, String preStr, Map<String, String> flowJobId) throws Exception {
-        List<ScheduleBatchJob> batchJobs;
-        if (StringUtils.isNotBlank(beginTime) && StringUtils.isNotBlank(endTime)) {
-            batchJobs = buildJobRunBean(batchTask, preStr, EScheduleType.FILL_DATA, needFather,
-                    true, triggerDay, fillJobName, createUserId, beginTime, endTime, projectId, tenantId);
-        } else {
-            batchJobs = buildJobRunBean(batchTask, preStr, EScheduleType.FILL_DATA, needFather,
-                    true, triggerDay, fillJobName, createUserId, projectId, tenantId);
-        }
-        //针对专门补工作流子节点
-        doSetFlowJobIdForSubTasks(batchJobs, flowJobId);
-        //工作流情况的处理
-        if (batchTask.getTaskType().intValue() == EScheduleJobType.WORK_FLOW.getVal() ||
-                batchTask.getTaskType().intValue() == EScheduleJobType.ALGORITHM_LAB.getVal()) {
-            for (ScheduleBatchJob jobRunBean : batchJobs) {
-                flowJobId.put(batchTask.getTaskId() + "_" + jobRunBean.getCycTime() + "_" + batchTask.getAppType(), jobRunBean.getJobId());
-            }
-            //将工作流下的子任务生成补数据任务实例
-            List<ScheduleBatchJob> subTaskJobs = buildSubTasksJobForFlowWork(batchTask.getTaskId(), preStr, fillJobName, triggerDay, createUserId, beginTime, endTime, projectId, tenantId, appType);
-            logger.error("buildFillDataJobGraph for flowTask with flowJobId map [{}]", flowJobId);
-            doSetFlowJobIdForSubTasks(subTaskJobs, flowJobId);
-            batchJobs.addAll(subTaskJobs);
-        }
-        return batchJobs;
     }
 
     // 虽然没用到，预留具体时间缺省时补工作流数据
