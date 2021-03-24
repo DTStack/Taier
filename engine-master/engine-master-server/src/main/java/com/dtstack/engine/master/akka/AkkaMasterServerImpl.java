@@ -9,6 +9,7 @@ import akka.util.Timeout;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.akka.RpcService;
 import com.dtstack.engine.common.akka.config.AkkaConfig;
+import com.dtstack.engine.common.akka.config.AkkaLoad;
 import com.dtstack.engine.common.akka.message.MessageJudgeSlots;
 import com.dtstack.engine.common.akka.message.MessageSubmitJob;
 import com.dtstack.engine.common.akka.message.WorkerInfo;
@@ -31,6 +32,8 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -44,7 +47,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterServer<Object, String>, RpcService<Config> {
 
-    private static final Logger logger = LoggerFactory.getLogger(AkkaMasterServerImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AkkaMasterServerImpl.class);
 
     private static ObjectMapper objectMapper = new ObjectMapper();
     private final static String TIMESTAMP = "timestamp";
@@ -76,7 +79,9 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
 
     @Override
     public Config loadConfig() {
-        Config config = AkkaConfig.init(ConfigFactory.load());
+        String configPath = environmentContext.getConfigPath();
+        Config config = AkkaConfig.init(AkkaLoad.load(configPath));
+
         this.askResultTime = Duration.create(AkkaConfig.getAkkaAskResultTimeout(), TimeUnit.SECONDS);
         this.askSubmitTime = Duration.create(AkkaConfig.getAkkaAskSubmitTimeout(), TimeUnit.SECONDS);
         this.askTimeout = Timeout.create(java.time.Duration.ofSeconds(AkkaConfig.getAkkaAskTimeout()));
@@ -88,7 +93,7 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
     public void start(Config config) {
         this.actorSystem = AkkaConfig.initActorSystem(config);
         this.masterActorRef = this.actorSystem.actorOf(Props.create(AkkaMasterActor.class), AkkaConfig.getMasterName());
-        logger.info("get an masterActorRef of masterRemotePath:{}", masterActorRef.path());
+        LOGGER.info("get an masterActorRef of masterRemotePath:{}", masterActorRef.path());
     }
 
     @Override
@@ -122,7 +127,7 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
         try {
             updateWorkerInfo();
         } catch (Exception e) {
-            logger.error("updateWorkerActors happens error:", e);
+            LOGGER.error("updateWorkerActors happens error:", e);
         }
     }
 
@@ -133,7 +138,7 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
         try {
             askResult = Await.result(future, askResultTime);
         } catch (Exception e) {
-            logger.error("updateWorkerActors happens error:", e);
+            LOGGER.error("updateWorkerActors happens error:", e);
         }
         if (askResult == null) {
             return;
@@ -160,7 +165,7 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
         }
         availableWorkers = newWorkers;
         if (LogCountUtil.count(logOutput++, MULTIPLES)) {
-            logger.info("availableWorkers:{} gap:[{} ms]", availableWorkers, CHECK_INTERVAL * MULTIPLES);
+            LOGGER.info("availableWorkers:{} gap:[{} ms]", availableWorkers, CHECK_INTERVAL * MULTIPLES);
         }
     }
 

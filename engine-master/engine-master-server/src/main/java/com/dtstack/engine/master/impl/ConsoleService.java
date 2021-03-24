@@ -11,7 +11,6 @@ import com.dtstack.engine.api.vo.console.ConsoleJobVO;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EJobCacheStage;
-import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -23,6 +22,7 @@ import com.dtstack.engine.master.config.TaskResourceBeanConfig;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
+import com.dtstack.engine.master.jobdealer.resource.JobComputeResourcePlain;
 import com.dtstack.engine.master.plugininfo.PluginWrapper;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.vo.TaskTypeResourceTemplateVO;
@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
 @Service
 public class ConsoleService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ConsoleService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleService.class);
 
     @Autowired
     private ScheduleJobDao scheduleJobDao;
@@ -64,9 +64,6 @@ public class ConsoleService {
 
     @Autowired
     private ClusterDao clusterDao;
-
-    @Autowired
-    private EngineDao engineDao;
 
     @Autowired
     private ComponentService componentService;
@@ -95,17 +92,20 @@ public class ConsoleService {
     @Autowired
     private PluginWrapper pluginWrapper;
 
+    @Autowired
+    private JobComputeResourcePlain jobComputeResourcePlain;
+
     private static long DELAULT_TENANT  = -1L;
 
     public Boolean finishJob(String jobId, Integer status) {
         if (!RdosTaskStatus.isStopped(status)) {
-            logger.warn("Job status：" + status + " is not stopped status");
+            LOGGER.warn("Job status：" + status + " is not stopped status");
             return false;
         }
         shardCache.updateLocalMemTaskStatus(jobId, status);
         engineJobCacheDao.delete(jobId);
         scheduleJobDao.updateJobStatus(jobId, status);
-        logger.info("jobId:{} update job status:{}, job is finished.", jobId, status);
+        LOGGER.info("jobId:{} update job status:{}, job is finished.", jobId, status);
         return true;
     }
 
@@ -141,7 +141,7 @@ public class ConsoleService {
             vo.setTheJobIdx(1);
             return vo;
         } catch (Exception e) {
-            logger.error("searchJob error:{}", e);
+            LOGGER.error("searchJob error:", e);
         }
         return null;
     }
@@ -151,7 +151,7 @@ public class ConsoleService {
             Preconditions.checkNotNull(jobName, "parameters of jobName not be null.");
             return engineJobCacheDao.listNames(jobName);
         } catch (Exception e) {
-            logger.error("{}", e);
+            LOGGER.error("", e);
         }
         return null;
     }
@@ -220,19 +220,7 @@ public class ConsoleService {
     }
 
     private boolean isBelongCluster(String clusterName,String jobResource){
-        if(StringUtils.isBlank(clusterName)){
-            return false;
-        }
-        if(StringUtils.isBlank(jobResource)){
-            return false;
-        }
-        String[] split = jobResource.split(ConfigConstant.SPLIT);
-        if(split.length <= 1){
-            return false;
-        }
-        //第二位为集群名
-        String jobResourceClusterName = split[1];
-        return clusterName.equalsIgnoreCase(jobResourceClusterName);
+        return clusterName.equalsIgnoreCase(jobComputeResourcePlain.parseClusterFromJobResource(jobResource));
     }
 
 
@@ -270,12 +258,12 @@ public class ConsoleService {
                     ScheduleJob scheduleJob = scheduleJobMap.getOrDefault(engineJobCache.getJobId(), new ScheduleJob());
                     //补充租户信息
                     Tenant tenant = tenantMap.get(scheduleJob.getDtuicTenantId());
-                    if(null == tenant && DELAULT_TENANT != scheduleJob.getDtuicTenantId() && scheduleJob.getDtuicTenantId() > 0){
+                    if(null == tenant && ConfigConstant.DEFAULT_TENANT != scheduleJob.getDtuicTenantId() && scheduleJob.getDtuicTenantId() > 0){
                         //可能临时运行 租户在tenant表没有 需要添加
                         try {
                             tenant = tenantService.addTenant(scheduleJob.getDtuicTenantId(), dtToken);
                         } catch (Exception e) {
-                            logger.error(" get tenant error {}", scheduleJob.getDtuicTenantId(),e);
+                            LOGGER.error(" get tenant error {}", scheduleJob.getDtuicTenantId(),e);
                         }
                     }
                     this.fillJobInfo(theJobMap, scheduleJob, engineJobCache,tenant,pluginInfoCache);
@@ -283,7 +271,7 @@ public class ConsoleService {
                 }
             }
         } catch (Exception e) {
-            logger.error("groupDetail error{}", e);
+            LOGGER.error("groupDetail error", e);
         }
         PageQuery pageQuery = new PageQuery<>(currentPage, pageSize);
         return new PageResult<>(data,count.intValue(),pageQuery);
@@ -354,7 +342,7 @@ public class ConsoleService {
                 return jobDealer.addGroupPriorityQueue(engineJobCache.getJobResource(), jobClient, false, false);
             }
         } catch (Exception e) {
-            logger.error("jobStick error:{}", e);
+            LOGGER.error("jobStick error:", e);
         }
         return false;
     }
@@ -363,7 +351,7 @@ public class ConsoleService {
         Preconditions.checkArgument(StringUtils.isNotBlank(jobId), "parameters of jobId is required");
         List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(Lists.newArrayList(jobId));
         if (alreadyExistJobIds.contains(jobId)) {
-            logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobId);
+            LOGGER.info("jobId:{} ignore insert stop record, because is already exist in table.", jobId);
             return;
         }
 
@@ -403,12 +391,12 @@ public class ConsoleService {
             if (EJobCacheStage.unSubmitted().contains(stage)) {
                 Integer deleted = engineJobCacheDao.deleteByJobIds(jobIdList);
                 Integer updated = scheduleJobDao.updateJobStatusByJobIds(jobIdList, RdosTaskStatus.CANCELED.getStatus());
-                logger.info("delete job size:{}, update job size:{}, deal jobIds:{}", deleted, updated, jobIdList);
+                LOGGER.info("delete job size:{}, update job size:{}, deal jobIds:{}", deleted, updated, jobIdList);
             } else {
                 List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(jobIdList);
                 for (String jobId : jobIdList) {
                     if (alreadyExistJobIds.contains(jobId)) {
-                        logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobId);
+                        LOGGER.info("jobId:{} ignore insert stop record, because is already exist in table.", jobId);
                         continue;
                     }
 
@@ -445,14 +433,14 @@ public class ConsoleService {
                 if (EJobCacheStage.unSubmitted().contains(stage)) {
                     Integer deleted = engineJobCacheDao.deleteByJobIds(jobIds);
                     Integer updated = scheduleJobDao.updateJobStatusByJobIds(jobIds, RdosTaskStatus.CANCELED.getStatus());
-                    logger.info("delete job size:{}, update job size:{}, query job size:{}, jobIds:{}", deleted, updated, jobCaches.size(), jobIds);
+                    LOGGER.info("delete job size:{}, update job size:{}, query job size:{}, jobIds:{}", deleted, updated, jobCaches.size(), jobIds);
                 } else {
                     //已提交的任务需要发送请求杀死，走正常杀任务的逻辑
                     List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(jobIds);
                     for (EngineJobCache jobCache : jobCaches) {
                         startId = jobCache.getId();
                         if (alreadyExistJobIds.contains(jobCache.getJobId())) {
-                            logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobCache.getJobId());
+                            LOGGER.info("jobId:{} ignore insert stop record, because is already exist in table.", jobCache.getJobId());
                             continue;
                         }
 
@@ -483,20 +471,19 @@ public class ConsoleService {
             throw new RdosDefineException(ErrorCode.DATA_NOT_FIND);
         }
 
-        Component yarnComponent = getYarnComponent(cluster.getId());
+        Component yarnComponent = componentService.getComponentByClusterId(cluster.getId(),EComponentType.YARN.getTypeCode());
         if (yarnComponent == null) {
             return null;
         }
-
-        return getResources(yarnComponent, cluster);
+        JSONObject yarnConfigStr = componentService.getComponentByClusterId(cluster.getId(), EComponentType.YARN.getTypeCode(), false, JSONObject.class);
+        return getResources(yarnComponent, cluster,yarnConfigStr);
     }
 
-    public ClusterResource getResources(Component yarnComponent, Cluster cluster) {
+    public ClusterResource getResources(Component yarnComponent, Cluster cluster,JSONObject componentConfig) {
         try {
             JSONObject pluginInfo = new JSONObject();
-            JSONObject componentConfig = JSONObject.parseObject(yarnComponent.getComponentConfig());
             pluginInfo.put(EComponentType.YARN.getConfName(), componentConfig);
-            String typeName = componentConfig.getString(ComponentService.TYPE_NAME);
+            String typeName = Optional.ofNullable(componentConfig).orElse(new JSONObject()).getString(ConfigConstant.TYPE_NAME_KEY);
             if (StringUtils.isBlank(typeName)) {
                 //获取对应的插件名称
                 Component hdfsComponent = componentService.getComponentByClusterId(cluster.getId(), EComponentType.HDFS.getTypeCode());
@@ -509,41 +496,12 @@ public class ConsoleService {
                             EComponentType.HDFS.getTypeCode(), hdfsComponent.getHadoopVersion(),hdfsComponent.getStoreType());
                 }
             }
-            pluginInfo.put(ComponentService.TYPE_NAME,typeName);
+            pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,typeName);
             return workerOperator.clusterResource(typeName, pluginInfo.toJSONString());
         } catch (Exception e) {
-            logger.error("getResources error:{} ", e);
-            throw new RdosDefineException("flink资源获取异常");
+            LOGGER.error("getResources error: ", e);
+            throw new RdosDefineException("acquire flink resources error.");
         }
-    }
-
-    public Component getYarnComponent(Long clusterId) {
-        List<Engine> engines = engineDao.listByClusterId(clusterId);
-        if (CollectionUtils.isEmpty(engines)) {
-            return null;
-        }
-
-        Engine hadoopEngine = null;
-        for (Engine e : engines) {
-            if (e.getEngineType() == MultiEngineType.HADOOP.getType()) {
-                hadoopEngine = e;
-                break;
-            }
-        }
-        if (hadoopEngine == null) {
-            return null;
-        }
-
-        List<Component> componentList = componentService.listComponent(hadoopEngine.getId());
-        if (CollectionUtils.isEmpty(componentList)) {
-            return null;
-        }
-        for (Component component : componentList) {
-            if (EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode())) {
-                return component;
-            }
-        }
-        return null;
     }
 
     /**

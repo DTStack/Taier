@@ -10,7 +10,7 @@ import java.nio.file.Paths;
 import static java.security.AccessController.doPrivileged;
 
 /**
- * 
+ *
  * @author sishu.yss
  *
  */
@@ -23,6 +23,7 @@ public class ConfigConstrant {
     public static final String SPLIT = "_";
     public static final String SP = File.separator;
     public static final String USER_DIR = System.getProperty("user.dir");
+    public static final String TMP_DIR = USER_DIR + SP + "tmp";
     public static final Path IO_TMPDIR = Paths.get(doPrivileged(new GetPropertyAction("java.io.tmpdir")));
 
     public static final String LOG_LEVEL_KEY = "logLevel";
@@ -78,6 +79,7 @@ public class ConfigConstrant {
     // Kerberos Configs
     // ------------------------------------------------------------------------
 
+    public static final String OPEN_KERBEROS_KEY = "openKerberos";
     public static final String KAFKA_SFTP_KEYTAB = "kafka.sftp.keytab";
     public static final String SECURITY_KERBEROS_LOGIN_KEYTAB= "security.kerberos.login.keytab";
 

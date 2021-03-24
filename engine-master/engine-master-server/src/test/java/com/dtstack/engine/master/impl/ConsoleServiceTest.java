@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Cluster;
 import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.EngineJobCache;
@@ -7,6 +8,7 @@ import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.vo.console.ConsoleJobVO;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.dao.TestClusterDao;
 import com.dtstack.engine.dao.TestComponentDao;
@@ -22,10 +24,6 @@ import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
@@ -216,18 +214,12 @@ public class ConsoleServiceTest extends AbstractTest {
     public void testGetResources() {
         Component hdfsComponent = Template.getDefaultHdfsComponentTemplate();
         Cluster cluster = clusterDao.getOne();
-        ClusterResource getResources = consoleService.getResources(hdfsComponent, cluster);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(ConfigConstant.TYPE_NAME_KEY,"yarn2-hdfs2-flink180");
+        ClusterResource getResources = consoleService.getResources(hdfsComponent, cluster,jsonObject);
         Assert.assertNotNull(getResources);
     }
 
-    @Test
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-    @Rollback
-    public void testGetYarnComponent() {
-        Cluster defaultCluster = DataCollection.getData().getDefaultCluster();
-        Component getYarnComponent = consoleService.getYarnComponent(defaultCluster.getId());
-        Assert.assertNotNull(getYarnComponent);
-    }
 
     @Test
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)

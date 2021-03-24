@@ -20,6 +20,8 @@ package org.apache.flink.yarn;
 
 import avro.shaded.com.google.common.collect.Sets;
 import com.dtstack.engine.base.util.HadoopConfTool;
+import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.util.FlinkUtil;
 import com.google.common.base.Strings;
@@ -109,16 +111,7 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.flink.configuration.ConfigConstants.DEFAULT_FLINK_USR_LIB_DIR;
@@ -160,6 +153,9 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 	private final String applicationType;
 
 	private String zookeeperNamespace;
+
+	/** dt type of flink job*/
+	private EJobType jobType;
 
 	private YarnConfigOptions.UserJarInclusion userJarInclusion;
 
@@ -264,6 +260,17 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 		this.flinkJarPath = localJarPath;
 	}
 
+	public EJobType getJobType() {
+		return jobType;
+	}
+
+	/**
+	 * set current flink job's dt jobType eg: SQL、MR、SYNC...
+	 * @param jobType
+	 */
+	public void setJobType(EJobType jobType) {
+		this.jobType = jobType;
+	}
 	/**
 	 * Adds the given files to the list of files to ship.
 	 *
@@ -443,7 +450,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 	}
 
 	private boolean isSecurityEnabled() {
-		return flinkConfiguration.getBoolean("openKerberos", false);
+		return flinkConfiguration.getBoolean(ConfigConstrant.OPEN_KERBEROS_KEY, false);
 	}
 
 	/**
@@ -669,9 +676,11 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 		}catch (Exception e){
 			LOG.error("get proxyDescriptor error: {}", e);
 			String  addr = yarnConf.get("yarn.resourcemanager.webapp.address");
-//			if (addr == null) {
-//				throw new YarnDeploymentException("Couldn't get rm web app address.Please check rm web address whether be confituration.");
-//			}
+			if (addr == null && EJobType.SYNC == jobType) {
+				throw new YarnDeploymentException("Couldn't get rm web app address. " +
+						"it's required when batch job run on per_job mode. " +
+						"Please check rm web address whether be confituration.");
+			}
 			return String.format("http://%s/proxy",addr);
 		}
 	}

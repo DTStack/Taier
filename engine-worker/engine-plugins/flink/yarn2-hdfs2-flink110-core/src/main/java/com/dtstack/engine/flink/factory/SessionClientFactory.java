@@ -688,7 +688,7 @@ public class SessionClientFactory extends AbstractClientFactory {
             String checkpoint = sessionClientFactory.flinkConfiguration.getString(CheckpointingOptions.CHECKPOINTS_DIRECTORY);
             String[] programArgs = {checkpoint};
 
-            PackagedProgram packagedProgram = FlinkUtil.buildProgram(jarPath, "./tmp", classPaths,
+            PackagedProgram packagedProgram = FlinkUtil.buildProgram(jarPath, classPaths,
                     null, mainClass, programArgs, SavepointRestoreSettings.none(), sessionClientFactory.flinkConfiguration, filesystemManager);
             JobGraph jobGraph = PackagedProgramUtils.createJobGraph(packagedProgram, sessionClientFactory.flinkConfiguration, 1, false);
             JobExecutionResult result = ClientUtils.submitJob(sessionClientFactory.clusterClient, jobGraph, 1, TimeUnit.MINUTES);

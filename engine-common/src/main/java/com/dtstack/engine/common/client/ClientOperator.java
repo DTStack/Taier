@@ -1,5 +1,6 @@
 package com.dtstack.engine.common.client;
 
+import com.dtstack.engine.api.pojo.CheckResult;
 import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
@@ -28,7 +29,7 @@ import java.util.Properties;
  */
 public class ClientOperator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ClientOperator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClientOperator.class);
 
     private ClientCache clientCache = ClientCache.getInstance();
 
@@ -61,7 +62,7 @@ public class ClientOperator {
 
             return (RdosTaskStatus) result;
         } catch (Exception e) {
-            LOG.error("getStatus happens error：{}",jobId, e);
+            LOGGER.error("getStatus happens error：{}",jobId, e);
             return RdosTaskStatus.NOTFOUND;
         }
     }
@@ -163,11 +164,6 @@ public class ClientOperator {
         return clusterClient.submitJob(jobClient);
     }
 
-    public List<ClientTemplate> getDefaultPluginConfig(String engineType,String componentType){
-        IClient clusterClient = clientCache.getDefaultPlugin(engineType);
-        return clusterClient.getDefaultPluginConfig(componentType);
-    }
-
     public ComponentTestResult testConnect(String engineType, String pluginInfo){
         IClient clusterClient = clientCache.getDefaultPlugin(engineType);
         return clusterClient.testConnect(pluginInfo);
@@ -196,6 +192,11 @@ public class ClientOperator {
         } catch (Exception e) {
             throw new RdosDefineException("get job rollingLogBaseInfo:" + jobIdentifier.getEngineJobId() + " exception:" + ExceptionUtil.getErrorMessage(e));
         }
+    }
+
+    public CheckResult grammarCheck(JobClient jobClient) throws ClientAccessException {
+        IClient clusterClient = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
+        return clusterClient.grammarCheck(jobClient);
     }
 
 }

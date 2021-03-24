@@ -31,7 +31,7 @@ import java.util.Properties;
 
 public class JobClient extends OrderObject {
 
-    private static final Logger logger = LoggerFactory.getLogger(JobClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobClient.class);
 
     /**
      * 默认的优先级，值越小，优先级越高
@@ -98,17 +98,27 @@ public class JobClient extends OrderObject {
     /**
      * uic租户信息
      **/
-    private long tenantId;
+    private Long tenantId;
 
     private Long userId;
 
     private Integer appType;
-    
+
     private Integer queueSourceType;
 
     private Long submitCacheTime;
 
     private Boolean isForceCancel;
+
+    /**
+     * 重试超时时间
+     */
+    private long submitExpiredTime;
+
+    /**
+     * 重试间隔时间
+     */
+    private Long retryIntervalTime;
 
 
     public JobClient() {
@@ -133,6 +143,8 @@ public class JobClient extends OrderObject {
         this.userId = paramAction.getUserId();
         this.appType = paramAction.getAppType();
         this.queueSourceType = EQueueSourceType.NORMAL.getCode();
+        this.submitExpiredTime = paramAction.getSubmitExpiredTime();
+        this.retryIntervalTime = paramAction.getRetryIntervalTime();
 
         this.maxRetryNum = paramAction.getMaxRetryNum() == null ? 0 : paramAction.getMaxRetryNum();
         if (paramAction.getPluginInfo() != null) {
@@ -184,7 +196,7 @@ public class JobClient extends OrderObject {
                 action.setPluginInfo(PublicUtil.jsonStrToObject(pluginInfo, Map.class));
             } catch (Exception e) {
                 //不应该走到这个异常,这个数据本身是由map转换过来的
-                logger.error("", e);
+                LOGGER.error("", e);
             }
         }
         return action;
@@ -213,11 +225,11 @@ public class JobClient extends OrderObject {
         this.queueSourceType = queueSourceType;
     }
 
-    public long getTenantId() {
+    public Long getTenantId() {
         return tenantId;
     }
 
-    public void setTenantId(long tenantId) {
+    public void setTenantId(Long tenantId) {
         this.tenantId = tenantId;
     }
 
@@ -472,6 +484,22 @@ public class JobClient extends OrderObject {
         this.submitCacheTime = submitCacheTime;
     }
 
+    public long getSubmitExpiredTime() {
+        return submitExpiredTime;
+    }
+
+    public void setSubmitExpiredTime(long submitExpiredTime) {
+        this.submitExpiredTime = submitExpiredTime;
+    }
+
+    public Long getRetryIntervalTime() {
+        return retryIntervalTime;
+    }
+
+    public void setRetryIntervalTime(Long retryIntervalTime) {
+        this.retryIntervalTime = retryIntervalTime;
+    }
+
     @Override
     public String toString() {
         return "JobClient{" +
@@ -501,4 +529,5 @@ public class JobClient extends OrderObject {
                 ", appType=" + appType +
                 '}';
     }
+
 }

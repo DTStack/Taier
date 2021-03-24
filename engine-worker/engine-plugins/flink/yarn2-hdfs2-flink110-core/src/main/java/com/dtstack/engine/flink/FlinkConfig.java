@@ -19,8 +19,6 @@ import java.util.Map;
  */
 public class FlinkConfig extends BaseConfig {
 
-    private static final String DEFAULT_JAR_TMP_DIR = "../tmp110";
-
     private static List<String> ENGINE_FLINK_CONFIGS = null;
 
     static {
@@ -30,8 +28,6 @@ public class FlinkConfig extends BaseConfig {
     private String typeName;
 
     private String flinkJobMgrUrl;
-
-    private String jarTmpDir;
 
     private String flinkPluginRoot;
 
@@ -163,10 +159,6 @@ public class FlinkConfig extends BaseConfig {
         this.flinkJobMgrUrl = flinkJobMgrUrl;
     }
 
-    public void setJarTmpDir(String jarTmpDir) {
-        this.jarTmpDir = jarTmpDir;
-    }
-
     public void setFlinkPluginRoot(String flinkPluginRoot) {
         this.flinkPluginRoot = flinkPluginRoot;
     }
@@ -276,14 +268,6 @@ public class FlinkConfig extends BaseConfig {
 
     public void setPluginLoadMode(String pluginLoadMode) {
         this.pluginLoadMode = pluginLoadMode;
-    }
-
-    public String getJarTmpDir() {
-        if (Strings.isNullOrEmpty(jarTmpDir)) {
-            return DEFAULT_JAR_TMP_DIR;
-        }
-
-        return jarTmpDir;
     }
 
     public String getFlinkPluginRoot() {

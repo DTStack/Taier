@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.listener;
 
-import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.master.zookeeper.data.BrokerHeartNode;
@@ -20,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class HeartBeatListener implements Listener {
 
-    private static final Logger logger = LoggerFactory.getLogger(HeartBeatListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HeartBeatListener.class);
 
     private int logOutput = 0;
     private final static int MULTIPLES = 10;
@@ -50,10 +49,10 @@ public class HeartBeatListener implements Listener {
             brokerHeartNode.setAlive(true);
             zkService.updateSynchronizedLocalBrokerHeartNode(zkService.getLocalAddress(), brokerHeartNode, false);
             if (LogCountUtil.count(logOutput, MULTIPLES)) {
-                logger.info("HeartBeatListener start again...");
+                LOGGER.info("HeartBeatListener start again...");
             }
         } catch (Throwable e) {
-            logger.error("", e);
+            LOGGER.error("", e);
         }
     }
 

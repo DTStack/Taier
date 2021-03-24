@@ -52,6 +52,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.dtstack.engine</groupId>
+            <artifactId>engine-alter-sender</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <exclusions>
@@ -68,7 +74,6 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-redis</artifactId>
-            <version>1.6.2.RELEASE</version>
         </dependency>
 
         <dependency>
@@ -85,7 +90,7 @@
         <dependency>
             <artifactId>jedis</artifactId>
             <groupId>redis.clients</groupId>
-            <version>2.9.0</version>
+            <version>3.1.0</version>
         </dependency>
 
         <dependency>
@@ -242,11 +247,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.dtstack.engine</groupId>
-            <artifactId>engine-alert</artifactId>
-            <version>1.0.0</version>
-        </dependency>
     </dependencies>
 
 

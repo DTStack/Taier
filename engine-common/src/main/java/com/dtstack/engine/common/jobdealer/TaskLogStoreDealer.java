@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class TaskLogStoreDealer implements Runnable {
 
-    private static final Logger logger = LoggerFactory.getLogger(TaskLogStoreDealer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TaskLogStoreDealer.class);
 
     private final static int CHECK_INTERVAL = 18000000;
 
@@ -37,6 +37,7 @@ public class TaskLogStoreDealer implements Runnable {
         dbConfig.put(ConfigConstant.JDBCURL, AkkaConfig.getWorkerLogstoreJdbcUrl());
         dbConfig.put(ConfigConstant.USERNAME, AkkaConfig.getWorkerLogstoreUsername());
         dbConfig.put(ConfigConstant.PASSWORD, AkkaConfig.getWorkerLogstorePassword());
+        dbConfig.put(ConfigConstant.INITIAL_SIZE, AkkaConfig.getWorkerInitialSize());
         dbConfig.put(ConfigConstant.MINIDLE, AkkaConfig.getWorkerMinActive());
         dbConfig.put(ConfigConstant.MAXACTIVE, AkkaConfig.getWorkerMaxActive());
 
@@ -53,10 +54,10 @@ public class TaskLogStoreDealer implements Runnable {
     @Override
     public void run() {
         try {
-            logger.info("TaskLogStoreDealer start again...");
+            LOGGER.info("TaskLogStoreDealer start again...");
             logStore.clearJob();
         } catch (Exception e) {
-            logger.error("", e);
+            LOGGER.error("", e);
         }
     }
 

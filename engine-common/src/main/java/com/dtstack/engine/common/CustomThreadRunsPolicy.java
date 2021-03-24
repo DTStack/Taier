@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class CustomThreadRunsPolicy implements RejectedExecutionHandler {
 
-    protected static final Logger logger = LoggerFactory.getLogger(CustomThreadRunsPolicy.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(CustomThreadRunsPolicy.class);
 
     private String threadName;
 
@@ -44,10 +44,10 @@ public class CustomThreadRunsPolicy implements RejectedExecutionHandler {
                 e.getTaskCount(), e.getCompletedTaskCount(), e.isShutdown(), e.isTerminated(), e.isTerminating(),
                 type);
         try {
-            logger.warn(msg);
+            LOGGER.warn(msg);
             e.getQueue().offer(r, timeout, TimeUnit.SECONDS);
         } catch (InterruptedException interruptedException) {
-            logger.error(msg);
+            LOGGER.error(msg);
             throw new RejectedExecutionException("Interrupted waiting for worker");
         }
     }

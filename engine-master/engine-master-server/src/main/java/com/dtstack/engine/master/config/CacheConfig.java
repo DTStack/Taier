@@ -12,8 +12,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CachingConfigurerSupport;
+import org.springframework.cache.interceptor.CacheErrorHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.cache.RedisCacheWriter;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisNode;
 import org.springframework.data.redis.connection.RedisSentinelConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
@@ -24,15 +32,18 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.Topic;
 import redis.clients.jedis.JedisPoolConfig;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author toutian
  */
 @Configuration
-public class CacheConfig {
+public class CacheConfig extends CachingConfigurerSupport {
 
-    private static final Logger logger = LoggerFactory.getLogger(CacheConfig.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CacheConfig.class);
     @Autowired
     private EnvironmentContext environmentContext;
 
@@ -44,7 +55,7 @@ public class CacheConfig {
             for (String node : split) {
                 String[] nodeInfo = node.split(":");
                 if (nodeInfo.length != 2) {
-                    throw new RdosDefineException("redis哨兵项配置错误");
+                    throw new RdosDefineException("redis sentinel item configuration error");
                 } else {
                     nodes.add(new RedisNode(nodeInfo[0].trim(), Integer.valueOf(nodeInfo[1].trim())));
                 }
@@ -137,7 +148,7 @@ public class CacheConfig {
     }
 
     @Bean
-    public RdosSubscribe rdosSubscribe(RedisTemplate redisTemplate, SessionCache sessionCache, ConsoleCache consoleCache) {
+    public RdosSubscribe rdosSubscribe(RedisTemplate redisTemplate, SessionCache sessionCache) {
         RdosSubscribe rdosSubscribe = new RdosSubscribe();
         rdosSubscribe.setRedisTemplate(redisTemplate);
         rdosSubscribe.setSessionCache(sessionCache);
@@ -157,4 +168,48 @@ public class CacheConfig {
         return new ChannelTopic(RdosTopic.SESSION);
     }
 
+    @Bean
+    public Topic consoleTopic() {
+        return new ChannelTopic(RdosTopic.CONSOLE);
+    }
+
+    @Bean
+    public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
+        return RedisCacheManager
+                .builder(RedisCacheWriter.nonLockingRedisCacheWriter(redisConnectionFactory))
+                .cacheDefaults(RedisCacheConfiguration.defaultCacheConfig()).build();
+    }
+
+    @Bean
+    @Override
+    public CacheErrorHandler errorHandler() {
+        return new LogCacheErrorHandler();
+    }
+
+    class LogCacheErrorHandler implements CacheErrorHandler {
+
+        @Override
+        public void handleCacheGetError(RuntimeException exception, Cache cache, Object key) {
+            logError(exception, cache, key, "get");
+        }
+
+        @Override
+        public void handleCachePutError(RuntimeException exception, Cache cache, Object key,Object value) {
+            logError(exception, cache, key, "put");
+        }
+
+        @Override
+        public void handleCacheEvictError(RuntimeException exception, Cache cache, Object key) {
+            logError(exception, cache, key, "evict");
+        }
+
+        @Override
+        public void handleCacheClearError(RuntimeException exception, Cache cache) {
+            logError(exception, cache, "", "clear");
+        }
+
+        public void logError(RuntimeException e, Cache cache, Object key, String operator) {
+            LOGGER.error(String.format("operator %s cacheName:%s,cacheKey:%s", operator, cache == null ? "null" : cache.getName(), key), e);
+        }
+    }
 }

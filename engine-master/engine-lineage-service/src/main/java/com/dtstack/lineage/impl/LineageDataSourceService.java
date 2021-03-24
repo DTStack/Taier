@@ -2,10 +2,7 @@ package com.dtstack.lineage.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.Component;
-import com.dtstack.engine.api.domain.LineageDataSource;
-import com.dtstack.engine.api.domain.LineageRealDataSource;
-import com.dtstack.engine.api.domain.Tenant;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.DataSourceDTO;
 import com.dtstack.engine.api.enums.DataSourceTypeEnum;
 import com.dtstack.engine.api.pager.PageQuery;
@@ -13,6 +10,8 @@ import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.ComponentConfigUtils;
+import com.dtstack.engine.dao.ComponentConfigDao;
 import com.dtstack.engine.dao.ComponentDao;
 import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.lineage.dao.LineageDataSourceDao;
@@ -33,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -57,6 +57,9 @@ public class LineageDataSourceService {
 
     @Resource
     private ComponentDao componentDao;
+
+    @Resource
+    private ComponentConfigDao componentConfigDao;
 
     /**
      * 新增或修改逻辑数据源
@@ -209,7 +212,7 @@ public class LineageDataSourceService {
             lineageDataSourceDao.insertDataSource(dataSource);
             return dataSource.getId();
         } catch (Exception e) {
-            logger.error("新增数据源异常,dataSource:{},e:{}", JSON.toJSONString(dataSourceDTO), ExceptionUtil.getTaskLogError(e));
+            logger.error("新增数据源异常,dataSource:{},e:{}", JSON.toJSONString(dataSourceDTO), ExceptionUtil.getErrorMessage(e));
             throw new RdosDefineException("新增数据源异常");
         }
     }
@@ -453,7 +456,12 @@ public class LineageDataSourceService {
                         total++;
                         DataSourceDTO dataSourceDTO = new DataSourceDTO();
                         dataSourceDTO.setDtUicTenantId(dtUicTenantId);
-                        dataSourceDTO.setDataJson(component.getComponentConfig());
+                        List<ComponentConfig> componentConfigs = componentConfigDao.listByComponentId(component.getId(), false);
+                        if(null == componentConfigs){
+                            throw new RdosDefineException("sftp配置信息为空");
+                        }
+                        Map<String, Object> componentConfig = ComponentConfigUtils.convertComponentConfigToMap(componentConfigs);
+                        dataSourceDTO.setDataJson(JSONObject.toJSONString(componentConfig));
                         dataSourceDTO.setSourceName("ideDataSource_" + component.getComponentName());
                         dataSourceDTO.setAppType(AppType.RDOS.getType());
                         //数据源类型code统一转换

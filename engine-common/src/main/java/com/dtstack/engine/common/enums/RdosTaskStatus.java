@@ -97,6 +97,18 @@ public enum RdosTaskStatus implements Serializable {
             AUTOCANCELED.getStatus()
     );
 
+    private final static List<Integer> CAN_RESTART_STATUS = Lists.newArrayList(FINISHED.getStatus(),
+            CANCELED.getStatus(),
+            SUBMITFAILD.getStatus(),
+            FAILED.getStatus(),
+            MANUALSUCCESS.getStatus(),
+            UNSUBMIT.getStatus(),
+            KILLED.getStatus(),
+            PARENTFAILED.getStatus(),
+            EXPIRE.getStatus(),
+            LACKING.getStatus(),
+            AUTOCANCELED.getStatus());
+
     private static final Logger logger = LoggerFactory.getLogger(RdosTaskStatus.class);
 
     private static final long serialVersionUID = 1L;
@@ -157,6 +169,10 @@ public enum RdosTaskStatus implements Serializable {
         }
 
         return false;
+    }
+
+    public static boolean canRestart(Integer status){
+        return CAN_RESTART_STATUS.contains(status);
     }
 
     public static boolean canReset(Integer currStatus){

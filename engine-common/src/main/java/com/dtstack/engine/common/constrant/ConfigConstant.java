@@ -33,6 +33,8 @@ public class ConfigConstant {
     public static final String MERGE_KRB5_CONTENT_KEY = "mergeKrbContent";
 
     public static final String TYPE_NAME_KEY = "typeName";
+    public static final String TYPE_NAME = "typeName";
+    public static final String HADOOP_VERSION = "hadoopVersion";
     public static final String CUSTOMER_PRIORITY_VAL = "job.priority";
 
     public static final String MD5_SUM_KEY = "md5zip";
@@ -62,6 +64,7 @@ public class ConfigConstant {
     public static final String JDBCURL = "jdbcUrl";
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password";
+    public static final String INITIAL_SIZE = "initialSize";
     public static final String MINIDLE = "minIdle";
     public static final String MAXACTIVE = "maxActive";
 
@@ -91,5 +94,6 @@ public class ConfigConstant {
     public static final String USER_DIR_DOWNLOAD = System.getProperty("user.dir") + File.separator + "download";
 
     public static final long DEFAULT_KUBERNETES_PARENT_NODE = -2L;
+    public static final long DEFAULT_TENANT  = -1L;
 
 }
