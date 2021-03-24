@@ -12,8 +12,7 @@ function renderRouteConf(container, router, contextPath) {
   const routeChildren = [];
   const renderRoute = (routeContainer, routeItem, routeContextPath) => {
     let routePath;
-    if (!routeItem.path) {
-    } else if (routeItem.path === '/' || routeItem.path === '*') {
+    if (routeItem.path === '/' || routeItem.path === '*') {
       routePath = routeItem.path;
     } else {
       routePath = `/${routeContextPath}/${routeItem.path}`.replace(/\/+/g, '/');
@@ -24,7 +23,7 @@ function renderRouteConf(container, router, contextPath) {
           key={routePath}
           exact
           path={routePath}
-          render={props => {
+          render={(props) => {
             return React.createElement(
               routeItem.layout,
               props,
@@ -48,7 +47,7 @@ function renderRouteConf(container, router, contextPath) {
           key={routePath}
           exact
           path={routePath}
-          render={props => {
+          render={(props) => {
             return React.createElement(
               routeContainer,
               props,
@@ -68,17 +67,17 @@ function renderRouteConf(container, router, contextPath) {
       );
     }
     if (Array.isArray(routeItem.children)) {
-      routeItem.children.forEach(r => {
+      routeItem.children.forEach((r) => {
         renderRoute(routeItem.component, r, routePath);
       });
     }
   };
-  router.forEach(r => {
+  router.forEach((r) => {
     renderRoute(container, r, contextPath);
   });
   return <Switch>{routeChildren}</Switch>;
 }
 const routeChildren = renderRouteConf(null, routerConf, '/');
-const Routers = () =>  <Router history={history}>{routeChildren}</Router>;
+const Routers = () => <Router history={history}>{routeChildren}</Router>;
 
 export default Routers;

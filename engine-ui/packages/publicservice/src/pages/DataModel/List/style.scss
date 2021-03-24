@@ -1,0 +1,66 @@
+.dm-list {
+  .search-area {
+    .search {
+      width: 200px;
+    }
+  }
+  .table-area {
+    margin-top: 12px;
+    height: calc(100% - 68px);
+    position: relative;
+    .table {
+      height: calc(100% - 32px);
+    }
+    .drawer {
+      height: calc(100% - 148px);
+      top: 128px;
+      .slider {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        transform: translateY(-50%);
+        width: 18px;
+        height: 50px;
+        background: #eeeeee;
+        border-radius: 0px 2px 2px 0px;
+        border: 1px solid #dddddd;
+        cursor: pointer;
+        z-index: 1;
+      }
+    }
+    .pagination-container {
+      width: 100%;
+      height: 56px;
+      line-height: 56px;
+      background: #fff;
+      .pagination {
+        left: 0;
+        float: right;
+        margin-top: 16px;
+      }
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      margin-right: 8px;
+      display: inline-block;
+      border-radius: 50%;
+    }
+    .btn-disabled {
+      color: '#999999';
+      cursor: not-allowed;
+    }
+  }
+}
+
+.float-right {
+  float: right;
+}
+
+.padding-tb-20 {
+  padding: 20px 0;
+}
+
+.overflow-auto {
+  overflow: auto;
+}

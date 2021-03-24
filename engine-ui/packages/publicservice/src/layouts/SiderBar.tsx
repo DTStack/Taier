@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Layout, Menu } from 'antd';
+import './style.less';
 const { SubMenu } = Menu;
 const { Sider } = Layout;
-import './style.less';
 
 interface IProps {
   location: any;
@@ -16,8 +16,7 @@ export default class SideBar extends React.Component<IProps, IState> {
           mode="inline"
           defaultSelectedKeys={['1']}
           defaultOpenKeys={['sub1']}
-          style={{ height: '100%', borderRight: 0 }}
-        >
+          style={{ height: '100%', borderRight: 0 }}>
           <SubMenu key="sub1" title="subnav 1">
             <Menu.Item key="1">option1</Menu.Item>
             <Menu.Item key="2">option2</Menu.Item>
