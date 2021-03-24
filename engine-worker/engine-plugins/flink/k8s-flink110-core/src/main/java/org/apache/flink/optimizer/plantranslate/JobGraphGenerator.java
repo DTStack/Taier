@@ -307,9 +307,7 @@ public class JobGraphGenerator implements Visitor<PlanNode> {
 				throw new FlinkRuntimeException("Could not compress distributed-cache artifacts.", ioe);
 			} finally {
 				try {
-					if (tmpDir != null) {
-						Files.deleteIfExists(tmpDir);
-					}
+					Files.deleteIfExists(tmpDir);
 				} catch (IOException e) {
 					LOG.error("JobGraphGenerator.addUserArtifactEntries error:", e);
 				}

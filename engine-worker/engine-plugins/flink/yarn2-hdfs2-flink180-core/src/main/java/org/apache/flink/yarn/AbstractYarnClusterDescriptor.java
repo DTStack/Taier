@@ -1001,7 +1001,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
                 clusterSpecification.getTaskManagerMemoryMB());
 
 
-        File tmpFileDir =  new File(ConfigConstrant.TMP_DIR);
+        File tmpFileDir =  new File(System.getProperty("user.dir") + File.separator + "tmp180");
         if (!tmpFileDir.exists()) {
             tmpFileDir.mkdirs();
         }
@@ -1061,41 +1061,34 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
             }
         }
 
-        File tmpConfigurationFile = null;
-        try {
-            tmpConfigurationFile = File.createTempFile(appId + "-flink-conf.yaml", null , tmpFileDir);
-            BootstrapTools.writeConfiguration(configuration, tmpConfigurationFile);
+        File tmpConfigurationFile = File.createTempFile(appId + "-flink-conf.yaml", null , tmpFileDir);
+        BootstrapTools.writeConfiguration(configuration, tmpConfigurationFile);
 
-            // Upload the flink configuration
-            // write out configuration file
-            String flinkConfigKey = "flink-conf.yaml";
-            Path remotePathConf = setupSingleLocalResource(
-                    flinkConfigKey,
-                    fs,
-                    appId,
-                    new Path(tmpConfigurationFile.getAbsolutePath()),
-                    localResources,
-                    homeDir,
-                    "");
-            envShipFileList.append(flinkConfigKey).append("=").append(remotePathConf).append(",");
+        // Upload the flink configuration
+        // write out configuration file
+        String flinkConfigKey = "flink-conf.yaml";
+        Path remotePathConf = setupSingleLocalResource(
+                flinkConfigKey,
+                fs,
+                appId,
+                new Path(tmpConfigurationFile.getAbsolutePath()),
+                localResources,
+                homeDir,
+                "");
+        envShipFileList.append(flinkConfigKey).append("=").append(remotePathConf).append(",");
 
-            paths.add(remotePathJar);
-            classPathBuilder.append("flink.jar").append(File.pathSeparator);
-            paths.add(remotePathConf);
-            classPathBuilder.append("flink-conf.yaml").append(File.pathSeparator);
-        } finally {
-            if (tmpConfigurationFile != null && !tmpConfigurationFile.delete()) {
-                LOG.warn("Fail to delete temporary file {}.", tmpConfigurationFile.toPath());
-            }
-        }
+        paths.add(remotePathJar);
+        classPathBuilder.append("flink.jar").append(File.pathSeparator);
+        paths.add(remotePathConf);
+        classPathBuilder.append("flink-conf.yaml").append(File.pathSeparator);
 
         // write job graph to tmp file and add it to local resource
         // TODO: server use user main method to generate job graph
         if (jobGraph != null) {
-            File tmpJobGraphFile = null;
             try {
-                tmpJobGraphFile = File.createTempFile(appId.toString(), null, tmpFileDir);
-                try (FileOutputStream output = new FileOutputStream(tmpJobGraphFile);
+                File fp = File.createTempFile(appId.toString(), null, tmpFileDir);
+                fp.deleteOnExit();
+                try (FileOutputStream output = new FileOutputStream(fp);
                      ObjectOutputStream obOutput = new ObjectOutputStream(output);){
                     obOutput.writeObject(jobGraph);
                 }
@@ -1104,7 +1097,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
                         "job.graph",
                         fs,
                         appId,
-                        new Path(tmpJobGraphFile.toURI()),
+                        new Path(fp.toURI()),
                         localResources,
                         homeDir,
                         "");
@@ -1113,10 +1106,6 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
             } catch (Exception e) {
                 LOG.warn("Add job graph to local resource fail");
                 throw e;
-            } finally {
-                if (tmpJobGraphFile != null && !tmpJobGraphFile.delete()) {
-                    LOG.warn("Fail to delete temporary file {}.", tmpJobGraphFile.toPath());
-                }
             }
         }
 
