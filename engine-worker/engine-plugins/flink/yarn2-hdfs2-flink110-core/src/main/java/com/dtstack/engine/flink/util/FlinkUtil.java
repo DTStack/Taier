@@ -12,20 +12,14 @@ import org.apache.flink.client.program.ProgramInvocationException;
 import org.apache.flink.configuration.CoreOptions;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.util.JarUtils;
-import org.apache.flink.yarn.Utils;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Reason:
@@ -39,15 +33,14 @@ public class FlinkUtil {
     private static final Logger logger = LoggerFactory.getLogger(FlinkUtil.class);
 
 
-    public static PackagedProgram buildProgram(String fromPath, String localDir, List<URL> classpaths, EJobType jobType,
+    public static PackagedProgram buildProgram(String jarPath, List<URL> classpaths, EJobType jobType,
                                                String entryPointClass, String[] programArgs,
                                                SavepointRestoreSettings spSetting, org.apache.flink.configuration.Configuration flinkConfiguration, FilesystemManager filesystemManager)
             throws IOException, ProgramInvocationException {
-        if (fromPath == null) {
+        if (jarPath == null) {
             throw new IllegalArgumentException("The program JAR file was not specified.");
         }
-
-        File jarFile = downloadJar(fromPath, localDir, filesystemManager, true);
+        File jarFile = new File(jarPath);
 
         String classloaderCache = flinkConfiguration.getString(ClassLoaderType.CLASSLOADER_DTSTACK_CACHE, ClassLoaderType.CLASSLOADER_DTSTACK_CACHE_TRUE);
         flinkConfiguration.setString(ClassLoaderType.CLASSLOADER_DTSTACK_CACHE, classloaderCache);
@@ -144,46 +137,6 @@ public class FlinkUtil {
             }
         }
         return FlinkYarnMode.mode(modeStr);
-    }
-
-    /**
-     * 获取hdfs文件Last Modified时间
-     * @param dst   hdfs路径
-     * @param fs    FileSystem
-     * @param localSrcFile  本地路径
-     * @return
-     * @throws IOException
-     */
-    public static long getLastModifiedTime(Path dst, FileSystem fs, File localSrcFile) throws IOException {
-        FileStatus[] fss = null;
-        int iter = 1;
-
-        while (iter <= Utils.REMOTE_RESOURCES_FETCH_NUM_RETRY + 1) {
-            try {
-                fss = fs.listStatus(dst);
-                break;
-            } catch (FileNotFoundException e) {
-                logger.debug("Got FileNotFoundException while fetching uploaded remote resources at retry num {}", iter);
-                try {
-                    logger.debug("Sleeping for {}ms", Utils.REMOTE_RESOURCES_FETCH_WAIT_IN_MILLI);
-                    TimeUnit.MILLISECONDS.sleep(Utils.REMOTE_RESOURCES_FETCH_WAIT_IN_MILLI);
-                } catch (InterruptedException ie) {
-                    logger.warn("Failed to sleep for {}ms at retry num {} while fetching uploaded remote resources",
-                            Utils.REMOTE_RESOURCES_FETCH_WAIT_IN_MILLI, iter, ie);
-                }
-                iter++;
-            }
-        }
-
-        final long dstModificationTime;
-        if (fss != null && fss.length >  0) {
-            dstModificationTime = fss[0].getModificationTime();
-            logger.debug("Got modification time {} from remote path {}", dstModificationTime, dst);
-        } else {
-            dstModificationTime = localSrcFile.lastModified();
-            logger.debug("Failed to fetch remote modification time from {}, using local timestamp {}", dst, dstModificationTime);
-        }
-        return dstModificationTime;
     }
 
 }
