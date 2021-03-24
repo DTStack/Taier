@@ -1103,6 +1103,11 @@ public class JobGraphBuilder {
         Map<String, ScheduleBatchJob> result = new HashMap<>(16);
         if (jsonObject != null && jsonObject.size() > 0) {
             for (JsonNode jsonNode : jsonObject) {
+                JsonNode appTypeTaskRule = jsonNode.get("appType");
+                Integer appTypeTaskRuleInt = appTypeTaskRule.asInt();
+                if (appTypeTaskRuleInt != null) {
+                    appType = appTypeTaskRuleInt;
+                }
                 Map<String, ScheduleBatchJob> stringScheduleBatchJobMap = buildFillDataJobGraph(jsonNode, fillJobName, needFather, triggerDay, createUserId, beginTime, endTime, projectId, tenantId, isRoot,appType,fillId,dtuicTenantId);
                 result.putAll(stringScheduleBatchJobMap);
             }
@@ -1145,7 +1150,8 @@ public class JobGraphBuilder {
 
         NumericNode fatherNode = (NumericNode) jsonObject.get("task");
         //生成jobList
-        ScheduleTaskShade batchTask = batchTaskShadeService.getBatchTaskById(fatherNode.asLong(), appType);
+        Long taskId = fatherNode.asLong();
+        ScheduleTaskShade batchTask = batchTaskShadeService.getBatchTaskById(taskId, appType);
 
         String preStr = FILL_DATA_TYPE + "_" + fillJobName;
         Map<String, ScheduleBatchJob> result = Maps.newLinkedHashMap();
