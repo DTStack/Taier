@@ -141,6 +141,7 @@ public class ScheduleTaskTaskShadeService {
             return getOnlyAllFlowSubTasksNew(taskShade.getFlowId(), appType);
         }
         com.dtstack.engine.master.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO(taskShade, true);
+        setTenantAndProjeck(vo,taskShade);
         vo.setCurrentProject(currentProjectId.equals(taskShade.getProjectId()));
         if (EScheduleJobType.WORK_FLOW.getVal().equals(taskShade.getTaskType())) {
             //2、如果是工作流，则获取工作流子节点,包括工作流本身

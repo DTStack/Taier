@@ -1106,8 +1106,8 @@ public class JobGraphBuilder {
         Map<String, ScheduleBatchJob> result = new HashMap<>(16);
         if (jsonObject != null && jsonObject.size() > 0) {
             for (JsonNode jsonNode : jsonObject) {
-                if (jsonObject.has("appType")) {
-                    JsonNode node = jsonObject.get(appType);
+                if (jsonNode.has("appType")) {
+                    JsonNode node = jsonNode.get("appType");
                     appType = node.asInt();
                 }
 
@@ -1124,8 +1124,8 @@ public class JobGraphBuilder {
         Map<String, ScheduleBatchJob> result = new HashMap<>();
         if (jsonObject != null && jsonObject.size() > 0) {
             for (JsonNode jsonNode : jsonObject) {
-                if (jsonObject.has("appType")) {
-                    JsonNode node = jsonObject.get(appType);
+                if (jsonNode.has("appType")) {
+                    JsonNode node = jsonNode.get("appType");
                     appType = node.asInt();
                 }
 
@@ -1200,10 +1200,15 @@ public class JobGraphBuilder {
             result.put(batchJob.getJobKey(), batchJob);
         }
 
+        Integer sonAppType = appType;
         if (jsonObject.has("children")) {
             ArrayNode arrayNode = (ArrayNode) jsonObject.get("children");
             for (JsonNode node : arrayNode) {
-                Map<String, ScheduleBatchJob> childNodeMap = buildFillDataJobGraph(node, fillJobName, true, triggerDay, createUserId, beginTime, endTime, projectId, tenantId, true,appType,fillId,dtuicTenantId);
+                if (node.has("appType")) {
+                    JsonNode jsonNode = node.get("appType");
+                    sonAppType = jsonNode.asInt();
+                }
+                Map<String, ScheduleBatchJob> childNodeMap = buildFillDataJobGraph(node, fillJobName, true, triggerDay, createUserId, beginTime, endTime, projectId, tenantId, true,sonAppType,fillId,dtuicTenantId);
                 if (childNodeMap != null) {
                     result.putAll(childNodeMap);
                 }
