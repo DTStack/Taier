@@ -829,7 +829,7 @@
         FROM `schedule_task_shade` t
         LEFT JOIN `schedule_task_task_shade`  tt
         ON  t.task_id = tt.task_id  AND tt.is_deleted = 0
-        WHERE t.is_deleted = 0 AND tt.parent_app_type = 8 AND tt.parent_task_id = 1659
+        WHERE t.is_deleted = 0 AND tt.parent_app_type = #{appType} AND tt.parent_task_id = #{taskId}
     </select>
 
 
