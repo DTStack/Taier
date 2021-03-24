@@ -34,8 +34,8 @@ public enum JobCheckStatus {
     DEPENDENCY_JOB_EXPIRE(14, "依赖任务链路存在任务处于过期状态"),
     CHILD_PRE_NOT_SUCCESS(15, "下游任务的上一个周期失败"),
     RESOURCE_OVER_LIMIT(16,"任务资源大小超过租户设置的大小"),
-    TASK_RULE_VERIFICATION_FAILURE(17,"强任务规则校验失败"),
-    TASK_RULE_RUNNING(18,"强任务正在运行"),
+    TASK_RULE_VERIFICATION_FAILURE(17,"强规则任务校验失败"),
+    TASK_RULE_RUNNING(18,"强规则任务正在运行"),
     ;
 
     private int status;
