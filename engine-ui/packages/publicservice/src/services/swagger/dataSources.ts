@@ -71,7 +71,7 @@ export default {
   },
   //上传Kerberos添加数据源
   addDatasourceWithKerberos: {
-    method: "post",
+    method: "postForm",
     url: `${api}/addDs/addDatasourceWithKerberos`,
   },
   // 测试联通性
@@ -81,13 +81,18 @@ export default {
   },
   // 上传Kerberos测试联通性
   testConWithKerberos: {
-    method: "post",
+    method: "postForm",
     url: `${api}/addDs/testConWithKerberos`,
   },
   // 获取数据源基本详情
   detail: {
     method: "post",
     url: `${api}/dataSource/detail`,
+  },
+  //上传
+  uploadCode: {
+    method: "postForm",
+    url: `${api}/addDs/getPrincipalsWithConf`,
   },
   //模板下载
   downloadtemplate: {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Checkbox, Row, Col, notification } from "antd";
+import { Checkbox, Row, Col, message } from "antd";
 import { API } from "@/services";
 interface IProps {
   record: {
@@ -15,10 +15,10 @@ export default function AuthSel(props: IProps) {
 
   //获取产品授权列表
   const getauthProductList = async () => {
-    try {
-      let { data } = await API.authProductList({
-        dataInfoId: record.dataInfoId,
-      });
+    let { data, success } = await API.authProductList({
+      dataInfoId: record.dataInfoId,
+    });
+    if (success) {
       if (data.length > 0) {
         data.forEach((item) => {
           if (item.isAuth === 1) {
@@ -30,11 +30,8 @@ export default function AuthSel(props: IProps) {
 
         setAuthList(data);
       }
-    } catch (error) {
-      notification.error({
-        message: "错误！",
-        description: "获取产品授权列表失败",
-      });
+    } else {
+      message.error("获取产品授权列表失败！");
     }
   };
 
@@ -63,10 +60,7 @@ export default function AuthSel(props: IProps) {
                 span={8}
                 onClick={() => {
                   if (item.isAuth === 1) {
-                    notification.error({
-                      message: "错误！",
-                      description: "已在产品中应用，不能取消授权。",
-                    });
+                    message.error("已在产品中应用，不能取消授权。");
                   }
                 }}
               >

@@ -9,7 +9,7 @@ export function getSaveStatus() {
   let saveStatus = {
     menuSelected: sessionStorage.getItem("current"),
     sqlType: JSON.parse(sessionStorage.getItem("sqlType")),
-    version: sessionStorage.getItem("version"),
+    version: sessionStorage.getItem("version") || "",
     checkdList: sessionStorage.getItem("checkdList"),
   };
 

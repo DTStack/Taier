@@ -10,7 +10,8 @@ import "./style.scss";
 const { Step } = Steps;
 
 export default function index() {
-  const childRef = useRef();
+  const childRef = useRef(null);
+
   const history = new useHistory();
 
   const [current, setCurrent] = useState<number>(0);

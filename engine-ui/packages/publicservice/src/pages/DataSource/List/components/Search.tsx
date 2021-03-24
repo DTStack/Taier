@@ -7,7 +7,7 @@ import {
   Select,
   Tooltip,
   Icon,
-  notification,
+  message,
 } from "antd";
 import { useHistory } from "react-router";
 import SearchInput from "@/components/SearchInput";
@@ -28,37 +28,27 @@ function Search(props) {
   const [productList, setProductList] = useState([]);
 
   const getTypeList = async () => {
-    try {
-      let { data, success } = await API.typeList();
-      data.unshift({
-        dataType: "全部",
-      });
-      if (success) {
-        setTypeList(data);
-      }
-    } catch (error) {
-      notification.error({
-        message: "错误！",
-        description: "获取类型下拉框失败。",
-      });
+    let { data, success } = await API.typeList();
+    data.unshift({
+      dataType: "全部",
+    });
+    if (success) {
+      setTypeList(data);
+    } else {
+      message.error("获取类型下拉框内容失败！");
     }
   };
 
   const getProductList = async () => {
-    try {
-      let { data, success } = await API.productList();
-      if (success) {
-        data.unshift({
-          appName: "全部",
-          appType: "all",
-        });
-        setProductList(data);
-      }
-    } catch (error) {
-      notification.error({
-        message: "错误！",
-        description: "获取授权产品下拉框失败",
+    let { data, success } = await API.productList();
+    if (success) {
+      data.unshift({
+        appName: "全部",
+        appType: "all",
       });
+      setProductList(data);
+    } else {
+      message.error("获取授权产品下拉框失败！");
     }
   };
 

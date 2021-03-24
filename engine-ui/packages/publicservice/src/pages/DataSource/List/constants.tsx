@@ -1,6 +1,7 @@
 import React from "react";
 import { Divider, Popconfirm, Icon, Tag, Badge, notification } from "antd";
 import "./style.scss";
+import { ExtTableCell } from "./extTableCell";
 
 const columns = (props: any) => {
   const { toEdit, toAuth, toDelete, left, right, filters } = props;
@@ -46,9 +47,11 @@ const columns = (props: any) => {
     {
       title: "连接信息",
       dataIndex: "linkJson",
-      key: "linkJson",
       ellipsis: true,
       width: 200,
+      render: (empty: any, record: any) => {
+        return <ExtTableCell sourceData={record} />;
+      },
     },
     {
       title: "连接状态",

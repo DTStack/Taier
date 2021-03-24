@@ -55,5 +55,22 @@ $highlight-color: #3F87FF;
   height: 56px;
 }
 
-
+.ws-form {
+  position: relative;
+	input {
+		width: 40%;
+		margin-right: 10px;
+		margin: 0 10px 5px 0;
+	}
+	a {
+		position: absolute;
+		right: 0;
+	}
+}
+.ws-add {
+	cursor: pointer;
+	i {
+		margin-right: 5px;
+	}
+}
 

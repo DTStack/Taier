@@ -8,7 +8,7 @@ import "../AddSource/style.scss";
 const { Step } = Steps;
 
 export default function index(props) {
-  const childRef = useRef();
+  const childRef = useRef(null);
 
   //测试连通性
   const testConnect = () => {

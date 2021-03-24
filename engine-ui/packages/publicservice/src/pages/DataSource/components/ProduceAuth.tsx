@@ -23,45 +23,32 @@ export default function ProduceAuth() {
     let saveStatus = getSaveStatus();
     let dataType = saveStatus.sqlType?.dataType || "";
 
-    try {
-      let { data, success } = await API.queryDsVersionByType({
-        dataType,
-      });
+    let { data, success } = await API.queryDsVersionByType({
+      dataType,
+    });
 
-      data = [
-        {
-          dataType: "type2",
-          dataVersion: "2.x",
-          sorted: 0,
-        },
-        {
-          dataType: "type1",
-          dataVersion: "1.x",
-          sorted: 0,
-        },
-      ];
+    if (success) {
+      setVersion(data || []);
 
-      if (success) {
-        setVersion(data || []);
+      if (data.length > 0) {
+        let echoVersion = saveStatus.version || data[0].dataVersion;
+        sessionStorage.setItem("version", echoVersion);
 
-        if (data.length > 0) {
-          let echoVersion = saveStatus.version || data[0].dataVersion;
-          sessionStorage.setItem("version", echoVersion);
+        setDefaultSelect(echoVersion);
+        getAuthProductList(dataType, echoVersion);
 
-          setDefaultSelect(echoVersion);
-          getAuthProductList(dataType, echoVersion);
+        setSqlType(saveStatus.sqlType);
 
-          setSqlType(saveStatus.sqlType);
-          setCheckdList(saveStatus.checkdList.split(","))
-
-        } else {
-          getAuthProductList(dataType, "");
-        }
+        setCheckdList(
+          saveStatus.checkdList ? saveStatus.checkdList.split(",") : []
+        );
+      } else {
+        getAuthProductList(dataType, "");
       }
-    } catch (error) {
+    } else {
       notification.error({
         message: "错误！",
-        description: "根据数据源类型获取版本列表失败",
+        description: "根据数据源类型获取版本列表失败！",
       });
     }
   };

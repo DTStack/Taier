@@ -12,7 +12,7 @@ export default function SelectSource(props) {
   const [defaultMenu, setDefaultMenu] = useState(null);
 
   const getClassifyList = async () => {
-    let saveStatus = getSaveStatus()
+    let saveStatus = getSaveStatus();
     try {
       let { data, success } = await API.queryDsClassifyList();
 
@@ -23,12 +23,12 @@ export default function SelectSource(props) {
         setCurrent(echoCurrent); //左侧菜单列表选择的id
         setDefaultMenu(data[0].classifyId); //左侧菜单全部选项id
 
-        queryDsTypeByClassify(echoCurrent,"",saveStatus.sqlType?.typeId);
+        queryDsTypeByClassify(echoCurrent, "", saveStatus.sqlType?.typeId);
       }
     } catch (error) {
       notification.error({
         message: "错误！",
-        description: "获取数据源分类类目列表失败",
+        description: "获取数据源分类类目列表失败！",
       });
     }
   };
@@ -36,9 +36,8 @@ export default function SelectSource(props) {
   const queryDsTypeByClassify = async (
     classifyId: number,
     search: string = "",
-    echoTypeId?:string
+    echoTypeId?: string
   ) => {
-    // let echoTypeId = saveStatus.sqlType?.typeId;
     try {
       let { data, success } = await API.queryDsTypeByClassify({
         classifyId,
@@ -56,13 +55,12 @@ export default function SelectSource(props) {
     } catch (error) {
       notification.error({
         message: "错误！",
-        description: "根据分类获取数据源类型失败",
+        description: "根据分类获取数据源类型失败！",
       });
     }
   };
 
   useEffect(() => {
-    // setSaveStatus(getSaveStatus()); //获取存储信息
     getClassifyList(); //获取数据源分类类目列表
   }, []);
 
@@ -94,6 +92,7 @@ export default function SelectSource(props) {
     setIconList(data);
     nextType(true); //显示下一步
     sessionStorage.setItem("sqlType", JSON.stringify(item)); //存储数据源
+    sessionStorage.removeItem("version");
   };
 
   return (

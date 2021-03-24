@@ -19,7 +19,7 @@ export function getRulesJdbc(item) {
         message: `${item.label}不能为空`,
       },
       {
-        pattern: item.regex,
+        pattern: item.regex?RegExp(item.regex.substring(1, item.regex.length - 1)):null,
         message: item.validInfo,
       },
     ],
