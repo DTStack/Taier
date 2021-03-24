@@ -1624,13 +1624,13 @@
     </select>
 
     <select id="listJobStatus" resultType="ScheduleJob">
-        select job_id as jobId,status,exec_start_time as execStartTime,exec_end_time as execEndTime,exec_time as execTime,retry_num as retryNum
-        from schedule_job
-        where gmt_modified &gt;= #{time} and compute_type = #{computeType}
+        select <include refid="select_content_fragment"/>
+        from schedule_job bj
+        where bj.gmt_modified &gt;= #{time} and bj.compute_type = #{computeType}
         <if test="appType != null">
-            and app_type = #{appType}
+            and bj.app_type = #{appType}
         </if>
-        and is_deleted=0;
+        and bj.is_deleted=0;
     </select>
 
     <select id="getListMinId" resultType="java.lang.Long">

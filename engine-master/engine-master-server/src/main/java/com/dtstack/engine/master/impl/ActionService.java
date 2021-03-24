@@ -672,6 +672,14 @@ public class ActionService {
         return toVOS(scheduleJobs);
     }
 
+    public List<ScheduleJob> listJobStatusScheduleJob(Long time, Integer appType) {
+        if (time == null || time == 0L) {
+            throw new RuntimeException("time is null");
+        }
+
+        return scheduleJobDao.listJobStatus(new Timestamp(time), ComputeType.BATCH.getType(),appType);
+    }
+
     private List<ActionJobStatusVO> toVOS(List<ScheduleJob> scheduleJobs){
         if (CollectionUtils.isNotEmpty(scheduleJobs)) {
             List<ActionJobStatusVO> result = new ArrayList<>(scheduleJobs.size());
