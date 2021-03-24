@@ -171,8 +171,8 @@ public class ActionController {
     @ApiImplicitParams({
             @ApiImplicitParam(name="time",value="查询的job的调整的时间点",required=true, dataType = "long")
     })
-    public List<ActionJobStatusVO> listJobStatus(@DtRequestParam("time") Long time) {
-        return actionService.listJobStatus(time);
+    public List<ActionJobStatusVO> listJobStatus(@DtRequestParam("time") Long time , @DtRequestParam("appType") Integer appType) {
+        return actionService.listJobStatus(time,appType);
     }
 
     @RequestMapping(value="/generateUniqueSign", method = {RequestMethod.POST, RequestMethod.GET})

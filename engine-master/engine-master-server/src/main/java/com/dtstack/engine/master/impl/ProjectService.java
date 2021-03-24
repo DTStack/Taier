@@ -132,11 +132,6 @@ public class ProjectService {
         if (projectId == null) {
             throw new RdosDefineException("projectId must be passed");
         }
-        List<NotDeleteProjectVO> deleteProjectVOS = getNotDeleteTaskByProjectId(projectId, appType);
-
-        if (CollectionUtils.isNotEmpty(deleteProjectVOS)) {
-            throw new RdosDefineException("there is bound data and cannot be deleted");
-        }
 
         scheduleEngineProjectDao.deleteByProjectIdAppType(projectId, appType);
     }

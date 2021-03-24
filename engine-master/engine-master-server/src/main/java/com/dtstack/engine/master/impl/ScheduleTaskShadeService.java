@@ -131,17 +131,15 @@ public class ScheduleTaskShadeService {
             List<Long> tenantIds = shades.stream().map(ScheduleTaskShade::getDtuicTenantId).collect(Collectors.toList());
 
             List<Tenant> tenants = tenantDao.listAllTenantByDtUicTenantIds(tenantIds);
-            List<ScheduleEngineProject> scheduleEngineProjects = scheduleEngineProjectDao.listByProjectIds(projectIds,appType);
 
             Map<Long, Tenant> tenantMap = tenants.stream().collect(Collectors.toMap(Tenant::getDtUicTenantId, g -> (g)));
-            Map<Long, ScheduleEngineProject> scheduleEngineProjectMap = scheduleEngineProjects.stream().collect(Collectors.toMap(ScheduleEngineProject::getProjectId, g -> (g)));
             for (ScheduleTaskShade shade : shades) {
                 NotDeleteTaskVO notDeleteTaskVO = new NotDeleteTaskVO();
                 notDeleteTaskVO.setAppType(shade.getAppType());
-                ScheduleEngineProject scheduleEngineProject = scheduleEngineProjectMap.get(shade.getProjectId());
-                if (scheduleEngineProject != null) {
-                    notDeleteTaskVO.setProjectAlias(scheduleEngineProject.getProjectAlias());
-                    notDeleteTaskVO.setProjectName(scheduleEngineProject.getProjectName());
+                ScheduleEngineProject project = scheduleEngineProjectDao.getProjectByProjectIdAndApptype(shade.getProjectId(), shade.getAppType());
+                if (project != null) {
+                    notDeleteTaskVO.setProjectAlias(project.getProjectAlias());
+                    notDeleteTaskVO.setProjectName(project.getProjectName());
                 }
                 Tenant tenant = tenantMap.get(shade.getDtuicTenantId());
                 if (tenant != null) {
