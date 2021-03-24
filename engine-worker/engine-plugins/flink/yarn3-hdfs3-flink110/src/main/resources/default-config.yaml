@@ -64,6 +64,8 @@ perjob:
     yarn.application-attempt-failures-validity-interval: 3600000
     high-availability: ZOOKEEPER
 
+    remoteFlinkJarPath:
+
 session:
   dependencyKey: deploymode
   dependencyValue: session
@@ -129,6 +131,8 @@ session:
     yarn.application-attempts: 3
     yarn.application-attempt-failures-validity-interval: 3600000
     high-availability: ZOOKEEPER
+
+    remoteFlinkJarPath:
 
 
 standalone:

@@ -9,13 +9,13 @@ package com.dtstack.engine.common.enums;
 public enum NotifyMode {
     NORMAL(1), UNREAD(2), READ(3);
 
-    private int mode;
+    private Integer mode;
 
     NotifyMode(int mode) {
         this.mode = mode;
     }
 
-    public int getMode() {
+    public Integer getMode() {
         return mode;
     }
 }

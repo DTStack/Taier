@@ -1,12 +1,5 @@
 package com.dtstack.engine.common.http;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Callable;
-
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.RetryUtil;
@@ -33,7 +26,11 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dtstack.engine.common.exception.ExceptionUtil;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
 
 import static com.dtstack.engine.common.exception.ErrorCode.HTTP_CALL_ERROR;
 
@@ -47,7 +44,7 @@ import static com.dtstack.engine.common.exception.ErrorCode.HTTP_CALL_ERROR;
  */
 public class PoolHttpClient {
 
-	private static final Logger logger = LoggerFactory.getLogger(PoolHttpClient.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(PoolHttpClient.class);
 
 	private static int SocketTimeout = 5000;// 5秒
 
@@ -124,16 +121,16 @@ public class PoolHttpClient {
 				// FIXME 暂时不从header读取
 				responseBody = EntityUtils.toString(entity, charset);
 			} else {
-				logger.warn("request url:{} fail:{}", url, response.getStatusLine().getStatusCode());
+				LOGGER.warn("request url:{} fail:{}", url, response.getStatusLine().getStatusCode());
 			}
 		} catch (Exception e) {
-			logger.error("url:{}--->http request error:", url, e);
+			LOGGER.error("url:{}--->http request error:", url, e);
 		}finally{
 			if(response != null){
 				try {
 					response.close();
 				} catch (IOException e) {
-					logger.error("", e);
+					LOGGER.error("", e);
 				}
 			}
 		}
@@ -172,7 +169,7 @@ public class PoolHttpClient {
 			}else if (statusCode == HttpStatus.SC_UNAUTHORIZED){
 				throw new RdosDefineException("登陆状态失效", ErrorCode.NOT_LOGIN);
 			}else{
-				logger.warn("request url:{} fail:{}",url,response.getStatusLine().getStatusCode());
+				LOGGER.warn("request url:{} fail:{}",url,response.getStatusLine().getStatusCode());
 
 				if(response.getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND){
 					throw new RdosDefineException(HttpStatus.SC_NOT_FOUND + "", HTTP_CALL_ERROR);
@@ -181,14 +178,14 @@ public class PoolHttpClient {
 				}
 			}
 		} catch (IOException e) {
-			logger.error("url:{}--->http request error:", url, e);
+			LOGGER.error("url:{}--->http request error:", url, e);
 			throw e;
 		} finally{
 			if(response!=null){
 				try {
 					response.close();
 				} catch (IOException e) {
-					logger.error("", e);
+					LOGGER.error("", e);
 				}
 			}
 		}

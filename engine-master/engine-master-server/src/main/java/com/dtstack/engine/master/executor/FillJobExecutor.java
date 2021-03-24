@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class FillJobExecutor extends AbstractJobExecutor {
 
-    private final Logger logger = LoggerFactory.getLogger(FillJobExecutor.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(FillJobExecutor.class);
 
     @Override
     public EScheduleType getScheduleType() {
@@ -26,7 +26,7 @@ public class FillJobExecutor extends AbstractJobExecutor {
     @Override
     public void stop() {
         RUNNING.set(false);
-        logger.info("---stop FillJobExecutor----");
+        LOGGER.info("---stop FillJobExecutor----");
     }
 
 }

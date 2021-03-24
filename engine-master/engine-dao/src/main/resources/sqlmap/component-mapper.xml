@@ -50,12 +50,6 @@
         where id = #{id} and is_deleted = 0
     </update>
 
-    <select id="listByEngineId" resultType="Component">
-        select <include refid="select_content_fragment"/>
-        from console_component
-        where engine_id = #{engineId} and is_deleted = 0
-    </select>
-
     <select id="listByEngineIds" resultType="Component">
         select <include refid="select_content_fragment"/>
         from console_component

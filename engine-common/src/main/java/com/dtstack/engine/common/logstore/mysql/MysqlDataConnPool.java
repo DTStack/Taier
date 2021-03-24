@@ -22,7 +22,7 @@ import java.util.Map;
 
 public class MysqlDataConnPool {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MysqlDataConnPool.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MysqlDataConnPool.class);
 
     private static final String DRIVER_NAME = "com.mysql.jdbc.Driver";
 
@@ -99,7 +99,7 @@ public class MysqlDataConnPool {
 
     private void init() {
         if (dbConfig == null) {
-            LOG.error("dbConfig can not be null");
+            LOGGER.error("dbConfig can not be null");
             throw new RuntimeException("dbConfig can not be null");
         }
         jdbcUrl = dbConfig.get(ConfigConstant.JDBCURL);
@@ -140,11 +140,11 @@ public class MysqlDataConnPool {
             DruidPooledConnection conn = dataSource.getConnection();
             conn.recycle();
         } catch (Exception e) {
-            LOG.error("", e);
+            LOGGER.error("", e);
             throw new RuntimeException(e);
         }
 
-        LOG.warn("----init mysql conn pool success");
+        LOGGER.warn("----init mysql conn pool success");
     }
 
 

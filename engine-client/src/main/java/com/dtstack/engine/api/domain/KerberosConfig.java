@@ -99,7 +99,6 @@ public class KerberosConfig extends BaseEntity {
     }
 
     public Long getClusterId() {
-
         return clusterId;
     }
 

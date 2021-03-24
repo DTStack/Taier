@@ -8,23 +8,23 @@ package com.dtstack.engine.api.param;
  * @author xiaochen
  */
 public class ClusterAlertParam {
-    private Integer clusterId;
-    private Integer alertId;
+    private Long clusterId;
+    private Long alertId;
     private Integer alertGateType;
 
-    public Integer getClusterId() {
+    public Long getClusterId() {
         return clusterId;
     }
 
-    public void setClusterId(Integer clusterId) {
+    public void setClusterId(Long clusterId) {
         this.clusterId = clusterId;
     }
 
-    public Integer getAlertId() {
+    public Long getAlertId() {
         return alertId;
     }
 
-    public void setAlertId(Integer alertId) {
+    public void setAlertId(Long alertId) {
         this.alertId = alertId;
     }
 

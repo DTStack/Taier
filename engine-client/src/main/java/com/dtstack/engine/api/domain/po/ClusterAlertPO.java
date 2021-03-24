@@ -8,14 +8,11 @@ import java.util.List;
  */
 public class ClusterAlertPO {
 
-    private Integer id;
+    private Long clusterId;
 
-    private Integer clusterId;
-
-    private Integer alertId;
+    private Long alertId;
 
     private Integer isDefault;
-
 
     private Date gmtCreated;
 
@@ -32,28 +29,19 @@ public class ClusterAlertPO {
     //for query
     private List<Integer> alertGateTypes;
 
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getClusterId() {
+    public Long getClusterId() {
         return clusterId;
     }
 
-    public void setClusterId(Integer clusterId) {
+    public void setClusterId(Long clusterId) {
         this.clusterId = clusterId;
     }
 
-    public Integer getAlertId() {
+    public Long getAlertId() {
         return alertId;
     }
 
-    public void setAlertId(Integer alertId) {
+    public void setAlertId(Long alertId) {
         this.alertId = alertId;
     }
 

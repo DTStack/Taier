@@ -17,7 +17,6 @@ import java.util.List;
 @ApiModel
 public class ScheduleJob extends AppTenantEntity {
 
-
     /**
      * 工作任务id
      */
@@ -71,18 +70,26 @@ public class ScheduleJob extends AppTenantEntity {
     private Integer periodType;
 
     private Integer status;
+
     private Integer taskType;
+
     private Long fillId;
+
     private Timestamp execStartTime;
+
     private Timestamp execEndTime;
+
     private Long execTime;
+
     private Date submitTime;
+
     private Integer maxRetryNum;
+
     private Integer retryNum;
+
     private String nodeAddress;
 
     private String nextCycTime;
-
 
     private String logInfo;
 
@@ -119,7 +126,6 @@ public class ScheduleJob extends AppTenantEntity {
     public void setForce(Boolean force) {
         isForce = force;
     }
-
 
     /**
      * 提交用户名

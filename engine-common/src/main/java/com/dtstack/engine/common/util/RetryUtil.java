@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
  */
 public final class RetryUtil {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RetryUtil.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RetryUtil.class);
 
     private static final long MAX_SLEEP_MILLISECOND = 256 * 1000L;
 
@@ -120,7 +120,7 @@ public final class RetryUtil {
                 } catch (Exception e) {
                     saveException = e;
                     if (i == 0) {
-                        LOG.error(String.format("Exception when calling callable, 异常Msg:%s", saveException.getMessage()), saveException);
+                        LOGGER.error(String.format("Exception when calling callable, 异常Msg:%s", saveException.getMessage()), saveException);
                     }
 
                     if (null != retryExceptionClasss && !retryExceptionClasss.isEmpty()) {
@@ -159,7 +159,7 @@ public final class RetryUtil {
 
                         long realTimeSleep = System.currentTimeMillis()-startTime;
 
-                        LOG.error(String.format("Exception when calling callable, 即将尝试执行第%s次重试.本次重试计划等待[%s]ms,实际等待[%s]ms, 异常Msg:[%s]",
+                        LOGGER.error(String.format("Exception when calling callable, 即将尝试执行第%s次重试.本次重试计划等待[%s]ms,实际等待[%s]ms, 异常Msg:[%s]",
                                 i+1, timeToSleep,realTimeSleep, e.getMessage()));
 
                     }
@@ -202,12 +202,12 @@ public final class RetryUtil {
             try {
                 return future.get(timeoutMs, TimeUnit.MILLISECONDS);
             } catch (Exception e) {
-                LOG.warn("Try once failed", e);
+                LOGGER.warn("Try once failed", e);
                 throw e;
             } finally {
                 if (!future.isDone()) {
                     future.cancel(true);
-                    LOG.warn("Try once task not done, cancel it, active count: " + executor.getActiveCount());
+                    LOGGER.warn("Try once task not done, cancel it, active count: " + executor.getActiveCount());
                 }
             }
         }

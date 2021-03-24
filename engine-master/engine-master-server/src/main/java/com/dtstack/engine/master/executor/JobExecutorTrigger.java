@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class JobExecutorTrigger implements DisposableBean, ApplicationListener<ApplicationStartedEvent> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JobExecutorTrigger.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobExecutorTrigger.class);
 
     @Autowired
     private ScheduleJobDao scheduleJobDao;
@@ -108,9 +108,9 @@ public class JobExecutorTrigger implements DisposableBean, ApplicationListener<A
 
     @Override
     public void onApplicationEvent(ApplicationStartedEvent applicationStartedEvent) {
-        LOG.info("Initializing " + this.getClass().getName());
+        LOGGER.info("Initializing " + this.getClass().getName());
         if (!environmentContext.openJobSchedule()) {
-            LOG.info("job schedule is not open!!!");
+            LOGGER.info("job schedule is not open!!!");
             return;
         }
         executors.add(fillJobExecutor);

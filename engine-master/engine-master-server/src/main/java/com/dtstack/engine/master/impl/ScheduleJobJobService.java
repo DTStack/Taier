@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 @Service
 public class ScheduleJobJobService {
 
-    private final static Logger logger = LoggerFactory.getLogger(ScheduleJobJobService.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ScheduleJobJobService.class);
 
     private static final String WORKFLOW_PARENT = "0";
 
@@ -88,7 +88,7 @@ public class ScheduleJobJobService {
                 }
                 return subJobVO;
             } catch (Exception e) {
-                logger.error("get flow work subJob error", e);
+                LOGGER.error("get flow work subJob error", e);
             }
         }
         // 递归获取level层的子节点
@@ -152,7 +152,7 @@ public class ScheduleJobJobService {
                 }
                 return subJobVO;
             } catch (Exception e) {
-                logger.error("get flow work subJob error", e);
+                LOGGER.error("get flow work subJob error", e);
             }
         }
         // 递归获取level层的子节点
@@ -255,7 +255,7 @@ public class ScheduleJobJobService {
                 return result;
             }
             List<ScheduleJobJob> jobJobList = jobJobs.stream().map(ScheduleJobJobTaskDTO::toJobJob).collect(Collectors.toList());
-            logger.info("count info --- rootKey:{} jobJobList size:{} jobLoop:{}", rootKey, jobJobList.size(), jobLoop);
+            LOGGER.info("count info --- rootKey:{} jobJobList size:{} jobLoop:{}", rootKey, jobJobList.size(), jobLoop);
             result.put(jobLoop, jobJobList);
             jobLoop++;
         }
@@ -275,7 +275,7 @@ public class ScheduleJobJobService {
         for (ScheduleJobJobTaskDTO jobJob : jobJobs) {
             String jobKeyRelation = jobJob.getParentJobKey()+"-"+jobJob.getJobKey();
             if(jobKeyRelations.contains(jobKeyRelation)){
-                logger.error("该工作实例成环了,jobKeyRelation:{}",jobKeyRelation);
+                LOGGER.error("check task has loopped,jobKeyRelation:{}",jobKeyRelation);
                 return true;
             }
             jobKeyRelations.add(jobKeyRelation);
@@ -342,7 +342,7 @@ public class ScheduleJobJobService {
             //重新给jobKeys赋值
             jobKeys = getJobKeys(getChild, jobJobs);
             List<ScheduleJobJob> jobJobList = jobJobs.stream().map(ScheduleJobJobTaskDTO::toJobJob).collect(Collectors.toList());
-            logger.info("count info --- rootKey:{} jobJobList size:{} jobLoop:{}", rootKey, jobJobList.size(), jobLoop);
+            LOGGER.info("count info --- rootKey:{} jobJobList size:{} jobLoop:{}", rootKey, jobJobList.size(), jobLoop);
             result.put(jobLoop, jobJobList);
             jobLoop++;
         }
@@ -380,7 +380,7 @@ public class ScheduleJobJobService {
                 }
             }
             if (beginJobJob == null) {
-                logger.error("displayOffSpringForFlowWork end with no subTasks with flowJobKey [{}]", flowJob.getJobKey());
+                LOGGER.error("displayOffSpringForFlowWork end with no subTasks with flowJobKey [{}]", flowJob.getJobKey());
                 return null;
             }
             ScheduleJobJobDTO root = new ScheduleJobJobDTO();
@@ -417,7 +417,7 @@ public class ScheduleJobJobService {
                 }
             }
             if (beginJobJob == null) {
-                logger.error("displayOffSpringForFlowWork end with no subTasks with flowJobKey [{}]", flowJob.getJobKey());
+                LOGGER.error("displayOffSpringForFlowWork end with no subTasks with flowJobKey [{}]", flowJob.getJobKey());
                 return null;
             }
             ScheduleJobJobDTO root = new ScheduleJobJobDTO();
@@ -529,7 +529,7 @@ public class ScheduleJobJobService {
                 }
                 vo.setSubNodes(subJobVO);
             } catch (Exception e) {
-                logger.error("get flow work subJob error", e);
+                LOGGER.error("get flow work subJob error", e);
             }
         }
         return vo;

@@ -49,7 +49,7 @@ import java.util.Map;
  */
 @Component
 public class ElasticsearchService implements InitializingBean, DisposableBean {
-    private static final Logger LOG = LoggerFactory.getLogger(ElasticsearchService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ElasticsearchService.class);
 
 
     private static final String ES_LOG_TIMESTAMP_KEY = "timestamp";
@@ -70,7 +70,7 @@ public class ElasticsearchService implements InitializingBean, DisposableBean {
 
     @Override
     public void afterPropertiesSet() {
-        LOG.info("Initializing " + this.getClass().getName());
+        LOGGER.info("Initializing " + this.getClass().getName());
 
         this.httpHosts = parseHostsString(environmentContext.getElasticsearchAddress());
         this.username = environmentContext.getElasticsearchUsername();
@@ -143,7 +143,7 @@ public class ElasticsearchService implements InitializingBean, DisposableBean {
                 strBuilder.append("###################################################\n");
             }
 
-            LOG.info("clearScrollResponse succeeded :{},scrollId:{}", succeeded, scrollId);
+            LOGGER.info("clearScrollResponse succeeded :{},scrollId:{}", succeeded, scrollId);
         } catch (Exception e) {
             throw new RdosDefineException("searchRequest error !" + ExceptionUtils.getStackTrace(e));
         }
@@ -184,7 +184,7 @@ public class ElasticsearchService implements InitializingBean, DisposableBean {
                 "follow the format 'http://host_name:port', but is '" + hostsStr + "'.";
 
         if (StringUtils.isEmpty(hostsStr)) {
-            LOG.warn("No set elasticsearch host!");
+            LOGGER.warn("No set elasticsearch host!");
             return hostList;
         }
 
@@ -200,12 +200,12 @@ public class ElasticsearchService implements InitializingBean, DisposableBean {
                 final int hostPort = url.getPort();
 
                 if (StringUtils.isBlank(protocol) || StringUtils.isBlank(hostName) || -1 == hostPort) {
-                    LOG.error(validationExceptionMessage);
+                    LOGGER.error(validationExceptionMessage);
                 }
 
                 hostList.add(new HttpHost(hostName, hostPort, protocol));
             } catch (MalformedURLException e) {
-                LOG.error(validationExceptionMessage, e);
+                LOGGER.error(validationExceptionMessage, e);
             }
         }
         return hostList;
@@ -215,12 +215,12 @@ public class ElasticsearchService implements InitializingBean, DisposableBean {
     @Override
     public void destroy() {
         try {
-            LOG.info("Closing elasticSearch client");
+            LOGGER.info("Closing elasticSearch client");
             if (restHighLevelClient != null) {
                 restHighLevelClient.close();
             }
         } catch (Exception e) {
-            LOG.error("Error closing ElasticSearch client: ", e);
+            LOGGER.error("Error closing ElasticSearch client: ", e);
         }
     }
 }

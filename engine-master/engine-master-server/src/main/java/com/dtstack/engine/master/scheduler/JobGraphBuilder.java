@@ -62,7 +62,7 @@ import java.util.stream.Collectors;
 @Component
 public class JobGraphBuilder {
 
-    private static final Logger logger = LoggerFactory.getLogger(JobGraphBuilder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobGraphBuilder.class);
 
     /**
      * 系统调度的时候插入的默认batch_job名称
@@ -128,7 +128,7 @@ public class JobGraphBuilder {
             cleanDirtyJobGraph(triggerDay);
 
             int totalTask = batchTaskShadeService.countTaskByStatus(ESubmitStatus.SUBMIT.getStatus(), EProjectScheduleStatus.NORMAL.getStatus());
-            logger.info("Counting task which status=SUBMIT scheduleStatus=NORMAL totalTask:{}", totalTask);
+            LOGGER.info("Counting task which status=SUBMIT scheduleStatus=NORMAL totalTask:{}", totalTask);
 
             if (totalTask <= 0) {
                 return;
@@ -160,7 +160,7 @@ public class JobGraphBuilder {
                 }
 
                 startId = batchTaskShades.get(batchTaskShades.size() - 1).getId();
-                logger.info("batch-number:{} startId:{}", batchIdx, startId);
+                LOGGER.info("batch-number:{} startId:{}", batchIdx, startId);
 
                 try {
                     buildSemaphore.acquire();
@@ -183,29 +183,29 @@ public class JobGraphBuilder {
                                         }
                                     }
                                 } catch (Throwable e) {
-                                    logger.error("build task failure taskId:{} apptype:{}",task.getTaskId(),task.getAppType(), e);
+                                    LOGGER.error("build task failure taskId:{} apptype:{}",task.getTaskId(),task.getAppType(), e);
                                 }
                             }
-                            logger.info("batch-number:{} done!!! allJobs size:{}", batchIdx, allJobs.size());
+                            LOGGER.info("batch-number:{} done!!! allJobs size:{}", batchIdx, allJobs.size());
                         } catch (Throwable e) {
-                            logger.error("!!! buildTaskJobGraph  build job error !!!", e);
+                            LOGGER.error("!!! buildTaskJobGraph  build job error !!!", e);
                         } finally {
                             buildSemaphore.release();
                             ctl.countDown();
                         }
                     });
                 } catch (Throwable e) {
-                    logger.error("[acquire pool error]:", e);
+                    LOGGER.error("[acquire pool error]:", e);
                     isBuildError = true;
                     throw new RdosDefineException(e);
                 }
             }
             ctl.await();
             if (isBuildError) {
-                logger.info("buildTaskJobGraph happend error jobSize {}", allJobs.size());
+                LOGGER.info("buildTaskJobGraph happend error jobSize {}", allJobs.size());
                 return;
             }
-            logger.info("buildTaskJobGraph all done!!! allJobs size:{}", allJobs.size());
+            LOGGER.info("buildTaskJobGraph all done!!! allJobs size:{}", allJobs.size());
             jobGraphBuildPool.shutdown();
 
             doSetFlowJobIdForSubTasks(allJobs, flowJobId);
@@ -224,7 +224,7 @@ public class JobGraphBuilder {
             //存储生成的jobRunBean
             saveJobGraph(allJobs, triggerDay);
         } catch (Exception e) {
-            logger.error("buildTaskJobGraph ！！！", e);
+            LOGGER.error("buildTaskJobGraph ！！！", e);
         } finally {
             lock.unlock();
         }
@@ -253,7 +253,7 @@ public class JobGraphBuilder {
         if (totalJob <= 0) {
             return;
         }
-        logger.info("Start cleaning dirty cron job graph,  totalJob:{}", totalJob);
+        LOGGER.info("Start cleaning dirty cron job graph,  totalJob:{}", totalJob);
 
         int totalBatch;
         if (totalJob % JOB_BATCH_SIZE != 0) {
@@ -274,14 +274,14 @@ public class JobGraphBuilder {
             if (scheduleJobList.isEmpty()) {
                 break;
             }
-            logger.info("Start clean batchJobList, batch-number:{} startId:{}", batchIdx, startId);
+            LOGGER.info("Start clean batchJobList, batch-number:{} startId:{}", batchIdx, startId);
             startId = scheduleJobList.get(scheduleJobList.size() - 1).getId();
             List<String> jobKeyList = new ArrayList<>();
             for ( ScheduleJob scheduleJob : scheduleJobList) {
                 jobKeyList.add(scheduleJob.getJobKey());
             }
             batchJobService.deleteJobsByJobKey(jobKeyList);
-            logger.info("batch-number:{} done! Cleaning dirty jobs size:{}", batchIdx, scheduleJobList.size());
+            LOGGER.info("batch-number:{} done! Cleaning dirty jobs size:{}", batchIdx, scheduleJobList.size());
         }
     }
 
@@ -309,7 +309,7 @@ public class JobGraphBuilder {
      */
     @Transactional
     public boolean saveJobGraph(List<ScheduleBatchJob> jobList, String triggerDay) {
-        logger.info("start saveJobGraph to db {} jobSize {}", triggerDay, jobList.size());
+        LOGGER.info("start saveJobGraph to db {} jobSize {}", triggerDay, jobList.size());
         //需要保存BatchJob, BatchJobJob
         batchJobService.insertJobList(jobList, EScheduleType.NORMAL_SCHEDULE.getType());
 
@@ -323,7 +323,7 @@ public class JobGraphBuilder {
                 return null;
             }, environmentContext.getBuildJobErrorRetry(), 200, false);
         } catch (Exception e) {
-            logger.error("addJobTrigger triggerTimeStr {} error ", triggerTimeStr,e);
+            LOGGER.error("addJobTrigger triggerTimeStr {} error ", triggerTimeStr,e);
             throw new RdosDefineException(e);
         }
 
@@ -369,7 +369,7 @@ public class JobGraphBuilder {
         //正常调度生成job需要判断--任务有效时间范围
         if (scheduleType.equals(EScheduleType.NORMAL_SCHEDULE) &&
                 (scheduleCron.getBeginDate().after(jobBuildTime) || scheduleCron.getEndDate().before(jobBuildTime))) {
-            logger.error("appType {} task {} out of normal schedule time " ,task.getTaskId(), task.getAppType());
+            LOGGER.error("appType {} task {} out of normal schedule time " ,task.getTaskId(), task.getAppType());
             return jobList;
         }
 
@@ -413,7 +413,7 @@ public class JobGraphBuilder {
             }
             if(actionService == null) {
                 String errorMsg = "actionService is null in JobGraphBuilder#buildJobRunBean";
-                logger.error(errorMsg);
+                LOGGER.error(errorMsg);
                 throw new RuntimeException(errorMsg);
             }
             scheduleJob.setJobId(actionService.generateUniqueSign());
@@ -484,8 +484,8 @@ public class JobGraphBuilder {
             if (needAddFather) {
                 List<FatherDependency> fatherDependency = getDependencyJobKeys(scheduleType, scheduleJob, scheduleCron, keyPreStr);
                 for (FatherDependency dependencyJobKey : fatherDependency) {
-                    if(logger.isDebugEnabled()){
-                        logger.debug("get Job {} Job key  {} cron {} cycTime {}", jobKey, dependencyJobKey, JSONObject.toJSONString(scheduleCron), scheduleJob.getCycTime());
+                    if(LOGGER.isDebugEnabled()){
+                        LOGGER.debug("get Job {} Job key  {} cron {} cycTime {}", jobKey, dependencyJobKey, JSONObject.toJSONString(scheduleCron), scheduleJob.getCycTime());
                     }
                     scheduleBatchJob.addBatchJobJob(createNewJobJob(scheduleJob, jobKey, dependencyJobKey.getJobKey(), timestampNow,dependencyJobKey.getAppType()));
                 }
@@ -539,7 +539,7 @@ public class JobGraphBuilder {
                 ScheduleCron scheduleCron = ScheduleFactory.parseFromJson(scheduleStr);
                 triggerTime = scheduleCron.getTriggerTime(triggerDay);
             } catch (Exception e) {
-                logger.error("getFlowWorkCycTime error with flowId: " + flowId, e);
+                LOGGER.error("getFlowWorkCycTime error with flowId: " + flowId, e);
             }
         }
         return triggerTime;
@@ -665,7 +665,7 @@ public class JobGraphBuilder {
                             //判断父任务是否生成
                             ScheduleJob pScheduleJob = batchJobService.getJobByJobKeyAndType(pjobKey, EScheduleType.NORMAL_SCHEDULE.getType());
                             if (pScheduleJob == null) {
-                                logger.error("getExternalJobKeys ,but not found the parent job of " + pTask.getTaskId()
+                                LOGGER.error("getExternalJobKeys ,but not found the parent job of " + pTask.getTaskId()
                                         + " ,current job is " + scheduleJob.getJobId() + ", the pjobKey = " + pjobKey);
                                 continue;
                             }
@@ -678,7 +678,7 @@ public class JobGraphBuilder {
                         fatherDependency.setJobKey(pjobKey);
                         jobKeyList.add(fatherDependency);
                     } catch (Exception e) {
-                        logger.error("getExternalJobKeys parse task" + pTask.getId() + " error", e);
+                        LOGGER.error("getExternalJobKeys parse task" + pTask.getId() + " error", e);
                         continue;
                     }
                 }
@@ -710,7 +710,7 @@ public class JobGraphBuilder {
                 jobKeyList.add(pjobKey);
             } catch (Exception e) {
                 //FIXME 如果解析失败该任务是加入到队列里面还是提示直接不管该task
-                logger.error("parse task" + pTask.getId() + " error", e);
+                LOGGER.error("parse task" + pTask.getId() + " error", e);
             }
         }
         return jobKeyList;
@@ -739,7 +739,7 @@ public class JobGraphBuilder {
                         jobKeyList.add(fatherDependency);
                     } catch (Exception e) {
                         //FIXME 如果解析失败该任务是加入到队列里面还是提示直接不管该task
-                        logger.error("parse task" + pTask.getId() + " error", e);
+                        LOGGER.error("parse task" + pTask.getId() + " error", e);
                     }
                 }
             }
@@ -816,7 +816,7 @@ public class JobGraphBuilder {
             int index = dayArr.indexOf(currDay);
             //找不到该运行时间,不应该出现
             if (index == -1) {
-                logger.error("can't find dayOfMonth:{} in cronStr:{}!", currDay, cron);
+                LOGGER.error("can't find dayOfMonth:{} in cronStr:{}!", currDay, cron);
                 return null;
             }
             //上个月的最后一天
@@ -833,7 +833,7 @@ public class JobGraphBuilder {
             int index = dayArr.indexOf(currDay);
             //找不到该运行时间,不应该出现
             if (index == -1) {
-                logger.error("can't find dayOfWeek:{} in cronStr:{}!", currDay, cron);
+                LOGGER.error("can't find dayOfWeek:{} in cronStr:{}!", currDay, cron);
                 return null;
             }
             //上周的最后一个执行天
@@ -1172,7 +1172,7 @@ public class JobGraphBuilder {
             }
             //将工作流下的子任务生成补数据任务实例
             List<ScheduleBatchJob> subTaskJobs = buildSubTasksJobForFlowWork(batchTask.getTaskId(), preStr, fillJobName, triggerDay, createUserId, beginTime, endTime, projectId, tenantId, appType);
-            logger.error("buildFillDataJobGraph for flowTask with flowJobId map [{}]", flowJobId);
+            LOGGER.error("buildFillDataJobGraph for flowTask with flowJobId map [{}]", flowJobId);
             doSetFlowJobIdForSubTasks(subTaskJobs, flowJobId);
             batchJobs.addAll(subTaskJobs);
         }

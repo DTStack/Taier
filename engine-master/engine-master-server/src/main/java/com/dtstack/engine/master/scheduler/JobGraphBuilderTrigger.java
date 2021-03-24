@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Component
 public class JobGraphBuilderTrigger implements Runnable {
 
-    private static final Logger logger = LoggerFactory.getLogger(JobGraphBuilderTrigger.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobGraphBuilderTrigger.class);
 
     private static final long CHECK_JOB_BUILD_INTERVAL = 60 * 10 * 1000L;
 
@@ -55,7 +55,7 @@ public class JobGraphBuilderTrigger implements Runnable {
                 stopJobGraph();
             }
         } catch (Throwable e) {
-            logger.error("JobGraphBuilderTrigger.dealMaster error:", e);
+            LOGGER.error("JobGraphBuilderTrigger.dealMaster error:", e);
         }
     }
 
@@ -72,7 +72,7 @@ public class JobGraphBuilderTrigger implements Runnable {
                 CHECK_JOB_BUILD_INTERVAL,
                 TimeUnit.MILLISECONDS);
         RUNNING.compareAndSet(false, true);
-        logger.info("start job graph trigger...");
+        LOGGER.info("start job graph trigger...");
     }
 
     private void stopJobGraph() {
@@ -80,7 +80,7 @@ public class JobGraphBuilderTrigger implements Runnable {
             scheduledService.shutdownNow();
         }
         RUNNING.compareAndSet(true, false);
-        logger.info("stop job graph trigger...");
+        LOGGER.info("stop job graph trigger...");
     }
 
     private long getTimeMillis(String time) {
@@ -90,7 +90,7 @@ public class JobGraphBuilderTrigger implements Runnable {
             Date curDate = dateFormat.parse(dayFormat.format(new Date()) + " " + time);
             return curDate.getTime();
         } catch (ParseException e) {
-            logger.error("JobGraphBuilderTrigger.getTimeMillis error:", e);
+            LOGGER.error("JobGraphBuilderTrigger.getTimeMillis error:", e);
         }
         return 0;
     }
@@ -105,22 +105,22 @@ public class JobGraphBuilderTrigger implements Runnable {
 
                 String triggerDay = dateTime.toString(dateTimeFormatter);
                 if (getTimeMillis(environmentContext.getJobGraphBuildCron()) > System.currentTimeMillis()) {
-                    logger.warn("---trigger to build job graph time not reach---");
+                    LOGGER.warn("---trigger to build job graph time not reach---");
                     return;
                 }
-                logger.warn("---trigger to build job graph start---");
+                LOGGER.warn("---trigger to build job graph start---");
                 try {
                     jobGraphBuilder.buildTaskJobGraph(triggerDay);
                 } catch (Exception e) {
-                    logger.error("", e);
+                    LOGGER.error("", e);
                 }
                 //注意不需要将jobList直接加入到缓存队列里面。等待执行到当天数据的时候再去获取
-                logger.warn("---trigger to build day:{} job graph end!--", triggerDay);
+                LOGGER.warn("---trigger to build day:{} job graph end!--", triggerDay);
             } else {
-                logger.warn("---triggering, but Running is false---");
+                LOGGER.warn("---triggering, but Running is false---");
             }
         } catch (Exception e) {
-            logger.error("---trigger job graph error---",e);
+            LOGGER.error("---trigger job graph error---",e);
         }
     }
 }

@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @Service
 public class ProjectService {
 
-    private final Logger logger = LoggerFactory.getLogger(ProjectService.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(ProjectService.class);
 
     @Autowired
     private ScheduleTaskShadeDao scheduleTaskShadeDao;
@@ -47,7 +47,7 @@ public class ProjectService {
         if (null == projectId || null == appType || null == scheduleStatus) {
             return;
         }
-        logger.info("update project {} status {} ",projectId,scheduleStatus);
+        LOGGER.info("update project {} status {} ",projectId,scheduleStatus);
         scheduleTaskShadeDao.updateProjectScheduleStatus(projectId,appType,scheduleStatus);
     }
 

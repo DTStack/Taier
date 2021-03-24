@@ -1,6 +1,5 @@
 package com.dtstack.engine.common.http;
 
-import com.dtstack.engine.common.exception.ExceptionUtil;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.config.RequestConfig;
@@ -15,7 +14,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Map;
 
@@ -30,7 +29,7 @@ import java.util.Map;
  */
 public class HttpClient {
 	
-    private static final Logger logger = LoggerFactory.getLogger(HttpClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpClient.class);
     
     private static int SocketTimeout = 10000;//10秒  
     
@@ -69,15 +68,15 @@ public class HttpClient {
                 //FIXME 暂时不从header读取
                 responseBody = EntityUtils.toString(entity,charset); 
             } else {
-            	logger.error("url:"+url+"--->http return status error:" + status);
+            	LOGGER.error("url:"+url+"--->http return status error:" + status);
             }  
         } catch (Exception e) {
-        	logger.error("url:"+url+"--->http request error",e);
+        	LOGGER.error("url:"+url+"--->http request error",e);
         } finally {  
             try {
             	if(httpClient!=null){httpClient.close();}
 			} catch (Exception e) {
-				logger.error("", e);
+				LOGGER.error("", e);
 			}  
         }  
         return responseBody;  
@@ -95,12 +94,12 @@ public class HttpClient {
                 respBody = EntityUtils.toString(entity,charset);
             }
         } catch (IOException e) {
-            logger.error("url:"+url+"--->http request error",e);
+            LOGGER.error("url:"+url+"--->http request error",e);
         } finally {
             try {
                 if(httpClient!=null){httpClient.close();}
             } catch (Exception e) {
-                logger.error("", e);
+                LOGGER.error("", e);
             }
         }
 

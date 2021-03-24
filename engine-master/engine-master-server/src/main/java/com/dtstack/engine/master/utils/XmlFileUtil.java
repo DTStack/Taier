@@ -25,7 +25,7 @@ public class XmlFileUtil {
 
     public static List<File> filterXml(List<File> xmlFiles, List<String> validXml) {
         if (xmlFiles == null) {
-            throw new RdosDefineException("缺少必要配置文件：" + StringUtils.join(BASE_XML, ","));
+            throw new RdosDefineException("The necessary configuration file is missing：" + StringUtils.join(BASE_XML, ","));
         }
         if(null == validXml){
             validXml = Collections.emptyList();
@@ -44,7 +44,7 @@ public class XmlFileUtil {
             }
         }
         if (!checkFiles.isEmpty() || !validXml.isEmpty()) {
-            throw new RdosDefineException("缺少必要配置文件：" + StringUtils.join(checkFiles, ",")+StringUtils.join(validXml, ","));
+            throw new RdosDefineException("The necessary profile is missing：" + StringUtils.join(checkFiles, ",")+StringUtils.join(validXml, ","));
         }
         return xmlFiles;
     }
@@ -54,8 +54,8 @@ public class XmlFileUtil {
             List<File> xmlFiles = ZipUtil.upzipFile(zipLocation, unzipLocation);
             return CollectionUtils.isEmpty(validXml)? xmlFiles : filterXml(xmlFiles, validXml);
         } catch (Exception e) {
-            LOGGER.error("{}", e);
-            throw new RdosDefineException("压缩包解压失败");
+            LOGGER.error("", e);
+            throw new RdosDefineException("Failed to decompress the compressed package");
         }
     }
 
