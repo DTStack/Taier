@@ -1160,7 +1160,7 @@ public class JobGraphBuilder {
         List<ScheduleTaskShade> taskRuleTask = batchTaskShadeService.findChildTaskRuleByTaskId(taskId, appType);
 
         for (ScheduleTaskShade scheduleTaskShade : taskRuleTask) {
-            batchJobs.addAll(generateJob(fillJobName, needFather, triggerDay, createUserId, beginTime, endTime, projectId, tenantId, appType, scheduleTaskShade, preStr, flowJobId));
+            batchJobs.addAll(generateJob(fillJobName, needFather, triggerDay, createUserId, beginTime, endTime, projectId, tenantId, scheduleTaskShade.getAppType(), scheduleTaskShade, preStr, flowJobId));
         }
 
         for (ScheduleBatchJob batchJob : batchJobs) {
