@@ -152,7 +152,11 @@ public class BatchFlowWorkJobService {
             //更新结束时间时间
             ScheduleJob updateJob = new ScheduleJob();
             updateJob.setJobId(jobId);
-            updateJob.setStatus(bottleStatus);
+            if (RdosTaskStatus.FINISHED.getStatus().equals(bottleStatus) && batchJobService.hasTaskRule(scheduleBatchJob.getScheduleJob())) {
+                updateJob.setStatus(RdosTaskStatus.RUNNING_TASK_RULE.getStatus());
+            } else {
+                updateJob.setStatus(bottleStatus);
+            }
             updateJob.setAppType(appType);
             updateJob.setExecEndTime(new Timestamp(System.currentTimeMillis()));
             updateJob.setGmtModified(new Timestamp(System.currentTimeMillis()));

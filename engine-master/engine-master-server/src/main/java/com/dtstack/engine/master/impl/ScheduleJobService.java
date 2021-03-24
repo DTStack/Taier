@@ -1645,6 +1645,9 @@ public class ScheduleJobService {
 
 
             for (ScheduleJob scheduleJob : scheduleJobs) {
+                if (RdosTaskStatus.RUNNING_TASK_RULE.getStatus().equals(scheduleJob.getStatus())) {
+                    scheduleJob.setStatus(RdosTaskStatus.RUNNING.getStatus());
+                }
                 scheduleFillDataJobDetailVO.addRecord(transferBatchJob2FillDataRecord(scheduleJob, null, taskShadeMap));
             }
 
@@ -1661,10 +1664,14 @@ public class ScheduleJobService {
 
                 Map<Long, ScheduleTaskForFillDataDTO> taskShadeMap = this.prepareForFillDataDetailInfo(subScheduleJobs);
                 for (ScheduleJob scheduleJob : subScheduleJobs) {
+                    if (RdosTaskStatus.RUNNING_TASK_RULE.getStatus().equals(scheduleJob.getStatus())) {
+                        scheduleJob.setStatus(RdosTaskStatus.RUNNING.getStatus());
+                    }
                     scheduleFillDataJobDetailVO.addRecord(transferBatchJob2FillDataRecord(scheduleJob, null, taskShadeMap));
                 }
             }
         }
+
 
         return new PageResult<>(scheduleFillDataJobDetailVO, totalCount, pageQuery);
     }
@@ -1753,6 +1760,9 @@ public class ScheduleJobService {
             Map<Long, ScheduleTaskForFillDataDTO> taskShadeMap = this.prepareForFillDataDetailInfo(scheduleJobListWithFillData);
             if (CollectionUtils.isNotEmpty(scheduleJobListWithFillData)) {
                 for (ScheduleJob job : scheduleJobListWithFillData) {
+                    if (RdosTaskStatus.RUNNING_TASK_RULE.getStatus().equals(job.getStatus())) {
+                        job.setStatus(RdosTaskStatus.RUNNING.getStatus());
+                    }
                     scheduleFillDataJobDetailVO.addRecord(transferBatchJob2FillDataRecord(job, flowJobIdList, taskShadeMap));
                 }
                 dealFlowWorkSubJobsInFillData(scheduleFillDataJobDetailVO.getRecordList());
@@ -2906,6 +2916,29 @@ public class ScheduleJobService {
             }
 
         }
+    }
+
+    public boolean hasTaskRule(ScheduleJob scheduleJob) {
+        LOGGER.info("jobId:{} start hasRule",scheduleJob.getJobId());
+        boolean hasTaskRule = Boolean.FALSE;
+        List<ScheduleJobJob> scheduleJobJobs = scheduleJobJobDao.listByParentJobKey(scheduleJob.getJobKey());
+
+        List<String> jobKeys = scheduleJobJobs.stream().map(ScheduleJobJob::getJobKey).collect(Collectors.toList());
+        LOGGER.info("hasTaskRule:{}" + jobKeys.toString());
+        if (CollectionUtils.isNotEmpty(jobKeys)) {
+            List<ScheduleJob> scheduleJobs = scheduleJobDao.listJobByJobKeys(jobKeys);
+
+            for (ScheduleJob job : scheduleJobs) {
+                // 如果查询出来任务状是冻结状态
+//                ScheduleTaskShade scheduleTaskShade =  scheduleTaskShadeDao.getOne(job.getTaskId(),job.getAppType());
+                if (TaskRuleEnum.STRONG_RULE.getCode().equals(job.getTaskRule())) {
+                    // 存在强规则任务
+                    hasTaskRule = Boolean.TRUE;
+                    break;
+                }
+            }
+        }
+        return hasTaskRule;
     }
 
     private void updateFatherStatus(ScheduleJob fatherScheduleJob, ScheduleJob currentScheduleJob, List<ScheduleJob> sonScheduleJobs, Integer bottleStatus) {

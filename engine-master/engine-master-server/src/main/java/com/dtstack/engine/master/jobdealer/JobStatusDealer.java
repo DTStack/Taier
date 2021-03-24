@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -183,6 +184,7 @@ public class  JobStatusDealer implements Runnable {
                 }
 
                 shardCache.updateLocalMemTaskStatus(jobId, status);
+                LOGGER.info("----- jobId:{} updateJobStatusWithPredicate", jobId);
                 updateJobStatusWithPredicate(scheduleJob, jobId, status);
 
                 //数据的更新顺序，先更新job_cache，再更新engine_batch_job
@@ -221,10 +223,14 @@ public class  JobStatusDealer implements Runnable {
                         && RdosTaskStatus.STOP_STATUS.contains(status);
 
         if (ComputeType.BATCH.getType().equals(scheduleJob.getComputeType()) || isStreamUpdateConditions.test(scheduleJob) || isStreamCancellingConditions.test(scheduleJob)) {
-            if (RdosTaskStatus.FINISHED.getStatus().equals(status) && hasTaskRule(scheduleJob)) {
+            LOGGER.info("jobId:{} taskRule status {}",jobId,status);
+            if (RdosTaskStatus.FINISHED.getStatus().equals(status) && batchJobService.hasTaskRule(scheduleJob)) {
                 // 判断子节点是否存在强弱任务
+                LOGGER.info("jobId:{} taskRule update {}",jobId,RdosTaskStatus.RUNNING_TASK_RULE.getStatus());
                 scheduleJobDao.updateJobStatusAndExecTime(jobId,RdosTaskStatus.RUNNING_TASK_RULE.getStatus());
+
             } else {
+                LOGGER.info("jobId:{} right update {}",jobId,status);
                 scheduleJobDao.updateJobStatusAndExecTime(jobId, status);
             }
 
@@ -234,28 +240,7 @@ public class  JobStatusDealer implements Runnable {
             }
         }
     }
-
-    private boolean hasTaskRule(ScheduleJob scheduleJob) {
-        boolean hasTaskRule = Boolean.FALSE;
-        List<ScheduleJobJob> scheduleJobJobs = scheduleJobJobDao.listByParentJobKey(scheduleJob.getJobKey());
-
-        List<String> jobKeys = scheduleJobJobs.stream().map(ScheduleJobJob::getJobKey).collect(Collectors.toList());
-        if (CollectionUtils.isNotEmpty(jobKeys)) {
-            List<ScheduleJob> scheduleJobs = scheduleJobDao.listJobByJobKeys(jobKeys);
-
-            for (ScheduleJob job : scheduleJobs) {
-                // 如果查询出来任务状是冻结状态
-//                ScheduleTaskShade scheduleTaskShade =  scheduleTaskShadeDao.getOne(job.getTaskId(),job.getAppType());
-                if ( TaskRuleEnum.STRONG_RULE.getCode().equals(job.getTaskRule())) {
-                    // 存在强规则任务
-                    hasTaskRule = Boolean.TRUE;
-                    break;
-                }
-            }
-        }
-        return hasTaskRule;
-    }
-
+    
     private RdosTaskStatus checkNotFoundStatus(RdosTaskStatus taskStatus, String jobId) {
         JobStatusFrequency statusPair = updateJobStatusFrequency(jobId, taskStatus.getStatus());
         //如果状态为NotFound，则对频次进行判断
