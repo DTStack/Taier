@@ -3,7 +3,6 @@ import SearchInput from '@/components/SearchInput';
 import { Menu, List, notification } from 'antd';
 import { API } from '@/services';
 import { getSaveStatus } from '../utils/handelSession';
-import showimg  from "./images/DB2.png"
 
 export default function SelectSource(props) {
   const { nextType } = props;
