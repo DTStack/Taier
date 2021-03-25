@@ -3,6 +3,8 @@ const corejs = require.resolve('core-js/stable');
 const regenerator = require.resolve('regenerator-runtime/runtime');
 // const CopyWebpackPlugin = require('copy-webpack-plugin');
 
+const isDev = process.env.NODE_ENV === 'development';
+
 const copyConfig = [
   { from: path.resolve(__dirname, 'public/config'), to: 'config' },
   { from: path.resolve(__dirname, 'public/assets'), to: 'assets' },
@@ -36,7 +38,7 @@ module.exports = () => {
     webpack: {
       entry: [corejs, regenerator, './src/index.tsx'],
       output: {
-        publicPath: '/publicService/',
+        publicPath: isDev ? '/' : '/publicService/',
       },
       // plugins: [
       //   new CopyWebpackPlugin({
