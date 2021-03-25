@@ -915,7 +915,7 @@ public class ScheduleTaskShadeService {
             vo.setName(taskShade.getName());
             vo.setTaskRule(taskShade.getTaskRule());
             vo.setTaskType(taskShade.getTaskType());
-
+            vo.setScheduleStatus(taskShade.getScheduleStatus());
             Tenant byDtUicTenantId = tenantDao.getByDtUicTenantId(taskShade.getDtuicTenantId());
 
             if (byDtUicTenantId != null) {
