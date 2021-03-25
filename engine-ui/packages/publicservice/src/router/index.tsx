@@ -1,7 +1,7 @@
 import React from 'react';
 import routerConf from './routerConf';
 import {
-  BrowserRouter as Router,
+  HashRouter as Router,
   Switch,
   Route,
   Redirect,
