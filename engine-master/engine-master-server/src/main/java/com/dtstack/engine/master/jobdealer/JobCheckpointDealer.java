@@ -128,19 +128,26 @@ public class JobCheckpointDealer implements InitializingBean {
                     taskId = taskInfo.getTaskId();
                     ScheduleJob scheduleJob = scheduleJobDao.getByJobId(taskId, Deleted.NORMAL.getStatus());
                     if (null == scheduleJob) {
+                        addFailedCheckpoint(taskId, engineJobId);
                         continue;
                     }
                     if (StringUtils.isBlank(scheduleJob.getEngineJobId()) || !scheduleJob.getEngineJobId().equalsIgnoreCase(engineJobId)) {
+                        addFailedCheckpoint(taskId, engineJobId);
                         LOGGER.info("jobId {} queue engineJobId {} is not same to db {} so skip", taskId, scheduleJob.getEngineJobId(), engineJobId);
                         continue;
                     }
                     updateCheckpointImmediately(taskInfo, engineJobId, scheduleJob.getStatus());
 
                 } catch (Exception e) {
+                    addFailedCheckpoint(taskId, engineJobId);
                     LOGGER.error("update delay checkpoint jobId {}  engineJobId {} error ", taskId, engineJobId, e);
                 }
             }
         });
+    }
+
+    private void addFailedCheckpoint(String taskId, String engineJobId){
+        engineJobCheckpointDao.insert(taskId, engineJobId, null, null, null, null);
     }
 
     /**
@@ -183,6 +190,7 @@ public class JobCheckpointDealer implements InitializingBean {
         String taskId = jobIdentifier.getTaskId();
 
         if (Strings.isNullOrEmpty(checkpointJsonStr)) {
+            addFailedCheckpoint(taskId, engineTaskId);
             LOGGER.info("taskId {} engineTaskId {} can't get checkpoint info.", taskId, engineTaskId);
             return;
         }
@@ -211,11 +219,13 @@ public class JobCheckpointDealer implements InitializingBean {
                     engineJobCheckpointDao.insert(taskId, engineTaskId, checkpointId, checkpointTriggerTimestamp, checkpointSavePath, checkpointCountsInfo);
                     checkpointInsertedCache.put(checkpointCacheKey, "1");
                 } else {
+                    addFailedCheckpoint(taskId, engineTaskId);
                     LOGGER.info("no add checkpoint to db checkpointId [{}]  checkpointSavePath {} status {} checkpointCacheKey {}",
                             checkpointId, checkpointSavePath, status, checkpointCacheKey);
                 }
             }
         } catch (IOException e) {
+            addFailedCheckpoint(taskId, engineTaskId);
             LOGGER.error("taskID:{} ,engineTaskId:{}, error:", taskId, engineTaskId, e);
         }
     }

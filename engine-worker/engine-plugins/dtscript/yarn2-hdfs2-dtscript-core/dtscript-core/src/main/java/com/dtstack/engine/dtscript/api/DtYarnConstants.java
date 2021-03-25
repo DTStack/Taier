@@ -19,6 +19,14 @@ public interface DtYarnConstants {
 
   String GPU = "yarn.io/gpu";
 
+  String ENV_PRINCIPAL = "_PRINCIPAL";
+  String ENV_GATEWAY_PORT = "_GATEWAY_PORT";
+
+  String PYTHON_GATEWAY_PATH = "gateway-python.jar";
+  String LOCALIZED_GATEWAY_PATH = "gateway.jar";
+  String LOCALIZED_KEYTAB_PATH = "krb5.keytab";
+  String LOCALIZED_KR5B_PATH = "krb5.conf";
+
   enum Environment {
     HADOOP_USER_NAME("HADOOP_USER_NAME"),
 

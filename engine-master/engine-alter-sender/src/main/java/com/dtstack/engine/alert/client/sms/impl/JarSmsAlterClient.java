@@ -53,6 +53,10 @@ public class JarSmsAlterClient extends AbstractSmsAlterClient {
         }
 
         String jarPath = alterContext.getJarPath();
+        if (jarPath.contains(ConstSmsAlter.PATH_CUT)) {
+            jarPath = jarPath.substring(0, jarPath.indexOf(ConstSmsAlter.PATH_CUT));
+        }
+
         if (StringUtils.isBlank(jarPath)) {
             throw new AlterException("The custom jar must be passed into the jar path");
         }

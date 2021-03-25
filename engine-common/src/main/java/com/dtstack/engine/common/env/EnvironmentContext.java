@@ -354,6 +354,10 @@ public class EnvironmentContext {
         return environment.getProperty("local.kerberos.dir", System.getProperty("user.dir") + "/kerberosUploadTempDir");
     }
 
+    public String getConfigPath() {
+        return environment.getProperty("config.dir", System.getProperty("user.dir") + "/conf/");
+    }
+
     public String getKerberosTemplatepath() {
         return environment.getProperty("kerberos.template.path", System.getProperty("user.dir") + "/conf/kerberos");
     }
@@ -529,6 +533,18 @@ public class EnvironmentContext {
 
     public Integer getMaxPoolPreparedStatementPerConnectionSize() {
         return Integer.valueOf(environment.getProperty("dataSource.max.prepared.statement.per.connection.size", "20"));
+    }
+
+    public long getForkJoinResultTimeOut() {
+        return Long.parseLong(environment.getProperty("fork.join.timeout", Long.toString(60 * 5)));
+    }
+    /**
+     * 是否根据版本加载默认的配置
+     *
+     * @return
+     */
+    public boolean isCanAddExtraConfig() {
+        return Boolean.parseBoolean(environment.getProperty("console.extra.config", "true"));
     }
 
     public Integer getFuzzyProjectByProjectAliasLimit() {

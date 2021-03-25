@@ -16,9 +16,11 @@ echo "Hadoop3Version: ${hadoop3Version} Building..."
 
 mvn -T 1C clean package -DskipTests -Dhadoop2.version=${hadoop2Version} -Dhadoop3.version=${hadoop3Version} -pl \
 engine-worker/engine-plugins/dummy,\
+engine-worker/engine-plugins/common/gateway-python,\
 engine-worker/engine-plugins/flink/common,\
 engine-worker/engine-plugins/flink/yarn3-hdfs3-flink180,\
 engine-worker/engine-plugins/flink/yarn2-hdfs2-flink180,\
+engine-worker/engine-plugins/flink/yarnHW-hdfsHW-flink180HW,\
 engine-worker/engine-plugins/flink/k8s-hdfs2-flink110,\
 engine-worker/engine-plugins/flink/k8s-nfs-flink110,\
 engine-worker/engine-plugins/flink/yarn3-hdfs3-flink110,\

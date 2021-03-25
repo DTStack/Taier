@@ -33,7 +33,8 @@
         `send_end_time`,
         `gmt_created`,
         `gmt_modified`,
-        `context`
+        `context`,
+        `read_id`
         )
         values
         <foreach collection="records" item="record" separator=",">
@@ -57,7 +58,8 @@
             #{record.sendEndTime},
             #{record.gmtCreated},
             #{record.gmtModified},
-            #{record.context}
+            #{record.context},
+            #{record.readId}
             )
         </foreach>
     </insert>
@@ -130,14 +132,13 @@
             </if>
         </set>
         WHERE
-            `id` IN
-            <foreach collection="recordIds" item="recordId" separator="," close=")" open="(" >
-                ${recordId}
+            <foreach collection="params.entrySet()" index="key" item="value" separator="AND" >
+                ${key} = #{value}
             </foreach>
-            <if test="params!=null and params.size()>0">
-                AND
-                <foreach collection="params.entrySet()" index="key" item="value" separator="AND" >
-                    ${key} = #{value}
+            <if test="recordIds!=null">
+                AND `id` IN
+                <foreach collection="recordIds" item="recordId" separator="," close=")" open="(" >
+                    ${recordId}
                 </foreach>
             </if>
     </update>
@@ -218,7 +219,7 @@
 
     <select id="selectQuery" resultType="com.dtstack.engine.domain.AlertRecord">
         SELECT
-        `id`, `tenant_id`,`app_type`, `user_id`, `read_status`,`title`,`status`,`gmt_created`, `gmt_modified`,`context`
+        `id`, `tenant_id`,`app_type`,`alert_content_id`, `user_id`, `read_status`,`title`,`status`,`gmt_created`, `gmt_modified`,`context`,`read_id`
         FROM alert_record
         WHERE
         <trim suffixOverrides="AND">

@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -47,6 +48,7 @@ public class AlertChannelService {
             // 插入通道
             alertChannel = new AlertChannel();
             buildBean(alertGateVO, alertChannel);
+            alertChannel.setAlertGateSource(alertGateVO.getAlertGateSource());
             changed = alertChannelDao.insert(alertChannel);
         } else {
             // 编辑通道
@@ -98,6 +100,7 @@ public class AlertChannelService {
         if(alertGateVO.getIsDefault()!=null) {
             alertChannel.setIsDefault(alertGateVO.getIsDefault());
         }
+
         alertChannel.setIsDeleted(IsDeletedEnum.NOT_DELETE.getType());
     }
 
@@ -185,7 +188,6 @@ public class AlertChannelService {
         if (id != null) {
             AlertChannel alertChannel = alertChannelDao.selectById(id);
             gateVO = new AlertGateVO();
-
             build(gateVO, alertChannel);
         }
         return gateVO;
@@ -260,7 +262,7 @@ public class AlertChannelService {
         }
 
         if (CollectionUtils.isNotEmpty(customizeAlert)) {
-            pos.addAll(alertChannelDao.selectListByGateSources(IsDeletedEnum.NOT_DELETE.getType(),alertGateSources));
+            pos.addAll(alertChannelDao.selectListByGateSources(IsDeletedEnum.NOT_DELETE.getType(),customizeAlert));
         }
 
         return pos;

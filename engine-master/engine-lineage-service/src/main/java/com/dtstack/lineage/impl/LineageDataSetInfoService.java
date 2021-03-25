@@ -3,6 +3,7 @@ package com.dtstack.lineage.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Component;
+import com.dtstack.engine.api.domain.ComponentConfig;
 import com.dtstack.engine.api.domain.LineageDataSetInfo;
 import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.pojo.lineage.Column;
@@ -12,7 +13,9 @@ import com.dtstack.engine.common.client.IClient;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.exception.ClientAccessException;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.ComponentConfigUtils;
 import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.dao.ComponentConfigDao;
 import com.dtstack.engine.dao.ComponentDao;
 import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.lineage.dao.LineageDataSetDao;
@@ -47,6 +50,9 @@ public class LineageDataSetInfoService {
 
     @Autowired
     private ComponentDao componentDao;
+
+    @Autowired
+    private ComponentConfigDao componentConfigDao;
 
     /**
      * @author zyd
@@ -160,11 +166,12 @@ public class LineageDataSetInfoService {
             throw new RdosDefineException("该租户没有绑定集群");
         }
         Component component = componentDao.getOne((long) componentId);
-        String componentConfig = component.getComponentConfig();
-        if(null == componentConfig){
+        List<ComponentConfig> componentConfigs = componentConfigDao.listByComponentId(component.getId(), false);
+        if(null == componentConfigs){
             throw new RdosDefineException("sftp配置信息为空");
         }
-        return JSONObject.parseObject(componentConfig);
+        Map<String, Object> sftpConfigMap = ComponentConfigUtils.convertComponentConfigToMap(componentConfigs);
+        return JSONObject.parseObject(JSONObject.toJSONString(sftpConfigMap));
     }
 
     public List<Column> getAllColumns(LineageDataSetInfo dataSetInfo, IClient iClient) {

@@ -30,6 +30,13 @@ public class StreamTaskControllerTest extends AbstractTest {
     @Autowired
     private StreamTaskController streamTaskController;
 
+    @Autowired
+    private EngineJobCheckpointDao engineJobCheckpointDao;
+
+    @Autowired
+    private MasterServer masterServer;
+
+
     @Test
     public void testGetFailedCheckPoint() {
         try {

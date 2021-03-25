@@ -1,6 +1,7 @@
 package com.dtstack.engine.common.client.config;
 
 import com.dtstack.engine.api.pojo.ClientTemplate;
+import com.dtstack.engine.config.YamlConfigParser;
 import org.junit.Assert;
 import org.junit.Test;
 

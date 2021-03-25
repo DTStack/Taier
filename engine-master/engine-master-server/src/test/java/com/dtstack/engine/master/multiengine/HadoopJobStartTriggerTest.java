@@ -61,7 +61,6 @@ public class HadoopJobStartTriggerTest extends AbstractTest {
     @Before
     public void init() {
         when(clusterService.pluginInfoJSON(any(),any(),any(),any())).thenReturn(new JSONObject());
-        when(componentService.getPluginInfoWithComponentType(anyLong(), any())).thenReturn(new JSONObject());
         when(componentService.formatHadoopVersion(any(), any())).thenReturn("yarn2-hdfs2-hadoop");
         try {
             when(workerOperator.uploadStringToHdfs(any(), any(), any(), any())).thenReturn("hdfs://ns1/dtInsight/test.sh");

@@ -69,8 +69,8 @@ public class StreamTaskService {
     /**
      * 查询checkPoint
      */
-    public List<EngineJobCheckpoint> getCheckPoint( String taskId,  Long triggerStart,  Long triggerEnd){
-        return engineJobCheckpointDao.listByTaskIdAndRangeTime(taskId,triggerStart,triggerEnd);
+    public List<EngineJobCheckpoint> getCheckPoint( String taskId, Long triggerStart, Long triggerEnd){
+        return engineJobCheckpointDao.listByTaskIdAndRangeTime(taskId, triggerStart, triggerEnd);
     }
 
     /**

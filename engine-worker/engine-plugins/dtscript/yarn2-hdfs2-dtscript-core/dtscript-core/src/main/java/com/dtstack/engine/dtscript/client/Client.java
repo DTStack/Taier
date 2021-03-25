@@ -10,6 +10,7 @@ import com.dtstack.engine.dtscript.am.ApplicationMaster;
 import com.dtstack.engine.dtscript.api.DtYarnConstants;
 import com.dtstack.engine.dtscript.common.SecurityUtil;
 import com.dtstack.engine.dtscript.common.exceptions.RequestOverLimitException;
+import com.dtstack.engine.dtscript.util.KrbUtils;
 import com.dtstack.engine.dtscript.util.Utilities;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang.StringUtils;
@@ -87,7 +88,7 @@ public class Client {
 
     public YarnConfiguration init(ClientArguments clientArguments) throws IOException, YarnException, ParseException, ClassNotFoundException {
 
-        YarnConfiguration conf = new YarnConfiguration((YarnConfiguration) this.conf);
+        YarnConfiguration conf = new YarnConfiguration(this.conf);
         String appSubmitterUserName = System.getenv(ApplicationConstants.Environment.USER.name());
         LOG.info("Got appSubmitterUserName: " + appSubmitterUserName);
         if (conf.get("hadoop.job.ugi") == null) {
@@ -274,8 +275,9 @@ public class Client {
             applicationContext.setResource(capability);
 
             ByteBuffer tokenBuffer = null;
-            if(null != baseConfig && baseConfig.isOpenKerberos()){
+            if (null != baseConfig && baseConfig.isOpenKerberos()) {
                 tokenBuffer = SecurityUtil.getDelegationTokens(conf, getYarnClient());
+                setKrbResource(conf, applicationId, appMasterEnv, clientArguments.appType.name());
             }
 
             ContainerLaunchContext amContainer = ContainerLaunchContext.newInstance(
@@ -301,6 +303,53 @@ public class Client {
         }
     }
 
+    /**
+     * 上传keytab、krb5.conf、py4j-gateway-server jar文件，供给Worker容器使用。
+     * @param yarnConf
+     * @param applicationId
+     * @param appMasterEnv
+     * @throws IOException
+     */
+    private void setKrbResource(YarnConfiguration yarnConf, ApplicationId applicationId, Map<String, String> appMasterEnv, String appType) throws IOException {
+        String[] krbPaths = KerberosUtils.getKerberosFile(baseConfig, null);
+        Path localKeytabPath = new Path(krbPaths[0]);
+        Path localKrb5Path = new Path(krbPaths[1]);
+
+        YarnFileUploader fileUploader = new YarnFileUploader(yarnConf, applicationId);
+        fileUploader.uploadSingleResource(localKeytabPath, DtYarnConstants.LOCALIZED_KEYTAB_PATH);
+        fileUploader.uploadSingleResource(localKrb5Path, DtYarnConstants.LOCALIZED_KR5B_PATH);
+        appMasterEnv.put(DtYarnConstants.ENV_PRINCIPAL, baseConfig.getPrincipal());
+
+        if (KrbUtils.isPythonType(appType)) {
+            // TODO 要和Xleaning代码常量统一管理
+            final String commonPath = "/common/";
+            String py4jJar = this.appJarSrc.getParent().getParent().toString() + commonPath + DtYarnConstants.PYTHON_GATEWAY_PATH;
+            LOG.info("py4j gateway server jar path: {}", py4jJar);
+            Path localPy4jJarPath = new Path(py4jJar);
+            fileUploader.uploadSingleResource(localPy4jJarPath, DtYarnConstants.LOCALIZED_GATEWAY_PATH);
+        }
+    }
+
+    class YarnFileUploader {
+
+        private YarnConfiguration conf;
+        private ApplicationId applicationId;
+
+        public YarnFileUploader(YarnConfiguration conf, ApplicationId applicationId) {
+            this.conf = conf;
+            this.applicationId = applicationId;
+        }
+
+        public void uploadSingleResource(Path localPath, String remoteFileName) throws IOException {
+            Path remotePath = Utilities.getRemotePath(this.conf, this.applicationId, remoteFileName);
+            uploadLocalFileToRemote(localPath, remotePath);
+        }
+
+        private void uploadLocalFileToRemote(Path srcPath, Path dstPath) throws IOException {
+            LOG.info("Copying {} to remote path {}", srcPath, dstPath);
+            getFileSystem().copyFromLocalFile(false, true, srcPath, dstPath);
+        }
+    }
 
     private void checkArguments(DtYarnConfiguration conf, GetNewApplicationResponse newApplication) {
         int maxMem = newApplication.getMaximumResourceCapability().getMemory();
