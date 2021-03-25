@@ -17,4 +17,4 @@ const App = () => (
   </ConfigProvider>
 );
 
-render(<App />, document.getElementById('root'));
+render(<App />, document.getElementById('app'));
