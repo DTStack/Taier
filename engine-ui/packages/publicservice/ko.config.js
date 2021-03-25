@@ -35,6 +35,9 @@ module.exports = () => {
     ],
     webpack: {
       entry: [corejs, regenerator, './src/index.tsx'],
+      output: {
+        publicPath: '/publicService/',
+      },
       // plugins: [
       //   new CopyWebpackPlugin({
       //     patterns: copyConfig,
