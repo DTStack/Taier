@@ -535,6 +535,18 @@ public class EnvironmentContext {
         return Integer.valueOf(environment.getProperty("dataSource.max.prepared.statement.per.connection.size", "20"));
     }
 
+    public long getForkJoinResultTimeOut() {
+        return Long.parseLong(environment.getProperty("fork.join.timeout", Long.toString(60 * 5)));
+    }
+    /**
+     * 是否根据版本加载默认的配置
+     *
+     * @return
+     */
+    public boolean isCanAddExtraConfig() {
+        return Boolean.parseBoolean(environment.getProperty("console.extra.config", "true"));
+    }
+
     public Integer getFuzzyProjectByProjectAliasLimit() {
         return Integer.parseInt(environment.getProperty("fuzzy.project.alias.limit", "20"));
     }
@@ -549,18 +561,5 @@ public class EnvironmentContext {
 
     public boolean getOpenDummy() {
         return Boolean.parseBoolean(environment.getProperty("open.dummy", "false"));
-    }
-
-    public long getForkJoinResultTimeOut() {
-        return Long.parseLong(environment.getProperty("fork.join.timeout", Long.toString(60 * 5)));
-    }
-
-    /**
-     * 是否根据版本加载默认的配置
-     *
-     * @return
-     */
-    public boolean isCanAddExtraConfig() {
-        return Boolean.parseBoolean(environment.getProperty("console.extra.config", "true"));
     }
 }
