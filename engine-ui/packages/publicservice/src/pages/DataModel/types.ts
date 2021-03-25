@@ -46,6 +46,8 @@ export interface FieldColumn {
   columnType: string;
   schema: string;
   tableName: string;
+  dimension?: boolean;
+  metric?: boolean;
 }
 
 // 表关联信息

@@ -22,19 +22,30 @@ import Message from 'pages/DataModel/components/Message';
 import _ from 'lodash';
 import { TableJoinInfo } from 'pages/DataModel/types';
 import { EnumModifyStep } from './types';
+const idGenerator = () => {
+  let _id = 0;
+  return () => ++_id + '';
+}
 
+const identifyColumns = idGenerator();
+const identifyJoinList = idGenerator();
 interface IPropsModify {
   form: any;
   history?: any;
   match?: any;
 }
 
+enum EnumModifyMode {
+  EDIT = 'EDIT',
+  ADD = 'ADD',
+}
+
 const { Step } = Steps;
 
 const Modify = (props: IPropsModify) => {
   const modelId = props.match.params.id;
-  const mode = modelId === undefined ? 'ADD' : 'EDIT';
-  const breadcrumTitle = mode === 'ADD' ? '新建模型' : '编辑模型';
+  const mode = modelId === undefined ? EnumModifyMode.ADD : EnumModifyMode.EDIT;
+  const breadcrumTitle = mode === EnumModifyMode.ADD ? '新建模型' : '编辑模型';
   const [current, setCurrent] = useState<EnumModifyStep>(
     EnumModifyStep.BASIC_STEP
   );
@@ -117,9 +128,18 @@ const Modify = (props: IPropsModify) => {
     try {
       const { success, data, message } = await API.getModelDetail({ id });
       if (success) {
+        const columns = data.columns.map(item => ({
+          ...item,
+          id: identifyColumns()
+        }));
+        const joinList = data.joinList.map(item => ({
+          ...item,
+          id: identifyJoinList()
+        }))
         setFormValue({
           ...data,
-          tableName: 'dim_coupon_record_df',
+          columns,
+          joinList,
         });
       } else {
         Message.error(message);
@@ -159,6 +179,8 @@ const Modify = (props: IPropsModify) => {
         return temp;
       }, {})
     );
+
+    props.form.getFieldsValue()
   };
 
   const onSchemaChange = () => {
@@ -209,13 +231,9 @@ const Modify = (props: IPropsModify) => {
       case EnumModifyStep.DIMENSION_STEP:
       case EnumModifyStep.METRIC_STEP:
         const datasource = cref.current.getValue();
-        const key =
-          current === EnumModifyStep.DIMENSION_STEP
-            ? 'dimensionColumns'
-            : 'metricColumns';
         setFormValue((formValue) => ({
           ...formValue,
-          [key]: datasource,
+          columns: datasource,
         }));
         setCurrent((current) => current + 1);
         break;
@@ -232,12 +250,7 @@ const Modify = (props: IPropsModify) => {
       current === EnumModifyStep.METRIC_STEP
     )
       return;
-    // 分区设置详情在内层
-    const target =
-      current === EnumModifyStep.SETTING_STEP
-        ? formValue.modelPartition
-        : formValue;
-    restoreFormValue(formKeys, target);
+    restoreFormValue(formKeys, formValue);
   }, [current, formValue]);
 
   useEffect(() => {
@@ -247,7 +260,7 @@ const Modify = (props: IPropsModify) => {
   }, []);
 
   useEffect(() => {
-    if (mode === 'ADD') return;
+    if (mode === EnumModifyMode.ADD) return;
     getModelDetail(modelId);
   }, [modelId]);
 
@@ -348,7 +361,7 @@ const Modify = (props: IPropsModify) => {
           <footer className="step-footer">
             <div className="button-area">
               {current === EnumModifyStep.BASIC_STEP ? (
-                <Button className="margin-right-8 width-80">取消</Button>
+                <Button className="margin-right-8 width-80" onClick={() => props.history.push('/data-model/list')}>取消</Button>
               ) : null}
               {current !== EnumModifyStep.BASIC_STEP ? (
                 <Button

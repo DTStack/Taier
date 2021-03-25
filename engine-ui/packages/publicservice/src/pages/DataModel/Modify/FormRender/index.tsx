@@ -3,6 +3,14 @@ import { Form, Select, Input, Switch } from 'antd';
 import { EnumFormItemType, IFormItem } from './types';
 import RelationList from '../RelationList';
 
+const WrapperSwitch = (props) => {
+  const _props = {...props};
+  delete _props.avlue;
+  return (
+    <Switch checked={props.value} {..._props} />
+  )
+}
+
 interface IPropsFormRender {
   formList: IFormItem[];
   form: any;
@@ -17,7 +25,7 @@ const getComponentByFormItemType = (type: EnumFormItemType) => {
     case EnumFormItemType.TEXT_AREA:
       return Input.TextArea;
     case EnumFormItemType.SWITCH:
-      return Switch;
+      return WrapperSwitch;
     case EnumFormItemType.RELATION_LIST:
       return RelationList;
   }

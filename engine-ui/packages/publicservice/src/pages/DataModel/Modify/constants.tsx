@@ -105,21 +105,35 @@ export const relationFormListGenerator = ({
   ];
 };
 
+const dateFmtList = [
+  'yyyy-MM-dd HH:mm:ss',
+  'yyyy-MM-dd HH:mm',
+  'yyyy-MM-dd HH',
+  'yyyy-MM-dd',
+  'yyyy-MM',
+];
+const timeFmtList = [
+  'HH:mm:ss',
+  'HH:mm',
+  'HH',
+]
+
 export const settingFormList: IFormItem[] = [
   {
     type: EnumFormItemType.SELECT,
     label: '分区字段（日期）',
     placeholder: '请选择分区字段（日期）',
-    key: 'datePartitionColumn',
+    key: 'modelPartition.datePartitionColumn.columnName',
   },
   {
-    key: 'dadteFmt',
+    key: 'modelPartition.dateFmt',
     label: '日期格式',
     placeholder: '请选择日期格式',
     type: EnumFormItemType.SELECT,
+    options: dateFmtList.map(item => ({ label: item, key: item, value: item })),
   },
   {
-    key: 'timePartition',
+    key: 'modelPartition.timePartition',
     type: EnumFormItemType.SWITCH,
     label: '是否设置时间分区',
   },
@@ -127,10 +141,11 @@ export const settingFormList: IFormItem[] = [
     type: EnumFormItemType.SELECT,
     label: '分区字段（时间）',
     placeholder: '请选择分区字段（时间）',
-    key: 'timePartitionColumn',
+    key: 'modelPartition.timePartitionColumn.columnName',
+    options: timeFmtList.map(item => ({ key: item, label: item, value: item })),
   },
   {
-    key: 'timeFmt',
+    key: 'modelPartition.timeFmt',
     label: '时间格式',
     placeholder: '请选择时间格式',
     type: EnumFormItemType.SELECT,
@@ -185,9 +200,9 @@ export const stepContentRender = (step: EnumModifyStep, props: any) => {
     case EnumModifyStep.RELATION_TABLE_STEP:
       return <FormRender form={form} formList={props.formList || []} />;
     case EnumModifyStep.DIMENSION_STEP:
-      return <DimensionSelect cref={cref} formValue={formValue} />;
+      return <DimensionSelect step={step} cref={cref} formValue={formValue} />;
     case EnumModifyStep.METRIC_STEP:
-      return <DimensionSelect cref={cref} formValue={formValue} />;
+      return <DimensionSelect step={step} cref={cref} formValue={formValue} />;
     case EnumModifyStep.SETTING_STEP:
       return <FormRender form={form} formList={settingFormList} />;
   }
@@ -216,12 +231,6 @@ export const restoreKeysMap = new Map([
   [EnumModifyStep.METRIC_STEP, ['columns']],
   [
     EnumModifyStep.SETTING_STEP,
-    [
-      'dateFmt',
-      'datePartitionColumn',
-      'timeFmt',
-      'timePartition',
-      'timePartitionColumn',
-    ],
+    ['modelPartition'],
   ],
 ]);
