@@ -9,6 +9,7 @@ import Detail from '../Detail';
 import { API } from '@/services';
 import './style';
 import _ from 'lodash';
+import { History } from 'history';
 const { Search } = Input;
 
 interface IPagination {
@@ -32,7 +33,12 @@ interface IModelAction {
   id: number;
 }
 
-const List = () => {
+interface IPropList {
+  history?: History;
+}
+
+const List = (props: IPropList) => {
+  const { history } = props;
   const [modelList, setModelList] = useState<IModelData[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [pagination, setPagination] = useState<IPagination>({
@@ -170,6 +176,7 @@ const List = () => {
         usedDataSourceList,
         'dsType'
       ).map((item) => ({ text: item.dsTypeName, value: item.dsType })),
+      history,
     });
   }, [
     handleModelAction,
@@ -193,7 +200,10 @@ const List = () => {
               setRequestParams((prev) => ({ ...prev, search: value }))
             }
           />
-          <Button className="float-right" type="primary">
+          <Button
+            className="float-right"
+            type="primary"
+            onClick={() => history.push('/data-model/add')}>
             新建模型
           </Button>
         </header>

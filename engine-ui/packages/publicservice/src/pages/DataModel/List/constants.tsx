@@ -25,6 +25,7 @@ export const columnsGenerator = ({
   handleDeleteBtnClick,
   handleModelNameClick,
   dataSourceFilterOptions,
+  history,
 }) => {
   return [
     {
@@ -144,7 +145,8 @@ export const columnsGenerator = ({
         const btnEdit = (
           <a
             onClick={() => {
-              alert('编辑');
+              // alert('编辑');
+              history.push(`/data-model/edit/${record.id}`)
             }}>
             编辑
           </a>

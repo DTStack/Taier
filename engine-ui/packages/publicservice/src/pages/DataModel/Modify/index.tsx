@@ -14,52 +14,29 @@ import {
   basicInfoFormListGenerator,
   joinItemParser,
   stepContentRender,
+  layoutGenerator,
+  restoreKeysMap,
 } from './constants';
 import { API } from '@/services';
 import Message from 'pages/DataModel/components/Message';
 import _ from 'lodash';
 import { TableJoinInfo } from 'pages/DataModel/types';
 import { EnumModifyStep } from './types';
-// import Setting from './Setting';
 
 interface IPropsModify {
   form: any;
+  history?: any;
+  match?: any;
 }
 
-// const formItemLayout =
-
-const layoutGenerator = (step: EnumModifyStep) => {
-  switch (step) {
-    case EnumModifyStep.BASIC_STEP:
-    case EnumModifyStep.RELATION_TABLE_STEP:
-      return {
-        labelCol: { span: 3 },
-        wrapperCol: { span: 21 },
-      };
-    case EnumModifyStep.SETTING_STEP:
-      return {
-        labelCol: { span: 5 },
-        wrapperCol: { span: 19 },
-      };
-  }
-};
 const { Step } = Steps;
 
-const restoreKeysMap = new Map([
-  [
-    EnumModifyStep.BASIC_STEP,
-    ['modelName', 'modelEnName', 'dataSource', 'remark'],
-  ],
-  [EnumModifyStep.RELATION_TABLE_STEP, ['schema', 'table', 'updateType']],
-  [EnumModifyStep.DIMENSION_STEP, ['dimensionColumns']],
-  [EnumModifyStep.METRIC_STEP, ['metricColumns']],
-  [EnumModifyStep.SETTING_STEP, ['modelPartition']],
-]);
-
 const Modify = (props: IPropsModify) => {
-  // const [current, setCurrent] = useState<EnumModifyStep>(EnumModifyStep.BASIC_STEP);
+  const modelId = props.match.params.id;
+  const mode = modelId === undefined ? 'ADD' : 'EDIT';
+  const breadcrumTitle = mode === 'ADD' ? '新建模型' : '编辑模型';
   const [current, setCurrent] = useState<EnumModifyStep>(
-    EnumModifyStep.SETTING_STEP
+    EnumModifyStep.BASIC_STEP
   );
   const [visibleRelationModal, setVisibleRelationModal] = useState(false);
   const { validateFields, getFieldsValue, setFieldsValue } = props.form;
@@ -136,6 +113,22 @@ const Modify = (props: IPropsModify) => {
     }
   };
 
+  const getModelDetail = async (id: number) => {
+    try {
+      const { success, data, message } = await API.getModelDetail({ id });
+      if (success) {
+        setFormValue({
+          ...data,
+          tableName: 'dim_coupon_record_df',
+        });
+      } else {
+        Message.error(message);
+      }
+    } catch (error) {
+      Message.error(error.message);
+    }
+  };
+
   // 获取所有可用的数据源列表
   const getAllDataSourceList = useCallback(async () => {
     try {
@@ -159,10 +152,10 @@ const Modify = (props: IPropsModify) => {
     }
   }, []);
 
-  const restoreFormValue = (keys: string[]) => {
+  const restoreFormValue = (keys: string[], target) => {
     props.form.setFieldsValue(
       keys.reduce((temp, key) => {
-        temp[key] = formValue[key];
+        temp[key] = target[key];
         return temp;
       }, {})
     );
@@ -171,7 +164,7 @@ const Modify = (props: IPropsModify) => {
   const onSchemaChange = () => {
     // 当schema变化时重置表
     setFieldsValue({
-      table: undefined,
+      tableName: undefined,
     });
   };
 
@@ -234,27 +227,39 @@ const Modify = (props: IPropsModify) => {
   // 恢复对应的form value
   useEffect(() => {
     const formKeys = restoreKeysMap.get(current);
-    restoreFormValue(formKeys);
-  }, [current]);
+    if (
+      current === EnumModifyStep.DIMENSION_STEP ||
+      current === EnumModifyStep.METRIC_STEP
+    )
+      return;
+    // 分区设置详情在内层
+    const target =
+      current === EnumModifyStep.SETTING_STEP
+        ? formValue.modelPartition
+        : formValue;
+    restoreFormValue(formKeys, target);
+  }, [current, formValue]);
 
   useEffect(() => {
-    getSchemaList(formValue.dataSource);
-  }, []);
-
-  useEffect(() => {
+    getSchemaList(formValue.dsId);
     getAllDataSourceList();
     getUpdataTypeEnum();
   }, []);
 
+  useEffect(() => {
+    if (mode === 'ADD') return;
+    getModelDetail(modelId);
+  }, [modelId]);
+
   const currentFormValue = getFieldsValue();
 
   useEffect(() => {
-    getTableList(formValue.dataSource, currentFormValue.schema);
-  }, [formValue.dataSource, currentFormValue.schema]);
+    getTableList(formValue.dsId, currentFormValue.schema);
+  }, [formValue.dsId, currentFormValue.schema]);
 
   useEffect(() => {
-    getSchemaList(formValue.dataSource);
-  }, [formValue.dataSource]);
+    getSchemaList(formValue.dsId);
+  }, [formValue.dsId]);
 
   const cref = useRef(null);
   const childRef = useRef(null);
@@ -265,10 +270,10 @@ const Modify = (props: IPropsModify) => {
         <div className="breadcrumb-area">
           <Breadcrumb>
             <Breadcrumb.Item>
-              <a href="/data-model/list">数据模型</a>
+              <a onClick={() => props.history.push('/data-model/list')}>数据模型</a>
             </Breadcrumb.Item>
             <Breadcrumb.Item>
-              <a href="">新建模型</a>
+              <a>{breadcrumTitle}</a>
             </Breadcrumb.Item>
           </Breadcrumb>
         </div>

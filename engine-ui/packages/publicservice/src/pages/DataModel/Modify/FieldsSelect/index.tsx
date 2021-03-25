@@ -14,7 +14,7 @@ interface IPropsDimensionSelect {
 }
 
 const DimensionSelect = (props: IPropsDimensionSelect) => {
-  const { cref, formValue = { dimensionColumns: data } } = props;
+  const { cref, formValue = { columns: data } } = props;
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const onChange = (rowKeys) => {
     setSelectedRowKeys(rowKeys);
@@ -54,7 +54,7 @@ const DimensionSelect = (props: IPropsDimensionSelect) => {
     <div ref={cref}>
       <Table
         columns={columns}
-        dataSource={formValue.dimensionColumns}
+        dataSource={formValue.columns}
         rowSelection={{
           selectedRowKeys,
           onChange,

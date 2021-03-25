@@ -33,7 +33,7 @@ export const basicInfoFormListGenerator = (options: any[]): IFormItem[] => {
       rules: [{ required: true, message: '请输入模型英文名' }],
     },
     {
-      key: 'dataSource',
+      key: 'dsId',
       label: '数据源',
       type: EnumFormItemType.SELECT,
       placeholder: '请选择数据源',
@@ -75,7 +75,7 @@ export const relationFormListGenerator = ({
       },
     },
     {
-      key: 'table',
+      key: 'tableName',
       label: '选择表',
       type: EnumFormItemType.SELECT,
       placeholder: '请选择表',
@@ -192,3 +192,36 @@ export const stepContentRender = (step: EnumModifyStep, props: any) => {
       return <FormRender form={form} formList={settingFormList} />;
   }
 };
+
+export const layoutGenerator = (step: EnumModifyStep) => {
+  switch (step) {
+    case EnumModifyStep.BASIC_STEP:
+    case EnumModifyStep.RELATION_TABLE_STEP:
+      return {
+        labelCol: { span: 3 },
+        wrapperCol: { span: 21 },
+      };
+    case EnumModifyStep.SETTING_STEP:
+      return {
+        labelCol: { span: 5 },
+        wrapperCol: { span: 19 },
+      };
+  }
+};
+
+export const restoreKeysMap = new Map([
+  [EnumModifyStep.BASIC_STEP, ['modelName', 'modelEnName', 'dsId', 'remark']],
+  [EnumModifyStep.RELATION_TABLE_STEP, ['schema', 'tableName', 'updateType']],
+  [EnumModifyStep.DIMENSION_STEP, ['columns']],
+  [EnumModifyStep.METRIC_STEP, ['columns']],
+  [
+    EnumModifyStep.SETTING_STEP,
+    [
+      'dateFmt',
+      'datePartitionColumn',
+      'timeFmt',
+      'timePartition',
+      'timePartitionColumn',
+    ],
+  ],
+]);
