@@ -18,7 +18,10 @@ import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusCountVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.common.constrant.GlobalConst;
 import com.dtstack.engine.common.constrant.TaskConstant;
-import com.dtstack.engine.common.enums.*;
+import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.common.enums.EScheduleType;
+import com.dtstack.engine.common.enums.QueryWorkFlowModel;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -29,7 +32,6 @@ import com.dtstack.engine.dao.*;
 import com.dtstack.engine.domain.ScheduleEngineProject;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
-import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
 import com.dtstack.engine.master.queue.JobPartitioner;
 import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
@@ -2875,7 +2877,7 @@ public class ScheduleJobService {
         List<ScheduleJobJob> scheduleJobJobs = scheduleJobJobDao.listByParentJobKey(scheduleJob.getJobKey());
 
         List<String> jobKeys = scheduleJobJobs.stream().map(ScheduleJobJob::getJobKey).collect(Collectors.toList());
-        LOGGER.info("hasTaskRule:{}" + jobKeys.toString());
+        LOGGER.info("jobId:{} has child jobKey:{}" ,scheduleJob.getJobId(), jobKeys.toString());
         if (CollectionUtils.isNotEmpty(jobKeys)) {
             List<ScheduleJob> scheduleJobs = scheduleJobDao.listJobByJobKeys(jobKeys);
 
@@ -2884,6 +2886,7 @@ public class ScheduleJobService {
 //                ScheduleTaskShade scheduleTaskShade =  scheduleTaskShadeDao.getOne(job.getTaskId(),job.getAppType());
                 if (TaskRuleEnum.STRONG_RULE.getCode().equals(job.getTaskRule())) {
                     // 存在强规则任务
+                    LOGGER.info("jobId {} exist rule task",job.getJobId());
                     hasTaskRule = Boolean.TRUE;
                     break;
                 }

@@ -14,7 +14,8 @@ CREATE TABLE `schedule_engine_project` (
   `is_deleted` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否删除，0未删除 1删除',
   PRIMARY KEY (`id`),
   KEY `index_project_id` (`project_id`),
-  KEY `index_uic_tenant_id_and_app_type` (`uic_tenant_id`,`app_type`,`project_alias`)
+  KEY `index_uic_tenant_id_and_app_type` (`uic_tenant_id`,`app_type`,`project_alias`),
+  UNIQUE KEY `index_unique_project_id` (`project_id`,`app_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='项目表';
 
 
