@@ -219,7 +219,7 @@ public class ScheduleTaskTaskShadeService {
 
         if(CollectionUtils.isNotEmpty(taskTasks)) {
             for (ScheduleTaskTaskShade taskTask : taskTasks) {
-                String taskRelation = taskTask.getTaskId() + "-" + taskTask.getParentTaskId();
+                String taskRelation = taskTask.getTaskId() + "&" + taskTask.getAppType() + "-" + taskTask.getParentTaskId() + "&" + taskTask.getParentAppType();
                 if (taskIdRelations.contains(taskRelation)) {
                     logger.error("该任务成环了,taskRelation:{}", taskRelation);
                     return true;
