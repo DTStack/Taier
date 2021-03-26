@@ -48,11 +48,6 @@ module.exports = () => {
       externals: {
         frontConf: 'frontConf',
       },
-      resolve: {
-        alias: {
-          '@/*': path.resolve(__dirname, ''),
-        },
-      },
     },
   };
 };

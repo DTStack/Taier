@@ -2,6 +2,8 @@
 node_modules/
 /dist/
 /dll/
+/.scannerwork/
+/coverage/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

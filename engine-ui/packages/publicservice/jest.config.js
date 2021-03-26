@@ -6,7 +6,7 @@ module.exports = {
   globals: {
     APP_CONF: appConf,
   },
-  // testResultsProcessor: 'jest-sonar-reporter',
+  testResultsProcessor: 'jest-sonar-reporter',
   transformIgnorePatterns: [
     `/node_modules/(?!(dt-common|dt-react-component|dt-react-codemirror-editor))`, // Ignore modules without dt-common dir
   ],
@@ -23,7 +23,5 @@ module.exports = {
     '@/(.*)$': '<rootDir>/src/$1',
     '^utils(.*)$': '<rootDir>/src/utils$1',
     '^consts(.*)$': '<rootDir>/src/consts$1',
-    '^styles(.*)$': '<rootDir>/src/styles$1',
-    '^api(.*)$': '<rootDir>/src/api$1',
   },
 };

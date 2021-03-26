@@ -11,13 +11,23 @@ before_script:
 
 stages:
   - lint
+  - check-types
   - test
+  - code_analysis
 
 # 当 merge_requests 执行 eslint 检查
 code_quality:
   stage: lint
   script:
     - yarn lint
+  only:
+    - merge_requests
+
+# 当 merge_requests 执行 tsc 类型检查
+check_types:
+  stage: check-types
+  script:
+    - yarn check-types
   only:
     - merge_requests
 
@@ -28,4 +38,11 @@ test:
     - yarn test
   only:
     - merge_requests
+    - dev
+
+code_analysis:
+  stage: code_analysis
+  script:
+    - yarn sonar
+  only:
     - dev
