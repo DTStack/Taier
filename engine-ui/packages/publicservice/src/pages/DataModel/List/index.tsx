@@ -56,7 +56,7 @@ const List = (props: IPropList) => {
     // dataSourceId: '',
     // modelStatus: 0,
   });
-  const [usedDataSourceList, setUsedDatasourceList] = useState([]);
+  const [dataSourceTypeList, setDataSourceTypeList] = useState([]);
 
   const [drawer, setDrawer] = useState({
     visible: false,
@@ -94,9 +94,14 @@ const List = (props: IPropList) => {
         success,
         data,
         message,
-      } = await API.getDataModelUsedDataSourceList();
+      } = await API.getDataSourceTypeList();
       if (success) {
-        setUsedDatasourceList(data);
+        setDataSourceTypeList(data.map(
+          item => ({
+            value: item.leftValue,
+            text: item.rightValue
+          })
+        ))
       } else {
         Message.error(message);
       }
@@ -172,17 +177,18 @@ const List = (props: IPropList) => {
       handleModelAction,
       handleDeleteBtnClick,
       handleModelNameClick,
-      dataSourceFilterOptions: _.uniqBy(
-        usedDataSourceList,
-        'dsType'
-      ).map((item) => ({ text: item.dsTypeName, value: item.dsType })),
+      // dataSourceFilterOptions: _.uniqBy(
+      //   usedDataSourceList,
+      //   'dsType'
+      // ).map((item) => ({ text: item.dsTypeName, value: item.dsType })),
+      dataSourceFilterOptions: dataSourceTypeList,
       history,
     });
   }, [
     handleModelAction,
     handleDeleteBtnClick,
     handleModelNameClick,
-    usedDataSourceList,
+    dataSourceTypeList,
   ]);
 
   useEffect(() => {

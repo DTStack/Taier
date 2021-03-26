@@ -25,7 +25,7 @@ import { EnumModifyStep } from './types';
 const idGenerator = () => {
   let _id = 0;
   return () => ++_id + '';
-}
+};
 
 const identifyColumns = idGenerator();
 const identifyJoinList = idGenerator();
@@ -128,14 +128,14 @@ const Modify = (props: IPropsModify) => {
     try {
       const { success, data, message } = await API.getModelDetail({ id });
       if (success) {
-        const columns = data.columns.map(item => ({
+        const columns = data.columns.map((item) => ({
           ...item,
-          id: identifyColumns()
+          id: identifyColumns(),
         }));
-        const joinList = data.joinList.map(item => ({
+        const joinList = data.joinList.map((item) => ({
           ...item,
-          id: identifyJoinList()
-        }))
+          id: identifyJoinList(),
+        }));
         setFormValue({
           ...data,
           columns,
@@ -156,7 +156,7 @@ const Modify = (props: IPropsModify) => {
         success,
         data,
         message,
-      } = await API.getDataModelUsedDataSourceList();
+      } = await API.getAllDataSourceList();
       if (success) {
         const dataSourceList = data.map((item) => ({
           key: item.id,
@@ -180,7 +180,7 @@ const Modify = (props: IPropsModify) => {
       }, {})
     );
 
-    props.form.getFieldsValue()
+    props.form.getFieldsValue();
   };
 
   const onSchemaChange = () => {
@@ -202,7 +202,7 @@ const Modify = (props: IPropsModify) => {
 
   const onRelationListEdit = useCallback((id: number) => {
     let joinList = [];
-    // TODO:获取当亲啊的formValue值,触发了一次更新
+    // TODO:获取当前的formValue值,触发了一次更新
     setFormValue((formValue) => {
       joinList = formValue.joinList || [];
       return {
@@ -276,6 +276,7 @@ const Modify = (props: IPropsModify) => {
 
   const cref = useRef(null);
   const childRef = useRef(null);
+  // const relationTables = formValue
 
   return (
     <Container>
@@ -283,7 +284,9 @@ const Modify = (props: IPropsModify) => {
         <div className="breadcrumb-area">
           <Breadcrumb>
             <Breadcrumb.Item>
-              <a onClick={() => props.history.push('/data-model/list')}>数据模型</a>
+              <a onClick={() => props.history.push('/data-model/list')}>
+                数据模型
+              </a>
             </Breadcrumb.Item>
             <Breadcrumb.Item>
               <a>{breadcrumTitle}</a>
@@ -353,6 +356,9 @@ const Modify = (props: IPropsModify) => {
                   <RelationTableModal
                     cref={(ref) => (childRef.current = ref)}
                     data={editJoinItem}
+                    tables={[
+                      formValue.tableName,
+                    ].concat(formValue.joinList.map(item => item.table))}
                   />
                 </Modal>
               ) : null}
@@ -361,7 +367,11 @@ const Modify = (props: IPropsModify) => {
           <footer className="step-footer">
             <div className="button-area">
               {current === EnumModifyStep.BASIC_STEP ? (
-                <Button className="margin-right-8 width-80" onClick={() => props.history.push('/data-model/list')}>取消</Button>
+                <Button
+                  className="margin-right-8 width-80"
+                  onClick={() => props.history.push('/data-model/list')}>
+                  取消
+                </Button>
               ) : null}
               {current !== EnumModifyStep.BASIC_STEP ? (
                 <Button

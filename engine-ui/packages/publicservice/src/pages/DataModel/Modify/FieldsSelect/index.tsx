@@ -17,7 +17,7 @@ interface IPropsDimensionSelect {
 }
 
 const DimensionSelect = (props: IPropsDimensionSelect) => {
-  const { cref, formValue = { columns: data } , step} = props;
+  const { cref, formValue = { columns: data }, step } = props;
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [dataSource, setDataSource] = useState<FieldColumn[]>([]);
 
@@ -31,30 +31,30 @@ const DimensionSelect = (props: IPropsDimensionSelect) => {
 
   const onSelect = (record) => {
     const key = step === EnumModifyStep.DIMENSION_STEP ? 'dimension' : 'metric';
-    const ds = dataSource.map(item => {
+    const ds = dataSource.map((item) => {
       const bool = item.id === record.id ? !record[key] : record[key];
       return {
         ...item,
         [key]: bool,
-      }
-    })
+      };
+    });
     setDataSource(ds);
-  }
+  };
 
   useEffect(() => {
     // step切换时，清空选中项
     let selectedRowKeys = [];
     if (step === EnumModifyStep.DIMENSION_STEP) {
       selectedRowKeys = formValue.columns
-        .filter(item => item.dimension)
-        .map(item => item.id);
+        .filter((item) => item.dimension)
+        .map((item) => item.id);
     } else if (step === EnumModifyStep.METRIC_STEP) {
       selectedRowKeys = formValue.columns
-        .filter(item => item.metric)
-        .map(item => item.id);
+        .filter((item) => item.metric)
+        .map((item) => item.id);
     }
     setSelectedRowKeys(selectedRowKeys);
-  }, [formValue.columns, step])
+  }, [formValue.columns, step]);
 
   const onInputBlur = useCallback(
     (id, value) => {

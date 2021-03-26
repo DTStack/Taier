@@ -4,12 +4,10 @@ import { EnumFormItemType, IFormItem } from './types';
 import RelationList from '../RelationList';
 
 const WrapperSwitch = (props) => {
-  const _props = {...props};
+  const _props = { ...props };
   delete _props.avlue;
-  return (
-    <Switch checked={props.value} {..._props} />
-  )
-}
+  return <Switch checked={props.value} {..._props} />;
+};
 
 interface IPropsFormRender {
   formList: IFormItem[];

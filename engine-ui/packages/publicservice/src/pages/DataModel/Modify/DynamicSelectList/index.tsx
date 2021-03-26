@@ -18,7 +18,7 @@ const DynamicSelectList = (props: IPropsDynamicSelectList) => {
   const { form, data } = props;
   const { getFieldDecorator } = form;
   const [relationKeysList, setRelationKeysList] = useState([
-    { id: 0, leftValue: '', rightValue: '' },
+    { id: 0, leftValue: {}, rightValue: {} },
   ]);
 
   useEffect(() => {
@@ -26,13 +26,13 @@ const DynamicSelectList = (props: IPropsDynamicSelectList) => {
     setRelationKeysList(
       data.map((item) => ({
         id: id(),
-        leftValue: 'item.leftValue',
-        rightValue: 'item.rightValue',
+        leftValue: {},
+        rightValue: {},
       }))
     );
     const joinList = data.reduce((temp, cur, index) => {
-      temp[`relation-key-left_${index}`] = cur.leftValue;
-      temp[`relation-key-right_${index}`] = cur.rightValue;
+      temp[`relation-key-left_${index}`] = `${cur.leftValue.schema}-${cur.leftValue.tableMame}-${cur.leftValue.columnName}`;
+      temp[`relation-key-right_${index}`] = `${cur.rightValue.schema}-${cur.rightValue.tableMame}-${cur.rightValue.columnName}`;
       return temp;
     }, {});
 
@@ -53,8 +53,8 @@ const DynamicSelectList = (props: IPropsDynamicSelectList) => {
     setRelationKeysList(
       relationKeysList.concat({
         id: id(),
-        leftValue: '',
-        rightValue: '',
+        leftValue: {},
+        rightValue: {},
       })
     );
   };

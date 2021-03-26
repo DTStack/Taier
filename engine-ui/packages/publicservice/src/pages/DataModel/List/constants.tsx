@@ -52,7 +52,7 @@ export const columnsGenerator = ({
       width: 200,
       ellipsis: true,
       filters: dataSourceFilterOptions,
-      ilterMultiple: true,
+      filterMultiple: true,
       render: (text, record) => {
         return (
           <span>
@@ -145,8 +145,7 @@ export const columnsGenerator = ({
         const btnEdit = (
           <a
             onClick={() => {
-              // alert('编辑');
-              history.push(`/data-model/edit/${record.id}`)
+              history.push(`/data-model/edit/${record.id}`);
             }}>
             编辑
           </a>

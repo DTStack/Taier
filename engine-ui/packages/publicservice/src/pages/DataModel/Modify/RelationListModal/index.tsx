@@ -14,11 +14,12 @@ interface IPropsRelationTableModal {
   form?: any;
   cref: any;
   data?: TableJoinInfo;
+  tables: string[];
 }
 
 const RelationTableModal = (props: IPropsRelationTableModal) => {
   const { getFieldDecorator, validateFields, setFieldsValue } = props.form;
-  const { cref, data } = props;
+  const { cref, data, tables } = props;
 
   useEffect(() => {
     if (data) {
@@ -52,18 +53,13 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
             rules: requiredRule('请选择表'),
           })(
             <Select placeholder="请选择表">
-              <Select.Option key="aaa" value="aaa">
-                aaaa
-              </Select.Option>
-              <Select.Option key="bbb" value="bbb">
-                bbb
-              </Select.Option>
-              <Select.Option key="ccc" value="ccc">
-                ccc
-              </Select.Option>
-              <Select.Option key="ddd" value="ddd">
-                ddd
-              </Select.Option>
+              {
+                tables.map(item => (
+                  <Select.Option key={item} value={item}>
+                    {item}
+                  </Select.Option>
+                ))
+              }
             </Select>
           )}
         </Form.Item>

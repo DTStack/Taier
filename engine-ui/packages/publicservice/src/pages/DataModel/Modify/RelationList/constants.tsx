@@ -51,10 +51,10 @@ export const columnsGenerator = ({ onDelete, onEdit }) => {
           value &&
           value
             .reduce((temp, cur) => {
-              const ltTable = cur.leftValue.tableName;
-              const ltCol = cur.leftValue.columnName;
-              const rtTable = cur.rightValue.tableName;
-              const rtCol = cur.rightValue.columnName;
+              const ltTable = cur.leftValue?.tableName;
+              const ltCol = cur.leftValue?.columnName;
+              const rtTable = cur.rightValue?.tableName;
+              const rtCol = cur.rightValue?.columnName;
               return `${temp}${ltTable}.${ltCol} = ${rtTable}.${rtCol} and `;
             }, '')
             .replace(/ and $/, '')
