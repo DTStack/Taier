@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Container from '../components/Container';
 import { Input, Table, Pagination, Modal, Drawer, Button } from 'antd';
 import { IModelData } from '../types';
-import { EnumModelActionType } from './types';
+import { EnumModelActionType, EnumModelStatus } from './types';
 import { columnsGenerator } from './constants';
 import Message from 'pages/DataModel/components/Message';
 import Detail from '../Detail';
@@ -24,9 +24,8 @@ interface IReqParams {
   field: string;
   search: string;
   size: number;
-  // TODO:筛选字段名称参数需要变更
-  // dataSourceId: string | number;
-  // modelStatus: 0 | 1 | 2;
+  datasourceTypes: number[];
+  modelStatus: EnumModelStatus[];
 }
 interface IModelAction {
   type: EnumModelActionType;
@@ -53,8 +52,12 @@ const List = (props: IPropList) => {
     field: '',
     search: '',
     size: 10,
-    // dataSourceId: '',
-    // modelStatus: 0,
+    datasourceTypes: [1, 2],
+    modelStatus: [
+      EnumModelStatus.OFFLINE,
+      EnumModelStatus.RELEASE,
+      EnumModelStatus.UNRELEASE,
+    ],
   });
   const [dataSourceTypeList, setDataSourceTypeList] = useState([]);
 
@@ -90,18 +93,14 @@ const List = (props: IPropList) => {
 
   const fetchFilterDataSourceList = async () => {
     try {
-      const {
-        success,
-        data,
-        message,
-      } = await API.getDataSourceTypeList();
+      const { success, data, message } = await API.getDataSourceTypeList();
       if (success) {
-        setDataSourceTypeList(data.map(
-          item => ({
+        setDataSourceTypeList(
+          data.map((item) => ({
             value: item.leftValue,
-            text: item.rightValue
-          })
-        ))
+            text: item.rightValue,
+          }))
+        );
       } else {
         Message.error(message);
       }
@@ -177,10 +176,6 @@ const List = (props: IPropList) => {
       handleModelAction,
       handleDeleteBtnClick,
       handleModelNameClick,
-      // dataSourceFilterOptions: _.uniqBy(
-      //   usedDataSourceList,
-      //   'dsType'
-      // ).map((item) => ({ text: item.dsTypeName, value: item.dsType })),
       dataSourceFilterOptions: dataSourceTypeList,
       history,
     });
@@ -223,12 +218,17 @@ const List = (props: IPropList) => {
             pagination={false}
             scroll={{ x: 1300, y: 800 }}
             onChange={(pagination, filters) => {
-              // TODO:
-              // setRequestParams(reqParams => ({
-              //   ...reqParams,
-              //   modelStatus: filters.modelStatus as any,
-              //   dataSourceId: (filters as any).dataSourceType
-              // }))
+              const {
+                dataSourceType = requestParams.datasourceTypes,
+                modelStatus = requestParams.modelStatus,
+              } = filters;
+
+              setRequestParams((reqParams) => ({
+                ...reqParams,
+                current: 1,
+                modelStatus: modelStatus as EnumModelStatus[],
+                datasourceTypes: dataSourceType as number[],
+              }));
             }}
           />
           <Drawer
@@ -266,6 +266,13 @@ const List = (props: IPropList) => {
                 }));
               }}
             />
+            <span
+              className="tips"
+              style={{ float: 'right', marginRight: '20px' }}>
+              共<span className="highlight">{pagination.total}</span>
+              条数据，每页显示
+              <span className="highlight">{pagination.size}</span>条
+            </span>
           </div>
         </div>
       </Container>

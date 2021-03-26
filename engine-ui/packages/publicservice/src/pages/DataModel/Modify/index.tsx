@@ -152,11 +152,7 @@ const Modify = (props: IPropsModify) => {
   // 获取所有可用的数据源列表
   const getAllDataSourceList = useCallback(async () => {
     try {
-      const {
-        success,
-        data,
-        message,
-      } = await API.getAllDataSourceList();
+      const { success, data, message } = await API.getAllDataSourceList();
       if (success) {
         const dataSourceList = data.map((item) => ({
           key: item.id,
@@ -356,9 +352,9 @@ const Modify = (props: IPropsModify) => {
                   <RelationTableModal
                     cref={(ref) => (childRef.current = ref)}
                     data={editJoinItem}
-                    tables={[
-                      formValue.tableName,
-                    ].concat(formValue.joinList.map(item => item.table))}
+                    tables={[formValue.tableName].concat(
+                      formValue.joinList.map((item) => item.table)
+                    )}
                   />
                 </Modal>
               ) : null}

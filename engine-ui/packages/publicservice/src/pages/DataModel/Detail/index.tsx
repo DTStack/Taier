@@ -19,8 +19,7 @@ const Detail = (props: IPropsDetail) => {
   const { modelId } = props;
   const [modelDetail, setModelDetail] = useState<Partial<IModelDetail>>({
     joinList: [],
-    metricColumns: [],
-    dimensionColumns: [],
+    columns: [],
   });
   const [code, setCode] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -84,13 +83,16 @@ const Detail = (props: IPropsDetail) => {
                   <PaneTitle title="关联视图" />
                   <div className="releation-view" />
                 </div>
-
                 <div className="margin-bottom-20">
                   <PaneTitle title="数据信息" />
                   <DataInfo
                     relationTableList={modelDetail.joinList}
-                    metricList={modelDetail.metricColumns}
-                    dimensionList={modelDetail.dimensionColumns}
+                    metricList={modelDetail.columns.filter(
+                      (item) => item.metric
+                    )}
+                    dimensionList={modelDetail.columns.filter(
+                      (item) => item.dimension
+                    )}
                   />
                 </div>
               </div>

@@ -2,7 +2,7 @@ export interface IModelData {
   id: number;
   modelName: string;
   modelEnName: string;
-  datasourceType: string;
+  dataSourceType: number;
   datasourceUrl?: string;
   modelStatus: number;
   creator: string;
@@ -73,7 +73,8 @@ export interface IModelDetail {
   tableName: string;
   updateType: UPDATA_TYPE;
   joinList: TableJoinInfo[];
-  dimensionColumns: Partial<FieldColumn>[];
-  metricColumns: Partial<FieldColumn>[];
+  columns: Partial<FieldColumn>[];
   creator: string;
+  // TODO: any类型
+  modelPartition: any;
 }

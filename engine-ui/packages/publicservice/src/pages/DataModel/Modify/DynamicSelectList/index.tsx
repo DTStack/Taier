@@ -31,8 +31,12 @@ const DynamicSelectList = (props: IPropsDynamicSelectList) => {
       }))
     );
     const joinList = data.reduce((temp, cur, index) => {
-      temp[`relation-key-left_${index}`] = `${cur.leftValue.schema}-${cur.leftValue.tableMame}-${cur.leftValue.columnName}`;
-      temp[`relation-key-right_${index}`] = `${cur.rightValue.schema}-${cur.rightValue.tableMame}-${cur.rightValue.columnName}`;
+      temp[
+        `relation-key-left_${index}`
+      ] = `${cur.leftValue.schema}-${cur.leftValue.tableMame}-${cur.leftValue.columnName}`;
+      temp[
+        `relation-key-right_${index}`
+      ] = `${cur.rightValue.schema}-${cur.rightValue.tableMame}-${cur.rightValue.columnName}`;
       return temp;
     }, {});
 

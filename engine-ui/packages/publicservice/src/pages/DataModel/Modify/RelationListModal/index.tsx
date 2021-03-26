@@ -53,13 +53,11 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
             rules: requiredRule('请选择表'),
           })(
             <Select placeholder="请选择表">
-              {
-                tables.map(item => (
-                  <Select.Option key={item} value={item}>
-                    {item}
-                  </Select.Option>
-                ))
-              }
+              {tables.map((item) => (
+                <Select.Option key={item} value={item}>
+                  {item}
+                </Select.Option>
+              ))}
             </Select>
           )}
         </Form.Item>

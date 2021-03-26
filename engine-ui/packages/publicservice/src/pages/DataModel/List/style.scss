@@ -38,6 +38,17 @@
         float: right;
         margin-top: 16px;
       }
+      .tips {
+        margin-right: 20px;
+        float: right;
+        font-size: 12px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #666666;
+        .highlight {
+          color: #3f87ff;
+        }
+      }
     }
     .dot {
       width: 8px;
