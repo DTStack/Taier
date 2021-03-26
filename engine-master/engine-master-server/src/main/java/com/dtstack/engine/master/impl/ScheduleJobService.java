@@ -18,10 +18,7 @@ import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusCountVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.common.constrant.GlobalConst;
 import com.dtstack.engine.common.constrant.TaskConstant;
-import com.dtstack.engine.common.enums.ComputeType;
-import com.dtstack.engine.common.enums.EScheduleType;
-import com.dtstack.engine.common.enums.QueryWorkFlowModel;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -46,10 +43,7 @@ import com.dtstack.engine.master.vo.BatchSecienceJobChartVO;
 import com.dtstack.engine.master.vo.ScheduleJobVO;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
 import com.dtstack.engine.master.zookeeper.ZkService;
-import com.dtstack.schedule.common.enums.AppType;
-import com.dtstack.schedule.common.enums.Deleted;
-import com.dtstack.schedule.common.enums.EScheduleJobType;
-import com.dtstack.schedule.common.enums.Sort;
+import com.dtstack.schedule.common.enums.*;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -1484,7 +1478,7 @@ public class ScheduleJobService {
         List<Map<String, Long>> statistics = new ArrayList<>();
         //查询补数据任务每个状态对应的个数
         if (CollectionUtils.isNotEmpty(fillJobList)) {
-            statistics = scheduleJobDao.countByFillDataAllStatus(fillJobList.stream().map(ScheduleFillDataJob::getId).collect(Collectors.toList()), projectId, tenantId);
+            statistics = scheduleJobDao.countByFillDataAllStatus(fillJobList.stream().map(ScheduleFillDataJob::getId).collect(Collectors.toList()), projectId, tenantId,appType);
         }
 
         List<ScheduleFillDataJobPreViewVO> resultContent = Lists.newArrayList();
@@ -2882,9 +2876,15 @@ public class ScheduleJobService {
 
             for (ScheduleJob job : scheduleJobs) {
                 // 如果查询出来任务状是冻结状态
-//                ScheduleTaskShade scheduleTaskShade =  scheduleTaskShadeDao.getOne(job.getTaskId(),job.getAppType());
                 if (TaskRuleEnum.STRONG_RULE.getCode().equals(job.getTaskRule())) {
-                    // 存在强规则任务
+                    ScheduleTaskShade scheduleTaskShade = scheduleTaskShadeDao.getOne(job.getTaskId(), job.getAppType());
+                    if (EScheduleStatus.PAUSE.getVal().equals(scheduleTaskShade.getScheduleStatus()) ||
+                            EProjectScheduleStatus.PAUSE.getStatus().equals(scheduleTaskShade.getProjectScheduleStatus())) {
+                        // 子任务已经冻结，该任务不受影响
+                        continue;
+                    }
+
+                    // 存在强规则且非冻结状态
                     LOGGER.info("jobId {} exist rule task",job.getJobId());
                     hasTaskRule = Boolean.TRUE;
                     break;
@@ -2938,7 +2938,7 @@ public class ScheduleJobService {
                 for (ScheduleJob job : jobs) {
                     if (RdosTaskStatus.FAILED_STATUS.contains(job.getStatus())) {
                         // 存在空任务失败的情况
-                        addLog = String.format(addLog, currentScheduleJob.getJobName(), "校验不通过", StringUtils.isBlank(nameByDtUicTenantId)?"":nameByDtUicTenantId,project==null? "":project.getProjectAlias());
+                        addLog = String.format(addLog, currentScheduleJob.getJobName(), job.getLogInfo(), StringUtils.isBlank(nameByDtUicTenantId)?"":nameByDtUicTenantId,project==null? "":project.getProjectAlias());
                         isRule = Boolean.TRUE;
                         break;
                     }

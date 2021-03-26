@@ -215,7 +215,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                                     if (isTimeOut(scheduleBatchJob, batchTask)) {
                                         // 直接失败更新状态
                                         LOGGER.info("jobId:{} is NOT_DO_TASK,status:{} ,job timeout so update FAILED", scheduleBatchJob.getJobId(), status);
-                                        batchJobService.updateStatusAndLogInfoAndExecTimeById(scheduleBatchJob.getJobId(), RdosTaskStatus.FAILED.getStatus(), "NOT_DO_TASK task timeout",null,new Date());
+                                        batchJobService.updateStatusAndLogInfoAndExecTimeById(scheduleBatchJob.getJobId(), RdosTaskStatus.FAILED.getStatus(), "空任务超时",null,new Date());
                                     }
                                 }
                             } else {
