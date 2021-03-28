@@ -827,9 +827,22 @@ public class ScheduleTaskShadeService {
             throw new RdosDefineException("projectId must be passed");
         }
 
+
+        name = handlerStr(name);
+
+        if (StringUtils.isBlank(name)) {
+            return buildTypeVo(null);
+        }
         List<ScheduleTaskShade> tasks = scheduleTaskShadeDao.findFuzzyTaskNameByCondition(name, appType, uicTenantId, projectId, environmentContext.getFuzzyProjectByProjectAliasLimit());
 
         return buildTypeVo(tasks);
+    }
+
+    private String handlerStr(String name) {
+        name = name.replaceAll("%", "\\%");
+        name = name.replaceAll("'", "");
+        name = name.replaceAll("_", "\\_");
+        return name;
     }
 
     private List<ScheduleTaskShadeTypeVO> buildTypeVo(List<ScheduleTaskShade> tasks) {

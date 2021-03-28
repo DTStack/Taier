@@ -244,6 +244,7 @@ public class JobRichOperator {
             return Boolean.FALSE;
         }
 
+        // 质量任务补数据支持冻结
         if (scheduleType == EScheduleType.FILL_DATA.getType() && AppType.DQ.getType().equals(scheduleBatchJob.getAppType())
                 && (EScheduleStatus.PAUSE.getVal().equals(batchTaskShade.getScheduleStatus()) ||
                 EProjectScheduleStatus.PAUSE.getStatus().equals(batchTaskShade.getProjectScheduleStatus()))) {
