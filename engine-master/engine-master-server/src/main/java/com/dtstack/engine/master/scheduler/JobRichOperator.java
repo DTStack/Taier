@@ -244,6 +244,15 @@ public class JobRichOperator {
             return Boolean.FALSE;
         }
 
+        // 质量任务补数据支持冻结
+        if (scheduleType == EScheduleType.FILL_DATA.getType() && AppType.DQ.getType().equals(scheduleBatchJob.getAppType())
+                && (EScheduleStatus.PAUSE.getVal().equals(batchTaskShade.getScheduleStatus()) ||
+                EProjectScheduleStatus.PAUSE.getStatus().equals(batchTaskShade.getProjectScheduleStatus()))) {
+            // 直接返回冻结
+            checkRunInfo.setStatus(JobCheckStatus.TASK_PAUSE);
+            return Boolean.FALSE;
+        }
+
         //判断执行时间是否到达
         String currStr = sdf.format(new Date());
         long currVal = Long.parseLong(currStr);
