@@ -182,7 +182,7 @@ public class ScheduleTaskTaskShadeService {
         List<ScheduleTaskVO> taskRuleList = Lists.newArrayList();
         if (!CollectionUtils.isEmpty(taskTasks)) {
             //向上展开
-            Map<Integer, List<ScheduleTaskTaskShade>> listMap = taskTasks.stream().collect(Collectors.groupingBy(ScheduleTaskTaskShade::getAppType));
+            Map<Integer, List<ScheduleTaskTaskShade>> listMap = taskTasks.stream().collect(Collectors.groupingBy(ScheduleTaskTaskShade::getParentAppType));
             parentTaskList = getRefTaskNew(listMap, level, DisplayDirect.FATHER.getType(), currentProjectId, taskIdRelations,taskRuleList);
             if (CollectionUtils.isNotEmpty(parentTaskList) && parentTaskList.get(0) != null) {
                 vo.setTaskVOS(parentTaskList);
@@ -313,7 +313,7 @@ public class ScheduleTaskTaskShadeService {
 
     public List<ScheduleTaskVO> getRefTaskNew(Map<Integer, List<ScheduleTaskTaskShade>> listMap, int level, Integer directType,
                                               Long currentProjectId,List<String> taskIdRelations,List<ScheduleTaskVO> taskVOList){
-        List<ScheduleTaskShade> tasks = getScheduleTaskShades(listMap);
+        List<ScheduleTaskShade> tasks = getScheduleTaskShades(listMap,directType);
 
         if (CollectionUtils.isEmpty(tasks)) {
             return null;
@@ -332,15 +332,20 @@ public class ScheduleTaskTaskShadeService {
         return refTaskVoList;
     }
 
-    private List<ScheduleTaskShade> getScheduleTaskShades(Map<Integer, List<ScheduleTaskTaskShade>> listMap) {
+    private List<ScheduleTaskShade> getScheduleTaskShades(Map<Integer, List<ScheduleTaskTaskShade>> listMap,Integer directType) {
         List<ScheduleTaskShade> tasks = Lists.newArrayList();
         //获得所有父节点task
         for (Map.Entry<Integer, List<ScheduleTaskTaskShade>> entry : listMap.entrySet()) {
             Integer appType = entry.getKey();
             List<ScheduleTaskTaskShade> value = entry.getValue();
             if (CollectionUtils.isNotEmpty(value)) {
-                List<Long> taskId = value.stream().map(ScheduleTaskTaskShade::getTaskId).collect(Collectors.toList());
-                tasks.addAll(taskShadeService.getTaskByIds(new ArrayList<>(taskId),appType));
+                List<Long> taskId = Lists.newArrayList();
+                if (DisplayDirect.FATHER.getType().equals(directType)) {
+                   taskId = value.stream().map(ScheduleTaskTaskShade::getParentTaskId).collect(Collectors.toList());
+                } else if (DisplayDirect.CHILD.getType().equals(directType)) {
+                   taskId = value.stream().map(ScheduleTaskTaskShade::getTaskId).collect(Collectors.toList());
+                }
+                tasks.addAll(taskShadeService.getTaskByIds(new ArrayList<>(taskId), appType));
 
             }
         }
