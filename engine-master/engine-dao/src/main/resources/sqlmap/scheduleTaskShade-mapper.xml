@@ -639,12 +639,13 @@
             LEFT JOIN ( SELECT DISTINCT task_id
             FROM schedule_task_task_shade WHERE task_id IN
             ( SELECT task_id FROM schedule_task_shade
-            WHERE flow_id = #{workFlowId} and is_deleted = 0 )
-            and is_deleted = 0) tts ON ts.task_id = tts.task_id
+            WHERE flow_id = #{workFlowId} and is_deleted = 0 and app_type = #{appType} )
+            and is_deleted = 0 and app_type = #{appType}) tts ON ts.task_id = tts.task_id
         WHERE
             ts.flow_id = #{workFlowId}
             AND tts.task_id IS NULL
             and ts.is_deleted = 0
+            and ts.app_type = #{appType}
             limit 1
     </select>
 

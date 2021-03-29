@@ -384,7 +384,7 @@ public class ScheduleTaskTaskShadeService {
         Integer level = context.getWorkFlowLevel();
         com.dtstack.engine.master.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO();
         //获取工作流顶部节点
-        ScheduleTaskShade beginTaskShade = taskShadeService.getWorkFlowTopNode(flowId);
+        ScheduleTaskShade beginTaskShade = taskShadeService.getWorkFlowTopNode(flowId,appType);
         if(beginTaskShade!=null) {
             //展开工作流全部节点，不包括工作流父节点
             vo = getFlowWorkOffSpringNew(beginTaskShade,appType,level,new ArrayList<>());
@@ -403,7 +403,7 @@ public class ScheduleTaskTaskShadeService {
 
         com.dtstack.engine.master.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO();
         //获取工作流顶部节点
-        ScheduleTaskShade beginTaskShade = taskShadeService.getWorkFlowTopNode(flowId);
+        ScheduleTaskShade beginTaskShade = taskShadeService.getWorkFlowTopNode(flowId,appType);
         if(beginTaskShade!=null) {
             //展开工作流全部节点，不包括工作流父节点
             Integer workFlowLevel = context.getWorkFlowLevel();
@@ -429,7 +429,7 @@ public class ScheduleTaskTaskShadeService {
         com.dtstack.engine.master.vo.ScheduleTaskVO parentNode = new com.dtstack.engine.master.vo.ScheduleTaskVO(task, true);
         com.dtstack.engine.master.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO();
         //获取工作流最顶层结点
-        ScheduleTaskShade beginTaskShade = taskShadeService.getWorkFlowTopNode(taskId);
+        ScheduleTaskShade beginTaskShade = taskShadeService.getWorkFlowTopNode(taskId,appType);
         if(beginTaskShade!=null) {
             //获取工作流下游结点
             Integer workFlowLevel = context.getWorkFlowLevel();

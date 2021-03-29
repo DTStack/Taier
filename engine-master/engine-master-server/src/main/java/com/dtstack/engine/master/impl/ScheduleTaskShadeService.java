@@ -280,9 +280,9 @@ public class ScheduleTaskShadeService {
      * @param taskId
      * @return
      */
-    public ScheduleTaskShade getWorkFlowTopNode(Long taskId) {
+    public ScheduleTaskShade getWorkFlowTopNode(Long taskId,Integer appType) {
         if (taskId != null) {
-            return scheduleTaskShadeDao.getWorkFlowTopNode(taskId);
+            return scheduleTaskShadeDao.getWorkFlowTopNode(taskId,appType);
         } else {
             return null;
         }

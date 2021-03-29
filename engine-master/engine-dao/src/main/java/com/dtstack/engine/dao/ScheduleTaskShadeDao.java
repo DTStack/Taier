@@ -74,7 +74,7 @@ public interface ScheduleTaskShadeDao {
 
     String getSqlTextById(@Param("id") Long id);
 
-    ScheduleTaskShade getWorkFlowTopNode(@Param("workFlowId") Long workFlowId);
+    ScheduleTaskShade getWorkFlowTopNode(@Param("workFlowId") Long workFlowId, @Param("appType") Integer appType);
 
     /**
      *  ps- 省略了一些大字符串 如 sql_text、task_params
