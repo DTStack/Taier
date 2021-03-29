@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import SearchInput from '@/components/SearchInput';
-import { Menu, List, notification } from 'antd';
+import { Menu, notification } from 'antd';
 import { API } from '@/services';
 import { getSaveStatus } from '../utils/handelSession';
-import showimg  from "./images/DB2.png"
 
 export default function SelectSource(props) {
   const { nextType } = props;
@@ -48,7 +47,8 @@ export default function SelectSource(props) {
       if (success) {
         data.forEach((ele) => {
           ele.selected = ele.typeId === echoTypeId ? true : false;
-          ele.imgUrl = window.location.origin +"/public/assets/imgs/" + ele.imgUrl;
+          ele.imgUrl =
+            window.location.origin + '/public/assets/imgs/' + ele.imgUrl;
         });
 
         setIconList(data || []);
@@ -120,26 +120,24 @@ export default function SelectSource(props) {
           </Menu>
         </div>
         <div className="right-menu">
-          {iconList.length > 0 && (
-            <List
-              grid={{ gutter: 16, column: 4 }}
-              dataSource={iconList}
-              renderItem={(item) => (
-                <List.Item onClick={() => onSelectType(item)}>
-                  <div>
-                    <img
-                      src={item.imgUrl}
-                      alt="图片显示失败"
-                      className={item.selected ? 'selected' : ''}
-                    />
-                    <p style={{ textAlign: 'center', width: 216 }}>
-                      {item.dataType}
-                    </p>
-                  </div>
-                </List.Item>
-              )}
-            />
-          )}
+          {iconList.length > 0 &&
+            iconList.map((item) => {
+              let col = (
+                <div
+                  style={{ width: '20%', height: 160, float: 'left' }}
+                  onClick={() => onSelectType(item)}>
+                  <img
+                    src={item.imgUrl}
+                    alt="图片显示失败"
+                    className={item.selected ? 'selected' : ''}
+                  />
+                  <p style={{ textAlign: 'center', width: 216, marginTop: 12 }}>
+                    {item.dataType}
+                  </p>
+                </div>
+              );
+              return col;
+            })}
         </div>
       </div>
     </div>

@@ -6,7 +6,7 @@ import * as global from '@/pages/global/redux/action';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import HeaderBar from './HeaderBar';
 import SiderBar from './SiderBar';
-import './style.less';
+import './style.scss';
 
 const { Content } = Layout;
 

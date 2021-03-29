@@ -1,12 +1,12 @@
-import React, { useState } from "react";
-import { Input, Icon } from "antd";
+import React, { useState } from 'react';
+import { Input, Icon } from 'antd';
 
 export default function SearchInput({
-  placeholder = "请求输入搜索内容",
+  placeholder = '请求输入搜索内容',
   width = 200,
   onSearch,
 }) {
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState('');
 
   return (
     <Input
@@ -14,7 +14,7 @@ export default function SearchInput({
       value={value}
       onChange={(e) => {
         setValue(e.target.value);
-        if(!e.target.value){
+        if (!e.target.value) {
           onSearch(e.target.value);
         }
       }}
@@ -25,7 +25,7 @@ export default function SearchInput({
           onClick={() => {
             onSearch(value);
           }}
-          style={{ cursor: "pointer" }}
+          style={{ cursor: 'pointer', color: '#999' }}
         />
       }
       style={{ width: width }}

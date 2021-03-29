@@ -43,6 +43,7 @@
             flex: 1;
             background-color: #fff;
             padding: 27px 40px;
+
             img {
               width: 216px;
               height: 108px;
@@ -68,15 +69,15 @@
         line-height: 20px;
         display: flex;
         justify-content: center;
-        .text-show{
+        .text-show {
           width: 50%;
           height: 100%;
         }
-        .version-sel{
+        .version-sel {
           margin: 20px 0;
         }
         .version {
-          width:60px;
+          width: 60px;
           display: inline-block;
           text-align: right;
         }
@@ -113,38 +114,42 @@
   border: 1px solid #4285f5;
 }
 
-.ant-menu-root.ant-menu-inline{
-  background:#fafafa !important;
+.ant-menu-root.ant-menu-inline {
+  background: #fafafa !important;
   border: none;
 }
-.ant-menu-inline .ant-menu-item{
+.ant-menu-inline .ant-menu-item {
   margin-top: 0px !important;
   margin-bottom: 4px !important;
 }
-.ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected{
-  background-color: #EBEBEB !important;
+.ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
+  background-color: #ebebeb !important;
 }
-.ant-menu-inline .ant-menu-selected::after, .ant-menu-inline .ant-menu-item-selected::after{
-  opacity:0 !important
+.ant-menu-inline .ant-menu-selected::after,
+.ant-menu-inline .ant-menu-item-selected::after {
+  opacity: 0 !important;
 }
-.ant-menu-inline .ant-menu-item{
+.ant-menu-inline .ant-menu-item {
   width: 100% !important;
 }
 
-.edit-steps{
-  .ant-steps-item-disabled{
-    .ant-steps-item-icon{
-      background-color: #E8E8E8 !important;
-      border-color:#BFBFBF !important;
+.edit-steps {
+  .ant-steps-item-disabled {
+    .ant-steps-item-icon {
+      background-color: #e8e8e8 !important;
+      border-color: #bfbfbf !important;
     }
-    .ant-steps-icon{
-      color:#999 !important;
+    .ant-steps-icon {
+      color: #999 !important;
     }
-    .ant-steps-item-title{
-      color: #BFBFBF !important;
+    .ant-steps-item-title {
+      color: #bfbfbf !important;
     }
   }
-  .ant-steps-item-finish > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title::after{
-    background-color: #E8E8E8 !important;
+  .ant-steps-item-finish
+    > .ant-steps-item-container
+    > .ant-steps-item-content
+    > .ant-steps-item-title::after {
+    background-color: #e8e8e8 !important;
   }
 }

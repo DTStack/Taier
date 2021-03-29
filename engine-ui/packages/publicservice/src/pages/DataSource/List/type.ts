@@ -5,14 +5,14 @@ export interface IPagination {
 }
 export interface IOther {
   search: string;
-  dataType: string[];
-  appType: number[];
+  dataTypeList: string[];
+  appTypeList: number[];
   isMeta: number;
   status: number[];
 }
 
 //列表操作字段
-export interface IRecord{
-  dataInfoId:number,
-  isAuth:number
+export interface IRecord {
+  dataInfoId: number;
+  isAuth: number;
 }

@@ -8,5 +8,5 @@ import dataSources from './dataSources';
 export default {
   ...bar,
   ...dataModel,
-  ...dataSources
+  ...dataSources,
 };

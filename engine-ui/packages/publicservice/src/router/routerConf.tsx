@@ -5,9 +5,9 @@ import Entry from 'pages/entry/index';
 import ModelList from 'pages/DataModel/List';
 import ModelModify from '@/pages/DataModel/Modify';
 
-import dataSource from "pages/DataSource/List"
-import addSource from "pages/DataSource/AddSource"
-import editSource from "@/pages/DataSource/EditSource"
+import dataSource from 'pages/DataSource/List';
+import addSource from 'pages/DataSource/AddSource';
+import editSource from '@/pages/DataSource/EditSource';
 
 const Layout = createLayout(true, false);
 
@@ -24,19 +24,22 @@ const routerConf = [
   //数据源项目路径
   {
     path: '/data-source',
-    // layout: Layout,
+    layout: Layout,
     component: dataSource,
+    children: [
+      {
+        path: '/add-source',
+        layout: Layout,
+        component: addSource,
+      },
+      {
+        path: '/edit-source',
+        layout: Layout,
+        component: editSource,
+      },
+    ],
   },
-  {
-    path: '/add-source',
-    // layout: Layout,
-    component: addSource,
-  },
-  {
-    path: '/edit-source',
-    // layout: Layout,
-    component: editSource,
-  },
+
   {
     path: '/data-model',
     children: [

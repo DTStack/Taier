@@ -1,17 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { useHistory } from "react-router";
-import Search from "./components/Search";
-import { Table, message, Modal, Pagination ,notification} from "antd";
-import { columns } from "./constants";
-import { API } from "@/services";
-import AuthSelect from "./components/AuthSelect";
-import { remove } from "../utils/handelSession";
-import { IPagination, IOther, IRecord } from "./type";
-import "./style.scss";
-import {
-  initNotification
-} from '../utils/index';
-import {DATA_SOURCE_TEXT} from "../constants/index"
+import React, { useEffect, useState } from 'react';
+import { useHistory } from 'react-router';
+import Search from './components/Search';
+import { Table, message, Modal, Pagination, notification } from 'antd';
+import { columns } from './constants';
+import { API } from '@/services';
+import AuthSelect from './components/AuthSelect';
+import { remove } from '../utils/handelSession';
+import { IPagination, IOther, IRecord } from './type';
+import './style.scss';
+import { initNotification } from '../utils/index';
+import { DATA_SOURCE_TEXT } from '../constants/index';
 
 function index() {
   const history = new useHistory();
@@ -22,9 +20,9 @@ function index() {
     pageSize: 20, //分页个数
   });
   const [other, setOther] = useState<IOther>({
-    search: "",
-    dataType: [],
-    appType: [],
+    search: '',
+    dataTypeList: [],
+    appTypeList: [],
     isMeta: 0,
     status: [],
   });
@@ -45,31 +43,32 @@ function index() {
       ...query,
     });
     if (success) {
-      let { currentPage, pageSize, totalPage} = data;
+      let { currentPage, pageSize, totalPage } = data;
       setParams({
         currentPage, //当前页码
         pageSize, //分页个数
       });
-      data.data.map(element=>{
-        Object.keys(DATA_SOURCE_TEXT).map(item=>{
-          if (element.dataTypeName===DATA_SOURCE_TEXT[item]) {
-            element.type = Number(item)
-          }
-        })
-      })   
-      console.log(data.data) 
+      if (data.data) {
+        data.data.map((element) => {
+          Object.keys(DATA_SOURCE_TEXT).map((item) => {
+            if (element.dataType === DATA_SOURCE_TEXT[item]) {
+              element.type = Number(item);
+            }
+          });
+        });
+      }
       setTotal(totalPage); //总页数
-      setDataSources(data.data);
+      setDataSources(data.data || []);
     } else {
       notification.error({
         message: '错误！',
-        description:"获取数据源列表失败！"
+        description: '获取数据源列表失败！',
       });
     }
   };
 
   useEffect(() => {
-    initNotification()
+    initNotification();
 
     requestTableData(); //获取数据源列表
 
@@ -78,11 +77,11 @@ function index() {
   }, []);
 
   //编辑
-  const toEdit = (record, event) => {
+  const toEdit = (record) => {
     if (record.isMeta === 1) {
-      message.info("带meta标识的数据源不能编辑、删除");
+      message.info('带meta标识的数据源不能编辑、删除');
     } else {
-      history.push("/edit-source", {
+      history.push('/data-source/edit-source', {
         record,
       });
     }
@@ -95,7 +94,7 @@ function index() {
     });
 
     if (success) {
-      message.success("删除成功");
+      message.success('删除成功');
       requestTableData(); //更新表格
     } else {
       message.error(`${msg}`);
@@ -138,14 +137,14 @@ function index() {
   const handleAutoProduc = async () => {
     let { success } = await API.dataSoProAuth({
       dataInfoId: record.dataInfoId,
-      isAuth: record.isAuth,
+      isAuth: 1, //是否授权，0为取消授权，1为授权
       appTypes: checkedValues,
     });
     if (success) {
-      message.success("产品授权成功");
+      message.success('产品授权成功');
       requestTableData(); //更新表格
     } else {
-      message.error("产品授权失败");
+      message.error('产品授权失败');
     }
 
     setVisible(false);
@@ -154,7 +153,7 @@ function index() {
   const showTotal = () => {
     return (
       <span>
-        共 <i style={{ color: "#3F87FF" }}>{total}</i> 条数据，每页显示
+        共 <i style={{ color: '#3F87FF' }}>{total}</i> 条数据，每页显示
         {params.pageSize}条
       </span>
     );
@@ -172,16 +171,16 @@ function index() {
               toEdit: toEdit,
               toAuth: toAuth,
               toDelete: toDelete,
-              left: "left",
-              right: "right",
+              left: 'left',
+              right: 'right',
               filters: [
-                { text: "正常", value: 1 },
-                { text: "连接失败", value: 0 },
+                { text: '正常', value: 1 },
+                { text: '连接失败', value: 0 },
               ],
             })}
             dataSource={dataSources}
             pagination={false}
-            scroll={{ x: "100%" }}
+            scroll={{ x: '100%' }}
             onChange={handleTableChange}
           />
         </div>
@@ -204,8 +203,7 @@ function index() {
           onOk={handleAutoProduc}
           onCancel={() => {
             setVisible(false);
-          }}
-        >
+          }}>
           <AuthSelect record={record} oncheck={oncheck}></AuthSelect>
         </Modal>
       )}
