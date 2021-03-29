@@ -19,7 +19,7 @@ enum UPDATA_TYPE {
 
 interface JoinKeyItem {
   schema: string;
-  tableMame: string;
+  tableName: string;
   columnName: string;
   columnType: string;
   columnComment: string;
@@ -52,6 +52,7 @@ export interface FieldColumn {
 
 // 表关联信息
 export interface TableJoinInfo {
+  id?: number;
   leftTable: string;
   joinType: JoinType;
   schema: string;

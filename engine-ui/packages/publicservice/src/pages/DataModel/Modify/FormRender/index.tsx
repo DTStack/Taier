@@ -52,7 +52,10 @@ const FormRender = (props: IPropsFormRender) => {
                 {...ext}>
                 {FormComponent === Select && item.options
                   ? item.options.map((option) => (
-                      <Select.Option key={option.key} value={option.value}>
+                      <Select.Option
+                        key={option.key}
+                        value={option.value}
+                        data-ext={option.ext}>
                         {option.label}
                       </Select.Option>
                     ))

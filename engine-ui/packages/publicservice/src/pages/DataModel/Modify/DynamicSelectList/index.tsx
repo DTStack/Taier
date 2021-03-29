@@ -12,10 +12,12 @@ const id = idGenerator();
 interface IPropsDynamicSelectList {
   form: any;
   data?: JoinKey[];
+  leftColumns: any[];
+  rightColumns: any[];
 }
 
 const DynamicSelectList = (props: IPropsDynamicSelectList) => {
-  const { form, data } = props;
+  const { form, data, leftColumns, rightColumns } = props;
   const { getFieldDecorator } = form;
   const [relationKeysList, setRelationKeysList] = useState([
     { id: 0, leftValue: {}, rightValue: {} },
@@ -33,10 +35,10 @@ const DynamicSelectList = (props: IPropsDynamicSelectList) => {
     const joinList = data.reduce((temp, cur, index) => {
       temp[
         `relation-key-left_${index}`
-      ] = `${cur.leftValue.schema}-${cur.leftValue.tableMame}-${cur.leftValue.columnName}`;
+      ] = `${cur.leftValue.schema}-${cur.leftValue.tableName}-${cur.leftValue.columnName}`;
       temp[
         `relation-key-right_${index}`
-      ] = `${cur.rightValue.schema}-${cur.rightValue.tableMame}-${cur.rightValue.columnName}`;
+      ] = `${cur.rightValue.schema}-${cur.rightValue.tableName}-${cur.rightValue.columnName}`;
       return temp;
     }, {});
 
@@ -76,18 +78,14 @@ const DynamicSelectList = (props: IPropsDynamicSelectList) => {
                       rules: [{ required: true, message: '请选择关联条件' }],
                     })(
                       <Select placeholder="请选择">
-                        <Select.Option key="aaa" value="aaa">
-                          aaa
-                        </Select.Option>
-                        <Select.Option key="bbb" value="bbb">
-                          bbb
-                        </Select.Option>
-                        <Select.Option key="ccc" value="ccc">
-                          ccc
-                        </Select.Option>
-                        <Select.Option key="ddd" value="ddd">
-                          ddd
-                        </Select.Option>
+                        {leftColumns.map((item) => {
+                          const _id = `${item.schema}-${item.tableName}-${item.columnName}`;
+                          return (
+                            <Select.Option key={_id} value={_id}>
+                              {item.tableName}
+                            </Select.Option>
+                          );
+                        })}
                       </Select>
                     )}
                   </Form.Item>
@@ -101,18 +99,14 @@ const DynamicSelectList = (props: IPropsDynamicSelectList) => {
                       rules: [{ required: true, message: '请选择关联条件' }],
                     })(
                       <Select placeholder="请选择">
-                        <Select.Option key="aaa" value="aaa">
-                          aaa
-                        </Select.Option>
-                        <Select.Option key="bbb" value="bbb">
-                          bbb
-                        </Select.Option>
-                        <Select.Option key="ccc" value="ccc">
-                          ccc
-                        </Select.Option>
-                        <Select.Option key="ddd" value="ddd">
-                          ddd
-                        </Select.Option>
+                        {rightColumns.map((item) => {
+                          const _id = `${item.schema}-${item.tableName}-${item.columnName}`;
+                          return (
+                            <Select.Option key={_id} value={_id}>
+                              {item.tableName}
+                            </Select.Option>
+                          );
+                        })}
                       </Select>
                     )}
                   </Form.Item>

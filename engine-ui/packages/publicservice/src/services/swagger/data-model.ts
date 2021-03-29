@@ -55,4 +55,8 @@ export default {
     method: 'post',
     url: `${prefix}/sqlPreview`,
   },
+  getDataModelColumns: {
+    method: 'post',
+    url: `${prefix}/data/columns`,
+  },
 };

@@ -1,26 +1,41 @@
-import React, { useEffect, useImperativeHandle } from 'react';
+import React, { useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Form, Select, Input, Row, Col } from 'antd';
 import DynamicSelectList from '../DynamicSelectList';
 import './style';
 import { joinTypeList, updateTypeList } from './constants';
 import { TableJoinInfo } from 'pages/DataModel/types';
+import { API } from '@/services';
+import Message from '../../components/Message';
 
 const formItemLayout = {
   labelCol: { span: 4 },
   wrapperCol: { span: 20 },
 };
 
+enum EnumRelationModifyMode {
+  EDIT = 'EDIT',
+  ADD = 'ADD',
+}
+
 interface IPropsRelationTableModal {
   form?: any;
   cref: any;
   data?: TableJoinInfo;
-  tables: string[];
+  tables: Array<{ tableName: string; schema: string }>;
+  schemaList: any[];
+  dataSourceId: number;
 }
 
 const RelationTableModal = (props: IPropsRelationTableModal) => {
-  const { getFieldDecorator, validateFields, setFieldsValue } = props.form;
-  const { cref, data, tables } = props;
-
+  const {
+    getFieldDecorator,
+    validateFields,
+    setFieldsValue,
+    getFieldsValue,
+  } = props.form;
+  const { cref, data, tables, schemaList, dataSourceId } = props;
+  const mode = data ? EnumRelationModifyMode.EDIT : EnumRelationModifyMode.ADD;
+  const id = mode === EnumRelationModifyMode.EDIT ? data.id : undefined;
   useEffect(() => {
     if (data) {
       setFieldsValue({
@@ -30,9 +45,15 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
     }
   }, []);
 
+  const [tableList, setTableList] = useState([]);
+  const firstRender = useRef(true);
+  const [leftColLsit, setLeftColList] = useState([]);
+  const [rightColList, setRightColList] = useState([]);
+  const [visibleUpdateType, setVisibleUpdateType] = useState(false);
+
   const validate = (callback) => {
     validateFields((err, data) => {
-      callback(err, data);
+      callback(err, data, id);
     });
   };
 
@@ -45,6 +66,84 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
     return [{ required: true, message }];
   };
 
+  const getDataModelTableList = async (
+    datasourceId: number,
+    schema: string
+  ) => {
+    try {
+      const { success, data, message } = await API.getDataModelTableList({
+        datasourceId,
+        schema,
+      });
+      if (success) {
+        setTableList(data);
+      } else {
+        Message.error(message);
+      }
+    } catch (error) {
+      Message.error(error.message);
+    }
+  };
+
+  const currentFormValue = getFieldsValue();
+
+  useEffect(() => {
+    getDataModelTableList(dataSourceId, currentFormValue.schema);
+    if (!currentFormValue.schema) return;
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    setFieldsValue({
+      table: undefined,
+    });
+  }, [currentFormValue.schema]);
+
+  const getColumnList = (
+    datasourceId: number,
+    schema: string,
+    tableNames: string[]
+  ) => {
+    return API.getDataModelColumns({
+      datasourceId,
+      schema,
+      tableNames,
+    });
+  };
+
+  useEffect(() => {
+    if (!currentFormValue || !currentFormValue.leftTable) return;
+    const [schema, tableName] = currentFormValue.leftTable.split('-');
+    getColumnList(dataSourceId, schema, [tableName])
+      .then(({ success, data, message }) => {
+        if (success) {
+          setLeftColList(data);
+        } else {
+          Message.error(message);
+        }
+      })
+      .catch((err) => {
+        Message.error(err.message);
+      });
+  }, [currentFormValue.leftTable]);
+
+  useEffect(() => {
+    if (!currentFormValue.table || !currentFormValue.schema) return;
+    getColumnList(dataSourceId, currentFormValue.schema, [
+      currentFormValue.table,
+    ])
+      .then(({ success, data, message }) => {
+        if (success) {
+          setRightColList(data);
+        } else {
+          Message.error(message);
+        }
+      })
+      .catch((err) => {
+        Message.error(err.message);
+      });
+  }, [currentFormValue.table, currentFormValue.schema]);
+
   return (
     <div ref={cref} className="relation-table-modal">
       <Form layout="horizontal" {...formItemLayout}>
@@ -54,8 +153,10 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
           })(
             <Select placeholder="请选择表">
               {tables.map((item) => (
-                <Select.Option key={item} value={item}>
-                  {item}
+                <Select.Option
+                  key={`${item.tableName}-${item.schema}`}
+                  value={`${item.tableName}-${item.schema}`}>
+                  {item.tableName}
                 </Select.Option>
               ))}
             </Select>
@@ -79,18 +180,11 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
             rules: requiredRule('请选择scehma'),
           })(
             <Select placeholder="请选择schema">
-              <Select.Option key="aaa" value="aaa">
-                aaaa
-              </Select.Option>
-              <Select.Option key="bbb" value="bbb">
-                bbb
-              </Select.Option>
-              <Select.Option key="ccc" value="ccc">
-                ccc
-              </Select.Option>
-              <Select.Option key="ddd" value="ddd">
-                ddd
-              </Select.Option>
+              {schemaList.map((schema) => (
+                <Select.Option key={schema.key} value={schema.value}>
+                  {schema.label}
+                </Select.Option>
+              ))}
             </Select>
           )}
         </Form.Item>
@@ -100,16 +194,20 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
               {getFieldDecorator('table', {
                 rules: requiredRule('请选择关联表'),
               })(
-                <Select placeholder="请选择关联表">
-                  <Select.Option key="111" value="e">
-                    ww
-                  </Select.Option>
-                  <Select.Option key="qqq" value="rr">
-                    ww
-                  </Select.Option>
-                  <Select.Option key="qwww" value="rrq">
-                    ddaaa
-                  </Select.Option>
+                <Select
+                  placeholder="请选择关联表"
+                  onChange={(value, target) => {
+                    const isPartition = (target as any).props['data-ext'];
+                    setVisibleUpdateType(isPartition);
+                  }}>
+                  {tableList.map((item) => (
+                    <Select.Option
+                      key={item.tableName}
+                      value={item.tableName}
+                      data-ext={item.partition}>
+                      {item.tableName}
+                    </Select.Option>
+                  ))}
                 </Select>
               )}
             </Col>
@@ -125,25 +223,32 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
             </Col>
           </Row>
         </Form.Item>
-        <Form.Item label="更新方式" required={false}>
-          <Row>
-            <Col span={11}>
-              {getFieldDecorator('updateType', {
-                rules: requiredRule('请选择更新方式'),
-              })(
-                <Select placeholder="请选择更新方式">
-                  {updateTypeList.map((item) => (
-                    <Select.Option key={item.key} value={item.key}>
-                      {item.label}
-                    </Select.Option>
-                  ))}
-                </Select>
-              )}
-            </Col>
-          </Row>
-        </Form.Item>
+        {visibleUpdateType ? (
+          <Form.Item label="更新方式" required={false}>
+            <Row>
+              <Col span={11}>
+                {getFieldDecorator('updateType', {
+                  rules: requiredRule('请选择更新方式'),
+                })(
+                  <Select placeholder="请选择更新方式">
+                    {updateTypeList.map((item) => (
+                      <Select.Option key={item.key} value={item.key}>
+                        {item.label}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                )}
+              </Col>
+            </Row>
+          </Form.Item>
+        ) : null}
         <span className="relation-table-modal-subtitle">设置关联键</span>
-        <DynamicSelectList form={props.form} data={data && data.joinPairs} />
+        <DynamicSelectList
+          leftColumns={leftColLsit}
+          rightColumns={rightColList}
+          form={props.form}
+          data={data && data.joinPairs}
+        />
       </Form>
     </div>
   );

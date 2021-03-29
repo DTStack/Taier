@@ -16,7 +16,7 @@ interface IPropsDimensionSelect {
   step?: number;
 }
 
-const DimensionSelect = (props: IPropsDimensionSelect) => {
+const FieldsSelect = (props: IPropsDimensionSelect) => {
   const { cref, formValue = { columns: data }, step } = props;
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [dataSource, setDataSource] = useState<FieldColumn[]>([]);
@@ -32,7 +32,7 @@ const DimensionSelect = (props: IPropsDimensionSelect) => {
   const onSelect = (record) => {
     const key = step === EnumModifyStep.DIMENSION_STEP ? 'dimension' : 'metric';
     const ds = dataSource.map((item) => {
-      const bool = item.id === record.id ? !record[key] : record[key];
+      const bool = item.id === record.id ? !item[key] : item[key];
       return {
         ...item,
         [key]: bool,
@@ -42,6 +42,7 @@ const DimensionSelect = (props: IPropsDimensionSelect) => {
   };
 
   useEffect(() => {
+    if (!formValue.columns) return;
     // step切换时，清空选中项
     let selectedRowKeys = [];
     if (step === EnumModifyStep.DIMENSION_STEP) {
@@ -101,4 +102,4 @@ const DimensionSelect = (props: IPropsDimensionSelect) => {
   );
 };
 
-export default DimensionSelect;
+export default FieldsSelect;
