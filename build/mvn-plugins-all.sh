@@ -14,7 +14,7 @@ if [ -z $hadoop3Version ] ; then
 fi
 echo "Hadoop3Version: ${hadoop3Version} Building..."
 
-mvn -T 1C clean package -DskipTests -Dhadoop2.version=${hadoop2Version} -Dhadoop3.version=${hadoop3Version} -pl \
+mvn  clean package -DskipTests -Dhadoop2.version=${hadoop2Version} -Dhadoop3.version=${hadoop3Version} -pl \
 engine-worker/engine-plugins/dummy,\
 engine-worker/engine-plugins/common/gateway-python,\
 engine-worker/engine-plugins/flink/common,\
