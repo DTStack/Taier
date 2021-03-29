@@ -78,4 +78,6 @@ export interface IModelDetail {
   creator: string;
   // TODO: any类型
   modelPartition: any;
+  createTime?: string;
+  dsName?: string;
 }

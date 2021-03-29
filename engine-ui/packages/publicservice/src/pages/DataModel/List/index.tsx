@@ -266,9 +266,7 @@ const List = (props: IPropList) => {
                 }));
               }}
             />
-            <span
-              className="tips"
-              style={{ float: 'right', marginRight: '20px' }}>
+            <span className="tips">
               共<span className="highlight">{pagination.total}</span>
               条数据，每页显示
               <span className="highlight">{pagination.size}</span>条
