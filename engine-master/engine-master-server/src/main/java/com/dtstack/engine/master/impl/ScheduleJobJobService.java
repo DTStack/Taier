@@ -19,6 +19,8 @@ import com.dtstack.engine.api.dto.ScheduleJobJobTaskDTO;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
 import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -100,7 +102,7 @@ public class ScheduleJobJobService {
         allJobKeys.add(job.getJobKey());
         getAllJobKeys(result, allJobKeys);
         Map<String, ScheduleJob> keyJobMap = new HashMap<>();
-        Map<Long, ScheduleTaskShade> idTaskMap = new HashMap<>();
+        Map<String, ScheduleTaskShade> idTaskMap = new HashMap<>();
         //获取keyJobMap和taskId-TaskShade map组
         getRelationData(allJobKeys, keyJobMap, idTaskMap);
         return getOffSpring(root, keyJobMap, idTaskMap, false);
@@ -164,7 +166,7 @@ public class ScheduleJobJobService {
         allJobKeys.add(job.getJobKey());
         getAllJobKeys(result, allJobKeys);
         Map<String, ScheduleJob> keyJobMap = new HashMap<>();
-        Map<Long, ScheduleTaskShade> idTaskMap = new HashMap<>();
+        Map<String, ScheduleTaskShade> idTaskMap = new HashMap<>();
         getRelationData(allJobKeys, keyJobMap, idTaskMap);
         //flowJobId不为0时表示是工作流中的子任务
         boolean isSubTask = !StringUtils.equals("0", job.getFlowJobId());
@@ -173,22 +175,36 @@ public class ScheduleJobJobService {
     }
 
     private void getRelationData(Set<String> allJobKeys, Map<String, ScheduleJob> keyJobMap,
-                                 Map<Long, ScheduleTaskShade> idTaskMap) throws Exception {
-        List<Long> taskIds = new ArrayList<>();
+                                 Map<String, ScheduleTaskShade> idTaskMap) throws Exception {
         List<ScheduleJob> jobs = scheduleJobDao.listJobByJobKeys(allJobKeys);
         if(CollectionUtils.isEmpty(jobs)){
             return;
         }
-        Integer appType = null;
+        Map<Integer, List<Long>> mapTaskId = Maps.newHashMap();
         for (ScheduleJob scheduleJob : jobs) {
             keyJobMap.put(scheduleJob.getJobKey(), scheduleJob);
+
+            List<Long> taskIds = mapTaskId.get(scheduleJob.getAppType());
+
+            if (CollectionUtils.isEmpty(taskIds)) {
+                taskIds = Lists.newArrayList();
+            }
+
             taskIds.add(scheduleJob.getTaskId());
-            if (null == appType && null != scheduleJob.getAppType()) {
-                appType = scheduleJob.getAppType();
+            mapTaskId.put(scheduleJob.getAppType(),taskIds);
+        }
+        List<ScheduleTaskShade> taskAllShades = Lists.newArrayList();
+
+        for (Map.Entry<Integer, List<Long>> entry : mapTaskId.entrySet()) {
+            Integer appType = entry.getKey();
+            List<Long> taskIds = entry.getValue();
+            List<ScheduleTaskShade> tasks = batchTaskShadeService.getSimpleTaskRangeAllByIds(taskIds, appType);
+
+            if (CollectionUtils.isNotEmpty(tasks)) {
+                taskAllShades.addAll(tasks);
             }
         }
-        List<ScheduleTaskShade> taskShades = batchTaskShadeService.getSimpleTaskRangeAllByIds(taskIds,appType);
-        taskShades.forEach(item -> idTaskMap.put(item.getTaskId(), item));
+        taskAllShades.forEach(item -> idTaskMap.put(item.getTaskId()+"-"+item.getAppType(), item));
     }
 
     private ScheduleJobJobDTO getTree(ScheduleJobJobDTO root, Map<Integer, List<ScheduleJobJob>> result, int level, boolean isChild) {
@@ -367,7 +383,7 @@ public class ScheduleJobJobService {
             Set<String> allJobKeys = new HashSet<>();
             getAllJobKeys(result, allJobKeys);
             Map<String, ScheduleJob> keyJobMap = new HashMap<>(16);
-            Map<Long, ScheduleTaskShade> idTaskMap = new HashMap<>(16);
+            Map<String, ScheduleTaskShade> idTaskMap = new HashMap<>(16);
             //获取keyJobMap和taskId-TaskShade map组
             getRelationData(allJobKeys, keyJobMap, idTaskMap);
             ScheduleJobJob beginJobJob = null;
@@ -404,7 +420,7 @@ public class ScheduleJobJobService {
             getAllJobKeys(result, allJobKeys);
 
             Map<String, ScheduleJob> keyJobMap = new HashMap<>(16);
-            Map<Long, ScheduleTaskShade> idTaskMap = new HashMap<>(16);
+            Map<String, ScheduleTaskShade> idTaskMap = new HashMap<>(16);
             getRelationData(allJobKeys, keyJobMap, idTaskMap);
 
             ScheduleJobJob beginJobJob = null;
@@ -430,12 +446,12 @@ public class ScheduleJobJobService {
     }
 
     public com.dtstack.engine.master.vo.ScheduleJobVO getOffSpring(
-            ScheduleJobJobDTO root, Map<String, ScheduleJob> keyJobMap, Map<Long, ScheduleTaskShade> idTaskMap, boolean isSubTask) {
+            ScheduleJobJobDTO root, Map<String, ScheduleJob> keyJobMap, Map<String, ScheduleTaskShade> idTaskMap, boolean isSubTask) {
 
         ScheduleJob job = keyJobMap.get(root.getJobKey());
         com.dtstack.engine.master.vo.ScheduleJobVO vo = new com.dtstack.engine.master.vo.ScheduleJobVO(job);
         vo.setProjectId(job.getProjectId());
-        ScheduleTaskShade batchTaskShade = idTaskMap.get(job.getTaskId());
+        ScheduleTaskShade batchTaskShade = idTaskMap.get(job.getTaskId()+"-"+job.getAppType());
         if (batchTaskShade == null) {
             return null;
         }
@@ -568,7 +584,7 @@ public class ScheduleJobJobService {
         allJobKeys.add(job.getJobKey());
         getAllJobKeys(result, allJobKeys);
         Map<String, ScheduleJob> keyJobMap = new HashMap<>();
-        Map<Long, ScheduleTaskShade> idTaskMap = new HashMap<>();
+        Map<String, ScheduleTaskShade> idTaskMap = new HashMap<>();
         getRelationData(allJobKeys, keyJobMap, idTaskMap);
         return getForefathers(root, keyJobMap, idTaskMap);
     }
@@ -600,20 +616,20 @@ public class ScheduleJobJobService {
         getAllJobKeys(result, allJobKeys);
 
         Map<String, ScheduleJob> keyJobMap = new HashMap<>();
-        Map<Long, ScheduleTaskShade> idTaskMap = new HashMap<>();
+        Map<String, ScheduleTaskShade> idTaskMap = new HashMap<>();
         getRelationData(allJobKeys, keyJobMap, idTaskMap);
 
         return getForefathersNew(root, keyJobMap, idTaskMap);
     }
 
     private com.dtstack.engine.master.vo.ScheduleJobVO getForefathersNew(ScheduleJobJobDTO root, Map<String, ScheduleJob> keyJobMap,
-                                                                      Map<Long, ScheduleTaskShade> idTaskMap) {
+                                                                      Map<String, ScheduleTaskShade> idTaskMap) {
         ScheduleJob job = keyJobMap.get(root.getJobKey());
         if (job == null) {
             return null;
         }
         com.dtstack.engine.master.vo.ScheduleJobVO vo = new com.dtstack.engine.master.vo.ScheduleJobVO(job);
-        ScheduleTaskShade batchTaskShade = idTaskMap.get(job.getTaskId());
+        ScheduleTaskShade batchTaskShade = idTaskMap.get(job.getTaskId()+"-"+job.getAppType());
         vo.setBatchTask(getTaskVo(batchTaskShade));
         if (StringUtils.isBlank(job.getJobKey())) {
             return vo;
@@ -644,13 +660,13 @@ public class ScheduleJobJobService {
     }
 
     private com.dtstack.engine.master.vo.ScheduleJobVO getForefathers(ScheduleJobJobDTO root, Map<String, ScheduleJob> keyJobMap,
-                                                                      Map<Long, ScheduleTaskShade> idTaskMap) {
+                                                                      Map<String, ScheduleTaskShade> idTaskMap) {
         ScheduleJob job = keyJobMap.get(root.getJobKey());
         if (job == null) {
             return null;
         }
         com.dtstack.engine.master.vo.ScheduleJobVO vo = new com.dtstack.engine.master.vo.ScheduleJobVO(job);
-        ScheduleTaskShade batchTaskShade = idTaskMap.get(job.getTaskId());
+        ScheduleTaskShade batchTaskShade = idTaskMap.get(job.getTaskId()+"-"+job.getAppType());
         vo.setBatchTask(getTaskVo(batchTaskShade));
         if (StringUtils.isBlank(job.getJobKey())) {
             return vo;

@@ -143,7 +143,7 @@ public class ScheduleTaskShadeServiceTest extends AbstractTest {
         scheduleTaskShadeService.getSimpleTaskRangeAllByIds(Lists.newArrayList(), 2);
         scheduleTaskShadeService.getTaskNameByJobKey("cronTrigger_19", 1);
         scheduleTaskShadeService.getTaskNameByJobKey("cronTrigger_-19_2020112000", 1);
-        scheduleTaskShadeService.getWorkFlowTopNode(null);
+        scheduleTaskShadeService.getWorkFlowTopNode(null,1);
         scheduleTaskShadeService.dealFlowWorkTask(emptyTaskId, 1, new ArrayList<>(), 1L);
         scheduleTaskShadeService.findTaskId(emptyTaskId, 1, 1);
         scheduleTaskShadeService.findTaskId(scheduleTaskShadeDTO.getTaskId(), 1, 10);

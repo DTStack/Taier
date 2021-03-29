@@ -1,0 +1,30 @@
+required:
+  host:
+  port: 22
+  username:
+  path: /data/sftp
+  maxTotal: 16
+  maxIdle: 16
+  minIdle: 16
+  timeout: 0
+  isUsePool: true
+  maxWaitMillis: 3600000
+  fileTimeout: 300000
+  auth:
+    controls: radio_linkage
+    value: 1
+    values:
+      password:
+        dependencyKey: auth
+        dependencyValue: 1
+        value: 1
+        values:
+          password:
+            controls: input
+      rsaPath:
+        dependencyKey: auth
+        dependencyValue: 2
+        value: 2
+        values:
+          rsaPath:
+            controls: input

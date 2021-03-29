@@ -29,7 +29,6 @@ import com.dtstack.engine.dao.*;
 import com.dtstack.engine.domain.ScheduleEngineProject;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
-import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
 import com.dtstack.engine.master.queue.JobPartitioner;
 import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
@@ -38,14 +37,14 @@ import com.dtstack.engine.master.scheduler.JobRichOperator;
 import com.dtstack.engine.master.sync.RestartRunnable;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.master.utils.JobGraphUtils;
+import com.dtstack.engine.master.sync.RestartRunnable;
+import com.dtstack.engine.master.utils.JobGraphUtils;
+import com.dtstack.engine.master.sync.RestartRunnable;
 import com.dtstack.engine.master.vo.BatchSecienceJobChartVO;
 import com.dtstack.engine.master.vo.ScheduleJobVO;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
 import com.dtstack.engine.master.zookeeper.ZkService;
-import com.dtstack.schedule.common.enums.AppType;
-import com.dtstack.schedule.common.enums.Deleted;
-import com.dtstack.schedule.common.enums.EScheduleJobType;
-import com.dtstack.schedule.common.enums.Sort;
+import com.dtstack.schedule.common.enums.*;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -67,7 +66,8 @@ import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import redis.clients.jedis.JedisCommands;
+import redis.clients.jedis.commands.JedisCommands;
+import redis.clients.jedis.params.SetParams;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -623,7 +623,7 @@ public class ScheduleJobService {
         }
         ScheduleJobVO batchJobVO = transfer.get(0);
 
-        if (EScheduleJobType.WORK_FLOW.getVal().intValue() == batchJobVO.getBatchTask().getTaskType()) {
+        if (EScheduleJobType.WORK_FLOW.getVal().equals(batchJobVO.getBatchTask().getTaskType())) {
             vo.setSplitFiledFlag(true);
             //除去任务类型中的工作流类型的条件，用于展示下游节点
             if (StringUtils.isNotBlank(vo.getTaskType())) {
@@ -1478,7 +1478,7 @@ public class ScheduleJobService {
         List<Map<String, Long>> statistics = new ArrayList<>();
         //查询补数据任务每个状态对应的个数
         if (CollectionUtils.isNotEmpty(fillJobList)) {
-            statistics = scheduleJobDao.countByFillDataAllStatus(fillJobList.stream().map(ScheduleFillDataJob::getId).collect(Collectors.toList()), projectId, tenantId);
+            statistics = scheduleJobDao.countByFillDataAllStatus(fillJobList.stream().map(ScheduleFillDataJob::getId).collect(Collectors.toList()), projectId, tenantId,appType);
         }
 
         List<ScheduleFillDataJobPreViewVO> resultContent = Lists.newArrayList();
@@ -2924,15 +2924,22 @@ public class ScheduleJobService {
         List<ScheduleJobJob> scheduleJobJobs = scheduleJobJobDao.listByParentJobKey(scheduleJob.getJobKey());
 
         List<String> jobKeys = scheduleJobJobs.stream().map(ScheduleJobJob::getJobKey).collect(Collectors.toList());
-        LOGGER.info("hasTaskRule:{}" + jobKeys.toString());
+        LOGGER.info("jobId:{} has child jobKey:{}" ,scheduleJob.getJobId(), jobKeys.toString());
         if (CollectionUtils.isNotEmpty(jobKeys)) {
             List<ScheduleJob> scheduleJobs = scheduleJobDao.listJobByJobKeys(jobKeys);
 
             for (ScheduleJob job : scheduleJobs) {
                 // 如果查询出来任务状是冻结状态
-//                ScheduleTaskShade scheduleTaskShade =  scheduleTaskShadeDao.getOne(job.getTaskId(),job.getAppType());
                 if (TaskRuleEnum.STRONG_RULE.getCode().equals(job.getTaskRule())) {
-                    // 存在强规则任务
+                    ScheduleTaskShade scheduleTaskShade = scheduleTaskShadeDao.getOne(job.getTaskId(), job.getAppType());
+                    if (EScheduleStatus.PAUSE.getVal().equals(scheduleTaskShade.getScheduleStatus()) ||
+                            EProjectScheduleStatus.PAUSE.getStatus().equals(scheduleTaskShade.getProjectScheduleStatus())) {
+                        // 子任务已经冻结，该任务不受影响
+                        continue;
+                    }
+
+                    // 存在强规则且非冻结状态
+                    LOGGER.info("jobId {} exist rule task",job.getJobId());
                     hasTaskRule = Boolean.TRUE;
                     break;
                 }
@@ -2985,7 +2992,7 @@ public class ScheduleJobService {
                 for (ScheduleJob job : jobs) {
                     if (RdosTaskStatus.FAILED_STATUS.contains(job.getStatus())) {
                         // 存在空任务失败的情况
-                        addLog = String.format(addLog, currentScheduleJob.getJobName(), "校验不通过", StringUtils.isBlank(nameByDtUicTenantId)?"":nameByDtUicTenantId,project==null? "":project.getProjectAlias());
+                        addLog = String.format(addLog, currentScheduleJob.getJobName(), job.getLogInfo(), StringUtils.isBlank(nameByDtUicTenantId)?"":nameByDtUicTenantId,project==null? "":project.getProjectAlias());
                         isRule = Boolean.TRUE;
                         break;
                     }
@@ -3133,7 +3140,9 @@ public class ScheduleJobService {
         }
         redisTemplate.execute((RedisCallback<String>) connection -> {
             JedisCommands commands = (JedisCommands) connection.getNativeConnection();
-            return commands.set(key, "-1", "NX", "EX", environmentContext.getForkJoinResultTimeOut() * 2);
+            SetParams setParams = SetParams.setParams();
+            setParams.nx().ex((int)environmentContext.getForkJoinResultTimeOut() * 2);
+            return commands.set(key, "-1", setParams);
         });
         if (BooleanUtils.isTrue(justRunChild) && null != id) {
             if (null == subJobIds) {

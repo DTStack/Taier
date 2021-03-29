@@ -46,6 +46,8 @@ public abstract class AbstractSmsAlterClient extends AbstractAlterClient {
 
     protected static class ConstSmsAlter {
         public static String SMS_CLASS = "className";
+
+        public static String PATH_CUT = "&sftp:";
     }
 
     /**

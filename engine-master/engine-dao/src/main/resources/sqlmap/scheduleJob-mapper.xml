@@ -1197,6 +1197,7 @@
         bj.is_deleted = 0
         AND bj.task_type != 10
         AND bj.type = 1
+        AND bj.app_type = #{appType}
         AND bj.fill_id in
         <foreach collection="fillIdList" index="index" item="fillId" open="(" close=")" separator=",">
             #{fillId}

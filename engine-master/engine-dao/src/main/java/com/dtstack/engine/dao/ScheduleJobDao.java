@@ -142,7 +142,7 @@ public interface ScheduleJobDao {
 
     List<String> getFlowJobIdsByJobName(@Param("jobName") String jobName);
 
-    List<Map<String, Long>> countByFillDataAllStatus(@Param("fillIdList") List<Long> fillJobIdList, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId);
+    List<Map<String, Long>> countByFillDataAllStatus(@Param("fillIdList") List<Long> fillJobIdList, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("appType") Integer appType);
 
     List<Long> listFillIdList(PageQuery<ScheduleJobDTO> pageQuer);
 

@@ -1,5 +1,6 @@
 package com.dtstack.engine.dtscript.container;
 
+import com.dtstack.engine.base.util.NetUtils;
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.common.SecurityUtil;
 import com.dtstack.engine.dtscript.common.type.AbstractAppType;
@@ -10,7 +11,9 @@ import com.dtstack.engine.dtscript.common.LocalRemotePath;
 import com.dtstack.engine.dtscript.common.ReturnValue;
 import com.dtstack.engine.dtscript.common.type.DummyType;
 import com.dtstack.engine.dtscript.util.DebugUtil;
+import com.dtstack.engine.dtscript.util.KrbUtils;
 import com.dtstack.engine.dtscript.util.Utilities;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -151,8 +154,28 @@ public class DtContainer {
         Date now = new Date();
         containerStatusNotifier.setContainersStartTime(now.toString());
         containerStatusNotifier.reportContainerStatusNow(DtContainerStatus.RUNNING);
-
         List<String> envList = new ArrayList<>(20);
+
+        // 拉起py4j gateway server进程
+        Process gatewayProcess = null;
+        boolean hasKrb = KrbUtils.hasKrb(envs);
+        boolean isPythonType = KrbUtils.isPythonType(appType.name());
+        if (hasKrb && isPythonType) {
+            int port = NetUtils.getAvailablePort();
+            String[] py4jEnv = new String[2];
+            py4jEnv[0] = DtYarnConstants.ENV_GATEWAY_PORT + "=" + port;
+            py4jEnv[1] = DtYarnConstants.ENV_PRINCIPAL + "=" + envs.get(DtYarnConstants.ENV_PRINCIPAL);
+            // TODO 一些常量下沉到base或者新建一个模块
+            final String mainClass = "com.dtstack.python.PythonGatewayServer";
+            final String javaHome = System.getenv("JAVA_HOME");
+            Preconditions.checkState(javaHome != null, "JAVA_HOME没有设置请联系运维配置所有NodeManager节点的JAVA_HOME环境变量");
+            String py4jStartCmd = javaHome + "/bin/java -cp " + DtYarnConstants.LOCALIZED_GATEWAY_PATH + " " + mainClass;
+            gatewayProcess = Runtime.getRuntime().exec(py4jStartCmd, py4jEnv);
+            // FIXME 未来应该取消掉sleep 目前是假定sleep后gateway server已经启动好，再拉起Python进程。
+            Thread.sleep(2400);
+            envList.add(py4jEnv[0]);
+        }
+
         appType.env(envList);
 
         String[] env = envList.toArray(new String[envList.size()]);
@@ -170,8 +193,8 @@ public class DtContainer {
         String[] cmd = {"bash", "--login", "-c", command};
 
         LOG.info("Executing command:" + command);
-        Runtime rt = Runtime.getRuntime();
-        Process process = rt.exec(cmd, env);
+
+        Process process = Runtime.getRuntime().exec(cmd, env);
 
         LOG.info("Executing command end");
 
@@ -197,7 +220,9 @@ public class DtContainer {
                 LOG.debug("XLearning Process is running");
             }
         }
-
+        if (hasKrb && isPythonType && gatewayProcess != null) {
+            gatewayProcess.destroy();
+        }
         LOG.info("container exitValue: " + code);
 
         String log = readFile(logDir + "/dterror.log");

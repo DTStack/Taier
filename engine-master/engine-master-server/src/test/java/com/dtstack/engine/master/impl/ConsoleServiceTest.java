@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Cluster;
 import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.EngineJobCache;
@@ -7,6 +8,7 @@ import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.vo.console.ConsoleJobVO;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.dao.TestClusterDao;
 import com.dtstack.engine.dao.TestComponentDao;
@@ -212,7 +214,9 @@ public class ConsoleServiceTest extends AbstractTest {
     public void testGetResources() {
         Component hdfsComponent = Template.getDefaultHdfsComponentTemplate();
         Cluster cluster = clusterDao.getOne();
-        ClusterResource getResources = consoleService.getResources(hdfsComponent, cluster);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(ConfigConstant.TYPE_NAME_KEY,"yarn2-hdfs2-flink180");
+        ClusterResource getResources = consoleService.getResources(hdfsComponent, cluster,jsonObject);
         Assert.assertNotNull(getResources);
     }
 

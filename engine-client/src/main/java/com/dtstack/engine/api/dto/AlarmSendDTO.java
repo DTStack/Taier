@@ -40,6 +40,7 @@ public class AlarmSendDTO {
     private Long userId;
     private Integer appType;
     private Integer status;
+    private Long readId;
 
     public String getTitle() {
         return title;
@@ -135,5 +136,13 @@ public class AlarmSendDTO {
 
     public void setJobId(String jobId) {
         this.jobId = jobId;
+    }
+
+    public Long getReadId() {
+        return readId;
+    }
+
+    public void setReadId(Long readId) {
+        this.readId = readId;
     }
 }

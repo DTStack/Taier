@@ -22,6 +22,10 @@ public class ScheduleDetailsVO {
 
     private Integer taskRule;
 
+    private Integer scheduleStatus;
+
+    private Integer projectScheduleStatus;
+
     private List<ScheduleDetailsVO> scheduleDetailsVOList;
 
     public String getName() {
@@ -78,5 +82,21 @@ public class ScheduleDetailsVO {
 
     public void setScheduleDetailsVOList(List<ScheduleDetailsVO> scheduleDetailsVOList) {
         this.scheduleDetailsVOList = scheduleDetailsVOList;
+    }
+
+    public Integer getScheduleStatus() {
+        return scheduleStatus;
+    }
+
+    public void setScheduleStatus(Integer scheduleStatus) {
+        this.scheduleStatus = scheduleStatus;
+    }
+
+    public Integer getProjectScheduleStatus() {
+        return projectScheduleStatus;
+    }
+
+    public void setProjectScheduleStatus(Integer projectScheduleStatus) {
+        this.projectScheduleStatus = projectScheduleStatus;
     }
 }

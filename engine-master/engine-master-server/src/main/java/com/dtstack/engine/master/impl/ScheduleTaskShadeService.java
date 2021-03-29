@@ -280,9 +280,9 @@ public class ScheduleTaskShadeService {
      * @param taskId
      * @return
      */
-    public ScheduleTaskShade getWorkFlowTopNode(Long taskId) {
+    public ScheduleTaskShade getWorkFlowTopNode(Long taskId,Integer appType) {
         if (taskId != null) {
-            return scheduleTaskShadeDao.getWorkFlowTopNode(taskId);
+            return scheduleTaskShadeDao.getWorkFlowTopNode(taskId,appType);
         } else {
             return null;
         }
@@ -827,9 +827,22 @@ public class ScheduleTaskShadeService {
             throw new RdosDefineException("projectId must be passed");
         }
 
+
+        name = handlerStr(name);
+
+        if (StringUtils.isBlank(name)) {
+            return buildTypeVo(null);
+        }
         List<ScheduleTaskShade> tasks = scheduleTaskShadeDao.findFuzzyTaskNameByCondition(name, appType, uicTenantId, projectId, environmentContext.getFuzzyProjectByProjectAliasLimit());
 
         return buildTypeVo(tasks);
+    }
+
+    private String handlerStr(String name) {
+        name = name.replaceAll("%", "\\%");
+        name = name.replaceAll("'", "");
+        name = name.replaceAll("_", "\\_");
+        return name;
     }
 
     private List<ScheduleTaskShadeTypeVO> buildTypeVo(List<ScheduleTaskShade> tasks) {
@@ -915,6 +928,8 @@ public class ScheduleTaskShadeService {
             vo.setName(taskShade.getName());
             vo.setTaskRule(taskShade.getTaskRule());
             vo.setTaskType(taskShade.getTaskType());
+            vo.setScheduleStatus(taskShade.getScheduleStatus());
+            vo.setProjectScheduleStatus(taskShade.getProjectScheduleStatus());
 
             Tenant byDtUicTenantId = tenantDao.getByDtUicTenantId(taskShade.getDtuicTenantId());
 
