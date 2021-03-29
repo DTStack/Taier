@@ -46,6 +46,8 @@ public class DtYarnConfiguration extends YarnConfiguration {
 
     public static final String CONTAINER_REQUEST_NODES = "container.request.nodes";
 
+    public static final String CONTAINER_REQUEST_RACKS = "container.request.racks";
+
     public static final String DTSCRIPT_WORKER_MEMORY = "dtscript.worker.memory";
 
     public static final int DEFAULT_DTSCRIPT_WORKER_MEMORY = 512;
@@ -104,6 +106,9 @@ public class DtYarnConfiguration extends YarnConfiguration {
     public static final String PYTHON3_PATH = "python3.path";
 
     public static final String DTSCRIPT_APPMASTERJAR_PATH = "AppMaster.jar";
+    public static final String DTSCRIPT_LOG4J_FILENAME = "log4j.properties";
+    public static final String DTSCRIPT_HAS_LOG4J = "dtscript.has.log4j";
+
     public static final String DEFAULT_DTSCRIPT_APPMASTERJAR_PATH = "/dtInsight/dtscript/dtscript-core-4.0.0.jar";
 
     /** heart beat */
@@ -170,6 +175,12 @@ public class DtYarnConfiguration extends YarnConfiguration {
     public static final String HADOOP_PROXY_USER = "HADOOP_PROXY_USER";
 
     public static final String JAVA_PATH = "java.path";
+
+    public static final String DEFAULT_LOG4J_CONTENT = "log4j.rootLogger=INFO,console\n" +
+            "log4j.appender.console=org.apache.log4j.ConsoleAppender\n" +
+            "log4j.appender.console.target=System.err\n" +
+            "log4j.appender.console.layout=org.apache.log4j.PatternLayout\n" +
+            "log4j.appender.console.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss,SSS} [%t] %p %l - %m %x%n";
 
 
     public DtYarnConfiguration() {
