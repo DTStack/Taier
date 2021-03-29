@@ -1,10 +1,38 @@
 {
   "id": "2423895",
-  "name": "产品-数据源中心",
+  "name": "产品-数据源中心&数据模型",
   "font_family": "iconfont",
   "css_prefix_text": "icon",
   "description": "",
   "glyphs": [
+    {
+      "icon_id": "20668602",
+      "name": "Outlined线性_收起",
+      "font_class": "Outlinedxianxing_shouqi",
+      "unicode": "e690",
+      "unicode_decimal": 59024
+    },
+    {
+      "icon_id": "20668603",
+      "name": "Outlined线性_新增",
+      "font_class": "Outlinedxianxing_xinzeng",
+      "unicode": "e691",
+      "unicode_decimal": 59025
+    },
+    {
+      "icon_id": "20668604",
+      "name": "Outlined线性_步骤_完成",
+      "font_class": "Outlinedxianxing_buzhou_wancheng",
+      "unicode": "e692",
+      "unicode_decimal": 59026
+    },
+    {
+      "icon_id": "20668605",
+      "name": "Fill填充_Check-Circle",
+      "font_class": "Filltianchong_Check-Circle",
+      "unicode": "e693",
+      "unicode_decimal": 59027
+    },
     {
       "icon_id": "20408965",
       "name": "Fill填充_Close-Circle-Fill",

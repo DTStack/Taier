@@ -6,7 +6,9 @@ import { MAIN_COLOR } from '../constants/theme';
 
 const columns = (props: any) => {
   const { toEdit, toAuth, toDelete, left, right, filters } = props;
-
+  const IconFilter = () => (
+    <i className="iconfont iconOutlinedxianxing_filter filter-status"></i>
+  );
   return [
     {
       title: '数据源名称',
@@ -77,6 +79,9 @@ const columns = (props: any) => {
           </span>
         ),
       filters: filters,
+      filterIcon: () => (
+        <Icon component={IconFilter} style={{ cursor: 'pointer' }} />
+      ),
     },
     {
       title: '最近修改时间',

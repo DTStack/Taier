@@ -110,7 +110,9 @@ const InfoConfig = (props) => {
           setDetailData(JSON.parse(detailData.dataJson));
 
           //webSocket定制化
-          setWebSocketParams(JSON.parse(detailData.dataJson)?.webSocketParams);
+          setWebSocketParams(
+            JSON.parse(detailData.dataJson)?.webSocketParams || {}
+          );
         });
       }
     } else {
@@ -159,8 +161,8 @@ const InfoConfig = (props) => {
     validateFields(async (err, fieldsValue) => {
       if (!err) {
         let handelParams: any = { ...otherParams };
-        handelParams.dataName = fieldsValue.dataName;
-        handelParams.dataDesc = fieldsValue.dataDesc;
+        handelParams.dataName = fieldsValue.dataName.trim();
+        handelParams.dataDesc = fieldsValue.dataDesc.trim();
         delete fieldsValue.dataName;
         delete fieldsValue.dataDesc;
         delete fieldsValue.dataType;
@@ -168,8 +170,17 @@ const InfoConfig = (props) => {
           //edit need id
           handelParams.id = record.dataInfoId;
         }
-        if (webSocketParams) {
+
+        //webSocket定制化
+        if (JSON.stringify(webSocketParams) !== '{}') {
           fieldsValue.webSocketParams = webSocketParams;
+        }
+
+        //Remove leading and trailing spaces
+        for (const key in fieldsValue) {
+          if (typeof fieldsValue[key] === 'string') {
+            fieldsValue[key] = fieldsValue[key].trim();
+          }
         }
 
         if (getFieldValue('kerberosFile')) {
@@ -239,15 +250,15 @@ const InfoConfig = (props) => {
     });
   };
   //3.switch处理upload方法
-  const switchChange = (value, label, name) => {
-    if (label === '开启Kerberos认证') {
-      setShowUpload(value);
-      if (!value) {
-        setFileList([]);
-        setFile('');
-      }
-    }
-  };
+  // const switchChange = (value, label, name) => {
+  //   if (label === '开启Kerberos认证') {
+  //     setShowUpload(value);
+  //     if (!value) {
+  //       setFileList([]);
+  //       setFile('');
+  //     }
+  //   }
+  // };
   //InputWithCopy｜TextAreaWithCopy之复制功能
   const handleCopy = (item) => {
     if (copy(item.placeHold)) {
@@ -658,16 +669,16 @@ const InfoConfig = (props) => {
                 initialValue: detailData?.openKerberos || false,
               })(
                 <Switch
-                  onChange={(checked) =>
-                    switchChange(checked, item.label, item.name)
-                  }
+                // onChange={(checked) =>
+                //   switchChange(checked, item.label, item.name)
+                // }
                 />
               )}
             </Form.Item>
 
             {getFieldValue('openKerberos') && uploadForm()}
 
-            {getFieldValue('kerberosFile') && (
+            {getFieldValue('kerberosFile') && getFieldValue('openKerberos') && (
               <Form.Item label="Kerberos Principal">
                 {getFieldDecorator('principal', {
                   rules: [
@@ -692,16 +703,16 @@ const InfoConfig = (props) => {
                 initialValue: detailData?.openKerberos || false,
               })(
                 <Switch
-                  onChange={(checked) =>
-                    switchChange(checked, item.label, item.name)
-                  }
+                // onChange={(checked) =>
+                //   switchChange(checked, item.label, item.name)
+                // }
                 />
               )}
             </Form.Item>
 
             {getFieldValue('openKerberos') && uploadForm()}
 
-            {getFieldValue('kerberosFile') && (
+            {getFieldValue('kerberosFile') && getFieldValue('openKerberos') && (
               <>
                 <Form.Item label="client.principal">
                   {getFieldDecorator('principal', {
