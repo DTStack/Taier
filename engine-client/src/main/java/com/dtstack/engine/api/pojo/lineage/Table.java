@@ -1,5 +1,6 @@
 package com.dtstack.engine.api.pojo.lineage;
 
+import com.dtstack.engine.api.enums.TableOperateEnum;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -81,6 +82,33 @@ public class Table{
      */
     private boolean partitionTable;
 
+    /**
+     * sql对表的操作类型
+     */
+    private TableOperateEnum operate;
+
+    /**
+     * ETableType
+     */
+    private Integer tableType;
+
+
+    public TableOperateEnum getOperate() {
+        return operate;
+    }
+
+    public void setOperate(TableOperateEnum operate) {
+        this.operate = operate;
+    }
+
+    public Integer getTableType() {
+        return tableType;
+    }
+
+    public void setTableType(Integer tableType) {
+        this.tableType = tableType;
+    }
+
     public boolean isPartitionTable() {
         return partitionTable;
     }
@@ -95,6 +123,9 @@ public class Table{
 
     public void setView(boolean view) {
         isView = view;
+    }
+
+    public Table() {
     }
 
     public Table(String db, String name) {
