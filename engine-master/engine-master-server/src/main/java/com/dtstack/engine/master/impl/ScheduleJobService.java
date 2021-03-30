@@ -2949,13 +2949,13 @@ public class ScheduleJobService {
     }
 
     private void updateFatherStatus(ScheduleJob fatherScheduleJob, ScheduleJob currentScheduleJob, List<ScheduleJob> sonScheduleJobs, Integer bottleStatus) {
-        if (RdosTaskStatus.RUNNING_TASK_RULE.getStatus().equals(fatherScheduleJob.getStatus()) && CollectionUtils.isNotEmpty(sonScheduleJobs)) {
+        if (CollectionUtils.isNotEmpty(sonScheduleJobs)) {
             String nameByDtUicTenantId = tenantDao.getNameByDtUicTenantId(currentScheduleJob.getDtuicTenantId());
             ScheduleEngineProject project = scheduleEngineProjectDao.getProjectByProjectIdAndApptype(currentScheduleJob.getProjectId(), currentScheduleJob.getAppType());
             if (RdosTaskStatus.FAILED_STATUS.contains(bottleStatus)) {
                 // 当前强任务执行失败，执行更新成失败
-                String log = getLog(fatherScheduleJob, currentScheduleJob,nameByDtUicTenantId,project);
-                this.updateStatusAndLogInfoById(fatherScheduleJob.getJobId(), RdosTaskStatus.FAILED.getStatus(), log);
+                String log = getLog(fatherScheduleJob, currentScheduleJob, nameByDtUicTenantId, project);
+                updateFatherStatus(fatherScheduleJob, log,RdosTaskStatus.FAILED.getStatus());
             } else if (RdosTaskStatus.FINISH_STATUS.contains(bottleStatus)) {
                 // 当前任务执行成功,判断父任务下其他子任务是否有强规则任务
                 List<ScheduleJob> jobs = sonScheduleJobs.stream().filter(job -> TaskRuleEnum.STRONG_RULE.getCode().equals(job.getTaskRule()) && !job.getJobKey().equals(currentScheduleJob.getJobKey())).collect(Collectors.toList());
@@ -2965,15 +2965,29 @@ public class ScheduleJobService {
 
                     if (CollectionUtils.isEmpty(noFinishJobs)) {
                         // 为查到未完成的任务
-                        String log = String.format(LOG_TEM, currentScheduleJob.getJobName(), "运行成功", StringUtils.isBlank(nameByDtUicTenantId)?"":nameByDtUicTenantId,project==null? "":project.getProjectAlias());
-                        this.updateStatusAndLogInfoById(fatherScheduleJob.getJobId(), RdosTaskStatus.FINISHED.getStatus(), addLog(fatherScheduleJob.getLogInfo(),log));
+                        String log = String.format(LOG_TEM, currentScheduleJob.getJobName(), "运行成功", StringUtils.isBlank(nameByDtUicTenantId) ? "" : nameByDtUicTenantId, project == null ? "" : project.getProjectAlias());
+                        updateFatherStatus(fatherScheduleJob, addLog(fatherScheduleJob.getLogInfo(),log),RdosTaskStatus.FINISHED.getStatus());
                     }
                 } else {
-                    String log = String.format(LOG_TEM, currentScheduleJob.getJobName(), "运行成功", StringUtils.isBlank(nameByDtUicTenantId)?"":nameByDtUicTenantId,project==null? "":project.getProjectAlias());
-                    this.updateStatusAndLogInfoById(fatherScheduleJob.getJobId(), RdosTaskStatus.FINISHED.getStatus(), addLog(fatherScheduleJob.getLogInfo(),log));
+                    String log = String.format(LOG_TEM, currentScheduleJob.getJobName(), "运行成功", StringUtils.isBlank(nameByDtUicTenantId) ? "" : nameByDtUicTenantId, project == null ? "" : project.getProjectAlias());
+                    updateFatherStatus(fatherScheduleJob, addLog(fatherScheduleJob.getLogInfo(),log),RdosTaskStatus.FINISHED.getStatus());
                 }
             }
         }
+    }
+
+    private void updateFatherStatus(ScheduleJob fatherScheduleJob, String log, Integer status) {
+        this.updateLogInfoById(fatherScheduleJob.getJobId(),log);
+        if (RdosTaskStatus.RUNNING_TASK_RULE.getStatus().equals(fatherScheduleJob.getStatus())) {
+            this.updateStatusByJobId(fatherScheduleJob.getJobId(), status,fatherScheduleJob.getVersionId());
+        }
+    }
+
+    private void updateLogInfoById(String jobId, String msg) {
+        if (StringUtils.isNotBlank(msg) && msg.length() > 5000) {
+            msg = msg.substring(0, 5000) + "...";
+        }
+        scheduleJobDao.updateLogInfoByJobId(jobId,msg);
     }
 
     private String getLog(ScheduleJob fatherScheduleJob,ScheduleJob currentScheduleJob,String nameByDtUicTenantId,ScheduleEngineProject project) {
@@ -2992,7 +3006,14 @@ public class ScheduleJobService {
                 for (ScheduleJob job : jobs) {
                     if (RdosTaskStatus.FAILED_STATUS.contains(job.getStatus())) {
                         // 存在空任务失败的情况
-                        addLog = String.format(addLog, currentScheduleJob.getJobName(), job.getLogInfo(), StringUtils.isBlank(nameByDtUicTenantId)?"":nameByDtUicTenantId,project==null? "":project.getProjectAlias());
+                        String logInfo1 = "运行失败";
+                        try {
+                            JSONObject jsonObject = JSON.parseObject(job.getLogInfo());
+                            logInfo1 = jsonObject.getString("result");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        addLog = String.format(addLog, currentScheduleJob.getJobName(), logInfo1, StringUtils.isBlank(nameByDtUicTenantId)?"":nameByDtUicTenantId,project==null? "":project.getProjectAlias());
                         isRule = Boolean.TRUE;
                         break;
                     }
