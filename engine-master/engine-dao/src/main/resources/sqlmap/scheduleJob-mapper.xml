@@ -1719,6 +1719,7 @@
     </update>
     <update id="updateLogInfoByJobId">
         UPDATE schedule_job
+        SET
             log_info = #{msg},
             exec_start_time = now(),
             gmt_modified = now()
