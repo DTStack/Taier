@@ -2939,7 +2939,14 @@ public class ScheduleJobService {
                 for (ScheduleJob job : jobs) {
                     if (RdosTaskStatus.FAILED_STATUS.contains(job.getStatus())) {
                         // 存在空任务失败的情况
-                        addLog = String.format(addLog, currentScheduleJob.getJobName(), job.getLogInfo(), StringUtils.isBlank(nameByDtUicTenantId)?"":nameByDtUicTenantId,project==null? "":project.getProjectAlias());
+                        String logInfo1 = "运行失败";
+                        try {
+                            JSONObject jsonObject = JSON.parseObject(job.getLogInfo());
+                            logInfo1 = jsonObject.getString("result");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        addLog = String.format(addLog, currentScheduleJob.getJobName(), logInfo1, StringUtils.isBlank(nameByDtUicTenantId)?"":nameByDtUicTenantId,project==null? "":project.getProjectAlias());
                         isRule = Boolean.TRUE;
                         break;
                     }
