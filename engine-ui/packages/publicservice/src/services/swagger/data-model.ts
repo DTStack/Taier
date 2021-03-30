@@ -59,4 +59,8 @@ export default {
     method: 'post',
     url: `${prefix}/data/columns`,
   },
+  repeatValidate: {
+    method: 'post',
+    url: `/api/publicService/common/name/repeat`
+  }
 };

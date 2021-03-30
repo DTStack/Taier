@@ -5,6 +5,7 @@ import FormRender from './FormRender';
 import { EnumModifyStep } from './types';
 import FieldsSelect from './FieldsSelect';
 import PartitionField from './PartitionField';
+import { API } from '@/services';
 const idGenerator = () => {
   let _id = 0;
   return () => {
@@ -14,7 +15,7 @@ const idGenerator = () => {
 const id = idGenerator();
 
 // 基础信息表单配置
-export const basicInfoFormListGenerator = (options: any[]): IFormItem[] => {
+export const basicInfoFormListGenerator = (options: any[], id?: number): IFormItem[] => {
   return [
     {
       key: 'modelName',
@@ -28,6 +29,22 @@ export const basicInfoFormListGenerator = (options: any[]): IFormItem[] => {
           pattern: /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/g,
           message: '仅支持中文、字母、数字和下划线',
         },
+        {
+          validator: async (rule, value, callback) => {
+            const { success, data, message } = await API.repeatValidate({
+              fieldCode: 1,
+              value,
+              id
+            });
+            if(success && data) {
+              callback('模型名称不能重复')
+            } else if (success && !data) {
+              callback();
+            } else {
+              callback(message);
+            }
+          }
+        }
       ],
     },
     {
@@ -39,6 +56,22 @@ export const basicInfoFormListGenerator = (options: any[]): IFormItem[] => {
         { required: true, message: '请输入模型英文名' },
         { max: 50, message: '不超过50个字符' },
         { pattern: /^[a-zA-Z0-9_]+$/g, message: '仅支持字母、数字和下划线' },
+        {
+          validator: async (rule, value, callback) => {
+            const { success, data, message } = await API.repeatValidate({
+              fieldCode: 2,
+              value,
+              id,
+            });
+            if(success && data) {
+              callback('模型英文名称不能重复')
+            } else if (success && !data) {
+              callback();
+            } else {
+              callback(message);
+            }
+          }
+        }
       ],
     },
     {

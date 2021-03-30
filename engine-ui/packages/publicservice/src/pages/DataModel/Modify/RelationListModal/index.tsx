@@ -17,11 +17,17 @@ enum EnumRelationModifyMode {
   ADD = 'ADD',
 }
 
+interface ITableItem {
+  id: number;
+  tableName: string;
+  schema: string;
+  tableAlias: string;
+}
 interface IPropsRelationTableModal {
   form?: any;
   cref: any;
   data?: TableJoinInfo;
-  tables: Array<{ tableName: string; schema: string }>;
+  tables: ITableItem[];
   schemaList: any[];
   dataSourceId: number;
 }
@@ -110,6 +116,23 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
       tableNames,
     });
   };
+  // 表别名重复性校验
+  const repeatValidator = (rule, value, callback) => {
+    let filter = v => true;
+    if(mode === EnumRelationModifyMode.EDIT) {
+      // 编辑状态下需要过滤当前id的表名
+      filter = item => item.id !== id;
+    }
+    const isRepeat = tables
+      .filter(item => item.tableAlias)
+      .filter(filter)
+      .findIndex(item => item.tableAlias === value) === -1;
+    if(isRepeat) {
+      callback();
+    } else {
+      callback('表别名不能重复');
+    }
+  }
 
   useEffect(() => {
     if (!currentFormValue || !currentFormValue.leftTable) return;
@@ -217,7 +240,15 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
             <Col span={11}>
               <Form.Item className="special-form-item">
                 {getFieldDecorator('tableAlias', {
-                  rules: requiredRule('请输入表名'),
+                  rules: [
+                    { required: true, message: '请输入表名称' },
+                    { max: 20, message: '表别名不能超过20个字符' },
+                    { pattern: /^[a-zA-Z0-9_]+$/g, message: '仅支持数字、字母、下划线' },
+                    { pattern: /[a-zA-Z]+/, message: '表名至少包含1个英文字母' },
+                    { 
+                      validator: repeatValidator,
+                    }
+                  ]
                 })(<Input placeholder="请输入表名" />)}
               </Form.Item>
             </Col>

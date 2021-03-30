@@ -45,6 +45,7 @@ const FormRender = (props: IPropsFormRender) => {
           <Form.Item required={isRequired} label={item.label}>
             {form.getFieldDecorator(item.key, {
               rules: item.rules,
+              validateTrigger: 'onBlur',
             })(
               <FormComponent
                 className={className}

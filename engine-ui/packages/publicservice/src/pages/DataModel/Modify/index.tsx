@@ -46,7 +46,8 @@ enum EnumModifyMode {
 const { Step } = Steps;
 
 const Modify = (props: IPropsModify) => {
-  const modelId = props.match.params.id;
+  const _id = props.match.params.id;
+  const modelId: number = _id ? parseInt(_id) : _id;
   const mode = modelId === undefined ? EnumModifyMode.ADD : EnumModifyMode.EDIT;
   const breadcrumTitle = mode === EnumModifyMode.ADD ? '新建模型' : '编辑模型';
   const { form } = props;
@@ -225,11 +226,26 @@ const Modify = (props: IPropsModify) => {
   };
 
   const handlePrevStep = () => {
-    setFormValue((prev) => ({
-      ...prev,
-      ...form.getFieldsValue(),
-    }));
-    setCurrent((prev) => prev - 1);
+    switch(current) {
+      case EnumModifyStep.BASIC_STEP:
+      case EnumModifyStep.RELATION_TABLE_STEP:
+      case EnumModifyStep.SETTING_STEP:
+        setFormValue((prev) => ({
+          ...prev,
+          ...form.getFieldsValue(),
+        }));
+        setCurrent((prev) => prev - 1);
+        break;
+      case EnumModifyStep.DIMENSION_STEP:
+      case EnumModifyStep.METRIC_STEP:
+        const datasource = cref.current.getValue();
+        setFormValue(formValue => ({
+          ...formValue,
+          columns: datasource,
+        }));
+        setCurrent(current => current - 1);
+        break;
+    }
   };
 
   const handleNextStep = () => {
@@ -286,8 +302,20 @@ const Modify = (props: IPropsModify) => {
     }
   };
 
+  const firstRenderCol = useRef(true);
+
   useEffect(() => {
     const { dsId, schema, tableName, joinList = [] } = formValue;
+    if (
+        !schema ||
+        !dsId ||
+        !tableName
+      ) return;
+    if (firstRenderCol.current && mode === EnumModifyMode.EDIT) {
+      // 编辑时初始化不调用columns接口
+      firstRenderCol.current = false;
+      return;
+    }
     if (dsId === undefined || schema === undefined || tableName === undefined)
       return;
     getColumnList(
@@ -350,7 +378,8 @@ const Modify = (props: IPropsModify) => {
   const getFormList = (step: EnumModifyStep) => {
     switch (step) {
       case EnumModifyStep.BASIC_STEP:
-        return basicInfoFormListGenerator(dataSourceList);
+        const id = mode === EnumModifyMode.ADD ? undefined : modelId;
+        return basicInfoFormListGenerator(dataSourceList, id);
       case EnumModifyStep.RELATION_TABLE_STEP:
         return relationFormListGenerator({
           handleClick: () => {
@@ -382,6 +411,8 @@ const Modify = (props: IPropsModify) => {
       relationList.push({
         tableName: formValue.tableName,
         schema: formValue.schema,
+        tableAlias: undefined,
+        id: undefined,
       });
     }
     if (formValue.joinList) {
@@ -389,17 +420,15 @@ const Modify = (props: IPropsModify) => {
         relationList.push({
           tableName: joinItem.table,
           schema: joinItem.schema,
+          tableAlias: joinItem.tableAlias,
+          id: joinItem.id,
         });
       });
     }
     return relationList;
   };
   // 关联表列表
-  const relationTableList = useMemo(getRelationTableList, [
-    formValue.tableName,
-    formValue.schema,
-    formValue.joinList,
-  ]);
+  const relationTableList = getRelationTableList();
 
   const handleModalOk = () => {
     childRef.current.validate((err, data, id) => {
@@ -455,6 +484,7 @@ const Modify = (props: IPropsModify) => {
               <Form
                 layout="horizontal"
                 className="form-area"
+
                 {...formItemLayout}>
                 {stepContentRender(current, {
                   formList: getFormList(current),
