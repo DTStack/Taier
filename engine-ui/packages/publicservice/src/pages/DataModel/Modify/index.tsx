@@ -24,7 +24,7 @@ import Message from 'pages/DataModel/components/Message';
 import _ from 'lodash';
 import { TableJoinInfo } from 'pages/DataModel/types';
 import { EnumModifyStep } from './types';
-import BreadCrumbRender from './BreadcrumbRender';
+import BreadCrumbRender from './BreadCrumbRender';
 const idGenerator = () => {
   let _id = 0;
   return () => ++_id + '';
