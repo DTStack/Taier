@@ -1166,10 +1166,10 @@ public class JobGraphBuilder {
         List<ScheduleBatchJob> batchJobs;
         if (StringUtils.isNotBlank(beginTime) && StringUtils.isNotBlank(endTime)) {
             batchJobs = buildJobRunBean(batchTask, preStr, EScheduleType.FILL_DATA, needFather,
-                    true, triggerDay, fillJobName, createUserId, beginTime, endTime, projectId, tenantId);
+                    true, triggerDay, fillJobName, createUserId, beginTime, endTime, batchTask.getProjectId(), tenantId);
         } else {
             batchJobs = buildJobRunBean(batchTask, preStr, EScheduleType.FILL_DATA, needFather,
-                    true, triggerDay, fillJobName, createUserId, projectId, tenantId);
+                    true, triggerDay, fillJobName, createUserId, batchTask.getProjectId(), tenantId);
         }
         //针对专门补工作流子节点
         doSetFlowJobIdForSubTasks(batchJobs, flowJobId);
@@ -1208,7 +1208,7 @@ public class JobGraphBuilder {
                     JsonNode jsonNode = node.get("appType");
                     sonAppType = jsonNode.asInt();
                 }
-                Map<String, ScheduleBatchJob> childNodeMap = buildFillDataJobGraph(node, fillJobName, true, triggerDay, createUserId, beginTime, endTime, projectId, tenantId, true,sonAppType,fillId,dtuicTenantId);
+                Map<String, ScheduleBatchJob> childNodeMap = buildFillDataJobGraph(node, fillJobName, true, triggerDay, createUserId, beginTime, endTime, batchTask.getProjectId(), tenantId, true,sonAppType,fillId,dtuicTenantId);
                 if (childNodeMap != null) {
                     result.putAll(childNodeMap);
                 }
