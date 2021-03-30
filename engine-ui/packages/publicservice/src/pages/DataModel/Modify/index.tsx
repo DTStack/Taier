@@ -1,3 +1,4 @@
+// TODO:但文件代码量过多，待优化
 import React, {
   useState,
   useEffect,
@@ -16,7 +17,6 @@ import {
   stepContentRender,
   layoutGenerator,
   restoreKeysMap,
-  settingFormListgenerator,
 } from './constants';
 import { joinPairsParser } from './utils';
 import { API } from '@/services';
@@ -224,14 +224,13 @@ const Modify = (props: IPropsModify) => {
     });
   };
 
-
   const handlePrevStep = () => {
-    setFormValue(prev => ({
+    setFormValue((prev) => ({
       ...prev,
       ...form.getFieldsValue(),
-    }))
-    setCurrent(prev => prev - 1);
-  }
+    }));
+    setCurrent((prev) => prev - 1);
+  };
 
   const handleNextStep = () => {
     switch (current) {
@@ -332,17 +331,17 @@ const Modify = (props: IPropsModify) => {
   }, [formValue.dsId, currentFormValue.schema]);
 
   useEffect(() => {
-    if(formValue.dsId === undefined) return;
+    if (formValue.dsId === undefined) return;
     getSchemaList(formValue.dsId);
-    if(firstRender.current) {
+    if (firstRender.current) {
       firstRender.current = false;
-      return ;
+      return;
     }
-    setFormValue(prev => ({
+    setFormValue((prev) => ({
       ...prev,
       schema: undefined,
       tableName: undefined,
-    }))
+    }));
   }, [formValue.dsId]);
 
   const cref = useRef(null);
@@ -373,8 +372,6 @@ const Modify = (props: IPropsModify) => {
           onRelationListEdit,
           onMasterTableChange,
         });
-      case EnumModifyStep.SETTING_STEP:
-        return settingFormListgenerator(formValue.columns);
     }
   };
 
@@ -388,29 +385,28 @@ const Modify = (props: IPropsModify) => {
       });
     }
     if (formValue.joinList) {
-      formValue.joinList.forEach(joinItem => {
+      formValue.joinList.forEach((joinItem) => {
         relationList.push({
           tableName: joinItem.table,
-          schema: joinItem.schema
-        })
-      })
+          schema: joinItem.schema,
+        });
+      });
     }
     return relationList;
-  }
+  };
   // 关联表列表
-  const relationTableList = useMemo(
-    getRelationTableList,
-    [formValue.tableName, formValue.schema, formValue.joinList]
-  );
+  const relationTableList = useMemo(getRelationTableList, [
+    formValue.tableName,
+    formValue.schema,
+    formValue.joinList,
+  ]);
 
   const handleModalOk = () => {
     childRef.current.validate((err, data, id) => {
       if (err) return;
       // form数据转化
       const joinItem = joinItemParser(data);
-      joinItem.joinPairs = joinItem.joinPairs.map(
-        joinPairsParser.decode
-      )
+      joinItem.joinPairs = joinItem.joinPairs.map(joinPairsParser.decode);
       let joinList = formValue.joinList || [];
       if (!id) {
         // 新增关联关系
@@ -431,7 +427,7 @@ const Modify = (props: IPropsModify) => {
       }));
       setVisibleRelationModal(false);
     });
-  }
+  };
 
   return (
     <Container>
@@ -509,9 +505,13 @@ const Modify = (props: IPropsModify) => {
                 onClick={handleNextStep}>
                 下一步
               </Button>
-              <Button onClick={() => {
-
-              }} type="primary">
+              <Button
+                onClick={() => {
+                  form.validateFields((err, data) => {
+                    if (err) return;
+                  });
+                }}
+                type="primary">
                 保存并退出
               </Button>
             </div>

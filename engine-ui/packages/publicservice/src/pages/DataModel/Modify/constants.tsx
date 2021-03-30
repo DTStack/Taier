@@ -4,6 +4,7 @@ import _ from 'lodash';
 import FormRender from './FormRender';
 import { EnumModifyStep } from './types';
 import FieldsSelect from './FieldsSelect';
+import PartitionField from './PartitionField';
 const idGenerator = () => {
   let _id = 0;
   return () => {
@@ -117,69 +118,6 @@ export const relationFormListGenerator = ({
   ];
 };
 
-const dateFmtList = [
-  'yyyy-MM-dd HH:mm:ss',
-  'yyyy-MM-dd HH:mm',
-  'yyyy-MM-dd HH',
-  'yyyy-MM-dd',
-  'yyyy-MM',
-];
-const timeFmtList = ['HH:mm:ss', 'HH:mm', 'HH'];
-
-export const settingFormListgenerator = (columns): IFormItem[] => {
-  return [
-    {
-      type: EnumFormItemType.SELECT,
-      label: '分区字段（日期）',
-      placeholder: '请选择分区字段（日期）',
-      key: 'modelPartition.datePartitionColumn.columnName',
-      options: columns.map((item) => ({
-        key: `${item.schema}-${item.tableName}-${item.columnName}`,
-        label: item.columnName,
-        value: `${item.schema}-${item.tableName}-${item.columnName}`,
-      })),
-    },
-    {
-      key: 'modelPartition.dateFmt',
-      label: '日期格式',
-      placeholder: '请选择日期格式',
-      type: EnumFormItemType.SELECT,
-      options: dateFmtList.map((item) => ({
-        label: item,
-        key: item,
-        value: item,
-      })),
-    },
-    {
-      key: 'modelPartition.timePartition',
-      type: EnumFormItemType.SWITCH,
-      label: '是否设置时间分区',
-    },
-    {
-      type: EnumFormItemType.SELECT,
-      label: '分区字段（时间）',
-      placeholder: '请选择分区字段（时间）',
-      key: 'modelPartition.timePartitionColumn.columnName',
-      options: columns.map((item) => ({
-        key: `${item.schema}-${item.tableName}-${item.columnName}`,
-        label: item.columnName,
-        value: `${item.schema}-${item.tableName}-${item.columnName}`,
-      })),
-    },
-    {
-      key: 'modelPartition.timeFmt',
-      label: '时间格式',
-      placeholder: '请选择时间格式',
-      type: EnumFormItemType.SELECT,
-      options: timeFmtList.map((item) => ({
-        key: item,
-        label: item,
-        value: item,
-      })),
-    },
-  ];
-};
-
 // 添加关联表，form数据转换
 export const joinItemParser = (data) => {
   const filterKeys = [];
@@ -232,7 +170,7 @@ export const stepContentRender = (step: EnumModifyStep, props: any) => {
     case EnumModifyStep.METRIC_STEP:
       return <FieldsSelect step={step} cref={cref} formValue={formValue} />;
     case EnumModifyStep.SETTING_STEP:
-      return <FormRender form={form} formList={props.formList || []} />;
+      return <PartitionField form={form} formValue={formValue} />;
   }
 };
 

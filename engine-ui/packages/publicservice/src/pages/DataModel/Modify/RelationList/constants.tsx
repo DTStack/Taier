@@ -49,7 +49,7 @@ export const columnsGenerator = ({ onDelete, onEdit }) => {
           default:
             return 'error type';
         }
-      }
+      },
     },
     {
       title: '关联条件',

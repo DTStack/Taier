@@ -1,4 +1,3 @@
-
 export const joinPairsParser = {
   // Object 2 string
   encode: (joinObj) => {
@@ -11,20 +10,16 @@ export const joinPairsParser = {
     return {
       leftValue: `${lSchema}-${lTable}-${lCol}`,
       rightvalue: `${rSchema}-${rTable}-${rCol}`,
-    }
+    };
   },
   // string 2 Object
   /**
    * @param joinItemStr {leftValue: string, rightValue: string }
-   * @returns 
+   * @returns
    */
   decode: (joinItemStr) => {
-    const [lSchema, lTable, lCol] = joinItemStr.leftValue.split(
-      '-'
-    );
-    const [rSchema, rTable, rCol] = joinItemStr.rightValue.split(
-      '-'
-    );
+    const [lSchema, lTable, lCol] = joinItemStr.leftValue.split('-');
+    const [rSchema, rTable, rCol] = joinItemStr.rightValue.split('-');
     return {
       leftValue: {
         schema: lSchema,
@@ -37,5 +32,5 @@ export const joinPairsParser = {
         columnName: rCol,
       },
     };
-  }
-}
+  },
+};
