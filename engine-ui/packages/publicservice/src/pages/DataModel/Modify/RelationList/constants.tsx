@@ -1,7 +1,6 @@
 import React from 'react';
 import { Divider } from 'antd';
-
-// export const columns = ;
+import { JoinType } from 'pages/DataModel/types';
 
 export const columnsGenerator = ({ onDelete, onEdit }) => {
   return [
@@ -39,6 +38,18 @@ export const columnsGenerator = ({ onDelete, onEdit }) => {
       key: 'jionType',
       width: 120,
       ellipsis: true,
+      render: (type) => {
+        switch (type) {
+          case JoinType.LEFT_JOIN:
+            return 'Left Join';
+          case JoinType.RIGHT_JOIN:
+            return 'Right Join';
+          case JoinType.INNER_JOIN:
+            return 'Inner Join';
+          default:
+            return 'error type';
+        }
+      }
     },
     {
       title: '关联条件',

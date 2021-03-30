@@ -6,7 +6,7 @@ import React, {
   useMemo,
 } from 'react';
 import Container from 'pages/DataModel/components/Container';
-import { Breadcrumb, Steps, Button, Form, Modal } from 'antd';
+import { Steps, Button, Form, Modal } from 'antd';
 import './style';
 import RelationTableModal from './RelationListModal';
 import {
@@ -18,11 +18,13 @@ import {
   restoreKeysMap,
   settingFormListgenerator,
 } from './constants';
+import { joinPairsParser } from './utils';
 import { API } from '@/services';
 import Message from 'pages/DataModel/components/Message';
 import _ from 'lodash';
 import { TableJoinInfo } from 'pages/DataModel/types';
 import { EnumModifyStep } from './types';
+import BreadCrumbRender from './BreadcrumbRender';
 const idGenerator = () => {
   let _id = 0;
   return () => ++_id + '';
@@ -49,18 +51,24 @@ const Modify = (props: IPropsModify) => {
   const breadcrumTitle = mode === EnumModifyMode.ADD ? '新建模型' : '编辑模型';
   const { form } = props;
   const { validateFields, getFieldsValue, setFieldsValue } = form;
+
   const [current, setCurrent] = useState<EnumModifyStep>(
     EnumModifyStep.BASIC_STEP
   );
   const [visibleRelationModal, setVisibleRelationModal] = useState(false);
   const [formValue, setFormValue] = useState<any>({});
-  const [dataSourceList, setdataSourceList] = useState([]);
-  const [schemaList, setSchemaList] = useState([]);
-  const [tableList, setTableList] = useState([]);
   const [updateTypeList, setUpdateTypeList] = useState([]);
   const [visibleUpdateType, setVisibleUpdateType] = useState(false);
   const [editJoinItem, setEditJoinItem] = useState<null | TableJoinInfo>(null);
+
+  const [dataSourceList, setdataSourceList] = useState([]);
+  const [schemaList, setSchemaList] = useState([]);
+  const [tableList, setTableList] = useState([]);
+
+  const firstRender = useRef(true);
+
   const formItemLayout = useMemo(() => layoutGenerator(current), [current]);
+
   const getSchemaList = async (datasourceId: number) => {
     if (!datasourceId) return;
     try {
@@ -177,14 +185,6 @@ const Modify = (props: IPropsModify) => {
         return temp;
       }, {})
     );
-    form.getFieldsValue();
-  };
-
-  const onSchemaChange = () => {
-    // 当schema变化时重置表
-    setFieldsValue({
-      tableName: undefined,
-    });
   };
 
   const onRelationListDelete = useCallback((id: number) => {
@@ -217,17 +217,33 @@ const Modify = (props: IPropsModify) => {
     setVisibleUpdateType(ext);
   };
 
+  const onSchemaChange = () => {
+    // 当schema变化时重置表
+    setFieldsValue({
+      tableName: undefined,
+    });
+  };
+
+
+  const handlePrevStep = () => {
+    setFormValue(prev => ({
+      ...prev,
+      ...form.getFieldsValue(),
+    }))
+    setCurrent(prev => prev - 1);
+  }
+
   const handleNextStep = () => {
     switch (current) {
       case EnumModifyStep.BASIC_STEP:
       case EnumModifyStep.RELATION_TABLE_STEP:
         validateFields((err, data) => {
           if (err) return;
-          setCurrent((prev) => prev + 1);
           setFormValue((prev) => ({
             ...prev,
             ...form.getFieldsValue(),
           }));
+          setCurrent((prev) => prev + 1);
         });
         break;
       case EnumModifyStep.DIMENSION_STEP:
@@ -316,7 +332,17 @@ const Modify = (props: IPropsModify) => {
   }, [formValue.dsId, currentFormValue.schema]);
 
   useEffect(() => {
+    if(formValue.dsId === undefined) return;
     getSchemaList(formValue.dsId);
+    if(firstRender.current) {
+      firstRender.current = false;
+      return ;
+    }
+    setFormValue(prev => ({
+      ...prev,
+      schema: undefined,
+      tableName: undefined,
+    }))
   }, [formValue.dsId]);
 
   const cref = useRef(null);
@@ -352,20 +378,71 @@ const Modify = (props: IPropsModify) => {
     }
   };
 
+  // 将主表以及关联表拼接
+  const getRelationTableList = () => {
+    const relationList = [];
+    if (formValue.tableName && formValue.schema) {
+      relationList.push({
+        tableName: formValue.tableName,
+        schema: formValue.schema,
+      });
+    }
+    if (formValue.joinList) {
+      formValue.joinList.forEach(joinItem => {
+        relationList.push({
+          tableName: joinItem.table,
+          schema: joinItem.schema
+        })
+      })
+    }
+    return relationList;
+  }
+  // 关联表列表
+  const relationTableList = useMemo(
+    getRelationTableList,
+    [formValue.tableName, formValue.schema, formValue.joinList]
+  );
+
+  const handleModalOk = () => {
+    childRef.current.validate((err, data, id) => {
+      if (err) return;
+      // form数据转化
+      const joinItem = joinItemParser(data);
+      joinItem.joinPairs = joinItem.joinPairs.map(
+        joinPairsParser.decode
+      )
+      let joinList = formValue.joinList || [];
+      if (!id) {
+        // 新增关联关系
+        joinList.push(joinItem);
+      } else {
+        // 编辑关联关系
+        joinList = joinList.map((item) => {
+          if (item.id === id) {
+            return joinItem;
+          } else {
+            return item;
+          }
+        });
+      }
+      setFormValue((formValue) => ({
+        ...formValue,
+        joinList,
+      }));
+      setVisibleRelationModal(false);
+    });
+  }
+
   return (
     <Container>
       <div className="dm-model-modify">
         <div className="breadcrumb-area">
-          <Breadcrumb>
-            <Breadcrumb.Item>
-              <a onClick={() => props.history.push('/data-model/list')}>
-                数据模型
-              </a>
-            </Breadcrumb.Item>
-            <Breadcrumb.Item>
-              <a>{breadcrumTitle}</a>
-            </Breadcrumb.Item>
-          </Breadcrumb>
+          <BreadCrumbRender
+            links={[
+              { label: '数据模型', href: '/data-model/list' },
+              { label: breadcrumTitle },
+            ]}
+          />
         </div>
         <div className="content">
           <header className="step-header">
@@ -398,68 +475,11 @@ const Modify = (props: IPropsModify) => {
                     setVisibleRelationModal(false);
                     setEditJoinItem(null);
                   }}
-                  onOk={() => {
-                    childRef.current.validate((err, data, id) => {
-                      if (err) return;
-                      // form数据转化
-                      const joinItem = joinItemParser(data);
-                      joinItem.joinPairs = joinItem.joinPairs.map((item) => {
-                        const [lSchema, lTable, lCol] = item.leftValue.split(
-                          '-'
-                        );
-                        const [rSchema, rTable, rCol] = item.rightValue.split(
-                          '-'
-                        );
-                        return {
-                          leftValue: {
-                            schema: lSchema,
-                            tableName: lTable,
-                            columnName: lCol,
-                          },
-                          rightValue: {
-                            schema: rSchema,
-                            tableName: rTable,
-                            columnName: rCol,
-                          },
-                        };
-                      });
-                      let joinList = formValue.joinList || [];
-                      if (!id) {
-                        // 新增关联关系
-                        joinList.push(joinItem);
-                      } else {
-                        // 编辑关联关系
-                        joinList = joinList.map((item) => {
-                          if (item.id === id) {
-                            return joinItem;
-                          } else {
-                            return item;
-                          }
-                        });
-                      }
-                      setFormValue((formValue) => ({
-                        ...formValue,
-                        joinList,
-                      }));
-                      setVisibleRelationModal(false);
-                    });
-                  }}>
+                  onOk={handleModalOk}>
                   <RelationTableModal
                     cref={(ref) => (childRef.current = ref)}
                     data={editJoinItem}
-                    tables={[
-                      {
-                        tableName: formValue.tableName,
-                        schema: formValue.schema,
-                      },
-                    ].concat(
-                      formValue.joinList
-                        ? formValue.joinList.map((item) => ({
-                            tableName: item.table,
-                            schema: item.schema,
-                          }))
-                        : []
-                    )}
+                    tables={relationTableList}
                     schemaList={schemaList}
                     dataSourceId={formValue.dsId}
                   />
@@ -479,9 +499,7 @@ const Modify = (props: IPropsModify) => {
               {current !== EnumModifyStep.BASIC_STEP ? (
                 <Button
                   className="margin-right-8 width-80"
-                  onClick={() => {
-                    setCurrent((prev) => prev - 1);
-                  }}>
+                  onClick={handlePrevStep}>
                   上一步
                 </Button>
               ) : null}
@@ -491,7 +509,9 @@ const Modify = (props: IPropsModify) => {
                 onClick={handleNextStep}>
                 下一步
               </Button>
-              <Button onClick={() => {}} type="primary">
+              <Button onClick={() => {
+
+              }} type="primary">
                 保存并退出
               </Button>
             </div>
