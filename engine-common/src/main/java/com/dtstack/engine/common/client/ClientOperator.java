@@ -1,5 +1,6 @@
 package com.dtstack.engine.common.client;
 
+import com.dtstack.engine.api.pojo.CheckResult;
 import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
@@ -163,11 +164,6 @@ public class ClientOperator {
         return clusterClient.submitJob(jobClient);
     }
 
-    public List<ClientTemplate> getDefaultPluginConfig(String engineType,String componentType){
-        IClient clusterClient = clientCache.getDefaultPlugin(engineType);
-        return clusterClient.getDefaultPluginConfig(componentType);
-    }
-
     public ComponentTestResult testConnect(String engineType, String pluginInfo){
         IClient clusterClient = clientCache.getDefaultPlugin(engineType);
         return clusterClient.testConnect(pluginInfo);
@@ -198,4 +194,8 @@ public class ClientOperator {
         }
     }
 
+    public CheckResult grammarCheck(JobClient jobClient) throws ClientAccessException {
+        IClient clusterClient = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
+        return clusterClient.grammarCheck(jobClient);
+    }
 }

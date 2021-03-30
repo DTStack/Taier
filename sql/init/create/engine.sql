@@ -155,13 +155,11 @@ CREATE TABLE `console_component` (
  `engine_id` int(11) NOT NULL COMMENT '引擎id',
  `component_name` varchar(24) NOT NULL COMMENT '组件名称',
  `component_type_code` tinyint(1) NOT NULL COMMENT '组件类型',
- `component_config` text NOT NULL COMMENT '组件配置',
  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
  `hadoop_version` varchar(25) DEFAULT '' COMMENT '组件hadoop版本',
  `upload_file_name` varchar(50) DEFAULT '' COMMENT '上传文件zip名称',
- `component_template` text COMMENT '前端展示模版json',
  `kerberos_file_name` varchar(50) DEFAULT '' COMMENT '上传kerberos文件zip名称',
  `store_type` tinyint(1) DEFAULT '4' COMMENT '组件存储类型: HDFS、NFS 默认HDFS',
   PRIMARY KEY (`id`),
@@ -623,7 +621,7 @@ create table lineage_data_source(
     gmt_modified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
     is_deleted tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
     PRIMARY KEY (id),
-    UNIQUE KEY uni_tenant_source_key (tenant_id,source_key,app_type,source_name)
+    UNIQUE KEY uni_tenant_source_key (dt_uic_tenant_id,source_key,app_type,source_name)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 表信息表。表可能并不能关联上data source。
@@ -670,7 +668,7 @@ create table lineage_table_table(
 create table lineage_table_table_unique_key_ref(
     id int(11) NOT NULL AUTO_INCREMENT,
     app_type smallint(4) NOT NULL COMMENT '应用类型',
-    uniqueKey varchar(32) NOT NULL COMMENT '血缘批次码，离线中通常为taskId',
+    unique_key varchar(32) NOT NULL COMMENT '血缘批次码，离线中通常为taskId',
     lineage_table_table_id int(11) NOT NULL COMMENT 'lineage_table_table表id',
     gmt_create datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
     gmt_modified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
@@ -702,7 +700,7 @@ create table lineage_column_column(
 create table lineage_column_column_unique_key_ref(
     id int(11) NOT NULL AUTO_INCREMENT,
     app_type smallint(4) NOT NULL COMMENT '应用类型',
-    uniqueKey varchar(32) NOT NULL COMMENT '血缘批次码，离线中通常为taskId',
+    unique_key varchar(32) NOT NULL COMMENT '血缘批次码，离线中通常为taskId',
     lineage_column_column_id int(11) NOT NULL COMMENT 'lineage_column_column表id',
     gmt_create datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
     gmt_modified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
@@ -711,4 +709,105 @@ create table lineage_column_column_unique_key_ref(
     UNIQUE KEY uni_appType_columnColumnId_uniqueKey (app_type,lineage_column_column_id,unique_key)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+create table if not exists console_component_config(
+    id                  int auto_increment primary key,
+    cluster_id          int                                  not null comment '集群id',
+    component_id        int                                  not null comment '组件id',
+    component_type_code tinyint(1)                           not null comment '组件类型',
+    type                varchar(128)                         not null comment '配置类型',
+    required            tinyint(1)                           not null comment 'true/false',
+    `key`               varchar(256)                         not null comment '配置键',
+    value               text                                 null comment '默认配置项',
+    `values`            varchar(512)                         null comment '可配置项',
+    dependencyKey       varchar(256)                         null comment '依赖键',
+    dependencyValue     varchar(256)                         null comment '依赖值',
+    `desc`              varchar(512)                         null comment '描述',
+    gmt_create          datetime   default CURRENT_TIMESTAMP not null comment '创建时间',
+    gmt_modified        datetime   default CURRENT_TIMESTAMP not null comment '修改时间',
+    is_deleted          tinyint(1) default 0                 not null comment '0正常 1逻辑删除',
+  KEY `index_componentId` (`component_id`),
+  KEY `index_cluster_id` (`cluster_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+create table if not exists schedule_dict(
+    id           int auto_increment
+        primary key,
+    dict_code    varchar(64)                           not null comment '字典标识',
+    dict_name    varchar(64)                           null comment '字典名称',
+    dict_value   text                                  null comment '字典值',
+    dict_desc    text                                  null comment '字典描述',
+    type         tinyint(1)  default 0                 not null comment '枚举值',
+    sort         int         default 0                 not null comment '排序',
+    data_type    varchar(64) default 'STRING'          not null comment '数据类型',
+    depend_name  varchar(64) default ''                null comment '依赖字典名称',
+    is_default   tinyint(1)  default 0                 not null comment '是否为默认值选项',
+    gmt_create   datetime    default CURRENT_TIMESTAMP not null comment '新增时间',
+    gmt_modified datetime    default CURRENT_TIMESTAMP not null comment '修改时间',
+    is_deleted   tinyint(1)  default 0                 not null comment '0正常 1逻辑删除',
+    KEY `index_type` (`type`),
+    KEY `index_dict_code` (`dict_code`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment '通用数据字典';
+
+CREATE TABLE `alert_content` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tenant_id` int(11) NOT NULL DEFAULT '0' COMMENT '租户id',
+  `project_id` int(11) NOT NULL DEFAULT '0' COMMENT '项目id',
+  `app_type` int(11) NOT NULL COMMENT '应用类型，1：RDOS, 2:数据质量, 3:数据API ,4: 标签工程 ,5:数据地图',
+  `content` text NOT NULL COMMENT '内容文本',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '触发类型',
+  `send_info` varchar(2055) NOT NULL DEFAULT '' COMMENT '发送信息(上下文对象)',
+  `alert_message_status` tinyint(3) NOT NULL DEFAULT '0' COMMENT '告警状态: 0 以告警 1 未告警',
+  `gmt_create` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='告警消息记录表';
+
+CREATE TABLE `alert_record` (
+  `id` bigint(11) NOT NULL AUTO_INCREMENT,
+  `alert_channel_id` bigint(11) unsigned NOT NULL DEFAULT '0' COMMENT '通道id',
+  `alert_gate_type` smallint(2) DEFAULT '0' COMMENT '通道类型 SMS(1,"短信"),MAIL(2,"邮箱") , DINGDING(3,"钉钉"),CUSTOMIZE(4,"自定义")',
+  `alert_content_id` int(11) NOT NULL DEFAULT '0' COMMENT '消息记录id',
+  `tenant_id` int(11) NOT NULL DEFAULT '0' COMMENT '租户id',
+  `app_type` int(11) NOT NULL DEFAULT '0' COMMENT '应用类型，1：RDOS, 2:数据质量, 3:数据API ,4: 标签工程 ,5:数据地图',
+  `user_id` int(11) NOT NULL DEFAULT '0' COMMENT '接收人id',
+  `read_id` int(11) NOT NULL DEFAULT '0' COMMENT '应用记录id',
+  `read_status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0:未读 1:已读',
+  `title` varchar(32) NOT NULL DEFAULT '' COMMENT '标题',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '触发类型',
+  `context` longtext NOT NULL COMMENT '上下文对象',
+  `job_id` varchar(256) NOT NULL DEFAULT '' COMMENT '工作任务id',
+  `alert_record_status` tinyint(3) NOT NULL DEFAULT '0' COMMENT '告警状态: 0 未告警 1 告警队列中 2 告警发送中 3 告警成功 4 待扫描中',
+  `alert_record_send_status` tinyint(3) NOT NULL DEFAULT '0' COMMENT '告警发送状态: 0 未发送 1 发送成功 2 发送失败',
+  `failure_reason` varchar(2055) NOT NULL DEFAULT '' COMMENT '当alert_send_status状态是2时，才会有值',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  `node_address` varchar(256) NOT NULL COMMENT '节点地址',
+  `send_time` varchar(256) NOT NULL DEFAULT '' COMMENT '发送时间 yyyyMMddHHmmss',
+  `send_end_time` varchar(256) NOT NULL DEFAULT '' COMMENT '发送结束时间 yyyyMMddHHmmss',
+  `gmt_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `index_user_id` (`user_id`),
+  KEY `index_job_id` (`job_id`),
+  KEY `index_select` (`tenant_id`,`user_id`,`app_type`),
+  KEY `index_gmt_created` (`gmt_created`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='告警发送记录表';
+
+CREATE TABLE `alert_channel` (
+  `id` bigint(11) NOT NULL AUTO_INCREMENT,
+  `cluster_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '最后一次操作通道的租户id,',
+  `alert_gate_name` varchar(32) DEFAULT '' COMMENT '通道名称',
+  `alert_gate_type` smallint(2) DEFAULT '0' COMMENT '通道类型 SMS(1,"短信"),MAIL(2,"邮箱") , DINGDING(3,"钉钉"),CUSTOMIZE(4,"自定义")',
+  `alert_gate_code` varchar(16) DEFAULT '' COMMENT '通道运行编号代码:sms_yp,sms_dy,sms_API,mail_dt,mail_api,ding_dt,ding_api,sms_jar,mail_jar,ding_jar,phone_tc,custom_jar(具体看代码中枚举AlertGateCode)',
+  `alert_gate_json` varchar(1024) DEFAULT '' COMMENT '通道配置信息',
+  `alert_gate_source` varchar(32) DEFAULT '' COMMENT '通道标识',
+  `alert_template` text COMMENT '通道模板',
+  `file_path` varchar(255) DEFAULT '' COMMENT '自定义jar存储位置',
+  `is_default` tinyint(3) NOT NULL DEFAULT '0' COMMENT '是否是默认通道: 0 非默认 1 默认通道',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  `gmt_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `index_alert_gate_source` (`alert_gate_source`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='告警通道';
 

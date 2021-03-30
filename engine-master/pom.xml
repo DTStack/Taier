@@ -12,6 +12,14 @@
 
     <artifactId>engine-master</artifactId>
     <name>engine-master</name>
+    <properties>
+        <log4j.version>1.2.17</log4j.version>
+        <slf4j-api.version>1.7.21</slf4j-api.version>
+        <guava.version>26.0-jre</guava.version>
+        <commons-lang3.version>3.4</commons-lang3.version>
+        <commons-collections.version>3.2.2</commons-collections.version>
+        <httpclient.version>4.5.2</httpclient.version>
+    </properties>
 
     <packaging>pom</packaging>
 
@@ -19,9 +27,9 @@
         <module>engine-dao</module>
         <module>engine-master-server</module>
         <module>engine-alert-sdk</module>
-        <module>engine-alert</module>
         <module>engine-lineage-service</module>
         <module>engine-lineage-sqlparser</module>
+        <module>engine-alter-sender</module>
     </modules>
 
     <build>

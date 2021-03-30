@@ -93,6 +93,12 @@ public class ComponentController {
         return componentService.testConnects(clusterName);
     }
 
+    @RequestMapping(value="/testConnect", method = {RequestMethod.POST})
+    @ApiOperation(value = "测试单个组件连通性")
+    public ComponentTestResult testConnect(@DtRequestParam("clusterName") String clusterName,@DtRequestParam("componentType") Integer componentType) {
+        return componentService.testConnect(clusterName,componentType);
+    }
+
     @RequestMapping(value="/refresh", method = {RequestMethod.POST})
     @ApiOperation(value = "刷新组件信息")
     public List<ComponentTestResult> refresh(@DtRequestParam("clusterName") String clusterName) {
@@ -105,3 +111,6 @@ public class ComponentController {
         return componentService.isYarnSupportGpus(clusterName);
     }
 }
+
+
+

@@ -1,12 +1,5 @@
 package com.dtstack.engine.common.http;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Callable;
-
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.RetryUtil;
@@ -33,7 +26,11 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dtstack.engine.common.exception.ExceptionUtil;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
 
 import static com.dtstack.engine.common.exception.ErrorCode.HTTP_CALL_ERROR;
 

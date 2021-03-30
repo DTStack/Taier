@@ -121,6 +121,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(jobs.stream().map(ScheduleJob::getJobId).collect(Collectors.toList()));
         // 停止已提交的
         if (CollectionUtils.isNotEmpty(needSendStopJobs)) {
+            isForce = Optional.ofNullable(isForce).orElse(ForceCancelFlag.NO.getFlag());
             for (ScheduleJob job : needSendStopJobs) {
                 EngineJobStopRecord jobStopRecord = new EngineJobStopRecord();
                 jobStopRecord.setTaskId(job.getJobId());

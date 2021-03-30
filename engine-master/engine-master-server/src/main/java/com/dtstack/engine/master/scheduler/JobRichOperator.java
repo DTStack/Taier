@@ -181,7 +181,7 @@ public class JobRichOperator {
         }
         //配置了允许过期才能
         if (Expired.EXPIRE.getVal() == isExpire && this.checkExpire(scheduleBatchJob, scheduleType, batchTaskShade)) {
-            return validSelfWithExpire(scheduleBatchJob);
+            return validSelfWithExpire(scheduleBatchJob,checkRunInfo);
         }
         return Boolean.TRUE;
     }
@@ -192,7 +192,7 @@ public class JobRichOperator {
      * @param scheduleBatchJob
      * @return
      */
-    private Boolean validSelfWithExpire(ScheduleBatchJob scheduleBatchJob) {
+    private Boolean validSelfWithExpire(ScheduleBatchJob scheduleBatchJob,JobCheckRunInfo checkRunInfo) {
         ScheduleJob scheduleJob = scheduleBatchJob.getScheduleJob();
         if (!DependencyType.SELF_DEPENDENCY_END.getType().equals(scheduleJob.getDependencyType()) &&
                 !DependencyType.SELF_DEPENDENCY_SUCCESS.getType().equals(scheduleJob.getDependencyType())) {
@@ -207,8 +207,10 @@ public class JobRichOperator {
         if (CollectionUtils.isNotEmpty(scheduleJobs)) {
             ScheduleJob waitFinishJob = scheduleJobs.get(0);
             logger.info("jobId {} selfJob {}  has running status [{}],wait running job finish", scheduleJob.getJobId(), waitFinishJob.getJobId(), waitFinishJob.getStatus());
+            checkRunInfo.setStatus(JobCheckStatus.TIME_NOT_REACH);
             return Boolean.FALSE;
         }
+        checkRunInfo.setStatus(JobCheckStatus.TIME_OVER_EXPIRE);
         return Boolean.TRUE;
     }
 

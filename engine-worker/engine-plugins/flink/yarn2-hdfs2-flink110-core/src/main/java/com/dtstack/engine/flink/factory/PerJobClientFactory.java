@@ -23,8 +23,8 @@ import com.dtstack.engine.base.enums.ClassLoaderType;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.JobIdentifier;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -49,7 +49,6 @@ import org.apache.flink.configuration.HighAvailabilityOptions;
 import org.apache.flink.configuration.SecurityOptions;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.runtime.jobmanager.HighAvailabilityMode;
-import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.YarnClusterDescriptor;
 import org.apache.flink.yarn.configuration.YarnConfigOptions;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
@@ -162,6 +161,8 @@ public class PerJobClientFactory extends AbstractClientFactory {
         }
 
         clusterDescriptor.setProvidedUserJarFiles(classpaths);
+        // judge job kind via JobType
+        clusterDescriptor.setJobType(jobClient.getJobType());
         return clusterDescriptor;
     }
 

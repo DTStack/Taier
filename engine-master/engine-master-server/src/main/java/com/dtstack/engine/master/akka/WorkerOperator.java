@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.akka;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.pojo.CheckResult;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobClientCallBack;
 import com.dtstack.engine.common.JobIdentifier;
@@ -11,7 +12,6 @@ import com.dtstack.engine.common.client.ClientOperator;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
@@ -20,7 +20,6 @@ import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.plugininfo.PluginWrapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -246,22 +245,6 @@ public class WorkerOperator {
         }
     }
 
-    public List<ClientTemplate> getDefaultPluginConfig(String engineType, String configType) {
-        if (AkkaConfig.isLocalMode()) {
-            List<ClientTemplate> defaultPluginConfig = clientOperator.getDefaultPluginConfig(engineType, configType);
-            if (CollectionUtils.isEmpty(defaultPluginConfig)) {
-                return new ArrayList<>(0);
-            }
-            return defaultPluginConfig;
-        }
-        try {
-            return (List<ClientTemplate>) masterServer.sendMessage(new MessageGetPluginDefaultConfig(engineType, configType));
-        } catch (Exception e) {
-            logger.error("getDefaultPluginConfig failed!", e);
-            return null;
-        }
-    }
-
     public ComponentTestResult testConnect(String engineType, String pluginInfo) {
         if (AkkaConfig.isLocalMode()) {
             ComponentTestResult testResult = clientOperator.testConnect(engineType, pluginInfo);
@@ -319,4 +302,11 @@ public class WorkerOperator {
         }
     }
 
+    public CheckResult grammarCheck(JobClient jobClient) throws Exception {
+        this.buildPluginInfo(jobClient);
+        if (AkkaConfig.isLocalMode()) {
+            return clientOperator.grammarCheck(jobClient);
+        }
+        return (CheckResult) masterServer.sendMessage(new MessageGrammarCheck(jobClient));
+    }
 }

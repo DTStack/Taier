@@ -7,11 +7,13 @@ import com.dtstack.engine.dtscript.common.SecurityUtil;
 import com.dtstack.engine.dtscript.container.DtContainer;
 import com.dtstack.engine.dtscript.container.DtContainerId;
 import com.dtstack.engine.dtscript.util.DebugUtil;
+import com.dtstack.engine.dtscript.util.KrbUtils;
 import com.dtstack.engine.dtscript.util.Utilities;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.net.NetUtils;
 import org.apache.hadoop.security.UserGroupInformation;
@@ -39,11 +41,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 
 
 public class ApplicationMaster extends CompositeService {
@@ -139,12 +137,10 @@ public class ApplicationMaster extends CompositeService {
         rmCallbackHandler = new RMCallbackHandler();
         amrmAsync = AMRMClientAsync.createAMRMClientAsync(1000, rmCallbackHandler);
         amrmAsync.init(conf);
-        amrmAsync.start();
 
         nmAsyncHandler = new NMCallbackHandler(this);
         this.nmAsync = NMClientAsync.createNMClientAsync(nmAsyncHandler);
         this.nmAsync.init(conf);
-        this.amrmAsync.start();
 
         addService(amrmAsync);
         addService(nmAsync);
@@ -202,11 +198,12 @@ public class ApplicationMaster extends CompositeService {
 //        if (appArguments.workerGCores > 0) {
 //            workerCapability.setResourceValue(DtYarnConstants.GPU, appArguments.workerGCores);
 //        }
-        if (appArguments.nodes == null){
-            return new AMRMClient.ContainerRequest(workerCapability, null, null, priority, true);
-        } else {
-            return new AMRMClient.ContainerRequest(workerCapability, appArguments.nodes, null, priority, false);
-        }
+        boolean isRelaxLocality = appArguments.nodes == null && appArguments.racks == null;
+        List nodeList = appArguments.nodes == null ? null : Arrays.asList(appArguments.nodes);
+        List racksList = appArguments.racks == null ? null : Arrays.asList(appArguments.racks);
+        LOG.info("ContainerRequest nodes: " + nodeList + ", racks: " + racksList);
+        return new AMRMClient.ContainerRequest(workerCapability, appArguments.nodes, appArguments.racks, priority, isRelaxLocality);
+
     }
 
     private List<String> buildContainerLaunchCommand(int containerMemory) {
@@ -217,6 +214,10 @@ public class ApplicationMaster extends CompositeService {
         vargs.add("-server -XX:+UseConcMarkSweepGC -XX:-UseCompressedClassPointers -XX:+DisableExplicitGC -XX:-OmitStackTraceInFastThrow");
         vargs.add("-Xmx" + containerMemory + "m");
         vargs.add("-Xms" + containerMemory + "m");
+        if (conf.getBoolean(DtYarnConfiguration.DTSCRIPT_HAS_LOG4J, false)) {
+            vargs.add("-Dlog4j.configuration=file:" + DtYarnConfiguration.DTSCRIPT_LOG4J_FILENAME);
+        }
+
         String javaOpts = conf.get(DtYarnConfiguration.DTSCRIPT_CONTAINER_EXTRA_JAVA_OPTS, DtYarnConfiguration.DEFAULT_DTSCRIPT_CONTAINER_EXTRA_JAVA_OPTS);
         if (!StringUtils.isBlank(javaOpts)) {
             vargs.add(javaOpts);
@@ -255,6 +256,11 @@ public class ApplicationMaster extends CompositeService {
         Map<String, LocalResource> containerLocalResource = buildContainerLocalResource();
         Map<String, String> workerContainerEnv = new ContainerEnvBuilder(DtYarnConstants.WORKER, this).build();
 
+        // Kerberos
+        if (KrbUtils.hasKrb(envs)) {
+            workerContainerEnv.put(DtYarnConstants.ENV_PRINCIPAL, envs.get(DtYarnConstants.ENV_PRINCIPAL));
+            setKrbLocalResource(containerLocalResource);
+        }
 
         List<Container> acquiredWorkerContainers = handleRmCallbackOfContainerRequest(appArguments.workerNum, workerContainerRequest, interval);
 
@@ -373,6 +379,14 @@ public class ApplicationMaster extends CompositeService {
                             appArguments.appConfRemoteLocation,
                             LocalResourceType.FILE));
 
+            boolean hasLog4j = conf.getBoolean(DtYarnConfiguration.DTSCRIPT_HAS_LOG4J, false);
+            if (hasLog4j) {
+                containerLocalResource.put(DtYarnConfiguration.DTSCRIPT_LOG4J_FILENAME,
+                        Utilities.createApplicationResource(appArguments.appConfRemoteLocation.getFileSystem(conf),
+                                appArguments.appConfRemoteLocation,
+                                LocalResourceType.FILE));
+            }
+
             if (appArguments.appFilesRemoteLocation != null) {
                 String[] xlearningFiles = StringUtils.split(appArguments.appFilesRemoteLocation, ",");
                 for (String file : xlearningFiles) {
@@ -411,10 +425,37 @@ public class ApplicationMaster extends CompositeService {
                                     LocalResourceType.FILE));
                 }
             }
+
         } catch (IOException e) {
             throw new RuntimeException("Error while build container local resource", e);
         }
         return containerLocalResource;
+    }
+
+    /**
+     * 设置Worker节点所需本地化的kerberos相关文件资源
+     * @param containerLocalResource
+     * @throws IOException
+     */
+    private void setKrbLocalResource(Map<String, LocalResource> containerLocalResource) throws IOException {
+        setSingleLocalResource(DtYarnConstants.LOCALIZED_KEYTAB_PATH, containerLocalResource);
+        setSingleLocalResource(DtYarnConstants.LOCALIZED_KR5B_PATH, containerLocalResource);
+
+        String appType = envs.get(DtYarnConstants.Environment.APP_TYPE.toString());
+        if (KrbUtils.isPythonType(appType)) {
+            setSingleLocalResource(DtYarnConstants.LOCALIZED_GATEWAY_PATH, containerLocalResource);
+        }
+    }
+
+    private void setSingleLocalResource(String fileName, Map<String, LocalResource> containerLocalResource) throws IOException {
+        FileSystem fs = appArguments.appJarRemoteLocation.getFileSystem(conf);
+        Path remotePath = Utilities.getRemotePath(
+                (YarnConfiguration) this.conf,
+                this.applicationAttemptId.getApplicationId(),
+                fileName);
+        containerLocalResource.put(
+                fileName,
+                Utilities.createApplicationResource(fs, remotePath, LocalResourceType.FILE));
     }
 
     /**

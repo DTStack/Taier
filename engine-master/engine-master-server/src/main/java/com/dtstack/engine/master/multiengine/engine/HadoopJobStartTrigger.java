@@ -153,8 +153,8 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             if (StringUtils.isNotBlank(sql) && sql.contains(TaskConstant.UPLOADPATH)) {
                 sql = sql.replace(TaskConstant.UPLOADPATH, uploadPath);
             }
-        } else if(taskShade.getEngineType().equals(ScheduleEngineType.Hadoop.getVal())){
-            //hadoop mr提交 不用上传文件
+        } else if(taskShade.getEngineType().equals(ScheduleEngineType.Hadoop.getVal()) || taskShade.getEngineType().equals(ScheduleEngineType.Spark.getVal())){
+            //hadoop spark mr提交 不用上传文件
             String exeArgs = (String) actionParam.get("exeArgs");
             if (StringUtils.isNotBlank(exeArgs)) {
                 //替换系统参数
@@ -641,7 +641,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                 }
 
                 JSONObject pluginInfoWithComponentType = clusterService.pluginInfoJSON(dtuicTenantId,ScheduleEngineType.Hadoop.getEngineName(),null,null);
-                String typeName = pluginInfoWithComponentType.getString(ComponentService.TYPE_NAME);
+                String typeName = pluginInfoWithComponentType.getString(ConfigConstant.TYPE_NAME_KEY);
                 String hdfsUploadPath = workerOperator.uploadStringToHdfs(typeName, pluginInfoWithComponentType.toJSONString(), content, hdfsPath);
                 if(StringUtils.isBlank(hdfsUploadPath)){
                     throw new RdosDefineException("Update task to HDFS failure hdfsUploadPath is blank");

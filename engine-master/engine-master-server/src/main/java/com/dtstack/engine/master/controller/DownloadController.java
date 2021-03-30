@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.controller;
 
-import com.dtstack.engine.common.enums.AlertGateTypeEnum;
+import com.dtstack.engine.alert.enums.AlertGateTypeEnum;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.impl.ComponentService;
 import io.swagger.annotations.Api;
@@ -21,7 +21,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.net.URLEncoder;
-import java.util.Objects;
 
 
 @RestController
