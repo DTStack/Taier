@@ -14,6 +14,7 @@ import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
 import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
+import com.dtstack.engine.common.enums.EScheduleStatus;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -960,7 +961,10 @@ public class ScheduleTaskShadeService {
 
         for (ScheduleTaskShade taskShade : scheduleTaskShades) {
             if (!TaskRuleEnum.NO_RULE.getCode().equals(taskShade.getTaskRule())) {
-                taskShades.add(taskShade);
+                if (!EScheduleStatus.PAUSE.getVal().equals(taskShade.getScheduleStatus())
+                        && !EProjectScheduleStatus.PAUSE.getStatus().equals(taskShade.getProjectScheduleStatus())) {
+                    taskShades.add(taskShade);
+                }
             }
         }
 

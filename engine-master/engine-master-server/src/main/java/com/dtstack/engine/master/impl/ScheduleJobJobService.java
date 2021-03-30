@@ -677,6 +677,11 @@ public class ScheduleJobJobService {
         if (StringUtils.isBlank(job.getJobKey())) {
             return vo;
         }
+
+        if (RdosTaskStatus.RUNNING_TASK_RULE.getStatus().equals(vo.getStatus())) {
+            vo.setStatus(RdosTaskStatus.RUNNING.getStatus());
+        }
+
         if (CollectionUtils.isNotEmpty(root.getChildren())) {
             root.getChildren().removeIf(jobJobDTO ->
                     batchJobService.getTaskShadeIdFromJobKey(jobJobDTO.getJobKey()).equals(batchTaskShade.getId()));
