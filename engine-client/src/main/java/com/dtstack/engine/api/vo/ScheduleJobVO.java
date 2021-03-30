@@ -61,6 +61,8 @@ public class ScheduleJobVO extends TenantProjectEntity {
 
     private Integer appType;
 
+    private Boolean existsOnRule;
+
     public Integer getRetryNum() {
         return retryNum;
     }
@@ -341,5 +343,13 @@ public class ScheduleJobVO extends TenantProjectEntity {
 
     public void setAppType(Integer appType) {
         this.appType = appType;
+    }
+
+    public Boolean getExistsOnRule() {
+        return existsOnRule;
+    }
+
+    public void setExistsOnRule(Boolean existsOnRule) {
+        this.existsOnRule = existsOnRule;
     }
 }
