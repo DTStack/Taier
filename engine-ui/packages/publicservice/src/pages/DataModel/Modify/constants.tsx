@@ -15,7 +15,10 @@ const idGenerator = () => {
 const id = idGenerator();
 
 // 基础信息表单配置
-export const basicInfoFormListGenerator = (options: any[], id?: number): IFormItem[] => {
+export const basicInfoFormListGenerator = (
+  options: any[],
+  id?: number
+): IFormItem[] => {
   return [
     {
       key: 'modelName',
@@ -34,17 +37,17 @@ export const basicInfoFormListGenerator = (options: any[], id?: number): IFormIt
             const { success, data, message } = await API.repeatValidate({
               fieldCode: 1,
               value,
-              id
+              id,
             });
-            if(success && data) {
-              callback('模型名称不能重复')
+            if (success && data) {
+              callback('模型名称不能重复');
             } else if (success && !data) {
               callback();
             } else {
               callback(message);
             }
-          }
-        }
+          },
+        },
       ],
     },
     {
@@ -63,15 +66,15 @@ export const basicInfoFormListGenerator = (options: any[], id?: number): IFormIt
               value,
               id,
             });
-            if(success && data) {
-              callback('模型英文名称不能重复')
+            if (success && data) {
+              callback('模型英文名称不能重复');
             } else if (success && !data) {
               callback();
             } else {
               callback(message);
             }
-          }
-        }
+          },
+        },
       ],
     },
     {
@@ -103,7 +106,7 @@ export const relationFormListGenerator = ({
   joinList,
   onRelationListDelete,
   onRelationListEdit,
-  onMasterTableChange,
+  // onMasterTableChange,
 }): IFormItem[] => {
   return [
     {
@@ -124,9 +127,9 @@ export const relationFormListGenerator = ({
       placeholder: '请选择表',
       rules: [{ required: true, message: '请选择表' }],
       options: tableListOptions || [],
-      ext: {
-        onChange: onMasterTableChange,
-      },
+      // ext: {
+      //   // onChange: onMasterTableChange,
+      // },
     },
     {
       key: 'updateType',

@@ -141,7 +141,6 @@ export const columnsGenerator = ({
             return <span className="btn-disabled">删除</span>;
           }
         };
-        // TODO:
         const btnEdit = (
           <a
             onClick={() => {

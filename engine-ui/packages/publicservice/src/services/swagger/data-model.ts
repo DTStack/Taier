@@ -61,6 +61,10 @@ export default {
   },
   repeatValidate: {
     method: 'post',
-    url: `/api/publicService/common/name/repeat`
-  }
+    url: `/api/publicService/common/name/repeat`,
+  },
+  isPartition: {
+    method: 'post',
+    url: `${prefix}/data/isPart`,
+  },
 };

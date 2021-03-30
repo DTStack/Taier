@@ -160,6 +160,27 @@ const Modify = (props: IPropsModify) => {
     }
   };
 
+  const isPartition = async (
+    datasourceId: number,
+    tableName: string,
+    schema: string
+  ) => {
+    try {
+      const { success, data, message } = await API.isPartition({
+        datasourceId,
+        schema,
+        tableName,
+      });
+      if (success) {
+        setVisibleUpdateType(data);
+      } else {
+        Message.error(message);
+      }
+    } catch (error) {
+      Message.error(error.message);
+    }
+  };
+
   // 获取所有可用的数据源列表
   const getAllDataSourceList = useCallback(async () => {
     try {
@@ -213,11 +234,6 @@ const Modify = (props: IPropsModify) => {
     setVisibleRelationModal(true);
   }, []);
 
-  const onMasterTableChange = (value, target) => {
-    const ext = target.props['data-ext'];
-    setVisibleUpdateType(ext);
-  };
-
   const onSchemaChange = () => {
     // 当schema变化时重置表
     setFieldsValue({
@@ -226,7 +242,7 @@ const Modify = (props: IPropsModify) => {
   };
 
   const handlePrevStep = () => {
-    switch(current) {
+    switch (current) {
       case EnumModifyStep.BASIC_STEP:
       case EnumModifyStep.RELATION_TABLE_STEP:
       case EnumModifyStep.SETTING_STEP:
@@ -239,11 +255,11 @@ const Modify = (props: IPropsModify) => {
       case EnumModifyStep.DIMENSION_STEP:
       case EnumModifyStep.METRIC_STEP:
         const datasource = cref.current.getValue();
-        setFormValue(formValue => ({
+        setFormValue((formValue) => ({
           ...formValue,
           columns: datasource,
         }));
-        setCurrent(current => current - 1);
+        setCurrent((current) => current - 1);
         break;
     }
   };
@@ -306,11 +322,7 @@ const Modify = (props: IPropsModify) => {
 
   useEffect(() => {
     const { dsId, schema, tableName, joinList = [] } = formValue;
-    if (
-        !schema ||
-        !dsId ||
-        !tableName
-      ) return;
+    if (!schema || !dsId || !tableName) return;
     if (firstRenderCol.current && mode === EnumModifyMode.EDIT) {
       // 编辑时初始化不调用columns接口
       firstRenderCol.current = false;
@@ -359,6 +371,13 @@ const Modify = (props: IPropsModify) => {
   }, [formValue.dsId, currentFormValue.schema]);
 
   useEffect(() => {
+    const { dsId } = formValue;
+    const { schema, tableName } = currentFormValue;
+    if (!dsId || !schema || !tableName) return;
+    isPartition(dsId, schema, tableName);
+  }, [formValue.dsId, currentFormValue.schema, currentFormValue.tableName]);
+
+  useEffect(() => {
     if (formValue.dsId === undefined) return;
     getSchemaList(formValue.dsId);
     if (firstRender.current) {
@@ -399,7 +418,7 @@ const Modify = (props: IPropsModify) => {
           joinList: formValue.joinList || [],
           onRelationListDelete,
           onRelationListEdit,
-          onMasterTableChange,
+          // onMasterTableChange,
         });
     }
   };
@@ -484,7 +503,6 @@ const Modify = (props: IPropsModify) => {
               <Form
                 layout="horizontal"
                 className="form-area"
-
                 {...formItemLayout}>
                 {stepContentRender(current, {
                   formList: getFormList(current),
