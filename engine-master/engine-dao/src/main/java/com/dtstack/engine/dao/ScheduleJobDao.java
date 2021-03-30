@@ -243,4 +243,6 @@ public interface ScheduleJobDao {
     ScheduleJob getLastScheduleJob(@Param("taskId") Long taskId,@Param("id") Long id);
 
     void updateStatusByJobIdEqualsStatus(@Param("jobId") String jobId, @Param("status") Integer status, @Param("status1") Integer status1);
+
+    void updateLogInfoByJobId(@Param("jobId") String jobId, @Param("msg") String msg);
 }

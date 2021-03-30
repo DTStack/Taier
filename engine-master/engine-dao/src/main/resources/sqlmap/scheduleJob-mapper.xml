@@ -1717,6 +1717,14 @@
         WHERE job_id = #{jobId} AND status = #{status1}
         AND is_deleted=0
     </update>
+    <update id="updateLogInfoByJobId">
+        UPDATE schedule_job
+            log_info = #{msg},
+            exec_start_time = now(),
+            gmt_modified = now()
+        WHERE job_id = #{jobId}
+        AND is_deleted=0
+    </update>
 
     <select id="getJobGraph" resultType="java.lang.String">
         select job_graph from schedule_job where job_id = #{jobId}
