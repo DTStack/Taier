@@ -155,6 +155,7 @@ public class ScheduleTaskTaskShadeService {
         // 查询是否有绑定任务
         List<ScheduleTaskShade> taskShades = taskShadeService.findChildTaskRuleByTaskId(taskShade.getTaskId(), taskShade.getAppType());
         if (CollectionUtils.isNotEmpty(taskShades)) {
+
             // 绑定了规则任务
             vo.setExistsOnRule(Boolean.TRUE);
         } else {

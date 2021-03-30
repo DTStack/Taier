@@ -2951,7 +2951,7 @@ public class ScheduleJobService {
     private void updateFatherStatus(ScheduleJob fatherScheduleJob, ScheduleJob currentScheduleJob, List<ScheduleJob> sonScheduleJobs, Integer bottleStatus) {
         if (RdosTaskStatus.RUNNING_TASK_RULE.getStatus().equals(fatherScheduleJob.getStatus()) && CollectionUtils.isNotEmpty(sonScheduleJobs)) {
             String nameByDtUicTenantId = tenantDao.getNameByDtUicTenantId(currentScheduleJob.getDtuicTenantId());
-            ScheduleEngineProject project = scheduleEngineProjectDao.getProjectByProjectIdAndApptype(currentScheduleJob.getProjectId(),currentScheduleJob.getAppType());
+            ScheduleEngineProject project = scheduleEngineProjectDao.getProjectByProjectIdAndApptype(currentScheduleJob.getProjectId(), currentScheduleJob.getAppType());
             if (RdosTaskStatus.FAILED_STATUS.contains(bottleStatus)) {
                 // 当前强任务执行失败，执行更新成失败
                 String log = getLog(fatherScheduleJob, currentScheduleJob,nameByDtUicTenantId,project);
