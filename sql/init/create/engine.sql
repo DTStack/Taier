@@ -437,6 +437,7 @@ CREATE TABLE `schedule_job_graph_trigger`
   `gmt_create`   datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
   `gmt_modified` datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   `is_deleted`   int(10)    NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  `min_job_id`   int(11)    COMMENT '生成graph时对应的job起始id',
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_trigger_time` (`trigger_time`)
 ) ENGINE = InnoDB

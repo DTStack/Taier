@@ -20,4 +20,12 @@ public interface JobGraphTriggerDao {
      * 测试时使用，上线前删除
      */
     void deleteToday();
+
+    /**
+     * 根据触发时间查询关联最小任务ID
+     * @param triggerStartTime
+     * @param triggerEndTime
+     * @return
+     */
+    Long getMinJobIdByTriggerTime(@Param("triggerStartTime")String triggerStartTime,@Param("triggerEndTime")String triggerEndTime);
 }
