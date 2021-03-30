@@ -1,80 +1,84 @@
 @import './const.scss';
 
-.box-1, .box-2, .box-3, .box-4, .box-5 {
-    box-shadow: 0 0 6px 0 rgba(0,0,0,0.10);
-    background: #FFFFFF;
-    position: relative;
+.box-1,
+.box-2,
+.box-3,
+.box-4,
+.box-5 {
+  box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.1);
+  background: #ffffff;
+  position: relative;
 }
 
-.box-pd-h{
-    padding: 20px;
-    height: 100%;
+.box-pd-h {
+  padding: 20px;
+  height: 100%;
 }
 .box-1 {
-    margin: 20px;
+  margin: 20px;
 }
 
 .box-2 {
-    margin: 0 20px 20px 20px;
+  margin: 0 20px 20px 20px;
 }
 
 .box-3 {
-    margin: 10px 20px 20px 10px;
+  margin: 10px 20px 20px 10px;
 }
 
 .box-4 {
-    margin: 0 20px;
+  margin: 0 20px;
 }
 
 .box-title {
-    height: 45px;
-    line-height: 45px;
-    font-weight: normal;
-    font-size: 14px;
-    color: #333333;
-    letter-spacing: 0;
-    text-align: left;
-    padding: 0 20px;
+  height: 45px;
+  line-height: 45px;
+  font-weight: normal;
+  font-size: 14px;
+  color: #333333;
+  letter-spacing: 0;
+  text-align: left;
+  padding: 0 20px;
 
-    .box-sub-title {
-        font-size: 12px;
-        color: rgb(153, 153, 153);
-    }
+  .box-sub-title {
+    font-size: 12px;
+    color: rgb(153, 153, 153);
+  }
 }
 
 .box-card {
-    padding: 0 20px 20px 20px;
+  padding: 0 20px 20px 20px;
 
-    .card-title {
-        height: 40px;
-        line-height: 40px;
-        font-size: 14px;
-        color: #333333;
-        letter-spacing: 0;
-        font-weight: normal;
-    }
-
+  .card-title {
+    height: 40px;
+    line-height: 40px;
+    font-size: 14px;
+    color: #333333;
+    letter-spacing: 0;
+    font-weight: normal;
+  }
 }
-.flex-middle{
-    display: flex;
-    align-items: center;
+.flex-middle {
+  display: flex;
+  align-items: center;
 }
 
 .m-slide-pane {
-    .box-title {
-        height: 35px;
-        line-height: 35px;
-        background: #FAFAFA;
-        padding: 0 20px;
-        border-top: 1px solid #dddddd;
-        border-bottom: 1px solid #dddddd;
+  .box-title {
+    height: 35px;
+    line-height: 35px;
+    background: #fafafa;
+    padding: 0 20px;
+    border-top: 1px solid #dddddd;
+    border-bottom: 1px solid #dddddd;
+  }
+
+  .m-card {
+    .ant-card {
+      .ant-card-head,
+      .ant-card-body {
+        border-bottom: 0;
+      }
     }
-    
-    .m-card {
-        .ant-card {
-            .ant-card-head, .ant-card-body {
-                border-bottom: 0;
-            }
-        }
-    }
+  }
 }

@@ -1,9 +1,9 @@
-import React, { useRef } from "react";
-import BreadComponent from "../components/BreadComponent";
-import { Steps, Button } from "antd";
-import InfoConfig from "../components/InfoConfig";
+import React, { useRef } from 'react';
+import BreadComponent from '../components/BreadComponent';
+import { Steps, Button } from 'antd';
+import InfoConfig from '../components/InfoConfig';
 
-import "../AddSource/style.scss";
+import '../AddSource/style.scss';
 
 const { Step } = Steps;
 
@@ -19,7 +19,7 @@ export default function index(props) {
     childRef.current.submitForm();
   };
 
-  const record = props.location.state.record
+  const record = props.location.state.record;
 
   return (
     <div className="source">
@@ -28,10 +28,7 @@ export default function index(props) {
       <div className="content">
         <div className="top-steps edit-steps">
           <Steps current={2}>
-            <Step
-              title="选择数据源"
-              disabled
-            />
+            <Step title="选择数据源" disabled />
             <Step title="产品授权" disabled />
             <Step title="信息配置" />
           </Steps>

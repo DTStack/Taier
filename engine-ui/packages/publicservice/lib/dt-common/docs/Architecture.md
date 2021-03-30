@@ -17,6 +17,7 @@
 - 应用展示菜单可通过配置控制
 
 ## 设计原则
+
 技术架构中用到的技术库或者框架，需要秉承一些基本原则，具体如下：
 
 - 项目允许情况下，能自己写的，尽量不用第三方的（确保完全的掌控权）
@@ -36,6 +37,7 @@
 <div style="text-align:center"><img src="./imgs/tech-stack.png" /></div>
 
 #### 基本技术库和框架
+
 - React.js
 - Antd v2.13.11
 - Redux
@@ -49,16 +51,17 @@
 - D3.js
 
 #### 其他技术点
+
 - Webpack4
 - Babel7
 - ES6
 - PWA
 - ESLint
 
-
 ## 项目基本结构
 
 #### 开发结构
+
 ```bash
 | - data-stack
     | - node_modules npm安装模块
@@ -120,6 +123,7 @@
 ```
 
 #### 编译输出结构
+
 ```bash
 | - dt-stack
     | - index.html
@@ -137,6 +141,7 @@
 ```
 
 ## 架构优势
+
 - 前后端分离：更好的前端交互体验，，提升前端开发效率
 - 单页 SPA 架构：提供类 Native 应用开发体验
 - 基于 Webpack, React 生态：提供了强大的社区优化插件、以及丰富的交互组件

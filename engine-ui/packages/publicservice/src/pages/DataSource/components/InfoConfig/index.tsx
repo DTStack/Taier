@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useImperativeHandle } from "react";
+import React, { useEffect, useState, useImperativeHandle } from 'react';
 import {
   Form,
   Input,
@@ -11,16 +11,16 @@ import {
   InputNumber,
   Tooltip,
   Switch,
-} from "antd";
-import { FormComponentProps } from "antd/es/form";
-import copy from "copy-to-clipboard";
-import { API } from "@/services";
+} from 'antd';
+import { FormComponentProps } from 'antd/es/form';
+import copy from 'copy-to-clipboard';
+import { API } from '@/services';
 
-import downloadFile from "@/utils/downloadFile";
-import { getSaveStatus } from "../../utils/handelSession";
-import { getRules, getRulesJdbc } from "../../utils/formRules";
-import "../../List/style.scss";
-import { HDFSCONG } from "../../constants/index";
+import downloadFile from '@/utils/downloadFile';
+import { getSaveStatus } from '../../utils/handelSession';
+import { getRules, getRulesJdbc } from '../../utils/formRules';
+import '../../List/style.scss';
+import { HDFSCONG } from '../../constants/index';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -57,8 +57,8 @@ const InfoConfig = (props) => {
   const [file, setFile] = useState(null);
   const [fileList, setFileList] = useState(null);
   const [params, setParams] = useState<IParams>({
-    dataType: "",
-    dataVersion: "",
+    dataType: '',
+    dataVersion: '',
     productCodeList: [],
   });
 
@@ -75,7 +75,7 @@ const InfoConfig = (props) => {
 
   const templateForm = async () => {
     let saveStatus = getSaveStatus();
-    let dataType = saveStatus.sqlType?.dataType || ""; //数据库名称
+    let dataType = saveStatus.sqlType?.dataType || ''; //数据库名称
     let dataVersion = saveStatus.version; //版本号
     let { data } = await API.findTemplateByTypeVersion({
       dataType: record.dataTypeName || dataType,
@@ -103,7 +103,7 @@ const InfoConfig = (props) => {
       setTemplateData(fromFieldVoList || []);
     } else {
       fromFieldVoList.forEach((element) => {
-        if (element.label === "数据源类型") {
+        if (element.label === '数据源类型') {
           element.disabled = true;
         }
       });
@@ -116,7 +116,7 @@ const InfoConfig = (props) => {
     let dataType = record.dataTypeName || saveStatus.sqlType?.dataType;
     let dataVersion = record.dataVersion || saveStatus.version;
     let productCodeList =
-      record.productNames?.split(";") || saveStatus.checkdList?.split(",");
+      record.productNames?.split(';') || saveStatus.checkdList?.split(',');
 
     setParams({
       dataType,
@@ -136,7 +136,7 @@ const InfoConfig = (props) => {
     validateFields((err, fieldsValue) => {
       //验证字段
       if (!err) {
-        console.log("values", fieldsValue);
+        console.log('values', fieldsValue);
       }
     });
   };
@@ -165,7 +165,7 @@ const InfoConfig = (props) => {
     validateFields(async (err, fieldsValue) => {
       if (!err) {
         fieldsValue = { ...fieldsValue, ...params };
-        console.log("fieldsValue: ", fieldsValue);
+        console.log('fieldsValue: ', fieldsValue);
 
         if (showUpload) {
           fieldsValue.file = file;
@@ -193,7 +193,7 @@ const InfoConfig = (props) => {
       //验证字段
       if (!err) {
         fieldsValue = { ...fieldsValue, ...params };
-        console.log("fieldsValue: ", fieldsValue);
+        console.log('fieldsValue: ', fieldsValue);
 
         if (showUpload) {
           fieldsValue.file = file;
@@ -201,14 +201,14 @@ const InfoConfig = (props) => {
             fieldsValue
           );
           if (success) {
-            message.success("添加数据源成功");
+            message.success('添加数据源成功');
           } else {
             message.error(`${msg}`);
           }
         } else {
           let { success, message: msg } = await API.addDatasource(fieldsValue);
           if (success) {
-            message.success("添加数据源成功");
+            message.success('添加数据源成功');
           } else {
             message.error(`${msg}`);
           }
@@ -234,7 +234,7 @@ const InfoConfig = (props) => {
     let jsondata = {};
     jsondata[`${name}`] = value;
     setFieldsValue(jsondata);
-    if (label === "开启Kerberos认证") {
+    if (label === '开启Kerberos认证') {
       setShowUpload(value);
     }
   };
@@ -242,8 +242,8 @@ const InfoConfig = (props) => {
   //InputWithCopy｜TextAreaWithCopy之复制功能
   const handleCopy = (item) => {
     if (copy(item.placeHold)) {
-      message.success("复制成功");
-    } else message.error("复制失败，请手动复制");
+      message.success('复制成功');
+    } else message.error('复制失败，请手动复制');
   };
 
   //下载模板
@@ -252,7 +252,7 @@ const InfoConfig = (props) => {
       const res = await API.downloadtemplate(
         {},
         {
-          responseType: "blob",
+          responseType: 'blob',
         }
       );
       downloadFile(res);
@@ -267,16 +267,16 @@ const InfoConfig = (props) => {
     if (success) {
       setFile(file); //设置file的名字 后续接口传参
       setFileList(fileList); //控制上传列表数量
-      message.success("上传成功");
+      message.success('上传成功');
     } else {
-      message.error("上传失败!");
+      message.error('上传失败!');
     }
   };
 
   //ftp定制化处理方式
   const handleFtpChange = (e) => {
     let { value } = e.target;
-    if (value === "FTP") {
+    if (value === 'FTP') {
       setConnet(true);
     } else {
       setConnet(false);
@@ -291,7 +291,7 @@ const InfoConfig = (props) => {
   //CarbonData定制化处理方式
   const handleCarbonChange = (e) => {
     let { value } = e.target;
-    if (value === "custom") {
+    if (value === 'custom') {
       setCarbon(true);
     } else {
       setCarbon(false);
@@ -301,20 +301,20 @@ const InfoConfig = (props) => {
   //WebSocket定制化处理方式
   const addWsParams = () => {
     let params = Object.assign({}, webSocketParams);
-    params[""] = "";
+    params[''] = '';
     if (validateIsEmpty(webSocketParams)) {
-      message.warning("请先完整填写参数!");
+      message.warning('请先完整填写参数!');
       return;
     }
     if (Object.keys(webSocketParams).length === 20) {
-      message.warning("最多可添加20行鉴权参数!");
+      message.warning('最多可添加20行鉴权参数!');
       return;
     }
     setWebSocketParams(params);
   };
   const validateIsEmpty = (params) => {
     return (
-      Object.keys(params).includes("") || Object.values(params).includes("")
+      Object.keys(params).includes('') || Object.values(params).includes('')
     );
   };
   const delWsParams = (index: number) => {
@@ -322,10 +322,10 @@ const InfoConfig = (props) => {
     delete params[Object.keys(webSocketParams)[index]];
     setWebSocketParams(params);
   };
-  const editWsParams = (e, index: number, type: "key" | "value") => {
+  const editWsParams = (e, index: number, type: 'key' | 'value') => {
     const { value } = e.target;
     let params = Object.assign({}, webSocketParams);
-    if (type === "key") {
+    if (type === 'key') {
       const entriesArr = Object.entries(params);
       entriesArr[index][0] = value;
       params = (Object as any).fromEntries(entriesArr);
@@ -348,15 +348,15 @@ const InfoConfig = (props) => {
         <div key={index} className="ws-form">
           <Input
             onChange={(e) => {
-              editWsParams(e, index, "key");
+              editWsParams(e, index, 'key');
             }}
             value={ws.key}
             placeholder="请输入key值"
-          />{" "}
+          />{' '}
           : &nbsp;
           <Input
             onChange={(e) => {
-              editWsParams(e, index, "value");
+              editWsParams(e, index, 'value');
             }}
             value={ws.value}
             type="password"
@@ -365,8 +365,7 @@ const InfoConfig = (props) => {
           <a
             onClick={() => {
               delWsParams(index);
-            }}
-          >
+            }}>
             删除
           </a>
         </div>
@@ -382,20 +381,20 @@ const InfoConfig = (props) => {
   //渲染表单方法
   const formItem = templateData.map((item) => {
     switch (item.widget) {
-      case "Input":
+      case 'Input':
         return (
           <Form.Item label={item.label}>
             {getFieldDecorator(
               `${item.name}`,
               getRulesJdbc(item)
             )(
-              <div style={{ position: "relative" }}>
+              <div style={{ position: 'relative' }}>
                 <Input
                   placeholder={item.placeHold || `请输入${item.label}`}
                   disabled={item.disabled}
                 />
                 {item.tooltip && (
-                  <span style={{ position: "absolute", top: 0, right: -20 }}>
+                  <span style={{ position: 'absolute', top: 0, right: -20 }}>
                     <Tooltip title={item.tooltip}>
                       <Icon type="question-circle-o" />
                     </Tooltip>
@@ -405,37 +404,36 @@ const InfoConfig = (props) => {
             )}
           </Form.Item>
         );
-      case "InputWithCopy":
+      case 'InputWithCopy':
         return (
           <Form.Item label={item.label}>
             {getFieldDecorator(
               `${item.name}`,
               getRules(item)
             )(
-              <div style={{ position: "relative" }}>
+              <div style={{ position: 'relative' }}>
                 <Input
                   placeholder={item.placeHold || `请输入${item.label}`}
                   disabled={item.disabled}
                 />
                 <div
                   style={{
-                    position: "absolute",
+                    position: 'absolute',
                     right: -20,
                     top: 0,
-                  }}
-                >
+                  }}>
                   <Icon
                     className="copy"
                     type="copy"
                     onClick={() => handleCopy(item)}
-                    style={{ display: "block", marginTop: 11 }}
+                    style={{ display: 'block', marginTop: 11 }}
                   />
                 </div>
               </div>
             )}
           </Form.Item>
         );
-      case "Select":
+      case 'Select':
         return (
           <Form.Item label={item.label}>
             {getFieldDecorator(
@@ -444,15 +442,14 @@ const InfoConfig = (props) => {
             )(
               <Select
                 placeholder={item.placeHold || `请输入${item.label}`}
-                onChange={(value) => handleSelectChange(value, item.name)}
-              >
+                onChange={(value) => handleSelectChange(value, item.name)}>
                 <Option value="male">male</Option>
                 <Option value="female">female</Option>
               </Select>
             )}
           </Form.Item>
         );
-      case "TextArea":
+      case 'TextArea':
         return (
           <Form.Item label={item.label}>
             {getFieldDecorator(
@@ -466,23 +463,22 @@ const InfoConfig = (props) => {
             )}
           </Form.Item>
         );
-      case "TextAreaWithCopy":
+      case 'TextAreaWithCopy':
         return (
           <Form.Item label={item.label}>
             {getFieldDecorator(
               `${item.name}`,
               getRules(item)
             )(
-              <div style={{ position: "relative" }}>
+              <div style={{ position: 'relative' }}>
                 <TextArea id="copy" rows={4} placeholder={item.placeHold} />
                 <div
                   style={{
-                    position: "absolute",
+                    position: 'absolute',
                     right: -20,
                     top: 0,
                     marginLeft: 8,
-                  }}
-                >
+                  }}>
                   {item.tooltip && (
                     <Tooltip
                       title={
@@ -507,15 +503,13 @@ const InfoConfig = (props) => {
                           <br />
                           4、详细参数含义请参考《帮助文档》或
                           <a
-                            style={{ color: "#3F87FF" }}
+                            style={{ color: '#3F87FF' }}
                             target="_blank"
-                            href="http://hadoop.apache.org/docs/r2.7.4/hadoop-project-dist/hadoop-hdfs/HDFSHighAvailabilityWithQJM.html"
-                          >
+                            href="http://hadoop.apache.org/docs/r2.7.4/hadoop-project-dist/hadoop-hdfs/HDFSHighAvailabilityWithQJM.html">
                             Hadoop官方文档
                           </a>
                         </div>
-                      }
-                    >
+                      }>
                       <Icon type="question-circle-o" />
                     </Tooltip>
                   )}
@@ -524,14 +518,14 @@ const InfoConfig = (props) => {
                     className="copy"
                     type="copy"
                     onClick={() => handleCopy(item)}
-                    style={{ display: "block", marginTop: 20 }}
+                    style={{ display: 'block', marginTop: 20 }}
                   />
                 </div>
               </div>
             )}
           </Form.Item>
         );
-      case "RichText":
+      case 'RichText':
         return (
           <Form.Item label={item.label}>
             {getFieldDecorator(
@@ -540,7 +534,7 @@ const InfoConfig = (props) => {
             )(<p>展示文字内容</p>)}
           </Form.Item>
         );
-      case "Password":
+      case 'Password':
         return (
           <Form.Item label={item.label}>
             {getFieldDecorator(
@@ -553,7 +547,7 @@ const InfoConfig = (props) => {
             )}
           </Form.Item>
         );
-      case "Switch":
+      case 'Switch':
         return (
           <Form.Item label={item.label}>
             {getFieldDecorator(
@@ -568,7 +562,7 @@ const InfoConfig = (props) => {
             )}
           </Form.Item>
         );
-      case "Upload":
+      case 'Upload':
         return (
           <Form.Item label={item.label}>
             {getFieldDecorator(
@@ -582,7 +576,7 @@ const InfoConfig = (props) => {
                   }}
                 />
                 {showUpload && (
-                  <div style={{ display: "flex" }}>
+                  <div style={{ display: 'flex' }}>
                     <Upload>
                       <Button>
                         <Icon type="upload" /> Click to upload
@@ -601,7 +595,7 @@ const InfoConfig = (props) => {
             )}
           </Form.Item>
         );
-      case "Radio":
+      case 'Radio':
         return (
           <Form.Item label={item.label}>
             {getFieldDecorator(
@@ -615,16 +609,16 @@ const InfoConfig = (props) => {
             )}
           </Form.Item>
         );
-      case "Integer":
+      case 'Integer':
         return (
           <Form.Item label={item.label}>
             {getFieldDecorator(
               `${item.name}`,
               getRules(item)
-            )(<InputNumber style={{ width: "100%" }} />)}
+            )(<InputNumber style={{ width: '100%' }} />)}
           </Form.Item>
         );
-      case "Kerberos":
+      case 'Kerberos':
         return (
           <>
             <Form.Item label={item.label}>
@@ -639,12 +633,11 @@ const InfoConfig = (props) => {
                     }
                   />
                   {showUpload && (
-                    <div style={{ display: "flex" }}>
+                    <div style={{ display: 'flex' }}>
                       <Upload
                         customRequest={customRequest}
                         beforeUpload={beforeUpload}
-                        fileList={fileList}
-                      >
+                        fileList={fileList}>
                         <Button>
                           <Icon type="upload" /> Click to upload
                         </Button>
@@ -663,12 +656,12 @@ const InfoConfig = (props) => {
             </Form.Item>
           </>
         );
-      case "HbaseKerberos":
+      case 'HbaseKerberos':
         // HbaseKerberos需要解析对应的内容，底部显示解析的字段
         return (
           <>
             <Form.Item label="开启Kerberos认证">
-              {getFieldDecorator("HbaseKerberos")(
+              {getFieldDecorator('HbaseKerberos')(
                 <div>
                   <Switch
                     onChange={(checked) =>
@@ -676,12 +669,11 @@ const InfoConfig = (props) => {
                     }
                   />
                   {showUpload && (
-                    <div style={{ display: "flex" }}>
+                    <div style={{ display: 'flex' }}>
                       <Upload
                         customRequest={customRequest}
                         beforeUpload={beforeUpload}
-                        fileList={fileList}
-                      >
+                        fileList={fileList}>
                         <Button>
                           <Icon type="upload" /> Click to upload
                         </Button>
@@ -698,37 +690,37 @@ const InfoConfig = (props) => {
                 </div>
               )}
             </Form.Item>
-            {params.dataType === "HBase" && showUpload && (
+            {params.dataType === 'HBase' && showUpload && (
               <div>
                 <Form.Item label="client.principal">
-                  {getFieldDecorator("principal", {
-                    initialValue: "",
+                  {getFieldDecorator('principal', {
+                    initialValue: '',
                     rules: [
                       {
                         required: true,
-                        message: "client.principal不能为空",
+                        message: 'client.principal不能为空',
                       },
                     ],
                   })(<Input />)}
                 </Form.Item>
                 <Form.Item label="master_kerberos_principal">
-                  {getFieldDecorator("hbase_master_kerberos_principa", {
-                    initialValue: "",
+                  {getFieldDecorator('hbase_master_kerberos_principa', {
+                    initialValue: '',
                     rules: [
                       {
                         required: true,
-                        message: "master_kerberos_principal不能为空",
+                        message: 'master_kerberos_principal不能为空',
                       },
                     ],
                   })(<Input />)}
                 </Form.Item>
                 <Form.Item label="regionserver_kerberos_principal">
-                  {getFieldDecorator("hbase_regionserver_kerberos_principal", {
-                    initialValue: "",
+                  {getFieldDecorator('hbase_regionserver_kerberos_principal', {
+                    initialValue: '',
                     rules: [
                       {
                         required: true,
-                        message: "mregionserver_kerberos_principal不能为空",
+                        message: 'mregionserver_kerberos_principal不能为空',
                       },
                     ],
                   })(<Input />)}
@@ -737,18 +729,18 @@ const InfoConfig = (props) => {
             )}
           </>
         );
-      case "FtpReact":
+      case 'FtpReact':
         return (
           <>
-            {params.dataType === "FTP" && (
+            {params.dataType === 'FTP' && (
               <>
                 <Form.Item label="协议">
-                  {getFieldDecorator("agreement", {
-                    initialValue: "FTP",
+                  {getFieldDecorator('agreement', {
+                    initialValue: 'FTP',
                     rules: [
                       {
                         required: true,
-                        message: "协议不能为空",
+                        message: '协议不能为空',
                       },
                     ],
                   })(
@@ -760,12 +752,12 @@ const InfoConfig = (props) => {
                 </Form.Item>
                 {connet && (
                   <Form.Item label="连接模式">
-                    {getFieldDecorator("connectMode", {
-                      initialValue: "PORT",
+                    {getFieldDecorator('connectMode', {
+                      initialValue: 'PORT',
                       rules: [
                         {
                           required: true,
-                          message: "连接模式不能为空",
+                          message: '连接模式不能为空',
                         },
                       ],
                     })(
@@ -780,18 +772,17 @@ const InfoConfig = (props) => {
                 {!connet && (
                   <>
                     <Form.Item label="认证方式">
-                      {getFieldDecorator("auth", {
+                      {getFieldDecorator('auth', {
                         initialValue: 1,
                         rules: [
                           {
                             required: true,
-                            message: "认证方式不能为空",
+                            message: '认证方式不能为空',
                           },
                         ],
                       })(
                         <Radio.Group
-                          onChange={(value) => handleFtpChange(value)}
-                        >
+                          onChange={(value) => handleFtpChange(value)}>
                           <Radio value={1}>密码</Radio>
                           <Radio value={2}>私钥</Radio>
                         </Radio.Group>
@@ -800,12 +791,12 @@ const InfoConfig = (props) => {
 
                     {privateKey && (
                       <Form.Item label="私钥地址">
-                        {getFieldDecorator("rsaPath", {
-                          initialValue: "~/.ssh/id_rsa",
+                        {getFieldDecorator('rsaPath', {
+                          initialValue: '~/.ssh/id_rsa',
                           rules: [
                             {
                               required: true,
-                              message: "私钥地址不能为空",
+                              message: '私钥地址不能为空',
                             },
                           ],
                         })(<Input />)}
@@ -817,13 +808,13 @@ const InfoConfig = (props) => {
             )}
           </>
         );
-      case "CarbonReact":
+      case 'CarbonReact':
         return (
-          params.dataType === "CarbonData" && (
+          params.dataType === 'CarbonData' && (
             <>
               <Form.Item label="HDFS配置">
-                {getFieldDecorator("hdfsCustomConfig", {
-                  initialValue: "default",
+                {getFieldDecorator('hdfsCustomConfig', {
+                  initialValue: 'default',
                 })(
                   <Radio.Group onChange={(value) => handleCarbonChange(value)}>
                     <Radio value="default">默认</Radio>
@@ -835,28 +826,27 @@ const InfoConfig = (props) => {
               {carbon && (
                 <>
                   <Form.Item label="defaultFS">
-                    {getFieldDecorator("defaultFS", {
+                    {getFieldDecorator('defaultFS', {
                       rules: [
                         {
                           required: true,
-                          message: "defaultFS不能为空",
+                          message: 'defaultFS不能为空',
                         },
                       ],
                     })(<Input placeholder="hdfs://host:port" />)}
                   </Form.Item>
 
                   <Form.Item label="高可用配置">
-                    {getFieldDecorator("hadoopConfig")(
-                      <div style={{ position: "relative" }}>
+                    {getFieldDecorator('hadoopConfig')(
+                      <div style={{ position: 'relative' }}>
                         <TextArea id="copy" rows={4} placeholder={HDFSCONG} />
                         <div
                           style={{
-                            position: "absolute",
+                            position: 'absolute',
                             right: -20,
                             top: 0,
                             marginLeft: 8,
-                          }}
-                        >
+                          }}>
                           <Tooltip
                             title={
                               <div>
@@ -881,15 +871,13 @@ const InfoConfig = (props) => {
                                 <br />
                                 4、详细参数含义请参考《帮助文档》或
                                 <a
-                                  style={{ color: "#3F87FF" }}
+                                  style={{ color: '#3F87FF' }}
                                   target="_blank"
-                                  href="http://hadoop.apache.org/docs/r2.7.4/hadoop-project-dist/hadoop-hdfs/HDFSHighAvailabilityWithQJM.html"
-                                >
+                                  href="http://hadoop.apache.org/docs/r2.7.4/hadoop-project-dist/hadoop-hdfs/HDFSHighAvailabilityWithQJM.html">
                                   Hadoop官方文档
                                 </a>
                               </div>
-                            }
-                          >
+                            }>
                             <Icon type="question-circle-o" />
                           </Tooltip>
                           <Icon
@@ -897,11 +885,11 @@ const InfoConfig = (props) => {
                             type="copy"
                             onClick={() =>
                               handleCopy({
-                                label: "高可用配置",
+                                label: '高可用配置',
                                 placeHold: HDFSCONG,
                               })
                             }
-                            style={{ display: "block", marginTop: 20 }}
+                            style={{ display: 'block', marginTop: 20 }}
                           />
                         </div>
                       </div>
@@ -912,7 +900,7 @@ const InfoConfig = (props) => {
             </>
           )
         );
-      case "WebSocketSub":
+      case 'WebSocketSub':
         return (
           <Form.Item label="鉴权参数" key="webSocketParams">
             {renderWebSocketParams()}
@@ -922,16 +910,16 @@ const InfoConfig = (props) => {
             </span>
           </Form.Item>
         );
-      case "RedisReact":
+      case 'RedisReact':
         return (
           <>
             <Form.Item label="模式">
-              {getFieldDecorator("redisType", {
+              {getFieldDecorator('redisType', {
                 initialValue: redisRadio,
                 rules: [
                   {
                     required: true,
-                    message: "模式不能为空",
+                    message: '模式不能为空',
                   },
                 ],
               })(
@@ -943,11 +931,11 @@ const InfoConfig = (props) => {
               )}
             </Form.Item>
             <Form.Item label="地址">
-              {getFieldDecorator("hostPort", {
+              {getFieldDecorator('hostPort', {
                 rules: [
                   {
                     required: true,
-                    message: "地址不能为空",
+                    message: '地址不能为空',
                   },
                 ],
               })(
@@ -955,19 +943,19 @@ const InfoConfig = (props) => {
                   rows={4}
                   placeholder={
                     redisRadio === 1
-                      ? "Redis地址，例如：IP1:Port"
-                      : "Redis地址，例如：IP1:Port，多个地址以英文逗号分开"
+                      ? 'Redis地址，例如：IP1:Port'
+                      : 'Redis地址，例如：IP1:Port，多个地址以英文逗号分开'
                   }
                 />
               )}
             </Form.Item>
             {redisRadio === 3 && (
               <Form.Item label="master名称">
-                {getFieldDecorator("masterName", {
+                {getFieldDecorator('masterName', {
                   rules: [
                     {
                       required: true,
-                      message: "master名称不能为空",
+                      message: 'master名称不能为空',
                     },
                   ],
                 })(<Input placeholder="请输入master名称" />)}
@@ -975,11 +963,11 @@ const InfoConfig = (props) => {
             )}
             {(redisRadio === 1 || redisRadio === 3) && (
               <Form.Item label="数据库">
-                {getFieldDecorator("database")(<Input />)}
+                {getFieldDecorator('database')(<Input />)}
               </Form.Item>
             )}
             <Form.Item label="密码">
-              {getFieldDecorator("password")(<Input.Password />)}
+              {getFieldDecorator('password')(<Input.Password />)}
             </Form.Item>
           </>
         );
@@ -992,12 +980,12 @@ const InfoConfig = (props) => {
     <div>
       <Form {...formItemLayout} onSubmit={handleSubmit}>
         <Form.Item label="数据源类型">
-          {getFieldDecorator("dataType", {
+          {getFieldDecorator('dataType', {
             initialValue: params.dataType + params.dataVersion,
             rules: [
               {
                 required: true,
-                message: "数据源类型不能为空",
+                message: '数据源类型不能为空',
               },
             ],
           })(<Input disabled />)}

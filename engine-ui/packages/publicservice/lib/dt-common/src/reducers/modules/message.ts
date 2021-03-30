@@ -1,22 +1,22 @@
 import { assign } from 'lodash';
 
-import msgActions from '../../consts/msgActions'
+import msgActions from '../../consts/msgActions';
 
 const initalMsg = {
-    currentPage: 1,
-    msgType: '1'
-}
+  currentPage: 1,
+  msgType: '1',
+};
 
-export function msgList (state = initalMsg, action: any) {
-    switch (action.type) {
-        case msgActions.UPDATE_MSG: {
-            if (action.data !== null) {
-                return assign({}, state, action.data)
-            }
+export function msgList(state = initalMsg, action: any) {
+  switch (action.type) {
+    case msgActions.UPDATE_MSG: {
+      if (action.data !== null) {
+        return assign({}, state, action.data);
+      }
 
-            return state;
-        }
-        default:
-            return state
+      return state;
     }
+    default:
+      return state;
+  }
 }

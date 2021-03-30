@@ -47,7 +47,8 @@ export default function SelectSource(props) {
       if (success) {
         data.forEach((ele) => {
           ele.selected = ele.typeId === echoTypeId ? true : false;
-          ele.imgUrl = window.location.origin +"/public/assets/imgs/" + ele.imgUrl;
+          ele.imgUrl =
+            window.location.origin + '/public/assets/imgs/' + ele.imgUrl;
         });
 
         setIconList(data || []);

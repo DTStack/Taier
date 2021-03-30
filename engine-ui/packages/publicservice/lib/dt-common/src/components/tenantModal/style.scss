@@ -1,40 +1,40 @@
 .c-tenantModal__modal {
-    .ant-modal-body {
-        height: 207px;
+  .ant-modal-body {
+    height: 207px;
+  }
+
+  .ant-modal-footer {
+    border: none;
+    padding-right: 30px;
+    padding-bottom: 30px;
+  }
+
+  .c-tenantModal__modal__btn {
+    width: 88px;
+    height: 32px;
+    font-size: 14px;
+    border-radius: 4px;
+  }
+
+  .c-tenantModal__form {
+    .title {
+      font-size: 16px;
+      margin: 0 auto;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 35px;
     }
 
-    .ant-modal-footer {
-        border: none;
-        padding-right: 30px;
-        padding-bottom: 30px;
-    }
-
-    .c-tenantModal__modal__btn {
-        width: 88px;
-        height: 32px;
+    .ant-form-item-label {
+      label {
         font-size: 14px;
-        border-radius: 4px;
+        font-weight: normal;
+        color: #666666;
+      }
     }
 
-    .c-tenantModal__form {
-        .title {
-            font-size: 16px;
-            margin: 0 auto;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 35px;
-        }
-    
-        .ant-form-item-label {
-            label{
-                font-size: 14px;
-                font-weight: normal;
-                color: #666666;
-            }
-        }
-
-        .ant-form-item {
-            margin-bottom: 20px;
-        }
+    .ant-form-item {
+      margin-bottom: 20px;
     }
+  }
 }

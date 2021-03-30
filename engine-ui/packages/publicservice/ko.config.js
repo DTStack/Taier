@@ -38,7 +38,7 @@ module.exports = () => {
       plugins: [new CopyWebpackPlugin(copyConfig)],
       externals: {
         APP_CONF: 'APP_CONF',
-      }
+      },
     },
   };
 };

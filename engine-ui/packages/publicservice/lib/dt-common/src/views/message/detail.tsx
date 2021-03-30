@@ -1,75 +1,76 @@
-import * as React from 'react'
-import { Icon } from 'antd'
-import { Utils } from 'dt-utils'
-import { GoBack } from 'dt-react-component'
+import * as React from 'react';
+import { Icon } from 'antd';
+import { Utils } from 'dt-utils';
+import { GoBack } from 'dt-react-component';
 
-import utils from '../../utils'
+import utils from '../../utils';
 
-import Api from '../../api'
+import Api from '../../api';
 
 class MsgDetail extends React.Component<any, any> {
-    state: any = {
-        msgInfo: {},
-        app: Utils.getParameterByName('app')
-    }
+  state: any = {
+    msgInfo: {},
+    app: Utils.getParameterByName('app'),
+  };
 
-    componentDidMount () {
-        const { msgId } = this.props.router.params
+  componentDidMount() {
+    const { msgId } = this.props.router.params;
 
-        this.loadMsg(msgId);
-    }
+    this.loadMsg(msgId);
+  }
 
-    loadMsg = (msgId: any) => {
-        Api.getMsgById(this.state.app, { notifyRecordId: msgId }).then((res: any) => {
-            const data = res.data || []
-            this.setState({
-                msgInfo: data
-            })
-
-            if (data.readStatus !== 1) { // 如果未读，则标记为已读
-                this.markAsRead(msgId);
-            }
-        })
-    }
-
-    markAsRead = (msgId: any) => {
-        const { app } = this.state;
-
-        Api.markAsRead(app, {
-            notifyRecordIds: [msgId]
+  loadMsg = (msgId: any) => {
+    Api.getMsgById(this.state.app, { notifyRecordId: msgId }).then(
+      (res: any) => {
+        const data = res.data || [];
+        this.setState({
+          msgInfo: data,
         });
-    }
 
-    render () {
-        const { msgInfo } = this.state
-        const msgView = this.props.router.location.query.app == 'dataApi' ? (
-            <p dangerouslySetInnerHTML={{ __html: msgInfo.content }} >
+        if (data.readStatus !== 1) {
+          // 如果未读，则标记为已读
+          this.markAsRead(msgId);
+        }
+      }
+    );
+  };
 
-            </p>
-        ) : (
-            <p >
-                {msgInfo.content}
-            </p>
-        )
+  markAsRead = (msgId: any) => {
+    const { app } = this.state;
 
-        return (
-            <div className="box-1">
-                <div className="box-card msg-box">
-                    <main>
-                        <h1 className="card-title"><GoBack history /> 消息详情 </h1>
+    Api.markAsRead(app, {
+      notifyRecordIds: [msgId],
+    });
+  };
 
-                    </main>
-                    {msgView}
-                    <footer>
-                        <span>
-                            <Icon type="notification" />
-                            发送于 {utils.formatDateTime(msgInfo.gmtCreate)}
-                        </span>
-                    </footer>
-                </div>
-            </div>
-        )
-    }
+  render() {
+    const { msgInfo } = this.state;
+    const msgView =
+      this.props.router.location.query.app == 'dataApi' ? (
+        <p dangerouslySetInnerHTML={{ __html: msgInfo.content }}></p>
+      ) : (
+        <p>{msgInfo.content}</p>
+      );
+
+    return (
+      <div className="box-1">
+        <div className="box-card msg-box">
+          <main>
+            <h1 className="card-title">
+              <GoBack history /> 消息详情{' '}
+            </h1>
+          </main>
+          {msgView}
+          <footer>
+            <span>
+              <Icon type="notification" />
+              发送于 {utils.formatDateTime(msgInfo.gmtCreate)}
+            </span>
+          </footer>
+        </div>
+      </div>
+    );
+  }
 }
 
-export default MsgDetail
+export default MsgDetail;

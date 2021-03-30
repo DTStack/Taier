@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { Checkbox, Row, Col, message } from "antd";
-import { API } from "@/services";
+import React, { useEffect, useState } from 'react';
+import { Checkbox, Row, Col, message } from 'antd';
+import { API } from '@/services';
 interface IProps {
   record: {
     dataInfoId: number;
@@ -31,7 +31,7 @@ export default function AuthSel(props: IProps) {
         setAuthList(data);
       }
     } else {
-      message.error("获取产品授权列表失败！");
+      message.error('获取产品授权列表失败！');
     }
   };
 
@@ -49,10 +49,9 @@ export default function AuthSel(props: IProps) {
       <p>点击进行授权/取消，若已在产品中应用，不能取消授权</p>
       <br />
       <Checkbox.Group
-        style={{ width: "100%" }}
+        style={{ width: '100%' }}
         onChange={onChange}
-        value={checkedList}
-      >
+        value={checkedList}>
         <Row>
           {authList.length > 0 &&
             authList.map((item) => (
@@ -60,10 +59,9 @@ export default function AuthSel(props: IProps) {
                 span={8}
                 onClick={() => {
                   if (item.isAuth === 1) {
-                    message.error("已在产品中应用，不能取消授权。");
+                    message.error('已在产品中应用，不能取消授权。');
                   }
-                }}
-              >
+                }}>
                 <Checkbox value={item.appType} disabled={item.isAuth === 1}>
                   {item.appName}
                 </Checkbox>

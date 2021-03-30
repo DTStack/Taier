@@ -1,4 +1,4 @@
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const MY_PATH = require('../consts');
 // const theme = require('../../src/theme')(MY_PATH.BASE_NAME);
 
@@ -10,12 +10,12 @@ module.exports = {
         'css-hot-loader',
         MiniCssExtractPlugin.loader,
         {
-          loader: "css-loader",
+          loader: 'css-loader',
           options: {
-            sourceMap: true
-          }
-        }
-      ]
+            sourceMap: true,
+          },
+        },
+      ],
     },
     {
       test: /\.scss$/,
@@ -23,19 +23,19 @@ module.exports = {
         'css-hot-loader',
         MiniCssExtractPlugin.loader,
         {
-          loader: "css-loader",
-          options: {
-            sourceMap: true
-          }
-        },
-        {
-          loader: "sass-loader",
+          loader: 'css-loader',
           options: {
             sourceMap: true,
-            sourceMapContents: true
-          }
-        }
-      ]
+          },
+        },
+        {
+          loader: 'sass-loader',
+          options: {
+            sourceMap: true,
+            sourceMapContents: true,
+          },
+        },
+      ],
     },
     {
       test: /\.less$/,
@@ -43,21 +43,21 @@ module.exports = {
         'css-hot-loader',
         MiniCssExtractPlugin.loader,
         {
-          loader: "css-loader",
+          loader: 'css-loader',
           options: {
-            sourceMap: true
-          }
+            sourceMap: true,
+          },
         },
         {
-          loader: "less-loader",
+          loader: 'less-loader',
           options: {
             sourceMap: true,
             // modifyVars: theme,
-            javascriptEnabled: true
-          }
-        }
-      ]
-    }
+            javascriptEnabled: true,
+          },
+        },
+      ],
+    },
   ],
   pro: [
     {
@@ -65,53 +65,52 @@ module.exports = {
       use: [
         MiniCssExtractPlugin.loader,
         {
-          loader: "css-loader",
+          loader: 'css-loader',
           options: {
-            sourceMap: false
-          }
-        }
-      ]
+            sourceMap: false,
+          },
+        },
+      ],
     },
     {
       test: /\.scss$/,
       use: [
         MiniCssExtractPlugin.loader,
         {
-          loader: "css-loader",
-          options: {
-            sourceMap: false
-          }
-        },
-        {
-          loader: "sass-loader",
+          loader: 'css-loader',
           options: {
             sourceMap: false,
-            outputStyle: "expanded",
+          },
+        },
+        {
+          loader: 'sass-loader',
+          options: {
+            sourceMap: false,
+            outputStyle: 'expanded',
             sourceMapContents: false,
-          }
-        }
-      ]
+          },
+        },
+      ],
     },
     {
       test: /\.less$/,
       use: [
         MiniCssExtractPlugin.loader,
         {
-          loader: "css-loader",
+          loader: 'css-loader',
           options: {
-            sourceMap: false
-          }
+            sourceMap: false,
+          },
         },
         {
-          loader: "less-loader",
+          loader: 'less-loader',
           options: {
             sourceMap: false,
             // modifyVars: theme,
-            javascriptEnabled: true
-          }
-        }
-      ]
-    }
+            javascriptEnabled: true,
+          },
+        },
+      ],
+    },
   ],
-}
-
+};

@@ -6,5 +6,5 @@ import dataSources from './dataSources';
 
 export default {
   ...dataModel,
-  ...dataSources
+  ...dataSources,
 };

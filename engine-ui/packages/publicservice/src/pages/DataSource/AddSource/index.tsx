@@ -1,11 +1,11 @@
-import React, { useState, useRef } from "react";
-import { useHistory } from "react-router";
-import { Steps, Button } from "antd";
-import BreadComponent from "../components/BreadComponent";
-import SelectSource from "../components/SelectSource";
-import ProduceAuth from "../components/ProduceAuth";
-import InfoConfig from "../components/InfoConfig";
-import "./style.scss";
+import React, { useState, useRef } from 'react';
+import { useHistory } from 'react-router';
+import { Steps, Button } from 'antd';
+import BreadComponent from '../components/BreadComponent';
+import SelectSource from '../components/SelectSource';
+import ProduceAuth from '../components/ProduceAuth';
+import InfoConfig from '../components/InfoConfig';
+import './style.scss';
 
 const { Step } = Steps;
 
@@ -45,19 +45,17 @@ export default function index() {
               <Button
                 style={{ marginRight: 8 }}
                 onClick={() => {
-                  history.push("/data-source");
-                }}
-              >
+                  history.push('/data-source');
+                }}>
                 取消
               </Button>
 
-              {(showFirstNext || sessionStorage.getItem("sqlType")) && (
+              {(showFirstNext || sessionStorage.getItem('sqlType')) && (
                 <Button
                   type="primary"
                   onClick={() => {
                     setCurrent(1);
-                  }}
-                >
+                  }}>
                   下一步
                 </Button>
               )}
@@ -77,16 +75,14 @@ export default function index() {
                 style={{ marginRight: 8 }}
                 onClick={() => {
                   setCurrent(0);
-                }}
-              >
+                }}>
                 上一步
               </Button>
               <Button
                 type="primary"
                 onClick={() => {
                   setCurrent(2);
-                }}
-              >
+                }}>
                 下一步
               </Button>
             </div>
@@ -98,7 +94,7 @@ export default function index() {
         let content2 = (
           <>
             <div className="step-info">
-              <InfoConfig cRef={childRef} record={""}></InfoConfig>
+              <InfoConfig cRef={childRef} record={''}></InfoConfig>
             </div>
             <div className="footer-select">
               <Button type="primary" onClick={testConnect}>
@@ -108,8 +104,7 @@ export default function index() {
                 style={{ marginLeft: 60, marginRight: 8 }}
                 onClick={() => {
                   setCurrent(1);
-                }}
-              >
+                }}>
                 上一步
               </Button>
               <Button type="primary" onClick={submitConfig}>

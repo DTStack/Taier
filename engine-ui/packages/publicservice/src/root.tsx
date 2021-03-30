@@ -15,7 +15,7 @@ interface Props {
 export default class Root extends Component<Props> {
   render() {
     const { store, history } = this.props;
-    console.log(store, history)
+    console.log(store, history);
     return (
       <ConfigProvider locale={zhCN}>
         <Provider store={store}>

@@ -1,7 +1,7 @@
 // top style
-$highlight-color: #3F87FF;
+$highlight-color: #3f87ff;
 
-.top-search{
+.top-search {
   height: 32px;
   margin-bottom: 12px;
 }
@@ -11,15 +11,15 @@ $highlight-color: #3F87FF;
   padding: 20px;
   background: #f2f7fa;
   height: 100%;
-  .bottom{
+  .bottom {
     height: calc(100% - 44px);
     background-color: #fff;
-    .conent-table{
+    .conent-table {
       height: calc(100% - 56px);
       overflow: scroll;
     }
   }
-  .data-view{
+  .data-view {
     color: $highlight-color;
   }
 }
@@ -28,27 +28,27 @@ $highlight-color: #3F87FF;
   width: 8px !important;
   height: 8px !important;
 }
-.ant-badge-status-error{
-  background-color: #FF5F5C !important; 
+.ant-badge-status-error {
+  background-color: #ff5f5c !important;
 }
-.ant-badge-status-success{
-  background-color: #12BC6A !important; 
+.ant-badge-status-success {
+  background-color: #12bc6a !important;
 }
-.copy{
-  &:hover{
+.copy {
+  &:hover {
     color: $highlight-color;
   }
 }
-.down-temp{
+.down-temp {
   color: $highlight-color;
   cursor: pointer;
   margin-left: 8px;
 }
-.gray{
+.gray {
   color: #999;
 }
 
-.page-com{
+.page-com {
   position: absolute;
   bottom: 20px;
   right: 28px;
@@ -57,20 +57,19 @@ $highlight-color: #3F87FF;
 
 .ws-form {
   position: relative;
-	input {
-		width: 40%;
-		margin-right: 10px;
-		margin: 0 10px 5px 0;
-	}
-	a {
-		position: absolute;
-		right: 0;
-	}
+  input {
+    width: 40%;
+    margin-right: 10px;
+    margin: 0 10px 5px 0;
+  }
+  a {
+    position: absolute;
+    right: 0;
+  }
 }
 .ws-add {
-	cursor: pointer;
-	i {
-		margin-right: 5px;
-	}
+  cursor: pointer;
+  i {
+    margin-right: 5px;
+  }
 }
-

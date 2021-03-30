@@ -1,8 +1,8 @@
-import msgActions from '../consts/msgActions'
+import msgActions from '../consts/msgActions';
 
-export function updateMsg (fields: any) {
-    return {
-        type: msgActions.UPDATE_MSG,
-        data: fields
-    }
+export function updateMsg(fields: any) {
+  return {
+    type: msgActions.UPDATE_MSG,
+    data: fields,
+  };
 }

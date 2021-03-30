@@ -12,7 +12,7 @@ export interface IOther {
 }
 
 //列表操作字段
-export interface IRecord{
-  dataInfoId:number,
-  isAuth:number
+export interface IRecord {
+  dataInfoId: number;
+  isAuth: number;
 }

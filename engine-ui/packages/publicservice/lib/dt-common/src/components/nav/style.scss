@@ -1,185 +1,185 @@
 @import 'ant-design-dtinsight-theme/theme/dt-theme/const.scss';
 
 .ant-layout-header {
-    background: #080A1A !important;
-    padding: 0px 0px 0px 24px;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-    min-width: $minWidth;
-    .ant-menu {
-        background: #080A1A;
-        color: #ABB2C2;
-        font-size: $font16;
-    }
-    .ant-menu-item > a {
-        color: #ABB2C2;
-    }
-    .ant-menu-horizontal {
-        border-bottom: 0px solid transparent;
-    }
-    .ant-menu-item > a:hover {
-        color: $primaryColor;
-    }
-    .ant-menu-item-selected > a, .ant-menu-item-selected > a:hover {
-        color: $primaryColor;
-    }
-    .ant-menu-horizontal > .ant-menu-item:hover,
-    .ant-menu-horizontal > .ant-menu-submenu:hover,
-    .ant-menu-horizontal > .ant-menu-item-active,
-    .ant-menu-horizontal > .ant-menu-submenu-active,
-    .ant-menu-horizontal > .ant-menu-item-open,
-    .ant-menu-horizontal > .ant-menu-submenu-open,
-    .ant-menu-horizontal > .ant-menu-item-selected,
-    .ant-menu-horizontal > .ant-menu-submenu-selected {
-        border-bottom: 3px solid #287BF7 !important;
-    }
-    .ant-menu-horizontal > .ant-menu-item,
-    .ant-menu-horizontal > .ant-menu-submenu {
-        border-bottom: 3px solid #080A1A;
-        top: 1px;
-        line-height: 64px;
-        height: 64px;
-    }
-    // 其他样式
-    .ant-menu-sub {
-        max-height: 400px;
-        overflow-y: auto;
-    }
-    .user-info {
-        display: inline-block;
-        padding-left: 8px;
-    }
-    .user_info_wrapper {
-        top: 48px !important;
-    }
-    .logo {
-        padding-left: 8px;
-        margin-right: 70px;
-        height: 64px;
-    }
-    .divide {
-        border-right: 1px dashed #475766;
-        height: 64px;
-        width: 1px;
-        padding: 0 !important;
-        display: inline-block;
-        margin: 0 10px;
-    }
-
-    .menu-right {
-        background: inherit;
-        padding-right: 20px;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        margin: 0px;
-        .menu-item {
-            display: block;
-            line-height: 0;
-            color: #fff;
-            cursor: pointer;
-            padding: 0px 10px;
-        }
-
-        .anticon {
-            font-size: 18px;
-        }
-
-        .avatar {
-            position: relative;
-            display: inline-block;
-            border-radius: 50% 50%;
-            width: 30px;
-            height: 30px;
-            margin-right: 7px;
-            margin-left: 10px;
-            line-height: 30px;
-            background: #fff;
-            top: -18px;
-            color: #e5e5e5;
-        }
-
-        .user-info {
-            color: #fff;
-            cursor: pointer;
-        }
-
-        .user-name {
-            max-width: 100px;
-            text-overflow: ellipsis;
-            display: block;
-            overflow: hidden;
-            white-space: nowrap;
-        }
-
-        .ant-menu-submenu {
-            line-height: 50px;
-            height: 50px;
-            color: #ffffff;
-            text-align: center;
-
-            .ant-menu-submenu-title {
-                padding: 16px 0;
-
-                .anticon-setting {
-                    margin-right: 0;
-                }
-            }
-        }
-
-        /* dropdown的上下冗余 */
-        .ant-dropdown .ant-dropdown-menu{
-            padding: 8px 0;
-        }
-    }
-}
-
-.menu-text-ellipsis{
+  background: #080a1a !important;
+  padding: 0px 0px 0px 24px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  min-width: $minWidth;
+  .ant-menu {
+    background: #080a1a;
+    color: #abb2c2;
+    font-size: $font16;
+  }
+  .ant-menu-item > a {
+    color: #abb2c2;
+  }
+  .ant-menu-horizontal {
+    border-bottom: 0px solid transparent;
+  }
+  .ant-menu-item > a:hover {
+    color: $primaryColor;
+  }
+  .ant-menu-item-selected > a,
+  .ant-menu-item-selected > a:hover {
+    color: $primaryColor;
+  }
+  .ant-menu-horizontal > .ant-menu-item:hover,
+  .ant-menu-horizontal > .ant-menu-submenu:hover,
+  .ant-menu-horizontal > .ant-menu-item-active,
+  .ant-menu-horizontal > .ant-menu-submenu-active,
+  .ant-menu-horizontal > .ant-menu-item-open,
+  .ant-menu-horizontal > .ant-menu-submenu-open,
+  .ant-menu-horizontal > .ant-menu-item-selected,
+  .ant-menu-horizontal > .ant-menu-submenu-selected {
+    border-bottom: 3px solid #287bf7 !important;
+  }
+  .ant-menu-horizontal > .ant-menu-item,
+  .ant-menu-horizontal > .ant-menu-submenu {
+    border-bottom: 3px solid #080a1a;
+    top: 1px;
+    line-height: 64px;
+    height: 64px;
+  }
+  // 其他样式
+  .ant-menu-sub {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  .user-info {
     display: inline-block;
-    max-width: 80px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-    vertical-align: top;
-}
-.ant-dropdown-menu-item .dropdown-content{
-    padding:6px 58px 7px 20px;
-    font-size: 14px;
-    color: #333333;
-    line-height: 27px;
-    .iconfont{
-        color: inherit;
-        margin-right: 8px;
-        vertical-align: -1px;
+    padding-left: 8px;
+  }
+  .user_info_wrapper {
+    top: 48px !important;
+  }
+  .logo {
+    padding-left: 8px;
+    margin-right: 70px;
+    height: 64px;
+  }
+  .divide {
+    border-right: 1px dashed #475766;
+    height: 64px;
+    width: 1px;
+    padding: 0 !important;
+    display: inline-block;
+    margin: 0 10px;
+  }
+
+  .menu-right {
+    background: inherit;
+    padding-right: 20px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    margin: 0px;
+    .menu-item {
+      display: block;
+      line-height: 0;
+      color: #fff;
+      cursor: pointer;
+      padding: 0px 10px;
     }
+
+    .anticon {
+      font-size: 18px;
+    }
+
+    .avatar {
+      position: relative;
+      display: inline-block;
+      border-radius: 50% 50%;
+      width: 30px;
+      height: 30px;
+      margin-right: 7px;
+      margin-left: 10px;
+      line-height: 30px;
+      background: #fff;
+      top: -18px;
+      color: #e5e5e5;
+    }
+
+    .user-info {
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .user-name {
+      max-width: 100px;
+      text-overflow: ellipsis;
+      display: block;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .ant-menu-submenu {
+      line-height: 50px;
+      height: 50px;
+      color: #ffffff;
+      text-align: center;
+
+      .ant-menu-submenu-title {
+        padding: 16px 0;
+
+        .anticon-setting {
+          margin-right: 0;
+        }
+      }
+    }
+
+    /* dropdown的上下冗余 */
+    .ant-dropdown .ant-dropdown-menu {
+      padding: 8px 0;
+    }
+  }
+}
+
+.menu-text-ellipsis {
+  display: inline-block;
+  max-width: 80px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  vertical-align: top;
+}
+.ant-dropdown-menu-item .dropdown-content {
+  padding: 6px 58px 7px 20px;
+  font-size: 14px;
+  color: #333333;
+  line-height: 27px;
+  .iconfont {
+    color: inherit;
+    margin-right: 8px;
+    vertical-align: -1px;
+  }
 }
 
 .theme-dark {
-    .ant-dropdown-menu-item .dropdown-content{
-        color: #dddddd;
-    }
-    .ant-dropdown-menu-item-selected .dropdown-content{
-        background-color:#3D3D3D;
-    }
-    
-}/* 暗色主题下的导航栏下拉 */
-@media(min-width:1330px){
-    .menu_large{
-        display: inline-block;
-    }
-    .menu_mini{
-        display: none !important;
-    }
+  .ant-dropdown-menu-item .dropdown-content {
+    color: #dddddd;
+  }
+  .ant-dropdown-menu-item-selected .dropdown-content {
+    background-color: #3d3d3d;
+  }
+} /* 暗色主题下的导航栏下拉 */
+@media (min-width: 1330px) {
+  .menu_large {
+    display: inline-block;
+  }
+  .menu_mini {
+    display: none !important;
+  }
 }
 
-@media(max-width:1330px){
-    .menu_large{
-        display: none !important;
-    }
-    .menu_mini{
-        display: inline-block;
-    }
+@media (max-width: 1330px) {
+  .menu_large {
+    display: none !important;
+  }
+  .menu_mini {
+    display: inline-block;
+  }
 }

@@ -27,7 +27,12 @@
       "layouts/*": ["./src/layouts/*"]
     }
   },
-  "include": ["./src/**/*.ts", "./src/**/*.tsx", "./src/**/*.js", "./lib/dt-common/src/components/views/**/*.tsx"],
+  "include": [
+    "./src/**/*.ts",
+    "./src/**/*.tsx",
+    "./src/**/*.js",
+    "./lib/dt-common/src/components/views/**/*.tsx"
+  ],
   "exclude": [
     "node_modules",
     "build",

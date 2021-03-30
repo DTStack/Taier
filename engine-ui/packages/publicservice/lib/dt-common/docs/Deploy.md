@@ -38,6 +38,7 @@
 ```
 
 ### Nginx 配置
+
 目前在仓库源码的`scripts`目录下，有有个`dt-insight-front.conf`的 Nginx 服务器示例配置文件。`详细配置`如下：
 
 ```bash
@@ -285,7 +286,6 @@ server {
 
 ```
 
-
 ## 三、获取生产代码
 
 目前前端代码仓库中，默认的`master`分支为最新发布的版本，如果需要[历史版本](http://git.dtstack.cn/dtstack/data-stack-web/tags)或者其他稳定（stable）版本，则可以通过查看 commit 的 [Tags 记录](http://git.dtstack.cn/dtstack/data-stack-web/tags)来获得。有些特殊的定制化版本，我们会根据具体定制用户进行命名上的调整，例如`浙江大学`定制版，我们会是这样的命名：`v3.4.0-zju`。所有在选择`clone` 或者下载包的时候需要注意对应的 `Tag` 版本或者 `Branch`，如果不确定版本号或者更新内容，可以查看根目录下的`CHANGELOG`文件或者`package.json` 里面的 `version` 字段进行确认。
@@ -308,35 +308,33 @@ server {
 
 1. 安装 Node.js
 
-    目前编译前端项目，需要依赖 `Node.js` 环境，所以如果你没有安装 `Node.js` 的情况下，建议您先安装一下 `8.0` 以上版本后的 `Node.js` 后，再继续操作。具体安装可参看[Node.js 官网](https://nodejs.org/en/download/).
-
+   目前编译前端项目，需要依赖 `Node.js` 环境，所以如果你没有安装 `Node.js` 的情况下，建议您先安装一下 `8.0` 以上版本后的 `Node.js` 后，再继续操作。具体安装可参看[Node.js 官网](https://nodejs.org/en/download/).
 
 2. clone 项目源码
 
-    推荐`ssh`的方式，这里以`dt-common`举例：
+   推荐`ssh`的方式，这里以`dt-common`举例：
 
-    ```bash
-    $ # http
-    $ git clone http://git.dtstack.cn/dt-insight-front/dt-common
-    $ # ssh
-    $ git clone ssh://git@git.dtstack.cn:10022/dt-insight-front/dt-common.git
+   ```bash
+   $ # http
+   $ git clone http://git.dtstack.cn/dt-insight-front/dt-common
+   $ # ssh
+   $ git clone ssh://git@git.dtstack.cn:10022/dt-insight-front/dt-common.git
 
-    ```
+   ```
 
 3. 安装依赖环境，并执行构建
 
-    ```bash
-    $ # 默认 master 分支，如果需要切换到其他版本Tag， 则需要 checkout
-    $ git checkout v3.4.0
-    $ npm install // 安装打包所需要的依赖文件
-    $ npm run build // 执行生成环境打包
-    ```
+   ```bash
+   $ # 默认 master 分支，如果需要切换到其他版本Tag， 则需要 checkout
+   $ git checkout v3.4.0
+   $ npm install // 安装打包所需要的依赖文件
+   $ npm run build // 执行生成环境打包
+   ```
 
-    运行`build`命令后，会在根目录下生产一份用于成产环境的代码 `dist`,
-    打包完成后，可以通过`git`提交到远程仓库，或者直接 copy 代码到部署服务器.
+   运行`build`命令后，会在根目录下生产一份用于成产环境的代码 `dist`,
+   打包完成后，可以通过`git`提交到远程仓库，或者直接 copy 代码到部署服务器.
 
-    `注意`: 如果安装过程中出现任何 `not found package`相关的情况，可以反馈给我们。另外，你可以通过手动拷贝缺少的`package`名称，执行 `npm install packageName --save` 命令来进行安装。
-
+   `注意`: 如果安装过程中出现任何 `not found package`相关的情况，可以反馈给我们。另外，你可以通过手动拷贝缺少的`package`名称，执行 `npm install packageName --save` 命令来进行安装。
 
 ## 五、 生产程序（dist 目录）结构说明
 
@@ -352,7 +350,7 @@ server {
                     | - defaultApps.json # 仅 dt-common 才有
                 | - img # 图片
                 | - ...
-        | - docs # 部署文档/更新日志 
+        | - docs # 部署文档/更新日志
                 | - Deploy 部署文档
                 | - CHANGELOG.md #
         | - ... 其他 js, 静态资源
@@ -366,25 +364,25 @@ server {
 
 - **public/config/config.js**
 
-| 参数名  | 必填  | 类型  |  默认值 | 备注  |
-| ------------ | ------------ | ------------ | ------------ | ------------ |
-| indexTitle  |  是 | string  | 无  |  门户页面的大标题 |
-| indexDesc  | 是  |  string | 无  | 门户页面大标题下面的小说明  |
-| showCopyright | 否  |  boolean | false  | 是否显示版权信息  |
-| showSummary | 否  | boolean  |  false | 是否显示功能说明  |
-| summary | 否  |  { title: string, content: string } |  无 |  功能说明详细内容 |
-|  UIC_URL |  是 | string  | 无  | UIC 中心地址  |
-|  UIC_DOMAIN | 是  | string  |  无 |  UIC 域，注意，是**域**，例如 ```.dtstack.com``` ，**不是 url** |
-| prefix  | 否  |  string | 无  |  应用的前缀，例如 `DTinsight.离线计算` 中的`DTinsight` |
-| name  |  否 | string  | 无  | 应用名字，在左上角显示，例如 `DTinsight.离线计算` 中的 `离线计算` 。**注意：门户页面没有 name**  |
-| titleName  | 否  |  string | 无  | 网页的 title 中显示的名字，例如`DTinsight-离线计算`中的 `离线计算`  |
-| loadingTitle  |  否 |  string | 无  | loading 页面显示的名字，和 titleName 类似 |
-| theme  |  否 | 'default' / 'aliyun'  | 'default'  | 应用的主题，将会改变门户页面的布局样式以及应用的导航栏。当前只有 `aliyun` 和 `default` 两种可选  |
-| logo  | 否  |  string | 无  |  应用的图标路径 **（该配置只在 `default` 主题下生效）** |
-| hideUserCenter |  否 | boolean  | false  | 是否隐藏右上角下拉框中的用户中心  |
-| disableHelp  | 否  |  boolean | false  | 是否隐藏帮助文档  |
-| macChrome | 否 | string | 有 | mac 版`Chrome浏览器`官方下载地址 |
-| windowsChrome | 否 | string | 有 | windows 版`Chrome浏览器`官方下载地址 |
+| 参数名         | 必填 | 类型                               | 默认值    | 备注                                                                                            |
+| -------------- | ---- | ---------------------------------- | --------- | ----------------------------------------------------------------------------------------------- |
+| indexTitle     | 是   | string                             | 无        | 门户页面的大标题                                                                                |
+| indexDesc      | 是   | string                             | 无        | 门户页面大标题下面的小说明                                                                      |
+| showCopyright  | 否   | boolean                            | false     | 是否显示版权信息                                                                                |
+| showSummary    | 否   | boolean                            | false     | 是否显示功能说明                                                                                |
+| summary        | 否   | { title: string, content: string } | 无        | 功能说明详细内容                                                                                |
+| UIC_URL        | 是   | string                             | 无        | UIC 中心地址                                                                                    |
+| UIC_DOMAIN     | 是   | string                             | 无        | UIC 域，注意，是**域**，例如 `.dtstack.com` ，**不是 url**                                      |
+| prefix         | 否   | string                             | 无        | 应用的前缀，例如 `DTinsight.离线计算` 中的`DTinsight`                                           |
+| name           | 否   | string                             | 无        | 应用名字，在左上角显示，例如 `DTinsight.离线计算` 中的 `离线计算` 。**注意：门户页面没有 name** |
+| titleName      | 否   | string                             | 无        | 网页的 title 中显示的名字，例如`DTinsight-离线计算`中的 `离线计算`                              |
+| loadingTitle   | 否   | string                             | 无        | loading 页面显示的名字，和 titleName 类似                                                       |
+| theme          | 否   | 'default' / 'aliyun'               | 'default' | 应用的主题，将会改变门户页面的布局样式以及应用的导航栏。当前只有 `aliyun` 和 `default` 两种可选 |
+| logo           | 否   | string                             | 无        | 应用的图标路径 **（该配置只在 `default` 主题下生效）**                                          |
+| hideUserCenter | 否   | boolean                            | false     | 是否隐藏右上角下拉框中的用户中心                                                                |
+| disableHelp    | 否   | boolean                            | false     | 是否隐藏帮助文档                                                                                |
+| macChrome      | 否   | string                             | 有        | mac 版`Chrome浏览器`官方下载地址                                                                |
+| windowsChrome  | 否   | string                             | 有        | windows 版`Chrome浏览器`官方下载地址                                                            |
 
 - **portal/public/config/defaultApps.json**
 
@@ -392,22 +390,22 @@ server {
 
 ```json
 [
-     {
-        "id": "rdos", // 应用ID
-        "name": "离线计算", // 应用名称
-        "filename": "index.html", // 应用名称
-        "link": "/batch", // 应用访问连接
-        "target": "_self", // 应用访问打开方式
-        "enable": true, // 应用是否启用
-        "hasProject": true, // 应用是否拥有项目概念
-        "default": true,  // 是否为默认应用
-        "icon": "./public/img/icon_1.png", // 应用老版本图标
-        "newIcon": "./public/img/icon_new1.png", // 应用新版本图标
-        "description": "一站式大数据开发平台，帮助企业快速完成数据中台搭建", // 应用描述
-        "className": "icon_dropdown_offlin", // 应用附件样式 class
-        "hideLogo": false, // 是否隐藏导航栏Logo
-        "hideMenuRight": false // 是否隐藏导航栏右边操作按钮
-    }
+  {
+    "id": "rdos", // 应用ID
+    "name": "离线计算", // 应用名称
+    "filename": "index.html", // 应用名称
+    "link": "/batch", // 应用访问连接
+    "target": "_self", // 应用访问打开方式
+    "enable": true, // 应用是否启用
+    "hasProject": true, // 应用是否拥有项目概念
+    "default": true, // 是否为默认应用
+    "icon": "./public/img/icon_1.png", // 应用老版本图标
+    "newIcon": "./public/img/icon_new1.png", // 应用新版本图标
+    "description": "一站式大数据开发平台，帮助企业快速完成数据中台搭建", // 应用描述
+    "className": "icon_dropdown_offlin", // 应用附件样式 class
+    "hideLogo": false, // 是否隐藏导航栏Logo
+    "hideMenuRight": false // 是否隐藏导航栏右边操作按钮
+  }
 ]
 ```
 
@@ -415,27 +413,29 @@ server {
 
 - **public/config/config.js**
 
-| 参数名  | 必填  | 类型  |  默认值 | 备注  |
-| ------------ | ------------ | ------------ | ------------ | ------------ |
-|  UIC_URL |  是 | string  | 无  | UIC 中心地址  |
-|  UIC_DOMAIN | 是  | string  |  无 |  UIC 域，注意，是**域**，例如 ```.dtstack.com``` ，**不是 url** |
-| prefix  | 否  |  string | 无  |  应用的前缀，例如 `DTinsight.离线计算` 中的`DTinsight` |
-| name  |  否 | string  | 无  | 应用名字，在左上角显示，例如 `DTinsight.离线计算` 中的 `离线计算` 。**注意：门户页面没有 name**  |
-| titleName  | 否  |  string | 无  | 网页的 title 中显示的名字，例如`DTinsight-离线计算`中的 `离线计算`  |
-| loadingTitle  |  否 |  string | 无  | loading 页面显示的名字，和 titleName 类似 |
-| theme  |  否 | 'default' / 'aliyun'  | 'default'  | 应用的主题，将会改变门户页面的布局样式以及应用的导航栏。当前只有 `aliyun` 和 `default` 两种可选  |
-| logo  | 否  |  string | 无  |  应用的图标路径 **（该配置只在 `default` 主题下生效）** |
-| hideUserCenter |  否 | boolean  | false  | 是否隐藏右上角下拉框中的用户中心  |
-| disableHelp  | 否  |  boolean | false  | 是否隐藏帮助文档  |
-| macChrome | 否 | string | 有 | mac 版`Chrome浏览器`官方下载地址 |
-| windowsChrome | 否 | string | 有 | windows 版`Chrome浏览器`官方下载地址 |
-| API_SERVER  |  是 | string  | 无  |  API 服务 Base 地址 | <color style="color:red;">注意：数据质量（DataValid)独有）</color>
-| enableGraphEdit | 否 | boolean | false | 实时开发开启可视化编辑任务配置 |
+| 参数名          | 必填 | 类型                 | 默认值    | 备注                                                                                            |
+| --------------- | ---- | -------------------- | --------- | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| UIC_URL         | 是   | string               | 无        | UIC 中心地址                                                                                    |
+| UIC_DOMAIN      | 是   | string               | 无        | UIC 域，注意，是**域**，例如 `.dtstack.com` ，**不是 url**                                      |
+| prefix          | 否   | string               | 无        | 应用的前缀，例如 `DTinsight.离线计算` 中的`DTinsight`                                           |
+| name            | 否   | string               | 无        | 应用名字，在左上角显示，例如 `DTinsight.离线计算` 中的 `离线计算` 。**注意：门户页面没有 name** |
+| titleName       | 否   | string               | 无        | 网页的 title 中显示的名字，例如`DTinsight-离线计算`中的 `离线计算`                              |
+| loadingTitle    | 否   | string               | 无        | loading 页面显示的名字，和 titleName 类似                                                       |
+| theme           | 否   | 'default' / 'aliyun' | 'default' | 应用的主题，将会改变门户页面的布局样式以及应用的导航栏。当前只有 `aliyun` 和 `default` 两种可选 |
+| logo            | 否   | string               | 无        | 应用的图标路径 **（该配置只在 `default` 主题下生效）**                                          |
+| hideUserCenter  | 否   | boolean              | false     | 是否隐藏右上角下拉框中的用户中心                                                                |
+| disableHelp     | 否   | boolean              | false     | 是否隐藏帮助文档                                                                                |
+| macChrome       | 否   | string               | 有        | mac 版`Chrome浏览器`官方下载地址                                                                |
+| windowsChrome   | 否   | string               | 有        | windows 版`Chrome浏览器`官方下载地址                                                            |
+| API_SERVER      | 是   | string               | 无        | API 服务 Base 地址                                                                              | <color style="color:red;">注意：数据质量（DataValid)独有）</color> |
+| enableGraphEdit | 否   | boolean              | false     | 实时开发开启可视化编辑任务配置                                                                  |
 
-##  七、版本验证与更新日志
+## 七、版本验证与更新日志
+
 安装成功后，打开浏览器**控制台**，会打印当前应用与仓库对应的版本信息。或者可以打开 `dist/docs` 目录中的[CHANGELOG](./CHANGELOG.md)文件。查看更新日志后，进行验证操作。
 
 ## 其他
+
 默认 Bug 反馈 xiaowei@dtstack.com
 
 - [Issue](http://redmine.prod.dtstack.cn/projects/dtinsight200/issues)

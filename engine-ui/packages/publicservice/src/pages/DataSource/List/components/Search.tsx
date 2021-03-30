@@ -1,18 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { API } from "@/services";
-import {
-  Form,
-  Checkbox,
-  Button,
-  Select,
-  Tooltip,
-  Icon,
-  message,
-} from "antd";
-import { useHistory } from "react-router";
-import SearchInput from "@/components/SearchInput";
-import { FormComponentProps } from "antd/es/form";
-import "../style.scss";
+import React, { useEffect, useState } from 'react';
+import { API } from '@/services';
+import { Form, Checkbox, Button, Select, Tooltip, Icon, message } from 'antd';
+import { useHistory } from 'react-router';
+import SearchInput from '@/components/SearchInput';
+import { FormComponentProps } from 'antd/es/form';
+import '../style.scss';
 
 interface IProps extends FormComponentProps {
   onSearch(value: string): void; //父组件传递过来的值
@@ -30,12 +22,12 @@ function Search(props) {
   const getTypeList = async () => {
     let { data, success } = await API.typeList();
     data.unshift({
-      dataType: "全部",
+      dataType: '全部',
     });
     if (success) {
       setTypeList(data);
     } else {
-      message.error("获取类型下拉框内容失败！");
+      message.error('获取类型下拉框内容失败！');
     }
   };
 
@@ -43,12 +35,12 @@ function Search(props) {
     let { data, success } = await API.productList();
     if (success) {
       data.unshift({
-        appName: "全部",
-        appType: "all",
+        appName: '全部',
+        appType: 'all',
       });
       setProductList(data);
     } else {
-      message.error("获取授权产品下拉框失败！");
+      message.error('获取授权产品下拉框失败！');
     }
   };
 
@@ -59,18 +51,18 @@ function Search(props) {
 
   // 新增数据源
   const addList = () => {
-    history.push("/add-source");
+    history.push('/add-source');
   };
 
   //类型多选方法
   const onMultType = (value) => {
-    value.includes("全部")
+    value.includes('全部')
       ? onSearch({ dataType: null })
       : onSearch({ dataType: value });
   };
   //类型多选方法
   const onMultAppType = (value) => {
-    if (value.length > 0 && value.includes("all")) {
+    if (value.length > 0 && value.includes('all')) {
       onSearch({ appType: null });
     } else {
       onSearch({ appType: value });
@@ -84,8 +76,7 @@ function Search(props) {
           <SearchInput
             placeholder="数据源名称/描述"
             onSearch={(value) => onSearch({ search: value })}
-            width={208}
-          ></SearchInput>
+            width={208}></SearchInput>
         </Form.Item>
 
         <Form.Item label="类型">
@@ -97,8 +88,7 @@ function Search(props) {
             optionFilterProp="children"
             style={{ width: 140 }}
             onChange={(value) => onMultType(value)}
-            defaultValue={["全部"]}
-          >
+            defaultValue={['全部']}>
             {typeList.length > 0 &&
               typeList.map((item) => {
                 return <Option value={item.dataType}>{item.dataType}</Option>;
@@ -113,8 +103,7 @@ function Search(props) {
             allowClear
             showSearch
             optionFilterProp="children"
-            defaultValue={["all"]}
-          >
+            defaultValue={['all']}>
             {productList.length > 0 &&
               productList.map((item) => {
                 return (
@@ -129,8 +118,7 @@ function Search(props) {
           <Checkbox
             onChange={(e) =>
               onSearch({ isMeta: e.target.checked ? 1 : 0, current: 1 })
-            }
-          >
+            }>
             显示默认数据库
             <Tooltip title="各模块在创建项目时的默认数据源">
               <Icon style={{ marginLeft: 8 }} type="question-circle-o" />
@@ -138,7 +126,7 @@ function Search(props) {
           </Checkbox>
         </Form.Item>
 
-        <Button type="primary" onClick={addList} style={{ float: "right" }}>
+        <Button type="primary" onClick={addList} style={{ float: 'right' }}>
           新增数据源
         </Button>
       </Form>

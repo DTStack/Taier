@@ -17,15 +17,15 @@ lifecycle 365;
 //     console.log('comments:', res);
 // }
 
-function testSQLExtract () {
-    // const sqls = testStr.split(/(;)/);
-    const regx = /^(.)+(\n|\w|\s)+(;)+$/g;
-    // const sqls = regx.exec(testStr);
-    // while ((temp = regx.exec(testStr)) !== null) {
-    //     console.log('sqls:', temp);
-    // }
-    const sqls = testStr.match(regx)
-    console.log('sqls:', sqls);
+function testSQLExtract() {
+  // const sqls = testStr.split(/(;)/);
+  const regx = /^(.)+(\n|\w|\s)+(;)+$/g;
+  // const sqls = regx.exec(testStr);
+  // while ((temp = regx.exec(testStr)) !== null) {
+  //     console.log('sqls:', temp);
+  // }
+  const sqls = testStr.match(regx);
+  console.log('sqls:', sqls);
 }
 
 testSQLExtract();
