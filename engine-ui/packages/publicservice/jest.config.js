@@ -21,7 +21,12 @@ module.exports = {
       '<rootDir>/mock/fileMock.js',
     '\\.(css|scss|less|/style)$': '<rootDir>/mock/styleMock.js',
     '@/(.*)$': '<rootDir>/src/$1',
-    '^utils(.*)$': '<rootDir>/src/utils$1',
     '^consts(.*)$': '<rootDir>/src/consts$1',
+    '^assets(.*)$': '<rootDir>/public/assets$1',
+    '^components(.*)$': '<rootDir>/src/components$1',
+    '^pages(.*)$': '<rootDir>/src/pages$1',
+    '^services(.*)$': '<rootDir>/src/services$1',
+    '^utils(.*)$': '<rootDir>/src/utils$1',
+    '^layouts(.*)$': '<rootDir>/src/layouts$1',
   },
 };
