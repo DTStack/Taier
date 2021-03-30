@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Layout, Menu } from 'antd';
-import './style.less';
+import './style.scss';
 const { SubMenu } = Menu;
 const { Sider } = Layout;
 

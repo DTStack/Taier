@@ -56,34 +56,33 @@
   dependencies:
     "@babel/highlight" "^7.12.13"
 
-"@babel/compat-data@^7.12.1", "@babel/compat-data@^7.13.0", "@babel/compat-data@^7.13.8":
-  version "7.13.8"
-  resolved "http://registry.npm.dtstack.com/@babel%2fcompat-data/-/compat-data-7.13.8.tgz#5b783b9808f15cef71547f1b691f34f8ff6003a6"
-  integrity sha1-W3g7mAjxXO9xVH8baR80+P9gA6Y=
+"@babel/compat-data@^7.12.1", "@babel/compat-data@^7.13.0", "@babel/compat-data@^7.13.12", "@babel/compat-data@^7.13.8":
+  version "7.13.12"
+  resolved "http://registry.npm.dtstack.com/@babel%2fcompat-data/-/compat-data-7.13.12.tgz#a8a5ccac19c200f9dd49624cac6e19d7be1236a1"
+  integrity sha1-qKXMrBnCAPndSWJMrG4Z174SNqE=
 
 "@babel/core@^7.1.0", "@babel/core@^7.12.3", "@babel/core@^7.7.5":
-  version "7.13.10"
-  resolved "http://registry.npm.dtstack.com/@babel%2fcore/-/core-7.13.10.tgz#07de050bbd8193fcd8a3c27918c0890613a94559"
-  integrity sha1-B94FC72Bk/zYo8J5GMCJBhOpRVk=
+  version "7.13.14"
+  resolved "http://registry.npm.dtstack.com/@babel%2fcore/-/core-7.13.14.tgz#8e46ebbaca460a63497c797e574038ab04ae6d06"
+  integrity sha1-jkbruspGCmNJfHl+V0A4qwSubQY=
   dependencies:
     "@babel/code-frame" "^7.12.13"
     "@babel/generator" "^7.13.9"
-    "@babel/helper-compilation-targets" "^7.13.10"
-    "@babel/helper-module-transforms" "^7.13.0"
+    "@babel/helper-compilation-targets" "^7.13.13"
+    "@babel/helper-module-transforms" "^7.13.14"
     "@babel/helpers" "^7.13.10"
-    "@babel/parser" "^7.13.10"
+    "@babel/parser" "^7.13.13"
     "@babel/template" "^7.12.13"
-    "@babel/traverse" "^7.13.0"
-    "@babel/types" "^7.13.0"
+    "@babel/traverse" "^7.13.13"
+    "@babel/types" "^7.13.14"
     convert-source-map "^1.7.0"
     debug "^4.1.0"
     gensync "^1.0.0-beta.2"
     json5 "^2.1.2"
-    lodash "^4.17.19"
     semver "^6.3.0"
     source-map "^0.5.0"
 
-"@babel/generator@^7.13.0", "@babel/generator@^7.13.9":
+"@babel/generator@^7.13.9":
   version "7.13.9"
   resolved "http://registry.npm.dtstack.com/@babel%2fgenerator/-/generator-7.13.9.tgz#3a7aa96f9efb8e2be42d38d80e2ceb4c64d8de39"
   integrity sha1-Onqpb577jivkLTjYDizrTGTY3jk=
@@ -107,20 +106,20 @@
     "@babel/helper-explode-assignable-expression" "^7.12.13"
     "@babel/types" "^7.12.13"
 
-"@babel/helper-compilation-targets@^7.12.1", "@babel/helper-compilation-targets@^7.13.0", "@babel/helper-compilation-targets@^7.13.10", "@babel/helper-compilation-targets@^7.13.8":
-  version "7.13.10"
-  resolved "http://registry.npm.dtstack.com/@babel%2fhelper-compilation-targets/-/helper-compilation-targets-7.13.10.tgz#1310a1678cb8427c07a753750da4f8ce442bdd0c"
-  integrity sha1-ExChZ4y4QnwHp1N1DaT4zkQr3Qw=
+"@babel/helper-compilation-targets@^7.12.1", "@babel/helper-compilation-targets@^7.13.0", "@babel/helper-compilation-targets@^7.13.13", "@babel/helper-compilation-targets@^7.13.8":
+  version "7.13.13"
+  resolved "http://registry.npm.dtstack.com/@babel%2fhelper-compilation-targets/-/helper-compilation-targets-7.13.13.tgz#2b2972a0926474853f41e4adbc69338f520600e5"
+  integrity sha1-KylyoJJkdIU/QeStvGkzj1IGAOU=
   dependencies:
-    "@babel/compat-data" "^7.13.8"
+    "@babel/compat-data" "^7.13.12"
     "@babel/helper-validator-option" "^7.12.17"
     browserslist "^4.14.5"
     semver "^6.3.0"
 
 "@babel/helper-create-class-features-plugin@^7.12.1", "@babel/helper-create-class-features-plugin@^7.13.0":
-  version "7.13.10"
-  resolved "http://registry.npm.dtstack.com/@babel%2fhelper-create-class-features-plugin/-/helper-create-class-features-plugin-7.13.10.tgz#073b2bbb925a097643c6fc5770e5f13394e887c9"
-  integrity sha1-Bzsru5JaCXZDxvxXcOXxM5Toh8k=
+  version "7.13.11"
+  resolved "http://registry.npm.dtstack.com/@babel%2fhelper-create-class-features-plugin/-/helper-create-class-features-plugin-7.13.11.tgz#30d30a005bca2c953f5653fc25091a492177f4f6"
+  integrity sha1-MNMKAFvKLJU/VlP8JQkaSSF39PY=
   dependencies:
     "@babel/helper-function-name" "^7.12.13"
     "@babel/helper-member-expression-to-functions" "^7.13.0"
@@ -181,34 +180,33 @@
     "@babel/traverse" "^7.13.0"
     "@babel/types" "^7.13.0"
 
-"@babel/helper-member-expression-to-functions@^7.13.0":
-  version "7.13.0"
-  resolved "http://registry.npm.dtstack.com/@babel%2fhelper-member-expression-to-functions/-/helper-member-expression-to-functions-7.13.0.tgz#6aa4bb678e0f8c22f58cdb79451d30494461b091"
-  integrity sha1-aqS7Z44PjCL1jNt5RR0wSURhsJE=
+"@babel/helper-member-expression-to-functions@^7.13.0", "@babel/helper-member-expression-to-functions@^7.13.12":
+  version "7.13.12"
+  resolved "http://registry.npm.dtstack.com/@babel%2fhelper-member-expression-to-functions/-/helper-member-expression-to-functions-7.13.12.tgz#dfe368f26d426a07299d8d6513821768216e6d72"
+  integrity sha1-3+No8m1CagcpnY1lE4IXaCFubXI=
   dependencies:
-    "@babel/types" "^7.13.0"
+    "@babel/types" "^7.13.12"
 
-"@babel/helper-module-imports@^7.0.0", "@babel/helper-module-imports@^7.12.1", "@babel/helper-module-imports@^7.12.13":
-  version "7.12.13"
-  resolved "http://registry.npm.dtstack.com/@babel%2fhelper-module-imports/-/helper-module-imports-7.12.13.tgz#ec67e4404f41750463e455cc3203f6a32e93fcb0"
-  integrity sha1-7GfkQE9BdQRj5FXMMgP2oy6T/LA=
+"@babel/helper-module-imports@^7.0.0", "@babel/helper-module-imports@^7.12.1", "@babel/helper-module-imports@^7.12.13", "@babel/helper-module-imports@^7.13.12":
+  version "7.13.12"
+  resolved "http://registry.npm.dtstack.com/@babel%2fhelper-module-imports/-/helper-module-imports-7.13.12.tgz#c6a369a6f3621cb25da014078684da9196b61977"
+  integrity sha1-xqNppvNiHLJdoBQHhoTakZa2GXc=
   dependencies:
-    "@babel/types" "^7.12.13"
+    "@babel/types" "^7.13.12"
 
-"@babel/helper-module-transforms@^7.13.0":
-  version "7.13.0"
-  resolved "http://registry.npm.dtstack.com/@babel%2fhelper-module-transforms/-/helper-module-transforms-7.13.0.tgz#42eb4bd8eea68bab46751212c357bfed8b40f6f1"
-  integrity sha1-QutL2O6mi6tGdRISw1e/7YtA9vE=
+"@babel/helper-module-transforms@^7.13.0", "@babel/helper-module-transforms@^7.13.14":
+  version "7.13.14"
+  resolved "http://registry.npm.dtstack.com/@babel%2fhelper-module-transforms/-/helper-module-transforms-7.13.14.tgz#e600652ba48ccb1641775413cb32cfa4e8b495ef"
+  integrity sha1-5gBlK6SMyxZBd1QTyzLPpOi0le8=
   dependencies:
-    "@babel/helper-module-imports" "^7.12.13"
-    "@babel/helper-replace-supers" "^7.13.0"
-    "@babel/helper-simple-access" "^7.12.13"
+    "@babel/helper-module-imports" "^7.13.12"
+    "@babel/helper-replace-supers" "^7.13.12"
+    "@babel/helper-simple-access" "^7.13.12"
     "@babel/helper-split-export-declaration" "^7.12.13"
     "@babel/helper-validator-identifier" "^7.12.11"
     "@babel/template" "^7.12.13"
-    "@babel/traverse" "^7.13.0"
-    "@babel/types" "^7.13.0"
-    lodash "^4.17.19"
+    "@babel/traverse" "^7.13.13"
+    "@babel/types" "^7.13.14"
 
 "@babel/helper-optimise-call-expression@^7.12.13":
   version "7.12.13"
@@ -231,22 +229,22 @@
     "@babel/helper-wrap-function" "^7.13.0"
     "@babel/types" "^7.13.0"
 
-"@babel/helper-replace-supers@^7.12.13", "@babel/helper-replace-supers@^7.13.0":
-  version "7.13.0"
-  resolved "http://registry.npm.dtstack.com/@babel%2fhelper-replace-supers/-/helper-replace-supers-7.13.0.tgz#6034b7b51943094cb41627848cb219cb02be1d24"
-  integrity sha1-YDS3tRlDCUy0FieEjLIZywK+HSQ=
+"@babel/helper-replace-supers@^7.12.13", "@babel/helper-replace-supers@^7.13.0", "@babel/helper-replace-supers@^7.13.12":
+  version "7.13.12"
+  resolved "http://registry.npm.dtstack.com/@babel%2fhelper-replace-supers/-/helper-replace-supers-7.13.12.tgz#6442f4c1ad912502481a564a7386de0c77ff3804"
+  integrity sha1-ZEL0wa2RJQJIGlZKc4beDHf/OAQ=
   dependencies:
-    "@babel/helper-member-expression-to-functions" "^7.13.0"
+    "@babel/helper-member-expression-to-functions" "^7.13.12"
     "@babel/helper-optimise-call-expression" "^7.12.13"
     "@babel/traverse" "^7.13.0"
-    "@babel/types" "^7.13.0"
+    "@babel/types" "^7.13.12"
 
-"@babel/helper-simple-access@^7.12.13":
-  version "7.12.13"
-  resolved "http://registry.npm.dtstack.com/@babel%2fhelper-simple-access/-/helper-simple-access-7.12.13.tgz#8478bcc5cacf6aa1672b251c1d2dde5ccd61a6c4"
-  integrity sha1-hHi8xcrPaqFnKyUcHS3eXM1hpsQ=
+"@babel/helper-simple-access@^7.12.13", "@babel/helper-simple-access@^7.13.12":
+  version "7.13.12"
+  resolved "http://registry.npm.dtstack.com/@babel%2fhelper-simple-access/-/helper-simple-access-7.13.12.tgz#dd6c538afb61819d205a012c31792a39c7a5eaf6"
+  integrity sha1-3WxTivthgZ0gWgEsMXkqOcel6vY=
   dependencies:
-    "@babel/types" "^7.12.13"
+    "@babel/types" "^7.13.12"
 
 "@babel/helper-skip-transparent-expression-wrappers@^7.12.1":
   version "7.12.1"
@@ -291,7 +289,7 @@
     "@babel/traverse" "^7.13.0"
     "@babel/types" "^7.13.0"
 
-"@babel/highlight@^7.0.0", "@babel/highlight@^7.10.4":
+"@babel/highlight@^7.0.0", "@babel/highlight@^7.10.4", "@babel/highlight@^7.12.13":
   version "7.13.10"
   resolved "http://registry.npm.dtstack.com/@babel%2fhighlight/-/highlight-7.13.10.tgz#a8b2a66148f5b27d666b15d81774347a731d52d1"
   integrity sha1-qLKmYUj1sn1maxXYF3Q0enMdUtE=
@@ -300,24 +298,10 @@
     chalk "^2.0.0"
     js-tokens "^4.0.0"
 
-"@babel/highlight@^7.12.13":
-  version "7.13.8"
-  resolved "http://registry.npm.dtstack.com/@babel%2fhighlight/-/highlight-7.13.8.tgz#10b2dac78526424dfc1f47650d0e415dfd9dc481"
-  integrity sha1-ELLax4UmQk38H0dlDQ5BXf2dxIE=
-  dependencies:
-    "@babel/helper-validator-identifier" "^7.12.11"
-    chalk "^2.0.0"
-    js-tokens "^4.0.0"
-
-"@babel/parser@^7.1.0":
-  version "7.13.12"
-  resolved "http://registry.npm.dtstack.com/@babel%2fparser/-/parser-7.13.12.tgz#ba320059420774394d3b0c0233ba40e4250b81d1"
-  integrity sha1-ujIAWUIHdDlNOwwCM7pA5CULgdE=
-
-"@babel/parser@^7.12.13", "@babel/parser@^7.13.0", "@babel/parser@^7.13.10":
-  version "7.13.10"
-  resolved "http://registry.npm.dtstack.com/@babel%2fparser/-/parser-7.13.10.tgz#8f8f9bf7b3afa3eabd061f7a5bcdf4fec3c48409"
-  integrity sha1-j4+b97Ovo+q9Bh96W830/sPEhAk=
+"@babel/parser@^7.1.0", "@babel/parser@^7.12.13", "@babel/parser@^7.13.13":
+  version "7.13.13"
+  resolved "http://registry.npm.dtstack.com/@babel%2fparser/-/parser-7.13.13.tgz#42f03862f4aed50461e543270916b47dd501f0df"
+  integrity sha1-QvA4YvSu1QRh5UMnCRa0fdUB8N8=
 
 "@babel/plugin-proposal-async-generator-functions@^7.12.1":
   version "7.13.8"
@@ -503,9 +487,9 @@
     "@babel/plugin-syntax-optional-chaining" "^7.8.0"
 
 "@babel/plugin-proposal-optional-chaining@^7.12.1":
-  version "7.13.8"
-  resolved "http://registry.npm.dtstack.com/@babel%2fplugin-proposal-optional-chaining/-/plugin-proposal-optional-chaining-7.13.8.tgz#e39df93efe7e7e621841babc197982e140e90756"
-  integrity sha1-4535Pv5+fmIYQbq8GXmC4UDpB1Y=
+  version "7.13.12"
+  resolved "http://registry.npm.dtstack.com/@babel%2fplugin-proposal-optional-chaining/-/plugin-proposal-optional-chaining-7.13.12.tgz#ba9feb601d422e0adea6760c2bd6bbb7bfec4866"
+  integrity sha1-up/rYB1CLgrepnYMK9a7t7/sSGY=
   dependencies:
     "@babel/helper-plugin-utils" "^7.13.0"
     "@babel/helper-skip-transparent-expression-wrappers" "^7.12.1"
@@ -916,15 +900,15 @@
     "@babel/helper-plugin-utils" "^7.12.13"
 
 "@babel/plugin-transform-react-jsx@^7.12.1", "@babel/plugin-transform-react-jsx@^7.12.17":
-  version "7.12.17"
-  resolved "http://registry.npm.dtstack.com/@babel%2fplugin-transform-react-jsx/-/plugin-transform-react-jsx-7.12.17.tgz#dd2c1299f5e26de584939892de3cfc1807a38f24"
-  integrity sha1-3SwSmfXibeWEk5iS3jz8GAejjyQ=
+  version "7.13.12"
+  resolved "http://registry.npm.dtstack.com/@babel%2fplugin-transform-react-jsx/-/plugin-transform-react-jsx-7.13.12.tgz#1df5dfaf0f4b784b43e96da6f28d630e775f68b3"
+  integrity sha1-HfXfrw9LeEtD6W2m8o1jDndfaLM=
   dependencies:
     "@babel/helper-annotate-as-pure" "^7.12.13"
-    "@babel/helper-module-imports" "^7.12.13"
-    "@babel/helper-plugin-utils" "^7.12.13"
+    "@babel/helper-module-imports" "^7.13.12"
+    "@babel/helper-plugin-utils" "^7.13.0"
     "@babel/plugin-syntax-jsx" "^7.12.13"
-    "@babel/types" "^7.12.17"
+    "@babel/types" "^7.13.12"
 
 "@babel/plugin-transform-react-pure-annotations@^7.12.1":
   version "7.12.1"
@@ -1133,17 +1117,10 @@
     core-js-pure "^3.0.0"
     regenerator-runtime "^0.13.4"
 
-"@babel/runtime@^7.0.0", "@babel/runtime@^7.10.2", "@babel/runtime@^7.12.5", "@babel/runtime@^7.7.6", "@babel/runtime@^7.8.4", "@babel/runtime@^7.9.2":
+"@babel/runtime@^7.0.0", "@babel/runtime@^7.10.2", "@babel/runtime@^7.12.1", "@babel/runtime@^7.12.5", "@babel/runtime@^7.7.6", "@babel/runtime@^7.8.4", "@babel/runtime@^7.9.2":
   version "7.13.10"
   resolved "http://registry.npm.dtstack.com/@babel%2fruntime/-/runtime-7.13.10.tgz#47d42a57b6095f4468da440388fdbad8bebf0d7d"
   integrity sha1-R9QqV7YJX0Ro2kQDiP262L6/DX0=
-  dependencies:
-    regenerator-runtime "^0.13.4"
-
-"@babel/runtime@^7.1.2", "@babel/runtime@^7.12.1":
-  version "7.13.9"
-  resolved "http://registry.npm.dtstack.com/@babel%2fruntime/-/runtime-7.13.9.tgz#97dbe2116e2630c489f22e0656decd60aaa1fcee"
-  integrity sha1-l9viEW4mMMSJ8i4GVt7NYKqh/O4=
   dependencies:
     regenerator-runtime "^0.13.4"
 
@@ -1156,34 +1133,24 @@
     "@babel/parser" "^7.12.13"
     "@babel/types" "^7.12.13"
 
-"@babel/traverse@^7.1.0", "@babel/traverse@^7.13.0":
-  version "7.13.0"
-  resolved "http://registry.npm.dtstack.com/@babel%2ftraverse/-/traverse-7.13.0.tgz#6d95752475f86ee7ded06536de309a65fc8966cc"
-  integrity sha512-xys5xi5JEhzC3RzEmSGrs/b3pJW/o87SypZ+G/PhaE7uqVQNv/jlmVIBXuoh5atqQ434LfXV+sf23Oxj0bchJQ==
+"@babel/traverse@^7.1.0", "@babel/traverse@^7.13.0", "@babel/traverse@^7.13.13":
+  version "7.13.13"
+  resolved "http://registry.npm.dtstack.com/@babel%2ftraverse/-/traverse-7.13.13.tgz#39aa9c21aab69f74d948a486dd28a2dbdbf5114d"
+  integrity sha1-OaqcIaq2n3TZSKSG3Sii29v1EU0=
   dependencies:
     "@babel/code-frame" "^7.12.13"
-    "@babel/generator" "^7.13.0"
+    "@babel/generator" "^7.13.9"
     "@babel/helper-function-name" "^7.12.13"
     "@babel/helper-split-export-declaration" "^7.12.13"
-    "@babel/parser" "^7.13.0"
-    "@babel/types" "^7.13.0"
+    "@babel/parser" "^7.13.13"
+    "@babel/types" "^7.13.13"
     debug "^4.1.0"
     globals "^11.1.0"
-    lodash "^4.17.19"
 
-"@babel/types@^7.0.0", "@babel/types@^7.3.0", "@babel/types@^7.3.3":
-  version "7.13.12"
-  resolved "http://registry.npm.dtstack.com/@babel%2ftypes/-/types-7.13.12.tgz#edbf99208ef48852acdff1c8a681a1e4ade580cd"
-  integrity sha1-7b+ZII70iFKs3/HIpoGh5K3lgM0=
-  dependencies:
-    "@babel/helper-validator-identifier" "^7.12.11"
-    lodash "^4.17.19"
-    to-fast-properties "^2.0.0"
-
-"@babel/types@^7.12.1", "@babel/types@^7.12.13", "@babel/types@^7.12.17", "@babel/types@^7.13.0", "@babel/types@^7.4.4":
-  version "7.13.0"
-  resolved "http://registry.npm.dtstack.com/@babel%2ftypes/-/types-7.13.0.tgz#74424d2816f0171b4100f0ab34e9a374efdf7f80"
-  integrity sha1-dEJNKBbwFxtBAPCrNOmjdO/ff4A=
+"@babel/types@^7.0.0", "@babel/types@^7.12.1", "@babel/types@^7.12.13", "@babel/types@^7.13.0", "@babel/types@^7.13.12", "@babel/types@^7.13.13", "@babel/types@^7.13.14", "@babel/types@^7.3.0", "@babel/types@^7.3.3", "@babel/types@^7.4.4":
+  version "7.13.14"
+  resolved "http://registry.npm.dtstack.com/@babel%2ftypes/-/types-7.13.14.tgz#c35a4abb15c7cd45a2746d78ab328e362cbace0d"
+  integrity sha1-w1pKuxXHzUWidG14qzKONiy6zg0=
   dependencies:
     "@babel/helper-validator-identifier" "^7.12.11"
     lodash "^4.17.19"
@@ -1354,6 +1321,11 @@
     js-yaml "^3.13.1"
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
+
+"@handsontable/react@^2.1.0":
+  version "2.1.0"
+  resolved "http://registry.npm.dtstack.com/@handsontable%2freact/-/react-2.1.0.tgz#3b87ebfc0d5d47e1b0d07856bd473017a0a7179f"
+  integrity sha1-O4fr/A1dR+Gw0HhWvUcwF6CnF58=
 
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"
@@ -1583,39 +1555,10 @@
     call-me-maybe "^1.0.1"
     glob-to-regexp "^0.3.0"
 
-"@nodelib/fs.scandir@2.1.4":
-  version "2.1.4"
-  resolved "http://registry.npm.dtstack.com/@nodelib%2ffs.scandir/-/fs.scandir-2.1.4.tgz#d4b3549a5db5de2683e0c1071ab4f140904bbf69"
-  integrity sha1-1LNUml213iaD4MEHGrTxQJBLv2k=
-  dependencies:
-    "@nodelib/fs.stat" "2.0.4"
-    run-parallel "^1.1.9"
-
-"@nodelib/fs.stat@2.0.4", "@nodelib/fs.stat@^2.0.2":
-  version "2.0.4"
-  resolved "http://registry.npm.dtstack.com/@nodelib%2ffs.stat/-/fs.stat-2.0.4.tgz#a3f2dd61bab43b8db8fa108a121cfffe4c676655"
-  integrity sha1-o/LdYbq0O424+hCKEhz//kxnZlU=
-
 "@nodelib/fs.stat@^1.1.2":
   version "1.1.3"
   resolved "http://registry.npm.dtstack.com/@nodelib%2ffs.stat/-/fs.stat-1.1.3.tgz#2b5a3ab3f918cca48a8c754c08168e3f03eba61b"
   integrity sha1-K1o6s/kYzKSKjHVMCBaOPwPrphs=
-
-"@nodelib/fs.walk@^1.2.3":
-  version "1.2.6"
-  resolved "http://registry.npm.dtstack.com/@nodelib%2ffs.walk/-/fs.walk-1.2.6.tgz#cce9396b30aa5afe9e3756608f5831adcb53d063"
-  integrity sha1-zOk5azCqWv6eN1Zgj1gxrctT0GM=
-  dependencies:
-    "@nodelib/fs.scandir" "2.1.4"
-    fastq "^1.6.0"
-
-"@npmcli/move-file@^1.0.1":
-  version "1.1.2"
-  resolved "http://registry.npm.dtstack.com/@npmcli%2fmove-file/-/move-file-1.1.2.tgz#1a82c3e372f7cae9253eb66d72543d6b8685c674"
-  integrity sha1-GoLD43L3yuklPrZtclQ9a4aFxnQ=
-  dependencies:
-    mkdirp "^1.0.4"
-    rimraf "^3.0.2"
 
 "@sindresorhus/is@^0.7.0":
   version "0.7.0"
@@ -1637,9 +1580,9 @@
     "@sinonjs/commons" "^1.7.0"
 
 "@testing-library/dom@^7.28.1":
-  version "7.30.0"
-  resolved "http://registry.npm.dtstack.com/@testing-library%2fdom/-/dom-7.30.0.tgz#53697851f7708a1448cc30b74a2ea056dd709cd6"
-  integrity sha1-U2l4UfdwihRIzDC3Si6gVt1wnNY=
+  version "7.30.1"
+  resolved "http://registry.npm.dtstack.com/@testing-library%2fdom/-/dom-7.30.1.tgz#07b6f3ccd7f1f1e34ab0406932073e2971817f3d"
+  integrity sha512-RQUvqqq2lxTCOffhSNxpX/9fCoR+nwuQPmG5uhuuEH5KBAzNf2bK3OzBoWjm5zKM78SLjnGRAKt8hRjQA4E46A==
   dependencies:
     "@babel/code-frame" "^7.10.4"
     "@babel/runtime" "^7.12.5"
@@ -1651,9 +1594,9 @@
     pretty-format "^26.6.2"
 
 "@testing-library/jest-dom@^5.11.9":
-  version "5.11.9"
-  resolved "http://registry.npm.dtstack.com/@testing-library%2fjest-dom/-/jest-dom-5.11.9.tgz#e6b3cd687021f89f261bd53cbe367041fbd3e975"
-  integrity sha1-5rPNaHAh+J8mG9U8vjZwQfvT6XU=
+  version "5.11.10"
+  resolved "http://registry.npm.dtstack.com/@testing-library%2fjest-dom/-/jest-dom-5.11.10.tgz#1cd90715023e1627f5ed26ab3b38e6f22d77046c"
+  integrity sha1-HNkHFQI+Fif17SarOzjm8i13BGw=
   dependencies:
     "@babel/runtime" "^7.9.2"
     "@types/testing-library__jest-dom" "^5.9.1"
@@ -1745,14 +1688,14 @@
     "@types/istanbul-lib-report" "*"
 
 "@types/jest@*", "@types/jest@^26.0.21":
-  version "26.0.21"
-  resolved "http://registry.npm.dtstack.com/@types%2fjest/-/jest-26.0.21.tgz#3a73c2731e7e4f0fbaea56ce7ff8c79cf812bd24"
-  integrity sha1-OnPCcx5+Tw+66lbOf/jHnPgSvSQ=
+  version "26.0.22"
+  resolved "http://registry.npm.dtstack.com/@types%2fjest/-/jest-26.0.22.tgz#8308a1debdf1b807aa47be2838acdcd91e88fbe6"
+  integrity sha1-gwih3r3xuAeqR74oOKzc2R6I++Y=
   dependencies:
     jest-diff "^26.0.0"
     pretty-format "^26.0.0"
 
-"@types/json-schema@^7.0.5", "@types/json-schema@^7.0.6":
+"@types/json-schema@^7.0.5":
   version "7.0.7"
   resolved "http://registry.npm.dtstack.com/@types%2fjson-schema/-/json-schema-7.0.7.tgz#98a993516c859eb0d5c4c8f098317a9ea68db9ad"
   integrity sha1-mKmTUWyFnrDVxMjwmDF6nqaNua0=
@@ -1763,24 +1706,19 @@
   integrity sha1-7ihweulOEdK4J7y+UnC86n8+ce4=
 
 "@types/minimatch@*":
-  version "3.0.3"
-  resolved "http://registry.npm.dtstack.com/@types%2fminimatch/-/minimatch-3.0.3.tgz#3dca0e3f33b200fc7d1139c0cd96c1268cadfd9d"
-  integrity sha1-PcoOPzOyAPx9ETnAzZbBJoyt/Z0=
+  version "3.0.4"
+  resolved "http://registry.npm.dtstack.com/@types%2fminimatch/-/minimatch-3.0.4.tgz#f0ec25dbf2f0e4b18647313ac031134ca5b24b21"
+  integrity sha1-8Owl2/Lw5LGGRzE6wDETTKWySyE=
 
 "@types/minimist@^1.2.0":
   version "1.2.1"
   resolved "http://registry.npm.dtstack.com/@types%2fminimist/-/minimist-1.2.1.tgz#283f669ff76d7b8260df8ab7a4262cc83d988256"
   integrity sha1-KD9mn/dte4Jg34q3pCYsyD2YglY=
 
-"@types/node@*":
-  version "14.14.33"
-  resolved "http://registry.npm.dtstack.com/@types%2fnode/-/node-14.14.33.tgz#9e4f8c64345522e4e8ce77b334a8aaa64e2b6c78"
-  integrity sha1-nk+MZDRVIuToznezNKiqpk4rbHg=
-
-"@types/node@^14.14.10":
-  version "14.14.32"
-  resolved "http://registry.npm.dtstack.com/@types%2fnode/-/node-14.14.32.tgz#90c5c4a8d72bbbfe53033f122341343249183448"
-  integrity sha1-kMXEqNcru/5TAz8SI0E0MkkYNEg=
+"@types/node@*", "@types/node@^14.14.10":
+  version "14.14.37"
+  resolved "http://registry.npm.dtstack.com/@types%2fnode/-/node-14.14.37.tgz#a3dd8da4eb84a996c36e331df98d82abd76b516e"
+  integrity sha1-o92NpOuEqZbDbjMd+Y2Cq9drUW4=
 
 "@types/normalize-package-data@^2.4.0":
   version "2.4.0"
@@ -1808,9 +1746,9 @@
   integrity sha1-FZJUFOCtLNdlv+9YhC9+JqesyyQ=
 
 "@types/react-dom@^17.0.0":
-  version "17.0.1"
-  resolved "http://registry.npm.dtstack.com/@types%2freact-dom/-/react-dom-17.0.1.tgz#d92d77d020bfb083e07cc8e0ac9f933599a4d56a"
-  integrity sha1-2S130CC/sIPgfMjgrJ+TNZmk1Wo=
+  version "17.0.3"
+  resolved "http://registry.npm.dtstack.com/@types%2freact-dom/-/react-dom-17.0.3.tgz#7fdf37b8af9d6d40127137865bb3fff8871d7ee1"
+  integrity sha1-f983uK+dbUAScTeGW7P/+IcdfuE=
   dependencies:
     "@types/react" "*"
 
@@ -2089,7 +2027,7 @@ acorn@^7.1.1, acorn@^7.4.0:
   resolved "http://registry.npm.dtstack.com/acorn/-/acorn-7.4.1.tgz#feaed255973d2e77555b83dbc08851a6c63520fa"
   integrity sha1-/q7SVZc9LndVW4PbwIhRpsY1IPo=
 
-acorn@^8.0.5:
+acorn@^8.1.0:
   version "8.1.0"
   resolved "http://registry.npm.dtstack.com/acorn/-/acorn-8.1.0.tgz#52311fd7037ae119cbb134309e901aa46295b3fe"
   integrity sha512-LWCF/Wn0nfHOmJ9rzQApGnxnvgfROzGilS8936rqN/lfcYkY9MYZzdMqN+2NJ4SlTc+m5HiSa+kNfDtI64dwUA==
@@ -2120,14 +2058,6 @@ agent-base@~4.2.1:
   dependencies:
     es6-promisify "^5.0.0"
 
-aggregate-error@^3.0.0:
-  version "3.1.0"
-  resolved "http://registry.npm.dtstack.com/aggregate-error/-/aggregate-error-3.1.0.tgz#92670ff50f5359bdb7a3e0d40d0ec30c5737687a"
-  integrity sha1-kmcP9Q9TWb23o+DUDQ7DDFc3aHo=
-  dependencies:
-    clean-stack "^2.0.0"
-    indent-string "^4.0.0"
-
 ajv-errors@^1.0.0:
   version "1.0.1"
   resolved "http://registry.npm.dtstack.com/ajv-errors/-/ajv-errors-1.0.1.tgz#f35986aceb91afadec4102fbd85014950cefa64d"
@@ -2138,7 +2068,7 @@ ajv-keywords@^3.1.0, ajv-keywords@^3.4.1, ajv-keywords@^3.5.2:
   resolved "http://registry.npm.dtstack.com/ajv-keywords/-/ajv-keywords-3.5.2.tgz#31f29da5ab6e00d1c2d329acf7b5929614d5014d"
   integrity sha512-5p6WTN0DdTGVQk6VjcEju19IgaHudalcfabD7yhDGeA6bcQnmL+CpveLJq/3hvfwd1aof6L386Ougkx6RfyMIQ==
 
-ajv@^6.1.0, ajv@^6.10.0, ajv@^6.10.2, ajv@^6.12.3, ajv@^6.12.4, ajv@^6.12.5:
+ajv@^6.1.0, ajv@^6.10.0, ajv@^6.10.2, ajv@^6.12.3, ajv@^6.12.4:
   version "6.12.6"
   resolved "http://registry.npm.dtstack.com/ajv/-/ajv-6.12.6.tgz#baf5a62e802b07d977034586f8c3baf5adf26df4"
   integrity sha1-uvWmLoArB9l3A0WG+MO69a3ybfQ=
@@ -2148,10 +2078,10 @@ ajv@^6.1.0, ajv@^6.10.0, ajv@^6.10.2, ajv@^6.12.3, ajv@^6.12.4, ajv@^6.12.5:
     json-schema-traverse "^0.4.1"
     uri-js "^4.2.2"
 
-ajv@^7.0.2:
-  version "7.2.3"
-  resolved "http://registry.npm.dtstack.com/ajv/-/ajv-7.2.3.tgz#ca78d1cf458d7d36d1c3fa0794dd143406db5772"
-  integrity sha1-ynjRz0WNfTbRw/oHlN0UNAbbV3I=
+ajv@^8.0.1:
+  version "8.0.1"
+  resolved "http://registry.npm.dtstack.com/ajv/-/ajv-8.0.1.tgz#dac101898a87f8ebb57fea69617e8096523c628c"
+  integrity sha1-2sEBiYqH+Ou1f+ppYX6AllI8Yow=
   dependencies:
     fast-deep-equal "^3.1.1"
     json-schema-traverse "^1.0.0"
@@ -2184,11 +2114,18 @@ ansi-escapes@^3.2.0:
   integrity sha1-h4C5j/nb9WOBUtHx/lwde0RCl2s=
 
 ansi-escapes@^4.2.1:
-  version "4.3.1"
-  resolved "http://registry.npm.dtstack.com/ansi-escapes/-/ansi-escapes-4.3.1.tgz#a5c47cc43181f1f38ffd7076837700d395522a61"
-  integrity sha1-pcR8xDGB8fOP/XB2g3cA05VSKmE=
+  version "4.3.2"
+  resolved "http://registry.npm.dtstack.com/ansi-escapes/-/ansi-escapes-4.3.2.tgz#6b2291d1db7d98b6521d5f1efa42d0f3a9feb65e"
+  integrity sha1-ayKR0dt9mLZSHV8e+kLQ86n+tl4=
   dependencies:
-    type-fest "^0.11.0"
+    type-fest "^0.21.3"
+
+ansi-gray@^0.1.1:
+  version "0.1.1"
+  resolved "http://registry.npm.dtstack.com/ansi-gray/-/ansi-gray-0.1.1.tgz#2962cf54ec9792c48510a3deb524436861ef7251"
+  integrity sha1-KWLPVOyXksSFEKPetSRDaGHvclE=
+  dependencies:
+    ansi-wrap "0.1.0"
 
 ansi-html@0.0.7:
   version "0.0.7"
@@ -2233,6 +2170,11 @@ ansi-styles@^4.0.0, ansi-styles@^4.1.0:
   integrity sha1-7dgDYornHATIWuegkG7a00tkiTc=
   dependencies:
     color-convert "^2.0.1"
+
+ansi-wrap@0.1.0:
+  version "0.1.0"
+  resolved "http://registry.npm.dtstack.com/ansi-wrap/-/ansi-wrap-0.1.0.tgz#a82250ddb0015e9a27ca82e82ea603bbfa45efaf"
+  integrity sha1-qCJQ3bABXponyoLoLqYDu/pF768=
 
 ant-design-dtinsight-theme@1.1.2:
   version "1.1.2"
@@ -2414,11 +2356,6 @@ array-union@^1.0.1:
   integrity sha1-mjRBDk9OPaI96jdb5b5w8kd47Dk=
   dependencies:
     array-uniq "^1.0.1"
-
-array-union@^2.1.0:
-  version "2.1.0"
-  resolved "http://registry.npm.dtstack.com/array-union/-/array-union-2.1.0.tgz#b798420adbeb1de828d84acd8a2e23d3efe85e8d"
-  integrity sha1-t5hCCtvrHego2ErNii4j0+/oXo0=
 
 array-uniq@^1.0.1:
   version "1.0.3"
@@ -2789,6 +2726,11 @@ big.js@^5.2.2:
   resolved "http://registry.npm.dtstack.com/big.js/-/big.js-5.2.2.tgz#65f0af382f578bcdc742bd9c281e9cb2d7768328"
   integrity sha512-vyL2OymJxmarO8gxMr0mhChsO9QGwhynfuu4+MHTAW6czfq9humCB7rKpUjDd9YUiDPU4mzpyupFSvOClAwbmQ==
 
+bignumber.js@^8.1.1:
+  version "8.1.1"
+  resolved "http://registry.npm.dtstack.com/bignumber.js/-/bignumber.js-8.1.1.tgz#4b072ae5aea9c20f6730e4e5d529df1271c4d885"
+  integrity sha512-QD46ppGintwPGuL1KqmwhR0O+N2cZUg8JG/VzwI2e28sM9TqHjQB10lI4QAaMHVbLzwVLLAwEglpKPViWX+5NQ==
+
 binary-extensions@^1.0.0:
   version "1.13.1"
   resolved "http://registry.npm.dtstack.com/binary-extensions/-/binary-extensions-1.13.1.tgz#598afe54755b2868a5330d2aff9d4ebb53209b65"
@@ -3052,7 +2994,7 @@ buffer@^4.3.0:
     ieee754 "^1.1.4"
     isarray "^1.0.0"
 
-buffer@^5.2.1:
+buffer@^5.0.3, buffer@^5.2.1:
   version "5.7.1"
   resolved "http://registry.npm.dtstack.com/buffer/-/buffer-5.7.1.tgz#ba62e7c13133053582197160851a8f648e99eed0"
   integrity sha1-umLnwTEzBTWCGXFghRqPZI6Z7tA=
@@ -3095,29 +3037,6 @@ cacache@^12.0.2, cacache@^12.0.3:
     ssri "^6.0.1"
     unique-filename "^1.1.1"
     y18n "^4.0.0"
-
-cacache@^15.0.5:
-  version "15.0.5"
-  resolved "http://registry.npm.dtstack.com/cacache/-/cacache-15.0.5.tgz#69162833da29170d6732334643c60e005f5f17d0"
-  integrity sha1-aRYoM9opFw1nMjNGQ8YOAF9fF9A=
-  dependencies:
-    "@npmcli/move-file" "^1.0.1"
-    chownr "^2.0.0"
-    fs-minipass "^2.0.0"
-    glob "^7.1.4"
-    infer-owner "^1.0.4"
-    lru-cache "^6.0.0"
-    minipass "^3.1.1"
-    minipass-collect "^1.0.2"
-    minipass-flush "^1.0.5"
-    minipass-pipeline "^1.2.2"
-    mkdirp "^1.0.3"
-    p-map "^4.0.0"
-    promise-inflight "^1.0.1"
-    rimraf "^3.0.2"
-    ssri "^8.0.0"
-    tar "^6.0.2"
-    unique-filename "^1.1.1"
 
 cache-base@^1.0.1:
   version "1.0.1"
@@ -3234,6 +3153,11 @@ camelcase@^6.0.0:
   resolved "http://registry.npm.dtstack.com/camelcase/-/camelcase-6.2.0.tgz#924af881c9d525ac9d87f40d964e5cea982a1809"
   integrity sha1-kkr4gcnVJaydh/QNlk5c6pgqGAk=
 
+camelize@^1.0.0:
+  version "1.0.0"
+  resolved "http://registry.npm.dtstack.com/camelize/-/camelize-1.0.0.tgz#164a5483e630fa4321e5af07020e531831b2609b"
+  integrity sha1-FkpUg+Yw+kMh5a8HAg5TGDGyYJs=
+
 caniuse-api@^3.0.0:
   version "3.0.0"
   resolved "http://registry.npm.dtstack.com/caniuse-api/-/caniuse-api-3.0.0.tgz#5e4d90e2274961d46291997df599e3ed008ee4c0"
@@ -3245,9 +3169,9 @@ caniuse-api@^3.0.0:
     lodash.uniq "^4.5.0"
 
 caniuse-lite@^1.0.0, caniuse-lite@^1.0.30000989, caniuse-lite@^1.0.30001109, caniuse-lite@^1.0.30001181:
-  version "1.0.30001197"
-  resolved "http://registry.npm.dtstack.com/caniuse-lite/-/caniuse-lite-1.0.30001197.tgz#47ad15b977d2f32b3ec2fe2b087e0c50443771db"
-  integrity sha1-R60VuXfS8ys+wv4rCH4MUEQ3cds=
+  version "1.0.30001204"
+  resolved "http://registry.npm.dtstack.com/caniuse-lite/-/caniuse-lite-1.0.30001204.tgz#256c85709a348ec4d175e847a3b515c66e79f2aa"
+  integrity sha1-JWyFcJo0jsTRdehHo7UVxm558qo=
 
 capture-exit@^2.0.0:
   version "2.0.0"
@@ -3366,11 +3290,6 @@ chownr@^1.1.1:
   resolved "http://registry.npm.dtstack.com/chownr/-/chownr-1.1.4.tgz#6fc9d7b42d32a583596337666e7d08084da2cc6b"
   integrity sha1-b8nXtC0ypYNZYzdmbn0ICE2izGs=
 
-chownr@^2.0.0:
-  version "2.0.0"
-  resolved "http://registry.npm.dtstack.com/chownr/-/chownr-2.0.0.tgz#15bfbe53d2eab4cf70f18a8cd68ebe5b3cb1dece"
-  integrity sha1-Fb++U9LqtM9w8YqM1o6+Wzyx3s4=
-
 chrome-trace-event@^1.0.2:
   version "1.0.2"
   resolved "http://registry.npm.dtstack.com/chrome-trace-event/-/chrome-trace-event-1.0.2.tgz#234090ee97c7d4ad1a2c4beae27505deffc608a4"
@@ -3418,11 +3337,6 @@ clean-css@4.2.x:
   dependencies:
     source-map "~0.6.0"
 
-clean-stack@^2.0.0:
-  version "2.2.0"
-  resolved "http://registry.npm.dtstack.com/clean-stack/-/clean-stack-2.2.0.tgz#ee8472dbb129e727b31e8a10a427dee9dfe4008b"
-  integrity sha1-7oRy27Ep5yezHooQpCfe6d/kAIs=
-
 clean-webpack-plugin@1.0.0:
   version "1.0.0"
   resolved "http://registry.npm.dtstack.com/clean-webpack-plugin/-/clean-webpack-plugin-1.0.0.tgz#f184b9c26d12983d639828e0548ae2080e84b6a7"
@@ -3445,9 +3359,9 @@ cli-cursor@^3.1.0:
     restore-cursor "^3.1.0"
 
 cli-spinners@^2.2.0:
-  version "2.5.0"
-  resolved "http://registry.npm.dtstack.com/cli-spinners/-/cli-spinners-2.5.0.tgz#12763e47251bf951cb75c201dfa58ff1bcb2d047"
-  integrity sha1-EnY+RyUb+VHLdcIB36WP8byy0Ec=
+  version "2.6.0"
+  resolved "http://registry.npm.dtstack.com/cli-spinners/-/cli-spinners-2.6.0.tgz#36c7dc98fb6a9a76bd6238ec3f77e2425627e939"
+  integrity sha1-NsfcmPtqmna9YjjsP3fiQlYn6Tk=
 
 cli-width@^2.0.0:
   version "2.2.1"
@@ -3531,6 +3445,11 @@ code-point-at@^1.0.0:
   resolved "http://registry.npm.dtstack.com/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
   integrity sha1-DQcLTQQ6W+ozovGkDi7bPZpMz3c=
 
+codemirror@^5.25.0:
+  version "5.60.0"
+  resolved "http://registry.npm.dtstack.com/codemirror/-/codemirror-5.60.0.tgz#00a8cfd287d5d8737ceb73987f04aee2fe5860da"
+  integrity sha1-AKjP0ofV2HN863OYfwSu4v5YYNo=
+
 collect-v8-coverage@^1.0.0:
   version "1.0.1"
   resolved "http://registry.npm.dtstack.com/collect-v8-coverage/-/collect-v8-coverage-1.0.1.tgz#cc2c8e94fc18bbdffe64d6534570c8a673b27f59"
@@ -3575,6 +3494,11 @@ color-string@^1.5.4:
   dependencies:
     color-name "^1.0.0"
     simple-swizzle "^0.2.2"
+
+color-support@^1.1.3:
+  version "1.1.3"
+  resolved "http://registry.npm.dtstack.com/color-support/-/color-support-1.1.3.tgz#93834379a1cc9a0c61f82f52f0d04322251bd5a2"
+  integrity sha1-k4NDeaHMmgxh+C9S8NBDIiUb1aI=
 
 color@^3.0.0:
   version "3.1.3"
@@ -3881,7 +3805,7 @@ copy-descriptor@^0.1.0:
   resolved "http://registry.npm.dtstack.com/copy-descriptor/-/copy-descriptor-0.1.1.tgz#676f6eb3c39997c2ee1ac3a924fd6124748f578d"
   integrity sha1-Z29us8OZl8LuGsOpJP1hJHSPV40=
 
-copy-to-clipboard@^3.2.0:
+copy-to-clipboard@^3.2.0, copy-to-clipboard@^3.3.1:
   version "3.3.1"
   resolved "http://registry.npm.dtstack.com/copy-to-clipboard/-/copy-to-clipboard-3.3.1.tgz#115aa1a9998ffab6196f93076ad6da3b913662ae"
   integrity sha512-i13qo6kIHTTpCm8/Wup+0b1mVWETvu2kIMzKoK8FpkLkFxlt0znUAHcMzox+T8sPlqtZXq3CulEjQHsYiGFJUw==
@@ -3910,23 +3834,6 @@ copy-webpack-plugin@^5.1.1:
     schema-utils "^1.0.0"
     serialize-javascript "^4.0.0"
     webpack-log "^2.0.0"
-
-copy-webpack-plugin@^6.4.0:
-  version "6.4.1"
-  resolved "http://registry.npm.dtstack.com/copy-webpack-plugin/-/copy-webpack-plugin-6.4.1.tgz#138cd9b436dbca0a6d071720d5414848992ec47e"
-  integrity sha1-E4zZtDbbygptBxcg1UFISJkuxH4=
-  dependencies:
-    cacache "^15.0.5"
-    fast-glob "^3.2.4"
-    find-cache-dir "^3.3.1"
-    glob-parent "^5.1.1"
-    globby "^11.0.1"
-    loader-utils "^2.0.0"
-    normalize-path "^3.0.0"
-    p-limit "^3.0.2"
-    schema-utils "^3.0.0"
-    serialize-javascript "^5.0.1"
-    webpack-sources "^1.4.3"
 
 core-js-compat@^3.6.2, core-js-compat@^3.8.1:
   version "3.9.1"
@@ -4013,7 +3920,7 @@ create-hmac@^1.1.0, create-hmac@^1.1.4, create-hmac@^1.1.7:
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
 
-create-react-class@^15.5.3:
+create-react-class@^15.5.1, create-react-class@^15.5.3:
   version "15.7.0"
   resolved "http://registry.npm.dtstack.com/create-react-class/-/create-react-class-15.7.0.tgz#7499d7ca2e69bb51d13faf59bd04f0c65a1d6c1e"
   integrity sha1-dJnXyi5pu1HRP69ZvQTwxlodbB4=
@@ -4074,6 +3981,11 @@ css-animation@1.x, css-animation@^1.3.2, css-animation@^1.5.0:
     babel-runtime "6.x"
     component-classes "^1.2.5"
 
+css-color-keywords@^1.0.0:
+  version "1.0.0"
+  resolved "http://registry.npm.dtstack.com/css-color-keywords/-/css-color-keywords-1.0.0.tgz#fea2616dc676b2962686b3af8dbdbe180b244e05"
+  integrity sha1-/qJhbcZ2spYmhrOvjb2+GAskTgU=
+
 css-color-names@0.0.4, css-color-names@^0.0.4:
   version "0.0.4"
   resolved "http://registry.npm.dtstack.com/css-color-names/-/css-color-names-0.0.4.tgz#808adc2e79cf84738069b646cb20ec27beb629e0"
@@ -4120,6 +4032,15 @@ css-select@^2.0.0, css-select@^2.0.2:
     css-what "^3.2.1"
     domutils "^1.7.0"
     nth-check "^1.0.2"
+
+css-to-react-native@^2.0.3:
+  version "2.3.2"
+  resolved "http://registry.npm.dtstack.com/css-to-react-native/-/css-to-react-native-2.3.2.tgz#e75e2f8f7aa385b4c3611c52b074b70a002f2e7d"
+  integrity sha512-VOFaeZA053BqvvvqIA8c9n0+9vFppVBAHCp6JgFTtTMU3Mzi+XnelJ9XC9ul3BqFzZyQ5N+H0SnwsWT2Ebchxw==
+  dependencies:
+    camelize "^1.0.0"
+    css-color-keywords "^1.0.0"
+    postcss-value-parser "^3.3.0"
 
 css-tree@1.0.0-alpha.37:
   version "1.0.0-alpha.37"
@@ -4472,6 +4393,11 @@ deep-assign@^3.0.0:
   dependencies:
     is-obj "^1.0.0"
 
+deep-diff@0.3.4:
+  version "0.3.4"
+  resolved "http://registry.npm.dtstack.com/deep-diff/-/deep-diff-0.3.4.tgz#aac5c39952236abe5f037a2349060ba01b00ae48"
+  integrity sha1-qsXDmVIjar5fA3ojSQYLoBsArkg=
+
 deep-equal@^1.0.1:
   version "1.1.1"
   resolved "http://registry.npm.dtstack.com/deep-equal/-/deep-equal-1.1.1.tgz#b5c98c942ceffaf7cb051e24e1434a25a2e6076a"
@@ -4616,9 +4542,9 @@ detect-newline@^3.0.0:
   integrity sha512-TLz+x/vEXm/Y7P7wn1EJFNLxYpUD4TgMosxY6fAVJUnJMbupHBOncxyWUG9OpTaH9EBD7uFI5LfEgmMOc54DsA==
 
 detect-node@^2.0.4:
-  version "2.0.4"
-  resolved "http://registry.npm.dtstack.com/detect-node/-/detect-node-2.0.4.tgz#014ee8f8f669c5c58023da64b8179c083a28c46c"
-  integrity sha1-AU7o+PZpxcWAI9pkuBecCDooxGw=
+  version "2.0.5"
+  resolved "http://registry.npm.dtstack.com/detect-node/-/detect-node-2.0.5.tgz#9d270aa7eaa5af0b72c4c9d9b814e7f4ce738b79"
+  integrity sha1-nScKp+qlrwtyxMnZuBTn9M5zi3k=
 
 detect-port-alt@1.1.6:
   version "1.1.6"
@@ -4671,13 +4597,6 @@ dir-glob@^2.0.0:
   integrity sha1-+gnwaUFTyJGLGLoN6vrpR2n8UMQ=
   dependencies:
     path-type "^3.0.0"
-
-dir-glob@^3.0.1:
-  version "3.0.1"
-  resolved "http://registry.npm.dtstack.com/dir-glob/-/dir-glob-3.0.1.tgz#56dbf73d992a4a93ba1584f4534063fd2e41717f"
-  integrity sha1-Vtv3PZkqSpO6FYT0U0Bj/S5BcX8=
-  dependencies:
-    path-type "^4.0.0"
 
 dns-equal@^1.0.0:
   version "1.0.0"
@@ -4763,6 +4682,11 @@ dom-serializer@0:
     domelementtype "^2.0.1"
     entities "^2.0.0"
 
+dom-walk@^0.1.0:
+  version "0.1.2"
+  resolved "http://registry.npm.dtstack.com/dom-walk/-/dom-walk-0.1.2.tgz#0c548bef048f4d1f2a97249002236060daa3fd84"
+  integrity sha512-6QvTW9mrGeIegrFXdtQi9pk7O/nSK6lSdXW2eqUspN5LWD7UTji2Fqw5V2YLjBpHEoU9Xl/eUWNpDeZvoyOv2w==
+
 domain-browser@^1.1.1:
   version "1.2.0"
   resolved "http://registry.npm.dtstack.com/domain-browser/-/domain-browser-1.2.0.tgz#3d31f50191a6749dd1375a7f522e823d42e54eda"
@@ -4816,6 +4740,23 @@ download-git-repo@^3.0.2:
     git-clone "^0.1.0"
     rimraf "^3.0.0"
 
+download@7.0.0:
+  version "7.0.0"
+  resolved "http://registry.npm.dtstack.com/download/-/download-7.0.0.tgz#8711f09174b11d8ded14840d1881e3d05190195c"
+  integrity sha512-0Fe/CAjKycx12IG9We9gYlLP03BEcWTpttg7P5mwfOiQTg584kpuHqP7F61RkUJM+mfEdEU9TJonm0PJp5rQLw==
+  dependencies:
+    caw "^2.0.1"
+    content-disposition "^0.5.2"
+    decompress "^4.2.0"
+    ext-name "^5.0.0"
+    file-type "^7.7.1"
+    filenamify "^2.0.0"
+    get-stream "^3.0.0"
+    got "^8.3.1"
+    make-dir "^1.2.0"
+    p-event "^1.3.0"
+    pify "^3.0.0"
+
 download@^7.1.0:
   version "7.1.0"
   resolved "http://registry.npm.dtstack.com/download/-/download-7.1.0.tgz#9059aa9d70b503ee76a132897be6dec8e5587233"
@@ -4842,6 +4783,35 @@ draft-js@^0.10.0, draft-js@~0.10.0:
     fbjs "^0.8.15"
     immutable "~3.7.4"
     object-assign "^4.1.0"
+
+dt-react-component@1.3.0:
+  version "1.3.0"
+  resolved "http://registry.npm.dtstack.com/dt-react-component/-/dt-react-component-1.3.0.tgz#ec72d869ee5720c944d3683d8df55d8a520945d0"
+  integrity sha512-TlbW8MIXjnOXqcmKJrFfoJDoO7FaK+wqQ0/Y1qFmEAgeYWkZn7mTM2Pud9nYy5fXc5CURpUp4fvkkBtOxYtB1Q==
+  dependencies:
+    "@handsontable/react" "^2.1.0"
+    antd "3.26.13"
+    classnames "^2.2.6"
+    codemirror "^5.25.0"
+    fetch-jsonp "^1.1.3"
+    handsontable "^6.2.2"
+    highlight.js "^9.14.2"
+    lodash "^4.17.15"
+    moment "^2.22.2"
+    monaco-editor "^0.13.1"
+    react "16.6.3"
+    react-dom "16.6.3"
+    react-icons "^3.10.0"
+    react-router "3.0.4"
+    showdown "^1.9.0"
+
+dt-utils@1.0.1:
+  version "1.0.1"
+  resolved "http://registry.npm.dtstack.com/dt-utils/-/dt-utils-1.0.1.tgz#2bc4cd0dc271c2ee7cd3de077b336dc0cf5dd6c9"
+  integrity sha512-ZoEbY+av9NBehz9thKXOI0c7vuMVW4/bDJr+xTjzqBYNANzxxJF6qMzDoTghNbfel2u+3ZHW8OElh5N8idNn6w==
+  dependencies:
+    lodash "^4.17.15"
+    moment "^2.27.0"
 
 duplexer3@^0.1.4:
   version "0.1.4"
@@ -4882,9 +4852,9 @@ ejs@^2.6.1:
   integrity sha512-7vmuyh5+kuUyJKePhQfRQBhXV5Ce+RnaeeQArKu1EAMpL3WbgMt5WG6uQZpEVvYSSsxMXRKOewtDk9RaTKXRlA==
 
 electron-to-chromium@^1.3.247, electron-to-chromium@^1.3.649:
-  version "1.3.684"
-  resolved "http://registry.npm.dtstack.com/electron-to-chromium/-/electron-to-chromium-1.3.684.tgz#053fbb0a4b2d5c076dfa6e1d8ecd06a3075a558a"
-  integrity sha512-GV/vz2EmmtRSvfGSQ5A0Lucic//IRSDijgL15IgzbBEEnp4rfbxeUSZSlBfmsj7BQvE4sBdgfsvPzLCnp6L21w==
+  version "1.3.702"
+  resolved "http://registry.npm.dtstack.com/electron-to-chromium/-/electron-to-chromium-1.3.702.tgz#39b8b6860b22806482ad07a8eaf35f861d4f3ce0"
+  integrity sha1-Obi2hgsigGSCrQeo6vNfhh1PPOA=
 
 elliptic@^6.5.3:
   version "6.5.4"
@@ -4952,6 +4922,14 @@ enhanced-resolve@^4.0.0, enhanced-resolve@^4.1.1, enhanced-resolve@^4.5.0:
     memory-fs "^0.5.0"
     tapable "^1.0.0"
 
+enhanced-resolve@^5.7.0:
+  version "5.7.0"
+  resolved "http://registry.npm.dtstack.com/enhanced-resolve/-/enhanced-resolve-5.7.0.tgz#525c5d856680fbd5052de453ac83e32049958b5c"
+  integrity sha1-UlxdhWaA+9UFLeRTrIPjIEmVi1w=
+  dependencies:
+    graceful-fs "^4.2.4"
+    tapable "^2.2.0"
+
 enquire.js@^2.1.6:
   version "2.1.6"
   resolved "http://registry.npm.dtstack.com/enquire.js/-/enquire.js-2.1.6.tgz#3e8780c9b8b835084c3f60e166dbc3c2a3c89814"
@@ -4987,6 +4965,13 @@ error-ex@^1.2.0, error-ex@^1.3.1:
   integrity sha1-tKxAZIEH/c3PriQvQovqihTU8b8=
   dependencies:
     is-arrayish "^0.2.1"
+
+error-stack-parser@^1.3.6:
+  version "1.3.6"
+  resolved "http://registry.npm.dtstack.com/error-stack-parser/-/error-stack-parser-1.3.6.tgz#e0e73b93e417138d1cd7c0b746b1a4a14854c292"
+  integrity sha1-4Oc7k+QXE40c18C3RrGkoUhUwpI=
+  dependencies:
+    stackframe "^0.3.1"
 
 error-stack-parser@^2.0.0:
   version "2.0.6"
@@ -5196,9 +5181,9 @@ eslint-plugin-react-hooks@^4.2.0:
   integrity sha1-jCKcJo1GiVYzTJQ7tF/IYCgPVVY=
 
 eslint-plugin-react@^7.22.0:
-  version "7.23.0"
-  resolved "http://registry.npm.dtstack.com/eslint-plugin-react/-/eslint-plugin-react-7.23.0.tgz#082512fc3538c7a688b24ea2f407cba1e9a7f463"
-  integrity sha1-CCUS/DU4x6aIsk6i9AfLoemn9GM=
+  version "7.23.1"
+  resolved "http://registry.npm.dtstack.com/eslint-plugin-react/-/eslint-plugin-react-7.23.1.tgz#f1a2e844c0d1967c822388204a8bc4dee8415b11"
+  integrity sha1-8aLoRMDRlnyCI4ggSovE3uhBWxE=
   dependencies:
     array-includes "^3.1.3"
     array.prototype.flatmap "^1.2.4"
@@ -5252,9 +5237,9 @@ eslint-visitor-keys@^2.0.0:
   integrity sha1-If3I+82ceVzAMh8FY3AglXUVEag=
 
 eslint@^7.22.0:
-  version "7.22.0"
-  resolved "http://registry.npm.dtstack.com/eslint/-/eslint-7.22.0.tgz#07ecc61052fec63661a2cab6bd507127c07adc6f"
-  integrity sha1-B+zGEFL+xjZhosq2vVBxJ8B63G8=
+  version "7.23.0"
+  resolved "http://registry.npm.dtstack.com/eslint/-/eslint-7.23.0.tgz#8d029d252f6e8cf45894b4bee08f5493f8e94325"
+  integrity sha1-jQKdJS9ujPRYlLS+4I9Uk/jpQyU=
   dependencies:
     "@babel/code-frame" "7.12.11"
     "@eslint/eslintrc" "^0.4.0"
@@ -5363,9 +5348,9 @@ events@^3.0.0:
   integrity sha1-Mala0Kkk4tLEGagTrrLE6HjqdAA=
 
 eventsource@^1.0.7:
-  version "1.0.7"
-  resolved "http://registry.npm.dtstack.com/eventsource/-/eventsource-1.0.7.tgz#8fbc72c93fcd34088090bc0a4e64f4b5cee6d8d0"
-  integrity sha1-j7xyyT/NNAiAkLwKTmT0tc7m2NA=
+  version "1.1.0"
+  resolved "http://registry.npm.dtstack.com/eventsource/-/eventsource-1.1.0.tgz#00e8ca7c92109e94b0ddf32dac677d841028cfaf"
+  integrity sha1-AOjKfJIQnpSw3fMtrGd9hBAoz68=
   dependencies:
     original "^1.0.0"
 
@@ -5378,9 +5363,9 @@ evp_bytestokey@^1.0.0, evp_bytestokey@^1.0.3:
     safe-buffer "^5.1.1"
 
 exec-sh@^0.3.2:
-  version "0.3.5"
-  resolved "http://registry.npm.dtstack.com/exec-sh/-/exec-sh-0.3.5.tgz#1b46bd6bcbf54fdc1e926a4f3d90126d42cec3df"
-  integrity sha1-G0a9a8v1T9wekmpPPZASbULOw98=
+  version "0.3.6"
+  resolved "http://registry.npm.dtstack.com/exec-sh/-/exec-sh-0.3.6.tgz#ff264f9e325519a60cb5e273692943483cca63bc"
+  integrity sha1-/yZPnjJVGaYMteJzaSlDSDzKY7w=
 
 execa@^1.0.0:
   version "1.0.0"
@@ -5520,7 +5505,7 @@ extend-shallow@^3.0.0, extend-shallow@^3.0.2:
     assign-symbols "^1.0.0"
     is-extendable "^1.0.1"
 
-extend@~3.0.2:
+extend@3.0.2, extend@~3.0.2:
   version "3.0.2"
   resolved "http://registry.npm.dtstack.com/extend/-/extend-3.0.2.tgz#f8b1136b4071fbd8eb140aff858b1019ec2915fa"
   integrity sha512-fjquC59cD7CyW6urNXK0FBufkZcoiGG80wTuPujX590cB5Ttln20E2UB4S/WARVqhXffZl2LNgS+gQdPIIim/g==
@@ -5558,6 +5543,16 @@ extsprintf@^1.2.0:
   resolved "http://registry.npm.dtstack.com/extsprintf/-/extsprintf-1.4.0.tgz#e2689f8f356fad62cca65a3a91c5df5f9551692f"
   integrity sha1-4mifjzVvrWLMplo6kcXfX5VRaS8=
 
+fancy-log@^1.1.0:
+  version "1.3.3"
+  resolved "http://registry.npm.dtstack.com/fancy-log/-/fancy-log-1.3.3.tgz#dbc19154f558690150a23953a0adbd035be45fc7"
+  integrity sha512-k9oEhlyc0FrVh25qYuSELjr8oxsCoc4/LEZfg2iJJrfEk/tZL9bCoJE47gqAvI2m/AUjluCS4+3I0eTx8n3AEw==
+  dependencies:
+    ansi-gray "^0.1.1"
+    color-support "^1.1.3"
+    parse-node-version "^1.0.0"
+    time-stamp "^1.0.0"
+
 fast-deep-equal@^3.1.1:
   version "3.1.3"
   resolved "http://registry.npm.dtstack.com/fast-deep-equal/-/fast-deep-equal-3.1.3.tgz#3a7d56b559d6cbc3eb512325244e619a65c6c525"
@@ -5580,18 +5575,6 @@ fast-glob@^2.0.2:
     merge2 "^1.2.3"
     micromatch "^3.1.10"
 
-fast-glob@^3.1.1, fast-glob@^3.2.4:
-  version "3.2.5"
-  resolved "http://registry.npm.dtstack.com/fast-glob/-/fast-glob-3.2.5.tgz#7939af2a656de79a4f1901903ee8adcaa7cb9661"
-  integrity sha1-eTmvKmVt55pPGQGQPuityqfLlmE=
-  dependencies:
-    "@nodelib/fs.stat" "^2.0.2"
-    "@nodelib/fs.walk" "^1.2.3"
-    glob-parent "^5.1.0"
-    merge2 "^1.3.0"
-    micromatch "^4.0.2"
-    picomatch "^2.2.1"
-
 fast-json-stable-stringify@2.x, fast-json-stable-stringify@^2.0.0:
   version "2.1.0"
   resolved "http://registry.npm.dtstack.com/fast-json-stable-stringify/-/fast-json-stable-stringify-2.1.0.tgz#874bf69c6f404c2b5d99c481341399fd55892633"
@@ -5601,13 +5584,6 @@ fast-levenshtein@^2.0.6, fast-levenshtein@~2.0.6:
   version "2.0.6"
   resolved "http://registry.npm.dtstack.com/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz#3d8a5c66883a16a30ca8643e851f19baa7797917"
   integrity sha1-PYpcZog6FqMMqGQ+hR8Zuqd5eRc=
-
-fastq@^1.6.0:
-  version "1.11.0"
-  resolved "http://registry.npm.dtstack.com/fastq/-/fastq-1.11.0.tgz#bb9fb955a07130a918eb63c1f5161cc32a5d0858"
-  integrity sha1-u5+5VaBxMKkY62PB9RYcwypdCFg=
-  dependencies:
-    reusify "^1.0.4"
 
 faye-websocket@^0.11.3, faye-websocket@~0.11.1:
   version "0.11.3"
@@ -5623,7 +5599,7 @@ fb-watchman@^2.0.0:
   dependencies:
     bser "2.1.1"
 
-fbjs@^0.8.15:
+fbjs@^0.8.15, fbjs@^0.8.9:
   version "0.8.17"
   resolved "http://registry.npm.dtstack.com/fbjs/-/fbjs-0.8.17.tgz#c4d598ead6949112653d6588b01a5cdcd9f90fdd"
   integrity sha1-xNWY6taUkRJlPWWIsBpc3Nn5D90=
@@ -5642,6 +5618,11 @@ fd-slicer@~1.1.0:
   integrity sha1-JcfInLH5B3+IkbvmHY85Dq4lbx4=
   dependencies:
     pend "~1.2.0"
+
+fetch-jsonp@^1.1.3:
+  version "1.1.3"
+  resolved "http://registry.npm.dtstack.com/fetch-jsonp/-/fetch-jsonp-1.1.3.tgz#9eb9e585ba08aaf700563538d17bbebbcd5a3db2"
+  integrity sha1-nrnlhboIqvcAVjU40Xu+u81aPbI=
 
 figgy-pudding@^3.5.1:
   version "3.5.2"
@@ -5696,6 +5677,11 @@ file-type@^6.1.0:
   version "6.2.0"
   resolved "http://registry.npm.dtstack.com/file-type/-/file-type-6.2.0.tgz#e50cd75d356ffed4e306dc4f5bcf52a79903a919"
   integrity sha1-5QzXXTVv/tTjBtxPW89Sp5kDqRk=
+
+file-type@^7.7.1:
+  version "7.7.1"
+  resolved "http://registry.npm.dtstack.com/file-type/-/file-type-7.7.1.tgz#91c2f5edb8ce70688b9b68a90d931bbb6cb21f65"
+  integrity sha1-kcL17bjOcGiLm2ipDZMbu2yyH2U=
 
 file-type@^8.1.0:
   version "8.1.0"
@@ -5993,13 +5979,6 @@ fs-extra@^9.0.0:
     jsonfile "^6.0.1"
     universalify "^2.0.0"
 
-fs-minipass@^2.0.0:
-  version "2.1.0"
-  resolved "http://registry.npm.dtstack.com/fs-minipass/-/fs-minipass-2.1.0.tgz#7f5036fdbf12c63c169190cbe4199c852271f9fb"
-  integrity sha1-f1A2/b8SxjwWkZDL5BmchSJx+fs=
-  dependencies:
-    minipass "^3.0.0"
-
 fs-write-stream-atomic@^1.0.8:
   version "1.0.10"
   resolved "http://registry.npm.dtstack.com/fs-write-stream-atomic/-/fs-write-stream-atomic-1.0.10.tgz#b47df53493ef911df75731e70a9ded0189db40c9"
@@ -6198,7 +6177,7 @@ glob-parent@^3.1.0:
     is-glob "^3.1.0"
     path-dirname "^1.0.0"
 
-glob-parent@^5.0.0, glob-parent@^5.1.0, glob-parent@^5.1.1, glob-parent@~5.1.0:
+glob-parent@^5.0.0, glob-parent@~5.1.0:
   version "5.1.2"
   resolved "http://registry.npm.dtstack.com/glob-parent/-/glob-parent-5.1.2.tgz#869832c58034fe68a4093c17dc15e8340d8401c4"
   integrity sha1-hpgyxYA0/mikCTwX3BXoNA2EAcQ=
@@ -6277,6 +6256,14 @@ global-prefix@^3.0.0:
     kind-of "^6.0.2"
     which "^1.3.1"
 
+global@^4.3.0:
+  version "4.4.0"
+  resolved "http://registry.npm.dtstack.com/global/-/global-4.4.0.tgz#3e7b105179006a323ed71aafca3e9c57a5cc6406"
+  integrity sha512-wv/LAoHdRE3BeTGz53FAamhGlPLhlssK45usmGFThIi4XqnBmjKQ16u+RNbP7WvigRZDxUsM0J3gcQ5yicaL0w==
+  dependencies:
+    min-document "^2.19.0"
+    process "^0.11.10"
+
 globals@^11.1.0:
   version "11.12.0"
   resolved "http://registry.npm.dtstack.com/globals/-/globals-11.12.0.tgz#ab8795338868a0babd8525758018c2a7eb95c42e"
@@ -6308,18 +6295,6 @@ globby@8.0.2:
     ignore "^3.3.5"
     pify "^3.0.0"
     slash "^1.0.0"
-
-globby@^11.0.1:
-  version "11.0.2"
-  resolved "http://registry.npm.dtstack.com/globby/-/globby-11.0.2.tgz#1af538b766a3b540ebfb58a32b2e2d5897321d83"
-  integrity sha1-GvU4t2ajtUDr+1ijKy4tWJcyHYM=
-  dependencies:
-    array-union "^2.1.0"
-    dir-glob "^3.0.1"
-    fast-glob "^3.1.1"
-    ignore "^5.1.4"
-    merge2 "^1.3.0"
-    slash "^3.0.0"
 
 globby@^6.1.0:
   version "6.1.0"
@@ -6409,6 +6384,15 @@ handle-thing@^2.0.0:
   resolved "http://registry.npm.dtstack.com/handle-thing/-/handle-thing-2.0.1.tgz#857f79ce359580c340d43081cc648970d0bb234e"
   integrity sha1-hX95zjWVgMNA1DCBzGSJcNC7I04=
 
+handsontable@^6.2.2:
+  version "6.2.2"
+  resolved "http://registry.npm.dtstack.com/handsontable/-/handsontable-6.2.2.tgz#f1250f3f374abdf7d4a0080950482d3edeea8f07"
+  integrity sha512-Z/sQa51OMHH4RoeBJeANYJMJYmx5SR+/xP8JCh5mzKJnAMKoQWF1zONPNgNCFZ/LdKFmI0f34XKtU0GHW0MG/Q==
+  dependencies:
+    moment "2.20.1"
+    numbro "^2.0.6"
+    pikaday "1.5.1"
+
 happypack@^5.0.1:
   version "5.0.1"
   resolved "http://registry.npm.dtstack.com/happypack/-/happypack-5.0.1.tgz#850839426d6205a520bf913e962349fbe523a07c"
@@ -6463,10 +6447,15 @@ has-ansi@^2.0.0:
   dependencies:
     ansi-regex "^2.0.0"
 
-has-bigints@^1.0.0:
+has-bigints@^1.0.1:
   version "1.0.1"
   resolved "http://registry.npm.dtstack.com/has-bigints/-/has-bigints-1.0.1.tgz#64fe6acb020673e3b78db035a5af69aa9d07b113"
   integrity sha512-LSBS2LjbNBTf6287JEbEzvJgftkF5qFkmCo9hDRpAzKhUOlJ+hx8dd4USs00SgsUNwc4617J9ki5YtEClM2ffA==
+
+has-flag@^1.0.0:
+  version "1.0.0"
+  resolved "http://registry.npm.dtstack.com/has-flag/-/has-flag-1.0.0.tgz#9d9e793165ce017a00f00418c43f942a7b1d11fa"
+  integrity sha1-nZ55MWXOAXoA8AQYxD+UKnsdEfo=
 
 has-flag@^3.0.0:
   version "3.0.0"
@@ -6483,7 +6472,7 @@ has-symbol-support-x@^1.4.1:
   resolved "http://registry.npm.dtstack.com/has-symbol-support-x/-/has-symbol-support-x-1.4.2.tgz#1409f98bc00247da45da67cee0a36f282ff26455"
   integrity sha1-FAn5i8ACR9pF2mfO4KNvKC/yZFU=
 
-has-symbols@^1.0.0, has-symbols@^1.0.1, has-symbols@^1.0.2:
+has-symbols@^1.0.1, has-symbols@^1.0.2:
   version "1.0.2"
   resolved "http://registry.npm.dtstack.com/has-symbols/-/has-symbols-1.0.2.tgz#165d3070c00309752a1236a479331e3ac56f1423"
   integrity sha1-Fl0wcMADCXUqEjakeTMeOsVvFCM=
@@ -6575,17 +6564,20 @@ highlight.js@^10.7.1:
   resolved "http://registry.npm.dtstack.com/highlight.js/-/highlight.js-10.7.1.tgz#a8ec4152db24ea630c90927d6cae2a45f8ecb955"
   integrity sha1-qOxBUtsk6mMMkJJ9bK4qRfjsuVU=
 
-history@^4.9.0:
-  version "4.10.1"
-  resolved "http://registry.npm.dtstack.com/history/-/history-4.10.1.tgz#33371a65e3a83b267434e2b3f3b1b4c58aad4cf3"
-  integrity sha512-36nwAD620w12kuzPAsyINPWJqlNbij+hpK1k9XRloDtym8mxzGYl2c17LnV6IAGB2Dmg4tEa7G7DlawS0+qjew==
+highlight.js@^9.14.2:
+  version "9.18.5"
+  resolved "http://registry.npm.dtstack.com/highlight.js/-/highlight.js-9.18.5.tgz#d18a359867f378c138d6819edfc2a8acd5f29825"
+  integrity sha512-a5bFyofd/BHCX52/8i8uJkjr9DYwXIPnM/plwI6W7ezItLGqzt7X2G2nXuYSfsIJdkwwj/g9DG1LkcGJI/dDoA==
+
+history@^3.0.0:
+  version "3.3.0"
+  resolved "http://registry.npm.dtstack.com/history/-/history-3.3.0.tgz#fcedcce8f12975371545d735461033579a6dae9c"
+  integrity sha1-/O3M6PEpdTcVRdc1RhAzV5ptrpw=
   dependencies:
-    "@babel/runtime" "^7.1.2"
+    invariant "^2.2.1"
     loose-envify "^1.2.0"
-    resolve-pathname "^3.0.0"
-    tiny-invariant "^1.0.2"
-    tiny-warning "^1.0.0"
-    value-equal "^1.0.1"
+    query-string "^4.2.2"
+    warning "^3.0.0"
 
 history@^5.0.0:
   version "5.0.0"
@@ -6603,12 +6595,17 @@ hmac-drbg@^1.0.1:
     minimalistic-assert "^1.0.0"
     minimalistic-crypto-utils "^1.0.1"
 
+hoist-non-react-statics@^1.0.3, hoist-non-react-statics@^1.2.0:
+  version "1.2.0"
+  resolved "http://registry.npm.dtstack.com/hoist-non-react-statics/-/hoist-non-react-statics-1.2.0.tgz#aa448cf0986d55cc40773b17174b7dd066cb7cfb"
+  integrity sha1-qkSM8JhtVcxAdzsXF0t90GbLfPs=
+
 hoist-non-react-statics@^2.3.1:
   version "2.5.5"
   resolved "http://registry.npm.dtstack.com/hoist-non-react-statics/-/hoist-non-react-statics-2.5.5.tgz#c5903cf409c0dfd908f388e619d86b9c1174cb47"
   integrity sha512-rqcy4pJo55FTTLWt+bU8ukscqHeE/e9KWvsOW2b/a3afxQZhwkQdT1rPPCJ0rYXdj4vNcasY8zHTH+jF/qStxw==
 
-hoist-non-react-statics@^3.1.0, hoist-non-react-statics@^3.3.0, hoist-non-react-statics@^3.3.2:
+hoist-non-react-statics@^3.3.0:
   version "3.3.2"
   resolved "http://registry.npm.dtstack.com/hoist-non-react-statics/-/hoist-non-react-statics-3.3.2.tgz#ece0acaf71d62c2969c2ec59feff42a4b1a85b45"
   integrity sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==
@@ -6632,10 +6629,10 @@ hosted-git-info@^2.1.4:
   resolved "http://registry.npm.dtstack.com/hosted-git-info/-/hosted-git-info-2.8.8.tgz#7539bd4bc1e0e0a895815a2e0262420b12858488"
   integrity sha1-dTm9S8Hg4KiVgVouAmJCCxKFhIg=
 
-hosted-git-info@^3.0.6:
-  version "3.0.8"
-  resolved "http://registry.npm.dtstack.com/hosted-git-info/-/hosted-git-info-3.0.8.tgz#6e35d4cc87af2c5f816e4cb9ce350ba87a3f370d"
-  integrity sha1-bjXUzIevLF+Bbky5zjULqHo/Nw0=
+hosted-git-info@^4.0.1:
+  version "4.0.2"
+  resolved "http://registry.npm.dtstack.com/hosted-git-info/-/hosted-git-info-4.0.2.tgz#5e425507eede4fea846b7262f0838456c4209961"
+  integrity sha1-XkJVB+7eT+qEa3Ji8IOEVsQgmWE=
   dependencies:
     lru-cache "^6.0.0"
 
@@ -6828,9 +6825,9 @@ humanize-ms@^1.2.0:
     ms "^2.0.0"
 
 husky@^5.1.3:
-  version "5.1.3"
-  resolved "http://registry.npm.dtstack.com/husky/-/husky-5.1.3.tgz#1a0645a4fe3ffc006c4d0d8bd0bcb4c98787cc9d"
-  integrity sha1-GgZFpP4//ABsTQ2L0Ly0yYeHzJ0=
+  version "5.2.0"
+  resolved "http://registry.npm.dtstack.com/husky/-/husky-5.2.0.tgz#fc5e1c2300d34855d47de4753607d00943fc0802"
+  integrity sha1-/F4cIwDTSFXUfeR1NgfQCUP8CAI=
 
 iconv-lite@0.4.24, iconv-lite@^0.4.15, iconv-lite@^0.4.24:
   version "0.4.24"
@@ -6880,7 +6877,7 @@ ignore@^4.0.6:
   resolved "http://registry.npm.dtstack.com/ignore/-/ignore-4.0.6.tgz#750e3db5862087b4737ebac8207ffd1ef27b25fc"
   integrity sha512-cyFDKrqc/YdcWFniJhzI42+AzS+gNwmUzOSFcRCQYwySuBBBy/KjuxWLZ/FHEH6Moq1NizMOBWyTcv8O4OZIMg==
 
-ignore@^5.1.1, ignore@^5.1.4:
+ignore@^5.1.1:
   version "5.1.8"
   resolved "http://registry.npm.dtstack.com/ignore/-/ignore-5.1.8.tgz#f150a8b50a34289b33e22f5889abd4d8016f0e57"
   integrity sha512-BMpfD7PpiETpBl/A6S498BaIJ6Y/ABT93ETbby2fP00v4EbvPBXWEoaR1UBPKs3iR53pJY7EtZk5KACI57i1Uw==
@@ -6978,7 +6975,7 @@ indexes-of@^1.0.1:
   resolved "http://registry.npm.dtstack.com/indexes-of/-/indexes-of-1.0.1.tgz#f30f716c8e2bd346c7b67d3df3915566a7c05607"
   integrity sha1-8w9xbI4r00bHtn0985FVZqfAVgc=
 
-infer-owner@^1.0.3, infer-owner@^1.0.4:
+infer-owner@^1.0.3:
   version "1.0.4"
   resolved "http://registry.npm.dtstack.com/infer-owner/-/infer-owner-1.0.4.tgz#c4cefcaa8e51051c2a40ba2ce8a3d27295af9467"
   integrity sha1-xM78qo5RBRwqQLos6KPScpWvlGc=
@@ -7097,6 +7094,13 @@ into-stream@^3.1.0:
   dependencies:
     from2 "^2.1.1"
     p-is-promise "^1.1.0"
+
+invariant@^2.0.0, invariant@^2.2.1:
+  version "2.2.4"
+  resolved "http://registry.npm.dtstack.com/invariant/-/invariant-2.2.4.tgz#610f3c92c9359ce1db616e538008d23ff35158e6"
+  integrity sha512-phJfQVBuaJM5raOpJjSfkiD6BpbCE4Ns//LaXl6wGYtUBY83nWS6Rf9tXm2e8VaK60JEjYldbPif/A2B1C2gNA==
+  dependencies:
+    loose-envify "^1.0.0"
 
 ip-regex@^2.1.0:
   version "2.1.0"
@@ -7397,7 +7401,7 @@ is-plain-obj@^1.0.0, is-plain-obj@^1.1.0:
   resolved "http://registry.npm.dtstack.com/is-plain-obj/-/is-plain-obj-1.1.0.tgz#71a50c8429dfca773c92a390a4a03b39fcd51d3e"
   integrity sha1-caUMhCnfync8kqOQpKA7OfzVHT4=
 
-is-plain-object@^2.0.3, is-plain-object@^2.0.4:
+is-plain-object@^2.0.1, is-plain-object@^2.0.3, is-plain-object@^2.0.4:
   version "2.0.4"
   resolved "http://registry.npm.dtstack.com/is-plain-object/-/is-plain-object-2.0.4.tgz#2c163b3fafb1b606d9d17928f05c2a1c38e07677"
   integrity sha512-h5PpgXkWitc38BBMYawTYMWJHFZJVnBquFE57xFpjB8pJFiF6gZ+bU+WyI/yqXiFR5mdLsgYNaPe8uao6Uv9Og==
@@ -7915,6 +7919,13 @@ jest-snapshot@^26.6.2:
     pretty-format "^26.6.2"
     semver "^7.3.2"
 
+jest-sonar-reporter@2.0.0:
+  version "2.0.0"
+  resolved "http://registry.npm.dtstack.com/jest-sonar-reporter/-/jest-sonar-reporter-2.0.0.tgz#faa54a7d2af7198767ee246a82b78c576789cf08"
+  integrity sha512-ZervDCgEX5gdUbdtWsjdipLN3bKJwpxbvhkYNXTAYvAckCihobSLr9OT/IuyNIRT1EZMDDwR6DroWtrq+IL64w==
+  dependencies:
+    xml "^1.0.1"
+
 jest-util@^26.1.0, jest-util@^26.6.2:
   version "26.6.2"
   resolved "http://registry.npm.dtstack.com/jest-util/-/jest-util-26.6.2.tgz#907535dbe4d5a6cb4c47ac9b926f6af29576cbc1"
@@ -7999,12 +8010,12 @@ jsbn@~0.1.0:
   integrity sha1-peZUwuWi3rXyAdls77yoDA7y9RM=
 
 jsdom@^16.4.0:
-  version "16.5.1"
-  resolved "http://registry.npm.dtstack.com/jsdom/-/jsdom-16.5.1.tgz#4ced6bbd7b77d67fb980e64d9e3e6fb900f97dd6"
-  integrity sha1-TO1rvXt31n+5gOZNnj5vuQD5fdY=
+  version "16.5.2"
+  resolved "http://registry.npm.dtstack.com/jsdom/-/jsdom-16.5.2.tgz#583fac89a0aea31dbf6237e7e4bedccd9beab472"
+  integrity sha1-WD+siaCuox2/Yjfn5L7czZvqtHI=
   dependencies:
     abab "^2.0.5"
-    acorn "^8.0.5"
+    acorn "^8.1.0"
     acorn-globals "^6.0.0"
     cssom "^0.4.4"
     cssstyle "^2.3.0"
@@ -8026,7 +8037,7 @@ jsdom@^16.4.0:
     webidl-conversions "^6.1.0"
     whatwg-encoding "^1.0.5"
     whatwg-mimetype "^2.3.0"
-    whatwg-url "^8.0.0"
+    whatwg-url "^8.5.0"
     ws "^7.4.4"
     xml-name-validator "^3.0.0"
 
@@ -8427,10 +8438,30 @@ locate-path@^6.0.0:
   dependencies:
     p-locate "^5.0.0"
 
+lodash-es@^4.2.0, lodash-es@^4.2.1:
+  version "4.17.21"
+  resolved "http://registry.npm.dtstack.com/lodash-es/-/lodash-es-4.17.21.tgz#43e626c46e6591b7750beb2b50117390c609e3ee"
+  integrity sha1-Q+YmxG5lkbd1C+srUBFzkMYJ4+4=
+
+lodash.clonedeep@^4.5.0:
+  version "4.5.0"
+  resolved "http://registry.npm.dtstack.com/lodash.clonedeep/-/lodash.clonedeep-4.5.0.tgz#e23f3f9c4f8fbdde872529c1071857a086e5ccef"
+  integrity sha1-4j8/nE+Pvd6HJSnBBxhXoIblzO8=
+
 lodash.debounce@^4.0.0, lodash.debounce@^4.0.8:
   version "4.0.8"
   resolved "http://registry.npm.dtstack.com/lodash.debounce/-/lodash.debounce-4.0.8.tgz#82d79bff30a67c4005ffd5e2515300ad9ca4d7af"
   integrity sha1-gteb/zCmfEAF/9XiUVMArZyk168=
+
+lodash.flatten@^4.4.0:
+  version "4.4.0"
+  resolved "http://registry.npm.dtstack.com/lodash.flatten/-/lodash.flatten-4.4.0.tgz#f31c22225a9632d2bbf8e4addbef240aa765a61f"
+  integrity sha1-8xwiIlqWMtK7+OSt2+8kCqdlph8=
+
+lodash.get@^4.4.2:
+  version "4.4.2"
+  resolved "http://registry.npm.dtstack.com/lodash.get/-/lodash.get-4.4.2.tgz#2d177f652fa31e939b4438d5341499dfa3825e99"
+  integrity sha1-LRd/ZS+jHpObRDjVNBSZ36OCXpk=
 
 lodash.map@^4.5.1:
   version "4.6.0"
@@ -8442,15 +8473,15 @@ lodash.memoize@^4.1.2:
   resolved "http://registry.npm.dtstack.com/lodash.memoize/-/lodash.memoize-4.1.2.tgz#bcc6c49a42a2840ed997f323eada5ecd182e0bfe"
   integrity sha1-vMbEmkKihA7Zl/Mj6tpezRguC/4=
 
-lodash.sortby@^4.7.0:
-  version "4.7.0"
-  resolved "http://registry.npm.dtstack.com/lodash.sortby/-/lodash.sortby-4.7.0.tgz#edd14c824e2cc9c1e0b0a1b42bb5210516a42438"
-  integrity sha1-7dFMgk4sycHgsKG0K7UhBRakJDg=
-
 lodash.throttle@^4.0.0:
   version "4.1.1"
   resolved "http://registry.npm.dtstack.com/lodash.throttle/-/lodash.throttle-4.1.1.tgz#c23e91b710242ac70c37f1e1cda9274cc39bf2f4"
   integrity sha1-wj6RtxAkKscMN/HhzaknTMOb8vQ=
+
+lodash.truncate@^4.4.2:
+  version "4.4.2"
+  resolved "http://registry.npm.dtstack.com/lodash.truncate/-/lodash.truncate-4.4.2.tgz#5a350da0b1113b837ecfffd5812cbe58d6eae193"
+  integrity sha1-WjUNoLERO4N+z//VgSy+WNbq4ZM=
 
 lodash.uniq@^4.5.0:
   version "4.5.0"
@@ -8462,7 +8493,12 @@ lodash@4.17.15:
   resolved "http://registry.npm.dtstack.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
   integrity sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==
 
-lodash@4.x, lodash@^4.0.0, lodash@^4.15.0, lodash@^4.16.5, lodash@^4.17.11, lodash@^4.17.12, lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.19, lodash@^4.17.20, lodash@^4.17.21, lodash@^4.17.3, lodash@^4.17.4, lodash@^4.17.5, lodash@~4.17.10:
+lodash@4.17.19:
+  version "4.17.19"
+  resolved "http://registry.npm.dtstack.com/lodash/-/lodash-4.17.19.tgz#e48ddedbe30b3321783c5b4301fbd353bc1e4a4b"
+  integrity sha1-5I3e2+MLMyF4PFtDAfvTU7weSks=
+
+lodash@4.x, lodash@^4.0.0, lodash@^4.15.0, lodash@^4.16.5, lodash@^4.17.11, lodash@^4.17.12, lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.19, lodash@^4.17.20, lodash@^4.17.21, lodash@^4.17.3, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.2.0, lodash@^4.2.1, lodash@^4.6.1, lodash@^4.7.0, lodash@~4.17.10:
   version "4.17.21"
   resolved "http://registry.npm.dtstack.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha1-Z5WRxWTDv/quhFTPCz3zcMPWkRw=
@@ -8601,9 +8637,9 @@ map-obj@^1.0.0, map-obj@^1.0.1:
   integrity sha1-2TPOuSBdgr3PSIb2dCvcK03qFG0=
 
 map-obj@^4.0.0:
-  version "4.1.0"
-  resolved "http://registry.npm.dtstack.com/map-obj/-/map-obj-4.1.0.tgz#b91221b542734b9f14256c0132c897c5d7256fd5"
-  integrity sha1-uRIhtUJzS58UJWwBMsiXxdclb9U=
+  version "4.2.0"
+  resolved "http://registry.npm.dtstack.com/map-obj/-/map-obj-4.2.0.tgz#0e8bc823e2aaca8a0942567d12ed14f389eec153"
+  integrity sha1-DovII+KqyooJQlZ9Eu0U84nuwVM=
 
 map-visit@^1.0.0:
   version "1.0.0"
@@ -8702,7 +8738,7 @@ merge-stream@^2.0.0:
   resolved "http://registry.npm.dtstack.com/merge-stream/-/merge-stream-2.0.0.tgz#52823629a14dd00c9770fb6ad47dc6310f2c1f60"
   integrity sha1-UoI2KaFN0AyXcPtq1H3GMQ8sH2A=
 
-merge2@^1.2.3, merge2@^1.3.0:
+merge2@^1.2.3:
   version "1.4.1"
   resolved "http://registry.npm.dtstack.com/merge2/-/merge2-1.4.1.tgz#4368892f885e907455a6fd7dc55c0c9d404990ae"
   integrity sha1-Q2iJL4hekHRVpv19xVwMnUBJkK4=
@@ -8799,18 +8835,17 @@ mimic-response@^1.0.0:
   resolved "http://registry.npm.dtstack.com/mimic-response/-/mimic-response-1.0.1.tgz#4923538878eef42063cb8a3e3b0798781487ab1b"
   integrity sha1-SSNTiHju9CBjy4o+OweYeBSHqxs=
 
+min-document@^2.19.0:
+  version "2.19.0"
+  resolved "http://registry.npm.dtstack.com/min-document/-/min-document-2.19.0.tgz#7bd282e3f5842ed295bb748cdd9f1ffa2c824685"
+  integrity sha1-e9KC4/WELtKVu3SM3Z8f+iyCRoU=
+  dependencies:
+    dom-walk "^0.1.0"
+
 min-indent@^1.0.0:
   version "1.0.1"
   resolved "http://registry.npm.dtstack.com/min-indent/-/min-indent-1.0.1.tgz#a63f681673b30571fbe8bc25686ae746eefa9869"
   integrity sha1-pj9oFnOzBXH76LwlaGrnRu76mGk=
-
-mini-create-react-context@^0.4.0:
-  version "0.4.1"
-  resolved "http://registry.npm.dtstack.com/mini-create-react-context/-/mini-create-react-context-0.4.1.tgz#072171561bfdc922da08a60c2197a497cc2d1d5e"
-  integrity sha1-ByFxVhv9ySLaCKYMIZekl8wtHV4=
-  dependencies:
-    "@babel/runtime" "^7.12.1"
-    tiny-warning "^1.0.3"
 
 mini-css-extract-plugin@^0.9.0:
   version "0.9.0"
@@ -8858,6 +8893,11 @@ minimist-options@4.1.0:
     is-plain-obj "^1.1.0"
     kind-of "^6.0.3"
 
+minimist@0.0.8:
+  version "0.0.8"
+  resolved "http://registry.npm.dtstack.com/minimist/-/minimist-0.0.8.tgz#857fcabfc3397d2625b8228262e86aa7a011b05d"
+  integrity sha1-hX/Kv8M5fSYluCKCYuhqp6ARsF0=
+
 minimist@1.2.0:
   version "1.2.0"
   resolved "http://registry.npm.dtstack.com/minimist/-/minimist-1.2.0.tgz#a35008b20f41383eec1fb914f4cd5df79a264284"
@@ -8868,41 +8908,10 @@ minimist@1.2.5, minimist@^1.1.0, minimist@^1.1.1, minimist@^1.1.3, minimist@^1.2
   resolved "http://registry.npm.dtstack.com/minimist/-/minimist-1.2.5.tgz#67d66014b66a6a8aaa0c083c5fd58df4e4e97602"
   integrity sha512-FM9nNUYrRBAELZQT3xeZQ7fmMOBg6nWNmJKTcgsJeaLstP/UODVpGsr5OhXhhXg6f+qtJ8uiZ+PUxkDWcgIXLw==
 
-minipass-collect@^1.0.2:
-  version "1.0.2"
-  resolved "http://registry.npm.dtstack.com/minipass-collect/-/minipass-collect-1.0.2.tgz#22b813bf745dc6edba2576b940022ad6edc8c617"
-  integrity sha1-IrgTv3Rdxu26JXa5QAIq1u3Ixhc=
-  dependencies:
-    minipass "^3.0.0"
-
-minipass-flush@^1.0.5:
-  version "1.0.5"
-  resolved "http://registry.npm.dtstack.com/minipass-flush/-/minipass-flush-1.0.5.tgz#82e7135d7e89a50ffe64610a787953c4c4cbb373"
-  integrity sha1-gucTXX6JpQ/+ZGEKeHlTxMTLs3M=
-  dependencies:
-    minipass "^3.0.0"
-
-minipass-pipeline@^1.2.2:
-  version "1.2.4"
-  resolved "http://registry.npm.dtstack.com/minipass-pipeline/-/minipass-pipeline-1.2.4.tgz#68472f79711c084657c067c5c6ad93cddea8214c"
-  integrity sha1-aEcveXEcCEZXwGfFxq2Tzd6oIUw=
-  dependencies:
-    minipass "^3.0.0"
-
-minipass@^3.0.0, minipass@^3.1.1:
-  version "3.1.3"
-  resolved "http://registry.npm.dtstack.com/minipass/-/minipass-3.1.3.tgz#7d42ff1f39635482e15f9cdb53184deebd5815fd"
-  integrity sha512-Mgd2GdMVzY+x3IJ+oHnVM+KG3lA5c8tnabyJKmHSaG2kAGpudxuOf8ToDkhumF7UzME7DecbQE9uOZhNm7PuJg==
-  dependencies:
-    yallist "^4.0.0"
-
-minizlib@^2.1.1:
-  version "2.1.2"
-  resolved "http://registry.npm.dtstack.com/minizlib/-/minizlib-2.1.2.tgz#e90d3466ba209b932451508a11ce3d3632145931"
-  integrity sha1-6Q00Zrogm5MkUVCKEc49NjIUWTE=
-  dependencies:
-    minipass "^3.0.0"
-    yallist "^4.0.0"
+mirror-creator@1.1.0:
+  version "1.1.0"
+  resolved "http://registry.npm.dtstack.com/mirror-creator/-/mirror-creator-1.1.0.tgz#170cc74d0ff244449177204716cbbe555d68d69a"
+  integrity sha1-FwzHTQ/yRESRdyBHFsu+VV1o1po=
 
 mississippi@^3.0.0:
   version "3.0.0"
@@ -8928,7 +8937,14 @@ mixin-deep@^1.2.0:
     for-in "^1.0.2"
     is-extendable "^1.0.1"
 
-mkdirp@1.0.4, mkdirp@1.x, mkdirp@^1.0.3, mkdirp@^1.0.4:
+mkdirp@0.5.1:
+  version "0.5.1"
+  resolved "http://registry.npm.dtstack.com/mkdirp/-/mkdirp-0.5.1.tgz#30057438eac6cf7f8c4767f38648d6697d75c903"
+  integrity sha1-MAV0OOrGz3+MR2fzhkjWaX11yQM=
+  dependencies:
+    minimist "0.0.8"
+
+mkdirp@1.0.4, mkdirp@1.x:
   version "1.0.4"
   resolved "http://registry.npm.dtstack.com/mkdirp/-/mkdirp-1.0.4.tgz#3eb5ed62622756d79a5f0e2a221dfebad75c2f7e"
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
@@ -8940,10 +8956,20 @@ mkdirp@1.0.4, mkdirp@1.x, mkdirp@^1.0.3, mkdirp@^1.0.4:
   dependencies:
     minimist "^1.2.5"
 
-moment@2.x, moment@^2.24.0, moment@^2.29.1:
+moment@2.20.1:
+  version "2.20.1"
+  resolved "http://registry.npm.dtstack.com/moment/-/moment-2.20.1.tgz#d6eb1a46cbcc14a2b2f9434112c1ff8907f313fd"
+  integrity sha512-Yh9y73JRljxW5QxN08Fner68eFLxM5ynNOAw2LbIB1YAGeQzZT8QFSUvkAz609Zf+IHhhaUxqZK8dG3W/+HEvg==
+
+moment@2.x, moment@^2.22.2, moment@^2.24.0, moment@^2.27.0, moment@^2.29.1:
   version "2.29.1"
   resolved "http://registry.npm.dtstack.com/moment/-/moment-2.29.1.tgz#b2be769fa31940be9eeea6469c075e35006fa3d3"
   integrity sha1-sr52n6MZQL6e7qZGnAdeNQBvo9M=
+
+monaco-editor@^0.13.1:
+  version "0.13.1"
+  resolved "http://registry.npm.dtstack.com/monaco-editor/-/monaco-editor-0.13.1.tgz#6b9ce20e4d1c945042d256825eb133cb23315a52"
+  integrity sha512-0Kssg/O3cl1tXP0qAIxhrtMbRnzusFUEvFyt5/fpUbmuVeY3z+TnUx13+3kW16pgacFPXGUTEO/hOPlDeFU/dw==
 
 moo-color@^1.0.2:
   version "1.0.2"
@@ -9223,13 +9249,13 @@ normalize-package-data@^2.3.2, normalize-package-data@^2.3.4, normalize-package-
     validate-npm-package-license "^3.0.1"
 
 normalize-package-data@^3.0.0:
-  version "3.0.0"
-  resolved "http://registry.npm.dtstack.com/normalize-package-data/-/normalize-package-data-3.0.0.tgz#1f8a7c423b3d2e85eb36985eaf81de381d01301a"
-  integrity sha1-H4p8Qjs9LoXrNpher4HeOB0BMBo=
+  version "3.0.2"
+  resolved "http://registry.npm.dtstack.com/normalize-package-data/-/normalize-package-data-3.0.2.tgz#cae5c410ae2434f9a6c1baa65d5bc3b9366c8699"
+  integrity sha1-yuXEEK4kNPmmwbqmXVvDuTZshpk=
   dependencies:
-    hosted-git-info "^3.0.6"
-    resolve "^1.17.0"
-    semver "^7.3.2"
+    hosted-git-info "^4.0.1"
+    resolve "^1.20.0"
+    semver "^7.3.4"
     validate-npm-package-license "^3.0.1"
 
 normalize-path@^2.1.1:
@@ -9321,6 +9347,13 @@ number-is-nan@^1.0.0:
   version "1.0.1"
   resolved "http://registry.npm.dtstack.com/number-is-nan/-/number-is-nan-1.0.1.tgz#097b602b53422a522c1afb8790318336941a011d"
   integrity sha1-CXtgK1NCKlIsGvuHkDGDNpQaAR0=
+
+numbro@^2.0.6:
+  version "2.3.2"
+  resolved "http://registry.npm.dtstack.com/numbro/-/numbro-2.3.2.tgz#4967c631b0ea99b17dd7f88cdd1eaa4ace4d4971"
+  integrity sha512-GHRdsyYs6ugRP0mipuBKTybzTPKdlhzKh271PG3hPwL1fg2DKwK/I2nCsh0gW3FfIKBzWIFoBnousQfiAkOuwQ==
+  dependencies:
+    bignumber.js "^8.1.1"
 
 nwsapi@^2.2.0:
   version "2.2.0"
@@ -9592,6 +9625,13 @@ p-each-series@^2.1.0:
   resolved "http://registry.npm.dtstack.com/p-each-series/-/p-each-series-2.2.0.tgz#105ab0357ce72b202a8a8b94933672657b5e2a9a"
   integrity sha512-ycIL2+1V32th+8scbpTvyHNaHe02z0sjgh91XXjAk+ZeXoPN4Z46DVUnzdso0aX4KckKw0FNNFHdjZ2UsZvxiA==
 
+p-event@^1.3.0:
+  version "1.3.0"
+  resolved "http://registry.npm.dtstack.com/p-event/-/p-event-1.3.0.tgz#8e6b4f4f65c72bc5b6fe28b75eda874f96a4a085"
+  integrity sha1-jmtPT2XHK8W2/ii3XtqHT5akoIU=
+  dependencies:
+    p-timeout "^1.1.1"
+
 p-event@^2.1.0:
   version "2.3.1"
   resolved "http://registry.npm.dtstack.com/p-event/-/p-event-2.3.1.tgz#596279ef169ab2c3e0cae88c1cfbb08079993ef6"
@@ -9663,19 +9703,19 @@ p-map@^2.0.0:
   resolved "http://registry.npm.dtstack.com/p-map/-/p-map-2.1.0.tgz#310928feef9c9ecc65b68b17693018a665cea175"
   integrity sha1-MQko/u+cnsxltosXaTAYpmXOoXU=
 
-p-map@^4.0.0:
-  version "4.0.0"
-  resolved "http://registry.npm.dtstack.com/p-map/-/p-map-4.0.0.tgz#bb2f95a5eda2ec168ec9274e06a747c3e2904d2b"
-  integrity sha1-uy+Vpe2i7BaOySdOBqdHw+KQTSs=
-  dependencies:
-    aggregate-error "^3.0.0"
-
 p-retry@^3.0.1:
   version "3.0.1"
   resolved "http://registry.npm.dtstack.com/p-retry/-/p-retry-3.0.1.tgz#316b4c8893e2c8dc1cfa891f406c4b422bebf328"
   integrity sha512-XE6G4+YTTkT2a0UWb2kjZe8xNwf8bIbnqpc/IS/idOBVhyves0mK5OJgeocjx7q5pvX/6m23xuzVPYT1uGM73w==
   dependencies:
     retry "^0.12.0"
+
+p-timeout@^1.1.1:
+  version "1.2.1"
+  resolved "http://registry.npm.dtstack.com/p-timeout/-/p-timeout-1.2.1.tgz#5eb3b353b7fce99f101a1038880bb054ebbea386"
+  integrity sha1-XrOzU7f86Z8QGhA4iAuwVOu+o4Y=
+  dependencies:
+    p-finally "^1.0.0"
 
 p-timeout@^2.0.1:
   version "2.0.1"
@@ -9783,6 +9823,11 @@ parse-json@^5.0.0:
     json-parse-even-better-errors "^2.3.0"
     lines-and-columns "^1.1.6"
 
+parse-node-version@^1.0.0:
+  version "1.0.1"
+  resolved "http://registry.npm.dtstack.com/parse-node-version/-/parse-node-version-1.0.1.tgz#e2b5dbede00e7fa9bc363607f53327e8b073189b"
+  integrity sha1-4rXb7eAOf6m8NjYH9TMn6LBzGJs=
+
 parse-passwd@^1.0.0:
   version "1.0.0"
   resolved "http://registry.npm.dtstack.com/parse-passwd/-/parse-passwd-1.0.0.tgz#6d5b934a456993b23d37f40a382d6f1666a8e5c6"
@@ -9860,13 +9905,6 @@ path-to-regexp@0.1.7:
   resolved "http://registry.npm.dtstack.com/path-to-regexp/-/path-to-regexp-0.1.7.tgz#df604178005f522f15eb4490e7247a1bfaa67f8c"
   integrity sha1-32BBeABfUi8V60SQ5yR6G/qmf4w=
 
-path-to-regexp@^1.7.0:
-  version "1.8.0"
-  resolved "http://registry.npm.dtstack.com/path-to-regexp/-/path-to-regexp-1.8.0.tgz#887b3ba9d84393e87a0a0b9f4cb756198b53548a"
-  integrity sha1-iHs7qdhDk+h6CgufTLdWGYtTVIo=
-  dependencies:
-    isarray "0.0.1"
-
 path-type@^1.0.0:
   version "1.1.0"
   resolved "http://registry.npm.dtstack.com/path-type/-/path-type-1.1.0.tgz#59c44f7ee491da704da415da5a4070ba4f8fe441"
@@ -9942,6 +9980,13 @@ pify@^4.0.1:
   version "4.0.1"
   resolved "http://registry.npm.dtstack.com/pify/-/pify-4.0.1.tgz#4b2cd25c50d598735c50292224fd8c6df41e3231"
   integrity sha512-uB80kBFb/tfd68bVleG9T5GGsGPjJrLAUpR5PZIrhBnIaRTQRjqdJSsIKkOP6OAIFbj7GOrcudc5pNjZ+geV2g==
+
+pikaday@1.5.1:
+  version "1.5.1"
+  resolved "http://registry.npm.dtstack.com/pikaday/-/pikaday-1.5.1.tgz#0a48549bc1a14ea1d08c44074d761bc2f2bfcfd3"
+  integrity sha1-CkhUm8GhTqHQjEQHTXYbwvK/z9M=
+  optionalDependencies:
+    moment "2.x"
 
 pinkie-promise@^2.0.0:
   version "2.0.1"
@@ -10321,7 +10366,7 @@ postcss-unique-selectors@^4.0.1:
     postcss "^7.0.0"
     uniqs "^2.0.0"
 
-postcss-value-parser@^3.0.0:
+postcss-value-parser@^3.0.0, postcss-value-parser@^3.3.0:
   version "3.3.1"
   resolved "http://registry.npm.dtstack.com/postcss-value-parser/-/postcss-value-parser-3.3.1.tgz#9ff822547e2893213cf1c30efa51ac5fd1ba8281"
   integrity sha512-pISE66AbVkp4fDQ7VHBwRNXzAAKJjw4Vw7nWI/+Q3vuly7SNfgYXvm6i5IgFylHGK5sP/xHAbB7N49OS4gWNyQ==
@@ -10435,7 +10480,7 @@ prompts@^2.0.1:
     kleur "^3.0.3"
     sisteransi "^1.0.5"
 
-prop-types@15.x, prop-types@^15.5.0, prop-types@^15.5.10, prop-types@^15.5.4, prop-types@^15.5.6, prop-types@^15.5.7, prop-types@^15.5.8, prop-types@^15.5.9, prop-types@^15.6.0, prop-types@^15.6.2, prop-types@^15.7.2:
+prop-types@15.x, prop-types@^15.0.0, prop-types@^15.5.0, prop-types@^15.5.10, prop-types@^15.5.4, prop-types@^15.5.6, prop-types@^15.5.7, prop-types@^15.5.8, prop-types@^15.5.9, prop-types@^15.6.0, prop-types@^15.6.2, prop-types@^15.7.2:
   version "15.7.2"
   resolved "http://registry.npm.dtstack.com/prop-types/-/prop-types-15.7.2.tgz#52c41e75b8c87e72b9d9360e0206b99dcbffa6c5"
   integrity sha512-8QQikdH7//R2vurIJSutZ1smHYTcLpRWEOlHnzcWHmBYrOGUysKwSsrC89BCiFj3CbrfJ/nXFdJepOVrY1GCHQ==
@@ -10565,16 +10610,18 @@ qs@6.7.0:
   integrity sha512-VCdBRNFTX1fyE7Nb6FYoURo/SPe62QCaAyzJvUjwRaIsc+NePBEniHlvxFmmX56+HZphIGtV0XeCirBtpDrTyQ==
 
 qs@^6.4.0, qs@^6.9.4:
-  version "6.9.6"
-  resolved "http://registry.npm.dtstack.com/qs/-/qs-6.9.6.tgz#26ed3c8243a431b2924aca84cc90471f35d5a0ee"
-  integrity sha1-Ju08gkOkMbKSSsqEzJBHHzXVoO4=
+  version "6.10.1"
+  resolved "http://registry.npm.dtstack.com/qs/-/qs-6.10.1.tgz#4931482fa8d647a5aab799c5271d2133b981fb6a"
+  integrity sha1-STFIL6jWR6Wqt5nFJx0hM7mB+2o=
+  dependencies:
+    side-channel "^1.0.4"
 
 qs@~6.5.2:
   version "6.5.2"
   resolved "http://registry.npm.dtstack.com/qs/-/qs-6.5.2.tgz#cb3ae806e8740444584ef154ce8ee98d403f3e36"
   integrity sha512-N5ZAX4/LxJmF+7wN74pUD6qAh9/wnvdQcjq9TZjevvXzSUo7bfmw91saqMjzGS2xq91/odN2dW/WOl7qQHNDGA==
 
-query-string@^4.1.0:
+query-string@^4.1.0, query-string@^4.2.2:
   version "4.3.4"
   resolved "http://registry.npm.dtstack.com/query-string/-/query-string-4.3.4.tgz#bbb693b9ca915c232515b228b1a02b609043dbeb"
   integrity sha1-u7aTucqRXCMlFbIosaArYJBD2+s=
@@ -10605,11 +10652,6 @@ querystringify@^2.1.1:
   version "2.2.0"
   resolved "http://registry.npm.dtstack.com/querystringify/-/querystringify-2.2.0.tgz#3345941b4153cb9d082d8eee4cda2016a9aef7f6"
   integrity sha1-M0WUG0FTy50ILY7uTNogFqmu9/Y=
-
-queue-microtask@^1.2.2:
-  version "1.2.2"
-  resolved "http://registry.npm.dtstack.com/queue-microtask/-/queue-microtask-1.2.2.tgz#abf64491e6ecf0f38a6502403d4cda04f372dfd3"
-  integrity sha1-q/ZEkebs8POKZQJAPUzaBPNy39M=
 
 quick-lru@^4.0.1:
   version "4.0.1"
@@ -10831,9 +10873,9 @@ rc-hammerjs@~0.6.0:
     prop-types "^15.5.9"
 
 rc-input-number@~4.5.0:
-  version "4.5.7"
-  resolved "http://registry.npm.dtstack.com/rc-input-number/-/rc-input-number-4.5.7.tgz#7e6abe11aa50960c1f50a64cca0e64cb364a1ff9"
-  integrity sha512-99PrQ90sTOKyyj7eu0VzwxY17xQ+bwG1XTQd+bTwFQ+IOUkIw7L4qSAYxt58sVYL+Cw+bu/RAtT2IpT9yC2pCQ==
+  version "4.5.9"
+  resolved "http://registry.npm.dtstack.com/rc-input-number/-/rc-input-number-4.5.9.tgz#1cbf735e24fe23c4eb9a4301031720b95f2a3e3d"
+  integrity sha1-HL9zXiT+I8TrmkMBAxcguV8qPj0=
   dependencies:
     babel-runtime "6.x"
     classnames "^2.2.0"
@@ -11096,6 +11138,11 @@ rc-util@^4.0.4, rc-util@^4.1.1, rc-util@^4.13.0, rc-util@^4.15.3, rc-util@^4.15.
     react-lifecycles-compat "^3.0.4"
     shallowequal "^1.1.0"
 
+react-deep-force-update@^2.1.1:
+  version "2.1.3"
+  resolved "http://registry.npm.dtstack.com/react-deep-force-update/-/react-deep-force-update-2.1.3.tgz#740612322e617bcced38f61794a4af75dc3d98e7"
+  integrity sha512-lqD4eHKVuB65RyO/hGbEST53E2/GPbcIPcFYyeW/p4vNngtH4G7jnKGlU6u1OqrFo0uNfIvwuBOg98IbLHlNEA==
+
 react-dev-utils@^9.0.3:
   version "9.1.0"
   resolved "http://registry.npm.dtstack.com/react-dev-utils/-/react-dev-utils-9.1.0.tgz#3ad2bb8848a32319d760d0a84c56c14bdaae5e81"
@@ -11137,12 +11184,40 @@ react-dom@16.13.0:
     prop-types "^15.6.2"
     scheduler "^0.19.0"
 
+react-dom@16.6.3:
+  version "16.6.3"
+  resolved "http://registry.npm.dtstack.com/react-dom/-/react-dom-16.6.3.tgz#8fa7ba6883c85211b8da2d0efeffc9d3825cccc0"
+  integrity sha512-8ugJWRCWLGXy+7PmNh8WJz3g1TaTUt1XyoIcFN+x0Zbkoz+KKdUyx1AQLYJdbFXjuF41Nmjn5+j//rxvhFjgSQ==
+  dependencies:
+    loose-envify "^1.1.0"
+    object-assign "^4.1.1"
+    prop-types "^15.6.2"
+    scheduler "^0.11.2"
+
 react-error-overlay@^6.0.3:
   version "6.0.9"
   resolved "http://registry.npm.dtstack.com/react-error-overlay/-/react-error-overlay-6.0.9.tgz#3c743010c9359608c375ecd6bc76f35d93995b0a"
   integrity sha1-PHQwEMk1lgjDdezWvHbzXZOZWwo=
 
-react-is@^16.12.0, react-is@^16.13.1, react-is@^16.6.0, react-is@^16.7.0, react-is@^16.8.1:
+react-hot-loader@3.1.1:
+  version "3.1.1"
+  resolved "http://registry.npm.dtstack.com/react-hot-loader/-/react-hot-loader-3.1.1.tgz#e06db8cd0841c41e3ab0b395b2b774126fc8914e"
+  integrity sha512-TxvSs1KN+YZxdXIX5sq0AKEy8dBdyiUE9nK9ML4Op6S06tkvNAg51V8OSvlQemCQkOfk8gTc5O8azUCvV4vTUw==
+  dependencies:
+    global "^4.3.0"
+    react-deep-force-update "^2.1.1"
+    react-proxy "^3.0.0-alpha.0"
+    redbox-react "^1.3.6"
+    source-map "^0.6.1"
+
+react-icons@^3.10.0:
+  version "3.11.0"
+  resolved "http://registry.npm.dtstack.com/react-icons/-/react-icons-3.11.0.tgz#2ca2903dfab8268ca18ebd8cc2e879921ec3b254"
+  integrity sha1-LKKQPfq4Joyhjr2Mwuh5kh7DslQ=
+  dependencies:
+    camelcase "^5.0.0"
+
+react-is@^16.12.0, react-is@^16.13.1, react-is@^16.7.0, react-is@^16.8.1:
   version "16.13.1"
   resolved "http://registry.npm.dtstack.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
@@ -11174,16 +11249,25 @@ react-loadable@^5.5.0:
   dependencies:
     prop-types "^15.5.0"
 
-react-redux@^7.2.2:
-  version "7.2.2"
-  resolved "http://registry.npm.dtstack.com/react-redux/-/react-redux-7.2.2.tgz#03862e803a30b6b9ef8582dadcc810947f74b736"
-  integrity sha1-A4YugDowtrnvhYLa3MgQlH90tzY=
+react-proxy@^3.0.0-alpha.0:
+  version "3.0.0-alpha.1"
+  resolved "http://registry.npm.dtstack.com/react-proxy/-/react-proxy-3.0.0-alpha.1.tgz#4400426bcfa80caa6724c7755695315209fa4b07"
+  integrity sha1-RABCa8+oDKpnJMd1VpUxUgn6Swc=
   dependencies:
-    "@babel/runtime" "^7.12.1"
-    hoist-non-react-statics "^3.3.2"
-    loose-envify "^1.4.0"
-    prop-types "^15.7.2"
-    react-is "^16.13.1"
+    lodash "^4.6.1"
+
+react-redux@5.0.4:
+  version "5.0.4"
+  resolved "http://registry.npm.dtstack.com/react-redux/-/react-redux-5.0.4.tgz#1563babadcfb2672f57f9ceaa439fb16bf85d55b"
+  integrity sha1-FWO6utz7JnL1f5zqpDn7Fr+F1Vs=
+  dependencies:
+    create-react-class "^15.5.1"
+    hoist-non-react-statics "^1.0.3"
+    invariant "^2.0.0"
+    lodash "^4.2.0"
+    lodash-es "^4.2.0"
+    loose-envify "^1.1.0"
+    prop-types "^15.0.0"
 
 react-resize-detector@^5.2.0:
   version "5.2.0"
@@ -11195,34 +11279,23 @@ react-resize-detector@^5.2.0:
     raf-schd "^4.0.2"
     resize-observer-polyfill "^1.5.1"
 
-react-router-dom@^5.2.0:
-  version "5.2.0"
-  resolved "http://registry.npm.dtstack.com/react-router-dom/-/react-router-dom-5.2.0.tgz#9e65a4d0c45e13289e66c7b17c7e175d0ea15662"
-  integrity sha512-gxAmfylo2QUjcwxI63RhQ5G85Qqt4voZpUXSEqCwykV0baaOTQDR1f0PmY8AELqIyVc0NEZUj0Gov5lNGcXgsA==
-  dependencies:
-    "@babel/runtime" "^7.1.2"
-    history "^4.9.0"
-    loose-envify "^1.3.1"
-    prop-types "^15.6.2"
-    react-router "5.2.0"
-    tiny-invariant "^1.0.2"
-    tiny-warning "^1.0.0"
+react-router-redux@^4.0.8:
+  version "4.0.8"
+  resolved "http://registry.npm.dtstack.com/react-router-redux/-/react-router-redux-4.0.8.tgz#227403596b5151e182377dab835b5d45f0f8054e"
+  integrity sha1-InQDWWtRUeGCN32rg1tdRfD4BU4=
 
-react-router@5.2.0:
-  version "5.2.0"
-  resolved "http://registry.npm.dtstack.com/react-router/-/react-router-5.2.0.tgz#424e75641ca8747fbf76e5ecca69781aa37ea293"
-  integrity sha512-smz1DUuFHRKdcJC0jobGo8cVbhO3x50tCL4icacOlcwDOEQPq4TMqwx3sY1TP+DvtTgz4nm3thuo7A+BK2U0Dw==
+react-router@3.0.4:
+  version "3.0.4"
+  resolved "http://registry.npm.dtstack.com/react-router/-/react-router-3.0.4.tgz#25ce0a50dc07bc6ebaeabfd902cad5064da10f22"
+  integrity sha1-Jc4KUNwHvG666r/ZAsrVBk2hDyI=
   dependencies:
-    "@babel/runtime" "^7.1.2"
-    history "^4.9.0"
-    hoist-non-react-statics "^3.1.0"
-    loose-envify "^1.3.1"
-    mini-create-react-context "^0.4.0"
-    path-to-regexp "^1.7.0"
-    prop-types "^15.6.2"
-    react-is "^16.6.0"
-    tiny-invariant "^1.0.2"
-    tiny-warning "^1.0.0"
+    create-react-class "^15.5.1"
+    history "^3.0.0"
+    hoist-non-react-statics "^1.2.0"
+    invariant "^2.2.1"
+    loose-envify "^1.2.0"
+    prop-types "^15.5.6"
+    warning "^3.0.0"
 
 react-slick@~0.25.2:
   version "0.25.2"
@@ -11243,6 +11316,16 @@ react@16.13.0:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
     prop-types "^15.6.2"
+
+react@16.6.3:
+  version "16.6.3"
+  resolved "http://registry.npm.dtstack.com/react/-/react-16.6.3.tgz#25d77c91911d6bbdd23db41e70fb094cc1e0871c"
+  integrity sha512-zCvmH2vbEolgKxtqXL2wmGCUxUyNheYn/C+PD1YAjfxHC54+MhdruyhO7QieQrYsYeTxrn93PM2y0jRH1zEExw==
+  dependencies:
+    loose-envify "^1.1.0"
+    object-assign "^4.1.1"
+    prop-types "^15.6.2"
+    scheduler "^0.11.2"
 
 read-pkg-up@^1.0.1:
   version "1.0.1"
@@ -11269,6 +11352,15 @@ read-pkg-up@^7.0.1:
     read-pkg "^5.2.0"
     type-fest "^0.8.1"
 
+read-pkg@2.0.0, read-pkg@^2.0.0:
+  version "2.0.0"
+  resolved "http://registry.npm.dtstack.com/read-pkg/-/read-pkg-2.0.0.tgz#8ef1c0623c6a6db0dc6713c4bfac46332b2368f8"
+  integrity sha1-jvHAYjxqbbDcZxPEv6xGMysjaPg=
+  dependencies:
+    load-json-file "^2.0.0"
+    normalize-package-data "^2.3.2"
+    path-type "^2.0.0"
+
 read-pkg@^1.0.0:
   version "1.1.0"
   resolved "http://registry.npm.dtstack.com/read-pkg/-/read-pkg-1.1.0.tgz#f5ffaa5ecd29cb31c0474bca7d756b6bb29e3f28"
@@ -11277,15 +11369,6 @@ read-pkg@^1.0.0:
     load-json-file "^1.0.0"
     normalize-package-data "^2.3.2"
     path-type "^1.0.0"
-
-read-pkg@^2.0.0:
-  version "2.0.0"
-  resolved "http://registry.npm.dtstack.com/read-pkg/-/read-pkg-2.0.0.tgz#8ef1c0623c6a6db0dc6713c4bfac46332b2368f8"
-  integrity sha1-jvHAYjxqbbDcZxPEv6xGMysjaPg=
-  dependencies:
-    load-json-file "^2.0.0"
-    normalize-package-data "^2.3.2"
-    path-type "^2.0.0"
 
 read-pkg@^5.2.0:
   version "5.2.0"
@@ -11359,6 +11442,16 @@ recursive-readdir@2.2.2:
   dependencies:
     minimatch "3.0.4"
 
+redbox-react@^1.3.6:
+  version "1.6.0"
+  resolved "http://registry.npm.dtstack.com/redbox-react/-/redbox-react-1.6.0.tgz#e753ac02595bc1bf695b3935889a4f5b1b5a21a1"
+  integrity sha512-mLjM5eYR41yOp5YKHpd3syFeGq6B4Wj5vZr64nbLvTZW5ZLff4LYk7VE4ITpVxkZpCY6OZuqh0HiP3A3uEaCpg==
+  dependencies:
+    error-stack-parser "^1.3.6"
+    object-assign "^4.0.1"
+    prop-types "^15.5.4"
+    sourcemapped-stacktrace "^1.1.6"
+
 redent@^1.0.0:
   version "1.0.0"
   resolved "http://registry.npm.dtstack.com/redent/-/redent-1.0.0.tgz#cf916ab1fd5f1f16dfb20822dd6ec7f730c2afde"
@@ -11380,18 +11473,27 @@ redux-devtools-extension@^2.13.8:
   resolved "http://registry.npm.dtstack.com/redux-devtools-extension/-/redux-devtools-extension-2.13.9.tgz#6b764e8028b507adcb75a1cae790f71e6be08ae7"
   integrity sha1-a3ZOgCi1B63LdaHK55D3Hmvgiuc=
 
-redux-thunk@^2.3.0:
-  version "2.3.0"
-  resolved "http://registry.npm.dtstack.com/redux-thunk/-/redux-thunk-2.3.0.tgz#51c2c19a185ed5187aaa9a2d08b666d0d6467622"
-  integrity sha512-km6dclyFnmcvxhAcrQV2AkZmPQjzPDjgVlQtR0EQjxZPyJ0BnMf3in1ryuR8A2qU0HldVRfxYXbFSKlI3N7Slw==
-
-redux@^4.0.5:
-  version "4.0.5"
-  resolved "http://registry.npm.dtstack.com/redux/-/redux-4.0.5.tgz#4db5de5816e17891de8a80c424232d06f051d93f"
-  integrity sha512-VSz1uMAH24DM6MF72vcojpYPtrTUu3ByVWfPL1nPfVRb5mZVTve5GnNCUV53QM/BZ66xfWrm0CTWoM+Xlz8V1w==
+redux-logger@3.0.1:
+  version "3.0.1"
+  resolved "http://registry.npm.dtstack.com/redux-logger/-/redux-logger-3.0.1.tgz#ae8ae4c3c55ed3dd7aa31509f0856c5d3751057a"
+  integrity sha1-rorkw8Ve0916oxUJ8IVsXTdRBXo=
   dependencies:
-    loose-envify "^1.4.0"
-    symbol-observable "^1.2.0"
+    deep-diff "0.3.4"
+
+redux-thunk@2.2.0:
+  version "2.2.0"
+  resolved "http://registry.npm.dtstack.com/redux-thunk/-/redux-thunk-2.2.0.tgz#e615a16e16b47a19a515766133d1e3e99b7852e5"
+  integrity sha1-5hWhbha0ehmlFXZhM9Hj6Zt4UuU=
+
+redux@3.6.0:
+  version "3.6.0"
+  resolved "http://registry.npm.dtstack.com/redux/-/redux-3.6.0.tgz#887c2b3d0b9bd86eca2be70571c27654c19e188d"
+  integrity sha1-iHwrPQub2G7KK+cFccJ2VMGeGI0=
+  dependencies:
+    lodash "^4.2.1"
+    lodash-es "^4.2.1"
+    loose-envify "^1.1.0"
+    symbol-observable "^1.0.2"
 
 regenerate-unicode-properties@^8.2.0:
   version "8.2.0"
@@ -11461,9 +11563,9 @@ regjsgen@^0.5.1:
   integrity sha512-OFFT3MfrH90xIW8OOSyUrk6QHD5E9JOTeGodiJeBS3J6IwlgzJMNE/1bZklWz5oTg+9dCMyEetclvCVXOPoN3A==
 
 regjsparser@^0.6.4:
-  version "0.6.7"
-  resolved "http://registry.npm.dtstack.com/regjsparser/-/regjsparser-0.6.7.tgz#c00164e1e6713c2e3ee641f1701c4b7aa0a7f86c"
-  integrity sha1-wAFk4eZxPC4+5kHxcBxLeqCn+Gw=
+  version "0.6.9"
+  resolved "http://registry.npm.dtstack.com/regjsparser/-/regjsparser-0.6.9.tgz#b489eef7c9a2ce43727627011429cf833a7183e6"
+  integrity sha1-tInu98mizkNydicBFCnPgzpxg+Y=
   dependencies:
     jsesc "~0.5.0"
 
@@ -11633,17 +11735,12 @@ resolve-global@1.0.0, resolve-global@^1.0.0:
   dependencies:
     global-dirs "^0.1.1"
 
-resolve-pathname@^3.0.0:
-  version "3.0.0"
-  resolved "http://registry.npm.dtstack.com/resolve-pathname/-/resolve-pathname-3.0.0.tgz#99d02224d3cf263689becbb393bc560313025dcd"
-  integrity sha512-C7rARubxI8bXFNB/hqcp/4iUeIXJhJZvFPFPiSPRnhU5UPxzMFIl+2E6yY6c4k9giDJAhtV+enfA+G89N6Csng==
-
 resolve-url@^0.2.1:
   version "0.2.1"
   resolved "http://registry.npm.dtstack.com/resolve-url/-/resolve-url-0.2.1.tgz#2c637fe77c893afd2a663fe21aa9080068e2052a"
   integrity sha1-LGN/53yJOv0qZj/iGqkIAGjiBSo=
 
-resolve@^1.1.6, resolve@^1.10.0, resolve@^1.10.1, resolve@^1.13.1, resolve@^1.14.2, resolve@^1.17.0, resolve@^1.18.1:
+resolve@^1.1.6, resolve@^1.10.0, resolve@^1.10.1, resolve@^1.13.1, resolve@^1.14.2, resolve@^1.17.0, resolve@^1.18.1, resolve@^1.20.0:
   version "1.20.0"
   resolved "http://registry.npm.dtstack.com/resolve/-/resolve-1.20.0.tgz#629a013fb3f70755d6f0b7935cc1c2c5378b1975"
   integrity sha1-YpoBP7P3B1XW8LeTXMHCxTeLGXU=
@@ -11691,11 +11788,6 @@ retry@^0.12.0:
   version "0.12.0"
   resolved "http://registry.npm.dtstack.com/retry/-/retry-0.12.0.tgz#1b42a6266a21f07421d1b0b54b7dc167b01c013b"
   integrity sha1-G0KmJmoh8HQh0bC1S33BZ7AcATs=
-
-reusify@^1.0.4:
-  version "1.0.4"
-  resolved "http://registry.npm.dtstack.com/reusify/-/reusify-1.0.4.tgz#90da382b1e126efc02146e90845a88db12925d76"
-  integrity sha1-kNo4Kx4SbvwCFG6QhFqI2xKSXXY=
 
 rgb-regex@^1.0.1:
   version "1.0.1"
@@ -11747,13 +11839,6 @@ run-async@^2.2.0, run-async@^2.4.0:
   resolved "http://registry.npm.dtstack.com/run-async/-/run-async-2.4.1.tgz#8440eccf99ea3e70bd409d49aab88e10c189a455"
   integrity sha1-hEDsz5nqPnC9QJ1JqriOEMGJpFU=
 
-run-parallel@^1.1.9:
-  version "1.2.0"
-  resolved "http://registry.npm.dtstack.com/run-parallel/-/run-parallel-1.2.0.tgz#66d1368da7bdf921eb9d95bd1a9229e7f21a43ee"
-  integrity sha1-ZtE2jae9+SHrnZW9GpIp5/IaQ+4=
-  dependencies:
-    queue-microtask "^1.2.2"
-
 run-queue@^1.0.0, run-queue@^1.0.3:
   version "1.0.3"
   resolved "http://registry.npm.dtstack.com/run-queue/-/run-queue-1.0.3.tgz#e848396f057d223f24386924618e25694161ec47"
@@ -11762,9 +11847,9 @@ run-queue@^1.0.0, run-queue@^1.0.3:
     aproba "^1.1.1"
 
 rxjs@^6.4.0, rxjs@^6.6.0:
-  version "6.6.6"
-  resolved "http://registry.npm.dtstack.com/rxjs/-/rxjs-6.6.6.tgz#14d8417aa5a07c5e633995b525e1e3c0dec03b70"
-  integrity sha1-FNhBeqWgfF5jOZW1JeHjwN7AO3A=
+  version "6.6.7"
+  resolved "http://registry.npm.dtstack.com/rxjs/-/rxjs-6.6.7.tgz#90ac018acabf491bf65044235d5863c4dab804c9"
+  integrity sha1-kKwBisq/SRv2UEQjXVhjxNq4BMk=
   dependencies:
     tslib "^1.9.0"
 
@@ -11838,6 +11923,14 @@ saxes@^5.0.1:
   dependencies:
     xmlchars "^2.2.0"
 
+scheduler@^0.11.2:
+  version "0.11.3"
+  resolved "http://registry.npm.dtstack.com/scheduler/-/scheduler-0.11.3.tgz#b5769b90cf8b1464f3f3cfcafe8e3cd7555a2d6b"
+  integrity sha512-i9X9VRRVZDd3xZw10NY5Z2cVMbdYg6gqFecfj79USv1CFN+YrJ3gIPRKf1qlY+Sxly4djoKdfx1T+m9dnRB8kQ==
+  dependencies:
+    loose-envify "^1.1.0"
+    object-assign "^4.1.1"
+
 scheduler@^0.19.0:
   version "0.19.1"
   resolved "http://registry.npm.dtstack.com/scheduler/-/scheduler-0.19.1.tgz#4f3e2ed2c1a7d65681f4c854fa8c5a1ccb40f196"
@@ -11862,15 +11955,6 @@ schema-utils@^2.5.0, schema-utils@^2.6.1, schema-utils@^2.6.5, schema-utils@^2.7
   dependencies:
     "@types/json-schema" "^7.0.5"
     ajv "^6.12.4"
-    ajv-keywords "^3.5.2"
-
-schema-utils@^3.0.0:
-  version "3.0.0"
-  resolved "http://registry.npm.dtstack.com/schema-utils/-/schema-utils-3.0.0.tgz#67502f6aa2b66a2d4032b4279a2944978a0913ef"
-  integrity sha1-Z1AvaqK2ai1AMrQnmilEl4oJE+8=
-  dependencies:
-    "@types/json-schema" "^7.0.6"
-    ajv "^6.12.5"
     ajv-keywords "^3.5.2"
 
 scss-tokenizer@^0.2.3:
@@ -11910,14 +11994,14 @@ semver@7.0.0:
   resolved "http://registry.npm.dtstack.com/semver/-/semver-7.0.0.tgz#5f3ca35761e47e05b206c6daff2cf814f0316b8e"
   integrity sha512-+GB6zVA9LWh6zovYQLALHwv5rb2PHGlJi3lfiqIHxR0uuwCgefcOJc59v9fv1w8GbStwxuuqqAjI9NMAOOgq1A==
 
-semver@7.3.4, semver@^7.3.2:
+semver@7.3.4:
   version "7.3.4"
   resolved "http://registry.npm.dtstack.com/semver/-/semver-7.3.4.tgz#27aaa7d2e4ca76452f98d3add093a72c943edc97"
   integrity sha1-J6qn0uTKdkUvmNOt0JOnLJQ+3Jc=
   dependencies:
     lru-cache "^6.0.0"
 
-semver@7.x, semver@^7.2.1:
+semver@7.x, semver@^7.2.1, semver@^7.3.2, semver@^7.3.4:
   version "7.3.5"
   resolved "http://registry.npm.dtstack.com/semver/-/semver-7.3.5.tgz#0b621c879348d8998e4b0e4be94b3f12e6018ef7"
   integrity sha1-C2Ich5NI2JmOSw5L6Us/EuYBjvc=
@@ -11981,13 +12065,6 @@ serialize-javascript@^4.0.0:
   version "4.0.0"
   resolved "http://registry.npm.dtstack.com/serialize-javascript/-/serialize-javascript-4.0.0.tgz#b525e1238489a5ecfc42afacc3fe99e666f4b1aa"
   integrity sha512-GaNA54380uFefWghODBWEGisLZFj00nS5ACs6yHa9nLqlLpVLO8ChDGeKRjZnV4Nh4n0Qi7nhYZD/9fCPzEqkw==
-  dependencies:
-    randombytes "^2.1.0"
-
-serialize-javascript@^5.0.1:
-  version "5.0.1"
-  resolved "http://registry.npm.dtstack.com/serialize-javascript/-/serialize-javascript-5.0.1.tgz#7886ec848049a462467a97d3d918ebb2aaf934f4"
-  integrity sha1-eIbshIBJpGJGepfT2Rjrsqr5NPQ=
   dependencies:
     randombytes "^2.1.0"
 
@@ -12122,6 +12199,13 @@ shellwords@^0.1.1:
   resolved "http://registry.npm.dtstack.com/shellwords/-/shellwords-0.1.1.tgz#d6b9181c1a48d397324c84871efbcfc73fc0654b"
   integrity sha512-vFwSUfQvqybiICwZY5+DAWIPLKsWO31Q91JSKl3UYv+K5c2QRPzn0qzec6QPu1Qc9eHYItiP3NdJqNVqetYAww==
 
+showdown@^1.9.0:
+  version "1.9.1"
+  resolved "http://registry.npm.dtstack.com/showdown/-/showdown-1.9.1.tgz#134e148e75cd4623e09c21b0511977d79b5ad0ef"
+  integrity sha512-9cGuS382HcvExtf5AHk7Cb4pAeQQ+h0eTr33V1mu+crYWV4KvWAw6el92bDrqGEk5d46Ai/fhbEUwqJ/mTCNEA==
+  dependencies:
+    yargs "^14.2"
+
 side-channel@^1.0.4:
   version "1.0.4"
   resolved "http://registry.npm.dtstack.com/side-channel/-/side-channel-1.0.4.tgz#efce5c8fdc104ee751b25c58d4290011fa5ea2cf"
@@ -12166,6 +12250,11 @@ slice-ansi@^4.0.0:
     ansi-styles "^4.0.0"
     astral-regex "^2.0.0"
     is-fullwidth-code-point "^3.0.0"
+
+slugify@1.3.1:
+  version "1.3.1"
+  resolved "http://registry.npm.dtstack.com/slugify/-/slugify-1.3.1.tgz#f572127e8535329fbc6c1edb74ab856b61ad7de2"
+  integrity sha512-6BwyhjF5tG5P8s+0DPNyJmBSBePG6iMyhjvIW5zGdA3tFik9PtK+yNkZgTeiroCRGZYgkHftFA62tGVK1EI9Kw==
 
 smart-buffer@^4.1.0:
   version "4.1.0"
@@ -12215,16 +12304,16 @@ sockjs-client@1.4.0:
     url-parse "^1.4.3"
 
 sockjs-client@^1.5.0:
-  version "1.5.0"
-  resolved "http://registry.npm.dtstack.com/sockjs-client/-/sockjs-client-1.5.0.tgz#2f8ff5d4b659e0d092f7aba0b7c386bd2aa20add"
-  integrity sha1-L4/11LZZ4NCS96ugt8OGvSqiCt0=
+  version "1.5.1"
+  resolved "http://registry.npm.dtstack.com/sockjs-client/-/sockjs-client-1.5.1.tgz#256908f6d5adfb94dabbdbd02c66362cca0f9ea6"
+  integrity sha1-JWkI9tWt+5Tau9vQLGY2LMoPnqY=
   dependencies:
     debug "^3.2.6"
     eventsource "^1.0.7"
     faye-websocket "^0.11.3"
     inherits "^2.0.4"
     json3 "^3.3.3"
-    url-parse "^1.4.7"
+    url-parse "^1.5.1"
 
 sockjs@^0.3.21:
   version "0.3.21"
@@ -12250,6 +12339,21 @@ socks@~2.3.2:
   dependencies:
     ip "1.1.5"
     smart-buffer "^4.1.0"
+
+sonarqube-scanner@2.5.0:
+  version "2.5.0"
+  resolved "http://registry.npm.dtstack.com/sonarqube-scanner/-/sonarqube-scanner-2.5.0.tgz#ff704cbddf355d38a52c5e9479d6bb5c1ff28eac"
+  integrity sha512-8pDYXZSnCml0MFjBoeMjhAeV+AIS6XqWN0nkwFmwB/Md2WtDQgag4wDIvAnn5fjZzH1k92E2zWZwLi6sb6HveA==
+  dependencies:
+    download "7.0.0"
+    extend "3.0.2"
+    fancy-log "^1.1.0"
+    lodash.get "^4.4.2"
+    lodash.uniq "^4.5.0"
+    mkdirp "0.5.1"
+    progress "^2.0.0"
+    read-pkg "2.0.0"
+    slugify "1.3.1"
 
 sort-keys-length@^1.0.0:
   version "1.0.1"
@@ -12309,6 +12413,11 @@ source-map-url@^0.4.0:
   resolved "http://registry.npm.dtstack.com/source-map-url/-/source-map-url-0.4.1.tgz#0af66605a745a5a2f91cf1bbf8a7afbc283dec56"
   integrity sha1-CvZmBadFpaL5HPG7+KevvCg97FY=
 
+source-map@0.5.6:
+  version "0.5.6"
+  resolved "http://registry.npm.dtstack.com/source-map/-/source-map-0.5.6.tgz#75ce38f52bf0733c5a7f0c118d81334a2bb5f412"
+  integrity sha1-dc449SvwczxafwwRjYEzSiu19BI=
+
 source-map@^0.4.2:
   version "0.4.4"
   resolved "http://registry.npm.dtstack.com/source-map/-/source-map-0.4.4.tgz#eba4f5da9c0dc999de68032d8b4f76173652036b"
@@ -12330,6 +12439,13 @@ source-map@^0.7.3:
   version "0.7.3"
   resolved "http://registry.npm.dtstack.com/source-map/-/source-map-0.7.3.tgz#5302f8169031735226544092e64981f751750383"
   integrity sha512-CkCj6giN3S+n9qrYiBTX5gystlENnRW5jZeNLHpe6aue+SrHcG5VYwujhW9s4dY31mEGsxBDrHR6oI69fTXsaQ==
+
+sourcemapped-stacktrace@^1.1.6:
+  version "1.1.11"
+  resolved "http://registry.npm.dtstack.com/sourcemapped-stacktrace/-/sourcemapped-stacktrace-1.1.11.tgz#e2dede7fc148599c52a4f883276e527f8452657d"
+  integrity sha512-O0pcWjJqzQFVsisPlPXuNawJHHg9N9UgpJ/aDmvi9+vnS3x1C0NhwkVFzzZ1VN0Xo+bekyweoqYvBw5ZBKiNnQ==
+  dependencies:
+    source-map "0.5.6"
 
 spdx-correct@^3.0.0:
   version "3.1.1"
@@ -12421,13 +12537,6 @@ ssri@^6.0.1:
   dependencies:
     figgy-pudding "^3.5.1"
 
-ssri@^8.0.0:
-  version "8.0.1"
-  resolved "http://registry.npm.dtstack.com/ssri/-/ssri-8.0.1.tgz#638e4e439e2ffbd2cd289776d5ca457c4f51a2af"
-  integrity sha1-Y45OQ54v+9LNKJd21cpFfE9Roq8=
-  dependencies:
-    minipass "^3.1.1"
-
 stable@^0.1.8:
   version "0.1.8"
   resolved "http://registry.npm.dtstack.com/stable/-/stable-0.1.8.tgz#836eb3c8382fe2936feaf544631017ce7d47a3cf"
@@ -12439,6 +12548,11 @@ stack-utils@^2.0.2:
   integrity sha1-zV8DASb/EWt4zLPAJ/4wJxO2Enc=
   dependencies:
     escape-string-regexp "^2.0.0"
+
+stackframe@^0.3.1:
+  version "0.3.1"
+  resolved "http://registry.npm.dtstack.com/stackframe/-/stackframe-0.3.1.tgz#33aa84f1177a5548c8935533cbfeb3420975f5a4"
+  integrity sha1-M6qE8Rd6VUjIk1Uzy/6zQgl19aQ=
 
 stackframe@^1.1.1:
   version "1.2.0"
@@ -12719,6 +12833,21 @@ style-loader@^1.1.2:
     loader-utils "^2.0.0"
     schema-utils "^2.7.0"
 
+styled-components@3.1.6:
+  version "3.1.6"
+  resolved "http://registry.npm.dtstack.com/styled-components/-/styled-components-3.1.6.tgz#9c443146fa82c6659a9f64dd493bf2202480342e"
+  integrity sha1-nEQxRvqCxmWan2TdSTvyICSANC4=
+  dependencies:
+    buffer "^5.0.3"
+    css-to-react-native "^2.0.3"
+    fbjs "^0.8.9"
+    hoist-non-react-statics "^1.2.0"
+    is-plain-object "^2.0.1"
+    prop-types "^15.5.4"
+    stylis "^3.4.0"
+    stylis-rule-sheet "^0.0.7"
+    supports-color "^3.2.3"
+
 stylehacks@^4.0.0:
   version "4.0.3"
   resolved "http://registry.npm.dtstack.com/stylehacks/-/stylehacks-4.0.3.tgz#6718fcaf4d1e07d8a1318690881e8d96726a71d5"
@@ -12728,10 +12857,27 @@ stylehacks@^4.0.0:
     postcss "^7.0.0"
     postcss-selector-parser "^3.0.0"
 
+stylis-rule-sheet@^0.0.7:
+  version "0.0.7"
+  resolved "http://registry.npm.dtstack.com/stylis-rule-sheet/-/stylis-rule-sheet-0.0.7.tgz#5c51dc879141a61821c2094ba91d2cbcf2469c6c"
+  integrity sha512-qxzlUBO40tgcGMhYxk2gXAPcaZYpfCqHMoVHj92lFMyiFotcqaEl7Jb5eW1ccCanGwf1N9dVBKF9+i/gmDfzyQ==
+
+stylis@^3.4.0:
+  version "3.5.4"
+  resolved "http://registry.npm.dtstack.com/stylis/-/stylis-3.5.4.tgz#f665f25f5e299cf3d64654ab949a57c768b73fbe"
+  integrity sha512-8/3pSmthWM7lsPBKv7NXkzn2Uc9W7NotcwGNpJaa3k7WMM1XDCA4MgT5k/8BIexd5ydZdboXtU90XH9Ec4Bv/Q==
+
 supports-color@^2.0.0:
   version "2.0.0"
   resolved "http://registry.npm.dtstack.com/supports-color/-/supports-color-2.0.0.tgz#535d045ce6b6363fa40117084629995e9df324c7"
   integrity sha1-U10EXOa2Nj+kARcIRimZXp3zJMc=
+
+supports-color@^3.2.3:
+  version "3.2.3"
+  resolved "http://registry.npm.dtstack.com/supports-color/-/supports-color-3.2.3.tgz#65ac0504b3954171d8a64946b2ae3cbb8a5f54f6"
+  integrity sha1-ZawFBLOVQXHYpklGsq48u4pfVPY=
+  dependencies:
+    has-flag "^1.0.0"
 
 supports-color@^5.3.0:
   version "5.5.0"
@@ -12781,7 +12927,7 @@ svgo@^1.0.0:
     unquote "~1.1.1"
     util.promisify "~1.0.0"
 
-symbol-observable@^1.2.0:
+symbol-observable@^1.0.2:
   version "1.2.0"
   resolved "http://registry.npm.dtstack.com/symbol-observable/-/symbol-observable-1.2.0.tgz#c22688aed4eab3cdc2dfeacbb561660560a00804"
   integrity sha512-e900nM8RRtGhlV36KGEU9k65K3mPb1WV70OdjfxlG2EAuM1noi/E/BaW/uMhL7bPEssK8QV57vN3esixjUvcXQ==
@@ -12792,12 +12938,17 @@ symbol-tree@^3.2.4:
   integrity sha1-QwY30ki6d+B4iDlR+5qg7tfGP6I=
 
 table@^6.0.4:
-  version "6.0.7"
-  resolved "http://registry.npm.dtstack.com/table/-/table-6.0.7.tgz#e45897ffbcc1bcf9e8a87bf420f2c9e5a7a52a34"
-  integrity sha512-rxZevLGTUzWna/qBLObOe16kB2RTnnbhciwgPbMMlazz1yZGVEgnZK762xyVdVznhqxrfCeBMmMkgOOaPwjH7g==
+  version "6.0.9"
+  resolved "http://registry.npm.dtstack.com/table/-/table-6.0.9.tgz#790a12bf1e09b87b30e60419bafd6a1fd85536fb"
+  integrity sha1-eQoSvx4JuHsw5gQZuv1qH9hVNvs=
   dependencies:
-    ajv "^7.0.2"
-    lodash "^4.17.20"
+    ajv "^8.0.1"
+    is-boolean-object "^1.1.0"
+    is-number-object "^1.0.4"
+    is-string "^1.0.5"
+    lodash.clonedeep "^4.5.0"
+    lodash.flatten "^4.4.0"
+    lodash.truncate "^4.4.2"
     slice-ansi "^4.0.0"
     string-width "^4.2.0"
 
@@ -12805,6 +12956,11 @@ tapable@^1.0.0, tapable@^1.0.0-beta.5, tapable@^1.1.3:
   version "1.1.3"
   resolved "http://registry.npm.dtstack.com/tapable/-/tapable-1.1.3.tgz#a1fccc06b58db61fd7a45da2da44f5f3a3e67ba2"
   integrity sha512-4WK/bYZmj8xLr+HUCODHGF1ZFzsYffasLUgEiMBY4fgtltdO6B4WJtlSbPaDTLpYTcGVwM2qLnFTICEcNxs3kA==
+
+tapable@^2.2.0:
+  version "2.2.0"
+  resolved "http://registry.npm.dtstack.com/tapable/-/tapable-2.2.0.tgz#5c373d281d9c672848213d0e037d1c4165ab426b"
+  integrity sha1-XDc9KB2cZyhIIT0OA30cQWWrQms=
 
 tar-stream@^1.5.2:
   version "1.6.2"
@@ -12827,18 +12983,6 @@ tar@^2.0.0:
     block-stream "*"
     fstream "^1.0.12"
     inherits "2"
-
-tar@^6.0.2:
-  version "6.1.0"
-  resolved "http://registry.npm.dtstack.com/tar/-/tar-6.1.0.tgz#d1724e9bcc04b977b18d5c573b333a2207229a83"
-  integrity sha1-0XJOm8wEuXexjVxXOzM6IgcimoM=
-  dependencies:
-    chownr "^2.0.0"
-    fs-minipass "^2.0.0"
-    minipass "^3.0.0"
-    minizlib "^2.1.1"
-    mkdirp "^1.0.3"
-    yallist "^4.0.0"
 
 terminal-link@^2.0.0:
   version "2.1.1"
@@ -12950,6 +13094,11 @@ thunky@^1.0.2:
   resolved "http://registry.npm.dtstack.com/thunky/-/thunky-1.1.0.tgz#5abaf714a9405db0504732bbccd2cedd9ef9537d"
   integrity sha1-Wrr3FKlAXbBQRzK7zNLO3Z75U30=
 
+time-stamp@^1.0.0:
+  version "1.1.0"
+  resolved "http://registry.npm.dtstack.com/time-stamp/-/time-stamp-1.1.0.tgz#764a5a11af50561921b133f3b44e618687e0f5c3"
+  integrity sha1-dkpaEa9QVhkhsTPztE5hhofg9cM=
+
 timed-out@^4.0.1:
   version "4.0.1"
   resolved "http://registry.npm.dtstack.com/timed-out/-/timed-out-4.0.1.tgz#f32eacac5a175bea25d7fab565ab3ed8741ef56f"
@@ -12966,16 +13115,6 @@ timsort@^0.3.0:
   version "0.3.0"
   resolved "http://registry.npm.dtstack.com/timsort/-/timsort-0.3.0.tgz#405411a8e7e6339fe64db9a234de11dc31e02bd4"
   integrity sha1-QFQRqOfmM5/mTbmiNN4R3DHgK9Q=
-
-tiny-invariant@^1.0.2:
-  version "1.1.0"
-  resolved "http://registry.npm.dtstack.com/tiny-invariant/-/tiny-invariant-1.1.0.tgz#634c5f8efdc27714b7f386c35e6760991d230875"
-  integrity sha1-Y0xfjv3CdxS384bDXmdgmR0jCHU=
-
-tiny-warning@^1.0.0, tiny-warning@^1.0.3:
-  version "1.0.3"
-  resolved "http://registry.npm.dtstack.com/tiny-warning/-/tiny-warning-1.0.3.tgz#94a30db453df4c643d0fd566060d60a875d84754"
-  integrity sha1-lKMNtFPfTGQ9D9VmBg1gqHXYR1Q=
 
 tinycolor2@^1.4.1:
   version "1.4.2"
@@ -13142,15 +13281,15 @@ ts-loader@^6.2.1:
     semver "^6.0.0"
 
 tsconfig-paths-webpack-plugin@^3.2.0:
-  version "3.3.0"
-  resolved "http://registry.npm.dtstack.com/tsconfig-paths-webpack-plugin/-/tsconfig-paths-webpack-plugin-3.3.0.tgz#a7461723c20623ca9148621a5ce36532682ad2ff"
-  integrity sha1-p0YXI8IGI8qRSGIaXONlMmgq0v8=
+  version "3.5.1"
+  resolved "http://registry.npm.dtstack.com/tsconfig-paths-webpack-plugin/-/tsconfig-paths-webpack-plugin-3.5.1.tgz#e4dbf492a20dca9caab60086ddacb703afc2b726"
+  integrity sha1-5Nv0kqINypyqtgCG3ay3A6/CtyY=
   dependencies:
-    chalk "^2.3.0"
-    enhanced-resolve "^4.0.0"
-    tsconfig-paths "^3.4.0"
+    chalk "^4.1.0"
+    enhanced-resolve "^5.7.0"
+    tsconfig-paths "^3.9.0"
 
-tsconfig-paths@^3.4.0, tsconfig-paths@^3.9.0:
+tsconfig-paths@^3.9.0:
   version "3.9.0"
   resolved "http://registry.npm.dtstack.com/tsconfig-paths/-/tsconfig-paths-3.9.0.tgz#098547a6c4448807e8fcb8eae081064ee9a3c90b"
   integrity sha1-CYVHpsREiAfo/Ljq4IEGTumjyQs=
@@ -13165,7 +13304,7 @@ tslib@^1.10.0, tslib@^1.9.0:
   resolved "http://registry.npm.dtstack.com/tslib/-/tslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
   integrity sha1-zy04vcNKE0vK8QkcQfZhni9nLQA=
 
-tslib@^2.0.1:
+tslib@^2.0.1, tslib@^2.1.0:
   version "2.1.0"
   resolved "http://registry.npm.dtstack.com/tslib/-/tslib-2.1.0.tgz#da60860f1c2ecaa5703ab7d39bc05b6bf988b97a"
   integrity sha1-2mCGDxwuyqVwOrfTm8Bba/mIuXo=
@@ -13206,11 +13345,6 @@ type-detect@4.0.8:
   resolved "http://registry.npm.dtstack.com/type-detect/-/type-detect-4.0.8.tgz#7646fb5f18871cfbb7749e69bd39a6388eb7450c"
   integrity sha1-dkb7XxiHHPu3dJ5pvTmmOI63RQw=
 
-type-fest@^0.11.0:
-  version "0.11.0"
-  resolved "http://registry.npm.dtstack.com/type-fest/-/type-fest-0.11.0.tgz#97abf0872310fed88a5c466b25681576145e33f1"
-  integrity sha1-l6vwhyMQ/tiKXEZrJWgVdhReM/E=
-
 type-fest@^0.18.0:
   version "0.18.1"
   resolved "http://registry.npm.dtstack.com/type-fest/-/type-fest-0.18.1.tgz#db4bc151a4a2cf4eebf9add5db75508db6cc841f"
@@ -13220,6 +13354,11 @@ type-fest@^0.20.2:
   version "0.20.2"
   resolved "http://registry.npm.dtstack.com/type-fest/-/type-fest-0.20.2.tgz#1bf207f4b28f91583666cb5fbd327887301cd5f4"
   integrity sha512-Ne+eE4r0/iWnpAxD852z3A+N0Bt5RN//NjJwRd2VFHEmrywxf5vsZlh4R6lixl6B+wz/8d+maTSAkN1FIkI3LQ==
+
+type-fest@^0.21.3:
+  version "0.21.3"
+  resolved "http://registry.npm.dtstack.com/type-fest/-/type-fest-0.21.3.tgz#d260a24b0198436e133fa26a524a6d65fa3b2e37"
+  integrity sha1-0mCiSwGYQ24TP6JqUkptZfo7Ljc=
 
 type-fest@^0.6.0:
   version "0.6.0"
@@ -13272,9 +13411,9 @@ typescript@^4.1.2:
   integrity sha1-OQYtgBmRLUNyYpjwlJPVmASMHOM=
 
 ua-parser-js@^0.7.18:
-  version "0.7.24"
-  resolved "http://registry.npm.dtstack.com/ua-parser-js/-/ua-parser-js-0.7.24.tgz#8d3ecea46ed4f1f1d63ec25f17d8568105dc027c"
-  integrity sha1-jT7OpG7U8fHWPsJfF9hWgQXcAnw=
+  version "0.7.26"
+  resolved "http://registry.npm.dtstack.com/ua-parser-js/-/ua-parser-js-0.7.26.tgz#b3731860e241419abd5b542b1a0881070d92e0ce"
+  integrity sha1-s3MYYOJBQZq9W1QrGgiBBw2S4M4=
 
 uglify-js@3.4.x:
   version "3.4.10"
@@ -13285,14 +13424,14 @@ uglify-js@3.4.x:
     source-map "~0.6.1"
 
 unbox-primitive@^1.0.0:
-  version "1.0.0"
-  resolved "http://registry.npm.dtstack.com/unbox-primitive/-/unbox-primitive-1.0.0.tgz#eeacbc4affa28e9b3d36b5eaeccc50b3251b1d3f"
-  integrity sha1-7qy8Sv+ijps9NrXq7MxQsyUbHT8=
+  version "1.0.1"
+  resolved "http://registry.npm.dtstack.com/unbox-primitive/-/unbox-primitive-1.0.1.tgz#085e215625ec3162574dc8859abee78a59b14471"
+  integrity sha1-CF4hViXsMWJXTciFmr7nilmxRHE=
   dependencies:
     function-bind "^1.1.1"
-    has-bigints "^1.0.0"
-    has-symbols "^1.0.0"
-    which-boxed-primitive "^1.0.1"
+    has-bigints "^1.0.1"
+    has-symbols "^1.0.2"
+    which-boxed-primitive "^1.0.2"
 
 unbzip2-stream@^1.0.9:
   version "1.4.3"
@@ -13432,7 +13571,7 @@ url-parse-lax@^3.0.0:
   dependencies:
     prepend-http "^2.0.0"
 
-url-parse@^1.4.3, url-parse@^1.4.7:
+url-parse@^1.4.3, url-parse@^1.5.1:
   version "1.5.1"
   resolved "http://registry.npm.dtstack.com/url-parse/-/url-parse-1.5.1.tgz#d5fa9890af8a5e1f274a2c98376510f6425f6e3b"
   integrity sha1-1fqYkK+KXh8nSiyYN2UQ9kJfbjs=
@@ -13567,9 +13706,9 @@ v8-compile-cache@^2.0.3, v8-compile-cache@^2.1.1:
   integrity sha1-LeGWGMZtwkfc+2+ZM4A12CRaLO4=
 
 v8-to-istanbul@^7.0.0:
-  version "7.1.0"
-  resolved "http://registry.npm.dtstack.com/v8-to-istanbul/-/v8-to-istanbul-7.1.0.tgz#5b95cef45c0f83217ec79f8fc7ee1c8b486aee07"
-  integrity sha1-W5XO9FwPgyF+x5+Px+4ci0hq7gc=
+  version "7.1.1"
+  resolved "http://registry.npm.dtstack.com/v8-to-istanbul/-/v8-to-istanbul-7.1.1.tgz#04bfd1026ba4577de5472df4f5e89af49de5edda"
+  integrity sha1-BL/RAmukV33lRy309eia9J3l7do=
   dependencies:
     "@types/istanbul-lib-coverage" "^2.0.1"
     convert-source-map "^1.6.0"
@@ -13582,11 +13721,6 @@ validate-npm-package-license@^3.0.1:
   dependencies:
     spdx-correct "^3.0.0"
     spdx-expression-parse "^3.0.0"
-
-value-equal@^1.0.1:
-  version "1.0.1"
-  resolved "http://registry.npm.dtstack.com/value-equal/-/value-equal-1.0.1.tgz#1e0b794c734c5c0cade179c437d356d931a34d6c"
-  integrity sha512-NOJ6JZCAWr0zlxZt+xqCHNTEKOsrks2HQd4MqhP1qy4z1SkbEP467eNx6TgDKXMvUOb+OENfJCZwM+16n7fRfw==
 
 vary@~1.1.2:
   version "1.1.2"
@@ -13674,6 +13808,13 @@ warning@4.x, warning@^4.0.1, warning@^4.0.2, warning@^4.0.3, warning@~4.0.3:
   version "4.0.3"
   resolved "http://registry.npm.dtstack.com/warning/-/warning-4.0.3.tgz#16e9e077eb8a86d6af7d64aa1e05fd85b4678ca3"
   integrity sha512-rpJyN222KWIvHJ/F53XSZv0Zl/accqHR8et1kpaMTD/fLCRxtV8iX8czMzY7sVZupTI3zcUTg8eycS2kNF9l6w==
+  dependencies:
+    loose-envify "^1.0.0"
+
+warning@^3.0.0:
+  version "3.0.0"
+  resolved "http://registry.npm.dtstack.com/warning/-/warning-3.0.0.tgz#32e5377cb572de4ab04753bdf8821c01ed605b7c"
+  integrity sha1-MuU3fLVy3kqwR1O9+IIcAe1gW3w=
   dependencies:
     loose-envify "^1.0.0"
 
@@ -13844,7 +13985,7 @@ webpack-simple-progress-plugin@^0.0.4:
     object-assign "^4.1.0"
     progress "^1.1.8"
 
-webpack-sources@^1.0.1, webpack-sources@^1.1.0, webpack-sources@^1.4.0, webpack-sources@^1.4.1, webpack-sources@^1.4.3:
+webpack-sources@^1.0.1, webpack-sources@^1.1.0, webpack-sources@^1.4.0, webpack-sources@^1.4.1:
   version "1.4.3"
   resolved "http://registry.npm.dtstack.com/webpack-sources/-/webpack-sources-1.4.3.tgz#eedd8ec0b928fbf1cbfe994e22d2d890f330a933"
   integrity sha512-lgTS3Xhv1lCOKo7SA5TjKXMjpSM4sBjNV5+q2bqesbSPs5FjGmU6jjtBSkX9b4qW87vDIsCIlUPOEhbZrMdjeQ==
@@ -13912,16 +14053,16 @@ whatwg-mimetype@^2.3.0:
   resolved "http://registry.npm.dtstack.com/whatwg-mimetype/-/whatwg-mimetype-2.3.0.tgz#3d4b1e0312d2079879f826aff18dbeeca5960fbf"
   integrity sha1-PUseAxLSB5h5+Cav8Y2+7KWWD78=
 
-whatwg-url@^8.0.0:
-  version "8.4.0"
-  resolved "http://registry.npm.dtstack.com/whatwg-url/-/whatwg-url-8.4.0.tgz#50fb9615b05469591d2b2bd6dfaed2942ed72837"
-  integrity sha1-UPuWFbBUaVkdKyvW367SlC7XKDc=
+whatwg-url@^8.0.0, whatwg-url@^8.5.0:
+  version "8.5.0"
+  resolved "http://registry.npm.dtstack.com/whatwg-url/-/whatwg-url-8.5.0.tgz#7752b8464fc0903fec89aa9846fc9efe07351fd3"
+  integrity sha1-d1K4Rk/AkD/siaqYRvye/gc1H9M=
   dependencies:
-    lodash.sortby "^4.7.0"
+    lodash "^4.7.0"
     tr46 "^2.0.2"
     webidl-conversions "^6.1.0"
 
-which-boxed-primitive@^1.0.1:
+which-boxed-primitive@^1.0.2:
   version "1.0.2"
   resolved "http://registry.npm.dtstack.com/which-boxed-primitive/-/which-boxed-primitive-1.0.2.tgz#13757bc89b209b049fe5d86430e21cf40a89a8e6"
   integrity sha512-bwZdv0AKLpplFY2KZRX6TvyuN7ojjr7lwkg6ml0roIy9YeuSr7JS372qlNW18UQYzgYK9ziGcerWqZOmEn9VNg==
@@ -14064,6 +14205,11 @@ xml-name-validator@^3.0.0:
   resolved "http://registry.npm.dtstack.com/xml-name-validator/-/xml-name-validator-3.0.0.tgz#6ae73e06de4d8c6e47f9fb181f78d648ad457c6a"
   integrity sha1-auc+Bt5NjG5H+fsYH3jWSK1FfGo=
 
+xml@^1.0.1:
+  version "1.0.1"
+  resolved "http://registry.npm.dtstack.com/xml/-/xml-1.0.1.tgz#78ba72020029c5bc87b8a81a3cfcd74b4a2fc1e5"
+  integrity sha1-eLpyAgApxbyHuKgaPPzXS0ovweU=
+
 xmlchars@^2.2.0:
   version "2.2.0"
   resolved "http://registry.npm.dtstack.com/xmlchars/-/xmlchars-2.2.0.tgz#060fe1bcb7f9c76fe2a17db86a9bc3ab894210cb"
@@ -14112,11 +14258,11 @@ yallist@^4.0.0:
   integrity sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==
 
 yaml@^1.10.0:
-  version "1.10.0"
-  resolved "http://registry.npm.dtstack.com/yaml/-/yaml-1.10.0.tgz#3b593add944876077d4d683fee01081bd9fff31e"
-  integrity sha1-O1k63ZRIdgd9TWg/7gEIG9n/8x4=
+  version "1.10.2"
+  resolved "http://registry.npm.dtstack.com/yaml/-/yaml-1.10.2.tgz#2301c5ffbf12b467de8da2333a459e29e7920e4b"
+  integrity sha1-IwHF/78StGfejaIzOkWeKeeSDks=
 
-yargs-parser@20.x:
+yargs-parser@20.x, yargs-parser@^20.2.2, yargs-parser@^20.2.3:
   version "20.2.7"
   resolved "http://registry.npm.dtstack.com/yargs-parser/-/yargs-parser-20.2.7.tgz#61df85c113edfb5a7a4e36eb8aa60ef423cbc90a"
   integrity sha1-Yd+FwRPt+1p6TjbriqYO9CPLyQo=
@@ -14129,6 +14275,14 @@ yargs-parser@^13.1.2:
     camelcase "^5.0.0"
     decamelize "^1.2.0"
 
+yargs-parser@^15.0.1:
+  version "15.0.1"
+  resolved "http://registry.npm.dtstack.com/yargs-parser/-/yargs-parser-15.0.1.tgz#54786af40b820dcb2fb8025b11b4d659d76323b3"
+  integrity sha512-0OAMV2mAZQrs3FkNpDQcBk1x5HXb8X4twADss4S0Iuk+2dGnLOE/fRHrsYm542GduMveyA77OF4wrNJuanRCWw==
+  dependencies:
+    camelcase "^5.0.0"
+    decamelize "^1.2.0"
+
 yargs-parser@^18.1.2:
   version "18.1.3"
   resolved "http://registry.npm.dtstack.com/yargs-parser/-/yargs-parser-18.1.3.tgz#be68c4975c6b2abf469236b0c870362fab09a7b0"
@@ -14136,11 +14290,6 @@ yargs-parser@^18.1.2:
   dependencies:
     camelcase "^5.0.0"
     decamelize "^1.2.0"
-
-yargs-parser@^20.2.2, yargs-parser@^20.2.3:
-  version "20.2.6"
-  resolved "http://registry.npm.dtstack.com/yargs-parser/-/yargs-parser-20.2.6.tgz#69f920addf61aafc0b8b89002f5d66e28f2d8b20"
-  integrity sha1-afkgrd9hqvwLi4kAL11m4o8tiyA=
 
 yargs@^13.3.2:
   version "13.3.2"
@@ -14157,6 +14306,23 @@ yargs@^13.3.2:
     which-module "^2.0.0"
     y18n "^4.0.0"
     yargs-parser "^13.1.2"
+
+yargs@^14.2:
+  version "14.2.3"
+  resolved "http://registry.npm.dtstack.com/yargs/-/yargs-14.2.3.tgz#1a1c3edced1afb2a2fea33604bc6d1d8d688a414"
+  integrity sha512-ZbotRWhF+lkjijC/VhmOT9wSgyBQ7+zr13+YLkhfsSiTriYsMzkTUFP18pFhWwBeMa5gUc1MzbhrO6/VB7c9Xg==
+  dependencies:
+    cliui "^5.0.0"
+    decamelize "^1.2.0"
+    find-up "^3.0.0"
+    get-caller-file "^2.0.1"
+    require-directory "^2.1.1"
+    require-main-filename "^2.0.0"
+    set-blocking "^2.0.0"
+    string-width "^3.0.0"
+    which-module "^2.0.0"
+    y18n "^4.0.0"
+    yargs-parser "^15.0.1"
 
 yargs@^15.4.1:
   version "15.4.1"

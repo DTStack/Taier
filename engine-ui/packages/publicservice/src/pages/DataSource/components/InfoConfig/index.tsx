@@ -1,0 +1,1002 @@
+import React, { useEffect, useState, useImperativeHandle } from 'react';
+import { useHistory } from 'react-router';
+import {
+  Form,
+  Input,
+  Button,
+  Upload,
+  Icon,
+  message,
+  Select,
+  Radio,
+  InputNumber,
+  Tooltip,
+  Switch,
+} from 'antd';
+import { FormComponentProps } from 'antd/es/form';
+import copy from 'copy-to-clipboard';
+import moment from 'moment';
+import { API } from '@/services';
+
+import downloadFile from '@/utils/downloadFile';
+import { checks, getSaveStatus } from '../../utils/handelSession';
+import {
+  getRules,
+  getRulesJdbc,
+  IParams,
+  formItemLayout,
+  formNewLayout,
+} from './formRules';
+import '../../List/style.scss';
+import { HDFSCONG } from '../../constants/index';
+import { hdfsConfig } from './tooltips';
+
+const { TextArea } = Input;
+const { Option } = Select;
+
+interface IProps extends FormComponentProps {
+  cRef: any;
+  record: any;
+  form: any;
+}
+
+const InfoConfig = (props) => {
+  const history = useHistory();
+  const { form, cRef, record } = props;
+  const {
+    getFieldDecorator,
+    validateFields,
+    getFieldValue,
+    setFieldsValue,
+  } = form;
+
+  const [templateData, setTemplateData] = useState([]);
+  const [showUpload, setShowUpload] = useState<boolean>(false);
+  const [file, setFile] = useState(null);
+  const [fileList, setFileList] = useState([]);
+  const [otherParams, setOtherParams] = useState<IParams>({
+    dataType: '',
+    dataVersion: '',
+    appTypeList: [],
+  });
+
+  const [webSocketParams, setWebSocketParams] = useState({});
+  const [principalsList, setPrincipalsList] = useState([]);
+
+  //定制化组件编辑渲染
+  const [detailData, setDetailData] = useState(null);
+
+  useImperativeHandle(cRef, () => ({
+    testForm: () => {
+      testForm(false);
+    },
+    submitForm: () => {
+      testForm(true);
+    },
+  }));
+
+  const templateForm = async () => {
+    let saveStatus = getSaveStatus();
+    let dataType = saveStatus.sqlType?.dataType || ''; //数据库名称
+    let dataVersion = saveStatus.version; //版本号
+    let { data } = await API.findTemplateByTypeVersion({
+      dataType: record?.dataType || dataType,
+      dataVersion: record?.dataVersion || dataVersion,
+    });
+    return (await data) || [];
+  };
+
+  const getDetail = async () => {
+    let { data } = await API.detail({
+      dataInfoId: record?.dataInfoId,
+    });
+    return (await data) || [];
+  };
+
+  const getAllData = async () => {
+    let { fromFieldVoList } = await templateForm();
+    if (record) {
+      let detailData = await getDetail();
+      if (detailData) {
+        fromFieldVoList.forEach((item, index) => {
+          if (item.label === '数据源名称') {
+            item.disabled = true;
+          }
+          if (item.invisible === 1) {
+            fromFieldVoList.splice(index, 1); //if invisible delete item
+          }
+          item.initialValue =
+            detailData[item.name] || JSON.parse(detailData.dataJson)[item.name];
+          setDetailData(JSON.parse(detailData.dataJson));
+
+          //webSocket定制化
+          setWebSocketParams(
+            JSON.parse(detailData.dataJson)?.webSocketParams || {}
+          );
+        });
+      }
+    } else {
+      fromFieldVoList.forEach((item, index) => {
+        if (item.label === '数据源类型') {
+          item.disabled = true;
+        }
+        if (item.invisible === 1) {
+          fromFieldVoList.splice(index, 1); //delete item
+        }
+      });
+    }
+    setTemplateData(fromFieldVoList || []);
+  };
+
+  const getParams = () => {
+    let saveStatus = getSaveStatus();
+    let dataType = record.dataType || saveStatus.sqlType?.dataType;
+    let dataVersion = record.dataVersion || saveStatus.version;
+    let appTypeList = record.appNames?.split(',') || checks;
+
+    setOtherParams({
+      dataType,
+      dataVersion,
+      appTypeList,
+    });
+  };
+
+  useEffect(() => {
+    getAllData();
+    getParams();
+  }, []);
+
+  // 提交
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    validateFields((err, fieldsValue) => {
+      if (!err) {
+        console.log('values', fieldsValue);
+      }
+    });
+  };
+
+  //父组件-测试连通性方法
+  const testForm = (submit?: boolean) => {
+    validateFields(async (err, fieldsValue) => {
+      if (!err) {
+        let handelParams: any = { ...otherParams };
+        handelParams.dataName = fieldsValue.dataName.trim();
+        handelParams.dataDesc = fieldsValue.dataDesc.trim();
+        delete fieldsValue.dataName;
+        delete fieldsValue.dataDesc;
+        delete fieldsValue.dataType;
+        if (record) {
+          //edit need id
+          handelParams.id = record.dataInfoId;
+        }
+
+        //webSocket定制化
+        if (JSON.stringify(webSocketParams) !== '{}') {
+          fieldsValue.webSocketParams = webSocketParams;
+        }
+
+        //Remove leading and trailing spaces
+        for (const key in fieldsValue) {
+          if (typeof fieldsValue[key] === 'string') {
+            fieldsValue[key] = fieldsValue[key].trim();
+          }
+        }
+
+        if (getFieldValue('kerberosFile')) {
+          handelParams.file = fieldsValue.kerberosFile;
+          delete fieldsValue.openKerberos;
+          delete fieldsValue.kerberosFile;
+          delete handelParams.appTypeList;
+
+          handelParams.appTypeListString = otherParams.appTypeList.toString();
+          handelParams.dataJsonString = JSON.stringify(fieldsValue);
+
+          let { success, message: msg } = await API.testConWithKerberos(
+            handelParams
+          );
+          if (success) {
+            if (submit) {
+              submitForm(handelParams);
+            } else {
+              message.success('连接成功');
+            }
+          } else {
+            message.error(`${msg}`);
+          }
+        } else {
+          handelParams.dataJson = fieldsValue;
+
+          let { success, message: msg } = await API.testCon(handelParams);
+          if (success) {
+            if (submit) {
+              submitForm(handelParams);
+            } else {
+              message.success('连接成功');
+            }
+          } else {
+            message.error(`${msg}`);
+          }
+        }
+      }
+    });
+  };
+
+  //父组件-确定
+  const submitForm = (handelParams) => {
+    validateFields(async (err, fieldsValue) => {
+      //验证字段
+      if (!err) {
+        if (showUpload) {
+          let { success, message: msg } = await API.addDatasourceWithKerberos(
+            handelParams
+          );
+          if (success) {
+            message.success('添加数据源成功');
+            history.push('/data-source');
+          } else {
+            message.error(`${msg}`);
+          }
+        } else {
+          let { success, message: msg } = await API.addDatasource(handelParams);
+          if (success) {
+            message.success('添加数据源成功');
+            history.push('/data-source');
+          } else {
+            message.error(`${msg}`);
+          }
+        }
+      }
+    });
+  };
+  //3.switch处理upload方法
+  // const switchChange = (value, label, name) => {
+  //   if (label === '开启Kerberos认证') {
+  //     setShowUpload(value);
+  //     if (!value) {
+  //       setFileList([]);
+  //       setFile('');
+  //     }
+  //   }
+  // };
+  //InputWithCopy｜TextAreaWithCopy之复制功能
+  const handleCopy = (item) => {
+    if (copy(item.placeHold)) {
+      message.success('复制成功');
+    } else message.error('复制失败，请手动复制');
+  };
+
+  //下载模板
+  const downloadtemplate = async () => {
+    try {
+      const res = await API.downloadtemplate(
+        {},
+        {
+          responseType: 'blob',
+        }
+      );
+      downloadFile(res);
+    } catch (error) {}
+  };
+
+  //WebSocket定制化处理方式
+  const addWsParams = () => {
+    let params = Object.assign({}, webSocketParams);
+    params[''] = '';
+    if (validateIsEmpty(webSocketParams)) {
+      message.warning('请先完整填写参数!');
+      return;
+    }
+    if (Object.keys(webSocketParams).length === 20) {
+      message.warning('最多可添加20行鉴权参数!');
+      return;
+    }
+    setWebSocketParams(params);
+  };
+  const validateIsEmpty = (params) => {
+    return (
+      Object.keys(params).includes('') || Object.values(params).includes('')
+    );
+  };
+  const delWsParams = (index: number) => {
+    let params = Object.assign({}, webSocketParams);
+    delete params[Object.keys(webSocketParams)[index]];
+    setWebSocketParams(params);
+  };
+  const editWsParams = (e, index: number, type: 'key' | 'value') => {
+    const { value } = e.target;
+    let params = Object.assign({}, webSocketParams);
+    if (type === 'key') {
+      const entriesArr = Object.entries(params);
+      entriesArr[index][0] = value;
+      params = (Object as any).fromEntries(entriesArr);
+    } else {
+      params[Object.keys(webSocketParams)[index]] = value;
+    }
+    setWebSocketParams(params);
+  };
+
+  const renderWebSocketParams = () => {
+    let inputFormsData = [];
+    for (let [key, value] of Object.entries(webSocketParams)) {
+      inputFormsData.push({
+        key,
+        value,
+      });
+    }
+    return inputFormsData.map((ws, index) => {
+      return (
+        <div key={index} className="ws-form">
+          <Input
+            onChange={(e) => {
+              editWsParams(e, index, 'key');
+            }}
+            value={ws.key}
+            placeholder="请输入key值"
+          />{' '}
+          : &nbsp;
+          <Input
+            onChange={(e) => {
+              editWsParams(e, index, 'value');
+            }}
+            value={ws.value}
+            type="password"
+            placeholder="请输入value值"
+          />
+          <a
+            onClick={() => {
+              delWsParams(index);
+            }}>
+            删除
+          </a>
+        </div>
+      );
+    });
+  };
+
+  //Kerberos||HbaseKerberos定制化
+  const principalsOptions = principalsList.map((item: any) => (
+    <Option key={item} value={item}>
+      {item}
+    </Option>
+  ));
+
+  const getPrincipalsWithConf = async (
+    kerberosFile?: any,
+    callBack?: Function
+  ) => {
+    let princiPrams = { ...otherParams };
+    delete princiPrams.appTypeList;
+    const res = await await API.uploadCode({
+      file: kerberosFile,
+      ...princiPrams,
+    });
+    if (res.success) {
+      setFile(file); //设置file的名字 后续接口传参
+      setFileList(fileList); //控制上传列表数量
+      message.success('上传成功');
+    } else {
+      message.error('上传失败!');
+    }
+    callBack && callBack(res);
+  };
+
+  const uploadForm = () => {
+    const nullArr: any[] = [];
+    const upProps = {
+      beforeUpload: (file: any) => {
+        file.modifyTime = moment();
+        getPrincipalsWithConf(file, (res: any) => {
+          if (res.code !== 1) {
+            setFieldsValue({
+              [`kerberosFile`]: '',
+            });
+            return;
+          }
+          // 上传文件前清空 masterKer、regionserverKer
+          setFieldsValue({
+            [`kerberosFile`]: file,
+            [`principal`]: res.data[0],
+            [`hbase_master_kerberos_principal`]: '',
+            [`hbase_regionserver_kerberos_principal`]: '',
+          });
+          setPrincipalsList(res.data);
+          // setState({
+          //   masterKer: '',
+          //   regionserverKer: '',
+          // });
+        });
+        return false;
+      },
+      fileList: nullArr,
+      name: 'file',
+      accept: '.zip',
+    };
+    return (
+      <Form.Item {...formNewLayout} label="">
+        {getFieldDecorator(`kerberosFile`, {
+          rules: [
+            {
+              required: true,
+              message: '文件不可为空！',
+            },
+          ],
+          initialValue: detailData?.kerberosFile || '',
+        })(<div />)}
+        <div
+          style={{
+            display: 'flex',
+          }}>
+          <Upload {...upProps}>
+            <Button style={{ color: '#999' }}>
+              <Icon type="upload" /> Click to upload
+            </Button>
+            <p>上传单个文件，支持扩展格式：.zip</p>
+          </Upload>
+          <div style={{ marginLeft: -40 }}>
+            <Tooltip title="仅支持Zip格式，压缩包需包含xxx.keytab、krb5.config文件。上传文件前，请在控制台开启SFTP服务。">
+              <Icon
+                type="question-circle-o"
+                style={{
+                  fontSize: '14px',
+                  marginTop: '11px',
+                  marginLeft: '10px',
+                  color: '#999',
+                }}
+              />
+            </Tooltip>
+            <span onClick={downloadtemplate} className="down-temp">
+              下载文件模板
+            </span>
+          </div>
+        </div>
+        {getFieldValue(`kerberosFile`) ? (
+          <div
+            style={{
+              width: '100%',
+              position: 'relative',
+            }}>
+            <Icon
+              type="close"
+              style={{
+                cursor: 'pointer',
+                position: 'absolute',
+                right: '5px',
+                top: '11px',
+                zIndex: 99,
+              }}
+              onClick={() => {
+                setFieldsValue({
+                  [`kerberosFile`]: '',
+                });
+              }}
+            />
+            <Input
+              value={
+                getFieldValue(`kerberosFile`).name +
+                '   ' +
+                moment(getFieldValue(`kerberosFile`).modifyTime).format(
+                  'YYYY-MM-DD HH:mm:ss'
+                )
+              }
+            />
+          </div>
+        ) : null}
+      </Form.Item>
+    );
+  };
+
+  //渲染表单方法
+  const formItem = templateData.map((item) => {
+    switch (item.widget) {
+      case 'Input':
+        return (
+          <Form.Item label={item.label}>
+            {getFieldDecorator(
+              `${item.name}`,
+              getRulesJdbc(item)
+            )(
+              <Input
+                placeholder={item.placeHold || `请输入${item.label}`}
+                disabled={item.disabled}
+              />
+            )}
+            {item.tooltip && (
+              <Tooltip title={item.tooltip}>
+                <Icon className="help-doc" type="question-circle-o" />
+              </Tooltip>
+            )}
+          </Form.Item>
+        );
+      case 'InputWithCopy':
+        return (
+          <Form.Item label={item.label}>
+            {getFieldDecorator(
+              `${item.name}`,
+              getRules(item)
+            )(
+              <Input
+                placeholder={item.placeHold || `请输入${item.label}`}
+                disabled={item.disabled}
+              />
+            )}
+            <Icon
+              className="help-doc"
+              type="copy"
+              onClick={() => handleCopy(item)}
+            />
+          </Form.Item>
+        );
+      case 'Select':
+        return (
+          <Form.Item label={item.label}>
+            {getFieldDecorator(
+              `${item.name}`,
+              getRules(item)
+            )(
+              <Select placeholder={item.placeHold || `请输入${item.label}`}>
+                <Option value="male">male</Option>
+                <Option value="female">female</Option>
+              </Select>
+            )}
+          </Form.Item>
+        );
+      case 'TextArea':
+        return (
+          <Form.Item label={item.label}>
+            {getFieldDecorator(
+              `${item.name}`,
+              getRulesJdbc(item)
+            )(
+              <TextArea
+                rows={4}
+                placeholder={item.placeHold || `请输入${item.label}`}
+              />
+            )}
+          </Form.Item>
+        );
+      case 'TextAreaWithCopy':
+        return (
+          <Form.Item label={item.label}>
+            {getFieldDecorator(
+              `${item.name}`,
+              getRules(item)
+            )(<TextArea id="copy" rows={4} placeholder={item.placeHold} />)}
+            {item.tooltip && (
+              <Tooltip title={hdfsConfig} className="help-tooltip">
+                <Icon type="question-circle-o" />
+              </Tooltip>
+            )}
+
+            <Icon
+              className="help-doc"
+              type="copy"
+              onClick={() => handleCopy(item)}
+            />
+          </Form.Item>
+        );
+      case 'RichText':
+        return (
+          <Form.Item label={item.label}>
+            {getFieldDecorator(
+              `${item.name}`,
+              getRules(item)
+            )(<p>{item.defaultValue}</p>)}
+          </Form.Item>
+        );
+      case 'Upload':
+        return (
+          <Form.Item label={item.label}>
+            {getFieldDecorator(
+              `${item.name}`,
+              getRules(item)
+            )(
+              <div>
+                <Switch
+                  onChange={(checked) => {
+                    setShowUpload(checked);
+                  }}
+                />
+                {showUpload && (
+                  <div style={{ display: 'flex' }}>
+                    <Upload>
+                      <Button>
+                        <Icon type="upload" /> Click to upload
+                      </Button>
+                      <p>上传单个文件，支持扩展格式：.zip</p>
+                    </Upload>
+                    <div style={{ marginLeft: -40 }}>
+                      <Icon type="question-circle" />
+                      <span onClick={downloadtemplate} className="down-temp">
+                        下载文件模板
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </Form.Item>
+        );
+      case 'Password':
+        return (
+          <Form.Item label={item.label}>
+            {getFieldDecorator(
+              `${item.name}`,
+              getRules(item)
+            )(
+              <Input.Password
+                placeholder={item.placeHold || `请输入${item.label}`}
+              />
+            )}
+          </Form.Item>
+        );
+      case 'Radio':
+        return (
+          <Form.Item label={item.label}>
+            {getFieldDecorator(
+              `${item.name}`,
+              getRules(item)
+            )(
+              <Radio.Group>
+                <Radio value={1}>默认</Radio>
+                <Radio value={2}>自定义</Radio>
+              </Radio.Group>
+            )}
+          </Form.Item>
+        );
+      case 'Integer':
+        return (
+          <Form.Item label={item.label}>
+            {getFieldDecorator(
+              `${item.name}`,
+              getRules(item)
+            )(<InputNumber style={{ width: '100%' }} />)}
+          </Form.Item>
+        );
+      case 'Switch':
+        return (
+          <Form.Item label={item.label}>
+            {getFieldDecorator(`${item.name}`, getRules(item))(<Switch />)}
+          </Form.Item>
+        );
+      // 定制化内容
+      case 'Kerberos':
+        return (
+          <>
+            <Form.Item label={item.label}>
+              {getFieldDecorator(`${item.name}`, {
+                valuePropName: 'checked',
+                initialValue: detailData?.openKerberos || false,
+              })(
+                <Switch
+                // onChange={(checked) =>
+                //   switchChange(checked, item.label, item.name)
+                // }
+                />
+              )}
+            </Form.Item>
+
+            {getFieldValue('openKerberos') && uploadForm()}
+
+            {getFieldValue('kerberosFile') && getFieldValue('openKerberos') && (
+              <Form.Item label="Kerberos Principal">
+                {getFieldDecorator('principal', {
+                  rules: [
+                    {
+                      required: true,
+                      message: 'Kerberos Principal不可为空',
+                    },
+                  ],
+                  initialValue:
+                    detailData?.principal || principalsList[0] || '',
+                })(<Select>{principalsOptions}</Select>)}
+              </Form.Item>
+            )}
+          </>
+        );
+      case 'HbaseKerberos':
+        return (
+          <>
+            <Form.Item label="开启Kerberos认证">
+              {getFieldDecorator('openKerberos', {
+                valuePropName: 'checked',
+                initialValue: detailData?.openKerberos || false,
+              })(
+                <Switch
+                // onChange={(checked) =>
+                //   switchChange(checked, item.label, item.name)
+                // }
+                />
+              )}
+            </Form.Item>
+
+            {getFieldValue('openKerberos') && uploadForm()}
+
+            {getFieldValue('kerberosFile') && getFieldValue('openKerberos') && (
+              <>
+                <Form.Item label="client.principal">
+                  {getFieldDecorator('principal', {
+                    initialValue:
+                      detailData?.principal || principalsList[0] || '',
+                    rules: [
+                      {
+                        required: true,
+                        message: 'client.principal不能为空',
+                      },
+                    ],
+                  })(<Select>{principalsOptions}</Select>)}
+                </Form.Item>
+                <Form.Item label="master.kerberos">
+                  {getFieldDecorator('hbase_master_kerberos_principal', {
+                    initialValue: '',
+                    rules: [
+                      {
+                        required: true,
+                        message: 'master.kerberos不能为空',
+                      },
+                      {
+                        max: 128,
+                        message: 'master.kerberos不可超过128个字符',
+                      },
+                    ],
+                  })(<Input />)}
+                </Form.Item>
+                <Form.Item label="regioserver.kerberos">
+                  {getFieldDecorator('hbase_regionserver_kerberos_principal', {
+                    initialValue: '',
+                    rules: [
+                      {
+                        required: true,
+                        message: 'regioserver.kerberos不能为空',
+                      },
+                      {
+                        max: 128,
+                        message: 'regioserver.kerberos不可超过128个字符',
+                      },
+                    ],
+                  })(<Input />)}
+                </Form.Item>
+              </>
+            )}
+          </>
+        );
+      case 'FtpReact':
+        return (
+          <>
+            <Form.Item label="协议">
+              {getFieldDecorator('protocol', {
+                initialValue: detailData?.protocol || 'FTP',
+                rules: [
+                  {
+                    required: true,
+                    message: '协议不能为空',
+                  },
+                ],
+              })(
+                <Radio.Group>
+                  <Radio value="FTP">FTP</Radio>
+                  <Radio value="SFTP">SFTP</Radio>
+                </Radio.Group>
+              )}
+            </Form.Item>
+            {getFieldValue('protocol') === 'FTP' && (
+              <Form.Item label="连接模式">
+                {getFieldDecorator('connectMode', {
+                  initialValue: detailData?.connectMode || 'PORT',
+                  rules: [
+                    {
+                      required: true,
+                      message: '连接模式不能为空',
+                    },
+                  ],
+                })(
+                  <Radio.Group>
+                    <Radio value="PORT">Port (主动)</Radio>
+                    <Radio value="PASV">Pasv（被动）</Radio>
+                  </Radio.Group>
+                )}
+              </Form.Item>
+            )}
+
+            {getFieldValue('protocol') === 'SFTP' && (
+              <>
+                <Form.Item label="认证方式">
+                  {getFieldDecorator('auth', {
+                    initialValue: detailData?.auth || 1,
+                    rules: [
+                      {
+                        required: true,
+                        message: '认证方式不能为空',
+                      },
+                    ],
+                  })(
+                    <Radio.Group>
+                      <Radio value={1}>密码</Radio>
+                      <Radio value={2}>私钥</Radio>
+                    </Radio.Group>
+                  )}
+                </Form.Item>
+
+                {getFieldValue('auth') === 2 && (
+                  <Form.Item label="私钥地址">
+                    {getFieldDecorator('rsaPath', {
+                      initialValue: '~/.ssh/id_rsa',
+                      rules: [
+                        {
+                          required: true,
+                          message: '私钥地址不能为空',
+                        },
+                      ],
+                    })(<Input />)}
+                    <Tooltip
+                      title="用户的私钥储存路径，默认为~/.ssh/id_rsa"
+                      arrowPointAtCenter>
+                      <Icon className="help-doc" type="question-circle-o" />
+                    </Tooltip>
+                  </Form.Item>
+                )}
+              </>
+            )}
+          </>
+        );
+      case 'CarbonReact':
+        return (
+          <>
+            <Form.Item label="HDFS配置">
+              {getFieldDecorator('hdfsCustomConfig', {
+                initialValue: detailData?.hdfsCustomConfig || 'default',
+              })(
+                <Radio.Group>
+                  <Radio value="default">默认</Radio>
+                  <Radio value="custom">custom</Radio>
+                </Radio.Group>
+              )}
+            </Form.Item>
+
+            {getFieldValue('hdfsCustomConfig') === 'custom' && (
+              <>
+                <Form.Item label="defaultFS">
+                  {getFieldDecorator('defaultFS', {
+                    initialValue: detailData?.defaultFS || '',
+                    rules: [
+                      {
+                        required: true,
+                        message: 'defaultFS不能为空',
+                      },
+                    ],
+                  })(<Input placeholder="hdfs://host:port" />)}
+                </Form.Item>
+
+                <Form.Item label="高可用配置">
+                  {getFieldDecorator('hadoopConfig', {
+                    initialValue: detailData?.hadoopConfig || '',
+                  })(<TextArea id="copy" rows={4} placeholder={HDFSCONG} />)}
+                  <Tooltip title={hdfsConfig} className="help-tooltip">
+                    <Icon type="question-circle-o" />
+                  </Tooltip>
+                  <Icon
+                    className="help-doc"
+                    type="copy"
+                    onClick={() =>
+                      handleCopy({
+                        label: '高可用配置',
+                        placeHold: HDFSCONG,
+                      })
+                    }
+                  />
+                </Form.Item>
+              </>
+            )}
+          </>
+        );
+      case 'RedisReact':
+        return (
+          <>
+            <Form.Item label="模式">
+              {getFieldDecorator('redisType', {
+                initialValue: detailData?.redisType || 1,
+                rules: [
+                  {
+                    required: true,
+                    message: '模式不能为空',
+                  },
+                ],
+              })(
+                <Radio.Group>
+                  <Radio value={1}>单机</Radio>
+                  <Radio value={2}>集群</Radio>
+                  <Radio value={3}>哨兵</Radio>
+                </Radio.Group>
+              )}
+            </Form.Item>
+            <Form.Item label="地址">
+              {getFieldDecorator('hostPort', {
+                initialValue: detailData?.hostPort || '',
+                rules: [
+                  {
+                    required: true,
+                    message: '地址不能为空',
+                  },
+                ],
+              })(
+                <TextArea
+                  rows={4}
+                  placeholder={
+                    getFieldValue('redisType') === 1
+                      ? 'Redis地址，例如：IP1:Port'
+                      : 'Redis地址，例如：IP1:Port，多个地址以英文逗号分开'
+                  }
+                />
+              )}
+            </Form.Item>
+            {getFieldValue('redisType') === 3 && (
+              <Form.Item label="master名称">
+                {getFieldDecorator('masterName', {
+                  initialValue: detailData?.masterName || '',
+                  rules: [
+                    {
+                      required: true,
+                      message: 'master名称不能为空',
+                    },
+                  ],
+                })(<Input placeholder="请输入master名称" />)}
+              </Form.Item>
+            )}
+            {(getFieldValue('redisType') === 1 ||
+              getFieldValue('redisType') === 3) && (
+              <Form.Item label="数据库">
+                {getFieldDecorator('database', {
+                  initialValue: detailData?.database || '',
+                })(<Input />)}
+              </Form.Item>
+            )}
+            <Form.Item label="密码">
+              {getFieldDecorator('password', {
+                initialValue: detailData?.password || '',
+              })(<Input.Password />)}
+            </Form.Item>
+          </>
+        );
+      case 'WebSocketSub':
+        return (
+          <Form.Item label="鉴权参数" key="webSocketParams">
+            {renderWebSocketParams()}
+            <span className="ws-add" onClick={addWsParams}>
+              <Icon type="plus-circle-o" />
+              <span>新增参数</span>
+            </span>
+          </Form.Item>
+        );
+
+      default:
+        break;
+    }
+  });
+
+  return (
+    <div>
+      <Form {...formItemLayout} onSubmit={handleSubmit}>
+        <Form.Item label="数据源类型">
+          {getFieldDecorator('dataType', {
+            initialValue: otherParams.dataType + otherParams.dataVersion,
+            rules: [
+              {
+                required: true,
+                message: '数据源类型不能为空',
+              },
+            ],
+          })(<Input disabled />)}
+        </Form.Item>
+        {formItem}
+
+        {/* 1.Kerberos测试完成 */}
+        {/* 2.HbaseKerberos待测试 */}
+        {/* 3.ftp定制化测试完成 */}
+        {/* 4.CarbonData定制化测试完成 */}
+        {/* 5.WebSocket定制化 */}
+        {/* 6.redis定制化待测试 */}
+      </Form>
+    </div>
+  );
+};
+export default Form.create<IProps>({})(InfoConfig);

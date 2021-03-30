@@ -1,6 +1,7 @@
 import React from 'react';
 import { Breadcrumb } from 'antd';
-import { withRouter } from 'react-router-dom';
+// import { withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router';
 
 interface IBreadcrumbLink {
   label: string;

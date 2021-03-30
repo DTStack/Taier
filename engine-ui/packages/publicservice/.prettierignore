@@ -1,3 +1,6 @@
 /.vscode/
 /dll/
 /public/
+/dist/
+/.scannerwork/
+/coverage/
