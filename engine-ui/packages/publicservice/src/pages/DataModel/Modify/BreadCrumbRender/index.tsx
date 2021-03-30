@@ -11,16 +11,16 @@ interface IBreadcrumbLink {
 
 interface IPropsBreadcrumbRender {
   links: IBreadcrumbLink[];
-  history?: any;
+  router?: any;
 }
 
 const BreadcrumbRender = (props: IPropsBreadcrumbRender) => {
-  const { links, history } = props;
+  const { links, router } = props;
   return (
     <Breadcrumb>
       {links.map((item) => {
         const { onClick, href } = item;
-        let callback = () => history.push(href);
+        let callback = () => router.push(href);
         if (typeof onClick === 'function') callback = onClick;
         return (
           <Breadcrumb.Item>

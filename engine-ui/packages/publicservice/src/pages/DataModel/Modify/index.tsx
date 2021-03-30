@@ -34,8 +34,8 @@ const identifyColumns = idGenerator();
 const identifyJoinList = idGenerator();
 interface IPropsModify {
   form: any;
-  history?: any;
-  match?: any;
+  router?: any;
+  params: any;
 }
 
 enum EnumModifyMode {
@@ -46,11 +46,11 @@ enum EnumModifyMode {
 const { Step } = Steps;
 
 const Modify = (props: IPropsModify) => {
-  const _id = props.match.params.id;
+  const { form, router, params } = props;
+  const _id = params.id;
   const modelId: number = _id ? parseInt(_id) : _id;
   const mode = modelId === undefined ? EnumModifyMode.ADD : EnumModifyMode.EDIT;
   const breadcrumTitle = mode === EnumModifyMode.ADD ? '新建模型' : '编辑模型';
-  const { form } = props;
   const { validateFields, getFieldsValue, setFieldsValue } = form;
 
   const [current, setCurrent] = useState<EnumModifyStep>(
@@ -536,7 +536,7 @@ const Modify = (props: IPropsModify) => {
               {current === EnumModifyStep.BASIC_STEP ? (
                 <Button
                   className="margin-right-8 width-80"
-                  onClick={() => props.history.push('/data-model/list')}>
+                  onClick={() => router.push('/data-model/list')}>
                   取消
                 </Button>
               ) : null}

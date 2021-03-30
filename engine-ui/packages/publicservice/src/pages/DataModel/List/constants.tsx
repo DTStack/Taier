@@ -25,7 +25,7 @@ export const columnsGenerator = ({
   handleDeleteBtnClick,
   handleModelNameClick,
   dataSourceFilterOptions,
-  history,
+  router,
 }) => {
   return [
     {
@@ -144,7 +144,7 @@ export const columnsGenerator = ({
         const btnEdit = (
           <a
             onClick={() => {
-              history.push(`/data-model/edit/${record.id}`);
+              router.push(`/data-model/edit/${record.id}`);
             }}>
             编辑
           </a>
