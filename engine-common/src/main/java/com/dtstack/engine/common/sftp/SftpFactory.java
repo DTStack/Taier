@@ -21,7 +21,7 @@ import java.util.Properties;
  */
 public class SftpFactory extends BasePooledObjectFactory<ChannelSftp>  {
 
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(SftpFactory.class);
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(SftpFactory.class);
 
     private static final int DEFAULT_RETRY_TIMES = 3;
     private static final int SLEEP_TIME_MILLI_SECOND = 2000;
@@ -57,7 +57,7 @@ public class SftpFactory extends BasePooledObjectFactory<ChannelSftp>  {
         try {
             return create(DEFAULT_RETRY_TIMES);
         } catch (Exception e) {
-            logger.error("Create ChannelSftp error : " + e);
+            LOGGER.error("Create ChannelSftp error : " + e);
             throw new RuntimeException(e);
         }
     }
@@ -91,7 +91,7 @@ public class SftpFactory extends BasePooledObjectFactory<ChannelSftp>  {
         ChannelSftp channelSftp = (ChannelSftp) session.openChannel("sftp");
         channelSftp.connect();
 
-        logger.info("create执行, 与ftp服务器建立连接成功 : " + channelSftp);
+        LOGGER.info("create执行, 与ftp服务器建立连接成功 : " + channelSftp);
 
         return channelSftp;
 
@@ -117,14 +117,14 @@ public class SftpFactory extends BasePooledObjectFactory<ChannelSftp>  {
 
         if (channelSftp != null) {
             try {
-                logger.info("SftpFactory destroyObject is called");
+                LOGGER.info("SftpFactory destroyObject is called");
                 channelSftp.disconnect();
                 channelSftp.getSession().disconnect();
             } catch (JSchException e) {
-                logger.error("destroySftpObject error: ", e);
+                LOGGER.error("destroySftpObject error: ", e);
             }
         } else {
-            logger.error("When destroyObject channelSftp, channelSftp is null");
+            LOGGER.error("When destroyObject channelSftp, channelSftp is null");
         }
 
 

@@ -22,6 +22,7 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.flink.FlinkClientBuilder;
 import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.enums.ClusterMode;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.deployment.ClusterClientFactory;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
@@ -109,4 +110,24 @@ public abstract class AbstractClientFactory implements IClientFactory {
         return classpaths;
     }
 
+    /**
+     * 插件包及Lib包提前上传至HDFS，设置远程HDFS路径参数
+     * @param flinkConfig 控制台flink配置
+     * @param conf   YarnClusterDescriptor flinkConfiguration
+     * @return  YarnClusterDescriptor flinkConfiguration
+     */
+    public Configuration setHdfsFlinkJarPath(FlinkConfig flinkConfig, Configuration flinkConfiguration){
+        //检查HDFS上是否已经上传插件包及Lib包
+        String remoteFlinkJarPath = flinkConfig.getRemoteFlinkJarPath();
+        //remotePluginRootDir默认为/data/insight_plugin/flinkplugin, 不可能为空
+        String remotePluginRootDir = flinkConfig.getRemotePluginRootDir();
+        //不考虑二者只有其一上传到了hdfs上的情况
+        if(StringUtils.startsWith(remoteFlinkJarPath, "hdfs://") && StringUtils.startsWith(remotePluginRootDir, "hdfs://")){
+            flinkConfiguration.setString("remoteFlinkJarPath", remoteFlinkJarPath);
+            flinkConfiguration.setString("remotePluginRootDir", remotePluginRootDir);
+            flinkConfiguration.setString("flinkJarPath", flinkConfig.getFlinkJarPath());
+            flinkConfiguration.setString("flinkPluginRoot", flinkConfig.getFlinkPluginRoot());
+        }
+        return flinkConfiguration;
+    }
 }

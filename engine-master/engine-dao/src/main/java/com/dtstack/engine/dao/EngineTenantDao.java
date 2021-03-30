@@ -29,6 +29,6 @@ public interface EngineTenantDao {
 
     EngineTenant getByTenantIdAndEngineType(@Param("dtuicTenantId") Long dtuicTenantId, @Param("engineType")Integer engineType);
 
-    Long getClusterIdByTenantId(@Param("tenantId") Long tenantId);
+    Long getClusterIdByTenantId(@Param("dtuicTenantId") Long dtuicTenantId);
 }
 

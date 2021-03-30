@@ -474,6 +474,34 @@ public class EnvironmentContext {
         return Integer.valueOf(environment.getProperty("dataSource.time.between.eviction.runs.millis", "60000"));
     }
 
+    /**控制任务展开层数**/
+    public Integer getJobJobLevel(){
+        return Integer.valueOf(environment.getProperty("max.jobJob.level","20"));
+    }
+
+    /**控制工作流节点展开层数**/
+    public Integer getWorkFlowLevel(){
+        return Integer.valueOf(environment.getProperty("max.workFlow.level","20"));
+    }
+
+    public Boolean getUseOptimize(){
+
+        return Boolean.parseBoolean(environment.getProperty("engine.useOptimize","true"));
+    }
+
+    public int getMaxDeepShow() {
+        return Integer.parseInt(environment.getProperty("max.deep.show", "20"));
+    }
+
+    /**
+     * 是否开启任务调度
+     *
+     * @return
+     */
+    public boolean openJobSchedule() {
+        return Boolean.parseBoolean(environment.getProperty("job.schedule", "true"));
+    }
+
     public boolean getKeepAlive() {
         return Boolean.parseBoolean(environment.getProperty("dataSource.keep.alive", "true"));
     }
@@ -507,34 +535,9 @@ public class EnvironmentContext {
         return Integer.valueOf(environment.getProperty("dataSource.max.prepared.statement.per.connection.size", "20"));
     }
 
-    /**控制任务展开层数**/
-    public Integer getJobJobLevel(){
-        return Integer.valueOf(environment.getProperty("max.jobJob.level","20"));
+    public long getForkJoinResultTimeOut() {
+        return Long.parseLong(environment.getProperty("fork.join.timeout", Long.toString(60 * 5)));
     }
-
-    /**控制工作流节点展开层数**/
-    public Integer getWorkFlowLevel(){
-        return Integer.valueOf(environment.getProperty("max.workFlow.level","20"));
-    }
-
-    public Boolean getUseOptimize(){
-
-        return Boolean.parseBoolean(environment.getProperty("engine.useOptimize","true"));
-    }
-
-    public int getMaxDeepShow() {
-        return Integer.parseInt(environment.getProperty("max.deep.show", "20"));
-    }
-
-    /**
-     * 是否开启任务调度
-     *
-     * @return
-     */
-    public boolean openJobSchedule() {
-        return Boolean.parseBoolean(environment.getProperty("job.schedule", "true"));
-    }
-
     /**
      * 是否根据版本加载默认的配置
      *

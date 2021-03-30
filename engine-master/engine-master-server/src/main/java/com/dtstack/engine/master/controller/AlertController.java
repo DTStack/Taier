@@ -15,6 +15,7 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.config.MvcConfig;
 import com.dtstack.engine.master.event.SftpDownloadEvent;
 import com.dtstack.engine.master.impl.AlertChannelService;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.utils.CheckUtils;
 import com.dtstack.lang.data.R;
@@ -43,7 +44,7 @@ import java.util.List;
 @RequestMapping("/node/alert")
 public class AlertController {
 
-    private final Logger log = LoggerFactory.getLogger(AlertController.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(AlertController.class);
 
     @Autowired
     private AlterSender alterSender;
@@ -187,7 +188,7 @@ public class AlertController {
                 }
             }
         }
-        log.info("testAlert jar path :{}", alertGateTestVO.getFilePath());
+        LOGGER.info("testAlert jar path :{}", alertGateTestVO.getFilePath());
 
         // build test alertParam
         AlterContext alertParam = buildTestAlterContext(alertGateTestVO);

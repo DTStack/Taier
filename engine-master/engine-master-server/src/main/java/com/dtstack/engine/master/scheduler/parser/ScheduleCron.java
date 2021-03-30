@@ -18,7 +18,7 @@ import java.util.List;
 
 public abstract class ScheduleCron implements IScheduleCronParser{
 
-    private static final Logger logger = LoggerFactory.getLogger(ScheduleCron.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleCron.class);
 
     public static final DateTimeFormatter dayFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
 

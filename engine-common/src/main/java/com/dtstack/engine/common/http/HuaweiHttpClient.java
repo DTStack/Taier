@@ -42,7 +42,7 @@ import java.security.cert.CertificateException;
  */
 public class HuaweiHttpClient {
 
-    private static final Logger logger = LoggerFactory.getLogger(HuaweiHttpClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HuaweiHttpClient.class);
 
     private static int SocketTimeout = 60000;// 10秒
 
