@@ -1,0 +1,17 @@
+mock
+dist
+node_modules
+scripts
+.vscode
+.storybook
+.babelrc.js
+.czrc
+.eslintignore
+.eslintrc.json
+.gitignore
+.gitlab-ci.yml
+commitlint.config.js
+jest.config.js
+package-lock.json
+tsconfig.json
+cup.config.js

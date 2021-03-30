@@ -1,0 +1,49 @@
+# Read more: https://docs.gitlab.com/12.7/ee/ci/yaml/README.html
+
+cache:
+  paths:
+   - .npm/
+
+# 当 merge_requests, master, dev, test 分支时会执行依赖安装
+before_script:
+  - "npm ci --cache .npm --prefer-offline"
+
+stages:
+  - lint
+  - lintdoc
+  - check-types
+  - test
+  #- code_analysis
+
+# 当 merge_requests 执行 eslint 检查
+code_quality: 
+  stage: lint
+  script: 
+    - npm run lint
+  only:
+    - merge_requests
+
+# 当 merge_requests 执行 tsc 类型检查
+check_types:
+  stage: check-types
+  script: 
+    - npm run check-types
+  only:
+    - merge_requests
+
+# 当 merge_requests 有更时会执行单元测试任务
+test:
+  stage: test
+  script: 
+    - npm run test
+  only:
+    - merge_requests
+
+#执行 MD 文档校验， 为 doc 或者 master 命名当分支更新时才会触发
+doc_quality:
+  stage: lintdoc
+  script: 
+    - npm run lint-doc
+  only:
+    - /doc(s)|release/
+    - master

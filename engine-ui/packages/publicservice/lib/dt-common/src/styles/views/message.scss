@@ -1,0 +1,332 @@
+@import 'ant-design-dtinsight-theme/theme/dt-theme/const.scss';
+
+.message {
+    height: 100%;
+    width: 100%;
+    position: relative;
+    overflow: auto;
+}
+.msg-box {
+    min-height: 170px;
+    footer {
+        height: 35px;
+        line-height: 35px;
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        .anticon {
+            font-size: 14px;
+            color: $primaryColor;
+        }
+    }
+}
+.c-messgae__list {
+    >.ant-tabs {
+        >.ant-tabs-content{
+            height: calc(100% - 80px);
+            >.ant-tabs-tabpane{
+                height: 100%;
+                &.ant-tabs-tabpane-active {
+                    display: block;
+                }
+                &.ant-tabs-tabpane-inactive {
+                    display: none;
+                }
+            }
+        }
+    }
+}
+.container {
+    min-width: $minWidth;
+    position: absolute;
+    top: 64px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgb(242, 247, 250);
+    overflow-y: auto;
+    overflow-x: hidden;
+    .ant-layout {
+        overflow: hidden;
+        height: 100%;
+        background: #f2f7fa;
+    }
+}
+.m-tabs {
+    .content-border{
+        &.ant-tabs{
+            .ant-tabs-content{
+                border-top: 1px solid #cdcdcd; 
+                margin-top: -1px; 
+            }
+        }
+    }
+    .active-no-border{
+        &.ant-tabs{
+            .ant-tabs-nav{
+                .ant-tabs-tab{
+                    &.ant-tabs-tab-active:after{
+                        content:"";
+                        border-bottom: 1px solid #fff;
+                    }
+                }
+            }
+        }
+    }
+    .nav-border{
+        &.no-bottom-border{
+            &.ant-tabs{
+                .ant-tabs-nav{
+                    .ant-tabs-tab{
+                        border-bottom: 0px;
+                    }
+                    .ant-tabs-tab ~ .ant-tabs-tab{
+                        border-bottom: 0px;
+                    }
+                }
+            }
+        }
+        &.no-top-border{
+            &.ant-tabs{
+                .ant-tabs-nav{
+                    .ant-tabs-tab{
+                        border-top: 0px;
+                    }
+                    .ant-tabs-tab ~ .ant-tabs-tab{
+                        border-top: 0px;
+                    }
+                }
+            }
+        }
+        &.ant-tabs{
+            overflow: unset;
+            .ant-tabs-bar{
+                position: relative;
+                z-index: 2;
+            }
+            .ant-tabs-nav{
+                /*选择首个tab*/
+                .ant-tabs-tab{
+                    &.ant-tabs-tab-active{
+                        border-top-width: 0px;
+                        border-bottom-width: 0px;
+                    }
+                    border: 1px solid #DDDDDD;
+                }
+                /*选择非首个tab https://stackoverflow.com/questions/6447045/css3-selector-first-of-type-with-class-name*/
+                .ant-tabs-tab ~ .ant-tabs-tab{
+                    &.ant-tabs-tab-active{
+                        border-top-width: 0px;
+                        border-bottom-width: 0px;
+                    }
+                    border: 1px solid #DDDDDD;
+                    border-left: 0px;
+                }
+            }
+        }
+    }
+    &.auto-height{
+        .ant-tabs{
+            height: auto;
+        }
+        .m-panel2{
+            min-height: auto;
+        }
+        .m-panel{
+            height: auto;
+            margin: 0;
+        }
+    }
+    
+    .ant-menu {
+        width: 136px;
+        height: 100%;
+        background: #FAFAFA;
+        .ant-menu-item {
+            padding: 0 38px;
+            height: 36px;
+            line-height: 36px;
+            color: #333333;
+        }
+        &:not(.ant-menu-horizontal) .ant-menu-item-selected {
+            background: #EBEBEB;
+            color: $primaryColor;
+        }
+    }
+    .ant-tabs {
+        height: 100%;
+        .ant-tabs-bar {
+            background: #FAFAFA;
+            border-bottom: 1px solid #DDDDDD;
+            margin-bottom: 0;
+            height: 36px;
+        }
+        .ant-tabs-nav {
+            .ant-tabs-ink-bar {
+                top: 0;
+                bottom: auto;
+                height: 3px;
+            }
+            .ant-tabs-tab {
+                margin-right: 0;
+                font-size: 13px;
+                line-height: 20px;
+                border-right: 1px solid #DDDDDD;
+                padding: 8px 16px;
+            }
+        }
+    }
+    .m-panel {
+        position: relative;
+        margin: 20px;
+        height: 90%;
+        border: 1px solid #DDDDDD;
+        &.common-padding{
+            padding: 20px;
+        }
+    }
+    .m-panel2{
+        position: relative;
+        background: #fff;
+        box-shadow: 0 2px 6px 0 rgba(0,0,0,0.10);
+        min-height: calc(100% - 36px);
+    }
+    .ant-tabs-nav{
+        background: #FAFAFA;
+    }
+    .panel-content {
+        width: 100%;
+        height: 100%;
+        overflow-y: auto;
+        position: absolute;
+        padding-left: 136px;
+    }
+    
+}
+.box-1 {
+    box-shadow: 0 0 6px 0 rgba(0,0,0,0.10);
+    background: #FFFFFF;
+    position: relative;
+    margin: 20px;
+}
+.m-table {
+    &.m-table--border {
+        border: 1px solid $blackDD;
+        .ant-table {
+            .ant-table-tbody > tr:nth-last-child(1)>td, .ant-table-placeholder {
+                border-bottom: none;
+            }
+        }
+    }
+    &.td-pad_low .ant-table-body >tr>td {
+        padding: 6px 8px;
+    }
+    &.m-table-showselect{
+        .ant-table {
+            .ant-table-thead{
+                .ant-table-selection-column>span{
+                    visibility:unset;
+                }
+            }
+        }
+    }
+    .ant-pagination {
+        margin-right: 20px !important;
+        .ant-pagination-item {
+            min-width: 26px;
+            height: 26px;
+            line-height: 26px;
+            a {
+                font-size: 13px;
+                color: #333333;
+                letter-spacing: 0;
+            }
+        }
+
+        .ant-pagination-item-active {
+            background-color: #ffffff;
+            border-color: $primaryColor;
+            a {
+                color: $primaryColor;
+            }
+        }
+    }
+    .ant-table {
+        background-color: #ffffff;
+        .ant-table-thead {
+            .ant-table-selection-column>span {
+                visibility: hidden;
+            }
+            &>tr>th {
+                font-size: 13px;
+                color: #333333;
+                letter-spacing: 0;
+                background-color: #fafafa;
+                color: #666;
+                font-weight: 400;
+            }
+        }
+        .ant-table-scroll .ant-table-header { // 设置scroll的table 造成的表头header滚动条与head部分border-bottom造成的双border 隐藏滚动条
+            margin-bottom: -20px;
+            > .ant-table-fixed {
+                > .ant-table-thead {
+                    tr {
+                        th {
+                            border-bottom: 0;
+                        }
+                    }
+                }
+            }
+        }
+        .ant-table-tbody>tr:hover {
+            background: #E7F7FF;
+        }
+        .ant-table-tbody {
+            &>tr>td {
+                // padding: 11px 8px;
+                border-bottom: 1px solid $blackDD;
+                font-size: 13px;
+            }
+        }
+        .ant-table-footer {
+            background: #fff;
+            // padding: 0;
+            border-bottom: 1px solid $blackDD;
+            &>tr>td {
+                padding: 4px 8px;
+                font-size: 13px;
+            }
+            .ant-btn {
+                height: 28px;
+                font-size: 13px;
+                margin-right: 16px;
+            }
+            .ant-dropdown-button {
+                margin-right: 16px;
+                .ant-btn {
+                    margin-right:0;
+                }
+            }
+        }
+    }
+}
+.left {
+    float: left;
+}
+
+.right {
+    float: right;
+}
+.box-card {
+    padding: 0 20px 20px 20px;
+
+    .card-title {
+        height: 40px;
+        line-height: 40px;
+        font-size: 14px;
+        color: #333333;
+        letter-spacing: 0;
+        font-weight: normal;
+    }
+
+}

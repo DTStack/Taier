@@ -1,7 +1,8 @@
 const path = require('path');
 const corejs = require.resolve('core-js/stable');
 const regenerator = require.resolve('regenerator-runtime/runtime');
-// const CopyWebpackPlugin = require('copy-webpack-plugin');
+const proxy = require('./config');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -20,34 +21,24 @@ module.exports = () => {
       host: '127.0.0.1',
       port: 8080,
     },
-    proxy: [
-      {
-        path: '/api/publicService/**',
-        target: 'http://172.16.101.189:8077',
-        changeOrigin: true,
-      },
-    ],
+    proxy,
     dll: [
-      'react',
-      'react-dom',
-      'redux',
-      'react-redux',
-      'react-router-dom',
+      // 'react',
+      // 'react-dom',
+      // 'redux',
+      // 'react-redux',
+      // 'react-router',
       'classnames',
     ],
     webpack: {
-      entry: [corejs, regenerator, './src/index.tsx'],
+      entry: [corejs, regenerator, './src/app.tsx'],
       output: {
         publicPath: isDev ? '/' : '/publicService/',
       },
-      // plugins: [
-      //   new CopyWebpackPlugin({
-      //     patterns: copyConfig,
-      //   }),
-      // ],
+      plugins: [new CopyWebpackPlugin(copyConfig)],
       externals: {
-        frontConf: 'frontConf',
-      },
+        APP_CONF: 'APP_CONF',
+      }
     },
   };
 };

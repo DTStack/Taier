@@ -1,34 +1,47 @@
 import * as React from 'react';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Layout } from 'antd';
-import * as global from '@/pages/global/redux/action';
 import ErrorBoundary from '@/components/ErrorBoundary';
-import HeaderBar from './HeaderBar';
-import SiderBar from './SiderBar';
-import './style.less';
+//dt-common not exports complied outputs
+import Navigator from 'lib/dt-common/src/components/nav';
+import './style';
+
+const initState = {
+  collapsed: false,
+  mode: 'inline',
+  navData: [],
+  authPaths: [],
+};
+type IState = typeof initState;
 
 const { Content } = Layout;
+@(connect((state: any) => {
+  return {
+    apps: state.apps,
+    app: state.app,
+    licenseApps: state.licenseApps,
+    permission: state.permission,
+    user: state.user,
+  };
+}) as any)
+class BasicLayout extends React.PureComponent {
+  state: IState = {
+    ...initState,
+  };
 
-const createLayout = (isHeaderHide: boolean, isSiderHide: boolean) => {
-  return connect(
-    (state) => ({ ...state.global }),
-    (dispatch) => bindActionCreators({ ...global }, dispatch)
-  )((props) => {
+  render() {
     return (
       <ErrorBoundary>
-        <Layout>
-          {isHeaderHide && <HeaderBar location={location} />}
-          <Layout>
-            {isSiderHide && <SiderBar location={location} />}
+        <Layout className="dt-assets-container">
+          <Navigator {...this.props} />
+          <Layout className="assets-container dt-container">
             <Layout>
-              <Content>{props.children}</Content>
+              <Content>{this.props.children}</Content>
             </Layout>
           </Layout>
         </Layout>
       </ErrorBoundary>
     );
-  });
-};
-
-export default createLayout;
+  }
+}
+export default BasicLayout;

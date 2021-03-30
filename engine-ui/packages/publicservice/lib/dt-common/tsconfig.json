@@ -1,0 +1,30 @@
+{
+    "compilerOptions": {
+        "noEmit": true,  // Don't emit; allow Babel to transform files.
+        "outDir":"esm",
+        "rootDir": "src",
+        "baseUrl": ".",
+        "experimentalDecorators": true,
+        "noImplicitAny": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "allowJs": true,
+        "module": "commonjs",
+        "target": "es5",
+        "jsx": "react",
+        "allowSyntheticDefaultImports": true,
+        "paths": {
+            "dt-common/*": [
+                "./src/*"
+            ]
+        }
+    },
+    "exclude": [
+        "node_modules",
+        "dist",
+        "src/public/**/*"
+    ],
+    "include": [
+        "src/**/*"
+    ]
+}
