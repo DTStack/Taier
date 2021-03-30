@@ -59,7 +59,8 @@ public class ScheduleJobJobService {
     @Autowired
     private EnvironmentContext context;
 
-
+    @Autowired
+    private ScheduleTaskShadeService taskShadeService;
 
     /**
      * @author newman
@@ -461,6 +462,16 @@ public class ScheduleJobJobService {
         if (batchTaskShade == null) {
             return null;
         }
+
+        // 查询是否有绑定任务
+        List<ScheduleTaskShade> taskShades = taskShadeService.findChildTaskRuleByTaskId(batchTaskShade.getTaskId(), batchTaskShade.getAppType());
+        if (CollectionUtils.isNotEmpty(taskShades)) {
+            // 绑定了规则任务
+            vo.setExistsOnRule(Boolean.TRUE);
+        } else {
+            vo.setExistsOnRule(Boolean.FALSE);
+        }
+
         //展示非工作流中的任务节点时，过滤掉工作流中的节点
         if (!isSubTask) {
             if (!vo.getFlowJobId().equals("0")) {
@@ -672,10 +683,18 @@ public class ScheduleJobJobService {
             return null;
         }
         com.dtstack.engine.master.vo.ScheduleJobVO vo = new com.dtstack.engine.master.vo.ScheduleJobVO(job);
-        ScheduleTaskShade batchTaskShade = idTaskMap.get(job.getTaskId()+"-"+job.getAppType());
+        ScheduleTaskShade batchTaskShade = idTaskMap.get(job.getTaskId() + "-" + job.getAppType());
         vo.setBatchTask(getTaskVo(batchTaskShade));
         if (StringUtils.isBlank(job.getJobKey())) {
             return vo;
+        }
+
+        List<ScheduleTaskShade> taskShades = taskShadeService.findChildTaskRuleByTaskId(batchTaskShade.getTaskId(), batchTaskShade.getAppType());
+        if (CollectionUtils.isNotEmpty(taskShades)) {
+            // 绑定了规则任务
+            vo.setExistsOnRule(Boolean.TRUE);
+        } else {
+            vo.setExistsOnRule(Boolean.FALSE);
         }
 
         if (RdosTaskStatus.RUNNING_TASK_RULE.getStatus().equals(vo.getStatus())) {
