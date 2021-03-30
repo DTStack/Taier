@@ -7,6 +7,7 @@ import com.dtstack.engine.api.dto.ScheduleJobJobDTO;
 import com.dtstack.engine.api.dto.ScheduleJobJobTaskDTO;
 import com.dtstack.engine.api.enums.TaskRuleEnum;
 import com.dtstack.engine.api.vo.ScheduleJobVO;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -451,6 +452,11 @@ public class ScheduleJobJobService {
         ScheduleJob job = keyJobMap.get(root.getJobKey());
         com.dtstack.engine.master.vo.ScheduleJobVO vo = new com.dtstack.engine.master.vo.ScheduleJobVO(job);
         vo.setProjectId(job.getProjectId());
+
+        if (RdosTaskStatus.RUNNING_TASK_RULE.getStatus().equals(vo.getStatus())) {
+            vo.setStatus(RdosTaskStatus.RUNNING.getStatus());
+        }
+
         ScheduleTaskShade batchTaskShade = idTaskMap.get(job.getTaskId()+"-"+job.getAppType());
         if (batchTaskShade == null) {
             return null;
