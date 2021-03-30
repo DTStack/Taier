@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Layout } from 'antd';
-import ErrorBoundary from '@/components/ErrorBoundary';
 //dt-common not exports complied outputs
 import Navigator from 'lib/dt-common/src/components/nav';
 import './style';
@@ -31,16 +30,14 @@ class BasicLayout extends React.PureComponent {
 
   render() {
     return (
-      <ErrorBoundary>
-        <Layout className="dt-assets-container">
-          <Navigator {...this.props} />
-          <Layout className="assets-container dt-container">
-            <Layout>
-              <Content>{this.props.children}</Content>
-            </Layout>
+      <Layout className="dt-assets-container">
+        <Navigator {...this.props} />
+        <Layout className="assets-container dt-container">
+          <Layout>
+            <Content>{this.props.children}</Content>
           </Layout>
         </Layout>
-      </ErrorBoundary>
+      </Layout>
     );
   }
 }
