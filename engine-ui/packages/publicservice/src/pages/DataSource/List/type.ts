@@ -5,8 +5,8 @@ export interface IPagination {
 }
 export interface IOther {
   search: string;
-  dataType: string[];
-  appType: number[];
+  dataTypeList: string[];
+  appTypeList: number[];
   isMeta: number;
   status: number[];
 }

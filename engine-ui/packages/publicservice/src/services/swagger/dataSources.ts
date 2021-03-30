@@ -1,14 +1,6 @@
 //每个模块定义的相关接口
 const api = '/api/publicService';
 export default {
-  post1: {
-    method: 'post',
-    url: '/foo/bar',
-  },
-  get2: {
-    method: 'get',
-    url: '/foo/bas',
-  },
   //数据源列表分页信息
   dataSourcepage: {
     method: 'post',
@@ -62,17 +54,17 @@ export default {
   // 获取数据源与租户交集的产品列表
   queryProductList: {
     method: 'post',
-    url: `${api}/addDs/queryProductList`,
+    url: `${api}/addDs/queryAppList`,
   },
   // 添加数据源
   addDatasource: {
     method: 'post',
-    url: `${api}/addDs/addDatasource`,
+    url: `${api}/addDs/addOrUpdateSource`,
   },
   //上传Kerberos添加数据源
   addDatasourceWithKerberos: {
     method: 'postForm',
-    url: `${api}/addDs/addDatasourceWithKerberos`,
+    url: `${api}/addDs/addOrUpdateSourceWithKerberos`,
   },
   // 测试联通性
   testCon: {
@@ -89,7 +81,7 @@ export default {
     method: 'post',
     url: `${api}/dataSource/detail`,
   },
-  //上传
+  //解析kerberos文件获取principal列表
   uploadCode: {
     method: 'postForm',
     url: `${api}/addDs/getPrincipalsWithConf`,

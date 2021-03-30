@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import SearchInput from '@/components/SearchInput';
-import { Menu, List, notification } from 'antd';
+import { Menu, notification } from 'antd';
 import { API } from '@/services';
 import { getSaveStatus } from '../utils/handelSession';
 
@@ -120,26 +120,24 @@ export default function SelectSource(props) {
           </Menu>
         </div>
         <div className="right-menu">
-          {iconList.length > 0 && (
-            <List
-              grid={{ gutter: 16, column: 4 }}
-              dataSource={iconList}
-              renderItem={(item) => (
-                <List.Item onClick={() => onSelectType(item)}>
-                  <div>
-                    <img
-                      src={item.imgUrl}
-                      alt="图片显示失败"
-                      className={item.selected ? 'selected' : ''}
-                    />
-                    <p style={{ textAlign: 'center', width: 216 }}>
-                      {item.dataType}
-                    </p>
-                  </div>
-                </List.Item>
-              )}
-            />
-          )}
+          {iconList.length > 0 &&
+            iconList.map((item) => {
+              let col = (
+                <div
+                  style={{ width: '20%', height: 160, float: 'left' }}
+                  onClick={() => onSelectType(item)}>
+                  <img
+                    src={item.imgUrl}
+                    alt="图片显示失败"
+                    className={item.selected ? 'selected' : ''}
+                  />
+                  <p style={{ textAlign: 'center', width: 216, marginTop: 12 }}>
+                    {item.dataType}
+                  </p>
+                </div>
+              );
+              return col;
+            })}
         </div>
       </div>
     </div>

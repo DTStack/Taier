@@ -7,6 +7,10 @@ const showMapArr: any = {
     ['jdbcUrl', 'jdbcUrl'],
     ['username', '用户名'],
   ],
+  [DATA_SOURCE.CARBONDATA]: [
+    ['jdbcUrl', 'jdbcUrl'],
+    ['username', '用户名'],
+  ],
   [DATA_SOURCE.CLICKHOUSE]: [
     ['jdbcUrl', 'jdbcUrl'],
     ['username', '用户名'],

@@ -51,21 +51,21 @@ function Search(props) {
 
   // 新增数据源
   const addList = () => {
-    history.push('/add-source');
+    history.push('/data-source/add-source');
   };
 
   //类型多选方法
   const onMultType = (value) => {
     value.includes('全部')
-      ? onSearch({ dataType: null })
-      : onSearch({ dataType: value });
+      ? onSearch({ dataTypeList: null })
+      : onSearch({ dataTypeList: value });
   };
   //类型多选方法
   const onMultAppType = (value) => {
     if (value.length > 0 && value.includes('all')) {
-      onSearch({ appType: null });
+      onSearch({ appTypeList: null });
     } else {
-      onSearch({ appType: value });
+      onSearch({ appTypeList: value });
     }
   };
 
@@ -117,11 +117,14 @@ function Search(props) {
         <Form.Item>
           <Checkbox
             onChange={(e) =>
-              onSearch({ isMeta: e.target.checked ? 1 : 0, current: 1 })
+              onSearch({ isMeta: e.target.checked ? 1 : 0, currentPage: 1 })
             }>
             显示默认数据库
             <Tooltip title="各模块在创建项目时的默认数据源">
-              <Icon style={{ marginLeft: 8 }} type="question-circle-o" />
+              <Icon
+                style={{ marginLeft: 8, color: '#999' }}
+                type="question-circle-o"
+              />
             </Tooltip>
           </Checkbox>
         </Form.Item>

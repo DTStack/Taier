@@ -97,9 +97,10 @@ export default function index() {
               <InfoConfig cRef={childRef} record={''}></InfoConfig>
             </div>
             <div className="footer-select">
-              <Button type="primary" onClick={testConnect}>
-                测试连通性
+              <Button type="primary" icon="sync" onClick={testConnect}>
+                <span>测试连通性</span>
               </Button>
+
               <Button
                 style={{ marginLeft: 60, marginRight: 8 }}
                 onClick={() => {

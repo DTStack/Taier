@@ -2,38 +2,46 @@ import React from 'react';
 import { Divider, Popconfirm, Icon, Tag, Badge, notification } from 'antd';
 import './style.scss';
 import { ExtTableCell } from './components/extTableCell';
+import { MAIN_COLOR } from '../constants/theme';
 
 const columns = (props: any) => {
   const { toEdit, toAuth, toDelete, left, right, filters } = props;
-
+  const IconFilter = () => (
+    <i className="iconfont iconOutlinedxianxing_filter filter-status"></i>
+  );
   return [
     {
       title: '数据源名称',
-      key: 'dsName',
+      key: 'dataName',
       fixed: left,
       width: 200,
-      render: (text, record) =>
-        //	是否有meta标志 0-否 1-是
+      render: (_, record) =>
+        //	meta标志 0-否 1-是
         record.isMeta === 0 ? (
-          <span>{record.dataName}</span>
+          <span style={{ color: MAIN_COLOR }}>{record.dataName}</span>
         ) : (
-          <div>
+          <div style={{ color: MAIN_COLOR }}>
             <span style={{ marginRight: 4 }}>{record.dataName}</span>
-            <Tag style={{ borderColor: '#3F87FF', color: '#3F87FF' }}>meta</Tag>
+            <Tag style={{ borderColor: MAIN_COLOR, color: MAIN_COLOR }}>
+              meta
+            </Tag>
           </div>
         ),
     },
     {
       title: '类型',
-      dataIndex: 'dataTypeName',
-      key: 'dataTypeName',
+      dataIndex: 'dataType',
+      key: 'dataType',
       ellipsis: true,
       width: 120,
+      render: (_, record) => {
+        return <span>{record.dataType + record.dataVersion}</span>;
+      },
     },
     {
       title: '授权产品',
-      dataIndex: 'productNames',
-      key: 'productNames',
+      dataIndex: 'appNames',
+      key: 'appNames',
       ellipsis: true,
       width: 220,
     },
@@ -49,7 +57,7 @@ const columns = (props: any) => {
       dataIndex: 'linkJson',
       ellipsis: true,
       width: 200,
-      render: (empty: any, record: any) => {
+      render: (_, record) => {
         return <ExtTableCell sourceData={record} />;
       },
     },
@@ -58,7 +66,7 @@ const columns = (props: any) => {
       dataIndex: 'status',
       ellipsis: true,
       width: 200,
-      render: (text, record) =>
+      render: (text, _) =>
         text === 0 ? (
           <span>
             <Badge status="error" />
@@ -71,11 +79,14 @@ const columns = (props: any) => {
           </span>
         ),
       filters: filters,
+      filterIcon: () => (
+        <Icon component={IconFilter} style={{ cursor: 'pointer' }} />
+      ),
     },
     {
       title: '最近修改时间',
-      dataIndex: 'updateAt',
-      key: 'updateAt',
+      dataIndex: 'gmtModified',
+      key: 'gmtModified',
       ellipsis: true,
       width: 120,
     },
@@ -87,10 +98,13 @@ const columns = (props: any) => {
       render: (_, record) => {
         return (
           <>
-            <span
-              className={record.isMeta === 0 ? 'data-view' : 'gray'}
-              onClick={(event) => toEdit(record, event)}>
-              <a>编辑</a>
+            <span onClick={() => toEdit(record)}>
+              <a
+                className={
+                  record.isMeta === 0 ? 'data-view' : 'operate-forbid'
+                }>
+                编辑
+              </a>
             </span>
             <Divider type="vertical" />
             <span
@@ -100,8 +114,8 @@ const columns = (props: any) => {
             </span>
             <Divider type="vertical" />
 
-            {/* 是否授权，0为未授权，1为已授权 */}
-            {!record.isAuth && record.isMeta !== 1 ? (
+            {/* isImport ：0为未应用，1为已应用 */}
+            {!record.isAuth && record.isImport !== 1 ? (
               <span className="data-view">
                 <Popconfirm
                   title="是否删除此条记录？"
@@ -116,14 +130,15 @@ const columns = (props: any) => {
               </span>
             ) : (
               <span
-                className="gray"
                 onClick={() => {
                   notification.error({
                     message: '错误！',
-                    description: '数据源已授权给产品，不可删除',
+                    description: record.isAuth
+                      ? '具有meta标识的数据源，不可删除'
+                      : '数据源已授权给产品，不可删除',
                   });
                 }}>
-                <a>删除</a>
+                <a className="operate-forbid">删除</a>
               </span>
             )}
           </>

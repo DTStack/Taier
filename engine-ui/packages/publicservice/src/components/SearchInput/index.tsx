@@ -7,7 +7,9 @@ export default function SearchInput({
   onSearch,
 }) {
   const [value, setValue] = useState('');
-
+  const IconSearch = () => (
+    <span className="iconfont iconOutlinedxianxing_Search"></span>
+  );
   return (
     <Input
       allowClear
@@ -21,11 +23,11 @@ export default function SearchInput({
       placeholder={placeholder}
       suffix={
         <Icon
-          type="search"
+          component={IconSearch}
           onClick={() => {
             onSearch(value);
           }}
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: 'pointer', color: '#999' }}
         />
       }
       style={{ width: width }}

@@ -15,11 +15,10 @@ interface Props {
 export default class Root extends Component<Props> {
   render() {
     const { store, history } = this.props;
-    console.log(store, history);
     return (
       <ConfigProvider locale={zhCN}>
         <Provider store={store}>
-          <Router routes={getRoutes(store)} history={history} />
+          <Router routes={getRoutes()} history={history} />
         </Provider>
       </ConfigProvider>
     );

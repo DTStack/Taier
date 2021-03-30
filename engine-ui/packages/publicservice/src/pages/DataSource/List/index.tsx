@@ -21,8 +21,8 @@ function index() {
   });
   const [other, setOther] = useState<IOther>({
     search: '',
-    dataType: [],
-    appType: [],
+    dataTypeList: [],
+    appTypeList: [],
     isMeta: 0,
     status: [],
   });
@@ -48,16 +48,17 @@ function index() {
         currentPage, //当前页码
         pageSize, //分页个数
       });
-      data.data.map((element) => {
-        Object.keys(DATA_SOURCE_TEXT).map((item) => {
-          if (element.dataTypeName === DATA_SOURCE_TEXT[item]) {
-            element.type = Number(item);
-          }
+      if (data.data) {
+        data.data.map((element) => {
+          Object.keys(DATA_SOURCE_TEXT).map((item) => {
+            if (element.dataType === DATA_SOURCE_TEXT[item]) {
+              element.type = Number(item);
+            }
+          });
         });
-      });
-      console.log(data.data);
+      }
       setTotal(totalPage); //总页数
-      setDataSources(data.data);
+      setDataSources(data.data || []);
     } else {
       notification.error({
         message: '错误！',
@@ -76,11 +77,11 @@ function index() {
   }, []);
 
   //编辑
-  const toEdit = (record, event) => {
+  const toEdit = (record) => {
     if (record.isMeta === 1) {
       message.info('带meta标识的数据源不能编辑、删除');
     } else {
-      history.push('/edit-source', {
+      history.push('/data-source/edit-source', {
         record,
       });
     }
@@ -136,7 +137,7 @@ function index() {
   const handleAutoProduc = async () => {
     let { success } = await API.dataSoProAuth({
       dataInfoId: record.dataInfoId,
-      isAuth: record.isAuth,
+      isAuth: 1, //是否授权，0为取消授权，1为授权
       appTypes: checkedValues,
     });
     if (success) {

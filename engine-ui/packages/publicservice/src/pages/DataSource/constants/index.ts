@@ -44,6 +44,7 @@ export const DATA_SOURCE = {
   Hive_2X: 45,
   HBase_1X: 48,
   HBase_2X: 49,
+  CARBONDATA: 50,
 };
 
 export const DATA_SOURCE_TEXT: any = {
@@ -75,10 +76,17 @@ export const DATA_SOURCE_TEXT: any = {
   32: 'SQLServer_2017_later',
   40: 'KingbaseES V8.0',
   41: 'S3',
-  42: 'Websocket',
+  42: 'WebSocket',
   //add
   43: 'Hive1.x',
   45: 'Hive2.x',
   48: 'HBase1.x',
   49: 'HBase2.x',
+  50: 'CarbonData',
+};
+
+export const PROJECT_TYPE: any = {
+  COMMON: 0, // 普通
+  TEST: 1, // 测试
+  PRO: 2, // 生产
 };

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Dropdown, Menu, Layout } from 'antd';
-import './style.less';
+import './style.scss';
 declare const frontConf;
 
 const { Header } = Layout;
@@ -31,11 +31,14 @@ class HeaderBar extends React.Component<IProps, IState> {
       </Menu>
     );
     return (
-      <Header>
+      <Header className="top">
         <div className="header-left">
-          <span>系统名称</span>
+          <span>系统管理</span>
         </div>
-        <div className="header-middle"></div>
+        <div className="header-middle">
+          <span>数据源</span>
+          <span>数据模型</span>
+        </div>
         <div className="header-right">
           <Dropdown overlay={selfMenu}>
             <span style={{ color: '#fff' }}>
