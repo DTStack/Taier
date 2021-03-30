@@ -38,11 +38,11 @@ test:
     - yarn test
   only:
     - merge_requests
-    - dev
 
 code_analysis:
   stage: code_analysis
   script:
+    - yarn test
     - yarn sonar
   only:
     - dev
