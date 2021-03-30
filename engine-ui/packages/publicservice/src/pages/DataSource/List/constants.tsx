@@ -16,7 +16,7 @@ const columns = (props: any) => {
       fixed: left,
       width: 200,
       render: (_, record) =>
-        //	是否有meta标志 0-否 1-是
+        //	meta标志 0-否 1-是
         record.isMeta === 0 ? (
           <span style={{ color: MAIN_COLOR }}>{record.dataName}</span>
         ) : (
@@ -99,7 +99,12 @@ const columns = (props: any) => {
         return (
           <>
             <span onClick={() => toEdit(record)}>
-              <a className={record.isMeta === 0 ? 'data-view' : 'gray'}>编辑</a>
+              <a
+                className={
+                  record.isMeta === 0 ? 'data-view' : 'operate-forbid'
+                }>
+                编辑
+              </a>
             </span>
             <Divider type="vertical" />
             <span
@@ -109,8 +114,8 @@ const columns = (props: any) => {
             </span>
             <Divider type="vertical" />
 
-            {/* 是否授权，0为未授权，1为已授权 */}
-            {!record.isAuth && record.isMeta !== 1 ? (
+            {/* isImport ：0为未应用，1为已应用 */}
+            {!record.isAuth && record.isImport !== 1 ? (
               <span className="data-view">
                 <Popconfirm
                   title="是否删除此条记录？"
@@ -128,10 +133,12 @@ const columns = (props: any) => {
                 onClick={() => {
                   notification.error({
                     message: '错误！',
-                    description: '数据源已授权给产品，不可删除',
+                    description: record.isAuth
+                      ? '具有meta标识的数据源，不可删除'
+                      : '数据源已授权给产品，不可删除',
                   });
                 }}>
-                <a className="gray">删除</a>
+                <a className="operate-forbid">删除</a>
               </span>
             )}
           </>

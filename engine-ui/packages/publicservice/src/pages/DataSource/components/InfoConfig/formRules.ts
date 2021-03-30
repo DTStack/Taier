@@ -11,15 +11,7 @@ export function getRules(item) {
 }
 
 export function getRulesJdbc(item) {
-  let test = {
-    length: {
-      max: 128,
-      message: '不得超过128个字符',
-    },
-    regex: {
-      message: 'JDBC URL格式不符合规则!',
-    },
-  };
+  let validInfo = JSON.parse(item.validInfo);
 
   let ruleArr: any = [
     {
@@ -30,11 +22,11 @@ export function getRulesJdbc(item) {
       pattern: item.regex
         ? RegExp(item.regex.substring(1, item.regex.length - 1))
         : null,
-      message: test?.regex?.message,
+      message: validInfo?.regex?.message,
     },
   ];
 
-  ruleArr.push(test?.length);
+  ruleArr.push(validInfo?.length);
 
   if (item.label === '数据源名称') {
     ruleArr.push({
@@ -42,6 +34,7 @@ export function getRulesJdbc(item) {
       message: '仅支持中文、数字、英文大小写、下划线',
     });
   }
+  console.log('ruleArr: ', ruleArr);
 
   return {
     initialValue: item.initialValue,
