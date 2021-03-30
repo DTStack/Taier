@@ -1,26 +1,21 @@
 package com.dtstack.learning.AM;
 
-import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.learning.AM.ApplicationContainerListener;
-import com.dtstack.learning.AM.ApplicationMessageService;
-import com.dtstack.learning.AM.ApplicationWebService;
-import com.dtstack.learning.AM.NMCallbackHandler;
-import com.dtstack.learning.AM.RMCallbackHandler;
 import com.dtstack.learning.api.ApplicationContext;
-import com.dtstack.learning.common.AppType;
-import com.dtstack.learning.common.exceptions.XLearningExecException;
-import com.dtstack.learning.conf.LearningConfiguration;
-import com.dtstack.learning.container.LearningContainer;
-import com.dtstack.learning.webapp.AMParams;
-import com.google.gson.Gson;
 import com.dtstack.learning.api.LearningConstants;
+import com.dtstack.learning.common.AppType;
 import com.dtstack.learning.common.InputInfo;
 import com.dtstack.learning.common.LogType;
 import com.dtstack.learning.common.Message;
 import com.dtstack.learning.common.OutputInfo;
 import com.dtstack.learning.common.XLearningContainerStatus;
+import com.dtstack.learning.common.exceptions.XLearningExecException;
+import com.dtstack.learning.conf.LearningConfiguration;
+import com.dtstack.learning.container.LearningContainer;
 import com.dtstack.learning.container.LearningContainerId;
+import com.dtstack.learning.util.SecurityUtil;
 import com.dtstack.learning.util.Utilities;
+import com.dtstack.learning.webapp.AMParams;
+import com.google.gson.Gson;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,13 +27,9 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
-import org.apache.hadoop.io.DataOutputBuffer;
 import org.apache.hadoop.mapred.InputFormat;
 import org.apache.hadoop.mapred.InputSplit;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.security.Credentials;
-import org.apache.hadoop.security.UserGroupInformation;
-import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.service.CompositeService;
 import org.apache.hadoop.util.ReflectionUtils;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
@@ -56,7 +47,6 @@ import org.apache.hadoop.yarn.client.api.AMRMClient.ContainerRequest;
 import org.apache.hadoop.yarn.client.api.async.AMRMClientAsync;
 import org.apache.hadoop.yarn.client.api.async.NMClientAsync;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
-import org.apache.hadoop.yarn.security.AMRMTokenIdentifier;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.hadoop.yarn.util.Records;
 
@@ -1366,7 +1356,7 @@ public class ApplicationMaster extends CompositeService {
     }
     containerEnv.put(LearningConstants.Environment.XLEARNING_TF_INDEX.toString(), String.valueOf(index));
     ContainerLaunchContext ctx = ContainerLaunchContext.newInstance(
-            containerLocalResource, containerEnv, containerLaunchcommands, null, null, null);
+            containerLocalResource, containerEnv, containerLaunchcommands, null, SecurityUtil.copyUserToken(), null);
 
     try {
       nmAsync.startContainerAsync(container, ctx);

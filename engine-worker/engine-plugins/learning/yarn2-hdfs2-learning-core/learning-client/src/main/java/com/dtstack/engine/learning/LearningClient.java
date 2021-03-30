@@ -95,7 +95,7 @@ public class LearningClient extends AbstractClient {
             conf.set(LearningConfiguration.XLEARNING_APP_QUEUE, queue);
         }
 
-        client = new Client(conf);
+        client = new Client(conf, configMap);
 
         if (conf.getBoolean("monitorAcceptedApp", false)) {
             AcceptedApplicationMonitor.start(conf, queue, configMap);
