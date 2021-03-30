@@ -101,6 +101,8 @@ public class ScheduleTaskVO extends ScheduleTaskShade {
     private List<ScheduleTaskVO> taskVOS;
     private List<ScheduleTaskVO> subTaskVOS;
     protected String cron;
+    private Boolean existsOnRule;
+
     public boolean getCurrentProject() {
         return currentProject;
     }
@@ -340,5 +342,13 @@ public class ScheduleTaskVO extends ScheduleTaskShade {
 
     public void setTaskRuleList(List<ScheduleTaskVO> taskRuleList) {
         this.taskRuleList = taskRuleList;
+    }
+
+    public Boolean getExistsOnRule() {
+        return existsOnRule;
+    }
+
+    public void setExistsOnRule(Boolean existsOnRule) {
+        this.existsOnRule = existsOnRule;
     }
 }

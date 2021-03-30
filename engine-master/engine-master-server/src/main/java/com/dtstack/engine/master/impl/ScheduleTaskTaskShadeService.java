@@ -151,6 +151,16 @@ public class ScheduleTaskTaskShadeService {
             parentNode.setSubTaskVOS(Arrays.asList(onlyAllFlowSubTasksNew));
             vo.setSubNodes(parentNode);
         }
+
+        // 查询是否有绑定任务
+        List<ScheduleTaskShade> taskShades = taskShadeService.findChildTaskRuleByTaskId(taskShade.getTaskId(), taskShade.getAppType());
+        if (CollectionUtils.isNotEmpty(taskShades)) {
+            // 绑定了规则任务
+            vo.setExistsOnRule(Boolean.TRUE);
+        } else {
+            vo.setExistsOnRule(Boolean.FALSE);
+        }
+
         if (level == 0) {
             //控制最多展示多少层，防止一直循环。
             return vo;
@@ -221,7 +231,7 @@ public class ScheduleTaskTaskShadeService {
             for (ScheduleTaskTaskShade taskTask : taskTasks) {
                 String taskRelation = taskTask.getTaskId() + "&" + taskTask.getAppType() + "-" + taskTask.getParentTaskId() + "&" + taskTask.getParentAppType();
                 if (taskIdRelations.contains(taskRelation)) {
-                    logger.error("该任务成环了,taskRelation:{}", taskRelation);
+                    logger.error("该任务成环了,taskRelation:{} 所有的关系视图:{}", taskRelation,taskIdRelations.toString());
                     return true;
                 } else {
                     taskIdRelations.add(taskRelation);
