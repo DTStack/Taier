@@ -79,7 +79,7 @@ export function getRoutes() {
         },
         {
           path: '/data-source',
-          component: Layout,
+          indexRoute: { component: DataSourceList },
           childRoutes: [
             {
               path: 'list',

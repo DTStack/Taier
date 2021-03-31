@@ -1,10 +1,8 @@
 import React from 'react';
 import { Breadcrumb } from 'antd';
-import { useHistory } from 'react-router';
+import { hashHistory } from 'react-router';
 
 export default function BreadComponent(props: { name: string }) {
-  const history = new useHistory();
-
   let { name } = props;
 
   return (
@@ -12,7 +10,7 @@ export default function BreadComponent(props: { name: string }) {
       <Breadcrumb>
         <Breadcrumb.Item
           onClick={() => {
-            history.push('/data-source');
+            hashHistory.push('/data-source/list');
           }}>
           <a>数据源中心</a>
         </Breadcrumb.Item>

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { useHistory } from 'react-router';
+import { hashHistory } from 'react-router';
 import { Steps, Button } from 'antd';
 import BreadComponent from '../components/BreadComponent';
 import SelectSource from '../components/SelectSource';
@@ -11,8 +11,6 @@ const { Step } = Steps;
 
 export default function index() {
   const childRef = useRef(null);
-
-  const history = new useHistory();
 
   const [current, setCurrent] = useState<number>(0);
 
@@ -45,7 +43,7 @@ export default function index() {
               <Button
                 style={{ marginRight: 8 }}
                 onClick={() => {
-                  history.push('/data-source');
+                  hashHistory.push('/data-source/list');
                 }}>
                 取消
               </Button>

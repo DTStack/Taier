@@ -121,9 +121,10 @@ export default function SelectSource(props) {
         </div>
         <div className="right-menu">
           {iconList.length > 0 &&
-            iconList.map((item) => {
+            iconList.map((item,index) => {
               let col = (
                 <div
+                  key={index}
                   style={{ width: '20%', height: 160, float: 'left' }}
                   onClick={() => onSelectType(item)}>
                   <img
