@@ -16,8 +16,8 @@
     <packaging>pom</packaging>
 
     <properties>
-        <learning2.version>4.1.0-SNAPSHOT</learning2.version>
-        <learning3.version>4.1.0-SNAPSHOT</learning3.version>
+        <learning2.version>4.2.1-SNAPSHOT</learning2.version>
+        <learning3.version>4.2.1-SNAPSHOT</learning3.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 

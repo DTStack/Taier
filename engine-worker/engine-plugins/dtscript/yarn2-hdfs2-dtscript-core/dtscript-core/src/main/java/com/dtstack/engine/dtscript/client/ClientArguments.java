@@ -30,6 +30,7 @@ public class ClientArguments {
     private Options allOptions;
     String appName;
     AbstractAppType appType;
+    String appEnv;
     String nodes;
     int amMem;
     int amCores;
@@ -85,6 +86,14 @@ public class ClientArguments {
 
     public void setAppType(AbstractAppType appType) {
         this.appType = appType;
+    }
+
+    public String getAppEnv() {
+        return appEnv;
+    }
+
+    public void setAppEnv(String appEnv) {
+        this.appEnv = appEnv;
     }
 
     public String getNodes() {
@@ -387,6 +396,7 @@ public class ClientArguments {
     private void init() {
         appName = "";
         appType = new DummyType();
+        appEnv = null;
         nodes = null;
         amMem = DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_MEMORY;
         amCores = DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_CORES;
@@ -422,7 +432,8 @@ public class ClientArguments {
                 "set the Application name");
         allOptions.addOption("appType", "app-type", true,
                 "set the Application type, default \"XLEARNING\"");
-
+        allOptions.addOption("appEnv", "app-env", true,
+                "set the Application env");
         allOptions.addOption("nodes", "nodes", true,
                 "nodes of request Container");
 
@@ -561,6 +572,10 @@ public class ClientArguments {
 
         if ("".equals(appName.trim())) {
             appName = "XLearning-" + System.currentTimeMillis();
+        }
+
+        if (commandLine.hasOption("app-env")) {
+            appEnv = commandLine.getOptionValue("app-env");
         }
 
         if (commandLine.hasOption("app-type")) {

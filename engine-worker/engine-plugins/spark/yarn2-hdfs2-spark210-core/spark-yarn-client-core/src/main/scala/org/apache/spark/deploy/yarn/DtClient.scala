@@ -807,6 +807,9 @@ private[spark] class DtClient(
       logInfo(s"Credentials file set to: $credentialsFile")
     }
 
+    // env required by python process
+    sparkConf.getExecutorEnv.foreach(user_env => (env(user_env._1) = user_env._2))
+
     // Pick up any environment variables for the AM provided through spark.yarn.appMasterEnv.*
     val amEnvPrefix = "spark.yarn.appMasterEnv."
     sparkConf.getAll
