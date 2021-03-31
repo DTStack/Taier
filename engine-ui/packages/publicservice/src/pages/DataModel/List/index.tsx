@@ -2,12 +2,13 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Container from '../components/Container';
 import { Input, Table, Pagination, Modal, Drawer, Button } from 'antd';
 import { IModelData } from '../types';
-import { EnumModelActionType } from './types';
+import { EnumModelActionType, EnumModelStatus } from './types';
 import { columnsGenerator } from './constants';
 import Message from 'pages/DataModel/components/Message';
 import Detail from '../Detail';
 import { API } from '@/services';
 import './style';
+import _ from 'lodash';
 const { Search } = Input;
 
 interface IPagination {
@@ -22,13 +23,20 @@ interface IReqParams {
   field: string;
   search: string;
   size: number;
+  datasourceTypes: number[];
+  modelStatus: EnumModelStatus[];
 }
 interface IModelAction {
   type: EnumModelActionType;
   id: number;
 }
 
-const List = () => {
+interface IPropList {
+  router?: any;
+}
+
+const List = (props: IPropList) => {
+  const { router } = props;
   const [modelList, setModelList] = useState<IModelData[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [pagination, setPagination] = useState<IPagination>({
@@ -43,7 +51,14 @@ const List = () => {
     field: '',
     search: '',
     size: 10,
+    datasourceTypes: [1, 2],
+    modelStatus: [
+      EnumModelStatus.OFFLINE,
+      EnumModelStatus.RELEASE,
+      EnumModelStatus.UNRELEASE,
+    ],
   });
+  const [dataSourceTypeList, setDataSourceTypeList] = useState([]);
 
   const [drawer, setDrawer] = useState({
     visible: false,
@@ -74,6 +89,28 @@ const List = () => {
       setLoading(false);
     }
   };
+
+  const fetchFilterDataSourceList = async () => {
+    try {
+      const { success, data, message } = await API.getDataSourceTypeList();
+      if (success) {
+        setDataSourceTypeList(
+          data.map((item) => ({
+            value: item.leftValue,
+            text: item.rightValue,
+          }))
+        );
+      } else {
+        Message.error(message);
+      }
+    } catch (error) {
+      Message.error(error.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchFilterDataSourceList();
+  }, []);
 
   // TODO: icon,toast位置
   const handleModelAction = useCallback(async (action: IModelAction) => {
@@ -138,8 +175,15 @@ const List = () => {
       handleModelAction,
       handleDeleteBtnClick,
       handleModelNameClick,
+      dataSourceFilterOptions: dataSourceTypeList,
+      router,
     });
-  }, [handleModelAction, handleDeleteBtnClick, handleModelNameClick]);
+  }, [
+    handleModelAction,
+    handleDeleteBtnClick,
+    handleModelNameClick,
+    dataSourceTypeList,
+  ]);
 
   useEffect(() => {
     fetchModelList(requestParams);
@@ -156,7 +200,10 @@ const List = () => {
               setRequestParams((prev) => ({ ...prev, search: value }))
             }
           />
-          <Button className="float-right" type="primary">
+          <Button
+            className="float-right"
+            type="primary"
+            onClick={() => router.push('/data-model/add')}>
             新建模型
           </Button>
         </header>
@@ -169,15 +216,26 @@ const List = () => {
             dataSource={modelList}
             pagination={false}
             scroll={{ x: 1300, y: 800 }}
+            onChange={(pagination, filters) => {
+              const {
+                dataSourceType = requestParams.datasourceTypes,
+                modelStatus = requestParams.modelStatus,
+              } = filters;
+
+              setRequestParams((reqParams) => ({
+                ...reqParams,
+                current: 1,
+                modelStatus: modelStatus as EnumModelStatus[],
+                datasourceTypes: dataSourceType as number[],
+              }));
+            }}
           />
           <Drawer
             closable={false}
             visible={drawer.visible}
             className="drawer"
             width={1000}
-            getContainer={() => {
-              return document.querySelector('.table-area');
-            }}
+            getContainer={() => document.querySelector('.table-area')}
             mask={false}
             onClose={() => {
               setDrawer({
@@ -207,6 +265,11 @@ const List = () => {
                 }));
               }}
             />
+            <span className="tips">
+              共<span className="highlight">{pagination.total}</span>
+              条数据，每页显示
+              <span className="highlight">{pagination.size}</span>条
+            </span>
           </div>
         </div>
       </Container>

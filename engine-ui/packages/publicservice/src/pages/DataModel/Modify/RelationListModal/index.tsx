@@ -1,190 +1,295 @@
-import React from 'react';
-import { Form, Select, Input, Row, Col, Icon } from 'antd';
+import React, { useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { Form, Select, Input, Row, Col } from 'antd';
+import DynamicSelectList from '../DynamicSelectList';
 import './style';
-
-const DynamicSelectList = () => {
-  return (
-    <div className="dynamic-select-list">
-      <Row>
-        <Col offset={4} span={20}>
-          <Row className="white-space-nowrap">
-            <Col span={11}>
-              <Select>
-                <Select.Option key="aaa" value="aaa">
-                  aaa
-                </Select.Option>
-                <Select.Option key="bbb" value="bbb">
-                  bbb
-                </Select.Option>
-                <Select.Option key="ccc" value="ccc">
-                  ccc
-                </Select.Option>
-                <Select.Option key="ddd" value="ddd">
-                  ddd
-                </Select.Option>
-              </Select>
-            </Col>
-            <Col span={2} className="text-equal">
-              =
-            </Col>
-            <Col span={11}>
-              <Select>
-                <Select.Option key="aaa" value="aaa">
-                  aaa
-                </Select.Option>
-                <Select.Option key="bbb" value="bbb">
-                  bbb
-                </Select.Option>
-                <Select.Option key="ccc" value="ccc">
-                  ccc
-                </Select.Option>
-                <Select.Option key="ddd" value="ddd">
-                  ddd
-                </Select.Option>
-              </Select>
-            </Col>
-            <div className="operation">
-              <Icon className="icon icon-plus-circle" type="plus-circle" />
-              <Icon className="icon icon-minus-circle" type="minus-circle" />
-            </div>
-          </Row>
-        </Col>
-      </Row>
-    </div>
-  );
-};
-
-// const formList: IFormItem[] = [
-//   {
-//     key: 'table',
-//     label: '选择表',
-//     type: EnumFormItemType.SELECT,
-//     placeholder: '请选择表',
-//     rules: [
-//       { required: true, message: '请选择表' }
-//     ]
-//   },
-//   {
-//     key: 'joinType',
-//     label: '关联关系',
-//     type: EnumFormItemType.SELECT,
-//     placeholder: '请选择关联关系',
-//     rules: [
-//       { required: true, message: '请选择关联关系' }
-//     ]
-//   },
-//   {
-//     key: 'schema',
-//     label: 'schema',
-//     type: EnumFormItemType.SELECT,
-//     placeholder: '请选择schema',
-//     rules: [
-//       { required: true, message: '请选择schema' }
-//     ]
-//   },
-// ]
+import { joinTypeList, updateTypeList } from './constants';
+import { TableJoinInfo } from 'pages/DataModel/types';
+import { API } from '@/services';
+import Message from '../../components/Message';
 
 const formItemLayout = {
   labelCol: { span: 4 },
   wrapperCol: { span: 20 },
 };
 
-const RelationTableModal = (props: { form: any }) => {
-  // const { form } = props;
+enum EnumRelationModifyMode {
+  EDIT = 'EDIT',
+  ADD = 'ADD',
+}
+
+interface ITableItem {
+  id: number;
+  tableName: string;
+  schema: string;
+  tableAlias: string;
+}
+interface IPropsRelationTableModal {
+  form?: any;
+  cref: any;
+  data?: TableJoinInfo;
+  tables: ITableItem[];
+  schemaList: any[];
+  dataSourceId: number;
+}
+
+const RelationTableModal = (props: IPropsRelationTableModal) => {
+  const {
+    getFieldDecorator,
+    validateFields,
+    setFieldsValue,
+    getFieldsValue,
+  } = props.form;
+  const { cref, data, tables, schemaList, dataSourceId } = props;
+  const mode = data ? EnumRelationModifyMode.EDIT : EnumRelationModifyMode.ADD;
+  const id = mode === EnumRelationModifyMode.EDIT ? data.id : undefined;
+  useEffect(() => {
+    if (data) {
+      setFieldsValue({
+        ...data,
+        joinPairs: undefined,
+      });
+    }
+  }, []);
+
+  const [tableList, setTableList] = useState([]);
+  const firstRender = useRef(true);
+  const [leftColLsit, setLeftColList] = useState([]);
+  const [rightColList, setRightColList] = useState([]);
+  const [visibleUpdateType, setVisibleUpdateType] = useState(false);
+
+  const validate = (callback) => {
+    validateFields((err, data) => {
+      callback(err, data, id);
+    });
+  };
+
+  useImperativeHandle(cref, () => ({
+    // validate 就是暴露给父组件的方法
+    validate,
+  }));
+
+  const requiredRule = (message: string) => {
+    return [{ required: true, message }];
+  };
+
+  const getDataModelTableList = async (
+    datasourceId: number,
+    schema: string
+  ) => {
+    try {
+      const { success, data, message } = await API.getDataModelTableList({
+        datasourceId,
+        schema,
+      });
+      if (success) {
+        setTableList(data);
+      } else {
+        Message.error(message);
+      }
+    } catch (error) {
+      Message.error(error.message);
+    }
+  };
+
+  const currentFormValue = getFieldsValue();
+
+  useEffect(() => {
+    getDataModelTableList(dataSourceId, currentFormValue.schema);
+    if (!currentFormValue.schema) return;
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    setFieldsValue({
+      table: undefined,
+    });
+  }, [currentFormValue.schema]);
+
+  const getColumnList = (
+    datasourceId: number,
+    schema: string,
+    tableNames: string[]
+  ) => {
+    return API.getDataModelColumns({
+      datasourceId,
+      schema,
+      tableNames,
+    });
+  };
+  // 表别名重复性校验
+  const repeatValidator = (rule, value, callback) => {
+    let filter = (v) => true;
+    if (mode === EnumRelationModifyMode.EDIT) {
+      // 编辑状态下需要过滤当前id的表名
+      filter = (item) => item.id !== id;
+    }
+    const isRepeat =
+      tables
+        .filter((item) => item.tableAlias)
+        .filter(filter)
+        .findIndex((item) => item.tableAlias === value) === -1;
+    if (isRepeat) {
+      callback();
+    } else {
+      callback('表别名不能重复');
+    }
+  };
+
+  useEffect(() => {
+    if (!currentFormValue || !currentFormValue.leftTable) return;
+    const [schema, tableName] = currentFormValue.leftTable.split('-');
+    getColumnList(dataSourceId, schema, [tableName])
+      .then(({ success, data, message }) => {
+        if (success) {
+          setLeftColList(data);
+        } else {
+          Message.error(message);
+        }
+      })
+      .catch((err) => {
+        Message.error(err.message);
+      });
+  }, [currentFormValue.leftTable]);
+
+  useEffect(() => {
+    if (!currentFormValue.table || !currentFormValue.schema) return;
+    getColumnList(dataSourceId, currentFormValue.schema, [
+      currentFormValue.table,
+    ])
+      .then(({ success, data, message }) => {
+        if (success) {
+          setRightColList(data);
+        } else {
+          Message.error(message);
+        }
+      })
+      .catch((err) => {
+        Message.error(err.message);
+      });
+  }, [currentFormValue.table, currentFormValue.schema]);
+
   return (
-    <div style={{ width: '100%', padding: '0 68px 0 44px' }}>
+    <div ref={cref} className="relation-table-modal">
       <Form layout="horizontal" {...formItemLayout}>
-        {/* <FormRender form={form} formList={formList} /> */}
-        <Form.Item label="选择表">
-          <Select>
-            <Select.Option key="aaa" value="aaa">
-              aaaa
-            </Select.Option>
-            <Select.Option key="bbb" value="bbb">
-              bbb
-            </Select.Option>
-            <Select.Option key="ccc" value="ccc">
-              ccc
-            </Select.Option>
-            <Select.Option key="ddd" value="ddd">
-              ddd
-            </Select.Option>
-          </Select>
+        <Form.Item label="选择表" required={false}>
+          {getFieldDecorator('leftTable', {
+            rules: requiredRule('请选择表'),
+          })(
+            <Select placeholder="请选择表">
+              {tables.map((item) => (
+                <Select.Option
+                  key={`${item.tableName}-${item.schema}`}
+                  value={`${item.tableName}-${item.schema}`}>
+                  {item.tableName}
+                </Select.Option>
+              ))}
+            </Select>
+          )}
         </Form.Item>
-        <Form.Item label="关联关系">
-          <Select>
-            <Select.Option key="aaa" value="aaa">
-              aaaa
-            </Select.Option>
-            <Select.Option key="bbb" value="bbb">
-              bbb
-            </Select.Option>
-            <Select.Option key="ccc" value="ccc">
-              ccc
-            </Select.Option>
-            <Select.Option key="ddd" value="ddd">
-              ddd
-            </Select.Option>
-          </Select>
+        <Form.Item label="关联关系" required={false}>
+          {getFieldDecorator('joinType', {
+            rules: requiredRule('请选择关联关系'),
+          })(
+            <Select placeholder="请选择关联关系">
+              {joinTypeList.map((item) => (
+                <Select.Option key={item.key} value={item.key}>
+                  {item.label}
+                </Select.Option>
+              ))}
+            </Select>
+          )}
         </Form.Item>
-        <Form.Item label="schema">
-          <Select>
-            <Select.Option key="aaa" value="aaa">
-              aaaa
-            </Select.Option>
-            <Select.Option key="bbb" value="bbb">
-              bbb
-            </Select.Option>
-            <Select.Option key="ccc" value="ccc">
-              ccc
-            </Select.Option>
-            <Select.Option key="ddd" value="ddd">
-              ddd
-            </Select.Option>
-          </Select>
+        <Form.Item label="schema" required={false}>
+          {getFieldDecorator('schema', {
+            rules: requiredRule('请选择scehma'),
+          })(
+            <Select placeholder="请选择schema">
+              {schemaList.map((schema) => (
+                <Select.Option key={schema.key} value={schema.value}>
+                  {schema.label}
+                </Select.Option>
+              ))}
+            </Select>
+          )}
         </Form.Item>
-        <Form.Item label="关联表">
+        <Form.Item label="关联表" required={false}>
           <Row>
             <Col span={11}>
-              <Select>
-                <Select.Option key="111" value="e">
-                  ww
-                </Select.Option>
-                <Select.Option key="qqq" value="rr">
-                  ww
-                </Select.Option>
-                <Select.Option key="qwww" value="rrq">
-                  ddaaa
-                </Select.Option>
-              </Select>
+              {getFieldDecorator('table', {
+                rules: requiredRule('请选择关联表'),
+              })(
+                <Select
+                  placeholder="请选择关联表"
+                  onChange={(value, target) => {
+                    const isPartition = (target as any).props['data-ext'];
+                    setVisibleUpdateType(isPartition);
+                  }}>
+                  {tableList.map((item) => (
+                    <Select.Option
+                      key={item.tableName}
+                      value={item.tableName}
+                      data-ext={item.partition}>
+                      {item.tableName}
+                    </Select.Option>
+                  ))}
+                </Select>
+              )}
             </Col>
-            <Col span={2} style={{ textAlign: 'center' }}>
+            <Col span={2} className="text-align-center">
               AS
             </Col>
             <Col span={11}>
-              <Input />
+              <Form.Item className="special-form-item">
+                {getFieldDecorator('tableAlias', {
+                  rules: [
+                    { required: true, message: '请输入表名称' },
+                    { max: 20, message: '表别名不能超过20个字符' },
+                    {
+                      pattern: /^[a-zA-Z0-9_]+$/g,
+                      message: '仅支持数字、字母、下划线',
+                    },
+                    {
+                      pattern: /[a-zA-Z]+/,
+                      message: '表名至少包含1个英文字母',
+                    },
+                    {
+                      validator: repeatValidator,
+                    },
+                  ],
+                })(<Input placeholder="请输入表名" />)}
+              </Form.Item>
             </Col>
           </Row>
         </Form.Item>
-        <Form.Item label="更新方式">
-          <Row>
-            <Col span={11}>
-              <Select>
-                <Select.Option key={1} value="1">
-                  全量更新
-                </Select.Option>
-                <Select.Option key={2} value="2">
-                  增量更新
-                </Select.Option>
-              </Select>
-            </Col>
-          </Row>
-        </Form.Item>
+        {visibleUpdateType ? (
+          <Form.Item label="更新方式" required={false}>
+            <Row>
+              <Col span={11}>
+                {getFieldDecorator('updateType', {
+                  rules: requiredRule('请选择更新方式'),
+                })(
+                  <Select placeholder="请选择更新方式">
+                    {updateTypeList.map((item) => (
+                      <Select.Option key={item.key} value={item.key}>
+                        {item.label}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                )}
+              </Col>
+            </Row>
+          </Form.Item>
+        ) : null}
         <span className="relation-table-modal-subtitle">设置关联键</span>
-        <DynamicSelectList />
+        <DynamicSelectList
+          leftColumns={leftColLsit}
+          rightColumns={rightColList}
+          form={props.form}
+          data={data && data.joinPairs}
+        />
       </Form>
     </div>
   );
 };
-
-export default Form.create()(RelationTableModal);
+// TODO: 类型报错问题
+export default Form.create()(RelationTableModal) as any;

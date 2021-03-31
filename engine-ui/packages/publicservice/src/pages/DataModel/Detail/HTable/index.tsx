@@ -1,6 +1,7 @@
 import React from 'react';
 import './style';
 import { IModelDetail } from '../../types';
+import { holder } from '../constants';
 
 interface IPropsHTable {
   detail: Partial<IModelDetail>;
@@ -10,31 +11,37 @@ interface IPropsHTable {
 const HTable = (props: IPropsHTable) => {
   const { detail } = props;
   return (
-    <table className="h-table">
-      <tr>
-        <td className="label">模型名称</td>
-        <td className="value">{detail.modelName}</td>
-        <td className="label">数据源</td>
-        <td className="value">{detail.dsTypeName}</td>
-      </tr>
-      <tr>
-        <td className="label">创建人</td>
-        <td className="value">{detail.creator}</td>
-        <td className="label">创建时间</td>
-        <td className="value">--</td>
-      </tr>
-      <tr>
-        <td className="label">分区字段（日期）</td>
-        <td className="value">--</td>
-        <td className="label">分区字段（时间）</td>
-        <td className="value">--</td>
-      </tr>
-      <tr>
-        <td className="label">备注</td>
-        <td className="value" colSpan={3}>
-          {detail.remark}
-        </td>
-      </tr>
+    <table className="h-table" data-testid="h-table">
+      <tbody>
+        <tr>
+          <td className="label">模型名称</td>
+          <td className="value">{holder(detail.modelName)}</td>
+          <td className="label">数据源</td>
+          <td className="value">{holder(detail.dsUrl)}</td>
+        </tr>
+        <tr>
+          <td className="label">创建人</td>
+          <td className="value">{holder(detail.creator)}</td>
+          <td className="label">创建时间</td>
+          <td className="value">{holder(detail.createTime)}</td>
+        </tr>
+        <tr>
+          <td className="label">分区字段（日期）</td>
+          <td className="value">
+            {holder(detail.modelPartition?.datePartitionColumn?.columnName)}
+          </td>
+          <td className="label">分区字段（时间）</td>
+          <td className="value">
+            {holder(detail.modelPartition?.timePartitionColumn?.columnName)}
+          </td>
+        </tr>
+        <tr>
+          <td className="label">备注</td>
+          <td className="value" colSpan={3}>
+            {holder(detail.remark)}
+          </td>
+        </tr>
+      </tbody>
     </table>
   );
 };

@@ -31,10 +31,10 @@ export default {
     method: 'get',
     url: `${prefix}/data/sources`,
   },
-  // 获取已使用过的数据源，用于列表筛选
-  getDataModelUsedDataSourceList: {
+  // 获取数据源类型，用于列表筛选
+  getDataSourceTypeList: {
     method: 'get',
-    url: `${prefix}/data/usedSources`,
+    url: `${prefix}/data/sourceType`,
   },
   // 获取更新方式枚举值
   getDataModelUpdateTypeList: {
@@ -49,5 +49,22 @@ export default {
   getDataModelTableList: {
     method: 'get',
     url: `${prefix}/data/tables`,
+  },
+  // SQL预览
+  previewSql: {
+    method: 'post',
+    url: `${prefix}/sqlPreview`,
+  },
+  getDataModelColumns: {
+    method: 'post',
+    url: `${prefix}/data/columns`,
+  },
+  repeatValidate: {
+    method: 'post',
+    url: `/api/publicService/common/name/repeat`,
+  },
+  isPartition: {
+    method: 'post',
+    url: `${prefix}/data/isPart`,
   },
 };

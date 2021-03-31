@@ -1,11 +1,7 @@
 import React from 'react';
 import { Table } from 'antd';
 import './style';
-import {
-  relationListColumns,
-  metricListColumns,
-  dimensionListColumns,
-} from './constants';
+import { relationListColumns, columns } from './constants';
 
 interface ITableItem {
   title: string;
@@ -21,12 +17,12 @@ const tableList: ITableItem[] = [
   },
   {
     title: '维度',
-    columns: dimensionListColumns,
+    columns: columns,
     dataSource: [],
   },
   {
     title: '度量',
-    columns: metricListColumns,
+    columns: columns,
     dataSource: [],
   },
 ];

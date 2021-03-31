@@ -3,6 +3,7 @@ import { Tabs, Spin } from 'antd';
 import HTable from './HTable';
 import PaneTitle from '../components/PaneTitle';
 import DataInfo from './DataInfo';
+import CodeBlock from './CodeBlock';
 import { API } from '@/services';
 import Message from 'pages/DataModel/components/Message';
 import './style';
@@ -18,9 +19,9 @@ const Detail = (props: IPropsDetail) => {
   const { modelId } = props;
   const [modelDetail, setModelDetail] = useState<Partial<IModelDetail>>({
     joinList: [],
-    metricColumns: [],
-    dimensionColumns: [],
+    columns: [],
   });
+  const [code, setCode] = useState<string>('');
   const [loading, setLoading] = useState(false);
 
   const getModelDetail = async (id: number) => {
@@ -30,6 +31,23 @@ const Detail = (props: IPropsDetail) => {
       const { success, data, message } = await API.getModelDetail({ id });
       if (success) {
         setModelDetail(data as IModelDetail);
+        getSql(data);
+      } else {
+        Message.error(message);
+      }
+    } catch (error) {
+      Message.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getSql = async (modelDetail) => {
+    setLoading(true);
+    try {
+      const { success, data, message } = await API.previewSql(modelDetail);
+      if (success) {
+        setCode(data.result);
       } else {
         Message.error(message);
       }
@@ -43,6 +61,7 @@ const Detail = (props: IPropsDetail) => {
   useEffect(() => {
     getModelDetail(modelId);
   }, [modelId]);
+
   return (
     <div className="dm-detail">
       <div className="card-container">
@@ -64,20 +83,29 @@ const Detail = (props: IPropsDetail) => {
                   <PaneTitle title="关联视图" />
                   <div className="releation-view" />
                 </div>
-
                 <div className="margin-bottom-20">
                   <PaneTitle title="数据信息" />
                   <DataInfo
                     relationTableList={modelDetail.joinList}
-                    metricList={modelDetail.metricColumns}
-                    dimensionList={modelDetail.dimensionColumns}
+                    metricList={modelDetail.columns.filter(
+                      (item) => item.metric
+                    )}
+                    dimensionList={modelDetail.columns.filter(
+                      (item) => item.dimension
+                    )}
                   />
                 </div>
               </div>
             </div>
           </TabPane>
           <TabPane tab="SQL信息" key="2">
-            this is tab pane 2...
+            <div className="pane-container">
+              <div className="card-container">
+                <div className="inner-container">
+                  <CodeBlock code={code} />
+                </div>
+              </div>
+            </div>
           </TabPane>
         </Tabs>
       </div>

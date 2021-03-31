@@ -1,6 +1,7 @@
 import React from 'react';
 import { Divider } from 'antd';
 import { EnumModelActionType, EnumModelStatus } from './types';
+import _ from 'lodash';
 
 export const modelStatusMap = new Map([
   [EnumModelStatus.UNRELEASE, '未发布'],
@@ -23,6 +24,8 @@ export const columnsGenerator = ({
   handleModelAction,
   handleDeleteBtnClick,
   handleModelNameClick,
+  dataSourceFilterOptions,
+  router,
 }) => {
   return [
     {
@@ -45,14 +48,11 @@ export const columnsGenerator = ({
     },
     {
       title: '数据源',
-      dataIndex: '',
+      dataIndex: 'dataSourceType',
       width: 200,
       ellipsis: true,
-      // TODO:
-      filters: [
-        { text: 'aaa', value: 1 },
-        { text: 'bbb', value: 2 },
-      ],
+      filters: dataSourceFilterOptions,
+      filterMultiple: true,
       render: (text, record) => {
         return (
           <span>
@@ -72,9 +72,6 @@ export const columnsGenerator = ({
         value: item[0],
       })),
       filterMultiple: true,
-      onFilter: (value, record) => {
-        return record.modelStatus === value;
-      },
       render: (modelStatus) => {
         return (
           <div>
@@ -144,11 +141,10 @@ export const columnsGenerator = ({
             return <span className="btn-disabled">删除</span>;
           }
         };
-        // TODO:
         const btnEdit = (
           <a
             onClick={() => {
-              alert('编辑');
+              router.push(`/data-model/edit/${record.id}`);
             }}>
             编辑
           </a>
