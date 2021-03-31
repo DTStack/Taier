@@ -719,7 +719,7 @@ public class JobRichOperator {
         return new ImmutablePair<>(startTime, endTime);
     }
 
-    public Pair<String, String> getCycTimeLimitEndNow(Boolean isTrigger) {
+    public Pair<String, String> getCycTimeLimitEndNow(Boolean isTrigger,Boolean restart) {
         // 当前时间
         Calendar calendar = Calendar.getInstance();
         String endTime = sdf.format(calendar.getTime());
@@ -732,9 +732,9 @@ public class JobRichOperator {
             calendar.set(Calendar.HOUR_OF_DAY, 0);
             calendar.add(Calendar.DATE, -dayGap);
         }else{
-            //补数据或重跑
-            Integer hourGap = environmentContext.getFillDataCycTimeHourGap();
-            calendar.add(Calendar.HOUR,-hourGap);
+            // 补数据或重跑
+            calendar.add(Calendar.HOUR,restart ? -environmentContext.getRestartCycTimeHourBefore():
+                    -environmentContext.getFillDataCycTimeHourGap());
         }
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         String startTime = sdf.format(calendar.getTime());

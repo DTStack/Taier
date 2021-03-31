@@ -59,12 +59,11 @@ public class RestartJobExecutor extends AbstractJobExecutor {
         return listMinId;
     }
 
-    private Pair<String, String> getCycTime() {
-        //补数据和重跑
-        if(environmentContext.getOpenFillDataCycTimeLimit()) {
-            return jobRichOperator.getCycTimeLimitEndNow(false);
-        }else {
-            return  new ImmutablePair<>(null, null);
+    public Pair<String, String> getCycTime() {
+        // 重跑
+        if(environmentContext.getOpenRestartDataCycTimeLimit()) {
+            return jobRichOperator.getCycTimeLimitEndNow(false,true);
         }
+        return new ImmutablePair<>(null, null);
     }
 }

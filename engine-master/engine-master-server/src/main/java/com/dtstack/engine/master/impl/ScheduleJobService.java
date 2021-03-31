@@ -2883,7 +2883,6 @@ public class ScheduleJobService {
     }
 
     public Long getListMinId(String nodeAddress,Integer scheduleType, String left, String right,Integer isRestart) {
-        // TODO 重跑任务的时间范围
         return StringUtils.isAnyBlank(left,right)?null:jobGraphTriggerDao.getMinJobIdByTriggerTime(left,right);
     }
 

@@ -36,12 +36,26 @@ public class EnvironmentContext {
 
     /**补数据或重跑cycTime的间隔，正常环境7*24小时，压测环境2个小时**/
     public Integer getFillDataCycTimeHourGap(){
-        return Math.abs(Integer.parseInt(environment.getProperty("fillDataCycTimeHourGap", "168")));
+        return Math.abs(Integer.parseInt(environment.getProperty("fillDataCycTimeHourGap", "1440")));
     }
 
-    /**是否给补数据和重跑cycTime做限制，默认不做限制**/
+    /**是否给补数据做限制，默认不做限制**/
     public Boolean getOpenFillDataCycTimeLimit(){
         return Boolean.parseBoolean(environment.getProperty("openFillDataCycTimeLimit","false"));
+    }
+
+    /**
+     * 是否开启重跑时间限制，默认限制
+     */
+    public Boolean getOpenRestartDataCycTimeLimit(){
+        return Boolean.parseBoolean(environment.getProperty("openFillDataCycTimeLimit","true"));
+    }
+
+    /**
+     * 重跑默认当前时间前多少天，默认60天
+     */
+    public int getRestartCycTimeHourBefore(){
+        return Math.abs(Integer.parseInt(environment.getProperty("restartCycTimeBefore","1440")));
     }
 
     public long getJobStatusDealerInterval() {

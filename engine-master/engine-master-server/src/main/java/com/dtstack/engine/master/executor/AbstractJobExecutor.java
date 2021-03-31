@@ -316,19 +316,16 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     /**
      * CycTimeDayGap 如果为0，则只取当天的调度数据，如果恰好在临界点0点存在上一天的未完成的调度任务，则在下一天会被忽略执行。
      */
-    private Pair<String, String> getCycTime() {
-        Pair<String, String> cycTime = null;
+    public Pair<String, String> getCycTime() {
         if (getScheduleType().getType() == EScheduleType.NORMAL_SCHEDULE.getType()) {
-            cycTime = jobRichOperator.getCycTimeLimitEndNow(true);
-        } else {
-            //补数据和重跑
-            if(env.getOpenFillDataCycTimeLimit()) {
-                cycTime = jobRichOperator.getCycTimeLimitEndNow(false);
-            }else {
-                cycTime = new ImmutablePair<>(null, null);
-            }
+            return jobRichOperator.getCycTimeLimitEndNow(true,false);
         }
-        return cycTime;
+        // 补数据
+        else if(env.getOpenFillDataCycTimeLimit()) {
+            return jobRichOperator.getCycTimeLimitEndNow(false,false);
+        }
+        return new ImmutablePair<>(null, null);
+
     }
 
     public void start(ScheduleBatchJob scheduleBatchJob) {
