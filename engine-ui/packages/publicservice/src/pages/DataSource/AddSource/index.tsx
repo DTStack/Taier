@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { hashHistory } from 'react-router';
+import { withRouter } from 'react-router';
 import { Steps, Button } from 'antd';
 import BreadComponent from '../components/BreadComponent';
 import SelectSource from '../components/SelectSource';
@@ -9,7 +9,7 @@ import './style.scss';
 
 const { Step } = Steps;
 
-export default function index() {
+function index(props) {
   const childRef = useRef(null);
 
   const [current, setCurrent] = useState<number>(0);
@@ -37,13 +37,15 @@ export default function index() {
         let content0 = (
           <>
             <div className="step-info">
-              <SelectSource nextType={nextType}></SelectSource>
+              {current === 0 && (
+                <SelectSource nextType={nextType}></SelectSource>
+              )}
             </div>
             <div className="footer-select">
               <Button
                 style={{ marginRight: 8 }}
                 onClick={() => {
-                  hashHistory.push('/data-source/list');
+                  props.router.push('/data-source/list');
                 }}>
                 取消
               </Button>
@@ -66,7 +68,7 @@ export default function index() {
         let content1 = (
           <>
             <div className="step-info">
-              <ProduceAuth></ProduceAuth>
+              {current === 1 && <ProduceAuth></ProduceAuth>}
             </div>
             <div className="footer-select">
               <Button
@@ -92,7 +94,9 @@ export default function index() {
         let content2 = (
           <>
             <div className="step-info">
-              <InfoConfig cRef={childRef} record={''}></InfoConfig>
+              {current === 2 && (
+                <InfoConfig cRef={childRef} record={''}></InfoConfig>
+              )}
             </div>
             <div className="footer-select">
               <Button type="primary" icon="sync" onClick={testConnect}>
@@ -135,3 +139,5 @@ export default function index() {
     </div>
   );
 }
+
+export default withRouter(index);

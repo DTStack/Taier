@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { withRouter } from 'react-router';
 import { Select, Checkbox, Row, Col, notification } from 'antd';
 import { API } from '@/services';
 import { checks, saveCheckStauts, getSaveStatus } from '../utils/handelSession';
 const { Option } = Select;
 
-export default function ProduceAuth() {
+function ProduceAuth() {
+  console.log('ProduceAuth: ============');
   const [sqlType, setSqlType] = useState({
     dataType: '',
     haveVersion: true,
@@ -135,3 +137,4 @@ export default function ProduceAuth() {
     </div>
   );
 }
+export default withRouter(ProduceAuth);

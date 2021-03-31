@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useImperativeHandle } from 'react';
+import { withRouter } from 'react-router';
 import {
   Form,
   Input,
@@ -223,10 +224,11 @@ const InfoConfig = (props) => {
     validateFields(async (err, fieldsValue) => {
       //验证字段
       if (!err) {
-        if (showUpload) {
-          let { success, message: msg } = await API.addDatasourceWithKerberos(
-            handelParams
-          );
+        if (getFieldValue('kerberosFile')) {
+          let {
+            success,
+            message: msg,
+          } = await API.addOrUpdateSourceWithKerberos(handelParams);
           if (success) {
             message.success('添加数据源成功');
             props.router.push('/data-source/list');
@@ -985,4 +987,4 @@ const InfoConfig = (props) => {
     </div>
   );
 };
-export default Form.create<IProps>({})(InfoConfig);
+export default Form.create<IProps>({})(withRouter(InfoConfig));

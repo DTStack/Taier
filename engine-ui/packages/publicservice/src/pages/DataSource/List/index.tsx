@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { withRouter } from 'react-router';
 import Search from './components/Search';
 import { Table, message, Modal, Pagination, notification } from 'antd';
 import { columns } from './constants';
@@ -7,12 +8,12 @@ import AuthSelect from './components/AuthSelect';
 import { remove } from '../utils/handelSession';
 import { IPagination, IOther, IRecord } from './type';
 import './style.scss';
-// import { initNotification } from '../utils/index';
 import { DATA_SOURCE_TEXT } from '../constants/index';
 
 function index(props) {
-  console.log('==============');
+  console.log('===============');
   console.log('props: ', props);
+
   const [dataSources, setDataSources] = useState([]);
   const [params, setParams] = useState<IPagination>({
     currentPage: 1, //当前页码
@@ -67,8 +68,6 @@ function index(props) {
   };
 
   useEffect(() => {
-    // initNotification();
-
     requestTableData(); //获取数据源列表
 
     //清除存储数据
@@ -80,12 +79,6 @@ function index(props) {
     if (record.isMeta === 1) {
       message.info('带meta标识的数据源不能编辑、删除');
     } else {
-      // hashHistory.push({
-      //   pathname: '/data-source/edit',
-      //   state: {
-      //     record: record,
-      //   },
-      // });
       props.router.push({
         pathname: '/data-source/edit',
         state: {
@@ -219,4 +212,4 @@ function index(props) {
   );
 }
 
-export default index;
+export default withRouter(index);

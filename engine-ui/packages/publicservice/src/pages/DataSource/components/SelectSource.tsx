@@ -121,7 +121,7 @@ export default function SelectSource(props) {
         </div>
         <div className="right-menu">
           {iconList.length > 0 &&
-            iconList.map((item,index) => {
+            iconList.map((item, index) => {
               let col = (
                 <div
                   key={index}

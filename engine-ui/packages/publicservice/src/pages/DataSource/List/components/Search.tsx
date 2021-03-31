@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { API } from '@/services';
 import { Form, Checkbox, Button, Select, Tooltip, Icon, message } from 'antd';
-import { hashHistory } from 'react-router';
+import { withRouter } from 'react-router';
 import SearchInput from '@/components/SearchInput';
 import { FormComponentProps } from 'antd/es/form';
 import '../style.scss';
@@ -50,7 +50,7 @@ function Search(props) {
 
   // 新增数据源
   const addList = () => {
-    hashHistory.push('/data-source/add');
+    props.router.push('/data-source/add');
   };
 
   //类型多选方法
@@ -139,4 +139,4 @@ function Search(props) {
     </div>
   );
 }
-export default Form.create<IProps>({})(Search);
+export default Form.create<IProps>({})(withRouter(Search));
