@@ -62,7 +62,7 @@ export default {
     url: `${api}/addDs/addOrUpdateSource`,
   },
   //上传Kerberos添加数据源
-  addDatasourceWithKerberos: {
+  addOrUpdateSourceWithKerberos: {
     method: 'postForm',
     url: `${api}/addDs/addOrUpdateSourceWithKerberos`,
   },
