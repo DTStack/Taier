@@ -2955,29 +2955,31 @@ public class ScheduleJobService {
             if (RdosTaskStatus.FAILED_STATUS.contains(bottleStatus)) {
                 // 当前强任务执行失败，执行更新成失败
                 String log = getLog(fatherScheduleJob, currentScheduleJob, nameByDtUicTenantId, project);
-                updateFatherStatus(fatherScheduleJob, log,RdosTaskStatus.FAILED.getStatus());
+                // 添加日志
+                this.updateLogInfoById(fatherScheduleJob.getJobId(),log);
+                updateFatherStatus(fatherScheduleJob,RdosTaskStatus.FAILED.getStatus());
             } else if (RdosTaskStatus.FINISH_STATUS.contains(bottleStatus)) {
                 // 当前任务执行成功,判断父任务下其他子任务是否有强规则任务
                 List<ScheduleJob> jobs = sonScheduleJobs.stream().filter(job -> TaskRuleEnum.STRONG_RULE.getCode().equals(job.getTaskRule()) && !job.getJobKey().equals(currentScheduleJob.getJobKey())).collect(Collectors.toList());
 
+                // 添加日志
+                String log = String.format(LOG_TEM, currentScheduleJob.getJobName(), "运行成功", StringUtils.isBlank(nameByDtUicTenantId) ? "" : nameByDtUicTenantId, project == null ? "" : project.getProjectAlias());
+                this.updateLogInfoById(fatherScheduleJob.getJobId(),addLog(fatherScheduleJob.getLogInfo(),log));
                 if (CollectionUtils.isNotEmpty(jobs)) {
                     List<ScheduleJob> noFinishJobs = jobs.stream().filter(job -> !RdosTaskStatus.FINISH_STATUS.contains(job.getStatus())).collect(Collectors.toList());
 
+                    // noFinishJobs集合是空的，没有未完成的状态，更新父节点
                     if (CollectionUtils.isEmpty(noFinishJobs)) {
-                        // 为查到未完成的任务
-                        String log = String.format(LOG_TEM, currentScheduleJob.getJobName(), "运行成功", StringUtils.isBlank(nameByDtUicTenantId) ? "" : nameByDtUicTenantId, project == null ? "" : project.getProjectAlias());
-                        updateFatherStatus(fatherScheduleJob, addLog(fatherScheduleJob.getLogInfo(),log),RdosTaskStatus.FINISHED.getStatus());
+                        updateFatherStatus(fatherScheduleJob,RdosTaskStatus.FINISHED.getStatus());
                     }
                 } else {
-                    String log = String.format(LOG_TEM, currentScheduleJob.getJobName(), "运行成功", StringUtils.isBlank(nameByDtUicTenantId) ? "" : nameByDtUicTenantId, project == null ? "" : project.getProjectAlias());
-                    updateFatherStatus(fatherScheduleJob, addLog(fatherScheduleJob.getLogInfo(),log),RdosTaskStatus.FINISHED.getStatus());
+                    updateFatherStatus(fatherScheduleJob,RdosTaskStatus.FINISHED.getStatus());
                 }
             }
         }
     }
 
-    private void updateFatherStatus(ScheduleJob fatherScheduleJob, String log, Integer status) {
-        this.updateLogInfoById(fatherScheduleJob.getJobId(),log);
+    private void updateFatherStatus(ScheduleJob fatherScheduleJob, Integer status) {
         if (RdosTaskStatus.RUNNING_TASK_RULE.getStatus().equals(fatherScheduleJob.getStatus())) {
             this.updateStatusByJobId(fatherScheduleJob.getJobId(), status,fatherScheduleJob.getVersionId());
         }
