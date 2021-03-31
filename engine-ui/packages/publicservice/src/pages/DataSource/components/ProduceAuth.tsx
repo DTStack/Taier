@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { withRouter } from 'react-router';
 import { Select, Checkbox, Row, Col, notification } from 'antd';
 import { API } from '@/services';
 import { checks, saveCheckStauts, getSaveStatus } from '../utils/handelSession';
 const { Option } = Select;
 
-export default function ProduceAuth() {
+function ProduceAuth() {
+  console.log('ProduceAuth: ============');
   const [sqlType, setSqlType] = useState({
     dataType: '',
     haveVersion: true,
@@ -66,6 +68,7 @@ export default function ProduceAuth() {
   };
 
   useEffect(() => {
+    console.log('useEffect-produce-auth: ');
     queryDsVersionByType();
   }, []);
 
@@ -105,7 +108,9 @@ export default function ProduceAuth() {
               value={defaultSelect}>
               {version.map((item) => {
                 return (
-                  <Option value={item.dataVersion}>{item.dataVersion}</Option>
+                  <Option value={item.dataVersion} key={item.dataVersion}>
+                    {item.dataVersion}
+                  </Option>
                 );
               })}
             </Select>
@@ -120,8 +125,8 @@ export default function ProduceAuth() {
             style={{ flex: 1 }}>
             <Row>
               {produceList.length > 0 &&
-                produceList.map((item) => (
-                  <Col span={8}>
+                produceList.map((item, index) => (
+                  <Col span={8} key={index}>
                     <Checkbox value={item.appType}>{item.appName}</Checkbox>
                   </Col>
                 ))}
@@ -132,3 +137,4 @@ export default function ProduceAuth() {
     </div>
   );
 }
+export default withRouter(ProduceAuth);

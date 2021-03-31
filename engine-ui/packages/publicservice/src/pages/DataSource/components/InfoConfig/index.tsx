@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useImperativeHandle } from 'react';
-import { useHistory } from 'react-router';
+import { withRouter } from 'react-router';
 import {
   Form,
   Input,
@@ -20,13 +20,7 @@ import { API } from '@/services';
 
 import downloadFile from '@/utils/downloadFile';
 import { checks, getSaveStatus } from '../../utils/handelSession';
-import {
-  getRules,
-  getRulesJdbc,
-  IParams,
-  formItemLayout,
-  formNewLayout,
-} from './formRules';
+import { getRules, IParams, formItemLayout, formNewLayout } from './formRules';
 import '../../List/style.scss';
 import { HDFSCONG } from '../../constants/index';
 import { hdfsConfig } from './tooltips';
@@ -41,7 +35,8 @@ interface IProps extends FormComponentProps {
 }
 
 const InfoConfig = (props) => {
-  const history = useHistory();
+  console.log('##################');
+  console.log('进入-infoconfig: ');
   const { form, cRef, record } = props;
   const {
     getFieldDecorator,
@@ -142,6 +137,8 @@ const InfoConfig = (props) => {
   };
 
   useEffect(() => {
+    console.log('**********************');
+    console.log('useEffect-infoconfig');
     getAllData();
     getParams();
   }, []);
@@ -227,13 +224,14 @@ const InfoConfig = (props) => {
     validateFields(async (err, fieldsValue) => {
       //验证字段
       if (!err) {
-        if (showUpload) {
-          let { success, message: msg } = await API.addDatasourceWithKerberos(
-            handelParams
-          );
+        if (getFieldValue('kerberosFile')) {
+          let {
+            success,
+            message: msg,
+          } = await API.addOrUpdateSourceWithKerberos(handelParams);
           if (success) {
             message.success('添加数据源成功');
-            history.push('/data-source');
+            props.router.push('/data-source/list');
           } else {
             message.error(`${msg}`);
           }
@@ -241,7 +239,7 @@ const InfoConfig = (props) => {
           let { success, message: msg } = await API.addDatasource(handelParams);
           if (success) {
             message.success('添加数据源成功');
-            history.push('/data-source');
+            props.router.push('/data-source/list');
           } else {
             message.error(`${msg}`);
           }
@@ -249,16 +247,6 @@ const InfoConfig = (props) => {
       }
     });
   };
-  //3.switch处理upload方法
-  // const switchChange = (value, label, name) => {
-  //   if (label === '开启Kerberos认证') {
-  //     setShowUpload(value);
-  //     if (!value) {
-  //       setFileList([]);
-  //       setFile('');
-  //     }
-  //   }
-  // };
   //InputWithCopy｜TextAreaWithCopy之复制功能
   const handleCopy = (item) => {
     if (copy(item.placeHold)) {
@@ -494,7 +482,7 @@ const InfoConfig = (props) => {
           <Form.Item label={item.label}>
             {getFieldDecorator(
               `${item.name}`,
-              getRulesJdbc(item)
+              getRules(item)
             )(
               <Input
                 placeholder={item.placeHold || `请输入${item.label}`}
@@ -546,7 +534,7 @@ const InfoConfig = (props) => {
           <Form.Item label={item.label}>
             {getFieldDecorator(
               `${item.name}`,
-              getRulesJdbc(item)
+              getRules(item)
             )(
               <TextArea
                 rows={4}
@@ -999,4 +987,4 @@ const InfoConfig = (props) => {
     </div>
   );
 };
-export default Form.create<IProps>({})(InfoConfig);
+export default Form.create<IProps>({})(withRouter(InfoConfig));

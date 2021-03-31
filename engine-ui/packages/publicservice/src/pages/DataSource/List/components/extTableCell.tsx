@@ -119,6 +119,7 @@ const showMapArr: any = {
 export function ExtTableCell(props: any) {
   const { sourceData } = props;
   const arr = showMapArr[sourceData.type];
+  let data = JSON.parse(sourceData.linkJson);
   if (arr) {
     return (
       <div>
@@ -129,7 +130,7 @@ export function ExtTableCell(props: any) {
               style={{ display: 'flex', lineHeight: 1.5, marginBottom: 0 }}>
               <span style={{ color: '#999', flexShrink: 0 }}>{text}：</span>
               <span style={{ display: 'inline-block', wordBreak: 'break-all' }}>
-                {sourceData?.linkJson?.key || ''}
+                {data[key] || ''}
               </span>
             </p>
           );

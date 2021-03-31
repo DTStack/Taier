@@ -8,7 +8,7 @@ interface IProps {
   oncheck(checkedValues: string): void;
 }
 
-export default function AuthSel(props: IProps) {
+export default function AuthSelect(props: IProps) {
   let { record, oncheck } = props;
   const [authList, setAuthList] = useState([]);
   const [checkedList, setCheckedList] = useState([]);
@@ -21,7 +21,7 @@ export default function AuthSel(props: IProps) {
     if (success) {
       if (data.length > 0) {
         data.forEach((item) => {
-          if (item.isAuth === 1) {
+          if (item.isAuth === 1 || item.isImport === 1) {
             let newList = checkedList;
             newList.push(item.appType);
             setCheckedList(newList);
@@ -54,15 +54,16 @@ export default function AuthSel(props: IProps) {
         value={checkedList}>
         <Row>
           {authList.length > 0 &&
-            authList.map((item) => (
+            authList.map((item, index) => (
               <Col
+                key={index}
                 span={8}
                 onClick={() => {
-                  if (item.isAuth === 1) {
+                  if (item.isImport === 1) {
                     message.error('已在产品中应用，不能取消授权。');
                   }
                 }}>
-                <Checkbox value={item.appType} disabled={item.isAuth === 1}>
+                <Checkbox value={item.appType} disabled={item.isImport === 1}>
                   {item.appName}
                 </Checkbox>
               </Col>
