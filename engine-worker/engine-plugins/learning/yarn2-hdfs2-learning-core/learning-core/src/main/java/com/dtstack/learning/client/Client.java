@@ -788,6 +788,7 @@ public class Client {
                 Utilities.addPathToEnvironment(appMasterEnv, envKey, appMasterUserEnv.get(envKey));
             }
         }
+        appMasterEnv.put(LearningConstants.Environment.HADOOP_USER_NAME.toString(), conf.get("hadoop.username"));
 
         LOG.info("Building application master launch command");
         List<String> appMasterArgs = new ArrayList<>(20);

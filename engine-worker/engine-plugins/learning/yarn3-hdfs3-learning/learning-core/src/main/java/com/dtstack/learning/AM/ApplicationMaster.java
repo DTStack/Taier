@@ -181,6 +181,10 @@ public class ApplicationMaster extends CompositeService {
     conf = new LearningConfiguration();
     conf.addResource(new Path(LearningConstants.XLEARNING_JOB_CONFIGURATION));
     System.setProperty(LearningConstants.Environment.HADOOP_USER_NAME.toString(), conf.get("hadoop.job.ugi").split(",")[0]);
+    LOG.info("hadoop.job.ugi: " + conf.get("hadoop.job.ugi"));
+    LOG.info("user.dir: " + System.getProperty("user.dir"));
+    LOG.info("user.name: " + System.getProperty("user.name"));
+    LOG.info("HADOOP_USER_NAME: " + System.getenv(LearningConstants.Environment.HADOOP_USER_NAME.toString()));
     outputInfos = new ArrayList<>();
     input2FileStatus = new ConcurrentHashMap<>();
     containerId2InputInfo = new ConcurrentHashMap<>();
