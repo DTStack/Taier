@@ -828,8 +828,9 @@ public class ScheduleTaskShadeService {
             throw new RdosDefineException("projectId must be passed");
         }
 
-
-        name = handlerStr(name);
+        if (StringUtils.isNotBlank(name)) {
+            name = handlerStr(name);
+        }
 
         if (StringUtils.isBlank(name)) {
             return buildTypeVo(null);
