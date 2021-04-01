@@ -45,6 +45,7 @@ public class JarDingAlterClient extends AbstractDingAlterClient {
 
         alterSendDingBean.setJarPath(jarPath);
         alterSendDingBean.setClassName(className);
+        alterSendDingBean.setEnv(alterContext.getEvn());
     }
 
     @Override
@@ -60,9 +61,9 @@ public class JarDingAlterClient extends AbstractDingAlterClient {
             String ding = alterSendDingBean.getDing();
 
             if (DingTypeEnums.TEXT.getMsg().equalsIgnoreCase(dingMsgType)) {
-                r = iDingChannel.sendDing(Lists.newArrayList(ding),alterSendDingBean.getContent(),null,jsonObject);
+                r = iDingChannel.sendDing(Lists.newArrayList(ding),alterSendDingBean.getContent(),null,alterSendDingBean.getEnv());
             } else if (DingTypeEnums.MARKDOWN.getMsg().equalsIgnoreCase(dingMsgType)) {
-                r = iDingChannel.sendDingWithMarkDown(Lists.newArrayList(ding),alterSendDingBean.getTitle(),alterSendDingBean.getContent(),null,jsonObject);
+                r = iDingChannel.sendDingWithMarkDown(Lists.newArrayList(ding),alterSendDingBean.getTitle(),alterSendDingBean.getContent(),null,alterSendDingBean.getEnv());
             } else {
                 throw new BizException(String.format("Unsupported DingTalk message types，msgtype=%s", dingMsgType));
             }
