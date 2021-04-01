@@ -3,9 +3,9 @@ import { Form, Select, Input, Switch } from 'antd';
 import { EnumFormItemType, IFormItem } from './types';
 import RelationList from '../RelationList';
 
-const WrapperSwitch = (props) => {
+const WrapperSwitch = (props: any) => {
   const _props = { ...props };
-  delete _props.avlue;
+  delete _props.value;
   return <Switch checked={props.value} {..._props} />;
 };
 

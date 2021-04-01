@@ -5,3 +5,8 @@ export enum EnumModifyStep {
   METRIC_STEP = 3,
   SETTING_STEP = 4,
 }
+
+export enum EnumModifyMode {
+  EDIT = 'EDIT',
+  ADD = 'ADD',
+}

@@ -14,12 +14,18 @@ const idGenerator = () => {
 };
 const id = idGenerator();
 
+interface BasicInfoParams {
+  options: any[];
+  onDataSourceChange: Function;
+  id?: number;
+  isDisabled: boolean;
+}
+
 // 基础信息表单配置
 export const basicInfoFormListGenerator = (
-  options: any[],
-  onDataSourceChange: Function,
-  id?: number
+  params: BasicInfoParams
 ): IFormItem[] => {
+  const { options, onDataSourceChange, id, isDisabled } = params;
   return [
     {
       key: 'modelName',
@@ -77,6 +83,9 @@ export const basicInfoFormListGenerator = (
           },
         },
       ],
+      ext: {
+        disabled: isDisabled,
+      },
     },
     {
       key: 'dsId',
@@ -87,6 +96,7 @@ export const basicInfoFormListGenerator = (
       options: options || [],
       ext: {
         onChange: onDataSourceChange,
+        disabled: isDisabled,
       },
     },
     {

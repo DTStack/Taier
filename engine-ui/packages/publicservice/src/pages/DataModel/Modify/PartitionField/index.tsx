@@ -15,10 +15,10 @@ const dateFmtList = [
 ];
 const timeFmtList = ['HH:mm:ss', 'HH:mm', 'HH'];
 
-const WrapperSwitch = React.forwardRef((props: any) => {
+const WrapperSwitch = React.forwardRef((props: any, ref: any) => {
   const _props = { ...props };
   delete _props.value;
-  return <Switch checked={props.value} {..._props} />;
+  return <Switch checked={props.value} ref={ref} {..._props} />;
 });
 
 /**

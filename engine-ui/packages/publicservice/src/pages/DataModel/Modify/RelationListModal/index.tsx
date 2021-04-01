@@ -42,6 +42,7 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
   const { cref, data, tables, schemaList, dataSourceId } = props;
   const mode = data ? EnumRelationModifyMode.EDIT : EnumRelationModifyMode.ADD;
   const id = mode === EnumRelationModifyMode.EDIT ? data.id : undefined;
+  const isDisabled = mode === EnumRelationModifyMode.EDIT ? true : false;
   useEffect(() => {
     if (data) {
       setFieldsValue({

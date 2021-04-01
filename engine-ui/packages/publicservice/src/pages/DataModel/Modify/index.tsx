@@ -23,7 +23,7 @@ import { API } from '@/services';
 import Message from 'pages/DataModel/components/Message';
 import _ from 'lodash';
 import { IModelDetail, TableJoinInfo } from 'pages/DataModel/types';
-import { EnumModifyStep } from './types';
+import { EnumModifyStep, EnumModifyMode } from './types';
 import BreadCrumbRender from './BreadCrumbRender';
 import CodeBlock from 'pages/DataModel/components/CodeBlock';
 const idGenerator = () => {
@@ -39,11 +39,6 @@ interface IPropsModify {
   params: any;
 }
 
-enum EnumModifyMode {
-  EDIT = 'EDIT',
-  ADD = 'ADD',
-}
-
 const { Step } = Steps;
 
 const Modify = (props: IPropsModify) => {
@@ -55,7 +50,7 @@ const Modify = (props: IPropsModify) => {
   const { validateFields, getFieldsValue, setFieldsValue } = form;
 
   const [current, setCurrent] = useState<EnumModifyStep>(
-    EnumModifyStep.DIMENSION_STEP
+    EnumModifyStep.BASIC_STEP
   );
   const [visibleRelationModal, setVisibleRelationModal] = useState(false);
   const [formValue, setFormValue] = useState<any>({});
@@ -184,6 +179,7 @@ const Modify = (props: IPropsModify) => {
     }
   };
 
+  // 是否为分区表
   const isPartition = async (
     datasourceId: number,
     tableName: string,
@@ -432,18 +428,12 @@ const Modify = (props: IPropsModify) => {
     }));
   }, [formValue.dsId]);
 
+  const dsItem = useRef<any>({});
+
   const onDataSourceChange = (value, target) => {
     const ext = target.props['data-ext'];
     try {
-      const v = JSON.parse(ext);
-      const formValue = getFieldsValue();
-      setFormValue((prev) => ({
-        ...prev,
-        ...formValue,
-        dsId: value,
-        dsUrl: v.dsUrl,
-        dsType: v.dsType,
-      }));
+      dsItem.current = JSON.parse(ext);
     } catch (err) {
       console.error(err.message);
     }
@@ -453,14 +443,18 @@ const Modify = (props: IPropsModify) => {
   const childRef = useRef(null);
 
   const getFormList = (step: EnumModifyStep) => {
+    console.log(formValue);
     switch (step) {
       case EnumModifyStep.BASIC_STEP:
         const id = mode === EnumModifyMode.ADD ? undefined : modelId;
-        return basicInfoFormListGenerator(
-          dataSourceList,
+        return basicInfoFormListGenerator({
+          options: dataSourceList,
           onDataSourceChange,
-          id
-        );
+          id,
+          isDisabled:
+            mode === EnumModifyMode.EDIT &&
+            current >= EnumModifyStep.BASIC_STEP,
+        });
       case EnumModifyStep.RELATION_TABLE_STEP:
         return relationFormListGenerator({
           handleClick: () => {
@@ -641,9 +635,16 @@ const Modify = (props: IPropsModify) => {
                 onClick={() => {
                   form.validateFields((err, data) => {
                     if (err) return;
+                    const {
+                      dsType = formValue.dsType,
+                      dsUrl = formValue.dsUrl,
+                    } = dsItem.current;
+                    console.log(dsType, dsUrl);
                     const params = {
                       ...formValue,
                       ...data,
+                      dsType,
+                      dsUrl,
                       step: current + 1,
                     };
                     saveDataModel(params, () =>

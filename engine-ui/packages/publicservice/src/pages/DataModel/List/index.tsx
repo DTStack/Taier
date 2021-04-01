@@ -24,7 +24,7 @@ interface IReqParams {
   search: string;
   pageSize: number;
   datasourceTypes: number[];
-  modelStatus: EnumModelStatus[];
+  statuses: EnumModelStatus[];
 }
 interface IModelAction {
   type: EnumModelActionType;
@@ -52,7 +52,7 @@ const List = (props: IPropList) => {
     search: '',
     pageSize: 10,
     datasourceTypes: [1, 2],
-    modelStatus: [
+    statuses: [
       EnumModelStatus.OFFLINE,
       EnumModelStatus.RELEASE,
       EnumModelStatus.UNRELEASE,
@@ -135,6 +135,7 @@ const List = (props: IPropList) => {
       const { success, message } = await apiAction({ id });
       if (success) {
         Message.success(msg);
+        fetchModelList(requestParams);
       } else {
         Message.error(message);
       }
@@ -145,16 +146,29 @@ const List = (props: IPropList) => {
 
   // 删除按钮点击事件处理，二次确认弹窗
   const handleDeleteBtnClick = (id) => {
-    // TODO: icon待替换
     Modal.confirm({
-      title: '确认要删除这条模型？',
-      content: '删除后，已经引用该模型的数据将不可用！',
+      title: (
+        <span className="cus-modal margin-left-40">确认要删除这条模型？</span>
+      ),
+      content: (
+        <span className="cus-modal margin-left-40">
+          删除后，已经引用该模型的数据将不可用！
+        </span>
+      ),
       onOk() {
         handleModelAction({
           type: EnumModelActionType.DELETE,
           id,
         });
       },
+      okText: '删除',
+      cancelText: '取消',
+      okButtonProps: {
+        className: 'cus-modal btn-delete',
+      },
+      icon: (
+        <i className="cus-modal icon iconfont2 iconFilltianchong_Close-Circle-Fill" />
+      ),
     });
   };
 
@@ -218,13 +232,13 @@ const List = (props: IPropList) => {
             onChange={(pagination, filters) => {
               const {
                 dataSourceType = requestParams.datasourceTypes,
-                modelStatus = requestParams.modelStatus,
+                modelStatus = requestParams.statuses,
               } = filters;
 
               setRequestParams((reqParams) => ({
                 ...reqParams,
                 currentPage: 1,
-                modelStatus: modelStatus as EnumModelStatus[],
+                statuses: modelStatus as EnumModelStatus[],
                 datasourceTypes: dataSourceType as number[],
               }));
             }}

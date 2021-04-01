@@ -70,7 +70,7 @@ export const columnsGenerator = ({
       render: (text, record) => {
         return (
           <span>
-            {record.dsUrl}({record.dsTypeName})
+            {record.dsName}({record.dsTypeName})
           </span>
         );
       },
@@ -130,6 +130,7 @@ export const columnsGenerator = ({
         const isPublished = record.modelStatus === 1;
         const btnRelease = (
           <a
+            className="btn-link"
             onClick={() =>
               handleModelAction({
                 type: EnumModelActionType.RELEASE,
@@ -141,6 +142,7 @@ export const columnsGenerator = ({
         );
         const btnUnrelease = (
           <a
+            className="btn-link"
             onClick={() =>
               handleModelAction({
                 type: EnumModelActionType.UNRELEASE,
@@ -154,6 +156,7 @@ export const columnsGenerator = ({
           if (!isPublish) {
             return (
               <a
+                className="btn-link"
                 onClick={() => {
                   handleDeleteBtnClick(record.id);
                 }}>
@@ -166,6 +169,7 @@ export const columnsGenerator = ({
         };
         const btnEdit = (
           <a
+            className="btn-link"
             onClick={() => {
               router.push(`/data-model/edit/${record.id}`);
             }}>
