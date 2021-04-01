@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @Description:
  */
 public class DefaultAlterSender implements AlterSender {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
     private final Map<String, AlterClient> alterSender;
     private final AlterConfig alterConfig;
 
@@ -35,24 +35,24 @@ public class DefaultAlterSender implements AlterSender {
 
     @Override
     public R sendSyncAlter(AlterContext alterContext, List<EventMonitor> eventMonitors) throws Exception {
-        logger.info("开始发送告警sendSyncAlter: id {}",alterContext.getMark());
+        LOGGER.info("Start sending alert sendSyncAlter: id {}",alterContext.getMark());
         AlterClient alterClient = getAlterClient(alterContext);
         return alterClient.sendSyncAlter(alterContext, eventMonitors);
     }
 
     @Override
     public void sendAsyncAAlter(AlterContext alterContext, List<EventMonitor> eventMonitors) throws Exception {
-        logger.info("开始发送告警sendAsyncAAlter: id {}",alterContext.getMark());
+        LOGGER.info("Start sending alert sendAsyncAAlter: id {}",alterContext.getMark());
         AlterClient alterClient = getAlterClient(alterContext);
         alterClient.sendAsyncAAlter(alterContext, eventMonitors);
     }
 
     private AlterClient getAlterClient(AlterContext alterContext) throws Exception {
-        logger.info("获得client: id {}",alterContext.getMark());
+        LOGGER.info("get client: id {}",alterContext.getMark());
         AlertGateCode alertGateCode = alterContext.getAlertGateCode();
 
         if (alertGateCode == null) {
-            throw new AlterException("上下文对象必须有告警类型");
+            throw new AlterException("The context object must have an alarm type");
         }
 
         AlterClient alterClient = alterSender.computeIfAbsent(alertGateCode.name(), a -> {
@@ -63,10 +63,10 @@ public class DefaultAlterSender implements AlterSender {
             }
         });
         if (alterClient == null) {
-            throw new AlterException(alertGateCode.name() + "类型通道不存在，请联系技术人员");
+            throw new AlterException(alertGateCode.name() + " type channel does not exist, please contact technical staff");
         }
 
-        logger.info("获得client成功 : id {} alterClient: {}",alterContext.getMark(),alertGateCode.name());
+        LOGGER.info("Get client success : id {} alterClient: {}",alterContext.getMark(),alertGateCode.name());
         return alterClient;
     }
 

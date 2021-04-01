@@ -26,7 +26,7 @@ public class UploadController {
     @Autowired
     private ComponentService componentService;
 
-    private static final Logger logger = LoggerFactory.getLogger(UploadController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UploadController.class);
 
     private static String uploadsDir = System.getProperty("user.dir") + File.separator + "file-uploads";
 
@@ -74,8 +74,8 @@ public class UploadController {
             try {
                 file.transferTo(saveFile);
             } catch (Exception e) {
-                logger.error("" + e);
-                throw new RdosDefineException("存储文件发生错误");
+                LOGGER.error("" , e);
+                throw new RdosDefineException("An error occurred while storing the file");
             }
             resources.add(new Resource(fileOriginalName, path, (int) file.getSize(), file.getContentType(), file.getName()));
         }

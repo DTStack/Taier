@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class QueueListener implements InitializingBean, Runnable {
 
-    private static final Logger logger = LoggerFactory.getLogger(QueueListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(QueueListener.class);
 
     private int logOutput = 0;
     private final static int MULTIPLES = 10;
@@ -66,7 +66,7 @@ public class QueueListener implements InitializingBean, Runnable {
     public void run() {
         logOutput++;
         if (LogCountUtil.count(logOutput, MULTIPLES)) {
-            logger.info("QueueListener start again....");
+            LOGGER.info("QueueListener start again....");
         }
         try {
             Map<String, Map<Integer, QueueInfo>> allNodesJobQueueInfo = jobExecutorTrigger.getAllNodesJobQueueInfo();
@@ -85,7 +85,7 @@ public class QueueListener implements InitializingBean, Runnable {
                 this.allNodesJobQueueTypes = tmpAllNodesJobQueueTypes;
             }
         } catch (Throwable e) {
-            logger.error("allNodesJobQueueInfo error:", e);
+            LOGGER.error("allNodesJobQueueInfo error:", e);
         }
 
         if (checkJobMaxPriorityStrategy) {
@@ -112,7 +112,7 @@ public class QueueListener implements InitializingBean, Runnable {
                 this.allNodesGroupQueueJobResources = tmpAllNodesGroupQueueJobResources;
             }
         } catch (Throwable e) {
-            logger.error("allNodesGroupQueueInfo error:", e);
+            LOGGER.error("allNodesGroupQueueInfo error:", e);
         }
     }
 

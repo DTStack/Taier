@@ -31,7 +31,7 @@ import java.util.Properties;
 
 public class JobClient extends OrderObject {
 
-    private static final Logger logger = LoggerFactory.getLogger(JobClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobClient.class);
 
     /**
      * 默认的优先级，值越小，优先级越高
@@ -196,7 +196,7 @@ public class JobClient extends OrderObject {
                 action.setPluginInfo(PublicUtil.jsonStrToObject(pluginInfo, Map.class));
             } catch (Exception e) {
                 //不应该走到这个异常,这个数据本身是由map转换过来的
-                logger.error("", e);
+                LOGGER.error("", e);
             }
         }
         return action;
@@ -529,4 +529,5 @@ public class JobClient extends OrderObject {
                 ", appType=" + appType +
                 '}';
     }
+
 }

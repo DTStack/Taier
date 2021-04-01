@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class AlterRecordExecutor implements InitializingBean {
 
-    private final Logger logger = LoggerFactory.getLogger(AlterRecordExecutor.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(AlterRecordExecutor.class);
 
     @Autowired
     private EnvironmentContext env;
@@ -99,7 +99,7 @@ public class AlterRecordExecutor implements InitializingBean {
 
                             minId = record.getId();
                         } catch (Exception e) {
-                            logger.error(ExceptionUtil.getErrorMessage(e));
+                            LOGGER.error(ExceptionUtil.getErrorMessage(e));
                         }
                     }
 
@@ -108,7 +108,7 @@ public class AlterRecordExecutor implements InitializingBean {
             }
 
         } catch (Exception e) {
-            logger.error(ExceptionUtil.getErrorMessage(e));
+            LOGGER.error(ExceptionUtil.getErrorMessage(e));
         }
     }
 

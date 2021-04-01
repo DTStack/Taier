@@ -24,8 +24,8 @@ public interface EngineJobCheckpointDao {
                                                        @Param("triggerEnd") Long triggerEnd);
 
     List<EngineJobCheckpoint> listFailedByTaskIdAndRangeTime(@Param("taskId") String taskEngineId,
-                                                       @Param("triggerStart") Long triggerStart,
-                                                       @Param("triggerEnd") Long triggerEnd, @Param("size") Integer size);
+                                                             @Param("triggerStart") Long triggerStart,
+                                                             @Param("triggerEnd") Long triggerEnd, @Param("size") Integer size);
 
     void updateFailedCheckpoint(@Param("checkPointList") List<EngineJobCheckpoint> checkPointList);
 

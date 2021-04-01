@@ -59,7 +59,7 @@ public class JobComputeResourcePlain {
 
     private void buildJobClientGroupName(JobClient jobClient) {
         Long clusterId = engineTenantDao.getClusterIdByTenantId(jobClient.getTenantId());
-        if(null == clusterId){
+        if (null == clusterId) {
             return;
         }
         Cluster cluster = clusterDao.getOne(clusterId);

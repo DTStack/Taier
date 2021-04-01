@@ -987,6 +987,7 @@ public class FlinkClient extends AbstractClient {
      * @param packagedProgram
      */
     private void clearClassPathShipfileLoadMode(PackagedProgram packagedProgram) {
+
         if (ConfigConstrant.FLINK_PLUGIN_SHIPFILE_LOAD.equalsIgnoreCase(flinkConfig.getPluginLoadMode())) {
             packagedProgram.getClasspaths().clear();
         }

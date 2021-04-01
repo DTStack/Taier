@@ -18,7 +18,6 @@ import java.util.List;
 @ApiModel
 public class ScheduleJob extends AppTenantEntity {
 
-
     /**
      * 工作任务id
      */

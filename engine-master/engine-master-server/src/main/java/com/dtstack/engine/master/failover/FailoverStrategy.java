@@ -1,12 +1,12 @@
 package com.dtstack.engine.master.failover;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.alert.enums.AlertRecordStatusEnum;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
 import com.dtstack.engine.dao.ScheduleJobDao;
@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
 @Component
 public class FailoverStrategy {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FailoverStrategy.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FailoverStrategy.class);
 
     private BlockingQueue<String> queue = new LinkedBlockingDeque<>();
 
@@ -102,7 +102,7 @@ public class FailoverStrategy {
             currIsMaster = true;
 
             jobGraphBuilderTrigger.dealMaster(true);
-            LOG.warn("---start jobMaster change listener------");
+            LOGGER.warn("---start jobMaster change listener------");
 
             if (masterNodeDealer.isShutdown()) {
                 masterNodeDealer = new ThreadPoolExecutor(2, 2, 0L, TimeUnit.MILLISECONDS,
@@ -110,18 +110,18 @@ public class FailoverStrategy {
             }
             masterNodeDealer.submit(faultTolerantDealer);
             masterNodeDealer.submit(new JobGraphChecker());
-            LOG.warn("---start master node dealer thread------");
+            LOGGER.warn("---start master node dealer thread------");
         } else if (!isMaster && currIsMaster) {
             currIsMaster = false;
 
             jobGraphBuilderTrigger.dealMaster(false);
-            LOG.warn("---stop jobMaster change listener------");
+            LOGGER.warn("---stop jobMaster change listener------");
 
             if (faultTolerantDealer != null) {
                 faultTolerantDealer.stop();
             }
             masterNodeDealer.shutdownNow();
-            LOG.warn("---stop master node dealer thread------");
+            LOGGER.warn("---stop master node dealer thread------");
         }
     }
 
@@ -132,7 +132,7 @@ public class FailoverStrategy {
         try {
             queue.put(node);
         } catch (InterruptedException e) {
-            LOG.error("{}", e);
+            LOGGER.error("", e);
         }
     }
 
@@ -146,7 +146,7 @@ public class FailoverStrategy {
                 String currDayStr = sdfDay.format(Calendar.getInstance().getTime());
                 jobGraphBuilder.buildTaskJobGraph(currDayStr);
             } catch (Exception e) {
-                LOG.error("----jobGraphChecker error:", e);
+                LOGGER.error("----jobGraphChecker error:", e);
             }
         }
     }
@@ -163,24 +163,24 @@ public class FailoverStrategy {
             try {
                 while (isRun) {
                     String node = queue.take();
-                    LOG.warn("----- nodeAddress:{} 节点容灾任务开始恢复----", node);
+                    LOGGER.warn("----- nodeAddress:{} node disaster recovery tasks begin to recover----", node);
 
                     faultTolerantRecoverBatchJob(node);
                     faultTolerantRecoverJobCache(node);
 
                     List<String> aliveNodes = zkService.getAliveBrokersChildren();
                     for (String nodeAddress : aliveNodes) {
-                        LOG.warn("----- nodeAddress:{} masterTriggerNode -----", nodeAddress);
+                        LOGGER.warn("----- nodeAddress:{} masterTriggerNode -----", nodeAddress);
                         if (nodeAddress.equals(environmentContext.getLocalAddress())) {
                             nodeRecoverService.masterTriggerNode();
                             continue;
                         }
                         HttpSendClient.masterTriggerNode(nodeAddress);
                     }
-                    LOG.warn("----- nodeAddress:{} 节点容灾任务结束恢复-----", node);
+                    LOGGER.warn("----- nodeAddress:{} node disaster recovery task ends and resumes-----", node);
                 }
             } catch (Exception e) {
-                LOG.error("----faultTolerantRecover error:", e);
+                LOGGER.error("----faultTolerantRecover error:", e);
             }
         }
 
@@ -198,7 +198,7 @@ public class FailoverStrategy {
             }
 
             //节点容灾恢复任务
-            LOG.warn("----- nodeAddress:{} BatchJob 任务开始恢复----", nodeAddress);
+            LOGGER.warn("----- nodeAddress:{} BatchJob mission begins to resume----", nodeAddress);
             long startId = 0L;
             while (true) {
                 List<SimpleScheduleJobPO> jobs = scheduleJobDao.listSimpleJobByStatusAddress(startId, RdosTaskStatus.getUnfinishedStatuses(), nodeAddress);
@@ -211,10 +211,10 @@ public class FailoverStrategy {
                 for (SimpleScheduleJobPO batchJob : jobs) {
                     if (EScheduleType.NORMAL_SCHEDULE.getType() == batchJob.getType()) {
                         cronJobIds.add(batchJob.getId());
-                        LOG.info("----- nodeAddress:{} distributeBatchJobs {} NORMAL_SCHEDULE -----", nodeAddress, batchJob.getJobId());
+                        LOGGER.info("----- nodeAddress:{} distributeBatchJobs {} NORMAL_SCHEDULE -----", nodeAddress, batchJob.getJobId());
                     } else {
                         fillJobIds.add(batchJob.getId());
-                        LOG.info("----- nodeAddress:{} distributeBatchJobs {} FILL_DATA -----", nodeAddress, batchJob.getJobId());
+                        LOGGER.info("----- nodeAddress:{} distributeBatchJobs {} FILL_DATA -----", nodeAddress, batchJob.getJobId());
                     }
                     if (JobPhaseStatus.JOIN_THE_TEAM.getCode().equals(batchJob.getPhaseStatus())) {
                         phaseStatus.add(batchJob.getJobId());
@@ -234,9 +234,9 @@ public class FailoverStrategy {
                 zkService.updateSynchronizedLocalBrokerHeartNode(nodeAddress, BrokerHeartNode.initNullBrokerHeartNode(), true);
             }
 
-            LOG.warn("----- nodeAddress:{} BatchJob 任务结束恢复-----", nodeAddress);
+            LOGGER.warn("----- nodeAddress:{} BatchJob mission end recovery-----", nodeAddress);
         } catch (Exception e) {
-            LOG.error("----nodeAddress:{} faultTolerantRecoverBatchJob error:", nodeAddress, e);
+            LOGGER.error("----nodeAddress:{} faultTolerantRecoverBatchJob error:", nodeAddress, e);
         }
     }
 
@@ -270,7 +270,7 @@ public class FailoverStrategy {
 
     private void updatePhaseStatus(List<String> phaseStatus) {
         if (CollectionUtils.isNotEmpty(phaseStatus)) {
-            LOG.info("----- updatePhaseStatus {} -----", JSONObject.toJSONString(phaseStatus));
+            LOGGER.info("----- updatePhaseStatus {} -----", JSONObject.toJSONString(phaseStatus));
             scheduleJobDao.updateListPhaseStatus(phaseStatus, JobPhaseStatus.CREATE.getCode());
         }
     }
@@ -308,7 +308,7 @@ public class FailoverStrategy {
                 continue;
             }
             scheduleJobDao.updateNodeAddress(nodeEntry.getKey(), nodeEntry.getValue());
-            LOG.info("jobIds:{} failover to address:{}", nodeEntry.getValue(), nodeEntry.getKey());
+            LOGGER.info("jobIds:{} failover to address:{}", nodeEntry.getValue(), nodeEntry.getKey());
         }
     }
 
@@ -321,7 +321,7 @@ public class FailoverStrategy {
             }
 
             //节点容灾恢复任务
-            LOG.warn("----- nodeAddress:{} JobCache 任务开始恢复----", nodeAddress);
+            LOGGER.warn("----- nodeAddress:{} JobCache mission begins to resume----", nodeAddress);
             long startId = 0L;
             while (true) {
                 List<EngineJobCache> jobCaches = engineJobCacheDao.listByStage(startId, nodeAddress, null, null);
@@ -341,8 +341,8 @@ public class FailoverStrategy {
                         startId = jobCache.getId();
                     } catch (Exception e) {
                         //数据转换异常--打日志
-                        LOG.error("", e);
-                        dealSubmitFailJob(jobCache.getJobId(), "This task stores information exception and cannot be converted." + e.toString());
+                        LOGGER.error("faultTolerantRecoverJobCache {} error", jobCache.getJobId(),e);
+                        dealSubmitFailJob(jobCache.getJobId(), "This task stores information exception and cannot be converted." + ExceptionUtil.getErrorMessage(e));
                     }
                 }
                 distributeQueueJobs(jobResources);
@@ -354,9 +354,9 @@ public class FailoverStrategy {
                 //如果尚有任务未迁移完成，重置 nodeAddress 继续恢复
                 zkService.updateSynchronizedLocalBrokerHeartNode(nodeAddress, BrokerHeartNode.initNullBrokerHeartNode(), true);
             }
-            LOG.warn("----- nodeAddress:{} JobCache 任务结束恢复-----", nodeAddress);
+            LOGGER.warn("----- nodeAddress:{} JobCache mission end recovery-----", nodeAddress);
         } catch (Exception e) {
-            LOG.error("----nodeAddress:{} faultTolerantRecoverJobCache error:", nodeAddress, e);
+            LOGGER.error("----nodeAddress:{} faultTolerantRecoverJobCache error:", nodeAddress, e);
         }
     }
 
@@ -415,7 +415,7 @@ public class FailoverStrategy {
             }
 
             engineJobCacheDao.updateNodeAddressFailover(nodeEntry.getKey(), nodeEntry.getValue(), stage);
-            LOG.info("jobIds:{} failover to address:{}, set stage={}", nodeEntry.getValue(), nodeEntry.getKey(), stage);
+            LOGGER.info("jobIds:{} failover to address:{}, set stage={}", nodeEntry.getValue(), nodeEntry.getKey(), stage);
         }
     }
 
@@ -426,7 +426,7 @@ public class FailoverStrategy {
     public void dealSubmitFailJob(String taskId, String errorMsg){
         engineJobCacheDao.delete(taskId);
         rdosEngineBatchJobDao.jobFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(errorMsg));
-        LOG.info("jobId:{} update job status:{}, job is finished.", taskId, RdosTaskStatus.SUBMITFAILD.getStatus());
+        LOGGER.info("jobId:{} update job status:{}, job is finished.", taskId, RdosTaskStatus.SUBMITFAILD.getStatus());
     }
 }
 

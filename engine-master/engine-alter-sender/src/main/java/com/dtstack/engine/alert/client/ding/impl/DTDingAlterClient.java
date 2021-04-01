@@ -35,7 +35,7 @@ public class DTDingAlterClient extends AbstractDingAlterClient {
         String ding = alterContext.getDing();
 
         if (StringUtils.isBlank(ding)) {
-            throw new AlterException("钉钉通道必须配置url");
+            throw new AlterException("Dingding channel must be configured with url");
         }
 
         alterSendDingBean.setDing(ding);
@@ -51,7 +51,7 @@ public class DTDingAlterClient extends AbstractDingAlterClient {
         } else if (DingTypeEnums.MARKDOWN.getMsg().equalsIgnoreCase(dingMsgType)) {
             dingBean = sendDingWithMarkDown(alterSendDingBean);
         } else {
-            throw new BizException(String.format("不支持的钉钉消息类型，msgtype=%s", dingMsgType));
+            throw new BizException(String.format("Unsupported DingTalk message types，msgtype=%s", dingMsgType));
         }
 
         try {

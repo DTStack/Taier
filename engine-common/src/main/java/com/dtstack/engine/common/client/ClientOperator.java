@@ -29,7 +29,7 @@ import java.util.Properties;
  */
 public class ClientOperator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ClientOperator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClientOperator.class);
 
     private ClientCache clientCache = ClientCache.getInstance();
 
@@ -62,7 +62,7 @@ public class ClientOperator {
 
             return (RdosTaskStatus) result;
         } catch (Exception e) {
-            LOG.error("getStatus happens error：{}",jobId, e);
+            LOGGER.error("getStatus happens error：{}",jobId, e);
             return RdosTaskStatus.NOTFOUND;
         }
     }
@@ -198,4 +198,5 @@ public class ClientOperator {
         IClient clusterClient = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
         return clusterClient.grammarCheck(jobClient);
     }
+
 }

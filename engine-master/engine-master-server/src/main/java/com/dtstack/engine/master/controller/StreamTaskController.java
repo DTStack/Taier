@@ -5,7 +5,6 @@ import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.pojo.CheckResult;
 import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.master.impl.StreamTaskService;
-import com.dtstack.engine.master.router.DtRequestParam;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -14,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import com.dtstack.engine.master.router.DtRequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -37,6 +37,7 @@ public class StreamTaskController {
     public List<EngineJobCheckpoint> getFailedCheckPoint(@DtRequestParam("taskId") String taskId, @DtRequestParam("triggerStart") Long triggerStart, @DtRequestParam("triggerEnd") Long triggerEnd, @DtRequestParam("size") Integer size) {
         return streamTaskService.getFailedCheckPoint(taskId, triggerStart, triggerEnd, size);
     }
+
 
     @RequestMapping(value="/getSavePoint", method = {RequestMethod.POST})
     @ApiOperation(value = "查询savePoint")
@@ -81,4 +82,5 @@ public class StreamTaskController {
     public CheckResult grammarCheck(@RequestBody ParamActionExt paramActionExt) {
         return streamTaskService.grammarCheck(paramActionExt);
     }
+
 }

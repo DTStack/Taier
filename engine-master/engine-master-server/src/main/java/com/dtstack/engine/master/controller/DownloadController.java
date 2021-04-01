@@ -27,7 +27,7 @@ import java.net.URLEncoder;
 @RequestMapping("/node/download")
 @Api(value = "/node/download", tags = {"下载接口"})
 public class DownloadController {
-    private static final Logger logger = LoggerFactory.getLogger(DownloadController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DownloadController.class);
 
     @Autowired
     private ComponentService componentService;
@@ -60,11 +60,11 @@ public class DownloadController {
             }
         } catch (Exception e) {
             response.setHeader("Content-Disposition", "attachment;filename=error.log");
-            logger.error("", e);
+            LOGGER.error("", e);
             try {
                 response.getWriter().write("下载文件异常:" + e.getMessage());
             } catch (Exception eMsg) {
-                logger.error("", eMsg);
+                LOGGER.error("", eMsg);
             }
         } finally {
             if(null != downLoadFile){
@@ -112,11 +112,11 @@ public class DownloadController {
 
         } catch (Exception e) {
             response.setHeader("Content-Disposition", "attachment;filename=error.log");
-            logger.error("", e);
+            LOGGER.error("", e);
             try {
                 response.getWriter().write("下载文件异常:" + e.getMessage());
             } catch (Exception eMsg) {
-                logger.error("", eMsg);
+                LOGGER.error("", eMsg);
             }
         }
     }

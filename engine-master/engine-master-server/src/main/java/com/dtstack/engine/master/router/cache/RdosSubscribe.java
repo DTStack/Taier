@@ -41,7 +41,7 @@ public class RdosSubscribe implements MessageListener {
                 consumer.accept(new Pair<>(topic,itemValue.toString()));
             }
         } catch (Exception e) {
-            LOGGER.error("{}", e);
+            LOGGER.error("", e);
         }
     }
 

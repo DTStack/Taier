@@ -24,7 +24,7 @@ import java.util.function.Predicate;
 @Service
 public class BatchFlowWorkJobService {
 
-    private final Logger logger = LoggerFactory.getLogger(AbstractJobExecutor.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(AbstractJobExecutor.class);
 
     /**
      * 任务状态从低到高排序
@@ -128,7 +128,7 @@ public class BatchFlowWorkJobService {
                 bottleStatus = RdosTaskStatus.FROZEN.getStatus();
             }
         }
-        logger.info("jobId:{} bottleStatus:{}", jobId,bottleStatus);
+        LOGGER.info("jobId:{} bottleStatus:{}", jobId,bottleStatus);
         if (RdosTaskStatus.FINISHED.getStatus().equals(bottleStatus) || RdosTaskStatus.FAILED.getStatus().equals(bottleStatus)
                 || RdosTaskStatus.PARENTFAILED.getStatus().equals(bottleStatus) || RdosTaskStatus.SUBMITFAILD.getStatus().equals(bottleStatus)) {
             //更新结束时间时间
@@ -145,7 +145,7 @@ public class BatchFlowWorkJobService {
         }
 
         if (RdosTaskStatus.getStoppedStatus().contains(bottleStatus)) {
-            logger.info("jobId:{} is WORK_FLOW or ALGORITHM_LAB son is execution complete update phaseStatus to execute_over.", jobId);
+            LOGGER.info("jobId:{} is WORK_FLOW or ALGORITHM_LAB son is execution complete update phaseStatus to execute_over.", jobId);
             batchJobService.updatePhaseStatusById(id, JobPhaseStatus.CREATE, JobPhaseStatus.EXECUTE_OVER);
         }
         return canRemove;
@@ -164,7 +164,7 @@ public class BatchFlowWorkJobService {
         if (RdosTaskStatus.EXPIRE.getStatus().equals(status) || RdosTaskStatus.FROZEN.getStatus().equals(status)) {
             List<ScheduleJob> subJobs = batchJobService.getSubJobsAndStatusByFlowId(scheduleJob.getJobId());
             for (ScheduleJob subJob : subJobs) {
-                logger.info("jobId:{} is WORK_FLOW or ALGORITHM_LAB son update status with flowJobId {} status {}", subJob.getJobId(), scheduleJob.getJobId(), status);
+                LOGGER.info("jobId:{} is WORK_FLOW or ALGORITHM_LAB son update status with flowJobId {} status {}", subJob.getJobId(), scheduleJob.getJobId(), status);
                 batchJobService.updateStatusByJobId(subJob.getJobId(), status, null);
             }
         }

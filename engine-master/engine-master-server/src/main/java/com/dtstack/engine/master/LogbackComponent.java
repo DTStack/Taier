@@ -61,7 +61,7 @@ public class LogbackComponent extends ContextLoaderListener {
         try {
             setupLogger();
         } catch (Throwable e) {
-            LOGGER.error("{}", e);
+            LOGGER.error("", e);
         }
     }
 }

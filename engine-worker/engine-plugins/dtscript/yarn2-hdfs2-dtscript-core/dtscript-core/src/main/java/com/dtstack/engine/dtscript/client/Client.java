@@ -158,6 +158,15 @@ public class Client {
             }
             LOG.info("app launch command: " + launchCmd);
 
+            /**
+             *
+             */
+            String appEnv = clientArguments.appEnv;
+            if (StringUtils.isNotBlank(appEnv)) {
+                LOG.info("app env : " + appEnv);
+                appMasterEnv.put(DtYarnConstants.Environment.APP_ENV.toString(), appEnv);
+            }
+
             Path jobConfPath = Utilities.getRemotePath(conf, applicationId, DtYarnConstants.LEARNING_JOB_CONFIGURATION);
             LOG.info("job conf path: " + jobConfPath);
             FSDataOutputStream out = FileSystem.create(jobConfPath.getFileSystem(conf), jobConfPath,

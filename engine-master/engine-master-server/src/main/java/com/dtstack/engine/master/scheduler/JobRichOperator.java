@@ -16,6 +16,7 @@ import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import com.dtstack.engine.master.scheduler.parser.ESchedulePeriodType;
 import com.dtstack.engine.master.scheduler.parser.ScheduleCron;
 import com.dtstack.engine.master.scheduler.parser.ScheduleFactory;
+import com.dtstack.engine.master.utils.JobGraphUtils;
 import com.dtstack.schedule.common.enums.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -46,7 +47,7 @@ import java.util.stream.Collectors;
 @Component
 public class JobRichOperator {
 
-    private static final Logger logger = LoggerFactory.getLogger(JobRichOperator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobRichOperator.class);
 
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 
@@ -206,7 +207,7 @@ public class JobRichOperator {
         List<ScheduleJob> scheduleJobs = scheduleJobDao.listIdByTaskIdAndStatus(scheduleJob.getTaskId(), checkStatus, scheduleJob.getAppType(), todayCycTime, EScheduleType.NORMAL_SCHEDULE.getType());
         if (CollectionUtils.isNotEmpty(scheduleJobs)) {
             ScheduleJob waitFinishJob = scheduleJobs.get(0);
-            logger.info("jobId {} selfJob {}  has running status [{}],wait running job finish", scheduleJob.getJobId(), waitFinishJob.getJobId(), waitFinishJob.getStatus());
+            LOGGER.info("jobId {} selfJob {}  has running status [{}],wait running job finish", scheduleJob.getJobId(), waitFinishJob.getJobId(), waitFinishJob.getStatus());
             checkRunInfo.setStatus(JobCheckStatus.TIME_NOT_REACH);
             return Boolean.FALSE;
         }
@@ -256,7 +257,7 @@ public class JobRichOperator {
                 return checkRunInfo;
             }
 
-            logger.error("job:{} dependency job:{} not exists.", jobjob.getJobKey(), jobjob.getParentJobKey());
+            LOGGER.error("job:{} dependency job:{} not exists.", jobjob.getJobKey(), jobjob.getParentJobKey());
             String parentJobKey = jobjob.getParentJobKey();
             String parentTaskName = batchTaskShadeService.getTaskNameByJobKey(parentJobKey, scheduleBatchJob.getAppType());
             checkRunInfo.setStatus(JobCheckStatus.FATHER_NO_CREATED);
@@ -292,11 +293,11 @@ public class JobRichOperator {
             if (isSelfDependency) {
                 checkRunInfo.setStatus(JobCheckStatus.SELF_PRE_PERIOD_EXCEPTION);
                 checkRunInfo.setExtInfo("(父任务名称为:" + jobjob.getParentJobKey() + ")");
-                logger.error("job:{} 自依赖异常 job:{} self_pre_period_exception", jobjob.getJobKey(), jobjob.getParentJobKey());
+                LOGGER.error("job:{} self-dependent exception job:{} self_pre_period_exception", jobjob.getJobKey(), jobjob.getParentJobKey());
             } else {//记录失败的父任务的名称
                 JobErrorInfo errorInfo = createErrJobCacheInfo(dependencyJob, taskShade);
                 checkRunInfo.setExtInfo("(父任务名称为:" + errorInfo.getTaskName() + ")");
-                logger.error("job:{} 父任务异常 taskName:{} error cache father_job_exception", dependencyJob.getJobKey(), errorInfo.getTaskName());
+                LOGGER.error("job:{} self-dependent exception taskName:{} error cache father_job_exception", dependencyJob.getJobKey(), errorInfo.getTaskName());
             }
             return checkRunInfo;
         } else if (RdosTaskStatus.FROZEN.getStatus().equals(dependencyJobStatus)) {
@@ -311,7 +312,7 @@ public class JobRichOperator {
                 || RdosTaskStatus.AUTOCANCELED.getStatus().equals(dependencyJobStatus)) {
             checkRunInfo.setStatus(JobCheckStatus.DEPENDENCY_JOB_CANCELED);
             checkRunInfo.setExtInfo("(父任务名称为:" + getTaskNameFromJobName(dependencyJob.getJobName(), dependencyJob.getType()) + ")");
-            logger.error("job:{} dependency_job_canceled job:{} ", jobjob.getParentJobKey(), jobjob.getJobKey());
+            LOGGER.error("job:{} dependency_job_canceled job:{} ", jobjob.getParentJobKey(), jobjob.getJobKey());
             return checkRunInfo;
         } else if (RdosTaskStatus.EXPIRE.getStatus().equals(dependencyJobStatus)) {
             checkRunInfo.setExtInfo("(父任务名称为:" + getTaskNameFromJobName(dependencyJob.getJobName(), dependencyJob.getType()) + ")");
@@ -349,14 +350,14 @@ public class JobRichOperator {
             childPrePeriodList = getFirstChildPrePeriodBatchJobJob(childJobJobList);
             scheduleBatchJob.setDependencyChildPrePeriodList(childPrePeriodList);
         }
-        String cycTime = JobGraphBuilder.parseCycTimeFromJobKey(jobKey);
+        String cycTime = JobGraphUtils.parseCycTimeFromJobKey(jobKey);
         //如果没有下游任务 需要往前找到有下游任务周期
         if (CollectionUtils.isEmpty(childPrePeriodList)) {
             ScheduleCron scheduleCron = null;
             try {
                 scheduleCron = ScheduleFactory.parseFromJson(batchTaskShade.getScheduleConf());
             } catch (IOException e) {
-                logger.error("get {} parent pre pre error", scheduleBatchJob.getTaskId(), e);
+                LOGGER.error("get {} parent pre pre error", scheduleBatchJob.getTaskId(), e);
             }
 
             List<ScheduleJob> parentPrePreJob = this.getParentPrePreJob(jobKey, scheduleCron, cycTime);
@@ -382,7 +383,7 @@ public class JobRichOperator {
                         jobCheckRunInfo.setStatus(JobCheckStatus.CHILD_PRE_NOT_SUCCESS);
                         ScheduleTaskShade childPreTask = batchTaskShadeService.getBatchTaskById(childJobPreJob.getTaskId(),childJobPreJob.getAppType());
                         jobCheckRunInfo.setExtInfo(String.format("(依赖下游任务的上一周期(%s)",null != childPreTask ? childPreTask.getName() : ""));
-                        logger.info("get JobKey {} child job {} prePeriod status is {}  but not success", jobKey, childJobPreJob.getJobId(), childJobStatus);
+                        LOGGER.info("get JobKey {} child job {} prePeriod status is {}  but not success", jobKey, childJobPreJob.getJobId(), childJobStatus);
                         return jobCheckRunInfo;
                     }
                 }
@@ -407,9 +408,9 @@ public class JobRichOperator {
      */
     private List<ScheduleJob> getParentPrePreJob(String jobKey, ScheduleCron scheduleCron, String cycTime) {
         if (StringUtils.isNotBlank(jobKey) && null != scheduleCron && StringUtils.isNotBlank(cycTime)) {
-            String prePeriodJobTriggerDateStr = JobGraphBuilder.getPrePeriodJobTriggerDateStr(cycTime, scheduleCron);
+            String prePeriodJobTriggerDateStr = JobGraphUtils.getPrePeriodJobTriggerDateStr(cycTime, scheduleCron);
             String prePeriodJobKey = jobKey.substring(0, jobKey.lastIndexOf("_") + 1) + prePeriodJobTriggerDateStr;
-            EScheduleType scheduleType = JobGraphBuilder.parseScheduleTypeFromJobKey(jobKey);
+            EScheduleType scheduleType = JobGraphUtils.parseScheduleTypeFromJobKey(jobKey);
             ScheduleJob dbBatchJob = batchJobService.getJobByJobKeyAndType(prePeriodJobKey, scheduleType.getType());
             //上一个周期任务为空 直接返回
             if (null == dbBatchJob) {
@@ -420,7 +421,7 @@ public class JobRichOperator {
                 //上一轮周期任务的下游任务不为空 判断下游任务的状态
                 return scheduleJobDao.listJobByJobKeys(batchJobJobs.stream().map(ScheduleJobJob::getJobKey).collect(Collectors.toList()));
             }
-            cycTime = JobGraphBuilder.parseCycTimeFromJobKey(prePeriodJobKey);
+            cycTime = JobGraphUtils.parseCycTimeFromJobKey(prePeriodJobKey);
             //如果上一轮周期也没下游任务 继续找
             return this.getParentPrePreJob(prePeriodJobKey, scheduleCron, cycTime);
         }
@@ -591,25 +592,25 @@ public class JobRichOperator {
             Long taskId = entry.getKey();
             ScheduleTaskShade batchTaskShade = batchTaskShadeService.getBatchTaskById(taskId, scheduleJobJob.getAppType());
             if (batchTaskShade == null) {
-                logger.error("can't find task by id:{}.", taskId);
+                LOGGER.error("can't find task by id:{}.", taskId);
                 continue;
             }
 
             String jobKey = scheduleJobJob.getJobKey();
-            String cycTime = JobGraphBuilder.parseCycTimeFromJobKey(jobKey);
+            String cycTime = JobGraphUtils.parseCycTimeFromJobKey(jobKey);
             String scheduleConf = batchTaskShade.getScheduleConf();
             try {
                 ScheduleCron scheduleCron = ScheduleFactory.parseFromJson(scheduleConf);
-                String prePeriodJobTriggerDateStr = JobGraphBuilder.getPrePeriodJobTriggerDateStr(cycTime, scheduleCron);
+                String prePeriodJobTriggerDateStr = JobGraphUtils.getPrePeriodJobTriggerDateStr(cycTime, scheduleCron);
                 String prePeriodJobKey = jobKey.substring(0, jobKey.lastIndexOf("_") + 1) + prePeriodJobTriggerDateStr;
-                EScheduleType scheduleType = JobGraphBuilder.parseScheduleTypeFromJobKey(jobKey);
+                EScheduleType scheduleType = JobGraphUtils.parseScheduleTypeFromJobKey(jobKey);
                 ScheduleJob dbScheduleJob = batchJobService.getJobByJobKeyAndType(prePeriodJobKey, scheduleType.getType());
                 if (dbScheduleJob != null) {
                     resultList.add(dbScheduleJob);
                 }
 
             } catch (Exception e) {
-                logger.error("", e);
+                LOGGER.error("", e);
                 continue;
             }
         }

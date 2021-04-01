@@ -24,7 +24,7 @@ import java.util.function.Consumer;
 @Component
 public class ShardCache implements ApplicationContextAware {
 
-    private static Logger logger = LoggerFactory.getLogger(ShardCache.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(ShardCache.class);
 
     private ApplicationContext applicationContext;
 
@@ -89,7 +89,7 @@ public class ShardCache implements ApplicationContextAware {
     }
 
     private boolean removeWithForeach(String jobId) {
-        logger.warn("jobId:{} stackTrace:{}", jobId, ExceptionUtil.stackTrack());
+        LOGGER.warn("jobId:{} stackTrace:{}", jobId, ExceptionUtil.stackTrack());
         for (ShardManager shardManager : jobResourceShardManager.values()) {
             if (shardManager.getShard().remove(jobId) != null) {
                 return true;

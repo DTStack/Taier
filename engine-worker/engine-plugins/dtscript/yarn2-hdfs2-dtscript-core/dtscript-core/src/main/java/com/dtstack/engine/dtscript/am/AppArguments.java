@@ -64,6 +64,8 @@ public class AppArguments {
 
     String cmd;
 
+    String appEnv;
+
     Boolean exclusive;
 
     /** output locations */
@@ -131,6 +133,11 @@ public class AppArguments {
         if (envs.containsKey(DtYarnConstants.Environment.DT_EXEC_CMD.toString())) {
             cmd = envs.get(DtYarnConstants.Environment.DT_EXEC_CMD.toString());
             LOG.info("exec cmd: " + cmd);
+        }
+
+        if (envs.containsKey(DtYarnConstants.Environment.APP_ENV.toString())) {
+            appEnv = envs.get(DtYarnConstants.Environment.APP_ENV.toString());
+            LOG.info("app env: " + appEnv);
         }
 
         if (envs.containsKey(DtYarnConstants.Environment.CACHE_FILE_LOCATION.toString())) {

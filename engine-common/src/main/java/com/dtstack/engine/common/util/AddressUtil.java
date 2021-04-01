@@ -17,7 +17,7 @@ import java.util.Set;
  */
 public class AddressUtil {
 
-    private static Logger logger = LoggerFactory.getLogger(AddressUtil.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(AddressUtil.class);
 
     private static List<String> localAddrList = Lists.newArrayList("0.0.0.0", "127.0.0.1", "localhost");
 
@@ -31,7 +31,7 @@ public class AddressUtil {
         try {
             ns = NetworkInterface.getNetworkInterfaces();
         } catch (SocketException e) {
-            logger.error("",e);
+            LOGGER.error("",e);
         }
         while (ns != null && ns.hasMoreElements()) {
             NetworkInterface n = ns.nextElement();
@@ -120,7 +120,7 @@ public class AddressUtil {
                     client.disconnect();
                 }
             } catch (Exception e){
-                logger.error("{}",e);
+                LOGGER.error("",e);
             }
         }
     }

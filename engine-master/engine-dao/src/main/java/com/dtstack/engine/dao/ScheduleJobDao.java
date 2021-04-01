@@ -116,15 +116,14 @@ public interface ScheduleJobDao {
      * @return
      */
     List<Map<String, Long>> countFillDataAllStatusByJobName(@Param("jobName") String jobName, @Param("jobIds") List<String> jobIds);
-//    List<Map<String, Long>> countFillDataAllStatusByJobName(@Param("jobName") String jobName);
 
     /**
-     * 根据id获取其中工作流类型的实例
+     * 获取其中工作流类型的实例
      *
-     * @param ids
+     * @param
      * @return
      */
-    List<String> getWorkFlowJobId(@Param("ids") List<Long> ids, @Param("taskTypes") List<Integer> taskTypes);
+    List<ScheduleJob> getWorkFlowSubJobId(@Param("jobIds") List<String> jobIds);
 
     /**
      * 根据工作流实例jobId获取全部子任务实例
@@ -232,7 +231,7 @@ public interface ScheduleJobDao {
 
     Integer updateListPhaseStatus(@Param("jobIds") List<String> ids, @Param("update") Integer update);
 
-    Integer updateJobStatusAndPhaseStatus(@Param("jobId") String jobId, @Param("status") Integer status, @Param("phaseStatus") Integer phaseStatus);
+    Integer updateJobStatusAndPhaseStatus(@Param("jobIds") List<String> jobIds, @Param("status") Integer status, @Param("phaseStatus") Integer phaseStatus,@Param("isRestart") Integer isRestart);
 
     String getJobGraph(@Param("jobId") String jobId);
 

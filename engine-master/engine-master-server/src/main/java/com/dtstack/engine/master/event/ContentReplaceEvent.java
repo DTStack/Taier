@@ -21,7 +21,7 @@ import java.util.Map;
  */
 @Component
 public class ContentReplaceEvent extends AdapterEventMonitor implements Ordered {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     @Override
     public void leaveQueueAndSenderBeforeEvent(AlterContext alterContext) {
@@ -40,7 +40,7 @@ public class ContentReplaceEvent extends AdapterEventMonitor implements Ordered 
                 alterContext.setContent(RenderUtil.renderTemplate(alertTemplate,dynamicParams));
             }
         } catch (Exception e) {
-            logger.error(ExceptionUtil.getErrorMessage(e));
+            LOGGER.error(ExceptionUtil.getErrorMessage(e));
         }
 
     }
