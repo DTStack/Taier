@@ -943,12 +943,12 @@
         <include refid="select_content_fragment"/>
         from (
         select
-        <include refid="select_filed_all"/>
+        <include refid="select_filed_all_bj"/>
         ,'' as groupDate from schedule_job
         <include refid="select_where_batch_job"/>
         union
         select
-        <include refid="select_content_fragment"/>,bj.engine_log,
+        <include refid="select_content_fragment"/>,
         left(bj.business_date,8) as groupDate
         from schedule_job bj
         LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
