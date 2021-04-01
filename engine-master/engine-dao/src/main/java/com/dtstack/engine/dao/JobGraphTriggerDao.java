@@ -27,5 +27,5 @@ public interface JobGraphTriggerDao {
      * @param triggerEndTime
      * @return
      */
-    Long getMinJobIdByTriggerTime(@Param("triggerStartTime")String triggerStartTime,@Param("triggerEndTime")String triggerEndTime);
+    String  getMinJobIdByTriggerTime(@Param("triggerStartTime")String triggerStartTime,@Param("triggerEndTime")String triggerEndTime);
 }

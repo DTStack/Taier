@@ -2883,7 +2883,16 @@ public class ScheduleJobService {
     }
 
     public Long getListMinId(String nodeAddress,Integer scheduleType, String left, String right,Integer isRestart) {
-        return StringUtils.isAnyBlank(left,right)?null:jobGraphTriggerDao.getMinJobIdByTriggerTime(left,right);
+        // 如果没有时间限制, 默认返回0
+        if (StringUtils.isAnyBlank(left,right)){
+            return 0L;
+        }
+        // 如果当前时间范围没有数据, 返回NULL
+        String minJobId = jobGraphTriggerDao.getMinJobIdByTriggerTime(left, right);
+        if (StringUtils.isBlank(minJobId)){
+            return null;
+        }
+        return Long.parseLong(minJobId);
     }
 
     public String getJobGraphJSON(String jobId) {

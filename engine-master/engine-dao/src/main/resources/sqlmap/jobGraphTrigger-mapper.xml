@@ -26,7 +26,7 @@
         where TO_DAYS(trigger_time) = TO_DAYS(CURRENT_DATE)
     </delete>
 
-    <select id="getMinJobIdByTriggerTime" resultType="java.lang.Long">
+    <select id="getMinJobIdByTriggerTime" resultType="string">
         SELECT
             jpt.min_job_id
         FROM
@@ -34,5 +34,6 @@
         WHERE
             jpt.trigger_time >= #{triggerStartTime}
             AND jpt.trigger_time <![CDATA[ <= ]]> #{triggerEndTime}
+        ORDER BY jpt.id ASC limit 1
     </select>
 </mapper>
