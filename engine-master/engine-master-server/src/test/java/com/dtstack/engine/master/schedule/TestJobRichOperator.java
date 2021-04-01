@@ -29,8 +29,13 @@ public class TestJobRichOperator extends AbstractTest {
         Pair<String, String> fillTime = operator.getCycTimeLimitEndNow(false);
         System.out.println("补数据或重跑,startTime:"+fillTime.getLeft()+":"+
                 fillTime.getRight());
+    }
 
-
+    @Test
+    public void testGetCycTimeLimit(){
+        Pair<String, String> cycTimeLimit = operator.getCycTimeLimit();
+        System.out.println("周期实例,startTime:"+ cycTimeLimit.getLeft()+":"+
+                cycTimeLimit.getRight());
     }
 
 }
