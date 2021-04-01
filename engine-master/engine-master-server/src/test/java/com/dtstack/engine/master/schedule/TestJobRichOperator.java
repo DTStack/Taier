@@ -21,12 +21,12 @@ public class TestJobRichOperator extends AbstractTest {
     public void testGetCycTimeLimitEndNow(){
 
         //测试周期实例的cycTime pare
-        Pair<String, String> cycTimeLimitEndNow = operator.getCycTimeLimitEndNow(true,false);
+        Pair<String, String> cycTimeLimitEndNow = operator.getCycTimeLimitEndNow(true,false,false);
         System.out.println("周期实例,startTime:"+cycTimeLimitEndNow.getLeft()+":"+
                 cycTimeLimitEndNow.getRight());
         System.out.println("======");
         //测试周期实例的cycTime pare
-        Pair<String, String> fillTime = operator.getCycTimeLimitEndNow(false,false);
+        Pair<String, String> fillTime = operator.getCycTimeLimitEndNow(false,false,false);
         System.out.println("补数据或重跑,startTime:"+fillTime.getLeft()+":"+
                 fillTime.getRight());
 

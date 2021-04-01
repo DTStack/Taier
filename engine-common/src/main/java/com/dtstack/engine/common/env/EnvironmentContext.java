@@ -58,6 +58,13 @@ public class EnvironmentContext {
         return Math.abs(Integer.parseInt(environment.getProperty("restartCycTimeBefore","1440")));
     }
 
+    /**
+     * 周期实例往前推进多少天, 默认前1天
+     */
+    public int getNormalScheduleCycTimeHourBefore(){
+        return Math.abs(Integer.parseInt(environment.getProperty("normalScheduleCycTimeBefore","24")));
+    }
+
     public long getJobStatusDealerInterval() {
         return Integer.parseInt(environment.getProperty("jobStatusDealerInterval", "3000"));
     }

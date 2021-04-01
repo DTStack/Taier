@@ -110,7 +110,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     }
 
     protected List<ScheduleBatchJob> listExecJob(Long startId, String nodeAddress, Boolean isEq) {
-        Pair<String, String> cycTime = getCycTime();
+        Pair<String, String> cycTime = getCycTime(false);
         List<ScheduleJob> scheduleJobs = scheduleJobDao.listExecJobByCycTimeTypeAddress(startId, nodeAddress, getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight(), JobPhaseStatus.CREATE.getCode(), isEq
                 , null, Restarted.NORMAL.getStatus());
         logger.info("scheduleType:{} nodeAddress:{} leftTime:{} rightTime:{} start scanning since when startId:{}  isEq {}  queryJobSize {}.", getScheduleType(), nodeAddress, cycTime.getLeft(), cycTime.getRight(), startId, isEq,
@@ -156,7 +156,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
      * @return
      */
     protected Long getListMinId(String nodeAddress, Integer isRestart) {
-        Pair<String, String> cycTime = getCycTime();
+        Pair<String, String> cycTime = getCycTime(true);
         Long listMinId = batchJobService.getListMinId(nodeAddress, getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight(), isRestart);
         logger.info("getListMinId scheduleType {} nodeAddress {} isRestart {} lastMinId is {} . cycStartTime {} cycEndTime {}", getScheduleType(), nodeAddress, isRestart, listMinId, cycTime.getLeft(), cycTime.getRight());
         return listMinId;
@@ -316,13 +316,13 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     /**
      * CycTimeDayGap 如果为0，则只取当天的调度数据，如果恰好在临界点0点存在上一天的未完成的调度任务，则在下一天会被忽略执行。
      */
-    public Pair<String, String> getCycTime() {
+    public Pair<String, String> getCycTime(boolean minJobId) {
         if (getScheduleType().getType() == EScheduleType.NORMAL_SCHEDULE.getType()) {
-            return jobRichOperator.getCycTimeLimitEndNow(true,false);
+            return jobRichOperator.getCycTimeLimitEndNow(true,false,minJobId);
         }
         // 补数据
         else if(env.getOpenFillDataCycTimeLimit()) {
-            return jobRichOperator.getCycTimeLimitEndNow(false,false);
+            return jobRichOperator.getCycTimeLimitEndNow(false,false,minJobId);
         }
         return new ImmutablePair<>(null, null);
 
