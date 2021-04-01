@@ -15,11 +15,11 @@ const dateFmtList = [
 ];
 const timeFmtList = ['HH:mm:ss', 'HH:mm', 'HH'];
 
-const WrapperSwitch = (props) => {
+const WrapperSwitch = React.forwardRef((props: any) => {
   const _props = { ...props };
-  delete _props.avlue;
+  delete _props.value;
   return <Switch checked={props.value} {..._props} />;
-};
+});
 
 /**
  * 设置时间分区后，其他项均为必填项

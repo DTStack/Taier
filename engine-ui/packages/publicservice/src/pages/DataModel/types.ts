@@ -80,4 +80,5 @@ export interface IModelDetail {
   modelPartition: any;
   createTime?: string;
   dsName?: string;
+  step?: number; // 编辑步数step
 }

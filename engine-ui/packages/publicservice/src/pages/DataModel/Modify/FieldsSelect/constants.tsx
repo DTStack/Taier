@@ -52,7 +52,7 @@ export const columnsGenerator = ({ onInputBlur }): Column[] => {
     },
     {
       title: '字段名称',
-      dataIndex: 'tableName',
+      dataIndex: 'columnName',
       width: 140,
     },
     {

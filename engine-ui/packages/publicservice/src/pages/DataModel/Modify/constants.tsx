@@ -17,6 +17,7 @@ const id = idGenerator();
 // 基础信息表单配置
 export const basicInfoFormListGenerator = (
   options: any[],
+  onDataSourceChange: Function,
   id?: number
 ): IFormItem[] => {
   return [
@@ -84,6 +85,9 @@ export const basicInfoFormListGenerator = (
       placeholder: '请选择数据源',
       rules: [{ required: true, message: '请选择数据源' }],
       options: options || [],
+      ext: {
+        onChange: onDataSourceChange,
+      },
     },
     {
       key: 'remark',

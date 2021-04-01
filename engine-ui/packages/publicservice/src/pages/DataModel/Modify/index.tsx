@@ -22,9 +22,10 @@ import { joinPairsParser } from './utils';
 import { API } from '@/services';
 import Message from 'pages/DataModel/components/Message';
 import _ from 'lodash';
-import { TableJoinInfo } from 'pages/DataModel/types';
+import { IModelDetail, TableJoinInfo } from 'pages/DataModel/types';
 import { EnumModifyStep } from './types';
 import BreadCrumbRender from './BreadCrumbRender';
+import CodeBlock from 'pages/DataModel/components/CodeBlock';
 const idGenerator = () => {
   let _id = 0;
   return () => ++_id + '';
@@ -54,7 +55,7 @@ const Modify = (props: IPropsModify) => {
   const { validateFields, getFieldsValue, setFieldsValue } = form;
 
   const [current, setCurrent] = useState<EnumModifyStep>(
-    EnumModifyStep.BASIC_STEP
+    EnumModifyStep.DIMENSION_STEP
   );
   const [visibleRelationModal, setVisibleRelationModal] = useState(false);
   const [formValue, setFormValue] = useState<any>({});
@@ -62,9 +63,13 @@ const Modify = (props: IPropsModify) => {
   const [visibleUpdateType, setVisibleUpdateType] = useState(false);
   const [editJoinItem, setEditJoinItem] = useState<null | TableJoinInfo>(null);
 
-  const [dataSourceList, setdataSourceList] = useState([]);
+  const [dataSourceList, setDataSourceList] = useState([]);
   const [schemaList, setSchemaList] = useState([]);
   const [tableList, setTableList] = useState([]);
+  const [visibleSqlpreview, setVisibleSqlPreview] = useState({
+    visible: false,
+    sql: '',
+  });
 
   const firstRender = useRef(true);
 
@@ -160,6 +165,25 @@ const Modify = (props: IPropsModify) => {
     }
   };
 
+  const saveDataModel = async (
+    params?: Partial<IModelDetail>,
+    callback?: Function
+  ) => {
+    try {
+      const { success, message } = await API.saveDataModel(params);
+      if (success) {
+        Message.success('保存成功');
+        if (typeof callback) {
+          callback();
+        }
+      } else {
+        Message.error(message);
+      }
+    } catch (error) {
+      Message.error(error.message);
+    }
+  };
+
   const isPartition = async (
     datasourceId: number,
     tableName: string,
@@ -190,8 +214,9 @@ const Modify = (props: IPropsModify) => {
           key: item.id,
           value: item.id,
           label: `${item.name}(${item.dsTypeName})`,
+          ext: JSON.stringify(item),
         }));
-        setdataSourceList(dataSourceList);
+        setDataSourceList(dataSourceList);
       } else {
         Message.error(message);
       }
@@ -272,7 +297,7 @@ const Modify = (props: IPropsModify) => {
           if (err) return;
           setFormValue((prev) => ({
             ...prev,
-            ...form.getFieldsValue(),
+            ...data,
           }));
           setCurrent((prev) => prev + 1);
         });
@@ -310,6 +335,22 @@ const Modify = (props: IPropsModify) => {
             id: identifyJoinList(),
           })),
         }));
+      } else {
+        Message.error(message);
+      }
+    } catch (error) {
+      Message.error(error.message);
+    }
+  };
+
+  const getSql = async (params: any) => {
+    try {
+      const { success, data, message } = await API.previewSql(params);
+      if (success) {
+        setVisibleSqlPreview({
+          visible: true,
+          sql: data,
+        });
       } else {
         Message.error(message);
       }
@@ -391,6 +432,23 @@ const Modify = (props: IPropsModify) => {
     }));
   }, [formValue.dsId]);
 
+  const onDataSourceChange = (value, target) => {
+    const ext = target.props['data-ext'];
+    try {
+      const v = JSON.parse(ext);
+      const formValue = getFieldsValue();
+      setFormValue((prev) => ({
+        ...prev,
+        ...formValue,
+        dsId: value,
+        dsUrl: v.dsUrl,
+        dsType: v.dsType,
+      }));
+    } catch (err) {
+      console.error(err.message);
+    }
+  };
+
   const cref = useRef(null);
   const childRef = useRef(null);
 
@@ -398,7 +456,11 @@ const Modify = (props: IPropsModify) => {
     switch (step) {
       case EnumModifyStep.BASIC_STEP:
         const id = mode === EnumModifyMode.ADD ? undefined : modelId;
-        return basicInfoFormListGenerator(dataSourceList, id);
+        return basicInfoFormListGenerator(
+          dataSourceList,
+          onDataSourceChange,
+          id
+        );
       case EnumModifyStep.RELATION_TABLE_STEP:
         return relationFormListGenerator({
           handleClick: () => {
@@ -529,6 +591,9 @@ const Modify = (props: IPropsModify) => {
                   />
                 </Modal>
               ) : null}
+              <Modal title="预览SQL" visible={visibleSqlpreview.visible}>
+                <CodeBlock code={visibleSqlpreview.sql} />
+              </Modal>
             </div>
           </div>
           <footer className="step-footer">
@@ -540,23 +605,50 @@ const Modify = (props: IPropsModify) => {
                   取消
                 </Button>
               ) : null}
-              {current !== EnumModifyStep.BASIC_STEP ? (
+              {current > EnumModifyStep.BASIC_STEP ? (
                 <Button
                   className="margin-right-8 width-80"
                   onClick={handlePrevStep}>
                   上一步
                 </Button>
               ) : null}
-              <Button
-                className="margin-right-8 width-80"
-                type="primary"
-                onClick={handleNextStep}>
-                下一步
-              </Button>
+              {current < EnumModifyStep.SETTING_STEP ? (
+                <Button
+                  className="margin-right-8 width-80"
+                  type="primary"
+                  onClick={handleNextStep}>
+                  下一步
+                </Button>
+              ) : null}
+              {current === EnumModifyStep.SETTING_STEP ? (
+                <Button
+                  className="margin-right-8 width-80"
+                  type="primary"
+                  onClick={() => {
+                    form.validateFields((err, data) => {
+                      if (err) return;
+                      const params = {
+                        ...formValue,
+                        ...data,
+                      };
+                      getSql(params);
+                    });
+                  }}>
+                  预览SQL
+                </Button>
+              ) : null}
               <Button
                 onClick={() => {
                   form.validateFields((err, data) => {
                     if (err) return;
+                    const params = {
+                      ...formValue,
+                      ...data,
+                      step: current + 1,
+                    };
+                    saveDataModel(params, () =>
+                      router.push('/data-model/list')
+                    );
                   });
                 }}
                 type="primary">

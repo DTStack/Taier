@@ -36,7 +36,11 @@ export const columnsGenerator = ({
       fixed: true,
       render: (modelName, record) => {
         return (
-          <a onClick={() => handleModelNameClick(record.id)}>{modelName}</a>
+          <a
+            onClick={() => handleModelNameClick(record.id)}
+            className="btn-link">
+            {modelName}
+          </a>
         );
       },
     },

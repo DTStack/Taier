@@ -19,10 +19,10 @@ interface IPagination {
 
 interface IReqParams {
   asc: boolean;
-  current: number;
+  currentPage: number;
   field: string;
   search: string;
-  size: number;
+  pageSize: number;
   datasourceTypes: number[];
   modelStatus: EnumModelStatus[];
 }
@@ -47,10 +47,10 @@ const List = (props: IPropList) => {
 
   const [requestParams, setRequestParams] = useState<IReqParams>({
     asc: true,
-    current: 1,
+    currentPage: 1,
     field: '',
     search: '',
-    size: 10,
+    pageSize: 10,
     datasourceTypes: [1, 2],
     modelStatus: [
       EnumModelStatus.OFFLINE,
@@ -223,7 +223,7 @@ const List = (props: IPropList) => {
 
               setRequestParams((reqParams) => ({
                 ...reqParams,
-                current: 1,
+                currentPage: 1,
                 modelStatus: modelStatus as EnumModelStatus[],
                 datasourceTypes: dataSourceType as number[],
               }));
@@ -242,7 +242,6 @@ const List = (props: IPropList) => {
                 modelId: -1,
               });
             }}>
-            {/* TODO: ICON */}
             <div
               className="slider"
               onClick={() => setDrawer({ visible: false, modelId: -1 })}>
@@ -260,8 +259,8 @@ const List = (props: IPropList) => {
               onChange={(current, size) => {
                 setRequestParams((prev) => ({
                   ...prev,
-                  current,
-                  size,
+                  currentPage: current,
+                  pageSize: size,
                 }));
               }}
             />

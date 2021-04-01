@@ -3,7 +3,7 @@ import { Tabs, Spin } from 'antd';
 import HTable from './HTable';
 import PaneTitle from '../components/PaneTitle';
 import DataInfo from './DataInfo';
-import CodeBlock from './CodeBlock';
+import CodeBlock from '../components/CodeBlock';
 import { API } from '@/services';
 import Message from 'pages/DataModel/components/Message';
 import './style';

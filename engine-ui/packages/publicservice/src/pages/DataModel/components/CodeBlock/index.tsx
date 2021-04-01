@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { Empty } from 'antd';
 import hljs from 'highlight.js';
 import sql from 'highlight.js/lib/languages/sql_more';
 import 'highlight.js/styles/a11y-light.css';
@@ -21,15 +22,19 @@ const CodeBlock = (props: IPropsCodeBlock) => {
   return (
     <div className="code-block">
       <div className="code-container">
-        <pre className="pre">
-          <code
-            ref={dom}
-            className="code"
-            dangerouslySetInnerHTML={{
-              __html: code,
-            }}
-          />
-        </pre>
+        {code ? (
+          <pre className="pre">
+            <code
+              ref={dom}
+              className="code"
+              dangerouslySetInnerHTML={{
+                __html: code,
+              }}
+            />
+          </pre>
+        ) : (
+          <Empty description="暂无SQL信息" />
+        )}
       </div>
     </div>
   );

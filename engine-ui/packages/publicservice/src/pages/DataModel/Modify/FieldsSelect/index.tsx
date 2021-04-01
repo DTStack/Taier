@@ -9,6 +9,8 @@ import { Table } from 'antd';
 import { FieldColumn } from 'pages/DataModel/types';
 import { columnsGenerator, data } from './constants';
 import { EnumModifyStep } from '../types';
+import SearchInput from 'components/SearchInput';
+import './style';
 
 interface IPropsDimensionSelect {
   cref?: any;
@@ -20,6 +22,7 @@ const FieldsSelect = (props: IPropsDimensionSelect) => {
   const { cref, formValue = { columns: data }, step } = props;
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [dataSource, setDataSource] = useState<FieldColumn[]>([]);
+  const [filter, setFilter] = useState<string>('');
 
   useEffect(() => {
     setDataSource(formValue.columns);
@@ -78,23 +81,33 @@ const FieldsSelect = (props: IPropsDimensionSelect) => {
 
   useImperativeHandle(cref, () => ({
     getValue: () => {
-      return dataSource;
+      return dataSource || [];
     },
   }));
 
   const columns = useMemo(() => columnsGenerator({ onInputBlur }), [
     onInputBlur,
   ]);
+
+  const ds = useMemo(() => {
+    if (!formValue.columns) return [];
+    const reg = new RegExp(filter);
+    return formValue.columns.filter(
+      (item) => reg.test(item.tableName) || reg.test(item.columnName)
+    );
+  }, [formValue.columns, filter]);
   return (
     <div ref={cref}>
+      <SearchInput placeholder="输入关键字" onSearch={setFilter} />
       <Table
         columns={columns}
-        dataSource={formValue.columns}
+        dataSource={ds}
         rowSelection={{
           selectedRowKeys,
           onChange,
           onSelect: onSelect,
         }}
+        className="dt-table-border margin-top-13"
         pagination={false}
         rowKey={(record, index) => '' + record.id}
       />
