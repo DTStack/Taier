@@ -11,9 +11,6 @@ import './style.scss';
 import { DATA_SOURCE_TEXT } from '../constants/index';
 
 function index(props) {
-  console.log('===============');
-  console.log('props: ', props);
-
   const [dataSources, setDataSources] = useState([]);
   const [params, setParams] = useState<IPagination>({
     currentPage: 1, //当前页码
@@ -43,7 +40,7 @@ function index(props) {
       ...query,
     });
     if (success) {
-      let { currentPage, pageSize, totalPage } = data;
+      let { currentPage, pageSize, totalCount } = data;
       setParams({
         currentPage, //当前页码
         pageSize, //分页个数
@@ -57,7 +54,7 @@ function index(props) {
           });
         });
       }
-      setTotal(totalPage); //总页数
+      setTotal(totalCount); //总页数
       setDataSources(data.data || []);
     } else {
       notification.error({
@@ -69,7 +66,6 @@ function index(props) {
 
   useEffect(() => {
     requestTableData(); //获取数据源列表
-
     //清除存储数据
     remove();
   }, []);

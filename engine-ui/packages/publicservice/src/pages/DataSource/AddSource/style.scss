@@ -28,7 +28,7 @@
       width: 100%;
       padding: 20px;
       background-color: #fafafa;
-      overflow: scroll;
+      // overflow: scroll;
       .fill {
         height: 100%;
         .show-type {
@@ -38,6 +38,7 @@
           .left-menu {
             width: 134px;
             border: 1px solid #ddd;
+            overflow: scroll;
           }
           .right-menu {
             flex: 1;
@@ -80,6 +81,10 @@
           display: inline-block;
           text-align: right;
         }
+      }
+      .info-config {
+        height: 100%;
+        overflow: scroll;
       }
     }
 

@@ -9,4 +9,5 @@ var APP_CONF = {
   theme: 'default', // 主题
   hideUserCenter: false, // 隐藏用户中心按钮
   disableHelp: true, // 禁用帮助文档
+  IMG_URL:window.location.origin+"/public"
 };

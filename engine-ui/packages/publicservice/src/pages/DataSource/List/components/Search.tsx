@@ -74,7 +74,7 @@ function Search(props) {
         <Form.Item>
           <SearchInput
             placeholder="数据源名称/描述"
-            onSearch={(value) => onSearch({ search: value })}
+            onSearch={(value) => onSearch({ search: value.trim() })}
             width={208}></SearchInput>
         </Form.Item>
 
