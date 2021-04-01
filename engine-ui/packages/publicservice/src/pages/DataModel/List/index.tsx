@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Container from '../components/Container';
-import { Input, Table, Pagination, Modal, Drawer, Button } from 'antd';
+import { Table, Pagination, Modal, Drawer, Button } from 'antd';
 import { IModelData } from '../types';
 import { EnumModelActionType, EnumModelStatus } from './types';
 import { columnsGenerator } from './constants';
@@ -9,7 +9,7 @@ import Detail from '../Detail';
 import { API } from '@/services';
 import './style';
 import _ from 'lodash';
-const { Search } = Input;
+import SearchInput from 'components/SearchInput';
 
 interface IPagination {
   current: number;
@@ -190,15 +190,14 @@ const List = (props: IPropList) => {
   }, [requestParams]);
 
   return (
-    <div className="dm-list">
+    <div className="dm-list" data-testid="data-model-list">
       <Container>
         <header className="search-area">
-          <Search
-            className="search"
+          <SearchInput
             placeholder="模型名称/英文名"
-            onSearch={(value) =>
-              setRequestParams((prev) => ({ ...prev, search: value }))
-            }
+            onSearch={(value) => {
+              setRequestParams((prev) => ({ ...prev, search: value }));
+            }}
           />
           <Button
             className="float-right"
@@ -246,8 +245,9 @@ const List = (props: IPropList) => {
             {/* TODO: ICON */}
             <div
               className="slider"
-              onClick={() => setDrawer({ visible: false, modelId: -1 })}
-            />
+              onClick={() => setDrawer({ visible: false, modelId: -1 })}>
+              <i className="iconfont2 iconOutlinedxianxing_shouqi" />
+            </div>
             <Detail modelId={drawer.modelId} />
           </Drawer>
           <div className="pagination-container">

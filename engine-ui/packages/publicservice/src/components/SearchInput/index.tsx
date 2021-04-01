@@ -8,7 +8,7 @@ export default function SearchInput({
 }) {
   const [value, setValue] = useState('');
   const IconSearch = () => (
-    <span className="iconfont iconOutlinedxianxing_Search"></span>
+    <span className="iconfont2 iconOutlinedxianxing_Search"></span>
   );
   return (
     <Input

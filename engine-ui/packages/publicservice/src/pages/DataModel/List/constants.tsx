@@ -1,7 +1,7 @@
 import React from 'react';
 import { Divider } from 'antd';
 import { EnumModelActionType, EnumModelStatus } from './types';
-import _ from 'lodash';
+import classnames from 'classnames';
 
 export const modelStatusMap = new Map([
   [EnumModelStatus.UNRELEASE, '未发布'],
@@ -52,6 +52,16 @@ export const columnsGenerator = ({
       width: 200,
       ellipsis: true,
       filters: dataSourceFilterOptions,
+      filterIcon: (filtered) => (
+        <span
+          className={classnames({
+            iconfont2: true,
+            iconOutlinedxianxing_filter: true,
+            'icon-filter': true,
+            filtered: filtered,
+          })}
+        />
+      ),
       filterMultiple: true,
       render: (text, record) => {
         return (
@@ -66,12 +76,21 @@ export const columnsGenerator = ({
       dataIndex: 'modelStatus',
       key: 'modelStatus',
       width: 160,
-      // TODO:
       filters: Array.from(modelStatusMap).map((item) => ({
         text: item[1],
         value: item[0],
       })),
       filterMultiple: true,
+      filterIcon: (filtered) => (
+        <span
+          className={classnames({
+            iconfont2: true,
+            iconOutlinedxianxing_filter: true,
+            'icon-filter': true,
+            filtered: filtered,
+          })}
+        />
+      ),
       render: (modelStatus) => {
         return (
           <div>
