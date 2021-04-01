@@ -211,10 +211,6 @@ public class ProjectService {
 
         List<ScheduleTaskShade> scheduleTaskShades = scheduleTaskShadeService.getTaskOtherPlatformByProjectId(projectId, appType, environmentContext.getListChildTaskLimit());
 
-        if (CollectionUtils.isNotEmpty(scheduleTaskShades)) {
-//            scheduleTaskShades = scheduleTaskShades.stream().filter(distinctByKey(ScheduleTaskShade));
-        }
-
         for (ScheduleTaskShade scheduleTaskShade : scheduleTaskShades) {
             List<NotDeleteTaskVO> notDeleteTask = scheduleTaskShadeService.getNotDeleteTask(scheduleTaskShade.getTaskId(), scheduleTaskShade.getAppType());
             NotDeleteProjectVO notDeleteProjectVO = new NotDeleteProjectVO();
