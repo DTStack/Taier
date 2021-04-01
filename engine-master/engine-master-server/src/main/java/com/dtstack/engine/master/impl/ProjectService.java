@@ -210,7 +210,7 @@ public class ProjectService {
         List<NotDeleteProjectVO> notDeleteTaskVOS = Lists.newArrayList();
 
         List<ScheduleTaskShade> scheduleTaskShades = scheduleTaskShadeService.getTaskOtherPlatformByProjectId(projectId, appType, environmentContext.getListChildTaskLimit());
-        
+
         for (ScheduleTaskShade scheduleTaskShade : scheduleTaskShades) {
             List<NotDeleteTaskVO> notDeleteTask = scheduleTaskShadeService.getNotDeleteTask(scheduleTaskShade.getTaskId(), scheduleTaskShade.getAppType());
             NotDeleteProjectVO notDeleteProjectVO = new NotDeleteProjectVO();
