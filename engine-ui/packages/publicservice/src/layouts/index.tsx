@@ -13,6 +13,14 @@ const initState = {
 };
 type IState = typeof initState;
 
+interface IProps {
+  children?: React.ReactElement;
+  app?: {
+    disableExt: boolean;
+    disableMessage: boolean;
+  };
+}
+
 const { Content } = Layout;
 @(connect((state: any) => {
   return {
@@ -23,15 +31,21 @@ const { Content } = Layout;
     user: state.user,
   };
 }) as any)
-class BasicLayout extends React.PureComponent {
+class BasicLayout extends React.PureComponent<IProps, IState> {
   state: IState = {
     ...initState,
   };
 
   render() {
+    const app = {
+      ...this.props.app,
+      disableExt: true,
+    };
+
+    const navigatorProps = { ...this.props, ...{ app } };
     return (
       <Layout className="dt-assets-container">
-        <Navigator {...this.props} />
+        <Navigator {...navigatorProps} />
         <Layout className="assets-container dt-container">
           <Layout>
             <Content>{this.props.children}</Content>
