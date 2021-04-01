@@ -36,6 +36,10 @@ export function needZipFile (type: number): boolean {
     return [FILE_TYPE.KERNEROS, FILE_TYPE.CONFIGS].indexOf(type) > -1
 }
 
+export function showDataCheckBox (code: number): boolean {
+    return [COMPONENT_TYPE_VALUE.HIVE_SERVER, COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER].indexOf(code) > -1
+}
+
 export function getActionType (mode: string): string {
     switch (mode) {
         case 'view': return '查看集群'
@@ -400,7 +404,7 @@ export function getModifyComp (comps: any, initialCompData: any[]): any {
     * 文件对比，只比较文件名称
     */
     const defaulParams = ['storeType', 'principal', 'hadoopVersion', 'kerberosFileName',
-        'uploadFileName']
+        'uploadFileName', 'metastore']
     let modifyComps = new Set()
     for (let [typeCode, comp] of Object.entries(comps)) {
         const initialComp = getInitialComp(initialCompData, Number(typeCode))

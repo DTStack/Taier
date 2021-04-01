@@ -6,10 +6,11 @@ import req from '../../../../consts/reqUrls'
 import Api from '../../../../api/console'
 import UploadFile from './components/uploadFileBtn'
 import KerberosModal from './components/kerberosModal'
+import DataCheckbox from './components/dataCheckbox'
 import { COMPONENT_TYPE_VALUE, VERSION_TYPE, FILE_TYPE,
     CONFIG_FILE_DESC, DEFAULT_COMP_VERSION } from '../const'
 import { isOtherVersion, isSameVersion, handleComponentConfig,
-    needZipFile, getOptions, getInitialValue } from '../help'
+    needZipFile, getOptions, getInitialValue, showDataCheckBox } from '../help'
 
 interface IProps {
     comp: any;
@@ -472,6 +473,11 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             case COMPONENT_TYPE_VALUE.FLINK:
                 return (
                     <>
+                        {showDataCheckBox(typeCode) && <DataCheckbox
+                            comp={this.props.comp}
+                            form={this.props.form}
+                            view={this.props.view}
+                        />}
                         {this.renderCompsVersion()}
                         {this.renderKerberosFile()}
                         {this.renderPrincipal()}
