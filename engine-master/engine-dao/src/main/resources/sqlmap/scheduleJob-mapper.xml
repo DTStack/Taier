@@ -15,6 +15,10 @@
         ,`next_cyc_time`,`engine_job_id`,`application_id`,`engine_log`,`plugin_info_id`,`retry_task_params`,`compute_type`,`phase_status`,`submit_user_name`
     </sql>
 
+    <sql id="select_filed_all_bj">
+        id,tenant_id,project_id,dtuic_tenant_id,app_type,job_id,job_key,job_name,task_id,gmt_create,gmt_modified,create_user_id,is_deleted,type,is_restart,business_date,cyc_time,dependency_type,flow_job_id,period_type,status,task_type,fill_id,exec_start_time,exec_end_time,exec_time,submit_time,retry_num,max_retry_num,node_address,version_id,next_cyc_time,log_info,compute_type,submit_user_name,task_rule
+    </sql>
+
     <sql id="select_where_fragment">
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             <if test="model.id != null and model.id > 0">
@@ -713,12 +717,12 @@
         <include refid="select_content_fragment"/>
         from (
         select
-        <include refid="select_filed_all"/>,'' as groupDate from schedule_job
+        <include refid="select_filed_all_bj"/>,'' as groupDate from schedule_job
         <include refid="select_where_batch_job"/>
         and period_type not in (0,1)
         union
         select
-        <include refid="select_content_fragment"/>,bj.engine_log,
+        <include refid="select_content_fragment"/>,
         left(bj.business_date,8) as groupDate
         from schedule_job bj
         LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
