@@ -1,32 +1,24 @@
 export function getRules(item) {
-  return {
-    initialValue: item.initialValue,
-    rules: [
-      {
-        required: item.required === 1 ? true : false,
-        message: `${item.label}不能为空`,
-      },
-    ],
-  };
-}
-
-export function getRulesJdbc(item) {
-  let validInfo = JSON.parse(item.validInfo);
-
   let ruleArr: any = [
     {
       required: item.required === 1 ? true : false,
       message: `${item.label}不能为空`,
     },
-    {
-      pattern: item.regex
-        ? RegExp(item.regex.substring(1, item.regex.length - 1))
-        : null,
-      message: validInfo?.regex?.message,
-    },
   ];
-
-  ruleArr.push(validInfo?.length);
+  if (item.validInfo !== '') {
+    let validInfo = JSON.parse(item.validInfo);
+    if (Object.keys(validInfo).includes('length')) {
+      ruleArr.push(validInfo?.length);
+    }
+    if (Object.keys(validInfo).includes('regex')) {
+      ruleArr.push({
+        pattern: item.regex
+          ? RegExp(item.regex.substring(1, item.regex.length - 1))
+          : null,
+        message: validInfo?.regex?.message,
+      });
+    }
+  }
 
   if (item.label === '数据源名称') {
     ruleArr.push({
@@ -34,7 +26,6 @@ export function getRulesJdbc(item) {
       message: '仅支持中文、数字、英文大小写、下划线',
     });
   }
-  console.log('ruleArr: ', ruleArr);
 
   return {
     initialValue: item.initialValue,

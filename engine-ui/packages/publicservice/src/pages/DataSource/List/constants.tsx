@@ -7,7 +7,7 @@ import { MAIN_COLOR } from '../constants/theme';
 const columns = (props: any) => {
   const { toEdit, toAuth, toDelete, left, right, filters } = props;
   const IconFilter = () => (
-    <i className="iconfont iconOutlinedxianxing_filter filter-status"></i>
+    <i className="iconfont2 iconOutlinedxianxing_filter filter-status"></i>
   );
   return [
     {
@@ -35,7 +35,12 @@ const columns = (props: any) => {
       ellipsis: true,
       width: 120,
       render: (_, record) => {
-        return <span>{record.dataType + record.dataVersion}</span>;
+        return (
+          <span>
+            {record.dataType}
+            {record.dataVersion ? record.dataVersion : ''}
+          </span>
+        );
       },
     },
     {

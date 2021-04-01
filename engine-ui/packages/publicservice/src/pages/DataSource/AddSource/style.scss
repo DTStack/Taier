@@ -26,9 +26,9 @@
       bottom: 55px;
       left: 0;
       width: 100%;
-      overflow: scroll;
       padding: 20px;
       background-color: #fafafa;
+      overflow: scroll;
       .fill {
         height: 100%;
         .show-type {
@@ -43,7 +43,7 @@
             flex: 1;
             background-color: #fff;
             padding: 27px 40px;
-
+            overflow: scroll;
             img {
               width: 216px;
               height: 108px;
@@ -63,7 +63,6 @@
       .produce-auth {
         height: 100%;
         font-size: 12px;
-        font-family: PingFangSC-Regular, PingFang SC;
         font-weight: 400;
         color: #333;
         line-height: 20px;

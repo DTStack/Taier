@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { API } from '@/services';
 import { Form, Checkbox, Button, Select, Tooltip, Icon, message } from 'antd';
-import { useHistory } from 'react-router';
+import { withRouter } from 'react-router';
 import SearchInput from '@/components/SearchInput';
 import { FormComponentProps } from 'antd/es/form';
 import '../style.scss';
@@ -14,7 +14,6 @@ const { Option } = Select;
 
 function Search(props) {
   const { onSearch } = props;
-  const history = useHistory();
 
   const [typeList, setTypeList] = useState([]);
   const [productList, setProductList] = useState([]);
@@ -51,7 +50,7 @@ function Search(props) {
 
   // 新增数据源
   const addList = () => {
-    history.push('/data-source/add-source');
+    props.router.push('/data-source/add');
   };
 
   //类型多选方法
@@ -91,7 +90,11 @@ function Search(props) {
             defaultValue={['全部']}>
             {typeList.length > 0 &&
               typeList.map((item) => {
-                return <Option value={item.dataType}>{item.dataType}</Option>;
+                return (
+                  <Option value={item.dataType} key={item.dataType}>
+                    {item.dataType}
+                  </Option>
+                );
               })}
           </Select>
         </Form.Item>
@@ -136,4 +139,4 @@ function Search(props) {
     </div>
   );
 }
-export default Form.create<IProps>({})(Search);
+export default Form.create<IProps>({})(withRouter(Search));

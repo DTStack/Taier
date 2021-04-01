@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Layout } from 'antd';
-import ErrorBoundary from '@/components/ErrorBoundary';
 //dt-common not exports complied outputs
 import Navigator from 'lib/dt-common/src/components/nav';
 import './style';
@@ -14,6 +13,14 @@ const initState = {
 };
 type IState = typeof initState;
 
+interface IProps {
+  children?: React.ReactElement;
+  app?: {
+    disableExt: boolean;
+    disableMessage: boolean;
+  };
+}
+
 const { Content } = Layout;
 @(connect((state: any) => {
   return {
@@ -24,23 +31,27 @@ const { Content } = Layout;
     user: state.user,
   };
 }) as any)
-class BasicLayout extends React.PureComponent {
+class BasicLayout extends React.PureComponent<IProps, IState> {
   state: IState = {
     ...initState,
   };
 
   render() {
+    const app = {
+      ...this.props.app,
+      disableExt: true,
+    };
+
+    const navigatorProps = { ...this.props, ...{ app } };
     return (
-      <ErrorBoundary>
-        <Layout className="dt-assets-container">
-          <Navigator {...this.props} />
-          <Layout className="assets-container dt-container">
-            <Layout>
-              <Content>{this.props.children}</Content>
-            </Layout>
+      <Layout className="dt-assets-container">
+        <Navigator {...navigatorProps} />
+        <Layout className="assets-container dt-container">
+          <Layout>
+            <Content>{this.props.children}</Content>
           </Layout>
         </Layout>
-      </ErrorBoundary>
+      </Layout>
     );
   }
 }

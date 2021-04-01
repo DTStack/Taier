@@ -10,7 +10,7 @@ describe('test SearchInput', () => {
         placeholder="请输入数据源名称或描述"
         width={200}
         onSearch={(value) => {
-          console.log(value);
+          console.log('value:', value);
         }}
       />
     );
@@ -21,4 +21,6 @@ describe('test SearchInput', () => {
   it('should get placeholder properties', () => {
     expect(wrapper.getByPlaceholderText('请输入数据源名称或描述')).toBeTruthy();
   });
+
+  it('calls onClick prop when clicked', () => {});
 });

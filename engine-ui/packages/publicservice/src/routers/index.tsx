@@ -7,6 +7,7 @@ import MsgDetail from 'lib/dt-common/src/views/message/detail';
 //custom components
 import Layout from '../layouts';
 import Exception from '@/components/Exception';
+import Loading from '@/components/loading';
 
 const PageNotFound = () => (
   <Exception status={404} subTitle="对不起，你访问的页面不存在" />
@@ -15,7 +16,7 @@ const PageNotFound = () => (
 const createLazyRoute = (RouteComponent: any) => {
   return function (props: any) {
     return (
-      <Suspense fallback={<PageNotFound />}>
+      <Suspense fallback={<Loading />}>
         <RouteComponent {...props} />
       </Suspense>
     );
