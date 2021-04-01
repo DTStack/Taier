@@ -3075,7 +3075,12 @@ public class ScheduleJobService {
     private void buildScheduleJobDetailsVO(ScheduleDetailsVO vo, ScheduleJob scheduleJob) {
         if (scheduleJob != null) {
             vo.setAppType(scheduleJob.getAppType());
-            vo.setName(scheduleJob.getJobName());
+            ScheduleTaskShade taskShade = scheduleTaskShadeDao.getOne(scheduleJob.getTaskId(), scheduleJob.getAppType());
+            if (taskShade != null) {
+                vo.setName(taskShade.getName());
+            } else {
+                vo.setName(scheduleJob.getJobName());
+            }
             vo.setTaskRule(scheduleJob.getTaskRule());
             vo.setTaskType(scheduleJob.getTaskType());
 
