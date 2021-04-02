@@ -26,7 +26,7 @@ public class JobGraphTriggerServiceTest extends AbstractTest {
     @Rollback
     public void testAdd() {
         Timestamp timestamp = new Timestamp(DateTime.now().plusDays(-1).withTime(0, 0, 0, 0).getMillis());
-        jobGraphTriggerService.addJobTrigger(timestamp);
+        jobGraphTriggerService.addJobTrigger(timestamp,0L);
         boolean isAdd = jobGraphTriggerService.checkHasBuildJobGraph(timestamp);
         Assert.assertTrue(isAdd);
         JobGraphTrigger triggerByDate = jobGraphTriggerService.getTriggerByDate(timestamp, 0);
