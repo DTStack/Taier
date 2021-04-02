@@ -37,9 +37,7 @@ function index(props) {
         let content0 = (
           <>
             <div className="step-info">
-              {current === 0 && (
-                <SelectSource nextType={nextType}></SelectSource>
-              )}
+              <SelectSource nextType={nextType}></SelectSource>
             </div>
             <div className="footer-select">
               <Button
@@ -68,7 +66,7 @@ function index(props) {
         let content1 = (
           <>
             <div className="step-info">
-              {current === 1 && <ProduceAuth></ProduceAuth>}
+              <ProduceAuth></ProduceAuth>
             </div>
             <div className="footer-select">
               <Button
@@ -94,9 +92,7 @@ function index(props) {
         let content2 = (
           <>
             <div className="step-info">
-              {current === 2 && (
-                <InfoConfig cRef={childRef} record={''}></InfoConfig>
-              )}
+              <InfoConfig cRef={childRef} record={''}></InfoConfig>
             </div>
             <div className="footer-select">
               <Button type="primary" icon="sync" onClick={testConnect}>

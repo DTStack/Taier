@@ -94,3 +94,10 @@ $highlight-color: #3f87ff;
   margin-top: -5px;
   margin-left: -6px;
 }
+.ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 200px;
+  display: inline-block;
+}

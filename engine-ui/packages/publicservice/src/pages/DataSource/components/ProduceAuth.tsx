@@ -6,7 +6,6 @@ import { checks, saveCheckStauts, getSaveStatus } from '../utils/handelSession';
 const { Option } = Select;
 
 function ProduceAuth() {
-  console.log('ProduceAuth: ============');
   const [sqlType, setSqlType] = useState({
     dataType: '',
     haveVersion: true,
@@ -68,7 +67,6 @@ function ProduceAuth() {
   };
 
   useEffect(() => {
-    console.log('useEffect-produce-auth: ');
     queryDsVersionByType();
   }, []);
 

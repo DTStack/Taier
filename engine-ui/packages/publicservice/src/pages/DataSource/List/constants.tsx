@@ -1,8 +1,8 @@
 import React from 'react';
-import { Divider, Popconfirm, Icon, Tag, Badge, notification } from 'antd';
-import './style.scss';
+import { Divider, Popconfirm, Icon, Tag, Badge, message } from 'antd';
 import { ExtTableCell } from './components/extTableCell';
 import { MAIN_COLOR } from '../constants/theme';
+import './style.scss';
 
 const columns = (props: any) => {
   const { toEdit, toAuth, toDelete, left, right, filters } = props;
@@ -12,16 +12,25 @@ const columns = (props: any) => {
   return [
     {
       title: '数据源名称',
+      width: 240,
       key: 'dataName',
       fixed: left,
-      width: 200,
+      ellipsis: true,
       render: (_, record) =>
         //	meta标志 0-否 1-是
         record.isMeta === 0 ? (
-          <span style={{ color: MAIN_COLOR }}>{record.dataName}</span>
+          <span
+            style={{
+              color: MAIN_COLOR,
+            }}
+            className="ellipsis">
+            {record.dataName}
+          </span>
         ) : (
           <div style={{ color: MAIN_COLOR }}>
-            <span style={{ marginRight: 4 }}>{record.dataName}</span>
+            <span style={{ marginRight: 4 }} className="ellipsis">
+              {record.dataName}
+            </span>
             <Tag style={{ borderColor: MAIN_COLOR, color: MAIN_COLOR }}>
               meta
             </Tag>
@@ -33,7 +42,7 @@ const columns = (props: any) => {
       dataIndex: 'dataType',
       key: 'dataType',
       ellipsis: true,
-      width: 120,
+      width: 200,
       render: (_, record) => {
         return (
           <span>
@@ -48,20 +57,19 @@ const columns = (props: any) => {
       dataIndex: 'appNames',
       key: 'appNames',
       ellipsis: true,
-      width: 220,
+      width: 200,
     },
     {
       title: '描述',
       dataIndex: 'dataDesc',
       key: 'dataDesc',
       ellipsis: true,
-      width: 160,
+      width: 200,
     },
     {
       title: '连接信息',
       dataIndex: 'linkJson',
-      ellipsis: true,
-      width: 200,
+      width: 240,
       render: (_, record) => {
         return <ExtTableCell sourceData={record} />;
       },
@@ -69,8 +77,7 @@ const columns = (props: any) => {
     {
       title: '连接状态',
       dataIndex: 'status',
-      ellipsis: true,
-      width: 200,
+      width: 132,
       render: (text, _) =>
         text === 0 ? (
           <span>
@@ -93,13 +100,13 @@ const columns = (props: any) => {
       dataIndex: 'gmtModified',
       key: 'gmtModified',
       ellipsis: true,
-      width: 120,
+      width: 200,
     },
     {
       title: '操作',
       key: 'action',
       fixed: right,
-      width: 160,
+      width: 200,
       render: (_, record) => {
         return (
           <>
@@ -120,7 +127,7 @@ const columns = (props: any) => {
             <Divider type="vertical" />
 
             {/* isImport ：0为未应用，1为已应用 */}
-            {!record.isAuth && record.isImport !== 1 ? (
+            {!record.isMeta && record.isImport !== 1 ? (
               <span className="data-view">
                 <Popconfirm
                   title="是否删除此条记录？"
@@ -136,12 +143,9 @@ const columns = (props: any) => {
             ) : (
               <span
                 onClick={() => {
-                  notification.error({
-                    message: '错误！',
-                    description: record.isAuth
-                      ? '具有meta标识的数据源，不可删除'
-                      : '数据源已授权给产品，不可删除',
-                  });
+                  record.isMeta
+                    ? message.error('具有meta标识的数据源，不可删除')
+                    : message.error('数据源已授权给产品，不可删除');
                 }}>
                 <a className="operate-forbid">删除</a>
               </span>

@@ -12,6 +12,7 @@ import {
   InputNumber,
   Tooltip,
   Switch,
+  Spin,
 } from 'antd';
 import { FormComponentProps } from 'antd/es/form';
 import copy from 'copy-to-clipboard';
@@ -21,9 +22,9 @@ import { API } from '@/services';
 import downloadFile from '@/utils/downloadFile';
 import { checks, getSaveStatus } from '../../utils/handelSession';
 import { getRules, IParams, formItemLayout, formNewLayout } from './formRules';
-import '../../List/style.scss';
 import { HDFSCONG } from '../../constants/index';
 import { hdfsConfig } from './tooltips';
+import '../../List/style.scss';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -35,8 +36,6 @@ interface IProps extends FormComponentProps {
 }
 
 const InfoConfig = (props) => {
-  console.log('##################');
-  console.log('进入-infoconfig: ');
   const { form, cRef, record } = props;
   const {
     getFieldDecorator,
@@ -57,6 +56,9 @@ const InfoConfig = (props) => {
 
   const [webSocketParams, setWebSocketParams] = useState({});
   const [principalsList, setPrincipalsList] = useState([]);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const [editChangeFile, setEditChangeFile] = useState<boolean>(false);
 
   //定制化组件编辑渲染
   const [detailData, setDetailData] = useState(null);
@@ -102,6 +104,10 @@ const InfoConfig = (props) => {
           }
           item.initialValue =
             detailData[item.name] || JSON.parse(detailData.dataJson)[item.name];
+          console.log(
+            'JSON.parse(detailData.dataJson): ',
+            JSON.parse(detailData.dataJson)
+          );
           setDetailData(JSON.parse(detailData.dataJson));
 
           //webSocket定制化
@@ -137,35 +143,27 @@ const InfoConfig = (props) => {
   };
 
   useEffect(() => {
-    console.log('**********************');
-    console.log('useEffect-infoconfig');
     getAllData();
     getParams();
   }, []);
-
-  // 提交
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    validateFields((err, fieldsValue) => {
-      if (!err) {
-        console.log('values', fieldsValue);
-      }
-    });
-  };
 
   //父组件-测试连通性方法
   const testForm = (submit?: boolean) => {
     validateFields(async (err, fieldsValue) => {
       if (!err) {
+        setLoading(true);
+
         let handelParams: any = { ...otherParams };
         handelParams.dataName = fieldsValue.dataName.trim();
         handelParams.dataDesc = fieldsValue.dataDesc.trim();
         delete fieldsValue.dataName;
         delete fieldsValue.dataDesc;
         delete fieldsValue.dataType;
+        let infoMsg = '添加数据源成功';
         if (record) {
           //edit need id
           handelParams.id = record.dataInfoId;
+          infoMsg = '修改数据源成功';
         }
 
         //webSocket定制化
@@ -181,7 +179,9 @@ const InfoConfig = (props) => {
         }
 
         if (getFieldValue('kerberosFile')) {
-          handelParams.file = fieldsValue.kerberosFile;
+          if (editChangeFile) {
+            handelParams.file = fieldsValue.kerberosFile;
+          }
           delete fieldsValue.openKerberos;
           delete fieldsValue.kerberosFile;
           delete handelParams.appTypeList;
@@ -189,30 +189,38 @@ const InfoConfig = (props) => {
           handelParams.appTypeListString = otherParams.appTypeList.toString();
           handelParams.dataJsonString = JSON.stringify(fieldsValue);
 
-          let { success, message: msg } = await API.testConWithKerberos(
-            handelParams
-          );
-          if (success) {
-            if (submit) {
-              submitForm(handelParams);
-            } else {
-              message.success('连接成功');
-            }
+          if (submit) {
+            //确定按钮
+            submitForm(handelParams, infoMsg);
           } else {
-            message.error(`${msg}`);
+            //测试连通性按钮
+            let { success, message: msg, data } = await API.testConWithKerberos(
+              handelParams
+            );
+            setLoading(false);
+            if (success && data) {
+              message.success('连接成功');
+            } else {
+              message.error(`${msg}`);
+            }
           }
         } else {
           handelParams.dataJson = fieldsValue;
 
-          let { success, message: msg } = await API.testCon(handelParams);
-          if (success) {
-            if (submit) {
-              submitForm(handelParams);
-            } else {
-              message.success('连接成功');
-            }
+          if (submit) {
+            //确定按钮
+            submitForm(handelParams, infoMsg);
           } else {
-            message.error(`${msg}`);
+            //测试连通性按钮
+            setLoading(false);
+            let { success, message: msg, data } = await API.testCon(
+              handelParams
+            );
+            if (success && data) {
+              message.success('连接成功');
+            } else {
+              message.error(`${msg}`);
+            }
           }
         }
       }
@@ -220,7 +228,7 @@ const InfoConfig = (props) => {
   };
 
   //父组件-确定
-  const submitForm = (handelParams) => {
+  const submitForm = (handelParams, infoMsg) => {
     validateFields(async (err, fieldsValue) => {
       //验证字段
       if (!err) {
@@ -228,21 +236,28 @@ const InfoConfig = (props) => {
           let {
             success,
             message: msg,
+            data,
           } = await API.addOrUpdateSourceWithKerberos(handelParams);
-          if (success) {
-            message.success('添加数据源成功');
+
+          if (success && data) {
+            message.success(`${infoMsg}`);
             props.router.push('/data-source/list');
           } else {
             message.error(`${msg}`);
           }
+          setLoading(false);
         } else {
-          let { success, message: msg } = await API.addDatasource(handelParams);
-          if (success) {
-            message.success('添加数据源成功');
+          let { success, message: msg, data } = await API.addDatasource(
+            handelParams
+          );
+
+          if (success && data) {
+            message.success(`${infoMsg}`);
             props.router.push('/data-source/list');
           } else {
             message.error(`${msg}`);
           }
+          setLoading(false);
         }
       }
     });
@@ -374,6 +389,7 @@ const InfoConfig = (props) => {
     const upProps = {
       beforeUpload: (file: any) => {
         file.modifyTime = moment();
+        setEditChangeFile(true);
         getPrincipalsWithConf(file, (res: any) => {
           if (res.code !== 1) {
             setFieldsValue({
@@ -523,8 +539,12 @@ const InfoConfig = (props) => {
               getRules(item)
             )(
               <Select placeholder={item.placeHold || `请输入${item.label}`}>
-                <Option value="male">male</Option>
-                <Option value="female">female</Option>
+                <Option value="option1" key="option1">
+                  option1
+                </Option>
+                <Option value="option2" key="option2">
+                  option2
+                </Option>
               </Select>
             )}
           </Form.Item>
@@ -962,28 +982,24 @@ const InfoConfig = (props) => {
   });
 
   return (
-    <div>
-      <Form {...formItemLayout} onSubmit={handleSubmit}>
-        <Form.Item label="数据源类型">
-          {getFieldDecorator('dataType', {
-            initialValue: otherParams.dataType + otherParams.dataVersion,
-            rules: [
-              {
-                required: true,
-                message: '数据源类型不能为空',
-              },
-            ],
-          })(<Input disabled />)}
-        </Form.Item>
-        {formItem}
+    <div className="info-config">
+      <Spin spinning={loading}>
+        <Form {...formItemLayout}>
+          <Form.Item label="数据源类型">
+            {getFieldDecorator('dataType', {
+              initialValue: otherParams.dataType + otherParams.dataVersion,
+              rules: [
+                {
+                  required: true,
+                  message: '数据源类型不能为空',
+                },
+              ],
+            })(<Input disabled />)}
+          </Form.Item>
 
-        {/* 1.Kerberos测试完成 */}
-        {/* 2.HbaseKerberos待测试 */}
-        {/* 3.ftp定制化测试完成 */}
-        {/* 4.CarbonData定制化测试完成 */}
-        {/* 5.WebSocket定制化 */}
-        {/* 6.redis定制化待测试 */}
-      </Form>
+          {formItem}
+        </Form>
+      </Spin>
     </div>
   );
 };

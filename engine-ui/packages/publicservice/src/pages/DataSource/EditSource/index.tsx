@@ -20,9 +20,6 @@ export default function index(props) {
   };
 
   const record = props.location.state.record;
-  console.log('-----------------');
-  console.log('第一步：编辑页面', record);
-  console.log('-----------------');
 
   return (
     <div className="source">

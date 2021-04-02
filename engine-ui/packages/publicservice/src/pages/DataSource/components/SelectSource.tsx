@@ -3,6 +3,8 @@ import SearchInput from '@/components/SearchInput';
 import { Menu, notification } from 'antd';
 import { API } from '@/services';
 import { getSaveStatus } from '../utils/handelSession';
+declare var APP_CONF: any;
+const IMG_URL = APP_CONF.IMG_URL || '';
 
 export default function SelectSource(props) {
   const { nextType } = props;
@@ -47,8 +49,7 @@ export default function SelectSource(props) {
       if (success) {
         data.forEach((ele) => {
           ele.selected = ele.typeId === echoTypeId ? true : false;
-          ele.imgUrl =
-            window.location.origin + '/public/assets/imgs/' + ele.imgUrl;
+          ele.imgUrl = IMG_URL + '/assets/imgs/' + ele.imgUrl;
         });
 
         setIconList(data || []);
