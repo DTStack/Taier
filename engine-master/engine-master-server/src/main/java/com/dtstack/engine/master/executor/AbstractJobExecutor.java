@@ -253,7 +253,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
             return Boolean.TRUE;
         } else if (checkRunInfo.getStatus() == JobCheckStatus.TIME_NOT_REACH
                 || checkRunInfo.getStatus() == JobCheckStatus.NOT_UNSUBMIT
-                || checkRunInfo.getStatus() == JobCheckStatus.CHILD_PRE_NOT_SUCCESS
                 || checkRunInfo.getStatus() == JobCheckStatus.FATHER_JOB_NOT_FINISHED
                 || checkRunInfo.getStatus() == JobCheckStatus.CHILD_PRE_NOT_FINISHED) {
             logger.info("jobId:{} checkRunInfo.status:{} unable put to queue", scheduleBatchJob.getJobId(), checkRunInfo.getStatus());
@@ -262,7 +261,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 || checkRunInfo.getStatus() == JobCheckStatus.SELF_PRE_PERIOD_EXCEPTION
                 || checkRunInfo.getStatus() == JobCheckStatus.TASK_DELETE
                 || checkRunInfo.getStatus() == JobCheckStatus.FATHER_NO_CREATED
-                || checkRunInfo.getStatus() == JobCheckStatus.RESOURCE_OVER_LIMIT ) {
+                || checkRunInfo.getStatus() == JobCheckStatus.RESOURCE_OVER_LIMIT) {
             status = RdosTaskStatus.FAILED.getStatus();
         } else if (checkRunInfo.getStatus() == JobCheckStatus.FATHER_JOB_EXCEPTION) {
             //上游任务失败
@@ -276,6 +275,8 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 || JobCheckStatus.DEPENDENCY_JOB_EXPIRE.equals(checkRunInfo.getStatus())) {
             //更新为自动取消
             status = RdosTaskStatus.EXPIRE.getStatus();
+        } else if (checkRunInfo.getStatus() == JobCheckStatus.CHILD_PRE_NOT_SUCCESS) {
+            status = RdosTaskStatus.FAILED.getStatus();
         } else {
             logger.error("appear unknown jobId:{} checkRunInfo.status:{} ", scheduleBatchJob.getJobId(), checkRunInfo.getStatus());
             return Boolean.FALSE;

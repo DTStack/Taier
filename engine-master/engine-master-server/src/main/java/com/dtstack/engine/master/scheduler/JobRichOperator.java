@@ -707,11 +707,7 @@ public class JobRichOperator {
     public Pair<String, String> getCycTimeLimit() {
         Integer dayGap = environmentContext.getCycTimeDayGap();
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        calendar.add(Calendar.DATE, -dayGap);
+        calendar.add(Calendar.DATE, dayGap-1);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         String startTime = sdf.format(calendar.getTime());
         calendar.add(Calendar.DATE, dayGap+1);
