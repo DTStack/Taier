@@ -352,6 +352,7 @@ public class LineageService {
             //资产通过数据源id查询数据源
             lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(parseColumnLineageParam.getEngineDataSourceId(), parseColumnLineageParam.getAppType());
         }
+        LineageDataSource defaultDataSource = dataSourceMap.get(parseColumnLineageParam.getDefaultDb());
         if (Objects.isNull(lineageDataSource)){
             throw new RdosDefineException("数据源不存在");
         }
@@ -369,6 +370,17 @@ public class LineageService {
             } catch (Exception e) {
                 logger.error("解析sql异常:{}",e);
                 throw new RdosDefineException("sql解析异常，请检查语法");
+            }
+            if(AppType.RDOS.getType() == parseColumnLineageParam.getAppType()) {
+                for (Table resTable : resTables) {
+                    //校验db对应的数据源是否存在，不存在需要新增
+                    if(!dataSourceMap.containsKey(resTable.getDb())){
+                        long dataSourceId = addDataSource(parseColumnLineageParam.getDefaultDb(), defaultDataSource, resTable.getDb());
+                        LineageDataSource dataSource = new LineageDataSource();
+                        dataSource.setId(dataSourceId);
+                        dataSourceMap.put(resTable.getDb(),dataSource);
+                    }
+                }
             }
             //去除主表，主表需要创建，还未存在，查不到字段信息，需要过滤掉
             List<Table> subTables = resTables.stream().filter(table->
@@ -397,7 +409,12 @@ public class LineageService {
             String tableKey = "%s.%s";
             for (int i = 0; i < resTables.size(); i++) {
                 Table ta = resTables.get(i);
-                LineageDataSetInfo dataSet = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), ta.getDb(), ta.getName(), ta.getDb());
+                LineageDataSetInfo dataSet = null;
+                if( AppType.RDOS.getType() != parseColumnLineageParam.getAppType()) {
+                    dataSet = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), ta.getDb(), ta.getName(), ta.getDb());
+                }else{
+                    dataSet = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSourceMap.get(ta.getDb()).getId(), ta.getDb(), ta.getName(), ta.getDb());
+                }
                 tableRef.put(String.format(tableKey, ta.getDb(), ta.getName()), dataSet);
             }
             try {
