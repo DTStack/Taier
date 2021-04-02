@@ -179,8 +179,8 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
             <Select placeholder="请选择表">
               {tables.map((item) => (
                 <Select.Option
-                  key={`${item.tableName}-${item.schema}`}
-                  value={`${item.tableName}-${item.schema}`}>
+                  key={`${item.schema}-${item.tableName}`}
+                  value={`${item.schema}-${item.tableName}`}>
                   {item.tableName}
                 </Select.Option>
               ))}
@@ -225,6 +225,9 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
                     const isPartition = (target as any).props['data-ext'];
                     setVisibleUpdateType(isPartition);
                   }}>
+                    {
+                      console.log(tableList)
+                    }
                   {tableList.map((item) => (
                     <Select.Option
                       key={item.tableName}

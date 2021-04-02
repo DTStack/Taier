@@ -82,7 +82,7 @@ const DynamicSelectList = (props: IPropsDynamicSelectList) => {
                           const _id = `${item.schema}-${item.tableName}-${item.columnName}`;
                           return (
                             <Select.Option key={_id} value={_id}>
-                              {item.tableName}
+                              {item.columnName}
                             </Select.Option>
                           );
                         })}
@@ -103,7 +103,7 @@ const DynamicSelectList = (props: IPropsDynamicSelectList) => {
                           const _id = `${item.schema}-${item.tableName}-${item.columnName}`;
                           return (
                             <Select.Option key={_id} value={_id}>
-                              {item.tableName}
+                              {item.columnName}
                             </Select.Option>
                           );
                         })}
