@@ -22,6 +22,10 @@ public class JobGraphTrigger extends BaseEntity {
     private Timestamp triggerTime;
 
     private Integer triggerType;
+    /**
+     * 当前生成的schedule_job的最小id
+     */
+    private Long minJobId;
 
     public Timestamp getTriggerTime() {
         return triggerTime;
@@ -37,5 +41,13 @@ public class JobGraphTrigger extends BaseEntity {
 
     public void setTriggerType(Integer triggerType) {
         this.triggerType = triggerType;
+    }
+
+    public Long getMinJobId() {
+        return minJobId;
+    }
+
+    public void setMinJobId(Long minJobId) {
+        this.minJobId = minJobId;
     }
 }
