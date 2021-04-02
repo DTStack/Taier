@@ -3,14 +3,14 @@
 <mapper namespace="com.dtstack.engine.dao.JobGraphTriggerDao">
 
     <sql id="select_content_fragment">
-        id,trigger_type,trigger_time,gmt_create,gmt_modified,is_deleted
+        id,trigger_type,trigger_time,gmt_create,gmt_modified,is_deleted,min_job_id
     </sql>
 
     <insert id="insert" parameterType="JobGraphTrigger" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO schedule_job_graph_trigger
-        (trigger_type,trigger_time)
+        (trigger_type,trigger_time,min_job_id)
         VALUES
-        (#{triggerType},#{triggerTime})
+        (#{triggerType},#{triggerTime},#{minJobId})
     </insert>
 
     <select id="getByTriggerTimeAndTriggerType" resultType="JobGraphTrigger">
@@ -25,4 +25,15 @@
         delete from schedule_job_graph_trigger
         where TO_DAYS(trigger_time) = TO_DAYS(CURRENT_DATE)
     </delete>
+
+    <select id="getMinJobIdByTriggerTime" resultType="string">
+        SELECT
+            jpt.min_job_id
+        FROM
+            schedule_job_graph_trigger jpt
+        WHERE
+            jpt.trigger_time >= #{triggerStartTime}
+            AND jpt.trigger_time <![CDATA[ <= ]]> #{triggerEndTime}
+        ORDER BY jpt.id ASC limit 1
+    </select>
 </mapper>
