@@ -28,7 +28,7 @@ const PartitionField = (props: IPropsPartitionField) => {
   const { form, formValue } = props;
   const { getFieldDecorator, getFieldsValue } = form;
   const currentForm = getFieldsValue();
-  const { columns } = formValue;
+  const { columns = [] } = formValue;
 
   const rules = useCallback(
     (msg: string) => [

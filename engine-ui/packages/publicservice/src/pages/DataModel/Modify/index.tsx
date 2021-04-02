@@ -443,7 +443,6 @@ const Modify = (props: IPropsModify) => {
   const childRef = useRef(null);
 
   const getFormList = (step: EnumModifyStep) => {
-    console.log(formValue);
     switch (step) {
       case EnumModifyStep.BASIC_STEP:
         const id = mode === EnumModifyMode.ADD ? undefined : modelId;
