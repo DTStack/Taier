@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author chener
@@ -279,5 +280,14 @@ public class LineageController {
         ValidateUtil.validateNotNull(defaultDb,"默认数据库不能为空");
         ValidateUtil.validateNotNull(sourceType,"数据源类型不能为空");
         return lineageService.parseTables(sql, defaultDb, sourceType);
+    }
+
+
+    @RequestMapping(value = "/parseFunction", method = {RequestMethod.POST})
+    @ApiOperation(value = "解析sql方法信息")
+    @ApiImplicitParam(name = "sql", value = "待解析sql")
+    public Set<String> parseFunction(String sql){
+
+        return lineageService.parseFunction(sql);
     }
 }

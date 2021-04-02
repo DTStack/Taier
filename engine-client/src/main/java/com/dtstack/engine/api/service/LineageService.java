@@ -19,6 +19,7 @@ import com.dtstack.sdk.core.feign.Param;
 import com.dtstack.sdk.core.feign.RequestLine;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author chener
@@ -226,4 +227,15 @@ public interface LineageService extends DtInsightServer {
      **/
     @RequestLine("POST /node/lineage/parseTables")
     ApiResponse<List<Table>> parseTables(@Param("sql") String sql,@Param("defaultDb") String defaultDb, @Param("sourceType") Integer sourceType);
+
+
+    /**
+     * @author ZYD
+     * @Description
+     * @Date 2021/4/2 16:09
+     * @param sql: 解析sql方法信息
+     * @return: com.dtstack.sdk.core.common.ApiResponse<java.util.Set<java.lang.String>>
+     **/
+    @RequestLine("POST /node/lineage/parseFunction")
+    ApiResponse<Set<String>> parseFunction(String sql);
 }

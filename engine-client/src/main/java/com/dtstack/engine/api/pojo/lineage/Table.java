@@ -107,6 +107,11 @@ public class Table{
      */
     private String externalOrManaged;
 
+    /**
+     * 是否为主表
+     */
+    private boolean isMain;
+
 
     public TableOperateEnum getOperate() {
         return operate;
@@ -280,6 +285,14 @@ public class Table{
 
     public void setExternalOrManaged(String externalOrManaged) {
         this.externalOrManaged = externalOrManaged;
+    }
+
+    public boolean isMain() {
+        return isMain;
+    }
+
+    public void setMain(boolean main) {
+        isMain = main;
     }
 
     @Override

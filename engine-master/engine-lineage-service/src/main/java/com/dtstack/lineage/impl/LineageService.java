@@ -101,6 +101,19 @@ public class LineageService {
         return parseInfo;
     }
 
+    public Set<String> parseFunction(String sql){
+
+        ISqlParserClient sqlParserClient = getSqlParserClient();
+        Set<String> functions  = null;
+        try {
+            functions = sqlParserClient.parseFunction(sql);
+        } catch (Exception e) {
+            logger.error("parseFunction error:{}",e);
+            throw new RdosDefineException("sql解析异常，请检查语法");
+        }
+        return functions;
+    }
+
     private ISqlParserClient getSqlParserClient() {
         ISqlParserClient sqlParserClient = null;
         try {
