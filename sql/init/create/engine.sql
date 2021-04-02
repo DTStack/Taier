@@ -609,6 +609,8 @@ create table lineage_data_source(
     real_source_id int(11) NOT NULL COMMENT '真实数据源id',
     source_key VARCHAR(155) NOT NULL COMMENT '数据源定位码，不同数据源类型计算方式不同。',
     source_name VARCHAR(55) NOT NULL COMMENT '数据源名称',
+    project_id  int(11) NULL COMMENT '项目id',
+    schema_name varchar(64) NULL COMMENT 'schema或数据库名称',
     app_type smallint(4) NOT NULL COMMENT '应用类型',
     source_type smallint(4) NOT NULL COMMENT '数据源类型',
     data_jason JSON NOT NULL COMMENT '数据源配置json',
@@ -621,7 +623,7 @@ create table lineage_data_source(
     gmt_modified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
     is_deleted tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
     PRIMARY KEY (id),
-    UNIQUE KEY uni_tenant_source_key (dt_uic_tenant_id,source_key,app_type,source_name)
+    UNIQUE KEY uni_tenant_source_key (dt_uic_tenant_id,source_key,app_type,source_name,schema_name)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 表信息表。表可能并不能关联上data source。

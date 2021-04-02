@@ -22,6 +22,7 @@ import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.Sort;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -393,13 +394,14 @@ public class LineageDataSourceService {
      * @Date 2020/11/11 4:32 下午
      * @return: com.dtstack.engine.api.domain.LineageDataSource
      **/
-    public LineageDataSource getDataSourceByParams(Integer sourceType, String sourceName, Long dtUicTenantId,
+    public List<LineageDataSource> getDataSourceByParams(Integer sourceType, String sourceName, Long dtUicTenantId,
                                                    Integer appType) {
 
         List<LineageDataSource> dataSourceByParams = queryLineageDataSources(sourceType, sourceName, dtUicTenantId, appType);
         if (CollectionUtils.isNotEmpty(dataSourceByParams)) {
-            return dataSourceByParams.get(0);
+            return dataSourceByParams;
         } else {
+            List<LineageDataSource> dataSourceList = new ArrayList<>();
             //未知数据源（手动添加血缘时添加的数据源）需要插入
             if (DataSourceType.UNKNOWN.getVal() == sourceType) {
                 DataSourceDTO dataSourceDTO = new DataSourceDTO();
@@ -410,9 +412,10 @@ public class LineageDataSourceService {
                 dataSourceDTO.setDtUicTenantId(dtUicTenantId);
                 dataSourceDTO.setSourceType(DataSourceType.UNKNOWN.getVal());
                 Long id = addOrUpdateDataSource(dataSourceDTO);
-                return getDataSourceById(id);
+                dataSourceList.add(getDataSourceById(id));
+                return dataSourceList;
             }
-            return null;
+            return dataSourceList;
         }
     }
 

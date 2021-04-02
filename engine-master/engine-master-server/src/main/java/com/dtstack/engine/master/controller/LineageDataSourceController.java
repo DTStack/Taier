@@ -109,7 +109,7 @@ public class LineageDataSourceController {
     public LineageDataSource getDataSourceByParams(@DtRequestParam("appType")Integer appType,@DtRequestParam("sourceType") Integer sourceType,
                                       @DtRequestParam("sourceName") String sourceName,@DtRequestParam("dtUicTenantId") Long dtUicTenantId){
 
-       return dataSourceService.getDataSourceByParams(sourceType,sourceName,dtUicTenantId,appType);
+       return dataSourceService.getDataSourceByParams(sourceType,sourceName,dtUicTenantId,appType).get(0);
     }
 
 

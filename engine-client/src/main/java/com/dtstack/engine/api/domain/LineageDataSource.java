@@ -19,6 +19,12 @@ public class LineageDataSource extends DtUicTenantEntity {
     @ApiModelProperty(notes = "数据源定位码")
     private String sourceKey;
 
+    @ApiModelProperty(notes = "项目id")
+    private String projectId;
+
+    @ApiModelProperty(notes = "schema或db名称")
+    private String schemaName;
+
     @ApiModelProperty(notes = "数据源名称")
     private String sourceName;
 
@@ -141,6 +147,22 @@ public class LineageDataSource extends DtUicTenantEntity {
 
     public void setComponentId(Integer componentId) {
         this.componentId = componentId;
+    }
+
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
+    }
+
+    public String getSchemaName() {
+        return schemaName;
+    }
+
+    public void setSchemaName(String schemaName) {
+        this.schemaName = schemaName;
     }
 
     @Override

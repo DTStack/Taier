@@ -4,6 +4,7 @@ import com.dtstack.engine.api.domain.LineageColumnColumn;
 import com.dtstack.engine.api.domain.LineageDataSetInfo;
 import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.domain.LineageTableTable;
+import com.dtstack.engine.api.dto.DataSourceDTO;
 import com.dtstack.engine.api.enums.LineageOriginType;
 import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.api.vo.lineage.ColumnLineageParseInfo;
@@ -34,10 +35,12 @@ import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import javax.sound.sampled.Line;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -95,6 +98,8 @@ public class LineageService {
             parseInfo.setSqlType(SqlTypeAdapter.sqlType2ApiSqlType(parseResult.getSqlType()));
             parseInfo.setExtraType(SqlTypeAdapter.sqlType2ApiSqlType(parseResult.getExtraSqlType()));
             parseInfo.setStandardSql(parseResult.getStandardSql());
+            parseInfo.setAlterResult(AlterResultAdapter.sqlAlterResult2ApiResult(parseResult.getAlterResult()));
+            parseInfo.setRoot(QueryTableTreeAdapter.sqlQueryTableTree2ApiQueryTableTree(parseResult.getRoot()));
         } catch (Exception e) {
             logger.error("sql解析失败：{}", e);
             parseInfo.setFailedMsg(e.getMessage());
@@ -172,10 +177,16 @@ public class LineageService {
     @Async
     public void parseAndSaveTableLineage(Long dtUicTenantId, Integer appType, String sql, String defaultDb, Long engineSourceId, Integer sourceType, String unionKey) {
         LineageDataSource lineageDataSource = null;
+        List<LineageDataSource> dataSourceList = new ArrayList<>();
+        Map<String,LineageDataSource> dataSourceMap = new HashMap<>();
         if (AppType.RDOS.getType() == appType) {
-            //离线根据uic租户id查询数据源
+            //离线根据uic租户id和sourceType查询数据源
             try {
-                lineageDataSource = lineageDataSourceService.getDataSourceByParams(sourceType, null, dtUicTenantId, AppType.RDOS.getType());
+                dataSourceList = lineageDataSourceService.getDataSourceByParams(sourceType, null, dtUicTenantId, AppType.RDOS.getType());
+                lineageDataSource = dataSourceList.get(0);
+                for (LineageDataSource dataSource : dataSourceList) {
+                    dataSourceMap.put(dataSource.getSchemaName(),dataSource);
+                }
             } catch (Exception e) {
                 logger.error("",e);
             }
@@ -201,7 +212,7 @@ public class LineageService {
                 logger.error("解析sql异常:{}",e);
                 throw new RdosDefineException("sql解析异常，请检查语法");
             }
-            //3.根据表名和数dbName，schemaName查询表,sourceId。表不存在则需要插入表
+            //3.根据表名和dbName，schemaName查询表,sourceId。表不存在则需要插入表
             List<Table> tables = null;
             try {
                 tables = sqlParserClient.parseTables(defaultDb, sql,sourceType2TableType.getTableType());
@@ -211,9 +222,26 @@ public class LineageService {
             }
             Map<String, LineageDataSetInfo> tableRef = new HashMap<>();
             String tableKey = "%s.%s";
+            LineageDataSource defaultDataSource = dataSourceMap.get(defaultDb);
+            List<com.dtstack.engine.api.pojo.lineage.Table> tableList = tables.stream().map(TableAdapter::sqlTable2ApiTable).collect(Collectors.toList());
+            Map<String, List<Column>> columns = lineageDataSetInfoService.getColumnsBySourceIdAndListTable(defaultDataSource.getId(), tableList);
             for (int i = 0; i < tables.size(); i++) {
                 Table ta = tables.get(i);
-                LineageDataSetInfo dataSet = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), ta.getDb(), ta.getName(), ta.getDb());
+                LineageDataSetInfo dataSet = null;
+                if(AppType.RDOS.getType() !=appType) {
+                    dataSet = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), ta.getDb(), ta.getName(), ta.getDb());
+                }else{
+                    //离线
+                    String db = ta.getDb();
+                    LineageDataSource dataSource = dataSourceMap.get(db);
+                    if(null!= dataSource) {
+                        dataSet = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSource.getId(), ta.getDb(), ta.getName(), ta.getDb());
+                    }else{
+                        //该db对应的数据源不存在，需要添加数据源
+                        long id = addDataSource(defaultDb, defaultDataSource, db);
+                        dataSet = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(id,ta.getDb(),ta.getName(),ta.getDb());
+                    }
+                }
                 tableRef.put(String.format(tableKey, ta.getDb(), ta.getName()), dataSet);
             }
             List<TableLineage> tableLineages = parseResult.getTableLineages();
@@ -232,6 +260,17 @@ public class LineageService {
             logger.error("解析保存表血缘失败：{}", e);
             throw new RdosDefineException("解析保存表血缘失败");
         }
+    }
+
+    private long addDataSource(String defaultDb, LineageDataSource defaultDataSource, String db) {
+        defaultDataSource.setId(null);
+        defaultDataSource.setSchemaName(db);
+        String dataJson = defaultDataSource.getDataJson();
+        String newDataJson = dataJson.replace(defaultDb, db);
+        defaultDataSource.setDataJson(newDataJson);
+        DataSourceDTO dataSourceDTO = new DataSourceDTO();
+        BeanUtils.copyProperties(defaultDataSource,dataSourceDTO);
+        return lineageDataSourceService.addOrUpdateDataSource(dataSourceDTO);
     }
 
     /**
@@ -301,8 +340,14 @@ public class LineageService {
         //5.解析字段级血缘关系
         //6.存储字段级血缘关系
         LineageDataSource lineageDataSource = null;
+        List<LineageDataSource> dataSourceList = new ArrayList<>();
+        Map<String,LineageDataSource> dataSourceMap = new HashMap<>();
         if (AppType.RDOS.getType() == parseColumnLineageParam.getAppType()) {
-            lineageDataSource = lineageDataSourceService.getDataSourceByParams(parseColumnLineageParam.getDataSourceType(), null, parseColumnLineageParam.getDtUicTenantId(), AppType.RDOS.getType());
+            dataSourceList = lineageDataSourceService.getDataSourceByParams(parseColumnLineageParam.getDataSourceType(), null, parseColumnLineageParam.getDtUicTenantId(), AppType.RDOS.getType());
+            lineageDataSource = dataSourceList.get(0);
+            for (LineageDataSource dataSource : dataSourceList) {
+                dataSourceMap.put(dataSource.getSchemaName(),dataSource);
+            }
         } else {
             //资产通过数据源id查询数据源
             lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(parseColumnLineageParam.getEngineDataSourceId(), parseColumnLineageParam.getAppType());
@@ -393,7 +438,7 @@ public class LineageService {
         String tableName = queryTableLineageParam.getTableName();
         LineageDataSource lineageDataSource = null;
         if (Objects.isNull(engineSourceId)) {
-            lineageDataSource = lineageDataSourceService.getDataSourceByParams(queryTableLineageParam.getSourceType(), queryTableLineageParam.getSourceName(), queryTableLineageParam.getDtUicTenantId(), queryTableLineageParam.getAppType());
+            lineageDataSource = lineageDataSourceService.getDataSourceByParams(sourceType, queryTableLineageParam.getSourceName(), dtUicTenantId, queryTableLineageParam.getAppType()).get(0);
         } else {
             lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(engineSourceId, appType);
         }
@@ -437,7 +482,7 @@ public class LineageService {
         String tableName = queryTableLineageParam.getTableName();
         LineageDataSource lineageDataSource = null;
         if (Objects.isNull(engineSourceId)) {
-            lineageDataSource = lineageDataSourceService.getDataSourceByParams(queryTableLineageParam.getSourceType(), queryTableLineageParam.getSourceName(), queryTableLineageParam.getDtUicTenantId(), queryTableLineageParam.getAppType());
+            lineageDataSource = lineageDataSourceService.getDataSourceByParams(sourceType, queryTableLineageParam.getSourceName(), dtUicTenantId, queryTableLineageParam.getAppType()).get(0);
         } else {
             lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(engineSourceId, appType);
         }
@@ -481,7 +526,7 @@ public class LineageService {
         String tableName = queryTableLineageParam.getTableName();
         LineageDataSource lineageDataSource = null;
         if (Objects.isNull(engineSourceId)) {
-            lineageDataSource = lineageDataSourceService.getDataSourceByParams(queryTableLineageParam.getSourceType(), queryTableLineageParam.getSourceName(), queryTableLineageParam.getDtUicTenantId(), queryTableLineageParam.getAppType());
+            lineageDataSource = lineageDataSourceService.getDataSourceByParams(queryTableLineageParam.getSourceType(), queryTableLineageParam.getSourceName(), queryTableLineageParam.getDtUicTenantId(), queryTableLineageParam.getAppType()).get(0);
         } else {
             lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(engineSourceId, appType);
         }
@@ -523,7 +568,7 @@ public class LineageService {
             Integer appType = tableTableVO.getAppType();
             LineageDataSource dataSource = null;
             if (Objects.isNull(inputDataSourceVO.getSourceId())) {
-                dataSource = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType());
+                dataSource = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType()).get(0);
             }else {
                 dataSource = lineageDataSourceService.getDataSourceByIdAndAppType(inputDataSourceVO.getSourceId(),appType);
             }
@@ -535,7 +580,7 @@ public class LineageService {
             LineageDataSourceVO resultDataSourceVO = resultTableInfoVO.getDataSourceVO();
             LineageDataSource resultDataSource = null;
             if (Objects.isNull(resultDataSourceVO.getSourceId())) {
-                resultDataSource = lineageDataSourceService.getDataSourceByParams(resultDataSourceVO.getSourceType(), resultDataSourceVO.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType());
+                resultDataSource = lineageDataSourceService.getDataSourceByParams(resultDataSourceVO.getSourceType(), resultDataSourceVO.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType()).get(0);
             }else {
                 resultDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(resultDataSourceVO.getSourceId(),appType);
             }
@@ -569,7 +614,7 @@ public class LineageService {
                 Integer appType = tableTableVO.getAppType();
                 LineageDataSource dataSource = null;
                 if (Objects.isNull(inputDataSourceVO.getSourceId())) {
-                    dataSource = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType());
+                    dataSource = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType()).get(0);
                 }else {
                     dataSource = lineageDataSourceService.getDataSourceByIdAndAppType(inputDataSourceVO.getSourceId(),appType);
                 }
@@ -582,7 +627,7 @@ public class LineageService {
                 LineageDataSourceVO resultDataSourceVO = resultTableInfoVO.getDataSourceVO();
                 LineageDataSource resultDataSource = null;
                 if (Objects.isNull(inputDataSourceVO.getSourceId())) {
-                    resultDataSource = lineageDataSourceService.getDataSourceByParams(resultDataSourceVO.getSourceType(), resultDataSourceVO.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType());
+                    resultDataSource = lineageDataSourceService.getDataSourceByParams(resultDataSourceVO.getSourceType(), resultDataSourceVO.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType()).get(0);
                 }else {
                     resultDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(resultDataSourceVO.getSourceId(),appType);
                 }
@@ -621,7 +666,7 @@ public class LineageService {
         Integer appType = tableTableVO.getAppType();
         LineageDataSource inputDataSource = null;
         if (Objects.isNull(inputDataSourceVO.getSourceId())) {
-            inputDataSource = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType());
+            inputDataSource = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType()).get(0);
         }else {
             inputDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(inputDataSourceVO.getSourceId(),appType);
         }
@@ -633,7 +678,7 @@ public class LineageService {
         LineageDataSourceVO resultDataSourceVO = resultTableInfoVO.getDataSourceVO();
         LineageDataSource resultDataSource = null;
         if (Objects.isNull(inputDataSourceVO.getSourceId())) {
-            resultDataSource = lineageDataSourceService.getDataSourceByParams(resultDataSourceVO.getSourceType(), resultDataSourceVO.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType());
+            resultDataSource = lineageDataSourceService.getDataSourceByParams(resultDataSourceVO.getSourceType(), resultDataSourceVO.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType()).get(0);
         }else {
             resultDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(resultDataSourceVO.getSourceId(),appType);
         }
@@ -668,7 +713,7 @@ public class LineageService {
         String columnName = queryColumnLineageParam.getColumnName();
         LineageDataSource lineageDataSource = null;
         if (Objects.isNull(engineSourceId)) {
-            lineageDataSource = lineageDataSourceService.getDataSourceByParams(queryColumnLineageParam.getSourceType(), queryColumnLineageParam.getSourceName(), queryColumnLineageParam.getDtUicTenantId(), queryColumnLineageParam.getAppType());
+            lineageDataSource = lineageDataSourceService.getDataSourceByParams(queryColumnLineageParam.getSourceType(), queryColumnLineageParam.getSourceName(), queryColumnLineageParam.getDtUicTenantId(), queryColumnLineageParam.getAppType()).get(0);
         } else {
             lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(engineSourceId, appType);
         }
@@ -713,7 +758,7 @@ public class LineageService {
         String columnName = queryColumnLineageParam.getColumnName();
         LineageDataSource lineageDataSource = null;
         if (Objects.isNull(engineSourceId)) {
-            lineageDataSource = lineageDataSourceService.getDataSourceByParams(queryColumnLineageParam.getSourceType(), queryColumnLineageParam.getSourceName(), queryColumnLineageParam.getDtUicTenantId(), queryColumnLineageParam.getAppType());
+            lineageDataSource = lineageDataSourceService.getDataSourceByParams(queryColumnLineageParam.getSourceType(), queryColumnLineageParam.getSourceName(), queryColumnLineageParam.getDtUicTenantId(), queryColumnLineageParam.getAppType()).get(0);
         } else {
             lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(engineSourceId, appType);
         }
@@ -758,7 +803,7 @@ public class LineageService {
         String columnName = queryColumnLineageParam.getColumnName();
         LineageDataSource lineageDataSource = null;
         if (Objects.isNull(engineSourceId)) {
-            lineageDataSource = lineageDataSourceService.getDataSourceByParams(queryColumnLineageParam.getSourceType(), queryColumnLineageParam.getSourceName(), queryColumnLineageParam.getDtUicTenantId(), queryColumnLineageParam.getAppType());
+            lineageDataSource = lineageDataSourceService.getDataSourceByParams(queryColumnLineageParam.getSourceType(), queryColumnLineageParam.getSourceName(), queryColumnLineageParam.getDtUicTenantId(), queryColumnLineageParam.getAppType()).get(0);
         } else {
             lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(engineSourceId, appType);
         }
@@ -803,7 +848,7 @@ public class LineageService {
             LineageDataSourceVO inputDataSourceVO = inputTableInfoVo.getDataSourceVO();
             LineageDataSource inputDataSource = null;
             if (Objects.isNull(inputDataSourceVO.getSourceId())) {
-                inputDataSource = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), dtUicTenantId, appType);
+                inputDataSource = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), dtUicTenantId, appType).get(0);
             }else {
                 inputDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(inputDataSourceVO.getSourceId(),appType);
             }
@@ -815,7 +860,7 @@ public class LineageService {
             LineageDataSourceVO resultDataSourceVO = resultTableInfoVO.getDataSourceVO();
             LineageDataSource resultDataSource = null;
             if (Objects.isNull(inputDataSourceVO.getSourceId())) {
-                resultDataSource = lineageDataSourceService.getDataSourceByParams(resultDataSourceVO.getSourceType(), resultDataSourceVO.getSourceName(), dtUicTenantId, appType);
+                resultDataSource = lineageDataSourceService.getDataSourceByParams(resultDataSourceVO.getSourceType(), resultDataSourceVO.getSourceName(), dtUicTenantId, appType).get(0);
             }else {
                 resultDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(inputDataSourceVO.getSourceId(),appType);
             }
@@ -864,7 +909,7 @@ public class LineageService {
                 LineageDataSourceVO inputDataSourceVO = inputTableInfoVo.getDataSourceVO();
                 LineageDataSource inputDataSource = null;
                 if (Objects.isNull(inputDataSourceVO.getSourceId())) {
-                    inputDataSource = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), dtUicTenantId, appType);
+                    inputDataSource = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), dtUicTenantId, appType).get(0);
                 }else {
                     inputDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(inputDataSourceVO.getSourceId(),appType);
                 }
@@ -877,7 +922,7 @@ public class LineageService {
                 LineageDataSourceVO resultDataSourceVO = resultTableInfoVO.getDataSourceVO();
                 LineageDataSource resultDataSource = null;
                 if (Objects.isNull(inputDataSourceVO.getSourceId())) {
-                    resultDataSource = lineageDataSourceService.getDataSourceByParams(resultDataSourceVO.getSourceType(), resultDataSourceVO.getSourceName(), dtUicTenantId, appType);
+                    resultDataSource = lineageDataSourceService.getDataSourceByParams(resultDataSourceVO.getSourceType(), resultDataSourceVO.getSourceName(), dtUicTenantId, appType).get(0);
                 }else {
                     resultDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(inputDataSourceVO.getSourceId(),appType);
                 }
@@ -932,7 +977,7 @@ public class LineageService {
         LineageDataSourceVO inputDataSourceVO = inputTableInfoVo.getDataSourceVO();
         LineageDataSource inputDataSource = null;
         if (Objects.isNull(inputDataSourceVO.getSourceId())) {
-            inputDataSource = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), lineageColumnColumnVO.getDtUicTenantId(), appType);
+            inputDataSource = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), lineageColumnColumnVO.getDtUicTenantId(), appType).get(0);
         }else {
             inputDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(inputDataSourceVO.getSourceId(),appType);
         }
@@ -944,7 +989,7 @@ public class LineageService {
         LineageDataSourceVO resultDataSourceVO = resultTableInfoVO.getDataSourceVO();
         LineageDataSource resultDataSource = null;
         if (Objects.isNull(inputDataSourceVO.getSourceId())) {
-            resultDataSource = lineageDataSourceService.getDataSourceByParams(resultDataSourceVO.getSourceType(), resultDataSourceVO.getSourceName(), lineageColumnColumnVO.getDtUicTenantId(), appType);
+            resultDataSource = lineageDataSourceService.getDataSourceByParams(resultDataSourceVO.getSourceType(), resultDataSourceVO.getSourceName(), lineageColumnColumnVO.getDtUicTenantId(), appType).get(0);
         }else {
             resultDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(resultDataSourceVO.getSourceId(),appType);
         }
@@ -991,7 +1036,7 @@ public class LineageService {
         Integer sourceType = queryTableLineageColumnParam.getSourceType();
         String dbName = queryTableLineageColumnParam.getDbName();
         String tableName = queryTableLineageColumnParam.getTableName();
-        LineageDataSource lineageDataSource = lineageDataSourceService.getDataSourceByParams(sourceType, queryTableLineageColumnParam.getSourceName(), dtUicTenantId, appType);
+        LineageDataSource lineageDataSource = lineageDataSourceService.getDataSourceByParams(sourceType, queryTableLineageColumnParam.getSourceName(), dtUicTenantId, appType).get(0);
         if (Objects.isNull(lineageDataSource)){
             throw new RdosDefineException("数据源不存在");
         }
