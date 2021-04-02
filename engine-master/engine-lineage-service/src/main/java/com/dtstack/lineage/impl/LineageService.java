@@ -189,6 +189,10 @@ public class LineageService {
             //离线根据uic租户id和sourceType查询数据源
             try {
                 dataSourceList = lineageDataSourceService.getDataSourceByParams(sourceType, null, dtUicTenantId, AppType.RDOS.getType());
+                if(CollectionUtils.isEmpty(dataSourceList)){
+                    logger.error("do not find need ");
+                    throw new RdosDefineException("没有可用的数据源");
+                }
                 lineageDataSource = dataSourceList.get(0);
                 for (LineageDataSource dataSource : dataSourceList) {
                     dataSourceMap.put(dataSource.getSchemaName(),dataSource);
@@ -350,6 +354,10 @@ public class LineageService {
         Map<String,LineageDataSource> dataSourceMap = new HashMap<>();
         if (AppType.RDOS.getType() == parseColumnLineageParam.getAppType()) {
             dataSourceList = lineageDataSourceService.getDataSourceByParams(parseColumnLineageParam.getDataSourceType(), null, parseColumnLineageParam.getDtUicTenantId(), AppType.RDOS.getType());
+            if(CollectionUtils.isEmpty(dataSourceList)){
+                logger.error("do not find need ");
+                throw new RdosDefineException("没有可用的数据源");
+            }
             lineageDataSource = dataSourceList.get(0);
             for (LineageDataSource dataSource : dataSourceList) {
                 dataSourceMap.put(dataSource.getSchemaName(),dataSource);
@@ -461,7 +469,12 @@ public class LineageService {
         String tableName = queryTableLineageParam.getTableName();
         LineageDataSource lineageDataSource = null;
         if (Objects.isNull(engineSourceId)) {
-            lineageDataSource = lineageDataSourceService.getDataSourceByParams(sourceType, queryTableLineageParam.getSourceName(), dtUicTenantId, queryTableLineageParam.getAppType()).get(0);
+            List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(sourceType, queryTableLineageParam.getSourceName(), dtUicTenantId, queryTableLineageParam.getAppType());
+            if(CollectionUtils.isEmpty(dataSources)){
+                logger.error("do not find need dataSource");
+                throw new RdosDefineException("没有可用的数据源");
+            }
+            lineageDataSource = dataSources.get(0);
         } else {
             lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(engineSourceId, appType);
         }
@@ -505,7 +518,12 @@ public class LineageService {
         String tableName = queryTableLineageParam.getTableName();
         LineageDataSource lineageDataSource = null;
         if (Objects.isNull(engineSourceId)) {
-            lineageDataSource = lineageDataSourceService.getDataSourceByParams(sourceType, queryTableLineageParam.getSourceName(), dtUicTenantId, queryTableLineageParam.getAppType()).get(0);
+            List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(sourceType, queryTableLineageParam.getSourceName(), dtUicTenantId, queryTableLineageParam.getAppType());
+            if(CollectionUtils.isEmpty(dataSources)){
+                logger.error("do not find need dataSource");
+                throw new RdosDefineException("没有可用的数据源");
+            }
+            lineageDataSource = dataSources.get(0);
         } else {
             lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(engineSourceId, appType);
         }
@@ -549,7 +567,12 @@ public class LineageService {
         String tableName = queryTableLineageParam.getTableName();
         LineageDataSource lineageDataSource = null;
         if (Objects.isNull(engineSourceId)) {
-            lineageDataSource = lineageDataSourceService.getDataSourceByParams(queryTableLineageParam.getSourceType(), queryTableLineageParam.getSourceName(), queryTableLineageParam.getDtUicTenantId(), queryTableLineageParam.getAppType()).get(0);
+            List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(sourceType, queryTableLineageParam.getSourceName(), dtUicTenantId, queryTableLineageParam.getAppType());
+            if(CollectionUtils.isEmpty(dataSources)){
+                logger.error("do not find need dataSource");
+                throw new RdosDefineException("没有可用的数据源");
+            }
+            lineageDataSource = dataSources.get(0);
         } else {
             lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(engineSourceId, appType);
         }
@@ -591,7 +614,12 @@ public class LineageService {
             Integer appType = tableTableVO.getAppType();
             LineageDataSource dataSource = null;
             if (Objects.isNull(inputDataSourceVO.getSourceId())) {
-                dataSource = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType()).get(0);
+                List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType());
+                if(CollectionUtils.isEmpty(dataSources)){
+                    logger.error("do not find need dataSource");
+                    throw new RdosDefineException("没有可用的数据源");
+                }
+                dataSource = dataSources.get(0);
             }else {
                 dataSource = lineageDataSourceService.getDataSourceByIdAndAppType(inputDataSourceVO.getSourceId(),appType);
             }
@@ -603,7 +631,12 @@ public class LineageService {
             LineageDataSourceVO resultDataSourceVO = resultTableInfoVO.getDataSourceVO();
             LineageDataSource resultDataSource = null;
             if (Objects.isNull(resultDataSourceVO.getSourceId())) {
-                resultDataSource = lineageDataSourceService.getDataSourceByParams(resultDataSourceVO.getSourceType(), resultDataSourceVO.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType()).get(0);
+                List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType());
+                if(CollectionUtils.isEmpty(dataSources)){
+                    logger.error("do not find need dataSource");
+                    throw new RdosDefineException("没有可用的数据源");
+                }
+                resultDataSource = dataSources.get(0);
             }else {
                 resultDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(resultDataSourceVO.getSourceId(),appType);
             }
@@ -637,7 +670,12 @@ public class LineageService {
                 Integer appType = tableTableVO.getAppType();
                 LineageDataSource dataSource = null;
                 if (Objects.isNull(inputDataSourceVO.getSourceId())) {
-                    dataSource = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType()).get(0);
+                    List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType());
+                    if(CollectionUtils.isEmpty(dataSources)){
+                        logger.error("do not find need dataSource");
+                        throw new RdosDefineException("没有可用的数据源");
+                    }
+                    dataSource = dataSources.get(0);
                 }else {
                     dataSource = lineageDataSourceService.getDataSourceByIdAndAppType(inputDataSourceVO.getSourceId(),appType);
                 }
@@ -650,7 +688,12 @@ public class LineageService {
                 LineageDataSourceVO resultDataSourceVO = resultTableInfoVO.getDataSourceVO();
                 LineageDataSource resultDataSource = null;
                 if (Objects.isNull(inputDataSourceVO.getSourceId())) {
-                    resultDataSource = lineageDataSourceService.getDataSourceByParams(resultDataSourceVO.getSourceType(), resultDataSourceVO.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType()).get(0);
+                    List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType());
+                    if(CollectionUtils.isEmpty(dataSources)){
+                        logger.error("do not find need dataSource");
+                        throw new RdosDefineException("没有可用的数据源");
+                    }
+                    resultDataSource = dataSources.get(0);
                 }else {
                     resultDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(resultDataSourceVO.getSourceId(),appType);
                 }
@@ -689,7 +732,12 @@ public class LineageService {
         Integer appType = tableTableVO.getAppType();
         LineageDataSource inputDataSource = null;
         if (Objects.isNull(inputDataSourceVO.getSourceId())) {
-            inputDataSource = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType()).get(0);
+            List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType());
+            if(CollectionUtils.isEmpty(dataSources)){
+                logger.error("do not find need dataSource");
+                throw new RdosDefineException("没有可用的数据源");
+            }
+            inputDataSource = dataSources.get(0);
         }else {
             inputDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(inputDataSourceVO.getSourceId(),appType);
         }
@@ -701,7 +749,12 @@ public class LineageService {
         LineageDataSourceVO resultDataSourceVO = resultTableInfoVO.getDataSourceVO();
         LineageDataSource resultDataSource = null;
         if (Objects.isNull(inputDataSourceVO.getSourceId())) {
-            resultDataSource = lineageDataSourceService.getDataSourceByParams(resultDataSourceVO.getSourceType(), resultDataSourceVO.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType()).get(0);
+            List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType());
+            if(CollectionUtils.isEmpty(dataSources)){
+                logger.error("do not find need dataSource");
+                throw new RdosDefineException("没有可用的数据源");
+            }
+            resultDataSource = dataSources.get(0);
         }else {
             resultDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(resultDataSourceVO.getSourceId(),appType);
         }
@@ -736,7 +789,12 @@ public class LineageService {
         String columnName = queryColumnLineageParam.getColumnName();
         LineageDataSource lineageDataSource = null;
         if (Objects.isNull(engineSourceId)) {
-            lineageDataSource = lineageDataSourceService.getDataSourceByParams(queryColumnLineageParam.getSourceType(), queryColumnLineageParam.getSourceName(), queryColumnLineageParam.getDtUicTenantId(), queryColumnLineageParam.getAppType()).get(0);
+            List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(queryColumnLineageParam.getSourceType(), queryColumnLineageParam.getSourceName(), queryColumnLineageParam.getDtUicTenantId(), queryColumnLineageParam.getAppType());
+            if(CollectionUtils.isEmpty(dataSources)){
+                logger.error("do not find need dataSource");
+                throw new RdosDefineException("没有可用的数据源");
+            }
+            lineageDataSource = dataSources.get(0);
         } else {
             lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(engineSourceId, appType);
         }
@@ -781,7 +839,12 @@ public class LineageService {
         String columnName = queryColumnLineageParam.getColumnName();
         LineageDataSource lineageDataSource = null;
         if (Objects.isNull(engineSourceId)) {
-            lineageDataSource = lineageDataSourceService.getDataSourceByParams(queryColumnLineageParam.getSourceType(), queryColumnLineageParam.getSourceName(), queryColumnLineageParam.getDtUicTenantId(), queryColumnLineageParam.getAppType()).get(0);
+            List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(queryColumnLineageParam.getSourceType(), queryColumnLineageParam.getSourceName(), queryColumnLineageParam.getDtUicTenantId(), queryColumnLineageParam.getAppType());
+            if(CollectionUtils.isEmpty(dataSources)){
+                logger.error("do not find need dataSource");
+                throw new RdosDefineException("没有可用的数据源");
+            }
+            lineageDataSource = dataSources.get(0);
         } else {
             lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(engineSourceId, appType);
         }
@@ -826,7 +889,12 @@ public class LineageService {
         String columnName = queryColumnLineageParam.getColumnName();
         LineageDataSource lineageDataSource = null;
         if (Objects.isNull(engineSourceId)) {
-            lineageDataSource = lineageDataSourceService.getDataSourceByParams(queryColumnLineageParam.getSourceType(), queryColumnLineageParam.getSourceName(), queryColumnLineageParam.getDtUicTenantId(), queryColumnLineageParam.getAppType()).get(0);
+            List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(queryColumnLineageParam.getSourceType(), queryColumnLineageParam.getSourceName(), queryColumnLineageParam.getDtUicTenantId(), queryColumnLineageParam.getAppType());
+            if(CollectionUtils.isEmpty(dataSources)){
+                logger.error("do not find need dataSource");
+                throw new RdosDefineException("没有可用的数据源");
+            }
+            lineageDataSource = dataSources.get(0);
         } else {
             lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(engineSourceId, appType);
         }
@@ -871,7 +939,12 @@ public class LineageService {
             LineageDataSourceVO inputDataSourceVO = inputTableInfoVo.getDataSourceVO();
             LineageDataSource inputDataSource = null;
             if (Objects.isNull(inputDataSourceVO.getSourceId())) {
-                inputDataSource = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), dtUicTenantId, appType).get(0);
+                List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), dtUicTenantId, inputDataSourceVO.getAppType());
+                if(CollectionUtils.isEmpty(dataSources)){
+                    logger.error("do not find need dataSource");
+                    throw new RdosDefineException("没有可用的数据源");
+                }
+                inputDataSource = dataSources.get(0);
             }else {
                 inputDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(inputDataSourceVO.getSourceId(),appType);
             }
@@ -883,7 +956,12 @@ public class LineageService {
             LineageDataSourceVO resultDataSourceVO = resultTableInfoVO.getDataSourceVO();
             LineageDataSource resultDataSource = null;
             if (Objects.isNull(inputDataSourceVO.getSourceId())) {
-                resultDataSource = lineageDataSourceService.getDataSourceByParams(resultDataSourceVO.getSourceType(), resultDataSourceVO.getSourceName(), dtUicTenantId, appType).get(0);
+                List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), dtUicTenantId, appType);
+                if(CollectionUtils.isEmpty(dataSources)){
+                    logger.error("do not find need dataSource");
+                    throw new RdosDefineException("没有可用的数据源");
+                }
+                resultDataSource = dataSources.get(0);
             }else {
                 resultDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(inputDataSourceVO.getSourceId(),appType);
             }
@@ -932,7 +1010,12 @@ public class LineageService {
                 LineageDataSourceVO inputDataSourceVO = inputTableInfoVo.getDataSourceVO();
                 LineageDataSource inputDataSource = null;
                 if (Objects.isNull(inputDataSourceVO.getSourceId())) {
-                    inputDataSource = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), dtUicTenantId, appType).get(0);
+                    List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(),dtUicTenantId, appType);
+                    if(CollectionUtils.isEmpty(dataSources)){
+                        logger.error("do not find need dataSource");
+                        throw new RdosDefineException("没有可用的数据源");
+                    }
+                    inputDataSource = dataSources.get(0);
                 }else {
                     inputDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(inputDataSourceVO.getSourceId(),appType);
                 }
@@ -945,7 +1028,12 @@ public class LineageService {
                 LineageDataSourceVO resultDataSourceVO = resultTableInfoVO.getDataSourceVO();
                 LineageDataSource resultDataSource = null;
                 if (Objects.isNull(inputDataSourceVO.getSourceId())) {
-                    resultDataSource = lineageDataSourceService.getDataSourceByParams(resultDataSourceVO.getSourceType(), resultDataSourceVO.getSourceName(), dtUicTenantId, appType).get(0);
+                    List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), dtUicTenantId, appType);
+                    if(CollectionUtils.isEmpty(dataSources)){
+                        logger.error("do not find need dataSource");
+                        throw new RdosDefineException("没有可用的数据源");
+                    }
+                    resultDataSource = dataSources.get(0);
                 }else {
                     resultDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(inputDataSourceVO.getSourceId(),appType);
                 }
@@ -1000,7 +1088,12 @@ public class LineageService {
         LineageDataSourceVO inputDataSourceVO = inputTableInfoVo.getDataSourceVO();
         LineageDataSource inputDataSource = null;
         if (Objects.isNull(inputDataSourceVO.getSourceId())) {
-            inputDataSource = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), lineageColumnColumnVO.getDtUicTenantId(), appType).get(0);
+            List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), lineageColumnColumnVO.getDtUicTenantId(),appType);
+            if(CollectionUtils.isEmpty(dataSources)){
+                logger.error("do not find need dataSource");
+                throw new RdosDefineException("没有可用的数据源");
+            }
+            inputDataSource = dataSources.get(0);
         }else {
             inputDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(inputDataSourceVO.getSourceId(),appType);
         }
@@ -1012,7 +1105,12 @@ public class LineageService {
         LineageDataSourceVO resultDataSourceVO = resultTableInfoVO.getDataSourceVO();
         LineageDataSource resultDataSource = null;
         if (Objects.isNull(inputDataSourceVO.getSourceId())) {
-            resultDataSource = lineageDataSourceService.getDataSourceByParams(resultDataSourceVO.getSourceType(), resultDataSourceVO.getSourceName(), lineageColumnColumnVO.getDtUicTenantId(), appType).get(0);
+            List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), lineageColumnColumnVO.getDtUicTenantId(), appType);
+            if(CollectionUtils.isEmpty(dataSources)){
+                logger.error("do not find need dataSource");
+                throw new RdosDefineException("没有可用的数据源");
+            }
+            resultDataSource = dataSources.get(0);
         }else {
             resultDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(resultDataSourceVO.getSourceId(),appType);
         }
@@ -1059,10 +1157,12 @@ public class LineageService {
         Integer sourceType = queryTableLineageColumnParam.getSourceType();
         String dbName = queryTableLineageColumnParam.getDbName();
         String tableName = queryTableLineageColumnParam.getTableName();
-        LineageDataSource lineageDataSource = lineageDataSourceService.getDataSourceByParams(sourceType, queryTableLineageColumnParam.getSourceName(), dtUicTenantId, appType).get(0);
-        if (Objects.isNull(lineageDataSource)){
-            throw new RdosDefineException("数据源不存在");
+        List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(sourceType, queryTableLineageColumnParam.getSourceName(), dtUicTenantId, appType);
+        if(CollectionUtils.isEmpty(dataSources)){
+            logger.error("do not find need dataSource");
+            throw new RdosDefineException("没有可用的数据源");
         }
+        LineageDataSource lineageDataSource = dataSources.get(0);
         LineageDataSetInfo dataSetInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), dbName, tableName, dbName);
         if (Objects.isNull(dataSetInfo)){
             throw new RdosDefineException("数据集不存在");
