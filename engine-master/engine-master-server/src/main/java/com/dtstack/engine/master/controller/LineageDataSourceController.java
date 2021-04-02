@@ -121,4 +121,13 @@ public class LineageDataSourceController {
         return infoService.getTableColumns(dataSetInfo);
     }
 
+
+    @RequestMapping(value="/updateBySourceIdAndAppType",method = RequestMethod.POST)
+    @ApiOperation(value = "根据平台sourceId和appType修改数据源")
+    @ApiImplicitParam(name="dataSourceParam",value = "老的数据源列表")
+    public Boolean updateDataSourceBySourceIdAndAppType(DataSourceDTO dataSourceDTO){
+
+        return dataSourceService.updateDataSourceBySourceIdAndAppType(dataSourceDTO);
+    }
+
 }

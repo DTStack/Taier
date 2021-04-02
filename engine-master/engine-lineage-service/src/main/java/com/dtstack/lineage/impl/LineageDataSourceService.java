@@ -116,6 +116,52 @@ public class LineageDataSourceService {
         }
     }
 
+
+    /**
+     * @author ZYD
+     * @Description 根据平台sourceId和appType修改数据源
+     * @Date 2021/4/2 14:40
+     * @param dataSourceDTO
+     * @return: boolean
+     **/
+    public boolean updateDataSourceBySourceIdAndAppType(DataSourceDTO dataSourceDTO){
+
+        try {
+            LineageDataSource one = getDataSourceBySourceIdAndAppType(dataSourceDTO.getSourceId(),dataSourceDTO.getAppType());
+            if(null == one){
+                throw new RdosDefineException("数据源不存在");
+            }
+            boolean isCustom = dataSourceDTO.getSourceType().equals(DataSourceType.UNKNOWN.getVal())
+                    || dataSourceDTO.getSourceType().equals(DataSourceType.CUSTOM.getVal());
+            //生成sourceKey
+            String sourceKey;
+            if (!isCustom) {
+                sourceKey = generateSourceKey(dataSourceDTO.getDataJson(), dataSourceDTO.getSourceType());
+            } else {
+                sourceKey = "custom_" + dataSourceDTO.getSourceName();
+                dataSourceDTO.setDataJson("-1");
+            }
+            if (!one.getSourceKey().equals(sourceKey)) {
+                throw new RdosDefineException("jdbc.url中ip和端口不能修改");
+            }
+            LineageDataSource dataSource = convertLineageDataSource(dataSourceDTO, sourceKey, one.getRealSourceId());
+            boolean changeSourceType = DataSourceType.UNKNOWN.getVal() == one.getSourceType() && null != dataSourceDTO.getSourceType();
+            if (changeSourceType) {
+                dataSource.setSourceType(dataSourceDTO.getSourceType());
+            }
+            lineageDataSourceDao.updateDataSourceByAppTypeAndSourceId(dataSource);
+        } catch (Exception e) {
+            logger.error("updateDataSourceBySourceIdAndAppType error:{}",e);
+            throw new RdosDefineException("修改数据源信息失败");
+        }
+        return true;
+    }
+
+    private LineageDataSource getDataSourceBySourceIdAndAppType(Long sourceId, Integer appType) {
+
+       return lineageDataSourceDao.getDataSourceBySourceIdAndAppType(sourceId,appType);
+    }
+
     /**
      * @param dataJson:
      * @author newman

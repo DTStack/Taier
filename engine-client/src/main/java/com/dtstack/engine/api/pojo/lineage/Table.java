@@ -92,6 +92,21 @@ public class Table{
      */
     private Integer tableType;
 
+    /**
+     * 类目id
+     */
+    private Long catalogueId;
+
+    /**
+     * 是否忽略
+     */
+    private boolean isIgnore;
+
+    /**
+     * 表类型:EXTERNAL-外部表，MANAGED-内部表
+     */
+    private String externalOrManaged;
+
 
     public TableOperateEnum getOperate() {
         return operate;
@@ -241,6 +256,30 @@ public class Table{
         }
 
         return StringUtils.equalsIgnoreCase(name, ((Table) obj).name);
+    }
+
+    public Long getCatalogueId() {
+        return catalogueId;
+    }
+
+    public void setCatalogueId(Long catalogueId) {
+        this.catalogueId = catalogueId;
+    }
+
+    public boolean isIgnore() {
+        return isIgnore;
+    }
+
+    public void setIgnore(boolean ignore) {
+        isIgnore = ignore;
+    }
+
+    public String getExternalOrManaged() {
+        return externalOrManaged;
+    }
+
+    public void setExternalOrManaged(String externalOrManaged) {
+        this.externalOrManaged = externalOrManaged;
     }
 
     @Override

@@ -12,7 +12,7 @@ import com.dtstack.engine.api.vo.lineage.AlterResult;
 public class AlterResultAdapter {
 
 
-    public static AlterResult sqlAlterResult2ApiResult(com.dtstack.sql.client.domain.AlterResult alterResult){
+    public static AlterResult sqlAlterResult2ApiResult(com.dtstack.sqlparser.common.client.domain.AlterResult alterResult){
 
         if(null == alterResult){
             return null;

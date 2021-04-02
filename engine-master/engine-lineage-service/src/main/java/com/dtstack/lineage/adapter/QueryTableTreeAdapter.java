@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public class QueryTableTreeAdapter {
 
 
-    public static QueryTableTree sqlQueryTableTree2ApiQueryTableTree(com.dtstack.sql.client.domain.QueryTableTree tableTree){
+    public static QueryTableTree sqlQueryTableTree2ApiQueryTableTree(com.dtstack.sqlparser.common.client.domain.QueryTableTree tableTree){
 
         if(null == tableTree){
             return null;

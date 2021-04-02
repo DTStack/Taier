@@ -7,13 +7,7 @@ import com.dtstack.engine.api.domain.LineageTableTable;
 import com.dtstack.engine.api.dto.DataSourceDTO;
 import com.dtstack.engine.api.enums.LineageOriginType;
 import com.dtstack.engine.api.pojo.lineage.Column;
-import com.dtstack.engine.api.vo.lineage.ColumnLineageParseInfo;
-import com.dtstack.engine.api.vo.lineage.LineageColumnColumnVO;
-import com.dtstack.engine.api.vo.lineage.LineageDataSourceVO;
-import com.dtstack.engine.api.vo.lineage.LineageTableTableVO;
-import com.dtstack.engine.api.vo.lineage.LineageTableVO;
-import com.dtstack.engine.api.vo.lineage.SqlParseInfo;
-import com.dtstack.engine.api.vo.lineage.TableLineageParseInfo;
+import com.dtstack.engine.api.vo.lineage.*;
 import com.dtstack.engine.api.vo.lineage.param.ParseColumnLineageParam;
 import com.dtstack.engine.api.vo.lineage.param.QueryColumnLineageParam;
 import com.dtstack.engine.api.vo.lineage.param.QueryTableLineageColumnParam;
@@ -22,14 +16,14 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.lineage.adapter.*;
 import com.dtstack.lineage.enums.SourceType2TableType;
 import com.dtstack.schedule.common.enums.AppType;
-import com.dtstack.sql.client.ClientAccessException;
-import com.dtstack.sql.client.ISqlParserClient;
-import com.dtstack.sql.client.SqlParserClientCache;
-import com.dtstack.sql.client.domain.ColumnLineage;
-import com.dtstack.sql.client.domain.ParseResult;
-import com.dtstack.sql.client.domain.Table;
-import com.dtstack.sql.client.domain.TableLineage;
-import com.dtstack.sql.client.enums.TableOperateEnum;
+import com.dtstack.sqlparser.common.client.ISqlParserClient;
+import com.dtstack.sqlparser.common.client.SqlParserClientCache;
+import com.dtstack.sqlparser.common.client.domain.ColumnLineage;
+import com.dtstack.sqlparser.common.client.domain.ParseResult;
+import com.dtstack.sqlparser.common.client.domain.Table;
+import com.dtstack.sqlparser.common.client.domain.TableLineage;
+import com.dtstack.sqlparser.common.client.enums.TableOperateEnum;
+import com.dtstack.sqlparser.common.client.exception.ClientAccessException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
@@ -40,7 +34,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import javax.sound.sampled.Line;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -289,7 +282,7 @@ public class LineageService {
         ISqlParserClient sqlParserClient = getSqlParserClient();
         ColumnLineageParseInfo parseInfo = new ColumnLineageParseInfo();
         try {
-            Map<String, List<com.dtstack.sql.client.domain.Column>> sqlColumnMap = new HashMap<>();
+            Map<String, List<com.dtstack.sqlparser.common.client.domain.Column>> sqlColumnMap = new HashMap<>();
             for (Map.Entry<String, List<Column>> entry : tableColumnsMap.entrySet()) {
                 String key = entry.getKey();
                 List<Column> value = entry.getValue();
@@ -388,7 +381,7 @@ public class LineageService {
             Set<com.dtstack.engine.api.pojo.lineage.Table> tables = subTables.stream().map(TableAdapter::sqlTable2ApiTable).collect(Collectors.toSet());
             //TODO 获取表字段信息
             Map<String, List<Column>> tableColumnMap = lineageDataSetInfoService.getColumnsBySourceIdAndListTable(lineageDataSource.getId(), Lists.newArrayList(tables));
-            Map<String, List<com.dtstack.sql.client.domain.Column>> sqlTableColumnMap = new HashMap<>();
+            Map<String, List<com.dtstack.sqlparser.common.client.domain.Column>> sqlTableColumnMap = new HashMap<>();
             for (Map.Entry<String,List<Column>> entry:tableColumnMap.entrySet()){
                 String dbName = entry.getKey();
                 List<Column> columns = entry.getValue();

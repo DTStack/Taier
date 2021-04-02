@@ -1,5 +1,8 @@
 package com.dtstack.engine.api.vo.lineage;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * sql操作类型
  *
@@ -62,7 +65,12 @@ public enum SqlType {
     /**
      * 未知类型
      */
-    UNKNOWN("unknown",404)
+    UNKNOWN("unknown",404),
+
+    //权限细分
+    DQL("DQL(包含查询权限)",600),
+    DML("DML(包含查询和表记录变更权限)",700),
+    DDL("DDL(包含查询、表记录变更和表结构变更权限)",800)
     ;
 
     private String type;
@@ -89,5 +97,32 @@ public enum SqlType {
             }
         }
         return null;
+    }
+
+    public static List<SqlType> getShowType(){
+        return Arrays.asList(
+                QUERY,
+                QUERY_NO_FROM,
+                SHOW_FUNCTION,
+                SHOW,
+                SHOW_TABLES,
+                SHOW_CREATETABLE,
+                SHOW_PARTITIONS,
+                SHOW_TBLPROPERTIES,
+                SHOW_COLUMNS,
+                DESC_TABLE,
+                EXPLAIN,
+                WITH_QUERY
+        );
+    }
+
+    public static List<SqlType> getForbidenType(){
+        return Arrays.asList(
+                DATABASE_OPERATE,
+                CREATE_FUNCTION,
+                DROP_FUNCTION,
+                SHOW_TBLPROPERTIES,
+                LOAD
+        );
     }
 }

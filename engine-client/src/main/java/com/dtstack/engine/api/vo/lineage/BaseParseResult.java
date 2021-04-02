@@ -44,9 +44,9 @@ public class BaseParseResult {
     private SqlType sqlType;
 
     /**
-     * 附加类型，常用语创建临时表
+     * 附加类型，常用于创建临时表
      */
-    @ApiModelProperty("sql操作类型")
+    @ApiModelProperty("附加sql操作类型")
     private SqlType extraType;
 
     /**

@@ -32,6 +32,18 @@ public class DataSourceDTO {
     @ApiModelProperty(value = "dtuic租户id")
     private Long dtUicTenantId;
 
+    @ApiModelProperty(value = "平台sourceId")
+    private Long sourceId;
+
+
+    public Long getSourceId() {
+        return sourceId;
+    }
+
+    public void setSourceId(Long sourceId) {
+        this.sourceId = sourceId;
+    }
+
     public Long getDataSourceId() {
         return dataSourceId;
     }

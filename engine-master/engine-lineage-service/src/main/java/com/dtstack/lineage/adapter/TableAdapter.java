@@ -4,8 +4,8 @@ import com.dtstack.engine.api.domain.LineageDataSetInfo;
 import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.vo.lineage.LineageDataSourceVO;
 import com.dtstack.engine.api.vo.lineage.LineageTableVO;
-import com.dtstack.sql.client.domain.Table;
-import com.dtstack.sql.client.enums.TableOperateEnum;
+import com.dtstack.sqlparser.common.client.domain.Table;
+import com.dtstack.sqlparser.common.client.enums.TableOperateEnum;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.Objects;

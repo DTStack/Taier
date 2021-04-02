@@ -10,7 +10,7 @@ import com.dtstack.engine.api.vo.lineage.SelectColumn;
  */
 public class SelectColumnAdapter {
 
-    public static SelectColumn SqlSelectColumn2ApiSelectColumn(com.dtstack.sql.client.domain.SelectColumn selectColumn){
+    public static SelectColumn SqlSelectColumn2ApiSelectColumn(com.dtstack.sqlparser.common.client.domain.SelectColumn selectColumn){
 
         if(null == selectColumn){
             return null;
