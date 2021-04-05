@@ -31,6 +31,7 @@ public class ClientArguments {
     String appName;
     AbstractAppType appType;
     String nodes;
+    String racks;
     int amMem;
     int amCores;
     int workerMemory;
@@ -67,7 +68,7 @@ public class ClientArguments {
     String uploadFiles;
     Boolean exclusive;
     String applicationId;
-    String logLevel;
+    String logLevel = "INFO";
     String nodeLabel;
 
 
@@ -388,6 +389,7 @@ public class ClientArguments {
         appName = "";
         appType = new DummyType();
         nodes = null;
+        racks = null;
         amMem = DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_MEMORY;
         amCores = DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_CORES;
         workerMemory = DtYarnConfiguration.DEFAULT_DTSCRIPT_WORKER_MEMORY;
@@ -425,6 +427,9 @@ public class ClientArguments {
 
         allOptions.addOption("nodes", "nodes", true,
                 "nodes of request Container");
+
+        allOptions.addOption("racks", "racks", true,
+                "racks of request Container");
 
         allOptions.addOption("amMemory", "am-memory", true,
                 "Amount of memory in MB to be requested to run the application master");
@@ -570,6 +575,11 @@ public class ClientArguments {
         if (commandLine.hasOption("nodes")) {
             //separatorChars is ','
             nodes = commandLine.getOptionValue("nodes");
+        }
+
+        if (commandLine.hasOption("racks")) {
+            //separatorChars is ','
+            racks = commandLine.getOptionValue("racks");
         }
 
         if (commandLine.hasOption("am-memory")) {

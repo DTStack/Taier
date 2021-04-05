@@ -17,6 +17,8 @@ public class ConfigConstrant {
     public static String SP = File.separator;
     public static final String SPLIT = "_";
     public static final String CLUSTER_ID_SPLIT = "-";
+    public static final String USER_DIR = System.getProperty("user.dir");
+    public static final String TMP_DIR = USER_DIR + SP + "tmp";
     public static final String FLINK_TASK_RUN_MODE_KEY = "flinkTaskRunMode";
     public static final String FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY = "allowNonRestoredState";
 
@@ -41,6 +43,10 @@ public class ConfigConstrant {
 
     public final static String NOTFOUND_WAITTIME_key = "notfound.waittime";
     public final static double NOTFOUND_WAITTIME_DEFAULT = 2.5 * 60 * 000;
+
+    public static final String CHILD_FIRST_LOADER_PATTERNS = "classloader.child-first-patterns";
+    // 指定具体child loader类的全类名，使用;号分隔
+    public static final String CHILD_FIRST_LOADER_PATTERNS_DEFAULT = "org.apache.flink.table.planner.plan.QueryOperationConverter";
 
     // ------------------------------------------------------------------------
     // Resource Configs

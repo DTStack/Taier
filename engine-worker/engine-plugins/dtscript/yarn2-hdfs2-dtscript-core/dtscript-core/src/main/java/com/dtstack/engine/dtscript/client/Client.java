@@ -4,6 +4,7 @@ package com.dtstack.engine.dtscript.client;
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.am.ApplicationMaster;
@@ -30,9 +31,7 @@ import org.apache.hadoop.yarn.util.Records;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -102,6 +101,11 @@ public class Client {
         if (clientArguments.nodes != null) {
             conf.set(DtYarnConfiguration.CONTAINER_REQUEST_NODES, clientArguments.nodes);
         }
+
+        if (clientArguments.racks != null) {
+            conf.set(DtYarnConfiguration.CONTAINER_REQUEST_RACKS, clientArguments.racks);
+        }
+
         conf.set(DtYarnConfiguration.DTSCRIPT_AM_MEMORY, String.valueOf(clientArguments.amMem));
         conf.set(DtYarnConfiguration.DTSCRIPT_AM_CORES, String.valueOf(clientArguments.amCores));
         conf.set(DtYarnConfiguration.DTSCRIPT_WORKER_MEMORY, String.valueOf(clientArguments.workerMemory));
@@ -158,6 +162,48 @@ public class Client {
             }
             LOG.info("app launch command: " + launchCmd);
 
+            Map<String, LocalResource> localResources = new HashMap<>();
+
+            // add log4j.properties
+            Path remoteLog4j = Utilities.getRemotePath(conf, applicationId, DtYarnConfiguration.DTSCRIPT_LOG4J_FILENAME);
+            File log4jFile = new File(new File(appJarSrc.toString()).getParent(), DtYarnConfiguration.DTSCRIPT_LOG4J_FILENAME);
+            if (!log4jFile.exists()) {
+                File tmpFileDir =  new File(System.getProperty("user.dir") + File.separator + "tmp");
+                if (!tmpFileDir.exists()) {
+                    tmpFileDir.mkdirs();
+                }
+                File tmpLog4jFile = File.createTempFile(applicationId + "-log4j.properties", null, tmpFileDir);
+                try (
+                        FileWriter fwrt = new FileWriter(tmpLog4jFile)
+                    ) {
+                    String logLevel = org.apache.commons.lang3.StringUtils.upperCase(clientArguments.logLevel);
+                    String log4jContent = org.apache.commons.lang3.StringUtils.replace(DtYarnConfiguration.DEFAULT_LOG4J_CONTENT, "INFO", logLevel);
+                    fwrt.write(log4jContent);
+                    fwrt.flush();
+                } catch (Exception e) {
+                    LOG.error("Write log4j.properties error " + e.toString());
+                    tmpLog4jFile.delete();
+                    throw new RdosDefineException(e);
+                }
+                log4jFile = tmpLog4jFile;
+            }
+            boolean hasLog4j = false;;
+            try {
+                Path localLog4j = new Path(log4jFile.toString());
+                if (log4jFile.exists()) {
+                    LOG.info("Copying " + localLog4j + " to remote path " + remoteLog4j);
+                    getFileSystem().copyFromLocalFile(false, true, localLog4j, remoteLog4j);
+                    localResources.put(DtYarnConfiguration.DTSCRIPT_LOG4J_FILENAME,
+                            Utilities.createApplicationResource(getFileSystem(), remoteLog4j, LocalResourceType.FILE));
+                    hasLog4j = true;
+                }
+                conf.setBoolean(DtYarnConfiguration.DTSCRIPT_HAS_LOG4J, hasLog4j);
+            } finally {
+                if (org.apache.commons.lang3.StringUtils.startsWith(log4jFile.getName(), applicationId.toString())) {
+                    log4jFile.delete();
+                }
+            }
+
             Path jobConfPath = Utilities.getRemotePath(conf, applicationId, DtYarnConstants.LEARNING_JOB_CONFIGURATION);
             LOG.info("job conf path: " + jobConfPath);
             FSDataOutputStream out = FileSystem.create(jobConfPath.getFileSystem(conf), jobConfPath,
@@ -165,7 +211,6 @@ public class Client {
             conf.writeXml(out);
             out.close();
 
-            Map<String, LocalResource> localResources = new HashMap<>();
             localResources.put(DtYarnConstants.LEARNING_JOB_CONFIGURATION,
                     Utilities.createApplicationResource(getFileSystem(), jobConfPath, LocalResourceType.FILE));
 
@@ -244,6 +289,10 @@ public class Client {
             appMasterArgs.add("-cp " + "${CLASSPATH}");
             appMasterArgs.add("-Xms" + conf.getInt(DtYarnConfiguration.DTSCRIPT_AM_MEMORY, DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_MEMORY) + "m");
             appMasterArgs.add("-Xmx" + conf.getInt(DtYarnConfiguration.DTSCRIPT_AM_MEMORY, DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_MEMORY) + "m");
+            if (hasLog4j) {
+                appMasterArgs.add("-Dlog4j.configuration=file:" + DtYarnConfiguration.DTSCRIPT_LOG4J_FILENAME);
+            }
+
             String javaOpts = conf.get(DtYarnConfiguration.DTSCRIPT_APPMASTER_EXTRA_JAVA_OPTS, DtYarnConfiguration.DEFAULT_DTSCRIPT_APPMASTER_EXTRA_JAVA_OPTS);
             if (!StringUtils.isBlank(javaOpts)) {
                 appMasterArgs.add(javaOpts);

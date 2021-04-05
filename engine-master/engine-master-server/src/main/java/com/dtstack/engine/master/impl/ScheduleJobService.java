@@ -14,21 +14,19 @@ import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusCountVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
-import com.dtstack.engine.common.enums.*;
+import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.common.enums.EScheduleType;
+import com.dtstack.engine.common.enums.QueryWorkFlowModel;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.RetryUtil;
-import com.dtstack.engine.dao.ScheduleFillDataJobDao;
-import com.dtstack.engine.dao.ScheduleJobDao;
-import com.dtstack.engine.dao.ScheduleJobJobDao;
-import com.dtstack.engine.dao.ScheduleTaskShadeDao;
+import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
-import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.master.multiengine.JobStartTriggerBase;
-import com.dtstack.engine.master.multiengine.factory.MultiEngineFactory;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
 import com.dtstack.engine.master.queue.JobPartitioner;
 import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
@@ -47,7 +45,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
@@ -136,6 +134,9 @@ public class ScheduleJobService {
 
     @Autowired
     private EnvironmentContext environmentContext;
+
+    @Autowired
+    private JobGraphTriggerDao jobGraphTriggerDao;
 
     private final static List<Integer> FINISH_STATUS = Lists.newArrayList(RdosTaskStatus.FINISHED.getStatus(), RdosTaskStatus.MANUALSUCCESS.getStatus(), RdosTaskStatus.CANCELLING.getStatus(), RdosTaskStatus.CANCELED.getStatus());
     private final static List<Integer> FAILED_STATUS = Lists.newArrayList(RdosTaskStatus.FAILED.getStatus(), RdosTaskStatus.SUBMITFAILD.getStatus(), RdosTaskStatus.KILLED.getStatus());
@@ -1213,9 +1214,9 @@ public class ScheduleJobService {
      * jobSize 在负载均衡时 区分 scheduleType（正常调度 和 补数据）
      */
     @Transactional(rollbackFor = Exception.class)
-    public void insertJobList(Collection<ScheduleBatchJob> batchJobCollection, Integer scheduleType) {
+    public Long insertJobList(Collection<ScheduleBatchJob> batchJobCollection, Integer scheduleType) {
         if (CollectionUtils.isEmpty(batchJobCollection)) {
-            return;
+            return null;
         }
 
         Iterator<ScheduleBatchJob> batchJobIterator = batchJobCollection.iterator();
@@ -1224,6 +1225,7 @@ public class ScheduleJobService {
         //1: 批量插入BatchJob
         //2: 批量插入BatchJobJobList
         int count = 0;
+        Long minJobId=null;
         List<ScheduleJob> jobWaitForSave = Lists.newArrayList();
         List<ScheduleJobJob> jobJobWaitForSave = Lists.newArrayList();
 
@@ -1242,12 +1244,14 @@ public class ScheduleJobService {
                 jobJobWaitForSave.addAll(scheduleBatchJob.getBatchJobJobList());
 
                 if (count++ % 20 == 0 || count == (batchJobCollection.size() - 1)) {
-                    persisteJobs(jobWaitForSave, jobJobWaitForSave);
+                   minJobId = persisteJobs(jobWaitForSave, jobJobWaitForSave, minJobId);
                 }
             }
             //结束前persist一次，flush所有jobs
-            persisteJobs(jobWaitForSave, jobJobWaitForSave);
+            minJobId = persisteJobs(jobWaitForSave, jobJobWaitForSave, minJobId);
+
         }
+        return minJobId;
     }
 
     private Map<String, Integer> computeJobSizeForNode(int jobSize, int scheduleType) {
@@ -1264,18 +1268,22 @@ public class ScheduleJobService {
         return jobSizeInfo;
     }
 
-    private void persisteJobs(List<ScheduleJob> jobWaitForSave, List<ScheduleJobJob> jobJobWaitForSave) {
+    private Long persisteJobs(List<ScheduleJob> jobWaitForSave, List<ScheduleJobJob> jobJobWaitForSave, Long minJobId) {
         try {
-            RetryUtil.executeWithRetry(() -> {
+            return RetryUtil.executeWithRetry(() -> {
+                Long curMinJobId=minJobId;
                 if (jobWaitForSave.size() > 0) {
                     scheduleJobDao.batchInsert(jobWaitForSave);
+                    if (Objects.isNull(minJobId)) {
+                        curMinJobId = jobWaitForSave.stream().map(ScheduleJob::getId).min(Long::compareTo).orElse(null);
+                    }
                     jobWaitForSave.clear();
                 }
                 if (jobJobWaitForSave.size() > 0) {
                     batchJobJobService.batchInsert(jobJobWaitForSave);
                     jobJobWaitForSave.clear();
                 }
-                return null;
+                return curMinJobId;
             }, environmentContext.getBuildJobErrorRetry(), 200, false);
         } catch (Exception e) {
             logger.error("!!!!! persisteJobs job error !!!! job {} jobjob {}", jobWaitForSave, jobJobWaitForSave, e);
@@ -2737,7 +2745,16 @@ public class ScheduleJobService {
     }
 
     public Long getListMinId(String nodeAddress,Integer scheduleType, String left, String right,Integer isRestart) {
-        return scheduleJobDao.getListMinId(nodeAddress, scheduleType, left, right, JobPhaseStatus.CREATE.getCode(),isRestart);
+        // 如果没有时间限制, 默认返回0
+        if (StringUtils.isAnyBlank(left,right)){
+            return 0L;
+        }
+        // 如果当前时间范围没有数据, 返回NULL
+        String minJobId = jobGraphTriggerDao.getMinJobIdByTriggerTime(left, right);
+        if (StringUtils.isBlank(minJobId)){
+            return null;
+        }
+        return Long.parseLong(minJobId);
     }
 
     public String getJobGraphJSON(String jobId) {

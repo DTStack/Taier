@@ -27,6 +27,7 @@ import com.dtstack.schedule.common.enums.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -279,6 +280,8 @@ public class ScheduleTaskShadeService {
         }
         return taskShade;
     }
+
+
 
     public ScheduleTaskShadePageVO queryTasks(Long tenantId,
                                               Long projectId,
@@ -767,5 +770,21 @@ public class ScheduleTaskShadeService {
         }
 
         return extInfo.getString(TaskConstant.INFO);
+    }
+
+    /**
+     * 按照appType和taskId分组查询
+     * @param groupByAppMap 分组数据
+     * @return
+     */
+    public Map<Integer,List<ScheduleTaskShade>> listTaskShadeByIdAndType(Map<Integer,Set<Long>> groupByAppMap){
+        if (MapUtils.isEmpty(groupByAppMap)){
+            throw new RdosDefineException("taskId或appType不能为空");
+        }
+        Map<Integer,List<ScheduleTaskShade>> scheduleTaskShadeMap=new HashMap<>(groupByAppMap.size());
+        for (Map.Entry<Integer, Set<Long>> entry : groupByAppMap.entrySet()) {
+            scheduleTaskShadeMap.put(entry.getKey(),scheduleTaskShadeDao.listSimpleByTaskIds(entry.getValue(), Deleted.NORMAL.getStatus(), entry.getKey()));
+        }
+        return scheduleTaskShadeMap;
     }
 }

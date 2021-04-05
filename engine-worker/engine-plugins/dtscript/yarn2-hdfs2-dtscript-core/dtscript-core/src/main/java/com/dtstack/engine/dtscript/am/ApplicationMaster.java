@@ -41,11 +41,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 
 
 public class ApplicationMaster extends CompositeService {
@@ -141,12 +137,10 @@ public class ApplicationMaster extends CompositeService {
         rmCallbackHandler = new RMCallbackHandler();
         amrmAsync = AMRMClientAsync.createAMRMClientAsync(1000, rmCallbackHandler);
         amrmAsync.init(conf);
-        amrmAsync.start();
 
         nmAsyncHandler = new NMCallbackHandler(this);
         this.nmAsync = NMClientAsync.createNMClientAsync(nmAsyncHandler);
         this.nmAsync.init(conf);
-        this.amrmAsync.start();
 
         addService(amrmAsync);
         addService(nmAsync);
@@ -204,11 +198,12 @@ public class ApplicationMaster extends CompositeService {
 //        if (appArguments.workerGCores > 0) {
 //            workerCapability.setResourceValue(DtYarnConstants.GPU, appArguments.workerGCores);
 //        }
-        if (appArguments.nodes == null){
-            return new AMRMClient.ContainerRequest(workerCapability, null, null, priority, true);
-        } else {
-            return new AMRMClient.ContainerRequest(workerCapability, appArguments.nodes, null, priority, false);
-        }
+        boolean isRelaxLocality = appArguments.nodes == null && appArguments.racks == null;
+        List nodeList = appArguments.nodes == null ? null : Arrays.asList(appArguments.nodes);
+        List racksList = appArguments.racks == null ? null : Arrays.asList(appArguments.racks);
+        LOG.info("ContainerRequest nodes: " + nodeList + ", racks: " + racksList);
+        return new AMRMClient.ContainerRequest(workerCapability, appArguments.nodes, appArguments.racks, priority, isRelaxLocality);
+
     }
 
     private List<String> buildContainerLaunchCommand(int containerMemory) {
@@ -219,6 +214,10 @@ public class ApplicationMaster extends CompositeService {
         vargs.add("-server -XX:+UseConcMarkSweepGC -XX:-UseCompressedClassPointers -XX:+DisableExplicitGC -XX:-OmitStackTraceInFastThrow");
         vargs.add("-Xmx" + containerMemory + "m");
         vargs.add("-Xms" + containerMemory + "m");
+        if (conf.getBoolean(DtYarnConfiguration.DTSCRIPT_HAS_LOG4J, false)) {
+            vargs.add("-Dlog4j.configuration=file:" + DtYarnConfiguration.DTSCRIPT_LOG4J_FILENAME);
+        }
+
         String javaOpts = conf.get(DtYarnConfiguration.DTSCRIPT_CONTAINER_EXTRA_JAVA_OPTS, DtYarnConfiguration.DEFAULT_DTSCRIPT_CONTAINER_EXTRA_JAVA_OPTS);
         if (!StringUtils.isBlank(javaOpts)) {
             vargs.add(javaOpts);
@@ -379,6 +378,14 @@ public class ApplicationMaster extends CompositeService {
                     Utilities.createApplicationResource(appArguments.appConfRemoteLocation.getFileSystem(conf),
                             appArguments.appConfRemoteLocation,
                             LocalResourceType.FILE));
+
+            boolean hasLog4j = conf.getBoolean(DtYarnConfiguration.DTSCRIPT_HAS_LOG4J, false);
+            if (hasLog4j) {
+                containerLocalResource.put(DtYarnConfiguration.DTSCRIPT_LOG4J_FILENAME,
+                        Utilities.createApplicationResource(appArguments.appConfRemoteLocation.getFileSystem(conf),
+                                appArguments.appConfRemoteLocation,
+                                LocalResourceType.FILE));
+            }
 
             if (appArguments.appFilesRemoteLocation != null) {
                 String[] xlearningFiles = StringUtils.split(appArguments.appFilesRemoteLocation, ",");

@@ -645,11 +645,7 @@ public class JobRichOperator {
     public Pair<String, String> getCycTimeLimit() {
         Integer dayGap = environmentContext.getCycTimeDayGap();
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        calendar.add(Calendar.DATE, -dayGap);
+        calendar.add(Calendar.DATE, dayGap-1);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         String startTime = sdf.format(calendar.getTime());
         calendar.add(Calendar.DATE, dayGap+1);
@@ -657,22 +653,32 @@ public class JobRichOperator {
         return new ImmutablePair<>(startTime, endTime);
     }
 
-    public Pair<String, String> getCycTimeLimitEndNow(Boolean isTrigger) {
+    /**
+     * getListMinId和listExecJob调用
+     * @param isTrigger 普通周期调度任务
+     * @param restart 重跑或补数据
+     * @param mindJobId 查询最小id
+     * @return
+     */
+    public Pair<String, String> getCycTimeLimitEndNow(Boolean isTrigger,Boolean restart,Boolean mindJobId) {
         // 当前时间
         Calendar calendar = Calendar.getInstance();
         String endTime = sdf.format(calendar.getTime());
         // 获得配置的前几天
-        Integer dayGap = environmentContext.getCycTimeDayGap();
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
-        if(isTrigger){
+        if(isTrigger && mindJobId){
+            // 获取minJobId的方法
+            calendar.add(Calendar.HOUR,-environmentContext.getNormalScheduleCycTimeHourBefore());
+        }else if(isTrigger){
+            // 查询具体数据范围
             calendar.set(Calendar.HOUR_OF_DAY, 0);
-            calendar.add(Calendar.DATE, -dayGap);
+            calendar.add(Calendar.DATE, -environmentContext.getCycTimeDayGap());
         }else{
-            //补数据或重跑
-            Integer hourGap = environmentContext.getFillDataCycTimeHourGap();
-            calendar.add(Calendar.HOUR,-hourGap);
+            // 补数据或重跑
+            calendar.add(Calendar.HOUR,restart ? -environmentContext.getRestartCycTimeHourBefore():
+                    -environmentContext.getFillDataCycTimeHourGap());
         }
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         String startTime = sdf.format(calendar.getTime());
