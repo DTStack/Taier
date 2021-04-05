@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form, Select, Input, Switch } from 'antd';
 import { EnumFormItemType, IFormItem } from './types';
-import RelationList from '../RelationList';
+// import RelationList from '../RelationList';
 
 const WrapperSwitch = (props: any) => {
   const _props = { ...props };
@@ -24,8 +24,8 @@ const getComponentByFormItemType = (type: EnumFormItemType) => {
       return Input.TextArea;
     case EnumFormItemType.SWITCH:
       return WrapperSwitch;
-    case EnumFormItemType.RELATION_LIST:
-      return RelationList;
+    // case EnumFormItemType.RELATION_LIST:
+    //   return RelationList;
   }
 };
 

@@ -6,27 +6,85 @@ import React, {
   useState,
 } from 'react';
 import { Table } from 'antd';
-import { FieldColumn } from 'pages/DataModel/types';
-import { columnsGenerator, data } from './constants';
+import { FieldColumn, IModelDetail } from 'pages/DataModel/types';
+import { columnsGenerator } from './constants';
 import { EnumModifyStep } from '../types';
 import SearchInput from 'components/SearchInput';
 import './style';
+import { API } from '@/services';
+import Message from 'pages/DataModel/components/Message';
 
 interface IPropsDimensionSelect {
   cref?: any;
-  formValue: any;
   step?: number;
+  modelDetail: IModelDetail;
 }
 
+const idGenerator = () => {
+  let _id = 0;
+  return () => ++_id;
+};
+const id = idGenerator();
+
 const FieldsSelect = (props: IPropsDimensionSelect) => {
-  const { cref, formValue = { columns: data }, step } = props;
+  const { cref, modelDetail, step } = props;
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [dataSource, setDataSource] = useState<FieldColumn[]>([]);
+  const [dataSource, setDataSource] = useState<Partial<FieldColumn>[]>([]);
   const [filter, setFilter] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const getColumnList = async (
+    dsId: number,
+    schema: string,
+    tableNames: string[]
+  ) => {
+    if (!dsId || !schema || !tableNames) return;
+    setLoading(true);
+    try {
+      const { success, data, message } = await API.getDataModelColumns({
+        datasourceId: dsId,
+        schema,
+        tableNames,
+      });
+      if (success) {
+        data.forEach((item) => {
+          item.id = id();
+        });
+        setDataSource(data);
+        window.localStorage.setItem('refreshColumns', 'false');
+      } else {
+        Message.error(message);
+      }
+    } catch (error) {
+      Message.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    setDataSource(formValue.columns);
-  }, [formValue.columns]);
+    // TODO: 参数有误，tableNames
+    if (window.localStorage.getItem('refreshColumns') === 'true')
+      getColumnList(modelDetail.dsId, modelDetail.schema, [
+        modelDetail.tableName,
+      ]);
+    else setDataSource(modelDetail.columns);
+  }, [modelDetail, step]);
+
+  useEffect(() => {
+    // step切换时，清空选中项
+    let selectedRowKeys = [];
+    if (step === EnumModifyStep.DIMENSION_STEP) {
+      selectedRowKeys = dataSource
+        .filter((item) => item.dimension)
+        .map((item) => item.id);
+    } else if (step === EnumModifyStep.METRIC_STEP) {
+      selectedRowKeys = dataSource
+        .filter((item) => item.metric)
+        .map((item) => item.id);
+    }
+    setSelectedRowKeys(selectedRowKeys);
+  }, [dataSource, step]);
 
   const onChange = (selectedRowKeys) => {
     setSelectedRowKeys(selectedRowKeys);
@@ -44,25 +102,8 @@ const FieldsSelect = (props: IPropsDimensionSelect) => {
     setDataSource(ds);
   };
 
-  useEffect(() => {
-    if (!formValue.columns) return;
-    // step切换时，清空选中项
-    let selectedRowKeys = [];
-    if (step === EnumModifyStep.DIMENSION_STEP) {
-      selectedRowKeys = formValue.columns
-        .filter((item) => item.dimension)
-        .map((item) => item.id);
-    } else if (step === EnumModifyStep.METRIC_STEP) {
-      selectedRowKeys = formValue.columns
-        .filter((item) => item.metric)
-        .map((item) => item.id);
-    }
-    setSelectedRowKeys(selectedRowKeys);
-  }, [formValue.columns, step]);
-
   const onInputBlur = useCallback(
     (id, value) => {
-      // TODO: 前端性能瓶颈
       setDataSource((dataSource) =>
         dataSource.map((item) => {
           if (item.id === id) {
@@ -81,8 +122,16 @@ const FieldsSelect = (props: IPropsDimensionSelect) => {
 
   useImperativeHandle(cref, () => ({
     getValue: () => {
-      return dataSource || [];
+      return {
+        columns: dataSource || [],
+      };
     },
+    validate: () =>
+      new Promise((resolve) => {
+        return resolve({
+          columns: dataSource || [],
+        });
+      }),
   }));
 
   const columns = useMemo(() => columnsGenerator({ onInputBlur }), [
@@ -90,16 +139,18 @@ const FieldsSelect = (props: IPropsDimensionSelect) => {
   ]);
 
   const ds = useMemo(() => {
-    if (!formValue.columns) return [];
+    // if (!modelDetail.columns) return [];
     const reg = new RegExp(filter);
-    return formValue.columns.filter(
+    return dataSource.filter(
       (item) => reg.test(item.tableName) || reg.test(item.columnName)
     );
-  }, [formValue.columns, filter]);
+  }, [dataSource, filter]);
+
   return (
     <div ref={cref}>
       <SearchInput placeholder="输入关键字" onSearch={setFilter} />
       <Table
+        loading={loading}
         columns={columns}
         dataSource={ds}
         rowSelection={{
@@ -109,7 +160,10 @@ const FieldsSelect = (props: IPropsDimensionSelect) => {
         }}
         className="dt-table-border margin-top-13"
         pagination={false}
-        rowKey={(record, index) => '' + record.id}
+        rowKey={(record, index) => record.id}
+        scroll={{
+          y: 380,
+        }}
       />
     </div>
   );

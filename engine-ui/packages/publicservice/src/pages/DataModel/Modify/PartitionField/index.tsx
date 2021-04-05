@@ -1,9 +1,11 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useImperativeHandle } from 'react';
 import { Form, Select, Switch } from 'antd';
+import { IModelDetail } from '@/pages/DataModel/types';
 
 interface IPropsPartitionField {
-  form: any;
-  formValue: any;
+  form?: any;
+  cref: any;
+  modelDetail?: IModelDetail;
 }
 
 const dateFmtList = [
@@ -21,14 +23,101 @@ const WrapperSwitch = React.forwardRef((props: any, ref: any) => {
   return <Switch checked={props.value} ref={ref} {..._props} />;
 });
 
+const layout = {
+  wrapperCol: {
+    span: 19,
+  },
+  labelCol: {
+    span: 5,
+  },
+};
+
 /**
  * 设置时间分区后，其他项均为必填项
  */
 const PartitionField = (props: IPropsPartitionField) => {
-  const { form, formValue } = props;
-  const { getFieldDecorator, getFieldsValue } = form;
+  const { form, cref, modelDetail } = props;
+  const {
+    getFieldDecorator,
+    getFieldsValue,
+    validateFields,
+    setFieldsValue,
+  } = form;
   const currentForm = getFieldsValue();
-  const { columns = [] } = formValue;
+  const { columns = [] } = modelDetail;
+
+  const columnSrtingParser = {
+    decode: (str: string) => {
+      if (!str) return {};
+      const [schema, tableName, columnName] = str.split('-');
+      return {
+        schema,
+        tableName,
+        columnName,
+      };
+    },
+    encode: (obj) => {
+      const { schema, tableName, columnName } = obj;
+      if (!schema || !tableName || !columnName) return undefined;
+      return `${schema}-${tableName}-${columnName}`;
+    },
+  };
+
+  const modelPartitionParser = (data): void => {
+    const dateColString =
+      data.modelPartition?.datePartitionColumn?.columnName || '';
+    const datePartition = columnSrtingParser.decode(dateColString);
+    data.modelPartition.datePartitionColumn = datePartition;
+    const timeColString =
+      data.modelPartition?.timePartitionColumn?.columnName || '';
+    const timePartition = columnSrtingParser.decode(timeColString);
+    data.modelPartition.timePartitionColumn = timePartition;
+  };
+
+  useImperativeHandle(cref, () => {
+    return {
+      validate: () =>
+        new Promise((resolve, reject) => {
+          validateFields((error, data) => {
+            if (error) reject(error);
+            // 数据格式转换
+            modelPartitionParser(data);
+            return resolve(data);
+          });
+        }),
+      getValue: () => {
+        const data = getFieldsValue();
+        modelPartitionParser(data);
+        return data;
+      },
+    };
+  });
+
+  useEffect(() => {
+    const dateColumn = modelDetail?.modelPartition?.datePartitionColumn;
+    const timeColumn = modelDetail?.modelPartition?.timePartitionColumn;
+    const timeFmt = modelDetail.modelPartition.timeFmt;
+    const dateFmt = modelDetail.modelPartition.dateFmt;
+    setFieldsValue({
+      modelPartition: {
+        timeFmt: timeFmt === null ? undefined : timeFmt,
+        dateFmt: dateFmt === null ? undefined : dateFmt,
+        datePartitionColumn: {
+          columnName:
+            dateColumn === null
+              ? undefined
+              : columnSrtingParser.encode(dateColumn),
+        },
+        timePartitionColumn: {
+          columnName:
+            timeColumn === null
+              ? undefined
+              : columnSrtingParser.encode(timeColumn),
+        },
+        timePartition: modelDetail?.modelPartition?.timePartition,
+      },
+    });
+  }, [modelDetail]);
 
   const rules = useCallback(
     (msg: string) => [
@@ -38,7 +127,7 @@ const PartitionField = (props: IPropsPartitionField) => {
   );
 
   return (
-    <>
+    <Form {...layout}>
       <Form.Item label="分区字段（日期）">
         {getFieldDecorator('modelPartition.datePartitionColumn.columnName', {
           rules: rules('分区字段（日期）不可为空'),
@@ -100,8 +189,8 @@ const PartitionField = (props: IPropsPartitionField) => {
           </Select>
         )}
       </Form.Item>
-    </>
+    </Form>
   );
 };
 
-export default PartitionField;
+export default Form.create()(PartitionField) as any;

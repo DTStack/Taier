@@ -27,6 +27,7 @@ interface JoinKeyItem {
 
 // 关联键信息
 export interface JoinKey {
+  id?: number;
   leftValue: JoinKeyItem;
   rightValue: JoinKeyItem;
 }

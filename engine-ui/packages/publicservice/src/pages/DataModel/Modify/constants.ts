@@ -1,10 +1,6 @@
-import React from 'react';
 import { IFormItem, EnumFormItemType } from './FormRender/types';
 import _ from 'lodash';
-import FormRender from './FormRender';
 import { EnumModifyStep } from './types';
-import FieldsSelect from './FieldsSelect';
-import PartitionField from './PartitionField';
 import { API } from '@/services';
 const idGenerator = () => {
   let _id = 0;
@@ -208,21 +204,21 @@ export const joinItemParser = (data) => {
   return target;
 };
 
-export const stepContentRender = (step: EnumModifyStep, props: any) => {
-  const { form, cref, formValue } = props;
-  switch (step) {
-    case EnumModifyStep.BASIC_STEP:
-      return <FormRender form={form} formList={props.formList || []} />;
-    case EnumModifyStep.RELATION_TABLE_STEP:
-      return <FormRender form={form} formList={props.formList || []} />;
-    case EnumModifyStep.DIMENSION_STEP:
-      return <FieldsSelect step={step} cref={cref} formValue={formValue} />;
-    case EnumModifyStep.METRIC_STEP:
-      return <FieldsSelect step={step} cref={cref} formValue={formValue} />;
-    case EnumModifyStep.SETTING_STEP:
-      return <PartitionField form={form} formValue={formValue} />;
-  }
-};
+// export const stepContentRender = (step: EnumModifyStep, props: any) => {
+//   const { form, cref, formValue } = props;
+//   switch (step) {
+//     case EnumModifyStep.BASIC_STEP:
+//       return <FormRender form={form} formList={props.formList || []} />;
+//     case EnumModifyStep.RELATION_TABLE_STEP:
+//       return <FormRender form={form} formList={props.formList || []} />;
+//     case EnumModifyStep.DIMENSION_STEP:
+//       return <FieldsSelect step={step} cref={cref} formValue={formValue} />;
+//     case EnumModifyStep.METRIC_STEP:
+//       return <FieldsSelect step={step} cref={cref} formValue={formValue} />;
+//     case EnumModifyStep.SETTING_STEP:
+//       return <PartitionField form={form} formValue={formValue} />;
+//   }
+// };
 
 export const layoutGenerator = (step: EnumModifyStep) => {
   switch (step) {
