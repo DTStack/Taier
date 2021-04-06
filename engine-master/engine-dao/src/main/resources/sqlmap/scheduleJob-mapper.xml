@@ -1094,12 +1094,6 @@
         <include refid="select_where_fragment_without_ts"/>
     </select>
 
-    <select id="listFillJobBizDate" resultType="java.lang.String">
-        SELECT DISTINCT SUBSTR(business_date FROM 1 FOR 8)
-        FROM schedule_job bj
-        <include refid="select_where_fragment_without_ts"/>
-    </select>
-
     <select id="listNeedStopFillDataJob" resultType = "ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
@@ -1108,9 +1102,19 @@
         <foreach item="status" index="index" collection="statusList" open="(" separator="," close=")">
             #{status}
         </foreach>
-        and bj.project_id = #{projectId}
-        and bj.app_type = #{appType}
+        <if test="projectId !=null">
+            and bj.project_id = #{projectId}
+        </if>
+        <if test="appType!=null">
+            and bj.app_type = #{appType}
+        </if>
         and bj.is_deleted = 0
+    </select>
+
+    <select id="listFillJobBizDate" resultType="java.lang.String">
+        SELECT DISTINCT SUBSTR(business_date FROM 1 FOR 8)
+        FROM schedule_job bj
+        <include refid="select_where_fragment_without_ts"/>
     </select>
 
     <select id="listTaskExeInfo" resultType="java.util.HashMap">
@@ -1352,10 +1356,14 @@
 
     <update id="stopUnsubmitJob">
         UPDATE  schedule_job
-        set status = #{status} where status = 0 and
-        job_name like #{likeName} and
-        project_id = #{projectId} and
-        app_type = #{appType};
+        set status = #{status} where status = 0
+        and job_name like #{likeName}
+        <if test="projectId!=null">
+            and project_id = #{projectId}
+        </if>
+        <if test="appType !=null">
+            and app_type = #{appType}
+        </if>
     </update>
 
     <select id="getByTaskIdAndStatusOrderByIdLimit" resultType="ScheduleJob">

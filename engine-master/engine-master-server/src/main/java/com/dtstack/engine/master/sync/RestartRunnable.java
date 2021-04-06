@@ -85,7 +85,10 @@ public class RestartRunnable implements Runnable {
             //置成功并恢复调度
             if (setSuccess && justRunChild) {
                 List<String> jobIds = getSubFlowJob(batchJob);
+                // 设置强规则任务
+                List<String> ruleJobs = getRuleTask(batchJob);
                 jobIds.add(batchJob.getJobId());
+                jobIds.addAll(ruleJobs);
                 scheduleJobDao.updateJobStatusByIds(RdosTaskStatus.MANUALSUCCESS.getStatus(), jobIds);
                 logger.info("ids  {} manual success", jobIds);
                 return;
@@ -137,6 +140,19 @@ public class RestartRunnable implements Runnable {
             redisTemplate.delete(redisKey);
             logger.info("release job {} redis key {} ", id, redisKey);
         }
+    }
+
+    private List<String> getRuleTask(ScheduleJob batchJob) {
+        List<String> ruleJobs = Lists.newArrayList();
+        List<ScheduleJob> taskRuleSonJob = scheduleJobService.getTaskRuleSonJob(batchJob);
+
+        for (ScheduleJob scheduleJob : taskRuleSonJob) {
+            List<String> subFlowJob = getSubFlowJob(scheduleJob);
+            ruleJobs.add(scheduleJob.getJobId());
+            ruleJobs.addAll(subFlowJob);
+        }
+
+        return ruleJobs;
     }
 
     private void setSubFlowJob(ScheduleJob batchJob, List<ScheduleJob> resumeBatchJobs) {

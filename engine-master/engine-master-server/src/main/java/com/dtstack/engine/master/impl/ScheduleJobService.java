@@ -1171,7 +1171,12 @@ public class ScheduleJobService {
     public String stopJob( long jobId, Integer appType) throws Exception {
 
         ScheduleJob scheduleJob = scheduleJobDao.getOne(jobId);
-        return stopJobByScheduleJob( appType, scheduleJob);
+        String result = stopJobByScheduleJob(appType, scheduleJob);
+        // 杀死工作流任务，已经强规则任务
+        List<ScheduleJob> jobs = Lists.newArrayList(scheduleJob);
+        getDependentJob(jobs);
+        jobStopDealer.addStopJobs(jobs);
+        return result;
     }
 
     private String stopJobByScheduleJob(  Integer appType, ScheduleJob scheduleJob) throws Exception {
@@ -1188,18 +1193,8 @@ public class ScheduleJobService {
             throw new RdosDefineException(ErrorCode.JOB_CAN_NOT_STOP);
         }
 
-        if (RdosTaskStatus.UNSUBMIT.getStatus().equals(status)) {
-            //stopSubmittedJob(Lists.newArrayList(scheduleJob), dtuicTenantId, appType);
-            jobStopDealer.addStopJobs(Lists.newArrayList(scheduleJob));
-            //return stopUnsubmitJob(scheduleJob);
-            return "";
-        } else if (RdosTaskStatus.RUNNING_STATUS.contains(status) || RdosTaskStatus.WAIT_STATUS.contains(status)) {
-            //return stopSubmittedJob(Lists.newArrayList(scheduleJob), dtuicTenantId, appType);
-            jobStopDealer.addStopJobs(Lists.newArrayList(scheduleJob));
-            return "";
-        } else {
-            throw new RdosDefineException(ErrorCode.JOB_CAN_NOT_STOP);
-        }
+        jobStopDealer.addStopJobs(Lists.newArrayList(scheduleJob));
+        return "";
     }
 
     public String stopJobByJobId( String jobId, Integer appType) throws Exception{
@@ -1213,15 +1208,15 @@ public class ScheduleJobService {
 
     public void stopFillDataJobs( String fillDataJobName,  Long projectId,  Long dtuicTenantId,  Integer appType) throws Exception {
         //还未发送到engine部分---直接停止
-        if (StringUtils.isBlank(fillDataJobName) || null == projectId || null == appType) {
+        if (StringUtils.isBlank(fillDataJobName)) {
             return;
         }
         String likeName = fillDataJobName + "-%";
         //发送停止消息到engine
         //查询出所有需要停止的任务
-        List<ScheduleJob> needStopIdList = scheduleJobDao.listNeedStopFillDataJob(likeName, RdosTaskStatus.getCanStopStatus(), projectId, appType);
+        List<ScheduleJob> needStopIdList = scheduleJobDao.listNeedStopFillDataJob(likeName, RdosTaskStatus.getCanStopStatus(), null, null);
         //通过interceptor的触发状态更新的event
-        scheduleJobDao.stopUnsubmitJob(likeName, projectId, appType, RdosTaskStatus.CANCELED.getStatus());
+        scheduleJobDao.stopUnsubmitJob(likeName, null, null, RdosTaskStatus.CANCELED.getStatus());
         //发送停止任务消息到engine
         //this.stopSubmittedJob(needStopIdList, dtuicTenantId, appType);
         jobStopDealer.addStopJobs(needStopIdList);
@@ -1234,8 +1229,24 @@ public class ScheduleJobService {
             return 0;
         }
         List<ScheduleJob> jobs = new ArrayList<>(scheduleJobDao.listByJobIds(jobIdList));
-        listByJobIdFillFlowSubJobs(jobs);
+
+        // 查询规则任务
+        getDependentJob(jobs);
         return jobStopDealer.addStopJobs(jobs);
+    }
+
+    private void getDependentJob(List<ScheduleJob> jobs) {
+        List<ScheduleJob> all = Lists.newArrayList();
+        for (ScheduleJob job : jobs) {
+            // 查询所有规则任务
+            List<ScheduleJob> taskRuleSonJob = this.getTaskRuleSonJob(job);
+            if (CollectionUtils.isNotEmpty(taskRuleSonJob)) {
+                all.addAll(taskRuleSonJob);
+            }
+        }
+        jobs.addAll(all);
+
+        listByJobIdFillFlowSubJobs(jobs);
     }
 
 

@@ -84,7 +84,7 @@ public enum RdosTaskStatus implements Serializable {
             DEPLOYING.getStatus(), RUNNING.getStatus(),
             SUBMITTING.getStatus(), RESTARTING.getStatus(),
             SUBMITTED.getStatus(), WAITENGINE.getStatus(),
-            WAITCOMPUTE.getStatus(), LACKING.getStatus(),NOTFOUND.getStatus()
+            WAITCOMPUTE.getStatus(), LACKING.getStatus(),NOTFOUND.getStatus(),RUNNING_TASK_RULE.getStatus()
     );
 
     private final static List<Integer> STOPPED_STATUS = Lists.newArrayList(
