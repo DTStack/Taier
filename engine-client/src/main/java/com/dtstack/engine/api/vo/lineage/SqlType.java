@@ -53,6 +53,18 @@ public enum SqlType {
 
     INVALIDATE_TABLE("invalidate_table",300),
 
+
+    /**
+     * 创建视图
+     */
+    CREATE_VIEW("create_view",401),
+
+    /**
+     * 简单查询
+     * 用于标注简单查询
+     */
+    SIMPLE_QUERY("SIMPLE_QUERY",404),
+
     /**
      * 其他类型
      */
