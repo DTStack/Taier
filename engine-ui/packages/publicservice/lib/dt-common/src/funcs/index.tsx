@@ -436,8 +436,8 @@ export function initNotification() {
   });
   const changeArr = ['error', 'success'];
   const iconMap: any = {
-    error: <img src="public/img/icon/notification-error.svg" />,
-    success: <img src="public/img/icon/notification-success.svg" />,
+    error: <img src="public/assets/imgs/notification-error.svg" />,
+    success: <img src="public/assets/imgs/notification-success.svg" />,
   };
   changeArr.forEach((key: keyof NotificationApi) => {
     const oldFunc: any = notification[key];
