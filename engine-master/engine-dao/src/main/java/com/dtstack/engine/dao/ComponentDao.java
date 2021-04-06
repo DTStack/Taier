@@ -13,6 +13,8 @@ public interface ComponentDao {
 
     Integer update(Component component);
 
+    Integer updateMetadata(@Param("engineId") Long engineId, @Param("type") Integer type,@Param("isMetadata") Integer isMetadata);
+
     List<Component> listByEngineIds(@Param("engineIds") List<Long> engineId);
 
     Component getByEngineIdAndComponentType(@Param("engineId") Long engineId, @Param("type") Integer type);

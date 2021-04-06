@@ -162,6 +162,7 @@ CREATE TABLE `console_component` (
  `upload_file_name` varchar(50) DEFAULT '' COMMENT '上传文件zip名称',
  `kerberos_file_name` varchar(50) DEFAULT '' COMMENT '上传kerberos文件zip名称',
  `store_type` tinyint(1) DEFAULT '4' COMMENT '组件存储类型: HDFS、NFS 默认HDFS',
+ `is_metadata` tinyint(1) DEFAULT 0 NULL COMMENT '/*1 metadata*/',
   PRIMARY KEY (`id`),
   UNIQUE INDEX `index_component`(`engine_id`, `component_type_code`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;

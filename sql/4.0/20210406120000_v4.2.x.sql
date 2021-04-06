@@ -1,0 +1,4 @@
+INSERT INTO schedule_dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('hive_version', '3.x', '3.x', null, 4, 3, 'STRING', '', 1, '2021-03-02 14:17:13', '2021-03-02 14:17:13', 0);
+INSERT INTO schedule_dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('typename_mapping', 'hive3', '-106', null, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:23', '2021-03-04 17:50:23', 0);
+ALTER TABLE console_component ADD is_metadata tinyint(1) DEFAULT 0 NULL COMMENT '/*1 metadata*/';
+UPDATE console_component SET is_metadata = 1 WHERE component_type_code = 6 AND is_deleted = 0;

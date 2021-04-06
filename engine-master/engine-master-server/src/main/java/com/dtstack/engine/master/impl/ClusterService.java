@@ -481,7 +481,8 @@ public class ClusterService implements InitializingBean {
                 kerberosConfig = kerberosDao.getByComponentType(clusterId, componentType.getTypeCode());
             }
             //返回版本
-            configObj.put(ComponentService.VERSION, component.getHadoopVersion());
+            configObj.put(ConfigConstant.VERSION, component.getHadoopVersion());
+            configObj.put(IS_METADATA, component.getIsMetadata());
             // 添加组件的kerberos配置信息 应用层使用
             addKerberosConfigWithHdfs(key, clusterId, kerberosConfig, configObj);
             //填充sftp配置项

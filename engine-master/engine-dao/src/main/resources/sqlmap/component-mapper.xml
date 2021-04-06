@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.engine.dao.ComponentDao">
 
     <sql id="select_content_fragment">
-      id,engine_id,component_name,component_type_code,gmt_create,gmt_modified,is_deleted,hadoop_version,upload_file_name,kerberos_file_name,store_type
+      id,engine_id,component_name,component_type_code,gmt_create,gmt_modified,is_deleted,hadoop_version,upload_file_name,kerberos_file_name,store_type,is_metadata
     </sql>
 
     <sql id="update_fragment">
@@ -34,14 +34,18 @@
     </select>
 
     <insert id="insert" parameterType="Component" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO console_component(engine_id,component_name,component_type_code,upload_file_name,hadoop_version,kerberos_file_name,store_type)
-        VALUES (#{engineId},#{componentName},#{componentTypeCode},#{uploadFileName},#{hadoopVersion},#{kerberosFileName},#{storeType})
+        INSERT INTO console_component(engine_id,component_name,component_type_code,upload_file_name,hadoop_version,kerberos_file_name,store_type,is_metadata)
+        VALUES (#{engineId},#{componentName},#{componentTypeCode},#{uploadFileName},#{hadoopVersion},#{kerberosFileName},#{storeType},#{isMetadata})
     </insert>
 
     <update id="update">
         update console_component
         <include refid="update_fragment"/>
         where id = #{id} and is_deleted = 0
+    </update>
+
+    <update id="updateMetadata">
+        update console_component set is_metadata = #{isMetadata} where engine_id  = #{engineId} and component_type_code = #{type}
     </update>
 
     <select id="listByEngineIds" resultType="Component">

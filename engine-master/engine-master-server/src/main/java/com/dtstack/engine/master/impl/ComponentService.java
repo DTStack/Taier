@@ -2,6 +2,7 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.ClusterDTO;
 import com.dtstack.engine.api.dto.ComponentDTO;
@@ -17,10 +18,7 @@ import com.dtstack.engine.api.vo.components.ComponentsResultVO;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EComponentType;
-import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EFrontType;
-import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.EngineAssert;
@@ -51,6 +49,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kerby.kerberos.kerb.keytab.Keytab;
 import org.apache.kerby.kerberos.kerb.type.base.PrincipalName;
@@ -63,7 +62,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.dtstack.engine.api.domain.Queue;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -147,8 +145,6 @@ public class ComponentService {
 
     @Autowired
     private SftpFileManage sftpFileManageBean;
-
-    public static final String VERSION = "version";
 
     /**
      * 组件配置文件映射
@@ -470,7 +466,7 @@ public class ComponentService {
                                              List<Resource> resources,  String hadoopVersion,
                                              String kerberosFileName,  String componentTemplate,
                                              Integer componentCode, Integer storeType,
-                                             String principals, String principal) {
+                                             String principals, String principal,boolean isMetadata) {
         if (StringUtils.isBlank(componentConfig)) {
             componentConfig = new JSONObject().toJSONString();
         }
@@ -533,6 +529,7 @@ public class ComponentService {
         } else {
             componentDao.insert(addComponent);
         }
+        changeMetadata(componentType.getTypeCode(),isMetadata,engine.getId(),addComponent.getIsMetadata());
         List<ClientTemplate> clientTemplates = this.wrapperConfig(componentType, componentConfig, isOpenKerberos, clusterName, hadoopVersion, md5Key, componentTemplate,addComponent.getHadoopVersion(),addComponent.getStoreType());
         componentConfigService.addOrUpdateComponentConfig(clientTemplates, addComponent.getId(), addComponent.getClusterId(), componentCode);
         List<ComponentVO> componentVos = componentConfigService.getComponentVoByComponent(Lists.newArrayList(addComponent), true, clusterId,true);
@@ -542,6 +539,7 @@ public class ComponentService {
             componentVO.setClusterName(clusterName);
             componentVO.setPrincipal(principal);
             componentVO.setPrincipals(principals);
+            componentVO.setIsMetadata(BooleanUtils.toInteger(isMetadata));
             return componentVO;
         }
         return null;
@@ -1490,13 +1488,8 @@ public class ComponentService {
         //hive 特殊处理 version
         if (EComponentType.HIVE_SERVER.getTypeCode().equals(componentType) || EComponentType.SPARK_THRIFT.getTypeCode().equals(componentType)) {
             pluginName = "hive";
-            if (version.equalsIgnoreCase("1.x")) {
-
-            } else if (version.equalsIgnoreCase("2.x")) {
+            if (!version.equalsIgnoreCase("1.x")) {
                 pluginName = pluginName + version.charAt(0);
-            } else {
-                //其他为完整路径
-                pluginName = pluginName + version;
             }
             return pluginName;
         }
@@ -2008,5 +2001,38 @@ public class ComponentService {
                 LOGGER.error("delete update file {} error", unzipLocation);
             }
         }
+    }
+
+    /**
+     * 更新metadata的元数据组件
+     * 如果集群只有单个metadata组件 默认勾选
+     * 如果集群多个metadata组件 绑定租户之后 无法切换
+     *
+     * @param engineId
+     * @param componentType
+     * @param isMetadata
+     * @return
+     */
+    public boolean changeMetadata(Integer componentType, boolean isMetadata, Long engineId, Integer oldMetadata) {
+        if (!EComponentType.metadataComponents.contains(EComponentType.getByCode(componentType))) {
+            return false;
+        }
+        Integer revertComponentType = EComponentType.HIVE_SERVER.getTypeCode().equals(componentType) ? EComponentType.SPARK_THRIFT.getTypeCode() : EComponentType.HIVE_SERVER.getTypeCode();
+        Component revertComponent = componentDao.getByEngineIdAndComponentType(engineId, revertComponentType);
+        if (null == revertComponent) {
+            //单个组件默认勾选
+            componentDao.updateMetadata(engineId, componentType, 1);
+            return true;
+        }
+        if (!BooleanUtils.toIntegerObject(isMetadata, 1, 0).equals(oldMetadata)) {
+            //如果集群已经绑定过租户 不允许修改
+            if (CollectionUtils.isNotEmpty(engineTenantDao.listEngineTenant(engineId))) {
+                throw new RdosDefineException("cluster has bind tenant can not change metadata component");
+            }
+        }
+        LOGGER.info("change metadata engine {} component {} to {} ", engineId, componentType, isMetadata);
+        componentDao.updateMetadata(engineId, componentType, isMetadata ? 1 : 0);
+        componentDao.updateMetadata(engineId, revertComponentType, isMetadata ? 0 : 1);
+        return true;
     }
 }

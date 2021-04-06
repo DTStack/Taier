@@ -7,8 +7,6 @@ import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.QueueVO;
 import com.dtstack.engine.api.vo.engine.EngineSupportVO;
-import com.dtstack.engine.common.enums.MultiEngineType;
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.EngineDao;
 import com.dtstack.engine.dao.EngineTenantDao;
 import com.dtstack.engine.dao.QueueDao;
@@ -21,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -78,6 +77,10 @@ public class EngineService {
                     .map(Component::getComponentTypeCode)
                     .collect(Collectors.toList());
             engineSupportVO.setSupportComponent(componentTypes);
+            Optional<Component> metadataComponent = componentList.stream()
+                    .filter(c -> 1 == c.getIsMetadata())
+                    .findFirst();
+            metadataComponent.ifPresent(component -> engineSupportVO.setMetadataComponent(component.getComponentTypeCode()));
             vos.add(engineSupportVO);
         }
 
