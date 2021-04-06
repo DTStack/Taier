@@ -1,6 +1,5 @@
 package com.dtstack.engine.flink.storage;
 
-import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
@@ -17,7 +16,6 @@ import org.apache.flink.configuration.JobManagerOptions;
 import org.apache.flink.configuration.ResourceManagerOptions;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.kubernetes.configuration.KubernetesConfigOptions;
-import org.apache.flink.runtime.util.HadoopUtils;
 import org.apache.flink.util.Preconditions;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -63,7 +61,6 @@ public class HdfsStorage extends AbstractStorage {
             throw new RdosDefineException("No set hdfs config!");
         }
         configuration = new Configuration();
-        HadoopConfTool.setFsHdfsImplDisableCache(configuration);
         conf.keySet().forEach(key ->{
             Object value = conf.get(key);
             if (value instanceof String){

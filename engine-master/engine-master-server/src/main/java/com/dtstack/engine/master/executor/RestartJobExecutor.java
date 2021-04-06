@@ -53,18 +53,17 @@ public class RestartJobExecutor extends AbstractJobExecutor {
 
     @Override
     protected Long getListMinId(String nodeAddress, Integer isRestart) {
-        Pair<String, String> cycTime = this.getCycTime();
+        Pair<String, String> cycTime = this.getCycTime(true);
         Long listMinId = batchJobService.getListMinId(nodeAddress, null, cycTime.getLeft(), cycTime.getRight(), Restarted.RESTARTED.getStatus());
         LOGGER.info("getListMinId scheduleType {} nodeAddress {} isRestart {} lastMinId is {} .", getScheduleType(), nodeAddress, Restarted.RESTARTED.getStatus(), listMinId);
         return listMinId;
     }
 
-    private Pair<String, String> getCycTime() {
-        //补数据和重跑
-        if(environmentContext.getOpenFillDataCycTimeLimit()) {
-            return jobRichOperator.getCycTimeLimitEndNow(false);
-        }else {
-            return  new ImmutablePair<>(null, null);
+    public Pair<String, String> getCycTime(boolean minJobId) {
+        // 重跑
+        if(environmentContext.getOpenRestartDataCycTimeLimit()) {
+            return jobRichOperator.getCycTimeLimitEndNow(false,true, minJobId);
         }
+        return new ImmutablePair<>(null, null);
     }
 }

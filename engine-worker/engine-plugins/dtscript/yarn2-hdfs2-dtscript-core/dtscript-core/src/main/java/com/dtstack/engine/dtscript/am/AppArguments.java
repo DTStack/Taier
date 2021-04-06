@@ -36,6 +36,8 @@ public class AppArguments {
 
     String[] nodes = null;
 
+    String[] racks = null;
+
     int workerMemory;
 
     int workerVcores;
@@ -100,6 +102,8 @@ public class AppArguments {
         }
 
         nodes = conf.getStrings(DtYarnConfiguration.CONTAINER_REQUEST_NODES, (String[]) null);
+
+        racks = conf.getStrings(DtYarnConfiguration.CONTAINER_REQUEST_RACKS, (String[]) null);
 
         workerMemory = conf.getInt(DtYarnConfiguration.DTSCRIPT_WORKER_MEMORY, DtYarnConfiguration.DEFAULT_DTSCRIPT_WORKER_MEMORY);
         workerVcores = conf.getInt(DtYarnConfiguration.DTSCRIPT_WORKER_VCORES, DtYarnConfiguration.DEFAULT_DTSCRIPT_WORKER_VCORES);

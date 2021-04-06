@@ -398,7 +398,7 @@
     <update id="delete">
         UPDATE schedule_task_shade
         SET is_deleted = 1, modify_user_id = #{userId}, gmt_modified = NOW()
-        WHERE task_id = #{taskId}
+        WHERE task_id = #{taskId} AND app_type = #{appType}
     </update>
 
     <insert id="insert" parameterType="ScheduleTaskShade" useGeneratedKeys="false" keyProperty="id">
@@ -535,6 +535,9 @@
         </if>
         <if test="model.taskType != null">
             and task_type = #{model.taskType}
+        </if>
+        <if test="model.appType != null">
+            and app_type = #{model.appType}
         </if>
         <if test="model.endTime != null">
             and to_days(#{model.endTime}) >= to_days(gmt_modified)
