@@ -9,7 +9,7 @@ import { initialScheduling, isViewMode, isNeedTemp,
     getModifyComp, isSameVersion, getCompsId,
     isMulitiVersion } from './help'
 import { TABS_TITLE, COMPONENT_CONFIG_NAME, DEFAULT_COMP_VERSION,
-    COMPONENT_TYPE_VALUE, TABS_POP_VISIBLE } from './const'
+    COMPONENT_TYPE_VALUE, TABS_POP_VISIBLE, COMP_ACTION } from './const'
 
 import FileConfig from './fileConfig'
 import FormConfig from './formConfig'
@@ -173,43 +173,43 @@ class EditCluster extends React.Component<any, IState> {
         })
     }
 
-    handleConfirm = async (addComps: any[], deleteComps: any[]) => {
-        console.log(addComps, deleteComps)
+    handleConfirm = async (action: string, comps: any | any[]) => {
+        console.log(comps)
         // 先删除组件，再添加
         const { initialCompData, activeKey, testStatus } = this.state
         let newCompData = initialCompData
         let newTestStatus = testStatus
         let currentCompArr = newCompData[activeKey]
-        let res: any
-        const componentIds = getCompsId(currentCompArr, deleteComps)
+        if (action == COMP_ACTION.DELETE) {
+            const { componentTypeCode, id = '' } = comps
+            const componentIds = getCompsId(currentCompArr, [id])
+            let res: any
+            if (componentIds.length) {
+                res = await Api.deleteComponent({ componentIds })
+            }
 
-        if (componentIds.length) {
-            res = await Api.deleteComponent({ componentIds })
-        }
-
-        if (deleteComps.length && (res?.code == 1 || !componentIds.length)) {
-            deleteComps.forEach(code => {
-                currentCompArr = currentCompArr.filter(comp => comp.componentTypeCode != code)
+            if (res?.code == 1 || !componentIds.length) {
+                currentCompArr = currentCompArr.filter(comp => comp.componentTypeCode != componentTypeCode)
                 newTestStatus = {
                     ...newTestStatus,
-                    [code]: null
+                    [componentTypeCode]: null
                 }
                 this.props.form.setFieldsValue({
-                    [code]: {
+                    [componentTypeCode]: {
                         componentConfig: {},
                         specialConfig: {}
                     }
                 })
-            })
-        }
-
-        if (addComps.length) {
-            addComps.forEach(code => {
-                currentCompArr.push({
-                    componentTypeCode: code,
-                    componentName: COMPONENT_CONFIG_NAME[code]
+            }
+        } else {
+            if (comps.length) {
+                comps.forEach(code => {
+                    currentCompArr.push({
+                        componentTypeCode: code,
+                        componentName: COMPONENT_CONFIG_NAME[code]
+                    })
                 })
-            })
+            }
         }
 
         newCompData[activeKey] = currentCompArr
@@ -422,6 +422,7 @@ class EditCluster extends React.Component<any, IState> {
                                                         form={this.props.form}
                                                         saveComp={this.saveComp}
                                                         testConnects={this.testConnects}
+                                                        handleConfirm={this.handleConfirm}
                                                     />}
                                                 </>
                                         </TabPane>)

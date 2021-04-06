@@ -126,3 +126,8 @@ export const CONFIG_FILE_DESC = {
     [COMPONENT_TYPE_VALUE.HDFS]: 'zip格式，至少包括core-site.xml、hdfs-site.xml、hive-site.xml',
     [COMPONENT_TYPE_VALUE.KUBERNETES]: 'zip格式，至少包括kubernetes.config'
 }
+
+export const COMP_ACTION = {
+    DELETE: 'DELETE',
+    ADD: 'ADD'
+}

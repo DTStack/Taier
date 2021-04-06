@@ -1,7 +1,7 @@
 import * as React from 'react'
-import { Popconfirm, Button, message } from 'antd'
+import { Popconfirm, Button, message, Modal, Icon } from 'antd'
 import Api from '../../../../../api/console'
-import { COMPONENT_CONFIG_NAME } from '../../const'
+import { COMPONENT_CONFIG_NAME, COMP_ACTION } from '../../const'
 
 import { handleComponentTemplate, handleComponentConfigAndCustom,
     handleComponentConfig, isNeedTemp, handleCustomParam,
@@ -13,6 +13,7 @@ interface IProps {
     initialCompData: any[];
     saveComp: Function;
     testConnects: Function;
+    handleConfirm: Function;
 }
 
 interface IState {
@@ -108,6 +109,24 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
         })
     }
 
+    showModal = () => {
+        const { comp, handleConfirm } = this.props
+        Modal.confirm({
+            title: '确认要删除组件？',
+            content: '此操作执行后不可逆，是否确认将对应组件删除？',
+            icon: <Icon type="close-circle" theme="filled" style={{ color: '#FF5F5C' }} />,
+            okText: '删除',
+            okType: 'danger',
+            cancelText: '取消',
+            onOk: () => {
+                handleConfirm(COMP_ACTION.DELETE, comp)
+            },
+            onCancel: () => {
+                console.log('Cancel')
+            }
+        })
+    }
+
     render () {
         const { loading } = this.state
         const typeCode = this.props.comp?.componentTypeCode ?? ''
@@ -122,6 +141,7 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
                 >
                     <Button>取消</Button>
                 </Popconfirm>
+                <Button style={{ marginLeft: 8 }} onClick={this.showModal}>删除{`${COMPONENT_CONFIG_NAME[typeCode]}`}组件</Button>
                 <Button style={{ marginLeft: 8 }} loading={loading} ghost onClick={this.testConnects}>
                     测试{`${COMPONENT_CONFIG_NAME[typeCode]}`}连通性
                 </Button>
