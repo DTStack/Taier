@@ -2,6 +2,7 @@ package com.dtstack.engine.alert.client.mail;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Auther: dazhi
@@ -36,6 +37,8 @@ public class AlterSendMailBean {
     private String jarPath;
 
     private String alertGateJson;
+
+    private Map<String,Object> env;
 
     public String getHost() {
         return host;
@@ -139,5 +142,13 @@ public class AlterSendMailBean {
 
     public void setAlertGateJson(String alertGateJson) {
         this.alertGateJson = alertGateJson;
+    }
+
+    public Map<String, Object> getEnv() {
+        return env;
+    }
+
+    public void setEnv(Map<String, Object> env) {
+        this.env = env;
     }
 }

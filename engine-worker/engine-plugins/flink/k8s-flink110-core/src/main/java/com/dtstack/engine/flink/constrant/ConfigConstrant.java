@@ -44,6 +44,10 @@ public class ConfigConstrant {
     public final static String NOTFOUND_WAITTIME_key = "notfound.waittime";
     public final static double NOTFOUND_WAITTIME_DEFAULT = 2.5 * 60 * 000;
 
+    public static final String CHILD_FIRST_LOADER_PATTERNS = "classloader.child-first-patterns";
+    // 指定具体child loader类的全类名，使用;号分隔
+    public static final String CHILD_FIRST_LOADER_PATTERNS_DEFAULT = "org.apache.flink.table.planner.plan.QueryOperationConverter";
+
     // ------------------------------------------------------------------------
     // Resource Configs
     // ------------------------------------------------------------------------
