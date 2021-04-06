@@ -34,7 +34,7 @@ const FieldsSelect = (props: IPropsDimensionSelect) => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const getColumnList = async (
-    options: {datasourceId: number; schema: string; tableName: string}[]
+    options: { datasourceId: number; schema: string; tableName: string }[]
   ) => {
     if (options.length === 0) return;
     setLoading(true);
@@ -58,11 +58,19 @@ const FieldsSelect = (props: IPropsDimensionSelect) => {
 
   useEffect(() => {
     if (window.localStorage.getItem('refreshColumns') === 'true')
-      getColumnList(modelDetail.joinList.map(item => ({
-        datasourceId: modelDetail.dsId,
-        schema: item.schema,
-        tableName: item.table,
-      })));
+      getColumnList(
+        modelDetail.joinList
+          .map((item) => ({
+            datasourceId: modelDetail.dsId,
+            schema: item.schema,
+            tableName: item.table,
+          }))
+          .concat({
+            datasourceId: modelDetail.dsId,
+            schema: modelDetail.schema,
+            tableName: modelDetail.tableName,
+          })
+      );
     else setDataSource(modelDetail.columns);
   }, [modelDetail, step]);
 
@@ -129,12 +137,12 @@ const FieldsSelect = (props: IPropsDimensionSelect) => {
       }),
   }));
 
-  const columns = useMemo(() => columnsGenerator({ onInputBlur }), [
-    onInputBlur,
-  ]);
+  const columns = useMemo(
+    () => columnsGenerator({ onInputBlur, data: dataSource }),
+    [onInputBlur]
+  );
 
   const ds = useMemo(() => {
-    // if (!modelDetail.columns) return [];
     const reg = new RegExp(filter);
     return dataSource.filter(
       (item) => reg.test(item.tableName) || reg.test(item.columnName)

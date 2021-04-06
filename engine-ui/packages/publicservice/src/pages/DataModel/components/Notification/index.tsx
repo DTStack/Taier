@@ -6,8 +6,8 @@ const Notification = {
       message: '错误',
       description: message,
       duration: 5,
-    })
-  }
-}
+    });
+  },
+};
 
 export default Notification;

@@ -3,6 +3,7 @@ import { Row, Col, Form, Select, Icon } from 'antd';
 import { JoinKey } from '@/pages/DataModel/types';
 import Message from 'pages/DataModel/components/Message';
 import { API } from '@/services';
+import _ from 'lodash';
 
 interface ITableItem {
   dsId: number;
@@ -69,11 +70,12 @@ const DynamicSelect = (props: IPropsDynamicSelect) => {
 
   const getColumnList = async (options: any[], setCol: Function) => {
     if (!options || options.length === 0) return;
-    if (!options[0].datasourceId || !options[0].schema || !options[0].tableName) return;
+    if (!options[0].datasourceId || !options[0].schema || !options[0].tableName)
+      return;
     try {
       const { success, data, message } = await API.getDataModelColumns(options);
       if (success) {
-        setCol(data);
+        setCol(_.uniqBy(data, (item) => item.columnName));
       } else {
         Message.error(message);
       }
@@ -83,11 +85,14 @@ const DynamicSelect = (props: IPropsDynamicSelect) => {
   };
 
   useEffect(() => {
-    getColumnList([{
-      datasourceId: leftTable.dsId,
-      schema: leftTable.schema,
-      tableName: leftTable.tableName,
-    }],
+    getColumnList(
+      [
+        {
+          datasourceId: leftTable.dsId,
+          schema: leftTable.schema,
+          tableName: leftTable.tableName,
+        },
+      ],
       setLeftColumns
     );
   }, [leftTable.dsId, leftTable.schema, leftTable.tableName]);
@@ -99,7 +104,7 @@ const DynamicSelect = (props: IPropsDynamicSelect) => {
           datasourceId: rightTable.dsId,
           schema: rightTable.schema,
           tableName: rightTable.tableName,
-        }
+        },
       ],
       setRightColumns
     );

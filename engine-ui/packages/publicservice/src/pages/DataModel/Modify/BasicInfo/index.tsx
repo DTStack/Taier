@@ -168,7 +168,7 @@ const BasicInfo = (props: IPropsBasicInfo) => {
                   key={dataSource.id}
                   value={dataSource.id}
                   data-ext={JSON.stringify(dataSource)}>
-                  {dataSource.dsTypeName}({dataSource.dsTypeName})
+                  {dataSource.name}({dataSource.dsTypeName})
                 </Option>
               ))}
             </Select>

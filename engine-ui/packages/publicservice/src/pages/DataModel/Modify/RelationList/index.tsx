@@ -10,6 +10,7 @@ import { columnsGenerator } from './constants';
 import { TableJoinInfo, IModelDetail } from 'pages/DataModel/types';
 import RelationTableModal from '../RelationTableModal';
 import _ from 'lodash';
+import { relationListRemove } from './utils';
 
 interface IPropsRelationList {
   updateTypeList: any[];
@@ -49,13 +50,39 @@ const RelationList = (props: IPropsRelationList) => {
       },
     };
   });
+
   useEffect(() => {
     setRelationList(modelDetail.joinList || []);
   }, [modelDetail]);
+
   const onRelationListDelete = (id: number | string) => {
-    setRelationList((relationList) =>
-      relationList.filter((item) => item.id !== id)
-    );
+    Modal.confirm({
+      title: (
+        <span className="cus-modal margin-left-40">
+          确认删除该条关联记录吗？
+        </span>
+      ),
+      content: (
+        <span className="cus-modal margin-left-40">
+          删除后，所有相关的关联关系将会被移除！
+        </span>
+      ),
+      onOk() {
+        const list = relationListRemove(relationList, id, {
+          schema: modelDetail.schema,
+          tableName: modelDetail.tableName,
+        });
+        setRelationList(list);
+      },
+      okText: '删除',
+      cancelText: '取消',
+      okButtonProps: {
+        className: 'cus-modal btn-delete',
+      },
+      icon: (
+        <i className="cus-modal icon iconfont2 iconFilltianchong_Close-Circle-Fill" />
+      ),
+    });
   };
 
   const onRelationListEdit = (id: number | string) => {
@@ -106,7 +133,6 @@ const RelationList = (props: IPropsRelationList) => {
         })
       )
     );
-
     return tables;
   }, [modelDetail.tableName, modelDetail.schema, relationList]);
 

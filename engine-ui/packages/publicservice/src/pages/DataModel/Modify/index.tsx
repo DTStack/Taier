@@ -33,9 +33,23 @@ const stepRender = (current: EnumModifyStep, params: any) => {
   const { childRef, modelDetail, globalStep, mode } = params;
   switch (current) {
     case EnumModifyStep.BASIC_STEP:
-      return <BasicInfo mode={mode} globalStep={globalStep} cref={childRef} modelDetail={modelDetail} />;
+      return (
+        <BasicInfo
+          mode={mode}
+          globalStep={globalStep}
+          cref={childRef}
+          modelDetail={modelDetail}
+        />
+      );
     case EnumModifyStep.RELATION_TABLE_STEP:
-      return <RelationTableSelect mode={mode} globalStep={globalStep} cref={childRef} modelDetail={modelDetail} />;
+      return (
+        <RelationTableSelect
+          mode={mode}
+          globalStep={globalStep}
+          cref={childRef}
+          modelDetail={modelDetail}
+        />
+      );
     case EnumModifyStep.DIMENSION_STEP:
       return (
         <FieldSelect cref={childRef} step={current} modelDetail={modelDetail} />
@@ -73,6 +87,9 @@ const Modify = (props: IPropsModify) => {
       const { success, data, message } = await API.getModelDetail({ id });
       if (success) {
         globalStep.current = data.step - 1;
+        if (globalStep.current < EnumModifyStep.DIMENSION_STEP) {
+          window.localStorage.setItem('refreshColumns', 'true');
+        }
         const columns = data.columns.map((item) => ({
           ...item,
           id: identifyColumns(),
@@ -186,7 +203,7 @@ const Modify = (props: IPropsModify) => {
                 {stepRender(current, {
                   childRef,
                   modelDetail,
-                  globalStep: globalStep.current,
+                  globalStep: globalStep.current + 1,
                   mode: mode,
                 })}
               </div>
@@ -261,17 +278,17 @@ const Modify = (props: IPropsModify) => {
                       ...modelDetail,
                       ...data,
                     });
-                    const step = Math.max(globalStep.current, current + 1);
+                    const step = Math.max(globalStep.current + 1, current + 1);
                     const params = {
                       ...modelDetail,
                       ...data,
                       step,
                     };
-                    params.columnList = params.columns?.map(item => {
+                    params.columnList = params.columns?.map((item) => {
                       item.columnDesc = item.columnComment;
                       delete item.columnComment;
-                      return {...item};
-                    })
+                      return { ...item };
+                    });
                     delete params.columns;
                     saveDataModel(params, () => {
                       router.push('/data-model/list');

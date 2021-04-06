@@ -239,7 +239,6 @@ const List = (props: IPropList) => {
                 dataSourceType = requestParams.datasourceTypes,
                 modelStatus = requestParams.statuses,
               } = filters;
-
               setRequestParams((reqParams) => ({
                 ...reqParams,
                 currentPage: 1,

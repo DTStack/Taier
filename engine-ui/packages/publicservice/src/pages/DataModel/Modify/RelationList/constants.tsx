@@ -80,9 +80,13 @@ export const columnsGenerator = ({ onDelete, onEdit }) => {
       fixed: 'right' as 'right',
       render: (text, record) => (
         <span>
-          <a onClick={() => onEdit(record.id)}>编辑</a>
+          <a className="btn-link" onClick={() => onEdit(record.id)}>
+            编辑
+          </a>
           <Divider type="vertical" />
-          <a onClick={() => onDelete(record.id)}>删除</a>
+          <a className="btn-link" onClick={() => onDelete(record.id)}>
+            删除
+          </a>
         </span>
       ),
     },

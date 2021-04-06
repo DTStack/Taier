@@ -11,9 +11,9 @@ const message = {
       duration: 5,
       message: '错误',
       description: message,
-    })
+    });
   },
   msgError: Message.error,
-}
+};
 
 export default message;

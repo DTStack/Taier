@@ -57,7 +57,7 @@ const Detail = (props: IPropsDetail) => {
         Message.error(message);
       }
     } catch (error) {
-      setCode('')
+      setCode('');
       Message.error(error.message);
     } finally {
       setLoading(false);

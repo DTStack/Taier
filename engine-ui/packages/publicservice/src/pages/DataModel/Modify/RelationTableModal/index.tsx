@@ -85,7 +85,7 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
         new Promise((resolve, reject) => {
           validateFields((error, data) => {
             if (error) return reject(error.message);
-            const table = tableParser.parser(data.leftTable)
+            const table = tableParser.parser(data.leftTable);
             const _data = {
               ...data,
               leftTable: table.tableName,
@@ -123,18 +123,25 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
   });
 
   useEffect(() => {
-    const leftTable = value.leftSchema && value.leftTable ? (
-      `${modelDetail.dsId}-${value.leftSchema}-${value.leftTable}`
-    ) : undefined;
+    const leftTable =
+      value.leftSchema && value.leftTable
+        ? `${modelDetail.dsId}-${value.leftSchema}-${value.leftTable}`
+        : undefined;
     setFieldsValue({
       leftTable,
       joinType: value.joinType,
       schema: value.schema,
       table: value.table,
       tableAlias: value.tableAlias,
+    });
+  }, [value]);
+
+  useEffect(() => {
+    setFieldsValue({
+      ...currentFormValue,
       updateType: visibleUpdateType ? value.updateType : undefined,
     });
-  }, [value, visibleUpdateType]);
+  }, [visibleUpdateType]);
 
   const getSchemaList = async (dsId: number) => {
     if (!dsId) return;

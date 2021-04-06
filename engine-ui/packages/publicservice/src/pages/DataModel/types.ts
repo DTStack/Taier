@@ -55,6 +55,7 @@ export interface FieldColumn {
 export interface TableJoinInfo {
   id?: number;
   leftTable: string;
+  leftSchema: string;
   joinType: JoinType;
   schema: string;
   table: string;

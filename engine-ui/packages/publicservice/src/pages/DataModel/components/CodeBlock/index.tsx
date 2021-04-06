@@ -18,7 +18,7 @@ const CodeBlock = (props: IPropsCodeBlock) => {
   useEffect(() => {
     if (!dom.current) return;
     hljs.highlightBlock(dom.current);
-  }, []);
+  }, [code]);
   return (
     <div className="code-block">
       <div className="code-container">

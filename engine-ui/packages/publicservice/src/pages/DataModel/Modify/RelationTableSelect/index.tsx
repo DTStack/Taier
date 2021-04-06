@@ -41,7 +41,10 @@ const RelationTableSelect = (props: IPropsRelationTableSelect) => {
         new Promise((resolve, reject) => {
           validateFields((err, data) => {
             if (err) return reject(err.message);
-            const _value = { ...data };
+            const _value = {
+              ...data,
+              partition: visibleUpdateType,
+            };
             refRelationList.current.validate().then((data) => {
               _value.joinList = data;
               resolve(_value);
@@ -161,9 +164,9 @@ const RelationTableSelect = (props: IPropsRelationTableSelect) => {
   useEffect(() => {
     if (!visibleUpdateType) return;
     setFieldsValue({
-     updateType: modelDetail.updateType,
-    })
-  }, [visibleUpdateType])
+      updateType: modelDetail.updateType,
+    });
+  }, [visibleUpdateType]);
 
   useEffect(() => {
     isPartition(
