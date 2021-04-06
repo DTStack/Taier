@@ -3,6 +3,7 @@ import { Form, Input, Select } from 'antd';
 import { API } from '@/services';
 import Message from '@/pages/DataModel/components/Message';
 import { IModelDetail } from '@/pages/DataModel/types';
+import { Mode } from 'node:fs';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -11,6 +12,8 @@ interface IPropsBasicInfo {
   form?: any;
   cref: any;
   modelDetail?: Partial<IModelDetail>;
+  globalStep?: number;
+  mode?: Mode;
 }
 
 interface DataSourceItem {
@@ -22,7 +25,7 @@ interface DataSourceItem {
 }
 
 const BasicInfo = (props: IPropsBasicInfo) => {
-  const { form, cref, modelDetail } = props;
+  const { form, cref, modelDetail, globalStep, mode } = props;
   const {
     getFieldDecorator,
     getFieldsValue,
@@ -31,7 +34,7 @@ const BasicInfo = (props: IPropsBasicInfo) => {
   } = form;
   const [dataSourceList, setDataSourceList] = useState<DataSourceItem[]>([]);
   const [extra, setExtra] = useState({});
-
+  const isDisabled = mode === 'EDIT' && globalStep >= 0;
   useEffect(() => {
     setFieldsValue({
       modelName: modelDetail.modelName,
@@ -142,7 +145,7 @@ const BasicInfo = (props: IPropsBasicInfo) => {
                 }),
               },
             ],
-          })(<Input placeholder="请输入模型英文名称" />)}
+          })(<Input disabled={isDisabled} placeholder="请输入模型英文名称" />)}
         </Form.Item>
         <Form.Item label="数据源">
           {getFieldDecorator('dsId', {
@@ -150,6 +153,7 @@ const BasicInfo = (props: IPropsBasicInfo) => {
           })(
             <Select
               placeholder="请选择数据源"
+              disabled={isDisabled}
               onChange={(value, target) => {
                 const extraString = (target as any).props['data-ext'];
                 try {

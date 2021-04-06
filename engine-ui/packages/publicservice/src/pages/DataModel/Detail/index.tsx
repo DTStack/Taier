@@ -31,7 +31,11 @@ const Detail = (props: IPropsDetail) => {
       const { success, data, message } = await API.getModelDetail({ id });
       if (success) {
         setModelDetail(data as IModelDetail);
-        getSql(data);
+        const params = {
+          ...data,
+        };
+        params.columnList = params.columns;
+        getSql(params);
       } else {
         Message.error(message);
       }
@@ -49,9 +53,11 @@ const Detail = (props: IPropsDetail) => {
       if (success) {
         setCode(data.result);
       } else {
+        setCode('');
         Message.error(message);
       }
     } catch (error) {
+      setCode('')
       Message.error(error.message);
     } finally {
       setLoading(false);

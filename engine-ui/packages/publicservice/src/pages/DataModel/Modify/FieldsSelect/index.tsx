@@ -34,18 +34,12 @@ const FieldsSelect = (props: IPropsDimensionSelect) => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const getColumnList = async (
-    dsId: number,
-    schema: string,
-    tableNames: string[]
+    options: {datasourceId: number; schema: string; tableName: string}[]
   ) => {
-    if (!dsId || !schema || !tableNames) return;
+    if (options.length === 0) return;
     setLoading(true);
     try {
-      const { success, data, message } = await API.getDataModelColumns({
-        datasourceId: dsId,
-        schema,
-        tableNames,
-      });
+      const { success, data, message } = await API.getDataModelColumns(options);
       if (success) {
         data.forEach((item) => {
           item.id = id();
@@ -63,11 +57,12 @@ const FieldsSelect = (props: IPropsDimensionSelect) => {
   };
 
   useEffect(() => {
-    // TODO: 参数有误，tableNames
     if (window.localStorage.getItem('refreshColumns') === 'true')
-      getColumnList(modelDetail.dsId, modelDetail.schema, [
-        modelDetail.tableName,
-      ]);
+      getColumnList(modelDetail.joinList.map(item => ({
+        datasourceId: modelDetail.dsId,
+        schema: item.schema,
+        tableName: item.table,
+      })));
     else setDataSource(modelDetail.columns);
   }, [modelDetail, step]);
 

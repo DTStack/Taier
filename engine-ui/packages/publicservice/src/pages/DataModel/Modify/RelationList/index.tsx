@@ -41,7 +41,7 @@ const RelationList = (props: IPropsRelationList) => {
   useImperativeHandle(cref, () => {
     return {
       validate: () =>
-        new Promise((resolve, reject) => {
+        new Promise((resolve) => {
           return resolve(relationList);
         }),
       getValue: () => {

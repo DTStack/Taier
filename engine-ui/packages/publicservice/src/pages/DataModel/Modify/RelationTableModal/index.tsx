@@ -85,8 +85,12 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
         new Promise((resolve, reject) => {
           validateFields((error, data) => {
             if (error) return reject(error.message);
+            const table = tableParser.parser(data.leftTable)
             const _data = {
               ...data,
+              leftTable: table.tableName,
+              leftSchema: table.schema,
+              partition: visibleUpdateType,
             };
             refDynamicSelect.current.getJoinPairs().then((joinPairsObj) => {
               const group = _.groupBy(
@@ -119,8 +123,11 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
   });
 
   useEffect(() => {
+    const leftTable = value.leftSchema && value.leftTable ? (
+      `${modelDetail.dsId}-${value.leftSchema}-${value.leftTable}`
+    ) : undefined;
     setFieldsValue({
-      leftTable: value.leftTable,
+      leftTable,
       joinType: value.joinType,
       schema: value.schema,
       table: value.table,
@@ -209,7 +216,6 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
       // 编辑状态下需要过滤当前id的表名
       filter = (item) => item.id !== value.id;
     }
-    console.log(tableList);
     const isRepeat =
       tableList
         .filter((item) => item.tableAlias)

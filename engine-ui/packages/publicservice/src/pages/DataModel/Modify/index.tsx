@@ -30,12 +30,12 @@ import PartitionField from './PartitionField';
 import FieldSelect from './FieldsSelect';
 
 const stepRender = (current: EnumModifyStep, params: any) => {
-  const { childRef, modelDetail } = params;
+  const { childRef, modelDetail, globalStep, mode } = params;
   switch (current) {
     case EnumModifyStep.BASIC_STEP:
-      return <BasicInfo cref={childRef} modelDetail={modelDetail} />;
+      return <BasicInfo mode={mode} globalStep={globalStep} cref={childRef} modelDetail={modelDetail} />;
     case EnumModifyStep.RELATION_TABLE_STEP:
-      return <RelationTableSelect cref={childRef} modelDetail={modelDetail} />;
+      return <RelationTableSelect mode={mode} globalStep={globalStep} cref={childRef} modelDetail={modelDetail} />;
     case EnumModifyStep.DIMENSION_STEP:
       return (
         <FieldSelect cref={childRef} step={current} modelDetail={modelDetail} />
@@ -59,6 +59,8 @@ const Modify = (props: IPropsModify) => {
     EnumModifyStep.BASIC_STEP
   );
 
+  const globalStep = useRef(-1);
+
   const [visibleSqlpreview, setVisibleSqlPreview] = useState({
     visible: false,
     sql: '',
@@ -70,6 +72,7 @@ const Modify = (props: IPropsModify) => {
     try {
       const { success, data, message } = await API.getModelDetail({ id });
       if (success) {
+        globalStep.current = data.step - 1;
         const columns = data.columns.map((item) => ({
           ...item,
           id: identifyColumns(),
@@ -139,7 +142,7 @@ const Modify = (props: IPropsModify) => {
       if (success) {
         setVisibleSqlPreview({
           visible: true,
-          sql: data,
+          sql: data.result,
         });
       } else {
         Message.error(message);
@@ -183,6 +186,8 @@ const Modify = (props: IPropsModify) => {
                 {stepRender(current, {
                   childRef,
                   modelDetail,
+                  globalStep: globalStep.current,
+                  mode: mode,
                 })}
               </div>
               <Modal
@@ -240,6 +245,8 @@ const Modify = (props: IPropsModify) => {
                         ...data,
                         step: current + 1,
                       };
+                      params.columnList = params.columns;
+                      delete params.columns;
                       getSql(params);
                     });
                   }}>
@@ -254,11 +261,18 @@ const Modify = (props: IPropsModify) => {
                       ...modelDetail,
                       ...data,
                     });
+                    const step = Math.max(globalStep.current, current + 1);
                     const params = {
                       ...modelDetail,
                       ...data,
-                      step: current + 1,
+                      step,
                     };
+                    params.columnList = params.columns?.map(item => {
+                      item.columnDesc = item.columnComment;
+                      delete item.columnComment;
+                      return {...item};
+                    })
+                    delete params.columns;
                     saveDataModel(params, () => {
                       router.push('/data-model/list');
                     });

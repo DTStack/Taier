@@ -137,7 +137,12 @@ const List = (props: IPropList) => {
         Message.success(msg);
         fetchModelList(requestParams);
       } else {
-        Message.error(message);
+        // Message.msgError('删除失败');
+        if (apiAction === API.deleteModel) {
+          Message.msgError('删除失败');
+        } else {
+          Message.error(message);
+        }
       }
     } catch (error) {
       Message.error(error.message);

@@ -4,10 +4,13 @@ import { API } from '@/services';
 import RelationList from '../RelationList';
 import { IModelDetail } from '@/pages/DataModel/types';
 import Message from 'pages/DataModel/components/Message';
+// import { Mode } from 'node:fs';
 interface IPropsRelationTableSelect {
   form?: any;
   cref: any;
   modelDetail?: Partial<IModelDetail>;
+  mode: any;
+  globalStep: number;
 }
 const { Option } = Select;
 
@@ -16,7 +19,7 @@ interface TableItem {
 }
 
 const RelationTableSelect = (props: IPropsRelationTableSelect) => {
-  const { form, cref, modelDetail } = props;
+  const { form, cref, modelDetail, globalStep, mode } = props;
   const {
     getFieldDecorator,
     validateFields,
@@ -30,6 +33,7 @@ const RelationTableSelect = (props: IPropsRelationTableSelect) => {
     { leftValue: number; rightValue: string }[]
   >([]);
   const refRelationList = useRef(null);
+  const isDisabled = mode === 'EDIT' && globalStep >= 1;
 
   useImperativeHandle(cref, () => {
     return {
@@ -39,14 +43,7 @@ const RelationTableSelect = (props: IPropsRelationTableSelect) => {
             if (err) return reject(err.message);
             const _value = { ...data };
             refRelationList.current.validate().then((data) => {
-              _value.joinList = data.map((item) => {
-                const leftTable = item.leftTable;
-                const tableName = leftTable?.split('-')[2];
-                return {
-                  ...item,
-                  leftTable: tableName,
-                };
-              });
+              _value.joinList = data;
               resolve(_value);
             });
           });
@@ -68,14 +65,6 @@ const RelationTableSelect = (props: IPropsRelationTableSelect) => {
   });
 
   const currentFormValue = getFieldsValue();
-
-  useEffect(() => {
-    const { schema, tableName } = modelDetail;
-    setFieldsValue({
-      schema: schema === null ? undefined : schema,
-      tableName: tableName === null ? undefined : tableName,
-    });
-  }, [modelDetail]);
 
   const getSchemaList = async (dsId: number) => {
     if (!dsId) return;
@@ -162,6 +151,21 @@ const RelationTableSelect = (props: IPropsRelationTableSelect) => {
   }, [modelDetail.dsId, currentFormValue.schema]);
 
   useEffect(() => {
+    const { schema, tableName } = modelDetail;
+    setFieldsValue({
+      schema: schema === null ? undefined : schema,
+      tableName: tableName === null ? undefined : tableName,
+    });
+  }, [modelDetail]);
+
+  useEffect(() => {
+    if (!visibleUpdateType) return;
+    setFieldsValue({
+     updateType: modelDetail.updateType,
+    })
+  }, [visibleUpdateType])
+
+  useEffect(() => {
     isPartition(
       modelDetail.dsId,
       currentFormValue.schema,
@@ -178,6 +182,7 @@ const RelationTableSelect = (props: IPropsRelationTableSelect) => {
           })(
             <Select
               placeholder="请选择schema"
+              disabled={isDisabled}
               onChange={(v) => {
                 window.localStorage.setItem('refreshColumns', 'true');
                 setFieldsValue({
@@ -200,6 +205,7 @@ const RelationTableSelect = (props: IPropsRelationTableSelect) => {
           })(
             <Select
               placeholder="请选择表"
+              disabled={isDisabled}
               onChange={() => {
                 window.localStorage.setItem('refreshColumns', 'true');
               }}>

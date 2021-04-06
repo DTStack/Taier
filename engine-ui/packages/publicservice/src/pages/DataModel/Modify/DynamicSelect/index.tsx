@@ -67,19 +67,11 @@ const DynamicSelect = (props: IPropsDynamicSelect) => {
     setFieldsValue(value);
   }, [joinPairsList]);
 
-  const getColumnList = async (
-    dsId: number,
-    schema: string,
-    tableName: string,
-    setCol: Function
-  ) => {
-    if (!dsId || !schema || !tableName) return;
+  const getColumnList = async (options: any[], setCol: Function) => {
+    if (!options || options.length === 0) return;
+    if (!options[0].datasourceId || !options[0].schema || !options[0].tableName) return;
     try {
-      const { success, data, message } = await API.getDataModelColumns({
-        datasourceId: dsId,
-        schema,
-        tableNames: [tableName],
-      });
+      const { success, data, message } = await API.getDataModelColumns(options);
       if (success) {
         setCol(data);
       } else {
@@ -91,19 +83,24 @@ const DynamicSelect = (props: IPropsDynamicSelect) => {
   };
 
   useEffect(() => {
-    getColumnList(
-      leftTable.dsId,
-      leftTable.schema,
-      leftTable.tableName,
+    getColumnList([{
+      datasourceId: leftTable.dsId,
+      schema: leftTable.schema,
+      tableName: leftTable.tableName,
+    }],
       setLeftColumns
     );
   }, [leftTable.dsId, leftTable.schema, leftTable.tableName]);
 
   useEffect(() => {
     getColumnList(
-      rightTable.dsId,
-      rightTable.schema,
-      rightTable.tableName,
+      [
+        {
+          datasourceId: rightTable.dsId,
+          schema: rightTable.schema,
+          tableName: rightTable.tableName,
+        }
+      ],
       setRightColumns
     );
   }, [rightTable.dsId, rightTable.schema, rightTable.tableName]);
