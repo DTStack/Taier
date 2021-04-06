@@ -86,3 +86,22 @@ $minWidth: 1260px;
     height: calc(100% - 64px);
   }
 }
+.dropdown-content {
+  color: #abb2c2 !important;
+}
+.logo-img {
+  height: 64px;
+  line-height: 64px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.logo {
+  margin-right: 0 !important;
+}
+.logo-header {
+  font-size: 28px;
+  font-weight: 500;
+  color: #fff;
+  margin: 0 86px 0 6px;
+}

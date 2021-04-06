@@ -104,10 +104,7 @@ const InfoConfig = (props) => {
           }
           item.initialValue =
             detailData[item.name] || JSON.parse(detailData.dataJson)[item.name];
-          console.log(
-            'JSON.parse(detailData.dataJson): ',
-            JSON.parse(detailData.dataJson)
-          );
+
           setDetailData(JSON.parse(detailData.dataJson));
 
           //webSocket定制化
@@ -154,11 +151,19 @@ const InfoConfig = (props) => {
         setLoading(true);
 
         let handelParams: any = { ...otherParams };
-        handelParams.dataName = fieldsValue.dataName.trim();
-        handelParams.dataDesc = fieldsValue.dataDesc.trim();
+
+        //Remove leading and trailing spaces
+        for (const key in fieldsValue) {
+          if (typeof fieldsValue[key] === 'string') {
+            fieldsValue[key] = fieldsValue[key].trim();
+          }
+        }
+        handelParams.dataName = fieldsValue.dataName;
+        handelParams.dataDesc = fieldsValue.dataDesc;
         delete fieldsValue.dataName;
         delete fieldsValue.dataDesc;
         delete fieldsValue.dataType;
+
         let infoMsg = '添加数据源成功';
         if (record) {
           //edit need id
@@ -171,16 +176,9 @@ const InfoConfig = (props) => {
           fieldsValue.webSocketParams = webSocketParams;
         }
 
-        //Remove leading and trailing spaces
-        for (const key in fieldsValue) {
-          if (typeof fieldsValue[key] === 'string') {
-            fieldsValue[key] = fieldsValue[key].trim();
-          }
-        }
-
         if (getFieldValue('kerberosFile')) {
           if (editChangeFile) {
-            handelParams.file = fieldsValue.kerberosFile;
+            handelParams.file = fieldsValue?.kerberosFile;
           }
           delete fieldsValue.openKerberos;
           delete fieldsValue.kerberosFile;
@@ -201,7 +199,7 @@ const InfoConfig = (props) => {
             if (success && data) {
               message.success('连接成功');
             } else {
-              message.error(`${msg}`);
+              message.error(msg ? `${msg}` : '连接失败');
             }
           }
         } else {
@@ -219,7 +217,7 @@ const InfoConfig = (props) => {
             if (success && data) {
               message.success('连接成功');
             } else {
-              message.error(`${msg}`);
+              message.error(msg ? `${msg}` : '连接失败');
             }
           }
         }
