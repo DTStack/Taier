@@ -52,11 +52,15 @@ public class AlterResult {
      */
     private List<Pair<String,String>> serdeProperties;
 
-
     /**
      * 新的表路径
      */
     private String newLocation;
+
+    /**
+     * 分区路径
+     */
+    private Pair<String,String> newLocationPart;
 
     public TableOperateEnum getAlterType() {
         return alterType;
@@ -120,5 +124,13 @@ public class AlterResult {
 
     public void setNewLocation(String newLocation) {
         this.newLocation = newLocation;
+    }
+
+    public Pair<String, String> getNewLocationPart() {
+        return newLocationPart;
+    }
+
+    public void setNewLocationPart(Pair<String, String> newLocationPart) {
+        this.newLocationPart = newLocationPart;
     }
 }

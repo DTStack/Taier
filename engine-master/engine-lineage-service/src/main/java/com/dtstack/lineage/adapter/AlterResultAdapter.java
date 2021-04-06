@@ -26,6 +26,7 @@ public class AlterResultAdapter {
         aResult.setSerdeProperties(alterResult.getSerdeProperties());
         aResult.setTableProperties(alterResult.getTableProperties());
         aResult.setAlterType(TableOperateEnum.valueOf(alterResult.getAlterType().name()));
+        aResult.setNewLocationPart(alterResult.getNewLocationPart());
         return aResult;
     }
 
