@@ -11,6 +11,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.util.Map;
 
 /**
@@ -24,7 +25,8 @@ public class AlterEnvHandlerEvent extends AdapterEventMonitor {
 
     @Autowired
     private EnvironmentContext environmentContext;
-    private AlterEnvironment alterEnvironment = new AlterEnvironment();
+
+    private AlterEnvironment alterEnvironment;
 
     @Override
     public Boolean startEvent(AlterContext alterContext) {
@@ -44,6 +46,11 @@ public class AlterEnvHandlerEvent extends AdapterEventMonitor {
 
         alterContext.setEvn(evn);
         return super.startEvent(alterContext);
+    }
+
+    @PostConstruct
+    public void init(){
+        this.alterEnvironment = new AlterEnvironment();
     }
 
     class AlterEnvironment{
