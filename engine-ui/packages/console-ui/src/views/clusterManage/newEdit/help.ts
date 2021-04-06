@@ -32,6 +32,10 @@ export function isSameVersion (code: number): boolean {
     return [COMPONENT_TYPE_VALUE.HDFS, COMPONENT_TYPE_VALUE.YARN].indexOf(code) > -1
 }
 
+export function isMulitiVersion (code: number): boolean {
+    return [COMPONENT_TYPE_VALUE.FLINK, COMPONENT_TYPE_VALUE.SPARK].indexOf(code) > -1
+}
+
 export function needZipFile (type: number): boolean {
     return [FILE_TYPE.KERNEROS, FILE_TYPE.CONFIGS].indexOf(type) > -1
 }

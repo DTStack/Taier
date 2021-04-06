@@ -6,7 +6,8 @@ import * as _ from 'lodash'
 
 import Api from '../../../api/console'
 import { initialScheduling, isViewMode, isNeedTemp,
-    getModifyComp, isSameVersion, getCompsId } from './help'
+    getModifyComp, isSameVersion, getCompsId,
+    isMulitiVersion } from './help'
 import { TABS_TITLE, COMPONENT_CONFIG_NAME, DEFAULT_COMP_VERSION,
     COMPONENT_TYPE_VALUE, TABS_POP_VISIBLE } from './const'
 
@@ -15,6 +16,7 @@ import FormConfig from './formConfig'
 import ToolBar from './components/toolbar'
 import ComponentButton from './components/compsBtn'
 import TestRestIcon from '../../../components/testResultIcon'
+import MulitiVersionComp from './components/multiVerComp'
 
 const TabPane = Tabs.TabPane
 const confirm = Modal.confirm
@@ -390,29 +392,38 @@ class EditCluster extends React.Component<any, IState> {
                                             </span>}
                                             key={`${comp.componentTypeCode}`}
                                         >
-                                            <FileConfig
-                                                comp={comp}
-                                                view={isViewMode(mode)}
-                                                form={this.props.form}
-                                                versionData={versionData}
-                                                commVersion={commVersion}
-                                                saveCompsData={saveCompsData}
-                                                clusterInfo={{ clusterName, clusterId: cluster.clusterId }}
-                                                handleCompVersion={this.handleCompVersion}
-                                            />
-                                            <FormConfig
-                                                comp={comp}
-                                                view={isViewMode(mode)}
-                                                form={this.props.form}
-                                            />
-                                            {!isViewMode(mode) && <ToolBar
-                                                comp={comp}
-                                                clusterInfo={{ clusterName, clusterId: cluster.clusterId }}
-                                                initialCompData={initialCompData[activeKey]}
-                                                form={this.props.form}
-                                                saveComp={this.saveComp}
-                                                testConnects={this.testConnects}
-                                            />}
+                                            <>
+                                                {isMulitiVersion(comp.componentTypeCode)
+                                                    ? <MulitiVersionComp
+                                                        comp={comp}
+                                                        versionData={versionData}
+                                                    />
+                                                    : <>
+                                                        <FileConfig
+                                                            comp={comp}
+                                                            view={isViewMode(mode)}
+                                                            form={this.props.form}
+                                                            versionData={versionData}
+                                                            commVersion={commVersion}
+                                                            saveCompsData={saveCompsData}
+                                                            clusterInfo={{ clusterName, clusterId: cluster.clusterId }}
+                                                            handleCompVersion={this.handleCompVersion}
+                                                        />
+                                                        <FormConfig
+                                                            comp={comp}
+                                                            view={isViewMode(mode)}
+                                                            form={this.props.form}
+                                                        />
+                                                    </>}
+                                                    {!isViewMode(mode) && <ToolBar
+                                                        comp={comp}
+                                                        clusterInfo={{ clusterName, clusterId: cluster.clusterId }}
+                                                        initialCompData={initialCompData[activeKey]}
+                                                        form={this.props.form}
+                                                        saveComp={this.saveComp}
+                                                        testConnects={this.testConnects}
+                                                    />}
+                                                </>
                                         </TabPane>)
                                     })}
                                 </Tabs>
