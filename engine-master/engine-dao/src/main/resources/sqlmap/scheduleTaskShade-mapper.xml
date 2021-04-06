@@ -756,7 +756,7 @@
             t.task_rule
         FROM `schedule_task_shade` t
         LEFT JOIN `schedule_task_task_shade`  tt
-        ON t.task_id = tt.task_id and t.app_type = tt.app_type
+        ON t.task_id = tt.task_id and t.app_type = tt.app_type and tt.is_deleted = 0
         WHERE t.is_deleted = 0 and tt.parent_task_id = #{taskId} AND tt.parent_app_type = #{appType}
         LIMIT #{limit}
     </select>
@@ -829,7 +829,7 @@
             t.task_rule
         FROM `schedule_task_shade` t
         LEFT JOIN `schedule_task_task_shade`  tt
-        ON  t.task_id = tt.task_id  AND tt.is_deleted = 0
+        ON  t.task_id = tt.task_id AND t.app_type = tt.app_type  AND tt.is_deleted = 0
         WHERE t.is_deleted = 0 AND tt.parent_app_type = #{appType} AND tt.parent_task_id = #{taskId}
     </select>
 
