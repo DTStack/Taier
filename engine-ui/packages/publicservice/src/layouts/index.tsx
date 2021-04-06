@@ -5,11 +5,26 @@ import { Layout } from 'antd';
 import Navigator from 'lib/dt-common/src/components/nav';
 import './style';
 
+declare var APP_CONF: any;
+const IMG_URL = APP_CONF.IMG_URL || '';
+const judge = window.location.hash.indexOf('data-model') > -1;
+
 const initState = {
   collapsed: false,
   mode: 'inline',
   navData: [],
   authPaths: [],
+  DATA_SOURCE_IMG: judge
+    ? IMG_URL + '/assets/imgs/data_model.png'
+    : IMG_URL + '/assets/imgs/api_logo.png',
+  menuItems: [
+    {
+      id: 1,
+      name: judge ? '数据模型' : '数据源中心',
+      enable: true,
+      needRoot: false,
+    },
+  ],
 };
 type IState = typeof initState;
 
@@ -39,13 +54,28 @@ class BasicLayout extends React.PureComponent<IProps, IState> {
   render() {
     const app = {
       ...this.props.app,
-      disableExt: true,
+      disableExt: false,
     };
 
-    const navigatorProps = { ...this.props, ...{ app } };
+    const navigatorProps = {
+      ...this.props,
+      ...{ app },
+      showHelpSite: judge ? true : false,
+      menuItems: this.state.menuItems,
+      logo: (
+        <div className="logo-img">
+          <img src={this.state.DATA_SOURCE_IMG} alt="logo" />
+          <span className="logo-header">
+            {judge ? 'Datamodel' : '系统管理'}
+          </span>
+        </div>
+      ),
+    };
+
     return (
       <Layout className="dt-assets-container">
         <Navigator {...navigatorProps} />
+
         <Layout className="assets-container dt-container">
           <Layout>
             <Content>{this.props.children}</Content>

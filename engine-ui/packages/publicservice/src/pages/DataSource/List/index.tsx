@@ -34,7 +34,7 @@ function index(props) {
 
   //获取表格数据
   const requestTableData = async (query?: any) => {
-    let { data, success } = await API.dataSourcepage({
+    let { data, success, message } = await API.dataSourcepage({
       ...params,
       ...other,
       ...query,
@@ -59,7 +59,7 @@ function index(props) {
     } else {
       notification.error({
         message: '错误！',
-        description: '获取数据源列表失败！',
+        description: message,
       });
     }
   };
@@ -159,7 +159,7 @@ function index(props) {
   return (
     <div className="source">
       <Search onSearch={onSearch}></Search>
-
+      {/* development */}
       <div className="bottom">
         <div className="conent-table">
           <Table

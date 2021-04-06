@@ -20,11 +20,13 @@ function Search(props) {
 
   const getTypeList = async () => {
     let { data, success } = await API.typeList();
-    data.unshift({
-      dataType: '全部',
-    });
+
     if (success) {
-      setTypeList(data);
+      Array.isArray(data) &&
+        data.unshift({
+          dataType: '全部',
+        });
+      setTypeList(data || []);
     } else {
       message.error('获取类型下拉框内容失败！');
     }
@@ -33,11 +35,12 @@ function Search(props) {
   const getProductList = async () => {
     let { data, success } = await API.productList();
     if (success) {
-      data.unshift({
-        appName: '全部',
-        appType: 'all',
-      });
-      setProductList(data);
+      Array.isArray(data) &&
+        data.unshift({
+          appName: '全部',
+          appType: 'all',
+        });
+      setProductList(data || []);
     } else {
       message.error('获取授权产品下拉框失败！');
     }
