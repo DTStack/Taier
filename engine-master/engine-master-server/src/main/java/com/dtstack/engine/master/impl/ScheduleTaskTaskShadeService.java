@@ -70,6 +70,7 @@ public class ScheduleTaskTaskShadeService {
             if(CollectionUtils.isEmpty(taskTaskList)){
                 return;
             }
+
             Map<String, ScheduleTaskTaskShade> keys = new HashMap<>(16);
             // 去重
             for (ScheduleTaskTaskShade scheduleTaskTaskShade : taskTaskList) {
