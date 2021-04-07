@@ -5,7 +5,7 @@ import { COMPONENT_CONFIG_NAME, COMP_ACTION } from '../../const'
 
 import { handleComponentTemplate, handleComponentConfigAndCustom,
     handleComponentConfig, isNeedTemp, handleCustomParam,
-    isKubernetes } from '../../help'
+    isKubernetes, isMulitiVersion } from '../../help'
 interface IProps {
     form: any;
     comp: any;
@@ -129,25 +129,33 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
 
     render () {
         const { loading } = this.state
-        const typeCode = this.props.comp?.componentTypeCode ?? ''
+        const { comp } = this.props
+        const typeCode = comp?.componentTypeCode ?? ''
+        const showInitail = isMulitiVersion(typeCode) && !comp?.hadoopVersion
 
         return (
             <div className="c-toolbar__container">
-                <Popconfirm
-                    title="确认取消当前更改？"
-                    okText="确认"
-                    cancelText="取消"
-                    onConfirm={this.onConfirm}
-                >
-                    <Button>取消</Button>
-                </Popconfirm>
-                <Button style={{ marginLeft: 8 }} onClick={this.showModal}>删除{`${COMPONENT_CONFIG_NAME[typeCode]}`}组件</Button>
-                <Button style={{ marginLeft: 8 }} loading={loading} ghost onClick={this.testConnects}>
-                    测试{`${COMPONENT_CONFIG_NAME[typeCode]}`}连通性
-                </Button>
-                <Button style={{ marginLeft: 8 }} type="primary" onClick={this.onOk}>
-                    保存{`${COMPONENT_CONFIG_NAME[typeCode]}`}组件
-                </Button>
+                {
+                    showInitail
+                        ? <Button style={{ marginLeft: 8 }} onClick={this.showModal}>删除{`${COMPONENT_CONFIG_NAME[typeCode]}`}组件</Button>
+                        : <>
+                            <Popconfirm
+                                title="确认取消当前更改？"
+                                okText="确认"
+                                cancelText="取消"
+                                onConfirm={this.onConfirm}
+                            >
+                                <Button>取消</Button>
+                            </Popconfirm>
+                            <Button style={{ marginLeft: 8 }} onClick={this.showModal}>删除{`${COMPONENT_CONFIG_NAME[typeCode]}`}组件</Button>
+                            <Button style={{ marginLeft: 8 }} loading={loading} ghost onClick={this.testConnects}>
+                                测试{`${COMPONENT_CONFIG_NAME[typeCode]}`}连通性
+                            </Button>
+                            <Button style={{ marginLeft: 8 }} type="primary" onClick={this.onOk}>
+                                保存{`${COMPONENT_CONFIG_NAME[typeCode]}`}组件
+                            </Button>
+                        </>
+                }
             </div>
         )
     }

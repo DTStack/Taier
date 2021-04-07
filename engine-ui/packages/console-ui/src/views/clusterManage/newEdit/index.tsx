@@ -396,7 +396,13 @@ class EditCluster extends React.Component<any, IState> {
                                                 {isMulitiVersion(comp.componentTypeCode)
                                                     ? <MulitiVersionComp
                                                         comp={comp}
+                                                        form={this.props.form}
+                                                        view={isViewMode(mode)}
+                                                        saveCompsData={saveCompsData}
                                                         versionData={versionData}
+                                                        testStatus={testStatus}
+                                                        clusterInfo={{ clusterName, clusterId: cluster.clusterId }}
+                                                        saveComp={this.saveComp}
                                                     />
                                                     : <>
                                                         <FileConfig

@@ -1,16 +1,15 @@
 import * as React from 'react'
 import { Icon } from 'antd'
 import { VERSION_TYPE } from '../../const'
-
 interface IProps {
     comp: any;
     versionData: any;
-    handleVersion: (version: string) => void;
+    saveComp: (params: any) => void;
 }
 
 export default class InitailComp extends React.Component<IProps, any> {
     render () {
-        const { versionData, comp, handleVersion } = this.props
+        const { versionData, comp, saveComp } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
         const className = 'c-initailComp__wrapper'
         return <div className={className}>
@@ -20,7 +19,10 @@ export default class InitailComp extends React.Component<IProps, any> {
                     return <div
                         key={key}
                         className={`${className}__container__desc`}
-                        onClick={() => handleVersion(value)}
+                        onClick={() => saveComp({
+                            componentTypeCode: typeCode,
+                            hadoopVersion: value
+                        })}
                     >
                         <span className="comp-name">
                             <img src={`public/img/${VERSION_TYPE[typeCode]}.png`}/>

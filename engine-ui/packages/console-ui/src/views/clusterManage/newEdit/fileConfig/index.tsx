@@ -15,11 +15,11 @@ interface IProps {
     comp: any;
     form: any;
     view: boolean;
-    commVersion: string;
     saveCompsData: any[];
     versionData: any;
     clusterInfo: any;
-    handleCompVersion: Function;
+    commVersion?: string;
+    handleCompVersion?: Function;
 }
 
 interface IState {
@@ -467,9 +467,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             }
             case COMPONENT_TYPE_VALUE.IMPALA_SQL:
             case COMPONENT_TYPE_VALUE.HIVE_SERVER:
-            case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER:
-            case COMPONENT_TYPE_VALUE.SPARK:
-            case COMPONENT_TYPE_VALUE.FLINK:
+            case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER: {
                 return (
                     <>
                         {this.renderCompsVersion()}
@@ -479,6 +477,18 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                         {this.renderStorageComponents()}
                     </>
                 )
+            }
+            case COMPONENT_TYPE_VALUE.SPARK:
+            case COMPONENT_TYPE_VALUE.FLINK: {
+                return (
+                    <>
+                        {this.renderKerberosFile()}
+                        {this.renderPrincipal()}
+                        {this.renderParamsFile()}
+                        {this.renderStorageComponents()}
+                    </>
+                )
+            }
             case COMPONENT_TYPE_VALUE.LEARNING:
             case COMPONENT_TYPE_VALUE.DTYARNSHELL: {
                 return (
