@@ -86,9 +86,13 @@ $minWidth: 1260px;
     height: calc(100% - 64px);
   }
 }
-.dropdown-content {
-  color: #abb2c2 !important;
+
+.horizontal-menu-item {
+  .dropdown-content {
+    color: #abb2c2 !important;
+  }
 }
+
 .logo-img {
   height: 64px;
   line-height: 64px;
