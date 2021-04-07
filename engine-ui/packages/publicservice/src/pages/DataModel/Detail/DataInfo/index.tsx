@@ -43,8 +43,8 @@ const DataInfo = (props: IPropsDataInfo) => {
 
   return (
     <div className="data-info">
-      {tableList.map((item) => (
-        <>
+      {tableList.map((item, index) => (
+        <div key={index}>
           <div className="title">{item.title}</div>
           <Table
             rowKey={(record, index) => index.toString()}
@@ -52,7 +52,7 @@ const DataInfo = (props: IPropsDataInfo) => {
             dataSource={item.dataSource}
             pagination={false}
           />
-        </>
+        </div>
       ))}
     </div>
   );

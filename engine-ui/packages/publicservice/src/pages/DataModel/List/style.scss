@@ -21,11 +21,13 @@
         transform: translateY(-50%);
         width: 18px;
         height: 50px;
+        line-height: 50px;
         background: #eeeeee;
         border-radius: 0px 2px 2px 0px;
         border: 1px solid #dddddd;
         cursor: pointer;
         z-index: 1;
+        color: #999999;
       }
     }
     .pagination-container {
@@ -42,7 +44,7 @@
         margin-right: 20px;
         float: right;
         font-size: 12px;
-        font-family: PingFangSC-Regular, PingFang SC;
+        font-family: PingFangSC-Regular, PingFang SC, sans-serif;
         font-weight: 400;
         color: #666666;
         .highlight {
@@ -74,4 +76,20 @@
 
 .overflow-auto {
   overflow: auto;
+}
+
+.btn-link {
+  color: #3f87ff;
+  &:hover {
+    color: #3f87ffaa;
+  }
+}
+
+.icon-filter {
+  font-size: 16px !important;
+  line-height: 44px;
+  margin-top: 2px;
+  &.filtered {
+    color: #3f87ff !important;
+  }
 }

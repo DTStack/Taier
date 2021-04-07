@@ -25,7 +25,7 @@
           transform: translateX(-50%);
           .btn-link {
             font-size: 12px;
-            font-family: PingFangSC-Regular, PingFang SC;
+            font-family: PingFangSC-Regular, PingFang SC, sans-serif;
             font-weight: 400;
             color: #3f87ff;
             line-height: 20px;
@@ -70,5 +70,26 @@
   &-TEXT_AREA {
     width: 600px;
     height: 92px !important;
+  }
+}
+
+.cus-modal {
+  &.margin-left-40 {
+    margin-left: 40px;
+  }
+  &.icon {
+    color: #ff5f5c;
+    position: absolute;
+    left: 32px;
+    font-size: 24px;
+    transform: translateY(-6px);
+  }
+  &.btn-delete {
+    background: #ff5f5c !important;
+    outline: none;
+    border: none;
+    &:hover {
+      background-color: #ff5f5caa !important;
+    }
   }
 }

@@ -1,30 +1,15 @@
 // TODO:但文件代码量过多，待优化
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  useRef,
-  useMemo,
-} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Container from 'pages/DataModel/components/Container';
 import { Steps, Button, Form, Modal } from 'antd';
 import './style';
-import RelationTableModal from './RelationListModal';
-import {
-  relationFormListGenerator,
-  basicInfoFormListGenerator,
-  joinItemParser,
-  stepContentRender,
-  layoutGenerator,
-  restoreKeysMap,
-} from './constants';
-import { joinPairsParser } from './utils';
 import { API } from '@/services';
 import Message from 'pages/DataModel/components/Message';
 import _ from 'lodash';
-import { TableJoinInfo } from 'pages/DataModel/types';
-import { EnumModifyStep } from './types';
+import { IModelDetail } from 'pages/DataModel/types';
+import { EnumModifyStep, EnumModifyMode } from './types';
 import BreadCrumbRender from './BreadCrumbRender';
+import CodeBlock from 'pages/DataModel/components/CodeBlock';
 const idGenerator = () => {
   let _id = 0;
   return () => ++_id + '';
@@ -38,12 +23,45 @@ interface IPropsModify {
   params: any;
 }
 
-enum EnumModifyMode {
-  EDIT = 'EDIT',
-  ADD = 'ADD',
-}
-
 const { Step } = Steps;
+import BasicInfo from './BasicInfo';
+import RelationTableSelect from './RelationTableSelect';
+import PartitionField from './PartitionField';
+import FieldSelect from './FieldsSelect';
+
+const stepRender = (current: EnumModifyStep, params: any) => {
+  const { childRef, modelDetail, globalStep, mode } = params;
+  switch (current) {
+    case EnumModifyStep.BASIC_STEP:
+      return (
+        <BasicInfo
+          mode={mode}
+          globalStep={globalStep}
+          cref={childRef}
+          modelDetail={modelDetail}
+        />
+      );
+    case EnumModifyStep.RELATION_TABLE_STEP:
+      return (
+        <RelationTableSelect
+          mode={mode}
+          globalStep={globalStep}
+          cref={childRef}
+          modelDetail={modelDetail}
+        />
+      );
+    case EnumModifyStep.DIMENSION_STEP:
+      return (
+        <FieldSelect cref={childRef} step={current} modelDetail={modelDetail} />
+      );
+    case EnumModifyStep.METRIC_STEP:
+      return (
+        <FieldSelect cref={childRef} step={current} modelDetail={modelDetail} />
+      );
+    case EnumModifyStep.SETTING_STEP:
+      return <PartitionField cref={childRef} modelDetail={modelDetail} />;
+  }
+};
 
 const Modify = (props: IPropsModify) => {
   const { form, router, params } = props;
@@ -51,94 +69,27 @@ const Modify = (props: IPropsModify) => {
   const modelId: number = _id ? parseInt(_id) : _id;
   const mode = modelId === undefined ? EnumModifyMode.ADD : EnumModifyMode.EDIT;
   const breadcrumTitle = mode === EnumModifyMode.ADD ? '新建模型' : '编辑模型';
-  const { validateFields, getFieldsValue, setFieldsValue } = form;
-
   const [current, setCurrent] = useState<EnumModifyStep>(
     EnumModifyStep.BASIC_STEP
   );
-  const [visibleRelationModal, setVisibleRelationModal] = useState(false);
-  const [formValue, setFormValue] = useState<any>({});
-  const [updateTypeList, setUpdateTypeList] = useState([]);
-  const [visibleUpdateType, setVisibleUpdateType] = useState(false);
-  const [editJoinItem, setEditJoinItem] = useState<null | TableJoinInfo>(null);
 
-  const [dataSourceList, setdataSourceList] = useState([]);
-  const [schemaList, setSchemaList] = useState([]);
-  const [tableList, setTableList] = useState([]);
+  const globalStep = useRef(-1);
 
-  const firstRender = useRef(true);
+  const [visibleSqlpreview, setVisibleSqlPreview] = useState({
+    visible: false,
+    sql: '',
+  });
 
-  const formItemLayout = useMemo(() => layoutGenerator(current), [current]);
-
-  const getSchemaList = async (datasourceId: number) => {
-    if (!datasourceId) return;
-    try {
-      const { success, data, message } = await API.getDataModelSchemaList({
-        datasourceId: datasourceId,
-      });
-      if (success) {
-        setSchemaList(
-          data.map((item) => ({
-            key: item,
-            value: item,
-            label: item,
-          }))
-        );
-      } else {
-        Message.error(message);
-      }
-    } catch (error) {
-      Message.error(error.message);
-    }
-  };
-
-  const getUpdataTypeEnum = async () => {
-    try {
-      const { success, message, data } = await API.getDataModelUpdateTypeList();
-      if (success) {
-        setUpdateTypeList(
-          data.map((item) => ({
-            key: item.leftValue,
-            value: item.leftValue,
-            label: item.rightValue,
-          }))
-        );
-      } else {
-        Message.error(message);
-      }
-    } catch (error) {
-      Message.error(error.message);
-    }
-  };
-
-  const getTableList = async (datasourceId: number, schema: string) => {
-    if (!datasourceId || !schema) return;
-    try {
-      const { success, data, message } = await API.getDataModelTableList({
-        datasourceId,
-        schema,
-      });
-      if (success) {
-        setTableList(
-          data.map((item) => ({
-            key: item.tableName,
-            value: item.tableName,
-            label: item.tableName,
-            ext: item.partition,
-          }))
-        );
-      } else {
-        Message.error(message);
-      }
-    } catch (error) {
-      Message.error(error.message);
-    }
-  };
+  const [modelDetail, setModelDetail] = useState<Partial<IModelDetail>>({});
 
   const getModelDetail = async (id: number) => {
     try {
       const { success, data, message } = await API.getModelDetail({ id });
       if (success) {
+        globalStep.current = data.step - 1;
+        if (globalStep.current < EnumModifyStep.DIMENSION_STEP) {
+          window.localStorage.setItem('refreshColumns', 'true');
+        }
         const columns = data.columns.map((item) => ({
           ...item,
           id: identifyColumns(),
@@ -147,10 +98,11 @@ const Modify = (props: IPropsModify) => {
           ...item,
           id: identifyJoinList(),
         }));
-        setFormValue({
+        setModelDetail({
           ...data,
           columns,
           joinList,
+          id: modelId,
         });
       } else {
         Message.error(message);
@@ -160,156 +112,55 @@ const Modify = (props: IPropsModify) => {
     }
   };
 
-  const isPartition = async (
-    datasourceId: number,
-    tableName: string,
-    schema: string
+  const saveDataModel = async (
+    params?: Partial<IModelDetail>,
+    callback?: Function
   ) => {
     try {
-      const { success, data, message } = await API.isPartition({
-        datasourceId,
-        schema,
-        tableName,
-      });
+      const { success, message } = await API.saveDataModel(params);
       if (success) {
-        setVisibleUpdateType(data);
+        Message.success('保存成功');
+        if (typeof callback) {
+          callback();
+        }
       } else {
         Message.error(message);
       }
     } catch (error) {
       Message.error(error.message);
     }
-  };
-
-  // 获取所有可用的数据源列表
-  const getAllDataSourceList = useCallback(async () => {
-    try {
-      const { success, data, message } = await API.getAllDataSourceList();
-      if (success) {
-        const dataSourceList = data.map((item) => ({
-          key: item.id,
-          value: item.id,
-          label: `${item.name}(${item.dsTypeName})`,
-        }));
-        setdataSourceList(dataSourceList);
-      } else {
-        Message.error(message);
-      }
-    } catch (error) {
-      Message.error(error.message);
-    }
-  }, []);
-
-  const restoreFormValue = (keys: string[], target) => {
-    form.setFieldsValue(
-      keys.reduce((temp, key) => {
-        temp[key] = target[key];
-        return temp;
-      }, {})
-    );
-  };
-
-  const onRelationListDelete = useCallback((id: number) => {
-    setFormValue((formValue) => {
-      const joinList = formValue.joinList || [];
-      return {
-        ...formValue,
-        joinList: joinList.filter((joinItem) => joinItem.id !== id),
-      };
-    });
-  }, []);
-
-  const onRelationListEdit = useCallback((id: number) => {
-    let joinList = [];
-    // TODO:获取当前的formValue值,触发了一次更新
-    setFormValue((formValue) => {
-      joinList = formValue.joinList || [];
-      return {
-        ...formValue,
-      };
-    });
-    const joinItem = joinList.find((item) => item.id === id);
-    if (!joinItem) return;
-    setEditJoinItem(joinItem);
-    setVisibleRelationModal(true);
-  }, []);
-
-  const onSchemaChange = () => {
-    // 当schema变化时重置表
-    setFieldsValue({
-      tableName: undefined,
-    });
   };
 
   const handlePrevStep = () => {
-    switch (current) {
-      case EnumModifyStep.BASIC_STEP:
-      case EnumModifyStep.RELATION_TABLE_STEP:
-      case EnumModifyStep.SETTING_STEP:
-        setFormValue((prev) => ({
-          ...prev,
-          ...form.getFieldsValue(),
-        }));
-        setCurrent((prev) => prev - 1);
-        break;
-      case EnumModifyStep.DIMENSION_STEP:
-      case EnumModifyStep.METRIC_STEP:
-        const datasource = cref.current.getValue();
-        setFormValue((formValue) => ({
-          ...formValue,
-          columns: datasource,
-        }));
-        setCurrent((current) => current - 1);
-        break;
-    }
+    const data = childRef.current.getValue();
+    setModelDetail((prev) => ({
+      ...prev,
+      ...data,
+    }));
+    setCurrent((current) => current - 1);
+
+    return;
   };
 
   const handleNextStep = () => {
-    switch (current) {
-      case EnumModifyStep.BASIC_STEP:
-      case EnumModifyStep.RELATION_TABLE_STEP:
-        validateFields((err, data) => {
-          if (err) return;
-          setFormValue((prev) => ({
-            ...prev,
-            ...form.getFieldsValue(),
-          }));
-          setCurrent((prev) => prev + 1);
-        });
-        break;
-      case EnumModifyStep.DIMENSION_STEP:
-      case EnumModifyStep.METRIC_STEP:
-        const datasource = cref.current.getValue();
-        setFormValue((formValue) => ({
-          ...formValue,
-          columns: datasource,
-        }));
-        setCurrent((current) => current + 1);
-        break;
-      case EnumModifyStep.SETTING_STEP:
-        break;
-    }
+    childRef.current.validate().then((data) => {
+      setModelDetail((prev) => ({
+        ...prev,
+        ...data,
+      }));
+      setCurrent((current) => current + 1);
+    });
+    return;
   };
 
-  const getColumnList = async (
-    datasourceId: number,
-    schema: string,
-    tableNames: string[]
-  ) => {
+  const getSql = async (params: any) => {
     try {
-      const { success, data, message } = await API.getDataModelColumns({
-        datasourceId,
-        schema,
-        tableNames,
-      });
+      const { success, data, message } = await API.previewSql(params);
       if (success) {
-        setFormValue((prev) => ({
-          ...prev,
-          columns: data.map((item) => ({
-            ...item,
-            id: identifyJoinList(),
-          })),
-        }));
+        setVisibleSqlPreview({
+          visible: true,
+          sql: data.result,
+        });
       } else {
         Message.error(message);
       }
@@ -317,165 +168,13 @@ const Modify = (props: IPropsModify) => {
       Message.error(error.message);
     }
   };
-
-  const firstRenderCol = useRef(true);
-
-  useEffect(() => {
-    const { dsId, schema, tableName, joinList = [] } = formValue;
-    if (!schema || !dsId || !tableName) return;
-    if (firstRenderCol.current && mode === EnumModifyMode.EDIT) {
-      // 编辑时初始化不调用columns接口
-      firstRenderCol.current = false;
-      return;
-    }
-    if (dsId === undefined || schema === undefined || tableName === undefined)
-      return;
-    getColumnList(
-      dsId,
-      schema,
-      joinList.map((item) => item.leftTable).concat(tableName)
-    );
-  }, [
-    formValue.schema,
-    formValue.joinList,
-    formValue.dsId,
-    formValue.tableName,
-  ]);
-
-  // 恢复对应的form value
-  useEffect(() => {
-    const formKeys = restoreKeysMap.get(current);
-    if (
-      current === EnumModifyStep.DIMENSION_STEP ||
-      current === EnumModifyStep.METRIC_STEP
-    )
-      return;
-    restoreFormValue(formKeys, formValue);
-  }, [current, formValue]);
-
-  useEffect(() => {
-    getSchemaList(formValue.dsId);
-    getAllDataSourceList();
-    getUpdataTypeEnum();
-  }, []);
 
   useEffect(() => {
     if (mode === EnumModifyMode.ADD) return;
     getModelDetail(modelId);
   }, [modelId]);
 
-  const currentFormValue = getFieldsValue();
-
-  useEffect(() => {
-    getTableList(formValue.dsId, currentFormValue.schema);
-  }, [formValue.dsId, currentFormValue.schema]);
-
-  useEffect(() => {
-    const { dsId } = formValue;
-    const { schema, tableName } = currentFormValue;
-    if (!dsId || !schema || !tableName) return;
-    isPartition(dsId, schema, tableName);
-  }, [formValue.dsId, currentFormValue.schema, currentFormValue.tableName]);
-
-  useEffect(() => {
-    if (formValue.dsId === undefined) return;
-    getSchemaList(formValue.dsId);
-    if (firstRender.current) {
-      firstRender.current = false;
-      return;
-    }
-    setFormValue((prev) => ({
-      ...prev,
-      schema: undefined,
-      tableName: undefined,
-    }));
-  }, [formValue.dsId]);
-
-  const cref = useRef(null);
   const childRef = useRef(null);
-
-  const getFormList = (step: EnumModifyStep) => {
-    switch (step) {
-      case EnumModifyStep.BASIC_STEP:
-        const id = mode === EnumModifyMode.ADD ? undefined : modelId;
-        return basicInfoFormListGenerator(dataSourceList, id);
-      case EnumModifyStep.RELATION_TABLE_STEP:
-        return relationFormListGenerator({
-          handleClick: () => {
-            // form数据同步至formValue
-            const value = form.getFieldsValue();
-            setFormValue((formValue) => ({
-              ...formValue,
-              ...value,
-            }));
-            setVisibleRelationModal(true);
-          },
-          updateTyleListOptions: updateTypeList,
-          schemaListOptions: schemaList,
-          tableListOptions: tableList,
-          onSchemaChange,
-          visibleUpdateType,
-          joinList: formValue.joinList || [],
-          onRelationListDelete,
-          onRelationListEdit,
-          // onMasterTableChange,
-        });
-    }
-  };
-
-  // 将主表以及关联表拼接
-  const getRelationTableList = () => {
-    const relationList = [];
-    if (formValue.tableName && formValue.schema) {
-      relationList.push({
-        tableName: formValue.tableName,
-        schema: formValue.schema,
-        tableAlias: undefined,
-        id: undefined,
-      });
-    }
-    if (formValue.joinList) {
-      formValue.joinList.forEach((joinItem) => {
-        relationList.push({
-          tableName: joinItem.table,
-          schema: joinItem.schema,
-          tableAlias: joinItem.tableAlias,
-          id: joinItem.id,
-        });
-      });
-    }
-    return relationList;
-  };
-  // 关联表列表
-  const relationTableList = getRelationTableList();
-
-  const handleModalOk = () => {
-    childRef.current.validate((err, data, id) => {
-      if (err) return;
-      // form数据转化
-      const joinItem = joinItemParser(data);
-      joinItem.joinPairs = joinItem.joinPairs.map(joinPairsParser.decode);
-      let joinList = formValue.joinList || [];
-      if (!id) {
-        // 新增关联关系
-        joinList.push(joinItem);
-      } else {
-        // 编辑关联关系
-        joinList = joinList.map((item) => {
-          if (item.id === id) {
-            return joinItem;
-          } else {
-            return item;
-          }
-        });
-      }
-      setFormValue((formValue) => ({
-        ...formValue,
-        joinList,
-      }));
-      setVisibleRelationModal(false);
-    });
-  };
 
   return (
     <Container>
@@ -500,35 +199,31 @@ const Modify = (props: IPropsModify) => {
           </header>
           <div className="step-content padding-tb-20">
             <div className="inner-container overflow-auto">
-              <Form
-                layout="horizontal"
-                className="form-area"
-                {...formItemLayout}>
-                {stepContentRender(current, {
-                  formList: getFormList(current),
-                  form,
-                  cref: (ref) => (cref.current = ref),
-                  formValue,
+              <div className="form-area">
+                {stepRender(current, {
+                  childRef,
+                  modelDetail,
+                  globalStep: globalStep.current + 1,
+                  mode: mode,
                 })}
-              </Form>
-              {visibleRelationModal ? (
-                <Modal
-                  title={editJoinItem ? '编辑关联表' : '添加关联表'}
-                  visible={visibleRelationModal}
-                  onCancel={() => {
-                    setVisibleRelationModal(false);
-                    setEditJoinItem(null);
-                  }}
-                  onOk={handleModalOk}>
-                  <RelationTableModal
-                    cref={(ref) => (childRef.current = ref)}
-                    data={editJoinItem}
-                    tables={relationTableList}
-                    schemaList={schemaList}
-                    dataSourceId={formValue.dsId}
-                  />
-                </Modal>
-              ) : null}
+              </div>
+              <Modal
+                title="预览SQL"
+                visible={visibleSqlpreview.visible}
+                onOk={() => {
+                  setVisibleSqlPreview({
+                    visible: false,
+                    sql: '',
+                  });
+                }}
+                onCancel={() => {
+                  setVisibleSqlPreview({
+                    visible: false,
+                    sql: '',
+                  });
+                }}>
+                <CodeBlock code={visibleSqlpreview.sql} />
+              </Modal>
             </div>
           </div>
           <footer className="step-footer">
@@ -540,23 +235,64 @@ const Modify = (props: IPropsModify) => {
                   取消
                 </Button>
               ) : null}
-              {current !== EnumModifyStep.BASIC_STEP ? (
+              {current > EnumModifyStep.BASIC_STEP ? (
                 <Button
                   className="margin-right-8 width-80"
                   onClick={handlePrevStep}>
                   上一步
                 </Button>
               ) : null}
-              <Button
-                className="margin-right-8 width-80"
-                type="primary"
-                onClick={handleNextStep}>
-                下一步
-              </Button>
+              {current < EnumModifyStep.SETTING_STEP ? (
+                <Button
+                  className="margin-right-8 width-80"
+                  type="primary"
+                  onClick={handleNextStep}>
+                  下一步
+                </Button>
+              ) : null}
+              {current === EnumModifyStep.SETTING_STEP ? (
+                <Button
+                  className="margin-right-8 width-80"
+                  type="primary"
+                  onClick={() => {
+                    form.validateFields((err, data) => {
+                      if (err) return;
+                      const params = {
+                        ...modelDetail,
+                        ...data,
+                        step: current + 1,
+                      };
+                      params.columnList = params.columns;
+                      delete params.columns;
+                      getSql(params);
+                    });
+                  }}>
+                  预览SQL
+                </Button>
+              ) : null}
               <Button
                 onClick={() => {
-                  form.validateFields((err, data) => {
-                    if (err) return;
+                  childRef.current.validate().then((data) => {
+                    // 数据同步
+                    setModelDetail({
+                      ...modelDetail,
+                      ...data,
+                    });
+                    const step = Math.max(globalStep.current + 1, current + 1);
+                    const params = {
+                      ...modelDetail,
+                      ...data,
+                      step,
+                    };
+                    params.columnList = params.columns?.map((item) => {
+                      item.columnDesc = item.columnComment;
+                      delete item.columnComment;
+                      return { ...item };
+                    });
+                    delete params.columns;
+                    saveDataModel(params, () => {
+                      router.push('/data-model/list');
+                    });
                   });
                 }}
                 type="primary">

@@ -27,6 +27,7 @@ interface JoinKeyItem {
 
 // 关联键信息
 export interface JoinKey {
+  id?: number;
   leftValue: JoinKeyItem;
   rightValue: JoinKeyItem;
 }
@@ -54,6 +55,7 @@ export interface FieldColumn {
 export interface TableJoinInfo {
   id?: number;
   leftTable: string;
+  leftSchema: string;
   joinType: JoinType;
   schema: string;
   table: string;
@@ -80,4 +82,5 @@ export interface IModelDetail {
   modelPartition: any;
   createTime?: string;
   dsName?: string;
+  step?: number; // 编辑步数step
 }

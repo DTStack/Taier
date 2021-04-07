@@ -1,7 +1,7 @@
 import React from 'react';
 import { Divider } from 'antd';
 import { EnumModelActionType, EnumModelStatus } from './types';
-import _ from 'lodash';
+import classnames from 'classnames';
 
 export const modelStatusMap = new Map([
   [EnumModelStatus.UNRELEASE, '未发布'],
@@ -36,7 +36,11 @@ export const columnsGenerator = ({
       fixed: true,
       render: (modelName, record) => {
         return (
-          <a onClick={() => handleModelNameClick(record.id)}>{modelName}</a>
+          <a
+            onClick={() => handleModelNameClick(record.id)}
+            className="btn-link">
+            {modelName}
+          </a>
         );
       },
     },
@@ -52,11 +56,21 @@ export const columnsGenerator = ({
       width: 200,
       ellipsis: true,
       filters: dataSourceFilterOptions,
+      filterIcon: (filtered) => (
+        <span
+          className={classnames({
+            iconfont2: true,
+            iconOutlinedxianxing_filter: true,
+            'icon-filter': true,
+            filtered: filtered,
+          })}
+        />
+      ),
       filterMultiple: true,
       render: (text, record) => {
         return (
           <span>
-            {record.dsUrl}({record.dsTypeName})
+            {record.dsName}({record.dsTypeName})
           </span>
         );
       },
@@ -66,12 +80,21 @@ export const columnsGenerator = ({
       dataIndex: 'modelStatus',
       key: 'modelStatus',
       width: 160,
-      // TODO:
       filters: Array.from(modelStatusMap).map((item) => ({
         text: item[1],
         value: item[0],
       })),
       filterMultiple: true,
+      filterIcon: (filtered) => (
+        <span
+          className={classnames({
+            iconfont2: true,
+            iconOutlinedxianxing_filter: true,
+            'icon-filter': true,
+            filtered: filtered,
+          })}
+        />
+      ),
       render: (modelStatus) => {
         return (
           <div>
@@ -107,6 +130,7 @@ export const columnsGenerator = ({
         const isPublished = record.modelStatus === 1;
         const btnRelease = (
           <a
+            className="btn-link"
             onClick={() =>
               handleModelAction({
                 type: EnumModelActionType.RELEASE,
@@ -118,6 +142,7 @@ export const columnsGenerator = ({
         );
         const btnUnrelease = (
           <a
+            className="btn-link"
             onClick={() =>
               handleModelAction({
                 type: EnumModelActionType.UNRELEASE,
@@ -131,6 +156,7 @@ export const columnsGenerator = ({
           if (!isPublish) {
             return (
               <a
+                className="btn-link"
                 onClick={() => {
                   handleDeleteBtnClick(record.id);
                 }}>
@@ -143,6 +169,7 @@ export const columnsGenerator = ({
         };
         const btnEdit = (
           <a
+            className="btn-link"
             onClick={() => {
               router.push(`/data-model/edit/${record.id}`);
             }}>

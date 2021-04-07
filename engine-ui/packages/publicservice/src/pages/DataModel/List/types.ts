@@ -9,5 +9,5 @@ export enum EnumModelActionType {
 export enum EnumModelStatus {
   UNRELEASE = 0,
   RELEASE = 1,
-  OFFLINE = 2,
+  OFFLINE = -1,
 }

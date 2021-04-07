@@ -1,11 +1,11 @@
 import React from 'react';
 import { Form, Select, Input, Switch } from 'antd';
 import { EnumFormItemType, IFormItem } from './types';
-import RelationList from '../RelationList';
+// import RelationList from '../RelationList';
 
-const WrapperSwitch = (props) => {
+const WrapperSwitch = (props: any) => {
   const _props = { ...props };
-  delete _props.avlue;
+  delete _props.value;
   return <Switch checked={props.value} {..._props} />;
 };
 
@@ -24,8 +24,8 @@ const getComponentByFormItemType = (type: EnumFormItemType) => {
       return Input.TextArea;
     case EnumFormItemType.SWITCH:
       return WrapperSwitch;
-    case EnumFormItemType.RELATION_LIST:
-      return RelationList;
+    // case EnumFormItemType.RELATION_LIST:
+    //   return RelationList;
   }
 };
 
@@ -42,7 +42,7 @@ const FormRender = (props: IPropsFormRender) => {
         const visible = item.visible === undefined ? true : item.visible;
         const ext = item.ext ? item.ext : {};
         return visible && item.label !== '' ? (
-          <Form.Item required={isRequired} label={item.label}>
+          <Form.Item key={item.key} required={isRequired} label={item.label}>
             {form.getFieldDecorator(item.key, {
               rules: item.rules,
               validateTrigger: 'onBlur',
@@ -66,7 +66,7 @@ const FormRender = (props: IPropsFormRender) => {
           </Form.Item>
         ) : // 非form组件，不渲染Form.Item
         visible ? (
-          <FormComponent className={className} {...ext} />
+          <FormComponent key={item.key} className={className} {...ext} />
         ) : null;
       })}
     </>

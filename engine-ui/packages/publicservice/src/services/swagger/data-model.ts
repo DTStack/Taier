@@ -67,4 +67,8 @@ export default {
     method: 'post',
     url: `${prefix}/data/isPart`,
   },
+  saveDataModel: {
+    method: 'post',
+    url: `${prefix}/save`,
+  },
 };

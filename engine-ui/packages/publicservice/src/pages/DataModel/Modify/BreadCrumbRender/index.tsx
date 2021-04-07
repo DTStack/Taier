@@ -1,6 +1,5 @@
 import React from 'react';
 import { Breadcrumb } from 'antd';
-// import { withRouter } from 'react-router-dom';
 import { withRouter } from 'react-router';
 
 interface IBreadcrumbLink {
@@ -18,12 +17,12 @@ const BreadcrumbRender = (props: IPropsBreadcrumbRender) => {
   const { links, router } = props;
   return (
     <Breadcrumb>
-      {links.map((item) => {
+      {links.map((item, index) => {
         const { onClick, href } = item;
         let callback = () => router.push(href);
         if (typeof onClick === 'function') callback = onClick;
         return (
-          <Breadcrumb.Item>
+          <Breadcrumb.Item key={index}>
             <a onClick={callback}>{item.label}</a>
           </Breadcrumb.Item>
         );

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Container from '../components/Container';
-import { Input, Table, Pagination, Modal, Drawer, Button } from 'antd';
+import { Table, Pagination, Modal, Drawer, Button } from 'antd';
 import { IModelData } from '../types';
 import { EnumModelActionType, EnumModelStatus } from './types';
 import { columnsGenerator } from './constants';
@@ -9,7 +9,7 @@ import Detail from '../Detail';
 import { API } from '@/services';
 import './style';
 import _ from 'lodash';
-const { Search } = Input;
+import SearchInput from 'components/SearchInput';
 
 interface IPagination {
   current: number;
@@ -19,12 +19,12 @@ interface IPagination {
 
 interface IReqParams {
   asc: boolean;
-  current: number;
+  currentPage: number;
   field: string;
   search: string;
-  size: number;
+  pageSize: number;
   datasourceTypes: number[];
-  modelStatus: EnumModelStatus[];
+  statuses: EnumModelStatus[];
 }
 interface IModelAction {
   type: EnumModelActionType;
@@ -47,12 +47,12 @@ const List = (props: IPropList) => {
 
   const [requestParams, setRequestParams] = useState<IReqParams>({
     asc: true,
-    current: 1,
+    currentPage: 1,
     field: '',
     search: '',
-    size: 10,
+    pageSize: 10,
     datasourceTypes: [1, 2],
-    modelStatus: [
+    statuses: [
       EnumModelStatus.OFFLINE,
       EnumModelStatus.RELEASE,
       EnumModelStatus.UNRELEASE,
@@ -135,8 +135,14 @@ const List = (props: IPropList) => {
       const { success, message } = await apiAction({ id });
       if (success) {
         Message.success(msg);
+        fetchModelList(requestParams);
       } else {
-        Message.error(message);
+        // Message.msgError('删除失败');
+        if (apiAction === API.deleteModel) {
+          Message.msgError('删除失败');
+        } else {
+          Message.error(message);
+        }
       }
     } catch (error) {
       Message.error(error.message);
@@ -145,16 +151,29 @@ const List = (props: IPropList) => {
 
   // 删除按钮点击事件处理，二次确认弹窗
   const handleDeleteBtnClick = (id) => {
-    // TODO: icon待替换
     Modal.confirm({
-      title: '确认要删除这条模型？',
-      content: '删除后，已经引用该模型的数据将不可用！',
+      title: (
+        <span className="cus-modal margin-left-40">确认要删除这条模型？</span>
+      ),
+      content: (
+        <span className="cus-modal margin-left-40">
+          删除后，已经引用该模型的数据将不可用！
+        </span>
+      ),
       onOk() {
         handleModelAction({
           type: EnumModelActionType.DELETE,
           id,
         });
       },
+      okText: '删除',
+      cancelText: '取消',
+      okButtonProps: {
+        className: 'cus-modal btn-delete',
+      },
+      icon: (
+        <i className="cus-modal icon iconfont2 iconFilltianchong_Close-Circle-Fill" />
+      ),
     });
   };
 
@@ -190,15 +209,14 @@ const List = (props: IPropList) => {
   }, [requestParams]);
 
   return (
-    <div className="dm-list">
+    <div className="dm-list" data-testid="data-model-list">
       <Container>
         <header className="search-area">
-          <Search
-            className="search"
+          <SearchInput
             placeholder="模型名称/英文名"
-            onSearch={(value) =>
-              setRequestParams((prev) => ({ ...prev, search: value }))
-            }
+            onSearch={(value) => {
+              setRequestParams((prev) => ({ ...prev, search: value }));
+            }}
           />
           <Button
             className="float-right"
@@ -219,13 +237,12 @@ const List = (props: IPropList) => {
             onChange={(pagination, filters) => {
               const {
                 dataSourceType = requestParams.datasourceTypes,
-                modelStatus = requestParams.modelStatus,
+                modelStatus = requestParams.statuses,
               } = filters;
-
               setRequestParams((reqParams) => ({
                 ...reqParams,
-                current: 1,
-                modelStatus: modelStatus as EnumModelStatus[],
+                currentPage: 1,
+                statuses: modelStatus as EnumModelStatus[],
                 datasourceTypes: dataSourceType as number[],
               }));
             }}
@@ -243,11 +260,11 @@ const List = (props: IPropList) => {
                 modelId: -1,
               });
             }}>
-            {/* TODO: ICON */}
             <div
               className="slider"
-              onClick={() => setDrawer({ visible: false, modelId: -1 })}
-            />
+              onClick={() => setDrawer({ visible: false, modelId: -1 })}>
+              <i className="iconfont2 iconOutlinedxianxing_shouqi" />
+            </div>
             <Detail modelId={drawer.modelId} />
           </Drawer>
           <div className="pagination-container">
@@ -260,8 +277,8 @@ const List = (props: IPropList) => {
               onChange={(current, size) => {
                 setRequestParams((prev) => ({
                   ...prev,
-                  current,
-                  size,
+                  currentPage: current,
+                  pageSize: size,
                 }));
               }}
             />

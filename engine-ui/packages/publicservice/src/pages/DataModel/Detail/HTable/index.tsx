@@ -17,7 +17,7 @@ const HTable = (props: IPropsHTable) => {
           <td className="label">模型名称</td>
           <td className="value">{holder(detail.modelName)}</td>
           <td className="label">数据源</td>
-          <td className="value">{holder(detail.dsUrl)}</td>
+          <td className="value">{holder(detail.dsName)}</td>
         </tr>
         <tr>
           <td className="label">创建人</td>

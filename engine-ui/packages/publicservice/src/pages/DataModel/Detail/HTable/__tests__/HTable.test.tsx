@@ -5,7 +5,7 @@ import { IModelDetail } from 'pages/DataModel/types';
 
 const detail: Partial<IModelDetail> = {
   modelName: 'model name',
-  dsUrl: 'url',
+  dsName: 'data source name',
   creator: 'admin@dtstack.com',
   createTime: '2020-01-01 12:00:00',
   modelPartition: {
@@ -25,16 +25,16 @@ describe('component HTable:', () => {
   });
 
   it('render with empty detail data:', () => {
-    const wrapper = render(<HTable detail={{}}></HTable>);
+    const wrapper = render(<HTable detail={{}} />);
     const ele = wrapper.getByTestId('h-table');
     expect(ele.getElementsByTagName('tr').length).toBe(4);
     expect(wrapper.getAllByText('--').length).toBe(7);
   });
 
   it('render with non-empty detail data:', () => {
-    const wrapper = render(<HTable detail={detail}></HTable>);
+    const wrapper = render(<HTable detail={detail} />);
     wrapper.getByText(detail.modelName);
-    wrapper.getByText(detail.dsUrl);
+    wrapper.getByText(detail.dsName);
     wrapper.getByText(detail.creator);
     wrapper.getByText(detail.createTime);
     wrapper.getByText(detail.modelPartition.datePartitionColumn.columnName);
