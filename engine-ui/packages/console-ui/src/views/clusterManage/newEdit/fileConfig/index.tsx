@@ -470,6 +470,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER:
             case COMPONENT_TYPE_VALUE.SPARK:
             case COMPONENT_TYPE_VALUE.FLINK:
+            case COMPONENT_TYPE_VALUE.INCEPTOR_SQL: {
                 return (
                     <>
                         {this.renderCompsVersion()}
@@ -479,6 +480,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                         {this.renderStorageComponents()}
                     </>
                 )
+            }
             case COMPONENT_TYPE_VALUE.LEARNING:
             case COMPONENT_TYPE_VALUE.DTYARNSHELL: {
                 return (
@@ -490,8 +492,10 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                     </>
                 )
             }
-            default:
+            case COMPONENT_TYPE_VALUE.SHELL_AGENT:
+            default: {
                 return null;
+            }
         }
     }
 
