@@ -11,8 +11,8 @@ export const relationListColumns = [
   },
   {
     title: '数据库',
-    dataIndex: 'dsTypeName',
-    key: 'dsTypeName',
+    dataIndex: 'schema',
+    key: 'schema',
     render: holder,
     width: 200,
   },
