@@ -330,6 +330,8 @@ CREATE TABLE `schedule_task_task_shade`
   `gmt_create`      datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
   `gmt_modified`    datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   `is_deleted`      tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  `task_key` varchar(128) NOT NULL DEFAULT '' COMMENT '任务的标识',
+  `parent_task_key` varchar(128) NOT NULL DEFAULT '' COMMENT '父任务的标识',
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_batch_task_task` (`task_id`, `parent_task_id`, `project_id`)
 ) ENGINE = InnoDB

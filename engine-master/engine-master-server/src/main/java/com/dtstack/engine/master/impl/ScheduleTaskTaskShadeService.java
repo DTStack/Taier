@@ -17,7 +17,7 @@ import com.dtstack.engine.domain.ScheduleEngineProject;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
+import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -39,7 +39,7 @@ public class ScheduleTaskTaskShadeService {
 
     private static final Long IS_WORK_FLOW_SUBNODE = 0L;
 
-    private static final Logger logger = LoggerFactory.getLogger(ScheduleTaskTaskShadeService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleTaskTaskShadeService.class);
 
     @Autowired
     private ScheduleTaskTaskShadeDao scheduleTaskTaskShadeDao;
@@ -71,13 +71,24 @@ public class ScheduleTaskTaskShadeService {
                 return;
             }
 
+            // 保存时成环检测
+            if (taskTaskList.size() == 1) {
+                // 只有一条数据，判断是否成环
+                checkTaskTaskIsLoop(taskTaskList.get(0));
+            } else {
+                // 多条数据判断是否成环
+
+
+            }
+
+
             Map<String, ScheduleTaskTaskShade> keys = new HashMap<>(16);
             // 去重
             for (ScheduleTaskTaskShade scheduleTaskTaskShade : taskTaskList) {
                 keys.put(String.format("%s.%s.%s", scheduleTaskTaskShade.getTaskId(), scheduleTaskTaskShade.getParentTaskId(), scheduleTaskTaskShade.getProjectId()), scheduleTaskTaskShade);
                 Preconditions.checkNotNull(scheduleTaskTaskShade.getTaskId());
                 Preconditions.checkNotNull(scheduleTaskTaskShade.getAppType());
-                //清除原来关系
+                // 清除原来关系
                 scheduleTaskTaskShadeDao.deleteByTaskId(scheduleTaskTaskShade.getTaskId(), scheduleTaskTaskShade.getAppType());
             }
             // 保存现有任务关系
@@ -88,9 +99,84 @@ public class ScheduleTaskTaskShadeService {
                 scheduleTaskTaskShadeDao.insert(taskTaskShade);
             }
         } catch (Exception e) {
-            logger.error("saveTaskTaskList error:{}", ExceptionUtil.getErrorMessage(e));
+            LOGGER.error("saveTaskTaskList error:{}", ExceptionUtil.getErrorMessage(e));
             throw new RdosDefineException("保存任务依赖列表异常");
         }
+    }
+
+    /**
+     * 判断是否成环
+     *
+     * @param scheduleTaskTaskShade
+     * @return
+     */
+    private Boolean checkTaskTaskIsLoop(ScheduleTaskTaskShade scheduleTaskTaskShade) {
+        if (scheduleTaskTaskShade == null || scheduleTaskTaskShade.getParentTaskId() == null) {
+            // 节点或者是父节点是null，都表示没有成环
+            return Boolean.FALSE;
+        }
+        HashSet<String> sideSet = Sets.newHashSet();
+
+        // 向上查询,向上查询会查询出自己的边
+        Integer loopUp = 0;
+        List<ScheduleTaskTaskShade> scheduleParentTaskTaskShades = scheduleTaskTaskShadeDao.listTaskKeys(Lists.newArrayList(scheduleTaskTaskShade.getTaskKey()));
+        while (CollectionUtils.isNotEmpty(scheduleParentTaskTaskShades)) {
+            List<String> parentKeys = Lists.newArrayList();
+            if (setKeyAndJudgedLoop(sideSet, scheduleParentTaskTaskShades, parentKeys)) {
+                return Boolean.TRUE;
+            }
+
+            if (CollectionUtils.isEmpty(parentKeys)) {
+                // 说明集合里面全部都是头节点
+                break;
+            }
+            loopUp++;
+
+            LOGGER.info("loopUp:{} select key:{}",loopUp,parentKeys);
+            scheduleParentTaskTaskShades = scheduleTaskTaskShadeDao.listTaskKeys(parentKeys);
+        }
+
+        // 向下查询
+        Integer loopUnder = 0;
+        List<ScheduleTaskTaskShade> scheduleChildTaskTaskShades = scheduleTaskTaskShadeDao.listParentTaskKeys(Lists.newArrayList(scheduleTaskTaskShade.getTaskKey()));
+        while (CollectionUtils.isNotEmpty(scheduleChildTaskTaskShades)) {
+            List<String> childKeys = Lists.newArrayList();
+
+            if (setKeyAndJudgedLoop(sideSet, scheduleParentTaskTaskShades, childKeys)) {
+                return Boolean.TRUE;
+            }
+
+            if (CollectionUtils.isEmpty(childKeys)) {
+                // 说明集合里面全部都是头节点
+                break;
+            }
+            loopUnder++;
+
+            LOGGER.info("loopUnder:{} select key:{}",loopUnder,childKeys);
+            scheduleParentTaskTaskShades = scheduleTaskTaskShadeDao.listParentTaskKeys(childKeys);
+
+        }
+
+        return Boolean.FALSE;
+    }
+
+    private boolean setKeyAndJudgedLoop(HashSet<String> sideSet, List<ScheduleTaskTaskShade> scheduleChildTaskTaskShades, List<String> parentKeys) {
+        for (ScheduleTaskTaskShade taskTaskShade : scheduleChildTaskTaskShades) {
+            if (StringUtils.isBlank(taskTaskShade.getParentTaskKey())) {
+                // 说明是头节点了
+                continue;
+            }
+
+            String sideKey = taskTaskShade.getTaskKey() + "&" + taskTaskShade.getParentTaskKey();
+            if (!sideSet.add(sideKey)) {
+                // 添加不进去，说明边重复了，已经成环
+                LOGGER.warn("saveTaskTask is loop,loop:{} -------- repeat side:{}", sideSet, sideKey);
+                return true;
+            }
+
+            parentKeys.add(taskTaskShade.getTaskKey());
+        }
+        return false;
     }
 
     public List<ScheduleTaskTaskShade> getAllParentTask( Long taskId,Integer appType) {
@@ -104,10 +190,6 @@ public class ScheduleTaskTaskShadeService {
                                                                          Integer directType, Integer appType) {
         ScheduleTaskShade task = taskShadeService.getBatchTaskById(taskId,appType);
         if(null == task){
-            return null;
-        }
-
-        if (task == null) {
             return null;
         }
 
@@ -233,7 +315,7 @@ public class ScheduleTaskTaskShadeService {
             for (ScheduleTaskTaskShade taskTask : taskTasks) {
                 String taskRelation = taskTask.getTaskId() + "&" + taskTask.getAppType() + "-" + taskTask.getParentTaskId() + "&" + taskTask.getParentAppType();
                 if (taskIdRelations.contains(taskRelation)) {
-                    logger.error("该任务成环了,taskRelation:{} 所有的关系视图:{}", taskRelation,taskIdRelations.toString());
+                    LOGGER.error("该任务成环了,taskRelation:{} 所有的关系视图:{}", taskRelation,taskIdRelations.toString());
                     return true;
                 } else {
                     taskIdRelations.add(taskRelation);

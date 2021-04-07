@@ -801,7 +801,7 @@ public class ScheduleTaskShadeService {
                 scheduleTaskCommits = scheduleTaskCommitMapper.findTaskCommitByCommitId(minId,commitId,environmentContext.getMaxBatchTaskSplInsert());
             } catch (Exception e) {
                 LOGGER.error(ExceptionUtil.getErrorMessage(e));
-                return Boolean.FALSE;
+                throw new RdosDefineException(e.getMessage());
             }
         }
 
