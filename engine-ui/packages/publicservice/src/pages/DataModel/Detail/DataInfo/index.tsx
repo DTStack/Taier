@@ -40,12 +40,26 @@ const DataInfo = (props: IPropsDataInfo) => {
   tableList.forEach((item, index) => {
     item.dataSource = list[index];
   });
+  const total = (index: number, count: number) => {
+    switch (index) {
+      case 0:
+        return `共${count}张表`;
+      default:
+        return `共${count}个字段`;
+
+    }
+  }
 
   return (
     <div className="data-info">
       {tableList.map((item, index) => (
         <div key={index}>
-          <div className="title">{item.title}</div>
+          <div  className="title-wrappe">
+            <div className="title float-left">{item.title}</div>
+            <div className="float-right sumary">
+              {total(index, item.dataSource?.length)}
+            </div>
+          </div>
           <Table
             rowKey={(record, index) => index.toString()}
             columns={item.columns}

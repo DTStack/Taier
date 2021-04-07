@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import Container from '../components/Container';
 import { Table, Pagination, Modal, Drawer, Button } from 'antd';
 import { IModelData } from '../types';
@@ -207,9 +207,15 @@ const List = (props: IPropList) => {
   useEffect(() => {
     fetchModelList(requestParams);
   }, [requestParams]);
+  const container = useRef(null);
 
+  const y = useMemo(() => {
+    if (container.current === null) return 0;
+    return parseInt(getComputedStyle(container.current)['height']) - 195;
+  }, [container.current])
+  console.log(y)
   return (
-    <div className="dm-list" data-testid="data-model-list">
+    <div ref={container} className="dm-list" data-testid="data-model-list">
       <Container>
         <header className="search-area">
           <SearchInput
@@ -233,7 +239,7 @@ const List = (props: IPropList) => {
             loading={loading}
             dataSource={modelList}
             pagination={false}
-            scroll={{ x: 1300, y: 800 }}
+            scroll={{ x: 1300, y }}
             onChange={(pagination, filters) => {
               const {
                 dataSourceType = requestParams.datasourceTypes,

@@ -86,6 +86,10 @@ const PartitionField = (props: IPropsPartitionField) => {
             if (error) reject(error);
             // 数据格式转换
             modelPartitionParser(data);
+            if (!data.modelPartition.timePartition) {
+              data.modelPartition.timePartitionColumn = null;
+              data.modelPartition.timeFmt = null;
+            }
             return resolve(data);
           });
         }),
