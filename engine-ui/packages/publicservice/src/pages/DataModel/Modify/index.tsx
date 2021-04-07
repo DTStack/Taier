@@ -117,11 +117,11 @@ const Modify = (props: IPropsModify) => {
     callback?: Function
   ) => {
     try {
-      const { success, message } = await API.saveDataModel(params);
+      const { success, message, data } = await API.saveDataModel(params);
       if (success) {
         Message.success('保存成功');
         if (typeof callback) {
-          callback();
+          callback(data);
         }
       } else {
         Message.error(message);
@@ -130,6 +130,27 @@ const Modify = (props: IPropsModify) => {
       Message.error(error.message);
     }
   };
+
+  const releaseModel = async (id: number, callback?: Function) => {
+    try {
+      const { success, message } = await API.releaseModel({ id });
+      if (success) {
+        if (typeof callback === 'function') {
+          callback();
+        }
+      } else {
+        Message.error(message);
+      }
+    } catch (error) {
+      Message.error(error.message);
+    }
+  }
+
+  const saveAndPublish = (params: Partial<IModelDetail>, callback) => {
+    saveDataModel(params, (id) => {
+      releaseModel(id, callback);
+    })
+  }
 
   const handlePrevStep = () => {
     const data = childRef.current.getValue();
@@ -203,7 +224,7 @@ const Modify = (props: IPropsModify) => {
                 {stepRender(current, {
                   childRef,
                   modelDetail,
-                  globalStep: globalStep.current + 1,
+                  globalStep: globalStep.current,
                   mode: mode,
                 })}
               </div>
@@ -271,6 +292,7 @@ const Modify = (props: IPropsModify) => {
                 </Button>
               ) : null}
               <Button
+                className="margin-right-8 width-80"
                 onClick={() => {
                   childRef.current.validate().then((data) => {
                     // 数据同步
@@ -296,8 +318,40 @@ const Modify = (props: IPropsModify) => {
                   });
                 }}
                 type="primary">
-                保存并退出
+                保存
               </Button>
+              {
+                current === EnumModifyStep.SETTING_STEP ? (
+                  <Button
+                    onClick={() => {
+                      childRef.current.validate().then((data) => {
+                        // 数据同步
+                        setModelDetail({
+                          ...modelDetail,
+                          ...data,
+                        });
+                        const step = Math.max(globalStep.current + 1, current + 1);
+                        const params = {
+                          ...modelDetail,
+                          ...data,
+                          step,
+                        };
+                        params.columnList = params.columns?.map((item) => {
+                          item.columnDesc = item.columnComment;
+                          delete item.columnComment;
+                          return { ...item };
+                        });
+                        delete params.columns;
+                        saveAndPublish(params, () => {
+                          router.push('/data-model/list');
+                        })
+                      });
+                    }}
+                    type="primary">
+                    保存并发布
+                  </Button>
+                ) : null
+              }
             </div>
           </footer>
         </div>
