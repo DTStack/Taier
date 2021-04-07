@@ -484,7 +484,7 @@ public class ClusterService implements InitializingBean {
             //返回版本
             configObj.put(ComponentService.VERSION, component.getHadoopVersion());
             // 添加组件的kerberos配置信息 应用层使用
-            addKerberosConfigWithHdfs(key, clusterId, kerberosConfig, configObj);
+            configObj.put(ConfigConstant.KERBEROS_CONFIG, addKerberosConfigWithHdfs(componentType.getTypeCode(), clusterId, kerberosConfig));
             //填充sftp配置项
             Map sftpMap = componentService.getComponentByClusterId(clusterId, EComponentType.SFTP.getTypeCode(), false, Map.class);
             if (MapUtils.isNotEmpty(sftpMap)) {
@@ -500,15 +500,14 @@ public class ClusterService implements InitializingBean {
     /**
      * 如果开启集群开启了kerberos认证，kerberosConfig中还需要包含hdfs配置
      *
-     * @param key
+     * @param componentType
      * @param clusterId
      * @param kerberosConfig
-     * @param configObj
      */
-    public void addKerberosConfigWithHdfs(String key, Long clusterId, KerberosConfig kerberosConfig, JSONObject configObj) {
+    public KerberosConfigVO addKerberosConfigWithHdfs(Integer componentType, Long clusterId, KerberosConfig kerberosConfig) {
         if (Objects.nonNull(kerberosConfig)) {
             KerberosConfigVO kerberosConfigVO = KerberosConfigVO.toVO(kerberosConfig);
-            if (!Objects.equals(EComponentType.HDFS.getConfName(), key)) {
+            if (!Objects.equals(EComponentType.HDFS.getTypeCode(), componentType)) {
                 Map hdfsComponent = componentService.getComponentByClusterId(clusterId, EComponentType.HDFS.getTypeCode(),false,Map.class);
                 if (MapUtils.isEmpty(hdfsComponent)) {
                     throw new RdosDefineException("开启kerberos后需要预先保存hdfs组件");
@@ -516,8 +515,9 @@ public class ClusterService implements InitializingBean {
                 kerberosConfigVO.setHdfsConfig(hdfsComponent);
             }
             kerberosConfigVO.setKerberosFileTimestamp(kerberosConfig.getGmtModified());
-            configObj.put("kerberosConfig", kerberosConfigVO);
+            return kerberosConfigVO;
         }
+        return null;
     }
 
     public JSONObject convertPluginInfo(JSONObject clusterConfigJson, EngineTypeComponentType type, ClusterVO clusterVO,Integer deployMode) {
