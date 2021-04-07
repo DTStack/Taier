@@ -102,7 +102,7 @@ public class ContainerStatusNotifier implements Runnable {
     }
 
     public void heartbeatResponseHandle(HeartbeatResponse heartbeatResponse) {
-        LOG.debug("Received the heartbeat response from the AM. CurrentJob finished " + heartbeatResponse.getIsCompleted()
+        LOG.info("Received the heartbeat response from the AM. CurrentJob finished " + heartbeatResponse.getIsCompleted()
                 + " , currentInnerModelSavedTimeStamp is " + heartbeatResponse.getInterResultTimeStamp());
         if (!heartbeatResponse.getIsCompleted()) {
             if (!heartbeatResponse.getInterResultTimeStamp().equals(interResultTimeStamp)) {

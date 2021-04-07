@@ -1,26 +1,21 @@
 package com.dtstack.learning.AM;
 
-import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.learning.AM.ApplicationContainerListener;
-import com.dtstack.learning.AM.ApplicationMessageService;
-import com.dtstack.learning.AM.ApplicationWebService;
-import com.dtstack.learning.AM.NMCallbackHandler;
-import com.dtstack.learning.AM.RMCallbackHandler;
 import com.dtstack.learning.api.ApplicationContext;
-import com.dtstack.learning.common.AppType;
-import com.dtstack.learning.common.exceptions.XLearningExecException;
-import com.dtstack.learning.conf.LearningConfiguration;
-import com.dtstack.learning.container.LearningContainer;
-import com.dtstack.learning.webapp.AMParams;
-import com.google.gson.Gson;
 import com.dtstack.learning.api.LearningConstants;
+import com.dtstack.learning.common.AppType;
 import com.dtstack.learning.common.InputInfo;
 import com.dtstack.learning.common.LogType;
 import com.dtstack.learning.common.Message;
 import com.dtstack.learning.common.OutputInfo;
 import com.dtstack.learning.common.XLearningContainerStatus;
+import com.dtstack.learning.common.exceptions.XLearningExecException;
+import com.dtstack.learning.conf.LearningConfiguration;
+import com.dtstack.learning.container.LearningContainer;
 import com.dtstack.learning.container.LearningContainerId;
+import com.dtstack.learning.util.SecurityUtil;
 import com.dtstack.learning.util.Utilities;
+import com.dtstack.learning.webapp.AMParams;
+import com.google.gson.Gson;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,13 +27,9 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
-import org.apache.hadoop.io.DataOutputBuffer;
 import org.apache.hadoop.mapred.InputFormat;
 import org.apache.hadoop.mapred.InputSplit;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.security.Credentials;
-import org.apache.hadoop.security.UserGroupInformation;
-import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.service.CompositeService;
 import org.apache.hadoop.util.ReflectionUtils;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
@@ -56,7 +47,6 @@ import org.apache.hadoop.yarn.client.api.AMRMClient.ContainerRequest;
 import org.apache.hadoop.yarn.client.api.async.AMRMClientAsync;
 import org.apache.hadoop.yarn.client.api.async.NMClientAsync;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
-import org.apache.hadoop.yarn.security.AMRMTokenIdentifier;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.hadoop.yarn.util.Records;
 
@@ -70,6 +60,8 @@ import java.math.RoundingMode;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.URI;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
@@ -77,6 +69,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -124,6 +117,10 @@ public class ApplicationMaster extends CompositeService {
   // location of cacheArchive on HDFS
   String appCacheArchivesRemoteLocation;
   String xlearningCommand;
+  /**
+   * envs str. need trans to map.
+   */
+  String xlearningAppEnvStr;
   String dmlcPsRootUri;
   int dmlcPsRootPort;
   String dmlcTrackerUri;
@@ -191,6 +188,10 @@ public class ApplicationMaster extends CompositeService {
     conf = new LearningConfiguration();
     conf.addResource(new Path(LearningConstants.XLEARNING_JOB_CONFIGURATION));
     System.setProperty(LearningConstants.Environment.HADOOP_USER_NAME.toString(), conf.get("hadoop.job.ugi").split(",")[0]);
+    LOG.info("hadoop.job.ugi: " + conf.get("hadoop.job.ugi"));
+    LOG.info("user.dir: " + System.getProperty("user.dir"));
+    LOG.info("user.name: " + System.getProperty("user.name"));
+    LOG.info("HADOOP_USER_NAME: " + System.getenv(LearningConstants.Environment.HADOOP_USER_NAME.toString()));
     outputInfos = new ArrayList<>();
     input2FileStatus = new ConcurrentHashMap<>();
     containerId2InputInfo = new ConcurrentHashMap<>();
@@ -306,6 +307,11 @@ public class ApplicationMaster extends CompositeService {
     if (envs.containsKey(LearningConstants.Environment.XLEARNING_EXEC_CMD.toString())) {
       xlearningCommand = envs.get(LearningConstants.Environment.XLEARNING_EXEC_CMD.toString());
       LOG.info("XLearning exec command: " + xlearningCommand);
+    }
+
+    if (envs.containsKey(LearningConstants.Environment.XLEARNING_APP_ENV.toString())) {
+      xlearningAppEnvStr = envs.get(LearningConstants.Environment.XLEARNING_APP_ENV.toString());
+      LOG.info("XLearning app env: " + xlearningAppEnvStr);
     }
 
     if (envs.containsKey(LearningConstants.Environment.XLEARNING_APP_TYPE.toString())) {
@@ -1133,12 +1139,50 @@ public class ApplicationMaster extends CompositeService {
     }
   }
 
+  /**
+   * 1.parse cmd.
+   * 2.add key-value into container envs.
+   * @param appEnv
+   */
+  private void parseAppEnv(String appEnv, Map<String,String> containerEnv) {
+    if (appEnv == null) {
+      return;
+    }
+
+    try {
+      // envJson is encode, we need decode it.
+      appEnv = URLDecoder.decode(appEnv, "UTF-8");
+      LOG.info("cmdStr decoded is : " + appEnv);
+      Map<String,Object> envMap = JSON.parseObject(appEnv.trim());
+      Iterator entries = envMap.entrySet().iterator();
+      while (entries.hasNext()) {
+        Map.Entry entry = (Map.Entry) entries.next();
+        String key = (String) entry.getKey();
+        String value;
+        if (AppEnvConstant.MODEL_PARAM.equals(key)) {
+          value = URLEncoder.encode((String) entry.getValue(), "UTF-8");
+        } else {
+          value = (String) entry.getValue();
+        }
+        //add prefix for app env, make it indetifier
+        containerEnv.put(AppEnvConstant.SUB_PROCESS_ENV.concat(key) , value);
+      }
+    } catch (Exception e) {
+      String message = String.format("Could't parse {%s} to json format. Reason : {%s}", appEnv , e.getMessage());
+      LOG.error(message);
+      throw new RuntimeException(message, e);
+    }
+  }
+
+
   private Map<String, String> buildContainerEnv(String role) {
     LOG.info("Setting environments for the Container");
     Map<String, String> containerEnv = new HashMap<>();
     containerEnv.put(LearningConstants.Environment.HADOOP_USER_NAME.toString(), conf.get("hadoop.job.ugi").split(",")[0]);
     containerEnv.put(LearningConstants.Environment.XLEARNING_TF_ROLE.toString(), role);
     containerEnv.put(LearningConstants.Environment.XLEARNING_EXEC_CMD.toString(), xlearningCommand);
+    // set cmd into container envs
+    parseAppEnv(xlearningAppEnvStr,containerEnv);
     containerEnv.put(LearningConstants.Environment.XLEARNING_APP_TYPE.toString(), xlearningAppType.name());
 
     if (role.equals(LearningConstants.PS)) {
@@ -1366,7 +1410,7 @@ public class ApplicationMaster extends CompositeService {
     }
     containerEnv.put(LearningConstants.Environment.XLEARNING_TF_INDEX.toString(), String.valueOf(index));
     ContainerLaunchContext ctx = ContainerLaunchContext.newInstance(
-            containerLocalResource, containerEnv, containerLaunchcommands, null, null, null);
+            containerLocalResource, containerEnv, containerLaunchcommands, null, SecurityUtil.copyUserToken(), null);
 
     try {
       nmAsync.startContainerAsync(container, ctx);

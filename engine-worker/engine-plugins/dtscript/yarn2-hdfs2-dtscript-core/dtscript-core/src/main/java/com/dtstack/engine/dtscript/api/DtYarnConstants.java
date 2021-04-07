@@ -32,6 +32,8 @@ public interface DtYarnConstants {
 
     APP_TYPE("APP_TYPE"),
 
+    APP_ENV("APP_ENV"),
+
     XLEARNING_CONTAINER_MAX_MEMORY("XLEARNING_MAX_MEM"),
 
     XLEARNING_CONTAIENR_GPU_NUM("GPU_NUM"),

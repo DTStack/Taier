@@ -1,5 +1,6 @@
 package com.dtstack.engine.sparkyarn.sparkyarn;
 
+import com.alibaba.fastjson.JSON;
 import com.dtstack.engine.base.filesystem.FilesystemManager;
 import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.engine.base.util.HadoopConfTool;
@@ -20,6 +21,7 @@ import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.sparkyarn.sparkext.ClientExt;
 import com.dtstack.engine.sparkyarn.sparkext.ClientExtFactory;
+import com.dtstack.engine.sparkyarn.sparkyarn.constant.AppEnvConstant;
 import com.dtstack.engine.sparkyarn.sparkyarn.parser.AddJarOperator;
 import com.dtstack.engine.sparkyarn.sparkyarn.util.HadoopConf;
 import com.google.common.base.Charsets;
@@ -40,9 +42,12 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.deploy.yarn.ClientArguments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.PrivilegedExceptionAction;
 import java.util.*;
@@ -56,6 +61,8 @@ import java.util.concurrent.TimeUnit;
 public class SparkYarnClient extends AbstractClient {
 
     private static final Logger logger = LoggerFactory.getLogger(SparkYarnClient.class);
+
+    private static final BASE64Decoder DECODER = new BASE64Decoder();
 
     private static final String HADOOP_USER_NAME = "HADOOP_USER_NAME";
 
@@ -281,6 +288,7 @@ public class SparkYarnClient extends AbstractClient {
 
             argList.add("--arg");
             argList.add(appArg);
+
             nextIsDependencyVal = false;
         }
 
@@ -296,6 +304,20 @@ public class SparkYarnClient extends AbstractClient {
         }
 
         SparkConf sparkConf = buildBasicSparkConf(jobClient);
+
+        // set  spark executor env.
+        List<String> args = Arrays.asList(appArgs);
+        int launchCmdIndex = args.indexOf(AppEnvConstant.LAUNCH_CMD);
+        if (launchCmdIndex != -1) {
+            try {
+                String launchCmd = args.get(launchCmdIndex + 1);
+                parsePythonCmd(launchCmd ,sparkConf);
+            } catch (IOException e) {
+                return JobResult.createErrorResult("Could't set appEnv to spark executor env. parsePythonCmd failed. " +
+                        "Reason :" + e.getMessage());
+            }
+        }
+
         sparkConf.set("spark.submit.pyFiles", pythonExtPath);
         sparkConf.setAppName(appName);
         setSparkLog4jLocalFilePath(sparkConf, jobClient);
@@ -318,6 +340,55 @@ public class SparkYarnClient extends AbstractClient {
         } catch(Exception ex) {
             logger.info("", ex);
             return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(ex));
+        }
+    }
+
+    private void parsePythonCmd(String cmd, SparkConf sparkConf) throws IOException{
+        String pythonCmd = new String(DECODER.decodeBuffer(cmd), "UTF-8");
+
+        if (pythonCmd.contains("--app-env")) {
+            String[] tmpStrs = pythonCmd.split("--app-env");
+            // FIXME: 3/25/21 hard code, fix in next version
+            if (tmpStrs.length != 2) {
+                throw new RdosDefineException("parse envs which from cmd failed. cmd is " + pythonCmd);
+            }
+            String cmdEnv = tmpStrs[1];
+            addEnv2SparkConf(cmdEnv, sparkConf);
+        }
+    }
+
+    /**
+     * 1.parse cmd.
+     * 2.add key-value into container envs.
+     * @param cmdStr
+     */
+    private void addEnv2SparkConf(String cmdStr, SparkConf sparkConf) {
+        if (cmdStr == null) {
+            return;
+        }
+
+        try {
+            // envJson is encode, we need decode it.
+            cmdStr = URLDecoder.decode(cmdStr, "UTF-8");
+            logger.info("cmdStr decoded is : " + cmdStr);
+            Map<String,Object> envMap = JSON.parseObject(cmdStr.trim());
+            Iterator entries = envMap.entrySet().iterator();
+            while (entries.hasNext()) {
+                Map.Entry entry = (Map.Entry) entries.next();
+                String key = (String) entry.getKey();
+                String value;
+                if (AppEnvConstant.MODEL_PARAM.equals(key)) {
+                    value = URLEncoder.encode((String) entry.getValue(), "UTF-8");
+                } else {
+                    value = (String) entry.getValue();
+                }
+                //add prefix for app env, make it easier to recognize.
+                sparkConf.setExecutorEnv(key, value);
+            }
+        } catch (Exception e) {
+            String message = String.format("Could't parse {%s} to json format. Reason : {%s}", cmdStr , e.getMessage());
+            logger.error(message);
+            throw new RdosDefineException(message, e);
         }
     }
 
@@ -686,7 +757,7 @@ public class SparkYarnClient extends AbstractClient {
                 }
 
                 return sparkJobLog.toString();
-            }, yarnConf, true);
+            }, yarnConf, false);
         } catch (Exception e) {
             logger.error("", e);
             sparkJobLog.addAppLog(jobIdentifier.getEngineJobId(), "get log from yarn err:" + e.getMessage());
