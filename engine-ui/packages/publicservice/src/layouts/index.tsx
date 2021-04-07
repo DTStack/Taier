@@ -21,6 +21,7 @@ const initState = {
     {
       id: 1,
       name: judge ? '数据模型' : '数据源中心',
+      menuClass: 'horizontal-menu-item',
       enable: true,
       needRoot: false,
     },
@@ -54,13 +55,12 @@ class BasicLayout extends React.PureComponent<IProps, IState> {
   render() {
     const app = {
       ...this.props.app,
-      disableExt: false,
+      disableExt: true,
     };
 
     const navigatorProps = {
       ...this.props,
       ...{ app },
-      showHelpSite: judge ? true : false,
       menuItems: this.state.menuItems,
       logo: (
         <div className="logo-img">
@@ -75,7 +75,6 @@ class BasicLayout extends React.PureComponent<IProps, IState> {
     return (
       <Layout className="dt-assets-container">
         <Navigator {...navigatorProps} />
-
         <Layout className="assets-container dt-container">
           <Layout>
             <Content>{this.props.children}</Content>
