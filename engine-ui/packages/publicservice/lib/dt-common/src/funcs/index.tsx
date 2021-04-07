@@ -430,14 +430,18 @@ export function timeout(promise: any, ms: number) {
 /**
  * 初始化notification
  */
+declare var APP_CONF: any;
+const IMG_URL = APP_CONF.IMG_URL || '';
+const imgUrl = IMG_URL + '/assets/imgs/';
+
 export function initNotification() {
   notification.config({
     duration: 5,
   });
   const changeArr = ['error', 'success'];
   const iconMap: any = {
-    error: <img src="public/assets/imgs/notification-error.svg" />,
-    success: <img src="public/assets/imgs/notification-success.svg" />,
+    error: <img src={`${imgUrl}notification-error.svg`} />,
+    success: <img src={`${imgUrl}notification-success.svg`} />,
   };
   changeArr.forEach((key: keyof NotificationApi) => {
     const oldFunc: any = notification[key];

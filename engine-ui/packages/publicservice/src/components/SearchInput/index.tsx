@@ -8,7 +8,9 @@ export default function SearchInput({
 }) {
   const [value, setValue] = useState('');
   const IconSearch = () => (
-    <span className="iconfont2 iconOutlinedxianxing_Search"></span>
+    <span
+      className="iconfont2 iconOutlinedxianxing_Search"
+      data-testid="search-icon"></span>
   );
   return (
     <Input
@@ -20,6 +22,7 @@ export default function SearchInput({
           onSearch(e.target.value);
         }
       }}
+      data-testid="input"
       placeholder={placeholder}
       suffix={
         <Icon
