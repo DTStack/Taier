@@ -53,7 +53,7 @@ public class SyncRestartJobTest extends AbstractTest {
         String key = "syncRestartJob" + scheduleJobTemplate.getId();
         redisTemplate.opsForValue().set(key,"-1");
         boolean syncFlag = scheduleJobService.syncRestartJob(scheduleJobTemplate.getId(), true, false, null);
-        Assert.assertTrue(syncFlag);
+        Assert.assertFalse(syncFlag);
 
     }
 
@@ -112,7 +112,7 @@ public class SyncRestartJobTest extends AbstractTest {
         ScheduleJob scheduleJobTemplateParent = Template.getScheduleJobTemplate();
         scheduleJobTemplate.setTaskId(scheduleTaskShadeTemplate.getTaskId());
         scheduleJobTemplateParent.setTaskId(scheduleTaskShadeTemplate.getTaskId());
-        scheduleJobTemplateParent.setJobKey("cronTrigger_5221_20210203204000");
+        scheduleJobTemplateParent.setJobKey("cronTrigger_5228_20210203204000");
         scheduleJobTemplate.setJobKey("cronTrigger_5220_20211203204000");
         scheduleJobTemplateParent.setJobId("sc12as1xa");
         scheduleJobTemplate.setJobId("sc12as1xa1");
@@ -180,7 +180,7 @@ public class SyncRestartJobTest extends AbstractTest {
         scheduleTaskShadeTemplate.setTaskId(-13L);
         ScheduleJob scheduleJobTemplate = Template.getScheduleJobTemplate();
         scheduleJobTemplate.setTaskId(scheduleTaskShadeTemplate.getTaskId());
-        scheduleJobTemplate.setJobKey("cronTrigger_5220_20210203204000");
+        scheduleJobTemplate.setJobKey("cronTrigger_5222_20210203204000");
         scheduleJobTemplate.setJobId("sc12as1xa123");
         scheduleJobDao.insert(scheduleJobTemplate);
         ScheduleTaskShadeDTO scheduleTaskShadeDTO = new ScheduleTaskShadeDTO();
