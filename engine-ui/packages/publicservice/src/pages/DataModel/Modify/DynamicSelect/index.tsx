@@ -151,7 +151,7 @@ const DynamicSelect = (props: IPropsDynamicSelect) => {
       {joinPairsList.map((item, index) => {
         return (
           <Row key={item.id}>
-            <Col offset={4} span={20}>
+            <Col offset={5} span={19}>
               <Row className="white-space-nowrap">
                 <Col span={11}>
                   <Form.Item wrapperCol={{ span: 24 }}>

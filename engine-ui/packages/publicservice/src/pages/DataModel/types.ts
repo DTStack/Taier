@@ -1,3 +1,4 @@
+
 export interface IModelData {
   id: number;
   modelName: string;
@@ -15,6 +16,12 @@ export interface IModelData {
 enum UPDATA_TYPE {
   INCREACEMENT_IPDATE = 1,
   FULL_UPDATE = 2,
+}
+
+export enum EnumModelStatus {
+  UNRELEASE = 0,
+  RELEASE = 1,
+  OFFLINE = -1,
 }
 
 interface JoinKeyItem {
@@ -83,4 +90,5 @@ export interface IModelDetail {
   createTime?: string;
   dsName?: string;
   step?: number; // 编辑步数step
+  modelStatus: EnumModelStatus,
 }

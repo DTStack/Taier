@@ -152,18 +152,15 @@ const PartitionField = (props: IPropsPartitionField) => {
               : columnSrtingParser.encode(timeColumn),
         },
       }
-      console.log(formValue);
       setFieldsValue({
         modelPartition,
       })
     }
-
-    console.log(getFieldsValue());
     
   }, [currentForm.modelPartition?.timePartition])
 
   return (
-    <Form {...layout}>
+    <Form {...layout} className="padding-top-20">
       <Form.Item label="分区字段（日期）">
         {getFieldDecorator('modelPartition.datePartitionColumn.columnName', {
           rules: rules('分区字段（日期）不可为空'),

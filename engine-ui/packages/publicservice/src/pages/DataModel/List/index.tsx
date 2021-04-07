@@ -2,7 +2,8 @@ import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import Container from '../components/Container';
 import { Table, Pagination, Modal, Drawer, Button } from 'antd';
 import { IModelData } from '../types';
-import { EnumModelActionType, EnumModelStatus } from './types';
+import { EnumModelActionType } from './types';
+import { EnumModelStatus } from 'pages/DataModel/types';
 import { columnsGenerator } from './constants';
 import Message from 'pages/DataModel/components/Message';
 import Detail from '../Detail';
@@ -213,7 +214,6 @@ const List = (props: IPropList) => {
     if (container.current === null) return 0;
     return parseInt(getComputedStyle(container.current)['height']) - 195;
   }, [container.current])
-  console.log(y)
   return (
     <div ref={container} className="dm-list" data-testid="data-model-list">
       <Container>

@@ -94,13 +94,22 @@ const FieldsSelect = (props: IPropsDimensionSelect) => {
   };
 
   const onSelect = (record) => {
+    /**
+     * logic:
+     * 当维度选中时，判断对应column是否为度量
+     * 若为度量，直接清楚度量标记
+     */
     const key = step === EnumModifyStep.DIMENSION_STEP ? 'dimension' : 'metric';
     const ds = dataSource.map((item) => {
       const bool = item.id === record.id ? !item[key] : item[key];
-      return {
+      const target = {
         ...item,
         [key]: bool,
-      };
+      }
+      if (item.id === record.id && step === EnumModifyStep.DIMENSION_STEP && item.metric) {
+        target.metric = false;
+      }
+      return target;
     });
     setDataSource(ds);
   };
@@ -144,13 +153,22 @@ const FieldsSelect = (props: IPropsDimensionSelect) => {
 
   const ds = useMemo(() => {
     const reg = new RegExp(filter);
-    return dataSource.filter(
-      (item) => reg.test(item.tableName) || reg.test(item.columnName)
-    );
-  }, [dataSource, filter]);
+    const columnFilter = step === EnumModifyStep.DIMENSION_STEP ? (
+      item => reg.test(item.tableName) || reg.test(item.columnName)
+    ) : (
+      item => !item.dimension && (
+        reg.test(item.tableName) || reg.test(item.columnName)
+      )
+    )
+    return dataSource.filter(columnFilter);
+  }, [dataSource, filter, step]);
+  
+  const y = useMemo(() => {
+    return document.documentElement.clientHeight - 362;
+  }, [cref.current])
 
   return (
-    <div ref={cref}>
+    <div className="padding-top-20" ref={cref}>
       <SearchInput placeholder="输入关键字" onSearch={setFilter} />
       <Table
         loading={loading}
@@ -159,13 +177,14 @@ const FieldsSelect = (props: IPropsDimensionSelect) => {
         rowSelection={{
           selectedRowKeys,
           onChange,
-          onSelect: onSelect,
+          onSelect,
         }}
         className="dt-table-border margin-top-13"
         pagination={false}
         rowKey={(record, index) => record.id}
         scroll={{
-          y: 380,
+          x: 678,
+          y,
         }}
       />
     </div>

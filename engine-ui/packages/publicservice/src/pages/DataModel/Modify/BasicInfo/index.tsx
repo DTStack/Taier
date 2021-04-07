@@ -105,8 +105,8 @@ const BasicInfo = (props: IPropsBasicInfo) => {
   }, []);
 
   return (
-    <div ref={cref}>
-      <Form labelCol={{ span: 3 }} wrapperCol={{ span: 21 }}>
+    <div className="padding-top-20" ref={cref}>
+      <Form labelCol={{ span: 4 }} wrapperCol={{ span: 20 }}>
         <Form.Item label="模型名称">
           {getFieldDecorator('modelName', {
             validateTrigger: 'onBlur',

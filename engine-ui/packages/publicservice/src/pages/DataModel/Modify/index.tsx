@@ -6,7 +6,7 @@ import './style';
 import { API } from '@/services';
 import Message from 'pages/DataModel/components/Message';
 import _ from 'lodash';
-import { IModelDetail } from 'pages/DataModel/types';
+import { IModelDetail, EnumModelStatus } from 'pages/DataModel/types';
 import { EnumModifyStep, EnumModifyMode } from './types';
 import BreadCrumbRender from './BreadCrumbRender';
 import CodeBlock from 'pages/DataModel/components/CodeBlock';
@@ -321,7 +321,7 @@ const Modify = (props: IPropsModify) => {
                 保存
               </Button>
               {
-                current === EnumModifyStep.SETTING_STEP ? (
+                current === EnumModifyStep.SETTING_STEP && modelDetail.modelStatus !== EnumModelStatus.RELEASE ? (
                   <Button
                     onClick={() => {
                       childRef.current.validate().then((data) => {
