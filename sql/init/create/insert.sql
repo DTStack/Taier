@@ -166,6 +166,7 @@ INSERT INTO `task_param_template` VALUES ('17', now(), now(), '0', '0', '0', '1'
 
 -- TiDB SQL
 INSERT INTO `task_param_template` (`gmt_create`,`gmt_modified`,`is_deleted`,`compute_type`,`engine_type`,`task_type`,`params`) VALUES (now(),now(),0,1,14,0,'');
+INSERT INTO `task_param_template` (`gmt_create`,`gmt_modified`,`is_deleted`,`compute_type`,`engine_type`,`task_type`,`params`) VALUES (now(),now(),0,1,15,0,'');
 -- greenplum sql
 INSERT INTO `task_param_template` (`gmt_create`,`gmt_modified`,`is_deleted`,`compute_type`,`engine_type`,`task_type`,`params`) VALUES (now(),now(),0,1,16,0,'');
 
