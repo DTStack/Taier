@@ -1,32 +1,35 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.ScheduleTaskCommit;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.domain.TenantResource;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
+import com.dtstack.engine.api.enums.TaskRuleEnum;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.vo.ScheduleDetailsVO;
 import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
+import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
+import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
+import com.dtstack.engine.common.enums.EScheduleStatus;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.UnitConvertUtil;
-import com.dtstack.engine.dao.ScheduleTaskCommitMapper;
-import com.dtstack.engine.dao.ScheduleTaskShadeDao;
-import com.dtstack.engine.dao.TenantResourceDao;
+import com.dtstack.engine.dao.*;
+import com.dtstack.engine.domain.ScheduleEngineProject;
 import com.dtstack.engine.master.executor.CronJobExecutor;
 import com.dtstack.engine.master.executor.FillJobExecutor;
 import com.dtstack.schedule.common.enums.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,6 +69,12 @@ public class ScheduleTaskShadeService {
     private FillJobExecutor fillJobExecutor;
 
     @Autowired
+    private TenantDao tenantDao;
+
+    @Autowired
+    private ScheduleEngineProjectDao scheduleEngineProjectDao;
+
+    @Autowired
     private EnvironmentContext environmentContext;
 
     @Autowired
@@ -95,6 +104,10 @@ public class ScheduleTaskShadeService {
             if (null == batchTaskShadeDTO.getFlowId()) {
                 batchTaskShadeDTO.setFlowId(0L);
             }
+
+            if (null == batchTaskShadeDTO.getTaskRule()) {
+                batchTaskShadeDTO.setTaskRule(0);
+            }
             scheduleTaskShadeDao.insert(batchTaskShadeDTO);
         }
     }
@@ -103,10 +116,44 @@ public class ScheduleTaskShadeService {
      * web 接口
      * task删除时触发同步清理
      */
-    public void deleteTask( Long taskId,  long modifyUserId, Integer appType) {
+    public void deleteTask(Long taskId, long modifyUserId, Integer appType) {
+        scheduleTaskShadeDao.delete(taskId, modifyUserId, appType);
+        scheduleTaskTaskShadeService.clearDataByTaskId(taskId, appType);
+    }
 
-        scheduleTaskShadeDao.delete(taskId, modifyUserId,appType);
-        scheduleTaskTaskShadeService.clearDataByTaskId(taskId,appType);
+    public List<NotDeleteTaskVO> getNotDeleteTask(Long taskId, Integer appType) {
+        List<ScheduleTaskShade> shades = scheduleTaskShadeDao.getChildTaskByOtherPlatform(taskId, appType, environmentContext.getListChildTaskLimit());
+        return buildNotDeleteTaskVO( shades,appType);
+
+    }
+
+    public List<NotDeleteTaskVO> buildNotDeleteTaskVO(List<ScheduleTaskShade> shades,Integer appType) {
+        List<NotDeleteTaskVO> notDeleteTaskVOS = Lists.newArrayList();
+        if (CollectionUtils.isNotEmpty(shades)) {
+            List<Long> projectIds = shades.stream().map(ScheduleTaskShade::getProjectId).collect(Collectors.toList());
+            List<Long> tenantIds = shades.stream().map(ScheduleTaskShade::getDtuicTenantId).collect(Collectors.toList());
+
+            List<Tenant> tenants = tenantDao.listAllTenantByDtUicTenantIds(tenantIds);
+
+            Map<Long, Tenant> tenantMap = tenants.stream().collect(Collectors.toMap(Tenant::getDtUicTenantId, g -> (g)));
+            for (ScheduleTaskShade shade : shades) {
+                NotDeleteTaskVO notDeleteTaskVO = new NotDeleteTaskVO();
+                notDeleteTaskVO.setAppType(shade.getAppType());
+                ScheduleEngineProject project = scheduleEngineProjectDao.getProjectByProjectIdAndApptype(shade.getProjectId(), shade.getAppType());
+                if (project != null) {
+                    notDeleteTaskVO.setProjectAlias(project.getProjectAlias());
+                    notDeleteTaskVO.setProjectName(project.getProjectName());
+                }
+                Tenant tenant = tenantMap.get(shade.getDtuicTenantId());
+                if (tenant != null) {
+                    notDeleteTaskVO.setTenantName(tenant.getTenantName());
+                }
+
+                notDeleteTaskVO.setTaskName(shade.getName());
+                notDeleteTaskVOS.add(notDeleteTaskVO);
+            }
+        }
+        return notDeleteTaskVOS;
     }
 
     /**
@@ -235,9 +282,9 @@ public class ScheduleTaskShadeService {
      * @param taskId
      * @return
      */
-    public ScheduleTaskShade getWorkFlowTopNode(Long taskId) {
+    public ScheduleTaskShade getWorkFlowTopNode(Long taskId,Integer appType) {
         if (taskId != null) {
-            return scheduleTaskShadeDao.getWorkFlowTopNode(taskId);
+            return scheduleTaskShadeDao.getWorkFlowTopNode(taskId,appType);
         } else {
             return null;
         }
@@ -279,6 +326,8 @@ public class ScheduleTaskShadeService {
         }
         return taskShade;
     }
+
+
 
     public ScheduleTaskShadePageVO queryTasks(Long tenantId,
                                               Long projectId,
@@ -767,5 +816,178 @@ public class ScheduleTaskShadeService {
         }
 
         return extInfo.getString(TaskConstant.INFO);
+    }
+
+    public List<ScheduleTaskShadeTypeVO> findFuzzyTaskNameByCondition(String name, Integer appType, Long uicTenantId, Long projectId) {
+        if (appType == null) {
+            throw new RdosDefineException("appType must be passed");
+        }
+
+        if (uicTenantId == null) {
+            throw new RdosDefineException("uicTenantId must be passed");
+        }
+
+        if (projectId == null) {
+            throw new RdosDefineException("projectId must be passed");
+        }
+
+        if (StringUtils.isNotBlank(name)) {
+            name = handlerStr(name);
+        }
+
+        if (StringUtils.isBlank(name)) {
+            return buildTypeVo(null);
+        }
+        List<ScheduleTaskShade> tasks = scheduleTaskShadeDao.findFuzzyTaskNameByCondition(name, appType, uicTenantId, projectId, environmentContext.getFuzzyProjectByProjectAliasLimit());
+
+        return buildTypeVo(tasks);
+    }
+
+    private String handlerStr(String name) {
+        name = name.replaceAll("%", "\\%");
+        name = name.replaceAll("'", "");
+        name = name.replaceAll("_", "\\_");
+        return name;
+    }
+
+    private List<ScheduleTaskShadeTypeVO> buildTypeVo(List<ScheduleTaskShade> tasks) {
+        if (CollectionUtils.isEmpty(tasks)) {
+            return Lists.newArrayList();
+        }
+
+        List<ScheduleTaskShadeTypeVO> vos = Lists.newArrayList();
+        for (ScheduleTaskShade task : tasks) {
+            ScheduleTaskShadeTypeVO vo = new ScheduleTaskShadeTypeVO();
+            vo.setId(task.getId());
+            vo.setProjectId(task.getProjectId());
+            vo.setTaskId(task.getTaskId());
+            vo.setAppType(task.getAppType());
+            vo.setName(task.getName());
+            vo.setDtuicTenantId(task.getDtuicTenantId());
+            vo.setTaskType(task.getTaskType());
+            vo.setEngineType(task.getEngineType());
+            vo.setComputeType(task.getComputeType());
+
+            Tenant tenant = tenantDao.getByDtUicTenantId(task.getDtuicTenantId());
+
+            if (tenant != null) {
+                vo.setTenantName(tenant.getTenantName());
+            }
+
+            ScheduleEngineProject scheduleEngineProject = scheduleEngineProjectDao.getProjectByProjectIdAndApptype(task.getProjectId(), task.getAppType());
+
+            if (scheduleEngineProject != null) {
+                vo.setProjectName(scheduleEngineProject.getProjectName());
+            }
+
+            vos.add(vo);
+
+        }
+        return vos;
+    }
+
+    public List<ScheduleTaskShade> getTaskOtherPlatformByProjectId(Long projectId, Integer appType, Integer listChildTaskLimit) {
+        return scheduleTaskShadeDao.getTaskOtherPlatformByProjectId(projectId,appType,listChildTaskLimit);
+    }
+
+    public ScheduleDetailsVO findTaskRuleTask(Long taskId, Integer appType) {
+
+        if (appType == null) {
+            throw new RdosDefineException("appType must be passed");
+        }
+
+        if (taskId == null) {
+            throw new RdosDefineException("taskId must be passed");
+        }
+
+        ScheduleTaskShade shadeDaoOne = scheduleTaskShadeDao.getOne(taskId, appType);
+
+        if (shadeDaoOne == null) {
+            throw new RdosDefineException("task not exist");
+        }
+
+        ScheduleDetailsVO vo = buildScheduleDetailsVO(shadeDaoOne);
+        List<ScheduleDetailsVO> vos =Lists.newArrayList();
+        build(taskId, appType, vos);
+        vo.setScheduleDetailsVOList(vos);
+        return vo;
+    }
+
+    private void build(Long taskId, Integer appType, List<ScheduleDetailsVO> vos) {
+        List<ScheduleTaskShade> scheduleTaskShades = scheduleTaskShadeDao.listTaskRuleTask(taskId, appType);
+
+        for (ScheduleTaskShade taskShade : scheduleTaskShades) {
+            if (!TaskRuleEnum.NO_RULE.getCode().equals(taskShade.getTaskRule())) {
+                ScheduleDetailsVO voSon = buildScheduleDetailsVO(taskShade);
+                if (voSon != null) {
+                    vos.add(voSon);
+                }
+            }
+        }
+    }
+
+    private ScheduleDetailsVO buildScheduleDetailsVO(ScheduleTaskShade taskShade) {
+        if (taskShade != null) {
+            ScheduleDetailsVO vo = new ScheduleDetailsVO();
+            vo.setAppType(taskShade.getAppType());
+            vo.setName(taskShade.getName());
+            vo.setTaskRule(taskShade.getTaskRule());
+            vo.setTaskType(taskShade.getTaskType());
+            vo.setScheduleStatus(taskShade.getScheduleStatus());
+            vo.setProjectScheduleStatus(taskShade.getProjectScheduleStatus());
+
+            Tenant byDtUicTenantId = tenantDao.getByDtUicTenantId(taskShade.getDtuicTenantId());
+
+            if (byDtUicTenantId != null) {
+                vo.setTenantName(byDtUicTenantId.getTenantName());
+            }
+
+            ScheduleEngineProject projectByProjectIdAndApptype = scheduleEngineProjectDao.getProjectByProjectIdAndApptype(taskShade.getProjectId(), taskShade.getAppType());
+
+            if (projectByProjectIdAndApptype != null) {
+                vo.setProjectName(projectByProjectIdAndApptype.getProjectName());
+            }
+            return vo;
+        }
+        return null;
+    }
+
+    public List<ScheduleTaskShade> findChildTaskRuleByTaskId(Long taskId, Integer appType) {
+        if (appType == null) {
+            throw new RdosDefineException("appType must be passed");
+        }
+
+        if (taskId == null) {
+            throw new RdosDefineException("taskId must be passed");
+        }
+        List<ScheduleTaskShade> taskShades = Lists.newArrayList();
+        List<ScheduleTaskShade> scheduleTaskShades = scheduleTaskShadeDao.listTaskRuleTask(taskId, appType);
+
+        for (ScheduleTaskShade taskShade : scheduleTaskShades) {
+            if (!TaskRuleEnum.NO_RULE.getCode().equals(taskShade.getTaskRule())) {
+                if (!EScheduleStatus.PAUSE.getVal().equals(taskShade.getScheduleStatus())
+                        && !EProjectScheduleStatus.PAUSE.getStatus().equals(taskShade.getProjectScheduleStatus())) {
+                    taskShades.add(taskShade);
+                }
+            }
+        }
+
+        return taskShades;
+    }
+
+    /**
+     * 按照appType和taskId分组查询
+     * @param groupByAppMap 分组数据
+     * @return
+     */
+    public Map<Integer,List<ScheduleTaskShade>> listTaskShadeByIdAndType(Map<Integer,Set<Long>> groupByAppMap){
+        if (MapUtils.isEmpty(groupByAppMap)){
+            throw new RdosDefineException("taskId或appType不能为空");
+        }
+        Map<Integer,List<ScheduleTaskShade>> scheduleTaskShadeMap=new HashMap<>(groupByAppMap.size());
+        for (Map.Entry<Integer, Set<Long>> entry : groupByAppMap.entrySet()) {
+            scheduleTaskShadeMap.put(entry.getKey(),scheduleTaskShadeDao.listSimpleByTaskIds(entry.getValue(), Deleted.NORMAL.getStatus(), entry.getKey()));
+        }
+        return scheduleTaskShadeMap;
     }
 }

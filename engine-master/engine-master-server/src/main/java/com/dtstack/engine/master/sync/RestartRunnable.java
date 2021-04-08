@@ -8,6 +8,7 @@ import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
+import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.schedule.common.enums.Restarted;
@@ -37,6 +38,7 @@ public class RestartRunnable implements Runnable {
     private ScheduleJobDao scheduleJobDao;
     private ScheduleTaskShadeDao scheduleTaskShadeDao;
     private ScheduleJobJobDao scheduleJobJobDao;
+    private ScheduleJobService scheduleJobService;
     private EnvironmentContext environmentContext;
     private String redisKey;
     private StringRedisTemplate redisTemplate;
@@ -44,7 +46,7 @@ public class RestartRunnable implements Runnable {
     public RestartRunnable(Long id, Boolean justRunChild, Boolean setSuccess, List<Long> subJobIds,
                            ScheduleJobDao scheduleJobDao, ScheduleTaskShadeDao scheduleTaskShadeDao,
                            ScheduleJobJobDao scheduleJobJobDao, EnvironmentContext environmentContext,
-                           String redisKey, StringRedisTemplate redisTemplate) {
+                           String redisKey, StringRedisTemplate redisTemplate,ScheduleJobService scheduleJobService) {
         this.id = id;
         this.justRunChild = BooleanUtils.toBoolean(justRunChild);
         this.setSuccess = BooleanUtils.toBoolean(setSuccess);
@@ -55,6 +57,7 @@ public class RestartRunnable implements Runnable {
         this.scheduleJobJobDao = scheduleJobJobDao;
         this.redisKey = redisKey;
         this.redisTemplate =  redisTemplate;
+        this.scheduleJobService = scheduleJobService;
     }
 
     @Override
@@ -82,7 +85,10 @@ public class RestartRunnable implements Runnable {
             //置成功并恢复调度
             if (setSuccess && justRunChild) {
                 List<String> jobIds = getSubFlowJob(batchJob);
+                // 设置强规则任务
+                List<String> ruleJobs = getRuleTask(batchJob);
                 jobIds.add(batchJob.getJobId());
+                jobIds.addAll(ruleJobs);
                 scheduleJobDao.updateJobStatusByIds(RdosTaskStatus.MANUALSUCCESS.getStatus(), jobIds);
                 logger.info("ids  {} manual success", jobIds);
                 return;
@@ -103,12 +109,23 @@ public class RestartRunnable implements Runnable {
 
             // 子任务不为空 重跑当前任务和自身
             if (CollectionUtils.isNotEmpty(subJobIds)) {
-                resumeBatchJobs.addAll(scheduleJobDao.listByJobIds(subJobIds));
-                //如果是工作流根节点 添加子节点
-                List<String> subFlowJob = getSubFlowJob(batchJob);
-                if (CollectionUtils.isNotEmpty(subFlowJob)) {
-                    resumeBatchJobs.addAll(scheduleJobDao.getRdosJobByJobIds(subFlowJob));
+                List<ScheduleJob> jobs = scheduleJobDao.listByJobIds(subJobIds);
+                resumeBatchJobs.addAll(jobs);
+
+                // 判断该节点是否被强弱规则任务所依赖
+                List<ScheduleJob> taskRuleSonJob = scheduleJobService.getTaskRuleSonJob(batchJob);
+                if (CollectionUtils.isNotEmpty(taskRuleSonJob)) {
+                    resumeBatchJobs.addAll(taskRuleSonJob);
+
+                    // 判断所依赖的任务是否是工作流任务
+                    for (ScheduleJob scheduleJob : taskRuleSonJob) {
+                        setSubFlowJob(scheduleJob, resumeBatchJobs);
+                    }
                 }
+
+                // 如果是工作流根节点 添加子节点
+                setSubFlowJob(batchJob, resumeBatchJobs);
+
             } else {
                 List<ScheduleJob> allChildJobWithSameDayByForkJoin = getAllChildJobWithSameDayByForkJoin(batchJob.getJobId(), false);
                 if (CollectionUtils.isNotEmpty(allChildJobWithSameDayByForkJoin)) {
@@ -122,6 +139,26 @@ public class RestartRunnable implements Runnable {
         } finally {
             redisTemplate.delete(redisKey);
             logger.info("release job {} redis key {} ", id, redisKey);
+        }
+    }
+
+    private List<String> getRuleTask(ScheduleJob batchJob) {
+        List<String> ruleJobs = Lists.newArrayList();
+        List<ScheduleJob> taskRuleSonJob = scheduleJobService.getTaskRuleSonJob(batchJob);
+
+        for (ScheduleJob scheduleJob : taskRuleSonJob) {
+            List<String> subFlowJob = getSubFlowJob(scheduleJob);
+            ruleJobs.add(scheduleJob.getJobId());
+            ruleJobs.addAll(subFlowJob);
+        }
+
+        return ruleJobs;
+    }
+
+    private void setSubFlowJob(ScheduleJob batchJob, List<ScheduleJob> resumeBatchJobs) {
+        List<String> subFlowJob = getSubFlowJob(batchJob);
+        if (CollectionUtils.isNotEmpty(subFlowJob)) {
+            resumeBatchJobs.addAll(scheduleJobDao.getRdosJobByJobIds(subFlowJob));
         }
     }
 
