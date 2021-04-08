@@ -36,8 +36,8 @@ public class ClientTemplate implements Serializable {
     /**
      * 是否必填 默认必须
      */
-    @ApiModelProperty(notes = "是否必填 默认必须")
-    private Boolean required = true;
+    @ApiModelProperty(notes = "是否必填 默认非必须")
+    private Boolean required = false;
 
     private String dependencyKey;
 
