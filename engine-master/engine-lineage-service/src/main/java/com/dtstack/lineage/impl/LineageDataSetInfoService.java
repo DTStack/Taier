@@ -129,7 +129,7 @@ public class LineageDataSetInfoService {
             }
             Long dtUicTenantId = dataSource.getDtUicTenantId();
             Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
-            if(dataSource.getOpenKerberos() == 1 && kerberosConf.equals("-1")){
+            if(dataSource.getOpenKerberos() == 1 && dataSource.getAppType().equals(AppType.RDOS.getType())){
                 //离线开启了kerberos，但是没有存kerberos配置
                 Component one = componentDao.getByTenantIdComponentType(tenantId, dataSource.getSourceType());
                 if(null == one){

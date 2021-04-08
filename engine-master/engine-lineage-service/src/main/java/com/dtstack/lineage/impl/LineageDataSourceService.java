@@ -252,7 +252,7 @@ public class LineageDataSourceService {
             }
             Long realSourceId = 0L;
             if (!isCustom) {
-                //只有非自定义数据源才插入物理数据愿
+                //只有非自定义数据源才插入物理数据源
                 realSourceId = addRealDataSource(dataSourceDTO, sourceKey);
             }
             //插入逻辑数据源
