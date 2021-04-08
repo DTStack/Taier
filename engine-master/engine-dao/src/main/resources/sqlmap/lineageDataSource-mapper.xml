@@ -32,6 +32,9 @@
             <if test="sourceKey !=null">
                 AND source_key like concat( '%',#{sourceKey},'%')
             </if>
+            <if test="projectId !=null">
+                AND project_id = #{projectId}
+            </if>
         </trim>
     </sql>
 

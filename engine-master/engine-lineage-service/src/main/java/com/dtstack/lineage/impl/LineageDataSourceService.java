@@ -243,6 +243,7 @@ public class LineageDataSourceService {
             dataSourceParam.setAppType(dataSourceDTO.getAppType());
             dataSourceParam.setDtUicTenantId(dataSourceDTO.getDtUicTenantId());
             dataSourceParam.setSourceName(dataSourceDTO.getSourceName());
+            dataSourceParam.setProjectId(dataSourceDTO.getProjectId());
             dataSourceParam.setIsDeleted(0);
             List<LineageDataSource> dataSourceByParams = lineageDataSourceDao.getDataSourceByParams(dataSourceParam);
             if (CollectionUtils.isNotEmpty(dataSourceByParams)) {
