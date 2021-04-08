@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import scala.App;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -221,7 +222,7 @@ public class LineageDataSourceService {
         try {
             //首先根据数据源名称查询数据源，如果数据源已经存在，说明是修改手动添加的数据源的信息。
             List<LineageDataSource> lineageDataSources = queryLineageDataSources(dataSourceDTO.getSourceType(), dataSourceDTO.getSourceName(), dataSourceDTO.getDtUicTenantId(), dataSourceDTO.getAppType());
-            if (CollectionUtils.isNotEmpty(lineageDataSources)) {
+            if (CollectionUtils.isNotEmpty(lineageDataSources) && dataSourceDTO.getAppType().equals(AppType.DATAASSETS.getType())) {
                 dataSourceDTO.setDataSourceId(lineageDataSources.get(0).getId());
                 return addOrUpdateDataSource(dataSourceDTO);
             }
