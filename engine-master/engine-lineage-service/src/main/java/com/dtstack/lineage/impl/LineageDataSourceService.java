@@ -259,7 +259,7 @@ public class LineageDataSourceService {
             lineageDataSourceDao.insertDataSource(dataSource);
             return dataSource.getId();
         } catch (Exception e) {
-            logger.error("新增数据源异常,dataSource:{},e:{}", JSON.toJSONString(dataSourceDTO), ExceptionUtil.getTaskLogError(e));
+            logger.error("新增数据源异常,dataSource:{},e:{}", JSON.toJSONString(dataSourceDTO), ExceptionUtil.getErrorMessage(e));
             throw new RdosDefineException("新增数据源异常");
         }
     }

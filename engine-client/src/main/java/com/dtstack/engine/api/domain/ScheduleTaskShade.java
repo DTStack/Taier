@@ -26,6 +26,8 @@ public class ScheduleTaskShade extends ScheduleTask {
     @ApiModelProperty(notes = "batchJob执行的时候的vesion版本")
     private Integer versionId;
 
+    private Integer taskRule;
+
     public Integer getVersionId() {
         return versionId;
     }
@@ -56,5 +58,13 @@ public class ScheduleTaskShade extends ScheduleTask {
 
     public void setExtraInfo(String extraInfo) {
         this.extraInfo = extraInfo;
+    }
+
+    public Integer getTaskRule() {
+        return taskRule;
+    }
+
+    public void setTaskRule(Integer taskRule) {
+        this.taskRule = taskRule;
     }
 }

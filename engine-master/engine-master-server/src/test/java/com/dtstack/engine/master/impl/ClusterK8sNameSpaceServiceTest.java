@@ -15,6 +15,7 @@ import com.dtstack.engine.dao.EngineDao;
 import com.dtstack.engine.dao.QueueDao;
 import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.master.AbstractTest;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.utils.Template;
 import org.junit.Assert;
 import org.junit.Before;

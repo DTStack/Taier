@@ -924,6 +924,40 @@ public interface DataCollection {
         return Template.getDefaultScheduleJobJobFlowTemplate();
     }
 
+    @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
+    default AlertChannel getDefaultAlterChannelDingDt() {
+        return Template.getDefaultAlterChannelTemplateDingDt();
+    }
+
+    @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
+    default AlertChannel getDefaultAlterChannelMailDt() {
+        return Template.getDefaultAlterChannelTemplateMailDt();
+    }
+    @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
+    default AlertChannel getDefaultAlterChannelDingJar() {
+        return Template.getDefaultAlterChannelTemplateDingJar();
+    }
+    @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
+    default AlertChannel getDefaultAlterChannelMailJar() {
+        return Template.getDefaultAlterChannelTemplateMailJar();
+    }
+    @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
+    default AlertChannel getDefaultAlterChannelSmsJar() {
+        return Template.getDefaultAlterChannelTemplateSmsJar();
+    }
+    @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
+    default AlertChannel getDefaultAlterChannelComJar() {
+        return Template.getDefaultAlterChannelTemplateICustomizeJar();
+    }
+
+    @DatabaseInsertOperation(dao = TestAlertRecordDao.class)
+    default AlertRecord getDefaultRecord(){
+        return Template.getDefaultRecord();
+    }
+
+
+
+
     @DatabaseInsertOperation(dao = TestClusterDao.class)
     default Cluster getCluster() {
         Cluster cluster = new Cluster();
@@ -995,37 +1029,6 @@ public interface DataCollection {
     default LineageColumnColumn getDefaultLineageColumnColumn() {
         LineageColumnColumn defaultColumnColumn = Template.getDefaultColumnColumn();
         return defaultColumnColumn;
-    }
-
-    @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
-    default AlertChannel getDefaultAlterChannelDingDt() {
-        return Template.getDefaultAlterChannelTemplateDingDt();
-    }
-
-    @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
-    default AlertChannel getDefaultAlterChannelMailDt() {
-        return Template.getDefaultAlterChannelTemplateMailDt();
-    }
-    @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
-    default AlertChannel getDefaultAlterChannelDingJar() {
-        return Template.getDefaultAlterChannelTemplateDingJar();
-    }
-    @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
-    default AlertChannel getDefaultAlterChannelMailJar() {
-        return Template.getDefaultAlterChannelTemplateMailJar();
-    }
-    @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
-    default AlertChannel getDefaultAlterChannelSmsJar() {
-        return Template.getDefaultAlterChannelTemplateSmsJar();
-    }
-    @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
-    default AlertChannel getDefaultAlterChannelComJar() {
-        return Template.getDefaultAlterChannelTemplateICustomizeJar();
-    }
-
-    @DatabaseInsertOperation(dao = TestAlertRecordDao.class)
-    default AlertRecord getDefaultRecord(){
-        return Template.getDefaultRecord();
     }
 
 }

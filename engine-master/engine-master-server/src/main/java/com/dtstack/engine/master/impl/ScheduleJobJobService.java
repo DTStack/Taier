@@ -5,7 +5,9 @@ import com.dtstack.engine.api.domain.ScheduleJobJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleJobJobDTO;
 import com.dtstack.engine.api.dto.ScheduleJobJobTaskDTO;
+import com.dtstack.engine.api.enums.TaskRuleEnum;
 import com.dtstack.engine.api.vo.ScheduleJobVO;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -18,6 +20,8 @@ import com.dtstack.engine.api.dto.ScheduleJobJobTaskDTO;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
 import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -36,7 +40,7 @@ import java.util.stream.Collectors;
 @Service
 public class ScheduleJobJobService {
 
-    private final static Logger logger = LoggerFactory.getLogger(ScheduleJobJobService.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ScheduleJobJobService.class);
 
     private static final String WORKFLOW_PARENT = "0";
 
@@ -55,7 +59,8 @@ public class ScheduleJobJobService {
     @Autowired
     private EnvironmentContext context;
 
-
+    @Autowired
+    private ScheduleTaskShadeService taskShadeService;
 
     /**
      * @author newman
@@ -87,7 +92,7 @@ public class ScheduleJobJobService {
                 }
                 return subJobVO;
             } catch (Exception e) {
-                logger.error("get flow work subJob error", e);
+                LOGGER.error("get flow work subJob error", e);
             }
         }
         // 递归获取level层的子节点
@@ -99,7 +104,7 @@ public class ScheduleJobJobService {
         allJobKeys.add(job.getJobKey());
         getAllJobKeys(result, allJobKeys);
         Map<String, ScheduleJob> keyJobMap = new HashMap<>();
-        Map<Long, ScheduleTaskShade> idTaskMap = new HashMap<>();
+        Map<String, ScheduleTaskShade> idTaskMap = new HashMap<>();
         //获取keyJobMap和taskId-TaskShade map组
         getRelationData(allJobKeys, keyJobMap, idTaskMap);
         return getOffSpring(root, keyJobMap, idTaskMap, false);
@@ -151,7 +156,7 @@ public class ScheduleJobJobService {
                 }
                 return subJobVO;
             } catch (Exception e) {
-                logger.error("get flow work subJob error", e);
+                LOGGER.error("get flow work subJob error", e);
             }
         }
         // 递归获取level层的子节点
@@ -163,7 +168,7 @@ public class ScheduleJobJobService {
         allJobKeys.add(job.getJobKey());
         getAllJobKeys(result, allJobKeys);
         Map<String, ScheduleJob> keyJobMap = new HashMap<>();
-        Map<Long, ScheduleTaskShade> idTaskMap = new HashMap<>();
+        Map<String, ScheduleTaskShade> idTaskMap = new HashMap<>();
         getRelationData(allJobKeys, keyJobMap, idTaskMap);
         //flowJobId不为0时表示是工作流中的子任务
         boolean isSubTask = !StringUtils.equals("0", job.getFlowJobId());
@@ -172,22 +177,36 @@ public class ScheduleJobJobService {
     }
 
     private void getRelationData(Set<String> allJobKeys, Map<String, ScheduleJob> keyJobMap,
-                                 Map<Long, ScheduleTaskShade> idTaskMap) throws Exception {
-        List<Long> taskIds = new ArrayList<>();
+                                 Map<String, ScheduleTaskShade> idTaskMap) throws Exception {
         List<ScheduleJob> jobs = scheduleJobDao.listJobByJobKeys(allJobKeys);
         if(CollectionUtils.isEmpty(jobs)){
             return;
         }
-        Integer appType = null;
+        Map<Integer, List<Long>> mapTaskId = Maps.newHashMap();
         for (ScheduleJob scheduleJob : jobs) {
             keyJobMap.put(scheduleJob.getJobKey(), scheduleJob);
+
+            List<Long> taskIds = mapTaskId.get(scheduleJob.getAppType());
+
+            if (CollectionUtils.isEmpty(taskIds)) {
+                taskIds = Lists.newArrayList();
+            }
+
             taskIds.add(scheduleJob.getTaskId());
-            if (null == appType && null != scheduleJob.getAppType()) {
-                appType = scheduleJob.getAppType();
+            mapTaskId.put(scheduleJob.getAppType(),taskIds);
+        }
+        List<ScheduleTaskShade> taskAllShades = Lists.newArrayList();
+
+        for (Map.Entry<Integer, List<Long>> entry : mapTaskId.entrySet()) {
+            Integer appType = entry.getKey();
+            List<Long> taskIds = entry.getValue();
+            List<ScheduleTaskShade> tasks = batchTaskShadeService.getSimpleTaskRangeAllByIds(taskIds, appType);
+
+            if (CollectionUtils.isNotEmpty(tasks)) {
+                taskAllShades.addAll(tasks);
             }
         }
-        List<ScheduleTaskShade> taskShades = batchTaskShadeService.getSimpleTaskRangeAllByIds(taskIds,appType);
-        taskShades.forEach(item -> idTaskMap.put(item.getTaskId(), item));
+        taskAllShades.forEach(item -> idTaskMap.put(item.getTaskId()+"-"+item.getAppType(), item));
     }
 
     private ScheduleJobJobDTO getTree(ScheduleJobJobDTO root, Map<Integer, List<ScheduleJobJob>> result, int level, boolean isChild) {
@@ -254,7 +273,7 @@ public class ScheduleJobJobService {
                 return result;
             }
             List<ScheduleJobJob> jobJobList = jobJobs.stream().map(ScheduleJobJobTaskDTO::toJobJob).collect(Collectors.toList());
-            logger.info("count info --- rootKey:{} jobJobList size:{} jobLoop:{}", rootKey, jobJobList.size(), jobLoop);
+            LOGGER.info("count info --- rootKey:{} jobJobList size:{} jobLoop:{}", rootKey, jobJobList.size(), jobLoop);
             result.put(jobLoop, jobJobList);
             jobLoop++;
         }
@@ -274,7 +293,7 @@ public class ScheduleJobJobService {
         for (ScheduleJobJobTaskDTO jobJob : jobJobs) {
             String jobKeyRelation = jobJob.getParentJobKey()+"-"+jobJob.getJobKey();
             if(jobKeyRelations.contains(jobKeyRelation)){
-                logger.error("该工作实例成环了,jobKeyRelation:{}",jobKeyRelation);
+                LOGGER.error("check task has loopped,jobKeyRelation:{}",jobKeyRelation);
                 return true;
             }
             jobKeyRelations.add(jobKeyRelation);
@@ -341,7 +360,7 @@ public class ScheduleJobJobService {
             //重新给jobKeys赋值
             jobKeys = getJobKeys(getChild, jobJobs);
             List<ScheduleJobJob> jobJobList = jobJobs.stream().map(ScheduleJobJobTaskDTO::toJobJob).collect(Collectors.toList());
-            logger.info("count info --- rootKey:{} jobJobList size:{} jobLoop:{}", rootKey, jobJobList.size(), jobLoop);
+            LOGGER.info("count info --- rootKey:{} jobJobList size:{} jobLoop:{}", rootKey, jobJobList.size(), jobLoop);
             result.put(jobLoop, jobJobList);
             jobLoop++;
         }
@@ -366,7 +385,7 @@ public class ScheduleJobJobService {
             Set<String> allJobKeys = new HashSet<>();
             getAllJobKeys(result, allJobKeys);
             Map<String, ScheduleJob> keyJobMap = new HashMap<>(16);
-            Map<Long, ScheduleTaskShade> idTaskMap = new HashMap<>(16);
+            Map<String, ScheduleTaskShade> idTaskMap = new HashMap<>(16);
             //获取keyJobMap和taskId-TaskShade map组
             getRelationData(allJobKeys, keyJobMap, idTaskMap);
             ScheduleJobJob beginJobJob = null;
@@ -379,7 +398,7 @@ public class ScheduleJobJobService {
                 }
             }
             if (beginJobJob == null) {
-                logger.error("displayOffSpringForFlowWork end with no subTasks with flowJobKey [{}]", flowJob.getJobKey());
+                LOGGER.error("displayOffSpringForFlowWork end with no subTasks with flowJobKey [{}]", flowJob.getJobKey());
                 return null;
             }
             ScheduleJobJobDTO root = new ScheduleJobJobDTO();
@@ -403,7 +422,7 @@ public class ScheduleJobJobService {
             getAllJobKeys(result, allJobKeys);
 
             Map<String, ScheduleJob> keyJobMap = new HashMap<>(16);
-            Map<Long, ScheduleTaskShade> idTaskMap = new HashMap<>(16);
+            Map<String, ScheduleTaskShade> idTaskMap = new HashMap<>(16);
             getRelationData(allJobKeys, keyJobMap, idTaskMap);
 
             ScheduleJobJob beginJobJob = null;
@@ -416,7 +435,7 @@ public class ScheduleJobJobService {
                 }
             }
             if (beginJobJob == null) {
-                logger.error("displayOffSpringForFlowWork end with no subTasks with flowJobKey [{}]", flowJob.getJobKey());
+                LOGGER.error("displayOffSpringForFlowWork end with no subTasks with flowJobKey [{}]", flowJob.getJobKey());
                 return null;
             }
             ScheduleJobJobDTO root = new ScheduleJobJobDTO();
@@ -429,15 +448,30 @@ public class ScheduleJobJobService {
     }
 
     public com.dtstack.engine.master.vo.ScheduleJobVO getOffSpring(
-            ScheduleJobJobDTO root, Map<String, ScheduleJob> keyJobMap, Map<Long, ScheduleTaskShade> idTaskMap, boolean isSubTask) {
+            ScheduleJobJobDTO root, Map<String, ScheduleJob> keyJobMap, Map<String, ScheduleTaskShade> idTaskMap, boolean isSubTask) {
 
         ScheduleJob job = keyJobMap.get(root.getJobKey());
         com.dtstack.engine.master.vo.ScheduleJobVO vo = new com.dtstack.engine.master.vo.ScheduleJobVO(job);
         vo.setProjectId(job.getProjectId());
-        ScheduleTaskShade batchTaskShade = idTaskMap.get(job.getTaskId());
+
+        if (RdosTaskStatus.RUNNING_TASK_RULE.getStatus().equals(vo.getStatus())) {
+            vo.setStatus(RdosTaskStatus.RUNNING.getStatus());
+        }
+
+        ScheduleTaskShade batchTaskShade = idTaskMap.get(job.getTaskId()+"-"+job.getAppType());
         if (batchTaskShade == null) {
             return null;
         }
+
+        // 查询是否有绑定任务
+        List<ScheduleTaskShade> taskShades = taskShadeService.findChildTaskRuleByTaskId(batchTaskShade.getTaskId(), batchTaskShade.getAppType());
+        if (CollectionUtils.isNotEmpty(taskShades)) {
+            // 绑定了规则任务
+            vo.setExistsOnRule(Boolean.TRUE);
+        } else {
+            vo.setExistsOnRule(Boolean.FALSE);
+        }
+
         //展示非工作流中的任务节点时，过滤掉工作流中的节点
         if (!isSubTask) {
             if (!vo.getFlowJobId().equals("0")) {
@@ -449,15 +483,32 @@ public class ScheduleJobJobService {
             //移除不符合条件的jobjob
             filterJobJob(root, job, batchTaskShade);
             List<ScheduleJobVO> subJobVOs = new ArrayList<>(root.getChildren().size());
+            List<ScheduleJobVO> taskRuleJobVOs = new ArrayList<>(root.getChildren().size());
             for (ScheduleJobJobDTO jobJobDTO : root.getChildren()) {
                 com.dtstack.engine.master.vo.ScheduleJobVO subVO = getOffSpring(jobJobDTO, keyJobMap, idTaskMap, isSubTask);
                 if (subVO != null) {
-                    subJobVOs.add(subVO);
+                    if (TaskRuleEnum.NO_RULE.getCode().equals(subVO.getTaskRule())) {
+                        subJobVOs.add(subVO);
+                    } else {
+                        taskRuleJobVOs.add(subVO);
+                    }
                 }
             }
             vo.setJobVOS(subJobVOs);
+            vo.setTaskRuleJobVOS(taskRuleJobVOs);
         }
         return vo;
+    }
+
+    private ScheduleJobVO buildRuleBean(com.dtstack.engine.master.vo.ScheduleJobVO subVO) {
+        // 判断是否是工作流任务，如果是工作流任务，取工作流任务的第一个节点
+        if (EScheduleJobType.WORK_FLOW.getType().equals(subVO.getTaskType())) {
+            List<ScheduleJobVO> jobVOS = subVO.getJobVOS();
+            return CollectionUtils.isEmpty(jobVOS)?jobVOS.get(0):null;
+        } else {
+            return subVO;
+        }
+
     }
 
     private void filterJobJob(ScheduleJobJobDTO root, ScheduleJob job, ScheduleTaskShade batchTaskShade) {
@@ -511,7 +562,7 @@ public class ScheduleJobJobService {
                 }
                 vo.setSubNodes(subJobVO);
             } catch (Exception e) {
-                logger.error("get flow work subJob error", e);
+                LOGGER.error("get flow work subJob error", e);
             }
         }
         return vo;
@@ -550,7 +601,7 @@ public class ScheduleJobJobService {
         allJobKeys.add(job.getJobKey());
         getAllJobKeys(result, allJobKeys);
         Map<String, ScheduleJob> keyJobMap = new HashMap<>();
-        Map<Long, ScheduleTaskShade> idTaskMap = new HashMap<>();
+        Map<String, ScheduleTaskShade> idTaskMap = new HashMap<>();
         getRelationData(allJobKeys, keyJobMap, idTaskMap);
         return getForefathers(root, keyJobMap, idTaskMap);
     }
@@ -582,20 +633,20 @@ public class ScheduleJobJobService {
         getAllJobKeys(result, allJobKeys);
 
         Map<String, ScheduleJob> keyJobMap = new HashMap<>();
-        Map<Long, ScheduleTaskShade> idTaskMap = new HashMap<>();
+        Map<String, ScheduleTaskShade> idTaskMap = new HashMap<>();
         getRelationData(allJobKeys, keyJobMap, idTaskMap);
 
         return getForefathersNew(root, keyJobMap, idTaskMap);
     }
 
     private com.dtstack.engine.master.vo.ScheduleJobVO getForefathersNew(ScheduleJobJobDTO root, Map<String, ScheduleJob> keyJobMap,
-                                                                      Map<Long, ScheduleTaskShade> idTaskMap) {
+                                                                      Map<String, ScheduleTaskShade> idTaskMap) {
         ScheduleJob job = keyJobMap.get(root.getJobKey());
         if (job == null) {
             return null;
         }
         com.dtstack.engine.master.vo.ScheduleJobVO vo = new com.dtstack.engine.master.vo.ScheduleJobVO(job);
-        ScheduleTaskShade batchTaskShade = idTaskMap.get(job.getTaskId());
+        ScheduleTaskShade batchTaskShade = idTaskMap.get(job.getTaskId()+"-"+job.getAppType());
         vo.setBatchTask(getTaskVo(batchTaskShade));
         if (StringUtils.isBlank(job.getJobKey())) {
             return vo;
@@ -608,29 +659,48 @@ public class ScheduleJobJobService {
                 return vo;
             }
             List<ScheduleJobVO> fatherVOs = new ArrayList<>();
+            List<ScheduleJobVO> taskRuleJobVOs = new ArrayList<>();
             for (ScheduleJobJobDTO jobJobDTO : root.getChildren()) {
                 com.dtstack.engine.master.vo.ScheduleJobVO item = this.getForefathersNew(jobJobDTO, keyJobMap, idTaskMap);
                 if (item != null) {
-                    fatherVOs.add(item);
+                    if (TaskRuleEnum.NO_RULE.getCode().equals(item.getTaskRule())) {
+                        fatherVOs.add(item);
+                    } else {
+                        taskRuleJobVOs.add(item);
+                    }
                 }
             }
             vo.setJobVOS(fatherVOs);
+            vo.setTaskRuleJobVOS(taskRuleJobVOs);
         }
         return vo;
     }
 
     private com.dtstack.engine.master.vo.ScheduleJobVO getForefathers(ScheduleJobJobDTO root, Map<String, ScheduleJob> keyJobMap,
-                                                                      Map<Long, ScheduleTaskShade> idTaskMap) {
+                                                                      Map<String, ScheduleTaskShade> idTaskMap) {
         ScheduleJob job = keyJobMap.get(root.getJobKey());
         if (job == null) {
             return null;
         }
         com.dtstack.engine.master.vo.ScheduleJobVO vo = new com.dtstack.engine.master.vo.ScheduleJobVO(job);
-        ScheduleTaskShade batchTaskShade = idTaskMap.get(job.getTaskId());
+        ScheduleTaskShade batchTaskShade = idTaskMap.get(job.getTaskId() + "-" + job.getAppType());
         vo.setBatchTask(getTaskVo(batchTaskShade));
         if (StringUtils.isBlank(job.getJobKey())) {
             return vo;
         }
+
+        List<ScheduleTaskShade> taskShades = taskShadeService.findChildTaskRuleByTaskId(batchTaskShade.getTaskId(), batchTaskShade.getAppType());
+        if (CollectionUtils.isNotEmpty(taskShades)) {
+            // 绑定了规则任务
+            vo.setExistsOnRule(Boolean.TRUE);
+        } else {
+            vo.setExistsOnRule(Boolean.FALSE);
+        }
+
+        if (RdosTaskStatus.RUNNING_TASK_RULE.getStatus().equals(vo.getStatus())) {
+            vo.setStatus(RdosTaskStatus.RUNNING.getStatus());
+        }
+
         if (CollectionUtils.isNotEmpty(root.getChildren())) {
             root.getChildren().removeIf(jobJobDTO ->
                     batchJobService.getTaskShadeIdFromJobKey(jobJobDTO.getJobKey()).equals(batchTaskShade.getId()));
@@ -639,13 +709,20 @@ public class ScheduleJobJobService {
                 return vo;
             }
             List<ScheduleJobVO> fatherVOs = new ArrayList<>();
+            List<ScheduleJobVO> taskRuleJobVOs = new ArrayList<>();
+
             for (ScheduleJobJobDTO jobJobDTO : root.getChildren()) {
                 com.dtstack.engine.master.vo.ScheduleJobVO item = this.getForefathers(jobJobDTO, keyJobMap, idTaskMap);
                 if (item != null) {
-                    fatherVOs.add(item);
+                    if (TaskRuleEnum.NO_RULE.getCode().equals(item.getTaskRule())) {
+                        fatherVOs.add(item);
+                    } else {
+                        taskRuleJobVOs.add(item);
+                    }
                 }
             }
             vo.setJobVOS(fatherVOs);
+            vo.setTaskRuleJobVOS(taskRuleJobVOs);
         }
         return vo;
     }

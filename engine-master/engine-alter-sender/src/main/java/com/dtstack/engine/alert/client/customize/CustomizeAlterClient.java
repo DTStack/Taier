@@ -21,19 +21,19 @@ import org.slf4j.LoggerFactory;
  */
 public class CustomizeAlterClient extends AbstractAlterClient {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     @Override
     protected R send(AlterContext alterContext) throws Exception {
         JSONObject jsonObject = JSONObject.parseObject(alterContext.getAlertGateJson());
         String className = jsonObject.getString(ConstCustomizeAlter.CUSTOMIZE_CLASS);
         if (StringUtils.isBlank(className)) {
-            throw new AlterException("发送自定义jar必须配置jar包的完整类名，请在配置中配置字段:" + ConstCustomizeAlter.CUSTOMIZE_CLASS);
+            throw new AlterException("Sending a custom jar must configure the full className of the jar package, please configure the field in the configuration:" + ConstCustomizeAlter.CUSTOMIZE_CLASS);
         }
 
         String jarPath = alterContext.getJarPath();
         if (StringUtils.isBlank(jarPath)) {
-            throw new AlterException("自定义jar必须传入jar路径");
+            throw new AlterException("The custom jar must be passed in the jarPath");
         }
 
         if (jarPath.contains(ConstCustomizeAlter.PATH_CUT)) {
@@ -42,7 +42,7 @@ public class CustomizeAlterClient extends AbstractAlterClient {
 
         String content = alterContext.getContent();
         if (StringUtils.isBlank(content)) {
-            throw new AlterException("自定义jar必须传入告警内容");
+            throw new AlterException("Custom jar must be passed in alarm content");
         }
 
         long startTime = System.currentTimeMillis();
@@ -54,11 +54,11 @@ public class CustomizeAlterClient extends AbstractAlterClient {
         try {
             ICustomizeChannel sender = (ICustomizeChannel) JarCache.getInstance().getChannelInstance(jarPath, className);
             R r = sender.sendCustomizeAlert(data.toJSONString(),jsonObject);
-            logger.info("[CustomizeAlert] end, cost={}, data={}, result={}", (System.currentTimeMillis() - startTime), data, r);
+            LOGGER.info("[CustomizeAlert] end, cost={}, data={}, result={}", (System.currentTimeMillis() - startTime), data, r);
             return r;
         } catch (Exception e) {
-            logger.info("[CustomizeAlert] error, cost={}, data={}",(System.currentTimeMillis() - startTime), data, e);
-            return R.fail("jarPath:"+jarPath +"加载失败，请检查配置！");
+            LOGGER.info("[CustomizeAlert] error, cost={}, data={}",(System.currentTimeMillis() - startTime), data, e);
+            return R.fail("jarPath:"+jarPath +" ,loading failed, please check the configuration！");
         }
     }
 

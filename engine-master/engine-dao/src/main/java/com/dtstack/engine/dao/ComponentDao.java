@@ -13,8 +13,6 @@ public interface ComponentDao {
 
     Integer update(Component component);
 
-    List<Component> listByEngineId(@Param("engineId") Long engineId);
-
     List<Component> listByEngineIds(@Param("engineIds") List<Long> engineId);
 
     Component getByEngineIdAndComponentType(@Param("engineId") Long engineId, @Param("type") Integer type);

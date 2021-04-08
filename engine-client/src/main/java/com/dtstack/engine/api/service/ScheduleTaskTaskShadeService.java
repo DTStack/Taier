@@ -23,7 +23,7 @@ public interface ScheduleTaskTaskShadeService extends DtInsightServer {
     ApiResponse<Void> saveTaskTaskList(@Param("taskTask") String taskLists);
 
     @RequestLine("POST /node/scheduleTaskTaskShade/getAllParentTask")
-    ApiResponse<List<ScheduleTaskTaskShade>> getAllParentTask(@Param("taskId") Long taskId);
+    ApiResponse<List<ScheduleTaskTaskShade>> getAllParentTask(@Param("taskId") Long taskId, @Param("appType") Integer appType);
 
 
     @RequestLine("POST /node/scheduleTaskTaskShade/displayOffSpring")

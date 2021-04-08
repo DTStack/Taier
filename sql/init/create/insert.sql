@@ -3,7 +3,7 @@ INSERT INTO `task_param_template` VALUES ('1', now(), now(), '0', '0', '0', '0',
 sql.env.parallelism=1
 
 ## 时间窗口类型（ProcessingTime或者EventTime）
-time.characteristic=ProcessingTime
+time.characteristic=EventTime
 
 ## 窗口提前触发时间，单位为秒(填写正整数即可)
 # early.trigger=1

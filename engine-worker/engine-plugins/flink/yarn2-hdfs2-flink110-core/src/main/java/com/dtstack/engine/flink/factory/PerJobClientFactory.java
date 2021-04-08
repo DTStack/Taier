@@ -145,6 +145,8 @@ public class PerJobClientFactory extends AbstractClientFactory {
         Configuration newConf = new Configuration(flinkConfiguration);
         newConf = appendJobConfigAndInitFs(jobClient, newConf);
 
+        newConf = setHdfsFlinkJarPath(flinkConfig, newConf);
+
         List<File> keytabFiles = getKeytabFilesAndSetSecurityConfig(jobClient, newConf);
 
         YarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, yarnConf);
@@ -255,7 +257,8 @@ public class PerJobClientFactory extends AbstractClientFactory {
         String remoteDir = flinkConfig.getRemoteDir();
 
         // 数据源keytab
-        String taskKeytabDirPath = ConfigConstant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
+        String taskWorkspace = String.format("%s/%s_%s", ConfigConstrant.TMP_DIR, jobClient.getTaskId(), Thread.currentThread().getId());
+        String taskKeytabDirPath = taskWorkspace + ConfigConstrant.SP + "kerberos";
         File taskKeytabDir = new File(taskKeytabDirPath);
         File[] taskKeytabFiles = taskKeytabDir.listFiles();
         if (taskKeytabFiles != null && taskKeytabFiles.length > 0) {

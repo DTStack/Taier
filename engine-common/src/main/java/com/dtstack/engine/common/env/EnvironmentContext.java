@@ -36,12 +36,33 @@ public class EnvironmentContext {
 
     /**补数据或重跑cycTime的间隔，正常环境7*24小时，压测环境2个小时**/
     public Integer getFillDataCycTimeHourGap(){
-        return Math.abs(Integer.parseInt(environment.getProperty("fillDataCycTimeHourGap", "168")));
+        return Math.abs(Integer.parseInt(environment.getProperty("fillDataCycTimeHourGap", "1440")));
     }
 
-    /**是否给补数据和重跑cycTime做限制，默认不做限制**/
+    /**是否给补数据做限制，默认不做限制**/
     public Boolean getOpenFillDataCycTimeLimit(){
         return Boolean.parseBoolean(environment.getProperty("openFillDataCycTimeLimit","false"));
+    }
+
+    /**
+     * 是否开启重跑时间限制，默认限制
+     */
+    public Boolean getOpenRestartDataCycTimeLimit(){
+        return Boolean.parseBoolean(environment.getProperty("openFillDataCycTimeLimit","true"));
+    }
+
+    /**
+     * 重跑默认当前时间前多少天，默认60天
+     */
+    public int getRestartCycTimeHourBefore(){
+        return Math.abs(Integer.parseInt(environment.getProperty("restartCycTimeBefore","1440")));
+    }
+
+    /**
+     * 周期实例往前推进多少天, 默认前1天
+     */
+    public int getNormalScheduleCycTimeHourBefore(){
+        return Math.abs(Integer.parseInt(environment.getProperty("normalScheduleCycTimeBefore","24")));
     }
 
     public long getJobStatusDealerInterval() {
@@ -474,6 +495,34 @@ public class EnvironmentContext {
         return Integer.valueOf(environment.getProperty("dataSource.time.between.eviction.runs.millis", "60000"));
     }
 
+    /**控制任务展开层数**/
+    public Integer getJobJobLevel(){
+        return Integer.valueOf(environment.getProperty("max.jobJob.level","20"));
+    }
+
+    /**控制工作流节点展开层数**/
+    public Integer getWorkFlowLevel(){
+        return Integer.valueOf(environment.getProperty("max.workFlow.level","20"));
+    }
+
+    public Boolean getUseOptimize(){
+
+        return Boolean.parseBoolean(environment.getProperty("engine.useOptimize","true"));
+    }
+
+    public int getMaxDeepShow() {
+        return Integer.parseInt(environment.getProperty("max.deep.show", "20"));
+    }
+
+    /**
+     * 是否开启任务调度
+     *
+     * @return
+     */
+    public boolean openJobSchedule() {
+        return Boolean.parseBoolean(environment.getProperty("job.schedule", "true"));
+    }
+
     public boolean getKeepAlive() {
         return Boolean.parseBoolean(environment.getProperty("dataSource.keep.alive", "true"));
     }
@@ -507,34 +556,9 @@ public class EnvironmentContext {
         return Integer.valueOf(environment.getProperty("dataSource.max.prepared.statement.per.connection.size", "20"));
     }
 
-    /**控制任务展开层数**/
-    public Integer getJobJobLevel(){
-        return Integer.valueOf(environment.getProperty("max.jobJob.level","20"));
+    public long getForkJoinResultTimeOut() {
+        return Long.parseLong(environment.getProperty("fork.join.timeout", Long.toString(60 * 5)));
     }
-
-    /**控制工作流节点展开层数**/
-    public Integer getWorkFlowLevel(){
-        return Integer.valueOf(environment.getProperty("max.workFlow.level","20"));
-    }
-
-    public Boolean getUseOptimize(){
-
-        return Boolean.parseBoolean(environment.getProperty("engine.useOptimize","true"));
-    }
-
-    public int getMaxDeepShow() {
-        return Integer.parseInt(environment.getProperty("max.deep.show", "20"));
-    }
-
-    /**
-     * 是否开启任务调度
-     *
-     * @return
-     */
-    public boolean openJobSchedule() {
-        return Boolean.parseBoolean(environment.getProperty("job.schedule", "true"));
-    }
-
     /**
      * 是否根据版本加载默认的配置
      *
@@ -542,5 +566,21 @@ public class EnvironmentContext {
      */
     public boolean isCanAddExtraConfig() {
         return Boolean.parseBoolean(environment.getProperty("console.extra.config", "true"));
+    }
+
+    public Integer getFuzzyProjectByProjectAliasLimit() {
+        return Integer.parseInt(environment.getProperty("fuzzy.project.alias.limit", "20"));
+    }
+
+    public Long getTaskRuleTimeout() {
+        return Long.parseLong(environment.getProperty("task.rule.timeout", "600000"));
+    }
+
+    public Integer getListChildTaskLimit() {
+        return Integer.parseInt(environment.getProperty("list.child.task.limit", "20"));
+    }
+
+    public boolean getOpenDummy() {
+        return Boolean.parseBoolean(environment.getProperty("open.dummy", "false"));
     }
 }

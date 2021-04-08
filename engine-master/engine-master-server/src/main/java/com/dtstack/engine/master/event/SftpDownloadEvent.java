@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 @ConditionalOnProperty(name = "console.sftp.open",havingValue = "true",matchIfMissing = true)
 public class SftpDownloadEvent extends AdapterEventMonitor {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     private final Cache<String, String> cacheSftpJar = CacheBuilder.newBuilder()
             .maximumSize(1000L).initialCapacity(1000).expireAfterAccess(5, TimeUnit.MINUTES).build();
@@ -51,7 +51,7 @@ public class SftpDownloadEvent extends AdapterEventMonitor {
                     destPath = jarPath.substring(0, jarPath.indexOf(GlobalConst.PATH_CUT));
                     sftpPath = jarPath.substring(jarPath.indexOf(GlobalConst.PATH_CUT)+GlobalConst.PATH_CUT.length());
                 } catch (Exception e) {
-                    logger.error(e.getMessage());
+                    LOGGER.error(e.getMessage());
                 }
             }
 
@@ -65,14 +65,14 @@ public class SftpDownloadEvent extends AdapterEventMonitor {
                         sftpManager.downloadFile(sftpPath, destPath);
                         cacheSftpJar.put(jarPath, System.currentTimeMillis() + "");
                     } catch (Exception e) {
-                        logger.error("下载sftp失败:", e);
+                        LOGGER.error("sftp download failed:", e);
                     }
                 } else {
-                    logger.error("未配置sftp:");
+                    LOGGER.error("not configured sftp");
                 }
             }
         } catch (Exception e) {
-            logger.error(ExceptionUtil.getErrorMessage(e));
+            LOGGER.error(ExceptionUtil.getErrorMessage(e));
         }
     }
 
@@ -87,7 +87,7 @@ public class SftpDownloadEvent extends AdapterEventMonitor {
                 dbPath = dbPath + GlobalConst.PATH_CUT + remoteDir + File.separator + file.getOriginalFilename();
                 setCache(dbPath);
             } catch (Exception e) {
-                logger.error("上传sftp失败:",e);
+                LOGGER.error("sftp upload failed:",e);
             }
         }
         return dbPath;

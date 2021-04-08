@@ -21,7 +21,7 @@ import java.util.List;
 @Component
 public class RestartJobExecutor extends AbstractJobExecutor {
 
-    private final Logger logger = LoggerFactory.getLogger(RestartJobExecutor.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(RestartJobExecutor.class);
 
     @Override
     public EScheduleType getScheduleType() {
@@ -31,7 +31,7 @@ public class RestartJobExecutor extends AbstractJobExecutor {
     @Override
     public void stop() {
         RUNNING.set(false);
-        logger.info("---stop RestartJobExecutor----");
+        LOGGER.info("---stop RestartJobExecutor----");
     }
 
     @Override
@@ -46,25 +46,24 @@ public class RestartJobExecutor extends AbstractJobExecutor {
         //重跑查询补数据和周期调度的
         List<ScheduleJob> scheduleJobs = scheduleJobDao.listExecJobByCycTimeTypeAddress(startId, nodeAddress, null, null, null,
                 JobPhaseStatus.CREATE.getCode(), isEq, lasTime, Restarted.RESTARTED.getStatus());
-        logger.info("getRestartDataJob scheduleType {} nodeAddress {} start scanning since when startId:{}  isEq {} queryJobSize {}. lastTime {}", getScheduleType(), nodeAddress, startId, isEq,
+        LOGGER.info("getRestartDataJob scheduleType {} nodeAddress {} start scanning since when startId:{}  isEq {} queryJobSize {}. lastTime {}", getScheduleType(), nodeAddress, startId, isEq,
                 scheduleJobs.size(),lasTime.getTime());
         return getScheduleBatchJobList(scheduleJobs);
     }
 
     @Override
     protected Long getListMinId(String nodeAddress, Integer isRestart) {
-        Pair<String, String> cycTime = this.getCycTime();
+        Pair<String, String> cycTime = this.getCycTime(true);
         Long listMinId = batchJobService.getListMinId(nodeAddress, null, cycTime.getLeft(), cycTime.getRight(), Restarted.RESTARTED.getStatus());
-        logger.info("getListMinId scheduleType {} nodeAddress {} isRestart {} lastMinId is {} .", getScheduleType(), nodeAddress, Restarted.RESTARTED.getStatus(), listMinId);
+        LOGGER.info("getListMinId scheduleType {} nodeAddress {} isRestart {} lastMinId is {} .", getScheduleType(), nodeAddress, Restarted.RESTARTED.getStatus(), listMinId);
         return listMinId;
     }
 
-    private Pair<String, String> getCycTime() {
-        //补数据和重跑
-        if(environmentContext.getOpenFillDataCycTimeLimit()) {
-            return jobRichOperator.getCycTimeLimitEndNow(false);
-        }else {
-            return  new ImmutablePair<>(null, null);
+    public Pair<String, String> getCycTime(boolean minJobId) {
+        // 重跑
+        if(environmentContext.getOpenRestartDataCycTimeLimit()) {
+            return jobRichOperator.getCycTimeLimitEndNow(false,true, minJobId);
         }
+        return new ImmutablePair<>(null, null);
     }
 }

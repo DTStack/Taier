@@ -116,7 +116,7 @@ public class StatusUpdateEvent extends AdapterEventMonitor implements Ordered {
             AlertRecord update = new AlertRecord();
             update.setAlertRecordStatus(AlertRecordStatusEnum.ALERT_SUCCESS.getType());
             update.setAlertRecordSendStatus(AlertSendStatusEnum.SEND_FAILURE.getType());
-            update.setFailureReason("原因："+(r!=null?r.getMessage():"")+"--异常:"+ ExceptionUtil.getErrorMessage(e));
+            update.setFailureReason("reason ："+(r!=null?r.getMessage():"")+"-- exception :"+ ExceptionUtil.getErrorMessage(e));
             update.setSendEndTime(DateTime.now().toString("yyyyMMddHHmmss"));
             Map<String,Object> param = Maps.newHashMap();
             param.put("id", record.getId());
@@ -140,7 +140,7 @@ public class StatusUpdateEvent extends AdapterEventMonitor implements Ordered {
 
                 if (update <= 0) {
                     // 抛出中断异常
-                    throw new AlterEventInterruptException("告警记录:"+alterContext.getMark()+"更新状态失败");
+                    throw new AlterEventInterruptException("alarm record:"+alterContext.getMark()+" update status failed");
                 }
 
             }

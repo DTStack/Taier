@@ -19,8 +19,6 @@ import java.util.Map;
  */
 public class FlinkConfig extends BaseConfig {
 
-    private static final String DEFAULT_JAR_TMP_DIR = "../tmp110";
-
     private static List<String> ENGINE_FLINK_CONFIGS = null;
 
     static {
@@ -30,8 +28,6 @@ public class FlinkConfig extends BaseConfig {
     private String typeName;
 
     private String flinkJobMgrUrl;
-
-    private String jarTmpDir;
 
     private String flinkPluginRoot;
 
@@ -80,6 +76,8 @@ public class FlinkConfig extends BaseConfig {
     private int zkConnectionTimeout = 5000;
 
     private int zkSessionTimeout = 5000;
+
+    private String remoteFlinkJarPath;
 
     public int getZkConnectionTimeout() {
         return zkConnectionTimeout;
@@ -159,10 +157,6 @@ public class FlinkConfig extends BaseConfig {
 
     public void setFlinkJobMgrUrl(String flinkJobMgrUrl) {
         this.flinkJobMgrUrl = flinkJobMgrUrl;
-    }
-
-    public void setJarTmpDir(String jarTmpDir) {
-        this.jarTmpDir = jarTmpDir;
     }
 
     public void setFlinkPluginRoot(String flinkPluginRoot) {
@@ -276,14 +270,6 @@ public class FlinkConfig extends BaseConfig {
         this.pluginLoadMode = pluginLoadMode;
     }
 
-    public String getJarTmpDir() {
-        if (Strings.isNullOrEmpty(jarTmpDir)) {
-            return DEFAULT_JAR_TMP_DIR;
-        }
-
-        return jarTmpDir;
-    }
-
     public String getFlinkPluginRoot() {
         if(Strings.isNullOrEmpty(flinkPluginRoot)){
             return ConfigConstrant.DEFAULT_FLINK_PLUGIN_ROOT;
@@ -356,5 +342,13 @@ public class FlinkConfig extends BaseConfig {
 
     public void setSubmitTimeout(long submitTimeout) {
         this.submitTimeout = submitTimeout;
+    }
+
+    public String getRemoteFlinkJarPath() {
+        return remoteFlinkJarPath;
+    }
+
+    public void setRemoteFlinkJarPath(String remoteFlinkJarPath) {
+        this.remoteFlinkJarPath = remoteFlinkJarPath;
     }
 }

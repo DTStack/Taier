@@ -220,14 +220,6 @@ public class ConsoleServiceTest extends AbstractTest {
         Assert.assertNotNull(getResources);
     }
 
-    @Test
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-    @Rollback
-    public void testGetYarnComponent() {
-        Cluster defaultCluster = DataCollection.getData().getDefaultCluster();
-        Component getYarnComponent = consoleService.getYarnComponent(defaultCluster.getId());
-        Assert.assertNotNull(getYarnComponent);
-    }
 
     @Test
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)

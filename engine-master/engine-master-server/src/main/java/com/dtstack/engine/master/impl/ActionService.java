@@ -63,7 +63,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class ActionService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ActionService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ActionService.class);
 
     @Autowired
     private EnvironmentContext environmentContext;
@@ -122,7 +122,7 @@ public class ActionService {
      */
     public Boolean start(ParamActionExt paramActionExt){
 
-        logger.info("start  actionParam: {}", JSONObject.toJSONString(paramActionExt));
+        LOGGER.info("start  actionParam: {}", JSONObject.toJSONString(paramActionExt));
 
         try{
             checkParam(paramActionExt);
@@ -134,14 +134,14 @@ public class ActionService {
                 jobDealer.addSubmitJob(jobClient);
                 return true;
             }
-            logger.warn("Job taskId：" + paramActionExt.getTaskId() + " duplicate submissions are not allowed");
+            LOGGER.warn("Job taskId：" + paramActionExt.getTaskId() + " duplicate submissions are not allowed");
         }catch (Exception e){
-            logger.error("", e);
+            LOGGER.error("", e);
             //任务提交出错 需要将状态从提交中 更新为失败 否则一直在提交中
             String taskId = paramActionExt.getTaskId();
             try {
                 if (StringUtils.isNotBlank(taskId)) {
-                    logger.error("Job taskId：" + taskId + " submit error ", e);
+                    LOGGER.error("Job taskId：" + taskId + " submit error ", e);
                     ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(taskId);
                     if (scheduleJob == null) {
                         //新job 任务
@@ -155,14 +155,14 @@ public class ActionService {
                     }
                 }
             } catch (Exception ex) {
-                logger.error("", ex);
+                LOGGER.error("", ex);
             }
         }
         return false;
     }
 
     public Boolean startJob(ScheduleTaskShade batchTask,String jobId, String flowJobId) {
-        logger.info("startJob ScheduleTaskShade: {} jobId:{} flowJobId:{} ", JSONObject.toJSONString(batchTask), jobId, flowJobId);
+        LOGGER.info("startJob ScheduleTaskShade: {} jobId:{} flowJobId:{} ", JSONObject.toJSONString(batchTask), jobId, flowJobId);
         try {
             ParamActionExt paramActionExt = paramActionExt(batchTask, jobId, flowJobId);
             if (paramActionExt == null) {
@@ -170,7 +170,7 @@ public class ActionService {
             }
             return this.start(paramActionExt);
         } catch (Exception e) {
-            logger.error("", e);
+            LOGGER.error("", e);
             return Boolean.FALSE;
         }
     }
@@ -179,7 +179,7 @@ public class ActionService {
         if (StringUtils.isBlank(jobId)) {
             jobId = this.generateUniqueSign();
         }
-        logger.info("startJob ScheduleTaskShade: {} jobId:{} flowJobId:{} ", JSONObject.toJSONString(batchTask), jobId, flowJobId);
+        LOGGER.info("startJob ScheduleTaskShade: {} jobId:{} flowJobId:{} ", JSONObject.toJSONString(batchTask), jobId, flowJobId);
         ScheduleJob scheduleJob = buildScheduleJob(batchTask, jobId, flowJobId);
         ParamActionExt paramActionExt = paramActionExt(batchTask, scheduleJob, JSONObject.parseObject(batchTask.getExtraInfo()));
         if (paramActionExt == null) {
@@ -188,6 +188,8 @@ public class ActionService {
 
         paramActionExt.setCycTime(scheduleJob.getCycTime());
         paramActionExt.setTaskSourceId(batchTask.getTaskId());
+        paramActionExt.setProjectId(batchTask.getProjectId());
+        paramActionExt.setDtuicTenantId(batchTask.getDtuicTenantId());
         return paramActionExt;
     }
 
@@ -352,14 +354,14 @@ public class ActionService {
                         scheduleJob.setRetryNum(0);
                     }
                     scheduleJobDao.update(scheduleJob);
-                    logger.info("jobId:{} update job status:{}.", scheduleJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus());
+                    LOGGER.info("jobId:{} update job status:{}.", scheduleJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus());
                 }
             }
             if (result && ComputeType.BATCH.getType().equals(computerType)){
                 engineJobCheckpointDao.deleteByTaskId(jobId);
             }
         } catch (Exception e){
-            logger.error("{}", e);
+            LOGGER.error("", e);
         }
         return result;
     }
@@ -548,7 +550,7 @@ public class ActionService {
             if (StringUtils.isBlank(jobRetry.getEngineLog())){
                 engineLog = jobDealer.getAndUpdateEngineLog(jobId, jobRetry.getEngineJobId(), jobRetry.getApplicationId(), scheduleJob.getDtuicTenantId());
                 if (engineLog != null){
-                    logger.info("engineJobRetryDao.updateEngineLog id:{}, jobId:{}, engineLog:{}", jobRetry.getId(), jobRetry.getJobId(), engineLog);
+                    LOGGER.info("engineJobRetryDao.updateEngineLog id:{}, jobId:{}, engineLog:{}", jobRetry.getId(), jobRetry.getJobId(), engineLog);
                     engineJobRetryDao.updateEngineLog(jobRetry.getId(), engineLog);
                 } else {
                     engineLog = "";
@@ -648,26 +650,34 @@ public class ActionService {
         Integer currStatus = scheduleJob.getStatus();
 
         if(!RdosTaskStatus.canReset(currStatus)){
-            logger.error("jobId:{} can not update status current status is :{} ", jobId, currStatus);
+            LOGGER.error("jobId:{} can not update status current status is :{} ", jobId, currStatus);
             throw new RdosDefineException(String.format(" taskId(%s) can't reset status, current status(%d)", jobId, currStatus));
         }
 
         //do reset status
-        scheduleJobDao.updateJobStatusAndPhaseStatus(jobId, RdosTaskStatus.UNSUBMIT.getStatus(), JobPhaseStatus.CREATE.getCode());
-        logger.info("jobId:{} update job status:{}.", jobId, RdosTaskStatus.UNSUBMIT.getStatus());
+        scheduleJobDao.updateJobStatusAndPhaseStatus(Collections.singletonList(jobId), RdosTaskStatus.UNSUBMIT.getStatus(), JobPhaseStatus.CREATE.getCode(),null);
+        LOGGER.info("jobId:{} update job status:{}.", jobId, RdosTaskStatus.UNSUBMIT.getStatus());
         return jobId;
     }
 
     /**
      * task 工程使用
      */
-    public List<ActionJobStatusVO> listJobStatus( Long time) {
+    public List<ActionJobStatusVO> listJobStatus( Long time,Integer appType) {
         if (time == null || time == 0L) {
             throw new RuntimeException("time is null");
         }
 
-        List<ScheduleJob> scheduleJobs = scheduleJobDao.listJobStatus(new Timestamp(time), ComputeType.BATCH.getType());
+        List<ScheduleJob> scheduleJobs = scheduleJobDao.listJobStatus(new Timestamp(time), ComputeType.BATCH.getType(),appType);
         return toVOS(scheduleJobs);
+    }
+
+    public List<ScheduleJob> listJobStatusScheduleJob(Long time, Integer appType) {
+        if (time == null || time == 0L) {
+            throw new RuntimeException("time is null");
+        }
+
+        return scheduleJobDao.listJobStatus(new Timestamp(time), ComputeType.BATCH.getType(),appType);
     }
 
     private List<ActionJobStatusVO> toVOS(List<ScheduleJob> scheduleJobs){

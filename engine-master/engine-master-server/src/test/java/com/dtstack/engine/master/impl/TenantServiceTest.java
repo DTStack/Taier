@@ -138,14 +138,6 @@ public class TenantServiceTest extends AbstractTest {
         return tenant;
     }
 
-    @Test()
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-    @Rollback
-    public void testCheckClusterCanUse() throws Exception {
-        Cluster defaultCluster = DataCollection.getData().getDefaultCluster();
-        tenantService.checkClusterCanUse(defaultCluster.getId());
-    }
-
     @Test
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
