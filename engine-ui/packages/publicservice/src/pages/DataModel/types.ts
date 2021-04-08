@@ -1,4 +1,3 @@
-
 export interface IModelData {
   id: number;
   modelName: string;
@@ -90,5 +89,5 @@ export interface IModelDetail {
   createTime?: string;
   dsName?: string;
   step?: number; // 编辑步数step
-  modelStatus: EnumModelStatus,
+  modelStatus: EnumModelStatus;
 }

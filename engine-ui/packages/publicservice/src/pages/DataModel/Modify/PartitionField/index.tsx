@@ -60,7 +60,7 @@ const PartitionField = (props: IPropsPartitionField) => {
       };
     },
     encode: (obj) => {
-      if (!obj) obj = {}; 
+      if (!obj) obj = {};
       const { schema, tableName, columnName } = obj;
       if (!schema || !tableName || !columnName) return undefined;
       return `${schema}-${tableName}-${columnName}`;
@@ -111,10 +111,9 @@ const PartitionField = (props: IPropsPartitionField) => {
       modelPartition: {
         dateFmt: dateFmt === null ? undefined : dateFmt,
         datePartitionColumn: {
-          columnName:
-            dateColumn
-              ? columnSrtingParser.encode(dateColumn)
-              : undefined,
+          columnName: dateColumn
+            ? columnSrtingParser.encode(dateColumn)
+            : undefined,
         },
         // timeFmt: timeFmt === null ? undefined : timeFmt,
         // timePartitionColumn: {
@@ -127,7 +126,7 @@ const PartitionField = (props: IPropsPartitionField) => {
       },
     });
 
-    console.log(getFieldsValue())
+    console.log(getFieldsValue());
   }, [modelDetail]);
 
   const rules = useCallback(
@@ -151,13 +150,12 @@ const PartitionField = (props: IPropsPartitionField) => {
               ? undefined
               : columnSrtingParser.encode(timeColumn),
         },
-      }
+      };
       setFieldsValue({
         modelPartition,
-      })
+      });
     }
-    
-  }, [currentForm.modelPartition?.timePartition])
+  }, [currentForm.modelPartition?.timePartition]);
 
   return (
     <Form {...layout} className="padding-top-20">
@@ -193,41 +191,42 @@ const PartitionField = (props: IPropsPartitionField) => {
       <Form.Item label="是否设置时间分区">
         {getFieldDecorator('modelPartition.timePartition')(<WrapperSwitch />)}
       </Form.Item>
-      {
-        currentForm.modelPartition?.timePartition ? (
-          <>
-            <Form.Item label="分区字段（时间）">
-              {getFieldDecorator('modelPartition.timePartitionColumn.columnName', {
+      {currentForm.modelPartition?.timePartition ? (
+        <>
+          <Form.Item label="分区字段（时间）">
+            {getFieldDecorator(
+              'modelPartition.timePartitionColumn.columnName',
+              {
                 rules: rules('分区字段（时间）不可为空'),
-              })(
-                <Select placeholder="请选择分区字段（时间）">
-                  {columns.map((item) => {
-                    const key = `${item.schema}-${item.tableName}-${item.columnName}`;
-                    return (
-                      <Select.Option key={key} value={key}>
-                        {item.columnName}
-                      </Select.Option>
-                    );
-                  })}
-                </Select>
-              )}
-            </Form.Item>
-            <Form.Item label="时间格式">
-              {getFieldDecorator('modelPartition.timeFmt', {
-                rules: rules('时间格式不可为空'),
-              })(
-                <Select placeholder="请选择时间格式">
-                  {timeFmtList.map((item) => (
-                    <Select.Option key={item} value={item}>
-                      {item}
+              }
+            )(
+              <Select placeholder="请选择分区字段（时间）">
+                {columns.map((item) => {
+                  const key = `${item.schema}-${item.tableName}-${item.columnName}`;
+                  return (
+                    <Select.Option key={key} value={key}>
+                      {item.columnName}
                     </Select.Option>
-                  ))}
-                </Select>
-              )}
-            </Form.Item>
-          </>
-        ) : null
-      }
+                  );
+                })}
+              </Select>
+            )}
+          </Form.Item>
+          <Form.Item label="时间格式">
+            {getFieldDecorator('modelPartition.timeFmt', {
+              rules: rules('时间格式不可为空'),
+            })(
+              <Select placeholder="请选择时间格式">
+                {timeFmtList.map((item) => (
+                  <Select.Option key={item} value={item}>
+                    {item}
+                  </Select.Option>
+                ))}
+              </Select>
+            )}
+          </Form.Item>
+        </>
+      ) : null}
     </Form>
   );
 };

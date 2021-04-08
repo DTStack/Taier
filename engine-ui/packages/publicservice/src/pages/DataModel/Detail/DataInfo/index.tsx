@@ -46,15 +46,14 @@ const DataInfo = (props: IPropsDataInfo) => {
         return `共${count}张表`;
       default:
         return `共${count}个字段`;
-
     }
-  }
+  };
 
   return (
     <div className="data-info">
       {tableList.map((item, index) => (
         <div key={index}>
-          <div  className="title-wrappe">
+          <div className="title-wrappe">
             <div className="title float-left">{item.title}</div>
             <div className="float-right sumary">
               {total(index, item.dataSource?.length)}

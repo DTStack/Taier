@@ -144,13 +144,13 @@ const Modify = (props: IPropsModify) => {
     } catch (error) {
       Message.error(error.message);
     }
-  }
+  };
 
   const saveAndPublish = (params: Partial<IModelDetail>, callback) => {
     saveDataModel(params, (id) => {
       releaseModel(id, callback);
-    })
-  }
+    });
+  };
 
   const handlePrevStep = () => {
     const data = childRef.current.getValue();
@@ -320,38 +320,40 @@ const Modify = (props: IPropsModify) => {
                 type="primary">
                 保存
               </Button>
-              {
-                current === EnumModifyStep.SETTING_STEP && modelDetail.modelStatus !== EnumModelStatus.RELEASE ? (
-                  <Button
-                    onClick={() => {
-                      childRef.current.validate().then((data) => {
-                        // 数据同步
-                        setModelDetail({
-                          ...modelDetail,
-                          ...data,
-                        });
-                        const step = Math.max(globalStep.current + 1, current + 1);
-                        const params = {
-                          ...modelDetail,
-                          ...data,
-                          step,
-                        };
-                        params.columnList = params.columns?.map((item) => {
-                          item.columnDesc = item.columnComment;
-                          delete item.columnComment;
-                          return { ...item };
-                        });
-                        delete params.columns;
-                        saveAndPublish(params, () => {
-                          router.push('/data-model/list');
-                        })
+              {current === EnumModifyStep.SETTING_STEP &&
+              modelDetail.modelStatus !== EnumModelStatus.RELEASE ? (
+                <Button
+                  onClick={() => {
+                    childRef.current.validate().then((data) => {
+                      // 数据同步
+                      setModelDetail({
+                        ...modelDetail,
+                        ...data,
                       });
-                    }}
-                    type="primary">
-                    保存并发布
-                  </Button>
-                ) : null
-              }
+                      const step = Math.max(
+                        globalStep.current + 1,
+                        current + 1
+                      );
+                      const params = {
+                        ...modelDetail,
+                        ...data,
+                        step,
+                      };
+                      params.columnList = params.columns?.map((item) => {
+                        item.columnDesc = item.columnComment;
+                        delete item.columnComment;
+                        return { ...item };
+                      });
+                      delete params.columns;
+                      saveAndPublish(params, () => {
+                        router.push('/data-model/list');
+                      });
+                    });
+                  }}
+                  type="primary">
+                  保存并发布
+                </Button>
+              ) : null}
             </div>
           </footer>
         </div>

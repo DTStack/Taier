@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+} from 'react';
 import Container from '../components/Container';
 import { Table, Pagination, Modal, Drawer, Button } from 'antd';
 import { IModelData } from '../types';
@@ -213,7 +219,7 @@ const List = (props: IPropList) => {
   const y = useMemo(() => {
     if (container.current === null) return 0;
     return parseInt(getComputedStyle(container.current)['height']) - 195;
-  }, [container.current])
+  }, [container.current]);
   return (
     <div ref={container} className="dm-list" data-testid="data-model-list">
       <Container>

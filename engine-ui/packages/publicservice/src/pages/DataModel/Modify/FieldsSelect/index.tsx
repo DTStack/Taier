@@ -105,8 +105,12 @@ const FieldsSelect = (props: IPropsDimensionSelect) => {
       const target = {
         ...item,
         [key]: bool,
-      }
-      if (item.id === record.id && step === EnumModifyStep.DIMENSION_STEP && item.metric) {
+      };
+      if (
+        item.id === record.id &&
+        step === EnumModifyStep.DIMENSION_STEP &&
+        item.metric
+      ) {
         target.metric = false;
       }
       return target;
@@ -153,19 +157,18 @@ const FieldsSelect = (props: IPropsDimensionSelect) => {
 
   const ds = useMemo(() => {
     const reg = new RegExp(filter);
-    const columnFilter = step === EnumModifyStep.DIMENSION_STEP ? (
-      item => reg.test(item.tableName) || reg.test(item.columnName)
-    ) : (
-      item => !item.dimension && (
-        reg.test(item.tableName) || reg.test(item.columnName)
-      )
-    )
+    const columnFilter =
+      step === EnumModifyStep.DIMENSION_STEP
+        ? (item) => reg.test(item.tableName) || reg.test(item.columnName)
+        : (item) =>
+            !item.dimension &&
+            (reg.test(item.tableName) || reg.test(item.columnName));
     return dataSource.filter(columnFilter);
   }, [dataSource, filter, step]);
-  
+
   const y = useMemo(() => {
     return document.documentElement.clientHeight - 362;
-  }, [cref.current])
+  }, [cref.current]);
 
   return (
     <div className="padding-top-20" ref={cref}>

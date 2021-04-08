@@ -83,10 +83,12 @@ const Detail = (props: IPropsDetail) => {
               <div className="inner-container">
                 <div className="margin-bottom-20">
                   <PaneTitle title="模型信息" />
-                  <HTable detail={{
-                    ...modelDetail,
-                    dsName: `${modelDetail.dsName}(${modelDetail.dsTypeName})`
-                  }} />
+                  <HTable
+                    detail={{
+                      ...modelDetail,
+                      dsName: `${modelDetail.dsName}(${modelDetail.dsTypeName})`,
+                    }}
+                  />
                 </div>
 
                 <div className="margin-bottom-20">
