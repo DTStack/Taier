@@ -1,7 +1,6 @@
 package com.dtstack.engine.common.client;
 
 import com.dtstack.engine.api.pojo.CheckResult;
-import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.JobClient;
@@ -31,17 +30,24 @@ public class ClientOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientOperator.class);
 
-    private ClientCache clientCache = ClientCache.getInstance();
+    private static ClientCache clientCache;
 
-    private static class SingletonHolder {
-        private static ClientOperator singleton = new ClientOperator();
-    }
+    private static ClientOperator singleton;
 
     private ClientOperator() {
     }
 
-    public static ClientOperator getInstance() {
-        return SingletonHolder.singleton;
+    public static ClientOperator getInstance(String pluginPath) {
+        if (singleton == null) {
+            synchronized (ClientOperator.class) {
+                if (singleton == null) {
+                    clientCache = ClientCache.getInstance(pluginPath);
+                    LOG.info("init client operator plugin path {}",pluginPath);
+                    singleton = new ClientOperator();
+                }
+            }
+        }
+        return singleton;
     }
 
     public RdosTaskStatus getJobStatus(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
