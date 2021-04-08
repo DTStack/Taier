@@ -1,13 +1,9 @@
 package com.dtstack.learning.AM;
 
+import com.alibaba.fastjson.JSON;
 import com.dtstack.learning.api.ApplicationContext;
 import com.dtstack.learning.api.LearningConstants;
-import com.dtstack.learning.common.AppType;
-import com.dtstack.learning.common.InputInfo;
-import com.dtstack.learning.common.LogType;
-import com.dtstack.learning.common.Message;
-import com.dtstack.learning.common.OutputInfo;
-import com.dtstack.learning.common.XLearningContainerStatus;
+import com.dtstack.learning.common.*;
 import com.dtstack.learning.common.exceptions.XLearningExecException;
 import com.dtstack.learning.conf.LearningConfiguration;
 import com.dtstack.learning.container.LearningContainer;
