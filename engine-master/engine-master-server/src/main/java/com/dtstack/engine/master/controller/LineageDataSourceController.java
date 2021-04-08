@@ -125,7 +125,7 @@ public class LineageDataSourceController {
     @RequestMapping(value="/updateBySourceIdAndAppType",method = RequestMethod.POST)
     @ApiOperation(value = "根据平台sourceId和appType修改数据源")
     @ApiImplicitParam(name="dataSourceParam",value = "老的数据源列表")
-    public Boolean updateDataSourceBySourceIdAndAppType(DataSourceDTO dataSourceDTO){
+    public Boolean updateDataSourceBySourceIdAndAppType(@RequestBody DataSourceDTO dataSourceDTO){
 
         return dataSourceService.updateDataSourceBySourceIdAndAppType(dataSourceDTO);
     }
