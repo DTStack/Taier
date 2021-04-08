@@ -2232,7 +2232,13 @@ public class ScheduleJobService {
     }
 
     public ScheduleJob getByJobId( String jobId,  Integer isDeleted) {
-        return scheduleJobDao.getByJobId(jobId, isDeleted);
+        ScheduleJob scheduleJob = scheduleJobDao.getByJobId(jobId, isDeleted);
+
+        if (StringUtils.isBlank(scheduleJob.getSubmitUserName())) {
+            scheduleJob.setSubmitUserName(environmentContext.getHadoopUserName());
+        }
+
+        return scheduleJob;
     }
 
     public Integer getJobStatus(String jobId){
