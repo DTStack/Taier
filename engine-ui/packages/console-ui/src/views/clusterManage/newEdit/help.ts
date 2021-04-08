@@ -25,7 +25,8 @@ export function notCustomParam (typeCode: number): boolean {
 
 export function isOtherVersion (code: number): boolean {
     return [COMPONENT_TYPE_VALUE.FLINK, COMPONENT_TYPE_VALUE.SPARK,
-        COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER, COMPONENT_TYPE_VALUE.HIVE_SERVER].indexOf(code) > -1
+        COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER, COMPONENT_TYPE_VALUE.HIVE_SERVER,
+        COMPONENT_TYPE_VALUE.INCEPTOR_SQL].indexOf(code) > -1
 }
 
 export function isSameVersion (code: number): boolean {
