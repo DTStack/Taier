@@ -1285,7 +1285,7 @@
         <foreach collection="jobIds" item="item" open="(" close=")" separator=",">
             #{item}
         </foreach>
-        and project_id = #{projectId}
+        <if test="projectId != null"> and project_id = #{projectId} </if>
     </select>
 
     <select id="listJobIdByTaskType" resultType="java.lang.String">
