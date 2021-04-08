@@ -6,7 +6,8 @@ import * as _ from 'lodash'
 
 import Api from '../../../api/console'
 import { initialScheduling, isViewMode, isNeedTemp,
-    getModifyComp, isSameVersion, getCompsId } from './help'
+    getModifyComp, isSameVersion, getCompsId,
+    isDataCheckBoxs } from './help'
 import { TABS_TITLE, COMPONENT_CONFIG_NAME, DEFAULT_COMP_VERSION,
     COMPONENT_TYPE_VALUE, TABS_POP_VISIBLE } from './const'
 
@@ -14,6 +15,7 @@ import FileConfig from './fileConfig'
 import FormConfig from './formConfig'
 import ToolBar from './components/toolbar'
 import ComponentButton from './components/compsBtn'
+import MetaIcon from './components/metaIcon'
 import TestRestIcon from '../../../components/testResultIcon'
 
 const TabPane = Tabs.TabPane
@@ -358,6 +360,7 @@ class EditCluster extends React.Component<any, IState> {
                         tabBarExtraContent={<div className="c-editCluster__commonTabs__title">集群配置</div>}
                     >
                         {initialCompData.map((comps: any, key: number) => {
+                            const isCheckBoxs = isDataCheckBoxs(comps) // 存在HiveServer、SparkThrift两个组件
                             return (<TabPane
                                 tab={
                                     <div style={{ height: 19, display: 'flex', alignItems: 'center' }}>
@@ -386,6 +389,7 @@ class EditCluster extends React.Component<any, IState> {
                                         return (<TabPane
                                             tab={<span>
                                                 {comp.componentName}
+                                                <MetaIcon form={this.props.form} comp={comp} />
                                                 <TestRestIcon testStatus={testStatus[comp.componentTypeCode] ?? {}}/>
                                             </span>}
                                             key={`${comp.componentTypeCode}`}
@@ -393,6 +397,7 @@ class EditCluster extends React.Component<any, IState> {
                                             <FileConfig
                                                 comp={comp}
                                                 view={isViewMode(mode)}
+                                                isCheckBoxs={isCheckBoxs}
                                                 form={this.props.form}
                                                 versionData={versionData}
                                                 commVersion={commVersion}

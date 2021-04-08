@@ -16,6 +16,7 @@ interface IProps {
     comp: any;
     form: any;
     view: boolean;
+    isCheckBoxs: boolean;
     commVersion: string;
     saveCompsData: any[];
     versionData: any;
@@ -477,6 +478,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                             comp={this.props.comp}
                             form={this.props.form}
                             view={this.props.view}
+                            isCheckBoxs={this.props.isCheckBoxs}
                         />}
                         {this.renderCompsVersion()}
                         {this.renderKerberosFile()}

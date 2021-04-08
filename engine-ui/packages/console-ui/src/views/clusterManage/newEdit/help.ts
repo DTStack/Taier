@@ -49,6 +49,10 @@ export function getActionType (mode: string): string {
     }
 }
 
+export function isDataCheckBoxs (comps: any[]): boolean {
+    return comps.filter((comp) => showDataCheckBox(comp.componentTypeCode)).length == 2
+}
+
 export function isSourceTab (activeKey: number): boolean {
     return activeKey == TABS_TITLE_KEY.SOURCE
 }
@@ -404,7 +408,7 @@ export function getModifyComp (comps: any, initialCompData: any[]): any {
     * 文件对比，只比较文件名称
     */
     const defaulParams = ['storeType', 'principal', 'hadoopVersion', 'kerberosFileName',
-        'uploadFileName', 'metastore']
+        'uploadFileName', 'isMetadata']
     let modifyComps = new Set()
     for (let [typeCode, comp] of Object.entries(comps)) {
         const initialComp = getInitialComp(initialCompData, Number(typeCode))
