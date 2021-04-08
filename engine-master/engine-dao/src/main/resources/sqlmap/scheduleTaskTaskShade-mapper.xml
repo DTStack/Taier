@@ -107,6 +107,28 @@
         FROM schedule_task_task_shade
         WHERE task_id = #{taskId} and parent_task_id = #{parentTaskId} AND is_deleted = 0 AND app_type = #{appType} LIMIT 1
     </select>
+    <select id="listParentTaskKeys" resultType="com.dtstack.engine.api.domain.ScheduleTaskTaskShade">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_task_task_shade
+        WHERE is_deleted = 0 AND
+        parent_task_key IN
+        <foreach collection="taskKeys" separator="," close=")" open="(" item="taskKey" >
+            #{taskKey}
+        </foreach>
+    </select>
+
+    <select id="listTaskKeys" resultType="com.dtstack.engine.api.domain.ScheduleTaskTaskShade">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_task_task_shade
+        WHERE is_deleted = 0 AND
+        task_key IN
+        <foreach collection="taskKeys" separator="," close=")" open="(" item="taskKey" >
+            #{taskKey}
+        </foreach>
+    </select>
+
 
 
 </mapper>

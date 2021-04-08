@@ -29,7 +29,7 @@ public interface ScheduleTaskTaskShadeDao {
 
     Integer update(ScheduleTaskTaskShade scheduleTaskTaskShade);
 
-    List<ScheduleTaskTaskShade> listParentTaskKeys(List<String> taskKey);
+    List<ScheduleTaskTaskShade> listParentTaskKeys(@Param("taskKey") List<String> taskKey);
 
-    List<ScheduleTaskTaskShade> listTaskKeys(List<String> taskKeys);
+    List<ScheduleTaskTaskShade> listTaskKeys(@Param("taskKeys") List<String> taskKeys);
 }
