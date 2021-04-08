@@ -21,6 +21,8 @@ import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,6 +37,8 @@ import java.util.*;
 @Service
 public class LineageDataSetInfoService {
 
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LineageDataSetInfoService.class);
 
     @Autowired
     private LineageDataSourceService sourceService;
@@ -133,6 +137,14 @@ public class LineageDataSetInfoService {
                 }
                 //根据engineId和组件类型获取kerberos配置
                 KerberosConfig kerberosConfig = kerberosDao.getByEngineIdAndComponentType(one.getEngineId(),dataSource.getSourceType());
+                if(null == kerberosConfig){
+                    LOGGER.error("do not have kerberos config,dtUicTenantId:{},engineId:{},sourceType:{}",dtUicTenantId,one.getEngineId(),dataSource.getSourceType());
+                    throw new RdosDefineException("do not have kerberos config");
+                }
+                kerberosJsonObj.put("remoteDir",kerberosConfig.getRemotePath());
+                kerberosJsonObj.put("principalFile",kerberosConfig.getPrincipal());
+                kerberosJsonObj.put("krbName",kerberosConfig.getKrbName());
+                kerberosJsonObj.put("principal",kerberosConfig.getPrincipals());
             }
 
             JSONObject sftpConf = getJsonObject(dataSource,EComponentType.SFTP.getTypeCode(),tenantId);

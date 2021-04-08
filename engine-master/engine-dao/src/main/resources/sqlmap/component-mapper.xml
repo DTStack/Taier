@@ -107,7 +107,7 @@
         and cc.is_deleted = 0
     </select>
 
-    <select id="getByEngineIdAndComponentType" resultType="Component">
+    <select id="listByTenantId" resultType="Component">
         select
         cc.id,cc.component_name,cc.component_type_code
         from console_component cc

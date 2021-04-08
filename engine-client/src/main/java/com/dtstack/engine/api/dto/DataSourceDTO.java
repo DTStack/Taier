@@ -18,7 +18,7 @@ public class DataSourceDTO {
     private String sourceName;
 
     @ApiModelProperty(value = "项目id")
-    private String projectId;
+    private Long projectId;
 
     @ApiModelProperty(value = "schemaName")
     private String schemaName;
@@ -106,11 +106,11 @@ public class DataSourceDTO {
         this.dtUicTenantId = dtUicTenantId;
     }
 
-    public String getProjectId() {
+    public Long getProjectId() {
         return projectId;
     }
 
-    public void setProjectId(String projectId) {
+    public void setProjectId(Long projectId) {
         this.projectId = projectId;
     }
 
