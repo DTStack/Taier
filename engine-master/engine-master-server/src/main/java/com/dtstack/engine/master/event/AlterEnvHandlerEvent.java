@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.alert.AdapterEventMonitor;
 import com.dtstack.engine.alert.AlterContext;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.common.util.AddressUtil;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
@@ -13,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -56,13 +56,15 @@ public class AlterEnvHandlerEvent extends AdapterEventMonitor {
 
     class AlterEnvironment{
         private final static String SEND_IP = "ALTER_IP";
-        private final static String SEND_HOST_NAMe = "ALTER_HOST_NAME";
+        private final static String SEND_HOST_NAME = "ALTER_HOST_NAME";
+        private final static String SEND_TIME = "ALTER_TIME";
 
         private final Map<String,Object> env = Maps.newHashMap();
 
         AlterEnvironment(){
-            env.put(SEND_IP,environmentContext.getLocalAddress());
-            env.put(SEND_HOST_NAMe, environmentContext.getHttpAddress());
+            env.put(SEND_IP,environmentContext.getHttpAddress());
+            env.put(SEND_HOST_NAME, environmentContext.getLocalAddress());
+            env.put(SEND_TIME, new Date());
         }
 
         public Map<String, Object> getEnv() {
