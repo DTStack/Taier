@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.alert.AdapterEventMonitor;
 import com.dtstack.engine.alert.AlterContext;
 import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.common.util.AddressUtil;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
@@ -54,12 +55,14 @@ public class AlterEnvHandlerEvent extends AdapterEventMonitor {
     }
 
     class AlterEnvironment{
-        private final static String SEND_IP = "CONSOLE_IP";
+        private final static String SEND_IP = "ALTER_IP";
+        private final static String SEND_HOST_NAMe = "ALTER_HOST_NAME";
 
         private final Map<String,Object> env = Maps.newHashMap();
 
         AlterEnvironment(){
-            env.put(SEND_IP,environmentContext.getHttpAddress());
+            env.put(SEND_IP,environmentContext.getLocalAddress());
+            env.put(SEND_HOST_NAMe, environmentContext.getHttpAddress());
         }
 
         public Map<String, Object> getEnv() {
