@@ -17,6 +17,12 @@ public class DataSourceDTO {
     @ApiModelProperty(value = "数据源名称",required = true)
     private String sourceName;
 
+    @ApiModelProperty(value = "项目id")
+    private String projectId;
+
+    @ApiModelProperty(value = "schemaName")
+    private String schemaName;
+
     @ApiModelProperty(value = "数据源配置")
     private String dataJson;
 
@@ -98,5 +104,21 @@ public class DataSourceDTO {
 
     public void setDtUicTenantId(Long dtUicTenantId) {
         this.dtUicTenantId = dtUicTenantId;
+    }
+
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
+    }
+
+    public String getSchemaName() {
+        return schemaName;
+    }
+
+    public void setSchemaName(String schemaName) {
+        this.schemaName = schemaName;
     }
 }

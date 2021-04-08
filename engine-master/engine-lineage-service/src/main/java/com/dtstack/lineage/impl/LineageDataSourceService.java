@@ -267,10 +267,10 @@ public class LineageDataSourceService {
     private LineageDataSource convertLineageDataSource(DataSourceDTO dataSourceDTO, String sourceKey, Long realSourceId) {
 
         Long tenantId = tenantDao.getIdByDtUicTenantId(dataSourceDTO.getDtUicTenantId());
-        Integer componentId = componentDao.getIdByTenantIdComponentType(tenantId, dataSourceDTO.getSourceType());
+        Component one = componentDao.getByTenantIdComponentType(tenantId, dataSourceDTO.getSourceType());
         LineageDataSource dataSource = new LineageDataSource();
         BeanUtils.copyProperties(dataSourceDTO, dataSource);
-        dataSource.setComponentId(null == componentId ? -1 : componentId);
+        dataSource.setComponentId(null == one ? -1 : one.getId().intValue());
         //有组件则为内部数据源1，否则为外部数据源0
         if (StringUtils.isBlank(dataSourceDTO.getKerberosConf())) {
             dataSource.setKerberosConf("-1");
@@ -282,7 +282,7 @@ public class LineageDataSourceService {
         if (null != dataSourceDTO.getDataSourceId()) {
             dataSource.setId(dataSourceDTO.getDataSourceId());
         }
-        dataSource.setInnerSource(null == componentId ? 1 : 0);
+        dataSource.setInnerSource(null == one ? 1 : 0);
         dataSource.setSourceKey(sourceKey);
         dataSource.setRealSourceId(realSourceId);
         dataSource.setAppSourceId(-1);
