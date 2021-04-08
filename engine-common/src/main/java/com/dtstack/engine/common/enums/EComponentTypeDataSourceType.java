@@ -34,8 +34,7 @@ public enum EComponentTypeDataSourceType {
                 return value;
             }
         }
-
-        throw new IllegalArgumentException("No enum constant with type code:" + dataSourceType);
+        return null;
     }
 
     public DataSourceType getDataSourceType() {

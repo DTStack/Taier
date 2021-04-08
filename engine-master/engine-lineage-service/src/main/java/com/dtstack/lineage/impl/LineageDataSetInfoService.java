@@ -8,6 +8,7 @@ import com.dtstack.engine.api.pojo.lineage.Table;
 import com.dtstack.engine.common.client.ClientCache;
 import com.dtstack.engine.common.client.IClient;
 import com.dtstack.engine.common.enums.EComponentType;
+import com.dtstack.engine.common.enums.EComponentTypeDataSourceType;
 import com.dtstack.engine.common.exception.ClientAccessException;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.ComponentConfigUtils;
@@ -136,7 +137,11 @@ public class LineageDataSetInfoService {
                     throw new RdosDefineException("do not have this component");
                 }
                 //根据engineId和组件类型获取kerberos配置
-                KerberosConfig kerberosConfig = kerberosDao.getByEngineIdAndComponentType(one.getEngineId(),dataSource.getSourceType());
+                EComponentTypeDataSourceType code = EComponentTypeDataSourceType.getByCode(dataSource.getSourceType());
+                if(null == code){
+                    throw new RdosDefineException("this type dataSource do not have component");
+                }
+                KerberosConfig kerberosConfig = kerberosDao.getByEngineIdAndComponentType(one.getEngineId(),code.getComponentType().getTypeCode());
                 if(null == kerberosConfig){
                     LOGGER.error("do not have kerberos config,dtUicTenantId:{},engineId:{},sourceType:{}",dtUicTenantId,one.getEngineId(),dataSource.getSourceType());
                     throw new RdosDefineException("do not have kerberos config");

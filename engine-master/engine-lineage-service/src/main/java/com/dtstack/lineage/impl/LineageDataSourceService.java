@@ -8,6 +8,7 @@ import com.dtstack.engine.api.enums.DataSourceTypeEnum;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.engine.common.enums.EComponentTypeDataSourceType;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.ComponentConfigUtils;
@@ -269,7 +270,11 @@ public class LineageDataSourceService {
     private LineageDataSource convertLineageDataSource(DataSourceDTO dataSourceDTO, String sourceKey, Long realSourceId) {
 
         Long tenantId = tenantDao.getIdByDtUicTenantId(dataSourceDTO.getDtUicTenantId());
-        Component one = componentDao.getByTenantIdComponentType(tenantId, dataSourceDTO.getSourceType());
+        EComponentTypeDataSourceType code = EComponentTypeDataSourceType.getByCode(dataSourceDTO.getSourceType());
+        Component one = null;
+        if(null !=code) {
+            one  = componentDao.getByTenantIdComponentType(tenantId, code.getComponentType().getTypeCode());
+        }
         LineageDataSource dataSource = new LineageDataSource();
         BeanUtils.copyProperties(dataSourceDTO, dataSource);
         dataSource.setComponentId(null == one ? -1 : one.getId().intValue());
