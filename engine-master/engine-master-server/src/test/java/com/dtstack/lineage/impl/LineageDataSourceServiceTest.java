@@ -56,4 +56,14 @@ public class LineageDataSourceServiceTest extends AbstractTest {
 
     }
 
+
+    @Test
+    public void testGenerateSourceKey2(){
+
+        String sourceKey = sourceService.generateSourceKey("{\"password\":\"Abc12345\",\"jdbcUrl\":\"jdbc:sqlserver://172.16.101.246:1433;database=shihu\",\"username\":\"sa\"}"
+                , DataSourceType.HIVE.getVal());
+        Assert.assertEquals("172.16.101.246#1433",sourceKey);
+
+    }
+
 }

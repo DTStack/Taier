@@ -493,7 +493,13 @@ public class LineageDataSourceService {
         logger.info("appType:{}类型,租户:{}一共,{}个数据源", dataSourceDTOs.get(0).getAppType(),
                 dataSourceDTOs.get(0).getDtUicTenantId(), dataSourceDTOs.size());
         for (DataSourceDTO dataSourceDTO : dataSourceDTOs) {
-            addDataSource(dataSourceDTO);
+            int errorCount = 0;
+            try {
+                addDataSource(dataSourceDTO);
+            } catch (Exception e) {
+                errorCount++;
+                logger.error("move dataSource error,appType:{},errorCount:{},dataJson:{}",dataSourceDTO.getAppType(),errorCount,JSON.toJSONString(dataSourceDTO));
+            }
         }
     }
 
