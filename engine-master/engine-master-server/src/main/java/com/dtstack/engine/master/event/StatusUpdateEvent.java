@@ -36,7 +36,6 @@ public class StatusUpdateEvent extends AdapterEventMonitor implements Ordered {
     @Override
     public Boolean startEvent(AlterContext alterContext) {
         updateStatus(alterContext,(record,context)->{
-            // 拒绝进入队列，更新状态成扫描中
             AlertRecord update = new AlertRecord();
             update.setContext(JSON.toJSONString(alterContext));
             Map<String,Object> param = Maps.newHashMap();

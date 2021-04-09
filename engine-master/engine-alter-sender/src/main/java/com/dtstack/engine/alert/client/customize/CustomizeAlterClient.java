@@ -13,6 +13,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+
 /**
  * @Auther: dazhi
  * @Date: 2021/1/19 2:10 下午
@@ -45,6 +47,8 @@ public class CustomizeAlterClient extends AbstractAlterClient {
             throw new AlterException("Custom jar must be passed in alarm content");
         }
 
+        Map<String, Object> evn = alterContext.getEvn();
+
         long startTime = System.currentTimeMillis();
 
         JSONObject data = new JSONObject();
@@ -53,7 +57,7 @@ public class CustomizeAlterClient extends AbstractAlterClient {
 
         try {
             ICustomizeChannel sender = (ICustomizeChannel) JarCache.getInstance().getChannelInstance(jarPath, className);
-            R r = sender.sendCustomizeAlert(data.toJSONString(),jsonObject);
+            R r = sender.sendCustomizeAlert(data.toJSONString(),evn);
             LOGGER.info("[CustomizeAlert] end, cost={}, data={}, result={}", (System.currentTimeMillis() - startTime), data, r);
             return r;
         } catch (Exception e) {

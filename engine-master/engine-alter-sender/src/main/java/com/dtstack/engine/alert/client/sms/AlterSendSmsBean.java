@@ -2,6 +2,8 @@ package com.dtstack.engine.alert.client.sms;
 
 import com.dtstack.engine.alert.enums.AlertGateCode;
 
+import java.util.Map;
+
 /**
  * @Auther: dazhi
  * @Date: 2021/1/19 2:22 下午
@@ -21,6 +23,8 @@ public class AlterSendSmsBean {
     private String jarPath;
 
     private String alertGateJson;
+
+    private Map<String,Object> env;
 
     public String getTitle() {
         return title;
@@ -68,5 +72,13 @@ public class AlterSendSmsBean {
 
     public void setAlertGateJson(String alertGateJson) {
         this.alertGateJson = alertGateJson;
+    }
+
+    public Map<String, Object> getEnv() {
+        return env;
+    }
+
+    public void setEnv(Map<String, Object> env) {
+        this.env = env;
     }
 }

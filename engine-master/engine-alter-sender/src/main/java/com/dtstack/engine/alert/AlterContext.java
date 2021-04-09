@@ -45,6 +45,11 @@ public class AlterContext {
     private String alertGateJson;
 
     /**
+     * 环境配置
+     */
+    private Map<String,Object> evn;
+
+    /**
      * 类型
      */
     private AlertGateCode alertGateCode;
@@ -213,6 +218,14 @@ public class AlterContext {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public Map<String, Object> getEvn() {
+        return evn;
+    }
+
+    public void setEvn(Map<String, Object> evn) {
+        this.evn = evn;
     }
 
     public String getMark(){
