@@ -83,6 +83,7 @@ export const DATA_SOURCE_TEXT: any = {
   48: 'HBase1.x',
   49: 'HBase2.x',
   50: 'CarbonData',
+  25: 'ClickHouse',
 };
 
 export const PROJECT_TYPE: any = {
