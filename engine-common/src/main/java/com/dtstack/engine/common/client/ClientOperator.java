@@ -42,7 +42,7 @@ public class ClientOperator {
             synchronized (ClientOperator.class) {
                 if (singleton == null) {
                     clientCache = ClientCache.getInstance(pluginPath);
-                    LOG.info("init client operator plugin path {}",pluginPath);
+                    LOGGER.info("init client operator plugin path {}",pluginPath);
                     singleton = new ClientOperator();
                 }
             }
