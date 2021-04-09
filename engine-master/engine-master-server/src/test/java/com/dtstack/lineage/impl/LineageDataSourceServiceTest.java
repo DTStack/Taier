@@ -71,7 +71,7 @@ public class LineageDataSourceServiceTest extends AbstractTest {
 
         String sourceKey = sourceService.generateSourceKey("{\"password\":\"\",\"jdbcUrl\":\"jdbc:impala://172.16.100.109:21050/\",\"username\":\"\"}"
                 , DataSourceType.HIVE.getVal());
-        Assert.assertEquals("172.16.101.246#1433",sourceKey);
+        Assert.assertEquals("172.16.100.109#21050",sourceKey);
 
     }
 
