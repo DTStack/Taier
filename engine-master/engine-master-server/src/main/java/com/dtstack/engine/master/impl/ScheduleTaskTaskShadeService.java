@@ -9,6 +9,7 @@ import com.dtstack.engine.common.enums.DisplayDirect;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.TaskTaskRingException;
 import com.dtstack.engine.dao.ScheduleEngineProjectDao;
 import com.dtstack.engine.dao.ScheduleTaskTaskShadeDao;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
@@ -74,9 +75,8 @@ public class ScheduleTaskTaskShadeService {
             // 保存时成环检测
             for (ScheduleTaskTaskShade scheduleTaskTaskShade : taskTaskList) {
                 List<ScheduleTaskTaskShade> shades = Lists.newArrayList(taskTaskList);
-                shades.remove(scheduleTaskTaskShade);
                 if (checkTaskTaskIsLoop(scheduleTaskTaskShade, shades)) {
-                    throw new RdosDefineException("save tasktask is rink : "+scheduleTaskTaskShade.getTaskKey());
+                    throw new TaskTaskRingException("save tasktask is rink : "+scheduleTaskTaskShade.getTaskKey());
                 }
             }
 
@@ -98,8 +98,13 @@ public class ScheduleTaskTaskShadeService {
             }
         } catch (Exception e) {
             LOGGER.error("saveTaskTaskList error:{}", ExceptionUtil.getErrorMessage(e));
+            if (e instanceof TaskTaskRingException) {
+                throw new RdosDefineException(e.getMessage());
+            }
+
             throw new RdosDefineException("保存任务依赖列表异常");
         }
+
     }
 
     /**
@@ -117,7 +122,7 @@ public class ScheduleTaskTaskShadeService {
 
         // 向上查询,向上查询会查询出自己的边
         Integer loopUp = 0;
-        List<ScheduleTaskTaskShade> scheduleParentTaskTaskShades = addParentTaskTask(Lists.newArrayList(scheduleTaskTaskShade.getParentTaskKey()),taskTask);
+        List<ScheduleTaskTaskShade> scheduleParentTaskTaskShades = addParentTaskTask(Lists.newArrayList(scheduleTaskTaskShade.getTaskKey()),taskTask);
         while (CollectionUtils.isNotEmpty(scheduleParentTaskTaskShades)) {
             List<String> parentKeys = Lists.newArrayList();
 
@@ -132,13 +137,13 @@ public class ScheduleTaskTaskShadeService {
             loopUp++;
 
             LOGGER.info("loopUp:{} select key:{}",loopUp,parentKeys);
-            scheduleParentTaskTaskShades = addParentTaskTask(Lists.newArrayList(scheduleTaskTaskShade.getTaskKey()),taskTask);
+            scheduleParentTaskTaskShades = addParentTaskTask(parentKeys,taskTask);
         }
 
         // 向下查询
         Integer loopUnder = 0;
-        List<ScheduleTaskTaskShade> scheduleChildTaskTaskShades = addChildTaskTask(Lists.newArrayList(scheduleTaskTaskShade.getParentTaskKey()), taskTask);
-        while (true) {
+        List<ScheduleTaskTaskShade> scheduleChildTaskTaskShades = addChildTaskTask(Lists.newArrayList(scheduleTaskTaskShade.getTaskKey()), taskTask);
+        while (CollectionUtils.isNotEmpty(scheduleChildTaskTaskShades)) {
             List<String> childKeys = Lists.newArrayList();
 
             if (setKeyAndJudgedLoop(sideSet, scheduleChildTaskTaskShades, childKeys,Boolean.TRUE)) {
@@ -152,7 +157,7 @@ public class ScheduleTaskTaskShadeService {
             loopUnder++;
 
             LOGGER.info("loopUnder:{} select key:{}",loopUnder,childKeys);
-            scheduleChildTaskTaskShades = addChildTaskTask(Lists.newArrayList(scheduleTaskTaskShade.getParentTaskKey()), taskTask);
+            scheduleChildTaskTaskShades = addChildTaskTask(childKeys, taskTask);
 
         }
 
@@ -161,17 +166,23 @@ public class ScheduleTaskTaskShadeService {
 
     private List<ScheduleTaskTaskShade> addChildTaskTask(List<String> childKey, List<ScheduleTaskTaskShade> taskTasks) {
         List<ScheduleTaskTaskShade> scheduleChildTaskTaskShades = scheduleTaskTaskShadeDao.listParentTaskKeys(childKey);
-        addTask(childKey, taskTasks, scheduleChildTaskTaskShades);
+        List<String> sides = Lists.newArrayList();
+        if (CollectionUtils.isNotEmpty(scheduleChildTaskTaskShades)) {
+            sides = scheduleChildTaskTaskShades.stream().map(taskShade -> taskShade.getTaskKey()+"&"+taskShade.getParentTaskKey()).collect(Collectors.toList());
+        }
+
+        if (CollectionUtils.isNotEmpty(taskTasks)) {
+            List<String> finalSides = sides;
+            List<ScheduleTaskTaskShade> shades = taskTasks.stream()
+                    .filter(taskTask -> childKey.contains(taskTask.getParentTaskKey()) && !finalSides.contains(taskTask.getTaskKey()+"&"+taskTask.getParentTaskKey()))
+                    .collect(Collectors.toList());
+            scheduleChildTaskTaskShades.addAll(shades);
+        }
         return scheduleChildTaskTaskShades;
     }
 
     private List<ScheduleTaskTaskShade> addParentTaskTask(List<String> parentKeys, List<ScheduleTaskTaskShade> taskTasks) {
         List<ScheduleTaskTaskShade> taskTaskShades = scheduleTaskTaskShadeDao.listTaskKeys(parentKeys);
-        addTask(parentKeys, taskTasks, taskTaskShades);
-        return taskTaskShades;
-    }
-
-    private void addTask(List<String> parentKeys, List<ScheduleTaskTaskShade> taskTasks, List<ScheduleTaskTaskShade> taskTaskShades) {
         List<String> sides = Lists.newArrayList();
         if (CollectionUtils.isNotEmpty(taskTaskShades)) {
             sides = taskTaskShades.stream().map(taskShade -> taskShade.getTaskKey()+"&"+taskShade.getParentTaskKey()).collect(Collectors.toList());
@@ -180,10 +191,11 @@ public class ScheduleTaskTaskShadeService {
         if (CollectionUtils.isNotEmpty(taskTasks)) {
             List<String> finalSides = sides;
             List<ScheduleTaskTaskShade> shades = taskTasks.stream()
-                    .filter(taskTask -> parentKeys.contains(taskTask.getParentTaskKey()) && !finalSides.contains(taskTask.getTaskKey()+"&"+taskTask.getParentTaskKey()))
+                    .filter(taskTask -> parentKeys.contains(taskTask.getTaskKey()) && !finalSides.contains(taskTask.getTaskKey()+"&"+taskTask.getParentTaskKey()))
                     .collect(Collectors.toList());
             taskTaskShades.addAll(shades);
         }
+        return taskTaskShades;
     }
 
     private boolean setKeyAndJudgedLoop(HashSet<String> sideSet, List<ScheduleTaskTaskShade> scheduleChildTaskTaskShades, List<String> parentKeys,Boolean isChild) {
