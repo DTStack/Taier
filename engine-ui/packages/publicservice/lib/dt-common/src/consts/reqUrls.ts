@@ -9,7 +9,8 @@ export const DQ_BASE_URL = '/api/dq/service';
 export const DQ_BASE_URL_NOT_SERVICE = '/api/dq';
 export const DATA_API_BASE_URL = '/api/da/service';
 export const TAG_ENGINE_URL = '/api/v1'; // 标签引擎
-export const CONSOLE_BASE_URL = '/api/console/service';
+// export const CONSOLE_BASE_URL = '/api/console/service';
+export const CONSOLE_BASE_URL = '/node/status';
 export const CONSOLE_BASE_UPLOAD_URL = '/api/console';
 export const ANALYTICS_ENGINE_BASE_URL = '/api/analysis/service';
 export const SCIENCE_BASE_URL = '/api/dataScience';
@@ -22,7 +23,8 @@ export default {
   // ===== 用户模块 ===== //
   LOGOUT: `${UIC_BASE_URL}/v2/logout`,
   API_LOGOUT: `${DATA_API_BASE_URL}/login/out`,
-  CHECKISROOT: `${CONSOLE_BASE_URL}/status/status`, // 验证是否为租户root管理员
+  // CHECKISROOT: `${CONSOLE_BASE_URL}/status/status`, // 验证是否为租户root管理员
+  CHECKISROOT: `${CONSOLE_BASE_URL}`, // 验证是否为租户root管理员
   GET_FULL_TENANT: `${UIC_BASE_URL}/v2/account/user/get-full-tenants-by-name?tenantName=`, // 获取所有租户
   SWITCH_TENANT: `${UIC_BASE_URL}/v2/account/user/switch-tenant`, // 切换租户
   GET_PRODUCTS: `${UIC_BASE_URL}/v2/account/user/get-products`, // 获取产品权限
