@@ -44,6 +44,7 @@ export const columnsGenerator = ({ onInputBlur, data }): any[] => {
       title: '序号',
       width: 80,
       render: (value, record, index) => index + 1,
+      ellipsis: true,
     },
     {
       title: '表',
@@ -54,6 +55,7 @@ export const columnsGenerator = ({ onInputBlur, data }): any[] => {
         value: item,
       })),
       onFilter: (value, record) => value === record.tableName,
+      ellipsis: true,
     },
     {
       title: 'schema',
@@ -64,11 +66,13 @@ export const columnsGenerator = ({ onInputBlur, data }): any[] => {
         value: item,
       })),
       onFilter: (value, record) => value === record.schema,
+      ellipsis: true,
     },
     {
       title: '字段名称',
       dataIndex: 'columnName',
       width: 140,
+      ellipsis: true,
     },
     {
       title: '描述',
@@ -87,6 +91,7 @@ export const columnsGenerator = ({ onInputBlur, data }): any[] => {
       title: '字段类型',
       dataIndex: 'columnType',
       width: 120,
+      ellipsis: true,
     },
   ];
 };

@@ -17,6 +17,12 @@ enum UPDATA_TYPE {
   FULL_UPDATE = 2,
 }
 
+export enum EnumModelStatus {
+  UNRELEASE = 0,
+  RELEASE = 1,
+  OFFLINE = -1,
+}
+
 interface JoinKeyItem {
   schema: string;
   tableName: string;
@@ -83,4 +89,5 @@ export interface IModelDetail {
   createTime?: string;
   dsName?: string;
   step?: number; // 编辑步数step
+  modelStatus: EnumModelStatus;
 }

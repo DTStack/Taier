@@ -1,6 +1,7 @@
 import React from 'react';
 import { Divider } from 'antd';
-import { EnumModelActionType, EnumModelStatus } from './types';
+import { EnumModelActionType } from './types';
+import { EnumModelStatus } from 'pages/DataModel/types';
 import classnames from 'classnames';
 
 export const modelStatusMap = new Map([

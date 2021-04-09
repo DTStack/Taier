@@ -50,8 +50,8 @@ interface IPropsRelationTableModal {
 }
 
 const formItemLayout = {
-  labelCol: { span: 4 },
-  wrapperCol: { span: 20 },
+  labelCol: { span: 5 },
+  wrapperCol: { span: 19 },
 };
 
 const RelationTableModal = (props: IPropsRelationTableModal) => {
