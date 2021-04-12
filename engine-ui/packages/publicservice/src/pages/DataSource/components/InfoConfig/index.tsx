@@ -213,12 +213,13 @@ const InfoConfig = (props) => {
             let { success, message: msg, data } = await API.testConWithKerberos(
               handelParams
             );
-            setLoading(false);
+
             if (success && data) {
               message.success('连接成功');
             } else {
               message.error(msg ? `${msg}` : '连接失败');
             }
+            setLoading(false);
           }
         } else {
           handelParams.dataJson = fieldsValue;
