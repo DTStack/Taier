@@ -105,7 +105,7 @@ const InfoConfig = (props) => {
         });
       }
     }
-    return await newList;
+    return newList;
   };
 
   const getAllData = async () => {
