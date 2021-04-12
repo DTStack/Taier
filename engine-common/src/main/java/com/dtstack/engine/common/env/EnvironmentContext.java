@@ -589,4 +589,20 @@ public class EnvironmentContext {
     public String getPluginPath() {
         return environment.getProperty("plugin.path",  System.getProperty("user.dir") + File.separator +"pluginLibs");
     }
+
+    /**
+     * 数据源中心配置地址
+     * @return
+     */
+    public String getDatasourceNode() {
+        return environment.getProperty("datasource.node", "127.0.0.1:8077");
+    }
+
+    /**
+     * SDK TOKEN
+     * @return
+     */
+    public String getSdkToken() {
+        return environment.getProperty("sdk.token", "");
+    }
 }

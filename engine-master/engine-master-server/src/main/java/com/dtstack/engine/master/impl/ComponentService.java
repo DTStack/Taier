@@ -17,12 +17,9 @@ import com.dtstack.engine.api.vo.components.ComponentsResultVO;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EComponentType;
-import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EFrontType;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.MultiEngineType;
-import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
@@ -148,6 +145,9 @@ public class ComponentService {
     @Autowired
     private SftpFileManage sftpFileManageBean;
 
+    @Autowired
+    private DataSourceService dataSourceService;
+
     public static final String VERSION = "version";
 
     /**
@@ -214,7 +214,7 @@ public class ComponentService {
     /**
      * 更新缓存
      */
-    public void updateCache(Long engineId, Integer componentCode) {
+    public void updateCache(Long clusterId,Long engineId, Integer componentCode) {
         clearComponentCache();
         Set<Long> dtUicTenantIds = new HashSet<>();
         if ( null != componentCode && EComponentType.sqlComponent.contains(EComponentType.getByCode(componentCode))) {
@@ -239,6 +239,7 @@ public class ComponentService {
             List<Long> tenantIds = engineTenantDao.listTenantIdByQueueIds(queueIds);
             dtUicTenantIds = new HashSet<>(tenantDao.listDtUicTenantIdByIds(tenantIds));
         }
+        dataSourceService.publishSqlComponent(clusterId,engineId,componentCode,dtUicTenantIds);
         //缓存刷新
         if (!dtUicTenantIds.isEmpty()) {
             for (Long uicTenantId : dtUicTenantIds) {
@@ -536,7 +537,7 @@ public class ComponentService {
         List<ClientTemplate> clientTemplates = this.wrapperConfig(componentType, componentConfig, isOpenKerberos, clusterName, hadoopVersion, md5Key, componentTemplate,addComponent.getHadoopVersion(),addComponent.getStoreType());
         componentConfigService.addOrUpdateComponentConfig(clientTemplates, addComponent.getId(), addComponent.getClusterId(), componentCode);
         List<ComponentVO> componentVos = componentConfigService.getComponentVoByComponent(Lists.newArrayList(addComponent), true, clusterId,true);
-        this.updateCache(engine.getId(), componentType.getTypeCode());
+        this.updateCache(clusterId,engine.getId(), componentType.getTypeCode());
         if (CollectionUtils.isNotEmpty(componentVos)) {
             ComponentVO componentVO = componentVos.get(0);
             componentVO.setClusterName(clusterName);
@@ -1183,10 +1184,6 @@ public class ComponentService {
                 componentTestResult.setResult(false);
                 componentTestResult.setErrorMsg("测试联通性失败");
                 return componentTestResult;
-            }
-
-            if (componentTestResult.getResult() && null != engineId) {
-                updateCache(engineId, componentType);
             }
         } finally {
             if (null != componentTestResult) {
