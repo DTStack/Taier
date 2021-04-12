@@ -70,6 +70,7 @@ public class CommonResource {
                 case GreenPlum:
                 case Dummy:
                 case KingBase:
+                case InceptorSQL:
                     commonResource = this;
                     break;
                 default:
@@ -116,6 +117,8 @@ public class CommonResource {
                 return ComputeResourceType.Presto;
             case KingBase:
                 return ComputeResourceType.KingBase;
+            case InceptorSQL:
+                return ComputeResourceType.InceptorSQL;
             default:
                 throw new RdosDefineException("engineType:" + engineType + " is not support.");
         }
