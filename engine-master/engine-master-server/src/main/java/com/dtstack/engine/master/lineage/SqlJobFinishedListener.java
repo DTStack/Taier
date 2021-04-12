@@ -42,6 +42,9 @@ public abstract class SqlJobFinishedListener implements ScheduleJobEventLister {
         for (String jobId:jobIds){
             ScheduleJob scheduleJob = getScheduleJobByJobId(jobId);
             ScheduleTaskShade taskShade = getScheduleTaskShadeByJobId(jobId);
+            if(null==taskShade){
+                return;
+            }
             ScheduleJob lastJob = getLastScheduleJob(taskShade.getTaskId(),scheduleJob.getId());
             Integer lastVersionId = null != lastJob ? lastJob.getVersionId() : null;
             if(null != lastVersionId && lastVersionId.equals(scheduleJob.getVersionId())){
@@ -110,6 +113,10 @@ public abstract class SqlJobFinishedListener implements ScheduleJobEventLister {
     ScheduleTaskShade getScheduleTaskShadeByJobId(String jobId){
         ScheduleJob scheduleJob = getScheduleJobByJobId(jobId);
         Long taskId = scheduleJob.getTaskId();
+        if(taskId == -1L){
+            //临时运行taskId都是-1
+            return null;
+        }
         ScheduleTaskShade taskShade = scheduleTaskShadeDao.getOne(taskId, focusedAppType().getType());
         if (Objects.isNull(taskShade)){
             throw new RdosDefineException("taskId:"+taskId+" 任务不存在");
