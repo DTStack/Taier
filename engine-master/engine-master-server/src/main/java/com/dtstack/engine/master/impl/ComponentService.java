@@ -1470,7 +1470,7 @@ public class ComponentService {
      * @return
      */
     public String convertComponentTypeToClient(String clusterName, Integer componentType, String version, Integer storeType) {
-        //普通rdb插件
+        // 普通rdb插件,即插件名就是这个
         EComponentType componentCode = EComponentType.getByCode(componentType);
         String pluginName = EComponentType.convertPluginNameByComponent(componentCode);
         if (StringUtils.isNotBlank(pluginName)) {
