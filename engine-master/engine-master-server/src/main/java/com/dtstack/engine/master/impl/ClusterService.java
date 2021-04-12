@@ -548,7 +548,7 @@ public class ClusterService implements InitializingBean {
         } else if (EComponentType.PRESTO_SQL == type.getComponentType()) {
             pluginInfo = JSONObject.parseObject(prestoInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
             pluginInfo.put(TYPE_NAME, "presto");
-        }else if (EComponentType.IMPALA_SQL==type.getComponentType()){
+        }else if (EComponentType.INCEPTOR_SQL==type.getComponentType()){
             pluginInfo=JSONObject.parseObject(inceptorSqlInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
             pluginInfo.put(TYPE_NAME,"inceptor");
         } else {
