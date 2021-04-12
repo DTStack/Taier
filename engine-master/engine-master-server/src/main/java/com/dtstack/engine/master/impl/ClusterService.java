@@ -548,6 +548,9 @@ public class ClusterService implements InitializingBean {
         } else if (EComponentType.PRESTO_SQL == type.getComponentType()) {
             pluginInfo = JSONObject.parseObject(prestoInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
             pluginInfo.put(TYPE_NAME, "presto");
+        }else if (EComponentType.IMPALA_SQL==type.getComponentType()){
+            pluginInfo=JSONObject.parseObject(inceptorSqlInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
+            pluginInfo.put(TYPE_NAME,"inceptor");
         } else {
             //flink spark 需要区分任务类型
             if (EComponentType.FLINK.equals(type.getComponentType()) || EComponentType.SPARK.equals(type.getComponentType())) {
@@ -734,6 +737,10 @@ public class ClusterService implements InitializingBean {
         return accountInfo(dtUicTenantId, dtUicUserId, DataSourceType.Presto);
     }
 
+    public String inceptorSqlInfo(Long dtUicTenantId, Long dtUicUserId){
+        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.INCEPTOR_SQL);
+    }
+
 
     private String accountInfo(Long dtUicTenantId, Long dtUicUserId, DataSourceType dataSourceType) {
         EComponentType componentType = null;
@@ -745,6 +752,8 @@ public class ClusterService implements InitializingBean {
             componentType = EComponentType.GREENPLUM_SQL;
         } else if (DataSourceType.Presto.equals(dataSourceType)) {
             componentType = EComponentType.PRESTO_SQL;
+        }else if (DataSourceType.INCEPTOR_SQL.equals(dataSourceType)){
+            componentType=EComponentType.INCEPTOR_SQL;
         }
         if (componentType == null) {
             throw new RdosDefineException("Unsupported data source type");
