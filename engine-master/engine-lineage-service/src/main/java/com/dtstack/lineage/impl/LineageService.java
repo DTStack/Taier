@@ -91,6 +91,7 @@ public class LineageService {
             parseInfo.setSqlType(SqlTypeAdapter.sqlType2ApiSqlType(parseResult.getSqlType()));
             parseInfo.setExtraType(SqlTypeAdapter.sqlType2ApiSqlType(parseResult.getExtraSqlType()));
             parseInfo.setStandardSql(parseResult.getStandardSql());
+            parseInfo.setOriginSql(parseResult.getOriginSql());
             parseInfo.setAlterResult(AlterResultAdapter.sqlAlterResult2ApiResult(parseResult.getAlterResult()));
             parseInfo.setRoot(QueryTableTreeAdapter.sqlQueryTableTree2ApiQueryTableTree(parseResult.getRoot()));
         } catch (Exception e) {
@@ -158,6 +159,7 @@ public class LineageService {
             parseInfo.setSqlType(SqlTypeAdapter.sqlType2ApiSqlType(parseResult.getSqlType()));
             parseInfo.setExtraType(SqlTypeAdapter.sqlType2ApiSqlType(parseResult.getExtraSqlType()));
             parseInfo.setStandardSql(parseResult.getStandardSql());
+            parseInfo.setOriginSql(parseResult.getOriginSql());
             List<TableLineage> tableLineages = parseResult.getTableLineages();
             if (CollectionUtils.isNotEmpty(tableLineages)) {
                 parseInfo.setTableLineages(tableLineages.stream().map(TableLineageAdapter::sqlTableLineage2ApiTableLineage).collect(Collectors.toList()));
@@ -321,6 +323,7 @@ public class LineageService {
             parseInfo.setSqlType(SqlTypeAdapter.sqlType2ApiSqlType(parseResult.getSqlType()));
             parseInfo.setExtraType(SqlTypeAdapter.sqlType2ApiSqlType(parseResult.getExtraSqlType()));
             parseInfo.setStandardSql(parseResult.getStandardSql());
+            parseInfo.setOriginSql(parseResult.getOriginSql());
             List<TableLineage> tableLineages = parseResult.getTableLineages();
             if (CollectionUtils.isNotEmpty(tableLineages)) {
                 parseInfo.setTableLineages(tableLineages.stream().map(TableLineageAdapter::sqlTableLineage2ApiTableLineage).collect(Collectors.toList()));
