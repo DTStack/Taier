@@ -5,7 +5,12 @@ $highlight-color: #3f87ff;
   height: 32px;
   margin-bottom: 12px;
 }
-
+.ant-select-open {
+  z-index: 1;
+}
+.ant-table-content {
+  background-color: #fff;
+}
 // table style
 .source {
   padding: 20px;

@@ -90,6 +90,24 @@ const InfoConfig = (props) => {
     return (await data) || [];
   };
 
+  //编辑时需获取产品授权列表
+  const getAuthProductList = async () => {
+    let { data, success } = await API.authProductList({
+      dataInfoId: record?.dataInfoId,
+    });
+    let newList = [];
+    if (success) {
+      if (data.length > 0) {
+        data.forEach((item) => {
+          if (item.isAuth === 1) {
+            newList.push(item.appType);
+          }
+        });
+      }
+    }
+    return newList;
+  };
+
   const getAllData = async () => {
     let { fromFieldVoList } = await templateForm();
     if (record) {
@@ -126,11 +144,11 @@ const InfoConfig = (props) => {
     setTemplateData(fromFieldVoList || []);
   };
 
-  const getParams = () => {
+  const getParams = async () => {
     let saveStatus = getSaveStatus();
     let dataType = record.dataType || saveStatus.sqlType?.dataType;
     let dataVersion = record.dataVersion || saveStatus.version;
-    let appTypeList = record.appNames?.split(',') || checks;
+    let appTypeList = record ? await getAuthProductList() : checks;
 
     setOtherParams({
       dataType,
@@ -195,12 +213,13 @@ const InfoConfig = (props) => {
             let { success, message: msg, data } = await API.testConWithKerberos(
               handelParams
             );
-            setLoading(false);
+
             if (success && data) {
               message.success('连接成功');
             } else {
               message.error(msg ? `${msg}` : '连接失败');
             }
+            setLoading(false);
           }
         } else {
           handelParams.dataJson = fieldsValue;
@@ -210,7 +229,6 @@ const InfoConfig = (props) => {
             submitForm(handelParams, infoMsg);
           } else {
             //测试连通性按钮
-            setLoading(false);
             let { success, message: msg, data } = await API.testCon(
               handelParams
             );
@@ -219,6 +237,7 @@ const InfoConfig = (props) => {
             } else {
               message.error(msg ? `${msg}` : '连接失败');
             }
+            setLoading(false);
           }
         }
       }
@@ -415,7 +434,7 @@ const InfoConfig = (props) => {
       accept: '.zip',
     };
     return (
-      <Form.Item {...formNewLayout} label="">
+      <Form.Item {...formNewLayout} label="" key="kerberosFile">
         {getFieldDecorator(`kerberosFile`, {
           rules: [
             {
@@ -489,11 +508,11 @@ const InfoConfig = (props) => {
   };
 
   //渲染表单方法
-  const formItem = templateData.map((item) => {
+  const formItem = templateData.map((item, index) => {
     switch (item.widget) {
       case 'Input':
         return (
-          <Form.Item label={item.label}>
+          <Form.Item label={item.label} key={index}>
             {getFieldDecorator(
               `${item.name}`,
               getRules(item)
@@ -512,7 +531,7 @@ const InfoConfig = (props) => {
         );
       case 'InputWithCopy':
         return (
-          <Form.Item label={item.label}>
+          <Form.Item label={item.label} key={index}>
             {getFieldDecorator(
               `${item.name}`,
               getRules(item)
@@ -531,7 +550,7 @@ const InfoConfig = (props) => {
         );
       case 'Select':
         return (
-          <Form.Item label={item.label}>
+          <Form.Item label={item.label} key={index}>
             {getFieldDecorator(
               `${item.name}`,
               getRules(item)
@@ -549,7 +568,7 @@ const InfoConfig = (props) => {
         );
       case 'TextArea':
         return (
-          <Form.Item label={item.label}>
+          <Form.Item label={item.label} key={index}>
             {getFieldDecorator(
               `${item.name}`,
               getRules(item)
@@ -563,7 +582,7 @@ const InfoConfig = (props) => {
         );
       case 'TextAreaWithCopy':
         return (
-          <Form.Item label={item.label}>
+          <Form.Item label={item.label} key={index}>
             {getFieldDecorator(
               `${item.name}`,
               getRules(item)
@@ -583,7 +602,7 @@ const InfoConfig = (props) => {
         );
       case 'RichText':
         return (
-          <Form.Item label={item.label}>
+          <Form.Item label={item.label} key={index}>
             {getFieldDecorator(
               `${item.name}`,
               getRules(item)
@@ -592,7 +611,7 @@ const InfoConfig = (props) => {
         );
       case 'Upload':
         return (
-          <Form.Item label={item.label}>
+          <Form.Item label={item.label} key={index}>
             {getFieldDecorator(
               `${item.name}`,
               getRules(item)
@@ -625,7 +644,7 @@ const InfoConfig = (props) => {
         );
       case 'Password':
         return (
-          <Form.Item label={item.label}>
+          <Form.Item label={item.label} key={index}>
             {getFieldDecorator(
               `${item.name}`,
               getRules(item)
@@ -638,7 +657,7 @@ const InfoConfig = (props) => {
         );
       case 'Radio':
         return (
-          <Form.Item label={item.label}>
+          <Form.Item label={item.label} key={index}>
             {getFieldDecorator(
               `${item.name}`,
               getRules(item)
@@ -652,7 +671,7 @@ const InfoConfig = (props) => {
         );
       case 'Integer':
         return (
-          <Form.Item label={item.label}>
+          <Form.Item label={item.label} key={index}>
             {getFieldDecorator(
               `${item.name}`,
               getRules(item)
@@ -661,7 +680,7 @@ const InfoConfig = (props) => {
         );
       case 'Switch':
         return (
-          <Form.Item label={item.label}>
+          <Form.Item label={item.label} key={index}>
             {getFieldDecorator(`${item.name}`, getRules(item))(<Switch />)}
           </Form.Item>
         );
@@ -669,23 +688,17 @@ const InfoConfig = (props) => {
       case 'Kerberos':
         return (
           <>
-            <Form.Item label={item.label}>
+            <Form.Item label={item.label} key={index}>
               {getFieldDecorator(`${item.name}`, {
                 valuePropName: 'checked',
                 initialValue: detailData?.openKerberos || false,
-              })(
-                <Switch
-                // onChange={(checked) =>
-                //   switchChange(checked, item.label, item.name)
-                // }
-                />
-              )}
+              })(<Switch />)}
             </Form.Item>
 
             {getFieldValue('openKerberos') && uploadForm()}
 
             {getFieldValue('kerberosFile') && getFieldValue('openKerberos') && (
-              <Form.Item label="Kerberos Principal">
+              <Form.Item label="Kerberos Principal" key="principal">
                 {getFieldDecorator('principal', {
                   rules: [
                     {
@@ -703,17 +716,11 @@ const InfoConfig = (props) => {
       case 'HbaseKerberos':
         return (
           <>
-            <Form.Item label="开启Kerberos认证">
+            <Form.Item label="开启Kerberos认证" key={index}>
               {getFieldDecorator('openKerberos', {
                 valuePropName: 'checked',
                 initialValue: detailData?.openKerberos || false,
-              })(
-                <Switch
-                // onChange={(checked) =>
-                //   switchChange(checked, item.label, item.name)
-                // }
-                />
-              )}
+              })(<Switch />)}
             </Form.Item>
 
             {getFieldValue('openKerberos') && uploadForm()}
@@ -769,7 +776,7 @@ const InfoConfig = (props) => {
       case 'FtpReact':
         return (
           <>
-            <Form.Item label="协议">
+            <Form.Item label="协议" key={index}>
               {getFieldDecorator('protocol', {
                 initialValue: detailData?.protocol || 'FTP',
                 rules: [
@@ -848,7 +855,7 @@ const InfoConfig = (props) => {
       case 'CarbonReact':
         return (
           <>
-            <Form.Item label="HDFS配置">
+            <Form.Item label="HDFS配置" key={index}>
               {getFieldDecorator('hdfsCustomConfig', {
                 initialValue: detailData?.hdfsCustomConfig || 'default',
               })(
@@ -898,7 +905,7 @@ const InfoConfig = (props) => {
       case 'RedisReact':
         return (
           <>
-            <Form.Item label="模式">
+            <Form.Item label="模式" key="redisType">
               {getFieldDecorator('redisType', {
                 initialValue: detailData?.redisType || 1,
                 rules: [
@@ -915,7 +922,7 @@ const InfoConfig = (props) => {
                 </Radio.Group>
               )}
             </Form.Item>
-            <Form.Item label="地址">
+            <Form.Item label="地址" key="hostPort">
               {getFieldDecorator('hostPort', {
                 initialValue: detailData?.hostPort || '',
                 rules: [
@@ -936,7 +943,7 @@ const InfoConfig = (props) => {
               )}
             </Form.Item>
             {getFieldValue('redisType') === 3 && (
-              <Form.Item label="master名称">
+              <Form.Item label="master名称" key="masterName">
                 {getFieldDecorator('masterName', {
                   initialValue: detailData?.masterName || '',
                   rules: [

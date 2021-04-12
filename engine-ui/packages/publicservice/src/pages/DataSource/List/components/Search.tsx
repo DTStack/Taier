@@ -126,13 +126,10 @@ function Search(props) {
               onSearch({ isMeta: e.target.checked ? 1 : 0, currentPage: 1 })
             }>
             显示默认数据库
-            <Tooltip title="各模块在创建项目时的默认数据源">
-              <Icon
-                style={{ marginLeft: 8, color: '#999' }}
-                type="question-circle-o"
-              />
-            </Tooltip>
           </Checkbox>
+          <Tooltip title="各模块在创建项目时的默认数据源">
+            <Icon style={{ color: '#999' }} type="question-circle-o" />
+          </Tooltip>
         </Form.Item>
 
         <Button type="primary" onClick={addList} style={{ float: 'right' }}>
