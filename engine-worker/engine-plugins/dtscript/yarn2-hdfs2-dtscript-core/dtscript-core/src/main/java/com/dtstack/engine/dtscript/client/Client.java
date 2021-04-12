@@ -13,6 +13,7 @@ import com.dtstack.engine.dtscript.common.SecurityUtil;
 import com.dtstack.engine.dtscript.common.exceptions.RequestOverLimitException;
 import com.dtstack.engine.dtscript.util.KrbUtils;
 import com.dtstack.engine.dtscript.util.Utilities;
+import com.sun.xml.bind.v2.TODO;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.*;
@@ -173,8 +174,10 @@ public class Client {
             
             Map<String, LocalResource> localResources = new HashMap<>();
 
+            boolean hasLog4j = false;
+            // TODO: 4/9/21 bug, wait fix; 
             // add log4j.properties
-            Path remoteLog4j = Utilities.getRemotePath(conf, applicationId, DtYarnConfiguration.DTSCRIPT_LOG4J_FILENAME);
+            /*Path remoteLog4j = Utilities.getRemotePath(conf, applicationId, DtYarnConfiguration.DTSCRIPT_LOG4J_FILENAME);
             File log4jFile = new File(new File(appJarSrc.toString()).getParent(), DtYarnConfiguration.DTSCRIPT_LOG4J_FILENAME);
             if (!log4jFile.exists()) {
                 File tmpFileDir =  new File(System.getProperty("user.dir") + File.separator + "tmp");
@@ -196,7 +199,7 @@ public class Client {
                 }
                 log4jFile = tmpLog4jFile;
             }
-            boolean hasLog4j = false;;
+
             try {
                 Path localLog4j = new Path(log4jFile.toString());
                 if (log4jFile.exists()) {
@@ -211,7 +214,7 @@ public class Client {
                 if (org.apache.commons.lang3.StringUtils.startsWith(log4jFile.getName(), applicationId.toString())) {
                     log4jFile.delete();
                 }
-            }
+            }*/
 
             Path jobConfPath = Utilities.getRemotePath(conf, applicationId, DtYarnConstants.LEARNING_JOB_CONFIGURATION);
             LOG.info("job conf path: " + jobConfPath);
