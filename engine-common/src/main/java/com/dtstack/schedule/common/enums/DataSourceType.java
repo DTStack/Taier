@@ -56,6 +56,7 @@ public enum DataSourceType {
     PHOENIX5(38),
     KINGBASE8(40),
     VERTICA(43),
+    INCEPTOR_SQL(44),
 
     /**
      * spark thrift
