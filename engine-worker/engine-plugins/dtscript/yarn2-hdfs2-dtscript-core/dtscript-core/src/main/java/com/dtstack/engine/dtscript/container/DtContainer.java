@@ -92,6 +92,7 @@ public class DtContainer {
         containerId = new DtContainerId(ConverterUtils.toContainerId(System
                 .getenv(ApplicationConstants.Environment.CONTAINER_ID.name())));
         LOG.info("sub container id: " + containerId);
+        LOG.info("java.home :" + conf.get("java.home"));
 
         this.heartbeatInterval = this.conf.getInt(DtYarnConfiguration.DTSCRIPT_CONTAINER_HEARTBEAT_INTERVAL, DtYarnConfiguration.DEFAULT_DTSCRIPT_CONTAINER_HEARTBEAT_INTERVAL);
         this.envs = System.getenv();
@@ -167,7 +168,7 @@ public class DtContainer {
             py4jEnv[1] = DtYarnConstants.ENV_PRINCIPAL + "=" + envs.get(DtYarnConstants.ENV_PRINCIPAL);
             // TODO 一些常量下沉到base或者新建一个模块
             final String mainClass = "com.dtstack.python.PythonGatewayServer";
-            final String javaHome = System.getenv("JAVA_HOME");
+            final String javaHome = conf.get("java.home");
             Preconditions.checkState(javaHome != null, "JAVA_HOME没有设置请联系运维配置所有NodeManager节点的JAVA_HOME环境变量");
             String py4jStartCmd = javaHome + "/bin/java -cp " + DtYarnConstants.LOCALIZED_GATEWAY_PATH + " " + mainClass;
             gatewayProcess = Runtime.getRuntime().exec(py4jStartCmd, py4jEnv);
