@@ -39,10 +39,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author basion
@@ -537,6 +534,17 @@ public class LineageServiceTest extends AbstractTest {
         queryTableLineageColumnParam.setTableName("test");
         List<String> strings = lineageService.queryTableResultLineageColumns(queryTableLineageColumnParam);
         Assert.assertNotNull(strings);
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testParseFunction(){
+
+        String sql = "select id,nmd(name,age) as nmd from test";
+        Set<String> functions = lineageService.parseFunction(sql);
+        Assert.assertNotNull(functions);
+
     }
 
     @Test
