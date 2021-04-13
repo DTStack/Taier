@@ -78,7 +78,7 @@ function Search(props) {
           <SearchInput
             placeholder="数据源名称/描述"
             onSearch={(value) => onSearch({ search: value.trim() })}
-            width={208}></SearchInput>
+            width={160}></SearchInput>
         </Form.Item>
 
         <Form.Item label="类型">
@@ -87,8 +87,9 @@ function Search(props) {
             placeholder="请选择类型"
             allowClear
             showSearch
+            maxTagCount={1}
             optionFilterProp="children"
-            style={{ width: 140 }}
+            style={{ width: 280 }}
             onChange={(value) => onMultType(value)}
             defaultValue={['全部']}>
             {typeList.length > 0 &&
@@ -104,10 +105,11 @@ function Search(props) {
         <Form.Item label="授权产品">
           <Select
             mode="multiple"
-            style={{ width: 140 }}
+            style={{ width: 200 }}
             onChange={(value) => onMultAppType(value)}
             allowClear
             showSearch
+            maxTagCount={1}
             optionFilterProp="children"
             defaultValue={['all']}>
             {productList.length > 0 &&

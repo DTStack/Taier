@@ -119,7 +119,12 @@ const showMapArr: any = {
 export function ExtTableCell(props: any) {
   const { sourceData } = props;
   const arr = showMapArr[sourceData.type];
-  let data = JSON.parse(sourceData.linkJson);
+
+  let data = {};
+  try {
+    data = JSON.parse(sourceData.linkJson);
+  } catch (error) {}
+
   if (arr) {
     return (
       <div>

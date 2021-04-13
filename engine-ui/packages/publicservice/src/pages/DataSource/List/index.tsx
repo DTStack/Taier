@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { withRouter } from 'react-router';
+import Base64 from 'base-64';
 import Search from './components/Search';
 import { Table, message, Modal, Pagination, notification } from 'antd';
 import { columns } from './constants';
@@ -52,8 +53,16 @@ function index(props) {
               element.type = Number(item);
             }
           });
+
+          if (
+            element.linkJson.indexOf('{') === -1 &&
+            element.linkJson.indexOf('}') === -1
+          ) {
+            element.linkJson = Base64.decode(element.linkJson);
+          }
         });
       }
+
       setTotal(totalCount); //总页数
       setDataSources(data.data || []);
     } else {

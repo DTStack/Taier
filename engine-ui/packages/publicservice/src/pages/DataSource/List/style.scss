@@ -21,7 +21,7 @@ $highlight-color: #3f87ff;
     background-color: #fff;
     .conent-table {
       height: calc(100% - 56px);
-      overflow: scroll;
+      overflow-y: scroll;
     }
   }
   .data-view {
