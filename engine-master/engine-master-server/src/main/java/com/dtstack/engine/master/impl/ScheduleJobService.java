@@ -40,6 +40,7 @@ import com.dtstack.engine.master.utils.JobGraphUtils;
 import com.dtstack.engine.master.sync.RestartRunnable;
 import com.dtstack.engine.master.utils.JobGraphUtils;
 import com.dtstack.engine.master.sync.RestartRunnable;
+import com.dtstack.engine.master.utils.JobGraphUtils;
 import com.dtstack.engine.master.vo.BatchSecienceJobChartVO;
 import com.dtstack.engine.master.vo.ScheduleJobVO;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
@@ -50,8 +51,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
@@ -156,6 +157,9 @@ public class ScheduleJobService {
 
     @Autowired
     private ScheduleEngineProjectDao scheduleEngineProjectDao;
+
+    @Autowired
+    private JobGraphTriggerDao jobGraphTriggerDao;
 
     private final static List<Integer> FINISH_STATUS = Lists.newArrayList(RdosTaskStatus.FINISHED.getStatus(), RdosTaskStatus.MANUALSUCCESS.getStatus(), RdosTaskStatus.CANCELLING.getStatus(), RdosTaskStatus.CANCELED.getStatus());
     private final static List<Integer> FAILED_STATUS = Lists.newArrayList(RdosTaskStatus.FAILED.getStatus(), RdosTaskStatus.SUBMITFAILD.getStatus(), RdosTaskStatus.KILLED.getStatus());
@@ -1170,7 +1174,12 @@ public class ScheduleJobService {
     public String stopJob( long jobId, Integer appType) throws Exception {
 
         ScheduleJob scheduleJob = scheduleJobDao.getOne(jobId);
-        return stopJobByScheduleJob( appType, scheduleJob);
+        String result = stopJobByScheduleJob(appType, scheduleJob);
+        // 杀死工作流任务，已经强规则任务
+        List<ScheduleJob> jobs = Lists.newArrayList(scheduleJob);
+        getDependentJob(jobs);
+        jobStopDealer.addStopJobs(jobs);
+        return result;
     }
 
     private String stopJobByScheduleJob(  Integer appType, ScheduleJob scheduleJob) throws Exception {
@@ -1187,18 +1196,8 @@ public class ScheduleJobService {
             throw new RdosDefineException(ErrorCode.JOB_CAN_NOT_STOP);
         }
 
-        if (RdosTaskStatus.UNSUBMIT.getStatus().equals(status)) {
-            //stopSubmittedJob(Lists.newArrayList(scheduleJob), dtuicTenantId, appType);
-            jobStopDealer.addStopJobs(Lists.newArrayList(scheduleJob));
-            //return stopUnsubmitJob(scheduleJob);
-            return "";
-        } else if (RdosTaskStatus.RUNNING_STATUS.contains(status) || RdosTaskStatus.WAIT_STATUS.contains(status)) {
-            //return stopSubmittedJob(Lists.newArrayList(scheduleJob), dtuicTenantId, appType);
-            jobStopDealer.addStopJobs(Lists.newArrayList(scheduleJob));
-            return "";
-        } else {
-            throw new RdosDefineException(ErrorCode.JOB_CAN_NOT_STOP);
-        }
+        jobStopDealer.addStopJobs(Lists.newArrayList(scheduleJob));
+        return "";
     }
 
     public String stopJobByJobId( String jobId, Integer appType) throws Exception{
@@ -1212,15 +1211,15 @@ public class ScheduleJobService {
 
     public void stopFillDataJobs( String fillDataJobName,  Long projectId,  Long dtuicTenantId,  Integer appType) throws Exception {
         //还未发送到engine部分---直接停止
-        if (StringUtils.isBlank(fillDataJobName) || null == projectId || null == appType) {
+        if (StringUtils.isBlank(fillDataJobName)) {
             return;
         }
         String likeName = fillDataJobName + "-%";
         //发送停止消息到engine
         //查询出所有需要停止的任务
-        List<ScheduleJob> needStopIdList = scheduleJobDao.listNeedStopFillDataJob(likeName, RdosTaskStatus.getCanStopStatus(), projectId, appType);
+        List<ScheduleJob> needStopIdList = scheduleJobDao.listNeedStopFillDataJob(likeName, RdosTaskStatus.getCanStopStatus(), null, null);
         //通过interceptor的触发状态更新的event
-        scheduleJobDao.stopUnsubmitJob(likeName, projectId, appType, RdosTaskStatus.CANCELED.getStatus());
+        scheduleJobDao.stopUnsubmitJob(likeName, null, null, RdosTaskStatus.CANCELED.getStatus());
         //发送停止任务消息到engine
         //this.stopSubmittedJob(needStopIdList, dtuicTenantId, appType);
         jobStopDealer.addStopJobs(needStopIdList);
@@ -1233,8 +1232,24 @@ public class ScheduleJobService {
             return 0;
         }
         List<ScheduleJob> jobs = new ArrayList<>(scheduleJobDao.listByJobIds(jobIdList));
-        listByJobIdFillFlowSubJobs(jobs);
+
+        // 查询规则任务
+        getDependentJob(jobs);
         return jobStopDealer.addStopJobs(jobs);
+    }
+
+    private void getDependentJob(List<ScheduleJob> jobs) {
+        List<ScheduleJob> all = Lists.newArrayList();
+        for (ScheduleJob job : jobs) {
+            // 查询所有规则任务
+            List<ScheduleJob> taskRuleSonJob = this.getTaskRuleSonJob(job);
+            if (CollectionUtils.isNotEmpty(taskRuleSonJob)) {
+                all.addAll(taskRuleSonJob);
+            }
+        }
+        jobs.addAll(all);
+
+        listByJobIdFillFlowSubJobs(jobs);
     }
 
 
@@ -1242,9 +1257,9 @@ public class ScheduleJobService {
      * jobSize 在负载均衡时 区分 scheduleType（正常调度 和 补数据）
      */
     @Transactional(rollbackFor = Exception.class)
-    public void insertJobList(Collection<ScheduleBatchJob> batchJobCollection, Integer scheduleType) {
+    public Long insertJobList(Collection<ScheduleBatchJob> batchJobCollection, Integer scheduleType) {
         if (CollectionUtils.isEmpty(batchJobCollection)) {
-            return;
+            return null;
         }
 
         Iterator<ScheduleBatchJob> batchJobIterator = batchJobCollection.iterator();
@@ -1253,6 +1268,7 @@ public class ScheduleJobService {
         //1: 批量插入BatchJob
         //2: 批量插入BatchJobJobList
         int count = 0;
+        Long minJobId=null;
         List<ScheduleJob> jobWaitForSave = Lists.newArrayList();
         List<ScheduleJobJob> jobJobWaitForSave = Lists.newArrayList();
 
@@ -1271,12 +1287,14 @@ public class ScheduleJobService {
                 jobJobWaitForSave.addAll(scheduleBatchJob.getBatchJobJobList());
 
                 if (count++ % 20 == 0 || count == (batchJobCollection.size() - 1)) {
-                    persisteJobs(jobWaitForSave, jobJobWaitForSave);
+                   minJobId = persisteJobs(jobWaitForSave, jobJobWaitForSave, minJobId);
                 }
             }
             //结束前persist一次，flush所有jobs
-            persisteJobs(jobWaitForSave, jobJobWaitForSave);
+            minJobId = persisteJobs(jobWaitForSave, jobJobWaitForSave, minJobId);
+
         }
+        return minJobId;
     }
 
     private Map<String, Integer> computeJobSizeForNode(int jobSize, int scheduleType) {
@@ -1293,18 +1311,22 @@ public class ScheduleJobService {
         return jobSizeInfo;
     }
 
-    private void persisteJobs(List<ScheduleJob> jobWaitForSave, List<ScheduleJobJob> jobJobWaitForSave) {
+    private Long persisteJobs(List<ScheduleJob> jobWaitForSave, List<ScheduleJobJob> jobJobWaitForSave, Long minJobId) {
         try {
-            RetryUtil.executeWithRetry(() -> {
+            return RetryUtil.executeWithRetry(() -> {
+                Long curMinJobId=minJobId;
                 if (jobWaitForSave.size() > 0) {
                     scheduleJobDao.batchInsert(jobWaitForSave);
+                    if (Objects.isNull(minJobId)) {
+                        curMinJobId = jobWaitForSave.stream().map(ScheduleJob::getId).min(Long::compareTo).orElse(null);
+                    }
                     jobWaitForSave.clear();
                 }
                 if (jobJobWaitForSave.size() > 0) {
                     batchJobJobService.batchInsert(jobJobWaitForSave);
                     jobJobWaitForSave.clear();
                 }
-                return null;
+                return curMinJobId;
             }, environmentContext.getBuildJobErrorRetry(), 200, false);
         } catch (Exception e) {
             LOGGER.error("!!!!! persisteJobs job error !!!! job {} jobjob {}", jobWaitForSave, jobJobWaitForSave, e);
@@ -2789,7 +2811,16 @@ public class ScheduleJobService {
     }
 
     public Long getListMinId(String nodeAddress,Integer scheduleType, String left, String right,Integer isRestart) {
-        return scheduleJobDao.getListMinId(nodeAddress, scheduleType, left, right, JobPhaseStatus.CREATE.getCode(),isRestart);
+        // 如果没有时间限制, 默认返回0
+        if (StringUtils.isAnyBlank(left,right)){
+            return 0L;
+        }
+        // 如果当前时间范围没有数据, 返回NULL
+        String minJobId = jobGraphTriggerDao.getMinJobIdByTriggerTime(left, right);
+        if (StringUtils.isBlank(minJobId)){
+            return null;
+        }
+        return Long.parseLong(minJobId);
     }
 
     public String getJobGraphJSON(String jobId) {

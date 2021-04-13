@@ -1,0 +1,1 @@
+ALTER TABLE schedule_job_graph_trigger ADD COLUMN `min_job_id` INT ( 11 ) NOT NULL DEFAULT 0 COMMENT '生成graph时对应的job起始id';
