@@ -59,7 +59,12 @@ public class ScheduleTaskTaskShade extends AppTenantEntity {
 
     public String getParentTaskKey() {
         if (StringUtils.isBlank(parentTaskKey) && parentTaskId != null) {
-            parentTaskKey = parentTaskId+ "-" + getParentAppType();
+            Integer parentAppType = getParentAppType();
+            if (parentAppType == null) {
+                parentTaskKey = parentTaskId + "-" + getAppType();
+            } else {
+                parentTaskKey = parentTaskId + "-" + parentAppType;
+            }
         }
         return parentTaskKey;
     }
