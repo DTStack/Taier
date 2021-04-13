@@ -55,6 +55,7 @@ function index(props) {
           });
 
           if (
+            element.linkJson &&
             element.linkJson.indexOf('{') === -1 &&
             element.linkJson.indexOf('}') === -1
           ) {

@@ -18,14 +18,14 @@ export default function index(props) {
   //确定按钮
   const submitConfig = () => {
     childRef.current.submitForm();
-    setSubmitBtnStatus(true)
+    setSubmitBtnStatus(true);
   };
 
   const record = props.location.state.record;
 
-  const changeBtnStatus=()=>{
-    setSubmitBtnStatus(false)
-  }
+  const changeBtnStatus = () => {
+    setSubmitBtnStatus(false);
+  };
   return (
     <div className="source">
       <BreadComponent name="编辑"></BreadComponent>
@@ -39,7 +39,10 @@ export default function index(props) {
           </Steps>
         </div>
         <div className="step-info">
-          <InfoConfig cRef={childRef} record={record} changeBtnStatus={changeBtnStatus}></InfoConfig>
+          <InfoConfig
+            cRef={childRef}
+            record={record}
+            changeBtnStatus={changeBtnStatus}></InfoConfig>
         </div>
         <div className="footer-select">
           <Button type="primary" onClick={testConnect}>
@@ -48,7 +51,10 @@ export default function index(props) {
           <Button style={{ marginLeft: 60, marginRight: 8 }} disabled>
             上一步
           </Button>
-          <Button type="primary" onClick={submitConfig} disabled={submitBtnStatus}>
+          <Button
+            type="primary"
+            onClick={submitConfig}
+            disabled={submitBtnStatus}>
             确定
           </Button>
         </div>

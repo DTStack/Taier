@@ -16,7 +16,7 @@ function index(props) {
 
   const [showFirstNext, setShowFirstNext] = useState<boolean>(false); //选择数据源-是否显示下一步
   const [submitBtnStatus, setSubmitBtnStatus] = useState(false);
-  
+
   //1.选择数据源
   const nextType = (value) => {
     setShowFirstNext(value);
@@ -30,11 +30,11 @@ function index(props) {
   //确定按钮
   const submitConfig = () => {
     childRef.current.submitForm();
-    setSubmitBtnStatus(true)
+    setSubmitBtnStatus(true);
   };
-  const changeBtnStatus=()=>{
-    setSubmitBtnStatus(false)
-  }
+  const changeBtnStatus = () => {
+    setSubmitBtnStatus(false);
+  };
 
   const switchContent = (step) => {
     switch (step) {
@@ -95,7 +95,10 @@ function index(props) {
         let content2 = (
           <>
             <div className="step-info">
-              <InfoConfig cRef={childRef} record={''} changeBtnStatus={changeBtnStatus}></InfoConfig>
+              <InfoConfig
+                cRef={childRef}
+                record={''}
+                changeBtnStatus={changeBtnStatus}></InfoConfig>
             </div>
             <div className="footer-select">
               <Button type="primary" icon="sync" onClick={testConnect}>

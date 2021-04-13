@@ -45,6 +45,8 @@ export const DATA_SOURCE = {
   HBase_1X: 48,
   HBase_2X: 49,
   CARBONDATA: 50,
+  GREENPLUM: 51,
+  GBASE_8A: 52,
 };
 
 export const DATA_SOURCE_TEXT: any = {
@@ -56,7 +58,7 @@ export const DATA_SOURCE_TEXT: any = {
   7: 'Hive',
   8: 'HBase',
   9: 'FTP',
-  10: 'MaxCompute',
+  10: 'Maxcompute',
   11: 'ElasticSearch5',
   12: 'Redis',
   13: 'MongoDB',
@@ -68,8 +70,8 @@ export const DATA_SOURCE_TEXT: any = {
   17: 'Kafka0.10',
   14: 'Kafka0.11',
   19: 'DB2',
-  24: 'KUDU',
-  28: 'Polardb for MySQL 8',
+  24: 'Kudu',
+  28: 'PolarDB for MySQL8',
   29: 'Impala',
   34: 'EMQ',
   33: 'ElasticSearch6',
@@ -77,6 +79,7 @@ export const DATA_SOURCE_TEXT: any = {
   40: 'KingbaseES V8.0',
   41: 'S3',
   42: 'WebSocket',
+  44: 'Socket',
   //add
   43: 'Hive1.x',
   45: 'Hive2.x',
@@ -84,6 +87,9 @@ export const DATA_SOURCE_TEXT: any = {
   49: 'HBase2.x',
   50: 'CarbonData',
   25: 'ClickHouse',
+  51: 'Greenplum',
+  31: 'TiDB',
+  52: 'GBase_8a',
 };
 
 export const PROJECT_TYPE: any = {

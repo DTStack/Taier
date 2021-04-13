@@ -111,18 +111,24 @@ const showMapArr: any = {
     ['jdbcUrl', 'jdbcUrl'],
     ['username', '用户名'],
   ],
+  [DATA_SOURCE.GBASE_8A]: [
+    ['jdbcUrl', 'jdbcUrl'],
+    ['username', '用户名'],
+  ],
   [DATA_SOURCE.S3]: [['hostname', 'hostname']],
   [DATA_SOURCE.WEBSOCKET]: [['url', 'url']],
   [DATA_SOURCE.SOCKET]: [['url', 'url']],
+  [DATA_SOURCE.GREENPLUM]: [['jdbcUrl', 'jdbcUrl']],
 };
 
 export function ExtTableCell(props: any) {
   const { sourceData } = props;
+  console.log('sourceData: ', sourceData);
   const arr = showMapArr[sourceData.type];
 
   let data = {};
   try {
-    data = JSON.parse(sourceData.linkJson);
+    data = JSON.parse(sourceData.linkJson) || {};
   } catch (error) {}
 
   if (arr) {
