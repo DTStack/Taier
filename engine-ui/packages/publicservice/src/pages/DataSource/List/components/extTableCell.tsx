@@ -103,6 +103,10 @@ const showMapArr: any = {
     ['address', '集群地址'],
     ['brokerList', 'broker地址'],
   ],
+  [DATA_SOURCE.KAFKA_NEW]: [
+    ['address', '集群地址'],
+    ['brokerList', 'broker地址'],
+  ],
   [DATA_SOURCE.EMQ]: [['address', 'Broker URL']],
   [DATA_SOURCE.TIDB]: [
     ['jdbcUrl', 'jdbcUrl'],

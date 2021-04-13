@@ -27,6 +27,7 @@ export const DATA_SOURCE = {
   KAFKA_09: 18,
   KAFKA_10: 17,
   KAFKA_11: 14, // KAFKA_11
+  KAFKA_NEW: 55,
   DB2: 19,
   KUDU: 24,
   POLAR_DB: 28,
@@ -71,6 +72,7 @@ export const DATA_SOURCE_TEXT: any = {
   18: 'Kafka0.9',
   17: 'Kafka0.10',
   14: 'Kafka0.11',
+  55: 'Kafka',
   19: 'DB2',
   24: 'Kudu',
   28: 'PolarDB for MySQL8',
