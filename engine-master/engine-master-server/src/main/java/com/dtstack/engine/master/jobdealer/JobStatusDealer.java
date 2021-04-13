@@ -207,7 +207,7 @@ public class  JobStatusDealer implements Runnable {
                         && !job.getStatus().equals(status)
                         && !RdosTaskStatus.CANCELLING.getStatus().equals(job.getStatus());
 
-        //流计算 任务被手动停止 进入CANCELLING 除非YARN上状态已结束 才回写
+        //流计算 任务被手动停止 进入CANCELLING 除非YARN上状态已结束 才回写, 引擎返回的最终状态需要回写到数据库
         Predicate<ScheduleJob> isStreamCancellingConditions = job ->
                 ComputeType.STREAM.getType().equals(job.getComputeType())
                         && RdosTaskStatus.CANCELLING.getStatus().equals(job.getStatus())
