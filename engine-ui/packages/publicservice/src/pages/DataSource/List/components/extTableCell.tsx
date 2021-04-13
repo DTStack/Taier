@@ -123,7 +123,6 @@ const showMapArr: any = {
 
 export function ExtTableCell(props: any) {
   const { sourceData } = props;
-  console.log('sourceData: ', sourceData);
   const arr = showMapArr[sourceData.type];
 
   let data = {};

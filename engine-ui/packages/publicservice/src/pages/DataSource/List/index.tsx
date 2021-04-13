@@ -109,8 +109,8 @@ function index(props) {
   };
 
   //分页事件
-  const onChangePage = (page) => {
-    let data = { ...params, ...{ currentPage: page } };
+  const onChangePage = (page, pageSize) => {
+    let data = { ...params, ...{ currentPage: page }, pageSize: pageSize };
     setParams(data);
     requestTableData(data);
   };
@@ -196,9 +196,12 @@ function index(props) {
             size="small"
             total={total}
             showTotal={showTotal}
-            onChange={(page) => onChangePage(page)}
+            onChange={onChangePage}
             defaultPageSize={params.pageSize}
             current={params.currentPage}
+            showSizeChanger
+            pageSizeOptions={['20', '50', '100']}
+            onShowSizeChange={onChangePage}
           />
         </div>
       </div>
