@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import BreadComponent from '../components/BreadComponent';
 import { Steps, Button } from 'antd';
 import InfoConfig from '../components/InfoConfig';
@@ -9,6 +9,7 @@ const { Step } = Steps;
 
 export default function index(props) {
   const childRef = useRef(null);
+  const [submitBtnStatus, setSubmitBtnStatus] = useState(false);
 
   //测试连通性
   const testConnect = () => {
@@ -17,10 +18,14 @@ export default function index(props) {
   //确定按钮
   const submitConfig = () => {
     childRef.current.submitForm();
+    setSubmitBtnStatus(true);
   };
 
   const record = props.location.state.record;
 
+  const changeBtnStatus = () => {
+    setSubmitBtnStatus(false);
+  };
   return (
     <div className="source">
       <BreadComponent name="编辑"></BreadComponent>
@@ -34,7 +39,10 @@ export default function index(props) {
           </Steps>
         </div>
         <div className="step-info">
-          <InfoConfig cRef={childRef} record={record}></InfoConfig>
+          <InfoConfig
+            cRef={childRef}
+            record={record}
+            changeBtnStatus={changeBtnStatus}></InfoConfig>
         </div>
         <div className="footer-select">
           <Button type="primary" onClick={testConnect}>
@@ -43,7 +51,10 @@ export default function index(props) {
           <Button style={{ marginLeft: 60, marginRight: 8 }} disabled>
             上一步
           </Button>
-          <Button type="primary" onClick={submitConfig}>
+          <Button
+            type="primary"
+            onClick={submitConfig}
+            disabled={submitBtnStatus}>
             确定
           </Button>
         </div>

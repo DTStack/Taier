@@ -7,8 +7,8 @@ function mapUrlObjToFuncObj(urlObj) {
   const API = {};
   keys(urlObj).forEach((key) => {
     const item = urlObj[key];
-    API[key] = async function (params) {
-      return await http[item.method](item.url, params);
+    API[key] = async function (params, config) {
+      return await http[item.method](item.url, params, config);
     };
   });
   return API;
