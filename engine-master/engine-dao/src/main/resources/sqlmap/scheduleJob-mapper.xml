@@ -1723,7 +1723,6 @@
             <if test="status != null">
                 status = #{status},
             </if>
-            exec_start_time = now(),
             gmt_modified = now()
         </set>
         WHERE job_id = #{jobId} AND status = #{status1}
@@ -1733,7 +1732,6 @@
         UPDATE schedule_job
         SET
             log_info = #{msg},
-            exec_start_time = now(),
             gmt_modified = now()
         WHERE job_id = #{jobId}
         AND is_deleted=0
