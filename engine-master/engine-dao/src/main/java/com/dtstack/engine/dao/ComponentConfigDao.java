@@ -22,4 +22,6 @@ public interface ComponentConfigDao {
     Integer deleteByComponentId(@Param("componentId")Long componentId);
 
     ComponentConfig listFirst();
+
+    void update(ComponentConfig componentConfig);
 }

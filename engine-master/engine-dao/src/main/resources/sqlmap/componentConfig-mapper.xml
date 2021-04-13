@@ -16,6 +16,28 @@
         </foreach>
     </insert>
 
+
+    <sql id="update_fragment">
+        <set>
+            <if test="key!=null">
+                `key` = #{key},
+            </if>
+            <if test="value!=null">
+                `value` = #{value},
+            </if>
+            <if test="values!=null">
+                `values` = #{values},
+            </if>
+            <if test="dependencyKey!=null">
+                dependencyKey = #{dependencyKey},
+            </if>
+            <if test="dependencyValue!=null">
+                dependencyValue = #{dependencyValue},
+            </if>
+            gmt_modified = now(),
+        </set>
+    </sql>
+
     <select id="listByComponentId" resultType="ComponentConfig">
         select
         <include refid="select_content_fragment"/>
@@ -57,4 +79,9 @@
         from console_component_config where component_id > 0
         limit 1
     </select>
+
+    <update id="update">
+        update console_component_config
+        <include refid="update_fragment"/> where id = #{id}
+    </update>
 </mapper>

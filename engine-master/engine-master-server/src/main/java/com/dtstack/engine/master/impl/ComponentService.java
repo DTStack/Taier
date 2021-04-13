@@ -513,7 +513,7 @@ public class ComponentService {
 
         EComponentType storesComponent = this.checkStoresComponent(clusterId, storeType);
         addComponent.setStoreType(storesComponent.getTypeCode());
-        addComponent.setHadoopVersion(convertHadoopVersionToValue(Optional.ofNullable(hadoopVersion).orElse("Hadoop 2.x")));
+        addComponent.setHadoopVersion(convertHadoopVersionToValue(hadoopVersion,componentCode,clusterId));
         addComponent.setComponentName(componentType.getName());
         addComponent.setComponentTypeCode(componentType.getTypeCode());
         addComponent.setEngineId(engine.getId());
@@ -526,6 +526,7 @@ public class ComponentService {
         addComponent.setClusterId(clusterId);
         if (isUpdate) {
             componentDao.update(addComponent);
+            refreshVersion(componentType, engine.getId(), addComponent, dbComponent,hadoopVersion);
             clusterDao.updateGmtModified(clusterId);
         } else {
             componentDao.insert(addComponent);
@@ -542,6 +543,63 @@ public class ComponentService {
             return componentVO;
         }
         return null;
+    }
+
+    /**
+     * yarn组件版本变更之后  hdfs组件保存一致
+     * 计算组件 如flink的typename也同步变更
+     *
+     * @param componentType
+     * @param engineId
+     * @param addComponent
+     * @param dbComponent
+     */
+    public void refreshVersion(EComponentType componentType, Long engineId, Component addComponent, Component dbComponent, String hadoopVersion) {
+        if (!EComponentType.YARN.equals(componentType)) {
+            return;
+        }
+        String oldVersion = formatHadoopVersion(dbComponent.getHadoopVersion(), componentType);
+        String newVersion = formatHadoopVersion(addComponent.getHadoopVersion(), componentType);
+        if (oldVersion.equalsIgnoreCase(newVersion)) {
+            return;
+        }
+        Component hdfsComponent = componentDao.getByEngineIdAndComponentType(engineId, EComponentType.HDFS.getTypeCode());
+        if (null == hdfsComponent) {
+            return;
+        }
+        //1. 同步hdfs组件版本
+        hdfsComponent.setHadoopVersion(addComponent.getHadoopVersion());
+        componentDao.update(hdfsComponent);
+        ComponentConfig hadoopVersionConfig = componentConfigService.getComponentConfigByKey(hdfsComponent.getId(), HADOOP_VERSION);
+        if (null != hadoopVersionConfig) {
+            hadoopVersionConfig.setValue(hadoopVersion);
+            componentConfigService.updateValueComponentConfig(hadoopVersionConfig);
+        }
+
+        //2. 版本切换 影响计算组件typeName
+        List<Component> components = componentDao.listByEngineIds(Lists.newArrayList(engineId));
+        if (CollectionUtils.isEmpty(components)) {
+            return;
+        }
+        String newTypeNamePrefix = String.format("%s-%s-", EComponentType.YARN.name().toLowerCase() + newVersion, EComponentType.HDFS.name().toLowerCase() + newVersion);
+        String oldTypeNamePrefix = String.format("%s-%s-", EComponentType.YARN.name().toLowerCase() + oldVersion, EComponentType.HDFS.name().toLowerCase() + oldVersion);
+        for (Component component : components) {
+            if (EComponentType.typeComponentVersion.contains(EComponentType.getByCode(component.getComponentTypeCode()))) {
+                ComponentConfig typeNameComponentConfig = componentConfigService.getComponentConfigByKey(component.getId(), TYPE_NAME_KEY);
+                if (null != typeNameComponentConfig) {
+                    String newValue;
+                    String oldValue = typeNameComponentConfig.getValue();
+                    if (EComponentType.HDFS.getTypeCode().equals(component.getComponentTypeCode())) {
+                        newValue = EComponentType.HDFS.name().toLowerCase() + newVersion;
+                    } else {
+                        newValue = oldValue.replace(oldTypeNamePrefix, newTypeNamePrefix);
+                    }
+                    typeNameComponentConfig.setValue(newValue);
+                    LOGGER.info("refresh clusterId {} component {} typeName {} to {}", component.getClusterId(), component.getComponentName(), oldValue, newValue);
+                    componentConfigService.updateValueComponentConfig(typeNameComponentConfig);
+                }
+            }
+        }
     }
 
     /**
@@ -570,12 +628,21 @@ public class ComponentService {
     }
 
     /**
+     * 将选择的hadoop版本 转换为对应的值
      *
      * @param hadoopVersion
      * @return
      */
-    private String convertHadoopVersionToValue(String hadoopVersion) {
-        ScheduleDict dict = scheduleDictService.getByNameAndValue(DictType.HADOOP_VERSION.type, hadoopVersion, null,null);
+    private String convertHadoopVersionToValue(String hadoopVersion, Integer componentTypeCode, Long clusterId) {
+        if (EComponentType.HDFS.getTypeCode().equals(componentTypeCode)) {
+            //hdfs的组件和yarn组件的版本保持强一致 如果是k8s-hdfs2-则不作限制
+            Component yarnComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.YARN.getTypeCode());
+            if (null != yarnComponent) {
+                return yarnComponent.getHadoopVersion();
+            }
+        }
+
+        ScheduleDict dict = scheduleDictService.getByNameAndValue(DictType.HADOOP_VERSION.type, Optional.ofNullable(hadoopVersion).orElse("Hadoop 2.x"), null, null);
         if (null != dict) {
             return dict.getDictValue();
         }
@@ -1816,25 +1883,9 @@ public class ComponentService {
         if (null == cluster) {
             throw new RdosDefineException("Cluster does not exist");
         }
-        List<Component> components = new ArrayList<>();
+        List<Component> components = new ArrayList<>(2);
         Component hdfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());
         if (null != hdfs) {
-            /*//将componentConfig中的componentTemplate内容过滤掉
-            String componentTemplate = hdfs.getComponentTemplate();
-            String componentConfig = hdfs.getComponentConfig();
-            JSONObject configJbj = JSONObject.parseObject(componentConfig);
-            if(null != componentTemplate){
-                JSONArray jsonArray = JSONObject.parseArray(componentTemplate);
-                for (Object o : jsonArray.toArray()) {
-                    String key = ((JSONObject) o).getString("key");
-                    String value = ((JSONObject) o).getString("value");
-                    configJbj.remove(key,value);
-                }
-            }
-            componentConfig = JSON.toJSONString(configJbj);
-            hdfs.setComponentConfig(componentConfig);
-            //将componentTemplate设为null
-            hdfs.setComponentTemplate(null);*/
             components.add(hdfs);
         }
         Component nfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.NFS.getTypeCode());
