@@ -116,7 +116,7 @@ public enum EComponentType {
     // hadoop引擎组件
     public static List<EComponentType> HadoopComponents = Lists.newArrayList(EComponentType.SPARK, EComponentType.SPARK_THRIFT,
             EComponentType.FLINK, EComponentType.HIVE_SERVER, EComponentType.IMPALA_SQL, EComponentType.DT_SCRIPT,
-            EComponentType.LEARNING, EComponentType.YARN, EComponentType.KUBERNETES, EComponentType.SFTP, EComponentType.CARBON_DATA);
+            EComponentType.LEARNING, EComponentType.YARN, EComponentType.KUBERNETES, EComponentType.SFTP, EComponentType.CARBON_DATA,EComponentType.INCEPTOR_SQL);
 
     // TiDB引擎组件
     public static List<EComponentType> TiDBComponents = Lists.newArrayList(EComponentType.TIDB_SQL);
@@ -131,7 +131,6 @@ public enum EComponentType {
 
     //Presto引擎组件
     public static List<EComponentType> PrestoComponents = Lists.newArrayList(EComponentType.PRESTO_SQL);
-
 
     public static MultiEngineType getEngineTypeByComponent(EComponentType componentType) {
         if (HadoopComponents.contains(componentType)) {

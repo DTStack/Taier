@@ -494,6 +494,7 @@ public class ComponentService {
         String clusterName = cluster.getClusterName();
         //校验引擎是否添加
         EComponentType componentType = EComponentType.getByCode(componentDTO.getComponentTypeCode());
+        // 每个组件必须归属到一个引擎中
         MultiEngineType engineType = EComponentType.getEngineTypeByComponent(componentType);
         Engine engine = this.addEngineWithCheck(clusterId, engineType);
         if (null == engine) {
@@ -1460,14 +1461,14 @@ public class ComponentService {
     /**
      * 根据组件类型转换对应的插件名称
      * 如果只配yarn 需要调用插件时候 hdfs给默认值
-     *
+     * 插件名称组合即表达此组件是否依赖其他组件，e.g  yarn2-hdfs2-flink180 表示flink 依赖 yarn(调度)和hdfs(存储)
      * @param clusterName
      * @param componentType
      * @param version
      * @return
      */
     public String convertComponentTypeToClient(String clusterName, Integer componentType, String version, Integer storeType) {
-        // 普通rdb插件,即插件名就是这个
+        // 普通rdb插件,即插件名就是这个,不依赖其他组件
         EComponentType componentCode = EComponentType.getByCode(componentType);
         String pluginName = EComponentType.convertPluginNameByComponent(componentCode);
         if (StringUtils.isNotBlank(pluginName)) {
