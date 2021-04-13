@@ -130,8 +130,9 @@ public class JobCheckpointDealer implements InitializingBean {
                     if (null == scheduleJob) {
                         continue;
                     }
-                    if (StringUtils.isBlank(scheduleJob.getEngineJobId()) || !scheduleJob.getEngineJobId().equalsIgnoreCase(engineJobId)) {
-                        logger.info("jobId {} queue engineJobId {} is not same to db {} so skip", taskId, scheduleJob.getEngineJobId(), engineJobId);
+                    //scheduleJob  停止之后engineJob为空 也需要保存checkpoint
+                    if (StringUtils.isNotBlank(scheduleJob.getEngineJobId()) && !scheduleJob.getEngineJobId().equalsIgnoreCase(engineJobId)) {
+                        logger.info("jobId {} queue engineJobId {} is not same to db {} so skip", taskId, engineJobId, scheduleJob.getEngineJobId());
                         continue;
                     }
                     updateCheckpointImmediately(taskInfo, engineJobId, scheduleJob.getStatus());
