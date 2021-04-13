@@ -56,7 +56,7 @@ export const COMPONENT_CONFIG_NAME = {
     16: 'Presto SQL',
     17: 'NFS',
     18: 'Shell Agent',
-    19: 'Inceptor Sql'
+    19: 'Inceptor SQL'
 }
 
 export const TABS_TITLE = {
