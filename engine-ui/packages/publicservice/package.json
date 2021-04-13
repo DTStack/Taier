@@ -18,6 +18,7 @@
   "dependencies": {
     "ant-design-dtinsight-theme": "1.1.2",
     "antd": "3.26.13",
+    "base-64": "^1.0.0",
     "classnames": "^2.2.6",
     "copy-to-clipboard": "^3.3.1",
     "core-js": "^3.8.1",

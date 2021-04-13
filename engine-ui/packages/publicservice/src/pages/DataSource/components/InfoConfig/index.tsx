@@ -17,6 +17,8 @@ import {
 import { FormComponentProps } from 'antd/es/form';
 import copy from 'copy-to-clipboard';
 import moment from 'moment';
+import Base64 from 'base-64';
+
 import { API } from '@/services';
 
 import downloadFile from '@/utils/downloadFile';
@@ -121,14 +123,17 @@ const InfoConfig = (props) => {
             fromFieldVoList.splice(index, 1); //if invisible delete item
           }
           item.initialValue =
-            detailData[item.name] || JSON.parse(detailData.dataJson)[item.name];
+            detailData[item.name] ||
+            JSON.parse(Base64.decode(detailData.dataJson))[item.name];
 
-          setDetailData(JSON.parse(detailData.dataJson));
+          let data: any = {};
+          try {
+            data = JSON.parse(Base64.decode(detailData.dataJson));
+          } catch (error) {}
+          setDetailData(data);
 
           //webSocket定制化
-          setWebSocketParams(
-            JSON.parse(detailData.dataJson)?.webSocketParams || {}
-          );
+          setWebSocketParams(data?.webSocketParams || {});
         });
       }
     } else {
@@ -203,26 +208,43 @@ const InfoConfig = (props) => {
           delete handelParams.appTypeList;
 
           handelParams.appTypeListString = otherParams.appTypeList.toString();
-          handelParams.dataJsonString = JSON.stringify(fieldsValue);
+          handelParams.dataJsonString = Base64.encode(
+            JSON.stringify(fieldsValue)
+          );
 
           if (submit) {
             //确定按钮
             submitForm(handelParams, infoMsg);
           } else {
             //测试连通性按钮
-            let { success, message: msg, data } = await API.testConWithKerberos(
-              handelParams
-            );
+            // let { success, message: msg, data } = await API.testConWithKerberos(
+            //   handelParams
+            // );
 
-            if (success && data) {
-              message.success('连接成功');
-            } else {
-              message.error(msg ? `${msg}` : '连接失败');
-            }
-            setLoading(false);
+            // if (success && data) {
+            //   message.success('连接成功');
+            // } else {
+            //   message.error(msg ? `${msg}` : '连接失败');
+            // }
+            // setLoading(false);
+            request(handelParams, 'testConWithKerberos')
+              .then((res: any) => {
+                if (res.success && res.data) {
+                  message.success('连接成功');
+                } else {
+                  message.error(res.message || '连接失败');
+                }
+                setLoading(false);
+              })
+              .catch(() => {
+                setLoading(false);
+                message.error('连接超时');
+              });
           }
         } else {
-          handelParams.dataJson = fieldsValue;
+          handelParams.dataJsonString = Base64.encode(
+            JSON.stringify(fieldsValue)
+          );
 
           if (submit) {
             //确定按钮
@@ -232,15 +254,55 @@ const InfoConfig = (props) => {
             let { success, message: msg, data } = await API.testCon(
               handelParams
             );
+
             if (success && data) {
               message.success('连接成功');
             } else {
               message.error(msg ? `${msg}` : '连接失败');
             }
             setLoading(false);
+
+            // request(handelParams, 'testCon')
+            //   .then((res: any) => {
+            //     if (res.success && res.data) {
+            //       message.success('连接成功');
+            //     } else {
+            //       message.error(res.message || '连接失败');
+            //     }
+            //     setLoading(false);
+            //   })
+            //   .catch(() => {
+            //     setLoading(false);
+            //     message.error('连接超时');
+            //   });
           }
         }
       }
+    });
+  };
+
+  const request = (handelParams, name) => {
+    // const controller = new AbortController();
+    // const { signal } = controller;
+    return new Promise((resolve, reject) => {
+      let status = 0; // 0 等待 1 完成 2 超时
+      let timer = setTimeout(() => {
+        if (status === 0) {
+          status = 2;
+          timer = null;
+          // controller.abort();
+          reject('测试连通性请求超时');
+        }
+      }, 3000);
+
+      API[name](handelParams).then((res) => {
+        if (status !== 2) {
+          clearTimeout(timer);
+          resolve(res);
+          timer = null;
+          status = 1;
+        }
+      });
     });
   };
 
