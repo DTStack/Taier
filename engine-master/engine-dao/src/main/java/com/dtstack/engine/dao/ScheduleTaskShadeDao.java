@@ -103,4 +103,12 @@ public interface ScheduleTaskShadeDao {
     List<ScheduleTaskShade> getTaskOtherPlatformByProjectId(@Param("projectId") Long projectId, @Param("appType") Integer appType, @Param("limit") Integer limit);
 
     List<ScheduleTaskShade> listTaskRuleTask(@Param("taskId") Long taskId, @Param("appType") Integer appType);
+
+    /**
+     * 根据appType和taskId查询任务
+     * @param taskId
+     * @param appType
+     * @return
+     */
+    ScheduleTaskShade getOneByTaskIdAndAppType(@Param("taskId") Long taskId, @Param("appType") Integer appType);
 }

@@ -1196,4 +1196,9 @@ public class LineageService {
         }
         return tableList;
     }
+
+
+    public void deleteTableLineageByTaskId(Long taskId,Integer appType){
+
+    }
 }
