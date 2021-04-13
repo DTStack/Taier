@@ -34,7 +34,8 @@ public enum ScheduleEngineType {
     MAX_COMPUTE(20, "maxcompute"),
     DUMMY(21, "dummy"),
     Presto(22, "presto"),
-    KING_BASE(23,"kingbase");
+    KING_BASE(23,"kingbase"),
+    INCEPTOR_SQL(24,"inceptor");
 
     private int val;
 

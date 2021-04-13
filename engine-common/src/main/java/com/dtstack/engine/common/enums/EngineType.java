@@ -24,7 +24,8 @@ public enum EngineType {
     GreenPlum,
     Dummy,
     Presto,
-    KingBase;
+    KingBase,
+    InceptorSQL;
 
     public static EngineType getEngineType(String type) {
 
@@ -67,6 +68,8 @@ public enum EngineType {
                 return EngineType.Presto;
             case "kingbase":
                 return EngineType.KingBase;
+            case "inceptor":
+                return EngineType.InceptorSQL;
             default:
                 throw new UnsupportedOperationException("unsupported operation exception");
         }

@@ -1,0 +1,4 @@
+-- 调度字典加入inceptor sql 配置
+INSERT INTO `schedule_dict` ( `dict_code`, `dict_name`, `dict_value`, `dict_desc`, `type`, `sort`, `data_type`, `depend_name`, `is_default`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( 'typename_mapping', 'inceptor', '-106', NULL, 6, 0, 'LONG', '', 0, '2021-04-07 19:50:23', '2021-04-07 19:50:23', 0);
+
+INSERT INTO `schedule_dict` ( `dict_code`, `dict_name`, `dict_value`, `dict_desc`, `type`, `sort`, `data_type`, `depend_name`, `is_default`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( 'inceptor_sql_version', '6.2.x', '6.2.x', NULL, 7, 2, 'STRING', '', 1, '2021-04-07 19:50:23', '2021-04-07 19:50:23', 0);
