@@ -35,6 +35,7 @@ interface IProps extends FormComponentProps {
   cRef: any;
   record: any;
   form: any;
+  changeBtnStatus?: () => void;
 }
 
 const InfoConfig = (props) => {
@@ -220,7 +221,6 @@ const InfoConfig = (props) => {
             // let { success, message: msg, data } = await API.testConWithKerberos(
             //   handelParams
             // );
-
             // if (success && data) {
             //   message.success('连接成功');
             // } else {
@@ -238,7 +238,7 @@ const InfoConfig = (props) => {
               })
               .catch(() => {
                 setLoading(false);
-                message.error('连接超时');
+                message.error('测试连通性请求超时');
               });
           }
         } else {
@@ -251,30 +251,29 @@ const InfoConfig = (props) => {
             submitForm(handelParams, infoMsg);
           } else {
             //测试连通性按钮
-            let { success, message: msg, data } = await API.testCon(
-              handelParams
-            );
+            // let { success, message: msg, data } = await API.testCon(
+            //   handelParams
+            // );
+            // if (success && data) {
+            //   message.success('连接成功');
+            // } else {
+            //   message.error(msg ? `${msg}` : '连接失败');
+            // }
+            // setLoading(false);
 
-            if (success && data) {
-              message.success('连接成功');
-            } else {
-              message.error(msg ? `${msg}` : '连接失败');
-            }
-            setLoading(false);
-
-            // request(handelParams, 'testCon')
-            //   .then((res: any) => {
-            //     if (res.success && res.data) {
-            //       message.success('连接成功');
-            //     } else {
-            //       message.error(res.message || '连接失败');
-            //     }
-            //     setLoading(false);
-            //   })
-            //   .catch(() => {
-            //     setLoading(false);
-            //     message.error('连接超时');
-            //   });
+            request(handelParams, 'testCon')
+              .then((res: any) => {
+                if (res.success && res.data) {
+                  message.success('连接成功');
+                } else {
+                  message.error(res.message || '连接失败');
+                }
+                setLoading(false);
+              })
+              .catch(() => {
+                setLoading(false);
+                message.error('测试连通性请求超时');
+              });
           }
         }
       }
@@ -282,20 +281,20 @@ const InfoConfig = (props) => {
   };
 
   const request = (handelParams, name) => {
-    // const controller = new AbortController();
-    // const { signal } = controller;
+    const controller = new AbortController();
+    const { signal } = controller;
     return new Promise((resolve, reject) => {
       let status = 0; // 0 等待 1 完成 2 超时
       let timer = setTimeout(() => {
         if (status === 0) {
           status = 2;
           timer = null;
-          // controller.abort();
+          controller.abort();
           reject('测试连通性请求超时');
         }
-      }, 3000);
+      }, 10000);
 
-      API[name](handelParams).then((res) => {
+      API[name](handelParams, { signal }).then((res) => {
         if (status !== 2) {
           clearTimeout(timer);
           resolve(res);
@@ -320,11 +319,14 @@ const InfoConfig = (props) => {
 
           if (success && data) {
             message.success(`${infoMsg}`);
-            props.router.push('/data-source/list');
+            setTimeout(() => {
+              props.router.push('/data-source/list');
+            }, 500);
           } else {
             message.error(`${msg}`);
           }
           setLoading(false);
+          props.changeBtnStatus(false);
         } else {
           let { success, message: msg, data } = await API.addDatasource(
             handelParams
@@ -332,11 +334,14 @@ const InfoConfig = (props) => {
 
           if (success && data) {
             message.success(`${infoMsg}`);
-            props.router.push('/data-source/list');
+            setTimeout(() => {
+              props.router.push('/data-source/list');
+            }, 500);
           } else {
             message.error(`${msg}`);
           }
           setLoading(false);
+          props.changeBtnStatus(false);
         }
       }
     });
