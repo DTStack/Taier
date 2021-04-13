@@ -169,7 +169,7 @@ function index(props) {
   return (
     <div className="source">
       <Search onSearch={onSearch}></Search>
-      {/* development */}
+
       <div className="bottom">
         <div className="conent-table">
           <Table

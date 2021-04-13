@@ -88,6 +88,7 @@ function Search(props) {
             allowClear
             showSearch
             maxTagCount={1}
+            showArrow={true}
             optionFilterProp="children"
             style={{ width: 280 }}
             onChange={(value) => onMultType(value)}
@@ -110,7 +111,9 @@ function Search(props) {
             allowClear
             showSearch
             maxTagCount={1}
+            showArrow={true}
             optionFilterProp="children"
+            placeholder="请选择授权产品"
             defaultValue={['all']}>
             {productList.length > 0 &&
               productList.map((item) => {

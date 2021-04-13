@@ -47,6 +47,8 @@ export const DATA_SOURCE = {
   CARBONDATA: 50,
   GREENPLUM: 51,
   GBASE_8A: 52,
+  KYLIN: 53,
+  ELASTICSEARCH: 54,
 };
 
 export const DATA_SOURCE_TEXT: any = {
@@ -76,7 +78,7 @@ export const DATA_SOURCE_TEXT: any = {
   34: 'EMQ',
   33: 'ElasticSearch6',
   32: 'SQLServer_2017_later',
-  40: 'KingbaseES V8.0',
+  40: 'KingbaseES8',
   41: 'S3',
   42: 'WebSocket',
   44: 'Socket',
@@ -90,6 +92,8 @@ export const DATA_SOURCE_TEXT: any = {
   51: 'Greenplum',
   31: 'TiDB',
   52: 'GBase_8a',
+  53: 'Kylin',
+  54: 'Elasticsearch',
 };
 
 export const PROJECT_TYPE: any = {
