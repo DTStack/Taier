@@ -128,6 +128,7 @@ const showMapArr: any = {
     ['authURL', 'authURL'],
     ['username', '用户名'],
   ],
+  [DATA_SOURCE.PHOENIX]: [['jdbcUrl', 'jdbcUrl']],
 };
 
 export function ExtTableCell(props: any) {
