@@ -13,6 +13,7 @@ import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.api.vo.action.ActionLogVO;
+import com.dtstack.engine.api.vo.schedule.job.ScheduleJobRuleTimeVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusCountVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
@@ -33,6 +34,7 @@ import com.dtstack.engine.master.jobdealer.JobStopDealer;
 import com.dtstack.engine.master.queue.JobPartitioner;
 import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
+import com.dtstack.engine.master.scheduler.JobParamReplace;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
 import com.dtstack.engine.master.sync.RestartRunnable;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -160,6 +162,9 @@ public class ScheduleJobService {
 
     @Autowired
     private JobGraphTriggerDao jobGraphTriggerDao;
+
+    @Autowired
+    private JobParamReplace jobParamReplace;
 
     private final static List<Integer> FINISH_STATUS = Lists.newArrayList(RdosTaskStatus.FINISHED.getStatus(), RdosTaskStatus.MANUALSUCCESS.getStatus(), RdosTaskStatus.CANCELLING.getStatus(), RdosTaskStatus.CANCELED.getStatus());
     private final static List<Integer> FAILED_STATUS = Lists.newArrayList(RdosTaskStatus.FAILED.getStatus(), RdosTaskStatus.SUBMITFAILD.getStatus(), RdosTaskStatus.KILLED.getStatus());
@@ -2833,60 +2838,6 @@ public class ScheduleJobService {
         return scheduleJobDao.getJobGraph(jobId);
     }
 
-    /**
-     * 填充jobs中的工作流和算法类型任务的子任务
-     *
-     * @param scheduleJobs
-     */
-    private void listByJobIdFillFlowSubJobs(List<ScheduleJob> scheduleJobs) {
-        if (CollectionUtils.isEmpty(scheduleJobs)) {
-            return;
-        }
-        List<String> flowJobIds = scheduleJobs
-                .stream()
-                .filter(s -> SPECIAL_TASK_TYPES.contains(s.getTaskType()))
-                .map(ScheduleJob::getJobId)
-                .collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(flowJobIds)) {
-            return;
-        }
-        List<ScheduleJob> flowSubJobIds = scheduleJobDao.getWorkFlowSubJobId(flowJobIds);
-        if (CollectionUtils.isNotEmpty(flowSubJobIds)) {
-            //将子任务实例加入
-            scheduleJobs.addAll(flowSubJobIds);
-        }
-    }
-
-
-    private ScheduleJobDTO createKillQuery(ScheduleJobKillJobVO vo) {
-        ScheduleJobDTO ScheduleJobDTO = new ScheduleJobDTO();
-        ScheduleJobDTO.setTenantId(vo.getTenantId());
-        ScheduleJobDTO.setProjectId(vo.getProjectId());
-        ScheduleJobDTO.setType(EScheduleType.NORMAL_SCHEDULE.getType());
-        ScheduleJobDTO.setTaskPeriodId(convertStringToList(vo.getTaskPeriodId()));
-        ScheduleJobDTO.setAppType(vo.getAppType());
-        //筛选任务名称
-        ScheduleJobDTO.setTaskIds(vo.getTaskIds());
-        setBizDay(ScheduleJobDTO, vo.getBizStartDay(), vo.getBizEndDay(), vo.getTenantId(), vo.getProjectId());
-        //任务状态
-        if (StringUtils.isNotBlank(vo.getJobStatuses())) {
-            List<Integer> statues = new ArrayList<>();
-            String[] statuses = vo.getJobStatuses().split(",");
-            // 根据失败状态拆分标记来确定具体是哪一个状态map
-            Map<Integer, List<Integer>> statusMap = this.getStatusMap(false);
-            for (String status : statuses) {
-                List<Integer> statusList = statusMap.get(new Integer(status));
-                if (CollectionUtils.isNotEmpty(statusList)) {
-                    statues.addAll(statusList);
-                }
-            }
-            ScheduleJobDTO.setJobStatuses(statues);
-        } else {
-            ScheduleJobDTO.setJobStatuses(RdosTaskStatus.getCanStopStatus());
-        }
-        return ScheduleJobDTO;
-    }
-
     public void updateNotRuleResult(String jobId,Integer rule,String result) {
         LOGGER.info("updateNotRuleResult start jobId:{} , rule:{} result:{} ",jobId,rule,result);
         ScheduleJob job = scheduleJobDao.getByJobId(jobId, 0);
@@ -3259,8 +3210,93 @@ public class ScheduleJobService {
         }
         return 0;
     }
-}
 
+    /**
+     * 填充jobs中的工作流和算法类型任务的子任务
+     *
+     * @param scheduleJobs
+     */
+    private void listByJobIdFillFlowSubJobs(List<ScheduleJob> scheduleJobs) {
+        if (CollectionUtils.isEmpty(scheduleJobs)) {
+            return;
+        }
+        List<String> flowJobIds = scheduleJobs
+                .stream()
+                .filter(s -> SPECIAL_TASK_TYPES.contains(s.getTaskType()))
+                .map(ScheduleJob::getJobId)
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(flowJobIds)) {
+            return;
+        }
+        List<ScheduleJob> flowSubJobIds = scheduleJobDao.getWorkFlowSubJobId(flowJobIds);
+        if (CollectionUtils.isNotEmpty(flowSubJobIds)) {
+            //将子任务实例加入
+            scheduleJobs.addAll(flowSubJobIds);
+        }
+    }
+
+
+    private ScheduleJobDTO createKillQuery(ScheduleJobKillJobVO vo) {
+        ScheduleJobDTO ScheduleJobDTO = new ScheduleJobDTO();
+        ScheduleJobDTO.setTenantId(vo.getTenantId());
+        ScheduleJobDTO.setProjectId(vo.getProjectId());
+        ScheduleJobDTO.setType(EScheduleType.NORMAL_SCHEDULE.getType());
+        ScheduleJobDTO.setTaskPeriodId(convertStringToList(vo.getTaskPeriodId()));
+        ScheduleJobDTO.setAppType(vo.getAppType());
+        //筛选任务名称
+        ScheduleJobDTO.setTaskIds(vo.getTaskIds());
+        setBizDay(ScheduleJobDTO, vo.getBizStartDay(), vo.getBizEndDay(), vo.getTenantId(), vo.getProjectId());
+        //任务状态
+        if (StringUtils.isNotBlank(vo.getJobStatuses())) {
+            List<Integer> statues = new ArrayList<>();
+            String[] statuses = vo.getJobStatuses().split(",");
+            // 根据失败状态拆分标记来确定具体是哪一个状态map
+            Map<Integer, List<Integer>> statusMap = this.getStatusMap(false);
+            for (String status : statuses) {
+                List<Integer> statusList = statusMap.get(new Integer(status));
+                if (CollectionUtils.isNotEmpty(statusList)) {
+                    statues.addAll(statusList);
+                }
+            }
+            ScheduleJobDTO.setJobStatuses(statues);
+        } else {
+            ScheduleJobDTO.setJobStatuses(RdosTaskStatus.getCanStopStatus());
+        }
+        return ScheduleJobDTO;
+    }
+
+    /**
+     * 根据规则转换时间
+     * @param jobs [{ "jobId": "8f6f5127","paramReplace": [{"paramName":"bdp.system.cyctime","paramCommand": "yyyyMMdd", "timeType": 1,"type":0}]}]
+     * @return [{"paramReplace":[{"bdp.system.cyctime":"20200810000000","timeType":"1"}],"jobId":"8f6f5127"}]
+     */
+    public List<ScheduleJobRuleTimeVO> getJobsRuleTime(List<ScheduleJobRuleTimeVO> jobList) {
+        Map<String, List<ScheduleJobRuleTimeVO.RuleTimeVO>> jobRuleMap = jobList.stream().collect(Collectors.toMap(ScheduleJobRuleTimeVO::getJobId,ScheduleJobRuleTimeVO::getParamReplace));
+        List<ScheduleJob> scheduleJobList = scheduleJobDao.listByJobIdList(jobRuleMap.keySet(),null);
+
+        List<ScheduleJobRuleTimeVO> results=new ArrayList<>(scheduleJobList.size());
+        for (ScheduleJob scheduleJob : scheduleJobList) {
+            List<ScheduleJobRuleTimeVO.RuleTimeVO> ruleArray = jobRuleMap.get(scheduleJob.getJobId());
+            ScheduleJobRuleTimeVO curJobRuleTime = new ScheduleJobRuleTimeVO();
+            curJobRuleTime.setJobId(scheduleJob.getJobId());
+            List<ScheduleJobRuleTimeVO.RuleTimeVO> paramReplace = new ArrayList<>(ruleArray.size());
+
+            for (ScheduleJobRuleTimeVO.RuleTimeVO ruleTimeVO : ruleArray) {
+                ScheduleJobRuleTimeVO.RuleTimeVO currentRule=new ScheduleJobRuleTimeVO.RuleTimeVO();
+                currentRule.setParamName(ruleTimeVO.getParamName());
+                currentRule.setTimeType(ruleTimeVO.getTimeType());
+                currentRule.setType(ruleTimeVO.getType());
+                currentRule.setParamValue(jobParamReplace.convertParam(ruleTimeVO.getType(),
+                        ruleTimeVO.getParamName(),ruleTimeVO.getParamValue(), scheduleJob.getCycTime(),scheduleJob.getTaskId()));
+                paramReplace.add(currentRule);
+            }
+            curJobRuleTime.setParamReplace(paramReplace);
+            results.add(curJobRuleTime);
+        }
+        return results;
+    }
+
+}
 
 
 

@@ -1285,7 +1285,7 @@
         <foreach collection="jobIds" item="item" open="(" close=")" separator=",">
             #{item}
         </foreach>
-        and project_id = #{projectId}
+        <if test="projectId != null"> and project_id = #{projectId} </if>
     </select>
 
     <select id="listJobIdByTaskType" resultType="java.lang.String">
@@ -1709,7 +1709,7 @@
             `is_restart` = #{isRestart},
         </if>
         application_id = null, engine_job_id = null, engine_log = null, log_info = null,
-        retry_task_params = null, exec_end_time = null, exec_start_time = null, exec_time = 0, gmt_modified=now()
+        retry_task_params = null, exec_end_time = null, exec_start_time = null, exec_time = 0, gmt_modified=now(),retry_num = 0
         where job_id IN
         <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
             #{jobId}
@@ -1723,7 +1723,6 @@
             <if test="status != null">
                 status = #{status},
             </if>
-            exec_start_time = now(),
             gmt_modified = now()
         </set>
         WHERE job_id = #{jobId} AND status = #{status1}
@@ -1733,7 +1732,6 @@
         UPDATE schedule_job
         SET
             log_info = #{msg},
-            exec_start_time = now(),
             gmt_modified = now()
         WHERE job_id = #{jobId}
         AND is_deleted=0

@@ -6,6 +6,7 @@ import com.dtstack.engine.api.dto.QueryJobDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.*;
+import com.dtstack.engine.api.vo.schedule.job.ScheduleJobRuleTimeVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.sdk.core.common.ApiResponse;
@@ -468,13 +469,6 @@ public interface ScheduleJobService extends DtInsightServer {
     @RequestLine("POST /node/scheduleJob/getJobGraphJSON")
     ApiResponse<String> getJobGraphJSON(@Param("jobId") String jobId);
 
-    @RequestLine("POST /node/scheduleJob/syncRestartJob")
-    ApiResponse<Boolean> syncRestartJob(@Param("id") Long id, @Param("justRunChild") Boolean justRunChild, @Param("setSuccess") Boolean setSuccess, @Param("subJobIds") List<Long> subJobIds);
-
-    @RequestLine("POST /node/scheduleJob/stopJobByCondition")
-    @Headers(value={"Content-Type: application/json"})
-    ApiResponse<Integer> stopJobByCondition(ScheduleJobKillJobVO scheduleJobKillJobVO);
-
     @RequestLine("POST /node/scheduleJob/updateNotRuleResult")
     ApiResponse<Void> updateNotRuleResult(@Param("jobId") String jobId, @Param("rule") Integer rule, @Param("resultLog") String resultLog);
 
@@ -483,4 +477,15 @@ public interface ScheduleJobService extends DtInsightServer {
 
     @RequestLine("POST /node/scheduleJob/findTaskRuleJob")
     ApiResponse<ScheduleDetailsVO> findTaskRuleJob(@Param("jobId") String jobId);
+
+    @RequestLine("POST /node/scheduleJob/syncRestartJob")
+    ApiResponse<Boolean> syncRestartJob(@Param("id") Long id, @Param("justRunChild") Boolean justRunChild, @Param("setSuccess") Boolean setSuccess, @Param("subJobIds") List<Long> subJobIds);
+
+    @RequestLine("POST /node/scheduleJob/stopJobByCondition")
+    @Headers(value={"Content-Type: application/json"})
+    ApiResponse<Integer> stopJobByCondition(ScheduleJobKillJobVO scheduleJobKillJobVO);
+
+    @RequestLine("POST /node/scheduleJob/getJobsRuleTime")
+    ApiResponse<List<ScheduleJobRuleTimeVO>> getJobsRuleTime(List<ScheduleJobRuleTimeVO> jobList);
+
 }

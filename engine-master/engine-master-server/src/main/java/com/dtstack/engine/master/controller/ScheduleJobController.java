@@ -6,6 +6,7 @@ import com.dtstack.engine.api.dto.ScheduleJobDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.*;
+import com.dtstack.engine.api.vo.schedule.job.ScheduleJobRuleTimeVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.common.env.EnvironmentContext;
@@ -401,16 +402,6 @@ public class ScheduleJobController {
         return scheduleJobService.getJobGraphJSON(jobId);
     }
 
-    @RequestMapping(value = "/syncRestartJob", method = {RequestMethod.POST, RequestMethod.GET})
-    public boolean syncRestartJob(@DtRequestParam("id") Long id, @DtRequestParam("justRunChild") Boolean justRunChild, @DtRequestParam("setSuccess") Boolean setSuccess, @DtRequestParam("subJobIds") List<Long> subJobIds) {
-        return scheduleJobService.syncRestartJob(id, justRunChild, setSuccess, subJobIds);
-    }
-
-    @RequestMapping(value="/stopJobByCondition", method = {RequestMethod.POST})
-    public Integer stopJobByCondition(@RequestBody ScheduleJobKillJobVO scheduleJobKillJobVO) {
-        return scheduleJobService.stopJobByCondition(scheduleJobKillJobVO);
-    }
-
     @RequestMapping(value = "/updateNotRuleResult", method = {RequestMethod.POST})
     public void updateNotRuleResult(@DtRequestParam("jobId") String jobId, @DtRequestParam("rule") Integer rule, @DtRequestParam("resultLog") String result) {
         scheduleJobService.updateNotRuleResult(jobId, rule, result);
@@ -424,6 +415,22 @@ public class ScheduleJobController {
     @RequestMapping(value = "/findTaskRuleJob", method = {RequestMethod.POST})
     public ScheduleDetailsVO findTaskRuleJob(@DtRequestParam("jobId") String jobId) {
         return scheduleJobService.findTaskRuleJob(jobId);
+    }
+
+    @RequestMapping(value = "/syncRestartJob", method = {RequestMethod.POST, RequestMethod.GET})
+    public boolean syncRestartJob(@DtRequestParam("id") Long id, @DtRequestParam("justRunChild") Boolean justRunChild, @DtRequestParam("setSuccess") Boolean setSuccess, @DtRequestParam("subJobIds") List<Long> subJobIds) {
+        return scheduleJobService.syncRestartJob(id, justRunChild, setSuccess, subJobIds);
+    }
+
+    @RequestMapping(value="/stopJobByCondition", method = {RequestMethod.POST})
+    public Integer stopJobByCondition(@RequestBody ScheduleJobKillJobVO scheduleJobKillJobVO) {
+        return scheduleJobService.stopJobByCondition(scheduleJobKillJobVO);
+    }
+
+    @RequestMapping(value = "getJobsRuleTime",method = {RequestMethod.POST})
+    @ApiOperation(value = "根据规则转换时间")
+    public List<ScheduleJobRuleTimeVO> getJobsRuleTime(@RequestBody List<ScheduleJobRuleTimeVO> jobList){
+        return scheduleJobService.getJobsRuleTime(jobList);
     }
 
 }
