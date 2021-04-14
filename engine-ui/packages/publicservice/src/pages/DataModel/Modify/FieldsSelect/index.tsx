@@ -5,7 +5,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { Table } from 'antd';
+import { message, Table } from 'antd';
 import { FieldColumn, IModelDetail } from 'pages/DataModel/types';
 import { columnsGenerator } from './constants';
 import { EnumModifyStep } from '../types';
@@ -166,7 +166,20 @@ const FieldsSelect = (props: IPropsDimensionSelect) => {
       };
     },
     validate: () =>
-      new Promise((resolve) => {
+      new Promise((resolve, reject) => {
+        const isDimension = step === EnumModifyStep.DIMENSION_STEP;
+        if (isDimension) {
+          if (dataSource.filter((item) => item.dimension).length === 0) {
+            message.error('请选择维度');
+            return reject();
+          }
+        } else {
+          if (dataSource.filter((item) => item.metric).length === 0) {
+            message.error('请选择度量');
+            return reject();
+          }
+        }
+
         return resolve({
           columns: dataSource || [],
         });
