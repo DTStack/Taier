@@ -1010,7 +1010,7 @@ const InfoConfig = (props) => {
                 />
               )}
             </Form.Item>
-            {getFieldValue('redisType') === 3 && (
+            {getFieldValue('redisType') === 2 && (
               <Form.Item label="master名称" key="masterName">
                 {getFieldDecorator('masterName', {
                   initialValue: detailData?.masterName || '',
@@ -1024,7 +1024,7 @@ const InfoConfig = (props) => {
               </Form.Item>
             )}
             {(getFieldValue('redisType') === 1 ||
-              getFieldValue('redisType') === 3) && (
+              getFieldValue('redisType') === 2) && (
               <Form.Item label="数据库">
                 {getFieldDecorator('database', {
                   initialValue: detailData?.database || '',
