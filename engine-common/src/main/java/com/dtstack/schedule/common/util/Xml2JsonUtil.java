@@ -43,8 +43,10 @@ public class Xml2JsonUtil {
                 JSONObject jsono = (JSONObject) o;
                 jsona = new JSONArray();
                 jsona.add(jsono);
-            } else {
+            } else if (o instanceof JSONArray) {
                 jsona = (JSONArray) o;
+            } else {
+                return Collections.emptyMap();
             }
             Map<String, Object> map = new HashMap<>(jsona.size());
             for (Object obj : jsona) {
