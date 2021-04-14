@@ -118,6 +118,29 @@ const FieldsSelect = (props: IPropsDimensionSelect) => {
     setDataSource(ds);
   };
 
+  // 全选逻辑
+  const onSelectAll = (selected) => {
+    const isDimension = step === EnumModifyStep.DIMENSION_STEP;
+    let ds = [];
+    if (isDimension) {
+      ds = dataSource.map((item) => {
+        return {
+          ...item,
+          dimension: selected,
+          metric: item.metric === true ? false : item.metric,
+        };
+      });
+    } else {
+      ds = dataSource.map((item) => {
+        return {
+          ...item,
+          metric: selected,
+        };
+      });
+    }
+    setDataSource(ds);
+  };
+
   const onInputBlur = useCallback(
     (id, value) => {
       setDataSource((dataSource) =>
@@ -181,6 +204,7 @@ const FieldsSelect = (props: IPropsDimensionSelect) => {
           selectedRowKeys,
           onChange,
           onSelect,
+          onSelectAll,
         }}
         className="dt-table-border margin-top-13"
         pagination={false}
