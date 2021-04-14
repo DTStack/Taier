@@ -74,7 +74,7 @@ public interface ScheduleTaskShadeDao {
 
     String getSqlTextById(@Param("id") Long id);
 
-    ScheduleTaskShade getWorkFlowTopNode(@Param("workFlowId") Long workFlowId);
+    ScheduleTaskShade getWorkFlowTopNode(@Param("workFlowId") Long workFlowId, @Param("appType") Integer appType);
 
     /**
      *  ps- 省略了一些大字符串 如 sql_text、task_params
@@ -95,6 +95,14 @@ public interface ScheduleTaskShadeDao {
     ScheduleTaskShade getById(@Param("id") Long id);
 
     void updateProjectScheduleStatus(@Param("projectId")Long projectId,@Param("appType")Integer appType,@Param("scheduleStatus") Integer scheduleStatus);
+
+    List<ScheduleTaskShade> findFuzzyTaskNameByCondition(@Param("name") String name, @Param("appType") Integer appType, @Param("uicTenantId") Long uicTenantId, @Param("projectId") Long projectId, @Param("fuzzyProjectByProjectAliasLimit") Integer fuzzyProjectByProjectAliasLimit);
+
+    List<ScheduleTaskShade> getChildTaskByOtherPlatform(@Param("taskId") Long taskId, @Param("appType") Integer appType, @Param("limit") Integer limit);
+
+    List<ScheduleTaskShade> getTaskOtherPlatformByProjectId(@Param("projectId") Long projectId, @Param("appType") Integer appType, @Param("limit") Integer limit);
+
+    List<ScheduleTaskShade> listTaskRuleTask(@Param("taskId") Long taskId, @Param("appType") Integer appType);
 
     String getComponentVersionByTaskAndApp(@Param("taskId") Long shadeTaskId, @Param("appType") Integer appType);
 }

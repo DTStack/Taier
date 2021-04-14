@@ -39,6 +39,8 @@ public class ScheduleTaskShade extends ScheduleTask {
         this.componentVersion = componentVersion;
     }
 
+    private Integer taskRule;
+
     public Integer getVersionId() {
         return versionId;
     }
@@ -69,5 +71,13 @@ public class ScheduleTaskShade extends ScheduleTask {
 
     public void setExtraInfo(String extraInfo) {
         this.extraInfo = extraInfo;
+    }
+
+    public Integer getTaskRule() {
+        return taskRule;
+    }
+
+    public void setTaskRule(Integer taskRule) {
+        this.taskRule = taskRule;
     }
 }

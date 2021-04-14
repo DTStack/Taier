@@ -62,6 +62,7 @@
         SELECT
         <include refid="filed"/>
         FROM alert_channel
+        WHERE `is_deleted` = 0
     </select>
 
     <select id="selectListByGateSources" resultType="com.dtstack.engine.domain.AlertChannel">

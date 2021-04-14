@@ -188,6 +188,8 @@ public class ActionService {
 
         paramActionExt.setCycTime(scheduleJob.getCycTime());
         paramActionExt.setTaskSourceId(batchTask.getTaskId());
+        paramActionExt.setProjectId(batchTask.getProjectId());
+        paramActionExt.setDtuicTenantId(batchTask.getDtuicTenantId());
         return paramActionExt;
     }
 
@@ -661,13 +663,21 @@ public class ActionService {
     /**
      * task 工程使用
      */
-    public List<ActionJobStatusVO> listJobStatus( Long time) {
+    public List<ActionJobStatusVO> listJobStatus( Long time,Integer appType) {
         if (time == null || time == 0L) {
             throw new RuntimeException("time is null");
         }
 
-        List<ScheduleJob> scheduleJobs = scheduleJobDao.listJobStatus(new Timestamp(time), ComputeType.BATCH.getType());
+        List<ScheduleJob> scheduleJobs = scheduleJobDao.listJobStatus(new Timestamp(time), ComputeType.BATCH.getType(),appType);
         return toVOS(scheduleJobs);
+    }
+
+    public List<ScheduleJob> listJobStatusScheduleJob(Long time, Integer appType) {
+        if (time == null || time == 0L) {
+            throw new RuntimeException("time is null");
+        }
+
+        return scheduleJobDao.listJobStatus(new Timestamp(time), ComputeType.BATCH.getType(),appType);
     }
 
     private List<ActionJobStatusVO> toVOS(List<ScheduleJob> scheduleJobs){

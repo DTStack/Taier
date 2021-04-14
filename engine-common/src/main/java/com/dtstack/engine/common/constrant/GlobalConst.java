@@ -9,4 +9,6 @@ package com.dtstack.engine.common.constrant;
 public interface GlobalConst {
 
     String PATH_CUT = "&sftp:";
+
+    String RULE_LOG_FILED = "ruleLogList";
 }

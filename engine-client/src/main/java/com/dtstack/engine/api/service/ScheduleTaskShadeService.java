@@ -3,10 +3,13 @@ package com.dtstack.engine.api.service;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.vo.ScheduleDetailsVO;
 import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
+import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
+import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
 import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sdk.core.common.DtInsightServer;
 import com.dtstack.sdk.core.feign.Body;
@@ -68,7 +71,15 @@ public interface ScheduleTaskShadeService extends DtInsightServer {
     @RequestLine("POST /node/scheduleTaskShade/deleteTask")
     ApiResponse<Void> deleteTask(@Param("taskId") Long taskId, @Param("modifyUserId") long modifyUserId, @Param("appType") Integer appType);
 
-
+    /**
+     * 获得其他可以删除的信息
+     *
+     * @param taskId
+     * @param appType
+     * @return
+     */
+    @RequestLine("POST /node/scheduleTaskShade/getNotDeleteTask")
+    ApiResponse<List<NotDeleteTaskVO>> getNotDeleteTask(@Param("taskId") Long taskId, @Param("appType") Integer appType);
     /**
      * 数据开发-根据项目id,任务名 获取任务列表
      *
@@ -210,5 +221,12 @@ public interface ScheduleTaskShadeService extends DtInsightServer {
                                            @Param("taskType") Integer taskType,
                                            @Param("resourceParams") String resourceParams);
 
+    @RequestLine("POST /node/scheduleTaskShade/findFuzzyTaskNameByCondition")
+    ApiResponse<List<ScheduleTaskShadeTypeVO>> findFuzzyTaskNameByCondition(@Param("name") String name,
+                                                                            @Param("appType") Integer appType,
+                                                                            @Param("uicTenantId") Long uicTenantId,
+                                                                            @Param("projectId") Long projectId);
 
+    @RequestLine("POST /node/scheduleTaskShade/findTaskRuleTask")
+    ApiResponse<ScheduleDetailsVO> findTaskRuleTask(@Param("taskId") Long taskId, @Param("appType") Integer appType);
 }
