@@ -50,6 +50,7 @@ export const DATA_SOURCE = {
   GBASE_8A: 52,
   KYLIN: 53,
   ELASTICSEARCH: 54,
+  PHOENIX: 56,
 };
 
 export const DATA_SOURCE_TEXT: any = {
@@ -96,6 +97,7 @@ export const DATA_SOURCE_TEXT: any = {
   52: 'GBase_8a',
   53: 'Kylin',
   54: 'Elasticsearch',
+  56: 'Phoenix',
 };
 
 export const PROJECT_TYPE: any = {

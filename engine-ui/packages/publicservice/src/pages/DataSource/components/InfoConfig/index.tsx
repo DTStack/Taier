@@ -183,7 +183,8 @@ const InfoConfig = (props) => {
           }
         }
         handelParams.dataName = fieldsValue.dataName;
-        handelParams.dataDesc = fieldsValue.dataDesc;
+        handelParams.dataDesc = fieldsValue?.dataDesc || '';
+
         delete fieldsValue.dataName;
         delete fieldsValue.dataDesc;
         delete fieldsValue.dataType;
