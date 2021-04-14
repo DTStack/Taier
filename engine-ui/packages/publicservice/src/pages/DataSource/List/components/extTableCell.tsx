@@ -74,6 +74,7 @@ const showMapArr: any = {
   [DATA_SOURCE.ES]: [['address', '集群地址']],
   [DATA_SOURCE.ES6]: [['address', '集群地址']],
   [DATA_SOURCE.ES7]: [['address', '集群地址']],
+  [DATA_SOURCE.ELASTICSEARCH]: [['address', '集群地址']],
   [DATA_SOURCE.REDIS]: [
     ['hostPort', '地址'],
     ['database', '数据库'],
@@ -102,6 +103,10 @@ const showMapArr: any = {
     ['address', '集群地址'],
     ['brokerList', 'broker地址'],
   ],
+  [DATA_SOURCE.KAFKA_NEW]: [
+    ['address', '集群地址'],
+    ['brokerList', 'broker地址'],
+  ],
   [DATA_SOURCE.EMQ]: [['address', 'Broker URL']],
   [DATA_SOURCE.TIDB]: [
     ['jdbcUrl', 'jdbcUrl'],
@@ -119,11 +124,14 @@ const showMapArr: any = {
   [DATA_SOURCE.WEBSOCKET]: [['url', 'url']],
   [DATA_SOURCE.SOCKET]: [['url', 'url']],
   [DATA_SOURCE.GREENPLUM]: [['jdbcUrl', 'jdbcUrl']],
+  [DATA_SOURCE.KYLIN]: [
+    ['authURL', 'authURL'],
+    ['username', '用户名'],
+  ],
 };
 
 export function ExtTableCell(props: any) {
   const { sourceData } = props;
-  console.log('sourceData: ', sourceData);
   const arr = showMapArr[sourceData.type];
 
   let data = {};

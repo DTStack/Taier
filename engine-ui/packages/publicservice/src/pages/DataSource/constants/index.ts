@@ -27,6 +27,7 @@ export const DATA_SOURCE = {
   KAFKA_09: 18,
   KAFKA_10: 17,
   KAFKA_11: 14, // KAFKA_11
+  KAFKA_NEW: 55,
   DB2: 19,
   KUDU: 24,
   POLAR_DB: 28,
@@ -47,6 +48,8 @@ export const DATA_SOURCE = {
   CARBONDATA: 50,
   GREENPLUM: 51,
   GBASE_8A: 52,
+  KYLIN: 53,
+  ELASTICSEARCH: 54,
 };
 
 export const DATA_SOURCE_TEXT: any = {
@@ -69,6 +72,7 @@ export const DATA_SOURCE_TEXT: any = {
   18: 'Kafka0.9',
   17: 'Kafka0.10',
   14: 'Kafka0.11',
+  55: 'Kafka',
   19: 'DB2',
   24: 'Kudu',
   28: 'PolarDB for MySQL8',
@@ -76,7 +80,7 @@ export const DATA_SOURCE_TEXT: any = {
   34: 'EMQ',
   33: 'ElasticSearch6',
   32: 'SQLServer_2017_later',
-  40: 'KingbaseES V8.0',
+  40: 'KingbaseES8',
   41: 'S3',
   42: 'WebSocket',
   44: 'Socket',
@@ -90,6 +94,8 @@ export const DATA_SOURCE_TEXT: any = {
   51: 'Greenplum',
   31: 'TiDB',
   52: 'GBase_8a',
+  53: 'Kylin',
+  54: 'Elasticsearch',
 };
 
 export const PROJECT_TYPE: any = {
