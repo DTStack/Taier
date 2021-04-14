@@ -1,62 +1,33 @@
-package com.dtstack.engine.api.domain;
+package com.dtstack.engine.api.vo;
 
-
-import com.dtstack.engine.api.annotation.Unique;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import com.dtstack.engine.api.domain.AppTenantEntity;
 
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.List;
 
 /**
- * company: www.dtstack.com
- * author: toutian
- * create: 2019/10/22
+ * @Auther: dazhi
+ * @Date: 2021/3/22 11:09 上午
+ * @Email:dazhi@dtstack.com
+ * @Description:
  */
-@ApiModel
-public class ScheduleJob extends AppTenantEntity {
+public class ScheduleJobBeanVO extends AppTenantEntity {
 
-    /**
-     * 工作任务id
-     */
-    @Unique
-    @ApiModelProperty(notes = "工作任务id")
     private String jobId;
 
-    @Unique
     private String jobKey;
 
     private String jobName;
 
-    /**
-     * 任务id
-     */
-    @ApiModelProperty(notes = "任务id")
     private Long taskId;
 
-    /**
-     * 发起操作的用户
-     */
-    @ApiModelProperty(notes = "发起操作的用户")
     private Long createUserId;
 
-    /**
-     * 0正常调度 1补数据 2临时运行
-     */
-    @ApiModelProperty(notes = "0正常调度 1补数据 2临时运行")
     private Integer type;
 
-    /**
-     * 业务日期 yyyymmddhhmmss,调度时间-1d
-     */
-    @ApiModelProperty(notes = "业务日期 yyyymmddhhmmss,调度时间-1d")
     private String businessDate;
 
-    /***
-     * 任务调度时间 yyyymmddhhmmss
-     */
-    @ApiModelProperty(notes = "任务调度时间 yyyymmddhhmmss")
     private String cycTime;
 
     private Integer isRestart;
@@ -70,35 +41,23 @@ public class ScheduleJob extends AppTenantEntity {
     private Integer periodType;
 
     private Integer status;
-
     private Integer taskType;
-
     private Long fillId;
-
     private Timestamp execStartTime;
-
     private Timestamp execEndTime;
-
     private Long execTime;
-
     private Date submitTime;
-
     private Integer maxRetryNum;
-
     private Integer retryNum;
-
     private String nodeAddress;
 
     private String nextCycTime;
+
 
     private String logInfo;
 
     private List<Integer> taskTypes;
 
-    /**
-     * 执行引擎任务id
-     */
-    @ApiModelProperty(notes = "执行引擎任务id")
     private String engineJobId;
 
     private String applicationId;
@@ -118,100 +77,6 @@ public class ScheduleJob extends AppTenantEntity {
     private Boolean isForce;
 
     private Integer taskRule;
-
-    public Boolean getForce() {
-        return isForce;
-    }
-
-    public void setForce(Boolean force) {
-        isForce = force;
-    }
-
-    /**
-     * 提交用户名
-     */
-    @ApiModelProperty(notes = "任务提交用户")
-    private String submitUserName;
-
-    public String getSubmitUserName() {
-        return submitUserName;
-    }
-
-    public void setSubmitUserName(String submitUserName) {
-        this.submitUserName = submitUserName;
-    }
-
-    public String getEngineJobId() {
-        return engineJobId;
-    }
-
-    public void setEngineJobId(String engineJobId) {
-        this.engineJobId = engineJobId;
-    }
-
-    public String getApplicationId() {
-        return applicationId;
-    }
-
-    public void setApplicationId(String applicationId) {
-        this.applicationId = applicationId;
-    }
-
-    public String getEngineLog() {
-        return engineLog;
-    }
-
-    public void setEngineLog(String engineLog) {
-        this.engineLog = engineLog;
-    }
-
-    public long getPluginInfoId() {
-        return pluginInfoId;
-    }
-
-    public void setPluginInfoId(long pluginInfoId) {
-        this.pluginInfoId = pluginInfoId;
-    }
-
-    public Integer getSourceType() {
-        return sourceType;
-    }
-
-    public void setSourceType(Integer sourceType) {
-        this.sourceType = sourceType;
-    }
-
-    public String getRetryTaskParams() {
-        return retryTaskParams;
-    }
-
-    public void setRetryTaskParams(String retryTaskParams) {
-        this.retryTaskParams = retryTaskParams;
-    }
-
-    public Integer getComputeType() {
-        return computeType;
-    }
-
-    public void setComputeType(Integer computeType) {
-        this.computeType = computeType;
-    }
-
-    public List<Integer> getTaskTypes() {
-        return taskTypes;
-    }
-
-    public void setTaskTypes(List<Integer> taskTypes) {
-        this.taskTypes = taskTypes;
-    }
-
-    public String getLogInfo() {
-        return logInfo;
-    }
-
-    public void setLogInfo(String logInfo) {
-        this.logInfo = logInfo;
-    }
 
     public String getJobId() {
         return jobId;
@@ -373,7 +238,6 @@ public class ScheduleJob extends AppTenantEntity {
         this.submitTime = submitTime;
     }
 
-
     public Integer getMaxRetryNum() {
         return maxRetryNum;
     }
@@ -406,12 +270,92 @@ public class ScheduleJob extends AppTenantEntity {
         this.nextCycTime = nextCycTime;
     }
 
+    public String getLogInfo() {
+        return logInfo;
+    }
+
+    public void setLogInfo(String logInfo) {
+        this.logInfo = logInfo;
+    }
+
+    public List<Integer> getTaskTypes() {
+        return taskTypes;
+    }
+
+    public void setTaskTypes(List<Integer> taskTypes) {
+        this.taskTypes = taskTypes;
+    }
+
+    public String getEngineJobId() {
+        return engineJobId;
+    }
+
+    public void setEngineJobId(String engineJobId) {
+        this.engineJobId = engineJobId;
+    }
+
+    public String getApplicationId() {
+        return applicationId;
+    }
+
+    public void setApplicationId(String applicationId) {
+        this.applicationId = applicationId;
+    }
+
+    public String getEngineLog() {
+        return engineLog;
+    }
+
+    public void setEngineLog(String engineLog) {
+        this.engineLog = engineLog;
+    }
+
+    public long getPluginInfoId() {
+        return pluginInfoId;
+    }
+
+    public void setPluginInfoId(long pluginInfoId) {
+        this.pluginInfoId = pluginInfoId;
+    }
+
+    public Integer getSourceType() {
+        return sourceType;
+    }
+
+    public void setSourceType(Integer sourceType) {
+        this.sourceType = sourceType;
+    }
+
+    public String getRetryTaskParams() {
+        return retryTaskParams;
+    }
+
+    public void setRetryTaskParams(String retryTaskParams) {
+        this.retryTaskParams = retryTaskParams;
+    }
+
+    public Integer getComputeType() {
+        return computeType;
+    }
+
+    public void setComputeType(Integer computeType) {
+        this.computeType = computeType;
+    }
+
     public Integer getPhaseStatus() {
         return phaseStatus;
     }
 
     public void setPhaseStatus(Integer phaseStatus) {
         this.phaseStatus = phaseStatus;
+    }
+
+    public Boolean getForce() {
+        return isForce;
+    }
+
+    public void setForce(Boolean force) {
+        isForce = force;
     }
 
     public Integer getTaskRule() {

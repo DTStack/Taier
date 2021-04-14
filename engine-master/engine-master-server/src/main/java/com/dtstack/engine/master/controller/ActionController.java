@@ -1,5 +1,7 @@
 package com.dtstack.engine.master.controller;
 
+import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.api.pojo.ParamTaskAction;
@@ -176,8 +178,17 @@ public class ActionController {
     @ApiImplicitParams({
             @ApiImplicitParam(name="time",value="查询的job的调整的时间点",required=true, dataType = "long")
     })
-    public List<ActionJobStatusVO> listJobStatus(@DtRequestParam("time") Long time) {
-        return actionService.listJobStatus(time);
+    public List<ActionJobStatusVO> listJobStatus(@DtRequestParam("time") Long time , @DtRequestParam("appType") Integer appType) {
+        return actionService.listJobStatus(time,appType);
+    }
+
+    @RequestMapping(value="/listJobStatusScheduleJob", method = {RequestMethod.POST})
+    @ApiOperation(value = "查询某个时间开始的Job的状态、执行时间等信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="time",value="查询的job的调整的时间点",required=true, dataType = "long")
+    })
+    public List<ScheduleJob> listJobStatusScheduleJob(@DtRequestParam("time") Long time , @DtRequestParam("appType") Integer appType) {
+        return actionService.listJobStatusScheduleJob(time,appType);
     }
 
     @RequestMapping(value="/generateUniqueSign", method = {RequestMethod.POST, RequestMethod.GET})

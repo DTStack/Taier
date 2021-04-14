@@ -567,4 +567,20 @@ public class EnvironmentContext {
     public boolean isCanAddExtraConfig() {
         return Boolean.parseBoolean(environment.getProperty("console.extra.config", "true"));
     }
+
+    public Integer getFuzzyProjectByProjectAliasLimit() {
+        return Integer.parseInt(environment.getProperty("fuzzy.project.alias.limit", "20"));
+    }
+
+    public Long getTaskRuleTimeout() {
+        return Long.parseLong(environment.getProperty("task.rule.timeout", "600000"));
+    }
+
+    public Integer getListChildTaskLimit() {
+        return Integer.parseInt(environment.getProperty("list.child.task.limit", "20"));
+    }
+
+    public boolean getOpenDummy() {
+        return Boolean.parseBoolean(environment.getProperty("open.dummy", "false"));
+    }
 }

@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveTask;
+import java.util.stream.Collectors;
 
 /**
  * @author yuebai
@@ -102,6 +103,11 @@ public class ForkJoinJobTask extends RecursiveTask<List<ScheduleJob>> {
         List<String> jobKeyList = new ArrayList<>();
         if (null == jobTaskShadeId) {
             return jobKeyList;
+        }
+
+        if (CollectionUtils.isNotEmpty(subJobsAndStatusByFlowId)) {
+            List<String> flowJobKeys = subJobsAndStatusByFlowId.stream().map(ScheduleJob::getJobKey).collect(Collectors.toList());
+            jobKeyList.addAll(flowJobKeys);
         }
 
         for (ScheduleJobJob scheduleJobJob : scheduleJobJobList) {

@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.executor;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleJobJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
@@ -9,6 +10,7 @@ import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.JobCheckStatus;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
@@ -32,6 +34,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.List;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -202,13 +207,29 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
 //                          // JobCheckRunInfo checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(), new HashSet<>(), new HashMap<>(), taskCache);
                             JobCheckRunInfo checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(), batchTask);
-                            if (type.intValue() == EScheduleJobType.WORK_FLOW.getType() || type.intValue() == EScheduleJobType.ALGORITHM_LAB.getVal()) {
+                            if (EScheduleJobType.WORK_FLOW.getType().equals(type) || EScheduleJobType.ALGORITHM_LAB.getVal().equals(type)) {
                                 LOGGER.info("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB so immediate put queue.", scheduleBatchJob.getJobId(), getScheduleType());
                                 if (RdosTaskStatus.UNSUBMIT.getStatus().equals(status) && isPutQueue(checkRunInfo, scheduleBatchJob)) {
                                     putScheduleJob(scheduleBatchJob);
                                 } else if (!RdosTaskStatus.UNSUBMIT.getStatus().equals(status)) {
                                     LOGGER.info("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB start judgment son is execution complete.", scheduleBatchJob.getJobId(), getScheduleType());
-                                    batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob.getId(), scheduleBatchJob.getJobId(), scheduleBatchJob.getAppType());
+                                    batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob);
+                                }
+                            } else if (EScheduleJobType.NOT_DO_TASK.getType().equals(type)) {
+                                LOGGER.info("jobId:{} scheduleType:{} is NOT_DO_TASK not put queue.", scheduleBatchJob.getJobId(), getScheduleType());
+                                // 空任务且是未提交状态
+                                if (RdosTaskStatus.UNSUBMIT.getStatus().equals(status) && isPutQueue(checkRunInfo, scheduleBatchJob)) {
+                                    // 直接状态成运行中
+                                    LOGGER.info("jobId:{} is NOT_DO_TASK,status:{} , update RUNNING", scheduleBatchJob.getJobId(),status);
+                                    batchJobService.updateStatusByJobIdEqualsStatus(scheduleBatchJob.getJobId(), RdosTaskStatus.RUNNING.getStatus(),RdosTaskStatus.UNSUBMIT.getStatus());
+                                } else if (!RdosTaskStatus.UNSUBMIT.getStatus().equals(status)) {
+                                    LOGGER.info("jobId:{} is NOT_DO_TASK,status:{} is not submit，determine whether the timeout", scheduleBatchJob.getJobId(),status);
+                                    // 已经提交状态 判断是否超时
+                                    if (isTimeOut(scheduleBatchJob, batchTask)) {
+                                        // 直接失败更新状态
+                                        LOGGER.info("jobId:{} is NOT_DO_TASK,status:{} ,job timeout so update FAILED", scheduleBatchJob.getJobId(), status);
+                                        batchJobService.updateStatusAndLogInfoAndExecTimeById(scheduleBatchJob.getJobId(), RdosTaskStatus.FAILED.getStatus(), "空任务超时",null,new Date());
+                                    }
                                 }
                             } else {
                                 if (isPutQueue(checkRunInfo, scheduleBatchJob)) {
@@ -236,6 +257,43 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         }
     }
 
+    protected boolean isTimeOut(ScheduleBatchJob scheduleBatchJob, ScheduleTaskShade batchTask) {
+        String scheduleConf = batchTask.getScheduleConf();
+        JSONObject confJson = JSONObject.parseObject(scheduleConf);
+
+        Long timeout = environmentContext.getTaskRuleTimeout();
+
+        if (confJson != null && confJson.get("taskRuleTimeout") != null && StringUtils.isNotBlank(confJson.get("taskRuleTimeout").toString())) {
+            try {
+                timeout = Long.parseLong(confJson.get("taskRuleTimeout").toString());
+            } catch (NumberFormatException e) {
+                LOGGER.warn("scheduleConf 获取超时时间失败！");
+            }
+        }
+
+        ScheduleJob scheduleJob = scheduleBatchJob.getScheduleJob();
+        if (scheduleJob == null) {
+            throw new RdosDefineException("");
+        }
+
+        Timestamp execStartTime = scheduleJob.getExecStartTime();
+
+        if (execStartTime == null) {
+            throw new RdosDefineException("");
+        }
+
+        long time = execStartTime.getTime();
+        long currentTimeMillis = System.currentTimeMillis();
+
+        if ((currentTimeMillis - time) > timeout) {
+            // 已经超时
+            return Boolean.TRUE;
+        }
+
+        return Boolean.FALSE;
+    }
+
+
     private void checkJobVersion(ScheduleJob scheduleJob, ScheduleTaskShade batchTask) {
         if (null == scheduleJob || null == batchTask || null == scheduleJob.getVersionId() || null == batchTask.getVersionId()) {
             return;
@@ -243,7 +301,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         //同步taskShade最新的versionId
         if (!batchTask.getVersionId().equals(scheduleJob.getVersionId())) {
             LOGGER.info("update scheduleJob jobId {} versionId from {} to {} taskId {}", scheduleJob.getJobId(),scheduleJob.getVersionId(), batchTask.getVersionId(),batchTask.getTaskId());
-            scheduleJobDao.updateStatusByJobId(scheduleJob.getJobId(), null, null, batchTask.getVersionId());
+            scheduleJobDao.updateStatusByJobId(scheduleJob.getJobId(), null, null, batchTask.getVersionId(),null,null);
         }
     }
 

@@ -27,7 +27,7 @@ public enum AppType {
         this.type = type;
     }
 
-    public int getType() {
+    public Integer getType() {
         return type;
     }
 

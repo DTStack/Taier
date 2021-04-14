@@ -182,12 +182,12 @@ public class ActionServiceTest extends AbstractTest {
     public void testListJobStatus() {
         ScheduleJob engineJob = DataCollection.getData().getScheduleJobIndependentWithGmt();
         try {
-            actionService.listJobStatus(null);
+            actionService.listJobStatus(null,null);
             fail("Expect have a Exception");
         } catch (Exception e) {}
 
         try {
-            List<ActionJobStatusVO> result = actionService.listJobStatus(engineJob.getGmtModified().getTime());
+            List<ActionJobStatusVO> result = actionService.listJobStatus(engineJob.getGmtModified().getTime(),1);
             Assert.assertTrue(result.size() > 0);
         } catch (Exception e) {
             fail("Unexpect have a Exception: " + e.getMessage());

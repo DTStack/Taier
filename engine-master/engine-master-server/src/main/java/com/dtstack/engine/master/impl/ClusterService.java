@@ -210,7 +210,8 @@ public class ClusterService implements InitializingBean {
      * 内部使用
      */
     public JSONObject pluginInfoJSON( Long dtUicTenantId,  String engineTypeStr, Long dtUicUserId,Integer deployMode) {
-        if (EngineType.Dummy.name().equalsIgnoreCase(engineTypeStr)) {
+
+        if (EngineType.Dummy.name().equalsIgnoreCase(engineTypeStr) || environmentContext.getOpenDummy()) {
             JSONObject dummy = new JSONObject();
             dummy.put(TYPE_NAME_KEY, EngineType.Dummy.name().toLowerCase());
             return dummy;

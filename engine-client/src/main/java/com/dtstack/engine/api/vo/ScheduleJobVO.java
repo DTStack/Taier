@@ -34,9 +34,11 @@ public class ScheduleJobVO extends TenantProjectEntity {
     private String execStartDate;
     private String execEndDate;
     private Integer taskPeriodId;
+    private Integer taskRule;
     protected String taskPeriodType;
 
     private List<ScheduleJobVO> jobVOS;
+    private List<ScheduleJobVO> taskRuleJobVOS;
     protected ScheduleEngineJob batchEngineJob;
 
     private ScheduleJobVO subNodes;
@@ -56,6 +58,10 @@ public class ScheduleJobVO extends TenantProjectEntity {
     private Integer version;
 
     private Integer taskType;
+
+    private Integer appType;
+
+    private Boolean existsOnRule;
 
     public Integer getRetryNum() {
         return retryNum;
@@ -313,5 +319,37 @@ public class ScheduleJobVO extends TenantProjectEntity {
 
     public void setTaskType(Integer taskType) {
         this.taskType = taskType;
+    }
+
+    public List<ScheduleJobVO> getTaskRuleJobVOS() {
+        return taskRuleJobVOS;
+    }
+
+    public void setTaskRuleJobVOS(List<ScheduleJobVO> taskRuleJobVOS) {
+        this.taskRuleJobVOS = taskRuleJobVOS;
+    }
+
+    public Integer getTaskRule() {
+        return taskRule;
+    }
+
+    public void setTaskRule(Integer taskRule) {
+        this.taskRule = taskRule;
+    }
+
+    public Integer getAppType() {
+        return appType;
+    }
+
+    public void setAppType(Integer appType) {
+        this.appType = appType;
+    }
+
+    public Boolean getExistsOnRule() {
+        return existsOnRule;
+    }
+
+    public void setExistsOnRule(Boolean existsOnRule) {
+        this.existsOnRule = existsOnRule;
     }
 }

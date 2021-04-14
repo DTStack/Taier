@@ -15,6 +15,7 @@ public class ScheduleTaskTaskShade extends AppTenantEntity {
 
     private Long parentTaskId;
 
+    private Integer parentAppType;
 
     public Long getTaskId() {
         return taskId;
@@ -30,5 +31,13 @@ public class ScheduleTaskTaskShade extends AppTenantEntity {
 
     public void setParentTaskId(Long parentTaskId) {
         this.parentTaskId = parentTaskId;
+    }
+
+    public Integer getParentAppType() {
+        return parentAppType;
+    }
+
+    public void setParentAppType(Integer parentAppType) {
+        this.parentAppType = parentAppType;
     }
 }

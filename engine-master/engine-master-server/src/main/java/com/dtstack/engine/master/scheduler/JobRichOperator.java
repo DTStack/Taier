@@ -5,10 +5,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleJobJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.api.enums.TaskRuleEnum;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.util.MathUtil;
+import com.dtstack.engine.dao.ScheduleEngineProjectDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
+import com.dtstack.engine.dao.TenantDao;
+import com.dtstack.engine.domain.ScheduleEngineProject;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ScheduleJobService;
@@ -53,6 +57,7 @@ public class JobRichOperator {
 
     private static final long COUNT_BITS = Long.SIZE - 8L;
 
+
     @Autowired
     private EnvironmentContext environmentContext;
 
@@ -70,6 +75,12 @@ public class JobRichOperator {
 
     @Autowired
     private ScheduleTaskShadeService batchTaskShadeService;
+
+    @Autowired
+    private TenantDao tenantDao;
+
+    @Autowired
+    private ScheduleEngineProjectDao scheduleEngineProjectDao;
 
     /**
      * 判断任务是否可以执行
@@ -124,6 +135,76 @@ public class JobRichOperator {
         return checkRunInfo;
     }
 
+//    private JobCheckRunInfo isRule(ScheduleBatchJob scheduleBatchJob,JobCheckRunInfo checkRunInfo) {
+//        // 首先判断job是否规则任务
+//        ScheduleJob scheduleJob = scheduleBatchJob.getScheduleJob();
+//        Integer taskRule = scheduleJob.getTaskRule();
+//
+//        if (TaskRuleEnum.STRONG_RULE.getCode().equals(taskRule)) {
+//            // 任务本身是强规则任务，直接放行
+//            return checkRunInfo;
+//        } else {
+//            // 无规则任务和弱规则任务,查询父任务下的所有的子任务中有没有强规则任务
+//            String jobKey = scheduleJob.getJobKey();
+//            List<ScheduleJobJob> scheduleJobJobs = scheduleJobJobDao.listByJobKey(jobKey);
+//
+//            for (ScheduleJobJob scheduleJobJob : scheduleJobJobs) {
+//                if (judgmentUpdateStatus(scheduleJobJob, scheduleBatchJob, checkRunInfo)) {
+//                    return checkRunInfo;
+//                }
+//            }
+//        }
+//        return checkRunInfo;
+//    }
+//
+//    private Boolean judgmentUpdateStatus(ScheduleJobJob scheduleJobJob, ScheduleBatchJob scheduleBatchJob,JobCheckRunInfo checkRunInfo) {
+//        // 查询父节点下面所有子节点是否有强规则任务
+//        String parentJobKey = scheduleJobJob.getParentJobKey();
+//        List<ScheduleJobJob> scheduleJobJobs = scheduleJobJobDao.listByParentJobKey(parentJobKey);
+//        ScheduleJob parentJob = scheduleJobDao.getByJobKey(parentJobKey);
+//        List<String> jobKeys = scheduleJobJobs.stream().map(ScheduleJobJob::getJobKey).collect(Collectors.toList());
+//        // 查询强规则任务
+//        List<ScheduleJob> scheduleJobs = scheduleJobDao.listRuleJobByJobKeys(jobKeys,TaskRuleEnum.STRONG_RULE.getCode());
+//
+//        if (CollectionUtils.isEmpty(scheduleJobs)) {
+//            // 没有强规则任务 放回true表示通过
+//            return Boolean.TRUE;
+//        } else {
+//            // 有强规则任务，判断强规则任务里面是否有运行失败的，如果没有运行失败的，就执行更新父任务状态
+//            boolean isAllSuccessful = Boolean.TRUE;
+//
+//            for (ScheduleJob scheduleJob : scheduleJobs) {
+//                if (RdosTaskStatus.FAILED_STATUS.contains(scheduleJob.getStatus())) {
+//                    // 有一个强规则任务运行失败了，更新父任务状态，并保存记录
+//                    String log = getLog(scheduleJob, parentJob);
+//                    batchJobService.updateStatusAndLogInfoById(parentJob.getJobId(), RdosTaskStatus.FAILED.getStatus(), log);
+//                    checkRunInfo.setStatus(JobCheckStatus.TASK_RULE_VERIFICATION_FAILURE);
+//                    checkRunInfo.setExtInfo(log);
+//                    isAllSuccessful = Boolean.FALSE;
+//                } else if (!RdosTaskStatus.FINISH_STATUS.contains(scheduleJob.getStatus())) {
+//                    // 有一个强任务处于运行中，'
+//                    checkRunInfo.setStatus(JobCheckStatus.TASK_RULE_RUNNING);
+//                    isAllSuccessful = Boolean.FALSE;
+//                }
+//            }
+//            return isAllSuccessful;
+//        }
+//    }
+
+//    private String getLog(ScheduleJob scheduleJob,ScheduleJob parentJob) {
+//        if (parentJob!=null && StringUtils.isNotBlank(parentJob.getLogInfo())) {
+//            String logInfo = parentJob.getLogInfo();
+//            //  ${质量任务1的名称}：运行失败/校验通过/校验不通过（所属租户：xxxx，所属项目：xxx）
+//            logInfo+= "===============================================================\n";
+//            String nameByDtUicTenantId = tenantDao.getNameByDtUicTenantId(scheduleJob.getDtuicTenantId());
+//            ScheduleEngineProject project = scheduleEngineProjectDao.getProjectByProjectIdAndApptype(scheduleJob.getProjectId(),scheduleJob.getAppType());
+//            String format = String.format(LOG_TEM, scheduleJob.getJobName(), "运行失败", nameByDtUicTenantId,project.getProjectAlias());
+//            logInfo += format;
+//            return logInfo;
+//        }
+//        return "";
+//    }
+
     /**
      * 校验当前任务本身是否满足执行条件
      *
@@ -159,6 +240,15 @@ public class JobRichOperator {
                 && (EScheduleStatus.PAUSE.getVal().equals(batchTaskShade.getScheduleStatus()) ||
                 EProjectScheduleStatus.PAUSE.getStatus().equals(batchTaskShade.getProjectScheduleStatus()))) {
             //查询缓存
+            checkRunInfo.setStatus(JobCheckStatus.TASK_PAUSE);
+            return Boolean.FALSE;
+        }
+
+        // 质量任务补数据支持冻结
+        if (scheduleType == EScheduleType.FILL_DATA.getType() && AppType.DQ.getType().equals(scheduleBatchJob.getAppType())
+                && (EScheduleStatus.PAUSE.getVal().equals(batchTaskShade.getScheduleStatus()) ||
+                EProjectScheduleStatus.PAUSE.getStatus().equals(batchTaskShade.getProjectScheduleStatus()))) {
+            // 直接返回冻结
             checkRunInfo.setStatus(JobCheckStatus.TASK_PAUSE);
             return Boolean.FALSE;
         }
@@ -317,6 +407,12 @@ public class JobRichOperator {
         } else if (RdosTaskStatus.EXPIRE.getStatus().equals(dependencyJobStatus)) {
             checkRunInfo.setExtInfo("(父任务名称为:" + getTaskNameFromJobName(dependencyJob.getJobName(), dependencyJob.getType()) + ")");
             checkRunInfo.setStatus(JobCheckStatus.DEPENDENCY_JOB_EXPIRE);
+            return checkRunInfo;
+        } else if (RdosTaskStatus.RUNNING_TASK_RULE.getStatus().equals(dependencyJobStatus)){
+            // 父节点已经执行完了，判断当前任务是否是规则任务
+            if (TaskRuleEnum.NO_RULE.getCode().equals(scheduleBatchJob.getScheduleJob().getTaskRule())) {
+                checkRunInfo.setStatus(JobCheckStatus.FATHER_JOB_NOT_FINISHED);
+            }
             return checkRunInfo;
         } else if (!RdosTaskStatus.FINISHED.getStatus().equals(dependencyJobStatus) &&
                 !RdosTaskStatus.MANUALSUCCESS.getStatus().equals(dependencyJobStatus)) {

@@ -326,6 +326,7 @@ CREATE TABLE `schedule_task_task_shade`
   `dtuic_tenant_id` int(11)    NOT NULL DEFAULT '-1' COMMENT 'uic租户id',
   `app_type`        int(11)    NOT NULL DEFAULT '0' COMMENT 'RDOS(1), DQ(2), API(3), TAG(4), MAP(5), CONSOLE(6), STREAM(7), DATASCIENCE(8)',
   `task_id`         int(11)    NOT NULL COMMENT 'batch 任务id',
+  `parent_app_type` int(11)    NOT NULL DEFAULT '0' COMMENT '父任务的appType',
   `parent_task_id`  int(11)             DEFAULT NULL COMMENT '对应batch任务父节点的id',
   `gmt_create`      datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
   `gmt_modified`    datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
@@ -402,6 +403,7 @@ CREATE TABLE `schedule_job_job`
   `app_type`        int(11)      NOT NULL DEFAULT '0' COMMENT 'RDOS(1), DQ(2), API(3), TAG(4), MAP(5), CONSOLE(6), STREAM(7), DATASCIENCE(8)',
   `job_key`         VARCHAR(256) NOT NULL COMMENT 'batch 任务key',
   `parent_job_key`  VARCHAR(256)          DEFAULT NULL COMMENT '对应batch任务父节点的key',
+  `parent_app_type` int(11) NOT NULL DEFAULT '0' COMMENT '父任务的appType',
   `gmt_create`      datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
   `gmt_modified`    datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   `is_deleted`      tinyint(1)   NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
@@ -749,6 +751,25 @@ create table if not exists schedule_dict(
     KEY `index_type` (`type`),
     KEY `index_dict_code` (`dict_code`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment '通用数据字典';
+
+CREATE TABLE `schedule_engine_project` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `project_id` int(11) NOT NULL DEFAULT '0' COMMENT '项目id',
+  `uic_tenant_id` int(11) NOT NULL DEFAULT '0' COMMENT 'uic租户id',
+  `app_type` int(11) NOT NULL DEFAULT '0' COMMENT '引用类型',
+  `project_name` varchar(128) NOT NULL DEFAULT '' COMMENT '项目名',
+  `project_alias` varchar(512) NOT NULL DEFAULT '' COMMENT '表中文名',
+  `project_Identifier` varchar(256) DEFAULT '' COMMENT '项目标识',
+  `project_desc` varchar(2048) DEFAULT '' COMMENT '项目描述',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '项目状态0：初始化，1：正常,2:禁用,3:失败',
+  `create_user_id` int(11) NOT NULL DEFAULT '0' COMMENT '新建项目的用户id',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '创建时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后修改时间',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否删除，0未删除 1删除',
+  PRIMARY KEY (`id`),
+  KEY `index_project_id` (`project_id`),
+  KEY `index_uic_tenant_id_and_app_type` (`uic_tenant_id`,`app_type`,`project_alias`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='项目表';
 
 CREATE TABLE `alert_content` (
   `id` int(11) NOT NULL AUTO_INCREMENT,

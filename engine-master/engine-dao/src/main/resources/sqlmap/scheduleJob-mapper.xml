@@ -6,13 +6,17 @@
     <sql id="select_content_fragment">
       bj.id,bj.tenant_id,bj.project_id,bj.dtuic_tenant_id,bj.app_type,bj.job_id,bj.job_key,bj.job_name,bj.task_id,bj.gmt_create,bj.gmt_modified,bj.create_user_id,bj.is_deleted,bj.type,bj.is_restart,
       bj.business_date,bj.cyc_time,dependency_type,flow_job_id,bj.period_type,bj.status,bj.task_type,bj.fill_id,bj.exec_start_time,bj.exec_end_time,bj.exec_time,bj.submit_time,bj.retry_num,max_retry_num,
-      bj.node_address,bj.version_id,bj.next_cyc_time,bj.log_info,bj.compute_type,bj.submit_user_name
+      bj.node_address,bj.version_id,bj.next_cyc_time,bj.log_info,bj.compute_type,bj.submit_user_name,bj.task_rule
     </sql>
 
     <sql id="select_filed_all">
         `id`,`tenant_id`,`project_id`,`dtuic_tenant_id`,`app_type`,`job_id`,`job_key`,`job_name`,`task_id`,`gmt_create`,`gmt_modified`,`create_user_id`,`is_deleted`,`type`,`is_restart`,`business_date`,`cyc_time`
         ,`dependency_type`,`flow_job_id`,`period_type`,`status`,`task_type`,`fill_id`,`exec_start_time`,`exec_end_time`,`exec_time`,`submit_time`,`max_retry_num`,`retry_num`,`log_info`,`node_address`,`version_id`
         ,`next_cyc_time`,`engine_job_id`,`application_id`,`engine_log`,`plugin_info_id`,`retry_task_params`,`compute_type`,`phase_status`,`submit_user_name`
+    </sql>
+
+    <sql id="select_filed_all_bj">
+        id,tenant_id,project_id,dtuic_tenant_id,app_type,job_id,job_key,job_name,task_id,gmt_create,gmt_modified,create_user_id,is_deleted,type,is_restart,business_date,cyc_time,dependency_type,flow_job_id,period_type,status,task_type,fill_id,exec_start_time,exec_end_time,exec_time,submit_time,retry_num,max_retry_num,node_address,version_id,next_cyc_time,log_info,compute_type,submit_user_name,task_rule
     </sql>
 
     <sql id="select_where_fragment">
@@ -713,12 +717,12 @@
         <include refid="select_content_fragment"/>
         from (
         select
-        <include refid="select_filed_all"/>,'' as groupDate from schedule_job
+        <include refid="select_filed_all_bj"/>,'' as groupDate from schedule_job
         <include refid="select_where_batch_job"/>
         and period_type not in (0,1)
         union
         select
-        <include refid="select_content_fragment"/>,bj.engine_log,
+        <include refid="select_content_fragment"/>,
         left(bj.business_date,8) as groupDate
         from schedule_job bj
         LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
@@ -799,6 +803,17 @@
             #{jobKey}
         </foreach>
         AND is_deleted = 0
+    </select>
+
+    <select id="listRuleJobByJobKeys" resultType="com.dtstack.engine.api.domain.ScheduleJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_job bj
+        where job_key IN
+        <foreach item="jobKey" index="index" collection="jobKeys" open="(" separator="," close=")">
+            #{jobKey}
+        </foreach>
+        AND is_deleted = 0 AND task_rule = #{ruleCode}
     </select>
 
     <select id="listIdByTaskIdAndStatus" resultType="ScheduleJob">
@@ -928,12 +943,12 @@
         <include refid="select_content_fragment"/>
         from (
         select
-        <include refid="select_filed_all"/>
+        <include refid="select_filed_all_bj"/>
         ,'' as groupDate from schedule_job
         <include refid="select_where_batch_job"/>
         union
         select
-        <include refid="select_content_fragment"/>,bj.engine_log,
+        <include refid="select_content_fragment"/>,
         left(bj.business_date,8) as groupDate
         from schedule_job bj
         LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
@@ -1020,11 +1035,11 @@
 
     <insert id="batchInsert" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO schedule_job
-        (tenant_id,project_id,dtuic_tenant_id,app_type,job_id,job_key,job_name,task_id,gmt_create,gmt_modified,create_user_id,is_deleted,type,is_restart,business_date,cyc_time,dependency_type,flow_job_id,period_type,next_cyc_time,task_type,node_address,max_retry_num,version_id,fill_id)
+        (tenant_id,project_id,dtuic_tenant_id,app_type,job_id,job_key,job_name,task_id,gmt_create,gmt_modified,create_user_id,is_deleted,type,is_restart,business_date,cyc_time,dependency_type,flow_job_id,period_type,next_cyc_time,task_type,node_address,max_retry_num,version_id,fill_id,task_rule)
         VALUES
         <foreach item="item" index="index" collection="list" separator=",">
             (#{item.tenantId},#{item.projectId},#{item.dtuicTenantId},#{item.appType},#{item.jobId},#{item.jobKey},#{item.jobName},#{item.taskId},#{item.gmtCreate},#{item.gmtModified},#{item.createUserId},#{item.isDeleted},#{item.type},
-            #{item.isRestart},#{item.businessDate},#{item.cycTime},#{item.dependencyType},#{item.flowJobId},#{item.periodType},#{item.nextCycTime},#{item.taskType},#{item.nodeAddress},#{item.maxRetryNum},#{item.versionId},#{item.fillId})
+            #{item.isRestart},#{item.businessDate},#{item.cycTime},#{item.dependencyType},#{item.flowJobId},#{item.periodType},#{item.nextCycTime},#{item.taskType},#{item.nodeAddress},#{item.maxRetryNum},#{item.versionId},#{item.fillId},#{item.taskRule})
         </foreach>
     </insert>
 
@@ -1079,12 +1094,6 @@
         <include refid="select_where_fragment_without_ts"/>
     </select>
 
-    <select id="listFillJobBizDate" resultType="java.lang.String">
-        SELECT DISTINCT SUBSTR(business_date FROM 1 FOR 8)
-        FROM schedule_job bj
-        <include refid="select_where_fragment_without_ts"/>
-    </select>
-
     <select id="listNeedStopFillDataJob" resultType = "ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
@@ -1093,9 +1102,19 @@
         <foreach item="status" index="index" collection="statusList" open="(" separator="," close=")">
             #{status}
         </foreach>
-        and bj.project_id = #{projectId}
-        and bj.app_type = #{appType}
+        <if test="projectId !=null">
+            and bj.project_id = #{projectId}
+        </if>
+        <if test="appType!=null">
+            and bj.app_type = #{appType}
+        </if>
         and bj.is_deleted = 0
+    </select>
+
+    <select id="listFillJobBizDate" resultType="java.lang.String">
+        SELECT DISTINCT SUBSTR(business_date FROM 1 FOR 8)
+        FROM schedule_job bj
+        <include refid="select_where_fragment_without_ts"/>
     </select>
 
     <select id="listTaskExeInfo" resultType="java.util.HashMap">
@@ -1186,6 +1205,7 @@
         bj.is_deleted = 0
         AND bj.task_type != 10
         AND bj.type = 1
+        AND bj.app_type = #{appType}
         AND bj.fill_id in
         <foreach collection="fillIdList" index="index" item="fillId" open="(" close=")" separator=",">
             #{fillId}
@@ -1265,7 +1285,7 @@
         <foreach collection="jobIds" item="item" open="(" close=")" separator=",">
             #{item}
         </foreach>
-        and project_id = #{projectId}
+        <if test="projectId != null"> and project_id = #{projectId} </if>
     </select>
 
     <select id="listJobIdByTaskType" resultType="java.lang.String">
@@ -1336,10 +1356,14 @@
 
     <update id="stopUnsubmitJob">
         UPDATE  schedule_job
-        set status = #{status} where status = 0 and
-        job_name like #{likeName} and
-        project_id = #{projectId} and
-        app_type = #{appType};
+        set status = #{status} where status = 0
+        and job_name like #{likeName}
+        <if test="projectId!=null">
+            and project_id = #{projectId}
+        </if>
+        <if test="appType !=null">
+            and app_type = #{appType}
+        </if>
     </update>
 
     <select id="getByTaskIdAndStatusOrderByIdLimit" resultType="ScheduleJob">
@@ -1380,7 +1404,7 @@
         <if test="isRestart != null">
             AND is_restart = #{isRestart}
         </if>
-        AND (status = 0 or ((status = 10 or status=4) and task_type in (10, 14)))
+        AND (status = 0 or ((status = 10 or status=4) and task_type in (10, 14,27)))
         AND is_deleted = 0
         AND `phase_status` = #{phaseStatus}
         order by id, cyc_time asc limit 500
@@ -1426,6 +1450,12 @@
             </if>
             <if test="versionId != null">
                 version_id = #{versionId},
+            </if>
+            <if test="execStartTime != null">
+                exec_start_time = #{execStartTime},
+            </if>
+            <if test="execEndTime != null">
+                exec_end_time = #{execEndTime},
             </if>
             gmt_modified = now()
         </set>
@@ -1616,10 +1646,13 @@
     </select>
 
     <select id="listJobStatus" resultType="ScheduleJob">
-        select job_id as jobId,status,exec_start_time as execStartTime,exec_end_time as execEndTime,exec_time as execTime,retry_num as retryNum
-        from schedule_job
-        where gmt_modified &gt;= #{time} and compute_type = #{computeType}
-        and is_deleted=0;
+        select <include refid="select_content_fragment"/>
+        from schedule_job bj
+        where bj.gmt_modified &gt;= #{time} and bj.compute_type = #{computeType}
+        <if test="appType != null">
+            and bj.app_type = #{appType}
+        </if>
+        and bj.is_deleted=0 and bj.status != 0
     </select>
 
     <select id="getListMinId" resultType="java.lang.Long">
@@ -1639,7 +1672,7 @@
         <if test="isRestart != null">
             AND is_restart = #{isRestart}
         </if>
-        AND (status = 0 or ((status = 10 or status=4) and task_type in (10, 14)))
+        AND (status = 0 or ((status = 10 or status=4) and task_type in (10, 14, 27)))
         AND is_deleted = 0
         AND `phase_status` = #{phaseStatus}
     </select>
@@ -1684,6 +1717,26 @@
         and `is_deleted`=0;
     </update>
 
+    <update id="updateStatusByJobIdEqualsStatus">
+        UPDATE schedule_job
+        <set>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            gmt_modified = now()
+        </set>
+        WHERE job_id = #{jobId} AND status = #{status1}
+        AND is_deleted=0
+    </update>
+    <update id="updateLogInfoByJobId">
+        UPDATE schedule_job
+        SET
+            log_info = #{msg},
+            gmt_modified = now()
+        WHERE job_id = #{jobId}
+        AND is_deleted=0
+    </update>
+
     <select id="getJobGraph" resultType="java.lang.String">
         select job_graph from schedule_job where job_id = #{jobId}
     </select>
@@ -1696,7 +1749,13 @@
         and bj.id &lt; ${id}
         order by id desc
         limit 1;
-
     </select>
+    <select id="getSubJobsAndStatusByFlowIdLimit" resultType="com.dtstack.engine.api.domain.ScheduleJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_job bj
+        WHERE flow_job_id = #{jobId} AND is_deleted = 0 order by cyc_time desc LIMIT 1
+    </select>
+
 
 </mapper>

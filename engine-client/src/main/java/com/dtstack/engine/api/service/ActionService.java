@@ -1,5 +1,6 @@
 package com.dtstack.engine.api.service;
 
+import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.api.pojo.ParamTaskAction;
@@ -131,8 +132,11 @@ public interface ActionService extends DtInsightServer {
      * task 工程使用
      */
     @RequestLine("POST /node/action/listJobStatus")
-    ApiResponse<List<ActionJobStatusVO>> listJobStatus(@Param("time") Long time);
+    ApiResponse<List<ActionJobStatusVO>> listJobStatus(@Param("time") Long time,@Param("appType") Integer appType);
 
+    @RequestLine("POST /node/action/listJobStatusScheduleJob")
+    ApiResponse<List<ScheduleJob>> listJobStatusScheduleJob(@Param("time") Long time, @Param("appType") Integer appType);
+    
     @RequestLine("POST /node/action/listJobStatusByJobIds")
     ApiResponse<List<ActionJobStatusVO>> listJobStatusByJobIds(@Param("jobIds") List<String> jobIds) ;
 
