@@ -717,6 +717,10 @@
         bottom: 0px;
         left: 0px;
         right: 0px;
+        .ant-tabs-bar {
+            background-color: #FAFAFA;
+            border: unset;
+        }
         .ant-tabs-content {
             position: absolute;
             top: 44px;
@@ -725,18 +729,21 @@
             right: 0px;
         }
         .ant-tabs-bar .ant-tabs-nav-container {
-            background-color: #FAFAFA;
             .ant-tabs-nav-wrap > .ant-tabs-nav-scroll > .ant-tabs-nav {
                 height: 44px;
                 min-width: 100px;
                 .ant-tabs-tab {
                     text-align: center;
                     width: 100%;
-                    background: #fff;
+                    background: #FAFAFA;
                     padding: 0;
                     font-size: 14px;
                     height: 44px;
                     line-height: 44px;
+                    margin: 0;
+                }
+                .ant-tabs-tab-active {
+                    background: #fff;
                 }
                 .ant-tabs-ink-bar {
                     visibility: hidden;

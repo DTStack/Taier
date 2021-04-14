@@ -206,7 +206,8 @@ class EditCluster extends React.Component<any, IState> {
                 comps.forEach(code => {
                     currentCompArr.push({
                         componentTypeCode: code,
-                        componentName: COMPONENT_CONFIG_NAME[code]
+                        componentName: COMPONENT_CONFIG_NAME[code],
+                        mulitiVersion: [undefined]
                     })
                 })
             }
@@ -219,16 +220,20 @@ class EditCluster extends React.Component<any, IState> {
         }, this.getLoadTemplate)
     }
 
-    saveComp = (params: any) => {
+    saveComp = (params: any, type?: string) => {
         const { activeKey, initialCompData } = this.state
         let newCompData = _.cloneDeep(initialCompData)
-        let newComp = initialCompData[activeKey].map(comp => {
-            if (comp.componentTypeCode == params.componentTypeCode) {
-                return { ...comp, ...params }
-            }
+        newCompData[activeKey] = initialCompData[activeKey].map(comp => {
+            if (comp.componentTypeCode !== params.componentTypeCode) return comp
+            if (type == COMP_ACTION.ADD) comp.mulitiVersion.push(undefined)
+            comp.mulitiVersion = comp.mulitiVersion.map(vcomp => {
+                if (!vcomp) return { ...params }
+                if (!isMulitiVersion(params.componentTypeCode)) return { ...vcomp, ...params }
+                if (!vcomp?.hadoopVersion || vcomp?.hadoopVersion == params.hadoopVersion) return { ...vcomp, ...params }
+                return vcomp
+            })
             return comp
         })
-        newCompData[activeKey] = newComp
         this.setState({
             initialCompData: newCompData
         })
@@ -382,9 +387,14 @@ class EditCluster extends React.Component<any, IState> {
                                         handlePopVisible={this.handlePopVisible}
                                     />}
                                     className="c-editCluster__container__componentTabs"
-                                    onChange={(key: any) => this.getLoadTemplate(key)}
+                                    onChange={(key: any) => {
+                                        if (!isMulitiVersion(Number(key))) this.getLoadTemplate(key)
+                                    }}
                                 >
                                     {comps?.length > 0 && comps.map((comp: any) => {
+                                        if (!isMulitiVersion(comp.componentTypeCode)) {
+                                            comp.mulitiVersion = [{ ...comp }]
+                                        }
                                         return (<TabPane
                                             tab={<span>
                                                 {comp.componentName}
@@ -403,24 +413,27 @@ class EditCluster extends React.Component<any, IState> {
                                                         testStatus={testStatus}
                                                         clusterInfo={{ clusterName, clusterId: cluster.clusterId }}
                                                         saveComp={this.saveComp}
+                                                        getLoadTemplate={this.getLoadTemplate}
                                                     />
-                                                    : <>
-                                                        <FileConfig
-                                                            comp={comp}
-                                                            view={isViewMode(mode)}
-                                                            form={this.props.form}
-                                                            versionData={versionData}
-                                                            commVersion={commVersion}
-                                                            saveCompsData={saveCompsData}
-                                                            clusterInfo={{ clusterName, clusterId: cluster.clusterId }}
-                                                            handleCompVersion={this.handleCompVersion}
-                                                        />
-                                                        <FormConfig
-                                                            comp={comp}
-                                                            view={isViewMode(mode)}
-                                                            form={this.props.form}
-                                                        />
-                                                    </>}
+                                                    : comp?.mulitiVersion?.map(vcomp => {
+                                                        return <>
+                                                            <FileConfig
+                                                                comp={vcomp}
+                                                                view={isViewMode(mode)}
+                                                                form={this.props.form}
+                                                                versionData={versionData}
+                                                                commVersion={commVersion}
+                                                                saveCompsData={saveCompsData}
+                                                                clusterInfo={{ clusterName, clusterId: cluster.clusterId }}
+                                                                handleCompVersion={this.handleCompVersion}
+                                                            />
+                                                            <FormConfig
+                                                                comp={vcomp}
+                                                                view={isViewMode(mode)}
+                                                                form={this.props.form}
+                                                            />
+                                                        </>
+                                                    })}
                                                     {!isViewMode(mode) && <ToolBar
                                                         comp={comp}
                                                         clusterInfo={{ clusterName, clusterId: cluster.clusterId }}
