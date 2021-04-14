@@ -31,7 +31,12 @@ const setId = (item) => {
 
 const DynamicSelect = (props: IPropsDynamicSelect) => {
   const { form, joinPairs = [], leftTable, rightTable, cref } = props;
-  const { getFieldDecorator, validateFields, setFieldsValue } = form;
+  const {
+    getFieldDecorator,
+    validateFields,
+    setFieldsValue,
+    getFieldsValue,
+  } = form;
   const [joinPairsList, setJoinPairsList] = useState(() => {
     joinPairs.forEach(setId);
     return joinPairs;
@@ -49,6 +54,7 @@ const DynamicSelect = (props: IPropsDynamicSelect) => {
             return resolve(data);
           });
         }),
+      resetColumns,
     };
   });
 
@@ -82,6 +88,18 @@ const DynamicSelect = (props: IPropsDynamicSelect) => {
     } catch (error) {
       Message.error(error.message);
     }
+  };
+
+  const resetColumns = (flag: 'left' | 'right') => {
+    const currentForm = getFieldsValue();
+    const setCol = flag === 'left' ? setLeftColumns : setRightColumns;
+    setCol([]);
+    for (let key in currentForm) {
+      if (new RegExp(flag).test(key)) {
+        currentForm[key] = undefined;
+      }
+    }
+    setFieldsValue(currentForm);
   };
 
   useEffect(() => {
