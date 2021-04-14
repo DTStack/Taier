@@ -191,6 +191,8 @@ public class JobClient extends OrderObject {
         action.setTenantId(tenantId);
         action.setUserId(userId);
         action.setAppType(appType);
+        action.setRetryIntervalTime(retryIntervalTime);
+        action.setSubmitExpiredTime(submitExpiredTime);
         if (!Strings.isNullOrEmpty(pluginInfo)) {
             try {
                 action.setPluginInfo(PublicUtil.jsonStrToObject(pluginInfo, Map.class));
