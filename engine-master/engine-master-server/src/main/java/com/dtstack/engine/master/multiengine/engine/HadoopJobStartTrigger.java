@@ -311,13 +311,13 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                 String alterSql = String.format(ADD_PART_TEMP, tableName, taskName, time);
                 String location = "";
                 if (DataSourceType.IMPALA.getVal() == sourceType) {
-                    String jdbcInfo = clusterService.getConfigByKey(dtuicTenantId, EComponentType.IMPALA_SQL.getConfName(),true);
+                    String jdbcInfo = clusterService.getConfigByKey(dtuicTenantId, EComponentType.IMPALA_SQL.getConfName(),true,null);
                     JSONObject pluginInfo = JSONObject.parseObject(jdbcInfo);
                     pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, DataBaseType.Impala.getTypeName());
                     workerOperator.executeQuery(DataBaseType.Impala.getTypeName(), pluginInfo.toJSONString(), alterSql, db);
                     location = this.getTableLocation(pluginInfo, db, DataBaseType.Impala.getTypeName(), String.format("DESCRIBE formatted %s", tableName));
                 } else if (DataSourceType.HIVE.getVal() == sourceType || DataSourceType.HIVE1X.getVal() == sourceType) {
-                    String jdbcInfo = clusterService.getConfigByKey(dtuicTenantId,EComponentType.SPARK_THRIFT.getConfName(), true);
+                    String jdbcInfo = clusterService.getConfigByKey(dtuicTenantId,EComponentType.SPARK_THRIFT.getConfName(), true,null);
                     JSONObject pluginInfo = JSONObject.parseObject(jdbcInfo);
                     String engineType = DataSourceType.HIVE.getVal() == sourceType ? DataBaseType.HIVE.getTypeName() : DataBaseType.HIVE1X.getTypeName();
                     pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, engineType);
@@ -514,7 +514,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
 
     public String queryLastLocation(Long dtUicTenantId, String engineJobId, long startTime, long endTime, String taskParam,Integer computeType,String jobId) {
         endTime = endTime + 1000 * 60;
-        List<ComponentsConfigOfComponentsVO> componentsConfigOfComponentsVOS = componentService.listConfigOfComponents(dtUicTenantId, MultiEngineType.HADOOP.getType());
+        List<ComponentsConfigOfComponentsVO> componentsConfigOfComponentsVOS = componentService.listConfigOfComponents(dtUicTenantId, MultiEngineType.HADOOP.getType(),null);
         if (CollectionUtils.isEmpty(componentsConfigOfComponentsVOS)) {
             return null;
         }
@@ -640,7 +640,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                     content = content.replaceAll("\r\n", System.getProperty("line.separator"));
                 }
 
-                JSONObject pluginInfoWithComponentType = clusterService.pluginInfoJSON(dtuicTenantId,ScheduleEngineType.Hadoop.getEngineName(),null,null);
+                JSONObject pluginInfoWithComponentType = clusterService.pluginInfoJSON(dtuicTenantId,ScheduleEngineType.Hadoop.getEngineName(),null,null,null);
                 String typeName = pluginInfoWithComponentType.getString(ConfigConstant.TYPE_NAME_KEY);
                 String hdfsUploadPath = workerOperator.uploadStringToHdfs(typeName, pluginInfoWithComponentType.toJSONString(), content, hdfsPath);
                 if(StringUtils.isBlank(hdfsUploadPath)){

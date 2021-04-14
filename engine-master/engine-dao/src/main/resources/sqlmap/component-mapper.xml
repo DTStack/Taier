@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.engine.dao.ComponentDao">
 
     <sql id="select_content_fragment">
-      id,engine_id,component_name,component_type_code,gmt_create,gmt_modified,is_deleted,hadoop_version,upload_file_name,kerberos_file_name,store_type
+      id,engine_id,component_name,component_type_code,gmt_create,gmt_modified,is_deleted,hadoop_version,upload_file_name,kerberos_file_name,store_type,is_default
     </sql>
 
     <sql id="update_fragment">
@@ -22,6 +22,9 @@
             </if>
             <if test="storeType != null">
                 store_type = #{storeType},
+            </if>
+            <if test="isDefault != null">
+                is_default=#{isDefault}
             </if>
             gmt_modified =now()
         </set>
@@ -73,7 +76,16 @@
         LEFT JOIN console_engine ENGINE ON ENGINE.id = c.engine_id
         LEFT JOIN console_cluster cluster ON cluster.id = ENGINE.cluster_id
         WHERE
-        cluster.id = #{clusterId} and c.component_type_code = #{type} and c.is_deleted = 0 LIMIT 1
+        cluster.id = #{clusterId} and c.component_type_code = #{type}
+        <choose>
+            <when test="componentVersion == null">
+                and c.is_default = 1
+            </when>
+            <otherwise>
+               and c.hadoop_version = #{componentVersion}
+            </otherwise>
+        </choose>
+          and c.is_deleted = 0 LIMIT 1
     </select>
 
 
@@ -114,5 +126,55 @@
         on cc.engine_id = cet.engine_id
         and cet.tenant_id =  #{tenantId}
         where cc.is_deleted = 0
+    </select>
+    <select id="listDefaultByEngineIds" resultType="com.dtstack.engine.api.domain.Component">
+        select <include refid="select_content_fragment"/>
+        from console_component
+        where  is_deleted = 0
+        <if test="engineIds.size() > 0">
+            and engine_id in
+            <foreach collection="engineIds" item="engineId" open="(" separator="," close=")">
+                #{engineId}
+            </foreach>
+        </if>
+        and is_default=1
+    </select>
+    <select id="getNextDefaultComponent" resultType="com.dtstack.engine.api.domain.Component">
+        SELECT
+            cc.id,
+            cc.is_default
+        FROM
+            console_component cc
+        WHERE
+          cc.id != #{currentDeleteId}
+          AND cc.engine_id = #{engineId}
+          AND cc.component_type_code = #{componentTypeCode}
+          AND cc.is_delete = 0
+        ORDER BY cc.id ASC LIMIT 1
+    </select>
+
+    <select id="getDefaultComponentVersionByClusterAndComponentType" resultType="java.lang.String">
+        SELECT
+            cc.hadoop_version
+        FROM
+        console_component cc
+        LEFT JOIN console_engine ce ON ce.id = cc.engine_id
+        LEFT JOIN console_cluster ccl ON ccl.id = ce.cluster_id and ccl.id=#{clusterId}
+        WHERE
+        cc.component_type_code = #{componentType}
+        and is_default = 1
+        and cc.is_deleted = 0 LIMIT 1
+    </select>
+
+    <select id="getDefaultComponentVersionByTenantAndComponentType" resultType="java.lang.String">
+        select
+            cc.hadoop_version
+        from
+            console_component cc INNER JOIN console_engine_tenant cet
+            on cc.engine_id = cet.engine_id
+            and cet.tenant_id =  #{tenantId}
+        where cc.component_type_code = #{componentType}
+        and cc.is_default = 1
+        and cc.is_deleted = 0 limit 1
     </select>
 </mapper>

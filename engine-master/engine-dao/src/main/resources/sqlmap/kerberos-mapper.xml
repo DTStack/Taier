@@ -48,6 +48,9 @@
         FROM console_kerberos
         WHERE cluster_id = #{clusterId} and is_deleted = 0
         and component_type = #{componentType}
+        <if test="componentVersion != null">
+            and component_version = #{componentVersion}
+        </if>
         limit 1
     </select>
 

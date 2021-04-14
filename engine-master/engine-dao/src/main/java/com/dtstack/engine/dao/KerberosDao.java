@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface KerberosDao {
 
-    KerberosConfig getByComponentType(@Param("clusterId") Long clusterId, @Param("componentType") Integer componentType);
+    KerberosConfig getByComponentType(@Param("clusterId") Long clusterId, @Param("componentType") Integer componentType,@Param("componentVersion")String componentVersion);
 
     List<KerberosConfig> getByClusters(@Param("clusterId") Long clusterId);
 

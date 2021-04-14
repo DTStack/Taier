@@ -25,6 +25,19 @@ public class ScheduleTaskShade extends ScheduleTask {
      */
     @ApiModelProperty(notes = "batchJob执行的时候的vesion版本")
     private Integer versionId;
+    /**
+     * 选择的运行组件版本
+     * e.g Flink 110
+     */
+    private String componentVersion;
+
+    public String getComponentVersion() {
+        return componentVersion;
+    }
+
+    public void setComponentVersion(String componentVersion) {
+        this.componentVersion = componentVersion;
+    }
 
     public Integer getVersionId() {
         return versionId;

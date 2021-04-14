@@ -7,13 +7,12 @@ import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
 import com.dtstack.engine.api.vo.components.ComponentsResultVO;
 import com.dtstack.engine.master.impl.ComponentService;
+import com.dtstack.engine.master.router.DtRequestParam;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import com.dtstack.engine.master.router.DtRequestParam;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -29,7 +28,7 @@ public class ComponentController {
 
     @RequestMapping(value="/listConfigOfComponents", method = {RequestMethod.POST})
     public List<ComponentsConfigOfComponentsVO> listConfigOfComponents(@DtRequestParam("tenantId") Long dtUicTenantId, @DtRequestParam("engineType") Integer engineType) {
-        return componentService.listConfigOfComponents(dtUicTenantId, engineType);
+        return componentService.listConfigOfComponents(dtUicTenantId, engineType,null);
     }
 
     @RequestMapping(value="/getOne", method = {RequestMethod.POST})
@@ -39,8 +38,8 @@ public class ComponentController {
 
 
     @RequestMapping(value="/getKerberosConfig", method = {RequestMethod.POST})
-    public KerberosConfig getKerberosConfig(@DtRequestParam("clusterId") Long clusterId, @DtRequestParam("componentType") Integer componentType) {
-        return componentService.getKerberosConfig(clusterId, componentType);
+    public KerberosConfig getKerberosConfig(@DtRequestParam("clusterId") Long clusterId, @DtRequestParam("componentType") Integer componentType,@DtRequestParam("componentVersion") String componentVersion) {
+        return componentService.getKerberosConfig(clusterId, componentType,componentVersion);
     }
 
     @RequestMapping(value="/updateKrb5Conf", method = {RequestMethod.POST})
@@ -96,7 +95,7 @@ public class ComponentController {
     @RequestMapping(value="/testConnect", method = {RequestMethod.POST})
     @ApiOperation(value = "测试单个组件连通性")
     public ComponentTestResult testConnect(@DtRequestParam("clusterName") String clusterName,@DtRequestParam("componentType") Integer componentType) {
-        return componentService.testConnect(clusterName,componentType);
+        return componentService.testConnect(clusterName,componentType,null);
     }
 
     @RequestMapping(value="/refresh", method = {RequestMethod.POST})

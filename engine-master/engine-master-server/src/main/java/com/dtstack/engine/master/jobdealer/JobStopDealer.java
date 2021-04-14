@@ -274,7 +274,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                         if (stoppedJob.isRetry()) {
                             if (StoppedStatus.STOPPING == stoppedStatus) {
                                 stoppedJob.resetDelay(jobStoppedDelay * stoppedJob.getIncrCount() * 5);
-                            } else if (StoppedStatus.RETRY == stoppedStatus) {
+                            } else {
                                 stoppedJob.resetDelay(jobStoppedDelay);
                             }
                             stoppedJob.incrCount();

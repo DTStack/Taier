@@ -6,7 +6,9 @@ import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.ComponentConfig;
 import com.dtstack.engine.api.domain.ScheduleDict;
 import com.dtstack.engine.api.pojo.ClientTemplate;
+import com.dtstack.engine.api.vo.ComponentMultiVersionVO;
 import com.dtstack.engine.api.vo.ComponentVO;
+import com.dtstack.engine.api.vo.IComponentVO;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EFrontType;
@@ -25,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -146,25 +149,35 @@ public class ComponentConfigService {
         return componentConfigDao.listByComponentId(Long.parseLong(typeNameMapping.getDictValue()), true);
     }
 
-    public List<ComponentVO> getComponentVoByComponent(List<Component> components, boolean isFilter, Long clusterId, boolean isConvertHadoopVersion) {
+
+    public List<IComponentVO> getComponentVoByComponent(List<Component> components, boolean isFilter, Long clusterId, boolean isConvertHadoopVersion,boolean multiVersion) {
         if (null == clusterId) {
             throw new RdosDefineException("集群id不能为空");
         }
         if (CollectionUtils.isEmpty(components)) {
             return new ArrayList<>(0);
         }
+        // 集群所关联的组件的配置
         List<ComponentConfig> componentConfigs = componentConfigDao.listByClusterId(clusterId, isFilter);
         if (CollectionUtils.isEmpty(componentConfigs)) {
             return new ArrayList<>(0);
         }
+        // 组件按类型分组, 因为可能存在组件有多个版本, 此时需要兼容单版本和多版本格式问题
+        Map<Integer, IComponentVO> componentVoMap=new HashMap<>(components.size());
+        components.stream().collect(Collectors.groupingBy(Component::getComponentTypeCode, Collectors.toList()))
+                .forEach((k,v) -> componentVoMap.put(k, multiVersion ?
+                        ComponentMultiVersionVO.getInstanceWithCapacityAndType(k, v.size()) : ComponentVO.getInstance() ));
+        // 配置按照组件进行分组, 存在组件有多个版本
         Map<Long, List<ComponentConfig>> componentIdConfigs = componentConfigs.stream().collect(Collectors.groupingBy(ComponentConfig::getComponentId));
-        List<ComponentVO> componentVOS = new ArrayList<>(components.size());
+        List<IComponentVO> componentVoList = new ArrayList<>(components.size());
         for (Component component : components) {
-            ComponentVO componentVO = ComponentVO.toVO(component);
+            ComponentVO componentVO = IComponentVO.getComponentVo(componentVoMap.get(component.getComponentTypeCode()),component);;
+            // 当前组件的配置
             List<ComponentConfig> configs = componentIdConfigs.get(component.getId());
             // hdfs yarn 才将自定义参数移除 过滤返回给前端
             boolean isHadoopControl = EComponentType.hadoopVersionComponents.contains(EComponentType.getByCode(component.getComponentTypeCode()));
             if (isHadoopControl) {
+                // 配置按照编辑类型进行分组
                 Map<String, List<ComponentConfig>> configTypeMapping = configs.stream().collect(Collectors.groupingBy(ComponentConfig::getType));
                 //hdfs yarn 4.1 template只有自定义参数
                 componentVO.setComponentTemplate(JSONObject.toJSONString(ComponentConfigUtils.buildDBDataToClientTemplate(configTypeMapping.get(EFrontType.CUSTOM_CONTROL.name()))));
@@ -189,8 +202,10 @@ public class ComponentConfigService {
                     }
                 }
             }
-            componentVOS.add(componentVO);
+            // 单版本只有一个空方法调用
+            componentVoMap.get(component.getComponentTypeCode()).addComponent(componentVO);
         }
-        return componentVOS;
+        componentVoList.addAll(componentVoMap.values());
+        return componentVoList;
     }
 }

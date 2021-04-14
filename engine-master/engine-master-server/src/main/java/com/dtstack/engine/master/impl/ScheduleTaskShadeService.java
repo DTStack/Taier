@@ -12,12 +12,15 @@ import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.ComponentVersionUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.UnitConvertUtil;
+import com.dtstack.engine.dao.ComponentDao;
 import com.dtstack.engine.dao.ScheduleTaskCommitMapper;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.dao.TenantResourceDao;
@@ -27,7 +30,7 @@ import com.dtstack.schedule.common.enums.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -71,6 +74,9 @@ public class ScheduleTaskShadeService {
     @Autowired
     private ScheduleTaskCommitMapper scheduleTaskCommitMapper;
 
+    @Autowired
+    private ComponentDao componentDao;
+
     /**
      * web 接口
      * 例如：离线计算BatchTaskService.publishTaskInfo 触发 batchTaskShade 保存task的必要信息
@@ -94,6 +100,12 @@ public class ScheduleTaskShadeService {
             }
             if (null == batchTaskShadeDTO.getFlowId()) {
                 batchTaskShadeDTO.setFlowId(0L);
+            }
+            EComponentType componentType;
+            if (StringUtils.isBlank(batchTaskShadeDTO.getComponentVersion()) &&
+                    Objects.nonNull(componentType= ComponentVersionUtil.transformTaskType2ComponentType(batchTaskShadeDTO.getTaskType()))){
+                batchTaskShadeDTO.setComponentVersion(componentDao.getDefaultComponentVersionByTenantAndComponentType(
+                        batchTaskShadeDTO.getTenantId(),componentType.getTypeCode()));
             }
             scheduleTaskShadeDao.insert(batchTaskShadeDTO);
         }

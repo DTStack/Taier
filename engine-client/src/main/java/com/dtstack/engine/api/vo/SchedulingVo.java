@@ -14,7 +14,7 @@ public class SchedulingVo {
 
     private String SchedulingName;
 
-    private List<ComponentVO> components;
+    private List<IComponentVO> components;
 
     public int getSchedulingCode() {
         return schedulingCode;
@@ -32,11 +32,11 @@ public class SchedulingVo {
         SchedulingName = schedulingName;
     }
 
-    public List<ComponentVO> getComponents() {
+    public List<IComponentVO> getComponents() {
         return components;
     }
 
-    public void setComponents(List<ComponentVO> components) {
+    public void setComponents(List<IComponentVO> components) {
         this.components = components;
     }
 }

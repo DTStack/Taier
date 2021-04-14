@@ -34,6 +34,16 @@ public class KerberosConfig extends BaseEntity {
 
     private String mergeKrbContent;
 
+    private String componentVersion;
+
+    public String getComponentVersion() {
+        return componentVersion;
+    }
+
+    public void setComponentVersion(String componentVersion) {
+        this.componentVersion = componentVersion;
+    }
+
     public String getMergeKrbContent() {
         return mergeKrbContent;
     }

@@ -461,7 +461,7 @@ public class ConsoleService {
         stopJobList(jobResource, nodeAddress, stage, jobIdList, ForceCancelFlag.NO.getFlag());
     }
 
-    public ClusterResource clusterResources( String clusterName) {
+    public ClusterResource clusterResources( String clusterName,Map<Integer,String> componentVersionMap) {
         if (StringUtils.isEmpty(clusterName)) {
             return new ClusterResource();
         }
@@ -471,11 +471,11 @@ public class ConsoleService {
             throw new RdosDefineException(ErrorCode.DATA_NOT_FIND);
         }
 
-        Component yarnComponent = componentService.getComponentByClusterId(cluster.getId(),EComponentType.YARN.getTypeCode());
+        Component yarnComponent = componentService.getComponentByClusterId(cluster.getId(),EComponentType.YARN.getTypeCode(),null);
         if (yarnComponent == null) {
             return null;
         }
-        JSONObject yarnConfigStr = componentService.getComponentByClusterId(cluster.getId(), EComponentType.YARN.getTypeCode(), false, JSONObject.class);
+        JSONObject yarnConfigStr = componentService.getComponentByClusterId(cluster.getId(), EComponentType.YARN.getTypeCode(), false, JSONObject.class,null);
         return getResources(yarnComponent, cluster,yarnConfigStr);
     }
 
@@ -486,14 +486,14 @@ public class ConsoleService {
             String typeName = Optional.ofNullable(componentConfig).orElse(new JSONObject()).getString(ConfigConstant.TYPE_NAME_KEY);
             if (StringUtils.isBlank(typeName)) {
                 //获取对应的插件名称
-                Component hdfsComponent = componentService.getComponentByClusterId(cluster.getId(), EComponentType.HDFS.getTypeCode());
+                Component hdfsComponent = componentService.getComponentByClusterId(cluster.getId(), EComponentType.HDFS.getTypeCode(),null);
                 String clusterName = cluster.getClusterName();
                 if (null == hdfsComponent) {
                     typeName = componentService.convertComponentTypeToClient(clusterName,
-                            EComponentType.HDFS.getTypeCode(), yarnComponent.getHadoopVersion(),null);
+                            EComponentType.HDFS.getTypeCode(), yarnComponent.getHadoopVersion(),null,null);
                 } else {
                     typeName = componentService.convertComponentTypeToClient(clusterName,
-                            EComponentType.HDFS.getTypeCode(), hdfsComponent.getHadoopVersion(),hdfsComponent.getStoreType());
+                            EComponentType.HDFS.getTypeCode(), hdfsComponent.getHadoopVersion(),hdfsComponent.getStoreType(),null);
                 }
             }
             pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,typeName);

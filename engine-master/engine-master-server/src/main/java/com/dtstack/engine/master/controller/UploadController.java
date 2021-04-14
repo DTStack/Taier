@@ -33,8 +33,8 @@ public class UploadController {
     @RequestMapping(value="/component/config", method = {RequestMethod.POST})
     @ApiOperation(value = "解析zip中xml或者json")
     public List<Object> upload(@RequestParam("fileName") List<MultipartFile> files, @RequestParam("componentType") Integer componentType,
-                               @RequestParam(value = "autoDelete", required = false) Boolean autoDelete,@RequestParam(value = "version", required = false) String version) {
-        return componentService.config(getResourcesFromFiles(files), componentType, autoDelete,version);
+                               @RequestParam(value = "autoDelete", required = false) Boolean autoDelete,@RequestParam(value = "version", required = false) String componentVersion) {
+        return componentService.config(getResourcesFromFiles(files), componentType, autoDelete,componentVersion);
     }
 
     @RequestMapping(value="/component/addOrUpdateComponent", method = {RequestMethod.POST})
@@ -42,11 +42,11 @@ public class UploadController {
                                             @RequestParam("componentConfig") String componentConfig, @RequestParam("hadoopVersion") String hadoopVersion,
                                             @RequestParam("kerberosFileName") String kerberosFileName, @RequestParam("componentTemplate") String componentTemplate,
                                             @RequestParam("componentCode") Integer componentCode, @RequestParam("storeType")Integer storeType,
-                                            @RequestParam("principals")String principals,@RequestParam("principal")String principal) {
+                                            @RequestParam("principals")String principals, @RequestParam("principal")String principal,@RequestParam("isDefault") Boolean isDefault) {
         List<Resource> resources = getResourcesFromFiles(files1);
         List<Resource> resourcesAdd = getResourcesFromFiles(files2);
         resources.addAll(resourcesAdd);
-        return componentService.addOrUpdateComponent(clusterId, componentConfig, resources, hadoopVersion, kerberosFileName, componentTemplate, componentCode,storeType,principals,principal);
+        return componentService.addOrUpdateComponent(clusterId, componentConfig, resources, hadoopVersion, kerberosFileName, componentTemplate, componentCode,storeType,principals,principal,isDefault);
     }
 
     @RequestMapping(value="/component/parseKerberos", method = {RequestMethod.POST})
@@ -57,9 +57,9 @@ public class UploadController {
 
     @RequestMapping(value="/component/uploadKerberos", method = {RequestMethod.POST})
     public String uploadKerberos(@RequestParam("kerberosFile") List<MultipartFile> files, @RequestParam("clusterId") Long clusterId,
-                                 @RequestParam("componentCode") Integer componentCode) {
+                                 @RequestParam("componentCode") Integer componentCode,@RequestParam("hadoopVersion") String componentVersion) {
         List<Resource> resources = getResourcesFromFiles(files);
-        return componentService.uploadKerberos(resources, clusterId, componentCode);
+        return componentService.uploadKerberos(resources, clusterId, componentCode,componentVersion);
     }
 
     private List<Resource> getResourcesFromFiles(List<MultipartFile> files) {
