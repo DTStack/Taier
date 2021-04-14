@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.config;
 
 import com.dtstack.engine.common.akka.config.AkkaConfig;
+import com.dtstack.engine.common.akka.config.AkkaLoad;
 import com.dtstack.engine.common.client.ClientOperator;
 import com.dtstack.engine.common.sftp.SftpFileManage;
 import com.dtstack.engine.master.akka.AkkaMasterServerImpl;
@@ -23,6 +24,7 @@ public class MasterServerBeanConfig {
     @Bean
     public MasterServer serverStart() {
         if (AkkaConfig.isLocalMode()) {
+            AkkaConfig.init(AkkaLoad.load(environmentContext.getConfigPath()));
             return null;
         }
         MasterServer masterServer = new AkkaMasterServerImpl(environmentContext);
