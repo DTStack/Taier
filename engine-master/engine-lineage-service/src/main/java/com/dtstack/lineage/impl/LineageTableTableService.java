@@ -4,6 +4,7 @@ import com.dtstack.engine.api.domain.LineageDataSetInfo;
 import com.dtstack.engine.api.domain.LineageTableTable;
 import com.dtstack.engine.api.domain.LineageTableTableUniqueKeyRef;
 import com.dtstack.engine.api.enums.LineageOriginType;
+import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.lineage.dao.LineageTableTableUniqueKeyRefDao;
 import com.dtstack.lineage.dao.LineageTableTableDao;
@@ -49,29 +50,37 @@ public class LineageTableTableService {
     /**
      * 保存表级血缘,不需要事务
      */
-    public void saveTableLineage(List<LineageTableTable> tableTables,String uniqueKey) {
+    public void saveTableLineage(Integer taskType,List<LineageTableTable> tableTables,String uniqueKey) {
         if (CollectionUtils.isEmpty(tableTables)){
             return;
         }
-        tableTables.forEach(tt->{tt.setTableLineageKey(generateTableTableKey(tt));});
-        //数据插入后，id会更新
-        lineageTableTableDao.batchInsertTableTable(tableTables);
-        List<String> keys = tableTables.stream().map(tt -> tt.getTableLineageKey()).collect(Collectors.toList());
-        tableTables = getTableTablesByTableLineageKeys(tableTables.get(0).getAppType(), keys);
-        //如果uniqueKey不为空，需要删除ref表中相同uniqueKey的数据，再插入该批数据。
-        if (StringUtils.isNotEmpty(uniqueKey)){
-            lineageTableTableUniqueKeyRefDao.deleteByUniqueKey(tableTables.get(0).getAppType(),uniqueKey);
-        }
-        //插入新的ref
-        String finalUniqueKey = StringUtils.isEmpty(uniqueKey)?generateDefaultUniqueKey(tableTables.get(0).getAppType()):uniqueKey;
-        List<LineageTableTableUniqueKeyRef> refList = tableTables.stream().map(tt -> {
-            LineageTableTableUniqueKeyRef ref = new LineageTableTableUniqueKeyRef();
-            ref.setAppType(tt.getAppType());
-            ref.setUniqueKey(finalUniqueKey);
-            ref.setLineageTableTableId(tt.getId());
-            return ref;
-        }).collect(Collectors.toList());
-        lineageTableTableUniqueKeyRefDao.batchInsert(refList);
+//        if(taskType!=null && taskType.equals(EScheduleType.TEMP_JOB.getType())){
+//            //临时运行,先查询
+//
+//
+//        }else {
+            tableTables.forEach(tt -> {
+                tt.setTableLineageKey(generateTableTableKey(tt));
+            });
+            //数据插入后，id会更新
+            lineageTableTableDao.batchInsertTableTable(tableTables);
+            List<String> keys = tableTables.stream().map(tt -> tt.getTableLineageKey()).collect(Collectors.toList());
+            tableTables = getTableTablesByTableLineageKeys(tableTables.get(0).getAppType(), keys);
+            //如果uniqueKey不为空，需要删除ref表中相同uniqueKey的数据，再插入该批数据。
+            if (StringUtils.isNotEmpty(uniqueKey)) {
+                lineageTableTableUniqueKeyRefDao.deleteByUniqueKey(tableTables.get(0).getAppType(), uniqueKey);
+            }
+            //插入新的ref
+            String finalUniqueKey = StringUtils.isEmpty(uniqueKey) ? generateDefaultUniqueKey(tableTables.get(0).getAppType()) : uniqueKey;
+            List<LineageTableTableUniqueKeyRef> refList = tableTables.stream().map(tt -> {
+                LineageTableTableUniqueKeyRef ref = new LineageTableTableUniqueKeyRef();
+                ref.setAppType(tt.getAppType());
+                ref.setUniqueKey(finalUniqueKey);
+                ref.setLineageTableTableId(tt.getId());
+                return ref;
+            }).collect(Collectors.toList());
+            lineageTableTableUniqueKeyRefDao.batchInsert(refList);
+//        }
     }
 
     /**

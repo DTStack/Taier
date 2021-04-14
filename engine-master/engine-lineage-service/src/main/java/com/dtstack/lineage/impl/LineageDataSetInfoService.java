@@ -166,11 +166,9 @@ public class LineageDataSetInfoService {
                 jsonObject.put("kerberosFileTimestamp",kerberosJsonObj.get("kerberosFileTimestamp"));
                 jsonObject.put("openKerberos",true);
             }
-            if(dataSource.getAppType() == AppType.DATAASSETS.getType()){
-                //资产类型需要在pluginInfo中补充typeName
-                String typeName = DataSourceType.getEngineType(DataSourceType.getSourceType(dataSource.getSourceType()));
-                jsonObject.put("typeName",typeName);
-            }
+            //需要在pluginInfo中补充typeName
+            String typeName = DataSourceType.getEngineType(DataSourceType.getSourceType(dataSource.getSourceType()));
+            jsonObject.put("typeName",typeName);
             String pluginInfo = PublicUtil.objToString(jsonObject);
             iClient = getClient(dataSource, clientCache, pluginInfo);
             return getAllColumns(dataSetInfo, iClient);

@@ -159,7 +159,7 @@ public class LineageDataSourceService {
         return true;
     }
 
-    private LineageDataSource getDataSourceBySourceIdAndAppType(Long sourceId, Integer appType) {
+    public LineageDataSource getDataSourceBySourceIdAndAppType(Long sourceId, Integer appType) {
 
        return lineageDataSourceDao.getDataSourceBySourceIdAndAppType(sourceId,appType);
     }

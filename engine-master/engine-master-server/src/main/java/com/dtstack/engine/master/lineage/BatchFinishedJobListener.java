@@ -43,13 +43,9 @@ public class BatchFinishedJobListener extends SqlJobFinishedListener {
     private LineageService lineageService;
 
     @Override
-    protected void onFocusedJobFinished(ScheduleTaskShade taskShade, ScheduleJob scheduleJob, Integer status) {
+    protected void onFocusedJobFinished(Integer taskType,String sqlText,Long  taskId, ScheduleJob scheduleJob, Integer status) {
         //解析sql并存储
-        String extraInfo = taskShade.getExtraInfo();
-        JSONObject jsonObject = JSONObject.parseObject(extraInfo);
-        String infoJsonStr = jsonObject.getString("info");
-        JSONObject taskInfoJson = JSONObject.parseObject(infoJsonStr);
-        String sqlText = taskInfoJson.getString("sqlText").replaceAll("--.*","");;
+        sqlText = sqlText.replaceAll("--.*","");
         List<String> sqls = SqlFormatUtil.splitSqlText(sqlText);
         if (CollectionUtils.isEmpty(sqls)){
             return;
@@ -66,14 +62,15 @@ public class BatchFinishedJobListener extends SqlJobFinishedListener {
         }
         ParseColumnLineageParam columnLineageParam = new ParseColumnLineageParam();
         columnLineageParam.setAppType(AppType.RDOS.getType());
-        DataSourceType dataSourceTypeByTaskTypeInt = EngineTaskType2SourceType.getDataSourceTypeByTaskTypeInt(taskShade.getTaskType());
+        DataSourceType dataSourceTypeByTaskTypeInt = EngineTaskType2SourceType.getDataSourceTypeByTaskTypeInt(scheduleJob.getTaskType());
         if (Objects.isNull(dataSourceTypeByTaskTypeInt)){
             return;
         }
         columnLineageParam.setDataSourceType(dataSourceTypeByTaskTypeInt.getVal());
         columnLineageParam.setDefaultDb(defaultDb);
-        columnLineageParam.setDtUicTenantId(taskShade.getDtuicTenantId());
-        columnLineageParam.setUniqueKey(String.valueOf(taskShade.getTaskId()));
+        columnLineageParam.setDtUicTenantId(scheduleJob.getDtuicTenantId());
+        columnLineageParam.setUniqueKey(null== taskId? null:String.valueOf(taskId));
+        columnLineageParam.setTaskType(taskType);
         for (String sql : sqls){
             columnLineageParam.setSql(sql);
             lineageService.parseAndSaveColumnLineage(columnLineageParam);

@@ -15,7 +15,7 @@ import java.util.Objects;
 public enum EngineTaskType2SourceType {
     HIVE1(DataSourceType.HIVE1X,null),
     HIVE2(DataSourceType.HIVE, EScheduleJobType.HIVE_SQL),
-    SPARK_THRIFT(DataSourceType.Spark,EScheduleJobType.SPARK_SQL),
+//    SPARK_THRIFT(DataSourceType.Spark,EScheduleJobType.SPARK_SQL),
     IMPALA(DataSourceType.IMPALA,EScheduleJobType.IMPALA_SQL),
     TIDB(DataSourceType.TiDB,EScheduleJobType.TIDB_SQL),
     ORACLE(DataSourceType.Oracle,EScheduleJobType.ORACLE_SQL),
@@ -57,6 +57,9 @@ public enum EngineTaskType2SourceType {
     public static DataSourceType getDataSourceTypeByTaskTypeInt(Integer taskType){
         if (Objects.isNull(taskType)){
             return null;
+        }
+        if(taskType.equals(EScheduleJobType.SPARK_SQL.getType())){
+            return DataSourceType.HIVE;
         }
         for (EngineTaskType2SourceType holderType : values()){
             EScheduleJobType taskType1 = holderType.getTaskType();
