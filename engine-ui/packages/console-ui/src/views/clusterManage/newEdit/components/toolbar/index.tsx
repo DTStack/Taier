@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Popconfirm, Button, message, Modal, Icon } from 'antd'
 import Api from '../../../../../api/console'
-import { COMPONENT_CONFIG_NAME, COMP_ACTION } from '../../const'
+import { COMPONENT_CONFIG_NAME, COMP_ACTION, VERSION_TYPE } from '../../const'
 
 import { handleComponentTemplate, handleComponentConfigAndCustom,
     handleComponentConfig, isNeedTemp, handleCustomParam,
@@ -10,10 +10,11 @@ interface IProps {
     form: any;
     comp: any;
     clusterInfo: any;
-    initialCompData: any[];
+    initialCompData?: any[];
+    mulitple?: boolean;
     saveComp: Function;
-    testConnects: Function;
-    handleConfirm: Function;
+    testConnects?: Function;
+    handleConfirm?: Function;
 }
 
 interface IState {
@@ -95,14 +96,15 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
     }
 
     onConfirm = () => {
-        const { form, comp, initialCompData } = this.props
+        const { form, comp } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
-        const initialComp = initialCompData.find(comp => comp.componentTypeCode == typeCode)
+        // const initialComp = initialCompData.find(comp => comp.componentTypeCode == typeCode)
 
         form.setFieldsValue({
             [typeCode]: {
                 componentConfig: handleComponentConfig({
-                    componentConfig: JSON.parse(initialComp.componentConfig)
+                    // componentConfig: JSON.parse(initialComp.componentConfig)
+                    componentConfig: JSON.parse(comp.componentConfig)
                 }, true)
                 // customParam: JSON.parse(initialComp.componentTemplate)
             }
@@ -129,33 +131,39 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
 
     render () {
         const { loading } = this.state
-        const { comp } = this.props
+        const { comp, mulitple } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
-        const showInitail = isMulitiVersion(typeCode) && !comp?.hadoopVersion
+
+        if (isMulitiVersion(typeCode) && !mulitple) {
+            return (
+                <div className="c-toolbar__container">
+                    <Button style={{ marginLeft: 8 }} onClick={this.showModal}>删除{`${COMPONENT_CONFIG_NAME[typeCode]}`}组件</Button>
+                </div>
+            )
+        }
 
         return (
             <div className="c-toolbar__container">
-                {
-                    showInitail
-                        ? <Button style={{ marginLeft: 8 }} onClick={this.showModal}>删除{`${COMPONENT_CONFIG_NAME[typeCode]}`}组件</Button>
-                        : <>
-                            <Popconfirm
-                                title="确认取消当前更改？"
-                                okText="确认"
-                                cancelText="取消"
-                                onConfirm={this.onConfirm}
-                            >
-                                <Button>取消</Button>
-                            </Popconfirm>
-                            <Button style={{ marginLeft: 8 }} onClick={this.showModal}>删除{`${COMPONENT_CONFIG_NAME[typeCode]}`}组件</Button>
-                            <Button style={{ marginLeft: 8 }} loading={loading} ghost onClick={this.testConnects}>
-                                测试{`${COMPONENT_CONFIG_NAME[typeCode]}`}连通性
-                            </Button>
-                            <Button style={{ marginLeft: 8 }} type="primary" onClick={this.onOk}>
-                                保存{`${COMPONENT_CONFIG_NAME[typeCode]}`}组件
-                            </Button>
-                        </>
-                }
+                <Popconfirm
+                    title="确认取消当前更改？"
+                    okText="确认"
+                    cancelText="取消"
+                    onConfirm={this.onConfirm}
+                >
+                    <Button>取消</Button>
+                </Popconfirm>
+                <Button style={{ marginLeft: 8 }} onClick={this.showModal}>
+                    { mulitple ? `删除${VERSION_TYPE[comp.componentTypeCode]} ${Number(comp.hadoopVersion) / 100}组件` : `删除${COMPONENT_CONFIG_NAME[typeCode]}组件` }
+                    {/* 删除{`${COMPONENT_CONFIG_NAME[typeCode]}`}组件 */}
+                </Button>
+                <Button style={{ marginLeft: 8 }} loading={loading} ghost onClick={this.testConnects}>
+                    { mulitple ? `测试${VERSION_TYPE[comp.componentTypeCode]} ${Number(comp.hadoopVersion) / 100}连通性` : `测试${COMPONENT_CONFIG_NAME[typeCode]}连通性` }
+                    {/* 测试{`${COMPONENT_CONFIG_NAME[typeCode]}`}连通性 */}
+                </Button>
+                <Button style={{ marginLeft: 8 }} type="primary" onClick={this.onOk}>
+                    { mulitple ? `保存${VERSION_TYPE[comp.componentTypeCode]} ${Number(comp.hadoopVersion) / 100}组件` : `保存${COMPONENT_CONFIG_NAME[typeCode]}组件` }
+                    {/* 保存{`${COMPONENT_CONFIG_NAME[typeCode]}`}组件 */}
+                </Button>
             </div>
         )
     }

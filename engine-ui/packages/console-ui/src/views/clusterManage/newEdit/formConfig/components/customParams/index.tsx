@@ -2,13 +2,14 @@ import * as React from 'react'
 import { Form, Row, Col, Input } from 'antd'
 import { formItemLayout } from '../../../../../../consts'
 import { getCustomerParams, isNeedTemp, giveMeAKey,
-    getValueByJson, isGroupType } from '../../../help'
+    getValueByJson, isGroupType, isMulitiVersion } from '../../../help'
 
 interface IProp {
     typeCode: number;
     form: any;
     view: boolean;
     template: any;
+    hadoopVersion?: string | number;
     comp?: any;
     maxWidth?: number;
     labelCol?: number;
@@ -51,13 +52,16 @@ export default class CustomParams extends React.PureComponent<IProp, IState> {
 
     handleCustomParam = (e: any, id: number, type?: string) => {
         const value = e.target.value
-        const { template, form, typeCode, comp } = this.props
+        const { template, form, typeCode, comp, hadoopVersion } = this.props
         const { customParams } = this.state
-        const feildName = isGroupType(template.type) ? (typeCode + '.customParam.' + template.key)
-            : (typeCode + '.customParam')
+        let formField = typeCode + ''
+        if (isMulitiVersion(typeCode)) formField = formField + '.' + hadoopVersion
+
+        const feildName = isGroupType(template.type) ? (formField + '.customParam.' + template.key)
+            : (formField + '.customParam')
 
         const compConfig = getValueByJson(comp?.componentConfig) ?? {}
-        const config = form.getFieldValue(typeCode + '.specialConfig') ?? compConfig
+        const config = form.getFieldValue(formField + '.specialConfig') ?? compConfig
         const keyAndValue = Object.entries(config)
 
         if (type) {
@@ -119,7 +123,7 @@ export default class CustomParams extends React.PureComponent<IProp, IState> {
     }
 
     render () {
-        const { typeCode, form, view, template, maxWidth, labelCol, wrapperCol } = this.props
+        const { typeCode, form, view, template, maxWidth, labelCol, wrapperCol, hadoopVersion } = this.props
         const { customParams } = this.state
         const groupKey = template.key
 
@@ -129,7 +133,9 @@ export default class CustomParams extends React.PureComponent<IProp, IState> {
 
         return <>
             {customParams && customParams.map((param: any, index: number) => {
-                const fieldName = groupKey ? `${typeCode}.customParam.${groupKey}` : `${typeCode}.customParam`
+                let formField = typeCode + ''
+                if (isMulitiVersion(typeCode)) formField = formField + '.' + hadoopVersion
+                const fieldName = groupKey ? `${formField}.customParam.${groupKey}` : `${formField}.customParam`
                 const publicKey = giveMeAKey()
                 return (<Row key={index}>
                     <Col span={labelCol ?? formItemLayout.labelCol.sm.span}>

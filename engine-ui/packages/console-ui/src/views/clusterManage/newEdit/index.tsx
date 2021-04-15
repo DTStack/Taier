@@ -114,7 +114,8 @@ class EditCluster extends React.Component<any, IState> {
             if (res.code == 1) {
                 this.saveComp({
                     componentTemplate: JSON.stringify(res.data),
-                    componentTypeCode: Number(typeCode)
+                    componentTypeCode: Number(typeCode),
+                    hadoopVersion: params?.compVersion ?? ''
                 })
             }
             this.getSaveComponentList()
@@ -414,6 +415,8 @@ class EditCluster extends React.Component<any, IState> {
                                                         clusterInfo={{ clusterName, clusterId: cluster.clusterId }}
                                                         saveComp={this.saveComp}
                                                         getLoadTemplate={this.getLoadTemplate}
+                                                        testConnects={this.testConnects}
+                                                        handleConfirm={this.handleConfirm}
                                                     />
                                                     : comp?.mulitiVersion?.map(vcomp => {
                                                         return <>
@@ -434,7 +437,7 @@ class EditCluster extends React.Component<any, IState> {
                                                             />
                                                         </>
                                                     })}
-                                                    {!isViewMode(mode) && <ToolBar
+                                                    {!isViewMode(mode) && !isMulitiVersion(comp.componentTypeCode) && <ToolBar
                                                         comp={comp}
                                                         clusterInfo={{ clusterName, clusterId: cluster.clusterId }}
                                                         initialCompData={initialCompData[activeKey]}

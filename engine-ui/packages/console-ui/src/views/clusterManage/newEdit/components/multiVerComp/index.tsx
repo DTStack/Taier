@@ -4,6 +4,7 @@ import { VERSION_TYPE, COMP_ACTION } from '../../const'
 
 import FileConfig from '../../fileConfig'
 import FormConfig from '../../formConfig'
+import ToolBar from '../toolbar'
 import TestRestIcon from '../../../../../components/testResultIcon'
 
 const TabPane = Tabs.TabPane
@@ -19,6 +20,8 @@ interface IProps {
     testStatus: any;
     saveComp: (params: any, type?: string) => void;
     getLoadTemplate: (key?: string, params?: any) => void;
+    testConnects: Function;
+    handleConfirm: Function;
 }
 
 export default class MultiVersionComp extends React.Component<IProps, any> {
@@ -58,13 +61,14 @@ export default class MultiVersionComp extends React.Component<IProps, any> {
 
     render () {
         const { comp, versionData, saveCompsData, testStatus, view,
-            clusterInfo, form } = this.props
+            clusterInfo, form, saveComp, testConnects, handleConfirm } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
         const className = 'c-multiVersionComp'
 
         return <div className={className}>
             {
-                !comp?.mulitiVersion[0]?.hadoopVersion ? <div className={`${className}__intail`}>
+                !comp?.mulitiVersion[0]?.hadoopVersion ? <>
+                <div className={`${className}__intail`}>
                     <span className={`${className}__intail__title`}>请选择版本号：</span>
                     <div className={`${className}__intail__container`}>
                         {versionData[VERSION_TYPE[typeCode]]?.map(({ key, value }) => {
@@ -81,7 +85,15 @@ export default class MultiVersionComp extends React.Component<IProps, any> {
                             </div>
                         })}
                     </div>
-                </div> : <Tabs
+                </div>
+                {!view && <ToolBar
+                    mulitple={false}
+                    comp={comp}
+                    clusterInfo={clusterInfo}
+                    form={form}
+                    saveComp={saveComp}
+                />}
+                </> : <Tabs
                     tabPosition="top"
                     className={`${className}__tabs`}
                     tabBarExtraContent={<Dropdown overlay={this.getMeunItem()} placement="bottomCenter">
@@ -102,19 +114,30 @@ export default class MultiVersionComp extends React.Component<IProps, any> {
                                 }
                                 key={String(vcomp.hadoopVersion)}
                             >
-                                <FileConfig
-                                    comp={vcomp}
-                                    form={form}
-                                    view={view}
-                                    saveCompsData={saveCompsData}
-                                    versionData={versionData}
-                                    clusterInfo={clusterInfo}
-                                />
-                                <FormConfig
-                                    comp={vcomp}
-                                    view={view}
-                                    form={form}
-                                />
+                                <>
+                                    <FileConfig
+                                        comp={vcomp}
+                                        form={form}
+                                        view={view}
+                                        saveCompsData={saveCompsData}
+                                        versionData={versionData}
+                                        clusterInfo={clusterInfo}
+                                    />
+                                    <FormConfig
+                                        comp={vcomp}
+                                        view={view}
+                                        form={form}
+                                    />
+                                    {!view && <ToolBar
+                                        mulitple={true}
+                                        comp={vcomp}
+                                        clusterInfo={clusterInfo}
+                                        form={form}
+                                        saveComp={saveComp}
+                                        testConnects={testConnects}
+                                        handleConfirm={handleConfirm}
+                                    />}
+                                </>
                             </TabPane>
                         )
                     })}

@@ -705,10 +705,22 @@
     }
 }
 
+.c-multiVersionComp > .c-multiVersionComp__tabs > .ant-tabs-content {
+    position: absolute;
+    top: 44px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    height: unset;
+    .ant-tabs-tabpane {
+        position: relative;
+    }
+}
+
 .c-multiVersionComp {
     position: absolute;
     top: 0px;
-    bottom: 40px;
+    bottom: 0px;
     left: 0px;
     right: 0px;
     &__tabs {
@@ -720,13 +732,6 @@
         .ant-tabs-bar {
             background-color: #FAFAFA;
             border: unset;
-        }
-        .ant-tabs-content {
-            position: absolute;
-            top: 44px;
-            bottom: 0px;
-            left: 0px;
-            right: 0px;
         }
         .ant-tabs-bar .ant-tabs-nav-container {
             .ant-tabs-nav-wrap > .ant-tabs-nav-scroll > .ant-tabs-nav {

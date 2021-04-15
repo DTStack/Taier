@@ -9,7 +9,7 @@ import KerberosModal from './components/kerberosModal'
 import { COMPONENT_TYPE_VALUE, VERSION_TYPE, FILE_TYPE,
     CONFIG_FILE_DESC, DEFAULT_COMP_VERSION } from '../const'
 import { isOtherVersion, isSameVersion, handleComponentConfig,
-    needZipFile, getOptions, getInitialValue } from '../help'
+    needZipFile, getOptions, getInitialValue, isMulitiVersion } from '../help'
 
 interface IProps {
     comp: any;
@@ -136,7 +136,8 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
     downloadFile = (type: number) => {
         const { form, clusterInfo, comp } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
-        const version = form.getFieldValue(typeCode + '.hadoopVersion') || '';
+        let version = form.getFieldValue(typeCode + '.hadoopVersion') || '';
+        if (isMulitiVersion(typeCode)) version = comp?.hadoopVersion ?? ''
 
         const a = document.createElement('a')
         let param = comp?.id ? (`?componentId=${comp.id}&`) : '?'
@@ -248,6 +249,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                     value: comp.kerberosFileName,
                     desc: '仅支持.zip格式',
                     loading: loading[FILE_TYPE.KERNEROS],
+                    hadoopVersion: comp?.hadoopVersion ?? '',
                     uploadProps: {
                         name: 'kerberosFile',
                         accept: '.zip',
@@ -287,6 +289,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                     value: comp.paramsFile,
                     desc: '仅支持json格式',
                     loading: loading[FILE_TYPE.PARAMES],
+                    hadoopVersion: comp?.hadoopVersion ?? '',
                     uploadProps: {
                         name: 'paramsFile',
                         accept: '.json',
@@ -329,6 +332,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                     value: comp.uploadFileName,
                     desc: CONFIG_FILE_DESC[typeCode],
                     loading: loading[FILE_TYPE.CONFIGS],
+                    hadoopVersion: comp?.hadoopVersion ?? '',
                     uploadProps: {
                         name: 'uploadFileName',
                         accept: '.zip',
@@ -353,6 +357,10 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
     renderStorageComponents = () => {
         const { comp, form, saveCompsData, view } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
+        const hadoopVersion = comp?.hadoopVersion ?? ''
+        let formField = typeCode
+        if (isMulitiVersion(typeCode)) formField = formField + '.' + hadoopVersion
+        formField = formField + '.storeType'
 
         if (saveCompsData.length === 0) return
         let storeTypeFlag = false
@@ -368,9 +376,9 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             <FormItem
                 label="存储组件"
                 colon={false}
-                key={`${typeCode}.storeType`}
+                key={formField}
             >
-                {form.getFieldDecorator(`${typeCode}.storeType`, {
+                {form.getFieldDecorator(formField, {
                     initialValue: storeType
                 })(
                     <Select style={{ width: 172 }} disabled={view}>
@@ -389,6 +397,10 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
         let principalsList = principals
         const typeCode = comp?.componentTypeCode ?? ''
         const kerberosFile = form.getFieldValue(typeCode + '.kerberosFileName') ?? comp?.kerberosFileName
+        const hadoopVersion = comp?.hadoopVersion ?? ''
+        let formField = typeCode
+        if (isMulitiVersion(typeCode)) formField = formField + '.' + hadoopVersion
+        formField = formField + '.principal'
 
         if (!principals.length && !Array.isArray(comp?.principals) && comp?.principals) {
             principalsList = comp?.principals.split(',')
@@ -400,9 +412,9 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             <FormItem
                 label="principal"
                 colon={false}
-                key={`${typeCode}.principal`}
+                key={formField}
             >
-                {form.getFieldDecorator(`${typeCode}.principal`, {
+                {form.getFieldDecorator(formField, {
                     initialValue: comp?.principal ?? principals[0] ?? ''
                 })(
                     <Select style={{ width: 172 }} disabled={view}>
@@ -413,7 +425,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                         }
                     </Select>
                 )}
-                {form.getFieldDecorator(`${typeCode}.principals`, {
+                {form.getFieldDecorator(formField + 's', {
                     initialValue: comp?.principals ?? ''
                 })(
                     <></>
