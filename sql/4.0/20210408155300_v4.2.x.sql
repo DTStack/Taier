@@ -1,3 +1,5 @@
+-- 组件默认版本
+ALTER TABLE console_component ADD COLUMN `is_default` TINYINT NOT NULL DEFAULT 1 COMMENT '组件默认版本';
 -- console_kerberos添加组件版本字段
 ALTER TABLE console_kerberos ADD COLUMN `component_version` VARCHAR ( 25 )  COMMENT '组件版本';
 -- console_kerberos表中组件版本

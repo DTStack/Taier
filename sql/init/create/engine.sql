@@ -162,6 +162,7 @@ CREATE TABLE `console_component` (
  `upload_file_name` varchar(50) DEFAULT '' COMMENT '上传文件zip名称',
  `kerberos_file_name` varchar(50) DEFAULT '' COMMENT '上传kerberos文件zip名称',
  `store_type` tinyint(1) DEFAULT '4' COMMENT '组件存储类型: HDFS、NFS 默认HDFS',
+  `is_default` tinyint(1) default 1  not null comment '组件默认版本',
   PRIMARY KEY (`id`),
   UNIQUE INDEX `index_component`(`engine_id`, `component_type_code`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
@@ -217,6 +218,7 @@ CREATE TABLE `console_kerberos` (
     `component_type` int(11) DEFAULT NULL COMMENT '组件类型',
     `principals` TEXT COMMENT 'keytab用户文件列表',
     `merge_krb_content` TEXT COMMENT '合并后的krb5',
+    `component_version` varchar(25)  COMMENT '组件版本',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
@@ -310,6 +312,7 @@ CREATE TABLE `schedule_task_shade`
   `flow_id`                 INT(11)      NOT NULL DEFAULT '0' COMMENT '工作流id',
   `is_publish_to_produce`   tinyint(1)   NOT NULL DEFAULT '0' COMMENT '是否发布到生产环境：0-否，1-是',
   `extra_info`              mediumtext                  DEFAULT NULL COMMENT '存储task运行时所需的额外信息',
+  `component_version` varchar(25)  COMMENT '组件版本',
   PRIMARY KEY (`id`),
   KEY `index_name` (`project_id`, `name`(128)),
   UNIQUE KEY `index_task_id` (`task_id`,`app_type`)
@@ -379,6 +382,7 @@ CREATE TABLE `schedule_job`
   `phase_status`    tinyint(1) NOT NULL DEFAULT '0' COMMENT '运行状态: CREATE(0):创建,JOIN_THE_TEAM(1):入队,LEAVE_THE_TEAM(2):出队',
   `job_graph`       TEXT DEFAULT NULL COMMENT 'jobGraph构建json',
   `submit_user_name` VARCHAR(20) DEFAULT NULL COMMENT '任务提交用户名',
+  `component_version` varchar(25)  COMMENT '组件版本',
   PRIMARY KEY (`id`),
   KEY `index_task_id` (`task_id`),
   UNIQUE KEY `index_job_id` (`job_id`(128),`is_deleted`),
