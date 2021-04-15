@@ -34,6 +34,17 @@ public class Component extends BaseEntity {
     @ApiModelProperty(notes = "存储组件名称")
     private Integer storeType;
 
+    @ApiModelProperty(notes = "是否为元数据")
+    private Integer isMetadata;
+
+    public Integer getIsMetadata() {
+        return isMetadata;
+    }
+
+    public void setIsMetadata(Integer isMetadata) {
+        this.isMetadata = isMetadata;
+    }
+
     public Integer getStoreType() {
         return storeType;
     }
