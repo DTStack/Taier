@@ -86,9 +86,4 @@ export default {
     method: 'postForm',
     url: `${api}/addDs/getPrincipalsWithConf`,
   },
-  //模板下载
-  downloadtemplate: {
-    method: 'post',
-    url: `${api}/download`,
-  },
 };

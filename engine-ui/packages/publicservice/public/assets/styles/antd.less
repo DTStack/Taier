@@ -1,34 +1,24 @@
 @import '~antd/dist/antd.less';
-@main-color: #268BFC;
+
+@primary-color: #3F87FF; // 全局主色
+@success-color: #12BC6A; // 成功色
+@warning-color: #FFB310; // 警告色
+@error-color: #FF5F5C; // 错误色
+@font-size-base: 12px; // 主字号
+@link-color: #5C99FF; // 链接色
+@heading-color: #333; // 标题色
+@text-color: #333; // 主文本色
+@text-color-secondary : #666; // 次文本色
+@disabled-color : #BFBFBF; // 失效色
+@border-color-base: #DDD; // 边框色
+// @box-shadow-base: 0 2px 8px rgba(0, 0, 0, 0.15); // 浮层阴影
 
 // antd 分页器样式
-.ant-pagination-item {
-  &:hover {
-    // border-color: @main-color  !important;
-
-    a {
-      // color: @main-color  !important;
-    }
-  }
-}
-
 .ant-pagination-item-active {
-  // background: @main-color  !important;
-
   a {
     font-family: PingFangSC-Regular;
-    // font-size: 14px;
-    // color: #ffffff !important;
     letter-spacing: 0;
     text-align: center;
-  }
-
-  &:hover {
-    // border-color: @main-color  !important;
-
-    a {
-      // color: #ffffff !important;
-    }
   }
 }
 
@@ -44,14 +34,11 @@
   line-height: 1.5715;
   list-style: none;
   font-feature-settings: 'tnum';
-  // margin: 10px;
   margin: 14px 10px 0 0;
 }
 
 .ant-table-cell {
-
   border-right: none !important;
-
 }
 .ant-table-measure-row td>div{
 	display: none !important;

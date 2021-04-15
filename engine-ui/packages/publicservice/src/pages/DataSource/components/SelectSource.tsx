@@ -102,7 +102,7 @@ export default function SelectSource(props) {
       <SearchInput
         placeholder="按数据源名称搜索"
         onSearch={(value) => onSearch(value)}
-        width={220}></SearchInput>
+        width={200}></SearchInput>
 
       <div className="show-type">
         <div className="left-menu">

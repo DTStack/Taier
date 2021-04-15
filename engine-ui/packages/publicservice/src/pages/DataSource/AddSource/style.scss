@@ -113,7 +113,7 @@
 }
 // 选中
 .selected {
-  background: #fff;
+  box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.12);
   border-radius: 3px;
   border: 1px solid #4285f5;
 }
