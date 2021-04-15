@@ -76,6 +76,7 @@ function Search(props) {
       <Form layout="inline">
         <Form.Item>
           <SearchInput
+            className="dt-form-shadow-bg"
             placeholder="数据源名称/描述"
             onSearch={(value) => onSearch({ search: value.trim() })}
             width={160}></SearchInput>
@@ -83,6 +84,7 @@ function Search(props) {
 
         <Form.Item label="类型">
           <Select
+            className="dt-form-shadow-bg"
             mode="multiple"
             placeholder="请选择类型"
             allowClear
@@ -105,6 +107,7 @@ function Search(props) {
         </Form.Item>
         <Form.Item label="授权产品">
           <Select
+            className="dt-form-shadow-bg"
             mode="multiple"
             style={{ width: 200 }}
             onChange={(value) => onMultAppType(value)}

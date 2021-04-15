@@ -41,28 +41,24 @@ const columns = (props: any) => {
       key: 'dataType',
       ellipsis: true,
       width: 200,
-      render: (_, record) => {
-        return (
-          <span>
-            {record.dataType}
-            {record.dataVersion ? record.dataVersion : ''}
-          </span>
-        );
-      },
     },
     {
       title: '授权产品',
       dataIndex: 'appNames',
-      key: 'appNames',
       ellipsis: true,
       width: 200,
+      render: (_, record) => {
+        return <span className="ellipsis">{record.appNames || '-'}</span>;
+      },
     },
     {
       title: '描述',
       dataIndex: 'dataDesc',
-      key: 'dataDesc',
       ellipsis: true,
       width: 200,
+      render: (_, record) => {
+        return <span className="ellipsis">{record.dataDesc || '-'}</span>;
+      },
     },
     {
       title: '连接信息',

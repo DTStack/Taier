@@ -1,11 +1,20 @@
 import React, { useState } from 'react';
 import { Input, Icon } from 'antd';
 
-export default function SearchInput({
-  placeholder = '请求输入搜索内容',
-  width = 200,
-  onSearch,
-}) {
+interface IProp {
+  placeholder?: string;
+  width?: number;
+  onSearch: (value: string) => void;
+  className?: string;
+}
+export default function SearchInput(props: IProp, any) {
+  const {
+    placeholder = '请求输入搜索内容',
+    width = 200,
+    onSearch,
+    className,
+  } = props;
+
   const [value, setValue] = useState('');
   const IconSearch = () => (
     <span
@@ -14,6 +23,7 @@ export default function SearchInput({
   );
   return (
     <Input
+      className={className}
       allowClear
       value={value}
       onChange={(e) => {

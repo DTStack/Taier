@@ -173,6 +173,7 @@ function index(props) {
       <div className="bottom">
         <div className="conent-table">
           <Table
+            size="middle"
             rowKey={(record) => record.dataInfoId}
             columns={columns({
               toEdit: toEdit,

@@ -21,7 +21,6 @@ import Base64 from 'base-64';
 
 import { API } from '@/services';
 
-import downloadFile from '@/utils/downloadFile';
 import { checks, getSaveStatus } from '../../utils/handelSession';
 import { getRules, IParams, formItemLayout, formNewLayout } from './formRules';
 import { HDFSCONG } from '../../constants/index';
@@ -219,15 +218,6 @@ const InfoConfig = (props) => {
             submitForm(handelParams, infoMsg);
           } else {
             //测试连通性按钮
-            // let { success, message: msg, data } = await API.testConWithKerberos(
-            //   handelParams
-            // );
-            // if (success && data) {
-            //   message.success('连接成功');
-            // } else {
-            //   message.error(msg ? `${msg}` : '连接失败');
-            // }
-            // setLoading(false);
             request(handelParams, 'testConWithKerberos')
               .then((res: any) => {
                 if (res.success && res.data) {
@@ -252,16 +242,6 @@ const InfoConfig = (props) => {
             submitForm(handelParams, infoMsg);
           } else {
             //测试连通性按钮
-            // let { success, message: msg, data } = await API.testCon(
-            //   handelParams
-            // );
-            // if (success && data) {
-            //   message.success('连接成功');
-            // } else {
-            //   message.error(msg ? `${msg}` : '连接失败');
-            // }
-            // setLoading(false);
-
             request(handelParams, 'testCon')
               .then((res: any) => {
                 if (res.success && res.data) {
@@ -277,6 +257,8 @@ const InfoConfig = (props) => {
               });
           }
         }
+      } else {
+        props.changeBtnStatus(false);
       }
     });
   };
@@ -344,6 +326,8 @@ const InfoConfig = (props) => {
           setLoading(false);
           props.changeBtnStatus(false);
         }
+      } else {
+        props.changeBtnStatus(false);
       }
     });
   };
@@ -352,19 +336,6 @@ const InfoConfig = (props) => {
     if (copy(item.placeHold)) {
       message.success('复制成功');
     } else message.error('复制失败，请手动复制');
-  };
-
-  //下载模板
-  const downloadtemplate = async () => {
-    try {
-      const res = await API.downloadtemplate(
-        {},
-        {
-          responseType: 'blob',
-        }
-      );
-      downloadFile(res);
-    } catch (error) {}
   };
 
   //WebSocket定制化处理方式
@@ -490,10 +461,6 @@ const InfoConfig = (props) => {
             [`hbase_regionserver_kerberos_principal`]: '',
           });
           setPrincipalsList(res.data);
-          // setState({
-          //   masterKer: '',
-          //   regionserverKer: '',
-          // });
         });
         return false;
       },
@@ -534,9 +501,6 @@ const InfoConfig = (props) => {
                 }}
               />
             </Tooltip>
-            <span onClick={downloadtemplate} className="down-temp">
-              下载文件模板
-            </span>
           </div>
         </div>
         {getFieldValue(`kerberosFile`) ? (
@@ -586,6 +550,7 @@ const InfoConfig = (props) => {
               getRules(item)
             )(
               <Input
+                autoComplete="off"
                 placeholder={item.placeHold || `请输入${item.label}`}
                 disabled={item.disabled}
               />
@@ -700,9 +665,6 @@ const InfoConfig = (props) => {
                     </Upload>
                     <div style={{ marginLeft: -40 }}>
                       <Icon type="question-circle" />
-                      <span onClick={downloadtemplate} className="down-temp">
-                        下载文件模板
-                      </span>
                     </div>
                   </div>
                 )}
