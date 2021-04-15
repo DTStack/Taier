@@ -26,13 +26,14 @@ public class ComponentVersionUtil {
 
     private static Set<Integer> initUnVersionComponent(){
         Set<Integer> set=new HashSet<>(4);
-        set.add(EScheduleJobType.WORK_FLOW.getType());
         set.add(EScheduleJobType.VIRTUAL.getType());
+        set.add(EScheduleJobType.WORK_FLOW.getType());
         set.add(EScheduleJobType.KYLIN_CUBE.getType());
         set.add(EScheduleJobType.HADOOP_MR.getType());
+        set.add(EScheduleJobType.NOT_DO_TASK.getType());
+        set.add(EScheduleJobType.KINGBASE.getType());
         return set;
     }
-
     private static Map<Integer,EComponentType> initComponent(){
         Map<Integer,EComponentType> map=new HashMap<>(32);
         // Flink
@@ -41,6 +42,13 @@ public class ComponentVersionUtil {
         map.put(EScheduleJobType.SPARK_SQL.getType(),EComponentType.SPARK);
         map.put(EScheduleJobType.SPARK.getType(),EComponentType.SPARK);
         map.put(EScheduleJobType.SPARK_PYTHON.getType(),EComponentType.SPARK);
+        // R
+        // Deep learning
+        // Shell
+        // ML_Lib
+        // Notebook
+        // ALGORITHM_LAB
+
         // DtScript
         map.put(EScheduleJobType.PYTHON.getType(),EComponentType.DT_SCRIPT);
         map.put(EScheduleJobType.SHELL.getType(),EComponentType.DT_SCRIPT);
@@ -58,6 +66,12 @@ public class ComponentVersionUtil {
         map.put(EScheduleJobType.IMPALA_SQL.getType(),EComponentType.IMPALA_SQL);
         // Greenplum SQL
         map.put(EScheduleJobType.GREENPLUM_SQL.getType(),EComponentType.GREENPLUM_SQL);
+        // Presto
+        map.put(EScheduleJobType.PRESTO_SQL.getType(),EComponentType.PRESTO_SQL);
+        // Learning
+        map.put(EScheduleJobType.TENSORFLOW_1_X.getType(),EComponentType.LEARNING);
+        map.put(EScheduleJobType.KERAS.getType(),EComponentType.LEARNING);
+        map.put(EScheduleJobType.PYTORCH.getType(),EComponentType.LEARNING);
         return map;
     }
 

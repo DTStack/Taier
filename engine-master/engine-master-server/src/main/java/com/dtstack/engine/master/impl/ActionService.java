@@ -19,6 +19,7 @@ import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.ComponentVersionUtil;
 import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
@@ -100,6 +101,9 @@ public class ActionService {
 
     @Autowired
     private MultiEngineFactory multiEngineFactory;
+
+    @Autowired
+    private ComponentDao componentDao;
 
     private final ObjectMapper objMapper = new ObjectMapper();
 
@@ -394,6 +398,7 @@ public class ActionService {
         scheduleJob.setVersionId(getOrDefault(paramActionExt.getVersionId(), 0));
         scheduleJob.setComputeType(getOrDefault(paramActionExt.getComputeType(), 1));
         scheduleJob.setPeriodType(paramActionExt.getPeriodType());
+        buildComponentVersion(scheduleJob,paramActionExt);
         return scheduleJob;
     }
 
@@ -711,6 +716,19 @@ public class ActionService {
         return vo;
     }
 
+
+    private void buildComponentVersion(ScheduleJob scheduleJob, ParamActionExt paramActionExt) {
+        String componentVersion = paramActionExt.getComponentVersion();
+        if (StringUtils.isNotBlank(componentVersion)){
+            scheduleJob.setComponentVersion(componentVersion);
+            return;
+        }
+        EComponentType componentType = ComponentVersionUtil.transformTaskType2ComponentType(paramActionExt.getTaskType());
+        if (Objects.nonNull(componentType)){
+            scheduleJob.setComponentVersion(componentDao.getDefaultComponentVersionByTenantAndComponentType(
+                    paramActionExt.getTenantId(),componentType.getTypeCode()));
+        }
+    }
 
 
 }
