@@ -5,6 +5,7 @@ import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.engine.api.enums.TaskRuleEnum;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
+import com.dtstack.engine.api.vo.task.SaveTaskTaskVO;
 import com.dtstack.engine.common.enums.DisplayDirect;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ErrorCode;
@@ -63,21 +64,21 @@ public class ScheduleTaskTaskShadeService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void saveTaskTaskList( String taskLists) {
+    public SaveTaskTaskVO saveTaskTaskList(String taskLists) {
         if(StringUtils.isBlank(taskLists)){
-            return;
+            return SaveTaskTaskVO.noRink();
         }
         try {
             List<ScheduleTaskTaskShade> taskTaskList = JSONObject.parseArray(taskLists, ScheduleTaskTaskShade.class);
             if(CollectionUtils.isEmpty(taskTaskList)){
-                return;
+                return SaveTaskTaskVO.noRink();
             }
 
             // 保存时成环检测
             for (ScheduleTaskTaskShade scheduleTaskTaskShade : taskTaskList) {
                 List<ScheduleTaskTaskShade> shades = Lists.newArrayList(taskTaskList);
                 if (checkTaskTaskIsLoop(scheduleTaskTaskShade, shades)) {
-                    throw new TaskTaskRingException("save tasktask is rink : "+scheduleTaskTaskShade.getTaskKey());
+                    return SaveTaskTaskVO.isRink("save tasktask is rink : "+scheduleTaskTaskShade.getTaskKey());
                 }
             }
 
@@ -99,13 +100,9 @@ public class ScheduleTaskTaskShadeService {
             }
         } catch (Exception e) {
             LOGGER.error("saveTaskTaskList error:{}", ExceptionUtil.getErrorMessage(e));
-            if (e instanceof TaskTaskRingException) {
-                throw new RdosDefineException(e.getMessage(), ErrorCode.SAVE_TASK_RINK);
-            }
-
             throw new RdosDefineException("保存任务依赖列表异常");
         }
-
+        return SaveTaskTaskVO.noRink();
     }
 
     /**
