@@ -149,7 +149,7 @@
           cc.id != #{currentDeleteId}
           AND cc.engine_id = #{engineId}
           AND cc.component_type_code = #{componentTypeCode}
-          AND cc.is_delete = 0
+          AND cc.is_deleted = 0
         ORDER BY cc.id ASC LIMIT 1
     </select>
 

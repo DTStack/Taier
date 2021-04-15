@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.controller;
 
-import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.api.pojo.CheckResult;
 import com.dtstack.engine.api.pojo.ParamActionExt;
@@ -15,7 +14,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import static junit.framework.TestCase.fail;
@@ -33,7 +31,7 @@ public class StreamTaskControllerTest extends AbstractTest {
     @Autowired
     private EngineJobCheckpointDao engineJobCheckpointDao;
 
-    @Autowired
+    @Autowired(required = false)
     private MasterServer masterServer;
 
 
