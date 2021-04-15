@@ -7,7 +7,7 @@ import com.dtstack.sdk.core.common.DtInsightServer;
 import com.dtstack.sdk.core.feign.Param;
 import com.dtstack.sdk.core.feign.RequestLine;
 
-import java.util.*;
+import java.util.List;
 
 /**
  * company: www.dtstack.com
