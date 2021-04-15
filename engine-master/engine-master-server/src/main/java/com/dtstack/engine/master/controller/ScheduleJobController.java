@@ -6,6 +6,7 @@ import com.dtstack.engine.api.dto.ScheduleJobDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.*;
+import com.dtstack.engine.api.vo.schedule.job.ScheduleJobRuleTimeVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.common.env.EnvironmentContext;
@@ -424,6 +425,12 @@ public class ScheduleJobController {
     @RequestMapping(value="/stopJobByCondition", method = {RequestMethod.POST})
     public Integer stopJobByCondition(@RequestBody ScheduleJobKillJobVO scheduleJobKillJobVO) {
         return scheduleJobService.stopJobByCondition(scheduleJobKillJobVO);
+    }
+
+    @RequestMapping(value = "getJobsRuleTime",method = {RequestMethod.POST})
+    @ApiOperation(value = "根据规则转换时间")
+    public List<ScheduleJobRuleTimeVO> getJobsRuleTime(@RequestBody List<ScheduleJobRuleTimeVO> jobList){
+        return scheduleJobService.getJobsRuleTime(jobList);
     }
 
 }

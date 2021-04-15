@@ -13,6 +13,7 @@ import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.api.vo.action.ActionLogVO;
+import com.dtstack.engine.api.vo.schedule.job.ScheduleJobRuleTimeVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusCountVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
@@ -33,6 +34,7 @@ import com.dtstack.engine.master.jobdealer.JobStopDealer;
 import com.dtstack.engine.master.queue.JobPartitioner;
 import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
+import com.dtstack.engine.master.scheduler.JobParamReplace;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
 import com.dtstack.engine.master.sync.RestartRunnable;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -160,6 +162,9 @@ public class ScheduleJobService {
 
     @Autowired
     private JobGraphTriggerDao jobGraphTriggerDao;
+
+    @Autowired
+    private JobParamReplace jobParamReplace;
 
     private final static List<Integer> FINISH_STATUS = Lists.newArrayList(RdosTaskStatus.FINISHED.getStatus(), RdosTaskStatus.MANUALSUCCESS.getStatus(), RdosTaskStatus.CANCELLING.getStatus(), RdosTaskStatus.CANCELED.getStatus());
     private final static List<Integer> FAILED_STATUS = Lists.newArrayList(RdosTaskStatus.FAILED.getStatus(), RdosTaskStatus.SUBMITFAILD.getStatus(), RdosTaskStatus.KILLED.getStatus());
@@ -2298,7 +2303,13 @@ public class ScheduleJobService {
     }
 
     public ScheduleJob getByJobId( String jobId,  Integer isDeleted) {
-        return scheduleJobDao.getByJobId(jobId, isDeleted);
+        ScheduleJob scheduleJob = scheduleJobDao.getByJobId(jobId, isDeleted);
+
+        if (StringUtils.isBlank(scheduleJob.getSubmitUserName())) {
+            scheduleJob.setSubmitUserName(environmentContext.getHadoopUserName());
+        }
+
+        return scheduleJob;
     }
 
     public Integer getJobStatus(String jobId){
@@ -3252,6 +3263,37 @@ public class ScheduleJobService {
             ScheduleJobDTO.setJobStatuses(RdosTaskStatus.getCanStopStatus());
         }
         return ScheduleJobDTO;
+    }
+
+    /**
+     * 根据规则转换时间
+     * @param jobs [{ "jobId": "8f6f5127","paramReplace": [{"paramName":"bdp.system.cyctime","paramCommand": "yyyyMMdd", "timeType": 1,"type":0}]}]
+     * @return [{"paramReplace":[{"bdp.system.cyctime":"20200810000000","timeType":"1"}],"jobId":"8f6f5127"}]
+     */
+    public List<ScheduleJobRuleTimeVO> getJobsRuleTime(List<ScheduleJobRuleTimeVO> jobList) {
+        Map<String, List<ScheduleJobRuleTimeVO.RuleTimeVO>> jobRuleMap = jobList.stream().collect(Collectors.toMap(ScheduleJobRuleTimeVO::getJobId,ScheduleJobRuleTimeVO::getParamReplace));
+        List<ScheduleJob> scheduleJobList = scheduleJobDao.listByJobIdList(jobRuleMap.keySet(),null);
+
+        List<ScheduleJobRuleTimeVO> results=new ArrayList<>(scheduleJobList.size());
+        for (ScheduleJob scheduleJob : scheduleJobList) {
+            List<ScheduleJobRuleTimeVO.RuleTimeVO> ruleArray = jobRuleMap.get(scheduleJob.getJobId());
+            ScheduleJobRuleTimeVO curJobRuleTime = new ScheduleJobRuleTimeVO();
+            curJobRuleTime.setJobId(scheduleJob.getJobId());
+            List<ScheduleJobRuleTimeVO.RuleTimeVO> paramReplace = new ArrayList<>(ruleArray.size());
+
+            for (ScheduleJobRuleTimeVO.RuleTimeVO ruleTimeVO : ruleArray) {
+                ScheduleJobRuleTimeVO.RuleTimeVO currentRule=new ScheduleJobRuleTimeVO.RuleTimeVO();
+                currentRule.setParamName(ruleTimeVO.getParamName());
+                currentRule.setTimeType(ruleTimeVO.getTimeType());
+                currentRule.setType(ruleTimeVO.getType());
+                currentRule.setParamValue(jobParamReplace.convertParam(ruleTimeVO.getType(),
+                        ruleTimeVO.getParamName(),ruleTimeVO.getParamValue(), scheduleJob.getCycTime(),scheduleJob.getTaskId()));
+                paramReplace.add(currentRule);
+            }
+            curJobRuleTime.setParamReplace(paramReplace);
+            results.add(curJobRuleTime);
+        }
+        return results;
     }
 
 }

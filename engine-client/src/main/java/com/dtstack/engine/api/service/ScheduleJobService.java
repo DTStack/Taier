@@ -6,6 +6,7 @@ import com.dtstack.engine.api.dto.QueryJobDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.*;
+import com.dtstack.engine.api.vo.schedule.job.ScheduleJobRuleTimeVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.sdk.core.common.ApiResponse;
@@ -483,5 +484,8 @@ public interface ScheduleJobService extends DtInsightServer {
     @RequestLine("POST /node/scheduleJob/stopJobByCondition")
     @Headers(value={"Content-Type: application/json"})
     ApiResponse<Integer> stopJobByCondition(ScheduleJobKillJobVO scheduleJobKillJobVO);
+
+    @RequestLine("POST /node/scheduleJob/getJobsRuleTime")
+    ApiResponse<List<ScheduleJobRuleTimeVO>> getJobsRuleTime(List<ScheduleJobRuleTimeVO> jobList);
 
 }
