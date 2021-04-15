@@ -31,4 +31,15 @@
         update lineage_table_table_unique_key_ref set is_deleted = 1 where app_type = #{appType} and unique_key = #{uniqueKey} and lineage_table_table_id = #{lineageTableId}
     </update>
 
+    <update id="deleteByLineageTableIdList">
+
+        update lineage_table_table_unique_key_ref
+        set is_deleted = 1
+        where app_type = #{appType}
+        and lineage_table_table_id in
+        <foreach collection="list" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </update>
+
 </mapper>

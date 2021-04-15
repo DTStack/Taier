@@ -32,7 +32,7 @@ public class ParseTableLineageParam {
     private Long engineDataSourceId;
 
     /**任务类型，周期实例、临时运行**/
-    private Integer taskType;
+    private Integer type;
 
     public Long getDtUicTenantId() {
         return dtUicTenantId;
@@ -90,11 +90,11 @@ public class ParseTableLineageParam {
         this.engineDataSourceId = engineDataSourceId;
     }
 
-    public Integer getTaskType() {
-        return taskType;
+    public Integer getType() {
+        return type;
     }
 
-    public void setTaskType(Integer taskType) {
-        this.taskType = taskType;
+    public void setType(Integer type) {
+        this.type = type;
     }
 }

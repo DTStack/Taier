@@ -20,4 +20,10 @@ public interface LineageColumnColumnUniqueKeyRefDao {
 
     Integer deleteByLineageIdAndUniqueKey(@Param("appType") Integer appType, @Param("uniqueKey")String uniqueKey, @Param("columnLineageId")Long columnLineageId);
 
+    /**
+     * 根据字段血缘id列表逻辑删除字段血缘关联关系
+     * @param columnColumnIdList
+     * @param appType
+     */
+    void deleteByLineageColumnIdList(@Param("columnColumnIdList") List<Long> columnColumnIdList,@Param("appType") Integer appType);
 }

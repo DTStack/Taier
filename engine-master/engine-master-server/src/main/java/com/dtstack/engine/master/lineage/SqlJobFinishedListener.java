@@ -13,6 +13,8 @@ import com.dtstack.engine.master.event.ScheduleJobEventLister;
 import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -27,6 +29,9 @@ import java.util.Set;
  * @Created chener@dtstack.com
  */
 public abstract class SqlJobFinishedListener implements ScheduleJobEventLister {
+
+
+    public static final Logger LOGGER = LoggerFactory.getLogger(SqlJobFinishedListener.class);
 
     @Autowired
     private ScheduleJobDao scheduleJobDao;
@@ -77,7 +82,8 @@ public abstract class SqlJobFinishedListener implements ScheduleJobEventLister {
                 continue;
             }
             Long taskId = null==taskShade ? scheduleJob.getTaskId():taskShade.getTaskId();
-            onFocusedJobFinished(scheduleJob.getTaskType(),sqlText,taskId,scheduleJob,RdosTaskStatus.FINISHED.getStatus());
+            LOGGER.info("进入SqlJobFinishedListener：{}",sqlText);
+            onFocusedJobFinished(scheduleJob.getType(),sqlText,taskId,scheduleJob,RdosTaskStatus.FINISHED.getStatus());
         }
 
     }
@@ -98,12 +104,12 @@ public abstract class SqlJobFinishedListener implements ScheduleJobEventLister {
     /**
      * 当关注任务执行成功调用
      * @param sqlText
-     * @param taskType
+     * @param type 临时运行或周期调度
      * @param taskId
      * @param scheduleJob
      * @param status
      */
-    protected abstract void onFocusedJobFinished(Integer taskType,String sqlText,Long taskId,ScheduleJob scheduleJob, Integer status);
+    protected abstract void onFocusedJobFinished(Integer type,String sqlText,Long taskId,ScheduleJob scheduleJob, Integer status);
 
     /**
      * 关注任务类型

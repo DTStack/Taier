@@ -159,6 +159,12 @@ public class LineageDataSourceService {
         return true;
     }
 
+    /**
+     * 根据平台sourceId和appType查询数据源
+     * @param sourceId 平台sourceId
+     * @param appType
+     * @return
+     */
     public LineageDataSource getDataSourceBySourceIdAndAppType(Long sourceId, Integer appType) {
 
        return lineageDataSourceDao.getDataSourceBySourceIdAndAppType(sourceId,appType);

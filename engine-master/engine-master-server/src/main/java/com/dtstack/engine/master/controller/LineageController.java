@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.controller;
 
+import com.dtstack.engine.api.pojo.LevelAndCount;
 import com.dtstack.engine.api.vo.lineage.*;
 import com.dtstack.engine.api.vo.lineage.param.*;
 import com.dtstack.engine.common.util.ValidateUtil;
@@ -16,7 +17,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 
 /**
  * @author chener
@@ -158,10 +161,18 @@ public class LineageController {
 
     private void checkQueryColumnLineageParam(QueryTableLineageParam queryTableLineageParam){
         ValidateUtil.validateNotNull(queryTableLineageParam.getAppType(),"应用类型不能为空");
-        ValidateUtil.validateNotNull(queryTableLineageParam.getDtUicTenantId(),"uic租户id不能为空");
-        ValidateUtil.validateNotNull(queryTableLineageParam.getSourceType(),"数据源类型不能为空");
+//        ValidateUtil.validateNotNull(queryTableLineageParam.getDtUicTenantId(),"uic租户id不能为空");
+//        ValidateUtil.validateNotNull(queryTableLineageParam.getSourceType(),"数据源类型不能为空");
         ValidateUtil.validateNotNull(queryTableLineageParam.getTableName(),"表名称不能为空");
-        ValidateUtil.validateNotNull(queryTableLineageParam.getDbName(),"数据库名称不能为空");
+//        ValidateUtil.validateNotNull(queryTableLineageParam.getDbName(),"数据库名称不能为空");
+        Integer level = queryTableLineageParam.getLevel();
+        if(level == null){
+            level = 20;
+        }else if(level>20 || level<=0){
+            level = 20;
+        }
+        queryTableLineageParam.setLevel(level);
+
     }
     @RequestMapping(value = "/queryTableInputLineage", method = {RequestMethod.POST})
     @ApiOperation(value = "查询表上游血缘")
@@ -201,11 +212,18 @@ public class LineageController {
 
     private void checkQueryColumnLineageParam(QueryColumnLineageParam queryColumnLineageParam){
         ValidateUtil.validateNotNull(queryColumnLineageParam.getAppType(),"应用类型不能为空");
-        ValidateUtil.validateNotNull(queryColumnLineageParam.getDtUicTenantId(),"uic租户id不能为空");
-        ValidateUtil.validateNotNull(queryColumnLineageParam.getSourceType(),"数据源类型不能为空");
+//        ValidateUtil.validateNotNull(queryColumnLineageParam.getDtUicTenantId(),"uic租户id不能为空");
+//        ValidateUtil.validateNotNull(queryColumnLineageParam.getSourceType(),"数据源类型不能为空");
         ValidateUtil.validateNotNull(queryColumnLineageParam.getTableName(),"表名称不能为空");
-        ValidateUtil.validateNotNull(queryColumnLineageParam.getDbName(),"数据库名称不能为空");
+//        ValidateUtil.validateNotNull(queryColumnLineageParam.getDbName(),"数据库名称不能为空");
         ValidateUtil.validateNotNull(queryColumnLineageParam.getColumnName(),"字段名称不能为空");
+        Integer level = queryColumnLineageParam.getLevel();
+        if(level == null){
+            level = 20;
+        }else if(level>20 || level<=0){
+            level = 20;
+        }
+        queryColumnLineageParam.setLevel(level);
     }
 
     @RequestMapping(value = "/queryColumnInputLineage", method = {RequestMethod.POST})
@@ -289,5 +307,20 @@ public class LineageController {
     public Set<String> parseFunction(String sql){
 
         return lineageService.parseFunction(sql);
+    }
+
+
+    @RequestMapping(value = "/queryTableInputLineageCountAndLevel", method = {RequestMethod.POST})
+    @ApiOperation(value = "查询表上游血缘表数量和层数")
+    public LevelAndCount queryTableInputLineageCountAndLevel(@RequestBody QueryTableLineageParam queryTableLineageParam){
+
+         return lineageService.queryTableInputLineageCountAndLevel(queryTableLineageParam);
+    }
+
+    @RequestMapping(value = "/queryTableResultLineageCountAndLevel", method = {RequestMethod.POST})
+    @ApiOperation(value = "查询表下游血缘表数量和层数")
+    public LevelAndCount queryTableResultLineageCountAndLevel(@RequestBody QueryTableLineageParam queryTableLineageParam){
+
+        return lineageService.queryTableResultLineageCountAndLevel(queryTableLineageParam);
     }
 }

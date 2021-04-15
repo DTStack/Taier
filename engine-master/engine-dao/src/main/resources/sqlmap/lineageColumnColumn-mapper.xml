@@ -22,7 +22,11 @@
     </select>
     <select id="queryColumnResultList" resultType="com.dtstack.engine.api.domain.LineageColumnColumn">
         select cc.* from lineage_column_column cc join lineage_column_column_unique_key_ref ref on cc.id = ref.lineage_column_column_id
-        where cc.result_table_id = #{tableId} and cc.result_column_name = #{columnName} and ref.app_type = #{appType} and ref.is_deleted = 0
+        where cc.result_table_id = #{tableId}
+        <if test="columnName!=null">
+            and cc.result_column_name = #{columnName}
+        </if>
+        and ref.app_type = #{appType} and ref.is_deleted = 0
     </select>
 
     <select id="queryByLineageKey" resultType="com.dtstack.engine.api.domain.LineageColumnColumn">

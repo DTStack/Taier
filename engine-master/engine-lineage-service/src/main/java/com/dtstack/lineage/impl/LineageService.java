@@ -7,6 +7,7 @@ import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.domain.LineageTableTable;
 import com.dtstack.engine.api.dto.DataSourceDTO;
 import com.dtstack.engine.api.enums.LineageOriginType;
+import com.dtstack.engine.api.pojo.LevelAndCount;
 import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.api.vo.lineage.*;
 import com.dtstack.engine.api.vo.lineage.param.ParseColumnLineageParam;
@@ -15,14 +16,18 @@ import com.dtstack.engine.api.vo.lineage.param.QueryTableLineageColumnParam;
 import com.dtstack.engine.api.vo.lineage.param.QueryTableLineageParam;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.lineage.adapter.*;
+import com.dtstack.lineage.dao.LineageColumnColumnUniqueKeyRefDao;
+import com.dtstack.lineage.dao.LineageTableTableUniqueKeyRefDao;
 import com.dtstack.lineage.enums.SourceType2TableType;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.sqlparser.common.client.ISqlParserClient;
 import com.dtstack.sqlparser.common.client.SqlParserClientCache;
+import com.dtstack.sqlparser.common.client.domain.AlterResult;
 import com.dtstack.sqlparser.common.client.domain.ColumnLineage;
 import com.dtstack.sqlparser.common.client.domain.ParseResult;
 import com.dtstack.sqlparser.common.client.domain.Table;
 import com.dtstack.sqlparser.common.client.domain.TableLineage;
+import com.dtstack.sqlparser.common.client.enums.SqlType;
 import com.dtstack.sqlparser.common.client.enums.TableOperateEnum;
 import com.dtstack.sqlparser.common.client.exception.ClientAccessException;
 import com.google.common.collect.Lists;
@@ -49,8 +54,13 @@ import java.util.stream.Collectors;
 public class LineageService {
     private static final Logger logger = LoggerFactory.getLogger(LineageService.class);
 
+    private static final Integer HUNDRED = 100;
+
     @Autowired
     private LineageTableTableService lineageTableTableService;
+
+    @Autowired
+    private LineageTableTableUniqueKeyRefDao  tableUniqueKeyRefDao;
 
     @Autowired
     private LineageColumnColumnService lineageColumnColumnService;
@@ -60,6 +70,10 @@ public class LineageService {
 
     @Autowired
     private LineageDataSetInfoService lineageDataSetInfoService;
+
+    @Autowired
+    private LineageColumnColumnUniqueKeyRefDao columnUniqueKeyRefDao;
+
 
     /**
      * 解析sql基本信息
@@ -347,6 +361,8 @@ public class LineageService {
      */
     @Async
     public void parseAndSaveColumnLineage(ParseColumnLineageParam parseColumnLineageParam) {
+
+        logger.info("进入parseAndSaveColumnLineage方法:{}",JSON.toJSON(parseColumnLineageParam));
         //1.根据数据源id和appType查询数据源
         //2.解析出sql中的表
         //3.根据表名和数据库名，数据库id查询表。表不存在则需要插入表
@@ -389,7 +405,7 @@ public class LineageService {
                 logger.error("解析sql异常:{}",e);
                 throw new RdosDefineException("sql解析异常，请检查语法");
             }
-            if(AppType.RDOS.getType() == parseColumnLineageParam.getAppType()) {
+            if(AppType.RDOS.getType().equals(parseColumnLineageParam.getAppType())) {
                 for (Table resTable : resTables) {
                     //校验db对应的数据源是否存在，不存在需要新增
                     if(!dataSourceMap.containsKey(resTable.getDb())){
@@ -422,13 +438,16 @@ public class LineageService {
                 logger.error("解析sql异常:{}",e);
                 throw new RdosDefineException("sql解析异常，请检查语法");
             }
+            if(handleDropTableAndAlterRename(dataSourceMap, parseResult)){
+                return;
+            }
             //3.根据表名和数dbName，schemaName查询表,sourceId。表不存在则需要插入表
             Map<String, LineageDataSetInfo> tableRef = new HashMap<>();
             String tableKey = "%s.%s";
             for (int i = 0; i < resTables.size(); i++) {
                 Table ta = resTables.get(i);
                 LineageDataSetInfo dataSet = null;
-                if( AppType.RDOS.getType() != parseColumnLineageParam.getAppType()) {
+                if(!AppType.RDOS.getType().equals(parseColumnLineageParam.getAppType())) {
                     dataSet = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), ta.getDb(), ta.getName(), ta.getDb());
                 }else{
                     dataSet = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSourceMap.get(ta.getDb()).getId(), ta.getDb(), ta.getName(), ta.getDb());
@@ -440,8 +459,9 @@ public class LineageService {
                 List<TableLineage> tableLineages = parseTableLineage.getTableLineages();
                 if (CollectionUtils.isNotEmpty(tableLineages)) {
                     List<LineageTableTable> lineageTableTables = tableLineages.stream().map(l -> TableLineageAdapter.sqlTableLineage2DbTableLineage(l, tableRef, LineageOriginType.SQL_PARSE)).collect(Collectors.toList());
+                    logger.info("lineageTableTables为:{}",JSON.toJSON(lineageTableTables));
                     //如果uniqueKey不为空，则删除相同uniqueKey的血缘
-                    lineageTableTableService.saveTableLineage(parseColumnLineageParam.getTaskType(),lineageTableTables,parseColumnLineageParam.getUniqueKey());
+                    lineageTableTableService.saveTableLineage(parseColumnLineageParam.getType(),lineageTableTables,parseColumnLineageParam.getUniqueKey());
                 }
             } catch (Exception e) {
                 logger.error("解析sql异常:{}",e);
@@ -449,7 +469,7 @@ public class LineageService {
             }
             List<ColumnLineage> columnLineages = parseResult.getColumnLineages();
             if (CollectionUtils.isNotEmpty(columnLineages)) {
-                lineageColumnColumnService.saveColumnLineage(columnLineages.stream().map(cl -> ColumnLineageAdapter.sqlColumnLineage2ColumnColumn(cl, parseColumnLineageParam.getAppType(), tableRef)).collect(Collectors.toList()),parseColumnLineageParam.getUniqueKey());
+                lineageColumnColumnService.saveColumnLineage(parseColumnLineageParam.getType(),columnLineages.stream().map(cl -> ColumnLineageAdapter.sqlColumnLineage2ColumnColumn(cl, parseColumnLineageParam.getAppType(), tableRef)).collect(Collectors.toList()),parseColumnLineageParam.getUniqueKey());
             }
 
         } catch (Exception e) {
@@ -458,33 +478,106 @@ public class LineageService {
         }
     }
 
+    private Boolean handleDropTableAndAlterRename(Map<String, LineageDataSource> dataSourceMap, ParseResult parseResult) {
+        SqlType sqlType = parseResult.getSqlType();
+        if(sqlType.getType().equals(com.dtstack.engine.api.vo.lineage.SqlType.DROP.getType())){
+            //drop表操作，需要删除对应的血缘
+            Table mainTable = parseResult.getMainTable();
+            String db = mainTable.getDb();
+            String tableName = mainTable.getName();
+            LineageDataSetInfo dataSet = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSourceMap.get(db).getId(), db, tableName, db);
+            //根据表id查询表血缘
+            List<LineageTableTable> tableTableList = lineageTableTableService.queryTableTableByTableAndAppId(dataSet.getAppType(),dataSet.getId(),1);
+            List<Long> idList = tableTableList.stream().map(LineageTableTable::getId).collect(Collectors.toList());
+            //删除表血缘的关联关系
+            tableUniqueKeyRefDao.deleteByLineageTableIdList(idList,dataSet.getAppType());
+            //根据表id查询字段血缘
+            List<LineageColumnColumn> columnColumnList = lineageColumnColumnService.queryColumnLineages(dataSet.getAppType(), dataSet.getId(), null, 1);
+            List<Long> columnColumnIdList = columnColumnList.stream().map(LineageColumnColumn::getId).collect(Collectors.toList());
+            //删除字段血缘的关联关系
+            columnUniqueKeyRefDao.deleteByLineageColumnIdList(columnColumnIdList,dataSet.getAppType());
+            return true;
+        }else if(sqlType.getType().equals(com.dtstack.engine.api.vo.lineage.SqlType.ALTER.getType()) &&
+         parseResult.getAlterResult().getAlterType().getVal().equals(TableOperateEnum.ALTERTABLE_RENAME.getVal())){
+            // alterRename类型，需要修改表名
+            AlterResult alterResult = parseResult.getAlterResult();
+            String oldDB = alterResult.getOldDB();
+            String oldTableName = alterResult.getOldTableName();
+            String newTableName = alterResult.getNewTableName();
+            LineageDataSource dataSource = dataSourceMap.get(oldDB);
+            lineageDataSetInfoService.updateTableNameByTableNameAndSourceId(oldTableName,newTableName,dataSource);
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    private LineageDataSource getDataSource(QueryTableLineageParam queryTableLineageParam){
+        Integer appType = queryTableLineageParam.getAppType();
+        LineageDataSource lineageDataSource = null;
+        if(AppType.DATAASSETS.getType().equals(appType)) {
+            //TODO 资产维护了engine的sourceId，其他平台sourceId交给engine维护，后续资产需要修改
+            Long dtUicTenantId = queryTableLineageParam.getDtUicTenantId();
+            Long engineSourceId = queryTableLineageParam.getEngineSourceId();
+            Integer sourceType = queryTableLineageParam.getSourceType();
+            if (null == engineSourceId ) {
+                List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(sourceType, queryTableLineageParam.getSourceName(), dtUicTenantId, queryTableLineageParam.getAppType());
+                if(CollectionUtils.isEmpty(dataSources)){
+                    logger.error("do not find need dataSource");
+                    throw new RdosDefineException("没有可用的数据源");
+                }
+                lineageDataSource = dataSources.get(0);
+            } else {
+                lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(engineSourceId, appType);
+            }
+        }else{
+            lineageDataSource = lineageDataSourceService.getDataSourceBySourceIdAndAppType(queryTableLineageParam.getSourceId(),appType);
+        }
+        return lineageDataSource;
+    }
+
+    /**
+     * 查询表上游表血缘数量和层数
+     *
+     * @return
+     */
+    public LevelAndCount queryTableInputLineageCountAndLevel(QueryTableLineageParam queryTableLineageParam) {
+
+        Integer appType = queryTableLineageParam.getAppType();
+        LineageDataSource lineageDataSource = getDataSource(queryTableLineageParam);
+        String schemaName = queryTableLineageParam.getSchemaName() != null ? queryTableLineageParam.getSchemaName() : lineageDataSource.getSchemaName();
+        String dbName = queryTableLineageParam.getDbName() != null ? queryTableLineageParam.getDbName() : lineageDataSource.getSchemaName();
+        String tableName = queryTableLineageParam.getTableName();
+        //TODO 手动添加的表无法查看血缘关系
+        LineageDataSetInfo dataSetInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), dbName, tableName, schemaName);
+        LevelAndCount lc = new LevelAndCount();
+        lc.setLevelCount(HUNDRED);
+        List<LineageTableTable> lineageTableTables = lineageTableTableService.queryTableInputLineageByAppType(dataSetInfo.getId(), appType, new HashSet<>(), lc);
+        Integer directCount = lineageTableTableService.queryTableInputLineageDirectCount(dataSetInfo.getId(), appType);
+        LevelAndCount levelAndCount = new LevelAndCount();
+        levelAndCount.setCount(lineageTableTables.size());
+        levelAndCount.setLevelCount(HUNDRED - lc.getLevelCount());
+        levelAndCount.setDirectCount(directCount);
+        return levelAndCount;
+    }
+
     /**
      * 查询表上游表血缘
      *
      * @return
      */
     public List<LineageTableTableVO> queryTableInputLineage(QueryTableLineageParam queryTableLineageParam) {
-        Long dtUicTenantId = queryTableLineageParam.getDtUicTenantId();
+
         Integer appType = queryTableLineageParam.getAppType();
-        Long engineSourceId = queryTableLineageParam.getEngineSourceId();
-        String schemaName = queryTableLineageParam.getSchemaName();
-        Integer sourceType = queryTableLineageParam.getSourceType();
-        String dbName = queryTableLineageParam.getDbName();
+        LineageDataSource lineageDataSource = getDataSource(queryTableLineageParam);
+        String schemaName = queryTableLineageParam.getSchemaName() !=null ? queryTableLineageParam.getSchemaName():lineageDataSource.getSchemaName();
+        String dbName = queryTableLineageParam.getDbName() !=null ? queryTableLineageParam.getDbName() : lineageDataSource.getSchemaName();
         String tableName = queryTableLineageParam.getTableName();
-        LineageDataSource lineageDataSource = null;
-        if (Objects.isNull(engineSourceId)) {
-            List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(sourceType, queryTableLineageParam.getSourceName(), dtUicTenantId, queryTableLineageParam.getAppType());
-            if(CollectionUtils.isEmpty(dataSources)){
-                logger.error("do not find need dataSource");
-                throw new RdosDefineException("没有可用的数据源");
-            }
-            lineageDataSource = dataSources.get(0);
-        } else {
-            lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(engineSourceId, appType);
-        }
         //TODO 手动添加的表无法查看血缘关系
         LineageDataSetInfo dataSetInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), dbName, tableName, schemaName);
-        List<LineageTableTable> lineageTableTables = lineageTableTableService.queryTableInputLineageByAppType(dataSetInfo.getId(), appType,new HashSet<>());
+        LevelAndCount levelAndCount = new LevelAndCount();
+        levelAndCount.setLevelCount(queryTableLineageParam.getLevel());
+        List<LineageTableTable> lineageTableTables = lineageTableTableService.queryTableInputLineageByAppType(dataSetInfo.getId(), appType,new HashSet<>(),levelAndCount);
         if(CollectionUtils.isEmpty(lineageTableTables)){
             return Lists.newArrayList();
         }
@@ -507,33 +600,50 @@ public class LineageService {
         return res;
     }
 
+
+    /**
+     * 查询表下游表血缘数量和层数
+     *
+     * @return
+     */
+    public LevelAndCount queryTableResultLineageCountAndLevel(QueryTableLineageParam queryTableLineageParam) {
+
+        Integer appType = queryTableLineageParam.getAppType();
+        LineageDataSource lineageDataSource = getDataSource(queryTableLineageParam);
+        String schemaName = queryTableLineageParam.getSchemaName() !=null ? queryTableLineageParam.getSchemaName():lineageDataSource.getSchemaName();
+        String dbName = queryTableLineageParam.getDbName() !=null ? queryTableLineageParam.getDbName() : lineageDataSource.getSchemaName();
+        String tableName = queryTableLineageParam.getTableName();
+        //TODO 手动添加的表无法查看血缘关系
+        LineageDataSetInfo dataSetInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), dbName, tableName, schemaName);
+        LevelAndCount lv = new LevelAndCount();
+        lv.setLevelCount(HUNDRED);
+        List<LineageTableTable> lineageTableTables = lineageTableTableService.queryTableResultLineageByAppType(dataSetInfo.getId(), appType,new HashSet<>(),lv);
+        LevelAndCount levelAndCount = new LevelAndCount();
+        levelAndCount.setCount(lineageTableTables.size());
+        levelAndCount.setLevelCount(HUNDRED - lv.getLevelCount());
+        //查询直接下游表数量
+        Integer directCount = lineageTableTableService.queryTableResultLineageDirectCount(dataSetInfo.getId(), appType);
+        levelAndCount.setDirectCount(directCount);
+        return levelAndCount;
+    }
+
     /**
      * 查询表下游表血缘
      *
      * @return
      */
     public List<LineageTableTableVO> queryTableResultLineage(QueryTableLineageParam queryTableLineageParam) {
-        Long dtUicTenantId = queryTableLineageParam.getDtUicTenantId();
+
         Integer appType = queryTableLineageParam.getAppType();
-        Long engineSourceId = queryTableLineageParam.getEngineSourceId();
-        String schemaName = queryTableLineageParam.getSchemaName();
-        Integer sourceType = queryTableLineageParam.getSourceType();
-        String dbName = queryTableLineageParam.getDbName();
+        LineageDataSource lineageDataSource = getDataSource(queryTableLineageParam);
+        String schemaName = queryTableLineageParam.getSchemaName() !=null ? queryTableLineageParam.getSchemaName():lineageDataSource.getSchemaName();
+        String dbName = queryTableLineageParam.getDbName() !=null ? queryTableLineageParam.getDbName() : lineageDataSource.getSchemaName();
         String tableName = queryTableLineageParam.getTableName();
-        LineageDataSource lineageDataSource = null;
-        if (Objects.isNull(engineSourceId)) {
-            List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(sourceType, queryTableLineageParam.getSourceName(), dtUicTenantId, queryTableLineageParam.getAppType());
-            if(CollectionUtils.isEmpty(dataSources)){
-                logger.error("do not find need dataSource");
-                throw new RdosDefineException("没有可用的数据源");
-            }
-            lineageDataSource = dataSources.get(0);
-        } else {
-            lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(engineSourceId, appType);
-        }
         //TODO 手动添加的表无法查看血缘关系
+        LevelAndCount lv = new LevelAndCount();
+        lv.setLevelCount(queryTableLineageParam.getLevel());
         LineageDataSetInfo dataSetInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), dbName, tableName, schemaName);
-        List<LineageTableTable> lineageTableTables = lineageTableTableService.queryTableResultLineageByAppType(dataSetInfo.getId(), appType,new HashSet<>());
+        List<LineageTableTable> lineageTableTables = lineageTableTableService.queryTableResultLineageByAppType(dataSetInfo.getId(), appType,new HashSet<>(),lv);
         if(CollectionUtils.isEmpty(lineageTableTables)){
             return Lists.newArrayList();
         }
@@ -562,27 +672,15 @@ public class LineageService {
      * @return
      */
     public List<LineageTableTableVO> queryTableLineages(QueryTableLineageParam queryTableLineageParam) {
-        Long dtUicTenantId = queryTableLineageParam.getDtUicTenantId();
+
         Integer appType = queryTableLineageParam.getAppType();
-        Long engineSourceId = queryTableLineageParam.getEngineSourceId();
-        String schemaName = queryTableLineageParam.getSchemaName();
-        Integer sourceType = queryTableLineageParam.getSourceType();
-        String dbName = queryTableLineageParam.getDbName();
+        LineageDataSource lineageDataSource = getDataSource(queryTableLineageParam);
+        String schemaName = queryTableLineageParam.getSchemaName() !=null ? queryTableLineageParam.getSchemaName():lineageDataSource.getSchemaName();
+        String dbName = queryTableLineageParam.getDbName() !=null ? queryTableLineageParam.getDbName() : lineageDataSource.getSchemaName();
         String tableName = queryTableLineageParam.getTableName();
-        LineageDataSource lineageDataSource = null;
-        if (Objects.isNull(engineSourceId)) {
-            List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(sourceType, queryTableLineageParam.getSourceName(), dtUicTenantId, queryTableLineageParam.getAppType());
-            if(CollectionUtils.isEmpty(dataSources)){
-                logger.error("do not find need dataSource");
-                throw new RdosDefineException("没有可用的数据源");
-            }
-            lineageDataSource = dataSources.get(0);
-        } else {
-            lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(engineSourceId, appType);
-        }
         //TODO 手动添加的表无法查看血缘关系
         LineageDataSetInfo dataSetInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), dbName, tableName, schemaName);
-        List<LineageTableTable> lineageTableTables = lineageTableTableService.queryTableTableByTableAndAppId(appType, dataSetInfo.getId());
+        List<LineageTableTable> lineageTableTables = lineageTableTableService.queryTableTableByTableAndAppId(appType, dataSetInfo.getId(),queryTableLineageParam.getLevel());
         if(CollectionUtils.isEmpty(lineageTableTables)){
             return Lists.newArrayList();
         }
@@ -794,34 +892,45 @@ public class LineageService {
         lineageTableTableService.manualDeleteTableLineage(tableTableVO.getAppType(), lineageTableTable,tableTableVO.getUniqueKey());
     }
 
+    private LineageDataSource getDataSourceByColumnParam(QueryColumnLineageParam queryColumnLineageParam){
+
+        Integer appType = queryColumnLineageParam.getAppType();
+        Long engineSourceId = queryColumnLineageParam.getEngineSourceId();
+        LineageDataSource lineageDataSource = null;
+        if(AppType.DATAASSETS.getType().equals(appType)) {
+            if (Objects.isNull(engineSourceId)) {
+                List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(queryColumnLineageParam.getSourceType(), queryColumnLineageParam.getSourceName(), queryColumnLineageParam.getDtUicTenantId(), queryColumnLineageParam.getAppType());
+                if (CollectionUtils.isEmpty(dataSources)) {
+                    logger.error("do not find need dataSource");
+                    throw new RdosDefineException("没有可用的数据源");
+                }
+                lineageDataSource = dataSources.get(0);
+            } else {
+                lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(engineSourceId, appType);
+            }
+        }else{
+            //其他平台engineSourceId代表的是各平台的sourceId
+            lineageDataSource = lineageDataSourceService.getDataSourceBySourceIdAndAppType(queryColumnLineageParam.getSourceId(),appType);
+        }
+        return lineageDataSource;
+    }
+
+
     /**
      * 查询字段上游字段血缘
-     *
      * @return
      */
     public List<LineageColumnColumnVO> queryColumnInputLineage(QueryColumnLineageParam queryColumnLineageParam) {
-        Long dtUicTenantId = queryColumnLineageParam.getDtUicTenantId();
+
         Integer appType = queryColumnLineageParam.getAppType();
-        Long engineSourceId = queryColumnLineageParam.getEngineSourceId();
-        String schemaName = queryColumnLineageParam.getSchemaName();
-        Integer sourceType = queryColumnLineageParam.getSourceType();
-        String dbName = queryColumnLineageParam.getDbName();
-        String tableName = queryColumnLineageParam.getTableName();
+        LineageDataSource lineageDataSource = getDataSourceByColumnParam(queryColumnLineageParam);
+        String schemaName = queryColumnLineageParam.getSchemaName() !=null ? queryColumnLineageParam.getSchemaName():lineageDataSource.getSchemaName();
+        String dbName = queryColumnLineageParam.getDbName() !=null ? queryColumnLineageParam.getDbName() : lineageDataSource.getSchemaName();
         String columnName = queryColumnLineageParam.getColumnName();
-        LineageDataSource lineageDataSource = null;
-        if (Objects.isNull(engineSourceId)) {
-            List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(queryColumnLineageParam.getSourceType(), queryColumnLineageParam.getSourceName(), queryColumnLineageParam.getDtUicTenantId(), queryColumnLineageParam.getAppType());
-            if(CollectionUtils.isEmpty(dataSources)){
-                logger.error("do not find need dataSource");
-                throw new RdosDefineException("没有可用的数据源");
-            }
-            lineageDataSource = dataSources.get(0);
-        } else {
-            lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(engineSourceId, appType);
-        }
+        String tableName = queryColumnLineageParam.getTableName();
         //TODO 手动添加的表无法查看血缘关系
         LineageDataSetInfo dataSetInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), dbName, tableName, schemaName);
-        List<LineageColumnColumn> lineageColumnColumns = lineageColumnColumnService.queryColumnInputLineageByAppType(appType, dataSetInfo.getId(), columnName,new HashSet<>());
+        List<LineageColumnColumn> lineageColumnColumns = lineageColumnColumnService.queryColumnInputLineageByAppType(appType, dataSetInfo.getId(), columnName,new HashSet<>(),queryColumnLineageParam.getLevel());
         if(CollectionUtils.isEmpty(lineageColumnColumns)){
             return Lists.newArrayList();
         }
@@ -844,34 +953,23 @@ public class LineageService {
         return res;
     }
 
+
     /**
      * 查询字段下游字段血缘
      *
      * @return
      */
     public List<LineageColumnColumnVO> queryColumnResultLineage(QueryColumnLineageParam queryColumnLineageParam) {
-        Long dtUicTenantId = queryColumnLineageParam.getDtUicTenantId();
+
         Integer appType = queryColumnLineageParam.getAppType();
-        Long engineSourceId = queryColumnLineageParam.getEngineSourceId();
-        String schemaName = queryColumnLineageParam.getSchemaName();
-        Integer sourceType = queryColumnLineageParam.getSourceType();
-        String dbName = queryColumnLineageParam.getDbName();
-        String tableName = queryColumnLineageParam.getTableName();
+        LineageDataSource lineageDataSource = getDataSourceByColumnParam(queryColumnLineageParam);
+        String schemaName = queryColumnLineageParam.getSchemaName() !=null ? queryColumnLineageParam.getSchemaName():lineageDataSource.getSchemaName();
+        String dbName = queryColumnLineageParam.getDbName() !=null ? queryColumnLineageParam.getDbName() : lineageDataSource.getSchemaName();
         String columnName = queryColumnLineageParam.getColumnName();
-        LineageDataSource lineageDataSource = null;
-        if (Objects.isNull(engineSourceId)) {
-            List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(queryColumnLineageParam.getSourceType(), queryColumnLineageParam.getSourceName(), queryColumnLineageParam.getDtUicTenantId(), queryColumnLineageParam.getAppType());
-            if(CollectionUtils.isEmpty(dataSources)){
-                logger.error("do not find need dataSource");
-                throw new RdosDefineException("没有可用的数据源");
-            }
-            lineageDataSource = dataSources.get(0);
-        } else {
-            lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(engineSourceId, appType);
-        }
+        String tableName = queryColumnLineageParam.getTableName();
         //TODO 手动添加的表无法查看血缘关系
         LineageDataSetInfo dataSetInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), dbName, tableName, schemaName);
-        List<LineageColumnColumn> lineageColumnColumns = lineageColumnColumnService.queryColumnResultLineageByAppType(appType, dataSetInfo.getId(), columnName,new HashSet<>());
+        List<LineageColumnColumn> lineageColumnColumns = lineageColumnColumnService.queryColumnResultLineageByAppType(appType, dataSetInfo.getId(), columnName,new HashSet<>(),queryColumnLineageParam.getLevel());
         if(CollectionUtils.isEmpty(lineageColumnColumns)){
             return Lists.newArrayList();
         }
@@ -900,31 +998,16 @@ public class LineageService {
      * @return
      */
     public List<LineageColumnColumnVO> queryColumnLineages(QueryColumnLineageParam queryColumnLineageParam) {
-        Long dtUicTenantId = queryColumnLineageParam.getDtUicTenantId();
+
         Integer appType = queryColumnLineageParam.getAppType();
-        Long engineSourceId = queryColumnLineageParam.getEngineSourceId();
-        String schemaName = queryColumnLineageParam.getSchemaName();
-        Integer sourceType = queryColumnLineageParam.getSourceType();
-        String dbName = queryColumnLineageParam.getDbName();
-        String tableName = queryColumnLineageParam.getTableName();
+        LineageDataSource lineageDataSource = getDataSourceByColumnParam(queryColumnLineageParam);
+        String schemaName = queryColumnLineageParam.getSchemaName() !=null ? queryColumnLineageParam.getSchemaName():lineageDataSource.getSchemaName();
+        String dbName = queryColumnLineageParam.getDbName() !=null ? queryColumnLineageParam.getDbName() : lineageDataSource.getSchemaName();
         String columnName = queryColumnLineageParam.getColumnName();
-        LineageDataSource lineageDataSource = null;
-        if (Objects.isNull(engineSourceId)) {
-            List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(queryColumnLineageParam.getSourceType(), queryColumnLineageParam.getSourceName(), queryColumnLineageParam.getDtUicTenantId(), queryColumnLineageParam.getAppType());
-            if(CollectionUtils.isEmpty(dataSources)){
-                logger.error("do not find need dataSource");
-                throw new RdosDefineException("没有可用的数据源");
-            }
-            lineageDataSource = dataSources.get(0);
-        } else {
-            lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(engineSourceId, appType);
-        }
-        if (Objects.isNull(lineageDataSource)){
-            throw new RdosDefineException("数据源不存在");
-        }
+        String tableName = queryColumnLineageParam.getTableName();
         //TODO 手动添加的表无法查看血缘关系
         LineageDataSetInfo dataSetInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), dbName, tableName, schemaName);
-        List<LineageColumnColumn> lineageColumnColumns = lineageColumnColumnService.queryColumnLineages(appType, dataSetInfo.getId(), columnName);
+        List<LineageColumnColumn> lineageColumnColumns = lineageColumnColumnService.queryColumnLineages(appType, dataSetInfo.getId(), columnName,queryColumnLineageParam.getLevel());
         if(CollectionUtils.isEmpty(lineageColumnColumns)){
             return Lists.newArrayList();
         }
@@ -1232,8 +1315,4 @@ public class LineageService {
         return tableList;
     }
 
-
-    public void deleteTableLineageByTaskId(Long taskId,Integer appType){
-
-    }
 }

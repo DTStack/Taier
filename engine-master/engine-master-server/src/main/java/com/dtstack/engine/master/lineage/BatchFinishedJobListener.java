@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.lineage;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
@@ -43,7 +44,7 @@ public class BatchFinishedJobListener extends SqlJobFinishedListener {
     private LineageService lineageService;
 
     @Override
-    protected void onFocusedJobFinished(Integer taskType,String sqlText,Long  taskId, ScheduleJob scheduleJob, Integer status) {
+    protected void onFocusedJobFinished(Integer type,String sqlText,Long  taskId, ScheduleJob scheduleJob, Integer status) {
         //解析sql并存储
         sqlText = sqlText.replaceAll("--.*","");
         List<String> sqls = SqlFormatUtil.splitSqlText(sqlText);
@@ -60,19 +61,20 @@ public class BatchFinishedJobListener extends SqlJobFinishedListener {
             logger.info("sql不正确{}",useDbSql);
             return;
         }
-        ParseColumnLineageParam columnLineageParam = new ParseColumnLineageParam();
-        columnLineageParam.setAppType(AppType.RDOS.getType());
         DataSourceType dataSourceTypeByTaskTypeInt = EngineTaskType2SourceType.getDataSourceTypeByTaskTypeInt(scheduleJob.getTaskType());
         if (Objects.isNull(dataSourceTypeByTaskTypeInt)){
             return;
         }
-        columnLineageParam.setDataSourceType(dataSourceTypeByTaskTypeInt.getVal());
-        columnLineageParam.setDefaultDb(defaultDb);
-        columnLineageParam.setDtUicTenantId(scheduleJob.getDtuicTenantId());
-        columnLineageParam.setUniqueKey(null== taskId? null:String.valueOf(taskId));
-        columnLineageParam.setTaskType(taskType);
         for (String sql : sqls){
+            ParseColumnLineageParam columnLineageParam = new ParseColumnLineageParam();
+            columnLineageParam.setAppType(AppType.RDOS.getType());
+            columnLineageParam.setDataSourceType(dataSourceTypeByTaskTypeInt.getVal());
+            columnLineageParam.setDefaultDb(defaultDb);
+            columnLineageParam.setDtUicTenantId(scheduleJob.getDtuicTenantId());
+            columnLineageParam.setUniqueKey(null== taskId? null:String.valueOf(taskId));
+            columnLineageParam.setType(type);
             columnLineageParam.setSql(sql);
+            logger.info("调用字段血缘解析:{}", JSON.toJSON(columnLineageParam));
             lineageService.parseAndSaveColumnLineage(columnLineageParam);
         }
     }

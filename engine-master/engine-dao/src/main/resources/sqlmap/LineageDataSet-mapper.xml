@@ -71,4 +71,14 @@
             #{item}
         </foreach>
     </select>
+
+    <update id="updateTableNameByTableNameAndSourceId">
+
+        update
+        lineage_data_set_info
+        set table_name = #{newTableName},
+        table_key = #{newTableKey},
+        gmt_modified = now()
+        where table_key = #{oldTableKey}
+    </update>
 </mapper>

@@ -2,6 +2,7 @@ package com.dtstack.lineage.adapter;
 
 import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.vo.lineage.LineageDataSourceVO;
+import com.dtstack.schedule.common.enums.AppType;
 
 /**
  * @author chener
@@ -14,7 +15,8 @@ public class DataSourceAdapter {
     public static LineageDataSourceVO dataSource2DataSourceVO(LineageDataSource lineageDataSource){
         LineageDataSourceVO dataSourceVO = new LineageDataSourceVO();
         dataSourceVO.setAppType(lineageDataSource.getAppType());
-        dataSourceVO.setSourceId(lineageDataSource.getId());
+        Long sourceId = AppType.DATAASSETS.getType().equals(lineageDataSource.getAppType()) ? lineageDataSource.getId() : lineageDataSource.getSourceId();
+        dataSourceVO.setSourceId(sourceId);
         dataSourceVO.setSourceName(lineageDataSource.getSourceName());
         dataSourceVO.setSourceType(lineageDataSource.getSourceType());
         return dataSourceVO;

@@ -269,4 +269,16 @@ public class LineageDataSetInfoService {
         return listHashMap;
     }
 
+    /**
+     * 根据表名和数据源信息修改表名
+     * @param oldTableName
+     * @param newTableName
+     * @param dataSource
+     */
+    public void updateTableNameByTableNameAndSourceId(String oldTableName,String newTableName,LineageDataSource dataSource) {
+
+        String oldTableKey = generateTableKey(dataSource.getId(), dataSource.getSchemaName(), oldTableName);
+        String newTableKey = generateTableKey(dataSource.getId(), dataSource.getSchemaName(), oldTableName);
+        lineageDataSetDao.updateTableNameByTableNameAndSourceId(newTableName,oldTableKey,newTableKey);
     }
+}

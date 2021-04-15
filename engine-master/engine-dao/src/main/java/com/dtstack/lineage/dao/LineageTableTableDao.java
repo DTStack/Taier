@@ -23,4 +23,20 @@ public interface LineageTableTableDao {
     LineageTableTable queryBTableLineageKey(@Param("appType")Integer appType,@Param("tableLineageKey")String tableLineageKey);
 
     List<LineageTableTable> queryByTableLineageKeys(@Param("appType")Integer appType,@Param("list") List<String> keys);
+
+    /**
+     * 查询表血缘直接上游数量
+     * @param appType
+     * @param tableId
+     * @return
+     */
+    Integer queryTableResultCount(@Param("appType") Integer appType,@Param("tableId") Long tableId);
+
+    /**
+     * 查询表血缘直接下游数量
+     * @param appType
+     * @param tableId
+     * @return
+     */
+    Integer queryTableInputCount(@Param("appType") Integer appType,@Param("tableId") Long tableId);
 }

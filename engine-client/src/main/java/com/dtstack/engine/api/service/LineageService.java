@@ -1,5 +1,6 @@
 package com.dtstack.engine.api.service;
 
+import com.dtstack.engine.api.pojo.LevelAndCount;
 import com.dtstack.engine.api.pojo.lineage.Table;
 import com.dtstack.engine.api.vo.lineage.ColumnLineageParseInfo;
 import com.dtstack.engine.api.vo.lineage.LineageColumnColumnParam;
@@ -17,8 +18,10 @@ import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sdk.core.common.DtInsightServer;
 import com.dtstack.sdk.core.feign.Param;
 import com.dtstack.sdk.core.feign.RequestLine;
+import io.swagger.annotations.ApiOperation;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -220,9 +223,9 @@ public interface LineageService extends DtInsightServer {
      * @author ZYD
      * @Description 解析sql表信息
      * @Date 2021/3/11 14:04
-     * @param sql: 
-     * @param defaultDb: 
-     * @param sourceType: 
+     * @param sql:
+     * @param defaultDb:
+     * @param sourceType:
      * @return: com.dtstack.sdk.core.common.ApiResponse<java.util.List<com.dtstack.engine.api.pojo.lineage.Table>>
      **/
     @RequestLine("POST /node/lineage/parseTables")
@@ -238,4 +241,22 @@ public interface LineageService extends DtInsightServer {
      **/
     @RequestLine("POST /node/lineage/parseFunction")
     ApiResponse<Set<String>> parseFunction(String sql);
+
+
+
+    /**
+     * 查询表上游血缘表数量和层数
+     * @param queryTableLineageParam
+     * @return
+     */
+    @RequestLine("POST /node/lineage/queryTableInputLineageCountAndLevel")
+    ApiResponse<LevelAndCount> queryTableInputLineageCountAndLevel(QueryTableLineageParam queryTableLineageParam);
+
+    /**
+     * 查询表下游血缘表数量和层数
+     * @param queryTableLineageParam
+     * @return
+     */
+    @RequestLine("POST /node/lineage/queryTableResultLineageCountAndLevel")
+    ApiResponse<LevelAndCount> queryTableResultLineageCountAndLevel(QueryTableLineageParam queryTableLineageParam);
 }
