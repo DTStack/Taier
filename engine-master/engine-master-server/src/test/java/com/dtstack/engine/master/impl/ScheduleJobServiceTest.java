@@ -683,6 +683,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
         scheduleJobTemplate.setGmtCreate(new Timestamp(System.currentTimeMillis()));
         scheduleJobTemplate.setGmtModified(new Timestamp(System.currentTimeMillis()));
         scheduleJobTemplate.setAppType(scheduleTaskShade.getAppType());
+        scheduleJobTemplate.setTaskRule(0);
         ScheduleBatchJob scheduleBatchJob = new ScheduleBatchJob(scheduleJobTemplate);
 
 
