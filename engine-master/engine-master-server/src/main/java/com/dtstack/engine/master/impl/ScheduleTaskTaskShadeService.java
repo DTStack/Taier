@@ -7,6 +7,7 @@ import com.dtstack.engine.api.enums.TaskRuleEnum;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.common.enums.DisplayDirect;
 import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.exception.TaskTaskRingException;
@@ -99,7 +100,7 @@ public class ScheduleTaskTaskShadeService {
         } catch (Exception e) {
             LOGGER.error("saveTaskTaskList error:{}", ExceptionUtil.getErrorMessage(e));
             if (e instanceof TaskTaskRingException) {
-                throw new RdosDefineException(e.getMessage());
+                throw new RdosDefineException(e.getMessage(), ErrorCode.SAVE_TASK_RINK);
             }
 
             throw new RdosDefineException("保存任务依赖列表异常");
