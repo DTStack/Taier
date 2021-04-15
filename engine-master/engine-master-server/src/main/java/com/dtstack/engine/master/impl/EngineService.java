@@ -69,7 +69,7 @@ public class EngineService {
             EngineSupportVO engineSupportVO = new EngineSupportVO();
             engineSupportVO.setEngineType(engine.getEngineType());
             List<Component> componentList = engineComponentMapping.get(engine.getId());
-            if (CollectionUtils.isEmpty(componentList)){
+            if (CollectionUtils.isEmpty(componentList)) {
                 continue;
             }
 
@@ -78,7 +78,7 @@ public class EngineService {
                     .collect(Collectors.toList());
             engineSupportVO.setSupportComponent(componentTypes);
             Optional<Component> metadataComponent = componentList.stream()
-                    .filter(c -> 1 == c.getIsMetadata())
+                    .filter(c -> null != c.getIsMetadata() && 1 == c.getIsMetadata())
                     .findFirst();
             metadataComponent.ifPresent(component -> engineSupportVO.setMetadataComponent(component.getComponentTypeCode()));
             vos.add(engineSupportVO);
