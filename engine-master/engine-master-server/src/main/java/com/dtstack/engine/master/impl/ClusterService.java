@@ -835,7 +835,16 @@ public class ClusterService implements InitializingBean {
         }
         List<SchedulingVo> schedulingVos = convertComponentToScheduling(kerberosConfigs, scheduleType);
         clusterVO.setScheduling(schedulingVos);
+        clusterVO.setCanModifyMetadata(checkMetadata(engineIds, components));
         return clusterVO;
+    }
+
+    private boolean checkMetadata(List<Long> engineIds, List<Component> components) {
+        if (components.stream().anyMatch(c -> EComponentType.metadataComponents.contains(EComponentType.getByCode(c.getComponentTypeCode())))) {
+            List<EngineTenant> engineTenants = engineTenantDao.listByEngineIds(engineIds);
+            return CollectionUtils.isEmpty(engineTenants);
+        }
+        return true;
     }
 
     private List<SchedulingVo> convertComponentToScheduling(List<KerberosConfig> kerberosConfigs, Map<EComponentScheduleType, List<ComponentVO>> scheduleType) {
