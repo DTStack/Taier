@@ -188,8 +188,12 @@ const InfoConfig = (props) => {
         }
 
         //webSocket定制化
-        if (JSON.stringify(webSocketParams) !== '{}') {
-          fieldsValue.webSocketParams = webSocketParams;
+        try {
+          if (JSON.stringify(webSocketParams) !== '{}') {
+            fieldsValue.webSocketParams = webSocketParams;
+          }
+        } catch (error) {
+          setLoading(false);
         }
 
         if (getFieldValue('kerberosFile')) {
@@ -201,9 +205,14 @@ const InfoConfig = (props) => {
           delete handelParams.appTypeList;
 
           handelParams.appTypeListString = otherParams.appTypeList.toString();
-          handelParams.dataJsonString = Base64.encode(
-            JSON.stringify(fieldsValue)
-          );
+          try {
+            handelParams.dataJsonString = Base64.encode(
+              JSON.stringify(fieldsValue)
+            );
+          } catch (error) {
+            console.log('error: ', error);
+            setLoading(false);
+          }
 
           if (submit) {
             //确定按钮
@@ -225,9 +234,13 @@ const InfoConfig = (props) => {
               });
           }
         } else {
-          handelParams.dataJsonString = Base64.encode(
-            JSON.stringify(fieldsValue)
-          );
+          try {
+            handelParams.dataJsonString = Base64.encode(
+              JSON.stringify(fieldsValue)
+            );
+          } catch (error) {
+            setLoading(false);
+          }
 
           if (submit) {
             //确定按钮

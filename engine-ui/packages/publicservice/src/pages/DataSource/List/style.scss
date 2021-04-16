@@ -81,7 +81,7 @@ $highlight-color: #3f87ff;
   position: absolute;
   right: -22px;
   top: 0;
-  color: #8c8c8c;
+  color: #999;
   &.help-doc--warn {
     color: #f5a623;
   }
@@ -90,14 +90,19 @@ $highlight-color: #3f87ff;
   position: absolute;
   right: -22px;
   top: -40px;
-  color: #8c8c8c;
+  color: #999;
 }
 .filter-status {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  margin-top: -5px;
-  margin-left: -6px;
+  left: 48px;
+  &:hover {
+    color: #3f87ff;
+  }
+}
+.ant-dropdown-open {
+  .iconfont2 {
+    color: #3f87ff;
+  }
 }
 .ellipsis {
   overflow: hidden;

@@ -7,7 +7,7 @@ import './style.scss';
 const columns = (props: any) => {
   const { toEdit, toAuth, toDelete, left, right, filters } = props;
   const IconFilter = () => (
-    <i className="iconfont2 iconOutlinedxianxing_filter filter-status"></i>
+    <i className="iconfont2 iconFilltianchong_shaixuan"></i>
   );
   return [
     {
@@ -86,7 +86,10 @@ const columns = (props: any) => {
         ),
       filters: filters,
       filterIcon: () => (
-        <Icon component={IconFilter} style={{ cursor: 'pointer' }} />
+        <Icon
+          component={IconFilter}
+          style={{ cursor: 'pointer', position: 'relative', width: 16 }}
+        />
       ),
     },
     {
