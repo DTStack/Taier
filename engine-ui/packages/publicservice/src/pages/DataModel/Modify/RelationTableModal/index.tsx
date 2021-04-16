@@ -241,7 +241,7 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
 
   return (
     <div ref={cref} className="relation-table-modal">
-      <Form layout="horizontal" {...formItemLayout}>
+      <Form className="dm-form" layout="horizontal" {...formItemLayout}>
         <Form.Item label="选择表" required={false}>
           {getFieldDecorator('leftTable', {
             rules: requiredRule('请选择表'),
@@ -336,7 +336,7 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
                       validator: repeatValidator,
                     },
                   ],
-                })(<Input placeholder="请输入表名" />)}
+                })(<Input placeholder="请输入表名" autoComplete="off" />)}
               </Form.Item>
             </Col>
           </Row>

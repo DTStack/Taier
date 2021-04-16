@@ -226,6 +226,7 @@ const List = (props: IPropList) => {
         <header className="search-area">
           <SearchInput
             placeholder="模型名称/英文名"
+            className="dt-form-shadow-bg"
             onSearch={(value) => {
               setRequestParams((prev) => ({ ...prev, search: value }));
             }}

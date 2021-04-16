@@ -8,6 +8,9 @@
     margin-top: 12px;
     height: calc(100% - 68px);
     position: relative;
+    .ant-divider-vertical {
+      background-color: #3f87ff !important;
+    }
     .table {
       height: calc(100% - 32px);
     }
