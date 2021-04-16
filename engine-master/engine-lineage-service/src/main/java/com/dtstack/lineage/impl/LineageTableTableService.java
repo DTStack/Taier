@@ -1,10 +1,13 @@
 package com.dtstack.lineage.impl;
 
+import com.dtstack.engine.api.domain.LineageColumnColumn;
 import com.dtstack.engine.api.domain.LineageDataSetInfo;
 import com.dtstack.engine.api.domain.LineageTableTable;
 import com.dtstack.engine.api.domain.LineageTableTableUniqueKeyRef;
 import com.dtstack.engine.api.enums.LineageOriginType;
 import com.dtstack.engine.api.pojo.LevelAndCount;
+import com.dtstack.engine.api.vo.lineage.LineageTableTableVO;
+import com.dtstack.engine.api.vo.lineage.param.DeleteLineageParam;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.lineage.dao.LineageTableTableUniqueKeyRefDao;
@@ -258,4 +261,18 @@ public class LineageTableTableService {
     }
 
 
+    public List<LineageTableTable> queryTableLineageByTaskIdAndAppType(Long taskId, Integer appType) {
+
+        return lineageTableTableDao.queryTableLineageByTaskIdAndAppType(taskId, appType);
+    }
+
+
+    /**
+     * 根据任务id和appType删除血缘
+     * @param deleteLineageParam
+     */
+    public void deleteLineageByTaskIdAndAppType(DeleteLineageParam deleteLineageParam) {
+
+        lineageTableTableUniqueKeyRefDao.deleteByUniqueKey(deleteLineageParam.getAppType(),String.valueOf(deleteLineageParam.getTaskId()));
+    }
 }

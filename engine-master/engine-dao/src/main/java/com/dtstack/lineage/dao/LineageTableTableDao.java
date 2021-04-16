@@ -39,4 +39,12 @@ public interface LineageTableTableDao {
      * @return
      */
     Integer queryTableInputCount(@Param("appType") Integer appType,@Param("tableId") Long tableId);
+
+    /**
+     * 根据taskId和appType查询表血缘
+     * @param taskId
+     * @param appType
+     * @return
+     */
+    List<LineageTableTable> queryTableLineageByTaskIdAndAppType(@Param("taskId") Long taskId, @Param("appType") Integer appType);
 }

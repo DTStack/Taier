@@ -26,4 +26,7 @@ public interface LineageColumnColumnUniqueKeyRefDao {
      * @param appType
      */
     void deleteByLineageColumnIdList(@Param("columnColumnIdList") List<Long> columnColumnIdList,@Param("appType") Integer appType);
+
+    Integer deleteByUniqueKeyAndAppType(@Param("uniqueKey")String uniqueKey,@Param("appType")Integer appType);
+
 }

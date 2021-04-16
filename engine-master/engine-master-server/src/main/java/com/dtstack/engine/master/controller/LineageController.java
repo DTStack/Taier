@@ -210,6 +210,13 @@ public class LineageController {
         return lineageService.queryTableLineages(queryTableLineageParam);
     }
 
+    @RequestMapping(value = "/queryTableLineageByTaskIdAndAppType", method = {RequestMethod.POST})
+    @ApiOperation("根据taskId和appType查询表级血缘")
+    public List<LineageTableTableVO> queryTableLineageByTaskIdAndAppType(@DtRequestParam Long taskId,@DtRequestParam Integer appType){
+
+        return lineageService.queryTableLineageByTaskIdAndAppType(taskId,appType);
+    }
+
     private void checkQueryColumnLineageParam(QueryColumnLineageParam queryColumnLineageParam){
         ValidateUtil.validateNotNull(queryColumnLineageParam.getAppType(),"应用类型不能为空");
 //        ValidateUtil.validateNotNull(queryColumnLineageParam.getDtUicTenantId(),"uic租户id不能为空");
@@ -259,6 +266,13 @@ public class LineageController {
     public List<LineageColumnColumnVO> queryColumnLineages(@RequestBody QueryColumnLineageParam queryColumnLineageParam) {
         checkQueryColumnLineageParam(queryColumnLineageParam);
         return lineageService.queryColumnLineages(queryColumnLineageParam);
+    }
+
+    @RequestMapping(value = "/queryColumnLineageByTaskIdAndAppType", method = {RequestMethod.POST})
+    @ApiOperation("根据taskId和appType查询字段血缘")
+    public List<LineageColumnColumnVO> queryColumnLineageByTaskIdAndAppType(@DtRequestParam Long taskId,@DtRequestParam Integer appType){
+
+        return lineageService.queryColumnLineageByTaskIdAndAppType(taskId,appType);
     }
 
     @RequestMapping(value = "/acquireOldTableTable", method = {RequestMethod.POST})
@@ -323,4 +337,12 @@ public class LineageController {
 
         return lineageService.queryTableResultLineageCountAndLevel(queryTableLineageParam);
     }
+
+    @RequestMapping(value = "/deleteLineageByTaskIdAndAppType", method = {RequestMethod.POST})
+    @ApiOperation(value = "根据taskId和appType删除血缘")
+    public void deleteLineageByTaskIdAndAppType(@RequestBody DeleteLineageParam deleteLineageParam){
+
+        lineageService.deleteLineageByTaskIdAndAppType(deleteLineageParam);
+    }
+
 }

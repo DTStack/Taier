@@ -10,10 +10,7 @@ import com.dtstack.engine.api.enums.LineageOriginType;
 import com.dtstack.engine.api.pojo.LevelAndCount;
 import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.api.vo.lineage.*;
-import com.dtstack.engine.api.vo.lineage.param.ParseColumnLineageParam;
-import com.dtstack.engine.api.vo.lineage.param.QueryColumnLineageParam;
-import com.dtstack.engine.api.vo.lineage.param.QueryTableLineageColumnParam;
-import com.dtstack.engine.api.vo.lineage.param.QueryTableLineageParam;
+import com.dtstack.engine.api.vo.lineage.param.*;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.lineage.adapter.*;
 import com.dtstack.lineage.dao.LineageColumnColumnUniqueKeyRefDao;
@@ -39,6 +36,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -130,7 +128,7 @@ public class LineageService {
         return functions;
     }
 
-    private ISqlParserClient getSqlParserClient() {
+    public ISqlParserClient getSqlParserClient() {
         ISqlParserClient sqlParserClient = null;
         try {
             sqlParserClient = SqlParserClientCache.getInstance().getClient("sqlparser");
@@ -1315,4 +1313,76 @@ public class LineageService {
         return tableList;
     }
 
+    /**
+     * 根据taskId和appType查询表级血缘
+     * @param taskId
+     * @param appType
+     * @return
+     */
+    public List<LineageTableTableVO> queryTableLineageByTaskIdAndAppType(Long taskId, Integer appType) {
+
+        List<LineageTableTable> lineageTableTables = lineageTableTableService.queryTableLineageByTaskIdAndAppType(taskId,appType);
+        if(CollectionUtils.isEmpty(lineageTableTables)){
+            return Lists.newArrayList();
+        }
+        Set<Long> tableIds = Sets.newHashSet();
+        for (LineageTableTable ltt : lineageTableTables) {
+            tableIds.add(ltt.getInputTableId());
+            tableIds.add(ltt.getResultTableId());
+        }
+        List<LineageDataSetInfo> dataSetListByIds = lineageDataSetInfoService.getDataSetListByIds(Lists.newArrayList(tableIds));
+        Map<Long, LineageDataSetInfo> dataSetInfoMap = dataSetListByIds.stream().collect(Collectors.toMap(dataSetInfo1 -> dataSetInfo1.getId(), dataSetInfo12 -> dataSetInfo12));
+        Set<Long> dataSourceIds = dataSetListByIds.stream().map(LineageDataSetInfo::getSourceId).collect(Collectors.toSet());
+        Map<Long, LineageDataSource> dataSourceMap = lineageDataSourceService.getDataSourcesByIdList(Lists.newArrayList(dataSourceIds)).stream().collect(Collectors.toMap(ds1 -> ds1.getId(), ds2 -> ds2));
+        List<LineageTableTableVO> res = Lists.newArrayList();
+        for (LineageTableTable tt : lineageTableTables) {
+            LineageDataSetInfo inputTableInfo = dataSetInfoMap.get(tt.getInputTableId());
+            LineageDataSetInfo resultTableInfo = dataSetInfoMap.get(tt.getResultTableId());
+            LineageTableTableVO lineageTableTableVO = TableLineageAdapter.tableTable2TableTableVO(tt, inputTableInfo, resultTableInfo, dataSourceMap.get(inputTableInfo.getSourceId()), dataSourceMap.get(resultTableInfo.getSourceId()));
+            res.add(lineageTableTableVO);
+        }
+        return res;
+    }
+
+    public List<LineageColumnColumnVO> queryColumnLineageByTaskIdAndAppType(Long taskId, Integer appType) {
+
+       List<LineageColumnColumn> lineageColumnColumns= lineageColumnColumnService.queryColumnLineageByTaskIdAndAppType(taskId,appType);
+        if(CollectionUtils.isEmpty(lineageColumnColumns)){
+            return Lists.newArrayList();
+        }
+        Set<Long> tableIds = Sets.newHashSet();
+        for (LineageColumnColumn lcc : lineageColumnColumns) {
+            tableIds.add(lcc.getInputTableId());
+            tableIds.add(lcc.getResultTableId());
+        }
+        List<LineageDataSetInfo> dataSetListByIds = lineageDataSetInfoService.getDataSetListByIds(Lists.newArrayList(tableIds));
+        Map<Long, LineageDataSetInfo> dataSetInfoMap = dataSetListByIds.stream().collect(Collectors.toMap(dataSetInfo1 -> dataSetInfo1.getId(), dataSetInfo12 -> dataSetInfo12));
+        Set<Long> dataSourceIds = dataSetListByIds.stream().map(LineageDataSetInfo::getSourceId).collect(Collectors.toSet());
+        Map<Long, LineageDataSource> dataSourceMap = lineageDataSourceService.getDataSourcesByIdList(Lists.newArrayList(dataSourceIds)).stream().collect(Collectors.toMap(ds1 -> ds1.getId(), ds2 -> ds2));
+        List<LineageColumnColumnVO> res = Lists.newArrayList();
+        for (LineageColumnColumn cc : lineageColumnColumns) {
+            LineageDataSetInfo inputTableInfo = dataSetInfoMap.get(cc.getInputTableId());
+            LineageDataSetInfo resultTableInfo = dataSetInfoMap.get(cc.getResultTableId());
+            LineageColumnColumnVO columnColumnVO = ColumnLineageAdapter.columnColumn2ColumnColumnVO(cc, inputTableInfo, resultTableInfo, dataSourceMap.get(inputTableInfo.getSourceId()), dataSourceMap.get(resultTableInfo.getSourceId()));
+            res.add(columnColumnVO);
+        }
+        return res;
+    }
+
+
+    /**
+     * 根据任务id和appType删除血缘
+     * @param deleteLineageParam
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteLineageByTaskIdAndAppType(DeleteLineageParam deleteLineageParam) {
+
+        try {
+            lineageTableTableService.deleteLineageByTaskIdAndAppType(deleteLineageParam);
+            lineageColumnColumnService.deleteLineageByTaskIdAndAppType(deleteLineageParam);
+        } catch (Exception e) {
+            throw new RdosDefineException("deleteLineageByTaskIdAndAppType error");
+        }
+
+    }
 }

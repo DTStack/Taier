@@ -2,6 +2,7 @@ package com.dtstack.lineage.impl;
 
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.enums.LineageOriginType;
+import com.dtstack.engine.api.vo.lineage.param.DeleteLineageParam;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MD5Util;
@@ -207,5 +208,21 @@ public class LineageColumnColumnService {
      */
     public List<String> queryTableResultLineageColumns(Long tableId){
         return lineageColumnColumnDao.queryTableLineageResultColumns(tableId);
+    }
+
+    /**
+     * 根据taskId和appType查询字段血缘
+     * @param taskId
+     * @param appType
+     * @return
+     */
+    public List<LineageColumnColumn> queryColumnLineageByTaskIdAndAppType(Long taskId, Integer appType) {
+
+        return lineageColumnColumnDao.queryColumnLineageByTaskIdAndAppType(taskId,appType);
+    }
+
+    public void deleteLineageByTaskIdAndAppType(DeleteLineageParam deleteLineageParam) {
+
+        lineageColumnColumnUniqueKeyRefDao.deleteByUniqueKeyAndAppType(String.valueOf(deleteLineageParam.getTaskId()),deleteLineageParam.getAppType());
     }
 }
