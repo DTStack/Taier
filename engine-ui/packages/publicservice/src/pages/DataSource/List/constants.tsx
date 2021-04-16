@@ -138,7 +138,7 @@ const columns = (props: any) => {
               <span
                 onClick={() => {
                   record.isMeta
-                    ? message.error('具有meta标识的数据源，不可删除')
+                    ? message.error('带meta标识的数据源不能编辑、删除')
                     : message.error('数据源已授权给产品，不可删除');
                 }}>
                 <a className="operate-forbid">删除</a>

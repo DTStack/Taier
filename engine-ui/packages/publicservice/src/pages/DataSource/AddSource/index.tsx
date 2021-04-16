@@ -46,7 +46,7 @@ function index(props) {
             </div>
             <div className="footer-select">
               <Button
-                style={{ marginRight: 8 }}
+                style={{ marginRight: 8, width: 80 }}
                 onClick={() => {
                   props.router.push('/data-source/list');
                 }}>
@@ -55,6 +55,7 @@ function index(props) {
 
               {(showFirstNext || sessionStorage.getItem('sqlType')) && (
                 <Button
+                  style={{ width: 80 }}
                   type="primary"
                   onClick={() => {
                     setCurrent(1);
@@ -74,13 +75,14 @@ function index(props) {
             </div>
             <div className="footer-select">
               <Button
-                style={{ marginRight: 8 }}
+                style={{ marginRight: 8, width: 80 }}
                 onClick={() => {
                   setCurrent(0);
                 }}>
                 上一步
               </Button>
               <Button
+                style={{ width: 80 }}
                 type="primary"
                 onClick={() => {
                   setCurrent(2);
@@ -101,12 +103,16 @@ function index(props) {
                 changeBtnStatus={changeBtnStatus}></InfoConfig>
             </div>
             <div className="footer-select">
-              <Button type="primary" icon="sync" onClick={testConnect}>
+              <Button
+                type="primary"
+                icon="sync"
+                onClick={testConnect}
+                style={{ width: 108 }}>
                 <span>测试连通性</span>
               </Button>
 
               <Button
-                style={{ marginLeft: 60, marginRight: 8 }}
+                style={{ marginLeft: 60, marginRight: 8, width: 80 }}
                 onClick={() => {
                   setCurrent(1);
                 }}>
@@ -115,7 +121,8 @@ function index(props) {
               <Button
                 type="primary"
                 onClick={submitConfig}
-                disabled={submitBtnStatus}>
+                disabled={submitBtnStatus}
+                style={{ width: 80 }}>
                 确定
               </Button>
             </div>

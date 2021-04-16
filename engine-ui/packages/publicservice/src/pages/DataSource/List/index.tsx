@@ -83,7 +83,7 @@ function index(props) {
   //编辑
   const toEdit = (record) => {
     if (record.isMeta === 1) {
-      message.info('带meta标识的数据源不能编辑、删除');
+      message.error('带meta标识的数据源不能编辑、删除');
     } else {
       props.router.push({
         pathname: '/data-source/edit',

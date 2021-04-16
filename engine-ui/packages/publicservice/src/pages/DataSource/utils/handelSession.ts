@@ -12,9 +12,15 @@ export function remove() {
 }
 
 export function getSaveStatus() {
+  let sqlType: any = {
+    dataType: '',
+  };
+  try {
+    sqlType = JSON.parse(sessionStorage.getItem('sqlType'));
+  } catch (error) {}
   let saveStatus = {
     menuSelected: sessionStorage.getItem('current'),
-    sqlType: JSON.parse(sessionStorage.getItem('sqlType')),
+    sqlType,
     version: sessionStorage.getItem('version') || '',
   };
 

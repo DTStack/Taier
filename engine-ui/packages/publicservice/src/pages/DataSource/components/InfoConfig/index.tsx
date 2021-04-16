@@ -112,19 +112,20 @@ const InfoConfig = (props) => {
 
   const getAllData = async () => {
     let { fromFieldVoList } = await templateForm();
+
+    fromFieldVoList = fromFieldVoList.filter((item) => item.invisible !== 1);
     if (record) {
       let detailData = await getDetail();
       if (detailData) {
-        fromFieldVoList.forEach((item, index) => {
+        fromFieldVoList.forEach((item) => {
           if (item.label === '数据源名称') {
             item.disabled = true;
           }
-          if (item.invisible === 1) {
-            fromFieldVoList.splice(index, 1); //if invisible delete item
-          }
-          item.initialValue =
-            detailData[item.name] ||
-            JSON.parse(Base64.decode(detailData.dataJson))[item.name];
+          try {
+            item.initialValue =
+              detailData[item.name] ||
+              JSON.parse(Base64.decode(detailData.dataJson))[item.name];
+          } catch (error) {}
 
           let data: any = {};
           try {
@@ -136,15 +137,6 @@ const InfoConfig = (props) => {
           setWebSocketParams(data?.webSocketParams || {});
         });
       }
-    } else {
-      fromFieldVoList.forEach((item, index) => {
-        if (item.label === '数据源类型') {
-          item.disabled = true;
-        }
-        if (item.invisible === 1) {
-          fromFieldVoList.splice(index, 1); //delete item
-        }
-      });
     }
     setTemplateData(fromFieldVoList || []);
   };
@@ -387,6 +379,7 @@ const InfoConfig = (props) => {
       return (
         <div key={index} className="ws-form">
           <Input
+            autoComplete="off"
             onChange={(e) => {
               editWsParams(e, index, 'key');
             }}
@@ -395,6 +388,7 @@ const InfoConfig = (props) => {
           />{' '}
           : &nbsp;
           <Input
+            autoComplete="off"
             onChange={(e) => {
               editWsParams(e, index, 'value');
             }}
@@ -525,6 +519,7 @@ const InfoConfig = (props) => {
               }}
             />
             <Input
+              autoComplete="off"
               value={
                 getFieldValue(`kerberosFile`).name +
                 '   ' +
@@ -570,6 +565,7 @@ const InfoConfig = (props) => {
               getRules(item)
             )(
               <Input
+                autoComplete="off"
                 placeholder={item.placeHold || `请输入${item.label}`}
                 disabled={item.disabled}
               />
@@ -705,7 +701,7 @@ const InfoConfig = (props) => {
             {getFieldDecorator(
               `${item.name}`,
               getRules(item)
-            )(<InputNumber style={{ width: '100%' }} />)}
+            )(<InputNumber autoComplete="off" style={{ width: '100%' }} />)}
           </Form.Item>
         );
       case 'Switch':
@@ -771,7 +767,7 @@ const InfoConfig = (props) => {
                 </Form.Item>
                 <Form.Item label="master.kerberos">
                   {getFieldDecorator('hbase_master_kerberos_principal', {
-                    initialValue: '',
+                    initialValue: detailData?.hbase_master_kerberos_principal,
                     rules: [
                       {
                         required: true,
@@ -782,11 +778,12 @@ const InfoConfig = (props) => {
                         message: 'master.kerberos不可超过128个字符',
                       },
                     ],
-                  })(<Input />)}
+                  })(<Input autoComplete="off" />)}
                 </Form.Item>
                 <Form.Item label="regioserver.kerberos">
                   {getFieldDecorator('hbase_regionserver_kerberos_principal', {
-                    initialValue: '',
+                    initialValue:
+                      detailData?.hbase_regionserver_kerberos_principal,
                     rules: [
                       {
                         required: true,
@@ -797,7 +794,7 @@ const InfoConfig = (props) => {
                         message: 'regioserver.kerberos不可超过128个字符',
                       },
                     ],
-                  })(<Input />)}
+                  })(<Input autoComplete="off" />)}
                 </Form.Item>
               </>
             )}
@@ -870,7 +867,7 @@ const InfoConfig = (props) => {
                           message: '私钥地址不能为空',
                         },
                       ],
-                    })(<Input />)}
+                    })(<Input autoComplete="off" />)}
                     <Tooltip
                       title="用户的私钥储存路径，默认为~/.ssh/id_rsa"
                       arrowPointAtCenter>
@@ -907,7 +904,9 @@ const InfoConfig = (props) => {
                         message: 'defaultFS不能为空',
                       },
                     ],
-                  })(<Input placeholder="hdfs://host:port" />)}
+                  })(
+                    <Input placeholder="hdfs://host:port" autoComplete="off" />
+                  )}
                 </Form.Item>
 
                 <Form.Item label="高可用配置">
@@ -982,7 +981,7 @@ const InfoConfig = (props) => {
                       message: 'master名称不能为空',
                     },
                   ],
-                })(<Input placeholder="请输入master名称" />)}
+                })(<Input placeholder="请输入master名称" autoComplete="off" />)}
               </Form.Item>
             )}
             {(getFieldValue('redisType') === 1 ||
@@ -990,7 +989,7 @@ const InfoConfig = (props) => {
               <Form.Item label="数据库">
                 {getFieldDecorator('database', {
                   initialValue: detailData?.database || '',
-                })(<Input />)}
+                })(<Input autoComplete="off" />)}
               </Form.Item>
             )}
             <Form.Item label="密码">
