@@ -6,12 +6,14 @@ import com.dtstack.engine.api.domain.KerberosConfig;
 import com.dtstack.engine.api.vo.KerberosConfigVO;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EComponentType;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.ComponentDao;
 import com.dtstack.engine.dao.KerberosDao;
 import com.dtstack.pubsvc.sdk.datasource.DataSourceAPIClient;
 import com.dtstack.pubsvc.sdk.dto.param.datasource.EditConsoleParam;
 import com.dtstack.schedule.common.enums.DataSourceType;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +64,10 @@ public class DataSourceService {
             LOGGER.info("datasource url is not init so skip");
             return;
         }
+        if(CollectionUtils.isEmpty(dtUicTenantIds)){
+            return;
+        }
+
         Component component = componentDao.getByEngineIdAndComponentType(engineId, componentTypeCode);
         if (null == component) {
             LOGGER.info("engineId {} componentType {} component is null", engineId, componentTypeCode);
@@ -74,7 +80,7 @@ public class DataSourceService {
             LOGGER.info("update datasource jdbc engineId {} componentType {} component info {}", engineId, componentTypeCode, editConsoleParam.toString());
         } catch (Exception e) {
             LOGGER.error("update datasource jdbc engineId {} componentType {} component info {} error ", engineId, componentTypeCode, editConsoleParam.toString(), e);
-            throw new RdosDefineException(e);
+            throw new RdosDefineException(ExceptionUtil.getErrorMessage(e));
         }
     }
 
