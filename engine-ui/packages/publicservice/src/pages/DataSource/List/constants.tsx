@@ -7,7 +7,7 @@ import './style.scss';
 const columns = (props: any) => {
   const { toEdit, toAuth, toDelete, left, right, filters } = props;
   const IconFilter = () => (
-    <i className="iconfont2 iconOutlinedxianxing_filter filter-status"></i>
+    <i className="iconfont2 iconFilltianchong_shaixuan"></i>
   );
   return [
     {
@@ -86,7 +86,10 @@ const columns = (props: any) => {
         ),
       filters: filters,
       filterIcon: () => (
-        <Icon component={IconFilter} style={{ cursor: 'pointer' }} />
+        <Icon
+          component={IconFilter}
+          style={{ cursor: 'pointer', position: 'relative', width: 16 }}
+        />
       ),
     },
     {
@@ -125,12 +128,11 @@ const columns = (props: any) => {
               <span className="data-view">
                 <Popconfirm
                   title="是否删除此条记录？"
-                  icon={
-                    <Icon type="question-circle-o" style={{ color: 'red' }} />
-                  }
+                  icon={<span></span>}
                   onConfirm={() => toDelete(record)}
                   okText="删除"
-                  cancelText="取消">
+                  cancelText="取消"
+                  okType="danger">
                   <a>删除</a>
                 </Popconfirm>
               </span>

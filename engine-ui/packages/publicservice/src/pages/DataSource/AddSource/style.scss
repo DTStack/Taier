@@ -72,6 +72,10 @@
         .text-show {
           width: 50%;
           height: 100%;
+          &:first-child p {
+            margin-bottom: 20px;
+            color: #666;
+          }
         }
         .version-sel {
           margin: 20px 0;

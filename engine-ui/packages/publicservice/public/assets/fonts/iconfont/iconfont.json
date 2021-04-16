@@ -6,6 +6,13 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "20963686",
+      "name": "Fill填充_筛选",
+      "font_class": "Filltianchong_shaixuan",
+      "unicode": "e698",
+      "unicode_decimal": 59032
+    },
+    {
       "icon_id": "20668602",
       "name": "Outlined线性_收起",
       "font_class": "Outlinedxianxing_shouqi",
