@@ -462,7 +462,7 @@ public class ComponentService {
     }
 
     /**
-     * TODO 交互方式的修改
+     *
      * @param clusterId
      * @param componentConfig
      * @param resources
@@ -528,6 +528,8 @@ public class ComponentService {
             if (Objects.nonNull(componentDao.getByClusterIdAndComponentType(
                     clusterId,componentType.getTypeCode(),null))){
                 addComponent.setIsDefault(false);
+            }else {
+                addComponent.setIsDefault(true);
             }
 
         }

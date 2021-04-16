@@ -29,7 +29,7 @@ public interface IComponentVO {
     /**
      * 添加一个确定版本组件
      * 无多版本选项默认空调用
-     * @param component
+     * @param component 单个组件
      */
     default void addComponent(ComponentVO component){ }
 
@@ -54,8 +54,8 @@ public interface IComponentVO {
                 return componentVO;
             }
         }
-        //
-        throw new IllegalStateException();
+        // 如果没有指定版本, 也没有找到默认版本, 说明构建组件出错
+        throw new IllegalStateException(String.format("not found defalut compoent type = %s",getComponentTypeCode()));
     }
 
     /**

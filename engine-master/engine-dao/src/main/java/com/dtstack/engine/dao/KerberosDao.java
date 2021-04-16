@@ -17,7 +17,5 @@ public interface KerberosDao {
 
     Integer insert(KerberosConfig kerberosConfig);
 
-    void delete(@Param("clusterId") Long clusterId, @Param("componentType") Integer componentType);
-
     void deleteByComponentId(@Param("componentId") Long componentId);
 }

@@ -33,7 +33,9 @@ public class KerberosConfig extends BaseEntity {
     private String krbName;
 
     private String mergeKrbContent;
-
+    /**
+     * 因为kerberos文件可能在组件保存之前上传,因此只能添加版本来区分
+     */
     private String componentVersion;
 
     public String getComponentVersion() {

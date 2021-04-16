@@ -240,6 +240,7 @@ public class ActionService {
         scheduleJob.setVersionId(getOrDefault(batchTask.getVersionId(), 0));
         scheduleJob.setComputeType(getOrDefault(batchTask.getComputeType(), 1));
         scheduleJob.setPeriodType(scheduleCron.getPeriodType());
+        scheduleJob.setComponentVersion(batchTask.getComponentVersion());
         return scheduleJob;
     }
 
@@ -330,15 +331,15 @@ public class ActionService {
      * @return
      */
     private boolean receiveStartJob(ParamActionExt paramActionExt){
-        boolean result = false;
         String jobId = paramActionExt.getTaskId();
         Integer computerType = paramActionExt.getComputeType();
 
         //当前任务已经存在在engine里面了
         //不允许相同任务同时在engine上运行---考虑将cache的清理放在任务结束的时候(停止，取消，完成)
         if(engineJobCacheDao.getOne(jobId) != null){
-            return result;
+            return false;
         }
+        boolean result = false;
         try {
             ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
             if(scheduleJob == null){

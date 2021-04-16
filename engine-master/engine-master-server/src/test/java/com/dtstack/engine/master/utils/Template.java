@@ -255,6 +255,7 @@ public class Template {
         component.setUploadFileName("conf.zip");
         component.setKerberosFileName("kb.zip");
         component.setStoreType(EComponentType.HDFS.getTypeCode());
+        component.setIsDefault(true);
         return component;
     }
 
@@ -268,6 +269,7 @@ public class Template {
         component.setUploadFileName("conf.zip");
         component.setKerberosFileName("kb.zip");
         component.setStoreType(EComponentType.HDFS.getTypeCode());
+        component.setIsDefault(true);
         return component;
     }
 
@@ -281,6 +283,7 @@ public class Template {
         component.setUploadFileName("");
         component.setKerberosFileName("");
         component.setStoreType(EComponentType.SFTP.getTypeCode());
+        component.setIsDefault(true);
         return component;
     }
 
@@ -294,6 +297,7 @@ public class Template {
         component.setUploadFileName("");
         component.setKerberosFileName("");
         component.setStoreType(0);
+        component.setIsDefault(true);
         return component;
     }
 

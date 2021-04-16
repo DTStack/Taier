@@ -26,7 +26,9 @@ import com.dtstack.schedule.common.util.Base64Util;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Table;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -834,10 +836,14 @@ public class ClusterService implements InitializingBean {
 
         List<IComponentVO> componentConfigs = componentConfigService.getComponentVoByComponent(components,
                 null == removeTypeName || removeTypeName , clusterId,true, multiVersion);
-        List<KerberosConfig> kerberosConfigs = null;
+        Table<Integer,String ,KerberosConfig> kerberosTable = null;
         // k8s的配置
         if(isFullPrincipal){
-            kerberosConfigs =  kerberosDao.getByClusters(clusterId);
+            kerberosTable= HashBasedTable.create();
+            for (KerberosConfig kerberosConfig : kerberosDao.getByClusters(clusterId)) {
+                kerberosTable.put(kerberosConfig.getComponentType(), StringUtils.isBlank(kerberosConfig.getComponentVersion())?
+                        StringUtils.EMPTY:kerberosConfig.getComponentVersion(),kerberosConfig);
+            }
         }
 
         Map<EComponentScheduleType, List<IComponentVO>> scheduleType = new HashMap<>(4);
@@ -845,7 +851,7 @@ public class ClusterService implements InitializingBean {
         if (CollectionUtils.isNotEmpty(componentConfigs)) {
             scheduleType = componentConfigs.stream().collect(Collectors.groupingBy(c -> EComponentType.getScheduleTypeByComponent(c.getComponentTypeCode())));
         }
-        List<SchedulingVo> schedulingVos = convertComponentToScheduling(kerberosConfigs, scheduleType);
+        List<SchedulingVo> schedulingVos = convertComponentToScheduling(kerberosTable, scheduleType);
         clusterVO.setScheduling(schedulingVos);
         return clusterVO;
     }
@@ -853,7 +859,7 @@ public class ClusterService implements InitializingBean {
 
 
 
-    private List<SchedulingVo> convertComponentToScheduling(List<KerberosConfig> kerberosConfigs, Map<EComponentScheduleType, List<IComponentVO>> scheduleType) {
+    private List<SchedulingVo> convertComponentToScheduling(Table<Integer,String ,KerberosConfig> kerberosTable, Map<EComponentScheduleType, List<IComponentVO>> scheduleType) {
         List<SchedulingVo> schedulingVos = new ArrayList<>();
         //为空也返回
         for (EComponentScheduleType value : EComponentScheduleType.values()) {
@@ -861,18 +867,16 @@ public class ClusterService implements InitializingBean {
             schedulingVo.setSchedulingCode(value.getType());
             schedulingVo.setSchedulingName(value.getName());
             List<IComponentVO> componentVoList = scheduleType.getOrDefault(value,Collections.emptyList());
-            if(CollectionUtils.isNotEmpty(kerberosConfigs) && CollectionUtils.isNotEmpty(componentVoList)){
+            if(Objects.nonNull(kerberosTable) && !kerberosTable.isEmpty() && CollectionUtils.isNotEmpty(componentVoList)){
                 componentVoList.forEach(component->{
                     // 组件每个版本设置k8s参数
                     for (ComponentVO componentVO : component.loadComponents()) {
-                         // TODO 只取最后一个配置 ?
-                        for (KerberosConfig config : kerberosConfigs) {
-                            if(componentVO.getComponentTypeCode().equals(config.getComponentType())){
-                                componentVO.setPrincipal(config.getPrincipal());
-                                componentVO.setPrincipals(config.getPrincipals());
-                                componentVO.setMergeKrb5Content(config.getMergeKrbContent());
-                                break;
-                            }
+                        KerberosConfig kerberosConfig = kerberosTable.get(componentVO.getComponentTypeCode(), StringUtils.isBlank(componentVO.getHadoopVersion()) ?
+                                StringUtils.EMPTY : componentVO.getHadoopVersion());
+                        if(Objects.nonNull(kerberosConfig)){
+                            componentVO.setPrincipal(kerberosConfig.getPrincipal());
+                            componentVO.setPrincipals(kerberosConfig.getPrincipals());
+                            componentVO.setMergeKrb5Content(kerberosConfig.getMergeKrbContent());
                         }
                     }
                 });
