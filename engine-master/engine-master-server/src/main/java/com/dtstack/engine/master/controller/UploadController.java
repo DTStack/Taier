@@ -42,7 +42,7 @@ public class UploadController {
                                             @RequestParam("componentConfig") String componentConfig, @RequestParam("hadoopVersion") String hadoopVersion,
                                             @RequestParam("kerberosFileName") String kerberosFileName, @RequestParam("componentTemplate") String componentTemplate,
                                             @RequestParam("componentCode") Integer componentCode, @RequestParam("storeType")Integer storeType,
-                                            @RequestParam("principals")String principals, @RequestParam("principal")String principal,@RequestParam("isDefault") Boolean isDefault) {
+                                            @RequestParam("principals")String principals, @RequestParam("principal")String principal,@RequestParam(value = "isDefault",required = false) Boolean isDefault) {
         List<Resource> resources = getResourcesFromFiles(files1);
         List<Resource> resourcesAdd = getResourcesFromFiles(files2);
         resources.addAll(resourcesAdd);
