@@ -92,6 +92,7 @@ export default class MultiVersionComp extends React.Component<IProps, any> {
                     clusterInfo={clusterInfo}
                     form={form}
                     saveComp={saveComp}
+                    handleConfirm={handleConfirm}
                 />}
                 </> : <Tabs
                     tabPosition="top"
@@ -109,7 +110,7 @@ export default class MultiVersionComp extends React.Component<IProps, any> {
                                 tab={
                                     <span>
                                         {VERSION_TYPE[vcomp.componentTypeCode]} {Number(vcomp.hadoopVersion) / 100}
-                                        <TestRestIcon testStatus={testStatus[vcomp.componentTypeCode] ?? {}}/>
+                                        <TestRestIcon testStatus={testStatus.find(status => status.hadoopVersion == vcomp.hadoopVersion)}/>
                                     </span>
                                 }
                                 key={String(vcomp.hadoopVersion)}

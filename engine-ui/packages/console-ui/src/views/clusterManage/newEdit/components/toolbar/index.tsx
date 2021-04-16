@@ -26,8 +26,10 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
     }
 
     onOk = () => {
-        const { form, comp, clusterInfo, saveComp } = this.props
+        const { form, comp, clusterInfo, saveComp, mulitple } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
+        const hadoopVersion = comp?.hadoopVersion ?? ''
+
         // 整理相关参数, 更新初始值
         form.validateFields(null, {}, (err: any, values: any) => {
             console.log(err, values)
@@ -40,9 +42,13 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
              * componentTemplate yarn等组件直接传自定义参数，其他组件需处理自定义参数和入group中
              * componentConfig yarn等组件传值specialConfig，合并自定义参数，其他组件需处理自定义参数合并到对应config中
              */
-            const currentComp = values[typeCode]
+            let multipComp = values[typeCode]
+            if (mulitple && hadoopVersion) { multipComp = values[typeCode][hadoopVersion] }
+            const currentComp = multipComp
             let componentConfig: any
-            if (!isNeedTemp(typeCode)) componentConfig = JSON.stringify(handleComponentConfigAndCustom(values[typeCode], typeCode))
+            if (!isNeedTemp(typeCode)) {
+                componentConfig = JSON.stringify(handleComponentConfigAndCustom(multipComp, typeCode))
+            }
             if (isNeedTemp(typeCode)) {
                 componentConfig = JSON.stringify({
                     ...currentComp?.specialConfig,
@@ -54,10 +60,10 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
                 storeType: currentComp?.storeType ?? '',
                 principal: currentComp?.principal ?? '',
                 principals: currentComp?.principals ?? [],
-                hadoopVersion: currentComp.hadoopVersion ?? '',
+                hadoopVersion: mulitple ? hadoopVersion : currentComp.hadoopVersion ?? '',
                 componentTemplate: isNeedTemp(typeCode)
                     ? (!currentComp.customParam ? '[]' : JSON.stringify(handleCustomParam(currentComp.customParam)))
-                    : JSON.stringify(handleComponentTemplate(values[typeCode], comp)),
+                    : JSON.stringify(handleComponentTemplate(multipComp, comp)),
                 componentConfig
             }
             /**
@@ -112,7 +118,7 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
     }
 
     showModal = () => {
-        const { comp, handleConfirm } = this.props
+        const { comp, handleConfirm, mulitple } = this.props
         Modal.confirm({
             title: '确认要删除组件？',
             content: '此操作执行后不可逆，是否确认将对应组件删除？',
@@ -121,7 +127,7 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
             okType: 'danger',
             cancelText: '取消',
             onOk: () => {
-                handleConfirm(COMP_ACTION.DELETE, comp)
+                handleConfirm(COMP_ACTION.DELETE, comp, mulitple)
             },
             onCancel: () => {
                 console.log('Cancel')
@@ -153,16 +159,16 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
                     <Button>取消</Button>
                 </Popconfirm>
                 <Button style={{ marginLeft: 8 }} onClick={this.showModal}>
-                    { mulitple ? `删除${VERSION_TYPE[comp.componentTypeCode]} ${Number(comp.hadoopVersion) / 100}组件` : `删除${COMPONENT_CONFIG_NAME[typeCode]}组件` }
-                    {/* 删除{`${COMPONENT_CONFIG_NAME[typeCode]}`}组件 */}
+                    { mulitple ? `删除${VERSION_TYPE[comp.componentTypeCode]} ${Number(comp.hadoopVersion) / 100}组件`
+                        : `删除${COMPONENT_CONFIG_NAME[typeCode]}组件` }
                 </Button>
                 <Button style={{ marginLeft: 8 }} loading={loading} ghost onClick={this.testConnects}>
-                    { mulitple ? `测试${VERSION_TYPE[comp.componentTypeCode]} ${Number(comp.hadoopVersion) / 100}连通性` : `测试${COMPONENT_CONFIG_NAME[typeCode]}连通性` }
-                    {/* 测试{`${COMPONENT_CONFIG_NAME[typeCode]}`}连通性 */}
+                    { mulitple ? `测试${VERSION_TYPE[comp.componentTypeCode]} ${Number(comp.hadoopVersion) / 100}连通性`
+                        : `测试${COMPONENT_CONFIG_NAME[typeCode]}连通性` }
                 </Button>
                 <Button style={{ marginLeft: 8 }} type="primary" onClick={this.onOk}>
-                    { mulitple ? `保存${VERSION_TYPE[comp.componentTypeCode]} ${Number(comp.hadoopVersion) / 100}组件` : `保存${COMPONENT_CONFIG_NAME[typeCode]}组件` }
-                    {/* 保存{`${COMPONENT_CONFIG_NAME[typeCode]}`}组件 */}
+                    { mulitple ? `保存${VERSION_TYPE[comp.componentTypeCode]} ${Number(comp.hadoopVersion) / 100}组件`
+                        : `保存${COMPONENT_CONFIG_NAME[typeCode]}组件` }
                 </Button>
             </div>
         )
