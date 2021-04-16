@@ -673,17 +673,30 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 				addr = yarnConf.get("yarn.resourcemanager.webapp.address");
 			}
 
-			return String.format("http://%s/proxy",addr);
+			return String.format("http://%s/proxy", addr);
 		}catch (Exception e){
 			LOG.error("get proxyDescriptor error: {}", e);
-			String  addr = yarnConf.get("yarn.resourcemanager.webapp.address");
+			String addr = getYarnAddressFromConf(yarnConf);
 			if (addr == null && EJobType.SYNC == jobType) {
 				throw new YarnDeploymentException("Couldn't get rm web app address. " +
 						"it's required when batch job run on per_job mode. " +
 						"Please check rm web address whether be confituration.");
 			}
-			return String.format("http://%s/proxy",addr);
+			return String.format("http://%s/proxy", addr);
 		}
+	}
+
+	private String getYarnAddressFromConf(YarnConfiguration yarnConf) {
+		String address = null;
+		String rmIdsStr = yarnConf.get("yarn.resourcemanager.ha.rm-ids");
+		if (StringUtils.isNotEmpty(rmIdsStr)) {
+			String[] rmIds = StringUtils.split(rmIdsStr, ",");
+			String key = "yarn.resourcemanager.webapp.address." + rmIds[0];
+			address = yarnConf.get(key);
+		} else {
+			address = yarnConf.get("yarn.resourcemanager.webapp.address");
+		}
+		return address;
 	}
 
 	private void fillJobGraphClassPath(JobGraph jobGraph) throws MalformedURLException {
