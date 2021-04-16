@@ -79,3 +79,68 @@ div:focus{
 .pager{
   padding:20px;
 }
+
+// form表单上下边距调整成20px
+.dm-form.ant-form {
+  .ant-row {
+    margin-bottom: 14px;
+    &.ant-form-item-with-help {
+      margin-bottom: 0;
+    }
+  }
+  .ant-form-explain {
+    height: 16px;
+    margin-top: -5px;
+    margin-bottom: 0;
+  }
+}
+
+// 表单渲染，宽度600px,textarea无效
+.dm-form-item {
+  width: 600px!important;
+  max-width: 600px!important;
+}
+
+// Step组件，配合stepIconRender
+.dm-steps.ant-steps {
+  .ant-steps-item {
+    .ant-steps-item-container {
+      .ant-steps-item-content {
+        .ant-steps-item-title {
+          &::after {
+            background-color: #E8E8E8;
+          }
+        }
+      }
+    }
+  }
+
+  .ant-steps-icon {
+    .step-icon-wrapper {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #3F87FF;
+      border-radius: 50%;
+      vertical-align: middle;
+      .step-icon {
+        line-height: 28px;
+        font-size: 28px;
+      }
+      &.border-gray {
+        border: 1px solid #DDDDDD!important;
+      }
+      &.filled {
+        background-color: #3F87FF;
+        color: #ffffff!important;
+      }
+    }
+    .font {
+      font-size: 14px;
+      font-weight: 600;
+      vertical-align: middle;
+    }
+  }
+}

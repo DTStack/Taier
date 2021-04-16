@@ -10,6 +10,7 @@ import { IModelDetail, EnumModelStatus } from 'pages/DataModel/types';
 import { EnumModifyStep, EnumModifyMode } from './types';
 import BreadCrumbRender from './BreadCrumbRender';
 import CodeBlock from 'pages/DataModel/components/CodeBlock';
+import stepIconRender from '@/utils/stepIconRender';
 const idGenerator = () => {
   let _id = 0;
   return () => ++_id + '';
@@ -210,12 +211,12 @@ const Modify = (props: IPropsModify) => {
         </div>
         <div className="content">
           <header className="step-header">
-            <Steps current={current}>
-              <Step title="基础信息" />
-              <Step title="表关联" />
-              <Step title="选择维度" />
-              <Step title="选择度量" />
-              <Step title="设置" />
+            <Steps className="dm-steps" current={current}>
+              {['基础信息', '表关联', '选择维度', '选择度量', '设置'].map(
+                (title, index) => (
+                  <Step title={title} icon={stepIconRender(index, current)} />
+                )
+              )}
             </Steps>
           </header>
           <div className="step-content padding-tb-20">

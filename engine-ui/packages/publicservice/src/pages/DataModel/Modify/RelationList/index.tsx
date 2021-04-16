@@ -120,7 +120,7 @@ const RelationList = (props: IPropsRelationList) => {
         dsId: modelDetail.dsId,
         schema: modelDetail.schema,
         tableName: modelDetail.tableName,
-        tableAlias: modelDetail.tableName,
+        tableAlias: undefined,
       });
     }
     tables.push(

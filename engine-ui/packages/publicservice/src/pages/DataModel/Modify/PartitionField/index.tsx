@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useImperativeHandle } from 'react';
-import { Form, Select, Switch } from 'antd';
+import { Form, Select, Switch, Row, Col } from 'antd';
 import { IModelDetail } from '@/pages/DataModel/types';
+import './style';
 
 interface IPropsPartitionField {
   form?: any;
@@ -158,7 +159,13 @@ const PartitionField = (props: IPropsPartitionField) => {
   }, [currentForm.modelPartition?.timePartition]);
 
   return (
-    <Form {...layout} className="padding-top-20">
+    <Form className="padding-top-20 partition-field dm-form" {...layout}>
+      <Row className="mb-12">
+        <Col span={5}>
+          <span className="text-main ml-32">分区设置</span>
+          <i className="text-main-icon ml-8 iconfont2 iconOutlinedxianxing_Question" />
+        </Col>
+      </Row>
       <Form.Item label="分区字段（日期）">
         {getFieldDecorator('modelPartition.datePartitionColumn.columnName', {
           rules: rules('分区字段（日期）不可为空'),

@@ -176,6 +176,7 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
     }
   };
 
+  // 请求接口判断表是否为分区表
   const isPartition = async (
     dsId: number,
     schema: string,
@@ -203,6 +204,7 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
   }, [modelDetail.dsId]);
 
   useEffect(() => {
+    setRelationTableList([]);
     getRelationTableList(modelDetail.dsId, currentFormValue.schema);
   }, [currentFormValue.schema]);
 
@@ -239,12 +241,17 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
 
   return (
     <div ref={cref} className="relation-table-modal">
-      <Form layout="horizontal" {...formItemLayout}>
+      <Form className="dm-form" layout="horizontal" {...formItemLayout}>
         <Form.Item label="选择表" required={false}>
           {getFieldDecorator('leftTable', {
             rules: requiredRule('请选择表'),
           })(
-            <Select placeholder="请选择表" disabled={isDisabled}>
+            <Select
+              placeholder="请选择表"
+              disabled={isDisabled}
+              onChange={() => {
+                refDynamicSelect.current.resetColumns('left');
+              }}>
               {tableList.map((item, index) => (
                 <Select.Option key={index} value={tableParser.encode(item)}>
                   {item.tableName}
@@ -274,6 +281,7 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
               disabled={isDisabled}
               placeholder="请选择schema"
               onChange={() => {
+                refDynamicSelect.current.resetColumns('right');
                 setFieldsValue({
                   ...currentFormValue,
                   table: undefined,
@@ -293,7 +301,12 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
               {getFieldDecorator('table', {
                 rules: requiredRule('请选择关联表'),
               })(
-                <Select disabled={isDisabled} placeholder="请选择关联表">
+                <Select
+                  disabled={isDisabled}
+                  placeholder="请选择关联表"
+                  onChange={() => {
+                    refDynamicSelect.current.resetColumns('right');
+                  }}>
                   {relationTableList.map((item) => (
                     <Select.Option key={item.tableName} value={item.tableName}>
                       {item.tableName}
@@ -323,7 +336,7 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
                       validator: repeatValidator,
                     },
                   ],
-                })(<Input placeholder="请输入表名" />)}
+                })(<Input placeholder="请输入表名" autoComplete="off" />)}
               </Form.Item>
             </Col>
           </Row>

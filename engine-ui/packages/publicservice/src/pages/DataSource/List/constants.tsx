@@ -128,12 +128,11 @@ const columns = (props: any) => {
               <span className="data-view">
                 <Popconfirm
                   title="是否删除此条记录？"
-                  icon={
-                    <Icon type="question-circle-o" style={{ color: 'red' }} />
-                  }
+                  icon={<span></span>}
                   onConfirm={() => toDelete(record)}
                   okText="删除"
-                  cancelText="取消">
+                  cancelText="取消"
+                  okType="danger">
                   <a>删除</a>
                 </Popconfirm>
               </span>

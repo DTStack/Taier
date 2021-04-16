@@ -139,10 +139,11 @@ function Search(props) {
             <Icon style={{ color: '#999' }} type="question-circle-o" />
           </Tooltip>
         </Form.Item>
-
-        <Button type="primary" onClick={addList} style={{ float: 'right' }}>
-          新增数据源
-        </Button>
+        <Form.Item style={{ float: 'right', marginRight: 0 }}>
+          <Button type="primary" onClick={addList} style={{ width: 104 }}>
+            新增数据源
+          </Button>
+        </Form.Item>
       </Form>
     </div>
   );
