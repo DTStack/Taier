@@ -12,11 +12,12 @@ interface Props {
   store: any;
   history?: any;
 }
+
 export default class Root extends Component<Props> {
   render() {
     const { store, history } = this.props;
     return (
-      <ConfigProvider locale={zhCN}>
+      <ConfigProvider locale={zhCN} autoInsertSpaceInButton={false}>
         <Provider store={store}>
           <Router routes={getRoutes()} history={history} />
         </Provider>

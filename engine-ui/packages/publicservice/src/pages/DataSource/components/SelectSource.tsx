@@ -82,14 +82,17 @@ export default function SelectSource(props) {
 
   //选择对应类型
   const onSelectType = (item) => {
-    let data = JSON.parse(JSON.stringify(iconList));
-    data.forEach((ele) => {
-      if (ele.typeId === item.typeId) {
-        ele.selected = true;
-      } else {
-        ele.selected = false;
-      }
-    });
+    let data: any = [];
+    try {
+      data = JSON.parse(JSON.stringify(iconList));
+      data.forEach((ele) => {
+        if (ele.typeId === item.typeId) {
+          ele.selected = true;
+        } else {
+          ele.selected = false;
+        }
+      });
+    } catch (error) {}
 
     setIconList(data);
     nextType(true); //显示下一步

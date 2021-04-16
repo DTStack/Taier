@@ -45,16 +45,19 @@ export default function index(props) {
             changeBtnStatus={changeBtnStatus}></InfoConfig>
         </div>
         <div className="footer-select">
-          <Button type="primary" onClick={testConnect}>
+          <Button type="primary" onClick={testConnect} style={{ width: 108 }}>
             测试连通性
           </Button>
-          <Button style={{ marginLeft: 60, marginRight: 8 }} disabled>
+          <Button
+            style={{ marginLeft: 60, marginRight: 8, width: 80 }}
+            disabled>
             上一步
           </Button>
           <Button
             type="primary"
             onClick={submitConfig}
-            disabled={submitBtnStatus}>
+            disabled={submitBtnStatus}
+            style={{ width: 80 }}>
             确定
           </Button>
         </div>

@@ -5,8 +5,9 @@ export function getRules(item) {
       message: `${item.label}不能为空`,
     },
   ];
-  if (item.validInfo !== '') {
-    let validInfo = JSON.parse(item.validInfo);
+
+  try {
+    let validInfo = JSON.parse(item?.validInfo);
     if (Object.keys(validInfo).includes('length')) {
       ruleArr.push(validInfo?.length);
     }
@@ -18,7 +19,7 @@ export function getRules(item) {
         message: validInfo?.regex?.message,
       });
     }
-  }
+  } catch (error) {}
 
   if (item.label === '数据源名称') {
     ruleArr.push({
