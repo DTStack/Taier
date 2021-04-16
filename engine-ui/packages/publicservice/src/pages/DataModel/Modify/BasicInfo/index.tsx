@@ -106,7 +106,10 @@ const BasicInfo = (props: IPropsBasicInfo) => {
 
   return (
     <div className="padding-top-20" ref={cref}>
-      <Form labelCol={{ span: 4 }} wrapperCol={{ span: 20 }}>
+      <Form
+        className="dm-form"
+        labelCol={{ span: 3 }}
+        wrapperCol={{ span: 21 }}>
         <Form.Item label="模型名称">
           {getFieldDecorator('modelName', {
             validateTrigger: 'onBlur',
@@ -125,7 +128,13 @@ const BasicInfo = (props: IPropsBasicInfo) => {
                 }),
               },
             ],
-          })(<Input placeholder="请输入模型名称" />)}
+          })(
+            <Input
+              className="dm-form-item"
+              autoComplete="off"
+              placeholder="请输入模型名称"
+            />
+          )}
         </Form.Item>
         <Form.Item label="模型英文名">
           {getFieldDecorator('modelEnName', {
@@ -145,13 +154,21 @@ const BasicInfo = (props: IPropsBasicInfo) => {
                 }),
               },
             ],
-          })(<Input disabled={isDisabled} placeholder="请输入模型英文名称" />)}
+          })(
+            <Input
+              className="dm-form-item"
+              disabled={isDisabled}
+              autoComplete="off"
+              placeholder="请输入模型英文名称"
+            />
+          )}
         </Form.Item>
         <Form.Item label="数据源">
           {getFieldDecorator('dsId', {
             rules: [{ required: true, message: '请选择数据源' }],
           })(
             <Select
+              className="dm-form-item"
               placeholder="请选择数据源"
               disabled={isDisabled}
               onChange={(value, target) => {
@@ -177,8 +194,14 @@ const BasicInfo = (props: IPropsBasicInfo) => {
         <Form.Item label="备注">
           {getFieldDecorator('remark', {
             initialValue: '',
-            rules: [{ max: 50, message: '不超过50个字符' }],
-          })(<TextArea style={{ height: '92px' }} placeholder="请输入备注" />)}
+            rules: [{ max: 200, message: '不超过200个字符' }],
+          })(
+            <TextArea
+              className="dm-form-item textarea"
+              style={{ height: '92px', width: '600px' }}
+              placeholder="请输入备注"
+            />
+          )}
         </Form.Item>
       </Form>
     </div>

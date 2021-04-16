@@ -84,6 +84,7 @@ export const columnsGenerator = ({ onInputBlur, data }): any[] => {
           <Input
             defaultValue={comment}
             onBlur={(e) => onInputBlur(record.id, e.currentTarget.value)}
+            autoComplete="off"
           />
         );
       },

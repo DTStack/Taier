@@ -178,7 +178,10 @@ const RelationTableSelect = (props: IPropsRelationTableSelect) => {
 
   return (
     <div className="padding-top-20" ref={cref}>
-      <Form labelCol={{ span: 4 }} wrapperCol={{ span: 20 }}>
+      <Form
+        className="dm-form"
+        labelCol={{ span: 3 }}
+        wrapperCol={{ span: 21 }}>
         <Form.Item label="schema">
           {getFieldDecorator('schema', {
             rules: [{ required: true, message: '请选择schema' }],
