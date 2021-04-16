@@ -220,7 +220,7 @@ public class  JobStatusDealer implements Runnable {
         Predicate<ScheduleJob> isStreamCancellingConditions = job ->
                 ComputeType.STREAM.getType().equals(job.getComputeType())
                         && RdosTaskStatus.CANCELLING.getStatus().equals(job.getStatus())
-                        && RdosTaskStatus.STOP_STATUS.contains(status);
+                        && RdosTaskStatus.STOPPED_STATUS.contains(status);
 
         if (ComputeType.BATCH.getType().equals(scheduleJob.getComputeType()) || isStreamUpdateConditions.test(scheduleJob) || isStreamCancellingConditions.test(scheduleJob)) {
             LOGGER.info("jobId:{} taskRule status {}",jobId,status);
