@@ -17,6 +17,8 @@ public class ComponentTestResult {
 
     private String errorMsg;
 
+    private String componentVersion;
+
     public int getComponentTypeCode() {
         return componentTypeCode;
     }
@@ -49,6 +51,14 @@ public class ComponentTestResult {
 
     public void setErrorMsg(String errorMsg) {
         this.errorMsg = errorMsg;
+    }
+
+    public String getComponentVersion() {
+        return componentVersion;
+    }
+
+    public void setComponentVersion(String componentVersion) {
+        this.componentVersion = componentVersion;
     }
 
     @Override

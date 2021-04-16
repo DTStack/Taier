@@ -10,6 +10,7 @@ import com.dtstack.engine.api.dto.Resource;
 import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.api.pojo.lineage.ComponentMultiTestResult;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.api.vo.ComponentVO;
 import com.dtstack.engine.api.vo.EngineTenantVO;
@@ -43,7 +44,9 @@ import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.util.Xml2JsonUtil;
 import com.dtstack.schedule.common.util.ZipUtil;
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Table;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
@@ -1213,6 +1216,7 @@ public class ComponentService {
         } finally {
             if (null != componentTestResult) {
                 componentTestResult.setComponentTypeCode(componentType);
+                componentTestResult.setComponentVersion(hadoopVersion);
             }
         }
         return componentTestResult;
@@ -1725,6 +1729,7 @@ public class ComponentService {
             ComponentTestResult componentTestResult = new ComponentTestResult();
             componentTestResult.setComponentTypeCode(componentType);
             componentTestResult.setResult(true);
+            componentTestResult.setComponentVersion(testComponent.getHadoopVersion());
             return componentTestResult;
         }
         String componentConfig = getComponentByClusterId(cluster.getId(), componentType, false, String.class,componentVersionMap);
@@ -1738,7 +1743,7 @@ public class ComponentService {
      * @param clusterName
      * @return
      */
-    public List<ComponentTestResult> testConnects(String clusterName) {
+    public List<ComponentMultiTestResult> testConnects(String clusterName) {
         if (StringUtils.isBlank(clusterName)) {
             throw new RdosDefineException("clusterName is null");
         }
@@ -1750,7 +1755,7 @@ public class ComponentService {
 
         Map sftpMap = getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class,null);
         CountDownLatch countDownLatch = new CountDownLatch(components.size());
-        Map<Integer, Future<ComponentTestResult>> completableFutures = new HashMap<>();
+        Table<Integer,String , Future<ComponentTestResult>> completableFutures = HashBasedTable.create();
         for (Component component : components) {
             Future<ComponentTestResult> testResultFuture = connectPool.submit(() -> {
                 try {
@@ -1759,7 +1764,7 @@ public class ComponentService {
                     countDownLatch.countDown();
                 }
             });
-            completableFutures.put(component.getComponentTypeCode(),testResultFuture);
+            completableFutures.put(component.getComponentTypeCode(),StringUtils.isBlank(component.getHadoopVersion())?StringUtils.EMPTY:component.getHadoopVersion(),testResultFuture);
         }
         try {
             countDownLatch.await(env.getTestConnectTimeout(), TimeUnit.SECONDS);
@@ -1767,9 +1772,9 @@ public class ComponentService {
             LOGGER.error("test connect await {} error ", clusterName, e);
         }
 
-        List<ComponentTestResult> results = new ArrayList<>();
-        for (Integer componentCode : completableFutures.keySet()) {
-            Future<ComponentTestResult> completableFuture = completableFutures.get(componentCode);
+        Map<Integer,ComponentMultiTestResult> multiComponent=new HashMap<>(completableFutures.size());
+        for (Table.Cell<Integer, String, Future<ComponentTestResult>> cell : completableFutures.cellSet()) {
+            Future<ComponentTestResult> completableFuture = cell.getValue();
             ComponentTestResult testResult = new ComponentTestResult();
             testResult.setResult(false);
             try {
@@ -1782,11 +1787,12 @@ public class ComponentService {
             } catch (Exception e) {
                 testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
             } finally {
-                testResult.setComponentTypeCode(componentCode);
-                results.add(testResult);
+                testResult.setComponentTypeCode(cell.getRowKey());
+                ComponentMultiTestResult multiTestResult = multiComponent.computeIfAbsent(cell.getRowKey(), k -> new ComponentMultiTestResult(cell.getRowKey()));
+                buildComponentMultiTest(multiTestResult,testResult,cell.getColumnKey());
             }
         }
-        return results;
+        return new ArrayList<>(multiComponent.values());
     }
 
     private ComponentTestResult testComponentWithResult(String clusterName, Cluster cluster, Map sftpMap,Component component) {
@@ -1810,6 +1816,7 @@ public class ComponentService {
             testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
             LOGGER.error("test connect {}  error ", component.getId(), e);
         } finally {
+            testResult.setComponentVersion(component.getHadoopVersion());
             testResult.setComponentTypeCode(component.getComponentTypeCode());
         }
         return testResult;
@@ -1828,7 +1835,7 @@ public class ComponentService {
 
         List<Component> components = componentDao.listByEngineIds(engineId);
         if (CollectionUtils.isEmpty(components)) {
-            return new ArrayList<>(0);
+            return Collections.emptyList();
         }
         return components;
     }
@@ -2035,5 +2042,23 @@ public class ComponentService {
                 LOGGER.error("delete update file {} error", unzipLocation);
             }
         }
+    }
+
+    /**
+     * 构建组件多版本测试结果
+     * @param multiTestResult 多版本
+     * @param componentTestResult 单个版本
+     * @param componentVersion 版本,可能为 ""
+     */
+    private void buildComponentMultiTest(ComponentMultiTestResult multiTestResult,ComponentTestResult componentTestResult,String componentVersion){
+        if (!componentTestResult.getResult()){
+            if (multiTestResult.getResult()){
+                multiTestResult.setResult(false);
+                multiTestResult.setErrorMsg(new ArrayList<>(2));
+            }
+            multiTestResult.getErrorMsg().add(new ComponentMultiTestResult.MultiErrorMsg(componentVersion,componentTestResult.getErrorMsg()));
+        }
+        multiTestResult.getMultiVersion().add(componentTestResult);
+
     }
 }
