@@ -12,16 +12,32 @@ import java.util.*;
  */
 public class ComponentVersionUtil {
 
-
+    /**
+     * 没有版本的任务 - 组件 映射
+     */
     public static final Set<Integer> NO_VERSION_SET;
+    /**
+     * 存在版本的 任务 - 组件映射
+     */
     public static final Map<Integer,EComponentType> TASK_COMPONENT;
-
+    /**
+     * 多版本的组件
+     */
+    public static final Set<Integer> VERSION_COMPONENT;
     /**
      * 不允许修改对应关系
      */
     static {
         NO_VERSION_SET = Collections.unmodifiableSet(initUnVersionComponent());
         TASK_COMPONENT = Collections.unmodifiableMap(initComponent());
+        VERSION_COMPONENT = Collections.unmodifiableSet(initVersionComponent());
+    }
+
+    private static Set<Integer> initVersionComponent(){
+        Set<Integer> set = new HashSet<>(2);
+        set.add(EComponentType.FLINK.getTypeCode());
+        set.add(EComponentType.SPARK.getTypeCode());
+        return set;
     }
 
     private static Set<Integer> initUnVersionComponent(){
@@ -84,6 +100,13 @@ public class ComponentVersionUtil {
 
     public static String getComponentVersion(Map<Integer,String > componentVersionMap, Integer componentTypeCode){
         return Objects.isNull(componentVersionMap)?null:componentVersionMap.get(componentTypeCode);
+    }
+
+    public static boolean isMultiVersionComponent(Integer componentTypeCode){
+        if (VERSION_COMPONENT.contains(componentTypeCode)){
+            return true;
+        }
+        return false;
     }
 
     public static EComponentType transformTaskType2ComponentType(Integer taskType){

@@ -1,3 +1,6 @@
+-- 修改console_component的唯一索引
+DROP INDEX index_component ON `console_component`;
+ALTER TABLE `console_component` ADD UNIQUE index_component ( `engine_id`, `component_type_code`, `hadoop_version` );
 -- 组件默认版本
 ALTER TABLE console_component ADD COLUMN `is_default` TINYINT NOT NULL DEFAULT 1 COMMENT '组件默认版本';
 -- console_kerberos添加组件版本字段

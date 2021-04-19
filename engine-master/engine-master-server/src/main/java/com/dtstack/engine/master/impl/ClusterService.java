@@ -427,9 +427,8 @@ public class ClusterService implements InitializingBean {
                 List<IComponentVO> components = schedulingVo.getComponents();
                 if (CollectionUtils.isNotEmpty(components)) {
                     for (IComponentVO componentVO : components) {
-                        ComponentVO component=componentVO.getComponent(ComponentVersionUtil.getComponentVersion(componentVersionMap,componentVO.getComponentTypeCode()));
-                        EComponentType type = EComponentType.getByCode(component.getComponentTypeCode());
-                        JSONObject componentConfig = componentService.getComponentByClusterId(cluster.getClusterId(), component.getComponentTypeCode(), false, JSONObject.class,componentVersionMap);
+                        EComponentType type = EComponentType.getByCode(componentVO.getComponentTypeCode());
+                        JSONObject componentConfig = componentService.getComponentByClusterId(cluster.getClusterId(), componentVO.getComponentTypeCode(), false, JSONObject.class,componentVersionMap);
                         config.put(type.getConfName(), componentConfig);
                     }
                 }

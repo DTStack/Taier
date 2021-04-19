@@ -164,7 +164,7 @@ CREATE TABLE `console_component` (
  `store_type` tinyint(1) DEFAULT '4' COMMENT '组件存储类型: HDFS、NFS 默认HDFS',
   `is_default` tinyint(1) default 1  not null comment '组件默认版本',
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `index_component`(`engine_id`, `component_type_code`) USING BTREE
+  UNIQUE INDEX `index_component`(`engine_id`, `component_type_code`,`hadoop_version`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `console_dtuic_tenant` (
