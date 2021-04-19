@@ -7,7 +7,7 @@ import * as _ from 'lodash'
 import Api from '../../../api/console'
 import { initialScheduling, isViewMode, isNeedTemp,
     getModifyComp, isSameVersion, getCompsId,
-    isMulitiVersion } from './help'
+    isMultiVersion, getCurrentComp } from './help'
 import { TABS_TITLE, COMPONENT_CONFIG_NAME, DEFAULT_COMP_VERSION,
     COMPONENT_TYPE_VALUE, TABS_POP_VISIBLE, COMP_ACTION } from './const'
 
@@ -16,7 +16,7 @@ import FormConfig from './formConfig'
 import ToolBar from './components/toolbar'
 import ComponentButton from './components/compsBtn'
 import TestRestIcon from '../../../components/testResultIcon'
-import MulitiVersionComp from './components/multiVerComp'
+import MultiVersionComp from './components/multiVerComp'
 
 const TabPane = Tabs.TabPane
 const confirm = Modal.confirm
@@ -101,9 +101,18 @@ class EditCluster extends React.Component<any, IState> {
         const { getFieldValue } = this.props.form
         const { clusterName, initialCompData, activeKey } = this.state
         const typeCode = key ?? initialCompData[activeKey][0]?.componentTypeCode
-        const comp = initialCompData[activeKey].find(comp => comp.componentTypeCode == typeCode)
+        // const comp = initialCompData[activeKey].find(comp => comp.componentTypeCode == typeCode)
+        const comp = getCurrentComp(initialCompData[activeKey], { typeCode })
 
-        if ((!isNeedTemp(Number(typeCode)) && !comp?.componentTemplate && initialCompData[activeKey]?.length) ||
+        if (isNeedTemp(Number(typeCode))) {
+            this.saveComp({
+                componentTypeCode: Number(typeCode),
+                hadoopVersion: params?.compVersion ?? ''
+            })
+            return
+        }
+
+        if ((!comp?.componentTemplate && initialCompData[activeKey]?.length) ||
             params?.compVersion || params?.storeType) {
             const res = await Api.getLoadTemplate({
                 clusterName,
@@ -192,8 +201,8 @@ class EditCluster extends React.Component<any, IState> {
             if (res?.code == 1 || !componentIds.length) {
                 let wrapper = new Set()
                 currentCompArr.forEach(comp => {
-                    if (isMulitiVersion(componentTypeCode) && mulitple) {
-                        comp.mulitiVersion = comp.mulitiVersion.filter(vComp => vComp?.componentTypeCode != componentTypeCode)
+                    if (isMultiVersion(componentTypeCode) && mulitple) {
+                        comp.multiVersion = comp.multiVersion.filter(vComp => vComp?.componentTypeCode != componentTypeCode)
                         wrapper.add(comp)
                     }
                     if (comp.componentTypeCode != componentTypeCode) wrapper.add(comp)
@@ -215,8 +224,8 @@ class EditCluster extends React.Component<any, IState> {
                 comps.forEach(code => {
                     currentCompArr.push({
                         componentTypeCode: code,
-                        componentName: COMPONENT_CONFIG_NAME[code],
-                        mulitiVersion: [undefined]
+                        // componentName: COMPONENT_CONFIG_NAME[code],
+                        multiVersion: [undefined]
                     })
                 })
             }
@@ -234,10 +243,10 @@ class EditCluster extends React.Component<any, IState> {
         let newCompData = _.cloneDeep(initialCompData)
         newCompData[activeKey] = initialCompData[activeKey].map(comp => {
             if (comp.componentTypeCode !== params.componentTypeCode) return comp
-            if (type == COMP_ACTION.ADD) comp.mulitiVersion.push(undefined)
-            comp.mulitiVersion = comp.mulitiVersion.map(vcomp => {
+            if (type == COMP_ACTION.ADD) comp.multiVersion.push(undefined)
+            comp.multiVersion = comp.multiVersion.map(vcomp => {
                 if (!vcomp) return { ...params }
-                if (!isMulitiVersion(params.componentTypeCode)) return { ...vcomp, ...params }
+                if (!isMultiVersion(params.componentTypeCode)) return { ...vcomp, ...params }
                 if (!vcomp?.hadoopVersion || vcomp?.hadoopVersion == params.hadoopVersion) return { ...vcomp, ...params }
                 return vcomp
             })
@@ -280,7 +289,7 @@ class EditCluster extends React.Component<any, IState> {
 
     setTestStatus = (status: any, isSingle?: boolean) => {
         if (isSingle) {
-            if (!isMulitiVersion(status.componentTypeCode)) {
+            if (!isMultiVersion(status.componentTypeCode)) {
                 this.setState((preState) => ({
                     testStatus: {
                         ...preState.testStatus,
@@ -292,11 +301,11 @@ class EditCluster extends React.Component<any, IState> {
                 return
             }
             let newTestStatus = this.state.testStatus
-            let mulitiVersion = newTestStatus[status.componentTypeCode]?.mulitiVersion ?? []
+            let multiVersion = newTestStatus[status.componentTypeCode]?.multiVersion ?? []
 
-            if (!mulitiVersion.length) mulitiVersion.push(status)
-            if (mulitiVersion.length) {
-                mulitiVersion = mulitiVersion.map(mv => {
+            if (!multiVersion.length) multiVersion.push(status)
+            if (multiVersion.length) {
+                multiVersion = multiVersion.map(mv => {
                     if (mv.hadoopVersion == status.hadoopVersion) return status
                     return mv
                 })
@@ -305,7 +314,7 @@ class EditCluster extends React.Component<any, IState> {
             let result = true
             let errorMsg = []
 
-            mulitiVersion.forEach(mv => {
+            multiVersion.forEach(mv => {
                 if (!mv.result) {
                     result = false
                     errorMsg.push({
@@ -321,7 +330,7 @@ class EditCluster extends React.Component<any, IState> {
                     [status.componentTypeCode]: {
                         result,
                         errorMsg,
-                        mulitiVersion: mulitiVersion
+                        multiVersion: multiVersion
                     }
                 }
             }))
@@ -342,11 +351,18 @@ class EditCluster extends React.Component<any, IState> {
         const { initialCompData, clusterName } = this.state
         form.validateFields(null, {}, (err: any, values: any) => {
             console.log(err, values)
-            if ((err && !typeCode) || (err && Object.keys(err).includes(String(typeCode)))) {
+            let currentComp = values
+            if (isMultiVersion(typeCode) && err && Object.keys(err[String(typeCode)]).includes(hadoopVersion)) {
                 message.error('请检查配置')
                 return
             }
-            const modifyComps = getModifyComp(values, initialCompData)
+            if (isMultiVersion(typeCode)) { currentComp = values[hadoopVersion] ?? {} }
+            if ((err && !typeCode) || (err && !isMultiVersion(typeCode) && Object.keys(err).includes(String(typeCode)))) {
+                message.error('请检查配置')
+                return
+            }
+
+            const modifyComps = getModifyComp(currentComp, initialCompData)
             if (typeCode || typeCode == 0) {
                 if (modifyComps.size > 0 && Array.from(modifyComps).includes(String(typeCode))) {
                     message.error(`组件 ${COMPONENT_CONFIG_NAME[typeCode]} 参数变更未保存，请先保存再测试组件连通性`)
@@ -436,36 +452,33 @@ class EditCluster extends React.Component<any, IState> {
                                     />}
                                     className="c-editCluster__container__componentTabs"
                                     onChange={(key: any) => {
-                                        if (!isMulitiVersion(Number(key))) this.getLoadTemplate(key)
+                                        if (!isMultiVersion(Number(key))) this.getLoadTemplate(key)
                                     }}
                                 >
                                     {comps?.length > 0 && comps.map((comp: any) => {
-                                        if (!isMulitiVersion(comp.componentTypeCode)) {
-                                            comp.mulitiVersion = [{ ...comp }]
-                                        }
                                         return (<TabPane
                                             tab={<span>
-                                                {comp.componentName}
+                                                {COMPONENT_CONFIG_NAME[comp.componentTypeCode]}
                                                 <TestRestIcon testStatus={testStatus[comp.componentTypeCode] ?? {}}/>
                                             </span>}
                                             key={`${comp.componentTypeCode}`}
                                         >
                                             <>
-                                                {isMulitiVersion(comp.componentTypeCode)
-                                                    ? <MulitiVersionComp
+                                                {isMultiVersion(comp.componentTypeCode)
+                                                    ? <MultiVersionComp
                                                         comp={comp}
                                                         form={this.props.form}
                                                         view={isViewMode(mode)}
                                                         saveCompsData={saveCompsData}
                                                         versionData={versionData}
-                                                        testStatus={testStatus[comp.componentTypeCode]?.mulitiVersion ?? []}
+                                                        testStatus={testStatus[comp.componentTypeCode]?.multiVersion ?? []}
                                                         clusterInfo={{ clusterName, clusterId: cluster.clusterId }}
                                                         saveComp={this.saveComp}
                                                         getLoadTemplate={this.getLoadTemplate}
                                                         testConnects={this.testConnects}
                                                         handleConfirm={this.handleConfirm}
                                                     />
-                                                    : comp?.mulitiVersion?.map(vcomp => {
+                                                    : comp?.multiVersion?.map(vcomp => {
                                                         return <>
                                                             <FileConfig
                                                                 comp={vcomp}
@@ -482,17 +495,17 @@ class EditCluster extends React.Component<any, IState> {
                                                                 view={isViewMode(mode)}
                                                                 form={this.props.form}
                                                             />
+                                                            {!isViewMode(mode) && <ToolBar
+                                                                comp={vcomp}
+                                                                clusterInfo={{ clusterName, clusterId: cluster.clusterId }}
+                                                                initialCompData={initialCompData[activeKey]}
+                                                                form={this.props.form}
+                                                                saveComp={this.saveComp}
+                                                                testConnects={this.testConnects}
+                                                                handleConfirm={this.handleConfirm}
+                                                            />}
                                                         </>
                                                     })}
-                                                    {!isViewMode(mode) && !isMulitiVersion(comp.componentTypeCode) && <ToolBar
-                                                        comp={comp}
-                                                        clusterInfo={{ clusterName, clusterId: cluster.clusterId }}
-                                                        initialCompData={initialCompData[activeKey]}
-                                                        form={this.props.form}
-                                                        saveComp={this.saveComp}
-                                                        testConnects={this.testConnects}
-                                                        handleConfirm={this.handleConfirm}
-                                                    />}
                                                 </>
                                         </TabPane>)
                                     })}

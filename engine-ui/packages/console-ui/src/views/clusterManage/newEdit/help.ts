@@ -32,7 +32,7 @@ export function isSameVersion (code: number): boolean {
     return [COMPONENT_TYPE_VALUE.HDFS, COMPONENT_TYPE_VALUE.YARN].indexOf(code) > -1
 }
 
-export function isMulitiVersion (code: number): boolean {
+export function isMultiVersion (code: number): boolean {
     return [COMPONENT_TYPE_VALUE.FLINK, COMPONENT_TYPE_VALUE.SPARK].indexOf(code) > -1
 }
 
@@ -378,12 +378,28 @@ export function handleComponentConfigAndCustom (comp: any, typeCode: number): an
     return componentConfig
 }
 
+export function getCurrentComp (initialCompDataArr: any[], params: { typeCode: number; hadoopVersion?: string }): any {
+    const { typeCode, hadoopVersion } = params
+    let currentComp = {}
+    for (const comp of initialCompDataArr) {
+        for (const vcomp of (comp?.multiVersion ?? [])) {
+            if (vcomp?.componentTypeCode == typeCode) {
+                if (!hadoopVersion && vcomp) currentComp = vcomp
+                if (vcomp?.hadoopVersion == hadoopVersion) currentComp = vcomp
+            }
+        }
+    }
+    return currentComp
+}
+
 export function getInitialComp (initialCompDataArr: any[], typeCode: number): any {
     let initialCompData = {}
     for (let comps of initialCompDataArr) {
         for (let item of comps) {
-            if (item.componentTypeCode == typeCode) {
-                initialCompData = item
+            for (let vcomp of (item?.multiVersion ?? [])) {
+                if (vcomp.componentTypeCode == typeCode) {
+                    initialCompData = vcomp
+                }
             }
         }
     }

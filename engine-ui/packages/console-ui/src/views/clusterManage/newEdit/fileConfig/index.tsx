@@ -9,7 +9,7 @@ import KerberosModal from './components/kerberosModal'
 import { COMPONENT_TYPE_VALUE, VERSION_TYPE, FILE_TYPE,
     CONFIG_FILE_DESC, DEFAULT_COMP_VERSION } from '../const'
 import { isOtherVersion, isSameVersion, handleComponentConfig,
-    needZipFile, getOptions, getInitialValue, isMulitiVersion } from '../help'
+    needZipFile, getOptions, getInitialValue, isMultiVersion } from '../help'
 
 interface IProps {
     comp: any;
@@ -137,7 +137,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
         const { form, clusterInfo, comp } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
         let version = form.getFieldValue(typeCode + '.hadoopVersion') || '';
-        if (isMulitiVersion(typeCode)) version = comp?.hadoopVersion ?? ''
+        if (isMultiVersion(typeCode)) version = comp?.hadoopVersion ?? ''
 
         const a = document.createElement('a')
         let param = comp?.id ? (`?componentId=${comp.id}&`) : '?'
@@ -359,7 +359,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
         const typeCode = comp?.componentTypeCode ?? ''
         const hadoopVersion = comp?.hadoopVersion ?? ''
         let formField = typeCode
-        if (isMulitiVersion(typeCode)) formField = formField + '.' + hadoopVersion
+        if (isMultiVersion(typeCode)) formField = formField + '.' + hadoopVersion
         formField = formField + '.storeType'
 
         if (saveCompsData.length === 0) return
@@ -399,7 +399,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
         const kerberosFile = form.getFieldValue(typeCode + '.kerberosFileName') ?? comp?.kerberosFileName
         const hadoopVersion = comp?.hadoopVersion ?? ''
         let formField = typeCode
-        if (isMulitiVersion(typeCode)) formField = formField + '.' + hadoopVersion
+        if (isMultiVersion(typeCode)) formField = formField + '.' + hadoopVersion
         formField = formField + '.principal'
 
         if (!principals.length && !Array.isArray(comp?.principals) && comp?.principals) {
@@ -526,7 +526,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                 <KerberosModal
                     key={`${visible}`}
                     visible={visible}
-                    krbconfig={krbconfig || comp.mergeKrb5Content || ''}
+                    krbconfig={krbconfig || comp?.mergeKrb5Content || ''}
                     onCancel={this.hanleVisible}
                 />
             </div>

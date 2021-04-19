@@ -41,7 +41,7 @@ export default class MultiVersionComp extends React.Component<IProps, any> {
 
         return <Menu onClick={this.handleMenuClick}>
             {versionData[VERSION_TYPE[typeCode]]?.map(({ key, value }) => {
-                const disabled = comp?.mulitiVersion?.findIndex(vcomp => vcomp.hadoopVersion == value)
+                const disabled = comp?.multiVersion?.findIndex(vcomp => vcomp.hadoopVersion == value)
                 return <MenuItem disabled={disabled > -1} key={value} >
                     {VERSION_TYPE[typeCode]} {key}
                 </MenuItem>
@@ -67,7 +67,7 @@ export default class MultiVersionComp extends React.Component<IProps, any> {
 
         return <div className={className}>
             {
-                !comp?.mulitiVersion[0]?.hadoopVersion ? <>
+                !comp?.multiVersion[0]?.hadoopVersion ? <>
                 <div className={`${className}__intail`}>
                     <span className={`${className}__intail__title`}>请选择版本号：</span>
                     <div className={`${className}__intail__container`}>
@@ -104,7 +104,7 @@ export default class MultiVersionComp extends React.Component<IProps, any> {
                         </Button>
                     </Dropdown>}
                 >
-                    {comp?.mulitiVersion.map(vcomp => {
+                    {comp?.multiVersion.map(vcomp => {
                         return (
                             <TabPane
                                 tab={

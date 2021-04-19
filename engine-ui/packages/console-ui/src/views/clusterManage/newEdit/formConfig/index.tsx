@@ -4,7 +4,7 @@ import { Input, Form, Radio, Select, Checkbox,
     Tooltip, Row, Col } from 'antd'
 import { COMPONENT_TYPE_VALUE, CONFIG_ITEM_TYPE } from '../const'
 import { getValueByJson, isDeployMode,
-    isRadioLinkage, isCustomType, isMulitiVersion } from '../help'
+    isRadioLinkage, isCustomType, isMultiVersion } from '../help'
 import { formItemLayout } from '../../../../consts'
 import CustomParams from './components/customParams'
 interface IProps {
@@ -55,7 +55,7 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
         const initialValue = temp.key === 'deploymode' && !isArray(temp.value) ? temp.value.split() : temp.value
 
         let formField = typeCode
-        if (isMulitiVersion(typeCode)) formField = formField + '.' + hadoopVersion
+        if (isMultiVersion(typeCode)) formField = formField + '.' + hadoopVersion
 
         const fieldName = groupKey ? `${formField}.componentConfig.${groupKey}` : `${formField}.componentConfig`;
 
@@ -82,7 +82,7 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
         const typeCode = comp?.componentTypeCode ?? ''
         const hadoopVersion = comp?.hadoopVersion ?? ''
         let formField = typeCode
-        if (isMulitiVersion(typeCode)) formField = formField + '.' + hadoopVersion
+        if (isMultiVersion(typeCode)) formField = formField + '.' + hadoopVersion
 
         const dependencyValue = temps?.dependencyKey
             ? form.getFieldValue(formField + '.componentConfig.' + temps?.dependencyKey)

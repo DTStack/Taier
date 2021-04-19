@@ -20,7 +20,7 @@ export default class TestRestIcon extends React.Component<any, any> {
         })
     }
     matchCompTest (testResult: any) {
-        switch (testResult.result) {
+        switch (testResult?.result) {
             case TEST_STATUS.SUCCESS: {
                 return <Icon className='success-icon' type="check-circle" />
             }

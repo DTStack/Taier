@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Form, Row, Col, Input } from 'antd'
 import { formItemLayout } from '../../../../../../consts'
 import { getCustomerParams, isNeedTemp, giveMeAKey,
-    getValueByJson, isGroupType, isMulitiVersion } from '../../../help'
+    getValueByJson, isGroupType, isMultiVersion } from '../../../help'
 
 interface IProp {
     typeCode: number;
@@ -55,7 +55,7 @@ export default class CustomParams extends React.PureComponent<IProp, IState> {
         const { template, form, typeCode, comp, hadoopVersion } = this.props
         const { customParams } = this.state
         let formField = typeCode + ''
-        if (isMulitiVersion(typeCode)) formField = formField + '.' + hadoopVersion
+        if (isMultiVersion(typeCode)) formField = formField + '.' + hadoopVersion
 
         const feildName = isGroupType(template.type) ? (formField + '.customParam.' + template.key)
             : (formField + '.customParam')
@@ -134,7 +134,7 @@ export default class CustomParams extends React.PureComponent<IProp, IState> {
         return <>
             {customParams && customParams.map((param: any, index: number) => {
                 let formField = typeCode + ''
-                if (isMulitiVersion(typeCode)) formField = formField + '.' + hadoopVersion
+                if (isMultiVersion(typeCode)) formField = formField + '.' + hadoopVersion
                 const fieldName = groupKey ? `${formField}.customParam.${groupKey}` : `${formField}.customParam`
                 const publicKey = giveMeAKey()
                 return (<Row key={index}>

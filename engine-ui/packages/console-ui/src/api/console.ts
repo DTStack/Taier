@@ -14,7 +14,7 @@ export default {
     getClusterInfo (params: {
         clusterId: number;
     }) {
-        return http.post(req.GET_CLUSTER_INFO, params);
+        return http.post(req.GET_CLUSTER_INFO, { ...params });
     },
     uploadResource (params: {
         fileName: any;

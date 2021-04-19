@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Form, Upload, Button, Icon, Tooltip } from 'antd'
-import { isMulitiVersion } from '../../../help'
+import { isMultiVersion } from '../../../help'
 
 interface IProp {
     label: any;
@@ -24,7 +24,7 @@ export default class UploadFile extends React.PureComponent<IProp, any> {
         const { typeCode, hadoopVersion, name } = fileInfo
 
         let formField = typeCode
-        if (isMulitiVersion(typeCode) && hadoopVersion) formField = formField + '.' + hadoopVersion
+        if (isMultiVersion(typeCode) && hadoopVersion) formField = formField + '.' + hadoopVersion
         formField = formField + '.' + name
 
         const fileName = form.getFieldValue(formField)?.name ?? fileInfo?.value

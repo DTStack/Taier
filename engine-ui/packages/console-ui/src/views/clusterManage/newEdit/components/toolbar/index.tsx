@@ -5,7 +5,7 @@ import { COMPONENT_CONFIG_NAME, COMP_ACTION, VERSION_TYPE } from '../../const'
 
 import { handleComponentTemplate, handleComponentConfigAndCustom,
     handleComponentConfig, isNeedTemp, handleCustomParam,
-    isKubernetes, isMulitiVersion } from '../../help'
+    isKubernetes, isMultiVersion } from '../../help'
 interface IProps {
     form: any;
     comp: any;
@@ -96,7 +96,8 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
 
     testConnects = () => {
         const typeCode = this.props.comp?.componentTypeCode ?? ''
-        this.props.testConnects(typeCode, (loading: boolean) => {
+        const hadoopVersion = isMultiVersion(typeCode) ? this.props.comp?.hadoopVersion : ''
+        this.props.testConnects({ typeCode, hadoopVersion }, (loading: boolean) => {
             this.setState({ loading })
         })
     }
@@ -140,7 +141,7 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
         const { comp, mulitple } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
 
-        if (isMulitiVersion(typeCode) && !mulitple) {
+        if (isMultiVersion(typeCode) && !mulitple) {
             return (
                 <div className="c-toolbar__container">
                     <Button style={{ marginLeft: 8 }} onClick={this.showModal}>删除{`${COMPONENT_CONFIG_NAME[typeCode]}`}组件</Button>
