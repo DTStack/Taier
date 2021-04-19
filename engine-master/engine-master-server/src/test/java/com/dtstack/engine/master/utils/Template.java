@@ -451,6 +451,7 @@ public class Template {
         scheduleJobJob.setTenantId(1L);
         scheduleJobJob.setProjectId(1L);
         scheduleJobJob.setDtuicTenantId(1L);
+        scheduleJobJob.setParentAppType(1);
         scheduleJobJob.setAppType(AppType.RDOS.getType());
         scheduleJobJob.setJobKey("cronTrigger_3377_20201127000000");
         scheduleJobJob.setParentJobKey("cronTrigger_3381_20201127000000");

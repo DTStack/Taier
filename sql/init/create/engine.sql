@@ -334,7 +334,9 @@ CREATE TABLE `schedule_task_task_shade`
   `task_key` varchar(128) NOT NULL DEFAULT '' COMMENT '任务的标识',
   `parent_task_key` varchar(128) NOT NULL DEFAULT '' COMMENT '父任务的标识',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `index_batch_task_task` (`task_id`, `parent_task_id`, `project_id`)
+  UNIQUE KEY `index_batch_task_task` (`task_id`, `parent_task_id`, `project_id`),
+  KEY `index_task_key` (`task_key`),
+  KEY `index_parent_task_key` (`parent_task_key`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 

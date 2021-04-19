@@ -78,7 +78,7 @@ public class ScheduleTaskTaskShadeService {
             for (ScheduleTaskTaskShade scheduleTaskTaskShade : taskTaskList) {
                 List<ScheduleTaskTaskShade> shades = Lists.newArrayList(taskTaskList);
                 if (checkTaskTaskIsLoop(scheduleTaskTaskShade, shades)) {
-                    return SaveTaskTaskVO.isRink("save tasktask is rink : "+scheduleTaskTaskShade.getTaskKey());
+                    return SaveTaskTaskVO.isRink("任务依赖成环，无法提交");
                 }
             }
 
