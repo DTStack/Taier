@@ -46,7 +46,7 @@ export default function AuthSelect(props: IProps) {
 
   return (
     <div>
-      <p>点击进行授权/取消，若已在产品中应用，不能取消授权</p>
+      <p style={{color: '#666'}}>点击进行授权/取消，若已在产品中应用，不能取消授权</p>
       <br />
       <Checkbox.Group
         style={{ width: '100%' }}

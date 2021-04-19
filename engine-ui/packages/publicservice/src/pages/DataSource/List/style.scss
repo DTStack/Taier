@@ -3,6 +3,27 @@ $highlight-color: #3f87ff;
 
 .top-search {
   margin-bottom: 8px;
+
+  &-select {
+    
+    &.ant-select-dropdown.ant-select-dropdown--multiple {
+      .ant-select-dropdown-menu-item-active,
+      .ant-select-dropdown-menu-item-selected {
+        .ant-select-selected-icon {
+          color: #12bc6a !important;
+        }
+      } 
+    } 
+
+    .ant-select-dropdown-menu-item-selected {
+      background-color: #fafafa !important;
+    }
+
+    .ant-select-dropdown-menu-item-selected {
+      font-weight: normal !important;
+    }
+
+  }
 }
 .ant-select-open {
   z-index: 1;

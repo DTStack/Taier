@@ -494,18 +494,21 @@ const InfoConfig = (props) => {
             <Button style={{ color: '#999' }}>
               <Icon type="upload" /> Click to upload
             </Button>
+            <p style={{marginTop: 8, color:'#666'}}>上传单个文件，支持扩展格式：.zip</p>
           </Upload>
-          <Tooltip title="仅支持Zip格式，压缩包需包含xxx.keytab、krb5.config文件。上传文件前，请在控制台开启SFTP服务。">
-            <Icon
-              type="question-circle-o"
-              style={{
-                fontSize: 12,
-                marginTop: 11,
-                marginLeft: 8,
-                color: '#999',
-              }}
-            />
-          </Tooltip>
+          <div style={{ marginLeft: -57 }}>
+            <Tooltip title="仅支持Zip格式，压缩包需包含xxx.keytab、krb5.config文件。上传文件前，请在控制台开启SFTP服务。">
+              <Icon
+                type="question-circle-o"
+                style={{
+                  fontSize: '14px',
+                  marginTop: '11px',
+                  marginLeft: '10px',
+                  color: '#999',
+                }}
+              />
+            </Tooltip>
+          </div>
         </div>
         <p>上传单个文件，支持扩展格式：.zip</p>
         {getFieldValue(`kerberosFile`) ? (
@@ -513,15 +516,17 @@ const InfoConfig = (props) => {
             style={{
               width: '100%',
               position: 'relative',
+              marginTop: -16
             }}>
             <Icon
               type="close"
               style={{
                 cursor: 'pointer',
                 position: 'absolute',
-                right: '5px',
-                top: '11px',
+                right: 0,
+                top: 13,
                 zIndex: 99,
+                color: '#999'
               }}
               onClick={() => {
                 setFieldsValue({
@@ -529,7 +534,14 @@ const InfoConfig = (props) => {
                 });
               }}
             />
+            <i className="iconfont2 iconOutlinedxianxing_Attachment" style={{
+              position: 'absolute',
+              left: 0,
+              zIndex: 99,
+              color: '#999'
+            }}></i>
             <Input
+              style={{border: 0, paddingRight: 20, background: 'transparent', paddingLeft: 20}}
               autoComplete="off"
               value={
                 getFieldValue(`kerberosFile`).name +
@@ -668,6 +680,7 @@ const InfoConfig = (props) => {
                       <Button>
                         <Icon type="upload" /> Click to upload
                       </Button>
+                      <p style={{marginTop: 8}}>上传单个文件，支持扩展格式：.zip</p>
                     </Upload>
                     <p>上传单个文件，支持扩展格式：.zip</p>
                     <div style={{ marginLeft: -40 }}>
@@ -1029,7 +1042,7 @@ const InfoConfig = (props) => {
   return (
     <div className="info-config">
       <Spin spinning={loading}>
-        <Form {...formItemLayout}>
+        <Form {...formItemLayout} className="info-config-form">
           <Form.Item label="数据源类型">
             {getFieldDecorator('dataType', {
               initialValue: otherParams.dataType + otherParams.dataVersion,
