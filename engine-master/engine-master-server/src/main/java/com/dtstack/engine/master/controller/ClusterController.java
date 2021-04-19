@@ -205,8 +205,8 @@ public class ClusterController{
 
     @RequestMapping(value="/getCluster", method = {RequestMethod.POST})
     @ApiOperation(value = "获取集群信息详情")
-    public ClusterVO getCluster(@DtRequestParam("clusterId") Long clusterId, @DtRequestParam("kerberosConfig") Boolean kerberosConfig,@DtRequestParam("removeTypeName") Boolean removeTypeName,@DtRequestParam(required = false) Boolean multiVersion) {
-        return clusterService.getCluster(clusterId, removeTypeName, Objects.nonNull(multiVersion));
+    public ClusterVO getCluster(@DtRequestParam("clusterId") Long clusterId, @DtRequestParam("kerberosConfig") Boolean kerberosConfig,@DtRequestParam("removeTypeName") Boolean removeTypeName,@DtRequestParam(required = false,value = "multiVersion") Boolean multiVersion) {
+        return clusterService.getCluster(clusterId, removeTypeName, Objects.isNull(multiVersion) ||  multiVersion);
     }
 
     @RequestMapping(value="/getAllCluster", method = {RequestMethod.POST})
