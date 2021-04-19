@@ -240,6 +240,7 @@ const List = (props: IPropList) => {
         </header>
         <div className="table-area">
           <Table
+            size="middle"
             rowKey="id"
             className="table dt-table-border"
             columns={columns as any}

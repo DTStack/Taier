@@ -90,9 +90,15 @@
 
 .icon-filter {
   font-size: 16px !important;
-  line-height: 44px;
   margin-top: 2px;
+
   &.filtered {
     color: #3f87ff !important;
+  }
+}
+
+.ant-dropdown-open {
+  .iconfont2 {
+    color: #3f87ff;
   }
 }

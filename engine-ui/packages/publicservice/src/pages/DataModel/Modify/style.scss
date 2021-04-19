@@ -97,3 +97,10 @@
 .padding-top-20 {
   padding-top: 20px;
 }
+
+.dm-form-select-drop {
+  .ant-select-dropdown-menu-item-selected {
+    background-color: #F2F9FF;
+    font-weight: normal;
+  }
+}
