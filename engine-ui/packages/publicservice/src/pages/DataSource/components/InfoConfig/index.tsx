@@ -494,22 +494,20 @@ const InfoConfig = (props) => {
             <Button style={{ color: '#999' }}>
               <Icon type="upload" /> Click to upload
             </Button>
-            <p>上传单个文件，支持扩展格式：.zip</p>
           </Upload>
-          <div style={{ marginLeft: -40 }}>
-            <Tooltip title="仅支持Zip格式，压缩包需包含xxx.keytab、krb5.config文件。上传文件前，请在控制台开启SFTP服务。">
-              <Icon
-                type="question-circle-o"
-                style={{
-                  fontSize: '14px',
-                  marginTop: '11px',
-                  marginLeft: '10px',
-                  color: '#999',
-                }}
-              />
-            </Tooltip>
-          </div>
+          <Tooltip title="仅支持Zip格式，压缩包需包含xxx.keytab、krb5.config文件。上传文件前，请在控制台开启SFTP服务。">
+            <Icon
+              type="question-circle-o"
+              style={{
+                fontSize: 12,
+                marginTop: 11,
+                marginLeft: 8,
+                color: '#999',
+              }}
+            />
+          </Tooltip>
         </div>
+        <p>上传单个文件，支持扩展格式：.zip</p>
         {getFieldValue(`kerberosFile`) ? (
           <div
             style={{
@@ -670,8 +668,8 @@ const InfoConfig = (props) => {
                       <Button>
                         <Icon type="upload" /> Click to upload
                       </Button>
-                      <p>上传单个文件，支持扩展格式：.zip</p>
                     </Upload>
+                    <p>上传单个文件，支持扩展格式：.zip</p>
                     <div style={{ marginLeft: -40 }}>
                       <Icon type="question-circle" />
                     </div>
