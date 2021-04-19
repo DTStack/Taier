@@ -5,7 +5,6 @@ import com.dtstack.lineage.util.JdbcUrlUtil;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * @Author: ZYD
@@ -13,7 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest;
  * Description: 测试jdbcUrl
  * @since 1.0.0
  */
-@SpringBootTest
 public class JdbcUrlTest {
 
 

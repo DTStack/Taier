@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.schedule.common.enums.AppType;
 import org.junit.Assert;
@@ -26,24 +27,19 @@ public class BatchFlowWorkJobServiceTest extends AbstractTest {
     @Autowired
     private BatchFlowWorkJobService batchFlowWorkJobService;
 
-    /**
-     * do some mock before test
-     */
-    @Before
-    public void setup() throws Exception {
-        //TODO
-    }
 
-//    @Test
-//    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-//    @Rollback
-//    public void testCheckRemoveAndUpdateFlowJobStatus() {
-//        ScheduleJob scheduleJobFirst = DataCollection.getData().getScheduleJobFirst();
-//        boolean checkRemoveAndUpdateFlowJobStatus = batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleJobFirst.getId(), scheduleJobFirst.getFlowJobId(), scheduleJobFirst.getAppType());
-//        Assert.assertTrue(!checkRemoveAndUpdateFlowJobStatus);
-//        ScheduleJob scheduleJobSubmitted = DataCollection.getData().getScheduleJobSubmitted();
-//        boolean status = batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleJobSubmitted.getId(), scheduleJobSubmitted.getFlowJobId(), scheduleJobSubmitted.getAppType());
-//        Assert.assertTrue(!status);
-//    }
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testCheckRemoveAndUpdateFlowJobStatus() {
+        ScheduleJob scheduleJobFirst = DataCollection.getData().getScheduleJobFirst();
+        ScheduleBatchJob scheduleBatchJob = new ScheduleBatchJob(scheduleJobFirst);
+        boolean checkRemoveAndUpdateFlowJobStatus = batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob);
+        Assert.assertTrue(checkRemoveAndUpdateFlowJobStatus);
+        ScheduleJob scheduleJobSubmitted = DataCollection.getData().getScheduleJobSubmitted();
+        ScheduleBatchJob batchJob = new ScheduleBatchJob(scheduleJobSubmitted);
+        boolean status = batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(batchJob);
+        Assert.assertTrue(status);
+    }
 
 }

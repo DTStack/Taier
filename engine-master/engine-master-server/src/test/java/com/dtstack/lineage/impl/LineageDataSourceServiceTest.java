@@ -18,6 +18,9 @@ public class LineageDataSourceServiceTest extends AbstractTest {
     @Autowired
     private LineageDataSourceService sourceService;
 
+    @Autowired
+    private LineageDataSourceService dataSourceService;
+
     @Test
     public void testGenerateSourceKey(){
 

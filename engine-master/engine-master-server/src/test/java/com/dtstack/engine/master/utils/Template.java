@@ -457,6 +457,7 @@ public class Template {
         scheduleJobJob.setParentJobKey("cronTrigger_3381_20201127000000");
         scheduleJobJob.setGmtCreate(new Timestamp(1592559742000L));
         scheduleJobJob.setGmtModified(new Timestamp(1592559742000L));
+        scheduleJobJob.setParentAppType(1);
         return scheduleJobJob;
     }
 

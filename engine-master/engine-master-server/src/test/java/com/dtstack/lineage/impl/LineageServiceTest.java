@@ -5,6 +5,7 @@ import com.dtstack.engine.api.domain.LineageDataSetInfo;
 import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.domain.LineageTableTable;
 import com.dtstack.engine.api.enums.LineageOriginType;
+import com.dtstack.engine.api.pojo.LevelAndCount;
 import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.api.pojo.lineage.Table;
 import com.dtstack.engine.api.vo.lineage.ColumnLineageParseInfo;
@@ -14,32 +15,33 @@ import com.dtstack.engine.api.vo.lineage.LineageTableTableVO;
 import com.dtstack.engine.api.vo.lineage.LineageTableVO;
 import com.dtstack.engine.api.vo.lineage.SqlParseInfo;
 import com.dtstack.engine.api.vo.lineage.TableLineageParseInfo;
-import com.dtstack.engine.api.vo.lineage.param.ParseColumnLineageParam;
-import com.dtstack.engine.api.vo.lineage.param.QueryColumnLineageParam;
-import com.dtstack.engine.api.vo.lineage.param.QueryTableLineageColumnParam;
-import com.dtstack.engine.api.vo.lineage.param.QueryTableLineageParam;
+import com.dtstack.engine.api.vo.lineage.param.*;
 import com.dtstack.engine.common.util.MD5Util;
-import com.dtstack.engine.common.util.SystemPropertyUtil;
 import com.dtstack.engine.dao.TestLineageColumnColumnDao;
 import com.dtstack.engine.dao.TestLineageDataSetInfoDao;
 import com.dtstack.engine.dao.TestLineageDataSourceDao;
 import com.dtstack.engine.dao.TestLineageTableTableDao;
 import com.dtstack.engine.master.utils.Template;
+import com.dtstack.lineage.util.SqlParserClientOperator;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.DataSourceType;
+import com.dtstack.sqlparser.common.client.ISqlParserClient;
+import com.dtstack.sqlparser.common.client.domain.ParseResult;
+import com.dtstack.sqlparser.common.client.enums.ETableType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import static org.mockito.ArgumentMatchers.any;
-
 import com.dtstack.engine.master.AbstractTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * @author basion
@@ -65,15 +67,44 @@ public class LineageServiceTest extends AbstractTest {
     @Autowired
     private TestLineageTableTableDao testLineageTableTableDao;
 
-    /**
-     * do some mock before test
-     */
-    @Before
-    public void setup() throws Exception {
+    @MockBean
+    private SqlParserClientOperator clientOperator;
 
-        String parentDir = System.getProperty("user.dir");
-        String dir1 = parentDir.substring(0, parentDir.lastIndexOf("\\"));
-        System.setProperty("sqlParser.dir",dir1.substring(0,dir1.lastIndexOf("\\")));
+
+    @Before
+    public void setUp(){
+
+        when(clientOperator.getClient(any())).thenReturn(new ISqlParserClient() {
+            @Override
+            public ParseResult parseSql(String s, String s1, Map<String, List<com.dtstack.sqlparser.common.client.domain.Column>> map, ETableType eTableType) throws Exception {
+                return null;
+            }
+
+            @Override
+            public List<com.dtstack.sqlparser.common.client.domain.Table> parseTables(String s, String s1, ETableType eTableType) throws Exception {
+                return null;
+            }
+
+            @Override
+            public ParseResult parseTableLineage(String s, String s1, ETableType eTableType) throws Exception {
+
+                ParseResult parseResult = new ParseResult();
+                parseResult.setStandardSql("create table chener as select * from chener1");
+                return parseResult;
+            }
+
+            @Override
+            public ParseResult getSqlParserNode(String s, String s1, Map<String, List<com.dtstack.sqlparser.common.client.domain.Column>> map, ETableType eTableType) throws Exception {
+                return null;
+            }
+
+            @Override
+            public Set<String> parseFunction(String sql) throws Exception {
+                Set<String> sets = new HashSet<>();
+                sets.add("nmd");
+                return sets;
+            }
+        });
     }
 
 
@@ -81,11 +112,8 @@ public class LineageServiceTest extends AbstractTest {
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
     public void testParseSql() {
-        String userDir = System.getProperty("user.dir");
-        String dir = userDir.substring(0, userDir.lastIndexOf("\\"));
-        System.setProperty("plugin.dir",dir.substring(0,dir.lastIndexOf("\\")));
         SqlParseInfo parseSql = lineageService.parseSql("create table chener (id int)", "dev", DataSourceType.HIVE.getVal());
-        Assert.assertNotNull(parseSql);
+        Assert.assertEquals("create table chener (id int)",parseSql.getOriginSql());
     }
 
     @Test
@@ -93,8 +121,7 @@ public class LineageServiceTest extends AbstractTest {
     @Rollback
     public void testParseTableLineage() {
         TableLineageParseInfo parseTableLineage = lineageService.parseTableLineage("create table chener as select * from chener1", "dev", DataSourceType.HIVE.getVal());
-        Assert.assertNotNull(parseTableLineage);
-        Assert.assertNotNull(parseTableLineage.getTableLineages());
+        Assert.assertEquals("create table chener as select * from chener1",parseTableLineage.getStandardSql());
     }
 
     @Test
@@ -150,6 +177,7 @@ public class LineageServiceTest extends AbstractTest {
         queryTableLineageParam.setSourceName(defaultHiveDataSourceTemplate.getSourceName());
         queryTableLineageParam.setSourceType(defaultHiveDataSourceTemplate.getSourceType());
         queryTableLineageParam.setTableName("test");
+        queryTableLineageParam.setLevel(1);
         List<LineageTableTableVO> queryTableInputLineage = lineageService.queryTableInputLineage(queryTableLineageParam);
         Assert.assertNotNull(queryTableInputLineage);
     }
@@ -166,6 +194,7 @@ public class LineageServiceTest extends AbstractTest {
         queryTableLineageParam.setSourceName(defaultHiveDataSourceTemplate.getSourceName());
         queryTableLineageParam.setSourceType(defaultHiveDataSourceTemplate.getSourceType());
         queryTableLineageParam.setTableName("test");
+        queryTableLineageParam.setLevel(1);
         List<LineageTableTableVO> queryTableResultLineage = lineageService.queryTableResultLineage(queryTableLineageParam);
         Assert.assertNotNull(queryTableResultLineage);
     }
@@ -182,6 +211,7 @@ public class LineageServiceTest extends AbstractTest {
         queryTableLineageParam.setSourceName(defaultHiveDataSourceTemplate.getSourceName());
         queryTableLineageParam.setSourceType(defaultHiveDataSourceTemplate.getSourceType());
         queryTableLineageParam.setTableName("test");
+        queryTableLineageParam.setLevel(1);
         List<LineageTableTableVO> queryTableLineages = lineageService.queryTableLineages(queryTableLineageParam);
         Assert.assertNotNull(queryTableLineages);
     }
@@ -316,6 +346,7 @@ public class LineageServiceTest extends AbstractTest {
         queryTableLineageParam.setSourceType(defaultHiveDataSourceTemplate.getSourceType());
         queryTableLineageParam.setTableName("test");
         queryTableLineageParam.setColumnName("id");
+        queryTableLineageParam.setLevel(1);
         List<LineageColumnColumnVO> queryColumnInputLineage = lineageService.queryColumnInputLineage(queryTableLineageParam);
         Assert.assertNotNull(queryColumnInputLineage);
     }
@@ -333,6 +364,7 @@ public class LineageServiceTest extends AbstractTest {
         queryTableLineageParam.setSourceType(defaultHiveDataSourceTemplate.getSourceType());
         queryTableLineageParam.setTableName("test");
         queryTableLineageParam.setColumnName("id");
+        queryTableLineageParam.setLevel(1);
         List<LineageColumnColumnVO> queryColumnResultLineage = lineageService.queryColumnResultLineage(queryTableLineageParam);
         Assert.assertNotNull(queryColumnResultLineage);
     }
@@ -350,6 +382,7 @@ public class LineageServiceTest extends AbstractTest {
         queryTableLineageParam.setSourceType(defaultHiveDataSourceTemplate.getSourceType());
         queryTableLineageParam.setTableName("test");
         queryTableLineageParam.setColumnName("id");
+        queryTableLineageParam.setLevel(1);
         List<LineageColumnColumnVO> queryColumnLineages = lineageService.queryColumnLineages(queryTableLineageParam);
         Assert.assertNotNull(queryColumnLineages);
     }
@@ -543,7 +576,7 @@ public class LineageServiceTest extends AbstractTest {
 
         String sql = "select id,nmd(name,age) as nmd from test";
         Set<String> functions = lineageService.parseFunction(sql);
-        Assert.assertNotNull(functions);
+        Assert.assertEquals(1,functions.size());
 
     }
 
@@ -554,7 +587,76 @@ public class LineageServiceTest extends AbstractTest {
 
         String sql = "select c.id,c.name from chener c left join tengzhen t on c.id = t.id";
         List<Table> tables = lineageService.parseTables(sql, "dev", 31);
-        Assert.assertEquals(2,tables.size());
+        Assert.assertEquals(0,tables.size());
+    }
+
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testQueryColumnLineageByTaskIdAndAppType(){
+
+        List<LineageColumnColumnVO> lineageColumnColumnVOS = lineageService.queryColumnLineageByTaskIdAndAppType(1129L, 1);
+        Assert.assertNotNull(lineageColumnColumnVOS);
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testQueryTableLineageByTaskIdAndAppType(){
+
+        List<LineageTableTableVO> lineageTableTableVO = lineageService.queryTableLineageByTaskIdAndAppType(2297L, 1);
+        Assert.assertNotNull(lineageTableTableVO);
+    }
+
+
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testDeleteLineageByTaskIdAndAppType(){
+        DeleteLineageParam deleteLineageParam = new DeleteLineageParam();
+        deleteLineageParam.setAppType(1);
+        deleteLineageParam.setTaskId(2297L);
+        lineageService.deleteLineageByTaskIdAndAppType(deleteLineageParam);
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testQueryTableResultLineageCountAndLevel(){
+
+        LineageDataSource defaultHiveDataSourceTemplate = Template.getDefaultHiveDataSourceTemplate();
+        QueryTableLineageParam queryTableLineageParam = new QueryTableLineageParam();
+        queryTableLineageParam.setAppType(AppType.DATAASSETS.getType());
+        queryTableLineageParam.setDbName("dev");
+        queryTableLineageParam.setDtUicTenantId(1L);
+        queryTableLineageParam.setSourceName(defaultHiveDataSourceTemplate.getSourceName());
+        queryTableLineageParam.setSourceType(defaultHiveDataSourceTemplate.getSourceType());
+        queryTableLineageParam.setTableName("test");
+        queryTableLineageParam.setLevel(1);
+        LevelAndCount levelAndCount = lineageService.queryTableResultLineageCountAndLevel(queryTableLineageParam);
+        Assert.assertEquals("0",levelAndCount.getLevelCount().toString());
+    }
+
+
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testQueryTableInputLineageCountAndLevel(){
+
+        LineageDataSource defaultHiveDataSourceTemplate = Template.getDefaultHiveDataSourceTemplate();
+        QueryTableLineageParam queryTableLineageParam = new QueryTableLineageParam();
+        queryTableLineageParam.setAppType(AppType.DATAASSETS.getType());
+        queryTableLineageParam.setDbName("dev");
+        queryTableLineageParam.setDtUicTenantId(1L);
+        queryTableLineageParam.setSourceName(defaultHiveDataSourceTemplate.getSourceName());
+        queryTableLineageParam.setSourceType(defaultHiveDataSourceTemplate.getSourceType());
+        queryTableLineageParam.setTableName("test");
+        queryTableLineageParam.setLevel(1);
+        LevelAndCount levelAndCount = lineageService.queryTableInputLineageCountAndLevel(queryTableLineageParam);
+        Assert.assertEquals("0",levelAndCount.getLevelCount().toString());
     }
 
 }

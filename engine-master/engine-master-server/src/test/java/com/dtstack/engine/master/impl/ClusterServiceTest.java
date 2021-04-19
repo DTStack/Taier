@@ -35,6 +35,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Spy;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
@@ -171,7 +172,6 @@ public class ClusterServiceTest extends AbstractTest {
      * @see ComponentService#addOrCheckClusterWithName(String)
      * @see ComponentService#getOne(Long)
      * @see ClusterService#getAllCluster()
-     * @see ClusterService#getCluster(Long, Boolean, Boolean)
      * @see ClusterService#pageQuery(int, int)
      * @see ComponentService#delete(List)
      * @see ComponentService#testConnects(String)
@@ -182,7 +182,6 @@ public class ClusterServiceTest extends AbstractTest {
      * @see ComponentService#getKerberosConfig(Long, Integer
      * @see EngineService#getQueue(Long)
      * @see EngineService#listSupportEngine(Long)
-     * @see EngineService#listClusterEngines(Long, boolean)
      */
     @Test
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
@@ -273,6 +272,10 @@ public class ClusterServiceTest extends AbstractTest {
                 dataSet.getDbName());
         Assert.assertNotNull(columnList);
 
+        testUpdateDataSourceBySourceIdAndAppType(dataSource);
+
+
+
         //删除组件
         try {
             //删除组件
@@ -285,7 +288,7 @@ public class ClusterServiceTest extends AbstractTest {
         try {
             clusterService.deleteCluster(clusterVO.getClusterId());
         } catch (Exception e) {
-            Assert.assertTrue(e.getMessage().contains("有租户"));
+            Assert.assertTrue(e.getMessage().contains("has tenants and cannot be deleted"));
         }
     }
 
@@ -525,6 +528,13 @@ public class ClusterServiceTest extends AbstractTest {
     }
 
 
+    public boolean testUpdateDataSourceBySourceIdAndAppType(LineageDataSource dataSource){
+
+        DataSourceDTO dataSourceDTO = new DataSourceDTO();
+        BeanUtils.copyProperties(dataSource,dataSourceDTO);
+        return dataSourceService.updateDataSourceBySourceIdAndAppType(dataSourceDTO);
+    }
+
 
     public List<Column> getTableColumns(Long sourceId,String tableName,String schemaNme,String dbName){
 
@@ -556,6 +566,9 @@ public class ClusterServiceTest extends AbstractTest {
         dataSourceDTO.setDtUicTenantId(tenantId);
         dataSourceDTO.setKerberosConf(kerberosConf);
         dataSourceDTO.setSourceType(27);
+        dataSourceDTO.setSourceId(1121L);
+        dataSourceDTO.setProjectId(1L);
+        dataSourceDTO.setSchemaName("default");
         return dataSourceDTO;
     }
 
