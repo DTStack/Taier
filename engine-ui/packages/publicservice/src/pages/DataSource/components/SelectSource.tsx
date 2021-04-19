@@ -128,15 +128,16 @@ export default function SelectSource(props) {
             iconList.map((item, index) => {
               let col = (
                 <div
+                  className="right-menu-item"
                   key={index}
-                  style={{ width: '20%', height: 160, float: 'left' }}
+                  style={{ width: '20%', height: 160 }}
                   onClick={() => onSelectType(item)}>
                   <img
                     src={item.imgUrl}
                     alt="图片显示失败"
                     className={item.selected ? 'selected' : ''}
                   />
-                  <p style={{ textAlign: 'center', width: 216, marginTop: 12 }}>
+                  <p style={{ textAlign: 'center', marginTop: 12 }}>
                     {item.dataType}
                   </p>
                 </div>
