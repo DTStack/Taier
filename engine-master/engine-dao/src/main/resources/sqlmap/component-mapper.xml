@@ -137,7 +137,7 @@
                 #{engineId}
             </foreach>
         </if>
-        and is_default=1
+        and is_default = 1
     </select>
     <select id="getNextDefaultComponent" resultType="com.dtstack.engine.api.domain.Component">
         SELECT

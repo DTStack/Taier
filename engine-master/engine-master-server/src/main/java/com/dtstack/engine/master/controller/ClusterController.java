@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequestMapping({"/node/cluster", "/node/component/cluster"})
@@ -205,8 +204,8 @@ public class ClusterController{
 
     @RequestMapping(value="/getCluster", method = {RequestMethod.POST})
     @ApiOperation(value = "获取集群信息详情")
-    public ClusterVO getCluster(@DtRequestParam("clusterId") Long clusterId, @DtRequestParam("kerberosConfig") Boolean kerberosConfig,@DtRequestParam("removeTypeName") Boolean removeTypeName,@DtRequestParam(required = false,value = "multiVersion") Boolean multiVersion) {
-        return clusterService.getCluster(clusterId, removeTypeName, Objects.isNull(multiVersion) ||  multiVersion);
+    public ClusterVO getCluster(@DtRequestParam("clusterId") Long clusterId, @DtRequestParam("kerberosConfig") Boolean kerberosConfig,@DtRequestParam("removeTypeName") Boolean removeTypeName) {
+        return clusterService.getCluster(clusterId, removeTypeName, true);
     }
 
     @RequestMapping(value="/getAllCluster", method = {RequestMethod.POST})

@@ -831,8 +831,8 @@ public class ClusterService implements InitializingBean {
         }
         List<Long> engineIds = engines.stream().map(Engine::getId).collect(Collectors.toList());
         // 查询默认版本或者多个版本
-        List<Component> components = multiVersion ? componentDao.listDefaultByEngineIds(engineIds):
-                componentDao.listByEngineIds(engineIds);
+        List<Component> components = multiVersion ?componentDao.listByEngineIds(engineIds):
+                componentDao.listDefaultByEngineIds(engineIds);
 
         List<IComponentVO> componentConfigs = componentConfigService.getComponentVoByComponent(components,
                 null == removeTypeName || removeTypeName , clusterId,true, multiVersion);
