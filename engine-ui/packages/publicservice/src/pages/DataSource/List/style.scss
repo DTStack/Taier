@@ -54,6 +54,10 @@ $highlight-color: #3f87ff;
       height: calc(100% - 56px);
       overflow-y: scroll;
     }
+    .anticon-left,
+    .anticon-right {
+      color: #666;
+    }
   }
   .data-view {
     color: $highlight-color;
@@ -86,7 +90,7 @@ $highlight-color: #3f87ff;
 
 .page-com {
   position: absolute;
-  bottom: 20px;
+  bottom: 16px;
   right: 28px;
   height: 56px;
 }
@@ -167,4 +171,10 @@ $highlight-color: #3f87ff;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.ant-input-password-icon {
+  color: #999;
+  &:hover {
+    color: #999;
+  }
 }

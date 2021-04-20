@@ -142,7 +142,11 @@ function index(props) {
         <div className="top-steps">
           <Steps className="dm-steps" current={current}>
             {['选择数据源', '产品授权', '信息配置'].map((title, index) => (
-              <Step title={title} icon={stepIconRender(index, current)} />
+              <Step
+                title={title}
+                key={index}
+                icon={stepIconRender(index, current)}
+              />
             ))}
           </Steps>
         </div>

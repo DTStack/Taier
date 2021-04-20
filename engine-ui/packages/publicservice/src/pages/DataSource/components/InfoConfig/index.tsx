@@ -748,7 +748,7 @@ const InfoConfig = (props) => {
       // 定制化内容
       case 'Kerberos':
         return (
-          <>
+          <div key={index}>
             <Form.Item label={item.label} key={index}>
               {getFieldDecorator(`${item.name}`, {
                 valuePropName: 'checked',
@@ -772,11 +772,11 @@ const InfoConfig = (props) => {
                 })(<Select>{principalsOptions}</Select>)}
               </Form.Item>
             )}
-          </>
+          </div>
         );
       case 'HbaseKerberos':
         return (
-          <>
+          <div key={index}>
             <Form.Item label="开启Kerberos认证" key={index}>
               {getFieldDecorator('openKerberos', {
                 valuePropName: 'checked',
@@ -833,11 +833,11 @@ const InfoConfig = (props) => {
                 </Form.Item>
               </>
             )}
-          </>
+          </div>
         );
       case 'FtpReact':
         return (
-          <>
+          <div key={index}>
             <Form.Item label="协议" key={index}>
               {getFieldDecorator('protocol', {
                 initialValue: detailData?.protocol || 'FTP',
@@ -912,11 +912,11 @@ const InfoConfig = (props) => {
                 )}
               </>
             )}
-          </>
+          </div>
         );
       case 'CarbonReact':
         return (
-          <>
+          <div key={index}>
             <Form.Item label="HDFS配置" key={index}>
               {getFieldDecorator('hdfsCustomConfig', {
                 initialValue: detailData?.hdfsCustomConfig || 'default',
@@ -964,11 +964,11 @@ const InfoConfig = (props) => {
                 </Form.Item>
               </>
             )}
-          </>
+          </div>
         );
       case 'RedisReact':
         return (
-          <>
+          <div key={index}>
             <Form.Item label="模式" key="redisType">
               {getFieldDecorator('redisType', {
                 initialValue: detailData?.redisType || 1,
@@ -1032,7 +1032,7 @@ const InfoConfig = (props) => {
                 initialValue: detailData?.password || '',
               })(<Input.Password />)}
             </Form.Item>
-          </>
+          </div>
         );
       case 'WebSocketSub':
         return (
