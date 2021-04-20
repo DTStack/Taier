@@ -263,7 +263,7 @@ const InfoConfig = (props) => {
           }
         }
       } else {
-        props.changeBtnStatus(false);
+        props.changeBtnStatus();
       }
     });
   };
