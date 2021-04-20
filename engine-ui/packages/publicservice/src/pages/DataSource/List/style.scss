@@ -129,3 +129,29 @@ $highlight-color: #3f87ff;
   width: 200px;
   display: inline-block;
 }
+.auth-header {
+  color: #666;
+}
+.ant-modal-footer {
+  border: none;
+}
+.ant-modal .ant-modal-body {
+  padding-bottom: 6px;
+}
+.show-meta {
+  border: 1px solid #3f87ff;
+  color: #3f87ff;
+  background-color: #fff;
+  height: 16px;
+  line-height: 16px;
+}
+//连接信息
+.link-json {
+  display: inline-block;
+  word-break: break-all;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; // 设置两行文字溢出
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
