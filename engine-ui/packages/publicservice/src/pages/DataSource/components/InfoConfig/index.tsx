@@ -476,7 +476,11 @@ const InfoConfig = (props) => {
       accept: '.zip',
     };
     return (
-      <Form.Item {...formNewLayout} label="" key="kerberosFile" className="mg-8">
+      <Form.Item
+        {...formNewLayout}
+        label=""
+        key="kerberosFile"
+        className="mg-8">
         {getFieldDecorator(`kerberosFile`, {
           rules: [
             {
@@ -512,7 +516,7 @@ const InfoConfig = (props) => {
             </Tooltip>
           </div>
         </div>
-        
+
         {getFieldValue(`kerberosFile`) ? (
           <div
             style={{
@@ -693,7 +697,7 @@ const InfoConfig = (props) => {
                         上传单个文件，支持扩展格式：.zip
                       </p>
                     </Upload>
-                    
+
                     <div style={{ marginLeft: -40 }}>
                       <Icon type="question-circle" />
                     </div>
@@ -777,7 +781,10 @@ const InfoConfig = (props) => {
       case 'HbaseKerberos':
         return (
           <div key={index}>
-            <Form.Item label="开启Kerberos认证" key={index} className="file-row">
+            <Form.Item
+              label="开启Kerberos认证"
+              key={index}
+              className="file-row">
               {getFieldDecorator('openKerberos', {
                 valuePropName: 'checked',
                 initialValue: detailData?.openKerberos || false,
@@ -1036,7 +1043,10 @@ const InfoConfig = (props) => {
         );
       case 'WebSocketSub':
         return (
-          <Form.Item label="鉴权参数" key="webSocketParams" className="label-height-18">
+          <Form.Item
+            label="鉴权参数"
+            key="webSocketParams"
+            className="label-height-18">
             {renderWebSocketParams()}
             <span className="ws-add" onClick={addWsParams}>
               <Icon type="plus-circle-o" />

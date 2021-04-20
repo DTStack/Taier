@@ -35,6 +35,13 @@
         }
         .relation-list {
           margin-top: 13px;
+          .ant-table-thead > tr > th {
+            padding: 11px 16px 11.2px;
+          }
+
+          .ant-table-tbody > tr > td {
+            padding: 13px 16px;
+          }
         }
       }
     }
