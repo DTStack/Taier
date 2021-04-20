@@ -17,12 +17,13 @@ export default function index(props) {
   };
   //确定按钮
   const submitConfig = () => {
-    childRef.current.submitForm();
     setSubmitBtnStatus(true);
+    childRef.current.submitForm();
   };
 
   const record = props.location.state.record;
 
+  //子组件调用父组件方法
   const changeBtnStatus = () => {
     setSubmitBtnStatus(false);
   };

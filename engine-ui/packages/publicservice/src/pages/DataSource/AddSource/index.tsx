@@ -6,6 +6,7 @@ import SelectSource from '../components/SelectSource';
 import ProduceAuth from '../components/ProduceAuth';
 import InfoConfig from '../components/InfoConfig';
 import './style.scss';
+import stepIconRender from '@/utils/stepIconRender';
 
 const { Step } = Steps;
 
@@ -29,9 +30,11 @@ function index(props) {
   };
   //确定按钮
   const submitConfig = () => {
-    childRef.current.submitForm();
     setSubmitBtnStatus(true);
+    childRef.current.submitForm();
   };
+
+  //子组件调用父组件方法
   const changeBtnStatus = () => {
     setSubmitBtnStatus(false);
   };
@@ -139,10 +142,14 @@ function index(props) {
 
       <div className="content">
         <div className="top-steps">
-          <Steps current={current}>
-            <Step title="选择数据源" />
-            <Step title="产品授权" />
-            <Step title="信息配置" />
+          <Steps className="dm-steps" current={current}>
+            {['选择数据源', '产品授权', '信息配置'].map((title, index) => (
+              <Step
+                title={title}
+                key={index}
+                icon={stepIconRender(index, current)}
+              />
+            ))}
           </Steps>
         </div>
         {switchContent(current)}

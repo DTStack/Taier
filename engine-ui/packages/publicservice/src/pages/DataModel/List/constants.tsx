@@ -1,5 +1,5 @@
 import React from 'react';
-import { Divider } from 'antd';
+import { Divider, Icon } from 'antd';
 import { EnumModelActionType } from './types';
 import { EnumModelStatus } from 'pages/DataModel/types';
 import classnames from 'classnames';
@@ -58,13 +58,18 @@ export const columnsGenerator = ({
       ellipsis: true,
       filters: dataSourceFilterOptions,
       filterIcon: (filtered) => (
-        <span
-          className={classnames({
-            iconfont2: true,
-            iconOutlinedxianxing_filter: true,
-            'icon-filter': true,
-            filtered: filtered,
-          })}
+        <Icon
+          component={() => (
+            <span
+              className={classnames({
+                iconfont2: true,
+                iconFilltianchong_shaixuan: true,
+                'icon-filter': true,
+                filtered: filtered,
+              })}
+            />
+          )}
+          style={{ cursor: 'pointer', position: 'relative', width: 16 }}
         />
       ),
       filterMultiple: true,
@@ -87,13 +92,18 @@ export const columnsGenerator = ({
       })),
       filterMultiple: true,
       filterIcon: (filtered) => (
-        <span
-          className={classnames({
-            iconfont2: true,
-            iconOutlinedxianxing_filter: true,
-            'icon-filter': true,
-            filtered: filtered,
-          })}
+        <Icon
+          component={() => (
+            <span
+              className={classnames({
+                iconfont2: true,
+                iconFilltianchong_shaixuan: true,
+                'icon-filter': true,
+                filtered: filtered,
+              })}
+            />
+          )}
+          style={{ cursor: 'pointer', position: 'relative', width: 16 }}
         />
       ),
       render: (modelStatus) => {

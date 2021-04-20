@@ -149,7 +149,7 @@ export function ExtTableCell(props: any) {
               key={key}
               style={{ display: 'flex', lineHeight: 1.5, marginBottom: 0 }}>
               <span style={{ color: '#999', flexShrink: 0 }}>{text}：</span>
-              <span style={{ display: 'inline-block', wordBreak: 'break-all' }}>
+              <span className="link-json" title={data[key] || ''}>
                 {data[key] || ''}
               </span>
             </p>

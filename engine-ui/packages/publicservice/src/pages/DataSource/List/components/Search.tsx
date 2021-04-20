@@ -73,7 +73,7 @@ function Search(props) {
 
   return (
     <div className="top-search">
-      <Form layout="inline">
+      <Form layout="inline" className="top-search-form">
         <Form.Item>
           <SearchInput
             className="dt-form-shadow-bg"
@@ -84,6 +84,7 @@ function Search(props) {
 
         <Form.Item label="类型">
           <Select
+            dropdownClassName="top-search-select"
             className="dt-form-shadow-bg"
             mode="multiple"
             placeholder="请选择类型"
@@ -107,6 +108,7 @@ function Search(props) {
         </Form.Item>
         <Form.Item label="授权产品">
           <Select
+            dropdownClassName="top-search-select"
             className="dt-form-shadow-bg"
             mode="multiple"
             style={{ width: 200 }}

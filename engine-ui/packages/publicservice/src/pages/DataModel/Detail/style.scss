@@ -48,8 +48,15 @@
     margin: 0;
     .ant-tabs-tab {
       margin-right: 0px !important;
+      border: 0;
+      background-color: unset !important;
+
+      &:hover {
+        color: #333;
+      }
+
       &.ant-tabs-tab-active {
-        background-color: #fafafa;
+        border-bottom: 2px solid #3f87ff;
         color: #333333;
       }
     }
@@ -57,5 +64,5 @@
 }
 
 .ant-tabs-nav-wrap {
-  background-color: #fafafa;
+  background-color: #f5f5f5;
 }

@@ -169,6 +169,7 @@ const BasicInfo = (props: IPropsBasicInfo) => {
           })(
             <Select
               className="dm-form-item"
+              dropdownClassName="dm-form-select-drop"
               placeholder="请选择数据源"
               disabled={isDisabled}
               onChange={(value, target) => {

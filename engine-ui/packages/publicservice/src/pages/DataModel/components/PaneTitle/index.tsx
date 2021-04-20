@@ -9,7 +9,7 @@ const PaneTitle = (props: IPropsPaneTitle) => {
   const { title } = props;
   return (
     <div className="pane-title" data-testid="pane-title">
-      <div className="block" />
+      {/* <div className="block" /> */}
       <span className="title">{title}</span>
     </div>
   );

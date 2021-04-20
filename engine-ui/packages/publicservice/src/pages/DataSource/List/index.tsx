@@ -209,6 +209,11 @@ function index(props) {
 
       {visible && (
         <Modal
+          closeIcon={
+            <span
+              style={{ fontSize: 20 }}
+              className="iconfont2 iconOutlinedxianxing_Close-1"></span>
+          }
           title="授权"
           visible={visible}
           onOk={handleAutoProduc}

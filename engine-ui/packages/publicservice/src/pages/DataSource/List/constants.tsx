@@ -29,9 +29,7 @@ const columns = (props: any) => {
         ) : (
           <div style={{ color: MAIN_COLOR }} className="ellipsis">
             <span style={{ marginRight: 4 }}>{record.dataName}</span>
-            <Tag style={{ borderColor: MAIN_COLOR, color: MAIN_COLOR }}>
-              meta
-            </Tag>
+            <Tag className="show-meta">Meta</Tag>
           </div>
         ),
     },
@@ -48,7 +46,7 @@ const columns = (props: any) => {
       ellipsis: true,
       width: 200,
       render: (_, record) => {
-        return <span className="ellipsis">{record.appNames || '-'}</span>;
+        return <span className="ellipsis">{record.appNames || '--'}</span>;
       },
     },
     {
@@ -57,7 +55,7 @@ const columns = (props: any) => {
       ellipsis: true,
       width: 200,
       render: (_, record) => {
-        return <span className="ellipsis">{record.dataDesc || '-'}</span>;
+        return <span className="ellipsis">{record.dataDesc || '--'}</span>;
       },
     },
     {

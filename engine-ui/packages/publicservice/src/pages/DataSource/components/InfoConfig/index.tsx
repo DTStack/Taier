@@ -263,7 +263,7 @@ const InfoConfig = (props) => {
           }
         }
       } else {
-        props.changeBtnStatus(false);
+        props.changeBtnStatus();
       }
     });
   };
@@ -311,7 +311,7 @@ const InfoConfig = (props) => {
               props.router.push('/data-source/list');
             }, 500);
           } else {
-            message.error(`${msg}`);
+            message.error(`${msg}` || '保存失败');
           }
           setLoading(false);
           props.changeBtnStatus(false);
@@ -326,7 +326,7 @@ const InfoConfig = (props) => {
               props.router.push('/data-source/list');
             }, 500);
           } else {
-            message.error(`${msg}`);
+            message.error(`${msg}` || '保存失败');
           }
           setLoading(false);
           props.changeBtnStatus(false);
@@ -476,7 +476,11 @@ const InfoConfig = (props) => {
       accept: '.zip',
     };
     return (
-      <Form.Item {...formNewLayout} label="" key="kerberosFile">
+      <Form.Item
+        {...formNewLayout}
+        label=""
+        key="kerberosFile"
+        className="mg-8">
         {getFieldDecorator(`kerberosFile`, {
           rules: [
             {
@@ -494,9 +498,11 @@ const InfoConfig = (props) => {
             <Button style={{ color: '#999' }}>
               <Icon type="upload" /> Click to upload
             </Button>
-            <p>上传单个文件，支持扩展格式：.zip</p>
+            <p style={{ marginTop: 8, color: '#666' }}>
+              上传单个文件，支持扩展格式：.zip
+            </p>
           </Upload>
-          <div style={{ marginLeft: -40 }}>
+          <div style={{ marginLeft: -57 }}>
             <Tooltip title="仅支持Zip格式，压缩包需包含xxx.keytab、krb5.config文件。上传文件前，请在控制台开启SFTP服务。">
               <Icon
                 type="question-circle-o"
@@ -510,6 +516,7 @@ const InfoConfig = (props) => {
             </Tooltip>
           </div>
         </div>
+
         {getFieldValue(`kerberosFile`) ? (
           <div
             style={{
@@ -521,9 +528,10 @@ const InfoConfig = (props) => {
               style={{
                 cursor: 'pointer',
                 position: 'absolute',
-                right: '5px',
-                top: '11px',
+                right: 0,
+                top: 10,
                 zIndex: 99,
+                color: '#999',
               }}
               onClick={() => {
                 setFieldsValue({
@@ -531,7 +539,22 @@ const InfoConfig = (props) => {
                 });
               }}
             />
+            <i
+              className="iconfont2 iconOutlinedxianxing_Attachment"
+              style={{
+                position: 'absolute',
+                left: 0,
+                top: 3,
+                zIndex: 99,
+                color: '#999',
+              }}></i>
             <Input
+              style={{
+                border: 0,
+                paddingRight: 20,
+                background: 'transparent',
+                paddingLeft: 20,
+              }}
               autoComplete="off"
               value={
                 getFieldValue(`kerberosFile`).name +
@@ -653,7 +676,7 @@ const InfoConfig = (props) => {
         );
       case 'Upload':
         return (
-          <Form.Item label={item.label} key={index}>
+          <Form.Item label={item.label} key={index} className="file-row">
             {getFieldDecorator(
               `${item.name}`,
               getRules(item)
@@ -670,8 +693,11 @@ const InfoConfig = (props) => {
                       <Button>
                         <Icon type="upload" /> Click to upload
                       </Button>
-                      <p>上传单个文件，支持扩展格式：.zip</p>
+                      <p style={{ marginTop: 8 }}>
+                        上传单个文件，支持扩展格式：.zip
+                      </p>
                     </Upload>
+
                     <div style={{ marginLeft: -40 }}>
                       <Icon type="question-circle" />
                     </div>
@@ -726,8 +752,8 @@ const InfoConfig = (props) => {
       // 定制化内容
       case 'Kerberos':
         return (
-          <>
-            <Form.Item label={item.label} key={index}>
+          <div key={index}>
+            <Form.Item label={item.label} key={index} className="file-row">
               {getFieldDecorator(`${item.name}`, {
                 valuePropName: 'checked',
                 initialValue: detailData?.openKerberos || false,
@@ -750,12 +776,15 @@ const InfoConfig = (props) => {
                 })(<Select>{principalsOptions}</Select>)}
               </Form.Item>
             )}
-          </>
+          </div>
         );
       case 'HbaseKerberos':
         return (
-          <>
-            <Form.Item label="开启Kerberos认证" key={index}>
+          <div key={index}>
+            <Form.Item
+              label="开启Kerberos认证"
+              key={index}
+              className="file-row">
               {getFieldDecorator('openKerberos', {
                 valuePropName: 'checked',
                 initialValue: detailData?.openKerberos || false,
@@ -811,12 +840,12 @@ const InfoConfig = (props) => {
                 </Form.Item>
               </>
             )}
-          </>
+          </div>
         );
       case 'FtpReact':
         return (
-          <>
-            <Form.Item label="协议" key={index}>
+          <div key={index}>
+            <Form.Item label="协议" key={index} className="top-unset">
               {getFieldDecorator('protocol', {
                 initialValue: detailData?.protocol || 'FTP',
                 rules: [
@@ -833,7 +862,7 @@ const InfoConfig = (props) => {
               )}
             </Form.Item>
             {getFieldValue('protocol') === 'FTP' && (
-              <Form.Item label="连接模式">
+              <Form.Item label="连接模式" className="top-unset">
                 {getFieldDecorator('connectMode', {
                   initialValue: detailData?.connectMode || 'PORT',
                   rules: [
@@ -853,7 +882,7 @@ const InfoConfig = (props) => {
 
             {getFieldValue('protocol') === 'SFTP' && (
               <>
-                <Form.Item label="认证方式">
+                <Form.Item label="认证方式" className="top-unset">
                   {getFieldDecorator('auth', {
                     initialValue: detailData?.auth || 1,
                     rules: [
@@ -890,12 +919,12 @@ const InfoConfig = (props) => {
                 )}
               </>
             )}
-          </>
+          </div>
         );
       case 'CarbonReact':
         return (
-          <>
-            <Form.Item label="HDFS配置" key={index}>
+          <div key={index}>
+            <Form.Item label="HDFS配置" key={index} className="top-unset">
               {getFieldDecorator('hdfsCustomConfig', {
                 initialValue: detailData?.hdfsCustomConfig || 'default',
               })(
@@ -942,12 +971,12 @@ const InfoConfig = (props) => {
                 </Form.Item>
               </>
             )}
-          </>
+          </div>
         );
       case 'RedisReact':
         return (
-          <>
-            <Form.Item label="模式" key="redisType">
+          <div key={index}>
+            <Form.Item label="模式" key="redisType" className="top-unset">
               {getFieldDecorator('redisType', {
                 initialValue: detailData?.redisType || 1,
                 rules: [
@@ -1010,11 +1039,16 @@ const InfoConfig = (props) => {
                 initialValue: detailData?.password || '',
               })(<Input.Password />)}
             </Form.Item>
-          </>
+          </div>
         );
       case 'WebSocketSub':
         return (
-          <Form.Item label="鉴权参数" key="webSocketParams">
+          <Form.Item
+            label="鉴权参数"
+            key="webSocketParams"
+            className={`label-height-18 ${
+              Object.keys(webSocketParams).length ? 'label-height-32' : ''
+            }`}>
             {renderWebSocketParams()}
             <span className="ws-add" onClick={addWsParams}>
               <Icon type="plus-circle-o" />
@@ -1031,7 +1065,7 @@ const InfoConfig = (props) => {
   return (
     <div className="info-config">
       <Spin spinning={loading}>
-        <Form {...formItemLayout}>
+        <Form {...formItemLayout} className="info-config-form">
           <Form.Item label="数据源类型">
             {getFieldDecorator('dataType', {
               initialValue: otherParams.dataType + otherParams.dataVersion,

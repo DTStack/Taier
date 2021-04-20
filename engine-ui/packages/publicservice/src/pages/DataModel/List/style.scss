@@ -13,6 +13,14 @@
     }
     .table {
       height: calc(100% - 32px);
+
+      .ant-table-thead > tr > th {
+        padding: 11px 16px 11.2px;
+      }
+
+      .ant-table-tbody > tr > td {
+        padding: 13px 16px;
+      }
     }
     .drawer {
       height: calc(100% - 148px);
@@ -90,9 +98,15 @@
 
 .icon-filter {
   font-size: 16px !important;
-  line-height: 44px;
   margin-top: 2px;
+
   &.filtered {
     color: #3f87ff !important;
+  }
+}
+
+.ant-dropdown-open {
+  .iconfont2 {
+    color: #3f87ff;
   }
 }

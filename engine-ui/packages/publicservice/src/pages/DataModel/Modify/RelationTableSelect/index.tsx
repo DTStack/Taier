@@ -187,6 +187,7 @@ const RelationTableSelect = (props: IPropsRelationTableSelect) => {
             rules: [{ required: true, message: '请选择schema' }],
           })(
             <Select
+              className="dm-form-item"
               placeholder="请选择schema"
               disabled={isDisabled}
               onChange={(v) => {
@@ -210,6 +211,7 @@ const RelationTableSelect = (props: IPropsRelationTableSelect) => {
             rules: [{ required: true, message: '请选择表' }],
           })(
             <Select
+              className="dm-form-item"
               placeholder="请选择表"
               disabled={isDisabled}
               onChange={() => {
