@@ -512,6 +512,7 @@ const InfoConfig = (props) => {
             </Tooltip>
           </div>
         </div>
+        <p>上传单个文件，支持扩展格式：.zip</p>
         {getFieldValue(`kerberosFile`) ? (
           <div
             style={{
@@ -692,6 +693,7 @@ const InfoConfig = (props) => {
                         上传单个文件，支持扩展格式：.zip
                       </p>
                     </Upload>
+                    <p>上传单个文件，支持扩展格式：.zip</p>
                     <div style={{ marginLeft: -40 }}>
                       <Icon type="question-circle" />
                     </div>

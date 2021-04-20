@@ -148,10 +148,10 @@
 }
 .ant-menu-inline .ant-menu-item {
   margin-top: 0px !important;
-  margin-bottom: 4px !important;
 }
 .ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
   background-color: #ebebeb !important;
+  color: #3f87ff;
 }
 .ant-menu-inline .ant-menu-selected::after,
 .ant-menu-inline .ant-menu-item-selected::after {
@@ -159,6 +159,11 @@
 }
 .ant-menu-inline .ant-menu-item {
   width: 100% !important;
+  height: 32px;
+  line-height: 32px;
+  padding-left: 32px;
+  margin-bottom: 0 !important;
+  color: #666;
 }
 
 .edit-steps {

@@ -46,15 +46,14 @@ export default function AuthSelect(props: IProps) {
 
   return (
     <div>
-      <p style={{ color: '#666' }}>
+      <p className="auth-header">
         点击进行授权/取消，若已在产品中应用，不能取消授权
       </p>
-      <br />
       <Checkbox.Group
         style={{ width: '100%' }}
         onChange={onChange}
         value={checkedList}>
-        <Row>
+        <Row style={{ padding: '22px 44px 0 44px' }}>
           {authList.length > 0 &&
             authList.map((item, index) => (
               <Col
@@ -64,7 +63,8 @@ export default function AuthSelect(props: IProps) {
                   if (item.isImport === 1) {
                     message.error('已在产品中应用，不能取消授权。');
                   }
-                }}>
+                }}
+                style={{ marginBottom: 24 }}>
                 <Checkbox value={item.appType} disabled={item.isImport === 1}>
                   {item.appName}
                 </Checkbox>
