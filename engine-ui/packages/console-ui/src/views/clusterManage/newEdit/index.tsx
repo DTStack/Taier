@@ -7,7 +7,7 @@ import * as _ from 'lodash'
 import Api from '../../../api/console'
 import { initialScheduling, isViewMode, isNeedTemp,
     getModifyComp, isSameVersion, getCompsId,
-    isMultiVersion, getCurrentComp } from './help'
+    isMultiVersion, getCurrentComp, includesCurrentComp } from './help'
 import { TABS_TITLE, COMPONENT_CONFIG_NAME, DEFAULT_COMP_VERSION,
     COMPONENT_TYPE_VALUE, TABS_POP_VISIBLE, COMP_ACTION } from './const'
 
@@ -303,13 +303,18 @@ class EditCluster extends React.Component<any, IState> {
             let newTestStatus = this.state.testStatus
             let multiVersion = newTestStatus[status.componentTypeCode]?.multiVersion ?? []
 
-            if (!multiVersion.length) multiVersion.push(status)
             if (multiVersion.length) {
+                let sign = false
                 multiVersion = multiVersion.map(mv => {
-                    if (mv.hadoopVersion == status.hadoopVersion) return status
+                    if (mv.componentVersion == status.componentVersion) {
+                        sign = true
+                        return status
+                    }
                     return mv
                 })
+                if (!sign) multiVersion.push(status)
             }
+            if (!multiVersion.length) multiVersion.push(status)
 
             let result = true
             let errorMsg = []
@@ -318,7 +323,7 @@ class EditCluster extends React.Component<any, IState> {
                 if (!mv.result) {
                     result = false
                     errorMsg.push({
-                        hadoopVersion: mv.hadoopVersion,
+                        componentVersion: mv.componentVersion,
                         errorMsg: mv.errorMsg
                     })
                 }
@@ -333,7 +338,7 @@ class EditCluster extends React.Component<any, IState> {
                         multiVersion: multiVersion
                     }
                 }
-            }))
+            }), () => console.log('testStatus ===== ', this.state.testStatus))
             return
         }
         let testStatus: any = {}
@@ -345,26 +350,27 @@ class EditCluster extends React.Component<any, IState> {
         })
     }
 
-    testConnects = (params?: { typeCode?: number; hadoopVersion?: string }, callBack?: Function) => {
-        const { typeCode, hadoopVersion } = params
+    testConnects = (params?: any, callBack?: Function) => {
+        const typeCode = params?.typeCode ?? ''
+        const hadoopVersion = params?.hadoopVersion ?? ''
         const { form } = this.props
         const { initialCompData, clusterName } = this.state
         form.validateFields(null, {}, (err: any, values: any) => {
             console.log(err, values)
-            let currentComp = values
+
+            /** 当前组件错误校验 */
             if (isMultiVersion(typeCode) && err && Object.keys(err[String(typeCode)]).includes(hadoopVersion)) {
                 message.error('请检查配置')
                 return
             }
-            if (isMultiVersion(typeCode)) { currentComp = values[hadoopVersion] ?? {} }
             if ((err && !typeCode) || (err && !isMultiVersion(typeCode) && Object.keys(err).includes(String(typeCode)))) {
                 message.error('请检查配置')
                 return
             }
 
-            const modifyComps = getModifyComp(currentComp, initialCompData)
-            if (typeCode || typeCode == 0) {
-                if (modifyComps.size > 0 && Array.from(modifyComps).includes(String(typeCode))) {
+            const modifyComps = getModifyComp(values, initialCompData)
+            if (typeCode || typeCode === 0) {
+                if (modifyComps.size > 0 && includesCurrentComp(Array.from(modifyComps), { typeCode, hadoopVersion })) {
                     message.error(`组件 ${COMPONENT_CONFIG_NAME[typeCode]} 参数变更未保存，请先保存再测试组件连通性`)
                     return
                 }
@@ -381,7 +387,10 @@ class EditCluster extends React.Component<any, IState> {
                 })
             } else {
                 if (modifyComps.size > 0) {
-                    const modifyCompsName = Array.from(modifyComps).map((code: number) => COMPONENT_CONFIG_NAME[code])
+                    const modifyCompsName = Array.from(modifyComps).map((comp: any) => {
+                        if (isMultiVersion(comp.typeCode)) { return COMPONENT_CONFIG_NAME[comp.typeCode] + ' ' + (Number(hadoopVersion) / 100) }
+                        return COMPONENT_CONFIG_NAME[comp.typeCode]
+                    })
                     message.error(`组件 ${modifyCompsName.join('、')} 参数变更未保存，请先保存再测试组件连通性`)
                     return
                 }
@@ -498,7 +507,6 @@ class EditCluster extends React.Component<any, IState> {
                                                             {!isViewMode(mode) && <ToolBar
                                                                 comp={vcomp}
                                                                 clusterInfo={{ clusterName, clusterId: cluster.clusterId }}
-                                                                initialCompData={initialCompData[activeKey]}
                                                                 form={this.props.form}
                                                                 saveComp={this.saveComp}
                                                                 testConnects={this.testConnects}

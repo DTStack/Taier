@@ -131,3 +131,5 @@ export const COMP_ACTION = {
     DELETE: 'DELETE',
     ADD: 'ADD'
 }
+
+export const DEFAULT_PARAMS = ['storeType', 'principal', 'hadoopVersion', 'kerberosFileName', 'uploadFileName']

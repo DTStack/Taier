@@ -20,8 +20,8 @@ interface IProps {
     testStatus: any;
     saveComp: (params: any, type?: string) => void;
     getLoadTemplate: (key?: string, params?: any) => void;
+    handleConfirm: (action: string, comps: any | any[], mulitple?: boolean) => void;
     testConnects: Function;
-    handleConfirm: Function;
 }
 
 export default class MultiVersionComp extends React.Component<IProps, any> {
@@ -65,9 +65,8 @@ export default class MultiVersionComp extends React.Component<IProps, any> {
         const typeCode = comp?.componentTypeCode ?? ''
         const className = 'c-multiVersionComp'
 
-        return <div className={className}>
-            {
-                !comp?.multiVersion[0]?.hadoopVersion ? <>
+        if (!comp?.multiVersion[0]?.hadoopVersion) {
+            return <div className={className}>
                 <div className={`${className}__intail`}>
                     <span className={`${className}__intail__title`}>请选择版本号：</span>
                     <div className={`${className}__intail__container`}>
@@ -94,56 +93,59 @@ export default class MultiVersionComp extends React.Component<IProps, any> {
                     saveComp={saveComp}
                     handleConfirm={handleConfirm}
                 />}
-                </> : <Tabs
-                    tabPosition="top"
-                    className={`${className}__tabs`}
-                    tabBarExtraContent={<Dropdown overlay={this.getMeunItem()} placement="bottomCenter">
-                        <Button type="primary" size="small" style={{ marginRight: 20 }}>
-                            添加版本
-                            <Icon type="down" />
-                        </Button>
-                    </Dropdown>}
-                >
-                    {comp?.multiVersion.map(vcomp => {
-                        return (
-                            <TabPane
-                                tab={
-                                    <span>
-                                        {VERSION_TYPE[vcomp.componentTypeCode]} {Number(vcomp.hadoopVersion) / 100}
-                                        <TestRestIcon testStatus={testStatus.find(status => status.hadoopVersion == vcomp.hadoopVersion)}/>
-                                    </span>
-                                }
-                                key={String(vcomp.hadoopVersion)}
-                            >
-                                <>
-                                    <FileConfig
-                                        comp={vcomp}
-                                        form={form}
-                                        view={view}
-                                        saveCompsData={saveCompsData}
-                                        versionData={versionData}
-                                        clusterInfo={clusterInfo}
-                                    />
-                                    <FormConfig
-                                        comp={vcomp}
-                                        view={view}
-                                        form={form}
-                                    />
-                                    {!view && <ToolBar
-                                        mulitple={true}
-                                        comp={vcomp}
-                                        clusterInfo={clusterInfo}
-                                        form={form}
-                                        saveComp={saveComp}
-                                        testConnects={testConnects}
-                                        handleConfirm={handleConfirm}
-                                    />}
-                                </>
-                            </TabPane>
-                        )
-                    })}
-                </Tabs>
-            }
+            </div>
+        }
+
+        return <div className={className}>
+            <Tabs
+                tabPosition="top"
+                className={`${className}__tabs`}
+                tabBarExtraContent={<Dropdown overlay={this.getMeunItem()} placement="bottomCenter">
+                    <Button type="primary" size="small" style={{ marginRight: 20 }}>
+                        添加版本
+                        <Icon type="down" />
+                    </Button>
+                </Dropdown>}
+            >
+                {comp?.multiVersion.map(vcomp => {
+                    return (
+                        <TabPane
+                            tab={
+                                <span>
+                                    {VERSION_TYPE[vcomp.componentTypeCode]} {Number(vcomp.hadoopVersion) / 100}
+                                    <TestRestIcon testStatus={testStatus.find(status => status.componentVersion == vcomp.hadoopVersion)}/>
+                                </span>
+                            }
+                            key={String(vcomp.hadoopVersion)}
+                        >
+                            <>
+                                <FileConfig
+                                    comp={vcomp}
+                                    form={form}
+                                    view={view}
+                                    saveCompsData={saveCompsData}
+                                    versionData={versionData}
+                                    clusterInfo={clusterInfo}
+                                />
+                                <FormConfig
+                                    comp={vcomp}
+                                    view={view}
+                                    form={form}
+                                />
+                                {!view && <ToolBar
+                                    mulitple={true}
+                                    comp={vcomp}
+                                    clusterInfo={clusterInfo}
+                                    form={form}
+                                    saveComp={saveComp}
+                                    testConnects={testConnects}
+                                    handleConfirm={handleConfirm}
+                                />}
+                            </>
+                        </TabPane>
+                    )
+                })}
+            </Tabs>
         </div>
     }
 }
