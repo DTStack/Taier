@@ -123,7 +123,7 @@ const BasicInfo = (props: IPropsBasicInfo) => {
               {
                 validator: repeatValidateGenerator({
                   fieldCode: 1,
-                  msgTips: '模型名称不能重复',
+                  msgTips: '模型名称已存在',
                   id: modelDetail.id,
                 }),
               },
@@ -149,7 +149,7 @@ const BasicInfo = (props: IPropsBasicInfo) => {
               {
                 validator: repeatValidateGenerator({
                   fieldCode: 2,
-                  msgTips: '模型英文名称不能重复',
+                  msgTips: '模型英文名已存在',
                   id: modelDetail.id,
                 }),
               },

@@ -91,10 +91,10 @@ const Detail = (props: IPropsDetail) => {
                   />
                 </div>
 
-                <div className="margin-bottom-20">
+                {/* <div className="margin-bottom-20">
                   <PaneTitle title="关联视图" />
                   <div className="releation-view" />
-                </div>
+                </div> */}
                 <div className="margin-bottom-20">
                   <PaneTitle title="数据信息" />
                   <DataInfo

@@ -81,7 +81,12 @@ const List = (props: IPropList) => {
       setLoading(true);
       const { success, data, message } = await API.getModelList(requestParams);
       if (success) {
-        setModelList(data.data);
+        setModelList(
+          data.data.map((item) => {
+            Object.keys(item).map((key) => !item[key] && (item[key] = '--'));
+            return item;
+          })
+        );
         setPagination({
           current: data.currentPage,
           size: data.pageSize,

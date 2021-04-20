@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useImperativeHandle } from 'react';
-import { Form, Select, Switch, Row, Col } from 'antd';
+import { Form, Select, Switch, Row, Col, Tooltip } from 'antd';
 import { IModelDetail } from '@/pages/DataModel/types';
 import './style';
 
@@ -163,14 +163,21 @@ const PartitionField = (props: IPropsPartitionField) => {
       <Row className="mb-12">
         <Col span={5}>
           <span className="text-main ml-32">分区设置</span>
-          <i className="text-main-icon ml-8 iconfont2 iconOutlinedxianxing_Question" />
+          <Tooltip
+            placement="right"
+            title="如果数据模型不需要增量更新，可不设置分区">
+            <i className="text-main-icon ml-8 iconfont2 iconOutlinedxianxing_Question" />
+          </Tooltip>
         </Col>
       </Row>
       <Form.Item label="分区字段（日期）">
         {getFieldDecorator('modelPartition.datePartitionColumn.columnName', {
           rules: rules('分区字段（日期）不可为空'),
         })(
-          <Select placeholder="请选择分区字段（日期）">
+          <Select
+            placeholder="请选择分区字段（日期）"
+            showSearch
+            optionFilterProp="children">
             {columns.map((item) => {
               const key = `${item.schema}-${item.tableName}-${item.columnName}`;
               return (
@@ -207,7 +214,10 @@ const PartitionField = (props: IPropsPartitionField) => {
                 rules: rules('分区字段（时间）不可为空'),
               }
             )(
-              <Select placeholder="请选择分区字段（时间）">
+              <Select
+                placeholder="请选择分区字段（时间）"
+                showSearch
+                optionFilterProp="children">
                 {columns.map((item) => {
                   const key = `${item.schema}-${item.tableName}-${item.columnName}`;
                   return (

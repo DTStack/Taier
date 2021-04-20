@@ -190,6 +190,8 @@ const RelationTableSelect = (props: IPropsRelationTableSelect) => {
               className="dm-form-item"
               placeholder="请选择schema"
               disabled={isDisabled}
+              showSearch
+              optionFilterProp="children"
               onChange={(v) => {
                 window.localStorage.setItem('refreshColumns', 'true');
                 setFieldsValue({
@@ -214,6 +216,8 @@ const RelationTableSelect = (props: IPropsRelationTableSelect) => {
               className="dm-form-item"
               placeholder="请选择表"
               disabled={isDisabled}
+              showSearch
+              optionFilterProp="children"
               onChange={() => {
                 window.localStorage.setItem('refreshColumns', 'true');
               }}>
