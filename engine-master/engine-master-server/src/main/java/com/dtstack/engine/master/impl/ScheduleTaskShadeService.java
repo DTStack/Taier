@@ -22,7 +22,7 @@ import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.UnitConvertUtil;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.domain.ScheduleEngineProject;
+import com.dtstack.engine.api.domain.ScheduleEngineProject;
 import com.dtstack.engine.master.executor.CronJobExecutor;
 import com.dtstack.engine.master.executor.FillJobExecutor;
 import com.dtstack.schedule.common.enums.*;

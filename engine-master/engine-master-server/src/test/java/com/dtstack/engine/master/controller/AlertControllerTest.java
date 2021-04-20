@@ -1,22 +1,19 @@
 package com.dtstack.engine.master.controller;
 
 import com.dtstack.engine.alert.enums.AlertGateTypeEnum;
-import com.dtstack.engine.api.dto.UserMessageDTO;
 import com.dtstack.engine.api.param.AlarmSendParam;
 import com.dtstack.engine.api.param.ClusterAlertPageParam;
 import com.dtstack.engine.api.param.ClusterAlertParam;
 import com.dtstack.engine.api.param.NotifyRecordParam;
 import com.dtstack.engine.api.vo.alert.AlertGateTestVO;
 import com.dtstack.engine.api.vo.alert.AlertGateVO;
-import com.dtstack.engine.domain.AlertChannel;
-import com.dtstack.engine.domain.AlertContent;
-import com.dtstack.engine.domain.AlertRecord;
+import com.dtstack.engine.api.domain.AlertChannel;
+import com.dtstack.engine.api.domain.AlertContent;
+import com.dtstack.engine.api.domain.AlertRecord;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
-import com.dtstack.engine.master.utils.FileUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +21,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.FileInputStream;
 
 /**
  * @Auther: dazhi

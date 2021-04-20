@@ -6,14 +6,14 @@
         id,cluster_id,alert_gate_name,alert_gate_type,alert_gate_code,alert_gate_json,alert_gate_source,alert_template,file_path,is_default,is_deleted,gmt_created,gmt_modified
     </sql>
 
-    <select id="selectById" resultType="com.dtstack.engine.domain.AlertChannel">
+    <select id="selectById" resultType="com.dtstack.engine.api.domain.AlertChannel">
         SELECT
             <include refid="filed"/>
         FROM alert_channel
         WHERE id = #{id}
     </select>
 
-    <select id="selectByQuery" resultType="com.dtstack.engine.domain.AlertChannel">
+    <select id="selectByQuery" resultType="com.dtstack.engine.api.domain.AlertChannel">
         SELECT
         <include refid="filed"/>
         FROM alert_channel
@@ -58,14 +58,14 @@
         </trim>
     </select>
 
-    <select id="selectAll" resultType="com.dtstack.engine.domain.AlertChannel">
+    <select id="selectAll" resultType="com.dtstack.engine.api.domain.AlertChannel">
         SELECT
         <include refid="filed"/>
         FROM alert_channel
         WHERE `is_deleted` = 0
     </select>
 
-    <select id="selectListByGateSources" resultType="com.dtstack.engine.domain.AlertChannel">
+    <select id="selectListByGateSources" resultType="com.dtstack.engine.api.domain.AlertChannel">
         SELECT
         <include refid="filed"/>
         FROM alert_channel
@@ -75,7 +75,7 @@
         </foreach>
     </select>
 
-    <select id="selectList" resultType="com.dtstack.engine.domain.AlertChannel">
+    <select id="selectList" resultType="com.dtstack.engine.api.domain.AlertChannel">
         SELECT
         <include refid="filed"/>
         FROM alert_channel
@@ -92,7 +92,7 @@
 
     </select>
 
-    <select id="selectInType" resultType="com.dtstack.engine.domain.AlertChannel">
+    <select id="selectInType" resultType="com.dtstack.engine.api.domain.AlertChannel">
         SELECT
         <include refid="filed"/>
         FROM alert_channel
