@@ -36,7 +36,7 @@
         app_type = #{appType}
         and lineage_column_column_id
         in
-        <foreach collection="list" item="item" open="(" close=")" separator=",">
+        <foreach collection="columnColumnIdList" item="item" open="(" close=")" separator=",">
             #{item}
         </foreach>
 

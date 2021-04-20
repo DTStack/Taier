@@ -22,12 +22,14 @@ import com.dtstack.engine.dao.TestLineageDataSetInfoDao;
 import com.dtstack.engine.dao.TestLineageDataSourceDao;
 import com.dtstack.engine.dao.TestLineageTableTableDao;
 import com.dtstack.engine.master.utils.Template;
+import com.dtstack.lineage.dao.LineageDataSourceDao;
 import com.dtstack.lineage.util.SqlParserClientOperator;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.sqlparser.common.client.ISqlParserClient;
 import com.dtstack.sqlparser.common.client.domain.ParseResult;
 import com.dtstack.sqlparser.common.client.enums.ETableType;
+import com.dtstack.sqlparser.common.client.enums.SqlType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -67,17 +69,28 @@ public class LineageServiceTest extends AbstractTest {
     @Autowired
     private TestLineageTableTableDao testLineageTableTableDao;
 
+    @Autowired
+    private LineageDataSourceDao lineageDataSourceDao;
+
     @MockBean
     private SqlParserClientOperator clientOperator;
+
+    @MockBean
+    private LineageColumnColumnService lineageColumnColumnService;
 
 
     @Before
     public void setUp(){
-
         when(clientOperator.getClient(any())).thenReturn(new ISqlParserClient() {
             @Override
             public ParseResult parseSql(String s, String s1, Map<String, List<com.dtstack.sqlparser.common.client.domain.Column>> map, ETableType eTableType) throws Exception {
-                return null;
+
+                ParseResult parseResult = new ParseResult();
+                parseResult.setCurrentDb("dev");
+                parseResult.setFailedMsg("");
+                parseResult.setParseSuccess(true);
+                parseResult.setSqlType(SqlType.ALTER);
+                return parseResult;
             }
 
             @Override
@@ -113,7 +126,7 @@ public class LineageServiceTest extends AbstractTest {
     @Rollback
     public void testParseSql() {
         SqlParseInfo parseSql = lineageService.parseSql("create table chener (id int)", "dev", DataSourceType.HIVE.getVal());
-        Assert.assertEquals("create table chener (id int)",parseSql.getOriginSql());
+        Assert.assertEquals("dev",parseSql.getCurrentDb());
     }
 
     @Test
@@ -129,7 +142,12 @@ public class LineageServiceTest extends AbstractTest {
     @Rollback
     public void testParseAndSaveTableLineage() {
         LineageDataSource defaultHiveDataSourceTemplate = Template.getDefaultHiveDataSourceTemplate();
-        lineageService.parseAndSaveTableLineage(1L, AppType.DATAASSETS.getType(), "insert into test select * from test1", "dev", defaultHiveDataSourceTemplate.getId(), defaultHiveDataSourceTemplate.getSourceType(), "11");
+        //测试资产
+      //  lineageService.parseAndSaveTableLineage(1L, AppType.DATAASSETS.getType(), "insert into test select * from test1", "dev", defaultHiveDataSourceTemplate.getId(), defaultHiveDataSourceTemplate.getSourceType(), "11");
+        //测试离线
+        LineageDataSource rdosHiveDataSourceTemplate = Template.getRdostHiveDataSourceTemplate();
+        lineageService.parseAndSaveTableLineage(1L,AppType.RDOS.getType(),"insert into test_beihai select * from test2","beihai",rdosHiveDataSourceTemplate.getId(),rdosHiveDataSourceTemplate.getSourceType(),"1125");
+
     }
 
     @Test
@@ -161,6 +179,22 @@ public class LineageServiceTest extends AbstractTest {
         parseColumnLineageParam.setDtUicTenantId(1L);
         parseColumnLineageParam.setDefaultDb("dev");
         parseColumnLineageParam.setAppType(AppType.DATAASSETS.getType());
+        parseColumnLineageParam.setEngineDataSourceId(dataSourceTemplate.getId());
+        lineageService.parseAndSaveColumnLineage(parseColumnLineageParam);
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testParseAndSaveColumnLineage2() {
+        //测试离线字段血缘解析保存
+        LineageDataSource dataSourceTemplate = Template.getRdostHiveDataSourceTemplate();
+        ParseColumnLineageParam parseColumnLineageParam = new ParseColumnLineageParam();
+        parseColumnLineageParam.setSql("insert into test select * from test1");
+        parseColumnLineageParam.setUniqueKey(null);
+        parseColumnLineageParam.setDtUicTenantId(1L);
+        parseColumnLineageParam.setDefaultDb("beihai");
+        parseColumnLineageParam.setAppType(AppType.RDOS.getType());
         parseColumnLineageParam.setEngineDataSourceId(dataSourceTemplate.getId());
         lineageService.parseAndSaveColumnLineage(parseColumnLineageParam);
     }

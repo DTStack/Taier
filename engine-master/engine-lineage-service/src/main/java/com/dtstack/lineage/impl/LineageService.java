@@ -19,7 +19,6 @@ import com.dtstack.lineage.enums.SourceType2TableType;
 import com.dtstack.lineage.util.SqlParserClientOperator;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.sqlparser.common.client.ISqlParserClient;
-import com.dtstack.sqlparser.common.client.SqlParserClientCache;
 import com.dtstack.sqlparser.common.client.domain.AlterResult;
 import com.dtstack.sqlparser.common.client.domain.ColumnLineage;
 import com.dtstack.sqlparser.common.client.domain.ParseResult;
@@ -27,7 +26,6 @@ import com.dtstack.sqlparser.common.client.domain.Table;
 import com.dtstack.sqlparser.common.client.domain.TableLineage;
 import com.dtstack.sqlparser.common.client.enums.SqlType;
 import com.dtstack.sqlparser.common.client.enums.TableOperateEnum;
-import com.dtstack.sqlparser.common.client.exception.ClientAccessException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
@@ -133,18 +131,6 @@ public class LineageService {
         return functions;
     }
 
-//    public ISqlParserClient getSqlParserClient() {
-//        ISqlParserClient sqlParserClient = null;
-//        try {
-//            sqlParserClient = SqlParserClientCache.getInstance().getClient("sqlparser");
-//        } catch (ClientAccessException e) {
-//            throw new RdosDefineException("get sqlParserClient error");
-//        }
-//        if(null == sqlParserClient){
-//            throw new RdosDefineException("get sqlParserClient error");
-//        }
-//        return sqlParserClient;
-//    }
 
     /**
      * 解析表血缘
@@ -203,12 +189,11 @@ public class LineageService {
     @Async
     public void parseAndSaveTableLineage(Long dtUicTenantId, Integer appType, String sql, String defaultDb, Long engineSourceId, Integer sourceType, String unionKey) {
         LineageDataSource lineageDataSource = null;
-        List<LineageDataSource> dataSourceList = new ArrayList<>();
         Map<String,LineageDataSource> dataSourceMap = new HashMap<>();
         if (AppType.RDOS.getType().equals(appType)) {
             //离线根据uic租户id和sourceType查询数据源
             try {
-                dataSourceList = lineageDataSourceService.getDataSourceByParams(sourceType, null, dtUicTenantId, AppType.RDOS.getType());
+                List<LineageDataSource> dataSourceList = lineageDataSourceService.getDataSourceByParams(sourceType, null, dtUicTenantId, AppType.RDOS.getType());
                 if(CollectionUtils.isEmpty(dataSourceList)){
                     logger.error("do not find need ");
                     throw new RdosDefineException("没有可用的数据源");
@@ -342,6 +327,10 @@ public class LineageService {
             parseInfo.setExtraType(SqlTypeAdapter.sqlType2ApiSqlType(parseResult.getExtraSqlType()));
             parseInfo.setStandardSql(parseResult.getStandardSql());
             parseInfo.setOriginSql(parseResult.getOriginSql());
+            AlterResult alterResult = parseResult.getAlterResult();
+            if(alterResult != null){
+                parseInfo.setAlterResult(AlterResultAdapter.sqlAlterResult2ApiResult(parseResult.getAlterResult()));
+            }
             if(CollectionUtils.isNotEmpty(parseResult.getTables())){
                 List<Table> tables = parseResult.getTables();
                 List<com.dtstack.engine.api.pojo.lineage.Table> apiTables = tables.stream().map(TableAdapter::sqlTable2ApiTable).collect(Collectors.toList());
@@ -377,19 +366,18 @@ public class LineageService {
         //4.获取表中的字段列表
         //5.解析字段级血缘关系
         //6.存储字段级血缘关系
-        LineageDataSource lineageDataSource = null;
-        List<LineageDataSource> dataSourceList = new ArrayList<>();
+        LineageDataSource lineageDataSource;
         Map<String,LineageDataSource> dataSourceMap = new HashMap<>();
         if (AppType.RDOS.getType().equals(parseColumnLineageParam.getAppType())) {
-            dataSourceList = lineageDataSourceService.getDataSourceByParams(parseColumnLineageParam.getDataSourceType(), null, parseColumnLineageParam.getDtUicTenantId(), AppType.RDOS.getType());
+            List<LineageDataSource> dataSourceList = lineageDataSourceService.getDataSourceByParams(parseColumnLineageParam.getDataSourceType(), null, parseColumnLineageParam.getDtUicTenantId(), AppType.RDOS.getType());
             if(CollectionUtils.isEmpty(dataSourceList)){
                 logger.error("do not find need ");
                 throw new RdosDefineException("没有可用的数据源");
             }
-            lineageDataSource = dataSourceList.get(0);
             for (LineageDataSource dataSource : dataSourceList) {
                 dataSourceMap.put(dataSource.getSchemaName(),dataSource);
             }
+            lineageDataSource = dataSourceMap.get(parseColumnLineageParam.getDefaultDb());
         } else {
             //资产通过数据源id查询数据源
             lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(parseColumnLineageParam.getEngineDataSourceId(), parseColumnLineageParam.getAppType());
@@ -498,12 +486,16 @@ public class LineageService {
             List<LineageTableTable> tableTableList = lineageTableTableService.queryTableTableByTableAndAppId(dataSet.getAppType(),dataSet.getId(),1);
             List<Long> idList = tableTableList.stream().map(LineageTableTable::getId).collect(Collectors.toList());
             //删除表血缘的关联关系
-            tableUniqueKeyRefDao.deleteByLineageTableIdList(idList,dataSet.getAppType());
+            if(CollectionUtils.isNotEmpty(idList)) {
+                tableUniqueKeyRefDao.deleteByLineageTableIdList(idList, dataSet.getAppType());
+            }
             //根据表id查询字段血缘
             List<LineageColumnColumn> columnColumnList = lineageColumnColumnService.queryColumnLineages(dataSet.getAppType(), dataSet.getId(), null, 1);
             List<Long> columnColumnIdList = columnColumnList.stream().map(LineageColumnColumn::getId).collect(Collectors.toList());
             //删除字段血缘的关联关系
-            columnUniqueKeyRefDao.deleteByLineageColumnIdList(columnColumnIdList,dataSet.getAppType());
+            if(CollectionUtils.isNotEmpty(columnColumnList)) {
+                columnUniqueKeyRefDao.deleteByLineageColumnIdList(columnColumnIdList, dataSet.getAppType());
+            }
             return true;
         }else if(sqlType.getType().equals(com.dtstack.engine.api.vo.lineage.SqlType.ALTER.getType()) &&
          parseResult.getAlterResult().getAlterType().getVal().equals(TableOperateEnum.ALTERTABLE_RENAME.getVal())){

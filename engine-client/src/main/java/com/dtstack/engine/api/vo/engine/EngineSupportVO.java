@@ -14,6 +14,19 @@ public class EngineSupportVO {
 
     private List<Integer> supportComponent;
 
+    /**
+     * 元数据组件
+     */
+    private Integer metadataComponent;
+
+    public Integer getMetadataComponent() {
+        return metadataComponent;
+    }
+
+    public void setMetadataComponent(Integer metadataComponent) {
+        this.metadataComponent = metadataComponent;
+    }
+
     public Integer getEngineType() {
         return engineType;
     }

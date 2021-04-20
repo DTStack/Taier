@@ -991,6 +991,15 @@ public interface DataCollection {
         return defaultHiveDataSourceTemplate;
     }
 
+
+
+    @DatabaseInsertOperation(dao = TestLineageDataSourceDao.class)
+    default LineageDataSource getRdostHiveDataSourceTemplate(){
+        LineageDataSource dataSource = Template.getRdostHiveDataSourceTemplate();
+        dataSource.setRealSourceId(2L);
+        return dataSource;
+    }
+
 //    @DatabaseInsertOperation(dao = TestLineageDataSourceDao.class)
 //    default LineageDataSource getHiveLineageDataSource(){
 //        LineageDataSource defaultHiveDataSourceTemplate = Template.getDefaultHiveDataSourceTemplate();
