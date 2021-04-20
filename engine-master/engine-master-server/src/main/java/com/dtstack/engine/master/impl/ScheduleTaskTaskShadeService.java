@@ -66,19 +66,30 @@ public class ScheduleTaskTaskShadeService {
     @Transactional(rollbackFor = Exception.class)
     public SaveTaskTaskVO saveTaskTaskList(String taskLists) {
         if(StringUtils.isBlank(taskLists)){
-            return SaveTaskTaskVO.noRink();
+            return SaveTaskTaskVO.save();
         }
         try {
             List<ScheduleTaskTaskShade> taskTaskList = JSONObject.parseArray(taskLists, ScheduleTaskTaskShade.class);
             if(CollectionUtils.isEmpty(taskTaskList)){
-                return SaveTaskTaskVO.noRink();
+                return SaveTaskTaskVO.save();
             }
 
             // 保存时成环检测
             for (ScheduleTaskTaskShade scheduleTaskTaskShade : taskTaskList) {
+                Long parentTaskId = scheduleTaskTaskShade.getParentTaskId();
+                Integer parentAppType = scheduleTaskTaskShade.getParentAppType();
+                if (parentAppType == null) {
+                    parentAppType = scheduleTaskTaskShade.getAppType();
+                }
+                ScheduleTaskShade batchTaskById = taskShadeService.getBatchTaskById(parentTaskId, parentAppType);
+
+                if (batchTaskById == null) {
+                    return SaveTaskTaskVO.noSave("任务依赖报错失败，父任务被删除，你检查父任务");
+                }
+
                 List<ScheduleTaskTaskShade> shades = Lists.newArrayList(taskTaskList);
                 if (checkTaskTaskIsLoop(scheduleTaskTaskShade, shades)) {
-                    return SaveTaskTaskVO.isRink("任务依赖成环，无法提交");
+                    return SaveTaskTaskVO.noSave("任务依赖成环，无法提交");
                 }
             }
 
@@ -102,7 +113,7 @@ public class ScheduleTaskTaskShadeService {
             LOGGER.error("saveTaskTaskList error:{}", ExceptionUtil.getErrorMessage(e));
             throw new RdosDefineException("保存任务依赖列表异常");
         }
-        return SaveTaskTaskVO.noRink();
+        return SaveTaskTaskVO.save();
     }
 
     /**

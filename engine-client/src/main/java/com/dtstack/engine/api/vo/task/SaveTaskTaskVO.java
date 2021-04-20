@@ -11,20 +11,20 @@ public class SaveTaskTaskVO {
     private String msg;
 
     /**
-     * isRink true: 成环 false: 未成环
+     * isSave true: 保存成功  false: 保存失败
      *
      */
-    private Boolean isRink;
+    private Boolean isSave;
 
-    public static SaveTaskTaskVO noRink() {
+    public static SaveTaskTaskVO save() {
         SaveTaskTaskVO saveTaskTaskVO = new SaveTaskTaskVO();
-        saveTaskTaskVO.setRing(Boolean.FALSE);
+        saveTaskTaskVO.setSave(Boolean.FALSE);
         return saveTaskTaskVO;
     }
 
-    public static SaveTaskTaskVO isRink(String msg) {
+    public static SaveTaskTaskVO noSave(String msg) {
         SaveTaskTaskVO saveTaskTaskVO = new SaveTaskTaskVO();
-        saveTaskTaskVO.setRing(Boolean.TRUE);
+        saveTaskTaskVO.setSave(Boolean.TRUE);
         saveTaskTaskVO.setMsg(msg);
         return saveTaskTaskVO;
     }
@@ -37,12 +37,11 @@ public class SaveTaskTaskVO {
         this.msg = msg;
     }
 
-    public Boolean getRing() {
-        return isRink;
+    public Boolean getSave() {
+        return isSave;
     }
 
-    public void setRing(Boolean ring) {
-        isRink = ring;
+    public void setSave(Boolean save) {
+        isSave = save;
     }
-
 }
