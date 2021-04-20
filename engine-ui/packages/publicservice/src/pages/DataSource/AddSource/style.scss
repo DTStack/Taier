@@ -209,6 +209,12 @@
     }
   }
 
+  .label-height-32 {
+    .ant-form-item-label {
+      height: 32px !important;
+    }
+  }
+
   .top-unset {
     label {
       top: unset;

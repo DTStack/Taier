@@ -97,9 +97,13 @@ $highlight-color: #3f87ff;
 
 .ws-form {
   position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+
   input {
     width: 40%;
-    margin: 0 10px 5px 0;
+    margin-right: 10px;
   }
   a {
     position: absolute;

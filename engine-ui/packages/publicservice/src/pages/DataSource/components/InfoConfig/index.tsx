@@ -882,7 +882,7 @@ const InfoConfig = (props) => {
 
             {getFieldValue('protocol') === 'SFTP' && (
               <>
-                <Form.Item label="认证方式">
+                <Form.Item label="认证方式" className="top-unset">
                   {getFieldDecorator('auth', {
                     initialValue: detailData?.auth || 1,
                     rules: [
@@ -1046,7 +1046,9 @@ const InfoConfig = (props) => {
           <Form.Item
             label="鉴权参数"
             key="webSocketParams"
-            className="label-height-18">
+            className={`label-height-18 ${
+              Object.keys(webSocketParams).length ? 'label-height-32' : ''
+            }`}>
             {renderWebSocketParams()}
             <span className="ws-add" onClick={addWsParams}>
               <Icon type="plus-circle-o" />
