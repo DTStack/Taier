@@ -1,4 +1,4 @@
-package com.dtstack.engine.domain;
+package com.dtstack.engine.api.domain;
 
 import java.sql.Timestamp;
 
