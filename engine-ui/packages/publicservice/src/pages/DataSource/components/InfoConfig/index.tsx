@@ -924,7 +924,7 @@ const InfoConfig = (props) => {
       case 'CarbonReact':
         return (
           <div key={index}>
-            <Form.Item label="HDFS配置" key={index}>
+            <Form.Item label="HDFS配置" key={index} className="top-unset">
               {getFieldDecorator('hdfsCustomConfig', {
                 initialValue: detailData?.hdfsCustomConfig || 'default',
               })(
@@ -976,7 +976,7 @@ const InfoConfig = (props) => {
       case 'RedisReact':
         return (
           <div key={index}>
-            <Form.Item label="模式" key="redisType">
+            <Form.Item label="模式" key="redisType" className="top-unset">
               {getFieldDecorator('redisType', {
                 initialValue: detailData?.redisType || 1,
                 rules: [
