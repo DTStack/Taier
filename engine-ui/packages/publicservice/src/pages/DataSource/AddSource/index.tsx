@@ -6,6 +6,7 @@ import SelectSource from '../components/SelectSource';
 import ProduceAuth from '../components/ProduceAuth';
 import InfoConfig from '../components/InfoConfig';
 import './style.scss';
+import stepIconRender from '@/utils/stepIconRender';
 
 const { Step } = Steps;
 
@@ -139,10 +140,12 @@ function index(props) {
 
       <div className="content">
         <div className="top-steps">
-          <Steps current={current}>
-            <Step title="选择数据源" />
-            <Step title="产品授权" />
-            <Step title="信息配置" />
+          <Steps className="dm-steps" current={current}>
+            {['选择数据源', '产品授权', '信息配置'].map(
+              (title, index) => (
+                <Step title={title} icon={stepIconRender(index, current)} />
+              )
+            )}
           </Steps>
         </div>
         {switchContent(current)}
