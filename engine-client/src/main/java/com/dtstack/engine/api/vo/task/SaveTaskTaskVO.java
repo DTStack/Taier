@@ -18,13 +18,13 @@ public class SaveTaskTaskVO {
 
     public static SaveTaskTaskVO save() {
         SaveTaskTaskVO saveTaskTaskVO = new SaveTaskTaskVO();
-        saveTaskTaskVO.setSave(Boolean.FALSE);
+        saveTaskTaskVO.setSave(Boolean.TRUE);
         return saveTaskTaskVO;
     }
 
     public static SaveTaskTaskVO noSave(String msg) {
         SaveTaskTaskVO saveTaskTaskVO = new SaveTaskTaskVO();
-        saveTaskTaskVO.setSave(Boolean.TRUE);
+        saveTaskTaskVO.setSave(Boolean.FALSE);
         saveTaskTaskVO.setMsg(msg);
         return saveTaskTaskVO;
     }
