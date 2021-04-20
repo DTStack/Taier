@@ -476,7 +476,7 @@ const InfoConfig = (props) => {
       accept: '.zip',
     };
     return (
-      <Form.Item {...formNewLayout} label="" key="kerberosFile">
+      <Form.Item {...formNewLayout} label="" key="kerberosFile" className="mg-8">
         {getFieldDecorator(`kerberosFile`, {
           rules: [
             {
@@ -512,13 +512,12 @@ const InfoConfig = (props) => {
             </Tooltip>
           </div>
         </div>
-        <p>上传单个文件，支持扩展格式：.zip</p>
+        
         {getFieldValue(`kerberosFile`) ? (
           <div
             style={{
               width: '100%',
               position: 'relative',
-              marginTop: -16,
             }}>
             <Icon
               type="close"
@@ -526,7 +525,7 @@ const InfoConfig = (props) => {
                 cursor: 'pointer',
                 position: 'absolute',
                 right: 0,
-                top: 13,
+                top: 10,
                 zIndex: 99,
                 color: '#999',
               }}
@@ -541,6 +540,7 @@ const InfoConfig = (props) => {
               style={{
                 position: 'absolute',
                 left: 0,
+                top: 3,
                 zIndex: 99,
                 color: '#999',
               }}></i>
@@ -672,7 +672,7 @@ const InfoConfig = (props) => {
         );
       case 'Upload':
         return (
-          <Form.Item label={item.label} key={index}>
+          <Form.Item label={item.label} key={index} className="file-row">
             {getFieldDecorator(
               `${item.name}`,
               getRules(item)
@@ -693,7 +693,7 @@ const InfoConfig = (props) => {
                         上传单个文件，支持扩展格式：.zip
                       </p>
                     </Upload>
-                    <p>上传单个文件，支持扩展格式：.zip</p>
+                    
                     <div style={{ marginLeft: -40 }}>
                       <Icon type="question-circle" />
                     </div>
@@ -749,7 +749,7 @@ const InfoConfig = (props) => {
       case 'Kerberos':
         return (
           <div key={index}>
-            <Form.Item label={item.label} key={index}>
+            <Form.Item label={item.label} key={index} className="file-row">
               {getFieldDecorator(`${item.name}`, {
                 valuePropName: 'checked',
                 initialValue: detailData?.openKerberos || false,
@@ -777,7 +777,7 @@ const InfoConfig = (props) => {
       case 'HbaseKerberos':
         return (
           <div key={index}>
-            <Form.Item label="开启Kerberos认证" key={index}>
+            <Form.Item label="开启Kerberos认证" key={index} className="file-row">
               {getFieldDecorator('openKerberos', {
                 valuePropName: 'checked',
                 initialValue: detailData?.openKerberos || false,
@@ -838,7 +838,7 @@ const InfoConfig = (props) => {
       case 'FtpReact':
         return (
           <div key={index}>
-            <Form.Item label="协议" key={index}>
+            <Form.Item label="协议" key={index} className="top-unset">
               {getFieldDecorator('protocol', {
                 initialValue: detailData?.protocol || 'FTP',
                 rules: [
@@ -855,7 +855,7 @@ const InfoConfig = (props) => {
               )}
             </Form.Item>
             {getFieldValue('protocol') === 'FTP' && (
-              <Form.Item label="连接模式">
+              <Form.Item label="连接模式" className="top-unset">
                 {getFieldDecorator('connectMode', {
                   initialValue: detailData?.connectMode || 'PORT',
                   rules: [
@@ -1036,7 +1036,7 @@ const InfoConfig = (props) => {
         );
       case 'WebSocketSub':
         return (
-          <Form.Item label="鉴权参数" key="webSocketParams">
+          <Form.Item label="鉴权参数" key="webSocketParams" className="label-height-18">
             {renderWebSocketParams()}
             <span className="ws-add" onClick={addWsParams}>
               <Icon type="plus-circle-o" />

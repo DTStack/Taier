@@ -187,7 +187,7 @@
 }
 
 .info-config-form {
-  .ant-form-item:nth-child(9) {
+  .file-row {
     margin-bottom: 8px;
 
     .ant-form-item-label {
@@ -196,6 +196,27 @@
 
     .ant-switch {
       margin: 0;
+    }
+  }
+
+  .mg-8 {
+    margin-bottom: 8px !important;
+  }
+
+  .label-height-18 {
+    .ant-form-item-label {
+      height: 18px !important;
+    }
+  }
+
+  .top-unset {
+    label {
+      top: unset;
+      transform: unset;
+    }
+
+    .ant-form-item-label {
+      height: 18px !important;
     }
   }
 }
