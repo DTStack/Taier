@@ -131,7 +131,7 @@ export default function SelectSource(props) {
                   <div
                     className="right-menu-item"
                     key={index}
-                    style={{ width: '20%', height: 160 }}
+                    style={{ width: '20%', marginBottom:20 }}
                     onClick={() => onSelectType(item)}>
                     <img
                       src={item.imgUrl}
