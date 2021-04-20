@@ -311,7 +311,7 @@ const InfoConfig = (props) => {
               props.router.push('/data-source/list');
             }, 500);
           } else {
-            message.error(`${msg}`);
+            message.error(`${msg}` || '保存失败');
           }
           setLoading(false);
           props.changeBtnStatus(false);
@@ -326,7 +326,7 @@ const InfoConfig = (props) => {
               props.router.push('/data-source/list');
             }, 500);
           } else {
-            message.error(`${msg}`);
+            message.error(`${msg}` || '保存失败');
           }
           setLoading(false);
           props.changeBtnStatus(false);
