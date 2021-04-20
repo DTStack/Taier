@@ -141,11 +141,9 @@ function index(props) {
       <div className="content">
         <div className="top-steps">
           <Steps className="dm-steps" current={current}>
-            {['选择数据源', '产品授权', '信息配置'].map(
-              (title, index) => (
-                <Step title={title} icon={stepIconRender(index, current)} />
-              )
-            )}
+            {['选择数据源', '产品授权', '信息配置'].map((title, index) => (
+              <Step title={title} icon={stepIconRender(index, current)} />
+            ))}
           </Steps>
         </div>
         {switchContent(current)}
