@@ -77,14 +77,16 @@ public class ScheduleTaskTaskShadeService {
             // 保存时成环检测
             for (ScheduleTaskTaskShade scheduleTaskTaskShade : taskTaskList) {
                 Long parentTaskId = scheduleTaskTaskShade.getParentTaskId();
-                Integer parentAppType = scheduleTaskTaskShade.getParentAppType();
-                if (parentAppType == null) {
-                    parentAppType = scheduleTaskTaskShade.getAppType();
-                }
-                ScheduleTaskShade batchTaskById = taskShadeService.getBatchTaskById(parentTaskId, parentAppType);
+                if (parentTaskId != null) {
+                    Integer parentAppType = scheduleTaskTaskShade.getParentAppType();
+                    if (parentAppType == null) {
+                        parentAppType = scheduleTaskTaskShade.getAppType();
+                    }
+                    ScheduleTaskShade batchTaskById = taskShadeService.getBatchTaskById(parentTaskId, parentAppType);
 
-                if (batchTaskById == null) {
-                    return SaveTaskTaskVO.noSave("任务依赖报错失败，父任务被删除，你检查父任务");
+                    if (batchTaskById == null) {
+                        return SaveTaskTaskVO.noSave("任务依赖报错失败，父任务被删除，你检查父任务");
+                    }
                 }
 
                 List<ScheduleTaskTaskShade> shades = Lists.newArrayList(taskTaskList);
