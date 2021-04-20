@@ -59,14 +59,16 @@ export const columnsGenerator = ({
       filters: dataSourceFilterOptions,
       filterIcon: (filtered) => (
         <Icon
-          component={() => <span
-            className={classnames({
-              iconfont2: true,
-              iconFilltianchong_shaixuan: true,
-              'icon-filter': true,
-              filtered: filtered,
-            })}
-          />}
+          component={() => (
+            <span
+              className={classnames({
+                iconfont2: true,
+                iconFilltianchong_shaixuan: true,
+                'icon-filter': true,
+                filtered: filtered,
+              })}
+            />
+          )}
           style={{ cursor: 'pointer', position: 'relative', width: 16 }}
         />
       ),
@@ -91,17 +93,18 @@ export const columnsGenerator = ({
       filterMultiple: true,
       filterIcon: (filtered) => (
         <Icon
-          component={() => <span
-            className={classnames({
-              iconfont2: true,
-              iconFilltianchong_shaixuan: true,
-              'icon-filter': true,
-              filtered: filtered,
-            })}
-          />}
+          component={() => (
+            <span
+              className={classnames({
+                iconfont2: true,
+                iconFilltianchong_shaixuan: true,
+                'icon-filter': true,
+                filtered: filtered,
+              })}
+            />
+          )}
           style={{ cursor: 'pointer', position: 'relative', width: 16 }}
         />
-        
       ),
       render: (modelStatus) => {
         return (

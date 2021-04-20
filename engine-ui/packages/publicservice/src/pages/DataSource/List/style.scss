@@ -4,16 +4,28 @@ $highlight-color: #3f87ff;
 .top-search {
   margin-bottom: 8px;
 
+  &-form {
+    .ant-form-item-control {
+      line-height: 40px;
+    }
+    .ant-form-item-label {
+      line-height: 39.9999px;
+    }
+    .ant-form-item label {
+      top: unset;
+      transform: unset;
+    }
+  }
+
   &-select {
-    
     &.ant-select-dropdown.ant-select-dropdown--multiple {
       .ant-select-dropdown-menu-item-active,
       .ant-select-dropdown-menu-item-selected {
         .ant-select-selected-icon {
           color: #12bc6a !important;
         }
-      } 
-    } 
+      }
+    }
 
     .ant-select-dropdown-menu-item-selected {
       background-color: #fafafa !important;
@@ -22,7 +34,6 @@ $highlight-color: #3f87ff;
     .ant-select-dropdown-menu-item-selected {
       font-weight: normal !important;
     }
-
   }
 }
 .ant-select-open {

@@ -73,7 +73,7 @@ function Search(props) {
 
   return (
     <div className="top-search">
-      <Form layout="inline">
+      <Form layout="inline" className="top-search-form">
         <Form.Item>
           <SearchInput
             className="dt-form-shadow-bg"

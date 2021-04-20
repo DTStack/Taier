@@ -42,18 +42,22 @@
             overflow: auto;
           }
           .right-menu {
-            display: flex;
-            flex-wrap: wrap;
             flex: 1;
             background-color: #fff;
             padding: 27px 40px;
             overflow-y: auto;
-            margin-left: -16px;
             border-left: 1px solid #ddd;
+
+            &-main {
+              display: flex;
+              flex-wrap: wrap;
+              width: 100%;
+              margin-left: -16px;
+              margin: 0 auto;
+            }
 
             &-item {
               margin-left: 16px;
-              max-width: 216px;
               font-size: 12px;
             }
 
@@ -189,5 +193,20 @@
     .ant-switch {
       margin: 0;
     }
+  }
+}
+
+@media screen and (max-width: 1440px) {
+  .right-menu-main {
+    width: 84% !important;
+  }
+  .source .content .step-info .fill .show-type .right-menu-item {
+    width: calc((100% - 64px) / 4) !important;
+  }
+}
+
+@media screen and (min-width: 1440px) {
+  .source .content .step-info .fill .show-type .right-menu-item {
+    width: calc((100% - 80px) / 5) !important;
   }
 }
