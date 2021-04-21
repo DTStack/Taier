@@ -1,9 +1,11 @@
 package com.dtstack.engine.master.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.api.pojo.CheckResult;
 import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.common.akka.config.AkkaConfig;
+import com.dtstack.engine.dao.EngineJobCheckpointDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.typesafe.config.ConfigFactory;
@@ -12,6 +14,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
