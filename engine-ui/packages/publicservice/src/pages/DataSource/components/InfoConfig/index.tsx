@@ -495,16 +495,17 @@ const InfoConfig = (props) => {
         <div
           style={{
             display: 'flex',
+            position: 'relative',
           }}>
           <Upload {...upProps}>
             <Button style={{ color: '#999' }}>
-              <Icon type="upload" /> Click to upload
+              <Icon type="upload" /> 上传文件
             </Button>
             <p style={{ marginTop: 8, color: '#666' }}>
               上传单个文件，支持扩展格式：.zip
             </p>
           </Upload>
-          <div style={{ marginLeft: -57 }}>
+          <div style={{ position: 'absolute', left: 100 }}>
             <Tooltip title="仅支持Zip格式，压缩包需包含xxx.keytab、krb5.config文件。上传文件前，请在控制台开启SFTP服务。">
               <Icon
                 type="question-circle-o"
@@ -693,7 +694,7 @@ const InfoConfig = (props) => {
                   <div style={{ display: 'flex' }}>
                     <Upload>
                       <Button>
-                        <Icon type="upload" /> Click to upload
+                        <Icon type="upload" /> 上传文件
                       </Button>
                       <p style={{ marginTop: 8 }}>
                         上传单个文件，支持扩展格式：.zip

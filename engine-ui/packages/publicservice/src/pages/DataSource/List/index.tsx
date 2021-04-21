@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { withRouter } from 'react-router';
 import Base64 from 'base-64';
 import Search from './components/Search';
@@ -24,6 +24,8 @@ function index(props) {
     isMeta: 0,
     status: [],
   });
+  const container = useRef(null);
+
   const [total, setTotal] = useState<number>(null);
 
   const [visible, setVisible] = useState<boolean>(false);
@@ -165,13 +167,17 @@ function index(props) {
       </span>
     );
   };
+  const y = useMemo(() => {
+    if (container.current === null) return 0;
+    return parseInt(getComputedStyle(container.current)['height']);
+  }, [container.current]);
 
   return (
     <div className="source">
       <Search onSearch={onSearch}></Search>
 
       <div className="bottom">
-        <div className="conent-table">
+        <div className="conent-table" ref={container}>
           <Table
             size="middle"
             rowKey={(record) => record.dataInfoId}
@@ -188,7 +194,7 @@ function index(props) {
             })}
             dataSource={dataSources}
             pagination={false}
-            scroll={{ x: '100%' }}
+            scroll={{ x: '100%', y }}
             onChange={handleTableChange}
           />
         </div>
@@ -209,6 +215,7 @@ function index(props) {
 
       {visible && (
         <Modal
+          className="datasource-modal"
           closeIcon={
             <span
               style={{ fontSize: 20 }}

@@ -52,12 +52,11 @@
               display: flex;
               flex-wrap: wrap;
               width: 100%;
-              margin-left: -16px;
               margin: 0 auto;
+              justify-content: space-between;
             }
 
             &-item {
-              margin-left: 16px;
               font-size: 12px;
             }
 

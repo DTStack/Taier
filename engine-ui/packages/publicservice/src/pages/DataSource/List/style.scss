@@ -51,8 +51,7 @@ $highlight-color: #3f87ff;
     height: calc(100% - 44px);
     background-color: #fff;
     .conent-table {
-      height: calc(100% - 56px);
-      overflow-y: scroll;
+      height: calc(100% - 101px);
     }
     .anticon-left,
     .anticon-right {
@@ -150,6 +149,18 @@ $highlight-color: #3f87ff;
   width: 200px;
   display: inline-block;
 }
+.datasource-modal {
+  .ant-modal-header {
+    padding: 15px 20px;
+  }
+  .ant-btn {
+    width: 56px;
+    height: 32px;
+    line-height: 32px;
+    border-radius: 2px;
+    border: 1px solid #ddd;
+  }
+}
 .auth-header {
   color: #666;
 }
@@ -181,4 +192,24 @@ $highlight-color: #3f87ff;
   &:hover {
     color: #999;
   }
+}
+.pop-confirm {
+  .ant-btn-sm {
+    width: 56px;
+    height: 28px;
+    background: #fff;
+    border-radius: 2px;
+    border: 1px solid #ddd;
+  }
+}
+
+.ant-table-middle
+  > .ant-table-content
+  > .ant-table-scroll
+  > .ant-table-body
+  > table
+  > .ant-table-thead
+  > tr
+  > th {
+  padding: 12px 20px;
 }

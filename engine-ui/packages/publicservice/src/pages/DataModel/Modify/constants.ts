@@ -43,7 +43,7 @@ export const basicInfoFormListGenerator = (
               id,
             });
             if (success && data) {
-              callback('模型名称不能重复');
+              callback('模型名称已存在');
             } else if (success && !data) {
               callback();
             } else {
@@ -70,7 +70,7 @@ export const basicInfoFormListGenerator = (
               id,
             });
             if (success && data) {
-              callback('模型英文名称不能重复');
+              callback('模型英文名已存在');
             } else if (success && !data) {
               callback();
             } else {
