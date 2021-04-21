@@ -1054,7 +1054,12 @@ public class ComponentService {
     @Transactional(rollbackFor = Exception.class)
     public void closeKerberos( Long componentId) {
         try {
-            kerberosDao.deleteByComponentId(componentId);
+            // 删除kerberos配置需要版本号
+            Component component = componentDao.getOne(componentId);
+            if (Objects.isNull(component)){
+                return;
+            }
+            kerberosDao.deleteByComponent(component.getEngineId(),component.getComponentTypeCode(),component.getHadoopVersion());
             Component updateComponent = new Component();
             updateComponent.setId(componentId);
             updateComponent.setKerberosFileName("");
@@ -1644,7 +1649,7 @@ public class ComponentService {
                 componentDao.update(nextDefaultComponent);
             }
             componentDao.deleteById(componentId.longValue());
-            kerberosDao.deleteByComponentId(componentId.longValue());
+            kerberosDao.deleteByComponent(component.getEngineId(),component.getComponentTypeCode(),component.getHadoopVersion());
             componentConfigService.deleteComponentConfig(componentId.longValue());
         }
     }

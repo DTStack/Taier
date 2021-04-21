@@ -89,4 +89,15 @@
         FROM console_kerberos
         WHERE is_deleted = 0
     </select>
+
+    <delete id="deleteByComponent">
+        UPDATE console_kerberos ck
+        SET ck.is_deleted = 1
+        WHERE
+            ck.cluster_id = (SELECT cluster_id from console_engine cn WHERE cn.id = #{engineId})
+          AND ck.component_type = #{componentTypeCode}
+          <if test="componentVersion != null and componentVersion!='' ">
+              AND ck.component_version = #{componentVersion};
+          </if>
+    </delete>
 </mapper>

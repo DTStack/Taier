@@ -24,7 +24,7 @@
                 store_type = #{storeType},
             </if>
             <if test="isDefault != null">
-                is_default=#{isDefault}
+                is_default = #{isDefault},
             </if>
             gmt_modified =now()
         </set>
