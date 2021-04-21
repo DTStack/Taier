@@ -6,10 +6,11 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @ApiModel
-public class ComponentVO extends Component {
+public class ComponentVO extends Component implements IComponentVO{
 
     private String clusterName;
 
@@ -71,6 +72,12 @@ public class ComponentVO extends Component {
         this.clusterName = clusterName;
     }
 
+
+    @Override
+    public List<ComponentVO> loadComponents() {
+        return Collections.singletonList(this);
+    }
+
     public static List<ComponentVO> toVOS(List<Component> components) {
         List<ComponentVO> vos = new ArrayList<>();
         if (CollectionUtils.isEmpty(components)) {
@@ -84,6 +91,9 @@ public class ComponentVO extends Component {
         return vos;
     }
 
+    public static ComponentVO getInstance(){
+        return new ComponentVO();
+    }
 
     public static ComponentVO toVO(Component component) {
         ComponentVO vo = new ComponentVO();

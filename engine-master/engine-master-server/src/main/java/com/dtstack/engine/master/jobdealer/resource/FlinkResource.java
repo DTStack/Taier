@@ -71,12 +71,12 @@ public class FlinkResource extends CommonResource {
         long dtUicTenantId = jobClient.getTenantId();
 
         Long clusterId = engineTenantDao.getClusterIdByTenantId(dtUicTenantId);
-        Component yarnComponent = componentService.getComponentByClusterId(clusterId, EComponentType.YARN.getTypeCode());
+        Component yarnComponent = componentService.getComponentByClusterId(clusterId, EComponentType.YARN.getTypeCode(), null);
         if (null != yarnComponent) {
             return EComponentType.YARN;
         }
 
-        Component kubernetesComponent = componentService.getComponentByClusterId(clusterId, EComponentType.KUBERNETES.getTypeCode());
+        Component kubernetesComponent = componentService.getComponentByClusterId(clusterId, EComponentType.KUBERNETES.getTypeCode(),null);
         if (null != kubernetesComponent) {
             return EComponentType.KUBERNETES;
         }

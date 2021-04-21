@@ -163,8 +163,9 @@ CREATE TABLE `console_component` (
  `kerberos_file_name` varchar(50) DEFAULT '' COMMENT '上传kerberos文件zip名称',
  `store_type` tinyint(1) DEFAULT '4' COMMENT '组件存储类型: HDFS、NFS 默认HDFS',
  `is_metadata` tinyint(1) DEFAULT 0 NULL COMMENT '/*1 metadata*/',
+  `is_default` tinyint(1) default 1  not null comment '组件默认版本',
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `index_component`(`engine_id`, `component_type_code`) USING BTREE
+  UNIQUE INDEX `index_component`(`engine_id`, `component_type_code`,`hadoop_version`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `console_dtuic_tenant` (
@@ -218,6 +219,7 @@ CREATE TABLE `console_kerberos` (
     `component_type` int(11) DEFAULT NULL COMMENT '组件类型',
     `principals` TEXT COMMENT 'keytab用户文件列表',
     `merge_krb_content` TEXT COMMENT '合并后的krb5',
+    `component_version` varchar(25)  COMMENT '组件版本',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
@@ -311,6 +313,7 @@ CREATE TABLE `schedule_task_shade`
   `flow_id`                 INT(11)      NOT NULL DEFAULT '0' COMMENT '工作流id',
   `is_publish_to_produce`   tinyint(1)   NOT NULL DEFAULT '0' COMMENT '是否发布到生产环境：0-否，1-是',
   `extra_info`              mediumtext                  DEFAULT NULL COMMENT '存储task运行时所需的额外信息',
+  `component_version` varchar(25)  COMMENT '组件版本',
   `task_rule` tinyint(1) DEFAULT '0' COMMENT '强弱规则（只有NOT_DO_TASK任务会判断强弱规则）0 默认无规则 1弱规则 2强规则',
   PRIMARY KEY (`id`),
   KEY `index_name` (`project_id`, `name`(128)),

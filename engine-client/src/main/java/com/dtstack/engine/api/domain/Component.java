@@ -34,6 +34,13 @@ public class Component extends BaseEntity {
     @ApiModelProperty(notes = "存储组件名称")
     private Integer storeType;
 
+    /**
+     * 当前组件是否为默认版本
+     */
+    private Boolean isDefault;
+
+
+
     @ApiModelProperty(notes = "是否为元数据")
     private Integer isMetadata;
 
@@ -109,4 +116,11 @@ public class Component extends BaseEntity {
         this.componentTypeCode = componentTypeCode;
     }
 
+    public Boolean getIsDefault() {
+        return this.isDefault;
+    }
+
+    public void setIsDefault(Boolean isDefault) {
+        this.isDefault = isDefault;
+    }
 }

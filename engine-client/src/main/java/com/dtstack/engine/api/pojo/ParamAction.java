@@ -91,6 +91,16 @@ public class ParamAction {
 	 */
 	private Long retryIntervalTime;
 
+	private String componentVersion;
+
+	public String getComponentVersion() {
+		return componentVersion;
+	}
+
+	public void setComponentVersion(String componentVersion) {
+		this.componentVersion = componentVersion;
+	}
+
 	public Integer getAppType() {
 		return appType;
 	}
