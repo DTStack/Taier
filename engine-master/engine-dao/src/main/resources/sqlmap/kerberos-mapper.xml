@@ -39,7 +39,7 @@
                 merge_krb_content = #{mergeKrbContent},
             </if>
             <if test="componentVersion != null">
-                component_version = #{componentVersion}
+                component_version = #{componentVersion},
             </if>
             gmt_modified =now()
         </set>
