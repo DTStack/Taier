@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.2.0-beta4](http://git.dtstack.cn/dtstack/data-stack-web/compare/v4.2.0-beta3...v4.2.0-beta4) (2021-04-21)
+
+
+### Features
+
+* **edit cluster:** add shell agent and inceptor sql comp ([a1a3382](http://git.dtstack.cn/dtstack/data-stack-web/commit/a1a3382fe107acd9e459b3d11697438b4dd3d104))
+
+
+### Bug Fixes
+
+* replace name for Inceptor SQL ([74a8d16](http://git.dtstack.cn/dtstack/data-stack-web/commit/74a8d16a2b7d8860cd644fc2e3fa0caa3563555d))
+* shield shell agent comp ([4f2159d](http://git.dtstack.cn/dtstack/data-stack-web/commit/4f2159d5a3eaf9c38456dc94e6ba8f83cda412dd))
+
 ## [4.2.0-beta3](http://git.dtstack.cn/dtstack/data-stack-web/compare/v4.1.0-beta1...v4.2.0-beta3) (2021-04-15)
 
 
