@@ -50,8 +50,10 @@ public class Xml2JsonUtil {
                 JSONObject jsono = (JSONObject) o;
                 jsona = new JSONArray();
                 jsona.add(jsono);
-            } else {
+            } else if (o instanceof JSONArray) {
                 jsona = (JSONArray) o;
+            } else {
+                return Collections.emptyMap();
             }
             Map<String, Object> map = new HashMap<>(jsona.size());
             for (Object obj : jsona) {
@@ -158,7 +160,7 @@ public class Xml2JsonUtil {
                         json.put("@" + attr.getName(), attr.getValue());
                     }
                 }
-                if (!e.getText().isEmpty()) {
+                if (!e.getText().isEmpty() && !json.containsKey(e.getName())) {
                     json.put(e.getName(), e.getText());
                 }
             }

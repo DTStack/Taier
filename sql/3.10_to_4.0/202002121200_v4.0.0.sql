@@ -337,6 +337,7 @@ CREATE TABLE `rdos_batch_job`
     KEY `index_job_id` (`job_id`(128)),
     KEY `index_fill_id` (`fill_id`),
     KEY `index_project_id` (`project_id`),
+    KEY `index_status` (`status`),
     UNIQUE KEY `idx_jobKey` (`job_key`(255)),
     KEY `idx_name_type` (`job_name`(128), `type`),
     KEY `index_gmt_modified` (`gmt_modified`)
