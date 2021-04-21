@@ -83,7 +83,7 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
                 if (res.code == 1) {
                     saveComp({
                         ...params,
-                        // id: res.data.id,
+                        id: res.data.id,
                         componentTypeCode: typeCode,
                         uploadFileName: currentComp?.uploadFileName ?? '',
                         kerberosFileName: currentComp?.kerberosFileName ?? ''

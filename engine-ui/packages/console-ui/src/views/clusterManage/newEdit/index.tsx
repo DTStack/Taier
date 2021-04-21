@@ -370,7 +370,9 @@ class EditCluster extends React.Component<any, IState> {
             const modifyComps = getModifyComp(values, initialCompData)
             if (typeCode || typeCode === 0) {
                 if (modifyComps.size > 0 && includesCurrentComp(Array.from(modifyComps), { typeCode, hadoopVersion })) {
-                    message.error(`组件 ${COMPONENT_CONFIG_NAME[typeCode]} 参数变更未保存，请先保存再测试组件连通性`)
+                    let desc = COMPONENT_CONFIG_NAME[typeCode]
+                    if (isMultiVersion(typeCode)) desc = desc + ' ' + (Number(hadoopVersion) / 100).toFixed(2)
+                    message.error(`组件 ${desc}参数变更未保存，请先保存再测试组件连通性`)
                     return
                 }
                 callBack && callBack(true)

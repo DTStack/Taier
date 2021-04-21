@@ -202,6 +202,20 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             })
         }
         function setValue () {
+            if (isMultiVersion(typeCode)) {
+                form.setFieldsValue({
+                    [typeCode]: {
+                        [hadoopVersion]: {
+                            componentConfig: {
+                                ...handleComponentConfig({
+                                    componentConfig: res.data[0]
+                                }, true)
+                            }
+                        }
+                    }
+                })
+                return
+            }
             form.setFieldsValue({
                 [typeCode]: {
                     componentConfig: {
