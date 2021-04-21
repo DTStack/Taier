@@ -64,38 +64,42 @@ const RelationList = (props: IPropsRelationList) => {
   const combineColumnList = async (joinList: any[]) => {
     const columns = modelDetail.columns || [];
     try {
-      const { success, message, data } = await API.getDataModelColumns(joinList);
+      const { success, message, data } = await API.getDataModelColumns(
+        joinList
+      );
       if (success) {
-        const col = data.map(col => {
-          const target = columns.find(
-            item => {
-              return item.tableName === col.tableName && item.schema === col.schema && item.columnName === col.columnName
-            }
-          );
-          if(!target) return {
-            ...col,
-            id: `col_${identifyColumns()}`
-          };
+        const col = data.map((col) => {
+          const target = columns.find((item) => {
+            return (
+              item.tableName === col.tableName &&
+              item.schema === col.schema &&
+              item.columnName === col.columnName
+            );
+          });
+          if (!target)
+            return {
+              ...col,
+              id: `col_${identifyColumns()}`,
+            };
           return {
             ...col,
             metric: target.metric,
             dimension: target.dimension,
-            id: target.id || `col_${identifyColumns()}`
-          }
+            id: target.id || `col_${identifyColumns()}`,
+          };
         });
-        window.localStorage.setItem("refreshColumns", "false");
-        props.updateModelDetail(modelDetail => ({
+        window.localStorage.setItem('refreshColumns', 'false');
+        props.updateModelDetail((modelDetail) => ({
           ...modelDetail,
-          columns: col
-        }))
+          columns: col,
+        }));
       } else {
         Message.error(message);
       }
-
     } catch (error) {
       Message.error(error.message);
     }
-  }
+  };
 
   const onRelationListDelete = (id: number | string) => {
     Modal.confirm({
@@ -123,15 +127,13 @@ const RelationList = (props: IPropsRelationList) => {
             schema: modelDetail.schema,
           },
           list
-        )
-          .map(item => ({
-            datasourceId: item.dsId,
-            schema: item.schema,
-            tableName: item.tableName,
-          }));
+        ).map((item) => ({
+          datasourceId: item.dsId,
+          schema: item.schema,
+          tableName: item.tableName,
+        }));
         // TODO:删除关联表后更新列表
         combineColumnList(params);
-
       },
       okText: '删除',
       cancelText: '取消',
@@ -193,7 +195,7 @@ const RelationList = (props: IPropsRelationList) => {
       )
     );
     return tables;
-  }
+  };
 
   // TODO: 逻辑已抽离，待调整
   const tableList = useMemo(() => {
@@ -223,9 +225,7 @@ const RelationList = (props: IPropsRelationList) => {
     <div ref={cref}>
       {modifyType.visible ? (
         <Modal
-          title={
-            modifyType.mode === Mode.ADD ? '添加关联表' : '编辑关联表'
-          }
+          title={modifyType.mode === Mode.ADD ? '添加关联表' : '编辑关联表'}
           visible={modifyType.visible}
           onOk={() => {
             refRelationModal.current.validate().then((data) => {
@@ -239,17 +239,15 @@ const RelationList = (props: IPropsRelationList) => {
                   modelDetail.dsId,
                   {
                     tableName: modelDetail.tableName,
-                    schema: modelDetail.schema
+                    schema: modelDetail.schema,
                   },
                   next
-                )
-                  .map(item => ({
-                    datasourceId: item.dsId,
-                    schema: item.schema,
-                    tableName: item.tableName,
-                  }));
+                ).map((item) => ({
+                  datasourceId: item.dsId,
+                  schema: item.schema,
+                  tableName: item.tableName,
+                }));
                 combineColumnList(params);
-
               } else {
                 const id = modifyType.value.id;
                 next = relationList.map((item) => {

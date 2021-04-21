@@ -221,20 +221,20 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
   // 表别名重复性校验
   const repeatValidator = (rule, value, callback) => {
     let filter = (v) => true;
-      if (mode === Mode.EDIT) {
-        // 编辑状态下需要过滤当前id的表名
-        filter = (item) => item.id !== value.id;
-      }
-      const isRepeat =
-        tableList
-          .filter((item) => item.tableAlias)
-          .filter(filter)
-          .findIndex((item) => item.tableAlias === value) === -1;
-      if (isRepeat) {
-        callback();
-      } else {
-        callback('表别名不能重复');
-      }
+    if (mode === Mode.EDIT) {
+      // 编辑状态下需要过滤当前id的表名
+      filter = (item) => item.id !== value.id;
+    }
+    const isRepeat =
+      tableList
+        .filter((item) => item.tableAlias)
+        .filter(filter)
+        .findIndex((item) => item.tableAlias === value) === -1;
+    if (isRepeat) {
+      callback();
+    } else {
+      callback('表别名不能重复');
+    }
   };
 
   const leftTable = tableParser.parser(currentFormValue.leftTable);
@@ -335,11 +335,11 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
                     // TODO: 需要吧字符串匹配规则抽出来，临时方案
                     {
                       pattern: /^((?!delete).)*$/g,
-                      message: '表名不能包含类似delete、truncate等敏感词汇'
+                      message: '表名不能包含类似delete、truncate等敏感词汇',
                     },
                     {
                       pattern: /^((?!truncate).)*$/g,
-                      message: '表名不能包含类似delete、truncate等敏感词汇'
+                      message: '表名不能包含类似delete、truncate等敏感词汇',
                     },
                     {
                       validator: repeatValidator,

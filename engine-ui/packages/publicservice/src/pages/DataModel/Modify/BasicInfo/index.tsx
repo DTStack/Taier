@@ -175,7 +175,7 @@ const BasicInfo = (props: IPropsBasicInfo) => {
               disabled={isDisabled}
               onChange={(value, target) => {
                 // 修改数据源后清空第二步schema,tableName,以及关联信息
-                props.updateModelDetail(modelDetail => ({
+                props.updateModelDetail((modelDetail) => ({
                   ...modelDetail,
                   ...getFieldsValue(),
                   dsId: value,
@@ -183,7 +183,7 @@ const BasicInfo = (props: IPropsBasicInfo) => {
                   tableName: undefined,
                   joinList: [],
                   columnList: [],
-                }))
+                }));
                 const extraString = (target as any).props['data-ext'];
                 try {
                   const extra = JSON.parse(extraString);

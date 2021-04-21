@@ -195,11 +195,10 @@ const FieldsSelect = (props: IPropsDimensionSelect) => {
     const reg = new RegExp(filter);
     const columnFilter =
       step === EnumModifyStep.DIMENSION_STEP
-        ? (
-            (item) => reg.test(item.tableName) ||
-              reg.test(item.columnName) ||
-              reg.test(item.columnComment)
-        )
+        ? (item) =>
+            reg.test(item.tableName) ||
+            reg.test(item.columnName) ||
+            reg.test(item.columnComment)
         : (item) =>
             !item.dimension &&
             (reg.test(item.tableName) || reg.test(item.columnName));
