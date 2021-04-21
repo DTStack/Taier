@@ -100,11 +100,23 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
     getPrincipalsList = async (file: any) => {
         const { form, comp } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
+        const hadoopVersion = comp?.hadoopVersion ?? ''
         const res = await Api.parseKerberos({ fileName: file })
         if (res.code == 1) {
             this.setState({
                 principals: res.data ?? []
             })
+            if (isMultiVersion(typeCode)) {
+                form.setFieldsValue({
+                    [typeCode]: {
+                        [hadoopVersion]: {
+                            principal: res?.data[0] ?? '',
+                            principals: res.data
+                        }
+                    }
+                })
+                return
+            }
             form.setFieldsValue({
                 [typeCode]: {
                     principal: res?.data[0] ?? '',
@@ -398,11 +410,12 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
         const { principals } = this.state
         let principalsList = principals
         const typeCode = comp?.componentTypeCode ?? ''
-        const kerberosFile = form.getFieldValue(typeCode + '.kerberosFileName') ?? comp?.kerberosFileName
         const hadoopVersion = comp?.hadoopVersion ?? ''
+
         let formField = typeCode
         if (isMultiVersion(typeCode)) formField = formField + '.' + hadoopVersion
-        formField = formField + '.principal'
+
+        const kerberosFile = form.getFieldValue(formField + '.kerberosFileName') ?? comp?.kerberosFileName
 
         if (!principals.length && !Array.isArray(comp?.principals) && comp?.principals) {
             principalsList = comp?.principals.split(',')
@@ -414,9 +427,9 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             <FormItem
                 label="principal"
                 colon={false}
-                key={formField}
+                key={formField + '.principal'}
             >
-                {form.getFieldDecorator(formField, {
+                {form.getFieldDecorator(formField + '.principal', {
                     initialValue: comp?.principal ?? principals[0] ?? ''
                 })(
                     <Select style={{ width: 172 }} disabled={view}>
@@ -427,7 +440,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                         }
                     </Select>
                 )}
-                {form.getFieldDecorator(formField + 's', {
+                {form.getFieldDecorator(formField + '.principals', {
                     initialValue: comp?.principals ?? ''
                 })(
                     <></>

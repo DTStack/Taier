@@ -102,7 +102,6 @@ class EditCluster extends React.Component<any, IState> {
         const { getFieldValue } = this.props.form
         const { clusterName, initialCompData, activeKey } = this.state
         const typeCode = key ?? initialCompData[activeKey][0]?.componentTypeCode
-        // const comp = initialCompData[activeKey].find(comp => comp.componentTypeCode == typeCode)
         const comp = getCurrentComp(initialCompData[activeKey], { typeCode })
 
         if (isNeedTemp(Number(typeCode))) {
@@ -112,6 +111,8 @@ class EditCluster extends React.Component<any, IState> {
             })
             return
         }
+
+        if (isMultiVersion(typeCode) && !params?.compVersion) return
 
         if ((!comp?.componentTemplate && initialCompData[activeKey]?.length) ||
             params?.compVersion || params?.storeType) {
@@ -190,7 +191,8 @@ class EditCluster extends React.Component<any, IState> {
         let currentCompArr = newCompData[activeKey]
         if (comps.length && action !== COMP_ACTION.DELETE) {
             const initialComp = comps.map(code => {
-                return { componentTypeCode: code, multiVersion: [undefined] }
+                if (!isMultiVersion(code)) return { componentTypeCode: code, multiVersion: [undefined] }
+                return { componentTypeCode: code, multiVersion: [] }
             })
             currentCompArr = currentCompArr.concat(initialComp)
         }

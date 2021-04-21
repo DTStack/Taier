@@ -55,7 +55,7 @@ export default class MultiVersionComp extends React.Component<IProps, any> {
         saveComp({
             componentTypeCode: typeCode,
             hadoopVersion: value
-        })
+        }, COMP_ACTION.ADD)
         getLoadTemplate(typeCode, { compVersion: value })
     }
 
