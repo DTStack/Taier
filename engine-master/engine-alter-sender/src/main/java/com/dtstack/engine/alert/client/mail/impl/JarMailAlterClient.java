@@ -36,7 +36,7 @@ public class JarMailAlterClient extends AbstractMailAlterClient {
             R r = iMailChannel.sendMail(alterSendMailBean.getEmails(),
                     alterSendMailBean.getSubject(),
                     alterSendMailBean.getContent(),
-                    alterSendMailBean.getAttachFiles(), JSONObject.parseObject(alterSendMailBean.getAlertGateJson()));
+                    alterSendMailBean.getAttachFiles(), alterSendMailBean.getEnv());
             logger.info("[sendMail] end, cost={}, mails={}, subject={}, message={}, result={}", (System.currentTimeMillis() - startTime),
                     alterSendMailBean.getEmails(), alterSendMailBean.getSubject(), alterSendMailBean.getContent(), r);
             return r;
@@ -64,6 +64,7 @@ public class JarMailAlterClient extends AbstractMailAlterClient {
         }
         alterSendMailBean.setJarPath(jarPath);
         alterSendMailBean.setClassName(className);
+        alterSendMailBean.setEnv(alterContext.getEvn());
     }
 
     @Override

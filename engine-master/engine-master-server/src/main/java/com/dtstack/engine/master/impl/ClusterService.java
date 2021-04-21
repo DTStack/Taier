@@ -484,7 +484,7 @@ public class ClusterService implements InitializingBean {
             //返回版本
             configObj.put(ComponentService.VERSION, component.getHadoopVersion());
             // 添加组件的kerberos配置信息 应用层使用
-            addKerberosConfigWithHdfs(key, clusterId, kerberosConfig, configObj);
+            configObj.put(ConfigConstant.KERBEROS_CONFIG, addKerberosConfigWithHdfs(componentType.getTypeCode(), clusterId, kerberosConfig));
             //填充sftp配置项
             Map sftpMap = componentService.getComponentByClusterId(clusterId, EComponentType.SFTP.getTypeCode(), false, Map.class);
             if (MapUtils.isNotEmpty(sftpMap)) {
@@ -500,15 +500,14 @@ public class ClusterService implements InitializingBean {
     /**
      * 如果开启集群开启了kerberos认证，kerberosConfig中还需要包含hdfs配置
      *
-     * @param key
+     * @param componentType
      * @param clusterId
      * @param kerberosConfig
-     * @param configObj
      */
-    public void addKerberosConfigWithHdfs(String key, Long clusterId, KerberosConfig kerberosConfig, JSONObject configObj) {
+    public KerberosConfigVO addKerberosConfigWithHdfs(Integer componentType, Long clusterId, KerberosConfig kerberosConfig) {
         if (Objects.nonNull(kerberosConfig)) {
             KerberosConfigVO kerberosConfigVO = KerberosConfigVO.toVO(kerberosConfig);
-            if (!Objects.equals(EComponentType.HDFS.getConfName(), key)) {
+            if (!Objects.equals(EComponentType.HDFS.getTypeCode(), componentType)) {
                 Map hdfsComponent = componentService.getComponentByClusterId(clusterId, EComponentType.HDFS.getTypeCode(),false,Map.class);
                 if (MapUtils.isEmpty(hdfsComponent)) {
                     throw new RdosDefineException("开启kerberos后需要预先保存hdfs组件");
@@ -516,8 +515,9 @@ public class ClusterService implements InitializingBean {
                 kerberosConfigVO.setHdfsConfig(hdfsComponent);
             }
             kerberosConfigVO.setKerberosFileTimestamp(kerberosConfig.getGmtModified());
-            configObj.put("kerberosConfig", kerberosConfigVO);
+            return kerberosConfigVO;
         }
+        return null;
     }
 
     public JSONObject convertPluginInfo(JSONObject clusterConfigJson, EngineTypeComponentType type, ClusterVO clusterVO,Integer deployMode) {
@@ -548,6 +548,9 @@ public class ClusterService implements InitializingBean {
         } else if (EComponentType.PRESTO_SQL == type.getComponentType()) {
             pluginInfo = JSONObject.parseObject(prestoInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
             pluginInfo.put(TYPE_NAME, "presto");
+        }else if (EComponentType.INCEPTOR_SQL==type.getComponentType()){
+            pluginInfo=JSONObject.parseObject(inceptorSqlInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
+            pluginInfo.put(TYPE_NAME,"inceptor");
         } else {
             //flink spark 需要区分任务类型
             if (EComponentType.FLINK.equals(type.getComponentType()) || EComponentType.SPARK.equals(type.getComponentType())) {
@@ -734,6 +737,10 @@ public class ClusterService implements InitializingBean {
         return accountInfo(dtUicTenantId, dtUicUserId, DataSourceType.Presto);
     }
 
+    public String inceptorSqlInfo(Long dtUicTenantId, Long dtUicUserId){
+        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.INCEPTOR_SQL);
+    }
+
 
     private String accountInfo(Long dtUicTenantId, Long dtUicUserId, DataSourceType dataSourceType) {
         EComponentType componentType = null;
@@ -745,6 +752,8 @@ public class ClusterService implements InitializingBean {
             componentType = EComponentType.GREENPLUM_SQL;
         } else if (DataSourceType.Presto.equals(dataSourceType)) {
             componentType = EComponentType.PRESTO_SQL;
+        }else if (DataSourceType.INCEPTOR_SQL.equals(dataSourceType)){
+            componentType=EComponentType.INCEPTOR_SQL;
         }
         if (componentType == null) {
             throw new RdosDefineException("Unsupported data source type");

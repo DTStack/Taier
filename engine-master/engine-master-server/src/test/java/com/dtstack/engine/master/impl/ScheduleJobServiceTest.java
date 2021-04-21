@@ -686,7 +686,6 @@ public class ScheduleJobServiceTest extends AbstractTest {
         scheduleJobTemplate.setTaskRule(0);
         ScheduleBatchJob scheduleBatchJob = new ScheduleBatchJob(scheduleJobTemplate);
 
-
         scheduleJobService.insertJobList(Lists.newArrayList(scheduleBatchJob), EScheduleType.NORMAL_SCHEDULE.getType());
         scheduleJobService.testCheckCanRun(jobId);
         scheduleJobService.testTrigger(jobId);

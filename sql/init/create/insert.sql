@@ -167,6 +167,7 @@ INSERT INTO `task_param_template` VALUES ('17', now(), now(), '0', '0', '0', '1'
 
 -- TiDB SQL
 INSERT INTO `task_param_template` (`gmt_create`,`gmt_modified`,`is_deleted`,`compute_type`,`engine_type`,`task_type`,`params`) VALUES (now(),now(),0,1,14,0,'');
+INSERT INTO `task_param_template` (`gmt_create`,`gmt_modified`,`is_deleted`,`compute_type`,`engine_type`,`task_type`,`params`) VALUES (now(),now(),0,1,15,0,'');
 -- greenplum sql
 INSERT INTO `task_param_template` (`gmt_create`,`gmt_modified`,`is_deleted`,`compute_type`,`engine_type`,`task_type`,`params`) VALUES (now(),now(),0,1,16,0,'');
 
@@ -685,3 +686,5 @@ INSERT INTO schedule_dict (dict_code, dict_name, dict_value, dict_desc, type, so
 INSERT INTO schedule_dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('typename_mapping', 'sftp', '-101', null, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
 INSERT INTO schedule_dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('typename_mapping', 'presto', '-105', null, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
 INSERT INTO schedule_dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('typename_mapping', 'nfs', '-111', null, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
+INSERT INTO `schedule_dict` ( `dict_code`, `dict_name`, `dict_value`, `dict_desc`, `type`, `sort`, `data_type`, `depend_name`, `is_default`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( 'typename_mapping', 'inceptor', '-106', NULL, 6, 0, 'LONG', '', 0, '2021-04-07 19:50:23', '2021-04-07 19:50:23', 0);
+INSERT INTO `schedule_dict` ( `dict_code`, `dict_name`, `dict_value`, `dict_desc`, `type`, `sort`, `data_type`, `depend_name`, `is_default`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( 'inceptor_sql_version', '6.2.x', '6.2.x', NULL, 7, 2, 'STRING', '', 1, '2021-04-07 19:50:23', '2021-04-07 19:50:23', 0);

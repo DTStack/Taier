@@ -13,6 +13,7 @@ import com.dtstack.engine.api.vo.alert.AlertGateVO;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.config.MvcConfig;
+import com.dtstack.engine.master.event.AlterEnvHandlerEvent;
 import com.dtstack.engine.master.event.SftpDownloadEvent;
 import com.dtstack.engine.master.impl.AlertChannelService;
 import com.dtstack.engine.common.enums.EComponentType;
@@ -66,6 +67,9 @@ public class AlertController {
 
     @Autowired(required = false)
     private SftpDownloadEvent sftpDownloadEvent;
+
+    @Autowired
+    private AlterEnvHandlerEvent alterEnvHandlerEvent;
 
     @ApiOperation("新增编辑告警通道 用于替换console接口: /api/console/service/alert/edit")
     @PostMapping("/edit")
@@ -194,6 +198,7 @@ public class AlertController {
         AlterContext alertParam = buildTestAlterContext(alertGateTestVO);
         List<EventMonitor> eventMonitors = Lists.newArrayList();
         eventMonitors.add(contentReplaceEvent);
+        eventMonitors.add(alterEnvHandlerEvent);
         R send = null;
         try {
             send = alterSender.sendSyncAlter(alertParam,eventMonitors);

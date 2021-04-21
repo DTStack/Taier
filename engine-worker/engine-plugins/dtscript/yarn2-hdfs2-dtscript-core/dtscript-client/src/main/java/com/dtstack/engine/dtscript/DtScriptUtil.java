@@ -1,6 +1,7 @@
 package com.dtstack.engine.dtscript;
 
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.dtscript.common.type.AppTypeEnum;
 import sun.misc.BASE64Decoder;
@@ -27,7 +28,22 @@ public class DtScriptUtil {
         for (int i = 0; i < args.size() - 1; ++i) {
             if ("--launch-cmd".equals(args.get(i)) || "--cmd-opts".equals(args.get(i))) {
                 if (!AppTypeEnum.JLOGSTASH.name().equalsIgnoreCase(appType)) {
-                    args.set(i + 1, new String(DECODER.decodeBuffer(args.get(i + 1)), "UTF-8"));
+                    String cmd = new String(DECODER.decodeBuffer(args.get(i + 1)), "UTF-8");
+                    // FIXME: 3/25/21 hard code, fix in next version
+                    if ("--launch-cmd".equals(args.get(i)) && cmd.contains("--app-env")) {
+                        String[] tmpStrs = cmd.split("--app-env");
+
+                        if (tmpStrs.length != 2) {
+                            throw new RdosDefineException("parse envs which from cmd failed. cmd is " + cmd);
+                        }
+
+                        args.set(i + 1, tmpStrs[0]);
+                        int length = args.size();
+                        args.add(length,"-app-env");
+                        args.add(length + 1, tmpStrs[1]);
+                    } else {
+                        args.set(i + 1, cmd);
+                    }
                 }
             }
         }
