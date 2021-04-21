@@ -482,7 +482,8 @@ public class ClusterService implements InitializingBean {
                 kerberosConfig = kerberosDao.getByComponentType(clusterId, componentType.getTypeCode());
             }
             //返回版本
-            configObj.put(ComponentService.VERSION, component.getHadoopVersion());
+            configObj.put(ConfigConstant.VERSION, component.getHadoopVersion());
+            configObj.put(IS_METADATA, component.getIsMetadata());
             // 添加组件的kerberos配置信息 应用层使用
             configObj.put(ConfigConstant.KERBEROS_CONFIG, addKerberosConfigWithHdfs(componentType.getTypeCode(), clusterId, kerberosConfig));
             //填充sftp配置项
@@ -834,7 +835,16 @@ public class ClusterService implements InitializingBean {
         }
         List<SchedulingVo> schedulingVos = convertComponentToScheduling(kerberosConfigs, scheduleType);
         clusterVO.setScheduling(schedulingVos);
+        clusterVO.setCanModifyMetadata(checkMetadata(engineIds, components));
         return clusterVO;
+    }
+
+    private boolean checkMetadata(List<Long> engineIds, List<Component> components) {
+        if (components.stream().anyMatch(c -> EComponentType.metadataComponents.contains(EComponentType.getByCode(c.getComponentTypeCode())))) {
+            List<EngineTenant> engineTenants = engineTenantDao.listByEngineIds(engineIds);
+            return CollectionUtils.isEmpty(engineTenants);
+        }
+        return true;
     }
 
     private List<SchedulingVo> convertComponentToScheduling(List<KerberosConfig> kerberosConfigs, Map<EComponentScheduleType, List<ComponentVO>> scheduleType) {

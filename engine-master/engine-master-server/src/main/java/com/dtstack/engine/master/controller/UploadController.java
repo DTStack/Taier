@@ -42,11 +42,11 @@ public class UploadController {
                                             @RequestParam("componentConfig") String componentConfig, @RequestParam("hadoopVersion") String hadoopVersion,
                                             @RequestParam("kerberosFileName") String kerberosFileName, @RequestParam("componentTemplate") String componentTemplate,
                                             @RequestParam("componentCode") Integer componentCode, @RequestParam("storeType")Integer storeType,
-                                            @RequestParam("principals")String principals,@RequestParam("principal")String principal) {
+                                            @RequestParam("principals")String principals,@RequestParam("principal")String principal,@RequestParam("isMetadata")boolean isMetadata) {
         List<Resource> resources = getResourcesFromFiles(files1);
         List<Resource> resourcesAdd = getResourcesFromFiles(files2);
         resources.addAll(resourcesAdd);
-        return componentService.addOrUpdateComponent(clusterId, componentConfig, resources, hadoopVersion, kerberosFileName, componentTemplate, componentCode,storeType,principals,principal);
+        return componentService.addOrUpdateComponent(clusterId, componentConfig, resources, hadoopVersion, kerberosFileName, componentTemplate, componentCode,storeType,principals,principal,isMetadata);
     }
 
     @RequestMapping(value="/component/parseKerberos", method = {RequestMethod.POST})
