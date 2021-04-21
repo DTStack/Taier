@@ -103,12 +103,13 @@ class EditCluster extends React.Component<any, IState> {
         const { clusterName, initialCompData, activeKey } = this.state
         const typeCode = key ?? initialCompData[activeKey][0]?.componentTypeCode
         const comp = getCurrentComp(initialCompData[activeKey], { typeCode })
+        const saveParams: any = {
+            componentTypeCode: Number(typeCode),
+            hadoopVersion: params?.compVersion ?? ''
+        }
 
         if (isNeedTemp(Number(typeCode))) {
-            this.saveComp({
-                componentTypeCode: Number(typeCode),
-                hadoopVersion: params?.compVersion ?? ''
-            })
+            this.saveComp(saveParams)
             return
         }
 
@@ -122,13 +123,8 @@ class EditCluster extends React.Component<any, IState> {
                 version: params?.compVersion ?? DEFAULT_COMP_VERSION[typeCode] ?? '',
                 storeType: params?.storeType ?? getFieldValue(`${typeCode}.storeType`) ?? ''
             })
-            if (res.code == 1) {
-                this.saveComp({
-                    componentTemplate: JSON.stringify(res.data),
-                    componentTypeCode: Number(typeCode),
-                    hadoopVersion: params?.compVersion ?? ''
-                })
-            }
+            if (res.code == 1) saveParams.componentTemplate = JSON.stringify(res.data)
+            this.saveComp(saveParams)
             this.getSaveComponentList()
         }
     }
@@ -217,20 +213,22 @@ class EditCluster extends React.Component<any, IState> {
                 currentCompArr = Array.from(wrapper)
 
                 const multiVersion = getSingleTestStatus({ typeCode: componentTypeCode, hadoopVersion }, null, testStatus)
+                const setParams = isMultiVersion(componentTypeCode) ? {
+                    [hadoopVersion]: { componentConfig: {}, specialConfig: {} }
+                } : { componentConfig: {}, specialConfig: {} }
+
                 this.setState({
                     testStatus: {
                         ...testStatus,
                         [componentTypeCode]: {
                             ...testStatus[componentTypeCode],
+                            result: null,
                             multiVersion: multiVersion
                         }
                     }
                 })
                 this.props.form.setFieldsValue({
-                    [componentTypeCode]: {
-                        componentConfig: {},
-                        specialConfig: {}
-                    }
+                    [componentTypeCode]: setParams
                 })
             }
         }
@@ -372,7 +370,7 @@ class EditCluster extends React.Component<any, IState> {
                 if (modifyComps.size > 0 && includesCurrentComp(Array.from(modifyComps), { typeCode, hadoopVersion })) {
                     let desc = COMPONENT_CONFIG_NAME[typeCode]
                     if (isMultiVersion(typeCode)) desc = desc + ' ' + (Number(hadoopVersion) / 100).toFixed(2)
-                    message.error(`组件 ${desc}参数变更未保存，请先保存再测试组件连通性`)
+                    message.error(`组件 ${desc} 参数变更未保存，请先保存再测试组件连通性`)
                     return
                 }
                 callBack && callBack(true)
@@ -498,6 +496,7 @@ class EditCluster extends React.Component<any, IState> {
                                                                 commVersion={commVersion}
                                                                 saveCompsData={saveCompsData}
                                                                 clusterInfo={{ clusterName, clusterId: cluster.clusterId }}
+                                                                saveComp={this.saveComp}
                                                                 handleCompVersion={this.handleCompVersion}
                                                             />
                                                             <FormConfig

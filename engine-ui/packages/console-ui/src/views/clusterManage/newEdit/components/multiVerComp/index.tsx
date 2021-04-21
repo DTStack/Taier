@@ -126,6 +126,7 @@ export default class MultiVersionComp extends React.Component<IProps, any> {
                                     saveCompsData={saveCompsData}
                                     versionData={versionData}
                                     clusterInfo={clusterInfo}
+                                    saveComp={saveComp}
                                 />
                                 <FormConfig
                                     comp={vcomp}

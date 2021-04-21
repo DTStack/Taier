@@ -9,7 +9,8 @@ import KerberosModal from './components/kerberosModal'
 import { COMPONENT_TYPE_VALUE, VERSION_TYPE, FILE_TYPE,
     CONFIG_FILE_DESC, DEFAULT_COMP_VERSION } from '../const'
 import { isOtherVersion, isSameVersion, handleComponentConfig,
-    needZipFile, getOptions, getInitialValue, isMultiVersion } from '../help'
+    needZipFile, getOptions, getInitialValue, isMultiVersion,
+    isYarn } from '../help'
 
 interface IProps {
     comp: any;
@@ -20,13 +21,13 @@ interface IProps {
     clusterInfo: any;
     commVersion?: string;
     handleCompVersion?: Function;
+    saveComp: Function;
 }
 
 interface IState {
     loading: any;
     visible: boolean;
     principals: any[];
-    krbconfig: string;
 }
 
 const FormItem = Form.Item
@@ -39,8 +40,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             [FILE_TYPE.CONFIGS]: false
         },
         visible: false,
-        principals: [],
-        krbconfig: ''
+        principals: []
     }
 
     /** hdfs 和 yarn 组件版本一致，version提取至上层 */
@@ -229,7 +229,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
         if (res.code == 1) {
             switch (loadingType) {
                 case FILE_TYPE.KERNEROS: {
-                    this.setState({ krbconfig: res.data })
+                    this.setKrbConfig(res.data)
                     break
                 }
                 case FILE_TYPE.PARAMES:
@@ -351,7 +351,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             <UploadFile
                 label={<span>
                     配置文件
-                    <a style={{ marginLeft: 66 }} onClick={this.refreshYarnQueue}>刷新队列</a>
+                    {isYarn(typeCode) && <a style={{ marginLeft: 66 }} onClick={this.refreshYarnQueue}>刷新队列</a>}
                 </span>}
                 deleteIcon={true}
                 fileInfo={{
@@ -463,8 +463,20 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
         )
     }
 
+    setKrbConfig = (krbconfig: any) => {
+        const { comp, saveComp } = this.props
+        const typeCode = comp?.componentTypeCode ?? ''
+        const hadoopVersion = comp?.hadoopVersion ?? ''
+        saveComp({
+            mergeKrb5Content: krbconfig,
+            componentTypeCode: typeCode,
+            hadoopVersion: hadoopVersion
+        })
+    }
+
     hanleVisible = (krbconfig: any) => {
-        this.setState({ visible: false, krbconfig })
+        this.setState({ visible: false })
+        this.setKrbConfig(krbconfig)
     }
 
     renderFileConfig = () => {
@@ -548,14 +560,14 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
 
     render () {
         const { comp } = this.props
-        const { visible, krbconfig } = this.state
+        const { visible } = this.state
         return (
             <div className="c-fileConfig__container">
                 {this.renderFileConfig()}
                 <KerberosModal
                     key={`${visible}`}
                     visible={visible}
-                    krbconfig={krbconfig || comp?.mergeKrb5Content || ''}
+                    krbconfig={comp?.mergeKrb5Content || ''}
                     onCancel={this.hanleVisible}
                 />
             </div>
