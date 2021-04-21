@@ -31,7 +31,9 @@ export const COMPONENT_TYPE_VALUE = {
     GREEN_PLUM_SQL: 14,
     KUBERNETES: 15,
     PRESTO_SQL: 16,
-    NFS: 17
+    NFS: 17,
+    SHELL_AGENT: 18,
+    INCEPTOR_SQL: 19
 }
 
 export const COMPONENT_CONFIG_NAME = {
@@ -52,7 +54,9 @@ export const COMPONENT_CONFIG_NAME = {
     14: 'Greenplum SQL',
     15: 'Kubernetes',
     16: 'Presto SQL',
-    17: 'NFS'
+    17: 'NFS',
+    18: 'Shell Agent',
+    19: 'Inceptor SQL'
 }
 
 export const TABS_TITLE = {
@@ -86,7 +90,9 @@ export const CONFIG_BUTTON_TYPE = {
         { code: COMPONENT_TYPE_VALUE.TIDB_SQL, componentName: COMPONENT_CONFIG_NAME[COMPONENT_TYPE_VALUE.TIDB_SQL] },
         { code: COMPONENT_TYPE_VALUE.LIBRA_SQL, componentName: COMPONENT_CONFIG_NAME[COMPONENT_TYPE_VALUE.LIBRA_SQL] },
         { code: COMPONENT_TYPE_VALUE.ORACLE_SQL, componentName: COMPONENT_CONFIG_NAME[COMPONENT_TYPE_VALUE.ORACLE_SQL] },
-        { code: COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL, componentName: COMPONENT_CONFIG_NAME[COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL] }
+        { code: COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL, componentName: COMPONENT_CONFIG_NAME[COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL] },
+        // { code: COMPONENT_TYPE_VALUE.SHELL_AGENT, componentName: COMPONENT_CONFIG_NAME[COMPONENT_TYPE_VALUE.SHELL_AGENT] }
+        { code: COMPONENT_TYPE_VALUE.INCEPTOR_SQL, componentName: COMPONENT_CONFIG_NAME[COMPONENT_TYPE_VALUE.INCEPTOR_SQL] }
     ]
 }
 
@@ -94,7 +100,8 @@ export const VERSION_TYPE = {
     0: 'Flink',
     9: 'HiveServer',
     1: 'Spark',
-    6: 'SparkThrift'
+    6: 'SparkThrift',
+    19: 'InceptorSql'
 }
 
 export const FILE_TYPE = {
@@ -118,7 +125,8 @@ export const DEFAULT_COMP_VERSION = {
     [COMPONENT_TYPE_VALUE.FLINK]: '180',
     [COMPONENT_TYPE_VALUE.SPARK]: '210',
     [COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER]: '2.x',
-    [COMPONENT_TYPE_VALUE.HIVE_SERVER]: '2.x'
+    [COMPONENT_TYPE_VALUE.HIVE_SERVER]: '2.x',
+    [COMPONENT_TYPE_VALUE.INCEPTOR_SQL]: '6.2.x'
 }
 
 export const CONFIG_FILE_DESC = {
