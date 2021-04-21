@@ -999,6 +999,7 @@ public class ComponentService {
         boolean isFirstOpenKerberos = false;
         if (Objects.isNull(kerberosConfig)) {
             kerberosConfig = new KerberosConfig();
+            kerberosConfig.setComponentVersion(addComponent.getHadoopVersion());
             isFirstOpenKerberos = true;
         }
         kerberosConfig.setOpenKerberos(1);
