@@ -49,6 +49,7 @@ function index(props) {
             </div>
             <div className="footer-select">
               <Button
+                key="1"
                 style={{ marginRight: 8, width: 80 }}
                 onClick={() => {
                   props.router.push('/data-source/list');
@@ -58,6 +59,7 @@ function index(props) {
 
               {(showFirstNext || sessionStorage.getItem('sqlType')) && (
                 <Button
+                  key="2"
                   style={{ width: 80 }}
                   type="primary"
                   onClick={() => {
@@ -78,6 +80,7 @@ function index(props) {
             </div>
             <div className="footer-select">
               <Button
+                key="3"
                 style={{ marginRight: 8, width: 80 }}
                 onClick={() => {
                   setCurrent(0);
@@ -107,6 +110,7 @@ function index(props) {
             </div>
             <div className="footer-select">
               <Button
+                key="4"
                 type="primary"
                 icon="sync"
                 onClick={testConnect}
@@ -115,6 +119,7 @@ function index(props) {
               </Button>
 
               <Button
+                key="5"
                 style={{ marginLeft: 60, marginRight: 8, width: 80 }}
                 onClick={() => {
                   setCurrent(1);
@@ -122,6 +127,7 @@ function index(props) {
                 上一步
               </Button>
               <Button
+                key="6"
                 type="primary"
                 onClick={submitConfig}
                 disabled={submitBtnStatus}
