@@ -225,7 +225,7 @@
             <if test="taskRule != null">
                 task_rule = #{taskRule},
             </if>
-            <if test="componentVersion != null">
+            <if test="componentVersion != null and componentVersion != '' ">
                 component_version = #{componentVersion}
             </if>
 
