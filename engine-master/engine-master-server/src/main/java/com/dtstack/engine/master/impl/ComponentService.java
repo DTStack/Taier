@@ -993,13 +993,13 @@ public class ComponentService {
                 sftpFileManage.uploadFile(remoteDirKerberos, file.getPath());
             }
         }
-
+        String componentVersion = ComponentVersionUtil.getComponentVersion(addComponent.getHadoopVersion());
         //更新数据库kerberos信息
-        KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, addComponent.getComponentTypeCode(),addComponent.getHadoopVersion());
+        KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, addComponent.getComponentTypeCode(),componentVersion);
         boolean isFirstOpenKerberos = false;
         if (Objects.isNull(kerberosConfig)) {
             kerberosConfig = new KerberosConfig();
-            kerberosConfig.setComponentVersion(addComponent.getHadoopVersion());
+            kerberosConfig.setComponentVersion(componentVersion);
             isFirstOpenKerberos = true;
         }
         kerberosConfig.setOpenKerberos(1);
