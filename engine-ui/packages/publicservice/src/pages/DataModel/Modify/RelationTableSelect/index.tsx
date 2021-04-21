@@ -11,6 +11,7 @@ interface IPropsRelationTableSelect {
   modelDetail?: Partial<IModelDetail>;
   mode: any;
   globalStep: number;
+  updateModelDetail: Function;
 }
 const { Option } = Select;
 
@@ -99,7 +100,6 @@ const RelationTableSelect = (props: IPropsRelationTableSelect) => {
         Message.error(message);
       }
     } catch (error) {
-      // TODO: notification
       Message.error(error.message);
     }
   };
@@ -250,8 +250,9 @@ const RelationTableSelect = (props: IPropsRelationTableSelect) => {
             updateTypeList={updateTypeList}
             modelDetail={{
               ...modelDetail,
-              ...currentFormValue,
+              ...getFieldsValue(),
             }}
+            updateModelDetail={props.updateModelDetail}
           />
         </Col>
       </Row>

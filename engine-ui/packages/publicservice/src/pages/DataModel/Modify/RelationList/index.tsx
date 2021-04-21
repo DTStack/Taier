@@ -11,11 +11,14 @@ import { TableJoinInfo, IModelDetail } from 'pages/DataModel/types';
 import RelationTableModal from '../RelationTableModal';
 import _ from 'lodash';
 import { relationListRemove } from './utils';
+import { API } from '@/services';
+import Message from 'pages/DataModel/components/Message';
 
 interface IPropsRelationList {
   updateTypeList: any[];
   modelDetail: Partial<IModelDetail>;
   cref: any;
+  updateModelDetail: Function;
 }
 
 enum Mode {
@@ -29,6 +32,7 @@ const idGenerator = () => {
 };
 
 const identifyJoinList = idGenerator();
+const identifyColumns = idGenerator();
 
 const RelationList = (props: IPropsRelationList) => {
   const { updateTypeList, modelDetail, cref } = props;
@@ -55,6 +59,47 @@ const RelationList = (props: IPropsRelationList) => {
     setRelationList(modelDetail.joinList || []);
   }, [modelDetail]);
 
+  // 将远程获取的columnList和当前勾选的恶columnList进行整合
+  const combineColumnList = async (joinList: any[]) => {
+    const columns = modelDetail.columns || [];
+    try {
+      const { success, message, data } = await API.getDataModelColumns(
+        joinList
+      );
+      if (success) {
+        const col = data.map((col) => {
+          const target = columns.find((item) => {
+            return (
+              item.tableName === col.tableName &&
+              item.schema === col.schema &&
+              item.columnName === col.columnName
+            );
+          });
+          if (!target)
+            return {
+              ...col,
+              id: `col_${identifyColumns()}`,
+            };
+          return {
+            ...col,
+            metric: target.metric,
+            dimension: target.dimension,
+            id: target.id || `col_${identifyColumns()}`,
+          };
+        });
+        window.localStorage.setItem('refreshColumns', 'false');
+        props.updateModelDetail((modelDetail) => ({
+          ...modelDetail,
+          columns: col,
+        }));
+      } else {
+        Message.error(message);
+      }
+    } catch (error) {
+      Message.error(error.message);
+    }
+  };
+
   const onRelationListDelete = (id: number | string) => {
     Modal.confirm({
       title: (
@@ -73,6 +118,21 @@ const RelationList = (props: IPropsRelationList) => {
           tableName: modelDetail.tableName,
         });
         setRelationList(list);
+
+        const params = tableListGen(
+          modelDetail.dsId,
+          {
+            tableName: modelDetail.tableName,
+            schema: modelDetail.schema,
+          },
+          list
+        ).map((item) => ({
+          datasourceId: item.dsId,
+          schema: item.schema,
+          tableName: item.tableName,
+        }));
+        // 删除关联表后更新列表
+        combineColumnList(params);
       },
       okText: '删除',
       cancelText: '取消',
@@ -113,6 +173,30 @@ const RelationList = (props: IPropsRelationList) => {
     });
   };
 
+  const tableListGen = (dsId, mainTable, relationList) => {
+    const tables = [];
+    if (mainTable.tableName && mainTable.schema) {
+      tables.push({
+        dsId,
+        schema: modelDetail.schema,
+        tableName: modelDetail.tableName,
+        tableAlias: undefined,
+      });
+    }
+    tables.push(
+      ..._.uniqBy(relationList, (item) => item.schema + item.table).map(
+        (table) => ({
+          dsId: modelDetail.dsId,
+          schema: table.schema,
+          tableName: table.table,
+          tableAlias: table.tableAlias,
+        })
+      )
+    );
+    return tables;
+  };
+
+  // TODO: 逻辑已抽离，待调整
   const tableList = useMemo(() => {
     const tables = [];
     if (modelDetail.tableName && modelDetail.schema) {
@@ -123,6 +207,7 @@ const RelationList = (props: IPropsRelationList) => {
         tableAlias: undefined,
       });
     }
+    // 关联表去重后，push到tables中
     tables.push(
       ..._.uniqBy(relationList, (item) => item.schema + item.table).map(
         (table) => ({
@@ -140,7 +225,7 @@ const RelationList = (props: IPropsRelationList) => {
     <div ref={cref}>
       {modifyType.visible ? (
         <Modal
-          title="添加关联表"
+          title={modifyType.mode === Mode.ADD ? '添加关联表' : '编辑关联表'}
           visible={modifyType.visible}
           onOk={() => {
             refRelationModal.current.validate().then((data) => {
@@ -149,6 +234,20 @@ const RelationList = (props: IPropsRelationList) => {
                 data.id = identifyJoinList();
                 next = [...relationList, data];
                 window.localStorage.setItem('refreshColumns', 'true');
+                // 拿到数据后请求更新columnList
+                const params = tableListGen(
+                  modelDetail.dsId,
+                  {
+                    tableName: modelDetail.tableName,
+                    schema: modelDetail.schema,
+                  },
+                  next
+                ).map((item) => ({
+                  datasourceId: item.dsId,
+                  schema: item.schema,
+                  tableName: item.tableName,
+                }));
+                combineColumnList(params);
               } else {
                 const id = modifyType.value.id;
                 next = relationList.map((item) => {
@@ -197,4 +296,21 @@ const RelationList = (props: IPropsRelationList) => {
   );
 };
 
-export default React.forwardRef(RelationList);
+export default React.memo(
+  React.forwardRef(RelationList),
+  (curProps, nextProps) => {
+    const curDetail = curProps.modelDetail;
+    const nextDetail = nextProps.modelDetail;
+    // 仅在dsId，schema，tableName字段更新后，渲染组件
+    if (
+      curDetail.dsId === nextDetail.dsId &&
+      curDetail.schema === nextDetail.schema &&
+      curDetail.tableName === nextDetail.tableName &&
+      curProps.updateTypeList === nextProps.updateTypeList
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+);

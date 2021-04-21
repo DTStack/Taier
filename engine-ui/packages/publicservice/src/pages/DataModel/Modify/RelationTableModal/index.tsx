@@ -332,6 +332,15 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
                       pattern: /[a-zA-Z]+/,
                       message: '表名至少包含1个英文字母',
                     },
+                    // TODO: 需要吧字符串匹配规则抽出来，临时方案
+                    {
+                      pattern: /^((?!delete).)*$/g,
+                      message: '表名不能包含类似delete、truncate等敏感词汇',
+                    },
+                    {
+                      pattern: /^((?!truncate).)*$/g,
+                      message: '表名不能包含类似delete、truncate等敏感词汇',
+                    },
                     {
                       validator: repeatValidator,
                     },

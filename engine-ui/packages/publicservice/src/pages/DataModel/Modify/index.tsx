@@ -1,4 +1,3 @@
-// TODO:但文件代码量过多，待优化
 import React, { useState, useEffect, useRef } from 'react';
 import Container from 'pages/DataModel/components/Container';
 import { Steps, Button, Form, Modal } from 'antd';
@@ -31,7 +30,7 @@ import PartitionField from './PartitionField';
 import FieldSelect from './FieldsSelect';
 
 const stepRender = (current: EnumModifyStep, params: any) => {
-  const { childRef, modelDetail, globalStep, mode } = params;
+  const { childRef, modelDetail, globalStep, mode, setModelDetail } = params;
   switch (current) {
     case EnumModifyStep.BASIC_STEP:
       return (
@@ -40,6 +39,7 @@ const stepRender = (current: EnumModifyStep, params: any) => {
           globalStep={globalStep}
           cref={childRef}
           modelDetail={modelDetail}
+          updateModelDetail={setModelDetail}
         />
       );
     case EnumModifyStep.RELATION_TABLE_STEP:
@@ -49,6 +49,7 @@ const stepRender = (current: EnumModifyStep, params: any) => {
           globalStep={globalStep}
           cref={childRef}
           modelDetail={modelDetail}
+          updateModelDetail={setModelDetail}
         />
       );
     case EnumModifyStep.DIMENSION_STEP:
@@ -214,7 +215,11 @@ const Modify = (props: IPropsModify) => {
             <Steps className="dm-steps" current={current}>
               {['基础信息', '表关联', '选择维度', '选择度量', '设置'].map(
                 (title, index) => (
-                  <Step title={title} icon={stepIconRender(index, current)} />
+                  <Step
+                    key={index}
+                    title={title}
+                    icon={stepIconRender(index, current)}
+                  />
                 )
               )}
             </Steps>
@@ -227,6 +232,7 @@ const Modify = (props: IPropsModify) => {
                   modelDetail,
                   globalStep: globalStep.current,
                   mode: mode,
+                  setModelDetail,
                 })}
               </div>
               <Modal

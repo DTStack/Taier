@@ -119,7 +119,6 @@ const List = (props: IPropList) => {
     fetchFilterDataSourceList();
   }, []);
 
-  // TODO: icon,toast位置
   const handleModelAction = useCallback(async (action: IModelAction) => {
     const { type, id } = action;
     let apiAction, msg;

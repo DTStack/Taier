@@ -7,7 +7,6 @@ interface IPropsHTable {
   detail: Partial<IModelDetail>;
 }
 
-// TODO:部分字段缺失，与后端沟通
 const HTable = (props: IPropsHTable) => {
   const { detail } = props;
   return (

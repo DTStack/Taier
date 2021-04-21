@@ -192,7 +192,6 @@ export const joinItemParser = (data) => {
   target.joinPairs = Object.keys(group).map((index) => {
     const target = group[index];
     return target.reduce((temp, cur) => {
-      // TODO: 字段
       if (/left/.test(cur)) {
         temp.leftValue = data[cur];
       } else if (/right/.test(cur)) {
