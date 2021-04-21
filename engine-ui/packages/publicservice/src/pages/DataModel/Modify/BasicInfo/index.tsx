@@ -14,6 +14,7 @@ interface IPropsBasicInfo {
   modelDetail?: Partial<IModelDetail>;
   globalStep?: number;
   mode?: Mode;
+  updateModelDetail: Function;
 }
 
 interface DataSourceItem {
@@ -173,6 +174,16 @@ const BasicInfo = (props: IPropsBasicInfo) => {
               placeholder="请选择数据源"
               disabled={isDisabled}
               onChange={(value, target) => {
+                // 修改数据源后清空第二步schema,tableName,以及关联信息
+                props.updateModelDetail(modelDetail => ({
+                  ...modelDetail,
+                  ...getFieldsValue(),
+                  dsId: value,
+                  schema: undefined,
+                  tableName: undefined,
+                  joinList: [],
+                  columnList: [],
+                }))
                 const extraString = (target as any).props['data-ext'];
                 try {
                   const extra = JSON.parse(extraString);

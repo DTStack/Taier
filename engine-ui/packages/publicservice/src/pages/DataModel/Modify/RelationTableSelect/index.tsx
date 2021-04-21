@@ -250,7 +250,7 @@ const RelationTableSelect = (props: IPropsRelationTableSelect) => {
             updateTypeList={updateTypeList}
             modelDetail={{
               ...modelDetail,
-              ...currentFormValue,
+              ...getFieldsValue(),
             }}
           />
         </Col>

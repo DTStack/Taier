@@ -31,7 +31,7 @@ import PartitionField from './PartitionField';
 import FieldSelect from './FieldsSelect';
 
 const stepRender = (current: EnumModifyStep, params: any) => {
-  const { childRef, modelDetail, globalStep, mode } = params;
+  const { childRef, modelDetail, globalStep, mode, setModelDetail } = params;
   switch (current) {
     case EnumModifyStep.BASIC_STEP:
       return (
@@ -40,6 +40,7 @@ const stepRender = (current: EnumModifyStep, params: any) => {
           globalStep={globalStep}
           cref={childRef}
           modelDetail={modelDetail}
+          updateModelDetail={setModelDetail}
         />
       );
     case EnumModifyStep.RELATION_TABLE_STEP:
@@ -227,6 +228,7 @@ const Modify = (props: IPropsModify) => {
                   modelDetail,
                   globalStep: globalStep.current,
                   mode: mode,
+                  setModelDetail,
                 })}
               </div>
               <Modal

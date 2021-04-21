@@ -237,6 +237,18 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
     }
   };
 
+  const securityValidator = (rule, value, callback) => {
+    const rules = [
+      'delete',
+      'truncate'
+    ];
+    if(rules.some(rule => new RegExp(rule).test(value.trim()))) {
+      callback('表名不能包含类似delete、truncate等敏感词汇')
+    } else {
+      callback();
+    }
+  }
+
   const leftTable = tableParser.parser(currentFormValue.leftTable);
 
   return (
@@ -331,6 +343,9 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
                     {
                       pattern: /[a-zA-Z]+/,
                       message: '表名至少包含1个英文字母',
+                    },
+                    {
+                      validator: securityValidator,
                     },
                     {
                       validator: repeatValidator,

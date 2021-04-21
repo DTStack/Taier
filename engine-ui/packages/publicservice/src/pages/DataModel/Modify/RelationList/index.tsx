@@ -197,4 +197,20 @@ const RelationList = (props: IPropsRelationList) => {
   );
 };
 
-export default React.forwardRef(RelationList);
+export default React.memo(
+  React.forwardRef(RelationList),
+  (curProps, nextProps) => {
+    const curDetail = curProps.modelDetail;
+    const nextDetail = nextProps.modelDetail;
+    // 仅在dsId，schema，tableName字段更新后，渲染组件
+    if (
+      curDetail.dsId === nextDetail.dsId &&
+      curDetail.schema === nextDetail.schema &&
+      curDetail.tableName === nextDetail.tableName
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+);
