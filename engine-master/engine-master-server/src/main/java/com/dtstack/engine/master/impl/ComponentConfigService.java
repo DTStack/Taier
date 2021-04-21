@@ -171,7 +171,8 @@ public class ComponentConfigService {
         Map<Long, List<ComponentConfig>> componentIdConfigs = componentConfigs.stream().collect(Collectors.groupingBy(ComponentConfig::getComponentId));
         List<IComponentVO> componentVoList = new ArrayList<>(components.size());
         for (Component component : components) {
-            ComponentVO componentVO = IComponentVO.getComponentVo(componentVoMap.get(component.getComponentTypeCode()),component);;
+            IComponentVO customComponent = componentVoMap.get(component.getComponentTypeCode());
+            ComponentVO componentVO = IComponentVO.getComponentVo(customComponent,component);;
             // 当前组件的配置
             List<ComponentConfig> configs = componentIdConfigs.get(component.getId());
             // hdfs yarn 才将自定义参数移除 过滤返回给前端
@@ -202,8 +203,10 @@ public class ComponentConfigService {
                     }
                 }
             }
-            // 单版本只有一个空方法调用
-            componentVoMap.get(component.getComponentTypeCode()).addComponent(componentVO);
+            // 多版本才需要调用
+            if (customComponent.multiVersion()){
+                customComponent.addComponent(componentVO);
+            }
         }
         componentVoList.addAll(componentVoMap.values());
         return componentVoList;

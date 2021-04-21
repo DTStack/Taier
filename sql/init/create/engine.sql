@@ -313,8 +313,8 @@ CREATE TABLE `schedule_task_shade`
   `flow_id`                 INT(11)      NOT NULL DEFAULT '0' COMMENT '工作流id',
   `is_publish_to_produce`   tinyint(1)   NOT NULL DEFAULT '0' COMMENT '是否发布到生产环境：0-否，1-是',
   `extra_info`              mediumtext                  DEFAULT NULL COMMENT '存储task运行时所需的额外信息',
-  `component_version` varchar(25)  COMMENT '组件版本',
   `task_rule` tinyint(1) DEFAULT '0' COMMENT '强弱规则（只有NOT_DO_TASK任务会判断强弱规则）0 默认无规则 1弱规则 2强规则',
+  `component_version` varchar(25)  COMMENT '组件版本',
   PRIMARY KEY (`id`),
   KEY `index_name` (`project_id`, `name`(128)),
   UNIQUE KEY `index_task_id` (`task_id`,`app_type`)
@@ -390,6 +390,7 @@ CREATE TABLE `schedule_job`
   `submit_user_name` VARCHAR(20) DEFAULT NULL COMMENT '任务提交用户名',
   `task_rule` tinyint(1) DEFAULT '0' COMMENT '强弱规则（只有NOT_DO_TASK任务会判断强弱规则）0 默认无规则 1弱规则 2强规则',
   `sql_text` longtext DEFAULT NULL COMMENT '临时运行sql文本内容',
+  `component_version` varchar(25)  COMMENT '组件版本',
   PRIMARY KEY (`id`),
   KEY `index_task_id` (`task_id`),
   UNIQUE KEY `index_job_id` (`job_id`(128),`is_deleted`),
