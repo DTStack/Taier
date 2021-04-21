@@ -37,12 +37,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.dtstack.engine.master.AbstractTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-import static org.mockito.Matchers.any;
+
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 /**
@@ -79,9 +81,11 @@ public class LineageServiceTest extends AbstractTest {
     private LineageColumnColumnService lineageColumnColumnService;
 
 
+
     @Before
-    public void setUp(){
-        when(clientOperator.getClient(any())).thenReturn(new ISqlParserClient() {
+    public void setUp() throws Exception {
+
+        ISqlParserClient iSqlParserClient = new ISqlParserClient() {
             @Override
             public ParseResult parseSql(String s, String s1, Map<String, List<com.dtstack.sqlparser.common.client.domain.Column>> map, ETableType eTableType) throws Exception {
 
@@ -117,7 +121,13 @@ public class LineageServiceTest extends AbstractTest {
                 sets.add("nmd");
                 return sets;
             }
-        });
+        };
+
+        when(clientOperator.getClient(any())).thenReturn(iSqlParserClient);
+        ParseResult parseResult = new ParseResult();
+        parseResult.setCurrentDb("dev");
+        when(clientOperator.parseSql(any(),any(),any(),any(),any())).thenReturn(parseResult);
+        ReflectionTestUtils.setField(lineageService,"sqlParserClientOperator",clientOperator);
     }
 
 

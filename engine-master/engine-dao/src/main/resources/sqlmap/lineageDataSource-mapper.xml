@@ -38,6 +38,7 @@
         </trim>
     </sql>
 
+
     <sql id="update_fragment">
         <set>
             <if test="sourceName!=null">
@@ -123,21 +124,48 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM lineage_data_source
-        <include refid="select_where_fragment"/>
-        <if test="orderBy != null and sort != null">
-            order by ${orderBy} ${sort}
+        where 1=1
+        <if test="dataSource.id != null and dataSource.id > 0">
+            AND id = #{dataSource.id}
         </if>
-        <if test="orderBy != null and sort == null">
-            order by ${orderBy} desc
+        <if test="dataSource.appType !=null">
+            AND app_type = #{dataSource.appType}
         </if>
-        <if test="start != null and pageSize != null">
-            limit #{start} , #{pageSize}
+        <if test="dataSource.isDeleted !=null">
+            AND is_deleted = #{dataSource.isDeleted}
         </if>
-        <if test="start == null and pageSize != null">
-            limit #{pageSize}
+        <if test="dataSource.sourceType !=null">
+            AND source_type = #{dataSource.sourceType}
         </if>
-        <if test="start == null and pageSize == null">
-            limit 1000
+        <if test="dataSource.sourceName !=null">
+            AND source_name = #{dataSource.sourceName}
+        </if>
+        <if test="dataSource.dtUicTenantId !=null">
+            AND dt_uic_tenant_id = #{dataSource.dtUicTenantId}
+        </if>
+        <if test="dataSource.appType !=null">
+            AND app_type = #{dataSource.appType}
+        </if>
+        <if test="dataSource.sourceKey !=null">
+            AND source_key like concat( '%',#{dataSource.sourceKey},'%')
+        </if>
+        <if test="dataSource.projectId !=null">
+            AND project_id = #{dataSource.projectId}
+        </if>
+        <if test="pageQuery.orderBy != null and pageQuery.sort != null">
+            order by ${pageQuery.orderBy} ${pageQuery.sort}
+        </if>
+        <if test="pageQuery.orderBy != null and pageQuery.sort == null">
+            order by ${pageQuery.orderBy} desc
+        </if>
+        <if test="pageQuery.start != null and pageQuery.pageSize != null">
+            limit #{pageQuery.start} , #{pageQuery.pageSize}
+        </if>
+        <if test="pageQuery.start == null and pageQuery.pageSize != null">
+            limit #{pageQuery.pageSize}
+        </if>
+        <if test="pageQuery.start == null and pageQuery.pageSize == null">
+            limit 30
         </if>
     </select>
 
@@ -190,6 +218,15 @@
         update lineage_data_source
         <include refid="update_fragment"/>
         where source_id = #{sourceId} and app_type = #{appType}
+    </update>
+
+
+    <update id="deleteDataSourceByProjectId" parameterType="com.dtstack.engine.api.vo.lineage.param.DeleteDataSourceParam">
+
+        update
+        lineage_data_source
+        set is_deleted = 1
+        where project_id = #{projectId} and #{appType}
     </update>
 
 </mapper>

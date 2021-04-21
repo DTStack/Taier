@@ -54,9 +54,10 @@ public enum DataSourceType {
     PHOENIX5(38),
     KINGBASE8(40),
     VERTICA(43),
+    SPARKTHRIFT2_1(45),
 
     /**
-     * spark thrift
+     * spark
      */
     Spark(1002),
 
@@ -206,5 +207,6 @@ public enum DataSourceType {
         }
     }
 
-    public static List<DataSourceType> noNeedUserNamePasswordDataSources = Lists.newArrayList(DataSourceType.HBASE,DataSourceType.Phoenix,DataSourceType.HIVE);
+    public static List<DataSourceType> noNeedUserNamePasswordDataSources = Lists.newArrayList(DataSourceType.HBASE,
+            DataSourceType.Phoenix,DataSourceType.HIVE,DataSourceType.SPARKTHRIFT2_1);
 }

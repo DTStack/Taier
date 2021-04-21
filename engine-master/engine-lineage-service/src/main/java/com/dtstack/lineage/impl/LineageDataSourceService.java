@@ -7,6 +7,7 @@ import com.dtstack.engine.api.dto.DataSourceDTO;
 import com.dtstack.engine.api.enums.DataSourceTypeEnum;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.vo.lineage.param.DeleteDataSourceParam;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EComponentTypeDataSourceType;
 import com.dtstack.engine.common.exception.ExceptionUtil;
@@ -410,7 +411,7 @@ public class LineageDataSourceService {
         List<LineageDataSource> dataSourceList = new ArrayList<>();
         if (count > 0) {
             pageQuery.setModel(dataSource);
-            dataSourceList = lineageDataSourceDao.generalQuery(pageQuery);
+            dataSourceList = lineageDataSourceDao.generalQuery(pageQuery,dataSource);
         }
         return new PageResult<>(dataSourceList, count, pageQuery);
     }
@@ -545,5 +546,17 @@ public class LineageDataSourceService {
             logger.error(this.getClass().getName() + "-synIdeDataSourceList-异常,e:{}", ExceptionUtil.stackTrack());
             throw new RdosDefineException("同步离线数据源数据异常");
         }
+    }
+
+    /**
+     * @author ZYD
+     * @Description 根据项目id删除数据源
+     * @Date 2021/4/21 10:04
+     * @param deleteDataSourceParam:
+     * @return: void
+     **/
+    public void deleteDataSourceByProjectId(DeleteDataSourceParam deleteDataSourceParam) {
+
+        lineageDataSourceDao.deleteDataSourceByProjectId(deleteDataSourceParam);
     }
 }

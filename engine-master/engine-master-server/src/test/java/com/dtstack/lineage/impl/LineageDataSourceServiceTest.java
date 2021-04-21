@@ -198,6 +198,16 @@ public class LineageDataSourceServiceTest extends AbstractTest {
         Tenant tenant = DataCollection.getData().getTenant();
         DataSourceDTO dataSourceDTO = getDataSourceDTO(tenant.getDtUicTenantId());
 
+        dataSourceService.acquireOldDataSourceList(Arrays.asList(dataSourceDTO));
+
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testSynIdeDataSourceList(){
+
+        dataSourceService.synIdeDataSourceList();
     }
 
     private DataSourceDTO getDataSourceDTO(Long tenantId) {

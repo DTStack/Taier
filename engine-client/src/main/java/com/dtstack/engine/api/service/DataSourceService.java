@@ -4,6 +4,7 @@ import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.dto.DataSourceDTO;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.lineage.param.DataSourceParam;
+import com.dtstack.engine.api.vo.lineage.param.DeleteDataSourceParam;
 import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sdk.core.common.DtInsightServer;
 import com.dtstack.sdk.core.feign.Param;
@@ -89,5 +90,16 @@ public interface DataSourceService extends DtInsightServer {
      **/
     @RequestLine("POST /node/dataSource/updateBySourceIdAndAppType")
     ApiResponse<Boolean>  updateDataSourceBySourceIdAndAppType(DataSourceDTO dataSourceDTO);
+
+
+    /**
+     * @author ZYD
+     * @Description 根据项目id删除数据源
+     * @Date 2021/4/21 10:09
+     * @param deleteDataSourceParam:
+     * @return: void
+     **/
+    @RequestLine("POST /node/dataSource/deleteDataSourceByProjectId")
+    ApiResponse deleteDataSourceByProjectId(DeleteDataSourceParam deleteDataSourceParam);
 
 }

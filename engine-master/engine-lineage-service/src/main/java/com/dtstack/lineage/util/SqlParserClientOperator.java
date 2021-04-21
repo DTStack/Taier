@@ -6,7 +6,15 @@ package com.dtstack.lineage.util;/**
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.sqlparser.common.client.ISqlParserClient;
 import com.dtstack.sqlparser.common.client.SqlParserClientCache;
+import com.dtstack.sqlparser.common.client.domain.Column;
+import com.dtstack.sqlparser.common.client.domain.ParseResult;
+import com.dtstack.sqlparser.common.client.domain.Table;
+import com.dtstack.sqlparser.common.client.enums.ETableType;
 import com.dtstack.sqlparser.common.client.exception.ClientAccessException;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *类名称:SqlParserClientOperator
@@ -39,6 +47,29 @@ public class SqlParserClientOperator {
             throw new RdosDefineException("get sqlParserClient error");
         }
         return sqlParserClient;
+    }
+
+
+
+    public Set<String> parseFunction(String name,String sql) throws Exception {
+        ISqlParserClient client = getClient(name);
+        return client.parseFunction(sql);
+    }
+
+    public List<Table> parseTables(String name,String defaultDb, String sql, ETableType eTableType) throws Exception {
+        ISqlParserClient client = getClient(name);
+        return client.parseTables(defaultDb,sql,eTableType);
+    }
+
+    public ParseResult parseTableLineage(String name,String defaultDb, String sql, ETableType eTableType) throws Exception {
+        ISqlParserClient client = getClient(name);
+        return client.parseTableLineage(defaultDb,sql,eTableType);
+    }
+
+    public ParseResult parseSql(String name, String sql, String defaultDb, Map<String, List<Column>> map, ETableType eTableType) throws Exception {
+        ISqlParserClient client = getClient(name);
+        return client.parseSql(sql, defaultDb, map, eTableType);
+
     }
 
 

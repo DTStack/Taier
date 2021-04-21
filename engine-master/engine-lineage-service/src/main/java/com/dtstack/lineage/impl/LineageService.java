@@ -93,7 +93,7 @@ public class LineageService {
         try {
             ParseResult parseResult = null;
             try {
-                parseResult = sqlParserClient.parseSql(sql, defaultDb, new HashMap<>(),sourceType2TableType.getTableType());
+                parseResult = sqlParserClientOperator.parseSql("sqlParser",sql, defaultDb, new HashMap<>(),sourceType2TableType.getTableType());
             } catch (Exception e) {
                 logger.error("解析sql异常:{}",e);
                 throw new RdosDefineException("sql解析异常，请检查语法");
