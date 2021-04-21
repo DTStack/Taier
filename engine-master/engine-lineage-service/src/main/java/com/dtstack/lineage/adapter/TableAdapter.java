@@ -4,7 +4,8 @@ import com.dtstack.engine.api.domain.LineageDataSetInfo;
 import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.vo.lineage.LineageDataSourceVO;
 import com.dtstack.engine.api.vo.lineage.LineageTableVO;
-import com.dtstack.sql.client.domain.Table;
+import com.dtstack.sqlparser.common.client.domain.Table;
+import com.dtstack.sqlparser.common.client.enums.TableOperateEnum;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.Objects;
@@ -40,6 +41,11 @@ public class TableAdapter {
         apiTable.setStoreType(sqlTable.getStoreType());
         apiTable.setTemp(sqlTable.isTemp());
         apiTable.setView(sqlTable.isView());
+        TableOperateEnum operate = sqlTable.getOperate();
+        com.dtstack.engine.api.enums.TableOperateEnum operateEnum = com.dtstack.engine.api.enums.TableOperateEnum.getOperateBySqlType(operate.getVal());
+        apiTable.setOperate(operateEnum);
+        apiTable.setTableType(sqlTable.getTableType());
+        apiTable.setMain(sqlTable.isMain());
         return apiTable;
     }
 

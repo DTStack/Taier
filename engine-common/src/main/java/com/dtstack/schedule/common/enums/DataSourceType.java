@@ -56,9 +56,10 @@ public enum DataSourceType {
     PHOENIX5(38),
     KINGBASE8(40),
     VERTICA(43),
+    SPARKTHRIFT2_1(45),
 
     /**
-     * spark thrift
+     * spark
      */
     Spark(1002),
 
@@ -152,8 +153,6 @@ public enum DataSourceType {
         return getBaseType(sourceType);
     }
 
-    public static List<DataSourceType> noNeedUserNamePasswordDataSources = Lists.newArrayList(DataSourceType.HBASE, DataSourceType.Phoenix, DataSourceType.HIVE);
-
     public static List<Integer> getRDBMS() {
         return Lists.newArrayList(
                 MySQL.getVal(),
@@ -179,12 +178,13 @@ public enum DataSourceType {
                 Presto.getVal());
     }
 
-    public static String getEngineType(DataSourceType sourceType) {
+    public static String getEngineType(DataSourceType sourceType){
 
         switch (sourceType) {
             case MySQL:
                 return "mysql";
             case HIVE:
+            case SPARKTHRIFT2_1:
                 return "hive2";
             case HIVE1X:
                 return "hive";
@@ -231,4 +231,6 @@ public enum DataSourceType {
                 return null;
         }
     }
+    public static List<DataSourceType> noNeedUserNamePasswordDataSources = Lists.newArrayList(DataSourceType.HBASE,
+            DataSourceType.Phoenix,DataSourceType.HIVE,DataSourceType.SPARKTHRIFT2_1);
 }

@@ -1,7 +1,7 @@
 package com.dtstack.lineage.enums;
 
 import com.dtstack.schedule.common.enums.DataSourceType;
-import com.dtstack.sql.client.enums.ETableType;
+import com.dtstack.sqlparser.common.client.enums.ETableType;
 import com.google.common.collect.Sets;
 
 import java.util.Objects;
@@ -15,7 +15,7 @@ import java.util.Set;
  * @Created chener@dtstack.com
  */
 public enum SourceType2TableType {
-    HIVE(ETableType.HIVE, Sets.newHashSet(DataSourceType.HIVE1X,DataSourceType.HIVE,DataSourceType.Spark)),
+    HIVE(ETableType.HIVE, Sets.newHashSet(DataSourceType.HIVE1X,DataSourceType.HIVE,DataSourceType.Spark,DataSourceType.SPARKTHRIFT2_1)),
     LIBRA(ETableType.LIBRA,Sets.newHashSet(DataSourceType.LIBRA)),
     TIDB(ETableType.TIDB,Sets.newHashSet(DataSourceType.TiDB)),
     ORACLE(ETableType.ORACLE,Sets.newHashSet(DataSourceType.Oracle)),

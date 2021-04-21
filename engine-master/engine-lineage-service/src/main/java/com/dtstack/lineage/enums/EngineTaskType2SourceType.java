@@ -15,7 +15,7 @@ import java.util.Objects;
 public enum EngineTaskType2SourceType {
     HIVE1(DataSourceType.HIVE1X,null),
     HIVE2(DataSourceType.HIVE, EScheduleJobType.HIVE_SQL),
-    SPARK_THRIFT(DataSourceType.Spark,EScheduleJobType.SPARK_SQL),
+    SPARK_THRIFT(DataSourceType.SPARKTHRIFT2_1,EScheduleJobType.SPARK_SQL),
     IMPALA(DataSourceType.IMPALA,EScheduleJobType.IMPALA_SQL),
     TIDB(DataSourceType.TiDB,EScheduleJobType.TIDB_SQL),
     ORACLE(DataSourceType.Oracle,EScheduleJobType.ORACLE_SQL),

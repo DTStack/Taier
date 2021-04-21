@@ -845,4 +845,12 @@
         set project_schedule_status = #{scheduleStatus}
         where project_id = #{projectId} and app_type = #{appType}
     </update>
+
+    <select id="getOneByTaskIdAndAppType" resultType="ScheduleTaskShade">
+        SELECT
+        <include refid="select_content_fragment"/>,extra_info
+        FROM schedule_task_shade
+        WHERE task_id = #{taskId} AND is_deleted = 0 and app_type = #{appType} LIMIT 1
+    </select>
+
 </mapper>

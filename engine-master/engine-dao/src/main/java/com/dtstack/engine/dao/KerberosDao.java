@@ -20,4 +20,7 @@ public interface KerberosDao {
     void deleteByComponentId(@Param("componentId") Long componentId);
 
     void deleteByComponent(@Param("engineId")Long engineId,@Param("componentTypeCode")Integer componentTypeCode,@Param("componentVersion")String componentVersion);
+
+
+    KerberosConfig getByEngineIdAndComponentType(@Param("engineId") Long engineId, @Param("componentType") Integer componentType);
 }

@@ -389,6 +389,7 @@ CREATE TABLE `schedule_job`
   `job_graph`       TEXT DEFAULT NULL COMMENT 'jobGraph构建json',
   `submit_user_name` VARCHAR(20) DEFAULT NULL COMMENT '任务提交用户名',
   `task_rule` tinyint(1) DEFAULT '0' COMMENT '强弱规则（只有NOT_DO_TASK任务会判断强弱规则）0 默认无规则 1弱规则 2强规则',
+  `sql_text` longtext DEFAULT NULL COMMENT '临时运行sql文本内容',
   PRIMARY KEY (`id`),
   KEY `index_task_id` (`task_id`),
   UNIQUE KEY `index_job_id` (`job_id`(128),`is_deleted`),
@@ -622,6 +623,9 @@ create table lineage_data_source(
     real_source_id int(11) NOT NULL COMMENT '真实数据源id',
     source_key VARCHAR(155) NOT NULL COMMENT '数据源定位码，不同数据源类型计算方式不同。',
     source_name VARCHAR(55) NOT NULL COMMENT '数据源名称',
+    project_id  bigint(20) NULL COMMENT '项目id',
+    schema_name varchar(64) NULL COMMENT 'schema或数据库名称',
+    source_id bigint(20) NULL COMMENT '平台数据源id',
     app_type smallint(4) NOT NULL COMMENT '应用类型',
     source_type smallint(4) NOT NULL COMMENT '数据源类型',
     data_jason JSON NOT NULL COMMENT '数据源配置json',
@@ -634,7 +638,7 @@ create table lineage_data_source(
     gmt_modified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
     is_deleted tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
     PRIMARY KEY (id),
-    UNIQUE KEY uni_tenant_source_key (dt_uic_tenant_id,source_key,app_type,source_name)
+    UNIQUE KEY uni_tenant_source_key (dt_uic_tenant_id,source_key,app_type,source_name,schema_name)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 表信息表。表可能并不能关联上data source。

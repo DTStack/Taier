@@ -1,5 +1,7 @@
 package com.dtstack.engine.api.service;
 
+import com.dtstack.engine.api.pojo.LevelAndCount;
+import com.dtstack.engine.api.pojo.lineage.Table;
 import com.dtstack.engine.api.vo.lineage.ColumnLineageParseInfo;
 import com.dtstack.engine.api.vo.lineage.LineageColumnColumnParam;
 import com.dtstack.engine.api.vo.lineage.LineageColumnColumnVO;
@@ -7,17 +9,16 @@ import com.dtstack.engine.api.vo.lineage.LineageTableTableParam;
 import com.dtstack.engine.api.vo.lineage.LineageTableTableVO;
 import com.dtstack.engine.api.vo.lineage.SqlParseInfo;
 import com.dtstack.engine.api.vo.lineage.TableLineageParseInfo;
-import com.dtstack.engine.api.vo.lineage.param.ParseColumnLineageParam;
-import com.dtstack.engine.api.vo.lineage.param.ParseTableLineageParam;
-import com.dtstack.engine.api.vo.lineage.param.QueryColumnLineageParam;
-import com.dtstack.engine.api.vo.lineage.param.QueryTableLineageColumnParam;
-import com.dtstack.engine.api.vo.lineage.param.QueryTableLineageParam;
+import com.dtstack.engine.api.vo.lineage.param.*;
 import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sdk.core.common.DtInsightServer;
 import com.dtstack.sdk.core.feign.Param;
 import com.dtstack.sdk.core.feign.RequestLine;
+import io.swagger.annotations.ApiOperation;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author chener
@@ -212,4 +213,81 @@ public interface LineageService extends DtInsightServer {
      */
     @RequestLine("POST /node/lineage/queryTableLineageResultColumns")
     ApiResponse<List<String>> queryTableLineageResultColumns(QueryTableLineageColumnParam queryTableLineageColumnParam);
+
+
+    /**
+     * @author ZYD
+     * @Description 解析sql表信息
+     * @Date 2021/3/11 14:04
+     * @param sql:
+     * @param defaultDb:
+     * @param sourceType:
+     * @return: com.dtstack.sdk.core.common.ApiResponse<java.util.List<com.dtstack.engine.api.pojo.lineage.Table>>
+     **/
+    @RequestLine("POST /node/lineage/parseTables")
+    ApiResponse<List<Table>> parseTables(@Param("sql") String sql,@Param("defaultDb") String defaultDb, @Param("sourceType") Integer sourceType);
+
+
+    /**
+     * @author ZYD
+     * @Description
+     * @Date 2021/4/2 16:09
+     * @param sql: 解析sql方法信息
+     * @return: com.dtstack.sdk.core.common.ApiResponse<java.util.Set<java.lang.String>>
+     **/
+    @RequestLine("POST /node/lineage/parseFunction")
+    ApiResponse<Set<String>> parseFunction(@Param("sql") String sql);
+
+
+
+    /**
+     * 查询表上游血缘表数量和层数
+     * @param queryTableLineageParam
+     * @return
+     */
+    @RequestLine("POST /node/lineage/queryTableInputLineageCountAndLevel")
+    ApiResponse<LevelAndCount> queryTableInputLineageCountAndLevel(QueryTableLineageParam queryTableLineageParam);
+
+    /**
+     * 查询表下游血缘表数量和层数
+     * @param queryTableLineageParam
+     * @return
+     */
+    @RequestLine("POST /node/lineage/queryTableResultLineageCountAndLevel")
+    ApiResponse<LevelAndCount> queryTableResultLineageCountAndLevel(QueryTableLineageParam queryTableLineageParam);
+
+
+
+    /**
+     * 功能描述:根据taskId和appType查询表级血缘
+     * @author zyd
+     * @date 2021/4/16 9:57 上午
+     * @param taskId
+     * @param appType
+     * @return
+    */
+    @RequestLine("POST /node/lineage/queryTableLineageByTaskIdAndAppType")
+    ApiResponse<List<LineageTableTableVO>> queryTableLineageByTaskIdAndAppType(@Param("taskId") Long taskId,@Param("appType") Integer appType);
+
+
+    /**
+     * 功能描述:根据taskId和appType查询字段血缘
+     * @author zyd
+     * @date 2021/4/16 9:57 上午
+     * @param taskId
+     * @param appType
+     * @return
+     */
+    @RequestLine("POST /node/lineage/queryColumnLineageByTaskIdAndAppType")
+    ApiResponse<List<LineageColumnColumnVO>> queryColumnLineageByTaskIdAndAppType(@Param("taskId") Long taskId,@Param("appType") Integer appType);
+
+
+    /**
+     * 功能描述:根据taskId和appType删除血缘
+     * @author zyd
+     * @date 2021/4/16 10:51 上午
+     * @return  * @param deleteLineageParam
+    */
+    @RequestLine("POST /node/lineage/deleteLineageByTaskIdAndAppType")
+    ApiResponse deleteLineageByTaskIdAndAppType(DeleteLineageParam deleteLineageParam);
 }

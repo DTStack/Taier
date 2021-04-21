@@ -31,6 +31,28 @@
         select tt.* from lineage_table_table tt join lineage_table_table_unique_key_ref ref on tt.id = ref.lineage_table_table_id where tt.result_table_id = #{tableId} and ref.app_type = #{appType} and ref.is_deleted = 0
     </select>
 
+    <select id="queryTableResultCount" resultType="Integer">
+        select count(tt.id) from lineage_table_table tt
+        join lineage_table_table_unique_key_ref ref on tt.id = ref.lineage_table_table_id
+        where tt.result_table_id = #{tableId} and ref.app_type = #{appType} and ref.is_deleted = 0
+
+    </select>
+
+    <select id="queryTableInputCount" resultType="Integer">
+        select count(tt.id) from lineage_table_table tt
+        join lineage_table_table_unique_key_ref ref on tt.id = ref.lineage_table_table_id
+        where tt.input_table_id = #{tableId} and ref.app_type = #{appType} and ref.is_deleted = 0
+
+    </select>
+
+    <select id="queryTableLineageByTaskIdAndAppType" resultType="com.dtstack.engine.api.domain.LineageTableTable">
+        select tt.*
+        from lineage_table_table tt
+        join lineage_table_table_unique_key_ref ref on tt.id = ref.lineage_table_table_id
+        where ref.unique_key = #{taskId} and ref.app_type = #{appType} and ref.is_deleted = 0
+
+    </select>
+
     <select id="queryBTableLineageKey" resultType="com.dtstack.engine.api.domain.LineageTableTable">
         select <include refid="select_content_fragment"/> from lineage_table_table where app_type = #{appType} and table_lineage_key = #{tableLineageKey}
     </select>

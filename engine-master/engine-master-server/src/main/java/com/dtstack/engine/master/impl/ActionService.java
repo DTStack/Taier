@@ -399,6 +399,10 @@ public class ActionService {
         scheduleJob.setVersionId(getOrDefault(paramActionExt.getVersionId(), 0));
         scheduleJob.setComputeType(getOrDefault(paramActionExt.getComputeType(), 1));
         scheduleJob.setPeriodType(paramActionExt.getPeriodType());
+        if(EScheduleType.TEMP_JOB.getType()==scheduleJob.getType()){
+            //临时运行scheduleJob才存储sqlText
+            scheduleJob.setSqlText(paramActionExt.getSqlText());
+        }
         buildComponentVersion(scheduleJob,paramActionExt);
         return scheduleJob;
     }

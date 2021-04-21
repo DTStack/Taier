@@ -2,6 +2,7 @@ package com.dtstack.lineage.dao;
 
 import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.pager.PageQuery;
+import com.dtstack.engine.api.vo.lineage.param.DeleteDataSourceParam;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -50,7 +51,7 @@ public interface LineageDataSourceDao {
      * @param dataSource:
      * @return: java.lang.Integer
      **/
-    Integer generalCount(@Param("model") LineageDataSource dataSource);
+    Integer generalCount(LineageDataSource dataSource);
 
     /**
      * @author zyd
@@ -59,7 +60,7 @@ public interface LineageDataSourceDao {
      * @param pageQuery:
      * @return: java.util.List<com.dtstack.engine.api.domain.LineageDataSource>
      **/
-    List<LineageDataSource> generalQuery(PageQuery<LineageDataSource> pageQuery);
+    List<LineageDataSource> generalQuery(@Param("pageQuery") PageQuery<LineageDataSource> pageQuery,@Param("dataSource") LineageDataSource dataSource);
 
     /**
      * @author zyd
@@ -91,4 +92,32 @@ public interface LineageDataSourceDao {
      * @return: com.dtstack.engine.api.domain.LineageDataSource
      **/
     List<LineageDataSource> getDataSourcesByIdList(@Param("ids") List<Long> ids);
+
+    /**
+     * @author ZYD
+     * @Description
+     * @Date 2021/4/2 14:45
+     * @param sourceId: 平台sourceId
+     * @param appType: 平台类型
+     * @return: com.dtstack.engine.api.domain.LineageDataSource
+     **/
+    LineageDataSource getDataSourceBySourceIdAndAppType(@Param("sourceId") Long sourceId, @Param("appType") Integer appType);
+
+    /**
+     * @author ZYD
+     * @Description 通过appType和平台sourceId更新数据源信息
+     * @Date 2021/4/2 15:10
+     * @param dataSource:
+     * @return: void
+     **/
+    void updateDataSourceByAppTypeAndSourceId(LineageDataSource dataSource);
+
+    /**
+     * @author ZYD
+     * @Description 根据项目id删除数据源
+     * @Date 2021/4/21 10:06
+     * @param deleteDataSourceParam:
+     * @return: void
+     **/
+    void deleteDataSourceByProjectId(@Param("param") DeleteDataSourceParam deleteDataSourceParam,@Param("time") String time);
 }

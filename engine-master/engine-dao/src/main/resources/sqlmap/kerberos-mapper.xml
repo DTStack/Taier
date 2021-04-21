@@ -100,4 +100,14 @@
               AND ck.component_version = #{componentVersion};
           </if>
     </delete>
+
+
+    <select id="getByEngineIdAndComponentType" resultType="KerberosConfig">
+        SELECT
+        ck.id as id,ck.cluster_id as clusterId,ck.name as name,ck.remote_path as remote_path,ck.principal as principal,
+        ck.krb_name as krb_name ,ck.principals as principals
+        FROM console_kerberos ck
+        left join console_engine ce on ck.cluster_id = ce.cluster_id
+        where ce.engine_id = #{engineId} and ck.component_type = #{componentType}
+    </select>
 </mapper>
