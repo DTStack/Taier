@@ -373,7 +373,7 @@ public class ComponentService {
         String remoteDir = sftpConfig.getPath() + File.separator + this.buildSftpPath(clusterId, componentCode);
         Component addComponent = new ComponentDTO();
         addComponent.setComponentTypeCode(componentCode);
-        addComponent.setHadoopVersion(componentVersion);
+        addComponent.setHadoopVersion(ComponentVersionUtil.getComponentVersion(componentVersion));
         updateComponentKerberosFile(clusterId, addComponent, sftpFileManage, remoteDir, resource, null, null);
 
         List<KerberosConfig> kerberosConfigs = kerberosDao.listAll();
@@ -999,7 +999,7 @@ public class ComponentService {
         boolean isFirstOpenKerberos = false;
         if (Objects.isNull(kerberosConfig)) {
             kerberosConfig = new KerberosConfig();
-            kerberosConfig.setComponentVersion(ComponentVersionUtil.getComponentVersion(addComponent.getHadoopVersion()));
+            kerberosConfig.setComponentVersion(addComponent.getHadoopVersion());
             isFirstOpenKerberos = true;
         }
         kerberosConfig.setOpenKerberos(1);
