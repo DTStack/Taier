@@ -513,6 +513,7 @@ public class Template {
         lineageDataSource.setAppType(AppType.RDOS.getType());
         lineageDataSource.setSourceType(DataSourceType.HIVE.getVal());
         lineageDataSource.setProjectId(-1L);
+        lineageDataSource.setSourceId(1L);
         lineageDataSource.setSchemaName("beihai");
         lineageDataSource.setDataJson("{}");
         lineageDataSource.setKerberosConf("-1");

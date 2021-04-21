@@ -318,7 +318,7 @@ public class LineageController {
     @RequestMapping(value = "/parseFunction", method = {RequestMethod.POST})
     @ApiOperation(value = "解析sql方法信息")
     @ApiImplicitParam(name = "sql", value = "待解析sql")
-    public Set<String> parseFunction(String sql){
+    public Set<String> parseFunction(@DtRequestParam String sql){
 
         return lineageService.parseFunction(sql);
     }

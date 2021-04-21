@@ -287,14 +287,15 @@ public class LineageService {
     }
 
     private long addDataSource(String defaultDb, LineageDataSource defaultDataSource, String db) {
-        defaultDataSource.setId(null);
-        defaultDataSource.setSchemaName(db);
         String dataJson = defaultDataSource.getDataJson();
         String newDataJson = dataJson.replace(defaultDb, db);
-        defaultDataSource.setDataJson(newDataJson);
         DataSourceDTO dataSourceDTO = new DataSourceDTO();
         BeanUtils.copyProperties(defaultDataSource,dataSourceDTO);
+        dataSourceDTO.setDataSourceId(null);
+        dataSourceDTO.setDataJson(newDataJson);
+        dataSourceDTO.setSchemaName(db);
         return lineageDataSourceService.addOrUpdateDataSource(dataSourceDTO);
+
     }
 
     /**
@@ -410,17 +411,6 @@ public class LineageService {
                 logger.error("解析sql异常:{}",e);
                 throw new RdosDefineException("sql解析异常，请检查语法");
             }
-            if(AppType.RDOS.getType().equals(parseColumnLineageParam.getAppType())) {
-                for (Table resTable : resTables) {
-                    //校验db对应的数据源是否存在，不存在需要新增
-                    if(!dataSourceMap.containsKey(resTable.getDb())){
-                        long dataSourceId = addDataSource(parseColumnLineageParam.getDefaultDb(), defaultDataSource, resTable.getDb());
-                        LineageDataSource dataSource = new LineageDataSource();
-                        dataSource.setId(dataSourceId);
-                        dataSourceMap.put(resTable.getDb(),dataSource);
-                    }
-                }
-            }
             //去除主表，主表需要创建，还未存在，查不到字段信息，需要过滤掉
             List<Table> subTables = resTables.stream().filter(table->
                     table.getOperate() != TableOperateEnum.CREATE ).collect(Collectors.toList());
@@ -435,6 +425,17 @@ public class LineageService {
                     throw new RdosDefineException("表字段获取失败");
                 }
                 sqlTableColumnMap.put(dbName,entry.getValue().stream().map(ColumnAdapter::apiColumn2SqlColumn).collect(Collectors.toList()));
+            }
+            if(AppType.RDOS.getType().equals(parseColumnLineageParam.getAppType())) {
+                for (Table resTable : resTables) {
+                    //校验db对应的数据源是否存在，不存在需要新增
+                    if(!dataSourceMap.containsKey(resTable.getDb())){
+                        long dataSourceId = addDataSource(parseColumnLineageParam.getDefaultDb(), defaultDataSource, resTable.getDb());
+                        LineageDataSource dataSource = new LineageDataSource();
+                        dataSource.setId(dataSourceId);
+                        dataSourceMap.put(resTable.getDb(),dataSource);
+                    }
+                }
             }
             ParseResult parseResult = null;
             try {
