@@ -192,10 +192,10 @@ public class ClusterServiceTest extends AbstractTest {
         List<Engine> engines = engineDao.listByClusterId(clusterVO.getId());
         Assert.assertNotNull(engines);
         Long engineId = engines.stream().map(Engine::getId).collect(Collectors.toList()).get(0);
-        Map sftpMap = componentService.getComponentByClusterId(clusterVO.getId(), EComponentType.SFTP.getTypeCode(),false,Map.class);
-        String yarnString = componentService.getComponentByClusterId(clusterVO.getId(), EComponentType.YARN.getTypeCode(),false,String.class);
+        Map sftpMap = componentService.getComponentByClusterId(clusterVO.getId(), EComponentType.SFTP.getTypeCode(),false,Map.class,any());
+        String yarnString = componentService.getComponentByClusterId(clusterVO.getId(), EComponentType.YARN.getTypeCode(),false,String.class,any());
         //测试组件联通性
-        ComponentTestResult componentTestResult = componentService.testConnect(yarn.getComponentTypeCode(), yarnString, testClusterName, yarn.getHadoopVersion(), engineId, null, sftpMap,null);
+        ComponentTestResult componentTestResult = componentService.testConnect(yarn.getComponentTypeCode(), yarnString, testClusterName, yarn.getHadoopVersion(), engineId, null, sftpMap,null,Collections.emptyMap());
         Assert.assertNotNull(componentTestResult);
         Assert.assertTrue(componentTestResult.getResult());
 
@@ -214,17 +214,17 @@ public class ClusterServiceTest extends AbstractTest {
         Assert.assertNotNull(engineTenants);
         Assert.assertNotNull(engineTenants.getData());
         //查询集群组件信息
-        JSONArray componentsJson = JSONObject.parseArray(JSON.toJSONString(componentService.listConfigOfComponents(tenant.getDtUicTenantId(), MultiEngineType.HADOOP.getType())));
+        JSONArray componentsJson = JSONObject.parseArray(JSON.toJSONString(componentService.listConfigOfComponents(tenant.getDtUicTenantId(), MultiEngineType.HADOOP.getType(),Collections.emptyMap())));
         Assert.assertNotNull(componentsJson);
         this.testFlinkResource(tenant);
 
         //查询kerberos配置信息
-        KerberosConfig kerberosConfig = componentService.getKerberosConfig(clusterVO.getId(), EComponentType.YARN.getTypeCode());
+        KerberosConfig kerberosConfig = componentService.getKerberosConfig(clusterVO.getId(), EComponentType.YARN.getTypeCode(),null);
         Assert.assertNull(kerberosConfig);
         this.checkQueryWithUicTenantId(tenant);
 
         //loadTemplate
-        String typeName = componentService.convertComponentTypeToClient(testClusterName, EComponentType.SPARK.getTypeCode(),"210",null);
+        String typeName = componentService.convertComponentTypeToClient(testClusterName, EComponentType.SPARK.getTypeCode(),"210",null,Collections.emptyMap());
         Assert.assertEquals(typeName,"yarn2-hdfs2-spark210");
 
         //查询队列信息
@@ -340,7 +340,7 @@ public class ClusterServiceTest extends AbstractTest {
         Assert.assertNotNull(engineTenants);
         Assert.assertNotNull(engineTenants.getData());
         //查询集群组件信息
-        JSONArray componentsJson = JSONObject.parseArray(JSON.toJSONString(componentService.listConfigOfComponents(tenant.getDtUicTenantId(), MultiEngineType.HADOOP.getType())));
+        JSONArray componentsJson = JSONObject.parseArray(JSON.toJSONString(componentService.listConfigOfComponents(tenant.getDtUicTenantId(), MultiEngineType.HADOOP.getType(),null)));
         Assert.assertNotNull(componentsJson);
 
         //查询kerberos配置信息
@@ -442,7 +442,7 @@ public class ClusterServiceTest extends AbstractTest {
     private ComponentVO testAddYarn(ClusterVO clusterVO) {
         String sftpTemplate = "[{\"key\":\"auth\",\"required\":true,\"type\":\"RADIO_LINKAGE\",\"value\":\"1\",\"values\":[{\"dependencyKey\":\"auth\",\"dependencyValue\":\"1\",\"key\":\"password\",\"required\":true,\"type\":\"PASSWORD\",\"value\":\"1\",\"values\":[{\"dependencyKey\":\"auth$password\",\"dependencyValue\":\"\",\"key\":\"password\",\"required\":true,\"type\":\"PASSWORD\",\"value\":\"\"}]},{\"dependencyKey\":\"auth\",\"dependencyValue\":\"2\",\"key\":\"rsaPath\",\"required\":true,\"type\":\"\",\"value\":\"2\",\"values\":[{\"dependencyKey\":\"auth$rsaPath\",\"dependencyValue\":\"\",\"key\":\"rsaPath\",\"required\":true,\"type\":\"INPUT\",\"value\":\"\"}]}]},{\"key\":\"fileTimeout\",\"required\":true,\"type\":\"INPUT\",\"value\":\"300000\"},{\"key\":\"host\",\"required\":true,\"type\":\"INPUT\",\"value\":\"127.0.0.1\"},{\"key\":\"isUsePool\",\"required\":true,\"type\":\"INPUT\",\"value\":\"true\"},{\"key\":\"maxIdle\",\"required\":true,\"type\":\"INPUT\",\"value\":\"16\"},{\"key\":\"maxTotal\",\"required\":true,\"type\":\"INPUT\",\"value\":\"16\"},{\"key\":\"maxWaitMillis\",\"required\":true,\"type\":\"INPUT\",\"value\":\"3600000\"},{\"key\":\"minIdle\",\"required\":true,\"type\":\"INPUT\",\"value\":\"16\"},{\"key\":\"path\",\"required\":true,\"type\":\"INPUT\",\"value\":\"/data/sftp\"},{\"key\":\"port\",\"required\":true,\"type\":\"INPUT\",\"value\":\"22\"},{\"key\":\"timeout\",\"required\":true,\"type\":\"INPUT\",\"value\":\"0\"},{\"key\":\"username\",\"required\":true,\"type\":\"INPUT\",\"value\":\"admin\"}]";
         componentService.addOrUpdateComponent(clusterVO.getClusterId(), "{\"path\":\"/data/sftp\",\"password\":\"123\",\"auth\":\"1\",\"port\":\"22\",\"host\":\"172.16.100.168\",\"username\":\"root\"}",
-                null, "hadoop2", "", sftpTemplate, EComponentType.SFTP.getTypeCode(),null,"","",true);
+                null, "hadoop2", "", sftpTemplate, EComponentType.SFTP.getTypeCode(),null,"","",true,true);
         return componentService.addOrUpdateComponent(clusterVO.getClusterId(), "{\"yarn.resourcemanager.zk-address\":\"172.16.100.216:2181,172.16.101.136:2181,172.16.101.227:2181\",\"yarn.resourcemanager.admin.address.rm1\":\"172.16.100.216:8033\",\"yarn.resourcemanager.webapp.address.rm2\":\"172.16.101.136:8088\",\"yarn.log.server.url\"" +
                         ":\"http://172.16.101.136:19888/jobhistory/logs/\",\"yarn.resourcemanager.admin.address.rm2\":\"172.16.101.136:8033\"," +
                         "\"yarn.resourcemanager.webapp.address.rm1\":\"172.16.100.216:8088\",\"yarn.resourcemanager.ha.rm-ids\":\"rm1,rm2\"," +
@@ -462,7 +462,7 @@ public class ClusterServiceTest extends AbstractTest {
                         "\"yarn.resourcemanager.store.class\":\"org.apache.hadoop.yarn.server.resourcemanager.recovery.ZKRMStateStore\",\"yarn.nodemanager.vmem-pmem-ratio\":\"4\"," +
                         "\"yarn.resourcemanager.zk-state-store.address\":\"172.16.100.216:2181,172.16.101.136:2181,172.16.101.227:2181\",\"ha.zookeeper.quorum\":\"172.16.100.216:2181," +
                         "172.16.101.136:2181,172.16.101.227:2181\"}"
-                , null, "hadoop2", "", "[]", EComponentType.YARN.getTypeCode(),null,"","",true);
+                , null, "hadoop2", "", "[]", EComponentType.YARN.getTypeCode(),null,"","",true,true);
     }
 
 
@@ -472,19 +472,19 @@ public class ClusterServiceTest extends AbstractTest {
                         "\"hive.metastore.warehouse.dir\":\"/dtInsight/hive/warehouse\",\"hive.server2.async.exec.threads\":\"200\",\"dfs.datanode.data.dir\":\"file:/data/hadoop/hdfs/data\"," +
                         "\"dfs.namenode.shared.edits.dir\":\"qjournal://172.16.100.216:8485;172.16.101.136:8485;172.16.101.227:8485/namenode-ha-data\",\"hive.metastore.schema.verification\":\"false\",\"hive.server2.support.dynamic.service.discovery\":\"true\",\"hive.server2.session.check.interval\":\"30000\",\"hive.metastore.uris\":\"thrift://172.16.101.227:9083\",\"hive.server2.thrift.port\":\"10000\",\"hive.exec.dynamic.partition.mode\":\"nonstrict\",\"ha.zookeeper.session-timeout.ms\":\"5000\",\"hadoop.tmp.dir\":\"/data/hadoop_${user.name}\",\"dfs.journalnode.edits.dir\":\"/data/hadoop/hdfs/journal\",\"hive.server2.zookeeper.namespace\":\"hiveserver2\",\"hive.server2.enable.doAs\":\"false\",\"dfs.namenode.http-address.ns1.nn2\":\"172.16.101.136:50070\",\"dfs.namenode.http-address.ns1.nn1\":\"172.16.100.216:50070\"," +
                         "\"dfs.namenode.datanode.registration.ip-hostname-check\":\"false\",\"hadoop.proxyuser.${user.name}.hosts\":\"*\",\"hadoop.proxyuser.${user.name}.groups\":\"*\",\"hive.exec.scratchdir\":\"/dtInsight/hive/warehouse\",\"hive.zookeeper.quorum\":\"172.16.100.216:2181,172.16.101.136:2181,172.16.101.227:2181\",\"datanucleus.schema.autoCreateAll\":\"true\",\"hive.exec.dynamic.partition\":\"true\",\"hive.cluster.delegation.token.store.class\":\"org.apache.hadoop.hive.thrift.MemoryTokenStore\",\"ha.zookeeper.quorum\":\"172.16.100.216:2181,172.16.101.136:2181,172.16.101.227:2181\",\"hive.server2.thrift.min.worker.threads\":\"300\",\"dfs.ha.automatic-failover.enabled\":\"true\"}"
-                , null, "hadoop2", "", "[]", EComponentType.HDFS.getTypeCode(),null,"","",true);
+                , null, "hadoop2", "", "[]", EComponentType.HDFS.getTypeCode(),null,"","",true,true);
     }
 
 
     private void testAddHiveWithKerberos(ClusterVO clusterVO) {
         componentService.addOrUpdateComponent(clusterVO.getClusterId(),"{\"jdbcUrl\":\"jdbc:hive2://eng-cdh3:10001/default;principal=hive/eng-cdh3@DTSTACK.COM\",\"maxJobPoolSize\":\"\",\"minJobPoolSize\":\"\",\"password\":\"\",\"queue\":\"\",\"username\":\"\"}",
                 null,"1.x","hive_pure.keytab.zip","[{\"key\":\"jdbcUrl\",\"values\":null,\"type\":\"INPUT\",\"value\":\"jdbc:hive2://eng-cdh3:10001/default;principal=hive/eng-cdh3@DTSTACK.COM\",\"required\":true,\"dependencyKey\":null,\"dependencyValue\":null},{\"key\":\"maxJobPoolSize\",\"values\":null,\"type\":\"INPUT\",\"value\":\"\",\"required\":false,\"dependencyKey\":null,\"dependencyValue\":null},{\"key\":\"minJobPoolSize\",\"values\":null,\"type\":\"INPUT\",\"value\":\"\",\"required\":false,\"dependencyKey\":null,\"dependencyValue\":null},{\"key\":\"password\",\"values\":null,\"type\":\"INPUT\",\"value\":\"\",\"required\":false,\"dependencyKey\":null,\"dependencyValue\":null},{\"key\":\"queue\",\"values\":null,\"type\":\"INPUT\",\"value\":\"\",\"required\":false,\"dependencyKey\":null,\"dependencyValue\":null},{\"key\":\"username\",\"values\":null,\"type\":\"INPUT\",\"value\":\"\",\"required\":false,\"dependencyKey\":null,\"dependencyValue\":null}]",
-                9,EComponentType.HDFS.getTypeCode(),"hive/eng-cdh3@DTSTACK.COM","hive/eng-cdh3@DTSTACK.COM",true);
+                9,EComponentType.HDFS.getTypeCode(),"hive/eng-cdh3@DTSTACK.COM","hive/eng-cdh3@DTSTACK.COM",true,true);
     }
 
     private ComponentVO testAddSpark(ClusterVO clusterVO) {
         String componentTemplate = "[{\"dependencyKey\":\"\",\"dependencyValue\":\"\",\"key\":\"deploymode\",\"required\":true,\"type\":\"CHECKBOX\",\"value\":[\"perjob\"],\"values\":[{\"dependencyKey\":\"deploymode\",\"dependencyValue\":\"perjob\",\"key\":\"perjob\",\"required\":true,\"type\":\"GROUP\",\"value\":\"perjob\",\"values\":[{\"key\":\"addColumnSupport\",\"required\":false,\"type\":\"INPUT\",\"value\":\"true\"},{\"key\":\"spark.cores.max\",\"required\":true,\"type\":\"INPUT\",\"value\":\"1\"},{\"key\":\"spark.driver.extraJavaOptions\",\"required\":false,\"type\":\"INPUT\",\"value\":\"-Dfile.encoding=utf-8\"},{\"key\":\"spark.eventLog.compress\",\"required\":false,\"type\":\"INPUT\",\"value\":\"true\"},{\"key\":\"spark.eventLog.dir\",\"required\":false,\"type\":\"INPUT\",\"value\":\"hdfs://ns1/tmp/spark-yarn-logs\"},{\"key\":\"spark.eventLog.enabled\",\"required\":false,\"type\":\"INPUT\",\"value\":\"true\"},{\"key\":\"spark.executor.cores\",\"required\":true,\"type\":\"INPUT\",\"value\":\"1\"},{\"key\":\"spark.executor.extraJavaOptions\",\"required\":false,\"type\":\"INPUT\",\"value\":\"-Dfile.encoding=utf-8\"},{\"key\":\"spark.executor.heartbeatInterval\",\"required\":true,\"type\":\"INPUT\",\"value\":\"600s\"},{\"key\":\"spark.executor.instances\",\"required\":true,\"type\":\"INPUT\",\"value\":\"1\"},{\"key\":\"spark.executor.memory\",\"required\":true,\"type\":\"INPUT\",\"value\":\"512m\"},{\"key\":\"spark.network.timeout\",\"required\":true,\"type\":\"INPUT\",\"value\":\"600s\"},{\"key\":\"spark.rpc.askTimeout\",\"required\":true,\"type\":\"INPUT\",\"value\":\"600s\"},{\"key\":\"spark.speculation\",\"required\":true,\"type\":\"INPUT\",\"value\":\"true\"},{\"key\":\"spark.submit.deployMode\",\"required\":true,\"type\":\"INPUT\",\"value\":\"cluster\"},{\"key\":\"spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON\",\"required\":false,\"type\":\"INPUT\",\"value\":\"/data/miniconda2/bin/python3\"},{\"key\":\"spark.yarn.appMasterEnv.PYSPARK_PYTHON\",\"required\":false,\"type\":\"INPUT\",\"value\":\"/data/miniconda2/bin/python3\"},{\"key\":\"spark.yarn.maxAppAttempts\",\"required\":true,\"type\":\"INPUT\",\"value\":\"1\"},{\"key\":\"sparkPythonExtLibPath\",\"required\":true,\"type\":\"INPUT\",\"value\":\"hdfs://ns1/dtInsight/pythons/pyspark.zip,hdfs://ns1/dtInsight/pythons/py4j-0.10.7-src.zip\"},{\"key\":\"sparkSqlProxyPath\",\"required\":true,\"type\":\"INPUT\",\"value\":\"hdfs://ns1/dtInsight/user/spark/client/spark-sql-proxy.jar\"},{\"key\":\"sparkYarnArchive\",\"required\":true,\"type\":\"INPUT\",\"value\":\"hdfs://ns1/dtInsight/sparkjars/jars\"},{\"key\":\"yarnAccepterTaskNumber\",\"required\":false,\"type\":\"INPUT\",\"value\":\"3\"},{\"key\":\"hive.exec.copyfile.maxsize\",\"value\":\"100000000000\",\"type\":\"CUSTOM_CONTROL\"},{\"key\":\"spark.driver.extraJavaOptions\",\"value\":\"-Dfile.encoding=utf-8\",\"type\":\"CUSTOM_CONTROL\"},{\"key\":\"spark.executor.extraJavaOptions\",\"value\":\"-Dfile.encoding=utf-8\",\"type\":\"CUSTOM_CONTROL\"},{\"key\":\"spark.sql.catalogImplementation\",\"value\":\"hive\",\"type\":\"CUSTOM_CONTROL\"},{\"key\":\"spark.sql.hive.convertMetastoreOrc\",\"value\":\"true\",\"type\":\"CUSTOM_CONTROL\"},{\"key\":\"spark.sql.hive.metastore.jars\",\"value\":\"/tmp/\",\"type\":\"CUSTOM_CONTROL\"},{\"key\":\"spark.sql.hive.metastore.version\",\"value\":\"3.0\",\"type\":\"CUSTOM_CONTROL\"}]}]}]";
-        return componentService.addOrUpdateComponent(clusterVO.getClusterId(), "", null, "hadoop2", "", componentTemplate, EComponentType.SPARK.getTypeCode(),null,"","",true);
+        return componentService.addOrUpdateComponent(clusterVO.getClusterId(), "", null, "hadoop2", "", componentTemplate, EComponentType.SPARK.getTypeCode(),null,"","",true,true);
     }
 
 

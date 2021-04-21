@@ -487,9 +487,9 @@ public class ClusterService implements InitializingBean {
             configObj.put(ConfigConstant.VERSION, component.getHadoopVersion());
             configObj.put(IS_METADATA, component.getIsMetadata());
             // 添加组件的kerberos配置信息 应用层使用
-            configObj.put(ConfigConstant.KERBEROS_CONFIG, addKerberosConfigWithHdfs(componentConfName, clusterId, kerberosConfig));
+            configObj.put(ConfigConstant.KERBEROS_CONFIG, addKerberosConfigWithHdfs(component.getComponentTypeCode(), clusterId, kerberosConfig));
             //填充sftp配置项
-            Map sftpMap = componentService.getComponentByClusterId(clusterId, EComponentType.SFTP.getTypeCode(), false, Map.class);
+            Map sftpMap = componentService.getComponentByClusterId(clusterId, EComponentType.SFTP.getTypeCode(), false, Map.class,null);
             if (MapUtils.isNotEmpty(sftpMap)) {
                 configObj.put(EComponentType.SFTP.getConfName(), sftpMap);
             }
@@ -511,7 +511,7 @@ public class ClusterService implements InitializingBean {
         if (Objects.nonNull(kerberosConfig)) {
             KerberosConfigVO kerberosConfigVO = KerberosConfigVO.toVO(kerberosConfig);
             if (!Objects.equals(EComponentType.HDFS.getTypeCode(), componentType)) {
-                Map hdfsComponent = componentService.getComponentByClusterId(clusterId, EComponentType.HDFS.getTypeCode(),false,Map.class);
+                Map hdfsComponent = componentService.getComponentByClusterId(clusterId, EComponentType.HDFS.getTypeCode(),false,Map.class,null);
                 if (MapUtils.isEmpty(hdfsComponent)) {
                     throw new RdosDefineException("开启kerberos后需要预先保存hdfs组件");
                 }
@@ -865,7 +865,7 @@ public class ClusterService implements InitializingBean {
         return true;
     }
 
-    private List<SchedulingVo> convertComponentToScheduling(List<KerberosConfig> kerberosConfigs, Map<EComponentScheduleType, List<ComponentVO>> scheduleType) {
+    private List<SchedulingVo> convertComponentToScheduling(Table<Integer,String ,KerberosConfig> kerberosTable, Map<EComponentScheduleType, List<IComponentVO>> scheduleType) {
         List<SchedulingVo> schedulingVos = new ArrayList<>();
         //为空也返回
         for (EComponentScheduleType value : EComponentScheduleType.values()) {

@@ -657,7 +657,7 @@ public class ComponentService {
     private String convertHadoopVersionToValue(String hadoopVersion, Integer componentTypeCode, Long clusterId) {
         if (EComponentType.HDFS.getTypeCode().equals(componentTypeCode)) {
             //hdfs的组件和yarn组件的版本保持强一致 如果是k8s-hdfs2-则不作限制
-            Component yarnComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.YARN.getTypeCode());
+            Component yarnComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.YARN.getTypeCode(),null);
             if (null != yarnComponent) {
                 return yarnComponent.getHadoopVersion();
             }
@@ -1278,6 +1278,7 @@ public class ComponentService {
                 componentTestResult.setResult(false);
                 componentTestResult.setErrorMsg("测试联通性失败");
                 return componentTestResult;
+            }
 
         }catch (Throwable e){
             if (Objects.isNull(componentTestResult)){
@@ -1544,10 +1545,10 @@ public class ComponentService {
         List<ComponentConfig> componentConfigs = new ArrayList<>();
         String yarnVersion = EComponentType.YARN.getTypeCode().equals(componentType) ? originVersion : null;
         if (!EComponentType.noControlComponents.contains(component)) {
-            String typeName = convertComponentTypeToClient(clusterName, componentType, componentVersion, storeType);
+            String typeName = convertComponentTypeToClient(clusterName, componentType, componentVersion, storeType,null);
             componentConfigs = componentConfigService.loadDefaultTemplate(typeName);
             ClusterVO clusterByName = clusterService.getClusterByName(clusterName);
-            Component yarnComponent = componentDao.getByClusterIdAndComponentType(clusterByName.getClusterId(), EComponentType.YARN.getTypeCode());
+            Component yarnComponent = componentDao.getByClusterIdAndComponentType(clusterByName.getClusterId(), EComponentType.YARN.getTypeCode(),null);
             if (null != yarnComponent) {
                 ComponentConfig originHadoopVersion = componentConfigService.getComponentConfigByKey(yarnComponent.getId(), HADOOP_VERSION);
                 yarnVersion = null == originHadoopVersion ? yarnComponent.getHadoopVersion() : originHadoopVersion.getValue();

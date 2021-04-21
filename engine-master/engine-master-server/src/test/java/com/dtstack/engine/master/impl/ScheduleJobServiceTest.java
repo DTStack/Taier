@@ -908,4 +908,25 @@ public class ScheduleJobServiceTest extends AbstractTest {
         scheduleJobService.deleteJobsByJobKey(Lists.newArrayList("falfjaljfla"));
     }
 
+    private void buildComponentVersion(ScheduleTaskShade taskShade) {
+        if (StringUtils.isNotBlank(taskShade.getComponentVersion())){
+            return;
+        }
+        EComponentType componentType = ComponentVersionUtil.transformTaskType2ComponentType(taskShade.getTaskType());
+        if (Objects.nonNull(componentType)){
+            taskShade.setComponentVersion(componentDao.getDefaultComponentVersionByTenantAndComponentType(
+                    taskShade.getTenantId(),componentType.getTypeCode()));
+        }
+    }
+
+    private void buildComponentVersion(ScheduleJob scheduleJob) {
+        if (StringUtils.isNotBlank(scheduleJob.getComponentVersion())){
+            return;
+        }
+        EComponentType componentType = ComponentVersionUtil.transformTaskType2ComponentType(scheduleJob.getTaskType());
+        if (Objects.nonNull(componentType)){
+            scheduleJob.setComponentVersion(componentDao.getDefaultComponentVersionByTenantAndComponentType(
+                    scheduleJob.getTenantId(),componentType.getTypeCode()));
+        }
+    }
 }
