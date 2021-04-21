@@ -193,4 +193,8 @@ public class ComponentConfigService {
         }
         return componentVOS;
     }
+
+    public void updateValueComponentConfig(ComponentConfig componentConfig) {
+        componentConfigDao.update(componentConfig);
+    }
 }

@@ -518,7 +518,7 @@ public class ComponentService {
 
         EComponentType storesComponent = this.checkStoresComponent(clusterId, storeType);
         addComponent.setStoreType(storesComponent.getTypeCode());
-        addComponent.setHadoopVersion(convertHadoopVersionToValue(Optional.ofNullable(hadoopVersion).orElse("Hadoop 2.x")));
+        addComponent.setHadoopVersion(convertHadoopVersionToValue(hadoopVersion,componentCode,clusterId));
         addComponent.setComponentName(componentType.getName());
         addComponent.setComponentTypeCode(componentType.getTypeCode());
         addComponent.setEngineId(engine.getId());
@@ -531,6 +531,7 @@ public class ComponentService {
         addComponent.setClusterId(clusterId);
         if (isUpdate) {
             componentDao.update(addComponent);
+            refreshVersion(componentType, engine.getId(), addComponent, dbComponent,hadoopVersion);
             clusterDao.updateGmtModified(clusterId);
         } else {
             componentDao.insert(addComponent);
@@ -549,6 +550,63 @@ public class ComponentService {
             return componentVO;
         }
         return null;
+    }
+
+    /**
+     * yarn组件版本变更之后  hdfs组件保存一致
+     * 计算组件 如flink的typename也同步变更
+     *
+     * @param componentType
+     * @param engineId
+     * @param addComponent
+     * @param dbComponent
+     */
+    public void refreshVersion(EComponentType componentType, Long engineId, Component addComponent, Component dbComponent, String hadoopVersion) {
+        if (!EComponentType.YARN.equals(componentType)) {
+            return;
+        }
+        String oldVersion = formatHadoopVersion(dbComponent.getHadoopVersion(), componentType);
+        String newVersion = formatHadoopVersion(addComponent.getHadoopVersion(), componentType);
+        if (oldVersion.equalsIgnoreCase(newVersion)) {
+            return;
+        }
+        Component hdfsComponent = componentDao.getByEngineIdAndComponentType(engineId, EComponentType.HDFS.getTypeCode());
+        if (null == hdfsComponent) {
+            return;
+        }
+        //1. 同步hdfs组件版本
+        hdfsComponent.setHadoopVersion(addComponent.getHadoopVersion());
+        componentDao.update(hdfsComponent);
+        ComponentConfig hadoopVersionConfig = componentConfigService.getComponentConfigByKey(hdfsComponent.getId(), HADOOP_VERSION);
+        if (null != hadoopVersionConfig) {
+            hadoopVersionConfig.setValue(hadoopVersion);
+            componentConfigService.updateValueComponentConfig(hadoopVersionConfig);
+        }
+
+        //2. 版本切换 影响计算组件typeName
+        List<Component> components = componentDao.listByEngineIds(Lists.newArrayList(engineId));
+        if (CollectionUtils.isEmpty(components)) {
+            return;
+        }
+        String newTypeNamePrefix = String.format("%s-%s-", EComponentType.YARN.name().toLowerCase() + newVersion, EComponentType.HDFS.name().toLowerCase() + newVersion);
+        String oldTypeNamePrefix = String.format("%s-%s-", EComponentType.YARN.name().toLowerCase() + oldVersion, EComponentType.HDFS.name().toLowerCase() + oldVersion);
+        for (Component component : components) {
+            if (EComponentType.typeComponentVersion.contains(EComponentType.getByCode(component.getComponentTypeCode()))) {
+                ComponentConfig typeNameComponentConfig = componentConfigService.getComponentConfigByKey(component.getId(), TYPE_NAME_KEY);
+                if (null != typeNameComponentConfig) {
+                    String newValue;
+                    String oldValue = typeNameComponentConfig.getValue();
+                    if (EComponentType.HDFS.getTypeCode().equals(component.getComponentTypeCode())) {
+                        newValue = EComponentType.HDFS.name().toLowerCase() + newVersion;
+                    } else {
+                        newValue = oldValue.replace(oldTypeNamePrefix, newTypeNamePrefix);
+                    }
+                    typeNameComponentConfig.setValue(newValue);
+                    LOGGER.info("refresh clusterId {} component {} typeName {} to {}", component.getClusterId(), component.getComponentName(), oldValue, newValue);
+                    componentConfigService.updateValueComponentConfig(typeNameComponentConfig);
+                }
+            }
+        }
     }
 
     /**
@@ -577,12 +635,21 @@ public class ComponentService {
     }
 
     /**
+     * 将选择的hadoop版本 转换为对应的值
      *
      * @param hadoopVersion
      * @return
      */
-    private String convertHadoopVersionToValue(String hadoopVersion) {
-        ScheduleDict dict = scheduleDictService.getByNameAndValue(DictType.HADOOP_VERSION.type, hadoopVersion, null,null);
+    private String convertHadoopVersionToValue(String hadoopVersion, Integer componentTypeCode, Long clusterId) {
+        if (EComponentType.HDFS.getTypeCode().equals(componentTypeCode)) {
+            //hdfs的组件和yarn组件的版本保持强一致 如果是k8s-hdfs2-则不作限制
+            Component yarnComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.YARN.getTypeCode());
+            if (null != yarnComponent) {
+                return yarnComponent.getHadoopVersion();
+            }
+        }
+
+        ScheduleDict dict = scheduleDictService.getByNameAndValue(DictType.HADOOP_VERSION.type, Optional.ofNullable(hadoopVersion).orElse("Hadoop 2.x"), null, null);
         if (null != dict) {
             return dict.getDictValue();
         }
@@ -1074,34 +1141,23 @@ public class ComponentService {
      * @param resources
      * @return
      */
-    public List<Object> config(List<Resource> resources,  Integer componentType, Boolean autoDelete,String version) {
+    @SuppressWarnings("all")
+    public List<Object> config(List<Resource> resources, Integer componentType, Boolean autoDelete, String version) {
 
         try {
-            //解析xml文件
-            List<String> xmlName = componentTypeConfigMapping.get(componentType);
-            if (CollectionUtils.isNotEmpty(xmlName)) {
+            if (componentTypeConfigMapping.keySet().contains(componentType)) {
+                //解析xml文件
+                List<String> xmlName = componentTypeConfigMapping.get(componentType);
                 return parseXmlFileConfig(resources, xmlName);
-            }
-
-            //解析k8s组件
-            if(EComponentType.KUBERNETES.getTypeCode().equals(componentType)) {
+            } else if (EComponentType.KUBERNETES.getTypeCode().equals(componentType)) {
+                //解析k8s组件
                 return parseKubernetesData(resources);
+            } else {
+                //解析上传的json文件
+                return parseJsonFile(resources);
             }
-
-            List<Object> datas = new ArrayList<>();
-            // 当作json来解析
-            for (Resource resource : resources) {
-                try {
-                    String fileInfo = FileUtils.readFileToString(new File(resource.getUploadedFileName()));
-                    datas.add(PublicUtil.strToMap(fileInfo));
-                } catch (Exception e) {
-                    LOGGER.error("parse json config resource error {} ", resource.getUploadedFileName());
-                    throw new RdosDefineException("JSON file format error");
-                }
-            }
-            return datas;
         } finally {
-            if (null == autoDelete || true == autoDelete) {
+            if (null == autoDelete || autoDelete) {
                 for (Resource resource : resources) {
                     try {
                         FileUtils.forceDelete(new File(resource.getUploadedFileName()));
@@ -1112,6 +1168,21 @@ public class ComponentService {
             }
 
         }
+    }
+
+    private List<Object> parseJsonFile(List<Resource> resources) {
+        List<Object> data = new ArrayList<>();
+        // 当作json来解析
+        for (Resource resource : resources) {
+            try {
+                String fileInfo = FileUtils.readFileToString(new File(resource.getUploadedFileName()));
+                data.add(PublicUtil.strToMap(fileInfo));
+            } catch (Exception e) {
+                LOGGER.error("parse json config resource error {} ", resource.getUploadedFileName());
+                throw new RdosDefineException("JSON file format error");
+            }
+        }
+        return data;
     }
 
     private List<Object> parseXmlFileConfig(List<Resource> resources, List<String> xmlName) {
@@ -1332,7 +1403,7 @@ public class ComponentService {
         String uploadFileName = "";
         if (null == componentId) {
             //解析模版中的信息 作为默认值 返回json
-            List<ClientTemplate> clientTemplates = this.loadTemplate(componentType, clusterName, hadoopVersion,null);
+            List<ClientTemplate> clientTemplates = this.loadTemplate(componentType, clusterName, hadoopVersion,null,null);
             if (CollectionUtils.isNotEmpty(clientTemplates)) {
                 Map<String, Object> fileMap = ComponentConfigUtils.convertClientTemplateToMap(clientTemplates);
                 uploadFileName = EComponentType.getByCode(componentType).name() + ".json";
@@ -1433,26 +1504,29 @@ public class ComponentService {
      * 加载各个组件的默认值
      * 解析yml文件转换为前端渲染格式
      *
-     * @param componentType
+     * @param componentType 组件类型
+     * @param clusterName   集群名称
+     * @param version       组件版本值 如2.7.3
+     * @param storeType     存储组件type 如 HDFS
+     * @param originVersion 组件版本名称 如CDH 7.1.x
      * @return
      */
-    public List<ClientTemplate> loadTemplate(Integer componentType, String clusterName, String version, Integer storeType) {
+    public List<ClientTemplate> loadTemplate(Integer componentType, String clusterName, String version, Integer storeType, String originVersion) {
         EComponentType component = EComponentType.getByCode(componentType);
-        if(EComponentType.noControlComponents.contains(component)){
-            return new ArrayList<>(0);
+        List<ComponentConfig> componentConfigs = new ArrayList<>();
+        String yarnVersion = EComponentType.YARN.getTypeCode().equals(componentType) ? originVersion : null;
+        if (!EComponentType.noControlComponents.contains(component)) {
+            String typeName = convertComponentTypeToClient(clusterName, componentType, version, storeType);
+            componentConfigs = componentConfigService.loadDefaultTemplate(typeName);
+            ClusterVO clusterByName = clusterService.getClusterByName(clusterName);
+            Component yarnComponent = componentDao.getByClusterIdAndComponentType(clusterByName.getClusterId(), EComponentType.YARN.getTypeCode());
+            if (null != yarnComponent) {
+                ComponentConfig originHadoopVersion = componentConfigService.getComponentConfigByKey(yarnComponent.getId(), HADOOP_VERSION);
+                yarnVersion = null == originHadoopVersion ? yarnComponent.getHadoopVersion() : originHadoopVersion.getValue();
+            }
         }
-        String typeName = convertComponentTypeToClient(clusterName, componentType, version,storeType);
-        List<ComponentConfig> componentConfigs = componentConfigService.loadDefaultTemplate(typeName);
-
-        ClusterVO clusterByName = clusterService.getClusterByName(clusterName);
-        Component yarnComponent = componentDao.getByClusterIdAndComponentType(clusterByName.getClusterId(), EComponentType.YARN.getTypeCode());
-        List<ComponentConfig> extraConfig = null;
-        if (null != yarnComponent) {
-            ComponentConfig originHadoopVersion = componentConfigService.getComponentConfigByKey(yarnComponent.getId(), HADOOP_VERSION);
-            String yarnVersion = null == originHadoopVersion ? yarnComponent.getHadoopVersion() : originHadoopVersion.getValue();
-            //根据版本添加对于的额外配置 需要根据yarn的版本来
-            extraConfig = scheduleDictService.loadExtraComponentConfig(yarnVersion, componentType);
-        }
+        //根据yarn的版本添加额外配置
+        List<ComponentConfig> extraConfig = scheduleDictService.loadExtraComponentConfig(yarnVersion, componentType);
         if (CollectionUtils.isNotEmpty(extraConfig)) {
             componentConfigs.addAll(extraConfig);
         }
@@ -1807,25 +1881,9 @@ public class ComponentService {
         if (null == cluster) {
             throw new RdosDefineException("Cluster does not exist");
         }
-        List<Component> components = new ArrayList<>();
+        List<Component> components = new ArrayList<>(2);
         Component hdfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());
         if (null != hdfs) {
-            /*//将componentConfig中的componentTemplate内容过滤掉
-            String componentTemplate = hdfs.getComponentTemplate();
-            String componentConfig = hdfs.getComponentConfig();
-            JSONObject configJbj = JSONObject.parseObject(componentConfig);
-            if(null != componentTemplate){
-                JSONArray jsonArray = JSONObject.parseArray(componentTemplate);
-                for (Object o : jsonArray.toArray()) {
-                    String key = ((JSONObject) o).getString("key");
-                    String value = ((JSONObject) o).getString("value");
-                    configJbj.remove(key,value);
-                }
-            }
-            componentConfig = JSON.toJSONString(configJbj);
-            hdfs.setComponentConfig(componentConfig);
-            //将componentTemplate设为null
-            hdfs.setComponentTemplate(null);*/
             components.add(hdfs);
         }
         Component nfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.NFS.getTypeCode());
