@@ -741,7 +741,7 @@ public class ClusterService implements InitializingBean {
     }
 
     public String inceptorSqlInfo(Long dtUicTenantId, Long dtUicUserId){
-        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.INCEPTOR_SQL);
+        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.INCEPTOR_SQL,null);
     }
 
 
