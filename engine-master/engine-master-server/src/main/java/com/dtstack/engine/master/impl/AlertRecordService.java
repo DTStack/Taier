@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.dtstack.engine.alert.AlterContext;
 import com.dtstack.engine.alert.AlterSender;
 import com.dtstack.engine.alert.EventMonitor;
@@ -18,9 +17,9 @@ import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.dao.AlertRecordDao;
-import com.dtstack.engine.domain.AlertChannel;
-import com.dtstack.engine.domain.AlertContent;
-import com.dtstack.engine.domain.AlertRecord;
+import com.dtstack.engine.api.domain.AlertChannel;
+import com.dtstack.engine.api.domain.AlertContent;
+import com.dtstack.engine.api.domain.AlertRecord;
 import com.dtstack.engine.master.enums.AlertMessageStatusEnum;
 import com.dtstack.engine.master.enums.AlertSendStatusEnum;
 import com.dtstack.engine.master.enums.ReadStatus;

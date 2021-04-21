@@ -10,7 +10,7 @@ import com.dtstack.engine.common.enums.IsDefaultEnum;
 import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.AlertChannelDao;
-import com.dtstack.engine.domain.AlertChannel;
+import com.dtstack.engine.api.domain.AlertChannel;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.google.common.collect.Lists;
@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
 import java.util.List;
 
 /**
