@@ -285,7 +285,7 @@ public class ClusterServiceTest extends AbstractTest {
         try {
             clusterService.deleteCluster(clusterVO.getClusterId());
         } catch (Exception e) {
-            Assert.assertTrue(e.getMessage().contains("有租户"));
+            Assert.assertTrue(e.getMessage().contains("has tenants and cannot be deleted"));
         }
     }
 

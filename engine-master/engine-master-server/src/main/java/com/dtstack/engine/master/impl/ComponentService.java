@@ -17,12 +17,9 @@ import com.dtstack.engine.api.vo.components.ComponentsResultVO;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EComponentType;
-import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EFrontType;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.MultiEngineType;
-import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
@@ -148,6 +145,9 @@ public class ComponentService {
     @Autowired
     private SftpFileManage sftpFileManageBean;
 
+    @Autowired
+    private DataSourceService dataSourceService;
+
     public static final String VERSION = "version";
 
     /**
@@ -214,7 +214,7 @@ public class ComponentService {
     /**
      * 更新缓存
      */
-    public void updateCache(Long engineId, Integer componentCode) {
+    public void updateCache(Long clusterId,Long engineId, Integer componentCode) {
         clearComponentCache();
         Set<Long> dtUicTenantIds = new HashSet<>();
         if ( null != componentCode && EComponentType.sqlComponent.contains(EComponentType.getByCode(componentCode))) {
@@ -239,6 +239,7 @@ public class ComponentService {
             List<Long> tenantIds = engineTenantDao.listTenantIdByQueueIds(queueIds);
             dtUicTenantIds = new HashSet<>(tenantDao.listDtUicTenantIdByIds(tenantIds));
         }
+        dataSourceService.publishSqlComponent(clusterId,engineId,componentCode,dtUicTenantIds);
         //缓存刷新
         if (!dtUicTenantIds.isEmpty()) {
             for (Long uicTenantId : dtUicTenantIds) {
@@ -493,6 +494,7 @@ public class ComponentService {
         String clusterName = cluster.getClusterName();
         //校验引擎是否添加
         EComponentType componentType = EComponentType.getByCode(componentDTO.getComponentTypeCode());
+        // 每个组件必须归属到一个引擎中
         MultiEngineType engineType = EComponentType.getEngineTypeByComponent(componentType);
         Engine engine = this.addEngineWithCheck(clusterId, engineType);
         if (null == engine) {
@@ -536,7 +538,7 @@ public class ComponentService {
         List<ClientTemplate> clientTemplates = this.wrapperConfig(componentType, componentConfig, isOpenKerberos, clusterName, hadoopVersion, md5Key, componentTemplate,addComponent.getHadoopVersion(),addComponent.getStoreType());
         componentConfigService.addOrUpdateComponentConfig(clientTemplates, addComponent.getId(), addComponent.getClusterId(), componentCode);
         List<ComponentVO> componentVos = componentConfigService.getComponentVoByComponent(Lists.newArrayList(addComponent), true, clusterId,true);
-        this.updateCache(engine.getId(), componentType.getTypeCode());
+        this.updateCache(clusterId,engine.getId(), componentType.getTypeCode());
         if (CollectionUtils.isNotEmpty(componentVos)) {
             ComponentVO componentVO = componentVos.get(0);
             componentVO.setClusterName(clusterName);
@@ -1184,10 +1186,6 @@ public class ComponentService {
                 componentTestResult.setErrorMsg("测试联通性失败");
                 return componentTestResult;
             }
-
-            if (componentTestResult.getResult() && null != engineId) {
-                updateCache(engineId, componentType);
-            }
         } finally {
             if (null != componentTestResult) {
                 componentTestResult.setComponentTypeCode(componentType);
@@ -1463,14 +1461,14 @@ public class ComponentService {
     /**
      * 根据组件类型转换对应的插件名称
      * 如果只配yarn 需要调用插件时候 hdfs给默认值
-     *
+     * 插件名称组合即表达此组件是否依赖其他组件，e.g  yarn2-hdfs2-flink180 表示flink 依赖 yarn(调度)和hdfs(存储)
      * @param clusterName
      * @param componentType
      * @param version
      * @return
      */
     public String convertComponentTypeToClient(String clusterName, Integer componentType, String version, Integer storeType) {
-        //普通rdb插件
+        // 普通rdb插件,即插件名就是这个,不依赖其他组件
         EComponentType componentCode = EComponentType.getByCode(componentType);
         String pluginName = EComponentType.convertPluginNameByComponent(componentCode);
         if (StringUtils.isNotBlank(pluginName)) {
