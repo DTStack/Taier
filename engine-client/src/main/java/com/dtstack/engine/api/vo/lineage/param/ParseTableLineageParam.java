@@ -31,6 +31,9 @@ public class ParseTableLineageParam {
     @ApiModelProperty("引擎数据源id")
     private Long engineDataSourceId;
 
+    /**任务类型，周期实例、临时运行**/
+    private Integer type;
+
     public Long getDtUicTenantId() {
         return dtUicTenantId;
     }
@@ -85,5 +88,13 @@ public class ParseTableLineageParam {
 
     public void setEngineDataSourceId(Long engineDataSourceId) {
         this.engineDataSourceId = engineDataSourceId;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
     }
 }

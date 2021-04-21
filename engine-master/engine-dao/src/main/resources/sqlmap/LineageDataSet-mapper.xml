@@ -18,6 +18,7 @@
         insert into lineage_data_set_info(dt_uic_tenant_id,real_source_id,source_id,source_name,source_key,app_type,source_type,set_type,db_name,table_name,schema_name,table_key,is_manual)
         values
         (#{dtUicTenantId},#{realSourceId},#{sourceId},#{sourceName},#{sourceKey},#{appType},#{sourceType},#{setType},#{dbName},#{tableName},#{schemaName},#{tableKey},#{isManual})
+        on duplicate key update gmt_modified=values(gmt_modified)
     </insert>
 
     <delete id="deleteTableInfo" >
@@ -70,4 +71,14 @@
             #{item}
         </foreach>
     </select>
+
+    <update id="updateTableNameByTableNameAndSourceId">
+
+        update
+        lineage_data_set_info
+        set table_name = #{newTableName},
+        table_key = #{newTableKey},
+        gmt_modified = now()
+        where table_key = #{oldTableKey}
+    </update>
 </mapper>

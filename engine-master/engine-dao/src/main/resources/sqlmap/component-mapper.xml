@@ -98,9 +98,10 @@
         delete from console_component where id = #{componentId}
     </delete>
 
-    <select id="getIdByTenantIdComponentType" resultType="java.lang.Integer">
+    <select id="getByTenantIdComponentType" resultType="Component">
         select
-		cc.id
+        cc.id,cc.engine_id,cc.component_name,cc.component_type_code,cc.gmt_create,cc.gmt_modified,cc.is_deleted,
+        cc.hadoop_version,cc.upload_file_name,cc.kerberos_file_name
         from
         console_component cc
         INNER JOIN console_engine_tenant cet

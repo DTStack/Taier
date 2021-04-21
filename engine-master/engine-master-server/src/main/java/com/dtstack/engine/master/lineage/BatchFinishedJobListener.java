@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.lineage;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
@@ -10,6 +11,7 @@ import com.dtstack.lineage.impl.LineageService;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
+import com.dtstack.sqlparser.common.utils.SqlFormatUtil;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -42,41 +44,40 @@ public class BatchFinishedJobListener extends SqlJobFinishedListener {
     private LineageService lineageService;
 
     @Override
-    protected void onFocusedJobFinished(ScheduleTaskShade taskShade, ScheduleJob scheduleJob, Integer status) {
+    protected void onFocusedJobFinished(Integer type,String sqlText,Long  taskId, ScheduleJob scheduleJob, Integer status) {
         //解析sql并存储
-//        String extraInfo = taskShade.getExtraInfo();
-//        JSONObject jsonObject = JSONObject.parseObject(extraInfo);
-//        String infoJsonStr = jsonObject.getString("info");
-//        JSONObject taskInfoJson = JSONObject.parseObject(infoJsonStr);
-//        String sqlText = taskInfoJson.getString("sqlText").replaceAll("--.*","");;
-//        List<String> sqls = SqlFormatUtil.splitSqlText(sqlText);
-//        if (CollectionUtils.isEmpty(sqls)){
-//            return;
-//        }
-//        //离线第一条sql为use db
-//        String useDbSql = sqls.get(0);
-//        Matcher matcher = USE_DB_PATTERN.matcher(useDbSql);
-//        String defaultDb = "";
-//        if (matcher.matches()){
-//            defaultDb = matcher.group("db");
-//        }else {
-//            logger.info("sql不正确{}",useDbSql);
-//            return;
-//        }
-//        ParseColumnLineageParam columnLineageParam = new ParseColumnLineageParam();
-//        columnLineageParam.setAppType(AppType.RDOS.getType());
-//        DataSourceType dataSourceTypeByTaskTypeInt = EngineTaskType2SourceType.getDataSourceTypeByTaskTypeInt(taskShade.getTaskType());
-//        if (Objects.isNull(dataSourceTypeByTaskTypeInt)){
-//            return;
-//        }
-//        columnLineageParam.setDataSourceType(dataSourceTypeByTaskTypeInt.getVal());
-//        columnLineageParam.setDefaultDb(defaultDb);
-//        columnLineageParam.setDtUicTenantId(taskShade.getDtuicTenantId());
-//        columnLineageParam.setUniqueKey(String.valueOf(taskShade.getTaskId()));
-//        for (String sql : sqls){
-//            columnLineageParam.setSql(sql);
-//            lineageService.parseAndSaveColumnLineage(columnLineageParam);
-//        }
+        sqlText = sqlText.replaceAll("--.*","");
+        List<String> sqls = SqlFormatUtil.splitSqlText(sqlText);
+        if (CollectionUtils.isEmpty(sqls)){
+            return;
+        }
+        //离线第一条sql为use db
+        String useDbSql = sqls.get(0);
+        Matcher matcher = USE_DB_PATTERN.matcher(useDbSql);
+        String defaultDb = "";
+        if (matcher.matches()){
+            defaultDb = matcher.group("db");
+            sqls.remove(0);
+        }else {
+            logger.info("sql不正确{}",useDbSql);
+            return;
+        }
+        DataSourceType dataSourceTypeByTaskTypeInt = EngineTaskType2SourceType.getDataSourceTypeByTaskTypeInt(scheduleJob.getTaskType());
+        if (Objects.isNull(dataSourceTypeByTaskTypeInt)){
+            return;
+        }
+        for (String sql : sqls){
+            ParseColumnLineageParam columnLineageParam = new ParseColumnLineageParam();
+            columnLineageParam.setAppType(AppType.RDOS.getType());
+            columnLineageParam.setDataSourceType(dataSourceTypeByTaskTypeInt.getVal());
+            columnLineageParam.setDefaultDb(defaultDb);
+            columnLineageParam.setDtUicTenantId(scheduleJob.getDtuicTenantId());
+            columnLineageParam.setUniqueKey(null== taskId? null:String.valueOf(taskId));
+            columnLineageParam.setType(type);
+            columnLineageParam.setSql(sql);
+            logger.info("调用字段血缘解析:{}", JSON.toJSON(columnLineageParam));
+            lineageService.parseAndSaveColumnLineage(columnLineageParam);
+        }
     }
 
     @Override

@@ -31,4 +31,11 @@ public interface LineageColumnColumnDao {
 
     List<String> queryTableLineageResultColumns(@Param("tableId")Long tableId);
 
+    /**
+     * 根据taskId和appType查询字段血缘
+     * @param taskId
+     * @param appType
+     * @return
+     */
+    List<LineageColumnColumn> queryColumnLineageByTaskIdAndAppType(@Param("taskId") Long taskId,@Param("appType") Integer appType);
 }

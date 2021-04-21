@@ -686,7 +686,6 @@ public class ScheduleJobServiceTest extends AbstractTest {
         scheduleJobTemplate.setTaskRule(0);
         ScheduleBatchJob scheduleBatchJob = new ScheduleBatchJob(scheduleJobTemplate);
 
-
         scheduleJobService.insertJobList(Lists.newArrayList(scheduleBatchJob), EScheduleType.NORMAL_SCHEDULE.getType());
         scheduleJobService.testCheckCanRun(jobId);
         scheduleJobService.testTrigger(jobId);
@@ -774,13 +773,54 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
     public void testSendTaskStartTrigger() throws Exception {
+        String jobId = "9ead3d68";
+        ScheduleTaskShade scheduleTaskShade = Template.getScheduleTaskShadeTemplate();
+        scheduleTaskShade.setTaskId(1392L);
+        scheduleTaskShade.setName("hbase_hdfs");
+        scheduleTaskShade.setTaskType(2);
+        scheduleTaskShade.setEngineType(0);
+        scheduleTaskShade.setComputeType(1);
+        scheduleTaskShade.setTaskParams("## 任务运行方式：\n" +
+                "## per_job:单独为任务创建flink yarn session，适用于低频率，大数据量同步\n" +
+                "## session：多个任务共用一个flink yarn session，适用于高频率、小数据量同步，默认session\n" +
+                "flinkTaskRunMode=per_job\n" +
+                "## per_job模式下jobManager配置的内存大小，默认1024（单位M)\n" +
+                "## jobmanager.memory.mb=1024\n" +
+                "## per_job模式下taskManager配置的内存大小，默认1024（单位M）\n" +
+                "## taskmanager.memory.mb=1024\n" +
+                "## per_job模式下每个taskManager 对应 slot的数量\n" +
+                "## slots=1\n" +
+                "## checkpoint保存时间间隔\n" +
+                "## flink.checkpoint.interval=300000\n" +
+                "## 任务优先级, 范围:1-1000\n" +
+                "## job.priority=10");
+        scheduleTaskShade.setScheduleConf("{\"selfReliance\":false, \"min\":0,\"hour\":0,\"periodType\":\"2\",\"beginDate\":\"2001-01-01\",\"endDate\":\"2121-01-01\",\"isFailRetry\":true,\"maxRetryNum\":\"3\"}");
+        scheduleTaskShade.setPeriodType(2);
+        scheduleTaskShade.setScheduleStatus(1);
+        scheduleTaskShade.setProjectScheduleStatus(0);
+        scheduleTaskShadeDao.insert(scheduleTaskShade);
 
-        try {
-            ScheduleJob job = DataCollection.getData().getScheduleJobVirtual();
-            scheduleJobService.sendTaskStartTrigger(job);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        ScheduleJob scheduleJobTemplate = Template.getScheduleJobTemplate();
+        scheduleJobTemplate.setJobId(jobId);
+        scheduleJobTemplate.setProjectId(scheduleTaskShade.getProjectId());
+        scheduleJobTemplate.setTaskId(scheduleTaskShade.getTaskId());
+        scheduleJobTemplate.setTenantId(scheduleTaskShade.getTenantId());
+        scheduleJobTemplate.setDtuicTenantId(scheduleTaskShade.getDtuicTenantId());
+        scheduleJobTemplate.setJobKey("cronTrigger_941_20201210000000");
+        scheduleJobTemplate.setJobName("cronJob_hbase_hdfs_20201210000000");
+        scheduleJobTemplate.setType(0);
+        scheduleJobTemplate.setBusinessDate("20201209000000");
+        scheduleJobTemplate.setCycTime("20201210000000");
+        scheduleJobTemplate.setDependencyType(0);
+        scheduleJobTemplate.setStatus(0);
+        scheduleJobTemplate.setTaskType(0);
+        scheduleJobTemplate.setGmtCreate(new Timestamp(System.currentTimeMillis()));
+        scheduleJobTemplate.setGmtModified(new Timestamp(System.currentTimeMillis()));
+        scheduleJobTemplate.setAppType(scheduleTaskShade.getAppType());
+        scheduleJobTemplate.setTaskRule(1);
+        ScheduleBatchJob scheduleBatchJob = new ScheduleBatchJob(scheduleJobTemplate);
+        scheduleJobService.insertJobList(Lists.newArrayList(scheduleBatchJob), EScheduleType.NORMAL_SCHEDULE.getType());
+        scheduleJobService.sendTaskStartTrigger(scheduleJobTemplate);
     }
 
 

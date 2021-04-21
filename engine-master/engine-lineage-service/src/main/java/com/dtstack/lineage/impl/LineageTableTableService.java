@@ -1,9 +1,12 @@
 package com.dtstack.lineage.impl;
 
-import com.dtstack.engine.api.domain.LineageDataSetInfo;
+
 import com.dtstack.engine.api.domain.LineageTableTable;
 import com.dtstack.engine.api.domain.LineageTableTableUniqueKeyRef;
 import com.dtstack.engine.api.enums.LineageOriginType;
+import com.dtstack.engine.api.pojo.LevelAndCount;
+import com.dtstack.engine.api.vo.lineage.param.DeleteLineageParam;
+import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.lineage.dao.LineageTableTableUniqueKeyRefDao;
 import com.dtstack.lineage.dao.LineageTableTableDao;
@@ -15,11 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -49,68 +48,121 @@ public class LineageTableTableService {
     /**
      * 保存表级血缘,不需要事务
      */
-    public void saveTableLineage(List<LineageTableTable> tableTables,String uniqueKey) {
+    public void saveTableLineage(Integer type,List<LineageTableTable> tableTables,String uniqueKey) {
         if (CollectionUtils.isEmpty(tableTables)){
             return;
         }
-        tableTables.forEach(tt->{tt.setTableLineageKey(generateTableTableKey(tt));});
-        //数据插入后，id会更新
-        lineageTableTableDao.batchInsertTableTable(tableTables);
-        List<String> keys = tableTables.stream().map(tt -> tt.getTableLineageKey()).collect(Collectors.toList());
-        tableTables = getTableTablesByTableLineageKeys(tableTables.get(0).getAppType(), keys);
-        //如果uniqueKey不为空，需要删除ref表中相同uniqueKey的数据，再插入该批数据。
-        if (StringUtils.isNotEmpty(uniqueKey)){
-            lineageTableTableUniqueKeyRefDao.deleteByUniqueKey(tableTables.get(0).getAppType(),uniqueKey);
+        tableTables.forEach(tt -> {
+            tt.setTableLineageKey(generateTableTableKey(tt));
+        });
+        if(type!=null && type.equals(EScheduleType.TEMP_JOB.getType())){
+            //临时运行,先查询,原来存在则不新增，否则新增
+            for (LineageTableTable tableTable : tableTables) {
+                LineageTableTable lineageTableTable = lineageTableTableDao.queryBTableLineageKey(tableTable.getAppType(), tableTable.getTableLineageKey());
+                if(null == lineageTableTable){
+                    lineageTableTableDao.batchInsertTableTable(Arrays.asList(tableTable));
+                    String finalUniqueKey = StringUtils.isEmpty(uniqueKey) ? generateDefaultUniqueKey(tableTable.getAppType()) : uniqueKey;
+                    LineageTableTableUniqueKeyRef ref = new LineageTableTableUniqueKeyRef();
+                    ref.setAppType(tableTable.getAppType());
+                    ref.setUniqueKey(finalUniqueKey);
+                    ref.setLineageTableTableId(tableTable.getId());
+                    lineageTableTableUniqueKeyRefDao.batchInsert(Arrays.asList(ref));
+                }
+            }
+        }else {
+            //数据插入后，id会更新
+            lineageTableTableDao.batchInsertTableTable(tableTables);
+            List<String> keys = tableTables.stream().map(tt -> tt.getTableLineageKey()).collect(Collectors.toList());
+            tableTables = getTableTablesByTableLineageKeys(tableTables.get(0).getAppType(), keys);
+            //如果uniqueKey不为空，需要删除ref表中相同uniqueKey的数据，再插入该批数据。
+            if (StringUtils.isNotEmpty(uniqueKey)) {
+                lineageTableTableUniqueKeyRefDao.deleteByUniqueKey(tableTables.get(0).getAppType(), uniqueKey);
+            }
+            //插入新的ref
+            String finalUniqueKey = StringUtils.isEmpty(uniqueKey) ? generateDefaultUniqueKey(tableTables.get(0).getAppType()) : uniqueKey;
+            List<LineageTableTableUniqueKeyRef> refList = tableTables.stream().map(tt -> {
+                LineageTableTableUniqueKeyRef ref = new LineageTableTableUniqueKeyRef();
+                ref.setAppType(tt.getAppType());
+                ref.setUniqueKey(finalUniqueKey);
+                ref.setLineageTableTableId(tt.getId());
+                return ref;
+            }).collect(Collectors.toList());
+            lineageTableTableUniqueKeyRefDao.batchInsert(refList);
         }
-        //插入新的ref
-        String finalUniqueKey = StringUtils.isEmpty(uniqueKey)?generateDefaultUniqueKey(tableTables.get(0).getAppType()):uniqueKey;
-        List<LineageTableTableUniqueKeyRef> refList = tableTables.stream().map(tt -> {
-            LineageTableTableUniqueKeyRef ref = new LineageTableTableUniqueKeyRef();
-            ref.setAppType(tt.getAppType());
-            ref.setUniqueKey(finalUniqueKey);
-            ref.setLineageTableTableId(tt.getId());
-            return ref;
-        }).collect(Collectors.toList());
-        lineageTableTableUniqueKeyRefDao.batchInsert(refList);
+    }
+
+    /**
+     * 查询表血缘直接上游数量
+     * @param tableId
+     * @param appType
+     * @return
+     */
+    public Integer queryTableInputLineageDirectCount(Long tableId, Integer appType){
+
+        return lineageTableTableDao.queryTableResultCount(appType, tableId);
     }
 
     /**
      * 根据表和应用类型查询表级血缘上游
      */
-    public List<LineageTableTable> queryTableInputLineageByAppType(Long tableId, Integer appType,final Set<String> tableIdSet) {
+    public List<LineageTableTable> queryTableInputLineageByAppType(Long tableId, Integer appType, final Set<String> tableIdSet, LevelAndCount lc) {
+        Integer level = lc.getLevelCount();
         List<LineageTableTable> res = Lists.newArrayList();
         List<LineageTableTable> lineageTableTables = lineageTableTableDao.queryTableResultList(appType, tableId);
+
         lineageTableTables = lineageTableTables.stream().filter(tt-> !tableIdSet.contains(tt.getInputTableId() + "-" + tt.getResultTableId())).collect(Collectors.toList());
         for (LineageTableTable tt :lineageTableTables) {
             tableIdSet.add(tt.getInputTableId()+"-"+tt.getResultTableId());
         }
         res.addAll(lineageTableTables);
+        if(level<=1){
+            return res;
+        }
         if (CollectionUtils.isNotEmpty(lineageTableTables)){
+            level -- ;
+            lc.setLevelCount(level);
             for (LineageTableTable tt:lineageTableTables){
-                List<LineageTableTable> parentList = queryTableInputLineageByAppType(tt.getInputTableId(), appType,tableIdSet);
+                List<LineageTableTable> parentList = queryTableInputLineageByAppType(tt.getInputTableId(), appType,tableIdSet,lc);
                 res.addAll(parentList);
             }
         }
         return res;
     }
 
+
+    /**
+     * 查询表血缘直接下游数量
+     * @param tableId
+     * @param appType
+     * @return
+     */
+    public Integer queryTableResultLineageDirectCount(Long tableId, Integer appType){
+
+        return lineageTableTableDao.queryTableInputCount(appType, tableId);
+    }
+
     /**
      * 根据表和应用类型查询表级血缘下游
-     *
      * @param tableId
      * @param appType
      */
-    public List<LineageTableTable> queryTableResultLineageByAppType(Long tableId, Integer appType,final Set<String> tableIdSet) {
+    public List<LineageTableTable> queryTableResultLineageByAppType(Long tableId, Integer appType,final Set<String> tableIdSet,LevelAndCount lv) {
         List<LineageTableTable> res = Lists.newArrayList();
+        Integer level = lv.getLevelCount();
         List<LineageTableTable> lineageTableTables = lineageTableTableDao.queryTableInputList(appType, tableId);
         lineageTableTables = lineageTableTables.stream().filter(tt-> !tableIdSet.contains(tt.getInputTableId() + "-" + tt.getResultTableId())).collect(Collectors.toList());
         for (LineageTableTable tt :lineageTableTables) {
             tableIdSet.add(tt.getInputTableId()+"-"+tt.getResultTableId());
         }
         res.addAll(lineageTableTables);
+        if(level<=1){
+            return res;
+        }
         if (CollectionUtils.isNotEmpty(lineageTableTables)){
+            level --;
+            lv.setLevelCount(level);
             for (LineageTableTable tt:lineageTableTables){
-                List<LineageTableTable> parentList = queryTableResultLineageByAppType(tt.getResultTableId(), appType,tableIdSet);
+                List<LineageTableTable> parentList = queryTableResultLineageByAppType(tt.getResultTableId(), appType,tableIdSet,lv);
                 res.addAll(parentList);
             }
         }
@@ -120,9 +172,11 @@ public class LineageTableTableService {
     /**
      * 查询表血缘关系
      */
-    public List<LineageTableTable> queryTableTableByTableAndAppId(Integer appType, Long tableId) {
-        List<LineageTableTable> inputLineages = queryTableInputLineageByAppType(tableId, appType,new HashSet<>());
-        List<LineageTableTable> resultLineages = queryTableResultLineageByAppType(tableId, appType,new HashSet<>());
+    public List<LineageTableTable> queryTableTableByTableAndAppId(Integer appType, Long tableId,Integer level) {
+        LevelAndCount levelAndCount = new LevelAndCount();
+        levelAndCount.setLevelCount(level);
+        List<LineageTableTable> inputLineages = queryTableInputLineageByAppType(tableId, appType,new HashSet<>(),levelAndCount);
+        List<LineageTableTable> resultLineages = queryTableResultLineageByAppType(tableId, appType,new HashSet<>(),levelAndCount);
         Set<LineageTableTable> lineageSet = Sets.newHashSet();
         lineageSet.addAll(inputLineages);
         lineageSet.addAll(resultLineages);
@@ -201,5 +255,21 @@ public class LineageTableTableService {
 
     private List<LineageTableTable> getTableTablesByTableLineageKeys(Integer appType,List<String> tableLineageKeys){
         return lineageTableTableDao.queryByTableLineageKeys(appType, tableLineageKeys);
+    }
+
+
+    public List<LineageTableTable> queryTableLineageByTaskIdAndAppType(Long taskId, Integer appType) {
+
+        return lineageTableTableDao.queryTableLineageByTaskIdAndAppType(taskId, appType);
+    }
+
+
+    /**
+     * 根据任务id和appType删除血缘
+     * @param deleteLineageParam
+     */
+    public void deleteLineageByTaskIdAndAppType(DeleteLineageParam deleteLineageParam) {
+
+        lineageTableTableUniqueKeyRefDao.deleteByUniqueKey(deleteLineageParam.getAppType(),String.valueOf(deleteLineageParam.getTaskId()));
     }
 }

@@ -2,27 +2,29 @@ package com.dtstack.lineage.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.Component;
-import com.dtstack.engine.api.domain.ComponentConfig;
-import com.dtstack.engine.api.domain.LineageDataSetInfo;
-import com.dtstack.engine.api.domain.LineageDataSource;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.api.pojo.lineage.Table;
 import com.dtstack.engine.common.client.ClientCache;
+import com.dtstack.engine.common.client.ClientOperator;
 import com.dtstack.engine.common.client.IClient;
 import com.dtstack.engine.common.enums.EComponentType;
+import com.dtstack.engine.common.enums.EComponentTypeDataSourceType;
 import com.dtstack.engine.common.exception.ClientAccessException;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.ComponentConfigUtils;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.ComponentConfigDao;
 import com.dtstack.engine.dao.ComponentDao;
+import com.dtstack.engine.dao.KerberosDao;
 import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.lineage.dao.LineageDataSetDao;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,6 +39,8 @@ import java.util.*;
 @Service
 public class LineageDataSetInfoService {
 
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LineageDataSetInfoService.class);
 
     @Autowired
     private LineageDataSourceService sourceService;
@@ -53,6 +57,12 @@ public class LineageDataSetInfoService {
 
     @Autowired
     private ComponentConfigDao componentConfigDao;
+
+    @Autowired
+    private KerberosDao kerberosDao;
+
+    @Autowired
+    private ClientOperator clientOperator;
 
     /**
      * @author zyd
@@ -122,11 +132,35 @@ public class LineageDataSetInfoService {
             if(!"-1".equals(kerberosConf)) {
                 kerberosJsonObj = JSON.parseObject(kerberosConf);
             }
-            JSONObject sftpConf = getJsonObject(dataSource,EComponentType.SFTP.getTypeCode());
+            Long dtUicTenantId = dataSource.getDtUicTenantId();
+            Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
+            if(dataSource.getOpenKerberos() == 1 && dataSource.getAppType().equals(AppType.RDOS.getType())){
+                //离线开启了kerberos，但是没有存kerberos配置
+                Component one = componentDao.getByTenantIdComponentType(tenantId, dataSource.getSourceType());
+                if(null == one){
+                    throw new RdosDefineException("do not have this component");
+                }
+                //根据engineId和组件类型获取kerberos配置
+                EComponentTypeDataSourceType code = EComponentTypeDataSourceType.getByCode(dataSource.getSourceType());
+                if(null == code){
+                    throw new RdosDefineException("this type dataSource do not have component");
+                }
+                KerberosConfig kerberosConfig = kerberosDao.getByEngineIdAndComponentType(one.getEngineId(),code.getComponentType().getTypeCode());
+                if(null == kerberosConfig){
+                    LOGGER.error("do not have kerberos config,dtUicTenantId:{},engineId:{},sourceType:{}",dtUicTenantId,one.getEngineId(),dataSource.getSourceType());
+                    throw new RdosDefineException("do not have kerberos config");
+                }
+                kerberosJsonObj.put("remoteDir",kerberosConfig.getRemotePath());
+                kerberosJsonObj.put("principalFile",kerberosConfig.getPrincipal());
+                kerberosJsonObj.put("krbName",kerberosConfig.getKrbName());
+                kerberosJsonObj.put("principal",kerberosConfig.getPrincipals());
+            }
+
+            JSONObject sftpConf = getJsonObject(dataSource,EComponentType.SFTP.getTypeCode(),tenantId);
             if(dataSource.getOpenKerberos()==1) {
                 //开启kerberos
                 //获取yarnConf
-                JSONObject yarnConf = getJsonObject(dataSource,EComponentType.YARN.getTypeCode());
+                JSONObject yarnConf = getJsonObject(dataSource,EComponentType.YARN.getTypeCode(),tenantId);
                 jsonObject.put("yarnConf",yarnConf);
                 jsonObject.put("sftpConf", sftpConf);
                 jsonObject.put("remoteDir",kerberosJsonObj.get("remoteDir"));
@@ -136,11 +170,9 @@ public class LineageDataSetInfoService {
                 jsonObject.put("kerberosFileTimestamp",kerberosJsonObj.get("kerberosFileTimestamp"));
                 jsonObject.put("openKerberos",true);
             }
-            if(dataSource.getAppType() == AppType.DATAASSETS.getType()){
-                //资产类型需要在pluginInfo中补充typeName
-                String typeName = DataSourceType.getEngineType(DataSourceType.getSourceType(dataSource.getSourceType()));
-                jsonObject.put("typeName",typeName);
-            }
+            //需要在pluginInfo中补充typeName
+            String typeName = DataSourceType.getEngineType(DataSourceType.getSourceType(dataSource.getSourceType()));
+            jsonObject.put("typeName",typeName);
             String pluginInfo = PublicUtil.objToString(jsonObject);
             iClient = getClient(dataSource, clientCache, pluginInfo);
             return getAllColumns(dataSetInfo, iClient);
@@ -157,15 +189,13 @@ public class LineageDataSetInfoService {
      * @param typeCode:
      * @return: com.alibaba.fastjson.JSONObject
      **/
-    private JSONObject getJsonObject(LineageDataSource dataSource,Integer typeCode) {
+    private JSONObject getJsonObject(LineageDataSource dataSource,Integer typeCode,Long tenantId) {
         //获取sftp配置
-        Long dtUicTenantId = dataSource.getDtUicTenantId();
-        Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
-        Integer componentId = componentDao.getIdByTenantIdComponentType(tenantId, typeCode);
-        if(null == componentId){
+        Component one = componentDao.getByTenantIdComponentType(tenantId, typeCode);
+        if(null == one){
             throw new RdosDefineException("该租户没有绑定集群");
         }
-        Component component = componentDao.getOne((long) componentId);
+        Component component = componentDao.getOne(one.getId());
         List<ComponentConfig> componentConfigs = componentConfigDao.listByComponentId(component.getId(), false);
         if(null == componentConfigs){
             throw new RdosDefineException("sftp配置信息为空");
@@ -243,4 +273,16 @@ public class LineageDataSetInfoService {
         return listHashMap;
     }
 
+    /**
+     * 根据表名和数据源信息修改表名
+     * @param oldTableName
+     * @param newTableName
+     * @param dataSource
+     */
+    public void updateTableNameByTableNameAndSourceId(String oldTableName,String newTableName,LineageDataSource dataSource) {
+
+        String oldTableKey = generateTableKey(dataSource.getId(), dataSource.getSchemaName(), oldTableName);
+        String newTableKey = generateTableKey(dataSource.getId(), dataSource.getSchemaName(), oldTableName);
+        lineageDataSetDao.updateTableNameByTableNameAndSourceId(newTableName,oldTableKey,newTableKey);
     }
+}

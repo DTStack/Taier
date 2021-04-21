@@ -1,7 +1,7 @@
 package com.dtstack.lineage.adapter;
 
 
-import com.dtstack.sql.client.domain.Column;
+import com.dtstack.sqlparser.common.client.domain.Column;
 
 /**
  * @author chener
