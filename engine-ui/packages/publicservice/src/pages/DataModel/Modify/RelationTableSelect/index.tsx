@@ -100,7 +100,6 @@ const RelationTableSelect = (props: IPropsRelationTableSelect) => {
         Message.error(message);
       }
     } catch (error) {
-      // TODO: notification
       Message.error(error.message);
     }
   };

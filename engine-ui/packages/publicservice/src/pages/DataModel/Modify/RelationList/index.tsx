@@ -13,7 +13,6 @@ import _ from 'lodash';
 import { relationListRemove } from './utils';
 import { API } from '@/services';
 import Message from 'pages/DataModel/components/Message';
-import { emit } from 'node:process';
 
 interface IPropsRelationList {
   updateTypeList: any[];
@@ -132,7 +131,7 @@ const RelationList = (props: IPropsRelationList) => {
           schema: item.schema,
           tableName: item.tableName,
         }));
-        // TODO:删除关联表后更新列表
+        // 删除关联表后更新列表
         combineColumnList(params);
       },
       okText: '删除',
@@ -208,6 +207,7 @@ const RelationList = (props: IPropsRelationList) => {
         tableAlias: undefined,
       });
     }
+    // 关联表去重后，push到tables中
     tables.push(
       ..._.uniqBy(relationList, (item) => item.schema + item.table).map(
         (table) => ({
@@ -234,7 +234,7 @@ const RelationList = (props: IPropsRelationList) => {
                 data.id = identifyJoinList();
                 next = [...relationList, data];
                 window.localStorage.setItem('refreshColumns', 'true');
-                // TODO:拿到数据后请求更新columnList
+                // 拿到数据后请求更新columnList
                 const params = tableListGen(
                   modelDetail.dsId,
                   {
