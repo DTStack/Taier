@@ -93,7 +93,7 @@ public class LineageService {
         try {
             ParseResult parseResult = null;
             try {
-                parseResult = sqlParserClientOperator.parseSql("sqlParser",sql, defaultDb, new HashMap<>(),sourceType2TableType.getTableType());
+                parseResult = sqlParserClient.parseSql(sql, defaultDb, new HashMap<>(),sourceType2TableType.getTableType());
             } catch (Exception e) {
                 logger.error("解析sql异常:{}",e);
                 throw new RdosDefineException("sql解析异常，请检查语法");
@@ -235,46 +235,55 @@ public class LineageService {
                 logger.error("解析sql异常:{}",e);
                 throw new RdosDefineException("sql解析异常，请检查语法");
             }
-            Map<String, LineageDataSetInfo> tableRef = new HashMap<>();
-            String tableKey = "%s.%s";
-            LineageDataSource defaultDataSource = dataSourceMap.get(defaultDb);
-            List<com.dtstack.engine.api.pojo.lineage.Table> tableList = tables.stream().map(TableAdapter::sqlTable2ApiTable).collect(Collectors.toList());
-            Map<String, List<Column>> columns = lineageDataSetInfoService.getColumnsBySourceIdAndListTable(defaultDataSource.getId(), tableList);
-            for (int i = 0; i < tables.size(); i++) {
-                Table ta = tables.get(i);
-                LineageDataSetInfo dataSet = null;
-                if(AppType.RDOS.getType() !=appType) {
-                    dataSet = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), ta.getDb(), ta.getName(), ta.getDb());
-                }else{
-                    //离线
-                    String db = ta.getDb();
-                    LineageDataSource dataSource = dataSourceMap.get(db);
-                    if(null!= dataSource) {
-                        dataSet = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSource.getId(), ta.getDb(), ta.getName(), ta.getDb());
-                    }else{
-                        //该db对应的数据源不存在，需要添加数据源
-                        long id = addDataSource(defaultDb, defaultDataSource, db);
-                        dataSet = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(id,ta.getDb(),ta.getName(),ta.getDb());
-                    }
-                }
-                tableRef.put(String.format(tableKey, ta.getDb(), ta.getName()), dataSet);
-            }
-            List<TableLineage> tableLineages = parseResult.getTableLineages();
-            if (CollectionUtils.isNotEmpty(tableLineages)) {
-                List<LineageTableTable> lineageTableTables = tableLineages.stream().map(l -> {
-                    LineageTableTable tableTable = TableLineageAdapter.sqlTableLineage2DbTableLineage(l, tableRef, LineageOriginType.SQL_PARSE);
-                    tableTable.setDtUicTenantId(dtUicTenantId);
-                    tableTable.setAppType(appType);
-                    return tableTable;
-                }).collect(Collectors.toList());
-                //如果uniqueKey不为空，则删除相同uniqueKey的血缘
-                lineageTableTableService.saveTableLineage(null,lineageTableTables,unionKey);
-            }
+            Map<String, LineageDataSetInfo> tableRef = getTableRef(appType, defaultDb, lineageDataSource, dataSourceMap, tables);
+            saveTableLineage(dtUicTenantId, appType, unionKey, parseResult, tableRef);
 
         } catch (Exception e) {
             logger.error("解析保存表血缘失败：{}", e);
             throw new RdosDefineException("解析保存表血缘失败");
         }
+    }
+
+    public void saveTableLineage(Long dtUicTenantId, Integer appType, String unionKey, ParseResult parseResult, Map<String, LineageDataSetInfo> tableRef) {
+        List<TableLineage> tableLineages = parseResult.getTableLineages();
+        if (CollectionUtils.isNotEmpty(tableLineages)) {
+            List<LineageTableTable> lineageTableTables = tableLineages.stream().map(l -> {
+                LineageTableTable tableTable = TableLineageAdapter.sqlTableLineage2DbTableLineage(l, tableRef, LineageOriginType.SQL_PARSE);
+                tableTable.setDtUicTenantId(dtUicTenantId);
+                tableTable.setAppType(appType);
+                return tableTable;
+            }).collect(Collectors.toList());
+            //如果uniqueKey不为空，则删除相同uniqueKey的血缘
+            lineageTableTableService.saveTableLineage(null,lineageTableTables, unionKey);
+        }
+    }
+
+    public Map<String, LineageDataSetInfo> getTableRef(Integer appType, String defaultDb, LineageDataSource lineageDataSource, Map<String, LineageDataSource> dataSourceMap, List<Table> tables) {
+        Map<String, LineageDataSetInfo> tableRef = new HashMap<>();
+        String tableKey = "%s.%s";
+        LineageDataSource defaultDataSource = dataSourceMap.get(defaultDb);
+        List<com.dtstack.engine.api.pojo.lineage.Table> tableList = tables.stream().map(TableAdapter::sqlTable2ApiTable).collect(Collectors.toList());
+        Map<String, List<Column>> columns = lineageDataSetInfoService.getColumnsBySourceIdAndListTable(defaultDataSource.getId(), tableList);
+        for (int i = 0; i < tables.size(); i++) {
+            Table ta = tables.get(i);
+            LineageDataSetInfo dataSet = null;
+            if(!AppType.RDOS.getType().equals(appType)) {
+                dataSet = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), ta.getDb(), ta.getName(), ta.getDb());
+            }else{
+                //离线
+                String db = ta.getDb();
+                LineageDataSource dataSource = dataSourceMap.get(db);
+                if(null!= dataSource) {
+                    dataSet = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSource.getId(), ta.getDb(), ta.getName(), ta.getDb());
+                }else{
+                    //该db对应的数据源不存在，需要添加数据源
+                    long id = addDataSource(defaultDb, defaultDataSource, db);
+                    dataSet = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(id,ta.getDb(),ta.getName(),ta.getDb());
+                }
+            }
+            tableRef.put(String.format(tableKey, ta.getDb(), ta.getName()), dataSet);
+        }
+        return tableRef;
     }
 
     private long addDataSource(String defaultDb, LineageDataSource defaultDataSource, String db) {
@@ -474,7 +483,7 @@ public class LineageService {
         }
     }
 
-    private Boolean handleDropTableAndAlterRename(Map<String, LineageDataSource> dataSourceMap, ParseResult parseResult) {
+    public Boolean handleDropTableAndAlterRename(Map<String, LineageDataSource> dataSourceMap, ParseResult parseResult) {
         SqlType sqlType = parseResult.getSqlType();
         if(sqlType.getType().equals(com.dtstack.engine.api.vo.lineage.SqlType.DROP.getType())){
             //drop表操作，需要删除对应的血缘

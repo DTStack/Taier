@@ -26,6 +26,7 @@ import com.dtstack.schedule.common.enums.Sort;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -34,10 +35,8 @@ import org.springframework.transaction.annotation.Transactional;
 import scala.App;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * @author chener
@@ -557,6 +556,11 @@ public class LineageDataSourceService {
      **/
     public void deleteDataSourceByProjectId(DeleteDataSourceParam deleteDataSourceParam) {
 
-        lineageDataSourceDao.deleteDataSourceByProjectId(deleteDataSourceParam);
+        //删除的必定是最近一个小时内添加的数据源
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.HOUR,-1);
+        String time = sdf.format(calendar.getTime());
+        lineageDataSourceDao.deleteDataSourceByProjectId(deleteDataSourceParam,time);
     }
 }

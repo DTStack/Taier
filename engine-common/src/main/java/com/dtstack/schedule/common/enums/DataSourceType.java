@@ -183,6 +183,7 @@ public enum DataSourceType {
             case MySQL:
                 return "mysql";
             case HIVE:
+            case SPARKTHRIFT2_1:
                 return "hive2";
             case HIVE1X:
                 return "hive";

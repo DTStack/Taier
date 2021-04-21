@@ -6,6 +6,7 @@ import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.api.pojo.lineage.Table;
 import com.dtstack.engine.common.client.ClientCache;
+import com.dtstack.engine.common.client.ClientOperator;
 import com.dtstack.engine.common.client.IClient;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EComponentTypeDataSourceType;
@@ -59,6 +60,9 @@ public class LineageDataSetInfoService {
 
     @Autowired
     private KerberosDao kerberosDao;
+
+    @Autowired
+    private ClientOperator clientOperator;
 
     /**
      * @author zyd

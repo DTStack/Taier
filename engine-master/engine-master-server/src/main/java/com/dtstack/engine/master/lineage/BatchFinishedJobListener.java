@@ -57,6 +57,7 @@ public class BatchFinishedJobListener extends SqlJobFinishedListener {
         String defaultDb = "";
         if (matcher.matches()){
             defaultDb = matcher.group("db");
+            sqls.remove(0);
         }else {
             logger.info("sql不正确{}",useDbSql);
             return;

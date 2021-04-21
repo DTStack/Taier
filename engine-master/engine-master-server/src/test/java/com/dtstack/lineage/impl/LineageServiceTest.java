@@ -1,13 +1,9 @@
 package com.dtstack.lineage.impl;
 
-import com.dtstack.engine.api.domain.LineageColumnColumn;
-import com.dtstack.engine.api.domain.LineageDataSetInfo;
-import com.dtstack.engine.api.domain.LineageDataSource;
-import com.dtstack.engine.api.domain.LineageTableTable;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.enums.LineageOriginType;
 import com.dtstack.engine.api.pojo.LevelAndCount;
 import com.dtstack.engine.api.pojo.lineage.Column;
-import com.dtstack.engine.api.pojo.lineage.Table;
 import com.dtstack.engine.api.vo.lineage.ColumnLineageParseInfo;
 import com.dtstack.engine.api.vo.lineage.LineageColumnColumnVO;
 import com.dtstack.engine.api.vo.lineage.LineageDataSourceVO;
@@ -17,22 +13,26 @@ import com.dtstack.engine.api.vo.lineage.SqlParseInfo;
 import com.dtstack.engine.api.vo.lineage.TableLineageParseInfo;
 import com.dtstack.engine.api.vo.lineage.param.*;
 import com.dtstack.engine.common.util.MD5Util;
-import com.dtstack.engine.dao.TestLineageColumnColumnDao;
-import com.dtstack.engine.dao.TestLineageDataSetInfoDao;
-import com.dtstack.engine.dao.TestLineageDataSourceDao;
-import com.dtstack.engine.dao.TestLineageTableTableDao;
+import com.dtstack.engine.dao.*;
+import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.utils.Template;
+import com.dtstack.lineage.dao.LineageDataSetDao;
 import com.dtstack.lineage.dao.LineageDataSourceDao;
 import com.dtstack.lineage.util.SqlParserClientOperator;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.sqlparser.common.client.ISqlParserClient;
+import com.dtstack.sqlparser.common.client.domain.AlterResult;
 import com.dtstack.sqlparser.common.client.domain.ParseResult;
+import com.dtstack.sqlparser.common.client.domain.Table;
+import com.dtstack.sqlparser.common.client.domain.TableLineage;
 import com.dtstack.sqlparser.common.client.enums.ETableType;
 import com.dtstack.sqlparser.common.client.enums.SqlType;
+import com.dtstack.sqlparser.common.client.enums.TableOperateEnum;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.dtstack.engine.master.AbstractTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -78,7 +78,22 @@ public class LineageServiceTest extends AbstractTest {
     private SqlParserClientOperator clientOperator;
 
     @MockBean
-    private LineageColumnColumnService lineageColumnColumnService;
+    private LineageDataSetInfoService lineageDataSetInfoService;
+
+    @Autowired
+    private LineageDataSourceService dataSourceService;
+
+    @Autowired
+    private TenantDao tenantDao;
+
+    @Autowired
+    private LineageDataSetDao lineageDataSetDao;
+
+    @Autowired
+    private ComponentDao componentDao;
+
+    @Autowired
+    private ComponentConfigDao componentConfigDao;
 
 
 
@@ -126,8 +141,15 @@ public class LineageServiceTest extends AbstractTest {
         when(clientOperator.getClient(any())).thenReturn(iSqlParserClient);
         ParseResult parseResult = new ParseResult();
         parseResult.setCurrentDb("dev");
-        when(clientOperator.parseSql(any(),any(),any(),any(),any())).thenReturn(parseResult);
-        ReflectionTestUtils.setField(lineageService,"sqlParserClientOperator",clientOperator);
+        Map<String,List<Column>> mapColumn = new HashMap<>();
+        Column column = new Column();
+        column.setName("id");
+        when(lineageDataSetInfoService.getColumnsBySourceIdAndListTable(any(),any())).thenReturn(mapColumn);
+        LineageDataSetInfo dataSetInfo = new LineageDataSetInfo();
+        dataSetInfo.setId(1L);
+        dataSetInfo.setAppType(1);
+        when(lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(any(),any(),any(),any())).thenReturn(dataSetInfo);
+
     }
 
 
@@ -153,12 +175,99 @@ public class LineageServiceTest extends AbstractTest {
     public void testParseAndSaveTableLineage() {
         LineageDataSource defaultHiveDataSourceTemplate = Template.getDefaultHiveDataSourceTemplate();
         //测试资产
-      //  lineageService.parseAndSaveTableLineage(1L, AppType.DATAASSETS.getType(), "insert into test select * from test1", "dev", defaultHiveDataSourceTemplate.getId(), defaultHiveDataSourceTemplate.getSourceType(), "11");
+        lineageService.parseAndSaveTableLineage(1L, AppType.DATAASSETS.getType(), "insert into test select * from test1", "dev", defaultHiveDataSourceTemplate.getId(), defaultHiveDataSourceTemplate.getSourceType(), "11");
         //测试离线
         LineageDataSource rdosHiveDataSourceTemplate = Template.getRdostHiveDataSourceTemplate();
         lineageService.parseAndSaveTableLineage(1L,AppType.RDOS.getType(),"insert into test_beihai select * from test2","beihai",rdosHiveDataSourceTemplate.getId(),rdosHiveDataSourceTemplate.getSourceType(),"1125");
 
     }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testGetTableRef() {
+
+
+        LineageDataSource sourceTemplate = DataCollection.getData().getRdostHiveDataSourceTemplate();
+        Map<String,LineageDataSource> map = new HashMap<>();
+        List<Table> tables = new ArrayList<>();
+        Table table = new Table();
+        table.setDb("beihai");
+        table.setName("table1");
+        table.setOperate(TableOperateEnum.CREATE);
+        tables.add(table);
+        map.put("beihai",sourceTemplate);
+        Map<String, LineageDataSetInfo> tableRef = lineageService.getTableRef(1, "beihai", sourceTemplate, map, tables);
+        Assert.assertNotNull(tableRef);
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testSaveTableLineage() {
+
+        Tenant tenant = Template.getTenantTemplate();
+        List<TableLineage> tableLineages = new ArrayList<>();
+        TableLineage tableLineage = new TableLineage();
+        tableLineage.setFromDb("beihai");
+        tableLineage.setFromTable("t1");
+        tableLineage.setToDb("beihai");
+        tableLineage.setToTable("t2");
+        tableLineages.add(tableLineage);
+        ParseResult parseResult = new ParseResult();
+        parseResult.setTableLineages(tableLineages);
+        LineageDataSetInfo dataSetInfo1 = new LineageDataSetInfo();
+        dataSetInfo1.setDtUicTenantId(tenant.getDtUicTenantId());
+        dataSetInfo1.setId(1L);
+        dataSetInfo1.setTableKey("beihai.t1");
+        LineageDataSetInfo dataSetInfo2 = new LineageDataSetInfo();
+        dataSetInfo2.setId(2L);
+        dataSetInfo2.setTableKey("beihai.t2");
+        Map<String,LineageDataSetInfo> tableRef = new HashMap<>();
+        tableRef.put("beihai.t1",dataSetInfo1);
+        tableRef.put("beihai.t2",dataSetInfo2);
+        lineageService.saveTableLineage(tenant.getDtUicTenantId(),1,"111",parseResult,tableRef);
+
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testHandleDropTableAndAlterRename() {
+        LineageDataSource sourceTemplate = Template.getRdostHiveDataSourceTemplate();
+        Map<String,LineageDataSource> dataSourceMap = new HashMap<>();
+        dataSourceMap.put("beihai",sourceTemplate);
+        ParseResult parseResult = new ParseResult();
+        parseResult.setSqlType(SqlType.DROP);
+        Table table = new Table();
+        table.setDb("beihai");
+        table.setName("t1");
+        parseResult.setMainTable(table);
+        Boolean flag = lineageService.handleDropTableAndAlterRename(dataSourceMap, parseResult);
+        Assert.assertTrue(flag);
+
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testHandleDropTableAndAlterRename2() {
+        LineageDataSource sourceTemplate = Template.getRdostHiveDataSourceTemplate();
+        Map<String,LineageDataSource> dataSourceMap = new HashMap<>();
+        dataSourceMap.put("beihai",sourceTemplate);
+        ParseResult parseResult = new ParseResult();
+        parseResult.setSqlType(SqlType.ALTER);
+        AlterResult alterResult = new AlterResult();
+        alterResult.setAlterType(TableOperateEnum.ALTERTABLE_RENAME);
+        alterResult.setOldDB("beihai");
+        alterResult.setOldTableName("t1");
+        alterResult.setNewTableName("t2");
+        parseResult.setAlterResult(alterResult);
+        Boolean flag = lineageService.handleDropTableAndAlterRename(dataSourceMap, parseResult);
+        Assert.assertTrue(flag);
+
+    }
+
 
     @Test
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
@@ -630,7 +739,7 @@ public class LineageServiceTest extends AbstractTest {
     public void testParserTables(){
 
         String sql = "select c.id,c.name from chener c left join tengzhen t on c.id = t.id";
-        List<Table> tables = lineageService.parseTables(sql, "dev", 31);
+        List<com.dtstack.engine.api.pojo.lineage.Table> tables = lineageService.parseTables(sql, "dev", 31);
         Assert.assertEquals(0,tables.size());
     }
 

@@ -4,6 +4,7 @@ import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.engine.api.dto.DataSourceDTO;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.vo.lineage.param.DeleteDataSourceParam;
 import com.dtstack.engine.common.enums.SourceType;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
@@ -208,6 +209,20 @@ public class LineageDataSourceServiceTest extends AbstractTest {
     public void testSynIdeDataSourceList(){
 
         dataSourceService.synIdeDataSourceList();
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testDeleteDataSourceByProjectId(){
+
+        DeleteDataSourceParam sourceParam = new DeleteDataSourceParam();
+        sourceParam.setProjectId(1L);
+        sourceParam.setAppType(1);
+        Tenant tenant = DataCollection.getData().getTenant();
+        DataSourceDTO dataSourceDTO = getDataSourceDTO(tenant.getDtUicTenantId());
+        Long sourceId = dataSourceService.addOrUpdateDataSource(dataSourceDTO);
+        dataSourceService.deleteDataSourceByProjectId(sourceParam);
     }
 
     private DataSourceDTO getDataSourceDTO(Long tenantId) {

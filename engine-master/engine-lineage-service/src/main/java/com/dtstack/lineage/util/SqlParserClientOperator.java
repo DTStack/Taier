@@ -51,26 +51,6 @@ public class SqlParserClientOperator {
 
 
 
-    public Set<String> parseFunction(String name,String sql) throws Exception {
-        ISqlParserClient client = getClient(name);
-        return client.parseFunction(sql);
-    }
-
-    public List<Table> parseTables(String name,String defaultDb, String sql, ETableType eTableType) throws Exception {
-        ISqlParserClient client = getClient(name);
-        return client.parseTables(defaultDb,sql,eTableType);
-    }
-
-    public ParseResult parseTableLineage(String name,String defaultDb, String sql, ETableType eTableType) throws Exception {
-        ISqlParserClient client = getClient(name);
-        return client.parseTableLineage(defaultDb,sql,eTableType);
-    }
-
-    public ParseResult parseSql(String name, String sql, String defaultDb, Map<String, List<Column>> map, ETableType eTableType) throws Exception {
-        ISqlParserClient client = getClient(name);
-        return client.parseSql(sql, defaultDb, map, eTableType);
-
-    }
 
 
     private SqlParserClientOperator() {

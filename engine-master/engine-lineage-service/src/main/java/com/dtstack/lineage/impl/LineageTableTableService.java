@@ -1,12 +1,10 @@
 package com.dtstack.lineage.impl;
 
-import com.dtstack.engine.api.domain.LineageColumnColumn;
-import com.dtstack.engine.api.domain.LineageDataSetInfo;
+
 import com.dtstack.engine.api.domain.LineageTableTable;
 import com.dtstack.engine.api.domain.LineageTableTableUniqueKeyRef;
 import com.dtstack.engine.api.enums.LineageOriginType;
 import com.dtstack.engine.api.pojo.LevelAndCount;
-import com.dtstack.engine.api.vo.lineage.LineageTableTableVO;
 import com.dtstack.engine.api.vo.lineage.param.DeleteLineageParam;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -15,7 +13,6 @@ import com.dtstack.lineage.dao.LineageTableTableDao;
 import com.dtstack.schedule.common.enums.AppType;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.agrona.collections.ArrayListUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -119,5 +119,5 @@ public interface LineageDataSourceDao {
      * @param deleteDataSourceParam:
      * @return: void
      **/
-    void deleteDataSourceByProjectId(DeleteDataSourceParam deleteDataSourceParam);
+    void deleteDataSourceByProjectId(@Param("param") DeleteDataSourceParam deleteDataSourceParam,@Param("time") String time);
 }

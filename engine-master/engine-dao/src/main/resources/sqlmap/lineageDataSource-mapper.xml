@@ -221,12 +221,13 @@
     </update>
 
 
-    <update id="deleteDataSourceByProjectId" parameterType="com.dtstack.engine.api.vo.lineage.param.DeleteDataSourceParam">
+    <delete id="deleteDataSourceByProjectId" >
 
-        update
+        delete from
         lineage_data_source
-        set is_deleted = 1
-        where project_id = #{projectId} and #{appType}
-    </update>
+        where project_id = #{param.projectId}
+        and app_type =  #{param.appType}
+        and gmt_create >= #{time}
+    </delete>
 
 </mapper>
