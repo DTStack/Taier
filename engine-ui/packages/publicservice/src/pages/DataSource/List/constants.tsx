@@ -86,7 +86,12 @@ const columns = (props: any) => {
       filterIcon: () => (
         <Icon
           component={IconFilter}
-          style={{ cursor: 'pointer', position: 'relative', width: 16 }}
+          style={{
+            cursor: 'pointer',
+            position: 'relative',
+            width: 16,
+            marginLeft: 4,
+          }}
         />
       ),
     },
@@ -125,6 +130,7 @@ const columns = (props: any) => {
             {!record.isMeta && record.isImport !== 1 ? (
               <span className="data-view">
                 <Popconfirm
+                  overlayClassName="pop-confirm"
                   title="是否删除此条记录？"
                   icon={<span></span>}
                   onConfirm={() => toDelete(record)}
