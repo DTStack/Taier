@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.datasource.BatchDataSourceDao">
+
+    <sql id="select_content_fragment">
+            id,data_name,data_desc,data_json,type,active,link_state,gmt_create,gmt_modified,tenant_id,project_id,create_user_id,modify_user_id,is_deleted,is_default
+        </sql>
+
+    <sql id="select_where_fragment">
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            <if test="model.id != null and model.id > 0">
+                AND id = #{model.id}
+            </if>
+            <if test="model.dataName != null">
+                AND data_name = #{model.dataName}
+            </if>
+            <if test="model.dataDesc != null">
+                AND data_desc = #{model.dataDesc}
+            </if>
+            <if test="model.dataJson != null">
+                AND data_json = #{model.dataJson}
+            </if>
+            <if test="model.type != null">
+                AND type = #{model.type}
+            </if>
+            <if test="model.active != null">
+                AND active = #{model.active}
+            </if>
+            <if test="model.linkState != null">
+                AND link_state = #{model.linkState}
+            </if>
+            <if test="model.gmtCreate != null">
+                AND gmt_create = #{model.gmtCreate}
+            </if>
+            <if test="model.gmtModified != null">
+                AND gmt_modified = #{model.gmtModified}
+            </if>
+            <if test="model.tenantId != null">
+                AND tenant_id = #{model.tenantId}
+            </if>
+            <if test="model.projectId != null">
+                AND project_id = #{model.projectId}
+            </if>
+            <if test="model.createUserId != null">
+                AND create_user_id = #{model.createUserId}
+            </if>
+            <if test="model.modifyUserId != null">
+                AND modify_user_id = #{model.modifyUserId}
+            </if>
+            <if test="model.isDeleted != null">
+                AND is_deleted = #{model.isDeleted}
+            </if>
+            <if test="model.fuzzName != null">
+                AND (data_name like concat('%',#{model.fuzzName},'%') or data_desc like
+                concat('%',#{model.fuzzName},'%'))
+            </if>
+        </trim>
+    </sql>
+
+    <sql id="update_fragment">
+        <set>
+            <if test="id != null">
+                id = #{id},
+            </if>
+            <if test="dataName != null">
+                data_name = #{dataName},
+            </if>
+            <if test="dataDesc != null">
+                data_desc = #{dataDesc},
+            </if>
+            <if test="dataJson != null">
+                data_json = #{dataJson},
+            </if>
+            <if test="type != null">
+                type = #{type},
+            </if>
+            <if test="active != null">
+                active = #{active},
+            </if>
+            <if test="linkState != null">
+                link_state = #{linkState},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified},
+            </if>
+            <if test="tenantId != null">
+                tenant_id = #{tenantId},
+            </if>
+            <if test="projectId != null">
+                project_id = #{projectId},
+            </if>
+            <if test="createUserId != null">
+                create_user_id = #{createUserId},
+            </if>
+            <if test="modifyUserId != null">
+                modify_user_id = #{modifyUserId},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted},
+            </if>
+        </set>
+    </sql>
+
+    <select id="getOne" resultType="BatchDataSource">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_data_source
+        WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <delete id="deleteById">
+        UPDATE rdos_batch_data_source
+        SET is_deleted = 1, gmt_modified = #{gmtModified}, modify_user_id = #{modifyUserId}
+        WHERE id = #{sourceId} AND is_deleted = 0 AND project_id = #{projectId}
+    </delete>
+
+    <select id="listByProjectId" resultType="BatchDataSource">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_data_source
+        WHERE project_id = #{projectId}
+        AND is_deleted = 0
+    </select>
+
+    <insert id="insert" parameterType="BatchDataSource" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO rdos_batch_data_source
+        (data_name,data_desc,data_json,type,active,link_state,gmt_create,gmt_modified,tenant_id,project_id,create_user_id,modify_user_id,is_deleted,is_default)
+        VALUES
+        (#{dataName},#{dataDesc},#{dataJson},#{type},#{active},#{linkState},#{gmtCreate},#{gmtModified},#{tenantId},#{projectId},#{createUserId},#{modifyUserId},#{isDeleted},#{isDefault})
+    </insert>
+
+    <update id="update" parameterType="BatchDataSource">
+        UPDATE
+        rdos_batch_data_source
+        <include refid="update_fragment"/>
+        WHERE
+        id = #{id} AND is_deleted = 0
+    </update>
+
+    <select id="generalQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="BatchDataSource">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_data_source
+        <include refid="select_where_fragment"/>
+        <if test="orderBy != null and sort != null">
+            order by ${orderBy} ${sort}
+        </if>
+        <if test="orderBy != null and sort == null">
+            order by ${orderBy} desc
+        </if>
+        <if test="start != null and pageSize != null">
+            limit #{start} , #{pageSize}
+        </if>
+        <if test="start == null and pageSize != null">
+            limit #{pageSize}
+        </if>
+        <if test="start == null and pageSize == null">
+            limit 1000
+        </if>
+    </select>
+
+    <select id="generalCount" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+        FROM rdos_batch_data_source
+        <include refid="select_where_fragment"/>
+        limit 1
+    </select>
+
+    <select id="getDataSourceByName" resultType="BatchDataSource">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_data_source
+        WHERE data_name = #{dataName}
+        <if test="projectId != null">
+            AND project_id = #{projectId}
+        </if>
+        AND is_deleted = 0 LIMIT 1
+    </select>
+
+    <select id="listByTenantId" resultType="BatchDataSource">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_data_source
+        WHERE tenant_id = #{tenantId}
+        AND is_deleted = 0
+    </select>
+
+    <select id="listByIds" resultType="BatchDataSource">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_data_source
+        WHERE is_deleted = 0
+        <if test="list != null and list.size() > 0">
+            and id in
+            <foreach collection="list" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getDefaultDataSource" resultType="BatchDataSource">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_data_source
+        WHERE project_id = #{projectId}
+        AND is_deleted = 0
+        AND is_default = 1
+        <choose>
+            <when test="dataSourceType == 7 or dataSourceType == 27">
+                AND type IN (7, 27)
+            </when>
+            <otherwise>
+                AND type = #{dataSourceType}
+            </otherwise>
+        </choose>
+        limit 1
+    </select>
+
+    <select id="getBeanByProjectIdAndDbTypeAndDbName" resultType="BatchDataSource">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_data_source
+        WHERE project_id = #{projectId}
+        AND is_deleted = 0
+        AND type = #{dataSourceType}
+        AND data_name = #{dataSourceName}
+    </select>
+
+    <select id="getDefaultDataSourceByName" resultType="BatchDataSource">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_data_source
+        WHERE tenant_id = #{tenantId}
+        <if test="nameList != null and nameList.size > 0">
+            AND data_name in
+            <foreach collection="nameList" separator="," item="item" open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+        AND is_deleted = 0
+        AND is_default = 1
+        AND type = #{dataSourceType}
+        limit 1
+    </select>
+
+    <select id="listAll" resultType="BatchDataSource">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_data_source
+        WHERE
+        is_deleted = 0
+        ORDER BY id ASC LIMIT #{pageIndex},#{pageSize}
+    </select>
+
+    <select id="listAllBatchData" resultType="BatchDataSource">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_data_source
+        WHERE
+        is_deleted = 0
+        ORDER by id asc
+    </select>
+
+    <update id="deleteByProjectId" parameterType="java.lang.Long">
+        UPDATE rdos_batch_data_source
+        SET is_deleted = 1, gmt_modified = now(), modify_user_id = #{userId}
+        WHERE project_id = #{projectId} AND is_deleted = 0;
+    </update>
+</mapper>

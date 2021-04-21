@@ -30,6 +30,7 @@
         <module>engine-lineage-service</module>
         <module>engine-lineage-sqlparser</module>
         <module>engine-alter-sender</module>
+        <module>engine-datasource</module>
     </modules>
 
     <build>

@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>engine-master</artifactId>
+        <groupId>com.dtstack.engine</groupId>
+        <version>1.0.0</version>
+        <relativePath>..</relativePath>
+    </parent>
+
+    <packaging>jar</packaging>
+
+    <artifactId>engine-datasource</artifactId>
+    <name>engine-datasource</name>
+    <url>http://maven.apache.org</url>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.dtstack.engine</groupId>
+            <artifactId>engine-common</artifactId>
+            <version>${common.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>zookeeper</artifactId>
+                    <groupId>org.apache.zookeeper</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.dtstack.engine</groupId>
+            <artifactId>engine-dao</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+    </dependencies>
+</project>
