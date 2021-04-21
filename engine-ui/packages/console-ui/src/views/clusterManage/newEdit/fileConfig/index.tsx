@@ -157,6 +157,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
     uploadFile = async (file: any, loadingType: number, callBack: Function) => {
         const { comp, form, clusterInfo } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
+        const hadoopVersion = isMultiVersion(typeCode) ? comp?.hadoopVersion : ''
         this.setState((preState) => ({
             loading: {
                 ...preState.loading,
@@ -177,7 +178,8 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             const params = {
                 kerberosFile: file,
                 clusterId: clusterInfo?.clusterId ?? '',
-                componentCode: typeCode
+                componentCode: typeCode,
+                componentVersion: hadoopVersion
             }
             res = await Api.uploadKerberos(params)
             this.getPrincipalsList(file)

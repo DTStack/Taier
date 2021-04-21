@@ -7,7 +7,8 @@ import * as _ from 'lodash'
 import Api from '../../../api/console'
 import { initialScheduling, isViewMode, isNeedTemp,
     getModifyComp, isSameVersion, getCompsId,
-    isMultiVersion, getCurrentComp, includesCurrentComp } from './help'
+    isMultiVersion, getCurrentComp, includesCurrentComp,
+    getSingleTestStatus } from './help'
 import { TABS_TITLE, COMPONENT_CONFIG_NAME, DEFAULT_COMP_VERSION,
     COMPONENT_TYPE_VALUE, TABS_POP_VISIBLE, COMP_ACTION } from './const'
 
@@ -184,15 +185,19 @@ class EditCluster extends React.Component<any, IState> {
     }
 
     handleConfirm = async (action: string, comps: any | any[], mulitple?: boolean) => {
-        console.log(comps)
-        // 先删除组件，再添加
         const { initialCompData, activeKey, testStatus } = this.state
         let newCompData = initialCompData
-        let newTestStatus = testStatus
         let currentCompArr = newCompData[activeKey]
+        if (comps.length && action !== COMP_ACTION.DELETE) {
+            const initialComp = comps.map(code => {
+                return { componentTypeCode: code, multiVersion: [undefined] }
+            })
+            currentCompArr = currentCompArr.concat(initialComp)
+        }
+
         if (action == COMP_ACTION.DELETE) {
-            const { componentTypeCode, id = '' } = comps
-            const componentIds = getCompsId(currentCompArr, [id])
+            const { componentTypeCode, hadoopVersion, id = '' } = comps
+            const componentIds = getCompsId(currentCompArr, id)
             let res: any
             if (componentIds.length) {
                 res = await Api.deleteComponent({ componentIds })
@@ -201,17 +206,24 @@ class EditCluster extends React.Component<any, IState> {
             if (res?.code == 1 || !componentIds.length) {
                 let wrapper = new Set()
                 currentCompArr.forEach(comp => {
-                    if (isMultiVersion(componentTypeCode) && mulitple) {
-                        comp.multiVersion = comp.multiVersion.filter(vComp => vComp?.componentTypeCode != componentTypeCode)
+                    if (isMultiVersion(comp.componentTypeCode) && mulitple) {
+                        comp.multiVersion = comp.multiVersion.filter(vComp => vComp?.hadoopVersion != hadoopVersion)
                         wrapper.add(comp)
                     }
                     if (comp.componentTypeCode != componentTypeCode) wrapper.add(comp)
                 })
                 currentCompArr = Array.from(wrapper)
-                newTestStatus = {
-                    ...newTestStatus,
-                    [componentTypeCode]: null
-                }
+
+                const multiVersion = getSingleTestStatus({ typeCode: componentTypeCode, hadoopVersion }, null, testStatus)
+                this.setState({
+                    testStatus: {
+                        ...testStatus,
+                        [componentTypeCode]: {
+                            ...testStatus[componentTypeCode],
+                            multiVersion: multiVersion
+                        }
+                    }
+                })
                 this.props.form.setFieldsValue({
                     [componentTypeCode]: {
                         componentConfig: {},
@@ -219,22 +231,11 @@ class EditCluster extends React.Component<any, IState> {
                     }
                 })
             }
-        } else {
-            if (comps.length) {
-                comps.forEach(code => {
-                    currentCompArr.push({
-                        componentTypeCode: code,
-                        // componentName: COMPONENT_CONFIG_NAME[code],
-                        multiVersion: [undefined]
-                    })
-                })
-            }
         }
 
         newCompData[activeKey] = currentCompArr
         this.setState({
-            initialCompData: newCompData,
-            testStatus: newTestStatus
+            initialCompData: newCompData
         }, this.getLoadTemplate)
     }
 
@@ -289,6 +290,8 @@ class EditCluster extends React.Component<any, IState> {
 
     setTestStatus = (status: any, isSingle?: boolean) => {
         if (isSingle) {
+            const { testStatus, initialCompData, activeKey } = this.state
+            const currentComp = initialCompData[activeKey].find(comp => comp.componentTypeCode == status.componentTypeCode)
             if (!isMultiVersion(status.componentTypeCode)) {
                 this.setState((preState) => ({
                     testStatus: {
@@ -300,28 +303,17 @@ class EditCluster extends React.Component<any, IState> {
                 }))
                 return
             }
-            let newTestStatus = this.state.testStatus
-            let multiVersion = newTestStatus[status.componentTypeCode]?.multiVersion ?? []
+            const multiVersion = getSingleTestStatus({
+                typeCode: status.componentTypeCode,
+                hadoopVersion: status?.componentVersion
+            }, status, testStatus)
 
-            if (multiVersion.length) {
-                let sign = false
-                multiVersion = multiVersion.map(mv => {
-                    if (mv.componentVersion == status.componentVersion) {
-                        sign = true
-                        return status
-                    }
-                    return mv
-                })
-                if (!sign) multiVersion.push(status)
-            }
-            if (!multiVersion.length) multiVersion.push(status)
-
-            let result = true
+            let sign = false
             let errorMsg = []
 
             multiVersion.forEach(mv => {
                 if (!mv.result) {
-                    result = false
+                    sign = true
                     errorMsg.push({
                         componentVersion: mv.componentVersion,
                         errorMsg: mv.errorMsg
@@ -329,16 +321,21 @@ class EditCluster extends React.Component<any, IState> {
                 }
             })
 
+            let msg: any = { result: null, errorMsg: [], multiVersion: multiVersion }
+            if (!sign && currentComp?.multiVersion?.length == multiVersion.length) {
+                msg.result = true
+            }
+            if (sign) {
+                msg.result = false
+                msg.errorMsg = errorMsg
+            }
+
             this.setState((preState) => ({
                 testStatus: {
                     ...preState.testStatus,
-                    [status.componentTypeCode]: {
-                        result,
-                        errorMsg,
-                        multiVersion: multiVersion
-                    }
+                    [status.componentTypeCode]: msg
                 }
-            }), () => console.log('testStatus ===== ', this.state.testStatus))
+            }))
             return
         }
         let testStatus: any = {}
@@ -388,7 +385,7 @@ class EditCluster extends React.Component<any, IState> {
             } else {
                 if (modifyComps.size > 0) {
                     const modifyCompsName = Array.from(modifyComps).map((comp: any) => {
-                        if (isMultiVersion(comp.typeCode)) { return COMPONENT_CONFIG_NAME[comp.typeCode] + ' ' + (Number(hadoopVersion) / 100) }
+                        if (isMultiVersion(comp.typeCode)) { return COMPONENT_CONFIG_NAME[comp.typeCode] + ' ' + (Number(comp.hadoopVersion) / 100).toFixed(2) }
                         return COMPONENT_CONFIG_NAME[comp.typeCode]
                     })
                     message.error(`组件 ${modifyCompsName.join('、')} 参数变更未保存，请先保存再测试组件连通性`)

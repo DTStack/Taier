@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from 'lodash'
 import { TABS_TITLE_KEY, COMPONENT_TYPE_VALUE, CONFIG_ITEM_TYPE, FILE_TYPE, DEFAULT_PARAMS } from './const'
 
 // 是否为yarn、hdfs、Kubernetes组件
@@ -93,12 +93,12 @@ export function getCustomerParams (temps: any): any[] {
     return temps.filter(temp => isCustomType(temp.type))
 }
 
-export function getCompsId (currentComps: any[], typeCodes: any[]): any[] {
+export function getCompsId (currentComps: any[], id: number): any[] {
     let ids = []
     currentComps.forEach(comp => {
-        if (typeCodes.indexOf(comp?.componentTypeCode) > -1 && comp?.id) {
-            ids.push(comp.id)
-        }
+        (comp?.multiVersion ?? []).forEach(vcomp => {
+            if (vcomp.id == id) ids.push(vcomp.id)
+        })
     })
     return ids
 }
@@ -376,6 +376,27 @@ export function handleComponentConfigAndCustom (comp: any, typeCode: number): an
         }
     }
     return componentConfig
+}
+
+export function getSingleTestStatus (params: { typeCode: number; hadoopVersion?: string}, value: any, testStatus: any): any[] {
+    const typeCode = params.typeCode ?? ''
+    const hadoopVersion = params.hadoopVersion ?? ''
+    const currentStatus = testStatus[String(typeCode)] ?? {}
+    let multiVersion = currentStatus?.multiVersion ?? []
+
+    if (multiVersion.length) {
+        let sign = false
+        multiVersion = multiVersion.map(version => {
+            if (version?.componentVersion == hadoopVersion) {
+                sign = true
+                return value
+            }
+            return version
+        })
+        if (!sign && value) multiVersion.push(value)
+    }
+    if (!multiVersion.length && value) multiVersion.push(value)
+    return multiVersion
 }
 
 export function includesCurrentComp (modifyComps: any[], params: { typeCode: number; hadoopVersion?: string }): boolean {

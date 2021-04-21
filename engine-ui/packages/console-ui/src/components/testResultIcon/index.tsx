@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Icon, Tooltip, Modal } from 'antd';
-import { isArray } from 'lodash';
 
 const TEST_STATUS: any = {
     SUCCESS: true,
@@ -31,12 +30,9 @@ export default class TestRestIcon extends React.Component<any, any> {
                             style={{ color: '#fff', overflow: 'scroll' }}
                             onClick={ this.showDetailErrMessage.bind(this, testResult)}
                         >
-                            {
-                                isArray(testResult.errorMsg)
-                                    ? testResult.errorMsg.map(msg => {
-                                        return <span key={msg.hadoopVersion}>{ msg.hadoopVersion ? (msg.hadoopVersion + ':') : '' }{msg.msg}</span>
-                                    }) : <span>{testResult.errorMsg}</span>
-                            }
+                            {testResult?.errorMsg?.map(msg => {
+                                return <p key={msg.componentVersion}>{ msg.componentVersion ? (msg.componentVersion + ' : ') : '' }{msg.errorMsg}</p>
+                            })}
                         </a>
                     }
                     placement='right'

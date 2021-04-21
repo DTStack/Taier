@@ -105,12 +105,25 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
     onConfirm = () => {
         const { form, comp } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
+        const hadoopVersion = isMultiVersion(typeCode) ? this.props.comp?.hadoopVersion : ''
 
+        if (!hadoopVersion) {
+            form.setFieldsValue({
+                [typeCode]: {
+                    componentConfig: handleComponentConfig({
+                        componentConfig: JSON.parse(comp.componentConfig)
+                    }, true)
+                }
+            })
+            return
+        }
         form.setFieldsValue({
             [typeCode]: {
-                componentConfig: handleComponentConfig({
-                    componentConfig: JSON.parse(comp.componentConfig)
-                }, true)
+                [hadoopVersion]: {
+                    componentConfig: handleComponentConfig({
+                        componentConfig: JSON.parse(comp.componentConfig)
+                    }, true)
+                }
             }
         })
     }
@@ -139,7 +152,7 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
         const typeCode = comp?.componentTypeCode ?? ''
         const hadoopVersion = comp?.hadoopVersion ?? ''
         const defaultText = COMPONENT_CONFIG_NAME[typeCode]
-        const multipleText = VERSION_TYPE[typeCode] + ' ' + (Number(hadoopVersion) / 100)
+        const multipleText = VERSION_TYPE[typeCode] + ' ' + (Number(hadoopVersion) / 100).toFixed(2)
 
         if (isMultiVersion(typeCode) && !mulitple) {
             return (

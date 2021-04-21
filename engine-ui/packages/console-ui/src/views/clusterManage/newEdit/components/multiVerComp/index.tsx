@@ -78,7 +78,7 @@ export default class MultiVersionComp extends React.Component<IProps, any> {
                             >
                                 <span className="comp-name">
                                     <img src={`public/img/${VERSION_TYPE[typeCode]}.png`}/>
-                                    <span>{VERSION_TYPE[typeCode]} {key}</span>
+                                    <span>{VERSION_TYPE[typeCode]} {Number(key).toFixed(2)}</span>
                                 </span>
                                 <Icon type="right-circle" theme="filled" />
                             </div>
@@ -112,8 +112,8 @@ export default class MultiVersionComp extends React.Component<IProps, any> {
                         <TabPane
                             tab={
                                 <span>
-                                    {VERSION_TYPE[vcomp.componentTypeCode]} {Number(vcomp.hadoopVersion) / 100}
-                                    <TestRestIcon testStatus={testStatus.find(status => status.componentVersion == vcomp.hadoopVersion)}/>
+                                    {VERSION_TYPE[vcomp.componentTypeCode]} {(Number(vcomp.hadoopVersion) / 100).toFixed(2)}
+                                    <TestRestIcon testStatus={testStatus.find(status => status?.componentVersion == vcomp.hadoopVersion)}/>
                                 </span>
                             }
                             key={String(vcomp.hadoopVersion)}
