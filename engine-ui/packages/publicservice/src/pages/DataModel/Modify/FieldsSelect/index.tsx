@@ -201,7 +201,9 @@ const FieldsSelect = (props: IPropsDimensionSelect) => {
             reg.test(item.columnComment)
         : (item) =>
             !item.dimension &&
-            (reg.test(item.tableName) || reg.test(item.columnName));
+            (reg.test(item.tableName) ||
+              reg.test(item.columnName) ||
+              reg.test(item.columnComment));
     return dataSource.filter(columnFilter);
   }, [dataSource, filter, step]);
 

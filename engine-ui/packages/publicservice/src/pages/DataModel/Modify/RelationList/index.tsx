@@ -88,7 +88,8 @@ const RelationList = (props: IPropsRelationList) => {
           };
         });
         window.localStorage.setItem('refreshColumns', 'false');
-        props.updateModelDetail((modelDetail) => ({
+        props.updateModelDetail((detail) => ({
+          ...detail,
           ...modelDetail,
           columns: col,
         }));
