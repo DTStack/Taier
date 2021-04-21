@@ -46,7 +46,7 @@ const columns = (props: any) => {
       ellipsis: true,
       width: 200,
       render: (_, record) => {
-        return <span className="ellipsis">{record.appNames || '-'}</span>;
+        return <span className="ellipsis">{record.appNames || '--'}</span>;
       },
     },
     {
@@ -55,7 +55,7 @@ const columns = (props: any) => {
       ellipsis: true,
       width: 200,
       render: (_, record) => {
-        return <span className="ellipsis">{record.dataDesc || '-'}</span>;
+        return <span className="ellipsis">{record.dataDesc || '--'}</span>;
       },
     },
     {

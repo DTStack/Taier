@@ -204,7 +204,9 @@ const InfoConfig = (props) => {
           delete fieldsValue.kerberosFile;
           delete handelParams.appTypeList;
 
-          handelParams.appTypeListString = otherParams.appTypeList.toString();
+          handelParams.appTypeListString = JSON.stringify(
+            otherParams.appTypeList
+          );
           try {
             handelParams.dataJsonString = Base64.encode(
               JSON.stringify(fieldsValue)
@@ -263,7 +265,7 @@ const InfoConfig = (props) => {
           }
         }
       } else {
-        props.changeBtnStatus(false);
+        props.changeBtnStatus();
       }
     });
   };
@@ -311,7 +313,7 @@ const InfoConfig = (props) => {
               props.router.push('/data-source/list');
             }, 500);
           } else {
-            message.error(`${msg}`);
+            message.error(`${msg}` || '保存失败');
           }
           setLoading(false);
           props.changeBtnStatus(false);
@@ -326,7 +328,7 @@ const InfoConfig = (props) => {
               props.router.push('/data-source/list');
             }, 500);
           } else {
-            message.error(`${msg}`);
+            message.error(`${msg}` || '保存失败');
           }
           setLoading(false);
           props.changeBtnStatus(false);
