@@ -11,7 +11,6 @@ describe('component PaneTitle:', () => {
     const wrapper = render(<PaneTitle title="title"></PaneTitle>);
     const ele = wrapper.getByTestId('pane-title');
     expect(ele).toHaveClass('pane-title');
-    expect(ele.getElementsByClassName('block').length).toBe(1);
     expect(ele.getElementsByClassName('title').length).toBe(1);
   });
 
