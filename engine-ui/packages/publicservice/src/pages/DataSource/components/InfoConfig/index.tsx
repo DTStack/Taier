@@ -204,7 +204,9 @@ const InfoConfig = (props) => {
           delete fieldsValue.kerberosFile;
           delete handelParams.appTypeList;
 
-          handelParams.appTypeListString = otherParams.appTypeList.toString();
+          handelParams.appTypeListString = JSON.stringify(
+            otherParams.appTypeList
+          );
           try {
             handelParams.dataJsonString = Base64.encode(
               JSON.stringify(fieldsValue)
