@@ -50,6 +50,7 @@ const stepRender = (current: EnumModifyStep, params: any) => {
           globalStep={globalStep}
           cref={childRef}
           modelDetail={modelDetail}
+          updateModelDetail={setModelDetail}
         />
       );
     case EnumModifyStep.DIMENSION_STEP:
@@ -215,7 +216,7 @@ const Modify = (props: IPropsModify) => {
             <Steps className="dm-steps" current={current}>
               {['基础信息', '表关联', '选择维度', '选择度量', '设置'].map(
                 (title, index) => (
-                  <Step title={title} icon={stepIconRender(index, current)} />
+                  <Step key={index} title={title} icon={stepIconRender(index, current)} />
                 )
               )}
             </Steps>

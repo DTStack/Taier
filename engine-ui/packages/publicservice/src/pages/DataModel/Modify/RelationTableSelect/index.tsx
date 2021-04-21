@@ -11,6 +11,7 @@ interface IPropsRelationTableSelect {
   modelDetail?: Partial<IModelDetail>;
   mode: any;
   globalStep: number;
+  updateModelDetail: Function;
 }
 const { Option } = Select;
 
@@ -252,6 +253,7 @@ const RelationTableSelect = (props: IPropsRelationTableSelect) => {
               ...modelDetail,
               ...getFieldsValue(),
             }}
+            updateModelDetail={props.updateModelDetail}
           />
         </Col>
       </Row>
