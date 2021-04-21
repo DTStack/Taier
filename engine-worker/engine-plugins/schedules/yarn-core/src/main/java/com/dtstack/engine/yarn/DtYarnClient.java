@@ -31,10 +31,18 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
 
 public class DtYarnClient extends AbstractClient {
 
@@ -112,28 +120,25 @@ public class DtYarnClient extends AbstractClient {
     }
 
     private ComponentTestResult testYarnConnect(ComponentTestResult testResult, Config allConfig) {
-        HadoopConf hadoopConf = new HadoopConf();
-        hadoopConf.initYarnConf(allConfig.getYarnConf());
-        YarnClient testYarnClient = YarnClient.createYarnClient();
-        testYarnClient.init(hadoopConf.getYarnConfiguration());
-        testYarnClient.start();
-        List<NodeReport> nodes = new ArrayList<>();
         try {
-            nodes = testYarnClient.getNodeReports(NodeState.RUNNING);
-        } catch (Exception e) {
-            LOG.error("test yarn connect error", e);
-        }
-        int totalMemory = 0;
-        int totalCores = 0;
-        for (NodeReport rep : nodes) {
-            totalMemory += rep.getCapability().getMemory();
-            totalCores += rep.getCapability().getVirtualCores();
-        }
-        try {
+            HadoopConf hadoopConf = new HadoopConf();
+            hadoopConf.initYarnConf(allConfig.getYarnConf());
+            YarnClient testYarnClient = YarnClient.createYarnClient();
+            testYarnClient.init(hadoopConf.getYarnConfiguration());
+            testYarnClient.start();
+
+            List<NodeReport> nodes = testYarnClient.getNodeReports(NodeState.RUNNING);
+            int totalMemory = 0;
+            int totalCores = 0;
+            for (NodeReport rep : nodes) {
+                totalMemory += rep.getCapability().getMemory();
+                totalCores += rep.getCapability().getVirtualCores();
+            }
             List<ComponentTestResult.QueueDescription> descriptions = getQueueDescription(null, testYarnClient.getRootQueueInfos());
             testResult.setClusterResourceDescription(new ComponentTestResult.ClusterResourceDescription(nodes.size(), totalMemory, totalCores, descriptions));
         } catch (Exception e) {
-            LOG.error("getRootQueueInfos error", e);
+            LOG.error("test yarn connect error", e);
+            throw new RdosDefineException(e);
         }
         testResult.setResult(true);
         return testResult;
