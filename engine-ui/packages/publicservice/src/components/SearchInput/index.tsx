@@ -32,6 +32,11 @@ export default function SearchInput(props: IProp, any) {
           onSearch(e.target.value);
         }
       }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          onSearch(value);
+        }
+      }}
       data-testid="input"
       placeholder={placeholder}
       suffix={
