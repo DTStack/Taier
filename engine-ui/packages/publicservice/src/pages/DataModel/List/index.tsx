@@ -83,7 +83,9 @@ const List = (props: IPropList) => {
       if (success) {
         setModelList(
           data.data.map((item) => {
-            Object.keys(item).map((key) => !item[key] && (item[key] = '--'));
+            Object.keys(item).map(
+              (key) => !item[key] && item[key] !== 0 && (item[key] = '--')
+            );
             return item;
           })
         );

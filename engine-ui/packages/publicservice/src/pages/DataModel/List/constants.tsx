@@ -103,7 +103,12 @@ export const columnsGenerator = ({
               })}
             />
           )}
-          style={{ cursor: 'pointer', position: 'relative', width: 16 }}
+          style={{
+            cursor: 'pointer',
+            position: 'relative',
+            width: 16,
+            marginLeft: 4,
+          }}
         />
       ),
       render: (modelStatus) => {
