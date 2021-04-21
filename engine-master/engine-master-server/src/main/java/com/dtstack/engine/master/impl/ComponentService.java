@@ -1219,6 +1219,12 @@ public class ComponentService {
             if (componentTestResult.getResult() && null != engineId) {
                 updateCache(engineId, componentType);
             }
+        }catch (Throwable e){
+            if (Objects.isNull(componentTestResult)){
+                componentTestResult = new ComponentTestResult();
+            }
+            componentTestResult.setResult(false);
+            componentTestResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
         } finally {
             if (null != componentTestResult) {
                 componentTestResult.setComponentTypeCode(componentType);
