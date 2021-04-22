@@ -492,7 +492,8 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             }
             case COMPONENT_TYPE_VALUE.IMPALA_SQL:
             case COMPONENT_TYPE_VALUE.HIVE_SERVER:
-            case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER: {
+            case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER:
+            case COMPONENT_TYPE_VALUE.INCEPTOR_SQL: {
                 return (
                     <>
                         {this.renderCompsVersion()}
@@ -525,8 +526,10 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                     </>
                 )
             }
-            default:
+            case COMPONENT_TYPE_VALUE.SHELL_AGENT:
+            default: {
                 return null;
+            }
         }
     }
 
