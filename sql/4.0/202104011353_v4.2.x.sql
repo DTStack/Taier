@@ -10,3 +10,8 @@ ADD UNIQUE INDEX `uni_tenant_source_key` (`dt_uic_tenant_id`, `source_key`, `app
 -- schedule_job表添加sql_text字段
 ALTER TABLE `schedule_job`
 ADD COLUMN `sql_text` longtext DEFAULT NULL COMMENT '临时运行sql文本内容' AFTER `task_rule`;
+
+
+-- 字段血缘表修改result_table_key字段comment
+ALTER TABLE `lineage_column_column`
+MODIFY COLUMN `result_table_key` varchar(32)  NOT NULL COMMENT '输出表表物理定位码' AFTER `result_table_id`;

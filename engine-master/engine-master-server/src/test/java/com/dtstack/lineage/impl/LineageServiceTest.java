@@ -150,6 +150,15 @@ public class LineageServiceTest extends AbstractTest {
         dataSetInfo.setAppType(1);
         when(lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(any(),any(),any(),any())).thenReturn(dataSetInfo);
 
+        LineageDataSetInfo lineageDataSetInfo = new LineageDataSetInfo();
+        lineageDataSetInfo.setId(10L);
+        lineageDataSetInfo.setDbName("dev");
+        lineageDataSetInfo.setSchemaName("dev");
+        lineageDataSetInfo.setSourceId(1L);
+        lineageDataSetInfo.setTableName("chener");
+        lineageDataSetInfo.setTableKey("dev.chener");
+        when(lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(any(),any(),any(),any())).thenReturn(lineageDataSetInfo);
+
     }
 
 
@@ -379,7 +388,7 @@ public class LineageServiceTest extends AbstractTest {
         vo.setDtUicTenantId(1L);
         LineageTableVO tableVO = new LineageTableVO();
         LineageDataSourceVO sourceVO = new LineageDataSourceVO();
-        sourceVO.setAppType(AppType.DATAASSETS.getType());
+        sourceVO.setAppType(hiveDataSourceTemplate.getAppType());
         sourceVO.setSourceType(hiveDataSourceTemplate.getSourceType());
         sourceVO.setSourceId(hiveDataSourceTemplate.getId());
         tableVO.setDataSourceVO(sourceVO);
@@ -393,7 +402,7 @@ public class LineageServiceTest extends AbstractTest {
         tableVO2.setDbName("dev");
         tableVO2.setSchemaName("dev");
         vo.setResultTableInfo(tableVO2);
-        vo.setAppType(AppType.DATAASSETS.getType());
+        vo.setAppType(hiveDataSourceTemplate.getAppType());
         vo.setManual(true);
         vo.setUniqueKey(null);
         tableTableVOs.add(vo);
@@ -466,7 +475,7 @@ public class LineageServiceTest extends AbstractTest {
         vo.setDtUicTenantId(1L);
         LineageTableVO tableVO = new LineageTableVO();
         LineageDataSourceVO sourceVO = new LineageDataSourceVO();
-        sourceVO.setAppType(AppType.DATAASSETS.getType());
+        sourceVO.setAppType(hiveDataSourceTemplate.getAppType());
         sourceVO.setSourceType(DataSourceType.HIVE.getVal());
         sourceVO.setSourceId(hiveDataSourceTemplate.getId());
         tableVO.setDataSourceVO(sourceVO);
@@ -480,10 +489,14 @@ public class LineageServiceTest extends AbstractTest {
         tableVO2.setDbName("dev");
         tableVO2.setSchemaName("dev");
         vo.setResultTableInfo(tableVO2);
-        vo.setAppType(AppType.DATAASSETS.getType());
+        vo.setAppType(hiveDataSourceTemplate.getAppType());
         vo.setManual(true);
         vo.setUniqueKey(null);
-        lineageService.manualDeleteTableLineage(vo);
+        try {
+            lineageService.manualDeleteTableLineage(vo);
+        } catch (Exception e) {
+            Assert.assertEquals("未找到血缘关系",e.getMessage());
+        }
     }
 
     @Test
@@ -492,13 +505,14 @@ public class LineageServiceTest extends AbstractTest {
     public void testQueryColumnInputLineage() {
         LineageDataSource defaultHiveDataSourceTemplate = testLineageDataSourceDao.getOne();
         QueryColumnLineageParam queryTableLineageParam = new QueryColumnLineageParam();
-        queryTableLineageParam.setAppType(AppType.DATAASSETS.getType());
+        queryTableLineageParam.setAppType(defaultHiveDataSourceTemplate.getAppType());
         queryTableLineageParam.setDbName("dev");
         queryTableLineageParam.setDtUicTenantId(1L);
         queryTableLineageParam.setSourceName(defaultHiveDataSourceTemplate.getSourceName());
         queryTableLineageParam.setSourceType(defaultHiveDataSourceTemplate.getSourceType());
         queryTableLineageParam.setTableName("test");
         queryTableLineageParam.setColumnName("id");
+        queryTableLineageParam.setSourceId(defaultHiveDataSourceTemplate.getSourceId());
         queryTableLineageParam.setLevel(1);
         List<LineageColumnColumnVO> queryColumnInputLineage = lineageService.queryColumnInputLineage(queryTableLineageParam);
         Assert.assertNotNull(queryColumnInputLineage);
@@ -660,10 +674,14 @@ public class LineageServiceTest extends AbstractTest {
         resultTableVo.setDataSourceVO(sourceVO);
         columnColumnVO.setResultTableInfo(resultTableVo);
         columnColumnVO.setResultColumnName("tid");
-        columnColumnVO.setAppType(AppType.DATAASSETS.getType());
-        columnColumnVO.setDtUicTenantId(1L);
+        columnColumnVO.setAppType(hiveDataSourceTemplate.getAppType());
+        columnColumnVO.setDtUicTenantId(hiveDataSourceTemplate.getDtUicTenantId());
         columnColumnVO.setUniqueKey(null);
-        lineageService.manualDeleteColumnLineage(columnColumnVO);
+        try {
+            lineageService.manualDeleteColumnLineage(columnColumnVO);
+        } catch (Exception e) {
+            Assert.assertEquals("血缘关系未查到",e.getMessage());
+        }
     }
 
     @Test
@@ -699,9 +717,9 @@ public class LineageServiceTest extends AbstractTest {
         testLineageColumnColumnDao.insert(columnColumn);
 
         QueryTableLineageColumnParam queryTableLineageColumnParam = new QueryTableLineageColumnParam();
-        queryTableLineageColumnParam.setAppType(AppType.DATAASSETS.getType());
+        queryTableLineageColumnParam.setAppType(hiveDataSourceTemplate.getAppType());
         queryTableLineageColumnParam.setDbName("dev");
-        queryTableLineageColumnParam.setDtUicTenantId(1L);
+        queryTableLineageColumnParam.setDtUicTenantId(hiveDataSourceTemplate.getDtUicTenantId());
         queryTableLineageColumnParam.setSourceName(hiveDataSourceTemplate.getSourceName());
         queryTableLineageColumnParam.setTableName("hjl1");
         List<String> strings = lineageService.queryTableInputLineageColumns(queryTableLineageColumnParam);
