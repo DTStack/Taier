@@ -5,7 +5,7 @@ import com.dtstack.engine.api.vo.lineage.*;
 import com.dtstack.engine.api.vo.lineage.param.*;
 import com.dtstack.engine.common.util.ValidateUtil;
 import com.dtstack.engine.master.router.DtRequestParam;
-import com.dtstack.lineage.impl.LineageService;
+import com.dtstack.engine.lineage.impl.LineageService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -17,9 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 
 /**
  * @author chener
