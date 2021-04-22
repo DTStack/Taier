@@ -154,6 +154,8 @@ public enum DataSourceType {
         return getBaseType(sourceType);
     }
 
+    public static List<DataSourceType> noNeedUserNamePasswordDataSources = Lists.newArrayList(DataSourceType.HBASE, DataSourceType.Phoenix, DataSourceType.HIVE);
+
     public static List<Integer> getRDBMS() {
         return Lists.newArrayList(
                 MySQL.getVal(),
@@ -179,7 +181,7 @@ public enum DataSourceType {
                 Presto.getVal());
     }
 
-    public static String getEngineType(DataSourceType sourceType){
+    public static String getEngineType(DataSourceType sourceType) {
 
         switch (sourceType) {
             case MySQL:
