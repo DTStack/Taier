@@ -3,24 +3,31 @@ package com.dtstack.engine.master.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ScheduleTaskCommit;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.engine.api.domain.TenantResource;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
+import com.dtstack.engine.api.enums.TaskRuleEnum;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.vo.ScheduleDetailsVO;
 import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
+import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
+import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
+import com.dtstack.engine.common.enums.EComponentType;
+import com.dtstack.engine.common.enums.EScheduleStatus;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.ComponentVersionUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.UnitConvertUtil;
-import com.dtstack.engine.dao.ScheduleTaskCommitMapper;
-import com.dtstack.engine.dao.ScheduleTaskShadeDao;
-import com.dtstack.engine.dao.TenantResourceDao;
+import com.dtstack.engine.dao.*;
+import com.dtstack.engine.api.domain.ScheduleEngineProject;
 import com.dtstack.engine.master.executor.CronJobExecutor;
 import com.dtstack.engine.master.executor.FillJobExecutor;
 import com.dtstack.schedule.common.enums.*;
@@ -49,7 +56,7 @@ import java.util.stream.Collectors;
 public class ScheduleTaskShadeService {
 
 
-    private static final Logger LOG = LoggerFactory.getLogger(ScheduleTaskShadeService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleTaskShadeService.class);
 
     @Autowired
     private ScheduleTaskShadeDao scheduleTaskShadeDao;
@@ -67,10 +74,19 @@ public class ScheduleTaskShadeService {
     private FillJobExecutor fillJobExecutor;
 
     @Autowired
+    private TenantDao tenantDao;
+
+    @Autowired
+    private ScheduleEngineProjectDao scheduleEngineProjectDao;
+
+    @Autowired
     private EnvironmentContext environmentContext;
 
     @Autowired
     private ScheduleTaskCommitMapper scheduleTaskCommitMapper;
+
+    @Autowired
+    private ComponentDao componentDao;
 
     /**
      * web 接口
@@ -96,6 +112,16 @@ public class ScheduleTaskShadeService {
             if (null == batchTaskShadeDTO.getFlowId()) {
                 batchTaskShadeDTO.setFlowId(0L);
             }
+
+            if (null == batchTaskShadeDTO.getTaskRule()) {
+                batchTaskShadeDTO.setTaskRule(0);
+            }
+            EComponentType componentType;
+            if (StringUtils.isBlank(batchTaskShadeDTO.getComponentVersion()) &&
+                    Objects.nonNull(componentType= ComponentVersionUtil.transformTaskType2ComponentType(batchTaskShadeDTO.getTaskType()))){
+                batchTaskShadeDTO.setComponentVersion(componentDao.getDefaultComponentVersionByTenantAndComponentType(
+                        batchTaskShadeDTO.getTenantId(),componentType.getTypeCode()));
+            }
             scheduleTaskShadeDao.insert(batchTaskShadeDTO);
         }
     }
@@ -104,10 +130,44 @@ public class ScheduleTaskShadeService {
      * web 接口
      * task删除时触发同步清理
      */
-    public void deleteTask( Long taskId,  long modifyUserId, Integer appType) {
+    public void deleteTask(Long taskId, long modifyUserId, Integer appType) {
+        scheduleTaskShadeDao.delete(taskId, modifyUserId, appType);
+        scheduleTaskTaskShadeService.clearDataByTaskId(taskId, appType);
+    }
 
-        scheduleTaskShadeDao.delete(taskId, modifyUserId,appType);
-        scheduleTaskTaskShadeService.clearDataByTaskId(taskId,appType);
+    public List<NotDeleteTaskVO> getNotDeleteTask(Long taskId, Integer appType) {
+        List<ScheduleTaskShade> shades = scheduleTaskShadeDao.getChildTaskByOtherPlatform(taskId, appType, environmentContext.getListChildTaskLimit());
+        return buildNotDeleteTaskVO( shades,appType);
+
+    }
+
+    public List<NotDeleteTaskVO> buildNotDeleteTaskVO(List<ScheduleTaskShade> shades,Integer appType) {
+        List<NotDeleteTaskVO> notDeleteTaskVOS = Lists.newArrayList();
+        if (CollectionUtils.isNotEmpty(shades)) {
+            List<Long> projectIds = shades.stream().map(ScheduleTaskShade::getProjectId).collect(Collectors.toList());
+            List<Long> tenantIds = shades.stream().map(ScheduleTaskShade::getDtuicTenantId).collect(Collectors.toList());
+
+            List<Tenant> tenants = tenantDao.listAllTenantByDtUicTenantIds(tenantIds);
+
+            Map<Long, Tenant> tenantMap = tenants.stream().collect(Collectors.toMap(Tenant::getDtUicTenantId, g -> (g)));
+            for (ScheduleTaskShade shade : shades) {
+                NotDeleteTaskVO notDeleteTaskVO = new NotDeleteTaskVO();
+                notDeleteTaskVO.setAppType(shade.getAppType());
+                ScheduleEngineProject project = scheduleEngineProjectDao.getProjectByProjectIdAndApptype(shade.getProjectId(), shade.getAppType());
+                if (project != null) {
+                    notDeleteTaskVO.setProjectAlias(project.getProjectAlias());
+                    notDeleteTaskVO.setProjectName(project.getProjectName());
+                }
+                Tenant tenant = tenantMap.get(shade.getDtuicTenantId());
+                if (tenant != null) {
+                    notDeleteTaskVO.setTenantName(tenant.getTenantName());
+                }
+
+                notDeleteTaskVO.setTaskName(shade.getName());
+                notDeleteTaskVOS.add(notDeleteTaskVO);
+            }
+        }
+        return notDeleteTaskVOS;
     }
 
     /**
@@ -236,9 +296,9 @@ public class ScheduleTaskShadeService {
      * @param taskId
      * @return
      */
-    public ScheduleTaskShade getWorkFlowTopNode(Long taskId) {
+    public ScheduleTaskShade getWorkFlowTopNode(Long taskId,Integer appType) {
         if (taskId != null) {
-            return scheduleTaskShadeDao.getWorkFlowTopNode(taskId);
+            return scheduleTaskShadeDao.getWorkFlowTopNode(taskId,appType);
         } else {
             return null;
         }
@@ -576,8 +636,8 @@ public class ScheduleTaskShadeService {
                 if(StringUtils.isNotBlank(driverCores) && driverCoresLimit!=null){
                     if(UnitConvertUtil.getNormalizedMem(driverCores) > driverCoresLimit){
                         //driver核数超过限制
-                        LOG.error("spark类型任务，task{} driverCores:{} (限制:{})",taskId,driverCores,driverCoresLimit);
-                        exceedMessage.add("driverCores: "+driverCores+" (限制: "+driverCoresLimit+")");
+                        LOGGER.error("spark type task，task{} driverCores:{} (restrict:{})",taskId,driverCores,driverCoresLimit);
+                        exceedMessage.add("driverCores: "+driverCores+" (restrict: "+driverCoresLimit+")");
                     }
                 }
                 String driverMemory = taskProperties.getProperty("driver.memory");
@@ -585,8 +645,8 @@ public class ScheduleTaskShadeService {
                 if(StringUtils.isNotBlank(driverMemory) && driverMemoryLimit!=null){
                     if(UnitConvertUtil.getNormalizedMem(driverMemory) > driverMemoryLimit){
                         //driver内存大小超过限制
-                        LOG.error("spark类型任务，task{} driverMemory:{} (限制:{})",taskId,driverMemory,driverMemoryLimit);
-                        exceedMessage.add("driverMemory: "+driverMemory+" (限制: "+driverMemoryLimit+")");
+                        LOGGER.error("spark type task，task{} driverMemory:{} (restrict:{})",taskId,driverMemory,driverMemoryLimit);
+                        exceedMessage.add("driverMemory: "+driverMemory+" (restrict: "+driverMemoryLimit+")");
                     }
                 }
                 String executorInstances = taskProperties.getProperty("executor.instances");
@@ -594,8 +654,8 @@ public class ScheduleTaskShadeService {
                 if(StringUtils.isNotBlank(executorInstances) && executorInstancesLimit!=null){
                     if(UnitConvertUtil.getNormalizedMem(executorInstances) > executorInstancesLimit){
                         //executor实例数超过限制
-                        LOG.error("spark类型任务，task{} executorInstances:{} (限制:{})",taskId,executorInstances,executorInstancesLimit);
-                        exceedMessage.add("executorInstances: "+executorInstances+" (限制: "+executorInstancesLimit+")");
+                        LOGGER.error("spark type task，task{} executorInstances:{} (restrict:{})",taskId,executorInstances,executorInstancesLimit);
+                        exceedMessage.add("executorInstances: "+executorInstances+" (restrict: "+executorInstancesLimit+")");
                     }
                 }
                 String executorCores = taskProperties.getProperty("executor.cores");
@@ -603,8 +663,8 @@ public class ScheduleTaskShadeService {
                 if(StringUtils.isNotBlank(executorCores) && executorCoresLimit!=null){
                     if(UnitConvertUtil.getNormalizedMem(executorCores) > executorCoresLimit){
                         //executor核数超过限制
-                        LOG.error("spark类型任务，task{} executorCores:{} (限制:{})",taskId,executorCores,executorCoresLimit);
-                        exceedMessage.add("executorCores: "+executorCores+" (限制: "+executorCoresLimit+")");
+                        LOGGER.error("spark type task，task{} executorCores:{} (restrict:{})",taskId,executorCores,executorCoresLimit);
+                        exceedMessage.add("executorCores: "+executorCores+" (restrict: "+executorCoresLimit+")");
                     }
                 }
                 String executorMemory = taskProperties.getProperty("executor.memory");
@@ -612,8 +672,8 @@ public class ScheduleTaskShadeService {
                 if(StringUtils.isNotBlank(executorMemory) && executorMemoryLimit!=null){
                     if(UnitConvertUtil.getNormalizedMem(executorMemory) > executorMemoryLimit){
                         //executor核数超过限制
-                        LOG.error("spark类型任务，task{} executorMemory:{} (限制:{})",taskId,executorMemory,executorMemoryLimit);
-                        exceedMessage.add("executorMemory: "+executorMemory+" (限制: "+executorMemoryLimit+")");
+                        LOGGER.error("spark type task，task{} executorMemory:{} (restrict:{})",taskId,executorMemory,executorMemoryLimit);
+                        exceedMessage.add("executorMemory: "+executorMemory+" (restrict: "+executorMemoryLimit+")");
                     }
                 }
             }else if(EScheduleJobType.SYNC.getType().equals(taskType)){
@@ -623,8 +683,8 @@ public class ScheduleTaskShadeService {
                 if(StringUtils.isNotBlank(jobManagerMemory) && jobManagerMemoryLimit !=null){
                     if(UnitConvertUtil.getNormalizedMem(jobManagerMemory) > jobManagerMemoryLimit){
                         //工作管理器内存大小超过限制
-                        LOG.error("flink数据同步类型任务，task{} jobManagerMemory:{} (限制:{})",taskId,jobManagerMemory,jobManagerMemoryLimit);
-                        exceedMessage.add("jobManagerMemory: "+jobManagerMemory+" (限制: "+jobManagerMemoryLimit+")");
+                        LOGGER.error("flink data synchronization type tasks，task{} jobManagerMemory:{} (restrict:{})",taskId,jobManagerMemory,jobManagerMemoryLimit);
+                        exceedMessage.add("jobManagerMemory: "+jobManagerMemory+" (restrict: "+jobManagerMemoryLimit+")");
                     }
                 }
                 String taskManagerMemory = taskProperties.getProperty("taskmanager.memory.mb");
@@ -632,8 +692,8 @@ public class ScheduleTaskShadeService {
                 if(StringUtils.isNotBlank(taskManagerMemory) && taskManagerMemoryLimit!=null){
                     if(UnitConvertUtil.getNormalizedMem(taskManagerMemory) > taskManagerMemoryLimit){
                         //任务管理器内存大小超过限制
-                        LOG.error("flink数据同步类型任务，task{} taskManagerMemory:{} (限制:{})",taskId,taskManagerMemory,taskManagerMemoryLimit);
-                        exceedMessage.add("taskManagerMemory: "+taskManagerMemory+" (限制: "+taskManagerMemoryLimit+")");
+                        LOGGER.error("flink data synchronization type tasks，task{} taskManagerMemory:{} (restrict:{})",taskId,taskManagerMemory,taskManagerMemoryLimit);
+                        exceedMessage.add("taskManagerMemory: "+taskManagerMemory+" (restrict: "+taskManagerMemoryLimit+")");
                     }
                 }
             }else if(EScheduleJobType.PYTHON.getType().equals(taskType) || EScheduleJobType.SHELL.getType().equals(taskType)){
@@ -643,8 +703,8 @@ public class ScheduleTaskShadeService {
                 if(StringUtils.isNotBlank(workerMemory) && workerMemoryLimit!=null){
                     if(UnitConvertUtil.getNormalizedMem(workerMemory) > workerMemoryLimit){
                         //工作内存大小超过限制
-                        LOG.error("dtscript数据同步类型任务，task{} workerMemory:{} (限制:{})",taskId,workerMemory,workerMemoryLimit);
-                        exceedMessage.add("workerMemory: "+workerMemory+" (限制: "+workerMemoryLimit+")");
+                        LOGGER.error("dtscript data synchronization type tasks，task{} workerMemory:{} (restrict:{})",taskId,workerMemory,workerMemoryLimit);
+                        exceedMessage.add("workerMemory: "+workerMemory+" (restrict: "+workerMemoryLimit+")");
                     }
                 }
                 String workerCores = taskProperties.getProperty("worker.cores");
@@ -652,8 +712,8 @@ public class ScheduleTaskShadeService {
                 if(StringUtils.isNotBlank(workerCores) && workerCoresLimit!=null ){
                     if(UnitConvertUtil.getNormalizedMem(workerCores) > workerCoresLimit){
                         //工作核数超过限制
-                        LOG.error("dtscript数据同步类型任务，task{} workerCores:{} (限制:{})",taskId,workerCores,workerCoresLimit);
-                        exceedMessage.add("workerCores: "+workerCores+" (限制: "+workerCoresLimit+")");
+                        LOGGER.error("dtscript data synchronization type tasks，task{} workerCores:{} (restrict:{})",taskId,workerCores,workerCoresLimit);
+                        exceedMessage.add("workerCores: "+workerCores+" (restrict: "+workerCoresLimit+")");
                     }
                 }
                 String workerNum = taskProperties.getProperty("worker.num");
@@ -661,14 +721,14 @@ public class ScheduleTaskShadeService {
                 if(StringUtils.isNotBlank(workerNum) && workerNumLimit!=null ){
                     if(UnitConvertUtil.getNormalizedMem(workerNum) > workerNumLimit){
                         //worker数量超过限制
-                        LOG.error("dtscript数据同步类型任务，task{} workerNum:{} (限制:{})",taskId,workerNum,workerNumLimit);
-                        exceedMessage.add("workerNum: "+workerNum+" (限制: "+workerNumLimit+")");
+                        LOGGER.error("dtscript data synchronization type tasks，task{} workerNum:{} (restrict:{})",taskId,workerNum,workerNumLimit);
+                        exceedMessage.add("workerNum: "+workerNum+" (restrict: "+workerNumLimit+")");
                     }
                 }
             }
         } catch (Exception e) {
-            LOG.error("ScheduleTaskShadeService.checkResourceLimit error:", e);
-            throw new RdosDefineException("校验任务资源参数异常");
+            LOGGER.error("ScheduleTaskShadeService.checkResourceLimit error:", e);
+            throw new RdosDefineException("Check task resource parameter is abnormal");
         }
         return exceedMessage;
     }
@@ -679,11 +739,11 @@ public class ScheduleTaskShadeService {
         }
 
         if (batchTaskShadeDTOs.size() > environmentContext.getMaxBatchTask()) {
-            throw new RdosDefineException("批量增加或者修改的任务数不能超过:" + environmentContext.getMaxBatchTask());
+            throw new RdosDefineException("The number of tasks added or modified in batch cannot exceed:" + environmentContext.getMaxBatchTask());
         }
 
         if (StringUtils.isBlank(commitId)) {
-            LOG.info("commitId未传，自动生成commitId");
+            LOGGER.info("commitId未传，自动生成commitId");
             commitId = UUID.randomUUID().toString();
         }
 
@@ -710,13 +770,13 @@ public class ScheduleTaskShadeService {
                 } else {
                     scheduleTaskCommitMapper.insertBatch(scheduleTaskCommits);
                 }
-                LOG.info("提交任务commitId:{}",commitId);
+                LOGGER.info("Submit task commitId:{}",commitId);
                 return commitId;
             }
 
             return null;
         } catch (Exception e) {
-            LOG.error(ExceptionUtil.getErrorMessage(e));
+            LOGGER.error(ExceptionUtil.getErrorMessage(e));
             return null;
         }
     }
@@ -734,7 +794,7 @@ public class ScheduleTaskShadeService {
 
     @Transactional
     public Boolean taskCommit(String commitId) {
-        LOG.info("提交任务commitId:{}",commitId);
+        LOGGER.info("submit task commitId:{}",commitId);
         Long minId = scheduleTaskCommitMapper.findMinIdOfTaskCommitByCommitId(commitId);
 
         List<ScheduleTaskCommit> scheduleTaskCommits = scheduleTaskCommitMapper.findTaskCommitByCommitId(minId,commitId,environmentContext.getMaxBatchTaskSplInsert());
@@ -754,8 +814,8 @@ public class ScheduleTaskShadeService {
 
                 scheduleTaskCommits = scheduleTaskCommitMapper.findTaskCommitByCommitId(minId,commitId,environmentContext.getMaxBatchTaskSplInsert());
             } catch (Exception e) {
-                LOG.error(ExceptionUtil.getErrorMessage(e));
-                return Boolean.FALSE;
+                LOGGER.error(ExceptionUtil.getErrorMessage(e));
+                throw new RdosDefineException(e.getMessage());
             }
         }
 
@@ -770,6 +830,163 @@ public class ScheduleTaskShadeService {
         }
 
         return extInfo.getString(TaskConstant.INFO);
+    }
+
+    public List<ScheduleTaskShadeTypeVO> findFuzzyTaskNameByCondition(String name, Integer appType, Long uicTenantId, Long projectId) {
+        if (appType == null) {
+            throw new RdosDefineException("appType must be passed");
+        }
+
+        if (uicTenantId == null) {
+            throw new RdosDefineException("uicTenantId must be passed");
+        }
+
+        if (projectId == null) {
+            throw new RdosDefineException("projectId must be passed");
+        }
+
+        if (StringUtils.isNotBlank(name)) {
+            name = handlerStr(name);
+        }
+
+        if (StringUtils.isBlank(name)) {
+            return buildTypeVo(null);
+        }
+        List<ScheduleTaskShade> tasks = scheduleTaskShadeDao.findFuzzyTaskNameByCondition(name, appType, uicTenantId, projectId, environmentContext.getFuzzyProjectByProjectAliasLimit());
+
+        return buildTypeVo(tasks);
+    }
+
+    private String handlerStr(String name) {
+        name = name.replaceAll("%", "\\%");
+        name = name.replaceAll("'", "");
+        name = name.replaceAll("_", "\\_");
+        return name;
+    }
+
+    private List<ScheduleTaskShadeTypeVO> buildTypeVo(List<ScheduleTaskShade> tasks) {
+        if (CollectionUtils.isEmpty(tasks)) {
+            return Lists.newArrayList();
+        }
+
+        List<ScheduleTaskShadeTypeVO> vos = Lists.newArrayList();
+        for (ScheduleTaskShade task : tasks) {
+            ScheduleTaskShadeTypeVO vo = new ScheduleTaskShadeTypeVO();
+            vo.setId(task.getId());
+            vo.setProjectId(task.getProjectId());
+            vo.setTaskId(task.getTaskId());
+            vo.setAppType(task.getAppType());
+            vo.setName(task.getName());
+            vo.setDtuicTenantId(task.getDtuicTenantId());
+            vo.setTaskType(task.getTaskType());
+            vo.setEngineType(task.getEngineType());
+            vo.setComputeType(task.getComputeType());
+
+            Tenant tenant = tenantDao.getByDtUicTenantId(task.getDtuicTenantId());
+
+            if (tenant != null) {
+                vo.setTenantName(tenant.getTenantName());
+            }
+
+            ScheduleEngineProject scheduleEngineProject = scheduleEngineProjectDao.getProjectByProjectIdAndApptype(task.getProjectId(), task.getAppType());
+
+            if (scheduleEngineProject != null) {
+                vo.setProjectName(scheduleEngineProject.getProjectName());
+            }
+
+            vos.add(vo);
+
+        }
+        return vos;
+    }
+
+    public List<ScheduleTaskShade> getTaskOtherPlatformByProjectId(Long projectId, Integer appType, Integer listChildTaskLimit) {
+        return scheduleTaskShadeDao.getTaskOtherPlatformByProjectId(projectId,appType,listChildTaskLimit);
+    }
+
+    public ScheduleDetailsVO findTaskRuleTask(Long taskId, Integer appType) {
+
+        if (appType == null) {
+            throw new RdosDefineException("appType must be passed");
+        }
+
+        if (taskId == null) {
+            throw new RdosDefineException("taskId must be passed");
+        }
+
+        ScheduleTaskShade shadeDaoOne = scheduleTaskShadeDao.getOne(taskId, appType);
+
+        if (shadeDaoOne == null) {
+            throw new RdosDefineException("task not exist");
+        }
+
+        ScheduleDetailsVO vo = buildScheduleDetailsVO(shadeDaoOne);
+        List<ScheduleDetailsVO> vos =Lists.newArrayList();
+        build(taskId, appType, vos);
+        vo.setScheduleDetailsVOList(vos);
+        return vo;
+    }
+
+    private void build(Long taskId, Integer appType, List<ScheduleDetailsVO> vos) {
+        List<ScheduleTaskShade> scheduleTaskShades = scheduleTaskShadeDao.listTaskRuleTask(taskId, appType);
+
+        for (ScheduleTaskShade taskShade : scheduleTaskShades) {
+            if (!TaskRuleEnum.NO_RULE.getCode().equals(taskShade.getTaskRule())) {
+                ScheduleDetailsVO voSon = buildScheduleDetailsVO(taskShade);
+                if (voSon != null) {
+                    vos.add(voSon);
+                }
+            }
+        }
+    }
+
+    private ScheduleDetailsVO buildScheduleDetailsVO(ScheduleTaskShade taskShade) {
+        if (taskShade != null) {
+            ScheduleDetailsVO vo = new ScheduleDetailsVO();
+            vo.setAppType(taskShade.getAppType());
+            vo.setName(taskShade.getName());
+            vo.setTaskRule(taskShade.getTaskRule());
+            vo.setTaskType(taskShade.getTaskType());
+            vo.setScheduleStatus(taskShade.getScheduleStatus());
+            vo.setProjectScheduleStatus(taskShade.getProjectScheduleStatus());
+
+            Tenant byDtUicTenantId = tenantDao.getByDtUicTenantId(taskShade.getDtuicTenantId());
+
+            if (byDtUicTenantId != null) {
+                vo.setTenantName(byDtUicTenantId.getTenantName());
+            }
+
+            ScheduleEngineProject projectByProjectIdAndApptype = scheduleEngineProjectDao.getProjectByProjectIdAndApptype(taskShade.getProjectId(), taskShade.getAppType());
+
+            if (projectByProjectIdAndApptype != null) {
+                vo.setProjectName(projectByProjectIdAndApptype.getProjectName());
+            }
+            return vo;
+        }
+        return null;
+    }
+
+    public List<ScheduleTaskShade> findChildTaskRuleByTaskId(Long taskId, Integer appType) {
+        if (appType == null) {
+            throw new RdosDefineException("appType must be passed");
+        }
+
+        if (taskId == null) {
+            throw new RdosDefineException("taskId must be passed");
+        }
+        List<ScheduleTaskShade> taskShades = Lists.newArrayList();
+        List<ScheduleTaskShade> scheduleTaskShades = scheduleTaskShadeDao.listTaskRuleTask(taskId, appType);
+
+        for (ScheduleTaskShade taskShade : scheduleTaskShades) {
+            if (!TaskRuleEnum.NO_RULE.getCode().equals(taskShade.getTaskRule())) {
+                if (!EScheduleStatus.PAUSE.getVal().equals(taskShade.getScheduleStatus())
+                        && !EProjectScheduleStatus.PAUSE.getStatus().equals(taskShade.getProjectScheduleStatus())) {
+                    taskShades.add(taskShade);
+                }
+            }
+        }
+
+        return taskShades;
     }
 
     /**

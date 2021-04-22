@@ -4,6 +4,7 @@ import com.dtstack.engine.dao.ScheduleFillDataJobDao;
 import com.dtstack.engine.api.domain.ScheduleFillDataJob;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.codehaus.jackson.node.ArrayNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

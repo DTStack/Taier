@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.engine.dao.ScheduleTaskTaskShadeDao">
 
     <sql id="select_content_fragment">
-        id,tenant_id,project_id,dtuic_tenant_id,app_type,task_id,parent_task_id,gmt_create,gmt_modified,is_deleted
+        id,tenant_id,project_id,dtuic_tenant_id,app_type,task_id,parent_task_id,gmt_create,gmt_modified,is_deleted,`parent_app_type`,`task_key`,`parent_task_key`
     </sql>
 
     <sql id="update_fragment">
@@ -41,6 +41,12 @@
             <if test="appType!=null">
                 app_type = #{appType},
             </if>
+            <if test="taskKey!=null">
+                task_key = #{taskKey},
+            </if>
+            <if test="parentTaskKey!=null">
+                parent_task_key = #{parentTaskKey},
+            </if>
         </set>
     </sql>
 
@@ -48,7 +54,14 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_task_task_shade
-        WHERE parent_task_id = #{parentTaskId} and is_deleted = 0 AND app_type = #{appType}
+        WHERE parent_task_id = #{parentTaskId} and is_deleted = 0 AND parent_app_type = #{appType}
+    </select>
+
+    <select id="listChildTaskLimit" resultType="com.dtstack.engine.api.domain.ScheduleTaskTaskShade">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_task_task_shade
+        WHERE parent_task_id = #{parentTaskId} and is_deleted = 0 AND app_type = #{appType} LIMIT #{limit}
     </select>
 
     <select id="listParentTask" resultType="ScheduleTaskTaskShade">
@@ -68,9 +81,9 @@
 
     <insert id="insert" parameterType="ScheduleTaskTaskShade" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO schedule_task_task_shade
-        (dtuic_tenant_id,app_type, task_id,parent_task_id,project_id,tenant_id,gmt_create,gmt_modified,is_deleted)
+        (dtuic_tenant_id,app_type, task_id,parent_task_id,project_id,tenant_id,gmt_create,gmt_modified,is_deleted,parent_app_type,task_key,parent_task_key)
         VALUES
-        (#{dtuicTenantId},#{appType}, #{taskId},#{parentTaskId},#{projectId},#{tenantId},#{gmtCreate},#{gmtModified},#{isDeleted})
+        (#{dtuicTenantId},#{appType}, #{taskId},#{parentTaskId},#{projectId},#{tenantId},#{gmtCreate},#{gmtModified},#{isDeleted},#{parentAppType},#{taskKey},#{parentTaskKey})
     </insert>
 
     <update id="update" parameterType="ScheduleTaskTaskShade">
@@ -94,5 +107,28 @@
         FROM schedule_task_task_shade
         WHERE task_id = #{taskId} and parent_task_id = #{parentTaskId} AND is_deleted = 0 AND app_type = #{appType} LIMIT 1
     </select>
+    <select id="listParentTaskKeys" resultType="com.dtstack.engine.api.domain.ScheduleTaskTaskShade">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_task_task_shade
+        WHERE is_deleted = 0 AND
+        parent_task_key IN
+        <foreach collection="taskKeys" separator="," close=")" open="(" item="taskKey" >
+            #{taskKey}
+        </foreach>
+    </select>
+
+    <select id="listTaskKeys" resultType="com.dtstack.engine.api.domain.ScheduleTaskTaskShade">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_task_task_shade
+        WHERE is_deleted = 0 AND
+        task_key IN
+        <foreach collection="taskKeys" separator="," close=")" open="(" item="taskKey" >
+            #{taskKey}
+        </foreach>
+    </select>
+
+
 
 </mapper>

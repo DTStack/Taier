@@ -31,7 +31,7 @@ import java.util.Map;
 
 public abstract class AbstractClient implements IClient {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractClient.class);
 
     public Map<String, JobStatusFrequency> jobStatusMap = Maps.newConcurrentMap();
 
@@ -50,7 +50,7 @@ public abstract class AbstractClient implements IClient {
                         " you need to set it in(" + StringUtils.join(EJobType.values(), ",") + ")");
             }
         } catch (Exception e) {
-            logger.error("", e);
+            LOGGER.error("", e);
             jobResult = JobResult.createErrorResult(e);
         } finally {
             afterSubmitFunc(jobClient);
@@ -65,7 +65,7 @@ public abstract class AbstractClient implements IClient {
         try {
             status = processJobStatus(jobIdentifier);
         }catch (Exception e) {
-            logger.error("get job status error: {}", e.getMessage());
+            LOGGER.error("get job status error: {}", e.getMessage());
         } finally {
             handleJobStatus(jobIdentifier, status);
         }

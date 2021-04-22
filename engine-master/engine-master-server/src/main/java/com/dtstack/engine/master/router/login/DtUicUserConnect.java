@@ -139,7 +139,7 @@ public class DtUicUserConnect {
                 return (List<Map<String, Object>>) mResult.get("data");
             }
         } catch (IOException e) {
-            LOGGER.error("{}", e);
+            LOGGER.error("", e);
         }
         return Lists.newArrayList();
     }

@@ -8,7 +8,7 @@ import com.dtstack.engine.alert.exception.AlterEventInterruptException;
 import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.dao.AlertRecordDao;
-import com.dtstack.engine.domain.AlertRecord;
+import com.dtstack.engine.api.domain.AlertRecord;
 import com.dtstack.engine.master.enums.AlertSendStatusEnum;
 import com.dtstack.lang.data.R;
 import com.google.common.collect.Maps;
@@ -36,7 +36,6 @@ public class StatusUpdateEvent extends AdapterEventMonitor implements Ordered {
     @Override
     public Boolean startEvent(AlterContext alterContext) {
         updateStatus(alterContext,(record,context)->{
-            // 拒绝进入队列，更新状态成扫描中
             AlertRecord update = new AlertRecord();
             update.setContext(JSON.toJSONString(alterContext));
             Map<String,Object> param = Maps.newHashMap();
@@ -116,7 +115,7 @@ public class StatusUpdateEvent extends AdapterEventMonitor implements Ordered {
             AlertRecord update = new AlertRecord();
             update.setAlertRecordStatus(AlertRecordStatusEnum.ALERT_SUCCESS.getType());
             update.setAlertRecordSendStatus(AlertSendStatusEnum.SEND_FAILURE.getType());
-            update.setFailureReason("原因："+(r!=null?r.getMessage():"")+"--异常:"+ ExceptionUtil.getErrorMessage(e));
+            update.setFailureReason("reason ："+(r!=null?r.getMessage():"")+"-- exception :"+ ExceptionUtil.getErrorMessage(e));
             update.setSendEndTime(DateTime.now().toString("yyyyMMddHHmmss"));
             Map<String,Object> param = Maps.newHashMap();
             param.put("id", record.getId());
@@ -140,7 +139,7 @@ public class StatusUpdateEvent extends AdapterEventMonitor implements Ordered {
 
                 if (update <= 0) {
                     // 抛出中断异常
-                    throw new AlterEventInterruptException("告警记录:"+alterContext.getMark()+"更新状态失败");
+                    throw new AlterEventInterruptException("alarm record:"+alterContext.getMark()+" update status failed");
                 }
 
             }

@@ -1,6 +1,7 @@
 package com.dtstack.engine.common.client;
 
 import com.dtstack.engine.api.pojo.CheckResult;
+import com.dtstack.engine.api.pojo.CheckResult;
 import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
@@ -38,7 +39,7 @@ import java.util.concurrent.*;
 
 public class ClientProxy implements IClient {
 
-    private static final Logger logger = LoggerFactory.getLogger(ClientProxy.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClientProxy.class);
 
     private IClient targetClient;
 
@@ -360,7 +361,7 @@ public class ClientProxy implements IClient {
                 }
             }, executorService).get(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            logger.error("getAllColumnsException,e:{}",ExceptionUtil.getErrorMessage(e));
+            LOGGER.error("getAllColumnsException,e:{}",ExceptionUtil.getErrorMessage(e));
             throw new RdosDefineException(e);
         }
     }

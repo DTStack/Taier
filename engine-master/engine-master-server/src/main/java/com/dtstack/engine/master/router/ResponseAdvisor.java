@@ -3,6 +3,7 @@ package com.dtstack.engine.master.router;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionEnums;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.TaskTaskRingException;
 import com.dtstack.engine.master.router.callback.ApiResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,13 +21,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-import javax.validation.ValidationException;
 import java.util.List;
 
 @ControllerAdvice("com.dtstack.engine.master.controller")
 public class ResponseAdvisor implements ResponseBodyAdvice<Object> {
 
-    private final static Logger logger = LoggerFactory.getLogger(ResponseAdvisor.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ResponseAdvisor.class);
 
     @Override
     public boolean supports(@Nullable MethodParameter returnType, @Nullable Class<? extends HttpMessageConverter<?>> converterType) {
@@ -83,7 +83,7 @@ public class ResponseAdvisor implements ResponseBodyAdvice<Object> {
             }
             errorMsg = rdosDefineException.getErrorMsg();
             if (e.getCause().getCause() != null) {
-                logger.error("{}", e.getCause().getCause());
+                LOGGER.error("{}", e.getCause().getCause());
             }
         } else if (e instanceof RdosDefineException) {
             rdosDefineException = (RdosDefineException) e;
@@ -92,12 +92,12 @@ public class ResponseAdvisor implements ResponseBodyAdvice<Object> {
             }
             errorMsg = rdosDefineException.getErrorMsg();
             if (e.getCause() != null) {
-                logger.error("{}", e.getCause());
+                LOGGER.error("{}", e.getCause());
             }
         } else {
             errorCode = ErrorCode.SERVER_EXCEPTION;
             errorMsg = ErrorCode.SERVER_EXCEPTION.getDescription();
-            logger.error("", e);
+            LOGGER.error("", e);
         }
 
         if (errorCode.equals(ErrorCode.PERMISSION_LIMIT)) {

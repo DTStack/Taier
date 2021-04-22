@@ -3,8 +3,8 @@ package com.dtstack.engine.master.dataCollection;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.domain.AlertChannel;
-import com.dtstack.engine.domain.AlertRecord;
+import com.dtstack.engine.api.domain.AlertChannel;
+import com.dtstack.engine.api.domain.AlertRecord;
 import com.dtstack.engine.master.anno.DataSource;
 import com.dtstack.engine.master.anno.DatabaseInsertOperation;
 import com.dtstack.engine.master.anno.IgnoreUniqueRandomSet;
@@ -924,6 +924,40 @@ public interface DataCollection {
         return Template.getDefaultScheduleJobJobFlowTemplate();
     }
 
+    @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
+    default AlertChannel getDefaultAlterChannelDingDt() {
+        return Template.getDefaultAlterChannelTemplateDingDt();
+    }
+
+    @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
+    default AlertChannel getDefaultAlterChannelMailDt() {
+        return Template.getDefaultAlterChannelTemplateMailDt();
+    }
+    @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
+    default AlertChannel getDefaultAlterChannelDingJar() {
+        return Template.getDefaultAlterChannelTemplateDingJar();
+    }
+    @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
+    default AlertChannel getDefaultAlterChannelMailJar() {
+        return Template.getDefaultAlterChannelTemplateMailJar();
+    }
+    @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
+    default AlertChannel getDefaultAlterChannelSmsJar() {
+        return Template.getDefaultAlterChannelTemplateSmsJar();
+    }
+    @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
+    default AlertChannel getDefaultAlterChannelComJar() {
+        return Template.getDefaultAlterChannelTemplateICustomizeJar();
+    }
+
+    @DatabaseInsertOperation(dao = TestAlertRecordDao.class)
+    default AlertRecord getDefaultRecord(){
+        return Template.getDefaultRecord();
+    }
+
+
+
+
     @DatabaseInsertOperation(dao = TestClusterDao.class)
     default Cluster getCluster() {
         Cluster cluster = new Cluster();
@@ -955,6 +989,15 @@ public interface DataCollection {
         LineageDataSource defaultHiveDataSourceTemplate = Template.getDefaultHiveDataSourceTemplate();
         defaultHiveDataSourceTemplate.setRealSourceId(1L);
         return defaultHiveDataSourceTemplate;
+    }
+
+
+
+    @DatabaseInsertOperation(dao = TestLineageDataSourceDao.class)
+    default LineageDataSource getRdostHiveDataSourceTemplate(){
+        LineageDataSource dataSource = Template.getRdostHiveDataSourceTemplate();
+        dataSource.setRealSourceId(2L);
+        return dataSource;
     }
 
 //    @DatabaseInsertOperation(dao = TestLineageDataSourceDao.class)
@@ -995,37 +1038,6 @@ public interface DataCollection {
     default LineageColumnColumn getDefaultLineageColumnColumn() {
         LineageColumnColumn defaultColumnColumn = Template.getDefaultColumnColumn();
         return defaultColumnColumn;
-    }
-
-    @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
-    default AlertChannel getDefaultAlterChannelDingDt() {
-        return Template.getDefaultAlterChannelTemplateDingDt();
-    }
-
-    @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
-    default AlertChannel getDefaultAlterChannelMailDt() {
-        return Template.getDefaultAlterChannelTemplateMailDt();
-    }
-    @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
-    default AlertChannel getDefaultAlterChannelDingJar() {
-        return Template.getDefaultAlterChannelTemplateDingJar();
-    }
-    @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
-    default AlertChannel getDefaultAlterChannelMailJar() {
-        return Template.getDefaultAlterChannelTemplateMailJar();
-    }
-    @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
-    default AlertChannel getDefaultAlterChannelSmsJar() {
-        return Template.getDefaultAlterChannelTemplateSmsJar();
-    }
-    @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
-    default AlertChannel getDefaultAlterChannelComJar() {
-        return Template.getDefaultAlterChannelTemplateICustomizeJar();
-    }
-
-    @DatabaseInsertOperation(dao = TestAlertRecordDao.class)
-    default AlertRecord getDefaultRecord(){
-        return Template.getDefaultRecord();
     }
 
 }

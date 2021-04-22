@@ -143,7 +143,7 @@
             </if>
     </update>
 
-    <update id="updateByMap" parameterType="com.dtstack.engine.domain.AlertRecord">
+    <update id="updateByMap" parameterType="com.dtstack.engine.api.domain.AlertRecord">
         update alert_record
         <set>
             <if test="record.id != null">
@@ -217,7 +217,7 @@
 
     </update>
 
-    <select id="selectQuery" resultType="com.dtstack.engine.domain.AlertRecord">
+    <select id="selectQuery" resultType="com.dtstack.engine.api.domain.AlertRecord">
         SELECT
         `id`, `tenant_id`,`app_type`,`alert_content_id`, `user_id`, `read_status`,`title`,`status`,`gmt_created`, `gmt_modified`,`context`,`read_id`
         FROM alert_record
@@ -301,14 +301,14 @@
         AND `is_deleted`=0
     </select>
 
-    <select id="findListByStatus" resultType="com.dtstack.engine.domain.AlertRecord">
+    <select id="findListByStatus" resultType="com.dtstack.engine.api.domain.AlertRecord">
         SELECT
             `id`,`context`
         FROM alert_record
         WHERE
         `node_address` = #{nodeAddress}
         AND `is_deleted`=0
-        <if test="alert_record_status!=null">
+        <if test="sendStatusList!=null and sendStatusList.size()>0">
             AND `alert_record_status`IN
             <foreach collection="sendStatusList" separator="," open="(" close=")" item="sendStatus">
                 ${sendStatus}

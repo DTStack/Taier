@@ -22,6 +22,8 @@ package com.dtstack.engine.master.enums;
 import com.dtstack.engine.api.enums.ScheduleEngineType;
 import com.dtstack.engine.common.enums.EComponentType;
 
+import java.util.Objects;
+
 public enum EngineTypeComponentType {
 
     FLINK(ScheduleEngineType.Flink, EComponentType.FLINK),
@@ -37,7 +39,8 @@ public enum EngineTypeComponentType {
     ORACLE_SQL(ScheduleEngineType.ORACLE, EComponentType.ORACLE_SQL),
     KUBERNETES(ScheduleEngineType.KUBERNETES, EComponentType.KUBERNETES),
     GREENPLUM_SQL(ScheduleEngineType.GREENPLUM, EComponentType.GREENPLUM_SQL),
-    PRESTO_SQL(ScheduleEngineType.Presto, EComponentType.PRESTO_SQL);
+    PRESTO_SQL(ScheduleEngineType.Presto, EComponentType.PRESTO_SQL),
+    INCEPTOR_SQL(ScheduleEngineType.INCEPTOR_SQL,EComponentType.INCEPTOR_SQL);
 
     private ScheduleEngineType scheduleEngineType;
 
@@ -100,9 +103,27 @@ public enum EngineTypeComponentType {
                 return EngineTypeComponentType.GREENPLUM_SQL;
             case "presto":
                 return EngineTypeComponentType.PRESTO_SQL;
+            case "inceptor":
+                return EngineTypeComponentType.INCEPTOR_SQL;
             default:
                 throw new UnsupportedOperationException("未知引擎类型:" + engineName);
         }
+    }
+
+    public static EComponentType getComponentByEngineName(String engineName){
+        EngineTypeComponentType engineTypeComponentType = getByEngineName(engineName);
+        if (Objects.nonNull(engineTypeComponentType)){
+            return engineTypeComponentType.componentType;
+        }
+        return null;
+    }
+
+    public static Integer engineName2ComponentType(String engineName){
+        EngineTypeComponentType engineTypeComponentType = getByEngineName(engineName);
+        if (Objects.nonNull(engineTypeComponentType)){
+            return engineTypeComponentType.componentType.getTypeCode();
+        }
+        return null;
     }
 }
 

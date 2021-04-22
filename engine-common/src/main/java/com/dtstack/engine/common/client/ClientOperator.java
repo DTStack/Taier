@@ -1,7 +1,6 @@
 package com.dtstack.engine.common.client;
 
 import com.dtstack.engine.api.pojo.CheckResult;
-import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.JobClient;
@@ -29,19 +28,26 @@ import java.util.Properties;
  */
 public class ClientOperator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ClientOperator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClientOperator.class);
 
-    private ClientCache clientCache = ClientCache.getInstance();
+    private static ClientCache clientCache;
 
-    private static class SingletonHolder {
-        private static ClientOperator singleton = new ClientOperator();
-    }
+    private static ClientOperator singleton;
 
     private ClientOperator() {
     }
 
-    public static ClientOperator getInstance() {
-        return SingletonHolder.singleton;
+    public static ClientOperator getInstance(String pluginPath) {
+        if (singleton == null) {
+            synchronized (ClientOperator.class) {
+                if (singleton == null) {
+                    clientCache = ClientCache.getInstance(pluginPath);
+                    LOGGER.info("init client operator plugin path {}",pluginPath);
+                    singleton = new ClientOperator();
+                }
+            }
+        }
+        return singleton;
     }
 
     public RdosTaskStatus getJobStatus(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
@@ -62,7 +68,7 @@ public class ClientOperator {
 
             return (RdosTaskStatus) result;
         } catch (Exception e) {
-            LOG.error("getStatus happens error：{}",jobId, e);
+            LOGGER.error("getStatus happens error：{}",jobId, e);
             return RdosTaskStatus.NOTFOUND;
         }
     }
@@ -198,4 +204,5 @@ public class ClientOperator {
         IClient clusterClient = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
         return clusterClient.grammarCheck(jobClient);
     }
+
 }

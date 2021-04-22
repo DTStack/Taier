@@ -44,15 +44,15 @@ public class ClusterController{
     public String clusterInfo(@DtRequestParam("tenantId") Long tenantId) {
         return clusterService.clusterInfo(tenantId);
     }
-
+    // TODO 多版本控制
     @RequestMapping(value="/clusterExtInfo", method = {RequestMethod.POST})
     public ClusterVO clusterExtInfo(@DtRequestParam("tenantId") Long uicTenantId) {
-        return clusterService.clusterExtInfo(uicTenantId);
+        return clusterService.clusterExtInfo(uicTenantId,false);
     }
 
     @RequestMapping(value="/pluginInfoJSON", method = {RequestMethod.POST})
     public JSONObject pluginInfoJSON(@DtRequestParam("tenantId") Long dtUicTenantId, @DtRequestParam("engineType") String engineTypeStr, @DtRequestParam("dtUicUserId")Long dtUicUserId, @DtRequestParam("deployMode")Integer deployMode) {
-        return clusterService.pluginInfoJSON(dtUicTenantId, engineTypeStr, dtUicUserId, deployMode);
+        return clusterService.pluginInfoJSON(dtUicTenantId, engineTypeStr, dtUicUserId, deployMode,null);
     }
 
 
@@ -82,7 +82,7 @@ public class ClusterController{
      */
     @RequestMapping(value="/hiveInfo", method = {RequestMethod.POST})
     public String hiveInfo(@DtRequestParam("tenantId") Long dtUicTenantId, @DtRequestParam("fullKerberos") Boolean fullKerberos) {
-        return clusterService.hiveInfo(dtUicTenantId, fullKerberos);
+        return clusterService.hiveInfo(dtUicTenantId, fullKerberos,null);
     }
 
     /**
@@ -94,7 +94,7 @@ public class ClusterController{
      */
     @RequestMapping(value="/hiveServerInfo", method = {RequestMethod.POST})
     public String hiveServerInfo(@DtRequestParam("tenantId") Long dtUicTenantId,@DtRequestParam("fullKerberos") Boolean fullKerberos) {
-        return clusterService.hiveServerInfo(dtUicTenantId, fullKerberos);
+        return clusterService.hiveServerInfo(dtUicTenantId, fullKerberos,null);
     }
 
     /**
@@ -106,7 +106,7 @@ public class ClusterController{
      */
     @RequestMapping(value="/hadoopInfo", method = {RequestMethod.POST})
     public String hadoopInfo(@DtRequestParam("tenantId") Long dtUicTenantId,@DtRequestParam("fullKerberos") Boolean fullKerberos) {
-        return clusterService.hadoopInfo(dtUicTenantId, fullKerberos);
+        return clusterService.hadoopInfo(dtUicTenantId, fullKerberos,null);
     }
 
     /**
@@ -118,7 +118,7 @@ public class ClusterController{
      */
     @RequestMapping(value="/carbonInfo", method = {RequestMethod.POST})
     public String carbonInfo(@DtRequestParam("tenantId") Long dtUicTenantId,@DtRequestParam("fullKerberos") Boolean fullKerberos) {
-        return clusterService.carbonInfo(dtUicTenantId, fullKerberos);
+        return clusterService.carbonInfo(dtUicTenantId, fullKerberos,null);
     }
 
     /**
@@ -130,7 +130,7 @@ public class ClusterController{
      */
     @RequestMapping(value="/impalaInfo", method = {RequestMethod.POST})
     public String impalaInfo(@DtRequestParam("tenantId") Long dtUicTenantId,@DtRequestParam("fullKerberos") Boolean fullKerberos) {
-        return clusterService.impalaInfo(dtUicTenantId, fullKerberos);
+        return clusterService.impalaInfo(dtUicTenantId, fullKerberos,null);
     }
 
     /**
@@ -146,7 +146,7 @@ public class ClusterController{
 
     @RequestMapping(value="/getConfigByKey", method = {RequestMethod.POST})
     public String getConfigByKey(@DtRequestParam("dtUicTenantId")Long dtUicTenantId, @DtRequestParam("key") String key, @DtRequestParam("fullKerberos") Boolean fullKerberos) {
-        return clusterService.getConfigByKey(dtUicTenantId, key, fullKerberos,Boolean.FALSE);
+        return clusterService.getConfigByKey(dtUicTenantId, key, fullKerberos,null);
     }
 
     @RequestMapping(value="/clusters", method = {RequestMethod.POST})
@@ -164,7 +164,7 @@ public class ClusterController{
      */
     @RequestMapping(value="/tiDBInfo", method = {RequestMethod.POST})
     public String tiDBInfo(@DtRequestParam("tenantId") Long dtUicTenantId, @DtRequestParam("userId") Long dtUicUserId) {
-        return clusterService.tiDBInfo(dtUicTenantId, dtUicUserId);
+        return clusterService.tiDBInfo(dtUicTenantId, dtUicUserId,null);
     }
 
     /**
@@ -176,7 +176,7 @@ public class ClusterController{
      */
     @RequestMapping(value="/oracleInfo", method = {RequestMethod.POST})
     public String oracleInfo(@DtRequestParam("tenantId") Long dtUicTenantId,@DtRequestParam("userId") Long dtUicUserId) {
-        return clusterService.oracleInfo(dtUicTenantId, dtUicUserId);
+        return clusterService.oracleInfo(dtUicTenantId, dtUicUserId,null);
     }
 
     /**
@@ -188,7 +188,7 @@ public class ClusterController{
      */
     @RequestMapping(value="/greenplumInfo", method = {RequestMethod.POST})
     public String greenplumInfo(@DtRequestParam("tenantId") Long dtUicTenantId,@DtRequestParam("userId") Long dtUicUserId) {
-        return clusterService.greenplumInfo(dtUicTenantId, dtUicUserId);
+        return clusterService.greenplumInfo(dtUicTenantId, dtUicUserId,null);
     }
 
     @RequestMapping(value="/dbInfo", method = {RequestMethod.POST})
@@ -205,7 +205,7 @@ public class ClusterController{
     @RequestMapping(value="/getCluster", method = {RequestMethod.POST})
     @ApiOperation(value = "获取集群信息详情")
     public ClusterVO getCluster(@DtRequestParam("clusterId") Long clusterId, @DtRequestParam("kerberosConfig") Boolean kerberosConfig,@DtRequestParam("removeTypeName") Boolean removeTypeName) {
-        return clusterService.getCluster(clusterId, kerberosConfig, removeTypeName,true);
+        return clusterService.getCluster(clusterId, removeTypeName, true);
     }
 
     @RequestMapping(value="/getAllCluster", method = {RequestMethod.POST})

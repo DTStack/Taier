@@ -1,46 +1,14 @@
 package com.dtstack.engine.common;
 
-import java.io.IOException;
-import java.io.InterruptedIOException;
-import java.net.UnknownHostException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLHandshakeException;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.NoHttpResponseException;
-import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.config.Registry;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.ConnectTimeoutException;
-import org.apache.http.conn.routing.HttpRoute;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.socket.LayeredConnectionSocketFactory;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.util.EntityUtils;
-import org.apache.http.protocol.HttpContext;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class HttpTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(HttpTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpTest.class);
 
 
     private void config(HttpRequestBase httpRequestBase) {
@@ -173,7 +141,7 @@ public class HttpTest {
 //                logger.info(EntityUtils.toString(entity, "utf-8")); ;
 //                EntityUtils.consume(entity);
 //            } catch (IOException e) {
-//                logger.error("{}", e);
+//                logger.error("", e);
 //            } finally {
 //                countDownLatch.countDown();
 //

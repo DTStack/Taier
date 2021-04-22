@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -77,8 +78,8 @@ public class TemplateTest extends AbstractTest {
 
     @Before
     public void init() {
-        doReturn(typeName).when(componentService).convertComponentTypeToClient(any(), any(), any(),any());
-        doCallRealMethod().when(componentService).addOrUpdateComponent(any(), any(), any(),any(),any(),any(),any(),any(),any(),any());
+        doReturn(typeName).when(componentService).convertComponentTypeToClient(any(), any(), any(),any(),any());
+        doCallRealMethod().when(componentService).addOrUpdateComponent(any(), any(), any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
         ReflectionTestUtils.setField(componentService,"clusterDao", clusterDao);
         ReflectionTestUtils.setField(componentService,"componentDao", componentDao);
         ReflectionTestUtils.setField(componentService,"consoleCache", consoleCache);
@@ -129,6 +130,17 @@ public class TemplateTest extends AbstractTest {
 
 
     @Test
+    public void testParseOldDTScript() {
+        long testK8sComponentId = -6L;
+        String template = "[{\"key\":\"commonConf\",\"values\":[{\"key\":\"hadoop.home.dir\",\"values\":null,\"type\":\"INPUT\",\"value\":\"/data/hadoop_base\",\"required\":true,\"dependencyKey\":null,\"dependencyValue\":null},{\"key\":\"hadoop.username\",\"values\":null,\"type\":\"INPUT\",\"value\":\"admin\",\"required\":true,\"dependencyKey\":null,\"dependencyValue\":null},{\"key\":\"java.home\",\"values\":null,\"type\":\"INPUT\",\"value\":\"/opt/dtstack/java/bin\",\"required\":true,\"dependencyKey\":null,\"dependencyValue\":null},{\"key\":\"PATH\",\"value\":\"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin\",\"id\":\"16070866397527510\"},{\"key\":\"HADOOP_CONF_DIR\",\"value\":\"/etc/hadoop/conf\",\"id\":\"160708665023915577\"},{\"key\":\"hadoop.job.ugi\",\"value\":\"hive\",\"id\":\"160708665907083927\"},{\"key\":\"USER_PATH\",\"value\":\"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin\",\"id\":\"160708666882482652\"}],\"type\":\"GROUP\",\"value\":null,\"required\":true,\"dependencyKey\":\"\",\"dependencyValue\":\"\"},{\"key\":\"jupyterConf\",\"values\":[{\"key\":\"c.NotebookApp.allow_remote_access\",\"values\":[{\"key\":\"false\",\"values\":null,\"type\":null,\"value\":\"false\",\"required\":true,\"dependencyKey\":null,\"dependencyValue\":null},{\"key\":\"true\",\"values\":null,\"type\":null,\"value\":\"true\",\"required\":true,\"dependencyKey\":null,\"dependencyValue\":null}],\"type\":\"SELECT\",\"value\":\"true\",\"required\":false,\"dependencyKey\":null,\"dependencyValue\":null},{\"key\":\"c.NotebookApp.default_url\",\"values\":null,\"type\":\"INPUT\",\"value\":\"'/lab'\",\"required\":false,\"dependencyKey\":null,\"dependencyValue\":null},{\"key\":\"c.NotebookApp.ip\",\"values\":null,\"type\":\"INPUT\",\"value\":\"'*'\",\"required\":false,\"dependencyKey\":null,\"dependencyValue\":null},{\"key\":\"c.NotebookApp.open_browser\",\"values\":[{\"key\":\"false\",\"values\":null,\"type\":null,\"value\":\"false\",\"required\":true,\"dependencyKey\":null,\"dependencyValue\":null},{\"key\":\"true\",\"values\":null,\"type\":null,\"value\":\"true\",\"required\":true,\"dependencyKey\":null,\"dependencyValue\":null}],\"type\":\"SELECT\",\"value\":\"true\",\"required\":false,\"dependencyKey\":null,\"dependencyValue\":null},{\"key\":\"c.NotebookApp.token\",\"values\":null,\"type\":\"INPUT\",\"value\":\"''\",\"required\":false,\"dependencyKey\":null,\"dependencyValue\":null},{\"key\":\"jupyter.path\",\"values\":null,\"type\":\"INPUT\",\"value\":\"/data/anaconda3/bin/jupyter-lab\",\"required\":false,\"dependencyKey\":null,\"dependencyValue\":null},{\"key\":\"jupyter.project.root\",\"values\":null,\"type\":\"INPUT\",\"value\":\"/data/DTAiworks/Jupyter/\",\"required\":false,\"dependencyKey\":null,\"dependencyValue\":null}],\"type\":\"GROUP\",\"value\":null,\"required\":true,\"dependencyKey\":\"\",\"dependencyValue\":\"\"},{\"key\":\"pythonConf\",\"values\":[{\"key\":\"python2.path\",\"values\":null,\"type\":\"INPUT\",\"value\":\"/data/miniconda2/bin/python2\",\"required\":false,\"dependencyKey\":null,\"dependencyValue\":null},{\"key\":\"python3.path\",\"values\":null,\"type\":\"INPUT\",\"value\":\"/data/miniconda3/bin/python3\",\"required\":false,\"dependencyKey\":null,\"dependencyValue\":null}],\"type\":\"GROUP\",\"value\":null,\"required\":true,\"dependencyKey\":\"\",\"dependencyValue\":\"\"}]";
+        String config = "{\"pythonConf\":{\"python3.path\":\"/data/miniconda3/bin/python3\",\"python2.path\":\"/data/miniconda2/bin/python2\"},\"jupyterConf\":{\"c.NotebookApp.token\":\"''\",\"jupyter.path\":\"/data/anaconda3/bin/jupyter-lab\",\"c.NotebookApp.allow_remote_access\":\"true\",\"c.NotebookApp.default_url\":\"'/lab'\",\"c.NotebookApp.ip\":\"'*'\",\"c.NotebookApp.open_browser\":\"true\",\"jupyter.project.root\":\"/data/DTAiworks/Jupyter/\"},\"typeName\":\"yarn3-hdfs3-dtscript\",\"commonConf\":{\"PATH\":\"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin\",\"HADOOP_CONF_DIR\":\"/etc/hadoop/conf\",\"hadoop.home.dir\":\"/data/hadoop_base\",\"hadoop.job.ugi\":\"hive\",\"USER_PATH\":\"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin\",\"hadoop.username\":\"admin\",\"java.home\":\"/opt/dtstack/java/bin\"}}";
+        componentConfigService.deepOldClientTemplate(config, template, testK8sComponentId, testClusterId, EComponentType.DT_SCRIPT.getTypeCode());
+        Map<String, Object> configToMap = componentConfigService.convertComponentConfigToMap(testK8sComponentId, true);
+        Assert.assertTrue(MapUtils.isNotEmpty(configToMap));
+    }
+
+
+    @Test
     public void addOrUpdateNewComponent() {
         String clusterName = "testNewClientTemplate";
         String templateString = "[{\"key\":\"auth\",\"required\":true,\"type\":\"RADIO_LINKAGE\",\"value\":\"1\",\"values\":[{\"dependencyKey\":\"auth\",\"dependencyValue\":\"1\",\"key\":\"password\",\"required\":true,\"type\":\"\",\"value\":\"1\",\"values\":[{\"dependencyKey\":\"auth$password\",\"dependencyValue\":\"\",\"key\":\"password\",\"required\":true,\"type\":\"input\",\"value\":\"\"}]},{\"dependencyKey\":\"auth\",\"dependencyValue\":\"2\",\"key\":\"rsaPath\",\"required\":true,\"type\":\"\",\"value\":\"2\",\"values\":[{\"dependencyKey\":\"auth$rsaPath\",\"dependencyValue\":\"\",\"key\":\"rsaPath\",\"required\":true,\"type\":\"input\",\"value\":\"\"}]}]},{\"key\":\"fileTimeout\",\"required\":true,\"type\":\"INPUT\",\"value\":\"300000\"},{\"key\":\"host\",\"required\":true,\"type\":\"INPUT\",\"value\":\"127.0.0.1\"},{\"key\":\"isUsePool\",\"required\":true,\"type\":\"INPUT\",\"value\":\"true\"},{\"key\":\"maxIdle\",\"required\":true,\"type\":\"INPUT\",\"value\":\"16\"},{\"key\":\"maxTotal\",\"required\":true,\"type\":\"INPUT\",\"value\":\"16\"},{\"key\":\"maxWaitMillis\",\"required\":true,\"type\":\"INPUT\",\"value\":\"3600000\"},{\"key\":\"minIdle\",\"required\":true,\"type\":\"INPUT\",\"value\":\"16\"},{\"key\":\"path\",\"required\":true,\"type\":\"INPUT\",\"value\":\"/data/sftp\"},{\"key\":\"port\",\"required\":true,\"type\":\"INPUT\",\"value\":\"22\"},{\"key\":\"timeout\",\"required\":true,\"type\":\"INPUT\",\"value\":\"0\"},{\"key\":\"username\",\"required\":true,\"type\":\"INPUT\",\"value\":\"admin\"}]\n";
@@ -138,8 +150,8 @@ public class TemplateTest extends AbstractTest {
         cluster.setHadoopVersion("hadoop2");
         clusterDao.insert(cluster);
         //添加组件 添加引擎
-        componentService.addOrUpdateComponent(cluster.getId(), "", null, "hadoop2", "", templateString, EComponentType.SFTP.getTypeCode(),null,null,null);
-        Component sftpComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.SFTP.getTypeCode());
+        componentService.addOrUpdateComponent(cluster.getId(), "", null, "hadoop2", "", templateString, EComponentType.SFTP.getTypeCode(),null,null,null, true,true);
+        Component sftpComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.SFTP.getTypeCode(),null);
         Assert.assertNotNull(sftpComponent);
         Map<String, Object> sftpConfig = componentConfigService.convertComponentConfigToMap(sftpComponent.getId(), true);
         Assert.assertNotNull(sftpConfig);
@@ -147,7 +159,7 @@ public class TemplateTest extends AbstractTest {
         for (String key : originMap.keySet()) {
             Assert.assertEquals(originMap.get(key), sftpConfig.get(key));
         }
-        componentService.getCacheComponentConfigMap(cluster.getId(), EComponentType.SFTP.getTypeCode(), true);
+        componentService.getCacheComponentConfigMap(cluster.getId(), EComponentType.SFTP.getTypeCode(), true, Collections.emptyMap());
     }
 
 

@@ -7,6 +7,8 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+
 
 /**
  * @author sishu.yss
@@ -436,7 +438,7 @@ public class EnvironmentContext {
     }
 
     public Integer getScheduleJobScope() {
-        return Integer.valueOf(environment.getProperty("job.back.scope", "60000"));
+        return Integer.valueOf(environment.getProperty("job.back.scope", "5000"));
     }
 
     public Integer getJobExecutorPoolCorePoolSize() {
@@ -495,6 +497,34 @@ public class EnvironmentContext {
         return Integer.valueOf(environment.getProperty("dataSource.time.between.eviction.runs.millis", "60000"));
     }
 
+    /**控制任务展开层数**/
+    public Integer getJobJobLevel(){
+        return Integer.valueOf(environment.getProperty("max.jobJob.level","20"));
+    }
+
+    /**控制工作流节点展开层数**/
+    public Integer getWorkFlowLevel(){
+        return Integer.valueOf(environment.getProperty("max.workFlow.level","20"));
+    }
+
+    public Boolean getUseOptimize(){
+
+        return Boolean.parseBoolean(environment.getProperty("engine.useOptimize","true"));
+    }
+
+    public int getMaxDeepShow() {
+        return Integer.parseInt(environment.getProperty("max.deep.show", "20"));
+    }
+
+    /**
+     * 是否开启任务调度
+     *
+     * @return
+     */
+    public boolean openJobSchedule() {
+        return Boolean.parseBoolean(environment.getProperty("job.schedule", "true"));
+    }
+
     public boolean getKeepAlive() {
         return Boolean.parseBoolean(environment.getProperty("dataSource.keep.alive", "true"));
     }
@@ -528,34 +558,9 @@ public class EnvironmentContext {
         return Integer.valueOf(environment.getProperty("dataSource.max.prepared.statement.per.connection.size", "20"));
     }
 
-    /**控制任务展开层数**/
-    public Integer getJobJobLevel(){
-        return Integer.valueOf(environment.getProperty("max.jobJob.level","20"));
+    public long getForkJoinResultTimeOut() {
+        return Long.parseLong(environment.getProperty("fork.join.timeout", Long.toString(60 * 5)));
     }
-
-    /**控制工作流节点展开层数**/
-    public Integer getWorkFlowLevel(){
-        return Integer.valueOf(environment.getProperty("max.workFlow.level","20"));
-    }
-
-    public Boolean getUseOptimize(){
-
-        return Boolean.parseBoolean(environment.getProperty("engine.useOptimize","true"));
-    }
-
-    public int getMaxDeepShow() {
-        return Integer.parseInt(environment.getProperty("max.deep.show", "20"));
-    }
-
-    /**
-     * 是否开启任务调度
-     *
-     * @return
-     */
-    public boolean openJobSchedule() {
-        return Boolean.parseBoolean(environment.getProperty("job.schedule", "true"));
-    }
-
     /**
      * 是否根据版本加载默认的配置
      *
@@ -563,5 +568,42 @@ public class EnvironmentContext {
      */
     public boolean isCanAddExtraConfig() {
         return Boolean.parseBoolean(environment.getProperty("console.extra.config", "true"));
+    }
+
+
+    public Integer getFuzzyProjectByProjectAliasLimit() {
+        return Integer.parseInt(environment.getProperty("fuzzy.project.alias.limit", "20"));
+    }
+
+    public Long getTaskRuleTimeout() {
+        return Long.parseLong(environment.getProperty("task.rule.timeout", "600000"));
+    }
+
+    public Integer getListChildTaskLimit() {
+        return Integer.parseInt(environment.getProperty("list.child.task.limit", "20"));
+    }
+
+    public boolean getOpenDummy() {
+        return Boolean.parseBoolean(environment.getProperty("open.dummy", "false"));
+    }
+
+    public String getPluginPath() {
+        return environment.getProperty("plugin.path",  System.getProperty("user.dir") + File.separator +"pluginLibs");
+    }
+
+    /**
+     * 数据源中心配置地址
+     * @return
+     */
+    public String getDatasourceNode() {
+        return environment.getProperty("datasource.node", "127.0.0.1:8077");
+    }
+
+    /**
+     * SDK TOKEN
+     * @return
+     */
+    public String getSdkToken() {
+        return environment.getProperty("sdk.token", "");
     }
 }

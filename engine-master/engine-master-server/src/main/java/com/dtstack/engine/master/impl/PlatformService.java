@@ -48,7 +48,7 @@ public class PlatformService {
             }
             PlatformEventType eventType = PlatformEventType.getByCode(eventVO.getEventCode());
             if (null == eventType) {
-                throw new RdosDefineException("不支持的事件类型");
+                throw new RdosDefineException("Unsupported event type");
             }
             if (null == eventVO.getTenantId()) {
                 logger.info("callback {} tenantId is null ", eventVO);

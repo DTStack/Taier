@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 @Component
 public class JobParamReplace {
 
-    private static final Logger logger = LoggerFactory.getLogger(JobParamReplace.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobParamReplace.class);
 
 
     private static final Pattern PARAM_PATTERN = Pattern.compile("\\$\\{(.*?)\\}");

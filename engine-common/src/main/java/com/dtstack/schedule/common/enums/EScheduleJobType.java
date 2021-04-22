@@ -39,7 +39,10 @@ public enum EScheduleJobType {
     KERAS(23, "Keras", 3, 6),
     PRESTO_SQL(24, "Presto", 0, 30),
     PYTORCH(25, "Pytorch", 3, 40),
-    KINGBASE(26,"kingbase",0,41);
+    KINGBASE(26,"kingbase",0,41),
+    NOT_DO_TASK(27,"空任务",-1,0),
+    INCEPTOR_SQL(28,"Inceptor SQL",0,4)
+    ;
 
 
     private Integer type;

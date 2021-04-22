@@ -2,6 +2,8 @@ package com.dtstack.engine.master.akka;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.pojo.CheckResult;
+import com.dtstack.engine.api.pojo.ClusterResource;
+import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobClientCallBack;
 import com.dtstack.engine.common.JobIdentifier;
@@ -12,10 +14,9 @@ import com.dtstack.engine.common.client.ClientOperator;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.api.pojo.ClusterResource;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
+import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.plugininfo.PluginWrapper;
 import com.google.common.base.Strings;
@@ -27,13 +28,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 @Component
 public class WorkerOperator {
 
-    private static final Logger logger = LoggerFactory.getLogger(WorkerOperator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WorkerOperator.class);
 
     @Autowired(required = false)
     private MasterServer masterServer;
@@ -58,7 +60,7 @@ public class WorkerOperator {
             }
             jobClient.setPluginWrapperInfo(pluginWrapper.wrapperPluginInfo(jobClient.getParamAction()));
         } catch (Exception e) {
-            logger.error("{} buildPluginInfo failed!",jobClient.getTaskId(), e);
+            LOGGER.error("{} buildPluginInfo failed!",jobClient.getTaskId(), e);
             throw new RdosDefineException("buildPluginInfo error",e);
         }
     }
@@ -72,10 +74,11 @@ public class WorkerOperator {
         }
 
         if (null == jobIdentifier || null == jobIdentifier.getEngineType() || null == jobIdentifier.getTenantId()) {
-            logger.error("pluginInfo params lost {}", jobIdentifier);
+            LOGGER.error("pluginInfo params lost {}", jobIdentifier);
             throw new RdosDefineException("pluginInfo params lost");
         }
-        JSONObject info = clusterService.pluginInfoJSON(jobIdentifier.getTenantId(), jobIdentifier.getEngineType(), jobIdentifier.getUserId(), jobIdentifier.getDeployMode());
+        JSONObject info = clusterService.pluginInfoJSON(jobIdentifier.getTenantId(), jobIdentifier.getEngineType(), jobIdentifier.getUserId(), jobIdentifier.getDeployMode(),
+                Collections.singletonMap(EngineTypeComponentType.getByEngineName(jobIdentifier.getEngineType()).getComponentType().getTypeCode(),jobIdentifier.getComponentVersion()));
         if(null == info){
             return null;
         }
@@ -128,7 +131,7 @@ public class WorkerOperator {
 
             return (RdosTaskStatus) result;
         } catch (Exception e) {
-            logger.error("getStatus happens error：{}",jobId, e);
+            LOGGER.error("getStatus happens error：{}",jobId, e);
             return RdosTaskStatus.NOTFOUND;
         }
     }
@@ -157,7 +160,7 @@ public class WorkerOperator {
         }
         String logInfo;
         if (StringUtils.isNotBlank(jobIdentifier.getEngineJobId())) {
-            logger.warn("jobIdentifier:{}", jobIdentifier);
+            LOGGER.warn("jobIdentifier:{}", jobIdentifier);
         }
         try {
             logInfo = (String) masterServer.sendMessage(new MessageGetEngineLog(jobIdentifier.getEngineType(), this.getPluginInfo(jobIdentifier), jobIdentifier));
@@ -179,7 +182,7 @@ public class WorkerOperator {
         try {
             checkpoints = (String) masterServer.sendMessage(new MessageGetCheckpoints(jobIdentifier.getEngineType(), this.getPluginInfo(jobIdentifier), jobIdentifier));
         } catch (Exception e) {
-            logger.error("getCheckpoints failed!", e);
+            LOGGER.error("getCheckpoints failed!", e);
         }
         return checkpoints;
     }
@@ -196,7 +199,7 @@ public class WorkerOperator {
         try {
             rollingLogBaseInfo = (List<String>) masterServer.sendMessage(new MessageRollingLogBaseInfo(jobIdentifier.getEngineType(), this.getPluginInfo(jobIdentifier), jobIdentifier));
         } catch (Exception e) {
-            logger.error("getRollingLogBaseInfo failed!", e);
+            LOGGER.error("getRollingLogBaseInfo failed!", e);
         }
         return rollingLogBaseInfo;
     }
@@ -233,14 +236,14 @@ public class WorkerOperator {
                 }
                 return containerInfos;
             } catch (Exception e) {
-                logger.error("getCheckpoints failed!", e);
+                LOGGER.error("getCheckpoints failed!", e);
                 return null;
             }
         }
         try {
             return (List<String>) callbackAndReset(jobClient, () -> masterServer.sendMessage(new MessageContainerInfos(jobClient)));
         } catch (Exception e) {
-            logger.error("getCheckpoints failed!", e);
+            LOGGER.error("getCheckpoints failed!", e);
             return null;
         }
     }
@@ -256,7 +259,7 @@ public class WorkerOperator {
         try {
             return (ComponentTestResult)masterServer.sendMessage(new MessageTestConnectInfo(engineType,pluginInfo));
         } catch (Exception e) {
-            logger.error("testConnect failed!", e);
+            LOGGER.error("testConnect failed!", e);
             return null;
         }
     }
@@ -309,4 +312,5 @@ public class WorkerOperator {
         }
         return (CheckResult) masterServer.sendMessage(new MessageGrammarCheck(jobClient));
     }
+
 }

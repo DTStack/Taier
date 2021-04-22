@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.dtstack.engine.alert.AlterContext;
 import com.dtstack.engine.alert.AlterSender;
 import com.dtstack.engine.alert.EventMonitor;
@@ -18,9 +17,9 @@ import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.dao.AlertRecordDao;
-import com.dtstack.engine.domain.AlertChannel;
-import com.dtstack.engine.domain.AlertContent;
-import com.dtstack.engine.domain.AlertRecord;
+import com.dtstack.engine.api.domain.AlertChannel;
+import com.dtstack.engine.api.domain.AlertContent;
+import com.dtstack.engine.api.domain.AlertRecord;
 import com.dtstack.engine.master.enums.AlertMessageStatusEnum;
 import com.dtstack.engine.master.enums.AlertSendStatusEnum;
 import com.dtstack.engine.master.enums.ReadStatus;
@@ -48,7 +47,7 @@ import java.util.Map;
 @Service
 public class AlertRecordService {
 
-    private final Logger log = LoggerFactory.getLogger(AlertRecordService.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(AlertRecordService.class);
 
     @Autowired
     private AlertRecordDao alertRecordMapper;
@@ -154,7 +153,7 @@ public class AlertRecordService {
             List<AlertChannel> alertChannels = alertChannelService.selectAlertByIds(alarmSendDTO.getAlertGateSources());
 
             if (CollectionUtils.isEmpty(alertChannels)) {
-                throw new RdosDefineException("发送告警必须设置通道");
+                throw new RdosDefineException("The channel must be set to send an alarm");
             }
 
             String content = alarmSendDTO.getContent();
@@ -163,7 +162,7 @@ public class AlertRecordService {
 
             if (StringUtils.isBlank(content)) {
                 if (alertContent == null) {
-                    throw new RdosDefineException("发送告警必须设置告警内容");
+                    throw new RdosDefineException("The alarm content must be set to send an alarm");
                 }
                 content = alertContent.getContent();
             }
@@ -183,8 +182,11 @@ public class AlertRecordService {
                 sendAlter(alarmSendDTO, content, alertChannelMap, receiversMap, record);
             }
         } catch (Exception e) {
-            log.error(ExceptionUtil.getErrorMessage(e));
-            throw new RdosDefineException(e.getMessage());
+            LOGGER.error(ExceptionUtil.getErrorMessage(e));
+
+            if (e instanceof RdosDefineException) {
+                throw (RdosDefineException)e;
+            }
         } finally {
             if (alarmSendDTO.getContentId()!=null) {
                 alertContentService.updateContent(alarmSendDTO.getContentId(),alarmSendDTO, AlertMessageStatusEnum.ALTER.getType());
@@ -199,12 +201,13 @@ public class AlertRecordService {
             UserMessageDTO userMessageDTO = receiversMap.get(record.getUserId());
 
             if (alertChannel == null) {
-                throw new RdosDefineException("未查询到通道信息");
+                throw new RdosDefineException("Channel information not found");
             }
 
             AlertGateCode alertGateCode = AlertGateCode.parse(alertChannel.getAlertGateCode());
             alterContext.setJarPath(alertChannel.getFilePath());
             alterContext.setAlertGateJson(StringUtils.isNotBlank(alertChannel.getAlertGateJson()) ? alertChannel.getAlertGateJson() : "");
+            alterContext.setEvn(alarmSendDTO.getEnv());
             alterContext.setId(record.getId());
             alterContext.setTitle(record.getTitle());
             alterContext.setContent(content);
@@ -222,7 +225,7 @@ public class AlertRecordService {
             alterContext.setExtendedParam(extendedPara);
             alterSender.sendAsyncAAlter(alterContext,eventMonitors);
         } catch (Exception e) {
-            log.error(ExceptionUtil.getErrorMessage(e));
+            LOGGER.error(ExceptionUtil.getErrorMessage(e));
             AlertRecord alertRecord = new AlertRecord();
             alertRecord.setAlertRecordSendStatus(AlertSendStatusEnum.SEND_FAILURE.getType());
             alertRecord.setFailureReason(ExceptionUtil.getErrorMessage(e));

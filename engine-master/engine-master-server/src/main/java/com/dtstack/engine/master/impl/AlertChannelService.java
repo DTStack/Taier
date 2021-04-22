@@ -10,7 +10,7 @@ import com.dtstack.engine.common.enums.IsDefaultEnum;
 import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.AlertChannelDao;
-import com.dtstack.engine.domain.AlertChannel;
+import com.dtstack.engine.api.domain.AlertChannel;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.google.common.collect.Lists;
@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
 import java.util.List;
 
 /**
@@ -111,7 +110,7 @@ public class AlertChannelService {
         AlertChannel channel = alertChannelDao.selectById(param.getAlertId());
 
         if (channel == null) {
-            throw new RdosDefineException("通道不存在!");
+            throw new RdosDefineException("channel does not exist!");
         }
 
         // 重设默认通道
@@ -131,15 +130,15 @@ public class AlertChannelService {
         }
 
         if (param.getAlertId() == null) {
-            throw new RdosDefineException("通道ID（AlterId）是必传参数");
+            throw new RdosDefineException("Channel id（AlterId）is a required parameter");
         }
 
         if (param.getAlertGateType() == null) {
-            throw new RdosDefineException("通道类型（AlertGateType）是必传参数");
+            throw new RdosDefineException("Channel type（AlertGateType）is a required parameter");
         }
 
         if (AlertGateTypeEnum.CUSTOMIZE.getType().equals(param.getAlertGateType())) {
-            throw new RdosDefineException("自定义通道类型（AlertGateType）不能设置默认值");
+            throw new RdosDefineException("Custom channel type（AlertGateType）cannot set default value");
         }
     }
 

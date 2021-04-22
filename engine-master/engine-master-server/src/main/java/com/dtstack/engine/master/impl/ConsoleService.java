@@ -11,7 +11,6 @@ import com.dtstack.engine.api.vo.console.ConsoleJobVO;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EJobCacheStage;
-import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -55,7 +54,7 @@ import java.util.stream.Collectors;
 @Service
 public class ConsoleService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ConsoleService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleService.class);
 
     @Autowired
     private ScheduleJobDao scheduleJobDao;
@@ -65,9 +64,6 @@ public class ConsoleService {
 
     @Autowired
     private ClusterDao clusterDao;
-
-    @Autowired
-    private EngineDao engineDao;
 
     @Autowired
     private ComponentService componentService;
@@ -103,13 +99,13 @@ public class ConsoleService {
 
     public Boolean finishJob(String jobId, Integer status) {
         if (!RdosTaskStatus.isStopped(status)) {
-            logger.warn("Job status：" + status + " is not stopped status");
+            LOGGER.warn("Job status：" + status + " is not stopped status");
             return false;
         }
         shardCache.updateLocalMemTaskStatus(jobId, status);
         engineJobCacheDao.delete(jobId);
         scheduleJobDao.updateJobStatus(jobId, status);
-        logger.info("jobId:{} update job status:{}, job is finished.", jobId, status);
+        LOGGER.info("jobId:{} update job status:{}, job is finished.", jobId, status);
         return true;
     }
 
@@ -145,7 +141,7 @@ public class ConsoleService {
             vo.setTheJobIdx(1);
             return vo;
         } catch (Exception e) {
-            logger.error("searchJob error:{}", e);
+            LOGGER.error("searchJob error:", e);
         }
         return null;
     }
@@ -155,7 +151,7 @@ public class ConsoleService {
             Preconditions.checkNotNull(jobName, "parameters of jobName not be null.");
             return engineJobCacheDao.listNames(jobName);
         } catch (Exception e) {
-            logger.error("{}", e);
+            LOGGER.error("", e);
         }
         return null;
     }
@@ -262,12 +258,12 @@ public class ConsoleService {
                     ScheduleJob scheduleJob = scheduleJobMap.getOrDefault(engineJobCache.getJobId(), new ScheduleJob());
                     //补充租户信息
                     Tenant tenant = tenantMap.get(scheduleJob.getDtuicTenantId());
-                    if(null == tenant && DELAULT_TENANT != scheduleJob.getDtuicTenantId() && scheduleJob.getDtuicTenantId() > 0){
+                    if(null == tenant && ConfigConstant.DEFAULT_TENANT != scheduleJob.getDtuicTenantId() && scheduleJob.getDtuicTenantId() > 0){
                         //可能临时运行 租户在tenant表没有 需要添加
                         try {
                             tenant = tenantService.addTenant(scheduleJob.getDtuicTenantId(), dtToken);
                         } catch (Exception e) {
-                            logger.error(" get tenant error {}", scheduleJob.getDtuicTenantId(),e);
+                            LOGGER.error(" get tenant error {}", scheduleJob.getDtuicTenantId(),e);
                         }
                     }
                     this.fillJobInfo(theJobMap, scheduleJob, engineJobCache,tenant,pluginInfoCache);
@@ -275,7 +271,7 @@ public class ConsoleService {
                 }
             }
         } catch (Exception e) {
-            logger.error("groupDetail error{}", e);
+            LOGGER.error("groupDetail error", e);
         }
         PageQuery pageQuery = new PageQuery<>(currentPage, pageSize);
         return new PageResult<>(data,count.intValue(),pageQuery);
@@ -346,7 +342,7 @@ public class ConsoleService {
                 return jobDealer.addGroupPriorityQueue(engineJobCache.getJobResource(), jobClient, false, false);
             }
         } catch (Exception e) {
-            logger.error("jobStick error:{}", e);
+            LOGGER.error("jobStick error:", e);
         }
         return false;
     }
@@ -355,7 +351,7 @@ public class ConsoleService {
         Preconditions.checkArgument(StringUtils.isNotBlank(jobId), "parameters of jobId is required");
         List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(Lists.newArrayList(jobId));
         if (alreadyExistJobIds.contains(jobId)) {
-            logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobId);
+            LOGGER.info("jobId:{} ignore insert stop record, because is already exist in table.", jobId);
             return;
         }
 
@@ -395,12 +391,12 @@ public class ConsoleService {
             if (EJobCacheStage.unSubmitted().contains(stage)) {
                 Integer deleted = engineJobCacheDao.deleteByJobIds(jobIdList);
                 Integer updated = scheduleJobDao.updateJobStatusByJobIds(jobIdList, RdosTaskStatus.CANCELED.getStatus());
-                logger.info("delete job size:{}, update job size:{}, deal jobIds:{}", deleted, updated, jobIdList);
+                LOGGER.info("delete job size:{}, update job size:{}, deal jobIds:{}", deleted, updated, jobIdList);
             } else {
                 List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(jobIdList);
                 for (String jobId : jobIdList) {
                     if (alreadyExistJobIds.contains(jobId)) {
-                        logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobId);
+                        LOGGER.info("jobId:{} ignore insert stop record, because is already exist in table.", jobId);
                         continue;
                     }
 
@@ -437,14 +433,14 @@ public class ConsoleService {
                 if (EJobCacheStage.unSubmitted().contains(stage)) {
                     Integer deleted = engineJobCacheDao.deleteByJobIds(jobIds);
                     Integer updated = scheduleJobDao.updateJobStatusByJobIds(jobIds, RdosTaskStatus.CANCELED.getStatus());
-                    logger.info("delete job size:{}, update job size:{}, query job size:{}, jobIds:{}", deleted, updated, jobCaches.size(), jobIds);
+                    LOGGER.info("delete job size:{}, update job size:{}, query job size:{}, jobIds:{}", deleted, updated, jobCaches.size(), jobIds);
                 } else {
                     //已提交的任务需要发送请求杀死，走正常杀任务的逻辑
                     List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(jobIds);
                     for (EngineJobCache jobCache : jobCaches) {
                         startId = jobCache.getId();
                         if (alreadyExistJobIds.contains(jobCache.getJobId())) {
-                            logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobCache.getJobId());
+                            LOGGER.info("jobId:{} ignore insert stop record, because is already exist in table.", jobCache.getJobId());
                             continue;
                         }
 
@@ -465,7 +461,7 @@ public class ConsoleService {
         stopJobList(jobResource, nodeAddress, stage, jobIdList, ForceCancelFlag.NO.getFlag());
     }
 
-    public ClusterResource clusterResources( String clusterName) {
+    public ClusterResource clusterResources( String clusterName,Map<Integer,String> componentVersionMap) {
         if (StringUtils.isEmpty(clusterName)) {
             return new ClusterResource();
         }
@@ -475,11 +471,11 @@ public class ConsoleService {
             throw new RdosDefineException(ErrorCode.DATA_NOT_FIND);
         }
 
-        Component yarnComponent = getYarnComponent(cluster.getId());
+        Component yarnComponent = componentService.getComponentByClusterId(cluster.getId(),EComponentType.YARN.getTypeCode(),null);
         if (yarnComponent == null) {
             return null;
         }
-        JSONObject yarnConfigStr = componentService.getComponentByClusterId(cluster.getId(), EComponentType.YARN.getTypeCode(), false, JSONObject.class);
+        JSONObject yarnConfigStr = componentService.getComponentByClusterId(cluster.getId(), EComponentType.YARN.getTypeCode(), false, JSONObject.class,null);
         return getResources(yarnComponent, cluster,yarnConfigStr);
     }
 
@@ -490,51 +486,22 @@ public class ConsoleService {
             String typeName = Optional.ofNullable(componentConfig).orElse(new JSONObject()).getString(ConfigConstant.TYPE_NAME_KEY);
             if (StringUtils.isBlank(typeName)) {
                 //获取对应的插件名称
-                Component hdfsComponent = componentService.getComponentByClusterId(cluster.getId(), EComponentType.HDFS.getTypeCode());
+                Component hdfsComponent = componentService.getComponentByClusterId(cluster.getId(), EComponentType.HDFS.getTypeCode(),null);
                 String clusterName = cluster.getClusterName();
                 if (null == hdfsComponent) {
                     typeName = componentService.convertComponentTypeToClient(clusterName,
-                            EComponentType.HDFS.getTypeCode(), yarnComponent.getHadoopVersion(),null);
+                            EComponentType.HDFS.getTypeCode(), yarnComponent.getHadoopVersion(),null,null);
                 } else {
                     typeName = componentService.convertComponentTypeToClient(clusterName,
-                            EComponentType.HDFS.getTypeCode(), hdfsComponent.getHadoopVersion(),hdfsComponent.getStoreType());
+                            EComponentType.HDFS.getTypeCode(), hdfsComponent.getHadoopVersion(),hdfsComponent.getStoreType(),null);
                 }
             }
             pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,typeName);
             return workerOperator.clusterResource(typeName, pluginInfo.toJSONString());
         } catch (Exception e) {
-            logger.error("getResources error: ", e);
-            throw new RdosDefineException("flink资源获取异常");
+            LOGGER.error("getResources error: ", e);
+            throw new RdosDefineException("acquire flink resources error.");
         }
-    }
-
-    public Component getYarnComponent(Long clusterId) {
-        List<Engine> engines = engineDao.listByClusterId(clusterId);
-        if (CollectionUtils.isEmpty(engines)) {
-            return null;
-        }
-
-        Engine hadoopEngine = null;
-        for (Engine e : engines) {
-            if (e.getEngineType() == MultiEngineType.HADOOP.getType()) {
-                hadoopEngine = e;
-                break;
-            }
-        }
-        if (hadoopEngine == null) {
-            return null;
-        }
-
-        List<Component> componentList = componentService.listComponent(hadoopEngine.getId());
-        if (CollectionUtils.isEmpty(componentList)) {
-            return null;
-        }
-        for (Component component : componentList) {
-            if (EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode())) {
-                return component;
-            }
-        }
-        return null;
     }
 
     /**

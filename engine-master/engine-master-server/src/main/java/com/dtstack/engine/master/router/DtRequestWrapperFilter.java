@@ -25,7 +25,7 @@ import java.util.Map;
 @Component
 public class DtRequestWrapperFilter extends OncePerRequestFilter {
 
-    private final static Logger logger = LoggerFactory.getLogger(DtRequestWrapperFilter.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(DtRequestWrapperFilter.class);
 
     public final static String DT_REQUEST_BODY = "DT_REQUEST_BODY";
 
@@ -38,7 +38,7 @@ public class DtRequestWrapperFilter extends OncePerRequestFilter {
         MultiReadHttpServletRequest requestWrapper = new MultiReadHttpServletRequest(request);
         for (String exc: excludeTargets) {
             if (exc.equals(uri)) {
-                logger.info("Uri: " + uri + ", Params: " + getParameterString(requestWrapper));
+                LOGGER.info("Uri: " + uri + ", Params: " + getParameterString(requestWrapper));
                 filterChain.doFilter(requestWrapper, response);
                 return;
             }
@@ -57,10 +57,10 @@ public class DtRequestWrapperFilter extends OncePerRequestFilter {
                 try {
                     request.setAttribute(DT_REQUEST_BODY, JSONObject.parseObject(reqBody));
                 } catch (Exception e) {
-                    logger.warn(ExceptionUtil.getErrorMessage(e));
+                    LOGGER.warn(ExceptionUtil.getErrorMessage(e));
                 }
             }
-            logger.info("Uri: " + uri + ", Params: " + reqBody);
+            LOGGER.info("Uri: " + uri + ", Params: " + reqBody);
         }
         filterChain.doFilter(requestWrapper, response);
     }

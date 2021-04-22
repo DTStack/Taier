@@ -1,17 +1,12 @@
 package com.dtstack.engine.master.jobdealer.resource;
 
 import com.dtstack.engine.api.domain.Component;
-import com.dtstack.engine.api.domain.Engine;
-import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.ComputeType;
-import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.enums.EComponentType;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -72,40 +67,19 @@ public class FlinkResource extends CommonResource {
         throw new RdosDefineException("not support mode: " + modeStr);
     }
 
-    public EComponentType getResourceEComponentType(JobClient jobClient){
-        long tenantId = jobClient.getTenantId();
+    public EComponentType getResourceEComponentType(JobClient jobClient) {
+        long dtUicTenantId = jobClient.getTenantId();
 
-        ClusterVO cluster = clusterService.getClusterByTenant(tenantId);
-        if (null == cluster){
-            throw new RdosDefineException("No found cluster by tenantId: " + tenantId);
+        Long clusterId = engineTenantDao.getClusterIdByTenantId(dtUicTenantId);
+        Component yarnComponent = componentService.getComponentByClusterId(clusterId, EComponentType.YARN.getTypeCode(), null);
+        if (null != yarnComponent) {
+            return EComponentType.YARN;
         }
 
-        Long clusterId = cluster.getClusterId();
-        List<Engine> engines = engineDao.listByClusterId(clusterId);
-        if (CollectionUtils.isEmpty(engines)){
-            throw new RdosDefineException("No found engines by clusterId: " + clusterId);
+        Component kubernetesComponent = componentService.getComponentByClusterId(clusterId, EComponentType.KUBERNETES.getTypeCode(),null);
+        if (null != kubernetesComponent) {
+            return EComponentType.KUBERNETES;
         }
-
-        Engine hadoopEngine = null;
-        for (Engine engine : engines) {
-            if (engine.getEngineType() == MultiEngineType.HADOOP.getType()) {
-                hadoopEngine = engine;
-                break;
-            }
-        }
-        if (null == hadoopEngine) {
-            throw new RdosDefineException("No found hadoopEngine");
-        }
-
-        List<Component> componentList = componentService.listComponent(hadoopEngine.getId());
-        for (Component component : componentList) {
-            if (EComponentType.KUBERNETES.getTypeCode().equals(component.getComponentTypeCode())) {
-                return EComponentType.KUBERNETES;
-            } else if (EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode())) {
-                return EComponentType.YARN;
-            }
-        }
-
         throw new RdosDefineException("No found resource EComponentType");
     }
 }

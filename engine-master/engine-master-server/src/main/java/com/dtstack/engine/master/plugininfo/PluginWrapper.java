@@ -10,6 +10,7 @@ import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
+import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.utils.TaskParamsUtil;
@@ -21,15 +22,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Component
 public class PluginWrapper{
 
-    private static final Logger logger = LoggerFactory.getLogger(PluginWrapper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PluginWrapper.class);
 
     private static final String PARAMS_DELIM = "&";
     private static final String URI_PARAMS_DELIM = "?";
@@ -73,7 +71,9 @@ public class PluginWrapper{
             deployMode = TaskParamsUtil.parseDeployTypeByTaskParams(action.getTaskParams(),action.getComputeType(), EngineType.Flink.name()).getType();
 
         }
-        JSONObject pluginInfoJson = clusterService.pluginInfoJSON(tenantId, engineType, action.getUserId(),deployMode);
+        // 需要传入组件版本,涉及Null值构建Map需要检验Null兼容
+        JSONObject pluginInfoJson = clusterService.pluginInfoJSON(tenantId, engineType, action.getUserId(),deployMode,
+                Collections.singletonMap(EngineTypeComponentType.engineName2ComponentType(engineType),action.getComponentVersion()));
         String groupName = ConfigConstant.DEFAULT_GROUP_NAME;
         action.setGroupName(groupName);
         if (null != pluginInfoJson && !pluginInfoJson.isEmpty()) {
@@ -109,7 +109,7 @@ public class PluginWrapper{
         Integer appType = MapUtils.getInteger(actionParam, "appType");
         ScheduleJob scheduleJob = scheduleJobService.getByJobId(jobId, Deleted.NORMAL.getStatus());
         if(null == scheduleJob || null == appType){
-            logger.info("dbUrl {} jobId {} appType or scheduleJob is null",dbUrl,jobId);
+            LOGGER.info("dbUrl {} jobId {} appType or scheduleJob is null",dbUrl,jobId);
             return;
         }
         JSONObject info = JSONObject.parseObject(scheduleTaskShadeDao.getExtInfoByTaskId(scheduleJob.getTaskId(), appType));
@@ -134,7 +134,7 @@ public class PluginWrapper{
             //TiDB 没有currentSchema
             String currentSchema = paramsJson.getString("currentSchema");
             if(StringUtils.isBlank(currentSchema)){
-                throw new RdosDefineException("tidb currentSchema 不允许为空");
+                throw new RdosDefineException("tidb currentSchema Not allowed to be empty");
             }
             if (dbUrl.endsWith(currentSchema)) {
                 pluginInfoJson.put("jdbcUrl", dbUrl);
@@ -144,7 +144,7 @@ public class PluginWrapper{
                 return;
             }
 
-            throw new RdosDefineException("tidb jdbcUrl 参数不合法 需要 / 结尾");
+            throw new RdosDefineException("tidb jdbcUrl The parameter is invalid need / end");
         }
 
         if (MultiEngineType.PRESTO.getName().equalsIgnoreCase((String)actionParam.get("engineType"))){
@@ -242,7 +242,7 @@ public class PluginWrapper{
             String cacheKey = String.format("%s.%s.%s.%s", tenantId, engineType, userId, deployMode);
             Integer finalDeployMode = deployMode;
             return pluginInfoCache.computeIfAbsent(cacheKey, (k) -> {
-                JSONObject infoJSON = clusterService.pluginInfoJSON(tenantId, engineType, userId, finalDeployMode);
+                JSONObject infoJSON = clusterService.pluginInfoJSON(tenantId, engineType, userId, finalDeployMode,null);
                 if (Objects.nonNull(infoJSON)) {
                     return infoJSON.toJSONString();
                 }
@@ -250,7 +250,7 @@ public class PluginWrapper{
             });
 
         } catch (Exception e) {
-            logger.error("getPluginInfo tenantId {} engineType {} error ", tenantId, engineType);
+            LOGGER.error("getPluginInfo tenantId {} engineType {} error ", tenantId, engineType);
         }
         return "";
     }
