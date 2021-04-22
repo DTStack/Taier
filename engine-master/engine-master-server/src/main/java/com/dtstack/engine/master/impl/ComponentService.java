@@ -551,7 +551,7 @@ public class ComponentService {
         componentConfigService.addOrUpdateComponentConfig(clientTemplates, addComponent.getId(), addComponent.getClusterId(), componentCode);
         // 此时不需要查询默认版本
         List<IComponentVO> componentVos = componentConfigService.getComponentVoByComponent(Lists.newArrayList(addComponent), true, clusterId,true,false);
-        this.updateCache(engine.getId(), componentType.getTypeCode());
+        this.updateCache(engine.getClusterId(),engine.getId(), componentType.getTypeCode());
         if (CollectionUtils.isNotEmpty(componentVos)) {
             ComponentVO componentVO = (ComponentVO) componentVos.get(0);
             componentVO.setClusterName(clusterName);
