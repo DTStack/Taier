@@ -60,6 +60,7 @@ const DataInfo = (props: IPropsDataInfo) => {
             </div>
           </div>
           <Table
+            className="dt-table-border dt-table-last-row-noborder"
             rowKey={(record, index) => index.toString()}
             columns={item.columns}
             dataSource={item.dataSource}

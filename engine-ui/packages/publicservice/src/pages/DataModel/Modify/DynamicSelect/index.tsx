@@ -4,6 +4,7 @@ import { JoinKey } from '@/pages/DataModel/types';
 import Message from 'pages/DataModel/components/Message';
 import { API } from '@/services';
 import _ from 'lodash';
+import './style';
 
 interface ITableItem {
   dsId: number;
@@ -168,15 +169,17 @@ const DynamicSelect = (props: IPropsDynamicSelect) => {
     <div className="dynamic-select-list">
       {joinPairsList.map((item, index) => {
         return (
-          <Row key={item.id}>
+          <Row className="form-item-row" key={item.id}>
             <Col offset={5} span={19}>
-              <Row className="white-space-nowrap">
+              <Row className="white-space-nowrap margin-bottom-0">
                 <Col span={11}>
                   <Form.Item wrapperCol={{ span: 24 }}>
                     {getFieldDecorator(`left_${item.id}`, {
                       rules: [{ required: true, message: '请选择关联条件' }],
                     })(
-                      <Select placeholder="请选择">
+                      <Select
+                        dropdownClassName="dm-form-select-drop"
+                        placeholder="请选择">
                         {leftColumns.map((item) => {
                           const _id = `${item.schema}-${item.tableName}-${item.columnName}`;
                           return (
@@ -197,7 +200,9 @@ const DynamicSelect = (props: IPropsDynamicSelect) => {
                     {getFieldDecorator(`right_${item.id}`, {
                       rules: [{ required: true, message: '请选择关联条件' }],
                     })(
-                      <Select placeholder="请选择">
+                      <Select
+                        dropdownClassName="dm-form-select-drop"
+                        placeholder="请选择">
                         {rightColumns.map((item) => {
                           const _id = `${item.schema}-${item.tableName}-${item.columnName}`;
                           return (
