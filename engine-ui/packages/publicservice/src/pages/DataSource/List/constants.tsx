@@ -36,9 +36,16 @@ const columns = (props: any) => {
     {
       title: '类型',
       dataIndex: 'dataType',
-      key: 'dataType',
       ellipsis: true,
       width: 200,
+      render: (_, record) => {
+        return (
+          <span className="ellipsis">
+            {record.dataType}
+            {record.dataVersion || ''}
+          </span>
+        );
+      },
     },
     {
       title: '授权产品',

@@ -66,7 +66,7 @@ class BasicLayout extends React.PureComponent<IProps, IState> {
         <div className="logo-img">
           <img src={this.state.DATA_SOURCE_IMG} alt="logo" />
           <span className="logo-header">
-            {judge ? 'Datamodel' : '系统管理'}
+            {judge ? 'DataModel' : '系统管理'}
           </span>
         </div>
       ),

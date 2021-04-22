@@ -224,7 +224,7 @@ const Modify = (props: IPropsModify) => {
               )}
             </Steps>
           </header>
-          <div className="step-content padding-tb-20">
+          <div className="step-content">
             <div className="inner-container overflow-auto">
               <div className="form-area">
                 {stepRender(current, {

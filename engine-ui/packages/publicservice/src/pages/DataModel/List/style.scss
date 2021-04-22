@@ -22,9 +22,9 @@
         padding: 18px 20px;
       }
 
-      .ant-table-fixed-header .ant-table-scroll .ant-table-header {
-        margin-bottom: -17px !important;
-      }
+      // .ant-table-fixed-header .ant-table-scroll .ant-table-header {
+      //   margin-bottom: -17px !important;
+      // }
     }
     .drawer {
       height: calc(100% - 148px);
@@ -79,6 +79,27 @@
       cursor: not-allowed;
     }
   }
+  .ant-table {
+    .ant-table-content {
+      margin-top: 1px;
+    }
+    .ant-table-thead > tr > th {
+      border: none !important;
+    }
+    .ant-table-fixed-left,
+    .ant-table-fixed-right {
+      td {
+        box-sizing: border-box;
+      }
+      .ant-table-header {
+        .ant-table-fixed {
+          th {
+            border-bottom: none;
+          }
+        }
+      }
+    }
+  }
 }
 
 .float-right {
@@ -103,9 +124,14 @@
 .icon-filter {
   font-size: 16px !important;
   margin-top: 2px;
-
   &.filtered {
     color: #3f87ff !important;
+  }
+}
+
+.ant-table {
+  .ant-table-filter-icon {
+    margin-left: 4px;
   }
 }
 
