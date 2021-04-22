@@ -812,7 +812,7 @@ public class ClusterService implements InitializingBean {
     }
 
     public ClusterVO getCluster( Long clusterId, Boolean removeTypeName) {
-        return getCluster(clusterId,removeTypeName,false);
+        return getCluster(clusterId,removeTypeName,true);
     }
 
     /**
