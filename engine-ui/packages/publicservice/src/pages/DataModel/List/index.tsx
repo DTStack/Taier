@@ -152,7 +152,7 @@ const List = (props: IPropList) => {
       } else {
         // Message.msgError('删除失败');
         if (apiAction === API.deleteModel) {
-          Message.msgError('删除失败');
+          Message.msgError(message);
         } else {
           Message.error(message);
         }
