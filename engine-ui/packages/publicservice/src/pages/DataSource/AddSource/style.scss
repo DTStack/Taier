@@ -49,15 +49,19 @@
             border-left: 1px solid #ddd;
 
             &-main {
-              display: flex;
-              flex-wrap: wrap;
               width: 100%;
               margin: 0 auto;
-              justify-content: space-between;
+
+              &-content {
+                display: flex;
+                flex-wrap: wrap;
+                margin-left: -16px;
+              }
             }
 
             &-item {
               font-size: 12px;
+              margin-left: 16px;
             }
 
             img {

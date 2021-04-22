@@ -125,26 +125,28 @@ export default function SelectSource(props) {
         </div>
         <div className="right-menu">
           <div className="right-menu-main">
-            {iconList.length > 0 &&
-              iconList.map((item, index) => {
-                let col = (
-                  <div
-                    className="right-menu-item"
-                    key={index}
-                    style={{ width: '20%', marginBottom: 20 }}
-                    onClick={() => onSelectType(item)}>
-                    <img
-                      src={item.imgUrl}
-                      alt="图片显示失败"
-                      className={item.selected ? 'selected' : ''}
-                    />
-                    <p style={{ textAlign: 'center', marginTop: 12 }}>
-                      {item.dataType}
-                    </p>
-                  </div>
-                );
-                return col;
-              })}
+            <div className="right-menu-main-content">
+              {iconList.length > 0 &&
+                iconList.map((item, index) => {
+                  let col = (
+                    <div
+                      className="right-menu-item"
+                      key={index}
+                      style={{ width: '20%', marginBottom: 20 }}
+                      onClick={() => onSelectType(item)}>
+                      <img
+                        src={item.imgUrl}
+                        alt="图片显示失败"
+                        className={item.selected ? 'selected' : ''}
+                      />
+                      <p style={{ textAlign: 'center', marginTop: 12 }}>
+                        {item.dataType}
+                      </p>
+                    </div>
+                  );
+                  return col;
+                })}
+            </div>
           </div>
         </div>
       </div>

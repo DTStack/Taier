@@ -52,6 +52,10 @@ $highlight-color: #3f87ff;
     background-color: #fff;
     .conent-table {
       height: calc(100% - 101px);
+
+      .ant-table-tbody > tr > td {
+        padding: 12px 20px !important;
+      }
     }
     .anticon-left,
     .anticon-right {
