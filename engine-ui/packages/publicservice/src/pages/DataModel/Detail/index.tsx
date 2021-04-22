@@ -77,9 +77,7 @@ const Detail = (props: IPropsDetail) => {
             <Spin className="center" />
           </div>
         ) : null}
-        <div className="drawer-title">
-          {modelDetail.modelName}
-        </div>
+        <div className="drawer-title">{modelDetail.modelName}</div>
         <Tabs type="card">
           <TabPane tab="基本信息" key="1">
             <div className="pane-container">

@@ -224,7 +224,7 @@ const FieldsSelect = (props: IPropsDimensionSelect) => {
           onSelect,
           onSelectAll,
         }}
-        className="dt-table-border margin-top-13"
+        className="dt-table-border dt-table-last-row-noborder margin-top-13"
         pagination={false}
         rowKey={(record, index) => record.id}
         scroll={{

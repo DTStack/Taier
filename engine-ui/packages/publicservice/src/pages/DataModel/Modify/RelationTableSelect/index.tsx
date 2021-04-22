@@ -188,6 +188,7 @@ const RelationTableSelect = (props: IPropsRelationTableSelect) => {
           })(
             <Select
               className="dm-form-item"
+              dropdownClassName="dm-form-select-drop"
               placeholder="请选择schema"
               disabled={isDisabled}
               showSearch
@@ -214,6 +215,7 @@ const RelationTableSelect = (props: IPropsRelationTableSelect) => {
           })(
             <Select
               className="dm-form-item"
+              dropdownClassName="dm-form-select-drop"
               placeholder="请选择表"
               disabled={isDisabled}
               showSearch
@@ -234,7 +236,9 @@ const RelationTableSelect = (props: IPropsRelationTableSelect) => {
             {getFieldDecorator('updateType', {
               rules: [{ required: true, message: '请选择更新方式' }],
             })(
-              <Select placeholder="请选择更新方式">
+              <Select
+                dropdownClassName="dm-form-select-drop"
+                placeholder="请选择更新方式">
                 {updateTypeList.map((updateType) => (
                   <Option
                     key={updateType.leftValue}

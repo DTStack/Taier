@@ -21,7 +21,14 @@ const timeFmtList = ['HH:mm:ss', 'HH:mm', 'HH'];
 const WrapperSwitch = React.forwardRef((props: any, ref: any) => {
   const _props = { ...props };
   delete _props.value;
-  return <Switch className="margin-top-5" checked={props.value} ref={ref} {..._props} />;
+  return (
+    <Switch
+      className="margin-top-5"
+      checked={props.value}
+      ref={ref}
+      {..._props}
+    />
+  );
 });
 
 const layout = {
@@ -176,6 +183,7 @@ const PartitionField = (props: IPropsPartitionField) => {
         })(
           <Select
             placeholder="请选择分区字段（日期）"
+            dropdownClassName="dm-form-select-drop"
             showSearch
             optionFilterProp="children">
             {columns.map((item) => {
@@ -193,7 +201,9 @@ const PartitionField = (props: IPropsPartitionField) => {
         {getFieldDecorator('modelPartition.dateFmt', {
           rules: rules('日期格式不可为空'),
         })(
-          <Select placeholder="请选择日期格式">
+          <Select
+            dropdownClassName="dm-form-select-drop"
+            placeholder="请选择日期格式">
             {dateFmtList.map((item) => (
               <Select.Option key={item} value={item}>
                 {item}
@@ -216,6 +226,7 @@ const PartitionField = (props: IPropsPartitionField) => {
             )(
               <Select
                 placeholder="请选择分区字段（时间）"
+                dropdownClassName="dm-form-select-drop"
                 showSearch
                 optionFilterProp="children">
                 {columns.map((item) => {
@@ -233,7 +244,9 @@ const PartitionField = (props: IPropsPartitionField) => {
             {getFieldDecorator('modelPartition.timeFmt', {
               rules: rules('时间格式不可为空'),
             })(
-              <Select placeholder="请选择时间格式">
+              <Select
+                dropdownClassName="dm-form-select-drop"
+                placeholder="请选择时间格式">
                 {timeFmtList.map((item) => (
                   <Select.Option key={item} value={item}>
                     {item}

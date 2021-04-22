@@ -247,6 +247,7 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
             rules: requiredRule('请选择表'),
           })(
             <Select
+              dropdownClassName="dm-form-select-drop"
               placeholder="请选择表"
               disabled={isDisabled}
               onChange={() => {
@@ -264,7 +265,9 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
           {getFieldDecorator('joinType', {
             rules: requiredRule('请选择关联关系'),
           })(
-            <Select placeholder="请选择关联关系">
+            <Select
+              dropdownClassName="dm-form-select-drop"
+              placeholder="请选择关联关系">
               {joinTypeList.map((item) => (
                 <Select.Option key={item.key} value={item.key}>
                   {item.label}
@@ -278,6 +281,7 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
             rules: requiredRule('请选择scehma'),
           })(
             <Select
+              dropdownClassName="dm-form-select-drop"
               disabled={isDisabled}
               placeholder="请选择schema"
               onChange={() => {
@@ -304,6 +308,7 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
                 <Select
                   disabled={isDisabled}
                   placeholder="请选择关联表"
+                  dropdownClassName="dm-form-select-drop"
                   onChange={() => {
                     refDynamicSelect.current.resetColumns('right');
                   }}>
@@ -357,7 +362,9 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
                 {getFieldDecorator('updateType', {
                   rules: requiredRule('请选择更新方式'),
                 })(
-                  <Select placeholder="请选择更新方式">
+                  <Select
+                    dropdownClassName="dm-form-select-drop"
+                    placeholder="请选择更新方式">
                     {updateTypeList.map((item) => (
                       <Select.Option
                         key={item.leftValue}

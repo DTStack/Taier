@@ -289,7 +289,7 @@ const RelationList = (props: IPropsRelationList) => {
       </span>
       <Table
         rowKey="id"
-        className="relation-list dt-table-border"
+        className="relation-list dt-table-border dt-table-last-row-noborder"
         columns={columns}
         dataSource={relationList}
         pagination={false}

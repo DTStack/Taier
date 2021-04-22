@@ -177,7 +177,9 @@ const DynamicSelect = (props: IPropsDynamicSelect) => {
                     {getFieldDecorator(`left_${item.id}`, {
                       rules: [{ required: true, message: '请选择关联条件' }],
                     })(
-                      <Select placeholder="请选择">
+                      <Select
+                        dropdownClassName="dm-form-select-drop"
+                        placeholder="请选择">
                         {leftColumns.map((item) => {
                           const _id = `${item.schema}-${item.tableName}-${item.columnName}`;
                           return (
@@ -198,7 +200,9 @@ const DynamicSelect = (props: IPropsDynamicSelect) => {
                     {getFieldDecorator(`right_${item.id}`, {
                       rules: [{ required: true, message: '请选择关联条件' }],
                     })(
-                      <Select placeholder="请选择">
+                      <Select
+                        dropdownClassName="dm-form-select-drop"
+                        placeholder="请选择">
                         {rightColumns.map((item) => {
                           const _id = `${item.schema}-${item.tableName}-${item.columnName}`;
                           return (
