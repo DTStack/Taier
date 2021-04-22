@@ -207,6 +207,7 @@ public class AlertRecordService {
             AlertGateCode alertGateCode = AlertGateCode.parse(alertChannel.getAlertGateCode());
             alterContext.setJarPath(alertChannel.getFilePath());
             alterContext.setAlertGateJson(StringUtils.isNotBlank(alertChannel.getAlertGateJson()) ? alertChannel.getAlertGateJson() : "");
+            alterContext.setEvn(alarmSendDTO.getEnv());
             alterContext.setId(record.getId());
             alterContext.setTitle(record.getTitle());
             alterContext.setContent(content);

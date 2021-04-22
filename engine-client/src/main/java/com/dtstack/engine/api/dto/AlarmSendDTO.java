@@ -1,6 +1,7 @@
 package com.dtstack.engine.api.dto;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Auther: dazhi
@@ -41,6 +42,11 @@ public class AlarmSendDTO {
     private Integer appType;
     private Integer status;
     private Long readId;
+    /**
+     * 环境参数（jar告警时会传入）
+     * @return
+     */
+    private Map<String,Object> env;
 
     public String getTitle() {
         return title;
@@ -144,5 +150,13 @@ public class AlarmSendDTO {
 
     public void setReadId(Long readId) {
         this.readId = readId;
+    }
+
+    public Map<String, Object> getEnv() {
+        return env;
+    }
+
+    public void setEnv(Map<String, Object> env) {
+        this.env = env;
     }
 }

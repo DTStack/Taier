@@ -147,6 +147,7 @@ public class NotifyRecordController {
 
         List<String> alertGateSources = AlertGateTypeEnum.transformSenderTypes(senderTypes);
         alarmSendDTO.setAlertGateSources(alertGateSources);
+        alarmSendDTO.setEnv(param.getEnv());
         alertRecordService.sendAlarm(alarmSendDTO);
     }
 
@@ -161,6 +162,7 @@ public class NotifyRecordController {
         AlarmSendDTO alarmSendDTO = new AlarmSendDTO();
         BeanUtils.copyProperties(param,alarmSendDTO);
         alarmSendDTO.setReadId(param.getNotifyRecordId());
+        alarmSendDTO.setEnv(param.getEnv());
         alertRecordService.sendAlarm(alarmSendDTO);
     }
 }

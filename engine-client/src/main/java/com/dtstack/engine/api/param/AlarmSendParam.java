@@ -4,6 +4,7 @@ package com.dtstack.engine.api.param;
 import com.dtstack.engine.api.dto.UserMessageDTO;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Auther: dazhi
@@ -31,6 +32,12 @@ public class AlarmSendParam extends NotifyRecordParam {
      * 用户信息
      */
     private List<UserMessageDTO> receivers;
+
+    /**
+     * 环境参数（jar告警时会传入）
+     * @return
+     */
+    private Map<String,Object> env;
 
 
     public String getTitle() {
@@ -71,5 +78,13 @@ public class AlarmSendParam extends NotifyRecordParam {
 
     public void setReceivers(List<UserMessageDTO> receivers) {
         this.receivers = receivers;
+    }
+
+    public Map<String, Object> getEnv() {
+        return env;
+    }
+
+    public void setEnv(Map<String, Object> env) {
+        this.env = env;
     }
 }

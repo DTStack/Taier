@@ -30,12 +30,11 @@ public class JarSmsAlterClient extends AbstractSmsAlterClient {
         long startTime = System.currentTimeMillis();
         String jarPath = alterSendSmsBean.getJarPath();
         String className = alterSendSmsBean.getClassName();
-        JSONObject jsonObject = JSONObject.parseObject(alterSendSmsBean.getAlertGateJson());
         List<String> phones = Lists.newArrayList(alterSendSmsBean.getPhone());
         String message = alterSendSmsBean.getMessage();
         try {
             ISmsChannel sender = (ISmsChannel) JarCache.getInstance().getChannelInstance(jarPath, className);
-            R r = sender.sendSms(message, phones, jsonObject);
+            R r = sender.sendSms(message, phones, alterSendSmsBean.getEnv());
             LOGGER.info("[sendSms] end, cost={}, phones={}, message={}, result={}",(System.currentTimeMillis() - startTime), phones, message, r);
             return r;
         } catch (Exception e) {
@@ -62,6 +61,7 @@ public class JarSmsAlterClient extends AbstractSmsAlterClient {
         }
         alterSendSmsBean.setClassName(className);
         alterSendSmsBean.setJarPath(jarPath);
+        alterSendSmsBean.setEnv(alterContext.getEvn());
     }
 
     @Override

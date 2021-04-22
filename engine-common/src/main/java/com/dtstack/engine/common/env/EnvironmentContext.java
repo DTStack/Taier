@@ -7,6 +7,8 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+
 
 /**
  * @author sishu.yss
@@ -598,5 +600,25 @@ public class EnvironmentContext {
 
     public boolean getOpenDummy() {
         return Boolean.parseBoolean(environment.getProperty("open.dummy", "false"));
+    }
+
+    public String getPluginPath() {
+        return environment.getProperty("plugin.path",  System.getProperty("user.dir") + File.separator +"pluginLibs");
+    }
+
+    /**
+     * 数据源中心配置地址
+     * @return
+     */
+    public String getDatasourceNode() {
+        return environment.getProperty("datasource.node", "127.0.0.1:8077");
+    }
+
+    /**
+     * SDK TOKEN
+     * @return
+     */
+    public String getSdkToken() {
+        return environment.getProperty("sdk.token", "");
     }
 }
