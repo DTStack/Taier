@@ -4,6 +4,7 @@ import com.dtstack.engine.alert.enums.AlertGateCode;
 import com.dtstack.engine.alert.enums.AlertGateTypeEnum;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.enums.LineageOriginType;
+import com.dtstack.engine.api.enums.TaskRuleEnum;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.MD5Util;
@@ -42,6 +43,7 @@ public class Template {
         sj.setComputeType(1);
         sj.setLogInfo("{err: test_log_info}");
         sj.setEngineLog("{err: test_engine_log}");
+        sj.setTaskRule(TaskRuleEnum.NO_RULE.getCode());
         return sj;
     }
 
@@ -458,6 +460,7 @@ public class Template {
         scheduleJobJob.setDtuicTenantId(1L);
         scheduleJobJob.setParentAppType(1);
         scheduleJobJob.setAppType(AppType.RDOS.getType());
+        scheduleJobJob.setParentAppType(AppType.RDOS.getType());
         scheduleJobJob.setJobKey("cronTrigger_3377_20201127000000");
         scheduleJobJob.setParentJobKey("cronTrigger_3381_20201127000000");
         scheduleJobJob.setGmtCreate(new Timestamp(1592559742000L));

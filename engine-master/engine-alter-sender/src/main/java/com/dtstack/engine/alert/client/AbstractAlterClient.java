@@ -74,6 +74,12 @@ public abstract class AbstractAlterClient implements AlterClient,Runnable {
         LOGGER.info("Start entering the queue: id {}", alterContext.getMark());
         eventMonitors = setDefaultEvent(alterContext, eventMonitors);
 
+        for (EventMonitor eventMonitor : eventMonitors) {
+            if (!eventMonitor.startEvent(alterContext)) {
+                return;
+            }
+        }
+
         if (alterQueue.contains(alterContext)) {
             LOGGER.info("Element:{} already exists in the queue",alterContext.getMark());
             return;

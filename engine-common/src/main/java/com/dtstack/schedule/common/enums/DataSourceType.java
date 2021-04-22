@@ -232,6 +232,7 @@ public enum DataSourceType {
                 return null;
         }
     }
+
     public static List<DataSourceType> noNeedUserNamePasswordDataSources = Lists.newArrayList(DataSourceType.HBASE,
             DataSourceType.Phoenix,DataSourceType.HIVE,DataSourceType.SPARKTHRIFT2_1);
 }

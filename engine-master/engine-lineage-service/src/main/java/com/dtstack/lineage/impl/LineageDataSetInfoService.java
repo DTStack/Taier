@@ -10,6 +10,7 @@ import com.dtstack.engine.common.client.ClientOperator;
 import com.dtstack.engine.common.client.IClient;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EComponentTypeDataSourceType;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ClientAccessException;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.ComponentConfigUtils;
@@ -63,6 +64,11 @@ public class LineageDataSetInfoService {
 
     @Autowired
     private ClientOperator clientOperator;
+
+    @Autowired
+    private EnvironmentContext environmentContext;
+
+
 
     /**
      * @author zyd
@@ -122,7 +128,7 @@ public class LineageDataSetInfoService {
         if(null == dataSource){
             throw new RdosDefineException("找不到对应的数据源");
         }
-        ClientCache clientCache = ClientCache.getInstance();
+        ClientCache clientCache = ClientCache.getInstance(environmentContext.getPluginPath());
         IClient iClient ;
         try {
             String kerberosConf = dataSource.getKerberosConf();

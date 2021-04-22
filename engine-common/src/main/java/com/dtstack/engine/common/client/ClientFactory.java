@@ -1,21 +1,18 @@
 package com.dtstack.engine.common.client;
 
+import com.dtstack.engine.common.callback.ClassLoaderCallBackMethod;
+import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.engine.common.loader.DtClassLoader;
+import com.dtstack.engine.common.util.MathUtil;
+import com.dtstack.engine.common.util.PublicUtil;
+import com.google.common.collect.Maps;
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.ServiceLoader;
-import com.dtstack.engine.common.callback.ClassLoaderCallBackMethod;
-import com.dtstack.engine.common.constrant.ConfigConstant;
-import com.dtstack.engine.common.util.MathUtil;
-import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.common.loader.DtClassLoader;
-import com.google.common.collect.Maps;
-import org.apache.commons.lang3.StringUtils;
+import java.util.*;
 
 /**
  * company: www.dtstack.com
@@ -23,7 +20,6 @@ import org.apache.commons.lang3.StringUtils;
  * create: 2019/11/12
  */
 public class ClientFactory {
-    private static String userDir = System.getProperty("user.dir");
 
     private static Map<String, ClassLoader> pluginClassLoader = Maps.newConcurrentMap();
 
@@ -41,7 +37,7 @@ public class ClientFactory {
         }, classLoader, true);
     }
 
-    public static IClient buildPluginClient(String pluginInfo) throws Exception {
+    public static IClient buildPluginClient(String pluginInfo,String pluginPath) throws Exception {
         Map<String, Object> params = PublicUtil.jsonStrToObject(pluginInfo, Map.class);
         String clientTypeStr = MathUtil.getString(params.get(ConfigConstant.TYPE_NAME_KEY));
         if (StringUtils.isBlank(clientTypeStr)) {
@@ -49,7 +45,7 @@ public class ClientFactory {
         }
 
         ClassLoader classLoader = pluginClassLoader.computeIfAbsent(clientTypeStr, type -> {
-            String plugin = String.format("%s/pluginLibs/%s", userDir, type);
+            String plugin = pluginPath + File.separator + type;
             File pluginFile = new File(plugin);
             if (!pluginFile.exists()) {
                 throw new RuntimeException(String.format("%s directory not found", plugin));
