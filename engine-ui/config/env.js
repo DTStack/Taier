@@ -1,4 +1,4 @@
-'use strict';
+
 
 const fs = require('fs');
 const path = require('path');
@@ -94,6 +94,7 @@ function getClientEnvironment(publicUrl) {
     );
   // Stringify all values so we can feed into webpack DefinePlugin
   const stringified = {
+    __DEVELOPMENT__: false,
     'process.env': Object.keys(raw).reduce((env, key) => {
       env[key] = JSON.stringify(raw[key]);
       return env;
