@@ -33,7 +33,7 @@ public class MasterServerBeanConfig {
 
     @Bean
     public ClientOperator clientOperator(){
-        return ClientOperator.getInstance();
+        return ClientOperator.getInstance(environmentContext.getPluginPath());
     }
 
     @Bean

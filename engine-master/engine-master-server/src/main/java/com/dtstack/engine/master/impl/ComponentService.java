@@ -21,8 +21,8 @@ import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EFrontType;
-import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
@@ -146,6 +146,9 @@ public class ComponentService {
     @Autowired
     private SftpFileManage sftpFileManageBean;
 
+    @Autowired
+    private DataSourceService dataSourceService;
+
     public static final String VERSION = "version";
 
     /**
@@ -213,7 +216,7 @@ public class ComponentService {
     /**
      * 更新缓存
      */
-    public void updateCache(Long engineId, Integer componentCode) {
+    public void updateCache(Long clusterId,Long engineId, Integer componentCode) {
         clearComponentCache();
         Set<Long> dtUicTenantIds = new HashSet<>();
         if ( null != componentCode && EComponentType.sqlComponent.contains(EComponentType.getByCode(componentCode))) {
@@ -238,6 +241,7 @@ public class ComponentService {
             List<Long> tenantIds = engineTenantDao.listTenantIdByQueueIds(queueIds);
             dtUicTenantIds = new HashSet<>(tenantDao.listDtUicTenantIdByIds(tenantIds));
         }
+        dataSourceService.publishSqlComponent(clusterId,engineId,componentCode,dtUicTenantIds);
         //缓存刷新
         if (!dtUicTenantIds.isEmpty()) {
             for (Long uicTenantId : dtUicTenantIds) {
@@ -464,20 +468,6 @@ public class ComponentService {
         }
     }
 
-    /**
-     *
-     * @param clusterId
-     * @param componentConfig
-     * @param resources
-     * @param hadoopVersion
-     * @param kerberosFileName
-     * @param componentTemplate
-     * @param componentCode
-     * @param storeType
-     * @param principals
-     * @param principal
-     * @return
-     */
     @Transactional(rollbackFor = Exception.class)
     public ComponentVO addOrUpdateComponent(Long clusterId, String componentConfig,
                                             List<Resource> resources, String hadoopVersion,
@@ -1216,9 +1206,7 @@ public class ComponentService {
                 return componentTestResult;
             }
 
-            if (componentTestResult.getResult() && null != engineId) {
-                updateCache(engineId, componentType);
-            }
+           
         }catch (Throwable e){
             if (Objects.isNull(componentTestResult)){
                 componentTestResult = new ComponentTestResult();
@@ -1503,7 +1491,7 @@ public class ComponentService {
     /**
      * 根据组件类型转换对应的插件名称
      * 如果只配yarn 需要调用插件时候 hdfs给默认值
-     *
+     * 插件名称组合即表达此组件是否依赖其他组件，e.g  yarn2-hdfs2-flink180 表示flink 依赖 yarn(调度)和hdfs(存储)
      * @param clusterName
      * @param componentType
      * @param version

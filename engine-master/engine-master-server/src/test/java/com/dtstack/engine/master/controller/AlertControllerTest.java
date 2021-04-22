@@ -145,13 +145,14 @@ public class AlertControllerTest extends AbstractTest {
             AlertGateTestVO alertGateTestMailDtVO = new AlertGateTestVO();
             alertGateTestMailDtVO.setEmails(Lists.newArrayList("1306123139@qq.com"));
             testSmsJar(alertGateTestMailJarVO,multipartFile,defaultAlterChannelMailDt);
+            // 测试dingjar 发送
+            AlertGateTestVO alertGateTestDingDtVO = new AlertGateTestVO();
+            alertGateTestDingDtVO.setDings(Lists.newArrayList("https://oapi.dingtalk.com/robot/send?access_token=16cc0086eeef4f4f905ce4eda70be58bbe8ec9ecb45fb58c55706fac07e50530"));
+            testSmsJar(alertGateTestDingJarVO,multipartFile,defaultAlterChannelDingDt);
         } catch (Exception e) {
         }
 
-        // 测试dingjar 发送
-        AlertGateTestVO alertGateTestDingDtVO = new AlertGateTestVO();
-        alertGateTestDingDtVO.setDings(Lists.newArrayList("https://oapi.dingtalk.com/robot/send?access_token=16cc0086eeef4f4f905ce4eda70be58bbe8ec9ecb45fb58c55706fac07e50530"));
-        testSmsJar(alertGateTestDingJarVO,multipartFile,defaultAlterChannelDingDt);
+
     }
 
     private void testSmsJar(AlertGateTestVO alertGateTestVO,MultipartFile multipartFile,AlertChannel alertChannel) throws Exception {

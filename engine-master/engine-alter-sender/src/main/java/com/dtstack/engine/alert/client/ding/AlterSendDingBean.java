@@ -3,6 +3,7 @@ package com.dtstack.engine.alert.client.ding;
 import com.alibaba.fastjson.JSONObject;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Auther: dazhi
@@ -31,6 +32,8 @@ public class AlterSendDingBean {
     private String dingMsgType;
 
     private JSONObject alertGateJsonObject;
+
+    private Map<String,Object> env;
 
     public String getTitle() {
         return title;
@@ -110,5 +113,13 @@ public class AlterSendDingBean {
 
     public void setAlertGateJsonObject(JSONObject alertGateJsonObject) {
         this.alertGateJsonObject = alertGateJsonObject;
+    }
+
+    public Map<String, Object> getEnv() {
+        return env;
+    }
+
+    public void setEnv(Map<String, Object> env) {
+        this.env = env;
     }
 }
