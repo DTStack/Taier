@@ -97,7 +97,6 @@ public class ScheduleTaskShadeController {
         return scheduleTaskShadeService.pageQuery(dto);
     }
 
-
     @RequestMapping(value = "/getBatchTaskById", method = {RequestMethod.POST})
     public ScheduleTaskShade getBatchTaskById(@DtRequestParam("id") Long taskId, @DtRequestParam("appType") Integer appType) {
         return scheduleTaskShadeService.getBatchTaskById(taskId, appType);

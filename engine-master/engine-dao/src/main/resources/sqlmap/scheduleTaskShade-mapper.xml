@@ -798,7 +798,7 @@
             FROM `schedule_task_shade` t
             LEFT JOIN `schedule_task_task_shade`  tt
             ON  t.task_id = tt.parent_task_id AND t.app_type = tt.parent_app_type
-            WHERE t.is_deleted = 0  AND tt.is_deleted = 0 AND tt.project_id = #{projectId}  AND tt.app_type = #{appType} AND t.app_type = #{appType}
+            WHERE t.is_deleted = 0  AND tt.is_deleted = 0 AND t.project_id = #{projectId}  AND tt.parent_app_type = #{appType} AND t.app_type = #{appType}
         )
         LIMIT #{limit}
     </select>

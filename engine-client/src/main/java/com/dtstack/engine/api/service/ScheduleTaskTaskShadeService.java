@@ -2,12 +2,13 @@ package com.dtstack.engine.api.service;
 
 import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
+import com.dtstack.engine.api.vo.task.SaveTaskTaskVO;
 import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sdk.core.common.DtInsightServer;
 import com.dtstack.sdk.core.feign.Param;
 import com.dtstack.sdk.core.feign.RequestLine;
 
-import java.util.*;
+import java.util.List;
 
 /**
  * company: www.dtstack.com
@@ -20,7 +21,7 @@ public interface ScheduleTaskTaskShadeService extends DtInsightServer {
     ApiResponse<Void> clearDataByTaskId(@Param("taskId") Long taskId, @Param("appType") Integer appType);
 
     @RequestLine("POST /node/scheduleTaskTaskShade/saveTaskTaskList")
-    ApiResponse<Void> saveTaskTaskList(@Param("taskTask") String taskLists);
+    ApiResponse<SaveTaskTaskVO> saveTaskTaskList(@Param("taskTask") String taskLists);
 
     @RequestLine("POST /node/scheduleTaskTaskShade/getAllParentTask")
     ApiResponse<List<ScheduleTaskTaskShade>> getAllParentTask(@Param("taskId") Long taskId, @Param("appType") Integer appType);

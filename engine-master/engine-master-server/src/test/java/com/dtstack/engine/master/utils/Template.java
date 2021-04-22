@@ -8,8 +8,8 @@ import com.dtstack.engine.api.enums.TaskRuleEnum;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.MD5Util;
-import com.dtstack.engine.domain.AlertChannel;
-import com.dtstack.engine.domain.AlertRecord;
+import com.dtstack.engine.api.domain.AlertChannel;
+import com.dtstack.engine.api.domain.AlertRecord;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.DataSourceType;
 
@@ -454,6 +454,7 @@ public class Template {
         scheduleJobJob.setTenantId(1L);
         scheduleJobJob.setProjectId(1L);
         scheduleJobJob.setDtuicTenantId(1L);
+        scheduleJobJob.setParentAppType(1);
         scheduleJobJob.setAppType(AppType.RDOS.getType());
         scheduleJobJob.setParentAppType(AppType.RDOS.getType());
         scheduleJobJob.setJobKey("cronTrigger_3377_20201127000000");

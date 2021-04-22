@@ -683,6 +683,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
         scheduleJobTemplate.setGmtCreate(new Timestamp(System.currentTimeMillis()));
         scheduleJobTemplate.setGmtModified(new Timestamp(System.currentTimeMillis()));
         scheduleJobTemplate.setAppType(scheduleTaskShade.getAppType());
+        scheduleJobTemplate.setTaskRule(0);
         ScheduleBatchJob scheduleBatchJob = new ScheduleBatchJob(scheduleJobTemplate);
 
         scheduleJobService.insertJobList(Lists.newArrayList(scheduleBatchJob), EScheduleType.NORMAL_SCHEDULE.getType());
@@ -777,6 +778,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
             ScheduleJob job = DataCollection.getData().getScheduleJobVirtual();
             scheduleJobService.sendTaskStartTrigger(job);
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
