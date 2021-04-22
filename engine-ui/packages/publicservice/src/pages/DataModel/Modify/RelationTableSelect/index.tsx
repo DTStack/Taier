@@ -57,10 +57,9 @@ const RelationTableSelect = (props: IPropsRelationTableSelect) => {
         const relationList = refRelationList.current.getValue();
         _value.joinList = relationList.map((item) => {
           const leftTable = item.leftTable;
-          const tableName = leftTable?.split('-')[2];
           return {
             ...item,
-            leftTable: tableName,
+            leftTable,
           };
         });
         return _value;
