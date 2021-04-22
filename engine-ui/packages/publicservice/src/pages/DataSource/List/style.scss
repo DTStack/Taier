@@ -201,15 +201,18 @@ $highlight-color: #3f87ff;
     border-radius: 2px;
     border: 1px solid #ddd;
   }
+  .ant-btn-danger {
+    border: none;
+  }
 }
 
 .ant-table-middle
   > .ant-table-content
   > .ant-table-scroll
-  > .ant-table-body
+  > .ant-table-header
   > table
   > .ant-table-thead
   > tr
   > th {
-  padding: 12px 20px;
+  padding: 12px 20px !important;
 }
