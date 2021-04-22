@@ -1733,7 +1733,7 @@ public class ComponentService {
             return componentTestResult;
         }
         String componentConfig = getComponentByClusterId(cluster.getId(), componentType, false, String.class,componentVersionMap);
-        KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(), componentType,componentDao.getDefaultComponentVersionByClusterAndComponentType(cluster.getId(),componentType));
+        KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(), componentType,ComponentVersionUtil.getComponentVersion(componentVersionMap,componentType));
         Map sftpMap = getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class,componentVersionMap);
         return testConnect(componentType, componentConfig, clusterName, testComponent.getHadoopVersion(), testComponent.getEngineId(), kerberosConfig, sftpMap,testComponent.getStoreType(),componentVersionMap);
     }
