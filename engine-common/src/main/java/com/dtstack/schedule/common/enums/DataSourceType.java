@@ -154,8 +154,6 @@ public enum DataSourceType {
         return getBaseType(sourceType);
     }
 
-    public static List<DataSourceType> noNeedUserNamePasswordDataSources = Lists.newArrayList(DataSourceType.HBASE, DataSourceType.Phoenix, DataSourceType.HIVE);
-
     public static List<Integer> getRDBMS() {
         return Lists.newArrayList(
                 MySQL.getVal(),

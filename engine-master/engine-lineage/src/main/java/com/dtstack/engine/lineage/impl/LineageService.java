@@ -15,7 +15,6 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.lineage.adapter.*;
 import com.dtstack.engine.lineage.enums.SourceType2TableType;
 import com.dtstack.engine.lineage.util.SqlParserClientOperator;
-import com.dtstack.lineage.adapter.*;
 import com.dtstack.engine.dao.LineageColumnColumnUniqueKeyRefDao;
 import com.dtstack.engine.dao.LineageTableTableUniqueKeyRefDao;
 import com.dtstack.schedule.common.enums.AppType;

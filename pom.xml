@@ -27,7 +27,7 @@
 
     <modules>
         <module>engine-alert-sdk</module>
-        <module>engine-client</module>
+        <module>engine-client-sdk</module>
         <module>engine-common</module>
         <module>engine-master</module>
         <module>engine-worker</module>
