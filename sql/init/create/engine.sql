@@ -597,7 +597,7 @@ create table lineage_real_data_source(
     source_name VARCHAR(155) NOT NULL COMMENT '数据源名称',
     source_key VARCHAR(155) NOT NULL COMMENT '数据源定位码，不同数据源类型计算方式不同。',
     source_type SMALLINT(4) NOT NULL COMMENt '数据源类型',
-    data_jason JSON NOT NULL COMMENT '数据源配置json',
+    data_json JSON NOT NULL COMMENT '数据源配置json',
     kerberos_conf JSON NOT NULL COMMENT 'kerberos配置',
     open_kerberos tinyint NOT NULL default 0 COMMENT '0：未开启kerberos；1：开启kerberos',
     gmt_create datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
@@ -616,7 +616,7 @@ create table lineage_data_source(
     source_name VARCHAR(55) NOT NULL COMMENT '数据源名称',
     app_type smallint(4) NOT NULL COMMENT '应用类型',
     source_type smallint(4) NOT NULL COMMENT '数据源类型',
-    data_jason JSON NOT NULL COMMENT '数据源配置json',
+    data_json JSON NOT NULL COMMENT '数据源配置json',
     kerberos_conf JSON NOT NULL COMMENT 'kerberos配置',
     open_kerberos tinyint NOT NULL default 0 COMMENT '0：未开启kerberos；1：开启kerberos',
     app_source_id int(11) NOT NULL default -1 COMMENT '应用内的sourceId',
@@ -655,11 +655,12 @@ create table lineage_data_set_info(
 -- 表级血缘记录表
 create table lineage_table_table(
     id int(11) NOT NULL AUTO_INCREMENT,
+    app_type smallint(3) NOT NULL COMMENT '应用类型',
     dt_uic_tenant_id int(11) NOT NULL COMMENT '租户id',
-    input_table_id int(11) NOT NULL COMMENT '输入表id lineage_real_data_source表的id',
     input_table_key varchar(155) NOT NULL COMMENT '输入表表物理定位码',
-    result_table_id int(11) NOT NULL COMMENT '输出表id lineage_real_data_source表的id',
+    input_table_id int(11) NOT NULL COMMENT '输入表id lineage_real_data_source表的id',
     result_table_key varchar(155) NOT NULL COMMENT '输出表表物理定位码',
+    result_table_id int(11) NOT NULL COMMENT '输出表id lineage_real_data_source表的id',
     table_lineage_key VARCHAR(30) NOT NULL COMMENT '表血缘定位码，根据输入表和输出表定位码计算出',
     gmt_create datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
     gmt_modified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
@@ -685,6 +686,7 @@ create table lineage_table_table_unique_key_ref(
 -- 字段级血缘存储方案
 create table lineage_column_column(
     id int(11) NOT NULL AUTO_INCREMENT,
+    app_type smallint(3) NOT NULL COMMENT '应用类型',
     dt_uic_tenant_id int(11) NOT NULL COMMENT '租户id',
     input_table_id int(11) NOT NULL COMMENT '输入表id',
     input_table_key varchar(155) NOT NULL COMMENT '输入表表物理定位码',
