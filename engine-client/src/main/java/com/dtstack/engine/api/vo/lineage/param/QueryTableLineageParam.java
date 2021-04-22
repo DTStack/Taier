@@ -24,6 +24,9 @@ public class QueryTableLineageParam {
     @ApiModelProperty(value = "engine数据源id",notes = "数据资产必须传，离线不传")
     private Long engineSourceId;
 
+    @ApiModelProperty(value = "平台数据源id")
+    private Long sourceId;
+
     @ApiModelProperty("uic租户id")
     private Long dtUicTenantId;
 
@@ -35,6 +38,9 @@ public class QueryTableLineageParam {
 
     @ApiModelProperty("表名称")
     private String tableName;
+
+    @ApiModelProperty("查询最大层数")
+    private Integer level;
 
     public Integer getAppType() {
         return appType;
@@ -98,5 +104,21 @@ public class QueryTableLineageParam {
 
     public void setTableName(String tableName) {
         this.tableName = tableName;
+    }
+
+    public Long getSourceId() {
+        return sourceId;
+    }
+
+    public void setSourceId(Long sourceId) {
+        this.sourceId = sourceId;
+    }
+
+    public Integer getLevel() {
+        return level;
+    }
+
+    public void setLevel(Integer level) {
+        this.level = level;
     }
 }

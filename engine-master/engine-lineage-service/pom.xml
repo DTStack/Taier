@@ -15,18 +15,8 @@
 
         <dependency>
             <groupId>dt.insight.plat</groupId>
-            <artifactId>dt-insight-sql-parse</artifactId>
-            <version>4.1.6</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>dt-insight-hive-shade</artifactId>
-                    <groupId>dt.insight.plat</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>dt-insight-calcite-shade</artifactId>
-                    <groupId>dt.insight.plat</groupId>
-                </exclusion>
-            </exclusions>
+            <artifactId>dt-insight-sql-common</artifactId>
+            <version>4.2.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>

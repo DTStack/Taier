@@ -40,4 +40,12 @@ public interface LineageDataSetDao {
      * @return: com.dtstack.engine.api.domain.LineageDataSetInfo
      **/
     List<LineageDataSetInfo> getDataSetListByIds(@Param("ids") List<Long> ids);
+
+    /**
+     * 根据oldTableKey修改表名和tableKey
+     * @param newTableName
+     * @param oldTableKey
+     * @param newTableKey
+     */
+    void updateTableNameByTableNameAndSourceId(@Param("newTableName") String newTableName,@Param("oldTableKey") String oldTableKey,@Param("newTableKey") String newTableKey);
 }

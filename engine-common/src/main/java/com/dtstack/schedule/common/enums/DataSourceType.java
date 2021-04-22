@@ -55,9 +55,10 @@ public enum DataSourceType {
     KINGBASE8(40),
     VERTICA(43),
     INCEPTOR_SQL(44),
+    SPARKTHRIFT2_1(45),
 
     /**
-     * spark thrift
+     * spark
      */
     Spark(1002),
 
@@ -183,6 +184,7 @@ public enum DataSourceType {
             case MySQL:
                 return "mysql";
             case HIVE:
+            case SPARKTHRIFT2_1:
                 return "hive2";
             case HIVE1X:
                 return "hive";
@@ -207,5 +209,6 @@ public enum DataSourceType {
         }
     }
 
-    public static List<DataSourceType> noNeedUserNamePasswordDataSources = Lists.newArrayList(DataSourceType.HBASE,DataSourceType.Phoenix,DataSourceType.HIVE);
+    public static List<DataSourceType> noNeedUserNamePasswordDataSources = Lists.newArrayList(DataSourceType.HBASE,
+            DataSourceType.Phoenix,DataSourceType.HIVE,DataSourceType.SPARKTHRIFT2_1);
 }

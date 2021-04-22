@@ -4,10 +4,12 @@ import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.dto.DataSourceDTO;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.lineage.param.DataSourceParam;
+import com.dtstack.engine.api.vo.lineage.param.DeleteDataSourceParam;
 import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sdk.core.common.DtInsightServer;
 import com.dtstack.sdk.core.feign.Param;
 import com.dtstack.sdk.core.feign.RequestLine;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 
 import java.util.List;
@@ -76,5 +78,28 @@ public interface DataSourceService extends DtInsightServer {
     @RequestLine("POST /node/dataSource/getDataSourceByParams")
     ApiResponse getDataSourceByParams(@Param("appType")Integer appType,@Param("sourceType") Integer sourceType,
                                       @Param("sourceName") String sourceName,@Param("dtUicTenantId") Long dtUicTenantId);
+
+
+
+    /**
+     * @author ZYD
+     * @Description 根据平台sourceId和appType修改数据源
+     * @Date 2021/4/2 15:45
+     * @param dataSourceDTO:
+     * @return: com.dtstack.sdk.core.common.ApiResponse<java.lang.Boolean>
+     **/
+    @RequestLine("POST /node/dataSource/updateBySourceIdAndAppType")
+    ApiResponse<Boolean>  updateDataSourceBySourceIdAndAppType(DataSourceDTO dataSourceDTO);
+
+
+    /**
+     * @author ZYD
+     * @Description 根据项目id删除数据源
+     * @Date 2021/4/21 10:09
+     * @param deleteDataSourceParam:
+     * @return: void
+     **/
+    @RequestLine("POST /node/dataSource/deleteDataSourceByProjectId")
+    ApiResponse deleteDataSourceByProjectId(DeleteDataSourceParam deleteDataSourceParam);
 
 }

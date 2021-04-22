@@ -44,9 +44,9 @@ public class BaseParseResult {
     private SqlType sqlType;
 
     /**
-     * 附加类型，常用语创建临时表
+     * 附加类型，常用于创建临时表
      */
-    @ApiModelProperty("sql操作类型")
+    @ApiModelProperty("附加sql操作类型")
     private SqlType extraType;
 
     /**
@@ -54,6 +54,12 @@ public class BaseParseResult {
      */
     @ApiModelProperty("当前sql运行数据库")
     private String currentDb;
+
+    /**alter语句解析的结果**/
+    private AlterResult alterResult;
+
+    /**当为sql带有查询语句时会解析出一个查询树**/
+    private QueryTableTree root;
 
     public boolean isParseSuccess() {
         return parseSuccess;
@@ -109,5 +115,21 @@ public class BaseParseResult {
 
     public void setExtraType(SqlType extraType) {
         this.extraType = extraType;
+    }
+
+    public AlterResult getAlterResult() {
+        return alterResult;
+    }
+
+    public void setAlterResult(AlterResult alterResult) {
+        this.alterResult = alterResult;
+    }
+
+    public QueryTableTree getRoot() {
+        return root;
+    }
+
+    public void setRoot(QueryTableTree root) {
+        this.root = root;
     }
 }

@@ -119,6 +119,8 @@ public class ScheduleJob extends AppTenantEntity {
 
     private Integer taskRule;
 
+    private String sqlText;
+
     public Boolean getForce() {
         return isForce;
     }
@@ -420,5 +422,13 @@ public class ScheduleJob extends AppTenantEntity {
 
     public void setTaskRule(Integer taskRule) {
         this.taskRule = taskRule;
+    }
+
+    public String getSqlText() {
+        return sqlText;
+    }
+
+    public void setSqlText(String sqlText) {
+        this.sqlText = sqlText;
     }
 }

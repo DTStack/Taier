@@ -6,6 +6,8 @@ import com.dtstack.engine.api.dto.DataSourceDTO;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.api.vo.lineage.param.DataSourceParam;
+import com.dtstack.engine.api.vo.lineage.param.DeleteDataSourceParam;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.router.DtRequestParam;
 import com.dtstack.lineage.impl.LineageDataSetInfoService;
 import com.dtstack.lineage.impl.LineageDataSourceService;
@@ -40,6 +42,7 @@ public class LineageDataSourceController {
 
         return dataSourceService.addOrUpdateDataSource(dataSourceDTO);
     }
+
 
     /**
      * @author zyd
@@ -109,7 +112,7 @@ public class LineageDataSourceController {
     public LineageDataSource getDataSourceByParams(@DtRequestParam("appType")Integer appType,@DtRequestParam("sourceType") Integer sourceType,
                                       @DtRequestParam("sourceName") String sourceName,@DtRequestParam("dtUicTenantId") Long dtUicTenantId){
 
-       return dataSourceService.getDataSourceByParams(sourceType,sourceName,dtUicTenantId,appType);
+       return dataSourceService.getDataSourceByParams(sourceType,sourceName,dtUicTenantId,appType).get(0);
     }
 
 
@@ -119,6 +122,24 @@ public class LineageDataSourceController {
     public List<Column> getTableColumns(@RequestBody LineageDataSetInfo dataSetInfo){
 
         return infoService.getTableColumns(dataSetInfo);
+    }
+
+
+    @RequestMapping(value="/updateBySourceIdAndAppType",method = RequestMethod.POST)
+    @ApiOperation(value = "根据平台sourceId和appType修改数据源")
+    public Boolean updateDataSourceBySourceIdAndAppType(@RequestBody DataSourceDTO dataSourceDTO){
+
+        return dataSourceService.updateDataSourceBySourceIdAndAppType(dataSourceDTO);
+    }
+
+    @RequestMapping(value="/deleteDataSourceByProjectId",method = RequestMethod.POST)
+    @ApiOperation(value = "根据项目id删除数据源")
+    public void deleteDataSourceByProjectId(@RequestBody DeleteDataSourceParam deleteDataSourceParam){
+
+        if(deleteDataSourceParam.getProjectId() == null || deleteDataSourceParam.getAppType()==null){
+            throw new RdosDefineException("projectId or appType can not be null ");
+        }
+        dataSourceService.deleteDataSourceByProjectId(deleteDataSourceParam);
     }
 
 }

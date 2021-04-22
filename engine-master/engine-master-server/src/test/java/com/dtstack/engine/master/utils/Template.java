@@ -457,6 +457,7 @@ public class Template {
         scheduleJobJob.setParentJobKey("cronTrigger_3381_20201127000000");
         scheduleJobJob.setGmtCreate(new Timestamp(1592559742000L));
         scheduleJobJob.setGmtModified(new Timestamp(1592559742000L));
+        scheduleJobJob.setParentAppType(1);
         return scheduleJobJob;
     }
 
@@ -484,6 +485,7 @@ public class Template {
         return lineageRealDataSource;
     }
 
+
     public static LineageDataSource getDefaultHiveDataSourceTemplate() {
         LineageDataSource lineageDataSource = new LineageDataSource();
         lineageDataSource.setDtUicTenantId(1L);
@@ -492,6 +494,27 @@ public class Template {
         lineageDataSource.setSourceName("hive");
         lineageDataSource.setAppType(AppType.DATAASSETS.getType());
         lineageDataSource.setSourceType(DataSourceType.HIVE.getVal());
+        lineageDataSource.setDataJson("{}");
+        lineageDataSource.setKerberosConf("-1");
+        lineageDataSource.setOpenKerberos(0);
+        lineageDataSource.setAppSourceId(-1);
+        lineageDataSource.setInnerSource(-1);
+        lineageDataSource.setComponentId(-1);
+        lineageDataSource.setSourceId(100L);
+        return lineageDataSource;
+    }
+
+    public static LineageDataSource getRdostHiveDataSourceTemplate() {
+        LineageDataSource lineageDataSource = new LineageDataSource();
+        lineageDataSource.setDtUicTenantId(1L);
+        lineageDataSource.setRealSourceId(1L);
+        lineageDataSource.setSourceKey("172.16.8.107#10000");
+        lineageDataSource.setSourceName("hive2");
+        lineageDataSource.setAppType(AppType.RDOS.getType());
+        lineageDataSource.setSourceType(DataSourceType.HIVE.getVal());
+        lineageDataSource.setProjectId(-1L);
+        lineageDataSource.setSourceId(1L);
+        lineageDataSource.setSchemaName("beihai");
         lineageDataSource.setDataJson("{}");
         lineageDataSource.setKerberosConf("-1");
         lineageDataSource.setOpenKerberos(0);

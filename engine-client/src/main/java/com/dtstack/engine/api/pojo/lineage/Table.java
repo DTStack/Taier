@@ -1,5 +1,6 @@
 package com.dtstack.engine.api.pojo.lineage;
 
+import com.dtstack.engine.api.enums.TableOperateEnum;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -81,6 +82,53 @@ public class Table{
      */
     private boolean partitionTable;
 
+    /**
+     * sql对表的操作类型
+     */
+    private TableOperateEnum operate;
+
+    /**
+     * ETableType
+     */
+    private Integer tableType;
+
+    /**
+     * 类目id
+     */
+    private Long catalogueId;
+
+    /**
+     * 是否忽略
+     */
+    private boolean isIgnore;
+
+    /**
+     * 表类型:EXTERNAL-外部表，MANAGED-内部表
+     */
+    private String externalOrManaged;
+
+    /**
+     * 是否为主表
+     */
+    private boolean isMain;
+
+
+    public TableOperateEnum getOperate() {
+        return operate;
+    }
+
+    public void setOperate(TableOperateEnum operate) {
+        this.operate = operate;
+    }
+
+    public Integer getTableType() {
+        return tableType;
+    }
+
+    public void setTableType(Integer tableType) {
+        this.tableType = tableType;
+    }
+
     public boolean isPartitionTable() {
         return partitionTable;
     }
@@ -95,6 +143,9 @@ public class Table{
 
     public void setView(boolean view) {
         isView = view;
+    }
+
+    public Table() {
     }
 
     public Table(String db, String name) {
@@ -210,6 +261,38 @@ public class Table{
         }
 
         return StringUtils.equalsIgnoreCase(name, ((Table) obj).name);
+    }
+
+    public Long getCatalogueId() {
+        return catalogueId;
+    }
+
+    public void setCatalogueId(Long catalogueId) {
+        this.catalogueId = catalogueId;
+    }
+
+    public boolean isIgnore() {
+        return isIgnore;
+    }
+
+    public void setIgnore(boolean ignore) {
+        isIgnore = ignore;
+    }
+
+    public String getExternalOrManaged() {
+        return externalOrManaged;
+    }
+
+    public void setExternalOrManaged(String externalOrManaged) {
+        this.externalOrManaged = externalOrManaged;
+    }
+
+    public boolean isMain() {
+        return isMain;
+    }
+
+    public void setMain(boolean main) {
+        isMain = main;
     }
 
     @Override

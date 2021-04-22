@@ -35,6 +35,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Spy;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
@@ -62,16 +63,8 @@ public class ClusterServiceTest extends AbstractTest {
     private TenantDao tenantDao;
 
     @Autowired
-    private LineageDataSetDao lineageDataSetDao;
-
-    @Autowired
     private ComponentDao componentDao;
 
-    @Spy
-    private LineageDataSetInfoService dataSetInfoService;
-
-    @Autowired
-    private LineageDataSourceService dataSourceService;
 
     @Autowired
     private ClusterService clusterService;
@@ -132,18 +125,6 @@ public class ClusterServiceTest extends AbstractTest {
         ReflectionTestUtils.setField(tenantService,"tenantResourceDao", tenantResourceDao);
         doNothing().when(tenantService).checkClusterCanUse(any());
 
-        ReflectionTestUtils.setField(dataSetInfoService,"sourceService", dataSourceService);
-        ReflectionTestUtils.setField(dataSetInfoService,"tenantDao", tenantDao);
-        ReflectionTestUtils.setField(dataSetInfoService,"lineageDataSetDao", lineageDataSetDao);
-        ReflectionTestUtils.setField(dataSetInfoService,"componentDao", componentDao);
-        ReflectionTestUtils.setField(dataSetInfoService,"tenantDao", tenantDao);
-        ReflectionTestUtils.setField(dataSetInfoService,"componentConfigDao", componentConfigDao);
-
-        when(dataSetInfoService.getClient(any(),any(),any())).thenReturn(null);
-        when(dataSetInfoService.getAllColumns(any(),any())).thenReturn(new ArrayList<>());
-
-
-
 
     }
 
@@ -171,7 +152,6 @@ public class ClusterServiceTest extends AbstractTest {
      * @see ComponentService#addOrCheckClusterWithName(String)
      * @see ComponentService#getOne(Long)
      * @see ClusterService#getAllCluster()
-     * @see ClusterService#getCluster(Long, Boolean, Boolean)
      * @see ClusterService#pageQuery(int, int)
      * @see ComponentService#delete(List)
      * @see ComponentService#testConnects(String)
@@ -182,7 +162,6 @@ public class ClusterServiceTest extends AbstractTest {
      * @see ComponentService#getKerberosConfig(Long, Integer
      * @see EngineService#getQueue(Long)
      * @see EngineService#listSupportEngine(Long)
-     * @see EngineService#listClusterEngines(Long, boolean)
      */
     @Test
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
@@ -256,22 +235,6 @@ public class ClusterServiceTest extends AbstractTest {
         JSONArray engineJson = JSONObject.parseArray(JSON.toJSONString(engineService.listSupportEngine(tenant.getDtUicTenantId())));
         Assert.assertTrue(engineJson.size() > 0);
 
-        //新增或修改逻辑数据源
-        Long sourceId = addOrUpdateDataSource(tenant.getDtUicTenantId());
-        Assert.assertNotNull(sourceId);
-
-        //根据appType查询逻辑数据源
-        LineageDataSource dataSource = getDataSourceByIdAndAppType(sourceId);
-        Assert.assertNotNull(dataSource);
-
-        //获取表信息
-        LineageDataSetInfo dataSet = getOneBySourceIdAndDbNameAndTableName(dataSource.getId());
-        Assert.assertNotNull(dataSet);
-
-        //获取表字段列表信息
-        List<Column> columnList = getTableColumns(dataSet.getSourceId(), dataSet.getTableName(), dataSet.getSchemaName(),
-                dataSet.getDbName());
-        Assert.assertNotNull(columnList);
 
         //删除组件
         try {
@@ -285,7 +248,7 @@ public class ClusterServiceTest extends AbstractTest {
         try {
             clusterService.deleteCluster(clusterVO.getClusterId());
         } catch (Exception e) {
-            Assert.assertTrue(e.getMessage().contains("有租户"));
+            Assert.assertTrue(e.getMessage().contains("has tenants and cannot be deleted"));
         }
     }
 
@@ -525,63 +488,6 @@ public class ClusterServiceTest extends AbstractTest {
     }
 
 
-
-    public List<Column> getTableColumns(Long sourceId,String tableName,String schemaNme,String dbName){
-
-        LineageDataSetInfo dataSetInfo = new LineageDataSetInfo();
-        dataSetInfo.setSourceId(sourceId);
-        dataSetInfo.setTableName(tableName);
-        dataSetInfo.setDbName(dbName);
-        dataSetInfo.setSchemaName(schemaNme);
-        return   dataSetInfoService.getTableColumns(dataSetInfo);
-    }
-
-
-    private DataSourceDTO getDataSourceDTO(Long tenantId) {
-
-        String dataJson = "{\"maxJobPoolSize\":\"\",\"password\":\"123\",\"minJobPoolSize\":\"\"," +
-                "\"jdbcUrl\":\"jdbc:hive2://172.16.8.107:10000/default\"," +
-                "\"username\":\"admin\",\"typeName\":\"hive2.1.1-cdh6.1.1\"}";
-//        String kerberosConf = "{\n" +
-//                "\"principalFile\":\"hive_pure.keytab\",\n" +
-//                "\"remoteDir\":\"/data/sftp_dev/CONSOLE_kerberos/SPARK_THRIFT/kerberos\",\n" +
-//                "\"krbName\":\"krb5.conf\",\n" +
-//                "\"openKerberos\":true\n" +
-//                "}";
-        String kerberosConf = "";
-        DataSourceDTO dataSourceDTO = new DataSourceDTO();
-        dataSourceDTO.setAppType(1);
-        dataSourceDTO.setDataJson(dataJson);
-        dataSourceDTO.setSourceName("测试逻辑数据源1");
-        dataSourceDTO.setDtUicTenantId(tenantId);
-        dataSourceDTO.setKerberosConf(kerberosConf);
-        dataSourceDTO.setSourceType(27);
-        return dataSourceDTO;
-    }
-
-    private Long addOrUpdateDataSource(Long tenantId) {
-
-        DataSourceDTO dataSourceDTO = getDataSourceDTO(tenantId);
-        return dataSourceService.addOrUpdateDataSource(dataSourceDTO);
-    }
-
-
-
-    private LineageDataSource getDataSourceByIdAndAppType(Long sourceId){
-
-        return dataSourceService.getDataSourceByIdAndAppType(sourceId, 1);
-
-    }
-
-
-    private LineageDataSetInfo getOneBySourceIdAndDbNameAndTableName(Long sourceId){
-
-        String dbName = "default";
-        String tableName = "t1";
-        String schemaName = "t1";
-
-        return dataSetInfoService.getOneBySourceIdAndDbNameAndTableName(sourceId, dbName, tableName, schemaName);
-    }
 
 
     @Test

@@ -1,7 +1,9 @@
 package com.dtstack.engine.master.lineage;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.ScheduleJobDao;
@@ -11,6 +13,8 @@ import com.dtstack.engine.master.event.ScheduleJobEventLister;
 import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -25,6 +29,9 @@ import java.util.Set;
  * @Created chener@dtstack.com
  */
 public abstract class SqlJobFinishedListener implements ScheduleJobEventLister {
+
+
+    public static final Logger LOGGER = LoggerFactory.getLogger(SqlJobFinishedListener.class);
 
     @Autowired
     private ScheduleJobDao scheduleJobDao;
@@ -41,14 +48,29 @@ public abstract class SqlJobFinishedListener implements ScheduleJobEventLister {
         List<String> jobIds = event.getJobIds();
         for (String jobId:jobIds){
             ScheduleJob scheduleJob = getScheduleJobByJobId(jobId);
-            ScheduleTaskShade taskShade = getScheduleTaskShadeByJobId(jobId);
-            ScheduleJob lastJob = getLastScheduleJob(taskShade.getTaskId(),scheduleJob.getId());
-            Integer lastVersionId = null != lastJob ? lastJob.getVersionId() : null;
-            if(null != lastVersionId && lastVersionId.equals(scheduleJob.getVersionId())){
-                //相邻两个相同task的job versionId相同，不解析sql
-                continue;
+            ScheduleTaskShade taskShade = null;
+            String sqlText;
+            if(scheduleJob.getType() == EScheduleType.TEMP_JOB.getType()){
+                //临时运行
+                sqlText = scheduleJob.getSqlText();
+            }else{
+                taskShade = getScheduleTaskShadeByJobId(jobId);
+                if(null==taskShade){
+                    return;
+                }
+                ScheduleJob lastJob = getLastScheduleJob(taskShade.getTaskId(),scheduleJob.getId());
+                Integer lastVersionId = null != lastJob ? lastJob.getVersionId() : null;
+                if(null != lastVersionId && lastVersionId.equals(scheduleJob.getVersionId())){
+                    //相邻两个相同task的job versionId相同，不解析sql
+                    continue;
+                }
+                String extraInfo = taskShade.getExtraInfo();
+                JSONObject jsonObject = JSONObject.parseObject(extraInfo);
+                String infoJsonStr = jsonObject.getString("info");
+                JSONObject taskInfoJson = JSONObject.parseObject(infoJsonStr);
+                sqlText = taskInfoJson.getString("sqlText");
             }
-            if (focusedAppType().getType() != (scheduleJob.getAppType())){
+            if (!focusedAppType().getType().equals(scheduleJob.getAppType())){
                 continue;
             }
             Integer taskType = scheduleJob.getTaskType();
@@ -59,7 +81,9 @@ public abstract class SqlJobFinishedListener implements ScheduleJobEventLister {
             if (!focusedJobTypes().contains(eJobType)){
                 continue;
             }
-            onFocusedJobFinished(taskShade,scheduleJob,RdosTaskStatus.FINISHED.getStatus());
+            Long taskId = null==taskShade ? scheduleJob.getTaskId():taskShade.getTaskId();
+            LOGGER.info("进入SqlJobFinishedListener：{}",sqlText);
+            onFocusedJobFinished(scheduleJob.getType(),sqlText,taskId,scheduleJob,RdosTaskStatus.FINISHED.getStatus());
         }
 
     }
@@ -79,11 +103,13 @@ public abstract class SqlJobFinishedListener implements ScheduleJobEventLister {
 
     /**
      * 当关注任务执行成功调用
-     * @param taskShade task
-     * @param scheduleJob job
-     * @param status status
+     * @param sqlText
+     * @param type 临时运行或周期调度
+     * @param taskId
+     * @param scheduleJob
+     * @param status
      */
-    protected abstract void onFocusedJobFinished(ScheduleTaskShade taskShade, ScheduleJob scheduleJob, Integer status);
+    protected abstract void onFocusedJobFinished(Integer type,String sqlText,Long taskId,ScheduleJob scheduleJob, Integer status);
 
     /**
      * 关注任务类型
@@ -110,7 +136,11 @@ public abstract class SqlJobFinishedListener implements ScheduleJobEventLister {
     ScheduleTaskShade getScheduleTaskShadeByJobId(String jobId){
         ScheduleJob scheduleJob = getScheduleJobByJobId(jobId);
         Long taskId = scheduleJob.getTaskId();
-        ScheduleTaskShade taskShade = scheduleTaskShadeDao.getOne(taskId, focusedAppType().getType());
+        if(taskId == -1L){
+            //临时运行taskId都是-1
+            return null;
+        }
+        ScheduleTaskShade taskShade = scheduleTaskShadeDao.getOneByTaskIdAndAppType(taskId, focusedAppType().getType());
         if (Objects.isNull(taskShade)){
             throw new RdosDefineException("taskId:"+taskId+" 任务不存在");
         }
