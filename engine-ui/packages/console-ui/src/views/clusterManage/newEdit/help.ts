@@ -101,7 +101,7 @@ export function getCompsId (currentComps: any[], id: number): any[] {
     let ids = []
     currentComps.forEach(comp => {
         (comp?.multiVersion ?? []).forEach(vcomp => {
-            if (vcomp.id == id) ids.push(vcomp.id)
+            if (vcomp?.id == id) ids.push(vcomp.id)
         })
     })
     return ids

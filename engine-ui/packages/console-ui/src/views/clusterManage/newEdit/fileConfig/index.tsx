@@ -103,25 +103,14 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
         const hadoopVersion = comp?.hadoopVersion ?? ''
         const res = await Api.parseKerberos({ fileName: file })
         if (res.code == 1) {
+            const principal = {
+                principal: res?.data[0] ?? '',
+                principals: res.data
+            }
+            const fieldValue = isMultiVersion(typeCode) ? { [hadoopVersion]: principal } : { ...principal }
+            form.setFieldsValue({ [typeCode]: fieldValue })
             this.setState({
                 principals: res.data ?? []
-            })
-            if (isMultiVersion(typeCode)) {
-                form.setFieldsValue({
-                    [typeCode]: {
-                        [hadoopVersion]: {
-                            principal: res?.data[0] ?? '',
-                            principals: res.data
-                        }
-                    }
-                })
-                return
-            }
-            form.setFieldsValue({
-                [typeCode]: {
-                    principal: res?.data[0] ?? '',
-                    principals: res.data
-                }
             })
         }
     }
@@ -202,29 +191,12 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             })
         }
         function setValue () {
-            if (isMultiVersion(typeCode)) {
-                form.setFieldsValue({
-                    [typeCode]: {
-                        [hadoopVersion]: {
-                            componentConfig: {
-                                ...handleComponentConfig({
-                                    componentConfig: res.data[0]
-                                }, true)
-                            }
-                        }
-                    }
-                })
-                return
-            }
-            form.setFieldsValue({
-                [typeCode]: {
-                    componentConfig: {
-                        ...handleComponentConfig({
-                            componentConfig: res.data[0]
-                        }, true)
-                    }
-                }
-            })
+            const componentConfig = handleComponentConfig({
+                componentConfig: res.data[0]
+            }, true)
+            const fieldValue = isMultiVersion(typeCode)
+                ? { [hadoopVersion]: { componentConfig } } : { componentConfig }
+            form.setFieldsValue({ [typeCode]: fieldValue })
         }
         if (res.code == 1) {
             switch (loadingType) {

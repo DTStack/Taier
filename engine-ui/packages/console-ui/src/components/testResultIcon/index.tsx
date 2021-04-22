@@ -22,7 +22,7 @@ export default class TestRestIcon extends React.Component<any, any> {
     matchCompTest (testResult: any) {
         switch (testResult?.result) {
             case TEST_STATUS.SUCCESS: {
-                return <Icon className='success-icon' type="check-circle" />
+                return <Icon className='success-icon' type="check-circle" theme="filled" />
             }
             case TEST_STATUS.FAIL: {
                 return <Tooltip
@@ -40,7 +40,7 @@ export default class TestRestIcon extends React.Component<any, any> {
                     placement='right'
 
                 >
-                    <Icon className='err-icon' type="close-circle" />
+                    <Icon className='err-icon' type="close-circle" theme="filled" />
                 </Tooltip>
             }
             default: {

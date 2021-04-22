@@ -78,7 +78,7 @@ export default class MultiVersionComp extends React.Component<IProps, any> {
                             >
                                 <span className="comp-name">
                                     <img src={`public/img/${VERSION_TYPE[typeCode]}.png`}/>
-                                    <span>{VERSION_TYPE[typeCode]} {Number(key).toFixed(2)}</span>
+                                    <span>{VERSION_TYPE[typeCode]} {(Number(value) / 100).toFixed(2)}</span>
                                 </span>
                                 <Icon type="right-circle" theme="filled" />
                             </div>

@@ -213,9 +213,9 @@ class EditCluster extends React.Component<any, IState> {
                 currentCompArr = Array.from(wrapper)
 
                 const multiVersion = getSingleTestStatus({ typeCode: componentTypeCode, hadoopVersion }, null, testStatus)
-                const setParams = isMultiVersion(componentTypeCode) ? {
-                    [hadoopVersion]: { componentConfig: {}, specialConfig: {} }
-                } : { componentConfig: {}, specialConfig: {} }
+                const resetValue = { componentConfig: {}, specialConfig: {} }
+                const fieldValue = isMultiVersion(componentTypeCode)
+                    ? { [hadoopVersion]: resetValue } : { resetValue }
 
                 this.setState({
                     testStatus: {
@@ -227,9 +227,7 @@ class EditCluster extends React.Component<any, IState> {
                         }
                     }
                 })
-                this.props.form.setFieldsValue({
-                    [componentTypeCode]: setParams
-                })
+                this.props.form.setFieldsValue({ [componentTypeCode]: fieldValue })
             }
         }
 
@@ -293,14 +291,14 @@ class EditCluster extends React.Component<any, IState> {
             const { testStatus, initialCompData, activeKey } = this.state
             const currentComp = initialCompData[activeKey].find(comp => comp.componentTypeCode == status.componentTypeCode)
             if (!isMultiVersion(status.componentTypeCode)) {
-                this.setState((preState) => ({
+                this.setState({
                     testStatus: {
-                        ...preState.testStatus,
+                        ...testStatus,
                         [status.componentTypeCode]: {
                             ...status
                         }
                     }
-                }))
+                })
                 return
             }
             const multiVersion = getSingleTestStatus({
@@ -308,7 +306,7 @@ class EditCluster extends React.Component<any, IState> {
                 hadoopVersion: status?.componentVersion
             }, status, testStatus)
 
-            let sign = false
+            let sign = false // 标记是否有测试连通性失败的多版本组件
             let errorMsg = []
 
             multiVersion.forEach(mv => {

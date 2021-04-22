@@ -106,33 +106,20 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
         const { form, comp } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
         const hadoopVersion = isMultiVersion(typeCode) ? this.props.comp?.hadoopVersion : ''
+        const componentConfig = handleComponentConfig({
+            componentConfig: comp?.componentConfig ? JSON.parse(comp?.componentConfig) : {}
+        }, true)
+        const fieldValue = isMultiVersion(typeCode)
+            ? { [hadoopVersion]: { componentConfig } } : { componentConfig }
 
-        if (!hadoopVersion) {
-            form.setFieldsValue({
-                [typeCode]: {
-                    componentConfig: handleComponentConfig({
-                        componentConfig: JSON.parse(comp.componentConfig)
-                    }, true)
-                }
-            })
-            return
-        }
-        form.setFieldsValue({
-            [typeCode]: {
-                [hadoopVersion]: {
-                    componentConfig: handleComponentConfig({
-                        componentConfig: JSON.parse(comp.componentConfig)
-                    }, true)
-                }
-            }
-        })
+        form.setFieldsValue({ [typeCode]: fieldValue })
     }
 
     showModal = () => {
         const { comp, handleConfirm, mulitple } = this.props
         Modal.confirm({
             title: '确认要删除组件？',
-            content: '此操作执行后不可逆，是否确认将对应组件删除？',
+            content: '此操作执行后不可逆，是否确认将当前组件删除？',
             icon: <Icon type="close-circle" theme="filled" style={{ color: '#FF5F5C' }} />,
             okText: '删除',
             okType: 'danger',
