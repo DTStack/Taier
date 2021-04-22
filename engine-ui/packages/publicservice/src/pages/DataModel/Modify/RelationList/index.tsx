@@ -13,6 +13,7 @@ import _ from 'lodash';
 import { relationListRemove } from './utils';
 import { API } from '@/services';
 import Message from 'pages/DataModel/components/Message';
+import './style';
 
 interface IPropsRelationList {
   updateTypeList: any[];
@@ -223,11 +224,12 @@ const RelationList = (props: IPropsRelationList) => {
   }, [modelDetail.tableName, modelDetail.schema, relationList]);
 
   return (
-    <div ref={cref}>
+    <div className="relation-list" ref={cref}>
       {modifyType.visible ? (
         <Modal
           title={modifyType.mode === Mode.ADD ? '添加关联表' : '编辑关联表'}
           visible={modifyType.visible}
+          className="relation-modal"
           onOk={() => {
             refRelationModal.current.validate().then((data) => {
               let next = [];

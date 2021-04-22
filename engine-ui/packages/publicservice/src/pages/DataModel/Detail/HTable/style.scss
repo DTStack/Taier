@@ -1,8 +1,21 @@
 table.h-table {
+  .border-top {
+    border-top: 1px solid #dddddd;
+  }
+  .border-bottom {
+    border-bottom: 1px solid #dddddd;
+  }
+  .border-left {
+    border-left: 1px solid #dddddd;
+  }
+  .border-right {
+    border-right: 1px solid #dddddd;
+  }
   width: 100%;
   tr {
     td {
-      border: 1px solid rgb(233, 233, 233);
+      border-collapse: collapse;
+      border: 1px solid #E8E8E8;
       border-collapse: collapse;
       width: 250px;
       height: 44px;
@@ -10,7 +23,9 @@ table.h-table {
       vertical-align: middle;
     }
     td.label {
-      background-color: rgb(242, 242, 242);
+      background-color: #FAFAFA;
+      color: #333333;
+      font-weight: 500;
     }
     td.value {
       background-color: #fff;

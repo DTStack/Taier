@@ -4,6 +4,7 @@ import { JoinKey } from '@/pages/DataModel/types';
 import Message from 'pages/DataModel/components/Message';
 import { API } from '@/services';
 import _ from 'lodash';
+import './style';
 
 interface ITableItem {
   dsId: number;
@@ -168,9 +169,9 @@ const DynamicSelect = (props: IPropsDynamicSelect) => {
     <div className="dynamic-select-list">
       {joinPairsList.map((item, index) => {
         return (
-          <Row key={item.id}>
+          <Row className="form-item-row" key={item.id}>
             <Col offset={5} span={19}>
-              <Row className="white-space-nowrap">
+              <Row className="white-space-nowrap margin-bottom-0">
                 <Col span={11}>
                   <Form.Item wrapperCol={{ span: 24 }}>
                     {getFieldDecorator(`left_${item.id}`, {

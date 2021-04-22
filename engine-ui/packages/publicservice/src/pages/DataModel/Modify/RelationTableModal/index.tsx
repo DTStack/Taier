@@ -295,7 +295,7 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
             </Select>
           )}
         </Form.Item>
-        <Form.Item label="关联表" required={false}>
+        <Form.Item className="relation-row" label="关联表" required={false}>
           <Row>
             <Col span={11}>
               {getFieldDecorator('table', {

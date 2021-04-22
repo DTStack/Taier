@@ -10,6 +10,7 @@
       width: 100%;
       height: 52px;
       padding: 10px 115px 0;
+      border-bottom: 1px solid #e8e8e8;
     }
     .step-content {
       width: 100%;
@@ -103,6 +104,10 @@
 
 .padding-top-20 {
   padding-top: 20px;
+}
+
+.margin-top-5 {
+  margin-top: 5px!important;
 }
 
 .dm-form-select-drop {

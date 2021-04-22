@@ -103,9 +103,14 @@
 .icon-filter {
   font-size: 16px !important;
   margin-top: 2px;
-
   &.filtered {
     color: #3f87ff !important;
+  }
+}
+
+.ant-table {
+  .ant-table-filter-icon {
+    margin-left: 4px;
   }
 }
 

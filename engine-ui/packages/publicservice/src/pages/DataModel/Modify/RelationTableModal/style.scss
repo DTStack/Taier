@@ -2,8 +2,6 @@
   width: 100%;
   padding: 0 68px 0 44px;
   &-subtitle {
-    width: 84px;
-    height: 20px;
     font-size: 14px;
     font-family: PingFangSC-Medium, PingFang SC, sans-serif;
     font-weight: 500;
@@ -11,11 +9,20 @@
     line-height: 20px;
   }
   .special-form-item {
-    margin-bottom: 0;
+    margin-bottom: 0!important;
+    .ant-form-item-control {
+      .ant-row {
+        padding-bottom: 0;
+      }
+    }
     .ant-form-explain {
       position: absolute;
     }
   }
+}
+
+.relation-row {
+  margin-bottom: 12px!important;
 }
 
 .dynamic-select-list {
@@ -49,6 +56,11 @@
   white-space: nowrap;
 }
 
+.margin-bottom-0 {
+  margin-bottom: 0!important;
+}
+
 .text-align-center {
   text-align: center;
+  line-height: 32px;
 }

@@ -21,7 +21,7 @@ const timeFmtList = ['HH:mm:ss', 'HH:mm', 'HH'];
 const WrapperSwitch = React.forwardRef((props: any, ref: any) => {
   const _props = { ...props };
   delete _props.value;
-  return <Switch checked={props.value} ref={ref} {..._props} />;
+  return <Switch className="margin-top-5" checked={props.value} ref={ref} {..._props} />;
 });
 
 const layout = {
@@ -159,7 +159,7 @@ const PartitionField = (props: IPropsPartitionField) => {
   }, [currentForm.modelPartition?.timePartition]);
 
   return (
-    <Form className="padding-top-20 partition-field dm-form" {...layout}>
+    <Form className=" padding-top-20 partition-field dm-form" {...layout}>
       <Row className="mb-12">
         <Col span={5}>
           <span className="text-main ml-32">分区设置</span>
