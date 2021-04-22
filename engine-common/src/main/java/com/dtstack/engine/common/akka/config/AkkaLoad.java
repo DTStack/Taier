@@ -2,6 +2,8 @@ package com.dtstack.engine.common.akka.config;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -16,15 +18,17 @@ import java.util.Properties;
  */
 public class AkkaLoad {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AkkaLoad.class);
+
     private final static String COMMON_FILE_PATH = "application-common.properties";
     private final static String PROPERTIES_FILE_PATH = "application.properties";
 
     private static Config loadCommon(String configPath) {
         Properties properties = new Properties();
-        try {
-            properties.load(new FileInputStream(configPath));
+        try (FileInputStream fs = new FileInputStream(configPath)){
+            properties.load(fs);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("properties load error:",e);
         }
 
         // 加载 application-common.properties
@@ -52,7 +56,7 @@ public class AkkaLoad {
         try {
             properties.load(new FileInputStream(configPath));
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("loadProperties error:",e);
         }
 
         if (config != null) {
