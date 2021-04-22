@@ -29,3 +29,7 @@ tmpSave/
 /javadocs
 engine-master/engine-master-server/download/
 engine-master/engine-master-server/unzip/
+engine-ui/node_modules
+engine-ui/.yarn-error.log
+engine-ui/build
+.history
