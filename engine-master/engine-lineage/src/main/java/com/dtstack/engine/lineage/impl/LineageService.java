@@ -819,7 +819,7 @@ public class LineageService {
                 LineageDataSourceVO resultDataSourceVO = resultTableInfoVO.getDataSourceVO();
                 LineageDataSource resultDataSource = null;
                 if (Objects.isNull(resultDataSourceVO.getSourceId())) {
-                    List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(resultDataSourceVO.getSourceType(), resultDataSource.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType());
+                    List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(resultDataSourceVO.getSourceType(), resultDataSourceVO.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType());
                     if(CollectionUtils.isEmpty(dataSources)){
                         logger.error("do not find need dataSource");
                         throw new RdosDefineException("没有可用的数据源");
