@@ -5,9 +5,9 @@
 
     <insert id="insert" parameterType="com.dtstack.engine.api.domain.ScheduleSqlTextTemp" useGeneratedKeys="true" keyProperty="id">
         insert into schedule_sql_text_temp
-        (job_id,sql_text,gmt_create,gmt_modified,is_deleted)
+        (job_id,sql_text)
         values
-        (#{jobId},#{sqlText},#{gmtCreate},#{gmtModified},#{isDeleted})
+        (#{jobId},#{sqlText})
 
     </insert>
 
