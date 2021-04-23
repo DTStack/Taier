@@ -43,3 +43,4 @@ public class BatchFlowWorkJobServiceTest extends AbstractTest {
     }
 
 }
+

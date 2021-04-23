@@ -43,14 +43,14 @@ public class DownloadController {
     public void handleDownload(@RequestParam(value = "componentId",required = false) Long componentId,
                                @RequestParam("type") Integer downloadType,
                                @RequestParam("componentType") Integer componentType,
-                               @RequestParam("hadoopVersion") String hadoopVersion,
+                               @RequestParam("hadoopVersion") String componentVersion,
                                @RequestParam("clusterName") String clusterName, HttpServletResponse response) {
-        response.setHeader("content-type", "application/octet-stream;charset=UTF-8");
+        response.setHeader("Content-Type", "application/octet-stream;charset=UTF-8");
         response.setHeader("Pragma", "no-cache");
         response.setHeader("Cache-Control", "no-cache");
         File downLoadFile = null;
         try {
-            downLoadFile = componentService.downloadFile(componentId, downloadType, componentType, hadoopVersion, clusterName);
+            downLoadFile = componentService.downloadFile(componentId, downloadType, componentType, componentVersion, clusterName);
             if (null != downLoadFile && downLoadFile.isFile()) {
                 response.setHeader("Content-Disposition", "attachment;filename=" + encodeURIComponent(downLoadFile.getName()));
                 ServletOutputStream outputStream = response.getOutputStream();

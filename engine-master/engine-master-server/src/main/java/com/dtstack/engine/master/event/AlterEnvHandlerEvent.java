@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -54,12 +55,16 @@ public class AlterEnvHandlerEvent extends AdapterEventMonitor {
     }
 
     class AlterEnvironment{
-        private final static String SEND_IP = "CONSOLE_IP";
+        private final static String SEND_IP = "ALTER_IP";
+        private final static String SEND_HOST_NAME = "ALTER_HOST_NAME";
+        private final static String SEND_TIME = "ALTER_TIME";
 
         private final Map<String,Object> env = Maps.newHashMap();
 
         AlterEnvironment(){
             env.put(SEND_IP,environmentContext.getHttpAddress());
+            env.put(SEND_HOST_NAME, environmentContext.getLocalAddress());
+            env.put(SEND_TIME, new Date());
         }
 
         public Map<String, Object> getEnv() {

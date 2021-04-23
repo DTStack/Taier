@@ -14,7 +14,8 @@
         <hadoop2.version>2.7.3</hadoop2.version>
         <hadoop3.version>3.0.0</hadoop3.version>
         <spring.version>5.2.3.RELEASE</spring.version>
-        <fastjson>2.9.6</fastjson>
+        <fastjson>1.2.76</fastjson>
+        <jackson>2.9.6</jackson>
         <common.version>4.1.1</common.version>
         <log4j.version>1.2.17</log4j.version>
         <slf4j-api.version>1.7.21</slf4j-api.version>
@@ -25,7 +26,8 @@
     </properties>
 
     <modules>
-        <module>engine-client</module>
+        <module>engine-alert-sdk</module>
+        <module>engine-client-sdk</module>
         <module>engine-common</module>
         <module>engine-master</module>
         <module>engine-worker</module>
