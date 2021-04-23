@@ -124,8 +124,10 @@ function ProduceAuth() {
             <Row>
               {produceList.length > 0 &&
                 produceList.map((item, index) => (
-                  <Col span={8} key={index}>
-                    <Checkbox value={item.appType}>{item.appName}</Checkbox>
+                  <Col span={8} key={item.appType}>
+                    <Checkbox value={item.appType} key={item.appType}>
+                      {item.appName}
+                    </Checkbox>
                   </Col>
                 ))}
             </Row>
