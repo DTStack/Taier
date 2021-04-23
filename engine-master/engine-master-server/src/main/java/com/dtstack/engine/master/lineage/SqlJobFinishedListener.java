@@ -2,11 +2,13 @@ package com.dtstack.engine.master.lineage;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.domain.ScheduleSqlTextTemp;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.ScheduleJobDao;
+import com.dtstack.engine.dao.ScheduleSqlTextTempDao;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.event.ScheduleJobBatchEvent;
 import com.dtstack.engine.master.event.ScheduleJobEventLister;
@@ -39,6 +41,9 @@ public abstract class SqlJobFinishedListener implements ScheduleJobEventLister {
     @Autowired
     private ScheduleTaskShadeDao scheduleTaskShadeDao;
 
+    @Autowired
+    private ScheduleSqlTextTempDao sqlTextTempDao;
+
     @Override
     public void publishBatchEvent(ScheduleJobBatchEvent event) {
         Integer status = event.getStatus();
@@ -52,7 +57,12 @@ public abstract class SqlJobFinishedListener implements ScheduleJobEventLister {
             String sqlText;
             if(scheduleJob.getType() == EScheduleType.TEMP_JOB.getType()){
                 //临时运行
-                sqlText = scheduleJob.getSqlText();
+                ScheduleSqlTextTemp sqlTextTemp = sqlTextTempDao.selectByJobId(jobId);
+                if(null == sqlTextTemp){
+                    LOGGER.error("can not find sqlTextTemp,jobId:{}",jobId);
+                    return;
+                }
+                sqlText = sqlTextTemp.getSqlText();
             }else{
                 taskShade = getScheduleTaskShadeByJobId(jobId);
                 if(null==taskShade){
