@@ -105,7 +105,6 @@ public class ParamAction {
 		return appType;
 	}
 
-
 	public void setAppType(Integer appType) {
 		this.appType = appType;
 	}
