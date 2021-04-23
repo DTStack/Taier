@@ -606,4 +606,8 @@ public class EnvironmentContext {
     public String getSdkToken() {
         return environment.getProperty("sdk.token", "");
     }
+
+    public String getSqlParserDir(){
+        return environment.getProperty("sqlParser.dir","/opt/dtstack/DTCommon/SQLParser");
+    }
 }
