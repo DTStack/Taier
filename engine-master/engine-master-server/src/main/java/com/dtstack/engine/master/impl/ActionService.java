@@ -2,10 +2,7 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.EngineJobRetry;
-import com.dtstack.engine.api.domain.EngineUniqueSign;
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.api.vo.action.ActionJobEntityVO;
@@ -104,6 +101,9 @@ public class ActionService {
 
     @Autowired
     private ComponentDao componentDao;
+
+    @Autowired
+    private ScheduleSqlTextTempDao sqlTextTempDao;
 
     private final ObjectMapper objMapper = new ObjectMapper();
 
@@ -345,6 +345,13 @@ public class ActionService {
             if(scheduleJob == null){
                 scheduleJob = buildScheduleJob(paramActionExt);
                 scheduleJobDao.insert(scheduleJob);
+                if((EScheduleType.TEMP_JOB.getType()==scheduleJob.getType())){
+                    //临时运行需要插入sql_text
+                    ScheduleSqlTextTemp sqlTextTemp = new ScheduleSqlTextTemp();
+                    sqlTextTemp.setJobId(scheduleJob.getId());
+                    sqlTextTemp.setSqlText(paramActionExt.getSqlText());
+                    sqlTextTempDao.insert(sqlTextTemp);
+                }
                 result = true;
             }else{
                 result = RdosTaskStatus.canStart(scheduleJob.getStatus());
@@ -399,10 +406,6 @@ public class ActionService {
         scheduleJob.setVersionId(getOrDefault(paramActionExt.getVersionId(), 0));
         scheduleJob.setComputeType(getOrDefault(paramActionExt.getComputeType(), 1));
         scheduleJob.setPeriodType(paramActionExt.getPeriodType());
-        if(EScheduleType.TEMP_JOB.getType()==scheduleJob.getType()){
-            //临时运行scheduleJob才存储sqlText
-            scheduleJob.setSqlText(paramActionExt.getSqlText());
-        }
         buildComponentVersion(scheduleJob,paramActionExt);
         return scheduleJob;
     }

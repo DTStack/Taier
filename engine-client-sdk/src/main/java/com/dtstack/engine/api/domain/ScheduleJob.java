@@ -1,7 +1,6 @@
 package com.dtstack.engine.api.domain;
 
 
-import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.annotation.Unique;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -130,7 +129,6 @@ public class ScheduleJob extends AppTenantEntity {
 
     private Integer taskRule;
 
-    private String sqlText;
 
     public Boolean getForce() {
         return isForce;
@@ -435,11 +433,4 @@ public class ScheduleJob extends AppTenantEntity {
         this.taskRule = taskRule;
     }
 
-    public String getSqlText() {
-        return sqlText;
-    }
-
-    public void setSqlText(String sqlText) {
-        this.sqlText = sqlText;
-    }
 }

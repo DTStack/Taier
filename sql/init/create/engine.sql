@@ -389,7 +389,6 @@ CREATE TABLE `schedule_job`
   `job_graph`       TEXT DEFAULT NULL COMMENT 'jobGraph构建json',
   `submit_user_name` VARCHAR(20) DEFAULT NULL COMMENT '任务提交用户名',
   `task_rule` tinyint(1) DEFAULT '0' COMMENT '强弱规则（只有NOT_DO_TASK任务会判断强弱规则）0 默认无规则 1弱规则 2强规则',
-  `sql_text` longtext DEFAULT NULL COMMENT '临时运行sql文本内容',
   `component_version` varchar(25)  COMMENT '组件版本',
   PRIMARY KEY (`id`),
   KEY `index_task_id` (`task_id`),
@@ -849,4 +848,16 @@ CREATE TABLE `alert_channel` (
   PRIMARY KEY (`id`),
   KEY `index_alert_gate_source` (`alert_gate_source`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='告警通道';
+
+
+CREATE TABLE `schedule_sql_text_temp` (
+  `id` bigint(20) NOT NULL,
+  `job_id` bigint(20) NOT NULL COMMENT '临时运行job的job_id',
+  `sql_text` longtext NOT NULL COMMENT '临时运行任务的sql文本内容',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_job_id` (`job_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='临时任务sql_text关联表';
 
