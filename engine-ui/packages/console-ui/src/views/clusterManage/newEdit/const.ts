@@ -31,7 +31,9 @@ export const COMPONENT_TYPE_VALUE = {
     GREEN_PLUM_SQL: 14,
     KUBERNETES: 15,
     PRESTO_SQL: 16,
-    NFS: 17
+    NFS: 17,
+    SHELL_AGENT: 18,
+    INCEPTOR_SQL: 19
 }
 
 export const COMPONENT_CONFIG_NAME = {
@@ -52,14 +54,16 @@ export const COMPONENT_CONFIG_NAME = {
     14: 'Greenplum SQL',
     15: 'Kubernetes',
     16: 'Presto SQL',
-    17: 'NFS'
+    17: 'NFS',
+    18: 'Shell Agent',
+    19: 'Inceptor SQL'
 }
 
 export const TABS_TITLE = {
-    [TABS_TITLE_KEY.COMMON]: { iconName: 'iconcunchuzujian', name: '公共组件' },
-    [TABS_TITLE_KEY.SOURCE]: { iconName: 'icongonggongzujian', name: '资源调度组件' },
-    [TABS_TITLE_KEY.STORE]: { iconName: 'iconjisuanzujian', name: '存储组件' },
-    [TABS_TITLE_KEY.COMPUTE]: { iconName: 'iconziyuantiaodu', name: '计算组件' }
+    [TABS_TITLE_KEY.COMMON]: { iconName: 'icongonggongzujian', name: '公共组件' },
+    [TABS_TITLE_KEY.SOURCE]: { iconName: 'iconziyuantiaodu', name: '资源调度组件' },
+    [TABS_TITLE_KEY.STORE]: { iconName: 'iconcunchuzujian', name: '存储组件' },
+    [TABS_TITLE_KEY.COMPUTE]: { iconName: 'iconjisuanzujian', name: '计算组件' }
 }
 
 export const CONFIG_BUTTON_TYPE = {
@@ -86,7 +90,9 @@ export const CONFIG_BUTTON_TYPE = {
         { code: COMPONENT_TYPE_VALUE.TIDB_SQL, componentName: COMPONENT_CONFIG_NAME[COMPONENT_TYPE_VALUE.TIDB_SQL] },
         { code: COMPONENT_TYPE_VALUE.LIBRA_SQL, componentName: COMPONENT_CONFIG_NAME[COMPONENT_TYPE_VALUE.LIBRA_SQL] },
         { code: COMPONENT_TYPE_VALUE.ORACLE_SQL, componentName: COMPONENT_CONFIG_NAME[COMPONENT_TYPE_VALUE.ORACLE_SQL] },
-        { code: COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL, componentName: COMPONENT_CONFIG_NAME[COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL] }
+        { code: COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL, componentName: COMPONENT_CONFIG_NAME[COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL] },
+        // { code: COMPONENT_TYPE_VALUE.SHELL_AGENT, componentName: COMPONENT_CONFIG_NAME[COMPONENT_TYPE_VALUE.SHELL_AGENT] }
+        { code: COMPONENT_TYPE_VALUE.INCEPTOR_SQL, componentName: COMPONENT_CONFIG_NAME[COMPONENT_TYPE_VALUE.INCEPTOR_SQL] }
     ]
 }
 
@@ -94,7 +100,8 @@ export const VERSION_TYPE = {
     0: 'Flink',
     9: 'HiveServer',
     1: 'Spark',
-    6: 'SparkThrift'
+    6: 'SparkThrift',
+    19: 'InceptorSql'
 }
 
 export const FILE_TYPE = {
@@ -118,7 +125,8 @@ export const DEFAULT_COMP_VERSION = {
     [COMPONENT_TYPE_VALUE.FLINK]: '180',
     [COMPONENT_TYPE_VALUE.SPARK]: '210',
     [COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER]: '2.x',
-    [COMPONENT_TYPE_VALUE.HIVE_SERVER]: '2.x'
+    [COMPONENT_TYPE_VALUE.HIVE_SERVER]: '2.x',
+    [COMPONENT_TYPE_VALUE.INCEPTOR_SQL]: '6.2.x'
 }
 
 export const CONFIG_FILE_DESC = {
@@ -126,6 +134,13 @@ export const CONFIG_FILE_DESC = {
     [COMPONENT_TYPE_VALUE.HDFS]: 'zip格式，至少包括core-site.xml、hdfs-site.xml、hive-site.xml',
     [COMPONENT_TYPE_VALUE.KUBERNETES]: 'zip格式，至少包括kubernetes.config'
 }
+
+export const COMP_ACTION = {
+    DELETE: 'DELETE',
+    ADD: 'ADD'
+}
+
+export const DEFAULT_PARAMS = ['storeType', 'principal', 'hadoopVersion', 'kerberosFileName', 'uploadFileName', 'isMetadata']
 
 export const MAPPING_DATA_CHECK = {
     [COMPONENT_TYPE_VALUE.HIVE_SERVER]: COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER,

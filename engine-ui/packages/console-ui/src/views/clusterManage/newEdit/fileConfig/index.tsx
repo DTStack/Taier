@@ -10,25 +10,26 @@ import DataCheckbox from './components/dataCheckbox'
 import { COMPONENT_TYPE_VALUE, VERSION_TYPE, FILE_TYPE,
     CONFIG_FILE_DESC, DEFAULT_COMP_VERSION } from '../const'
 import { isOtherVersion, isSameVersion, handleComponentConfig,
-    needZipFile, getOptions, getInitialValue, showDataCheckBox } from '../help'
+    needZipFile, getOptions, getInitialValue, isMultiVersion,
+    isYarn, showDataCheckBox } from '../help'
 
 interface IProps {
     comp: any;
     form: any;
     view: boolean;
-    isCheckBoxs: boolean;
-    commVersion: string;
     saveCompsData: any[];
     versionData: any;
     clusterInfo: any;
-    handleCompVersion: Function;
+    isCheckBoxs?: boolean;
+    commVersion?: string;
+    handleCompVersion?: Function;
+    saveComp: Function;
 }
 
 interface IState {
     loading: any;
     visible: boolean;
     principals: any[];
-    krbconfig: string;
 }
 
 const FormItem = Form.Item
@@ -41,8 +42,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             [FILE_TYPE.CONFIGS]: false
         },
         visible: false,
-        principals: [],
-        krbconfig: ''
+        principals: []
     }
 
     /** hdfs 和 yarn 组件版本一致，version提取至上层 */
@@ -102,16 +102,17 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
     getPrincipalsList = async (file: any) => {
         const { form, comp } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
+        const hadoopVersion = comp?.hadoopVersion ?? ''
         const res = await Api.parseKerberos({ fileName: file })
         if (res.code == 1) {
+            const principal = {
+                principal: res?.data[0] ?? '',
+                principals: res.data
+            }
+            const fieldValue = isMultiVersion(typeCode) ? { [hadoopVersion]: principal } : { ...principal }
+            form.setFieldsValue({ [typeCode]: fieldValue })
             this.setState({
                 principals: res.data ?? []
-            })
-            form.setFieldsValue({
-                [typeCode]: {
-                    principal: res?.data[0] ?? '',
-                    principals: res.data
-                }
             })
         }
     }
@@ -138,7 +139,8 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
     downloadFile = (type: number) => {
         const { form, clusterInfo, comp } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
-        const version = form.getFieldValue(typeCode + '.hadoopVersion') || '';
+        let version = form.getFieldValue(typeCode + '.hadoopVersion') || '';
+        if (isMultiVersion(typeCode)) version = comp?.hadoopVersion ?? ''
 
         const a = document.createElement('a')
         let param = comp?.id ? (`?componentId=${comp.id}&`) : '?'
@@ -158,6 +160,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
     uploadFile = async (file: any, loadingType: number, callBack: Function) => {
         const { comp, form, clusterInfo } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
+        const hadoopVersion = isMultiVersion(typeCode) ? comp?.hadoopVersion : ''
         this.setState((preState) => ({
             loading: {
                 ...preState.loading,
@@ -178,7 +181,8 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             const params = {
                 kerberosFile: file,
                 clusterId: clusterInfo?.clusterId ?? '',
-                componentCode: typeCode
+                componentCode: typeCode,
+                componentVersion: hadoopVersion
             }
             res = await Api.uploadKerberos(params)
             this.getPrincipalsList(file)
@@ -189,20 +193,17 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             })
         }
         function setValue () {
-            form.setFieldsValue({
-                [typeCode]: {
-                    componentConfig: {
-                        ...handleComponentConfig({
-                            componentConfig: res.data[0]
-                        }, true)
-                    }
-                }
-            })
+            const componentConfig = handleComponentConfig({
+                componentConfig: res.data[0]
+            }, true)
+            const fieldValue = isMultiVersion(typeCode)
+                ? { [hadoopVersion]: { componentConfig } } : { componentConfig }
+            form.setFieldsValue({ [typeCode]: fieldValue })
         }
         if (res.code == 1) {
             switch (loadingType) {
                 case FILE_TYPE.KERNEROS: {
-                    this.setState({ krbconfig: res.data })
+                    this.setKrbConfig(res.data)
                     break
                 }
                 case FILE_TYPE.PARAMES:
@@ -250,6 +251,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                     value: comp.kerberosFileName,
                     desc: '仅支持.zip格式',
                     loading: loading[FILE_TYPE.KERNEROS],
+                    hadoopVersion: comp?.hadoopVersion ?? '',
                     uploadProps: {
                         name: 'kerberosFile',
                         accept: '.zip',
@@ -289,6 +291,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                     value: comp.paramsFile,
                     desc: '仅支持json格式',
                     loading: loading[FILE_TYPE.PARAMES],
+                    hadoopVersion: comp?.hadoopVersion ?? '',
                     uploadProps: {
                         name: 'paramsFile',
                         accept: '.json',
@@ -322,7 +325,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             <UploadFile
                 label={<span>
                     配置文件
-                    <a style={{ marginLeft: 66 }} onClick={this.refreshYarnQueue}>刷新队列</a>
+                    {isYarn(typeCode) && <a style={{ marginLeft: 66 }} onClick={this.refreshYarnQueue}>刷新队列</a>}
                 </span>}
                 deleteIcon={true}
                 fileInfo={{
@@ -331,6 +334,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                     value: comp.uploadFileName,
                     desc: CONFIG_FILE_DESC[typeCode],
                     loading: loading[FILE_TYPE.CONFIGS],
+                    hadoopVersion: comp?.hadoopVersion ?? '',
                     uploadProps: {
                         name: 'uploadFileName',
                         accept: '.zip',
@@ -355,6 +359,10 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
     renderStorageComponents = () => {
         const { comp, form, saveCompsData, view } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
+        const hadoopVersion = comp?.hadoopVersion ?? ''
+        let formField = typeCode
+        if (isMultiVersion(typeCode)) formField = formField + '.' + hadoopVersion
+        formField = formField + '.storeType'
 
         if (saveCompsData.length === 0) return
         let storeTypeFlag = false
@@ -370,9 +378,9 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             <FormItem
                 label="存储组件"
                 colon={false}
-                key={`${typeCode}.storeType`}
+                key={formField}
             >
-                {form.getFieldDecorator(`${typeCode}.storeType`, {
+                {form.getFieldDecorator(formField, {
                     initialValue: storeType
                 })(
                     <Select style={{ width: 172 }} disabled={view}>
@@ -390,7 +398,12 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
         const { principals } = this.state
         let principalsList = principals
         const typeCode = comp?.componentTypeCode ?? ''
-        const kerberosFile = form.getFieldValue(typeCode + '.kerberosFileName') ?? comp?.kerberosFileName
+        const hadoopVersion = comp?.hadoopVersion ?? ''
+
+        let formField = typeCode
+        if (isMultiVersion(typeCode)) formField = formField + '.' + hadoopVersion
+
+        const kerberosFile = form.getFieldValue(formField + '.kerberosFileName') ?? comp?.kerberosFileName
 
         if (!principals.length && !Array.isArray(comp?.principals) && comp?.principals) {
             principalsList = comp?.principals.split(',')
@@ -402,9 +415,9 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             <FormItem
                 label="principal"
                 colon={false}
-                key={`${typeCode}.principal`}
+                key={formField + '.principal'}
             >
-                {form.getFieldDecorator(`${typeCode}.principal`, {
+                {form.getFieldDecorator(formField + '.principal', {
                     initialValue: comp?.principal ?? principals[0] ?? ''
                 })(
                     <Select style={{ width: 172 }} disabled={view}>
@@ -415,7 +428,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                         }
                     </Select>
                 )}
-                {form.getFieldDecorator(`${typeCode}.principals`, {
+                {form.getFieldDecorator(formField + '.principals', {
                     initialValue: comp?.principals ?? ''
                 })(
                     <></>
@@ -424,8 +437,20 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
         )
     }
 
+    setKrbConfig = (krbconfig: any) => {
+        const { comp, saveComp } = this.props
+        const typeCode = comp?.componentTypeCode ?? ''
+        const hadoopVersion = comp?.hadoopVersion ?? ''
+        saveComp({
+            mergeKrb5Content: krbconfig,
+            componentTypeCode: typeCode,
+            hadoopVersion: hadoopVersion
+        })
+    }
+
     hanleVisible = (krbconfig: any) => {
-        this.setState({ visible: false, krbconfig })
+        this.setState({ visible: false })
+        this.setKrbConfig(krbconfig)
     }
 
     renderFileConfig = () => {
@@ -470,8 +495,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             case COMPONENT_TYPE_VALUE.IMPALA_SQL:
             case COMPONENT_TYPE_VALUE.HIVE_SERVER:
             case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER:
-            case COMPONENT_TYPE_VALUE.SPARK:
-            case COMPONENT_TYPE_VALUE.FLINK:
+            case COMPONENT_TYPE_VALUE.INCEPTOR_SQL: {
                 return (
                     <>
                         {showDataCheckBox(typeCode) && <DataCheckbox
@@ -487,6 +511,18 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                         {this.renderStorageComponents()}
                     </>
                 )
+            }
+            case COMPONENT_TYPE_VALUE.SPARK:
+            case COMPONENT_TYPE_VALUE.FLINK: {
+                return (
+                    <>
+                        {this.renderKerberosFile()}
+                        {this.renderPrincipal()}
+                        {this.renderParamsFile()}
+                        {this.renderStorageComponents()}
+                    </>
+                )
+            }
             case COMPONENT_TYPE_VALUE.LEARNING:
             case COMPONENT_TYPE_VALUE.DTYARNSHELL: {
                 return (
@@ -498,21 +534,23 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                     </>
                 )
             }
-            default:
+            case COMPONENT_TYPE_VALUE.SHELL_AGENT:
+            default: {
                 return null;
+            }
         }
     }
 
     render () {
         const { comp } = this.props
-        const { visible, krbconfig } = this.state
+        const { visible } = this.state
         return (
             <div className="c-fileConfig__container">
                 {this.renderFileConfig()}
                 <KerberosModal
                     key={`${visible}`}
                     visible={visible}
-                    krbconfig={krbconfig || comp.mergeKrb5Content || ''}
+                    krbconfig={comp?.mergeKrb5Content || ''}
                     onCancel={this.hanleVisible}
                 />
             </div>
