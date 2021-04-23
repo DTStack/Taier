@@ -10,7 +10,7 @@ import { COMPONENT_TYPE_VALUE, VERSION_TYPE, FILE_TYPE,
     CONFIG_FILE_DESC, DEFAULT_COMP_VERSION } from '../const'
 import { isOtherVersion, isSameVersion, handleComponentConfig,
     needZipFile, getOptions, getInitialValue, isMultiVersion,
-    isYarn } from '../help'
+    isYarn, notFileConfig } from '../help'
 
 interface IProps {
     comp: any;
@@ -526,7 +526,6 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                     </>
                 )
             }
-            case COMPONENT_TYPE_VALUE.SHELL_AGENT:
             default: {
                 return null;
             }
@@ -536,6 +535,10 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
     render () {
         const { comp } = this.props
         const { visible } = this.state
+        const typeCode = this.props?.comp?.componentTypeCode ?? ''
+
+        if (notFileConfig(typeCode)) return null
+
         return (
             <div className="c-fileConfig__container">
                 {this.renderFileConfig()}

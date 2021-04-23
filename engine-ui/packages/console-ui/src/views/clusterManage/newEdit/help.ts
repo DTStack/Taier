@@ -45,6 +45,10 @@ export function needZipFile (type: number): boolean {
     return [FILE_TYPE.KERNEROS, FILE_TYPE.CONFIGS].indexOf(type) > -1
 }
 
+export function notFileConfig (code: number): boolean {
+    return [COMPONENT_TYPE_VALUE.DTSCRIPT_AGENT].indexOf(code) > -1
+}
+
 export function getActionType (mode: string): string {
     switch (mode) {
         case 'view': return '查看集群'
