@@ -353,7 +353,7 @@ public class ActionService {
                 if((EScheduleType.TEMP_JOB.getType()==scheduleJob.getType())){
                     //临时运行需要插入sql_text
                     ScheduleSqlTextTemp sqlTextTemp = new ScheduleSqlTextTemp();
-                    sqlTextTemp.setJobId(scheduleJob.getId());
+                    sqlTextTemp.setJobId(scheduleJob.getJobId());
                     sqlTextTemp.setSqlText(paramActionExt.getSqlText());
                     sqlTextTempDao.insert(sqlTextTemp);
                 }

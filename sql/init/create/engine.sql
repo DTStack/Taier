@@ -851,13 +851,14 @@ CREATE TABLE `alert_channel` (
 
 
 CREATE TABLE `schedule_sql_text_temp` (
-  `id` bigint(20) NOT NULL,
-  `job_id` bigint(20) NOT NULL COMMENT '临时运行job的job_id',
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `job_id` varchar(32) NOT NULL COMMENT '临时运行job的job_id',
   `sql_text` longtext NOT NULL COMMENT '临时运行任务的sql文本内容',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) DEFAULT '0' COMMENT '0正常 1逻辑删除',
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_job_id` (`job_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='临时任务sql_text关联表';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='临时任务sql_text关联表';
+
 
