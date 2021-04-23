@@ -11,6 +11,9 @@ import com.dtstack.engine.master.AbstractTest;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -49,6 +52,8 @@ public class DaoTest extends AbstractTest {
     }
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testSqlTextInsert(){
 
         ScheduleSqlTextTemp sqlTextTemp = new ScheduleSqlTextTemp();
