@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.2.0-beta3](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.0-beta1...v4.2.0-beta3) (2021-04-23)
+
+
+### Features
+
+* add datatypeversion ([84d467b](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/84d467b43580e72384737562b603679edbdc3f25))
+
+
+### Bug Fixes
+
+* # bug 36528 ([e84a963](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/e84a96326b0dba5e21332c15832b8839de2069c2))
+* add select auth key ([2aef393](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/2aef393219d54a193ef396086ad8c07de76e38e7))
+* adjust delete ui ([3e9f691](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/3e9f691f13466205c895adde47b837a31f7998ef))
+* remove table header border ([731f042](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/731f042e7e634adf13834e4b0866384473b3f367))
+* ui fix ([cd20d6d](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/cd20d6d6207457d76f10e367decfdd66f2e4c3fc))
+* uifix ([ff263d0](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/ff263d0c456d57f3ece35cbc1d5766489d38aab9))
+* uifix ([9e3aeb0](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/9e3aeb0b48e82bc8a98ee516bf11570e76075845))
+* 数据源table, selectSource ui ([536ce3e](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/536ce3ec6ee024ff2cab15fac4c819da9eb3be95))
+* 替换数据源图标 ([b1861ec](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/b1861ec84afda24291c9a5bf93dc4de8ae278cde))
+
 ## 4.2.0-beta1 (2021-04-22)
 
 
