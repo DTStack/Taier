@@ -19,6 +19,7 @@ export const deleteLinkChain = (list, id, masterTable) => {
   while (ids.length > 0) {
     const id = ids.pop();
     const target = list.find((item) => item.id === id);
+    if (!target) return list;
     const filterIds = list
       .filter((item) => {
         return (
