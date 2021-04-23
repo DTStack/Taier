@@ -106,13 +106,13 @@ public class AccountService {
         JSONObject jdbc = null;
         DataBaseType dataBaseType = null;
         if (MultiEngineType.TIDB.getType() == accountVo.getEngineType()) {
-            jdbc = JSONObject.parseObject(clusterService.tiDBInfo(accountVo.getBindTenantId(), null));
+            jdbc = JSONObject.parseObject(clusterService.tiDBInfo(accountVo.getBindTenantId(), null,null));
             dataBaseType = DataBaseType.TiDB;
         } else if (MultiEngineType.ORACLE.getType() == accountVo.getEngineType()) {
-            jdbc = JSONObject.parseObject(clusterService.oracleInfo(accountVo.getBindTenantId(), null));
+            jdbc = JSONObject.parseObject(clusterService.oracleInfo(accountVo.getBindTenantId(), null,null));
             dataBaseType = DataBaseType.Oracle;
         } else if (MultiEngineType.GREENPLUM.getType() == accountVo.getEngineType()) {
-            jdbc = JSONObject.parseObject(clusterService.greenplumInfo(accountVo.getBindTenantId(), null));
+            jdbc = JSONObject.parseObject(clusterService.greenplumInfo(accountVo.getBindTenantId(), null,null));
             dataBaseType = DataBaseType.Greenplum6;
         } else if (MultiEngineType.HADOOP.getType() == accountVo.getEngineType()) {
             //如果是HADOOP，则添加ldap,无需校验连通性

@@ -2,10 +2,7 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.EngineJobRetry;
-import com.dtstack.engine.api.domain.EngineUniqueSign;
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.api.vo.action.ActionJobEntityVO;
@@ -19,6 +16,7 @@ import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.ComponentVersionUtil;
 import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
@@ -100,6 +98,12 @@ public class ActionService {
 
     @Autowired
     private MultiEngineFactory multiEngineFactory;
+
+    @Autowired
+    private ComponentDao componentDao;
+
+    @Autowired
+    private ScheduleSqlTextTempDao sqlTextTempDao;
 
     private final ObjectMapper objMapper = new ObjectMapper();
 
@@ -236,6 +240,7 @@ public class ActionService {
         scheduleJob.setVersionId(getOrDefault(batchTask.getVersionId(), 0));
         scheduleJob.setComputeType(getOrDefault(batchTask.getComputeType(), 1));
         scheduleJob.setPeriodType(scheduleCron.getPeriodType());
+        scheduleJob.setComponentVersion(batchTask.getComponentVersion());
         return scheduleJob;
     }
 
@@ -331,20 +336,27 @@ public class ActionService {
      * @return
      */
     private boolean receiveStartJob(ParamActionExt paramActionExt){
-        boolean result = false;
         String jobId = paramActionExt.getTaskId();
         Integer computerType = paramActionExt.getComputeType();
 
         //当前任务已经存在在engine里面了
         //不允许相同任务同时在engine上运行---考虑将cache的清理放在任务结束的时候(停止，取消，完成)
         if(engineJobCacheDao.getOne(jobId) != null){
-            return result;
+            return false;
         }
+        boolean result = false;
         try {
             ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
             if(scheduleJob == null){
                 scheduleJob = buildScheduleJob(paramActionExt);
                 scheduleJobDao.insert(scheduleJob);
+                if((EScheduleType.TEMP_JOB.getType()==scheduleJob.getType())){
+                    //临时运行需要插入sql_text
+                    ScheduleSqlTextTemp sqlTextTemp = new ScheduleSqlTextTemp();
+                    sqlTextTemp.setJobId(scheduleJob.getId());
+                    sqlTextTemp.setSqlText(paramActionExt.getSqlText());
+                    sqlTextTempDao.insert(sqlTextTemp);
+                }
                 result = true;
             }else{
                 result = RdosTaskStatus.canStart(scheduleJob.getStatus());
@@ -399,10 +411,7 @@ public class ActionService {
         scheduleJob.setVersionId(getOrDefault(paramActionExt.getVersionId(), 0));
         scheduleJob.setComputeType(getOrDefault(paramActionExt.getComputeType(), 1));
         scheduleJob.setPeriodType(paramActionExt.getPeriodType());
-        if(EScheduleType.TEMP_JOB.getType()==scheduleJob.getType()){
-            //临时运行scheduleJob才存储sqlText
-            scheduleJob.setSqlText(paramActionExt.getSqlText());
-        }
+        buildComponentVersion(scheduleJob,paramActionExt);
         return scheduleJob;
     }
 
@@ -720,6 +729,19 @@ public class ActionService {
         return vo;
     }
 
+
+    private void buildComponentVersion(ScheduleJob scheduleJob, ParamActionExt paramActionExt) {
+        String componentVersion = paramActionExt.getComponentVersion();
+        if (StringUtils.isNotBlank(componentVersion)){
+            scheduleJob.setComponentVersion(componentVersion);
+            return;
+        }
+        EComponentType componentType = ComponentVersionUtil.transformTaskType2ComponentType(paramActionExt.getTaskType());
+        if (Objects.nonNull(componentType)){
+            scheduleJob.setComponentVersion(componentDao.getDefaultComponentVersionByTenantAndComponentType(
+                    paramActionExt.getTenantId(),componentType.getTypeCode()));
+        }
+    }
 
 
 }

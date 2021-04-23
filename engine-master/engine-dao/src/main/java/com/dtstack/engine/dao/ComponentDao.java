@@ -17,9 +17,12 @@ public interface ComponentDao {
 
     List<Component> listByEngineIds(@Param("engineIds") List<Long> engineId);
 
+    List<Component> listDefaultByEngineIds(@Param("engineIds") List<Long> engineIdList);
+
     Component getByEngineIdAndComponentType(@Param("engineId") Long engineId, @Param("type") Integer type);
 
-    Component getByClusterIdAndComponentType(@Param("clusterId") Long clusterId, @Param("type") Integer type);
+
+    Component getByClusterIdAndComponentType(@Param("clusterId") Long clusterId, @Param("type") Integer type,@Param("componentVersion")String componentVersion);
 
     Long getClusterIdByComponentId(@Param("componentId") Long componentId);
 
@@ -28,4 +31,11 @@ public interface ComponentDao {
     Component getByTenantIdComponentType(@Param("tenantId") Long tenantId,@Param("componentType") Integer componentType);
 
     List<Component> listByTenantId(@Param("tenantId") Long tenantId);
+
+    Component getNextDefaultComponent(@Param("engineId") Long engineId, @Param("componentTypeCode") Integer componentTypeCode,@Param("currentDeleteId") Long currentDeleteId);
+
+    String getDefaultComponentVersionByClusterAndComponentType(@Param("clusterId") Long clusterId, @Param("componentType") Integer type);
+
+    String getDefaultComponentVersionByTenantAndComponentType(@Param("tenantId")Long tenantId,@Param("componentType")Integer componentType);
 }
+

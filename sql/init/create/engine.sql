@@ -163,8 +163,9 @@ CREATE TABLE `console_component` (
  `kerberos_file_name` varchar(50) DEFAULT '' COMMENT '上传kerberos文件zip名称',
  `store_type` tinyint(1) DEFAULT '4' COMMENT '组件存储类型: HDFS、NFS 默认HDFS',
  `is_metadata` tinyint(1) DEFAULT 0 NULL COMMENT '/*1 metadata*/',
+  `is_default` tinyint(1) default 1  not null comment '组件默认版本',
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `index_component`(`engine_id`, `component_type_code`) USING BTREE
+  UNIQUE INDEX `index_component`(`engine_id`, `component_type_code`,`hadoop_version`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `console_dtuic_tenant` (
@@ -218,6 +219,7 @@ CREATE TABLE `console_kerberos` (
     `component_type` int(11) DEFAULT NULL COMMENT '组件类型',
     `principals` TEXT COMMENT 'keytab用户文件列表',
     `merge_krb_content` TEXT COMMENT '合并后的krb5',
+    `component_version` varchar(25)  COMMENT '组件版本',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
@@ -311,6 +313,8 @@ CREATE TABLE `schedule_task_shade`
   `flow_id`                 INT(11)      NOT NULL DEFAULT '0' COMMENT '工作流id',
   `is_publish_to_produce`   tinyint(1)   NOT NULL DEFAULT '0' COMMENT '是否发布到生产环境：0-否，1-是',
   `extra_info`              mediumtext                  DEFAULT NULL COMMENT '存储task运行时所需的额外信息',
+  `task_rule` tinyint(1) DEFAULT '0' COMMENT '强弱规则（只有NOT_DO_TASK任务会判断强弱规则）0 默认无规则 1弱规则 2强规则',
+  `component_version` varchar(25)  COMMENT '组件版本',
   PRIMARY KEY (`id`),
   KEY `index_name` (`project_id`, `name`(128)),
   UNIQUE KEY `index_task_id` (`task_id`,`app_type`)
@@ -384,7 +388,8 @@ CREATE TABLE `schedule_job`
   `phase_status`    tinyint(1) NOT NULL DEFAULT '0' COMMENT '运行状态: CREATE(0):创建,JOIN_THE_TEAM(1):入队,LEAVE_THE_TEAM(2):出队',
   `job_graph`       TEXT DEFAULT NULL COMMENT 'jobGraph构建json',
   `submit_user_name` VARCHAR(20) DEFAULT NULL COMMENT '任务提交用户名',
-  `sql_text` longtext DEFAULT NULL COMMENT '临时运行sql文本内容',
+  `task_rule` tinyint(1) DEFAULT '0' COMMENT '强弱规则（只有NOT_DO_TASK任务会判断强弱规则）0 默认无规则 1弱规则 2强规则',
+  `component_version` varchar(25)  COMMENT '组件版本',
   PRIMARY KEY (`id`),
   KEY `index_task_id` (`task_id`),
   UNIQUE KEY `index_job_id` (`job_id`(128),`is_deleted`),
@@ -843,4 +848,16 @@ CREATE TABLE `alert_channel` (
   PRIMARY KEY (`id`),
   KEY `index_alert_gate_source` (`alert_gate_source`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='告警通道';
+
+
+CREATE TABLE `schedule_sql_text_temp` (
+  `id` bigint(20) NOT NULL,
+  `job_id` bigint(20) NOT NULL COMMENT '临时运行job的job_id',
+  `sql_text` longtext NOT NULL COMMENT '临时运行任务的sql文本内容',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_job_id` (`job_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='临时任务sql_text关联表';
 

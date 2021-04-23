@@ -1,8 +1,10 @@
 package com.dtstack.schedule.common.enums;
 
 
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -58,7 +60,7 @@ public enum DataSourceType {
     SPARKTHRIFT2_1(45),
 
     /**
-     * spark
+     * spark thrift
      */
     Spark(1002),
 
@@ -69,8 +71,7 @@ public enum DataSourceType {
     /**
      * 未知数据源，即类型暂时不确定，后续可能会修改为正确类型的数据源
      */
-    UNKNOWN(3000)
-    ;
+    UNKNOWN(3000);
 
     private int val;
 
@@ -153,7 +154,7 @@ public enum DataSourceType {
         return getBaseType(sourceType);
     }
 
-    public static List<Integer> getRDBMS(){
+    public static List<Integer> getRDBMS() {
         return Lists.newArrayList(
                 MySQL.getVal(),
                 Oracle.getVal(),
@@ -178,7 +179,7 @@ public enum DataSourceType {
                 Presto.getVal());
     }
 
-    public static String getEngineType(DataSourceType sourceType){
+    public static String getEngineType(DataSourceType sourceType) {
 
         switch (sourceType) {
             case MySQL:
@@ -206,6 +207,29 @@ public enum DataSourceType {
                 return "kingbase";
             default:
                 throw new RdosDefineException("不支持的数据源类型");
+        }
+    }
+
+    public static DataSourceType convertEComponentType(EComponentType componentType, String version) {
+        switch (componentType) {
+            case TIDB_SQL:
+                return TiDB;
+            case IMPALA_SQL:
+                return IMPALA;
+            case ORACLE_SQL:
+                return Oracle;
+            case HIVE_SERVER:
+                return StringUtils.isBlank(version) || version.startsWith("2") ? HIVE : HIVE1X;
+            case GREENPLUM_SQL:
+                return GREENPLUM6;
+            case PRESTO_SQL:
+                return Presto;
+            case LIBRA_SQL:
+                return PostgreSQL;
+            case SPARK_THRIFT:
+                return Spark;
+            default:
+                return null;
         }
     }
 

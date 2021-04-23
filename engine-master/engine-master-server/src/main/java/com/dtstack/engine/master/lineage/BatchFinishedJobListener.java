@@ -1,13 +1,11 @@
 package com.dtstack.engine.master.lineage;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.vo.lineage.param.ParseColumnLineageParam;
 import com.dtstack.engine.master.event.ScheduleJobEventPublisher;
-import com.dtstack.lineage.enums.EngineTaskType2SourceType;
-import com.dtstack.lineage.impl.LineageService;
+import com.dtstack.engine.lineage.enums.EngineTaskType2SourceType;
+import com.dtstack.engine.lineage.impl.LineageService;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.EScheduleJobType;

@@ -47,7 +47,7 @@ public class DownloadConfigTest extends AbstractTest {
     public void init() {
         Component sftp = new Component();
         sftp.setComponentName("sftp");
-        when(componentDao.getByClusterIdAndComponentType(anyLong(), anyInt())).thenReturn(sftp);
+        when(componentDao.getByClusterIdAndComponentType(anyLong(), anyInt(),any())).thenReturn(sftp);
         Component component = new Component();
         component.setComponentName("oracle");
         component.setComponentTypeCode(EComponentType.ORACLE_SQL.getTypeCode());
