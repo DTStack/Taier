@@ -347,7 +347,7 @@ export function handleComponentTemplate (comp: any, initialCompData: any): any {
 export function handleComponentConfig (comp: any, turnp?: boolean): any {
     // 处理componentConfig
     let componentConfig = {}
-    for (let [key, values] of Object.entries(comp.componentConfig)) {
+    for (let [key, values] of Object.entries(comp?.componentConfig ?? {})) {
         componentConfig[key] = values
         if (!_.isString(values) && !_.isArray(values)) {
             let groupConfig = {}
@@ -492,6 +492,7 @@ function handleCurrentComp (comp: any, initialComp: any, typeCode: number): bool
      */
     if (!isNeedTemp(Number(typeCode))) {
         const compConfig = handleComponentConfigAndCustom(comp, Number(typeCode))
+        if (!Object.values(compConfig).length) return false
         if (!_.isEqual(compConfig, initialComp?.componentConfig ? JSON.parse(initialComp.componentConfig) : {})) {
             return true
         }

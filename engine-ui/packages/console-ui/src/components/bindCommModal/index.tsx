@@ -25,9 +25,10 @@ const CustomModal: React.FC = (props: any) => {
             resetFields()
             setClusterId(undefined)
         }
+        if (visible) { onSearchTenantUser() }
     }, [visible, resetFields])
 
-    const onSearchTenantUser = (value: string) => {
+    const onSearchTenantUser = (value?: string) => {
         API.getFullTenants(value).then((res: any) => {
             if (res.success) {
                 setTenantList(res.data || [])
