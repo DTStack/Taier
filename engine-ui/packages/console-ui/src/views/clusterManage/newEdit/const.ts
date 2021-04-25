@@ -140,4 +140,9 @@ export const COMP_ACTION = {
     ADD: 'ADD'
 }
 
-export const DEFAULT_PARAMS = ['storeType', 'principal', 'hadoopVersion', 'kerberosFileName', 'uploadFileName']
+export const DEFAULT_PARAMS = ['storeType', 'principal', 'hadoopVersion', 'kerberosFileName', 'uploadFileName', 'isMetadata']
+
+export const MAPPING_DATA_CHECK = {
+    [COMPONENT_TYPE_VALUE.HIVE_SERVER]: COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER,
+    [COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER]: COMPONENT_TYPE_VALUE.HIVE_SERVER
+}

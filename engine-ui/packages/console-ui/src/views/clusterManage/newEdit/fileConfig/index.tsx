@@ -6,11 +6,12 @@ import req from '../../../../consts/reqUrls'
 import Api from '../../../../api/console'
 import UploadFile from './components/uploadFileBtn'
 import KerberosModal from './components/kerberosModal'
+import DataCheckbox from './components/dataCheckbox'
 import { COMPONENT_TYPE_VALUE, VERSION_TYPE, FILE_TYPE,
     CONFIG_FILE_DESC, DEFAULT_COMP_VERSION } from '../const'
 import { isOtherVersion, isSameVersion, handleComponentConfig,
     needZipFile, getOptions, getInitialValue, isMultiVersion,
-    isYarn, notFileConfig } from '../help'
+    isYarn, showDataCheckBox, notFileConfig } from '../help'
 
 interface IProps {
     comp: any;
@@ -19,6 +20,8 @@ interface IProps {
     saveCompsData: any[];
     versionData: any;
     clusterInfo: any;
+    isCheckBoxs?: boolean;
+    disabledMeta?: boolean;
     commVersion?: string;
     handleCompVersion?: Function;
     saveComp: Function;
@@ -496,6 +499,13 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             case COMPONENT_TYPE_VALUE.INCEPTOR_SQL: {
                 return (
                     <>
+                        {showDataCheckBox(typeCode) && <DataCheckbox
+                            comp={this.props.comp}
+                            form={this.props.form}
+                            view={this.props.view}
+                            disabledMeta={this.props.disabledMeta}
+                            isCheckBoxs={this.props.isCheckBoxs}
+                        />}
                         {this.renderCompsVersion()}
                         {this.renderKerberosFile()}
                         {this.renderPrincipal()}
