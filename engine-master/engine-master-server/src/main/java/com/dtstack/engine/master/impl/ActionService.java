@@ -345,8 +345,9 @@ public class ActionService {
             if(scheduleJob == null){
                 scheduleJob = buildScheduleJob(paramActionExt);
                 scheduleJobDao.insert(scheduleJob);
-                if((EScheduleType.TEMP_JOB.getType()==scheduleJob.getType())){
-                    //临时运行需要插入sql_text
+                if((EScheduleType.TEMP_JOB.getType()==scheduleJob.getType())
+                        && AppType.RDOS.getType().equals(scheduleJob.getAppType())){
+                    //离线临时运行需要插入sql_text
                     ScheduleSqlTextTemp sqlTextTemp = new ScheduleSqlTextTemp();
                     sqlTextTemp.setJobId(scheduleJob.getJobId());
                     sqlTextTemp.setSqlText(paramActionExt.getSqlText());
