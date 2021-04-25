@@ -106,14 +106,17 @@
     font-family: anticon;
     font-size: 12px;
     color: #12BC6A;
-    margin-left: 8px;
     vertical-align: unset;
+    margin-top: 14px;
+    float: right;
+
 }
 .err-icon {
     font-family: anticon;
     font-size: 12px;
     color: #FF5F5C;
-    margin-left: 8px;
+    margin-top: 14px;
+    float: right;
 }
 .back-icon {
     float: left;
@@ -656,6 +659,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
+}
+.c-metaIcon__title {
+    border: 1px solid #3F87FF;
+    margin-left: 6px;
+    padding: 0 4px;
+    color: #3F87FF;
 }
 
 .c-multiVersionComp__intail {

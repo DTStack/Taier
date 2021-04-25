@@ -8,7 +8,7 @@ import Api from '../../../api/console'
 import { initialScheduling, isViewMode, isNeedTemp,
     getModifyComp, isSameVersion, getCompsId,
     isMultiVersion, getCurrentComp, includesCurrentComp,
-    getSingleTestStatus } from './help'
+    getSingleTestStatus, isDataCheckBoxs } from './help'
 import { TABS_TITLE, COMPONENT_CONFIG_NAME, DEFAULT_COMP_VERSION,
     COMPONENT_TYPE_VALUE, TABS_POP_VISIBLE, COMP_ACTION } from './const'
 
@@ -16,6 +16,7 @@ import FileConfig from './fileConfig'
 import FormConfig from './formConfig'
 import ToolBar from './components/toolbar'
 import ComponentButton from './components/compsBtn'
+import MetaIcon from './components/metaIcon'
 import TestRestIcon from '../../../components/testResultIcon'
 import MultiVersionComp from './components/multiVerComp'
 
@@ -23,6 +24,7 @@ const TabPane = Tabs.TabPane
 const confirm = Modal.confirm
 interface IState {
     testLoading: boolean;
+    disabledMeta: boolean;
     activeKey: number;
     clusterName: string;
     commVersion: string;
@@ -36,6 +38,7 @@ interface IState {
 class EditCluster extends React.Component<any, IState> {
     state: IState = {
         testLoading: false,
+        disabledMeta: false,
         activeKey: 0,
         clusterName: '',
         commVersion: '',
@@ -64,7 +67,8 @@ class EditCluster extends React.Component<any, IState> {
                 })
                 this.setState({
                     initialCompData: initData,
-                    clusterName: res.data.clusterName
+                    clusterName: res.data.clusterName,
+                    disabledMeta: res.data.canModifyMetadata
                 }, this.getSaveComponentList)
             }
         })
@@ -406,8 +410,10 @@ class EditCluster extends React.Component<any, IState> {
 
     render () {
         const { mode, cluster } = this.props.location.state || {} as any
+        const { getFieldValue } = this.props.form
         const { clusterName, activeKey, initialCompData, versionData,
-            saveCompsData, testLoading, testStatus, commVersion, popVisible } = this.state
+            saveCompsData, testLoading, testStatus, commVersion, popVisible,
+            disabledMeta } = this.state
 
         return (
             <div className="c-editCluster__containerWrap">
@@ -435,6 +441,7 @@ class EditCluster extends React.Component<any, IState> {
                         tabBarExtraContent={<div className="c-editCluster__commonTabs__title">集群配置</div>}
                     >
                         {initialCompData.map((comps: any, key: number) => {
+                            const isCheckBoxs = isDataCheckBoxs(comps) // 存在HiveServer、SparkThrift两个组件
                             return (<TabPane
                                 tab={
                                     <div style={{ height: 19, display: 'flex', alignItems: 'center' }}>
@@ -465,6 +472,9 @@ class EditCluster extends React.Component<any, IState> {
                                         return (<TabPane
                                             tab={<span>
                                                 {COMPONENT_CONFIG_NAME[comp.componentTypeCode]}
+                                                <MetaIcon
+                                                    comp={comp}
+                                                    isMetadata={getFieldValue(`${comp.componentTypeCode}.isMetadata`)} />
                                                 <TestRestIcon testStatus={testStatus[comp.componentTypeCode] ?? {}}/>
                                             </span>}
                                             key={`${comp.componentTypeCode}`}
@@ -489,6 +499,8 @@ class EditCluster extends React.Component<any, IState> {
                                                             <FileConfig
                                                                 comp={vcomp}
                                                                 view={isViewMode(mode)}
+                                                                disabledMeta={disabledMeta}
+                                                                isCheckBoxs={isCheckBoxs}
                                                                 form={this.props.form}
                                                                 versionData={versionData}
                                                                 commVersion={commVersion}

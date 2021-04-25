@@ -45,6 +45,10 @@ export function needZipFile (type: number): boolean {
     return [FILE_TYPE.KERNEROS, FILE_TYPE.CONFIGS].indexOf(type) > -1
 }
 
+export function showDataCheckBox (code: number): boolean {
+    return [COMPONENT_TYPE_VALUE.HIVE_SERVER, COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER].indexOf(code) > -1
+}
+
 export function getActionType (mode: string): string {
     switch (mode) {
         case 'view': return '查看集群'
@@ -52,6 +56,10 @@ export function getActionType (mode: string): string {
         case 'edit': return '编辑集群'
         default: return ''
     }
+}
+
+export function isDataCheckBoxs (comps: any[]): boolean {
+    return comps.filter((comp) => showDataCheckBox(comp.componentTypeCode)).length == 2
 }
 
 export function isSourceTab (activeKey: number): boolean {
@@ -75,6 +83,10 @@ export function isViewMode (mode: string): boolean {
 
 export function isFileParam (key: string): boolean {
     return ['kerberosFileName', 'uploadFileName'].indexOf(key) > -1
+}
+
+export function isMetaData (key: string): boolean {
+    return ['isMetadata'].indexOf(key) > -1
 }
 
 export function isDeployMode (key: string): boolean {
@@ -461,7 +473,8 @@ function handleCurrentComp (comp: any, initialComp: any, typeCode: number): bool
         if (isFileParam(param)) {
             compValue = comp[param]?.name ?? comp[param]
         }
-        if (compValue && !_.isEqual(compValue, initialComp[param]?.name ?? initialComp[param])) {
+        if (isMetaData(param)) compValue = comp[param] ? 1 : 0
+        if ((compValue || compValue === 0) && !_.isEqual(compValue, initialComp[param]?.name ?? initialComp[param])) {
             return true
         }
     }
