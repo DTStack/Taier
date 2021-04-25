@@ -64,10 +64,9 @@ public class DataSourceService {
             LOGGER.info("datasource url is not init so skip");
             return;
         }
-        if(CollectionUtils.isEmpty(dtUicTenantIds)){
+        if (CollectionUtils.isEmpty(dtUicTenantIds)) {
             return;
         }
-
         Component component = componentDao.getByEngineIdAndComponentType(engineId, componentTypeCode);
         if (null == component) {
             LOGGER.info("engineId {} componentType {} component is null", engineId, componentTypeCode);
@@ -93,7 +92,7 @@ public class DataSourceService {
         editConsoleParam.setUsername((String) configMap.get(ConfigConstant.USERNAME));
         editConsoleParam.setPassword((String) configMap.get(ConfigConstant.PASSWORD));
         editConsoleParam.setDataVersion(component.getHadoopVersion());
-        JSONObject sftpConfig = componentService.getComponentByClusterId(clusterId, EComponentType.SFTP.getTypeCode(), false, JSONObject.class);
+        JSONObject sftpConfig = componentService.getComponentByClusterId(clusterId, EComponentType.SFTP.getTypeCode(), false, JSONObject.class,null);
         editConsoleParam.setSftpConf(sftpConfig);
         DataSourceType dataSourceType = DataSourceType.convertEComponentType(EComponentType.getByCode(componentTypeCode), component.getHadoopVersion());
         if (null != dataSourceType) {
@@ -101,7 +100,7 @@ public class DataSourceService {
         }
         if (StringUtils.isNotBlank(component.getKerberosFileName())) {
             //kerberos 配置信息
-            KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, componentTypeCode);
+            KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, componentTypeCode,component.getHadoopVersion());
             KerberosConfigVO kerberosConfigVO = clusterService.addKerberosConfigWithHdfs(componentTypeCode, clusterId, kerberosConfig);
             editConsoleParam.setKerberosConfig(JSONObject.parseObject(JSONObject.toJSONString(kerberosConfigVO)));
         }

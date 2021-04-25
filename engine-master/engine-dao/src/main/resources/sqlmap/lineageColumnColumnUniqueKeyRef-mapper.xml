@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.lineage.dao.LineageColumnColumnUniqueKeyRefDao">
+<mapper namespace="com.dtstack.engine.dao.LineageColumnColumnUniqueKeyRefDao">
 
     <sql id="select_content_fragment">
       id,app_type,unique_key,lineage_column_column_id,gmt_create,gmt_modified,is_deleted
@@ -21,6 +21,25 @@
 
     <update id="deleteByLineageIdAndUniqueKey">
         update lineage_column_column_unique_key_ref set is_deleted = 1 where lineage_column_column_id = #{columnLineageId} and unique_key = #{uniqueKey} and app_type = #{appType}
+    </update>
+
+    <update id="deleteByUniqueKeyAndAppType">
+        update lineage_column_column_unique_key_ref
+        set is_deleted = 1
+        where unique_key = #{uniqueKey} and app_type = #{appType}
+    </update>
+
+    <update id="deleteByLineageColumnIdList">
+        update lineage_column_column_unique_key_ref
+        set is_deleted = 1
+        where
+        app_type = #{appType}
+        and lineage_column_column_id
+        in
+        <foreach collection="columnColumnIdList" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+
     </update>
 
 </mapper>

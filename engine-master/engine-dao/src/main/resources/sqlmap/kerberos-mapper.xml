@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.engine.dao.KerberosDao">
 
     <sql id="select_content_fragment">
-      id,cluster_id,open_kerberos,name,remote_path,principal,gmt_create,gmt_modified,is_deleted,component_type,krb_name,principals,merge_krb_content
+      id,cluster_id,open_kerberos,name,remote_path,principal,gmt_create,gmt_modified,is_deleted,component_type,krb_name,principals,merge_krb_content,component_version
     </sql>
 
     <sql id="update_fragment">
@@ -38,6 +38,9 @@
             <if test="mergeKrbContent != null">
                 merge_krb_content = #{mergeKrbContent},
             </if>
+            <if test="componentVersion != null">
+                component_version = #{componentVersion},
+            </if>
             gmt_modified =now()
         </set>
     </sql>
@@ -48,6 +51,9 @@
         FROM console_kerberos
         WHERE cluster_id = #{clusterId} and is_deleted = 0
         and component_type = #{componentType}
+        <if test="componentVersion != null">
+            and component_version = #{componentVersion}
+        </if>
         limit 1
     </select>
 
@@ -59,8 +65,8 @@
     </select>
 
     <insert id="insert" parameterType="KerberosConfig" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO console_kerberos(cluster_id,open_kerberos,name,remote_path,principal,principals,component_type,krb_name)
-        VALUES (#{clusterId},#{openKerberos},#{name},#{remotePath},#{principal},#{principals},#{componentType},#{krbName})
+        INSERT INTO console_kerberos(cluster_id,open_kerberos,name,remote_path,principal,principals,component_type,krb_name,component_version)
+        VALUES (#{clusterId},#{openKerberos},#{name},#{remotePath},#{principal},#{principals},#{componentType},#{krbName},#{componentVersion})
     </insert>
 
 
@@ -70,11 +76,6 @@
         where id = #{id} and is_deleted = 0
     </update>
 
-
-    <update id="delete">
-        UPDATE console_kerberos set is_deleted = 1
-        where cluster_id = #{clusterId} and component_type = #{componentType}
-    </update>
 
     <update id="deleteByComponentId">
         UPDATE console_kerberos SET is_deleted = 1
@@ -87,5 +88,26 @@
         <include refid="select_content_fragment"/>
         FROM console_kerberos
         WHERE is_deleted = 0
+    </select>
+
+    <delete id="deleteByComponent">
+        UPDATE console_kerberos ck
+        SET ck.is_deleted = 1
+        WHERE
+            ck.cluster_id = (SELECT cluster_id from console_engine cn WHERE cn.id = #{engineId})
+          AND ck.component_type = #{componentTypeCode}
+          <if test="componentVersion != null and componentVersion!='' ">
+              AND ck.component_version = #{componentVersion};
+          </if>
+    </delete>
+
+
+    <select id="getByEngineIdAndComponentType" resultType="KerberosConfig">
+        SELECT
+        ck.id as id,ck.cluster_id as clusterId,ck.name as name,ck.remote_path as remote_path,ck.principal as principal,
+        ck.krb_name as krb_name ,ck.principals as principals
+        FROM console_kerberos ck
+        left join console_engine ce on ck.cluster_id = ce.cluster_id
+        where ce.engine_id = #{engineId} and ck.component_type = #{componentType}
     </select>
 </mapper>

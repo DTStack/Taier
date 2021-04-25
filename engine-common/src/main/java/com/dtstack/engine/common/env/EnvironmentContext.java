@@ -438,7 +438,7 @@ public class EnvironmentContext {
     }
 
     public Integer getScheduleJobScope() {
-        return Integer.valueOf(environment.getProperty("job.back.scope", "60000"));
+        return Integer.valueOf(environment.getProperty("job.back.scope", "5000"));
     }
 
     public Integer getJobExecutorPoolCorePoolSize() {
@@ -569,6 +569,7 @@ public class EnvironmentContext {
     public boolean isCanAddExtraConfig() {
         return Boolean.parseBoolean(environment.getProperty("console.extra.config", "true"));
     }
+
 
     public Integer getFuzzyProjectByProjectAliasLimit() {
         return Integer.parseInt(environment.getProperty("fuzzy.project.alias.limit", "20"));

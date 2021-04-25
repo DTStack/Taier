@@ -87,7 +87,7 @@ public class ConsoleController {
 
     @RequestMapping(value="/clusterResources", method = {RequestMethod.POST})
     public ClusterResource clusterResources(@DtRequestParam("clusterName") String clusterName) {
-        return consoleService.clusterResources(clusterName);
+        return consoleService.clusterResources(clusterName,null);
     }
 
     @ApiOperation(value = "获取任务类型及对应的资源模板")
