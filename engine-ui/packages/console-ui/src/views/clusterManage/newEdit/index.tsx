@@ -24,6 +24,7 @@ const TabPane = Tabs.TabPane
 const confirm = Modal.confirm
 interface IState {
     testLoading: boolean;
+    disabledMeta: boolean;
     activeKey: number;
     clusterName: string;
     commVersion: string;
@@ -37,6 +38,7 @@ interface IState {
 class EditCluster extends React.Component<any, IState> {
     state: IState = {
         testLoading: false,
+        disabledMeta: false,
         activeKey: 0,
         clusterName: '',
         commVersion: '',
@@ -65,7 +67,8 @@ class EditCluster extends React.Component<any, IState> {
                 })
                 this.setState({
                     initialCompData: initData,
-                    clusterName: res.data.clusterName
+                    clusterName: res.data.clusterName,
+                    disabledMeta: res.data.canModifyMetadata
                 }, this.getSaveComponentList)
             }
         })
@@ -407,8 +410,10 @@ class EditCluster extends React.Component<any, IState> {
 
     render () {
         const { mode, cluster } = this.props.location.state || {} as any
+        const { getFieldValue } = this.props.form
         const { clusterName, activeKey, initialCompData, versionData,
-            saveCompsData, testLoading, testStatus, commVersion, popVisible } = this.state
+            saveCompsData, testLoading, testStatus, commVersion, popVisible,
+            disabledMeta } = this.state
 
         return (
             <div className="c-editCluster__containerWrap">
@@ -467,7 +472,9 @@ class EditCluster extends React.Component<any, IState> {
                                         return (<TabPane
                                             tab={<span>
                                                 {COMPONENT_CONFIG_NAME[comp.componentTypeCode]}
-                                                <MetaIcon form={this.props.form} comp={comp} />
+                                                <MetaIcon
+                                                    comp={comp}
+                                                    isMetadata={getFieldValue(`${comp.componentTypeCode}.isMetadata`)} />
                                                 <TestRestIcon testStatus={testStatus[comp.componentTypeCode] ?? {}}/>
                                             </span>}
                                             key={`${comp.componentTypeCode}`}
@@ -492,6 +499,7 @@ class EditCluster extends React.Component<any, IState> {
                                                             <FileConfig
                                                                 comp={vcomp}
                                                                 view={isViewMode(mode)}
+                                                                disabledMeta={disabledMeta}
                                                                 isCheckBoxs={isCheckBoxs}
                                                                 form={this.props.form}
                                                                 versionData={versionData}

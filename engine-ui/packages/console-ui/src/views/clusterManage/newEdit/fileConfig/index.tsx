@@ -21,6 +21,7 @@ interface IProps {
     versionData: any;
     clusterInfo: any;
     isCheckBoxs?: boolean;
+    disabledMeta?: boolean;
     commVersion?: string;
     handleCompVersion?: Function;
     saveComp: Function;
@@ -502,6 +503,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                             comp={this.props.comp}
                             form={this.props.form}
                             view={this.props.view}
+                            disabledMeta={this.props.disabledMeta}
                             isCheckBoxs={this.props.isCheckBoxs}
                         />}
                         {this.renderCompsVersion()}

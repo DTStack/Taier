@@ -85,6 +85,10 @@ export function isFileParam (key: string): boolean {
     return ['kerberosFileName', 'uploadFileName'].indexOf(key) > -1
 }
 
+export function isMetaData (key: string): boolean {
+    return ['isMetadata'].indexOf(key) > -1
+}
+
 export function isDeployMode (key: string): boolean {
     return key === 'deploymode'
 }
@@ -469,7 +473,8 @@ function handleCurrentComp (comp: any, initialComp: any, typeCode: number): bool
         if (isFileParam(param)) {
             compValue = comp[param]?.name ?? comp[param]
         }
-        if (compValue && !_.isEqual(compValue, initialComp[param]?.name ?? initialComp[param])) {
+        if (isMetaData(param)) compValue = comp[param] ? 1 : 0
+        if ((compValue || compValue === 0) && !_.isEqual(compValue, initialComp[param]?.name ?? initialComp[param])) {
             return true
         }
     }

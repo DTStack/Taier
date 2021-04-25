@@ -9,6 +9,7 @@ interface IProps {
     form: any;
     view: boolean;
     isCheckBoxs: boolean;
+    disabledMeta: boolean;
 }
 
 export default class DataCheckbox extends React.PureComponent<IProps, any> {
@@ -58,7 +59,7 @@ export default class DataCheckbox extends React.PureComponent<IProps, any> {
     }
 
     render () {
-        const { form, comp, view } = this.props
+        const { form, comp, view, disabledMeta } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
 
         return <>
@@ -74,7 +75,7 @@ export default class DataCheckbox extends React.PureComponent<IProps, any> {
                     }]
                 })(
                     <Checkbox
-                        disabled={view}
+                        disabled={view || disabledMeta}
                         onChange={this.handleChange}
                     >
                         设为元数据获取方式
