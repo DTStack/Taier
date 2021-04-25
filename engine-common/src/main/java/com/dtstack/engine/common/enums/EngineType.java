@@ -25,7 +25,8 @@ public enum EngineType {
     Dummy,
     Presto,
     KingBase,
-    InceptorSQL;
+    InceptorSQL,
+    DtScriptAgent;
 
     public static EngineType getEngineType(String type) {
 
@@ -70,6 +71,8 @@ public enum EngineType {
                 return EngineType.KingBase;
             case "inceptor":
                 return EngineType.InceptorSQL;
+            case "shell-agent":
+                return EngineType.DtScriptAgent;
             default:
                 throw new UnsupportedOperationException("unsupported operation exception");
         }
