@@ -555,6 +555,7 @@ public class ClusterService implements InitializingBean {
             pluginInfo=JSONObject.parseObject(inceptorSqlInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
             pluginInfo.put(TYPE_NAME,"inceptor");
         } else if (EComponentType.DTSCRIPT_AGENT==type.getComponentType()){
+            dtScriptAgentInfo(clusterConfigJson,pluginInfo);
             pluginInfo.put(TYPE_NAME,"shell-agent");
         } else {
             //flink spark 需要区分任务类型
@@ -990,6 +991,12 @@ public class ClusterService implements InitializingBean {
         }
 
         return Boolean.FALSE;
+    }
+
+
+    private void dtScriptAgentInfo(JSONObject clusterConfigJson, JSONObject pluginInfo) {
+        JSONObject dtScriptConf = clusterConfigJson.getJSONObject(EComponentType.DTSCRIPT_AGENT.getConfName());
+        pluginInfo.putAll(dtScriptConf);
     }
 }
 
