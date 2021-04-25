@@ -33,7 +33,7 @@ public enum EComponentType {
     KUBERNETES(15, "Kubernetes", "kubernetesConf"),
     PRESTO_SQL(16, "Presto SQL", "prestoConf"),
     NFS(17, "NFS", "nfsConf"),
-    SHELL_AGENT(18,"Shell Agent","shellAgentConf"),
+    DTSCRIPT_AGENT(18,"Shell Agent","shellAgentConf"),
     INCEPTOR_SQL(19,"InceptorSql","inceptorSqlConf");
 
     private Integer typeCode;
@@ -132,6 +132,8 @@ public enum EComponentType {
     //Presto引擎组件
     public static List<EComponentType> PrestoComponents = Lists.newArrayList(EComponentType.PRESTO_SQL);
 
+    public static List<EComponentType> EmptyComponents = Lists.newArrayList(EComponentType.DTSCRIPT_AGENT);
+
     public static MultiEngineType getEngineTypeByComponent(EComponentType componentType) {
         if (HadoopComponents.contains(componentType)) {
             return MultiEngineType.HADOOP;
@@ -150,6 +152,9 @@ public enum EComponentType {
         }
         if (PrestoComponents.contains(componentType)) {
             return MultiEngineType.PRESTO;
+        }
+        if (EmptyComponents.contains(componentType)){
+            return MultiEngineType.DTSCRIPT_AGENT;
         }
         return null;
     }
@@ -200,6 +205,8 @@ public enum EComponentType {
                 return "nfs";
             case INCEPTOR_SQL:
                 return "inceptor";
+            case DTSCRIPT_AGENT:
+                return "shell-agent";
         }
         return "";
     }

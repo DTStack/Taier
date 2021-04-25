@@ -1,0 +1,2 @@
+
+INSERT INTO `console_component_config` ( `cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES ( -2, -112, 18, 'INPUT', 1, 'agentAddress', '', NULL, NULL, NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
