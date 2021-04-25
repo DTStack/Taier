@@ -35,7 +35,8 @@ public enum ScheduleEngineType {
     DUMMY(21, "dummy"),
     Presto(22, "presto"),
     KING_BASE(23,"kingbase"),
-    INCEPTOR_SQL(24,"inceptor");
+    INCEPTOR_SQL(24,"inceptor"),
+    DTSCRIPT_AGENT(25,"shell-agent");
 
     private int val;
 

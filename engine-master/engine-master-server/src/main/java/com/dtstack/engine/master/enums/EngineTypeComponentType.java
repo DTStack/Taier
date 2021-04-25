@@ -40,7 +40,8 @@ public enum EngineTypeComponentType {
     KUBERNETES(ScheduleEngineType.KUBERNETES, EComponentType.KUBERNETES),
     GREENPLUM_SQL(ScheduleEngineType.GREENPLUM, EComponentType.GREENPLUM_SQL),
     PRESTO_SQL(ScheduleEngineType.Presto, EComponentType.PRESTO_SQL),
-    INCEPTOR_SQL(ScheduleEngineType.INCEPTOR_SQL,EComponentType.INCEPTOR_SQL);
+    INCEPTOR_SQL(ScheduleEngineType.INCEPTOR_SQL,EComponentType.INCEPTOR_SQL),
+    DTSCRIPT_AGENT(ScheduleEngineType.DTSCRIPT_AGENT,EComponentType.DTSCRIPT_AGENT);
 
     private ScheduleEngineType scheduleEngineType;
 
@@ -105,6 +106,8 @@ public enum EngineTypeComponentType {
                 return EngineTypeComponentType.PRESTO_SQL;
             case "inceptor":
                 return EngineTypeComponentType.INCEPTOR_SQL;
+            case "shell-agent":
+                return EngineTypeComponentType.DTSCRIPT_AGENT;
             default:
                 throw new UnsupportedOperationException("未知引擎类型:" + engineName);
         }
