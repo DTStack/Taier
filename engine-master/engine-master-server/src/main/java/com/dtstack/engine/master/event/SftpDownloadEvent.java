@@ -57,7 +57,7 @@ public class SftpDownloadEvent extends AdapterEventMonitor {
 
             String ifPresent = cacheSftpJar.getIfPresent(jarPath);
             if (StringUtils.isBlank(ifPresent)) {
-                SftpConfig sftpConfig = componentService.getComponentByClusterId(-1L, EComponentType.SFTP.getTypeCode(), false, SftpConfig.class);
+                SftpConfig sftpConfig = componentService.getComponentByClusterId(-1L, EComponentType.SFTP.getTypeCode(), false, SftpConfig.class,null);
 
                 if (sftpConfig != null) {
                     try {
@@ -77,7 +77,7 @@ public class SftpDownloadEvent extends AdapterEventMonitor {
     }
 
     public String uploadFileToSftp(MultipartFile file, String filePath, String destPath, String dbPath) {
-        SftpConfig sftpConfig = componentService.getComponentByClusterId(-1L, EComponentType.SFTP.getTypeCode(), false, SftpConfig.class);
+        SftpConfig sftpConfig = componentService.getComponentByClusterId(-1L, EComponentType.SFTP.getTypeCode(), false, SftpConfig.class,null);
         if (sftpConfig != null) {
             try {
                 String remoteDir = sftpConfig.getPath() + File.separator + filePath;

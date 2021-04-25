@@ -274,6 +274,7 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
     ONLY_ACCEPT_ONE_SQL(610, "ddl建表不支持多条语句"),
     CREATE_TABLE_ERR_2(611, "表名不符合规范"),
     DROP_TABLE_ERROR(612, "删除表失败"),
+    SAVE_TASK_RINK(613,"任务依赖成环"),
     /***----------------end hive 相关错误码 end ------------------------------------------****/
 
 
@@ -296,6 +297,7 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
     /***----------------end 组件管理 相关错误码 end ----------------------------------------****/
 
     NOT_USED(10000000, "");
+
 
 
 

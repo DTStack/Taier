@@ -293,7 +293,7 @@ public class JobSubmitDealer implements Runnable {
                 jobResult = workerOperator.submitJob(jobClient);
 
                 LOGGER.info("jobId:{} engineType:{} submit jobResult:{}.", jobClient.getTaskId(), jobClient.getEngineType(), jobResult);
-
+                // 提交任务返回新的任务ID
                 String jobId = jobResult.getData(JobResult.JOB_ID_KEY);
                 jobClient.setEngineTaskId(jobId);
                 addToTaskListener(jobClient, jobResult);

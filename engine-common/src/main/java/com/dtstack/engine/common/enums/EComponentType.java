@@ -261,5 +261,9 @@ public enum EComponentType {
     //多hadoop版本选择组件
     public static List<EComponentType> hadoopVersionComponents = Lists.newArrayList(EComponentType.YARN,EComponentType.HDFS);
 
+    //metadata组件
+    public static List<EComponentType> metadataComponents = Lists.newArrayList(EComponentType.HIVE_SERVER,EComponentType.SPARK_THRIFT);
+
 
 }
+

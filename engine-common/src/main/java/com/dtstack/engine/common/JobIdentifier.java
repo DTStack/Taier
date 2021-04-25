@@ -34,6 +34,9 @@ public class JobIdentifier implements Serializable {
 
     private Boolean forceCancel;
 
+    private String componentVersion;
+
+
     private JobIdentifier() {
 
     }
@@ -118,6 +121,13 @@ public class JobIdentifier implements Serializable {
         return userId;
     }
 
+    public String getComponentVersion() {
+        return componentVersion;
+    }
+
+    public void setComponentVersion(String componentVersion) {
+        this.componentVersion = componentVersion;
+    }
 
     @Override
     public String toString() {

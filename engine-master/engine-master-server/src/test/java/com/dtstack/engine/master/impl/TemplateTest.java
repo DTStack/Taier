@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -77,8 +78,8 @@ public class TemplateTest extends AbstractTest {
 
     @Before
     public void init() {
-        doReturn(typeName).when(componentService).convertComponentTypeToClient(any(), any(), any(),any());
-        doCallRealMethod().when(componentService).addOrUpdateComponent(any(), any(), any(),any(),any(),any(),any(),any(),any(),any());
+        doReturn(typeName).when(componentService).convertComponentTypeToClient(any(), any(), any(),any(),any());
+        doCallRealMethod().when(componentService).addOrUpdateComponent(any(), any(), any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
         ReflectionTestUtils.setField(componentService,"clusterDao", clusterDao);
         ReflectionTestUtils.setField(componentService,"componentDao", componentDao);
         ReflectionTestUtils.setField(componentService,"consoleCache", consoleCache);
@@ -149,8 +150,8 @@ public class TemplateTest extends AbstractTest {
         cluster.setHadoopVersion("hadoop2");
         clusterDao.insert(cluster);
         //添加组件 添加引擎
-        componentService.addOrUpdateComponent(cluster.getId(), "", null, "hadoop2", "", templateString, EComponentType.SFTP.getTypeCode(),null,null,null);
-        Component sftpComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.SFTP.getTypeCode());
+        componentService.addOrUpdateComponent(cluster.getId(), "", null, "hadoop2", "", templateString, EComponentType.SFTP.getTypeCode(),null,null,null, true,true);
+        Component sftpComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.SFTP.getTypeCode(),null);
         Assert.assertNotNull(sftpComponent);
         Map<String, Object> sftpConfig = componentConfigService.convertComponentConfigToMap(sftpComponent.getId(), true);
         Assert.assertNotNull(sftpConfig);
@@ -158,7 +159,7 @@ public class TemplateTest extends AbstractTest {
         for (String key : originMap.keySet()) {
             Assert.assertEquals(originMap.get(key), sftpConfig.get(key));
         }
-        componentService.getCacheComponentConfigMap(cluster.getId(), EComponentType.SFTP.getTypeCode(), true);
+        componentService.getCacheComponentConfigMap(cluster.getId(), EComponentType.SFTP.getTypeCode(), true, Collections.emptyMap());
     }
 
 

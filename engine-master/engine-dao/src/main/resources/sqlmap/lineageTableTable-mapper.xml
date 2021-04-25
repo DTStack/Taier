@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.lineage.dao.LineageTableTableDao">
+<mapper namespace="com.dtstack.engine.dao.LineageTableTableDao">
 
     <sql id="select_content_fragment">
       id,dt_uic_tenant_id,app_type,input_table_id,input_table_key,result_table_id,result_table_key,table_lineage_key,lineage_source,gmt_create,gmt_modified,is_deleted
@@ -29,6 +29,28 @@
 
     <select id="queryTableResultList" resultType="com.dtstack.engine.api.domain.LineageTableTable">
         select tt.* from lineage_table_table tt join lineage_table_table_unique_key_ref ref on tt.id = ref.lineage_table_table_id where tt.result_table_id = #{tableId} and ref.app_type = #{appType} and ref.is_deleted = 0
+    </select>
+
+    <select id="queryTableResultCount" resultType="Integer">
+        select count(tt.id) from lineage_table_table tt
+        join lineage_table_table_unique_key_ref ref on tt.id = ref.lineage_table_table_id
+        where tt.result_table_id = #{tableId} and ref.app_type = #{appType} and ref.is_deleted = 0
+
+    </select>
+
+    <select id="queryTableInputCount" resultType="Integer">
+        select count(tt.id) from lineage_table_table tt
+        join lineage_table_table_unique_key_ref ref on tt.id = ref.lineage_table_table_id
+        where tt.input_table_id = #{tableId} and ref.app_type = #{appType} and ref.is_deleted = 0
+
+    </select>
+
+    <select id="queryTableLineageByTaskIdAndAppType" resultType="com.dtstack.engine.api.domain.LineageTableTable">
+        select tt.*
+        from lineage_table_table tt
+        join lineage_table_table_unique_key_ref ref on tt.id = ref.lineage_table_table_id
+        where ref.unique_key = #{taskId} and ref.app_type = #{appType} and ref.is_deleted = 0
+
     </select>
 
     <select id="queryBTableLineageKey" resultType="com.dtstack.engine.api.domain.LineageTableTable">
