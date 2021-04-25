@@ -1345,7 +1345,7 @@ public class ComponentService {
         } else if (EComponentType.NFS.getTypeCode() == componentType){
             dataInfo = JSONObject.parseObject(componentConfig);
             dataInfo.put("componentType", EComponentType.NFS.getName());
-        }else if (EComponentType.DT_SCRIPT.getTypeCode() == componentType){
+        }else if (EComponentType.DTSCRIPT_AGENT.getTypeCode() == componentType){
             return componentConfig;
         }
         return dataInfo.toJSONString();
