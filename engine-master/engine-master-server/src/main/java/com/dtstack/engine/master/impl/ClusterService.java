@@ -554,6 +554,8 @@ public class ClusterService implements InitializingBean {
         }else if (EComponentType.INCEPTOR_SQL==type.getComponentType()){
             pluginInfo=JSONObject.parseObject(inceptorSqlInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
             pluginInfo.put(TYPE_NAME,"inceptor");
+        } else if (EComponentType.DTSCRIPT_AGENT==type.getComponentType()){
+            pluginInfo.put(TYPE_NAME,"shell-agent");
         } else {
             //flink spark 需要区分任务类型
             if (EComponentType.FLINK.equals(type.getComponentType()) || EComponentType.SPARK.equals(type.getComponentType())) {
