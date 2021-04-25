@@ -60,10 +60,10 @@ export const COMPONENT_CONFIG_NAME = {
 }
 
 export const TABS_TITLE = {
-    [TABS_TITLE_KEY.COMMON]: { iconName: 'iconcunchuzujian', name: '公共组件' },
-    [TABS_TITLE_KEY.SOURCE]: { iconName: 'icongonggongzujian', name: '资源调度组件' },
-    [TABS_TITLE_KEY.STORE]: { iconName: 'iconjisuanzujian', name: '存储组件' },
-    [TABS_TITLE_KEY.COMPUTE]: { iconName: 'iconziyuantiaodu', name: '计算组件' }
+    [TABS_TITLE_KEY.COMMON]: { iconName: 'icongonggongzujian', name: '公共组件' },
+    [TABS_TITLE_KEY.SOURCE]: { iconName: 'iconziyuantiaodu', name: '资源调度组件' },
+    [TABS_TITLE_KEY.STORE]: { iconName: 'iconcunchuzujian', name: '存储组件' },
+    [TABS_TITLE_KEY.COMPUTE]: { iconName: 'iconjisuanzujian', name: '计算组件' }
 }
 
 export const CONFIG_BUTTON_TYPE = {
@@ -134,3 +134,10 @@ export const CONFIG_FILE_DESC = {
     [COMPONENT_TYPE_VALUE.HDFS]: 'zip格式，至少包括core-site.xml、hdfs-site.xml、hive-site.xml',
     [COMPONENT_TYPE_VALUE.KUBERNETES]: 'zip格式，至少包括kubernetes.config'
 }
+
+export const COMP_ACTION = {
+    DELETE: 'DELETE',
+    ADD: 'ADD'
+}
+
+export const DEFAULT_PARAMS = ['storeType', 'principal', 'hadoopVersion', 'kerberosFileName', 'uploadFileName']
