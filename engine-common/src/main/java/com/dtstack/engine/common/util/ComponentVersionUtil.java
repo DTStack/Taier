@@ -64,7 +64,10 @@ public class ComponentVersionUtil {
         // Shell
         // ML_Lib
         // Notebook
+        map.put(EScheduleJobType.NOTEBOOK.getType(),EComponentType.DT_SCRIPT);
         // ALGORITHM_LAB
+        map.put(EScheduleJobType.ALGORITHM_LAB.getType(),EComponentType.DT_SCRIPT);
+
 
         // DtScript
         map.put(EScheduleJobType.PYTHON.getType(),EComponentType.DT_SCRIPT);
