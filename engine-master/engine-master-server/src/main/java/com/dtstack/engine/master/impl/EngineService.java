@@ -7,6 +7,7 @@ import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.QueueVO;
 import com.dtstack.engine.api.vo.engine.EngineSupportVO;
+import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.dao.EngineDao;
 import com.dtstack.engine.dao.EngineTenantDao;
 import com.dtstack.engine.dao.QueueDao;
@@ -58,7 +59,7 @@ public class EngineService {
         if(CollectionUtils.isEmpty(engineTenants)){
             return vos;
         }
-        List<Long> engineIds = engineTenants.stream()
+        List<Long> engineIds = engineTenants.stream().filter(engine -> MultiEngineType.EMPTY.getType()!=engine.getEngineType())
                 .map(Engine::getId)
                 .collect(Collectors.toList());
         List<Component> components = componentService.listComponent(engineIds);

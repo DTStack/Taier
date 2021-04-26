@@ -464,7 +464,7 @@ public class ScheduleJobService {
         } else {
             count = queryNormalJob(batchJobDTO, queryAll, pageQuery, result);
         }
-        
+
         return new PageResult<>(result, count, pageQuery);
     }
 
@@ -1584,7 +1584,7 @@ public class ScheduleJobService {
             int showStatus = entry.getKey();
             long sum = 0;
             for (Integer value : entry.getValue()) {
-                Long statusSum = statisticsMap.get(value);
+                Long statusSum = statisticsMap.get(value.longValue());
                 sum += statusSum == null ? 0L : statusSum;
             }
             resultMap.put(showStatus, sum);
@@ -3000,7 +3000,7 @@ public class ScheduleJobService {
                             JSONObject jsonObject = JSON.parseObject(job.getLogInfo());
                             logInfo1 = jsonObject.getString("result");
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            LOGGER.error("log json parseObject error:",e);
                         }
                         addLog = String.format(addLog, currentScheduleJob.getJobName(), logInfo1, StringUtils.isBlank(nameByDtUicTenantId)?"":nameByDtUicTenantId,project==null? "":project.getProjectAlias());
                         isRule = Boolean.TRUE;

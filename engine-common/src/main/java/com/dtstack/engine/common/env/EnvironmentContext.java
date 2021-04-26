@@ -559,7 +559,7 @@ public class EnvironmentContext {
     }
 
     public long getForkJoinResultTimeOut() {
-        return Long.parseLong(environment.getProperty("fork.join.timeout", Long.toString(60 * 5)));
+        return Long.parseLong(environment.getProperty("fork.join.timeout", Long.toString(60L * 5)));
     }
     /**
      * 是否根据版本加载默认的配置
@@ -605,5 +605,9 @@ public class EnvironmentContext {
      */
     public String getSdkToken() {
         return environment.getProperty("sdk.token", "");
+    }
+
+    public String getSqlParserDir(){
+        return environment.getProperty("sqlParser.dir","/opt/dtstack/DTCommon/SQLParser");
     }
 }

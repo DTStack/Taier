@@ -11,6 +11,7 @@ import com.dtstack.engine.api.pojo.LevelAndCount;
 import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.api.vo.lineage.*;
 import com.dtstack.engine.api.vo.lineage.param.*;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.lineage.adapter.*;
 import com.dtstack.engine.lineage.enums.SourceType2TableType;
@@ -37,6 +38,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -74,6 +76,15 @@ public class LineageService {
     @Autowired
     private LineageColumnColumnUniqueKeyRefDao columnUniqueKeyRefDao;
 
+    @Autowired
+    private EnvironmentContext env;
+
+
+    @PostConstruct
+    public void setUp(){
+        System.setProperty("sqlParser.dir",env.getSqlParserDir());
+    }
+
 
     /**
      * 解析sql基本信息
@@ -87,8 +98,7 @@ public class LineageService {
             throw new IllegalArgumentException("数据源类型" + dataSourceType + "不支持");
         }
         SqlParseInfo parseInfo = new SqlParseInfo();
-//        ISqlParserClient sqlParserClient = getSqlParserClient();
-        ISqlParserClient sqlParserClient = sqlParserClientOperator.getClient("sqlParser");
+        ISqlParserClient sqlParserClient = sqlParserClientOperator.getClient("sqlparser");
         parseInfo.setOriginSql(sql);
         try {
             ParseResult parseResult = null;
@@ -120,7 +130,7 @@ public class LineageService {
 
     public Set<String> parseFunction(String sql){
 
-        ISqlParserClient sqlParserClient = sqlParserClientOperator.getClient("sqlParser");
+        ISqlParserClient sqlParserClient = sqlParserClientOperator.getClient("sqlparser");
         Set<String> functions  = null;
         try {
             functions = sqlParserClient.parseFunction(sql);
@@ -144,7 +154,7 @@ public class LineageService {
         if (Objects.isNull(sourceType2TableType)) {
             throw new IllegalArgumentException("数据源类型" + dataSourceType + "不支持");
         }
-        ISqlParserClient sqlParserClient = sqlParserClientOperator.getClient("sqlParser");
+        ISqlParserClient sqlParserClient = sqlParserClientOperator.getClient("sqlparser");
         TableLineageParseInfo parseInfo = new TableLineageParseInfo();
         try {
             ParseResult parseResult = null;
@@ -218,7 +228,7 @@ public class LineageService {
         if (Objects.isNull(sourceType2TableType)) {
             throw new IllegalArgumentException("数据源类型" + lineageDataSource.getSourceType() + "不支持");
         }
-        ISqlParserClient sqlParserClient = sqlParserClientOperator.getClient("sqlParser");
+        ISqlParserClient sqlParserClient = sqlParserClientOperator.getClient("sqlparser");
         try {
             ParseResult parseResult = null;
             try {
@@ -311,7 +321,7 @@ public class LineageService {
         if (Objects.isNull(sourceType2TableType)) {
             throw new RdosDefineException("数据源类型" + dataSourceType + "不支持");
         }
-        ISqlParserClient sqlParserClient = sqlParserClientOperator.getClient("sqlParser");
+        ISqlParserClient sqlParserClient = sqlParserClientOperator.getClient("sqlparser");
         ColumnLineageParseInfo parseInfo = new ColumnLineageParseInfo();
         try {
             Map<String, List<com.dtstack.sqlparser.common.client.domain.Column>> sqlColumnMap = new HashMap<>();
@@ -402,7 +412,7 @@ public class LineageService {
         if (Objects.isNull(sourceType2TableType)) {
             throw new IllegalArgumentException("数据源类型" + lineageDataSource.getSourceType() + "不支持");
         }
-        ISqlParserClient sqlParserClient = sqlParserClientOperator.getClient("sqlParser");
+        ISqlParserClient sqlParserClient = sqlParserClientOperator.getClient("sqlparser");
         try {
             List<Table> resTables = null;
             try {
@@ -809,7 +819,7 @@ public class LineageService {
                 LineageDataSourceVO resultDataSourceVO = resultTableInfoVO.getDataSourceVO();
                 LineageDataSource resultDataSource = null;
                 if (Objects.isNull(resultDataSourceVO.getSourceId())) {
-                    List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(resultDataSourceVO.getSourceType(), resultDataSource.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType());
+                    List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(resultDataSourceVO.getSourceType(), resultDataSourceVO.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType());
                     if(CollectionUtils.isEmpty(dataSources)){
                         logger.error("do not find need dataSource");
                         throw new RdosDefineException("没有可用的数据源");
@@ -1307,7 +1317,7 @@ public class LineageService {
         if (Objects.isNull(sourceType2TableType)) {
             throw new IllegalArgumentException("数据源类型" + sourceType + "不支持");
         }
-        ISqlParserClient sqlParserClient = sqlParserClientOperator.getClient("sqlParser");
+        ISqlParserClient sqlParserClient = sqlParserClientOperator.getClient("sqlparser");
         List<com.dtstack.engine.api.pojo.lineage.Table> tableList = new ArrayList<>();
         try {
             List<Table> tables = null;

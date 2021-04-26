@@ -31,13 +31,18 @@ public class DtArgumentResolver implements HandlerMethodArgumentResolver {
     public Object resolveArgument(MethodParameter methodParameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
 
         DtRequestParam requestParam = methodParameter.getParameterAnnotation(DtRequestParam.class);
+        if(null == requestParam){
+            return null;
+        }
         String paramName = requestParam.name();
         if (StringUtils.isBlank(paramName)) {
             paramName = methodParameter.getParameterName();
         }
 
         MultiReadHttpServletRequest servletRequest = webRequest.getNativeRequest(MultiReadHttpServletRequest.class);
-
+        if(null == servletRequest){
+            return null;
+        }
         JSONObject requestBody = (JSONObject) servletRequest.getRequest().getAttribute(DtRequestWrapperFilter.DT_REQUEST_BODY);
 
         if (requestBody != null) {

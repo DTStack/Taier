@@ -44,7 +44,7 @@ public class ClusterController{
     public String clusterInfo(@DtRequestParam("tenantId") Long tenantId) {
         return clusterService.clusterInfo(tenantId);
     }
-    // TODO 多版本控制
+
     @RequestMapping(value="/clusterExtInfo", method = {RequestMethod.POST})
     public ClusterVO clusterExtInfo(@DtRequestParam("tenantId") Long uicTenantId) {
         return clusterService.clusterExtInfo(uicTenantId,false);
