@@ -71,7 +71,7 @@ public enum EngineType {
                 return EngineType.KingBase;
             case "inceptor":
                 return EngineType.InceptorSQL;
-            case "shell-agent":
+            case "dtscript-agent":
                 return EngineType.DtScriptAgent;
             default:
                 throw new UnsupportedOperationException("unsupported operation exception");

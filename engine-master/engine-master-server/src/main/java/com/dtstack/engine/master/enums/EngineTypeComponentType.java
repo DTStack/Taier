@@ -106,7 +106,7 @@ public enum EngineTypeComponentType {
                 return EngineTypeComponentType.PRESTO_SQL;
             case "inceptor":
                 return EngineTypeComponentType.INCEPTOR_SQL;
-            case "shell-agent":
+            case "dtscript-agent":
                 return EngineTypeComponentType.DTSCRIPT_AGENT;
             default:
                 throw new UnsupportedOperationException("未知引擎类型:" + engineName);

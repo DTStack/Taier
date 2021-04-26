@@ -33,7 +33,7 @@ public enum EComponentType {
     KUBERNETES(15, "Kubernetes", "kubernetesConf"),
     PRESTO_SQL(16, "Presto SQL", "prestoConf"),
     NFS(17, "NFS", "nfsConf"),
-    DTSCRIPT_AGENT(18,"Shell Agent","shellAgentConf"),
+    DTSCRIPT_AGENT(18,"DtScript Agent","dtScriptAgentConf"),
     INCEPTOR_SQL(19,"InceptorSql","inceptorSqlConf");
 
     private Integer typeCode;
@@ -154,7 +154,7 @@ public enum EComponentType {
             return MultiEngineType.PRESTO;
         }
         if (EmptyComponents.contains(componentType)){
-            return MultiEngineType.DTSCRIPT_AGENT;
+            return MultiEngineType.EMPTY;
         }
         return null;
     }
@@ -206,7 +206,7 @@ public enum EComponentType {
             case INCEPTOR_SQL:
                 return "inceptor";
             case DTSCRIPT_AGENT:
-                return "shell-agent";
+                return "dtscript-agent";
         }
         return "";
     }

@@ -556,7 +556,7 @@ public class ClusterService implements InitializingBean {
             pluginInfo.put(TYPE_NAME,"inceptor");
         } else if (EComponentType.DTSCRIPT_AGENT==type.getComponentType()){
             dtScriptAgentInfo(clusterConfigJson,pluginInfo);
-            pluginInfo.put(TYPE_NAME,"shell-agent");
+            pluginInfo.put(TYPE_NAME,"dtscript-agent");
         } else {
             //flink spark 需要区分任务类型
             if (EComponentType.FLINK.equals(type.getComponentType()) || EComponentType.SPARK.equals(type.getComponentType())) {
@@ -911,14 +911,14 @@ public class ClusterService implements InitializingBean {
         List<ClusterEngineVO> result = new ArrayList<>();
 
         List<Cluster> clusters = clusterDao.listAll();
-        List<Engine> engines = engineDao.listByEngineIds(new ArrayList<>());
+        List<Engine> engines = engineDao.listByEngineIds(Collections.emptyList());
         if (null == engines) {
             return new ArrayList<>();
         }
         Map<Long, List<Engine>> clusterEngineMapping = engines
-                .stream().filter(engine -> MultiEngineType.DTSCRIPT_AGENT.getType()!=engine.getEngineType())
+                .stream().filter(engine -> MultiEngineType.EMPTY.getType()!=engine.getEngineType())
                 .collect(Collectors.groupingBy(Engine::getClusterId));
-        List<Long> engineIds = engines.stream().filter(engine -> MultiEngineType.DTSCRIPT_AGENT.getType()!=engine.getEngineType())
+        List<Long> engineIds = engines.stream().filter(engine -> MultiEngineType.EMPTY.getType()!=engine.getEngineType())
                 .map(Engine::getId)
                 .collect(Collectors.toList());
 

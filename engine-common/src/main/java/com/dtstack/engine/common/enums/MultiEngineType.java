@@ -9,7 +9,7 @@ package com.dtstack.engine.common.enums;
  */
 
 public enum MultiEngineType {
-    DTSCRIPT_AGENT(-1,"DtScript Agent"),
+    EMPTY(-1,"EMPTY"),
     HADOOP(1,"Hadoop"),
     LIBRA(2, "LibrA"),
     KYLIN(3, "Kylin"),

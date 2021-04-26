@@ -59,7 +59,7 @@ public class EngineService {
         if(CollectionUtils.isEmpty(engineTenants)){
             return vos;
         }
-        List<Long> engineIds = engineTenants.stream().filter(engine -> MultiEngineType.DTSCRIPT_AGENT.getType()!=engine.getEngineType())
+        List<Long> engineIds = engineTenants.stream().filter(engine -> MultiEngineType.EMPTY.getType()!=engine.getEngineType())
                 .map(Engine::getId)
                 .collect(Collectors.toList());
         List<Component> components = componentService.listComponent(engineIds);
