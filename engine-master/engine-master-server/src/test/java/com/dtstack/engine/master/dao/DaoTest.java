@@ -1,14 +1,19 @@
 package com.dtstack.engine.master.dao;
 
 import com.dtstack.engine.api.domain.EngineJobCache;
+import com.dtstack.engine.api.domain.ScheduleSqlTextTemp;
 import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.engine.dao.AccountDao;
 import com.dtstack.engine.dao.EngineJobCacheDao;
+import com.dtstack.engine.dao.ScheduleSqlTextTempDao;
 import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -27,6 +32,9 @@ public class DaoTest extends AbstractTest {
     @Autowired
     private EngineJobCacheDao engineJobCacheDao;
 
+    @Autowired
+    private ScheduleSqlTextTempDao sqlTextTempDao;
+
     @Test
     public void testTenantDao(){
         Tenant byDtUicTenantId = tenantDao.getByDtUicTenantId(1L);
@@ -42,6 +50,23 @@ public class DaoTest extends AbstractTest {
         System.out.println(testJobId);
 
     }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testSqlTextInsert(){
+
+        ScheduleSqlTextTemp sqlTextTemp = new ScheduleSqlTextTemp();
+        sqlTextTemp.setSqlText("select * from chener");
+        sqlTextTemp.setJobId("falfalfjl");
+        sqlTextTempDao.insert(sqlTextTemp);
+
+        ScheduleSqlTextTemp temp = sqlTextTempDao.selectByJobId(sqlTextTemp.getJobId());
+        System.out.println(temp);
+    }
+
+
+
 
 
 

@@ -13,7 +13,7 @@ public class ScheduleSqlTextTemp {
 
     private Long id;
 
-    private Long jobId;
+    private String jobId;
 
     private String sqlText;
 
@@ -32,11 +32,11 @@ public class ScheduleSqlTextTemp {
         this.id = id;
     }
 
-    public Long getJobId() {
+    public String getJobId() {
         return jobId;
     }
 
-    public void setJobId(Long jobId) {
+    public void setJobId(String jobId) {
         this.jobId = jobId;
     }
 
