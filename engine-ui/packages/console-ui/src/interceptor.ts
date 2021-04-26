@@ -3,8 +3,8 @@ import { message, notification } from 'antd'
 import { hashHistory } from 'react-router'
 import utils from 'dt-common/src/utils'
 import localDb from 'dt-common/src/utils/localDb'
-
 import UserApi from 'dt-common/src/api/user'
+import { versionMonitor } from 'dt-common/src/funcs'
 
 const maxHeightStyle: any = {
     maxHeight: '500px',
@@ -15,6 +15,8 @@ export function authBeforeFormate (response: any) {
     switch (response.status) {
         case 402:
         case 200:
+        case 412:
+            versionMonitor(response);
             return response;
         case 302:
             message.info('登录超时, 请重新登录！')

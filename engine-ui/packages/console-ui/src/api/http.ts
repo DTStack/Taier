@@ -1,7 +1,7 @@
 import 'whatwg-fetch'
 
 import ProgressBar from 'dt-common/src/widgets/progress-bar'
-import { singletonNotification } from 'dt-common/src/funcs'
+import { singletonNotification, setRequestVersion } from 'dt-common/src/funcs'
 
 import { authAfterFormated, authBeforeFormate } from '../interceptor'
 class Http {
@@ -41,6 +41,7 @@ class Http {
     request (url: any, options: any) {
         ProgressBar.show()
         options.credentials = 'same-origin'
+        setRequestVersion(options)
         return fetch(url, options)
             .then(authBeforeFormate)
             .then((response: any) => {

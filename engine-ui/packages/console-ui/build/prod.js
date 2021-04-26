@@ -3,6 +3,7 @@ const webpack = require("webpack");
 const webpackMerge = require("webpack-merge");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const cssLoader = require("./loader/css-loader.js").pro;
+const VersionPlugin = require("./version-webpack-plugin");
 
 // const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 // baseConf.plugins.push(
@@ -65,7 +66,8 @@ module.exports = function(env) {
                 showErrors: true,
                 hash: true,
                 minify: htmlMinify
-            })
+            }),
+            new VersionPlugin()
         ],
         module: {
             rules: [...cssLoader]
