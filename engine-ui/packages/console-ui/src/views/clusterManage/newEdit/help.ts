@@ -49,6 +49,10 @@ export function showDataCheckBox (code: number): boolean {
     return [COMPONENT_TYPE_VALUE.HIVE_SERVER, COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER].indexOf(code) > -1
 }
 
+export function notFileConfig (code: number): boolean {
+    return [COMPONENT_TYPE_VALUE.DTSCRIPT_AGENT].indexOf(code) > -1
+}
+
 export function getActionType (mode: string): string {
     switch (mode) {
         case 'view': return '查看集群'
@@ -343,7 +347,7 @@ export function handleComponentTemplate (comp: any, initialCompData: any): any {
 export function handleComponentConfig (comp: any, turnp?: boolean): any {
     // 处理componentConfig
     let componentConfig = {}
-    for (let [key, values] of Object.entries(comp.componentConfig)) {
+    for (let [key, values] of Object.entries(comp?.componentConfig ?? {})) {
         componentConfig[key] = values
         if (!_.isString(values) && !_.isArray(values)) {
             let groupConfig = {}
@@ -473,7 +477,10 @@ function handleCurrentComp (comp: any, initialComp: any, typeCode: number): bool
         if (isFileParam(param)) {
             compValue = comp[param]?.name ?? comp[param]
         }
-        if (isMetaData(param)) compValue = comp[param] ? 1 : 0
+        if (isMetaData(param)) {
+            if (comp[param] === true) compValue = 1
+            if (comp[param] === false) compValue = 0
+        }
         if ((compValue || compValue === 0) && !_.isEqual(compValue, initialComp[param]?.name ?? initialComp[param])) {
             return true
         }
@@ -485,6 +492,7 @@ function handleCurrentComp (comp: any, initialComp: any, typeCode: number): bool
      */
     if (!isNeedTemp(Number(typeCode))) {
         const compConfig = handleComponentConfigAndCustom(comp, Number(typeCode))
+        if (!Object.values(compConfig).length) return false
         if (!_.isEqual(compConfig, initialComp?.componentConfig ? JSON.parse(initialComp.componentConfig) : {})) {
             return true
         }
