@@ -274,6 +274,11 @@ public class ActionService {
             if (scheduleConf.getBooleanValue("isFailRetry")) {
                 int maxRetryNum = scheduleConf.getIntValue("maxRetryNum") == 0 ? 3 : scheduleConf.getIntValue("maxRetryNum");
                 actionParam.put("maxRetryNum", maxRetryNum);
+                //离线 单位 分钟
+                Integer retryIntervalTime = scheduleConf.getInteger("retryIntervalTime");
+                if(null != retryIntervalTime){
+                    actionParam.put("retryIntervalTime",retryIntervalTime * 60 * 1000);
+                }
             } else {
                 actionParam.put("maxRetryNum", 0);
             }

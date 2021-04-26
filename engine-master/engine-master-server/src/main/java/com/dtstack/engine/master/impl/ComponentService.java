@@ -34,6 +34,7 @@ import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.enums.DictType;
 import com.dtstack.engine.master.enums.DownloadType;
+import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.router.cache.RdosSubscribe;
 import com.dtstack.engine.master.router.cache.RdosTopic;
@@ -1344,6 +1345,8 @@ public class ComponentService {
         } else if (EComponentType.NFS.getTypeCode() == componentType){
             dataInfo = JSONObject.parseObject(componentConfig);
             dataInfo.put("componentType", EComponentType.NFS.getName());
+        }else if (EComponentType.DTSCRIPT_AGENT.getTypeCode() == componentType){
+            return componentConfig;
         }
         return dataInfo.toJSONString();
     }
