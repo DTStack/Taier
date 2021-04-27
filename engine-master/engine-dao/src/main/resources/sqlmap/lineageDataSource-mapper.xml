@@ -38,7 +38,7 @@
             <if test="schemaName !=null">
                 AND schema_name = #{schemaName}
             </if>
-            <if test="source_id !=null">
+            <if test="sourceId !=null">
                 AND source_id = #{sourceId}
             </if>
         </trim>
