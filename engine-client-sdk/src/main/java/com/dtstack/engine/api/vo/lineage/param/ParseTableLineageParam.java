@@ -34,6 +34,9 @@ public class ParseTableLineageParam {
     /**任务类型，周期实例、临时运行**/
     private Integer type;
 
+    /**周期实例提交版本号**/
+    private Integer versionId;
+
     public Long getDtUicTenantId() {
         return dtUicTenantId;
     }
@@ -96,5 +99,13 @@ public class ParseTableLineageParam {
 
     public void setType(Integer type) {
         this.type = type;
+    }
+
+    public Integer getVersionId() {
+        return versionId;
+    }
+
+    public void setVersionId(Integer versionId) {
+        this.versionId = versionId;
     }
 }

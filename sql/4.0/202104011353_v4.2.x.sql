@@ -19,6 +19,12 @@ CREATE TABLE `schedule_sql_text_temp` (
   UNIQUE KEY `index_job_id` (`job_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='临时任务sql_text关联表';
 
+ALTER TABLE `lineage_table_table_unique_key_ref`
+ADD COLUMN `version_id`  int(11) NULL DEFAULT 0 COMMENT '任务提交版本号' AFTER `lineage_table_table_id`;
+
+ALTER TABLE `lineage_column_column_unique_key_ref`
+ADD COLUMN `version_id`  int(11) NULL DEFAULT 0 COMMENT '任务提交版本号' AFTER `lineage_column_column_id`;
+
 
 -- 字段血缘表修改result_table_key字段comment
 ALTER TABLE `lineage_column_column`
