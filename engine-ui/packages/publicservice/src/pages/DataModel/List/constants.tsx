@@ -35,6 +35,7 @@ export const columnsGenerator = ({
       key: 'modelName',
       width: 240,
       fixed: true,
+      ellipsis: true,
       render: (modelName, record) => {
         return (
           <a
@@ -50,6 +51,7 @@ export const columnsGenerator = ({
       dataIndex: 'modelEnName',
       key: 'modelEnName',
       width: 200,
+      ellipsis: true,
     },
     {
       title: '数据源',
@@ -86,6 +88,7 @@ export const columnsGenerator = ({
       dataIndex: 'modelStatus',
       key: 'modelStatus',
       width: 160,
+      ellipsis: true,
       filters: Array.from(modelStatusMap).map((item) => ({
         text: item[1],
         value: item[0],
@@ -123,12 +126,19 @@ export const columnsGenerator = ({
         );
       },
     },
-    { title: '创建人', dataIndex: 'creator', key: 'creator', width: 160 },
+    {
+      title: '创建人',
+      dataIndex: 'creator',
+      key: 'creator',
+      width: 160,
+      ellipsis: true,
+    },
     {
       title: '创建时间',
       dataIndex: 'createTime',
       key: 'createTime',
       width: 200,
+      ellipsis: true,
     },
     {
       title: '更新时间',
@@ -136,7 +146,13 @@ export const columnsGenerator = ({
       key: 'updateTime',
       width: 200,
     },
-    { title: '备注', dataIndex: 'remark', key: 'remark', width: 200 },
+    {
+      title: '备注',
+      dataIndex: 'remark',
+      key: 'remark',
+      width: 200,
+      ellipsis: true,
+    },
     {
       title: '操作',
       key: 'operation',

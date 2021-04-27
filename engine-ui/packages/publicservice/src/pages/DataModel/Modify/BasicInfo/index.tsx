@@ -34,7 +34,7 @@ const BasicInfo = (props: IPropsBasicInfo) => {
     validateFields,
   } = form;
   const [dataSourceList, setDataSourceList] = useState<DataSourceItem[]>([]);
-  const [extra, setExtra] = useState({});
+  const [extra, setExtra] = useState<any>({});
   const isDisabled = mode === 'EDIT' && globalStep >= 0;
   useEffect(() => {
     setFieldsValue({
@@ -62,11 +62,13 @@ const BasicInfo = (props: IPropsBasicInfo) => {
     return {
       validate: () => {
         return new Promise((resolve, reject) => {
+          const cpExtra = { ...extra };
           validateFields((err, data) => {
             if (err) return reject(err.message);
+            delete cpExtra.id;
             const _value = {
               ...data,
-              ...extra,
+              ...cpExtra,
             };
             return resolve(_value);
           });
@@ -74,9 +76,10 @@ const BasicInfo = (props: IPropsBasicInfo) => {
       },
       getValue: () => {
         const formData = getFieldsValue();
+        const cpExtra = { ...extra };
         const _value = {
           ...formData,
-          ...extra,
+          ...cpExtra,
         };
         return _value;
       },
