@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -36,9 +37,9 @@ public class LineageColumnColumnServiceTest extends AbstractTest {
 
         List<LineageColumnColumn> lineageColumnColumns = getLineageColumnColumns();
         //测试临时运行
-        columnColumnService.saveColumnLineage(EScheduleType.TEMP_JOB.getType(),lineageColumnColumns,"111");
+        columnColumnService.saveColumnLineage(null,EScheduleType.TEMP_JOB.getType(),lineageColumnColumns,"111");
         //测试非临时运行
-        columnColumnService.saveColumnLineage(EScheduleType.NORMAL_SCHEDULE.getType(),lineageColumnColumns,"122");
+        columnColumnService.saveColumnLineage(0,EScheduleType.NORMAL_SCHEDULE.getType(),lineageColumnColumns,"122");
 
     }
 
@@ -55,8 +56,7 @@ public class LineageColumnColumnServiceTest extends AbstractTest {
         columnColumn.setResultTableKey("dev_b");
         columnColumn.setColumnLineageKey("id_id");
         columnColumn.setLineageSource(0);
-        List<LineageColumnColumn> lineageColumnColumns = Arrays.asList(columnColumn);
-        return lineageColumnColumns;
+        return Collections.singletonList(columnColumn);
     }
 
     @Test
@@ -66,7 +66,7 @@ public class LineageColumnColumnServiceTest extends AbstractTest {
 
         List<LineageColumnColumn> lineageColumnColumns = getLineageColumnColumns();
         LineageColumnColumn columnColumn = lineageColumnColumns.get(0);
-        columnColumnService.saveColumnLineage(EScheduleType.TEMP_JOB.getType(),lineageColumnColumns,"111");
+        columnColumnService.saveColumnLineage(null,EScheduleType.TEMP_JOB.getType(),lineageColumnColumns,"111");
         List<LineageColumnColumn> lcc = columnColumnService.
                 queryColumnInputLineageByAppType(1, columnColumn.getResultTableId(), columnColumn.getResultColumnName(), new HashSet<>(), 2);
         Assert.assertNotNull(lcc);
@@ -81,7 +81,7 @@ public class LineageColumnColumnServiceTest extends AbstractTest {
 
         List<LineageColumnColumn> lineageColumnColumns = getLineageColumnColumns();
         LineageColumnColumn columnColumn = lineageColumnColumns.get(0);
-        columnColumnService.saveColumnLineage(EScheduleType.TEMP_JOB.getType(),lineageColumnColumns,"111");
+        columnColumnService.saveColumnLineage(null,EScheduleType.TEMP_JOB.getType(),lineageColumnColumns,"111");
         List<LineageColumnColumn> lcc = columnColumnService.
                 queryColumnResultLineageByAppType(1, columnColumn.getInputTableId(), columnColumn.getInputColumnName(), new HashSet<>(), 2);
         Assert.assertNotNull(lcc);
@@ -94,7 +94,7 @@ public class LineageColumnColumnServiceTest extends AbstractTest {
 
         List<LineageColumnColumn> lineageColumnColumns = getLineageColumnColumns();
         LineageColumnColumn columnColumn = lineageColumnColumns.get(0);
-        columnColumnService.saveColumnLineage(EScheduleType.TEMP_JOB.getType(),lineageColumnColumns,"111");
+        columnColumnService.saveColumnLineage(null,EScheduleType.TEMP_JOB.getType(),lineageColumnColumns,"111");
         List<LineageColumnColumn> lcc = columnColumnService.
                 queryColumnLineages(1, columnColumn.getInputTableId(), columnColumn.getInputColumnName(), 2);
         Assert.assertNotNull(lcc);
@@ -117,7 +117,7 @@ public class LineageColumnColumnServiceTest extends AbstractTest {
 
         List<LineageColumnColumn> lineageColumnColumns = getLineageColumnColumns();
         LineageColumnColumn columnColumn = lineageColumnColumns.get(0);
-        columnColumnService.saveColumnLineage(EScheduleType.TEMP_JOB.getType(),lineageColumnColumns,"111");
+        columnColumnService.saveColumnLineage(null,EScheduleType.TEMP_JOB.getType(),lineageColumnColumns,"111");
         columnColumnService.manualDeleteColumnLineage(1, columnColumn, "111");
     }
 
@@ -138,7 +138,7 @@ public class LineageColumnColumnServiceTest extends AbstractTest {
 
         List<LineageColumnColumn> lineageColumnColumns = getLineageColumnColumns();
         LineageColumnColumn columnColumn = lineageColumnColumns.get(0);
-        columnColumnService.saveColumnLineage(EScheduleType.TEMP_JOB.getType(),lineageColumnColumns,"111");
+        columnColumnService.saveColumnLineage(null,EScheduleType.TEMP_JOB.getType(),lineageColumnColumns,"111");
         List<String> list = columnColumnService.queryTableInputLineageColumns(columnColumn.getResultTableId());
         Assert.assertNotNull(list);
     }
@@ -150,7 +150,7 @@ public class LineageColumnColumnServiceTest extends AbstractTest {
 
         List<LineageColumnColumn> lineageColumnColumns = getLineageColumnColumns();
         LineageColumnColumn columnColumn = lineageColumnColumns.get(0);
-        columnColumnService.saveColumnLineage(EScheduleType.TEMP_JOB.getType(),lineageColumnColumns,"111");
+        columnColumnService.saveColumnLineage(null,EScheduleType.TEMP_JOB.getType(),lineageColumnColumns,"111");
         List<String> list = columnColumnService.queryTableResultLineageColumns(columnColumn.getInputTableId());
         Assert.assertNotNull(list);
     }
@@ -162,7 +162,7 @@ public class LineageColumnColumnServiceTest extends AbstractTest {
 
         List<LineageColumnColumn> lineageColumnColumns = getLineageColumnColumns();
         LineageColumnColumn columnColumn = lineageColumnColumns.get(0);
-        columnColumnService.saveColumnLineage(EScheduleType.TEMP_JOB.getType(),lineageColumnColumns,"111");
+        columnColumnService.saveColumnLineage(null,EScheduleType.TEMP_JOB.getType(),lineageColumnColumns,"111");
         List<LineageColumnColumn> lcc = columnColumnService.queryColumnLineageByTaskIdAndAppType(111L, 1);
         Assert.assertNotNull(lcc);
     }
@@ -175,7 +175,7 @@ public class LineageColumnColumnServiceTest extends AbstractTest {
 
         List<LineageColumnColumn> lineageColumnColumns = getLineageColumnColumns();
         LineageColumnColumn columnColumn = lineageColumnColumns.get(0);
-        columnColumnService.saveColumnLineage(EScheduleType.TEMP_JOB.getType(),lineageColumnColumns,"111");
+        columnColumnService.saveColumnLineage(null,EScheduleType.TEMP_JOB.getType(),lineageColumnColumns,"111");
         DeleteLineageParam deleteLineageParam = new DeleteLineageParam();
         deleteLineageParam.setTaskId(111L);
         deleteLineageParam.setAppType(1);

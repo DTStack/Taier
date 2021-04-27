@@ -45,10 +45,11 @@ public class LineageTableTableService {
     @Autowired
     private LineageTableTableUniqueKeyRefDao lineageTableTableUniqueKeyRefDao;
 
+
     /**
      * 保存表级血缘,不需要事务
      */
-    public void saveTableLineage(Integer type,List<LineageTableTable> tableTables,String uniqueKey) {
+    public void saveTableLineage(Integer versionId,Integer type,List<LineageTableTable> tableTables,String uniqueKey) {
         if (CollectionUtils.isEmpty(tableTables)){
             return;
         }
@@ -60,23 +61,23 @@ public class LineageTableTableService {
             for (LineageTableTable tableTable : tableTables) {
                 LineageTableTable lineageTableTable = lineageTableTableDao.queryBTableLineageKey(tableTable.getAppType(), tableTable.getTableLineageKey());
                 if(null == lineageTableTable){
-                    lineageTableTableDao.batchInsertTableTable(Arrays.asList(tableTable));
+                    lineageTableTableDao.batchInsertTableTable(Collections.singletonList(tableTable));
                     String finalUniqueKey = StringUtils.isEmpty(uniqueKey) ? generateDefaultUniqueKey(tableTable.getAppType()) : uniqueKey;
                     LineageTableTableUniqueKeyRef ref = new LineageTableTableUniqueKeyRef();
                     ref.setAppType(tableTable.getAppType());
                     ref.setUniqueKey(finalUniqueKey);
                     ref.setLineageTableTableId(tableTable.getId());
-                    lineageTableTableUniqueKeyRefDao.batchInsert(Arrays.asList(ref));
+                    lineageTableTableUniqueKeyRefDao.batchInsert(Collections.singletonList(ref));
                 }
             }
         }else {
             //数据插入后，id会更新
             lineageTableTableDao.batchInsertTableTable(tableTables);
-            List<String> keys = tableTables.stream().map(tt -> tt.getTableLineageKey()).collect(Collectors.toList());
+            List<String> keys = tableTables.stream().map(LineageTableTable::getTableLineageKey).collect(Collectors.toList());
             tableTables = getTableTablesByTableLineageKeys(tableTables.get(0).getAppType(), keys);
-            //如果uniqueKey不为空，需要删除ref表中相同uniqueKey的数据，再插入该批数据。
+            //如果uniqueKey不为空,且不是同一个scheduleJob，需要删除ref表中相同uniqueKey的数据，再插入该批数据。
             if (StringUtils.isNotEmpty(uniqueKey)) {
-                lineageTableTableUniqueKeyRefDao.deleteByUniqueKey(tableTables.get(0).getAppType(), uniqueKey);
+                lineageTableTableUniqueKeyRefDao.deleteByUniqueKeyAndVersionId(tableTables.get(0).getAppType(), uniqueKey,versionId);
             }
             //插入新的ref
             String finalUniqueKey = StringUtils.isEmpty(uniqueKey) ? generateDefaultUniqueKey(tableTables.get(0).getAppType()) : uniqueKey;
