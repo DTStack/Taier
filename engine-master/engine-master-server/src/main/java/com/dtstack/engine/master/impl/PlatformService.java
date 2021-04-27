@@ -68,6 +68,9 @@ public class PlatformService {
                     tenant.setTenantName(eventVO.getTenantName());
                     tenant.setTenantDesc(eventVO.getTenantDesc());
                     tenantDao.updateByDtUicTenantId(tenant);
+                case ADD_USER:
+
+                    
                 default:
                     break;
             }
