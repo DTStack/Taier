@@ -1,5 +1,7 @@
 import _ from 'lodash'
-import { TABS_TITLE_KEY, COMPONENT_TYPE_VALUE, CONFIG_ITEM_TYPE, FILE_TYPE, DEFAULT_PARAMS } from './const'
+import { TABS_TITLE_KEY, COMPONENT_TYPE_VALUE,
+    CONFIG_ITEM_TYPE, FILE_TYPE, DEFAULT_PARAMS,
+    COMPONENT_CONFIG_NAME } from './const'
 
 // 是否为yarn、hdfs、Kubernetes组件
 export function isNeedTemp (typeCode: number): boolean {
@@ -140,6 +142,15 @@ export function getOptions (version: any[]): any[] {
         }
     })
     return opt
+}
+
+export function getCompsName (comps: any[]): any[] {
+    return Array.from(comps).map((comp: any) => {
+        if (isMultiVersion(comp.typeCode)) {
+            return COMPONENT_CONFIG_NAME[comp.typeCode] + ' ' + (Number(comp.hadoopVersion) / 100).toFixed(2)
+        }
+        return COMPONENT_CONFIG_NAME[comp.typeCode]
+    })
 }
 
 export function getInitialValue (version: any[], commVersion: string): any[] {

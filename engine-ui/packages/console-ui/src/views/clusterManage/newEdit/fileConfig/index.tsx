@@ -72,7 +72,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                 <FormItem
                     label="组件版本"
                     colon={false}
-                    key={`${typeCode}.hadoopVersion`}
+                    key={`${typeCode}.hadoopVersionSelect`}
                 >
                     {getFieldDecorator(`${typeCode}.hadoopVersionSelect`, {
                         initialValue: initialValue
@@ -438,6 +438,19 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
         )
     }
 
+    renderMeta = () => {
+        const { comp } = this.props
+        const typeCode = comp?.componentTypeCode ?? ''
+        if (!showDataCheckBox(typeCode)) return null
+        return <DataCheckbox
+            comp={this.props.comp}
+            form={this.props.form}
+            view={this.props.view}
+            disabledMeta={this.props.disabledMeta}
+            isCheckBoxs={this.props.isCheckBoxs}
+        />
+    }
+
     setKrbConfig = (krbconfig: any) => {
         const { comp, saveComp } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
@@ -499,13 +512,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             case COMPONENT_TYPE_VALUE.INCEPTOR_SQL: {
                 return (
                     <>
-                        {showDataCheckBox(typeCode) && <DataCheckbox
-                            comp={this.props.comp}
-                            form={this.props.form}
-                            view={this.props.view}
-                            disabledMeta={this.props.disabledMeta}
-                            isCheckBoxs={this.props.isCheckBoxs}
-                        />}
+                        {this.renderMeta()}
                         {this.renderCompsVersion()}
                         {this.renderKerberosFile()}
                         {this.renderPrincipal()}
