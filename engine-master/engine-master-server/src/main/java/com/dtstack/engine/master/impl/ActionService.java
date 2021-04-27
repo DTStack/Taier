@@ -360,14 +360,14 @@ public class ActionService {
                 result = true;
             }else{
                 result = RdosTaskStatus.canStart(scheduleJob.getStatus());
-                if (result && ComputeType.BATCH.getType().equals(computerType)) {
+                if (result) {
                     engineJobRetryDao.removeByJobId(jobId);
                 }
                 if(result && !RdosTaskStatus.ENGINEACCEPTED.getStatus().equals(scheduleJob.getStatus()) ){
                     scheduleJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus());
                     scheduleJob.setAppType(paramActionExt.getAppType());
                     scheduleJob.setDtuicTenantId(paramActionExt.getDtuicTenantId());
-                    if (AppType.STREAM.getType() == paramActionExt.getAppType()) {
+                    if (AppType.STREAM.getType().equals(paramActionExt.getAppType())) {
                         scheduleJob.setRetryNum(0);
                     }
                     scheduleJobDao.update(scheduleJob);
