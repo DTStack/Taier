@@ -20,6 +20,9 @@ public class LineageColumnColumnUniqueKeyRef extends BaseEntity{
     @ApiModelProperty(notes = "字段血缘关联id")
     private Long lineageColumnColumnId;
 
+    /**任务提交版本号**/
+    private Integer versionId;
+
     public Integer getAppType() {
         return appType;
     }
@@ -42,5 +45,13 @@ public class LineageColumnColumnUniqueKeyRef extends BaseEntity{
 
     public void setUniqueKey(String uniqueKey) {
         this.uniqueKey = uniqueKey;
+    }
+
+    public Integer getVersionId() {
+        return versionId;
+    }
+
+    public void setVersionId(Integer versionId) {
+        this.versionId = versionId;
     }
 }

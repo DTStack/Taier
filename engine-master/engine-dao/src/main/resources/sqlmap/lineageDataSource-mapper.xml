@@ -35,6 +35,12 @@
             <if test="projectId !=null">
                 AND project_id = #{projectId}
             </if>
+            <if test="schemaName !=null">
+                AND schema_name = #{schemaName}
+            </if>
+            <if test="sourceId !=null">
+                AND source_id = #{sourceId}
+            </if>
         </trim>
     </sql>
 

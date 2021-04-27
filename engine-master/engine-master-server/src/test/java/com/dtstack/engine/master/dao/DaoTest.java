@@ -1,20 +1,18 @@
 package com.dtstack.engine.master.dao;
 
-import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.api.domain.ScheduleSqlTextTemp;
-import com.dtstack.engine.api.domain.Tenant;
-import com.dtstack.engine.dao.AccountDao;
-import com.dtstack.engine.dao.EngineJobCacheDao;
-import com.dtstack.engine.dao.ScheduleSqlTextTempDao;
-import com.dtstack.engine.dao.TenantDao;
+import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.AbstractTest;
 import com.google.common.collect.Lists;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -34,6 +32,12 @@ public class DaoTest extends AbstractTest {
 
     @Autowired
     private ScheduleSqlTextTempDao sqlTextTempDao;
+
+    @Autowired
+    private LineageTableTableUniqueKeyRefDao tableTableUniqueKeyRefDao;
+
+    @Autowired
+    private LineageColumnColumnUniqueKeyRefDao columnUniqueKeyRefDao;
 
     @Test
     public void testTenantDao(){
@@ -66,8 +70,35 @@ public class DaoTest extends AbstractTest {
     }
 
 
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testLineageTableTableRefInsert(){
 
+        LineageTableTableUniqueKeyRef uniqueKeyRef = new LineageTableTableUniqueKeyRef();
+        uniqueKeyRef.setVersionId(1);
+        uniqueKeyRef.setLineageTableTableId(100L);
+        uniqueKeyRef.setAppType(1);
+        uniqueKeyRef.setUniqueKey("100");
+        List<LineageTableTableUniqueKeyRef> keyRefs = Collections.singletonList(uniqueKeyRef);
+        Integer integer = tableTableUniqueKeyRefDao.batchInsert(keyRefs);
+        Assert.assertEquals("1",integer.toString());
+    }
 
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testLineageColumnColumnRefInsert(){
+
+        LineageColumnColumnUniqueKeyRef uniqueKeyRef = new LineageColumnColumnUniqueKeyRef();
+        uniqueKeyRef.setLineageColumnColumnId(100L);
+        uniqueKeyRef.setUniqueKey("200");
+        uniqueKeyRef.setAppType(1);
+        uniqueKeyRef.setVersionId(0);
+        List<LineageColumnColumnUniqueKeyRef> keyRefs = Collections.singletonList(uniqueKeyRef);
+        Integer integer = columnUniqueKeyRefDao.batchInsert(keyRefs);
+        Assert.assertEquals("1",integer.toString());
+    }
 
 
 
