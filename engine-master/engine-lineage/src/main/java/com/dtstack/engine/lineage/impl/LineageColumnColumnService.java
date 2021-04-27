@@ -80,6 +80,7 @@ public class LineageColumnColumnService {
                 ref.setAppType(cc.getAppType());
                 ref.setLineageColumnColumnId(cc.getId());
                 ref.setUniqueKey(finalUniqueKey);
+                ref.setVersionId(versionId);
                 return ref;
             }).collect(Collectors.toList());
             lineageColumnColumnUniqueKeyRefDao.batchInsert(refList);

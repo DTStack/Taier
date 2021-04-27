@@ -86,6 +86,7 @@ public class LineageTableTableService {
                 ref.setAppType(tt.getAppType());
                 ref.setUniqueKey(finalUniqueKey);
                 ref.setLineageTableTableId(tt.getId());
+                ref.setVersionId(versionId);
                 return ref;
             }).collect(Collectors.toList());
             lineageTableTableUniqueKeyRefDao.batchInsert(refList);

@@ -7,10 +7,10 @@
     </sql>
 
     <insert id="batchInsert" parameterType="com.dtstack.engine.api.domain.LineageColumnColumnUniqueKeyRef" useGeneratedKeys="true" keyProperty="id">
-        insert into lineage_column_column_unique_key_ref(app_type,unique_key,lineage_column_column_id)
+        insert into lineage_column_column_unique_key_ref(app_type,unique_key,lineage_column_column_id,version_id)
         values
         <foreach collection="list" item="item" open="" close="" separator=",">
-            (#{item.appType},#{item.uniqueKey},#{item.lineageColumnColumnId})
+            (#{item.appType},#{item.uniqueKey},#{item.lineageColumnColumnId},#{item.versionId})
         </foreach>
         on duplicate key update gmt_modified=values(gmt_modified),is_deleted = values(is_deleted)
     </insert>
