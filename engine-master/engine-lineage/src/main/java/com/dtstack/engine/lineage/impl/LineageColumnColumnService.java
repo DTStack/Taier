@@ -40,7 +40,8 @@ public class LineageColumnColumnService {
     @Autowired
     private LineageColumnColumnUniqueKeyRefDao lineageColumnColumnUniqueKeyRefDao;
 
-    public void saveColumnLineage(Integer type,List<LineageColumnColumn> columnColumns, String uniqueKey) {
+
+    public void saveColumnLineage(Integer versionId,Integer type,List<LineageColumnColumn> columnColumns, String uniqueKey) {
         if (CollectionUtils.isEmpty(columnColumns)) {
             return;
         }
@@ -52,13 +53,13 @@ public class LineageColumnColumnService {
             for (LineageColumnColumn columnColumn : columnColumns) {
                 LineageColumnColumn column = lineageColumnColumnDao.queryByLineageKey(columnColumn.getAppType(), columnColumn.getColumnLineageKey());
                 if(null == column){
-                    lineageColumnColumnDao.batchInsertColumnColumn(Arrays.asList(columnColumn));
+                    lineageColumnColumnDao.batchInsertColumnColumn(Collections.singletonList(columnColumn));
                     String finalUniqueKey = StringUtils.isEmpty(uniqueKey) ? generateDefaultUniqueKey(columnColumn.getAppType()) : uniqueKey;
                     LineageColumnColumnUniqueKeyRef ref = new LineageColumnColumnUniqueKeyRef();
                     ref.setAppType(columnColumn.getAppType());
                     ref.setLineageColumnColumnId(columnColumn.getId());
                     ref.setUniqueKey(finalUniqueKey);
-                    lineageColumnColumnUniqueKeyRefDao.batchInsert(Arrays.asList(ref));
+                    lineageColumnColumnUniqueKeyRefDao.batchInsert(Collections.singletonList(ref));
                 }
             }
         }else {
@@ -66,12 +67,12 @@ public class LineageColumnColumnService {
             lineageColumnColumnDao.batchInsertColumnColumn(columnColumns);
             Set<String> columnLineageKeys = columnColumns.stream().map(LineageColumnColumn::getColumnLineageKey).collect(Collectors.toSet());
             columnColumns = queryByColumnLineageKeys(columnColumns.get(0).getAppType(), columnLineageKeys);
-            //2.删除uniqueKey对应批次的ref，插入新的ref
+            //2.不是同一批scheduleJob,删除uniqueKey对应批次的ref，插入新的ref
             if (StringUtils.isEmpty(uniqueKey)) {
                 uniqueKey = generateDefaultUniqueKey(columnColumns.get(0).getAppType());
             } else {
                 //资产没有uniqueKey，不能删除。
-                lineageColumnColumnUniqueKeyRefDao.deleteByUniqueKey(uniqueKey);
+                lineageColumnColumnUniqueKeyRefDao.deleteByUniqueKeyAndVersionId(uniqueKey,versionId);
             }
             String finalUniqueKey = uniqueKey;
             List<LineageColumnColumnUniqueKeyRef> refList = columnColumns.stream().map(cc -> {

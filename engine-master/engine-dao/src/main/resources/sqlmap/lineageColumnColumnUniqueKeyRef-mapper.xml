@@ -19,6 +19,14 @@
         update lineage_column_column_unique_key_ref set is_deleted = 1 where unique_key = #{uniqueKey}
     </update>
 
+    <update id="deleteByUniqueKeyAndVersionId">
+        update
+        lineage_column_column_unique_key_ref
+        set is_deleted = 1
+        where unique_key = #{uniqueKey}
+        and version_id != #{versionId}
+    </update>
+
     <update id="deleteByLineageIdAndUniqueKey">
         update lineage_column_column_unique_key_ref set is_deleted = 1 where lineage_column_column_id = #{columnLineageId} and unique_key = #{uniqueKey} and app_type = #{appType}
     </update>

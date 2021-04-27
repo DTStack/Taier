@@ -15,6 +15,8 @@ import java.util.List;
 public interface LineageTableTableUniqueKeyRefDao {
     Integer deleteByUniqueKey(@Param("appType") Integer appType, @Param("uniqueKey")String uniqueKey);
 
+    Integer deleteByUniqueKeyAndVersionId(@Param("appType") Integer appType, @Param("uniqueKey")String uniqueKey,@Param("versionId")Integer versionId);
+
     Integer deleteByLineageTableIdAndUniqueKey(@Param("appType")Integer appType, @Param("uniqueKey")String uniqueKey, @Param("lineageTableId")Long lineageTableId);
 
     Integer batchInsert(List<LineageTableTableUniqueKeyRef> resList);

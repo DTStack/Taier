@@ -73,6 +73,7 @@ public class BatchFinishedJobListener extends SqlJobFinishedListener {
             columnLineageParam.setUniqueKey(null== taskId? null:String.valueOf(taskId));
             columnLineageParam.setType(type);
             columnLineageParam.setSql(sql);
+            columnLineageParam.setVersionId(scheduleJob.getVersionId());
             logger.info("调用字段血缘解析:{}", JSON.toJSON(columnLineageParam));
             lineageService.parseAndSaveColumnLineage(columnLineageParam);
         }
