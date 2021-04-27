@@ -159,7 +159,7 @@ public class JobCheckpointDealer implements InitializingBean {
                     }
                     taskEngineIdAndRetainedNum.remove(engineJobId);
                     checkpointConfigCache.invalidate(taskId);
-                    queuePutRecord.remove(engineJobId);
+                    queuePutRecord.remove(taskId);
                 }
             }
         } catch (Exception e) {
