@@ -1571,7 +1571,7 @@ public class ScheduleJobService {
             Object fillId = statistic.get("fillId");
             long id = preViewVO.getId();
             if (((Integer) fillId).longValue() == id) {
-                statisticsMap.put(new Long(statistic.get("status")), statistic.get("count"));
+                statisticsMap.put(statistic.get("status"), statistic.get("count"));
             }
         }
 
@@ -1580,7 +1580,7 @@ public class ScheduleJobService {
             int showStatus = entry.getKey();
             long sum = 0;
             for (Integer value : entry.getValue()) {
-                Long statusSum = statisticsMap.get(value.longValue());
+                Long statusSum = statisticsMap.get(value);
                 sum += statusSum == null ? 0L : statusSum;
             }
             resultMap.put(showStatus, sum);
