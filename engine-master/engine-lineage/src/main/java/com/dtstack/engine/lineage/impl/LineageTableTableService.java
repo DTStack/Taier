@@ -62,13 +62,13 @@ public class LineageTableTableService {
                 LineageTableTable lineageTableTable = lineageTableTableDao.queryBTableLineageKey(tableTable.getAppType(), tableTable.getTableLineageKey());
                 if(null == lineageTableTable){
                     lineageTableTableDao.batchInsertTableTable(Collections.singletonList(tableTable));
-                    String finalUniqueKey = StringUtils.isEmpty(uniqueKey) ? generateDefaultUniqueKey(tableTable.getAppType()) : uniqueKey;
-                    LineageTableTableUniqueKeyRef ref = new LineageTableTableUniqueKeyRef();
-                    ref.setAppType(tableTable.getAppType());
-                    ref.setUniqueKey(finalUniqueKey);
-                    ref.setLineageTableTableId(tableTable.getId());
-                    lineageTableTableUniqueKeyRefDao.batchInsert(Collections.singletonList(ref));
                 }
+                String finalUniqueKey = StringUtils.isEmpty(uniqueKey) ? generateDefaultUniqueKey(tableTable.getAppType()) : uniqueKey;
+                LineageTableTableUniqueKeyRef ref = new LineageTableTableUniqueKeyRef();
+                ref.setAppType(tableTable.getAppType());
+                ref.setUniqueKey(finalUniqueKey);
+                ref.setLineageTableTableId(tableTable.getId());
+                lineageTableTableUniqueKeyRefDao.batchInsert(Collections.singletonList(ref));
             }
         }else {
             //数据插入后，id会更新

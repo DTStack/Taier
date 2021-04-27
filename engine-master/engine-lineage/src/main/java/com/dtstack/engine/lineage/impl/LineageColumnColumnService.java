@@ -54,13 +54,13 @@ public class LineageColumnColumnService {
                 LineageColumnColumn column = lineageColumnColumnDao.queryByLineageKey(columnColumn.getAppType(), columnColumn.getColumnLineageKey());
                 if(null == column){
                     lineageColumnColumnDao.batchInsertColumnColumn(Collections.singletonList(columnColumn));
-                    String finalUniqueKey = StringUtils.isEmpty(uniqueKey) ? generateDefaultUniqueKey(columnColumn.getAppType()) : uniqueKey;
-                    LineageColumnColumnUniqueKeyRef ref = new LineageColumnColumnUniqueKeyRef();
-                    ref.setAppType(columnColumn.getAppType());
-                    ref.setLineageColumnColumnId(columnColumn.getId());
-                    ref.setUniqueKey(finalUniqueKey);
-                    lineageColumnColumnUniqueKeyRefDao.batchInsert(Collections.singletonList(ref));
                 }
+                String finalUniqueKey = StringUtils.isEmpty(uniqueKey) ? generateDefaultUniqueKey(columnColumn.getAppType()) : uniqueKey;
+                LineageColumnColumnUniqueKeyRef ref = new LineageColumnColumnUniqueKeyRef();
+                ref.setAppType(columnColumn.getAppType());
+                ref.setLineageColumnColumnId(columnColumn.getId());
+                ref.setUniqueKey(finalUniqueKey);
+                lineageColumnColumnUniqueKeyRefDao.batchInsert(Collections.singletonList(ref));
             }
         }else {
             //1.存入或者更新lineageColumnColumn表
