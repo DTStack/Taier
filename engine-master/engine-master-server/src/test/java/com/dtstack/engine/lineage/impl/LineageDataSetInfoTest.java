@@ -5,6 +5,7 @@ import com.dtstack.engine.api.domain.LineageDataSetInfo;
 import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.api.pojo.lineage.Table;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.dao.ComponentConfigDao;
 import com.dtstack.engine.dao.ComponentDao;
 import com.dtstack.engine.dao.TenantDao;
@@ -56,6 +57,9 @@ public class LineageDataSetInfoTest extends AbstractTest {
     @Autowired
     private ComponentConfigDao componentConfigDao;
 
+    @Autowired
+    private EnvironmentContext environmentContext;
+
 
     @Before
     public void setup() throws Exception{
@@ -67,6 +71,7 @@ public class LineageDataSetInfoTest extends AbstractTest {
         ReflectionTestUtils.setField(dataSetInfoService,"componentDao", componentDao);
         ReflectionTestUtils.setField(dataSetInfoService,"tenantDao", tenantDao);
         ReflectionTestUtils.setField(dataSetInfoService,"componentConfigDao", componentConfigDao);
+        ReflectionTestUtils.setField(dataSetInfoService,"environmentContext", environmentContext);
         when(dataSetInfoService.getClient(any(),any(),any())).thenReturn(null);
         when(dataSetInfoService.getAllColumns(any(),any())).thenReturn(new ArrayList<>());
 
