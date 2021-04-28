@@ -68,7 +68,7 @@ class EditCluster extends React.Component<any, IState> {
                 this.setState({
                     initialCompData: initData,
                     clusterName: res.data.clusterName,
-                    disabledMeta: res.data.canModifyMetadata
+                    disabledMeta: !res.data.canModifyMetadata
                 }, this.getSaveComponentList)
             }
         })
