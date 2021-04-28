@@ -5,7 +5,7 @@ ADD COLUMN `project_id`  bigint(20) NULL COMMENT '项目id' AFTER `source_name`,
 ADD COLUMN `schema_name`  varchar(64) NULL COMMENT 'schema或数据库名称' AFTER `project_id`,
 ADD COLUMN `source_id`  bigint(20) NULL COMMENT '平台数据源id' AFTER `schema_name`,
 DROP INDEX `uni_tenant_source_key` ,
-ADD UNIQUE INDEX `uni_tenant_source_key` (`dt_uic_tenant_id`, `source_key`, `app_type`, `source_name`, `schema_name`) USING BTREE;
+ADD UNIQUE INDEX `uni_tenant_source_key` (`dt_uic_tenant_id`, `source_key`, `app_type`, `source_name`, `schema_name`,`project_id`) USING BTREE;
 
 
 CREATE TABLE `schedule_sql_text_temp` (
@@ -18,6 +18,12 @@ CREATE TABLE `schedule_sql_text_temp` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_job_id` (`job_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='临时任务sql_text关联表';
+
+ALTER TABLE `lineage_table_table_unique_key_ref`
+ADD COLUMN `version_id`  int(11) NULL DEFAULT 0 COMMENT '任务提交版本号' AFTER `lineage_table_table_id`;
+
+ALTER TABLE `lineage_column_column_unique_key_ref`
+ADD COLUMN `version_id`  int(11) NULL DEFAULT 0 COMMENT '任务提交版本号' AFTER `lineage_column_column_id`;
 
 
 -- 字段血缘表修改result_table_key字段comment

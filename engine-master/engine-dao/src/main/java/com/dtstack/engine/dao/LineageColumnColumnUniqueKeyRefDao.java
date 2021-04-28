@@ -18,6 +18,8 @@ public interface LineageColumnColumnUniqueKeyRefDao {
 
     Integer deleteByUniqueKey(@Param("uniqueKey")String uniqueKey);
 
+    Integer deleteByUniqueKeyAndVersionId(@Param("uniqueKey")String uniqueKey,@Param("versionId")Integer versionId);
+
     Integer deleteByLineageIdAndUniqueKey(@Param("appType") Integer appType, @Param("uniqueKey")String uniqueKey, @Param("columnLineageId")Long columnLineageId);
 
     /**

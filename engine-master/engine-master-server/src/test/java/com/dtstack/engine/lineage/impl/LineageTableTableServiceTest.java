@@ -38,9 +38,9 @@ public class LineageTableTableServiceTest extends AbstractTest {
 
         LineageTableTable lineageTableTable = getLineageTableTable();
         List<LineageTableTable> lineageTableTables = Arrays.asList(lineageTableTable);
-        tableTableService.saveTableLineage(EScheduleType.TEMP_JOB.getType(),lineageTableTables,"111");
+        tableTableService.saveTableLineage(null,EScheduleType.TEMP_JOB.getType(),lineageTableTables,"111");
 
-        tableTableService.saveTableLineage(EScheduleType.NORMAL_SCHEDULE.getType(),lineageTableTables,"222");
+        tableTableService.saveTableLineage(0,EScheduleType.NORMAL_SCHEDULE.getType(),lineageTableTables,"222");
 
     }
 
@@ -52,7 +52,7 @@ public class LineageTableTableServiceTest extends AbstractTest {
 
         LineageTableTable lineageTableTable = getLineageTableTable();
         List<LineageTableTable> lineageTableTables = Arrays.asList(lineageTableTable);
-        tableTableService.saveTableLineage(EScheduleType.TEMP_JOB.getType(),lineageTableTables,"111");
+        tableTableService.saveTableLineage(null,EScheduleType.TEMP_JOB.getType(),lineageTableTables,"111");
         Integer directCount = tableTableService.queryTableInputLineageDirectCount(lineageTableTable.getResultTableId(), AppType.RDOS.getType());
         Assert.assertEquals("1",directCount.toString());
     }
@@ -64,7 +64,7 @@ public class LineageTableTableServiceTest extends AbstractTest {
 
         LineageTableTable lineageTableTable = getLineageTableTable();
         List<LineageTableTable> lineageTableTables = Arrays.asList(lineageTableTable);
-        tableTableService.saveTableLineage(EScheduleType.TEMP_JOB.getType(),lineageTableTables,"111");
+        tableTableService.saveTableLineage(null,EScheduleType.TEMP_JOB.getType(),lineageTableTables,"111");
         LevelAndCount levelAndCount = new LevelAndCount();
         levelAndCount.setLevelCount(1);
         List<LineageTableTable> ltt = tableTableService.queryTableInputLineageByAppType(lineageTableTable.getResultTableId(), AppType.RDOS.getType(), new HashSet<>(), levelAndCount);
@@ -79,7 +79,7 @@ public class LineageTableTableServiceTest extends AbstractTest {
 
         LineageTableTable lineageTableTable = getLineageTableTable();
         List<LineageTableTable> lineageTableTables = Arrays.asList(lineageTableTable);
-        tableTableService.saveTableLineage(EScheduleType.TEMP_JOB.getType(),lineageTableTables,"111");
+        tableTableService.saveTableLineage(null,EScheduleType.TEMP_JOB.getType(),lineageTableTables,"111");
         Integer directCount = tableTableService.queryTableResultLineageDirectCount(lineageTableTable.getInputTableId(), AppType.RDOS.getType());
         Assert.assertEquals("1",directCount.toString());
     }
@@ -92,7 +92,7 @@ public class LineageTableTableServiceTest extends AbstractTest {
 
         LineageTableTable lineageTableTable = getLineageTableTable();
         List<LineageTableTable> lineageTableTables = Arrays.asList(lineageTableTable);
-        tableTableService.saveTableLineage(EScheduleType.TEMP_JOB.getType(),lineageTableTables,"111");
+        tableTableService.saveTableLineage(null,EScheduleType.TEMP_JOB.getType(),lineageTableTables,"111");
         LevelAndCount levelAndCount = new LevelAndCount();
         levelAndCount.setLevelCount(1);
         List<LineageTableTable> ltt = tableTableService.queryTableResultLineageByAppType(lineageTableTable.getInputTableId(), AppType.RDOS.getType(), new HashSet<>(), levelAndCount);
@@ -107,7 +107,7 @@ public class LineageTableTableServiceTest extends AbstractTest {
 
         LineageTableTable lineageTableTable = getLineageTableTable();
         List<LineageTableTable> lineageTableTables = Arrays.asList(lineageTableTable);
-        tableTableService.saveTableLineage(EScheduleType.TEMP_JOB.getType(),lineageTableTables,"111");
+        tableTableService.saveTableLineage(null,EScheduleType.TEMP_JOB.getType(),lineageTableTables,"111");
         List<LineageTableTable> ltt = tableTableService.queryTableTableByTableAndAppId( AppType.RDOS.getType(),lineageTableTable.getInputTableId(),1);
         Assert.assertNotNull(ltt);
     }
@@ -130,7 +130,7 @@ public class LineageTableTableServiceTest extends AbstractTest {
 
         LineageTableTable lineageTableTable = getLineageTableTable();
         List<LineageTableTable> lineageTableTables = Arrays.asList(lineageTableTable);
-        tableTableService.saveTableLineage(EScheduleType.TEMP_JOB.getType(),lineageTableTables,"111");
+        tableTableService.saveTableLineage(null,EScheduleType.TEMP_JOB.getType(),lineageTableTables,"111");
 
         tableTableService.manualDeleteTableLineage(AppType.RDOS.getType(), lineageTableTable,"111");
 
@@ -162,7 +162,7 @@ public class LineageTableTableServiceTest extends AbstractTest {
 
         LineageTableTable lineageTableTable = getLineageTableTable();
         List<LineageTableTable> lineageTableTables = Arrays.asList(lineageTableTable);
-        tableTableService.saveTableLineage(EScheduleType.TEMP_JOB.getType(),lineageTableTables,"111");
+        tableTableService.saveTableLineage(null,EScheduleType.TEMP_JOB.getType(),lineageTableTables,"111");
 
         List<LineageTableTable> ltt = tableTableService.queryTableLineageByTaskIdAndAppType(111L, 1);
         Assert.assertNotNull(ltt);
@@ -176,7 +176,7 @@ public class LineageTableTableServiceTest extends AbstractTest {
 
         LineageTableTable lineageTableTable = getLineageTableTable();
         List<LineageTableTable> lineageTableTables = Arrays.asList(lineageTableTable);
-        tableTableService.saveTableLineage(EScheduleType.TEMP_JOB.getType(),lineageTableTables,"111");
+        tableTableService.saveTableLineage(null,EScheduleType.TEMP_JOB.getType(),lineageTableTables,"111");
         DeleteLineageParam deleteLineageParam = new DeleteLineageParam();
         deleteLineageParam.setAppType(1);
         deleteLineageParam.setTaskId(111L);
