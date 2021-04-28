@@ -608,6 +608,6 @@ public class EnvironmentContext {
     }
 
     public String getSqlParserDir(){
-        return environment.getProperty("sqlParser.dir","/opt/dtstack/DTCommon/SQLParser");
+        return environment.getProperty("sqlParser.dir","/opt/dtstack/DTPlugin/SqlParser");
     }
 }
