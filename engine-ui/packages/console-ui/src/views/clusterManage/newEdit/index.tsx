@@ -308,16 +308,17 @@ class EditCluster extends React.Component<any, IState> {
                 })
                 return
             }
-            const multiVersion = getSingleTestStatus({
+            let multiVersion = getSingleTestStatus({
                 typeCode: status.componentTypeCode,
                 hadoopVersion: status?.componentVersion
             }, status, testStatus)
+            multiVersion = multiVersion.filter(ver => ver)
 
             let sign = false // 标记是否有测试连通性失败的多版本组件
             let errorMsg = []
 
             multiVersion.forEach(mv => {
-                if (!mv.result) {
+                if (mv && !mv.result) {
                     sign = true
                     errorMsg.push({
                         componentVersion: mv.componentVersion,

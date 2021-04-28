@@ -365,7 +365,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
         if (isMultiVersion(typeCode)) formField = formField + '.' + hadoopVersion
         formField = formField + '.storeType'
 
-        if (saveCompsData.length === 0) return
+        if (saveCompsData.length === 0) { return null }
         let storeTypeFlag = false
         for (const item in saveCompsData) {
             if (saveCompsData[item].key === COMPONENT_TYPE_VALUE.HDFS) {
