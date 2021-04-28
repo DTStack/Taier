@@ -11,7 +11,7 @@ import { initialScheduling, isViewMode, isNeedTemp,
     getSingleTestStatus, isDataCheckBoxs, showDataCheckBox,
     getCompsName } from './help'
 import { TABS_TITLE, COMPONENT_CONFIG_NAME, DEFAULT_COMP_VERSION,
-    COMPONENT_TYPE_VALUE, TABS_POP_VISIBLE, COMP_ACTION } from './const'
+    COMPONENT_TYPE_VALUE, TABS_POP_VISIBLE, COMP_ACTION, MAPPING_HADOOP_VERSON } from './const'
 
 import FileConfig from './fileConfig'
 import FormConfig from './formConfig'
@@ -188,6 +188,7 @@ class EditCluster extends React.Component<any, IState> {
 
     handleConfirm = async (action: string, comps: any | any[], mulitple?: boolean) => {
         const { initialCompData, activeKey, testStatus } = this.state
+        const { getFieldValue } = this.props.form
         let newCompData = initialCompData
         let currentCompArr = newCompData[activeKey]
         if (comps.length && action !== COMP_ACTION.DELETE) {
@@ -221,8 +222,9 @@ class EditCluster extends React.Component<any, IState> {
                 let fieldValue: any = { componentConfig: {}, hadoopVersion: '' }
                 if (isMultiVersion(componentTypeCode)) { fieldValue = { [hadoopVersion]: {} } }
                 if (isNeedTemp(componentTypeCode)) {
+                    const commVersion = getFieldValue(`${MAPPING_HADOOP_VERSON[componentTypeCode]}.hadoopVersion`) ?? ''
                     fieldValue = { specialConfig: {}, hadoopVersion: '' }
-                    this.setState({ commVersion: '' })
+                    this.setState({ commVersion })
                 }
 
                 this.props.form.setFieldsValue({ [componentTypeCode]: fieldValue })

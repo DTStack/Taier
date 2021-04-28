@@ -100,7 +100,7 @@ export default class MultiVersionComp extends React.Component<IProps, any> {
             <Tabs
                 tabPosition="top"
                 className={`${className}__tabs`}
-                tabBarExtraContent={<Dropdown overlay={this.getMeunItem()} placement="bottomCenter">
+                tabBarExtraContent={<Dropdown disabled={view} overlay={this.getMeunItem()} placement="bottomCenter">
                     <Button type="primary" size="small" style={{ marginRight: 20 }}>
                         添加版本
                         <Icon type="down" />

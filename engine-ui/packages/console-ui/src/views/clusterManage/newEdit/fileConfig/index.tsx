@@ -62,7 +62,9 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
         let version = isOtherVersion(typeCode) ? versionData[VERSION_TYPE[typeCode]] : versionData.hadoopVersion
         let initialValue = isOtherVersion(typeCode) ? DEFAULT_COMP_VERSION[typeCode] : [version[0].key, version[0].values[0]?.key]
         initialValue = comp?.hadoopVersion || initialValue
+        let versionValue = initialValue
         if (isSameVersion(typeCode)) {
+            versionValue = commVersion ?? comp?.hadoopVersion ?? version[0].values[0]?.key
             initialValue = commVersion ? getInitialValue(version, commVersion)
                 : (comp?.hadoopVersion ? getInitialValue(version, comp?.hadoopVersion) : initialValue)
         }
@@ -94,7 +96,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                     )}
                 </FormItem>
                 {getFieldDecorator(`${typeCode}.hadoopVersion`, {
-                    initialValue: isSameVersion(typeCode) ? (commVersion || comp?.hadoopVersion || version[0].values[0]?.key) : initialValue
+                    initialValue: versionValue
                 })(<></>)}
             </>
         )
