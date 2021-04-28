@@ -63,8 +63,8 @@ public class DaoTest extends AbstractTest {
         ScheduleSqlTextTemp sqlTextTemp = new ScheduleSqlTextTemp();
         sqlTextTemp.setSqlText("select * from chener");
         sqlTextTemp.setJobId("falfalfjl");
+        sqlTextTemp.setEngineType("hive");
         sqlTextTempDao.insert(sqlTextTemp);
-
         ScheduleSqlTextTemp temp = sqlTextTempDao.selectByJobId(sqlTextTemp.getJobId());
         System.out.println(temp);
     }
