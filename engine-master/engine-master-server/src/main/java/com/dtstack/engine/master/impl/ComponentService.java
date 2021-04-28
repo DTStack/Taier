@@ -2024,7 +2024,7 @@ public class ComponentService {
             componentDao.updateMetadata(engineId, componentType, 1);
             return true;
         }
-        if (!BooleanUtils.toIntegerObject(isMetadata, 1, 0).equals(oldMetadata)) {
+        if (null != oldMetadata && !BooleanUtils.toIntegerObject(isMetadata, 1, 0).equals(oldMetadata)) {
             //如果集群已经绑定过租户 不允许修改
             if (CollectionUtils.isNotEmpty(engineTenantDao.listEngineTenant(engineId))) {
                 throw new RdosDefineException("cluster has bind tenant can not change metadata component");
