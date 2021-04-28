@@ -8,7 +8,8 @@ import Api from '../../../api/console'
 import { initialScheduling, isViewMode, isNeedTemp,
     getModifyComp, isSameVersion, getCompsId,
     isMultiVersion, getCurrentComp, includesCurrentComp,
-    getSingleTestStatus, isDataCheckBoxs } from './help'
+    getSingleTestStatus, isDataCheckBoxs, showDataCheckBox,
+    getCompsName } from './help'
 import { TABS_TITLE, COMPONENT_CONFIG_NAME, DEFAULT_COMP_VERSION,
     COMPONENT_TYPE_VALUE, TABS_POP_VISIBLE, COMP_ACTION } from './const'
 
@@ -217,10 +218,14 @@ class EditCluster extends React.Component<any, IState> {
                 currentCompArr = Array.from(wrapper)
 
                 const multiVersion = getSingleTestStatus({ typeCode: componentTypeCode, hadoopVersion }, null, testStatus)
-                const resetValue = { componentConfig: {}, specialConfig: {} }
-                const fieldValue = isMultiVersion(componentTypeCode)
-                    ? { [hadoopVersion]: resetValue } : { resetValue }
+                let fieldValue: any = { componentConfig: {}, hadoopVersion: '' }
+                if (isMultiVersion(componentTypeCode)) { fieldValue = { [hadoopVersion]: {} } }
+                if (isNeedTemp(componentTypeCode)) {
+                    fieldValue = { specialConfig: {}, hadoopVersion: '' }
+                    this.setState({ commVersion: '' })
+                }
 
+                this.props.form.setFieldsValue({ [componentTypeCode]: fieldValue })
                 this.setState({
                     testStatus: {
                         ...testStatus,
@@ -231,7 +236,6 @@ class EditCluster extends React.Component<any, IState> {
                         }
                     }
                 })
-                this.props.form.setFieldsValue({ [componentTypeCode]: fieldValue })
             }
         }
 
@@ -265,9 +269,8 @@ class EditCluster extends React.Component<any, IState> {
         const { validateFieldsAndScroll } = this.props.form;
         const { initialCompData } = this.state
         const showConfirm = (arr: any[]) => {
-            const compsName = Array.from(arr).map((code: number) => `"${COMPONENT_CONFIG_NAME[code]}"`)
             confirm({
-                title: `${compsName.join('、')}尚未保存，是否需要保存？`,
+                title: `${getCompsName(arr).join('、')}尚未保存，是否需要保存？`,
                 content: null,
                 icon: <Icon style={{ color: '#FAAD14' }} type="exclamation-circle" theme="filled" />,
                 okText: '保存',
@@ -305,16 +308,17 @@ class EditCluster extends React.Component<any, IState> {
                 })
                 return
             }
-            const multiVersion = getSingleTestStatus({
+            let multiVersion = getSingleTestStatus({
                 typeCode: status.componentTypeCode,
                 hadoopVersion: status?.componentVersion
             }, status, testStatus)
+            multiVersion = multiVersion.filter(ver => ver)
 
             let sign = false // 标记是否有测试连通性失败的多版本组件
             let errorMsg = []
 
             multiVersion.forEach(mv => {
-                if (!mv.result) {
+                if (mv && !mv.result) {
                     sign = true
                     errorMsg.push({
                         componentVersion: mv.componentVersion,
@@ -388,11 +392,7 @@ class EditCluster extends React.Component<any, IState> {
                 })
             } else {
                 if (modifyComps.size > 0) {
-                    const modifyCompsName = Array.from(modifyComps).map((comp: any) => {
-                        if (isMultiVersion(comp.typeCode)) { return COMPONENT_CONFIG_NAME[comp.typeCode] + ' ' + (Number(comp.hadoopVersion) / 100).toFixed(2) }
-                        return COMPONENT_CONFIG_NAME[comp.typeCode]
-                    })
-                    message.error(`组件 ${modifyCompsName.join('、')} 参数变更未保存，请先保存再测试组件连通性`)
+                    message.error(`组件 ${getCompsName(modifyComps).join('、')} 参数变更未保存，请先保存再测试组件连通性`)
                     return
                 }
                 this.setState({ testLoading: true });
@@ -472,9 +472,9 @@ class EditCluster extends React.Component<any, IState> {
                                         return (<TabPane
                                             tab={<span>
                                                 {COMPONENT_CONFIG_NAME[comp.componentTypeCode]}
-                                                <MetaIcon
+                                                {showDataCheckBox(comp.componentTypeCode) && <MetaIcon
                                                     comp={comp}
-                                                    isMetadata={getFieldValue(`${comp.componentTypeCode}.isMetadata`)} />
+                                                    isMetadata={getFieldValue(`${comp.componentTypeCode}.isMetadata`)} />}
                                                 <TestRestIcon testStatus={testStatus[comp.componentTypeCode] ?? {}}/>
                                             </span>}
                                             key={`${comp.componentTypeCode}`}
