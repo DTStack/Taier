@@ -354,6 +354,7 @@ public class ActionService {
                         && AppType.RDOS.getType().equals(scheduleJob.getAppType())){
                     //离线临时运行需要插入sql_text
                     ScheduleSqlTextTemp sqlTextTemp = new ScheduleSqlTextTemp();
+                    sqlTextTemp.setEngineType(paramActionExt.getEngineType());
                     sqlTextTemp.setJobId(scheduleJob.getJobId());
                     sqlTextTemp.setSqlText(paramActionExt.getSqlText());
                     sqlTextTempDao.insert(sqlTextTemp);

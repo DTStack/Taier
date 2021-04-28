@@ -17,6 +17,8 @@ public class ScheduleSqlTextTemp {
 
     private String sqlText;
 
+    private String engineType;
+
     private Date gmtCreate;
 
     private Date gmtModified;
@@ -70,5 +72,13 @@ public class ScheduleSqlTextTemp {
 
     public void setDeleted(Boolean deleted) {
         isDeleted = deleted;
+    }
+
+    public String getEngineType() {
+        return engineType;
+    }
+
+    public void setEngineType(String engineType) {
+        this.engineType = engineType;
     }
 }
