@@ -98,7 +98,7 @@ public class JobClient extends OrderObject {
     /**
      * uic租户信息
      **/
-    private long tenantId;
+    private Long tenantId;
 
     private Long userId;
 
