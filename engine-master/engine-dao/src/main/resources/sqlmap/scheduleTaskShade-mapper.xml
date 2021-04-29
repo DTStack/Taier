@@ -725,7 +725,7 @@
         SELECT
         <include refid="simple_select_content_fragment"/>
         FROM `schedule_task_shade`
-        WHERE `dtuic_tenant_id` = #{uicTenantId} AND `app_type` = #{appType} AND `project_id` = #{projectId} AND is_deleted = 0
+        WHERE `dtuic_tenant_id` = #{uicTenantId} AND `app_type` = #{appType} AND `project_id` = #{projectId} AND is_deleted = 0 AND flow_id = 0
         <if test="name !=null">
             AND `name` LIKE '${name}%'
         </if>
