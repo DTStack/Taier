@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.engine.dao.LineageDataSourceDao">
 
     <sql id="select_content_fragment">
-      id,dt_uic_tenant_id,real_source_id,project_id,schema_name,source_id,source_name,source_key,app_type,source_type,data_json,kerberos_conf,open_kerberos,app_source_id,inner_source,component_id,gmt_create,gmt_modified,is_deleted
+      id,dt_uic_tenant_id,real_source_id,project_id,schema_name,source_id,source_name,source_key,app_type,source_type,data_json,kerberos_conf,open_kerberos,app_source_id,inner_source,component_id,is_default,gmt_create,gmt_modified,is_deleted
     </sql>
 
     <sql id="select_where_fragment">
@@ -34,6 +34,12 @@
             </if>
             <if test="projectId !=null">
                 AND project_id = #{projectId}
+            </if>
+            <if test="schemaName !=null">
+                AND schema_name = #{schemaName}
+            </if>
+            <if test="sourceId !=null">
+                AND source_id = #{sourceId}
             </if>
         </trim>
     </sql>
@@ -88,10 +94,10 @@
 
     <insert id="insertDataSource" parameterType="com.dtstack.engine.api.domain.LineageDataSource" useGeneratedKeys="true" keyProperty="id">
         insert into lineage_data_source
-        (dt_uic_tenant_id,real_source_id,project_id,schema_name,source_id,source_name,source_key,app_type,source_type,data_json,kerberos_conf,open_kerberos,app_source_id,inner_source,component_id)
+        (dt_uic_tenant_id,real_source_id,project_id,schema_name,source_id,source_name,source_key,app_type,source_type,data_json,kerberos_conf,open_kerberos,app_source_id,inner_source,component_id,is_default)
         values
          (#{dtUicTenantId},#{realSourceId},#{projectId},#{schemaName},#{sourceId},
-        #{sourceName},#{sourceKey},#{appType},#{sourceType},#{dataJson},#{kerberosConf},#{openKerberos},#{appSourceId},#{innerSource},#{componentId})
+        #{sourceName},#{sourceKey},#{appType},#{sourceType},#{dataJson},#{kerberosConf},#{openKerberos},#{appSourceId},#{innerSource},#{componentId},#{isDefault})
     </insert>
 
     <update id="updateDataSource" parameterType="com.dtstack.engine.api.domain.LineageDataSource">
@@ -229,5 +235,20 @@
         and app_type =  #{param.appType}
         and gmt_create >= #{time}
     </delete>
+
+    <select id="getHadoopDefaultDatasource" resultType="com.dtstack.engine.api.domain.LineageDataSource">
+
+        select
+        <include refid="select_content_fragment" />
+        from lineage_data_source
+        where
+        app_type = #{appType}
+        and project_id = #{projectId}
+        and is_default = 1
+        and source_type in
+        <foreach collection="hadoopList" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
 
 </mapper>

@@ -55,6 +55,9 @@ public class LineageDataSource extends DtUicTenantEntity {
     @ApiModelProperty(notes = "组件id")
     private Integer componentId;
 
+    @ApiModelProperty(notes = "是否是默认数据源")
+    private Integer isDefault;
+
     public LineageDataSource() {
     }
 
@@ -174,6 +177,14 @@ public class LineageDataSource extends DtUicTenantEntity {
 
     public void setSourceId(Long sourceId) {
         this.sourceId = sourceId;
+    }
+
+    public Integer getIsDefault() {
+        return isDefault;
+    }
+
+    public void setIsDefault(Integer isDefault) {
+        this.isDefault = isDefault;
     }
 
     @Override
