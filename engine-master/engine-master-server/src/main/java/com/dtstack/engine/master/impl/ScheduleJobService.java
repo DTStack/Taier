@@ -1584,7 +1584,7 @@ public class ScheduleJobService {
             int showStatus = entry.getKey();
             long sum = 0;
             for (Integer value : entry.getValue()) {
-                Long statusSum = statisticsMap.get(value.longValue());
+                Long statusSum = statisticsMap.get(value);
                 sum += statusSum == null ? 0L : statusSum;
             }
             resultMap.put(showStatus, sum);
