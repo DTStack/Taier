@@ -5,16 +5,16 @@
 
     <insert id="insert" parameterType="com.dtstack.engine.api.domain.ScheduleSqlTextTemp" useGeneratedKeys="true" keyProperty="id">
         insert into schedule_sql_text_temp
-        (id,job_id,sql_text,gmt_create,gmt_modified,is_deleted)
+        (job_id,sql_text,engine_type)
         values
-        (#{id},#{jobId},#{sqlText},#{gmt_create},#{gmt_modified})
+        (#{jobId},#{sqlText},#{engineType})
 
     </insert>
 
 
     <select id="selectByJobId"  resultType="com.dtstack.engine.api.domain.ScheduleSqlTextTemp">
 
-        select id,job_id,sql_text,gmt_create,gmt_modified,is_deleted
+        select id,job_id,sql_text,engine_type,gmt_create,gmt_modified,is_deleted
         from schedule_sql_text_temp
         where job_id = #{jobId} and is_deleted = 0
     </select>
