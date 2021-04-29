@@ -1257,13 +1257,18 @@ public class ComponentService {
         }
 
         if (EComponentType.SPARK_THRIFT.getTypeCode() == componentType ||
-                EComponentType.HIVE_SERVER.getTypeCode() == componentType) {
+                EComponentType.HIVE_SERVER.getTypeCode() == componentType ||
+                EComponentType.TIDB_SQL.getTypeCode() == componentType) {
             //数据库连接不带%s
             String replaceStr = "/";
             if (null != kerberosConfig) {
                 replaceStr = env.getComponentJdbcToReplace();
             }
             jdbcUrl = jdbcUrl.replace("/%s", replaceStr);
+            if (EComponentType.TIDB_SQL.getTypeCode() == componentType && !jdbcUrl.endsWith("/")) {
+                //tidb 需要以/结尾
+                jdbcUrl = jdbcUrl + "/";
+            }
         }
 
         dataInfo.put("jdbcUrl", jdbcUrl);
@@ -1693,10 +1698,8 @@ public class ComponentService {
             componentTestResult.setResult(true);
             return componentTestResult;
         }
-        String componentConfig = getComponentByClusterId(cluster.getId(), componentType, false, String.class);
-        KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(), componentType);
         Map sftpMap = getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class);
-        return testConnect(componentType, componentConfig, clusterName, testComponent.getHadoopVersion(), testComponent.getEngineId(), kerberosConfig, sftpMap,testComponent.getStoreType());
+        return testComponentWithResult(clusterName,cluster,sftpMap,testComponent);
     }
 
     /**
