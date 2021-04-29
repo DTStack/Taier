@@ -1,10 +1,7 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.ScheduleTaskCommit;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.domain.Tenant;
-import com.dtstack.engine.api.domain.TenantResource;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.api.enums.TaskRuleEnum;
 import com.dtstack.engine.api.pager.PageQuery;
@@ -27,7 +24,6 @@ import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.UnitConvertUtil;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.api.domain.ScheduleEngineProject;
 import com.dtstack.engine.master.executor.CronJobExecutor;
 import com.dtstack.engine.master.executor.FillJobExecutor;
 import com.dtstack.schedule.common.enums.*;
@@ -87,6 +83,9 @@ public class ScheduleTaskShadeService {
 
     @Autowired
     private ComponentDao componentDao;
+
+    @Autowired
+    private UserService userService;
 
     /**
      * web 接口
@@ -391,10 +390,14 @@ public class ScheduleTaskShadeService {
             //默认不查询全部工作流子节点
             //vos = dealFlowWorkTasks(vos);
         }
+
+        userService.fullUser(vos);
         PageResult<List<ScheduleTaskVO>> pageResult = new PageResult<>(vos, count, pageQuery);
         scheduleTaskShadeTaskVO.setPageResult(pageResult);
         return scheduleTaskShadeTaskVO;
     }
+
+
 
 
     /**

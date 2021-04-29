@@ -2,6 +2,7 @@ package com.dtstack.engine.master.router.login;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.domain.User;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -47,11 +48,45 @@ public class DtUicUserConnect {
 
     private static final String GET_TENANT_BY_ID = "%s/api/tenant/get-by-tenant-id?tenantId=%s";
 
+    private static final String GET_USERS_BY_USERIDS="%s/api/user/get-users-by-userIds&dtToken=%s";
+
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    public List<User> getUserByUserIds(String token, String url, List<Long> userIds) {
+        List<User> users = Lists.newArrayList();
+        try {
+            Map<String, Object> dataMap = new HashMap();
+            dataMap.put("userIdVOList", userIds);
+
+            String result = PoolHttpClient.post(String.format(LONGIN_TEMPLATE, url, token), dataMap);
+            Map<String, Object> mResult = OBJECT_MAPPER.readValue(result, Map.class);
+            if ((Boolean) mResult.get("success")) {
+                List<DtUicUser> dataList = JSON.parseArray(JSON.toJSONString(mResult.get("data")), DtUicUser.class);
+
+                for (DtUicUser dtUicUser : dataList) {
+                    User user = new User();
+                    user.setUserName(dtUicUser.getUserName());
+                    user.setPhoneNumber(dtUicUser.getPhone());
+                    user.setEmail(dtUicUser.getEmail());
+                    user.setDtuicUserId(dtUicUser.getUserId());
+                    user.setStatus(0);
+                    users.add(user);
+                }
+            }
+
+
+        } catch (RdosDefineException e) {
+            throw e;
+        } catch (Throwable tr) {
+            LOGGER.error("", tr);
+        }
+        return users;
+    }
+
 
     public void getInfo(String token, String url, Consumer<DtUicUser> resultHandler) {
         try {
-            String result = PoolHttpClient.get(String.format(LONGIN_TEMPLATE, url, token),null);
+            String result = PoolHttpClient.post(String.format(GET_USERS_BY_USERIDS, url, token),null);
             if (StringUtils.isBlank(result)) {
                 LOGGER.error("uic access exception,please check...");
                 resultHandler.accept(null);
