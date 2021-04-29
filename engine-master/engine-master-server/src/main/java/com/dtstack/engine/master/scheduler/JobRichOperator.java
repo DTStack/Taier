@@ -676,7 +676,7 @@ public class JobRichOperator {
                 Long currJobTime = MathUtil.getLongVal(currJobTimeStr);
 
                 if (currJobTime < preJobTime) {
-                    taskRefFirstJobMap.put(taskId, preJobJob);
+                    taskRefFirstJobMap.put(taskId, scheduleJobJob);
                 }
             }
         }
