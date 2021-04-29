@@ -64,7 +64,7 @@ public class ActionServiceTest extends AbstractTest {
             Map<String, Object> params = getParams(getJsonString(getRandomStr()));
             ParamActionExt paramActionExt = com.dtstack.engine.common.util.PublicUtil.mapToObject(params, ParamActionExt.class);
             paramActionExt.setAppType(AppType.RDOS.getType());
-            Boolean result = actionService.start(paramActionExt);
+            Boolean result = actionService.start(paramActionExt,false);
             Assert.assertTrue(result);
         } catch (Exception e) {
             fail("Have exception, message: " + e.getMessage());
@@ -77,7 +77,7 @@ public class ActionServiceTest extends AbstractTest {
             Map<String, Object> params = getParams(getJsonString(getRandomStr()));
             ParamActionExt paramActionExt = com.dtstack.engine.common.util.PublicUtil.mapToObject(params, ParamActionExt.class);
             paramActionExt.setComputeType(null);
-            Boolean result = actionService.start(paramActionExt);
+            Boolean result = actionService.start(paramActionExt,false);
             Assert.assertFalse(result);
             ScheduleJob scheduleJob = scheduleJobDao.getByJobId(paramActionExt.getTaskId(),null);
             Assert.assertEquals(scheduleJob.getStatus(),RdosTaskStatus.SUBMITFAILD.getStatus());
@@ -98,7 +98,7 @@ public class ActionServiceTest extends AbstractTest {
             ParamActionExt paramActionExt = com.dtstack.engine.common.util.PublicUtil.mapToObject(params, ParamActionExt.class);
             paramActionExt.setTaskId(scheduleJobTemplate.getJobId());
             paramActionExt.setAppType(AppType.RDOS.getType());
-            Boolean result = actionService.start(paramActionExt);
+            Boolean result = actionService.start(paramActionExt,false);
             Assert.assertTrue(result);
             ScheduleJob scheduleJob = scheduleJobDao.getByJobId(paramActionExt.getTaskId(),null);
             Assert.assertEquals(scheduleJob.getStatus(),RdosTaskStatus.ENGINEACCEPTED.getStatus());

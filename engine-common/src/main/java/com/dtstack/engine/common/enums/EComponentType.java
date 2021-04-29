@@ -154,7 +154,7 @@ public enum EComponentType {
             return MultiEngineType.PRESTO;
         }
         if (EmptyComponents.contains(componentType)){
-            return MultiEngineType.EMPTY;
+            return MultiEngineType.COMMON;
         }
         return null;
     }
