@@ -41,6 +41,9 @@ public class DataSourceDTO {
     @ApiModelProperty(value = "平台sourceId")
     private Long sourceId;
 
+    @ApiModelProperty(value = "是否是默认数据源")
+    private Integer isDefault;
+
 
     public Long getSourceId() {
         return sourceId;
@@ -120,5 +123,13 @@ public class DataSourceDTO {
 
     public void setSchemaName(String schemaName) {
         this.schemaName = schemaName;
+    }
+
+    public Integer getIsDefault() {
+        return isDefault;
+    }
+
+    public void setIsDefault(Integer isDefault) {
+        this.isDefault = isDefault;
     }
 }
