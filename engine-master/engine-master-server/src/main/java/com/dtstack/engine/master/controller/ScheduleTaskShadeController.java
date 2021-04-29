@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/node/scheduleTaskShade")
@@ -207,5 +208,15 @@ public class ScheduleTaskShadeController {
     public ScheduleDetailsVO findTaskRuleTask(@DtRequestParam("taskId") Long taskId,
                                                           @DtRequestParam("appType") Integer appType) {
         return scheduleTaskShadeService.findTaskRuleTask(taskId, appType);
+    }
+
+    @RequestMapping(value = "/checkCronExpression",method = {RequestMethod.POST})
+    public String checkCronExpression(String expression){
+        return scheduleTaskShadeService.checkCronExpression(expression);
+    }
+    @RequestMapping(value = "/recentlyRunTime",method = {RequestMethod.POST})
+    public List<String > recentlyRunTime(@DtRequestParam("startDate")String startDate,@DtRequestParam("endDate")String endDate,
+                                         @DtRequestParam("expression")String expression,@DtRequestParam("num")Integer num){
+        return scheduleTaskShadeService.recentlyRunTime(startDate,endDate,expression, Objects.isNull(num)?10:num);
     }
 }
