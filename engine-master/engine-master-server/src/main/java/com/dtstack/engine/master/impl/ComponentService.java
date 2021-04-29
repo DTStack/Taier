@@ -1810,7 +1810,7 @@ public class ComponentService {
             componentTestResult.setComponentVersion(testComponent.getHadoopVersion());
             return componentTestResult;
         }
-        Map sftpMap = getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class);
+        Map sftpMap = getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class,null);
         return testComponentWithResult(clusterName,cluster,sftpMap,testComponent);
     }
 
