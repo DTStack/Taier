@@ -248,10 +248,13 @@ public class LineageDataSourceService {
             dataSourceParam.setDtUicTenantId(dataSourceDTO.getDtUicTenantId());
             dataSourceParam.setSourceName(dataSourceDTO.getSourceName());
             dataSourceParam.setProjectId(dataSourceDTO.getProjectId());
+            dataSourceParam.setSchemaName(dataSourceDTO.getSchemaName());
+            dataSourceParam.setSourceId(dataSourceDTO.getSourceId());
             dataSourceParam.setIsDeleted(0);
             List<LineageDataSource> dataSourceByParams = lineageDataSourceDao.getDataSourceByParams(dataSourceParam);
             if (CollectionUtils.isNotEmpty(dataSourceByParams)) {
                 //已经有了该数据源
+                logger.info("already has this datasource:{}",JSON.toJSON(dataSourceByParams.get(0)));
                 return dataSourceByParams.get(0).getId();
             }
             Long realSourceId = 0L;

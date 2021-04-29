@@ -13,9 +13,11 @@ public class ScheduleSqlTextTemp {
 
     private Long id;
 
-    private Long jobId;
+    private String jobId;
 
     private String sqlText;
+
+    private String engineType;
 
     private Date gmtCreate;
 
@@ -32,11 +34,11 @@ public class ScheduleSqlTextTemp {
         this.id = id;
     }
 
-    public Long getJobId() {
+    public String getJobId() {
         return jobId;
     }
 
-    public void setJobId(Long jobId) {
+    public void setJobId(String jobId) {
         this.jobId = jobId;
     }
 
@@ -70,5 +72,13 @@ public class ScheduleSqlTextTemp {
 
     public void setDeleted(Boolean deleted) {
         isDeleted = deleted;
+    }
+
+    public String getEngineType() {
+        return engineType;
+    }
+
+    public void setEngineType(String engineType) {
+        this.engineType = engineType;
     }
 }
