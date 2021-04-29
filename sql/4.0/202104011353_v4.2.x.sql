@@ -9,7 +9,7 @@ DROP INDEX `uni_tenant_source_key` ,
 ADD UNIQUE INDEX `uni_tenant_source_key` (`dt_uic_tenant_id`, `source_key`, `app_type`, `source_name`, `schema_name`,`project_id`) USING BTREE;
 
 
-CREATE TABLE `schedule_sql_text_temp` (
+CREATE TABLE if not exists `schedule_sql_text_temp` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `job_id` varchar(32) NOT NULL COMMENT '临时运行job的job_id',
   `sql_text` longtext NOT NULL COMMENT '临时运行任务的sql文本内容',
