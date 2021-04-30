@@ -62,7 +62,7 @@ public class ScheduleTaskTaskShadeService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public SaveTaskTaskVO saveTaskTaskList(String taskLists) {
+    public SaveTaskTaskVO saveTaskTaskList(String taskLists,String commitId) {
         if(StringUtils.isBlank(taskLists)){
             return SaveTaskTaskVO.save();
         }
@@ -77,13 +77,16 @@ public class ScheduleTaskTaskShadeService {
                 Long parentTaskId = scheduleTaskTaskShade.getParentTaskId();
                 if (parentTaskId != null) {
                     Integer parentAppType = scheduleTaskTaskShade.getParentAppType();
-                    if (parentAppType == null) {
+                    if (parentAppType == null ) {
                         parentAppType = scheduleTaskTaskShade.getAppType();
                     }
-                    ScheduleTaskShade batchTaskById = taskShadeService.getBatchTaskById(parentTaskId, parentAppType);
 
-                    if (batchTaskById == null) {
-                        return SaveTaskTaskVO.noSave("任务依赖报错失败，父任务被删除，你检查父任务");
+                    if (!scheduleTaskTaskShade.getAppType().equals(parentAppType)) {
+                        ScheduleTaskShade batchTaskById = taskShadeService.getBatchTaskById(parentTaskId, parentAppType);
+
+                        if (batchTaskById == null) {
+                            return SaveTaskTaskVO.noSave("任务依赖报错失败，父任务被删除，你检查父任务");
+                        }
                     }
                 }
 
