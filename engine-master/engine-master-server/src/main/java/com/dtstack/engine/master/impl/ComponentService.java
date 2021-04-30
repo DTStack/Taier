@@ -580,13 +580,14 @@ public class ComponentService {
         if (!EComponentType.YARN.equals(componentType)) {
             return;
         }
-        String oldVersion = formatHadoopVersion(dbComponent.getHadoopVersion(), componentType);
-        String newVersion = formatHadoopVersion(addComponent.getHadoopVersion(), componentType);
-        if (oldVersion.equalsIgnoreCase(newVersion)) {
-            return;
-        }
         Component hdfsComponent = componentDao.getByEngineIdAndComponentType(engineId, EComponentType.HDFS.getTypeCode());
         if (null == hdfsComponent) {
+            return;
+        }
+        String oldVersion = formatHadoopVersion(dbComponent.getHadoopVersion(), componentType);
+        String newVersion = formatHadoopVersion(addComponent.getHadoopVersion(), componentType);
+        String hdfsVersion = formatHadoopVersion(hdfsComponent.getHadoopVersion(), EComponentType.HDFS);
+        if (newVersion.equalsIgnoreCase(oldVersion) && newVersion.equalsIgnoreCase(hdfsVersion)) {
             return;
         }
         //1. 同步hdfs组件版本
