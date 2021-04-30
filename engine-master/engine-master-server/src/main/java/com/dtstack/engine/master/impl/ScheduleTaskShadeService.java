@@ -1009,9 +1009,6 @@ public class ScheduleTaskShadeService {
      * @return
      */
     public String checkCronExpression(String expression) {
-        if (CronSequenceGenerator.isValidExpression(expression)) {
-            return null;
-        }
         try {
             new CronSequenceGenerator(expression);
         }catch (Exception e){
@@ -1030,9 +1027,6 @@ public class ScheduleTaskShadeService {
      */
     public List<String> recentlyRunTime(String startDate, String endDate, String expression, int num) {
         CronSequenceGenerator generator;
-        if (!CronSequenceGenerator.isValidExpression(expression)){
-            throw new RdosDefineException("illegal cron expression");
-        }
         try {
             generator = new CronSequenceGenerator(expression);
         }catch (Exception e){
@@ -1041,6 +1035,7 @@ public class ScheduleTaskShadeService {
         List<String > recentlyList = new ArrayList<>(num);
         Date nowDate = new Date();
         Date start = DateUtil.parseDate(startDate, DateUtil.DATE_FORMAT);
+        // 当前时间在开始时间后,以下一天开始的时间为起始时间
         if (nowDate.after(start)){
             start = new Date(nowDate.toInstant().atOffset(DateUtil.DEFAULT_ZONE)
                     .toLocalDate().plusDays(1).atStartOfDay().toInstant(DateUtil.DEFAULT_ZONE).toEpochMilli());
