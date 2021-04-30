@@ -27,7 +27,6 @@ import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.UnitConvertUtil;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.api.domain.ScheduleEngineProject;
 import com.dtstack.engine.master.executor.CronJobExecutor;
 import com.dtstack.engine.master.executor.FillJobExecutor;
 import com.dtstack.schedule.common.enums.*;
@@ -900,8 +899,8 @@ public class ScheduleTaskShadeService {
         return vos;
     }
 
-    public List<ScheduleTaskShade> getTaskOtherPlatformByProjectId(Long projectId, Integer appType, Integer listChildTaskLimit) {
-        return scheduleTaskShadeDao.getTaskOtherPlatformByProjectId(projectId,appType,listChildTaskLimit);
+    public List<ScheduleTaskTaskShade> getTaskOtherPlatformByProjectId(Long projectId, Integer appType, Integer listChildTaskLimit) {
+        return scheduleTaskTaskShadeService.getTaskOtherPlatformByProjectId(projectId,appType,listChildTaskLimit);
     }
 
     public ScheduleDetailsVO findTaskRuleTask(Long taskId, Integer appType) {

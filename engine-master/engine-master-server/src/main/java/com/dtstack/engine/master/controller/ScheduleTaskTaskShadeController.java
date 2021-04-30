@@ -28,8 +28,8 @@ public class ScheduleTaskTaskShadeController {
     }
 
     @RequestMapping(value="/saveTaskTaskList", method = {RequestMethod.POST})
-    public SaveTaskTaskVO saveTaskTaskList(@DtRequestParam("taskTask") String taskLists) {
-        return scheduleTaskTaskShadeService.saveTaskTaskList(taskLists);
+    public SaveTaskTaskVO saveTaskTaskList(@DtRequestParam("taskTask") String taskLists,@DtRequestParam("commitId") String commitId) {
+        return scheduleTaskTaskShadeService.saveTaskTaskList(taskLists,commitId);
     }
 
     @RequestMapping(value="/getAllParentTask", method = {RequestMethod.POST})
