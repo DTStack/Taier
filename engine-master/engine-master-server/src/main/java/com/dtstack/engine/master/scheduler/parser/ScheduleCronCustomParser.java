@@ -35,9 +35,10 @@ public class ScheduleCronCustomParser extends ScheduleCron{
         Date startDateTime= new Date(startDate.atStartOfDay()
                 .toInstant(DateUtil.DEFAULT_ZONE).toEpochMilli());
         // 结束日期
-        Date endDateTime = new Date(startDate.plusDays(2).atStartOfDay()
+        Date endDateTime = new Date(startDate.plusDays(1).atStartOfDay()
                 .toInstant(DateUtil.DEFAULT_ZONE).toEpochMilli());
         List<String> triggerTimeList = new ArrayList<>();
+
         Date curDateTime = generator.next(startDateTime);
         //  构建每个触发时间
         while (curDateTime.before(endDateTime) && curDateTime.after(startDateTime)){

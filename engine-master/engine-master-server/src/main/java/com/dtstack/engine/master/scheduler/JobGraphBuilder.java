@@ -373,7 +373,7 @@ public class JobGraphBuilder {
         }
 
         List<String> triggerDayList = scheduleCron.getTriggerTime(triggerDay);
-
+        LOGGER.info("trigger time  = {}",triggerDayList);
         // 处理分钟粒度任务
         if (StringUtils.isNotBlank(beginTime) && StringUtils.isNotBlank(endTime)) {
             dealConcreteTime(triggerDayList, triggerDay, beginTime, endTime);
