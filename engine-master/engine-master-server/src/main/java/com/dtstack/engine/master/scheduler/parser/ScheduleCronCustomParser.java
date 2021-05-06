@@ -31,8 +31,8 @@ public class ScheduleCronCustomParser extends ScheduleCron{
         CronSequenceGenerator generator = new CronSequenceGenerator(getCronStr());
         LocalDate startDate = DateUtil.parseDate(specifyDate, DateUtil.DATE_FORMAT).toInstant()
                 .atZone(DateUtil.DEFAULT_ZONE).toLocalDate();
-        // 开始日期
-        Date startDateTime= new Date(startDate.atStartOfDay()
+        // 开始日期,提前1s可能出现cron需要从一天开始之时执行
+        Date startDateTime= new Date(startDate.atStartOfDay().plusSeconds(-1)
                 .toInstant(DateUtil.DEFAULT_ZONE).toEpochMilli());
         // 结束日期
         Date endDateTime = new Date(startDate.plusDays(1).atStartOfDay()
