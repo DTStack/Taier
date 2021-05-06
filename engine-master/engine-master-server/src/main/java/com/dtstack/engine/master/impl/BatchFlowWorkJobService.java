@@ -77,12 +77,15 @@ public class BatchFlowWorkJobService {
         boolean canRemove = false;
         Integer bottleStatus = null;
         //没有子任务
+        LOGGER.info("flowId:{} checkRemoveAndUpdateFlowJobStatus ", jobId);
         if (CollectionUtils.isEmpty(subJobs)) {
             bottleStatus = RdosTaskStatus.FINISHED.getStatus();
             canRemove = true;
         } else {
+            LOGGER.info("flowId:{} checkRemoveAndUpdateFlowJobStatus {}", jobId,JSON.toJSONString(subJobs));
             for (ScheduleJob scheduleJob : subJobs) {
                 Integer status = scheduleJob.getStatus();
+                LOGGER.info("flowId:{} status: {}", jobId,status);
                 // 工作流失败状态细化 优先级： 运行失败>提交失败>上游失败 > 取消（手动取消或者自动取消）
                 if (RdosTaskStatus.FROZEN_STATUS.contains(status) || RdosTaskStatus.STOP_STATUS.contains(status)) {
                     if (!RdosTaskStatus.FAILED.getStatus().equals(bottleStatus) && !RdosTaskStatus.SUBMITFAILD.getStatus().equals(bottleStatus) && !RdosTaskStatus.PARENTFAILED.getStatus().equals(bottleStatus)) {
@@ -112,6 +115,7 @@ public class BatchFlowWorkJobService {
 
                 if (RdosTaskStatus.RUN_FAILED_STATUS.contains(status)) {
                     bottleStatus = RdosTaskStatus.FAILED.getStatus();
+                    LOGGER.info("flowId:{} status:{} update bottleStatus {}", jobId,status,RdosTaskStatus.FAILED.getStatus());
                     canRemove = true;
                     break;
                 }
