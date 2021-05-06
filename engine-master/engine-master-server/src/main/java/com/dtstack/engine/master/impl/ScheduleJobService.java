@@ -165,6 +165,9 @@ public class ScheduleJobService {
     @Autowired
     private JobParamReplace jobParamReplace;
 
+    @Autowired
+    private UserService userService;
+
     private final static List<Integer> FINISH_STATUS = Lists.newArrayList(RdosTaskStatus.FINISHED.getStatus(), RdosTaskStatus.MANUALSUCCESS.getStatus(), RdosTaskStatus.CANCELLING.getStatus(), RdosTaskStatus.CANCELED.getStatus());
     private final static List<Integer> FAILED_STATUS = Lists.newArrayList(RdosTaskStatus.FAILED.getStatus(), RdosTaskStatus.SUBMITFAILD.getStatus(), RdosTaskStatus.KILLED.getStatus());
 
@@ -1521,6 +1524,8 @@ public class ScheduleJobService {
             resultContent.add(preViewVO);
         }
 
+        userService.fullFillDataJobUserName(resultContent);
+
         int totalCount = scheduleJobDao.countFillJobNameDistinctWithOutTask(batchJobDTO);
 
         return new PageResult<>(resultContent, totalCount, pageQuery);
@@ -1936,7 +1941,9 @@ public class ScheduleJobService {
         }
         Set<Long> taskIdSet = scheduleJobs.stream().map(ScheduleJob::getTaskId).collect(Collectors.toSet());
         Integer appType = scheduleJobs.get(0).getAppType();
-        return scheduleTaskShadeDao.listSimpleTaskByTaskIds(taskIdSet, null,appType).stream().collect(Collectors.toMap(ScheduleTaskForFillDataDTO::getTaskId, scheduleTaskForFillDataDTO -> scheduleTaskForFillDataDTO));
+        List<ScheduleTaskForFillDataDTO> scheduleTaskForFillDataDTOS = scheduleTaskShadeDao.listSimpleTaskByTaskIds(taskIdSet, null, appType);
+        userService.fullScheduleTaskForFillDataDTO(scheduleTaskForFillDataDTOS);
+        return scheduleTaskForFillDataDTOS.stream().collect(Collectors.toMap(ScheduleTaskForFillDataDTO::getTaskId, scheduleTaskForFillDataDTO -> scheduleTaskForFillDataDTO));
 
     }
 
@@ -2046,6 +2053,8 @@ public class ScheduleJobService {
             batchTaskVO.setProjectId(taskShade.getProjectId());
             batchTaskVO.setOwnerUserId(taskShade.getOwnerUserId());
             batchTaskVO.setCreateUserId(taskShade.getCreateUserId());
+            batchTaskVO.setCreateUser(taskShade.getCreateUser());
+            batchTaskVO.setOwnerUser(taskShade.getOwnerUser());
         }
 
         record.setBatchTask(batchTaskVO);
@@ -3266,7 +3275,6 @@ public class ScheduleJobService {
 
     /**
      * 根据规则转换时间
-     * @param jobs [{ "jobId": "8f6f5127","paramReplace": [{"paramName":"bdp.system.cyctime","paramCommand": "yyyyMMdd", "timeType": 1,"type":0}]}]
      * @return [{"paramReplace":[{"bdp.system.cyctime":"20200810000000","timeType":"1"}],"jobId":"8f6f5127"}]
      */
     public List<ScheduleJobRuleTimeVO> getJobsRuleTime(List<ScheduleJobRuleTimeVO> jobList) {
@@ -3295,6 +3303,36 @@ public class ScheduleJobService {
         return results;
     }
 
+    public OperatorVO restartJobAndResume(List<Long> jobIdList, Boolean runCurrentJob) {
+        final OperatorVO<String> batchOperatorVO = new OperatorVO<>();
+
+        final int successNum = 0;
+        int failNum = 0;
+
+        for (final Object idStr : jobIdList) {
+            try {
+                final Long id = com.dtstack.dtcenter.common.util.MathUtil.getLongVal(idStr);
+                if (id == null) {
+                    throw new RdosDefineException("convert id: " + idStr + " exception.", ErrorCode.SERVER_EXCEPTION);
+                }
+
+                final List<Long> subJobIds = new ArrayList<>();
+                if (org.apache.commons.lang.BooleanUtils.isTrue(runCurrentJob)){
+                    subJobIds.add(id);
+                }
+
+                this.syncRestartJob(id, false, false, subJobIds);
+            } catch (final Exception e) {
+                LOGGER.error("", e);
+                failNum++;
+            }
+        }
+
+        batchOperatorVO.setSuccessNum(successNum);
+        batchOperatorVO.setFailNum(failNum);
+        batchOperatorVO.setDetail("");
+        return batchOperatorVO;
+    }
 }
 
 

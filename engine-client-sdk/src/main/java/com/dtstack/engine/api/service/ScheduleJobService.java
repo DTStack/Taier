@@ -481,6 +481,9 @@ public interface ScheduleJobService extends DtInsightServer {
     @RequestLine("POST /node/scheduleJob/syncRestartJob")
     ApiResponse<Boolean> syncRestartJob(@Param("id") Long id, @Param("justRunChild") Boolean justRunChild, @Param("setSuccess") Boolean setSuccess, @Param("subJobIds") List<Long> subJobIds);
 
+    @RequestLine("POST /node/scheduleJob/restartJobAndResume")
+    ApiResponse<OperatorVO> restartJobAndResume(@Param("jobIdList") List<Long> jobIdList, @Param("runCurrentJob") Boolean runCurrentJob);
+
     @RequestLine("POST /node/scheduleJob/stopJobByCondition")
     @Headers(value={"Content-Type: application/json"})
     ApiResponse<Integer> stopJobByCondition(ScheduleJobKillJobVO scheduleJobKillJobVO);
