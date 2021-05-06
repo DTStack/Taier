@@ -1038,7 +1038,9 @@ public class ScheduleTaskShadeService {
         // 当前时间在开始时间后,以下一天开始的时间为起始时间
         if (nowDate.after(start)){
             start = new Date(nowDate.toInstant().atOffset(DateUtil.DEFAULT_ZONE)
-                    .toLocalDate().plusDays(1).atStartOfDay().plusSeconds(-1).toInstant(DateUtil.DEFAULT_ZONE).toEpochMilli());
+                    .toLocalDate().plusDays(1).atStartOfDay().toInstant(DateUtil.DEFAULT_ZONE).toEpochMilli());
+        }else {
+            start = new Date(start.getTime()-1000);
         }
         Date end = new Date(DateUtil.parseDate(endDate,DateUtil.DATE_FORMAT).toInstant().atOffset(DateUtil.DEFAULT_ZONE)
                 .toLocalDate().plusDays(1).atStartOfDay().toInstant(DateUtil.DEFAULT_ZONE).toEpochMilli());

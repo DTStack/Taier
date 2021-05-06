@@ -211,7 +211,7 @@ public class ScheduleTaskShadeController {
     }
 
     @RequestMapping(value = "/checkCronExpression",method = {RequestMethod.POST})
-    public String checkCronExpression(String expression){
+    public String checkCronExpression(@DtRequestParam("expression") String expression){
         return scheduleTaskShadeService.checkCronExpression(expression);
     }
     @RequestMapping(value = "/recentlyRunTime",method = {RequestMethod.POST})
