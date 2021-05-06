@@ -2986,30 +2986,26 @@ public class ScheduleJobService {
         String addLog = LOG_TEM;
 
         boolean isRule = Boolean.FALSE;
-        if (EScheduleJobType.WORK_FLOW.getType().equals(currentScheduleJob.getTaskType())) {
-            // 如果工作流任务，查询是否有null任务
-            List<ScheduleJob> subJobsAndStatusByFlowId = this.getSubJobsAndStatusByFlowId(currentScheduleJob.getJobId());
-            List<ScheduleJob> jobs = subJobsAndStatusByFlowId.stream().filter(job -> EScheduleJobType.NOT_DO_TASK.getType().equals(job.getTaskType())).collect(Collectors.toList());
+        // 如果工作流任务，查询是否有null任务
+        List<ScheduleJob> subJobsAndStatusByFlowId = this.getSubJobsAndStatusByFlowId(currentScheduleJob.getJobId());
+        List<ScheduleJob> jobs = subJobsAndStatusByFlowId.stream().filter(job -> EScheduleJobType.NOT_DO_TASK.getType().equals(job.getTaskType())).collect(Collectors.toList());
 
-            if (CollectionUtils.isNotEmpty(jobs)) {
-                // 有空任务
-                for (ScheduleJob job : jobs) {
-                    if (RdosTaskStatus.FAILED_STATUS.contains(job.getStatus())) {
-                        // 存在空任务失败的情况
-                        String logInfo1 = "运行失败";
-                        try {
-                            JSONObject jsonObject = JSON.parseObject(job.getLogInfo());
-                            logInfo1 = jsonObject.getString("result");
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        addLog = String.format(addLog, currentScheduleJob.getJobName(), logInfo1, StringUtils.isBlank(nameByDtUicTenantId)?"":nameByDtUicTenantId,project==null? "":project.getProjectAlias());
-                        isRule = Boolean.TRUE;
-                        break;
+        if (CollectionUtils.isNotEmpty(jobs)) {
+            // 有空任务
+            for (ScheduleJob job : jobs) {
+                if (RdosTaskStatus.FAILED_STATUS.contains(job.getStatus())) {
+                    // 存在空任务失败的情况
+                    String logInfo1 = "运行失败";
+                    try {
+                        JSONObject jsonObject = JSON.parseObject(job.getLogInfo());
+                        logInfo1 = jsonObject.getString("result");
+                    } catch (Exception e) {
+                        LOGGER.error("log json parseObject error:",e);
                     }
+                    addLog = String.format(addLog, currentScheduleJob.getJobName(), logInfo1, StringUtils.isBlank(nameByDtUicTenantId)?"":nameByDtUicTenantId,project==null? "":project.getProjectAlias());
+                    isRule = Boolean.TRUE;
+                    break;
                 }
-
-
             }
         }
 
@@ -3267,7 +3263,6 @@ public class ScheduleJobService {
 
     /**
      * 根据规则转换时间
-     * @param jobs [{ "jobId": "8f6f5127","paramReplace": [{"paramName":"bdp.system.cyctime","paramCommand": "yyyyMMdd", "timeType": 1,"type":0}]}]
      * @return [{"paramReplace":[{"bdp.system.cyctime":"20200810000000","timeType":"1"}],"jobId":"8f6f5127"}]
      */
     public List<ScheduleJobRuleTimeVO> getJobsRuleTime(List<ScheduleJobRuleTimeVO> jobList) {
