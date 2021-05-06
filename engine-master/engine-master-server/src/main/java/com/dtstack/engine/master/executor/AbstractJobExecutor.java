@@ -273,13 +273,13 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
         ScheduleJob scheduleJob = scheduleBatchJob.getScheduleJob();
         if (scheduleJob == null) {
-            throw new RdosDefineException("");
+            throw new RdosDefineException("job is not null");
         }
 
         Timestamp execStartTime = scheduleJob.getExecStartTime();
 
         if (execStartTime == null) {
-            throw new RdosDefineException("");
+            throw new RdosDefineException("not find execStartTime");
         }
 
         long time = execStartTime.getTime();
