@@ -2,16 +2,25 @@ package com.dtstack.schedule.common.util;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.dom4j.*;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.SAXReader;
+import org.dom4j.io.XMLWriter;
+import org.dom4j.tree.DefaultElement;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * company: www.dtstack.com
@@ -34,8 +43,10 @@ public class Xml2JsonUtil {
                 JSONObject jsono = (JSONObject) o;
                 jsona = new JSONArray();
                 jsona.add(jsono);
-            } else {
+            } else if (o instanceof JSONArray) {
                 jsona = (JSONArray) o;
+            } else {
+                return Collections.emptyMap();
             }
             Map<String, Object> map = new HashMap<>(jsona.size());
             for (Object obj : jsona) {
@@ -126,7 +137,7 @@ public class Xml2JsonUtil {
                         json.put("@" + attr.getName(), attr.getValue());
                     }
                 }
-                if (!e.getText().isEmpty()) {
+                if (!e.getText().isEmpty() && !json.containsKey(e.getName())) {
                     json.put(e.getName(), e.getText());
                 }
             }
@@ -139,5 +150,52 @@ public class Xml2JsonUtil {
             return true;
         }
         return false;
+    }
+
+    /**
+     * 添加配置信息到对于的xml文件中
+     *
+     * @param xmlFile
+     * @param extraConfig
+     * @param isOverride  是否强制覆盖
+     * @throws Exception
+     */
+    public static void addInfoIntoXml(File xmlFile, Map<String, Object> extraConfig, boolean isOverride) throws Exception {
+        if (MapUtils.isEmpty(extraConfig)) {
+            return;
+        }
+        SAXReader reader = new SAXReader();
+        Document read = reader.read(xmlFile);
+        //得到根节点
+        Element root = read.getRootElement();
+        List<String> keys = new ArrayList<>();
+        List propertys = root.elements("property");
+        for (Object o : propertys) {
+            Element e = (Element) o;
+            if (CollectionUtils.isNotEmpty(e.elements())) {
+                for (Object element : e.elements()) {
+                    if (element instanceof Element) {
+                        QName qName = ((DefaultElement) element).getQName();
+                        if ("name".equalsIgnoreCase(qName.getName())) {
+                            keys.add(((Element) element).getText());
+                        }
+                    }
+                }
+            }
+        }
+        for (String key : extraConfig.keySet()) {
+            if (!keys.contains(key) || isOverride) {
+                Element property = root.addElement("property");
+                Element name = property.addElement("name");
+                name.setText(key);
+                Element value = property.addElement("value");
+                value.setText((String) extraConfig.get(key));
+            }
+        }
+        OutputFormat outputFormat = OutputFormat.createPrettyPrint();
+        outputFormat.setEncoding("UTF-8");
+        XMLWriter xmlWriter = new XMLWriter(new FileWriter(xmlFile), outputFormat);
+        xmlWriter.write(read);
+        xmlWriter.close();
     }
 }

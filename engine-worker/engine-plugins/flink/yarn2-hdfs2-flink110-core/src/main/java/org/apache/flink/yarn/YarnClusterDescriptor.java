@@ -20,6 +20,7 @@ package org.apache.flink.yarn;
 
 import avro.shaded.com.google.common.collect.Sets;
 import com.dtstack.engine.base.util.HadoopConfTool;
+import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.base.enums.ClassLoaderType;
@@ -154,6 +155,9 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 
 	private String zookeeperNamespace;
 
+	/** dt type of flink job*/
+	private EJobType jobType;
+
 	private YarnConfigOptions.UserJarInclusion userJarInclusion;
 
 	private static final String FLINK_LOG_DIR = "flinkconf";
@@ -257,6 +261,17 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 		this.flinkJarPath = localJarPath;
 	}
 
+	public EJobType getJobType() {
+		return jobType;
+	}
+
+	/**
+	 * set current flink job's dt jobType eg: SQL、MR、SYNC...
+	 * @param jobType
+	 */
+	public void setJobType(EJobType jobType) {
+		this.jobType = jobType;
+	}
 	/**
 	 * Adds the given files to the list of files to ship.
 	 *
@@ -436,7 +451,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 	}
 
 	private boolean isSecurityEnabled() {
-		return flinkConfiguration.getBoolean("openKerberos", false);
+		return flinkConfiguration.getBoolean(ConfigConstrant.OPEN_KERBEROS_KEY, false);
 	}
 
 	/**
@@ -658,15 +673,30 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 				addr = yarnConf.get("yarn.resourcemanager.webapp.address");
 			}
 
-			return String.format("http://%s/proxy",addr);
+			return String.format("http://%s/proxy", addr);
 		}catch (Exception e){
 			LOG.error("get proxyDescriptor error: {}", e);
-			String  addr = yarnConf.get("yarn.resourcemanager.webapp.address");
-//			if (addr == null) {
-//				throw new YarnDeploymentException("Couldn't get rm web app address.Please check rm web address whether be confituration.");
-//			}
-			return String.format("http://%s/proxy",addr);
+			String addr = getYarnAddressFromConf(yarnConf);
+			if (addr == null && EJobType.SYNC == jobType) {
+				throw new YarnDeploymentException("Couldn't get rm web app address. " +
+						"it's required when batch job run on per_job mode. " +
+						"Please check rm web address whether be confituration.");
+			}
+			return String.format("http://%s/proxy", addr);
 		}
+	}
+
+	private String getYarnAddressFromConf(YarnConfiguration yarnConf) {
+		String address = null;
+		String rmIdsStr = yarnConf.get("yarn.resourcemanager.ha.rm-ids");
+		if (StringUtils.isNotEmpty(rmIdsStr)) {
+			String[] rmIds = StringUtils.split(rmIdsStr, ",");
+			String key = "yarn.resourcemanager.webapp.address." + rmIds[0];
+			address = yarnConf.get(key);
+		} else {
+			address = yarnConf.get("yarn.resourcemanager.webapp.address");
+		}
+		return address;
 	}
 
 	private void fillJobGraphClassPath(JobGraph jobGraph) throws MalformedURLException {

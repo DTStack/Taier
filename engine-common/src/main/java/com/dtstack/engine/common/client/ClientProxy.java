@@ -11,7 +11,6 @@ import com.dtstack.engine.common.exception.ClientArgumentException;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.LimitResourceException;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
@@ -261,22 +260,6 @@ public class ClientProxy implements IClient {
                             return targetClient.getCheckpoints(jobIdentifier);
                         }
                     }, targetClient.getClass().getClassLoader(), true);
-                } catch (Exception e) {
-                    throw new RdosDefineException(e);
-                }
-            }, executorService).get(timeout, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new RdosDefineException(e);
-        }
-    }
-
-    @Override
-    public List<ClientTemplate> getDefaultPluginConfig(String componentType) {
-        try {
-            return CompletableFuture.supplyAsync(() -> {
-                try {
-                    return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.getDefaultPluginConfig(componentType),
-                            targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
                     throw new RdosDefineException(e);
                 }

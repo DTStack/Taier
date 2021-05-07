@@ -14,8 +14,6 @@ public class Component extends BaseEntity {
 
     private Integer componentTypeCode;
 
-    private String componentConfig;
-
     private Long clusterId;
 
     private String hadoopVersion;
@@ -25,8 +23,6 @@ public class Component extends BaseEntity {
      */
     @ApiModelProperty(notes = "上传配置文件名称")
     private String uploadFileName;
-
-    private String componentTemplate;
 
     /**
      * kerberos文件名称
@@ -40,14 +36,6 @@ public class Component extends BaseEntity {
 
     public void setKerberosFileName(String kerberosFileName) {
         this.kerberosFileName = kerberosFileName;
-    }
-
-    public String getComponentTemplate() {
-        return componentTemplate;
-    }
-
-    public void setComponentTemplate(String componentTemplate) {
-        this.componentTemplate = componentTemplate;
     }
 
     public String getHadoopVersion() {
@@ -98,11 +86,4 @@ public class Component extends BaseEntity {
         this.componentTypeCode = componentTypeCode;
     }
 
-    public String getComponentConfig() {
-        return componentConfig;
-    }
-
-    public void setComponentConfig(String componentConfig) {
-        this.componentConfig = componentConfig;
-    }
 }

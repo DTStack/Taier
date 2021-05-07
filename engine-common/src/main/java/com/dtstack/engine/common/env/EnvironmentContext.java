@@ -7,6 +7,8 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+
 
 /**
  * @author sishu.yss
@@ -36,12 +38,33 @@ public class EnvironmentContext {
 
     /**补数据或重跑cycTime的间隔，正常环境7*24小时，压测环境2个小时**/
     public Integer getFillDataCycTimeHourGap(){
-        return Math.abs(Integer.parseInt(environment.getProperty("fillDataCycTimeHourGap", "168")));
+        return Math.abs(Integer.parseInt(environment.getProperty("fillDataCycTimeHourGap", "1440")));
     }
 
-    /**是否给补数据和重跑cycTime做限制，默认不做限制**/
+    /**是否给补数据做限制，默认不做限制**/
     public Boolean getOpenFillDataCycTimeLimit(){
         return Boolean.parseBoolean(environment.getProperty("openFillDataCycTimeLimit","false"));
+    }
+
+    /**
+     * 是否开启重跑时间限制，默认限制
+     */
+    public Boolean getOpenRestartDataCycTimeLimit(){
+        return Boolean.parseBoolean(environment.getProperty("openFillDataCycTimeLimit","true"));
+    }
+
+    /**
+     * 重跑默认当前时间前多少天，默认60天
+     */
+    public int getRestartCycTimeHourBefore(){
+        return Math.abs(Integer.parseInt(environment.getProperty("restartCycTimeBefore","1440")));
+    }
+
+    /**
+     * 周期实例往前推进多少天, 默认前1天
+     */
+    public int getNormalScheduleCycTimeHourBefore(){
+        return Math.abs(Integer.parseInt(environment.getProperty("normalScheduleCycTimeBefore","24")));
     }
 
     public long getJobStatusDealerInterval() {
@@ -354,6 +377,10 @@ public class EnvironmentContext {
         return environment.getProperty("local.kerberos.dir", System.getProperty("user.dir") + "/kerberosConfig");
     }
 
+    public String getConfigPath() {
+        return environment.getProperty("config.dir", System.getProperty("user.dir") + "/conf/");
+    }
+
     public String getKerberosTemplatepath() {
         return environment.getProperty("kerberos.template.path", System.getProperty("user.dir") + "/conf/kerberos");
     }
@@ -491,5 +518,18 @@ public class EnvironmentContext {
 
     public int getMaxDeepShow() {
         return Integer.parseInt(environment.getProperty("max.deep.show", "20"));
+    }
+
+    /**
+     * 是否根据版本加载默认的配置
+     *
+     * @return
+     */
+    public boolean isCanAddExtraConfig() {
+        return Boolean.parseBoolean(environment.getProperty("console.extra.config", "true"));
+    }
+
+    public String getPluginPath() {
+        return environment.getProperty("plugin.path",  System.getProperty("user.dir") + File.separator +"pluginLibs");
     }
 }

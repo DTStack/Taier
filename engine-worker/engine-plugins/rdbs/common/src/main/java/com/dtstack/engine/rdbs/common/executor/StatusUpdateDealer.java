@@ -28,14 +28,12 @@ public class StatusUpdateDealer {
 
     private Map<String, JobClient> jobCache;
     private ModifyCheckJob modifyCheckJob;
-    private TimeoutCheckJob timeoutCheckJob;
 
     private ScheduledExecutorService scheduledService;
 
     public StatusUpdateDealer(Map<String, JobClient> jobCache) {
         this.jobCache = jobCache;
         modifyCheckJob = new ModifyCheckJob();
-        timeoutCheckJob = new TimeoutCheckJob();
         scheduledService = new ScheduledThreadPoolExecutor(2, new CustomThreadFactory(this.getClass().getSimpleName()));
     }
 
@@ -44,11 +42,6 @@ public class StatusUpdateDealer {
                 modifyCheckJob,
                 MODIFY_CHECK_INTERVAL,
                 MODIFY_CHECK_INTERVAL,
-                TimeUnit.MILLISECONDS);
-        scheduledService.scheduleWithFixedDelay(
-                timeoutCheckJob,
-                TIMEOUT_CHECK_INTERVAL,
-                TIMEOUT_CHECK_INTERVAL,
                 TimeUnit.MILLISECONDS);
     }
 
@@ -66,17 +59,4 @@ public class StatusUpdateDealer {
         }
     }
 
-    private class TimeoutCheckJob implements Runnable {
-        @Override
-        public void run() {
-            try {
-                AbstractLogStore logStore = LogStoreFactory.getLogStore();
-                if (null != logStore) {
-                    logStore.timeOutDeal();
-                }
-            } catch (Throwable e) {
-                LOG.error("", e);
-            }
-        }
-    }
 }

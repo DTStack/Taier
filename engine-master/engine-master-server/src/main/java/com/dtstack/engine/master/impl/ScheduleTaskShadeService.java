@@ -13,7 +13,6 @@ import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskV
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MathUtil;
@@ -24,17 +23,18 @@ import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.dao.TenantResourceDao;
 import com.dtstack.engine.master.executor.CronJobExecutor;
 import com.dtstack.engine.master.executor.FillJobExecutor;
-import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.schedule.common.enums.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -217,7 +217,7 @@ public class ScheduleTaskShadeService {
      *
      * @param jobKey
      * @return
-     * @see JobGraphBuilder#getSelfDependencyJobKeys(com.dtstack.task.domain.BatchJob, com.dtstack.task.server.parser.ScheduleCron, java.lang.String)
+//     * @see JobGraphBuilder#getSelfDependencyJobKeys(com.dtstack.task.domain.BatchJob, com.dtstack.task.server.parser.ScheduleCron, java.lang.String)
      */
     public String getTaskNameByJobKey(String jobKey,Integer appType) {
         String[] jobKeySplit = jobKey.split("_");
@@ -286,6 +286,8 @@ public class ScheduleTaskShadeService {
         }
         return taskShade;
     }
+
+
 
     public ScheduleTaskShadePageVO queryTasks(Long tenantId,
                                               Long projectId,
@@ -678,7 +680,7 @@ public class ScheduleTaskShadeService {
         return exceedMessage;
     }
 
-    public String addOrUpdateBatchTask(List<ScheduleTaskShadeDTO> batchTaskShadeDTOs) {
+    public String addOrUpdateBatchTask(List<ScheduleTaskShadeDTO> batchTaskShadeDTOs, String commitId) {
         if (CollectionUtils.isEmpty(batchTaskShadeDTOs)) {
             return null;
         }
@@ -687,7 +689,10 @@ public class ScheduleTaskShadeService {
             throw new RdosDefineException("批量增加或者修改的任务数不能超过:" + environmentContext.getMaxBatchTask());
         }
 
-        String commitId = UUID.randomUUID().toString();
+        if (StringUtils.isBlank(commitId)) {
+            LOG.info("commitId未传，自动生成commitId");
+            commitId = UUID.randomUUID().toString();
+        }
 
         try {
             List<ScheduleTaskCommit> scheduleTaskCommits = Lists.newArrayList();
@@ -734,7 +739,7 @@ public class ScheduleTaskShadeService {
         }
     }
 
-
+    @Transactional
     public Boolean taskCommit(String commitId) {
         LOG.info("提交任务commitId:{}",commitId);
         Long minId = scheduleTaskCommitMapper.findMinIdOfTaskCommitByCommitId(commitId);
@@ -772,5 +777,21 @@ public class ScheduleTaskShadeService {
         }
         
         return extInfo.getString(TaskConstant.INFO);
+    }
+
+    /**
+     * 按照appType和taskId分组查询
+     * @param groupByAppMap 分组数据
+     * @return
+     */
+    public Map<Integer,List<ScheduleTaskShade>> listTaskShadeByIdAndType(Map<Integer,Set<Long>> groupByAppMap){
+        if (MapUtils.isEmpty(groupByAppMap)){
+            throw new RdosDefineException("taskId或appType不能为空");
+        }
+        Map<Integer,List<ScheduleTaskShade>> scheduleTaskShadeMap=new HashMap<>(groupByAppMap.size());
+        for (Map.Entry<Integer, Set<Long>> entry : groupByAppMap.entrySet()) {
+            scheduleTaskShadeMap.put(entry.getKey(),scheduleTaskShadeDao.listByTaskIds(entry.getValue(), Deleted.NORMAL.getStatus(), entry.getKey()));
+        }
+        return scheduleTaskShadeMap;
     }
 }

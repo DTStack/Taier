@@ -37,6 +37,7 @@ public class TaskLogStoreDealer implements Runnable {
         dbConfig.put(ConfigConstant.JDBCURL, AkkaConfig.getWorkerLogstoreJdbcUrl());
         dbConfig.put(ConfigConstant.USERNAME, AkkaConfig.getWorkerLogstoreUsername());
         dbConfig.put(ConfigConstant.PASSWORD, AkkaConfig.getWorkerLogstorePassword());
+        dbConfig.put(ConfigConstant.INITIAL_SIZE, AkkaConfig.getWorkerInitialSize());
         dbConfig.put(ConfigConstant.MINIDLE, AkkaConfig.getWorkerMinActive());
         dbConfig.put(ConfigConstant.MAXACTIVE, AkkaConfig.getWorkerMaxActive());
 

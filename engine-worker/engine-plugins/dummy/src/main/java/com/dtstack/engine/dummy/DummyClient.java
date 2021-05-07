@@ -1,12 +1,10 @@
 package com.dtstack.engine.dummy;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.client.AbstractClient;
-import com.dtstack.engine.common.client.config.YamlConfigParser;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.pojo.JobResult;
@@ -18,11 +16,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
@@ -36,46 +31,10 @@ import java.util.Vector;
  */
 public class DummyClient extends AbstractClient {
 
-    private Map<String, List<ClientTemplate>> defaultConfigs = new HashMap();
-
     private static final Logger logger = LoggerFactory.getLogger(DummyClient.class);
 
-    private static Map<String,String> commonConfigFiles = new HashMap<>();
-
-    static {
-        commonConfigFiles.put("sftp","sftp-config.yml");
-    }
     @Override
     public void init(Properties prop) throws Exception {
-    }
-
-    @Override
-    public List<ClientTemplate> getDefaultPluginConfig(String componentType) {
-        return defaultConfigs.get(componentType);
-    }
-
-    public DummyClient() {
-        for (String componentType : commonConfigFiles.keySet()) {
-            InputStream resourceAsStream = null;
-            try {
-                String configYaml = findPluginConfig(this.getClass(), commonConfigFiles.get(componentType));
-                resourceAsStream = !StringUtils.isEmpty(configYaml) ? new FileInputStream(configYaml) :
-                        this.getClass().getClassLoader().getResourceAsStream(commonConfigFiles.get(componentType));
-                defaultPlugins = new YamlConfigParser().parse(resourceAsStream);
-                logger.info("=======DummyClient============{}", defaultPlugins);
-                defaultConfigs.put(componentType,defaultPlugins);
-            } catch (Exception e) {
-                logger.error("dummy client init default config error ", e);
-            } finally {
-                try {
-                    if (resourceAsStream != null) {
-                        resourceAsStream.close();
-                    }
-                } catch (IOException e) {
-                }
-            }
-        }
-
     }
 
     @Override

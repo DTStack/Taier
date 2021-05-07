@@ -1,5 +1,6 @@
 package com.dtstack.engine.api.pojo;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -31,16 +32,27 @@ public class ClientTemplate implements Serializable {
      * 默认值
      */
     @ApiModelProperty(notes = "默认值")
-    private String value;
+    private Object value;
     /**
      * 是否必填 默认必须
      */
-    @ApiModelProperty(notes = "是否必填 默认必须")
-    private Boolean required = true;
+    @ApiModelProperty(notes = "是否必填 默认非必须")
+    private Boolean required = false;
 
     private String dependencyKey;
 
     private String dependencyValue;
+
+    @JSONField(serialize = false)
+    private Long id = 0L;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getDependencyValue() {
         return dependencyValue;
@@ -90,11 +102,19 @@ public class ClientTemplate implements Serializable {
         this.type = type;
     }
 
-    public String getValue() {
+    public Object getValue() {
         return value;
     }
 
-    public void setValue(String value) {
+    public void setValue(Object value) {
         this.value = value;
+    }
+
+    public ClientTemplate(String key, Object value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    public ClientTemplate() {
     }
 }

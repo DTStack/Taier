@@ -1,6 +1,5 @@
 package com.dtstack.engine.common.client;
 
-import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.JobClient;
@@ -31,14 +30,23 @@ public class ClientOperator {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClientOperator.class);
 
-    private ClientCache clientCache = ClientCache.getInstance();
+    private static ClientCache clientCache;
 
-    private static ClientOperator singleton = new ClientOperator();
+    private static ClientOperator singleton;
 
     private ClientOperator() {
     }
 
-    public static ClientOperator getInstance() {
+    public static ClientOperator getInstance(String pluginPath) {
+        if (singleton == null) {
+            synchronized (ClientOperator.class) {
+                if (singleton == null) {
+                    clientCache = ClientCache.getInstance(pluginPath);
+                    LOG.info("init client operator plugin path {}",pluginPath);
+                    singleton = new ClientOperator();
+                }
+            }
+        }
         return singleton;
     }
 
@@ -159,11 +167,6 @@ public class ClientOperator {
     public JobResult submitJob(JobClient jobClient) throws ClientAccessException {
         IClient clusterClient = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
         return clusterClient.submitJob(jobClient);
-    }
-
-    public List<ClientTemplate> getDefaultPluginConfig(String engineType,String componentType){
-        IClient clusterClient = clientCache.getDefaultPlugin(engineType);
-        return clusterClient.getDefaultPluginConfig(componentType);
     }
 
     public ComponentTestResult testConnect(String engineType, String pluginInfo){
