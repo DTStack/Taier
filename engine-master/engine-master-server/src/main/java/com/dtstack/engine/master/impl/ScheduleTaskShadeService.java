@@ -877,6 +877,7 @@ public class ScheduleTaskShadeService {
 
             if (scheduleEngineProject != null) {
                 vo.setProjectName(scheduleEngineProject.getProjectName());
+                vo.setProjectAlias(scheduleEngineProject.getProjectAlias());
             }
 
             vos.add(vo);
@@ -945,6 +946,7 @@ public class ScheduleTaskShadeService {
 
             if (projectByProjectIdAndApptype != null) {
                 vo.setProjectName(projectByProjectIdAndApptype.getProjectName());
+                vo.setProjectAlias(projectByProjectIdAndApptype.getProjectAlias());
             }
             return vo;
         }
