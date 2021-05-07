@@ -30,14 +30,23 @@ public class ClientOperator {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClientOperator.class);
 
-    private ClientCache clientCache = ClientCache.getInstance();
+    private static ClientCache clientCache;
 
-    private static ClientOperator singleton = new ClientOperator();
+    private static ClientOperator singleton;
 
     private ClientOperator() {
     }
 
-    public static ClientOperator getInstance() {
+    public static ClientOperator getInstance(String pluginPath) {
+        if (singleton == null) {
+            synchronized (ClientOperator.class) {
+                if (singleton == null) {
+                    clientCache = ClientCache.getInstance(pluginPath);
+                    LOG.info("init client operator plugin path {}",pluginPath);
+                    singleton = new ClientOperator();
+                }
+            }
+        }
         return singleton;
     }
 
