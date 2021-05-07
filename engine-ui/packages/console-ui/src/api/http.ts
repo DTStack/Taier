@@ -41,7 +41,7 @@ class Http {
     request (url: any, options: any) {
         ProgressBar.show()
         options.credentials = 'same-origin'
-        setRequestVersion(options)
+        setRequestVersion(options, "DT_CONSOLE")
         return fetch(url, options)
             .then(authBeforeFormate)
             .then((response: any) => {
