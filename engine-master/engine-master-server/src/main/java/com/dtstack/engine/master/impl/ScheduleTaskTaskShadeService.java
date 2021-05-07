@@ -458,6 +458,7 @@ public class ScheduleTaskTaskShadeService {
 
         if (projectByProjectIdAndApptype != null) {
             vo.setProjectName(projectByProjectIdAndApptype.getProjectName());
+            vo.setProjectAlias(projectByProjectIdAndApptype.getProjectAlias());
         }
     }
 
@@ -694,5 +695,9 @@ public class ScheduleTaskTaskShadeService {
 
     public List<ScheduleTaskTaskShade> listChildTask(Long taskId, Integer appType,Integer limit) {
         return scheduleTaskTaskShadeDao.listChildTaskLimit(taskId,appType,limit);
+    }
+
+    public List<ScheduleTaskTaskShade> getTaskOtherPlatformByProjectId(Long projectId, Integer appType, Integer listChildTaskLimit) {
+        return scheduleTaskTaskShadeDao.getTaskOtherPlatformByProjectId(projectId,appType,listChildTaskLimit);
     }
 }

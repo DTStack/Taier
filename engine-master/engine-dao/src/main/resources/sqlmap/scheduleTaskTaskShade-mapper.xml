@@ -128,7 +128,14 @@
             #{taskKey}
         </foreach>
     </select>
-
+    <select id="getTaskOtherPlatformByProjectId"
+            resultType="com.dtstack.engine.api.domain.ScheduleTaskTaskShade">
+        SELECT <include refid="select_content_fragment"/>
+        FROM schedule_task_task_shade WHERE parent_task_id IN (
+            SELECT task_id FROM schedule_task_shade where project_id = #{projectId} AND app_type = #{appType}
+        ) AND project_id != #{projectId}
+        LIMIT #{listChildTaskLimit}
+    </select>
 
 
 </mapper>
