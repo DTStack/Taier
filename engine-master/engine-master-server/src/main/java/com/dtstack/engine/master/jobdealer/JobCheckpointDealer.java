@@ -142,7 +142,7 @@ public class JobCheckpointDealer implements InitializingBean {
         String taskId = "";
         try {
             taskId = taskInfo.getJobIdentifier().getTaskId();
-            if (getCheckpointInterval(taskId) > 0) {
+            if (getCheckpointInterval(taskId) > 0 || RdosTaskStatus.getStoppedStatus().contains(status)) {
                 updateJobCheckpoints(taskInfo.getJobIdentifier());
                 subtractionCheckpointRecord(engineJobId, taskId);
 
