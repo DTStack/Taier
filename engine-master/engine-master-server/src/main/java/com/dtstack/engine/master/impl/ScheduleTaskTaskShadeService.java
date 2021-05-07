@@ -458,6 +458,7 @@ public class ScheduleTaskTaskShadeService {
 
         if (projectByProjectIdAndApptype != null) {
             vo.setProjectName(projectByProjectIdAndApptype.getProjectName());
+            vo.setProjectAlias(projectByProjectIdAndApptype.getProjectAlias());
         }
     }
 
