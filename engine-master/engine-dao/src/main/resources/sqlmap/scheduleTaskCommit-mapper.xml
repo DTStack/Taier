@@ -71,4 +71,11 @@
         LIMIT ${limit}
     </select>
 
+    <select id="getTaskCommitByTaskId" resultType="com.dtstack.engine.api.domain.ScheduleTaskCommit">
+        SELECT
+        <include refid="filed"/>
+        FROM schedule_task_commit
+        WHERE task_id = #{taskId} AND app_type = #{appType} AND  is_commit = 0 AND is_deleted = 0 AND commit_id = #{commitId} limit 1
+    </select>
+
 </mapper>
