@@ -16,7 +16,7 @@ export function authBeforeFormate (response: any) {
         case 402:
         case 200:
         case 412:
-            versionMonitor(response);
+            versionMonitor(response, ['/api/console', '/node'], 'DT_CONSOLE');
             return response;
         case 302:
             message.info('登录超时, 请重新登录！')
@@ -28,6 +28,7 @@ export function authBeforeFormate (response: any) {
             if (process.env.NODE_ENV !== 'production') {
                 console.error('Request error: ', response.code, response.message)
             }
+            versionMonitor(response, ['/api/console', '/node'], 'DT_CONSOLE');
             return response
     }
 }
