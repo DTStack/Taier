@@ -69,6 +69,14 @@
         VALUES
         (#{dtuicUserId},#{userName},#{email},#{status},#{phoneNumber})
     </insert>
+    <insert id="insertBatch">
+        INSERT IGNORE INTO console_user
+        (dtuic_user_id,user_name,email,status,phone_number)
+        VALUES
+        <foreach collection="users" item="user" separator="," open="(" close="）">
+            #{user.dtuicUserId},#{user.userName},#{user.email},#{user.status},#{user.phoneNumber}
+        </foreach>
+    </insert>
 
     <update id="update">
         UPDATE console_user

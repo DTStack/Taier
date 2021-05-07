@@ -63,9 +63,9 @@ public class UserService {
         userDb.addAll(users);
         Map<Long, List<User>> userMaps = userDb.stream().collect(Collectors.groupingBy(User::getDtuicUserId));
         for (ScheduleTaskVO vo : vos) {
-            User user = userMaps.get(vo.getUserId()).get(0);
-            User createUser = userMaps.get(vo.getCreateUserId()).get(0);
-            User modifyUser = userMaps.get(vo.getModifyUserId()).get(0);
+            User user = userMaps.get(vo.getUserId()) != null ? userMaps.get(vo.getUserId()).get(0) : null;
+            User createUser = userMaps.get(vo.getCreateUserId()) != null ? userMaps.get(vo.getCreateUserId()).get(0) : null;
+            User modifyUser = userMaps.get(vo.getModifyUserId()) != null ? userMaps.get(vo.getModifyUserId()).get(0) : null;
 
             vo.setOwnerUser(buildUserDTO(user));
             vo.setCreateUser(buildUserDTO(createUser));
@@ -103,7 +103,16 @@ public class UserService {
     }
 
     private void saveUser(List<User> users) {
-
+        if (CollectionUtils.isNotEmpty(users)) {
+            if (users.size() > environmentContext.getListChildTaskLimit()) {
+                List<List<User>> partition = Lists.partition(users, environmentContext.getListChildTaskLimit());
+                for (List<User> userList : partition) {
+                    userDao.insertBatch(userList);
+                }
+            } else {
+                userDao.insertBatch(users);
+            }
+        }
     }
 
     public void fullFillDataJobUserName(List<ScheduleFillDataJobPreViewVO> resultContent) {
@@ -146,8 +155,8 @@ public class UserService {
             userDb.addAll(users);
             Map<Long, List<User>> userMaps = userDb.stream().collect(Collectors.groupingBy(User::getDtuicUserId));
             for (ScheduleTaskForFillDataDTO vo : scheduleTaskForFillDataDTOS) {
-                User user = userMaps.get(vo.getOwnerUserId()).get(0);
-                User createUser = userMaps.get(vo.getCreateUserId()).get(0);
+                User user = userMaps.get(vo.getOwnerUserId()) != null ? userMaps.get(vo.getOwnerUserId()).get(0) : null;
+                User createUser = userMaps.get(vo.getCreateUserId()) != null ? userMaps.get(vo.getCreateUserId()).get(0) : null;
 
                 vo.setOwnerUser(buildUserDTO(user));
                 vo.setCreateUser(buildUserDTO(createUser));

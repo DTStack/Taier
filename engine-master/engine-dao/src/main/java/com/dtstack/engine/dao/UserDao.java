@@ -22,4 +22,6 @@ public interface UserDao {
     Integer update(User user);
 
     List<User> getByDtUicUserIds(@Param("userIds") Set<Long> userIds);
+
+    Integer insertBatch(@Param("users") List<User> users);
 }

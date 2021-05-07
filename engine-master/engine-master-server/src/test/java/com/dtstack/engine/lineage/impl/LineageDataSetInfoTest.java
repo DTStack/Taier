@@ -89,7 +89,7 @@ public class LineageDataSetInfoTest extends AbstractTest {
 
     @Test
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-    @Rollback∑
+    @Rollback
     public void testGetTableColumns(){
 
         LineageDataSource dataSource = DataCollection.getData().getDefaultLineageDataSource();
