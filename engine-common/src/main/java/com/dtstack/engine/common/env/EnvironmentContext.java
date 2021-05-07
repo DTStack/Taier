@@ -7,6 +7,8 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+
 
 /**
  * @author sishu.yss
@@ -563,5 +565,9 @@ public class EnvironmentContext {
      */
     public boolean isCanAddExtraConfig() {
         return Boolean.parseBoolean(environment.getProperty("console.extra.config", "true"));
+    }
+
+    public String getPluginPath() {
+        return environment.getProperty("plugin.path",  System.getProperty("user.dir") + File.separator +"pluginLibs");
     }
 }
