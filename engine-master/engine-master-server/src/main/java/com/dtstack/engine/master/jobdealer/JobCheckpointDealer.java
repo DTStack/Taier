@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.jobdealer;
 
-import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -15,7 +14,6 @@ import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.bo.JobCheckpointInfo;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.impl.ClusterService;
-import com.dtstack.schedule.common.enums.Deleted;
 import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -34,11 +32,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 /**
@@ -104,7 +98,7 @@ public class JobCheckpointDealer implements InitializingBean {
     @Autowired
     private ClusterService clusterService;
 
-    private Map<String, JobCheckpointInfo> checkpointJobMap = Maps.newHashMap();
+    private CopyOnWriteArrayList<String> queuePutRecord = new CopyOnWriteArrayList<>();
 
     private Cache<String, String> checkpointInsertedCache = CacheBuilder.newBuilder().maximumSize(CHECKPOINT_INSERTED_RECORD).build();
 
@@ -128,21 +122,19 @@ public class JobCheckpointDealer implements InitializingBean {
                         engineJobId = taskInfo.getJobIdentifier().getEngineJobId();
                     }
                     taskId = taskInfo.getTaskId();
-                    ScheduleJob scheduleJob = scheduleJobDao.getByJobId(taskId, Deleted.NORMAL.getStatus());
-                    if (null == scheduleJob) {
-                        addFailedCheckpoint(taskId, engineJobId);
-                        continue;
-                    }
-                    //scheduleJob  停止之后engineJob为空 也需要保存checkpoint
-                    if (StringUtils.isNotBlank(scheduleJob.getEngineJobId()) && !scheduleJob.getEngineJobId().equalsIgnoreCase(engineJobId)) {
-                        LOGGER.info("jobId {} queue engineJobId {} is not same to db {} so skip", taskId, engineJobId, scheduleJob.getEngineJobId());
-                        continue;
-                    }
-                    updateCheckpointImmediately(taskInfo, engineJobId, scheduleJob.getStatus());
+                    Integer status = scheduleJobDao.getStatusByJobId(taskId);
+                    updateCheckpointImmediately(taskInfo, engineJobId, status);
 
                 } catch (Exception e) {
-                    addFailedCheckpoint(taskId, engineJobId);
                     LOGGER.error("update delay checkpoint jobId {}  engineJobId {} error ", taskId, engineJobId, e);
+                    if (StringUtils.isNotBlank(taskId)) {
+                        try {
+                            queuePutRecord.remove(taskId);
+                            addFailedCheckpoint(taskId, engineJobId);
+                        } catch (Exception exception) {
+                            LOGGER.error("update addFailedCheckpoint jobId {}  engineJobId {} error ", taskId, engineJobId, exception);
+                        }
+                    }
                 }
             }
         });
@@ -178,7 +170,7 @@ public class JobCheckpointDealer implements InitializingBean {
                     }
                     taskEngineIdAndRetainedNum.remove(engineJobId);
                     checkpointConfigCache.invalidate(taskId);
-                    checkpointJobMap.remove(engineJobId);
+                    queuePutRecord.remove(taskId);
                 }
             }
         } catch (Exception e) {
@@ -235,27 +227,23 @@ public class JobCheckpointDealer implements InitializingBean {
 
     public void addCheckpointTaskForQueue(Integer computeType, String taskId, JobIdentifier jobIdentifier, String engineTypeName) throws ExecutionException {
         long checkpointInterval = getCheckpointInterval(taskId);
-        if (checkpointInterval > 0) {
-            String engineJobId = jobIdentifier.getEngineJobId();
-            checkpointJobMap.computeIfAbsent(engineJobId, (info) -> {
-                try {
-                    String pluginInfo = clusterService.pluginInfoJSON(jobIdentifier.getTenantId(),
-                            jobIdentifier.getEngineType(), jobIdentifier.getUserId(), jobIdentifier.getDeployMode(),
-                            Collections.singletonMap(EngineTypeComponentType.getByEngineName(jobIdentifier.getEngineType()).getComponentType().getTypeCode(),jobIdentifier.getComponentVersion())).toJSONString();
-                    int retainedNum = getRetainedNumFromPluginInfo(pluginInfo);
-                    taskEngineIdAndRetainedNum.put(engineJobId, retainedNum);
+        if (checkpointInterval > 0 && !queuePutRecord.contains(taskId)) {
+            //queuePutRecord去重 保证队列中taskId唯一 后续通过refreshExpired来间隔获取
+            try {
+                String pluginInfo = clusterService.pluginInfoJSON(jobIdentifier.getTenantId(),
+                        jobIdentifier.getEngineType(), jobIdentifier.getUserId(), jobIdentifier.getDeployMode(),
+                        Collections.singletonMap(EngineTypeComponentType.getByEngineName(jobIdentifier.getEngineType()).getComponentType().getTypeCode(),jobIdentifier.getComponentVersion())).toJSONString();
+                int retainedNum = getRetainedNumFromPluginInfo(pluginInfo);
+                taskEngineIdAndRetainedNum.put(jobIdentifier.getEngineJobId(), retainedNum);
 
-                    JobCheckpointInfo taskInfo = new JobCheckpointInfo(computeType, taskId, jobIdentifier, engineTypeName, checkpointInterval);
+                JobCheckpointInfo taskInfo = new JobCheckpointInfo(computeType, taskId, jobIdentifier, engineTypeName, checkpointInterval);
 
-                    delayBlockingQueue.put(taskInfo);
-                    LOGGER.info("add taskId {} to checkpoint delay queue,{}", taskId, taskInfo);
-
-                    return taskInfo;
-                } catch (Exception e) {
-                    LOGGER.error("taskId {} addCheckpointTaskForQueue error ", taskId, e);
-                }
-                return null;
-            });
+                delayBlockingQueue.put(taskInfo);
+                queuePutRecord.add(taskId);
+                LOGGER.info("add taskId {} to checkpoint delay queue,{}", taskId, taskInfo);
+            } catch (Exception e) {
+                LOGGER.error("taskId {} addCheckpointTaskForQueue error ", taskId, e);
+            }
         }
 
     }

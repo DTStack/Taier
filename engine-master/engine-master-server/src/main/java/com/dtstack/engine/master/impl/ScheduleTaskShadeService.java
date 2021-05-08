@@ -996,7 +996,7 @@ public class ScheduleTaskShadeService {
         }
         Map<Integer,List<ScheduleTaskShade>> scheduleTaskShadeMap=new HashMap<>(groupByAppMap.size());
         for (Map.Entry<Integer, Set<Long>> entry : groupByAppMap.entrySet()) {
-            scheduleTaskShadeMap.put(entry.getKey(),scheduleTaskShadeDao.listSimpleByTaskIds(entry.getValue(), Deleted.NORMAL.getStatus(), entry.getKey()));
+            scheduleTaskShadeMap.put(entry.getKey(),scheduleTaskShadeDao.listByTaskIds(entry.getValue(), Deleted.NORMAL.getStatus(), entry.getKey()));
         }
         return scheduleTaskShadeMap;
     }
