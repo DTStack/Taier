@@ -125,7 +125,7 @@ public class UserService {
 
 
         for (ScheduleFillDataJobPreViewVO viewVO : resultContent) {
-            User user = userMaps.get(viewVO.getDutyUserId()).get(0);
+            User user = userMaps.get(viewVO.getDutyUserId()) != null ? userMaps.get(viewVO.getDutyUserId()).get(0) : null;
 
             if (user != null) {
                 viewVO.setDutyUserName(user.getUserName());
