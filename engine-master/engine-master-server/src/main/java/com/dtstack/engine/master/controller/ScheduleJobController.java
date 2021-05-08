@@ -422,6 +422,11 @@ public class ScheduleJobController {
         return scheduleJobService.syncRestartJob(id, justRunChild, setSuccess, subJobIds);
     }
 
+    @RequestMapping(value = "/restartJobAndResume", method = {RequestMethod.POST, RequestMethod.GET})
+    public OperatorVO restartJobAndResume(@DtRequestParam("jobIdList") List<Long> jobIdList, @DtRequestParam("runCurrentJob") Boolean runCurrentJob) {
+        return scheduleJobService.restartJobAndResume(jobIdList, runCurrentJob);
+    }
+
     @RequestMapping(value="/stopJobByCondition", method = {RequestMethod.POST})
     public Integer stopJobByCondition(@RequestBody ScheduleJobKillJobVO scheduleJobKillJobVO) {
         return scheduleJobService.stopJobByCondition(scheduleJobKillJobVO);
