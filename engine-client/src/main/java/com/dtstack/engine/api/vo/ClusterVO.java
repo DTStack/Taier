@@ -28,7 +28,7 @@ public class ClusterVO extends Cluster {
     @ApiModelProperty(notes = "组件类型")
     private List<SchedulingVo> scheduling;
 
-    private boolean canModifyMetadata;
+    private boolean canModifyMetadata = true;
 
     @ApiModelProperty(notes = "是否能修改metadata组件")
     public boolean isCanModifyMetadata() {
