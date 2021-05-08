@@ -580,13 +580,14 @@ public class ComponentService {
         if (!EComponentType.YARN.equals(componentType)) {
             return;
         }
-        String oldVersion = formatHadoopVersion(dbComponent.getHadoopVersion(), componentType);
-        String newVersion = formatHadoopVersion(addComponent.getHadoopVersion(), componentType);
-        if (oldVersion.equalsIgnoreCase(newVersion)) {
-            return;
-        }
         Component hdfsComponent = componentDao.getByEngineIdAndComponentType(engineId, EComponentType.HDFS.getTypeCode());
         if (null == hdfsComponent) {
+            return;
+        }
+        String oldVersion = formatHadoopVersion(dbComponent.getHadoopVersion(), componentType);
+        String newVersion = formatHadoopVersion(addComponent.getHadoopVersion(), componentType);
+        String hdfsVersion = formatHadoopVersion(hdfsComponent.getHadoopVersion(), EComponentType.HDFS);
+        if (newVersion.equalsIgnoreCase(oldVersion) && newVersion.equalsIgnoreCase(hdfsVersion)) {
             return;
         }
         //1. 同步hdfs组件版本
@@ -1361,13 +1362,18 @@ public class ComponentService {
         }
 
         if (EComponentType.SPARK_THRIFT.getTypeCode() == componentType ||
-                EComponentType.HIVE_SERVER.getTypeCode() == componentType) {
+                EComponentType.HIVE_SERVER.getTypeCode() == componentType ||
+                EComponentType.TIDB_SQL.getTypeCode() == componentType) {
             //数据库连接不带%s
             String replaceStr = "/";
             if (null != kerberosConfig) {
                 replaceStr = env.getComponentJdbcToReplace();
             }
             jdbcUrl = jdbcUrl.replace("/%s", replaceStr);
+            if (EComponentType.TIDB_SQL.getTypeCode() == componentType && !jdbcUrl.endsWith("/")) {
+                //tidb 需要以/结尾
+                jdbcUrl = jdbcUrl + "/";
+            }
         }
 
         dataInfo.put("jdbcUrl", jdbcUrl);
@@ -1805,10 +1811,8 @@ public class ComponentService {
             componentTestResult.setComponentVersion(testComponent.getHadoopVersion());
             return componentTestResult;
         }
-        String componentConfig = getComponentByClusterId(cluster.getId(), componentType, false, String.class,componentVersionMap);
-        KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(), componentType,ComponentVersionUtil.getComponentVersion(componentVersionMap,componentType));
-        Map sftpMap = getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class,componentVersionMap);
-        return testConnect(componentType, componentConfig, clusterName, testComponent.getHadoopVersion(), testComponent.getEngineId(), kerberosConfig, sftpMap,testComponent.getStoreType(),componentVersionMap);
+        Map sftpMap = getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class,null);
+        return testComponentWithResult(clusterName,cluster,sftpMap,testComponent);
     }
 
     /**
@@ -2122,7 +2126,7 @@ public class ComponentService {
             componentDao.updateMetadata(engineId, componentType, 1);
             return true;
         }
-        if (!BooleanUtils.toIntegerObject(isMetadata, 1, 0).equals(oldMetadata)) {
+        if (null != oldMetadata && !BooleanUtils.toIntegerObject(isMetadata, 1, 0).equals(oldMetadata)) {
             //如果集群已经绑定过租户 不允许修改
             if (CollectionUtils.isNotEmpty(engineTenantDao.listEngineTenant(engineId))) {
                 throw new RdosDefineException("cluster has bind tenant can not change metadata component");

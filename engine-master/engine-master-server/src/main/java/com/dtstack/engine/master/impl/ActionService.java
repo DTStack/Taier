@@ -21,6 +21,7 @@ import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
@@ -124,14 +125,14 @@ public class ActionService {
      * 接受来自客户端的请求, 并判断节点队列长度。
      * 如在当前节点,则直接处理任务
      */
-    public Boolean start(ParamActionExt paramActionExt){
+    public Boolean start(ParamActionExt paramActionExt,boolean useTaskType){
 
         LOGGER.info("start  actionParam: {}", JSONObject.toJSONString(paramActionExt));
 
         try{
             checkParam(paramActionExt);
             //taskId唯一去重，并发请求时以数据库taskId主键去重返回false
-            boolean canAccepted = receiveStartJob(paramActionExt);
+            boolean canAccepted = receiveStartJob(paramActionExt,useTaskType);
             //会对重复数据做校验
             if(canAccepted){
                 JobClient jobClient = new JobClient(paramActionExt);
@@ -149,7 +150,7 @@ public class ActionService {
                     ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(taskId);
                     if (scheduleJob == null) {
                         //新job 任务
-                        scheduleJob = buildScheduleJob(paramActionExt);
+                        scheduleJob = buildScheduleJob(paramActionExt,useTaskType);
                         scheduleJob.setStatus(RdosTaskStatus.SUBMITFAILD.getStatus());
                         scheduleJob.setLogInfo(GenerateErrorMsgUtil.generateErrorMsg(e.getMessage()));
                         scheduleJobDao.insert(scheduleJob);
@@ -172,7 +173,7 @@ public class ActionService {
             if (paramActionExt == null) {
                 throw new RdosDefineException("extraInfo can't null or empty string");
             }
-            return this.start(paramActionExt);
+            return this.start(paramActionExt,true);
         } catch (Exception e) {
             LOGGER.error("", e);
             return Boolean.FALSE;
@@ -335,7 +336,7 @@ public class ActionService {
      * @param paramActionExt
      * @return
      */
-    private boolean receiveStartJob(ParamActionExt paramActionExt){
+    private boolean receiveStartJob(ParamActionExt paramActionExt,boolean useTaskType){
         String jobId = paramActionExt.getTaskId();
         Integer computerType = paramActionExt.getComputeType();
 
@@ -348,7 +349,7 @@ public class ActionService {
         try {
             ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
             if(scheduleJob == null){
-                scheduleJob = buildScheduleJob(paramActionExt);
+                scheduleJob = buildScheduleJob(paramActionExt,useTaskType);
                 scheduleJobDao.insert(scheduleJob);
                 if((EScheduleType.TEMP_JOB.getType()==scheduleJob.getType())
                         && AppType.RDOS.getType().equals(scheduleJob.getAppType())){
@@ -385,7 +386,7 @@ public class ActionService {
         return result;
     }
 
-    private ScheduleJob buildScheduleJob(ParamActionExt paramActionExt) {
+    private ScheduleJob buildScheduleJob(ParamActionExt paramActionExt,boolean useTaskType) {
         ScheduleJob scheduleJob = new ScheduleJob();
         scheduleJob.setJobId(paramActionExt.getTaskId());
         scheduleJob.setJobName(getOrDefault(paramActionExt.getName(),""));
@@ -413,7 +414,7 @@ public class ActionService {
         scheduleJob.setVersionId(getOrDefault(paramActionExt.getVersionId(), 0));
         scheduleJob.setComputeType(getOrDefault(paramActionExt.getComputeType(), 1));
         scheduleJob.setPeriodType(paramActionExt.getPeriodType());
-        buildComponentVersion(scheduleJob,paramActionExt);
+        buildComponentVersion(scheduleJob,paramActionExt,useTaskType);
         return scheduleJob;
     }
 
@@ -732,13 +733,16 @@ public class ActionService {
     }
 
 
-    private void buildComponentVersion(ScheduleJob scheduleJob, ParamActionExt paramActionExt) {
+    private void buildComponentVersion(ScheduleJob scheduleJob, ParamActionExt paramActionExt,boolean useTaskType) {
         String componentVersion = paramActionExt.getComponentVersion();
         if (StringUtils.isNotBlank(componentVersion)){
             scheduleJob.setComponentVersion(componentVersion);
             return;
         }
-        EComponentType componentType = ComponentVersionUtil.transformTaskType2ComponentType(paramActionExt.getTaskType());
+        // 由于/start接口taskType参数
+        EComponentType componentType = useTaskType? ComponentVersionUtil.transformTaskType2ComponentType(paramActionExt.getTaskType()) :
+                EngineTypeComponentType.getByEngineName(paramActionExt.getEngineType()).getComponentType();
+        // ParamAction中的taskType并非约定的任务和组件,
         if (Objects.nonNull(componentType)){
             scheduleJob.setComponentVersion(componentDao.getDefaultComponentVersionByTenantAndComponentType(
                     paramActionExt.getTenantId(),componentType.getTypeCode()));

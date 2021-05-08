@@ -72,9 +72,15 @@ public class DataSourceService {
             LOGGER.info("engineId {} componentType {} component is null", engineId, componentTypeCode);
             return;
         }
+        DataSourceType dataSourceType = DataSourceType.convertEComponentType(EComponentType.getByCode(componentTypeCode), component.getHadoopVersion());
+        if(null == dataSourceType){
+            LOGGER.info("engineId {} componentType {} is not support datasource ", engineId, componentTypeCode);
+            return;
+        }
         EditConsoleParam editConsoleParam = new EditConsoleParam();
         try {
             editConsoleParam = getEditConsoleParam(clusterId, componentTypeCode, dtUicTenantIds, component);
+            editConsoleParam.setType(dataSourceType.getVal());
             dataSourceAPIClient.editConsoleDs(editConsoleParam);
             LOGGER.info("update datasource jdbc engineId {} componentType {} component info {}", engineId, componentTypeCode, editConsoleParam.toString());
         } catch (Exception e) {
@@ -94,10 +100,6 @@ public class DataSourceService {
         editConsoleParam.setDataVersion(component.getHadoopVersion());
         JSONObject sftpConfig = componentService.getComponentByClusterId(clusterId, EComponentType.SFTP.getTypeCode(), false, JSONObject.class,null);
         editConsoleParam.setSftpConf(sftpConfig);
-        DataSourceType dataSourceType = DataSourceType.convertEComponentType(EComponentType.getByCode(componentTypeCode), component.getHadoopVersion());
-        if (null != dataSourceType) {
-            editConsoleParam.setType(dataSourceType.getVal());
-        }
         if (StringUtils.isNotBlank(component.getKerberosFileName())) {
             //kerberos 配置信息
             KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, componentTypeCode,component.getHadoopVersion());
