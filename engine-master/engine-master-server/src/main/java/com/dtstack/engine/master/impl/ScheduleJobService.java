@@ -467,7 +467,7 @@ public class ScheduleJobService {
         } else {
             count = queryNormalJob(batchJobDTO, queryAll, pageQuery, result);
         }
-
+        userService.fullScheduleJobVO(result);
         return new PageResult<>(result, count, pageQuery);
     }
 
@@ -653,6 +653,7 @@ public class ScheduleJobService {
             List<com.dtstack.engine.api.vo.ScheduleJobVO> relatedJobVOs= new ArrayList<>(subJobVOs.size());
             subJobVOs.forEach(subJobVO -> relatedJobVOs.add(subJobVO));
             batchJobVO.setRelatedJobs(relatedJobVOs);
+            userService.fullScheduleJobVO(Lists.newArrayList(batchJobVO));
             return batchJobVO;
         } else {
             throw new RdosDefineException("Only workflow tasks have subordinate nodes");

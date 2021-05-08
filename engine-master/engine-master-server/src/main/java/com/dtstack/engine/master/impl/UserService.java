@@ -4,6 +4,7 @@ import com.dtstack.engine.api.domain.User;
 import com.dtstack.engine.api.dto.ScheduleTaskForFillDataDTO;
 import com.dtstack.engine.api.dto.UserDTO;
 import com.dtstack.engine.api.vo.ScheduleFillDataJobPreViewVO;
+import com.dtstack.engine.api.vo.ScheduleJobVO;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.dao.UserDao;
@@ -15,10 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -162,6 +160,19 @@ public class UserService {
                 vo.setCreateUser(buildUserDTO(createUser));
             }
 
+        } catch (Exception e) {
+            LOGGER.error("",e);
+        }
+
+    }
+
+    public void fullScheduleJobVO(List<ScheduleJobVO> jobVOS) {
+        try {
+            if (CollectionUtils.isNotEmpty(jobVOS)) {
+                return;
+            }
+            List<ScheduleTaskVO> taskVOS = jobVOS.stream().map(ScheduleJobVO::getBatchTask).collect(Collectors.toList());
+            fullUser(taskVOS);
         } catch (Exception e) {
             LOGGER.error("",e);
         }
