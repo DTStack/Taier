@@ -22,9 +22,10 @@ export default function AuthSelect(props: IProps) {
       if (data.length > 0) {
         data.forEach((item) => {
           if (item.isAuth === 1 || item.isImport === 1) {
-            let newList = checkedList;
+            let newList: any = checkedList;
             newList.push(item.appType);
             setCheckedList(newList);
+            oncheck(newList);
           }
         });
 
