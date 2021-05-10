@@ -138,7 +138,7 @@ function index(props) {
   };
 
   //获取产品授权的列表
-  const oncheck = (prolist) => {
+  const oncheck = (prolist: any) => {
     setcheckedValues(prolist);
   };
 
