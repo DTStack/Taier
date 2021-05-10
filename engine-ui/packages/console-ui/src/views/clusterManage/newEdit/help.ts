@@ -1,5 +1,7 @@
-import _ from 'lodash';
-import { TABS_TITLE_KEY, COMPONENT_TYPE_VALUE, CONFIG_ITEM_TYPE, FILE_TYPE } from './const'
+import _ from 'lodash'
+import { TABS_TITLE_KEY, COMPONENT_TYPE_VALUE,
+    CONFIG_ITEM_TYPE, FILE_TYPE, DEFAULT_PARAMS,
+    COMPONENT_CONFIG_NAME } from './const'
 
 // 是否为yarn、hdfs、Kubernetes组件
 export function isNeedTemp (typeCode: number): boolean {
@@ -9,6 +11,10 @@ export function isNeedTemp (typeCode: number): boolean {
 
 export function isKubernetes (typeCode: number): boolean {
     return COMPONENT_TYPE_VALUE.KUBERNETES == typeCode
+}
+
+export function isYarn (typeCode: number): boolean {
+    return COMPONENT_TYPE_VALUE.YARN == typeCode
 }
 
 export function isHaveGroup (typeCode: number): boolean {
@@ -33,8 +39,20 @@ export function isSameVersion (code: number): boolean {
     return [COMPONENT_TYPE_VALUE.HDFS, COMPONENT_TYPE_VALUE.YARN].indexOf(code) > -1
 }
 
+export function isMultiVersion (code: number): boolean {
+    return [COMPONENT_TYPE_VALUE.FLINK, COMPONENT_TYPE_VALUE.SPARK].indexOf(code) > -1
+}
+
 export function needZipFile (type: number): boolean {
     return [FILE_TYPE.KERNEROS, FILE_TYPE.CONFIGS].indexOf(type) > -1
+}
+
+export function showDataCheckBox (code: number): boolean {
+    return [COMPONENT_TYPE_VALUE.HIVE_SERVER, COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER].indexOf(code) > -1
+}
+
+export function notFileConfig (code: number): boolean {
+    return [COMPONENT_TYPE_VALUE.DTSCRIPT_AGENT].indexOf(code) > -1
 }
 
 export function getActionType (mode: string): string {
@@ -44,6 +62,10 @@ export function getActionType (mode: string): string {
         case 'edit': return '编辑集群'
         default: return ''
     }
+}
+
+export function isDataCheckBoxs (comps: any[]): boolean {
+    return comps.filter((comp) => showDataCheckBox(comp.componentTypeCode)).length == 2
 }
 
 export function isSourceTab (activeKey: number): boolean {
@@ -69,6 +91,10 @@ export function isFileParam (key: string): boolean {
     return ['kerberosFileName', 'uploadFileName'].indexOf(key) > -1
 }
 
+export function isMetaData (key: string): boolean {
+    return ['isMetadata'].indexOf(key) > -1
+}
+
 export function isDeployMode (key: string): boolean {
     return key === 'deploymode'
 }
@@ -90,12 +116,12 @@ export function getCustomerParams (temps: any): any[] {
     return temps.filter(temp => isCustomType(temp.type))
 }
 
-export function getCompsId (currentComps: any[], typeCodes: any[]): any[] {
+export function getCompsId (currentComps: any[], id: number): any[] {
     let ids = []
     currentComps.forEach(comp => {
-        if (typeCodes.indexOf(comp?.componentTypeCode) > -1 && comp?.id) {
-            ids.push(comp.id)
-        }
+        (comp?.multiVersion ?? []).forEach(vcomp => {
+            if (vcomp?.id == id) ids.push(vcomp.id)
+        })
     })
     return ids
 }
@@ -116,6 +142,15 @@ export function getOptions (version: any[]): any[] {
         }
     })
     return opt
+}
+
+export function getCompsName (comps: any[]): any[] {
+    return Array.from(comps).map((comp: any) => {
+        if (isMultiVersion(comp.typeCode)) {
+            return COMPONENT_CONFIG_NAME[comp.typeCode] + ' ' + (Number(comp.hadoopVersion) / 100).toFixed(2)
+        }
+        return COMPONENT_CONFIG_NAME[comp.typeCode]
+    })
 }
 
 export function getInitialValue (version: any[], commVersion: string): any[] {
@@ -323,7 +358,7 @@ export function handleComponentTemplate (comp: any, initialCompData: any): any {
 export function handleComponentConfig (comp: any, turnp?: boolean): any {
     // 处理componentConfig
     let componentConfig = {}
-    for (let [key, values] of Object.entries(comp.componentConfig)) {
+    for (let [key, values] of Object.entries(comp?.componentConfig ?? {})) {
         componentConfig[key] = values
         if (!_.isString(values) && !_.isArray(values)) {
             let groupConfig = {}
@@ -375,16 +410,112 @@ export function handleComponentConfigAndCustom (comp: any, typeCode: number): an
     return componentConfig
 }
 
-export function getInitialComp (initialCompDataArr: any[], typeCode: number): any {
-    let initialCompData = {}
-    for (let comps of initialCompDataArr) {
-        for (let item of comps) {
-            if (item.componentTypeCode == typeCode) {
-                initialCompData = item
+export function getSingleTestStatus (params: { typeCode: number; hadoopVersion?: string}, value: any, testStatus: any): any[] {
+    const typeCode = params.typeCode ?? ''
+    const hadoopVersion = params.hadoopVersion ?? ''
+    const currentStatus = testStatus[String(typeCode)] ?? {}
+    let multiVersion = currentStatus?.multiVersion ?? []
+
+    if (multiVersion.length) {
+        let sign = false
+        multiVersion = multiVersion.map(version => {
+            if (version?.componentVersion == hadoopVersion) {
+                sign = true
+                return value
+            }
+            return version
+        })
+        if (!sign && value) multiVersion.push(value)
+    }
+    if (!multiVersion.length && value) multiVersion.push(value)
+    return multiVersion
+}
+
+export function includesCurrentComp (modifyComps: any[], params: { typeCode: number; hadoopVersion?: string }): boolean {
+    const { typeCode, hadoopVersion } = params
+    for (const comp of modifyComps) {
+        if (comp.typeCode == typeCode && !comp.hadoopVersion) return true
+        if (comp.typeCode == typeCode && comp.hadoopVersion == hadoopVersion) return true
+    }
+    return false
+}
+
+export function getCurrentComp (initialCompDataArr: any[], params: { typeCode: number; hadoopVersion?: string }): any {
+    const { typeCode, hadoopVersion } = params
+    let currentComp = {}
+    for (const comp of initialCompDataArr) {
+        for (const vcomp of (comp?.multiVersion ?? [])) {
+            if (vcomp?.componentTypeCode == typeCode) {
+                if (!hadoopVersion && vcomp) currentComp = vcomp
+                if (vcomp?.hadoopVersion == hadoopVersion) currentComp = vcomp
             }
         }
     }
-    return initialCompData
+    return currentComp
+}
+
+export function getCurrent1Comp (initialCompDataArr: any[], params: { typeCode: number; hadoopVersion?: string }): any {
+    const { typeCode, hadoopVersion } = params
+    let currentComp = {}
+    for (const compArr of initialCompDataArr) {
+        for (const comp of compArr) {
+            for (const vcomp of (comp?.multiVersion ?? [])) {
+                if (vcomp?.componentTypeCode == typeCode) {
+                    if (!hadoopVersion && vcomp) currentComp = vcomp
+                    if (vcomp?.hadoopVersion == hadoopVersion) currentComp = vcomp
+                }
+            }
+        }
+    }
+    return currentComp
+}
+
+/**
+ * @param comp 已渲染组件表单值
+ * @param initialComp 组件初始值
+ *
+ * 通过比对表单值和初始值对比是否变更
+ * 返回含有组件code数组
+ *
+ */
+function handleCurrentComp (comp: any, initialComp: any, typeCode: number): boolean {
+    /**
+    * 基本参数对比
+    * 文件对比，只比较文件名称
+    */
+    for (let param of DEFAULT_PARAMS) {
+        let compValue = comp[param]
+        if (isFileParam(param)) {
+            compValue = comp[param]?.name ?? comp[param]
+        }
+        if (isMetaData(param)) {
+            if (comp[param] === true) compValue = 1
+            if (comp[param] === false) compValue = 0
+        }
+        if ((compValue || compValue === 0) && !_.isEqual(compValue, initialComp[param]?.name ?? initialComp[param])) {
+            return true
+        }
+    }
+
+    /**
+     * 除 hdfs、yarn、kerberos组件
+     * 对比之前先处理一遍表单的数据和自定义参数, 获取含有自定义参数的componentConfig
+     */
+    if (!isNeedTemp(Number(typeCode))) {
+        const compConfig = handleComponentConfigAndCustom(comp, Number(typeCode))
+        if (!Object.values(compConfig).length) return false
+        if (!_.isEqual(compConfig, initialComp?.componentConfig ? JSON.parse(initialComp.componentConfig) : {})) {
+            return true
+        }
+    } else {
+        /** 比对 hdfs、yarn 自定义参数 */
+        const compTemp = comp['customParam'] ? handleSingleParam(comp['customParam']) : []
+        const initialTemp = getCustomerParams(getValueByJson(initialComp?.componentTemplate) ?? [])
+        if (!_.isEqual(compTemp, initialTemp)) {
+            return true
+        }
+    }
+    return false
 }
 
 /**
@@ -396,39 +527,21 @@ export function getInitialComp (initialCompDataArr: any[], typeCode: number): an
  *
  */
 export function getModifyComp (comps: any, initialCompData: any[]): any {
-    /**
-    * 基本参数对比
-    * 文件对比，只比较文件名称
-    */
-    const defaulParams = ['storeType', 'principal', 'hadoopVersion', 'kerberosFileName',
-        'uploadFileName']
     let modifyComps = new Set()
     for (let [typeCode, comp] of Object.entries(comps)) {
-        const initialComp = getInitialComp(initialCompData, Number(typeCode))
-        for (let param of defaulParams) {
-            let compValue = comp[param]
-            if (isFileParam(param)) {
-                compValue = comp[param]?.name ?? comp[param]
-            }
-            if (compValue && !_.isEqual(compValue, initialComp[param]?.name ?? initialComp[param])) {
-                modifyComps.add(typeCode)
-            }
-        }
-        /**
-         * 除 hdfs、yarn、kerberos组件
-         * 对比之前先处理一遍表单的数据和自定义参数, 获取含有自定义参数的componentConfig
-         */
-        if (!isNeedTemp(Number(typeCode))) {
-            const compConfig = handleComponentConfigAndCustom(comp, Number(typeCode))
-            if (!_.isEqual(compConfig, initialComp?.componentConfig ? JSON.parse(initialComp.componentConfig) : {})) {
-                modifyComps.add(typeCode)
+        if (isMultiVersion(Number(typeCode))) {
+            for (let [hadoopVersion, vcomp] of Object.entries(comp)) {
+                if (!DEFAULT_PARAMS.includes(hadoopVersion)) {
+                    const initialComp = getCurrent1Comp(initialCompData, { typeCode: Number(typeCode), hadoopVersion })
+                    if (handleCurrentComp(vcomp, initialComp, Number(typeCode))) {
+                        modifyComps.add({ typeCode: Number(typeCode), hadoopVersion })
+                    }
+                }
             }
         } else {
-            /** 比对 hdfs、yarn 自定义参数 */
-            const compTemp = comp['customParam'] ? handleSingleParam(comp['customParam']) : []
-            const initialTemp = getCustomerParams(getValueByJson(initialComp?.componentTemplate) ?? [])
-            if (!_.isEqual(compTemp, initialTemp)) {
-                modifyComps.add(typeCode)
+            const initialComp = getCurrent1Comp(initialCompData, { typeCode: Number(typeCode) })
+            if (handleCurrentComp(comp, initialComp, Number(typeCode))) {
+                modifyComps.add({ typeCode: Number(typeCode) })
             }
         }
     }
