@@ -38,7 +38,7 @@
             <if test="mergeKrbContent != null">
                 merge_krb_content = #{mergeKrbContent},
             </if>
-            <if test="componentVersion != null">
+            <if test="componentVersion != null and componentVersion != '' ">
                 component_version = #{componentVersion},
             </if>
             gmt_modified =now()
@@ -51,7 +51,7 @@
         FROM console_kerberos
         WHERE cluster_id = #{clusterId} and is_deleted = 0
         and component_type = #{componentType}
-        <if test="componentVersion != null">
+        <if test="componentVersion != null and componentVersion != '' ">
             and component_version = #{componentVersion}
         </if>
         limit 1
