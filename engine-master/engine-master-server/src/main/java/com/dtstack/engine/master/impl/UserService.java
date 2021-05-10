@@ -4,6 +4,7 @@ import com.dtstack.engine.api.domain.User;
 import com.dtstack.engine.api.dto.ScheduleTaskForFillDataDTO;
 import com.dtstack.engine.api.dto.UserDTO;
 import com.dtstack.engine.api.vo.ScheduleFillDataJobPreViewVO;
+import com.dtstack.engine.api.vo.ScheduleJobVO;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.dao.UserDao;
@@ -15,10 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,21 +53,23 @@ public class UserService {
         userSetIds.addAll(modifyUserIds);
         userSetIds.addAll(userIds);
 
-        List<User> userDb = userDao.getByDtUicUserIds(userSetIds);
+        if (CollectionUtils.isNotEmpty(userSetIds)) {
+            List<User> userDb = userDao.getByDtUicUserIds(userSetIds);
 
-        // 查询出库里面没有用用户
-        List<User> users = findUser(userSetIds, userDb);
+            // 查询出库里面没有用用户
+            List<User> users = findUser(userSetIds, userDb);
 
-        userDb.addAll(users);
-        Map<Long, List<User>> userMaps = userDb.stream().collect(Collectors.groupingBy(User::getDtuicUserId));
-        for (ScheduleTaskVO vo : vos) {
-            User user = userMaps.get(vo.getUserId()) != null ? userMaps.get(vo.getUserId()).get(0) : null;
-            User createUser = userMaps.get(vo.getCreateUserId()) != null ? userMaps.get(vo.getCreateUserId()).get(0) : null;
-            User modifyUser = userMaps.get(vo.getModifyUserId()) != null ? userMaps.get(vo.getModifyUserId()).get(0) : null;
+            userDb.addAll(users);
+            Map<Long, List<User>> userMaps = userDb.stream().collect(Collectors.groupingBy(User::getDtuicUserId));
+            for (ScheduleTaskVO vo : vos) {
+                User user = userMaps.get(vo.getUserId()) != null ? userMaps.get(vo.getUserId()).get(0) : null;
+                User createUser = userMaps.get(vo.getCreateUserId()) != null ? userMaps.get(vo.getCreateUserId()).get(0) : null;
+                User modifyUser = userMaps.get(vo.getModifyUserId()) != null ? userMaps.get(vo.getModifyUserId()).get(0) : null;
 
-            vo.setOwnerUser(buildUserDTO(user));
-            vo.setCreateUser(buildUserDTO(createUser));
-            vo.setModifyUser(buildUserDTO(modifyUser));
+                vo.setOwnerUser(buildUserDTO(user));
+                vo.setCreateUser(buildUserDTO(createUser));
+                vo.setModifyUser(buildUserDTO(modifyUser));
+            }
         }
 
     }
@@ -117,21 +117,24 @@ public class UserService {
 
     public void fullFillDataJobUserName(List<ScheduleFillDataJobPreViewVO> resultContent) {
         Set<Long> userId = resultContent.stream().map(ScheduleFillDataJobPreViewVO::getDutyUserId).collect(Collectors.toSet());
-        List<User> userDb = userDao.getByDtUicUserIds(userId);
+        if (CollectionUtils.isNotEmpty(userId)) {
+            List<User> userDb = userDao.getByDtUicUserIds(userId);
 
-        List<User> users = findUser(userId, userDb);
-        userDb.addAll(users);
-        Map<Long, List<User>> userMaps = userDb.stream().collect(Collectors.groupingBy(User::getDtuicUserId));
+            List<User> users = findUser(userId, userDb);
+            userDb.addAll(users);
+            Map<Long, List<User>> userMaps = userDb.stream().collect(Collectors.groupingBy(User::getDtuicUserId));
 
 
-        for (ScheduleFillDataJobPreViewVO viewVO : resultContent) {
-            User user = userMaps.get(viewVO.getDutyUserId()) != null ? userMaps.get(viewVO.getDutyUserId()).get(0) : null;
+            for (ScheduleFillDataJobPreViewVO viewVO : resultContent) {
+                User user = userMaps.get(viewVO.getDutyUserId()) != null ? userMaps.get(viewVO.getDutyUserId()).get(0) : null;
 
-            if (user != null) {
-                viewVO.setDutyUserName(user.getUserName());
+                if (user != null) {
+                    viewVO.setDutyUserName(user.getUserName());
+                }
+
             }
-
         }
+
     }
 
     public void fullScheduleTaskForFillDataDTO(List<ScheduleTaskForFillDataDTO> scheduleTaskForFillDataDTOS) {
@@ -147,21 +150,36 @@ public class UserService {
             userSetIds.addAll(createUserIds);
             userSetIds.addAll(userIds);
 
-            List<User> userDb = userDao.getByDtUicUserIds(userSetIds);
+            if (CollectionUtils.isNotEmpty(userIds)) {
+                List<User> userDb = userDao.getByDtUicUserIds(userSetIds);
 
-            // 查询出库里面没有用用户
-            List<User> users = findUser(userSetIds, userDb);
+                // 查询出库里面没有用用户
+                List<User> users = findUser(userSetIds, userDb);
 
-            userDb.addAll(users);
-            Map<Long, List<User>> userMaps = userDb.stream().collect(Collectors.groupingBy(User::getDtuicUserId));
-            for (ScheduleTaskForFillDataDTO vo : scheduleTaskForFillDataDTOS) {
-                User user = userMaps.get(vo.getOwnerUserId()) != null ? userMaps.get(vo.getOwnerUserId()).get(0) : null;
-                User createUser = userMaps.get(vo.getCreateUserId()) != null ? userMaps.get(vo.getCreateUserId()).get(0) : null;
+                userDb.addAll(users);
+                Map<Long, List<User>> userMaps = userDb.stream().collect(Collectors.groupingBy(User::getDtuicUserId));
+                for (ScheduleTaskForFillDataDTO vo : scheduleTaskForFillDataDTOS) {
+                    User user = userMaps.get(vo.getOwnerUserId()) != null ? userMaps.get(vo.getOwnerUserId()).get(0) : null;
+                    User createUser = userMaps.get(vo.getCreateUserId()) != null ? userMaps.get(vo.getCreateUserId()).get(0) : null;
 
-                vo.setOwnerUser(buildUserDTO(user));
-                vo.setCreateUser(buildUserDTO(createUser));
+                    vo.setOwnerUser(buildUserDTO(user));
+                    vo.setCreateUser(buildUserDTO(createUser));
+                }
             }
 
+        } catch (Exception e) {
+            LOGGER.error("",e);
+        }
+
+    }
+
+    public void fullScheduleJobVO(List<ScheduleJobVO> jobVOS) {
+        try {
+            if (CollectionUtils.isNotEmpty(jobVOS)) {
+                return;
+            }
+            List<ScheduleTaskVO> taskVOS = jobVOS.stream().map(ScheduleJobVO::getBatchTask).collect(Collectors.toList());
+            fullUser(taskVOS);
         } catch (Exception e) {
             LOGGER.error("",e);
         }

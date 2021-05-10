@@ -17,6 +17,7 @@ public enum AppType {
     STREAM(7,"实时开发"),
     DATASCIENCE(8,"数据科学"),
     DATAASSETS(9,"数据资产"),
+    INDEX(10,"指标"),
     DAGSCHEDULEX(99,"调度");
 
     private int type;
