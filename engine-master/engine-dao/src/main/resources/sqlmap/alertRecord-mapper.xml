@@ -308,7 +308,7 @@
         WHERE
         `node_address` = #{nodeAddress}
         AND `is_deleted`=0
-        <if test="alert_record_status!=null">
+        <if test="sendStatusList!=null and sendStatusList.size()>0">
             AND `alert_record_status`IN
             <foreach collection="sendStatusList" separator="," open="(" close=")" item="sendStatus">
                 ${sendStatus}
