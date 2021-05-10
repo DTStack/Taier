@@ -1008,9 +1008,9 @@ public class ScheduleTaskShadeService {
      * @param expression
      * @return
      */
-    public String checkCronExpression(String expression) {
+    public String checkCronExpression(String cron) {
         try {
-            new CronSequenceGenerator(expression);
+            new CronSequenceGenerator(cron);
         }catch (Exception e){
            return ExceptionUtil.getErrorMessage(e);
         }
@@ -1025,10 +1025,10 @@ public class ScheduleTaskShadeService {
      * @param num 条数
      * @return 运行数据
      */
-    public List<String> recentlyRunTime(String startDate, String endDate, String expression, int num) {
+    public List<String> recentlyRunTime(String startDate, String endDate, String cron, int num) {
         CronSequenceGenerator generator;
         try {
-            generator = new CronSequenceGenerator(expression);
+            generator = new CronSequenceGenerator(cron);
         }catch (Exception e){
             throw new RdosDefineException("illegal cron expression");
         }

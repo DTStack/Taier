@@ -211,12 +211,12 @@ public class ScheduleTaskShadeController {
     }
 
     @RequestMapping(value = "/checkCronExpression",method = {RequestMethod.POST})
-    public String checkCronExpression(@DtRequestParam("expression") String expression){
-        return scheduleTaskShadeService.checkCronExpression(expression);
+    public String checkCronExpression(@DtRequestParam("cron") String cron){
+        return scheduleTaskShadeService.checkCronExpression(cron);
     }
     @RequestMapping(value = "/recentlyRunTime",method = {RequestMethod.POST})
     public List<String > recentlyRunTime(@DtRequestParam("startDate")String startDate,@DtRequestParam("endDate")String endDate,
-                                         @DtRequestParam("expression")String expression,@DtRequestParam("num")Integer num){
-        return scheduleTaskShadeService.recentlyRunTime(startDate,endDate,expression, Objects.isNull(num)?10:num);
+                                         @DtRequestParam("cron")String cron,@DtRequestParam("num")Integer num){
+        return scheduleTaskShadeService.recentlyRunTime(startDate,endDate,cron, Objects.isNull(num)?10:num);
     }
 }
