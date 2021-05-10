@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.2.0-beta5](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.0-beta4...v4.2.0-beta5) (2021-05-10)
+
+
+### Bug Fixes
+
+* produce auth ([8e5ddd7](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/8e5ddd713e694e6d188fbe53cc59a2d2d5fb295b))
+* relation list remove fix ([e480121](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/e480121b338ee97bbbda939f6de491cc2abe9a69))
+* 数据模型新增去掉id参数 ([cf354b8](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/cf354b85ae2a8126824ec1b25def2b9fcaf956f2))
+
 ## [4.2.0-beta4](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.0-beta3...v4.2.0-beta4) (2021-05-10)
 
 
