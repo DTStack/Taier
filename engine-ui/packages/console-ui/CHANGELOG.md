@@ -2,6 +2,43 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.2.0-beta5](http://git.dtstack.cn/dtstack/data-stack-web/compare/v4.2.0-beta4...v4.2.0-beta5) (2021-05-10)
+
+
+### Features
+
+* **cluster manage:** add data source checkbox ([a913dd2](http://git.dtstack.cn/dtstack/data-stack-web/commit/a913dd2c2c372afafa13e81274d2227284d3a837))
+* **config:** add multiple version for comp config ([87177a4](http://git.dtstack.cn/dtstack/data-stack-web/commit/87177a4cfefbec538e889ece88fbeb90dd984ad5))
+* **edit cluster:** initail multi version comp for flink and spark ([16ce9d5](http://git.dtstack.cn/dtstack/data-stack-web/commit/16ce9d5482858eb7faa2177ef24bd1ee43438849))
+* **toolbar:** add delete comp btn ([79eaa1c](http://git.dtstack.cn/dtstack/data-stack-web/commit/79eaa1cab805e00a8f2dc4f697a2a5ba69f4003e))
+* add disabled meta data param ([1c9431f](http://git.dtstack.cn/dtstack/data-stack-web/commit/1c9431ffb23558d0c1dde9666fd81c3c17096beb))
+* add dtscript agent comp ([0b74012](http://git.dtstack.cn/dtstack/data-stack-web/commit/0b7401287360c1659b54276aee146652868c1802))
+* add multi version comp for flnk and spark ([1c99911](http://git.dtstack.cn/dtstack/data-stack-web/commit/1c999114d8460a1603d7baaa6a044f9e7506c89f))
+* add tabs for multi version comp ([6547143](http://git.dtstack.cn/dtstack/data-stack-web/commit/654714320b3cce6665046a385e583402b5d84cfd))
+* add tenant data ([3b53509](http://git.dtstack.cn/dtstack/data-stack-web/commit/3b53509c0634fbc3c62f61ee89a48c44c6bc5f53))
+* add test status for multiple versions comps ([3df08e9](http://git.dtstack.cn/dtstack/data-stack-web/commit/3df08e9a24bec13c9e85527f312d8edcbd33f6ee))
+
+
+### Bug Fixes
+
+* add meta data checkbox ([f17b16c](http://git.dtstack.cn/dtstack/data-stack-web/commit/f17b16ca4607ae2f4c19f905bbf38f9734d41b6d))
+* delete mulitple version comp ([3be381f](http://git.dtstack.cn/dtstack/data-stack-web/commit/3be381f760b066df1e6b66a7783f0e4cb9f1bf91))
+* fix add multiple version comp ([51e8e95](http://git.dtstack.cn/dtstack/data-stack-web/commit/51e8e95ac1d9c162be3a7437e2fbc96a4c4f8b57))
+* fix delete comps ([8f797be](http://git.dtstack.cn/dtstack/data-stack-web/commit/8f797beadce9af1db7df9bb303414eed91caa43c))
+* fix disabled meta ([81733be](http://git.dtstack.cn/dtstack/data-stack-web/commit/81733bea566320b9d87e1db01b1daf1c4b519034))
+* fix krbconfig for mutliple version comps ([e927b1e](http://git.dtstack.cn/dtstack/data-stack-web/commit/e927b1e14dbdfbb7ae4b03ef450bfe7698c35de9))
+* fix meta data param ([8b78dd2](http://git.dtstack.cn/dtstack/data-stack-web/commit/8b78dd2e0bc0a5513038e1be753832614531c120))
+* fix multiple version comp ([7979454](http://git.dtstack.cn/dtstack/data-stack-web/commit/79794546e65133cd50c8fb0927bb5591a3e5ddd7))
+* fix test connect ([2376be0](http://git.dtstack.cn/dtstack/data-stack-web/commit/2376be0a2bd1a5881d8260236da159e5e4253af4))
+* fix test multiple version comp connect ([4ad1c4c](http://git.dtstack.cn/dtstack/data-stack-web/commit/4ad1c4c0fe044f3bc9df357d894c9b0880288dbc))
+* fix upload params file for multiple version ([5e181f9](http://git.dtstack.cn/dtstack/data-stack-web/commit/5e181f9901fd210f5849540848b529f412852fd6))
+* handle conflict ([09d91ec](http://git.dtstack.cn/dtstack/data-stack-web/commit/09d91ec5c78659b0e9551bc3f4a7c5f632bf969d))
+* handle conflict ([56dbf46](http://git.dtstack.cn/dtstack/data-stack-web/commit/56dbf46f9cea101d65d7187a06f4d6b3a070706b))
+* handle conflict ([7226b71](http://git.dtstack.cn/dtstack/data-stack-web/commit/7226b71813e981ea2af23f51040884fa45450b04))
+* set form field value for mulitple version comp ([6fa9d05](http://git.dtstack.cn/dtstack/data-stack-web/commit/6fa9d05a856ad82921f464221a2daee4affa505f))
+* sync yarn adn hdfs hadoop version ([88f86ed](http://git.dtstack.cn/dtstack/data-stack-web/commit/88f86ed7b67be30b9e27ff7005bb2684633d57c5))
+* update dt-common and theme version ([3c6446b](http://git.dtstack.cn/dtstack/data-stack-web/commit/3c6446ba89c4178fef01f437805d0c52550a5507))
+
 ## [4.2.0-beta4](http://git.dtstack.cn/dtstack/data-stack-web/compare/v4.2.0-beta3...v4.2.0-beta4) (2021-04-21)
 
 
