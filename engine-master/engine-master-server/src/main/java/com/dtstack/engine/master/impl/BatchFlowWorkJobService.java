@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.enums.TaskRuleEnum;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
@@ -71,7 +72,7 @@ public class BatchFlowWorkJobService {
             bottleStatus = RdosTaskStatus.FINISHED.getStatus();
             canRemove = true;
         } else {
-            LOGGER.info("flowId:{} checkRemoveAndUpdateFlowJobStatus {}", jobId,JSON.toJSONString(subJobs));
+            LOGGER.info("flowId:{} checkRemoveAndUpdateFlowJobStatus {}", jobId, JSON.toJSONString(subJobs));
             for (ScheduleJob scheduleJob : subJobs) {
                 Integer status = scheduleJob.getStatus();
                 LOGGER.info("flowId:{} status: {}", jobId,status);
