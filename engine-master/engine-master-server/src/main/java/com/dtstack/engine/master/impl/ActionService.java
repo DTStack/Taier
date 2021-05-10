@@ -2,10 +2,7 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.EngineJobRetry;
-import com.dtstack.engine.api.domain.EngineUniqueSign;
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.api.vo.action.ActionJobEntityVO;
@@ -19,10 +16,12 @@ import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.ComponentVersionUtil;
 import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
@@ -101,6 +100,12 @@ public class ActionService {
     @Autowired
     private MultiEngineFactory multiEngineFactory;
 
+    @Autowired
+    private ComponentDao componentDao;
+
+    @Autowired
+    private ScheduleSqlTextTempDao sqlTextTempDao;
+
     private final ObjectMapper objMapper = new ObjectMapper();
 
 
@@ -120,14 +125,14 @@ public class ActionService {
      * 接受来自客户端的请求, 并判断节点队列长度。
      * 如在当前节点,则直接处理任务
      */
-    public Boolean start(ParamActionExt paramActionExt){
+    public Boolean start(ParamActionExt paramActionExt,boolean useTaskType){
 
         LOGGER.info("start  actionParam: {}", JSONObject.toJSONString(paramActionExt));
 
         try{
             checkParam(paramActionExt);
             //taskId唯一去重，并发请求时以数据库taskId主键去重返回false
-            boolean canAccepted = receiveStartJob(paramActionExt);
+            boolean canAccepted = receiveStartJob(paramActionExt,useTaskType);
             //会对重复数据做校验
             if(canAccepted){
                 JobClient jobClient = new JobClient(paramActionExt);
@@ -145,7 +150,7 @@ public class ActionService {
                     ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(taskId);
                     if (scheduleJob == null) {
                         //新job 任务
-                        scheduleJob = buildScheduleJob(paramActionExt);
+                        scheduleJob = buildScheduleJob(paramActionExt,useTaskType);
                         scheduleJob.setStatus(RdosTaskStatus.SUBMITFAILD.getStatus());
                         scheduleJob.setLogInfo(GenerateErrorMsgUtil.generateErrorMsg(e.getMessage()));
                         scheduleJobDao.insert(scheduleJob);
@@ -168,7 +173,7 @@ public class ActionService {
             if (paramActionExt == null) {
                 throw new RdosDefineException("extraInfo can't null or empty string");
             }
-            return this.start(paramActionExt);
+            return this.start(paramActionExt,true);
         } catch (Exception e) {
             LOGGER.error("", e);
             return Boolean.FALSE;
@@ -236,6 +241,7 @@ public class ActionService {
         scheduleJob.setVersionId(getOrDefault(batchTask.getVersionId(), 0));
         scheduleJob.setComputeType(getOrDefault(batchTask.getComputeType(), 1));
         scheduleJob.setPeriodType(scheduleCron.getPeriodType());
+        scheduleJob.setComponentVersion(batchTask.getComponentVersion());
         return scheduleJob;
     }
 
@@ -269,6 +275,11 @@ public class ActionService {
             if (scheduleConf.getBooleanValue("isFailRetry")) {
                 int maxRetryNum = scheduleConf.getIntValue("maxRetryNum") == 0 ? 3 : scheduleConf.getIntValue("maxRetryNum");
                 actionParam.put("maxRetryNum", maxRetryNum);
+                //离线 单位 分钟
+                Integer retryIntervalTime = scheduleConf.getInteger("retryIntervalTime");
+                if(null != retryIntervalTime){
+                    actionParam.put("retryIntervalTime",retryIntervalTime * 60 * 1000);
+                }
             } else {
                 actionParam.put("maxRetryNum", 0);
             }
@@ -325,32 +336,41 @@ public class ActionService {
      * @param paramActionExt
      * @return
      */
-    private boolean receiveStartJob(ParamActionExt paramActionExt){
-        boolean result = false;
+    private boolean receiveStartJob(ParamActionExt paramActionExt,boolean useTaskType){
         String jobId = paramActionExt.getTaskId();
         Integer computerType = paramActionExt.getComputeType();
 
         //当前任务已经存在在engine里面了
         //不允许相同任务同时在engine上运行---考虑将cache的清理放在任务结束的时候(停止，取消，完成)
         if(engineJobCacheDao.getOne(jobId) != null){
-            return result;
+            return false;
         }
+        boolean result = false;
         try {
             ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
             if(scheduleJob == null){
-                scheduleJob = buildScheduleJob(paramActionExt);
+                scheduleJob = buildScheduleJob(paramActionExt,useTaskType);
                 scheduleJobDao.insert(scheduleJob);
+                if((EScheduleType.TEMP_JOB.getType()==scheduleJob.getType())
+                        && AppType.RDOS.getType().equals(scheduleJob.getAppType())){
+                    //离线临时运行需要插入sql_text
+                    ScheduleSqlTextTemp sqlTextTemp = new ScheduleSqlTextTemp();
+                    sqlTextTemp.setEngineType(paramActionExt.getEngineType());
+                    sqlTextTemp.setJobId(scheduleJob.getJobId());
+                    sqlTextTemp.setSqlText(paramActionExt.getSqlText());
+                    sqlTextTempDao.insert(sqlTextTemp);
+                }
                 result = true;
             }else{
                 result = RdosTaskStatus.canStart(scheduleJob.getStatus());
-                if (result && ComputeType.BATCH.getType().equals(computerType)) {
+                if (result) {
                     engineJobRetryDao.removeByJobId(jobId);
                 }
                 if(result && !RdosTaskStatus.ENGINEACCEPTED.getStatus().equals(scheduleJob.getStatus()) ){
                     scheduleJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus());
                     scheduleJob.setAppType(paramActionExt.getAppType());
                     scheduleJob.setDtuicTenantId(paramActionExt.getDtuicTenantId());
-                    if (AppType.STREAM.getType() == paramActionExt.getAppType()) {
+                    if (AppType.STREAM.getType().equals(paramActionExt.getAppType())) {
                         scheduleJob.setRetryNum(0);
                     }
                     scheduleJobDao.update(scheduleJob);
@@ -366,7 +386,7 @@ public class ActionService {
         return result;
     }
 
-    private ScheduleJob buildScheduleJob(ParamActionExt paramActionExt) {
+    private ScheduleJob buildScheduleJob(ParamActionExt paramActionExt,boolean useTaskType) {
         ScheduleJob scheduleJob = new ScheduleJob();
         scheduleJob.setJobId(paramActionExt.getTaskId());
         scheduleJob.setJobName(getOrDefault(paramActionExt.getName(),""));
@@ -394,6 +414,7 @@ public class ActionService {
         scheduleJob.setVersionId(getOrDefault(paramActionExt.getVersionId(), 0));
         scheduleJob.setComputeType(getOrDefault(paramActionExt.getComputeType(), 1));
         scheduleJob.setPeriodType(paramActionExt.getPeriodType());
+        buildComponentVersion(scheduleJob,paramActionExt,useTaskType);
         return scheduleJob;
     }
 
@@ -711,6 +732,22 @@ public class ActionService {
         return vo;
     }
 
+
+    private void buildComponentVersion(ScheduleJob scheduleJob, ParamActionExt paramActionExt,boolean useTaskType) {
+        String componentVersion = paramActionExt.getComponentVersion();
+        if (StringUtils.isNotBlank(componentVersion)){
+            scheduleJob.setComponentVersion(componentVersion);
+            return;
+        }
+        // 由于/start接口taskType参数
+        EComponentType componentType = useTaskType? ComponentVersionUtil.transformTaskType2ComponentType(paramActionExt.getTaskType()) :
+                EngineTypeComponentType.getByEngineName(paramActionExt.getEngineType()).getComponentType();
+        // ParamAction中的taskType并非约定的任务和组件,
+        if (Objects.nonNull(componentType)){
+            scheduleJob.setComponentVersion(componentDao.getDefaultComponentVersionByTenantAndComponentType(
+                    paramActionExt.getTenantId(),componentType.getTypeCode()));
+        }
+    }
 
 
 }

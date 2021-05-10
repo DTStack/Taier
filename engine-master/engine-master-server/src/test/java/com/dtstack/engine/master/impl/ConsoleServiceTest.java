@@ -31,10 +31,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -204,7 +201,7 @@ public class ConsoleServiceTest extends AbstractTest {
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public void testClusterResources() {
         Cluster one = DataCollection.getData().getDefaultCluster();
-        ClusterResource clusterResources = consoleService.clusterResources(one.getClusterName());
+        ClusterResource clusterResources = consoleService.clusterResources(one.getClusterName(), Collections.emptyMap());
         Assert.assertNotNull(clusterResources);
     }
 

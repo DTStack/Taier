@@ -420,6 +420,7 @@ public class JobGraphBuilder {
             scheduleJob.setJobName(targetJobName);
             scheduleJob.setPeriodType(scheduleCron.getPeriodType());
             scheduleJob.setTaskId(task.getTaskId());
+            scheduleJob.setComponentVersion(task.getComponentVersion());
             //普通任务
             if (task.getFlowId() == 0) {
                 scheduleJob.setFlowJobId(NORMAL_TASK_FLOW_ID);
@@ -756,7 +757,7 @@ public class JobGraphBuilder {
         //现在task中 taskId + appType 才是唯一
         //现在采用taskShade表的id
         ScheduleTaskShade shade = batchTaskShadeService.getBatchTaskById(scheduleJob.getTaskId(), scheduleJob.getAppType());
-        if (null != shade ) {
+        if (null != shade && StringUtils.isNotBlank(preTriggerDateStr)) {
             return generateJobKey(keyPreStr, shade.getId(), preTriggerDateStr);
         }
         return null;

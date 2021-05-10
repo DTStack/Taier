@@ -33,7 +33,7 @@ public enum EComponentType {
     KUBERNETES(15, "Kubernetes", "kubernetesConf"),
     PRESTO_SQL(16, "Presto SQL", "prestoConf"),
     NFS(17, "NFS", "nfsConf"),
-    SHELL_AGENT(18,"Shell Agent","shellAgentConf"),
+    DTSCRIPT_AGENT(18,"DtScript Agent","dtScriptAgentConf"),
     INCEPTOR_SQL(19,"InceptorSql","inceptorSqlConf");
 
     private Integer typeCode;
@@ -108,7 +108,7 @@ public enum EComponentType {
     // 计算组件
     public static List<EComponentType> ComputeScheduling = Lists.newArrayList(EComponentType.SPARK, EComponentType.SPARK_THRIFT,
             EComponentType.FLINK, EComponentType.HIVE_SERVER, EComponentType.IMPALA_SQL, EComponentType.DT_SCRIPT,
-            EComponentType.LEARNING, EComponentType.TIDB_SQL, EComponentType.PRESTO_SQL, EComponentType.LIBRA_SQL, EComponentType.ORACLE_SQL, EComponentType.CARBON_DATA, EComponentType.GREENPLUM_SQL,EComponentType.INCEPTOR_SQL);
+            EComponentType.LEARNING, EComponentType.TIDB_SQL, EComponentType.PRESTO_SQL, EComponentType.LIBRA_SQL, EComponentType.ORACLE_SQL, EComponentType.CARBON_DATA, EComponentType.GREENPLUM_SQL,EComponentType.INCEPTOR_SQL,EComponentType.DTSCRIPT_AGENT);
 
     public static List<EComponentType> CommonScheduling = Lists.newArrayList(EComponentType.SFTP);
 
@@ -132,6 +132,8 @@ public enum EComponentType {
     //Presto引擎组件
     public static List<EComponentType> PrestoComponents = Lists.newArrayList(EComponentType.PRESTO_SQL);
 
+    public static List<EComponentType> EmptyComponents = Lists.newArrayList(EComponentType.DTSCRIPT_AGENT);
+
     public static MultiEngineType getEngineTypeByComponent(EComponentType componentType) {
         if (HadoopComponents.contains(componentType)) {
             return MultiEngineType.HADOOP;
@@ -150,6 +152,9 @@ public enum EComponentType {
         }
         if (PrestoComponents.contains(componentType)) {
             return MultiEngineType.PRESTO;
+        }
+        if (EmptyComponents.contains(componentType)){
+            return MultiEngineType.COMMON;
         }
         return null;
     }
@@ -200,6 +205,8 @@ public enum EComponentType {
                 return "nfs";
             case INCEPTOR_SQL:
                 return "inceptor";
+            case DTSCRIPT_AGENT:
+                return "dtscript-agent";
         }
         return "";
     }
@@ -254,5 +261,9 @@ public enum EComponentType {
     //多hadoop版本选择组件
     public static List<EComponentType> hadoopVersionComponents = Lists.newArrayList(EComponentType.YARN,EComponentType.HDFS);
 
+    //metadata组件
+    public static List<EComponentType> metadataComponents = Lists.newArrayList(EComponentType.HIVE_SERVER,EComponentType.SPARK_THRIFT);
+
 
 }
+

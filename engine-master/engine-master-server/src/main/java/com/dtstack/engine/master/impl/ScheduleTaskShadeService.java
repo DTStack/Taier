@@ -14,15 +14,16 @@ import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
 import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EScheduleStatus;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.ComponentVersionUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.UnitConvertUtil;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.domain.ScheduleEngineProject;
 import com.dtstack.engine.master.executor.CronJobExecutor;
 import com.dtstack.engine.master.executor.FillJobExecutor;
 import com.dtstack.schedule.common.enums.*;
@@ -80,6 +81,9 @@ public class ScheduleTaskShadeService {
     @Autowired
     private ScheduleTaskCommitMapper scheduleTaskCommitMapper;
 
+    @Autowired
+    private ComponentDao componentDao;
+
     /**
      * web 接口
      * 例如：离线计算BatchTaskService.publishTaskInfo 触发 batchTaskShade 保存task的必要信息
@@ -107,6 +111,12 @@ public class ScheduleTaskShadeService {
 
             if (null == batchTaskShadeDTO.getTaskRule()) {
                 batchTaskShadeDTO.setTaskRule(0);
+            }
+            EComponentType componentType;
+            if (StringUtils.isBlank(batchTaskShadeDTO.getComponentVersion()) &&
+                    Objects.nonNull(componentType= ComponentVersionUtil.transformTaskType2ComponentType(batchTaskShadeDTO.getTaskType()))){
+                batchTaskShadeDTO.setComponentVersion(componentDao.getDefaultComponentVersionByTenantAndComponentType(
+                        batchTaskShadeDTO.getTenantId(),componentType.getTypeCode()));
             }
             scheduleTaskShadeDao.insert(batchTaskShadeDTO);
         }
@@ -801,7 +811,7 @@ public class ScheduleTaskShadeService {
                 scheduleTaskCommits = scheduleTaskCommitMapper.findTaskCommitByCommitId(minId,commitId,environmentContext.getMaxBatchTaskSplInsert());
             } catch (Exception e) {
                 LOGGER.error(ExceptionUtil.getErrorMessage(e));
-                return Boolean.FALSE;
+                throw new RdosDefineException(e.getMessage());
             }
         }
 
@@ -878,6 +888,7 @@ public class ScheduleTaskShadeService {
 
             if (scheduleEngineProject != null) {
                 vo.setProjectName(scheduleEngineProject.getProjectName());
+                vo.setProjectAlias(scheduleEngineProject.getProjectAlias());
             }
 
             vos.add(vo);
@@ -886,8 +897,8 @@ public class ScheduleTaskShadeService {
         return vos;
     }
 
-    public List<ScheduleTaskShade> getTaskOtherPlatformByProjectId(Long projectId, Integer appType, Integer listChildTaskLimit) {
-        return scheduleTaskShadeDao.getTaskOtherPlatformByProjectId(projectId,appType,listChildTaskLimit);
+    public List<ScheduleTaskTaskShade> getTaskOtherPlatformByProjectId(Long projectId, Integer appType, Integer listChildTaskLimit) {
+        return scheduleTaskTaskShadeService.getTaskOtherPlatformByProjectId(projectId,appType,listChildTaskLimit);
     }
 
     public ScheduleDetailsVO findTaskRuleTask(Long taskId, Integer appType) {
@@ -946,6 +957,7 @@ public class ScheduleTaskShadeService {
 
             if (projectByProjectIdAndApptype != null) {
                 vo.setProjectName(projectByProjectIdAndApptype.getProjectName());
+                vo.setProjectAlias(projectByProjectIdAndApptype.getProjectAlias());
             }
             return vo;
         }

@@ -32,13 +32,17 @@ public class DtArgumentCookieResolver implements HandlerMethodArgumentResolver {
     public Object resolveArgument(MethodParameter methodParameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
 
         DtHeader requestParam = methodParameter.getParameterAnnotation(DtHeader.class);
-        String paramName = requestParam.value();
-        if (StringUtils.isBlank(paramName)) {
+        if (null == requestParam) {
             return null;
         }
-
+        String paramName = requestParam.value();
+        if(StringUtils.isBlank(paramName)){
+            return null;
+        }
         MultiReadHttpServletRequest servletRequest = webRequest.getNativeRequest(MultiReadHttpServletRequest.class);
-
+        if(null == servletRequest){
+            return null;
+        }
         String header = servletRequest.getHeader(paramName);
 
         if (COOKIE.equals(paramName) && StringUtils.isNotBlank(requestParam.cookie())) {

@@ -12,6 +12,7 @@ import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.bo.JobCheckpointInfo;
+import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
@@ -28,6 +29,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -229,7 +231,8 @@ public class JobCheckpointDealer implements InitializingBean {
             //queuePutRecord去重 保证队列中taskId唯一 后续通过refreshExpired来间隔获取
             try {
                 String pluginInfo = clusterService.pluginInfoJSON(jobIdentifier.getTenantId(),
-                        jobIdentifier.getEngineType(), jobIdentifier.getUserId(), jobIdentifier.getDeployMode()).toJSONString();
+                        jobIdentifier.getEngineType(), jobIdentifier.getUserId(), jobIdentifier.getDeployMode(),
+                        Collections.singletonMap(EngineTypeComponentType.getByEngineName(jobIdentifier.getEngineType()).getComponentType().getTypeCode(),jobIdentifier.getComponentVersion())).toJSONString();
                 int retainedNum = getRetainedNumFromPluginInfo(pluginInfo);
                 taskEngineIdAndRetainedNum.put(jobIdentifier.getEngineJobId(), retainedNum);
 

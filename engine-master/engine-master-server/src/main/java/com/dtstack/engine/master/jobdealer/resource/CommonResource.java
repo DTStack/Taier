@@ -71,6 +71,7 @@ public class CommonResource {
                 case Dummy:
                 case KingBase:
                 case InceptorSQL:
+                case DtScriptAgent:
                     commonResource = this;
                     break;
                 default:
@@ -119,6 +120,8 @@ public class CommonResource {
                 return ComputeResourceType.KingBase;
             case InceptorSQL:
                 return ComputeResourceType.InceptorSQL;
+            case DtScriptAgent:
+                return ComputeResourceType.DtScriptAgent;
             default:
                 throw new RdosDefineException("engineType:" + engineType + " is not support.");
         }

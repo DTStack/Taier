@@ -6,18 +6,18 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.api.pojo.lineage.ComponentMultiTestResult;
 import com.dtstack.engine.api.vo.EngineTenantVO;
 import com.dtstack.engine.api.vo.tenant.TenantAdminVO;
 import com.dtstack.engine.api.vo.tenant.TenantResourceVO;
 import com.dtstack.engine.api.vo.tenant.UserTenantVO;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.engine.master.router.login.domain.TenantAdmin;
@@ -36,7 +36,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.Queue;
 import java.util.stream.Collectors;
 
 
@@ -232,15 +231,15 @@ public class TenantService {
 
 
     public void checkClusterCanUse(String clusterName) throws Exception {
-        List<ComponentTestResult> testConnectionVO = componentService.testConnects(clusterName);
+        List<ComponentMultiTestResult> testConnectionVO = componentService.testConnects(clusterName);
         boolean canUse = true;
         StringBuilder msg = new StringBuilder();
         msg.append("此集群不可用,测试连通性为通过：\n");
-        for (ComponentTestResult testResult : testConnectionVO) {
+        for (ComponentMultiTestResult testResult : testConnectionVO) {
             EComponentType componentType = EComponentType.getByCode(testResult.getComponentTypeCode());
             if(!noNeedCheck(componentType) && !testResult.getResult()){
                 canUse = false;
-                msg.append("组件:").append(componentType.getName()).append(" ").append(testResult.getErrorMsg()).append("\n");
+                msg.append("组件:").append(componentType.getName()).append(" ").append(JSON.toJSONString(testResult.getErrorMsg())).append("\n");
             }
         }
 

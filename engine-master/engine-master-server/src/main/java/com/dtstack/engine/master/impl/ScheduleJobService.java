@@ -21,13 +21,17 @@ import com.dtstack.engine.common.constrant.GlobalConst;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.common.enums.EScheduleType;
+import com.dtstack.engine.common.enums.QueryWorkFlowModel;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.domain.ScheduleEngineProject;
+import com.dtstack.engine.api.domain.ScheduleEngineProject;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
@@ -36,11 +40,6 @@ import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.scheduler.JobParamReplace;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
-import com.dtstack.engine.master.sync.RestartRunnable;
-import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.master.utils.JobGraphUtils;
-import com.dtstack.engine.master.sync.RestartRunnable;
-import com.dtstack.engine.master.utils.JobGraphUtils;
 import com.dtstack.engine.master.sync.RestartRunnable;
 import com.dtstack.engine.master.utils.JobGraphUtils;
 import com.dtstack.engine.master.vo.BatchSecienceJobChartVO;
@@ -465,7 +464,7 @@ public class ScheduleJobService {
         } else {
             count = queryNormalJob(batchJobDTO, queryAll, pageQuery, result);
         }
-        
+
         return new PageResult<>(result, count, pageQuery);
     }
 
@@ -1115,7 +1114,7 @@ public class ScheduleJobService {
                     ParamActionExt paramActionExt = actionService.paramActionExt(batchTask, scheduleJob, info);
                     if (paramActionExt != null) {
                         this.updateStatusByJobId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus(),batchTask.getVersionId());
-                        actionService.start(paramActionExt);
+                        actionService.start(paramActionExt,true);
                         return;
                     }
                 }
@@ -3131,6 +3130,7 @@ public class ScheduleJobService {
 
             if (projectByProjectIdAndApptype != null) {
                 vo.setProjectName(projectByProjectIdAndApptype.getProjectName());
+                vo.setProjectAlias(projectByProjectIdAndApptype.getProjectAlias());
             }
         }
     }

@@ -56,6 +56,7 @@ public enum DataSourceType {
     PHOENIX5(38),
     KINGBASE8(40),
     VERTICA(43),
+    SPARKTHRIFT2_1(45),
     INCEPTOR_SQL(44),
 
     /**
@@ -153,8 +154,6 @@ public enum DataSourceType {
         return getBaseType(sourceType);
     }
 
-    public static List<DataSourceType> noNeedUserNamePasswordDataSources = Lists.newArrayList(DataSourceType.HBASE, DataSourceType.Phoenix, DataSourceType.HIVE);
-
     public static List<Integer> getRDBMS() {
         return Lists.newArrayList(
                 MySQL.getVal(),
@@ -186,6 +185,7 @@ public enum DataSourceType {
             case MySQL:
                 return "mysql";
             case HIVE:
+            case SPARKTHRIFT2_1:
                 return "hive2";
             case HIVE1X:
                 return "hive";
@@ -232,4 +232,7 @@ public enum DataSourceType {
                 return null;
         }
     }
+
+    public static List<DataSourceType> noNeedUserNamePasswordDataSources = Lists.newArrayList(DataSourceType.HBASE,
+            DataSourceType.Phoenix,DataSourceType.HIVE,DataSourceType.SPARKTHRIFT2_1,DataSourceType.HIVE1X);
 }

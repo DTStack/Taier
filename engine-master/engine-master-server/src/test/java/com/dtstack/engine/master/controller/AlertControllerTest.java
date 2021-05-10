@@ -1,22 +1,19 @@
 package com.dtstack.engine.master.controller;
 
 import com.dtstack.engine.alert.enums.AlertGateTypeEnum;
-import com.dtstack.engine.api.dto.UserMessageDTO;
 import com.dtstack.engine.api.param.AlarmSendParam;
 import com.dtstack.engine.api.param.ClusterAlertPageParam;
 import com.dtstack.engine.api.param.ClusterAlertParam;
 import com.dtstack.engine.api.param.NotifyRecordParam;
 import com.dtstack.engine.api.vo.alert.AlertGateTestVO;
 import com.dtstack.engine.api.vo.alert.AlertGateVO;
-import com.dtstack.engine.domain.AlertChannel;
-import com.dtstack.engine.domain.AlertContent;
-import com.dtstack.engine.domain.AlertRecord;
+import com.dtstack.engine.api.domain.AlertChannel;
+import com.dtstack.engine.api.domain.AlertContent;
+import com.dtstack.engine.api.domain.AlertRecord;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
-import com.dtstack.engine.master.utils.FileUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +21,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.FileInputStream;
 
 /**
  * @Auther: dazhi
@@ -121,38 +117,38 @@ public class AlertControllerTest extends AbstractTest {
         byte[] bytes = FileUtils.readFileToByteArray(new File(classPath + "/alter/console-alert-plugin-sdk-example-4.0.0.jar"));
         MultipartFile multipartFile = new MockMultipartFile("console-alert-plugin-sdk-example-4.0.0.jar","console-alert-plugin-sdk-example-4.0.0.jar","jar",bytes);
 
-        // 测试短信jar 发送
-        AlertGateTestVO alertGateTestSmsJarVO = new AlertGateTestVO();
-        alertGateTestSmsJarVO.setPhones(Lists.newArrayList("13982756743"));
-        testSmsJar(alertGateTestSmsJarVO,multipartFile,defaultAlterChannelSmsJar);
-
-        // 测试邮箱jar 发送
-        AlertGateTestVO alertGateTestMailJarVO = new AlertGateTestVO();
-        alertGateTestMailJarVO.setEmails(Lists.newArrayList("13982756743@qq.com"));
-        testSmsJar(alertGateTestMailJarVO,multipartFile,defaultAlterChannelMailJar);
-
-        // 测试dingjar 发送
-        AlertGateTestVO alertGateTestDingJarVO = new AlertGateTestVO();
-        alertGateTestDingJarVO.setDings(Lists.newArrayList("https://oapi.dingtalk.com/robot/send?access_token=16cc0086eeef4f4f905ce4eda70be58bbe8ec9ecb45fb58c55706fac07e50530"));
-        testSmsJar(alertGateTestDingJarVO,multipartFile,defaultAlterChannelDingJar);
-
-        // 测试自定义 发送
-        AlertGateTestVO alertGateTestComJarVO = new AlertGateTestVO();
-        testSmsJar(alertGateTestComJarVO,multipartFile,defaultAlterChannelComJar);
 
         // 测试邮箱Dt
         try {
+            // 测试短信jar 发送
+            AlertGateTestVO alertGateTestSmsJarVO = new AlertGateTestVO();
+            alertGateTestSmsJarVO.setPhones(Lists.newArrayList("13982756743"));
+            testSmsJar(alertGateTestSmsJarVO,multipartFile,defaultAlterChannelSmsJar);
+
+            // 测试邮箱jar 发送
+            AlertGateTestVO alertGateTestMailJarVO = new AlertGateTestVO();
+            alertGateTestMailJarVO.setEmails(Lists.newArrayList("13982756743@qq.com"));
+            testSmsJar(alertGateTestMailJarVO,multipartFile,defaultAlterChannelMailJar);
+
+            // 测试dingjar 发送
+            AlertGateTestVO alertGateTestDingJarVO = new AlertGateTestVO();
+            alertGateTestDingJarVO.setDings(Lists.newArrayList("https://oapi.dingtalk.com/robot/send?access_token=16cc0086eeef4f4f905ce4eda70be58bbe8ec9ecb45fb58c55706fac07e50530"));
+            testSmsJar(alertGateTestDingJarVO,multipartFile,defaultAlterChannelDingJar);
+
+            // 测试自定义 发送
+            AlertGateTestVO alertGateTestComJarVO = new AlertGateTestVO();
+            testSmsJar(alertGateTestComJarVO,multipartFile,defaultAlterChannelComJar);
+
             AlertGateTestVO alertGateTestMailDtVO = new AlertGateTestVO();
             alertGateTestMailDtVO.setEmails(Lists.newArrayList("1306123139@qq.com"));
             testSmsJar(alertGateTestMailJarVO,multipartFile,defaultAlterChannelMailDt);
+
             // 测试dingjar 发送
             AlertGateTestVO alertGateTestDingDtVO = new AlertGateTestVO();
             alertGateTestDingDtVO.setDings(Lists.newArrayList("https://oapi.dingtalk.com/robot/send?access_token=16cc0086eeef4f4f905ce4eda70be58bbe8ec9ecb45fb58c55706fac07e50530"));
             testSmsJar(alertGateTestDingJarVO,multipartFile,defaultAlterChannelDingDt);
         } catch (Exception e) {
         }
-
-
     }
 
     private void testSmsJar(AlertGateTestVO alertGateTestVO,MultipartFile multipartFile,AlertChannel alertChannel) throws Exception {

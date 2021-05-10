@@ -303,14 +303,17 @@ public class MysqlLogStore extends AbstractLogStore {
             prepareStatementSql.append("?,");
         }
         prepareStatementSql.deleteCharAt(prepareStatementSql.length() - 1).append(") ");
-
-        PreparedStatement updateStmt = connection.prepareStatement(prepareStatementSql.toString());
-        int parameterIndex = 1;
-        for (long id : ids) {
-            updateStmt.setLong(parameterIndex++, id);
+        try(PreparedStatement updateStmt = connection.prepareStatement(prepareStatementSql.toString())){
+            int parameterIndex = 1;
+            for (long id : ids) {
+                updateStmt.setLong(parameterIndex++, id);
+            }
+            updateStmt.executeUpdate();
+            return updateStmt;
+        }catch (Exception e){
+            LOGGER.error("executeUpdate error:",e);
         }
-        updateStmt.executeUpdate();
-        return updateStmt;
+        return null;
     }
 
 }
