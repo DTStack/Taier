@@ -1,9 +1,12 @@
 package com.dtstack.engine.master.router;
 
+import com.dtstack.engine.api.dto.UserDTO;
+import com.dtstack.engine.master.router.login.SessionUtil;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -23,6 +26,11 @@ import java.util.Map;
 public class DtArgumentCookieResolver implements HandlerMethodArgumentResolver {
 
     private final String COOKIE = "cookie";
+    private final String USER_ID = "userId";
+
+    @Autowired
+    private SessionUtil sessionUtil;
+
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         return parameter.hasParameterAnnotation(DtHeader.class);
@@ -51,6 +59,18 @@ public class DtArgumentCookieResolver implements HandlerMethodArgumentResolver {
             }
 
             return paramToMap(header).get(requestParam.cookie());
+        }
+        if (USER_ID.equals(paramName) && StringUtils.isNotBlank(requestParam.cookie())) {
+            String dtToken = paramToMap(header).get("dt_token");
+
+            UserDTO user = sessionUtil.getUser(dtToken, UserDTO.class);
+
+            if (user == null) {
+                return null;
+            } else {
+                return user.getDtuicUserId();
+            }
+
         } else {
             return header;
         }
