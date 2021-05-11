@@ -12,6 +12,7 @@ import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.impl.ScheduleJobService;
+import com.dtstack.engine.master.router.DtHeader;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -150,12 +151,18 @@ public class ScheduleJobController {
 
     @RequestMapping(value = "/fillTaskData", method = {RequestMethod.POST})
     @ApiOperation(value = "补数据")
-    public String fillTaskData(@DtRequestParam("taskJson") String taskJsonStr, @DtRequestParam("fillName") String fillName,
-                               @DtRequestParam("fromDay") Long fromDay, @DtRequestParam("toDay") Long toDay,
-                               @DtRequestParam("concreteStartTime") String beginTime, @DtRequestParam("concreteEndTime") String endTime,
-                               @DtRequestParam("projectId") Long projectId, @DtRequestParam("userId") Long userId,
+    public String fillTaskData(@DtRequestParam("taskJson") String taskJsonStr,
+                               @DtRequestParam("fillName") String fillName,
+                               @DtRequestParam("fromDay") Long fromDay,
+                               @DtRequestParam("toDay") Long toDay,
+                               @DtRequestParam("concreteStartTime") String beginTime,
+                               @DtRequestParam("concreteEndTime") String endTime,
+                               @DtRequestParam("projectId") Long projectId,
+                               @DtRequestParam("userId") @DtHeader(value = "userId") Long userId,
                                @DtRequestParam("tenantId") Long tenantId,
-                               @DtRequestParam("isRoot") Boolean isRoot, @DtRequestParam("appType") Integer appType, @DtRequestParam("dtuicTenantId") Long dtuicTenantId) throws Exception {
+                               @DtRequestParam("isRoot") Boolean isRoot,
+                               @DtRequestParam("appType") Integer appType,
+                               @DtRequestParam("dtuicTenantId") @DtHeader(value = "cookie", cookie = "dt_tenant_id") Long dtuicTenantId) throws Exception {
         return scheduleJobService.fillTaskData(taskJsonStr, fillName, fromDay, toDay, beginTime, endTime, projectId, userId, tenantId, isRoot, appType, dtuicTenantId);
     }
 
