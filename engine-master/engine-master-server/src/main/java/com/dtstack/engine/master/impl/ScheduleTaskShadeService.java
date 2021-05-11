@@ -1,10 +1,7 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.ScheduleTaskCommit;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.domain.Tenant;
-import com.dtstack.engine.api.domain.TenantResource;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.api.enums.TaskRuleEnum;
 import com.dtstack.engine.api.pager.PageQuery;
@@ -24,7 +21,6 @@ import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.*;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.api.domain.ScheduleEngineProject;
 import com.dtstack.engine.master.executor.CronJobExecutor;
 import com.dtstack.engine.master.executor.FillJobExecutor;
 import com.dtstack.schedule.common.enums.*;
@@ -890,6 +886,7 @@ public class ScheduleTaskShadeService {
 
             if (scheduleEngineProject != null) {
                 vo.setProjectName(scheduleEngineProject.getProjectName());
+                vo.setProjectAlias(scheduleEngineProject.getProjectAlias());
             }
 
             vos.add(vo);
@@ -898,8 +895,8 @@ public class ScheduleTaskShadeService {
         return vos;
     }
 
-    public List<ScheduleTaskShade> getTaskOtherPlatformByProjectId(Long projectId, Integer appType, Integer listChildTaskLimit) {
-        return scheduleTaskShadeDao.getTaskOtherPlatformByProjectId(projectId,appType,listChildTaskLimit);
+    public List<ScheduleTaskTaskShade> getTaskOtherPlatformByProjectId(Long projectId, Integer appType, Integer listChildTaskLimit) {
+        return scheduleTaskTaskShadeService.getTaskOtherPlatformByProjectId(projectId,appType,listChildTaskLimit);
     }
 
     public ScheduleDetailsVO findTaskRuleTask(Long taskId, Integer appType) {
@@ -958,6 +955,7 @@ public class ScheduleTaskShadeService {
 
             if (projectByProjectIdAndApptype != null) {
                 vo.setProjectName(projectByProjectIdAndApptype.getProjectName());
+                vo.setProjectAlias(projectByProjectIdAndApptype.getProjectAlias());
             }
             return vo;
         }
@@ -998,7 +996,7 @@ public class ScheduleTaskShadeService {
         }
         Map<Integer,List<ScheduleTaskShade>> scheduleTaskShadeMap=new HashMap<>(groupByAppMap.size());
         for (Map.Entry<Integer, Set<Long>> entry : groupByAppMap.entrySet()) {
-            scheduleTaskShadeMap.put(entry.getKey(),scheduleTaskShadeDao.listSimpleByTaskIds(entry.getValue(), Deleted.NORMAL.getStatus(), entry.getKey()));
+            scheduleTaskShadeMap.put(entry.getKey(),scheduleTaskShadeDao.listByTaskIds(entry.getValue(), Deleted.NORMAL.getStatus(), entry.getKey()));
         }
         return scheduleTaskShadeMap;
     }

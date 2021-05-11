@@ -48,7 +48,7 @@ public class ActionController {
             @ApiImplicitParam(name="paramActionExt",value="请求开始的任务的相关信息及集群信息",required=true, paramType="body", dataType = "ParamActionExt")
     })
     public Boolean start(@RequestBody ParamActionExt paramActionExt) {
-        return actionService.start(paramActionExt);
+        return actionService.start(paramActionExt,false);
     }
 
     @RequestMapping(value="/startJob", method = {RequestMethod.POST})

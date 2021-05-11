@@ -49,6 +49,8 @@ public class ComponentVersionUtil {
         set.add(EScheduleJobType.HADOOP_MR.getType());
         set.add(EScheduleJobType.NOT_DO_TASK.getType());
         set.add(EScheduleJobType.KINGBASE.getType());
+        set.add(EScheduleJobType.NOTEBOOK.getType());
+        set.add(EScheduleJobType.ALGORITHM_LAB.getType());
         return set;
     }
     private static Map<Integer,EComponentType> initComponent(){
@@ -62,9 +64,8 @@ public class ComponentVersionUtil {
         // R
         // Deep learning
         // Shell
+        map.put(EScheduleJobType.SHELL.getType(),EComponentType.DT_SCRIPT);
         // ML_Lib
-        // Notebook
-        // ALGORITHM_LAB
 
         // DtScript
         map.put(EScheduleJobType.PYTHON.getType(),EComponentType.DT_SCRIPT);

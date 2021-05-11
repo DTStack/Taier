@@ -916,9 +916,9 @@ public class ClusterService implements InitializingBean {
             return new ArrayList<>();
         }
         Map<Long, List<Engine>> clusterEngineMapping = engines
-                .stream().filter(engine -> MultiEngineType.EMPTY.getType()!=engine.getEngineType())
+                .stream().filter(engine -> MultiEngineType.COMMON.getType()!=engine.getEngineType())
                 .collect(Collectors.groupingBy(Engine::getClusterId));
-        List<Long> engineIds = engines.stream().filter(engine -> MultiEngineType.EMPTY.getType()!=engine.getEngineType())
+        List<Long> engineIds = engines.stream().filter(engine -> MultiEngineType.COMMON.getType()!=engine.getEngineType())
                 .map(Engine::getId)
                 .collect(Collectors.toList());
 

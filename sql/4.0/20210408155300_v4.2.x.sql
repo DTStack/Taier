@@ -87,6 +87,10 @@ select * FROM (
 		SELECT 27
 		 UNION ALL
 		SELECT 26
+         UNION ALL
+		SELECT 13
+         UNION ALL
+		SELECT 14
 		) a
 );
 
@@ -126,6 +130,8 @@ SELECT * FROM (
 	SELECT 23,2
 	UNION ALL
 	SELECT 25,2
+	UNION ALL
+	SELECT 7,3
 	) b
 );
 -- 游标结束标志

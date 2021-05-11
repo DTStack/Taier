@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.api.param.ScheduleEngineProjectParam;
 import com.dtstack.engine.api.vo.project.NotDeleteProjectVO;
 import com.dtstack.engine.api.vo.project.ScheduleEngineProjectVO;
@@ -208,13 +209,14 @@ public class ProjectService {
 
         List<NotDeleteProjectVO> notDeleteTaskVOS = Lists.newArrayList();
 
-        List<ScheduleTaskShade> scheduleTaskShades = scheduleTaskShadeService.getTaskOtherPlatformByProjectId(projectId, appType, environmentContext.getListChildTaskLimit());
+        List<ScheduleTaskTaskShade> scheduleTaskShades = scheduleTaskShadeService.getTaskOtherPlatformByProjectId(projectId, appType, environmentContext.getListChildTaskLimit());
 
-        for (ScheduleTaskShade scheduleTaskShade : scheduleTaskShades) {
-            List<NotDeleteTaskVO> notDeleteTask = scheduleTaskShadeService.getNotDeleteTask(scheduleTaskShade.getTaskId(), scheduleTaskShade.getAppType());
+        for (ScheduleTaskTaskShade scheduleTaskShade : scheduleTaskShades) {
+            ScheduleTaskShade batchTaskById = scheduleTaskShadeService.getBatchTaskById(scheduleTaskShade.getParentTaskId(), scheduleTaskShade.getParentAppType());
+            List<NotDeleteTaskVO> notDeleteTask = scheduleTaskShadeService.getNotDeleteTask(scheduleTaskShade.getParentTaskId(), scheduleTaskShade.getParentAppType());
             NotDeleteProjectVO notDeleteProjectVO = new NotDeleteProjectVO();
 
-            notDeleteProjectVO.setTaskName(scheduleTaskShade.getName());
+            notDeleteProjectVO.setTaskName(batchTaskById.getName());
             notDeleteProjectVO.setNotDeleteTaskVOList(notDeleteTask);
             notDeleteTaskVOS.add(notDeleteProjectVO);
         }

@@ -1723,7 +1723,8 @@
             <if test="status != null">
                 status = #{status},
             </if>
-            gmt_modified = now()
+            gmt_modified = now(),
+            exec_start_time = now()
         </set>
         WHERE job_id = #{jobId} AND status = #{status1}
         AND is_deleted=0

@@ -1,8 +1,7 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
-import com.dtstack.engine.api.domain.Tenant;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.enums.TaskRuleEnum;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.api.vo.task.SaveTaskTaskVO;
@@ -11,10 +10,9 @@ import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.ScheduleEngineProjectDao;
+import com.dtstack.engine.dao.ScheduleTaskCommitMapper;
 import com.dtstack.engine.dao.ScheduleTaskTaskShadeDao;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.dao.TenantDao;
-import com.dtstack.engine.api.domain.ScheduleEngineProject;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -57,12 +55,15 @@ public class ScheduleTaskTaskShadeService {
     @Autowired
     private ScheduleEngineProjectDao scheduleEngineProjectDao;
 
+    @Autowired
+    private ScheduleTaskCommitMapper scheduleTaskCommitMapper;
+
     public void clearDataByTaskId( Long taskId,Integer appType) {
         scheduleTaskTaskShadeDao.deleteByTaskId(taskId,appType);
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public SaveTaskTaskVO saveTaskTaskList(String taskLists) {
+    public SaveTaskTaskVO saveTaskTaskList(String taskLists,String commitId) {
         if(StringUtils.isBlank(taskLists)){
             return SaveTaskTaskVO.save();
         }
@@ -75,16 +76,8 @@ public class ScheduleTaskTaskShadeService {
             // 保存时成环检测
             for (ScheduleTaskTaskShade scheduleTaskTaskShade : taskTaskList) {
                 Long parentTaskId = scheduleTaskTaskShade.getParentTaskId();
-                if (parentTaskId != null) {
-                    Integer parentAppType = scheduleTaskTaskShade.getParentAppType();
-                    if (parentAppType == null) {
-                        parentAppType = scheduleTaskTaskShade.getAppType();
-                    }
-                    ScheduleTaskShade batchTaskById = taskShadeService.getBatchTaskById(parentTaskId, parentAppType);
-
-                    if (batchTaskById == null) {
-                        return SaveTaskTaskVO.noSave("任务依赖报错失败，父任务被删除，你检查父任务");
-                    }
+                if (checkParentCommit(commitId, scheduleTaskTaskShade, parentTaskId)){
+                    return SaveTaskTaskVO.noSave("任务依赖报错失败，父任务不存在，请检查父任务");
                 }
 
                 List<ScheduleTaskTaskShade> shades = Lists.newArrayList(taskTaskList);
@@ -114,6 +107,30 @@ public class ScheduleTaskTaskShadeService {
             throw new RdosDefineException("保存任务依赖列表异常");
         }
         return SaveTaskTaskVO.save();
+    }
+
+    private boolean checkParentCommit(String commitId, ScheduleTaskTaskShade scheduleTaskTaskShade, Long parentTaskId) {
+        if (parentTaskId != null) {
+            Integer parentAppType = scheduleTaskTaskShade.getParentAppType();
+            if (parentAppType == null ) {
+                parentAppType = scheduleTaskTaskShade.getAppType();
+            }
+
+
+            if (!scheduleTaskTaskShade.getAppType().equals(parentAppType)) {
+                ScheduleTaskShade batchTaskById = taskShadeService.getBatchTaskById(parentTaskId, parentAppType);
+                return batchTaskById == null;
+            } else {
+                if (StringUtils.isNotBlank(commitId)) {
+                    ScheduleTaskShade batchTaskById = taskShadeService.getBatchTaskById(parentTaskId, parentAppType);
+                    if (batchTaskById == null) {
+                        ScheduleTaskCommit taskCommitByTaskId = scheduleTaskCommitMapper.getTaskCommitByTaskId(parentTaskId, parentAppType, commitId);
+                        return taskCommitByTaskId == null;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -455,6 +472,7 @@ public class ScheduleTaskTaskShadeService {
 
         if (projectByProjectIdAndApptype != null) {
             vo.setProjectName(projectByProjectIdAndApptype.getProjectName());
+            vo.setProjectAlias(projectByProjectIdAndApptype.getProjectAlias());
         }
     }
 
@@ -691,5 +709,9 @@ public class ScheduleTaskTaskShadeService {
 
     public List<ScheduleTaskTaskShade> listChildTask(Long taskId, Integer appType,Integer limit) {
         return scheduleTaskTaskShadeDao.listChildTaskLimit(taskId,appType,limit);
+    }
+
+    public List<ScheduleTaskTaskShade> getTaskOtherPlatformByProjectId(Long projectId, Integer appType, Integer listChildTaskLimit) {
+        return scheduleTaskTaskShadeDao.getTaskOtherPlatformByProjectId(projectId,appType,listChildTaskLimit);
     }
 }

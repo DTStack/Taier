@@ -4,7 +4,7 @@ ALTER TABLE `lineage_data_source`
 ADD COLUMN `project_id`  bigint(20) NULL COMMENT '项目id' AFTER `source_name`,
 ADD COLUMN `schema_name`  varchar(64) NULL COMMENT 'schema或数据库名称' AFTER `project_id`,
 ADD COLUMN `source_id`  bigint(20) NULL COMMENT '平台数据源id' AFTER `schema_name`,
-ADD COLUMN `is_default` tinyint(1) NULL DEFAULT 0 COMMENT '是否是默认数据源，1是，0否' AFTER `component_id`;
+ADD COLUMN `is_default` tinyint(1) NULL DEFAULT 0 COMMENT '是否是默认数据源，1是，0否' AFTER `component_id`,
 DROP INDEX `uni_tenant_source_key` ,
 ADD UNIQUE INDEX `uni_tenant_source_key` (`dt_uic_tenant_id`, `source_key`, `app_type`, `source_name`, `schema_name`,`project_id`) USING BTREE;
 

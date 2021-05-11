@@ -76,7 +76,7 @@ public class ScheduleTaskTaskServiceTest extends AbstractTest {
         String taskTaskStr = "[{\"appType\":1,\"dtuicTenantId\":1,\"gmtCreate\":1606101569150,\"gmtModified\":1606101569150,\"id\":233,\"isDeleted\":0,\"parentTaskId\":499,\"projectId\":3,\"taskId\":525,\"tenantId\":1}," +
                 "{\"appType\":1,\"dtuicTenantId\":1,\"gmtCreate\":1606101569150,\"gmtModified\":1606101569150,\"id\":233,\"isDeleted\":0,\"parentTaskId\":525,\"projectId\":3,\"taskId\":600,\"tenantId\":1}," +
                 "]";
-        scheduleTaskTaskShadeService.saveTaskTaskList(taskTaskStr);
+        scheduleTaskTaskShadeService.saveTaskTaskList(taskTaskStr,null);
         List<ScheduleTaskTaskShade> allParentTask = scheduleTaskTaskShadeService.getAllParentTask(525L, 1);
         Assert.assertNotNull(allParentTask);
 
@@ -84,7 +84,7 @@ public class ScheduleTaskTaskServiceTest extends AbstractTest {
         //插入关系
         String workFlowStr = "[{\"appType\":1,\"dtuicTenantId\":1,\"gmtCreate\":1606101569150,\"gmtModified\":1606101569150,\"id\":233,\"isDeleted\":0,\"parentTaskId\":471,\"projectId\":3,\"taskId\":700,\"tenantId\":1}" +
                 "]";
-        scheduleTaskTaskShadeService.saveTaskTaskList(workFlowStr);
+        scheduleTaskTaskShadeService.saveTaskTaskList(workFlowStr,null);
 
         //查询不存在的
         ScheduleTaskVO scheduleTaskVO = scheduleTaskTaskShadeService.displayOffSpring(19121L, 3L, 1, 0, 1);
@@ -122,7 +122,7 @@ public class ScheduleTaskTaskServiceTest extends AbstractTest {
 
     @Test
     public void testEmpty(){
-        scheduleTaskTaskShadeService.saveTaskTaskList("");
+        scheduleTaskTaskShadeService.saveTaskTaskList("", null);
         Assert.assertNull(scheduleTaskTaskShadeService.getFlowWorkSubTasksRefTask(Sets.newHashSet(1001L),0,0,8,10));
     }
 }
