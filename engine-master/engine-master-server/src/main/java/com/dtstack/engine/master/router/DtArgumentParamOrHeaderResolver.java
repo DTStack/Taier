@@ -1,10 +1,13 @@
 package com.dtstack.engine.master.router;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.util.TypeUtils;
 import com.dtstack.engine.api.dto.UserDTO;
 import com.dtstack.engine.master.router.login.SessionUtil;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,46 +17,86 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
+import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
 /**
- * company: www.dtstack.com
- * author: toutian
- * create: 2020/7/16
+ * @Auther: dazhi
+ * @Date: 2021/5/11 7:00 下午
+ * @Email:dazhi@dtstack.com
+ * @Description:
  */
 @Component
-public class DtArgumentCookieResolver implements HandlerMethodArgumentResolver {
+public class DtArgumentParamOrHeaderResolver implements HandlerMethodArgumentResolver {
 
     private final String COOKIE = "cookie";
     private final String USER_ID = "userId";
+
 
     @Autowired
     private SessionUtil sessionUtil;
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
-        return parameter.hasParameterAnnotation(DtHeader.class);
+        return parameter.hasParameterAnnotation(DtParamOrHeader.class);
     }
 
     @Override
-    public Object resolveArgument(MethodParameter methodParameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-
-        DtHeader requestParam = methodParameter.getParameterAnnotation(DtHeader.class);
-        if (null == requestParam) {
-            return null;
-        }
+    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+        DtParamOrHeader requestParam = parameter.getParameterAnnotation(DtParamOrHeader.class);
         String paramName = requestParam.value();
-        if(StringUtils.isBlank(paramName)){
-            return null;
-        }
         MultiReadHttpServletRequest servletRequest = webRequest.getNativeRequest(MultiReadHttpServletRequest.class);
+
         if(null == servletRequest){
             return null;
         }
+
+        if (StringUtils.isNotBlank(paramName)) {
+            JSONObject requestBody = (JSONObject) servletRequest.getRequest().getAttribute(DtRequestWrapperFilter.DT_REQUEST_BODY);
+
+            if (requestBody != null) {
+                Class<?> parameterType = parameter.getParameterType();
+                String value = requestBody.getString(paramName);
+
+                if (StringUtils.isNotBlank(value)) {
+                    if (parameterType.equals(List.class)) {
+                        try {
+                            ParameterizedTypeImpl genericParameterType = (ParameterizedTypeImpl) parameter.getGenericParameterType();
+                            Type[] actualTypeArguments = genericParameterType.getActualTypeArguments();
+                            if (actualTypeArguments[0] != null) {
+                                List<?> objects = JSON.parseArray(value, Class.forName(actualTypeArguments[0].getTypeName()));
+                                if (CollectionUtils.isNotEmpty(objects)) {
+                                    return objects;
+                                }
+                            }
+                        } catch (Exception e) {
+                            Object object = requestBody.getObject(paramName, parameterType);
+                            if (object != null) {
+                                return object;
+                            }
+                        }
+                    }
+
+                    Object object = requestBody.getObject(paramName, parameterType);
+                    if (object != null) {
+                        return object;
+                    }
+                }
+
+            }
+        }
+
+        return header(parameter,requestParam,servletRequest);
+    }
+
+    private Object header(MethodParameter parameter,DtParamOrHeader requestParam, MultiReadHttpServletRequest servletRequest) {
+        String paramName = requestParam.header();
+
         String header = servletRequest.getHeader(paramName);
-        Class<?> parameterType = methodParameter.getParameterType();
+        Class<?> parameterType = parameter.getParameterType();
         if (COOKIE.equals(paramName) && StringUtils.isNotBlank(requestParam.cookie())) {
             if (StringUtils.isBlank(header)) {
                 return header;
@@ -93,4 +136,6 @@ public class DtArgumentCookieResolver implements HandlerMethodArgumentResolver {
 
         return map;
     }
+
+
 }

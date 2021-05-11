@@ -62,6 +62,12 @@
             #{userId}
         </foreach>
     </select>
+    <select id="getAllUser" resultType="com.dtstack.engine.api.domain.User">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM console_user
+        LIMIT 200
+    </select>
 
     <insert id="insert" parameterType="User" useGeneratedKeys="true" keyProperty="id">
         INSERT IGNORE INTO console_user
