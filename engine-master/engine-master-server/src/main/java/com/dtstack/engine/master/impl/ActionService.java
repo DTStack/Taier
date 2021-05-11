@@ -197,6 +197,7 @@ public class ActionService {
         paramActionExt.setTaskSourceId(batchTask.getTaskId());
         paramActionExt.setProjectId(batchTask.getProjectId());
         paramActionExt.setDtuicTenantId(batchTask.getDtuicTenantId());
+        paramActionExt.setBusinessType(batchTask.getBusinessType());
         return paramActionExt;
     }
 
@@ -416,6 +417,7 @@ public class ActionService {
         scheduleJob.setVersionId(getOrDefault(paramActionExt.getVersionId(), 0));
         scheduleJob.setComputeType(getOrDefault(paramActionExt.getComputeType(), 1));
         scheduleJob.setPeriodType(paramActionExt.getPeriodType());
+        scheduleJob.setBusinessType(paramActionExt.getBusinessType());
         buildComponentVersion(scheduleJob,paramActionExt,useTaskType);
         return scheduleJob;
     }

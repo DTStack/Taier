@@ -77,7 +77,7 @@ public class ScheduleTaskTaskShadeService {
             for (ScheduleTaskTaskShade scheduleTaskTaskShade : taskTaskList) {
                 Long parentTaskId = scheduleTaskTaskShade.getParentTaskId();
                 if (checkParentCommit(commitId, scheduleTaskTaskShade, parentTaskId)){
-                    return SaveTaskTaskVO.noSave("任务依赖报错失败，父任务被不存在，请检查父任务");
+                    return SaveTaskTaskVO.noSave("任务依赖报错失败，父任务不存在，请检查父任务");
                 }
 
                 List<ScheduleTaskTaskShade> shades = Lists.newArrayList(taskTaskList);

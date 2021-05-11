@@ -916,6 +916,7 @@ public class ScheduleJobService {
         batchJobDTO.setBusinessDateSort(vo.getBusinessDateSort());
         batchJobDTO.setTaskPeriodId(convertStringToList(vo.getTaskPeriodId()));
         batchJobDTO.setAppType(vo.getAppType());
+        batchJobDTO.setBusinessType(vo.getBusinessType());
 
         if (CollectionUtils.isNotEmpty(vo.getProjectIds())) {
             batchJobDTO.setProjectIds(vo.getProjectIds());
@@ -1359,7 +1360,7 @@ public class ScheduleJobService {
                                 String beginTime,  String endTime,
                                 Long projectId,  Long userId,
                                 Long tenantId,
-                                Boolean isRoot,  Integer appType,  Long dtuicTenantId) throws Exception {
+                                Boolean isRoot,  Integer appType,  Long dtuicTenantId,Boolean ignoreCycTime) throws Exception {
 
         if(StringUtils.isEmpty(taskJsonStr)){
             throw new RdosDefineException("(taskJsonStr 参数不能为空)", ErrorCode.INVALID_PARAMETERS);
@@ -1400,7 +1401,11 @@ public class ScheduleJobService {
                 if (MapUtils.isEmpty(result)) {
                     continue;
                 }
-
+                if (BooleanUtils.isTrue(ignoreCycTime)) {
+                    for (ScheduleBatchJob value : result.values()) {
+                        value.getScheduleJob().setCycTime(DateTime.now().toString(DateUtil.UN_STANDARD_DATETIME_FORMAT));
+                    }
+                }
                 insertJobList(result.values(), EScheduleType.FILL_DATA.getType());
                 addBatchMap.putAll(result);
 
@@ -2995,30 +3000,26 @@ public class ScheduleJobService {
         String addLog = LOG_TEM;
 
         boolean isRule = Boolean.FALSE;
-        if (EScheduleJobType.WORK_FLOW.getType().equals(currentScheduleJob.getTaskType())) {
-            // 如果工作流任务，查询是否有null任务
-            List<ScheduleJob> subJobsAndStatusByFlowId = this.getSubJobsAndStatusByFlowId(currentScheduleJob.getJobId());
-            List<ScheduleJob> jobs = subJobsAndStatusByFlowId.stream().filter(job -> EScheduleJobType.NOT_DO_TASK.getType().equals(job.getTaskType())).collect(Collectors.toList());
+        // 如果工作流任务，查询是否有null任务
+        List<ScheduleJob> subJobsAndStatusByFlowId = this.getSubJobsAndStatusByFlowId(currentScheduleJob.getJobId());
+        List<ScheduleJob> jobs = subJobsAndStatusByFlowId.stream().filter(job -> EScheduleJobType.NOT_DO_TASK.getType().equals(job.getTaskType())).collect(Collectors.toList());
 
-            if (CollectionUtils.isNotEmpty(jobs)) {
-                // 有空任务
-                for (ScheduleJob job : jobs) {
-                    if (RdosTaskStatus.FAILED_STATUS.contains(job.getStatus())) {
-                        // 存在空任务失败的情况
-                        String logInfo1 = "运行失败";
-                        try {
-                            JSONObject jsonObject = JSON.parseObject(job.getLogInfo());
-                            logInfo1 = jsonObject.getString("result");
-                        } catch (Exception e) {
-                            LOGGER.error("log json parseObject error:",e);
-                        }
-                        addLog = String.format(addLog, currentScheduleJob.getJobName(), logInfo1, StringUtils.isBlank(nameByDtUicTenantId)?"":nameByDtUicTenantId,project==null? "":project.getProjectAlias());
-                        isRule = Boolean.TRUE;
-                        break;
+        if (CollectionUtils.isNotEmpty(jobs)) {
+            // 有空任务
+            for (ScheduleJob job : jobs) {
+                if (RdosTaskStatus.FAILED_STATUS.contains(job.getStatus())) {
+                    // 存在空任务失败的情况
+                    String logInfo1 = "运行失败";
+                    try {
+                        JSONObject jsonObject = JSON.parseObject(job.getLogInfo());
+                        logInfo1 = jsonObject.getString("result");
+                    } catch (Exception e) {
+                        LOGGER.error("log json parseObject error:",e);
                     }
+                    addLog = String.format(addLog, currentScheduleJob.getJobName(), logInfo1, StringUtils.isBlank(nameByDtUicTenantId)?"":nameByDtUicTenantId,project==null? "":project.getProjectAlias());
+                    isRule = Boolean.TRUE;
+                    break;
                 }
-
-
             }
         }
 
