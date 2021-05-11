@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.pojo.ParamActionExt;
+import com.dtstack.engine.api.vo.AppTypeVO;
 import com.dtstack.engine.api.vo.action.ActionJobEntityVO;
 import com.dtstack.engine.api.vo.action.ActionJobStatusVO;
 import com.dtstack.engine.api.vo.action.ActionLogVO;
@@ -35,6 +36,7 @@ import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.schedule.common.enums.ForceCancelFlag;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -750,4 +752,18 @@ public class ActionService {
     }
 
 
+    public List<AppTypeVO> getAllAppType() {
+        AppType[] appTypes = AppType.values();
+        List<AppTypeVO> appTypeVOS = Lists.newArrayList();
+
+        for (AppType appType : appTypes) {
+            AppTypeVO appTypeVO = new AppTypeVO();
+            appTypeVO.setCode(appType.getType());
+            appTypeVO.setMsg(appType.getName());
+
+            appTypeVOS.add(appTypeVO);
+        }
+
+        return appTypeVOS;
+    }
 }
