@@ -1,5 +1,9 @@
 package com.dtstack.engine.master.jobdealer;
 
+import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.domain.EngineJobCache;
+import com.dtstack.engine.common.constrant.JobResultConstant;
+import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -13,12 +17,14 @@ import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.bo.JobCheckpointInfo;
 import com.dtstack.engine.master.impl.ClusterService;
+import com.dtstack.engine.master.utils.TaskParamsUtil;
 import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -30,6 +36,7 @@ import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
@@ -268,21 +275,39 @@ public class JobCheckpointDealer implements InitializingBean {
      * @return
      * @throws ExecutionException
      */
-    private Map<String, Object> getJobParamsByJobId(String jobId) throws ExecutionException{
+    private Map<String, Object> getJobParamsByJobId(String jobId) throws ExecutionException {
         return checkpointConfigCache.get(jobId, () -> {
-            Map<String, Object> paramInfo = Maps.newConcurrentMap();
-            String jobInfo = engineJobCacheDao.getOne(jobId).getJobInfo();
+            EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
+            String jobInfo = engineJobCache.getJobInfo();
             Map<String, Object> pluginInfoMap = PublicUtil.jsonStrToObject(jobInfo, Map.class);
             String taskParamsStr = String.valueOf(pluginInfoMap.get(TASK_PARAMS_KEY));
-
-            if (StringUtils.isNotEmpty(taskParamsStr)) {
-                paramInfo = Arrays.stream(taskParamsStr.split("\n"))
-                        .map(param -> param.split("="))
-                        .filter(paramKv -> paramKv.length > 1)
-                        .collect(Collectors.toConcurrentMap((kv) -> kv[0].trim(), (kv) -> kv[1].trim(), (oldValue, newValue) -> newValue));
+            Map<String, Object> paramInfo = TaskParamsUtil.convertPropertiesToMap(taskParamsStr);
+            String jobExtraFlinkCheckpointInterval = getFlinkJobExtraInfo(jobId, engineJobCache.getEngineType(), JobResultConstant.FLINK_CHECKPOINT);
+            if (StringUtils.isNotBlank(jobExtraFlinkCheckpointInterval) && Integer.parseInt(jobExtraFlinkCheckpointInterval) > 0) {
+                LOGGER.info("flink {} job extra info checkpoint interval {}", jobId, jobExtraFlinkCheckpointInterval);
+                paramInfo.put(FLINK_CHECKPOINT_INTERVAL_KEY, jobExtraFlinkCheckpointInterval);
             }
             return paramInfo;
         });
+    }
+
+    /**
+     * 获取flink任务job_graph的flink.checkpoint.interval参数信息
+     * 优先级高于task_param
+     * @param jobId
+     * @param engineType
+     * @return
+     */
+    private String getFlinkJobExtraInfo(String jobId, String engineType,String key) {
+        if (EngineType.isFlink(engineType)) {
+            String jobExtraInfo = scheduleJobDao.getJobExtraInfo(jobId);
+            if(StringUtils.isBlank(jobExtraInfo)){
+                return null;
+            }
+            return JSONObject.parseObject(jobExtraInfo).getString(key);
+
+        }
+        return null;
     }
 
 
