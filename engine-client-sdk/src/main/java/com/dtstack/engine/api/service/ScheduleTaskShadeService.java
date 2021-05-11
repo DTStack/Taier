@@ -229,4 +229,13 @@ public interface ScheduleTaskShadeService extends DtInsightServer {
 
     @RequestLine("POST /node/scheduleTaskShade/findTaskRuleTask")
     ApiResponse<ScheduleDetailsVO> findTaskRuleTask(@Param("taskId") Long taskId, @Param("appType") Integer appType);
+
+
+    @RequestLine("POST /node/scheduleTaskShade/checkCronExpression")
+    ApiResponse<String > checkCronExpression(@Param("cron") String cron);
+
+    @RequestLine("POST /node/scheduleTaskShade/recentlyRunTime")
+    ApiResponse<List<String >> recentlyRunTime(@Param("startDate") String startDate,@Param("endDate") String endDate,
+                                               @Param("cron") String cron,@Param("num") Integer num);
+
 }

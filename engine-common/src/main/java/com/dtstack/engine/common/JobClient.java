@@ -157,7 +157,7 @@ public class JobClient extends OrderObject {
             String valStr = confProperties == null ? null : confProperties.getProperty(ConfigConstant.CUSTOMER_PRIORITY_VAL);
             this.priorityLevel = valStr == null ? DEFAULT_PRIORITY_LEVEL_VALUE : MathUtil.getIntegerVal(valStr);
             //设置priority值, 值越小，优先级越高
-            this.priority = paramAction.getGenerateTime() + priorityLevel * PRIORITY_LEVEL_WEIGHT;
+            this.priority = paramAction.getGenerateTime() + (long) priorityLevel * PRIORITY_LEVEL_WEIGHT;
         } else {
             priority = paramAction.getPriority();
         }

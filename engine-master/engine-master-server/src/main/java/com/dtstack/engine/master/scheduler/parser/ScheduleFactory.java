@@ -41,7 +41,7 @@ public class ScheduleFactory {
     public static ScheduleCron parseFromJson(String jsonStr) throws IOException, ParseException {
 
 
-        Map<String, Object> jsonMap = null;
+        Map<String, Object> jsonMap;
         try {
             jsonMap = objMapper.readValue(jsonStr, Map.class);
         } catch (IOException e) {
@@ -52,7 +52,7 @@ public class ScheduleFactory {
         Preconditions.checkState(jsonMap.containsKey(END_DATE_KEY), "schedule param must contain " +  END_DATE_KEY);
 
         int periodType = MathUtil.getIntegerVal(jsonMap.get(PERIOD_TYPE_KEY));
-        ScheduleCron scheduleCron = null;
+        ScheduleCron scheduleCron;
 
         if(periodType == ESchedulePeriodType.MONTH.getVal()){
             scheduleCron = new ScheduleCronMonthParser();
@@ -64,7 +64,9 @@ public class ScheduleFactory {
             scheduleCron = new ScheduleCronHourParser();
         }else if(periodType == ESchedulePeriodType.MIN.getVal()){
             scheduleCron = new ScheduleCronMinParser();
-        }else{
+        }else if (periodType == ESchedulePeriodType.CUSTOM.getVal()){
+            scheduleCron = new ScheduleCronCustomParser();
+        } else{
             throw new RdosDefineException("not support period type!");
         }
 

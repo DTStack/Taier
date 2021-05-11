@@ -242,4 +242,19 @@ public class ScheduleTaskShadeServiceTest extends AbstractTest {
         Boolean flag = scheduleTaskShadeService.taskCommit(commitId);
         Assert.assertTrue(flag);
     }
+
+    @Test
+    public void testCheckCronExpression(){
+        scheduleTaskShadeService.checkCronExpression("0 0 0/13 * * ?");
+        try {
+            scheduleTaskShadeService.checkCronExpression("0 0 0/13 * * ? *");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testRecentlyRunTime(){
+        scheduleTaskShadeService.recentlyRunTime("2021-04-29","2021-05-03","0 0 0/13 * * ?",10);
+    }
 }
