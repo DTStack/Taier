@@ -34,6 +34,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -277,6 +278,9 @@ public class JobCheckpointDealer implements InitializingBean {
     private Map<String, Object> getJobParamsByJobId(String jobId) throws ExecutionException {
         return checkpointConfigCache.get(jobId, () -> {
             EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
+            if(null == engineJobCache){
+                return new HashMap<>(0);
+            }
             String jobInfo = engineJobCache.getJobInfo();
             Map<String, Object> pluginInfoMap = PublicUtil.jsonStrToObject(jobInfo, Map.class);
             String taskParamsStr = String.valueOf(pluginInfoMap.get(TASK_PARAMS_KEY));
