@@ -6,17 +6,18 @@
     <sql id="select_content_fragment">
       bj.id,bj.tenant_id,bj.project_id,bj.dtuic_tenant_id,bj.app_type,bj.job_id,bj.job_key,bj.job_name,bj.task_id,bj.gmt_create,bj.gmt_modified,bj.create_user_id,bj.is_deleted,bj.type,bj.is_restart,
       bj.business_date,bj.cyc_time,dependency_type,flow_job_id,bj.period_type,bj.status,bj.task_type,bj.fill_id,bj.exec_start_time,bj.exec_end_time,bj.exec_time,bj.submit_time,bj.retry_num,max_retry_num,
-      bj.node_address,bj.version_id,bj.next_cyc_time,bj.log_info,bj.compute_type,bj.submit_user_name,bj.engine_job_id,bj.task_rule,bj.component_version
+      bj.node_address,bj.version_id,bj.next_cyc_time,bj.log_info,bj.compute_type,bj.submit_user_name,bj.engine_job_id,bj.task_rule,bj.component_version,bj.business_type
     </sql>
 
     <sql id="select_filed_all">
         `id`,`tenant_id`,`project_id`,`dtuic_tenant_id`,`app_type`,`job_id`,`job_key`,`job_name`,`task_id`,`gmt_create`,`gmt_modified`,`create_user_id`,`is_deleted`,`type`,`is_restart`,`business_date`,`cyc_time`
         ,`dependency_type`,`flow_job_id`,`period_type`,`status`,`task_type`,`fill_id`,`exec_start_time`,`exec_end_time`,`exec_time`,`submit_time`,`max_retry_num`,`retry_num`,`log_info`,`node_address`,`version_id`
-        ,`next_cyc_time`,`engine_job_id`,`application_id`,`engine_log`,`plugin_info_id`,`retry_task_params`,`compute_type`,`phase_status`,`submit_user_name`,component_version
+        ,`next_cyc_time`,`engine_job_id`,`application_id`,`engine_log`,`plugin_info_id`,`retry_task_params`,`compute_type`,`phase_status`,`submit_user_name`,component_version,`business_type`
     </sql>
 
     <sql id="select_filed_all_bj">
         id,tenant_id,project_id,dtuic_tenant_id,app_type,job_id,job_key,job_name,task_id,gmt_create,gmt_modified,create_user_id,is_deleted,type,is_restart,business_date,cyc_time,dependency_type,flow_job_id,period_type,status,task_type,fill_id,exec_start_time,exec_end_time,exec_time,submit_time,retry_num,max_retry_num,node_address,version_id,next_cyc_time,log_info,compute_type,submit_user_name,engine_job_id,task_rule,component_version
+        ,business_type
     </sql>
 
     <sql id="select_where_fragment">
@@ -124,6 +125,9 @@
             </if>
             <if test="model.bizEndDay != null and model.bizStartDay != null">
                 AND bj.business_date &gt;= #{model.bizStartDay} and bj.business_date &lt;= #{model.bizEndDay}
+            </if>
+            <if test="model.businessType != null">
+                AND bj.business_type = #{model.businessType}
             </if>
         </trim>
     </sql>

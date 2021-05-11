@@ -76,6 +76,18 @@ public class ScheduleJobDTO extends ScheduleJob {
 
     private List<Long> projectIds;
 
+    private String businessType;
+
+    @Override
+    public String getBusinessType() {
+        return businessType;
+    }
+
+    @Override
+    public void setBusinessType(String businessType) {
+        this.businessType = businessType;
+    }
+
     public List<Long> getProjectIds() {
         return projectIds;
     }
