@@ -1,10 +1,7 @@
 package com.dtstack.engine.dao;
 
 import com.dtstack.engine.api.domain.ScheduleJob;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 public interface TestScheduleJobDao {
     @Insert({ "INSERT INTO schedule_job\n" +
@@ -32,4 +29,8 @@ public interface TestScheduleJobDao {
 
     @Select({"select * from schedule_job limit 1"})
     ScheduleJob getOne();
+
+
+    @Update({"update schedule_job set job_extra_info = #{jobExtraInfo} where job_id = #{jobId}"})
+    void updateJobExtraInfo(@Param("jobExtraInfo") String jobExtraInfo,@Param("jobId")String jobId);
 }
