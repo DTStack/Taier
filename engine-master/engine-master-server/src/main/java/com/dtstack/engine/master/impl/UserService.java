@@ -44,7 +44,7 @@ public class UserService {
             return;
         }
 
-        List<Long> userIds = vos.stream().map(ScheduleTaskVO::getUserId).collect(Collectors.toList());
+        List<Long> userIds = vos.stream().map(ScheduleTaskVO::getOwnerUserId).collect(Collectors.toList());
         List<Long> createUserIds = vos.stream().map(ScheduleTaskVO::getCreateUserId).collect(Collectors.toList());
         List<Long> modifyUserIds = vos.stream().map(ScheduleTaskVO::getModifyUserId).collect(Collectors.toList());
 
@@ -62,7 +62,7 @@ public class UserService {
             userDb.addAll(users);
             Map<Long, List<User>> userMaps = userDb.stream().collect(Collectors.groupingBy(User::getDtuicUserId));
             for (ScheduleTaskVO vo : vos) {
-                User user = userMaps.get(vo.getUserId()) != null ? userMaps.get(vo.getUserId()).get(0) : null;
+                User user = userMaps.get(vo.getOwnerUserId()) != null ? userMaps.get(vo.getOwnerUserId()).get(0) : null;
                 User createUser = userMaps.get(vo.getCreateUserId()) != null ? userMaps.get(vo.getCreateUserId()).get(0) : null;
                 User modifyUser = userMaps.get(vo.getModifyUserId()) != null ? userMaps.get(vo.getModifyUserId()).get(0) : null;
 
