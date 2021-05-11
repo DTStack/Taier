@@ -60,7 +60,7 @@ const RelationList = (props: IPropsRelationList) => {
     setRelationList(modelDetail.joinList || []);
   }, [modelDetail]);
 
-  // 将远程获取的columnList和当前勾选的恶columnList进行整合
+  // 将远程获取的columnList和当前勾选的columnList进行整合
   const combineColumnList = async (joinList: any[]) => {
     const columns = modelDetail.columns || [];
     try {
@@ -234,8 +234,10 @@ const RelationList = (props: IPropsRelationList) => {
             refRelationModal.current.validate().then((data) => {
               let next = [];
               if (modifyType.mode === Mode.ADD) {
+                // 新增关联表逻辑
                 data.id = identifyJoinList();
                 next = [...relationList, data];
+                // 关联表新增后，需要请求获取columnList
                 window.localStorage.setItem('refreshColumns', 'true');
                 // 拿到数据后请求更新columnList
                 const params = tableListGen(
