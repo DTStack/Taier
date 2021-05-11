@@ -6,6 +6,7 @@ import com.dtstack.engine.api.dto.UserDTO;
 import com.dtstack.engine.api.vo.ScheduleFillDataJobPreViewVO;
 import com.dtstack.engine.api.vo.ScheduleJobVO;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
+import com.dtstack.engine.api.vo.user.UserVO;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.dao.UserDao;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
@@ -184,5 +185,18 @@ public class UserService {
             LOGGER.error("",e);
         }
 
+    }
+
+    public List<UserVO> findAllUser() {
+        List<User> userDb = userDao.getAllUser();
+        List<UserVO> userVOS = Lists.newArrayList();
+        for (User user : userDb) {
+            UserVO vo = new UserVO();
+            vo.setUserName(user.getUserName());
+            vo.setDtuicUserId(user.getDtuicUserId());
+            vo.setEmail(user.getEmail());
+            userVOS.add(vo);
+        }
+        return userVOS;
     }
 }

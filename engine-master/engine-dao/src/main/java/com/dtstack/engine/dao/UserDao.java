@@ -24,4 +24,6 @@ public interface UserDao {
     List<User> getByDtUicUserIds(@Param("userIds") Set<Long> userIds);
 
     Integer insertBatch(@Param("users") List<User> users);
+
+    List<User> getAllUser();
 }

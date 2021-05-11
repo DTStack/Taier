@@ -13,6 +13,7 @@ import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.router.DtHeader;
+import com.dtstack.engine.master.router.DtParamOrHeader;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -158,11 +159,11 @@ public class ScheduleJobController {
                                @DtRequestParam("concreteStartTime") String beginTime,
                                @DtRequestParam("concreteEndTime") String endTime,
                                @DtRequestParam("projectId") Long projectId,
-                               @DtRequestParam("userId") @DtHeader(value = "userId") Long userId,
+                               @DtParamOrHeader(value = "userId",header = "userId") Long userId,
                                @DtRequestParam("tenantId") Long tenantId,
                                @DtRequestParam("isRoot") Boolean isRoot,
                                @DtRequestParam("appType") Integer appType,
-                               @DtRequestParam("dtuicTenantId") @DtHeader(value = "cookie", cookie = "dt_tenant_id") Long dtuicTenantId) throws Exception {
+                               @DtParamOrHeader(value = "dtuicTenantId",header = "cookie",cookie = "dt_tenant_id") Long dtuicTenantId) throws Exception {
         return scheduleJobService.fillTaskData(taskJsonStr, fillName, fromDay, toDay, beginTime, endTime, projectId, userId, tenantId, isRoot, appType, dtuicTenantId);
     }
 

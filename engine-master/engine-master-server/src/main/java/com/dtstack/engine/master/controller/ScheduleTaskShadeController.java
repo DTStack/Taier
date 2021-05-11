@@ -12,6 +12,7 @@ import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
 import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
 import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import com.dtstack.engine.master.router.DtHeader;
+import com.dtstack.engine.master.router.DtParamOrHeader;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -105,7 +106,7 @@ public class ScheduleTaskShadeController {
 
     @RequestMapping(value = "/queryTasks", method = {RequestMethod.POST})
     public ScheduleTaskShadePageVO queryTasks(@DtRequestParam("tenantId") Long tenantId,
-                                              @DtRequestParam("dtTenantId") @DtHeader(value = "cookie",cookie = "dt_tenant_id") Long dtTenantId,
+                                              @DtParamOrHeader(value = "dtTenantId",header = "cookie",cookie = "dt_tenant_id") Long dtTenantId,
                                               @DtRequestParam("projectId") Long projectId,
                                               @DtRequestParam("name") String name,
                                               @DtRequestParam("ownerId") Long ownerId,
