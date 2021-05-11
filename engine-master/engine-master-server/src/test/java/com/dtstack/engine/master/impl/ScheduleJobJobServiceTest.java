@@ -84,6 +84,7 @@ public class ScheduleJobJobServiceTest extends AbstractTest {
         ScheduleJobJob jobJob = Template.getDefaultScheduleJobJobFlowTemplate();
         jobJob.setJobKey("aaaaaaa");
         jobJob.setParentJobKey("bbbbbbb");
+        jobJob.setParentAppType(jobJob.getAppType());
         List<ScheduleJobJob> jobJobs = new ArrayList<>();
         jobJobs.add(jobJob);
         int batchInsert = scheduleJobJobService.batchInsert(jobJobs);

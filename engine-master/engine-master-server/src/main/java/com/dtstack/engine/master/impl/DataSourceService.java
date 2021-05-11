@@ -64,18 +64,23 @@ public class DataSourceService {
             LOGGER.info("datasource url is not init so skip");
             return;
         }
-        if(CollectionUtils.isEmpty(dtUicTenantIds)){
+        if (CollectionUtils.isEmpty(dtUicTenantIds)) {
             return;
         }
-
         Component component = componentDao.getByEngineIdAndComponentType(engineId, componentTypeCode);
         if (null == component) {
             LOGGER.info("engineId {} componentType {} component is null", engineId, componentTypeCode);
             return;
         }
+        DataSourceType dataSourceType = DataSourceType.convertEComponentType(EComponentType.getByCode(componentTypeCode), component.getHadoopVersion());
+        if(null == dataSourceType){
+            LOGGER.info("engineId {} componentType {} is not support datasource ", engineId, componentTypeCode);
+            return;
+        }
         EditConsoleParam editConsoleParam = new EditConsoleParam();
         try {
             editConsoleParam = getEditConsoleParam(clusterId, componentTypeCode, dtUicTenantIds, component);
+            editConsoleParam.setType(dataSourceType.getVal());
             dataSourceAPIClient.editConsoleDs(editConsoleParam);
             LOGGER.info("update datasource jdbc engineId {} componentType {} component info {}", engineId, componentTypeCode, editConsoleParam.toString());
         } catch (Exception e) {
@@ -93,15 +98,11 @@ public class DataSourceService {
         editConsoleParam.setUsername((String) configMap.get(ConfigConstant.USERNAME));
         editConsoleParam.setPassword((String) configMap.get(ConfigConstant.PASSWORD));
         editConsoleParam.setDataVersion(component.getHadoopVersion());
-        JSONObject sftpConfig = componentService.getComponentByClusterId(clusterId, EComponentType.SFTP.getTypeCode(), false, JSONObject.class);
+        JSONObject sftpConfig = componentService.getComponentByClusterId(clusterId, EComponentType.SFTP.getTypeCode(), false, JSONObject.class,null);
         editConsoleParam.setSftpConf(sftpConfig);
-        DataSourceType dataSourceType = DataSourceType.convertEComponentType(EComponentType.getByCode(componentTypeCode), component.getHadoopVersion());
-        if (null != dataSourceType) {
-            editConsoleParam.setType(dataSourceType.getVal());
-        }
         if (StringUtils.isNotBlank(component.getKerberosFileName())) {
             //kerberos 配置信息
-            KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, componentTypeCode);
+            KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, componentTypeCode,component.getHadoopVersion());
             KerberosConfigVO kerberosConfigVO = clusterService.addKerberosConfigWithHdfs(componentTypeCode, clusterId, kerberosConfig);
             editConsoleParam.setKerberosConfig(JSONObject.parseObject(JSONObject.toJSONString(kerberosConfigVO)));
         }

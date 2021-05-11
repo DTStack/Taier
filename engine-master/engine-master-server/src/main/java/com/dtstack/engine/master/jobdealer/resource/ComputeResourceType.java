@@ -26,6 +26,7 @@ public enum ComputeResourceType {
     Dummy,
     Presto,
     KingBase,
-    InceptorSQL;
+    InceptorSQL,
+    DtScriptAgent;
 
 }

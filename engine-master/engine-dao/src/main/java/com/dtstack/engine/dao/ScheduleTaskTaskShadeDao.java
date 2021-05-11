@@ -3,6 +3,7 @@ package com.dtstack.engine.dao;
 import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,5 +29,9 @@ public interface ScheduleTaskTaskShadeDao {
 
     Integer update(ScheduleTaskTaskShade scheduleTaskTaskShade);
 
+    List<ScheduleTaskTaskShade> listParentTaskKeys(@Param("taskKeys") List<String> taskKeys);
 
+    List<ScheduleTaskTaskShade> listTaskKeys(@Param("taskKeys") List<String> taskKeys);
+
+    List<ScheduleTaskTaskShade> getTaskOtherPlatformByProjectId(@Param("projectId") Long projectId, @Param("appType") Integer appType, @Param("listChildTaskLimit") Integer listChildTaskLimit);
 }

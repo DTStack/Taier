@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.lineage.dao.LineageDataSourceDao">
+<mapper namespace="com.dtstack.engine.dao.LineageDataSourceDao">
 
     <sql id="select_content_fragment">
-      id,dt_uic_tenant_id,real_source_id,source_name,source_key,app_type,source_type,data_json,kerberos_conf,open_kerberos,app_source_id,inner_source,component_id,gmt_create,gmt_modified,is_deleted
+      id,dt_uic_tenant_id,real_source_id,project_id,schema_name,source_id,source_name,source_key,app_type,source_type,data_json,kerberos_conf,open_kerberos,app_source_id,inner_source,component_id,is_default,gmt_create,gmt_modified,is_deleted
     </sql>
 
     <sql id="select_where_fragment">
@@ -32,8 +32,18 @@
             <if test="sourceKey !=null">
                 AND source_key like concat( '%',#{sourceKey},'%')
             </if>
+            <if test="projectId !=null">
+                AND project_id = #{projectId}
+            </if>
+            <if test="schemaName !=null">
+                AND schema_name = #{schemaName}
+            </if>
+            <if test="sourceId !=null">
+                AND source_id = #{sourceId}
+            </if>
         </trim>
     </sql>
+
 
     <sql id="update_fragment">
         <set>
@@ -42,6 +52,9 @@
             </if>
             <if test="sourceKey!=null">
                 source_key = #{sourceKey},
+            </if>
+            <if test="schemaName !=null">
+                schema_name = #{schemaName},
             </if>
             <if test="appType!=null">
                 app_type = #{appType},
@@ -80,9 +93,11 @@
     </sql>
 
     <insert id="insertDataSource" parameterType="com.dtstack.engine.api.domain.LineageDataSource" useGeneratedKeys="true" keyProperty="id">
-        insert into lineage_data_source(dt_uic_tenant_id,real_source_id,source_name,source_key,app_type,source_type,data_json,kerberos_conf,open_kerberos,app_source_id,inner_source,component_id)
+        insert into lineage_data_source
+        (dt_uic_tenant_id,real_source_id,project_id,schema_name,source_id,source_name,source_key,app_type,source_type,data_json,kerberos_conf,open_kerberos,app_source_id,inner_source,component_id,is_default)
         values
-         (#{dtUicTenantId},#{realSourceId},#{sourceName},#{sourceKey},#{appType},#{sourceType},#{dataJson},#{kerberosConf},#{openKerberos},#{appSourceId},#{innerSource},#{componentId})
+         (#{dtUicTenantId},#{realSourceId},#{projectId},#{schemaName},#{sourceId},
+        #{sourceName},#{sourceKey},#{appType},#{sourceType},#{dataJson},#{kerberosConf},#{openKerberos},#{appSourceId},#{innerSource},#{componentId},#{isDefault})
     </insert>
 
     <update id="updateDataSource" parameterType="com.dtstack.engine.api.domain.LineageDataSource">
@@ -115,21 +130,48 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM lineage_data_source
-        <include refid="select_where_fragment"/>
-        <if test="orderBy != null and sort != null">
-            order by ${orderBy} ${sort}
+        where 1=1
+        <if test="dataSource.id != null and dataSource.id > 0">
+            AND id = #{dataSource.id}
         </if>
-        <if test="orderBy != null and sort == null">
-            order by ${orderBy} desc
+        <if test="dataSource.appType !=null">
+            AND app_type = #{dataSource.appType}
         </if>
-        <if test="start != null and pageSize != null">
-            limit #{start} , #{pageSize}
+        <if test="dataSource.isDeleted !=null">
+            AND is_deleted = #{dataSource.isDeleted}
         </if>
-        <if test="start == null and pageSize != null">
-            limit #{pageSize}
+        <if test="dataSource.sourceType !=null">
+            AND source_type = #{dataSource.sourceType}
         </if>
-        <if test="start == null and pageSize == null">
-            limit 1000
+        <if test="dataSource.sourceName !=null">
+            AND source_name = #{dataSource.sourceName}
+        </if>
+        <if test="dataSource.dtUicTenantId !=null">
+            AND dt_uic_tenant_id = #{dataSource.dtUicTenantId}
+        </if>
+        <if test="dataSource.appType !=null">
+            AND app_type = #{dataSource.appType}
+        </if>
+        <if test="dataSource.sourceKey !=null">
+            AND source_key like concat( '%',#{dataSource.sourceKey},'%')
+        </if>
+        <if test="dataSource.projectId !=null">
+            AND project_id = #{dataSource.projectId}
+        </if>
+        <if test="pageQuery.orderBy != null and pageQuery.sort != null">
+            order by ${pageQuery.orderBy} ${pageQuery.sort}
+        </if>
+        <if test="pageQuery.orderBy != null and pageQuery.sort == null">
+            order by ${pageQuery.orderBy} desc
+        </if>
+        <if test="pageQuery.start != null and pageQuery.pageSize != null">
+            limit #{pageQuery.start} , #{pageQuery.pageSize}
+        </if>
+        <if test="pageQuery.start == null and pageQuery.pageSize != null">
+            limit #{pageQuery.pageSize}
+        </if>
+        <if test="pageQuery.start == null and pageQuery.pageSize == null">
+            limit 30
         </if>
     </select>
 
@@ -165,8 +207,48 @@
             #{id}
         </foreach>
         and is_deleted = 0;
-
     </select>
 
+
+    <select id="getDataSourceBySourceIdAndAppType" resultType="com.dtstack.engine.api.domain.LineageDataSource">
+        select
+        <include refid="select_content_fragment" />
+        from lineage_data_source
+        where
+        source_id = #{sourceId} and app_type = #{appType}
+        and is_deleted = 0;
+    </select>
+
+
+    <update id="updateDataSourceByAppTypeAndSourceId" parameterType="com.dtstack.engine.api.domain.LineageDataSource">
+        update lineage_data_source
+        <include refid="update_fragment"/>
+        where source_id = #{sourceId} and app_type = #{appType}
+    </update>
+
+
+    <delete id="deleteDataSourceByProjectId" >
+
+        delete from
+        lineage_data_source
+        where project_id = #{param.projectId}
+        and app_type =  #{param.appType}
+        and gmt_create >= #{time}
+    </delete>
+
+    <select id="getHadoopDefaultDatasource" resultType="com.dtstack.engine.api.domain.LineageDataSource">
+
+        select
+        <include refid="select_content_fragment" />
+        from lineage_data_source
+        where
+        app_type = #{appType}
+        and project_id = #{projectId}
+        and is_default = 1
+        and source_type in
+        <foreach collection="hadoopList" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
 
 </mapper>

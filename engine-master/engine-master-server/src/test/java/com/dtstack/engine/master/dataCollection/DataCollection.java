@@ -3,8 +3,8 @@ package com.dtstack.engine.master.dataCollection;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.domain.AlertChannel;
-import com.dtstack.engine.domain.AlertRecord;
+import com.dtstack.engine.api.domain.AlertChannel;
+import com.dtstack.engine.api.domain.AlertRecord;
 import com.dtstack.engine.master.anno.DataSource;
 import com.dtstack.engine.master.anno.DatabaseInsertOperation;
 import com.dtstack.engine.master.anno.IgnoreUniqueRandomSet;
@@ -989,6 +989,15 @@ public interface DataCollection {
         LineageDataSource defaultHiveDataSourceTemplate = Template.getDefaultHiveDataSourceTemplate();
         defaultHiveDataSourceTemplate.setRealSourceId(1L);
         return defaultHiveDataSourceTemplate;
+    }
+
+
+
+    @DatabaseInsertOperation(dao = TestLineageDataSourceDao.class)
+    default LineageDataSource getRdostHiveDataSourceTemplate(){
+        LineageDataSource dataSource = Template.getRdostHiveDataSourceTemplate();
+        dataSource.setRealSourceId(2L);
+        return dataSource;
     }
 
 //    @DatabaseInsertOperation(dao = TestLineageDataSourceDao.class)

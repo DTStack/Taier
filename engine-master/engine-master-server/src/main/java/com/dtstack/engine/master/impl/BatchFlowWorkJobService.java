@@ -1,18 +1,10 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.ScheduleJobJob;
 import com.dtstack.engine.api.enums.TaskRuleEnum;
-import com.dtstack.engine.common.constrant.GlobalConst;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.dao.ScheduleEngineProjectDao;
-import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
-import com.dtstack.engine.dao.TenantDao;
-import com.dtstack.engine.domain.ScheduleEngineProject;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.executor.AbstractJobExecutor;
@@ -26,9 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * company: www.dtstack.com
@@ -82,7 +72,7 @@ public class BatchFlowWorkJobService {
             bottleStatus = RdosTaskStatus.FINISHED.getStatus();
             canRemove = true;
         } else {
-            LOGGER.info("flowId:{} checkRemoveAndUpdateFlowJobStatus {}", jobId,JSON.toJSONString(subJobs));
+            LOGGER.info("flowId:{} checkRemoveAndUpdateFlowJobStatus {}", jobId, JSON.toJSONString(subJobs));
             for (ScheduleJob scheduleJob : subJobs) {
                 Integer status = scheduleJob.getStatus();
                 LOGGER.info("flowId:{} status: {}", jobId,status);

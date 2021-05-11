@@ -58,11 +58,14 @@ public class ScheduleJobBack {
         if (isMaster && environment.openScheduleJobCron()) {
             String cron = environment.getScheduleJobCron();
             long mill = getTimeMillis(cron);
-            if (System.currentTimeMillis() - mill < environment.getScheduleJobScope()) {
-                lock.lock();
-                process();
-                lock.unlock();
+            if (System.currentTimeMillis() - mill < 0) {
+                return;
             }
+            lock.lock();
+            if (System.currentTimeMillis() - mill < environment.getScheduleJobScope()) {
+                process();
+            }
+            lock.unlock();
         }
     }
 

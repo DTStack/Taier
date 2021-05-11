@@ -14,9 +14,9 @@ import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.ComponentVersionUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.schedule.common.enums.DataSourceType;
@@ -26,7 +26,9 @@ import com.dtstack.schedule.common.util.Base64Util;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Table;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -192,26 +194,25 @@ public class ClusterService implements InitializingBean {
     public String clusterInfo( Long tenantId) {
         ClusterVO cluster = getClusterByTenant(tenantId);
         if (cluster != null) {
-            JSONObject config = buildClusterConfig(cluster);
+            JSONObject config = buildClusterConfig(cluster,null);
             return config.toJSONString();
         }
         return StringUtils.EMPTY;
     }
 
-    public ClusterVO clusterExtInfo(Long uicTenantId) {
+    public ClusterVO clusterExtInfo(Long uicTenantId,boolean multiVersion) {
         Long clusterId = engineTenantDao.getClusterIdByTenantId(uicTenantId);
         if(null == clusterId){
             return null;
         }
-        return getCluster(clusterId,false);
+        return getCluster(clusterId,false,multiVersion);
     }
 
     /**
      * 内部使用
      */
-    public JSONObject pluginInfoJSON( Long dtUicTenantId,  String engineTypeStr, Long dtUicUserId,Integer deployMode) {
-
-        if (EngineType.Dummy.name().equalsIgnoreCase(engineTypeStr) || environmentContext.getOpenDummy()) {
+    public JSONObject pluginInfoJSON( Long dtUicTenantId,  String engineTypeStr, Long dtUicUserId,Integer deployMode,Map<Integer,String > componentVersionMap) {
+        if (EngineType.Dummy.name().equalsIgnoreCase(engineTypeStr)) {
             JSONObject dummy = new JSONObject();
             dummy.put(TYPE_NAME_KEY, EngineType.Dummy.name().toLowerCase());
             return dummy;
@@ -220,7 +221,6 @@ public class ClusterService implements InitializingBean {
         if (type == null) {
             return null;
         }
-
         ClusterVO cluster = getClusterByTenant(dtUicTenantId);
         if (cluster == null) {
             String msg = format("The tenant [%s] is not bound to any cluster", dtUicTenantId);
@@ -228,9 +228,8 @@ public class ClusterService implements InitializingBean {
         }
         cluster.setDtUicTenantId(dtUicTenantId);
         cluster.setDtUicUserId(dtUicUserId);
-
-        JSONObject clusterConfigJson = buildClusterConfig(cluster);
-        JSONObject pluginJson = convertPluginInfo(clusterConfigJson, type, cluster, deployMode);
+        JSONObject clusterConfigJson = buildClusterConfig(cluster,componentVersionMap);
+        JSONObject pluginJson = convertPluginInfo(clusterConfigJson, type, cluster, deployMode,componentVersionMap);
         if (pluginJson == null) {
             throw new RdosDefineException(format("The cluster is not configured [%s] engine", engineTypeStr));
         }
@@ -264,7 +263,7 @@ public class ClusterService implements InitializingBean {
             pluginJson.put(EComponentType.SFTP.getConfName(), sftpConfig);
         }
         EComponentType componentType = type.getComponentType();
-        KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, componentType.getTypeCode());
+        KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, componentType.getTypeCode(),componentDao.getDefaultComponentVersionByClusterAndComponentType(clusterId,componentType.getTypeCode()));
         if (null != kerberosConfig) {
             Integer openKerberos = kerberosConfig.getOpenKerberos();
             String remotePath = kerberosConfig.getRemotePath();
@@ -293,9 +292,9 @@ public class ClusterService implements InitializingBean {
             if(null == componentType){
                 componentType = EComponentType.SPARK_THRIFT.getTypeCode();
             }
-            Map<String, String> sftpConfig = componentService.getComponentByClusterId(clusterId,EComponentType.SFTP.getTypeCode(),false,Map.class);
+            Map<String, String> sftpConfig = componentService.getComponentByClusterId(clusterId,EComponentType.SFTP.getTypeCode(),false,Map.class,null);
             if (sftpConfig != null) {
-                KerberosConfig kerberosDaoByComponentType = kerberosDao.getByComponentType(clusterId, componentType);
+                KerberosConfig kerberosDaoByComponentType = kerberosDao.getByComponentType(clusterId, componentType,componentDao.getDefaultComponentVersionByClusterAndComponentType(clusterId,componentType));
                 if(null != kerberosDaoByComponentType){
                     return sftpConfig.get("path") + File.separator + componentService.buildSftpPath(clusterId, componentType) + File.separator +
                             ComponentService.KERBEROS_PATH;
@@ -351,7 +350,7 @@ public class ClusterService implements InitializingBean {
             if (null == clusterId) {
                 return null;
             }
-            JSONObject componentConf = componentService.getComponentByClusterId(clusterId,type.getComponentType().getTypeCode(),false,JSONObject.class);
+            JSONObject componentConf = componentService.getComponentByClusterId(clusterId,type.getComponentType().getTypeCode(),false,JSONObject.class,null);
             if (null == componentConf) {
                 return null;
             }
@@ -371,36 +370,36 @@ public class ClusterService implements InitializingBean {
      * 对外接口
      * FIXME 这里获取的hiveConf其实是spark thrift server的连接信息，后面会统一做修改
      */
-    public String hiveInfo( Long dtUicTenantId,  Boolean fullKerberos) {
-        return getConfigByKey(dtUicTenantId, EComponentType.SPARK_THRIFT.getConfName(),fullKerberos);
+    public String hiveInfo( Long dtUicTenantId,  Boolean fullKerberos,Map<Integer,String > componentVersionMap) {
+        return getConfigByKey(dtUicTenantId, EComponentType.SPARK_THRIFT.getConfName(),fullKerberos,componentVersionMap);
     }
 
     /**
      * 对外接口
      */
-    public String hiveServerInfo( Long dtUicTenantId, Boolean fullKerberos) {
-        return getConfigByKey(dtUicTenantId, EComponentType.HIVE_SERVER.getConfName(),fullKerberos);
+    public String hiveServerInfo( Long dtUicTenantId, Boolean fullKerberos,Map<Integer,String > componentVersionMap) {
+        return getConfigByKey(dtUicTenantId, EComponentType.HIVE_SERVER.getConfName(),fullKerberos,componentVersionMap);
     }
 
     /**
      * 对外接口
      */
-    public String hadoopInfo( Long dtUicTenantId, Boolean fullKerberos) {
-        return getConfigByKey(dtUicTenantId, EComponentType.HDFS.getConfName(),fullKerberos);
+    public String hadoopInfo( Long dtUicTenantId, Boolean fullKerberos,Map<Integer,String > componentVersionMap) {
+        return getConfigByKey(dtUicTenantId, EComponentType.HDFS.getConfName(),fullKerberos,componentVersionMap);
     }
 
     /**
      * 对外接口
      */
-    public String carbonInfo( Long dtUicTenantId, Boolean fullKerberos) {
-        return getConfigByKey(dtUicTenantId, EComponentType.CARBON_DATA.getConfName(),fullKerberos);
+    public String carbonInfo( Long dtUicTenantId, Boolean fullKerberos,Map<Integer,String > componentVersionMap) {
+        return getConfigByKey(dtUicTenantId, EComponentType.CARBON_DATA.getConfName(),fullKerberos,componentVersionMap);
     }
 
     /**
      * 对外接口
      */
-    public String impalaInfo( Long dtUicTenantId, Boolean fullKerberos) {
-        return getConfigByKey(dtUicTenantId, EComponentType.IMPALA_SQL.getConfName(),fullKerberos);
+    public String impalaInfo( Long dtUicTenantId, Boolean fullKerberos,Map<Integer,String > componentVersionMap) {
+        return getConfigByKey(dtUicTenantId, EComponentType.IMPALA_SQL.getConfName(),fullKerberos,componentVersionMap);
     }
 
     /**
@@ -409,27 +408,27 @@ public class ClusterService implements InitializingBean {
      * @param fullKerberos
      * @return
      */
-    public String prestoInfo(Long dtUicTenantId, Boolean fullKerberos) {
-        return getConfigByKey(dtUicTenantId, EComponentType.PRESTO_SQL.getConfName(), fullKerberos);
+    public String prestoInfo(Long dtUicTenantId, Boolean fullKerberos,Map<Integer,String > componentVersionMap) {
+        return getConfigByKey(dtUicTenantId, EComponentType.PRESTO_SQL.getConfName(), fullKerberos,componentVersionMap);
     }
 
     /**
      * 对外接口
      */
     public String sftpInfo( Long dtUicTenantId) {
-        return getConfigByKey(dtUicTenantId, EComponentType.SFTP.getConfName(),false);
+        return getConfigByKey(dtUicTenantId, EComponentType.SFTP.getConfName(),false,null);
     }
 
-    public JSONObject buildClusterConfig(ClusterVO cluster) {
+    public JSONObject buildClusterConfig(ClusterVO cluster,Map<Integer,String > componentVersionMap) {
         JSONObject config = new JSONObject();
         List<SchedulingVo> scheduling = cluster.getScheduling();
         if (CollectionUtils.isNotEmpty(scheduling)) {
             for (SchedulingVo schedulingVo : scheduling) {
-                List<ComponentVO> components = schedulingVo.getComponents();
+                List<IComponentVO> components = schedulingVo.getComponents();
                 if (CollectionUtils.isNotEmpty(components)) {
-                    for (Component component : components) {
-                        EComponentType type = EComponentType.getByCode(component.getComponentTypeCode());
-                        JSONObject componentConfig = componentService.getComponentByClusterId(cluster.getClusterId(), component.getComponentTypeCode(), false, JSONObject.class);
+                    for (IComponentVO componentVO : components) {
+                        EComponentType type = EComponentType.getByCode(componentVO.getComponentTypeCode());
+                        JSONObject componentConfig = componentService.getComponentByClusterId(cluster.getClusterId(), componentVO.getComponentTypeCode(), false, JSONObject.class,componentVersionMap);
                         config.put(type.getConfName(), componentConfig);
                     }
                 }
@@ -448,9 +447,9 @@ public class ClusterService implements InitializingBean {
     public ClusterVO getClusterByTenant(Long dtUicTenantId) {
         Long clusterId = engineTenantDao.getClusterIdByTenantId(dtUicTenantId);
         if(Objects.isNull(clusterId)){
-            return getCluster(DEFAULT_CLUSTER_ID,false);
+            return getCluster(DEFAULT_CLUSTER_ID,false,false);
         }
-        return getCluster(clusterId,false);
+        return getCluster(clusterId,false,false);
     }
 
     /**
@@ -466,27 +465,31 @@ public class ClusterService implements InitializingBean {
         return clusterDao.getOne(clusterId);
     }
 
-    public String getConfigByKey(Long dtUicTenantId, String key, Boolean fullKerberos) {
+    public String getConfigByKey(Long dtUicTenantId, String componentConfName, Boolean fullKerberos,Map<Integer,String > componentVersionMap) {
         Long clusterId = Optional.ofNullable(engineTenantDao.getClusterIdByTenantId(dtUicTenantId)).orElse(DEFAULT_CLUSTER_ID);
         //根据组件区分kerberos
-        EComponentType componentType = EComponentType.getByConfName(key);
-        Component component = componentDao.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode());
+        EComponentType componentType = EComponentType.getByConfName(componentConfName);
+        Component component = componentDao.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode(), ComponentVersionUtil.getComponentVersion(componentVersionMap,componentType));
         if (null == component) {
             return "{}";
         }
-        JSONObject configObj = componentService.getComponentByClusterId(clusterId, component.getComponentTypeCode(), false, JSONObject.class);
+        JSONObject configObj = componentService.getComponentByClusterId(clusterId, component.getComponentTypeCode(), false, JSONObject.class,componentVersionMap);
         if (configObj != null) {
             KerberosConfig kerberosConfig = null;
             if (StringUtils.isNotBlank(component.getKerberosFileName())) {
                 //开启kerberos的kerberosFileName不为空
-                kerberosConfig = kerberosDao.getByComponentType(clusterId, componentType.getTypeCode());
+                String componentVersion = ComponentVersionUtil.getComponentVersion(componentVersionMap, componentType.getTypeCode());
+                kerberosConfig = kerberosDao.getByComponentType(clusterId, componentType.getTypeCode(),
+                        StringUtils.isNotBlank(componentVersion)?componentVersion:
+                        componentDao.getDefaultComponentVersionByClusterAndComponentType(clusterId,componentType.getTypeCode()));
             }
             //返回版本
-            configObj.put(ComponentService.VERSION, component.getHadoopVersion());
+            configObj.put(ConfigConstant.VERSION, component.getHadoopVersion());
+            configObj.put(IS_METADATA, component.getIsMetadata());
             // 添加组件的kerberos配置信息 应用层使用
-            configObj.put(ConfigConstant.KERBEROS_CONFIG, addKerberosConfigWithHdfs(componentType.getTypeCode(), clusterId, kerberosConfig));
+            configObj.put(ConfigConstant.KERBEROS_CONFIG, addKerberosConfigWithHdfs(component.getComponentTypeCode(), clusterId, kerberosConfig));
             //填充sftp配置项
-            Map sftpMap = componentService.getComponentByClusterId(clusterId, EComponentType.SFTP.getTypeCode(), false, Map.class);
+            Map sftpMap = componentService.getComponentByClusterId(clusterId, EComponentType.SFTP.getTypeCode(), false, Map.class,null);
             if (MapUtils.isNotEmpty(sftpMap)) {
                 configObj.put(EComponentType.SFTP.getConfName(), sftpMap);
             }
@@ -508,7 +511,7 @@ public class ClusterService implements InitializingBean {
         if (Objects.nonNull(kerberosConfig)) {
             KerberosConfigVO kerberosConfigVO = KerberosConfigVO.toVO(kerberosConfig);
             if (!Objects.equals(EComponentType.HDFS.getTypeCode(), componentType)) {
-                Map hdfsComponent = componentService.getComponentByClusterId(clusterId, EComponentType.HDFS.getTypeCode(),false,Map.class);
+                Map hdfsComponent = componentService.getComponentByClusterId(clusterId, EComponentType.HDFS.getTypeCode(),false,Map.class,null);
                 if (MapUtils.isEmpty(hdfsComponent)) {
                     throw new RdosDefineException("开启kerberos后需要预先保存hdfs组件");
                 }
@@ -520,7 +523,7 @@ public class ClusterService implements InitializingBean {
         return null;
     }
 
-    public JSONObject convertPluginInfo(JSONObject clusterConfigJson, EngineTypeComponentType type, ClusterVO clusterVO,Integer deployMode) {
+    public JSONObject convertPluginInfo(JSONObject clusterConfigJson, EngineTypeComponentType type, ClusterVO clusterVO,Integer deployMode,Map<Integer,String> componentVersionMap) {
         JSONObject pluginInfo = new JSONObject();
         if (EComponentType.HDFS == type.getComponentType()) {
             //hdfs yarn%s-hdfs%s-hadoop%s的版本
@@ -537,20 +540,23 @@ public class ClusterService implements InitializingBean {
             pluginInfo = clusterConfigJson.getJSONObject(EComponentType.IMPALA_SQL.getConfName());
             pluginInfo.put(TYPE_NAME, "impala");
         } else if (EComponentType.TIDB_SQL == type.getComponentType()) {
-            pluginInfo = JSONObject.parseObject(tiDBInfo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId()));
+            pluginInfo = JSONObject.parseObject(tiDBInfo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId(),componentVersionMap));
             pluginInfo.put(TYPE_NAME, "tidb");
         } else if (EComponentType.ORACLE_SQL == type.getComponentType()) {
-            pluginInfo = JSONObject.parseObject(oracleInfo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId()));
+            pluginInfo = JSONObject.parseObject(oracleInfo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId(),componentVersionMap));
             pluginInfo.put(TYPE_NAME, "oracle");
         } else if (EComponentType.GREENPLUM_SQL == type.getComponentType()) {
-            pluginInfo = JSONObject.parseObject(greenplumInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
+            pluginInfo = JSONObject.parseObject(greenplumInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId(),componentVersionMap));
             pluginInfo.put(TYPE_NAME, "greenplum");
         } else if (EComponentType.PRESTO_SQL == type.getComponentType()) {
-            pluginInfo = JSONObject.parseObject(prestoInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
+            pluginInfo = JSONObject.parseObject(prestoInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId(),componentVersionMap));
             pluginInfo.put(TYPE_NAME, "presto");
         }else if (EComponentType.INCEPTOR_SQL==type.getComponentType()){
             pluginInfo=JSONObject.parseObject(inceptorSqlInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
             pluginInfo.put(TYPE_NAME,"inceptor");
+        } else if (EComponentType.DTSCRIPT_AGENT==type.getComponentType()){
+            dtScriptAgentInfo(clusterConfigJson,pluginInfo);
+            pluginInfo.put(TYPE_NAME,"dtscript-agent");
         } else {
             //flink spark 需要区分任务类型
             if (EComponentType.FLINK.equals(type.getComponentType()) || EComponentType.SPARK.equals(type.getComponentType())) {
@@ -583,13 +589,13 @@ public class ClusterService implements InitializingBean {
 
                 if (EComponentType.KUBERNETES.getConfName().equals(entry.getKey())){
                     //kubernetes 需要添加配置文件名称 供下载
-                    this.buildKubernetesConfig(clusterConfigJson, clusterVO, pluginInfo);
+                    this.buildKubernetesConfig(clusterConfigJson, clusterVO, pluginInfo,componentVersionMap);
                     continue;
                 }
                 pluginInfo.put(entry.getKey(), entry.getValue());
             }
             if (EComponentType.HIVE_SERVER == type.getComponentType()) {
-                this.buildHiveVersion(clusterVO, pluginInfo);
+                this.buildHiveVersion(clusterVO, pluginInfo,componentVersionMap);
             } else if (EComponentType.DT_SCRIPT == type.getComponentType() || EComponentType.SPARK == type.getComponentType()) {
                 if (clusterVO.getDtUicUserId() != null && clusterVO.getDtUicTenantId() != null) {
                     String ldapUserName = this.getLdapUserName(clusterVO.getDtUicUserId());
@@ -607,8 +613,8 @@ public class ClusterService implements InitializingBean {
         return pluginInfo;
     }
 
-    private void buildHiveVersion(ClusterVO clusterVO, JSONObject pluginInfo) {
-        Component hiveServer = componentDao.getByClusterIdAndComponentType(clusterVO.getId(), EComponentType.HIVE_SERVER.getTypeCode());
+    private void buildHiveVersion(ClusterVO clusterVO, JSONObject pluginInfo,Map<Integer,String > componentVersionMap) {
+        Component hiveServer = componentDao.getByClusterIdAndComponentType(clusterVO.getId(), EComponentType.HIVE_SERVER.getTypeCode(),ComponentVersionUtil.getComponentVersion(componentVersionMap,EComponentType.HIVE_SERVER));
         if (null == hiveServer) {
             throw new RdosDefineException("hive component cannot be empty");
         }
@@ -617,12 +623,12 @@ public class ClusterService implements InitializingBean {
         jdbcUrl = jdbcUrl.replace("/%s", environmentContext.getComponentJdbcToReplace());
         pluginInfo.put("jdbcUrl", jdbcUrl);
         String typeName = componentService.convertComponentTypeToClient(clusterVO.getClusterName(),
-                EComponentType.HIVE_SERVER.getTypeCode(), hiveServer.getHadoopVersion(),hiveServer.getStoreType());
+                EComponentType.HIVE_SERVER.getTypeCode(), hiveServer.getHadoopVersion(),hiveServer.getStoreType(),componentVersionMap);
         pluginInfo.put(TYPE_NAME,typeName);
     }
 
-    private void buildKubernetesConfig(JSONObject clusterConfigJson, ClusterVO clusterVO, JSONObject pluginInfo) {
-        Component kubernetes = componentDao.getByClusterIdAndComponentType(clusterVO.getId(), EComponentType.KUBERNETES.getTypeCode());
+    private void buildKubernetesConfig(JSONObject clusterConfigJson, ClusterVO clusterVO, JSONObject pluginInfo,Map<Integer,String > componentVersionMap) {
+        Component kubernetes = componentDao.getByClusterIdAndComponentType(clusterVO.getId(), EComponentType.KUBERNETES.getTypeCode(),ComponentVersionUtil.getComponentVersion(componentVersionMap,EComponentType.KUBERNETES));
         if(Objects.nonNull(kubernetes)){
             pluginInfo.put("kubernetesConfigName",kubernetes.getUploadFileName());
             JSONObject sftpConf = clusterConfigJson.getJSONObject("sftpConf");
@@ -720,29 +726,29 @@ public class ClusterService implements InitializingBean {
         return Lists.newArrayList();
     }
 
-    public String tiDBInfo(Long dtUicTenantId, Long dtUicUserId){
-        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.TiDB);
+    public String tiDBInfo(Long dtUicTenantId, Long dtUicUserId,Map<Integer,String > componentVersionMap){
+        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.TiDB,componentVersionMap);
     }
 
-    public String oracleInfo(Long dtUicTenantId, Long dtUicUserId){
-        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.Oracle);
+    public String oracleInfo(Long dtUicTenantId, Long dtUicUserId,Map<Integer,String > componentVersionMap){
+        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.Oracle,componentVersionMap);
     }
 
 
-    public String greenplumInfo(Long dtUicTenantId, Long dtUicUserId){
-        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.GREENPLUM6);
+    public String greenplumInfo(Long dtUicTenantId, Long dtUicUserId,Map<Integer,String > componentVersionMap){
+        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.GREENPLUM6,componentVersionMap);
     }
 
-    public String prestoInfo(Long dtUicTenantId, Long dtUicUserId) {
-        return accountInfo(dtUicTenantId, dtUicUserId, DataSourceType.Presto);
+    public String prestoInfo(Long dtUicTenantId, Long dtUicUserId,Map<Integer,String > componentVersionMap) {
+        return accountInfo(dtUicTenantId, dtUicUserId, DataSourceType.Presto,componentVersionMap);
     }
 
     public String inceptorSqlInfo(Long dtUicTenantId, Long dtUicUserId){
-        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.INCEPTOR_SQL);
+        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.INCEPTOR_SQL,null);
     }
 
 
-    private String accountInfo(Long dtUicTenantId, Long dtUicUserId, DataSourceType dataSourceType) {
+    private String accountInfo(Long dtUicTenantId, Long dtUicUserId, DataSourceType dataSourceType,Map<Integer,String > componentVersionMap) {
         EComponentType componentType = null;
         if (DataSourceType.Oracle.equals(dataSourceType)) {
             componentType = EComponentType.ORACLE_SQL;
@@ -759,7 +765,7 @@ public class ClusterService implements InitializingBean {
             throw new RdosDefineException("Unsupported data source type");
         }
         //优先绑定账号
-        String jdbcInfo = getConfigByKey(dtUicTenantId, componentType.getConfName(), false);
+        String jdbcInfo = getConfigByKey(dtUicTenantId, componentType.getConfName(), false,componentVersionMap);
         User dtUicUser = userDao.getByDtUicUserId(dtUicUserId);
         if (null == dtUicUser) {
             return jdbcInfo;
@@ -811,8 +817,15 @@ public class ClusterService implements InitializingBean {
         clusterDao.deleteCluster(clusterId);
     }
 
-    public ClusterVO getCluster( Long clusterId, Boolean removeTypeName) {
-        return getCluster(clusterId,removeTypeName,false);
+    /**
+     * 获取集群配置
+     * @param clusterId 集群id
+     * @param removeTypeName
+     * @param defaultVersion 组件默认版本
+     * @return
+     */
+    public ClusterVO getCluster( Long clusterId, Boolean removeTypeName,boolean multiVersion) {
+        return getCluster(clusterId,removeTypeName,false,multiVersion);
     }
 
     /**
@@ -820,7 +833,7 @@ public class ClusterService implements InitializingBean {
      * @param clusterId
      * @return
      */
-    public ClusterVO getCluster(Long clusterId, Boolean removeTypeName,boolean isFullPrincipal) {
+    public ClusterVO getCluster(Long clusterId, Boolean removeTypeName,boolean isFullPrincipal,boolean multiVersion) {
         Cluster cluster = clusterDao.getOne(clusterId);
         EngineAssert.assertTrue(cluster != null, ErrorCode.DATA_NOT_FIND.getDescription());
         ClusterVO clusterVO = ClusterVO.toVO(cluster);
@@ -829,45 +842,64 @@ public class ClusterService implements InitializingBean {
             return clusterVO;
         }
         List<Long> engineIds = engines.stream().map(Engine::getId).collect(Collectors.toList());
-        List<Component> components = componentDao.listByEngineIds(engineIds);
-        List<ComponentVO> componentConfigs = componentConfigService.getComponentVoByComponent(components,
-                null == removeTypeName || removeTypeName , clusterId,true);
-        List<KerberosConfig> kerberosConfigs = null;
+        // 查询默认版本或者多个版本
+        List<Component> components = multiVersion ?componentDao.listByEngineIds(engineIds):
+                componentDao.listDefaultByEngineIds(engineIds);
+
+        List<IComponentVO> componentConfigs = componentConfigService.getComponentVoByComponent(components,
+                null == removeTypeName || removeTypeName , clusterId,true, multiVersion);
+        Table<Integer,String ,KerberosConfig> kerberosTable = null;
+        // k8s的配置
         if(isFullPrincipal){
-            kerberosConfigs =  kerberosDao.getByClusters(clusterId);
+            kerberosTable= HashBasedTable.create();
+            for (KerberosConfig kerberosConfig : kerberosDao.getByClusters(clusterId)) {
+                kerberosTable.put(kerberosConfig.getComponentType(), StringUtils.isBlank(kerberosConfig.getComponentVersion())?
+                        StringUtils.EMPTY:kerberosConfig.getComponentVersion(),kerberosConfig);
+            }
         }
 
-        Map<EComponentScheduleType, List<ComponentVO>> scheduleType = new HashMap<>();
+        Map<EComponentScheduleType, List<IComponentVO>> scheduleType = new HashMap<>(4);
+        // 组件根据用途分组(计算,资源)
         if (CollectionUtils.isNotEmpty(componentConfigs)) {
             scheduleType = componentConfigs.stream().collect(Collectors.groupingBy(c -> EComponentType.getScheduleTypeByComponent(c.getComponentTypeCode())));
         }
-        List<SchedulingVo> schedulingVos = convertComponentToScheduling(kerberosConfigs, scheduleType);
+        List<SchedulingVo> schedulingVos = convertComponentToScheduling(kerberosTable, scheduleType);
         clusterVO.setScheduling(schedulingVos);
+        clusterVO.setCanModifyMetadata(checkMetadata(engineIds, components));
         return clusterVO;
     }
 
-    private List<SchedulingVo> convertComponentToScheduling(List<KerberosConfig> kerberosConfigs, Map<EComponentScheduleType, List<ComponentVO>> scheduleType) {
+    private boolean checkMetadata(List<Long> engineIds, List<Component> components) {
+        if (components.stream().anyMatch(c -> EComponentType.metadataComponents.contains(EComponentType.getByCode(c.getComponentTypeCode())))) {
+            List<EngineTenant> engineTenants = engineTenantDao.listByEngineIds(engineIds);
+            return CollectionUtils.isEmpty(engineTenants);
+        }
+        return true;
+    }
+
+    private List<SchedulingVo> convertComponentToScheduling(Table<Integer,String ,KerberosConfig> kerberosTable, Map<EComponentScheduleType, List<IComponentVO>> scheduleType) {
         List<SchedulingVo> schedulingVos = new ArrayList<>();
         //为空也返回
         for (EComponentScheduleType value : EComponentScheduleType.values()) {
             SchedulingVo schedulingVo = new SchedulingVo();
             schedulingVo.setSchedulingCode(value.getType());
             schedulingVo.setSchedulingName(value.getName());
-            schedulingVo.setComponents(scheduleType.getOrDefault(value,new ArrayList<>(0)));
-            List<ComponentVO> componentVOS = scheduleType.get(value);
-            if(CollectionUtils.isNotEmpty(componentVOS) && CollectionUtils.isNotEmpty(kerberosConfigs)){
-                for (ComponentVO componentVO : componentVOS) {
-                    for (KerberosConfig config : kerberosConfigs) {
-                        if(componentVO.getComponentTypeCode().equals(config.getComponentType())){
-                            componentVO.setPrincipal(config.getPrincipal());
-                            componentVO.setPrincipals(config.getPrincipals());
-                            componentVO.setMergeKrb5Content(config.getMergeKrbContent());
+            List<IComponentVO> componentVoList = scheduleType.getOrDefault(value,Collections.emptyList());
+            if(Objects.nonNull(kerberosTable) && !kerberosTable.isEmpty() && CollectionUtils.isNotEmpty(componentVoList)){
+                componentVoList.forEach(component->{
+                    // 组件每个版本设置k8s参数
+                    for (ComponentVO componentVO : component.loadComponents()) {
+                        KerberosConfig kerberosConfig = kerberosTable.get(componentVO.getComponentTypeCode(), StringUtils.isBlank(componentVO.getHadoopVersion()) ?
+                                StringUtils.EMPTY : componentVO.getHadoopVersion());
+                        if(Objects.nonNull(kerberosConfig)){
+                            componentVO.setPrincipal(kerberosConfig.getPrincipal());
+                            componentVO.setPrincipals(kerberosConfig.getPrincipals());
+                            componentVO.setMergeKrb5Content(kerberosConfig.getMergeKrbContent());
                         }
                     }
-                }
+                });
             }
-            schedulingVo.setComponents(componentVOS);
-            schedulingVo.setComponents(scheduleType.getOrDefault(value,new ArrayList<>(0)));
+            schedulingVo.setComponents(componentVoList);
             schedulingVos.add(schedulingVo);
         }
         return schedulingVos;
@@ -879,14 +911,14 @@ public class ClusterService implements InitializingBean {
         List<ClusterEngineVO> result = new ArrayList<>();
 
         List<Cluster> clusters = clusterDao.listAll();
-        List<Engine> engines = engineDao.listByEngineIds(new ArrayList<>());
+        List<Engine> engines = engineDao.listByEngineIds(Collections.emptyList());
         if (null == engines) {
             return new ArrayList<>();
         }
         Map<Long, List<Engine>> clusterEngineMapping = engines
-                .stream()
+                .stream().filter(engine -> MultiEngineType.COMMON.getType()!=engine.getEngineType())
                 .collect(Collectors.groupingBy(Engine::getClusterId));
-        List<Long> engineIds = engines.stream()
+        List<Long> engineIds = engines.stream().filter(engine -> MultiEngineType.COMMON.getType()!=engine.getEngineType())
                 .map(Engine::getId)
                 .collect(Collectors.toList());
 
@@ -924,12 +956,12 @@ public class ClusterService implements InitializingBean {
 
     public String pluginInfoForType(Long dtUicTenantId, Boolean fullKerberos, Integer pluginType) {
         EComponentType type = EComponentType.getByCode(pluginType);
-        return getConfigByKey(dtUicTenantId, type.getConfName(),fullKerberos);
+        return getConfigByKey(dtUicTenantId, type.getConfName(),fullKerberos,null);
     }
 
     public String dbInfo(Long dtUicTenantId, Long dtUicUserId, Integer type) {
         DataSourceType sourceType = DataSourceType.getSourceType(type);
-        return accountInfo(dtUicTenantId,dtUicUserId,sourceType);
+        return accountInfo(dtUicTenantId,dtUicUserId,sourceType,null);
     }
 
     public Boolean isSameCluster(Long dtUicTenantId, List<Long> dtUicTenantIds) {
@@ -959,6 +991,12 @@ public class ClusterService implements InitializingBean {
         }
 
         return Boolean.FALSE;
+    }
+
+
+    private void dtScriptAgentInfo(JSONObject clusterConfigJson, JSONObject pluginInfo) {
+        JSONObject dtScriptConf = clusterConfigJson.getJSONObject(EComponentType.DTSCRIPT_AGENT.getConfName());
+        pluginInfo.putAll(dtScriptConf);
     }
 }
 

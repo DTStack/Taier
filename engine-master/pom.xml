@@ -23,13 +23,12 @@
 
     <packaging>pom</packaging>
 
+
     <modules>
         <module>engine-dao</module>
+        <module>engine-alter</module>
+        <module>engine-lineage</module>
         <module>engine-master-server</module>
-        <module>engine-alert-sdk</module>
-        <module>engine-alter-sender</module>
-        <module>engine-lineage-service</module>
-        <module>engine-lineage-sqlparser</module>
     </modules>
 
     <build>

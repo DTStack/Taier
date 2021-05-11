@@ -1,0 +1,1 @@
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -103, 2, 'INPUT', 0, 'hadoop.username', 'admin', null, 'yarn', null, null, '2021-02-25 18:12:54', '2021-02-25 18:12:54', 0);

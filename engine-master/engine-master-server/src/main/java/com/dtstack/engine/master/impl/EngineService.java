@@ -8,7 +8,6 @@ import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.QueueVO;
 import com.dtstack.engine.api.vo.engine.EngineSupportVO;
 import com.dtstack.engine.common.enums.MultiEngineType;
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.EngineDao;
 import com.dtstack.engine.dao.EngineTenantDao;
 import com.dtstack.engine.dao.QueueDao;
@@ -21,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -59,7 +59,7 @@ public class EngineService {
         if(CollectionUtils.isEmpty(engineTenants)){
             return vos;
         }
-        List<Long> engineIds = engineTenants.stream()
+        List<Long> engineIds = engineTenants.stream().filter(engine -> MultiEngineType.COMMON.getType()!=engine.getEngineType())
                 .map(Engine::getId)
                 .collect(Collectors.toList());
         List<Component> components = componentService.listComponent(engineIds);
@@ -70,7 +70,7 @@ public class EngineService {
             EngineSupportVO engineSupportVO = new EngineSupportVO();
             engineSupportVO.setEngineType(engine.getEngineType());
             List<Component> componentList = engineComponentMapping.get(engine.getId());
-            if (CollectionUtils.isEmpty(componentList)){
+            if (CollectionUtils.isEmpty(componentList)) {
                 continue;
             }
 
@@ -78,6 +78,10 @@ public class EngineService {
                     .map(Component::getComponentTypeCode)
                     .collect(Collectors.toList());
             engineSupportVO.setSupportComponent(componentTypes);
+            Optional<Component> metadataComponent = componentList.stream()
+                    .filter(c -> null != c.getIsMetadata() && 1 == c.getIsMetadata())
+                    .findFirst();
+            metadataComponent.ifPresent(component -> engineSupportVO.setMetadataComponent(component.getComponentTypeCode()));
             vos.add(engineSupportVO);
         }
 

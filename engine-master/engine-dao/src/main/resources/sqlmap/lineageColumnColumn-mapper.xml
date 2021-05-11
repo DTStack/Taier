@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.lineage.dao.LineageColumnColumnDao">
+<mapper namespace="com.dtstack.engine.dao.LineageColumnColumnDao">
 
     <sql id="select_content_fragment">
       id,dt_uic_tenant_id,app_type,input_table_id,input_table_key,input_column_name,result_table_id,result_table_key,result_column_name,column_lineage_key,lineage_source,gmt_create,gmt_modified,is_deleted
@@ -18,11 +18,19 @@
 
     <select id="queryColumnInputList" resultType="com.dtstack.engine.api.domain.LineageColumnColumn">
         select cc.* from lineage_column_column cc join lineage_column_column_unique_key_ref ref on cc.id = ref.lineage_column_column_id
-        where cc.input_table_id = #{tableId} and cc.input_column_name = #{columnName} and ref.app_type = #{appType} and ref.is_deleted = 0
+        where cc.input_table_id = #{tableId}
+        <if test="columnName!=null">
+            and cc.input_column_name = #{columnName}
+        </if>
+        and ref.app_type = #{appType} and ref.is_deleted = 0
     </select>
     <select id="queryColumnResultList" resultType="com.dtstack.engine.api.domain.LineageColumnColumn">
         select cc.* from lineage_column_column cc join lineage_column_column_unique_key_ref ref on cc.id = ref.lineage_column_column_id
-        where cc.result_table_id = #{tableId} and cc.result_column_name = #{columnName} and ref.app_type = #{appType} and ref.is_deleted = 0
+        where cc.result_table_id = #{tableId}
+        <if test="columnName!=null">
+            and cc.result_column_name = #{columnName}
+        </if>
+        and ref.app_type = #{appType} and ref.is_deleted = 0
     </select>
 
     <select id="queryByLineageKey" resultType="com.dtstack.engine.api.domain.LineageColumnColumn">
@@ -51,6 +59,15 @@
         select result_column_name from lineage_column_column cc
         left join lineage_column_column_unique_key_ref ccf on ccf.lineage_column_column_id = cc.id
         where result_table_id = #{tableId} and ccf.is_deleted = 0
+    </select>
+
+    <select id="queryColumnLineageByTaskIdAndAppType" resultType="com.dtstack.engine.api.domain.LineageColumnColumn">
+
+        select cc.* from lineage_column_column cc
+        join lineage_column_column_unique_key_ref ref on cc.id = ref.lineage_column_column_id
+        where
+        ref.unique_key = #{taskId} and
+        ref.app_type = #{appType} and ref.is_deleted = 0
     </select>
 
 </mapper>
