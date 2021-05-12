@@ -420,7 +420,7 @@ public class ScheduleJobService {
      */
     public PageResult<List<com.dtstack.engine.api.vo.ScheduleJobVO>> queryJobs(QueryJobDTO vo) throws Exception {
 
-        if (vo.getType() == null) {
+        if (vo.getType() == null || CollectionUtils.isEmpty(vo.getTypes())) {
             throw new RdosDefineException("Type parameter is required", ErrorCode.INVALID_PARAMETERS);
         }
         vo.setSplitFiledFlag(true);
@@ -458,7 +458,7 @@ public class ScheduleJobService {
                 return new PageResult<>(result, count, pageQuery);
             }
         }
-        if (AppType.DATASCIENCE.getType() == vo.getAppType()) {
+        if (AppType.DATASCIENCE.getType().equals(vo.getAppType())) {
             batchJobDTO.setQueryWorkFlowModel(QueryWorkFlowModel.Eliminate_Workflow_SubNodes.getType());
             count = queryScienceJob(batchJobDTO, queryAll, pageQuery, result);
         } else {
@@ -913,6 +913,7 @@ public class ScheduleJobService {
         batchJobDTO.setTaskPeriodId(convertStringToList(vo.getTaskPeriodId()));
         batchJobDTO.setAppType(vo.getAppType());
         batchJobDTO.setBusinessType(vo.getBusinessType());
+        batchJobDTO.setTypes(vo.getTypes());
 
         if (CollectionUtils.isNotEmpty(vo.getProjectIds())) {
             batchJobDTO.setProjectIds(vo.getProjectIds());

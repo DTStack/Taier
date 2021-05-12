@@ -155,7 +155,7 @@ public class ScheduleJobController {
                                @DtRequestParam("concreteStartTime") String beginTime, @DtRequestParam("concreteEndTime") String endTime,
                                @DtRequestParam("projectId") Long projectId, @DtRequestParam("userId") Long userId,
                                @DtRequestParam("tenantId") Long tenantId,
-                               @DtRequestParam("isRoot") Boolean isRoot, @DtRequestParam("appType") Integer appType, @DtRequestParam("dtuicTenantId") Long dtuicTenantId,@DtRequestParam(name = "ignoreCycTime",value = "false") Boolean ignoreCycTime) throws Exception {
+                               @DtRequestParam("isRoot") Boolean isRoot, @DtRequestParam("appType") Integer appType, @DtRequestParam("dtuicTenantId") Long dtuicTenantId,@DtRequestParam(name = "ignoreCycTime") Boolean ignoreCycTime) throws Exception {
         return scheduleJobService.fillTaskData(taskJsonStr, fillName, fromDay, toDay, beginTime, endTime, projectId, userId, tenantId, isRoot, appType, dtuicTenantId,ignoreCycTime);
     }
 

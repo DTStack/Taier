@@ -83,6 +83,13 @@
                 </foreach>
             </if>
 
+            <if test="model.types != null and model.types.size() > 0">
+                AND bj.type IN
+                <foreach item="type" index="index" collection="model.types" open="(" separator="," close=")">
+                    #{type}
+                </foreach>
+            </if>
+
             <if test="model.execTime != null">
                 AND bj.exec_time &gt;= #{model.execTime}
             </if>
@@ -225,6 +232,12 @@
             <if test="model.appType != null">
                 AND bj.app_type = #{model.appType}
             </if>
+            <if test="model.types != null and model.types.size() > 0">
+                AND bj.type IN
+                <foreach item="type" index="index" collection="model.types" open="(" separator="," close=")">
+                    #{type}
+                </foreach>
+            </if>
         </trim>
     </sql>
 
@@ -342,7 +355,12 @@
             <if test="model.execStartDay != null and model.execEndDay != null">
                 AND exec_start_time &gt;= ${model.execStartDay} and exec_start_time &lt;= ${model.execEndDay}
             </if>
-
+            <if test="model.types != null and model.types.size() > 0">
+                AND type IN
+                <foreach item="type" index="index" collection="model.types" open="(" separator="," close=")">
+                    #{type}
+                </foreach>
+            </if>
         </trim>
     </sql>
 
