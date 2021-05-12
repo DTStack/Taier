@@ -9048,6 +9048,11 @@ mute-stream@0.0.8:
   resolved "http://registry.npm.dtstack.com/mute-stream/-/mute-stream-0.0.8.tgz#1630c42b2251ff81e2a283de96a5497ea92e5e0d"
   integrity sha1-FjDEKyJR/4HiooPelqVJfqkuXg0=
 
+mxgraph@4.0.6:
+  version "4.0.6"
+  resolved "http://registry.npm.dtstack.com/mxgraph/-/mxgraph-4.0.6.tgz#759d4761ec20470b86a0926865bf87dada99b0b4"
+  integrity sha512-5XZXeAkA4k6n4BS05Fxd2cNhMw+3dnlRqAaLtsuXdT0g8BvvEa1VT4jjuGtUW4QTt38Q+I2Dr/3EWiAaGRfAXw==
+
 mz@^2.7.0:
   version "2.7.0"
   resolved "http://registry.npm.dtstack.com/mz/-/mz-2.7.0.tgz#95008057a56cafadc2bc63dde7f9ff6955948e32"
