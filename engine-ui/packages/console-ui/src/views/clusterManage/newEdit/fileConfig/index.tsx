@@ -64,7 +64,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
         initialValue = comp?.hadoopVersion || initialValue
         let versionValue = initialValue
         if (isSameVersion(typeCode)) {
-            versionValue = commVersion ?? comp?.hadoopVersion ?? version[0].values[0]?.key
+            versionValue = commVersion || comp?.hadoopVersion || version[0].values[0]?.key || ''
             initialValue = commVersion ? getInitialValue(version, commVersion)
                 : (comp?.hadoopVersion ? getInitialValue(version, comp?.hadoopVersion) : initialValue)
         }
@@ -97,7 +97,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                 </FormItem>
                 {getFieldDecorator(`${typeCode}.hadoopVersion`, {
                     initialValue: versionValue
-                })(<></>)}
+                })(<span style={{ display: 'none' }}></span>)}
             </>
         )
     }
@@ -508,7 +508,6 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                     </>
                 )
             }
-            case COMPONENT_TYPE_VALUE.IMPALA_SQL:
             case COMPONENT_TYPE_VALUE.HIVE_SERVER:
             case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER:
             case COMPONENT_TYPE_VALUE.INCEPTOR_SQL: {
@@ -523,6 +522,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                     </>
                 )
             }
+            case COMPONENT_TYPE_VALUE.IMPALA_SQL:
             case COMPONENT_TYPE_VALUE.SPARK:
             case COMPONENT_TYPE_VALUE.FLINK: {
                 return (

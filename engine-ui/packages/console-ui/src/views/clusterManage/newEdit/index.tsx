@@ -219,11 +219,10 @@ class EditCluster extends React.Component<any, IState> {
                 currentCompArr = Array.from(wrapper)
 
                 const multiVersion = getSingleTestStatus({ typeCode: componentTypeCode, hadoopVersion }, null, testStatus)
-                let fieldValue: any = { componentConfig: {}, hadoopVersion: '' }
+                let fieldValue: any = {}
                 if (isMultiVersion(componentTypeCode)) { fieldValue = { [hadoopVersion]: {} } }
                 if (isNeedTemp(componentTypeCode)) {
                     const commVersion = getFieldValue(`${MAPPING_HADOOP_VERSON[componentTypeCode]}.hadoopVersion`) ?? ''
-                    fieldValue = { specialConfig: {}, hadoopVersion: '' }
                     this.setState({ commVersion })
                 }
 
