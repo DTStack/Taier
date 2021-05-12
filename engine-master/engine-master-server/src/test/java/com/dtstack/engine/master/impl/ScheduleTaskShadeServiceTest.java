@@ -245,9 +245,9 @@ public class ScheduleTaskShadeServiceTest extends AbstractTest {
 
     @Test
     public void testCheckCronExpression(){
-        scheduleTaskShadeService.checkCronExpression("0 0 0/13 * * ?");
+        scheduleTaskShadeService.checkCronExpression("0 0 0/13 * * ?",null);
         try {
-            scheduleTaskShadeService.checkCronExpression("0 0 0/13 * * ? *");
+            scheduleTaskShadeService.checkCronExpression("0 0 0/13 * * ? *",null);
         }catch (Exception e){
             e.printStackTrace();
         }

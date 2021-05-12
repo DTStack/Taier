@@ -211,8 +211,8 @@ public class ScheduleTaskShadeController {
     }
 
     @RequestMapping(value = "/checkCronExpression",method = {RequestMethod.POST})
-    public String checkCronExpression(@DtRequestParam("cron") String cron){
-        return scheduleTaskShadeService.checkCronExpression(cron);
+    public String checkCronExpression(@DtRequestParam("cron") String cron,@DtRequestParam("minPeriod") Long minPeriod){
+        return scheduleTaskShadeService.checkCronExpression(cron,Objects.isNull(minPeriod)?300L:minPeriod);
     }
     @RequestMapping(value = "/recentlyRunTime",method = {RequestMethod.POST})
     public List<String > recentlyRunTime(@DtRequestParam("startDate")String startDate,@DtRequestParam("endDate")String endDate,
