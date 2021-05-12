@@ -232,7 +232,7 @@ public interface ScheduleTaskShadeService extends DtInsightServer {
 
 
     @RequestLine("POST /node/scheduleTaskShade/checkCronExpression")
-    ApiResponse<String > checkCronExpression(@Param("cron") String cron);
+    ApiResponse<String > checkCronExpression(@Param("cron") String cron,@Param("minPeriod") Long minPeriod);
 
     @RequestLine("POST /node/scheduleTaskShade/recentlyRunTime")
     ApiResponse<List<String >> recentlyRunTime(@Param("startDate") String startDate,@Param("endDate") String endDate,
