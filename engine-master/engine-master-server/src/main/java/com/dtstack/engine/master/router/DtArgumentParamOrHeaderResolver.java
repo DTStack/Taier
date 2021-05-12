@@ -94,10 +94,9 @@ public class DtArgumentParamOrHeaderResolver implements HandlerMethodArgumentRes
 
     private Object header(MethodParameter parameter,DtParamOrHeader requestParam, MultiReadHttpServletRequest servletRequest) {
         String paramName = requestParam.header();
-
-        String header = servletRequest.getHeader(paramName);
         Class<?> parameterType = parameter.getParameterType();
         if (COOKIE.equals(paramName) && StringUtils.isNotBlank(requestParam.cookie())) {
+            String header = servletRequest.getHeader(paramName);
             if (StringUtils.isBlank(header)) {
                 return header;
             }
@@ -105,7 +104,8 @@ public class DtArgumentParamOrHeaderResolver implements HandlerMethodArgumentRes
             Object value = paramToMap(header).get(requestParam.cookie());
             return TypeUtils.castToJavaBean(value, parameterType);
         }
-        if (USER_ID.equals(paramName) && StringUtils.isNotBlank(requestParam.cookie())) {
+        if (USER_ID.equals(paramName)) {
+            String header = servletRequest.getHeader(COOKIE);
             Object dtToken = paramToMap(header).get("dt_token");
 
             if (dtToken != null) {
@@ -116,10 +116,8 @@ public class DtArgumentParamOrHeaderResolver implements HandlerMethodArgumentRes
                     return TypeUtils.castToJavaBean(dtuicUserId, parameterType);
                 }
             }
-            return null;
-        } else {
-            return header;
         }
+        return null;
     }
 
     private Map<String, Object> paramToMap(String header) {
