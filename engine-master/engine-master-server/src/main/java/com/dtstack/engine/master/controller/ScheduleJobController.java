@@ -170,11 +170,18 @@ public class ScheduleJobController {
 
 
     @RequestMapping(value = "/getFillDataJobInfoPreview", method = {RequestMethod.POST})
-    public PageResult<List<ScheduleFillDataJobPreViewVO>> getFillDataJobInfoPreview(@DtRequestParam("jobName") String jobName, @DtRequestParam("runDay") Long runDay,
-                                                                                    @DtRequestParam("bizStartDay") Long bizStartDay, @DtRequestParam("bizEndDay") Long bizEndDay, @DtRequestParam("dutyUserId") Long dutyUserId,
-                                                                                    @DtRequestParam("projectId") Long projectId, @DtRequestParam("appType") Integer appType,
-                                                                                    @DtRequestParam("currentPage") Integer currentPage, @DtRequestParam("pageSize") Integer pageSize, @DtRequestParam("tenantId") Long tenantId) {
-        return scheduleJobService.getFillDataJobInfoPreview(jobName, runDay, bizStartDay, bizEndDay, dutyUserId, projectId, appType, currentPage, pageSize, tenantId);
+    public PageResult<List<ScheduleFillDataJobPreViewVO>> getFillDataJobInfoPreview(@DtRequestParam("jobName") String jobName,
+                                                                                    @DtRequestParam("runDay") Long runDay,
+                                                                                    @DtRequestParam("bizStartDay") Long bizStartDay,
+                                                                                    @DtRequestParam("bizEndDay") Long bizEndDay,
+                                                                                    @DtParamOrHeader(value = "dutyUserId",header = "userId") Long dutyUserId,
+                                                                                    @DtRequestParam("projectId") Long projectId,
+                                                                                    @DtRequestParam("appType") Integer appType,
+                                                                                    @DtRequestParam("currentPage") Integer currentPage,
+                                                                                    @DtRequestParam("pageSize") Integer pageSize,
+                                                                                    @DtRequestParam("tenantId") Long tenantId,
+                                                                                    @DtParamOrHeader(value = "dtuicTenantId",header = "cookie",cookie = "dt_tenant_id") Long dtuicTenantId) {
+        return scheduleJobService.getFillDataJobInfoPreview(jobName, runDay, bizStartDay, bizEndDay, dutyUserId, projectId, appType, currentPage, pageSize, tenantId,dtuicTenantId);
     }
 
 
@@ -190,10 +197,29 @@ public class ScheduleJobController {
     public PageResult<ScheduleFillDataJobDetailVO> getFillDataDetailInfo(@DtRequestParam("vo") String queryJobDTO,
                                                                          @DtRequestParam("flowJobIdList") List<String> flowJobIdList,
                                                                          @DtRequestParam("fillJobName") String fillJobName,
-                                                                         @DtRequestParam("dutyUserId") Long dutyUserId, @DtRequestParam("searchType") String searchType,
+                                                                         @DtParamOrHeader(value = "dutyUserId",header = "userId") Long dutyUserId,
+                                                                         @DtRequestParam("searchType") String searchType,
                                                                          @DtRequestParam("appType") Integer appType) throws Exception {
         return scheduleJobService.getFillDataDetailInfo(queryJobDTO, flowJobIdList, fillJobName, dutyUserId, searchType, appType);
     }
+
+    @RequestMapping(value = "/getJobGetFillDataDetailInfo", method = {RequestMethod.POST})
+    public PageResult<ScheduleFillDataJobDetailVO> getJobGetFillDataDetailInfo(@DtRequestParam("taskName") String taskName,
+                                                                               @DtRequestParam("bizStartDay")Long bizStartDay,
+                                                                               @DtRequestParam("bizEndDay")Long bizEndDay,
+                                                                               @DtRequestParam("flowJobIdList") List<String> flowJobIdList,
+                                                                               @DtRequestParam("fillJobName") String fillJobName,
+                                                                               @DtRequestParam("dutyUserId") Long dutyUserId,
+                                                                               @DtRequestParam("searchType") String searchType,
+                                                                               @DtRequestParam("appType") Integer appType,
+                                                                               @DtRequestParam("projectId") Long projectId,
+                                                                               @DtParamOrHeader(value = "dtuicTenantId",header = "cookie",cookie = "dt_tenant_id") Long dtuicTenantId,
+                                                                               @DtRequestParam("currentPage") Integer currentPage,
+                                                                               @DtRequestParam("pageSize") Integer pageSize) throws Exception {
+        return scheduleJobService.getJobGetFillDataDetailInfo(taskName,bizStartDay,bizEndDay,flowJobIdList,fillJobName,dutyUserId,searchType,appType,projectId,dtuicTenantId,currentPage,pageSize);
+    }
+
+
 
 
     @RequestMapping(value = "/getRelatedJobsForFillData", method = {RequestMethod.POST})

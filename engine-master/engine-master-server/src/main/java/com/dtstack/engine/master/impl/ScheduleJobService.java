@@ -36,6 +36,7 @@ import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
 import com.dtstack.engine.master.queue.JobPartitioner;
+import com.dtstack.engine.master.router.DtRequestParam;
 import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.scheduler.JobParamReplace;
@@ -1482,7 +1483,7 @@ public class ScheduleJobService {
     public PageResult<List<ScheduleFillDataJobPreViewVO>> getFillDataJobInfoPreview(String jobName, Long runDay,
                                                 Long bizStartDay, Long bizEndDay, Long dutyUserId,
                                                 Long projectId, Integer appType,
-                                                Integer currentPage, Integer pageSize, Long tenantId) {
+                                                Integer currentPage, Integer pageSize, Long tenantId,Long dtuicTenantId) {
         final List<ScheduleTaskShade> taskList;
         ScheduleJobDTO batchJobDTO = new ScheduleJobDTO();
         if (!Strings.isNullOrEmpty(jobName)) {
@@ -1494,7 +1495,7 @@ public class ScheduleJobService {
             }
         }
         //设置分页查询参数
-        PageQuery<ScheduleJobDTO> pageQuery = getScheduleJobDTOPageQuery(runDay, bizStartDay, bizEndDay, dutyUserId, projectId, appType, currentPage, pageSize, tenantId, batchJobDTO);
+        PageQuery<ScheduleJobDTO> pageQuery = getScheduleJobDTOPageQuery(runDay, bizStartDay, bizEndDay, dutyUserId, projectId, appType, currentPage, pageSize, tenantId,dtuicTenantId, batchJobDTO);
 
         List<Long> fillIdList = scheduleJobDao.listFillIdListWithOutTask(pageQuery);
 
@@ -1502,7 +1503,7 @@ public class ScheduleJobService {
             return new PageResult<>(null, 0, pageQuery);
         }
         //根据补数据名称查询出记录
-        List<ScheduleFillDataJob> fillJobList = scheduleFillDataJobDao.getFillJobList(fillIdList, projectId, tenantId);
+        List<ScheduleFillDataJob> fillJobList = scheduleFillDataJobDao.getFillJobList(fillIdList, projectId, tenantId,dtuicTenantId);
 
         //内存中按照时间排序
         if (CollectionUtils.isNotEmpty(fillJobList)) {
@@ -1555,7 +1556,7 @@ public class ScheduleJobService {
      * @param batchJobDTO:
      * @return: com.dtstack.engine.api.pager.PageQuery<com.dtstack.engine.api.dto.ScheduleJobDTO>
      **/
-    private PageQuery<ScheduleJobDTO> getScheduleJobDTOPageQuery(Long runDay, Long bizStartDay, Long bizEndDay, Long dutyUserId, Long projectId, Integer appType, Integer currentPage, Integer pageSize, Long tenantId, ScheduleJobDTO batchJobDTO) {
+    private PageQuery<ScheduleJobDTO> getScheduleJobDTOPageQuery(Long runDay, Long bizStartDay, Long bizEndDay, Long dutyUserId, Long projectId, Integer appType, Integer currentPage, Integer pageSize, Long tenantId,Long dtuicTenantId, ScheduleJobDTO batchJobDTO) {
         if (runDay != null) {
             batchJobDTO.setStartGmtCreate(new Timestamp(runDay * 1000L));
         }
@@ -1714,6 +1715,26 @@ public class ScheduleJobService {
         return new PageResult<>(scheduleFillDataJobDetailVO, totalCount, pageQuery);
     }
 
+    public PageResult<ScheduleFillDataJobDetailVO> getJobGetFillDataDetailInfo(String taskName, Long bizStartDay,
+                                                                               Long bizEndDay, List<String> flowJobIdList,
+                                                                               String fillJobName, Long dutyUserId,
+                                                                               String searchType, Integer appType,
+                                                                               Long projectId,Long dtuicTenantId,
+                                                                               Integer currentPage, Integer pageSize) throws Exception {
+        QueryJobDTO vo = new QueryJobDTO();
+        vo.setCurrentPage(currentPage);
+        vo.setPageSize(pageSize);
+        vo.setBizEndDay(bizStartDay);
+        vo.setBizStartDay(bizEndDay);
+        vo.setFillTaskName(fillJobName);
+        vo.setSearchType(searchType);
+        vo.setProjectId(projectId);
+        vo.setDtuicTenantId(dtuicTenantId);
+        vo.setTaskName(taskName);
+        vo.setSplitFiledFlag(true);
+        return getScheduleFillDataJobDetailVOPageResult(flowJobIdList, fillJobName, dutyUserId, searchType, appType, vo);
+    }
+
     public PageResult<ScheduleFillDataJobDetailVO> getFillDataDetailInfo( String queryJobDTO,
                                                                           List<String> flowJobIdList,
                                                                           String fillJobName,
@@ -1724,6 +1745,10 @@ public class ScheduleJobService {
         }
 
         QueryJobDTO vo = JSONObject.parseObject(queryJobDTO, QueryJobDTO.class);
+        return getScheduleFillDataJobDetailVOPageResult(flowJobIdList, fillJobName, dutyUserId, searchType, appType, vo);
+    }
+
+    private PageResult<ScheduleFillDataJobDetailVO> getScheduleFillDataJobDetailVOPageResult(List<String> flowJobIdList, String fillJobName, Long dutyUserId, String searchType, Integer appType, QueryJobDTO vo) throws Exception {
         vo.setSplitFiledFlag(true);
         ScheduleJobDTO batchJobDTO = this.createQuery(vo);
         batchJobDTO.setAppType(appType);
@@ -2320,7 +2345,7 @@ public class ScheduleJobService {
     public ScheduleJob getByJobId( String jobId,  Integer isDeleted) {
         ScheduleJob scheduleJob = scheduleJobDao.getByJobId(jobId, isDeleted);
 
-        if (StringUtils.isBlank(scheduleJob.getSubmitUserName())) {
+        if (scheduleJob != null && StringUtils.isBlank(scheduleJob.getSubmitUserName())) {
             scheduleJob.setSubmitUserName(environmentContext.getHadoopUserName());
         }
 
@@ -3337,6 +3362,8 @@ public class ScheduleJobService {
         batchOperatorVO.setDetail("");
         return batchOperatorVO;
     }
+
+
 }
 
 
