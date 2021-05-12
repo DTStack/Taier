@@ -63,7 +63,7 @@
         from schedule_engine_job_checkpoint
         where is_deleted=0 and task_id=#{taskId}
         and task_engine_id = #{taskEngineId} and checkpoint_savepath is not null
-        order by checkpoint_id desc limit 1
+        order by CONVERT(checkpoint_id,SIGNED) desc limit 1
     </select>
 
     <select id="getByTaskEngineIdAndCheckpointIndexAndCount" resultType="EngineJobCheckpoint">
@@ -72,7 +72,7 @@
         from schedule_engine_job_checkpoint
         where is_deleted =0 and task_engine_id = #{taskEngineId}
         and task_id=#{taskId} and checkpoint_savepath is not null
-        order by checkpoint_id desc
+        order by CONVERT(checkpoint_id,SIGNED) desc
         limit #{startIndex}, #{count}
     </select>
 
@@ -99,7 +99,7 @@
         <include refid="select_content_fragment"/>
         from schedule_engine_job_checkpoint
         where is_deleted=0 and task_id=#{taskId} and checkpoint_savepath is not null
-        order by checkpoint_id desc limit 1
+        order by CONVERT(checkpoint_id,SIGNED) desc limit 1
     </select>
 
     <delete id="deleteByTaskId">
@@ -107,5 +107,3 @@
         where task_id=#{taskId}
     </delete>
 </mapper>
-
-
