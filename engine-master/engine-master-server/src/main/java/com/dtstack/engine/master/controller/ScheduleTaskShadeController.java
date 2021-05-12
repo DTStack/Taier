@@ -11,6 +11,8 @@ import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
 import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
 import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
+import com.dtstack.engine.master.router.DtHeader;
+import com.dtstack.engine.master.router.DtParamOrHeader;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -105,6 +107,7 @@ public class ScheduleTaskShadeController {
 
     @RequestMapping(value = "/queryTasks", method = {RequestMethod.POST})
     public ScheduleTaskShadePageVO queryTasks(@DtRequestParam("tenantId") Long tenantId,
+                                              @DtParamOrHeader(value = "dtTenantId",header = "cookie",cookie = "dt_tenant_id") Long dtTenantId,
                                               @DtRequestParam("projectId") Long projectId,
                                               @DtRequestParam("name") String name,
                                               @DtRequestParam("ownerId") Long ownerId,
@@ -114,9 +117,10 @@ public class ScheduleTaskShadeController {
                                               @DtRequestParam("taskType") String taskTypeList,
                                               @DtRequestParam("taskPeriodId") String periodTypeList,
                                               @DtRequestParam("currentPage") Integer currentPage,
-                                              @DtRequestParam("pageSize") Integer pageSize, @DtRequestParam("searchType") String searchType,
+                                              @DtRequestParam("pageSize") Integer pageSize,
+                                              @DtRequestParam("searchType") String searchType,
                                               @DtRequestParam("appType") Integer appType) {
-        return scheduleTaskShadeService.queryTasks(tenantId, projectId, name, ownerId, startTime, endTime, scheduleStatus, taskTypeList, periodTypeList, currentPage, pageSize, searchType, appType);
+        return scheduleTaskShadeService.queryTasks(tenantId, dtTenantId, projectId, name, ownerId, startTime, endTime, scheduleStatus, taskTypeList, periodTypeList, currentPage, pageSize, searchType, appType);
     }
 
 
