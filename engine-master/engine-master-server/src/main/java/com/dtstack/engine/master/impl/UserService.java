@@ -176,7 +176,7 @@ public class UserService {
 
     public void fullScheduleJobVO(List<ScheduleJobVO> jobVOS) {
         try {
-            if (CollectionUtils.isNotEmpty(jobVOS)) {
+            if (CollectionUtils.isEmpty(jobVOS)) {
                 return;
             }
             List<ScheduleTaskVO> taskVOS = jobVOS.stream().map(ScheduleJobVO::getBatchTask).collect(Collectors.toList());
