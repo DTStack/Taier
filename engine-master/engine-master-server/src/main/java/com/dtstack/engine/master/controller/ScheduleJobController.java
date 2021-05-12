@@ -12,12 +12,11 @@ import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.impl.ScheduleJobService;
-import com.dtstack.engine.master.router.DtHeader;
 import com.dtstack.engine.master.router.DtParamOrHeader;
+import com.dtstack.engine.master.router.DtRequestParam;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.dtstack.engine.master.router.DtRequestParam;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
@@ -139,7 +138,10 @@ public class ScheduleJobController {
 
 
     @RequestMapping(value = "/stopFillDataJobs", method = {RequestMethod.POST})
-    public void stopFillDataJobs(@DtRequestParam("fillDataJobName") String fillDataJobName, @DtRequestParam("projectId") Long projectId, @DtRequestParam("dtuicTenantId") Long dtuicTenantId, @DtRequestParam("appType") Integer appType) throws Exception {
+    public void stopFillDataJobs(@DtRequestParam("fillDataJobName") String fillDataJobName,
+                                 @DtRequestParam("projectId") Long projectId,
+                                 @DtParamOrHeader(value = "dtuicTenantId",header = "cookie",cookie = "dt_tenant_id") Long dtuicTenantId,
+                                 @DtRequestParam("appType") Integer appType) throws Exception {
         scheduleJobService.stopFillDataJobs(fillDataJobName, projectId, dtuicTenantId, appType);
     }
 
@@ -173,7 +175,7 @@ public class ScheduleJobController {
                                                                                     @DtRequestParam("runDay") Long runDay,
                                                                                     @DtRequestParam("bizStartDay") Long bizStartDay,
                                                                                     @DtRequestParam("bizEndDay") Long bizEndDay,
-                                                                                    @DtParamOrHeader(value = "dutyUserId",header = "userId") Long dutyUserId,
+                                                                                    @DtParamOrHeader(value = "user",header = "userId") Long dutyUserId,
                                                                                     @DtRequestParam("projectId") Long projectId,
                                                                                     @DtRequestParam("appType") Integer appType,
                                                                                     @DtRequestParam("currentPage") Integer currentPage,
@@ -196,7 +198,7 @@ public class ScheduleJobController {
     public PageResult<ScheduleFillDataJobDetailVO> getFillDataDetailInfo(@DtRequestParam("vo") String queryJobDTO,
                                                                          @DtRequestParam("flowJobIdList") List<String> flowJobIdList,
                                                                          @DtRequestParam("fillJobName") String fillJobName,
-                                                                         @DtParamOrHeader(value = "dutyUserId",header = "userId") Long dutyUserId,
+                                                                         @DtRequestParam("dutyUserId") Long dutyUserId,
                                                                          @DtRequestParam("searchType") String searchType,
                                                                          @DtRequestParam("appType") Integer appType) throws Exception {
         return scheduleJobService.getFillDataDetailInfo(queryJobDTO, flowJobIdList, fillJobName, dutyUserId, searchType, appType);
