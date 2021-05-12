@@ -231,7 +231,9 @@
             <if test="componentVersion != null and componentVersion != '' ">
                 component_version = #{componentVersion}
             </if>
-
+            <if test="businessType!=null">
+                business_type = #{businessType}
+            </if>
         </set>
     </sql>
 
