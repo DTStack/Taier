@@ -177,12 +177,13 @@ const RelationList = (props: IPropsRelationList) => {
 
   const tableListGen = (dsId, mainTable, relationList) => {
     const tables = [];
+    // 主表默认表别名为t0
     if (mainTable.tableName && mainTable.schema) {
       tables.push({
         dsId,
         schema: modelDetail.schema,
         tableName: modelDetail.tableName,
-        tableAlias: undefined,
+        tableAlias: 't0',
       });
     }
     tables.push(
@@ -198,29 +199,15 @@ const RelationList = (props: IPropsRelationList) => {
     return tables;
   };
 
-  // TODO: 逻辑已抽离，待调整
   const tableList = useMemo(() => {
-    const tables = [];
-    if (modelDetail.tableName && modelDetail.schema) {
-      tables.push({
-        dsId: modelDetail.dsId,
-        schema: modelDetail.schema,
+    return tableListGen(
+      modelDetail.dsId,
+      {
         tableName: modelDetail.tableName,
-        tableAlias: undefined,
-      });
-    }
-    // 关联表去重后，push到tables中
-    tables.push(
-      ..._.uniqBy(relationList, (item) => item.schema + item.table).map(
-        (table) => ({
-          dsId: modelDetail.dsId,
-          schema: table.schema,
-          tableName: table.table,
-          tableAlias: table.tableAlias,
-        })
-      )
+        schema: modelDetail.schema,
+      },
+      relationList
     );
-    return tables;
   }, [modelDetail.tableName, modelDetail.schema, relationList]);
 
   return (
