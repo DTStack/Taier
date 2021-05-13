@@ -82,7 +82,7 @@
         WHERE
         cluster.id = #{clusterId} and c.component_type_code = #{type}
         <choose>
-            <when test="componentVersion == null">
+            <when test="componentVersion == null or componentVersion == ''">
                 and c.is_default = 1
             </when>
             <otherwise>

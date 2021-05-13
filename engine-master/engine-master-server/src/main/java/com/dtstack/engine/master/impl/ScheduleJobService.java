@@ -2991,7 +2991,7 @@ public class ScheduleJobService {
                 List<ScheduleJob> jobs = sonScheduleJobs.stream().filter(job -> TaskRuleEnum.STRONG_RULE.getCode().equals(job.getTaskRule()) && !job.getJobKey().equals(currentScheduleJob.getJobKey())).collect(Collectors.toList());
 
                 // 添加日志
-                String log = String.format(LOG_TEM, currentScheduleJob.getJobName(), "运行成功", StringUtils.isBlank(nameByDtUicTenantId) ? "" : nameByDtUicTenantId, project == null ? "" : project.getProjectAlias());
+                String log = String.format(LOG_TEM, currentScheduleJob.getJobName(), "校验通过", StringUtils.isBlank(nameByDtUicTenantId) ? "" : nameByDtUicTenantId, project == null ? "" : project.getProjectAlias());
                 this.updateLogInfoById(fatherScheduleJob.getJobId(),addLog(fatherScheduleJob.getLogInfo(),log));
                 if (CollectionUtils.isNotEmpty(jobs)) {
                     List<ScheduleJob> noFinishJobs = jobs.stream().filter(job -> !RdosTaskStatus.FINISH_STATUS.contains(job.getStatus())).collect(Collectors.toList());
