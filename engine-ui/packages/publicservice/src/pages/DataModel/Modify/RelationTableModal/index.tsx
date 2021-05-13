@@ -237,6 +237,19 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
     }
   };
 
+  const securityValidator = (rule, value = '', callback) => {
+    const securityList = ['delete', 'truncate'];
+
+    if (
+      securityList.findIndex((word) =>
+        value.toLowerCase().includes(word.toLocaleLowerCase())
+      ) > -1
+    ) {
+      callback('表名不能包含类似delete、truncate等敏感词汇');
+    }
+    callback();
+  };
+
   const leftTable = tableParser.parser(currentFormValue.leftTable);
 
   return (
@@ -337,14 +350,8 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
                       pattern: /[a-zA-Z]+/,
                       message: '表名至少包含1个英文字母',
                     },
-                    // TODO: 需要吧字符串匹配规则抽出来，临时方案
                     {
-                      pattern: /^((?!delete).)*$/g,
-                      message: '表名不能包含类似delete、truncate等敏感词汇',
-                    },
-                    {
-                      pattern: /^((?!truncate).)*$/g,
-                      message: '表名不能包含类似delete、truncate等敏感词汇',
+                      validator: securityValidator,
                     },
                     {
                       validator: repeatValidator,
