@@ -2155,4 +2155,20 @@ public class ComponentService {
         multiTestResult.getMultiVersion().add(componentTestResult);
 
     }
+
+    public List<Component> getComponentVersionByEngineType(Long uicTenantId, String  engineType) {
+        EComponentType componentType = EngineTypeComponentType.getByEngineName(engineType).getComponentType();
+        List<Component > componentVersionList = componentDao.getComponentVersionByEngineType(uicTenantId,componentType.getTypeCode());
+        if (CollectionUtils.isEmpty(componentVersionList)){
+            return Collections.emptyList();
+        }
+        Set<String> distinct = new HashSet<>(2);
+        List<Component> components =new ArrayList<>(2);
+        for (Component component : componentVersionList) {
+            if (distinct.add(component.getHadoopVersion())){
+                components.add(component);
+            }
+        }
+        return components;
+    }
 }

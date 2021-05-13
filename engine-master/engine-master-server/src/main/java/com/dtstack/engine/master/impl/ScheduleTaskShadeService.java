@@ -24,6 +24,7 @@ import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.UnitConvertUtil;
 import com.dtstack.engine.dao.*;
+import com.dtstack.engine.master.enums.DictType;
 import com.dtstack.engine.master.executor.CronJobExecutor;
 import com.dtstack.engine.master.executor.FillJobExecutor;
 import com.dtstack.schedule.common.enums.*;
@@ -84,6 +85,9 @@ public class ScheduleTaskShadeService {
     @Autowired
     private ComponentDao componentDao;
 
+    @Autowired
+    private ScheduleDictDao scheduleDictDao;
+
     /**
      * web 接口
      * 例如：离线计算BatchTaskService.publishTaskInfo 触发 batchTaskShade 保存task的必要信息
@@ -113,10 +117,15 @@ public class ScheduleTaskShadeService {
                 batchTaskShadeDTO.setTaskRule(0);
             }
             EComponentType componentType;
-            if (StringUtils.isBlank(batchTaskShadeDTO.getComponentVersion()) &&
-                    Objects.nonNull(componentType= ComponentVersionUtil.transformTaskType2ComponentType(batchTaskShadeDTO.getTaskType()))){
+            if (Objects.nonNull(componentType= ComponentVersionUtil.transformTaskType2ComponentType(batchTaskShadeDTO.getTaskType())) &&
+                    StringUtils.isBlank(batchTaskShadeDTO.getComponentVersion())){
                 batchTaskShadeDTO.setComponentVersion(componentDao.getDefaultComponentVersionByTenantAndComponentType(
                         batchTaskShadeDTO.getTenantId(),componentType.getTypeCode()));
+            }else if (Objects.nonNull(componentType) && StringUtils.isNotBlank(batchTaskShadeDTO.getComponentVersion())){
+                Integer dictType = DictType.getByEComponentType(componentType);
+                if(Objects.nonNull(dictType)){
+                    batchTaskShadeDTO.setComponentVersion(scheduleDictDao.getByNameValue(dictType,batchTaskShadeDTO.getComponentVersion(),null,null).getDictValue());
+                }
             }
             scheduleTaskShadeDao.insert(batchTaskShadeDTO);
         }
