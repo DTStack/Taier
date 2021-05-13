@@ -1098,10 +1098,7 @@ public class ScheduleJobService {
         actionParam.put("taskId", scheduleJob.getJobId());
         actionParam.put("taskType", EScheduleJobType.getEngineJobType(batchTask.getTaskType()));
         actionParam.put("appType", batchTask.getAppType());
-        Object tenantId = actionParam.get("tenantId");
-        if(null != tenantId){
-            actionParam.put("tenantId",batchTask.getDtuicTenantId());
-        }
+        actionParam.computeIfAbsent("tenantId", k -> batchTask.getDtuicTenantId());
         // 出错重试配置,兼容之前的任务，没有这个参数则默认重试
         JSONObject scheduleConf = JSONObject.parseObject(batchTask.getScheduleConf());
         if (null!=scheduleConf && scheduleConf.containsKey("isFailRetry")) {
