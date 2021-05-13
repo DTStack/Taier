@@ -76,11 +76,7 @@ export const columnsGenerator = ({
       ),
       filterMultiple: true,
       render: (text, record) => {
-        return (
-          <span>
-            {record.dsName}({record.dsTypeName})
-          </span>
-        );
+        return `${record.dsName}(${record.dsTypeName})`;
       },
     },
     {

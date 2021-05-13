@@ -164,6 +164,11 @@ const List = (props: IPropList) => {
 
   // 删除按钮点击事件处理，二次确认弹窗
   const handleDeleteBtnClick = (id) => {
+    // TODO: 请求判断当前模型是否被下游应用引用
+    // API.isModelReferenced()
+    //   .then(res => {
+    //     console.log(res);
+    //   })
     Modal.confirm({
       title: (
         <span className="cus-modal margin-left-40">确认要删除这条模型？</span>
