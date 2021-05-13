@@ -7,7 +7,6 @@ package com.dtstack.schedule.common.enums;
  */
 public enum AppType {
 
-
     RDOS(1,"离线开发"),
     DQ(2,"数据质量"),
     API(3,"数据api"),
@@ -26,6 +25,7 @@ public enum AppType {
 
     AppType(int type,String name) {
         this.type = type;
+        this.name = name;
     }
 
     public Integer getType() {

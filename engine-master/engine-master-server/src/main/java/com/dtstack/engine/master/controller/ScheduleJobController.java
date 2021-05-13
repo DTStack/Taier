@@ -132,7 +132,8 @@ public class ScheduleJobController {
     }
 
     @RequestMapping(value = "/stopJob", method = {RequestMethod.POST})
-    public String stopJob(@DtRequestParam("jobId") long jobId, @DtRequestParam("appType") Integer appType) throws Exception {
+    public String stopJob(@DtRequestParam("jobId") Long jobId,
+                          @DtRequestParam("appType") Integer appType) throws Exception {
         return scheduleJobService.stopJob(jobId, appType);
     }
 
