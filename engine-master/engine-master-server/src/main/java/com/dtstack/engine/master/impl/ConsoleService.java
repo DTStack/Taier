@@ -99,6 +99,9 @@ public class ConsoleService {
     @Autowired
     private JobComputeResourcePlain jobComputeResourcePlain;
 
+    @Autowired
+    private KerberosDao kerberosDao;
+
     private static long DELAULT_TENANT  = -1L;
 
     public Boolean finishJob(String jobId, Integer status) {
@@ -487,18 +490,18 @@ public class ConsoleService {
         try {
             JSONObject pluginInfo = new JSONObject();
             pluginInfo.put(EComponentType.YARN.getConfName(), componentConfig);
-            String typeName = Optional.ofNullable(componentConfig).orElse(new JSONObject()).getString(ConfigConstant.TYPE_NAME_KEY);
+            if (StringUtils.isNotBlank(yarnComponent.getKerberosFileName())) {
+                //开启kerberos 添加信息
+                KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(), yarnComponent.getComponentTypeCode());
+                Map sftpMap = componentService.getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class);
+                pluginInfo.put(EComponentType.SFTP.getConfName(), sftpMap);
+                pluginInfo = JSONObject.parseObject(componentService.wrapperConfig(yarnComponent.getComponentTypeCode(),componentConfig.toJSONString(),sftpMap,kerberosConfig,cluster.getClusterName()));
+            }
+            String typeName = componentConfig.getString(ConfigConstant.TYPE_NAME_KEY);
             if (StringUtils.isBlank(typeName)) {
                 //获取对应的插件名称
-                Component hdfsComponent = componentService.getComponentByClusterId(cluster.getId(), EComponentType.HDFS.getTypeCode());
-                String clusterName = cluster.getClusterName();
-                if (null == hdfsComponent) {
-                    typeName = componentService.convertComponentTypeToClient(clusterName,
-                            EComponentType.HDFS.getTypeCode(), yarnComponent.getHadoopVersion(),null);
-                } else {
-                    typeName = componentService.convertComponentTypeToClient(clusterName,
-                            EComponentType.HDFS.getTypeCode(), hdfsComponent.getHadoopVersion(),hdfsComponent.getStoreType());
-                }
+                typeName = componentService.convertComponentTypeToClient(cluster.getClusterName(),
+                        EComponentType.YARN.getTypeCode(), yarnComponent.getHadoopVersion(),null);
             }
             pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,typeName);
             return workerOperator.clusterResource(typeName, pluginInfo.toJSONString());
