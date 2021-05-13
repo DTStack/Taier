@@ -111,6 +111,9 @@ public class ActionService {
     private ScheduleSqlTextTempDao sqlTextTempDao;
 
     @Autowired
+    private ScheduleDictDao scheduleDictDao;
+
+    @Autowired
     private ScheduleTaskShadeDao scheduleTaskShadeDao;
 
     private final ObjectMapper objMapper = new ObjectMapper();
@@ -853,21 +856,29 @@ public class ActionService {
         return vo;
     }
 
-
     private void buildComponentVersion(ScheduleJob scheduleJob, ParamActionExt paramActionExt,boolean useTaskType) {
+
+        EComponentType componentType = useTaskType? ComponentVersionUtil.transformTaskType2ComponentType(paramActionExt.getTaskType()) :
+                EngineTypeComponentType.getByEngineName(paramActionExt.getEngineType()).getComponentType();
+
+        if (Objects.isNull(componentType)){
+            throw new RdosDefineException("component not found , taskType = "+paramActionExt.getTaskType() +" engineType = "+paramActionExt.getEngineType());
+        }
+        // 优先使用任务指定的版本
         String componentVersion = paramActionExt.getComponentVersion();
         if (StringUtils.isNotBlank(componentVersion)){
-            scheduleJob.setComponentVersion(componentVersion);
+            Integer dictType = DictType.getByEComponentType(componentType);
+            if (Objects.isNull(dictType)){
+                throw new RdosDefineException("component = "+componentType.getTypeCode()+" dictType not found");
+            }
+            scheduleJob.setComponentVersion(scheduleDictDao.getByNameValue(dictType,componentVersion,null,null).getDictValue());
             return;
         }
         // 由于/start接口taskType参数
-        EComponentType componentType = useTaskType? ComponentVersionUtil.transformTaskType2ComponentType(paramActionExt.getTaskType()) :
-                EngineTypeComponentType.getByEngineName(paramActionExt.getEngineType()).getComponentType();
         // ParamAction中的taskType并非约定的任务和组件,
-        if (Objects.nonNull(componentType)){
-            scheduleJob.setComponentVersion(componentDao.getDefaultComponentVersionByTenantAndComponentType(
+        scheduleJob.setComponentVersion(componentDao.getDefaultComponentVersionByTenantAndComponentType(
                     paramActionExt.getTenantId(),componentType.getTypeCode()));
-        }
+
     }
 
 
