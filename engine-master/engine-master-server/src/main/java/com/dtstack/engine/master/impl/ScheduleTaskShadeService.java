@@ -1006,12 +1006,12 @@ public class ScheduleTaskShadeService {
      * @param expression
      * @return
      */
-    public String checkCronExpression(String cron,Long minPeriod) {
+    public CronExceptionVO checkCronExpression(String cron,Long minPeriod) {
         CronSequenceGenerator sequenceGenerator ;
         try {
            sequenceGenerator = new CronSequenceGenerator(cron);
         }catch (Exception e){
-           return ExceptionUtil.getErrorMessage(e);
+            return new CronExceptionVO(CronExceptionVO.CHECK_EXCEPTION,ExceptionUtil.getErrorMessage(e));
         }
         minPeriod*=1000;
         // 第一次执行的时间
@@ -1024,7 +1024,7 @@ public class ScheduleTaskShadeService {
         while (curRunTime.after(startDateTime) && curRunTime.before(endTDateTime)){
             nextRunTime = sequenceGenerator.next(curRunTime);
             if (nextRunTime.getTime()- minPeriod < curRunTime.getTime()){
-                return String.format("%s run too frequency and min period = %sS",cron,minPeriod/1000);
+                return new CronExceptionVO(CronExceptionVO.PERIOD_EXCEPTION,String.format("%s run too frequency and min period = %sS",cron,minPeriod/1000));
             }
             curRunTime = nextRunTime;
         }
