@@ -120,7 +120,7 @@ public class ScheduleTaskShadeService {
             EComponentType componentType;
             if (Objects.nonNull(componentType= ComponentVersionUtil.transformTaskType2ComponentType(batchTaskShadeDTO.getTaskType())) &&
                     StringUtils.isBlank(batchTaskShadeDTO.getComponentVersion())){
-                batchTaskShadeDTO.setComponentVersion(componentDao.getDefaultComponentVersionByTenantAndComponentType(
+                batchTaskShadeDTO.setComponentVersion(componentDao.getDefaultComponentVersionByUicIdAndComponentType(
                         batchTaskShadeDTO.getTenantId(),componentType.getTypeCode()));
             }else if (Objects.nonNull(componentType) && StringUtils.isNotBlank(batchTaskShadeDTO.getComponentVersion())){
                 Integer dictType = DictType.getByEComponentType(componentType);

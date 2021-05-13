@@ -877,7 +877,7 @@ public class ActionService {
         }
         // 由于/start接口taskType参数
         // ParamAction中的taskType并非约定的任务和组件,
-        scheduleJob.setComponentVersion(componentDao.getDefaultComponentVersionByTenantAndComponentType(
+        scheduleJob.setComponentVersion(componentDao.getDefaultComponentVersionByUicIdAndComponentType(
                     paramActionExt.getTenantId(),componentType.getTypeCode()));
 
     }
