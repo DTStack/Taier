@@ -106,15 +106,20 @@ public class DtArgumentParamOrHeaderResolver implements HandlerMethodArgumentRes
         }
         if (USER_ID.equals(paramName)) {
             String header = servletRequest.getHeader(COOKIE);
-            Object dtToken = paramToMap(header).get("dt_token");
+            Object userId = paramToMap(header).get("dt_user_id");
+            if (userId == null) {
+                Object dtToken = paramToMap(header).get("dt_token");
 
-            if (dtToken != null) {
-                UserDTO user = sessionUtil.getUser(dtToken.toString(), UserDTO.class);
+                if (dtToken != null) {
+                    UserDTO user = sessionUtil.getUser(dtToken.toString(), UserDTO.class);
 
-                if (user != null) {
-                    Long dtuicUserId = user.getDtuicUserId();
-                    return TypeUtils.castToJavaBean(dtuicUserId, parameterType);
+                    if (user != null) {
+                        Long dtuicUserId = user.getDtuicUserId();
+                        return TypeUtils.castToJavaBean(dtuicUserId, parameterType);
+                    }
                 }
+            } else {
+                return TypeUtils.castToJavaBean(userId, parameterType);
             }
         }
         return null;
