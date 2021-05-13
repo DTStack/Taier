@@ -21,8 +21,8 @@ interface IProps {
     versionData: any;
     clusterInfo: any;
     isCheckBoxs?: boolean;
+    isSchedulings?: boolean;
     disabledMeta?: boolean;
-    commVersion?: string;
     handleCompVersion?: Function;
     saveComp: Function;
 }
@@ -51,22 +51,20 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
         const { comp, handleCompVersion } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
         handleCompVersion(typeCode, version)
-        if (isSameVersion(Number(typeCode))) return
         this.props.form.setFieldsValue({ [`${typeCode}.hadoopVersion`]: version })
     }
 
     renderCompsVersion = () => {
         const { getFieldDecorator } = this.props.form
-        const { versionData, comp, view, commVersion } = this.props
+        const { versionData, comp, view } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
         let version = isOtherVersion(typeCode) ? versionData[VERSION_TYPE[typeCode]] : versionData.hadoopVersion
         let initialValue = isOtherVersion(typeCode) ? DEFAULT_COMP_VERSION[typeCode] : [version[0].key, version[0].values[0]?.key]
         initialValue = comp?.hadoopVersion || initialValue
         let versionValue = initialValue
         if (isSameVersion(typeCode)) {
-            versionValue = commVersion || comp?.hadoopVersion || version[0].values[0]?.key || ''
-            initialValue = commVersion ? getInitialValue(version, commVersion)
-                : (comp?.hadoopVersion ? getInitialValue(version, comp?.hadoopVersion) : initialValue)
+            versionValue = comp?.hadoopVersion || version[0].values[0]?.key || ''
+            initialValue = comp?.hadoopVersion ? getInitialValue(version, comp?.hadoopVersion) : initialValue
         }
 
         return (
@@ -100,6 +98,13 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                 })(<span style={{ display: 'none' }}></span>)}
             </>
         )
+    }
+
+    renderSchedulingVersion = () => {
+        const { isSchedulings, comp } = this.props
+        const typeCode = comp?.componentTypeCode ?? ''
+        if (isSchedulings && typeCode == COMPONENT_TYPE_VALUE.HDFS) return null
+        return this.renderCompsVersion()
     }
 
     getPrincipalsList = async (file: any) => {
@@ -476,7 +481,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             case COMPONENT_TYPE_VALUE.HDFS: {
                 return (
                     <>
-                        {this.renderCompsVersion()}
+                        {this.renderSchedulingVersion()}
                         {this.renderConfigsFile()}
                         {this.renderKerberosFile()}
                         {this.renderPrincipal()}

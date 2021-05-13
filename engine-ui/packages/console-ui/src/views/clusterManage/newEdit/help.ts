@@ -177,6 +177,17 @@ export function getInitialValue (version: any[], commVersion: string): any[] {
     return getParentNode(commVersion)
 }
 
+// 是否 yarn 和 hdfs 组件都存在
+export function isSchedulings (initialCompData: any[]): boolean {
+    let scheduling = 0
+    for (const comps of initialCompData) {
+        if (comps.findIndex(comp => isSameVersion(comp.componentTypeCode)) > -1) {
+            scheduling++
+        }
+    }
+    return scheduling == 2
+}
+
 /**
  * @param param
  * 处理单条自定义参数的key\value值

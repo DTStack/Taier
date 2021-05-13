@@ -5,13 +5,13 @@ import { hashHistory } from 'react-router'
 import * as _ from 'lodash'
 
 import Api from '../../../api/console'
-import { initialScheduling, isViewMode, isNeedTemp,
+import { initialScheduling, isViewMode,
     getModifyComp, isSameVersion, getCompsId,
     isMultiVersion, getCurrentComp, includesCurrentComp,
     getSingleTestStatus, isDataCheckBoxs, showDataCheckBox,
-    getCompsName } from './help'
+    getCompsName, isSchedulings } from './help'
 import { TABS_TITLE, COMPONENT_CONFIG_NAME, DEFAULT_COMP_VERSION,
-    COMPONENT_TYPE_VALUE, TABS_POP_VISIBLE, COMP_ACTION, MAPPING_HADOOP_VERSON } from './const'
+    TABS_POP_VISIBLE, COMP_ACTION } from './const'
 
 import FileConfig from './fileConfig'
 import FormConfig from './formConfig'
@@ -28,7 +28,6 @@ interface IState {
     disabledMeta: boolean;
     activeKey: number;
     clusterName: string;
-    commVersion: string;
     versionData: any;
     testStatus: any;
     popVisible: any;
@@ -42,7 +41,6 @@ class EditCluster extends React.Component<any, IState> {
         disabledMeta: false,
         activeKey: 0,
         clusterName: '',
-        commVersion: '',
         versionData: {},
         testStatus: {},
         popVisible: TABS_POP_VISIBLE,
@@ -113,11 +111,6 @@ class EditCluster extends React.Component<any, IState> {
             hadoopVersion: params?.compVersion ?? ''
         }
 
-        if (isNeedTemp(Number(typeCode))) {
-            this.saveComp(saveParams)
-            return
-        }
-
         if (isMultiVersion(typeCode) && !params?.compVersion) return
 
         if ((!comp?.componentTemplate && initialCompData[activeKey]?.length) ||
@@ -135,23 +128,17 @@ class EditCluster extends React.Component<any, IState> {
     }
 
     handleCompVersion = (typeCode: string, version: string) => {
+        let hadoopVersion = version
         if (isSameVersion(Number(typeCode))) {
-            this.setState({
-                commVersion: version[version.length - 1]
-            })
+            hadoopVersion = version[version.length - 1]
             this.props.form.setFieldsValue({
-                [COMPONENT_TYPE_VALUE.YARN]: {
-                    hadoopVersion: version[version.length - 1],
-                    hadoopVersionSelect: version
-                },
-                [COMPONENT_TYPE_VALUE.HDFS]: {
-                    hadoopVersion: version[version.length - 1],
+                [`${typeCode}`]: {
+                    hadoopVersion,
                     hadoopVersionSelect: version
                 }
             })
-            return
         }
-        this.getLoadTemplate(typeCode, { compVersion: version })
+        this.getLoadTemplate(typeCode, { compVersion: hadoopVersion })
     }
 
     onTabChange = (key: string) => {
@@ -188,7 +175,6 @@ class EditCluster extends React.Component<any, IState> {
 
     handleConfirm = async (action: string, comps: any | any[], mulitple?: boolean) => {
         const { initialCompData, activeKey, testStatus } = this.state
-        const { getFieldValue } = this.props.form
         let newCompData = initialCompData
         let currentCompArr = newCompData[activeKey]
         if (comps.length && action !== COMP_ACTION.DELETE) {
@@ -221,10 +207,6 @@ class EditCluster extends React.Component<any, IState> {
                 const multiVersion = getSingleTestStatus({ typeCode: componentTypeCode, hadoopVersion }, null, testStatus)
                 let fieldValue: any = {}
                 if (isMultiVersion(componentTypeCode)) { fieldValue = { [hadoopVersion]: {} } }
-                if (isNeedTemp(componentTypeCode)) {
-                    const commVersion = getFieldValue(`${MAPPING_HADOOP_VERSON[componentTypeCode]}.hadoopVersion`) ?? ''
-                    this.setState({ commVersion })
-                }
 
                 this.props.form.setFieldsValue({ [componentTypeCode]: fieldValue })
                 this.setState({
@@ -413,8 +395,9 @@ class EditCluster extends React.Component<any, IState> {
         const { mode, cluster } = this.props.location.state || {} as any
         const { getFieldValue } = this.props.form
         const { clusterName, activeKey, initialCompData, versionData,
-            saveCompsData, testLoading, testStatus, commVersion, popVisible,
+            saveCompsData, testLoading, testStatus, popVisible,
             disabledMeta } = this.state
+        const isScheduling = isSchedulings(initialCompData)
 
         return (
             <div className="c-editCluster__containerWrap">
@@ -502,9 +485,9 @@ class EditCluster extends React.Component<any, IState> {
                                                                 view={isViewMode(mode)}
                                                                 disabledMeta={disabledMeta}
                                                                 isCheckBoxs={isCheckBoxs}
+                                                                isSchedulings={isScheduling}
                                                                 form={this.props.form}
                                                                 versionData={versionData}
-                                                                commVersion={commVersion}
                                                                 saveCompsData={saveCompsData}
                                                                 clusterInfo={{ clusterName, clusterId: cluster.clusterId }}
                                                                 saveComp={this.saveComp}
