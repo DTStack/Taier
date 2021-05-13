@@ -43,5 +43,8 @@ public interface ComponentDao {
      * e.g 1.10 - 110
      */
     List<Component> getComponentVersionByEngineType(@Param("uicTenantId") Long uicTenantId, @Param("componentTypeCode") Integer componentTypeCode);
+
+    String getDefaultComponentVersionByUicIdAndComponentType(@Param("uicTenantId") Long uicTenantId, @Param("componentTypeCode") Integer componentTypeCode);
+
 }
 

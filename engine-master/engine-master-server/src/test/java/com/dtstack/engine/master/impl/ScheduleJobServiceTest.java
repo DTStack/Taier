@@ -914,7 +914,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
         }
         EComponentType componentType = ComponentVersionUtil.transformTaskType2ComponentType(taskShade.getTaskType());
         if (Objects.nonNull(componentType)){
-            taskShade.setComponentVersion(componentDao.getDefaultComponentVersionByTenantAndComponentType(
+            taskShade.setComponentVersion(componentDao.getDefaultComponentVersionByUicIdAndComponentType(
                     taskShade.getTenantId(),componentType.getTypeCode()));
         }
     }
@@ -925,7 +925,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
         }
         EComponentType componentType = ComponentVersionUtil.transformTaskType2ComponentType(scheduleJob.getTaskType());
         if (Objects.nonNull(componentType)){
-            scheduleJob.setComponentVersion(componentDao.getDefaultComponentVersionByTenantAndComponentType(
+            scheduleJob.setComponentVersion(componentDao.getDefaultComponentVersionByUicIdAndComponentType(
                     scheduleJob.getTenantId(),componentType.getTypeCode()));
         }
     }
