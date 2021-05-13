@@ -6,6 +6,7 @@ import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.api.pojo.ParamTaskAction;
 import com.dtstack.engine.api.vo.AppTypeVO;
+import com.dtstack.engine.api.vo.JobLogVO;
 import com.dtstack.engine.api.vo.action.ActionJobEntityVO;
 import com.dtstack.engine.api.vo.action.ActionJobStatusVO;
 import com.dtstack.engine.api.vo.action.ActionLogVO;
@@ -118,6 +119,16 @@ public class ActionController {
     })
     public ActionLogVO log(@DtRequestParam("jobId") String jobId, @DtRequestParam("computeType") Integer computeType) throws Exception {
         return actionService.log(jobId, computeType);
+    }
+
+    @RequestMapping(value = "/log/unite", method = {RequestMethod.POST})
+    @ApiOperation(value = "引擎提供统一的单个Job的log日志信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "jobId", value = "查询的job的jobId值", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "pageInfo", value = "重试次数", required = true, dataType = "String"),
+    })
+    public JobLogVO logUnite(@DtRequestParam("jobId") String jobId,@DtRequestParam("pageInfo") Integer pageInfo) throws Exception {
+        return actionService.logUnite(jobId,pageInfo);
     }
 
     @RequestMapping(value = "/logFromEs", method = {RequestMethod.POST})
