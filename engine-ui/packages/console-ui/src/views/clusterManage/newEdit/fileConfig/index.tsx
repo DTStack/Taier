@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Form, Select, message, Icon, Cascader,
-    notification } from 'antd'
+    notification, Tooltip } from 'antd'
 
 import req from '../../../../consts/reqUrls'
 import Api from '../../../../api/console'
@@ -51,7 +51,6 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
         const { comp, handleCompVersion } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
         handleCompVersion(typeCode, version)
-        this.props.form.setFieldsValue({ [`${typeCode}.hadoopVersion`]: version })
     }
 
     renderCompsVersion = () => {
@@ -70,9 +69,13 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
         return (
             <>
                 <FormItem
-                    label="组件版本"
+                    label={<span>
+                        组件版本
+                        {isSameVersion(typeCode) && <Tooltip overlayClassName="big-tooltip" title='切换组件版本HDFS和YARN组件将同步切换至相同版本，Spark/Flink的插件路径将同步自动变更'>
+                            <Icon style={{ marginLeft: 4 }} type="question-circle-o" />
+                        </Tooltip>}
+                    </span>}
                     colon={false}
-                    key={`${typeCode}.hadoopVersionSelect`}
                 >
                     {getFieldDecorator(`${typeCode}.hadoopVersionSelect`, {
                         initialValue: initialValue
@@ -85,6 +88,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                             options={getOptions(version)}
                             disabled={view}
                             expandTrigger="click"
+                            allowClear={false}
                             displayRender={(label) => {
                                 return label[label.length - 1];
                             }}

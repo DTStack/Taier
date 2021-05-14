@@ -194,7 +194,8 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
                 initialValue: config || {}
             })(<span style={{ display: 'none' }}></span>)}
             {
-                keyAndValue.length > 0 ? <CustomParams
+                template.length > 0 ? <CustomParams
+                    key={String(template.length)}
                     typeCode={typeCode}
                     form={form}
                     comp={comp}

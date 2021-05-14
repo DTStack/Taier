@@ -110,6 +110,8 @@ class EditCluster extends React.Component<any, IState> {
             componentTypeCode: Number(typeCode),
             hadoopVersion: params?.compVersion ?? ''
         }
+        const version = params?.compVersion ?? DEFAULT_COMP_VERSION[typeCode] ?? ''
+        const originVersion = isSameVersion(Number(typeCode)) ? version : ''
 
         if (isMultiVersion(typeCode) && !params?.compVersion) return
 
@@ -118,7 +120,8 @@ class EditCluster extends React.Component<any, IState> {
             const res = await Api.getLoadTemplate({
                 clusterName,
                 componentType: typeCode,
-                version: params?.compVersion ?? DEFAULT_COMP_VERSION[typeCode] ?? '',
+                version,
+                originVersion,
                 storeType: params?.storeType ?? getFieldValue(`${typeCode}.storeType`) ?? ''
             })
             if (res.code == 1) saveParams.componentTemplate = JSON.stringify(res.data)
@@ -128,17 +131,19 @@ class EditCluster extends React.Component<any, IState> {
     }
 
     handleCompVersion = (typeCode: string, version: string) => {
-        let hadoopVersion = version
-        if (isSameVersion(Number(typeCode))) {
-            hadoopVersion = version[version.length - 1]
-            this.props.form.setFieldsValue({
-                [`${typeCode}`]: {
-                    hadoopVersion,
-                    hadoopVersionSelect: version
-                }
-            })
+        const { setFieldsValue } = this.props.form
+        if (!isSameVersion(Number(typeCode))) {
+            setFieldsValue({ [`${typeCode}.hadoopVersion`]: version })
+            this.getLoadTemplate(typeCode, { compVersion: version })
+            return
         }
-        this.getLoadTemplate(typeCode, { compVersion: hadoopVersion })
+        setFieldsValue({
+            [typeCode]: {
+                hadoopVersion: version[version.length - 1],
+                hadoopVersionSelect: version
+            }
+        })
+        this.getLoadTemplate(typeCode, { compVersion: version[version.length - 1] })
     }
 
     onTabChange = (key: string) => {
