@@ -731,6 +731,7 @@ public class ActionService {
         vo.setExecEndTime(scheduleJob.getExecEndTime() == null ? new Timestamp(0) : scheduleJob.getExecEndTime());
         vo.setExecTime(scheduleJob.getExecTime());
         vo.setRetryNum(scheduleJob.getRetryNum());
+        vo.setBusinessType(scheduleJob.getBusinessType());
         return vo;
     }
 
