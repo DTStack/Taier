@@ -2,6 +2,9 @@ import React, { useCallback, useEffect, useImperativeHandle } from 'react';
 import { Form, Select, Switch, Row, Col, Tooltip } from 'antd';
 import { IModelDetail } from '@/pages/DataModel/types';
 import './style';
+import { columnsTreeParser, columnSrtingParser } from './utils';
+
+const { OptGroup } = Select;
 
 interface IPropsPartitionField {
   form?: any;
@@ -53,26 +56,6 @@ const PartitionField = (props: IPropsPartitionField) => {
   } = form;
   const currentForm = getFieldsValue();
   const { columns = [] } = modelDetail;
-
-  // TODO:树形列表功能
-  const columnSrtingParser = {
-    decode: (str: string) => {
-      if (!str) return {};
-      const [schema, tableName, columnName] = str.split('-');
-      return {
-        schema,
-        tableName,
-        columnName,
-      };
-    },
-    encode: (obj) => {
-      if (!obj) obj = {};
-      const { schema, tableName, columnName } = obj;
-      if (!schema || !tableName || !columnName) return undefined;
-      return `${schema}-${tableName}-${columnName}`;
-    },
-  };
-
   const modelPartitionParser = (data): void => {
     const dateColString =
       data.modelPartition?.datePartitionColumn?.columnName || '';
@@ -133,6 +116,8 @@ const PartitionField = (props: IPropsPartitionField) => {
     });
   }, [modelDetail]);
 
+  const columnsTree = columnsTreeParser(columns);
+
   const rules = useCallback(
     (msg: string) => [
       { required: currentForm.modelPartition?.timePartition, message: msg },
@@ -182,12 +167,18 @@ const PartitionField = (props: IPropsPartitionField) => {
             dropdownClassName="dm-form-select-drop"
             showSearch
             optionFilterProp="children">
-            {columns.map((item) => {
-              const key = `${item.schema}-${item.tableName}-${item.columnName}`;
+            {Object.keys(columnsTree).map((label) => {
               return (
-                <Select.Option key={key} value={key}>
-                  {item.columnName}
-                </Select.Option>
+                <OptGroup key={label} label={label}>
+                  {columnsTree[label].map((item) => {
+                    const key = `${item.schema}-${item.tableName}-${item.columnName}`;
+                    return (
+                      <Select.Option key={key} value={key}>
+                        {item.columnName}
+                      </Select.Option>
+                    );
+                  })}
+                </OptGroup>
               );
             })}
           </Select>
@@ -225,12 +216,18 @@ const PartitionField = (props: IPropsPartitionField) => {
                 dropdownClassName="dm-form-select-drop"
                 showSearch
                 optionFilterProp="children">
-                {columns.map((item) => {
-                  const key = `${item.schema}-${item.tableName}-${item.columnName}`;
+                {Object.keys(columnsTree).map((label) => {
                   return (
-                    <Select.Option key={key} value={key}>
-                      {item.columnName}
-                    </Select.Option>
+                    <OptGroup key={label} label={label}>
+                      {columnsTree[label].map((item) => {
+                        const key = `${item.schema}-${item.tableName}-${item.columnName}`;
+                        return (
+                          <Select.Option key={key} value={key}>
+                            {item.columnName}
+                          </Select.Option>
+                        );
+                      })}
+                    </OptGroup>
                   );
                 })}
               </Select>
