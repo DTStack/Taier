@@ -187,14 +187,12 @@ const RelationList = (props: IPropsRelationList) => {
       });
     }
     tables.push(
-      ..._.uniqBy(relationList, (item) => item.schema + item.table).map(
-        (table) => ({
-          dsId: modelDetail.dsId,
-          schema: table.schema,
-          tableName: table.table,
-          tableAlias: table.tableAlias,
-        })
-      )
+      ...relationList.map((table) => ({
+        dsId: modelDetail.dsId,
+        schema: table.schema,
+        tableName: table.table,
+        tableAlias: table.tableAlias,
+      }))
     );
     return tables;
   };

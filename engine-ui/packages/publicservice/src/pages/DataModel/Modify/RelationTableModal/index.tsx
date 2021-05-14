@@ -23,15 +23,16 @@ export const joinTypeList = [
 const tableParser = {
   parser: (table: string) => {
     if (!table) return {};
-    const [dsId, schema, tableName] = table.split('-');
+    const [dsId, schema, tableName, tableAlias] = table.split('-');
     return {
       dsId,
       schema,
       tableName,
+      tableAlias,
     };
   },
   encode: (table: TableItem) =>
-    `${table.dsId}-${table.schema}-${table.tableName}`,
+    `${table.dsId}-${table.schema}-${table.tableName}-${table.tableAlias}`,
 };
 
 enum Mode {
@@ -90,6 +91,7 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
               ...data,
               leftTable: table.tableName,
               leftSchema: table.schema,
+              leftTableAlias: table.tableAlias,
               partition: visibleUpdateType,
             };
             refDynamicSelect.current.getJoinPairs().then((joinPairsObj) => {
@@ -123,9 +125,15 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
   });
 
   useEffect(() => {
+    const mainTable: TableItem = {
+      dsId: modelDetail.dsId,
+      schema: value.leftSchema,
+      tableName: value.leftTable,
+      tableAlias: value.leftTableAlias,
+    };
     const leftTable =
       value.leftSchema && value.leftTable
-        ? `${modelDetail.dsId}-${value.leftSchema}-${value.leftTable}`
+        ? tableParser.encode(mainTable)
         : undefined;
     setFieldsValue({
       leftTable,
@@ -219,17 +227,17 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
   const requiredRule = (msg: string) => [{ required: true, message: msg }];
 
   // 表别名重复性校验
-  const repeatValidator = (rule, value, callback) => {
+  const repeatValidator = (rule, tableAlias, callback) => {
     let filter = (v) => true;
     if (mode === Mode.EDIT) {
-      // 编辑状态下需要过滤当前id的表名
-      filter = (item) => item.id !== value.id;
+      // 编辑状态下需要过滤当前别名的表
+      filter = (item) => item.tableAlias !== value.tableAlias;
     }
     const isRepeat =
       tableList
         .filter((item) => item.tableAlias)
         .filter(filter)
-        .findIndex((item) => item.tableAlias === value) === -1;
+        .findIndex((item) => item.tableAlias === tableAlias) === -1;
     if (isRepeat) {
       callback();
     } else {
@@ -268,7 +276,7 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
               }}>
               {tableList.map((item, index) => (
                 <Select.Option key={index} value={tableParser.encode(item)}>
-                  {item.tableName}
+                  {item.tableName}({item.tableAlias})
                 </Select.Option>
               ))}
             </Select>

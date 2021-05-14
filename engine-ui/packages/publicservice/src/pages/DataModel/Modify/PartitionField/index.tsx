@@ -55,8 +55,6 @@ const PartitionField = (props: IPropsPartitionField) => {
   const { columns = [] } = modelDetail;
 
   // TODO:树形列表功能
-  // console.log(columns)
-
   const columnSrtingParser = {
     decode: (str: string) => {
       if (!str) return {};
@@ -133,8 +131,6 @@ const PartitionField = (props: IPropsPartitionField) => {
         timePartition,
       },
     });
-
-    console.log(getFieldsValue());
   }, [modelDetail]);
 
   const rules = useCallback(
