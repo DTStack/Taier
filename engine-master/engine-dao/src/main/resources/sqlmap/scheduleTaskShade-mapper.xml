@@ -853,4 +853,19 @@
         WHERE task_id = #{taskId} AND is_deleted = 0 and app_type = #{appType} LIMIT 1
     </select>
 
+    <select id="hasTaskSubmit" resultType="java.lang.Long">
+        SELECT
+            id
+        FROM
+            schedule_task_shade sts
+        WHERE
+            sts.dtuic_tenant_id IN (
+                <foreach collection="useUicTenantList" item="uicId" separator=",">
+                    #{uicId}
+                </foreach>
+                )
+            AND component_version = #{componentVersion}
+            LIMIT 1
+    </select>
+
 </mapper>

@@ -151,6 +151,9 @@ public class ComponentService {
     @Autowired
     private DataSourceService dataSourceService;
 
+    @Autowired
+    private ScheduleTaskShadeDao scheduleTaskShadeDao;
+
     public static final String VERSION = "version";
 
     /**
@@ -1714,6 +1717,10 @@ public class ComponentService {
             Component component = componentDao.getOne(componentId.longValue()),nextDefaultComponent;
             EngineAssert.assertTrue(component != null, ErrorCode.DATA_NOT_FIND.getDescription());
 
+            if(!canDeleteComponent(component.getId(),component.getComponentTypeCode(),component.getHadoopVersion())){
+                throw new RdosDefineException("can not delete component because have task submit to schedule");
+            }
+
             if (EComponentType.requireComponent.contains(EComponentType.getByCode(component.getComponentTypeCode()))){
                 throw new RdosDefineException(String.format("%s is a required component and cannot be deleted",component.getComponentName()));
             }
@@ -1725,6 +1732,7 @@ public class ComponentService {
             componentDao.deleteById(componentId.longValue());
             kerberosDao.deleteByComponent(component.getEngineId(),component.getComponentTypeCode(),component.getHadoopVersion());
             componentConfigService.deleteComponentConfig(componentId.longValue());
+
         }
     }
 
@@ -2170,5 +2178,24 @@ public class ComponentService {
             }
         }
         return components;
+    }
+
+    private boolean canDeleteComponent(Long componentId,Integer componentTypeCode,String componentVersion){
+
+        if (!ComponentVersionUtil.isMultiVersionComponent(componentTypeCode)
+                || StringUtils.isBlank(componentVersion)){
+            return true;
+        }
+        List<Long> useUicTenantList = componentDao.allUseUicTenant(componentId);
+        if (CollectionUtils.isEmpty(useUicTenantList)){
+            return true;
+        }
+
+        if (Objects.nonNull(scheduleTaskShadeDao.hasTaskSubmit(useUicTenantList,componentVersion))){
+            return false;
+        }
+        return true;
+
+
     }
 }

@@ -46,5 +46,6 @@ public interface ComponentDao {
 
     String getDefaultComponentVersionByUicIdAndComponentType(@Param("uicTenantId") Long uicTenantId, @Param("componentTypeCode") Integer componentTypeCode);
 
+    List<Long> allUseUicTenant(@Param("componentId") Long componentId);
 }
 
