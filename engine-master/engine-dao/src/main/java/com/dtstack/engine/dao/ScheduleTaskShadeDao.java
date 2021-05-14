@@ -113,4 +113,11 @@ public interface ScheduleTaskShadeDao {
      * @return
      */
     ScheduleTaskShade getOneByTaskIdAndAppType(@Param("taskId") Long taskId, @Param("appType") Integer appType);
+
+    /**
+     * @param useUicTenantList 不能为空
+     * @param componentVersion 不能为空
+     * @return
+     */
+    Long hasTaskSubmit(@Param("useUicTenantList") List<Long> useUicTenantList, @Param("componentVersion") String componentVersion);
 }

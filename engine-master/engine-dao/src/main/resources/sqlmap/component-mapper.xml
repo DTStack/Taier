@@ -209,4 +209,14 @@
           and cc.is_default = 1
           and cc.is_deleted = 0 limit 1
     </select>
+
+    <select id="allUseUicTenant" resultType="java.lang.Long">
+        SELECT
+            cdt.dt_uic_tenant_id
+        FROM
+            console_component cc
+                INNER JOIN console_engine_tenant cet ON cet.engine_id = cc.engine_id
+                INNER JOIN console_dtuic_tenant cdt ON cdt.id = cet.tenant_id
+                AND cc.id = #{componentId}
+    </select>
 </mapper>
