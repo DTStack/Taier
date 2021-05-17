@@ -1,10 +1,10 @@
 package com.dtstack.engine.master.controller;
 
 import com.dtstack.engine.master.impl.PlatformService;
-import com.dtstack.engine.master.router.DtRequestParam;
 import com.dtstack.engine.master.vo.PlatformEventVO;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,11 +22,7 @@ public class PlatformController {
     private PlatformService platformService;
 
     @RequestMapping(value = "/callBack", method = {RequestMethod.POST})
-    public void callBack(@DtRequestParam("eventCode") String eventCode, @DtRequestParam("dtUicTenantId") Long tenantId,@DtRequestParam("tenantName") String  tenantName) {
-        PlatformEventVO vo = new PlatformEventVO();
-        vo.setEventCode(eventCode);
-        vo.setTenantId(tenantId);
-        vo.setTenantName(tenantName);
+    public void callBack(@RequestBody PlatformEventVO vo) {
         platformService.callback(vo);
     }
 
