@@ -207,6 +207,7 @@ public class ActionService {
         paramActionExt.setProjectId(batchTask.getProjectId());
         paramActionExt.setDtuicTenantId(batchTask.getDtuicTenantId());
         paramActionExt.setBusinessType(batchTask.getBusinessType());
+        paramActionExt.setBusinessDate(scheduleJob.getBusinessDate());
         return paramActionExt;
     }
 
@@ -556,6 +557,10 @@ public class ActionService {
         } catch (final Exception e) {
             LOGGER.error("parse jobId {} } logInfo error {}", jobId, scheduleJob.getLogInfo());
             info.put("msg_info", scheduleJob.getLogInfo());
+        }
+
+        if (info == null) {
+            info = new JSONObject();
         }
 
         info.put("spl",taskShadeDao.getSqlText());
