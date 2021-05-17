@@ -549,6 +549,10 @@ public class ActionService {
             info.put("msg_info", scheduleJob.getLogInfo());
         }
 
+        if (info == null) {
+            info = new JSONObject();
+        }
+
         info.put("spl",taskShadeDao.getSqlText());
         jobLogVO.setLogInfo(info.toJSONString());
         try {
