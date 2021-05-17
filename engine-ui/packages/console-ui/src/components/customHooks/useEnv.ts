@@ -10,7 +10,8 @@ function useEnv ({ clusterId, form, clusterList, visible }) {
         hasOracle: false,
         hasKubernetes: false,
         hasGreenPlum: false,
-        hasPresto: false
+        hasPresto: false,
+        hasAnalytic: false
     })
     useEffect(() => {
         if (!clusterId) return
@@ -24,6 +25,7 @@ function useEnv ({ clusterId, form, clusterList, visible }) {
         const oracleEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.ORACLE);
         const greenPlumEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.GREEN_PLUM);
         const prestoEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.PRESTO);
+        const analyticEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.PRESTO);
         const kubernetesEngine = currentEngineList.filter((item: any) => item.resourceType == RESOURCE_TYPE.KUBERNETES);
 
         if (visible) {
@@ -34,7 +36,8 @@ function useEnv ({ clusterId, form, clusterList, visible }) {
                 hasKubernetes: kubernetesEngine.length >= 1,
                 hasOracle: oracleEngine.length > 0,
                 hasGreenPlum: greenPlumEngine.length > 0,
-                hasPresto: prestoEngine.length > 0
+                hasPresto: prestoEngine.length > 0,
+                hasAnalytic: analyticEngine.length > 0
             })
             setQueueList(hadoopEngine?.[0]?.queues || [])
         } else {
@@ -46,7 +49,8 @@ function useEnv ({ clusterId, form, clusterList, visible }) {
                 hasTiDB: false,
                 hasOracle: false,
                 hasGreenPlum: false,
-                hasPresto: false
+                hasPresto: false,
+                hasAnalytic: false
             })
             setQueueList([])
         }
