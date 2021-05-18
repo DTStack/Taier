@@ -1,5 +1,9 @@
 package com.dtstack.engine.master.jobdealer;
 
+import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.domain.EngineJobCache;
+import com.dtstack.engine.common.constrant.JobResultConstant;
+import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -14,6 +18,7 @@ import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.bo.JobCheckpointInfo;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.impl.ClusterService;
+import com.dtstack.engine.master.utils.TaskParamsUtil;
 import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -28,12 +33,11 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 
 /**
  *  checkpoint管理
@@ -153,7 +157,7 @@ public class JobCheckpointDealer implements InitializingBean {
         String taskId = "";
         try {
             taskId = taskInfo.getJobIdentifier().getTaskId();
-            if (getCheckpointInterval(taskId) > 0) {
+            if (getCheckpointInterval(taskId) > 0 || RdosTaskStatus.getStoppedStatus().contains(status)) {
                 updateJobCheckpoints(taskInfo.getJobIdentifier());
                 subtractionCheckpointRecord(engineJobId, taskId);
 
@@ -213,7 +217,6 @@ public class JobCheckpointDealer implements InitializingBean {
                     engineJobCheckpointDao.insert(taskId, engineTaskId, checkpointId, checkpointTriggerTimestamp, checkpointSavePath, checkpointCountsInfo);
                     checkpointInsertedCache.put(checkpointCacheKey, "1");
                 } else {
-                    addFailedCheckpoint(taskId, engineTaskId);
                     LOGGER.info("no add checkpoint to db checkpointId [{}]  checkpointSavePath {} status {} checkpointCacheKey {}",
                             checkpointId, checkpointSavePath, status, checkpointCacheKey);
                 }
@@ -271,21 +274,42 @@ public class JobCheckpointDealer implements InitializingBean {
      * @return
      * @throws ExecutionException
      */
-    private Map<String, Object> getJobParamsByJobId(String jobId) throws ExecutionException{
+    private Map<String, Object> getJobParamsByJobId(String jobId) throws ExecutionException {
         return checkpointConfigCache.get(jobId, () -> {
-            Map<String, Object> paramInfo = Maps.newConcurrentMap();
-            String jobInfo = engineJobCacheDao.getOne(jobId).getJobInfo();
+            EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
+            if(null == engineJobCache){
+                return new HashMap<>(0);
+            }
+            String jobInfo = engineJobCache.getJobInfo();
             Map<String, Object> pluginInfoMap = PublicUtil.jsonStrToObject(jobInfo, Map.class);
             String taskParamsStr = String.valueOf(pluginInfoMap.get(TASK_PARAMS_KEY));
-
-            if (StringUtils.isNotEmpty(taskParamsStr)) {
-                paramInfo = Arrays.stream(taskParamsStr.split("\n"))
-                        .map(param -> param.split("="))
-                        .filter(paramKv -> paramKv.length > 1)
-                        .collect(Collectors.toConcurrentMap((kv) -> kv[0].trim(), (kv) -> kv[1].trim(), (oldValue, newValue) -> newValue));
+            Map<String, Object> paramInfo = TaskParamsUtil.convertPropertiesToMap(taskParamsStr);
+            String jobExtraFlinkCheckpointInterval = getFlinkJobExtraInfo(jobId, engineJobCache.getEngineType(), JobResultConstant.FLINK_CHECKPOINT);
+            if (StringUtils.isNotBlank(jobExtraFlinkCheckpointInterval) && Integer.parseInt(jobExtraFlinkCheckpointInterval) > 0) {
+                LOGGER.info("flink {} job extra info checkpoint interval {}", jobId, jobExtraFlinkCheckpointInterval);
+                paramInfo.putIfAbsent(FLINK_CHECKPOINT_INTERVAL_KEY, jobExtraFlinkCheckpointInterval);
             }
             return paramInfo;
         });
+    }
+
+    /**
+     * 获取flink任务job_graph的flink.checkpoint.interval参数信息
+     * 优先级低于task_param
+     * @param jobId
+     * @param engineType
+     * @return
+     */
+    private String getFlinkJobExtraInfo(String jobId, String engineType,String key) {
+        if (EngineType.isFlink(engineType)) {
+            String jobExtraInfo = scheduleJobDao.getJobExtraInfo(jobId);
+            if(StringUtils.isBlank(jobExtraInfo)){
+                return null;
+            }
+            return JSONObject.parseObject(jobExtraInfo).getString(key);
+
+        }
+        return null;
     }
 
 
