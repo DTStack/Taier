@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
@@ -23,6 +24,7 @@ import com.dtstack.engine.common.util.*;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.executor.CronJobExecutor;
 import com.dtstack.engine.master.executor.FillJobExecutor;
+import com.dtstack.engine.master.scheduler.parser.ESchedulePeriodType;
 import com.dtstack.schedule.common.enums.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -744,6 +746,7 @@ public class ScheduleTaskShadeService {
         try {
             List<ScheduleTaskCommit> scheduleTaskCommits = Lists.newArrayList();
             for (ScheduleTaskShadeDTO batchTaskShadeDTO : batchTaskShadeDTOs) {
+                checkSubmitTaskCron(batchTaskShadeDTO);
                 ScheduleTaskCommit scheduleTaskCommit = new ScheduleTaskCommit();
                 scheduleTaskCommit.setAppType(batchTaskShadeDTO.getAppType());
                 scheduleTaskCommit.setCommitId(commitId);
@@ -1065,5 +1068,20 @@ public class ScheduleTaskShadeService {
             curDate = generator.next(curDate);
         }
         return recentlyList;
+    }
+
+    private void checkSubmitTaskCron(ScheduleTaskShadeDTO taskShade){
+        if (taskShade.getPeriodType() != ESchedulePeriodType.CUSTOM.getVal()){
+            return;
+        }
+        JSONObject scheduleConf = JSON.parseObject(taskShade.getScheduleConf());
+        if (Objects.isNull(scheduleConf)){
+            throw new RdosDefineException("empty schedule conf");
+        }
+        String cron = scheduleConf.getString("cron");
+        CronExceptionVO cronExceptionVO = checkCronExpression(cron, 300L);
+        if (Objects.nonNull(cronExceptionVO)){
+            throw new RdosDefineException(cronExceptionVO.getErrMessage());
+        }
     }
 }
