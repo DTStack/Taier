@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Tabs, Icon, Menu, Dropdown, Button } from 'antd'
-import { VERSION_TYPE, COMP_ACTION } from '../../const'
+import { VERSION_TYPE, COMP_ACTION, COMPONENT_CONFIG_NAME } from '../../const'
 
 import FileConfig from '../../fileConfig'
 import FormConfig from '../../formConfig'
@@ -78,7 +78,7 @@ export default class MultiVersionComp extends React.Component<IProps, any> {
                             >
                                 <span className="comp-name">
                                     <img src={`public/img/${VERSION_TYPE[typeCode]}.png`}/>
-                                    <span>{VERSION_TYPE[typeCode]} {(Number(value) / 100).toFixed(2)}</span>
+                                    <span>{COMPONENT_CONFIG_NAME[typeCode]} {(Number(value) / 100).toFixed(2)}</span>
                                 </span>
                                 <Icon type="right-circle" theme="filled" />
                             </div>

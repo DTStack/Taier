@@ -40,7 +40,8 @@ export function isSameVersion (code: number): boolean {
 }
 
 export function isMultiVersion (code: number): boolean {
-    return [COMPONENT_TYPE_VALUE.FLINK, COMPONENT_TYPE_VALUE.SPARK].indexOf(code) > -1
+    return [COMPONENT_TYPE_VALUE.FLINK, COMPONENT_TYPE_VALUE.SPARK,
+        COMPONENT_TYPE_VALUE.FLINK_ON_STANDALONE].indexOf(code) > -1
 }
 
 export function needZipFile (type: number): boolean {

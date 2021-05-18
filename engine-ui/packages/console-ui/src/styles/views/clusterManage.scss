@@ -687,7 +687,7 @@
             margin-right: 20px;
         }
         &__desc {
-            width: 240px;
+            min-width: 240px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -710,6 +710,7 @@
             .anticon-right-circle {
                 font-size: 20px;
                 color: #3F87FF;
+                margin-left: 16px;
             }
         }
     }
