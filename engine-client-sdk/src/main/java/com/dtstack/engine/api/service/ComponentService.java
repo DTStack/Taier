@@ -76,7 +76,7 @@ public interface ComponentService extends DtInsightServer {
     @RequestLine("POST /node/component/getSupportJobTypes")
     ApiResponse<List<TaskGetSupportJobTypesResultVO>>  getSupportJobTypes(@Param("appType") Integer appType,
                                                                           @Param("projectId") Long projectId,
-                                                                          @Param("dt_tenant_id") Long dtuicTenantId);
+                                                                          @Param("dtTenantId") Long dtuicTenantId);
 
 
 }
