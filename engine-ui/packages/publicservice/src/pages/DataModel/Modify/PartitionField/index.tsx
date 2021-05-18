@@ -1,12 +1,14 @@
 import React, { useCallback, useEffect, useImperativeHandle } from 'react';
 import { Form, Select, Switch, Row, Col, Tooltip } from 'antd';
-import { IModelDetail } from '@/pages/DataModel/types';
+import { IModelDetail, EnumModelStatus } from '@/pages/DataModel/types';
 import './style';
+import { EnumModifyMode } from '../types';
 
 interface IPropsPartitionField {
   form?: any;
   cref: any;
   modelDetail?: IModelDetail;
+  mode?: EnumModifyMode;
 }
 
 const dateFmtList = [
@@ -44,7 +46,7 @@ const layout = {
  * 设置时间分区后，其他项均为必填项
  */
 const PartitionField = (props: IPropsPartitionField) => {
-  const { form, cref, modelDetail } = props;
+  const { form, cref, modelDetail, mode } = props;
   const {
     getFieldDecorator,
     getFieldsValue,
@@ -53,7 +55,10 @@ const PartitionField = (props: IPropsPartitionField) => {
   } = form;
   const currentForm = getFieldsValue();
   const { columns = [] } = modelDetail;
-
+  // 新增模型或者模型处于未发布状态下可编辑分区字段
+  const isEnabledPartition =
+    modelDetail.modelStatus === EnumModelStatus.UNRELEASE ||
+    mode === EnumModifyMode.ADD;
   // TODO:树形列表功能
   // console.log(columns)
 
@@ -185,6 +190,7 @@ const PartitionField = (props: IPropsPartitionField) => {
             placeholder="请选择分区字段（日期）"
             dropdownClassName="dm-form-select-drop"
             showSearch
+            disabled={!isEnabledPartition}
             optionFilterProp="children">
             {columns.map((item) => {
               const key = `${item.schema}-${item.tableName}-${item.columnName}`;
@@ -203,6 +209,7 @@ const PartitionField = (props: IPropsPartitionField) => {
         })(
           <Select
             dropdownClassName="dm-form-select-drop"
+            disabled={!isEnabledPartition}
             placeholder="请选择日期格式">
             {dateFmtList.map((item) => (
               <Select.Option key={item} value={item}>
@@ -213,7 +220,9 @@ const PartitionField = (props: IPropsPartitionField) => {
         )}
       </Form.Item>
       <Form.Item label="是否设置时间分区">
-        {getFieldDecorator('modelPartition.timePartition')(<WrapperSwitch />)}
+        {getFieldDecorator('modelPartition.timePartition')(
+          <WrapperSwitch disabled={!isEnabledPartition} />
+        )}
       </Form.Item>
       {currentForm.modelPartition?.timePartition ? (
         <>
@@ -228,6 +237,7 @@ const PartitionField = (props: IPropsPartitionField) => {
                 placeholder="请选择分区字段（时间）"
                 dropdownClassName="dm-form-select-drop"
                 showSearch
+                disabled={!isEnabledPartition}
                 optionFilterProp="children">
                 {columns.map((item) => {
                   const key = `${item.schema}-${item.tableName}-${item.columnName}`;
@@ -246,7 +256,8 @@ const PartitionField = (props: IPropsPartitionField) => {
             })(
               <Select
                 dropdownClassName="dm-form-select-drop"
-                placeholder="请选择时间格式">
+                placeholder="请选择时间格式"
+                disabled={!isEnabledPartition}>
                 {timeFmtList.map((item) => (
                   <Select.Option key={item} value={item}>
                     {item}

@@ -61,7 +61,9 @@ const stepRender = (current: EnumModifyStep, params: any) => {
         <FieldSelect cref={childRef} step={current} modelDetail={modelDetail} />
       );
     case EnumModifyStep.SETTING_STEP:
-      return <PartitionField cref={childRef} modelDetail={modelDetail} />;
+      return (
+        <PartitionField cref={childRef} modelDetail={modelDetail} mode={mode} />
+      );
   }
 };
 
