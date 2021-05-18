@@ -1714,18 +1714,29 @@ public class ScheduleJobService {
                                                                                String fillJobName, Long dutyUserId,
                                                                                String searchType, Integer appType,
                                                                                Long projectId,Long dtuicTenantId,
+                                                                               String execTimeSort, String execStartSort,
+                                                                               String execEndSort, String cycSort,
+                                                                               String businessDateSort, String retryNumSort,
+                                                                               String jobStatuses,
                                                                                Integer currentPage, Integer pageSize) throws Exception {
         QueryJobDTO vo = new QueryJobDTO();
         vo.setCurrentPage(currentPage);
         vo.setPageSize(pageSize);
-        vo.setBizEndDay(bizStartDay);
-        vo.setBizStartDay(bizEndDay);
+        vo.setBizStartDay(bizStartDay);
+        vo.setBizEndDay(bizEndDay);
         vo.setFillTaskName(fillJobName);
         vo.setSearchType(searchType);
         vo.setProjectId(projectId);
         vo.setDtuicTenantId(dtuicTenantId);
         vo.setTaskName(taskName);
         vo.setSplitFiledFlag(true);
+        vo.setExecTimeSort(execTimeSort);
+        vo.setExecStartSort(execStartSort);
+        vo.setExecEndSort(execEndSort);
+        vo.setCycSort(cycSort);
+        vo.setBusinessDateSort(businessDateSort);
+        vo.setRetryNumSort(retryNumSort);
+        vo.setJobStatuses(jobStatuses);
         return getScheduleFillDataJobDetailVOPageResult(flowJobIdList, fillJobName, dutyUserId, searchType, appType, vo);
     }
 

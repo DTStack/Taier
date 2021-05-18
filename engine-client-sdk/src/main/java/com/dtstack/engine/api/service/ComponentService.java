@@ -6,6 +6,7 @@ import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
 import com.dtstack.engine.api.vo.components.ComponentsResultVO;
+import com.dtstack.engine.api.vo.task.TaskGetSupportJobTypesResultVO;
 import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sdk.core.common.DtInsightServer;
 import com.dtstack.sdk.core.feign.Param;
@@ -71,6 +72,11 @@ public interface ComponentService extends DtInsightServer {
 
     @RequestLine("POST /node/component/isYarnSupportGpus")
     ApiResponse<Boolean> isYarnSupportGpus(@Param("clusterName") String clusterName);
+
+    @RequestLine("POST /node/component/getSupportJobTypes")
+    ApiResponse<List<TaskGetSupportJobTypesResultVO>>  getSupportJobTypes(@Param("appType") Integer appType,
+                                                                          @Param("projectId") Long projectId,
+                                                                          @Param("dt_tenant_id") Long dtuicTenantId);
 
 
 }

@@ -7,7 +7,9 @@ import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.pojo.lineage.ComponentMultiTestResult;
 import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
 import com.dtstack.engine.api.vo.components.ComponentsResultVO;
+import com.dtstack.engine.api.vo.task.TaskGetSupportJobTypesResultVO;
 import com.dtstack.engine.master.impl.ComponentService;
+import com.dtstack.engine.master.router.DtParamOrHeader;
 import com.dtstack.engine.master.router.DtRequestParam;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -112,6 +114,14 @@ public class ComponentController {
     public Boolean isYarnSupportGpus(@DtRequestParam("clusterName") String clusterName) {
         return componentService.isYarnSupportGpus(clusterName);
     }
+
+    @RequestMapping(value="/getSupportJobTypes", method = {RequestMethod.POST})
+    public List<TaskGetSupportJobTypesResultVO>  getSupportJobTypes(@DtRequestParam("appType") Integer appType,
+                                                              @DtRequestParam("projectId") Long projectId,
+                                                              @DtParamOrHeader(value = "dtuicTenantId",header = "cookie",cookie = "dt_tenant_id") Long dtuicTenantId){
+        return componentService.getSupportJobTypes(appType,projectId,dtuicTenantId);
+    }
+
 }
 
 
