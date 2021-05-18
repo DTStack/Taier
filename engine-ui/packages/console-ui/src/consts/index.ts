@@ -347,7 +347,9 @@ export const ENGINE_TYPE = {
     ORACLE: 5,
     GREEN_PLUM: 6,
     PRESTO: 7,
-    ANALYTIC_DB: 9
+    FLINK_ON_STANDALONE: 8,
+    ANALYTIC_DB: 9,
+    KUBERNETES: 'Kubernetes'
 }
 export const ENGINE_TYPE_NAME = {
     HADOOP: 'Hadoop',
