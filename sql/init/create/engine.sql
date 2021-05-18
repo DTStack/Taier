@@ -386,7 +386,7 @@ CREATE TABLE `schedule_job`
   `retry_task_params` text       DEFAULT NULL COMMENT '重试任务参数',
   `compute_type`    tinyint(1)   NOT NULL DEFAULT '1' COMMENT '计算类型STREAM(0), BATCH(1)',
   `phase_status`    tinyint(1) NOT NULL DEFAULT '0' COMMENT '运行状态: CREATE(0):创建,JOIN_THE_TEAM(1):入队,LEAVE_THE_TEAM(2):出队',
-  `job_extra_info`       TEXT DEFAULT NULL COMMENT '任务提交额外信息',
+  `job_graph`       TEXT DEFAULT NULL COMMENT 'jobGraph构建json',
   `submit_user_name` VARCHAR(20) DEFAULT NULL COMMENT '任务提交用户名',
   `task_rule` tinyint(1) DEFAULT '0' COMMENT '强弱规则（只有NOT_DO_TASK任务会判断强弱规则）0 默认无规则 1弱规则 2强规则',
   `component_version` varchar(25)  COMMENT '组件版本',
