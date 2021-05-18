@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Popconfirm, Button, message, Modal, Icon } from 'antd'
 import Api from '../../../../../api/console'
-import { COMPONENT_CONFIG_NAME, COMP_ACTION, VERSION_TYPE } from '../../const'
+import { COMPONENT_CONFIG_NAME, COMP_ACTION } from '../../const'
 
 import { handleComponentTemplate, handleComponentConfigAndCustom,
     handleComponentConfig, isNeedTemp, handleCustomParam,
@@ -140,7 +140,7 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
         const typeCode = comp?.componentTypeCode ?? ''
         const hadoopVersion = comp?.hadoopVersion ?? ''
         const defaultText = COMPONENT_CONFIG_NAME[typeCode]
-        const multipleText = VERSION_TYPE[typeCode] + ' ' + (Number(hadoopVersion) / 100).toFixed(2)
+        const multipleText = COMPONENT_CONFIG_NAME[typeCode] + ' ' + (Number(hadoopVersion) / 100).toFixed(2)
 
         if (isMultiVersion(typeCode) && !mulitple) {
             return (

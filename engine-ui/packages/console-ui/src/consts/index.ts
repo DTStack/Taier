@@ -347,7 +347,7 @@ export const ENGINE_TYPE = {
     ORACLE: 5,
     GREEN_PLUM: 6,
     PRESTO: 7,
-    FLINK_ON_STANDALONE: 26,
+    FLINK_ON_STANDALONE: 8,
     KUBERNETES: 'Kubernetes'
 }
 export const ENGINE_TYPE_NAME = {

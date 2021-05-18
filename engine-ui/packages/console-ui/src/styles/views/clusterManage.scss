@@ -750,14 +750,14 @@
                 min-width: 100px;
                 .ant-tabs-tab {
                     text-align: center;
-                    width: 100%;
                     background: #FAFAFA;
                     padding: 0;
                     font-size: 14px;
                     height: 44px;
                     line-height: 44px;
                     margin: 0;
-                    width: 112px;
+                    // min-width: 112px;
+                    width: 210px;
                 }
                 .ant-tabs-tab-active {
                     background: #fff;

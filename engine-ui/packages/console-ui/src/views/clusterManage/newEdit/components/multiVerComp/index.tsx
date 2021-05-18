@@ -43,7 +43,7 @@ export default class MultiVersionComp extends React.Component<IProps, any> {
             {versionData[VERSION_TYPE[typeCode]]?.map(({ key, value }) => {
                 const disabled = comp?.multiVersion?.findIndex(vcomp => vcomp.hadoopVersion == value)
                 return <MenuItem disabled={disabled > -1} key={value} >
-                    {VERSION_TYPE[typeCode]} {key}
+                    {COMPONENT_CONFIG_NAME[typeCode]} {key}
                 </MenuItem>
             })}
         </Menu>
@@ -112,7 +112,7 @@ export default class MultiVersionComp extends React.Component<IProps, any> {
                         <TabPane
                             tab={
                                 <span>
-                                    {VERSION_TYPE[vcomp.componentTypeCode]} {(Number(vcomp.hadoopVersion) / 100).toFixed(2)}
+                                    {COMPONENT_CONFIG_NAME[vcomp.componentTypeCode]} {(Number(vcomp.hadoopVersion) / 100).toFixed(2)}
                                     <TestRestIcon testStatus={testStatus.find(status => status?.componentVersion == vcomp.hadoopVersion)}/>
                                 </span>
                             }

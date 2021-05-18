@@ -105,7 +105,7 @@ export const VERSION_TYPE = {
     1: 'Spark',
     6: 'SparkThrift',
     19: 'InceptorSql',
-    20: 'Flink'
+    20: 'FlinkOnStandalone'
 }
 
 export const FILE_TYPE = {
