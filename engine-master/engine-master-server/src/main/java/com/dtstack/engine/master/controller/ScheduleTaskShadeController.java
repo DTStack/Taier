@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.controller;
 
+import com.dtstack.engine.api.domain.CronExceptionVO;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.api.pager.PageResult;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/node/scheduleTaskShade")
@@ -207,5 +209,15 @@ public class ScheduleTaskShadeController {
     public ScheduleDetailsVO findTaskRuleTask(@DtRequestParam("taskId") Long taskId,
                                                           @DtRequestParam("appType") Integer appType) {
         return scheduleTaskShadeService.findTaskRuleTask(taskId, appType);
+    }
+
+    @RequestMapping(value = "/checkCronExpression",method = {RequestMethod.POST})
+    public CronExceptionVO checkCronExpression(@DtRequestParam("cron") String cron, @DtRequestParam("minPeriod") Long minPeriod){
+        return scheduleTaskShadeService.checkCronExpression(cron,Objects.isNull(minPeriod)?300L:minPeriod);
+    }
+    @RequestMapping(value = "/recentlyRunTime",method = {RequestMethod.POST})
+    public List<String > recentlyRunTime(@DtRequestParam("startDate")String startDate,@DtRequestParam("endDate")String endDate,
+                                         @DtRequestParam("cron")String cron,@DtRequestParam("num")Integer num){
+        return scheduleTaskShadeService.recentlyRunTime(startDate,endDate,cron, Objects.isNull(num)?10:num);
     }
 }
