@@ -181,11 +181,6 @@ const FieldsSelect = (props: IPropsDimensionSelect) => {
             message.error('请选择维度');
             return reject();
           }
-        } else {
-          if (dataSource.filter((item) => item.metric).length === 0) {
-            message.error('请选择度量');
-            return reject();
-          }
         }
 
         return resolve({
