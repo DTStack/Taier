@@ -176,6 +176,8 @@ const BasicInfo = (props: IPropsBasicInfo) => {
               dropdownClassName="dm-form-select-drop"
               placeholder="请选择数据源"
               disabled={isDisabled}
+              showSearch={true}
+              optionFilterProp="children"
               onChange={(value, target) => {
                 // 修改数据源后清空第二步schema,tableName,以及关联信息
                 props.updateModelDetail((modelDetail) => ({
