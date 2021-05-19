@@ -4,6 +4,7 @@ import ModelBasicInfo from '@/pages/DataModel/Detail/ModelBasicInfo';
 import { columnsGenerator } from './constants';
 import './style';
 import { IModelDetail } from '../../types';
+import DiffEditor from '@/components/DiffEditor';
 
 const dataSource = [
   {
@@ -123,7 +124,7 @@ const VersionHistory = (props: any) => {
     visible: boolean;
     detail: IModelDetail;
   }>({
-    visible: true,
+    visible: false,
     detail: mockDetail
    });
 
@@ -197,6 +198,18 @@ const VersionHistory = (props: any) => {
         <ModelBasicInfo
           modelDetail={visibleModal.detail}
           visibleRelationView={false}
+        />
+      </Modal>
+      <Modal
+        visible={true}
+      >
+        <DiffEditor
+          style={{ height: '200px' }}
+          original={{ value: 'select * from A' }}
+          modified={{ value: 'select username form A\nselect b from c' }}
+          options={{ readOnly: true }}
+          sync={true}
+          language="text"
         />
       </Modal>
     </div>

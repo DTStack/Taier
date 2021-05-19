@@ -8971,7 +8971,7 @@ moment@2.x, moment@^2.22.2, moment@^2.24.0, moment@^2.27.0, moment@^2.29.1:
   resolved "http://registry.npm.dtstack.com/moment/-/moment-2.29.1.tgz#b2be769fa31940be9eeea6469c075e35006fa3d3"
   integrity sha1-sr52n6MZQL6e7qZGnAdeNQBvo9M=
 
-monaco-editor@^0.13.1:
+monaco-editor@0.13.1, monaco-editor@^0.13.1:
   version "0.13.1"
   resolved "http://registry.npm.dtstack.com/monaco-editor/-/monaco-editor-0.13.1.tgz#6b9ce20e4d1c945042d256825eb133cb23315a52"
   integrity sha512-0Kssg/O3cl1tXP0qAIxhrtMbRnzusFUEvFyt5/fpUbmuVeY3z+TnUx13+3kW16pgacFPXGUTEO/hOPlDeFU/dw==
