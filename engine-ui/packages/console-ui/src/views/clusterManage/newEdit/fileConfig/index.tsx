@@ -71,7 +71,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                 <FormItem
                     label={<span>
                         组件版本
-                        {isSameVersion(typeCode) && <Tooltip overlayClassName="big-tooltip" title='切换组件版本HDFS和YARN组件将同步切换至相同版本，Spark/Flink的插件路径将同步自动变更'>
+                        {isSameVersion(typeCode) && <Tooltip overlayClassName="big-tooltip" title='切换组件版本HDFS和YARN组件将同步切换至相同版本，Spark/Flink/DtScript的插件路径将同步自动变更'>
                             <Icon style={{ marginLeft: 4 }} type="question-circle-o" />
                         </Tooltip>}
                     </span>}
