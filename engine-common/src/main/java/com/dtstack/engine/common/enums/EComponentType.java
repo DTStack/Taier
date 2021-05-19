@@ -1,12 +1,10 @@
 package com.dtstack.engine.common.enums;
 
+import com.dtstack.engine.common.constrant.ComponentConstant;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.google.common.collect.Lists;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -34,7 +32,8 @@ public enum EComponentType {
     PRESTO_SQL(16, "Presto SQL", "prestoConf"),
     NFS(17, "NFS", "nfsConf"),
     DTSCRIPT_AGENT(18,"DtScript Agent","dtScriptAgentConf"),
-    INCEPTOR_SQL(19,"InceptorSql","inceptorSqlConf");
+    INCEPTOR_SQL(19,"InceptorSql","inceptorSqlConf"),
+    ANALYTICDB_FOR_PG(20, ComponentConstant.ANALYTICDB_FOR_PG_NAME,ComponentConstant.ANALYTICDB_FOR_PG_CONFIG_NAME);
 
     private Integer typeCode;
 
@@ -134,6 +133,8 @@ public enum EComponentType {
 
     public static List<EComponentType> EmptyComponents = Lists.newArrayList(EComponentType.DTSCRIPT_AGENT);
 
+    public static List<EComponentType> analyticDbForPgComponents = Collections.unmodifiableList(Lists.newArrayList(EComponentType.ANALYTICDB_FOR_PG));
+
     public static MultiEngineType getEngineTypeByComponent(EComponentType componentType) {
         if (HadoopComponents.contains(componentType)) {
             return MultiEngineType.HADOOP;
@@ -155,6 +156,9 @@ public enum EComponentType {
         }
         if (EmptyComponents.contains(componentType)){
             return MultiEngineType.COMMON;
+        }
+        if (analyticDbForPgComponents.contains(componentType)){
+            return MultiEngineType.ANALYTICDB_FOR_PG;
         }
         return null;
     }
@@ -207,6 +211,8 @@ public enum EComponentType {
                 return "inceptor";
             case DTSCRIPT_AGENT:
                 return "dtscript-agent";
+            case ANALYTICDB_FOR_PG:
+                return ComponentConstant.ANALYTICDB_FOR_PG_PLUGIN;
         }
         return "";
     }

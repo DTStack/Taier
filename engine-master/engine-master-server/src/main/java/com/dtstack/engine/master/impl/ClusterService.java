@@ -8,6 +8,7 @@ import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.vo.*;
+import com.dtstack.engine.common.constrant.ComponentConstant;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
@@ -557,6 +558,9 @@ public class ClusterService implements InitializingBean {
         } else if (EComponentType.DTSCRIPT_AGENT==type.getComponentType()){
             dtScriptAgentInfo(clusterConfigJson,pluginInfo);
             pluginInfo.put(TYPE_NAME,"dtscript-agent");
+        } else if (EComponentType.ANALYTICDB_FOR_PG == type.getComponentType()){
+            pluginInfo = JSONObject.parseObject(adbPostgrepsqlInfo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId(),componentVersionMap));
+            pluginInfo.put(TYPE_NAME, ComponentConstant.ANALYTICDB_FOR_PG_PLUGIN);
         } else {
             //flink spark 需要区分任务类型
             if (EComponentType.FLINK.equals(type.getComponentType()) || EComponentType.SPARK.equals(type.getComponentType())) {
@@ -747,6 +751,9 @@ public class ClusterService implements InitializingBean {
         return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.INCEPTOR_SQL,null);
     }
 
+    public String adbPostgrepsqlInfo(Long dtUicTenantId, Long dtUicUserId,Map<Integer,String > componentVersionMap){
+        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.ADB_POSTGREPSQL,componentVersionMap);
+    }
 
     private String accountInfo(Long dtUicTenantId, Long dtUicUserId, DataSourceType dataSourceType,Map<Integer,String > componentVersionMap) {
         EComponentType componentType = null;
@@ -760,6 +767,8 @@ public class ClusterService implements InitializingBean {
             componentType = EComponentType.PRESTO_SQL;
         }else if (DataSourceType.INCEPTOR_SQL.equals(dataSourceType)){
             componentType=EComponentType.INCEPTOR_SQL;
+        }else if (DataSourceType.ADB_POSTGREPSQL.equals(dataSourceType)){
+            componentType = EComponentType.ANALYTICDB_FOR_PG;
         }
         if (componentType == null) {
             throw new RdosDefineException("Unsupported data source type");

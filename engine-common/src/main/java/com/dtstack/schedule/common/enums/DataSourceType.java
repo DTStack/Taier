@@ -58,6 +58,7 @@ public enum DataSourceType {
     VERTICA(43),
     SPARKTHRIFT2_1(45),
     INCEPTOR_SQL(44),
+    ADB_POSTGREPSQL(46),
 
     /**
      * spark thrift
