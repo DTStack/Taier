@@ -56,6 +56,7 @@ export interface FieldColumn {
   tableAlias?: string;
   dimension?: boolean;
   metric?: boolean;
+  partition?: boolean;
 }
 
 // 表关联信息
@@ -87,6 +88,7 @@ export interface IModelDetail {
   creator: string;
   // TODO: any类型
   modelPartition: any;
+  partition?: boolean;
   createTime?: string;
   dsName?: string;
   step?: number; // 编辑步数step

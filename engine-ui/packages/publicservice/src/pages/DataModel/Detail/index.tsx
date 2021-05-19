@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Tabs, Spin } from 'antd';
-import HTable from './HTable';
-import PaneTitle from '../components/PaneTitle';
-import DataInfo from './DataInfo';
 import CodeBlock from '../components/CodeBlock';
 import { API } from '@/services';
 import Message from 'pages/DataModel/components/Message';
-import RelationView from './RealationView';
 import './style';
 import { IModelDetail } from '../types';
-
+import VersionHistory from './VersionHistory';
+import ModelBasicInfo from './ModelBasicInfo';
 const { TabPane } = Tabs;
 
 interface IPropsDetail {
@@ -81,36 +78,7 @@ const Detail = (props: IPropsDetail) => {
         <div className="drawer-title">{modelDetail.modelName}</div>
         <Tabs type="card">
           <TabPane tab="基本信息" key="1">
-            <div className="pane-container">
-              <div className="inner-container">
-                <div className="margin-bottom-20">
-                  <PaneTitle title="模型信息" />
-                  <HTable
-                    detail={{
-                      ...modelDetail,
-                      dsName: `${modelDetail.dsName}(${modelDetail.dsTypeName})`,
-                    }}
-                  />
-                </div>
-
-                <div className="margin-bottom-20">
-                  <PaneTitle title="关联视图" />
-                  <RelationView />
-                </div>
-                <div className="margin-bottom-20">
-                  <PaneTitle title="数据信息" />
-                  <DataInfo
-                    relationTableList={modelDetail.joinList}
-                    metricList={modelDetail.columns.filter(
-                      (item) => item.metric
-                    )}
-                    dimensionList={modelDetail.columns.filter(
-                      (item) => item.dimension
-                    )}
-                  />
-                </div>
-              </div>
-            </div>
+            <ModelBasicInfo modelDetail={modelDetail} />
           </TabPane>
           <TabPane tab="SQL信息" key="2">
             <div className="pane-container">
@@ -119,6 +87,11 @@ const Detail = (props: IPropsDetail) => {
                   <CodeBlock code={code} />
                 </div>
               </div>
+            </div>
+          </TabPane>
+          <TabPane tab="版本变更" key="3">
+            <div className="pane-container">
+              <VersionHistory />
             </div>
           </TabPane>
         </Tabs>
