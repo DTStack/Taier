@@ -221,6 +221,10 @@ public class ClusterService implements InitializingBean {
         if (type == null) {
             return null;
         }
+        if(deployMode.equals(EDeployMode.STANDALONE.getType()) && EngineType.isFlink(engineTypeStr)){
+            //flink standalone模式需要走flink_on_standalone组件
+            engineTypeStr = EComponentType.FLINK_ON_STANDALONE.getConfName();
+        }
         ClusterVO cluster = getClusterByTenant(dtUicTenantId);
         if (cluster == null) {
             String msg = format("The tenant [%s] is not bound to any cluster", dtUicTenantId);
@@ -557,7 +561,11 @@ public class ClusterService implements InitializingBean {
         } else if (EComponentType.DTSCRIPT_AGENT==type.getComponentType()){
             dtScriptAgentInfo(clusterConfigJson,pluginInfo);
             pluginInfo.put(TYPE_NAME,"dtscript-agent");
-        } else {
+        } else if (EComponentType.FLINK_ON_STANDALONE==type.getComponentType()){
+            flinkOnStandaloneInfo(clusterConfigJson,pluginInfo);
+            pluginInfo.put(TYPE_NAME,"flink-on-standalone");
+        }
+        else {
             //flink spark 需要区分任务类型
             if (EComponentType.FLINK.equals(type.getComponentType()) || EComponentType.SPARK.equals(type.getComponentType())) {
                 pluginInfo = this.buildDeployMode(clusterConfigJson, type, clusterVO, deployMode);
@@ -611,6 +619,11 @@ public class ClusterService implements InitializingBean {
         }
 
         return pluginInfo;
+    }
+
+    private void flinkOnStandaloneInfo(JSONObject clusterConfigJson, JSONObject pluginInfo) {
+        JSONObject flinkOnStandaloneConf = clusterConfigJson.getJSONObject(EComponentType.FLINK_ON_STANDALONE.getConfName());
+        pluginInfo.putAll(flinkOnStandaloneConf);
     }
 
     private void buildHiveVersion(ClusterVO clusterVO, JSONObject pluginInfo,Map<Integer,String > componentVersionMap) {
@@ -821,7 +834,7 @@ public class ClusterService implements InitializingBean {
      * 获取集群配置
      * @param clusterId 集群id
      * @param removeTypeName
-     * @param defaultVersion 组件默认版本
+     * @param multiVersion 组件默认版本
      * @return
      */
     public ClusterVO getCluster( Long clusterId, Boolean removeTypeName,boolean multiVersion) {

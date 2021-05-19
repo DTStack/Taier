@@ -41,7 +41,9 @@ public enum EngineTypeComponentType {
     GREENPLUM_SQL(ScheduleEngineType.GREENPLUM, EComponentType.GREENPLUM_SQL),
     PRESTO_SQL(ScheduleEngineType.Presto, EComponentType.PRESTO_SQL),
     INCEPTOR_SQL(ScheduleEngineType.INCEPTOR_SQL,EComponentType.INCEPTOR_SQL),
-    DTSCRIPT_AGENT(ScheduleEngineType.DTSCRIPT_AGENT,EComponentType.DTSCRIPT_AGENT);
+    DTSCRIPT_AGENT(ScheduleEngineType.DTSCRIPT_AGENT,EComponentType.DTSCRIPT_AGENT),
+    FLINK_ON_STANDALONE(ScheduleEngineType.FLINK_ON_STANDALONE,EComponentType.FLINK_ON_STANDALONE)
+    ;
 
     private ScheduleEngineType scheduleEngineType;
 
@@ -108,6 +110,8 @@ public enum EngineTypeComponentType {
                 return EngineTypeComponentType.INCEPTOR_SQL;
             case "dtscript-agent":
                 return EngineTypeComponentType.DTSCRIPT_AGENT;
+            case "flink-on-standalone":
+                return EngineTypeComponentType.FLINK_ON_STANDALONE;
             default:
                 throw new UnsupportedOperationException("未知引擎类型:" + engineName);
         }

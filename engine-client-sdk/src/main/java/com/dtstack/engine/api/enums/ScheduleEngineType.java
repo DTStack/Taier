@@ -36,7 +36,8 @@ public enum ScheduleEngineType {
     Presto(22, "presto"),
     KING_BASE(23,"kingbase"),
     INCEPTOR_SQL(24,"inceptor"),
-    DTSCRIPT_AGENT(25,"dtscript-agent");
+    DTSCRIPT_AGENT(25,"dtscript-agent"),
+    FLINK_ON_STANDALONE(26,"flink-on-standalone");
 
     private int val;
 
@@ -119,6 +120,8 @@ public enum ScheduleEngineType {
                 return ScheduleEngineType.Presto;
             case "kingbase":
                 return ScheduleEngineType.KING_BASE;
+            case "flinkOnStandalone":
+                return ScheduleEngineType.FLINK_ON_STANDALONE;
         }
         return null;
     }

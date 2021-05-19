@@ -24,6 +24,7 @@ public class FlinkResource extends CommonResource {
 
     private static final String SESSION = "session";
     private static final String PER_JOB = "per_job";
+    private static final String STANDALONE = "standalone";
 
     @Override
     public ComputeResourceType getComputeResourceType(JobClient jobClient) {
@@ -48,6 +49,8 @@ public class FlinkResource extends CommonResource {
                 return ComputeResourceType.FlinkYarnSession;
             } else if (PER_JOB.equalsIgnoreCase(modeStr)) {
                 return ComputeResourceType.Yarn;
+            }else if(STANDALONE.equals(modeStr)){
+                return ComputeResourceType.FlinkOnStandalone;
             }
         } else if (EComponentType.KUBERNETES.getTypeCode().equals(componentType.getTypeCode())) {
             if (StringUtils.isEmpty(modeStr)) {
@@ -61,6 +64,8 @@ public class FlinkResource extends CommonResource {
                 return ComputeResourceType.FlinkKubernetesSession;
             } else if (PER_JOB.equalsIgnoreCase(modeStr)) {
                 return ComputeResourceType.Kubernetes;
+            }else if(STANDALONE.equals(modeStr)){
+                return ComputeResourceType.FlinkOnStandalone;
             }
         }
 
