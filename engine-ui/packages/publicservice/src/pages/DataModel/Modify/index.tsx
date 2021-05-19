@@ -31,7 +31,12 @@ import FieldSelect from './FieldsSelect';
 
 const stepRender = (current: EnumModifyStep, params: any) => {
   const {
-    childRef, modelDetail, globalStep, mode, setModelDetail, setDisabled
+    childRef,
+    modelDetail,
+    globalStep,
+    mode,
+    setModelDetail,
+    setDisabled,
   } = params;
   switch (current) {
     case EnumModifyStep.BASIC_STEP:
