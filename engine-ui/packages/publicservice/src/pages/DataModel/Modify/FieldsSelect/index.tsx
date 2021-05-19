@@ -57,6 +57,9 @@ const FieldsSelect = (props: IPropsDimensionSelect) => {
   };
 
   useEffect(() => {
+    // getColumnList调用逻辑：
+    // 新增模型时进入到选择维度时，需要通过dsId,schema,tableName字段获取columnList
+    // 新增模型时，修改关联表关联关系时，需要重新获取columnList
     if (window.localStorage.getItem('refreshColumns') === 'true')
       getColumnList(
         modelDetail.joinList
@@ -97,7 +100,7 @@ const FieldsSelect = (props: IPropsDimensionSelect) => {
     /**
      * logic:
      * 当维度选中时，判断对应column是否为度量
-     * 若为度量，直接清楚度量标记
+     * 若为度量，直接清除度量标记
      */
     const key = step === EnumModifyStep.DIMENSION_STEP ? 'dimension' : 'metric';
     const ds = dataSource.map((item) => {
@@ -123,6 +126,9 @@ const FieldsSelect = (props: IPropsDimensionSelect) => {
     const isDimension = step === EnumModifyStep.DIMENSION_STEP;
     let ds = [];
     if (isDimension) {
+      // 维度
+      // 维度可以看到所有的表字段，当维度列全选时，需要将所有的字段的dimension置为true
+      // 同时需要将所有的metric字段置为false
       ds = dataSource.map((item) => {
         return {
           ...item,
@@ -132,6 +138,8 @@ const FieldsSelect = (props: IPropsDimensionSelect) => {
       });
     } else {
       ds = dataSource.map((item) => {
+        // 判断维度是否已经勾选，若已经勾选，不修改metric字段；若未勾选则更新metric字段
+        if (item.dimension === true) return item;
         return {
           ...item,
           metric: selected,

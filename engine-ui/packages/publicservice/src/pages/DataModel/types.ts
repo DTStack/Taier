@@ -53,6 +53,7 @@ export interface FieldColumn {
   columnType: string;
   schema: string;
   tableName: string;
+  tableAlias?: string;
   dimension?: boolean;
   metric?: boolean;
 }

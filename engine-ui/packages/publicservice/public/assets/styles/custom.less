@@ -94,6 +94,27 @@ div:focus{
   }
 }
 
+.cus-modal {
+  &.margin-left-40 {
+    margin-left: 40px;
+  }
+  &.icon {
+    color: #ff5f5c;
+    position: absolute;
+    left: 32px;
+    font-size: 24px;
+    transform: translateY(-8px);
+  }
+  &.btn-delete {
+    background: #ff5f5c !important;
+    outline: none;
+    border: none;
+    &:hover {
+      background-color: #ff5f5caa !important;
+    }
+  }
+}
+
 // 表单渲染，宽度600px,textarea无效
 .dm-form-item {
   width: 600px!important;
