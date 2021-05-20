@@ -217,7 +217,6 @@ public class AlertController {
 
     }
 
-
     @PostMapping("/sftp/get")
     @ApiOperation("获得通道的sftp信息")
     public AlterSftpVO sftpGet() {
@@ -229,6 +228,8 @@ public class AlertController {
     public Boolean sftpUpdate(@RequestBody AlterSftpVO vo) {
         return alertChannelService.sftpUpdate(vo);
     }
+
+//    @PostMapping("/sftp/testConnect")
 
 
     private AlterContext buildTestAlterContext(AlertGateTestVO alertGateTestVO) {
