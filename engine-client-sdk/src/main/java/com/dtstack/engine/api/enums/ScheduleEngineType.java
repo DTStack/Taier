@@ -36,7 +36,8 @@ public enum ScheduleEngineType {
     Presto(22, "presto"),
     KING_BASE(23,"kingbase"),
     INCEPTOR_SQL(24,"inceptor"),
-    DTSCRIPT_AGENT(25,"dtscript-agent");
+    DTSCRIPT_AGENT(25,"dtscript-agent"),
+    ANALYTICDB_FOR_PG(26,"adb-postgresql");
 
     private int val;
 

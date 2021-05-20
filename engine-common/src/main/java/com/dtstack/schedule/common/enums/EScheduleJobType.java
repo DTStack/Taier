@@ -1,5 +1,6 @@
 package com.dtstack.schedule.common.enums;
 
+import com.dtstack.engine.common.constrant.ComponentConstant;
 import com.dtstack.engine.common.exception.RdosDefineException;
 
 /**
@@ -43,6 +44,7 @@ public enum EScheduleJobType {
     NOT_DO_TASK(27,"空任务",-1,0),
     INCEPTOR_SQL(28,"Inceptor SQL",0,4),
     DTSCRIPT_AGENT(29,"DtScript Agent",0,4),
+    ANALYTICDB_FOR_PG(30, ComponentConstant.ANALYTICDB_FOR_PG_ENGINE,0,4),
     ;
 
 
