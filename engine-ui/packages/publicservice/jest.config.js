@@ -9,7 +9,6 @@ module.exports = {
   testResultsProcessor: 'jest-sonar-reporter',
   transformIgnorePatterns: [
     `/node_modules/(?!(dt-common|dt-react-component|dt-react-codemirror-editor))`, // Ignore modules without dt-common dir
-    'node_modules\/(?!(monaco-editor)\/)'
   ],
   testPathIgnorePatterns: ['/node_modules/'],
   testMatch: [
@@ -29,5 +28,6 @@ module.exports = {
     '^services(.*)$': '<rootDir>/src/services$1',
     '^utils(.*)$': '<rootDir>/src/utils$1',
     '^layouts(.*)$': '<rootDir>/src/layouts$1',
+    "monaco-editor": "<rootDir>/mock/monacoMock.js"
   },
 };
