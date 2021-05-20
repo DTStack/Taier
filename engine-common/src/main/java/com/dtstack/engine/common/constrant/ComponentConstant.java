@@ -7,12 +7,12 @@ package com.dtstack.engine.common.constrant;
  */
 public class ComponentConstant {
 
-    public static final String ANALYTICDB_FOR_PG_NAME = "adb-postgrepsql";
-    public static final String ANALYTICDB_FOR_PG_CONFIG_NAME = "AdbPostgrepsqlConf";
+    public static final String ANALYTICDB_FOR_PG_NAME = "adb-postgresql";
+    public static final String ANALYTICDB_FOR_PG_CONFIG_NAME = "AdbPostgresqlConf";
     /**
      * 插件名
      */
-    public static final String ANALYTICDB_FOR_PG_PLUGIN = "adb-postgrepsql";
+    public static final String ANALYTICDB_FOR_PG_PLUGIN = "adb-postgresql";
     /**
      * 引擎名
      */
