@@ -1,6 +1,10 @@
 package com.dtstack.engine.api.enums;
 
 
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 /**
  * Reason:
  * Date: 2017/2/20
@@ -46,6 +50,11 @@ public enum ScheduleEngineType {
     ScheduleEngineType(int val, String engineName) {
         this.val = val;
         this.engineName = engineName;
+    }
+
+    private static final Map<String ,ScheduleEngineType> ENGINE_CACHE;
+    static {
+        ENGINE_CACHE = Arrays.stream(values()).collect(Collectors.toConcurrentMap(ScheduleEngineType::getEngineName,val->val));
     }
 
     public int getVal() {
@@ -120,7 +129,8 @@ public enum ScheduleEngineType {
                 return ScheduleEngineType.Presto;
             case "kingbase":
                 return ScheduleEngineType.KING_BASE;
+            default:
+                return ENGINE_CACHE.get(type);
         }
-        return null;
     }
 }
