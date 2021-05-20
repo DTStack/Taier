@@ -364,7 +364,8 @@ export const ENGIN_TYPE_TEXT = {
     [ENGINE_TYPE.TI_DB]: 'TiDB',
     [ENGINE_TYPE.ORACLE]: 'Oracle',
     [ENGINE_TYPE.GREEN_PLUM]: 'GreenPlum',
-    [ENGINE_TYPE.PRESTO]: 'Presto'
+    [ENGINE_TYPE.PRESTO]: 'Presto',
+    [ENGINE_TYPE.FLINK_ON_STANDALONE]: 'Flink on Standalone'
 }
 
 export const ENGINE_TYPE_ARRAY = [{ // 引擎类型下拉框数据
