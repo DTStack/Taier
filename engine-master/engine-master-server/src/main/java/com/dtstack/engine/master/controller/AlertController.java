@@ -8,6 +8,7 @@ import com.dtstack.engine.api.domain.po.ClusterAlertPO;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.param.ClusterAlertPageParam;
 import com.dtstack.engine.api.param.ClusterAlertParam;
+import com.dtstack.engine.api.vo.AlterSftpVO;
 import com.dtstack.engine.api.vo.alert.AlertGateTestVO;
 import com.dtstack.engine.api.vo.alert.AlertGateVO;
 import com.dtstack.engine.common.env.EnvironmentContext;
@@ -215,6 +216,20 @@ public class AlertController {
         }
 
     }
+
+
+    @PostMapping("/sftp/get")
+    @ApiOperation("获得通道的sftp信息")
+    public AlterSftpVO sftpGet() {
+        return alertChannelService.sftpGet();
+    }
+
+    @PostMapping("/sftp/update")
+    @ApiOperation("获得通道的sftp信息")
+    public Boolean sftpUpdate(@RequestBody AlterSftpVO vo) {
+        return alertChannelService.sftpUpdate(vo);
+    }
+
 
     private AlterContext buildTestAlterContext(AlertGateTestVO alertGateTestVO) {
         AlertGateCode parse = AlertGateCode.parse(alertGateTestVO.getAlertGateCode());
