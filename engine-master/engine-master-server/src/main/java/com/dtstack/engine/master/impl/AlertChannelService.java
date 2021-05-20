@@ -336,9 +336,7 @@ public class AlertChannelService {
         EComponentType sftp = EComponentType.SFTP;
         String pluginName = EComponentType.convertPluginNameByComponent(sftp);
 
-        JSONObject dataInfo = new JSONObject();
-        dataInfo.put("componentName", EComponentType.getByCode(sftp.getTypeCode()).getName().toLowerCase());
-        dataInfo = JSONObject.parseObject(JSON.toJSONString(sftpConfig));
+        JSONObject dataInfo = JSONObject.parseObject(JSON.toJSONString(sftpConfig));
         dataInfo.put("componentType", EComponentType.SFTP.getName());
         return workerOperator.testConnect(pluginName, dataInfo.toJSONString());
     }
