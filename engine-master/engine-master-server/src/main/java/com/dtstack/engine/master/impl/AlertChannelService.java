@@ -10,6 +10,7 @@ import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.param.ClusterAlertPageParam;
 import com.dtstack.engine.api.param.ClusterAlertParam;
 import com.dtstack.engine.api.pojo.ClientTemplate;
+import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.AlterSftpVO;
 import com.dtstack.engine.api.vo.alert.AlertGateVO;
 import com.dtstack.engine.common.enums.EComponentType;
@@ -17,11 +18,13 @@ import com.dtstack.engine.common.enums.EFrontType;
 import com.dtstack.engine.common.enums.IsDefaultEnum;
 import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.util.ComponentConfigUtils;
 import com.dtstack.engine.dao.AlertChannelDao;
 import com.dtstack.engine.api.domain.AlertChannel;
 import com.dtstack.engine.dao.ComponentConfigDao;
 import com.dtstack.engine.dao.ScheduleDictDao;
+import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.enums.DictType;
 import com.dtstack.engine.master.event.SftpDownloadEvent;
 import com.github.pagehelper.Page;
@@ -55,6 +58,9 @@ public class AlertChannelService {
 
     @Autowired
     private ComponentConfigService componentConfigService;
+
+    @Autowired
+    private WorkerOperator workerOperator;
 
 
     @Transactional
@@ -321,4 +327,14 @@ public class AlertChannelService {
     }
 
 
+    public ComponentTestResult sftpTestConnect(SftpConfig sftpConfig) {
+        if (sftpConfig == null) {
+            throw new RdosDefineException("sftp未配置或者未保存，请先配置或者保存后在进行测试联通性");
+        }
+
+        String pluginName = EComponentType.convertPluginNameByComponent(EComponentType.SFTP);
+
+
+        return null;
+    }
 }

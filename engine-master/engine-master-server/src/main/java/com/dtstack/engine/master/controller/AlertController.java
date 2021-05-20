@@ -8,6 +8,7 @@ import com.dtstack.engine.api.domain.po.ClusterAlertPO;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.param.ClusterAlertPageParam;
 import com.dtstack.engine.api.param.ClusterAlertParam;
+import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.AlterSftpVO;
 import com.dtstack.engine.api.vo.alert.AlertGateTestVO;
 import com.dtstack.engine.api.vo.alert.AlertGateVO;
@@ -229,8 +230,10 @@ public class AlertController {
         return alertChannelService.sftpUpdate(vo);
     }
 
-//    @PostMapping("/sftp/testConnect")
-
+    @PostMapping("/sftp/testConnect")
+    public ComponentTestResult  sftpTestConnect(){
+        return alertChannelService.sftpTestConnect(sftpDownloadEvent.getSftpConfig());
+    }
 
     private AlterContext buildTestAlterContext(AlertGateTestVO alertGateTestVO) {
         AlertGateCode parse = AlertGateCode.parse(alertGateTestVO.getAlertGateCode());
