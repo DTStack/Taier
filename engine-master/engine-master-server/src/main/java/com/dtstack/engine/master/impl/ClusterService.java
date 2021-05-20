@@ -221,9 +221,10 @@ public class ClusterService implements InitializingBean {
         if (type == null) {
             return null;
         }
-        if(deployMode.equals(EDeployMode.STANDALONE.getType()) && EngineType.isFlink(engineTypeStr)){
+        if(EngineType.isFlink(engineTypeStr) && deployMode.equals(EDeployMode.STANDALONE.getType()) ){
             //flink standalone模式需要走flink_on_standalone组件
             engineTypeStr = EComponentType.FLINK_ON_STANDALONE.getConfName();
+            type = EngineTypeComponentType.FLINK_ON_STANDALONE;
         }
         ClusterVO cluster = getClusterByTenant(dtUicTenantId);
         if (cluster == null) {
@@ -563,7 +564,6 @@ public class ClusterService implements InitializingBean {
             pluginInfo.put(TYPE_NAME,"dtscript-agent");
         } else if (EComponentType.FLINK_ON_STANDALONE==type.getComponentType()){
             flinkOnStandaloneInfo(clusterConfigJson,pluginInfo);
-            pluginInfo.put(TYPE_NAME,"flink-on-standalone");
         }
         else {
             //flink spark 需要区分任务类型
