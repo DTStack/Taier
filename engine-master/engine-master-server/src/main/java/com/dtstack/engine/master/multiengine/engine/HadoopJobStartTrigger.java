@@ -316,13 +316,21 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                     pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, DataBaseType.Impala.getTypeName());
                     workerOperator.executeQuery(DataBaseType.Impala.getTypeName(), pluginInfo.toJSONString(), alterSql, db);
                     location = this.getTableLocation(pluginInfo, db, DataBaseType.Impala.getTypeName(), String.format("DESCRIBE formatted %s", tableName));
-                } else if (DataSourceType.HIVE.getVal() == sourceType || DataSourceType.HIVE1X.getVal() == sourceType) {
-                    String jdbcInfo = clusterService.getConfigByKey(dtuicTenantId,EComponentType.SPARK_THRIFT.getConfName(), true,null);
+                } else if (DataSourceType.hadoopDirtyDataSource.contains(sourceType)) {
+                    String jdbcInfo = clusterService.getConfigByKey(dtuicTenantId, EComponentType.SPARK_THRIFT.getConfName(), true, null);
                     JSONObject pluginInfo = JSONObject.parseObject(jdbcInfo);
-                    String engineType = DataSourceType.HIVE.getVal() == sourceType ? DataBaseType.HIVE.getTypeName() : DataBaseType.HIVE1X.getTypeName();
+                    if (null == pluginInfo || pluginInfo.size() == 0) {
+                        //hive server 作为metadata
+                        jdbcInfo = clusterService.getConfigByKey(dtuicTenantId, EComponentType.HIVE_SERVER.getConfName(), true, null);
+                        pluginInfo = JSONObject.parseObject(jdbcInfo);
+                    }
+                    String engineType = DataBaseType.getHiveTypeName(DataSourceType.getSourceType(sourceType));
                     pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, engineType);
                     workerOperator.executeQuery(engineType, pluginInfo.toJSONString(), alterSql, db);
-                    location = this.getTableLocation(pluginInfo, db,engineType, String.format("desc formatted %s", tableName));
+                    location = this.getTableLocation(pluginInfo, db, engineType, String.format("desc formatted %s", tableName));
+                }
+                if (StringUtils.isBlank(location)) {
+                    LOGGER.warn("table {} replace dirty path is null,dirtyType {} ", tableName, sourceType);
                 }
                 String partName = String.format("task_name=%s/time=%s", taskName, time);
                 path = location + "/" + partName;
