@@ -11,5 +11,6 @@ export const defaultOptions: any = {
   fontSize: 13,
   iconsInSuggestions: false,
   fixedOverflowWidgets: true,
-  renderControlCharacters: true
-}
+  renderControlCharacters: true,
+  enableSplitViewResizing: false, // 禁用编辑器resize
+};

@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Tabs, Spin } from 'antd';
-import CodeBlock from '../components/CodeBlock';
 import { API } from '@/services';
 import Message from 'pages/DataModel/components/Message';
-import './style';
 import { IModelDetail } from '../types';
 import VersionHistory from './VersionHistory';
 import ModelBasicInfo from './ModelBasicInfo';
+import SqlPreview from './SqlPreview';
 const { TabPane } = Tabs;
+import './style';
 
 interface IPropsDetail {
   modelId: number;
@@ -78,20 +78,18 @@ const Detail = (props: IPropsDetail) => {
         <div className="drawer-title">{modelDetail.modelName}</div>
         <Tabs type="card">
           <TabPane tab="基本信息" key="1">
-            <ModelBasicInfo modelDetail={modelDetail} />
+            <div className="pane-container">
+              <ModelBasicInfo modelDetail={modelDetail} />
+            </div>
           </TabPane>
           <TabPane tab="SQL信息" key="2">
             <div className="pane-container">
-              <div className="card-container">
-                <div className="inner-container">
-                  <CodeBlock code={code} />
-                </div>
-              </div>
+              <SqlPreview code={code} />
             </div>
           </TabPane>
           <TabPane tab="版本变更" key="3">
             <div className="pane-container">
-              <VersionHistory />
+              <VersionHistory modelId={modelDetail.id} />
             </div>
           </TabPane>
         </Tabs>

@@ -1,166 +1,143 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Table, Pagination, Button, Modal } from 'antd';
-import ModelBasicInfo from '@/pages/DataModel/Detail/ModelBasicInfo';
-import { columnsGenerator } from './constants';
+import { columnsGenerator, dataSource } from './constants';
 import './style';
-import { IModelDetail } from '../../types';
-import DiffEditor from '@/components/DiffEditor';
+import VersionCompare from '../VersionCompare';
+import VersionDetail from '../VersionDetail';
+import { EnumModalActionType } from './types';
+import mockResolve from '@/utils/mockResolve';
 
-const dataSource = [
-  {
-    "operateTime": "2020-08-22 19:00:00",
-    "operator": "xiaoliu",
-    "version": "V1.1"
-  },
-  {
-    "operateTime": "2020-08-22 19:00:00",
-    "operator": "xiaoliu",
-    "version": "V1.2"
-  },
-  {
-    "operateTime": "2020-08-22 19:00:00",
-    "operator": "xiaoliu",
-    "version": "V1.3"
-  },
-  {
-    "operateTime": "2020-08-22 19:00:00",
-    "operator": "xiaoliu",
-    "version": "V1.4"
-  },
-  {
-    "operateTime": "2020-08-22 19:00:00",
-    "operator": "xiaoliu",
-    "version": "V1.5"
-  },
-  {
-    "operateTime": "2020-08-22 19:00:00",
-    "operator": "xiaoliu",
-    "version": "V1.6"
-  },
-];
-
-const mockDetail: IModelDetail = {
-  "step": 5,
-  "id": 58,
-  "modelStatus": -1,
-  "modelName": "asdf",
-  "modelEnName": "asdfasdf",
-  "dsId": 1,
-  "dsType": 1,
-  "dsTypeName": "Presto",
-  "dsUrl": "eyJqZGJjVXJsIjoiamRiYzpwcmVzdG86Ly8xNzIuMTYuMjMuMjM6ODA4MC9oaXZlL3RhZ19lbmdpbmUiLCJ1c2VybmFtZSI6InJvb3QifQ==",
-  "dsName": "_tag_engine_tag",
-  "remark": null,
-  "schema": "flink110_sync2",
-  "tableName": "console_account",
-  "partition": false,
-  "updateType": null,
-  "joinList": [],
-  "columns": [
-    {
-      "schema": "flink110_sync2",
-      "tableName": "console_account",
-      "columnName": "database",
-      "columnType": "varchar",
-      "columnComment": "",
-      "dimension": true,
-      "metric": false,
-      "partition": false
-    },
-    {
-      "schema": "flink110_sync2",
-      "tableName": "console_account",
-      "columnName": "data",
-      "columnType": "varchar",
-      "columnComment": "",
-      "dimension": false,
-      "metric": true,
-      "partition": false
-    },
-    {
-      "schema": "flink110_sync2",
-      "tableName": "console_account",
-      "columnName": "pt",
-      "columnType": "varchar",
-      "columnComment": "",
-      "dimension": false,
-      "metric": false,
-      "partition": false
-    }
-  ],
-  "modelPartition": {
-    "datePartitionColumn": {
-      "schema": "flink110_sync2",
-      "tableName": "console_account",
-      "columnName": "database",
-      "columnType": "varchar",
-      "columnComment": "",
-      "dimension": true,
-      "metric": false,
-      "partition": false
-    },
-    "dateFmt": "yyyy-MM-dd HH:mm:ss",
-    "timePartition": true,
-    "timePartitionColumn": {
-      "schema": "flink110_sync2",
-      "tableName": "console_account",
-      "columnName": "database",
-      "columnType": "varchar",
-      "columnComment": "",
-      "dimension": true,
-      "metric": false,
-      "partition": false
-    },
-    "timeFmt": "HH:mm"
-  },
-  "creator": "admin@dtstack.com",
-  "createTime": "2021-05-18 14:34:28",
+interface IModalAction<T> {
+  type: EnumModalActionType;
+  payload?: T;
 }
 
-const VersionHistory = (props: any) => {
+interface IPropsVersionHistory {
+  modelId: number;
+}
+
+interface IVersionGistoryItem {
+  operateTime: string;
+  operator: string;
+  version: string;
+}
+
+const VersionHistory = (props: IPropsVersionHistory) => {
+  const { modelId } = props;
 
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
-  const [visibleModal, setVisibleModal] = useState<{
+  const [visibleModalDetail, setVisibleModalDetail] = useState<{
     visible: boolean;
-    detail: IModelDetail;
+    modelId: number;
+    version: string;
   }>({
     visible: false,
-    detail: mockDetail
-   });
+    modelId: -1,
+    version: '',
+  });
+
+  const [visibleModelCompare, setVisibleModelCompare] = useState<{
+    visible: boolean;
+    versions?: [string, string];
+  }>({
+    visible: false,
+    versions: ['', ''],
+  });
+  const [versionHistoryList, setVersionHistoryList] = useState<
+    IVersionGistoryItem[]
+  >([]);
+
+  const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+  });
 
   const onSelectedChange = (rowKeys: string[]) => {
     setSelectedRowKeys(rowKeys);
-  }
+  };
+
+  useEffect(() => {
+    setLoading(true);
+    // TODO: 获取版本历史记录列表
+    mockResolve(dataSource).then((res) => {
+      setVersionHistoryList(dataSource);
+      setPagination({
+        current: 1,
+        pageSize: 10,
+        total: 100,
+      });
+      setSelectedRowKeys([]);
+      setLoading(false);
+    });
+  }, [modelId, pagination.current, pagination.pageSize]);
 
   const isDisabledBtn = selectedRowKeys.length !== 2;
 
-
-  const handleModalDetailAction = ({ type, payload }: {type: 'CLOSE' | 'OPEN', payload?: any}) => {
-    switch(type) {
+  const handleModalDetailAction = ({
+    type,
+    payload,
+  }: IModalAction<{
+    modelId: number;
+    version: string;
+  }>) => {
+    switch (type) {
       case 'OPEN':
         // 1. 请求接口获取模型历史详情
         // 2. 修改状态
-        console.log(type, payload);
-        setVisibleModal(() => ({
+        setVisibleModalDetail(() => ({
           visible: true,
-          detail: mockDetail,
-        }))
+          // detail: null,
+          modelId: payload.modelId,
+          version: payload.version,
+        }));
         break;
       case 'CLOSE':
-        setVisibleModal({
+        setVisibleModalDetail({
           visible: false,
-          detail: null,
-        })
+          modelId: -1,
+          version: '',
+        });
         break;
     }
-  }
+  };
+
+  const hadnleModalCompareAction = ({
+    type,
+    payload,
+  }: IModalAction<[string, string]>) => {
+    switch (type) {
+      case 'CLOSE':
+        setVisibleModelCompare({
+          visible: false,
+          versions: ['', ''],
+        });
+        break;
+      case 'OPEN':
+        setVisibleModelCompare({
+          visible: true,
+          versions: payload,
+        });
+        break;
+    }
+  };
+
+  const handlePaginationChange = (current, pageSize) => {
+    setPagination((pagination) => ({
+      ...pagination,
+      current,
+      pageSize,
+    }));
+  };
 
   const columns = useMemo(() => {
     return columnsGenerator({
-      handleModalDetailAction
-    })
+      handleModalDetailAction,
+      modelId,
+    });
   }, []);
-  
+
   return (
     <div className="version-history">
       <div className="version-history-content">
@@ -168,14 +145,15 @@ const VersionHistory = (props: any) => {
           rowKey="version"
           rowSelection={{
             selectedRowKeys,
-            onChange: onSelectedChange
+            onChange: onSelectedChange,
           }}
-          dataSource={dataSource}
+          loading={loading}
+          dataSource={versionHistoryList}
           columns={columns as any}
           pagination={false}
           // TODO: 表格滚动高度计算
           scroll={{
-            y: 300
+            y: 300,
           }}
         />
       </div>
@@ -184,36 +162,70 @@ const VersionHistory = (props: any) => {
           showSizeChanger={true}
           size="small"
           className="float-right"
-          total={100}
-          pageSize={10}
+          total={pagination.total}
+          pageSize={pagination.pageSize}
+          current={pagination.current}
+          onChange={handlePaginationChange}
         />
-        <Button className="ml-20" type="primary" disabled={isDisabledBtn}>版本对比</Button>
+        <Button
+          className="ml-20"
+          type="primary"
+          disabled={isDisabledBtn}
+          onClick={() =>
+            hadnleModalCompareAction({
+              type: EnumModalActionType.OPEN,
+              payload: ['1.1', '1.2'],
+            })
+          }>
+          版本对比
+        </Button>
       </div>
       <Modal
-        visible={visibleModal.visible}
-        title="版本记录v1.1"
-        onOk={() => handleModalDetailAction({ type: 'CLOSE' })}
-        onCancel={() => handleModalDetailAction({ type: 'CLOSE' })}
-      >
-        <ModelBasicInfo
-          modelDetail={visibleModal.detail}
-          visibleRelationView={false}
+        visible={visibleModalDetail.visible}
+        title={`版本记录${visibleModalDetail.version}`}
+        className="modal-version-detail"
+        onCancel={() =>
+          handleModalDetailAction({ type: EnumModalActionType.CLOSE })
+        }
+        footer={
+          <Button
+            type="primary"
+            onClick={() =>
+              handleModalDetailAction({ type: EnumModalActionType.CLOSE })
+            }>
+            确定
+          </Button>
+        }
+        destroyOnClose={true}>
+        <VersionDetail
+          modelId={visibleModalDetail.modelId}
+          version={visibleModalDetail.version}
         />
       </Modal>
       <Modal
-        visible={true}
-      >
-        <DiffEditor
-          style={{ height: '200px' }}
-          original={{ value: 'select * from A' }}
-          modified={{ value: 'select username form A\nselect b from c' }}
-          options={{ readOnly: true }}
-          sync={true}
-          language="text"
+        visible={visibleModelCompare.visible}
+        className="modal-version-compare"
+        title="版本对比"
+        destroyOnClose={true}
+        footer={
+          <Button
+            type="primary"
+            onClick={() =>
+              hadnleModalCompareAction({ type: EnumModalActionType.CLOSE })
+            }>
+            确定
+          </Button>
+        }
+        onCancel={() => {
+          hadnleModalCompareAction({ type: EnumModalActionType.CLOSE });
+        }}>
+        <VersionCompare
+          modelId={modelId}
+          versions={selectedRowKeys as [string, string]}
         />
       </Modal>
     </div>
-  )
-}
+  );
+};
 
 export default VersionHistory;
