@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.alert.enums.AlertGateTypeEnum;
@@ -332,9 +333,13 @@ public class AlertChannelService {
             throw new RdosDefineException("sftp未配置或者未保存，请先配置或者保存后在进行测试联通性");
         }
 
-        String pluginName = EComponentType.convertPluginNameByComponent(EComponentType.SFTP);
+        EComponentType sftp = EComponentType.SFTP;
+        String pluginName = EComponentType.convertPluginNameByComponent(sftp);
 
-
-        return null;
+        JSONObject dataInfo = new JSONObject();
+        dataInfo.put("componentName", EComponentType.getByCode(sftp.getTypeCode()).getName().toLowerCase());
+        dataInfo = JSONObject.parseObject(JSON.toJSONString(sftpConfig));
+        dataInfo.put("componentType", EComponentType.SFTP.getName());
+        return workerOperator.testConnect(pluginName, dataInfo.toJSONString());
     }
 }
