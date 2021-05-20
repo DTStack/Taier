@@ -393,7 +393,7 @@ public class ScheduleTaskShadeService {
             //vos = dealFlowWorkTasks(vos);
         }
 
-        userService.fullUser(vos);
+        userService.fillUser(vos);
         PageResult<List<ScheduleTaskVO>> pageResult = new PageResult<>(vos, count, pageQuery);
         scheduleTaskShadeTaskVO.setPageResult(pageResult);
         return scheduleTaskShadeTaskVO;

@@ -36,7 +36,6 @@ import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
 import com.dtstack.engine.master.queue.JobPartitioner;
-import com.dtstack.engine.master.router.DtRequestParam;
 import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.scheduler.JobParamReplace;
@@ -468,7 +467,7 @@ public class ScheduleJobService {
         } else {
             count = queryNormalJob(batchJobDTO, queryAll, pageQuery, result);
         }
-        userService.fullScheduleJobVO(result);
+        userService.fillScheduleJobVO(result);
         return new PageResult<>(result, count, pageQuery);
     }
 
@@ -654,7 +653,7 @@ public class ScheduleJobService {
             List<com.dtstack.engine.api.vo.ScheduleJobVO> relatedJobVOs= new ArrayList<>(subJobVOs.size());
             subJobVOs.forEach(subJobVO -> relatedJobVOs.add(subJobVO));
             batchJobVO.setRelatedJobs(relatedJobVOs);
-            userService.fullScheduleJobVO(Lists.newArrayList(batchJobVO));
+            userService.fillScheduleJobVO(Lists.newArrayList(batchJobVO));
             return batchJobVO;
         } else {
             throw new RdosDefineException("Only workflow tasks have subordinate nodes");
@@ -1526,7 +1525,7 @@ public class ScheduleJobService {
             resultContent.add(preViewVO);
         }
 
-        userService.fullFillDataJobUserName(resultContent);
+        userService.fillFillDataJobUserName(resultContent);
 
         int totalCount = scheduleJobDao.countFillJobNameDistinctWithOutTask(batchJobDTO);
 
@@ -1979,7 +1978,7 @@ public class ScheduleJobService {
         Set<Long> taskIdSet = scheduleJobs.stream().map(ScheduleJob::getTaskId).collect(Collectors.toSet());
         Integer appType = scheduleJobs.get(0).getAppType();
         List<ScheduleTaskForFillDataDTO> scheduleTaskForFillDataDTOS = scheduleTaskShadeDao.listSimpleTaskByTaskIds(taskIdSet, null, appType);
-        userService.fullScheduleTaskForFillDataDTO(scheduleTaskForFillDataDTOS);
+        userService.fillScheduleTaskForFillDataDTO(scheduleTaskForFillDataDTOS);
         return scheduleTaskForFillDataDTOS.stream().collect(Collectors.toMap(ScheduleTaskForFillDataDTO::getTaskId, scheduleTaskForFillDataDTO -> scheduleTaskForFillDataDTO));
 
     }

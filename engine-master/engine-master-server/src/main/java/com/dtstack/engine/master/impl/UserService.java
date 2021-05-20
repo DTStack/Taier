@@ -40,7 +40,7 @@ public class UserService {
      *
      * @param vos
      */
-    public void fullUser(List<ScheduleTaskVO> vos) {
+    public void fillUser(List<ScheduleTaskVO> vos) {
         if (CollectionUtils.isEmpty(vos)) {
             return;
         }
@@ -116,7 +116,7 @@ public class UserService {
         }
     }
 
-    public void fullFillDataJobUserName(List<ScheduleFillDataJobPreViewVO> resultContent) {
+    public void fillFillDataJobUserName(List<ScheduleFillDataJobPreViewVO> resultContent) {
         Set<Long> userId = resultContent.stream().map(ScheduleFillDataJobPreViewVO::getDutyUserId).collect(Collectors.toSet());
         if (CollectionUtils.isNotEmpty(userId)) {
             List<User> userDb = userDao.getByDtUicUserIds(userId);
@@ -138,7 +138,7 @@ public class UserService {
 
     }
 
-    public void fullScheduleTaskForFillDataDTO(List<ScheduleTaskForFillDataDTO> scheduleTaskForFillDataDTOS) {
+    public void fillScheduleTaskForFillDataDTO(List<ScheduleTaskForFillDataDTO> scheduleTaskForFillDataDTOS) {
         try {
             if (CollectionUtils.isEmpty(scheduleTaskForFillDataDTOS)) {
                 return;
@@ -174,13 +174,13 @@ public class UserService {
 
     }
 
-    public void fullScheduleJobVO(List<ScheduleJobVO> jobVOS) {
+    public void fillScheduleJobVO(List<ScheduleJobVO> jobVOS) {
         try {
             if (CollectionUtils.isEmpty(jobVOS)) {
                 return;
             }
             List<ScheduleTaskVO> taskVOS = jobVOS.stream().map(ScheduleJobVO::getBatchTask).collect(Collectors.toList());
-            fullUser(taskVOS);
+            fillUser(taskVOS);
         } catch (Exception e) {
             LOGGER.error("",e);
         }
