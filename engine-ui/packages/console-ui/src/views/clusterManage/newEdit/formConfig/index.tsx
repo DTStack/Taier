@@ -11,6 +11,7 @@ interface IProps {
     comp: any;
     form: any;
     view: boolean;
+    itemLayout?: any;
 }
 
 const FormItem = Form.Item;
@@ -49,9 +50,10 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
 
     // 渲染单个配置项
     renderConfigItem = (temp: any, groupKey?: string) => {
-        const { form, comp } = this.props
+        const { form, comp, itemLayout } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
         const hadoopVersion = comp?.hadoopVersion ?? ''
+        const layout = itemLayout ?? formItemLayout
         const initialValue = temp.key === 'deploymode' && !isArray(temp.value) ? temp.value.split() : temp.value
 
         let formField = typeCode
@@ -64,7 +66,7 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
                 <span className="c-formConfig__label">{temp.key}</span>
             </Tooltip>}
             key={temp.key}
-            {...formItemLayout}
+            {...layout}
         >
             {form.getFieldDecorator(`${fieldName}.${temp.key.split('.').join('%')}`, {
                 rules: [{
@@ -118,7 +120,7 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
     }
 
     rendeConfigForm = () => {
-        const { comp, form, view } = this.props;
+        const { comp, form, view, itemLayout } = this.props;
         const typeCode = comp?.componentTypeCode ?? ''
         const hadoopVersion = comp?.hadoopVersion ?? ''
         const template = getValueByJson(comp?.componentTemplate) ?? []
@@ -145,6 +147,8 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
                         view={view}
                         template={template}
                         maxWidth={680}
+                        labelCol={itemLayout?.labelCol?.sm?.span}
+                        wrapperCol={itemLayout?.wrapperCol?.sm?.span}
                     /> : null}
                 </>
             }

@@ -95,5 +95,8 @@ export default {
     DEL_ALARM_RULE_LIST: `${CONSOLE_BASE_URL}/alert/delete`,
     GET_ALARM_BY_ID: `${CONSOLE_BASE_URL}/alert/getByAlertId`,
     SET_DEFAULT_ALERT: `${CONSOLE_BASE_URL}/alert/setDefaultAlert`,
-    TEST_ALERT: `${CONSOLE_BASE_URL}/alert/testAlert`
+    TEST_ALERT: `${CONSOLE_BASE_URL}/alert/testAlert`,
+    GET_ALARM_CONFIG: `${CONSOLE_BASE_URL}/alert/sftp/get`,
+    UPDATE_ALARM_CONFIG: `${CONSOLE_BASE_URL}/alert/sftp/update`,
+    TEST_ALARM_CONFIG: `${CONSOLE_BASE_URL}/alert/sftp/testConnect`
 }
