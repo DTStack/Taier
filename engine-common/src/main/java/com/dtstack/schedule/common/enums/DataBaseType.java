@@ -225,4 +225,18 @@ public enum DataBaseType {
         this.typeName = typeName;
     }
 
+    public static String getHiveTypeName(DataSourceType hiveDataSourceType) {
+        switch (hiveDataSourceType) {
+            case HIVE1X:
+                return HIVE1X.getTypeName();
+            case HIVE:
+            case SPARKTHRIFT2_1:
+                return HIVE.getTypeName();
+            case HIVE3:
+                return HIVE3.getTypeName();
+            default:
+                return null;
+        }
+    }
+
 }
