@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.2.0-beta6](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.0-beta5...v4.2.0-beta6) (2021-05-21)
+
+
+### Features
+
+* **partition field:** partition field setting is not allawed when editing model ([52aa4d4](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/52aa4d4136e4f0104f020acc5b33e1e9f8cc5bad))
+
+
+### Bug Fixes
+
+* # bug 37399 ([3570b65](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/3570b65266d7a223f81853c7c6729166a11ab547))
+* # bug 37405 ([83b9d65](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/83b9d65ed2fac9b3d9e9095da5fa37440369c3d5))
+
 ## [4.2.0-beta5](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.0-beta4...v4.2.0-beta5) (2021-05-10)
 
 
