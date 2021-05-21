@@ -2155,4 +2155,8 @@ public class ComponentService {
         multiTestResult.getMultiVersion().add(componentTestResult);
 
     }
+
+    public Component getMetadataComponent(Long clusterId){
+        return componentDao.getMetadataComponent(clusterId);
+    }
 }

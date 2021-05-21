@@ -2,6 +2,8 @@ package com.dtstack.engine.master.multiengine.engine;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
+import com.dtstack.engine.api.domain.Cluster;
+import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskParamShade;
@@ -317,15 +319,20 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                     workerOperator.executeQuery(DataBaseType.Impala.getTypeName(), pluginInfo.toJSONString(), alterSql, db);
                     location = this.getTableLocation(pluginInfo, db, DataBaseType.Impala.getTypeName(), String.format("DESCRIBE formatted %s", tableName));
                 } else if (DataSourceType.hadoopDirtyDataSource.contains(sourceType)) {
-                    String jdbcInfo = clusterService.getConfigByKey(dtuicTenantId, EComponentType.SPARK_THRIFT.getConfName(), true, null);
+                    Cluster cluster = clusterService.getCluster(dtuicTenantId);
+                    Component metadataComponent = componentService.getMetadataComponent(cluster.getId());
+                    EComponentType metadataComponentType = EComponentType.getByCode(null == metadataComponent ? EComponentType.SPARK_THRIFT.getTypeCode() : metadataComponent.getComponentTypeCode());
+                    String jdbcInfo = clusterService.getConfigByKey(dtuicTenantId, metadataComponentType.getConfName(), true, null);
                     JSONObject pluginInfo = JSONObject.parseObject(jdbcInfo);
-                    if (null == pluginInfo || pluginInfo.size() == 0) {
-                        //hive server 作为metadata
-                        jdbcInfo = clusterService.getConfigByKey(dtuicTenantId, EComponentType.HIVE_SERVER.getConfName(), true, null);
-                        pluginInfo = JSONObject.parseObject(jdbcInfo);
-                    }
                     String engineType = DataBaseType.getHiveTypeName(DataSourceType.getSourceType(sourceType));
                     pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, engineType);
+                    pluginInfo.compute(ConfigConstant.JDBCURL, (jdbcUrl, val) -> {
+                        String jdbcUrlVal = (String) val;
+                        if (StringUtils.isBlank(jdbcUrlVal)) {
+                            return null;
+                        }
+                        return jdbcUrlVal.replace("/%s", environmentContext.getComponentJdbcToReplace());
+                    });
                     workerOperator.executeQuery(engineType, pluginInfo.toJSONString(), alterSql, db);
                     location = this.getTableLocation(pluginInfo, db, engineType, String.format("desc formatted %s", tableName));
                 }
@@ -351,7 +358,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
 
         while(var6.hasNext()) {
             List<Object> objects = (List)var6.next();
-            if (objects.get(0).toString().contains("Location:")) {
+            if (objects.get(0).toString().contains("Location")) {
                 location = objects.get(1).toString();
             }
         }
