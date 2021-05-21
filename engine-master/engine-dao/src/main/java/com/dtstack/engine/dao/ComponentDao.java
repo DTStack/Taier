@@ -37,5 +37,7 @@ public interface ComponentDao {
     String getDefaultComponentVersionByClusterAndComponentType(@Param("clusterId") Long clusterId, @Param("componentType") Integer type);
 
     String getDefaultComponentVersionByTenantAndComponentType(@Param("tenantId")Long tenantId,@Param("componentType")Integer componentType);
+
+    Component getMetadataComponent(@Param("clusterId") Long clusterId);
 }
 

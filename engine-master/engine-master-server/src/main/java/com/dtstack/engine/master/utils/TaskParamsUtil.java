@@ -7,6 +7,9 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -62,5 +65,16 @@ public class TaskParamsUtil {
         } else {
             return EDeployMode.SESSION;
         }
+    }
+
+
+    public static Map<String, Object> convertPropertiesToMap(String taskParams) {
+        try {
+            Properties properties = com.dtstack.engine.common.util.PublicUtil.stringToProperties(taskParams);
+            return new HashMap<String, Object>((Map) properties);
+        } catch (IOException e) {
+            LOGGER.error("convertPropertiesToMap {} error", taskParams, e);
+        }
+        return new HashMap<>();
     }
 }
