@@ -271,6 +271,7 @@ public class JobRichOperator {
         }
         //配置了允许过期才能
         if (Expired.EXPIRE.getVal() == isExpire && this.checkExpire(scheduleBatchJob, scheduleType, batchTaskShade)) {
+            checkRunInfo.setStatus(JobCheckStatus.TIME_OVER_EXPIRE);
             return validSelfWithExpire(scheduleBatchJob,checkRunInfo);
         }
         return Boolean.TRUE;
@@ -286,7 +287,7 @@ public class JobRichOperator {
         ScheduleJob scheduleJob = scheduleBatchJob.getScheduleJob();
         if (!DependencyType.SELF_DEPENDENCY_END.getType().equals(scheduleJob.getDependencyType()) &&
                 !DependencyType.SELF_DEPENDENCY_SUCCESS.getType().equals(scheduleJob.getDependencyType())) {
-            return Boolean.TRUE;
+            return Boolean.FALSE;
         }
         //查询当前自依赖任务 今天调度时间前是否有运行中或提交中的任务 如果有 需要等头部运行任务运行完成 才校验自动取消的逻辑
         String todayCycTime = DateTime.now().withTime(0, 0, 0, 0).toString("yyyyMMddHHmmss");
@@ -298,10 +299,9 @@ public class JobRichOperator {
             ScheduleJob waitFinishJob = scheduleJobs.get(0);
             LOGGER.info("jobId {} selfJob {}  has running status [{}],wait running job finish", scheduleJob.getJobId(), waitFinishJob.getJobId(), waitFinishJob.getStatus());
             checkRunInfo.setStatus(JobCheckStatus.TIME_NOT_REACH);
-            return Boolean.FALSE;
+            return Boolean.TRUE;
         }
-        checkRunInfo.setStatus(JobCheckStatus.TIME_OVER_EXPIRE);
-        return Boolean.TRUE;
+        return Boolean.FALSE;
     }
 
     /**
