@@ -10,7 +10,7 @@ import * as React from 'react';
 // import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js';
 // import * as monaco from 'monaco-editor/esm/vs/editor/edcore.main.js';
 // import * as monaco from 'monaco-editor'
-import * as monaco from "monaco-editor";
+import * as monaco from 'monaco-editor';
 import 'monaco-editor/esm/vs/basic-languages/sql/sql.contribution.js';
 import 'monaco-editor/esm/vs/basic-languages/python/python.contribution.js';
 
