@@ -60,7 +60,7 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
                 storeType: currentComp?.storeType ?? '',
                 principal: currentComp?.principal ?? '',
                 principals: currentComp?.principals ?? [],
-                hadoopVersion: mulitple ? hadoopVersion : currentComp.hadoopVersion ?? '',
+                hadoopVersion: mulitple ? hadoopVersion : (currentComp.hadoopVersion || ''),
                 isMetadata: currentComp.isMetadata ? 1 : 0,
                 componentTemplate: isNeedTemp(typeCode)
                     ? (!currentComp.customParam ? '[]' : JSON.stringify(handleCustomParam(currentComp.customParam)))
