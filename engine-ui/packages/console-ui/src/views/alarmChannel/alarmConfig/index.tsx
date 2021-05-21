@@ -1,22 +1,27 @@
 import React, { useState, useEffect } from 'react'
 import { Breadcrumb, Card, Button, Form,
     Modal, Icon, Popconfirm, message } from 'antd'
+import { FormComponentProps } from 'antd/lib/form/Form'
 import Api from '../../../api/console'
-
-import FormConfig from '../../clusterManage/newEdit/formConfig'
-import { COMPONENT_TYPE_VALUE } from '../../clusterManage/newEdit/const'
 import { validateConfig, getConfig, getTemplate,
     formItemLayout, getInitailConfig } from './help'
 
+/** 复用集群管理组件渲染表单逻辑 */
+import FormConfig from '../../clusterManage/newEdit/formConfig'
+import { COMPONENT_TYPE_VALUE } from '../../clusterManage/newEdit/const'
+
 const confirm = Modal.confirm
 
+interface IProps extends FormComponentProps {
+    router?: any;
+}
 interface IState {
     loading: boolean;
     componentConfig: string;
     componentTemplate: string;
 }
 
-const AlarmConfig: React.FC = (props: any) => {
+const AlarmConfig: React.FC<IProps> = (props) => {
     const [state, setState] = useState<IState>({
         loading: false,
         componentConfig: JSON.stringify({}),
@@ -104,6 +109,7 @@ const AlarmConfig: React.FC = (props: any) => {
         const res = await Api.testAlarmConfig()
         if (res.code !== 1) {
             message.error('测试连通性失败')
+            setState(state => ({ ...state, loading: false }))
             return
         }
         message.success('测试连通性成功')
