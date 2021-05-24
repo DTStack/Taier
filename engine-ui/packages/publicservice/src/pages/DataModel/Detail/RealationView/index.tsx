@@ -1,12 +1,13 @@
-import React, { useEffect, useRef } from 'react';
-import { Tooltip, Icon } from 'antd';
-// import classnames from 'classnames';
+import React, { useEffect, useRef, useState } from 'react';
+import { Tooltip } from 'antd';
+import mx from 'mxgraph';
+import classnames from 'classnames';
 declare const window: any;
 window.mxLoadResources = false;
 window.mxForceIncludes = false;
 window.mxResourceExtension = false;
 window.mxLoadStylesheets = false;
-import mx from 'mxgraph';
+import './style';
 
 const mxgraph = mx({
   mxBasePath: '../../../../../node_modules/mxgraph/javascript/src',
@@ -451,14 +452,16 @@ const RelationView = () => {
   }, []);
 
   const refNavigatorContainer = useRef(null);
+  const refMo = useRef(null);
+
+  const [visibleNavigator, setVisibleNabigator] = useState(true);
 
   useEffect(() => {
-    new mxOutline(graph.current, refNavigatorContainer.current);
+    if (!graph.current) return;
+    refMo.current = new mxOutline(graph.current, refNavigatorContainer.current);
   }, []);
 
   const alignCenter = () => {
-    // const { rootCell } = this.props;
-
     graph.current.zoomActual();
     if (rootCell.current) {
       graph.current.scrollCellToVisible(rootCell, true);
@@ -467,8 +470,6 @@ const RelationView = () => {
     }
   };
 
-  // const [outLineVisible, setOutLineVisible] = useState(true);
-
   const zoomIn = () => {
     graph.current.zoomIn();
   };
@@ -476,52 +477,69 @@ const RelationView = () => {
     graph.current.zoomOut();
   };
 
-  // useEffect(() => {
+  useEffect(() => {
+    if (!visibleNavigator) return;
+    refMo.current = new mxOutline(graph.current, refNavigatorContainer.current);
+  }, [visibleNavigator]);
 
-  // }, [outLineVisible]);
-
-  //   const outLine = () => { // 显示导航区
-  //     setOutLineVisible(visible => !visible);
-  //     // this.setState({
-  //     //     outLineVisible: !state.outLineVisible
-  //     // }, () => {
-  //     //     if (!this.outln) {
-  //     //         // 导航器
-  //     //         var outline = document.getElementById('outline');
-  //     //         // eslint-disable-next-line new-cap
-  //     //         this.outln = new mxOutline(this.graph, outline);
-  //     //     }
-  //     // })
-  // }
+  const tools = useRef([
+    {
+      title: '居中',
+      action: alignCenter,
+      icon: 'iconOutlinedxianxing_juzhong',
+    },
+    { title: '放大', action: zoomIn, icon: 'iconOutlinedxianxing_zoom-in' },
+    { title: '缩小', action: zoomOut, icon: 'iconOutlinedxianxing_zoom-in' },
+    { title: '下载', action: () => {}, icon: 'iconOutlinedxianxing_xiazai' },
+  ]);
 
   return (
     <div className="relation-view">
-      <div ref={container} className="releation-view" />
-      <div className="graph_toolbar">
-        <div className="basic_bar">
-          <Tooltip placement="left" title="居中">
-            {/* <i onClick={alignCenter} className='iconfont toolbar-icon icondingwei'/> */}
-            <Icon type="pic-center" onClick={alignCenter} />
-          </Tooltip>
-          <Tooltip placement="left" title="放大">
-            {/* <i onClick={zoomIn} className='iconfont toolbar-icon iconfangda'/> */}
-            <Icon type="plus-circle" onClick={zoomIn} />
-          </Tooltip>
-          <Tooltip placement="left" title="缩小">
-            {/* <i onClick={zoomOut} className='iconfont toolbar-icon iconsuoxiao'/> */}
-            <Icon type="minus-circle" onClick={zoomOut} />
-          </Tooltip>
-          {/* <Tooltip placement="left" title="下载">
-                <i onClick={this.downLoadImage} className='iconfont toolbar-icon icondownload'/>
-            </Tooltip> */}
+      <div className="graph-content">
+        <div ref={container} className="graph-view"></div>
+        <div className="graph-legend"></div>
+      </div>
+      <div className="graph-toolbar">
+        <div className="basic-bar">
+          {tools.current.map((item) => (
+            <div className="tool-item">
+              <Tooltip placement="left" title={item.title}>
+                <i
+                  className={`icon iconfont2 ${item.icon}`}
+                  onClick={item.action}
+                />
+              </Tooltip>
+            </div>
+          ))}
         </div>
-        <div
-          ref={refNavigatorContainer}
-          style={{
-            width: '100px',
-            height: '100px',
-            background: 'orange',
-          }}></div>
+        <div className="nav-bar">
+          <i
+            className={classnames({
+              icon: true,
+              iconfont2: true,
+              iconOutlinedxianxing_daohangqi: true,
+              active: visibleNavigator,
+            })}
+            onClick={() => {
+              setVisibleNabigator(true);
+            }}
+          />
+        </div>
+        {visibleNavigator ? (
+          <div className="nav-content">
+            <div className="nav-content-header">
+              <span className="title">导航器</span>
+              <span
+                className="icon iconfont2 float-right iconOutlinedxianxing_shuangjiantou"
+                onClick={() => {
+                  setVisibleNabigator(false);
+                }}
+              />
+            </div>
+            <div className="nav-content-body" ref={refNavigatorContainer} />
+          </div>
+        ) : null}
+
         {/* <div className="spread_bar">
             <i onClick={outLine} className={classnames('iconfont toolbar-icon iconnavigator', { active: true })}/>
             <div className={classnames('outlineContainer', { active: true })}>
