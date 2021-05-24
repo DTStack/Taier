@@ -89,7 +89,10 @@ const Detail = (props: IPropsDetail) => {
           </TabPane>
           <TabPane tab="版本变更" key="3">
             <div className="pane-container">
-              <VersionHistory modelId={modelDetail.id} />
+              <VersionHistory
+                modelId={modelDetail.id}
+                modelStatus={modelDetail.modelStatus}
+              />
             </div>
           </TabPane>
         </Tabs>

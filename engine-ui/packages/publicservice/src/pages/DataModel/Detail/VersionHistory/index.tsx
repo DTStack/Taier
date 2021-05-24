@@ -1,11 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Table, Pagination, Button, Modal } from 'antd';
-import { columnsGenerator, dataSource } from './constants';
+import { columnsGenerator } from './constants';
 import './style';
 import VersionCompare from '../VersionCompare';
 import VersionDetail from '../VersionDetail';
 import { EnumModalActionType } from './types';
-import mockResolve from '@/utils/mockResolve';
+import { API } from '@/services';
+import Message from '@/pages/DataModel/components/Message';
+import { EnumModelStatus } from '../../types';
 
 interface IModalAction<T> {
   type: EnumModalActionType;
@@ -14,16 +16,17 @@ interface IModalAction<T> {
 
 interface IPropsVersionHistory {
   modelId: number;
+  modelStatus: EnumModelStatus;
 }
 
-interface IVersionGistoryItem {
+interface IVersionHistoryItem {
   operateTime: string;
   operator: string;
   version: string;
 }
 
 const VersionHistory = (props: IPropsVersionHistory) => {
-  const { modelId } = props;
+  const { modelId, modelStatus } = props;
 
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
   const [visibleModalDetail, setVisibleModalDetail] = useState<{
@@ -43,8 +46,9 @@ const VersionHistory = (props: IPropsVersionHistory) => {
     visible: false,
     versions: ['', ''],
   });
+
   const [versionHistoryList, setVersionHistoryList] = useState<
-    IVersionGistoryItem[]
+    IVersionHistoryItem[]
   >([]);
 
   const [loading, setLoading] = useState(false);
@@ -59,17 +63,38 @@ const VersionHistory = (props: IPropsVersionHistory) => {
   };
 
   useEffect(() => {
+    setSelectedRowKeys([]);
+  }, [modelId]);
+
+  // 获取版本历史记录列表
+  const getVersionHistoryList = async (params) => {
     setLoading(true);
-    // TODO: 获取版本历史记录列表
-    mockResolve(dataSource).then((res) => {
-      setVersionHistoryList(dataSource);
-      setPagination({
-        current: 1,
-        pageSize: 10,
-        total: 100,
-      });
-      setSelectedRowKeys([]);
+    try {
+      const { success, data, message } = await API.getVersionHistoryList(
+        params
+      );
+      if (success) {
+        setVersionHistoryList(data.data);
+        setPagination({
+          current: data.currentPage,
+          pageSize: data.pageSize,
+          total: data.totalCount,
+        });
+      } else {
+        Message.error(message);
+      }
+    } catch (error) {
+      Message.error(error.message);
+    } finally {
       setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getVersionHistoryList({
+      modelId,
+      currentPage: pagination.current,
+      pageSize: pagination.pageSize,
     });
   }, [modelId, pagination.current, pagination.pageSize]);
 
@@ -84,11 +109,8 @@ const VersionHistory = (props: IPropsVersionHistory) => {
   }>) => {
     switch (type) {
       case 'OPEN':
-        // 1. 请求接口获取模型历史详情
-        // 2. 修改状态
         setVisibleModalDetail(() => ({
           visible: true,
-          // detail: null,
           modelId: payload.modelId,
           version: payload.version,
         }));
@@ -123,6 +145,20 @@ const VersionHistory = (props: IPropsVersionHistory) => {
     }
   };
 
+  const recoverVersion = async (modelId: number, version: string) => {
+    try {
+      const { success, data, message } = await API.recoverVersion({
+        id: modelId,
+        version,
+      });
+      if (!success) return Message.error(message);
+      if (!data) return Message.success('恢复失败');
+      Message.success('恢复成功');
+    } catch (error) {
+      Message.error(error.message);
+    }
+  };
+
   const handlePaginationChange = (current, pageSize) => {
     setPagination((pagination) => ({
       ...pagination,
@@ -131,10 +167,43 @@ const VersionHistory = (props: IPropsVersionHistory) => {
     }));
   };
 
+  const handleModelRecover = async (modelId, version) => {
+    // TODO: 判断模型是否处于发布状态
+    if (modelStatus === EnumModelStatus.RELEASE) {
+      return Message.error('模型已发布，请先下线模型');
+    }
+    // TODO: 判断模型引用关系，需后端重新定义返回格式
+    const { success, data, message } = await API.isModelReferenced({
+      id: modelId,
+    });
+    if (!success) return Message.error(message);
+    // 请求，查询当前模型下游产品引用情况
+    Modal.confirm({
+      title: (
+        <span className="cus-modal margin-left-40">
+          {`确认将当前模型恢复至V${version}版本吗？`}
+        </span>
+      ),
+      content: data ? (
+        <span className="cus-modal margin-left-40">
+          当前模型已被--、--引用，恢复后可能导致数据异常。
+        </span>
+      ) : null,
+      okText: '确认',
+      cancelText: '取消',
+      onOk: () => {
+        recoverVersion(modelId, version);
+      },
+      icon: (
+        <span className="icon icon-warn cus-modal iconfont2 iconFilltianchong_Warning-Circle-Fill" />
+      ),
+    });
+  };
+
   const columns = useMemo(() => {
     return columnsGenerator({
       handleModalDetailAction,
-      modelId,
+      handleModelRecover,
     });
   }, []);
 
@@ -174,7 +243,7 @@ const VersionHistory = (props: IPropsVersionHistory) => {
           onClick={() =>
             hadnleModalCompareAction({
               type: EnumModalActionType.OPEN,
-              payload: ['1.1', '1.2'],
+              payload: selectedRowKeys as [string, string],
             })
           }>
           版本对比
@@ -221,7 +290,7 @@ const VersionHistory = (props: IPropsVersionHistory) => {
         }}>
         <VersionCompare
           modelId={modelId}
-          versions={selectedRowKeys as [string, string]}
+          versions={visibleModelCompare.versions}
         />
       </Modal>
     </div>

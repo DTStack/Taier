@@ -3,83 +3,10 @@ import { IModelDetail } from '@/pages/DataModel/types';
 import ModelBasicInfo from '../ModelBasicInfo';
 import SqlPreview from '../SqlPreview';
 import PaneTitle from '@/pages/DataModel/components/PaneTitle';
-import mockResolve from '@/utils/mockResolve';
 import LoadingPage from '@/components/LoadingPage';
-
-const mockDetail: IModelDetail = {
-  step: 5,
-  id: 58,
-  modelStatus: -1,
-  modelName: 'asdf',
-  modelEnName: 'asdfasdf',
-  dsId: 1,
-  dsType: 1,
-  dsTypeName: 'Presto',
-  dsUrl:
-    'eyJqZGJjVXJsIjoiamRiYzpwcmVzdG86Ly8xNzIuMTYuMjMuMjM6ODA4MC9oaXZlL3RhZ19lbmdpbmUiLCJ1c2VybmFtZSI6InJvb3QifQ==',
-  dsName: '_tag_engine_tag',
-  remark: null,
-  schema: 'flink110_sync2',
-  tableName: 'console_account',
-  updateType: null,
-  joinList: [],
-  columns: [
-    {
-      schema: 'flink110_sync2',
-      tableName: 'console_account',
-      columnName: 'database',
-      columnType: 'varchar',
-      columnComment: '',
-      dimension: true,
-      metric: false,
-    },
-    {
-      schema: 'flink110_sync2',
-      tableName: 'console_account',
-      columnName: 'data',
-      columnType: 'varchar',
-      columnComment: '',
-      dimension: false,
-      metric: true,
-    },
-    {
-      schema: 'flink110_sync2',
-      tableName: 'console_account',
-      columnName: 'pt',
-      columnType: 'varchar',
-      columnComment: '',
-      dimension: false,
-      metric: false,
-    },
-  ],
-  modelPartition: {
-    datePartitionColumn: {
-      schema: 'flink110_sync2',
-      tableName: 'console_account',
-      columnName: 'database',
-      columnType: 'varchar',
-      columnComment: '',
-      dimension: true,
-      metric: false,
-      partition: false,
-    },
-    dateFmt: 'yyyy-MM-dd HH:mm:ss',
-    timePartition: true,
-    timePartitionColumn: {
-      schema: 'flink110_sync2',
-      tableName: 'console_account',
-      columnName: 'database',
-      columnType: 'varchar',
-      columnComment: '',
-      dimension: true,
-      metric: false,
-      partition: false,
-    },
-    timeFmt: 'HH:mm',
-  },
-  creator: 'admin@dtstack.com',
-  createTime: '2021-05-18 14:34:28',
-};
+import { API } from '@/services';
+import Message from '@/pages/DataModel/components/Message';
+import { EnumSize } from '../types';
 
 interface IPropsVersionDetail {
   modelId: number;
@@ -92,17 +19,29 @@ const VersionDetail = (props: IPropsVersionDetail) => {
   const [modelDetail, setModelDetail] = useState<Partial<IModelDetail>>(null);
   const [sql, setSql] = useState('');
   const [loading, setLoading] = useState(false);
-
   const { modelId, version } = props;
-  console.log(modelId, version);
-  useEffect(() => {
+
+  const getVersionDetail = async (modelId, version) => {
     setLoading(true);
-    mockResolve(mockDetail).then((res) => {
-      setModelDetail(res);
+    try {
+      const detailRes = await API.getVersionDetail({
+        id: modelId,
+        version,
+      });
+      if (!detailRes.success) return Message.error(detailRes.message);
+      setModelDetail(detailRes.data);
+      const sqlRes = await API.previewSql(detailRes.data);
+      if (!sqlRes.success) return Message.error(sqlRes.message);
+      setSql(sqlRes.message);
+    } catch (error) {
+      Message.error(error.message);
+    } finally {
       setLoading(false);
-      // 根据detail获取sql
-      setSql('select * from user');
-    });
+    }
+  };
+
+  useEffect(() => {
+    getVersionDetail(modelId, version);
   }, []);
 
   return (
@@ -111,10 +50,7 @@ const VersionDetail = (props: IPropsVersionDetail) => {
         <LoadingPage style={{ height: '300px' }} />
       ) : (
         <>
-          <ModelBasicInfo
-            modelDetail={modelDetail}
-            visibleRelationView={false}
-          />
+          <ModelBasicInfo modelDetail={modelDetail} size={EnumSize.SMALL} />
           <div>
             <PaneTitle title="SQL信息" />
             <SqlPreview code={sql} />

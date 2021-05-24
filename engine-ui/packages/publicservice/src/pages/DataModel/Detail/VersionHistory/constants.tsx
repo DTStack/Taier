@@ -2,7 +2,10 @@ import React from 'react';
 import { Divider } from 'antd';
 import { EnumModalActionType } from './types';
 
-export const columnsGenerator = ({ handleModalDetailAction, modelId }) => {
+export const columnsGenerator = ({
+  handleModalDetailAction,
+  handleModelRecover,
+}) => {
   return [
     {
       title: '版本号',
@@ -33,7 +36,7 @@ export const columnsGenerator = ({ handleModalDetailAction, modelId }) => {
                 handleModalDetailAction({
                   type: EnumModalActionType.OPEN,
                   payload: {
-                    modelId,
+                    modelId: record.modelId,
                     version: record.version,
                   },
                 });
@@ -41,7 +44,11 @@ export const columnsGenerator = ({ handleModalDetailAction, modelId }) => {
               查看
             </a>
             <Divider type="vertical" />
-            <a className="btn-link" onClick={() => {}}>
+            <a
+              className="btn-link"
+              onClick={() => {
+                handleModelRecover(record.modelId, record.version);
+              }}>
               恢复
             </a>
           </span>
@@ -50,36 +57,3 @@ export const columnsGenerator = ({ handleModalDetailAction, modelId }) => {
     },
   ];
 };
-
-export const dataSource = [
-  {
-    operateTime: '2020-08-22 19:00:00',
-    operator: 'xiaoliu',
-    version: 'V1.1',
-  },
-  {
-    operateTime: '2020-08-22 19:00:00',
-    operator: 'xiaoliu',
-    version: 'V1.2',
-  },
-  {
-    operateTime: '2020-08-22 19:00:00',
-    operator: 'xiaoliu',
-    version: 'V1.3',
-  },
-  {
-    operateTime: '2020-08-22 19:00:00',
-    operator: 'xiaoliu',
-    version: 'V1.4',
-  },
-  {
-    operateTime: '2020-08-22 19:00:00',
-    operator: 'xiaoliu',
-    version: 'V1.5',
-  },
-  {
-    operateTime: '2020-08-22 19:00:00',
-    operator: 'xiaoliu',
-    version: 'V1.6',
-  },
-];

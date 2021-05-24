@@ -3,16 +3,16 @@ import HTable from '../HTable';
 import PaneTitle from '../../components/PaneTitle';
 import DataInfo from '../DataInfo';
 import RelationView from '../RealationView';
-
 import { IModelDetail } from '@/pages/DataModel/types';
+import { EnumSize } from '../types';
 
 interface IPropsModelBasicInfo {
   modelDetail: Partial<IModelDetail>;
-  visibleRelationView?: boolean;
+  size?: EnumSize;
 }
 
 const ModelBasicInfo = (props: IPropsModelBasicInfo) => {
-  const { modelDetail, visibleRelationView = true } = props;
+  const { modelDetail, size = EnumSize.LARGE } = props;
   if (modelDetail === null) return null;
   return (
     <div className="inner-container">
@@ -23,9 +23,10 @@ const ModelBasicInfo = (props: IPropsModelBasicInfo) => {
             ...modelDetail,
             dsName: `${modelDetail.dsName}(${modelDetail.dsTypeName})`,
           }}
+          size={size}
         />
       </div>
-      {visibleRelationView && (
+      {size === EnumSize.LARGE && (
         <div className="margin-bottom-20">
           <PaneTitle title="关联视图" />
           <RelationView />

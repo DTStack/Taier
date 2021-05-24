@@ -1,14 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import DiffEditor from '@/components/DiffEditor';
 import LoadingPage from '@/components/LoadingPage';
-import mockResolve from '@/utils/mockResolve';
+import Message from '@/pages/DataModel/components/Message';
+import { API } from '@/services';
 import './style';
-
-const d = {
-  '1.1':
-    'select * from A\nselect b from c\nselect * from A\nselect b from c\nselect * from A\nselect b from c\nselect * from A\nselect b from c\nselect * from A\nselect b from cselect b from cselect b from cselect b from cselect b from cselect b from cselect b from c',
-  '1.2': 'select username form A\nselect b from c',
-};
 
 interface IPropsVersionCompare {
   modelId: number;
@@ -16,18 +11,35 @@ interface IPropsVersionCompare {
 }
 
 const VersionCompare = (props: IPropsVersionCompare) => {
-  const version = ['1.1', '1.2'];
+  const { modelId, versions } = props;
   const [loading, setLoading] = useState(true);
   const [compareContent, setCompareContent] = useState<[string, string]>([
     '',
     '',
   ]);
 
+  const getSqlByVersion = (modelId, version) => {
+    return API.getVersionDetail({ id: modelId, version })
+      .then(({ success, data, message }) => {
+        if (!success) throw new Error(message);
+        return data;
+      })
+      .then((detail) => API.previewSql(detail))
+      .then(({ success, data, message }) => {
+        if (!success) throw new Error(message);
+        return data;
+      });
+  };
+
   useEffect(() => {
     setLoading(true);
-    Promise.all(version.map((item) => mockResolve<string>(d[item])))
+    if (versions.some((version) => version === '')) return setLoading(false);
+    Promise.all(versions.map((version) => getSqlByVersion(modelId, version)))
       .then((res) => {
         setCompareContent(res as [string, string]);
+      })
+      .catch((error) => {
+        Message.error(error.message);
       })
       .finally(() => {
         setLoading(false);
