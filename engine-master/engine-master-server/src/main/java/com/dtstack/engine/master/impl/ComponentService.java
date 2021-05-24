@@ -10,6 +10,7 @@ import com.dtstack.engine.api.dto.Resource;
 import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.api.pojo.DtScriptAgentLabel;
 import com.dtstack.engine.api.pojo.lineage.ComponentMultiTestResult;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.api.vo.ComponentVO;
@@ -2154,5 +2155,16 @@ public class ComponentService {
         }
         multiTestResult.getMultiVersion().add(componentTestResult);
 
+    }
+
+    public List<DtScriptAgentLabel> getDtScriptAgentLabel(String agentAddress) {
+        try {
+            // 不需要集群信息,dtScriptAgent属于普通rdb,直接获取即可
+            String engineType = EComponentType.convertPluginNameByComponent(EComponentType.DTSCRIPT_AGENT);
+            return workerOperator.getDtScriptAgentLabel(engineType,agentAddress);
+        }catch (Exception e){
+            LOGGER.error("find dtScript Agent label error",e);
+        }
+        return Collections.emptyList();
     }
 }
