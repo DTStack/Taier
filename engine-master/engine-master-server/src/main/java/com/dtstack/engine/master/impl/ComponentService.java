@@ -1602,7 +1602,7 @@ public class ComponentService {
         //flink on standalone处理
         if(EComponentType.FLINK_ON_STANDALONE.getTypeCode().equals(componentType)){
 
-            return String.format("%s%s","standalone-flink",version);
+            return String.format("%s%s",String.format("%s%s","flink",version),"standalone");
         }
         //hive 特殊处理 version
         if (EComponentType.HIVE_SERVER.getTypeCode().equals(componentType) || EComponentType.SPARK_THRIFT.getTypeCode().equals(componentType)) {
