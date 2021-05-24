@@ -107,13 +107,13 @@ const AlarmConfig: React.FC<IProps> = (props) => {
         }
         setState(state => ({ ...state, loading: true }))
         const res = await Api.testAlarmConfig()
-        if (res.code !== 1) {
-            message.error('测试连通性失败')
-            setState(state => ({ ...state, loading: false }))
+        if (res.code == 1 && res?.data?.result) {
+            message.success('测试连通性成功')
+            setState({ ...state, ...params, loading: false })
             return
         }
-        message.success('测试连通性成功')
-        setState({ ...state, ...params, loading: false })
+        message.error('测试连通性失败')
+        setState(state => ({ ...state, loading: false }))
     }
 
     return (
