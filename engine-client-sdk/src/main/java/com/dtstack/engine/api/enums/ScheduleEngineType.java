@@ -120,7 +120,7 @@ public enum ScheduleEngineType {
                 return ScheduleEngineType.Presto;
             case "kingbase":
                 return ScheduleEngineType.KING_BASE;
-            case "flinkOnStandalone":
+            case "flinkonstandalone":
                 return ScheduleEngineType.FLINK_ON_STANDALONE;
         }
         return null;

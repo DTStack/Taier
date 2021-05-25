@@ -741,7 +741,7 @@ public class ActionService {
         }
         // 由于/start接口taskType参数
         EComponentType componentType = useTaskType? ComponentVersionUtil.transformTaskType2ComponentType(paramActionExt.getTaskType()) :
-                EngineTypeComponentType.getByEngineName(paramActionExt.getEngineType()).getComponentType();
+                EngineTypeComponentType.getByEngineName(paramActionExt.getEngineType(),Integer.valueOf(paramActionExt.getDeployMode())).getComponentType();
         // ParamAction中的taskType并非约定的任务和组件,
         if (Objects.nonNull(componentType)){
             scheduleJob.setComponentVersion(componentDao.getDefaultComponentVersionByTenantAndComponentType(

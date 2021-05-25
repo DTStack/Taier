@@ -217,14 +217,9 @@ public class ClusterService implements InitializingBean {
             dummy.put(TYPE_NAME_KEY, EngineType.Dummy.name().toLowerCase());
             return dummy;
         }
-        EngineTypeComponentType type = EngineTypeComponentType.getByEngineName(engineTypeStr);
+        EngineTypeComponentType type = EngineTypeComponentType.getByEngineName(engineTypeStr,deployMode);
         if (type == null) {
             return null;
-        }
-        if(EngineType.isFlink(engineTypeStr) && deployMode.equals(EDeployMode.STANDALONE.getType()) ){
-            //flink standalone模式需要走flink_on_standalone组件
-            engineTypeStr = EComponentType.FLINK_ON_STANDALONE.getConfName();
-            type = EngineTypeComponentType.FLINK_ON_STANDALONE;
         }
         ClusterVO cluster = getClusterByTenant(dtUicTenantId);
         if (cluster == null) {
@@ -337,7 +332,7 @@ public class ClusterService implements InitializingBean {
         try {
             Map actionParam = PublicUtil.objectToMap(action);
             Integer deployMode = MapUtils.getInteger(actionParam, DEPLOY_MODEL);
-            EngineTypeComponentType type = EngineTypeComponentType.getByEngineName(engineName);
+            EngineTypeComponentType type = EngineTypeComponentType.getByEngineName(engineName,deployMode);
 
             if (type == null) {
                 return null;
