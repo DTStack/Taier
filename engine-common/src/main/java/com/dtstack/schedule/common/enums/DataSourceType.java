@@ -234,5 +234,5 @@ public enum DataSourceType {
     }
 
     public static List<DataSourceType> noNeedUserNamePasswordDataSources = Lists.newArrayList(DataSourceType.HBASE,
-            DataSourceType.Phoenix,DataSourceType.HIVE,DataSourceType.SPARKTHRIFT2_1,DataSourceType.HIVE1X,DataSourceType.IMPALA);
+            DataSourceType.Phoenix,DataSourceType.HIVE,DataSourceType.SPARKTHRIFT2_1,DataSourceType.HIVE1X,DataSourceType.IMPALA,DataSourceType.INCEPTOR_SQL);
 }
