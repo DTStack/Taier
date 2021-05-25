@@ -79,7 +79,7 @@
         INSERT IGNORE INTO console_user
         (dtuic_user_id,user_name,email,status,phone_number)
         VALUES
-        <foreach collection="users" item="user" separator="," open="(" close="）">
+        <foreach collection="users" item="user" separator="," open="(" close=")">
             #{user.dtuicUserId},#{user.userName},#{user.email},#{user.status},#{user.phoneNumber}
         </foreach>
     </insert>
