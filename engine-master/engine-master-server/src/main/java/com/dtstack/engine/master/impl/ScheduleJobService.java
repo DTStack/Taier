@@ -18,6 +18,7 @@ import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusCountVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.common.constrant.GlobalConst;
+import com.dtstack.engine.common.constrant.JobResultConstant;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
@@ -2834,7 +2835,12 @@ public class ScheduleJobService {
     }
 
     public String getJobGraphJSON(String jobId) {
-        return scheduleJobDao.getJobGraph(jobId);
+        String jobExtraInfo = scheduleJobDao.getJobExtraInfo(jobId);
+        JSONObject jobExtraObj = JSONObject.parseObject(jobExtraInfo);
+        if (null != jobExtraObj) {
+            return jobExtraObj.getString(JobResultConstant.JOB_GRAPH);
+        }
+        return "";
     }
 
     public void updateNotRuleResult(String jobId,Integer rule,String result) {
