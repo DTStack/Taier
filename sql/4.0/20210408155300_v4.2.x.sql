@@ -6,8 +6,8 @@ ALTER TABLE console_component ADD COLUMN `is_default` TINYINT NOT NULL DEFAULT 1
 -- console_kerberos添加组件版本字段
 ALTER TABLE console_kerberos ADD COLUMN `component_version` VARCHAR ( 25 )  COMMENT '组件版本';
 -- console_kerberos表中组件版本
-DROP PROCEDURE IF EXISTS addKerberosVersion;
-DELIMITER;
+DROP PROCEDURE IF EXISTS addKerberosVersion ;;
+DELIMITER ;;
 CREATE PROCEDURE addKerberosVersion ( ) BEGIN
 	DECLARE type TINYINT;
 	DECLARE version VARCHAR ( 25 );
@@ -29,14 +29,14 @@ label:LOOP
 		FETCH components INTO type,version,cluster;
 		IF lableFlag THEN
 			LEAVE label;
-        END IF;
+END IF;
 		IF version !='' THEN
-            UPDATE console_kerberos ck
-            SET ck.component_version = version
-            WHERE
-              ck.cluster_id = cluster
-              AND ck.component_type = type;
-        END IF;
+UPDATE console_kerberos ck
+SET ck.component_version = version
+WHERE
+        ck.cluster_id = cluster
+  AND ck.component_type = type;
+END IF;
 END LOOP label;
 CLOSE components ;
 COMMIT;
@@ -48,8 +48,8 @@ DROP PROCEDURE IF EXISTS addKerberosVersion;
 -- schedule_task_shade和schedule_job版本
 ALTER TABLE schedule_task_shade ADD COLUMN `component_version` VARCHAR ( 25 )  COMMENT '组件版本';
 ALTER TABLE schedule_job ADD COLUMN `component_version` VARCHAR ( 25 )  COMMENT '组件版本';
-DROP PROCEDURE IF EXISTS addTaskShadeVersion;
-DELIMITER;
+DROP PROCEDURE IF EXISTS addTaskShadeVersion ;;
+DELIMITER ;;
 CREATE PROCEDURE addTaskShadeVersion ( )
 BEGIN
 

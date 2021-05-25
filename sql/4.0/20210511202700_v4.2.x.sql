@@ -1,6 +1,6 @@
 update console_kerberos SET component_version = null;
-DROP PROCEDURE IF EXISTS addKerberosVersion;
-DELIMITER;
+DROP PROCEDURE IF EXISTS addKerberosVersion ;;
+DELIMITER ;;
 CREATE PROCEDURE addKerberosVersion ( ) BEGIN
 	DECLARE type TINYINT;
 	DECLARE version VARCHAR ( 25 );
