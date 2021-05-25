@@ -16,6 +16,7 @@ public class JobLogVO {
     private Timestamp execEndTime;
     private Integer taskType;
     private Integer computeType;
+    private String engineLog;
 
     //经过几次任务重试
     private Integer pageSize;
@@ -84,5 +85,13 @@ public class JobLogVO {
 
     public void setPageIndex(Integer pageIndex) {
         this.pageIndex = pageIndex;
+    }
+
+    public String getEngineLog() {
+        return engineLog;
+    }
+
+    public void setEngineLog(String engineLog) {
+        this.engineLog = engineLog;
     }
 }

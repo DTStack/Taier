@@ -515,7 +515,7 @@ public class ActionService {
         return engineLog;
     }
 
-    public JobLogVO logUnite(String jobId,Integer pageInfo) {
+    public JobLogVO logUnite(String jobId,Integer pageInfo)  throws Exception {
         if (StringUtils.isBlank(jobId)) {
             throw new RdosDefineException("jobId is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
@@ -539,6 +539,9 @@ public class ActionService {
 
         jobLogVO.setExecEndTime(scheduleJob.getExecEndTime());
         jobLogVO.setExecStartTime(scheduleJob.getExecStartTime());
+
+        String engineLog = getEngineLog(jobId, scheduleJob);
+        jobLogVO.setEngineLog(engineLog);
 
         // 封装日志信息
         JSONObject info = new JSONObject();
