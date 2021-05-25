@@ -314,11 +314,11 @@ public class WorkerOperator {
         return (CheckResult) masterServer.sendMessage(new MessageGrammarCheck(jobClient));
     }
 
-    public List<DtScriptAgentLabel> getDtScriptAgentLabel(String engineType,String agentAddress) throws Exception {
+    public List<DtScriptAgentLabel> getDtScriptAgentLabel(String engineType,String pluginInfo) throws Exception {
 
         if (AkkaConfig.isLocalMode()){
-            return clientOperator.getDtScriptAgentLabel(engineType,agentAddress);
+            return clientOperator.getDtScriptAgentLabel(engineType,pluginInfo);
         }
-        return (List<DtScriptAgentLabel>) masterServer.sendMessage(new MessageDtScriptAgentLabel(engineType,agentAddress));
+        return (List<DtScriptAgentLabel>) masterServer.sendMessage(new MessageDtScriptAgentLabel(engineType,pluginInfo));
     }
 }

@@ -114,6 +114,9 @@ public class ComponentController {
         return componentService.isYarnSupportGpus(clusterName);
     }
 
+
+    @RequestMapping(value="/getDtScriptAgentLabel", method = {RequestMethod.POST})
+    @ApiOperation(value = "获取dtScript agent label信息")
     public List<DtScriptAgentLabel> getDtScriptAgentLabel(@DtRequestParam("agentAddress")String agentAddress){
         return componentService.getDtScriptAgentLabel(agentAddress);
     }
