@@ -9,56 +9,35 @@ window.mxResourceExtension = false;
 window.mxLoadStylesheets = false;
 import './style';
 
+enum EnumNodeType {
+  TABLE_NAME = 'TABLE_NAME',
+  COLUMN_NAME = 'COLUMN_NAME',
+  PARTITION_COLUMN = 'PARTITION_COLUMN',
+}
+
 const mxgraph = mx({
   mxBasePath: '../../../../../node_modules/mxgraph/javascript/src',
 });
 
 const _columnList = [
-  {
-    schema: 'tag_engine',
-    tableName: 'dl_user_main',
-    columnName: 'id',
-    columnType: 'varchar',
-    columnComment: '默认主键',
-    dimension: false,
-    metric: true,
-  },
-  {
-    schema: 'tag_engine',
-    tableName: 'dl_user_main',
-    columnName: 'sort_filed',
-    columnType: 'INTEGER',
-    columnComment: '排序字段',
-    dimension: false,
-    metric: true,
-  },
-  {
-    schema: 'tag_engine',
-    tableName: 'dl_user_main',
-    columnName: 'name',
-    columnType: 'varchar',
-    columnComment: '用户名称',
-    dimension: false,
-    metric: true,
-  },
-  {
-    schema: 'tag_engine',
-    tableName: 'dl_user_main',
-    columnName: 'sex',
-    columnType: 'INTEGER',
-    columnComment: '性别',
-    dimension: false,
-    metric: true,
-  },
-  {
-    schema: 'tag_engine',
-    tableName: 'dl_user_main',
-    columnName: 'age',
-    columnType: 'TINYINT',
-    columnComment: '年龄',
-    dimension: false,
-    metric: true,
-  },
+  // {
+  //   schema: 'tag_engine',
+  //   tableName: 'dl_user_main',
+  //   columnName: 'sex',
+  //   columnType: 'INTEGER',
+  //   columnComment: '性别',
+  //   dimension: false,
+  //   metric: true,
+  // },
+  // {
+  //   schema: 'tag_engine',
+  //   tableName: 'dl_user_main',
+  //   columnName: 'age',
+  //   columnType: 'TINYINT',
+  //   columnComment: '年龄',
+  //   dimension: false,
+  //   metric: true,
+  // },
   {
     schema: 'tag_engine',
     tableName: 'dl_user_main',
@@ -94,233 +73,20 @@ const _columnList = [
     columnComment: '消费等级',
     dimension: false,
     metric: true,
-  },
-  {
-    schema: 'tag_engine',
-    tableName: 'dl_user_main',
-    columnName: 'phone',
-    columnType: 'varchar',
-    columnComment: '电话号码',
-    dimension: false,
-    metric: true,
-  },
-  {
-    schema: 'tag_engine',
-    tableName: 'dl_user_main',
-    columnName: 'education',
-    columnType: 'varchar',
-    columnComment: '学历水平',
-    dimension: false,
-    metric: true,
-  },
-  {
-    schema: 'tag_engine',
-    tableName: 'dl_user_main',
-    columnName: 'character',
-    columnType: 'varchar',
-    columnComment: '性格',
-    dimension: false,
-    metric: true,
-  },
-  {
-    schema: 'tag_engine',
-    tableName: 'dl_user_main',
-    columnName: 'income',
-    columnType: 'varchar',
-    columnComment: '收入',
-    dimension: false,
-    metric: true,
-  },
-  {
-    schema: 'tag_engine',
-    tableName: 'dl_user_main',
-    columnName: 'submit_city',
-    columnType: 'varchar',
-    columnComment: '城市',
-    dimension: true,
-    metric: true,
-  },
-  {
-    schema: 'tag_engine',
-    tableName: 'dl_user_main',
-    columnName: 'profession',
-    columnType: 'varchar',
-    columnComment: '职业',
-    dimension: false,
-    metric: true,
-  },
-  {
-    schema: 'tag_engine',
-    tableName: 'dl_user_main',
-    columnName: 'channel',
-    columnType: 'varchar',
-    columnComment: '渠道',
-    dimension: false,
-    metric: true,
-  },
-  {
-    schema: 'tag_engine',
-    tableName: 'dl_user_main',
-    columnName: 'activity_type',
-    columnType: 'varchar',
-    columnComment: '促销',
-    dimension: false,
-    metric: true,
-  },
-  {
-    schema: 'tag_engine',
-    tableName: 'dl_user_main',
-    columnName: 'book_id',
-    columnType: 'varchar',
-    columnComment: 'book_id',
-    dimension: false,
-    metric: true,
-  },
-  {
-    schema: 'tag_engine',
-    tableName: 'dl_user_main',
-    columnName: 'ds',
-    columnType: 'varchar',
-    columnComment: '',
-    dimension: false,
-    metric: true,
-  },
-  {
-    schema: 'tag_engine',
-    tableName: 'dl_book',
-    columnName: 'id',
-    columnType: 'varchar',
-    columnComment: '',
-    dimension: false,
-    metric: true,
-  },
-  {
-    schema: 'tag_engine',
-    tableName: 'dl_book',
-    columnName: 'sort_filed',
-    columnType: 'INTEGER',
-    columnComment: '排序字段',
-    dimension: false,
-    metric: true,
-  },
-  {
-    schema: 'tag_engine',
-    tableName: 'dl_book',
-    columnName: 'bk_name',
-    columnType: 'varchar',
-    columnComment: '',
-    dimension: false,
-    metric: true,
-  },
-  {
-    schema: 'tag_engine',
-    tableName: 'dl_book',
-    columnName: 'cate_lv4_id',
-    columnType: 'varchar',
-    columnComment: '',
-    dimension: false,
-    metric: true,
-  },
-  {
-    schema: 'tag_engine',
-    tableName: 'dl_book',
-    columnName: 'cate_full_name',
-    columnType: 'varchar',
-    columnComment: '',
-    dimension: false,
-    metric: true,
-  },
-  {
-    schema: 'tag_engine',
-    tableName: 'dl_book',
-    columnName: 'page_size',
-    columnType: 'INTEGER',
-    columnComment: '',
-    dimension: false,
-    metric: true,
-  },
-  {
-    schema: 'tag_engine',
-    tableName: 'dl_book',
-    columnName: 'price',
-    columnType: 'INTEGER',
-    columnComment: '',
-    dimension: false,
-    metric: true,
-  },
-  {
-    schema: 'tag_engine',
-    tableName: 'dl_book',
-    columnName: 'isbn',
-    columnType: 'varchar',
-    columnComment: '',
-    dimension: false,
-    metric: true,
-  },
-  {
-    schema: 'tag_engine',
-    tableName: 'dl_book',
-    columnName: 'auth_name',
-    columnType: 'varchar',
-    columnComment: '',
-    dimension: false,
-    metric: true,
-  },
-  {
-    schema: 'tag_engine',
-    tableName: 'dl_book',
-    columnName: 'store_id',
-    columnType: 'varchar',
-    columnComment: '',
-    dimension: false,
-    metric: true,
-  },
-  {
-    schema: 'tag_engine',
-    tableName: 'dl_book',
-    columnName: 'ds',
-    columnType: 'varchar',
-    columnComment: '',
-    dimension: false,
-    metric: true,
-  },
-  {
-    schema: 'tag_engine',
-    tableName: 'dl_user_transaction',
-    columnName: 'id',
-    columnType: 'varchar',
-    columnComment: '默认主键',
-    dimension: false,
-    metric: true,
-  },
-  {
-    schema: 'tag_engine',
-    tableName: 'dl_user_transaction',
-    columnName: 'user_id',
-    columnType: 'varchar',
-    columnComment: '用户id',
-    dimension: false,
-    metric: true,
-  },
-  {
-    schema: 'tag_engine',
-    tableName: 'dl_user_transaction',
-    columnName: 'transaction_count',
-    columnType: 'INTEGER',
-    columnComment: '交易数量',
-    dimension: false,
-    metric: true,
-  },
-  {
-    schema: 'tag_engine',
-    tableName: 'dl_user_transaction',
-    columnName: 'ds',
-    columnType: 'varchar',
-    columnComment: '',
-    dimension: false,
-    metric: true,
-  },
+  }
 ];
+
+enum EnumToolActionType {
+  ZOOM_IN = 'ZOOM_IN',
+  ZOOM_OUT = 'ZOOM_OUT',
+  DOWNLOAD = 'DOWNLOAD',
+  ALIGN_CENTER = 'ALIGN_CENTEr',
+}
+
+interface IToolAction {
+  type: EnumToolActionType,
+  payload?: any;
+}
 
 const {
   mxGraph,
@@ -376,14 +142,37 @@ const RelationView = () => {
       console.log(data);
       const _tableCellList = [];
       // 表名
-      const tableName = 'tableName';
+      const tableName = '<span stlye="color=red">tableName</span>';
       // 字段信息
       const columnList = _columnList;
 
-      const cellWidth = 60;
-      const cellHeight = 20;
+      const cellWidth = 180;
+      const cellHeight = 32;
       const parent = graph.getDefaultParent();
       const height = (columnList.length + 1) * cellHeight;
+      const tableNameCellColor = '#3F87FF';
+      const tableNameFontColor = '#FFFFFF';
+      const colNameCellColor= '#FFFFFF';
+      console.log(height, columnList.length)
+      graph.htmlLabels = true; // label开启html支持
+
+      graph.getLabel = (cell) => {
+        console.log(cell);
+        switch (cell.nodeType) {
+          case EnumNodeType.COLUMN_NAME:
+            return cell.value;
+            return '<span style="position: absolute;top: 0;right: 80px;transform: translate(50%, 0);">'+ cell.value + '</span>';
+          case EnumNodeType.PARTITION_COLUMN:
+            return cell.value;
+            return '<span style="position: absolute;top: 0;right: 80px;transform: translate(50%, 0);">' + cell.value + '</span>';
+          case EnumNodeType.TABLE_NAME:
+            return '<div style="position: absolute;top: 0;right: 80px;transform: translate(50%, 0);">' +
+              '<span style="color: #ffffff" class="iconfont2 iconFilltianchong_biao"></span>' +
+              '<span style="color: #ffffff; vertical-align: 2px; margin-left: 8px;">' + cell.value + '</span>' +
+            '</div>'
+        }
+      }
+
       const parentCell = graph.insertVertex(
         parent,
         null,
@@ -391,7 +180,8 @@ const RelationView = () => {
         0,
         0,
         cellWidth,
-        height
+        height,
+        `strokeColor=${tableNameCellColor}`
       );
       const tableNameCell = graph.insertVertex(
         parentCell,
@@ -401,12 +191,13 @@ const RelationView = () => {
         0,
         cellWidth,
         cellHeight,
-        'fillColor=orange'
+        `fillColor=${tableNameCellColor};fontColor=${tableNameFontColor};strokeColor=${tableNameCellColor}`
       );
+      tableNameCell.nodeType = 'TABLE_NAME';
       tableNameCell.geometry.relative = true;
       _tableCellList.push(tableNameCell);
       columnList.forEach((column, index) => {
-        const scrollTop = (index + 1) / columnList.length;
+        const scrollTop = (index + 1) / (columnList.length + 1);
         const cell = graph.insertVertex(
           parentCell,
           null,
@@ -414,8 +205,10 @@ const RelationView = () => {
           0,
           scrollTop,
           cellWidth,
-          cellHeight
+          cellHeight,
+          `fillColor=${colNameCellColor};strokeColor=#E8E8E8`
         );
+        cell.nodeType = 'COLUMN_NAME';
         cell.geometry.relative = true;
         _tableCellList.push(cell);
       });
@@ -456,26 +249,26 @@ const RelationView = () => {
 
   const [visibleNavigator, setVisibleNabigator] = useState(true);
 
-  useEffect(() => {
-    if (!graph.current) return;
-    refMo.current = new mxOutline(graph.current, refNavigatorContainer.current);
-  }, []);
-
-  const alignCenter = () => {
-    graph.current.zoomActual();
-    if (rootCell.current) {
-      graph.current.scrollCellToVisible(rootCell, true);
-    } else {
-      graph.current.center();
+  const handleToolAction = (action: IToolAction) => {
+    switch (action.type) {
+      case EnumToolActionType.ZOOM_IN:
+        graph.current.zoomIn();
+        break;
+      case EnumToolActionType.ZOOM_OUT:
+        graph.current.zoomOut();
+        break;
+      case EnumToolActionType.ALIGN_CENTER:
+        graph.current.zoomActual();
+        if (rootCell.current) {
+          graph.current.scrollCellToVisible(rootCell, true);
+        } else {
+          graph.current.center();
+        }
+        break;
+      case EnumToolActionType.DOWNLOAD:
+        break;
     }
-  };
-
-  const zoomIn = () => {
-    graph.current.zoomIn();
-  };
-  const zoomOut = () => {
-    graph.current.zoomOut();
-  };
+  }
 
   useEffect(() => {
     if (!visibleNavigator) return;
@@ -485,12 +278,24 @@ const RelationView = () => {
   const tools = useRef([
     {
       title: '居中',
-      action: alignCenter,
+      action: () => handleToolAction({ type: EnumToolActionType.ALIGN_CENTER }),
       icon: 'iconOutlinedxianxing_juzhong',
     },
-    { title: '放大', action: zoomIn, icon: 'iconOutlinedxianxing_zoom-in' },
-    { title: '缩小', action: zoomOut, icon: 'iconOutlinedxianxing_zoom-in' },
-    { title: '下载', action: () => {}, icon: 'iconOutlinedxianxing_xiazai' },
+    {
+      title: '放大',
+      action: () => handleToolAction({ type: EnumToolActionType.ZOOM_IN }),
+      icon: 'iconOutlinedxianxing_zoom-in'
+    },
+    {
+      title: '缩小',
+      action: () => handleToolAction({ type: EnumToolActionType.ZOOM_OUT }),
+      icon: 'iconOutlinedxianxing_zoom-in'
+    },
+    {
+      itle: '下载',
+      action: () => handleToolAction({ type: EnumToolActionType.DOWNLOAD }),
+      icon: 'iconOutlinedxianxing_xiazai'
+    },
   ]);
 
   return (
@@ -539,17 +344,6 @@ const RelationView = () => {
             <div className="nav-content-body" ref={refNavigatorContainer} />
           </div>
         ) : null}
-
-        {/* <div className="spread_bar">
-            <i onClick={outLine} className={classnames('iconfont toolbar-icon iconnavigator', { active: true })}/>
-            <div className={classnames('outlineContainer', { active: true })}>
-                <div className="outline_title">
-                    <div className="name">导航器</div>
-                    <Icon onClick={outLine} className="double-right" type="double-right" />
-                </div>
-                <div className="outline-content" id="outline"></div>
-            </div>
-        </div> */}
       </div>
     </div>
   );
