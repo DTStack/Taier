@@ -145,6 +145,8 @@ public enum DataSourceType {
                 return DataBaseType.Greenplum6;
             case Presto:
                 return DataBaseType.Presto;
+            case HIVE3:
+                return DataBaseType.HIVE3;
             default:
                 throw new RdosDefineException("不支持数据源类型");
         }
@@ -235,7 +237,7 @@ public enum DataSourceType {
     }
 
     public static List<DataSourceType> noNeedUserNamePasswordDataSources = Lists.newArrayList(DataSourceType.HBASE,
-            DataSourceType.Phoenix,DataSourceType.HIVE,DataSourceType.SPARKTHRIFT2_1,DataSourceType.HIVE1X,DataSourceType.IMPALA);
+            DataSourceType.Phoenix,DataSourceType.HIVE,DataSourceType.SPARKTHRIFT2_1,DataSourceType.HIVE1X,DataSourceType.IMPALA,DataSourceType.HIVE3);
 
 
     public static List<Integer> hadoopDirtyDataSource = Lists.newArrayList(
