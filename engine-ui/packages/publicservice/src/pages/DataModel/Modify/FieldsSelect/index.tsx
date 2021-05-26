@@ -34,7 +34,12 @@ const FieldsSelect = (props: IPropsDimensionSelect) => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const getColumnList = async (
-    options: { datasourceId: number; schema: string; tableName: string }[]
+    options: {
+      datasourceId: number;
+      schema: string;
+      tableName: string;
+      tableAlias?: string;
+    }[]
   ) => {
     if (options.length === 0) return;
     setLoading(true);
@@ -67,11 +72,13 @@ const FieldsSelect = (props: IPropsDimensionSelect) => {
             datasourceId: modelDetail.dsId,
             schema: item.schema,
             tableName: item.table,
+            tableAlias: item.tableAlias,
           }))
           .concat({
             datasourceId: modelDetail.dsId,
             schema: modelDetail.schema,
             tableName: modelDetail.tableName,
+            tableAlias: 't0',
           })
       );
     else setDataSource(modelDetail.columns);
