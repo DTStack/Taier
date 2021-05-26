@@ -17,6 +17,10 @@ export function isYarn (typeCode: number): boolean {
     return COMPONENT_TYPE_VALUE.YARN == typeCode
 }
 
+export function isDtscriptAgent (typeCode: number): boolean {
+    return COMPONENT_TYPE_VALUE.DTSCRIPT_AGENT == typeCode
+}
+
 export function isHaveGroup (typeCode: number): boolean {
     return [COMPONENT_TYPE_VALUE.FLINK, COMPONENT_TYPE_VALUE.SPARK,
         COMPONENT_TYPE_VALUE.LEARNING, COMPONENT_TYPE_VALUE.DTYARNSHELL].indexOf(typeCode) > -1

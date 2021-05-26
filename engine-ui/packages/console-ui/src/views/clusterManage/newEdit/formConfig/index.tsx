@@ -4,9 +4,11 @@ import { Input, Form, Radio, Select, Checkbox,
     Tooltip, Row, Col } from 'antd'
 import { COMPONENT_TYPE_VALUE, CONFIG_ITEM_TYPE } from '../const'
 import { getValueByJson, isDeployMode,
-    isRadioLinkage, isCustomType, isMultiVersion } from '../help'
+    isRadioLinkage, isCustomType, isMultiVersion,
+    isDtscriptAgent } from '../help'
 import { formItemLayout } from '../../../../consts'
 import CustomParams from './components/customParams'
+import NodeLabel from './components/nodeLabel'
 interface IProps {
     comp: any;
     form: any;
@@ -73,6 +75,7 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
                 }],
                 initialValue: initialValue
             })(this.renderOptoinsType(temp))}
+            {isDtscriptAgent(typeCode) && <NodeLabel form={form} />}
         </FormItem>
     }
 
@@ -242,8 +245,11 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
     }
 
     render () {
+        const typeCode = this.props.comp?.componentTypeCode ?? ''
+        const className = 'c-formConfig__container ' + (isDtscriptAgent(typeCode) ? 'c-formConfig__full' : '')
+
         return (
-            <div className="c-formConfig__container">
+            <div className={className}>
                 {this.renderComponentsConfig()}
             </div>
         )

@@ -71,6 +71,9 @@ export default {
     UPLOAD_KERBEROS: `${CONSOLE_BASE_URL}/upload/component/uploadKerberos`, // 上传kerberos文件
     UPDATE_KRB5CONF: `${CONSOLE_BASE_URL}/component/updateKrb5Conf`, // 更新krb5文件
 
+    // 4.2版本
+    GET_DTSCRIPT_AGENT_LABEL: `${CONSOLE_BASE_URL}/component/getDtScriptAgentLabel`, // 获取 DtScript Agent 组件节点信息
+
     // 资源管理
     GET_ALL_CLUSTER: `${CONSOLE_BASE_URL}/cluster/getAllCluster`,
     SEARCH_TENANT: `${CONSOLE_BASE_URL}/tenant/pageQuery`,

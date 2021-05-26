@@ -1,0 +1,26 @@
+.c-nodeLable__content {
+    position: absolute;
+    right: -154px
+}
+.c-nodeLable__modal {
+    &__nodes {
+        width: 100%;
+        border: 1px solid #ddd;
+        padding: 12px 12px 0 12px;
+        p {
+            margin-bottom: 8px;
+        }
+    }
+    &__empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        img {
+            width: 80px
+        }
+        span {
+            color: #666666;
+            font-size: 12px;
+        }
+    }
+}
