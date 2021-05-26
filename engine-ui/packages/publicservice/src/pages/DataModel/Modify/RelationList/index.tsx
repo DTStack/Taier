@@ -73,7 +73,8 @@ const RelationList = (props: IPropsRelationList) => {
             return (
               item.tableName === col.tableName &&
               item.schema === col.schema &&
-              item.columnName === col.columnName
+              item.columnName === col.columnName &&
+              item.tableAlias === col.tableAlias
             );
           });
           if (!target)
