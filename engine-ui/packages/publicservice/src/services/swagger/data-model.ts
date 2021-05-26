@@ -14,8 +14,8 @@ export default {
   // TODO: 修改接口参数，临时mock
   // 判断模型是否被下游引用
   isModelReferenced: {
-    method: 'get',
-    url: '/mock/ref.json',
+    method: 'post',
+    url: `${prefix}/checkRef`,
   },
   // 删除模型
   deleteModel: {
