@@ -30,7 +30,14 @@ import PartitionField from './PartitionField';
 import FieldSelect from './FieldsSelect';
 
 const stepRender = (current: EnumModifyStep, params: any) => {
-  const { childRef, modelDetail, globalStep, mode, setModelDetail } = params;
+  const {
+    childRef,
+    modelDetail,
+    globalStep,
+    mode,
+    setModelDetail,
+    setDisabled,
+  } = params;
   switch (current) {
     case EnumModifyStep.BASIC_STEP:
       return (
@@ -50,6 +57,7 @@ const stepRender = (current: EnumModifyStep, params: any) => {
           cref={childRef}
           modelDetail={modelDetail}
           updateModelDetail={setModelDetail}
+          setDisabled={setDisabled}
         />
       );
     case EnumModifyStep.DIMENSION_STEP:
@@ -61,7 +69,9 @@ const stepRender = (current: EnumModifyStep, params: any) => {
         <FieldSelect cref={childRef} step={current} modelDetail={modelDetail} />
       );
     case EnumModifyStep.SETTING_STEP:
-      return <PartitionField cref={childRef} modelDetail={modelDetail} />;
+      return (
+        <PartitionField cref={childRef} modelDetail={modelDetail} mode={mode} />
+      );
   }
 };
 
@@ -74,6 +84,8 @@ const Modify = (props: IPropsModify) => {
   const [current, setCurrent] = useState<EnumModifyStep>(
     EnumModifyStep.BASIC_STEP
   );
+  // 按钮迪纳吉状态
+  const [disabled, setDisabled] = useState(false);
 
   const globalStep = useRef(-1);
 
@@ -234,6 +246,7 @@ const Modify = (props: IPropsModify) => {
                   globalStep: globalStep.current,
                   mode: mode,
                   setModelDetail,
+                  setDisabled,
                 })}
               </div>
               <Modal
@@ -267,6 +280,7 @@ const Modify = (props: IPropsModify) => {
               {current > EnumModifyStep.BASIC_STEP ? (
                 <Button
                   className="margin-right-8 width-80"
+                  disabled={disabled}
                   onClick={handlePrevStep}>
                   上一步
                 </Button>
@@ -275,6 +289,7 @@ const Modify = (props: IPropsModify) => {
                 <Button
                   className="margin-right-8 width-80"
                   type="primary"
+                  disabled={disabled}
                   onClick={handleNextStep}>
                   下一步
                 </Button>
@@ -301,6 +316,7 @@ const Modify = (props: IPropsModify) => {
               ) : null}
               <Button
                 className="margin-right-8 width-80"
+                disabled={disabled}
                 onClick={() => {
                   childRef.current.validate().then((data) => {
                     // 数据同步
@@ -358,6 +374,7 @@ const Modify = (props: IPropsModify) => {
                       });
                     });
                   }}
+                  disabled={disabled}
                   type="primary">
                   保存并发布
                 </Button>

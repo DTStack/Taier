@@ -184,6 +184,8 @@ const DynamicSelect = (props: IPropsDynamicSelect) => {
                       rules: [{ required: true, message: '请选择关联条件' }],
                     })(
                       <Select
+                        showSearch={true}
+                        optionFilterProp="children"
                         dropdownClassName="dm-form-select-drop"
                         placeholder="请选择">
                         {leftColumns.map((item) => {
@@ -207,6 +209,8 @@ const DynamicSelect = (props: IPropsDynamicSelect) => {
                       rules: [{ required: true, message: '请选择关联条件' }],
                     })(
                       <Select
+                        showSearch={true}
+                        optionFilterProp="children"
                         dropdownClassName="dm-form-select-drop"
                         placeholder="请选择">
                         {rightColumns.map((item) => {

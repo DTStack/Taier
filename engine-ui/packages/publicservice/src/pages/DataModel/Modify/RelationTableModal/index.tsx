@@ -270,6 +270,8 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
             <Select
               dropdownClassName="dm-form-select-drop"
               placeholder="请选择表"
+              showSearch={true}
+              optionFilterProp="children"
               disabled={isDisabled}
               onChange={() => {
                 refDynamicSelect.current.resetColumns('left');
@@ -305,6 +307,8 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
               dropdownClassName="dm-form-select-drop"
               disabled={isDisabled}
               placeholder="请选择schema"
+              showSearch={true}
+              optionFilterProp="children"
               onChange={() => {
                 refDynamicSelect.current.resetColumns('right');
                 setFieldsValue({
@@ -330,6 +334,8 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
                   disabled={isDisabled}
                   placeholder="请选择关联表"
                   dropdownClassName="dm-form-select-drop"
+                  showSearch={true}
+                  optionFilterProp="children"
                   onChange={() => {
                     refDynamicSelect.current.resetColumns('right');
                   }}>
