@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.controller;
 
+import com.dtstack.engine.api.domain.CronExceptionVO;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.api.pager.PageResult;
@@ -211,8 +212,8 @@ public class ScheduleTaskShadeController {
     }
 
     @RequestMapping(value = "/checkCronExpression",method = {RequestMethod.POST})
-    public String checkCronExpression(@DtRequestParam("cron") String cron){
-        return scheduleTaskShadeService.checkCronExpression(cron);
+    public CronExceptionVO checkCronExpression(@DtRequestParam("cron") String cron, @DtRequestParam("minPeriod") Long minPeriod){
+        return scheduleTaskShadeService.checkCronExpression(cron,Objects.isNull(minPeriod)?300L:minPeriod);
     }
     @RequestMapping(value = "/recentlyRunTime",method = {RequestMethod.POST})
     public List<String > recentlyRunTime(@DtRequestParam("startDate")String startDate,@DtRequestParam("endDate")String endDate,

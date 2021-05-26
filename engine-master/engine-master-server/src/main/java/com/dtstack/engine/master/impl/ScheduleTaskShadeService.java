@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
@@ -24,6 +25,7 @@ import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.enums.DictType;
 import com.dtstack.engine.master.executor.CronJobExecutor;
 import com.dtstack.engine.master.executor.FillJobExecutor;
+import com.dtstack.engine.master.scheduler.parser.ESchedulePeriodType;
 import com.dtstack.schedule.common.enums.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -753,6 +755,7 @@ public class ScheduleTaskShadeService {
         try {
             List<ScheduleTaskCommit> scheduleTaskCommits = Lists.newArrayList();
             for (ScheduleTaskShadeDTO batchTaskShadeDTO : batchTaskShadeDTOs) {
+                checkSubmitTaskCron(batchTaskShadeDTO);
                 ScheduleTaskCommit scheduleTaskCommit = new ScheduleTaskCommit();
                 scheduleTaskCommit.setAppType(batchTaskShadeDTO.getAppType());
                 scheduleTaskCommit.setCommitId(commitId);
@@ -1015,11 +1018,27 @@ public class ScheduleTaskShadeService {
      * @param expression
      * @return
      */
-    public String checkCronExpression(String cron) {
+    public CronExceptionVO checkCronExpression(String cron,Long minPeriod) {
+        CronSequenceGenerator sequenceGenerator ;
         try {
-            new CronSequenceGenerator(cron);
+           sequenceGenerator = new CronSequenceGenerator(cron);
         }catch (Exception e){
-           return ExceptionUtil.getErrorMessage(e);
+            return new CronExceptionVO(CronExceptionVO.CHECK_EXCEPTION,ExceptionUtil.getErrorMessage(e));
+        }
+        minPeriod*=1000;
+        // 第一次执行的时间
+        Date curRunTime = sequenceGenerator.next(new Date()), nextRunTime ;
+        Date startDateTime = new Date(curRunTime.toInstant().atOffset(DateUtil.DEFAULT_ZONE)
+                .toLocalDate().atStartOfDay().plusSeconds(-1L).toInstant(DateUtil.DEFAULT_ZONE).toEpochMilli());
+
+        Date endTDateTime = new Date(curRunTime.toInstant().atOffset(DateUtil.DEFAULT_ZONE)
+                .toLocalDate().plusDays(1).atStartOfDay().toInstant(DateUtil.DEFAULT_ZONE).toEpochMilli());
+        while (curRunTime.after(startDateTime) && curRunTime.before(endTDateTime)){
+            nextRunTime = sequenceGenerator.next(curRunTime);
+            if (nextRunTime.getTime()- minPeriod < curRunTime.getTime()){
+                return new CronExceptionVO(CronExceptionVO.PERIOD_EXCEPTION,String.format("%s run too frequency and min period = %sS",cron,minPeriod/1000));
+            }
+            curRunTime = nextRunTime;
         }
         return null;
     }
@@ -1058,5 +1077,28 @@ public class ScheduleTaskShadeService {
             curDate = generator.next(curDate);
         }
         return recentlyList;
+    }
+
+    private void checkSubmitTaskCron(ScheduleTaskShadeDTO taskShade){
+        // 优先使用periodType
+        if (taskShade.getPeriodType()!=null &&
+                taskShade.getPeriodType() != ESchedulePeriodType.CUSTOM.getVal()){
+            return;
+        }
+        // 没有periodType再去反序列化
+        JSONObject scheduleConf = JSON.parseObject(taskShade.getScheduleConf());
+        if (Objects.isNull(scheduleConf)){
+            throw new RdosDefineException("empty schedule conf");
+        }
+        // 非自定义调度
+        if (scheduleConf.getInteger("periodType")!=ESchedulePeriodType.CUSTOM.getVal()){
+            return;
+        }
+        String cron = scheduleConf.getString("cron");
+        CronExceptionVO cronExceptionVO = checkCronExpression(cron, 300L);
+        if (Objects.nonNull(cronExceptionVO)){
+            throw new RdosDefineException(cronExceptionVO.getErrMessage());
+        }
+
     }
 }

@@ -219,4 +219,19 @@
                 INNER JOIN console_dtuic_tenant cdt ON cdt.id = cet.tenant_id
                 AND cc.id = #{componentId}
     </select>
+
+
+    <select id="getMetadataComponent" resultType="com.dtstack.engine.api.domain.Component">
+        SELECT
+            c.id,c.engine_id,c.component_name,c.component_type_code,c.gmt_create,c.gmt_modified,c.is_deleted,
+            c.hadoop_version,c.upload_file_name,c.kerberos_file_name,c.is_metadata
+        FROM
+            console_component c
+                LEFT JOIN console_engine ce ON ce.id = c.engine_id
+                LEFT JOIN console_cluster ccl ON ccl.id = ce.cluster_id and ccl.id=#{clusterId}
+        WHERE
+            c.is_metadata = 1
+          and is_default = 1
+          and c.is_deleted = 0 LIMIT 1
+    </select>
 </mapper>

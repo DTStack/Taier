@@ -2205,4 +2205,8 @@ public class ComponentService {
 
 
     }
+
+    public Component getMetadataComponent(Long clusterId){
+        return componentDao.getMetadataComponent(clusterId);
+    }
 }
