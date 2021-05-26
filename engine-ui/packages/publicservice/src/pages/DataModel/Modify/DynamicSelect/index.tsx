@@ -10,6 +10,7 @@ interface ITableItem {
   dsId: number;
   schema: string;
   tableName: string;
+  tableAlias?: string;
 }
 
 interface IPropsDynamicSelect {
@@ -114,7 +115,12 @@ const DynamicSelect = (props: IPropsDynamicSelect) => {
       ],
       setLeftColumns
     );
-  }, [leftTable.dsId, leftTable.schema, leftTable.tableName]);
+  }, [
+    leftTable.dsId,
+    leftTable.schema,
+    leftTable.tableName,
+    leftTable.tableAlias,
+  ]);
 
   useEffect(() => {
     getColumnList(
@@ -178,6 +184,8 @@ const DynamicSelect = (props: IPropsDynamicSelect) => {
                       rules: [{ required: true, message: '请选择关联条件' }],
                     })(
                       <Select
+                        showSearch={true}
+                        optionFilterProp="children"
                         dropdownClassName="dm-form-select-drop"
                         placeholder="请选择">
                         {leftColumns.map((item) => {
@@ -201,6 +209,8 @@ const DynamicSelect = (props: IPropsDynamicSelect) => {
                       rules: [{ required: true, message: '请选择关联条件' }],
                     })(
                       <Select
+                        showSearch={true}
+                        optionFilterProp="children"
                         dropdownClassName="dm-form-select-drop"
                         placeholder="请选择">
                         {rightColumns.map((item) => {

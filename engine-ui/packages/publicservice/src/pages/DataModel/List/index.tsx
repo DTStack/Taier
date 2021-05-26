@@ -163,16 +163,21 @@ const List = (props: IPropList) => {
   }, []);
 
   // 删除按钮点击事件处理，二次确认弹窗
-  const handleDeleteBtnClick = (id) => {
+  const handleDeleteBtnClick = async (id) => {
+    // TODO: 请求判断当前模型是否被下游应用引用
+    const { success, data, message } = await API.isModelReferenced({ id });
+    if (!success) return Message.error(message);
+    let content = '';
+    if (data.ref) {
+      // 数据模型已经被引用
+      const prods = data.prod || [];
+      content = `该模型已经${prods.join('、')}被引用，修改后可能导致数据异常。`;
+    }
     Modal.confirm({
       title: (
         <span className="cus-modal margin-left-40">确认要删除这条模型？</span>
       ),
-      content: (
-        <span className="cus-modal margin-left-40">
-          删除后，已经引用该模型的数据将不可用！
-        </span>
-      ),
+      content: <span className="cus-modal margin-left-40">{content}</span>,
       onOk() {
         handleModelAction({
           type: EnumModelActionType.DELETE,

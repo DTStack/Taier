@@ -1,8 +1,10 @@
 import React from 'react';
-import { Divider, Icon } from 'antd';
+import { Divider, Icon, Modal } from 'antd';
 import { EnumModelActionType } from './types';
 import { EnumModelStatus } from 'pages/DataModel/types';
 import classnames from 'classnames';
+import { API } from '@/services';
+import Message from '@/pages/DataModel/components/Message';
 
 export const modelStatusMap = new Map([
   [EnumModelStatus.UNRELEASE, '未发布'],
@@ -76,11 +78,7 @@ export const columnsGenerator = ({
       ),
       filterMultiple: true,
       render: (text, record) => {
-        return (
-          <span>
-            {record.dsName}({record.dsTypeName})
-          </span>
-        );
+        return `${record.dsName}(${record.dsTypeName})`;
       },
     },
     {
@@ -202,8 +200,28 @@ export const columnsGenerator = ({
         const btnEdit = (
           <a
             className="btn-link"
-            onClick={() => {
-              router.push(`/data-model/edit/${record.id}`);
+            onClick={async () => {
+              // TODO: 根据后端接口定义修改字段
+              const { success, data, message } = await API.isModelReferenced({
+                id: record.id,
+              });
+              if (!success) return Message.error(message);
+              if (data.ref) {
+                const prods = data.prod || [];
+                const title = `该模型已经被${prods.join(
+                  '、'
+                )}引用，修改后可能导致数据异常，确定编辑吗？`;
+                Modal.confirm({
+                  title: title,
+                  onOk: () => {
+                    router.push(`/data-model/edit/${record.id}`);
+                  },
+                  okText: '确定',
+                  cancelText: '取消',
+                });
+              } else {
+                router.push(`/data-model/edit/${record.id}`);
+              }
             }}>
             编辑
           </a>

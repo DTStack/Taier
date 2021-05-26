@@ -11,6 +11,12 @@ export default {
     method: 'get',
     url: `${prefix}/detail`,
   },
+  // TODO: 修改接口参数，临时mock
+  // 判断模型是否被下游引用
+  isModelReferenced: {
+    method: 'post',
+    url: `${prefix}/checkRef`,
+  },
   // 删除模型
   deleteModel: {
     method: 'post',

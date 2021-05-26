@@ -23,15 +23,16 @@ export const joinTypeList = [
 const tableParser = {
   parser: (table: string) => {
     if (!table) return {};
-    const [dsId, schema, tableName] = table.split('-');
+    const [dsId, schema, tableName, tableAlias] = table.split('-');
     return {
       dsId,
       schema,
       tableName,
+      tableAlias,
     };
   },
   encode: (table: TableItem) =>
-    `${table.dsId}-${table.schema}-${table.tableName}`,
+    `${table.dsId}-${table.schema}-${table.tableName}-${table.tableAlias}`,
 };
 
 enum Mode {
@@ -90,6 +91,7 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
               ...data,
               leftTable: table.tableName,
               leftSchema: table.schema,
+              leftTableAlias: table.tableAlias,
               partition: visibleUpdateType,
             };
             refDynamicSelect.current.getJoinPairs().then((joinPairsObj) => {
@@ -123,9 +125,15 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
   });
 
   useEffect(() => {
+    const mainTable: TableItem = {
+      dsId: modelDetail.dsId,
+      schema: value.leftSchema,
+      tableName: value.leftTable,
+      tableAlias: value.leftTableAlias,
+    };
     const leftTable =
       value.leftSchema && value.leftTable
-        ? `${modelDetail.dsId}-${value.leftSchema}-${value.leftTable}`
+        ? tableParser.encode(mainTable)
         : undefined;
     setFieldsValue({
       leftTable,
@@ -219,22 +227,35 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
   const requiredRule = (msg: string) => [{ required: true, message: msg }];
 
   // 表别名重复性校验
-  const repeatValidator = (rule, value, callback) => {
+  const repeatValidator = (rule, tableAlias, callback) => {
     let filter = (v) => true;
     if (mode === Mode.EDIT) {
-      // 编辑状态下需要过滤当前id的表名
-      filter = (item) => item.id !== value.id;
+      // 编辑状态下需要过滤当前别名的表
+      filter = (item) => item.tableAlias !== value.tableAlias;
     }
     const isRepeat =
       tableList
         .filter((item) => item.tableAlias)
         .filter(filter)
-        .findIndex((item) => item.tableAlias === value) === -1;
+        .findIndex((item) => item.tableAlias === tableAlias) === -1;
     if (isRepeat) {
       callback();
     } else {
       callback('表别名不能重复');
     }
+  };
+
+  const securityValidator = (rule, value = '', callback) => {
+    const securityList = ['delete', 'truncate'];
+
+    if (
+      securityList.findIndex((word) =>
+        value.toLowerCase().includes(word.toLocaleLowerCase())
+      ) > -1
+    ) {
+      callback('表名不能包含类似delete、truncate等敏感词汇');
+    }
+    callback();
   };
 
   const leftTable = tableParser.parser(currentFormValue.leftTable);
@@ -249,13 +270,15 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
             <Select
               dropdownClassName="dm-form-select-drop"
               placeholder="请选择表"
+              showSearch={true}
+              optionFilterProp="children"
               disabled={isDisabled}
               onChange={() => {
                 refDynamicSelect.current.resetColumns('left');
               }}>
               {tableList.map((item, index) => (
                 <Select.Option key={index} value={tableParser.encode(item)}>
-                  {item.tableName}
+                  {item.tableName}({item.tableAlias})
                 </Select.Option>
               ))}
             </Select>
@@ -284,6 +307,8 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
               dropdownClassName="dm-form-select-drop"
               disabled={isDisabled}
               placeholder="请选择schema"
+              showSearch={true}
+              optionFilterProp="children"
               onChange={() => {
                 refDynamicSelect.current.resetColumns('right');
                 setFieldsValue({
@@ -309,6 +334,8 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
                   disabled={isDisabled}
                   placeholder="请选择关联表"
                   dropdownClassName="dm-form-select-drop"
+                  showSearch={true}
+                  optionFilterProp="children"
                   onChange={() => {
                     refDynamicSelect.current.resetColumns('right');
                   }}>
@@ -337,14 +364,8 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
                       pattern: /[a-zA-Z]+/,
                       message: '表名至少包含1个英文字母',
                     },
-                    // TODO: 需要吧字符串匹配规则抽出来，临时方案
                     {
-                      pattern: /^((?!delete).)*$/g,
-                      message: '表名不能包含类似delete、truncate等敏感词汇',
-                    },
-                    {
-                      pattern: /^((?!truncate).)*$/g,
-                      message: '表名不能包含类似delete、truncate等敏感词汇',
+                      validator: securityValidator,
                     },
                     {
                       validator: repeatValidator,
