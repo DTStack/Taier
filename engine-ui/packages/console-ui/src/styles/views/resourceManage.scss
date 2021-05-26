@@ -80,7 +80,7 @@
                 padding: 0;
             }
             .ant-tabs-vertical.ant-tabs-left > .ant-tabs-content {
-                padding: 14px 20px;
+                padding: 14px 0px 0 0px;
             }
             .ant-tabs-vertical.ant-tabs-left > .ant-tabs-bar {
                 margin-top: 10px;
@@ -156,8 +156,9 @@
     font-family: PingFangSC-Medium;
     font-size: 12px;
     color: #333333;
-    line-height: 90px;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    padding: 0 60px;
 }
 
 .engine-name {
