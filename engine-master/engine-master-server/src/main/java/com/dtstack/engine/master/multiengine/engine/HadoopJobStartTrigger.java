@@ -456,7 +456,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         }
         pluginInfo.put(ConfigConstant.USERNAME, username);
         pluginInfo.put(ConfigConstant.PASSWORD, password);
-        pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, DataSourceType.getBaseType(sourceType).getTypeName());
+        pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, DataBaseType.getHiveTypeName(DataSourceType.getSourceType(sourceType)));
         if (null == hadoopConfig) {
             return pluginInfo;
         }
