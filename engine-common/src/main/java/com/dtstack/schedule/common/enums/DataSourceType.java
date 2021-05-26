@@ -238,4 +238,11 @@ public enum DataSourceType {
 
     public static List<DataSourceType> noNeedUserNamePasswordDataSources = Lists.newArrayList(DataSourceType.HBASE,
             DataSourceType.Phoenix,DataSourceType.HIVE,DataSourceType.SPARKTHRIFT2_1,DataSourceType.HIVE1X,DataSourceType.IMPALA,DataSourceType.HIVE3);
+
+
+    public static List<Integer> hadoopDirtyDataSource = Lists.newArrayList(
+            DataSourceType.HIVE1X.getVal(),
+            DataSourceType.HIVE.getVal(),
+            DataSourceType.HIVE3.getVal(),
+            DataSourceType.SPARKTHRIFT2_1.getVal());
 }
