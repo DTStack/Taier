@@ -1284,6 +1284,13 @@ public class ComponentService {
                 componentTestResult.setErrorMsg("测试联通性失败");
                 return componentTestResult;
             }
+            // 单组件连通性测试回写yarn的队列信息
+            if (EComponentType.YARN.getTypeCode().equals(componentType)
+                    && componentTestResult.getResult()
+                    && Objects.nonNull(componentTestResult.getClusterResourceDescription())) {
+                    engineService.updateResource(engineId, componentTestResult.getClusterResourceDescription());
+                    queueService.updateQueue(engineId, componentTestResult.getClusterResourceDescription());
+            }
 
         }catch (Throwable e){
             if (Objects.isNull(componentTestResult)){
