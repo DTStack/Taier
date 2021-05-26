@@ -180,7 +180,7 @@ const PartitionField = (props: IPropsPartitionField) => {
               return (
                 <OptGroup key={label} label={label}>
                   {columnsTree[label].map((item) => {
-                    const key = `${item.schema}-${item.tableName}-${item.columnName}`;
+                    const key = columnSrtingParser.encode(item);
                     return (
                       <Select.Option key={key} value={key}>
                         {item.columnName}
@@ -233,7 +233,7 @@ const PartitionField = (props: IPropsPartitionField) => {
                   return (
                     <OptGroup key={label} label={label}>
                       {columnsTree[label].map((item) => {
-                        const key = `${item.schema}-${item.tableName}-${item.columnName}`;
+                        const key = columnSrtingParser.encode(item);
                         return (
                           <Select.Option key={key} value={key}>
                             {item.columnName}

@@ -15,17 +15,18 @@ export const columnsTreeParser = (columns: Partial<FieldColumn>[]) => {
 export const columnSrtingParser = {
   decode: (str: string) => {
     if (!str) return {};
-    const [schema, tableName, columnName] = str.split('-');
+    const [schema, tableName, columnName, tableAlias] = str.split('-');
     return {
       schema,
       tableName,
       columnName,
+      tableAlias,
     };
   },
   encode: (obj) => {
     if (!obj) obj = {};
-    const { schema, tableName, columnName } = obj;
-    if (!schema || !tableName || !columnName) return undefined;
-    return `${schema}-${tableName}-${columnName}`;
+    const { schema, tableName, columnName, tableAlias } = obj;
+    if (!schema || !tableName || !columnName || !tableAlias) return undefined;
+    return `${schema}-${tableName}-${columnName}-${tableAlias}`;
   },
 };
