@@ -415,7 +415,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                     LOGGER.info("create partition dtuicTenantId {} {}", dtuicTenantId, sql);
                     JSONObject pluginInfo = buildDataSourcePluginInfo(parameter.getJSONObject("hadoopConfig"), sourceType, username, password, jdbcUrl);
                     String realDataBase =  pluginInfo.getString("realDataBase");
-                    workerOperator.executeQuery(DataSourceType.getBaseType(sourceType).getTypeName(),pluginInfo.toJSONString(),sql, null != realDataBase ? realDataBase : "");
+                    workerOperator.executeQuery(DataBaseType.getHiveTypeName(DataSourceType.getSourceType(sourceType)),pluginInfo.toJSONString(),sql, null != realDataBase ? realDataBase : "");
                     cleanFileName(parameter);
                     return null;
                 }, environmentContext.getRetryFrequency(), environmentContext.getRetryInterval(), false, null);
