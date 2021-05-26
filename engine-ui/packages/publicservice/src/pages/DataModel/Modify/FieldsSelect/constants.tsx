@@ -62,9 +62,8 @@ export const columnsGenerator = ({ onInputBlur, data }): any[] => {
     {
       title: '表别名',
       width: 120,
-      dataIndex: 'tableName',
+      dataIndex: 'tableAlias',
       ellipsis: true,
-      render: () => '--',
     },
     {
       title: 'schema',

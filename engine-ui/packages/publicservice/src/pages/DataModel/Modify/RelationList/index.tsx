@@ -132,6 +132,7 @@ const RelationList = (props: IPropsRelationList) => {
           datasourceId: item.dsId,
           schema: item.schema,
           tableName: item.tableName,
+          tableAlias: item.tableAlias,
         }));
         // 删除关联表后更新列表
         combineColumnList(params);
@@ -236,6 +237,7 @@ const RelationList = (props: IPropsRelationList) => {
                   datasourceId: item.dsId,
                   schema: item.schema,
                   tableName: item.tableName,
+                  tableAlias: item.tableAlias,
                 }));
                 combineColumnList(params);
               } else {
