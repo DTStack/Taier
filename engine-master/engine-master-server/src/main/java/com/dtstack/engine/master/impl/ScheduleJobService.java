@@ -32,6 +32,7 @@ import com.dtstack.engine.master.queue.JobPartitioner;
 import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
+import com.dtstack.engine.common.util.TaskParamsUtil;
 import com.dtstack.engine.master.vo.BatchSecienceJobChartVO;
 import com.dtstack.engine.master.vo.ScheduleJobVO;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
@@ -60,7 +61,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -79,8 +79,6 @@ public class ScheduleJobService {
     private static final ObjectMapper objMapper = new ObjectMapper();
 
     private static final String DAY_PATTERN = "yyyy-MM-dd";
-
-    private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
     private DateTimeFormatter dayFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
 
@@ -1113,7 +1111,7 @@ public class ScheduleJobService {
         }
         if (EJobType.SYNC.getType() == scheduleJob.getTaskType()) {
             //数据同步需要解析是perjob 还是session
-            EDeployMode eDeployMode = this.parseDeployTypeByTaskParams(batchTask.getTaskParams(),batchTask.getComputeType(), EngineType.Flink.name());
+            EDeployMode eDeployMode = TaskParamsUtil.parseDeployTypeByTaskParams(batchTask.getTaskParams(),batchTask.getComputeType(), EngineType.Flink.name());
             actionParam.put("deployMode", eDeployMode.getType());
         }
         return actionParam;
@@ -1168,52 +1166,6 @@ public class ScheduleJobService {
             return true;
         }
         return false;
-    }
-
-
-    /**
-     * 解析对应数据同步任务的环境参数 获取对应数据同步模式
-     * @param taskParams
-     * @return
-     */
-    private EDeployMode parseDeployTypeByTaskParams(String taskParams, Integer computeType) {
-        try {
-            if (!StringUtils.isBlank(taskParams)) {
-                Properties properties = com.dtstack.engine.common.util.PublicUtil.stringToProperties(taskParams);
-                String flinkTaskRunMode = properties.getProperty("flinkTaskRunMode");
-                if (!StringUtils.isEmpty(flinkTaskRunMode)) {
-                    if (flinkTaskRunMode.equalsIgnoreCase("session")) {
-                        return EDeployMode.SESSION;
-                    } else if (flinkTaskRunMode.equalsIgnoreCase("per_job")) {
-                        return EDeployMode.PERJOB;
-                    } else if (flinkTaskRunMode.equalsIgnoreCase("standalone")) {
-                        return EDeployMode.STANDALONE;
-                    }
-                }
-            }
-        } catch (Exception e) {
-            logger.error(" parseDeployTypeByTaskParams {} error", taskParams, e);
-        }
-        if (ComputeType.STREAM.getType().equals(computeType)) {
-            return EDeployMode.PERJOB;
-        } else {
-            return EDeployMode.SESSION;
-        }
-    }
-
-    /**
-     * 除了flink任务有perjob和session之分外，
-     * 其他任务默认全部为perjob模式
-     * @param taskParams
-     * @param computeType
-     * @param engineType
-     * @return
-     */
-    public EDeployMode parseDeployTypeByTaskParams(String taskParams, Integer computeType, String engineType) {
-        if (StringUtils.isBlank(engineType) || !EngineType.isFlink(engineType)){
-            return EDeployMode.PERJOB;
-        }
-        return parseDeployTypeByTaskParams(taskParams, computeType);
     }
 
 
