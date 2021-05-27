@@ -2162,8 +2162,17 @@ public class ComponentService {
             String pluginInfo = new JSONObject(1).fluentPut("agentAddress",agentAddress).toJSONString();
             // 不需要集群信息,dtScriptAgent属于普通rdb,直接获取即可
             String engineType = EComponentType.convertPluginNameByComponent(EComponentType.DTSCRIPT_AGENT);
-            return workerOperator.getDtScriptAgentLabel(engineType,pluginInfo);
-
+            List<DtScriptAgentLabel> dtScriptAgentLabelList = workerOperator.getDtScriptAgentLabel(engineType, pluginInfo);
+            Map<String, List<DtScriptAgentLabel>> labelGroup = dtScriptAgentLabelList.stream().collect(Collectors.groupingBy(DtScriptAgentLabel::getLabel));
+            List<DtScriptAgentLabel> resultList = new ArrayList<>(labelGroup.size());
+            for (Map.Entry<String, List<DtScriptAgentLabel>> entry : labelGroup.entrySet()) {
+                String ip = entry.getValue().stream().map(DtScriptAgentLabel::getLocalIp).collect(Collectors.joining(","));
+                DtScriptAgentLabel dtScriptAgentLabel = new DtScriptAgentLabel();
+                dtScriptAgentLabel.setLabel(entry.getKey());
+                dtScriptAgentLabel.setLocalIp(ip);
+                resultList.add(dtScriptAgentLabel);
+            }
+            return resultList;
         }catch (Exception e){
             LOGGER.error("find dtScript Agent label error",e);
         }
