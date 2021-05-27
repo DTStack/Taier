@@ -39,6 +39,7 @@ public class ScheduleJobVO extends com.dtstack.engine.api.vo.ScheduleJobVO {
         this.setExecEndTime(scheduleJob.getExecEndTime());
         this.setTaskRule(scheduleJob.getTaskRule());
         this.setAppType(scheduleJob.getAppType());
+        this.setBusinessType(scheduleJob.getBusinessType());
     }
 
     private String getOnlyDate(String date){

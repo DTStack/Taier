@@ -312,5 +312,4 @@ public class WorkerOperator {
         }
         return (CheckResult) masterServer.sendMessage(new MessageGrammarCheck(jobClient));
     }
-
 }

@@ -151,6 +151,9 @@ public class ComponentService {
     @Autowired
     private DataSourceService dataSourceService;
 
+    @Autowired
+    private ScheduleTaskShadeDao scheduleTaskShadeDao;
+
     public static final String VERSION = "version";
 
     /**
@@ -1721,6 +1724,10 @@ public class ComponentService {
             Component component = componentDao.getOne(componentId.longValue()),nextDefaultComponent;
             EngineAssert.assertTrue(component != null, ErrorCode.DATA_NOT_FIND.getDescription());
 
+            if(!canDeleteComponent(component.getId(),component.getComponentTypeCode(),component.getHadoopVersion())){
+                throw new RdosDefineException("can not delete component because have task submit to schedule");
+            }
+
             if (EComponentType.requireComponent.contains(EComponentType.getByCode(component.getComponentTypeCode()))){
                 throw new RdosDefineException(String.format("%s is a required component and cannot be deleted",component.getComponentName()));
             }
@@ -2165,5 +2172,40 @@ public class ComponentService {
 
     public Component getMetadataComponent(Long clusterId){
         return componentDao.getMetadataComponent(clusterId);
+    }
+
+    public List<Component> getComponentVersionByEngineType(Long uicTenantId, String  engineType) {
+        EComponentType componentType = EngineTypeComponentType.getByEngineName(engineType).getComponentType();
+        List<Component > componentVersionList = componentDao.getComponentVersionByEngineType(uicTenantId,componentType.getTypeCode());
+        if (CollectionUtils.isEmpty(componentVersionList)){
+            return Collections.emptyList();
+        }
+        Set<String> distinct = new HashSet<>(2);
+        List<Component> components =new ArrayList<>(2);
+        for (Component component : componentVersionList) {
+            if (distinct.add(component.getHadoopVersion())){
+                components.add(component);
+            }
+        }
+        return components;
+    }
+
+    private boolean canDeleteComponent(Long componentId,Integer componentTypeCode,String componentVersion){
+
+        if (!ComponentVersionUtil.isMultiVersionComponent(componentTypeCode)
+                || StringUtils.isBlank(componentVersion)){
+            return true;
+        }
+        List<Long> useUicTenantList = componentDao.allUseUicTenant(componentId);
+        if (CollectionUtils.isEmpty(useUicTenantList)){
+            return true;
+        }
+
+        if (Objects.nonNull(scheduleTaskShadeDao.hasTaskSubmit(useUicTenantList,componentVersion))){
+            return false;
+        }
+        return true;
+
+
     }
 }

@@ -26,7 +26,7 @@ public class ScheduleFillDataJob extends AppTenantEntity {
      * 发起操作的用户
      */
     @ApiModelProperty(notes = "发起操作的用户")
-    private long createUserId;
+    private Long createUserId;
 
     public String getJobName() {
         return jobName;
@@ -44,11 +44,11 @@ public class ScheduleFillDataJob extends AppTenantEntity {
         this.runDay = runDay;
     }
 
-    public long getCreateUserId() {
+    public Long getCreateUserId() {
         return createUserId;
     }
 
-    public void setCreateUserId(long createUserId) {
+    public void setCreateUserId(Long createUserId) {
         this.createUserId = createUserId;
     }
 

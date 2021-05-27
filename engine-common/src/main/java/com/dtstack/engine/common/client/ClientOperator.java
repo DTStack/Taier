@@ -204,5 +204,4 @@ public class ClientOperator {
         IClient clusterClient = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
         return clusterClient.grammarCheck(jobClient);
     }
-
 }
