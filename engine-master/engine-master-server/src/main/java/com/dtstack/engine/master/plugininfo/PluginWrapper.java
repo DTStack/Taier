@@ -12,7 +12,7 @@ import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
-import com.dtstack.engine.master.utils.TaskParamsUtil;
+import com.dtstack.engine.common.util.TaskParamsUtil;
 import com.dtstack.schedule.common.enums.Deleted;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
@@ -71,7 +71,6 @@ public class PluginWrapper{
         if (null == deployMode && ScheduleEngineType.Flink.getEngineName().equalsIgnoreCase(engineType)) {
             //解析参数
             deployMode = TaskParamsUtil.parseDeployTypeByTaskParams(action.getTaskParams(),action.getComputeType(), EngineType.Flink.name()).getType();
-
         }
         JSONObject pluginInfoJson = clusterService.pluginInfoJSON(tenantId, engineType, action.getUserId(),deployMode);
         String groupName = ConfigConstant.DEFAULT_GROUP_NAME;

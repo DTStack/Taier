@@ -21,7 +21,7 @@ import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.jobdealer.cache.ShardManager;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ScheduleJobService;
-import com.dtstack.engine.master.utils.TaskParamsUtil;
+import com.dtstack.engine.common.util.TaskParamsUtil;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
  * @author toutian
  *         create: 2020/01/17
  */
-public class  JobStatusDealer implements Runnable {
+public class JobStatusDealer implements Runnable {
 
     private final static Logger logger = LoggerFactory.getLogger(JobStatusDealer.class);
 
@@ -158,7 +158,8 @@ public class  JobStatusDealer implements Runnable {
             String taskParams = info.getString("taskParams");
             String pluginInfo = info.getString("pluginInfo");
             Long userId = info.getLong("userId");
-            JobIdentifier jobIdentifier = new JobIdentifier(engineTaskId, appId, jobId,scheduleJob.getDtuicTenantId(),engineType, TaskParamsUtil.parseDeployTypeByTaskParams(taskParams,scheduleJob.getComputeType(),engineType).getType(),userId, pluginInfo);
+            JobIdentifier jobIdentifier = new JobIdentifier(engineTaskId, appId, jobId,scheduleJob.getDtuicTenantId(),engineType,
+                    TaskParamsUtil.parseDeployTypeByTaskParams(taskParams,scheduleJob.getComputeType(),engineType).getType(),userId, pluginInfo);
 
             RdosTaskStatus rdosTaskStatus = workerOperator.getJobStatus(jobIdentifier);
 

@@ -40,7 +40,7 @@ import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.multiengine.engine.HadoopJobStartTrigger;
-import com.dtstack.engine.master.utils.TaskParamsUtil;
+import com.dtstack.engine.common.util.TaskParamsUtil;
 import com.dtstack.engine.master.utils.Template;
 import com.dtstack.engine.master.utils.ValueUtils;
 import com.dtstack.engine.master.vo.ScheduleJobVO;
@@ -271,7 +271,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Transactional
     @Rollback
     public void testParseDeployTypeByTaskParams() {
-        EDeployMode eDeployMode = TaskParamsUtil.parseDeployTypeByTaskParams("flinkTaskRunMode=session",0);
+        EDeployMode eDeployMode = TaskParamsUtil.parseDeployTypeByTaskParams("flinkTaskRunMode=session",0, EngineType.Flink.name());
         Assert.assertEquals(eDeployMode, EDeployMode.SESSION);
     }
 
