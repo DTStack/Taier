@@ -32,6 +32,7 @@ import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.common.enums.EScheduleType;
+import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
