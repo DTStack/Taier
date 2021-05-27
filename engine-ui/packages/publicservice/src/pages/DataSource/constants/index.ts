@@ -51,6 +51,7 @@ export const DATA_SOURCE = {
   KYLIN: 53,
   ELASTICSEARCH: 54,
   PHOENIX: 56,
+  PRESTO:57
 };
 
 export const DATA_SOURCE_TEXT: any = {
@@ -98,6 +99,7 @@ export const DATA_SOURCE_TEXT: any = {
   53: 'Kylin',
   54: 'Elasticsearch',
   56: 'Phoenix',
+  57: 'Presto'
 };
 
 export const PROJECT_TYPE: any = {
