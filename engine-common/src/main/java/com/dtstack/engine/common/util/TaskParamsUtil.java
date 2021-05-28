@@ -1,9 +1,9 @@
-package com.dtstack.engine.master.utils;
+package com.dtstack.engine.common.util;
 
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.common.enums.EngineType;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,10 +44,10 @@ public class TaskParamsUtil {
      */
     public static EDeployMode parseDeployTypeByTaskParams(String taskParams, Integer computeType) {
         try {
-            if (!org.apache.commons.lang.StringUtils.isBlank(taskParams)) {
+            if (!StringUtils.isBlank(taskParams)) {
                 Properties properties = com.dtstack.engine.common.util.PublicUtil.stringToProperties(taskParams);
                 String flinkTaskRunMode = properties.getProperty("flinkTaskRunMode");
-                if (!org.apache.commons.lang.StringUtils.isEmpty(flinkTaskRunMode)) {
+                if (!StringUtils.isEmpty(flinkTaskRunMode)) {
                     if (flinkTaskRunMode.equalsIgnoreCase("session")) {
                         return EDeployMode.SESSION;
                     } else if (flinkTaskRunMode.equalsIgnoreCase("per_job")) {

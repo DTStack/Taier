@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.utils;
 
 import com.dtstack.engine.common.enums.EDeployMode;
+import com.dtstack.engine.common.util.TaskParamsUtil;
 import com.dtstack.engine.master.AbstractTest;
 import org.junit.Assert;
 import org.junit.Test;
