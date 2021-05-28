@@ -52,6 +52,10 @@ INSERT INTO console_component_config (cluster_id, component_id, component_type_c
 INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -114, 20, '', '0', 'true', 'true', NULL, 'metrics.reporter.promgateway.randomJobNameSuffix', NULL, NULL, '2021-05-19 11:48:25', '2021-05-19 11:48:25', '0');
 
 --删除flink的standalone模板
-delete from console_component_config where cluster_id = -2 and component_type_code = 0 and key = "standalone";
+delete from console_component_config where cluster_id = -2 and component_type_code = 0 and `key` = "standalone";
 
 delete from console_component_config where cluster_id = -2 and component_id = -110 and dependencyKey = "deploymode$standalone";
+
+-- 隐藏已经添加standalone模式的flink组件配置
+update console_component_config set is_deleted = 1 where dependencyKey = "deploymode$standalone";
+update console_component_config set is_deleted = 1 where component_type_code = 0 and `key` = "standalone";
