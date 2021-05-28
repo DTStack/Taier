@@ -20,6 +20,7 @@ interface IPropsRelationList {
   modelDetail: Partial<IModelDetail>;
   cref: any;
   updateModelDetail: Function;
+  setDisabled: Function;
 }
 
 enum Mode {
@@ -36,7 +37,7 @@ const identifyJoinList = idGenerator();
 const identifyColumns = idGenerator();
 
 const RelationList = (props: IPropsRelationList) => {
-  const { updateTypeList, modelDetail, cref } = props;
+  const { updateTypeList, modelDetail, cref, setDisabled } = props;
   const [modifyType, setModifyType] = useState<{
     visible: boolean;
     mode: Mode;
@@ -64,6 +65,7 @@ const RelationList = (props: IPropsRelationList) => {
   const combineColumnList = async (joinList: any[]) => {
     const columns = modelDetail.columns || [];
     try {
+      setDisabled(true);
       const { success, message, data } = await API.getDataModelColumns(
         joinList
       );
@@ -99,6 +101,8 @@ const RelationList = (props: IPropsRelationList) => {
       }
     } catch (error) {
       Message.error(error.message);
+    } finally {
+      setDisabled(false);
     }
   };
 

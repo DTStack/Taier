@@ -264,6 +264,7 @@ const RelationTableSelect = (props: IPropsRelationTableSelect) => {
               ...getFieldsValue(),
             }}
             updateModelDetail={props.updateModelDetail}
+            setDisabled={setDisabled}
           />
         </Col>
       </Row>
