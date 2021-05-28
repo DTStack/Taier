@@ -67,6 +67,7 @@ export interface TableJoinInfo {
   schema: string;
   table: string;
   tableAlias: string;
+  leftTableAlias?: string;
   updateType: UPDATA_TYPE;
   joinPairs: JoinKey[];
 }

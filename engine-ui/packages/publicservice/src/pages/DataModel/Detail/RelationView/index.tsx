@@ -3,6 +3,7 @@ import GraphEditor from './GraphEditor';
 
 import './style';
 import _ from 'highlight.js/lib/languages/*';
+import { FieldColumn, IModelDetail, JoinType } from '../../types';
 
 enum EnumNodeType {
   TABLE_NAME = 'TABLE_NAME',
@@ -10,9 +11,30 @@ enum EnumNodeType {
   PARTITION_COLUMN = 'PARTITION_COLUMN',
 }
 
-const tree = {
+interface IRelationTreeJoinItem {
+  tableAlias: string;
+  tableName: string;
+  schema: string;
+  columnType: string;
+  columnName: string;
+}
+
+interface IRelationTree {
+  tableName: string;
+  columns: FieldColumn[];
+  joinInfo: null | {
+    joinType: JoinType;
+    joinPairs: {
+      leftValue: IRelationTreeJoinItem,
+      rightValue: IRelationTreeJoinItem,
+    }[]
+  };
+  children: IRelationTree[];
+}
+
+const tree: IRelationTree = {
   tableName: 'aaaaaaaaaaa',
-  joinPairs: null,
+  joinInfo: null,
   columns: [
     {
       schema: 'tag_engine',
@@ -36,16 +58,27 @@ const tree = {
   children: [
     {
       tableName: 'b',
-      joinPairs: [
-        {
-          leftValue: { tableName: 'aaaaaaaaaaa', columnName: 'aaa' },
-          rightValue: { tableName: 'b', columnName: 'aaa' },
-        },
-        {
-          leftValue: { columnName: 'bbb', tableName: 'aaaaaaaaaaa' },
-          rightValue: { columnName: 'bbb', tableName: 'b' },
-        },
-      ],
+      joinInfo: {
+        joinType: 1,
+        joinPairs: [
+          {
+            leftValue: {
+              tableName: 'aaaaaaaaaaa',
+              columnName: 'aaa',
+              schema: 'string',
+              columnType: '',
+              tableAlias: 'a',
+            },
+            rightValue: {
+              tableName: 'b',
+              columnName: 'aaa',
+              schema: 'string',
+              columnType: '',
+              tableAlias: 'b'
+            }
+          }
+        ]
+      },
       columns: [
         {
           schema: 'tag_engine',
@@ -66,40 +99,59 @@ const tree = {
           metric: true,
         },
       ],
+      children: []
     },
-    {
-      tableName: 'c',
-      joinPairs: [
-        {
-          leftValue: { tableName: 'aaaaaaaaaaa', columnName: 'aaa' },
-          rightValue: { tableName: 'c', columnName: 'aaa' },
-        },
-      ],
-      columns: [
-        {
-          schema: 'tag_engine',
-          tableName: 'dl_user_main',
-          columnName: 'aaa',
-          columnType: 'INTEGER',
-          columnComment: '消费额度',
-          dimension: false,
-          metric: true,
-        },
-        {
-          schema: 'tag_engine',
-          tableName: 'dl_user_main',
-          columnName: 'bbb',
-          columnType: 'varchar',
-          columnComment: '消费等级',
-          dimension: false,
-          metric: true,
-        },
-      ],
-    },
+    // {
+    //   tableName: 'b',
+    //   joinInfo: {
+    //     joinType: 1,
+    //     joinPairs: [
+    //       {
+    //         leftValue: {
+    //           tableName: 'aaaaaaaaaaa',
+    //           columnName: 'aaa',
+    //           schema: 'string',
+    //           columnType: '',
+    //           tableAlias: 'a',
+    //         },
+    //         rightValue: {
+    //           tableName: 'b',
+    //           columnName: 'aaa',
+    //           schema: 'string',
+    //           columnType: '',
+    //           tableAlias: 'b'
+    //         }
+    //       }
+    //     ]
+    //   },
+    //   columns: [
+    //     {
+    //       schema: 'tag_engine',
+    //       tableName: 'dl_user_main',
+    //       columnName: 'aaa',
+    //       columnType: 'INTEGER',
+    //       columnComment: '消费额度',
+    //       dimension: false,
+    //       metric: true,
+    //     },
+    //     {
+    //       schema: 'tag_engine',
+    //       tableName: 'dl_user_main',
+    //       columnName: 'bbb',
+    //       columnType: 'varchar',
+    //       columnComment: '消费等级',
+    //       dimension: false,
+    //       metric: true,
+    //     },
+    //   ],
+    //   children: []
+    // }
   ],
 };
 
-const loop = (tree, cb?) => {
+type LoopCallback = (item: IRelationTree) => void;
+
+const loop = (tree: IRelationTree, cb?: LoopCallback) => {
   const stack = [];
   stack.push(tree);
   while (stack.length > 0) {
@@ -115,7 +167,18 @@ const loop = (tree, cb?) => {
   }
 };
 
-const RelationView = () => {
+interface IPropsRelationView {
+  modelDetail: Partial<IModelDetail>;
+}
+
+const RelationView = (props: IPropsRelationView) => {
+  const { modelDetail } = props;
+  if (!modelDetail.id) return null;
+  console.log(modelDetail)
+
+  // 数据转化成tree格式
+
+
   const graph = useRef(null);
   const rootCell = useRef(null);
   const refGraphEditor = useRef(null);
@@ -237,7 +300,6 @@ const RelationView = () => {
     try {
       rootCell.current = graph.current.getDefaultParent();
       const render = tableRender(graph.current);
-
       const map = new Map();
 
       loop(tree, (item) => {
@@ -247,15 +309,17 @@ const RelationView = () => {
         });
         map.set(item.tableName, list);
         // render relation line
-        if (item.joinPairs) {
-          item.joinPairs.map((joinInfo) => {
-            const leftTableColumnList = map.get(joinInfo.leftValue.tableName);
-            const rightTableColumnList = map.get(joinInfo.rightValue.tableName);
+        const { joinInfo } = item;
+        if (joinInfo) {
+          const joinPairs = joinInfo.joinPairs;
+          joinPairs.map((joinItem) => {
+            const leftTableColumnList = map.get(joinItem.leftValue.tableName);
+            const rightTableColumnList = map.get(joinItem.rightValue.tableName);
             const cellLeftCol = leftTableColumnList.find(
-              (item) => item.value === joinInfo.leftValue.columnName
+              (item) => item.value === joinItem.leftValue.columnName
             );
             const cellRightcol = rightTableColumnList.find(
-              (item) => item.value === joinInfo.rightValue.columnName
+              (item) => item.value === joinItem.rightValue.columnName
             );
             insertEdge(rootCell.current, 'left', cellLeftCol, cellRightcol);
           });

@@ -95,7 +95,7 @@ const Detail = (props: IPropsDetail) => {
 
                 <div className="margin-bottom-20">
                   <PaneTitle title="关联视图" />
-                  <RelationView />
+                  <RelationView modelDetail={modelDetail} />
                 </div>
                 <div className="margin-bottom-20">
                   <PaneTitle title="数据信息" />
