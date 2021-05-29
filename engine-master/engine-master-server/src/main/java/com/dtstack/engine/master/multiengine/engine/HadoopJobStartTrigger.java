@@ -2,6 +2,8 @@ package com.dtstack.engine.master.multiengine.engine;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
+import com.dtstack.engine.api.domain.Cluster;
+import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskParamShade;
@@ -25,7 +27,7 @@ import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.multiengine.JobStartTriggerBase;
 import com.dtstack.engine.master.scheduler.JobParamReplace;
-import com.dtstack.engine.master.utils.TaskParamsUtil;
+import com.dtstack.engine.common.util.TaskParamsUtil;
 import com.dtstack.schedule.common.enums.DataBaseType;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
@@ -316,13 +318,26 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                     pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, DataBaseType.Impala.getTypeName());
                     workerOperator.executeQuery(DataBaseType.Impala.getTypeName(), pluginInfo.toJSONString(), alterSql, db);
                     location = this.getTableLocation(pluginInfo, db, DataBaseType.Impala.getTypeName(), String.format("DESCRIBE formatted %s", tableName));
-                } else if (DataSourceType.HIVE.getVal() == sourceType || DataSourceType.HIVE1X.getVal() == sourceType) {
-                    String jdbcInfo = clusterService.getConfigByKey(dtuicTenantId,EComponentType.SPARK_THRIFT.getConfName(), true,null);
+                } else if (DataSourceType.hadoopDirtyDataSource.contains(sourceType)) {
+                    Cluster cluster = clusterService.getCluster(dtuicTenantId);
+                    Component metadataComponent = componentService.getMetadataComponent(cluster.getId());
+                    EComponentType metadataComponentType = EComponentType.getByCode(null == metadataComponent ? EComponentType.SPARK_THRIFT.getTypeCode() : metadataComponent.getComponentTypeCode());
+                    String jdbcInfo = clusterService.getConfigByKey(dtuicTenantId, metadataComponentType.getConfName(), true, null);
                     JSONObject pluginInfo = JSONObject.parseObject(jdbcInfo);
-                    String engineType = DataSourceType.HIVE.getVal() == sourceType ? DataBaseType.HIVE.getTypeName() : DataBaseType.HIVE1X.getTypeName();
+                    String engineType = DataBaseType.getHiveTypeName(DataSourceType.getSourceType(sourceType));
                     pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, engineType);
+                    pluginInfo.compute(ConfigConstant.JDBCURL, (jdbcUrl, val) -> {
+                        String jdbcUrlVal = (String) val;
+                        if (StringUtils.isBlank(jdbcUrlVal)) {
+                            return null;
+                        }
+                        return jdbcUrlVal.replace("/%s", environmentContext.getComponentJdbcToReplace());
+                    });
                     workerOperator.executeQuery(engineType, pluginInfo.toJSONString(), alterSql, db);
-                    location = this.getTableLocation(pluginInfo, db,engineType, String.format("desc formatted %s", tableName));
+                    location = this.getTableLocation(pluginInfo, db, engineType, String.format("desc formatted %s", tableName));
+                }
+                if (StringUtils.isBlank(location)) {
+                    LOGGER.warn("table {} replace dirty path is null,dirtyType {} ", tableName, sourceType);
                 }
                 String partName = String.format("task_name=%s/time=%s", taskName, time);
                 path = location + "/" + partName;
@@ -343,7 +358,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
 
         while(var6.hasNext()) {
             List<Object> objects = (List)var6.next();
-            if (objects.get(0).toString().contains("Location:")) {
+            if (objects.get(0).toString().contains("Location")) {
                 location = objects.get(1).toString();
             }
         }
@@ -400,7 +415,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                     LOGGER.info("create partition dtuicTenantId {} {}", dtuicTenantId, sql);
                     JSONObject pluginInfo = buildDataSourcePluginInfo(parameter.getJSONObject("hadoopConfig"), sourceType, username, password, jdbcUrl);
                     String realDataBase =  pluginInfo.getString("realDataBase");
-                    workerOperator.executeQuery(DataSourceType.getBaseType(sourceType).getTypeName(),pluginInfo.toJSONString(),sql, null != realDataBase ? realDataBase : "");
+                    workerOperator.executeQuery(DataBaseType.getHiveTypeName(DataSourceType.getSourceType(sourceType)),pluginInfo.toJSONString(),sql, null != realDataBase ? realDataBase : "");
                     cleanFileName(parameter);
                     return null;
                 }, environmentContext.getRetryFrequency(), environmentContext.getRetryInterval(), false, null);
@@ -441,7 +456,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         }
         pluginInfo.put(ConfigConstant.USERNAME, username);
         pluginInfo.put(ConfigConstant.PASSWORD, password);
-        pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, DataSourceType.getBaseType(sourceType).getTypeName());
+        pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, DataBaseType.getHiveTypeName(DataSourceType.getSourceType(sourceType)));
         if (null == hadoopConfig) {
             return pluginInfo;
         }
@@ -522,7 +537,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         if(flinkComponent.isPresent()){
             ComponentsConfigOfComponentsVO componentsVO = flinkComponent.get();
             JSONObject flinkJsonObject = JSONObject.parseObject(componentsVO.getComponentConfig());
-            EDeployMode eDeployMode = TaskParamsUtil.parseDeployTypeByTaskParams(taskParam,computeType,EngineType.Flink.name());
+            EDeployMode eDeployMode = TaskParamsUtil.parseDeployTypeByTaskParams(taskParam,computeType, EngineType.Flink.name());
             JSONObject flinkConfig = flinkJsonObject.getJSONObject(eDeployMode.getMode());
             String prometheusHost = flinkConfig.getString("prometheusHost");
             String prometheusPort = flinkConfig.getString("prometheusPort");

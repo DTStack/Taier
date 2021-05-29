@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.ref.SoftReference;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -19,7 +20,7 @@ import java.util.concurrent.TimeUnit;
  *
  */
 public class DateUtil {
-
+    public static final ZoneOffset DEFAULT_ZONE = ZoneOffset.of("+8");
     public static final String TIME_ZONE = "GMT+8";
     public static final String STANDARD_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
     public static final String UN_STANDARD_DATETIME_FORMAT = "yyyyMMddHHmmss";

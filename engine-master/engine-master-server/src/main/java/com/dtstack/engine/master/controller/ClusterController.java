@@ -44,7 +44,7 @@ public class ClusterController{
     public String clusterInfo(@DtRequestParam("tenantId") Long tenantId) {
         return clusterService.clusterInfo(tenantId);
     }
-    // TODO 多版本控制
+
     @RequestMapping(value="/clusterExtInfo", method = {RequestMethod.POST})
     public ClusterVO clusterExtInfo(@DtRequestParam("tenantId") Long uicTenantId) {
         return clusterService.clusterExtInfo(uicTenantId,false);
@@ -205,7 +205,7 @@ public class ClusterController{
     @RequestMapping(value="/getCluster", method = {RequestMethod.POST})
     @ApiOperation(value = "获取集群信息详情")
     public ClusterVO getCluster(@DtRequestParam("clusterId") Long clusterId, @DtRequestParam("kerberosConfig") Boolean kerberosConfig,@DtRequestParam("removeTypeName") Boolean removeTypeName) {
-        return clusterService.getCluster(clusterId, removeTypeName, true);
+        return clusterService.getCluster(clusterId, removeTypeName, true,true);
     }
 
     @RequestMapping(value="/getAllCluster", method = {RequestMethod.POST})

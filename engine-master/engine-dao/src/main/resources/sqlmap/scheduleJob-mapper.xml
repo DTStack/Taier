@@ -1568,11 +1568,11 @@
 	   INSERT INTO schedule_job
         (gmt_create, gmt_modified, tenant_id, project_id, dtuic_tenant_id, app_type, job_id, job_key, job_name, task_id,
         create_user_id, is_deleted, `type`, is_restart, business_date, cyc_time, dependency_type, flow_job_id,
-        status, task_type, max_retry_num, node_address, version_id, compute_type,period_type,sql_text,,component_version)
+        status, task_type, max_retry_num, node_address, version_id, compute_type,period_type,component_version)
 	   VALUES
 	   (now(), now(), #{tenantId}, #{projectId}, #{dtuicTenantId}, #{appType}, #{jobId}, #{jobKey}, #{jobName}, #{taskId},
 	   #{createUserId}, #{isDeleted}, #{type}, #{isRestart}, #{businessDate}, #{cycTime}, #{dependencyType}, #{flowJobId},
-	   #{status}, #{taskType}, #{maxRetryNum}, #{nodeAddress}, #{versionId}, #{computeType},#{periodType},#{sqlText},#{componentVersion})
+	   #{status}, #{taskType}, #{maxRetryNum}, #{nodeAddress}, #{versionId}, #{computeType},#{periodType},#{componentVersion})
     </insert>
 
 
@@ -1598,7 +1598,7 @@
     <update id="updateJobSubmitSuccess">
 	   update schedule_job
 	   set log_info = #{submitLog}, engine_job_id=#{engineId}, application_id=#{appId},
-	    gmt_modified=now(), exec_start_time=now(),job_graph = #{jobGraph}
+	    gmt_modified=now(), exec_start_time=now(),job_extra_info = #{jobGraph}
 	   where job_id=#{jobId};
    </update>
 
@@ -1709,7 +1709,7 @@
             `is_restart` = #{isRestart},
         </if>
         application_id = null, engine_job_id = null, engine_log = null, log_info = null,
-        retry_task_params = null, exec_end_time = null, exec_start_time = null, exec_time = 0, gmt_modified=now()
+        retry_task_params = null, exec_end_time = null, exec_start_time = null, exec_time = 0, gmt_modified=now(),retry_num = 0
         where job_id IN
         <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
             #{jobId}
@@ -1723,7 +1723,8 @@
             <if test="status != null">
                 status = #{status},
             </if>
-            gmt_modified = now()
+            gmt_modified = now(),
+            exec_start_time = now()
         </set>
         WHERE job_id = #{jobId} AND status = #{status1}
         AND is_deleted=0
@@ -1737,8 +1738,8 @@
         AND is_deleted=0
     </update>
 
-    <select id="getJobGraph" resultType="java.lang.String">
-        select job_graph from schedule_job where job_id = #{jobId}
+    <select id="getJobExtraInfo" resultType="java.lang.String">
+        select job_extra_info from schedule_job where job_id = #{jobId}
     </select>
 
     <select id="getLastScheduleJob" resultType="ScheduleJob">

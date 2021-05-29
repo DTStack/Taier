@@ -58,6 +58,7 @@ public enum DataSourceType {
     VERTICA(43),
     SPARKTHRIFT2_1(45),
     INCEPTOR_SQL(44),
+    HIVE3(50),
 
     /**
      * spark thrift
@@ -144,6 +145,8 @@ public enum DataSourceType {
                 return DataBaseType.Greenplum6;
             case Presto:
                 return DataBaseType.Presto;
+            case HIVE3:
+                return DataBaseType.HIVE3;
             default:
                 throw new RdosDefineException("不支持数据源类型");
         }
@@ -234,5 +237,13 @@ public enum DataSourceType {
     }
 
     public static List<DataSourceType> noNeedUserNamePasswordDataSources = Lists.newArrayList(DataSourceType.HBASE,
-            DataSourceType.Phoenix,DataSourceType.HIVE,DataSourceType.SPARKTHRIFT2_1);
+            DataSourceType.Phoenix,DataSourceType.HIVE,DataSourceType.SPARKTHRIFT2_1,
+            DataSourceType.HIVE1X,DataSourceType.IMPALA,DataSourceType.HIVE3,DataSourceType.PHOENIX5);
+
+
+    public static List<Integer> hadoopDirtyDataSource = Lists.newArrayList(
+            DataSourceType.HIVE1X.getVal(),
+            DataSourceType.HIVE.getVal(),
+            DataSourceType.HIVE3.getVal(),
+            DataSourceType.SPARKTHRIFT2_1.getVal());
 }

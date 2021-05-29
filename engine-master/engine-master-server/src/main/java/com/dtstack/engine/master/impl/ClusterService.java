@@ -263,7 +263,7 @@ public class ClusterService implements InitializingBean {
             pluginJson.put(EComponentType.SFTP.getConfName(), sftpConfig);
         }
         EComponentType componentType = type.getComponentType();
-        KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, componentType.getTypeCode(),componentDao.getDefaultComponentVersionByClusterAndComponentType(clusterId,componentType.getTypeCode()));
+        KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, componentType.getTypeCode(),ComponentVersionUtil.isMultiVersionComponent(componentType.getTypeCode())?componentDao.getDefaultComponentVersionByClusterAndComponentType(clusterId,componentType.getTypeCode()):null);
         if (null != kerberosConfig) {
             Integer openKerberos = kerberosConfig.getOpenKerberos();
             String remotePath = kerberosConfig.getRemotePath();
@@ -294,7 +294,7 @@ public class ClusterService implements InitializingBean {
             }
             Map<String, String> sftpConfig = componentService.getComponentByClusterId(clusterId,EComponentType.SFTP.getTypeCode(),false,Map.class,null);
             if (sftpConfig != null) {
-                KerberosConfig kerberosDaoByComponentType = kerberosDao.getByComponentType(clusterId, componentType,componentDao.getDefaultComponentVersionByClusterAndComponentType(clusterId,componentType));
+                KerberosConfig kerberosDaoByComponentType = kerberosDao.getByComponentType(clusterId, componentType,ComponentVersionUtil.isMultiVersionComponent(componentType)?componentDao.getDefaultComponentVersionByClusterAndComponentType(clusterId,componentType):null);
                 if(null != kerberosDaoByComponentType){
                     return sftpConfig.get("path") + File.separator + componentService.buildSftpPath(clusterId, componentType) + File.separator +
                             ComponentService.KERBEROS_PATH;
@@ -481,7 +481,7 @@ public class ClusterService implements InitializingBean {
                 String componentVersion = ComponentVersionUtil.getComponentVersion(componentVersionMap, componentType.getTypeCode());
                 kerberosConfig = kerberosDao.getByComponentType(clusterId, componentType.getTypeCode(),
                         StringUtils.isNotBlank(componentVersion)?componentVersion:
-                        componentDao.getDefaultComponentVersionByClusterAndComponentType(clusterId,componentType.getTypeCode()));
+                        ComponentVersionUtil.isMultiVersionComponent(componentType.getTypeCode())?componentDao.getDefaultComponentVersionByClusterAndComponentType(clusterId,componentType.getTypeCode()):null);
             }
             //返回版本
             configObj.put(ConfigConstant.VERSION, component.getHadoopVersion());
@@ -554,6 +554,9 @@ public class ClusterService implements InitializingBean {
         }else if (EComponentType.INCEPTOR_SQL==type.getComponentType()){
             pluginInfo=JSONObject.parseObject(inceptorSqlInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
             pluginInfo.put(TYPE_NAME,"inceptor");
+        } else if (EComponentType.DTSCRIPT_AGENT==type.getComponentType()){
+            dtScriptAgentInfo(clusterConfigJson,pluginInfo);
+            pluginInfo.put(TYPE_NAME,"dtscript-agent");
         } else {
             //flink spark 需要区分任务类型
             if (EComponentType.FLINK.equals(type.getComponentType()) || EComponentType.SPARK.equals(type.getComponentType())) {
@@ -908,14 +911,14 @@ public class ClusterService implements InitializingBean {
         List<ClusterEngineVO> result = new ArrayList<>();
 
         List<Cluster> clusters = clusterDao.listAll();
-        List<Engine> engines = engineDao.listByEngineIds(new ArrayList<>());
+        List<Engine> engines = engineDao.listByEngineIds(Collections.emptyList());
         if (null == engines) {
             return new ArrayList<>();
         }
         Map<Long, List<Engine>> clusterEngineMapping = engines
-                .stream()
+                .stream().filter(engine -> MultiEngineType.COMMON.getType()!=engine.getEngineType())
                 .collect(Collectors.groupingBy(Engine::getClusterId));
-        List<Long> engineIds = engines.stream()
+        List<Long> engineIds = engines.stream().filter(engine -> MultiEngineType.COMMON.getType()!=engine.getEngineType())
                 .map(Engine::getId)
                 .collect(Collectors.toList());
 
@@ -988,6 +991,12 @@ public class ClusterService implements InitializingBean {
         }
 
         return Boolean.FALSE;
+    }
+
+
+    private void dtScriptAgentInfo(JSONObject clusterConfigJson, JSONObject pluginInfo) {
+        JSONObject dtScriptConf = clusterConfigJson.getJSONObject(EComponentType.DTSCRIPT_AGENT.getConfName());
+        pluginInfo.putAll(dtScriptConf);
     }
 }
 

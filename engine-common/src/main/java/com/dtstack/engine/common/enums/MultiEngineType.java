@@ -9,7 +9,7 @@ package com.dtstack.engine.common.enums;
  */
 
 public enum MultiEngineType {
-
+    COMMON(-1,"Common"),
     HADOOP(1,"Hadoop"),
     LIBRA(2, "LibrA"),
     KYLIN(3, "Kylin"),

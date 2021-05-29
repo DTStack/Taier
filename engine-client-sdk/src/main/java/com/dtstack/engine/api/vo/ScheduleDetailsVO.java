@@ -26,6 +26,8 @@ public class ScheduleDetailsVO {
 
     private Integer projectScheduleStatus;
 
+    private String projectAlias;
+
     private List<ScheduleDetailsVO> scheduleDetailsVOList;
 
     public String getName() {
@@ -98,5 +100,13 @@ public class ScheduleDetailsVO {
 
     public void setProjectScheduleStatus(Integer projectScheduleStatus) {
         this.projectScheduleStatus = projectScheduleStatus;
+    }
+
+    public String getProjectAlias() {
+        return projectAlias;
+    }
+
+    public void setProjectAlias(String projectAlias) {
+        this.projectAlias = projectAlias;
     }
 }

@@ -31,7 +31,7 @@ public class SqlParserClientOperator {
     public ISqlParserClient getClient(String name){
         ISqlParserClient sqlParserClient = null;
         try {
-            sqlParserClient = SqlParserClientCache.getInstance().getClient("sqlparser");
+            sqlParserClient = SqlParserClientCache.getInstance().getClient(name);
         } catch (ClientAccessException e) {
             throw new RdosDefineException("get sqlParserClient error");
         }

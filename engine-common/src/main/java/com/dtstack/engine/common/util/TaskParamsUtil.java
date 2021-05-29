@@ -1,12 +1,15 @@
-package com.dtstack.engine.master.utils;
+package com.dtstack.engine.common.util;
 
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.common.enums.EngineType;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -41,10 +44,10 @@ public class TaskParamsUtil {
      */
     public static EDeployMode parseDeployTypeByTaskParams(String taskParams, Integer computeType) {
         try {
-            if (!org.apache.commons.lang.StringUtils.isBlank(taskParams)) {
+            if (!StringUtils.isBlank(taskParams)) {
                 Properties properties = com.dtstack.engine.common.util.PublicUtil.stringToProperties(taskParams);
                 String flinkTaskRunMode = properties.getProperty("flinkTaskRunMode");
-                if (!org.apache.commons.lang.StringUtils.isEmpty(flinkTaskRunMode)) {
+                if (!StringUtils.isEmpty(flinkTaskRunMode)) {
                     if (flinkTaskRunMode.equalsIgnoreCase("session")) {
                         return EDeployMode.SESSION;
                     } else if (flinkTaskRunMode.equalsIgnoreCase("per_job")) {
@@ -62,5 +65,16 @@ public class TaskParamsUtil {
         } else {
             return EDeployMode.SESSION;
         }
+    }
+
+
+    public static Map<String, Object> convertPropertiesToMap(String taskParams) {
+        try {
+            Properties properties = com.dtstack.engine.common.util.PublicUtil.stringToProperties(taskParams);
+            return new HashMap<String, Object>((Map) properties);
+        } catch (IOException e) {
+            LOGGER.error("convertPropertiesToMap {} error", taskParams, e);
+        }
+        return new HashMap<>();
     }
 }

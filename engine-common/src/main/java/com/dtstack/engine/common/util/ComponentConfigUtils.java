@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  */
 public class ComponentConfigUtils {
 
-    private final static String DEPLOY_MODE = "deploymode";
+    public final static String DEPLOY_MODE = "deploymode";
     private final static String dependencySeparator = "$";
     private static Predicate<String> isOtherControl = s -> "typeName".equalsIgnoreCase(s) || "md5Key".equalsIgnoreCase(s);
     private static Predicate<ClientTemplate> isAuth = c -> (c.getKey().equalsIgnoreCase("password") || c.getKey().equalsIgnoreCase("rsaPath"))

@@ -82,7 +82,7 @@
         WHERE
         cluster.id = #{clusterId} and c.component_type_code = #{type}
         <choose>
-            <when test="componentVersion == null">
+            <when test="componentVersion == null or componentVersion == ''">
                 and c.is_default = 1
             </when>
             <otherwise>
@@ -181,5 +181,20 @@
         where cc.component_type_code = #{componentType}
         and cc.is_default = 1
         and cc.is_deleted = 0 limit 1
+    </select>
+
+
+    <select id="getMetadataComponent" resultType="com.dtstack.engine.api.domain.Component">
+        SELECT
+            c.id,c.engine_id,c.component_name,c.component_type_code,c.gmt_create,c.gmt_modified,c.is_deleted,
+            c.hadoop_version,c.upload_file_name,c.kerberos_file_name,c.is_metadata
+        FROM
+            console_component c
+                LEFT JOIN console_engine ce ON ce.id = c.engine_id
+                LEFT JOIN console_cluster ccl ON ccl.id = ce.cluster_id and ccl.id=#{clusterId}
+        WHERE
+            c.is_metadata = 1
+          and is_default = 1
+          and c.is_deleted = 0 LIMIT 1
     </select>
 </mapper>

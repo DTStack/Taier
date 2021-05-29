@@ -120,4 +120,15 @@ public interface LineageDataSourceDao {
      * @return: void
      **/
     void deleteDataSourceByProjectId(@Param("param") DeleteDataSourceParam deleteDataSourceParam,@Param("time") String time);
+
+    /**
+     * 功能描述: 查询hadoop组件下的默认数据源
+     * @author zyd
+     * @date 2021/4/28 9:42 下午
+     * @param projectId
+     * @param appType
+     * @param hadoopList
+     * @return
+     */
+    LineageDataSource getHadoopDefaultDatasource(@Param("projectId") Long projectId, @Param("appType") Integer appType,@Param("hadoopList") List<Integer> hadoopList);
 }
