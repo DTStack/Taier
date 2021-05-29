@@ -27,7 +27,6 @@
     <modules>
         <module>engine-dao</module>
         <module>engine-alter</module>
-        <module>engine-ide</module>
         <module>engine-lineage</module>
         <module>engine-master-server</module>
     </modules>

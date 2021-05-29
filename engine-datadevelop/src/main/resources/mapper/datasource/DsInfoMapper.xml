@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dtstack.pubsvc.dao.mapper.datasource.DsInfoMapper">
+
+    <sql id="selectDsField">
+        a.id as dataInfoId,
+        a.data_name as dataName,
+        a.data_type as dataType,
+        a.data_version as dataVersion,
+        a.data_desc as dataDesc,
+        a.status as status,
+        a.is_meta as isMeta,
+        a.gmt_modified as gmtModified
+    </sql>
+
+    <sql id="queryImportDsSql">
+        <where>
+            a.is_deleted = 0
+            and b.is_deleted = 0
+            and b.`app_type` = #{listQuery.appType}
+            and a.`dtuic_tenant_id` = #{listQuery.dsDtuicTenantId}
+            <if test="listQuery.dataTypeList != null and listQuery.dataTypeList.size() > 0">
+                and a.`data_type` in
+                <foreach collection="listQuery.dataTypeList" item="dataType" open="(" separator="," close=")">
+                    #{dataType}
+                </foreach>
+            </if>
+            <if test="listQuery.search != null and listQuery.search != ''">
+                and (
+                a.data_name like concat('%', #{listQuery.search} ,'%')
+                or a.data_desc like concat('%', #{listQuery.search}, '%')
+                )
+            </if>
+            and not EXISTS (
+                select data_info_id
+                FROM dsc_import_ref t
+                WHERE a.id = t.data_info_id
+                and t.is_deleted = 0
+            )
+        </where>
+    </sql>
+
+    <sql id="queryAppDsSql">
+        <where>
+            a.is_deleted = 0
+            and b.is_deleted = 0
+            and b.`app_type` = #{listQuery.appType}
+            and a.`dtuic_tenant_id` = #{listQuery.dsDtuicTenantId}
+            <if test="listQuery.search != null and listQuery.search != ''">
+                and (
+                a.data_name like concat('%', #{listQuery.search} ,'%')
+                or a.data_desc like concat('%', #{listQuery.search}, '%')
+                )
+            </if>
+        </where>
+    </sql>
+
+    <sql id="queryDsSql">
+        <where>
+            a.is_deleted = 0
+            and a.dtuic_tenant_id = #{listQuery.dtuicTenantId}
+            <if test="listQuery.search != null and listQuery.search != ''">
+                and (
+                a.data_name like concat('%', #{listQuery.search} ,'%')
+                or a.data_desc like concat('%', #{listQuery.search}, '%')
+                )
+            </if>
+            <if test="listQuery.dataTypeList != null and listQuery.dataTypeList.size() > 0">
+                and a.data_type in
+                <foreach collection="listQuery.dataTypeList" item="dataType" open="(" separator="," close=")">
+                    #{dataType}
+                </foreach>
+            </if>
+            <if test="listQuery.appTypeList != null and listQuery.appTypeList.size() > 0">
+                and b.app_type in
+                <foreach collection="listQuery.appTypeList" item="appType" open="(" separator="," close=")">
+                    #{appType}
+                </foreach>
+            </if>
+            <if test="listQuery.isMeta != null and listQuery.isMeta == 0">
+                and a.is_meta = #{listQuery.isMeta}
+            </if>
+            <if test="listQuery.status != null and listQuery.status.size() > 0">
+                and a.status in
+                <foreach collection="listQuery.status" item="statusOne" open="(" separator="," close=")">
+                    #{statusOne}
+                </foreach>
+            </if>
+        </where>
+        group by a.id
+        ORDER BY a.gmt_modified DESC
+    </sql>
+
+    <select id="countImportDsPage" resultType="java.lang.Integer">
+        select count(*)
+        from dsc_info a left join dsc_auth_ref b
+        on a.id = b.data_info_id
+        <include refid="queryImportDsSql" />
+    </select>
+
+    <select id="queryImportDsPage" resultType="com.dtstack.pubsvc.dao.bo.datasource.DsServiceListBO">
+        select
+        a.id as dataInfoId,
+        a.data_name as dataName,
+        a.data_type as dataType,
+        a.data_version as dataVersion,
+        a.data_desc as dataDesc,
+        a.link_json as linkJson,
+        a.is_meta as isMeta,
+        a.status as status,
+        a.gmt_modified as gmtModified
+        from
+        dsc_info a left join dsc_auth_ref b
+        on a.id = b.data_info_id
+        <include refid="queryImportDsSql" />
+        ORDER BY a.gmt_modified DESC
+        <if test="listQuery.start != null and listQuery.end != null">
+            limit #{listQuery.start}, #{listQuery.end}
+        </if>
+    </select>
+
+    <select id="countDsPage" resultType="java.lang.Integer">
+        select count(1)
+        from (
+        select count(*)
+        from
+        dsc_info a left join dsc_auth_ref b on a.id = b.data_info_id and b.is_deleted = 0
+        left join dsc_app_list c on b.app_type = c.app_type and b.is_deleted = 0 and c.is_deleted = 0
+        <include refid="queryDsSql"/>
+        ) a
+    </select>
+
+    <select id="queryDsPage" resultType="com.dtstack.pubsvc.dao.bo.datasource.DsListBO">
+        select
+        a.id as dataInfoId,
+        a.data_name as dataName,
+        a.data_type as dataType,
+        a.data_version as dataVersion,
+        group_concat(c.app_name separator ',') as appNames,
+        a.data_desc as dataDesc,
+        a.link_json as linkJson,
+        a.status as status,
+        a.is_meta as isMeta,
+        a.gmt_modified as gmtModified
+        from
+        dsc_info a left join dsc_auth_ref b on a.id = b.data_info_id and b.is_deleted = 0
+        left join dsc_app_list c on b.app_type = c.app_type and b.is_deleted = 0 and c.is_deleted = 0
+        <include refid="queryDsSql" />
+        <if test="listQuery.start != null and listQuery.end != null">
+            limit #{listQuery.start}, #{listQuery.end}
+        </if>
+    </select>
+
+    <insert id="shiftAppDs" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO `dsc_info` (`data_type`, `data_version`, `data_name`, `data_desc`, `link_json`, `data_json`, `status`, `is_meta`, `tenant_id`, `dtuic_tenant_id`, `gmt_create`, `gmt_modified`, `create_user_id`, `modify_user_id`)
+            VALUES
+        (#{dsInfo.dataType}, #{dsInfo.dataVersion}, #{dsInfo.dataName}, #{dsInfo.dataDesc}, #{dsInfo.linkJson}, #{dsInfo.dataJson}, #{dsInfo.status}, #{dsInfo.isMeta}, #{dsInfo.tenantId}, #{dsInfo.dtuicTenantId}, #{dsInfo.gmtCreate}, #{dsInfo.gmtModified}, #{dsInfo.createUserId}, #{dsInfo.modifyUserId})
+        ;
+    </insert>
+
+    <select id="countAppDsPage" resultType="java.lang.Integer">
+        select count(*)
+        from dsc_info a left join dsc_import_ref b
+        on a.id = b.data_info_id
+        <include refid="queryAppDsSql" />
+    </select>
+
+    <select id="queryAppDsPage" resultType="com.dtstack.pubsvc.dao.bo.datasource.DsServiceListBO">
+        select
+        a.id as dataInfoId,
+        a.data_name as dataName,
+        a.data_type as dataType,
+        a.data_version as dataVersion,
+        a.data_desc as dataDesc,
+        a.link_json as linkJson,
+        a.is_meta as isMeta,
+        a.status as status,
+        a.gmt_modified as gmtModified
+        from dsc_info a left join dsc_import_ref b
+        on a.id = b.data_info_id
+        <include refid="queryAppDsSql" />
+        ORDER BY a.gmt_modified DESC
+        <if test="listQuery.start != null and listQuery.end != null">
+            limit #{listQuery.start}, #{listQuery.end}
+        </if>
+    </select>
+
+    <select id="queryDsByAppType" resultType="com.dtstack.pubsvc.dao.bo.datasource.DsListBO">
+        select
+        <include refid="selectDsField" />
+        from
+        dsc_info a
+        where
+        a.is_deleted = 0
+        and exists (
+            select b.id from dsc_import_ref b where a.id = b.data_info_id and b.is_deleted = 0 and app_type = #{appType}
+        )
+        and exists (
+            select c.id from dsc_auth_ref c where a.id = c.data_info_id and c.is_deleted = 0 and app_type = #{appType}
+        )
+        and a.dtuic_tenant_id = #{dtUicTenantId}
+        and (a.data_type = 'Presto' or a.data_type = 'Impala')
+    </select>
+
+    <select id="queryDsByAppTypeList" resultType="com.dtstack.pubsvc.dao.bo.datasource.DsListBO">
+        select
+        <include refid="selectDsField" />
+        from
+        dsc_info a
+        where
+        a.is_deleted = 0
+        and exists (
+            select b.id from dsc_import_ref b where a.id = b.data_info_id and b.is_deleted = 0
+            <if test="appTypeList != null and appTypeList.size()>0">
+                and app_type in
+                <foreach collection="appTypeList" item="appType" separator="," open="(" close=")">
+                    #{appType}
+                </foreach>
+            </if>
+        )
+        and exists (
+            select c.id from dsc_auth_ref c where a.id = c.data_info_id and c.is_deleted = 0
+            <if test="appTypeList != null and appTypeList.size()>0">
+                and app_type in
+                <foreach collection="appTypeList" item="appType" separator="," open="(" close=")">
+                    #{appType}
+                </foreach>
+            </if>
+        )
+        and a.dtuic_tenant_id = #{dtUicTenantId}
+        and (a.data_type = 'Presto' or a.data_type = 'Impala')
+    </select>
+
+</mapper>

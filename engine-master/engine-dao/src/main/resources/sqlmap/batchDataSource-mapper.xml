@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.datasource.BatchDataSourceDao">
+<mapper namespace="com.dtstack.engine.dao.mapper.BatchDataSourceDao">
 
     <sql id="select_content_fragment">
             id,data_name,data_desc,data_json,type,active,link_state,gmt_create,gmt_modified,tenant_id,project_id,create_user_id,modify_user_id,is_deleted,is_default

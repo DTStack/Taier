@@ -22,6 +22,7 @@ tmpK8sConf/
 *.zip
 /conf
 keytab/
+run/
 tmp/
 tmp1100/
 tmpSave/

@@ -1,4 +1,4 @@
-package com.dtstack.datasource;
+package com.dtstack.engine.dao.mapper.datasource;
 
 import com.dtstack.engine.api.domain.BatchDataSource;
 import com.dtstack.engine.api.dto.BatchDataSourceDTO;
