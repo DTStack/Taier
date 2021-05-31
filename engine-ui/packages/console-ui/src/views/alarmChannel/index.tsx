@@ -143,7 +143,10 @@ const AlarmChannel: React.FC = (props: any) => {
         <div className='alarm__wrapper'>
             <Form layout='inline'>
                 <Form.Item>
-                    <Button type='primary' onClick={() => {
+                    <Button className='alarm-btn' type='primary' onClick={() => {
+                        props.router.push({ pathname: '/console/alarmChannel/alarmConfig' })
+                    }}>SFTP配置</Button>
+                    <Button className='alarm-btn' type='primary' onClick={() => {
                         props.router.push({
                             pathname: '/console/alarmChannel/alarmRule',
                             query: {

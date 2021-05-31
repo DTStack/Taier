@@ -293,5 +293,17 @@ export default {
         clusterName: string;
     }) {
         return http.post(req.REFRESH_QUEUE, params);
+    },
+    getAlarmConfig () {
+        return http.post(req.GET_ALARM_CONFIG);
+    },
+    updateAlarmConfig (params: {
+        componentConfig: string;
+        componentTemplate: string;
+    }) {
+        return http.post(req.UPDATE_ALARM_CONFIG, params);
+    },
+    testAlarmConfig () {
+        return http.post(req.TEST_ALARM_CONFIG);
     }
 }
