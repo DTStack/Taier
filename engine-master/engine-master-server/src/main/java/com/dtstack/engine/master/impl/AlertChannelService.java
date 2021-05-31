@@ -1,16 +1,33 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.alert.enums.AlertGateTypeEnum;
+import com.dtstack.engine.api.domain.ComponentConfig;
+import com.dtstack.engine.api.domain.ScheduleDict;
 import com.dtstack.engine.api.domain.po.ClusterAlertPO;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.param.ClusterAlertPageParam;
 import com.dtstack.engine.api.param.ClusterAlertParam;
+import com.dtstack.engine.api.pojo.ClientTemplate;
+import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.api.vo.AlterSftpVO;
 import com.dtstack.engine.api.vo.alert.AlertGateVO;
+import com.dtstack.engine.common.enums.EComponentType;
+import com.dtstack.engine.common.enums.EFrontType;
 import com.dtstack.engine.common.enums.IsDefaultEnum;
 import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.sftp.SftpConfig;
+import com.dtstack.engine.common.util.ComponentConfigUtils;
 import com.dtstack.engine.dao.AlertChannelDao;
 import com.dtstack.engine.api.domain.AlertChannel;
+import com.dtstack.engine.dao.ComponentConfigDao;
+import com.dtstack.engine.dao.ScheduleDictDao;
+import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.enums.DictType;
+import com.dtstack.engine.master.event.SftpDownloadEvent;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.google.common.collect.Lists;
@@ -33,6 +50,19 @@ public class AlertChannelService {
 
     @Autowired
     private AlertChannelDao alertChannelDao;
+
+    @Autowired
+    private ScheduleDictDao scheduleDictDao;
+
+    @Autowired
+    private ComponentConfigDao componentConfigDao;
+
+    @Autowired
+    private ComponentConfigService componentConfigService;
+
+    @Autowired
+    private WorkerOperator workerOperator;
+
 
     @Transactional
     public Boolean addChannelOrEditChannel(AlertGateVO alertGateVO) {
@@ -265,5 +295,49 @@ public class AlertChannelService {
         }
 
         return pos;
+    }
+
+    public AlterSftpVO sftpGet() {
+        AlterSftpVO vo = new AlterSftpVO();
+        List<ComponentConfig> componentConfigs = componentConfigDao.listByComponentId(SftpDownloadEvent.Constant.COMPONENT_TEMPLATE_ID, Boolean.FALSE);
+        if (CollectionUtils.isEmpty(componentConfigs)) {
+            String pluginName = EComponentType.convertPluginNameByComponent(EComponentType.SFTP);
+            ScheduleDict typeNameMapping = scheduleDictDao.getByNameValue(DictType.TYPENAME_MAPPING.type, pluginName.trim(), null,null);
+            if (null != typeNameMapping) {
+                componentConfigs = componentConfigDao.listByComponentId(Long.parseLong(typeNameMapping.getDictValue()), true);
+            }
+        }
+
+        vo.setComponentTemplate(JSONObject.toJSONString(ComponentConfigUtils.buildDBDataToClientTemplate(componentConfigs)));
+        vo.setComponentConfig(JSONObject.toJSONString(ComponentConfigUtils.convertComponentConfigToMap(componentConfigs)));
+        return vo;
+    }
+
+    public Boolean sftpUpdate(AlterSftpVO vo) {
+        String componentTemplate = vo.getComponentTemplate();
+
+        if (StringUtils.isBlank(componentTemplate)) {
+            throw new RdosDefineException("template is null");
+        }
+
+        List<ClientTemplate> clientTemplates = JSONArray.parseArray(componentTemplate, ClientTemplate.class);
+        componentConfigService.addOrUpdateComponentConfig(clientTemplates, SftpDownloadEvent.Constant.COMPONENT_TEMPLATE_ID
+                , SftpDownloadEvent.Constant.COMPONENT_TEMPLATE_ID, EComponentType.SFTP.getTypeCode());
+
+        return Boolean.TRUE;
+    }
+
+
+    public ComponentTestResult sftpTestConnect(SftpConfig sftpConfig) {
+        if (sftpConfig == null) {
+            throw new RdosDefineException("sftp未配置或者未保存，请先配置或者保存后在进行测试联通性");
+        }
+
+        EComponentType sftp = EComponentType.SFTP;
+        String pluginName = EComponentType.convertPluginNameByComponent(sftp);
+
+        JSONObject dataInfo = JSONObject.parseObject(JSON.toJSONString(sftpConfig));
+        dataInfo.put("componentType", EComponentType.SFTP.getName());
+        return workerOperator.testConnect(pluginName, dataInfo.toJSONString());
     }
 }
