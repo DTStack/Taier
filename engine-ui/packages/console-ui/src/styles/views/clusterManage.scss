@@ -60,7 +60,7 @@
     font-weight: bold;
     color:rgba(1,1,1,0.54);
     .form-text-name {
-        width: 95%;
+        width: 86%;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -259,7 +259,7 @@
             left: 0;
         }
         .c-editCluster__componentButton {
-            width: 200px;
+            width: 210px;
             height: 40px;
             background: rgba(250,250,250,1);
             border-radius: 0;
@@ -284,11 +284,11 @@
     .c-editCluster__container__componentTabs {
         height: 100%;
         > .ant-tabs-bar {
-            width: 200px !important;
+            width: 210px !important;
         }
         >.ant-tabs-content {
             position: absolute;
-            left: 200px;
+            left: 210px;
             top: 0;
             right: 0;
             bottom: 0;
@@ -498,10 +498,10 @@
 // new 
 .c-fileConfig__container {
     width: 210px;
-    padding: 20px 17px;
+    padding: 20px 17px 40px 17px;
     position: absolute;
     top: 0;
-    bottom: 40px;
+    bottom: 0;
     overflow-y: scroll;
     border-right: 1px solid #E8E8E8;
     .c-fileConfig__downloadTemp {
@@ -557,7 +557,7 @@
 .c-formConfig__container {
     position: absolute;
     right: 0;
-    left: 200px;
+    left: 210px;
     bottom: 40px;
     top: 0;
     padding: 20px;
@@ -578,7 +578,7 @@
         }
     }
     .c-formConfig__label {
-        max-width: 96%;
+        max-width: 86%;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -641,6 +641,7 @@
     line-height: 40px;
     text-align: center;
     border-top: 1px solid #E8E8E8;
+    background: #fff;
     button {
         padding: 0 12px;
         height: 28px;
@@ -687,7 +688,7 @@
             margin-right: 20px;
         }
         &__desc {
-            width: 240px;
+            min-width: 240px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -710,6 +711,7 @@
             .anticon-right-circle {
                 font-size: 20px;
                 color: #3F87FF;
+                margin-left: 16px;
             }
         }
     }
@@ -749,14 +751,14 @@
                 min-width: 100px;
                 .ant-tabs-tab {
                     text-align: center;
-                    width: 100%;
                     background: #FAFAFA;
                     padding: 0;
                     font-size: 14px;
                     height: 44px;
                     line-height: 44px;
                     margin: 0;
-                    width: 112px;
+                    // min-width: 112px;
+                    width: 210px;
                 }
                 .ant-tabs-tab-active {
                     background: #fff;

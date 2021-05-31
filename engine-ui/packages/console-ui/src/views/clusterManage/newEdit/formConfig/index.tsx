@@ -237,7 +237,8 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
             case COMPONENT_TYPE_VALUE.NFS:
             case COMPONENT_TYPE_VALUE.HIVE_SERVER:
             case COMPONENT_TYPE_VALUE.DTSCRIPT_AGENT:
-            case COMPONENT_TYPE_VALUE.INCEPTOR_SQL: {
+            case COMPONENT_TYPE_VALUE.INCEPTOR_SQL:
+            case COMPONENT_TYPE_VALUE.FLINK_ON_STANDALONE: {
                 return this.rendeConfigForm()
             }
             default:

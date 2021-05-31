@@ -502,7 +502,8 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                 )
             }
             case COMPONENT_TYPE_VALUE.SFTP:
-            case COMPONENT_TYPE_VALUE.NFS: {
+            case COMPONENT_TYPE_VALUE.NFS:
+            case COMPONENT_TYPE_VALUE.FLINK_ON_STANDALONE: {
                 return this.renderParamsFile()
             }
             case COMPONENT_TYPE_VALUE.ORACLE_SQL:

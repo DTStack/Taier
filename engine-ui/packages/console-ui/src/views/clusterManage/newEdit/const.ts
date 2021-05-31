@@ -33,7 +33,8 @@ export const COMPONENT_TYPE_VALUE = {
     PRESTO_SQL: 16,
     NFS: 17,
     DTSCRIPT_AGENT: 18,
-    INCEPTOR_SQL: 19
+    INCEPTOR_SQL: 19,
+    FLINK_ON_STANDALONE: 20
 }
 
 export const COMPONENT_CONFIG_NAME = {
@@ -56,7 +57,8 @@ export const COMPONENT_CONFIG_NAME = {
     16: 'Presto SQL',
     17: 'NFS',
     18: 'DtScript Agent',
-    19: 'Inceptor SQL'
+    19: 'Inceptor SQL',
+    20: 'Flink on Standalone'
 }
 
 export const TABS_TITLE = {
@@ -92,7 +94,8 @@ export const CONFIG_BUTTON_TYPE = {
         { code: COMPONENT_TYPE_VALUE.ORACLE_SQL, componentName: COMPONENT_CONFIG_NAME[COMPONENT_TYPE_VALUE.ORACLE_SQL] },
         { code: COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL, componentName: COMPONENT_CONFIG_NAME[COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL] },
         { code: COMPONENT_TYPE_VALUE.DTSCRIPT_AGENT, componentName: COMPONENT_CONFIG_NAME[COMPONENT_TYPE_VALUE.DTSCRIPT_AGENT] },
-        { code: COMPONENT_TYPE_VALUE.INCEPTOR_SQL, componentName: COMPONENT_CONFIG_NAME[COMPONENT_TYPE_VALUE.INCEPTOR_SQL] }
+        { code: COMPONENT_TYPE_VALUE.INCEPTOR_SQL, componentName: COMPONENT_CONFIG_NAME[COMPONENT_TYPE_VALUE.INCEPTOR_SQL] },
+        { code: COMPONENT_TYPE_VALUE.FLINK_ON_STANDALONE, componentName: COMPONENT_CONFIG_NAME[COMPONENT_TYPE_VALUE.FLINK_ON_STANDALONE] }
     ]
 }
 
@@ -101,7 +104,8 @@ export const VERSION_TYPE = {
     9: 'HiveServer',
     1: 'Spark',
     6: 'SparkThrift',
-    19: 'InceptorSql'
+    19: 'InceptorSql',
+    20: 'FlinkOnStandalone'
 }
 
 export const FILE_TYPE = {

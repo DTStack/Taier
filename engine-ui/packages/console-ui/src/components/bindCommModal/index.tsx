@@ -6,7 +6,7 @@ import API from 'dt-common/src/api';
 
 import { useEnv } from '../customHooks'
 
-import { formItemLayout } from '../../consts'
+import { formItemLayout, ENGINE_TYPE, ENGIN_TYPE_TEXT } from '../../consts'
 
 const Option = Select.Option;
 const FormItem = Form.Item
@@ -49,7 +49,6 @@ const CustomModal: React.FC = (props: any) => {
         }
         const { getFieldsValue, validateFields } = props?.form;
         const reqParams = getFieldsValue();
-        const { hasKubernetes } = env
         validateFields((err: any) => {
             if (!err) {
                 params.canSubmit = true;
@@ -62,24 +61,24 @@ const CustomModal: React.FC = (props: any) => {
                         queueId: tenantInfo.queueId
                     });
                 }
-                params.hasKubernetes = hasKubernetes
+                params.hasKubernetes = env[ENGINE_TYPE.KUBERNETES]
             }
         })
         return params
     }
 
     const getEnginName = () => {
-        const { hasLibra, hasTiDB, hasOracle, hasGreenPlum, hasPresto } = env;
         let enginName = [];
-        enginName = hasLibra ? [...enginName, 'Libra'] : enginName;
-        enginName = hasTiDB ? [...enginName, 'TiDB'] : enginName;
-        enginName = hasOracle ? [...enginName, 'Oracle'] : enginName;
-        enginName = hasGreenPlum ? [...enginName, 'Greenplum'] : enginName;
-        enginName = hasPresto ? [...enginName, 'Presto'] : enginName;
+        for (const key in ENGINE_TYPE) {
+            if (ENGINE_TYPE[key] !== ENGINE_TYPE.KUBERNETES && ENGINE_TYPE[key] !== ENGINE_TYPE.HADOOP) {
+                enginName = env[ENGINE_TYPE[key]] ? [
+                    ...enginName, ENGIN_TYPE_TEXT[ENGINE_TYPE[key]]
+                ] : enginName
+            }
+        }
         return enginName;
     }
 
-    const { hasHadoop, hasKubernetes } = env;
     const bindEnginName = getEnginName();
 
     return (
@@ -149,7 +148,7 @@ const CustomModal: React.FC = (props: any) => {
                         )}
                     </Form.Item>
                     {
-                        hasKubernetes && (
+                        env[ENGINE_TYPE.KUBERNETES] && (
                             <div
                                 className='border-item'
                             >
@@ -168,7 +167,7 @@ const CustomModal: React.FC = (props: any) => {
                         )
                     }
                     {
-                        hasHadoop && !hasKubernetes ? (
+                        env[ENGINE_TYPE.HADOOP] && !env[ENGINE_TYPE.KUBERNETES] ? (
                             <div
                                 className='border-item'
                             >
@@ -207,7 +206,9 @@ const CustomModal: React.FC = (props: any) => {
                         bindEnginName.length > 0 ? (
                             <div className='border-item'>
                                 <div className="engine-name">
-                                    创建项目时，自动关联到租户的{bindEnginName.join('、')}引擎
+                                    <span>
+                                        创建项目时，自动关联到租户的{bindEnginName.join('、')}引擎
+                                    </span>
                                 </div>
                             </div>
                         ) : null

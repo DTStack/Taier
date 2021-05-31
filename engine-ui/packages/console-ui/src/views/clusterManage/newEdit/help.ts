@@ -40,7 +40,8 @@ export function isSameVersion (code: number): boolean {
 }
 
 export function isMultiVersion (code: number): boolean {
-    return [COMPONENT_TYPE_VALUE.FLINK, COMPONENT_TYPE_VALUE.SPARK].indexOf(code) > -1
+    return [COMPONENT_TYPE_VALUE.FLINK, COMPONENT_TYPE_VALUE.SPARK,
+        COMPONENT_TYPE_VALUE.FLINK_ON_STANDALONE].indexOf(code) > -1
 }
 
 export function needZipFile (type: number): boolean {
@@ -369,16 +370,17 @@ export function handleComponentTemplate (comp: any, initialCompData: any): any {
 export function handleComponentConfig (comp: any, turnp?: boolean): any {
     // 处理componentConfig
     let componentConfig = {}
+    function wrapperKey (key: string): string {
+        if (turnp) return key.split('.').join('%')
+        return key.split('%').join('.')
+    }
     for (let [key, values] of Object.entries(comp?.componentConfig ?? {})) {
-        componentConfig[key] = values
+        componentConfig[wrapperKey(key)] = values
         if (!_.isString(values) && !_.isArray(values)) {
             let groupConfig = {}
             for (let [groupKey, value] of Object.entries(values)) {
-                if (turnp) {
-                    groupConfig[groupKey.split('.').join('%')] = value
-                } else {
-                    groupConfig[groupKey.split('%').join('.')] = handleSingQuoteKeys(value, groupKey.split('%').join('.'))
-                }
+                const wrapper = wrapperKey(groupKey)
+                groupConfig[wrapper] = turnp ? value : handleSingQuoteKeys(value, wrapper)
             }
             componentConfig[key] = groupConfig
         }
