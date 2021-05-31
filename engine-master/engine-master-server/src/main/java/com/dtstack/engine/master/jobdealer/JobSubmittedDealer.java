@@ -1,6 +1,8 @@
 package com.dtstack.engine.master.jobdealer;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.constrant.JobResultConstant;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
@@ -14,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -65,8 +68,9 @@ public class JobSubmittedDealer implements Runnable {
                 if (StringUtils.isNotBlank(jobClient.getEngineTaskId())) {
                     JobResult jobResult = jobClient.getJobResult();
                     String appId = jobResult.getData(JobResult.EXT_ID_KEY);
-                    String jobGraph = jobResult.getData(JobResult.JOB_GRAPH);
-                    scheduleJobDao.updateJobSubmitSuccess(jobClient.getTaskId(), jobClient.getEngineTaskId(), appId, jobClient.getJobResult().getJsonStr(), JobGraphUtil.formatJSON(jobClient.getEngineTaskId(), jobGraph, jobClient.getComputeType()));
+                    JSONObject jobExtraInfo = jobResult.getExtraInfoJson();
+                    jobExtraInfo.put(JobResultConstant.JOB_GRAPH,JobGraphUtil.formatJSON(jobClient.getEngineTaskId(), jobExtraInfo.getString(JobResultConstant.JOB_GRAPH), jobClient.getComputeType()));
+                    scheduleJobDao.updateJobSubmitSuccess(jobClient.getTaskId(), jobClient.getEngineTaskId(), appId, jobClient.getJobResult().getJsonStr(), jobExtraInfo.toJSONString());
                     jobDealer.updateCache(jobClient, EJobCacheStage.SUBMITTED.getStage());
                     jobClient.doStatusCallBack(RdosTaskStatus.SUBMITTED.getStatus());
                     JobClient finalJobClient = jobClient;
