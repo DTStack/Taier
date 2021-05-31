@@ -54,7 +54,9 @@ public class JobComputeResourcePlain {
         } else {
             jobResource = jobClient.getEngineType() + SPLIT + jobClient.getGroupName() + SPLIT + jobClient.getComputeType().name().toLowerCase();
         }
-        return jobResource + SPLIT + computeResourceType.name() + jobClient.getType();
+
+        String type = EScheduleType.TEMP_JOB.getType().equals(jobClient.getType())?jobClient.getType()+"":"";
+        return jobResource + SPLIT + computeResourceType.name() + type;
     }
 
 
