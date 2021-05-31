@@ -302,6 +302,11 @@ public class LineageService {
         DataSourceDTO dataSourceDTO = new DataSourceDTO();
         BeanUtils.copyProperties(defaultDataSource,dataSourceDTO);
         dataSourceDTO.setDataSourceId(null);
+        dataSourceDTO.setSourceId(-1L);
+        dataSourceDTO.setIsDefault(0);
+        if(defaultDataSource.getOpenKerberos() == 0){
+            dataSourceDTO.setKerberosConf("");
+        }
         dataSourceDTO.setDataJson(newDataJson);
         dataSourceDTO.setSchemaName(db);
         return lineageDataSourceService.addOrUpdateDataSource(dataSourceDTO);
