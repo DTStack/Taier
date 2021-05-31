@@ -131,6 +131,7 @@ public class ActionService {
             //会对重复数据做校验
             if(canAccepted){
                 JobClient jobClient = new JobClient(paramActionExt);
+                jobClient.setType(getOrDefault(paramActionExt.getType(), EScheduleType.TEMP_JOB.getType()));
                 jobDealer.addSubmitJob(jobClient);
                 return true;
             }
