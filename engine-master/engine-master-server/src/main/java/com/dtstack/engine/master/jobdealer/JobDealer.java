@@ -242,12 +242,10 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
                 return "";
             }
             String engineType = engineJobCache.getEngineType();
-            JSONObject info = JSONObject.parseObject(engineJobCache.getJobInfo());
-            String taskParams = info.getString("taskParams");
-            Long userId = info.getLong("userId");
-            String pluginInfo = info.getString("pluginInfo");
+            ParamAction paramAction = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), ParamAction.class);
             JobIdentifier jobIdentifier = new JobIdentifier(engineJobId, appId, jobId,dtuicTenantId,engineType,
-                    TaskParamsUtil.parseDeployTypeByTaskParams(taskParams,engineJobCache.getComputeType(),engineJobCache.getEngineType()).getType(),userId,pluginInfo);
+                    TaskParamsUtil.parseDeployTypeByTaskParams(paramAction.getTaskParams(),engineJobCache.getComputeType(),engineJobCache.getEngineType()).getType(),
+                    paramAction.getUserId(),JSONObject.toJSONString(paramAction.getPluginInfo()),paramAction.getComponentVersion());
             //从engine获取log
             engineLog = workerOperator.getEngineLog(jobIdentifier);
             if (engineLog != null) {

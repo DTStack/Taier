@@ -120,10 +120,10 @@ public class JobClient extends OrderObject {
      */
     private Long retryIntervalTime;
 
-
-    public JobClient() {
-
-    }
+    /**
+     * 任务运行版本
+     */
+    private String componentVersion;
 
     public JobClient(ParamAction paramAction) throws Exception {
         this.sql = paramAction.getSqlText();
@@ -145,6 +145,7 @@ public class JobClient extends OrderObject {
         this.queueSourceType = EQueueSourceType.NORMAL.getCode();
         this.submitExpiredTime = paramAction.getSubmitExpiredTime();
         this.retryIntervalTime = paramAction.getRetryIntervalTime();
+        this.componentVersion = paramAction.getComponentVersion();
 
         this.maxRetryNum = paramAction.getMaxRetryNum() == null ? 0 : paramAction.getMaxRetryNum();
         if (paramAction.getPluginInfo() != null) {
@@ -170,6 +171,19 @@ public class JobClient extends OrderObject {
 
     }
 
+    public String getComponentVersion() {
+        return componentVersion;
+    }
+
+
+    public JobClient() {
+
+    }
+
+    public void setComponentVersion(String componentVersion) {
+        this.componentVersion = componentVersion;
+    }
+
     public ParamAction getParamAction() {
         ParamAction action = new ParamAction();
         action.setSqlText(sql);
@@ -193,6 +207,7 @@ public class JobClient extends OrderObject {
         action.setAppType(appType);
         action.setRetryIntervalTime(retryIntervalTime);
         action.setSubmitExpiredTime(submitExpiredTime);
+        action.setComponentVersion(componentVersion);
         if (!Strings.isNullOrEmpty(pluginInfo)) {
             try {
                 action.setPluginInfo(PublicUtil.jsonStrToObject(pluginInfo, Map.class));

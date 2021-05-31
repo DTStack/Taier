@@ -117,16 +117,6 @@ public class ScheduleJob extends AppTenantEntity {
 
     private Boolean isForce;
 
-    private String componentVersion;
-
-    public String getComponentVersion() {
-        return componentVersion;
-    }
-
-    public void setComponentVersion(String componentVersion) {
-        this.componentVersion = componentVersion;
-    }
-
     private Integer taskRule;
 
 

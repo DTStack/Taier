@@ -920,13 +920,13 @@ public class ScheduleJobServiceTest extends AbstractTest {
     }
 
     private void buildComponentVersion(ScheduleJob scheduleJob) {
-        if (StringUtils.isNotBlank(scheduleJob.getComponentVersion())){
+       /* if (StringUtils.isNotBlank(scheduleJob.getComponentVersion())){
             return;
         }
         EComponentType componentType = ComponentVersionUtil.transformTaskType2ComponentType(scheduleJob.getTaskType());
         if (Objects.nonNull(componentType)){
             scheduleJob.setComponentVersion(componentDao.getDefaultComponentVersionByUicIdAndComponentType(
                     scheduleJob.getTenantId(),componentType.getTypeCode()));
-        }
+        }*/
     }
 }

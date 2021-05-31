@@ -6,12 +6,14 @@ import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleJobJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.enums.TaskRuleEnum;
+import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.BlockCallerPolicy;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.pojo.JobStatusFrequency;
 import com.dtstack.engine.common.util.LogCountUtil;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
@@ -162,11 +164,10 @@ public class  JobStatusDealer implements Runnable {
             String engineTaskId = scheduleJob.getEngineJobId();
             String appId = scheduleJob.getApplicationId();
             String engineType = engineJobCache.getEngineType();
-            JSONObject info = JSONObject.parseObject(engineJobCache.getJobInfo());
-            String taskParams = info.getString("taskParams");
-            String pluginInfo = info.getString("pluginInfo");
-            Long userId = info.getLong("userId");
-            JobIdentifier jobIdentifier = new JobIdentifier(engineTaskId, appId, jobId,scheduleJob.getDtuicTenantId(),engineType, TaskParamsUtil.parseDeployTypeByTaskParams(taskParams,scheduleJob.getComputeType(),engineType).getType(),userId, pluginInfo);
+            ParamAction paramAction = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), ParamAction.class);
+            JobIdentifier jobIdentifier = new JobIdentifier(engineTaskId, appId, jobId,scheduleJob.getDtuicTenantId(),engineType,
+                    TaskParamsUtil.parseDeployTypeByTaskParams(paramAction.getTaskParams(),scheduleJob.getComputeType(),engineType).getType(),
+                    paramAction.getUserId(), JSONObject.toJSONString(paramAction.getPluginInfo()),paramAction.getComponentVersion());
 
             RdosTaskStatus rdosTaskStatus = workerOperator.getJobStatus(jobIdentifier);
 

@@ -1115,7 +1115,7 @@ public class ScheduleJobService {
                     ParamActionExt paramActionExt = actionService.paramActionExt(batchTask, scheduleJob, info);
                     if (paramActionExt != null) {
                         this.updateStatusByJobId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus(),batchTask.getVersionId());
-                        actionService.start(paramActionExt,true);
+                        actionService.start(paramActionExt);
                         return;
                     }
                 }

@@ -91,6 +91,9 @@ public class ParamAction {
 	 */
 	private Long retryIntervalTime;
 
+    /**
+     * 任务运行版本
+     */
 	private String componentVersion;
 
 	public String getComponentVersion() {
