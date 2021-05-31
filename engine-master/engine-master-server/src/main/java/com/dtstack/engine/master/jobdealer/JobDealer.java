@@ -234,7 +234,9 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
 
     public String getAndUpdateEngineLog(String jobId, String engineJobId, String appId, Long dtuicTenantId) {
 
-
+        if(StringUtils.isBlank(engineJobId)){
+            return "";
+        }
         String engineLog = null;
         try {
             EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
