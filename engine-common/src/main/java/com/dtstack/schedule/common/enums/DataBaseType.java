@@ -40,7 +40,8 @@ public enum DataBaseType {
     MySql8("mysql8", "com.mysql.cj.jdbc.Driver"),
     DMDB("DMDB","dm.jdbc.driver.DmDriver"),
     Greenplum6("Greenplum6", "com.pivotal.jdbc.GreenplumDriver"),
-    Presto("presto", "com.facebook.presto.jdbc.PrestoDriver");
+    Presto("presto", "com.facebook.presto.jdbc.PrestoDriver"),
+    Inceptor("inceptor", "org.apache.hive.jdbc.HiveDriver");
 
     private String typeName;
     private String driverClassName;

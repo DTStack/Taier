@@ -144,6 +144,8 @@ public enum DataSourceType {
                 return DataBaseType.Greenplum6;
             case Presto:
                 return DataBaseType.Presto;
+            case INCEPTOR_SQL:
+                return DataBaseType.Inceptor;
             default:
                 throw new RdosDefineException("不支持数据源类型");
         }
