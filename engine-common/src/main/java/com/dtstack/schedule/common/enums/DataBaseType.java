@@ -235,7 +235,7 @@ public enum DataBaseType {
                 return HIVE.getTypeName();
             case HIVE3:
                 return HIVE3.getTypeName();
-            case Inceptor:
+            case INCEPTOR_SQL:
                 return Inceptor.getTypeName();
             default:
                 return null;
