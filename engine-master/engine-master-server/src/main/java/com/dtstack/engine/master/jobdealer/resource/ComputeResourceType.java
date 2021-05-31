@@ -27,6 +27,7 @@ public enum ComputeResourceType {
     Presto,
     KingBase,
     InceptorSQL,
-    DtScriptAgent;
+    DtScriptAgent,
+    FlinkOnStandalone;
 
 }

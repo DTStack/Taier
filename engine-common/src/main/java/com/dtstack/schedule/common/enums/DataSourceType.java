@@ -57,7 +57,7 @@ public enum DataSourceType {
     KINGBASE8(40),
     VERTICA(43),
     SPARKTHRIFT2_1(45),
-    INCEPTOR_SQL(44),
+    INCEPTOR_SQL(52),
     HIVE3(50),
 
     /**
@@ -237,7 +237,7 @@ public enum DataSourceType {
     }
 
     public static List<DataSourceType> noNeedUserNamePasswordDataSources = Lists.newArrayList(DataSourceType.HBASE,
-            DataSourceType.Phoenix,DataSourceType.HIVE,DataSourceType.SPARKTHRIFT2_1,DataSourceType.HIVE1X,DataSourceType.IMPALA,DataSourceType.HIVE3);
+            DataSourceType.Phoenix,DataSourceType.HIVE,DataSourceType.SPARKTHRIFT2_1,DataSourceType.HIVE1X,DataSourceType.IMPALA,DataSourceType.HIVE3,DataSourceType.INCEPTOR_SQL);
 
 
     public static List<Integer> hadoopDirtyDataSource = Lists.newArrayList(

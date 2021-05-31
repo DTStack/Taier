@@ -235,7 +235,7 @@ public class JobCheckpointDealer implements InitializingBean {
             try {
                 String pluginInfo = clusterService.pluginInfoJSON(jobIdentifier.getTenantId(),
                         jobIdentifier.getEngineType(), jobIdentifier.getUserId(), jobIdentifier.getDeployMode(),
-                        Collections.singletonMap(EngineTypeComponentType.getByEngineName(jobIdentifier.getEngineType()).getComponentType().getTypeCode(),jobIdentifier.getComponentVersion())).toJSONString();
+                        Collections.singletonMap(EngineTypeComponentType.getByEngineName(jobIdentifier.getEngineType(),jobIdentifier.getDeployMode()).getComponentType().getTypeCode(),jobIdentifier.getComponentVersion())).toJSONString();
                 int retainedNum = getRetainedNumFromPluginInfo(pluginInfo);
                 taskEngineIdAndRetainedNum.put(jobIdentifier.getEngineJobId(), retainedNum);
 
