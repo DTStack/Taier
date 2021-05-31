@@ -54,7 +54,7 @@ public class JobComputeResourcePlain {
         } else {
             jobResource = jobClient.getEngineType() + SPLIT + jobClient.getGroupName() + SPLIT + jobClient.getComputeType().name().toLowerCase();
         }
-        return jobResource + SPLIT + computeResourceType.name()+ SPLIT + jobClient.getType();
+        return jobResource + SPLIT + computeResourceType.name() + jobClient.getType();
     }
 
 
