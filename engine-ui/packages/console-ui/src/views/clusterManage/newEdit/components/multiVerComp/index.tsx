@@ -43,7 +43,7 @@ export default class MultiVersionComp extends React.Component<IProps, any> {
             {versionData[VERSION_TYPE[typeCode]]?.map(({ key, value }) => {
                 const disabled = comp?.multiVersion?.findIndex(vcomp => vcomp.hadoopVersion == value)
                 return <MenuItem disabled={disabled > -1} key={value} >
-                    {COMPONENT_CONFIG_NAME[typeCode]} {key}
+                    {COMPONENT_CONFIG_NAME[typeCode]} {this.getCompVersion(value)}
                 </MenuItem>
             })}
         </Menu>
@@ -57,6 +57,12 @@ export default class MultiVersionComp extends React.Component<IProps, any> {
             hadoopVersion: value
         }, COMP_ACTION.ADD)
         getLoadTemplate(typeCode, { compVersion: value })
+    }
+
+    getCompVersion = (value: string) => {
+        const flinkVersion = '110'
+        if (value !== flinkVersion) return (Number(value) / 100).toFixed(1)
+        return (Number(value) / 100).toFixed(2)
     }
 
     render () {
@@ -78,7 +84,7 @@ export default class MultiVersionComp extends React.Component<IProps, any> {
                             >
                                 <span className="comp-name">
                                     <img src={`public/img/${VERSION_TYPE[typeCode]}.png`}/>
-                                    <span>{COMPONENT_CONFIG_NAME[typeCode]} {(Number(value) / 100).toFixed(2)}</span>
+                                    <span>{COMPONENT_CONFIG_NAME[typeCode]} {this.getCompVersion(value)}</span>
                                 </span>
                                 <Icon type="right-circle" theme="filled" />
                             </div>
@@ -112,7 +118,7 @@ export default class MultiVersionComp extends React.Component<IProps, any> {
                         <TabPane
                             tab={
                                 <span>
-                                    {COMPONENT_CONFIG_NAME[vcomp.componentTypeCode]} {(Number(vcomp.hadoopVersion) / 100).toFixed(2)}
+                                    {COMPONENT_CONFIG_NAME[vcomp.componentTypeCode]} {this.getCompVersion(vcomp.hadoopVersion)}
                                     <TestRestIcon testStatus={testStatus.find(status => status?.componentVersion == vcomp.hadoopVersion)}/>
                                 </span>
                             }
