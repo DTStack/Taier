@@ -25,6 +25,7 @@ import com.dtstack.engine.master.utils.TaskParamsUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -243,9 +244,10 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
             }
             String engineType = engineJobCache.getEngineType();
             ParamAction paramAction = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), ParamAction.class);
+            Map<String, Object> pluginInfo = paramAction.getPluginInfo();
             JobIdentifier jobIdentifier = new JobIdentifier(engineJobId, appId, jobId,dtuicTenantId,engineType,
                     TaskParamsUtil.parseDeployTypeByTaskParams(paramAction.getTaskParams(),engineJobCache.getComputeType(),engineJobCache.getEngineType()).getType(),
-                    paramAction.getUserId(),JSONObject.toJSONString(paramAction.getPluginInfo()),paramAction.getComponentVersion());
+                    paramAction.getUserId(), MapUtils.isEmpty(pluginInfo) ? null : JSONObject.toJSONString(pluginInfo),paramAction.getComponentVersion());
             //从engine获取log
             engineLog = workerOperator.getEngineLog(jobIdentifier);
             if (engineLog != null) {

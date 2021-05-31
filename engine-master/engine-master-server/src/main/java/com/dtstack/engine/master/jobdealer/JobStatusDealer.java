@@ -27,7 +27,7 @@ import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.utils.TaskParamsUtil;
 import com.google.common.collect.Maps;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -165,9 +165,10 @@ public class  JobStatusDealer implements Runnable {
             String appId = scheduleJob.getApplicationId();
             String engineType = engineJobCache.getEngineType();
             ParamAction paramAction = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), ParamAction.class);
+            Map<String, Object> pluginInfo = paramAction.getPluginInfo();
             JobIdentifier jobIdentifier = new JobIdentifier(engineTaskId, appId, jobId,scheduleJob.getDtuicTenantId(),engineType,
                     TaskParamsUtil.parseDeployTypeByTaskParams(paramAction.getTaskParams(),scheduleJob.getComputeType(),engineType).getType(),
-                    paramAction.getUserId(), JSONObject.toJSONString(paramAction.getPluginInfo()),paramAction.getComponentVersion());
+                    paramAction.getUserId(),  MapUtils.isEmpty(pluginInfo) ? null : JSONObject.toJSONString(pluginInfo),paramAction.getComponentVersion());
 
             RdosTaskStatus rdosTaskStatus = workerOperator.getJobStatus(jobIdentifier);
 

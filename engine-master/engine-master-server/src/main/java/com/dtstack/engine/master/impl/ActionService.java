@@ -101,6 +101,9 @@ public class ActionService {
     @Autowired
     private ScheduleSqlTextTempDao sqlTextTempDao;
 
+    @Autowired
+    private ScheduleDictService scheduleDictService;
+
     private final ObjectMapper objMapper = new ObjectMapper();
 
 
@@ -335,6 +338,8 @@ public class ActionService {
     private boolean receiveStartJob(ParamActionExt paramActionExt){
         String jobId = paramActionExt.getTaskId();
         Integer computerType = paramActionExt.getComputeType();
+        String componentVersionValue = scheduleDictService.convertVersionNameToValue(paramActionExt.getComponentVersion(), paramActionExt.getEngineType());
+        paramActionExt.setComponentVersion(componentVersionValue);
 
         //当前任务已经存在在engine里面了
         //不允许相同任务同时在engine上运行---考虑将cache的清理放在任务结束的时候(停止，取消，完成)
