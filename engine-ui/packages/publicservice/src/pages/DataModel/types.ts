@@ -29,6 +29,7 @@ interface JoinKeyItem {
   columnName: string;
   columnType: string;
   columnComment: string;
+  tableAlias?: string;
 }
 
 // 关联键信息
@@ -56,6 +57,7 @@ export interface FieldColumn {
   tableAlias?: string;
   dimension?: boolean;
   metric?: boolean;
+  _type?: any;
 }
 
 // 表关联信息

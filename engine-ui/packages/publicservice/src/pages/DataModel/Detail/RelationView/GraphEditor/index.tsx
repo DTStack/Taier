@@ -41,7 +41,7 @@ interface State {
 const legendList = [
   { color: '#3F87FF', title: '主表', border: false },
   { color: '#FFB310', title: '关联表', border: false },
-  { color: '#E8E8E8', title: '非模型字段（仅作为关联键）', border: true },
+  { color: '#F2F9FF', title: '非模型字段（仅作为关联键）', border: true },
 ];
 
 export default class GraphEditor extends React.Component<Props, State> {
@@ -117,7 +117,7 @@ export default class GraphEditor extends React.Component<Props, State> {
         <div className="graph_toolbar">
           <div className="basic_bar">
             {this.tools.map((item) => (
-              <Tooltip placement="left" title={item.title}>
+              <Tooltip placement="left" key={item.title} title={item.title}>
                 <i
                   onClick={item.action}
                   className={`iconfont2 toolbar-icon ${item.icon}`}

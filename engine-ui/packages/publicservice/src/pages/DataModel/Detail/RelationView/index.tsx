@@ -1,170 +1,112 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import GraphEditor from './GraphEditor';
-
+import { IModelDetail } from '../../types';
+import { EnumNodeType, IRelationTree, EnumTableType } from './types';
+import { mapJoinType } from './constants';
+import { loop } from './utils';
 import './style';
 import _ from 'highlight.js/lib/languages/*';
-import { FieldColumn, IModelDetail, JoinType } from '../../types';
 
-enum EnumNodeType {
-  TABLE_NAME = 'TABLE_NAME',
-  COLUMN_NAME = 'COLUMN_NAME',
-  PARTITION_COLUMN = 'PARTITION_COLUMN',
-}
+/**
+ *
+ * @param columns
+ * @param joinList 父节点的关联表信息
+ * @returns
+ */
+export const getColumnsByTableAliasGenerator = (columns, joinList) => {
+  /**
+   * 根据父节点表别名生成展示的columns列表
+   * @param tableAlis 父节点表别名
+   */
+  return (tableAlias) => {
+    // 以tableAlias作为左表关联的关联关系
+    const leftJoinList = joinList
+      .filter((item) => item.leftTableAlias === tableAlias)
+      .map((item) => item.joinPairs.map((item) => item.leftValue))
+      .reduce((temp, current) => {
+        return [...temp, ...current];
+      }, []);
+    // 以tableAlis作为右表关联的关联关系
+    const rightJoinList = joinList
+      .filter((item) => item.tableAlias === tableAlias)
+      .map((item) => item.joinPairs.map((item) => item.rightValue))
+      .reduce((temp, current) => {
+        return [...temp, ...current];
+      }, []);
 
-interface IRelationTreeJoinItem {
-  tableAlias: string;
-  tableName: string;
-  schema: string;
-  columnType: string;
-  columnName: string;
-}
-
-interface IRelationTree {
-  tableName: string;
-  columns: FieldColumn[];
-  joinInfo: null | {
-    joinType: JoinType;
-    joinPairs: {
-      leftValue: IRelationTreeJoinItem,
-      rightValue: IRelationTreeJoinItem,
-    }[]
+    // 将关联键字段与选中的度量维度列表拼接生成展示的columnList
+    // TODO: 需要确认：为勾选维度度量的分区字段是否需要显示
+    const cols = columns.filter(
+      (col) => (col.metric || col.dimension) && col.tableAlias === tableAlias
+    );
+    [...leftJoinList, ...rightJoinList].forEach((col) => {
+      if (cols.findIndex((item) => item.columnName === col.columnName) === -1) {
+        cols.push({
+          ...col,
+          _type: EnumTableType.RELATION,
+        });
+      }
+    });
+    return cols;
   };
-  children: IRelationTree[];
-}
-
-const tree: IRelationTree = {
-  tableName: 'aaaaaaaaaaa',
-  joinInfo: null,
-  columns: [
-    {
-      schema: 'tag_engine',
-      tableName: 'dl_user_main',
-      columnName: 'aaa',
-      columnType: 'INTEGER',
-      columnComment: '消费额度',
-      dimension: false,
-      metric: true,
-    },
-    {
-      schema: 'tag_engine',
-      tableName: 'dl_user_main',
-      columnName: 'bbb',
-      columnType: 'varchar',
-      columnComment: '消费等级',
-      dimension: false,
-      metric: true,
-    },
-  ],
-  children: [
-    {
-      tableName: 'b',
-      joinInfo: {
-        joinType: 1,
-        joinPairs: [
-          {
-            leftValue: {
-              tableName: 'aaaaaaaaaaa',
-              columnName: 'aaa',
-              schema: 'string',
-              columnType: '',
-              tableAlias: 'a',
-            },
-            rightValue: {
-              tableName: 'b',
-              columnName: 'aaa',
-              schema: 'string',
-              columnType: '',
-              tableAlias: 'b'
-            }
-          }
-        ]
-      },
-      columns: [
-        {
-          schema: 'tag_engine',
-          tableName: 'dl_user_main',
-          columnName: 'aaa',
-          columnType: 'INTEGER',
-          columnComment: '消费额度',
-          dimension: false,
-          metric: true,
-        },
-        {
-          schema: 'tag_engine',
-          tableName: 'dl_user_main',
-          columnName: 'bbb',
-          columnType: 'varchar',
-          columnComment: '消费等级',
-          dimension: false,
-          metric: true,
-        },
-      ],
-      children: []
-    },
-    // {
-    //   tableName: 'b',
-    //   joinInfo: {
-    //     joinType: 1,
-    //     joinPairs: [
-    //       {
-    //         leftValue: {
-    //           tableName: 'aaaaaaaaaaa',
-    //           columnName: 'aaa',
-    //           schema: 'string',
-    //           columnType: '',
-    //           tableAlias: 'a',
-    //         },
-    //         rightValue: {
-    //           tableName: 'b',
-    //           columnName: 'aaa',
-    //           schema: 'string',
-    //           columnType: '',
-    //           tableAlias: 'b'
-    //         }
-    //       }
-    //     ]
-    //   },
-    //   columns: [
-    //     {
-    //       schema: 'tag_engine',
-    //       tableName: 'dl_user_main',
-    //       columnName: 'aaa',
-    //       columnType: 'INTEGER',
-    //       columnComment: '消费额度',
-    //       dimension: false,
-    //       metric: true,
-    //     },
-    //     {
-    //       schema: 'tag_engine',
-    //       tableName: 'dl_user_main',
-    //       columnName: 'bbb',
-    //       columnType: 'varchar',
-    //       columnComment: '消费等级',
-    //       dimension: false,
-    //       metric: true,
-    //     },
-    //   ],
-    //   children: []
-    // }
-  ],
 };
 
-type LoopCallback = (item: IRelationTree) => void;
+export const relationViewTreeParser = (
+  modelDetail: Partial<IModelDetail>
+): IRelationTree => {
+  const { columns, joinList } = modelDetail;
+  const getColumnsByTableAlias = getColumnsByTableAliasGenerator(
+    columns,
+    joinList
+  );
+  const createTableNodeChildren = (
+    parentNodeAlias: string,
+    joinInfoList: any[]
+  ) => {
+    const list = joinList.filter(
+      (item) => item.leftTableAlias === parentNodeAlias
+    );
+    if (list.length === 0) return [];
+    list.map((joinItem) => ({
+      joinType: joinItem.joinType,
+      joinPairs: joinItem.joinPairs,
+      tableAlias: joinItem.tableAlias,
+    }));
+    return list.map((item) => ({
+      tableName: item.table,
+      tableAlias: item.tableAlias,
+      columns: getColumnsByTableAlias(item.tableAlias),
+      joinInfo: joinInfoList.find(
+        (joinInfoItem) => joinInfoItem.tableAlias === item.tableAlias
+      ),
+      children: createTableNodeChildren(
+        item.tableAlias,
+        joinList.filter((joinInfoItem) => ({
+          JoinType: joinInfoItem.joinType,
+          joinPairs: joinInfoItem.joinPairs,
+          tableAlias: joinInfoItem.tableAlias,
+        }))
+      ),
+      _tableType: 'relation',
+    }));
+  };
 
-const loop = (tree: IRelationTree, cb?: LoopCallback) => {
-  const stack = [];
-  stack.push(tree);
-  while (stack.length > 0) {
-    const parent = stack.pop();
-    if (typeof cb === 'function') {
-      cb(parent);
-    }
-    if (parent.children && Array.isArray(parent.children)) {
-      parent.children.forEach((item) => {
-        stack.push(item);
-      });
-    }
-  }
+  const mainJoinList = modelDetail.joinList.map((item) => ({
+    joinType: item.joinType,
+    joinPairs: item.joinPairs,
+    tableAlias: item.tableAlias,
+  }));
+
+  // 主表信息
+  const mainTable = {
+    tableName: modelDetail.tableName,
+    tableAlias: 't0',
+    columns: getColumnsByTableAlias('t0'),
+    joinInfo: null,
+    children: createTableNodeChildren('t0', mainJoinList),
+    _tableType: EnumTableType.PRIMARY,
+  };
+  return mainTable;
 };
 
 interface IPropsRelationView {
@@ -174,30 +116,33 @@ interface IPropsRelationView {
 const RelationView = (props: IPropsRelationView) => {
   const { modelDetail } = props;
   if (!modelDetail.id) return null;
-  console.log(modelDetail)
+  const [loading, setLoading] = useState(false);
+  // detail数据转化成tree格式
+  const tree = relationViewTreeParser(modelDetail);
 
-  // 数据转化成tree格式
-
-
-  const graph = useRef(null);
+  const refGraph = useRef(null);
   const rootCell = useRef(null);
   const refGraphEditor = useRef(null);
+  const refMx = useRef(null);
 
+  // 关联表渲染逻辑
   const tableRender = (graph) => {
     return (
-      data: { tableName: string; columnList: any[] },
+      data: { tableName: string; columnList: any[]; _tableType: string },
       position: { x?: number; y?: number } = {}
     ) => {
-      const { tableName, columnList } = data;
+      const { tableName, columnList, _tableType } = data;
       const { x = 0, y = 0 } = position;
       const _tableCellList = [];
       const cellWidth = 180;
       const cellHeight = 32;
       const parent = graph.getDefaultParent();
       const height = (columnList.length + 1) * cellHeight;
-      const tableNameCellColor = '#3F87FF';
+      const tableNameCellColor =
+        _tableType === EnumTableType.PRIMARY ? '#3F87FF' : '#FFB310';
       const tableNameFontColor = '#FFFFFF';
       const colNameCellColor = '#FFFFFF';
+      const colNameCellColorNoneModel = '#F2F9FF'; // 非模型字段颜色
 
       const parentCell = graph.insertVertex(
         parent,
@@ -209,6 +154,8 @@ const RelationView = (props: IPropsRelationView) => {
         height,
         `strokeColor=${tableNameCellColor};`
       );
+
+      // 表名称渲染
       const tableNameCell = graph.insertVertex(
         parentCell,
         null,
@@ -224,6 +171,10 @@ const RelationView = (props: IPropsRelationView) => {
       _tableCellList.push(tableNameCell);
       columnList.forEach((column, index) => {
         const scrollTop = (index + 1) / (columnList.length + 1);
+        const _colFillColor =
+          column._type === EnumTableType.RELATION
+            ? colNameCellColorNoneModel
+            : colNameCellColor;
         const cell = graph.insertVertex(
           parentCell,
           null,
@@ -232,12 +183,14 @@ const RelationView = (props: IPropsRelationView) => {
           scrollTop,
           cellWidth,
           cellHeight,
-          `fillColor=${colNameCellColor};strokeColor=#E8E8E8;align=left;`
+          `fillColor=${_colFillColor};strokeColor=#E8E8E8;align=left;`
         );
         cell.nodeType = EnumNodeType.COLUMN_NAME;
+        cell._data = column;
         cell.geometry.relative = true;
         _tableCellList.push(cell);
       });
+      // 渲染外边框
       const wrapper = graph.insertVertex(
         parentCell,
         null,
@@ -246,24 +199,27 @@ const RelationView = (props: IPropsRelationView) => {
         0,
         cellWidth,
         height,
-        `strokeColor=${tableNameCellColor}`
+        `strokeColor=${tableNameCellColor};`
       );
       wrapper.geometry.relative = true;
-
       return _tableCellList;
     };
   };
 
   const getLabel = (cell) => {
-    // TODO: 逻辑待补充完善
     if (cell.edge === true) {
       return '<div style="background: #ffffff;">' + cell.value + '</div>';
     }
     switch (cell.nodeType) {
       case EnumNodeType.COLUMN_NAME:
-        return '<div class="margin-left-12">' + cell.value + '</div>';
-      case EnumNodeType.PARTITION_COLUMN:
-        return '<div class="margin-left-12">' + cell.value + '</div>';
+        const _color = cell._data.partition ? '#3F87FF' : '#333333';
+        return (
+          '<div class="margin-left-12" style="color: ' +
+          _color +
+          ';">' +
+          cell.value +
+          '</div>'
+        );
       case EnumNodeType.TABLE_NAME:
         return (
           '<div class="margin-left-12">' +
@@ -279,56 +235,66 @@ const RelationView = (props: IPropsRelationView) => {
   };
 
   const insertEdge = (parent: any, label: string, source: any, target: any) => {
-    graph.current.insertEdge(parent, null, label, source, target);
+    refGraph.current.insertEdge(parent, null, label, source, target);
   };
 
   const executeLayout = (parent: any, Layout: any, option: any = {}) => {
-    const _layout = new Layout(graph.current);
+    const _layout = new Layout(refGraph.current);
     Object.keys(option).forEach((key) => {
       _layout[key] = option[key];
     });
     _layout.execute(parent);
   };
 
-  const handleInit = (_graph, mx) => {
-    graph.current = _graph;
-    graph.current.getLabel = getLabel;
-    const model = graph.current.getModel();
+  const handleInit = (_grapth, mx) => {
+    refGraph.current = _grapth;
+    refMx.current = mx;
+  };
+
+  const update = (tree) => {
+    refGraph.current.getLabel = getLabel;
+    const model = refGraph.current.getModel();
     model.beginUpdate();
-    graph.current.labelsVisible = true;
-
+    // 清空画布
+    model.clear();
+    setLoading(true);
+    refGraph.current.labelsVisible = true;
     try {
-      rootCell.current = graph.current.getDefaultParent();
-      const render = tableRender(graph.current);
+      rootCell.current = refGraph.current.getDefaultParent();
+      const render = tableRender(refGraph.current);
       const map = new Map();
-
       loop(tree, (item) => {
         const list = render({
           tableName: item.tableName,
           columnList: item.columns,
+          _tableType: item._tableType,
         });
-        map.set(item.tableName, list);
-        // render relation line
+        map.set(item.tableAlias, list);
         const { joinInfo } = item;
         if (joinInfo) {
           const joinPairs = joinInfo.joinPairs;
           joinPairs.map((joinItem) => {
-            const leftTableColumnList = map.get(joinItem.leftValue.tableName);
-            const rightTableColumnList = map.get(joinItem.rightValue.tableName);
+            const leftTableColumnList = map.get(joinItem.leftValue.tableAlias);
+            const rightTableColumnList = map.get(
+              joinItem.rightValue.tableAlias
+            );
             const cellLeftCol = leftTableColumnList.find(
               (item) => item.value === joinItem.leftValue.columnName
             );
             const cellRightcol = rightTableColumnList.find(
               (item) => item.value === joinItem.rightValue.columnName
             );
-            insertEdge(rootCell.current, 'left', cellLeftCol, cellRightcol);
+            insertEdge(
+              rootCell.current,
+              mapJoinType.get(item.joinInfo.joinType),
+              cellLeftCol,
+              cellRightcol
+            );
           });
         }
       });
-
-      const { mxHierarchicalLayout } = mx;
-
-      executeLayout(graph.current.getDefaultParent(), mxHierarchicalLayout, {
+      const { mxHierarchicalLayout } = refMx.current;
+      executeLayout(refGraph.current.getDefaultParent(), mxHierarchicalLayout, {
         orientation: 'west',
         disableEdgeStyle: false,
         interRankCellSpacing: 200,
@@ -337,16 +303,21 @@ const RelationView = (props: IPropsRelationView) => {
     } catch (err) {
       throw err;
     } finally {
+      setLoading(false);
       model.endUpdate();
     }
   };
+
+  useEffect(() => {
+    update(tree);
+  }, [modelDetail.id]);
 
   return (
     <div className="relation-view">
       <GraphEditor
         ref={(ref) => (refGraphEditor.current = ref)}
         rootCell={rootCell.current}
-        loading={false}
+        loading={loading}
         name="name"
         onInit={handleInit}
       />
