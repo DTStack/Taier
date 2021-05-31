@@ -1,17 +1,21 @@
 package com.dtstack.engine.master.plugininfo;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.domain.ScheduleDict;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.enums.ScheduleEngineType;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
+import com.dtstack.engine.master.enums.DictType;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.impl.ClusterService;
+import com.dtstack.engine.master.impl.ScheduleDictService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.utils.TaskParamsUtil;
 import com.dtstack.schedule.common.enums.Deleted;
@@ -49,6 +53,9 @@ public class PluginWrapper{
     @Autowired
     private ScheduleTaskShadeDao scheduleTaskShadeDao;
 
+    @Autowired
+    private ScheduleDictService scheduleDictService;
+
     public Map<String, Object> wrapperPluginInfo(ParamAction action) throws Exception{
 
         Map actionParam = PublicUtil.objectToMap(action);
@@ -72,8 +79,8 @@ public class PluginWrapper{
 
         }
         // 需要传入组件版本,涉及Null值构建Map需要检验Null兼容
-        JSONObject pluginInfoJson = clusterService.pluginInfoJSON(tenantId, engineType, action.getUserId(),deployMode,
-                Collections.singletonMap(EngineTypeComponentType.engineName2ComponentType(engineType),action.getComponentVersion()));
+        Map<Integer, String> versionMap = convertVersionNameToValue(action, engineType);
+        JSONObject pluginInfoJson = clusterService.pluginInfoJSON(tenantId, engineType, action.getUserId(),deployMode,versionMap);
         String groupName = ConfigConstant.DEFAULT_GROUP_NAME;
         action.setGroupName(groupName);
         if (null != pluginInfoJson && !pluginInfoJson.isEmpty()) {
@@ -93,6 +100,24 @@ public class PluginWrapper{
         }
 
         return pluginInfoJson;
+    }
+
+    private Map<Integer, String> convertVersionNameToValue(ParamAction action, String engineType) {
+        String componentVersion = action.getComponentVersion();
+        Map<Integer, String> versionMap = null;
+        if (StringUtils.isNotBlank(componentVersion)) {
+            Integer componentType = EngineTypeComponentType.engineName2ComponentType(engineType);
+            if (null != componentType) {
+                Integer dictType = DictType.getByEComponentType(EComponentType.getByCode(componentType));
+                if (null != dictType) {
+                    ScheduleDict versionDict = scheduleDictService.getByNameAndValue(dictType, componentVersion.trim(), null, null);
+                    if (null != versionDict) {
+                        versionMap = Collections.singletonMap(componentType, versionDict.getDictValue());
+                    }
+                }
+            }
+        }
+        return versionMap;
     }
 
     private void addParamsToJdbcUrl(Map<String, Object> actionParam, JSONObject pluginInfoJson){
