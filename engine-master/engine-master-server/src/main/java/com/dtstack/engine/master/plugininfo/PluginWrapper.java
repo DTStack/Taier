@@ -79,8 +79,8 @@ public class PluginWrapper{
 
         }
         // 需要传入组件版本,涉及Null值构建Map需要检验Null兼容
-        Map<Integer, String> versionMap = convertVersionNameToValue(action, engineType);
-        JSONObject pluginInfoJson = clusterService.pluginInfoJSON(tenantId, engineType, action.getUserId(),deployMode,versionMap);
+        JSONObject pluginInfoJson = clusterService.pluginInfoJSON(tenantId, engineType, action.getUserId(),deployMode,
+                Collections.singletonMap(EngineTypeComponentType.engineName2ComponentType(engineType),action.getComponentVersion()));
         String groupName = ConfigConstant.DEFAULT_GROUP_NAME;
         action.setGroupName(groupName);
         if (null != pluginInfoJson && !pluginInfoJson.isEmpty()) {
@@ -102,23 +102,7 @@ public class PluginWrapper{
         return pluginInfoJson;
     }
 
-    private Map<Integer, String> convertVersionNameToValue(ParamAction action, String engineType) {
-        String componentVersion = action.getComponentVersion();
-        Map<Integer, String> versionMap = null;
-        if (StringUtils.isNotBlank(componentVersion)) {
-            Integer componentType = EngineTypeComponentType.engineName2ComponentType(engineType);
-            if (null != componentType) {
-                Integer dictType = DictType.getByEComponentType(EComponentType.getByCode(componentType));
-                if (null != dictType) {
-                    ScheduleDict versionDict = scheduleDictService.getByNameAndValue(dictType, componentVersion.trim(), null, null);
-                    if (null != versionDict) {
-                        versionMap = Collections.singletonMap(componentType, versionDict.getDictValue());
-                    }
-                }
-            }
-        }
-        return versionMap;
-    }
+
 
     private void addParamsToJdbcUrl(Map<String, Object> actionParam, JSONObject pluginInfoJson){
         if(pluginInfoJson == null || actionParam == null){
