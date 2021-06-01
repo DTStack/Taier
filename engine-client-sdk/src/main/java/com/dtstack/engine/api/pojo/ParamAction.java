@@ -91,6 +91,9 @@ public class ParamAction {
 	 */
 	private Long retryIntervalTime;
 
+    /**
+     * 任务运行版本 如flink 1.8 1.10
+     */
 	private String componentVersion;
 
 	public String getComponentVersion() {

@@ -420,7 +420,6 @@ public class JobGraphBuilder {
             scheduleJob.setJobName(targetJobName);
             scheduleJob.setPeriodType(scheduleCron.getPeriodType());
             scheduleJob.setTaskId(task.getTaskId());
-            scheduleJob.setComponentVersion(task.getComponentVersion());
             //普通任务
             if (task.getFlowId() == 0) {
                 scheduleJob.setFlowJobId(NORMAL_TASK_FLOW_ID);

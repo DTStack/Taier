@@ -1,17 +1,21 @@
 package com.dtstack.engine.master.plugininfo;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.domain.ScheduleDict;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.enums.ScheduleEngineType;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
+import com.dtstack.engine.master.enums.DictType;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.impl.ClusterService;
+import com.dtstack.engine.master.impl.ScheduleDictService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.common.util.TaskParamsUtil;
 import com.dtstack.schedule.common.enums.Deleted;
@@ -48,6 +52,9 @@ public class PluginWrapper{
 
     @Autowired
     private ScheduleTaskShadeDao scheduleTaskShadeDao;
+
+    @Autowired
+    private ScheduleDictService scheduleDictService;
 
     public Map<String, Object> wrapperPluginInfo(ParamAction action) throws Exception{
 
@@ -93,6 +100,8 @@ public class PluginWrapper{
 
         return pluginInfoJson;
     }
+
+
 
     private void addParamsToJdbcUrl(Map<String, Object> actionParam, JSONObject pluginInfoJson){
         if(pluginInfoJson == null || actionParam == null){

@@ -120,6 +120,12 @@ public class ComponentController {
     public List<DtScriptAgentLabel> getDtScriptAgentLabel(@DtRequestParam("agentAddress")String agentAddress){
         return componentService.getDtScriptAgentLabel(agentAddress);
     }
+
+    @RequestMapping(value = "/getComponentVersionByEngineType",method = {RequestMethod.POST})
+    @ApiOperation(value = "租户和engineType获取集群组件信息")
+    public List<Component> getComponentVersionByEngineType(@DtRequestParam("uicTenantId") Long tenantId,@DtRequestParam("engineType")String  engineType){
+        return componentService.getComponentVersionByEngineType(tenantId,engineType);
+    }
 }
 
 
