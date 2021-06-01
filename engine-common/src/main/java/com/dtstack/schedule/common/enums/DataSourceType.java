@@ -145,6 +145,8 @@ public enum DataSourceType {
                 return DataBaseType.Greenplum6;
             case Presto:
                 return DataBaseType.Presto;
+            case INCEPTOR_SQL:
+                return DataBaseType.Inceptor;
             case HIVE3:
                 return DataBaseType.HIVE3;
             default:
@@ -237,7 +239,8 @@ public enum DataSourceType {
     }
 
     public static List<DataSourceType> noNeedUserNamePasswordDataSources = Lists.newArrayList(DataSourceType.HBASE,
-            DataSourceType.Phoenix,DataSourceType.HIVE,DataSourceType.SPARKTHRIFT2_1,DataSourceType.HIVE1X,DataSourceType.IMPALA,DataSourceType.HIVE3,DataSourceType.INCEPTOR_SQL);
+            DataSourceType.Phoenix,DataSourceType.HIVE,DataSourceType.SPARKTHRIFT2_1,
+            DataSourceType.HIVE1X,DataSourceType.IMPALA,DataSourceType.HIVE3,DataSourceType.PHOENIX5,DataSourceType.INCEPTOR_SQL);
 
 
     public static List<Integer> hadoopDirtyDataSource = Lists.newArrayList(
