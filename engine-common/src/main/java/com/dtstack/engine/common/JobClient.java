@@ -120,6 +120,10 @@ public class JobClient extends OrderObject {
      */
     private Long retryIntervalTime;
 
+    /**
+     * 0正常调度 1补数据 2临时运行
+     */
+    private Integer type;
 
     public JobClient() {
 
@@ -500,6 +504,14 @@ public class JobClient extends OrderObject {
 
     public void setRetryIntervalTime(Long retryIntervalTime) {
         this.retryIntervalTime = retryIntervalTime;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
     }
 
     @Override

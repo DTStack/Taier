@@ -136,6 +136,7 @@ public class ActionService {
             //会对重复数据做校验
             if(canAccepted){
                 JobClient jobClient = new JobClient(paramActionExt);
+                jobClient.setType(getOrDefault(paramActionExt.getType(), EScheduleType.TEMP_JOB.getType()));
                 jobDealer.addSubmitJob(jobClient);
                 return true;
             }
@@ -264,6 +265,7 @@ public class ActionService {
         actionParam.put("taskId", scheduleJob.getJobId());
         actionParam.put("taskType", EScheduleJobType.getEngineJobType(batchTask.getTaskType()));
         actionParam.put("appType", batchTask.getAppType());
+        actionParam.put("type",scheduleJob.getType());
         Object tenantId = actionParam.get("tenantId");
         if (Objects.isNull(tenantId)) {
             actionParam.put("tenantId", batchTask.getDtuicTenantId());
