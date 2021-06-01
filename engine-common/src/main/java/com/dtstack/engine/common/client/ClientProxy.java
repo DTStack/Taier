@@ -1,10 +1,7 @@
 package com.dtstack.engine.common.client;
 
+import com.dtstack.engine.api.pojo.*;
 import com.dtstack.engine.api.pojo.CheckResult;
-import com.dtstack.engine.api.pojo.CheckResult;
-import com.dtstack.engine.api.pojo.ClientTemplate;
-import com.dtstack.engine.api.pojo.ClusterResource;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
@@ -372,6 +369,21 @@ public class ClientProxy implements IClient {
             return CompletableFuture.supplyAsync(() -> {
                 try {
                     return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.grammarCheck(jobClient), targetClient.getClass().getClassLoader(), true);
+                } catch (Exception e) {
+                    throw new RdosDefineException(e);
+                }
+            }, executorService).get(timeout, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            throw new RdosDefineException(e);
+        }
+    }
+
+    @Override
+    public List<DtScriptAgentLabel> getDtScriptAgentLabel(String pluginInfo) {
+        try {
+            return CompletableFuture.supplyAsync(() -> {
+                try {
+                    return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.getDtScriptAgentLabel(pluginInfo), targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
                     throw new RdosDefineException(e);
                 }

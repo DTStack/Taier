@@ -10,6 +10,7 @@ import com.dtstack.engine.api.dto.Resource;
 import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.api.pojo.DtScriptAgentLabel;
 import com.dtstack.engine.api.pojo.lineage.ComponentMultiTestResult;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.api.vo.ComponentVO;
@@ -2161,6 +2162,28 @@ public class ComponentService {
         }
         multiTestResult.getMultiVersion().add(componentTestResult);
 
+    }
+
+    public List<DtScriptAgentLabel> getDtScriptAgentLabel(String agentAddress) {
+        try {
+            String pluginInfo = new JSONObject(1).fluentPut("agentAddress",agentAddress).toJSONString();
+            // 不需要集群信息,dtScriptAgent属于普通rdb,直接获取即可
+            String engineType = EComponentType.convertPluginNameByComponent(EComponentType.DTSCRIPT_AGENT);
+            List<DtScriptAgentLabel> dtScriptAgentLabelList = workerOperator.getDtScriptAgentLabel(engineType, pluginInfo);
+            Map<String, List<DtScriptAgentLabel>> labelGroup = dtScriptAgentLabelList.stream().collect(Collectors.groupingBy(DtScriptAgentLabel::getLabel));
+            List<DtScriptAgentLabel> resultList = new ArrayList<>(labelGroup.size());
+            for (Map.Entry<String, List<DtScriptAgentLabel>> entry : labelGroup.entrySet()) {
+                String ip = entry.getValue().stream().map(localIp -> localIp+":22").collect(Collectors.joining(","));
+                DtScriptAgentLabel dtScriptAgentLabel = new DtScriptAgentLabel();
+                dtScriptAgentLabel.setLabel(entry.getKey());
+                dtScriptAgentLabel.setLocalIp(ip);
+                resultList.add(dtScriptAgentLabel);
+            }
+            return resultList;
+        }catch (Exception e){
+            LOGGER.error("find dtScript Agent label error",e);
+        }
+        return Collections.emptyList();
     }
 
     public Component getMetadataComponent(Long clusterId){

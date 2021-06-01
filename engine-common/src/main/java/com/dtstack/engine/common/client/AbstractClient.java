@@ -1,13 +1,10 @@
 package com.dtstack.engine.common.client;
 
-import com.dtstack.engine.api.pojo.CheckResult;
-import com.dtstack.engine.api.pojo.ClientTemplate;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.api.pojo.*;
 import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.EJobType;
-import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JobStatusFrequency;
@@ -151,6 +148,11 @@ public abstract class AbstractClient implements IClient {
 
     @Override
     public CheckResult grammarCheck(JobClient jobClient){
+        return null;
+    }
+
+    @Override
+    public List<DtScriptAgentLabel> getDtScriptAgentLabel(String pluginInfo) {
         return null;
     }
 }
