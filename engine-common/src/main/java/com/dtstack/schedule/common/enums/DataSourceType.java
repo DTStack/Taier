@@ -60,6 +60,8 @@ public enum DataSourceType {
     INCEPTOR_SQL(52),
     HIVE3(50),
 
+    ADB_POSTGREPSQL(46),
+
     /**
      * spark thrift
      */

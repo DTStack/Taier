@@ -1,5 +1,7 @@
 package com.dtstack.engine.common.enums;
 
+import com.dtstack.engine.common.constrant.ComponentConstant;
+
 /**
  *
  * 引擎类型
@@ -18,7 +20,8 @@ public enum MultiEngineType {
     GREENPLUM(6, "Greenplum"),
     PRESTO(7, "Presto"),
     INCEPTOR_SQL(8,"inceptor"),
-    FLINK_ON_STANDALONE(9,"FlinkOnStandalone")
+    ANALYTICDB_FOR_PG(9, ComponentConstant.ANALYTICDB_FOR_PG_ENGINE),
+    FLINK_ON_STANDALONE(10,"FlinkOnStandalone")
     ;
 
     private int type;

@@ -21,6 +21,7 @@ package com.dtstack.engine.master.enums;
 
 import com.dtstack.dtcenter.common.enums.DeployMode;
 import com.dtstack.engine.api.enums.ScheduleEngineType;
+import com.dtstack.engine.common.constrant.ComponentConstant;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EDeployMode;
 
@@ -44,6 +45,7 @@ public enum EngineTypeComponentType {
     PRESTO_SQL(ScheduleEngineType.Presto, EComponentType.PRESTO_SQL),
     INCEPTOR_SQL(ScheduleEngineType.INCEPTOR_SQL,EComponentType.INCEPTOR_SQL),
     DTSCRIPT_AGENT(ScheduleEngineType.DTSCRIPT_AGENT,EComponentType.DTSCRIPT_AGENT),
+    ANALYTICDB_FOR_PG(ScheduleEngineType.ANALYTICDB_FOR_PG,EComponentType.ANALYTICDB_FOR_PG),
     FLINK_ON_STANDALONE(ScheduleEngineType.FLINK_ON_STANDALONE,EComponentType.FLINK_ON_STANDALONE)
     ;
 
@@ -116,6 +118,9 @@ public enum EngineTypeComponentType {
                 return EngineTypeComponentType.DTSCRIPT_AGENT;
             case "flink-on-standalone":
                 return EngineTypeComponentType.FLINK_ON_STANDALONE;
+            case ComponentConstant
+                        .ANALYTICDB_FOR_PG_PLUGIN:
+                return EngineTypeComponentType.ANALYTICDB_FOR_PG;
             default:
                 throw new UnsupportedOperationException("未知引擎类型:" + engineName);
         }

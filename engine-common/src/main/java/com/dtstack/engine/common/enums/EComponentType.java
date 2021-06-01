@@ -1,12 +1,10 @@
 package com.dtstack.engine.common.enums;
 
+import com.dtstack.engine.common.constrant.ComponentConstant;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.google.common.collect.Lists;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -35,7 +33,8 @@ public enum EComponentType {
     NFS(17, "NFS", "nfsConf"),
     DTSCRIPT_AGENT(18,"DtScript Agent","dtScriptAgentConf"),
     INCEPTOR_SQL(19,"InceptorSql","inceptorSqlConf"),
-    FLINK_ON_STANDALONE(20,"FlinkOnStandalone","flinkOnStandaloneConf");
+    FLINK_ON_STANDALONE(20,"FlinkOnStandalone","flinkOnStandaloneConf"),
+    ANALYTICDB_FOR_PG(21, ComponentConstant.ANALYTICDB_FOR_PG_NAME,ComponentConstant.ANALYTICDB_FOR_PG_CONFIG_NAME);
 
     private Integer typeCode;
 
@@ -109,7 +108,7 @@ public enum EComponentType {
     // 计算组件
     public static List<EComponentType> ComputeScheduling = Lists.newArrayList(EComponentType.SPARK, EComponentType.SPARK_THRIFT,
             EComponentType.FLINK, EComponentType.HIVE_SERVER, EComponentType.IMPALA_SQL, EComponentType.DT_SCRIPT,
-            EComponentType.LEARNING, EComponentType.TIDB_SQL, EComponentType.PRESTO_SQL, EComponentType.LIBRA_SQL, EComponentType.ORACLE_SQL, EComponentType.CARBON_DATA, EComponentType.GREENPLUM_SQL,EComponentType.INCEPTOR_SQL,EComponentType.DTSCRIPT_AGENT,EComponentType.FLINK_ON_STANDALONE);
+            EComponentType.LEARNING, EComponentType.TIDB_SQL, EComponentType.PRESTO_SQL, EComponentType.LIBRA_SQL, EComponentType.ORACLE_SQL, EComponentType.CARBON_DATA, EComponentType.GREENPLUM_SQL,EComponentType.INCEPTOR_SQL,EComponentType.DTSCRIPT_AGENT,EComponentType.FLINK_ON_STANDALONE,EComponentType.ANALYTICDB_FOR_PG);
 
     public static List<EComponentType> CommonScheduling = Lists.newArrayList(EComponentType.SFTP);
 
@@ -142,6 +141,8 @@ public enum EComponentType {
     public static List<EComponentType> FlinkOnStandaloneComponents = Lists.newArrayList(EComponentType.FLINK_ON_STANDALONE);
 
 
+    public static List<EComponentType> analyticDbForPgComponents = Collections.unmodifiableList(Lists.newArrayList(EComponentType.ANALYTICDB_FOR_PG));
+
     public static MultiEngineType getEngineTypeByComponent(EComponentType componentType) {
         if (HadoopComponents.contains(componentType)) {
             return MultiEngineType.HADOOP;
@@ -169,6 +170,9 @@ public enum EComponentType {
         }
         if(FlinkOnStandaloneComponents.contains(componentType)){
             return MultiEngineType.FLINK_ON_STANDALONE;
+        }
+        if (analyticDbForPgComponents.contains(componentType)){
+            return MultiEngineType.ANALYTICDB_FOR_PG;
         }
         return null;
     }
@@ -221,6 +225,8 @@ public enum EComponentType {
                 return "inceptor";
             case DTSCRIPT_AGENT:
                 return "dtscript-agent";
+            case ANALYTICDB_FOR_PG:
+                return ComponentConstant.ANALYTICDB_FOR_PG_PLUGIN;
         }
         return "";
     }
@@ -257,7 +263,7 @@ public enum EComponentType {
 
     //SQL组件
     public static List<EComponentType> sqlComponent = Lists.newArrayList(EComponentType.SPARK_THRIFT, EComponentType.HIVE_SERVER, EComponentType.TIDB_SQL, EComponentType.ORACLE_SQL,
-            EComponentType.LIBRA_SQL, EComponentType.IMPALA_SQL, EComponentType.GREENPLUM_SQL, EComponentType.PRESTO_SQL,EComponentType.INCEPTOR_SQL);
+            EComponentType.LIBRA_SQL, EComponentType.IMPALA_SQL, EComponentType.GREENPLUM_SQL, EComponentType.PRESTO_SQL,EComponentType.INCEPTOR_SQL,EComponentType.ANALYTICDB_FOR_PG);
 
     //对应引擎的组件不能删除
     public static List<EComponentType> requireComponent = Lists.newArrayList(EComponentType.ORACLE_SQL, EComponentType.TIDB_SQL, EComponentType.ORACLE_SQL,

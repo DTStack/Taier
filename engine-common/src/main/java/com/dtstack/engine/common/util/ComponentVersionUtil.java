@@ -52,6 +52,7 @@ public class ComponentVersionUtil {
         set.add(EScheduleJobType.KINGBASE.getType());
         set.add(EScheduleJobType.NOTEBOOK.getType());
         set.add(EScheduleJobType.ALGORITHM_LAB.getType());
+        set.add(EScheduleJobType.ANALYTICDB_FOR_PG.getType());
         return set;
     }
     private static Map<Integer,EComponentType> initComponent(){
