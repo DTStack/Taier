@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Form, Select, message, Icon, Cascader,
-    notification } from 'antd'
+    notification, Tooltip } from 'antd'
 
 import req from '../../../../consts/reqUrls'
 import Api from '../../../../api/console'
@@ -21,8 +21,8 @@ interface IProps {
     versionData: any;
     clusterInfo: any;
     isCheckBoxs?: boolean;
+    isSchedulings?: boolean;
     disabledMeta?: boolean;
-    commVersion?: string;
     handleCompVersion?: Function;
     saveComp: Function;
 }
@@ -51,30 +51,31 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
         const { comp, handleCompVersion } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
         handleCompVersion(typeCode, version)
-        if (isSameVersion(Number(typeCode))) return
-        this.props.form.setFieldsValue({ [`${typeCode}.hadoopVersion`]: version })
     }
 
     renderCompsVersion = () => {
         const { getFieldDecorator } = this.props.form
-        const { versionData, comp, view, commVersion } = this.props
+        const { versionData, comp, view } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
         let version = isOtherVersion(typeCode) ? versionData[VERSION_TYPE[typeCode]] : versionData.hadoopVersion
         let initialValue = isOtherVersion(typeCode) ? DEFAULT_COMP_VERSION[typeCode] : [version[0].key, version[0].values[0]?.key]
         initialValue = comp?.hadoopVersion || initialValue
         let versionValue = initialValue
         if (isSameVersion(typeCode)) {
-            versionValue = commVersion ?? comp?.hadoopVersion ?? version[0].values[0]?.key
-            initialValue = commVersion ? getInitialValue(version, commVersion)
-                : (comp?.hadoopVersion ? getInitialValue(version, comp?.hadoopVersion) : initialValue)
+            versionValue = comp?.hadoopVersion || version[0].values[0]?.key || ''
+            initialValue = comp?.hadoopVersion ? getInitialValue(version, comp?.hadoopVersion) : initialValue
         }
 
         return (
             <>
                 <FormItem
-                    label="组件版本"
+                    label={<span>
+                        组件版本
+                        {isSameVersion(typeCode) && <Tooltip overlayClassName="big-tooltip" title='切换组件版本HDFS和YARN组件将同步切换至相同版本，Spark/Flink/DtScript的插件路径将同步自动变更'>
+                            <Icon style={{ marginLeft: 4 }} type="question-circle-o" />
+                        </Tooltip>}
+                    </span>}
                     colon={false}
-                    key={`${typeCode}.hadoopVersionSelect`}
                 >
                     {getFieldDecorator(`${typeCode}.hadoopVersionSelect`, {
                         initialValue: initialValue
@@ -87,6 +88,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                             options={getOptions(version)}
                             disabled={view}
                             expandTrigger="click"
+                            allowClear={false}
                             displayRender={(label) => {
                                 return label[label.length - 1];
                             }}
@@ -97,9 +99,16 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                 </FormItem>
                 {getFieldDecorator(`${typeCode}.hadoopVersion`, {
                     initialValue: versionValue
-                })(<></>)}
+                })(<span style={{ display: 'none' }}></span>)}
             </>
         )
+    }
+
+    renderSchedulingVersion = () => {
+        const { isSchedulings, comp } = this.props
+        const typeCode = comp?.componentTypeCode ?? ''
+        if (isSchedulings && typeCode == COMPONENT_TYPE_VALUE.HDFS) return null
+        return this.renderCompsVersion()
     }
 
     getPrincipalsList = async (file: any) => {
@@ -476,7 +485,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             case COMPONENT_TYPE_VALUE.HDFS: {
                 return (
                     <>
-                        {this.renderCompsVersion()}
+                        {this.renderSchedulingVersion()}
                         {this.renderConfigsFile()}
                         {this.renderKerberosFile()}
                         {this.renderPrincipal()}
@@ -494,6 +503,9 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             }
             case COMPONENT_TYPE_VALUE.SFTP:
             case COMPONENT_TYPE_VALUE.NFS:
+            case COMPONENT_TYPE_VALUE.FLINK_ON_STANDALONE: {
+                return this.renderParamsFile()
+            }
             case COMPONENT_TYPE_VALUE.ORACLE_SQL:
             case COMPONENT_TYPE_VALUE.LIBRA_SQL:
             case COMPONENT_TYPE_VALUE.TIDB_SQL:
@@ -506,7 +518,6 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                     </>
                 )
             }
-            case COMPONENT_TYPE_VALUE.IMPALA_SQL:
             case COMPONENT_TYPE_VALUE.HIVE_SERVER:
             case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER:
             case COMPONENT_TYPE_VALUE.INCEPTOR_SQL: {
@@ -521,6 +532,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                     </>
                 )
             }
+            case COMPONENT_TYPE_VALUE.IMPALA_SQL:
             case COMPONENT_TYPE_VALUE.SPARK:
             case COMPONENT_TYPE_VALUE.FLINK: {
                 return (

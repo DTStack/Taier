@@ -138,7 +138,7 @@ export default class CustomParams extends React.PureComponent<IProp, IState> {
                 const fieldName = groupKey ? `${formField}.customParam.${groupKey}` : `${formField}.customParam`
                 const publicKey = giveMeAKey()
                 return (<Row key={index}>
-                    <Col span={labelCol ?? formItemLayout.labelCol.sm.span}>
+                    <Col span={labelCol ?? formItemLayout.labelCol.sm.span} style={{ textAlign: 'right' }}>
                         <FormItem>
                             {form.getFieldDecorator(`${fieldName}.%${publicKey}-key`, {
                                 rules: [{
@@ -149,11 +149,11 @@ export default class CustomParams extends React.PureComponent<IProp, IState> {
                             })(
                                 <Input
                                     disabled={view}
-                                    style={{ width: 'calc(100% - 12px)' }}
+                                    style={{ width: 'calc(100% - 18px)', maxWidth: 200 }}
                                     onChange={(e) => this.handleCustomParam(e, index)}
                                 />
                             )}
-                            <span style={{ marginLeft: 2 }}>:</span>
+                            <span style={{ marginLeft: 2, marginRight: 6 }}>:</span>
                         </FormItem>
                     </Col>
                     <Col span={wrapperCol ?? formItemLayout.wrapperCol.sm.span}>

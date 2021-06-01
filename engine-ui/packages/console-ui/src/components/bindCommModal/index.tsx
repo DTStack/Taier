@@ -206,7 +206,9 @@ const CustomModal: React.FC = (props: any) => {
                         bindEnginName.length > 0 ? (
                             <div className='border-item'>
                                 <div className="engine-name">
-                                    创建项目时，自动关联到租户的{bindEnginName.join('、')}引擎
+                                    <span>
+                                        创建项目时，自动关联到租户的{bindEnginName.join('、')}引擎
+                                    </span>
                                 </div>
                             </div>
                         ) : null
