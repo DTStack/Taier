@@ -217,7 +217,7 @@ public class ClusterService implements InitializingBean {
             dummy.put(TYPE_NAME_KEY, EngineType.Dummy.name().toLowerCase());
             return dummy;
         }
-        EngineTypeComponentType type = EngineTypeComponentType.getByEngineName(engineTypeStr);
+        EngineTypeComponentType type = EngineTypeComponentType.getByEngineName(engineTypeStr,deployMode);
         if (type == null) {
             return null;
         }
@@ -332,7 +332,7 @@ public class ClusterService implements InitializingBean {
         try {
             Map actionParam = PublicUtil.objectToMap(action);
             Integer deployMode = MapUtils.getInteger(actionParam, DEPLOY_MODEL);
-            EngineTypeComponentType type = EngineTypeComponentType.getByEngineName(engineName);
+            EngineTypeComponentType type = EngineTypeComponentType.getByEngineName(engineName,deployMode);
 
             if (type == null) {
                 return null;
@@ -557,7 +557,10 @@ public class ClusterService implements InitializingBean {
         } else if (EComponentType.DTSCRIPT_AGENT==type.getComponentType()){
             dtScriptAgentInfo(clusterConfigJson,pluginInfo);
             pluginInfo.put(TYPE_NAME,"dtscript-agent");
-        } else {
+        } else if (EComponentType.FLINK_ON_STANDALONE==type.getComponentType()){
+            flinkOnStandaloneInfo(clusterConfigJson,pluginInfo);
+        }
+        else {
             //flink spark 需要区分任务类型
             if (EComponentType.FLINK.equals(type.getComponentType()) || EComponentType.SPARK.equals(type.getComponentType())) {
                 pluginInfo = this.buildDeployMode(clusterConfigJson, type, clusterVO, deployMode);
@@ -611,6 +614,11 @@ public class ClusterService implements InitializingBean {
         }
 
         return pluginInfo;
+    }
+
+    private void flinkOnStandaloneInfo(JSONObject clusterConfigJson, JSONObject pluginInfo) {
+        JSONObject flinkOnStandaloneConf = clusterConfigJson.getJSONObject(EComponentType.FLINK_ON_STANDALONE.getConfName());
+        pluginInfo.putAll(flinkOnStandaloneConf);
     }
 
     private void buildHiveVersion(ClusterVO clusterVO, JSONObject pluginInfo,Map<Integer,String > componentVersionMap) {
@@ -821,7 +829,7 @@ public class ClusterService implements InitializingBean {
      * 获取集群配置
      * @param clusterId 集群id
      * @param removeTypeName
-     * @param defaultVersion 组件默认版本
+     * @param multiVersion 组件默认版本
      * @return
      */
     public ClusterVO getCluster( Long clusterId, Boolean removeTypeName,boolean multiVersion) {

@@ -41,7 +41,8 @@ public enum DataBaseType {
     DMDB("DMDB","dm.jdbc.driver.DmDriver"),
     Greenplum6("Greenplum6", "com.pivotal.jdbc.GreenplumDriver"),
     Presto("presto", "com.facebook.presto.jdbc.PrestoDriver"),
-    HIVE3("hive3", "org.apache.hive.jdbc.HiveDriver");
+    HIVE3("hive3", "org.apache.hive.jdbc.HiveDriver"),
+    Inceptor("inceptor", "org.apache.hive.jdbc.HiveDriver");
 
     private String typeName;
     private String driverClassName;
@@ -234,6 +235,8 @@ public enum DataBaseType {
                 return HIVE.getTypeName();
             case HIVE3:
                 return HIVE3.getTypeName();
+            case INCEPTOR_SQL:
+                return Inceptor.getTypeName();
             default:
                 return null;
         }
