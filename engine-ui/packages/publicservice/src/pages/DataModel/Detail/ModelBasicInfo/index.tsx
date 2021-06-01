@@ -2,7 +2,7 @@ import React from 'react';
 import HTable from '../HTable';
 import PaneTitle from '../../components/PaneTitle';
 import DataInfo from '../DataInfo';
-import RelationView from '../RealationView';
+import RelationView from '../RelationView';
 import { IModelDetail } from '@/pages/DataModel/types';
 import { EnumSize } from '../types';
 
@@ -29,7 +29,7 @@ const ModelBasicInfo = (props: IPropsModelBasicInfo) => {
       {size === EnumSize.LARGE && (
         <div className="margin-bottom-20">
           <PaneTitle title="关联视图" />
-          <RelationView />
+          <RelationView modelDetail={modelDetail} />
         </div>
       )}
       <div className="margin-bottom-20">

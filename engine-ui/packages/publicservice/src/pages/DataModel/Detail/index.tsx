@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Tabs, Spin } from 'antd';
 import { API } from '@/services';
 import Message from 'pages/DataModel/components/Message';
+import './style';
 import { IModelDetail } from '../types';
 import VersionHistory from './VersionHistory';
 import ModelBasicInfo from './ModelBasicInfo';

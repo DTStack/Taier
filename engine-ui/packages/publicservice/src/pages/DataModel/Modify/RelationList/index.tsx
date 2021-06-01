@@ -73,7 +73,8 @@ const RelationList = (props: IPropsRelationList) => {
             return (
               item.tableName === col.tableName &&
               item.schema === col.schema &&
-              item.columnName === col.columnName
+              item.columnName === col.columnName &&
+              item.tableAlias === col.tableAlias
             );
           });
           if (!target)
@@ -132,6 +133,7 @@ const RelationList = (props: IPropsRelationList) => {
           datasourceId: item.dsId,
           schema: item.schema,
           tableName: item.tableName,
+          tableAlias: item.tableAlias,
         }));
         // 删除关联表后更新列表
         combineColumnList(params);
@@ -236,6 +238,7 @@ const RelationList = (props: IPropsRelationList) => {
                   datasourceId: item.dsId,
                   schema: item.schema,
                   tableName: item.tableName,
+                  tableAlias: item.tableAlias,
                 }));
                 combineColumnList(params);
               } else {

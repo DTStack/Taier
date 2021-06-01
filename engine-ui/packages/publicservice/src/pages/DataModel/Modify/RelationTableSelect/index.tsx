@@ -12,6 +12,7 @@ interface IPropsRelationTableSelect {
   mode: any;
   globalStep: number;
   updateModelDetail: Function;
+  setDisabled?: Function;
 }
 const { Option } = Select;
 
@@ -20,7 +21,7 @@ interface TableItem {
 }
 
 const RelationTableSelect = (props: IPropsRelationTableSelect) => {
-  const { form, cref, modelDetail, globalStep, mode } = props;
+  const { form, cref, modelDetail, globalStep, mode, setDisabled } = props;
   const {
     getFieldDecorator,
     validateFields,
@@ -123,6 +124,7 @@ const RelationTableSelect = (props: IPropsRelationTableSelect) => {
     tableName: string
   ) => {
     if (!dsId || !schema || !tableName) return;
+    setDisabled(true);
     try {
       const { success, data, message } = await API.isPartition({
         datasourceId: dsId,
@@ -136,6 +138,8 @@ const RelationTableSelect = (props: IPropsRelationTableSelect) => {
       }
     } catch (error) {
       Message.error(error.message);
+    } finally {
+      setDisabled(false);
     }
   };
 
