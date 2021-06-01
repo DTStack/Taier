@@ -6,7 +6,7 @@ import DataInfo from './DataInfo';
 import CodeBlock from '../components/CodeBlock';
 import { API } from '@/services';
 import Message from 'pages/DataModel/components/Message';
-import RelationView from './RealationView';
+import RelationView from './RelationView';
 import './style';
 import { IModelDetail } from '../types';
 
@@ -95,7 +95,7 @@ const Detail = (props: IPropsDetail) => {
 
                 <div className="margin-bottom-20">
                   <PaneTitle title="关联视图" />
-                  <RelationView />
+                  <RelationView modelDetail={modelDetail} />
                 </div>
                 <div className="margin-bottom-20">
                   <PaneTitle title="数据信息" />
