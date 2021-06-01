@@ -117,7 +117,7 @@ public enum EComponentType {
     // hadoop引擎组件
     public static List<EComponentType> HadoopComponents = Lists.newArrayList(EComponentType.SPARK, EComponentType.SPARK_THRIFT,
             EComponentType.FLINK, EComponentType.HIVE_SERVER, EComponentType.IMPALA_SQL, EComponentType.DT_SCRIPT,
-            EComponentType.LEARNING, EComponentType.YARN, EComponentType.KUBERNETES, EComponentType.SFTP, EComponentType.CARBON_DATA,EComponentType.INCEPTOR_SQL);
+            EComponentType.LEARNING, EComponentType.YARN, EComponentType.KUBERNETES, EComponentType.SFTP, EComponentType.CARBON_DATA);
 
     // TiDB引擎组件
     public static List<EComponentType> TiDBComponents = Lists.newArrayList(EComponentType.TIDB_SQL);
@@ -134,6 +134,10 @@ public enum EComponentType {
     public static List<EComponentType> PrestoComponents = Lists.newArrayList(EComponentType.PRESTO_SQL);
 
     public static List<EComponentType> EmptyComponents = Lists.newArrayList(EComponentType.DTSCRIPT_AGENT);
+
+    // Inceptor_Sql组件
+
+    public static List<EComponentType> InceptorSqlComponents = Lists.newArrayList(EComponentType.INCEPTOR_SQL);
 
     public static List<EComponentType> FlinkOnStandaloneComponents = Lists.newArrayList(EComponentType.FLINK_ON_STANDALONE);
 
@@ -159,6 +163,9 @@ public enum EComponentType {
         }
         if (EmptyComponents.contains(componentType)){
             return MultiEngineType.COMMON;
+        }
+        if (InceptorSqlComponents.contains(componentType)){
+            return MultiEngineType.INCEPTOR_SQL;
         }
         if(FlinkOnStandaloneComponents.contains(componentType)){
             return MultiEngineType.FLINK_ON_STANDALONE;
