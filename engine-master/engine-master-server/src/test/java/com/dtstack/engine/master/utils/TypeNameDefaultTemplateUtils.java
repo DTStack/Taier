@@ -14,6 +14,9 @@ public class TypeNameDefaultTemplateUtils {
     public static final HashMap<String, Pair<Long, Integer>> typeNameMapping = new HashMap<>();
 
     static {
+
+        typeNameMapping.put("flink-on-standalone", new Pair<>(-113L, EComponentType.FLINK_ON_STANDALONE.getTypeCode()));
+
         typeNameMapping.put("yarn2-hdfs2-dtscript", new Pair<>(-100L, EComponentType.DT_SCRIPT.getTypeCode()));
         typeNameMapping.put("yarn3-hdfs3-dtscript", new Pair<>(-100L, EComponentType.DT_SCRIPT.getTypeCode()));
 

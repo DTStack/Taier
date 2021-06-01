@@ -17,7 +17,9 @@ public enum MultiEngineType {
     ORACLE(5,"Oracle"),
     GREENPLUM(6, "Greenplum"),
     PRESTO(7, "Presto"),
-    INCEPTOR_SQL(8,"inceptor");
+    INCEPTOR_SQL(8,"inceptor"),
+    FLINK_ON_STANDALONE(9,"FlinkOnStandalone")
+    ;
 
     private int type;
 

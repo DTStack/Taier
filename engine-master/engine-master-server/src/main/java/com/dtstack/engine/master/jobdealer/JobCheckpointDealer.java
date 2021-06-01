@@ -18,7 +18,7 @@ import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.bo.JobCheckpointInfo;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.impl.ClusterService;
-import com.dtstack.engine.master.utils.TaskParamsUtil;
+import com.dtstack.engine.common.util.TaskParamsUtil;
 import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -235,7 +235,7 @@ public class JobCheckpointDealer implements InitializingBean {
             try {
                 String pluginInfo = clusterService.pluginInfoJSON(jobIdentifier.getTenantId(),
                         jobIdentifier.getEngineType(), jobIdentifier.getUserId(), jobIdentifier.getDeployMode(),
-                        Collections.singletonMap(EngineTypeComponentType.getByEngineName(jobIdentifier.getEngineType()).getComponentType().getTypeCode(),jobIdentifier.getComponentVersion())).toJSONString();
+                        Collections.singletonMap(EngineTypeComponentType.getByEngineName(jobIdentifier.getEngineType(),jobIdentifier.getDeployMode()).getComponentType().getTypeCode(),jobIdentifier.getComponentVersion())).toJSONString();
                 int retainedNum = getRetainedNumFromPluginInfo(pluginInfo);
                 taskEngineIdAndRetainedNum.put(jobIdentifier.getEngineJobId(), retainedNum);
 

@@ -26,7 +26,9 @@ public enum EngineType {
     Presto,
     KingBase,
     InceptorSQL,
-    DtScriptAgent;
+    DtScriptAgent,
+    FlinkOnStandalone,
+    ;
 
     public static EngineType getEngineType(String type) {
 
@@ -73,6 +75,8 @@ public enum EngineType {
                 return EngineType.InceptorSQL;
             case "dtscript-agent":
                 return EngineType.DtScriptAgent;
+            case "flink-on-standalone":
+                return EngineType.FlinkOnStandalone;
             default:
                 throw new UnsupportedOperationException("unsupported operation exception");
         }
