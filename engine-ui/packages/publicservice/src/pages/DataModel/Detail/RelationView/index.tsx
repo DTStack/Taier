@@ -3,9 +3,14 @@ import GraphEditor from './GraphEditor';
 import { IModelDetail } from '../../types';
 import { EnumNodeType, IRelationTree, EnumTableType } from './types';
 import { mapJoinType } from './constants';
-import { loop } from './utils';
+import { loop, styleStringGenerator } from './utils';
 import './style';
 import _ from 'highlight.js/lib/languages/*';
+const TABLE_ICON =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAXUlEQVQ4T9WSOw7AIAxD7XuV05d7GcGAQmEIpAsZI/vJ+RDBYtCPDpD0AnicwEwyVa0FyGluMpLN++sIPUGlSxoSfXtTAmu4FLBzAatdnvHSHdhXdowwv3J4iaeAAlCJahETJR7XAAAAAElFTkSuQmCC';
+
+const mxStyleString = styleStringGenerator('=');
+const domStyleString = styleStringGenerator(':');
 
 /**
  *
@@ -124,6 +129,7 @@ const RelationView = (props: IPropsRelationView) => {
   const rootCell = useRef(null);
   const refGraphEditor = useRef(null);
   const refMx = useRef(null);
+  const refCenterCell = useRef(null);
 
   // 关联表渲染逻辑
   const tableRender = (graph) => {
@@ -152,8 +158,13 @@ const RelationView = (props: IPropsRelationView) => {
         y,
         cellWidth,
         height,
-        `strokeColor=${tableNameCellColor};`
+        mxStyleString({
+          strokeColor: tableNameCellColor,
+        })
       );
+
+      if (_tableType === EnumTableType.PRIMARY)
+        refCenterCell.current = parentCell;
 
       // 表名称渲染
       const tableNameCell = graph.insertVertex(
@@ -164,7 +175,13 @@ const RelationView = (props: IPropsRelationView) => {
         0,
         cellWidth,
         cellHeight,
-        `fillColor=${tableNameCellColor};fontColor=${tableNameFontColor};strokeColor=${tableNameCellColor};align=left;`
+        mxStyleString({
+          fillColor: tableNameCellColor,
+          fontColor: tableNameFontColor,
+          strokeColor: tableNameCellColor,
+          align: 'left',
+        })
+        // `fillColor=${tableNameCellColor};fontColor=${tableNameFontColor};strokeColor=${tableNameCellColor};align=left;`
       );
       tableNameCell.nodeType = EnumNodeType.TABLE_NAME;
       tableNameCell.geometry.relative = true;
@@ -183,7 +200,11 @@ const RelationView = (props: IPropsRelationView) => {
           scrollTop,
           cellWidth,
           cellHeight,
-          `fillColor=${_colFillColor};strokeColor=#E8E8E8;align=left;`
+          mxStyleString({
+            fillColor: _colFillColor,
+            strokeColor: '#E8E8E8',
+            align: 'left',
+          })
         );
         cell.nodeType = EnumNodeType.COLUMN_NAME;
         cell._data = column;
@@ -199,7 +220,9 @@ const RelationView = (props: IPropsRelationView) => {
         0,
         cellWidth,
         height,
-        `strokeColor=${tableNameCellColor};`
+        mxStyleString({
+          strokeColor: tableNameCellColor,
+        })
       );
       wrapper.geometry.relative = true;
       return _tableCellList;
@@ -208,27 +231,28 @@ const RelationView = (props: IPropsRelationView) => {
 
   const getLabel = (cell) => {
     if (cell.edge === true) {
-      return '<div style="background: #ffffff;">' + cell.value + '</div>';
+      return `<div style="${domStyleString({
+        background: '#ffffff',
+        padding: '0 2px',
+      })}">${cell.value}</div>`;
     }
     switch (cell.nodeType) {
       case EnumNodeType.COLUMN_NAME:
         const _color = cell._data.partition ? '#3F87FF' : '#333333';
-        return (
-          '<div class="margin-left-12" style="color: ' +
-          _color +
-          ';">' +
-          cell.value +
-          '</div>'
-        );
+        return `<div style="${domStyleString({
+          color: _color,
+          'margin-left': '12px',
+        })}">${cell.value}</div>`;
       case EnumNodeType.TABLE_NAME:
-        return (
-          '<div class="margin-left-12">' +
-          '<span class="iconfont2 iconFilltianchong_biao"></span>' +
-          '<span style="vertical-align: 2px; margin-left: 8px;">' +
-          cell.value +
-          '</span>' +
-          '</div>'
-        );
+        return `<div style="${domStyleString({
+          'margin-left': '12px',
+        })}"><img src="${TABLE_ICON}" style="width: 16px; height: 16px; vertical-align: middle;"/><span style="${domStyleString(
+          {
+            'vertical-align': '-2px',
+            'margin-left': '8px',
+            color: '#ffffff',
+          }
+        )}">${cell.value}</span></div>`;
       default:
         return cell.value;
     }
@@ -236,6 +260,15 @@ const RelationView = (props: IPropsRelationView) => {
 
   const insertEdge = (parent: any, label: string, source: any, target: any) => {
     refGraph.current.insertEdge(parent, null, label, source, target);
+  };
+
+  const alignCenter = (graph: any) => {
+    refGraph.current.fit();
+    setTimeout(() => {
+      const sc = refGraph.current.getView().getScale();
+      refGraph.current.zoomTo(sc * 0.8);
+      refGraph.current.center(false, false, 0.5, 0.5);
+    }, 20);
   };
 
   const executeLayout = (parent: any, Layout: any, option: any = {}) => {
@@ -249,6 +282,7 @@ const RelationView = (props: IPropsRelationView) => {
   const handleInit = (_grapth, mx) => {
     refGraph.current = _grapth;
     refMx.current = mx;
+    rootCell.current = refGraph.current.getDefaultParent();
   };
 
   const update = (tree) => {
@@ -263,6 +297,7 @@ const RelationView = (props: IPropsRelationView) => {
       rootCell.current = refGraph.current.getDefaultParent();
       const render = tableRender(refGraph.current);
       const map = new Map();
+
       loop(tree, (item) => {
         const list = render({
           tableName: item.tableName,
@@ -273,7 +308,7 @@ const RelationView = (props: IPropsRelationView) => {
         const { joinInfo } = item;
         if (joinInfo) {
           const joinPairs = joinInfo.joinPairs;
-          joinPairs.map((joinItem) => {
+          joinPairs.forEach((joinItem) => {
             const leftTableColumnList = map.get(joinItem.leftValue.tableAlias);
             const rightTableColumnList = map.get(
               joinItem.rightValue.tableAlias
@@ -297,9 +332,10 @@ const RelationView = (props: IPropsRelationView) => {
       executeLayout(refGraph.current.getDefaultParent(), mxHierarchicalLayout, {
         orientation: 'west',
         disableEdgeStyle: false,
-        interRankCellSpacing: 200,
-        intraCellSpacing: 80,
+        interRankCellSpacing: 80,
+        intraCellSpacing: 40,
       });
+      alignCenter(refGraph.current);
     } catch (err) {
       throw err;
     } finally {
@@ -316,10 +352,11 @@ const RelationView = (props: IPropsRelationView) => {
     <div className="relation-view">
       <GraphEditor
         ref={(ref) => (refGraphEditor.current = ref)}
-        rootCell={rootCell.current}
+        rootCell={refCenterCell.current}
         loading={loading}
-        name="name"
+        name={modelDetail.modelName}
         onInit={handleInit}
+        alignCenter={alignCenter}
       />
     </div>
   );

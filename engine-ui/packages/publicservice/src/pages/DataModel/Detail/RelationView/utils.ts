@@ -15,3 +15,12 @@ export const loop = (tree: IRelationTree, cb?: LoopCallback) => {
     }
   }
 };
+
+export const styleStringGenerator = (split: string) => {
+  return (styleConfig: Object) => {
+    return Object.keys(styleConfig).reduce(
+      (temp, key) => `${temp}${key}${split}${styleConfig[key]};`,
+      ''
+    );
+  };
+};

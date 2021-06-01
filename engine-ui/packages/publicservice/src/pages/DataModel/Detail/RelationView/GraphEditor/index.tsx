@@ -33,6 +33,7 @@ interface Props {
   showMenu?: boolean;
   hideMenu?: any;
   onInit?: (graph: any, Mx: any) => void;
+  alignCenter?: Function;
 }
 interface State {
   outLineVisible: boolean;
@@ -68,7 +69,7 @@ export default class GraphEditor extends React.Component<Props, State> {
       title: '缩小',
       action: () =>
         this.handleToolAction({ type: EnumToolActionType.ZOOM_OUT }),
-      icon: 'iconOutlinedxianxing_zoom-in',
+      icon: 'iconOutlinedxianxing_zoom-out',
     },
     {
       title: '下载',
@@ -88,6 +89,8 @@ export default class GraphEditor extends React.Component<Props, State> {
   handleToolAction = (toolAction: IToolAction) => {
     switch (toolAction.type) {
       case EnumToolActionType.ALIGN_CENTER:
+        if (typeof this.props.alignCenter === 'function')
+          return this.props.alignCenter();
         this.alignCenter();
         break;
       case EnumToolActionType.ZOOM_IN:
@@ -217,11 +220,11 @@ export default class GraphEditor extends React.Component<Props, State> {
     // enables rubberband
     this.initContainerScroll();
     new mxRubberband(graph); // eslint-disable-line
-    onInit && onInit(graph, this.Mx);
     if (showMenu) {
       this.initContextMenu();
       this.addEventListenerMenu();
     }
+    onInit && onInit(graph, this.Mx);
   };
   initContainerScroll = () => {
     // 滚动监听，一般为默认，不需要更改
@@ -514,15 +517,16 @@ export default class GraphEditor extends React.Component<Props, State> {
     newCloneDom.style.padding = '40px';
     newCloneDom.style.width = width + 'px';
     newCloneDom.style.height = height + 'px';
-    newCloneDom.style.background =
-      'url(/dataAssets/public/img/grid.gif) #ffffff';
+    // newCloneDom.style.background = 'url(/dataAssets/public/img/grid.gif) #ffffff';
     document.body.appendChild(newCloneDom);
     html2canvas(newCloneDom, {
       allowTaint: true, // 允许跨域图片
+      useCORS: true,
       scale: 1,
       width: width,
       height: height,
       imageTimeout: 0,
+      foreignObjectRendering: true,
     })
       .then((canvas) => {
         let image = canvas.toDataURL('image/' + type, 1.0);
@@ -532,8 +536,9 @@ export default class GraphEditor extends React.Component<Props, State> {
         alink.click();
         document.body.removeChild(newCloneDom);
       })
-      .catch(() => {
+      .catch((err) => {
         document.body.removeChild(newCloneDom);
+        throw err;
       });
   };
   outLine = () => {
