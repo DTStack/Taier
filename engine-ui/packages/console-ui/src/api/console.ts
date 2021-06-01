@@ -113,7 +113,12 @@ export default {
     }) {
         return http.post(req.UPDATE_KRB5CONF, params);
     },
-
+    // 4.2版本
+    getDtScriptAgentLabel (params: {
+        agentAddress: string;
+    }) {
+        return http.post(req.GET_DTSCRIPT_AGENT_LABEL, params);
+    },
     // 任务管理模块
     // 概览-获取集群
     getClusterDetail (params: any) {

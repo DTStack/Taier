@@ -495,7 +495,7 @@
     }
 }
 
-// new 
+// new
 .c-fileConfig__container {
     width: 210px;
     padding: 20px 17px 40px 17px;
@@ -553,7 +553,6 @@
         }
     }
 }
-
 .c-formConfig__container {
     position: absolute;
     right: 0;
@@ -585,6 +584,10 @@
         display: inline-block;
         vertical-align: bottom;
     }
+}
+
+.c-formConfig__full {
+    left: 0;
 }
 
 .c-editCluster__icon {
