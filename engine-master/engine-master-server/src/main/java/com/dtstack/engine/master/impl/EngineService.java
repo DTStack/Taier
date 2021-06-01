@@ -53,13 +53,13 @@ public class EngineService {
      *     }
      * ]
      */
-    public List<EngineSupportVO> listSupportEngine(Long dtUicTenantId){
+    public List<EngineSupportVO> listSupportEngine(Long dtUicTenantId,Boolean needCommon){
         List<EngineSupportVO> vos = Lists.newArrayList();
         List<Engine> engineTenants = engineDao.getByDtUicTenantId(dtUicTenantId);
         if(CollectionUtils.isEmpty(engineTenants)){
             return vos;
         }
-        List<Long> engineIds = engineTenants.stream().filter(engine -> MultiEngineType.COMMON.getType()!=engine.getEngineType())
+        List<Long> engineIds = engineTenants.stream().filter(engine -> needCommon || MultiEngineType.COMMON.getType()!=engine.getEngineType())
                 .map(Engine::getId)
                 .collect(Collectors.toList());
         List<Component> components = componentService.listComponent(engineIds);

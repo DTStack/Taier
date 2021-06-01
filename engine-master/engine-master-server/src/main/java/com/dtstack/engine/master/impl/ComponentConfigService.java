@@ -108,6 +108,18 @@ public class ComponentConfigService {
                 //兼容旧数据 前端的自定义参数标识
                 clientTemplate.setType(EFrontType.CUSTOM_CONTROL.name());
             }
+            if (ComponentConfigUtils.DEPLOY_MODE.equalsIgnoreCase(clientTemplate.getKey()) && clientTemplate.getValue() instanceof String) {
+                // {
+                //     "deploymode":"perjob",
+                //}
+                //兼容为数组
+                String templateValue = (String) clientTemplate.getValue();
+                if(!templateValue.startsWith("[")){
+                    JSONArray templateArray = new JSONArray();
+                    templateArray.add(templateValue);
+                    clientTemplate.setValue(templateArray);
+                }
+            }
         }
 
         if (EComponentType.SFTP.getTypeCode().equals(componentTypeCode)) {

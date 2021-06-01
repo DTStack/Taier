@@ -15,12 +15,24 @@ public class KerberosConfigVO extends KerberosConfig {
 
     private Timestamp kerberosFileTimestamp;
 
-
+    /**
+     * keytab 名称 平台使用
+     */
+    private String principalFile;
 
     public static KerberosConfigVO toVO(KerberosConfig config) {
         KerberosConfigVO kerberosConfigVO = new KerberosConfigVO();
         BeanUtils.copyProperties(config, kerberosConfigVO);
+        kerberosConfigVO.setPrincipalFile(config.getName());
         return kerberosConfigVO;
+    }
+
+    public String getPrincipalFile() {
+        return principalFile;
+    }
+
+    public void setPrincipalFile(String principalFile) {
+        this.principalFile = principalFile;
     }
 
     public String getKeytabPath() {

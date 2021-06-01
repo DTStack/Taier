@@ -91,7 +91,7 @@ public class ComponentVersionUtil {
         map.put(EScheduleJobType.KERAS.getType(),EComponentType.LEARNING);
         map.put(EScheduleJobType.PYTORCH.getType(),EComponentType.LEARNING);
         map.put(EScheduleJobType.INCEPTOR_SQL.getType(),EComponentType.INCEPTOR_SQL);
-        map.put(EScheduleJobType.DTSCRIPT_AGENT.getType(),EComponentType.DTSCRIPT_AGENT);
+        map.put(EScheduleJobType.SHELL_ON_AGENT.getType(),EComponentType.DTSCRIPT_AGENT);
         return map;
     }
 

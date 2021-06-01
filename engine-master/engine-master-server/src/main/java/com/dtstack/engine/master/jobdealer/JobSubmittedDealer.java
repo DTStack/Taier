@@ -53,8 +53,9 @@ public class JobSubmittedDealer implements Runnable {
     @Override
     public void run() {
         while (true) {
+            JobClient jobClient = null;
             try {
-                JobClient jobClient = queue.take();
+                jobClient = queue.take();
 
                 if (jobRestartDealer.checkAndRestartForSubmitResult(jobClient)) {
                     LOGGER.warn("failed submit job restarting, jobId:{} jobResult:{} ...", jobClient.getTaskId(), jobClient.getJobResult());
@@ -72,18 +73,30 @@ public class JobSubmittedDealer implements Runnable {
                     scheduleJobDao.updateJobSubmitSuccess(jobClient.getTaskId(), jobClient.getEngineTaskId(), appId, jobClient.getJobResult().getJsonStr(), jobExtraInfo.toJSONString());
                     jobDealer.updateCache(jobClient, EJobCacheStage.SUBMITTED.getStage());
                     jobClient.doStatusCallBack(RdosTaskStatus.SUBMITTED.getStatus());
+                    JobClient finalJobClient = jobClient;
                     shardCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.SUBMITTED.getStatus(), (jobId) -> {
-                        LOGGER.warn("success submit job to Engine, jobId:{} jobResult:{} but shareManager is not found ...", jobId, jobClient.getJobResult());
-                        jobClient.doStatusCallBack(RdosTaskStatus.CANCELED.getStatus());
+                        LOGGER.warn("success submit job to Engine, jobId:{} jobResult:{} but shareManager is not found ...", jobId, finalJobClient.getJobResult());
+                        finalJobClient.doStatusCallBack(RdosTaskStatus.CANCELED.getStatus());
                     });
                 } else {
-                    scheduleJobDao.jobFail(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus(), jobClient.getJobResult().getJsonStr());
-                    LOGGER.info("jobId:{} update job status:{}, job is finished.", jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus());
-                    engineJobCacheDao.delete(jobClient.getTaskId());
+                    jobClientFail(jobClient.getTaskId(), jobClient.getJobResult().getJsonStr());
                 }
             } catch (Throwable e) {
-                LOGGER.error("TaskListener run error", e);
+                LOGGER.error("jobId submitted {} jobStatus dealer run error", null == jobClient ? "" : jobClient.getTaskId(), e);
+                if (null != jobClient) {
+                    jobClientFail(jobClient.getTaskId(), JobResult.createErrorResult(e).getJsonStr());
+                }
             }
+        }
+    }
+
+    private void jobClientFail(String taskId, String info) {
+        try {
+            scheduleJobDao.jobFail(taskId, RdosTaskStatus.FAILED.getStatus(), info);
+            LOGGER.info("jobId:{} update job status:{}, job is finished.", taskId, RdosTaskStatus.FAILED.getStatus());
+            engineJobCacheDao.delete(taskId);
+        } catch (Exception e) {
+            LOGGER.error("jobId:{} update job fail {}  error", taskId, info, e);
         }
     }
 

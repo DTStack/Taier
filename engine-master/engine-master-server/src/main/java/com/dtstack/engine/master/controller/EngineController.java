@@ -11,6 +11,7 @@ import com.dtstack.engine.master.router.DtRequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/node/engine")
@@ -27,6 +28,12 @@ public class EngineController {
 
     @RequestMapping(value="/listSupportEngine", method = {RequestMethod.POST})
     public List<EngineSupportVO> listSupportEngine(@DtRequestParam("tenantId") Long dtUicTenantId) {
-        return engineService.listSupportEngine(dtUicTenantId);
+        return engineService.listSupportEngine(dtUicTenantId,false);
     }
+
+    @RequestMapping(value="/listSupportEngineWithCommon", method = {RequestMethod.POST})
+    public List<EngineSupportVO> listSupportEngineWithCommon(@DtRequestParam("tenantId") Long dtUicTenantId,@DtRequestParam("needCommon")Boolean needCommon) {
+        return engineService.listSupportEngine(dtUicTenantId, Boolean.TRUE.equals(needCommon));
+    }
+
 }

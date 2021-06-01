@@ -245,4 +245,5 @@ public enum DataSourceType {
             DataSourceType.HIVE.getVal(),
             DataSourceType.HIVE3.getVal(),
             DataSourceType.SPARKTHRIFT2_1.getVal());
+
 }

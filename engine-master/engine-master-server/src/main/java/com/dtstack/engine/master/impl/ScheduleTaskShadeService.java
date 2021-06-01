@@ -1071,17 +1071,25 @@ public class ScheduleTaskShadeService {
     }
 
     private void checkSubmitTaskCron(ScheduleTaskShadeDTO taskShade){
-        if (taskShade.getPeriodType() != ESchedulePeriodType.CUSTOM.getVal()){
+        // 优先使用periodType
+        if (taskShade.getPeriodType()!=null &&
+                taskShade.getPeriodType() != ESchedulePeriodType.CUSTOM.getVal()){
             return;
         }
+        // 没有periodType再去反序列化
         JSONObject scheduleConf = JSON.parseObject(taskShade.getScheduleConf());
         if (Objects.isNull(scheduleConf)){
             throw new RdosDefineException("empty schedule conf");
+        }
+        // 非自定义调度
+        if (scheduleConf.getInteger("periodType")!=ESchedulePeriodType.CUSTOM.getVal()){
+            return;
         }
         String cron = scheduleConf.getString("cron");
         CronExceptionVO cronExceptionVO = checkCronExpression(cron, 300L);
         if (Objects.nonNull(cronExceptionVO)){
             throw new RdosDefineException(cronExceptionVO.getErrMessage());
         }
+
     }
 }
