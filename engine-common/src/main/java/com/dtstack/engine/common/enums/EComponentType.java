@@ -33,7 +33,7 @@ public enum EComponentType {
     NFS(17, "NFS", "nfsConf"),
     DTSCRIPT_AGENT(18,"DtScript Agent","dtScriptAgentConf"),
     INCEPTOR_SQL(19,"InceptorSql","inceptorSqlConf"),
-    ANALYTICDB_FOR_PG(20, ComponentConstant.ANALYTICDB_FOR_PG_NAME,ComponentConstant.ANALYTICDB_FOR_PG_CONFIG_NAME);
+    ANALYTICDB_FOR_PG(21, ComponentConstant.ANALYTICDB_FOR_PG_NAME,ComponentConstant.ANALYTICDB_FOR_PG_CONFIG_NAME);
 
     private Integer typeCode;
 
