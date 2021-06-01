@@ -2200,7 +2200,7 @@ public class ComponentService {
     }
 
     public List<Component> getComponentVersionByEngineType(Long uicTenantId, String  engineType) {
-        EComponentType componentType = EngineTypeComponentType.getByEngineName(engineType).getComponentType();
+        EComponentType componentType = EngineTypeComponentType.getByEngineName(engineType,null).getComponentType();
         List<Component > componentVersionList = componentDao.getComponentVersionByEngineType(uicTenantId,componentType.getTypeCode());
         if (CollectionUtils.isEmpty(componentVersionList)){
             return Collections.emptyList();
