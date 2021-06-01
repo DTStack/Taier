@@ -3,6 +3,8 @@ package com.dtstack.engine.master.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.api.dto.ScheduleTaskParamShade;
+import com.dtstack.engine.api.enums.ScheduleEngineType;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.api.vo.action.ActionJobEntityVO;
@@ -12,6 +14,7 @@ import com.dtstack.engine.api.vo.action.ActionRetryLogVO;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.CustomThreadRunsPolicy;
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ErrorCode;
@@ -27,6 +30,9 @@ import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
 import com.dtstack.engine.master.multiengine.JobStartTriggerBase;
 import com.dtstack.engine.master.multiengine.factory.MultiEngineFactory;
+import com.dtstack.engine.master.pipeline.IPipeline;
+import com.dtstack.engine.master.pipeline.PipelineBuilder;
+import com.dtstack.engine.master.pipeline.params.UploadParamPipeline;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
 import com.dtstack.engine.master.scheduler.parser.ScheduleCron;
 import com.dtstack.engine.master.scheduler.parser.ScheduleFactory;
@@ -106,6 +112,12 @@ public class ActionService {
     @Autowired
     private ScheduleSqlTextTempDao sqlTextTempDao;
 
+    @Autowired
+    private ClusterService clusterService;
+
+    @Autowired
+    private ComponentService componentService;
+
     private final ObjectMapper objMapper = new ObjectMapper();
 
 
@@ -175,7 +187,7 @@ public class ActionService {
             }
             return this.start(paramActionExt,true);
         } catch (Exception e) {
-            LOGGER.error("", e);
+            LOGGER.error("startJob {} error",jobId, e);
             return Boolean.FALSE;
         }
     }
@@ -258,8 +270,7 @@ public class ActionService {
             info.remove("dbName");
         }
         Map<String, Object> actionParam = PublicUtil.strToMap(info.toJSONString());
-        JobStartTriggerBase jobTriggerService = multiEngineFactory.getJobTriggerService(multiEngineType);
-        jobTriggerService.readyForTaskStartTrigger(actionParam, batchTask, scheduleJob);
+        dealActionParam(actionParam,multiEngineType,batchTask,scheduleJob);
         actionParam.put("name", scheduleJob.getJobName());
         actionParam.put("taskId", scheduleJob.getJobId());
         actionParam.put("taskType", EScheduleJobType.getEngineJobType(batchTask.getTaskType()));
@@ -290,6 +301,32 @@ public class ActionService {
             actionParam.put("deployMode", eDeployMode.getType());
         }
         return PublicUtil.mapToObject(actionParam, ParamActionExt.class);
+    }
+
+    private void dealActionParam(Map<String, Object> actionParam, Integer multiEngineType, ScheduleTaskShade batchTask, ScheduleJob scheduleJob) throws Exception {
+        IPipeline pipeline = null;
+        String pipelineConfig = null;
+        if (actionParam.containsKey(PipelineBuilder.pipelineKey)) {
+            pipelineConfig = (String) actionParam.get(PipelineBuilder.pipelineKey);
+            pipeline = PipelineBuilder.buildPipeline(pipelineConfig);
+        }
+        if (pipeline == null) {
+            //走旧逻辑
+            JobStartTriggerBase jobTriggerService = multiEngineFactory.getJobTriggerService(multiEngineType);
+            jobTriggerService.readyForTaskStartTrigger(actionParam, batchTask, scheduleJob);
+            return;
+        }
+        List<ScheduleTaskParamShade> taskParamsToReplace = JSONObject.parseArray((String) actionParam.get("taskParamsToReplace"), ScheduleTaskParamShade.class);
+        Map<String, Object> pipelineInitMap = PipelineBuilder.getPipelineInitMap(pipelineConfig, scheduleJob, batchTask, taskParamsToReplace, (pipelineMap) -> {
+            //fill 文件上传的信息
+            JSONObject pluginInfo = clusterService.pluginInfoJSON(batchTask.getDtuicTenantId(), ScheduleEngineType.Hadoop.getEngineName(), null, null, null);
+            String hadoopVersion = componentDao.getDefaultComponentVersionByTenantAndComponentType(pluginInfo.getLong(ConfigConstant.TENANT_ID), EComponentType.HDFS.getTypeCode());
+            pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, EComponentType.HDFS.name().toLowerCase() + componentService.formatHadoopVersion(hadoopVersion, EComponentType.HDFS));
+            pipelineMap.put(UploadParamPipeline.pluginInfoKey, pluginInfo);
+            pipelineMap.put(UploadParamPipeline.workOperatorKey, workerOperator);
+            pipelineMap.put(UploadParamPipeline.fileUploadPathKey, environmentContext.getHdfsTaskPath());
+        });
+        pipeline.execute(actionParam, pipelineInitMap);
     }
 
     /**

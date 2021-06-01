@@ -53,15 +53,6 @@ public class ClusterService implements InitializingBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClusterService.class);
 
-    private static final Long DEFAULT_CLUSTER_ID = -1L;
-
-    private static final String DEFAULT_CLUSTER_NAME = "default";
-    private final static String CLUSTER = "cluster";
-    private final static String QUEUE = "queue";
-    private final static String TENANT_ID = "tenantId";
-    private static final String DEPLOY_MODEL = "deployMode";
-    private static final String NAMESPACE = "namespace";
-    private static final String MAILBOX_CUTTING = "@";
 
     @Autowired
     private ClusterDao clusterDao;
