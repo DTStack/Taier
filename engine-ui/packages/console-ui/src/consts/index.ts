@@ -348,6 +348,7 @@ export const ENGINE_TYPE = {
     GREEN_PLUM: 6,
     PRESTO: 7,
     FLINK_ON_STANDALONE: 8,
+    ANALYTIC_DB: 9,
     KUBERNETES: 'Kubernetes'
 }
 export const ENGINE_TYPE_NAME = {
@@ -355,7 +356,9 @@ export const ENGINE_TYPE_NAME = {
     LIBRA: 'LibrA',
     TI_DB: 'TiDB',
     ORACLE: 'Oracle',
-    GREEN_PLUM: 'GreenPlum'
+    GREEN_PLUM: 'GreenPlum',
+    PRESTO: 'PRESTO',
+    ANALYTIC_DB: 'AnalyticDB for PostgreSQL'
 }
 
 export const ENGIN_TYPE_TEXT = {
@@ -365,6 +368,7 @@ export const ENGIN_TYPE_TEXT = {
     [ENGINE_TYPE.ORACLE]: 'Oracle',
     [ENGINE_TYPE.GREEN_PLUM]: 'GreenPlum',
     [ENGINE_TYPE.PRESTO]: 'Presto',
+    [ENGINE_TYPE.ANALYTIC_DB]: 'AnalyticDB for PostgreSQL',
     [ENGINE_TYPE.FLINK_ON_STANDALONE]: 'Flink on Standalone'
 }
 

@@ -510,11 +510,11 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             case COMPONENT_TYPE_VALUE.LIBRA_SQL:
             case COMPONENT_TYPE_VALUE.TIDB_SQL:
             case COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL:
-            case COMPONENT_TYPE_VALUE.PRESTO_SQL: {
+            case COMPONENT_TYPE_VALUE.PRESTO_SQL:
+            case COMPONENT_TYPE_VALUE.ANALYTIC_DB: {
                 return (
                     <>
                         {this.renderParamsFile()}
-                        {this.renderStorageComponents()}
                     </>
                 )
             }
