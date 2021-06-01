@@ -10,8 +10,23 @@ interface IPropsVersionCompare {
   versions: [string, string];
 }
 
+const versionSort = (versions: [string, string]): [string, string] => {
+  return parseFloat(versions[0]) > parseFloat(versions[1])
+    ? (versions.reverse() as [string, string])
+    : versions;
+};
+
+const detailParser = (detail) =>
+  new Promise((resolve) => {
+    const _detail = { ...detail };
+    detail.columnList = detail.columns;
+    delete _detail.columns;
+    return resolve(detail);
+  });
+
 const VersionCompare = (props: IPropsVersionCompare) => {
-  const { modelId, versions } = props;
+  const { modelId } = props;
+  const versions = versionSort(props.versions);
   const [loading, setLoading] = useState(true);
   const [compareContent, setCompareContent] = useState<[string, string]>([
     '',
@@ -24,6 +39,7 @@ const VersionCompare = (props: IPropsVersionCompare) => {
         if (!success) throw new Error(message);
         return data;
       })
+      .then(detailParser)
       .then((detail) => API.previewSql(detail))
       .then(({ success, data, message }) => {
         if (!success) throw new Error(message);
@@ -36,7 +52,8 @@ const VersionCompare = (props: IPropsVersionCompare) => {
     if (versions.some((version) => version === '')) return setLoading(false);
     Promise.all(versions.map((version) => getSqlByVersion(modelId, version)))
       .then((res) => {
-        setCompareContent(res as [string, string]);
+        const sqls = res.map((item) => item.result);
+        setCompareContent(sqls as [string, string]);
       })
       .catch((error) => {
         Message.error(error.message);
@@ -53,8 +70,12 @@ const VersionCompare = (props: IPropsVersionCompare) => {
       ) : (
         <>
           <div className="version-title">
-            <span className="version-title-prev text">版本号：v1.0</span>
-            <span className="version-title-next text">版本号：v2.0</span>
+            <span className="version-title-prev text">
+              版本号：v{versions[0]}
+            </span>
+            <span className="version-title-next text">
+              版本号：v{versions[1]}
+            </span>
           </div>
           <DiffEditor
             className="version-compare-diff"

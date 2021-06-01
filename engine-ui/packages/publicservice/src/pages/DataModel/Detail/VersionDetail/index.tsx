@@ -13,6 +13,13 @@ interface IPropsVersionDetail {
   version: string;
 }
 
+const parseDetailParams = (detail: IModelDetail) => {
+  const _detail: any = { ...detail };
+  _detail.columnList = detail.columns;
+  delete _detail.columns;
+  return _detail;
+};
+
 const VersionDetail = (props: IPropsVersionDetail) => {
   // 获取选中版本数据模型详情
   // 更具模型详情获取sql信息
@@ -30,9 +37,9 @@ const VersionDetail = (props: IPropsVersionDetail) => {
       });
       if (!detailRes.success) return Message.error(detailRes.message);
       setModelDetail(detailRes.data);
-      const sqlRes = await API.previewSql(detailRes.data);
+      const sqlRes = await API.previewSql(parseDetailParams(detailRes.data));
       if (!sqlRes.success) return Message.error(sqlRes.message);
-      setSql(sqlRes.message);
+      setSql(sqlRes.data.result);
     } catch (error) {
       Message.error(error.message);
     } finally {
