@@ -17,7 +17,7 @@ public enum MultiEngineType {
     ORACLE(5,"Oracle"),
     GREENPLUM(6, "Greenplum"),
     PRESTO(7, "Presto"),
-    FLINK_ON_STANDALONE(8,"FlinkOnStandalone")
+    FLINK_ON_STANDALONE(9,"FlinkOnStandalone")
     ;
 
     private int type;
