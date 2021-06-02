@@ -429,7 +429,6 @@ public class ActionService {
         scheduleJob.setComputeType(getOrDefault(paramActionExt.getComputeType(), 1));
         scheduleJob.setPeriodType(paramActionExt.getPeriodType());
         scheduleJob.setBusinessType(paramActionExt.getBusinessType());
-        buildComponentVersion(scheduleJob,paramActionExt,useTaskType);
         return scheduleJob;
     }
 
