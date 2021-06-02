@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { Table, Pagination, Button, Modal } from 'antd';
 import { columnsGenerator } from './constants';
 import './style';
@@ -57,6 +57,8 @@ const VersionHistory = (props: IPropsVersionHistory) => {
     pageSize: 10,
     total: 0,
   });
+
+  const refContainer = useRef(null);
 
   const onSelectedChange = (rowKeys: string[]) => {
     setSelectedRowKeys(rowKeys);
@@ -160,6 +162,8 @@ const VersionHistory = (props: IPropsVersionHistory) => {
   };
 
   const handlePaginationChange = (current, pageSize) => {
+    // console.log(createImageBitmap)
+    console.log(current, pageSize);
     setPagination((pagination) => ({
       ...pagination,
       current,
@@ -168,15 +172,15 @@ const VersionHistory = (props: IPropsVersionHistory) => {
   };
 
   const handleModelRecover = async (modelId, version) => {
-    // TODO: 判断模型是否处于发布状态
+    // 判断模型是否处于发布状态
     if (modelStatus === EnumModelStatus.RELEASE) {
       return Message.error('模型已发布，请先下线模型');
     }
-    // TODO: 判断模型引用关系，需后端重新定义返回格式
     const { success, data, message } = await API.isModelReferenced({
       id: modelId,
     });
     if (!success) return Message.error(message);
+    const { ref, prod } = data;
     // 请求，查询当前模型下游产品引用情况
     Modal.confirm({
       title: (
@@ -184,9 +188,9 @@ const VersionHistory = (props: IPropsVersionHistory) => {
           {`确认将当前模型恢复至V${version}版本吗？`}
         </span>
       ),
-      content: data ? (
+      content: ref ? (
         <span className="cus-modal margin-left-40">
-          当前模型已被--、--引用，恢复后可能导致数据异常。
+          当前模型已被{prod.join('、')}引用，恢复后可能导致数据异常。
         </span>
       ) : null,
       okText: '确认',
@@ -207,9 +211,14 @@ const VersionHistory = (props: IPropsVersionHistory) => {
     });
   }, []);
 
+  const y = useMemo(() => {
+    if (!refContainer.current) return 300;
+    return parseInt(getComputedStyle(refContainer.current)['height']) - 51;
+  }, [refContainer.current]);
+
   return (
     <div className="version-history">
-      <div className="version-history-content">
+      <div className="version-history-content" ref={refContainer}>
         <Table
           rowKey="version"
           rowSelection={{
@@ -222,7 +231,7 @@ const VersionHistory = (props: IPropsVersionHistory) => {
           pagination={false}
           // TODO: 表格滚动高度计算
           scroll={{
-            y: 300,
+            y,
           }}
         />
       </div>
@@ -233,9 +242,16 @@ const VersionHistory = (props: IPropsVersionHistory) => {
           className="float-right"
           total={pagination.total}
           pageSize={pagination.pageSize}
+          pageSizeOptions={['10', '15', '20']}
           current={pagination.current}
           onChange={handlePaginationChange}
+          onShowSizeChange={handlePaginationChange}
         />
+        <span className="float-right pagination-tips">
+          共<span className="highlight">{pagination.total}</span>
+          条数据，每页显示
+          <span className="highlight">{pagination.pageSize}</span>条
+        </span>
         <Button
           className="ml-20"
           type="primary"

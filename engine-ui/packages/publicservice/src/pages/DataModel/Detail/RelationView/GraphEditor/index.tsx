@@ -517,7 +517,7 @@ export default class GraphEditor extends React.Component<Props, State> {
     newCloneDom.style.padding = '40px';
     newCloneDom.style.width = width + 'px';
     newCloneDom.style.height = height + 'px';
-    // newCloneDom.style.background = 'url(/dataAssets/public/img/grid.gif) #ffffff';
+    // newCloneDom.style.background = 'url(/assets/imgs/dataModel/bg-relation-view.png)';
     document.body.appendChild(newCloneDom);
     html2canvas(newCloneDom, {
       allowTaint: true, // 允许跨域图片

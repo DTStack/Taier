@@ -2,6 +2,7 @@ import React from 'react';
 import { Table } from 'antd';
 import './style';
 import { relationListColumns, columns } from './constants';
+import { EnumSize } from '../types';
 
 interface ITableItem {
   title: string;
@@ -9,37 +10,49 @@ interface ITableItem {
   dataSource: any[];
 }
 
-const tableList: ITableItem[] = [
-  {
-    title: '关联表',
-    columns: relationListColumns,
-    dataSource: [],
-  },
-  {
-    title: '维度',
-    columns: columns,
-    dataSource: [],
-  },
-  {
-    title: '度量',
-    columns: columns,
-    dataSource: [],
-  },
-];
+const tableListGenerator = (size: EnumSize, dsList: any[][]): ITableItem[] => {
+  const list = [
+    {
+      title: '关联表',
+      columns: relationListColumns(size),
+      dataSource: [],
+    },
+    {
+      title: '维度',
+      columns: columns(size),
+      dataSource: [],
+    },
+    {
+      title: '度量',
+      columns: columns(size),
+      dataSource: [],
+    },
+  ];
+  // 若没有度量列，则不展示度量列
+  if (dsList[2].length === 0) delete list[2];
+  list.forEach((item, index) => {
+    item.dataSource = dsList[index];
+  });
+  return list;
+};
 
 interface IPropsDataInfo {
   relationTableList: any[];
   dimensionList: any[];
   metricList: any[];
+  size?: EnumSize;
 }
 
 const DataInfo = (props: IPropsDataInfo) => {
-  const { relationTableList, dimensionList, metricList } = props;
+  const {
+    relationTableList,
+    dimensionList,
+    metricList,
+    size = EnumSize.LARGE,
+  } = props;
   const list = [relationTableList, dimensionList, metricList];
   // 构造tableList参数
-  tableList.forEach((item, index) => {
-    item.dataSource = list[index];
-  });
+  const tableList = tableListGenerator(size, list);
   const total = (index: number, count: number) => {
     switch (index) {
       case 0:

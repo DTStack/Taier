@@ -11,6 +11,15 @@
     height: 55px;
     border-top: 1px solid #dddddd;
     line-height: 55px;
+    .pagination-tips {
+      font-size: 12px;
+      font-family: PingFangSC-Regular, PingFang SC;
+      font-weight: 400;
+      color: #666666;
+      .highlight {
+        color: #3f87ff;
+      }
+    }
   }
 
   .ml-20 {

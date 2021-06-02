@@ -38,6 +38,7 @@ const ModelBasicInfo = (props: IPropsModelBasicInfo) => {
           relationTableList={modelDetail.joinList}
           metricList={modelDetail.columns.filter((item) => item.metric)}
           dimensionList={modelDetail.columns.filter((item) => item.dimension)}
+          size={size}
         />
       </div>
     </div>

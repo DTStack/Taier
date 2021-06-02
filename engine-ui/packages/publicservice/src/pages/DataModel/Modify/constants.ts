@@ -55,11 +55,11 @@ export const basicInfoFormListGenerator = (
     },
     {
       key: 'modelEnName',
-      label: '模型英文名',
+      label: '模型编码',
       type: EnumFormItemType.INPUT,
-      placeholder: '清输入模型英文名',
+      placeholder: '请输入模型编码',
       rules: [
-        { required: true, message: '请输入模型英文名' },
+        { required: true, message: '请输入模型编码' },
         { max: 50, message: '不超过50个字符' },
         { pattern: /^[a-zA-Z0-9_]+$/g, message: '仅支持字母、数字和下划线' },
         {
@@ -70,7 +70,7 @@ export const basicInfoFormListGenerator = (
               id,
             });
             if (success && data) {
-              callback('模型英文名已存在');
+              callback('模型编码已存在');
             } else if (success && !data) {
               callback();
             } else {

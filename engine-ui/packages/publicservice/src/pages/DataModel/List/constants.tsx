@@ -1,10 +1,8 @@
 import React from 'react';
-import { Divider, Icon, Modal } from 'antd';
+import { Divider, Icon } from 'antd';
 import { EnumModelActionType } from './types';
 import { EnumModelStatus } from 'pages/DataModel/types';
 import classnames from 'classnames';
-import { API } from '@/services';
-import Message from '@/pages/DataModel/components/Message';
 
 export const modelStatusMap = new Map([
   [EnumModelStatus.UNRELEASE, '未发布'],
@@ -23,12 +21,29 @@ const getColorByModelStatus = (status: EnumModelStatus) => {
   }
 };
 
+const container = (isPublished: boolean) => {
+  return (title, action) => {
+    return (
+      <a
+        className={classnames({
+          'btn-link': !isPublished,
+          'btn-disabled': isPublished,
+        })}
+        onClick={() =>
+          !isPublished && typeof action === 'function' && action()
+        }>
+        {title}
+      </a>
+    );
+  };
+};
+
 export const columnsGenerator = ({
   handleModelAction,
   handleDeleteBtnClick,
   handleModelNameClick,
   dataSourceFilterOptions,
-  router,
+  handleEditBtnClick,
 }) => {
   return [
     {
@@ -49,7 +64,7 @@ export const columnsGenerator = ({
       },
     },
     {
-      title: '模型英文名',
+      title: '模型编码',
       dataIndex: 'modelEnName',
       key: 'modelEnName',
       width: 200,
@@ -158,81 +173,31 @@ export const columnsGenerator = ({
       fixed: 'right',
       render: (text, record) => {
         const isPublished = record.modelStatus === 1;
-        const btnRelease = (
-          <a
-            className="btn-link"
-            onClick={() =>
-              handleModelAction({
-                type: EnumModelActionType.RELEASE,
-                id: record.id,
-              })
-            }>
-            发布
-          </a>
+        const wrapper = container(isPublished);
+        const relaeseWrapper = container(false);
+        const btnRelease = relaeseWrapper('发布', () =>
+          handleModelAction({
+            type: EnumModelActionType.RELEASE,
+            id: record.id,
+          })
         );
-        const btnUnrelease = (
-          <a
-            className="btn-link"
-            onClick={() =>
-              handleModelAction({
-                type: EnumModelActionType.UNRELEASE,
-                id: record.id,
-              })
-            }>
-            下线
-          </a>
+        const btnUnrelease = relaeseWrapper('下线', () =>
+          handleModelAction({
+            type: EnumModelActionType.UNRELEASE,
+            id: record.id,
+          })
         );
-        const btnDelete = (isPublish: boolean) => {
-          if (!isPublish) {
-            return (
-              <a
-                className="btn-link"
-                onClick={() => {
-                  handleDeleteBtnClick(record.id);
-                }}>
-                删除
-              </a>
-            );
-          } else {
-            return <span className="btn-disabled">删除</span>;
-          }
-        };
-        const btnEdit = (
-          <a
-            className="btn-link"
-            onClick={async () => {
-              // TODO: 根据后端接口定义修改字段
-              const { success, data, message } = await API.isModelReferenced({
-                id: record.id,
-              });
-              if (!success) return Message.error(message);
-              if (data.ref) {
-                const prods = data.prod || [];
-                const title = `该模型已经被${prods.join(
-                  '、'
-                )}引用，修改后可能导致数据异常，确定编辑吗？`;
-                Modal.confirm({
-                  title: title,
-                  onOk: () => {
-                    router.push(`/data-model/edit/${record.id}`);
-                  },
-                  okText: '确定',
-                  cancelText: '取消',
-                });
-              } else {
-                router.push(`/data-model/edit/${record.id}`);
-              }
-            }}>
-            编辑
-          </a>
+        const btnDelete = wrapper('删除', () =>
+          handleDeleteBtnClick(record.id)
         );
+        const btnEdit = wrapper('编辑', () => handleEditBtnClick(record.id));
         return (
           <span>
             {isPublished ? btnUnrelease : btnRelease}
             <Divider type="vertical" />
             {btnEdit}
             <Divider type="vertical" />
-            {btnDelete(isPublished)}
+            {btnDelete}
           </span>
         );
       },
