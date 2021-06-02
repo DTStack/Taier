@@ -60,7 +60,7 @@ const VersionDetail = (props: IPropsVersionDetail) => {
           <ModelBasicInfo modelDetail={modelDetail} size={EnumSize.SMALL} />
           <div>
             <PaneTitle title="SQL信息" />
-            <SqlPreview code={sql} />
+            <SqlPreview code={sql} overflowEnable={false} />
           </div>
         </>
       )}

@@ -254,7 +254,7 @@ class DiffEditor extends React.Component<DiffEditorProps, any> {
 
     let renderStyle: any = {
       position: 'relative',
-      height: '300px',
+      height: 'calc(80vh - 100px - 52px - 56px)',
       width: '620px',
       marginTop: '12px',
     };

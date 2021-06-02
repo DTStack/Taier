@@ -83,7 +83,7 @@ const VersionCompare = (props: IPropsVersionCompare) => {
             modified={{ value: compareContent[1] }}
             options={{ readOnly: true }}
             sync={true}
-            language="text"
+            language="sql"
           />
         </>
       )}

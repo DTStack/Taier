@@ -5,9 +5,11 @@ $panel-height: calc(100vh - 64px - 40px - 44px);
   padding: 20px;
   overflow: hidden;
   max-height: 100%;
+  .max-height {
+    max-height: calc(#{$panel-height} - 40px - 37px - 40px);
+  }
   .code-container {
     width: 100%;
-    max-height: calc(#{$panel-height} - 40px - 37px - 40px);
     overflow: auto;
     .pre {
       margin: 0;

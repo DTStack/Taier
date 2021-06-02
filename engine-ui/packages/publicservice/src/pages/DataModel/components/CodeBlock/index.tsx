@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Empty } from 'antd';
+import classnames from 'classnames';
 import hljs from 'highlight.js';
 import sql from 'highlight.js/lib/languages/sql_more';
 import 'highlight.js/styles/a11y-light.css';
@@ -9,10 +10,11 @@ hljs.registerLanguage('sql', sql);
 
 interface IPropsCodeBlock {
   code: string;
+  overflowEnable?: boolean;
 }
 
 const CodeBlock = (props: IPropsCodeBlock) => {
-  const { code } = props;
+  const { code, overflowEnable } = props;
   const dom = useRef(null);
 
   useEffect(() => {
@@ -21,7 +23,11 @@ const CodeBlock = (props: IPropsCodeBlock) => {
   }, [code]);
   return (
     <div className="code-block">
-      <div className="code-container">
+      <div
+        className={classnames({
+          'code-container': true,
+          'max-height': overflowEnable,
+        })}>
         {code ? (
           <pre className="pre">
             <code

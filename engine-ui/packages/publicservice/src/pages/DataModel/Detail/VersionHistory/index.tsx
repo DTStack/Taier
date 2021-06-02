@@ -8,6 +8,7 @@ import { EnumModalActionType } from './types';
 import { API } from '@/services';
 import Message from '@/pages/DataModel/components/Message';
 import { EnumModelStatus } from '../../types';
+import DtModal from '@/pages/DataModel/components/DtModal';
 
 interface IModalAction<T> {
   type: EnumModalActionType;
@@ -265,7 +266,7 @@ const VersionHistory = (props: IPropsVersionHistory) => {
           版本对比
         </Button>
       </div>
-      <Modal
+      <DtModal
         visible={visibleModalDetail.visible}
         title={`版本记录${visibleModalDetail.version}`}
         className="modal-version-detail"
@@ -282,12 +283,14 @@ const VersionHistory = (props: IPropsVersionHistory) => {
           </Button>
         }
         destroyOnClose={true}>
-        <VersionDetail
-          modelId={visibleModalDetail.modelId}
-          version={visibleModalDetail.version}
-        />
-      </Modal>
-      <Modal
+        <div style={{ marginTop: '24px' }}>
+          <VersionDetail
+            modelId={visibleModalDetail.modelId}
+            version={visibleModalDetail.version}
+          />
+        </div>
+      </DtModal>
+      <DtModal
         visible={visibleModelCompare.visible}
         className="modal-version-compare"
         title="版本对比"
@@ -304,11 +307,13 @@ const VersionHistory = (props: IPropsVersionHistory) => {
         onCancel={() => {
           hadnleModalCompareAction({ type: EnumModalActionType.CLOSE });
         }}>
-        <VersionCompare
-          modelId={modelId}
-          versions={visibleModelCompare.versions}
-        />
-      </Modal>
+        <div style={{ marginTop: '24px' }}>
+          <VersionCompare
+            modelId={modelId}
+            versions={visibleModelCompare.versions}
+          />
+        </div>
+      </DtModal>
     </div>
   );
 };

@@ -59,11 +59,17 @@
 
   .original-in-monaco-diff-editor,
   .modified-in-monaco-diff-editor {
+    .mtk1 {
+      font-weight: 400;
+      color: #333333;
+      line-height: 20px;
+    }
     .margin {
       width: 39px !important;
       .line-numbers {
         width: 100% !important;
         text-align: center;
+        color: #2b91af;
       }
     }
     .monaco-scrollable-element.editor-scrollable {
