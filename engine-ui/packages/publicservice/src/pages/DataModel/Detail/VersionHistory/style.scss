@@ -5,6 +5,21 @@
   &-content {
     width: 100%;
     height: calc(100% - 55px);
+    .ant-table {
+      .ant-table-header {
+        .ant-table-thead {
+          tr {
+            height: 44px!important;
+          }
+          // padding: 0!important;
+          th {
+            // padding: 0!important;
+            padding-top: 13px;
+            padding-bottom: 13px;
+          }
+        }
+      }
+    }
   }
   &-footer {
     width: 100%;

@@ -285,7 +285,22 @@ const RelationView = (props: IPropsRelationView) => {
     rootCell.current = refGraph.current.getDefaultParent();
   };
 
+  // const refTime = useRef(0);
+  // const checkTime = () => {
+  //   console.log(refTime.current, 'start...');
+  //   console.log(new Date().valueOf(), 'now...')
+  //   const now = new Date().valueOf();
+  //   console.log(now - refTime.current);
+  //   if (now - refTime.current > 5) {
+  //     refTime.current = new Date('9999-09-09').valueOf();
+  //     // alert('time out....')
+  //     console.log('time out...')
+  //     setLoading(false)
+  //   }
+  // }
+
   const update = (tree) => {
+    // refTime.current = new Date().valueOf();
     refGraph.current.getLabel = getLabel;
     const model = refGraph.current.getModel();
     model.beginUpdate();
@@ -299,6 +314,7 @@ const RelationView = (props: IPropsRelationView) => {
       const map = new Map();
 
       loop(tree, (item) => {
+        // checkTime();
         const list = render({
           tableName: item.tableName,
           columnList: item.columns,

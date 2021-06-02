@@ -213,7 +213,7 @@ const VersionHistory = (props: IPropsVersionHistory) => {
 
   const y = useMemo(() => {
     if (!refContainer.current) return 300;
-    return parseInt(getComputedStyle(refContainer.current)['height']) - 51;
+    return parseInt(getComputedStyle(refContainer.current)['height']) - 45;
   }, [refContainer.current]);
 
   return (
