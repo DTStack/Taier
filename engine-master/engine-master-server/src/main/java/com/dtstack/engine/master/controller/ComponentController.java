@@ -4,6 +4,7 @@ import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.KerberosConfig;
 import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.api.pojo.DtScriptAgentLabel;
 import com.dtstack.engine.api.pojo.lineage.ComponentMultiTestResult;
 import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
 import com.dtstack.engine.api.vo.components.ComponentsResultVO;
@@ -111,6 +112,13 @@ public class ComponentController {
     @ApiOperation(value = "判断集群是否支持gpu")
     public Boolean isYarnSupportGpus(@DtRequestParam("clusterName") String clusterName) {
         return componentService.isYarnSupportGpus(clusterName);
+    }
+
+
+    @RequestMapping(value="/getDtScriptAgentLabel", method = {RequestMethod.POST})
+    @ApiOperation(value = "获取dtScript agent label信息")
+    public List<DtScriptAgentLabel> getDtScriptAgentLabel(@DtRequestParam("agentAddress")String agentAddress){
+        return componentService.getDtScriptAgentLabel(agentAddress);
     }
 
     @RequestMapping(value = "/getComponentVersionByEngineType",method = {RequestMethod.POST})

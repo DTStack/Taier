@@ -15,7 +15,7 @@ import java.util.Set;
  * @Created chener@dtstack.com
  */
 public enum SourceType2TableType {
-    HIVE(ETableType.HIVE, Sets.newHashSet(DataSourceType.HIVE1X,DataSourceType.HIVE,DataSourceType.Spark,DataSourceType.SPARKTHRIFT2_1,DataSourceType.INCEPTOR_SQL,DataSourceType.HIVE3)),
+    HIVE(ETableType.HIVE, Sets.newHashSet(DataSourceType.HIVE1X,DataSourceType.HIVE,DataSourceType.Spark,DataSourceType.SPARKTHRIFT2_1,DataSourceType.HIVE3,DataSourceType.INCEPTOR_SQL)),
     LIBRA(ETableType.LIBRA,Sets.newHashSet(DataSourceType.LIBRA)),
     TIDB(ETableType.TIDB,Sets.newHashSet(DataSourceType.TiDB)),
     ORACLE(ETableType.ORACLE,Sets.newHashSet(DataSourceType.Oracle)),

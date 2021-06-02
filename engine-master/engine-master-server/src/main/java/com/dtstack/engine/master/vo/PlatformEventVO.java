@@ -14,6 +14,19 @@ public class PlatformEventVO {
     private String eventCode;
 
     private Long userId;
+    /**
+     * 姓名
+     */
+    private String fullName;
+    /**
+     *
+     */
+    private String company;
+    /**
+     * 邮箱
+     */
+    private String email;
+
     private String token;
     private String phone;
 
@@ -93,6 +106,30 @@ public class PlatformEventVO {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getCompany() {
+        return company;
+    }
+
+    public void setCompany(String company) {
+        this.company = company;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     @Override

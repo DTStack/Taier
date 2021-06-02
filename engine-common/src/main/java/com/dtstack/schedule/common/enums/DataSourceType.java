@@ -60,6 +60,8 @@ public enum DataSourceType {
     INCEPTOR_SQL(52),
     HIVE3(50),
 
+    ADB_POSTGREPSQL(46),
+
     /**
      * spark thrift
      */
@@ -248,4 +250,5 @@ public enum DataSourceType {
             DataSourceType.HIVE.getVal(),
             DataSourceType.HIVE3.getVal(),
             DataSourceType.SPARKTHRIFT2_1.getVal());
+
 }

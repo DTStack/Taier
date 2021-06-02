@@ -440,4 +440,26 @@ public class TenantService {
             return "";
         }
     }
+
+
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteTenantId(Long dtUicTenantId) {
+        Long consoleTenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
+        if (null != consoleTenantId) {
+            LOGGER.info("delete tenant {} dtUicTenantId {} ", consoleTenantId, dtUicTenantId);
+            tenantDao.delete(dtUicTenantId);
+            engineTenantDao.deleteTenantId(consoleTenantId);
+        }
+    }
+
+
+    public void updateTenantInfo(Long dtUicTenantId, String tenantName, String tenantDesc) {
+        Tenant tenant = new Tenant();
+        tenant.setDtUicTenantId(dtUicTenantId);
+        tenant.setTenantName(tenantName);
+        tenant.setTenantDesc(tenantDesc);
+        tenantDao.updateByDtUicTenantId(tenant);
+    }
+
+
 }

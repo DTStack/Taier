@@ -8,6 +8,7 @@ import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.vo.*;
+import com.dtstack.engine.common.constrant.ComponentConstant;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
@@ -17,6 +18,7 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.ComponentVersionUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.schedule.common.enums.DataSourceType;
@@ -559,8 +561,10 @@ public class ClusterService implements InitializingBean {
             pluginInfo.put(TYPE_NAME,"dtscript-agent");
         } else if (EComponentType.FLINK_ON_STANDALONE==type.getComponentType()){
             flinkOnStandaloneInfo(clusterConfigJson,pluginInfo);
-        }
-        else {
+        } else if (EComponentType.ANALYTICDB_FOR_PG == type.getComponentType()){
+            pluginInfo = JSONObject.parseObject(adbPostgrepsqlInfo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId(),componentVersionMap));
+            pluginInfo.put(TYPE_NAME, ComponentConstant.ANALYTICDB_FOR_PG_PLUGIN);
+        } else {
             //flink spark 需要区分任务类型
             if (EComponentType.FLINK.equals(type.getComponentType()) || EComponentType.SPARK.equals(type.getComponentType())) {
                 pluginInfo = this.buildDeployMode(clusterConfigJson, type, clusterVO, deployMode);
@@ -755,6 +759,9 @@ public class ClusterService implements InitializingBean {
         return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.INCEPTOR_SQL,null);
     }
 
+    public String adbPostgrepsqlInfo(Long dtUicTenantId, Long dtUicUserId,Map<Integer,String > componentVersionMap){
+        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.ADB_POSTGREPSQL,componentVersionMap);
+    }
 
     private String accountInfo(Long dtUicTenantId, Long dtUicUserId, DataSourceType dataSourceType,Map<Integer,String > componentVersionMap) {
         EComponentType componentType = null;
@@ -768,6 +775,8 @@ public class ClusterService implements InitializingBean {
             componentType = EComponentType.PRESTO_SQL;
         }else if (DataSourceType.INCEPTOR_SQL.equals(dataSourceType)){
             componentType=EComponentType.INCEPTOR_SQL;
+        }else if (DataSourceType.ADB_POSTGREPSQL.equals(dataSourceType)){
+            componentType = EComponentType.ANALYTICDB_FOR_PG;
         }
         if (componentType == null) {
             throw new RdosDefineException("Unsupported data source type");

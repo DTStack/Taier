@@ -98,7 +98,47 @@ public class PoolHttpClient {
 		return post(url, bodyData, null);
 	}
 
+	public static String post(String url, Object bodyData) {
+		String responseBody = null;
+		CloseableHttpResponse response = null;
+		try {
+			HttpPost httpPost = new HttpPost(url);
+
+			httpPost.setHeader("Content-type","application/json;charset=UTF-8");
+			if (bodyData != null) {
+				httpPost.setEntity(new StringEntity(objectMapper
+						.writeValueAsString(bodyData),charset));
+			}
+
+			// 请求数据
+			response = httpClient.execute(httpPost);
+			int status = response.getStatusLine().getStatusCode();
+			if (status == HttpStatus.SC_OK) {
+				HttpEntity entity = response.getEntity();
+				// FIXME 暂时不从header读取
+				responseBody = EntityUtils.toString(entity, charset);
+			} else {
+				LOGGER.warn("request url:{} fail:{}", url, response.getStatusLine().getStatusCode());
+			}
+		} catch (Exception e) {
+			LOGGER.error("url:{}--->http request error:", url, e);
+		}finally{
+			if(response != null){
+				try {
+					response.close();
+				} catch (IOException e) {
+					LOGGER.error("", e);
+				}
+			}
+		}
+		return responseBody;
+	}
+
 	public static String post(String url, Map<String, Object> bodyData, Map<String,Object> cookies) {
+		return post(url,bodyData,cookies, Boolean.FALSE);
+	}
+
+	public static String post(String url, Map<String, Object> bodyData, Map<String,Object> cookies,Boolean isRedirect) {
 		String responseBody = null;
 		CloseableHttpResponse response = null;
 		try {
@@ -113,8 +153,8 @@ public class PoolHttpClient {
 						.writeValueAsString(bodyData),charset));
 			}
 
-			// 请求数据
 			response = httpClient.execute(httpPost);
+			// 请求数据
 			int status = response.getStatusLine().getStatusCode();
 			if (status == HttpStatus.SC_OK) {
 				HttpEntity entity = response.getEntity();
@@ -122,6 +162,22 @@ public class PoolHttpClient {
 				responseBody = EntityUtils.toString(entity, charset);
 			} else {
 				LOGGER.warn("request url:{} fail:{}", url, response.getStatusLine().getStatusCode());
+				if (isRedirect && status == HttpStatus.SC_TEMPORARY_REDIRECT) {
+					Header header = response.getFirstHeader("location"); // 跳转的目标地址是在 HTTP-HEAD上
+					String newuri = header.getValue();
+					HttpPost newHttpPost = new HttpPost(newuri);
+					newHttpPost.setHeader("Content-type","application/json;charset=UTF-8");
+					if (bodyData != null && bodyData.size() > 0) {
+						newHttpPost.setEntity(new StringEntity(objectMapper
+								.writeValueAsString(bodyData),charset));
+					}
+
+					response = httpClient.execute(newHttpPost);
+					int newStatus = response.getStatusLine().getStatusCode();
+					if (newStatus == HttpStatus.SC_OK) {
+						responseBody = EntityUtils.toString(response.getEntity(), charset);
+					}
+				}
 			}
 		} catch (Exception e) {
 			LOGGER.error("url:{}--->http request error:", url, e);

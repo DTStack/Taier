@@ -25,4 +25,7 @@ public interface EngineService extends DtInsightServer {
      */
     @RequestLine("POST /node/engine/listSupportEngine")
     ApiResponse<List<EngineSupportVO>> listSupportEngine(@Param("tenantId") Long dtUicTenantId);
+
+    @RequestLine("POST /node/engine/listSupportEngineWithCommon")
+    ApiResponse<List<EngineSupportVO>> listSupportEngineWithCommon(@Param("tenantId") Long dtUicTenantId,@Param("needCommon") Boolean needCommon);
 }

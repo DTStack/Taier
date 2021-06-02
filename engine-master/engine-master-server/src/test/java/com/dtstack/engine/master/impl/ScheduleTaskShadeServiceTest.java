@@ -114,7 +114,7 @@ public class ScheduleTaskShadeServiceTest extends AbstractTest {
         Assert.assertNotNull(listPageResult);
         Assert.assertTrue(listPageResult.getData().stream().anyMatch(d -> d.getTaskId().equals(scheduleTaskShadeDTO.getTaskId())));
 
-        ScheduleTaskShadePageVO scheduleTaskShadePageVO = scheduleTaskShadeService.queryTasks(scheduleTaskShadeDTO.getTenantId(),
+        ScheduleTaskShadePageVO scheduleTaskShadePageVO = scheduleTaskShadeService.queryTasks(scheduleTaskShadeDTO.getTenantId(),null,
                 scheduleTaskShadeDTO.getProjectId(), null, null, null, null, scheduleTaskShadeDTO.getScheduleStatus(),
                 String.join(",", scheduleTaskShadeDTO.getTaskType() + "", scheduleTaskShadeDTO.getTaskType() + ""), null,
                 1, 20, null, scheduleTaskShadeDTO.getAppType());

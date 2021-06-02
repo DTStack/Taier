@@ -52,6 +52,7 @@ public class ComponentVersionUtil {
         set.add(EScheduleJobType.KINGBASE.getType());
         set.add(EScheduleJobType.NOTEBOOK.getType());
         set.add(EScheduleJobType.ALGORITHM_LAB.getType());
+        set.add(EScheduleJobType.ANALYTICDB_FOR_PG.getType());
         return set;
     }
     private static Map<Integer,EComponentType> initComponent(){
@@ -92,7 +93,7 @@ public class ComponentVersionUtil {
         map.put(EScheduleJobType.KERAS.getType(),EComponentType.LEARNING);
         map.put(EScheduleJobType.PYTORCH.getType(),EComponentType.LEARNING);
         map.put(EScheduleJobType.INCEPTOR_SQL.getType(),EComponentType.INCEPTOR_SQL);
-        map.put(EScheduleJobType.DTSCRIPT_AGENT.getType(),EComponentType.DTSCRIPT_AGENT);
+        map.put(EScheduleJobType.SHELL_ON_AGENT.getType(),EComponentType.DTSCRIPT_AGENT);
         return map;
     }
 
