@@ -1554,7 +1554,7 @@ public class ComponentService {
      *
      * @param componentType 组件类型
      * @param clusterName   集群名称
-     * @param version       组件版本值 如2.7.3
+     * @param componentVersion       组件版本值 如2.7.3
      * @param storeType     存储组件type 如 HDFS
      * @param originVersion 组件版本名称 如CDH 7.1.x
      * @return
@@ -1608,6 +1608,11 @@ public class ComponentService {
                 }
             }
 
+        }
+        //flink on standalone处理
+        if(EComponentType.FLINK_ON_STANDALONE.getTypeCode().equals(componentType)){
+
+            return String.format("%s%s",String.format("%s%s","flink",version),"-standalone");
         }
         //hive 特殊处理 version
         if (EComponentType.HIVE_SERVER.getTypeCode().equals(componentType) || EComponentType.SPARK_THRIFT.getTypeCode().equals(componentType)) {

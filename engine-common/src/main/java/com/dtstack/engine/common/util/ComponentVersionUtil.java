@@ -38,6 +38,7 @@ public class ComponentVersionUtil {
         Set<Integer> set = new HashSet<>(2);
         set.add(EComponentType.FLINK.getTypeCode());
         set.add(EComponentType.SPARK.getTypeCode());
+        set.add(EComponentType.FLINK_ON_STANDALONE.getTypeCode());
         return set;
     }
 

@@ -21,7 +21,7 @@ import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.queue.GroupInfo;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.jobdealer.resource.JobComputeResourcePlain;
-import com.dtstack.engine.master.utils.TaskParamsUtil;
+import com.dtstack.engine.common.util.TaskParamsUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
@@ -235,7 +235,9 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
 
     public String getAndUpdateEngineLog(String jobId, String engineJobId, String appId, Long dtuicTenantId) {
 
-
+        if(StringUtils.isBlank(engineJobId)){
+            return "";
+        }
         String engineLog = null;
         try {
             EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);

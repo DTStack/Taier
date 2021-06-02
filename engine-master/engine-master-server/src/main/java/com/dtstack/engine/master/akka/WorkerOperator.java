@@ -78,7 +78,7 @@ public class WorkerOperator {
             throw new RdosDefineException("pluginInfo params lost");
         }
         JSONObject info = clusterService.pluginInfoJSON(jobIdentifier.getTenantId(), jobIdentifier.getEngineType(), jobIdentifier.getUserId(), jobIdentifier.getDeployMode(),
-                Collections.singletonMap(EngineTypeComponentType.getByEngineName(jobIdentifier.getEngineType()).getComponentType().getTypeCode(),jobIdentifier.getComponentVersion()));
+                Collections.singletonMap(EngineTypeComponentType.getByEngineName(jobIdentifier.getEngineType(),jobIdentifier.getDeployMode()).getComponentType().getTypeCode(),jobIdentifier.getComponentVersion()));
         if(null == info){
             return null;
         }
