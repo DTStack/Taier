@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
  * @author toutian
  *         create: 2020/01/17
  */
-public class JobStatusDealer implements Runnable {
+public class  JobStatusDealer implements Runnable {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(JobStatusDealer.class);
 

@@ -2,6 +2,7 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.dtcenter.common.enums.DeployMode;
 import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.ClusterDTO;
@@ -2199,7 +2200,7 @@ public class ComponentService {
     }
 
     public List<Component> getComponentVersionByEngineType(Long uicTenantId, String  engineType) {
-        EComponentType componentType = EngineTypeComponentType.getByEngineName(engineType,null).getComponentType();
+        EComponentType componentType = EngineTypeComponentType.getByEngineName(engineType, DeployMode.SESSION.getValue()).getComponentType();
         List<Component > componentVersionList = componentDao.getComponentVersionByEngineType(uicTenantId,componentType.getTypeCode());
         if (CollectionUtils.isEmpty(componentVersionList)){
             return Collections.emptyList();

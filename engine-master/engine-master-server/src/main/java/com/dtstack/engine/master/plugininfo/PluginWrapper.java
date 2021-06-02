@@ -239,7 +239,7 @@ public class PluginWrapper{
         engineJobCacheDao.updateJobInfo(dbPluginInfo.toJSONString(), jobId);
     }*/
 
-    public String getPluginInfo(String taskParams, Integer computeType, String engineType, Long tenantId, Long userId, Map<String, String> pluginInfoCache) {
+    public String getPluginInfo(String taskParams, Integer computeType, String engineType, Long tenantId, Long userId, Map<String, String> pluginInfoCache,String componentVersion) {
         try {
             Integer deployMode = null;
             if (ScheduleEngineType.Flink.getEngineName().equalsIgnoreCase(engineType)) {
@@ -247,10 +247,10 @@ public class PluginWrapper{
                 deployMode = TaskParamsUtil.parseDeployTypeByTaskParams(taskParams, computeType,EngineType.Flink.name()).getType();
             }
 
-            String cacheKey = String.format("%s.%s.%s.%s", tenantId, engineType, userId, deployMode);
+            String cacheKey = String.format("%s.%s.%s.%s.%s", tenantId, engineType, userId, deployMode,componentVersion);
             Integer finalDeployMode = deployMode;
             return pluginInfoCache.computeIfAbsent(cacheKey, (k) -> {
-                JSONObject infoJSON = clusterService.pluginInfoJSON(tenantId, engineType, userId, finalDeployMode,null);
+                JSONObject infoJSON = clusterService.pluginInfoJSON(tenantId, engineType, userId, finalDeployMode,StringUtils.isBlank(componentVersion)?null:Collections.singletonMap(EngineTypeComponentType.getByEngineName(engineType,finalDeployMode).getComponentType().getTypeCode(),componentVersion));
                 if (Objects.nonNull(infoJSON)) {
                     return infoJSON.toJSONString();
                 }
