@@ -134,6 +134,17 @@ public class ScheduleJob extends AppTenantEntity {
     @ApiModelProperty(notes = "任务提交用户")
     private String submitUserName;
 
+    @ApiModelProperty(notes = "业务类型 应用自身定义")
+    private String businessType;
+
+    public String getBusinessType() {
+        return businessType;
+    }
+
+    public void setBusinessType(String businessType) {
+        this.businessType = businessType;
+    }
+
     public String getSubmitUserName() {
         return submitUserName;
     }

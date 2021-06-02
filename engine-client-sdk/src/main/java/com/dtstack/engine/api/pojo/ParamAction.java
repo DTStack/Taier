@@ -28,11 +28,11 @@ public class ParamAction {
 
 	private String name;
 
-	private Integer taskType;
+    private Integer taskType;
 
-	private String engineType;
+    private String engineType;
 
-	private Integer computeType;
+    private Integer computeType;
 
 	//实时独有
 	private String externalPath;
@@ -96,7 +96,17 @@ public class ParamAction {
      */
 	private String componentVersion;
 
-	public String getComponentVersion() {
+	private String businessType;
+
+    public String getBusinessType() {
+        return businessType;
+    }
+
+    public void setBusinessType(String businessType) {
+        this.businessType = businessType;
+    }
+
+    public String getComponentVersion() {
 		return componentVersion;
 	}
 

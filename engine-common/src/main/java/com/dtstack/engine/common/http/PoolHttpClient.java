@@ -98,6 +98,42 @@ public class PoolHttpClient {
 		return post(url, bodyData, null);
 	}
 
+	public static String post(String url, Object bodyData) {
+		String responseBody = null;
+		CloseableHttpResponse response = null;
+		try {
+			HttpPost httpPost = new HttpPost(url);
+
+			httpPost.setHeader("Content-type","application/json;charset=UTF-8");
+			if (bodyData != null) {
+				httpPost.setEntity(new StringEntity(objectMapper
+						.writeValueAsString(bodyData),charset));
+			}
+
+			// 请求数据
+			response = httpClient.execute(httpPost);
+			int status = response.getStatusLine().getStatusCode();
+			if (status == HttpStatus.SC_OK) {
+				HttpEntity entity = response.getEntity();
+				// FIXME 暂时不从header读取
+				responseBody = EntityUtils.toString(entity, charset);
+			} else {
+				LOGGER.warn("request url:{} fail:{}", url, response.getStatusLine().getStatusCode());
+			}
+		} catch (Exception e) {
+			LOGGER.error("url:{}--->http request error:", url, e);
+		}finally{
+			if(response != null){
+				try {
+					response.close();
+				} catch (IOException e) {
+					LOGGER.error("", e);
+				}
+			}
+		}
+		return responseBody;
+	}
+
 	public static String post(String url, Map<String, Object> bodyData, Map<String,Object> cookies) {
 		return post(url,bodyData,cookies, Boolean.FALSE);
 	}

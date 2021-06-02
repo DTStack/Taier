@@ -167,7 +167,7 @@ public interface ScheduleJobService extends DtInsightServer {
                                      @Param("concreteStartTime") String beginTime, @Param("concreteEndTime") String endTime,
                                      @Param("projectId") Long projectId, @Param("userId") Long userId,
                                      @Param("tenantId") Long tenantId,
-                                     @Param("isRoot") Boolean isRoot, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId) ;
+                                     @Param("isRoot") Boolean isRoot, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId,@Param("ignoreCycTime") Boolean ignoreCycTime) ;
 
 
     /**
@@ -480,6 +480,9 @@ public interface ScheduleJobService extends DtInsightServer {
 
     @RequestLine("POST /node/scheduleJob/syncRestartJob")
     ApiResponse<Boolean> syncRestartJob(@Param("id") Long id, @Param("justRunChild") Boolean justRunChild, @Param("setSuccess") Boolean setSuccess, @Param("subJobIds") List<Long> subJobIds);
+
+    @RequestLine("POST /node/scheduleJob/restartJobAndResume")
+    ApiResponse<OperatorVO> restartJobAndResume(@Param("jobIdList") List<Long> jobIdList, @Param("runCurrentJob") Boolean runCurrentJob);
 
     @RequestLine("POST /node/scheduleJob/stopJobByCondition")
     @Headers(value={"Content-Type: application/json"})

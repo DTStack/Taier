@@ -197,6 +197,7 @@
             cc.component_type_code = #{componentTypeCode}
           AND cc.is_deleted = 0
     </select>
+
     <select id="getDefaultComponentVersionByUicIdAndComponentType" resultType="java.lang.String">
         select
             cc.hadoop_version

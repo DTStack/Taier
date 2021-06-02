@@ -1745,7 +1745,6 @@ public class ComponentService {
             componentDao.deleteById(componentId.longValue());
             kerberosDao.deleteByComponent(component.getEngineId(),component.getComponentTypeCode(),component.getHadoopVersion());
             componentConfigService.deleteComponentConfig(componentId.longValue());
-
         }
     }
 

@@ -88,6 +88,9 @@ public class ScheduleTaskShadeService {
     @Autowired
     private ScheduleDictDao scheduleDictDao;
 
+    @Autowired
+    private UserService userService;
+
     /**
      * web 接口
      * 例如：离线计算BatchTaskService.publishTaskInfo 触发 batchTaskShade 保存task的必要信息
@@ -349,6 +352,7 @@ public class ScheduleTaskShadeService {
 
 
     public ScheduleTaskShadePageVO queryTasks(Long tenantId,
+                                              Long dtTenantId,
                                               Long projectId,
                                               String name,
                                               Long ownerId,
@@ -358,7 +362,8 @@ public class ScheduleTaskShadeService {
                                               String taskTypeList,
                                               String periodTypeList,
                                               Integer currentPage,
-                                              Integer pageSize, String  searchType,
+                                              Integer pageSize,
+                                              String  searchType,
                                               Integer appType){
 
 
@@ -373,7 +378,7 @@ public class ScheduleTaskShadeService {
             //过滤掉任务流中的子任务
             batchTaskDTO.setFlowId(0L);
         }
-        setBatchTaskDTO(tenantId, projectId, name, ownerId, startTime, endTime, scheduleStatus, taskTypeList, periodTypeList, searchType, batchTaskDTO);
+        setBatchTaskDTO(tenantId,dtTenantId, projectId, name, ownerId, startTime, endTime, scheduleStatus, taskTypeList, periodTypeList, searchType, batchTaskDTO,appType);
         PageQuery<ScheduleTaskShadeDTO> pageQuery = new PageQuery<>(currentPage, pageSize, "gmt_modified", Sort.DESC.name());
         pageQuery.setModel(batchTaskDTO);
         ScheduleTaskShadePageVO scheduleTaskShadeTaskVO = new ScheduleTaskShadePageVO();
@@ -396,10 +401,14 @@ public class ScheduleTaskShadeService {
             //默认不查询全部工作流子节点
             //vos = dealFlowWorkTasks(vos);
         }
+
+        userService.fullUser(vos);
         PageResult<List<ScheduleTaskVO>> pageResult = new PageResult<>(vos, count, pageQuery);
         scheduleTaskShadeTaskVO.setPageResult(pageResult);
         return scheduleTaskShadeTaskVO;
     }
+
+
 
 
     /**
@@ -419,8 +428,10 @@ public class ScheduleTaskShadeService {
      * @param batchTaskDTO:
      * @return: void
      **/
-    private void setBatchTaskDTO(Long tenantId, Long projectId, String name, Long ownerId, Long startTime, Long endTime, Integer scheduleStatus, String taskTypeList, String periodTypeList, String searchType, ScheduleTaskShadeDTO batchTaskDTO) {
+    private void setBatchTaskDTO(Long tenantId,Long dtTenantId, Long projectId, String name, Long ownerId, Long startTime, Long endTime, Integer scheduleStatus, String taskTypeList, String periodTypeList, String searchType, ScheduleTaskShadeDTO batchTaskDTO,Integer appType) {
         batchTaskDTO.setTenantId(tenantId);
+        batchTaskDTO.setDtuicTenantId(dtTenantId);
+        batchTaskDTO.setAppType(appType);
         batchTaskDTO.setProjectId(projectId);
         batchTaskDTO.setSubmitStatus(ESubmitStatus.SUBMIT.getStatus());
         batchTaskDTO.setTaskTypeList(convertStringToList(taskTypeList));

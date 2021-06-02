@@ -242,7 +242,7 @@ public class JobStatusDealer implements Runnable {
             }
         }
     }
-
+    
     private RdosTaskStatus checkNotFoundStatus(RdosTaskStatus taskStatus, String jobId) {
         JobStatusFrequency statusPair = updateJobStatusFrequency(jobId, taskStatus.getStatus());
         //如果状态为NotFound，则对频次进行判断

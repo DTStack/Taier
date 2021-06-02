@@ -135,6 +135,17 @@ public class ScheduleTask extends AppTenantEntity {
     @Deprecated
     private Integer isExpire;
 
+    @ApiModelProperty(notes = "业务类型 应用自身定义")
+    private String businessType;
+
+    public String getBusinessType() {
+        return businessType;
+    }
+
+    public void setBusinessType(String businessType) {
+        this.businessType = businessType;
+    }
+
     public Integer getIsExpire() {
         return isExpire;
     }

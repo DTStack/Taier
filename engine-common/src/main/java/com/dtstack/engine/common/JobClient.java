@@ -546,5 +546,4 @@ public class JobClient extends OrderObject {
                 ", appType=" + appType +
                 '}';
     }
-
 }
