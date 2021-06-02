@@ -247,7 +247,7 @@ public class PluginWrapper{
                 deployMode = TaskParamsUtil.parseDeployTypeByTaskParams(taskParams, computeType,EngineType.Flink.name()).getType();
             }
 
-            String cacheKey = String.format("%s.%s.%s.%s", tenantId, engineType, userId, deployMode);
+            String cacheKey = String.format("%s.%s.%s.%s.%s", tenantId, engineType, userId, deployMode,componentVersion);
             Integer finalDeployMode = deployMode;
             return pluginInfoCache.computeIfAbsent(cacheKey, (k) -> {
                 JSONObject infoJSON = clusterService.pluginInfoJSON(tenantId, engineType, userId, finalDeployMode,StringUtils.isBlank(componentVersion)?null:Collections.singletonMap(EngineTypeComponentType.getByEngineName(engineType,finalDeployMode).getComponentType().getTypeCode(),componentVersion));
