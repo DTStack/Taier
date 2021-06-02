@@ -1,0 +1,92 @@
+.code-editor
+  .monaco-editor
+  .suggest-widget
+  .monaco-list
+  .monaco-list-row
+  > .contents
+  > .main
+  > .readMore {
+  display: none;
+}
+.merge-text {
+  .monaco-diff-editor {
+    .editor.original {
+      &:before {
+        content: '当前版本';
+        position: absolute;
+        top: -20px;
+        left: 30px;
+        color: #8c8c8c;
+        line-height: 20px;
+      }
+    }
+    .editor.modified {
+      &:before {
+        content: '历史版本';
+        position: absolute;
+        top: -20px;
+        left: 30px;
+        color: #8c8c8c;
+        line-height: 20px;
+      }
+    }
+  }
+  position: relative;
+}
+
+.dt-monaco-line-error {
+  background: rgba(255, 0, 0, 0.6);
+  width: 5px !important;
+  margin-left: 5px;
+}
+.dt-monaco-whole-line-error {
+  background: rgba(255, 0, 0, 0.2);
+}
+.dt-monaco-link {
+  cursor: pointer;
+  color: #1474f1;
+  text-decoration: underline;
+}
+.dt-monaco-link:hover {
+  color: #04b4fa;
+}
+
+.monaco-diff-editor {
+  .overflow-guard {
+    border: 1px solid #dddddd;
+    width: 300px !important;
+  }
+
+  .original-in-monaco-diff-editor,
+  .modified-in-monaco-diff-editor {
+    .margin {
+      width: 39px !important;
+      .line-numbers {
+        width: 100% !important;
+        text-align: center;
+      }
+    }
+    .monaco-scrollable-element.editor-scrollable {
+      width: calc(100% - 39px) !important;
+      left: 39px !important;
+    }
+  }
+  .modified {
+    margin-left: 20px;
+  }
+  .diffOverview {
+    .diffViewport {
+      margin-left: 5px !important;
+      margin-top: 1px !important;
+      width: 20px !important;
+    }
+    .original.diffOverviewRuler {
+      width: 10px !important;
+    }
+    .modified.diffOverviewRuler {
+      width: 10px !important;
+      left: 0;
+      margin-left: 15px;
+    }
+  }
+}

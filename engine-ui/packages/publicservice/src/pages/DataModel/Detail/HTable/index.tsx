@@ -1,14 +1,26 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import './style';
 import { IModelDetail } from '../../types';
 import { holder } from '../constants';
+import { EnumSize } from '../types';
 
 interface IPropsHTable {
   detail: Partial<IModelDetail>;
+  size?: EnumSize;
 }
 
 const HTable = (props: IPropsHTable) => {
-  const { detail } = props;
+  const { detail, size = EnumSize.LARGE } = props;
+
+  const getSize = useCallback((size: EnumSize) => {
+    switch (size) {
+      case EnumSize.LARGE:
+        return '750px';
+      case EnumSize.SMALL:
+        return '510px';
+    }
+  }, []);
+
   return (
     <table className="h-table" data-testid="h-table">
       <tbody>
@@ -39,7 +51,12 @@ const HTable = (props: IPropsHTable) => {
         <tr>
           <td className="label border-left border-bottom">备注</td>
           <td className="value border-bottom border-right" colSpan={3}>
-            {holder(detail.remark)}
+            <div
+              className="h-table-remark-inner"
+              style={{ maxWidth: getSize(size) }}
+              title={detail.remark}>
+              {holder(detail.remark)}
+            </div>
           </td>
         </tr>
       </tbody>

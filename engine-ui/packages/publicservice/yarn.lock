@@ -8995,6 +8995,11 @@ monaco-editor@^0.13.1:
   resolved "http://registry.npm.dtstack.com/monaco-editor/-/monaco-editor-0.13.1.tgz#6b9ce20e4d1c945042d256825eb133cb23315a52"
   integrity sha512-0Kssg/O3cl1tXP0qAIxhrtMbRnzusFUEvFyt5/fpUbmuVeY3z+TnUx13+3kW16pgacFPXGUTEO/hOPlDeFU/dw==
 
+monaco-editor@^0.24.0:
+  version "0.24.0"
+  resolved "http://registry.npm.dtstack.com/monaco-editor/-/monaco-editor-0.24.0.tgz#990b55096bcc95d08d8d28e55264c6eb17707269"
+  integrity sha1-mQtVCWvMldCNjSjlUmTG6xdwcmk=
+
 moo-color@^1.0.2:
   version "1.0.2"
   resolved "http://registry.npm.dtstack.com/moo-color/-/moo-color-1.0.2.tgz#837c40758d2d58763825d1359a84e330531eca64"

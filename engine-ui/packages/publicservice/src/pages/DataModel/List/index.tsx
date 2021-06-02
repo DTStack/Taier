@@ -150,7 +150,6 @@ const List = (props: IPropList) => {
         Message.success(msg);
         fetchModelList(requestParams);
       } else {
-        // Message.msgError('删除失败');
         if (apiAction === API.deleteModel) {
           Message.msgError(message);
         } else {
@@ -273,6 +272,7 @@ const List = (props: IPropList) => {
           />
           <Drawer
             closable={false}
+            destroyOnClose={true}
             visible={drawer.visible}
             className="drawer"
             width={1000}

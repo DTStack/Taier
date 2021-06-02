@@ -77,4 +77,19 @@ export default {
     method: 'post',
     url: `${prefix}/save`,
   },
+  // 版本历史记录
+  getVersionHistoryList: {
+    method: 'post',
+    url: `${prefix}/versionHistory`,
+  },
+  // 获取版本详情
+  getVersionDetail: {
+    method: 'get',
+    url: `${prefix}/versionDetail`,
+  },
+  // 版本恢复
+  recoverVersion: {
+    method: 'post',
+    url: `${prefix}/versionRecovery`,
+  },
 };
