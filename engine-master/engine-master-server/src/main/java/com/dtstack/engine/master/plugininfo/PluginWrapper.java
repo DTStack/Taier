@@ -250,7 +250,7 @@ public class PluginWrapper{
             String cacheKey = String.format("%s.%s.%s.%s", tenantId, engineType, userId, deployMode);
             Integer finalDeployMode = deployMode;
             return pluginInfoCache.computeIfAbsent(cacheKey, (k) -> {
-                JSONObject infoJSON = clusterService.pluginInfoJSON(tenantId, engineType, userId, finalDeployMode,StringUtils.isBlank(componentVersion)?null:Collections.singletonMap(EngineTypeComponentType.getByEngineName(engineType).getComponentType().getTypeCode(),componentVersion));
+                JSONObject infoJSON = clusterService.pluginInfoJSON(tenantId, engineType, userId, finalDeployMode,StringUtils.isBlank(componentVersion)?null:Collections.singletonMap(EngineTypeComponentType.getByEngineName(engineType,finalDeployMode).getComponentType().getTypeCode(),componentVersion));
                 if (Objects.nonNull(infoJSON)) {
                     return infoJSON.toJSONString();
                 }
