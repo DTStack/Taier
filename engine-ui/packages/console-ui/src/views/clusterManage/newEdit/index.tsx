@@ -350,7 +350,8 @@ class EditCluster extends React.Component<any, IState> {
             console.log(err, values)
 
             /** 当前组件错误校验 */
-            if (isMultiVersion(typeCode) && err && Object.keys(err[String(typeCode)]).includes(hadoopVersion)) {
+            const currentCompErr = err ? (err[String(typeCode)] || {}) : {}
+            if (isMultiVersion(typeCode) && Object.keys(currentCompErr).includes(hadoopVersion)) {
                 message.error('请检查配置')
                 return
             }
