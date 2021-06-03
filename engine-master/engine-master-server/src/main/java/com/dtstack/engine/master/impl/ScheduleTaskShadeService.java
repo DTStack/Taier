@@ -120,15 +120,13 @@ public class ScheduleTaskShadeService {
                 batchTaskShadeDTO.setTaskRule(0);
             }
             EComponentType componentType;
-            if (Objects.nonNull(componentType= ComponentVersionUtil.transformTaskType2ComponentType(batchTaskShadeDTO.getTaskType())) &&
-                    StringUtils.isBlank(batchTaskShadeDTO.getComponentVersion())){
-                batchTaskShadeDTO.setComponentVersion(componentDao.getDefaultComponentVersionByUicIdAndComponentType(
-                        batchTaskShadeDTO.getTenantId(),componentType.getTypeCode()));
-            }else if (Objects.nonNull(componentType) && StringUtils.isNotBlank(batchTaskShadeDTO.getComponentVersion())){
-                Integer dictType = DictType.getByEComponentType(componentType);
-                if(Objects.nonNull(dictType)){
-                    batchTaskShadeDTO.setComponentVersion(scheduleDictDao.getByNameValue(dictType,batchTaskShadeDTO.getComponentVersion(),null,null).getDictValue());
-                }
+            if (Objects.nonNull(componentType = ComponentVersionUtil.transformTaskType2ComponentType(batchTaskShadeDTO.getTaskType())) &&
+                    StringUtils.isBlank(batchTaskShadeDTO.getComponentVersion())) {
+                // 查询版本 e.g 1.10
+                batchTaskShadeDTO.setComponentVersion(componentDao.getDefaultVersionDictNameByUicIdAndComponentType(
+                        batchTaskShadeDTO.getTenantId(), componentType.getTypeCode()));
+            } else if (StringUtils.isNotBlank(batchTaskShadeDTO.getComponentVersion())) {
+                batchTaskShadeDTO.setComponentVersion(batchTaskShadeDTO.getComponentVersion());
             }
             scheduleTaskShadeDao.insert(batchTaskShadeDTO);
         }

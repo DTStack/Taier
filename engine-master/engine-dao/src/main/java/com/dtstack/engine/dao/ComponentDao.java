@@ -44,7 +44,7 @@ public interface ComponentDao {
      */
     List<Component> getComponentVersionByEngineType(@Param("uicTenantId") Long uicTenantId, @Param("componentTypeCode") Integer componentTypeCode);
 
-    String getDefaultComponentVersionByUicIdAndComponentType(@Param("uicTenantId") Long uicTenantId, @Param("componentTypeCode") Integer componentTypeCode);
+    String getDefaultVersionDictNameByUicIdAndComponentType(@Param("uicTenantId") Long uicTenantId, @Param("componentTypeCode") Integer componentTypeCode);
 
     List<Long> allUseUicTenant(@Param("componentId") Long componentId);
 
