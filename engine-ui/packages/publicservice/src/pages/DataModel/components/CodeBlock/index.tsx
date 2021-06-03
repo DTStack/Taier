@@ -22,7 +22,7 @@ const CodeBlock = (props: IPropsCodeBlock) => {
     hljs.highlightBlock(dom.current);
   }, [code]);
   return (
-    <div className="code-block">
+    <div data-testid="code-block" className="code-block">
       <div
         className={classnames({
           'code-container': true,

@@ -65,7 +65,7 @@ const DataInfo = (props: IPropsDataInfo) => {
   return (
     <div className="data-info">
       {tableList.map((item, index) => (
-        <div key={index}>
+        <div key={index} data-testid={`di-table-${index}`}>
           <div className="title-wrappe">
             <div className="title float-left">{item.title}</div>
             <div className="float-right sumary">

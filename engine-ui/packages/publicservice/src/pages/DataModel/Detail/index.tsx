@@ -27,7 +27,10 @@ const Detail = (props: IPropsDetail) => {
     if (id === -1) return;
     setLoading(true);
     try {
-      const { success, data, message } = await API.getModelDetail({ id });
+      const { success, data, message } = await API.getModelDetail({
+        id,
+        version: '0',
+      });
       if (success) {
         setModelDetail(data as IModelDetail);
         const params = {
