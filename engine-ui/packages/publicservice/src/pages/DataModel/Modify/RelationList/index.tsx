@@ -121,7 +121,6 @@ const RelationList = (props: IPropsRelationList) => {
           tableName: modelDetail.tableName,
         });
         setRelationList(list);
-
         const params = tableListGen(
           modelDetail.dsId,
           {
@@ -253,6 +252,25 @@ const RelationList = (props: IPropsRelationList) => {
                     return item;
                   }
                 });
+
+                // 判断tableAlias字段是否更新，若存在更新需要同步columns字段
+                const target = relationList.find((item) => item.id === id);
+                if (target.tableAlias !== data.tableAlias) {
+                  // 更新columns
+                  const { columns } = modelDetail;
+                  const nextColumns = columns.map((col) =>
+                    col.tableAlias === target.tableAlias
+                      ? {
+                          ...col,
+                          tableAlias: data.tableAlias,
+                        }
+                      : col
+                  );
+                  props.updateModelDetail((detail) => ({
+                    ...detail,
+                    columns: nextColumns,
+                  }));
+                }
               }
               setRelationList(next);
               setModifyType((modifyType) => ({
