@@ -19,8 +19,8 @@ public enum MultiEngineType {
     ORACLE(5,"Oracle"),
     GREENPLUM(6, "Greenplum"),
     PRESTO(7, "Presto"),
-    ANALYTICDB_FOR_PG(9, ComponentConstant.ANALYTICDB_FOR_PG_ENGINE),
-    FLINK_ON_STANDALONE(10,"FlinkOnStandalone")
+    FLINK_ON_STANDALONE(8,"FlinkOnStandalone"),
+    ANALYTICDB_FOR_PG(9, ComponentConstant.ANALYTICDB_FOR_PG_ENGINE)
     ;
 
     private int type;
