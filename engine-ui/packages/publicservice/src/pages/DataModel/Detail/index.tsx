@@ -96,6 +96,9 @@ const Detail = (props: IPropsDetail) => {
               <VersionHistory
                 modelId={modelDetail.id}
                 modelStatus={modelDetail.modelStatus}
+                onRecover={() => {
+                  getModelDetail(modelId);
+                }}
               />
             </div>
           </TabPane>

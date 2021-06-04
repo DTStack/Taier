@@ -18,6 +18,7 @@ interface IModalAction<T> {
 interface IPropsVersionHistory {
   modelId: number;
   modelStatus: EnumModelStatus;
+  onRecover?: Function;
 }
 
 interface IVersionHistoryItem {
@@ -27,7 +28,7 @@ interface IVersionHistoryItem {
 }
 
 const VersionHistory = (props: IPropsVersionHistory) => {
-  const { modelId, modelStatus } = props;
+  const { modelId, modelStatus, onRecover } = props;
 
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
   const [visibleModalDetail, setVisibleModalDetail] = useState<{
@@ -157,6 +158,7 @@ const VersionHistory = (props: IPropsVersionHistory) => {
       if (!success) return Message.error(message);
       if (!data) return Message.success('恢复失败');
       Message.success('恢复成功');
+      if (typeof onRecover === 'function') onRecover();
     } catch (error) {
       Message.error(error.message);
     }

@@ -357,7 +357,7 @@ const RelationView = (props: IPropsRelationView) => {
 
   useEffect(() => {
     update(tree);
-  }, [modelDetail.id]);
+  }, [modelDetail]);
 
   return (
     <div className="relation-view">
