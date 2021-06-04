@@ -991,7 +991,7 @@ const InfoConfig = (props) => {
               })(
                 <Radio.Group>
                   <Radio value={1}>集群地址</Radio>
-                  <Radio value={3}>Broker地址</Radio>
+                  <Radio value={2}>Broker地址</Radio>
                 </Radio.Group>
               )}
             </Form.Item>
