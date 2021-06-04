@@ -50,6 +50,7 @@ function index(props) {
       });
       if (data.data) {
         data.data.forEach((element) => {
+          console.log(element, 'element----');
           Object.keys(DATA_SOURCE_TEXT).forEach((item) => {
             if (element.dataType === DATA_SOURCE_TEXT[item]) {
               element.type = Number(item);

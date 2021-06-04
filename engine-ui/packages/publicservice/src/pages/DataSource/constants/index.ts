@@ -52,6 +52,9 @@ export const DATA_SOURCE = {
   ELASTICSEARCH: 54,
   PHOENIX: 56,
   PRESTO: 57,
+  VERTICA: 58,
+  ADB_POSTGRESQL: 59,
+  SOLR: 60,
 };
 
 export const DATA_SOURCE_TEXT: any = {
@@ -100,6 +103,9 @@ export const DATA_SOURCE_TEXT: any = {
   54: 'Elasticsearch',
   56: 'Phoenix',
   57: 'Presto',
+  58: 'Vertica',
+  59: 'ADB_PostgreSQL',
+  60: 'Solr',
 };
 
 export const PROJECT_TYPE: any = {

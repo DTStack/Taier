@@ -133,6 +133,15 @@ const showMapArr: any = {
     ['jdbcUrl', 'jdbcUrl'],
     ['username', '用户名'],
   ],
+  [DATA_SOURCE.VERTICA]: [
+    ['jdbcUrl', 'jdbcUrl'],
+    ['username', '用户名'],
+  ],
+  [DATA_SOURCE.ADB_POSTGRESQL]: [
+    ['jdbcUrl', 'jdbcUrl'],
+    ['username', '用户名'],
+  ],
+  [DATA_SOURCE.SOLR]: [['hostPorts', '集群地址']],
 };
 
 export function ExtTableCell(props: any) {
@@ -143,7 +152,7 @@ export function ExtTableCell(props: any) {
   try {
     data = JSON.parse(sourceData.linkJson) || {};
   } catch (error) {}
-
+  console.log(sourceData, 'arr----');
   if (arr) {
     return (
       <div>
