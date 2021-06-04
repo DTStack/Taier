@@ -32,7 +32,7 @@ public class JobIdentifier implements Serializable {
 
     private Long timeout;
 
-    private Boolean forceCancel;
+    private Boolean forceCancel = Boolean.FALSE;
 
     private JobIdentifier() {
 
