@@ -75,7 +75,7 @@ public class JobIdentifier implements Serializable {
     }
 
     public void setForceCancel(Boolean forceCancel) {
-        forceCancel = forceCancel;
+        this.forceCancel = forceCancel;
     }
 
     public Long getTimeout() {

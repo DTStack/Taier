@@ -128,7 +128,8 @@ public class ClientOperator {
         }
         EDeployMode eDeployMode = TaskParamsUtil.parseDeployTypeByTaskParams(jobClient.getTaskParams(), jobClient.getComputeType().getType(), jobClient.getEngineType());
         JobIdentifier jobIdentifier = new JobIdentifier(jobClient.getEngineTaskId(), jobClient.getApplicationId(), jobClient.getTaskId()
-        ,jobClient.getTenantId(),jobClient.getEngineType(),eDeployMode.getType(),jobClient.getUserId(),jobClient.getPluginInfo());
+                , jobClient.getTenantId(), jobClient.getEngineType(), eDeployMode.getType(), jobClient.getUserId(), jobClient.getPluginInfo());
+        jobIdentifier.setForceCancel(jobClient.getForceCancel());
         checkoutOperator(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
 
         jobIdentifier.setTimeout(getCheckoutTimeout(jobClient));
