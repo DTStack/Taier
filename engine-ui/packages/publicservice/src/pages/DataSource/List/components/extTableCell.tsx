@@ -141,7 +141,10 @@ const showMapArr: any = {
     ['jdbcUrl', 'jdbcUrl'],
     ['username', '用户名'],
   ],
-  [DATA_SOURCE.SOLR]: [['hostPorts', '集群地址']],
+  [DATA_SOURCE.SOLR]: [
+    ['address', '集群地址'],
+    ['chroot', 'Zookeeper chroot路径'],
+  ],
 };
 
 export function ExtTableCell(props: any) {
