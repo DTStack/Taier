@@ -32,7 +32,7 @@ public class JobIdentifier implements Serializable {
 
     private Long timeout;
 
-    private Boolean forceCancel;
+    private Boolean forceCancel = Boolean.FALSE;
 
     private String componentVersion;
 
@@ -78,7 +78,7 @@ public class JobIdentifier implements Serializable {
     }
 
     public void setForceCancel(Boolean forceCancel) {
-        forceCancel = forceCancel;
+        this.forceCancel = forceCancel;
     }
 
     public Long getTimeout() {
