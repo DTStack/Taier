@@ -11,20 +11,6 @@ const MyEdgeStyle = function (Mx: any) {
     mxRectangle,
   } = Mx;
 
-  function outputEdgeInfo(
-    state: any,
-    source: any,
-    target: any,
-    points: any,
-    result: any
-  ) {
-    console.log('state:', state);
-    console.log('source:', source);
-    console.log('target:', target);
-    console.log('points:', points);
-    console.log('result:', result);
-  }
-
   return {
     /**
      * Function: OrthConnector
@@ -618,7 +604,6 @@ const MyEdgeStyle = function (Mx: any) {
         let firstPoint = result[1].y;
         let lastSecondPointY = result[resultLen - 2].y;
         const differenceValue = (target ? target.y : NaN) - source.y;
-        // console.log('differenceValue:', target.y, source.y, differenceValue)
         if (differenceValue < 60) {
           result[1].y = firstPoint + 20;
           result[resultLen - 1].y = lastSecondPointY - 20;
@@ -642,7 +627,6 @@ const MyEdgeStyle = function (Mx: any) {
         }
         result.push(pt);
       }
-      outputEdgeInfo(state, source, target, points, result);
       mxStyleRegistry.putValue('myEdgeStyle', mxEdgeStyle.MyStyle);
     },
   };

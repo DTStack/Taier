@@ -54,13 +54,13 @@ export const relationListColumns = (size: EnumSize) => {
       key: 'joinPairs',
       width: isLarge ? 300 : 240,
       ellipsis: true,
-      render: (joinPairs) => {
+      render: (joinPairs, record) => {
         return joinPairs
           .reduce((temp, cur) => {
             // TODO: 逻辑重复，可优化
-            const ltTable = cur.leftValue.tableName;
+            const ltTable = record.leftTableAlias;
             const ltCol = cur.leftValue.columnName;
-            const rtTable = cur.rightValue.tableName;
+            const rtTable = record.tableAlias;
             const rtCol = cur.rightValue.columnName;
             return `${temp}${ltTable}.${ltCol} = ${rtTable}.${rtCol} and `;
           }, '')

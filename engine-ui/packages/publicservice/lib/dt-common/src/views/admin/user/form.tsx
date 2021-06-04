@@ -171,7 +171,6 @@ class UserRoleForm extends React.Component<any, any> {
         roleOptions.push({ label: role.roleName, value: role.id, disabled });
       });
     }
-    console.log('initialValue', initialValue, roles, user);
     return (
       <Form>
         <FormItem {...formItemLayout} label="请选择用户" hasFeedback>

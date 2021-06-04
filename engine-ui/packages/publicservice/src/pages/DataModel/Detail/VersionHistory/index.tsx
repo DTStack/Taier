@@ -163,8 +163,6 @@ const VersionHistory = (props: IPropsVersionHistory) => {
   };
 
   const handlePaginationChange = (current, pageSize) => {
-    // console.log(createImageBitmap)
-    console.log(current, pageSize);
     setPagination((pagination) => ({
       ...pagination,
       current,

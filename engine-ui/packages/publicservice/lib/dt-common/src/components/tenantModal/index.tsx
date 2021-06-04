@@ -90,7 +90,7 @@ class TenantModal extends React.Component<any, any> {
     const { form } = this.props;
     form.validateFields('change_ten_id', (err: any, values: any) => {
       if (err) {
-        return console.log('Received values of form: ', values);
+        return;
       } else {
         this.doTenantChange(values.change_ten_id);
       }
@@ -120,10 +120,9 @@ class TenantModal extends React.Component<any, any> {
   };
 
   render() {
-    const { showTanantModal, closeTenantModal, apps } = this.props;
+    const { showTanantModal, closeTenantModal } = this.props;
     const { getFieldDecorator } = this.props.form;
     const { tenants } = this.state;
-    console.log(apps);
     return (
       <Modal
         className="c-tenantModal__modal"

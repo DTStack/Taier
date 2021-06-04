@@ -287,14 +287,9 @@ const RelationView = (props: IPropsRelationView) => {
 
   // const refTime = useRef(0);
   // const checkTime = () => {
-  //   console.log(refTime.current, 'start...');
-  //   console.log(new Date().valueOf(), 'now...')
   //   const now = new Date().valueOf();
-  //   console.log(now - refTime.current);
   //   if (now - refTime.current > 5) {
   //     refTime.current = new Date('9999-09-09').valueOf();
-  //     // alert('time out....')
-  //     console.log('time out...')
   //     setLoading(false)
   //   }
   // }

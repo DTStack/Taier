@@ -77,11 +77,6 @@ class Main extends React.Component<any, any> {
       this.props.licenseApps.length > 0 &&
       prevProps.licenseApps !== this.props.licenseApps
     ) {
-      console.log(
-        'componentDidUpdate:',
-        this.props.licenseApps,
-        prevProps.licenseApps
-      );
       this.isEnableLicenseApp();
     }
     if (this.props.apps.length > 0 && prevProps.apps !== this.props.apps) {
@@ -253,8 +248,6 @@ class Main extends React.Component<any, any> {
     if (licenseApps && licenseApps.length) {
       let fixLicenseApps = cloneDeep(licenseApps);
       let licenseMap: any = {};
-      console.log('license', licenseApps);
-      console.log('fixlicense', fixLicenseApps);
       fixLicenseApps.forEach((licenseApp: any) => {
         let newChildren: any = [];
         switch (licenseApp.id) {
@@ -535,7 +528,6 @@ class Main extends React.Component<any, any> {
         window.location.href = '/';
       }
     }
-    console.log('enter');
   }
   checkRoot(user: any) {
     if (user && user.dtuicUserId) {
@@ -559,7 +551,7 @@ class Main extends React.Component<any, any> {
           }
         })
         .catch((e: any) => {
-          console.log('控制台权限');
+          console.error(e);
         });
     }
   }
