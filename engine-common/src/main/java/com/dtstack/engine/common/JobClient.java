@@ -124,6 +124,14 @@ public class JobClient extends OrderObject {
      * 任务运行版本
      */
     private String componentVersion;
+    /**
+     * 0正常调度 1补数据 2临时运行
+     */
+    private Integer type;
+
+    public JobClient() {
+
+    }
 
     public JobClient(ParamAction paramAction) throws Exception {
         this.sql = paramAction.getSqlText();
@@ -173,11 +181,6 @@ public class JobClient extends OrderObject {
 
     public String getComponentVersion() {
         return componentVersion;
-    }
-
-
-    public JobClient() {
-
     }
 
     public void setComponentVersion(String componentVersion) {
@@ -515,6 +518,14 @@ public class JobClient extends OrderObject {
 
     public void setRetryIntervalTime(Long retryIntervalTime) {
         this.retryIntervalTime = retryIntervalTime;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
     }
 
     @Override
