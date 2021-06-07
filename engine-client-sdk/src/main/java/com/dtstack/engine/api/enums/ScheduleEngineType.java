@@ -41,7 +41,8 @@ public enum ScheduleEngineType {
     KING_BASE(23,"kingbase"),
     INCEPTOR_SQL(24,"inceptor"),
     DTSCRIPT_AGENT(25,"dtscript-agent"),
-    ANALYTICDB_FOR_PG(26,"adb-postgresql");
+    FLINK_ON_STANDALONE(26,"flink-on-standalone"),
+    ANALYTICDB_FOR_PG(27,"adb-postgresql");
 
     private int val;
 
@@ -129,6 +130,8 @@ public enum ScheduleEngineType {
                 return ScheduleEngineType.Presto;
             case "kingbase":
                 return ScheduleEngineType.KING_BASE;
+            case "flinkonstandalone":
+                return ScheduleEngineType.FLINK_ON_STANDALONE;
             default:
                 return ENGINE_CACHE.get(type);
         }

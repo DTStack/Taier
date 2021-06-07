@@ -33,6 +33,7 @@ public enum EComponentType {
     NFS(17, "NFS", "nfsConf"),
     DTSCRIPT_AGENT(18,"DtScript Agent","dtScriptAgentConf"),
     INCEPTOR_SQL(19,"InceptorSql","inceptorSqlConf"),
+    FLINK_ON_STANDALONE(20,"FlinkOnStandalone","flinkOnStandaloneConf"),
     ANALYTICDB_FOR_PG(21, ComponentConstant.ANALYTICDB_FOR_PG_NAME,ComponentConstant.ANALYTICDB_FOR_PG_CONFIG_NAME);
 
     private Integer typeCode;
@@ -107,7 +108,7 @@ public enum EComponentType {
     // 计算组件
     public static List<EComponentType> ComputeScheduling = Lists.newArrayList(EComponentType.SPARK, EComponentType.SPARK_THRIFT,
             EComponentType.FLINK, EComponentType.HIVE_SERVER, EComponentType.IMPALA_SQL, EComponentType.DT_SCRIPT,
-            EComponentType.LEARNING, EComponentType.TIDB_SQL, EComponentType.PRESTO_SQL, EComponentType.LIBRA_SQL, EComponentType.ORACLE_SQL, EComponentType.CARBON_DATA, EComponentType.GREENPLUM_SQL,EComponentType.INCEPTOR_SQL,EComponentType.DTSCRIPT_AGENT,EComponentType.ANALYTICDB_FOR_PG);
+            EComponentType.LEARNING, EComponentType.TIDB_SQL, EComponentType.PRESTO_SQL, EComponentType.LIBRA_SQL, EComponentType.ORACLE_SQL, EComponentType.CARBON_DATA, EComponentType.GREENPLUM_SQL,EComponentType.INCEPTOR_SQL,EComponentType.DTSCRIPT_AGENT,EComponentType.FLINK_ON_STANDALONE,EComponentType.ANALYTICDB_FOR_PG);
 
     public static List<EComponentType> CommonScheduling = Lists.newArrayList(EComponentType.SFTP);
 
@@ -133,6 +134,10 @@ public enum EComponentType {
 
     public static List<EComponentType> EmptyComponents = Lists.newArrayList(EComponentType.DTSCRIPT_AGENT);
 
+
+    public static List<EComponentType> FlinkOnStandaloneComponents = Lists.newArrayList(EComponentType.FLINK_ON_STANDALONE);
+
+
     public static List<EComponentType> analyticDbForPgComponents = Collections.unmodifiableList(Lists.newArrayList(EComponentType.ANALYTICDB_FOR_PG));
 
     public static MultiEngineType getEngineTypeByComponent(EComponentType componentType) {
@@ -156,6 +161,9 @@ public enum EComponentType {
         }
         if (EmptyComponents.contains(componentType)){
             return MultiEngineType.COMMON;
+        }
+        if(FlinkOnStandaloneComponents.contains(componentType)){
+            return MultiEngineType.FLINK_ON_STANDALONE;
         }
         if (analyticDbForPgComponents.contains(componentType)){
             return MultiEngineType.ANALYTICDB_FOR_PG;
@@ -242,9 +250,10 @@ public enum EComponentType {
 
     // 需要添加TypeName的组件
     public static List<EComponentType> typeComponentVersion = Lists.newArrayList(EComponentType.DT_SCRIPT, EComponentType.FLINK, EComponentType.LEARNING, EComponentType.SPARK,
-            EComponentType.HDFS, EComponentType.FLINK);
+            EComponentType.HDFS, EComponentType.FLINK,EComponentType.FLINK_ON_STANDALONE);
 
-    public static List<EComponentType> notCheckComponent = Lists.newArrayList(EComponentType.SPARK, EComponentType.DT_SCRIPT, EComponentType.LEARNING, EComponentType.FLINK);
+    public static List<EComponentType> notCheckComponent = Lists.newArrayList(EComponentType.SPARK, EComponentType.DT_SCRIPT, EComponentType.LEARNING, EComponentType.FLINK,EComponentType.FLINK_ON_STANDALONE);
+
 
     //SQL组件
     public static List<EComponentType> sqlComponent = Lists.newArrayList(EComponentType.SPARK_THRIFT, EComponentType.HIVE_SERVER, EComponentType.TIDB_SQL, EComponentType.ORACLE_SQL,

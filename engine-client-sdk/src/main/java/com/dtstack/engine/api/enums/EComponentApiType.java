@@ -15,6 +15,7 @@ public enum EComponentApiType {
     IMPALA_SQL(11),
     SFTP(10),
     PRESTO_SQL(16),
+    INCEPTOR_SQL(19),
     ANALYTICDB_FOR_PG(21);
 
     private int typeCode;

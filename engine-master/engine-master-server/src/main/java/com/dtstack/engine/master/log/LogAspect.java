@@ -3,6 +3,7 @@ package com.dtstack.engine.master.log;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.PropertyFilter;
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.google.common.collect.Lists;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -30,6 +31,7 @@ public class LogAspect {
             "getRollingLogBaseInfo", "clusterResource", "getDefaultPluginConfig", "containerInfos");
     private static final ArrayList<String> logPluginInfoMethod = Lists.newArrayList("submitJob");
     private static final ArrayList<String> jobIdMethod = Lists.newArrayList("judgeSlots");
+    private static final ArrayList<String> skipChangeMethod = Lists.newArrayList("getJobStatus");
 
     private static final PropertyFilter propertyFilter = (object, name, value) ->
             !(name.equalsIgnoreCase("pluginInfo") || name.equalsIgnoreCase("paramAction"));
@@ -38,7 +40,7 @@ public class LogAspect {
     public void afterReturningAdvice(JoinPoint joinPoint, Object ret) {
         try {
             String methodName = joinPoint.getSignature().getName();
-            if (LogAspect.filterMethod.contains(methodName)) {
+            if (filterMethod.contains(methodName)) {
                 return;
             }
             String argsString = null;
@@ -52,6 +54,11 @@ public class LogAspect {
                     argsString = clientObj.getTaskId();
                 } else if (logPluginInfoMethod.contains(methodName)) {
                     argsString = JSONObject.toJSONString(jobClientOpt.get());
+                } else if (skipChangeMethod.contains(methodName)) {
+                    if (ret instanceof RdosTaskStatus && RdosTaskStatus.RUNNING.equals(ret)) {
+                        //状态获取 多以running 为主 过滤频繁打印
+                        return;
+                    }
                 } else {
                     //忽略pluginInfo打印
                     argsString = JSONObject.toJSONString(jobClientOpt.get(), propertyFilter);
@@ -60,7 +67,11 @@ public class LogAspect {
                 argsString = JSONObject.toJSONString(args);
             }
 
-            logger.info("method : {}  args {} ,return {} ", joinPoint.getSignature().getDeclaringTypeName() + "." + methodName, argsString, JSONObject.toJSONString(ret));
+            logger.info("method : {} {} args {} {},return {} ", joinPoint.getSignature().getDeclaringTypeName() + "." + methodName,
+                    System.getProperty("line.separator"),
+                    argsString,
+                    System.getProperty("line.separator"),
+                    JSONObject.toJSONString(ret));
         } catch (Exception e) {
             logger.error("logAspect error ", e);
         }

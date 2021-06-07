@@ -1,6 +1,12 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.domain.EngineJobCache;
+import com.dtstack.engine.api.domain.EngineJobCheckpoint;
+import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.pojo.CheckResult;
+import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.api.pojo.CheckResult;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.pojo.ParamActionExt;
@@ -64,7 +70,6 @@ public class StreamTaskService {
         }
         return failedCheckPointList;
     }
-
 
     /**
      * 查询checkPoint
@@ -162,7 +167,7 @@ public class StreamTaskService {
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
 
             jobIdentifier = new JobIdentifier(scheduleJob.getEngineJobId(), applicationId, taskId,scheduleJob.getDtuicTenantId(),engineJobCache.getEngineType(),
-                    EDeployMode.PERJOB.getType(),paramAction.getUserId(),null);
+                    EDeployMode.PERJOB.getType(),paramAction.getUserId(),null,paramAction.getComponentVersion());
             jobClient = new JobClient(paramAction);
 
             return workerOperator.getRollingLogBaseInfo(jobIdentifier);
@@ -196,5 +201,4 @@ public class StreamTaskService {
         }
         return checkResult;
     }
-
 }

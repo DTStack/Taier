@@ -43,7 +43,7 @@ public enum EScheduleJobType {
     KINGBASE(26,"kingbase",0,41),
     NOT_DO_TASK(27,"空任务",-1,0),
     INCEPTOR_SQL(28,"Inceptor SQL",0,4),
-    DTSCRIPT_AGENT(29,"DtScript Agent",0,4),
+    SHELL_ON_AGENT(29,"Shell on Agent",3,4),
     ANALYTICDB_FOR_PG(30, ComponentConstant.ANALYTICDB_FOR_PG_ENGINE,0,4),
     ;
 

@@ -52,11 +52,36 @@
         WHERE id=#{userId} AND is_deleted=0 limit 1
     </select>
 
+    <select id="getByDtUicUserIds" resultType="com.dtstack.engine.api.domain.User">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM console_user
+        WHERE is_deleted=0 AND
+        dtuic_user_id IN
+        <foreach collection="userIds" open="(" close=")" separator="," item="userId">
+            #{userId}
+        </foreach>
+    </select>
+    <select id="getAllUser" resultType="com.dtstack.engine.api.domain.User">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM console_user
+        LIMIT 200
+    </select>
+
     <insert id="insert" parameterType="User" useGeneratedKeys="true" keyProperty="id">
         INSERT IGNORE INTO console_user
         (dtuic_user_id,user_name,email,status,phone_number)
         VALUES
         (#{dtuicUserId},#{userName},#{email},#{status},#{phoneNumber})
+    </insert>
+    <insert id="insertBatch">
+        INSERT IGNORE INTO console_user
+        (dtuic_user_id,user_name,email,status,phone_number)
+        VALUES
+        <foreach collection="users" item="user" separator="," open="(" close="）">
+            #{user.dtuicUserId},#{user.userName},#{user.email},#{user.status},#{user.phoneNumber}
+        </foreach>
     </insert>
 
     <update id="update">

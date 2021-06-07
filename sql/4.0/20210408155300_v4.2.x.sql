@@ -29,14 +29,14 @@ label:LOOP
 		FETCH components INTO type,version,cluster;
 		IF lableFlag THEN
 			LEAVE label;
-        END IF;
+END IF;
 		IF version !='' THEN
-            UPDATE console_kerberos ck
-            SET ck.component_version = version
-            WHERE
-              ck.cluster_id = cluster
-              AND ck.component_type = type;
-        END IF;
+UPDATE console_kerberos ck
+SET ck.component_version = version
+WHERE
+        ck.cluster_id = cluster
+  AND ck.component_type = type;
+END IF;
 END LOOP label;
 CLOSE components ;
 COMMIT;

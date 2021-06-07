@@ -114,7 +114,7 @@ public class ScheduleTaskShadeServiceTest extends AbstractTest {
         Assert.assertNotNull(listPageResult);
         Assert.assertTrue(listPageResult.getData().stream().anyMatch(d -> d.getTaskId().equals(scheduleTaskShadeDTO.getTaskId())));
 
-        ScheduleTaskShadePageVO scheduleTaskShadePageVO = scheduleTaskShadeService.queryTasks(scheduleTaskShadeDTO.getTenantId(),
+        ScheduleTaskShadePageVO scheduleTaskShadePageVO = scheduleTaskShadeService.queryTasks(scheduleTaskShadeDTO.getTenantId(),null,
                 scheduleTaskShadeDTO.getProjectId(), null, null, null, null, scheduleTaskShadeDTO.getScheduleStatus(),
                 String.join(",", scheduleTaskShadeDTO.getTaskType() + "", scheduleTaskShadeDTO.getTaskType() + ""), null,
                 1, 20, null, scheduleTaskShadeDTO.getAppType());
@@ -241,5 +241,20 @@ public class ScheduleTaskShadeServiceTest extends AbstractTest {
         String commitId = scheduleTaskShadeService.addOrUpdateBatchTask(Lists.newArrayList(shadeDTO),null);
         Boolean flag = scheduleTaskShadeService.taskCommit(commitId);
         Assert.assertTrue(flag);
+    }
+
+    @Test
+    public void testCheckCronExpression(){
+        scheduleTaskShadeService.checkCronExpression("0 0 0/13 * * ?",null);
+        try {
+            scheduleTaskShadeService.checkCronExpression("0 0 0/13 * * ? *",null);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testRecentlyRunTime(){
+        scheduleTaskShadeService.recentlyRunTime("2021-04-29","2021-05-03","0 0 0/13 * * ?",10);
     }
 }

@@ -29,6 +29,7 @@ public enum EngineType {
     KingBase,
     InceptorSQL,
     DtScriptAgent,
+    FlinkOnStandalone,
     AnalyticdbForPg;
 
     public static EngineType getEngineType(String type) {
@@ -79,6 +80,8 @@ public enum EngineType {
             case ComponentConstant
                         .ANALYTICDB_FOR_PG_PLUGIN:
                 return EngineType.AnalyticdbForPg;
+            case "flink-on-standalone":
+                return EngineType.FlinkOnStandalone;
             default:
                 throw new UnsupportedOperationException("unsupported operation exception");
         }

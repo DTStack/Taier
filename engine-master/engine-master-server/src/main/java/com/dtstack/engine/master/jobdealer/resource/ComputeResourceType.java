@@ -28,6 +28,7 @@ public enum ComputeResourceType {
     KingBase,
     InceptorSQL,
     DtScriptAgent,
-    AnalyticdbForPg;
+    AnalyticdbForPg,
+    FlinkOnStandalone;
 
 }

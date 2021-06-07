@@ -226,7 +226,7 @@ public class ClusterServiceTest extends AbstractTest {
         Assert.assertNotNull(queueVOS);
 
         //查询配置信息
-        JSONArray engineJson = JSONObject.parseArray(JSON.toJSONString(engineService.listSupportEngine(tenant.getDtUicTenantId())));
+        JSONArray engineJson = JSONObject.parseArray(JSON.toJSONString(engineService.listSupportEngine(tenant.getDtUicTenantId(),false)));
         Assert.assertTrue(engineJson.size() > 0);
 
 
