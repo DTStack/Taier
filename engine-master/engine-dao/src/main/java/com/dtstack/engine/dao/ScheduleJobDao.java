@@ -6,6 +6,7 @@ import com.dtstack.engine.api.domain.po.SimpleScheduleJobPO;
 import com.dtstack.engine.api.dto.ScheduleJobDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.vo.JobTopErrorVO;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
 import org.apache.ibatis.annotations.Param;
 
 import java.sql.Timestamp;
@@ -247,4 +248,5 @@ public interface ScheduleJobDao {
 
     String getJobGraph(@Param("jobId") String jobId);
 
+    Integer updateJobStatusAndPhaseStatusByIds(@Param("ids") List<Long> ids, @Param("status") Integer status, @Param("phaseStatus") Integer phaseStatus);
 }

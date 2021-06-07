@@ -237,6 +237,12 @@ public enum RdosTaskStatus implements Serializable {
             RESTARTING.getStatus(),
             SUBMITTING.getStatus());
 
+
+    private final static List<Integer> UN_SUBMIT_STATUSES = Lists.newArrayList(
+            ENGINEACCEPTED.getStatus(),
+            WAITENGINE.getStatus()
+    );
+
     static {
         UNFINISHED_STATUSES.addAll(WAIT_STATUS);
     }
@@ -246,6 +252,10 @@ public enum RdosTaskStatus implements Serializable {
      */
     public static List<Integer> getUnfinishedStatuses() {
         return UNFINISHED_STATUSES;
+    }
+
+    public static List<Integer> getUnSubmitStatus() {
+        return UN_SUBMIT_STATUSES;
     }
 
     private final static Map<Integer, List<Integer>> COLLECTION_STATUS = new HashMap<>();

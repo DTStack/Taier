@@ -1685,6 +1685,18 @@
         where job_id=#{jobId};
     </update>
 
+    <update id="updateJobStatusAndPhaseStatusByIds">
+        update schedule_job set
+            `gmt_modified`=now(),
+            `status`=#{status},
+            `phase_status` = #{phaseStatus},
+            `gmt_modified`=now()
+        where id IN
+        <foreach collection="ids" item="id" separator="," close=")" open="(" >
+            #{id}
+        </foreach>
+    </update>
+
     <select id="getJobGraph" resultType="java.lang.String">
         select job_graph from schedule_job where job_id = #{jobId}
     </select>

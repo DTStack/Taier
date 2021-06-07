@@ -2,6 +2,7 @@ package com.dtstack.engine.master.jobdealer;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.EngineJobCache;
+import com.dtstack.engine.api.domain.po.SimpleScheduleJobPO;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
@@ -14,6 +15,7 @@ import com.dtstack.engine.common.util.SystemPropertyUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ScheduleJobService;
@@ -311,6 +313,16 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
                     if (CollectionUtils.isNotEmpty(submitClients)) {
                         afterSubmitJobVast(submitClients);
                     }
+                }
+
+                // 恢复没有被容灾，但是状态丢失的任务
+                long jobStartId = 0;
+                List<SimpleScheduleJobPO> jobs = scheduleJobDao.listSimpleJobByStatusAddress(jobStartId, RdosTaskStatus.getUnSubmitStatus(), localAddress);
+                while (CollectionUtils.isNotEmpty(jobs)) {
+                    List<Long> ids = jobs.stream().map(SimpleScheduleJobPO::getId).collect(Collectors.toList());
+                    scheduleJobDao.updateJobStatusAndPhaseStatusByIds(ids, RdosTaskStatus.UNSUBMIT.getStatus(), JobPhaseStatus.CREATE.getCode());
+                    jobStartId = jobs.get(jobs.size()-1).getId();
+                    jobs = scheduleJobDao.listSimpleJobByStatusAddress(jobStartId, RdosTaskStatus.getUnSubmitStatus(), localAddress);
                 }
             } catch (Exception e) {
                 LOG.error("----broker:{} RecoverDealer error:", localAddress, e);
