@@ -319,6 +319,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
 
                 // 恢复没有被容灾，但是状态丢失的任务
                 long jobStartId = 0;
+                // 扫描出 status = 0 和 19  phaseStatus = 1 
                 List<SimpleScheduleJobPO> jobs = scheduleJobDao.listJobByStatusAddressAndPhaseStatus(jobStartId, RdosTaskStatus.getUnSubmitStatus(), localAddress,JobPhaseStatus.JOIN_THE_TEAM.getCode());
                 while (CollectionUtils.isNotEmpty(jobs)) {
                     List<String> jobIds = jobs.stream().map(SimpleScheduleJobPO::getJobId).collect(Collectors.toList());
