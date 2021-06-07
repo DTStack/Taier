@@ -314,17 +314,19 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
                         afterSubmitJobVast(submitClients);
                     }
                 }
+                LOGGER.info("cache deal end");
 
                 // 恢复没有被容灾，但是状态丢失的任务
                 long jobStartId = 0;
                 List<SimpleScheduleJobPO> jobs = scheduleJobDao.listSimpleJobByStatusAddress(jobStartId, RdosTaskStatus.getUnSubmitStatus(), localAddress);
                 while (CollectionUtils.isNotEmpty(jobs)) {
-                    List<Long> ids = jobs.stream().map(SimpleScheduleJobPO::getId).collect(Collectors.toList());
-                    LOGGER.info("update job ids {}", ids);
-                    scheduleJobDao.updateJobStatusAndPhaseStatusByIds(ids, RdosTaskStatus.UNSUBMIT.getStatus(), JobPhaseStatus.CREATE.getCode());
+                    List<String> jobIds = jobs.stream().map(SimpleScheduleJobPO::getJobId).collect(Collectors.toList());
+                    LOGGER.info("update job ids {}", jobIds);
+                    scheduleJobDao.updateJobStatusAndPhaseStatusByIds(jobIds, RdosTaskStatus.UNSUBMIT.getStatus(), JobPhaseStatus.CREATE.getCode());
                     jobStartId = jobs.get(jobs.size()-1).getId();
                     jobs = scheduleJobDao.listSimpleJobByStatusAddress(jobStartId, RdosTaskStatus.getUnSubmitStatus(), localAddress);
                 }
+                LOGGER.info("job deal end");
             } catch (Exception e) {
                 LOGGER.error("----broker:{} RecoverDealer error:", localAddress, e);
             }
