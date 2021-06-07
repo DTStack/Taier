@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.2.0-beta7](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.0-beta6...v4.2.0-beta7) (2021-06-07)
+
+
+### Bug Fixes
+
+* add presto linkjson ([3caa390](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/3caa390ff968a62f6055b629f3a114d9e8993e62))
+
 ## [4.2.0-beta6](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.0-beta5...v4.2.0-beta6) (2021-05-21)
 
 
