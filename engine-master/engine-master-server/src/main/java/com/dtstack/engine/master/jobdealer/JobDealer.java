@@ -146,7 +146,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
         jobClient.setCallBack((jobStatus) -> {
             updateJobStatus(jobClient.getTaskId(), jobStatus);
         });
-        jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
+//        jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
 
         //加入节点的优先级队列
         this.addGroupPriorityQueue(jobResource, jobClient, true, true);
@@ -221,6 +221,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
         String nodeAddress = environmentContext.getLocalAddress();
         if (insert) {
             engineJobCacheDao.insert(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobResource);
+            jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
         } else {
             engineJobCacheDao.updateStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority(), null);
         }
@@ -318,13 +319,14 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
 
                 // 恢复没有被容灾，但是状态丢失的任务
                 long jobStartId = 0;
-                List<SimpleScheduleJobPO> jobs = scheduleJobDao.listSimpleJobByStatusAddress(jobStartId, RdosTaskStatus.getUnSubmitStatus(), localAddress);
+                List<SimpleScheduleJobPO> jobs = scheduleJobDao.listJobByStatusAddressAndPhaseStatus(jobStartId, RdosTaskStatus.getUnSubmitStatus(), localAddress,JobPhaseStatus.JOIN_THE_TEAM.getCode());
                 while (CollectionUtils.isNotEmpty(jobs)) {
                     List<String> jobIds = jobs.stream().map(SimpleScheduleJobPO::getJobId).collect(Collectors.toList());
                     LOGGER.info("update job ids {}", jobIds);
+
                     scheduleJobDao.updateJobStatusAndPhaseStatusByIds(jobIds, RdosTaskStatus.UNSUBMIT.getStatus(), JobPhaseStatus.CREATE.getCode());
                     jobStartId = jobs.get(jobs.size()-1).getId();
-                    jobs = scheduleJobDao.listSimpleJobByStatusAddress(jobStartId, RdosTaskStatus.getUnSubmitStatus(), localAddress);
+                    jobs = scheduleJobDao.listJobByStatusAddressAndPhaseStatus(jobStartId, RdosTaskStatus.getUnSubmitStatus(), localAddress,JobPhaseStatus.JOIN_THE_TEAM.getCode());
                 }
                 LOGGER.info("job deal end");
             } catch (Exception e) {

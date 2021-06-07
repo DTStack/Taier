@@ -240,8 +240,7 @@ public enum RdosTaskStatus implements Serializable {
 
     private final static List<Integer> UN_SUBMIT_STATUSES = Lists.newArrayList(
             ENGINEACCEPTED.getStatus(),
-            WAITENGINE.getStatus()
-    );
+            UNSUBMIT.getStatus());
 
     static {
         UNFINISHED_STATUSES.addAll(WAIT_STATUS);

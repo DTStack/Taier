@@ -1701,4 +1701,20 @@
         select job_graph from schedule_job where job_id = #{jobId}
     </select>
 
+    <select id="listJobByStatusAddressAndPhaseStatus"
+            resultType="com.dtstack.engine.api.domain.po.SimpleScheduleJobPO">
+        SELECT id, job_id, type, phase_status
+        FROM schedule_job
+        WHERE id > #{startId} AND (node_address = #{nodeAddress} or node_address is null)
+        <if test="statuses != null">
+            AND status IN
+            <foreach item="status" index="index" collection="statuses" open="(" separator="," close=")">
+                #{status}
+            </foreach>
+        </if>
+        AND is_deleted = 0
+        AND `phase_status` = #{phaseStatus}
+        order by id asc limit 500
+    </select>
+
 </mapper>
