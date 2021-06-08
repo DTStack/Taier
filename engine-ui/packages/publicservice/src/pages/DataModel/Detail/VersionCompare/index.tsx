@@ -71,10 +71,10 @@ const VersionCompare = (props: IPropsVersionCompare) => {
         <>
           <div className="version-title">
             <span className="version-title-prev text">
-              版本号：v{versions[0]}
+              版本号：V{versions[0]}
             </span>
             <span className="version-title-next text">
-              版本号：v{versions[1]}
+              版本号：V{versions[1]}
             </span>
           </div>
           <DiffEditor

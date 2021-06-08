@@ -16,6 +16,9 @@ interface IPropsCodeBlock {
 const CodeBlock = (props: IPropsCodeBlock) => {
   const { code, overflowEnable } = props;
   const dom = useRef(null);
+  console.log('====================================');
+  console.log(overflowEnable);
+  console.log('====================================');
 
   useEffect(() => {
     if (!dom.current) return;

@@ -11,6 +11,7 @@ export const columnsGenerator = ({
       title: '版本号',
       dataIndex: 'version',
       key: 'version',
+      render: (version) => `V${version}`,
     },
     {
       title: '操作人',

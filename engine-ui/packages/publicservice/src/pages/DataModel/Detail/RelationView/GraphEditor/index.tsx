@@ -592,7 +592,8 @@ export default class GraphEditor extends React.Component<Props, State> {
     style[mxConstants.STYLE_STROKEWIDTH] = 1;
     style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
     style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
-    style[mxConstants.STYLE_EDGE] = mxEdgeStyle.SideToSide;
+    // style[mxConstants.STYLE_EDGE] = mxEdgeStyle.SideToSide;
+    style[mxConstants.STYLE_EDGE] = mxEdgeStyle.EntityRelation;
     style[mxConstants.STYLE_ENDARROW] = mxConstants.ARROW_BLOCK;
     style[mxConstants.STYLE_FONTSIZE] = '10';
     style[mxConstants.STYLE_ROUNDED] = true;

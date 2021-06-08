@@ -222,6 +222,7 @@ const VersionHistory = (props: IPropsVersionHistory) => {
       <div className="version-history-content" ref={refContainer}>
         <Table
           rowKey="version"
+          className="dt-table-last-row-noborder"
           rowSelection={{
             selectedRowKeys,
             onChange: onSelectedChange,
@@ -268,7 +269,7 @@ const VersionHistory = (props: IPropsVersionHistory) => {
       </div>
       <DtModal
         visible={visibleModalDetail.visible}
-        title={`版本记录${visibleModalDetail.version}`}
+        title={`版本记录V${visibleModalDetail.version}`}
         className="modal-version-detail"
         onCancel={() =>
           handleModalDetailAction({ type: EnumModalActionType.CLOSE })
@@ -283,7 +284,7 @@ const VersionHistory = (props: IPropsVersionHistory) => {
           </Button>
         }
         destroyOnClose={true}>
-        <div style={{ marginTop: '24px' }}>
+        <div className="margin-top-24">
           <VersionDetail
             modelId={visibleModalDetail.modelId}
             version={visibleModalDetail.version}
@@ -307,7 +308,7 @@ const VersionHistory = (props: IPropsVersionHistory) => {
         onCancel={() => {
           hadnleModalCompareAction({ type: EnumModalActionType.CLOSE });
         }}>
-        <div style={{ marginTop: '24px' }}>
+        <div className="margin-top-24">
           <VersionCompare
             modelId={modelId}
             versions={visibleModelCompare.versions}

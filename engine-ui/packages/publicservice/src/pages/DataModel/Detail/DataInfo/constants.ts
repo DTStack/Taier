@@ -52,7 +52,7 @@ export const relationListColumns = (size: EnumSize) => {
       title: '关联条件',
       dataIndex: 'joinPairs',
       key: 'joinPairs',
-      width: isLarge ? 300 : 240,
+      width: isLarge ? 300 : 238,
       ellipsis: true,
       render: (joinPairs, record) => {
         return joinPairs
@@ -103,7 +103,7 @@ export const columns = (size: EnumSize) => {
       key: 'columnType',
       ellipsis: true,
       render: holder,
-      width: isLarge ? 200 : 160,
+      width: isLarge ? 200 : 158,
     },
   ];
 };
