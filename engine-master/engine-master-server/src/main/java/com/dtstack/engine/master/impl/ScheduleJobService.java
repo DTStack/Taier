@@ -422,7 +422,7 @@ public class ScheduleJobService {
      */
     public PageResult<List<com.dtstack.engine.api.vo.ScheduleJobVO>> queryJobs(QueryJobDTO vo) throws Exception {
 
-        if (vo.getType() == null) {
+        if (vo.getType() == null && CollectionUtils.isEmpty(vo.getTypes())) {
             throw new RdosDefineException("Type parameter is required", ErrorCode.INVALID_PARAMETERS);
         }
         vo.setSplitFiledFlag(true);
@@ -460,7 +460,7 @@ public class ScheduleJobService {
                 return new PageResult<>(result, count, pageQuery);
             }
         }
-        if (AppType.DATASCIENCE.getType() == vo.getAppType()) {
+        if (AppType.DATASCIENCE.getType().equals(vo.getAppType())) {
             batchJobDTO.setQueryWorkFlowModel(QueryWorkFlowModel.Eliminate_Workflow_SubNodes.getType());
             count = queryScienceJob(batchJobDTO, queryAll, pageQuery, result);
         } else {
@@ -914,6 +914,8 @@ public class ScheduleJobService {
         batchJobDTO.setBusinessDateSort(vo.getBusinessDateSort());
         batchJobDTO.setTaskPeriodId(convertStringToList(vo.getTaskPeriodId()));
         batchJobDTO.setAppType(vo.getAppType());
+        batchJobDTO.setBusinessType(vo.getBusinessType());
+        batchJobDTO.setTypes(vo.getTypes());
 
         if (CollectionUtils.isNotEmpty(vo.getProjectIds())) {
             batchJobDTO.setProjectIds(vo.getProjectIds());
@@ -1357,7 +1359,7 @@ public class ScheduleJobService {
                                 String beginTime,  String endTime,
                                 Long projectId,  Long userId,
                                 Long tenantId,
-                                Boolean isRoot,  Integer appType,  Long dtuicTenantId) throws Exception {
+                                Boolean isRoot,  Integer appType,  Long dtuicTenantId,Boolean ignoreCycTime) throws Exception {
 
         if(StringUtils.isEmpty(taskJsonStr)){
             throw new RdosDefineException("(taskJsonStr 参数不能为空)", ErrorCode.INVALID_PARAMETERS);
@@ -1398,7 +1400,11 @@ public class ScheduleJobService {
                 if (MapUtils.isEmpty(result)) {
                     continue;
                 }
-
+                if (BooleanUtils.isTrue(ignoreCycTime)) {
+                    for (ScheduleBatchJob value : result.values()) {
+                        value.getScheduleJob().setCycTime(DateTime.now().toString(DateUtil.UN_STANDARD_DATETIME_FORMAT));
+                    }
+                }
                 insertJobList(result.values(), EScheduleType.FILL_DATA.getType());
                 addBatchMap.putAll(result);
 
@@ -2020,6 +2026,7 @@ public class ScheduleJobService {
         record.setJobId(scheduleJob.getJobId());
         record.setFlowJobId(scheduleJob.getFlowJobId());
         record.setIsRestart(scheduleJob.getIsRestart());
+        record.setBusinessType(scheduleJob.getBusinessType());
 
         // 判断taskType为2的，查出脏数据量，判断增加标识
         if (taskType == 2) {

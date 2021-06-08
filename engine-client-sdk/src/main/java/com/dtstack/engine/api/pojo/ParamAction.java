@@ -96,7 +96,17 @@ public class ParamAction {
      */
 	private String componentVersion;
 
-	public String getComponentVersion() {
+	private String businessType;
+
+    public String getBusinessType() {
+        return businessType;
+    }
+
+    public void setBusinessType(String businessType) {
+        this.businessType = businessType;
+    }
+
+    public String getComponentVersion() {
 		return componentVersion;
 	}
 
