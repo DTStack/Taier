@@ -10,7 +10,8 @@ public enum DbType {
 
     Oracle(2),
     TiDB(31),
-    GREENPLUM6(36);
+    GREENPLUM6(36),
+    ANALYTICDB_FOR_PG(54);
 
     private int typeCode;
 

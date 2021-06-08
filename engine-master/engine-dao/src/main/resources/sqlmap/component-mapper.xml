@@ -197,14 +197,14 @@
             cc.component_type_code = #{componentTypeCode}
           AND cc.is_deleted = 0
     </select>
-    <select id="getDefaultComponentVersionByUicIdAndComponentType" resultType="java.lang.String">
-        select
-            cc.hadoop_version
-        from
-            console_component cc INNER JOIN console_engine_tenant cet
-                                            on cc.engine_id = cet.engine_id
-                                 INNER JOIN console_dtuic_tenant cdt on cdt.id=cet.tenant_id
-                and cdt.dt_uic_tenant_id =  #{uicTenantId}
+    <select id="getDefaultVersionDictNameByUicIdAndComponentType" resultType="java.lang.String">
+        select sd.dict_name
+        from console_component cc
+                 INNER JOIN console_engine_tenant cet
+                            on cc.engine_id = cet.engine_id
+                 INNER JOIN console_dtuic_tenant cdt on cdt.id = cet.tenant_id
+                 INNER JOIN schedule_dict sd on sd.dict_value = cc.hadoop_version
+            and cdt.dt_uic_tenant_id = #{uicTenantId}
         where cc.component_type_code = #{componentTypeCode}
           and cc.is_default = 1
           and cc.is_deleted = 0 limit 1

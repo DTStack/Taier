@@ -104,8 +104,6 @@ public interface ScheduleTaskShadeDao {
 
     List<ScheduleTaskShade> listTaskRuleTask(@Param("taskId") Long taskId, @Param("appType") Integer appType);
 
-    String getComponentVersionByTaskAndApp(@Param("taskId") Long shadeTaskId, @Param("appType") Integer appType);
-
     /**
      * 根据appType和taskId查询任务
      * @param taskId
