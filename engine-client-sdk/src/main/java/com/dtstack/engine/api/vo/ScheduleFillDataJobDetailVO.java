@@ -78,18 +78,6 @@ public class ScheduleFillDataJobDetailVO {
 
         private int isDirty;// 脏数据标识
 
-
-        private String businessType;
-
-        public String getBusinessType() {
-            return businessType;
-        }
-
-        public void setBusinessType(String businessType) {
-            this.businessType = businessType;
-        }
-
-
         public FillDataRecord() {
         }
 

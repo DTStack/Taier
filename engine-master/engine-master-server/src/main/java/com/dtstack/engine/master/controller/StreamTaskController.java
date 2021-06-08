@@ -38,6 +38,7 @@ public class StreamTaskController {
         return streamTaskService.getFailedCheckPoint(taskId, triggerStart, triggerEnd, size);
     }
 
+
     @RequestMapping(value="/getSavePoint", method = {RequestMethod.POST})
     @ApiOperation(value = "查询savePoint")
     public EngineJobCheckpoint getSavePoint(@DtRequestParam("taskId") String taskId) {
@@ -81,4 +82,5 @@ public class StreamTaskController {
     public CheckResult grammarCheck(@RequestBody ParamActionExt paramActionExt) {
         return streamTaskService.grammarCheck(paramActionExt);
     }
+
 }

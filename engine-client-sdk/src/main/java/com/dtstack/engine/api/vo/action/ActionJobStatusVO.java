@@ -16,7 +16,6 @@ public class ActionJobStatusVO {
     private Timestamp execEndTime;
     private Long execTime;
     private Integer retryNum;
-    private String businessType;
 
     public String getJobId() {
         return jobId;
@@ -64,13 +63,5 @@ public class ActionJobStatusVO {
 
     public void setRetryNum(Integer retryNum) {
         this.retryNum = retryNum;
-    }
-
-    public String getBusinessType() {
-        return businessType;
-    }
-
-    public void setBusinessType(String businessType) {
-        this.businessType = businessType;
     }
 }

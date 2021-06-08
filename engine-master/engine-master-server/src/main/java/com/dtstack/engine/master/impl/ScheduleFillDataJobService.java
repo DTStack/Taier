@@ -24,10 +24,7 @@ public class ScheduleFillDataJobService  {
     @Autowired
     private ScheduleFillDataJobDao scheduleFillDataJobDao;
 
-    public boolean checkExistsName(String jobName, Long projectId) {
-        if (projectId == null) {
-            return Boolean.TRUE;
-        }
+    public boolean checkExistsName(String jobName, long projectId) {
         ScheduleFillDataJob scheduleFillDataJob = scheduleFillDataJobDao.getByJobName(jobName, projectId);
         return scheduleFillDataJob != null;
     }

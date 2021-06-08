@@ -2,14 +2,11 @@ package com.dtstack.engine.master.router.login;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.User;
-import com.dtstack.engine.api.vo.UserIdVO;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.master.enums.PlatformEventType;
 import com.dtstack.engine.master.router.login.domain.DtUicUser;
-import com.dtstack.engine.master.router.login.domain.DtUser;
 import com.dtstack.engine.master.router.login.domain.UserTenant;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -50,46 +47,7 @@ public class DtUicUserConnect {
 
     private static final String GET_TENANT_BY_ID = "%s/api/tenant/get-by-tenant-id?tenantId=%s";
 
-    private static final String GET_USERS_BY_USERIDS="%s/api/user/get-users-by-userIds?dtToken=%s";
-
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
-    public List<User> getUserByUserIds(String token, String url, List<Long> userIds) {
-        List<User> users = Lists.newArrayList();
-        try {
-            List<UserIdVO> userIdVOS = Lists.newArrayList();
-
-            for (Long userId : userIds) {
-                UserIdVO userIdVO = new UserIdVO();
-                userIdVO.setUserId(userId);
-                userIdVOS.add(userIdVO);
-            }
-
-            String result = PoolHttpClient.post(String.format(GET_USERS_BY_USERIDS, url, token), userIdVOS);
-            Map<String, Object> mResult = OBJECT_MAPPER.readValue(result, Map.class);
-            if ((Boolean) mResult.get("success")) {
-                List<DtUser> dataList = JSON.parseArray(JSON.toJSONString(mResult.get("data")), DtUser.class);
-
-                for (DtUser dtUicUser : dataList) {
-                    User user = new User();
-                    user.setUserName(dtUicUser.getUserName());
-                    user.setPhoneNumber(dtUicUser.getPhone());
-                    user.setEmail(dtUicUser.getUserName());
-                    user.setDtuicUserId(dtUicUser.getId());
-                    user.setStatus(0);
-                    users.add(user);
-                }
-            }
-
-
-        } catch (RdosDefineException e) {
-            throw e;
-        } catch (Throwable tr) {
-            LOGGER.error("", tr);
-        }
-        return users;
-    }
-
 
     public void getInfo(String token, String url, Consumer<DtUicUser> resultHandler) {
         try {

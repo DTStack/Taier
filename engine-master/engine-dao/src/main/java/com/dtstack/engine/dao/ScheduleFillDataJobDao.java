@@ -19,5 +19,5 @@ public interface ScheduleFillDataJobDao {
 
     List<ScheduleFillDataJob> listFillJob(@Param("nameList") List<String> nameList, @Param("projectId") long projectId);
 
-    List<ScheduleFillDataJob> getFillJobList(@Param("fillIdList") List<Long> fillIdList, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId,@Param("dtuicTenantId") Long dtuicTenantId);
+    List<ScheduleFillDataJob> getFillJobList(@Param("fillIdList") List<Long> fillIdList, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId);
 }
