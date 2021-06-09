@@ -120,7 +120,7 @@ function index(props) {
 
   //搜索事件
   const onSearch = (value) => {
-    let data = { ...other, ...value };
+    let data = { ...other, ...value, currentPage: 1 };
     setOther(data);
     requestTableData(data);
   };
