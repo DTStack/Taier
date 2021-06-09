@@ -840,7 +840,7 @@ public class ScheduleJobService {
     private Map<Integer, List<Integer>> getStatusMap(Boolean splitFiledFlag) {
         Map<Integer, List<Integer>> statusMap;
         if (null != splitFiledFlag && splitFiledFlag) {
-            statusMap = RdosTaskStatus.getStatusFailedDetail();
+            statusMap = RdosTaskStatus.getStatusFailedDetailAndExpire();
         } else {
             statusMap = RdosTaskStatus.getCollectionStatus();
         }

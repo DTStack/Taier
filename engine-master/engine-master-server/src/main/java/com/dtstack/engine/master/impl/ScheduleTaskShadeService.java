@@ -427,7 +427,7 @@ public class ScheduleTaskShadeService {
             batchTaskDTO.setFuzzName(name);
         }
         if (null != ownerId && ownerId != 0) {
-            batchTaskDTO.setCreateUserId(ownerId);
+            batchTaskDTO.setOwnerUserId(ownerId);
         }
         if (null != startTime && null != endTime) {
             batchTaskDTO.setStartGmtModified(new Timestamp(startTime * 1000));
