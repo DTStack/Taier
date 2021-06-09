@@ -1670,6 +1670,18 @@
         where job_id=#{jobId};
     </update>
 
+    <update id="updateJobStatusAndPhaseStatusByIds">
+        update schedule_job set
+            `gmt_modified`=now(),
+            `status`=#{status},
+            `phase_status` = #{phaseStatus},
+            `gmt_modified`=now()
+        where job_id IN
+        <foreach collection="jobIds" item="jobId" separator="," close=")" open="(" >
+            #{jobId}
+        </foreach>
+    </update>
+
     <select id="getJobGraph" resultType="java.lang.String">
         select job_graph from schedule_job where job_id = #{jobId}
     </select>
@@ -1682,7 +1694,22 @@
         and bj.id &lt; ${id}
         order by id desc
         limit 1;
+    </select>
 
+    <select id="listJobByStatusAddressAndPhaseStatus"
+            resultType="com.dtstack.engine.api.domain.po.SimpleScheduleJobPO">
+        SELECT id, job_id, type, phase_status
+        FROM schedule_job
+        WHERE id > #{startId} AND (node_address = #{nodeAddress} or node_address is null)
+        <if test="statuses != null">
+            AND status IN
+            <foreach item="status" index="index" collection="statuses" open="(" separator="," close=")">
+                #{status}
+            </foreach>
+        </if>
+        AND is_deleted = 0
+        AND `phase_status` = #{phaseStatus}
+        order by id asc limit 500
     </select>
 
 </mapper>
