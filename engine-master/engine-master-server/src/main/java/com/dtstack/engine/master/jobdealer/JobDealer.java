@@ -2,6 +2,7 @@ package com.dtstack.engine.master.jobdealer;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.EngineJobCache;
+import com.dtstack.engine.api.domain.po.SimpleScheduleJobPO;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
@@ -15,6 +16,7 @@ import com.dtstack.engine.common.util.SystemPropertyUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ScheduleJobService;
@@ -142,7 +144,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
         jobClient.setCallBack((jobStatus) -> {
             updateJobStatus(jobClient.getTaskId(), jobStatus);
         });
-        jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
+//        jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
 
         //加入节点的优先级队列
         this.addGroupPriorityQueue(jobResource, jobClient, true, true);
@@ -217,6 +219,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
         String nodeAddress = environmentContext.getLocalAddress();
         if (insert) {
             engineJobCacheDao.insert(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobResource);
+            jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
         } else {
             engineJobCacheDao.updateStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority(), null);
         }
@@ -310,6 +313,21 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
                         afterSubmitJobVast(submitClients);
                     }
                 }
+                LOGGER.info("cache deal end");
+
+                // 恢复没有被容灾，但是状态丢失的任务
+                long jobStartId = 0;
+                // 扫描出 status = 0 和 19  phaseStatus = 1 
+                List<SimpleScheduleJobPO> jobs = scheduleJobDao.listJobByStatusAddressAndPhaseStatus(jobStartId, RdosTaskStatus.getUnSubmitStatus(), localAddress,JobPhaseStatus.JOIN_THE_TEAM.getCode());
+                while (CollectionUtils.isNotEmpty(jobs)) {
+                    List<String> jobIds = jobs.stream().map(SimpleScheduleJobPO::getJobId).collect(Collectors.toList());
+                    LOGGER.info("update job ids {}", jobIds);
+
+                    scheduleJobDao.updateJobStatusAndPhaseStatusByIds(jobIds, RdosTaskStatus.UNSUBMIT.getStatus(), JobPhaseStatus.CREATE.getCode());
+                    jobStartId = jobs.get(jobs.size()-1).getId();
+                    jobs = scheduleJobDao.listJobByStatusAddressAndPhaseStatus(jobStartId, RdosTaskStatus.getUnSubmitStatus(), localAddress, JobPhaseStatus.JOIN_THE_TEAM.getCode());
+                }
+                LOGGER.info("job deal end");
             } catch (Exception e) {
                 LOGGER.error("----broker:{} RecoverDealer error:", localAddress, e);
             }
