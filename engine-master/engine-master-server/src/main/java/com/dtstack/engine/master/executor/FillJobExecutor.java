@@ -5,6 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 /**
  * 补数据任务的执行器
  * <p>
@@ -29,4 +31,9 @@ public class FillJobExecutor extends AbstractJobExecutor {
         logger.info("---stop FillJobExecutor----");
     }
 
+    @Override
+    protected Long getListMinId(String nodeAddress, Integer isRestart) {
+        Long listMinId = super.getListMinId(nodeAddress, isRestart);
+        return Objects.isNull(listMinId) ? 0L:listMinId;
+    }
 }
