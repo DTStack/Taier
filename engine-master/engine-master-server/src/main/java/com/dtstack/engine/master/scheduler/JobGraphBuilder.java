@@ -13,6 +13,7 @@ import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.master.druid.DtDruidForbid;
 import com.dtstack.engine.master.impl.*;
 import com.dtstack.engine.master.scheduler.parser.*;
 import com.dtstack.schedule.common.enums.Deleted;
@@ -94,6 +95,9 @@ public class JobGraphBuilder {
 
     @Autowired
     private EnvironmentContext environmentContext;
+
+    @Autowired
+    private JobGraphBuilder jobGraphBuilder;
 
     private Lock lock = new ReentrantLock();
 
@@ -219,7 +223,7 @@ public class JobGraphBuilder {
             });
 
             //存储生成的jobRunBean
-            saveJobGraph(allJobs, triggerDay);
+            jobGraphBuilder.saveJobGraph(allJobs, triggerDay);
         } catch (Exception e) {
             logger.error("buildTaskJobGraph ！！！", e);
         } finally {
@@ -305,6 +309,7 @@ public class JobGraphBuilder {
      * @return
      */
     @Transactional
+    @DtDruidForbid
     public boolean saveJobGraph(List<ScheduleBatchJob> jobList, String triggerDay) {
         logger.info("start saveJobGraph to db {} jobSize {}", triggerDay, jobList.size());
         //需要保存BatchJob, BatchJobJob

@@ -9,6 +9,7 @@ import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.ScheduleTaskTaskShadeDao;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.master.druid.DtDruidForbid;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.google.common.base.Preconditions;
 import org.apache.commons.collections.CollectionUtils;
@@ -48,6 +49,7 @@ public class ScheduleTaskTaskShadeService {
     }
 
     @Transactional(rollbackFor = Exception.class)
+    @DtDruidForbid
     public void saveTaskTaskList( String taskLists) {
         if(StringUtils.isBlank(taskLists)){
             return;
