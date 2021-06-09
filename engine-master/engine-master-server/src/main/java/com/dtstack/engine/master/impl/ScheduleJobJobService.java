@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleJobJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
@@ -228,7 +229,7 @@ public class ScheduleJobJobService {
         Map<Integer, List<ScheduleJobJob>> result = new HashMap<>(16);
         List<String> jobKeys = new ArrayList<>();
         Map<String,Set<String>> jobKeyRelations = Maps.newHashMap();
-        jobKeyRelations.put(rootKey,Sets.newHashSet());
+        jobKeyRelations.put(rootKey,Sets.newHashSet(rootKey));
         jobKeys.add(rootKey);
         int jobLoop = 1;
         for (int leveCount = level; leveCount > 0; leveCount--) {
@@ -282,6 +283,7 @@ public class ScheduleJobJobService {
             jobKeyMap = jobJobs.stream().collect(Collectors.groupingBy(ScheduleJobJobTaskDTO::getJobKey));
         }
         if (isRing(jobKeyRelations, jobKeyMap)) {
+            logger.error("jobKeyRelations:{}", JSON.toJSONString(jobKeyRelations));
             return Boolean.TRUE;
         }
         return false;
