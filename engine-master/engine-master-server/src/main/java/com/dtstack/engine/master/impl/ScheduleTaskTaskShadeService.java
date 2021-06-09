@@ -12,6 +12,8 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.ScheduleEngineProjectDao;
 import com.dtstack.engine.dao.ScheduleTaskCommitMapper;
 import com.dtstack.engine.dao.ScheduleTaskTaskShadeDao;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.master.druid.DtDruidRemoveAbandoned;
 import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.google.common.base.Preconditions;
@@ -63,6 +65,7 @@ public class ScheduleTaskTaskShadeService {
     }
 
     @Transactional(rollbackFor = Exception.class)
+    @DtDruidRemoveAbandoned
     public SaveTaskTaskVO saveTaskTaskList(String taskLists,String commitId) {
         if(StringUtils.isBlank(taskLists)){
             return SaveTaskTaskVO.save();

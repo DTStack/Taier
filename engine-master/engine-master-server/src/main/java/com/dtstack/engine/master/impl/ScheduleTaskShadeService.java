@@ -20,6 +20,13 @@ import com.dtstack.engine.common.enums.EScheduleStatus;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.MathUtil;
+import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.common.util.UnitConvertUtil;
+import com.dtstack.engine.dao.ScheduleTaskCommitMapper;
+import com.dtstack.engine.dao.ScheduleTaskShadeDao;
+import com.dtstack.engine.dao.TenantResourceDao;
+import com.dtstack.engine.master.druid.DtDruidRemoveAbandoned;
 import com.dtstack.engine.common.util.*;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.executor.CronJobExecutor;
@@ -790,6 +797,7 @@ public class ScheduleTaskShadeService {
     }
 
     @Transactional
+    @DtDruidRemoveAbandoned
     public Boolean taskCommit(String commitId) {
         LOGGER.info("submit task commitId:{}",commitId);
         Long minId = scheduleTaskCommitMapper.findMinIdOfTaskCommitByCommitId(commitId);
