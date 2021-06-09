@@ -21,7 +21,7 @@ import com.dtstack.engine.common.util.UnitConvertUtil;
 import com.dtstack.engine.dao.ScheduleTaskCommitMapper;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.dao.TenantResourceDao;
-import com.dtstack.engine.master.druid.DtDruidForbid;
+import com.dtstack.engine.master.druid.DtDruidRemoveAbandoned;
 import com.dtstack.engine.master.executor.CronJobExecutor;
 import com.dtstack.engine.master.executor.FillJobExecutor;
 import com.dtstack.schedule.common.enums.*;
@@ -734,7 +734,7 @@ public class ScheduleTaskShadeService {
     }
 
     @Transactional
-    @DtDruidForbid
+    @DtDruidRemoveAbandoned
     public Boolean taskCommit(String commitId) {
         LOG.info("提交任务commitId:{}",commitId);
         Long minId = scheduleTaskCommitMapper.findMinIdOfTaskCommitByCommitId(commitId);

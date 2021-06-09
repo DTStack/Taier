@@ -17,7 +17,6 @@ public class DruidDataSourceService {
 
     private final DruidDataSource druidDataSource;
 
-    private static final ThreadLocal<Boolean> INIT_STATUS = new ThreadLocal<>();
 
     public DruidDataSourceService(DataSource dataSource){
         if (dataSource instanceof DruidDataSource){
@@ -31,13 +30,13 @@ public class DruidDataSourceService {
 
     /**
      * 禁止druid数据源后台定时任务释放长期连接
+     * isDruidDataSource 为 false 时 druidDataSource必然不能为空
      */
     public void forbidRemoveAbandoned(){
-        if (!isDruidDataSource){
+        if (!isDruidDataSource || !druidDataSource.isRemoveAbandoned()){
             return;
         }
         // 指定的状态
-        INIT_STATUS.set(druidDataSource.isRemoveAbandoned());
         druidDataSource.setRemoveAbandoned(false);
     }
 
@@ -45,15 +44,10 @@ public class DruidDataSourceService {
      * 恢复数据库默认状态
      */
     public void releaseRemoveAbandoned(){
-        if (!isDruidDataSource){
+        if (!isDruidDataSource || ! druidDataSource.isRemoveAbandoned()){
             return;
         }
-        Boolean status = INIT_STATUS.get();
-        if (status == null){
-            throw new RdosDefineException("illegal datasource status");
-        }
-        INIT_STATUS.remove();
-        druidDataSource.setRemoveAbandoned(status);
+        druidDataSource.setRemoveAbandoned(true);
     }
 
 

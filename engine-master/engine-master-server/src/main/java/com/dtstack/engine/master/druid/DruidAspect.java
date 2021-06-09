@@ -17,7 +17,7 @@ public class DruidAspect {
         this.druidDataSourceService = druidDataSourceService;
     }
 
-    @Around("@annotation(com.dtstack.engine.master.druid.DtDruidForbid)")
+    @Around("@annotation(com.dtstack.engine.master.druid.DtDruidRemoveAbandoned)")
     public Object druidDatasourceEnhance(ProceedingJoinPoint joinPoint) throws Throwable {
         try {
             druidDataSourceService.forbidRemoveAbandoned();

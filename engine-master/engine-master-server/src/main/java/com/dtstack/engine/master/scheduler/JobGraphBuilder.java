@@ -13,10 +13,9 @@ import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.master.druid.DtDruidForbid;
+import com.dtstack.engine.master.druid.DtDruidRemoveAbandoned;
 import com.dtstack.engine.master.impl.*;
 import com.dtstack.engine.master.scheduler.parser.*;
-import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.enums.EProjectScheduleStatus;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.schedule.common.enums.ESubmitStatus;
@@ -309,7 +308,7 @@ public class JobGraphBuilder {
      * @return
      */
     @Transactional
-    @DtDruidForbid
+    @DtDruidRemoveAbandoned
     public boolean saveJobGraph(List<ScheduleBatchJob> jobList, String triggerDay) {
         logger.info("start saveJobGraph to db {} jobSize {}", triggerDay, jobList.size());
         //需要保存BatchJob, BatchJobJob
