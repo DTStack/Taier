@@ -288,7 +288,8 @@ public class ScheduleJobJobService {
     }
 
     private boolean isRing(Map<String, Set<String>> jobKeyRelations, Map<String, List<ScheduleJobJobTaskDTO>> jobKeyMap) {
-        for (Map.Entry<String, Set<String>> ketSetEntry : jobKeyRelations.entrySet()) {
+        Map<String, Set<String>> temporaryMap = Maps.newHashMap(jobKeyRelations);
+        for (Map.Entry<String, Set<String>> ketSetEntry : temporaryMap.entrySet()) {
             String key = ketSetEntry.getKey();
             // 找到每条链表的子节点
             List<ScheduleJobJobTaskDTO> scheduleJobJobTaskDTOS = jobKeyMap.get(key);
