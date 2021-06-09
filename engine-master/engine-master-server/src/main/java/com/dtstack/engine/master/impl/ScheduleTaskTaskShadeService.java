@@ -16,6 +16,7 @@ import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -144,6 +145,7 @@ public class ScheduleTaskTaskShadeService {
             // 节点或者是父节点是null，都表示没有成环
             return Boolean.FALSE;
         }
+        Map<String,Set<String>> sideMap = Maps.newHashMap();
         HashSet<String> sideSet = Sets.newHashSet();
 
         // 向上查询,向上查询会查询出自己的边
@@ -187,6 +189,42 @@ public class ScheduleTaskTaskShadeService {
 
         }
 
+        return Boolean.FALSE;
+    }
+
+    private boolean setKeyAndJudgedLoop(Map<String, Set<String>> sideMap, List<ScheduleTaskTaskShade> scheduleChildTaskTaskShades, List<String> parentKeys, Boolean isChild) {
+
+//        if (isChild) {
+//            //
+//
+//
+//        } else {
+//            //
+//
+//
+//        }
+//
+//        for (ScheduleTaskTaskShade taskTaskShade : scheduleChildTaskTaskShades) {
+//            if (StringUtils.isBlank(taskTaskShade.getParentTaskKey())) {
+//                // 说明是头节点了
+//                continue;
+//            }
+//
+//            String sideKey = taskTaskShade.getTaskKey() + "&" + taskTaskShade.getParentTaskKey();
+//            if (!sideSet.add(sideKey)) {
+//                // 添加不进去，说明边重复了，已经成环
+//                LOGGER.warn("saveTaskTask is loop,loop:{} -------- repeat side:{}", sideSet, sideKey);
+//                return Boolean.TRUE;
+//            }
+//
+//            if (isChild) {
+//                parentKeys.add(taskTaskShade.getTaskKey());
+//            } else {
+//                parentKeys.add(taskTaskShade.getParentTaskKey());
+//            }
+//        }
+
+        // 未成环
         return Boolean.FALSE;
     }
 
