@@ -146,7 +146,7 @@ const showMapArr: any = {
     ['chroot', 'Zookeeper chroot路径'],
   ],
   [DATA_SOURCE.INFLUXDB]: [
-    ['jdbcUrl', 'jdbcUrl'],
+    ['jdbcUrl', 'URL'],
     ['username', '用户名'],
   ],
 };
