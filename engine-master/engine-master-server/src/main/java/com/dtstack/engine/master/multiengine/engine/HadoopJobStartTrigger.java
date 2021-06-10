@@ -205,6 +205,20 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             taskExeArgs = taskExeArgs.replace(TaskConstant.LAUNCH, Base64Util.baseEncode(launchCmd));
             LOG.info(" replaceTaskExeArgs job {} exeArgs {} ", scheduleJob.getJobId(), taskExeArgs);
         }
+        if (taskExeArgs.contains(TaskConstant.CMD_OPTS)){
+            // --cmd-opts
+            int startIndex = taskExeArgs.indexOf(TaskConstant.CMD_OPTS)+TaskConstant.CMD_OPTS.length();
+            String firstArgs = taskExeArgs.substring(0, startIndex);
+            String secondArgs = taskExeArgs.substring(startIndex).trim();
+            String base64 = secondArgs.substring(0, startIndex = secondArgs.indexOf(' '));
+            secondArgs = secondArgs.substring(startIndex);
+            try {
+                base64 = Base64Util.baseEncode(jobParamReplace.paramReplace(Base64Util.baseDecode(base64),taskParamsToReplace, scheduleJob.getCycTime()));
+                taskExeArgs = firstArgs + base64 + secondArgs;
+            }catch (Exception e){
+                taskExeArgs = firstArgs + jobParamReplace.paramReplace(base64,taskParamsToReplace, scheduleJob.getCycTime()) + secondArgs;
+            }
+        }
         actionParam.put("exeArgs", taskExeArgs);
     }
 
