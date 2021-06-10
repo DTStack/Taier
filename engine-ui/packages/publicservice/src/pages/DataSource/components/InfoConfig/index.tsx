@@ -402,14 +402,14 @@ const InfoConfig = (props) => {
             placeholder="请输入key值"
           />{' '}
           : &nbsp;
-          <Input
+          <Input.Password
             autoComplete="off"
             onChange={(e) => {
               editWsParams(e, index, 'value');
             }}
             value={ws.value}
-            type="password"
             placeholder="请输入value值"
+            visibilityToggle={false}
           />
           <a
             onClick={() => {
@@ -718,6 +718,7 @@ const InfoConfig = (props) => {
               getRules(item)
             )(
               <Input.Password
+                visibilityToggle={false}
                 placeholder={item.placeHold || `请输入${item.label}`}
               />
             )}
@@ -1101,7 +1102,7 @@ const InfoConfig = (props) => {
             <Form.Item label="密码">
               {getFieldDecorator('password', {
                 initialValue: detailData?.password || '',
-              })(<Input.Password />)}
+              })(<Input.Password visibilityToggle={false}/>)}
             </Form.Item>
           </div>
         );
