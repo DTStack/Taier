@@ -14,6 +14,7 @@ import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
@@ -53,6 +54,7 @@ import java.net.URLEncoder;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author yuebai
@@ -206,18 +208,20 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             LOG.info(" replaceTaskExeArgs job {} exeArgs {} ", scheduleJob.getJobId(), taskExeArgs);
         }
         if (taskExeArgs.contains(TaskConstant.CMD_OPTS)){
-            // --cmd-opts 空格符保留
-            int startIndex = taskExeArgs.indexOf(TaskConstant.CMD_OPTS) + TaskConstant.CMD_OPTS.length() + 1;
-            String firstArgs = taskExeArgs.substring(0, startIndex);
-            String secondArgs = taskExeArgs.substring(startIndex).trim();
-            String base64 = secondArgs.substring(0, startIndex = secondArgs.indexOf(' '));
-            secondArgs = secondArgs.substring(startIndex);
-            try {
-                base64 = Base64Util.baseEncode(jobParamReplace.paramReplace(Base64Util.baseDecode(base64),taskParamsToReplace, scheduleJob.getCycTime()));
-                taskExeArgs = firstArgs + base64 + secondArgs;
-            }catch (Exception e){
-                taskExeArgs = firstArgs + jobParamReplace.paramReplace(base64,taskParamsToReplace, scheduleJob.getCycTime()) + secondArgs;
+            List<String> argList = DtStringUtil.splitIngoreBlank(taskExeArgs);
+            for (int i = 0; i < argList.size(); i++) {
+                if(TaskConstant.CMD_OPTS.equals(argList.get(i))){
+                    String base64 = argList.get(i + 1);
+                    try {
+                        base64 = Base64Util.baseEncode(jobParamReplace.paramReplace(Base64Util.baseDecode(base64),taskParamsToReplace, scheduleJob.getCycTime()));
+                        argList.set(i+1,base64);
+                    }catch (Exception e){
+                        argList.set(i+1,jobParamReplace.paramReplace(base64,taskParamsToReplace, scheduleJob.getCycTime()));
+                    }
+                    break;
+                }
             }
+            taskExeArgs = String.join(" ", argList);
         }
         actionParam.put("exeArgs", taskExeArgs);
     }
