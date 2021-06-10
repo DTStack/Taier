@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 重跑任务的执行器
@@ -56,7 +57,7 @@ public class RestartJobExecutor extends AbstractJobExecutor {
         Pair<String, String> cycTime = this.getCycTime(true);
         Long listMinId = batchJobService.getListMinId(nodeAddress, null, cycTime.getLeft(), cycTime.getRight(), Restarted.RESTARTED.getStatus());
         logger.info("getListMinId scheduleType {} nodeAddress {} isRestart {} lastMinId is {} .", getScheduleType(), nodeAddress, Restarted.RESTARTED.getStatus(), listMinId);
-        return listMinId;
+        return Objects.isNull(listMinId) ? 0L: listMinId;
     }
 
     public Pair<String, String> getCycTime(boolean minJobId) {
