@@ -206,8 +206,8 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             LOG.info(" replaceTaskExeArgs job {} exeArgs {} ", scheduleJob.getJobId(), taskExeArgs);
         }
         if (taskExeArgs.contains(TaskConstant.CMD_OPTS)){
-            // --cmd-opts
-            int startIndex = taskExeArgs.indexOf(TaskConstant.CMD_OPTS)+TaskConstant.CMD_OPTS.length();
+            // --cmd-opts 空格符保留
+            int startIndex = taskExeArgs.indexOf(TaskConstant.CMD_OPTS) + TaskConstant.CMD_OPTS.length() + 1;
             String firstArgs = taskExeArgs.substring(0, startIndex);
             String secondArgs = taskExeArgs.substring(startIndex).trim();
             String base64 = secondArgs.substring(0, startIndex = secondArgs.indexOf(' '));
