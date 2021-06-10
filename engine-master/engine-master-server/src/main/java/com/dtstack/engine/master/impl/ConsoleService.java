@@ -297,7 +297,7 @@ public class ConsoleService {
         if (!jobInfoJSON.containsKey(PluginWrapper.PLUGIN_INFO)) {
             //获取插件信息
             String pluginInfo = pluginWrapper.getPluginInfo(jobInfoJSON.getString("taskParams"), engineJobCache.getComputeType(), engineJobCache.getEngineType(),
-                    null == tenant ? -1L : tenant.getDtUicTenantId(), jobInfoJSON.getLong("userId"),pluginInfoCache);
+                    null == tenant ? -1L : tenant.getDtUicTenantId(), jobInfoJSON.getLong("userId"),pluginInfoCache,jobInfoJSON.getString("componentVersion"));
             jobInfoJSON.put(PluginWrapper.PLUGIN_INFO, JSONObject.parseObject(pluginInfo));
             theJobMap.put("jobInfo", jobInfoJSON);
         }

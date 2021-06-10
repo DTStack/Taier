@@ -18,6 +18,8 @@ public class QueryJobDTO {
     /**租户id**/
     private Long tenantId;
 
+    private Long dtuicTenantId;
+
     /**业务开始日期，0点秒级时间戳**/
     private Long bizStartDay;
 
@@ -33,6 +35,7 @@ public class QueryJobDTO {
 
     /**0正常调度 1补数据 2临时运行**/
     private Integer type;
+    private List<Integer> types;
     private Integer currentPage;
     private Integer pageSize;
     private Long execTime;
@@ -65,6 +68,23 @@ public class QueryJobDTO {
     private Long taskId;
     private List<Long> taskIds;
 
+    private String businessType;
+
+    public List<Integer> getTypes() {
+        return types;
+    }
+
+    public void setTypes(List<Integer> types) {
+        this.types = types;
+    }
+
+    public String getBusinessType() {
+        return businessType;
+    }
+
+    public void setBusinessType(String businessType) {
+        this.businessType = businessType;
+    }
     public Long getTaskId() {
         return taskId;
     }
@@ -304,5 +324,13 @@ public class QueryJobDTO {
 
     public void setExecEndDay(Long execEndDay) {
         this.execEndDay = execEndDay;
+    }
+
+    public Long getDtuicTenantId() {
+        return dtuicTenantId;
+    }
+
+    public void setDtuicTenantId(Long dtuicTenantId) {
+        this.dtuicTenantId = dtuicTenantId;
     }
 }

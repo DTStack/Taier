@@ -41,7 +41,7 @@ public class JobIdentifier implements Serializable {
 
     }
 
-    public JobIdentifier(String engineJobId, String applicationId, String taskId, Long tenantId, String engineType, Integer deployMode, Long userId,String pluginInfo) {
+    public JobIdentifier(String engineJobId, String applicationId, String taskId, Long tenantId, String engineType, Integer deployMode, Long userId,String pluginInfo,String componentVersion) {
         this.engineJobId = engineJobId;
         this.applicationId = applicationId;
         this.taskId = taskId;
@@ -50,6 +50,7 @@ public class JobIdentifier implements Serializable {
         this.deployMode = deployMode;
         this.userId = userId;
         this.pluginInfo = pluginInfo;
+        this.componentVersion = componentVersion;
     }
 
     public JobIdentifier(String engineJobId, String applicationId, String taskId, Boolean forceCancel){

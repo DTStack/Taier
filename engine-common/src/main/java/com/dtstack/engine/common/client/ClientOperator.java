@@ -3,6 +3,7 @@ package com.dtstack.engine.common.client;
 import com.dtstack.engine.api.pojo.CheckResult;
 import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.api.pojo.DtScriptAgentLabel;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.constrant.ConfigConstant;
@@ -128,7 +129,7 @@ public class ClientOperator {
         }
         EDeployMode eDeployMode = TaskParamsUtil.parseDeployTypeByTaskParams(jobClient.getTaskParams(), jobClient.getComputeType().getType(), jobClient.getEngineType());
         JobIdentifier jobIdentifier = new JobIdentifier(jobClient.getEngineTaskId(), jobClient.getApplicationId(), jobClient.getTaskId()
-                , jobClient.getTenantId(), jobClient.getEngineType(), eDeployMode.getType(), jobClient.getUserId(), jobClient.getPluginInfo());
+        ,jobClient.getTenantId(),jobClient.getEngineType(),eDeployMode.getType(),jobClient.getUserId(),jobClient.getPluginInfo(),jobClient.getComponentVersion());
         jobIdentifier.setForceCancel(jobClient.getForceCancel());
         checkoutOperator(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
 
@@ -209,4 +210,8 @@ public class ClientOperator {
         return clusterClient.grammarCheck(jobClient);
     }
 
+    public List<DtScriptAgentLabel> getDtScriptAgentLabel(String engineType,String pluginInfo) {
+        IClient client = clientCache.getDefaultPlugin(engineType);
+        return client.getDtScriptAgentLabel(pluginInfo);
+    }
 }

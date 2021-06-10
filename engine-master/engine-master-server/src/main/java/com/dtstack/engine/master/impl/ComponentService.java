@@ -2,6 +2,7 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.dtcenter.common.enums.DeployMode;
 import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.ClusterDTO;
@@ -10,6 +11,7 @@ import com.dtstack.engine.api.dto.Resource;
 import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.api.pojo.DtScriptAgentLabel;
 import com.dtstack.engine.api.pojo.lineage.ComponentMultiTestResult;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.api.vo.ComponentVO;
@@ -150,6 +152,9 @@ public class ComponentService {
 
     @Autowired
     private DataSourceService dataSourceService;
+
+    @Autowired
+    private ScheduleTaskShadeDao scheduleTaskShadeDao;
 
     public static final String VERSION = "version";
 
@@ -1551,7 +1556,7 @@ public class ComponentService {
      *
      * @param componentType 组件类型
      * @param clusterName   集群名称
-     * @param version       组件版本值 如2.7.3
+     * @param componentVersion       组件版本值 如2.7.3
      * @param storeType     存储组件type 如 HDFS
      * @param originVersion 组件版本名称 如CDH 7.1.x
      * @return
@@ -1605,6 +1610,11 @@ public class ComponentService {
                 }
             }
 
+        }
+        //flink on standalone处理
+        if(EComponentType.FLINK_ON_STANDALONE.getTypeCode().equals(componentType)){
+
+            return String.format("%s%s",String.format("%s%s","flink",version),"-standalone");
         }
         //hive 特殊处理 version
         if (EComponentType.HIVE_SERVER.getTypeCode().equals(componentType) || EComponentType.SPARK_THRIFT.getTypeCode().equals(componentType)) {
@@ -1721,6 +1731,10 @@ public class ComponentService {
             Component component = componentDao.getOne(componentId.longValue()),nextDefaultComponent;
             EngineAssert.assertTrue(component != null, ErrorCode.DATA_NOT_FIND.getDescription());
 
+            if(!canDeleteComponent(component.getId(),component.getComponentTypeCode(),component.getHadoopVersion())){
+                throw new RdosDefineException("can not delete component because have task submit to schedule");
+            }
+
             if (EComponentType.requireComponent.contains(EComponentType.getByCode(component.getComponentTypeCode()))){
                 throw new RdosDefineException(String.format("%s is a required component and cannot be deleted",component.getComponentName()));
             }
@@ -1732,6 +1746,7 @@ public class ComponentService {
             componentDao.deleteById(componentId.longValue());
             kerberosDao.deleteByComponent(component.getEngineId(),component.getComponentTypeCode(),component.getHadoopVersion());
             componentConfigService.deleteComponentConfig(componentId.longValue());
+
         }
     }
 
@@ -2160,6 +2175,63 @@ public class ComponentService {
             multiTestResult.getErrorMsg().add(new ComponentMultiTestResult.MultiErrorMsg(componentVersion,componentTestResult.getErrorMsg()));
         }
         multiTestResult.getMultiVersion().add(componentTestResult);
+
+    }
+
+    public List<DtScriptAgentLabel> getDtScriptAgentLabel(String agentAddress) {
+        try {
+            String pluginInfo = new JSONObject(1).fluentPut("agentAddress",agentAddress).toJSONString();
+            // 不需要集群信息,dtScriptAgent属于普通rdb,直接获取即可
+            String engineType = EComponentType.convertPluginNameByComponent(EComponentType.DTSCRIPT_AGENT);
+            List<DtScriptAgentLabel> dtScriptAgentLabelList = workerOperator.getDtScriptAgentLabel(engineType, pluginInfo);
+            Map<String, List<DtScriptAgentLabel>> labelGroup = dtScriptAgentLabelList.stream().collect(Collectors.groupingBy(DtScriptAgentLabel::getLabel));
+            List<DtScriptAgentLabel> resultList = new ArrayList<>(labelGroup.size());
+            for (Map.Entry<String, List<DtScriptAgentLabel>> entry : labelGroup.entrySet()) {
+                String ip = entry.getValue().stream().map(localIp -> localIp+":22").collect(Collectors.joining(","));
+                DtScriptAgentLabel dtScriptAgentLabel = new DtScriptAgentLabel();
+                dtScriptAgentLabel.setLabel(entry.getKey());
+                dtScriptAgentLabel.setLocalIp(ip);
+                resultList.add(dtScriptAgentLabel);
+            }
+            return resultList;
+        }catch (Exception e){
+            LOGGER.error("find dtScript Agent label error",e);
+        }
+        return Collections.emptyList();
+    }
+
+    public List<Component> getComponentVersionByEngineType(Long uicTenantId, String  engineType) {
+        EComponentType componentType = EngineTypeComponentType.getByEngineName(engineType, DeployMode.SESSION.getValue()).getComponentType();
+        List<Component > componentVersionList = componentDao.getComponentVersionByEngineType(uicTenantId,componentType.getTypeCode());
+        if (CollectionUtils.isEmpty(componentVersionList)){
+            return Collections.emptyList();
+        }
+        Set<String> distinct = new HashSet<>(2);
+        List<Component> components =new ArrayList<>(2);
+        for (Component component : componentVersionList) {
+            if (distinct.add(component.getHadoopVersion())){
+                components.add(component);
+            }
+        }
+        return components;
+    }
+
+    private boolean canDeleteComponent(Long componentId,Integer componentTypeCode,String componentVersion){
+
+        if (!ComponentVersionUtil.isMultiVersionComponent(componentTypeCode)
+                || StringUtils.isBlank(componentVersion)){
+            return true;
+        }
+        List<Long> useUicTenantList = componentDao.allUseUicTenant(componentId);
+        if (CollectionUtils.isEmpty(useUicTenantList)){
+            return true;
+        }
+
+        if (Objects.nonNull(scheduleTaskShadeDao.hasTaskSubmit(useUicTenantList,componentVersion))){
+            return false;
+        }
+        return true;
+
 
     }
 

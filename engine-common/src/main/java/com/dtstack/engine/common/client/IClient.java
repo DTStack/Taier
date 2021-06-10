@@ -1,6 +1,7 @@
 package com.dtstack.engine.common.client;
 
 import com.dtstack.engine.api.pojo.CheckResult;
+import com.dtstack.engine.api.pojo.DtScriptAgentLabel;
 import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -54,4 +55,7 @@ public interface IClient {
 	List<Column> getAllColumns(String tableName,String schemaName,String dbName);
 
 	CheckResult grammarCheck(JobClient jobClient);
+
+	List<DtScriptAgentLabel> getDtScriptAgentLabel(String pluginInfo);
+
 }

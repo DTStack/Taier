@@ -162,7 +162,7 @@ public class StreamTaskService {
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
 
             jobIdentifier = new JobIdentifier(scheduleJob.getEngineJobId(), applicationId, taskId,scheduleJob.getDtuicTenantId(),engineJobCache.getEngineType(),
-                    EDeployMode.PERJOB.getType(),paramAction.getUserId(),null);
+                    EDeployMode.PERJOB.getType(),paramAction.getUserId(),null,paramAction.getComponentVersion());
             jobClient = new JobClient(paramAction);
 
             return workerOperator.getRollingLogBaseInfo(jobIdentifier);

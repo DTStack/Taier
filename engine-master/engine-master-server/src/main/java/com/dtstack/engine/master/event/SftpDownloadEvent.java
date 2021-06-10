@@ -1,24 +1,39 @@
 package com.dtstack.engine.master.event;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.alert.AdapterEventMonitor;
 import com.dtstack.engine.alert.AlterContext;
+import com.dtstack.engine.api.domain.ComponentConfig;
+import com.dtstack.engine.api.domain.ScheduleDict;
 import com.dtstack.engine.common.constrant.GlobalConst;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.exception.ExceptionUtil;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.sftp.SftpFileManage;
+import com.dtstack.engine.common.util.ComponentConfigUtils;
+import com.dtstack.engine.common.util.ComponentVersionUtil;
+import com.dtstack.engine.dao.ComponentConfigDao;
+import com.dtstack.engine.dao.ComponentDao;
+import com.dtstack.engine.dao.ScheduleDictDao;
+import com.dtstack.engine.master.enums.DictType;
+import com.dtstack.engine.master.impl.ComponentConfigService;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -29,15 +44,26 @@ import java.util.concurrent.TimeUnit;
  */
 @Component
 @ConditionalOnProperty(name = "console.sftp.open",havingValue = "true",matchIfMissing = true)
-public class SftpDownloadEvent extends AdapterEventMonitor {
+public class SftpDownloadEvent extends AdapterEventMonitor implements InitializingBean {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
+
+    private final Long componentTemplateId=-9999L;
 
     private final Cache<String, String> cacheSftpJar = CacheBuilder.newBuilder()
             .maximumSize(1000L).initialCapacity(1000).expireAfterAccess(5, TimeUnit.MINUTES).build();
 
     @Autowired
-    private ComponentService componentService;
+    private ComponentDao componentDao;
+
+    @Autowired
+    private ComponentConfigDao componentConfigDao;
+
+    @Autowired
+    private ScheduleDictDao scheduleDictDao;
+
+    @Autowired
+    private ComponentConfigService componentConfigService;
 
     @Override
     public void leaveQueueAndSenderBeforeEvent(AlterContext alterContext) {
@@ -57,7 +83,7 @@ public class SftpDownloadEvent extends AdapterEventMonitor {
 
             String ifPresent = cacheSftpJar.getIfPresent(jarPath);
             if (StringUtils.isBlank(ifPresent)) {
-                SftpConfig sftpConfig = componentService.getComponentByClusterId(-1L, EComponentType.SFTP.getTypeCode(), false, SftpConfig.class,null);
+                SftpConfig sftpConfig = getSftpConfig();
 
                 if (sftpConfig != null) {
                     try {
@@ -77,7 +103,7 @@ public class SftpDownloadEvent extends AdapterEventMonitor {
     }
 
     public String uploadFileToSftp(MultipartFile file, String filePath, String destPath, String dbPath) {
-        SftpConfig sftpConfig = componentService.getComponentByClusterId(-1L, EComponentType.SFTP.getTypeCode(), false, SftpConfig.class,null);
+        SftpConfig sftpConfig = getSftpConfig();
         if (sftpConfig != null) {
             try {
                 String remoteDir = sftpConfig.getPath() + File.separator + filePath;
@@ -99,4 +125,61 @@ public class SftpDownloadEvent extends AdapterEventMonitor {
         }
     }
 
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        List<ComponentConfig> componentConfigs = componentConfigDao.listByComponentId(Constant.COMPONENT_TEMPLATE_ID, Boolean.FALSE);
+
+        if (CollectionUtils.isEmpty(componentConfigs)) {
+            initSftp();
+        }
+    }
+
+    private void initSftp() {
+        // 加载一下sftp模板
+        try {
+            com.dtstack.engine.api.domain.Component component = componentDao.getByClusterIdAndComponentType(-1L, EComponentType.SFTP.getTypeCode(), null);
+
+            if (component != null) {
+                List<ComponentConfig> componentConfigs = componentConfigDao.listByComponentId(component.getId(), Boolean.FALSE);
+
+                for (ComponentConfig componentConfig : componentConfigs) {
+                    componentConfig.setComponentId(Constant.COMPONENT_TEMPLATE_ID);
+                    componentConfig.setClusterId(Constant.COMPONENT_TEMPLATE_ID);
+                }
+
+                componentConfigDao.insertBatch(componentConfigs);
+            } else {
+                // 加载默认的模板
+                String pluginName = EComponentType.convertPluginNameByComponent(EComponentType.SFTP);
+                ScheduleDict typeNameMapping = scheduleDictDao.getByNameValue(DictType.TYPENAME_MAPPING.type, pluginName.trim(), null,null);
+                if (null != typeNameMapping) {
+                    List<ComponentConfig> componentConfigs = componentConfigDao.listByComponentId(Long.parseLong(typeNameMapping.getDictValue()), true);
+
+                    for (ComponentConfig componentConfig : componentConfigs) {
+                        componentConfig.setComponentId(Constant.COMPONENT_TEMPLATE_ID);
+                        componentConfig.setClusterId(Constant.COMPONENT_TEMPLATE_ID);
+                    }
+
+                    componentConfigDao.insertBatch(componentConfigs);
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.error("",e);
+        }
+    }
+
+    public SftpConfig getSftpConfig() {
+        List<ComponentConfig> componentConfigs = componentConfigDao.listByComponentId(Constant.COMPONENT_TEMPLATE_ID, Boolean.FALSE);
+
+        if (CollectionUtils.isNotEmpty(componentConfigs)) {
+            Map<String, Object> configToMap = ComponentConfigUtils.convertComponentConfigToMap(componentConfigs);
+            return JSONObject.parseObject(JSONObject.toJSONString(configToMap), SftpConfig.class);
+        }
+        return null;
+    }
+
+    public interface Constant {
+
+        Long COMPONENT_TEMPLATE_ID = -9999L;
+    }
 }

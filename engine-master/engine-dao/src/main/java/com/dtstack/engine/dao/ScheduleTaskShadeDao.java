@@ -104,8 +104,6 @@ public interface ScheduleTaskShadeDao {
 
     List<ScheduleTaskShade> listTaskRuleTask(@Param("taskId") Long taskId, @Param("appType") Integer appType);
 
-    String getComponentVersionByTaskAndApp(@Param("taskId") Long shadeTaskId, @Param("appType") Integer appType);
-
     /**
      * 根据appType和taskId查询任务
      * @param taskId
@@ -113,4 +111,11 @@ public interface ScheduleTaskShadeDao {
      * @return
      */
     ScheduleTaskShade getOneByTaskIdAndAppType(@Param("taskId") Long taskId, @Param("appType") Integer appType);
+
+    /**
+     * @param useUicTenantList 不能为空
+     * @param componentVersion 不能为空
+     * @return
+     */
+    Long hasTaskSubmit(@Param("useUicTenantList") List<Long> useUicTenantList, @Param("componentVersion") String componentVersion);
 }

@@ -27,6 +27,7 @@ import com.dtstack.engine.common.util.TaskParamsUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -237,7 +238,9 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
 
     public String getAndUpdateEngineLog(String jobId, String engineJobId, String appId, Long dtuicTenantId) {
 
-
+        if(StringUtils.isBlank(engineJobId)){
+            return "";
+        }
         String engineLog = null;
         try {
             EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
@@ -245,12 +248,11 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
                 return "";
             }
             String engineType = engineJobCache.getEngineType();
-            JSONObject info = JSONObject.parseObject(engineJobCache.getJobInfo());
-            String taskParams = info.getString("taskParams");
-            Long userId = info.getLong("userId");
-            String pluginInfo = info.getString("pluginInfo");
+            ParamAction paramAction = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), ParamAction.class);
+            Map<String, Object> pluginInfo = paramAction.getPluginInfo();
             JobIdentifier jobIdentifier = new JobIdentifier(engineJobId, appId, jobId,dtuicTenantId,engineType,
-                    TaskParamsUtil.parseDeployTypeByTaskParams(taskParams,engineJobCache.getComputeType(),engineJobCache.getEngineType()).getType(),userId,pluginInfo);
+                    TaskParamsUtil.parseDeployTypeByTaskParams(paramAction.getTaskParams(),engineJobCache.getComputeType(),engineJobCache.getEngineType()).getType(),
+                    paramAction.getUserId(), MapUtils.isEmpty(pluginInfo) ? null : JSONObject.toJSONString(pluginInfo),paramAction.getComponentVersion());
             //从engine获取log
             engineLog = workerOperator.getEngineLog(jobIdentifier);
             if (engineLog != null) {

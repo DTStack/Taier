@@ -524,7 +524,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
         //{"fillName":"P_123_2020_11_28_17_41","taskJson":"[{\"task\":165}]","fromDay":1606406400,"toDay":1606492799}
         try {
             //补数据
-            scheduleJobService.fillTaskData("[{\"task\":471}]",fillName, runDay,toDay,null,null,projectId,userId,tenant, true,appType,dtuicTenantId);
+            scheduleJobService.fillTaskData("[{\"task\":471}]",fillName, runDay,toDay,null,null,projectId,userId,tenant, true,appType,dtuicTenantId,false);
             //查询工作流外部
             PageResult<List<ScheduleFillDataJobPreViewVO>> fillDataJobInfoPreview = scheduleJobService.getFillDataJobInfoPreview("", null, null, null, null, projectId, appType, 1, 20, tenant);
             Assert.assertNotNull(fillDataJobInfoPreview);
@@ -915,19 +915,19 @@ public class ScheduleJobServiceTest extends AbstractTest {
         }
         EComponentType componentType = ComponentVersionUtil.transformTaskType2ComponentType(taskShade.getTaskType());
         if (Objects.nonNull(componentType)){
-            taskShade.setComponentVersion(componentDao.getDefaultComponentVersionByTenantAndComponentType(
-                    taskShade.getTenantId(),componentType.getTypeCode()));
+            taskShade.setComponentVersion(componentDao.getDefaultVersionDictNameByUicIdAndComponentType(
+                    taskShade.getTenantId(), componentType.getTypeCode()));
         }
     }
 
     private void buildComponentVersion(ScheduleJob scheduleJob) {
-        if (StringUtils.isNotBlank(scheduleJob.getComponentVersion())){
+       /* if (StringUtils.isNotBlank(scheduleJob.getComponentVersion())){
             return;
         }
         EComponentType componentType = ComponentVersionUtil.transformTaskType2ComponentType(scheduleJob.getTaskType());
         if (Objects.nonNull(componentType)){
-            scheduleJob.setComponentVersion(componentDao.getDefaultComponentVersionByTenantAndComponentType(
+            scheduleJob.setComponentVersion(componentDao.getDefaultComponentVersionByUicIdAndComponentType(
                     scheduleJob.getTenantId(),componentType.getTypeCode()));
-        }
+        }*/
     }
 }
