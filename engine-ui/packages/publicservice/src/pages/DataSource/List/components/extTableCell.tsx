@@ -145,6 +145,10 @@ const showMapArr: any = {
     ['address', '集群地址'],
     ['chroot', 'Zookeeper chroot路径'],
   ],
+  [DATA_SOURCE.INFLUXDB]: [
+    ['jdbcUrl', 'jdbcUrl'],
+    ['username', '用户名'],
+  ],
 };
 
 export function ExtTableCell(props: any) {

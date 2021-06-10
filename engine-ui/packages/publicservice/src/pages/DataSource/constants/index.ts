@@ -55,6 +55,7 @@ export const DATA_SOURCE = {
   VERTICA: 58,
   ADB_POSTGRESQL: 59,
   SOLR: 60,
+  INFLUXDB: 61,
 };
 
 export const DATA_SOURCE_TEXT: any = {
@@ -106,6 +107,7 @@ export const DATA_SOURCE_TEXT: any = {
   58: 'Vertica',
   59: 'ADB_PostgreSQL',
   60: 'Solr',
+  61: 'InfluxDB'
 };
 
 export const PROJECT_TYPE: any = {
