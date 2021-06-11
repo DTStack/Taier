@@ -1102,7 +1102,7 @@ const InfoConfig = (props) => {
             <Form.Item label="密码">
               {getFieldDecorator('password', {
                 initialValue: detailData?.password || '',
-              })(<Input.Password visibilityToggle={false}/>)}
+              })(<Input.Password visibilityToggle={false} />)}
             </Form.Item>
           </div>
         );
