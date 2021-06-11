@@ -15,12 +15,11 @@ function index(props) {
 
   const [current, setCurrent] = useState<number>(0);
 
-  const [showFirstNext, setShowFirstNext] = useState<boolean>(false); //选择数据源-是否显示下一步
   const [submitBtnStatus, setSubmitBtnStatus] = useState(false);
 
   //1.选择数据源
   const nextType = (value) => {
-    setShowFirstNext(value);
+    setCurrent(1);
   };
 
   //3.信息配置
@@ -56,18 +55,6 @@ function index(props) {
                 }}>
                 取消
               </Button>
-
-              {(showFirstNext || sessionStorage.getItem('sqlType')) && (
-                <Button
-                  key="2"
-                  style={{ width: 80 }}
-                  type="primary"
-                  onClick={() => {
-                    setCurrent(1);
-                  }}>
-                  下一步
-                </Button>
-              )}
             </div>
           </>
         );

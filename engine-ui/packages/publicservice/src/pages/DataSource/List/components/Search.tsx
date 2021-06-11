@@ -17,7 +17,8 @@ function Search(props) {
 
   const [typeList, setTypeList] = useState([]);
   const [productList, setProductList] = useState([]);
-
+  const [currentType, setCurrentType] = useState(['全部']);
+  const [currentProduct, setCurrentPro] = useState(['all']);
   const getTypeList = async () => {
     let { data, success } = await API.typeList();
 
@@ -58,12 +59,22 @@ function Search(props) {
 
   //类型多选方法
   const onMultType = (value) => {
-    value.includes('全部')
+    let arr = value;
+    if (arr.includes('全部')) {
+      arr = ['全部'];
+    }
+    setCurrentType(arr);
+    arr.includes('全部')
       ? onSearch({ dataTypeList: null })
-      : onSearch({ dataTypeList: value });
+      : onSearch({ dataTypeList: arr });
   };
   //类型多选方法
   const onMultAppType = (value) => {
+    let arr = value;
+    if (arr.includes('all')) {
+      arr = ['all'];
+    }
+    setCurrentPro(arr);
     if (value.length > 0 && value.includes('all')) {
       onSearch({ appTypeList: null });
     } else {
@@ -95,11 +106,16 @@ function Search(props) {
             optionFilterProp="children"
             style={{ width: 280 }}
             onChange={(value) => onMultType(value)}
-            defaultValue={['全部']}>
+            value={currentType}>
             {typeList.length > 0 &&
               typeList.map((item) => {
                 return (
-                  <Option value={item.dataType} key={item.dataType}>
+                  <Option
+                    disabled={
+                      currentType.includes('全部') && item.dataType !== '全部'
+                    }
+                    value={item.dataType}
+                    key={item.dataType}>
                     {item.dataType}
                   </Option>
                 );
@@ -119,11 +135,16 @@ function Search(props) {
             showArrow={true}
             optionFilterProp="children"
             placeholder="请选择授权产品"
-            defaultValue={['all']}>
+            value={currentProduct}>
             {productList.length > 0 &&
               productList.map((item) => {
                 return (
-                  <Option value={item.appType} key={item.appType}>
+                  <Option
+                    disabled={
+                      currentProduct.includes('all') && item.appType !== 'all'
+                    }
+                    value={item.appType}
+                    key={item.appType}>
                     {item.appName}
                   </Option>
                 );

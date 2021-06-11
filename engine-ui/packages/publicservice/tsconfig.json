@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
+    "outDir": "dist", //重定向输出目录。
     "target": "es5",
     "lib": ["esnext", "dom"],
     "sourceMap": true,
-    "allowJs": false,
+    "allowJs": true,
     "removeComments": false,
     "baseUrl": ".",
     "jsx": "react",

@@ -106,7 +106,12 @@ function ProduceAuth() {
               value={defaultSelect}>
               {version.map((item) => {
                 return (
-                  <Option value={item.dataVersion} key={item.dataVersion}>
+                  <Option
+                    value={item.dataVersion}
+                    disabled={
+                      sqlType.dataType === 'Kafka' && item.dataVersion === '0.9'
+                    }
+                    key={item.dataVersion}>
                     {item.dataVersion}
                   </Option>
                 );
