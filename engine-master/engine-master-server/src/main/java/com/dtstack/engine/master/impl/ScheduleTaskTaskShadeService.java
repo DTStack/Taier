@@ -268,7 +268,7 @@ public class ScheduleTaskTaskShadeService {
             }
         } else {
             // 向上查询
-            Map<String, List<ScheduleTaskTaskShade>> parentKey = scheduleChildTaskTaskShades.stream().collect(Collectors.groupingBy(ScheduleTaskTaskShade::getTaskKey));
+            Map<String, List<ScheduleTaskTaskShade>> parentKey = scheduleChildTaskTaskShades.stream().collect(Collectors.groupingBy(ScheduleTaskTaskShade::getParentTaskKey));
 
             for (Map.Entry<Side, Set<String>> entry : newSideMap.entrySet()) {
                 Side side = entry.getKey();
