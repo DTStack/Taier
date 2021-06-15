@@ -10,6 +10,7 @@ interface ITableItem {
   dsId: number;
   schema: string;
   tableName: string;
+  tableAlias?: string;
 }
 
 interface IPropsDynamicSelect {
@@ -114,7 +115,12 @@ const DynamicSelect = (props: IPropsDynamicSelect) => {
       ],
       setLeftColumns
     );
-  }, [leftTable.dsId, leftTable.schema, leftTable.tableName]);
+  }, [
+    leftTable.dsId,
+    leftTable.schema,
+    leftTable.tableName,
+    leftTable.tableAlias,
+  ]);
 
   useEffect(() => {
     getColumnList(

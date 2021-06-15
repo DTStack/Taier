@@ -2,6 +2,9 @@ import React, { useCallback, useEffect, useImperativeHandle } from 'react';
 import { Form, Select, Switch, Row, Col, Tooltip } from 'antd';
 import { IModelDetail, EnumModelStatus } from '@/pages/DataModel/types';
 import './style';
+import { columnsTreeParser, columnSrtingParser } from './utils';
+
+const { OptGroup } = Select;
 import { EnumModifyMode } from '../types';
 
 interface IPropsPartitionField {
@@ -60,25 +63,6 @@ const PartitionField = (props: IPropsPartitionField) => {
     modelDetail.modelStatus === EnumModelStatus.UNRELEASE ||
     mode === EnumModifyMode.ADD;
   // TODO:树形列表功能
-  // console.log(columns)
-
-  const columnSrtingParser = {
-    decode: (str: string) => {
-      if (!str) return {};
-      const [schema, tableName, columnName] = str.split('-');
-      return {
-        schema,
-        tableName,
-        columnName,
-      };
-    },
-    encode: (obj) => {
-      if (!obj) obj = {};
-      const { schema, tableName, columnName } = obj;
-      if (!schema || !tableName || !columnName) return undefined;
-      return `${schema}-${tableName}-${columnName}`;
-    },
-  };
 
   const modelPartitionParser = (data): void => {
     const dateColString =
@@ -138,9 +122,9 @@ const PartitionField = (props: IPropsPartitionField) => {
         timePartition,
       },
     });
-
-    console.log(getFieldsValue());
   }, [modelDetail]);
+
+  const columnsTree = columnsTreeParser(columns);
 
   const rules = useCallback(
     (msg: string) => [
@@ -192,12 +176,18 @@ const PartitionField = (props: IPropsPartitionField) => {
             showSearch
             disabled={!isEnabledPartition}
             optionFilterProp="children">
-            {columns.map((item) => {
-              const key = `${item.schema}-${item.tableName}-${item.columnName}`;
+            {Object.keys(columnsTree).map((label) => {
               return (
-                <Select.Option key={key} value={key}>
-                  {item.columnName}
-                </Select.Option>
+                <OptGroup key={label} label={label}>
+                  {columnsTree[label].map((item) => {
+                    const key = columnSrtingParser.encode(item);
+                    return (
+                      <Select.Option key={key} value={key}>
+                        {item.columnName}
+                      </Select.Option>
+                    );
+                  })}
+                </OptGroup>
               );
             })}
           </Select>
@@ -239,12 +229,18 @@ const PartitionField = (props: IPropsPartitionField) => {
                 showSearch
                 disabled={!isEnabledPartition}
                 optionFilterProp="children">
-                {columns.map((item) => {
-                  const key = `${item.schema}-${item.tableName}-${item.columnName}`;
+                {Object.keys(columnsTree).map((label) => {
                   return (
-                    <Select.Option key={key} value={key}>
-                      {item.columnName}
-                    </Select.Option>
+                    <OptGroup key={label} label={label}>
+                      {columnsTree[label].map((item) => {
+                        const key = columnSrtingParser.encode(item);
+                        return (
+                          <Select.Option key={key} value={key}>
+                            {item.columnName}
+                          </Select.Option>
+                        );
+                      })}
+                    </OptGroup>
                   );
                 })}
               </Select>

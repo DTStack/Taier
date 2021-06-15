@@ -345,7 +345,6 @@ export function filterComments(sql: string) {
     for (let i = 0; i < tokenFuncs.length; i++) {
       let err = tokenFuncs[i](parser, sql);
       if (err) {
-        console.log(err);
         return null;
       }
     }

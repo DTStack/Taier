@@ -6,6 +6,55 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "21610935",
+      "name": "Fill填充_表",
+      "font_class": "Filltianchong_biao",
+      "unicode": "e6b5",
+      "unicode_decimal": 59061
+    },
+    {
+      "icon_id": "21610936",
+      "name": "Outlined线性_居中",
+      "font_class": "Outlinedxianxing_juzhong",
+      "unicode": "e6b6",
+      "unicode_decimal": 59062
+    },
+    {
+      "icon_id": "21610937",
+      "name": "Outlined线性_双箭头",
+      "font_class": "Outlinedxianxing_shuangjiantou",
+      "unicode": "e6b7",
+      "unicode_decimal": 59063
+    },
+    {
+      "icon_id": "21610938",
+      "name": "Outlined线性_zoom-in",
+      "font_class": "Outlinedxianxing_zoom-in",
+      "unicode": "e6b8",
+      "unicode_decimal": 59064
+    },
+    {
+      "icon_id": "21610939",
+      "name": "Outlined线性_zoom-out",
+      "font_class": "Outlinedxianxing_zoom-out",
+      "unicode": "e6b9",
+      "unicode_decimal": 59065
+    },
+    {
+      "icon_id": "21610940",
+      "name": "Outlined线性_下载",
+      "font_class": "Outlinedxianxing_xiazai",
+      "unicode": "e6ba",
+      "unicode_decimal": 59066
+    },
+    {
+      "icon_id": "21610941",
+      "name": "Outlined线性_导航器",
+      "font_class": "Outlinedxianxing_daohangqi",
+      "unicode": "e6bb",
+      "unicode_decimal": 59067
+    },
+    {
       "icon_id": "20963686",
       "name": "Fill填充_筛选",
       "font_class": "Filltianchong_shaixuan",

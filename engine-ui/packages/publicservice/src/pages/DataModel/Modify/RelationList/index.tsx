@@ -61,7 +61,7 @@ const RelationList = (props: IPropsRelationList) => {
     setRelationList(modelDetail.joinList || []);
   }, [modelDetail]);
 
-  // 将远程获取的columnList和当前勾选的恶columnList进行整合
+  // 将远程获取的columnList和当前勾选的columnList进行整合
   const combineColumnList = async (joinList: any[]) => {
     const columns = modelDetail.columns || [];
     try {
@@ -75,7 +75,8 @@ const RelationList = (props: IPropsRelationList) => {
             return (
               item.tableName === col.tableName &&
               item.schema === col.schema &&
-              item.columnName === col.columnName
+              item.columnName === col.columnName &&
+              item.tableAlias === col.tableAlias
             );
           });
           if (!target)
@@ -124,7 +125,6 @@ const RelationList = (props: IPropsRelationList) => {
           tableName: modelDetail.tableName,
         });
         setRelationList(list);
-
         const params = tableListGen(
           modelDetail.dsId,
           {
@@ -136,6 +136,7 @@ const RelationList = (props: IPropsRelationList) => {
           datasourceId: item.dsId,
           schema: item.schema,
           tableName: item.tableName,
+          tableAlias: item.tableAlias,
         }));
         // 删除关联表后更新列表
         combineColumnList(params);
@@ -181,50 +182,35 @@ const RelationList = (props: IPropsRelationList) => {
 
   const tableListGen = (dsId, mainTable, relationList) => {
     const tables = [];
+    // 主表默认表别名为t0
     if (mainTable.tableName && mainTable.schema) {
       tables.push({
         dsId,
         schema: modelDetail.schema,
         tableName: modelDetail.tableName,
-        tableAlias: undefined,
+        tableAlias: 't0',
       });
     }
     tables.push(
-      ..._.uniqBy(relationList, (item) => item.schema + item.table).map(
-        (table) => ({
-          dsId: modelDetail.dsId,
-          schema: table.schema,
-          tableName: table.table,
-          tableAlias: table.tableAlias,
-        })
-      )
+      ...relationList.map((table) => ({
+        dsId: modelDetail.dsId,
+        schema: table.schema,
+        tableName: table.table,
+        tableAlias: table.tableAlias,
+      }))
     );
     return tables;
   };
 
-  // TODO: 逻辑已抽离，待调整
   const tableList = useMemo(() => {
-    const tables = [];
-    if (modelDetail.tableName && modelDetail.schema) {
-      tables.push({
-        dsId: modelDetail.dsId,
-        schema: modelDetail.schema,
+    return tableListGen(
+      modelDetail.dsId,
+      {
         tableName: modelDetail.tableName,
-        tableAlias: undefined,
-      });
-    }
-    // 关联表去重后，push到tables中
-    tables.push(
-      ..._.uniqBy(relationList, (item) => item.schema + item.table).map(
-        (table) => ({
-          dsId: modelDetail.dsId,
-          schema: table.schema,
-          tableName: table.table,
-          tableAlias: table.tableAlias,
-        })
-      )
+        schema: modelDetail.schema,
+      },
+      relationList
     );
-    return tables;
   }, [modelDetail.tableName, modelDetail.schema, relationList]);
 
   return (
@@ -238,8 +224,10 @@ const RelationList = (props: IPropsRelationList) => {
             refRelationModal.current.validate().then((data) => {
               let next = [];
               if (modifyType.mode === Mode.ADD) {
+                // 新增关联表逻辑
                 data.id = identifyJoinList();
                 next = [...relationList, data];
+                // 关联表新增后，需要请求获取columnList
                 window.localStorage.setItem('refreshColumns', 'true');
                 // 拿到数据后请求更新columnList
                 const params = tableListGen(
@@ -253,6 +241,7 @@ const RelationList = (props: IPropsRelationList) => {
                   datasourceId: item.dsId,
                   schema: item.schema,
                   tableName: item.tableName,
+                  tableAlias: item.tableAlias,
                 }));
                 combineColumnList(params);
               } else {
@@ -267,6 +256,25 @@ const RelationList = (props: IPropsRelationList) => {
                     return item;
                   }
                 });
+
+                // 判断tableAlias字段是否更新，若存在更新需要同步columns字段
+                const target = relationList.find((item) => item.id === id);
+                if (target.tableAlias !== data.tableAlias) {
+                  // 更新columns
+                  const { columns } = modelDetail;
+                  const nextColumns = columns.map((col) =>
+                    col.tableAlias === target.tableAlias
+                      ? {
+                          ...col,
+                          tableAlias: data.tableAlias,
+                        }
+                      : col
+                  );
+                  props.updateModelDetail((detail) => ({
+                    ...detail,
+                    columns: nextColumns,
+                  }));
+                }
               }
               setRelationList(next);
               setModifyType((modifyType) => ({

@@ -98,9 +98,13 @@ const Modify = (props: IPropsModify) => {
 
   const getModelDetail = async (id: number) => {
     try {
-      const { success, data, message } = await API.getModelDetail({ id });
+      const { success, data, message } = await API.getModelDetail({
+        id,
+        version: '0',
+      });
       if (success) {
         globalStep.current = data.step - 1;
+        // 当前模型保存步数在第一步或者第二步，需要通过dsId,schema,tableName获取字段列表
         if (globalStep.current < EnumModifyStep.DIMENSION_STEP) {
           window.localStorage.setItem('refreshColumns', 'true');
         }
