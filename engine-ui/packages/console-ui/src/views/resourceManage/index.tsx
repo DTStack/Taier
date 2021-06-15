@@ -5,7 +5,7 @@ import { get } from 'lodash';
 
 import Api from '../../api/console';
 import { ENGIN_TYPE_TEXT } from '../../consts';
-import { isHadoopEngine, isTiDBEngine, isOracleEngine, isGreenPlumEngine, isKubernetesEngine } from '../../consts/clusterFunc';
+import { isHadoopEngine, isKubernetesEngine, isBindAccount } from '../../consts/clusterFunc';
 import BindCommModal from '../../components/bindCommModal';
 import ResourceManageModal from '../../components/resourceManageModal';
 import Resource from './resourceView';
@@ -383,7 +383,7 @@ class ResourceManage extends React.Component<any, any> {
                                                     </TabPane> : null
                                                 } */}
                                                 {
-                                                    isTiDBEngine(engineType) || isOracleEngine(engineType) || isGreenPlumEngine(engineType)
+                                                    isBindAccount(engineType)
                                                         ? <TabPane tab="账号绑定" key="bindAccount">
                                                             <BindAccountPane
                                                                 key={`${queryParams.clusterId}-${engineType}`}
