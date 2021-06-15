@@ -17,5 +17,7 @@ public interface ComponentUserDao {
     void batchInsert(@Param("addComponentUserList") List<ComponentUser> addComponentUserList);
 
     List<ComponentUser> getComponentUserByCluster(@Param("clusterId") Long clusterId, @Param("componentTypeCode") Integer componentTypeCode);
+
+    void deleteByComponentAndUserName(@Param("clusterId")Long clusterId, @Param("componentTypeCode")Integer componentTypeCode, @Param("userName") String userName);
 }
 

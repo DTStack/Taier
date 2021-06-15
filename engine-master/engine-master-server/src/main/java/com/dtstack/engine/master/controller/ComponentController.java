@@ -142,6 +142,13 @@ public class ComponentController {
                                                          @DtRequestParam("agentAddress")String agentAddress){
         return componentService.getClusterComponentUser(clusterId,componentTypeCode,needRefresh,agentAddress);
     }
+
+    @RequestMapping(value = "/deleteComponentUser",method = {RequestMethod.POST})
+    public void deleteComponentUser(@DtRequestParam("clusterId")Long clusterId,
+                                                         @DtRequestParam("componentTypeCode")Integer componentTypeCode,
+                                                         @DtRequestParam("userName") String userName,@DtRequestParam("password")String password){
+         componentService.deleteComponentUser(clusterId,componentTypeCode,userName,password);
+    }
 }
 
 

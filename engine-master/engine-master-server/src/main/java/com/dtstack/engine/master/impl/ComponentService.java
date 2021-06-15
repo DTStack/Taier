@@ -2317,4 +2317,11 @@ public class ComponentService {
         }
         return componentUserVOList;
     }
+
+    public void deleteComponentUser(Long clusterId, Integer componentTypeCode, String userName,String password) {
+        if (StringUtils.isAnyBlank(userName,password)){
+            throw new RdosDefineException("userName or password is empty ");
+        }
+        componentUserDao.deleteByComponentAndUserName(clusterId,componentTypeCode,userName);
+    }
 }
