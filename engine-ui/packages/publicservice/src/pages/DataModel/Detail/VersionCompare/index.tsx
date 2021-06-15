@@ -11,7 +11,7 @@ interface IPropsVersionCompare {
 }
 
 const versionSort = (versions: [string, string]): [string, string] => {
-  return parseFloat(versions[0]) > parseFloat(versions[1])
+  return parseFloat(versions[0]) < parseFloat(versions[1])
     ? (versions.reverse() as [string, string])
     : versions;
 };
