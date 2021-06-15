@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleJobJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
@@ -13,15 +14,12 @@ import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
-import com.dtstack.engine.api.domain.ScheduleJobJob;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.dto.ScheduleJobJobDTO;
-import com.dtstack.engine.api.dto.ScheduleJobJobTaskDTO;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
 import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -248,7 +246,8 @@ public class ScheduleJobJobService {
 
         Map<Integer, List<ScheduleJobJob>> result = new HashMap<>(16);
         List<String> jobKeys = new ArrayList<>();
-        List<String> jobKeyRelations = new ArrayList<>();
+        Map<String,Set<String>> jobKeyRelations = Maps.newHashMap();
+        jobKeyRelations.put(rootKey,Sets.newHashSet(rootKey));
         jobKeys.add(rootKey);
         int jobLoop = 1;
         for (int leveCount = level; leveCount > 0; leveCount--) {
@@ -269,7 +268,7 @@ public class ScheduleJobJobService {
             //获取jobKeys
             jobKeys = getJobKeys(getChild, jobJobs);
             //校验是否成环
-            if(checkIsLoop(jobJobs, jobKeyRelations)){
+            if(checkIsLoop(getChild,jobJobs, jobKeyRelations)){
                 return result;
             }
             List<ScheduleJobJob> jobJobList = jobJobs.stream().map(ScheduleJobJobTaskDTO::toJobJob).collect(Collectors.toList());
@@ -281,25 +280,57 @@ public class ScheduleJobJobService {
     }
 
     /**
+     * @param jobJobs:
+     * @param jobKeyRelations:
      * @author newman
      * @Description 检测工作实例是否成环
      * @Date 2021/1/6 2:39 下午
-     * @param jobJobs:
-     * @param jobKeyRelations:
-     * @return: void
+     * @return: Boolean 是否成环
      **/
-    private Boolean checkIsLoop(List<ScheduleJobJobTaskDTO> jobJobs, List<String> jobKeyRelations) {
+    private Boolean checkIsLoop(Boolean getChild, List<ScheduleJobJobTaskDTO> jobJobs, Map<String,Set<String>> jobKeyRelations) {
+        if (CollectionUtils.isEmpty(jobJobs)) {
+            return Boolean.FALSE;
+        }
 
-        for (ScheduleJobJobTaskDTO jobJob : jobJobs) {
-            String jobKeyRelation = jobJob.getParentJobKey()+"-"+jobJob.getJobKey();
-            if(jobKeyRelations.contains(jobKeyRelation)){
-                LOGGER.error("check task has loopped,jobKeyRelation:{}",jobKeyRelation);
-                return true;
-            }
-            jobKeyRelations.add(jobKeyRelation);
+        Map<String, List<ScheduleJobJobTaskDTO>> jobKeyMap;
+        if (getChild) {
+            // 向下判断
+            jobKeyMap = jobJobs.stream().collect(Collectors.groupingBy(ScheduleJobJobTaskDTO::getParentJobKey));
+        } else {
+            // 向上判断
+            jobKeyMap = jobJobs.stream().collect(Collectors.groupingBy(ScheduleJobJobTaskDTO::getJobKey));
+        }
+        if (isRing(jobKeyRelations, jobKeyMap)) {
+            LOGGER.error("jobKeyRelations:{}", JSON.toJSONString(jobKeyRelations));
+            return Boolean.TRUE;
         }
         return false;
+    }
 
+    private boolean isRing(Map<String, Set<String>> jobKeyRelations, Map<String, List<ScheduleJobJobTaskDTO>> jobKeyMap) {
+        Map<String, Set<String>> temporaryMap = Maps.newHashMap(jobKeyRelations);
+        for (Map.Entry<String, Set<String>> ketSetEntry : temporaryMap.entrySet()) {
+            String key = ketSetEntry.getKey();
+            // 找到每条链表的子节点
+            List<ScheduleJobJobTaskDTO> scheduleJobJobTaskDTOS = jobKeyMap.get(key);
+
+            if (CollectionUtils.isNotEmpty(scheduleJobJobTaskDTOS)) {
+                Set<String> keys = ketSetEntry.getValue();
+
+                for (ScheduleJobJobTaskDTO scheduleJobJobTaskDTO : scheduleJobJobTaskDTOS) {
+                    HashSet<String> newKeys = Sets.newHashSet(keys);
+
+                    if (!newKeys.add(scheduleJobJobTaskDTO.getJobKey())) {
+                        // 添加失败 说明成环
+                        return true;
+                    } else {
+                        // 添加成功
+                        jobKeyRelations.put(scheduleJobJobTaskDTO.getJobKey(), newKeys);
+                    }
+                }
+            }
+        }
+        return false;
     }
 
 
