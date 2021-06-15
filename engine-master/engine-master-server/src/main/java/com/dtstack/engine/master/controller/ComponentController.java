@@ -1,11 +1,13 @@
 package com.dtstack.engine.master.controller;
 
 import com.dtstack.engine.api.domain.Component;
+import com.dtstack.engine.api.domain.ComponentUser;
 import com.dtstack.engine.api.domain.KerberosConfig;
 import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.pojo.DtScriptAgentLabel;
 import com.dtstack.engine.api.pojo.lineage.ComponentMultiTestResult;
+import com.dtstack.engine.api.vo.ComponentUserVO;
 import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
 import com.dtstack.engine.api.vo.components.ComponentsResultVO;
 import com.dtstack.engine.master.impl.ComponentService;
@@ -16,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;
@@ -125,6 +128,19 @@ public class ComponentController {
     @ApiOperation(value = "租户和engineType获取集群组件信息")
     public List<Component> getComponentVersionByEngineType(@DtRequestParam("uicTenantId") Long tenantId,@DtRequestParam("engineType")String  engineType){
         return componentService.getComponentVersionByEngineType(tenantId,engineType);
+    }
+
+    @RequestMapping(value = "/addOrUpdateComponentUser",method = {RequestMethod.POST})
+    public void addOrUpdateComponentUser(@DtRequestParam("componentUserList")List<ComponentUserVO> componentUserList){
+        componentService.addOrUpdateComponentUser(componentUserList);
+    }
+
+    @RequestMapping(value = "/getClusterComponentUser",method = {RequestMethod.POST})
+    public List<ComponentUserVO> getClusterComponentUser(@DtRequestParam("clusterId")Long clusterId,
+                                                         @DtRequestParam("componentTypeCode")Integer componentTypeCode,
+                                                         @DtRequestParam("needRefresh") Boolean needRefresh,
+                                                         @DtRequestParam("agentAddress")String agentAddress){
+        return componentService.getClusterComponentUser(clusterId,componentTypeCode,needRefresh,agentAddress);
     }
 }
 

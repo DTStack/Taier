@@ -13,10 +13,7 @@ import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.pojo.DtScriptAgentLabel;
 import com.dtstack.engine.api.pojo.lineage.ComponentMultiTestResult;
-import com.dtstack.engine.api.vo.ClusterVO;
-import com.dtstack.engine.api.vo.ComponentVO;
-import com.dtstack.engine.api.vo.EngineTenantVO;
-import com.dtstack.engine.api.vo.IComponentVO;
+import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
 import com.dtstack.engine.api.vo.components.ComponentsResultVO;
 import com.dtstack.engine.common.CustomThreadFactory;
@@ -45,11 +42,13 @@ import com.dtstack.engine.master.utils.Krb5FileUtil;
 import com.dtstack.engine.master.utils.XmlFileUtil;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.Deleted;
+import com.dtstack.schedule.common.util.Base64Util;
 import com.dtstack.schedule.common.util.Xml2JsonUtil;
 import com.dtstack.schedule.common.util.ZipUtil;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
+import io.swagger.models.auth.In;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
@@ -92,7 +91,6 @@ public class ComponentService {
     private static final String GPU_RESOURCE_PLUGINS_SIGNAL = "yarn.nodemanager.resource-plugins";
 
     private static final String GPU_ALLOWED_SIGNAL = "yarn.nodemanager.resource-plugins.gpu.allowed-gpu-devices";
-
     @Autowired
     private ComponentDao componentDao;
 
@@ -155,6 +153,9 @@ public class ComponentService {
 
     @Autowired
     private ScheduleTaskShadeDao scheduleTaskShadeDao;
+
+    @Autowired
+    private ComponentUserDao componentUserDao;
 
     public static final String VERSION = "version";
 
@@ -2237,5 +2238,70 @@ public class ComponentService {
 
     public Component getMetadataComponent(Long clusterId){
         return componentDao.getMetadataComponent(clusterId);
+    }
+
+    @Transactional
+    public void addOrUpdateComponentUser(List<ComponentUserVO> componentUserList) {
+        if (CollectionUtils.isEmpty(componentUserList)){
+            return ;
+        }
+        ComponentUserVO componentUserVO = componentUserList.get(0);
+
+        // 删除之前保存的数据
+        componentUserDao.deleteByComponentAndCluster(componentUserVO.getClusterId(),componentUserVO.getComponentTypeCode());
+        List<ComponentUser> addComponentUserList =  new ArrayList<>(componentUserList.size());
+        // 构建实例
+        for (ComponentUserVO userVO : componentUserList) {
+            for (ComponentUserVO.ComponentUserInfo userInfo : userVO.getComponentUserInfoList()) {
+                ComponentUser componentUser = new ComponentUser();
+                componentUser.setClusterId(userVO.getClusterId());
+                componentUser.setComponentTypeCode(userVO.getComponentTypeCode());
+                componentUser.setIsDefault(userVO.getIsDefault());
+                componentUser.setLabel(userVO.getLabel());
+                componentUser.setLabelIp(userVO.getLabelIp());
+                componentUser.setUserName(userInfo.getUserName());
+                componentUser.setPassword(Base64Util.baseEncode(userInfo.getPassword()));
+                addComponentUserList.add(componentUser);
+            }
+        }
+        componentUserDao.batchInsert(addComponentUserList);
+
+    }
+
+    public List<ComponentUserVO> getClusterComponentUser(Long clusterId, Integer componentTypeCode,
+                                                         Boolean needRefresh,String agentAddress) {
+
+        List<ComponentUser> componentUserList = componentUserDao.getComponentUserByCluster(clusterId,componentTypeCode);
+        // 只取数据库数据
+        if (!Boolean.FALSE.equals(needRefresh)){
+            return groupComponentByLabel(componentUserList);
+        }
+        // 刷新数据必须地址
+        if (StringUtils.isBlank(agentAddress)){
+            throw new RdosDefineException("refresh label need address");
+        }
+        Set<String> labelSet = getDtScriptAgentLabel(agentAddress).stream().map(DtScriptAgentLabel::getLabel).collect(Collectors.toSet());
+        return groupComponentByLabel(componentUserList.stream()
+                .filter(componentUser -> labelSet.contains(componentUser.getLabel())).collect(Collectors.toList()));
+
+    }
+
+    private List<ComponentUserVO> groupComponentByLabel(List<ComponentUser> componentUserList) {
+        Map<String, List<ComponentUser>> labelMap =
+                componentUserList.stream().collect(Collectors.groupingBy(ComponentUser::getLabel));
+        List<ComponentUserVO> componentUserVOList = new ArrayList<>(labelMap.size());
+        for (Map.Entry<String, List<ComponentUser>> entry : labelMap.entrySet()) {
+            ComponentUserVO componentUserVO = new ComponentUserVO();
+            componentUserVO.setLabel(entry.getKey());
+            List<ComponentUser> componentUsers = entry.getValue();
+            ComponentUser componentUser = componentUsers.get(0);
+            componentUserVO.setLabelIp(componentUser.getLabelIp());
+            componentUserVO.setComponentTypeCode(componentUser.getComponentTypeCode());
+            componentUserVO.setClusterId(componentUser.getClusterId());
+            List<ComponentUserVO.ComponentUserInfo> componentUserInfoList = new ArrayList<>(componentUsers.size());
+            componentUsers.forEach(user -> componentUserInfoList.add(new ComponentUserVO.ComponentUserInfo(user.getUserName(),user.getPassword())));
+            componentUserVO.setComponentUserInfoList(componentUserInfoList);
+        }
+        return componentUserVOList;
     }
 }
