@@ -2280,7 +2280,20 @@ public class ComponentService {
         if (StringUtils.isBlank(agentAddress)){
             throw new RdosDefineException("refresh label need address");
         }
-        Set<String> labelSet = getDtScriptAgentLabel(agentAddress).stream().map(DtScriptAgentLabel::getLabel).collect(Collectors.toSet());
+        List<DtScriptAgentLabel> dtScriptAgentLabel = getDtScriptAgentLabel(agentAddress);
+        if (CollectionUtils.isEmpty(componentUserList)){
+            List<ComponentUserVO> componentUserVOList = new ArrayList<>(dtScriptAgentLabel.size());
+            for (DtScriptAgentLabel agentLabel : dtScriptAgentLabel) {
+                ComponentUserVO componentUserVO = new ComponentUserVO();
+                componentUserVO.setLabel(agentLabel.getLabel());
+                componentUserVO.setLabelIp(agentLabel.getLocalIp());
+                componentUserVO.setClusterId(clusterId);
+                componentUserVO.setComponentTypeCode(componentTypeCode);
+                componentUserVOList.add(componentUserVO);
+            }
+            return componentUserVOList;
+        }
+        Set<String> labelSet = dtScriptAgentLabel.stream().map(DtScriptAgentLabel::getLabel).collect(Collectors.toSet());
         return groupComponentByLabel(componentUserList.stream()
                 .filter(componentUser -> labelSet.contains(componentUser.getLabel())).collect(Collectors.toList()));
 
