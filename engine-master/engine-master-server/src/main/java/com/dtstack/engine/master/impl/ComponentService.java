@@ -2273,7 +2273,7 @@ public class ComponentService {
 
         List<ComponentUser> componentUserList = componentUserDao.getComponentUserByCluster(clusterId,componentTypeCode);
         // 只取数据库数据
-        if (!Boolean.FALSE.equals(needRefresh)){
+        if (!Boolean.TRUE.equals(needRefresh)){
             return groupComponentByLabel(componentUserList);
         }
         // 刷新数据必须地址
