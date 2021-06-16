@@ -427,6 +427,7 @@ public class JobGraphBuilder {
             scheduleJob.setPeriodType(scheduleCron.getPeriodType());
             scheduleJob.setTaskId(task.getTaskId());
             scheduleJob.setBusinessType(task.getBusinessType());
+            scheduleJob.setComputeType(task.getComputeType());
             //普通任务
             if (task.getFlowId() == 0) {
                 scheduleJob.setFlowJobId(NORMAL_TASK_FLOW_ID);
