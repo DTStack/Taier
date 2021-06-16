@@ -1670,7 +1670,10 @@
     <select id="listJobStatus" resultType="ScheduleJob">
         select <include refid="select_content_fragment"/>
         from schedule_job bj
-        where bj.gmt_modified &gt;= #{time} and bj.compute_type = #{computeType}
+        where bj.gmt_modified &gt;= #{time}
+        <if test="computeType!=null">
+            and bj.compute_type = #{computeType}
+        </if>
         <if test="appType != null">
             and bj.app_type = #{appType}
         </if>

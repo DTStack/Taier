@@ -705,7 +705,7 @@ public class ActionService {
             throw new RuntimeException("time is null");
         }
 
-        return scheduleJobDao.listJobStatus(new Timestamp(time), ComputeType.BATCH.getType(),appType);
+        return scheduleJobDao.listJobStatus(new Timestamp(time), null,appType);
     }
 
     private List<ActionJobStatusVO> toVOS(List<ScheduleJob> scheduleJobs){
