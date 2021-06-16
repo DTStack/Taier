@@ -102,7 +102,7 @@ public class BatchFinishedJobListener extends SqlJobFinishedListener {
 
     @Override
     public Set<EScheduleJobType> focusedJobTypes() {
-        return Sets.newHashSet(EScheduleJobType.SPARK_SQL,EScheduleJobType.HIVE_SQL,EScheduleJobType.LIBRA_SQL,EScheduleJobType.IMPALA_SQL);
+        return Sets.newHashSet(EScheduleJobType.SPARK_SQL,EScheduleJobType.HIVE_SQL,EScheduleJobType.LIBRA_SQL,EScheduleJobType.IMPALA_SQL,EScheduleJobType.ANALYTICDB_FOR_PG);
     }
 
     @Override
