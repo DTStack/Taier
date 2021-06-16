@@ -2188,7 +2188,7 @@ public class ComponentService {
             Map<String, List<DtScriptAgentLabel>> labelGroup = dtScriptAgentLabelList.stream().collect(Collectors.groupingBy(DtScriptAgentLabel::getLabel));
             List<DtScriptAgentLabel> resultList = new ArrayList<>(labelGroup.size());
             for (Map.Entry<String, List<DtScriptAgentLabel>> entry : labelGroup.entrySet()) {
-                String ip = entry.getValue().stream().map(localIp -> localIp+":22").collect(Collectors.joining(","));
+                String ip = entry.getValue().stream().map(localIp -> localIp.getLocalIp()+":22").collect(Collectors.joining(","));
                 DtScriptAgentLabel dtScriptAgentLabel = new DtScriptAgentLabel();
                 dtScriptAgentLabel.setLabel(entry.getKey());
                 dtScriptAgentLabel.setLocalIp(ip);
