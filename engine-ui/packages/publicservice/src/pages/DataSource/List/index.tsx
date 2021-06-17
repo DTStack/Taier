@@ -151,10 +151,10 @@ function index(props) {
       appTypes: checkedValues,
     });
     if (success) {
-      message.success('产品授权成功');
+      message.success('操作成功');
       requestTableData(); //更新表格
     } else {
-      message.error('产品授权失败');
+      message.error('操作失败');
     }
 
     setVisible(false);
