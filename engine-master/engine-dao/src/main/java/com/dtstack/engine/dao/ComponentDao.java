@@ -37,5 +37,17 @@ public interface ComponentDao {
     String getDefaultComponentVersionByClusterAndComponentType(@Param("clusterId") Long clusterId, @Param("componentType") Integer type);
 
     String getDefaultComponentVersionByTenantAndComponentType(@Param("tenantId")Long tenantId,@Param("componentType")Integer componentType);
+
+    /**
+     * 此接口返回的component_version为schedule_dict的dict_name
+     * e.g 1.10 - 110
+     */
+    List<Component> getComponentVersionByEngineType(@Param("uicTenantId") Long uicTenantId, @Param("componentTypeCode") Integer componentTypeCode);
+
+    String getDefaultVersionDictNameByUicIdAndComponentType(@Param("uicTenantId") Long uicTenantId, @Param("componentTypeCode") Integer componentTypeCode);
+
+    List<Long> allUseUicTenant(@Param("componentId") Long componentId);
+
+    Component getMetadataComponent(@Param("clusterId") Long clusterId);
 }
 

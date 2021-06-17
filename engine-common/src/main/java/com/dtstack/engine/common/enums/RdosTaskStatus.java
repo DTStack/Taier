@@ -256,6 +256,11 @@ public enum RdosTaskStatus implements Serializable {
             RESTARTING.getStatus(),
             SUBMITTING.getStatus());
 
+
+    private final static List<Integer> UN_SUBMIT_STATUSES = Lists.newArrayList(
+            ENGINEACCEPTED.getStatus(),
+            UNSUBMIT.getStatus());
+
     static {
         UNFINISHED_STATUSES.addAll(WAIT_STATUS);
     }
@@ -265,6 +270,10 @@ public enum RdosTaskStatus implements Serializable {
      */
     public static List<Integer> getUnfinishedStatuses() {
         return UNFINISHED_STATUSES;
+    }
+
+    public static List<Integer> getUnSubmitStatus() {
+        return UN_SUBMIT_STATUSES;
     }
 
     private final static Map<Integer, List<Integer>> COLLECTION_STATUS = new HashMap<>();
@@ -296,6 +305,13 @@ public enum RdosTaskStatus implements Serializable {
 
     }
 
+    private final static Map<Integer, List<Integer>> STATUS_FAILED_DETAIL_EXPIRE = new HashMap<>();
+
+    static {
+        STATUS_FAILED_DETAIL_EXPIRE.putAll(STATUS_FAILED_DETAIL);
+        STATUS_FAILED_DETAIL_EXPIRE.put(EXPIRE.getStatus(), Lists.newArrayList(EXPIRE.getStatus()));
+    }
+
 
     public static List<Integer> getCollectionStatus(Integer status) {
         return COLLECTION_STATUS.computeIfAbsent(status, k -> new ArrayList<>(0));
@@ -309,6 +325,10 @@ public enum RdosTaskStatus implements Serializable {
 
     public static Map<Integer, List<Integer>> getStatusFailedDetail() {
         return STATUS_FAILED_DETAIL;
+    }
+
+    public static Map<Integer, List<Integer>> getStatusFailedDetailAndExpire() {
+        return STATUS_FAILED_DETAIL_EXPIRE;
     }
 
     public static int getShowStatus(Integer status) {

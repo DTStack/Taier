@@ -73,4 +73,7 @@ public interface ComponentService extends DtInsightServer {
     ApiResponse<Boolean> isYarnSupportGpus(@Param("clusterName") String clusterName);
 
 
+    @RequestLine("POST /node/component/getComponentVersionByEngineType")
+    ApiResponse<List<Component>> getComponentVersionByEngineType(@Param("uicTenantId") Long tenantId,@Param("engineType") String  engineType);
+
 }

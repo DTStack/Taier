@@ -153,6 +153,9 @@ public abstract class SqlJobFinishedListener implements ScheduleJobEventLister {
             //临时运行taskId都是-1
             return null;
         }
+        if(!focusedAppType().getType().equals(scheduleJob.getAppType())){
+            return null;
+        }
         ScheduleTaskShade taskShade = scheduleTaskShadeDao.getOneByTaskIdAndAppType(taskId, focusedAppType().getType());
         if (Objects.isNull(taskShade)){
             throw new RdosDefineException("taskId:"+taskId+" 任务不存在");

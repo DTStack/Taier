@@ -2,6 +2,7 @@ package com.dtstack.engine.master.jobdealer;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.EngineJobCache;
+import com.dtstack.engine.api.domain.po.SimpleScheduleJobPO;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
@@ -15,16 +16,18 @@ import com.dtstack.engine.common.util.SystemPropertyUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.queue.GroupInfo;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.jobdealer.resource.JobComputeResourcePlain;
-import com.dtstack.engine.master.utils.TaskParamsUtil;
+import com.dtstack.engine.common.util.TaskParamsUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,7 +145,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
         jobClient.setCallBack((jobStatus) -> {
             updateJobStatus(jobClient.getTaskId(), jobStatus);
         });
-        jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
+//        jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
 
         //加入节点的优先级队列
         this.addGroupPriorityQueue(jobResource, jobClient, true, true);
@@ -217,6 +220,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
         String nodeAddress = environmentContext.getLocalAddress();
         if (insert) {
             engineJobCacheDao.insert(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobResource);
+            jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
         } else {
             engineJobCacheDao.updateStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority(), null);
         }
@@ -234,7 +238,9 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
 
     public String getAndUpdateEngineLog(String jobId, String engineJobId, String appId, Long dtuicTenantId) {
 
-
+        if(StringUtils.isBlank(engineJobId)){
+            return "";
+        }
         String engineLog = null;
         try {
             EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
@@ -242,12 +248,11 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
                 return "";
             }
             String engineType = engineJobCache.getEngineType();
-            JSONObject info = JSONObject.parseObject(engineJobCache.getJobInfo());
-            String taskParams = info.getString("taskParams");
-            Long userId = info.getLong("userId");
-            String pluginInfo = info.getString("pluginInfo");
+            ParamAction paramAction = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), ParamAction.class);
+            Map<String, Object> pluginInfo = paramAction.getPluginInfo();
             JobIdentifier jobIdentifier = new JobIdentifier(engineJobId, appId, jobId,dtuicTenantId,engineType,
-                    TaskParamsUtil.parseDeployTypeByTaskParams(taskParams,engineJobCache.getComputeType(),engineJobCache.getEngineType()).getType(),userId,pluginInfo);
+                    TaskParamsUtil.parseDeployTypeByTaskParams(paramAction.getTaskParams(),engineJobCache.getComputeType(),engineJobCache.getEngineType()).getType(),
+                    paramAction.getUserId(), MapUtils.isEmpty(pluginInfo) ? null : JSONObject.toJSONString(pluginInfo),paramAction.getComponentVersion());
             //从engine获取log
             engineLog = workerOperator.getEngineLog(jobIdentifier);
             if (engineLog != null) {
@@ -310,6 +315,21 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
                         afterSubmitJobVast(submitClients);
                     }
                 }
+                LOGGER.info("cache deal end");
+
+                // 恢复没有被容灾，但是状态丢失的任务
+                long jobStartId = 0;
+                // 扫描出 status = 0 和 19  phaseStatus = 1 
+                List<SimpleScheduleJobPO> jobs = scheduleJobDao.listJobByStatusAddressAndPhaseStatus(jobStartId, RdosTaskStatus.getUnSubmitStatus(), localAddress,JobPhaseStatus.JOIN_THE_TEAM.getCode());
+                while (CollectionUtils.isNotEmpty(jobs)) {
+                    List<String> jobIds = jobs.stream().map(SimpleScheduleJobPO::getJobId).collect(Collectors.toList());
+                    LOGGER.info("update job ids {}", jobIds);
+
+                    scheduleJobDao.updateJobStatusAndPhaseStatusByIds(jobIds, RdosTaskStatus.UNSUBMIT.getStatus(), JobPhaseStatus.CREATE.getCode());
+                    jobStartId = jobs.get(jobs.size()-1).getId();
+                    jobs = scheduleJobDao.listJobByStatusAddressAndPhaseStatus(jobStartId, RdosTaskStatus.getUnSubmitStatus(), localAddress, JobPhaseStatus.JOIN_THE_TEAM.getCode());
+                }
+                LOGGER.info("job deal end");
             } catch (Exception e) {
                 LOGGER.error("----broker:{} RecoverDealer error:", localAddress, e);
             }

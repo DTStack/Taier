@@ -16,6 +16,8 @@ import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
+import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.master.druid.DtDruidRemoveAbandoned;
 import com.dtstack.engine.master.impl.*;
 import com.dtstack.engine.master.scheduler.parser.*;
 import com.dtstack.schedule.common.enums.EProjectScheduleStatus;
@@ -97,6 +99,9 @@ public class JobGraphBuilder {
 
     @Autowired
     private EnvironmentContext environmentContext;
+
+    @Autowired
+    private JobGraphBuilder jobGraphBuilder;
 
     private Lock lock = new ReentrantLock();
 
@@ -222,7 +227,7 @@ public class JobGraphBuilder {
             });
 
             //存储生成的jobRunBean
-            saveJobGraph(allJobs, triggerDay);
+            jobGraphBuilder.saveJobGraph(allJobs, triggerDay);
         } catch (Exception e) {
             LOGGER.error("buildTaskJobGraph ！！！", e);
         } finally {
@@ -308,6 +313,7 @@ public class JobGraphBuilder {
      * @return
      */
     @Transactional
+    @DtDruidRemoveAbandoned
     public boolean saveJobGraph(List<ScheduleBatchJob> jobList, String triggerDay) {
         LOGGER.info("start saveJobGraph to db {} jobSize {}", triggerDay, jobList.size());
         //需要保存BatchJob, BatchJobJob
@@ -420,7 +426,7 @@ public class JobGraphBuilder {
             scheduleJob.setJobName(targetJobName);
             scheduleJob.setPeriodType(scheduleCron.getPeriodType());
             scheduleJob.setTaskId(task.getTaskId());
-            scheduleJob.setComponentVersion(task.getComponentVersion());
+            scheduleJob.setBusinessType(task.getBusinessType());
             //普通任务
             if (task.getFlowId() == 0) {
                 scheduleJob.setFlowJobId(NORMAL_TASK_FLOW_ID);

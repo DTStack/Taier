@@ -18,6 +18,7 @@ import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusCountVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.common.constrant.GlobalConst;
+import com.dtstack.engine.common.constrant.JobResultConstant;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
@@ -33,6 +34,7 @@ import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.api.domain.ScheduleEngineProject;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
+import com.dtstack.engine.master.druid.DtDruidRemoveAbandoned;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
 import com.dtstack.engine.master.queue.JobPartitioner;
@@ -40,6 +42,7 @@ import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.scheduler.JobParamReplace;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
+import com.dtstack.engine.common.util.TaskParamsUtil;
 import com.dtstack.engine.master.sync.RestartRunnable;
 import com.dtstack.engine.master.utils.JobGraphUtils;
 import com.dtstack.engine.master.vo.BatchSecienceJobChartVO;
@@ -420,7 +423,7 @@ public class ScheduleJobService {
      */
     public PageResult<List<com.dtstack.engine.api.vo.ScheduleJobVO>> queryJobs(QueryJobDTO vo) throws Exception {
 
-        if (vo.getType() == null) {
+        if (vo.getType() == null && CollectionUtils.isEmpty(vo.getTypes())) {
             throw new RdosDefineException("Type parameter is required", ErrorCode.INVALID_PARAMETERS);
         }
         vo.setSplitFiledFlag(true);
@@ -458,7 +461,7 @@ public class ScheduleJobService {
                 return new PageResult<>(result, count, pageQuery);
             }
         }
-        if (AppType.DATASCIENCE.getType() == vo.getAppType()) {
+        if (AppType.DATASCIENCE.getType().equals(vo.getAppType())) {
             batchJobDTO.setQueryWorkFlowModel(QueryWorkFlowModel.Eliminate_Workflow_SubNodes.getType());
             count = queryScienceJob(batchJobDTO, queryAll, pageQuery, result);
         } else {
@@ -838,7 +841,7 @@ public class ScheduleJobService {
     private Map<Integer, List<Integer>> getStatusMap(Boolean splitFiledFlag) {
         Map<Integer, List<Integer>> statusMap;
         if (null != splitFiledFlag && splitFiledFlag) {
-            statusMap = RdosTaskStatus.getStatusFailedDetail();
+            statusMap = RdosTaskStatus.getStatusFailedDetailAndExpire();
         } else {
             statusMap = RdosTaskStatus.getCollectionStatus();
         }
@@ -912,6 +915,8 @@ public class ScheduleJobService {
         batchJobDTO.setBusinessDateSort(vo.getBusinessDateSort());
         batchJobDTO.setTaskPeriodId(convertStringToList(vo.getTaskPeriodId()));
         batchJobDTO.setAppType(vo.getAppType());
+        batchJobDTO.setBusinessType(vo.getBusinessType());
+        batchJobDTO.setTypes(vo.getTypes());
 
         if (CollectionUtils.isNotEmpty(vo.getProjectIds())) {
             batchJobDTO.setProjectIds(vo.getProjectIds());
@@ -1114,7 +1119,7 @@ public class ScheduleJobService {
                     ParamActionExt paramActionExt = actionService.paramActionExt(batchTask, scheduleJob, info);
                     if (paramActionExt != null) {
                         this.updateStatusByJobId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus(),batchTask.getVersionId());
-                        actionService.start(paramActionExt,true);
+                        actionService.start(paramActionExt);
                         return;
                     }
                 }
@@ -1350,12 +1355,13 @@ public class ScheduleJobService {
      * 补数据的时候，选中什么业务日期，参数替换结果是业务日期+1天
      */
     @Transactional
+    @DtDruidRemoveAbandoned
     public String fillTaskData( String taskJsonStr,  String fillName,
                                 Long fromDay,  Long toDay,
                                 String beginTime,  String endTime,
                                 Long projectId,  Long userId,
                                 Long tenantId,
-                                Boolean isRoot,  Integer appType,  Long dtuicTenantId) throws Exception {
+                                Boolean isRoot,  Integer appType,  Long dtuicTenantId,Boolean ignoreCycTime) throws Exception {
 
         if(StringUtils.isEmpty(taskJsonStr)){
             throw new RdosDefineException("(taskJsonStr 参数不能为空)", ErrorCode.INVALID_PARAMETERS);
@@ -1396,7 +1402,11 @@ public class ScheduleJobService {
                 if (MapUtils.isEmpty(result)) {
                     continue;
                 }
-
+                if (BooleanUtils.isTrue(ignoreCycTime)) {
+                    for (ScheduleBatchJob value : result.values()) {
+                        value.getScheduleJob().setCycTime(DateTime.now().toString(DateUtil.UN_STANDARD_DATETIME_FORMAT));
+                    }
+                }
                 insertJobList(result.values(), EScheduleType.FILL_DATA.getType());
                 addBatchMap.putAll(result);
 
@@ -2018,6 +2028,7 @@ public class ScheduleJobService {
         record.setJobId(scheduleJob.getJobId());
         record.setFlowJobId(scheduleJob.getFlowJobId());
         record.setIsRestart(scheduleJob.getIsRestart());
+        record.setBusinessType(scheduleJob.getBusinessType());
 
         // 判断taskType为2的，查出脏数据量，判断增加标识
         if (taskType == 2) {
@@ -2834,7 +2845,12 @@ public class ScheduleJobService {
     }
 
     public String getJobGraphJSON(String jobId) {
-        return scheduleJobDao.getJobGraph(jobId);
+        String jobExtraInfo = scheduleJobDao.getJobExtraInfo(jobId);
+        JSONObject jobExtraObj = JSONObject.parseObject(jobExtraInfo);
+        if (null != jobExtraObj) {
+            return jobExtraObj.getString(JobResultConstant.JOB_GRAPH);
+        }
+        return "";
     }
 
     public void updateNotRuleResult(String jobId,Integer rule,String result) {

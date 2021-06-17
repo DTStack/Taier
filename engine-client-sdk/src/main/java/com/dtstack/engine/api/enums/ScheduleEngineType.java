@@ -1,6 +1,10 @@
 package com.dtstack.engine.api.enums;
 
 
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 /**
  * Reason:
  * Date: 2017/2/20
@@ -36,7 +40,9 @@ public enum ScheduleEngineType {
     Presto(22, "presto"),
     KING_BASE(23,"kingbase"),
     INCEPTOR_SQL(24,"inceptor"),
-    DTSCRIPT_AGENT(25,"dtscript-agent");
+    DTSCRIPT_AGENT(25,"dtscript-agent"),
+    FLINK_ON_STANDALONE(26,"flink-on-standalone"),
+    ANALYTICDB_FOR_PG(27,"adb-postgresql");
 
     private int val;
 
@@ -45,6 +51,11 @@ public enum ScheduleEngineType {
     ScheduleEngineType(int val, String engineName) {
         this.val = val;
         this.engineName = engineName;
+    }
+
+    private static final Map<String ,ScheduleEngineType> ENGINE_CACHE;
+    static {
+        ENGINE_CACHE = Arrays.stream(values()).collect(Collectors.toConcurrentMap(ScheduleEngineType::getEngineName,val->val));
     }
 
     public int getVal() {
@@ -119,7 +130,10 @@ public enum ScheduleEngineType {
                 return ScheduleEngineType.Presto;
             case "kingbase":
                 return ScheduleEngineType.KING_BASE;
+            case "flinkonstandalone":
+                return ScheduleEngineType.FLINK_ON_STANDALONE;
+            default:
+                return ENGINE_CACHE.get(type);
         }
-        return null;
     }
 }

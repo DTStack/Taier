@@ -1,6 +1,7 @@
 package com.dtstack.engine.api.vo;
 
 import com.dtstack.engine.api.domain.Component;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 
@@ -9,6 +10,8 @@ import java.util.List;
 /**
  * @author xinge
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+@com.dtstack.fasterxml.jackson.annotation.JsonTypeInfo(use = com.dtstack.fasterxml.jackson.annotation.JsonTypeInfo.Id.CLASS)
 public interface IComponentVO {
 
 

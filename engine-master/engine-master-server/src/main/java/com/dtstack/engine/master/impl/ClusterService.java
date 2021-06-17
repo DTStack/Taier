@@ -8,6 +8,7 @@ import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.vo.*;
+import com.dtstack.engine.common.constrant.ComponentConstant;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
@@ -208,7 +209,7 @@ public class ClusterService implements InitializingBean {
             dummy.put(TYPE_NAME_KEY, EngineType.Dummy.name().toLowerCase());
             return dummy;
         }
-        EngineTypeComponentType type = EngineTypeComponentType.getByEngineName(engineTypeStr);
+        EngineTypeComponentType type = EngineTypeComponentType.getByEngineName(engineTypeStr,deployMode);
         if (type == null) {
             return null;
         }
@@ -323,7 +324,7 @@ public class ClusterService implements InitializingBean {
         try {
             Map actionParam = PublicUtil.objectToMap(action);
             Integer deployMode = MapUtils.getInteger(actionParam, DEPLOY_MODEL);
-            EngineTypeComponentType type = EngineTypeComponentType.getByEngineName(engineName);
+            EngineTypeComponentType type = EngineTypeComponentType.getByEngineName(engineName,deployMode);
 
             if (type == null) {
                 return null;
@@ -548,6 +549,11 @@ public class ClusterService implements InitializingBean {
         } else if (EComponentType.DTSCRIPT_AGENT==type.getComponentType()){
             dtScriptAgentInfo(clusterConfigJson,pluginInfo);
             pluginInfo.put(TYPE_NAME,"dtscript-agent");
+        } else if (EComponentType.FLINK_ON_STANDALONE==type.getComponentType()){
+            flinkOnStandaloneInfo(clusterConfigJson,pluginInfo);
+        } else if (EComponentType.ANALYTICDB_FOR_PG == type.getComponentType()){
+            pluginInfo = JSONObject.parseObject(adbPostgrepsqlInfo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId(),componentVersionMap));
+            pluginInfo.put(TYPE_NAME, ComponentConstant.ANALYTICDB_FOR_PG_PLUGIN);
         } else {
             //flink spark 需要区分任务类型
             if (EComponentType.FLINK.equals(type.getComponentType()) || EComponentType.SPARK.equals(type.getComponentType())) {
@@ -602,6 +608,11 @@ public class ClusterService implements InitializingBean {
         }
 
         return pluginInfo;
+    }
+
+    private void flinkOnStandaloneInfo(JSONObject clusterConfigJson, JSONObject pluginInfo) {
+        JSONObject flinkOnStandaloneConf = clusterConfigJson.getJSONObject(EComponentType.FLINK_ON_STANDALONE.getConfName());
+        pluginInfo.putAll(flinkOnStandaloneConf);
     }
 
     private void buildHiveVersion(ClusterVO clusterVO, JSONObject pluginInfo,Map<Integer,String > componentVersionMap) {
@@ -738,6 +749,9 @@ public class ClusterService implements InitializingBean {
         return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.INCEPTOR_SQL,null);
     }
 
+    public String adbPostgrepsqlInfo(Long dtUicTenantId, Long dtUicUserId,Map<Integer,String > componentVersionMap){
+        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.ADB_POSTGREPSQL,componentVersionMap);
+    }
 
     private String accountInfo(Long dtUicTenantId, Long dtUicUserId, DataSourceType dataSourceType,Map<Integer,String > componentVersionMap) {
         EComponentType componentType = null;
@@ -751,6 +765,8 @@ public class ClusterService implements InitializingBean {
             componentType = EComponentType.PRESTO_SQL;
         }else if (DataSourceType.INCEPTOR_SQL.equals(dataSourceType)){
             componentType=EComponentType.INCEPTOR_SQL;
+        }else if (DataSourceType.ADB_POSTGREPSQL.equals(dataSourceType)){
+            componentType = EComponentType.ANALYTICDB_FOR_PG;
         }
         if (componentType == null) {
             throw new RdosDefineException("Unsupported data source type");
@@ -812,7 +828,7 @@ public class ClusterService implements InitializingBean {
      * 获取集群配置
      * @param clusterId 集群id
      * @param removeTypeName
-     * @param defaultVersion 组件默认版本
+     * @param multiVersion 组件默认版本
      * @return
      */
     public ClusterVO getCluster( Long clusterId, Boolean removeTypeName,boolean multiVersion) {
