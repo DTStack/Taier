@@ -82,7 +82,10 @@ public enum SqlType {
     //权限细分
     DQL("DQL(包含查询权限)",600),
     DML("DML(包含查询和表记录变更权限)",700),
-    DDL("DDL(包含查询、表记录变更和表结构变更权限)",800)
+    DDL("DDL(包含查询、表记录变更和表结构变更权限)",800),
+
+    // Schema
+    SCHEMA_OPERATE("schema_operate",900),
     ;
 
     private String type;
@@ -135,6 +138,7 @@ public enum SqlType {
                 DROP_FUNCTION,
                 SHOW_TBLPROPERTIES,
                 LOAD
+                ,SCHEMA_OPERATE
         );
     }
 }
