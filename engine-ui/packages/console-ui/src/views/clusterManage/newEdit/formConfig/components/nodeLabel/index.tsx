@@ -18,8 +18,8 @@ interface IProps extends FormComponentProps {
 
 const NodeLabel: React.FC<IProps> = (props) => {
     const [visible, setVisible] = useState<boolean>(false)
-    const [nodes, setNodes] = useState<any[]>([])
     const [loading, setLoading] = useState<boolean>(false)
+    const [nodes, setNodes] = useState<any[]>([])
 
     const getNodes = async () => {
         const { clusterId } = props.clusterInfo
@@ -177,17 +177,15 @@ const NodeLabel: React.FC<IProps> = (props) => {
                                     <Col span={4}>服务器用户配置：</Col>
                                     <Col span={20}>
                                         <Table
-                                            className="dt-table-border dt-table-last-row-noborder"
-                                            style={{ marginBottom: 12, boxShadow: 'unset' }}
-                                            columns={getColumn(node)}
-                                            dataSource={node?.componentUserInfoList || []}
                                             footer={null}
                                             pagination={false}
                                             size={'middle'}
+                                            columns={getColumn(node)}
+                                            dataSource={node?.componentUserInfoList || []}
+                                            className="dt-table-border dt-table-last-row-noborder"
+                                            style={{ marginBottom: 12, boxShadow: 'unset' }}
                                             locale={{
-                                                emptyText: <div className='preview-empty' style={{ marginTop: -5, marginBottom: -5 }}>
-                                                    暂无数据
-                                                </div>
+                                                emptyText: <div className="table-emptys">暂无数据</div>
                                             }}
                                         />
                                         <a onClick={() => addTableData(node)}>+ 添加自定义参数</a>

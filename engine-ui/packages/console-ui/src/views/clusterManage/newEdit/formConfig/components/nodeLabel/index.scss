@@ -17,6 +17,10 @@
         .ant-col:first-child {
             text-align: right;
         }
+        .table-empty {
+            margin-top: -5px;
+            margin-bottom: -5px;
+        }
     }
     &__empty {
         display: flex;
