@@ -3,12 +3,19 @@
     right: -154px
 }
 .c-nodeLable__modal {
+    .ant-modal-body {
+        max-height: 596px;
+        overflow: scroll;
+    }
+    &__alter {
+        margin: -24px -20px 24px;
+    }
     &__nodes {
-        width: 100%;
-        border: 1px solid #ddd;
-        padding: 12px 12px 0 12px;
-        p {
-            margin-bottom: 8px;
+        .ant-row {
+            margin-bottom: 12px;
+        }
+        .ant-col:first-child {
+            text-align: right;
         }
     }
     &__empty {

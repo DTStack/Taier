@@ -119,6 +119,20 @@ export default {
     }) {
         return http.post(req.GET_DTSCRIPT_AGENT_LABEL, params);
     },
+    getClusterComponentUser (params: {
+        clusterId: number;
+        needRefresh: boolean;
+        componentTypeCode: number;
+        agentAddress: string;
+
+    }) {
+        return http.post(req.GET_CLUSTER_COMPONENT_USER, params);
+    },
+    addOrUpdateComponentUser (params: {
+        componentUserList: any[];
+    }) {
+        return http.post(req.ADD_OR_UPDATE_COMPONENT_USER, params);
+    },
     // 任务管理模块
     // 概览-获取集群
     getClusterDetail (params: any) {

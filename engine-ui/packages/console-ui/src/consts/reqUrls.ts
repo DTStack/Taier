@@ -73,6 +73,8 @@ export default {
 
     // 4.2版本
     GET_DTSCRIPT_AGENT_LABEL: `${CONSOLE_BASE_URL}/component/getDtScriptAgentLabel`, // 获取 DtScript Agent 组件节点信息
+    GET_CLUSTER_COMPONENT_USER: `${CONSOLE_BASE_URL}/component/getClusterComponentUser`, // 获取 DtScript Agent 组件节点信息
+    ADD_OR_UPDATE_COMPONENT_USER: `${CONSOLE_BASE_URL}/component/getClusterComponentUser`, // 更新 DtScript Agent 组件节点信息
 
     // 资源管理
     GET_ALL_CLUSTER: `${CONSOLE_BASE_URL}/cluster/getAllCluster`,
