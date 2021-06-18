@@ -14,7 +14,7 @@ import { giveMeAKey } from './help';
 const Option = Select.Option;
 const Search = Input.Search;
 
-const PAGESIZE = 10;
+const PAGESIZE = 20;
 
 interface IState {
     tableData: any[];
@@ -120,6 +120,13 @@ class BindAccountTable extends React.Component<IProps, IState> {
 
     handleTableChange = (pagination: any, filters?: any, sorter?: any) => {
         this.updateQueryParams({ currentPage: pagination.current }, this.fetchData)
+    }
+
+    onPageChange = (current: any) => {
+        const queryParams = Object.assign(this.state.queryParams, { currentPage: current })
+        this.setState({
+            queryParams
+        }, this.fetchData)
     }
 
     showHideBindModal = (item?: any) => {
@@ -241,13 +248,18 @@ class BindAccountTable extends React.Component<IProps, IState> {
             visible, modalData, tenantList, unbindUserList
         } = this.state;
         const { engineType } = this.props;
-        const pagination: any = {
+        const paginations: any = {
+            total: queryParams.total,
             current: queryParams.currentPage,
             pageSize: PAGESIZE,
-            total: queryParams.total
-        }
+            size: 'small',
+            showTotal: (total) => <span>
+              共<span style={{ color: '#3F87FF' }}>{total}</span>条数据，每页显示{PAGESIZE}条
+            </span>,
+            onChange: this.onPageChange
+        };
         return (
-            <div style={{ margin: '15px' }}>
+            <div style={{ padding: 20 }}>
                 <Select
                     className='cluster-select'
                     style={{ width: '180px' }}
@@ -276,13 +288,14 @@ class BindAccountTable extends React.Component<IProps, IState> {
                     <Button type="primary" onClick={() => this.showHideBindModal()}>绑定账号</Button>
                 </span>
                 <Table
-                    className='dt-table-border'
                     loading={loading}
+                    className='dt-table-border dt-table-fixed-base'
                     rowKey={(record, index) => `accounts-${index}-${record.userId}`}
+                    style={{ height: 'calc(100vh - 296px)', boxShadow: 'unset' }}
+                    scroll={{ y: true }}
                     columns={this.initColumns()}
                     dataSource={tableData}
-                    pagination={pagination}
-                    onChange={this.handleTableChange}
+                    pagination={paginations}
                 />
                 {
                     !isHadoopEngine(engineType) ? <BindAccountModal

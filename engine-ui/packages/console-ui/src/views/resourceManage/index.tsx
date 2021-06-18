@@ -366,7 +366,7 @@ class ResourceManage extends React.Component<any, any> {
                                                             className='dt-table-border dt-table-fixed-base'
                                                             loading={loading}
                                                             rowKey={(record: any, index) => `${index}-${record.tenantName}`}
-                                                            style={{ height: 'calc(100vh - 302px)', boxShadow: 'unset' }}
+                                                            style={{ height: 'calc(100vh - 296px)', boxShadow: 'unset' }}
                                                             scroll={{ y: true }}
                                                             columns={this.getColumn(isHadoop, resourceType)}
                                                             dataSource={tableData}
