@@ -1127,7 +1127,7 @@ public class ComponentService {
             if (Objects.isNull(component)){
                 return;
             }
-            kerberosDao.deleteByComponent(component.getEngineId(),component.getComponentTypeCode(),component.getHadoopVersion());
+            kerberosDao.deleteByComponent(component.getEngineId(),component.getComponentTypeCode(),ComponentVersionUtil.isMultiVersionComponent(component.getComponentTypeCode())?component.getHadoopVersion():null);
             Component updateComponent = new Component();
             updateComponent.setId(componentId);
             updateComponent.setKerberosFileName("");
