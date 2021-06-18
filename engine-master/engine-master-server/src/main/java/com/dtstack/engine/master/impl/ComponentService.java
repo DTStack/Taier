@@ -85,6 +85,8 @@ public class ComponentService {
 
     private static final String HADOOP3_SIGNAL = "hadoop3";
 
+    private static final String HADOOP3_VERSION = "3";
+
     private static final String GPU_EXEC_SIGNAL = "yarn.nodemanager.resource-plugins.gpu.path-to-discovery-executables";
 
     private static final String GPU_RESOURCE_PLUGINS_SIGNAL = "yarn.nodemanager.resource-plugins";
@@ -1926,7 +1928,8 @@ public class ComponentService {
         if (yarnComponent == null) {
             return false;
         }
-        if (!HADOOP3_SIGNAL.equals(yarnComponent.getHadoopVersion())) {
+        String hadoopVersion = yarnComponent.getHadoopVersion();
+        if (isVersion(hadoopVersion)) {
             return false;
         }
         JSONObject yarnConf = getComponentByClusterId(cluster.getId(), EComponentType.YARN.getTypeCode(),false,JSONObject.class);
@@ -1973,6 +1976,21 @@ public class ComponentService {
         return false;
     }
 
+    private static Boolean isVersion(String hadoopVersion) {
+        if (StringUtils.isNotBlank(hadoopVersion)) {
+            if (HADOOP3_SIGNAL.equals(hadoopVersion)) {
+                return Boolean.FALSE;
+            } else {
+                final String regex = "";
+                String[] split = hadoopVersion.split(regex);
+                if (split.length > 1 && HADOOP3_VERSION.equals(split[0])) {
+                    return Boolean.FALSE;
+                }
+            }
+        }
+
+        return Boolean.TRUE;
+    }
 
     /**
      * 解析对应的kerberos的zip中principle
