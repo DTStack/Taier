@@ -266,7 +266,7 @@ public class ActionService {
         jobTriggerService.readyForTaskStartTrigger(actionParam, batchTask, scheduleJob);
         actionParam.put("name", scheduleJob.getJobName());
         actionParam.put("taskId", scheduleJob.getJobId());
-        actionParam.put("taskType", EScheduleJobType.getEngineJobType(batchTask.getTaskType()));
+        actionParam.put("taskType", batchTask.getTaskType());
         actionParam.put("appType", batchTask.getAppType());
         actionParam.put("componentVersion",batchTask.getComponentVersion());
         Object tenantId = actionParam.get("tenantId");
