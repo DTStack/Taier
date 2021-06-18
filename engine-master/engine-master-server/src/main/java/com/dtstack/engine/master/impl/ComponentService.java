@@ -2311,17 +2311,19 @@ public class ComponentService {
             componentUserVO.setLabelIp(componentUser.getLabelIp());
             componentUserVO.setComponentTypeCode(componentUser.getComponentTypeCode());
             componentUserVO.setClusterId(componentUser.getClusterId());
+            componentUserVO.setIsDefault(componentUser.getIsDefault());
             List<ComponentUserVO.ComponentUserInfo> componentUserInfoList = new ArrayList<>(componentUsers.size());
-            componentUsers.forEach(user -> componentUserInfoList.add(new ComponentUserVO.ComponentUserInfo(user.getUserName(),user.getPassword())));
+            componentUsers.forEach(user -> componentUserInfoList.add(new ComponentUserVO.ComponentUserInfo(user.getUserName(),Base64Util.baseDecode(user.getPassword()))));
             componentUserVO.setComponentUserInfoList(componentUserInfoList);
+            componentUserVOList.add(componentUserVO);
         }
         return componentUserVOList;
     }
 
-    public void deleteComponentUser(Long clusterId, Integer componentTypeCode, String userName,String password) {
+    public void deleteComponentUser(Long clusterId, Integer componentTypeCode,String label, String userName,String password) {
         if (StringUtils.isAnyBlank(userName,password)){
             throw new RdosDefineException("userName or password is empty ");
         }
-        componentUserDao.deleteByComponentAndUserName(clusterId,componentTypeCode,userName);
+        componentUserDao.deleteByComponentAndLabelUser(clusterId,componentTypeCode,label,userName);
     }
 }

@@ -145,9 +145,9 @@ public class ComponentController {
 
     @RequestMapping(value = "/deleteComponentUser",method = {RequestMethod.POST})
     public void deleteComponentUser(@DtRequestParam("clusterId")Long clusterId,
-                                                         @DtRequestParam("componentTypeCode")Integer componentTypeCode,
+                                                         @DtRequestParam("componentTypeCode")Integer componentTypeCode,@DtRequestParam("label")String label,
                                                          @DtRequestParam("userName") String userName,@DtRequestParam("password")String password){
-         componentService.deleteComponentUser(clusterId,componentTypeCode,userName,password);
+         componentService.deleteComponentUser(clusterId,componentTypeCode,label,userName,password);
     }
 }
 

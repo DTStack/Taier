@@ -34,10 +34,10 @@
     </insert>
 
     <insert id="batchInsert">
-        INSERT INTO console_component_user(cluster_id,component_type_code,user_name,password,is_deleted,is_default)
+        INSERT INTO console_component_user(cluster_id,component_type_code,label,labelIp,user_name,password,is_deleted,is_default)
         VALUES
             <foreach collection="addComponentUserList" item="componentUser" separator=",">
-                (#{componentUser.clusterId},#{componentUser.componentTypeCode},#{componentUser.userName},#{componentUser.password},#{componentUser.isDeleted},#{componentUser.isDefault})
+                (#{componentUser.clusterId},#{componentUser.componentTypeCode},#{componentUser.label},#{componentUser.labelIp},#{componentUser.userName},#{componentUser.password},#{componentUser.isDeleted},#{componentUser.isDefault})
             </foreach>
     </insert>
 
@@ -49,11 +49,12 @@
 
     </delete>
 
-    <delete id="deleteByComponentAndUserName">
+    <delete id="deleteByComponentAndLabelUser">
         delete from console_component_user
         where cluster_id = #{clusterId}
           and component_type_code = #{componentTypeCode}
         and user_name = #{userName}
+        and label = #{label}
     </delete>
 
 

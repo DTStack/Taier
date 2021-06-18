@@ -18,6 +18,6 @@ public interface ComponentUserDao {
 
     List<ComponentUser> getComponentUserByCluster(@Param("clusterId") Long clusterId, @Param("componentTypeCode") Integer componentTypeCode);
 
-    void deleteByComponentAndUserName(@Param("clusterId")Long clusterId, @Param("componentTypeCode")Integer componentTypeCode, @Param("userName") String userName);
+    void deleteByComponentAndLabelUser(@Param("clusterId")Long clusterId, @Param("componentTypeCode")Integer componentTypeCode,@Param("label")String label, @Param("userName") String userName);
 }
 
