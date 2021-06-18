@@ -266,7 +266,7 @@ public class ActionService {
         jobTriggerService.readyForTaskStartTrigger(actionParam, batchTask, scheduleJob);
         actionParam.put("name", scheduleJob.getJobName());
         actionParam.put("taskId", scheduleJob.getJobId());
-        actionParam.put("taskType", EScheduleJobType.getEngineJobType(batchTask.getTaskType()));
+        actionParam.put("taskType", batchTask.getTaskType());
         actionParam.put("appType", batchTask.getAppType());
         actionParam.put("componentVersion",batchTask.getComponentVersion());
         Object tenantId = actionParam.get("tenantId");
@@ -705,7 +705,7 @@ public class ActionService {
             throw new RuntimeException("time is null");
         }
 
-        return scheduleJobDao.listJobStatus(new Timestamp(time), ComputeType.BATCH.getType(),appType);
+        return scheduleJobDao.listJobStatus(new Timestamp(time), null,appType);
     }
 
     private List<ActionJobStatusVO> toVOS(List<ScheduleJob> scheduleJobs){
