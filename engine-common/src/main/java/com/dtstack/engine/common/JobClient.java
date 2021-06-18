@@ -11,6 +11,7 @@ import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.queue.OrderObject;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
@@ -140,7 +141,7 @@ public class JobClient extends OrderObject {
         this.taskId = paramAction.getTaskId();
         this.engineTaskId = paramAction.getEngineTaskId();
         this.applicationId = paramAction.getApplicationId();
-        this.jobType = EJobType.getEjobType(paramAction.getTaskType());
+        this.jobType = EJobType.getEjobType(EScheduleJobType.getEngineJobType(paramAction.getTaskType()));
         this.computeType = ComputeType.getType(paramAction.getComputeType());
         this.externalPath = paramAction.getExternalPath();
         this.engineType = paramAction.getEngineType();
