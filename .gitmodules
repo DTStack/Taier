@@ -1,0 +1,3 @@
+[submodule "engine-ui/packages/engine-ui/packages/console-ui"]
+	path = engine-ui/packages/engine-ui/packages/console-ui
+	url = ssh://git@gitlab.prod.dtstack.cn:10022/dt-insight-front/dt-console.git

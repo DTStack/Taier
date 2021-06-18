@@ -419,8 +419,10 @@ module.exports = function (webpackEnv) {
                             '@svgr/webpack?-svgo,+titleProp,+ref![path]',
                         },
                       },
-                    },
+                    }
                   ],
+                  ["@babel/plugin-proposal-decorators", { "legacy": true }],
+                  ["@babel/plugin-proposal-class-properties", { "loose": true }],
                   isEnvDevelopment &&
                     shouldUseReactRefresh &&
                     require.resolve('react-refresh/babel'),
