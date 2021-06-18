@@ -2,6 +2,7 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.ClusterDTO;
 import com.dtstack.engine.api.dto.ComponentDTO;
@@ -17,10 +18,7 @@ import com.dtstack.engine.api.vo.components.ComponentsResultVO;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EComponentType;
-import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EFrontType;
-import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.EngineAssert;
@@ -35,6 +33,7 @@ import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.cache.DictCache;
 import com.dtstack.engine.master.enums.DictType;
 import com.dtstack.engine.master.enums.DownloadType;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
@@ -63,7 +62,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.dtstack.engine.api.domain.Queue;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -84,8 +82,6 @@ public class ComponentService {
     public static final String KERBEROS_PATH = "kerberos";
 
     private static final String HADOOP3_SIGNAL = "hadoop3";
-
-    private static final String HADOOP3_VERSION = "3";
 
     private static final String GPU_EXEC_SIGNAL = "yarn.nodemanager.resource-plugins.gpu.path-to-discovery-executables";
 
@@ -149,6 +145,9 @@ public class ComponentService {
 
     @Autowired
     private SftpFileManage sftpFileManageBean;
+
+    @Autowired
+    private DictCache dictCache;
 
     public static final String VERSION = "version";
 
@@ -1928,10 +1927,12 @@ public class ComponentService {
         if (yarnComponent == null) {
             return false;
         }
-        String hadoopVersion = yarnComponent.getHadoopVersion();
-        if (isVersion(hadoopVersion)) {
-            return false;
+
+        List<String> hadoopVersion = dictCache.getHadoopVersion(HADOOP3_SIGNAL);
+        if (!hadoopVersion.contains(yarnComponent.getHadoopVersion())) {
+            return Boolean.FALSE;
         }
+
         JSONObject yarnConf = getComponentByClusterId(cluster.getId(), EComponentType.YARN.getTypeCode(),false,JSONObject.class);
         if(null == yarnConf){
             return false;
@@ -1974,22 +1975,6 @@ public class ComponentService {
             }
         }
         return false;
-    }
-
-    private static Boolean isVersion(String hadoopVersion) {
-        if (StringUtils.isNotBlank(hadoopVersion)) {
-            if (HADOOP3_SIGNAL.equals(hadoopVersion)) {
-                return Boolean.FALSE;
-            } else {
-                final String regex = "";
-                String[] split = hadoopVersion.split(regex);
-                if (split.length > 1 && HADOOP3_VERSION.equals(split[0])) {
-                    return Boolean.FALSE;
-                }
-            }
-        }
-
-        return Boolean.TRUE;
     }
 
     /**
