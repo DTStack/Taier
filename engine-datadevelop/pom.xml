@@ -18,7 +18,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <dt-insight-common-base.version>4.1.2</dt-insight-common-base.version>
+        <dt-insight-common-base.version>4.1.2-SNAPSHOT</dt-insight-common-base.version>
         <dt-insight-sdk-core.version>4.1.2</dt-insight-sdk-core.version>
 
     </properties>

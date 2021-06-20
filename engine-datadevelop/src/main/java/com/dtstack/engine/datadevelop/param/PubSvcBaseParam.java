@@ -1,4 +1,4 @@
-package com.dtstack.engine.param;
+package com.dtstack.engine.datadevelop.param;
 
 import com.dtstack.sdk.core.common.DtInsightAuthParam;
 import io.swagger.annotations.ApiModel;

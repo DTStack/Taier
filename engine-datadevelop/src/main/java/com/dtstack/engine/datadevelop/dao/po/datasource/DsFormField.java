@@ -1,8 +1,8 @@
-package com.dtstack.engine.dao.po.datasource;
+package com.dtstack.engine.datadevelop.dao.po.datasource;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.dtstack.engine.dao.po.BaseModel;
+import com.dtstack.engine.datadevelop.dao.po.BaseModel;
 import lombok.Data;
 import lombok.experimental.Accessors;
 

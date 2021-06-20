@@ -1,6 +1,6 @@
-package com.dtstack.engine.param.datasource;
+package com.dtstack.engine.datadevelop.param.datasource;
 
-import com.dtstack.engine.param.PubSvcBaseParam;
+import com.dtstack.engine.datadevelop.param.PubSvcBaseParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

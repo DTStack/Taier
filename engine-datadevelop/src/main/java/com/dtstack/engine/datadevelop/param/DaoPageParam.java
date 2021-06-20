@@ -1,47 +1,40 @@
-package com.dtstack.engine.param;
-
+package com.dtstack.engine.datadevelop.param;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.dtstack.sdk.core.common.DtInsightPageAuthParam;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Objects;
 
 @Data
-public class BasePageParam extends DtInsightPageAuthParam {
+public class DaoPageParam {
 
-    public static final int DEFAULT_PAGE_NO = 0;
+    public static final int DEFAULT_PAGE_NO = 1;
     public static final int DEFAULT_PAGE_SIZE = 10;
 
     /**
      * 分页db查询，起始偏移量，limit A,B 中的A
      */
-    @ApiModelProperty(hidden = true)
     private Integer start;
     /**
      * 分页db查询，结束偏移量，limit A,B 中的B
      */
-    @ApiModelProperty(hidden = true)
     private Integer end;
 
-    @ApiModelProperty(hidden = true)
     private Long dtuicTenantId;
 
-    @ApiModelProperty(hidden = true)
     private Long tenantId;
+
+    private Integer pageSize;
+    private Integer currentPage;
+    private String sort;
+    private String sortColumn;
+
 
     /**
      * 生成mybatis-plus能访问的分页对象
      */
     public <T> Page<T> page() {
-        if (Objects.isNull(this.getCurrentPage())) {
-            super.setCurrentPage(DEFAULT_PAGE_NO);
-        }
-        if (Objects.isNull(this.getPageSize())) {
-            super.setPageSize(DEFAULT_PAGE_SIZE);
-        }
-        return new Page<>(super.getCurrentPage(), super.getPageSize());
+        return new Page<>(getCurrentPage() == null ? DEFAULT_PAGE_NO : getCurrentPage(), getPageSize() == null ? DEFAULT_PAGE_SIZE : getPageSize());
     }
 
     /**
@@ -61,7 +54,7 @@ public class BasePageParam extends DtInsightPageAuthParam {
         return t;
     }
 
-    public BasePageParam turn() {
+    public DaoPageParam turn() {
         if (Objects.isNull(this.getCurrentPage())) {
             this.setCurrentPage(DEFAULT_PAGE_NO);
         }

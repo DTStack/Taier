@@ -1,8 +1,8 @@
-package com.dtstack.engine.dao.po;
+package com.dtstack.engine.datadevelop.dao.po;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
-import com.dtstack.engine.dao.BaseMapperField;
+import com.dtstack.engine.datadevelop.dao.BaseMapperField;
 
 /**
  * company: www.dtstack.com
