@@ -13,6 +13,25 @@
         a.gmt_modified as gmtModified
     </sql>
 
+
+    <sql id="select_content_fragment">
+        a.id as id,
+        a.data_type as dataType,
+        a.data_version as dataVersion,
+        a.data_name as dataName,
+        a.data_desc as dataDesc,
+        a.link_json as linkJson,
+        a.data_json as dataJson,
+        a.status as status,
+        a.is_meta as isMeta,
+        a.tenant_id as tenantId,
+        a.is_deleted as deleted,
+        a.gmt_modified as gmtModified,
+        a.gmt_create as gmtCreate,
+        a.create_user_id as createUserId,
+        a.modify_user_id as modifyUserId
+    </sql>
+
     <sql id="queryImportDsSql">
         <where>
             a.is_deleted = 0
@@ -23,6 +42,12 @@
                 and a.`data_type` in
                 <foreach collection="listQuery.dataTypeList" item="dataType" open="(" separator="," close=")">
                     #{dataType}
+                </foreach>
+            </if>
+            <if test="listQuery.dataTypeCodeList != null and listQuery.dataTypeCodeList.size() > 0">
+                and a.data_type_code in
+                <foreach collection="listQuery.dataTypeCodeList" item="dataTypeCode" open="(" separator="," close=")">
+                    #{dataTypeCode}
                 </foreach>
             </if>
             <if test="listQuery.search != null and listQuery.search != ''">
@@ -36,6 +61,9 @@
                 FROM dsc_import_ref t
                 WHERE a.id = t.data_info_id
                 and t.is_deleted = 0
+                and t.project_id = #{listQuery.projectId}
+                and t.app_type = #{listQuery.appType}
+                and t.dtuic_tenant_id = #{listQuery.dsDtuicTenantId}
             )
         </where>
     </sql>
@@ -46,6 +74,13 @@
             and b.is_deleted = 0
             and b.`app_type` = #{listQuery.appType}
             and a.`dtuic_tenant_id` = #{listQuery.dsDtuicTenantId}
+            and b.project_id = #{listQuery.projectId}
+            <if test="listQuery.dataTypeCodeList !=null and listQuery.dataTypeCodeList.size()>0">
+                and a.`data_type_code` in
+                <foreach collection="listQuery.dataTypeList" item="dataTypeCode" open="(" separator="," close=")">
+                    #{dataTypeCode}
+                </foreach>
+            </if>
             <if test="listQuery.search != null and listQuery.search != ''">
                 and (
                 a.data_name like concat('%', #{listQuery.search} ,'%')
@@ -106,6 +141,7 @@
         a.data_version as dataVersion,
         a.data_desc as dataDesc,
         a.link_json as linkJson,
+        a.data_json as dataJson,
         a.is_meta as isMeta,
         a.status as status,
         a.gmt_modified as gmtModified
@@ -138,6 +174,7 @@
         a.data_version as dataVersion,
         group_concat(c.app_name separator ',') as appNames,
         a.data_desc as dataDesc,
+        a.data_json as dataJson,
         a.link_json as linkJson,
         a.status as status,
         a.is_meta as isMeta,
@@ -202,6 +239,17 @@
         and (a.data_type = 'Presto' or a.data_type = 'Impala')
     </select>
 
+    <select id="queryDsByAppTypeAndOldDataInfoId" resultType="com.dtstack.pubsvc.dao.po.datasource.DsInfo">
+
+        select
+        <include refid="select_content_fragment" />
+        from dsc_info a
+        inner join dsc_import_ref b on a.id = b.data_info_id
+        where a.is_deleted = 0
+        and   b.app_type = #{appType}
+        and b.old_data_info_id = #{oldDataInfoId}
+    </select>
+
     <select id="queryDsByAppTypeList" resultType="com.dtstack.pubsvc.dao.bo.datasource.DsListBO">
         select
         <include refid="selectDsField" />
@@ -230,5 +278,19 @@
         and a.dtuic_tenant_id = #{dtUicTenantId}
         and (a.data_type = 'Presto' or a.data_type = 'Impala')
     </select>
+
+    <select id="getDsInfoListByIdList" resultType="com.dtstack.pubsvc.dao.po.datasource.DsInfo">
+
+        select
+        <include refid="select_content_fragment" />
+        from dsc_info a
+        where id in
+        <foreach collection="dataInfoIdList" item="id" open="(" close=")" separator=",">
+                #{id}
+        </foreach>
+        and is_deleted = 0;
+    </select>
+
+
 
 </mapper>
