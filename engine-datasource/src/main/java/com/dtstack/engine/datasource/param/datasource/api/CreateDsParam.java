@@ -19,7 +19,7 @@ public class CreateDsParam extends PubSvcBaseParam {
     @ApiModelProperty(value = "来源产品type", example = "1-离线, 2-数据质量", required = true)
     private Integer appType;
 
-    @ApiModelProperty(value = "数据源type", notes = "映射 com.dtstack.pubsvc.common.enums.datasource.DataSourceTypeEnum val值", required = true)
+    @ApiModelProperty(value = "数据源type", notes = "映射 com.dtstack.engine.datasource.common.enums.datasource.DataSourceTypeEnum val值", required = true)
     private Integer type;
 
     @ApiModelProperty(value = "数据源名称", required = true)

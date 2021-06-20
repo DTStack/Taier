@@ -23,7 +23,7 @@ public class DsServiceListVO implements Serializable {
     @ApiModelProperty(value = "数据源名称", example = "mysql")
     private String dataName;
 
-    @ApiModelProperty(value = "数据源type", notes = "映射 com.dtstack.pubsvc.common.enums.datasource.DataSourceTypeEnum val值")
+    @ApiModelProperty(value = "数据源type", notes = "映射 com.dtstack.engine.datasource.common.enums.datasource.DataSourceTypeEnum val值")
     private Integer type;
 
     @ApiModelProperty("数据源类型")

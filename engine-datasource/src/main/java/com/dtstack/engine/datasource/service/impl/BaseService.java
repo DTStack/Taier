@@ -1,4 +1,4 @@
-package com.dtstack.engine.datasource.imp;
+package com.dtstack.engine.datasource.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -10,6 +10,11 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Optional;
 import java.util.function.Function;
 
+/**
+ * company: www.dtstack.com
+ * author: toutian
+ * create: 2021/5/10
+ */
 @Slf4j
 public abstract class BaseService<M extends BaseMapper<T>, T> extends ServiceImpl<M, T> {
 

@@ -7,9 +7,9 @@ import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 
 /**
- * @author 全阅
- * @Description:
- * @Date: 2021/3/10
+ * company: www.dtstack.com
+ * author: toutian
+ * create: 2021/5/10
  */
 @Mapper
 public interface DsImportRefMapper extends BaseMapper<DsImportRef> {

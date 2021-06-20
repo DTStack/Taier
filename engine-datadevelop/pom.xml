@@ -31,9 +31,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.dtstack.dtcenter</groupId>
-            <artifactId>common.loader.core</artifactId>
-            <version>1.5.0-SNAPSHOT</version>
+            <groupId>com.dtstack.engine</groupId>
+            <artifactId>engine-datasource</artifactId>
+            <version>1.0.0</version>
         </dependency>
 
         <dependency>

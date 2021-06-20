@@ -16,7 +16,7 @@ import java.util.List;
 @ApiModel("数据表单模版视图类")
 public class DsFormTemplateVo implements Serializable {
 
-    @ApiModelProperty(value = "数据源类型", notes = "具体查看com.dtstack.pubsvc.common.enums.datasource.DsType枚举类")
+    @ApiModelProperty(value = "数据源类型", notes = "具体查看com.dtstack.engine.datasource.common.enums.datasource.DsType枚举类")
     private String dataType;
 
     @ApiModelProperty("数据源版本 可为空")
