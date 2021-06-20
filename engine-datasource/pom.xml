@@ -12,8 +12,8 @@
 
     <packaging>jar</packaging>
 
-    <artifactId>engine-datadevelop</artifactId>
-    <name>engine-datadevelop</name>
+    <artifactId>engine-datasource</artifactId>
+    <name>engine-datasource</name>
     <url>http://maven.apache.org</url>
 
     <properties>
@@ -26,8 +26,14 @@
     <dependencies>
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>engine-master-server</artifactId>
-            <version>1.0.0</version>
+            <artifactId>engine-common</artifactId>
+            <version>${common.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>zookeeper</artifactId>
+                    <groupId>org.apache.zookeeper</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>

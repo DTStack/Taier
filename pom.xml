@@ -30,6 +30,7 @@
         <module>engine-client-sdk</module>
         <module>engine-common</module>
         <module>engine-master</module>
+        <module>engine-datasource</module>
         <module>engine-datadevelop</module>
         <module>engine-ui</module>
         <module>engine-worker</module>
