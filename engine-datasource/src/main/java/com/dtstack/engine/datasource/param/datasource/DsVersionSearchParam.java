@@ -4,7 +4,6 @@ import com.dtstack.engine.datasource.param.PubSvcBaseParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.experimental.Accessors;
 
 /**
  * company: www.dtstack.com
@@ -12,15 +11,10 @@ import lombok.experimental.Accessors;
  * create: 2021/5/10
  */
 @Data
-@Accessors(chain = true)
-@ApiModel("数据源类型和版本统一入参")
-public class DsTypeVersionParam extends PubSvcBaseParam {
+@ApiModel("搜索数据源版本入参")
+public class DsVersionSearchParam extends PubSvcBaseParam {
 
-    @ApiModelProperty("数据源类型 如MySql, Oracle")
+    @ApiModelProperty(value = "数据源类型编码", required = true)
     private String dataType;
-
-    @ApiModelProperty("数据源版本, 可为空")
-    private String dataVersion;
-
 
 }

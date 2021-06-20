@@ -2,6 +2,7 @@ package com.dtstack.engine.datasource.param;
 
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.dtstack.engine.datasource.dao.bo.DaoPageParam;
 import com.dtstack.sdk.core.common.DtInsightPageAuthParam;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
