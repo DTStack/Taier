@@ -124,7 +124,7 @@ public class EnvironmentContext {
      */
 
     public String getMybatisMapperLocations() {
-        return environment.getProperty("mybatis.mapper-locations", "classpath*:sqlmap/*-mapper.xml");
+        return environment.getProperty("mybatis.mapper-locations", "classpath*:sqlmap/**/*.xml");
     }
 
     public String getMybatisConfigLocation() {
