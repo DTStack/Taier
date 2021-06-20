@@ -62,7 +62,7 @@ public class EngineServiceTest extends AbstractTest {
     @Rollback
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public void testListSupportEngine() {
-        List<EngineSupportVO> listSupportEngine = engineService.listSupportEngine(1L);
+        List<EngineSupportVO> listSupportEngine = engineService.listSupportEngine(1L,false);
         Assert.assertTrue(CollectionUtils.isNotEmpty(listSupportEngine));
     }
 

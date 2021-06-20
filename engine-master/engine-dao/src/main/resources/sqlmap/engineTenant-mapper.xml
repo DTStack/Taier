@@ -30,7 +30,7 @@
         from console_engine_tenant et left join console_dtuic_tenant t
         on et.tenant_id = t.id
         where et.engine_id = #{engineId} and t.tenant_name like concat(concat('%',#{tenantName}),'%')
-        and et.is_deleted = 0
+        and et.is_deleted = 0 and t.is_deleted = 0
     </select>
 
     <select id="generalQuery" resultType="com.dtstack.engine.api.vo.EngineTenantVO">
@@ -40,6 +40,7 @@
         on et.tenant_id = t.id
         where et.engine_id = #{engineId} and t.tenant_name like concat(concat('%',#{tenantName}),'%')
         and et.is_deleted = 0
+        and t.is_deleted = 0
         <if test="query.orderBy != null and query.sort != null">
             order by t.${query.orderBy} ${query.sort}
         </if>
@@ -121,5 +122,11 @@
             cdt.dt_uic_tenant_id= #{dtuicTenantId}
         LIMIT 1
     </select>
+
+    <update id="deleteTenantId">
+        update console_engine_tenant
+        set is_deleted = 1
+        where tenant_id = #{tenantId} and is_deleted = 0
+    </update>
 
 </mapper>

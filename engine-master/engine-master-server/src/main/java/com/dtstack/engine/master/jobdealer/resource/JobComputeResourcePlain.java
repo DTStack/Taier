@@ -4,6 +4,7 @@ import com.dtstack.engine.api.domain.Cluster;
 import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.enums.ScheduleEngineType;
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.dao.ClusterDao;
 import com.dtstack.engine.dao.EngineTenantDao;
@@ -53,7 +54,9 @@ public class JobComputeResourcePlain {
         } else {
             jobResource = jobClient.getEngineType() + SPLIT + jobClient.getGroupName() + SPLIT + jobClient.getComputeType().name().toLowerCase();
         }
-        return jobResource + SPLIT + computeResourceType.name();
+
+        String type = EScheduleType.TEMP_JOB.getType().equals(jobClient.getType())?jobClient.getType()+"":"";
+        return jobResource + SPLIT + computeResourceType.name() + type;
     }
 
 

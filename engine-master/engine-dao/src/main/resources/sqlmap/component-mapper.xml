@@ -182,6 +182,43 @@
         and cc.is_default = 1
         and cc.is_deleted = 0 limit 1
     </select>
+    <select id="getComponentVersionByEngineType" resultType="com.dtstack.engine.api.domain.Component">
+        SELECT
+            sd.dict_name as hadoop_version,
+            cc.gmt_create,
+            cc.is_default
+        FROM
+            console_component cc
+                INNER JOIN console_engine_tenant cet ON cc.engine_id = cet.engine_id
+                INNER JOIN console_dtuic_tenant cdt ON cdt.id = cet.tenant_id
+                AND cdt.dt_uic_tenant_id = #{uicTenantId}
+                INNER JOIN schedule_dict sd ON sd.dict_value = cc.hadoop_version
+        WHERE
+            cc.component_type_code = #{componentTypeCode}
+          AND cc.is_deleted = 0
+    </select>
+    <select id="getDefaultVersionDictNameByUicIdAndComponentType" resultType="java.lang.String">
+        select sd.dict_name
+        from console_component cc
+                 INNER JOIN console_engine_tenant cet
+                            on cc.engine_id = cet.engine_id
+                 INNER JOIN console_dtuic_tenant cdt on cdt.id = cet.tenant_id
+                 INNER JOIN schedule_dict sd on sd.dict_value = cc.hadoop_version
+            and cdt.dt_uic_tenant_id = #{uicTenantId}
+        where cc.component_type_code = #{componentTypeCode}
+          and cc.is_default = 1
+          and cc.is_deleted = 0 limit 1
+    </select>
+
+    <select id="allUseUicTenant" resultType="java.lang.Long">
+        SELECT
+            cdt.dt_uic_tenant_id
+        FROM
+            console_component cc
+                INNER JOIN console_engine_tenant cet ON cet.engine_id = cc.engine_id
+                INNER JOIN console_dtuic_tenant cdt ON cdt.id = cet.tenant_id
+                AND cc.id = #{componentId}
+    </select>
 
 
     <select id="getMetadataComponent" resultType="com.dtstack.engine.api.domain.Component">

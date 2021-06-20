@@ -20,8 +20,16 @@ import com.dtstack.engine.common.enums.EScheduleStatus;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.MathUtil;
+import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.common.util.UnitConvertUtil;
+import com.dtstack.engine.dao.ScheduleTaskCommitMapper;
+import com.dtstack.engine.dao.ScheduleTaskShadeDao;
+import com.dtstack.engine.dao.TenantResourceDao;
+import com.dtstack.engine.master.druid.DtDruidRemoveAbandoned;
 import com.dtstack.engine.common.util.*;
 import com.dtstack.engine.dao.*;
+import com.dtstack.engine.master.enums.DictType;
 import com.dtstack.engine.master.executor.CronJobExecutor;
 import com.dtstack.engine.master.executor.FillJobExecutor;
 import com.dtstack.engine.master.scheduler.parser.ESchedulePeriodType;
@@ -84,6 +92,9 @@ public class ScheduleTaskShadeService {
     @Autowired
     private ComponentDao componentDao;
 
+    @Autowired
+    private ScheduleDictDao scheduleDictDao;
+
     /**
      * web 接口
      * 例如：离线计算BatchTaskService.publishTaskInfo 触发 batchTaskShade 保存task的必要信息
@@ -113,10 +124,13 @@ public class ScheduleTaskShadeService {
                 batchTaskShadeDTO.setTaskRule(0);
             }
             EComponentType componentType;
-            if (StringUtils.isBlank(batchTaskShadeDTO.getComponentVersion()) &&
-                    Objects.nonNull(componentType= ComponentVersionUtil.transformTaskType2ComponentType(batchTaskShadeDTO.getTaskType()))){
-                batchTaskShadeDTO.setComponentVersion(componentDao.getDefaultComponentVersionByTenantAndComponentType(
-                        batchTaskShadeDTO.getTenantId(),componentType.getTypeCode()));
+            if (Objects.nonNull(componentType = ComponentVersionUtil.transformTaskType2ComponentType(batchTaskShadeDTO.getTaskType())) &&
+                    StringUtils.isBlank(batchTaskShadeDTO.getComponentVersion())) {
+                // 查询版本 e.g 1.10
+                batchTaskShadeDTO.setComponentVersion(componentDao.getDefaultVersionDictNameByUicIdAndComponentType(
+                        batchTaskShadeDTO.getTenantId(), componentType.getTypeCode()));
+            } else if (StringUtils.isNotBlank(batchTaskShadeDTO.getComponentVersion())) {
+                batchTaskShadeDTO.setComponentVersion(batchTaskShadeDTO.getComponentVersion());
             }
             scheduleTaskShadeDao.insert(batchTaskShadeDTO);
         }
@@ -420,7 +434,7 @@ public class ScheduleTaskShadeService {
             batchTaskDTO.setFuzzName(name);
         }
         if (null != ownerId && ownerId != 0) {
-            batchTaskDTO.setCreateUserId(ownerId);
+            batchTaskDTO.setOwnerUserId(ownerId);
         }
         if (null != startTime && null != endTime) {
             batchTaskDTO.setStartGmtModified(new Timestamp(startTime * 1000));
@@ -790,6 +804,7 @@ public class ScheduleTaskShadeService {
     }
 
     @Transactional
+    @DtDruidRemoveAbandoned
     public Boolean taskCommit(String commitId) {
         LOGGER.info("submit task commitId:{}",commitId);
         Long minId = scheduleTaskCommitMapper.findMinIdOfTaskCommitByCommitId(commitId);

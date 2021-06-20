@@ -14,7 +14,9 @@ public enum EComponentApiType {
     HIVE_SERVER(9),
     IMPALA_SQL(11),
     SFTP(10),
-    PRESTO_SQL(16);
+    PRESTO_SQL(16),
+    INCEPTOR_SQL(19),
+    ANALYTICDB_FOR_PG(21);
 
     private int typeCode;
 

@@ -1,5 +1,7 @@
 package com.dtstack.engine.common.enums;
 
+import com.dtstack.engine.common.constrant.ComponentConstant;
+
 /**
  * Company: www.dtstack.com
  * @author toutian
@@ -26,7 +28,9 @@ public enum EngineType {
     Presto,
     KingBase,
     InceptorSQL,
-    DtScriptAgent;
+    DtScriptAgent,
+    FlinkOnStandalone,
+    AnalyticdbForPg;
 
     public static EngineType getEngineType(String type) {
 
@@ -73,6 +77,11 @@ public enum EngineType {
                 return EngineType.InceptorSQL;
             case "dtscript-agent":
                 return EngineType.DtScriptAgent;
+            case ComponentConstant
+                        .ANALYTICDB_FOR_PG_PLUGIN:
+                return EngineType.AnalyticdbForPg;
+            case "flink-on-standalone":
+                return EngineType.FlinkOnStandalone;
             default:
                 throw new UnsupportedOperationException("unsupported operation exception");
         }

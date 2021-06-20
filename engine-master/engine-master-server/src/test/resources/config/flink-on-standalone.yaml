@@ -1,0 +1,5 @@
+required:
+  metrics.reporter.promgateway.deleteOnShutdown:
+    controls: select
+    values: [ true,false ]
+
