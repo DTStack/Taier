@@ -1,21 +1,21 @@
-package com.dtstack.pubsvc.dao.po.datasource;
+package com.dtstack.engine.datadevelop.dao.po.datasource;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.dtstack.pubsvc.dao.po.BaseModel;
+import com.dtstack.engine.datadevelop.dao.po.BaseModel;
 import lombok.Data;
 
 /**
- * @author 全阅
- * @Description: 数据源与授权产品引入相关联
- * @Date: 2021/3/22
+ * company: www.dtstack.com
+ * author: toutian
+ * create: 2021/5/10
  */
 @Data
 @TableName("dsc_import_ref")
 public class DsImportRef extends BaseModel<DsImportRef> {
 
     /**
-     * 数据源实例主键id {@link DsInfo}
+     * 数据源实例主键id
      */
     @TableField("data_info_id")
     private Long dataInfoId;

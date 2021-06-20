@@ -1,11 +1,11 @@
-package com.dtstack.pubsvc.dao.mapper.datasource;
+package com.dtstack.engine.datadevelop.dao.mapper.datasource;
 
-import com.dtstack.pubsvc.dao.bo.datasource.DsListBO;
-import com.dtstack.pubsvc.dao.bo.datasource.DsServiceListBO;
-import com.dtstack.pubsvc.dao.bo.query.DsListQuery;
-import com.dtstack.pubsvc.dao.bo.query.DsServiceListQuery;
-import com.dtstack.pubsvc.dao.mapper.IMapper;
-import com.dtstack.pubsvc.dao.po.datasource.DsInfo;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.dtstack.engine.datadevelop.dao.bo.datasource.DsListBO;
+import com.dtstack.engine.datadevelop.dao.bo.datasource.DsServiceListBO;
+import com.dtstack.engine.datadevelop.dao.bo.query.DsListQuery;
+import com.dtstack.engine.datadevelop.dao.bo.query.DsServiceListQuery;
+import com.dtstack.engine.datadevelop.dao.po.datasource.DsInfo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -13,12 +13,12 @@ import java.util.List;
 
 
 /**
- * @author 全阅
- * @Description:
- * @Date: 2021/3/10
+ * company: www.dtstack.com
+ * author: toutian
+ * create: 2021/5/10
  */
 @Mapper
-public interface DsInfoMapper extends IMapper<DsInfo> {
+public interface DsInfoMapper extends BaseMapper<DsInfo> {
     /**
      * 获取外部引入数据源分页总数
      * @param listQuery
@@ -38,7 +38,7 @@ public interface DsInfoMapper extends IMapper<DsInfo> {
      * @param dsListQuery
      * @return
      */
-    Integer countDsPage(@Param("listQuery")DsListQuery dsListQuery);
+    Integer countDsPage(@Param("listQuery") DsListQuery dsListQuery);
 
     /**
      * 获取数据源报表分页数据

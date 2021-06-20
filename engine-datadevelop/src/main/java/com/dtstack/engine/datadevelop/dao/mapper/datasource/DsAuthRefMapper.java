@@ -1,20 +1,20 @@
-package com.dtstack.pubsvc.dao.mapper.datasource;
+package com.dtstack.engine.datadevelop.dao.mapper.datasource;
 
-import com.dtstack.pubsvc.dao.bo.datasource.DsAuthRefBO;
-import com.dtstack.pubsvc.dao.mapper.IMapper;
-import com.dtstack.pubsvc.dao.po.datasource.DsAuthRef;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.dtstack.engine.datadevelop.dao.bo.datasource.DsAuthRefBO;
+import com.dtstack.engine.datadevelop.dao.po.datasource.DsAuthRef;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 /**
- * @author 全阅
- * @Description:
- * @Date: 2021/3/10
+ * company: www.dtstack.com
+ * author: toutian
+ * create: 2021/5/10
  */
 @Mapper
-public interface DsAuthRefMapper extends IMapper<DsAuthRef> {
+public interface DsAuthRefMapper extends BaseMapper<DsAuthRef> {
 
     List<DsAuthRefBO> mapDaIdName(@Param("dataInfoIds") List<Long> dataInfoIds);
 

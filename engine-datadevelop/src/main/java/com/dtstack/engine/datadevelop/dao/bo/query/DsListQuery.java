@@ -1,15 +1,14 @@
-package com.dtstack.pubsvc.dao.bo.query;
+package com.dtstack.engine.datadevelop.dao.bo.query;
 
-import com.dtstack.pubsvc.dao.bo.DaoPageParam;
+import com.dtstack.engine.datadevelop.dao.bo.DaoPageParam;
 import lombok.Data;
 
 import java.util.List;
 
 /**
- * 数据源列表参数类
- * @description:
- * @author: liuxx
- * @date: 2021/3/26
+ * company: www.dtstack.com
+ * author: toutian
+ * create: 2021/5/10
  */
 @Data
 public class DsListQuery extends DaoPageParam {

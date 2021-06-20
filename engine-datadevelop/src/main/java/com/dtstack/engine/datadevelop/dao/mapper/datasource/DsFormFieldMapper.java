@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 
 /**
  * company: www.dtstack.com
- * author: toutian，quanyue
+ * author: toutian
  * create: 2021/5/10
  */
 @Mapper

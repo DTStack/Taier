@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.dtstack.pubsvc.dao.mapper.datasource.DsInfoMapper">
+<mapper namespace="com.dtstack.engine.datadevelop.dao.mapper.datasource.DsInfoMapper">
 
     <sql id="selectDsField">
         a.id as dataInfoId,
@@ -133,7 +133,7 @@
         <include refid="queryImportDsSql" />
     </select>
 
-    <select id="queryImportDsPage" resultType="com.dtstack.pubsvc.dao.bo.datasource.DsServiceListBO">
+    <select id="queryImportDsPage" resultType="com.dtstack.engine.datadevelop.dao.bo.datasource.DsServiceListBO">
         select
         a.id as dataInfoId,
         a.data_name as dataName,
@@ -166,7 +166,7 @@
         ) a
     </select>
 
-    <select id="queryDsPage" resultType="com.dtstack.pubsvc.dao.bo.datasource.DsListBO">
+    <select id="queryDsPage" resultType="com.dtstack.engine.datadevelop.dao.bo.datasource.DsListBO">
         select
         a.id as dataInfoId,
         a.data_name as dataName,
@@ -202,7 +202,7 @@
         <include refid="queryAppDsSql" />
     </select>
 
-    <select id="queryAppDsPage" resultType="com.dtstack.pubsvc.dao.bo.datasource.DsServiceListBO">
+    <select id="queryAppDsPage" resultType="com.dtstack.engine.datadevelop.dao.bo.datasource.DsServiceListBO">
         select
         a.id as dataInfoId,
         a.data_name as dataName,
@@ -222,7 +222,7 @@
         </if>
     </select>
 
-    <select id="queryDsByAppType" resultType="com.dtstack.pubsvc.dao.bo.datasource.DsListBO">
+    <select id="queryDsByAppType" resultType="com.dtstack.engine.datadevelop.dao.bo.datasource.DsListBO">
         select
         <include refid="selectDsField" />
         from
@@ -239,7 +239,7 @@
         and (a.data_type = 'Presto' or a.data_type = 'Impala')
     </select>
 
-    <select id="queryDsByAppTypeAndOldDataInfoId" resultType="com.dtstack.pubsvc.dao.po.datasource.DsInfo">
+    <select id="queryDsByAppTypeAndOldDataInfoId" resultType="com.dtstack.engine.datadevelop.dao.po.datasource.DsInfo">
 
         select
         <include refid="select_content_fragment" />
@@ -250,7 +250,7 @@
         and b.old_data_info_id = #{oldDataInfoId}
     </select>
 
-    <select id="queryDsByAppTypeList" resultType="com.dtstack.pubsvc.dao.bo.datasource.DsListBO">
+    <select id="queryDsByAppTypeList" resultType="com.dtstack.engine.datadevelop.dao.bo.datasource.DsListBO">
         select
         <include refid="selectDsField" />
         from
@@ -279,7 +279,7 @@
         and (a.data_type = 'Presto' or a.data_type = 'Impala')
     </select>
 
-    <select id="getDsInfoListByIdList" resultType="com.dtstack.pubsvc.dao.po.datasource.DsInfo">
+    <select id="getDsInfoListByIdList" resultType="com.dtstack.engine.datadevelop.dao.po.datasource.DsInfo">
 
         select
         <include refid="select_content_fragment" />

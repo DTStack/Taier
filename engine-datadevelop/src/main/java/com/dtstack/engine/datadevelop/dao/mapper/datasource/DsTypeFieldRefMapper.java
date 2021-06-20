@@ -1,14 +1,14 @@
-package com.dtstack.pubsvc.dao.mapper.datasource;
+package com.dtstack.engine.datadevelop.dao.mapper.datasource;
 
-import com.dtstack.pubsvc.dao.mapper.IMapper;
-import com.dtstack.pubsvc.dao.po.datasource.DsTypeFieldRef;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.dtstack.engine.datadevelop.dao.po.datasource.DsTypeFieldRef;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * @author 全阅
- * @Description:
- * @Date: 2021/3/11
+ * company: www.dtstack.com
+ * author: toutian
+ * create: 2021/5/10
  */
 @Mapper
-public interface DsTypeFieldRefMapper extends IMapper<DsTypeFieldRef> {
+public interface DsTypeFieldRefMapper extends BaseMapper<DsTypeFieldRef> {
 }

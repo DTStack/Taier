@@ -1,17 +1,14 @@
-package com.dtstack.pubsvc.dao.bo;
+package com.dtstack.engine.datadevelop.dao.bo;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.dtstack.sdk.core.common.DtInsightPageAuthParam;
 import lombok.Data;
 
 import java.util.Objects;
 
 /**
- * Created by 袋鼠云-数栈产研部-应用研发中心.
- *
- * @author <a href="mailto:linfeng@dtstack.com">林丰</a>
- * @date 2021/3/17
- * @desc 分页参数基类
+ * company: www.dtstack.com
+ * author: toutian
+ * create: 2021/5/10
  */
 @Data
 public class DaoPageParam {

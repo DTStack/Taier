@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.dtstack.pubsvc.dao.mapper.datasource.DsImportRefMapper">
+<mapper namespace="com.dtstack.engine.datadevelop.dao.mapper.datasource.DsImportRefMapper">
 
     <sql id="select_content">
         id,data_info_id,old_data_info_id,dtuic_tenant_id,project_id,app_type,is_deleted,
         gmt_create,gmt_modified,create_user_id,modify_user_id
     </sql>
 
-    <select id="getImportDsByInfoId" resultType="com.dtstack.pubsvc.dao.po.datasource.DsImportRef">
+    <select id="getImportDsByInfoId" resultType="com.dtstack.engine.datadevelop.dao.po.datasource.DsImportRef">
 
         select
         <include refid="select_content" />

@@ -1,14 +1,13 @@
-package com.dtstack.pubsvc.dao.bo.datasource;
+package com.dtstack.engine.datadevelop.dao.bo.datasource;
 
 import lombok.Data;
 
 import java.util.Date;
 
 /**
- *
- * @description:
- * @author: liuxx
- * @date: 2021/3/26
+ * company: www.dtstack.com
+ * author: toutian
+ * create: 2021/5/10
  */
 @Data
 public class DsListBO {

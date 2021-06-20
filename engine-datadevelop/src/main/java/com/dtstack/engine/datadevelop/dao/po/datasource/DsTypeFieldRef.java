@@ -1,15 +1,14 @@
-package com.dtstack.pubsvc.dao.po.datasource;
+package com.dtstack.engine.datadevelop.dao.po.datasource;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.dtstack.pubsvc.dao.po.BaseModel;
+import com.dtstack.engine.datadevelop.dao.po.BaseModel;
 import lombok.Data;
 
 /**
- *
- * @description:
- * @author: liuxx
- * @date: 2021/3/11
+ * company: www.dtstack.com
+ * author: toutian
+ * create: 2021/5/10
  */
 @Data
 @TableName("dsc_type_field_ref")

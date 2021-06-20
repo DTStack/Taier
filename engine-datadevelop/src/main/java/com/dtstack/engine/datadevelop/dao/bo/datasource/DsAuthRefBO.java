@@ -1,11 +1,11 @@
-package com.dtstack.pubsvc.dao.bo.datasource;
+package com.dtstack.engine.datadevelop.dao.bo.datasource;
 
 import lombok.Data;
 
 /**
- * @author 全阅
- * @Description:
- * @Date: 2021/3/15
+ * company: www.dtstack.com
+ * author: toutian
+ * create: 2021/5/10
  */
 @Data
 public class DsAuthRefBO {

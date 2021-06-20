@@ -1,7 +1,7 @@
-package com.dtstack.pubsvc.dao.mapper.datasource;
+package com.dtstack.engine.datadevelop.dao.mapper.datasource;
 
-import com.dtstack.pubsvc.dao.mapper.IMapper;
-import com.dtstack.pubsvc.dao.po.datasource.DsImportRef;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.dtstack.engine.datadevelop.dao.po.datasource.DsImportRef;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
  * @Date: 2021/3/10
  */
 @Mapper
-public interface DsImportRefMapper extends IMapper<DsImportRef> {
+public interface DsImportRefMapper extends BaseMapper<DsImportRef> {
 
     /**
      * 查询引入表判断是否是迁移的数据源
