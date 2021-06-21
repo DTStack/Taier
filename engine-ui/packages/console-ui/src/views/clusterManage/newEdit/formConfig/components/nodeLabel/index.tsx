@@ -86,6 +86,18 @@ const NodeLabel: React.FC<IProps> = (props) => {
         return false
     }
 
+    const isIllegalValue = () => {
+        const pattern = /^[^\s]*$/
+        for (const node of nodes) {
+            for (const user of (node?.componentUserInfoList || [])) {
+                const { userName, password } = user
+                if (!pattern.test(userName) || !pattern.test(password)) return true
+                if (userName?.length > 64 || password?.length > 64) return true
+            }
+        }
+        return false
+    }
+
     const setNodeDefaultValue = (nodes: any[], value: string) => {
         setNodes(nodes.map(node => {
             if (node.label !== value) return { ...node, isDefault: false }
@@ -104,7 +116,11 @@ const NodeLabel: React.FC<IProps> = (props) => {
             return
         }
         if (isRepeatUserName()) {
-            message.error('服务器用户名重复，请检查服务器用户名')
+            message.error('服务器用户名重复，请检查服务器用户名！')
+            return
+        }
+        if (isIllegalValue()) {
+            message.error('请检查服务器用户名和密码配置！')
             return
         }
         setLoading(true)
