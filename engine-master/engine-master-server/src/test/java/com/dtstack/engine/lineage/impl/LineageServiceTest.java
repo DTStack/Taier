@@ -146,7 +146,7 @@ public class LineageServiceTest extends AbstractTest {
         LineageDataSetInfo dataSetInfo = new LineageDataSetInfo();
         dataSetInfo.setId(1L);
         dataSetInfo.setAppType(1);
-        when(lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(any(),any(),any(),any())).thenReturn(dataSetInfo);
+        when(lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(any(),any(),any(),any(),any())).thenReturn(dataSetInfo);
 
         LineageDataSetInfo lineageDataSetInfo = new LineageDataSetInfo();
         lineageDataSetInfo.setId(10L);
@@ -155,7 +155,7 @@ public class LineageServiceTest extends AbstractTest {
         lineageDataSetInfo.setSourceId(1L);
         lineageDataSetInfo.setTableName("chener");
         lineageDataSetInfo.setTableKey("dev.chener");
-        when(lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(any(),any(),any(),any())).thenReturn(lineageDataSetInfo);
+        when(lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(any(),any(),any(),any(),any())).thenReturn(lineageDataSetInfo);
 
     }
 
@@ -204,7 +204,7 @@ public class LineageServiceTest extends AbstractTest {
         table.setOperate(TableOperateEnum.CREATE);
         tables.add(table);
         map.put("beihai",sourceTemplate);
-        Map<String, LineageDataSetInfo> tableRef = lineageService.getTableRef(1, "beihai", sourceTemplate, map, tables);
+        Map<String, LineageDataSetInfo> tableRef = lineageService.getTableRef(1, "beihai", null, tables);
         Assert.assertNotNull(tableRef);
     }
 
@@ -242,15 +242,14 @@ public class LineageServiceTest extends AbstractTest {
     @Rollback
     public void testHandleDropTableAndAlterRename() {
         LineageDataSource sourceTemplate = Template.getRdostHiveDataSourceTemplate();
-        Map<String,LineageDataSource> dataSourceMap = new HashMap<>();
-        dataSourceMap.put("beihai",sourceTemplate);
+
         ParseResult parseResult = new ParseResult();
         parseResult.setSqlType(SqlType.DROP);
         Table table = new Table();
         table.setDb("beihai");
         table.setName("t1");
         parseResult.setMainTable(table);
-        Boolean flag = lineageService.handleDropTableAndAlterRename(dataSourceMap, parseResult);
+        Boolean flag = lineageService.handleDropTableAndAlterRename(null, parseResult,1);
         Assert.assertTrue(flag);
 
     }
@@ -270,7 +269,7 @@ public class LineageServiceTest extends AbstractTest {
         alterResult.setOldTableName("t1");
         alterResult.setNewTableName("t2");
         parseResult.setAlterResult(alterResult);
-        Boolean flag = lineageService.handleDropTableAndAlterRename(dataSourceMap, parseResult);
+        Boolean flag = lineageService.handleDropTableAndAlterRename(null, parseResult,1);
         Assert.assertTrue(flag);
 
     }

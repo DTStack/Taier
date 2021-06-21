@@ -20,8 +20,11 @@ import com.dtstack.engine.dao.ComponentDao;
 import com.dtstack.engine.dao.KerberosDao;
 import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.dao.LineageDataSetDao;
+import com.dtstack.pubsvc.sdk.datasource.DataSourceAPIClient;
+import com.dtstack.pubsvc.sdk.dto.result.datasource.DsServiceInfoDTO;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.DataSourceType;
+import com.dtstack.sdk.core.common.ApiResponse;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -68,6 +71,9 @@ public class LineageDataSetInfoService {
     @Autowired
     private EnvironmentContext environmentContext;
 
+    @Autowired
+    private DataSourceAPIClient dataSourceAPIClient;
+
 
 
     /**
@@ -80,7 +86,7 @@ public class LineageDataSetInfoService {
      * @param schemaName:
      * @return: com.dtstack.lineage.impl.LineageTableInfoService
      **/
-    public LineageDataSetInfo getOneBySourceIdAndDbNameAndTableName(Long sourceId, String dbName, String tableName, String schemaName){
+    public LineageDataSetInfo getOneBySourceIdAndDbNameAndTableName(Long sourceId, String dbName, String tableName, String schemaName,Integer appType){
 
         LineageDataSetInfo lineageDataSetInfo = lineageDataSetDao.getOneBySourceIdAndDbNameAndTableName(sourceId,dbName,tableName,schemaName);
         if(null != lineageDataSetInfo){
@@ -88,18 +94,25 @@ public class LineageDataSetInfoService {
         }
         //如果没有查到，则新增表信息
         //根据sourceId查询数据源信息
-        LineageDataSource dataSource = sourceService.getDataSourceById(sourceId);
-        if(null == dataSource){
-            throw new RdosDefineException("该数据源不存在");
+        ApiResponse<DsServiceInfoDTO> dsInfoById = dataSourceAPIClient.getDsInfoById(sourceId);
+        if(dsInfoById.getCode() != 1){
+            LOGGER.error("getDsInfoById query failed,param:{}",JSON.toJSONString(sourceId));
+            throw new RdosDefineException("调用数据源中心根据id查询数据源接口失败");
         }
-        lineageDataSetInfo = generateDataSet(sourceId, tableName, schemaName, dataSource, dbName);
+        if( null == dsInfoById.getData()){
+            throw new RdosDefineException("该id对应的数据源在数据源中心不存在");
+        }
+        DsServiceInfoDTO dsServiceInfoDTO = dsInfoById.getData();
+        lineageDataSetInfo = generateDataSet(sourceId, tableName, schemaName, dsServiceInfoDTO, dbName,appType);
         lineageDataSetDao.insertTableInfo(lineageDataSetInfo);
         return lineageDataSetInfo;
     }
 
-    private LineageDataSetInfo generateDataSet(Long sourceId, String tableName, String schemaName, LineageDataSource dataSource, String dbName) {
+    private LineageDataSetInfo generateDataSet(Long sourceId, String tableName, String schemaName, DsServiceInfoDTO dataSource, String dbName,Integer appType) {
         LineageDataSetInfo dataSetInfo = new LineageDataSetInfo();
-        BeanUtils.copyProperties(dataSource,dataSetInfo);
+        dataSetInfo.setAppType(appType);
+        dataSetInfo.setSourceName(dataSource.getDataName());
+        dataSetInfo.setSourceType(dataSource.getType());
         dataSetInfo.setSourceId(sourceId);
         dataSetInfo.setDbName(dbName);
         dataSetInfo.setIsManual(0);
@@ -111,7 +124,7 @@ public class LineageDataSetInfoService {
         dataSetInfo.setSetType(0);
         dataSetInfo.setTableName(tableName);
         //生成tableKey
-        String tableKey = generateTableKey(dataSource.getId(), dbName, tableName);
+        String tableKey = generateTableKey(sourceId, dbName, tableName);
         dataSetInfo.setTableKey(tableKey);
         return dataSetInfo;
     }
@@ -283,12 +296,12 @@ public class LineageDataSetInfoService {
      * 根据表名和数据源信息修改表名
      * @param oldTableName
      * @param newTableName
-     * @param dataSource
+     * @param dataSourceId
      */
-    public void updateTableNameByTableNameAndSourceId(String oldTableName,String newTableName,LineageDataSource dataSource) {
+    public void updateTableNameByTableNameAndSourceId(String oldTableName,String newTableName,String dbName,Long dataSourceId) {
 
-        String oldTableKey = generateTableKey(dataSource.getId(), dataSource.getSchemaName(), oldTableName);
-        String newTableKey = generateTableKey(dataSource.getId(), dataSource.getSchemaName(), oldTableName);
+        String oldTableKey = generateTableKey(dataSourceId, dbName, oldTableName);
+        String newTableKey = generateTableKey(dataSourceId, dbName, newTableName);
         lineageDataSetDao.updateTableNameByTableNameAndSourceId(newTableName,oldTableKey,newTableKey);
     }
 }

@@ -87,7 +87,7 @@ public class LineageDataSetInfoTest extends AbstractTest {
         String dbName = "default";
         String tableName = "t1";
         String schemaName = "t1";
-        LineageDataSetInfo dataSetInfo = dataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSource.getId(), dbName, tableName, schemaName);
+        LineageDataSetInfo dataSetInfo = dataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSource.getId(), dbName, tableName, schemaName,1);
         Assert.assertNotNull(dataSetInfo);
     }
 
@@ -116,7 +116,7 @@ public class LineageDataSetInfoTest extends AbstractTest {
         String dbName = "default";
         String tableName = "t1";
         String schemaName = "t1";
-        LineageDataSetInfo dataSetInfo = dataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSource.getId(), dbName, tableName, schemaName);
+        LineageDataSetInfo dataSetInfo = dataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSource.getId(), dbName, tableName, schemaName,1);
         LineageDataSetInfo oneById = dataSetInfoService.getOneById(dataSetInfo.getId());
         Assert.assertNotNull(oneById);
     }
@@ -132,7 +132,7 @@ public class LineageDataSetInfoTest extends AbstractTest {
         String dbName = "default";
         String tableName = "t1";
         String schemaName = "t1";
-        LineageDataSetInfo dataSetInfo = dataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSource.getId(), dbName, tableName, schemaName);
+        LineageDataSetInfo dataSetInfo = dataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSource.getId(), dbName, tableName, schemaName,1);
         List<LineageDataSetInfo> dataSetListByIds = dataSetInfoService.getDataSetListByIds(Arrays.asList(dataSetInfo.getId()));
         Assert.assertNotNull(dataSetListByIds);
     }
@@ -168,8 +168,8 @@ public class LineageDataSetInfoTest extends AbstractTest {
         String dbName = "default";
         String tableName = "t1";
         String schemaName = "t1";
-        LineageDataSetInfo dataSetInfo = dataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSource.getId(), dbName, tableName, schemaName);
-        dataSetInfoService.updateTableNameByTableNameAndSourceId("t1","t2",dataSource);
+        LineageDataSetInfo dataSetInfo = dataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSource.getId(), dbName, tableName, schemaName,1);
+        dataSetInfoService.updateTableNameByTableNameAndSourceId("t1","t2",dbName,dataSource.getSourceId());
     }
 
 }
