@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
-import { Modal, Alert, Col, Row, Table, Input, message } from 'antd'
+import { Modal, Alert, Col, Row, Table, Input,
+    message, Select } from 'antd'
 import { FormComponentProps } from 'antd/lib/form/Form'
 import Api from '../../../../../../api/console'
 import { COMPONENT_TYPE_VALUE } from '../../../const'
-
 import './index.scss'
 
 interface TableData {
@@ -20,6 +20,7 @@ const NodeLabel: React.FC<IProps> = (props) => {
     const [visible, setVisible] = useState<boolean>(false)
     const [loading, setLoading] = useState<boolean>(false)
     const [nodes, setNodes] = useState<any[]>([])
+    const [defaultLabel, setDefaultLabel] = useState<string | null>(null)
 
     const getNodes = async () => {
         const { clusterId } = props.clusterInfo
@@ -33,26 +34,11 @@ const NodeLabel: React.FC<IProps> = (props) => {
         }
 
         const res = await Api.getClusterComponentUser({ ...params })
+        setVisible(true)
         if (res.code == 1) {
-            // setNodes([
-            //     {
-            //         label: 'default',
-            //         labelIp: 'aaaaaaaaaaaaaaa',
-            //         clusterId: -1,
-            //         componentTypeCode: 18,
-            //         componentUserInfoList: [
-            //             {
-            //                 userName: 'kano',
-            //                 password: 'kano'
-            //             },
-            //             {
-            //                 userName: 'kano1',
-            //                 password: 'kano2'
-            //             }
-            //         ]
-            //     }
-            // ])
-            setNodes(res?.data?.data || [])
+            if (!res?.data?.length) setNodes([])
+            setDefaultLabel(res.data[0]?.label || null)
+            setNodeDefaultValue(res.data, res?.data[0]?.label)
             setVisible(true)
         }
     }
@@ -63,9 +49,9 @@ const NodeLabel: React.FC<IProps> = (props) => {
 
     const addTableData = (currentNode) => {
         setNodes(nodes.map((node) => {
-            const { componentUserInfoList, label } = node
-            if (label !== currentNode.label) return node
-            return { ...node, componentUserInfoList: [...componentUserInfoList, {}] }
+            const componentUserInfoList = node.componentUserInfoList || []
+            if (node.label !== currentNode.label) return node
+            return { ...node, componentUserInfoList: [...componentUserInfoList, { userName: '', password: '' }] }
         }))
     }
 
@@ -89,9 +75,36 @@ const NodeLabel: React.FC<IProps> = (props) => {
         }))
     }
 
+    const isRepeatUserName = () => {
+        for (const node of nodes) {
+            const mark = {}
+            for (const user of (node?.componentUserInfoList || [])) {
+                if (mark[user.userName]) return true
+                mark[user.userName] = true
+            }
+        }
+        return false
+    }
+
+    const setNodeDefaultValue = (nodes: any[], value: string) => {
+        setNodes(nodes.map(node => {
+            if (node.label !== value) return { ...node, isDefault: false }
+            return { ...node, isDefault: true }
+        }))
+    }
+
+    const setDefaultLabelValue = (value: string) => {
+        setDefaultLabel(value)
+        setNodeDefaultValue(nodes, value)
+    }
+
     const onOk = async () => {
         if (!nodes.length) {
             setVisible(false)
+            return
+        }
+        if (isRepeatUserName()) {
+            message.error('服务器用户名重复，请检查服务器用户名')
             return
         }
         setLoading(true)
@@ -99,8 +112,8 @@ const NodeLabel: React.FC<IProps> = (props) => {
         if (res.code === 1) {
             message.success('保存成功')
             setVisible(false)
-            setLoading(false)
         }
+        setLoading(false)
     }
 
     const getColumn = (node) => {
@@ -154,6 +167,7 @@ const NodeLabel: React.FC<IProps> = (props) => {
                 className={getClassName()}
                 width={680}
                 confirmLoading={loading}
+                maskClosable={false}
             >
                 <Alert
                     className={getClassName('alter')}
@@ -162,6 +176,23 @@ const NodeLabel: React.FC<IProps> = (props) => {
                     showIcon
                 />
                 {nodes.length > 0 ? <div>
+                    <Row>
+                        <Col span={4}>默认节点标签：</Col>
+                        <Col span={20}>
+                            <Select
+                                showSearch
+                                value={defaultLabel}
+                                optionFilterProp="label"
+                                style={{ width: 340 }}
+                                filterOption={(input: any, option: any) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                onChange={(value: string) => setDefaultLabelValue(value)}
+                            >
+                                {nodes.map((node) => {
+                                    return <Select.Option key={node.label} value={node.label}>{node.label} </Select.Option>
+                                })}
+                            </Select>
+                        </Col>
+                    </Row>
                     {nodes.map((node) => {
                         return (
                             <div key={node.label} className='c-nodeLable__modal__nodes'>

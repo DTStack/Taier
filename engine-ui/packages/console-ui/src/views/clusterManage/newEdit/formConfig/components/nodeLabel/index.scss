@@ -6,17 +6,21 @@
     .ant-modal-body {
         max-height: 596px;
         overflow: scroll;
-    }
-    &__alter {
-        margin: -24px -20px 24px;
-    }
-    &__nodes {
         .ant-row {
             margin-bottom: 12px;
         }
         .ant-col:first-child {
             text-align: right;
         }
+        .ant-row:first-child {
+            height: 32px;
+            line-height: 32px;
+        }
+    }
+    &__alter {
+        margin: -24px -20px 24px;
+    }
+    &__nodes {
         .table-empty {
             margin-top: -5px;
             margin-bottom: -5px;
