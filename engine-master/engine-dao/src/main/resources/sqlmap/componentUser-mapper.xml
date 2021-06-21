@@ -67,6 +67,15 @@
             ccu.cluster_id = #{clusterId}
         and ccu.component_type_code = #{componentTypeCode}
     </select>
+    <select id="getComponentUser" resultType="com.dtstack.engine.api.domain.ComponentUser">
+        select <include refid="select_content_fragment"/>
+        from console_component_user
+        where cluster_id = #{clusterId}
+          and component_type_code = #{componentTypeCode}
+          and user_name = #{userName}
+          and label = #{label}
+
+    </select>
 
 
 </mapper>

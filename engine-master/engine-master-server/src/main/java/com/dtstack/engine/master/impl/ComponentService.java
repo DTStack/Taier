@@ -2326,4 +2326,9 @@ public class ComponentService {
         }
         componentUserDao.deleteByComponentAndLabelUser(clusterId,componentTypeCode,label,userName);
     }
+
+    public ComponentUser getComponentUser(Long dtUicId,Integer componentTypeCode,String label,String userName){
+        Cluster cluster = clusterService.getCluster(dtUicId);
+        return componentUserDao.getComponentUser(cluster.getId(),componentTypeCode,label,userName);
+    }
 }
