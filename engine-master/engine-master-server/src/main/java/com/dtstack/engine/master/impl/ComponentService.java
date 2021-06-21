@@ -2287,7 +2287,7 @@ public class ComponentService {
         }
         List<DtScriptAgentLabel> dtScriptAgentLabel = getDtScriptAgentLabel(agentAddress);
         if (CollectionUtils.isEmpty(componentUserList)){
-           return notDbComponentUser(dtScriptAgentLabel,clusterId,componentTypeCode);
+            return setDefaultComponentLabel(notDbComponentUser(dtScriptAgentLabel, clusterId, componentTypeCode));
         }
         // 以最新label数据为主
         Set<String> labelSet = dtScriptAgentLabel.stream().map(DtScriptAgentLabel::getLabel).collect(Collectors.toSet());
@@ -2299,7 +2299,7 @@ public class ComponentService {
         Set<String> dbLabel = componentUserList.stream().map(ComponentUser::getLabel).collect(Collectors.toSet());
         List<DtScriptAgentLabel> lastLabelList = dtScriptAgentLabel.stream().filter(label -> !dbLabel.contains(label.getLabel())).collect(Collectors.toList());
         filterList.addAll(notDbComponentUser(lastLabelList,clusterId,componentTypeCode));
-        return filterList;
+        return setDefaultComponentLabel(filterList);
     }
 
     private List<ComponentUserVO> groupComponentByLabel(List<ComponentUser> componentUserList) {
@@ -2345,6 +2345,24 @@ public class ComponentService {
             componentUserVO.setClusterId(clusterId);
             componentUserVO.setComponentTypeCode(componentTypeCode);
             componentUserVOList.add(componentUserVO);
+        }
+        return componentUserVOList;
+    }
+
+    private List<ComponentUserVO> setDefaultComponentLabel(List<ComponentUserVO> componentUserVOList){
+        // 存在默认
+        boolean hasDefault = componentUserVOList.stream().anyMatch(label->Boolean.TRUE.equals(label.getIsDefault()));
+        for (int i = 0; i < componentUserVOList.size(); i++) {
+            // 存在默认，其他设置为非默认
+            if (hasDefault && Objects.isNull(componentUserVOList.get(i).getIsDefault())){
+                componentUserVOList.get(i).setIsDefault(false);
+            }
+            // 不存在默认，第一个设置默认
+            else if (!hasDefault && i==0){
+                componentUserVOList.get(0).setIsDefault(true);
+            } else if (Objects.isNull(componentUserVOList.get(i).getIsDefault())){
+                componentUserVOList.get(i).setIsDefault(false);
+            }
         }
         return componentUserVOList;
     }
