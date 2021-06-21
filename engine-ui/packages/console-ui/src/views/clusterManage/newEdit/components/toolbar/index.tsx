@@ -1,11 +1,12 @@
 import * as React from 'react'
 import { Popconfirm, Button, message, Modal, Icon } from 'antd'
 import Api from '../../../../../api/console'
-import { COMPONENT_CONFIG_NAME, COMP_ACTION } from '../../const'
+import { COMPONENT_CONFIG_NAME, COMP_ACTION, FLINK_DEPLOY_NAME,
+    FLINK_DEPLOY_TYPE } from '../../const'
 
 import { handleComponentTemplate, handleComponentConfigAndCustom,
     handleComponentConfig, isNeedTemp, handleCustomParam,
-    isKubernetes, isMultiVersion } from '../../help'
+    isKubernetes, isMultiVersion, isFLink } from '../../help'
 interface IProps {
     form: any;
     comp: any;
@@ -28,6 +29,7 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
         const { form, comp, clusterInfo, saveComp, mulitple } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
         const hadoopVersion = comp?.hadoopVersion ?? ''
+        const deployMode = comp?.deployMode ?? ''
 
         // 整理相关参数, 更新初始值
         form.validateFields(null, {}, (err: any, values: any) => {
@@ -74,6 +76,7 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
              */
             Api.saveComponent({
                 ...params,
+                deployMode,
                 clusterId: clusterInfo.clusterId,
                 componentCode: typeCode,
                 clusterName: clusterInfo.clusterName,
@@ -86,6 +89,7 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
                         ...params,
                         id: res.data.id,
                         componentTypeCode: typeCode,
+                        deployMode,
                         uploadFileName: currentComp?.uploadFileName ?? '',
                         kerberosFileName: currentComp?.kerberosFileName ?? ''
                     })
@@ -139,8 +143,10 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
         const { comp, mulitple } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
         const hadoopVersion = comp?.hadoopVersion ?? ''
+        const deployMode = comp?.deployMode ?? ''
         const defaultText = COMPONENT_CONFIG_NAME[typeCode]
-        const multipleText = COMPONENT_CONFIG_NAME[typeCode] + ' ' + (Number(hadoopVersion) / 100).toFixed(2)
+        const text = isFLink(typeCode) ? (FLINK_DEPLOY_NAME[deployMode ?? FLINK_DEPLOY_TYPE.YARN]) : COMPONENT_CONFIG_NAME[typeCode]
+        const multipleText = text + ' ' + (Number(hadoopVersion) / 100).toFixed(2)
 
         if (isMultiVersion(typeCode) && !mulitple) {
             return (

@@ -17,6 +17,10 @@ export function isYarn (typeCode: number): boolean {
     return COMPONENT_TYPE_VALUE.YARN == typeCode
 }
 
+export function isFLink (typeCode: number): boolean {
+    return COMPONENT_TYPE_VALUE.FLINK == typeCode
+}
+
 export function isDtscriptAgent (typeCode: number): boolean {
     return COMPONENT_TYPE_VALUE.DTSCRIPT_AGENT == typeCode
 }

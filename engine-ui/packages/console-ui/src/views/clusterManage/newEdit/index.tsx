@@ -122,7 +122,8 @@ class EditCluster extends React.Component<any, IState> {
                 componentType: typeCode,
                 version,
                 originVersion,
-                storeType: params?.storeType ?? getFieldValue(`${typeCode}.storeType`) ?? ''
+                storeType: params?.storeType ?? getFieldValue(`${typeCode}.storeType`) ?? '',
+                deployMode: params?.deployMode ?? ''
             })
             if (res.code == 1) saveParams.componentTemplate = JSON.stringify(res.data)
             this.saveComp(saveParams)
