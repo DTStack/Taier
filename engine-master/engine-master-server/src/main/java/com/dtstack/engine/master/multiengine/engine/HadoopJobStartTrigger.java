@@ -160,17 +160,6 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                 //替换系统参数
                 taskExeArgs = jobParamReplace.paramReplace(exeArgs, taskParamsToReplace, scheduleJob.getCycTime());
             }
-        } else if (EScheduleJobType.SHELL_ON_AGENT.getType().equals(taskShade.getTaskType())){
-            String exeArgs = (String) actionParam.get("exeArgs");
-            if (StringUtils.isNotBlank(exeArgs)){
-                JSONObject args = JSON.parseObject(exeArgs);
-                String userName = args.getString("user.name");
-                String label = args.getString("label");
-                if (StringUtils.isNotBlank(userName) && StringUtils.isNotBlank(label)) {
-                    ComponentUser componentUser = componentService.getComponentUser(taskShade.getDtuicTenantId(), EComponentType.DTSCRIPT_AGENT.getTypeCode(), label, userName);
-                    taskExeArgs = args.fluentPut("user.password", Base64Util.baseDecode(componentUser.getPassword())).toJSONString();
-                }
-            }
         }
 
         if (taskExeArgs != null) {
