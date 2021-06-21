@@ -55,13 +55,15 @@ public class DictCache implements InitializingBean {
                     if (StringUtils.isNotBlank(dictName) && HADOOP_VERSION_ARRAY.contains(dictName)) {
                         List<String> values = hadoopVersionCache.get(dictName, Lists::newArrayList);
                         values.add(scheduleDict.getDictValue());
+                        hadoopVersionCache.put(dictName,values);
                         continue;
                     }
 
                     String dependName = scheduleDict.getDependName();
-                    if (StringUtils.isBlank(dictName) && StringUtils.isNotBlank(dependName) && HADOOP_VERSION_ARRAY.contains(dependName)) {
+                    if (StringUtils.isNotBlank(dependName) && HADOOP_VERSION_ARRAY.contains(dependName)) {
                         List<String> values = hadoopVersionCache.get(dependName, Lists::newArrayList);
                         values.add(scheduleDict.getDictValue());
+                        hadoopVersionCache.put(dependName,values);
                     }
                 }
 

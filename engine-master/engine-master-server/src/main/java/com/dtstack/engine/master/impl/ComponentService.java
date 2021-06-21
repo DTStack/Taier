@@ -81,7 +81,7 @@ public class ComponentService {
 
     public static final String KERBEROS_PATH = "kerberos";
 
-    private static final String HADOOP3_SIGNAL = "hadoop3";
+    private static final String HADOOP3_SIGNAL = "Hadoop3";
 
     private static final String GPU_EXEC_SIGNAL = "yarn.nodemanager.resource-plugins.gpu.path-to-discovery-executables";
 
@@ -1929,8 +1929,10 @@ public class ComponentService {
         }
 
         List<String> hadoopVersion = dictCache.getHadoopVersion(HADOOP3_SIGNAL);
-        if (!hadoopVersion.contains(yarnComponent.getHadoopVersion())) {
-            return Boolean.FALSE;
+        if (!HADOOP3_SIGNAL.equals(yarnComponent.getHadoopVersion()) ) {
+            if (!hadoopVersion.contains(yarnComponent.getHadoopVersion())) {
+                return Boolean.FALSE;
+            }
         }
 
         JSONObject yarnConf = getComponentByClusterId(cluster.getId(), EComponentType.YARN.getTypeCode(),false,JSONObject.class);
