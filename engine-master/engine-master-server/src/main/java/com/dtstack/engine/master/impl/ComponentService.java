@@ -2255,7 +2255,7 @@ public class ComponentService {
             if(CollectionUtils.isEmpty(userVO.getComponentUserInfoList())
                     && Boolean.TRUE.equals(userVO.getIsDefault())){
                 ComponentUser emptyUser = new ComponentUser();
-                emptyUser.setUserName(StringUtils.EMPTY);
+                emptyUser.setPassword(StringUtils.EMPTY);
                 emptyUser.setUserName(StringUtils.EMPTY);
                 emptyUser.setLabel(userVO.getLabel());
                 emptyUser.setLabelIp(userVO.getLabelIp());
