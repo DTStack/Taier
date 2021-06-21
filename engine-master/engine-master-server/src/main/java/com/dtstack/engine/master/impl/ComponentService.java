@@ -2267,7 +2267,9 @@ public class ComponentService {
                 addComponentUserList.add(componentUser);
             }
         }
-        componentUserDao.batchInsert(addComponentUserList);
+        if (CollectionUtils.isNotEmpty(addComponentUserList)){
+            componentUserDao.batchInsert(addComponentUserList);
+        }
 
     }
 
@@ -2285,21 +2287,19 @@ public class ComponentService {
         }
         List<DtScriptAgentLabel> dtScriptAgentLabel = getDtScriptAgentLabel(agentAddress);
         if (CollectionUtils.isEmpty(componentUserList)){
-            List<ComponentUserVO> componentUserVOList = new ArrayList<>(dtScriptAgentLabel.size());
-            for (DtScriptAgentLabel agentLabel : dtScriptAgentLabel) {
-                ComponentUserVO componentUserVO = new ComponentUserVO();
-                componentUserVO.setLabel(agentLabel.getLabel());
-                componentUserVO.setLabelIp(agentLabel.getLocalIp());
-                componentUserVO.setClusterId(clusterId);
-                componentUserVO.setComponentTypeCode(componentTypeCode);
-                componentUserVOList.add(componentUserVO);
-            }
-            return componentUserVOList;
+           return notDbComponentUser(dtScriptAgentLabel,clusterId,componentTypeCode);
         }
+        // 以最新label数据为主
         Set<String> labelSet = dtScriptAgentLabel.stream().map(DtScriptAgentLabel::getLabel).collect(Collectors.toSet());
-        return groupComponentByLabel(componentUserList.stream()
+        List<ComponentUserVO> filterList = groupComponentByLabel(componentUserList.stream()
                 .filter(componentUser -> labelSet.contains(componentUser.getLabel())).collect(Collectors.toList()));
-
+        if (labelSet.size() == filterList.size()){
+            return filterList;
+        }
+        Set<String> dbLabel = componentUserList.stream().map(ComponentUser::getLabel).collect(Collectors.toSet());
+        List<DtScriptAgentLabel> lastLabelList = dtScriptAgentLabel.stream().filter(label -> !dbLabel.contains(label.getLabel())).collect(Collectors.toList());
+        filterList.addAll(notDbComponentUser(lastLabelList,clusterId,componentTypeCode));
+        return filterList;
     }
 
     private List<ComponentUserVO> groupComponentByLabel(List<ComponentUser> componentUserList) {
@@ -2333,5 +2333,19 @@ public class ComponentService {
     public ComponentUser getComponentUser(Long dtUicId,Integer componentTypeCode,String label,String userName){
         Cluster cluster = clusterService.getCluster(dtUicId);
         return componentUserDao.getComponentUser(cluster.getId(),componentTypeCode,label,userName);
+    }
+
+
+    private List<ComponentUserVO> notDbComponentUser(List<DtScriptAgentLabel> dtScriptAgentLabel,Long clusterId,Integer componentTypeCode){
+        List<ComponentUserVO> componentUserVOList = new ArrayList<>(dtScriptAgentLabel.size());
+        for (DtScriptAgentLabel agentLabel : dtScriptAgentLabel) {
+            ComponentUserVO componentUserVO = new ComponentUserVO();
+            componentUserVO.setLabel(agentLabel.getLabel());
+            componentUserVO.setLabelIp(agentLabel.getLocalIp());
+            componentUserVO.setClusterId(clusterId);
+            componentUserVO.setComponentTypeCode(componentTypeCode);
+            componentUserVOList.add(componentUserVO);
+        }
+        return componentUserVOList;
     }
 }
