@@ -34,6 +34,7 @@ import com.dtstack.engine.common.sftp.SftpFileManage;
 import com.dtstack.engine.common.util.*;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.cache.DictCache;
 import com.dtstack.engine.master.enums.DictType;
 import com.dtstack.engine.master.enums.DownloadType;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
@@ -85,7 +86,7 @@ public class ComponentService {
 
     public static final String KERBEROS_PATH = "kerberos";
 
-    private static final String HADOOP3_SIGNAL = "hadoop3";
+    private static final String HADOOP3_SIGNAL = "Hadoop3";
 
     private static final String GPU_EXEC_SIGNAL = "yarn.nodemanager.resource-plugins.gpu.path-to-discovery-executables";
 
@@ -155,6 +156,9 @@ public class ComponentService {
 
     @Autowired
     private ScheduleTaskShadeDao scheduleTaskShadeDao;
+
+    @Autowired
+    private DictCache dictCache;
 
     public static final String VERSION = "version";
 
@@ -2036,9 +2040,14 @@ public class ComponentService {
         if (yarnComponent == null) {
             return false;
         }
-        if (!HADOOP3_SIGNAL.equals(yarnComponent.getHadoopVersion())) {
-            return false;
+
+        List<String> hadoopVersion = dictCache.getHadoopVersion(HADOOP3_SIGNAL);
+        if (!HADOOP3_SIGNAL.equals(yarnComponent.getHadoopVersion()) ) {
+            if (!hadoopVersion.contains(yarnComponent.getHadoopVersion())) {
+                return Boolean.FALSE;
+            }
         }
+
         JSONObject yarnConf = getComponentByClusterId(cluster.getId(), EComponentType.YARN.getTypeCode(),false,JSONObject.class,null);
         if(null == yarnConf){
             return false;
@@ -2082,7 +2091,6 @@ public class ComponentService {
         }
         return false;
     }
-
 
     /**
      * 解析对应的kerberos的zip中principle
