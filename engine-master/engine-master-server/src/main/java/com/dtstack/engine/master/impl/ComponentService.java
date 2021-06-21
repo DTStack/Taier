@@ -2252,6 +2252,9 @@ public class ComponentService {
         List<ComponentUser> addComponentUserList =  new ArrayList<>(componentUserList.size());
         // 构建实例
         for (ComponentUserVO userVO : componentUserList) {
+            if(CollectionUtils.isEmpty(userVO.getComponentUserInfoList())){
+                continue;
+            }
             for (ComponentUserVO.ComponentUserInfo userInfo : userVO.getComponentUserInfoList()) {
                 ComponentUser componentUser = new ComponentUser();
                 componentUser.setClusterId(userVO.getClusterId());
