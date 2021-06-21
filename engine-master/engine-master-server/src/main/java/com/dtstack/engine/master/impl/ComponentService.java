@@ -2263,7 +2263,7 @@ public class ComponentService {
                 emptyUser.setClusterId(userVO.getClusterId());
                 emptyUser.setComponentTypeCode(userVO.getComponentTypeCode());
                 addComponentUserList.add(emptyUser);
-            }else if (CollectionUtils.isNotEmpty(userVO.getComponentUserInfoList())){
+            }else if (CollectionUtils.isEmpty(userVO.getComponentUserInfoList())){
                 continue;
             }
             for (ComponentUserVO.ComponentUserInfo userInfo : userVO.getComponentUserInfoList()) {
