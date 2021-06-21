@@ -22,7 +22,7 @@ import Base64 from 'base-64';
 import { API } from '@/services';
 
 import { checks, getSaveStatus } from '../../utils/handelSession';
-import { utf8to16 } from '../../utils/utfEncode';
+// import { utf8to16 } from '../../utils/utfEncode';
 import { getRules, IParams, formItemLayout, formNewLayout } from './formRules';
 import { HDFSCONG } from '../../constants/index';
 import { hdfsConfig } from './tooltips';
@@ -561,7 +561,7 @@ const InfoConfig = (props) => {
               }}
               autoComplete="off"
               value={
-                utf8to16(getFieldValue(`kerberosFile`).name) +
+                getFieldValue(`kerberosFile`).name +
                 '   ' +
                 moment(getFieldValue(`kerberosFile`).modifyTime).format(
                   'YYYY-MM-DD HH:mm:ss'
