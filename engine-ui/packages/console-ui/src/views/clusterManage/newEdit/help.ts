@@ -104,6 +104,10 @@ export function isMetaData (key: string): boolean {
     return ['isMetadata'].indexOf(key) > -1
 }
 
+export function isDefaultVersion (key: string): boolean {
+    return ['isDefault'].indexOf(key) > -1
+}
+
 export function isDeployMode (key: string): boolean {
     return key === 'deploymode'
 }
@@ -509,7 +513,7 @@ function handleCurrentComp (comp: any, initialComp: any, typeCode: number): bool
         if (isFileParam(param)) {
             compValue = comp[param]?.name ?? comp[param]
         }
-        if (isMetaData(param)) {
+        if (isMetaData(param) || isDefaultVersion(param)) {
             if (comp[param] === true) compValue = 1
             if (comp[param] === false) compValue = 0
         }

@@ -147,7 +147,7 @@ export const COMP_ACTION = {
     ADD: 'ADD'
 }
 
-export const DEFAULT_PARAMS = ['storeType', 'principal', 'hadoopVersion', 'kerberosFileName', 'uploadFileName', 'isMetadata']
+export const DEFAULT_PARAMS = ['storeType', 'principal', 'hadoopVersion', 'kerberosFileName', 'uploadFileName', 'isMetadata', 'isDefault']
 
 export const MAPPING_DATA_CHECK = {
     [COMPONENT_TYPE_VALUE.HIVE_SERVER]: COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER,
@@ -167,4 +167,9 @@ export const FLINK_DEPLOY_TYPE = {
 export const FLINK_DEPLOY_NAME = {
     [FLINK_DEPLOY_TYPE.STANDALONE]: 'Flink on Standalone',
     [FLINK_DEPLOY_TYPE.YARN]: 'Flink on YARN'
+}
+
+export const MAPPING_DEFAULT_VERSION = {
+    '180': '110',
+    '110': '180'
 }

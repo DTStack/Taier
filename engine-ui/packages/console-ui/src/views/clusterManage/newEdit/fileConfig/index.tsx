@@ -7,11 +7,12 @@ import Api from '../../../../api/console'
 import UploadFile from './components/uploadFileBtn'
 import KerberosModal from './components/kerberosModal'
 import DataCheckbox from './components/dataCheckbox'
+import DefaultVersionCheckbox from './components/defaultVersionCheckbox'
 import { COMPONENT_TYPE_VALUE, VERSION_TYPE, FILE_TYPE,
     CONFIG_FILE_DESC, DEFAULT_COMP_VERSION } from '../const'
 import { isOtherVersion, isSameVersion, handleComponentConfig,
     needZipFile, getOptions, getInitialValue, isMultiVersion,
-    isYarn, showDataCheckBox, notFileConfig } from '../help'
+    isYarn, showDataCheckBox, notFileConfig, isFLink } from '../help'
 
 interface IProps {
     comp: any;
@@ -23,6 +24,7 @@ interface IProps {
     isCheckBoxs?: boolean;
     isSchedulings?: boolean;
     disabledMeta?: boolean;
+    isDefault?: boolean;
     handleCompVersion?: Function;
     saveComp: Function;
 }
@@ -462,6 +464,18 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
         />
     }
 
+    renderDefaultVersion = () => {
+        const { comp } = this.props
+        const typeCode = comp?.componentTypeCode ?? ''
+        if (!isFLink(typeCode)) return null
+        return <DefaultVersionCheckbox
+            comp={this.props.comp}
+            form={this.props.form}
+            view={this.props.view}
+            isDefault={this.props.isDefault}
+        />
+    }
+
     setKrbConfig = (krbconfig: any) => {
         const { comp, saveComp } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
@@ -537,6 +551,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             case COMPONENT_TYPE_VALUE.FLINK: {
                 return (
                     <>
+                        {this.renderDefaultVersion()}
                         {this.renderKerberosFile()}
                         {this.renderPrincipal()}
                         {this.renderParamsFile()}

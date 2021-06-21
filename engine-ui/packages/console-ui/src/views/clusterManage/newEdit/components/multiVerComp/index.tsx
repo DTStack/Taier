@@ -43,7 +43,8 @@ export default class MultiVersionComp extends React.Component<IProps, IState> {
         saveComp({
             componentTypeCode: typeCode,
             hadoopVersion: e.key,
-            deployMode
+            deployMode,
+            isDefault: false
         }, COMP_ACTION.ADD)
         getLoadTemplate(typeCode, { compVersion: e.key, deployMode })
     }
@@ -70,7 +71,8 @@ export default class MultiVersionComp extends React.Component<IProps, IState> {
         saveComp({
             deployMode,
             componentTypeCode: typeCode,
-            hadoopVersion: value
+            hadoopVersion: value,
+            isDefault: true
         }, COMP_ACTION.ADD)
         getLoadTemplate(typeCode, { compVersion: value, deployMode })
     }
@@ -81,12 +83,25 @@ export default class MultiVersionComp extends React.Component<IProps, IState> {
         return (Number(value) / 100).toFixed(2)
     }
 
+    getComponentName = (typeCode: number, deployMode: number = FLINK_DEPLOY_TYPE.YARN) => {
+        if (isFLink(typeCode)) return FLINK_DEPLOY_NAME[deployMode]
+        return COMPONENT_CONFIG_NAME[typeCode]
+    }
+
+    getDefaultVerionCompStatus = (comp: any) => {
+        /** 当flink组件只有一个组件版本时勾选为默认版本 */
+        const typeCode = comp?.componentTypeCode ?? ''
+        if (isFLink(typeCode) && comp.multiVersion.length == 1) return true
+        return false
+    }
+
     render () {
         const { comp, versionData, saveCompsData, testStatus, view,
             clusterInfo, form, saveComp, testConnects, handleConfirm } = this.props
         const { deployMode } = this.state
         const typeCode = comp?.componentTypeCode ?? ''
         const className = 'c-multiVersionComp'
+        const isDefault = this.getDefaultVerionCompStatus(comp)
 
         if (!comp?.multiVersion[0]?.hadoopVersion) {
             return <div className={className}>
@@ -146,21 +161,23 @@ export default class MultiVersionComp extends React.Component<IProps, IState> {
                 </Dropdown>}
             >
                 {comp?.multiVersion.map(vcomp => {
+                    const { deployMode, componentTypeCode, hadoopVersion } = vcomp
                     return (
                         <TabPane
                             tab={
                                 <span>
-                                    {isFLink(vcomp.componentTypeCode) ? FLINK_DEPLOY_NAME[vcomp?.deployMode ?? FLINK_DEPLOY_TYPE.YARN] : COMPONENT_CONFIG_NAME[vcomp.componentTypeCode]} {this.getCompVersion(vcomp.hadoopVersion)}
-                                    <TestRestIcon testStatus={testStatus.find(status => status?.componentVersion == vcomp.hadoopVersion)}/>
+                                    {this.getComponentName(componentTypeCode, deployMode)} {this.getCompVersion(hadoopVersion)}
+                                    <TestRestIcon testStatus={testStatus.find(status => status?.componentVersion == hadoopVersion)}/>
                                 </span>
                             }
-                            key={String(vcomp.hadoopVersion)}
+                            key={String(hadoopVersion)}
                         >
                             <>
                                 <FileConfig
                                     comp={vcomp}
                                     form={form}
                                     view={view}
+                                    isDefault={isDefault}
                                     saveCompsData={saveCompsData}
                                     versionData={versionData}
                                     clusterInfo={clusterInfo}
