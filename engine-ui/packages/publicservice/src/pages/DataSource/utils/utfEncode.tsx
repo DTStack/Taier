@@ -60,35 +60,34 @@ export const utf8to16 = function (utf8Arr) {
   let utf16Str = '';
 
   for (let i = 0; i < utf8Arr.length; i++) {
-      //每个字节都转换为2进制字符串进行判断
-      const one = utf8Arr[i].toString(2);
+    //每个字节都转换为2进制字符串进行判断
+    const one = utf8Arr[i].toString(2);
 
-      //正则表达式判断该字节是否符合>=2个1和1个0的情况
-      const v = one.match(/^1+?(?=0)/);
+    //正则表达式判断该字节是否符合>=2个1和1个0的情况
+    const v = one.match(/^1+?(?=0)/);
 
-      //多个字节编码
-      if (v && one.length == 8) {
-          //获取该编码是多少个字节长度
-          const bytesLength = v[0].length;
+    //多个字节编码
+    if (v && one.length == 8) {
+      //获取该编码是多少个字节长度
+      const bytesLength = v[0].length;
 
-          //首个字节中的数据,因为首字节有效数据长度为8位减去1个0位，再减去bytesLength位的剩余位数
-          let store = utf8Arr[i].toString(2).slice(7 - bytesLength);
-          for (var st = 1; st < bytesLength; st++) {
-              //后面剩余字节中的数据，因为后面字节都是10xxxxxxx，所以slice中的2指的是去除10
-              store += utf8Arr[st + i].toString(2).slice(2)
-          }
-
-          //转换为Unicode码值
-          utf16Str += String.fromCharCode(parseInt(store, 2));
-
-          //调整剩余字节数
-          i += bytesLength - 1
-      } else {
-          //单个字节编码，和Unicode码值一致，直接将该字节转换为UTF-16
-          utf16Str += String.fromCharCode(utf8Arr[i])
+      //首个字节中的数据,因为首字节有效数据长度为8位减去1个0位，再减去bytesLength位的剩余位数
+      let store = utf8Arr[i].toString(2).slice(7 - bytesLength);
+      for (var st = 1; st < bytesLength; st++) {
+        //后面剩余字节中的数据，因为后面字节都是10xxxxxxx，所以slice中的2指的是去除10
+        store += utf8Arr[st + i].toString(2).slice(2);
       }
+
+      //转换为Unicode码值
+      utf16Str += String.fromCharCode(parseInt(store, 2));
+
+      //调整剩余字节数
+      i += bytesLength - 1;
+    } else {
+      //单个字节编码，和Unicode码值一致，直接将该字节转换为UTF-16
+      utf16Str += String.fromCharCode(utf8Arr[i]);
+    }
   }
 
-  return utf16Str
-}
-
+  return utf16Str;
+};
