@@ -61,6 +61,9 @@
                 #{engineId}
             </foreach>
         </if>
+        <if test="type!=null">
+            and component_type_code = #{type}
+        </if>
     </select>
 
     <select id="getByEngineIdAndComponentType" resultType="Component">
@@ -234,4 +237,12 @@
           and is_default = 1
           and c.is_deleted = 0 LIMIT 1
     </select>
+
+    <update id="updateDefault">
+        update console_component set is_default = #{isDefault}
+        where engine_id = #{engineId} and is_deleted = 0 and component_type_code = #{componentType}
+        <if test="true == isDefault">
+            and is_default = 0 order by id desc limit 1
+        </if>
+    </update>
 </mapper>

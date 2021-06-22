@@ -1,6 +1,7 @@
 package com.dtstack.engine.dao;
 
 import com.dtstack.engine.api.domain.Component;
+import com.dtstack.engine.common.enums.EComponentType;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -15,7 +16,7 @@ public interface ComponentDao {
 
     Integer updateMetadata(@Param("engineId") Long engineId, @Param("type") Integer type,@Param("isMetadata") Integer isMetadata);
 
-    List<Component> listByEngineIds(@Param("engineIds") List<Long> engineId);
+    List<Component> listByEngineIds(@Param("engineIds") List<Long> engineId,@Param("type") Integer type);
 
     List<Component> listDefaultByEngineIds(@Param("engineIds") List<Long> engineIdList);
 
@@ -49,5 +50,7 @@ public interface ComponentDao {
     List<Long> allUseUicTenant(@Param("componentId") Long componentId);
 
     Component getMetadataComponent(@Param("clusterId") Long clusterId);
+
+    int updateDefault(@Param("engineId")Long engineId, @Param("componentType")Integer componentType, @Param("isDefault") boolean isDefault);
 }
 

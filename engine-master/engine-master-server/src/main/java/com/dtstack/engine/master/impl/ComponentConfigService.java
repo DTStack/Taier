@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.dtstack.engine.common.constrant.ConfigConstant.DEPLOY_TYPE;
 import static com.dtstack.engine.common.constrant.ConfigConstant.TYPE_NAME_KEY;
 
 /**
@@ -142,6 +143,10 @@ public class ComponentConfigService {
         return componentConfigDao.listByKey(componentId,key);
     }
 
+    public List<ComponentConfig> getComponentConfigListByTypeCodeAndKey(Long clusterId,Integer componentTypeCode,String key) {
+        return componentConfigDao.listByComponentTypeAndKey(clusterId,key,componentTypeCode);
+    }
+
     public Map<String, Object> convertComponentConfigToMap(Long componentId, boolean isFilter) {
         List<ComponentConfig> componentConfigs = componentConfigDao.listByComponentId(componentId, isFilter);
         return ComponentConfigUtils.convertComponentConfigToMap(componentConfigs);
@@ -197,8 +202,12 @@ public class ComponentConfigService {
                 //hdfs yarn 4.1 config为xml配置参数
                 componentVO.setComponentConfig(JSONObject.toJSONString(ComponentConfigUtils.convertComponentConfigToMap(configTypeMapping.get(EFrontType.XML.name()))));
             } else {
+                Map<String, Object> configToMap = ComponentConfigUtils.convertComponentConfigToMap(configs);
                 componentVO.setComponentTemplate(JSONObject.toJSONString(ComponentConfigUtils.buildDBDataToClientTemplate(configs)));
-                componentVO.setComponentConfig(JSONObject.toJSONString(ComponentConfigUtils.convertComponentConfigToMap(configs)));
+                componentVO.setComponentConfig(JSONObject.toJSONString(configToMap));
+                if(configToMap.containsKey(DEPLOY_TYPE)){
+                    componentVO.setDeployType((Integer)configToMap.get(DEPLOY_TYPE));
+                }
             }
 
             if (isConvertHadoopVersion && isHadoopControl) {

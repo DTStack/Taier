@@ -150,4 +150,14 @@ public interface ClusterService extends DtInsightServer {
      */
     @RequestLine("POST /node/cluster/isSameCluster")
     ApiResponse<Boolean> isSameCluster(@Param("tenantId") Long dtUicTenantId,@Param("aimTenantIds") List<Long> dtUicTenantIds);
+
+    /**
+     * 判断的租户对应组件下是否有standalone配置
+     *
+     * @param dtUicTenantId
+     * @param componentType
+     * @return
+     */
+    @RequestLine("POST /node/cluster/hasStandalone")
+    ApiResponse<Boolean> hasStandalone(@Param("tenantId") Long dtUicTenantId, @Param("componentType") Integer componentType);
 }

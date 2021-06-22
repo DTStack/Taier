@@ -53,7 +53,6 @@ public class ScheduleDictService {
         versions.put(EComponentType.SPARK.getName(), getNormalVersion(DictType.SPARK_VERSION.type));
         versions.put(EComponentType.HIVE_SERVER.getName(), getNormalVersion(DictType.HIVE_VERSION.type));
         versions.put(EComponentType.INCEPTOR_SQL.getName(),getNormalVersion(DictType.INCEPTOR_SQL.type));
-        versions.put(EComponentType.FLINK_ON_STANDALONE.getName(),getNormalVersion(DictType.FLINK_VERSION.type));
         return versions;
     }
 

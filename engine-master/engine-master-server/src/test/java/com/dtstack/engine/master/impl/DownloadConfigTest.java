@@ -63,7 +63,7 @@ public class DownloadConfigTest extends AbstractTest {
 
     @Test
     public void testDownloadConfig() {
-        File file = componentService.downloadFile(100L, DownloadType.Config.getCode(), EComponentType.ORACLE_SQL.getTypeCode(), "", "");
+        File file = componentService.downloadFile(100L, DownloadType.Config.getCode(), EComponentType.ORACLE_SQL.getTypeCode(), "", "",null);
         Assert.assertNotNull(file);
         try {
             String contentFromFile = FileUtil.getContentFromFile(file.getPath());

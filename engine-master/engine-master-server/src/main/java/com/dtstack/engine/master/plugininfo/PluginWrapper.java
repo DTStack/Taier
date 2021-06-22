@@ -1,23 +1,19 @@
 package com.dtstack.engine.master.plugininfo;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.ScheduleDict;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.enums.ScheduleEngineType;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.constrant.ConfigConstant;
-import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
-import com.dtstack.engine.master.enums.DictType;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.impl.ClusterService;
-import com.dtstack.engine.master.impl.ScheduleDictService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
-import com.dtstack.engine.common.util.TaskParamsUtil;
+import com.dtstack.engine.master.impl.TaskParamsService;
 import com.dtstack.schedule.common.enums.Deleted;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
@@ -27,6 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+
+import static com.dtstack.engine.common.constrant.ConfigConstant.DEPLOY_MODEL;
 
 @Component
 public class PluginWrapper{
@@ -39,7 +37,7 @@ public class PluginWrapper{
     private static final String LADP_PASSWORD = "ldapPassword";
     private static final String DB_NAME = "dbName";
     private static final String CLUSTER = "cluster";
-    private static final String DEPLOY_MODEL = "deployMode";
+
     private static final String QUEUE = "queue";
     private static final String NAMESPACE = "namespace";
     public static final String PLUGIN_INFO = "pluginInfo";
@@ -54,7 +52,7 @@ public class PluginWrapper{
     private ScheduleTaskShadeDao scheduleTaskShadeDao;
 
     @Autowired
-    private ScheduleDictService scheduleDictService;
+    private TaskParamsService taskParamsService;
 
     public Map<String, Object> wrapperPluginInfo(ParamAction action) throws Exception{
 
@@ -75,7 +73,7 @@ public class PluginWrapper{
         String engineType = action.getEngineType();
         if (null == deployMode && ScheduleEngineType.Flink.getEngineName().equalsIgnoreCase(engineType)) {
             //解析参数
-            deployMode = TaskParamsUtil.parseDeployTypeByTaskParams(action.getTaskParams(),action.getComputeType(), EngineType.Flink.name()).getType();
+            deployMode = taskParamsService.parseDeployTypeByTaskParams(action.getTaskParams(),action.getComputeType(), EngineType.Flink.name(),tenantId).getType();
         }
         // 需要传入组件版本,涉及Null值构建Map需要检验Null兼容
         JSONObject pluginInfoJson = clusterService.pluginInfoJSON(tenantId, engineType, action.getUserId(),deployMode,
@@ -244,13 +242,13 @@ public class PluginWrapper{
             Integer deployMode = null;
             if (ScheduleEngineType.Flink.getEngineName().equalsIgnoreCase(engineType)) {
                 //解析参数
-                deployMode = TaskParamsUtil.parseDeployTypeByTaskParams(taskParams, computeType,EngineType.Flink.name()).getType();
+                deployMode = taskParamsService.parseDeployTypeByTaskParams(taskParams, computeType,EngineType.Flink.name(),tenantId).getType();
             }
 
             String cacheKey = String.format("%s.%s.%s.%s.%s", tenantId, engineType, userId, deployMode,componentVersion);
             Integer finalDeployMode = deployMode;
             return pluginInfoCache.computeIfAbsent(cacheKey, (k) -> {
-                JSONObject infoJSON = clusterService.pluginInfoJSON(tenantId, engineType, userId, finalDeployMode,StringUtils.isBlank(componentVersion)?null:Collections.singletonMap(EngineTypeComponentType.getByEngineName(engineType,finalDeployMode).getComponentType().getTypeCode(),componentVersion));
+                JSONObject infoJSON = clusterService.pluginInfoJSON(tenantId, engineType, userId, finalDeployMode,StringUtils.isBlank(componentVersion)?null:Collections.singletonMap(EngineTypeComponentType.getByEngineName(engineType).getComponentType().getTypeCode(),componentVersion));
                 if (Objects.nonNull(infoJSON)) {
                     return infoJSON.toJSONString();
                 }
