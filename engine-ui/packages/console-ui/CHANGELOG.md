@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.2.0-beta6](http://git.dtstack.cn/dtstack/data-stack-web/compare/v4.2.0-beta5...v4.2.0-beta6) (2021-06-10)
+
+
+### Features
+
+* add alarm config ([758a383](http://git.dtstack.cn/dtstack/data-stack-web/commit/758a3833978cf234c8668c14422c4e296ebd0eff))
+* add anatlytic db comp for presto sql ([5d031f1](http://git.dtstack.cn/dtstack/data-stack-web/commit/5d031f1ff7a44104382da398715fda26255a81b8))
+* add dtscript agent node labels ([d2ccb5b](http://git.dtstack.cn/dtstack/data-stack-web/commit/d2ccb5babb42bb791ce588a867ed4f93becb0c38))
+* add flink on standalone for multiple version comp ([ab9d6e5](http://git.dtstack.cn/dtstack/data-stack-web/commit/ab9d6e55d026bad77b2910336d06432c5b2ce7be))
+* get temp after change scheduling comp version ([2b8018b](http://git.dtstack.cn/dtstack/data-stack-web/commit/2b8018bb90c3a750692583ffc84a92426f57952a))
+
+
+### Bug Fixes
+
+* bind tenant styles ([241a916](http://git.dtstack.cn/dtstack/data-stack-web/commit/241a9164dbb935dc62796995d4fcadc3c7615925))
+* clear delete comp values ([fe3f4a1](http://git.dtstack.cn/dtstack/data-stack-web/commit/fe3f4a1e34fe65b85e238813c6b5223f0eb127b3))
+* fix bind common modal ([de132bd](http://git.dtstack.cn/dtstack/data-stack-web/commit/de132bded88140ae6c8d1f6763f0abdadd7b58af))
+* fix multiple version comp name ([ef854e7](http://git.dtstack.cn/dtstack/data-stack-web/commit/ef854e7f8a63751706e7052832d50ee1d0000a58))
+* fix scheduling comp version ([45a944f](http://git.dtstack.cn/dtstack/data-stack-web/commit/45a944ff275842b36a6c7bcd531ca3e28f3bdb93))
+* fix template keys ([355c27e](http://git.dtstack.cn/dtstack/data-stack-web/commit/355c27ee30746994bc80cea675476f48e132f557))
+* fix test alarm config connect ([89e02e0](http://git.dtstack.cn/dtstack/data-stack-web/commit/89e02e04e5c060e8a90eb282efa14628f0d4a0ae))
+* fix version tip ([d42965d](http://git.dtstack.cn/dtstack/data-stack-web/commit/d42965d215d170379bf49bc56604d54d94b7082e))
+* form component props ([92c2cab](http://git.dtstack.cn/dtstack/data-stack-web/commit/92c2cab30668a621c53dfddced438b9c125aa5e0))
+* handle conflicts ([cab9085](http://git.dtstack.cn/dtstack/data-stack-web/commit/cab9085c87c4ee1fb8f9aed69969ab3dc504abfc))
+* multiple version for comp ([20c9665](http://git.dtstack.cn/dtstack/data-stack-web/commit/20c9665088da76b628db0f9d078c420bd260e894))
+* test connect for multiple version component ([68d985b](http://git.dtstack.cn/dtstack/data-stack-web/commit/68d985be3938c3edc142c62d8e8edafa8d358553))
+
 ## [4.2.0-beta5](http://git.dtstack.cn/dtstack/data-stack-web/compare/v4.2.0-beta4...v4.2.0-beta5) (2021-05-10)
 
 

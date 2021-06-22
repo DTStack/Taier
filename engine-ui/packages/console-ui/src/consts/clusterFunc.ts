@@ -478,3 +478,8 @@ export function isGreenPlumEngine (engineType: numOrStr) {
 export function isKubernetesEngine (resourceType: string): boolean {
     return resourceType == RESOURCE_TYPE.KUBERNETES;
 }
+
+export function isBindAccount (engineType: number): boolean {
+    return [ENGINE_TYPE.TI_DB, ENGINE_TYPE.ORACLE, ENGINE_TYPE.GREEN_PLUM,
+        ENGINE_TYPE.ANALYTIC_DB].indexOf(engineType) > -1
+}

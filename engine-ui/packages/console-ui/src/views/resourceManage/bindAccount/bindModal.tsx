@@ -67,7 +67,7 @@ class BindAccountModal extends React.Component<IProps, any> {
 
     render () {
         const { getFieldDecorator } = this.props.form;
-        const { visible, onCancel, title, data, engineText, userList } = this.props;
+        const { visible, onCancel, title, data, userList } = this.props;
         const isEdit = data !== null && data !== undefined;
         const footer = (
             <div style={{ height: '30px' }}>
@@ -95,9 +95,8 @@ class BindAccountModal extends React.Component<IProps, any> {
             >
                 <React.Fragment>
                     <Alert
-                        message=""
-                        style={{ margin: '10px' }}
-                        description={`每个产品账号绑定一个${engineText}用户，任务提交运行、测试时，使用绑定的${engineText}用户执行`}
+                        message="每个产品账号可绑定一个数据库用户，任务提交运行时后台将使用绑定的数据库用户执行。"
+                        style={{ marginBottom: 24 }}
                         type="info"
                         showIcon
                     />
@@ -169,6 +168,12 @@ class BindAccountModal extends React.Component<IProps, any> {
                                 rules: [{
                                     required: true,
                                     message: '数据库账号不可为空！'
+                                }, {
+                                    pattern: /^[^\s]*$/,
+                                    message: '数据库账号不可输入空格!'
+                                }, {
+                                    max: 128,
+                                    message: '数据库账号不得超过128个字符!'
                                 }],
                                 initialValue: get(data, 'name', '')
                             })(
@@ -181,8 +186,11 @@ class BindAccountModal extends React.Component<IProps, any> {
                         >
                             {getFieldDecorator('password', {
                                 rules: [{
-                                    required: false,
-                                    message: '数据库密码不可为空！'
+                                    pattern: /^[^\s]*$/,
+                                    message: '数据库密码不可输入空格!'
+                                }, {
+                                    max: 128,
+                                    message: '数据库密码不得超过128个字符!'
                                 }],
                                 initialValue: ``
                             })(
