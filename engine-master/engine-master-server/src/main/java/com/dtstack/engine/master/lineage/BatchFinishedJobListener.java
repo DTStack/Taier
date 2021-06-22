@@ -43,6 +43,7 @@ public class BatchFinishedJobListener extends SqlJobFinishedListener {
     private static final Logger logger = LoggerFactory.getLogger(BatchFinishedJobListener.class);
 
     private static final Pattern USE_DB_PATTERN = Pattern.compile("(?i)\\s*use\\s+(?<db>[a-zA-Z0-9_]+\\s*)");
+    private static final Pattern ADP_SQL_PATTERN = Pattern.compile("(?i)(set)\\s+(search_path)\\s+(=)\\s+");
 
     @Autowired
     private LineageService lineageService;
@@ -64,6 +65,9 @@ public class BatchFinishedJobListener extends SqlJobFinishedListener {
         String defaultDb = "";
         if (matcher.matches()){
             defaultDb = matcher.group("db");
+            sqls.remove(0);
+        }else if ((matcher = ADP_SQL_PATTERN.matcher(useDbSql)).find()){
+            defaultDb = useDbSql.substring(matcher.start(3)+1).trim();
             sqls.remove(0);
         }else {
             logger.info("sql不正确{}",useDbSql);
