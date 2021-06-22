@@ -243,9 +243,11 @@ const RelationView = (props: IPropsRelationView) => {
         sourceParent.geometry.width +
         sourceParent.geometry.x -
         targetParent.geometry.x;
+
+      console.log(offsetX, offsetY);
       cell.geometry.offset = {
-        x: offsetX / 2 + 12,
-        y: offsetY / 2,
+        x: -offsetX / 2 - 22,
+        y: -offsetY / 2,
       };
       return `<div style="${domStyleString({
         background: '#ffffff',

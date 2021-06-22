@@ -584,13 +584,20 @@ export default class GraphEditor extends React.Component<Props, State> {
     style[mxConstants.STYLE_ROUNDED] = true;
     return style;
   }
-  getDefaultEdgeStyle() {
+
+  edgeStyle1(style) {
     const { mxConstants, mxEdgeStyle } = this.Mx;
-    let style: any = [];
-    style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_CONNECTOR;
-    style[mxConstants.STYLE_STROKECOLOR] = '#3F87FF';
-    style[mxConstants.STYLE_STROKEWIDTH] = 1;
-    style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
+    // style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
+    style[mxConstants.STYLE_EDGE] = mxEdgeStyle.SideToSide;
+    // style[mxConstants.STYLE_EDGE] = mxEdgeStyle.EntityRelation;
+    style[mxConstants.STYLE_ENDARROW] = mxConstants.ARROW_BLOCK;
+    // style[mxConstants.STYLE_FONTSIZE] = '10';
+    // style[mxConstants.STYLE_ROUNDED] = false;
+    // style[mxConstants.STYLE_CURVED] = false;
+  }
+
+  edgeStyle2(style) {
+    const { mxConstants, mxEdgeStyle } = this.Mx;
     style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
     // style[mxConstants.STYLE_EDGE] = mxEdgeStyle.SideToSide;
     style[mxConstants.STYLE_EDGE] = mxEdgeStyle.EntityRelation;
@@ -598,6 +605,16 @@ export default class GraphEditor extends React.Component<Props, State> {
     style[mxConstants.STYLE_FONTSIZE] = '10';
     style[mxConstants.STYLE_ROUNDED] = true;
     style[mxConstants.STYLE_CURVED] = false;
+  }
+
+  getDefaultEdgeStyle() {
+    const { mxConstants } = this.Mx;
+    let style: any = [];
+    style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_CONNECTOR;
+    style[mxConstants.STYLE_STROKECOLOR] = '#3F87FF';
+    style[mxConstants.STYLE_STROKEWIDTH] = 1;
+    style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
+    this.edgeStyle2(style);
 
     style[mxConstants.STYLE_ENTRY_X] = 0;
     style[mxConstants.STYLE_ENTRY_Y] = 0.5;
