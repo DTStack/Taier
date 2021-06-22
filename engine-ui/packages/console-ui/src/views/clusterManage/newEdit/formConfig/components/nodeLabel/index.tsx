@@ -37,8 +37,10 @@ const NodeLabel: React.FC<IProps> = (props) => {
         setVisible(true)
         if (res.code == 1) {
             if (!res?.data?.length) setNodes([])
-            setDefaultLabel(res.data[0]?.label || null)
-            setNodeDefaultValue(res.data, res?.data[0]?.label)
+            const node = res.data.find(v => v.isDefault) || null
+            const defaultLabel = node?.label || res.data[0]?.label
+            setDefaultLabel(defaultLabel)
+            setNodeDefaultValue(res.data, defaultLabel)
             setVisible(true)
         }
     }
@@ -78,7 +80,8 @@ const NodeLabel: React.FC<IProps> = (props) => {
     const isRepeatUserName = () => {
         for (const node of nodes) {
             const mark = {}
-            for (const user of (node?.componentUserInfoList || [])) {
+            const extractNode = (node?.componentUserInfoList || []).filter(n => n.userName)
+            for (const user of extractNode) {
                 if (mark[user.userName]) return true
                 mark[user.userName] = true
             }
@@ -89,7 +92,8 @@ const NodeLabel: React.FC<IProps> = (props) => {
     const isIllegalValue = () => {
         const pattern = /^[^\s]*$/
         for (const node of nodes) {
-            for (const user of (node?.componentUserInfoList || [])) {
+            const extractNode = (node?.componentUserInfoList || []).filter(n => n.userName || n.password)
+            for (const user of extractNode) {
                 const { userName, password } = user
                 if (!pattern.test(userName) || !pattern.test(password)) return true
                 if (userName?.length > 64 || password?.length > 64) return true
