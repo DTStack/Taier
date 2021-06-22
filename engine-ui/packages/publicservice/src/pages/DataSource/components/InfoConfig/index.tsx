@@ -245,6 +245,13 @@ const InfoConfig = (props) => {
             setLoading(false);
           }
 
+          // 将未添加到请求参数中的字段值添加进去
+          Object.keys(fieldsValue).forEach((key) => {
+            if (handelParams[key] === undefined) {
+              handelParams[key] = fieldsValue[key];
+            }
+          });
+
           if (submit) {
             //确定按钮
             submitForm(handelParams, infoMsg);
@@ -625,12 +632,11 @@ const InfoConfig = (props) => {
               getRules(item)
             )(
               <Select placeholder={item.placeHold || `请输入${item.label}`}>
-                <Option value="option1" key="option1">
-                  option1
-                </Option>
-                <Option value="option2" key="option2">
-                  option2
-                </Option>
+                {(item.options || []).map((option) => (
+                  <Option key={option.key} value={option.value}>
+                    {option.label}
+                  </Option>
+                ))}
               </Select>
             )}
           </Form.Item>
