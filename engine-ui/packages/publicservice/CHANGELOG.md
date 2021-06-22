@@ -2,6 +2,73 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.2.0-beta8](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.0-beta7...v4.2.0-beta8) (2021-06-22)
+
+
+### Features
+
+* **model history:** sql version and sql compare ([7fbc596](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/7fbc596ccfc251776421202447f86cbe27ac5395))
+* **optimize 1646:** get reference info when deleting and editing ([18811ee](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/18811ee7ab063364a50137c1f9623f1e04bf3178))
+* **relation view:** mxgraph draw ([aa09f7b](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/aa09f7be0a513e44c96ffb1e361f8552de41d590))
+* **relation view:** relation view, mxgraph render ([6aa4814](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/6aa4814d57cbe62e610d0815b4d268ef37d75770))
+* add limit of kafka version; modify kafka form ([c56d3fd](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/c56d3fda54467e687119b3ea5deeed029ab7a1fa))
+* **relation-view:** import mxgraph, and init ([0fc70e5](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/0fc70e53d9e41d9841d10ec92166b85c2ead1ec4))
+* add field table alias ([abb3bc6](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/abb3bc68c53e2964c764b446a8ccfca47944033b))
+* add InfluxDB ([f0ce1f7](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/f0ce1f757cd5560ddf18a9392506ff6526c1bceb))
+* add InfluxDB ([a2bb48f](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/a2bb48fcd66e3126a2e530894a9ad872c467b6b4))
+* add table alias ([65c622a](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/65c622a07ac48382b405cd23d2c40cccef7dea5a))
+* adjust ([64ce895](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/64ce89561bc100e1966e9f83a0c2ea079976826e))
+* change reset.less avoiding distraction to nav ([47f29e5](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/47f29e59253a16f4e493ac5c623b6931a49b20da))
+* close the toggle function of password input ([376c9a8](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/376c9a8897aca7dccd3ee8077cbb656a95884b42))
+* data structure ([fb4a6b1](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/fb4a6b1f6225322c6e1e04c1bd83d0535caa19f6))
+* diff editor ([f9d2aa1](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/f9d2aa1526dec39eb61b2f613f7e923e639986c5))
+* encode utf-8 to utf-16; change notice text ([0f90635](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/0f90635403151aff44dff3197e48582572bcc42c))
+* field select, metric column is not required ([db17269](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/db172694588e72ce2ce1018fa581068086d2ff13))
+* fixed the incorrect display of ellipsis when zooming ([0af87ef](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/0af87ef243dbb4ccd9b692c406ba69a465d2943d))
+* lint ([9bdfee9](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/9bdfee9b342417a18d3db9724c003aa59205c8b3))
+* model history ([17f585f](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/17f585f0f3ba9c08882045b41a4527104e266f88))
+* mxgraph绘制超时 ([45df199](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/45df19931a6d7336d8ddb0cce09536ff931f9362))
+* new data source icon ([be71c7a](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/be71c7a756a46c82c99b816991e34c53d61d57ce))
+* optimize ([4be90c8](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/4be90c8ed6b8829a2fe6f0c3c331c45cbd49545f))
+* partition select ([f283fc4](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/f283fc441011701300b2bcbe5164fe63de16ca1e))
+* relation view ([ad82de1](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/ad82de1e6c1a437f1e0fc2feffacefadc63e7e83))
+* relation view, ui ([526de63](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/526de639595438f0a9558d89d080880714997a8f))
+* snapshot, html2canvas ([9d9eea9](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/9d9eea9f0aeabfbc3f8db2e057907142de0f7cd5))
+* solr data source display chroot and address ([2e5bc93](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/2e5bc9303938c8d9be749abddaf2c46a5ace698e))
+* tab add icon; optimize UI; go to next step straightly after choosing data source ([d4575ab](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/d4575ab888e0cc8d792f491862271706addf3b71))
+* update enumeration ([a98f47e](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/a98f47e5c41d597a1aacc7705640d4ddc57f679c))
+* update icon path ([1637cff](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/1637cffedf33cdcc753be65b2bfe997e1b40ffa7))
+* update icon's name ([7789b26](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/7789b266c5ed8d785acc0b6a8988211169e7b063))
+* update link info of InfluxDB ([4ac2a4a](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/4ac2a4a74abcf019803abd9520801084f201b739))
+* update list's details display ([db75d8b](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/db75d8b72d355c89cb5f7adde0435779eada04e7))
+* version history ([ce212c1](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/ce212c1330a4cb8309691fbcb4a5109e7cd2f790))
+* 功能细节调整 ([36675c1](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/36675c1d48c1c3c9075b09c4fff6d9082c3ee535))
+
+
+### Bug Fixes
+
+* refesh model detail info after version recovery ([5717e51](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/5717e51f727079e5fa0a467121d555556b69230d))
+* **fields-select:** select all for metric select ([aba70b5](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/aba70b54796577298af2288cb23ddb4721147d12))
+* **version compare:** diff editor warning fix, sql preview input params fix ([4ecec1a](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/4ecec1abd9350cc7b4c7c253300ba5ef3eeaa3fd))
+* # bug 39092 ([3b4dd12](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/3b4dd12b77ebd8d0eac7c6b7ed609d293b93fafa))
+* # bug 39092 ([c60de2e](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/c60de2e6bc2dee679593724814177af17e7a7d85))
+* # bug 39092 ([5cebd12](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/5cebd121b1dac846b040f0ba71d5f24bb54cfe2f))
+* #bug 39093 ([0570dec](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/0570dec5f00715ea84fe24d9b2a424bccf20b872))
+* add relation table, validate message ([df86d00](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/df86d00f28e0a3007a9297ef632ee6081ebedaaa))
+* change fieldname of host address ([0f10d8d](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/0f10d8d25400c7b0596dc11ca9196eacf10f4a32))
+* directory rename ([13edc38](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/13edc383452e220fe24f35cd428ed6689c6fe6cf))
+* fix搜索全部显示问题,分页后搜索页码不重置问题 ([adbd632](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/adbd63223af996aba0be29d678066f6c80a0a387))
+* model reference ([076d67f](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/076d67f14a46356006d53fbc6400dd5c245236d6))
+* partition column ([414c797](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/414c797a8caa7021dbda0055c2f53a1c6410b230))
+* relation line ([71299ba](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/71299ba21a8713722d0f544c3bdbc8c19adfbc7c))
+* relation line fix ([25d98ea](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/25d98ea45e9e47d3d6f9d279f0da14e708daf11e))
+* relation list ([df9219b](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/df9219b97048df6a8264f27f57515fe07e53bcde))
+* relation table select, self relation ([95bdcd6](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/95bdcd6543e26f67bbcd93c94485d01d90c90fe5))
+* set disabled when geting column list ([a6a3aba](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/a6a3abadae98459ad697cb06a22b6e037773ef0f))
+* version display, higher version is in left ([c499689](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/c499689539e0b532db90f755a69333ba40f597c6))
+* 全局样式提升，修复list组件样式未生效问题 ([eb2feff](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/eb2feff62eba2807b9b474103a9cd2e463ce91f6))
+* 模型列表数据源字段溢出无提示 ([d914c14](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/d914c149522c2dc06b7dca7cfdccd4737b6e5215))
+
 ## [4.2.0-beta7](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.0-beta6...v4.2.0-beta7) (2021-06-07)
 
 
