@@ -78,14 +78,14 @@ public interface ComponentService extends DtInsightServer {
     ApiResponse<List<Component>> getComponentVersionByEngineType(@Param("uicTenantId") Long tenantId,@Param("engineType") String  engineType);
 
 
-    @RequestLine(value = "/getClusterComponentUser")
+    @RequestLine("POST /node/component/getClusterComponentUser")
     ApiResponse <List<ComponentUserVO> > getClusterComponentUser(@Param("clusterId") Long clusterId,
                                                          @Param("componentTypeCode") Integer componentTypeCode,
                                                          @Param("needRefresh") Boolean needRefresh,
                                                          @Param("agentAddress") String agentAddress);
 
 
-    @RequestLine(value = "/getComponentUserByUic")
+    @RequestLine("POST /node/component/getComponentUserByUic")
     ApiResponse<List<ComponentUserVO>> getComponentUserByUic(@Param("uicId")Long uicId,
                                                        @Param("componentTypeCode")Integer componentTypeCode,
                                                        @Param("needRefresh") Boolean needRefresh,
