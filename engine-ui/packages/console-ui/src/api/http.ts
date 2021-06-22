@@ -1,7 +1,7 @@
 import 'whatwg-fetch'
 
 import ProgressBar from 'dt-common/src/widgets/progress-bar'
-import { singletonNotification } from 'dt-common/src/funcs'
+import { setRequestVersion, catchCustomAction } from 'dt-common/src/funcs'
 
 import { authAfterFormated, authBeforeFormate } from '../interceptor'
 class Http {
@@ -41,6 +41,7 @@ class Http {
     request (url: any, options: any) {
         ProgressBar.show()
         options.credentials = 'same-origin'
+        setRequestVersion(options, 'DT_CONSOLE')
         return fetch(url, options)
             .then(authBeforeFormate)
             .then((response: any) => {
@@ -51,12 +52,7 @@ class Http {
             })
             .then(authAfterFormated)
             .catch((err: any) => {
-                ProgressBar.hide()
-                console.error(url + ':' + err)
-                singletonNotification('请求异常', '服务器可能出了点问题, 请稍后再试！');
-                /* eslint-disable-next-line */
-                // return new Promise.reject(err);
-                return Promise.reject(err);
+                return catchCustomAction(err)
             })
     }
 
