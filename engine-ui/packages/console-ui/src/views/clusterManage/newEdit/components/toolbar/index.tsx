@@ -102,7 +102,8 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
     testConnects = () => {
         const typeCode = this.props.comp?.componentTypeCode ?? ''
         const hadoopVersion = isMultiVersion(typeCode) ? this.props.comp?.hadoopVersion : ''
-        this.props.testConnects({ typeCode, hadoopVersion }, (loading: boolean) => {
+        const deployType = this.props.comp?.deployType ?? ''
+        this.props.testConnects({ typeCode, hadoopVersion, deployType }, (loading: boolean) => {
             this.setState({ loading })
         })
     }

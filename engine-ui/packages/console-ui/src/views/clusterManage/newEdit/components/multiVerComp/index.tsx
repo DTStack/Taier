@@ -33,14 +33,18 @@ interface IState {
 }
 
 export default class MultiVersionComp extends React.Component<IProps, IState> {
-    state: IState ={
-        deployType: FLINK_DEPLOY_TYPE.YARN
+    constructor (props: IProps) {
+        super(props)
+        const { comp } = props
+        this.state = {
+            deployType: comp?.multiVersion[0]?.deployType ?? FLINK_DEPLOY_TYPE.YARN
+        }
     }
 
     handleMenuClick = (e: any) => {
         const { comp, saveComp, getLoadTemplate } = this.props
+        const { deployType } = this.state
         const typeCode = comp?.componentTypeCode ?? ''
-        const deployType = comp?.deployType ?? this.state.deployType
 
         saveComp({
             componentTypeCode: typeCode,
@@ -54,7 +58,7 @@ export default class MultiVersionComp extends React.Component<IProps, IState> {
     getMeunItem = () => {
         const { versionData, comp } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
-        const deployType = comp?.deployType ?? this.state.deployType
+        const { deployType } = this.state
 
         return <Menu onClick={this.handleMenuClick}>
             {versionData[VERSION_TYPE[typeCode]]?.map(({ key, value }) => {
@@ -70,6 +74,7 @@ export default class MultiVersionComp extends React.Component<IProps, IState> {
         const { comp, saveComp, getLoadTemplate } = this.props
         const { deployType } = this.state
         const typeCode = comp?.componentTypeCode ?? ''
+
         saveComp({
             deployType,
             componentTypeCode: typeCode,
@@ -122,7 +127,7 @@ export default class MultiVersionComp extends React.Component<IProps, IState> {
                         </Col>
                     </Row>}
                     <Row className={`${className}__intail__row`}>
-                        <Col span={10}>版本：</Col>
+                        <Col span={10}>选择版本：</Col>
                         <Col style={{ display: 'flex' }}>
                             {versionData[VERSION_TYPE[typeCode]]?.map(({ key, value }) => {
                                 return <div

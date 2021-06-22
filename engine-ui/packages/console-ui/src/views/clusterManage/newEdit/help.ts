@@ -513,7 +513,7 @@ function handleCurrentComp (comp: any, initialComp: any, typeCode: number): bool
         if (isFileParam(param)) {
             compValue = comp[param]?.name ?? comp[param]
         }
-        if (isMetaData(param) || isDefaultVersion(param)) {
+        if (isMetaData(param)) {
             if (comp[param] === true) compValue = 1
             if (comp[param] === false) compValue = 0
         }

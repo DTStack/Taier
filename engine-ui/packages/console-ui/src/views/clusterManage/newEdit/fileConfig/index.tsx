@@ -153,12 +153,13 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
     downloadFile = (type: number) => {
         const { form, clusterInfo, comp } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
+        const deployType = comp?.deployType ?? ''
         let version = form.getFieldValue(typeCode + '.hadoopVersion') || '';
         if (isMultiVersion(typeCode)) version = comp?.hadoopVersion ?? ''
 
         const a = document.createElement('a')
         let param = comp?.id ? (`?componentId=${comp.id}&`) : '?'
-        param = param + `type=${type}&componentType=${typeCode}&hadoopVersion=${version}&clusterName=${clusterInfo?.clusterName}`;
+        param = param + `type=${type}&componentType=${typeCode}&hadoopVersion=${version}&deployType=${deployType}&clusterName=${clusterInfo?.clusterName}`;
         a.href = `${req.DOWNLOAD_RESOURCE}${param}`;
         a.click();
     }
@@ -175,6 +176,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
         const { comp, form, clusterInfo } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
         const hadoopVersion = isMultiVersion(typeCode) ? comp?.hadoopVersion : ''
+        const deployType = comp?.deployType ?? ''
         this.setState((preState) => ({
             loading: {
                 ...preState.loading,
@@ -194,6 +196,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
         if (loadingType == FILE_TYPE.KERNEROS) {
             const params = {
                 kerberosFile: file,
+                deployType,
                 clusterId: clusterInfo?.clusterId ?? '',
                 componentCode: typeCode,
                 componentVersion: hadoopVersion

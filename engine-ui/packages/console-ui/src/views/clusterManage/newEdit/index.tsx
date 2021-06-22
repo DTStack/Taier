@@ -345,6 +345,7 @@ class EditCluster extends React.Component<any, IState> {
     testConnects = (params?: any, callBack?: Function) => {
         const typeCode = params?.typeCode ?? ''
         const hadoopVersion = params?.hadoopVersion ?? ''
+        const deployType = params?.deployType ?? ''
         const { form } = this.props
         const { initialCompData, clusterName } = this.state
         form.validateFields(null, {}, (err: any, values: any) => {
@@ -372,6 +373,7 @@ class EditCluster extends React.Component<any, IState> {
                 callBack && callBack(true)
                 Api.testConnect({
                     clusterName,
+                    deployType,
                     componentType: typeCode,
                     componentVersion: hadoopVersion ?? ''
                 }).then((res: any) => {
