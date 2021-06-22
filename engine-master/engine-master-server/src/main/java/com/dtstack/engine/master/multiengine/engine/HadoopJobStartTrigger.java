@@ -15,6 +15,7 @@ import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
@@ -61,6 +62,9 @@ import java.util.*;
 public class HadoopJobStartTrigger extends JobStartTriggerBase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HadoopJobStartTrigger.class);
+
+    private static final String USER_NAME = "user.name";
+    private static final String USER_LABEL = "user.label";
 
     @Autowired
     private JobParamReplace jobParamReplace;
@@ -165,6 +169,8 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         if (taskExeArgs != null) {
            this.replaceTaskExeArgs(actionParam, scheduleJob, taskParamsToReplace, taskExeArgs,uploadPath);
         }
+
+        taskParams = addTaskPrams(taskParams,taskShade.getTaskType(),scheduleJob);
 
         actionParam.put("sqlText", sql);
         actionParam.put("taskParams", taskParams);
@@ -666,5 +672,33 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             throw new RdosDefineException("Update task to HDFS failure:" + e.getMessage());
         }
         throw new RdosDefineException("Update task to HDFS failure:");
+    }
+
+    /**
+     * 添加任务参数
+     */
+    private String addTaskPrams(String taskParam,Integer taskType,ScheduleJob scheduleJob){
+        if (EScheduleJobType.SHELL_ON_AGENT.getType().equals(taskType)){
+            List<String> paramList = DtStringUtil.splitIgnoreQuota(taskParam, '\n');
+            Map<String,String> labelUserMap = new HashMap<>(2);
+            for (String param : paramList) {
+                if (!param.contains("=")){
+                   continue;
+                }
+                String[] properties = param.split("=");
+                if (USER_NAME.equals(properties[0] = properties[0].trim()) || USER_LABEL.equals(properties[0])){
+                    labelUserMap.put(properties[0],properties[1].trim());
+                    if (labelUserMap.size() == 2){
+                        break;
+                    }
+                }
+            }
+            if (labelUserMap.size() != 2){
+                return taskParam;
+            }
+            ComponentUser user = componentService.getComponentUser(scheduleJob.getDtuicTenantId(), EComponentType.DTSCRIPT_AGENT.getTypeCode(), labelUserMap.get(USER_LABEL), labelUserMap.get(USER_NAME));
+            taskParam = Objects.nonNull(user) && StringUtils.isNotBlank(user.getPassword())?taskParam + String.format(" \n %s=%s", "user.password", Base64Util.baseDecode(user.getPassword())):taskParam;
+        }
+        return taskParam;
     }
 }
