@@ -299,6 +299,7 @@ class BindAccountTable extends React.Component<IProps, IState> {
                 />
                 {
                     !isHadoopEngine(engineType) ? <BindAccountModal
+                        key={String(visible)}
                         visible={visible}
                         data={modalData}
                         userList={modalData ? tableData : unbindUserList}
