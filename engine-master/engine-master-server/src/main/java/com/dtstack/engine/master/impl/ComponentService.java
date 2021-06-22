@@ -2304,8 +2304,7 @@ public class ComponentService {
         // 以最新label数据为主
         Set<String> labelSet = dtScriptAgentLabel.stream().map(DtScriptAgentLabel::getLabel).collect(Collectors.toSet());
         List<ComponentUserVO> filterList = groupComponentByLabel(componentUserList.stream()
-                .filter(componentUser -> labelSet.contains(componentUser.getLabel()))
-                .filter(componentUser -> StringUtils.isNoneBlank(componentUser.getUserName(),componentUser.getPassword())).collect(Collectors.toList()));
+                .filter(componentUser -> labelSet.contains(componentUser.getLabel())).collect(Collectors.toList()));
         if (labelSet.size() == filterList.size()){
             return filterList;
         }
@@ -2329,7 +2328,11 @@ public class ComponentService {
             componentUserVO.setClusterId(componentUser.getClusterId());
             componentUserVO.setIsDefault(componentUser.getIsDefault());
             List<ComponentUserVO.ComponentUserInfo> componentUserInfoList = new ArrayList<>(componentUsers.size());
-            componentUsers.forEach(user -> componentUserInfoList.add(new ComponentUserVO.ComponentUserInfo(user.getUserName(),Base64Util.baseDecode(user.getPassword()))));
+            componentUsers.forEach(user -> {
+                if (StringUtils.isNoneBlank(user.getUserName(),user.getPassword())) {
+                    componentUserInfoList.add(new ComponentUserVO.ComponentUserInfo(user.getUserName(),Base64Util.baseDecode(user.getPassword())));
+                }
+            });
             componentUserVO.setComponentUserInfoList(componentUserInfoList);
             componentUserVOList.add(componentUserVO);
         }

@@ -4,6 +4,7 @@ import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.KerberosConfig;
 import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.api.vo.ComponentUserVO;
 import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
 import com.dtstack.engine.api.vo.components.ComponentsResultVO;
 import com.dtstack.sdk.core.common.ApiResponse;
@@ -75,5 +76,12 @@ public interface ComponentService extends DtInsightServer {
 
     @RequestLine("POST /node/component/getComponentVersionByEngineType")
     ApiResponse<List<Component>> getComponentVersionByEngineType(@Param("uicTenantId") Long tenantId,@Param("engineType") String  engineType);
+
+
+    @RequestLine(value = "/getClusterComponentUser")
+    ApiResponse <List<ComponentUserVO> > getClusterComponentUser(@Param("clusterId") Long clusterId,
+                                                         @Param("componentTypeCode") Integer componentTypeCode,
+                                                         @Param("needRefresh") Boolean needRefresh,
+                                                         @Param("agentAddress") String agentAddress);
 
 }
