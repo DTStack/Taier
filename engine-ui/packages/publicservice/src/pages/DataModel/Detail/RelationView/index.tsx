@@ -230,27 +230,25 @@ const RelationView = (props: IPropsRelationView) => {
 
   const getLabel = (cell) => {
     if (cell.edge === true) {
-      // cell.geometry.relative = true;
-      // const points = cell.geometry.points;
-      // if (Array.isArray(points) && points.length === 2) {
-      //   const center = {
-      //     x: (points[0].x + points[1].x) / 2,
-      //     y: (points[0].y + points[1].y) / 2
-      //   };
-      //   // console.log(cell.geometry.x, cell.geometry.y);
-      //   // console.log(cell.source.x, cell.source.y)
-      //   // conso
-      //   // console.log(cell.source)
-      //   // const sourceY = points[0]
+      const sourceCell = cell.source;
+      const targetCell = cell.target;
+      const sourceParent = sourceCell.parent;
+      const targetParent = targetCell.parent;
+      const offsetY =
+        sourceParent.geometry.height * sourceCell.geometry.y +
+        sourceParent.geometry.y -
+        (targetParent.geometry.height * targetCell.geometry.y +
+          targetParent.geometry.y);
+      const offsetX =
+        sourceParent.geometry.width +
+        sourceParent.geometry.x -
+        targetParent.geometry.x;
 
-      //   console.log(center)
-      //   console.log(points);
-      //   cell.geometry.offset = {
-      //     x: -center.x + points[0].x,
-      //     y: -center.y + points[0].y,
-      //   };
-      //   // cell.geometry.translate(-0.5, -0.5)
-      // }
+      console.log(offsetX, offsetY);
+      cell.geometry.offset = {
+        x: -offsetX / 2 - 22,
+        y: -offsetY / 2,
+      };
       return `<div style="${domStyleString({
         background: '#ffffff',
         padding: '0 2px',
