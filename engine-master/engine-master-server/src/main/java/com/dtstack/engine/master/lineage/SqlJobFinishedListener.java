@@ -56,7 +56,7 @@ public abstract class SqlJobFinishedListener implements ScheduleJobEventLister {
             ScheduleTaskShade taskShade = null;
             String sqlText;
             String engineType="";
-            if(scheduleJob.getType() == EScheduleType.TEMP_JOB.getType()){
+            if( EScheduleType.TEMP_JOB.getType().equals(scheduleJob.getType())){
                 //临时运行
                 ScheduleSqlTextTemp sqlTextTemp = sqlTextTempDao.selectByJobId(jobId);
                 if(null == sqlTextTemp){

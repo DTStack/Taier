@@ -74,7 +74,7 @@ public class BatchFinishedJobListener extends SqlJobFinishedListener {
             return;
         }
         DataSourceType dataSourceTypeByTaskTypeInt;
-        if(EScheduleType.TEMP_JOB.getType() == type){
+        if(EScheduleType.TEMP_JOB.getType().equals(type)){
             EngineType eType = EngineType.getEngineType(engineType);
             dataSourceTypeByTaskTypeInt = EngineTypeDataSourceType.getDataSourceTypeByTaskType(eType);
         }else{

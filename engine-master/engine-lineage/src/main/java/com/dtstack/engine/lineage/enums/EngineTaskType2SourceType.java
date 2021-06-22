@@ -22,7 +22,8 @@ public enum EngineTaskType2SourceType {
     LIBRA(DataSourceType.LIBRA,EScheduleJobType.LIBRA_SQL),
     MYSQL(DataSourceType.MySQL,null),
     GREENPLUM(DataSourceType.GREENPLUM6,EScheduleJobType.GREENPLUM_SQL),
-    SQLSERVER(DataSourceType.SQLServer,null),;
+    SQLSERVER(DataSourceType.SQLServer,null),
+    ADB_POSTGREPSQL(DataSourceType.ADB_POSTGREPSQL,EScheduleJobType.ANALYTICDB_FOR_PG),;
 
     private DataSourceType dataSourceType;
 

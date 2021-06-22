@@ -23,7 +23,8 @@ public enum EngineTypeDataSourceType {
     LIBRA(DataSourceType.LIBRA,EngineType.PostgreSQL),
     MYSQL(DataSourceType.MySQL,null),
     GREENPLUM(DataSourceType.GREENPLUM6,EngineType.GreenPlum),
-    SQLSERVER(DataSourceType.SQLServer,null),;
+    SQLSERVER(DataSourceType.SQLServer,null),
+    ADB_POSTGREPSQL(DataSourceType.ADB_POSTGREPSQL,EngineType.AnalyticdbForPg);
 
     private DataSourceType dataSourceType;
 
