@@ -2333,7 +2333,7 @@ public class ComponentService {
                     componentUserInfoList.add(new ComponentUserVO.ComponentUserInfo(user.getUserName(),Base64Util.baseDecode(user.getPassword())));
                 }
             });
-            componentUserVO.setComponentUserInfoList(componentUserInfoList);
+            componentUserVO.setComponentUserInfoList(CollectionUtils.isEmpty(componentUserInfoList)?null:componentUserInfoList);
             componentUserVOList.add(componentUserVO);
         }
         return componentUserVOList;
