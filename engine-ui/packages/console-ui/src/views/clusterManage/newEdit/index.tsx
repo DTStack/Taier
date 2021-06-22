@@ -123,7 +123,7 @@ class EditCluster extends React.Component<any, IState> {
                 version,
                 originVersion,
                 storeType: params?.storeType ?? getFieldValue(`${typeCode}.storeType`) ?? '',
-                deployMode: params?.deployMode ?? ''
+                deployType: params?.deployType ?? ''
             })
             if (res.code == 1) saveParams.componentTemplate = JSON.stringify(res.data)
             this.saveComp(saveParams)

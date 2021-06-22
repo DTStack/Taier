@@ -29,7 +29,7 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
         const { form, comp, clusterInfo, saveComp, mulitple } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
         const hadoopVersion = comp?.hadoopVersion ?? ''
-        const deployMode = comp?.deployMode ?? ''
+        const deployType = comp?.deployType ?? ''
 
         // 整理相关参数, 更新初始值
         form.validateFields(null, {}, (err: any, values: any) => {
@@ -76,7 +76,7 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
              */
             Api.saveComponent({
                 ...params,
-                deployMode,
+                deployType,
                 clusterId: clusterInfo.clusterId,
                 componentCode: typeCode,
                 clusterName: clusterInfo.clusterName,
@@ -89,7 +89,7 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
                         ...params,
                         id: res.data.id,
                         componentTypeCode: typeCode,
-                        deployMode,
+                        deployType,
                         uploadFileName: currentComp?.uploadFileName ?? '',
                         kerberosFileName: currentComp?.kerberosFileName ?? ''
                     })
@@ -143,9 +143,9 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
         const { comp, mulitple } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
         const hadoopVersion = comp?.hadoopVersion ?? ''
-        const deployMode = comp?.deployMode ?? ''
+        const deployType = comp?.deployType ?? ''
         const defaultText = COMPONENT_CONFIG_NAME[typeCode]
-        const text = isFLink(typeCode) ? (FLINK_DEPLOY_NAME[deployMode ?? FLINK_DEPLOY_TYPE.YARN]) : COMPONENT_CONFIG_NAME[typeCode]
+        const text = isFLink(typeCode) ? (FLINK_DEPLOY_NAME[deployType ?? FLINK_DEPLOY_TYPE.YARN]) : COMPONENT_CONFIG_NAME[typeCode]
         const multipleText = text + ' ' + (Number(hadoopVersion) / 100).toFixed(2)
 
         if (isMultiVersion(typeCode) && !mulitple) {

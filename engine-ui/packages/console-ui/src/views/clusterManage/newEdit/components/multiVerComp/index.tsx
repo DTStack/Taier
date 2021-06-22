@@ -29,36 +29,38 @@ interface IProps {
 }
 
 interface IState {
-    deployMode: number;
+    deployType: number;
 }
 
 export default class MultiVersionComp extends React.Component<IProps, IState> {
     state: IState ={
-        deployMode: FLINK_DEPLOY_TYPE.YARN
+        deployType: FLINK_DEPLOY_TYPE.YARN
     }
+
     handleMenuClick = (e: any) => {
         const { comp, saveComp, getLoadTemplate } = this.props
-        const { deployMode } = this.state
         const typeCode = comp?.componentTypeCode ?? ''
+        const deployType = comp?.deployType ?? this.state.deployType
+
         saveComp({
             componentTypeCode: typeCode,
             hadoopVersion: e.key,
-            deployMode,
+            deployType,
             isDefault: false
         }, COMP_ACTION.ADD)
-        getLoadTemplate(typeCode, { compVersion: e.key, deployMode })
+        getLoadTemplate(typeCode, { compVersion: e.key, deployType })
     }
 
     getMeunItem = () => {
         const { versionData, comp } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
-        const { deployMode } = this.state
+        const deployType = comp?.deployType ?? this.state.deployType
 
         return <Menu onClick={this.handleMenuClick}>
             {versionData[VERSION_TYPE[typeCode]]?.map(({ key, value }) => {
                 const disabled = comp?.multiVersion?.findIndex(vcomp => vcomp.hadoopVersion == value)
                 return <MenuItem disabled={disabled > -1} key={value} >
-                    {isFLink(typeCode) ? FLINK_DEPLOY_NAME[deployMode] : COMPONENT_CONFIG_NAME[comp.typeCode]} {this.getCompVersion(value)}
+                    {isFLink(typeCode) ? FLINK_DEPLOY_NAME[deployType] : COMPONENT_CONFIG_NAME[comp.typeCode]} {this.getCompVersion(value)}
                 </MenuItem>
             })}
         </Menu>
@@ -66,15 +68,15 @@ export default class MultiVersionComp extends React.Component<IProps, IState> {
 
     addMultiVersionComp = (value: string) => {
         const { comp, saveComp, getLoadTemplate } = this.props
-        const { deployMode } = this.state
+        const { deployType } = this.state
         const typeCode = comp?.componentTypeCode ?? ''
         saveComp({
-            deployMode,
+            deployType,
             componentTypeCode: typeCode,
             hadoopVersion: value,
             isDefault: true
         }, COMP_ACTION.ADD)
-        getLoadTemplate(typeCode, { compVersion: value, deployMode })
+        getLoadTemplate(typeCode, { compVersion: value, deployType })
     }
 
     getCompVersion = (value: string) => {
@@ -83,8 +85,8 @@ export default class MultiVersionComp extends React.Component<IProps, IState> {
         return (Number(value) / 100).toFixed(2)
     }
 
-    getComponentName = (typeCode: number, deployMode: number = FLINK_DEPLOY_TYPE.YARN) => {
-        if (isFLink(typeCode)) return FLINK_DEPLOY_NAME[deployMode]
+    getComponentName = (typeCode: number, deployType: number = FLINK_DEPLOY_TYPE.YARN) => {
+        if (isFLink(typeCode)) return FLINK_DEPLOY_NAME[deployType]
         return COMPONENT_CONFIG_NAME[typeCode]
     }
 
@@ -98,7 +100,7 @@ export default class MultiVersionComp extends React.Component<IProps, IState> {
     render () {
         const { comp, versionData, saveCompsData, testStatus, view,
             clusterInfo, form, saveComp, testConnects, handleConfirm } = this.props
-        const { deployMode } = this.state
+        const { deployType } = this.state
         const typeCode = comp?.componentTypeCode ?? ''
         const className = 'c-multiVersionComp'
         const isDefault = this.getDefaultVerionCompStatus(comp)
@@ -109,7 +111,7 @@ export default class MultiVersionComp extends React.Component<IProps, IState> {
                     {isFLink(typeCode) && <Row className={`${className}__intail__row`}>
                         <Col span={10}>部署模式：</Col>
                         <Col>
-                            <Radio.Group value={deployMode} onChange={(e) => this.setState({ deployMode: e.target.value })}>
+                            <Radio.Group value={deployType} onChange={(e) => this.setState({ deployType: e.target.value })}>
                                 <Radio value={FLINK_DEPLOY_TYPE.YARN}>
                                     {FLINK_DEPLOY_NAME[FLINK_DEPLOY_TYPE.YARN]}
                                 </Radio>
@@ -161,12 +163,12 @@ export default class MultiVersionComp extends React.Component<IProps, IState> {
                 </Dropdown>}
             >
                 {comp?.multiVersion.map(vcomp => {
-                    const { deployMode, componentTypeCode, hadoopVersion } = vcomp
+                    const { deployType, componentTypeCode, hadoopVersion } = vcomp
                     return (
                         <TabPane
                             tab={
                                 <span>
-                                    {this.getComponentName(componentTypeCode, deployMode)} {this.getCompVersion(hadoopVersion)}
+                                    {this.getComponentName(componentTypeCode, deployType)} {this.getCompVersion(hadoopVersion)}
                                     <TestRestIcon testStatus={testStatus.find(status => status?.componentVersion == hadoopVersion)}/>
                                 </span>
                             }
