@@ -484,7 +484,7 @@ public class ClusterService implements InitializingBean {
         Long clusterId = Optional.ofNullable(engineTenantDao.getClusterIdByTenantId(dtUicTenantId)).orElse(DEFAULT_CLUSTER_ID);
         //根据组件区分kerberos
         EComponentType componentType = EComponentType.getByConfName(componentConfName);
-        Component component = componentDao.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode(), ComponentVersionUtil.getComponentVersion(componentVersionMap,componentType));
+        Component component = componentDao.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode(), ComponentVersionUtil.getComponentVersion(componentVersionMap,componentType),null);
         if (null == component) {
             return "{}";
         }
@@ -632,7 +632,7 @@ public class ClusterService implements InitializingBean {
     }
 
     private void buildHiveVersion(ClusterVO clusterVO, JSONObject pluginInfo,Map<Integer,String > componentVersionMap) {
-        Component hiveServer = componentDao.getByClusterIdAndComponentType(clusterVO.getId(), EComponentType.HIVE_SERVER.getTypeCode(),ComponentVersionUtil.getComponentVersion(componentVersionMap,EComponentType.HIVE_SERVER));
+        Component hiveServer = componentDao.getByClusterIdAndComponentType(clusterVO.getId(), EComponentType.HIVE_SERVER.getTypeCode(),ComponentVersionUtil.getComponentVersion(componentVersionMap,EComponentType.HIVE_SERVER),null);
         if (null == hiveServer) {
             throw new RdosDefineException("hive component cannot be empty");
         }
@@ -646,7 +646,7 @@ public class ClusterService implements InitializingBean {
     }
 
     private void buildKubernetesConfig(JSONObject clusterConfigJson, ClusterVO clusterVO, JSONObject pluginInfo,Map<Integer,String > componentVersionMap) {
-        Component kubernetes = componentDao.getByClusterIdAndComponentType(clusterVO.getId(), EComponentType.KUBERNETES.getTypeCode(),ComponentVersionUtil.getComponentVersion(componentVersionMap,EComponentType.KUBERNETES));
+        Component kubernetes = componentDao.getByClusterIdAndComponentType(clusterVO.getId(), EComponentType.KUBERNETES.getTypeCode(),ComponentVersionUtil.getComponentVersion(componentVersionMap,EComponentType.KUBERNETES),null);
         if(Objects.nonNull(kubernetes)){
             pluginInfo.put("kubernetesConfigName",kubernetes.getUploadFileName());
             JSONObject sftpConf = clusterConfigJson.getJSONObject("sftpConf");

@@ -7,7 +7,6 @@ import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EDeployMode;
-import com.dtstack.engine.common.enums.EDeployType;
 import com.dtstack.engine.common.enums.EFrontType;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -110,11 +109,6 @@ public class ComponentConfigUtils {
         //是否为 flink on standalone
         Optional<ComponentConfig> isFlinkOnStandalone = emptyDependencyValue.stream()
                 .filter(com -> {
-                            if (ConfigConstant.DEPLOY_TYPE.equalsIgnoreCase(com.getKey())
-                                    && EComponentType.FLINK.getTypeCode().equals(com.getComponentTypeCode())
-                                    && EDeployType.STANDALONE.getType() == Integer.parseInt(com.getValue())) {
-                                return true;
-                            }
                             if (ConfigConstant.DEPLOY_MODEL.equalsIgnoreCase(com.getKey())
                                     && EComponentType.FLINK.getTypeCode().equals(com.getComponentTypeCode())
                                     && StringUtils.isNotBlank(com.getValue())) {

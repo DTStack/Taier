@@ -23,7 +23,7 @@ public interface ComponentDao {
     Component getByEngineIdAndComponentType(@Param("engineId") Long engineId, @Param("type") Integer type);
 
 
-    Component getByClusterIdAndComponentType(@Param("clusterId") Long clusterId, @Param("type") Integer type,@Param("componentVersion")String componentVersion);
+    Component getByClusterIdAndComponentType(@Param("clusterId") Long clusterId, @Param("type") Integer type,@Param("componentVersion")String componentVersion,@Param("deployType") Integer deployType);
 
     Long getClusterIdByComponentId(@Param("componentId") Long componentId);
 

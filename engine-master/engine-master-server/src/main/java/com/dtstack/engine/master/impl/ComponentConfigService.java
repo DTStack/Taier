@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.dtstack.engine.common.constrant.ConfigConstant.DEPLOY_TYPE;
 import static com.dtstack.engine.common.constrant.ConfigConstant.TYPE_NAME_KEY;
 
 /**
@@ -205,9 +204,7 @@ public class ComponentConfigService {
                 Map<String, Object> configToMap = ComponentConfigUtils.convertComponentConfigToMap(configs);
                 componentVO.setComponentTemplate(JSONObject.toJSONString(ComponentConfigUtils.buildDBDataToClientTemplate(configs)));
                 componentVO.setComponentConfig(JSONObject.toJSONString(configToMap));
-                if(configToMap.containsKey(DEPLOY_TYPE)){
-                    componentVO.setDeployType((Integer)configToMap.get(DEPLOY_TYPE));
-                }
+                componentVO.setDeployType(component.getDeployType());
             }
 
             if (isConvertHadoopVersion && isHadoopControl) {

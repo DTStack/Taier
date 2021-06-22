@@ -189,7 +189,7 @@ public class ClusterServiceTest extends AbstractTest {
         Map sftpMap = componentService.getComponentByClusterId(clusterVO.getId(), EComponentType.SFTP.getTypeCode(),false,Map.class,any());
         String yarnString = componentService.getComponentByClusterId(clusterVO.getId(), EComponentType.YARN.getTypeCode(),false,String.class,any());
         //测试组件联通性
-        ComponentTestResult componentTestResult = componentService.testConnect(yarn.getComponentTypeCode(), yarnString, testClusterName, yarn.getHadoopVersion(), engineId, null, sftpMap,null,Collections.emptyMap());
+        ComponentTestResult componentTestResult = componentService.testConnect(yarn.getComponentTypeCode(), yarnString, testClusterName, yarn.getHadoopVersion(), engineId, null, sftpMap,null,Collections.emptyMap(),null);
         Assert.assertNotNull(componentTestResult);
         Assert.assertTrue(componentTestResult.getResult());
 

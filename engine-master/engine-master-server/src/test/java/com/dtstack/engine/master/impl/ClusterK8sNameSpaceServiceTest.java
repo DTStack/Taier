@@ -127,7 +127,7 @@ public class ClusterK8sNameSpaceServiceTest extends AbstractTest {
         Map sftpMap = componentService.getComponentByClusterId(clusterVO.getClusterId(),EComponentType.SFTP.getTypeCode(),false,Map.class, Collections.emptyMap());
         String k8sConfig = componentService.getComponentByClusterId(clusterVO.getClusterId(),EComponentType.KUBERNETES.getTypeCode(),false,String.class,Collections.emptyMap());
         //测试组件联通性
-        ComponentTestResult componentTestResult = componentService.testConnect(k8s.getComponentTypeCode(), k8sConfig, testClusterName, k8s.getHadoopVersion(), engineId, null, sftpMap,null,Collections.emptyMap());
+        ComponentTestResult componentTestResult = componentService.testConnect(k8s.getComponentTypeCode(), k8sConfig, testClusterName, k8s.getHadoopVersion(), engineId, null, sftpMap,null,Collections.emptyMap(),null);
         Assert.assertNotNull(componentTestResult);
         Assert.assertTrue(componentTestResult.getResult());
 

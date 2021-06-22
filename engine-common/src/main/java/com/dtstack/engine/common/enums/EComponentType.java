@@ -216,8 +216,10 @@ public enum EComponentType {
         return "";
     }
     public static List<EComponentType> notCheckComponent = Lists.newArrayList(EComponentType.SPARK, EComponentType.DT_SCRIPT, EComponentType.LEARNING, EComponentType.FLINK);
+    //允许一个组件 on yarn 或 其他多种模式
+    public static List<EComponentType> deployTypeComponents = Lists.newArrayList(EComponentType.FLINK);
     //允许一个组件多个版本
-    public static List<EComponentType> multiVersionComponents = Lists.newArrayList(EComponentType.FLINK);
+    public static List<EComponentType> multiVersionComponents = Lists.newArrayList(EComponentType.FLINK,EComponentType.SPARK);
 
 
     //SQL组件

@@ -44,6 +44,16 @@ public class Component extends BaseEntity {
     @ApiModelProperty(notes = "是否为元数据")
     private Integer isMetadata;
 
+    private Integer deployType;
+
+    public Integer getDeployType() {
+        return deployType;
+    }
+
+    public void setDeployType(Integer deployType) {
+        this.deployType = deployType;
+    }
+
     public Integer getIsMetadata() {
         return isMetadata;
     }

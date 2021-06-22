@@ -81,6 +81,7 @@ public class PluginWrapper{
         String groupName = ConfigConstant.DEFAULT_GROUP_NAME;
         action.setGroupName(groupName);
         if (null != pluginInfoJson && !pluginInfoJson.isEmpty()) {
+            pluginInfoJson.put(DEPLOY_MODEL,deployMode);
             addParamsToJdbcUrl(actionParam, pluginInfoJson);
             addUserNameToHadoop(pluginInfoJson, ldapUserName);
             addUserNameToImpalaOrHive(pluginInfoJson, ldapUserName, ldapPassword, dbName, engineType);

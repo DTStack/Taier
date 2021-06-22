@@ -35,7 +35,6 @@ import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 import static com.dtstack.engine.common.constrant.ConfigConstant.DEPLOY_MODEL;
-import static com.dtstack.engine.common.constrant.ConfigConstant.DEPLOY_TYPE;
 
 @Component
 public class WorkerOperator {

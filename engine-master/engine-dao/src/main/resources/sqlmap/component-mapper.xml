@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.engine.dao.ComponentDao">
 
     <sql id="select_content_fragment">
-      id,engine_id,component_name,component_type_code,gmt_create,gmt_modified,is_deleted,hadoop_version,upload_file_name,kerberos_file_name,store_type,is_metadata,is_default
+      id,engine_id,component_name,component_type_code,gmt_create,gmt_modified,is_deleted,hadoop_version,upload_file_name,kerberos_file_name,store_type,is_metadata,is_default,deploy_type
     </sql>
 
     <sql id="update_fragment">
@@ -37,8 +37,8 @@
     </select>
 
     <insert id="insert" parameterType="Component" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO console_component(engine_id,component_name,component_type_code,upload_file_name,hadoop_version,kerberos_file_name,store_type,is_metadata,is_default)
-        VALUES (#{engineId},#{componentName},#{componentTypeCode},#{uploadFileName},#{hadoopVersion},#{kerberosFileName},#{storeType},#{isMetadata},#{isDefault})
+        INSERT INTO console_component(engine_id,component_name,component_type_code,upload_file_name,hadoop_version,kerberos_file_name,store_type,is_metadata,is_default,deploy_type)
+        VALUES (#{engineId},#{componentName},#{componentTypeCode},#{uploadFileName},#{hadoopVersion},#{kerberosFileName},#{storeType},#{isMetadata},#{isDefault},#{deployType})
     </insert>
 
     <update id="update">
@@ -77,7 +77,7 @@
     <select id="getByClusterIdAndComponentType" resultType="Component">
         SELECT
         c.id,c.engine_id,c.component_name,c.component_type_code,c.gmt_create,c.gmt_modified,c.is_deleted,
-        c.hadoop_version,c.upload_file_name,c.kerberos_file_name,c.is_metadata
+        c.hadoop_version,c.upload_file_name,c.kerberos_file_name,c.is_metadata,c.deploy_type
         FROM
         console_component c
         LEFT JOIN console_engine ENGINE ON ENGINE.id = c.engine_id
@@ -92,6 +92,9 @@
                and c.hadoop_version = #{componentVersion}
             </otherwise>
         </choose>
+        <if test="deployType!= null">
+            and  deploy_type = #{deployType}
+        </if>
           and c.is_deleted = 0 LIMIT 1
     </select>
 
@@ -116,7 +119,7 @@
     <select id="getByTenantIdComponentType" resultType="Component">
         select
         cc.id,cc.engine_id,cc.component_name,cc.component_type_code,cc.gmt_create,cc.gmt_modified,cc.is_deleted,
-        cc.hadoop_version,cc.upload_file_name,cc.kerberos_file_name
+        cc.hadoop_version,cc.upload_file_name,cc.kerberos_file_name,cc.deploy_type
         from
         console_component cc
         INNER JOIN console_engine_tenant cet
@@ -227,7 +230,7 @@
     <select id="getMetadataComponent" resultType="com.dtstack.engine.api.domain.Component">
         SELECT
             c.id,c.engine_id,c.component_name,c.component_type_code,c.gmt_create,c.gmt_modified,c.is_deleted,
-            c.hadoop_version,c.upload_file_name,c.kerberos_file_name,c.is_metadata
+            c.hadoop_version,c.upload_file_name,c.kerberos_file_name,c.is_metadata,c.deploy_type
         FROM
             console_component c
                 LEFT JOIN console_engine ce ON ce.id = c.engine_id

@@ -172,7 +172,7 @@ public class TemplateTest extends AbstractTest {
         clusterDao.insert(cluster);
         //添加组件 添加引擎
         componentService.addOrUpdateComponent(cluster.getId(), "", null, "hadoop2", "", templateString, EComponentType.SFTP.getTypeCode(),null,null,null, true,true,null);
-        Component sftpComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.SFTP.getTypeCode(),null);
+        Component sftpComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.SFTP.getTypeCode(),null,null);
         Assert.assertNotNull(sftpComponent);
         Map<String, Object> sftpConfig = componentConfigService.convertComponentConfigToMap(sftpComponent.getId(), true);
         Assert.assertNotNull(sftpConfig);
