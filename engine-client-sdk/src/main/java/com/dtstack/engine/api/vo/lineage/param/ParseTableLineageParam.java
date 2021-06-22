@@ -28,8 +28,8 @@ public class ParseTableLineageParam {
     @ApiModelProperty("血缘批次码")
     private String uniqueKey;
 
-    @ApiModelProperty("引擎数据源id")
-    private Long engineDataSourceId;
+    @ApiModelProperty("数据源中心id")
+    private Long dataInfoId;
 
     /**任务类型，周期实例、临时运行**/
     private Integer type;
@@ -85,12 +85,12 @@ public class ParseTableLineageParam {
         this.uniqueKey = uniqueKey;
     }
 
-    public Long getEngineDataSourceId() {
-        return engineDataSourceId;
+    public Long getDataInfoId() {
+        return dataInfoId;
     }
 
-    public void setEngineDataSourceId(Long engineDataSourceId) {
-        this.engineDataSourceId = engineDataSourceId;
+    public void setDataInfoId(Long dataInfoId) {
+        this.dataInfoId = dataInfoId;
     }
 
     public Integer getType() {

@@ -79,7 +79,7 @@ public class LineageController {
         ValidateUtil.validateNotNull(param.getDtUicTenantId(),"uic租户id不能为空");
         ValidateUtil.validateNotNull(param.getSql(),"sql不能为空");
         ValidateUtil.validateNotNull(param.getDefaultDb(),"默认数据哭不能为空");
-        lineageService.parseAndSaveTableLineage(param.getDtUicTenantId(), param.getAppType(), param.getSql(), param.getDefaultDb(), param.getEngineDataSourceId(), param.getDataSourceType(),param.getUniqueKey());
+        lineageService.parseAndSaveTableLineage(param.getDtUicTenantId(), param.getAppType(), param.getSql(), param.getDefaultDb(), param.getDataInfoId(), param.getDataSourceType(),param.getUniqueKey());
     }
 
     @RequestMapping(value = "/parseColumnLineage", method = {RequestMethod.POST})

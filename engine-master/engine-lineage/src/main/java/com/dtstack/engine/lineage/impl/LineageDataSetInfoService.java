@@ -113,7 +113,7 @@ public class LineageDataSetInfoService {
         dataSetInfo.setAppType(appType);
         dataSetInfo.setSourceName(dataSource.getDataName());
         dataSetInfo.setSourceType(dataSource.getType());
-        dataSetInfo.setSourceId(sourceId);
+        dataSetInfo.setDataInfoId(sourceId);
         dataSetInfo.setDbName(dbName);
         dataSetInfo.setIsManual(0);
         if(StringUtils.isNotEmpty(schemaName)){
@@ -137,7 +137,7 @@ public class LineageDataSetInfoService {
     public List<Column> getTableColumns(LineageDataSetInfo dataSetInfo){
 
         //获取数据源信息
-        LineageDataSource dataSource = sourceService.getDataSourceById(dataSetInfo.getSourceId());
+        LineageDataSource dataSource = sourceService.getDataSourceById(dataSetInfo.getDataInfoId());
         if(null == dataSource){
             throw new RdosDefineException("找不到对应的数据源");
         }
@@ -285,7 +285,7 @@ public class LineageDataSetInfoService {
             dataSetInfo.setDbName(table.getDb());
             dataSetInfo.setSchemaName(table.getSchemaName());
             dataSetInfo.setTableName(table.getName());
-            dataSetInfo.setSourceId(sourceId);
+            dataSetInfo.setDataInfoId(sourceId);
             List<Column> tableColumns = getTableColumns(dataSetInfo);
             listHashMap.put(table.getDb()+"."+table.getName(),tableColumns);
         }

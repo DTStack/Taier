@@ -99,7 +99,7 @@ public class LineageDataSetInfoTest extends AbstractTest {
 
         LineageDataSource dataSource = DataCollection.getData().getDefaultLineageDataSource();
         LineageDataSetInfo dataSetInfo = new LineageDataSetInfo();
-        dataSetInfo.setSourceId(dataSource.getId());
+        dataSetInfo.setDataInfoId(dataSource.getId());
         dataSetInfo.setTableName("chener");
         dataSetInfo.setDbName("beihai");
         dataSetInfo.setSchemaName("beihai");
@@ -146,7 +146,7 @@ public class LineageDataSetInfoTest extends AbstractTest {
 
         LineageDataSource dataSource = DataCollection.getData().getDefaultLineageDataSource();
         LineageDataSetInfo dataSetInfo = new LineageDataSetInfo();
-        dataSetInfo.setSourceId(dataSource.getId());
+        dataSetInfo.setDataInfoId(dataSource.getId());
         dataSetInfo.setTableName("chener");
         dataSetInfo.setDbName("beihai");
         dataSetInfo.setSchemaName("beihai");

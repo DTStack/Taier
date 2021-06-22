@@ -16,7 +16,7 @@ public class DataSourceAdapter {
         LineageDataSourceVO dataSourceVO = new LineageDataSourceVO();
         dataSourceVO.setAppType(lineageDataSource.getAppType());
         Long sourceId = AppType.DATAASSETS.getType().equals(lineageDataSource.getAppType()) ? lineageDataSource.getId() : lineageDataSource.getSourceId();
-        dataSourceVO.setSourceId(sourceId);
+        dataSourceVO.setDataInfoId(sourceId);
         dataSourceVO.setSourceName(lineageDataSource.getSourceName());
         dataSourceVO.setSourceType(lineageDataSource.getSourceType());
         return dataSourceVO;

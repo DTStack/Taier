@@ -152,7 +152,7 @@ public class LineageServiceTest extends AbstractTest {
         lineageDataSetInfo.setId(10L);
         lineageDataSetInfo.setDbName("dev");
         lineageDataSetInfo.setSchemaName("dev");
-        lineageDataSetInfo.setSourceId(1L);
+        lineageDataSetInfo.setDataInfoId(1L);
         lineageDataSetInfo.setTableName("chener");
         lineageDataSetInfo.setTableKey("dev.chener");
         when(lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(any(),any(),any(),any(),any())).thenReturn(lineageDataSetInfo);
@@ -304,7 +304,7 @@ public class LineageServiceTest extends AbstractTest {
         parseColumnLineageParam.setDtUicTenantId(1L);
         parseColumnLineageParam.setDefaultDb("dev");
         parseColumnLineageParam.setAppType(AppType.DATAASSETS.getType());
-        parseColumnLineageParam.setEngineDataSourceId(dataSourceTemplate.getId());
+        parseColumnLineageParam.setDataInfoId(dataSourceTemplate.getId());
         lineageService.parseAndSaveColumnLineage(parseColumnLineageParam);
     }
 
@@ -320,7 +320,7 @@ public class LineageServiceTest extends AbstractTest {
         parseColumnLineageParam.setDtUicTenantId(1L);
         parseColumnLineageParam.setDefaultDb("beihai");
         parseColumnLineageParam.setAppType(AppType.RDOS.getType());
-        parseColumnLineageParam.setEngineDataSourceId(dataSourceTemplate.getId());
+        parseColumnLineageParam.setDataInfoId(dataSourceTemplate.getId());
         lineageService.parseAndSaveColumnLineage(parseColumnLineageParam);
     }
 
@@ -387,7 +387,7 @@ public class LineageServiceTest extends AbstractTest {
         LineageDataSourceVO sourceVO = new LineageDataSourceVO();
         sourceVO.setAppType(hiveDataSourceTemplate.getAppType());
         sourceVO.setSourceType(hiveDataSourceTemplate.getSourceType());
-        sourceVO.setSourceId(hiveDataSourceTemplate.getId());
+        sourceVO.setDataInfoId(hiveDataSourceTemplate.getId());
         tableVO.setDataSourceVO(sourceVO);
         tableVO.setTableName("chener1");
         tableVO.setDbName("dev");
@@ -419,7 +419,7 @@ public class LineageServiceTest extends AbstractTest {
         LineageDataSourceVO sourceVO = new LineageDataSourceVO();
         sourceVO.setAppType(AppType.DATAASSETS.getType());
         sourceVO.setSourceType(DataSourceType.HIVE.getVal());
-        sourceVO.setSourceId(hiveDataSourceTemplate.getId());
+        sourceVO.setDataInfoId(hiveDataSourceTemplate.getId());
         tableVO.setDataSourceVO(sourceVO);
         tableVO.setTableName("chener1");
         tableVO.setDbName("dev");
@@ -449,14 +449,14 @@ public class LineageServiceTest extends AbstractTest {
         dataSetInfo1.setDbName("dev");
         dataSetInfo1.setTableName("hjl1");
         dataSetInfo1.setTableKey("1devhjl1");
-        dataSetInfo1.setSourceId(hiveDataSourceTemplate.getId());
+        dataSetInfo1.setDataInfoId(hiveDataSourceTemplate.getId());
         testLineageDataSetInfoDao.insert(dataSetInfo1);
         LineageDataSetInfo dataSetInfo = Template.getDefaultDataSetInfoTemplate();
         dataSetInfo.setDbName("dev");
         dataSetInfo.setSchemaName("dev");
         dataSetInfo.setTableName("hjl2");
         dataSetInfo.setTableKey("1devhjl2");
-        dataSetInfo.setSourceId(hiveDataSourceTemplate.getId());
+        dataSetInfo.setDataInfoId(hiveDataSourceTemplate.getId());
         testLineageDataSetInfoDao.insert(dataSetInfo);
         LineageTableTable tableTable = Template.getDefaultTableTable();
         tableTable.setInputTableKey("1devhjl1");
@@ -474,7 +474,7 @@ public class LineageServiceTest extends AbstractTest {
         LineageDataSourceVO sourceVO = new LineageDataSourceVO();
         sourceVO.setAppType(hiveDataSourceTemplate.getAppType());
         sourceVO.setSourceType(DataSourceType.HIVE.getVal());
-        sourceVO.setSourceId(hiveDataSourceTemplate.getId());
+        sourceVO.setDataInfoId(hiveDataSourceTemplate.getId());
         tableVO.setDataSourceVO(sourceVO);
         tableVO.setTableName("hjl1");
         tableVO.setDbName("dev");
@@ -509,7 +509,7 @@ public class LineageServiceTest extends AbstractTest {
         queryTableLineageParam.setSourceType(defaultHiveDataSourceTemplate.getSourceType());
         queryTableLineageParam.setTableName("test");
         queryTableLineageParam.setColumnName("id");
-        queryTableLineageParam.setSourceId(defaultHiveDataSourceTemplate.getSourceId());
+        queryTableLineageParam.setDataInfoId(defaultHiveDataSourceTemplate.getSourceId());
         queryTableLineageParam.setLevel(1);
         List<LineageColumnColumnVO> queryColumnInputLineage = lineageService.queryColumnInputLineage(queryTableLineageParam);
         Assert.assertNotNull(queryColumnInputLineage);
@@ -563,7 +563,7 @@ public class LineageServiceTest extends AbstractTest {
         LineageDataSourceVO sourceVO = new LineageDataSourceVO();
         sourceVO.setAppType(AppType.DATAASSETS.getType());
         sourceVO.setSourceType(DataSourceType.HIVE.getVal());
-        sourceVO.setSourceId(hiveDataSourceTemplate.getId());
+        sourceVO.setDataInfoId(hiveDataSourceTemplate.getId());
         inTableVo.setSchemaName("dev");
         inTableVo.setDbName("dev");
         inTableVo.setTableName("chener1");
@@ -596,7 +596,7 @@ public class LineageServiceTest extends AbstractTest {
         LineageDataSourceVO sourceVO = new LineageDataSourceVO();
         sourceVO.setAppType(AppType.DATAASSETS.getType());
         sourceVO.setSourceType(DataSourceType.HIVE.getVal());
-        sourceVO.setSourceId(hiveDataSourceTemplate.getId());
+        sourceVO.setDataInfoId(hiveDataSourceTemplate.getId());
         inTableVo.setSchemaName("dev");
         inTableVo.setDbName("dev");
         inTableVo.setTableName("chener1");
@@ -630,14 +630,14 @@ public class LineageServiceTest extends AbstractTest {
         defaultDataSetInfoTemplate.setDbName("dev");
         defaultDataSetInfoTemplate.setTableName("hjl1");
         defaultDataSetInfoTemplate.setTableKey("1devhjl1");
-        defaultDataSetInfoTemplate.setSourceId(hiveDataSourceTemplate.getId());
+        defaultDataSetInfoTemplate.setDataInfoId(hiveDataSourceTemplate.getId());
         testLineageDataSetInfoDao.insert(defaultDataSetInfoTemplate);
         LineageDataSetInfo dataSetInfo = Template.getDefaultDataSetInfoTemplate();
         dataSetInfo.setDbName("dev");
         dataSetInfo.setSchemaName("dev");
         dataSetInfo.setTableName("hjl2");
         dataSetInfo.setTableKey("1devhjl2");
-        dataSetInfo.setSourceId(hiveDataSourceTemplate.getId());
+        dataSetInfo.setDataInfoId(hiveDataSourceTemplate.getId());
         testLineageDataSetInfoDao.insert(dataSetInfo);
         LineageColumnColumn columnColumn = Template.getDefaultColumnColumn();
         columnColumn.setInputTableKey("1devhjl1");
@@ -656,7 +656,7 @@ public class LineageServiceTest extends AbstractTest {
         LineageDataSourceVO sourceVO = new LineageDataSourceVO();
         sourceVO.setAppType(AppType.DATAASSETS.getType());
         sourceVO.setSourceType(DataSourceType.HIVE.getVal());
-        sourceVO.setSourceId(hiveDataSourceTemplate.getId());
+        sourceVO.setDataInfoId(hiveDataSourceTemplate.getId());
         inTableVo.setSchemaName("dev");
         inTableVo.setDbName("dev");
         inTableVo.setTableName("hjl1");
@@ -692,14 +692,14 @@ public class LineageServiceTest extends AbstractTest {
         defaultDataSetInfoTemplate.setDbName("dev");
         defaultDataSetInfoTemplate.setTableName("hjl1");
         defaultDataSetInfoTemplate.setTableKey("1devhjl1");
-        defaultDataSetInfoTemplate.setSourceId(hiveDataSourceTemplate.getId());
+        defaultDataSetInfoTemplate.setDataInfoId(hiveDataSourceTemplate.getId());
         testLineageDataSetInfoDao.insert(defaultDataSetInfoTemplate);
         LineageDataSetInfo dataSetInfo = Template.getDefaultDataSetInfoTemplate();
         dataSetInfo.setDbName("dev");
         dataSetInfo.setSchemaName("dev");
         dataSetInfo.setTableName("hjl2");
         dataSetInfo.setTableKey("1devhjl2");
-        dataSetInfo.setSourceId(hiveDataSourceTemplate.getId());
+        dataSetInfo.setDataInfoId(hiveDataSourceTemplate.getId());
         testLineageDataSetInfoDao.insert(dataSetInfo);
         LineageColumnColumn columnColumn = Template.getDefaultColumnColumn();
         columnColumn.setInputTableKey("1devhjl1");

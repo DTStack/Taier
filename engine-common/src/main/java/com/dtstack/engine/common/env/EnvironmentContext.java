@@ -596,7 +596,7 @@ public class EnvironmentContext {
      * @return
      */
     public String getDatasourceNode() {
-        return environment.getProperty("datasource.node", "127.0.0.1:8077");
+        return environment.getProperty("datasource.node", "");
     }
 
     /**

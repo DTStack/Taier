@@ -1,19 +1,25 @@
 package com.dtstack.engine.master.lineage;
 
 import com.alibaba.fastjson.JSON;
+import com.dtstack.dtcenter.common.pager.PageResult;
 import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.vo.lineage.param.ParseColumnLineageParam;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.EngineTypeDataSourceType;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.LineageDataSourceDao;
 import com.dtstack.engine.master.event.ScheduleJobEventPublisher;
 import com.dtstack.engine.lineage.enums.EngineTaskType2SourceType;
 import com.dtstack.engine.lineage.impl.LineageService;
+import com.dtstack.pubsvc.sdk.datasource.DataSourceAPIClient;
+import com.dtstack.pubsvc.sdk.dto.param.datasource.DsServiceListParam;
+import com.dtstack.pubsvc.sdk.dto.result.datasource.DsServiceListDTO;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
+import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sqlparser.common.utils.SqlFormatUtil;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
@@ -23,10 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,6 +52,9 @@ public class BatchFinishedJobListener extends SqlJobFinishedListener {
 
     @Autowired
     private LineageDataSourceDao lineageDataSourceDao;
+
+    @Autowired
+    private DataSourceAPIClient dataSourceAPIClient;
 
     @Override
     protected void onFocusedJobFinished(Integer type,String engineType,String sqlText,Long  taskId, ScheduleJob scheduleJob, Integer status) {
@@ -82,8 +88,17 @@ public class BatchFinishedJobListener extends SqlJobFinishedListener {
         }
         List<Integer> hadoopList = Arrays.asList(DataSourceType.HIVE.getVal(), DataSourceType.IMPALA.getVal(), DataSourceType.SPARKTHRIFT2_1.getVal());
         if(hadoopList.contains(dataSourceTypeByTaskTypeInt.getVal())){
-            LineageDataSource dataSource = lineageDataSourceDao.getHadoopDefaultDatasource(scheduleJob.getProjectId(),scheduleJob.getAppType(),hadoopList);
-            dataSourceTypeByTaskTypeInt = DataSourceType.getSourceType(dataSource.getSourceType());
+            //从数据源中心查询meta数据源 todo
+            DsServiceListParam dsServiceListParam = getDsServiceListParam(scheduleJob.getDtuicTenantId(),hadoopList);
+            ApiResponse<PageResult<List<DsServiceListDTO>>> pageResultApiResponse = dataSourceAPIClient.appDsPage(dsServiceListParam);
+            if(pageResultApiResponse.getCode() !=1 ){
+                logger.error("appDsPage query failed,param:{}",JSON.toJSONString(dsServiceListParam));
+            }
+            List<DsServiceListDTO> data = pageResultApiResponse.getData().getData();
+            if(data.size()<1){
+                logger.error("do not find need dataSource,param:{}",JSON.toJSONString(dsServiceListParam));
+            }
+            dataSourceTypeByTaskTypeInt = DataSourceType.getSourceType(data.get(0).getType());
         }
         for (String sql : sqls){
             ParseColumnLineageParam columnLineageParam = new ParseColumnLineageParam();
@@ -99,6 +114,16 @@ public class BatchFinishedJobListener extends SqlJobFinishedListener {
             lineageService.parseAndSaveColumnLineage(columnLineageParam);
         }
     }
+
+    private DsServiceListParam getDsServiceListParam(Long dtUicTenantId, List<Integer> hadoopList) {
+        DsServiceListParam dsServiceListParam = new DsServiceListParam();
+        dsServiceListParam.setDsDtuicTenantId(dtUicTenantId);
+        dsServiceListParam.setAppType(AppType.RDOS.getType());
+        dsServiceListParam.setIsMeta(1);
+        dsServiceListParam.setDataTypeCodeList(hadoopList);
+        return dsServiceListParam;
+    }
+
 
     @Override
     public Set<EScheduleJobType> focusedJobTypes() {

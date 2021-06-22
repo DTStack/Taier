@@ -16,8 +16,8 @@ public class LineageDataSetInfo extends DtUicTenantEntity {
     @ApiModelProperty(notes = "应用类型")
     private Integer appType;
 
-    @ApiModelProperty(notes = "数据源id")
-    private Long sourceId;
+    @ApiModelProperty(notes = "数据源中心id")
+    private Long dataInfoId;
 
 
     @ApiModelProperty(notes = "数据源名称")
@@ -53,12 +53,12 @@ public class LineageDataSetInfo extends DtUicTenantEntity {
         this.appType = appType;
     }
 
-    public Long getSourceId() {
-        return sourceId;
+    public Long getDataInfoId() {
+        return dataInfoId;
     }
 
-    public void setSourceId(Long sourceId) {
-        this.sourceId = sourceId;
+    public void setDataInfoId(Long dataInfoId) {
+        this.dataInfoId = dataInfoId;
     }
 
     public String getSourceName() {
@@ -130,7 +130,7 @@ public class LineageDataSetInfo extends DtUicTenantEntity {
     public String toString() {
         return "LineageDataSetInfo{" +
                 "appType=" + appType +
-                ", sourceId=" + sourceId +
+                ", dataInfoId=" + dataInfoId +
                 ", sourceName='" + sourceName + '\'' +
                 ", sourceType=" + sourceType +
                 ", setType=" + setType +

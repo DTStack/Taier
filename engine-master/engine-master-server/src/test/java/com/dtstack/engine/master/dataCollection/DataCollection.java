@@ -1011,7 +1011,7 @@ public interface DataCollection {
     default LineageDataSetInfo getDefaultLineageDataSetInfo(){
         LineageDataSetInfo defaultDataSetInfoTemplate = Template.getDefaultDataSetInfoTemplate();
         LineageDataSource defaultHiveDataSourceTemplate = Template.getDefaultHiveDataSourceTemplate();
-        defaultDataSetInfoTemplate.setSourceId(defaultHiveDataSourceTemplate.getId());
+        defaultDataSetInfoTemplate.setDataInfoId(defaultHiveDataSourceTemplate.getId());
         return defaultDataSetInfoTemplate;
     }
 
@@ -1019,7 +1019,7 @@ public interface DataCollection {
     default LineageDataSetInfo getHiveLineageDataSetInfo(){
         LineageDataSetInfo lineageDataSetInfo = Template.getHiveDataSetInfoTemplate();
         LineageDataSource defaultHiveDataSourceTemplate = Template.getDefaultHiveDataSourceTemplate();
-        lineageDataSetInfo.setSourceId(defaultHiveDataSourceTemplate.getId());
+        lineageDataSetInfo.setDataInfoId(defaultHiveDataSourceTemplate.getId());
         return lineageDataSetInfo;
     }
 

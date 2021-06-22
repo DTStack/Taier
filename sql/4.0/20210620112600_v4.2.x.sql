@@ -12,7 +12,7 @@ create table if not exists lineage_data_set_info(
     id int(11) NOT NULL AUTO_INCREMENT,
     dt_uic_tenant_id int(11) NOT NULL COMMENT '租户id',
     app_type smallint(4) NOT NULL COMMENT '应用类型',
-    source_id int(11) NOT NULL COMMENT 'lineage_data_source中的id',
+    data_info_id int(11) NOT NULL COMMENT '数据源中心id',
     source_name VARCHAR(55) NOT NULL COMMENT '数据源名称',
     source_type SMALLINT(4) NOT NULL COMMENt '数据源类型',
     set_type smallint(4) NOT NULL default 0 COMMENT '数据集类型，0 表 ，1 文件',
