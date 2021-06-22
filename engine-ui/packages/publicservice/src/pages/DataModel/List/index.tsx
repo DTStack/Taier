@@ -150,7 +150,6 @@ const List = (props: IPropList) => {
         Message.success(msg);
         fetchModelList(requestParams);
       } else {
-        // Message.msgError('删除失败');
         if (apiAction === API.deleteModel) {
           Message.msgError(message);
         } else {
@@ -163,16 +162,21 @@ const List = (props: IPropList) => {
   }, []);
 
   // 删除按钮点击事件处理，二次确认弹窗
-  const handleDeleteBtnClick = (id) => {
+  const handleDeleteBtnClick = async (id) => {
+    // 请求判断当前模型是否被下游应用引用
+    const { success, data, message } = await API.isModelReferenced({ id });
+    if (!success) return Message.error(message);
+    let content = '';
+    if (data.ref) {
+      // 数据模型已经被引用
+      const prods = data.prod || [];
+      content = `该模型已经${prods.join('、')}被引用，修改后可能导致数据异常。`;
+    }
     Modal.confirm({
       title: (
         <span className="cus-modal margin-left-40">确认要删除这条模型？</span>
       ),
-      content: (
-        <span className="cus-modal margin-left-40">
-          删除后，已经引用该模型的数据将不可用！
-        </span>
-      ),
+      content: <span className="cus-modal margin-left-40">{content}</span>,
       onOk() {
         handleModelAction({
           type: EnumModelActionType.DELETE,
@@ -202,18 +206,46 @@ const List = (props: IPropList) => {
     });
   };
 
+  /**
+   * 点击编辑按钮
+   * 判断模型是否被下游产品引用，给出提示
+   * @param id 模型id
+   * @returns
+   */
+  const handleEditBtnClick = async (id: number) => {
+    const { success, data, message } = await API.isModelReferenced({ id });
+    if (!success) return Message.error(message);
+    if (data.ref) {
+      const prods = data.prod || [];
+      const title = `该模型已经被${prods.join(
+        '、'
+      )}引用，修改后可能导致数据异常，确定编辑吗？`;
+      Modal.confirm({
+        title: title,
+        onOk: () => {
+          router.push(`/data-model/edit/${id}`);
+        },
+        okText: '确定',
+        cancelText: '取消',
+      });
+    } else {
+      router.push(`/data-model/edit/${id}`);
+    }
+  };
+
   const columns = useMemo(() => {
     return columnsGenerator({
       handleModelAction,
       handleDeleteBtnClick,
       handleModelNameClick,
+      handleEditBtnClick,
       dataSourceFilterOptions: dataSourceTypeList,
-      router,
     });
   }, [
     handleModelAction,
     handleDeleteBtnClick,
     handleModelNameClick,
+    handleEditBtnClick,
     dataSourceTypeList,
   ]);
 
@@ -268,6 +300,7 @@ const List = (props: IPropList) => {
           />
           <Drawer
             closable={false}
+            destroyOnClose={true}
             visible={drawer.visible}
             className="drawer"
             width={1000}

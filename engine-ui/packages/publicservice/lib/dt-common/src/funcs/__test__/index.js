@@ -11,21 +11,10 @@ CREATE TABLE IF NOT EXISTS pw_competing_add_sku_1(
 PARTITIONED BY( dt STRING)
 lifecycle 365;
 `;
-
-// function testFilterComments () {
-//     const res = filterComments(testStr);
-//     console.log('comments:', res);
-// }
-
 function testSQLExtract() {
   // const sqls = testStr.split(/(;)/);
   const regx = /^(.)+(\n|\w|\s)+(;)+$/g;
-  // const sqls = regx.exec(testStr);
-  // while ((temp = regx.exec(testStr)) !== null) {
-  //     console.log('sqls:', temp);
-  // }
   const sqls = testStr.match(regx);
-  console.log('sqls:', sqls);
 }
 
 testSQLExtract();

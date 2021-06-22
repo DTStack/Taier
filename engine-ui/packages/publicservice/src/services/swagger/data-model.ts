@@ -11,6 +11,12 @@ export default {
     method: 'get',
     url: `${prefix}/detail`,
   },
+  // TODO: 修改接口参数，临时mock
+  // 判断模型是否被下游引用
+  isModelReferenced: {
+    method: 'post',
+    url: `${prefix}/checkRef`,
+  },
   // 删除模型
   deleteModel: {
     method: 'post',
@@ -70,5 +76,20 @@ export default {
   saveDataModel: {
     method: 'post',
     url: `${prefix}/save`,
+  },
+  // 版本历史记录
+  getVersionHistoryList: {
+    method: 'post',
+    url: `${prefix}/versionHistory`,
+  },
+  // 获取版本详情
+  getVersionDetail: {
+    method: 'get',
+    url: `${prefix}/versionDetail`,
+  },
+  // 版本恢复
+  recoverVersion: {
+    method: 'post',
+    url: `${prefix}/versionRecovery`,
   },
 };

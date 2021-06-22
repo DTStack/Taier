@@ -140,11 +140,11 @@ const BasicInfo = (props: IPropsBasicInfo) => {
             />
           )}
         </Form.Item>
-        <Form.Item label="模型英文名">
+        <Form.Item label="模型编码">
           {getFieldDecorator('modelEnName', {
             validateTrigger: 'onBlur',
             rules: [
-              { required: true, message: '请输入模型英文名' },
+              { required: true, message: '请输入模型编码' },
               { max: 50, message: '不超过50个字符' },
               {
                 pattern: /^[a-zA-Z0-9_]+$/g,
@@ -153,7 +153,7 @@ const BasicInfo = (props: IPropsBasicInfo) => {
               {
                 validator: repeatValidateGenerator({
                   fieldCode: 2,
-                  msgTips: '模型英文名已存在',
+                  msgTips: '模型编码已存在',
                   id: modelDetail.id,
                 }),
               },
@@ -163,7 +163,7 @@ const BasicInfo = (props: IPropsBasicInfo) => {
               className="dm-form-item"
               disabled={isDisabled}
               autoComplete="off"
-              placeholder="请输入模型英文名称"
+              placeholder="请输入模型编码"
             />
           )}
         </Form.Item>

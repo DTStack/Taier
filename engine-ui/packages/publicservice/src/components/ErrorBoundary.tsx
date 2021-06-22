@@ -8,7 +8,6 @@ class ErrorBoundary extends React.PureComponent {
 
   componentDidCatch(error) {
     this.setState({ hasError: true });
-    console.log(error);
   }
 
   render() {

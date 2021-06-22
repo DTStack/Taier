@@ -13,7 +13,6 @@ export function getLicenseApp() {
     if (store.licenseApps.length === 0) {
       Api.getLicenseApp().then((res) => {
         if (res.success) {
-          console.log('Licence', res.data);
           return dispatch({
             type: appActions.GET_LICENSE_APP,
             data: [...res.data],

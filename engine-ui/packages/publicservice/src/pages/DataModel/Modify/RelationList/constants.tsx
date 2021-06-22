@@ -57,14 +57,15 @@ export const columnsGenerator = ({ onDelete, onEdit }) => {
       key: 'joinPairs',
       width: 160,
       ellipsis: true,
-      render: (value) => {
+      render: (value, record) => {
+        const { leftTableAlias, tableAlias } = record;
         return (
           value &&
           value
             .reduce((temp, cur) => {
-              const ltTable = cur.leftValue?.tableName;
+              const ltTable = leftTableAlias;
               const ltCol = cur.leftValue?.columnName;
-              const rtTable = cur.rightValue?.tableName;
+              const rtTable = tableAlias;
               const rtCol = cur.rightValue?.columnName;
               return `${temp}${ltTable}.${ltCol} = ${rtTable}.${rtCol} and `;
             }, '')

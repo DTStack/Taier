@@ -23,11 +23,8 @@ function loadHtmlPlugs() {
       });
     }
   }
-  // console.log('htmlPlugs:', JSON.stringify(htmlPlugs))
 }
 
 loadHtmlPlugs();
 
 const abc = a.push(htmlPlugs);
-
-console.log('htmlPlugs a:', JSON.stringify(a));

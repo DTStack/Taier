@@ -23,6 +23,14 @@
 
 .relation-row {
   margin-bottom: 12px !important;
+  .ant-form-explain {
+    margin-top: -20px;
+  }
+  .special-form-item {
+    .ant-form-explain {
+      margin-top: 0;
+    }
+  }
 }
 
 .dynamic-select-list {

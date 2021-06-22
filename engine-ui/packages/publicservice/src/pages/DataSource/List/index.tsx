@@ -50,6 +50,7 @@ function index(props) {
       });
       if (data.data) {
         data.data.forEach((element) => {
+          console.log(element, 'element----');
           Object.keys(DATA_SOURCE_TEXT).forEach((item) => {
             if (element.dataType === DATA_SOURCE_TEXT[item]) {
               element.type = Number(item);
@@ -119,7 +120,7 @@ function index(props) {
 
   //搜索事件
   const onSearch = (value) => {
-    let data = { ...other, ...value };
+    let data = { ...other, ...value, currentPage: 1 };
     setOther(data);
     requestTableData(data);
   };
@@ -150,10 +151,10 @@ function index(props) {
       appTypes: checkedValues,
     });
     if (success) {
-      message.success('产品授权成功');
+      message.success('操作成功');
       requestTableData(); //更新表格
     } else {
-      message.error('产品授权失败');
+      message.error('操作失败');
     }
 
     setVisible(false);

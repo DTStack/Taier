@@ -58,6 +58,13 @@ export const columnsGenerator = ({ onInputBlur, data }): any[] => {
       onFilter: (value, record) => value === record.tableName,
       ellipsis: true,
     },
+    // TODO: 字段
+    {
+      title: '表别名',
+      width: 120,
+      dataIndex: 'tableAlias',
+      ellipsis: true,
+    },
     {
       title: 'schema',
       dataIndex: 'schema',

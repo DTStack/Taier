@@ -22,6 +22,7 @@ import Base64 from 'base-64';
 import { API } from '@/services';
 
 import { checks, getSaveStatus } from '../../utils/handelSession';
+import { utf8to16 } from '../../utils/utfEncode';
 import { getRules, IParams, formItemLayout, formNewLayout } from './formRules';
 import { HDFSCONG } from '../../constants/index';
 import { hdfsConfig } from './tooltips';
@@ -402,14 +403,14 @@ const InfoConfig = (props) => {
             placeholder="请输入key值"
           />{' '}
           : &nbsp;
-          <Input
+          <Input.Password
             autoComplete="off"
             onChange={(e) => {
               editWsParams(e, index, 'value');
             }}
             value={ws.value}
-            type="password"
             placeholder="请输入value值"
+            visibilityToggle={false}
           />
           <a
             onClick={() => {
@@ -560,7 +561,7 @@ const InfoConfig = (props) => {
               }}
               autoComplete="off"
               value={
-                getFieldValue(`kerberosFile`).name +
+                utf8to16(getFieldValue('kerberosFile').name) +
                 '   ' +
                 moment(getFieldValue(`kerberosFile`).modifyTime).format(
                   'YYYY-MM-DD HH:mm:ss'
@@ -718,6 +719,7 @@ const InfoConfig = (props) => {
               getRules(item)
             )(
               <Input.Password
+                visibilityToggle={false}
                 placeholder={item.placeHold || `请输入${item.label}`}
               />
             )}
@@ -976,6 +978,67 @@ const InfoConfig = (props) => {
             )}
           </div>
         );
+      case 'KafkaReact':
+        return (
+          <div key={index}>
+            <Form.Item label="连接方式" key="kafkaType" className="top-unset">
+              {getFieldDecorator('kafkaType', {
+                initialValue: detailData?.kafkaType || 1,
+                rules: [
+                  {
+                    required: true,
+                    message: '模式不能为空',
+                  },
+                ],
+              })(
+                <Radio.Group>
+                  <Radio value={1}>集群地址</Radio>
+                  <Radio value={2}>Broker地址</Radio>
+                </Radio.Group>
+              )}
+            </Form.Item>
+            {getFieldValue('kafkaType') === 1 && (
+              <Form.Item label="集群地址" key="address">
+                {getFieldDecorator('address', {
+                  initialValue: detailData?.address || '',
+                  rules: [
+                    {
+                      required: true,
+                      message: '集群地址不能为空',
+                    },
+                  ],
+                })(
+                  <TextArea
+                    rows={4}
+                    placeholder={
+                      '请填写Kafka对应的ZooKeeper集群地址，例如：IP1:Port,IP2：Port,IP3：Port/子目录'
+                    }
+                  />
+                )}
+              </Form.Item>
+            )}
+            {getFieldValue('kafkaType') === 2 && (
+              <Form.Item label="broker地址" key="brokerList">
+                {getFieldDecorator('brokerList', {
+                  initialValue: detailData?.brokerList || '',
+                  rules: [
+                    {
+                      required: true,
+                      message: 'broker地址不能为空',
+                    },
+                  ],
+                })(
+                  <TextArea
+                    rows={4}
+                    placeholder={
+                      'Broker地址，例如IP1:Port,IP2:Port,IP3:Port/子目录'
+                    }
+                  />
+                )}
+              </Form.Item>
+            )}
+          </div>
+        );
       case 'RedisReact':
         return (
           <div key={index}>
@@ -1040,7 +1103,7 @@ const InfoConfig = (props) => {
             <Form.Item label="密码">
               {getFieldDecorator('password', {
                 initialValue: detailData?.password || '',
-              })(<Input.Password />)}
+              })(<Input.Password visibilityToggle={false} />)}
             </Form.Item>
           </div>
         );

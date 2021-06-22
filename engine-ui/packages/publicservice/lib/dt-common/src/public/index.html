@@ -33,7 +33,6 @@
         if ((tem = ua.match(/version\/(\d+)/i)) != null) M.splice(1, 1, tem[1]);
         return { name: M[0], version: M[1] };
       })();
-      console.log('browserSpec:', browserSpec);
       // Firefox 1.0+
       var isFirefox = browserSpec.name === 'Firefox';
       // Chrome 65+
@@ -207,10 +206,9 @@
                 localStorage.setItem('sw_version_1', version);
               });
             }
-            console.log('Registered events as scopet', registration.scope);
           })
           .catch((e) => {
-            console.log('catch', e);
+            console.error(e);
           });
       }
       /**

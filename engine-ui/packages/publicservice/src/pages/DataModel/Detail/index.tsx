@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Tabs, Spin } from 'antd';
-import HTable from './HTable';
-import PaneTitle from '../components/PaneTitle';
-import DataInfo from './DataInfo';
-import CodeBlock from '../components/CodeBlock';
 import { API } from '@/services';
 import Message from 'pages/DataModel/components/Message';
 import './style';
 import { IModelDetail } from '../types';
-
+import VersionHistory from './VersionHistory';
+import ModelBasicInfo from './ModelBasicInfo';
+import SqlPreview from './SqlPreview';
 const { TabPane } = Tabs;
+import './style';
 
 interface IPropsDetail {
   modelId: number;
@@ -28,7 +27,10 @@ const Detail = (props: IPropsDetail) => {
     if (id === -1) return;
     setLoading(true);
     try {
-      const { success, data, message } = await API.getModelDetail({ id });
+      const { success, data, message } = await API.getModelDetail({
+        id,
+        version: '0',
+      });
       if (success) {
         setModelDetail(data as IModelDetail);
         const params = {
@@ -81,43 +83,23 @@ const Detail = (props: IPropsDetail) => {
         <Tabs type="card">
           <TabPane tab="基本信息" key="1">
             <div className="pane-container">
-              <div className="inner-container">
-                <div className="margin-bottom-20">
-                  <PaneTitle title="模型信息" />
-                  <HTable
-                    detail={{
-                      ...modelDetail,
-                      dsName: `${modelDetail.dsName}(${modelDetail.dsTypeName})`,
-                    }}
-                  />
-                </div>
-
-                {/* <div className="margin-bottom-20">
-                  <PaneTitle title="关联视图" />
-                  <div className="releation-view" />
-                </div> */}
-                <div className="margin-bottom-20">
-                  <PaneTitle title="数据信息" />
-                  <DataInfo
-                    relationTableList={modelDetail.joinList}
-                    metricList={modelDetail.columns.filter(
-                      (item) => item.metric
-                    )}
-                    dimensionList={modelDetail.columns.filter(
-                      (item) => item.dimension
-                    )}
-                  />
-                </div>
-              </div>
+              <ModelBasicInfo modelDetail={modelDetail} />
             </div>
           </TabPane>
           <TabPane tab="SQL信息" key="2">
             <div className="pane-container">
-              <div className="card-container">
-                <div className="inner-container">
-                  <CodeBlock code={code} />
-                </div>
-              </div>
+              <SqlPreview code={code} />
+            </div>
+          </TabPane>
+          <TabPane tab="版本变更" key="3">
+            <div className="pane-container">
+              <VersionHistory
+                modelId={modelDetail.id}
+                modelStatus={modelDetail.modelStatus}
+                onRecover={() => {
+                  getModelDetail(modelId);
+                }}
+              />
             </div>
           </TabPane>
         </Tabs>
