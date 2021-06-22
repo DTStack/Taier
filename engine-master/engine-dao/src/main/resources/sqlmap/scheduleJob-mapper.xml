@@ -524,9 +524,9 @@
         <if test="dtuicTenantId != null and dtuicTenantId != -1">
             AND ts.dtuic_tenant_id = #{dtuicTenantId}
         </if>
-        <if test="projectId!=null and projectId != -1">
+        <if test="projectIds !=null">
             AND ts.project_id IN
-            <foreach item="projectIds" collection="projectId" open="(" separator="," close=")">
+            <foreach item="projectId" collection="projectIds" open="(" separator="," close=")">
                 #{projectId}
             </foreach>
 
@@ -549,7 +549,7 @@
                 #{status}
             </foreach>
         </if>
-        group by status
+        group by project_id, status
     </select>
 
     <select id="selectStatusAndType" resultType="java.util.HashMap">
