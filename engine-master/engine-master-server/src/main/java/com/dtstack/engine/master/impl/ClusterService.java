@@ -438,9 +438,7 @@ public class ClusterService implements InitializingBean {
                             continue;
                         }
                         JSONObject componentConfig = componentService.getComponentByClusterId(component.getId(),false, JSONObject.class);
-                        if(EComponentType.FLINK.equals(type)
-                                && componentConfig.containsKey(DEPLOY_TYPE)
-                                && EDeployType.STANDALONE.getType() == componentConfig.getInteger(DEPLOY_TYPE)){
+                        if(EComponentType.FLINK.equals(type) && EDeployType.STANDALONE.getType() == component.getDeployType()){
                             config.put(FLINK_ON_STANDALONE_CONF, componentConfig);
                             continue;
                         }
@@ -1031,9 +1029,7 @@ public class ClusterService implements InitializingBean {
     public boolean hasStandalone(Long tenantId, Integer typeCode) {
         Long clusterId = engineTenantDao.getClusterIdByTenantId(tenantId);
         if (null != clusterId) {
-            List<ComponentConfig> componentConfigs = componentConfigService.getComponentConfigListByTypeCodeAndKey(clusterId, typeCode, DEPLOY_TYPE);
-            return componentConfigs.stream()
-                    .anyMatch(componentConfig -> (EDeployType.STANDALONE.getType() + "").equalsIgnoreCase(componentConfig.getValue()));
+            return null != componentDao.getByClusterIdAndComponentType(clusterId, typeCode, null, EDeployType.STANDALONE.getType());
         }
         return false;
     }

@@ -107,7 +107,6 @@ public class ConfigConstant {
     public static final String TYPE_NAME = "typeName";
     public static final String HADOOP_VERSION = "hadoopVersion";
     public static final String MD5_SUM_KEY = "md5zip";
-    public static final String DEPLOY_TYPE = "deployType";
     public static final String FLINK_ON_STANDALONE_CONF = "flinkOnStandaloneConf";
     public static final String DEPLOY_MODEL = "deployMode";
 
