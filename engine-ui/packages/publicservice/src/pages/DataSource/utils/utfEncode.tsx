@@ -19,18 +19,18 @@ export const utf16to8 = (str) => {
 };
 
 function isUtf8(s) {
-	var lastnames = new Array("ä", "å", "æ", "ç", "è", "é");
-	for (var i = 0; i < lastnames.length; i++) {
-		if (s.indexOf(lastnames[i]) > -1) {
-			return false;
-		}
-	}
-	return true;
+  var lastnames = new Array('ä', 'å', 'æ', 'ç', 'è', 'é');
+  for (var i = 0; i < lastnames.length; i++) {
+    if (s.indexOf(lastnames[i]) > -1) {
+      return false;
+    }
+  }
+  return true;
 }
 
 // utf8转为utf16：
 export const utf8to16 = (str) => {
-  if(isUtf8(str)) return str;
+  if (isUtf8(str)) return str;
   let out, i, len, c;
   let char2, char3;
   out = '';

@@ -142,7 +142,7 @@ const showMapArr: any = {
     ['username', '用户名'],
   ],
   [DATA_SOURCE.SOLR]: [
-    ['address', '集群地址'],
+    ['zkHost', '集群地址'],
     ['chroot', 'chroot路径'],
   ],
   [DATA_SOURCE.INFLUXDB]: [
