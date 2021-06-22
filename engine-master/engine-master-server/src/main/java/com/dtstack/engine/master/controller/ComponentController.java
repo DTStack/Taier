@@ -140,15 +140,17 @@ public class ComponentController {
                                                          @DtRequestParam("componentTypeCode")Integer componentTypeCode,
                                                          @DtRequestParam("needRefresh") Boolean needRefresh,
                                                          @DtRequestParam("agentAddress")String agentAddress){
-        return componentService.getClusterComponentUser(clusterId,componentTypeCode,needRefresh,agentAddress);
+        return componentService.getClusterComponentUser(clusterId,componentTypeCode,needRefresh,agentAddress,false);
     }
 
-    @RequestMapping(value = "/deleteComponentUser",method = {RequestMethod.POST})
-    public void deleteComponentUser(@DtRequestParam("clusterId")Long clusterId,
-                                                         @DtRequestParam("componentTypeCode")Integer componentTypeCode,@DtRequestParam("label")String label,
-                                                         @DtRequestParam("userName") String userName,@DtRequestParam("password")String password){
-         componentService.deleteComponentUser(clusterId,componentTypeCode,label,userName,password);
+    @RequestMapping(value = "/getComponentUserByUic",method = {RequestMethod.POST})
+    public List<ComponentUserVO> getComponentUserByUic(@DtRequestParam("uicId")Long uicId,
+                                                         @DtRequestParam("componentTypeCode")Integer componentTypeCode,
+                                                         @DtRequestParam("needRefresh") Boolean needRefresh,
+                                                         @DtRequestParam("agentAddress")String agentAddress){
+        return componentService.getClusterComponentUser(uicId,componentTypeCode,needRefresh,agentAddress,true);
     }
+
 }
 
 

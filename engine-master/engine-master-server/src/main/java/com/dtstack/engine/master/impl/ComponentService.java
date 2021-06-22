@@ -2286,8 +2286,8 @@ public class ComponentService {
     }
 
     public List<ComponentUserVO> getClusterComponentUser(Long clusterId, Integer componentTypeCode,
-                                                         Boolean needRefresh,String agentAddress) {
-
+                                                         Boolean needRefresh,String agentAddress,boolean uic) {
+        clusterId = uic?clusterService.getCluster(clusterId).getId():clusterId;
         List<ComponentUser> componentUserList = componentUserDao.getComponentUserByCluster(clusterId,componentTypeCode);
         // 只取数据库数据
         if (!Boolean.TRUE.equals(needRefresh)){
@@ -2339,12 +2339,6 @@ public class ComponentService {
         return componentUserVOList;
     }
 
-    public void deleteComponentUser(Long clusterId, Integer componentTypeCode,String label, String userName,String password) {
-        if (StringUtils.isAnyBlank(userName,password)){
-            throw new RdosDefineException("userName or password is empty ");
-        }
-        componentUserDao.deleteByComponentAndLabelUser(clusterId,componentTypeCode,label,userName);
-    }
 
     public ComponentUser getComponentUser(Long dtUicId,Integer componentTypeCode,String label,String userName){
         Cluster cluster = clusterService.getCluster(dtUicId);

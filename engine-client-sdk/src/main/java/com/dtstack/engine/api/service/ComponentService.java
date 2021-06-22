@@ -84,4 +84,10 @@ public interface ComponentService extends DtInsightServer {
                                                          @Param("needRefresh") Boolean needRefresh,
                                                          @Param("agentAddress") String agentAddress);
 
+
+    @RequestLine(value = "/getComponentUserByUic")
+    ApiResponse<List<ComponentUserVO>> getComponentUserByUic(@Param("uicId")Long uicId,
+                                                       @Param("componentTypeCode")Integer componentTypeCode,
+                                                       @Param("needRefresh") Boolean needRefresh,
+                                                       @Param("agentAddress")String agentAddress);
 }
