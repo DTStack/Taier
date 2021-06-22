@@ -258,21 +258,22 @@ public class ScheduleJobService {
         if (CollectionUtils.isNotEmpty(scheduleJobCounts)) {
             Map<Long, List<ScheduleJobCount>> listMap = scheduleJobCounts.stream().collect(Collectors.groupingBy(ScheduleJobCount::getProjectId));
 
-            for (Map.Entry<Long, List<ScheduleJobCount>> entry : listMap.entrySet()) {
+            for (Long projectId : projectIds) {
                 ScheduleJobStatusVO scheduleJobStatusVO = new ScheduleJobStatusVO();
-                scheduleJobStatusVO.setProjectId(entry.getKey());
-                List<ScheduleJobCount> dataCount = entry.getValue();
-                if (CollectionUtils.isNotEmpty(dataCount)) {
-                    List<Map<String, Object>> data = toListMap(dataCount);
-                    buildCount(scheduleJobStatusVO, data);
-                    scheduleJobStatusVOS.add(scheduleJobStatusVO);
-                }
+                scheduleJobStatusVO.setProjectId(projectId);
+                List<ScheduleJobCount> dataCount = listMap.get(projectId);
+                List<Map<String, Object>> data = toListMap(dataCount);
+                buildCount(scheduleJobStatusVO, data);
+                scheduleJobStatusVOS.add(scheduleJobStatusVO);
             }
         }
     }
 
     private List<Map<String, Object>> toListMap(List<ScheduleJobCount> dataCount) {
         List<Map<String, Object>> data = Lists.newArrayList();
+        if (CollectionUtils.isEmpty(dataCount)) {
+            return data;
+        }
         for (ScheduleJobCount scheduleJobCount : dataCount) {
             Map<String, Object> map = Maps.newHashMap();
             map.put("count", scheduleJobCount.getCount());
