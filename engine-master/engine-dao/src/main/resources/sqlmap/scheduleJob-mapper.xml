@@ -517,6 +517,41 @@
         group by status
     </select>
 
+    <select id="countByStatusAndTypeProjectIds" resultType="com.dtstack.engine.api.pojo.ScheduleJobCount">
+        SELECT project_id,status,COUNT(1) as count
+        FROM schedule_job ts
+        WHERE ts.is_deleted = 0
+        <if test="dtuicTenantId != null and dtuicTenantId != -1">
+            AND ts.dtuic_tenant_id = #{dtuicTenantId}
+        </if>
+        <if test="projectId!=null and projectId != -1">
+            AND ts.project_id IN
+            <foreach item="projectIds" collection="projectId" open="(" separator="," close=")">
+                #{projectId}
+            </foreach>
+
+        </if>
+        <if test="tenantId!=null">
+            AND ts.tenant_id = #{tenantId}
+        </if>
+        AND ts.type = #{type}
+        AND ts.app_type = #{appType}
+        AND ts.task_type != 10
+        <if test="startTime != null and startTime != ''">
+            AND ts.cyc_time <![CDATA[>=]]> #{startTime}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            AND ts.cyc_time <![CDATA[<]]> #{endTime}
+        </if>
+        <if test="statuses != null ">
+            AND ts.status in
+            <foreach item="status" index="index" collection="statuses" open="(" separator="," close=")">
+                #{status}
+            </foreach>
+        </if>
+        group by status
+    </select>
+
     <select id="selectStatusAndType" resultType="java.util.HashMap">
         SELECT if(ts.is_deleted = 1,CONCAT(ts.name,'(已删除)'),ts.name) AS name, bj.status AS status,bj.exec_start_time AS
         execStartTime
