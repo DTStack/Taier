@@ -42,7 +42,8 @@ public enum DataBaseType {
     Greenplum6("Greenplum6", "com.pivotal.jdbc.GreenplumDriver"),
     Presto("presto", "com.facebook.presto.jdbc.PrestoDriver"),
     HIVE3("hive3", "org.apache.hive.jdbc.HiveDriver"),
-    Inceptor("inceptor", "org.apache.hive.jdbc.HiveDriver");
+    Inceptor("inceptor", "org.apache.hive.jdbc.HiveDriver"),
+    adb_Postgrepsql("adb-postgresql", "org.postgresql.Driver"),;
 
     private String typeName;
     private String driverClassName;

@@ -114,6 +114,9 @@ public class AccountService {
         } else if (MultiEngineType.GREENPLUM.getType() == accountVo.getEngineType()) {
             jdbc = JSONObject.parseObject(clusterService.greenplumInfo(accountVo.getBindTenantId(), null,null));
             dataBaseType = DataBaseType.Greenplum6;
+        } else if (MultiEngineType.ANALYTICDB_FOR_PG.getType() == accountVo.getEngineType()) {
+            jdbc = JSONObject.parseObject(clusterService.adbPostgrepsqlInfo(accountVo.getBindTenantId(), null,null));
+            dataBaseType = DataBaseType.adb_Postgrepsql;
         } else if (MultiEngineType.HADOOP.getType() == accountVo.getEngineType()) {
             //如果是HADOOP，则添加ldap,无需校验连通性
             return;
@@ -126,7 +129,9 @@ public class AccountService {
                 throw new RdosDefineException("Please bind Oracle components first");
             } else if (MultiEngineType.GREENPLUM.getType() == accountVo.getEngineType()) {
                 throw new RdosDefineException("Please bind the GREENPLUMe component first");
-            }else{
+            } else if (MultiEngineType.ANALYTICDB_FOR_PG.getType() == accountVo.getEngineType()) {
+                throw new RdosDefineException("Please bind the AnalyticDB for PostgreSQL component first");
+            } else{
                 throw new RdosDefineException("Please bind the corresponding components first");
             }
         }
@@ -137,7 +142,7 @@ public class AccountService {
         pluginInfo.put("password", accountVo.getPassword());
         pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,dataBaseType.getTypeName().toLowerCase());
         try {
-            workerOperator.executeQuery(dataBaseType.getTypeName().toLowerCase(), pluginInfo.toJSONString(), "show databases", "");
+            workerOperator.testConnect(dataBaseType.getTypeName().toLowerCase(), pluginInfo.toJSONString());
         } catch (Exception e) {
             throw new RdosDefineException("Failed to test connectivity :" + ExceptionUtil.getErrorMessage(e));
         }
