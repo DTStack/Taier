@@ -43,7 +43,7 @@ public class UploadController {
                                             @RequestParam("kerberosFileName") String kerberosFileName, @RequestParam("componentTemplate") String componentTemplate,
                                             @RequestParam("componentCode") Integer componentCode, @RequestParam("storeType")Integer storeType,
                                             @RequestParam("principals")String principals,@RequestParam("principal")String principal,@RequestParam("isMetadata")boolean isMetadata,
-                                            @RequestParam(value = "isDefault",required = false) Boolean isDefault,@RequestParam("deployType")Integer deployType) {
+                                            @RequestParam(value = "isDefault",required = false) Boolean isDefault,@RequestParam(value = "deployType",required = false)Integer deployType) {
         List<Resource> resources = getResourcesFromFiles(files1);
         List<Resource> resourcesAdd = getResourcesFromFiles(files2);
         resources.addAll(resourcesAdd);

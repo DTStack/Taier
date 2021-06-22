@@ -45,7 +45,7 @@ public class DownloadController {
                                @RequestParam("componentType") Integer componentType,
                                @RequestParam("hadoopVersion") String componentVersion,
                                @RequestParam("clusterName") String clusterName,
-                               @RequestParam("deployType") Integer deployType,
+                               @RequestParam(value = "deployType",required = false) Integer deployType,
                                HttpServletResponse response) {
         response.setHeader("Content-Type", "application/octet-stream;charset=UTF-8");
         response.setHeader("Pragma", "no-cache");
