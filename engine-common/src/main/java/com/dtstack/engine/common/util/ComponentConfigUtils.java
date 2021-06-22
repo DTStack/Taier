@@ -106,23 +106,10 @@ public class ComponentConfigUtils {
                 .stream()
                 .filter(c -> StringUtils.isBlank(c.getDependencyKey()))
                 .collect(Collectors.toList());
-        //是否为 flink on standalone
-        Optional<ComponentConfig> isFlinkOnStandalone = emptyDependencyValue.stream()
-                .filter(com -> {
-                            if (ConfigConstant.DEPLOY_MODEL.equalsIgnoreCase(com.getKey())
-                                    && EComponentType.FLINK.getTypeCode().equals(com.getComponentTypeCode())
-                                    && StringUtils.isNotBlank(com.getValue())) {
-                                return com.getValue().contains(EDeployMode.STANDALONE.getMode());
-                            }
-                            return false;
-                        }
-                ).findFirst();
         Map<String, Object> configMaps = new HashMap<>(configs.size());
         for (ComponentConfig componentConfig : emptyDependencyValue) {
             Map<String, Object> deepToBuildConfigMap = ComponentConfigUtils.deepToBuildConfigMap(dependencyMapping, dependencyMapping.size(), componentConfig.getKey());
-            if(isFlinkOnStandalone.isPresent()) {
-                configMaps.put(componentConfig.getKey(), componentConfig.getValue());
-            }else if (DEPLOY_MODE.equalsIgnoreCase(componentConfig.getKey()) || EFrontType.GROUP.name().equalsIgnoreCase(componentConfig.getType())) {
+            if (DEPLOY_MODE.equalsIgnoreCase(componentConfig.getKey()) || EFrontType.GROUP.name().equalsIgnoreCase(componentConfig.getType())) {
                 configMaps.put(componentConfig.getKey(), DEPLOY_MODE.equalsIgnoreCase(componentConfig.getKey()) ?
                         JSONArray.parseArray(componentConfig.getValue()) : componentConfig.getValue());
                 Object specialDeepConfig = deepToBuildConfigMap.get(componentConfig.getKey());
@@ -166,6 +153,8 @@ public class ComponentConfigUtils {
                 if (!CollectionUtils.isEmpty(deepToBuildConfigMap)) {
                     if (EFrontType.RADIO_LINKAGE.name().equalsIgnoreCase(componentConfig.getType())) {
                         parseRadioLinkage(dependencyMapping, configMaps, componentConfig, deepToBuildConfigMap);
+                    } else if (EFrontType.SELECT.name().equalsIgnoreCase(componentConfig.getType())){
+                        configMaps.put(componentConfig.getKey(), componentConfig.getValue());
                     } else {
                         configMaps.putAll(deepToBuildConfigMap);
                         if (EFrontType.RADIO.name().equalsIgnoreCase(componentConfig.getType())) {
