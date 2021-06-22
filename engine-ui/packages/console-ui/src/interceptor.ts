@@ -16,11 +16,9 @@ export function authBeforeFormate (response: any) {
         case 402:
         case 200:
         case 412:
-            versionMonitor(response, ['/api/console', '/node'], 'DT_CONSOLE');
-            return response;
+            return versionMonitor(response, ['/api/console', '/node'], 'DT_CONSOLE');
         case 302:
-            message.info('登录超时, 请重新登录！')
-            return Promise.reject(response);
+            return versionMonitor(response, ['/api/console', '/node'], 'DT_CONSOLE');
         case 500:
             message.error('服务器出现了点问题')
             return Promise.reject(response);
@@ -28,8 +26,7 @@ export function authBeforeFormate (response: any) {
             if (process.env.NODE_ENV !== 'production') {
                 console.error('Request error: ', response.code, response.message)
             }
-            versionMonitor(response, ['/api/console', '/node'], 'DT_CONSOLE');
-            return response
+            return versionMonitor(response, ['/api/console', '/node'], 'DT_CONSOLE');
     }
 }
 
