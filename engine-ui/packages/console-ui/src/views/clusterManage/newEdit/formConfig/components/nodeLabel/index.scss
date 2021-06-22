@@ -3,12 +3,32 @@
     right: -154px
 }
 .c-nodeLable__modal {
+    .ant-modal-body {
+        max-height: 532px;
+        overflow: scroll;
+        padding-top: 24px;
+        margin-top: 60px;
+        .ant-row {
+            margin-bottom: 12px;
+        }
+        .ant-col:first-child {
+            text-align: right;
+        }
+        .ant-row:first-child {
+            height: 32px;
+            line-height: 32px;
+        }
+    }
+    &__alter {
+        position: absolute;
+        top: 53px;
+        left: 0;
+        right: 0;
+    }
     &__nodes {
-        width: 100%;
-        border: 1px solid #ddd;
-        padding: 12px 12px 0 12px;
-        p {
-            margin-bottom: 8px;
+        .table-empty {
+            margin-top: -5px;
+            margin-bottom: -5px;
         }
     }
     &__empty {

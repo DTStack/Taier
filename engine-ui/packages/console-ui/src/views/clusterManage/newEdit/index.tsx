@@ -503,6 +503,7 @@ class EditCluster extends React.Component<any, IState> {
                                                                 comp={vcomp}
                                                                 view={isViewMode(mode)}
                                                                 form={this.props.form}
+                                                                clusterInfo={{ clusterName, clusterId: cluster.clusterId }}
                                                             />
                                                             {!isViewMode(mode) && <ToolBar
                                                                 comp={vcomp}

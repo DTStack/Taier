@@ -13,6 +13,7 @@ interface IProps {
     comp: any;
     form: any;
     view: boolean;
+    clusterInfo?: any;
     itemLayout?: any;
 }
 
@@ -52,7 +53,7 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
 
     // 渲染单个配置项
     renderConfigItem = (temp: any, groupKey?: string) => {
-        const { form, comp, itemLayout } = this.props
+        const { form, comp, itemLayout, clusterInfo, view } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
         const hadoopVersion = comp?.hadoopVersion ?? ''
         const layout = itemLayout ?? formItemLayout
@@ -77,7 +78,7 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
                 }],
                 initialValue: initialValue
             })(this.renderOptoinsType(temp))}
-            {isDtscriptAgent(typeCode) && <NodeLabel form={form} />}
+            {isDtscriptAgent(typeCode) && <NodeLabel form={form} view={view} clusterInfo={clusterInfo} />}
         </FormItem>
     }
 
