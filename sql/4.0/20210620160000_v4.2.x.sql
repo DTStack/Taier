@@ -7,3 +7,4 @@ update console_component set deploy_type = 1 where component_type_code = 0;
 
 update schedule_task_shade set component_version = null where app_type = 1 and component_version is not null and task_type = 2;
 
+update console_component set is_deleted = 1 where component_type_code = 20;

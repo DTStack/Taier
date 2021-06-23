@@ -666,6 +666,7 @@ public class ClusterService implements InitializingBean {
         JSONObject confConfig = null;
         if (EComponentType.FLINK.equals(type.getComponentType()) && EDeployMode.STANDALONE.getType().equals(deployMode)) {
             confConfig = clusterConfigJson.getJSONObject(FLINK_ON_STANDALONE_CONF);
+            return confConfig;
         } else {
             confConfig = clusterConfigJson.getJSONObject(type.getComponentType().getConfName());
         }

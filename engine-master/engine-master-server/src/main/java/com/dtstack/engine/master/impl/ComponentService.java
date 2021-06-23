@@ -221,6 +221,7 @@ public class ComponentService {
      */
     public void updateCache(Long clusterId,Long engineId, Integer componentCode) {
         clearComponentCache();
+        clusterService.clearStandaloneCache();
         Set<Long> dtUicTenantIds = new HashSet<>();
         if ( null != componentCode && EComponentType.sqlComponent.contains(EComponentType.getByCode(componentCode))) {
             //tidb 和libra 没有queue
@@ -1746,6 +1747,7 @@ public class ComponentService {
         if (CollectionUtils.isEmpty(componentIds)) {
             return;
         }
+        List<Long> engineIds = new ArrayList<>(componentIds.size());
         for (Integer componentId : componentIds) {
             Component component = componentDao.getOne(componentId.longValue()),nextDefaultComponent;
             EngineAssert.assertTrue(component != null, ErrorCode.DATA_NOT_FIND.getDescription());
@@ -1765,13 +1767,15 @@ public class ComponentService {
             componentDao.deleteById(componentId.longValue());
             kerberosDao.deleteByComponent(component.getEngineId(),component.getComponentTypeCode(),component.getHadoopVersion());
             componentConfigService.deleteComponentConfig(componentId.longValue());
-
-        }
-        try {
-            clusterService.clearStandaloneCache();
-            clearComponentCache();
-        } catch (Exception e) {
-            LOGGER.error("clear cache error {} ", componentIds, e);
+            engineIds.add(component.getEngineId());
+            try {
+                Engine engine = engineDao.getOne(component.getEngineId());
+                if (null != engine) {
+                    this.updateCache(engine.getClusterId(), engine.getId(), component.getComponentTypeCode());
+                }
+            } catch (Exception e) {
+                LOGGER.error("clear cache error {} ", componentIds, e);
+            }
         }
     }
 
