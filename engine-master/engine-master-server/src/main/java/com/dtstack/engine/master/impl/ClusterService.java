@@ -949,6 +949,10 @@ public class ClusterService implements InitializingBean {
                 .map(Engine::getId)
                 .collect(Collectors.toList());
 
+        if(CollectionUtils.isEmpty(engineIds)){
+            return new ArrayList<>();
+        }
+
         List<Queue> queues = queueDao.listByEngineIdWithLeaf(engineIds);
 
         Map<Long, List<Queue>> engineQueueMapping = queues
