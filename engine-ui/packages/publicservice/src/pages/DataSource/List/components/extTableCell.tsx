@@ -155,7 +155,11 @@ const showMapArr: any = {
   ],
   [DATA_SOURCE.AWSS3]: [
     ['accessKey', 'ACCESS KEY'],
-  ]
+  ],
+  [DATA_SOURCE.SPARKTHRIFT]: [
+    ['jdbcUrl', 'jdbcUrl'],
+    ['defaultFS', 'defaultFS'],
+  ],
 };
 
 export function ExtTableCell(props: any) {
