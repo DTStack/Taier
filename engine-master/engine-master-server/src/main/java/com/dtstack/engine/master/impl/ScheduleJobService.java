@@ -255,7 +255,7 @@ public class ScheduleJobService {
         List<ScheduleJobCount> scheduleJobCounts = scheduleJobDao.countByStatusAndTypeProjectIds(EScheduleType.NORMAL_SCHEDULE.getType(), DateUtil.getUnStandardFormattedDate(DateUtil.calTodayMills()),
                 DateUtil.getUnStandardFormattedDate(DateUtil.TOMORROW_ZERO()), tenantId, projectIds, appType, dtuicTenantId, null);
 
-        if (CollectionUtils.isNotEmpty(scheduleJobCounts)) {
+        if (scheduleJobCounts != null) {
             Map<Long, List<ScheduleJobCount>> listMap = scheduleJobCounts.stream().collect(Collectors.groupingBy(ScheduleJobCount::getProjectId));
 
             for (Long projectId : projectIds) {
