@@ -35,6 +35,11 @@ public class ComponentController {
         return componentService.listConfigOfComponents(dtUicTenantId, engineType,null);
     }
 
+    @RequestMapping(value="/listComponents", method = {RequestMethod.POST})
+    public List<Component> listComponents(@DtRequestParam("tenantId") Long dtUicTenantId,@DtRequestParam("engineType") Integer engineType) {
+        return componentService.listComponents(dtUicTenantId,engineType);
+    }
+
     @RequestMapping(value="/getOne", method = {RequestMethod.POST})
     public Component getOne(@DtRequestParam("id") Long id) {
         return componentService.getOne(id);

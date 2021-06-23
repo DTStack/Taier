@@ -2274,4 +2274,25 @@ public class ComponentService {
     public Component getMetadataComponent(Long clusterId){
         return componentDao.getMetadataComponent(clusterId);
     }
+
+    public List<Component> listComponents(Long dtUicTenantId, Integer engineType) {
+        Tenant tenant = tenantDao.getByDtUicTenantId(dtUicTenantId);
+        if (null == tenant) {
+            return new ArrayList<>(0);
+        }
+        if (null != engineType) {
+            List<Long> engineIds = engineTenantDao.listEngineIdByTenantId(tenant.getId());
+            if(CollectionUtils.isEmpty(engineIds)){
+                return new ArrayList<>(0);
+            }
+            Engine engine = engineDao.getEngineByIdsAndType(engineIds, engineType);
+            if (null == engine) {
+                return new ArrayList<>(0);
+            }
+            return componentDao.listByEngineIds(Lists.newArrayList(engine.getId()), null);
+        } else {
+            return componentDao.listByTenantId(tenant.getId());
+
+        }
+    }
 }
