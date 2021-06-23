@@ -59,6 +59,7 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
             if (isKubernetes(typeCode)) componentConfig = JSON.stringify(currentComp?.specialConfig)
 
             const params = {
+                isDefault: currentComp?.isDefault ?? '',
                 storeType: currentComp?.storeType ?? '',
                 principal: currentComp?.principal ?? '',
                 principals: currentComp?.principals ?? [],
