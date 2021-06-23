@@ -20,6 +20,10 @@ public interface ComponentService extends DtInsightServer {
     @RequestLine("POST /node/component/listConfigOfComponents")
     ApiResponse<List<ComponentsConfigOfComponentsVO>> listConfigOfComponents(@Param("tenantId") Long dtUicTenantId, @Param("engineType") Integer engineType);
 
+
+    @RequestLine("POST /node/component/listComponents")
+    ApiResponse<List<Component>> listComponents(@Param("tenantId") Long dtUicTenantId, @Param("engineType") Integer engineType);
+
     @RequestLine("POST /node/component/getOne")
     ApiResponse<Component> getOne(@Param("id") Long id);
 

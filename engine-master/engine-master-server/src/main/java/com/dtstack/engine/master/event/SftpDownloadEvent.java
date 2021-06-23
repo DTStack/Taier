@@ -137,7 +137,7 @@ public class SftpDownloadEvent extends AdapterEventMonitor implements Initializi
     private void initSftp() {
         // 加载一下sftp模板
         try {
-            com.dtstack.engine.api.domain.Component component = componentDao.getByClusterIdAndComponentType(-1L, EComponentType.SFTP.getTypeCode(), null);
+            com.dtstack.engine.api.domain.Component component = componentDao.getByClusterIdAndComponentType(-1L, EComponentType.SFTP.getTypeCode(), null,null);
 
             if (component != null) {
                 List<ComponentConfig> componentConfigs = componentConfigDao.listByComponentId(component.getId(), Boolean.FALSE);

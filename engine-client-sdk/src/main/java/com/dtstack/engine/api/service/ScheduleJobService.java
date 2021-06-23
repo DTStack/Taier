@@ -167,7 +167,8 @@ public interface ScheduleJobService extends DtInsightServer {
                                      @Param("concreteStartTime") String beginTime, @Param("concreteEndTime") String endTime,
                                      @Param("projectId") Long projectId, @Param("userId") Long userId,
                                      @Param("tenantId") Long tenantId,
-                                     @Param("isRoot") Boolean isRoot, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId) ;
+                                     @Param("isRoot") Boolean isRoot, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId,
+                                     @Param("ignoreCycTime") Boolean ignoreCycTime) ;
 
 
     /**

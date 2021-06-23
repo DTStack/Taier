@@ -58,7 +58,7 @@ public interface IComponentVO {
             }
         }
         // 如果没有指定版本, 也没有找到默认版本, 说明构建组件出错
-        throw new IllegalStateException(String.format("not found defalut compoent type = %s",getComponentTypeCode()));
+        throw new IllegalStateException(String.format("not found default component type = %s",getComponentTypeCode()));
     }
 
     /**

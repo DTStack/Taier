@@ -610,4 +610,13 @@ public class EnvironmentContext {
     public String getSqlParserDir(){
         return environment.getProperty("sqlParser.dir","/opt/dtstack/DTPlugin/SqlParser");
     }
+
+    /**
+     * 是否优先走standalone的组件
+     *
+     * @return
+     */
+    public boolean checkStandalone() {
+        return Boolean.parseBoolean(environment.getProperty("check.standalone", "true"));
+    }
 }
