@@ -1716,7 +1716,7 @@ public class ScheduleJobService {
                                                                                String execTimeSort, String execStartSort,
                                                                                String execEndSort, String cycSort,
                                                                                String businessDateSort, String retryNumSort,
-                                                                               String jobStatuses,
+                                                                               String taskType, String jobStatuses,
                                                                                Integer currentPage, Integer pageSize) throws Exception {
         QueryJobDTO vo = new QueryJobDTO();
         vo.setCurrentPage(currentPage);
@@ -1736,6 +1736,7 @@ public class ScheduleJobService {
         vo.setBusinessDateSort(businessDateSort);
         vo.setRetryNumSort(retryNumSort);
         vo.setJobStatuses(jobStatuses);
+        vo.setTaskType(taskType);
         return getScheduleFillDataJobDetailVOPageResult(flowJobIdList, fillJobName, dutyUserId, searchType, appType, vo);
     }
 

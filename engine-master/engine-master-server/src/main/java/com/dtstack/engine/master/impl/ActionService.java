@@ -556,7 +556,7 @@ public class ActionService {
             info = new JSONObject();
         }
 
-        info.put("spl",taskShadeDao.getSqlText());
+        info.put("sql",taskShadeDao.getSqlText());
         jobLogVO.setLogInfo(info.toJSONString());
         try {
             if (scheduleJob.getRetryNum() > 0) {

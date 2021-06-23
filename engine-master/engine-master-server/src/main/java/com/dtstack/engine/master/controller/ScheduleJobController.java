@@ -219,11 +219,12 @@ public class ScheduleJobController {
                                                                                @DtRequestParam("execTimeSort") String execTimeSort, @DtRequestParam("execStartSort") String execStartSort,
                                                                                @DtRequestParam("execEndSort") String execEndSort, @DtRequestParam("cycSort") String cycSort,
                                                                                @DtRequestParam("businessDateSort") String businessDateSort, @DtRequestParam("retryNumSort") String retryNumSort,
+                                                                               @DtRequestParam("taskType") String taskType,
                                                                                @DtRequestParam("jobStatuses") String jobStatuses,
                                                                                @DtRequestParam("currentPage") Integer currentPage,
                                                                                @DtRequestParam("pageSize") Integer pageSize) throws Exception {
         return scheduleJobService.getJobGetFillDataDetailInfo(taskName, bizStartDay, bizEndDay, flowJobIdList, fillJobName, dutyUserId, searchType, appType, projectId, dtuicTenantId,
-                execTimeSort, execStartSort, execEndSort, cycSort, businessDateSort, retryNumSort, jobStatuses,currentPage, pageSize);
+                execTimeSort, execStartSort, execEndSort, cycSort, businessDateSort, retryNumSort,taskType, jobStatuses,currentPage, pageSize);
     }
 
 
