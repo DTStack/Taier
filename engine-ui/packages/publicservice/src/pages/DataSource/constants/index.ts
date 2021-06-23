@@ -56,6 +56,8 @@ export const DATA_SOURCE = {
   ADB_POSTGRESQL: 59,
   SOLR: 60,
   INFLUXDB: 61,
+  INCEPTOR: 62,
+  AWSS3: 63,
 };
 
 export const DATA_SOURCE_TEXT: any = {
@@ -108,6 +110,8 @@ export const DATA_SOURCE_TEXT: any = {
   59: 'ADB_PostgreSQL',
   60: 'Solr',
   61: 'InfluxDB',
+  62: 'Inceptor',
+  63: 'AWS S3',
 };
 
 export const PROJECT_TYPE: any = {
