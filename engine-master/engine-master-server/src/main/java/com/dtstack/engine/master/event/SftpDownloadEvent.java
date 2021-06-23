@@ -55,6 +55,7 @@ public class SftpDownloadEvent extends AdapterEventMonitor {
                 }
             }
 
+            logger.info("sftpPath:{} and destPath {}",sftpPath,destPath);
             String ifPresent = cacheSftpJar.getIfPresent(jarPath);
             if (StringUtils.isBlank(ifPresent)) {
                 SftpConfig sftpConfig = componentService.getComponentByClusterId(-1L, EComponentType.SFTP.getTypeCode(), false, SftpConfig.class);
@@ -62,8 +63,12 @@ public class SftpDownloadEvent extends AdapterEventMonitor {
                 if (sftpConfig != null) {
                     try {
                         SftpFileManage sftpManager = SftpFileManage.getSftpManager(sftpConfig);
-                        sftpManager.downloadFile(sftpPath, destPath);
-                        cacheSftpJar.put(jarPath, System.currentTimeMillis() + "");
+                        if (StringUtils.isNotBlank(sftpPath) && StringUtils.isNotBlank(destPath)) {
+                            sftpManager.downloadFile(sftpPath, destPath);
+                            cacheSftpJar.put(jarPath, System.currentTimeMillis() + "");
+                        } else {
+                            logger.error("sftpPath: and destPath is null so downloadFile error");
+                        }
                     } catch (Exception e) {
                         logger.error("下载sftp失败:", e);
                     }
