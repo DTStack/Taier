@@ -623,6 +623,7 @@ const InfoConfig = (props) => {
           </Form.Item>
         );
       case 'Select':
+        console.log(item.initialValue,'select-initialValue')
         return (
           <Form.Item label={item.label} key={index}>
             {getFieldDecorator(
