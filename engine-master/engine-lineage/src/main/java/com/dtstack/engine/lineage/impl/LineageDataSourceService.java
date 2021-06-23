@@ -20,14 +20,19 @@ import com.dtstack.engine.lineage.sourcekey.AbstractSourceKeyGenerator;
 import com.dtstack.engine.lineage.sourcekey.SourceKeyGeneratorHelper;
 import com.dtstack.engine.dao.LineageDataSourceDao;
 import com.dtstack.engine.dao.LineageRealDataSourceDao;
+import com.dtstack.pubsvc.sdk.datasource.DataSourceAPIClient;
+import com.dtstack.pubsvc.sdk.dto.param.datasource.DsListParam;
+import com.dtstack.pubsvc.sdk.dto.result.datasource.DsServiceInfoDTO;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.Sort;
+import com.dtstack.sdk.core.common.ApiResponse;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,6 +65,9 @@ public class LineageDataSourceService {
 
     @Resource
     private ComponentConfigDao componentConfigDao;
+
+    @Autowired
+    private DataSourceAPIClient dataSourceAPIClient;
 
     /**
      * 新增或修改逻辑数据源
@@ -436,12 +444,23 @@ public class LineageDataSourceService {
      * @Date 2020/10/30 2:25 下午
      * @return: com.dtstack.engine.api.domain.LineageDataSource
      **/
-    public List<LineageDataSource> getDataSourcesByIdList(List<Long> ids) {
+    public List<DsServiceInfoDTO> getDataSourcesByIdList(List<Long> ids) {
 
         if (CollectionUtils.isEmpty(ids)) {
             throw new RdosDefineException("数据源id列表不能为空");
         }
-        return lineageDataSourceDao.getDataSourcesByIdList(ids);
+        DsListParam dsListParam = new DsListParam();
+        dsListParam.setDataInfoIdList(ids);
+        ApiResponse<List<DsServiceInfoDTO>> dsInfoListByIdList = dataSourceAPIClient.getDsInfoListByIdList(dsListParam);
+        if(dsInfoListByIdList.getCode() != 1){
+            logger.error("getDsInfoListByIdList query failed,param:{}",JSON.toJSONString(ids));
+            throw new RdosDefineException("调用数据源中心根据id查询数据源接口失败");
+        }
+        if(dsInfoListByIdList.getData().size()==0){
+            logger.error("getDsInfoListByIdList query result is empty,param:{}",JSON.toJSONString(ids));
+            throw new RdosDefineException("调用数据源中心根据ids查询数据源接口未查到数据源");
+        }
+        return dsInfoListByIdList.getData();
     }
 
 

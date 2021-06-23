@@ -4,6 +4,7 @@ import com.dtstack.engine.api.domain.LineageDataSetInfo;
 import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.vo.lineage.LineageDataSourceVO;
 import com.dtstack.engine.api.vo.lineage.LineageTableVO;
+import com.dtstack.pubsvc.sdk.dto.result.datasource.DsServiceInfoDTO;
 import com.dtstack.sqlparser.common.client.domain.Table;
 import com.dtstack.sqlparser.common.client.enums.TableOperateEnum;
 import org.apache.commons.collections.CollectionUtils;
@@ -49,7 +50,7 @@ public class TableAdapter {
         return apiTable;
     }
 
-    public static LineageTableVO dataSetInfo2LineageTableVO(LineageDataSource dataSource, LineageDataSetInfo dataSetInfo){
+    public static LineageTableVO dataSetInfo2LineageTableVO(DsServiceInfoDTO dataSource, LineageDataSetInfo dataSetInfo){
         LineageTableVO lineageTableVO = new LineageTableVO();
         LineageDataSourceVO dataSourceVO = DataSourceAdapter.dataSource2DataSourceVO(dataSource);
         lineageTableVO.setDataSourceVO(dataSourceVO);

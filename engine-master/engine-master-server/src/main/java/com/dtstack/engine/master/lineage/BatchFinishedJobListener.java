@@ -89,7 +89,7 @@ public class BatchFinishedJobListener extends SqlJobFinishedListener {
         List<Integer> hadoopList = Arrays.asList(DataSourceType.HIVE.getVal(), DataSourceType.IMPALA.getVal(), DataSourceType.SPARKTHRIFT2_1.getVal());
         if(hadoopList.contains(dataSourceTypeByTaskTypeInt.getVal())){
             //从数据源中心查询meta数据源 todo
-            DsServiceListParam dsServiceListParam = getDsServiceListParam(scheduleJob.getDtuicTenantId(),hadoopList);
+            DsServiceListParam dsServiceListParam = getDsServiceListParam(scheduleJob.getDtuicTenantId(),hadoopList,scheduleJob.getProjectId());
             ApiResponse<PageResult<List<DsServiceListDTO>>> pageResultApiResponse = dataSourceAPIClient.appDsPage(dsServiceListParam);
             if(pageResultApiResponse.getCode() !=1 ){
                 logger.error("appDsPage query failed,param:{}",JSON.toJSONString(dsServiceListParam));
@@ -110,17 +110,19 @@ public class BatchFinishedJobListener extends SqlJobFinishedListener {
             columnLineageParam.setType(type);
             columnLineageParam.setSql(sql);
             columnLineageParam.setVersionId(scheduleJob.getVersionId());
+            columnLineageParam.setProjectId(scheduleJob.getProjectId());
             logger.info("调用字段血缘解析:{}", JSON.toJSON(columnLineageParam));
             lineageService.parseAndSaveColumnLineage(columnLineageParam);
         }
     }
 
-    private DsServiceListParam getDsServiceListParam(Long dtUicTenantId, List<Integer> hadoopList) {
+    private DsServiceListParam getDsServiceListParam(Long dtUicTenantId, List<Integer> hadoopList,Long projectId) {
         DsServiceListParam dsServiceListParam = new DsServiceListParam();
         dsServiceListParam.setDsDtuicTenantId(dtUicTenantId);
         dsServiceListParam.setAppType(AppType.RDOS.getType());
         dsServiceListParam.setIsMeta(1);
         dsServiceListParam.setDataTypeCodeList(hadoopList);
+        dsServiceListParam.setProjectId(projectId);
         return dsServiceListParam;
     }
 

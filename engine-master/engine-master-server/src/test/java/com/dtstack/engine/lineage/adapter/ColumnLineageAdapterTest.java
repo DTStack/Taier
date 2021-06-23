@@ -5,6 +5,7 @@ import com.dtstack.engine.api.domain.LineageDataSetInfo;
 import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.pojo.lineage.ColumnLineage;
 import com.dtstack.engine.api.vo.lineage.LineageColumnColumnVO;
+import com.dtstack.pubsvc.sdk.dto.result.datasource.DsServiceInfoDTO;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -56,8 +57,8 @@ public class ColumnLineageAdapterTest {
         lineageColumnColumn.setLineageSource(0);
         LineageDataSetInfo inputTable = new LineageDataSetInfo();
         LineageDataSetInfo resultTable = new LineageDataSetInfo();
-        LineageDataSource inputSource = new LineageDataSource();
-        LineageDataSource resultSource = new LineageDataSource();
+        DsServiceInfoDTO inputSource = new DsServiceInfoDTO();
+        DsServiceInfoDTO resultSource = new DsServiceInfoDTO();
         LineageColumnColumnVO columnColumnVO = ColumnLineageAdapter.columnColumn2ColumnColumnVO(lineageColumnColumn, inputTable, resultTable, inputSource, resultSource);
         Assert.assertNotNull(columnColumnVO);
     }

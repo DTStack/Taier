@@ -20,6 +20,7 @@ import com.dtstack.engine.dao.ComponentDao;
 import com.dtstack.engine.dao.KerberosDao;
 import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.dao.LineageDataSetDao;
+import com.dtstack.engine.lineage.util.DataSourceUtils;
 import com.dtstack.pubsvc.sdk.datasource.DataSourceAPIClient;
 import com.dtstack.pubsvc.sdk.dto.result.datasource.DsServiceInfoDTO;
 import com.dtstack.schedule.common.enums.AppType;
@@ -116,6 +117,7 @@ public class LineageDataSetInfoService {
         dataSetInfo.setDataInfoId(sourceId);
         dataSetInfo.setDbName(dbName);
         dataSetInfo.setIsManual(0);
+        dataSetInfo.setDtUicTenantId(dataSource.getDtuicTenantId());
         if(StringUtils.isNotEmpty(schemaName)){
             dataSetInfo.setSchemaName(schemaName);
         }else {
@@ -137,63 +139,68 @@ public class LineageDataSetInfoService {
     public List<Column> getTableColumns(LineageDataSetInfo dataSetInfo){
 
         //获取数据源信息
-        LineageDataSource dataSource = sourceService.getDataSourceById(dataSetInfo.getDataInfoId());
-        if(null == dataSource){
+        ApiResponse<DsServiceInfoDTO> dsInfoById = dataSourceAPIClient.getDsInfoById(dataSetInfo.getDataInfoId());
+        if(dsInfoById.getCode() != 1){
+            LOGGER.error("getDsInfoById query failed,param:{}",JSON.toJSONString(dataSetInfo.getDataInfoId()));
+            throw new RdosDefineException("调用数据源中心根据id查询数据源接口失败");
+        }
+        DsServiceInfoDTO dsServiceInfoDTO = dsInfoById.getData();
+        if(null == dsServiceInfoDTO){
             throw new RdosDefineException("找不到对应的数据源");
         }
         ClientCache clientCache = ClientCache.getInstance(environmentContext.getPluginPath());
         IClient iClient ;
         try {
-            String kerberosConf = dataSource.getKerberosConf();
-            String dataJson = dataSource.getDataJson();
-            JSONObject jsonObject = JSON.parseObject(dataJson);
-            JSONObject kerberosJsonObj = new JSONObject();
-            if(!"-1".equals(kerberosConf)) {
-                kerberosJsonObj = JSON.parseObject(kerberosConf);
-            }
-            Long dtUicTenantId = dataSource.getDtUicTenantId();
+//            String kerberosConf = dataSource.getKerberosConf();
+            String dataJson = dsServiceInfoDTO.getDataJson();
+            JSONObject jsonObject = DataSourceUtils.getDataSourceJson(dataJson);
+//            JSONObject kerberosJsonObj = new JSONObject();
+//            if(!"-1".equals(kerberosConf)) {
+//                kerberosJsonObj = JSON.parseObject(kerberosConf);
+//            }
+            Long dtUicTenantId = dsServiceInfoDTO.getDtuicTenantId();
             Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
-            if(dataSource.getOpenKerberos() == 1 && dataSource.getAppType().equals(AppType.RDOS.getType())){
-                //离线开启了kerberos，但是没有存kerberos配置
-                Component one = componentDao.getByTenantIdComponentType(tenantId, dataSource.getSourceType());
-                if(null == one){
-                    throw new RdosDefineException("do not have this component");
-                }
-                //根据engineId和组件类型获取kerberos配置
-                EComponentTypeDataSourceType code = EComponentTypeDataSourceType.getByCode(dataSource.getSourceType());
-                if(null == code){
-                    throw new RdosDefineException("this type dataSource do not have component");
-                }
-                KerberosConfig kerberosConfig = kerberosDao.getByEngineIdAndComponentType(one.getEngineId(),code.getComponentType().getTypeCode());
-                if(null == kerberosConfig){
-                    LOGGER.error("do not have kerberos config,dtUicTenantId:{},engineId:{},sourceType:{}",dtUicTenantId,one.getEngineId(),dataSource.getSourceType());
-                    throw new RdosDefineException("do not have kerberos config");
-                }
-                kerberosJsonObj.put("remoteDir",kerberosConfig.getRemotePath());
-                kerberosJsonObj.put("principalFile",kerberosConfig.getPrincipal());
-                kerberosJsonObj.put("krbName",kerberosConfig.getKrbName());
-                kerberosJsonObj.put("principal",kerberosConfig.getPrincipals());
-            }
+//            if(dsServiceInfoDTO.getOpenKerberos() == 1 && dataSource.getAppType().equals(AppType.RDOS.getType())){
+//                //离线开启了kerberos，但是没有存kerberos配置
+//                Component one = componentDao.getByTenantIdComponentType(tenantId, dataSource.getSourceType());
+//                if(null == one){
+//                    throw new RdosDefineException("do not have this component");
+//                }
+//                //根据engineId和组件类型获取kerberos配置
+//                EComponentTypeDataSourceType code = EComponentTypeDataSourceType.getByCode(dataSource.getSourceType());
+//                if(null == code){
+//                    throw new RdosDefineException("this type dataSource do not have component");
+//                }
+//                KerberosConfig kerberosConfig = kerberosDao.getByEngineIdAndComponentType(one.getEngineId(),code.getComponentType().getTypeCode());
+//                if(null == kerberosConfig){
+//                    LOGGER.error("do not have kerberos config,dtUicTenantId:{},engineId:{},sourceType:{}",dtUicTenantId,one.getEngineId(),dataSource.getSourceType());
+//                    throw new RdosDefineException("do not have kerberos config");
+//                }
+//                kerberosJsonObj.put("remoteDir",kerberosConfig.getRemotePath());
+//                kerberosJsonObj.put("principalFile",kerberosConfig.getPrincipal());
+//                kerberosJsonObj.put("krbName",kerberosConfig.getKrbName());
+//                kerberosJsonObj.put("principal",kerberosConfig.getPrincipals());
+//            }
 
-            JSONObject sftpConf = getJsonObject(dataSource,EComponentType.SFTP.getTypeCode(),tenantId);
-            if(dataSource.getOpenKerberos()==1) {
-                //开启kerberos
-                //获取yarnConf
-                JSONObject yarnConf = getJsonObject(dataSource,EComponentType.YARN.getTypeCode(),tenantId);
-                jsonObject.put("yarnConf",yarnConf);
-                jsonObject.put("sftpConf", sftpConf);
-                jsonObject.put("remoteDir",kerberosJsonObj.get("remoteDir"));
-                jsonObject.put("principalFile",kerberosJsonObj.get("principalFile"));
-                jsonObject.put("krbName",kerberosJsonObj.get("krbName"));
-                jsonObject.put("principal",kerberosJsonObj.get("principal"));
-                jsonObject.put("kerberosFileTimestamp",kerberosJsonObj.get("kerberosFileTimestamp"));
-                jsonObject.put("openKerberos",true);
-            }
+//            JSONObject sftpConf = getJsonObject(dataSource,EComponentType.SFTP.getTypeCode(),tenantId);
+//            if(dataSource.getOpenKerberos()==1) {
+//                //开启kerberos
+//                //获取yarnConf
+//                JSONObject yarnConf = getJsonObject(dataSource,EComponentType.YARN.getTypeCode(),tenantId);
+//                jsonObject.put("yarnConf",yarnConf);
+//                jsonObject.put("sftpConf", sftpConf);
+//                jsonObject.put("remoteDir",kerberosJsonObj.get("remoteDir"));
+//                jsonObject.put("principalFile",kerberosJsonObj.get("principalFile"));
+//                jsonObject.put("krbName",kerberosJsonObj.get("krbName"));
+//                jsonObject.put("principal",kerberosJsonObj.get("principal"));
+//                jsonObject.put("kerberosFileTimestamp",kerberosJsonObj.get("kerberosFileTimestamp"));
+//                jsonObject.put("openKerberos",true);
+//            }
             //需要在pluginInfo中补充typeName
-            String typeName = DataSourceType.getEngineType(DataSourceType.getSourceType(dataSource.getSourceType()));
+            String typeName = DataSourceType.getEngineType(DataSourceType.getSourceType(dsServiceInfoDTO.getType()));
             jsonObject.put("typeName",typeName);
             String pluginInfo = PublicUtil.objToString(jsonObject);
-            iClient = getClient(dataSource, clientCache, pluginInfo);
+            iClient = getClient(dsServiceInfoDTO, clientCache, pluginInfo);
             return getAllColumns(dataSetInfo, iClient);
         } catch (Exception e) {
             throw new RdosDefineException("获取client异常",e);
@@ -231,11 +238,11 @@ public class LineageDataSetInfoService {
         return iClient.getAllColumns(dataSetInfo.getTableName(), dataSetInfo.getSchemaName(), dataSetInfo.getDbName());
     }
 
-    public IClient getClient(LineageDataSource dataSource, ClientCache clientCache, String pluginInfo) throws ClientAccessException {
-        if(null == clientCache || null == dataSource){
+    public IClient getClient(DsServiceInfoDTO dsServiceInfoDTO, ClientCache clientCache, String pluginInfo) throws ClientAccessException {
+        if(null == clientCache || null == dsServiceInfoDTO){
             return null;
         }
-        return clientCache.getClient(DataSourceType.getEngineType(DataSourceType.getSourceType(dataSource.getSourceType())), pluginInfo);
+        return clientCache.getClient(DataSourceType.getEngineType(DataSourceType.getSourceType(dsServiceInfoDTO.getType())), pluginInfo);
     }
 
     /**

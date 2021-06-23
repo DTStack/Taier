@@ -17,7 +17,7 @@
     <insert id="insertTableInfo" parameterType="com.dtstack.engine.api.domain.LineageDataSetInfo" useGeneratedKeys="true" keyProperty="id">
         insert into lineage_data_set_info(dt_uic_tenant_id,data_info_id,source_name,app_type,source_type,set_type,db_name,table_name,schema_name,table_key,is_manual)
         values
-        (#{dtUicTenantId},#{sourceId},#{sourceName},#{sourceKey},#{appType},#{sourceType},#{setType},#{dbName},#{tableName},#{schemaName},#{tableKey},#{isManual})
+        (#{dtUicTenantId},#{dataInfoId},#{sourceName},#{appType},#{sourceType},#{setType},#{dbName},#{tableName},#{schemaName},#{tableKey},#{isManual})
         on duplicate key update gmt_modified=values(gmt_modified)
     </insert>
 

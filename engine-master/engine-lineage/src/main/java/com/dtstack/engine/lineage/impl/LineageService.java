@@ -211,7 +211,7 @@ public class LineageService {
         DsServiceInfoDTO dsServiceInfoDTO = new DsServiceInfoDTO();
         if (AppType.RDOS.getType().equals(appType)) {
             //从数据源中心查询meta数据源 todo
-            DsServiceListParam dsServiceListParam = getDsServiceListParam(dtUicTenantId, sourceType);
+            DsServiceListParam dsServiceListParam = getDsServiceListParam(dtUicTenantId, sourceType,-1L);
             ApiResponse<PageResult<List<DsServiceListDTO>>> pageResultApiResponse = dataSourceAPIClient.appDsPage(dsServiceListParam);
             if(pageResultApiResponse.getCode() !=1 ){
                 logger.error("appDsPage query failed,param:{}",JSON.toJSONString(dsServiceListParam));
@@ -267,7 +267,7 @@ public class LineageService {
         }
     }
 
-    private DsServiceListParam getDsServiceListParam(Long dtUicTenantId, Integer sourceType) {
+    private DsServiceListParam getDsServiceListParam(Long dtUicTenantId, Integer sourceType,Long projectId) {
         DsServiceListParam dsServiceListParam = new DsServiceListParam();
         dsServiceListParam.setDsDtuicTenantId(dtUicTenantId);
         dsServiceListParam.setAppType(AppType.RDOS.getType());
@@ -275,6 +275,7 @@ public class LineageService {
         List<Integer> dataTypeCodeList = new ArrayList<>();
         dataTypeCodeList.add(sourceType);
         dsServiceListParam.setDataTypeCodeList(dataTypeCodeList);
+        dsServiceListParam.setProjectId(projectId);
         return dsServiceListParam;
     }
 
@@ -388,7 +389,7 @@ public class LineageService {
         DsServiceInfoDTO dsServiceInfoDTO = new DsServiceInfoDTO();
         if (AppType.RDOS.getType().equals(parseColumnLineageParam.getAppType())) {
             //从数据源中心查询meta数据源 todo
-            DsServiceListParam dsServiceListParam = getDsServiceListParam(parseColumnLineageParam.getDtUicTenantId(), parseColumnLineageParam.getDataSourceType());
+            DsServiceListParam dsServiceListParam = getDsServiceListParam(parseColumnLineageParam.getDtUicTenantId(), parseColumnLineageParam.getDataSourceType(),parseColumnLineageParam.getProjectId());
             ApiResponse<PageResult<List<DsServiceListDTO>>> pageResultApiResponse = dataSourceAPIClient.appDsPage(dsServiceListParam);
             if(pageResultApiResponse.getCode() !=1 ){
                 logger.error("appDsPage query failed,param:{}",JSON.toJSONString(dsServiceListParam));
@@ -432,7 +433,16 @@ public class LineageService {
             List<Table> subTables = resTables.stream().filter(table->
                     table.getOperate() != TableOperateEnum.CREATE ).collect(Collectors.toList());
             Set<com.dtstack.engine.api.pojo.lineage.Table> tables = subTables.stream().map(TableAdapter::sqlTable2ApiTable).collect(Collectors.toSet());
-            //TODO 获取表字段信息
+            Set<String> dbSets = new HashSet<>();
+            resTables.stream().forEach(table -> {
+                String db = table.getDb();
+                dbSets.add(db);
+            });
+            if(dbSets.size()>1){
+                //跨schema查询
+                return;
+            }
+            //获取表字段信息
             Map<String, List<Column>> tableColumnMap = lineageDataSetInfoService.getColumnsBySourceIdAndListTable(dsServiceInfoDTO.getDataInfoId(), Lists.newArrayList(tables));
             Map<String, List<com.dtstack.sqlparser.common.client.domain.Column>> sqlTableColumnMap = new HashMap<>();
             for (Map.Entry<String,List<Column>> entry:tableColumnMap.entrySet()){
@@ -570,10 +580,11 @@ public class LineageService {
 
         Integer appType = queryTableLineageParam.getAppType();
         DsServiceInfoDTO dsServiceInfoDTO = getDataSource(queryTableLineageParam);
+        //todo dbName是离线和资产传还是通过解析jdbcUrl来获取
+
         String schemaName = queryTableLineageParam.getSchemaName() ;
         String dbName = queryTableLineageParam.getDbName();
         String tableName = queryTableLineageParam.getTableName();
-        //TODO 手动添加的表无法查看血缘关系
         LineageDataSetInfo dataSetInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dsServiceInfoDTO.getDataInfoId(), dbName, tableName, schemaName,appType);
         LevelAndCount levelAndCount = new LevelAndCount();
         levelAndCount.setLevelCount(queryTableLineageParam.getLevel());
@@ -589,7 +600,7 @@ public class LineageService {
         List<LineageDataSetInfo> dataSetListByIds = lineageDataSetInfoService.getDataSetListByIds(Lists.newArrayList(tableIds));
         Map<Long, LineageDataSetInfo> dataSetInfoMap = dataSetListByIds.stream().collect(Collectors.toMap(dataSetInfo1 -> dataSetInfo1.getId(), dataSetInfo12 -> dataSetInfo12));
         Set<Long> dataSourceIds = dataSetListByIds.stream().map(LineageDataSetInfo::getDataInfoId).collect(Collectors.toSet());
-        Map<Long, LineageDataSource> dataSourceMap = lineageDataSourceService.getDataSourcesByIdList(Lists.newArrayList(dataSourceIds)).stream().collect(Collectors.toMap(ds1 -> ds1.getId(), ds2 -> ds2));
+        Map<Long, DsServiceInfoDTO> dataSourceMap = lineageDataSourceService.getDataSourcesByIdList(Lists.newArrayList(dataSourceIds)).stream().collect(Collectors.toMap(ds1 -> ds1.getDataInfoId(), ds2 -> ds2));
         List<LineageTableTableVO> res = Lists.newArrayList();
         for (LineageTableTable tt : lineageTableTables) {
             LineageDataSetInfo inputTableInfo = dataSetInfoMap.get(tt.getInputTableId());
@@ -655,7 +666,7 @@ public class LineageService {
         List<LineageDataSetInfo> dataSetListByIds = lineageDataSetInfoService.getDataSetListByIds(Lists.newArrayList(tableIds));
         Map<Long, LineageDataSetInfo> dataSetMap = dataSetListByIds.stream().collect(Collectors.toMap(dataSetInfo1 -> dataSetInfo1.getId(), dataSetInfo12 -> dataSetInfo12));
         Set<Long> dataSourceIds = dataSetListByIds.stream().map(LineageDataSetInfo::getDataInfoId).collect(Collectors.toSet());
-        Map<Long, LineageDataSource> dataSourceMap = lineageDataSourceService.getDataSourcesByIdList(Lists.newArrayList(dataSourceIds)).stream().collect(Collectors.toMap(ds1 -> ds1.getId(), ds2 -> ds2));
+        Map<Long, DsServiceInfoDTO> dataSourceMap = lineageDataSourceService.getDataSourcesByIdList(Lists.newArrayList(dataSourceIds)).stream().collect(Collectors.toMap(ds1 -> ds1.getDataInfoId(), ds2 -> ds2));
         List<LineageTableTableVO> res = Lists.newArrayList();
         for (LineageTableTable tt : lineageTableTables) {
             LineageDataSetInfo inputTableInfo = dataSetMap.get(tt.getInputTableId());
@@ -692,7 +703,7 @@ public class LineageService {
         List<LineageDataSetInfo> dataSetListByIds = lineageDataSetInfoService.getDataSetListByIds(Lists.newArrayList(tableIds));
         Map<Long, LineageDataSetInfo> dataSetInfoMap = dataSetListByIds.stream().collect(Collectors.toMap(dataSetInfo1 -> dataSetInfo1.getId(), dataSetInfo12 -> dataSetInfo12));
         Set<Long> dataSourceIds = dataSetListByIds.stream().map(LineageDataSetInfo::getDataInfoId).collect(Collectors.toSet());
-        Map<Long, LineageDataSource> dataSourceMap = lineageDataSourceService.getDataSourcesByIdList(Lists.newArrayList(dataSourceIds)).stream().collect(Collectors.toMap(ds1 -> ds1.getId(), ds2 -> ds2));
+        Map<Long, DsServiceInfoDTO> dataSourceMap = lineageDataSourceService.getDataSourcesByIdList(Lists.newArrayList(dataSourceIds)).stream().collect(Collectors.toMap(ds1 -> ds1.getDataInfoId(), ds2 -> ds2));
         List<LineageTableTableVO> res = Lists.newArrayList();
         for (LineageTableTable tt : lineageTableTables) {
             LineageDataSetInfo inputTableInfo = dataSetInfoMap.get(tt.getInputTableId());
@@ -892,27 +903,18 @@ public class LineageService {
         lineageTableTableService.manualDeleteTableLineage(tableTableVO.getAppType(), lineageTableTable,tableTableVO.getUniqueKey());
     }
 
-    private LineageDataSource getDataSourceByColumnParam(QueryColumnLineageParam queryColumnLineageParam){
+    private DsServiceInfoDTO getDataSourceByColumnParam(QueryColumnLineageParam queryColumnLineageParam){
 
-        Integer appType = queryColumnLineageParam.getAppType();
-        Long engineSourceId = queryColumnLineageParam.getDataInfoId();
-        LineageDataSource lineageDataSource = null;
-        if(AppType.DATAASSETS.getType().equals(appType)) {
-            if (Objects.isNull(engineSourceId)) {
-                List<LineageDataSource> dataSources = lineageDataSourceService.getDataSourceByParams(queryColumnLineageParam.getSourceType(), queryColumnLineageParam.getSourceName(), queryColumnLineageParam.getDtUicTenantId(), queryColumnLineageParam.getAppType());
-                if (CollectionUtils.isEmpty(dataSources)) {
-                    logger.error("do not find need dataSource");
-                    throw new RdosDefineException("没有可用的数据源");
-                }
-                lineageDataSource = dataSources.get(0);
-            } else {
-                lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(engineSourceId, appType);
-            }
-        }else{
-            //其他平台engineSourceId代表的是各平台的sourceId
-            lineageDataSource = lineageDataSourceService.getDataSourceBySourceIdAndAppType(queryColumnLineageParam.getDataInfoId(),appType);
+        ApiResponse<DsServiceInfoDTO> dsInfoById = dataSourceAPIClient.getDsInfoById(queryColumnLineageParam.getDataInfoId());
+        if(dsInfoById.getCode() != 1){
+            logger.error("getDsInfoById query failed,param:{}",JSON.toJSONString(queryColumnLineageParam.getDataInfoId()));
+            throw new RdosDefineException("调用数据源中心根据id查询数据源接口失败");
         }
-        return lineageDataSource;
+        DsServiceInfoDTO data = dsInfoById.getData();
+        if(null == data){
+            throw new RdosDefineException("dataSource center do not have this dataSource}");
+        }
+        return data;
     }
 
 
@@ -923,13 +925,13 @@ public class LineageService {
     public List<LineageColumnColumnVO> queryColumnInputLineage(QueryColumnLineageParam queryColumnLineageParam) {
 
         Integer appType = queryColumnLineageParam.getAppType();
-        LineageDataSource lineageDataSource = getDataSourceByColumnParam(queryColumnLineageParam);
-        String schemaName = queryColumnLineageParam.getSchemaName() !=null ? queryColumnLineageParam.getSchemaName():lineageDataSource.getSchemaName();
-        String dbName = queryColumnLineageParam.getDbName() !=null ? queryColumnLineageParam.getDbName() : lineageDataSource.getSchemaName();
+        DsServiceInfoDTO lineageDataSource = getDataSourceByColumnParam(queryColumnLineageParam);
+        String schemaName = queryColumnLineageParam.getSchemaName();
+        String dbName = queryColumnLineageParam.getDbName() ;
         String columnName = queryColumnLineageParam.getColumnName();
         String tableName = queryColumnLineageParam.getTableName();
         //TODO 手动添加的表无法查看血缘关系
-        LineageDataSetInfo dataSetInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), dbName, tableName, schemaName,appType);
+        LineageDataSetInfo dataSetInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getDataInfoId(), dbName, tableName, schemaName,appType);
         List<LineageColumnColumn> lineageColumnColumns = lineageColumnColumnService.queryColumnInputLineageByAppType(appType, dataSetInfo.getId(), columnName,new HashSet<>(),queryColumnLineageParam.getLevel());
         if(CollectionUtils.isEmpty(lineageColumnColumns)){
             return Lists.newArrayList();
@@ -942,7 +944,7 @@ public class LineageService {
         List<LineageDataSetInfo> dataSetListByIds = lineageDataSetInfoService.getDataSetListByIds(Lists.newArrayList(tableIds));
         Map<Long, LineageDataSetInfo> dataSetInfoMap = dataSetListByIds.stream().collect(Collectors.toMap(dataSetInfo1 -> dataSetInfo1.getId(), dataSetInfo12 -> dataSetInfo12));
         Set<Long> dataSourceIds = dataSetListByIds.stream().map(LineageDataSetInfo::getDataInfoId).collect(Collectors.toSet());
-        Map<Long, LineageDataSource> dataSourceMap = lineageDataSourceService.getDataSourcesByIdList(Lists.newArrayList(dataSourceIds)).stream().collect(Collectors.toMap(ds1 -> ds1.getId(), ds2 -> ds2));
+        Map<Long, DsServiceInfoDTO> dataSourceMap = lineageDataSourceService.getDataSourcesByIdList(Lists.newArrayList(dataSourceIds)).stream().collect(Collectors.toMap(ds1 -> ds1.getDataInfoId(), ds2 -> ds2));
         List<LineageColumnColumnVO> res = Lists.newArrayList();
         for (LineageColumnColumn cc : lineageColumnColumns) {
             LineageDataSetInfo inputTableInfo = dataSetInfoMap.get(cc.getInputTableId());
@@ -962,13 +964,13 @@ public class LineageService {
     public List<LineageColumnColumnVO> queryColumnResultLineage(QueryColumnLineageParam queryColumnLineageParam) {
 
         Integer appType = queryColumnLineageParam.getAppType();
-        LineageDataSource lineageDataSource = getDataSourceByColumnParam(queryColumnLineageParam);
-        String schemaName = queryColumnLineageParam.getSchemaName() !=null ? queryColumnLineageParam.getSchemaName():lineageDataSource.getSchemaName();
-        String dbName = queryColumnLineageParam.getDbName() !=null ? queryColumnLineageParam.getDbName() : lineageDataSource.getSchemaName();
+        DsServiceInfoDTO lineageDataSource = getDataSourceByColumnParam(queryColumnLineageParam);
+        String schemaName = queryColumnLineageParam.getSchemaName();
+        String dbName = queryColumnLineageParam.getDbName();
         String columnName = queryColumnLineageParam.getColumnName();
         String tableName = queryColumnLineageParam.getTableName();
         //TODO 手动添加的表无法查看血缘关系
-        LineageDataSetInfo dataSetInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), dbName, tableName, schemaName,appType);
+        LineageDataSetInfo dataSetInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getDataInfoId(), dbName, tableName, schemaName,appType);
         List<LineageColumnColumn> lineageColumnColumns = lineageColumnColumnService.queryColumnResultLineageByAppType(appType, dataSetInfo.getId(), columnName,new HashSet<>(),queryColumnLineageParam.getLevel());
         if(CollectionUtils.isEmpty(lineageColumnColumns)){
             return Lists.newArrayList();
@@ -981,7 +983,7 @@ public class LineageService {
         List<LineageDataSetInfo> dataSetListByIds = lineageDataSetInfoService.getDataSetListByIds(Lists.newArrayList(tableIds));
         Map<Long, LineageDataSetInfo> dataSetInfoMap = dataSetListByIds.stream().collect(Collectors.toMap(dataSetInfo1 -> dataSetInfo1.getId(), dataSetInfo12 -> dataSetInfo12));
         Set<Long> dataSourceIds = dataSetListByIds.stream().map(LineageDataSetInfo::getDataInfoId).collect(Collectors.toSet());
-        Map<Long, LineageDataSource> dataSourceMap = lineageDataSourceService.getDataSourcesByIdList(Lists.newArrayList(dataSourceIds)).stream().collect(Collectors.toMap(ds1 -> ds1.getId(), ds2 -> ds2));
+        Map<Long, DsServiceInfoDTO> dataSourceMap = lineageDataSourceService.getDataSourcesByIdList(Lists.newArrayList(dataSourceIds)).stream().collect(Collectors.toMap(ds1 -> ds1.getDataInfoId(), ds2 -> ds2));
         List<LineageColumnColumnVO> res = Lists.newArrayList();
         for (LineageColumnColumn cc : lineageColumnColumns) {
             LineageDataSetInfo inputTableInfo = dataSetInfoMap.get(cc.getInputTableId());
@@ -1000,13 +1002,13 @@ public class LineageService {
     public List<LineageColumnColumnVO> queryColumnLineages(QueryColumnLineageParam queryColumnLineageParam) {
 
         Integer appType = queryColumnLineageParam.getAppType();
-        LineageDataSource lineageDataSource = getDataSourceByColumnParam(queryColumnLineageParam);
-        String schemaName = queryColumnLineageParam.getSchemaName() !=null ? queryColumnLineageParam.getSchemaName():lineageDataSource.getSchemaName();
-        String dbName = queryColumnLineageParam.getDbName() !=null ? queryColumnLineageParam.getDbName() : lineageDataSource.getSchemaName();
+        DsServiceInfoDTO lineageDataSource = getDataSourceByColumnParam(queryColumnLineageParam);
+        String schemaName = queryColumnLineageParam.getSchemaName();
+        String dbName = queryColumnLineageParam.getDbName() ;
         String columnName = queryColumnLineageParam.getColumnName();
         String tableName = queryColumnLineageParam.getTableName();
         //TODO 手动添加的表无法查看血缘关系
-        LineageDataSetInfo dataSetInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), dbName, tableName, schemaName,appType);
+        LineageDataSetInfo dataSetInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getDataInfoId(), dbName, tableName, schemaName,appType);
         List<LineageColumnColumn> lineageColumnColumns = lineageColumnColumnService.queryColumnLineages(appType, dataSetInfo.getId(), columnName,queryColumnLineageParam.getLevel());
         if(CollectionUtils.isEmpty(lineageColumnColumns)){
             return Lists.newArrayList();
@@ -1019,7 +1021,7 @@ public class LineageService {
         List<LineageDataSetInfo> dataSetListByIds = lineageDataSetInfoService.getDataSetListByIds(Lists.newArrayList(tableIds));
         Map<Long, LineageDataSetInfo> dataSetInfoMap = dataSetListByIds.stream().collect(Collectors.toMap(dataSetInfo1 -> dataSetInfo1.getId(), dataSetInfo12 -> dataSetInfo12));
         Set<Long> dataSourceIds = dataSetListByIds.stream().map(LineageDataSetInfo::getDataInfoId).collect(Collectors.toSet());
-        Map<Long, LineageDataSource> dataSourceMap = lineageDataSourceService.getDataSourcesByIdList(Lists.newArrayList(dataSourceIds)).stream().collect(Collectors.toMap(ds1 -> ds1.getId(), ds2 -> ds2));
+        Map<Long, DsServiceInfoDTO> dataSourceMap = lineageDataSourceService.getDataSourcesByIdList(Lists.newArrayList(dataSourceIds)).stream().collect(Collectors.toMap(ds1 -> ds1.getDataInfoId(), ds2 -> ds2));
         List<LineageColumnColumnVO> res = Lists.newArrayList();
         for (LineageColumnColumn cc : lineageColumnColumns) {
             LineageDataSetInfo inputTableInfo = dataSetInfoMap.get(cc.getInputTableId());
@@ -1335,7 +1337,7 @@ public class LineageService {
         List<LineageDataSetInfo> dataSetListByIds = lineageDataSetInfoService.getDataSetListByIds(Lists.newArrayList(tableIds));
         Map<Long, LineageDataSetInfo> dataSetInfoMap = dataSetListByIds.stream().collect(Collectors.toMap(dataSetInfo1 -> dataSetInfo1.getId(), dataSetInfo12 -> dataSetInfo12));
         Set<Long> dataSourceIds = dataSetListByIds.stream().map(LineageDataSetInfo::getDataInfoId).collect(Collectors.toSet());
-        Map<Long, LineageDataSource> dataSourceMap = lineageDataSourceService.getDataSourcesByIdList(Lists.newArrayList(dataSourceIds)).stream().collect(Collectors.toMap(ds1 -> ds1.getId(), ds2 -> ds2));
+        Map<Long, DsServiceInfoDTO> dataSourceMap = lineageDataSourceService.getDataSourcesByIdList(Lists.newArrayList(dataSourceIds)).stream().collect(Collectors.toMap(ds1 -> ds1.getDataInfoId(), ds2 -> ds2));
         List<LineageTableTableVO> res = Lists.newArrayList();
         for (LineageTableTable tt : lineageTableTables) {
             LineageDataSetInfo inputTableInfo = dataSetInfoMap.get(tt.getInputTableId());
@@ -1360,7 +1362,7 @@ public class LineageService {
         List<LineageDataSetInfo> dataSetListByIds = lineageDataSetInfoService.getDataSetListByIds(Lists.newArrayList(tableIds));
         Map<Long, LineageDataSetInfo> dataSetInfoMap = dataSetListByIds.stream().collect(Collectors.toMap(dataSetInfo1 -> dataSetInfo1.getId(), dataSetInfo12 -> dataSetInfo12));
         Set<Long> dataSourceIds = dataSetListByIds.stream().map(LineageDataSetInfo::getDataInfoId).collect(Collectors.toSet());
-        Map<Long, LineageDataSource> dataSourceMap = lineageDataSourceService.getDataSourcesByIdList(Lists.newArrayList(dataSourceIds)).stream().collect(Collectors.toMap(ds1 -> ds1.getId(), ds2 -> ds2));
+        Map<Long, DsServiceInfoDTO> dataSourceMap = lineageDataSourceService.getDataSourcesByIdList(Lists.newArrayList(dataSourceIds)).stream().collect(Collectors.toMap(ds1 -> ds1.getDataInfoId(), ds2 -> ds2));
         List<LineageColumnColumnVO> res = Lists.newArrayList();
         for (LineageColumnColumn cc : lineageColumnColumns) {
             LineageDataSetInfo inputTableInfo = dataSetInfoMap.get(cc.getInputTableId());

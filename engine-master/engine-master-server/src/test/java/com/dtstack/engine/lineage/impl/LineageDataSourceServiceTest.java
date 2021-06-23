@@ -7,6 +7,7 @@ import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.lineage.param.DeleteDataSourceParam;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
+import com.dtstack.pubsvc.sdk.dto.result.datasource.DsServiceInfoDTO;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import org.junit.Assert;
@@ -170,7 +171,7 @@ public class LineageDataSourceServiceTest extends AbstractTest {
         DataSourceDTO dataSourceDTO = getDataSourceDTO(tenant.getDtUicTenantId());
         Long sourceId = dataSourceService.addOrUpdateDataSource(dataSourceDTO);
         List<Long> idList = Arrays.asList(sourceId);
-        List<LineageDataSource> sourcesByIdList = dataSourceService.getDataSourcesByIdList(idList);
+        List<DsServiceInfoDTO> sourcesByIdList = dataSourceService.getDataSourcesByIdList(idList);
         Assert.assertNotNull(sourcesByIdList);
     }
 

@@ -92,3 +92,4 @@ create table if not exists lineage_column_column_unique_key_ref(
     is_deleted tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
     PRIMARY KEY (id),
     UNIQUE KEY uni_appType_columnColumnId_uniqueKey (app_type,lineage_column_column_id,unique_key)
+    )ENGINE=InnoDB DEFAULT CHARSET=utf8;
