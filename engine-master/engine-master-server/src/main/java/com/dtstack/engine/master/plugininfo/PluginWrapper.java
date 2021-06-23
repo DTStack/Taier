@@ -12,6 +12,7 @@ import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.impl.ClusterService;
+import com.dtstack.engine.master.impl.ScheduleDictService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.impl.TaskParamsService;
 import com.dtstack.schedule.common.enums.Deleted;
@@ -54,6 +55,9 @@ public class PluginWrapper{
     @Autowired
     private TaskParamsService taskParamsService;
 
+    @Autowired
+    private ScheduleDictService scheduleDictService;
+
     public Map<String, Object> wrapperPluginInfo(ParamAction action) throws Exception{
 
         Map actionParam = PublicUtil.objectToMap(action);
@@ -75,9 +79,10 @@ public class PluginWrapper{
             //解析参数
             deployMode = taskParamsService.parseDeployTypeByTaskParams(action.getTaskParams(),action.getComputeType(), EngineType.Flink.name(),tenantId).getType();
         }
+        String componentVersionValue = scheduleDictService.convertVersionNameToValue(action.getComponentVersion(), action.getEngineType());
         // 需要传入组件版本,涉及Null值构建Map需要检验Null兼容
         JSONObject pluginInfoJson = clusterService.pluginInfoJSON(tenantId, engineType, action.getUserId(),deployMode,
-                Collections.singletonMap(EngineTypeComponentType.engineName2ComponentType(engineType),action.getComponentVersion()));
+                Collections.singletonMap(EngineTypeComponentType.engineName2ComponentType(engineType),componentVersionValue));
         String groupName = ConfigConstant.DEFAULT_GROUP_NAME;
         action.setGroupName(groupName);
         if (null != pluginInfoJson && !pluginInfoJson.isEmpty()) {
