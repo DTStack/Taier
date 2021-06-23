@@ -78,9 +78,11 @@ public class SftpDownloadEvent extends AdapterEventMonitor implements Initializi
                     sftpPath = jarPath.substring(jarPath.indexOf(GlobalConst.PATH_CUT)+GlobalConst.PATH_CUT.length());
                 } catch (Exception e) {
                     LOGGER.error(e.getMessage());
+                    return;
                 }
             }
 
+            LOGGER.info("sftpPath:{} and destPath {}",sftpPath,destPath);
             String ifPresent = cacheSftpJar.getIfPresent(jarPath);
             if (StringUtils.isBlank(ifPresent)) {
                 SftpConfig sftpConfig = getSftpConfig();
@@ -88,8 +90,12 @@ public class SftpDownloadEvent extends AdapterEventMonitor implements Initializi
                 if (sftpConfig != null) {
                     try {
                         SftpFileManage sftpManager = SftpFileManage.getSftpManager(sftpConfig);
-                        sftpManager.downloadFile(sftpPath, destPath);
-                        cacheSftpJar.put(jarPath, System.currentTimeMillis() + "");
+                        if (StringUtils.isNotBlank(sftpPath) && StringUtils.isNotBlank(destPath)) {
+                            sftpManager.downloadFile(sftpPath, destPath);
+                            cacheSftpJar.put(jarPath, System.currentTimeMillis() + "");
+                        } else {
+                            LOGGER.error("sftpPath: and destPath is null so downloadFile error");
+                        }
                     } catch (Exception e) {
                         LOGGER.error("sftp download failed:", e);
                     }
