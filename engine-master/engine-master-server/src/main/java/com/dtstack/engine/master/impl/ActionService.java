@@ -2,7 +2,6 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.common.enums.DeployMode;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.pojo.ParamActionExt;
@@ -29,7 +28,6 @@ import com.dtstack.engine.master.multiengine.factory.MultiEngineFactory;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
 import com.dtstack.engine.master.scheduler.parser.ScheduleCron;
 import com.dtstack.engine.master.scheduler.parser.ScheduleFactory;
-import com.dtstack.engine.common.util.TaskParamsUtil;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.schedule.common.enums.ForceCancelFlag;
@@ -100,16 +98,12 @@ public class ActionService {
     private MultiEngineFactory multiEngineFactory;
 
     @Autowired
-    private ComponentDao componentDao;
-
-    @Autowired
     private ScheduleSqlTextTempDao sqlTextTempDao;
 
     @Autowired
-    private ScheduleDictService scheduleDictService;
+    private TaskParamsService taskParamsService;
 
     private final ObjectMapper objMapper = new ObjectMapper();
-
 
     private static int length = 8;
 
@@ -266,7 +260,7 @@ public class ActionService {
         jobTriggerService.readyForTaskStartTrigger(actionParam, batchTask, scheduleJob);
         actionParam.put("name", scheduleJob.getJobName());
         actionParam.put("taskId", scheduleJob.getJobId());
-        actionParam.put("taskType", EScheduleJobType.getEngineJobType(batchTask.getTaskType()));
+        actionParam.put("taskType", batchTask.getTaskType());
         actionParam.put("appType", batchTask.getAppType());
         actionParam.put("componentVersion",batchTask.getComponentVersion());
         Object tenantId = actionParam.get("tenantId");
@@ -291,7 +285,7 @@ public class ActionService {
         }
         if (EJobType.SYNC.getType() == scheduleJob.getTaskType()) {
             //数据同步需要解析是perjob 还是session
-            EDeployMode eDeployMode = TaskParamsUtil.parseDeployTypeByTaskParams(batchTask.getTaskParams(),batchTask.getComputeType(), EngineType.Flink.name());
+            EDeployMode eDeployMode = taskParamsService.parseDeployTypeByTaskParams(batchTask.getTaskParams(),batchTask.getComputeType(), EngineType.Flink.name(),batchTask.getDtuicTenantId());
             actionParam.put("deployMode", eDeployMode.getType());
         }
         return PublicUtil.mapToObject(actionParam, ParamActionExt.class);
@@ -344,9 +338,6 @@ public class ActionService {
     private boolean receiveStartJob(ParamActionExt paramActionExt){
         String jobId = paramActionExt.getTaskId();
         Integer computerType = paramActionExt.getComputeType();
-        String componentVersionValue = scheduleDictService.convertVersionNameToValue(paramActionExt.getComponentVersion(), paramActionExt.getEngineType());
-        paramActionExt.setComponentVersion(componentVersionValue);
-
         //当前任务已经存在在engine里面了
         //不允许相同任务同时在engine上运行---考虑将cache的清理放在任务结束的时候(停止，取消，完成)
         if(engineJobCacheDao.getOne(jobId) != null){
@@ -705,7 +696,7 @@ public class ActionService {
             throw new RuntimeException("time is null");
         }
 
-        return scheduleJobDao.listJobStatus(new Timestamp(time), ComputeType.BATCH.getType(),appType);
+        return scheduleJobDao.listJobStatus(new Timestamp(time), null,appType);
     }
 
     private List<ActionJobStatusVO> toVOS(List<ScheduleJob> scheduleJobs){

@@ -497,7 +497,7 @@ public class ConsoleService {
             if (StringUtils.isBlank(typeName)) {
                 //获取对应的插件名称
                 typeName = componentService.convertComponentTypeToClient(cluster.getClusterName(),
-                        EComponentType.YARN.getTypeCode(), yarnComponent.getHadoopVersion(),null,null);
+                        EComponentType.YARN.getTypeCode(), yarnComponent.getHadoopVersion(),null,null,null);
             }
             pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,typeName);
             return workerOperator.clusterResource(typeName, pluginInfo.toJSONString());

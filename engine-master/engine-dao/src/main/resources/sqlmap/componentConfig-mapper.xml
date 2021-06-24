@@ -58,6 +58,13 @@
         </if>
     </select>
 
+    <select id="listByComponentTypeAndKey" resultType="ComponentConfig">
+        select
+        <include refid="select_content_fragment"/>
+        from console_component_config
+        where cluster_id = #{clusterId} and is_deleted = 0 AND `key` = #{key} AND component_type_code = #{componentTypeCode}
+    </select>
+
     <select id="listByKey" resultType="ComponentConfig">
         select
         <include refid="select_content_fragment"/>

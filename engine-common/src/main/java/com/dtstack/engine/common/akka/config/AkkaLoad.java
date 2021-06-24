@@ -74,8 +74,14 @@ public class AkkaLoad {
      * @param properties
      */
     private static void putLogStoreConfigIfNotExist(Properties properties) {
-        properties.putIfAbsent(ConfigConstant.AKKA_WORKER_LOGSTORE_JDBCURL, properties.getProperty(ConfigConstant.DAGSCHEULEX_JDBC_URL));
-        properties.putIfAbsent(ConfigConstant.AKKA_WORKER_LOGSTORE_USERNAME, properties.getProperty(ConfigConstant.DAGSCHEULEX_JDBC_USERNAME));
-        properties.putIfAbsent(ConfigConstant.AKKA_WORKER_LOGSTORE_PASSWORD, properties.getProperty(ConfigConstant.DAGSCHEULEX_JDBC_PASSWORD));
+        if (properties.containsKey(ConfigConstant.DAGSCHEULEX_JDBC_URL)) {
+            properties.putIfAbsent(ConfigConstant.AKKA_WORKER_LOGSTORE_JDBCURL, properties.getProperty(ConfigConstant.DAGSCHEULEX_JDBC_URL));
+        }
+        if (properties.containsKey(ConfigConstant.DAGSCHEULEX_JDBC_USERNAME)) {
+            properties.putIfAbsent(ConfigConstant.AKKA_WORKER_LOGSTORE_USERNAME, properties.getProperty(ConfigConstant.DAGSCHEULEX_JDBC_USERNAME));
+        }
+        if (properties.containsKey(ConfigConstant.DAGSCHEULEX_JDBC_PASSWORD)) {
+            properties.putIfAbsent(ConfigConstant.AKKA_WORKER_LOGSTORE_PASSWORD, properties.getProperty(ConfigConstant.DAGSCHEULEX_JDBC_PASSWORD));
+        }
     }
 }

@@ -42,7 +42,6 @@ import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.scheduler.JobParamReplace;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
-import com.dtstack.engine.common.util.TaskParamsUtil;
 import com.dtstack.engine.master.sync.RestartRunnable;
 import com.dtstack.engine.master.utils.JobGraphUtils;
 import com.dtstack.engine.master.vo.BatchSecienceJobChartVO;
@@ -3166,12 +3165,15 @@ public class ScheduleJobService {
             LOGGER.info("syncRestartJob  {}  is doing ", key);
             return false;
         }
-        redisTemplate.execute((RedisCallback<String>) connection -> {
+        String execute = redisTemplate.execute((RedisCallback<String>) connection -> {
             JedisCommands commands = (JedisCommands) connection.getNativeConnection();
             SetParams setParams = SetParams.setParams();
-            setParams.nx().ex((int)environmentContext.getForkJoinResultTimeOut() * 2);
+            setParams.nx().ex((int) environmentContext.getForkJoinResultTimeOut() * 2);
             return commands.set(key, "-1", setParams);
         });
+        if(StringUtils.isBlank(execute)){
+            return false;
+        }
         if (BooleanUtils.isTrue(justRunChild) && null != id) {
             if (null == subJobIds) {
                 subJobIds = new ArrayList<>();

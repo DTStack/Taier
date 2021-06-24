@@ -78,8 +78,8 @@ public class TemplateTest extends AbstractTest {
 
     @Before
     public void init() {
-        doReturn(typeName).when(componentService).convertComponentTypeToClient(any(), any(), any(),any(),any());
-        doCallRealMethod().when(componentService).addOrUpdateComponent(any(), any(), any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
+        doReturn(typeName).when(componentService).convertComponentTypeToClient(any(), any(), any(),any(),any(),null);
+        doCallRealMethod().when(componentService).addOrUpdateComponent(any(), any(), any(),any(),any(),any(),any(),any(),any(),any(),any(),any(),null);
         ReflectionTestUtils.setField(componentService,"clusterDao", clusterDao);
         ReflectionTestUtils.setField(componentService,"componentDao", componentDao);
         ReflectionTestUtils.setField(componentService,"consoleCache", consoleCache);
@@ -171,8 +171,8 @@ public class TemplateTest extends AbstractTest {
         cluster.setHadoopVersion("hadoop2");
         clusterDao.insert(cluster);
         //添加组件 添加引擎
-        componentService.addOrUpdateComponent(cluster.getId(), "", null, "hadoop2", "", templateString, EComponentType.SFTP.getTypeCode(),null,null,null, true,true);
-        Component sftpComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.SFTP.getTypeCode(),null);
+        componentService.addOrUpdateComponent(cluster.getId(), "", null, "hadoop2", "", templateString, EComponentType.SFTP.getTypeCode(),null,null,null, true,true,null);
+        Component sftpComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.SFTP.getTypeCode(),null,null);
         Assert.assertNotNull(sftpComponent);
         Map<String, Object> sftpConfig = componentConfigService.convertComponentConfigToMap(sftpComponent.getId(), true);
         Assert.assertNotNull(sftpConfig);
@@ -180,7 +180,7 @@ public class TemplateTest extends AbstractTest {
         for (String key : originMap.keySet()) {
             Assert.assertEquals(originMap.get(key), sftpConfig.get(key));
         }
-        componentService.getCacheComponentConfigMap(cluster.getId(), EComponentType.SFTP.getTypeCode(), true, Collections.emptyMap());
+        componentService.getCacheComponentConfigMap(cluster.getId(), EComponentType.SFTP.getTypeCode(), true, Collections.emptyMap(),null);
     }
 
 

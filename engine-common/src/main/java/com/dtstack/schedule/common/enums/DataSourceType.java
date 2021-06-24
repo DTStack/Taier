@@ -234,7 +234,7 @@ public enum DataSourceType {
             case LIBRA_SQL:
                 return PostgreSQL;
             case SPARK_THRIFT:
-                return Spark;
+                return SPARKTHRIFT2_1;
             default:
                 return null;
         }
