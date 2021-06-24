@@ -696,7 +696,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             if (labelUserMap.size() != 2){
                 return taskParam;
             }
-            ComponentUser user = componentService.getComponentUser(scheduleJob.getDtuicTenantId(), EComponentType.DTSCRIPT_AGENT.getTypeCode(), labelUserMap.get(USER_LABEL), labelUserMap.get(USER_NAME));
+            ComponentUser user = componentService.getComponentUser(scheduleJob.getTenantId(), EComponentType.DTSCRIPT_AGENT.getTypeCode(), labelUserMap.get(USER_LABEL), labelUserMap.get(USER_NAME));
             taskParam = Objects.nonNull(user) && StringUtils.isNotBlank(user.getPassword())?taskParam + String.format(" \n %s=%s", "user.password", Base64Util.baseDecode(user.getPassword())):taskParam;
         }
         return taskParam;
