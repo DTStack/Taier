@@ -170,7 +170,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
            this.replaceTaskExeArgs(actionParam, scheduleJob, taskParamsToReplace, taskExeArgs,uploadPath);
         }
 
-        taskParams = addTaskPrams(taskParams,taskShade.getTaskType(),scheduleJob);
+        taskParams = addTaskPrams(taskParams,taskShade.getEngineType(),scheduleJob);
 
         actionParam.put("sqlText", sql);
         actionParam.put("taskParams", taskParams);
@@ -678,7 +678,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
      * 添加任务参数
      */
     private String addTaskPrams(String taskParam,Integer taskType,ScheduleJob scheduleJob){
-        if (EScheduleJobType.SHELL_ON_AGENT.getType().equals(taskType)){
+        if (ScheduleEngineType.DTSCRIPT_AGENT.getVal() == taskType){
             List<String> paramList = DtStringUtil.splitIgnoreQuota(taskParam, '\n');
             Map<String,String> labelUserMap = new HashMap<>(2);
             for (String param : paramList) {
