@@ -64,7 +64,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(HadoopJobStartTrigger.class);
 
     private static final String USER_NAME = "user.name";
-    private static final String USER_LABEL = "user.label";
+    private static final String USER_LABEL = "node.label";
 
     @Autowired
     private JobParamReplace jobParamReplace;
