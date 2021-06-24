@@ -1,0 +1,23 @@
+.navbar {
+    text-align: center;
+    border-bottom: 1px solid var(--panel-border);
+    align-items: center;
+    justify-content: left;
+}
+
+.navbar .logo {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.navbar .mo-menu {
+    font-size: 12px;
+    box-shadow: none;
+    line-height: 22px;
+    flex-grow: 1;
+}
+
+.navbar .mo-menu__item {
+    min-width: auto;
+    border-right: 1px solid var(--panel-border);
+}
