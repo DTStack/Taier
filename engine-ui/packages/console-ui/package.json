@@ -1,6 +1,6 @@
 {
   "name": "dt-console",
-  "version": "4.1.12",
+  "version": "4.1.13",
   "description": "Making data valuable.",
   "main": "src/app.js",
   "license": "MIT",

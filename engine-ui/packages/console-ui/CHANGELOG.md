@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.1.13](http://git.dtstack.cn/dtstack/data-stack-web/compare/v4.1.12...v4.1.13) (2021-06-24)
+
+
+### Features
+
+* add project mark and api list to version monitor ([df9312b](http://git.dtstack.cn/dtstack/data-stack-web/commit/df9312bf15acc887a5dd082cb07ee10439e9d1cc))
+* add project mark to set request version ([c9dfa73](http://git.dtstack.cn/dtstack/data-stack-web/commit/c9dfa733470f7c14d980be2cdc4a82246b156087))
+* clear browser cache ([2a9e38d](http://git.dtstack.cn/dtstack/data-stack-web/commit/2a9e38d823eb43c9dbc7e35ceead3e3a6aa2f5f0))
+* use catch custom action to replace ([8436ffe](http://git.dtstack.cn/dtstack/data-stack-web/commit/8436ffe055f89139d186c338c9729876666b859e))
+
+
+### Bug Fixes
+
+* update dt-common version ([93d4178](http://git.dtstack.cn/dtstack/data-stack-web/commit/93d417851f537c124a5e604fd27ba5fcb64dcc77))
+
 ### [4.1.12](http://git.dtstack.cn/dtstack/data-stack-web/compare/v4.1.0-beta1...v4.1.12) (2021-04-15)
 
 
