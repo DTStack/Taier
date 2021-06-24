@@ -557,6 +557,7 @@ public class ActionService {
         }
 
         info.put("sql",taskShadeDao.getSqlText());
+        info.put("engineLogErr",engineLog);
         jobLogVO.setLogInfo(info.toJSONString());
         try {
             if (scheduleJob.getRetryNum() > 0) {
