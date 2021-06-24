@@ -13,6 +13,7 @@ import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 
 /**
@@ -26,6 +27,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 })
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableCaching
+@EnableScheduling
 public class EngineApplication {
 
     private static Logger LOGGER = LoggerFactory.getLogger(EngineApplication.class);
