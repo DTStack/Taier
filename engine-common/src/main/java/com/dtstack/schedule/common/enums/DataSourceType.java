@@ -1,6 +1,7 @@
 package com.dtstack.schedule.common.enums;
 
 
+import com.dtstack.engine.common.constrant.ComponentConstant;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.google.common.collect.Lists;
@@ -212,6 +213,8 @@ public enum DataSourceType {
                 return "tidb";
             case KINGBASE8:
                 return "kingbase";
+            case ADB_POSTGREPSQL:
+                return ComponentConstant.ANALYTICDB_FOR_PG_NAME;
             default:
                 throw new RdosDefineException("不支持的数据源类型");
         }
