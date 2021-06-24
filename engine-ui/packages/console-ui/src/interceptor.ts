@@ -4,7 +4,7 @@ import { hashHistory } from 'react-router'
 import utils from 'dt-common/src/utils'
 import localDb from 'dt-common/src/utils/localDb'
 
-import UserApi from 'dt-common/src/api/user'
+// import UserApi from 'dt-common/src/api/user'
 
 const maxHeightStyle: any = {
     maxHeight: '500px',
@@ -36,7 +36,7 @@ export function authAfterFormated (response: any) {
             return response;
         case 0: // 无权限，需要登录
 
-            UserApi.logout()
+            // UserApi.logout()
             return response;
         case 3: // 功能无权限
             notification['error']({
@@ -45,7 +45,7 @@ export function authAfterFormated (response: any) {
             });
             return Promise.reject(response);
         case 16: // 需要重新进入Web首页选择项目，并进入
-            hashHistory.push('/');
+            // hashHistory.push('/');
             return Promise.reject(response);
         default:
             if (response.message) {

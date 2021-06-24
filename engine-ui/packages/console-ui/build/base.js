@@ -12,20 +12,24 @@ const MY_PATH = require('./consts');
 const monacoConfig = require('./monacoConfig');
 const splitChunksConfig = require('./splitChunksConfig');
 const VERSION = JSON.stringify(require('../package.json').version); // app version.
+const packageName = require('../package.json').name;
 
 module.exports = function () {
     return {
         entry: {
-            app: MY_PATH.APP_FILE,
+            main: MY_PATH.APP_FILE,
         },
         output: {
             pathinfo: false,
             path: MY_PATH.BUILD_PATH,
-            chunkFilename: "[name].[hash].js",
-            filename: "[name].[hash].js",
-            sourceMapFilename: "[name].map",
+            // chunkFilename: "[name].[hash].js",
+            // filename: "[name].[hash].js",
+            // sourceMapFilename: "[name].map",
             publicPath: MY_PATH.BASE_NAME,
-            globalObject: 'self',
+            globalObject: 'window',
+            jsonpFunction: `webpackJsonp_${packageName}`,
+            library: `DTConsoleApp`,
+            libraryTarget: 'umd',
         },
         optimization: {
             splitChunks: {

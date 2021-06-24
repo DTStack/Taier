@@ -56,6 +56,9 @@ const devServer = Object.assign(
             "errors-only": false,
             cached: true
         },
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+        },
         useLocalIp: true,
         watchOptions: {
             ignored: /node_modules/,
@@ -84,7 +87,7 @@ const merged = function(env) {
                 filename: 'index.html',
                 template: path.resolve(MY_PATH.WEB_PUBLIC, `index.html`),
                 inject: "body",
-                chunks: ['app', "manifest"],
+                chunks: ["manifest", 'main'],
                 showErrors: true,
                 hash: true
             })
