@@ -1,0 +1,44 @@
+{
+  "id": "1819717",
+  "name": "控制台",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "14726264",
+      "name": "组件配置",
+      "font_class": "zujianpeizhi",
+      "unicode": "e6c5",
+      "unicode_decimal": 59077
+    },
+    {
+      "icon_id": "14726172",
+      "name": "存储组件",
+      "font_class": "cunchuzujian",
+      "unicode": "e6c1",
+      "unicode_decimal": 59073
+    },
+    {
+      "icon_id": "14726173",
+      "name": "计算组件",
+      "font_class": "jisuanzujian",
+      "unicode": "e6c2",
+      "unicode_decimal": 59074
+    },
+    {
+      "icon_id": "14726174",
+      "name": "资源调度",
+      "font_class": "ziyuantiaodu",
+      "unicode": "e6c3",
+      "unicode_decimal": 59075
+    },
+    {
+      "icon_id": "14726176",
+      "name": "公共组件",
+      "font_class": "gonggongzujian",
+      "unicode": "e6c4",
+      "unicode_decimal": 59076
+    }
+  ]
+}

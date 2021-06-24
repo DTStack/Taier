@@ -29,7 +29,7 @@ function Navbar() {
   }
 
   return (
-      <div className="navbar">
+      <div className="dt-layout-header navbar">
         <molecule.component.Menu 
           data={data} 
           onClick={handleClick}

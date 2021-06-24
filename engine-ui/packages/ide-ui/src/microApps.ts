@@ -17,10 +17,10 @@ registerMicroApps([
     activeRule: '/operation',
   },
   {
-    name: 'Console',
-    entry: { scripts: ['//localhost:7100/main.js'] },
+    name: 'DTConsoleApp',
+    entry: 'http://local.dtstack.cn:8080/console',
     container: container,
-    activeRule: '/console',
+    activeRule: '/console-ui',
   },{
     name: 'Database',
     entry: { scripts: ['//localhost:7100/main.js'] },

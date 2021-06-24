@@ -1,3 +1,9 @@
-[submodule "engine-ui/packages/engine-ui/packages/console-ui"]
-	path = engine-ui/packages/engine-ui/packages/console-ui
+[submodule "engine-ui/packages/console-ui"]
+	path = engine-ui/packages/console-ui
 	url = ssh://git@gitlab.prod.dtstack.cn:10022/dt-insight-front/dt-console.git
+[submodule "engine-ui/packages/operation-ui"]
+	path = engine-ui/packages/operation-ui
+	url = ssh://git@gitlab.prod.dtstack.cn:10022/dt-insight-front/dt-batch-works.git
+[submodule "engine-ui/packages/molecule"]
+	path = engine-ui/packages/molecule
+	url = git@github.com:DTStack/molecule.git
