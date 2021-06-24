@@ -18,11 +18,10 @@ import { FormComponentProps } from 'antd/es/form';
 import copy from 'copy-to-clipboard';
 import moment from 'moment';
 import Base64 from 'base-64';
-
 import { API } from '@/services';
 
 import { checks, getSaveStatus } from '../../utils/handelSession';
-import { utf8to16 } from '../../utils/utfEncode';
+import { utf8to16, utf16to8 } from '../../utils/utfEncode';
 import { getRules, IParams, formItemLayout, formNewLayout } from './formRules';
 import { HDFSCONG } from '../../constants/index';
 import { hdfsConfig } from './tooltips';
@@ -165,9 +164,8 @@ const InfoConfig = (props) => {
     validateFields(async (err, fieldsValue) => {
       if (!err) {
         setLoading(true);
-
         let handelParams: any = { ...otherParams };
-
+        console.log(handelParams,'handelParams---')
         //Remove leading and trailing spaces
         for (const key in fieldsValue) {
           if (typeof fieldsValue[key] === 'string') {
@@ -239,11 +237,18 @@ const InfoConfig = (props) => {
         } else {
           try {
             handelParams.dataJsonString = Base64.encode(
-              JSON.stringify(fieldsValue)
+              utf16to8(JSON.stringify(fieldsValue))
             );
           } catch (error) {
             setLoading(false);
           }
+
+          // 将未添加到请求参数中的字段值添加进去
+          Object.keys(fieldsValue).forEach((key) => {
+            if (handelParams[key] === undefined) {
+              handelParams[key] = fieldsValue[key];
+            }
+          });
 
           if (submit) {
             //确定按钮
@@ -618,6 +623,7 @@ const InfoConfig = (props) => {
           </Form.Item>
         );
       case 'Select':
+        console.log(item.initialValue,'select-initialValue')
         return (
           <Form.Item label={item.label} key={index}>
             {getFieldDecorator(
@@ -625,12 +631,11 @@ const InfoConfig = (props) => {
               getRules(item)
             )(
               <Select placeholder={item.placeHold || `请输入${item.label}`}>
-                <Option value="option1" key="option1">
-                  option1
-                </Option>
-                <Option value="option2" key="option2">
-                  option2
-                </Option>
+                {(item.options || []).map((option) => (
+                  <Option key={option.key} value={option.value}>
+                    {option.label}
+                  </Option>
+                ))}
               </Select>
             )}
           </Form.Item>

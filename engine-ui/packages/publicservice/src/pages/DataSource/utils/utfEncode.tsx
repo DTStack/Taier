@@ -1,4 +1,5 @@
 export const utf16to8 = (str) => {
+  if (!isUtf8(str)) return str;
   let out, i, len, c;
   out = '';
   len = str.length || 0;
@@ -21,7 +22,7 @@ export const utf16to8 = (str) => {
 function isUtf8(s) {
   var lastnames = new Array('ä', 'å', 'æ', 'ç', 'è', 'é');
   for (var i = 0; i < lastnames.length; i++) {
-    if (s.indexOf(lastnames[i]) > -1) {
+    if (s && s.indexOf(lastnames[i]) > -1) {
       return false;
     }
   }

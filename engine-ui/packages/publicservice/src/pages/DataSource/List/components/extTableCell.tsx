@@ -149,6 +149,17 @@ const showMapArr: any = {
     ['jdbcUrl', 'URL'],
     ['username', '用户名'],
   ],
+  [DATA_SOURCE.INCEPTOR]: [
+    ['jdbcUrl', 'jdbcUrl'],
+    ['defaultFS', 'defaultFS'],
+  ],
+  [DATA_SOURCE.AWSS3]: [
+    ['accessKey', 'ACCESS KEY'],
+  ],
+  [DATA_SOURCE.SPARKTHRIFT]: [
+    ['jdbcUrl', 'jdbcUrl'],
+    ['defaultFS', 'defaultFS'],
+  ],
 };
 
 export function ExtTableCell(props: any) {
