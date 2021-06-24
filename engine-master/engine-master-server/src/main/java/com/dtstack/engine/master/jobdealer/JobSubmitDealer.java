@@ -3,6 +3,7 @@ package com.dtstack.engine.master.jobdealer;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.common.BlockCallerPolicy;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.constrant.ConfigConstant;
@@ -62,6 +63,7 @@ public class JobSubmitDealer implements Runnable {
     private long jobSubmitExpired;
     private long jobLackingCountLimited = 3;
     private boolean checkJobMaxPriorityStrategy = false;
+    private int jobSubmitConcurrent = 1;
 
     private String localAddress;
     private String jobResource = null;
@@ -69,6 +71,7 @@ public class JobSubmitDealer implements Runnable {
     private PriorityBlockingQueue<JobClient> queue = null;
     private DelayBlockingQueue<SimpleJobDelay<JobClient>> delayJobQueue = null;
     private JudgeResult workerNotFindResult = JudgeResult.notOk( "worker not find");
+    private ExecutorService jobSubmitConcurrentService;
 
     public JobSubmitDealer(String localAddress, GroupPriorityQueue priorityQueue, ApplicationContext applicationContext) {
         this.jobPartitioner = applicationContext.getBean(JobPartitioner.class);
@@ -88,6 +91,7 @@ public class JobSubmitDealer implements Runnable {
         jobSubmitExpired = environmentContext.getJobSubmitExpired();
         jobLackingCountLimited = environmentContext.getJobLackingCountLimited();
         checkJobMaxPriorityStrategy = environmentContext.getCheckJobMaxPriorityStrategy();
+        jobSubmitConcurrent = environmentContext.getJobSubmitConcurrent();
 
         this.localAddress = localAddress;
         this.priorityQueue = priorityQueue;
@@ -98,6 +102,9 @@ public class JobSubmitDealer implements Runnable {
         ExecutorService executorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory(this.getClass().getSimpleName() + "_" + jobResource + "_DelayJobProcessor"));
         executorService.submit(new RestartJobProcessor());
+
+        this.jobSubmitConcurrentService = new ThreadPoolExecutor(jobSubmitConcurrent, jobSubmitConcurrent, 60L, TimeUnit.SECONDS,
+                new SynchronousQueue<>(true), new CustomThreadFactory(this.getClass().getSimpleName() + "_" + jobResource + "_JobSubmitConcurrent"), new BlockCallerPolicy());
     }
 
     private class RestartJobProcessor implements Runnable {
@@ -174,8 +181,11 @@ public class JobSubmitDealer implements Runnable {
                     Thread.sleep(jobLackingInterval);
                     continue;
                 }
+
                 //提交任务
-                submitJob(jobClient);
+                jobSubmitConcurrentService.submit(()->{
+                    submitJob(jobClient);
+                });
             } catch (Exception e) {
                 logger.error("", e);
             }
