@@ -22,6 +22,7 @@ import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.multiengine.JobStartTriggerBase;
@@ -698,6 +699,36 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             }
             ComponentUser user = componentService.getComponentUser(scheduleJob.getTenantId(), EComponentType.DTSCRIPT_AGENT.getTypeCode(), labelUserMap.get(USER_LABEL), labelUserMap.get(USER_NAME));
             taskParam = Objects.nonNull(user) && StringUtils.isNotBlank(user.getPassword())?taskParam + String.format(" \n %s=%s", "user.password", Base64Util.baseDecode(user.getPassword())):taskParam;
+        }
+        return taskParam;
+    }
+
+
+
+    /**
+     * 添加任务参数
+     */
+    public String addTaskPrams(String taskParam,String  engineType,ScheduleJob scheduleJob){
+        if (EComponentType.DTSCRIPT_AGENT.getTypeCode().equals(  EngineTypeComponentType.getComponentByEngineName(engineType).getTypeCode())){
+            List<String> paramList = DtStringUtil.splitIgnoreQuota(taskParam, '\n');
+            Map<String,String> labelUserMap = new HashMap<>(2);
+            for (String param : paramList) {
+                if (!param.contains("=")){
+                    continue;
+                }
+                String[] properties = param.split("=");
+                if (USER_NAME.equals(properties[0] = properties[0].trim()) || USER_LABEL.equals(properties[0])){
+                    labelUserMap.put(properties[0],properties[1].trim());
+                    if (labelUserMap.size() == 2){
+                        break;
+                    }
+                }
+            }
+            if (labelUserMap.size() != 2){
+                return taskParam;
+            }
+            ComponentUser user = componentService.getComponentUser(scheduleJob.getTenantId(), EComponentType.DTSCRIPT_AGENT.getTypeCode(), labelUserMap.get(USER_LABEL), labelUserMap.get(USER_NAME));
+            taskParam = Objects.nonNull(user) && StringUtils.isNotBlank(user.getPassword())?taskParam + String.format("\r\n%s=%s", "user.password", Base64Util.baseDecode(user.getPassword())):taskParam;
         }
         return taskParam;
     }
