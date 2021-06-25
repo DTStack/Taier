@@ -727,6 +727,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             if (labelUserMap.size() != 2){
                 return taskParam;
             }
+            // 离线的tenantId即dtuicTenantId,离线不会传值到dtuicTenantId属性
             ComponentUser user = componentService.getComponentUser(scheduleJob.getTenantId(), EComponentType.DTSCRIPT_AGENT.getTypeCode(), labelUserMap.get(USER_LABEL), labelUserMap.get(USER_NAME));
             taskParam = Objects.nonNull(user) && StringUtils.isNotBlank(user.getPassword())?taskParam + String.format("\r\n%s=%s", "user.password", Base64Util.baseDecode(user.getPassword())):taskParam;
         }
