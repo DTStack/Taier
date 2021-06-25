@@ -1,11 +1,12 @@
 import * as React from 'react'
 import { Popconfirm, Button, message, Modal, Icon } from 'antd'
 import Api from '../../../../../api/console'
-import { COMPONENT_CONFIG_NAME, COMP_ACTION } from '../../const'
+import { COMPONENT_CONFIG_NAME, COMP_ACTION, FLINK_DEPLOY_NAME,
+    FLINK_DEPLOY_TYPE } from '../../const'
 
 import { handleComponentTemplate, handleComponentConfigAndCustom,
     handleComponentConfig, isNeedTemp, handleCustomParam,
-    isKubernetes, isMultiVersion } from '../../help'
+    isKubernetes, isMultiVersion, isFLink } from '../../help'
 interface IProps {
     form: any;
     comp: any;
@@ -28,6 +29,7 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
         const { form, comp, clusterInfo, saveComp, mulitple } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
         const hadoopVersion = comp?.hadoopVersion ?? ''
+        const deployType = comp?.deployType ?? ''
 
         // 整理相关参数, 更新初始值
         form.validateFields(null, {}, (err: any, values: any) => {
@@ -57,6 +59,7 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
             if (isKubernetes(typeCode)) componentConfig = JSON.stringify(currentComp?.specialConfig)
 
             const params = {
+                isDefault: currentComp?.isDefault ?? '',
                 storeType: currentComp?.storeType ?? '',
                 principal: currentComp?.principal ?? '',
                 principals: currentComp?.principals ?? [],
@@ -74,6 +77,7 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
              */
             Api.saveComponent({
                 ...params,
+                deployType,
                 clusterId: clusterInfo.clusterId,
                 componentCode: typeCode,
                 clusterName: clusterInfo.clusterName,
@@ -86,6 +90,7 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
                         ...params,
                         id: res.data.id,
                         componentTypeCode: typeCode,
+                        deployType,
                         uploadFileName: currentComp?.uploadFileName ?? '',
                         kerberosFileName: currentComp?.kerberosFileName ?? ''
                     })
@@ -98,7 +103,8 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
     testConnects = () => {
         const typeCode = this.props.comp?.componentTypeCode ?? ''
         const hadoopVersion = isMultiVersion(typeCode) ? this.props.comp?.hadoopVersion : ''
-        this.props.testConnects({ typeCode, hadoopVersion }, (loading: boolean) => {
+        const deployType = this.props.comp?.deployType ?? ''
+        this.props.testConnects({ typeCode, hadoopVersion, deployType }, (loading: boolean) => {
             this.setState({ loading })
         })
     }
@@ -139,8 +145,10 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
         const { comp, mulitple } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
         const hadoopVersion = comp?.hadoopVersion ?? ''
+        const deployType = comp?.deployType ?? ''
         const defaultText = COMPONENT_CONFIG_NAME[typeCode]
-        const multipleText = COMPONENT_CONFIG_NAME[typeCode] + ' ' + (Number(hadoopVersion) / 100).toFixed(2)
+        const text = isFLink(typeCode) ? (FLINK_DEPLOY_NAME[deployType ?? FLINK_DEPLOY_TYPE.YARN]) : COMPONENT_CONFIG_NAME[typeCode]
+        const multipleText = text + ' ' + (Number(hadoopVersion) / 100).toFixed(2)
 
         if (isMultiVersion(typeCode) && !mulitple) {
             return (

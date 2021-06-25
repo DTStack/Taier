@@ -36,6 +36,7 @@ export default {
         clusterName: string;
         componentType: number;
         componentVersion: string;
+        deployType: number | string;
     }) {
         return http.post(req.TEST_CONNECT, params);
     },

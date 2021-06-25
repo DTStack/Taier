@@ -17,6 +17,10 @@ export function isYarn (typeCode: number): boolean {
     return COMPONENT_TYPE_VALUE.YARN == typeCode
 }
 
+export function isFLink (typeCode: number): boolean {
+    return COMPONENT_TYPE_VALUE.FLINK == typeCode
+}
+
 export function isDtscriptAgent (typeCode: number): boolean {
     return COMPONENT_TYPE_VALUE.DTSCRIPT_AGENT == typeCode
 }
@@ -98,6 +102,10 @@ export function isFileParam (key: string): boolean {
 
 export function isMetaData (key: string): boolean {
     return ['isMetadata'].indexOf(key) > -1
+}
+
+export function isDefaultVersion (key: string): boolean {
+    return ['isDefault'].indexOf(key) > -1
 }
 
 export function isDeployMode (key: string): boolean {
