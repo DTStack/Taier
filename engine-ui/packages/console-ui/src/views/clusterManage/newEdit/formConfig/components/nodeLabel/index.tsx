@@ -93,6 +93,9 @@ const NodeLabel: React.FC<IProps> = (props) => {
         const pattern = /^[^\s]*$/
         for (const node of nodes) {
             const extractNode = (node?.componentUserInfoList || []).filter(n => n.userName || n.password)
+            for (const user of node?.componentUserInfoList || []) {
+                if (!user.password) return true
+            }
             for (const user of extractNode) {
                 const { userName, password } = user
                 if (!pattern.test(userName) || !pattern.test(password)) return true
@@ -141,6 +144,7 @@ const NodeLabel: React.FC<IProps> = (props) => {
             {
                 title: '服务器用户名',
                 dataIndex: 'userName',
+                width: '210px',
                 render: (text: string, record: TableData, index: number) => {
                     return <Input
                         onChange={(e) => setTableDataValue(node, index, 'userName', e.target.value)}
@@ -154,6 +158,7 @@ const NodeLabel: React.FC<IProps> = (props) => {
             {
                 title: '密码',
                 dataIndex: 'password',
+                width: '210px',
                 render: (text: string, record: TableData, index: number) => {
                     return <Input.Password
                         onChange={(e) => setTableDataValue(node, index, 'password', e.target.value)}
