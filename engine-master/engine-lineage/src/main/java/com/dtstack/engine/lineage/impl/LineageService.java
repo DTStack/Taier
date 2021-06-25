@@ -141,7 +141,7 @@ public class LineageService {
     }
 
     public Set<String> parseFunction(String sql){
-        List<String> sqlList = SqlFormatUtil.splitSqlText(sql);
+        List<String> sqlList = SqlFormatUtil.splitSqlWithoutSemi(sql);
         Set<String> functionList = new HashSet<>();
         for (String s : sqlList) {
             ISqlParserClient sqlParserClient = sqlParserClientOperator.getClient("sqlparser");

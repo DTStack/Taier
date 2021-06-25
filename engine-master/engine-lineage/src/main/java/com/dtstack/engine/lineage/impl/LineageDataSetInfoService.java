@@ -193,7 +193,7 @@ public class LineageDataSetInfoService {
         JSONObject yarnConf = getJsonObject(EComponentType.YARN.getTypeCode(), tenantId);
         jsonObject.put("yarnConf",yarnConf);
         jsonObject.put("sftpConf", sftpConf);
-        jsonObject.put("remoteDir",kerberosConfig.get("remoteDir"));
+        jsonObject.put("remoteDir",kerberosConfig.get("kerberosDir"));
         jsonObject.put("principalFile",kerberosConfig.get("principalFile"));
         jsonObject.put("krbName",kerberosConfig.get("krbName"));
         jsonObject.put("principal",kerberosConfig.get("principal"));
