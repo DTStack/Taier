@@ -2316,6 +2316,7 @@ public class ComponentService {
         Set<String> dbLabel = componentUserList.stream().map(ComponentUser::getLabel).collect(Collectors.toSet());
         List<DtScriptAgentLabel> lastLabelList = dtScriptAgentLabel.stream().filter(label -> !dbLabel.contains(label.getLabel())).collect(Collectors.toList());
         filterList.addAll(notDbComponentUser(lastLabelList,clusterId,componentTypeCode));
+        filterList.forEach(user->user.setLabelIp(labelMap.get(user.getLabel()).getLocalIp()));
         return setDefaultComponentLabel(filterList);
     }
 
