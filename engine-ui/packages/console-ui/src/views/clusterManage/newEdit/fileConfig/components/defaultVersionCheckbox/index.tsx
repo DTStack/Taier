@@ -11,19 +11,20 @@ interface IProps {
 
 export default class DefaultVersionCheckbox extends React.PureComponent<IProps, any> {
     getCheckValue = () => {
+        const { comp, isDefault } = this.props
+        if (isDefault) return true
+        return comp?.isDefault ?? false
+    }
+
+    componentDidUpdate (props) {
         const { comp, isDefault, form } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
         const hadoopVersion = comp?.hadoopVersion ?? ''
-
-        if (isDefault) {
-            setTimeout(() => {
-                form.setFieldsValue({
-                    [`${typeCode}.${hadoopVersion}.isDefault`]: true
-                })
-            }, 0)
-            return
+        if (isDefault && isDefault !== props.isDefault) {
+            form.setFieldsValue({
+                [`${typeCode}.${hadoopVersion}.isDefault`]: true
+            })
         }
-        return comp?.isDefault ?? false
     }
 
     handleChange = (e: any) => {
