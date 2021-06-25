@@ -2348,10 +2348,11 @@ public class ComponentService {
             return setDefaultComponentLabel(notDbComponentUser(dtScriptAgentLabel, clusterId, componentTypeCode));
         }
         // 以最新label数据为主
-        Set<String> labelSet = dtScriptAgentLabel.stream().map(DtScriptAgentLabel::getLabel).collect(Collectors.toSet());
+        Map<String,DtScriptAgentLabel> labelMap = dtScriptAgentLabel.stream().collect(Collectors.toMap(DtScriptAgentLabel::getLabel,label->label));
         List<ComponentUserVO> filterList = groupComponentByLabel(componentUserList.stream()
-                .filter(componentUser -> labelSet.contains(componentUser.getLabel())).collect(Collectors.toList()));
-        if (labelSet.size() == filterList.size()){
+                .filter(componentUser -> labelMap.containsKey(componentUser.getLabel())).collect(Collectors.toList()));
+        if (labelMap.size() == filterList.size()){
+            filterList.forEach(user->user.setLabelIp(labelMap.get(user.getLabel()).getLocalIp()));
             return filterList;
         }
         Set<String> dbLabel = componentUserList.stream().map(ComponentUser::getLabel).collect(Collectors.toSet());
