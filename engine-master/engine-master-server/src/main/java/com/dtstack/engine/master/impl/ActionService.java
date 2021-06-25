@@ -24,7 +24,6 @@ import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
 import com.dtstack.engine.master.multiengine.JobStartTriggerBase;
-import com.dtstack.engine.master.multiengine.engine.HadoopJobStartTrigger;
 import com.dtstack.engine.master.multiengine.factory.MultiEngineFactory;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
 import com.dtstack.engine.master.scheduler.parser.ScheduleCron;
@@ -104,8 +103,6 @@ public class ActionService {
 
     private final ObjectMapper objMapper = new ObjectMapper();
 
-    @Autowired
-    private HadoopJobStartTrigger hadoopJobStartTrigger;
 
     private static int length = 8;
 
@@ -350,7 +347,6 @@ public class ActionService {
             ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
             if(scheduleJob == null){
                 scheduleJob = buildScheduleJob(paramActionExt);
-                paramActionExt.setTaskParams(hadoopJobStartTrigger.addTaskPrams(paramActionExt.getTaskParams(),paramActionExt.getEngineType(),scheduleJob));
                 scheduleJobDao.insert(scheduleJob);
                 if((EScheduleType.TEMP_JOB.getType()==scheduleJob.getType())
                         && AppType.RDOS.getType().equals(scheduleJob.getAppType())){
