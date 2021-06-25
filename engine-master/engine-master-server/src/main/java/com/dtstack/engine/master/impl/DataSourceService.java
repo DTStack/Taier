@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.KerberosConfig;
@@ -12,6 +13,7 @@ import com.dtstack.engine.dao.ComponentDao;
 import com.dtstack.engine.dao.KerberosDao;
 import com.dtstack.pubsvc.sdk.datasource.DataSourceAPIClient;
 import com.dtstack.pubsvc.sdk.dto.param.datasource.EditConsoleParam;
+import com.dtstack.pubsvc.sdk.dto.result.datasource.DsServiceInfoDTO;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +34,7 @@ import java.util.Set;
 public class DataSourceService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataSourceService.class);
+    private static final String DATA_SOURCE_ID = "dataSourceId";
 
     @Autowired(required = false)
     private DataSourceAPIClient dataSourceAPIClient;
@@ -107,5 +110,42 @@ public class DataSourceService {
             editConsoleParam.setKerberosConfig(JSONObject.parseObject(JSONObject.toJSONString(kerberosConfigVO)));
         }
         return editConsoleParam;
+    }
+
+    public String loadJdbcInfo(String pluginInfo) {
+        if (null == dataSourceAPIClient) {
+            LOGGER.info("datasource url is not init so skip");
+            return pluginInfo;
+        }
+
+        LOGGER.info("pluginInfo:{}",pluginInfo);
+
+        if (StringUtils.isNotBlank(pluginInfo)) {
+            JSONObject pluginInfoObj = JSON.parseObject(pluginInfo);
+
+            Long dataSourceId = pluginInfoObj.getLong("dataSourceId");
+            if (dataSourceId != null) {
+                DsServiceInfoDTO data = dataSourceAPIClient.getDsInfoById(dataSourceId).getData();
+                if (data != null) {
+                    String dataJson = data.getDataJson();
+                    LOGGER.info("dataJson:{}",dataJson);
+                    JSONObject dataSourceInfo = JSON.parseObject(dataJson);
+                    pluginInfoObj.put(JdbcInfoConst.JDBC_URL,dataSourceInfo.get(JdbcInfoConst.JDBC_URL));
+                    pluginInfoObj.put(JdbcInfoConst.PASSWORD,dataSourceInfo.get(JdbcInfoConst.PASSWORD));
+                    pluginInfoObj.put(JdbcInfoConst.USERNAME,dataSourceInfo.get(JdbcInfoConst.USERNAME));
+                    pluginInfoObj.put(JdbcInfoConst.TYPE_NAME,data.getDataType());
+                }
+            }
+            return pluginInfoObj.toJSONString();
+        } else {
+            return pluginInfo;
+        }
+    }
+
+    interface JdbcInfoConst{
+        String JDBC_URL = "jdbcUrl";
+        String PASSWORD = "password";
+        String TYPE_NAME = "typeName";
+        String USERNAME = "username";
     }
 }
