@@ -127,7 +127,7 @@ public class ClusterK8sNameSpaceServiceTest extends AbstractTest {
         Map sftpMap = componentService.getComponentByClusterId(clusterVO.getClusterId(),EComponentType.SFTP.getTypeCode(),false,Map.class, Collections.emptyMap());
         String k8sConfig = componentService.getComponentByClusterId(clusterVO.getClusterId(),EComponentType.KUBERNETES.getTypeCode(),false,String.class,Collections.emptyMap());
         //测试组件联通性
-        ComponentTestResult componentTestResult = componentService.testConnect(k8s.getComponentTypeCode(), k8sConfig, testClusterName, k8s.getHadoopVersion(), engineId, null, sftpMap,null,Collections.emptyMap());
+        ComponentTestResult componentTestResult = componentService.testConnect(k8s.getComponentTypeCode(), k8sConfig, testClusterName, k8s.getHadoopVersion(), engineId, null, sftpMap,null,Collections.emptyMap(),null);
         Assert.assertNotNull(componentTestResult);
         Assert.assertTrue(componentTestResult.getResult());
 
@@ -194,9 +194,9 @@ public class ClusterK8sNameSpaceServiceTest extends AbstractTest {
     private ComponentVO testAddK8s(ClusterVO clusterVO) {
         String sftpTemplate = "[{\"key\":\"auth\",\"required\":true,\"type\":\"RADIO_LINKAGE\",\"value\":\"1\",\"values\":[{\"dependencyKey\":\"auth\",\"dependencyValue\":\"1\",\"key\":\"password\",\"required\":true,\"type\":\"PASSWORD\",\"value\":\"1\",\"values\":[{\"dependencyKey\":\"auth$password\",\"dependencyValue\":\"\",\"key\":\"password\",\"required\":true,\"type\":\"PASSWORD\",\"value\":\"\"}]},{\"dependencyKey\":\"auth\",\"dependencyValue\":\"2\",\"key\":\"rsaPath\",\"required\":true,\"type\":\"\",\"value\":\"2\",\"values\":[{\"dependencyKey\":\"auth$rsaPath\",\"dependencyValue\":\"\",\"key\":\"rsaPath\",\"required\":true,\"type\":\"INPUT\",\"value\":\"\"}]}]},{\"key\":\"fileTimeout\",\"required\":true,\"type\":\"INPUT\",\"value\":\"300000\"},{\"key\":\"host\",\"required\":true,\"type\":\"INPUT\",\"value\":\"127.0.0.1\"},{\"key\":\"isUsePool\",\"required\":true,\"type\":\"INPUT\",\"value\":\"true\"},{\"key\":\"maxIdle\",\"required\":true,\"type\":\"INPUT\",\"value\":\"16\"},{\"key\":\"maxTotal\",\"required\":true,\"type\":\"INPUT\",\"value\":\"16\"},{\"key\":\"maxWaitMillis\",\"required\":true,\"type\":\"INPUT\",\"value\":\"3600000\"},{\"key\":\"minIdle\",\"required\":true,\"type\":\"INPUT\",\"value\":\"16\"},{\"key\":\"path\",\"required\":true,\"type\":\"INPUT\",\"value\":\"/data/sftp\"},{\"key\":\"port\",\"required\":true,\"type\":\"INPUT\",\"value\":\"22\"},{\"key\":\"timeout\",\"required\":true,\"type\":\"INPUT\",\"value\":\"0\"},{\"key\":\"username\",\"required\":true,\"type\":\"INPUT\",\"value\":\"admin\"}]";
         componentService.addOrUpdateComponent(clusterVO.getClusterId(), "{}",
-                null, "hadoop2", "", sftpTemplate, EComponentType.SFTP.getTypeCode(),null,null,null,true,true);
+                null, "hadoop2", "", sftpTemplate, EComponentType.SFTP.getTypeCode(),null,null,null,true,true,null);
         return componentService.addOrUpdateComponent(clusterVO.getClusterId(), "{}"
-                , null, "hadoop2", "", "[{\"key\":\"kubernetes.context\",\"required\":true,\"type\":\"INPUT\",\"value\":\"121212\"}]", EComponentType.KUBERNETES.getTypeCode(),null,null,null,true,true);
+                , null, "hadoop2", "", "[{\"key\":\"kubernetes.context\",\"required\":true,\"type\":\"INPUT\",\"value\":\"121212\"}]", EComponentType.KUBERNETES.getTypeCode(),null,null,null,true,true,null);
     }
 
 
@@ -205,7 +205,7 @@ public class ClusterK8sNameSpaceServiceTest extends AbstractTest {
                         "\"hive.metastore.warehouse.dir\":\"/dtInsight/hive/warehouse\",\"hive.server2.async.exec.threads\":\"200\",\"dfs.datanode.data.dir\":\"file:/data/hadoop/hdfs/data\"," +
                         "\"dfs.namenode.shared.edits.dir\":\"qjournal://172.16.100.216:8485;172.16.101.136:8485;172.16.101.227:8485/namenode-ha-data\",\"hive.metastore.schema.verification\":\"false\",\"hive.server2.support.dynamic.service.discovery\":\"true\",\"hive.server2.session.check.interval\":\"30000\",\"hive.metastore.uris\":\"thrift://172.16.101.227:9083\",\"hive.server2.thrift.port\":\"10000\",\"hive.exec.dynamic.partition.mode\":\"nonstrict\",\"ha.zookeeper.session-timeout.ms\":\"5000\",\"hadoop.tmp.dir\":\"/data/hadoop_${user.name}\",\"dfs.journalnode.edits.dir\":\"/data/hadoop/hdfs/journal\",\"hive.server2.zookeeper.namespace\":\"hiveserver2\",\"hive.server2.enable.doAs\":\"false\",\"dfs.namenode.http-address.ns1.nn2\":\"172.16.101.136:50070\",\"dfs.namenode.http-address.ns1.nn1\":\"172.16.100.216:50070\"," +
                         "\"dfs.namenode.datanode.registration.ip-hostname-check\":\"false\",\"hadoop.proxyuser.${user.name}.hosts\":\"*\",\"hadoop.proxyuser.${user.name}.groups\":\"*\",\"hive.exec.scratchdir\":\"/dtInsight/hive/warehouse\",\"hive.zookeeper.quorum\":\"172.16.100.216:2181,172.16.101.136:2181,172.16.101.227:2181\",\"datanucleus.schema.autoCreateAll\":\"true\",\"hive.exec.dynamic.partition\":\"true\",\"hive.cluster.delegation.token.store.class\":\"org.apache.hadoop.hive.thrift.MemoryTokenStore\",\"ha.zookeeper.quorum\":\"172.16.100.216:2181,172.16.101.136:2181,172.16.101.227:2181\",\"hive.server2.thrift.min.worker.threads\":\"300\",\"dfs.ha.automatic-failover.enabled\":\"true\"}"
-                , null, "hadoop2", "", "[]", EComponentType.HDFS.getTypeCode(),null,null,null,true,true);
+                , null, "hadoop2", "", "[]", EComponentType.HDFS.getTypeCode(),null,null,null,true,true,null);
     }
 
 }

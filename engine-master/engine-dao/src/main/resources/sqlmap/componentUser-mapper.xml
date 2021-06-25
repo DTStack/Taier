@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.ComponentUserDao">
+
+    <sql id="select_content_fragment">
+      id,cluster_id,component_type_code,label,labelIp,user_name,password,gmt_create,gmt_modified,is_deleted,is_default
+    </sql>
+
+    <sql id="update_fragment">
+        <set>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted},
+            </if>
+            <if test="password!=null">
+                password = #{password},
+            </if>
+            <if test="isDefault != null">
+                is_default = #{isDefault},
+            </if>
+            gmt_modified = now()
+        </set>
+    </sql>
+
+    <select id="getOne" resultType="com.dtstack.engine.api.domain.ComponentUser">
+        select <include refid="select_content_fragment"/>
+        from console_component
+        where id = #{id} and is_deleted = 0
+    </select>
+
+
+    <insert id="insert" parameterType="com.dtstack.engine.api.domain.ComponentUser" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO console_component_user(cluster_id,component_id,component_type_code,user_name,password,is_default)
+        VALUES (#{clusterId},#{componentId},#{componentTypeCode},#{userName},#{password},#{isDefault})
+    </insert>
+
+    <insert id="batchInsert">
+        INSERT INTO console_component_user(cluster_id,component_type_code,label,labelIp,user_name,password,is_default)
+        VALUES
+            <foreach collection="addComponentUserList" item="componentUser" separator=",">
+                (#{componentUser.clusterId},#{componentUser.componentTypeCode},#{componentUser.label},#{componentUser.labelIp},#{componentUser.userName},#{componentUser.password},#{componentUser.isDefault})
+            </foreach>
+    </insert>
+
+
+    <delete id="deleteByComponentAndCluster">
+        delete from console_component_user
+        where cluster_id = #{clusterId}
+            and component_type_code = #{componentTypeCode}
+
+    </delete>
+
+
+    <select id="getComponentUserByCluster" resultType="com.dtstack.engine.api.domain.ComponentUser">
+        select <include refid="select_content_fragment"/>
+
+        from
+              console_component_user ccu
+        where
+            ccu.cluster_id = #{clusterId}
+        and ccu.component_type_code = #{componentTypeCode}
+    </select>
+    <select id="getComponentUser" resultType="com.dtstack.engine.api.domain.ComponentUser">
+        select <include refid="select_content_fragment"/>
+        from console_component_user
+        where cluster_id = #{clusterId}
+          and component_type_code = #{componentTypeCode}
+          and user_name = #{userName}
+          and label = #{label}
+
+    </select>
+
+
+</mapper>

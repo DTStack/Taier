@@ -18,6 +18,16 @@ public class ComponentVO extends Component implements IComponentVO{
 
     private String componentTemplate;
 
+    private Integer deployType;
+
+    public Integer getDeployType() {
+        return deployType;
+    }
+
+    public void setDeployType(Integer deployType) {
+        this.deployType = deployType;
+    }
+
     public String getComponentConfig() {
         return componentConfig;
     }

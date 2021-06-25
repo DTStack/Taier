@@ -21,6 +21,7 @@ public enum SourceType2TableType {
     ORACLE(ETableType.ORACLE,Sets.newHashSet(DataSourceType.Oracle)),
     GREENPLUM(ETableType.GREENPLUM,Sets.newHashSet(DataSourceType.GREENPLUM6)),
     IMPALA(ETableType.IMPALA,Sets.newHashSet(DataSourceType.IMPALA)),
+    ADB_POSTGREPSQL(ETableType.ADB_POSTGREPSQL,Sets.newHashSet(DataSourceType.ADB_POSTGREPSQL)),
     ;
 
     private ETableType tableType;

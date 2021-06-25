@@ -7,6 +7,7 @@ import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.dao.ComponentConfigDao;
 import com.dtstack.engine.dao.ScheduleDictDao;
+import com.dtstack.engine.master.cache.DictCache;
 import com.dtstack.engine.master.enums.DictType;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import org.apache.commons.lang3.StringUtils;
@@ -53,7 +54,6 @@ public class ScheduleDictService {
         versions.put(EComponentType.SPARK.getName(), getNormalVersion(DictType.SPARK_VERSION.type));
         versions.put(EComponentType.HIVE_SERVER.getName(), getNormalVersion(DictType.HIVE_VERSION.type));
         versions.put(EComponentType.INCEPTOR_SQL.getName(),getNormalVersion(DictType.INCEPTOR_SQL.type));
-        versions.put(EComponentType.FLINK_ON_STANDALONE.getName(),getNormalVersion(DictType.FLINK_VERSION.type));
         return versions;
     }
 
@@ -125,7 +125,7 @@ public class ScheduleDictService {
         }
         return clientTemplates;
     }
-
+    
     public String convertVersionNameToValue(String componentVersion, String engineType) {
         if (StringUtils.isNotBlank(componentVersion)) {
             Integer componentType = EngineTypeComponentType.engineName2ComponentType(engineType);
@@ -142,4 +142,19 @@ public class ScheduleDictService {
         return null;
     }
 
+    public List<ScheduleDict> listById(Long id, Integer size) {
+        if (id == null) {
+            id = 0L;
+        }
+
+        if (size == null) {
+            size = DictCache.size;
+        }
+
+        return scheduleDictDao.listById(id,size);
+    }
+
+    public ScheduleDict getByNameAndCodeAndDependName(String dictCode, String dictName, String dependName) {
+        return scheduleDictDao.getByNameAndCodeAndDependName(dictCode,dictName,dependName);
+    }
 }
