@@ -45,7 +45,7 @@
         where tt.result_table_id = #{tableId}  and ref.is_deleted = 0
         <if test="appType !=null">
             and ref.app_type = #{appType}
-        </if>>
+        </if>
 
     </select>
 
@@ -55,7 +55,7 @@
         where tt.input_table_id = #{tableId}  and ref.is_deleted = 0
         <if test="appType !=null">
             and ref.app_type = #{appType}
-        </if>>
+        </if>
 
     </select>
 
