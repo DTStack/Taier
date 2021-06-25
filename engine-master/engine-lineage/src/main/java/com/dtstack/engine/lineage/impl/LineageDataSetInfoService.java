@@ -89,7 +89,7 @@ public class LineageDataSetInfoService {
      **/
     public LineageDataSetInfo getOneBySourceIdAndDbNameAndTableName(Long sourceId, String dbName, String tableName, String schemaName,Integer appType){
 
-        LineageDataSetInfo lineageDataSetInfo = lineageDataSetDao.getOneBySourceIdAndDbNameAndTableName(sourceId,dbName,tableName,schemaName);
+        LineageDataSetInfo lineageDataSetInfo = lineageDataSetDao.getOneBySourceIdAndDbNameAndTableName(sourceId,dbName,tableName,schemaName,appType);
         if(null != lineageDataSetInfo){
             return lineageDataSetInfo;
         }
@@ -107,6 +107,21 @@ public class LineageDataSetInfoService {
         lineageDataSetInfo = generateDataSet(sourceId, tableName, schemaName, dsServiceInfoDTO, dbName,appType);
         lineageDataSetDao.insertTableInfo(lineageDataSetInfo);
         return lineageDataSetInfo;
+    }
+
+    /**
+     * @author zyd
+     * @Description 根据条件查询表信息，如果没有则新增
+     * @Date 2020/10/30 4:20 下午
+     * @param sourceId:
+     * @param dbName:
+     * @param tableName:
+     * @param schemaName:
+     * @return: com.dtstack.lineage.impl.LineageTableInfoService
+     **/
+    public List<LineageDataSetInfo> getListByParams(Long sourceId, String dbName, String tableName, String schemaName,Integer appType){
+
+        return lineageDataSetDao.getListByParams(sourceId,dbName,tableName,schemaName,appType);
     }
 
     private LineageDataSetInfo generateDataSet(Long sourceId, String tableName, String schemaName, DsServiceInfoDTO dataSource, String dbName,Integer appType) {
@@ -151,51 +166,14 @@ public class LineageDataSetInfoService {
         ClientCache clientCache = ClientCache.getInstance(environmentContext.getPluginPath());
         IClient iClient ;
         try {
-//            String kerberosConf = dataSource.getKerberosConf();
             String dataJson = dsServiceInfoDTO.getDataJson();
             JSONObject jsonObject = DataSourceUtils.getDataSourceJson(dataJson);
-//            JSONObject kerberosJsonObj = new JSONObject();
-//            if(!"-1".equals(kerberosConf)) {
-//                kerberosJsonObj = JSON.parseObject(kerberosConf);
-//            }
             Long dtUicTenantId = dsServiceInfoDTO.getDtuicTenantId();
             Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
-//            if(dsServiceInfoDTO.getOpenKerberos() == 1 && dataSource.getAppType().equals(AppType.RDOS.getType())){
-//                //离线开启了kerberos，但是没有存kerberos配置
-//                Component one = componentDao.getByTenantIdComponentType(tenantId, dataSource.getSourceType());
-//                if(null == one){
-//                    throw new RdosDefineException("do not have this component");
-//                }
-//                //根据engineId和组件类型获取kerberos配置
-//                EComponentTypeDataSourceType code = EComponentTypeDataSourceType.getByCode(dataSource.getSourceType());
-//                if(null == code){
-//                    throw new RdosDefineException("this type dataSource do not have component");
-//                }
-//                KerberosConfig kerberosConfig = kerberosDao.getByEngineIdAndComponentType(one.getEngineId(),code.getComponentType().getTypeCode());
-//                if(null == kerberosConfig){
-//                    LOGGER.error("do not have kerberos config,dtUicTenantId:{},engineId:{},sourceType:{}",dtUicTenantId,one.getEngineId(),dataSource.getSourceType());
-//                    throw new RdosDefineException("do not have kerberos config");
-//                }
-//                kerberosJsonObj.put("remoteDir",kerberosConfig.getRemotePath());
-//                kerberosJsonObj.put("principalFile",kerberosConfig.getPrincipal());
-//                kerberosJsonObj.put("krbName",kerberosConfig.getKrbName());
-//                kerberosJsonObj.put("principal",kerberosConfig.getPrincipals());
-//            }
-
-//            JSONObject sftpConf = getJsonObject(dataSource,EComponentType.SFTP.getTypeCode(),tenantId);
-//            if(dataSource.getOpenKerberos()==1) {
-//                //开启kerberos
-//                //获取yarnConf
-//                JSONObject yarnConf = getJsonObject(dataSource,EComponentType.YARN.getTypeCode(),tenantId);
-//                jsonObject.put("yarnConf",yarnConf);
-//                jsonObject.put("sftpConf", sftpConf);
-//                jsonObject.put("remoteDir",kerberosJsonObj.get("remoteDir"));
-//                jsonObject.put("principalFile",kerberosJsonObj.get("principalFile"));
-//                jsonObject.put("krbName",kerberosJsonObj.get("krbName"));
-//                jsonObject.put("principal",kerberosJsonObj.get("principal"));
-//                jsonObject.put("kerberosFileTimestamp",kerberosJsonObj.get("kerberosFileTimestamp"));
-//                jsonObject.put("openKerberos",true);
-//            }
+            JSONObject sftpConf = getJsonObject(EComponentType.SFTP.getTypeCode(),tenantId);
+            if(DataSourceUtils.judgeOpenKerberos(dataJson)) {
+                handleKerberosConfig(dataJson, jsonObject, tenantId, sftpConf);
+            }
             //需要在pluginInfo中补充typeName
             String typeName = DataSourceType.getEngineType(DataSourceType.getSourceType(dsServiceInfoDTO.getType()));
             jsonObject.put("typeName",typeName);
@@ -207,15 +185,30 @@ public class LineageDataSetInfoService {
         }
     }
 
+    private void handleKerberosConfig(String dataJson, JSONObject jsonObject, Long tenantId, JSONObject sftpConf) {
+        JSONObject dataSourceJson = DataSourceUtils.getDataSourceJson(dataJson);
+        JSONObject kerberosConfig = dataSourceJson.getJSONObject(DataSourceUtils.KERBEROS_CONFIG);
+        //开启kerberos
+        //获取yarnConf
+        JSONObject yarnConf = getJsonObject(EComponentType.YARN.getTypeCode(), tenantId);
+        jsonObject.put("yarnConf",yarnConf);
+        jsonObject.put("sftpConf", sftpConf);
+        jsonObject.put("remoteDir",kerberosConfig.get("remoteDir"));
+        jsonObject.put("principalFile",kerberosConfig.get("principalFile"));
+        jsonObject.put("krbName",kerberosConfig.get("krbName"));
+        jsonObject.put("principal",kerberosConfig.get("principal"));
+        jsonObject.put("kerberosFileTimestamp",kerberosConfig.get("kerberosFileTimestamp"));
+        jsonObject.put("openKerberos",true);
+    }
+
     /**
      * @author ZYD
      * @Description 获取组件配置
      * @Date 2021/1/29 11:11
-     * @param dataSource:
      * @param typeCode:
      * @return: com.alibaba.fastjson.JSONObject
      **/
-    private JSONObject getJsonObject(LineageDataSource dataSource,Integer typeCode,Long tenantId) {
+    private JSONObject getJsonObject(Integer typeCode,Long tenantId) {
         //获取sftp配置
         Component one = componentDao.getByTenantIdComponentType(tenantId, typeCode);
         if(null == one){

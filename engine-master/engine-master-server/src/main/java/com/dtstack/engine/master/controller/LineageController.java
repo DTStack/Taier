@@ -158,11 +158,7 @@ public class LineageController {
     }
 
     private void checkQueryColumnLineageParam(QueryTableLineageParam queryTableLineageParam){
-        ValidateUtil.validateNotNull(queryTableLineageParam.getAppType(),"应用类型不能为空");
-//        ValidateUtil.validateNotNull(queryTableLineageParam.getDtUicTenantId(),"uic租户id不能为空");
-//        ValidateUtil.validateNotNull(queryTableLineageParam.getSourceType(),"数据源类型不能为空");
         ValidateUtil.validateNotNull(queryTableLineageParam.getTableName(),"表名称不能为空");
-//        ValidateUtil.validateNotNull(queryTableLineageParam.getDbName(),"数据库名称不能为空");
         Integer level = queryTableLineageParam.getLevel();
         if(level == null){
             level = 20;
@@ -216,11 +212,7 @@ public class LineageController {
     }
 
     private void checkQueryColumnLineageParam(QueryColumnLineageParam queryColumnLineageParam){
-        ValidateUtil.validateNotNull(queryColumnLineageParam.getAppType(),"应用类型不能为空");
-//        ValidateUtil.validateNotNull(queryColumnLineageParam.getDtUicTenantId(),"uic租户id不能为空");
-//        ValidateUtil.validateNotNull(queryColumnLineageParam.getSourceType(),"数据源类型不能为空");
         ValidateUtil.validateNotNull(queryColumnLineageParam.getTableName(),"表名称不能为空");
-//        ValidateUtil.validateNotNull(queryColumnLineageParam.getDbName(),"数据库名称不能为空");
         ValidateUtil.validateNotNull(queryColumnLineageParam.getColumnName(),"字段名称不能为空");
         Integer level = queryColumnLineageParam.getLevel();
         if(level == null){

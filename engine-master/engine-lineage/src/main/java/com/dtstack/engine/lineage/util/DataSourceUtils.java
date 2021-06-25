@@ -62,6 +62,22 @@ public class DataSourceUtils {
     }
 
 
+    /**
+     * 判断当前传入的dataJson是否开启Kerberos认证
+     * @param dataJson
+     * @return
+     */
+    public static Boolean judgeOpenKerberos(String dataJson) {
+        if (Strings.isNullOrEmpty(dataJson)) {
+            return false;
+        }
+        JSONObject dataJsonObj = getDataSourceJson(dataJson);
+        Objects.requireNonNull(dataJsonObj);
+        Objects.requireNonNull(OPEN_KERBEROS);
+        Boolean result = dataJsonObj.containsKey(OPEN_KERBEROS) ? dataJsonObj.getObject(OPEN_KERBEROS, Boolean.class) : null;
+        return Objects.nonNull(result) ? result : false;
+    }
+
 
     /**
      * 解析 dataJson密文为Json字符串

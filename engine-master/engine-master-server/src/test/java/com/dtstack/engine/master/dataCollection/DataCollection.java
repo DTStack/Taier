@@ -968,44 +968,6 @@ public interface DataCollection {
 
     /*************************血缘存储*****************************/
 
-    @DatabaseInsertOperation(dao = TestLineageRealDataSourceDao.class)
-    default LineageRealDataSource getHiveLineageRealDataSource(){
-        LineageRealDataSource defaultHiveRealDataSourceTemplate = Template.getDefaultHiveRealDataSourceTemplate();
-        defaultHiveRealDataSourceTemplate.setId(1L);
-        return defaultHiveRealDataSourceTemplate;
-    }
-
-    @DatabaseInsertOperation(dao = TestLineageRealDataSourceDao.class)
-    default LineageRealDataSource getDefaultLineageRealDataSource(){
-        LineageRealDataSource defaultHiveRealDataSourceTemplate = Template.getDefaultHiveRealDataSourceTemplate();
-        defaultHiveRealDataSourceTemplate.setSourceType(DataSourceType.Oracle.getVal());
-        defaultHiveRealDataSourceTemplate.setSourceKey("172.16.8.107#5432");
-        defaultHiveRealDataSourceTemplate.setId(2L);
-        return defaultHiveRealDataSourceTemplate;
-    }
-
-    @DatabaseInsertOperation(dao = TestLineageDataSourceDao.class)
-    default LineageDataSource getDefaultLineageDataSource(){
-        LineageDataSource defaultHiveDataSourceTemplate = Template.getDefaultHiveDataSourceTemplate();
-        defaultHiveDataSourceTemplate.setRealSourceId(1L);
-        return defaultHiveDataSourceTemplate;
-    }
-
-
-
-    @DatabaseInsertOperation(dao = TestLineageDataSourceDao.class)
-    default LineageDataSource getRdostHiveDataSourceTemplate(){
-        LineageDataSource dataSource = Template.getRdostHiveDataSourceTemplate();
-        dataSource.setRealSourceId(2L);
-        return dataSource;
-    }
-
-//    @DatabaseInsertOperation(dao = TestLineageDataSourceDao.class)
-//    default LineageDataSource getHiveLineageDataSource(){
-//        LineageDataSource defaultHiveDataSourceTemplate = Template.getDefaultHiveDataSourceTemplate();
-//        defaultHiveDataSourceTemplate.setRealSourceId(1L);
-//        return defaultHiveDataSourceTemplate;
-//    }
 
     @DatabaseInsertOperation(dao = TestLineageDataSetInfoDao.class)
     default LineageDataSetInfo getDefaultLineageDataSetInfo(){

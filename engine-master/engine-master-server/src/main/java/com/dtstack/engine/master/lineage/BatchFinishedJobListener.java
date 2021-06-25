@@ -2,14 +2,11 @@ package com.dtstack.engine.master.lineage;
 
 import com.alibaba.fastjson.JSON;
 import com.dtstack.dtcenter.common.pager.PageResult;
-import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.vo.lineage.param.ParseColumnLineageParam;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.EngineTypeDataSourceType;
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.dao.LineageDataSourceDao;
 import com.dtstack.engine.master.event.ScheduleJobEventPublisher;
 import com.dtstack.engine.lineage.enums.EngineTaskType2SourceType;
 import com.dtstack.engine.lineage.impl.LineageService;
@@ -50,8 +47,6 @@ public class BatchFinishedJobListener extends SqlJobFinishedListener {
     @Autowired
     private LineageService lineageService;
 
-    @Autowired
-    private LineageDataSourceDao lineageDataSourceDao;
 
     @Autowired
     private DataSourceAPIClient dataSourceAPIClient;
@@ -93,10 +88,12 @@ public class BatchFinishedJobListener extends SqlJobFinishedListener {
             ApiResponse<PageResult<List<DsServiceListDTO>>> pageResultApiResponse = dataSourceAPIClient.appDsPage(dsServiceListParam);
             if(pageResultApiResponse.getCode() !=1 ){
                 logger.error("appDsPage query failed,param:{}",JSON.toJSONString(dsServiceListParam));
+                return;
             }
             List<DsServiceListDTO> data = pageResultApiResponse.getData().getData();
             if(data.size()<1){
                 logger.error("do not find need dataSource,param:{}",JSON.toJSONString(dsServiceListParam));
+                return;
             }
             dataSourceTypeByTaskTypeInt = DataSourceType.getSourceType(data.get(0).getType());
         }

@@ -48,6 +48,35 @@
             <if test="schemaName != null">
                 AND schema_name = #{schemaName}
             </if>
+            <if test="appType !=null">
+                AND app_type = #{appType}
+            </if>
+            AND is_deleted = 0
+        </where>
+    </select>
+
+
+    <select id="getListByParams" resultType="com.dtstack.engine.api.domain.LineageDataSetInfo">
+
+        select
+        <include refid="select_content_fragment" />
+        from lineage_data_set_info
+        <where>
+            <if test="sourceId != null">
+                AND data_info_id = #{sourceId}
+            </if>
+            <if test="tableName != null">
+                AND table_name = #{tableName}
+            </if>
+            <if test="dbName != null">
+                AND db_name = #{dbName}
+            </if>
+            <if test="schemaName != null">
+                AND schema_name = #{schemaName}
+            </if>
+            <if test="appType !=null">
+                AND app_type = #{appType}
+            </if>
             AND is_deleted = 0
         </where>
     </select>
