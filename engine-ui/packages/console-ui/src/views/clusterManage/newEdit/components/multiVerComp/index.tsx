@@ -64,7 +64,7 @@ export default class MultiVersionComp extends React.Component<IProps, IState> {
             {versionData[VERSION_TYPE[typeCode]]?.map(({ key, value }) => {
                 const disabled = comp?.multiVersion?.findIndex(vcomp => vcomp.hadoopVersion == value)
                 return <MenuItem disabled={disabled > -1} key={value} >
-                    {isFLink(typeCode) ? FLINK_DEPLOY_NAME[deployType] : COMPONENT_CONFIG_NAME[comp.typeCode]} {this.getCompVersion(value)}
+                    {isFLink(typeCode) ? FLINK_DEPLOY_NAME[deployType] : COMPONENT_CONFIG_NAME[typeCode]} {this.getCompVersion(value)}
                 </MenuItem>
             })}
         </Menu>
