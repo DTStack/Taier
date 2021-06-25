@@ -2351,8 +2351,8 @@ public class ComponentService {
         Map<String,DtScriptAgentLabel> labelMap = dtScriptAgentLabel.stream().collect(Collectors.toMap(DtScriptAgentLabel::getLabel,label->label));
         List<ComponentUserVO> filterList = groupComponentByLabel(componentUserList.stream()
                 .filter(componentUser -> labelMap.containsKey(componentUser.getLabel())).collect(Collectors.toList()));
+        filterList.forEach(user->user.setLabelIp(labelMap.get(user.getLabel()).getLocalIp()));
         if (labelMap.size() == filterList.size()){
-            filterList.forEach(user->user.setLabelIp(labelMap.get(user.getLabel()).getLocalIp()));
             return filterList;
         }
         Set<String> dbLabel = componentUserList.stream().map(ComponentUser::getLabel).collect(Collectors.toSet());
