@@ -27,6 +27,15 @@ export default class DefaultVersionCheckbox extends React.PureComponent<IProps, 
         }
     }
 
+    validDefaultdata = (rule: any, value: any, callback: any) => {
+        let error = null
+        if (this.props.isDefault && !value) {
+            error = '请设置默认版本'
+            callback(error)
+        }
+        callback()
+    }
+
     handleChange = (e: any) => {
         const { form, comp, isDefault } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
@@ -54,7 +63,10 @@ export default class DefaultVersionCheckbox extends React.PureComponent<IProps, 
             >
                 {form.getFieldDecorator(`${typeCode}.${hadoopVersion}.isDefault`, {
                     valuePropName: 'checked',
-                    initialValue: this.getCheckValue()
+                    initialValue: this.getCheckValue(),
+                    rules: [{
+                        validator: this.validDefaultdata
+                    }]
                 })(
                     <Checkbox
                         disabled={view}
