@@ -146,7 +146,7 @@ const showMapArr: any = {
     ['chroot', 'chroot路径'],
   ],
   [DATA_SOURCE.INFLUXDB]: [
-    ['jdbcUrl', 'URL'],
+    ['url', 'URL'],
     ['username', '用户名'],
   ],
   [DATA_SOURCE.INCEPTOR]: [
