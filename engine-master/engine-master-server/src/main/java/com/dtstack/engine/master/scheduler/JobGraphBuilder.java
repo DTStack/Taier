@@ -1310,7 +1310,8 @@ public class JobGraphBuilder {
             while ((isLastDate = generator.next(isLastDate)).before(currTriggerDate)){
                 lastDate = isLastDate;
             }
-            return lastDate;
+            // 如果不是同一个任务，并且触发时间相同则返回这个触发时间否则返回上一个触发时间
+            return !sameTask && !isLastDate.after(currTriggerDate)? isLastDate:lastDate;
         }else if (!sameTask && !isLastDate.after(currTriggerDate) ){
             return currTriggerDate;
         }
