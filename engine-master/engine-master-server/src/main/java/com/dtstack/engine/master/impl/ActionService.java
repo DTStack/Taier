@@ -115,6 +115,9 @@ public class ActionService {
     @Autowired
     private ComponentService componentService;
 
+    @Autowired
+    private ComponentDao componentDao;
+
     private final ObjectMapper objMapper = new ObjectMapper();
 
 
