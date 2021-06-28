@@ -239,7 +239,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
     }
 
     private class DelayStopProcessor implements Runnable {
-        private Boolean open = Boolean.TRUE;
+        private volatile Boolean open = Boolean.TRUE;
 
         @Override
         public void run() {
@@ -248,6 +248,9 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                 try {
                     StoppedJob<JobElement> stoppedJob = stopJobQueue.take();
                     asyncDealStopJobService.submit(() -> asyncDealStopJob(stoppedJob));
+                } catch (InterruptedException ie){
+                    logger.warn("interruption of stopJobQueue.take...");
+                    break;
                 } catch (Exception e) {
                     LOGGER.error("", e);
                 }
