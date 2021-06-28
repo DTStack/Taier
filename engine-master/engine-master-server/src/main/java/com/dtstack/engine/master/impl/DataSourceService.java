@@ -123,7 +123,7 @@ public class DataSourceService {
         if (StringUtils.isNotBlank(pluginInfo)) {
             JSONObject pluginInfoObj = JSON.parseObject(pluginInfo);
 
-            Long dataSourceId = pluginInfoObj.getLong("dataSourceId");
+            Long dataSourceId = pluginInfoObj.getLong("dtDataSourceId");
             if (dataSourceId != null) {
                 DsServiceInfoDTO data = dataSourceAPIClient.getDsInfoById(dataSourceId).getData();
                 if (data != null) {
