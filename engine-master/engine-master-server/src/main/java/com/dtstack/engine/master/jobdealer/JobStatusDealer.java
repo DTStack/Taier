@@ -161,7 +161,7 @@ public class  JobStatusDealer implements Runnable {
             ParamAction paramAction = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), ParamAction.class);
             Map<String, Object> pluginInfo = paramAction.getPluginInfo();
             JobIdentifier jobIdentifier = new JobIdentifier(engineTaskId, appId, jobId,scheduleJob.getDtuicTenantId(),engineType,
-                    taskParamsService.parseDeployTypeByTaskParams(paramAction.getTaskParams(),scheduleJob.getComputeType(),engineType,scheduleJob.getTenantId()).getType(),
+                    taskParamsService.parseDeployTypeByTaskParams(paramAction.getTaskParams(),scheduleJob.getComputeType(),engineType,scheduleJob.getDtuicTenantId()).getType(),
                     paramAction.getUserId(),  MapUtils.isEmpty(pluginInfo) ? null : JSONObject.toJSONString(pluginInfo),paramAction.getComponentVersion());
 
             RdosTaskStatus rdosTaskStatus = workerOperator.getJobStatus(jobIdentifier);
