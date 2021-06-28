@@ -6,6 +6,7 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
+import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.scheduler.parser.*;
 import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
@@ -14,6 +15,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.support.CronSequenceGenerator;
 
 import java.util.Collections;
 import java.util.Date;
@@ -222,7 +224,11 @@ public class JobGraphUtils {
                 dateTime = dateTime.minusMinutes(((ScheduleCronMinParser) cron).getGapNum());
             }
 
-        } else {
+        }else if (cron.getPeriodType() == ESchedulePeriodType.CUSTOM.getVal()){
+            dateTime = new DateTime(JobGraphBuilder.findLastDateBeforeCurrent(new CronSequenceGenerator(cron.getCronStr()),
+                    currTriggerDate,currTriggerDate.toInstant().atZone(DateUtil.DEFAULT_ZONE).toLocalDateTime(),0,true));
+        }
+        else {
             throw new RdosDefineException("not support of ESchedulePeriodType:" + cron.getPeriodType());
         }
 
@@ -299,6 +305,9 @@ public class JobGraphUtils {
             dateTime = getCloseInDateTimeOfHour(dateTime, (ScheduleCronHourParser) fatherCron);
         } else if (fatherCron.getPeriodType() == ESchedulePeriodType.MIN.getVal()) {
             dateTime = getCloseInDateTimeOfMin(dateTime, (ScheduleCronMinParser) fatherCron);
+        }else if (fatherCron.getPeriodType() == ESchedulePeriodType.CUSTOM.getVal()){
+            dateTime = new DateTime(JobGraphBuilder.findLastDateBeforeCurrent(new CronSequenceGenerator(fatherCron.getCronStr()),dateTime.toDate(),
+                    dateTime.toDate().toInstant().atZone(DateUtil.DEFAULT_ZONE).toLocalDateTime(),0,false));
         } else {
             throw new RuntimeException("not support period type of " + fatherCron.getPeriodType());
         }
