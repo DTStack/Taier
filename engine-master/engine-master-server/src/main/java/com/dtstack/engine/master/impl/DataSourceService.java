@@ -34,7 +34,6 @@ import java.util.Set;
 public class DataSourceService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataSourceService.class);
-    private static final String DATA_SOURCE_ID = "dataSourceId";
 
     @Autowired(required = false)
     private DataSourceAPIClient dataSourceAPIClient;
@@ -121,31 +120,32 @@ public class DataSourceService {
         LOGGER.info("pluginInfo:{}",pluginInfo);
 
         if (StringUtils.isNotBlank(pluginInfo)) {
-            JSONObject pluginInfoObj = JSON.parseObject(pluginInfo);
+            try {
+                JSONObject pluginInfoObj = JSON.parseObject(pluginInfo);
 
-            Long dataSourceId = pluginInfoObj.getLong("dtDataSourceId");
-            if (dataSourceId != null) {
-                DsServiceInfoDTO data = dataSourceAPIClient.getDsInfoById(dataSourceId).getData();
-                if (data != null) {
-                    String dataJson = data.getDataJson();
-                    LOGGER.info("dataJson:{}",dataJson);
-                    JSONObject dataSourceInfo = JSON.parseObject(dataJson);
-                    pluginInfoObj.put(JdbcInfoConst.JDBC_URL,dataSourceInfo.get(JdbcInfoConst.JDBC_URL));
-                    pluginInfoObj.put(JdbcInfoConst.PASSWORD,dataSourceInfo.get(JdbcInfoConst.PASSWORD));
-                    pluginInfoObj.put(JdbcInfoConst.USERNAME,dataSourceInfo.get(JdbcInfoConst.USERNAME));
-                    pluginInfoObj.put(JdbcInfoConst.TYPE_NAME,data.getDataType());
+                Long dataSourceId = pluginInfoObj.getLong(JdbcInfoConst.DATA_SOURCE_ID);
+                if (dataSourceId != null) {
+                    DsServiceInfoDTO data = dataSourceAPIClient.getDsInfoById(dataSourceId).getData();
+                    if (data != null) {
+                        String dataJson = data.getDataJson();
+                        LOGGER.info("dataJson:{}",dataJson);
+                        JSONObject dataSourceInfo = JSON.parseObject(dataJson);
+                        pluginInfoObj.putAll(dataSourceInfo);
+                        pluginInfoObj.put(JdbcInfoConst.TYPE_NAME,data.getDataType());
+                    }
                 }
+                return pluginInfoObj.toJSONString();
+            } catch (Exception e) {
+                LOGGER.error("load dtDataSourceId{} error ", pluginInfo, e);
+                return pluginInfo;
             }
-            return pluginInfoObj.toJSONString();
         } else {
             return pluginInfo;
         }
     }
 
-    interface JdbcInfoConst{
-        String JDBC_URL = "jdbcUrl";
-        String PASSWORD = "password";
+    interface JdbcInfoConst {
         String TYPE_NAME = "typeName";
-        String USERNAME = "username";
+        String DATA_SOURCE_ID = "dtDataSourceId";
     }
 }
