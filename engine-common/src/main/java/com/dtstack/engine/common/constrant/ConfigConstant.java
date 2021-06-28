@@ -108,6 +108,16 @@ public class ConfigConstant {
     public static final String HADOOP_VERSION = "hadoopVersion";
     public static final String MD5_SUM_KEY = "md5zip";
     public static final String FLINK_ON_STANDALONE_CONF = "flinkOnStandaloneConf";
+
+
+    public static final Long DEFAULT_CLUSTER_ID = -1L;
+
+    public static final String DEFAULT_CLUSTER_NAME = "default";
+    public final static String CLUSTER = "cluster";
+    public final static String QUEUE = "queue";
+    public final static String TENANT_ID = "tenantId";
     public static final String DEPLOY_MODEL = "deployMode";
+    public static final String NAMESPACE = "namespace";
+    public static final String MAILBOX_CUTTING = "@";
 
 }
