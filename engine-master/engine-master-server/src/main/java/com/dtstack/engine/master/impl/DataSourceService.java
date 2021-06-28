@@ -131,7 +131,6 @@ public class DataSourceService {
                         LOGGER.info("dataJson:{}",dataJson);
                         JSONObject dataSourceInfo = JSON.parseObject(dataJson);
                         pluginInfoObj.putAll(dataSourceInfo);
-                        pluginInfoObj.put(JdbcInfoConst.TYPE_NAME,data.getDataType());
                     }
                 }
                 return pluginInfoObj.toJSONString();
