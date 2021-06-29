@@ -59,6 +59,7 @@ export const DATA_SOURCE = {
   INCEPTOR: 62,
   AWSS3: 63,
   SPARKTHRIFT: 64,
+  GAUSSDB: 65,
 };
 
 export const DATA_SOURCE_TEXT: any = {
@@ -114,6 +115,7 @@ export const DATA_SOURCE_TEXT: any = {
   62: 'Inceptor',
   63: 'AWS S3',
   64: 'SparkThrift',
+  65: 'GaussDB'
 };
 
 export const PROJECT_TYPE: any = {
