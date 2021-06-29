@@ -249,7 +249,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                     StoppedJob<JobElement> stoppedJob = stopJobQueue.take();
                     asyncDealStopJobService.submit(() -> asyncDealStopJob(stoppedJob));
                 } catch (InterruptedException ie){
-                    logger.warn("interruption of stopJobQueue.take...");
+                    LOGGER.warn("interruption of stopJobQueue.take...");
                     break;
                 } catch (Exception e) {
                     LOGGER.error("", e);
