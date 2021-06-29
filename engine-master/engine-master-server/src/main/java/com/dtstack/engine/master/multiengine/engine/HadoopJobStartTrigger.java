@@ -702,8 +702,9 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             }
             // 离线会传入dtUicId
             ComponentUser user = componentService.getComponentUser(scheduleJob.getDtuicTenantId(), EComponentType.DTSCRIPT_AGENT.getTypeCode(), labelUserMap.get(USER_LABEL), labelUserMap.get(USER_NAME));
-            taskParam = Objects.nonNull(user) && StringUtils.isNotBlank(user.getPassword())?taskParam + String.format(" \n %s=%s", "user.password", Base64Util.baseDecode(user.getPassword())):taskParam;
+            taskParam = Objects.nonNull(user) && StringUtils.isNotBlank(user.getPassword())?taskParam + String.format("\r\n%s=%s", "user.password", Base64Util.baseDecode(user.getPassword())):taskParam;
         }
         return taskParam;
     }
+
 }
