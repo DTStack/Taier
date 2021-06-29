@@ -8,6 +8,7 @@ import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.ComponentVersionUtil;
 import com.dtstack.engine.dao.ComponentDao;
 import com.dtstack.engine.dao.KerberosDao;
 import com.dtstack.pubsvc.sdk.datasource.DataSourceAPIClient;
@@ -102,7 +103,7 @@ public class DataSourceService {
         editConsoleParam.setSftpConf(sftpConfig);
         if (StringUtils.isNotBlank(component.getKerberosFileName())) {
             //kerberos 配置信息
-            KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, componentTypeCode,component.getHadoopVersion());
+            KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, componentTypeCode, ComponentVersionUtil.formatMultiVersion(componentTypeCode,component.getHadoopVersion()));
             KerberosConfigVO kerberosConfigVO = clusterService.addKerberosConfigWithHdfs(componentTypeCode, clusterId, kerberosConfig);
             editConsoleParam.setKerberosConfig(JSONObject.parseObject(JSONObject.toJSONString(kerberosConfigVO)));
         }
