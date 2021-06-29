@@ -29,7 +29,9 @@ const columns = (props: any) => {
           </span>
         ) : (
           <div style={{ color: MAIN_COLOR }} className="ellipsis">
-            <span title={record.dataName} style={{ marginRight: 4 }}>{record.dataName}</span>
+            <span title={record.dataName} style={{ marginRight: 4 }}>
+              {record.dataName}
+            </span>
             <Tag className="show-meta">Meta</Tag>
           </div>
         ),
