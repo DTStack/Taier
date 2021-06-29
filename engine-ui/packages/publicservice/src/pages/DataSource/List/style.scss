@@ -156,6 +156,13 @@ $highlight-color: #3f87ff;
   width: 180px;
   display: block;
 }
+.ellipsisSpec {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 145px;
+  float: left;
+}
 .datasource-modal {
   .ant-modal-header {
     padding: 15px 20px;

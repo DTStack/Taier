@@ -158,6 +158,10 @@ const showMapArr: any = {
     ['jdbcUrl', 'jdbcUrl'],
     ['defaultFS', 'defaultFS'],
   ],
+  [DATA_SOURCE.GAUSSDB]: [
+    ['jdbcUrl', 'jdbcUrl'],
+    ['username', '用户名'],
+  ],
 };
 
 export function ExtTableCell(props: any) {
