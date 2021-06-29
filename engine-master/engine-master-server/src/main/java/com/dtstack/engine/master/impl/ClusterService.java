@@ -484,8 +484,8 @@ public class ClusterService implements InitializingBean {
                 //开启kerberos的kerberosFileName不为空
                 String componentVersion = ComponentVersionUtil.getComponentVersion(componentVersionMap, componentType.getTypeCode());
                 kerberosConfig = kerberosDao.getByComponentType(clusterId, componentType.getTypeCode(),
-                        StringUtils.isNotBlank(componentVersion)?componentVersion:
-                        ComponentVersionUtil.isMultiVersionComponent(componentType.getTypeCode())?componentDao.getDefaultComponentVersionByClusterAndComponentType(clusterId,componentType.getTypeCode()):null);
+                        ComponentVersionUtil.isMultiVersionComponent(componentType.getTypeCode())?StringUtils.isNotBlank(componentVersion)?componentVersion:
+                                componentDao.getDefaultComponentVersionByClusterAndComponentType(clusterId,componentType.getTypeCode()):null);
             }
             //返回版本
             configObj.put(ConfigConstant.VERSION, component.getHadoopVersion());

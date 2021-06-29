@@ -409,9 +409,12 @@ public class EnvironmentContext {
         return Integer.parseInt(environment.getProperty("testConnectTimeout", "100"));
     }
 
-
     public int getBuildJobErrorRetry() {
         return Integer.parseInt(environment.getProperty("build.job.retry", "3"));
+    }
+
+    public int getJobSubmitConcurrent() {
+        return Integer.parseInt(environment.getProperty("job.submit.concurrent", "1"));
     }
 
     /**

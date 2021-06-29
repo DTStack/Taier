@@ -54,6 +54,7 @@ import java.net.URLEncoder;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author yuebai
@@ -208,6 +209,22 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             //替换参数 base64 生成launchCmd
             taskExeArgs = taskExeArgs.replace(TaskConstant.LAUNCH, Base64Util.baseEncode(launchCmd));
             LOGGER.info(" replaceTaskExeArgs job {} exeArgs {} ", scheduleJob.getJobId(), taskExeArgs);
+        }
+        if (taskExeArgs.contains(TaskConstant.CMD_OPTS)){
+            List<String> argList = DtStringUtil.splitIngoreBlank(taskExeArgs);
+            for (int i = 0; i < argList.size(); i++) {
+                if(TaskConstant.CMD_OPTS.equals(argList.get(i))){
+                    String base64 = argList.get(i + 1);
+                    try {
+                        base64 = Base64Util.baseEncode(jobParamReplace.paramReplace(Base64Util.baseDecode(base64),taskParamsToReplace, scheduleJob.getCycTime()));
+                        argList.set(i+1,base64);
+                    }catch (Exception e){
+                        argList.set(i+1,jobParamReplace.paramReplace(base64,taskParamsToReplace, scheduleJob.getCycTime()));
+                    }
+                    break;
+                }
+            }
+            taskExeArgs = String.join(" ", argList);
         }
         actionParam.put("exeArgs", taskExeArgs);
     }
