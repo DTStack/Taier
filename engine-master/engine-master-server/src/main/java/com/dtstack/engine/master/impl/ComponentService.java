@@ -365,7 +365,7 @@ public class ComponentService {
 
 
     public KerberosConfig getKerberosConfig( Long clusterId,  Integer componentType,String componentVersion) {
-        return kerberosDao.getByComponentType(clusterId, componentType,componentVersion);
+        return kerberosDao.getByComponentType(clusterId, componentType,ComponentVersionUtil.formatMultiVersion(componentType,componentVersion));
     }
 
 
@@ -691,7 +691,7 @@ public class ComponentService {
             md5Key = uploadResourceToSftp(clusterId, resources, kerberosFileName, sftpConfig, addComponent, dbComponent, principals, principal);
         } else if (CollectionUtils.isEmpty(resources) && StringUtils.isNotBlank(principal)) {
             //直接更新认证信息
-            KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, addComponent.getComponentTypeCode(),ComponentVersionUtil.isMultiVersionComponent(addComponent.getComponentTypeCode())?componentDao.getDefaultComponentVersionByClusterAndComponentType(clusterId,componentCode):null);
+            KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, addComponent.getComponentTypeCode(),ComponentVersionUtil.isMultiVersionComponent(addComponent.getComponentTypeCode())?StringUtils.isNotBlank(addComponent.getHadoopVersion())?addComponent.getHadoopVersion():componentDao.getDefaultComponentVersionByClusterAndComponentType(clusterId,componentCode):null);
             if (null != kerberosConfig) {
                 kerberosConfig.setPrincipal(principal);
                 kerberosConfig.setPrincipals(principals);
@@ -716,7 +716,7 @@ public class ComponentService {
         boolean isOpenKerberos = StringUtils.isNotBlank(kerberosFileName);
         if (!isOpenKerberos) {
             if (null != dbComponent) {
-                KerberosConfig componentKerberos = kerberosDao.getByComponentType(dbComponent.getClusterId(), dbComponent.getComponentTypeCode(),dbComponent.getHadoopVersion());
+                KerberosConfig componentKerberos = kerberosDao.getByComponentType(dbComponent.getClusterId(), dbComponent.getComponentTypeCode(),ComponentVersionUtil.formatMultiVersion(dbComponent.getComponentTypeCode(),dbComponent.getHadoopVersion()));
                 if (componentKerberos != null) {
                     isOpenKerberos = true;
                 }
@@ -1066,7 +1066,8 @@ public class ComponentService {
         }
         String componentVersion = ComponentVersionUtil.getComponentVersion(addComponent.getHadoopVersion());
         //更新数据库kerberos信息
-        KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, addComponent.getComponentTypeCode(),componentVersion);
+        KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, addComponent.getComponentTypeCode(),
+                ComponentVersionUtil.formatMultiVersion(addComponent.getComponentTypeCode(),componentVersion));
         boolean isFirstOpenKerberos = false;
         if (Objects.isNull(kerberosConfig)) {
             kerberosConfig = new KerberosConfig();
@@ -1748,7 +1749,7 @@ public class ComponentService {
                 componentDao.update(nextDefaultComponent);
             }
             componentDao.deleteById(componentId.longValue());
-            kerberosDao.deleteByComponent(component.getEngineId(),component.getComponentTypeCode(),component.getHadoopVersion());
+            kerberosDao.deleteByComponent(component.getEngineId(),component.getComponentTypeCode(),ComponentVersionUtil.formatMultiVersion(component.getComponentTypeCode(),component.getHadoopVersion()));
             componentConfigService.deleteComponentConfig(componentId.longValue());
 
         }
@@ -1901,7 +1902,7 @@ public class ComponentService {
     private ComponentTestResult testComponentWithResult(String clusterName, Cluster cluster, Map sftpMap,Component component) {
         ComponentTestResult testResult = new ComponentTestResult();
         try {
-            KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(), component.getComponentTypeCode(),ComponentVersionUtil.isMultiVersionComponent(component.getComponentTypeCode())?componentDao.getDefaultComponentVersionByClusterAndComponentType(cluster.getId(),component.getComponentTypeCode()):null);
+            KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(), component.getComponentTypeCode(),ComponentVersionUtil.isMultiVersionComponent(component.getComponentTypeCode())?StringUtils.isNotBlank(component.getHadoopVersion())?component.getHadoopVersion():componentDao.getDefaultComponentVersionByClusterAndComponentType(cluster.getId(),component.getComponentTypeCode()):null);
             String componentConfig = getComponentByClusterId(cluster.getId(), component.getComponentTypeCode(), false, String.class,null);
             testResult = this.testConnect(component.getComponentTypeCode(), componentConfig, clusterName, component.getHadoopVersion(), component.getEngineId(), kerberosConfig, sftpMap,component.getStoreType(),null);
             //测试联通性

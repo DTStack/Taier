@@ -143,8 +143,8 @@ public class ComponentVersionUtil {
     }
 
 
-    public static Map<Integer,String > singletonMap(EComponentType componentType,String componentVersion){
-        return Collections.singletonMap(componentType.getTypeCode(),componentVersion);
+    public static String formatMultiVersion(Integer componentCode,String componentVersion){
+        return isMultiVersionComponent(componentCode)? componentVersion : null;
     }
 
 
