@@ -153,9 +153,7 @@ const showMapArr: any = {
     ['jdbcUrl', 'jdbcUrl'],
     ['defaultFS', 'defaultFS'],
   ],
-  [DATA_SOURCE.AWSS3]: [
-    ['accessKey', 'ACCESS KEY'],
-  ],
+  [DATA_SOURCE.AWSS3]: [['accessKey', 'ACCESS KEY']],
   [DATA_SOURCE.SPARKTHRIFT]: [
     ['jdbcUrl', 'jdbcUrl'],
     ['defaultFS', 'defaultFS'],

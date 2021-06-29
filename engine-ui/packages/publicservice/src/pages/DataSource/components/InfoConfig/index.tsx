@@ -165,7 +165,7 @@ const InfoConfig = (props) => {
       if (!err) {
         setLoading(true);
         let handelParams: any = { ...otherParams };
-        console.log(handelParams,'handelParams---')
+        console.log(handelParams, 'handelParams---');
         //Remove leading and trailing spaces
         for (const key in fieldsValue) {
           if (typeof fieldsValue[key] === 'string') {
@@ -623,7 +623,7 @@ const InfoConfig = (props) => {
           </Form.Item>
         );
       case 'Select':
-        console.log(item.initialValue,'select-initialValue')
+        console.log(item.initialValue, 'select-initialValue');
         return (
           <Form.Item label={item.label} key={index}>
             {getFieldDecorator(
