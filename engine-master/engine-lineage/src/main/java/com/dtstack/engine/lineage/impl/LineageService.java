@@ -1156,8 +1156,12 @@ public class LineageService {
      * @return
      */
     public List<String> queryTableInputLineageColumns(QueryTableLineageColumnParam queryTableLineageColumnParam){
-        Long tableId = checkAndGetTableId(queryTableLineageColumnParam);
-        return lineageColumnColumnService.queryTableInputLineageColumns(tableId);
+        List<Long> tableIds = checkAndGetTableId(queryTableLineageColumnParam);
+        List<String> columnList = new ArrayList<>();
+        for (Long tableId : tableIds) {
+            columnList.addAll(lineageColumnColumnService.queryTableInputLineageColumns(tableId));
+        }
+        return columnList.stream().distinct().collect(Collectors.toList());
     }
 
     /**
@@ -1166,14 +1170,16 @@ public class LineageService {
      * @return
      */
     public List<String> queryTableResultLineageColumns(QueryTableLineageColumnParam queryTableLineageColumnParam){
-        Long tableId = checkAndGetTableId(queryTableLineageColumnParam);
-        return lineageColumnColumnService.queryTableResultLineageColumns(tableId);
+        List<Long> tableIds = checkAndGetTableId(queryTableLineageColumnParam);
+        List<String> columnList = new ArrayList<>();
+        for (Long tableId : tableIds) {
+            columnList.addAll(lineageColumnColumnService.queryTableResultLineageColumns(tableId));
+        }
+        return columnList.stream().distinct().collect(Collectors.toList());
     }
 
-    private Long checkAndGetTableId(QueryTableLineageColumnParam queryTableLineageColumnParam){
-        Long dtUicTenantId = queryTableLineageColumnParam.getDtUicTenantId();
+    private List<Long> checkAndGetTableId(QueryTableLineageColumnParam queryTableLineageColumnParam){
         Integer appType = queryTableLineageColumnParam.getAppType();
-        Integer sourceType = queryTableLineageColumnParam.getSourceType();
         String dbName = queryTableLineageColumnParam.getDbName();
         String tableName = queryTableLineageColumnParam.getTableName();
         DsServiceInfoDTO dsServiceInfoDTO = lineageDataSourceService.getDataSourceByIdAndAppType(queryTableLineageColumnParam.getDataInfoId(),queryTableLineageColumnParam.getAppType());
@@ -1181,11 +1187,12 @@ public class LineageService {
             logger.error("do not find need dataSource");
             throw new RdosDefineException("没有可用的数据源");
         }
-        LineageDataSetInfo dataSetInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dsServiceInfoDTO.getDataInfoId(), dbName, tableName, dbName,appType);
-        if (Objects.isNull(dataSetInfo)){
+        List<LineageDataSetInfo> dataSetInfos = lineageDataSetInfoService.getListByParams(dsServiceInfoDTO.getDataInfoId(), dbName, tableName, dbName,appType);
+        if (CollectionUtils.isEmpty(dataSetInfos)){
+            logger.error("do not find need dataSets");
             throw new RdosDefineException("数据集不存在");
         }
-        return dataSetInfo.getId();
+        return dataSetInfos.stream().map(LineageDataSetInfo::getId).collect(Collectors.toList());
     }
 
     public List<com.dtstack.engine.api.pojo.lineage.Table> parseTables(String sql, String defaultDb, Integer sourceType) {
