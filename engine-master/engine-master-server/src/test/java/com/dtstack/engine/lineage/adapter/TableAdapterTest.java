@@ -3,6 +3,7 @@ package com.dtstack.engine.lineage.adapter;
 import com.dtstack.engine.api.domain.LineageDataSetInfo;
 import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.vo.lineage.LineageTableVO;
+import com.dtstack.pubsvc.sdk.dto.result.datasource.DsServiceInfoDTO;
 import com.dtstack.sqlparser.common.client.domain.Table;
 import com.dtstack.sqlparser.common.client.enums.TableOperateEnum;
 import org.junit.Assert;
@@ -29,8 +30,7 @@ public class TableAdapterTest {
     public void testDataSetInfo2LineageTableVO(){
 
         LineageDataSetInfo dataSetInfo = new LineageDataSetInfo();
-        LineageDataSource dataSource = new LineageDataSource();
-        dataSource.setAppType(1);
+        DsServiceInfoDTO dataSource = new DsServiceInfoDTO();
         LineageTableVO tableVO = TableAdapter.dataSetInfo2LineageTableVO(dataSource,dataSetInfo);
         Assert.assertNotNull(tableVO);
     }

@@ -2,7 +2,6 @@ package com.dtstack.engine.lineage.impl;
 
 import com.dtstack.engine.lineage.bo.UrlInfo;
 import com.dtstack.engine.lineage.util.JdbcUrlUtil;
-import com.dtstack.schedule.common.enums.DataSourceType;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,36 +29,4 @@ public class JdbcUrlTest {
         Assert.assertEquals("21050",urlInfo.getPort().toString());
     }
 
-    @Test
-    public void test3(){
-
-        LineageDataSourceService dataSourceService = new LineageDataSourceService();
-        String sourceKey = dataSourceService.generateSourceKey(
-                "{\"password\":\"\",\"jdbcUrl\":\"jdbc:impala://eng-cdh3:21050;AuthMech=1;KrbRealm=DTSTACK.COM;KrbHostFQDN=eng-cdh3;KrbServiceName=impala\",\"username\":\"\"}",
-                DataSourceType.IMPALA.getVal());
-        System.out.println(sourceKey);
-        Assert.assertEquals("eng-cdh3#21050",sourceKey);
-    }
-
-    @Test
-    public void test4(){
-
-        LineageDataSourceService dataSourceService = new LineageDataSourceService();
-        String sourceKey = dataSourceService.generateSourceKey(
-                "{\"password\":\"\",\"jdbcUrl\":\"jdbc:impala://eng-cdh3:21050;AuthMech=1;KrbServiceName=impala;KrbHostFQDN=eng-cdh3\",\"username\":\"\"}",
-                DataSourceType.IMPALA.getVal());
-        System.out.println(sourceKey);
-        Assert.assertEquals("eng-cdh3#21050",sourceKey);
-    }
-
-    @Test
-    public void test5(){
-
-        LineageDataSourceService dataSourceService = new LineageDataSourceService();
-        String sourceKey = dataSourceService.generateSourceKey(
-                "{\"password\":\"\",\"jdbcUrl\":\"jdbc:impala://eng-cdh3:21050;AuthMech=1;KrbRealm=DTSTACK.COM;KrbHostFQDN=eng-cdh3;KrbServiceName=impala\",\"username\":\"\"}",
-                DataSourceType.IMPALA.getVal());
-        System.out.println(sourceKey);
-        Assert.assertEquals("eng-cdh3#21050",sourceKey);
-    }
 }

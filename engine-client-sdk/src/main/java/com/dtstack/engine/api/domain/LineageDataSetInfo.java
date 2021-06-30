@@ -16,11 +16,9 @@ public class LineageDataSetInfo extends DtUicTenantEntity {
     @ApiModelProperty(notes = "应用类型")
     private Integer appType;
 
-    @ApiModelProperty(notes = "数据源id")
-    private Long sourceId;
+    @ApiModelProperty(notes = "数据源中心id")
+    private Long dataInfoId;
 
-    @ApiModelProperty(notes = "真实数据源id")
-    private Long realSourceId;
 
     @ApiModelProperty(notes = "数据源名称")
     private String sourceName;
@@ -28,8 +26,6 @@ public class LineageDataSetInfo extends DtUicTenantEntity {
     @ApiModelProperty(notes = "数据源类型")
     private Integer sourceType;
 
-    @ApiModelProperty(notes = "数据源定位码")
-    private String sourceKey;
 
     @ApiModelProperty(notes = "数据集类型 0 表，1 文件")
     private Integer setType;
@@ -57,20 +53,12 @@ public class LineageDataSetInfo extends DtUicTenantEntity {
         this.appType = appType;
     }
 
-    public Long getSourceId() {
-        return sourceId;
+    public Long getDataInfoId() {
+        return dataInfoId;
     }
 
-    public void setSourceId(Long sourceId) {
-        this.sourceId = sourceId;
-    }
-
-    public Long getRealSourceId() {
-        return realSourceId;
-    }
-
-    public void setRealSourceId(Long realSourceId) {
-        this.realSourceId = realSourceId;
+    public void setDataInfoId(Long dataInfoId) {
+        this.dataInfoId = dataInfoId;
     }
 
     public String getSourceName() {
@@ -89,13 +77,6 @@ public class LineageDataSetInfo extends DtUicTenantEntity {
         this.sourceType = sourceType;
     }
 
-    public String getSourceKey() {
-        return sourceKey;
-    }
-
-    public void setSourceKey(String sourceKey) {
-        this.sourceKey = sourceKey;
-    }
 
     public Integer getSetType() {
         return setType;
@@ -149,11 +130,9 @@ public class LineageDataSetInfo extends DtUicTenantEntity {
     public String toString() {
         return "LineageDataSetInfo{" +
                 "appType=" + appType +
-                ", sourceId=" + sourceId +
-                ", realSourceId=" + realSourceId +
+                ", dataInfoId=" + dataInfoId +
                 ", sourceName='" + sourceName + '\'' +
                 ", sourceType=" + sourceType +
-                ", sourceKey='" + sourceKey + '\'' +
                 ", setType=" + setType +
                 ", dbName='" + dbName + '\'' +
                 ", schemaName='" + schemaName + '\'' +

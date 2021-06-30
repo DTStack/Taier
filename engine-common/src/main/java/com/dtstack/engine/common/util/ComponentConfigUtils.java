@@ -4,7 +4,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ComponentConfig;
 import com.dtstack.engine.api.pojo.ClientTemplate;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EComponentType;
+import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.common.enums.EFrontType;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -107,8 +109,7 @@ public class ComponentConfigUtils {
         Map<String, Object> configMaps = new HashMap<>(configs.size());
         for (ComponentConfig componentConfig : emptyDependencyValue) {
             Map<String, Object> deepToBuildConfigMap = ComponentConfigUtils.deepToBuildConfigMap(dependencyMapping, dependencyMapping.size(), componentConfig.getKey());
-            if (DEPLOY_MODE.equalsIgnoreCase(componentConfig.getKey()) || EFrontType.GROUP.name().equalsIgnoreCase(componentConfig.getType())
-                ) {
+            if (DEPLOY_MODE.equalsIgnoreCase(componentConfig.getKey()) || EFrontType.GROUP.name().equalsIgnoreCase(componentConfig.getType())) {
                 configMaps.put(componentConfig.getKey(), DEPLOY_MODE.equalsIgnoreCase(componentConfig.getKey()) ?
                         JSONArray.parseArray(componentConfig.getValue()) : componentConfig.getValue());
                 Object specialDeepConfig = deepToBuildConfigMap.get(componentConfig.getKey());
@@ -148,12 +149,12 @@ public class ComponentConfigUtils {
                     configMaps.putAll(deepToBuildConfigMap);
                 }
 
-            } else if(EComponentType.FLINK_ON_STANDALONE.getTypeCode().equals(componentConfig.getComponentTypeCode())){
-                configMaps.put(componentConfig.getKey(), componentConfig.getValue());
-            }else {
+            } else {
                 if (!CollectionUtils.isEmpty(deepToBuildConfigMap)) {
                     if (EFrontType.RADIO_LINKAGE.name().equalsIgnoreCase(componentConfig.getType())) {
                         parseRadioLinkage(dependencyMapping, configMaps, componentConfig, deepToBuildConfigMap);
+                    } else if (EFrontType.SELECT.name().equalsIgnoreCase(componentConfig.getType())){
+                        configMaps.put(componentConfig.getKey(), componentConfig.getValue());
                     } else {
                         configMaps.putAll(deepToBuildConfigMap);
                         if (EFrontType.RADIO.name().equalsIgnoreCase(componentConfig.getType())) {

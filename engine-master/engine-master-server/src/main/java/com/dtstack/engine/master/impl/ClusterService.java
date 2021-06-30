@@ -37,6 +37,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,15 +56,6 @@ public class ClusterService implements InitializingBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClusterService.class);
 
-    private static final Long DEFAULT_CLUSTER_ID = -1L;
-
-    private static final String DEFAULT_CLUSTER_NAME = "default";
-    private final static String CLUSTER = "cluster";
-    private final static String QUEUE = "queue";
-    private final static String TENANT_ID = "tenantId";
-    private static final String DEPLOY_MODEL = "deployMode";
-    private static final String NAMESPACE = "namespace";
-    private static final String MAILBOX_CUTTING = "@";
 
     @Autowired
     private ClusterDao clusterDao;
@@ -212,13 +205,13 @@ public class ClusterService implements InitializingBean {
     /**
      * 内部使用
      */
-    public JSONObject pluginInfoJSON( Long dtUicTenantId,  String engineTypeStr, Long dtUicUserId,Integer deployMode,Map<Integer,String > componentVersionMap) {
+    public JSONObject pluginInfoJSON(Long dtUicTenantId,  String engineTypeStr, Long dtUicUserId,Integer deployMode,Map<Integer,String > componentVersionMap) {
         if (EngineType.Dummy.name().equalsIgnoreCase(engineTypeStr)) {
             JSONObject dummy = new JSONObject();
             dummy.put(TYPE_NAME_KEY, EngineType.Dummy.name().toLowerCase());
             return dummy;
         }
-        EngineTypeComponentType type = EngineTypeComponentType.getByEngineName(engineTypeStr,deployMode);
+        EngineTypeComponentType type = EngineTypeComponentType.getByEngineName(engineTypeStr);
         if (type == null) {
             return null;
         }
@@ -333,7 +326,7 @@ public class ClusterService implements InitializingBean {
         try {
             Map actionParam = PublicUtil.objectToMap(action);
             Integer deployMode = MapUtils.getInteger(actionParam, DEPLOY_MODEL);
-            EngineTypeComponentType type = EngineTypeComponentType.getByEngineName(engineName,deployMode);
+            EngineTypeComponentType type = EngineTypeComponentType.getByEngineName(engineName);
 
             if (type == null) {
                 return null;
@@ -428,8 +421,18 @@ public class ClusterService implements InitializingBean {
                 List<IComponentVO> components = schedulingVo.getComponents();
                 if (CollectionUtils.isNotEmpty(components)) {
                     for (IComponentVO componentVO : components) {
+                        String version = MapUtils.isEmpty(componentVersionMap) ? "" : componentVersionMap.get(componentVO.getComponentTypeCode());
                         EComponentType type = EComponentType.getByCode(componentVO.getComponentTypeCode());
-                        JSONObject componentConfig = componentService.getComponentByClusterId(cluster.getClusterId(), componentVO.getComponentTypeCode(), false, JSONObject.class,componentVersionMap);
+                        //IComponentVO contains  flink on standalone and on yarn
+                        ComponentVO component = componentVO.getComponent(version);
+                        if(null == component){
+                            continue;
+                        }
+                        JSONObject componentConfig = componentService.getComponentByClusterId(component.getId(),false, JSONObject.class);
+                        if(EComponentType.FLINK.equals(type) && EDeployType.STANDALONE.getType() == component.getDeployType()){
+                            config.put(FLINK_ON_STANDALONE_CONF, componentConfig);
+                            continue;
+                        }
                         config.put(type.getConfName(), componentConfig);
                     }
                 }
@@ -470,7 +473,7 @@ public class ClusterService implements InitializingBean {
         Long clusterId = Optional.ofNullable(engineTenantDao.getClusterIdByTenantId(dtUicTenantId)).orElse(DEFAULT_CLUSTER_ID);
         //根据组件区分kerberos
         EComponentType componentType = EComponentType.getByConfName(componentConfName);
-        Component component = componentDao.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode(), ComponentVersionUtil.getComponentVersion(componentVersionMap,componentType));
+        Component component = componentDao.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode(), ComponentVersionUtil.getComponentVersion(componentVersionMap,componentType),null);
         if (null == component) {
             return "{}";
         }
@@ -481,8 +484,8 @@ public class ClusterService implements InitializingBean {
                 //开启kerberos的kerberosFileName不为空
                 String componentVersion = ComponentVersionUtil.getComponentVersion(componentVersionMap, componentType.getTypeCode());
                 kerberosConfig = kerberosDao.getByComponentType(clusterId, componentType.getTypeCode(),
-                        StringUtils.isNotBlank(componentVersion)?componentVersion:
-                        ComponentVersionUtil.isMultiVersionComponent(componentType.getTypeCode())?componentDao.getDefaultComponentVersionByClusterAndComponentType(clusterId,componentType.getTypeCode()):null);
+                        ComponentVersionUtil.isMultiVersionComponent(componentType.getTypeCode())?StringUtils.isNotBlank(componentVersion)?componentVersion:
+                                componentDao.getDefaultComponentVersionByClusterAndComponentType(clusterId,componentType.getTypeCode()):null);
             }
             //返回版本
             configObj.put(ConfigConstant.VERSION, component.getHadoopVersion());
@@ -558,8 +561,6 @@ public class ClusterService implements InitializingBean {
         } else if (EComponentType.DTSCRIPT_AGENT==type.getComponentType()){
             dtScriptAgentInfo(clusterConfigJson,pluginInfo);
             pluginInfo.put(TYPE_NAME,"dtscript-agent");
-        } else if (EComponentType.FLINK_ON_STANDALONE==type.getComponentType()){
-            flinkOnStandaloneInfo(clusterConfigJson,pluginInfo);
         } else if (EComponentType.ANALYTICDB_FOR_PG == type.getComponentType()){
             pluginInfo = JSONObject.parseObject(adbPostgrepsqlInfo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId(),componentVersionMap));
             pluginInfo.put(TYPE_NAME, ComponentConstant.ANALYTICDB_FOR_PG_PLUGIN);
@@ -619,13 +620,8 @@ public class ClusterService implements InitializingBean {
         return pluginInfo;
     }
 
-    private void flinkOnStandaloneInfo(JSONObject clusterConfigJson, JSONObject pluginInfo) {
-        JSONObject flinkOnStandaloneConf = clusterConfigJson.getJSONObject(EComponentType.FLINK_ON_STANDALONE.getConfName());
-        pluginInfo.putAll(flinkOnStandaloneConf);
-    }
-
     private void buildHiveVersion(ClusterVO clusterVO, JSONObject pluginInfo,Map<Integer,String > componentVersionMap) {
-        Component hiveServer = componentDao.getByClusterIdAndComponentType(clusterVO.getId(), EComponentType.HIVE_SERVER.getTypeCode(),ComponentVersionUtil.getComponentVersion(componentVersionMap,EComponentType.HIVE_SERVER));
+        Component hiveServer = componentDao.getByClusterIdAndComponentType(clusterVO.getId(), EComponentType.HIVE_SERVER.getTypeCode(),ComponentVersionUtil.getComponentVersion(componentVersionMap,EComponentType.HIVE_SERVER),null);
         if (null == hiveServer) {
             throw new RdosDefineException("hive component cannot be empty");
         }
@@ -634,12 +630,12 @@ public class ClusterService implements InitializingBean {
         jdbcUrl = jdbcUrl.replace("/%s", environmentContext.getComponentJdbcToReplace());
         pluginInfo.put("jdbcUrl", jdbcUrl);
         String typeName = componentService.convertComponentTypeToClient(clusterVO.getClusterName(),
-                EComponentType.HIVE_SERVER.getTypeCode(), hiveServer.getHadoopVersion(),hiveServer.getStoreType(),componentVersionMap);
+                EComponentType.HIVE_SERVER.getTypeCode(), hiveServer.getHadoopVersion(),hiveServer.getStoreType(),componentVersionMap,null);
         pluginInfo.put(TYPE_NAME,typeName);
     }
 
     private void buildKubernetesConfig(JSONObject clusterConfigJson, ClusterVO clusterVO, JSONObject pluginInfo,Map<Integer,String > componentVersionMap) {
-        Component kubernetes = componentDao.getByClusterIdAndComponentType(clusterVO.getId(), EComponentType.KUBERNETES.getTypeCode(),ComponentVersionUtil.getComponentVersion(componentVersionMap,EComponentType.KUBERNETES));
+        Component kubernetes = componentDao.getByClusterIdAndComponentType(clusterVO.getId(), EComponentType.KUBERNETES.getTypeCode(),ComponentVersionUtil.getComponentVersion(componentVersionMap,EComponentType.KUBERNETES),null);
         if(Objects.nonNull(kubernetes)){
             pluginInfo.put("kubernetesConfigName",kubernetes.getUploadFileName());
             JSONObject sftpConf = clusterConfigJson.getJSONObject("sftpConf");
@@ -658,15 +654,21 @@ public class ClusterService implements InitializingBean {
         if (Objects.nonNull(deployMode) && !EComponentType.SPARK.equals(type.getComponentType())) {
             deploy = EDeployMode.getByType(deployMode);
         }
-        JSONObject flinkConf = clusterConfigJson.getJSONObject(type.getComponentType().getConfName());
-        if(null == flinkConf || flinkConf.size() == 0){
+        JSONObject confConfig = null;
+        if (EComponentType.FLINK.equals(type.getComponentType()) && EDeployMode.STANDALONE.getType().equals(deployMode)) {
+            confConfig = clusterConfigJson.getJSONObject(FLINK_ON_STANDALONE_CONF);
+            return confConfig;
+        } else {
+            confConfig = clusterConfigJson.getJSONObject(type.getComponentType().getConfName());
+        }
+        if(null == confConfig || confConfig.size() == 0){
             throw new RdosDefineException("Flink configuration information is empty");
         }
-        pluginInfo = flinkConf.getJSONObject(deploy.getMode());
+        pluginInfo = confConfig.getJSONObject(deploy.getMode());
         if (Objects.isNull(pluginInfo)) {
             throw new RdosDefineException(String.format("Corresponding mode [%s] no information is configured", deploy.name()));
         }
-        String typeName = flinkConf.getString(TYPE_NAME);
+        String typeName = confConfig.getString(TYPE_NAME);
         if (!StringUtils.isBlank(typeName)) {
             pluginInfo.put(TYPE_NAME_KEY, typeName);
         }
@@ -859,7 +861,7 @@ public class ClusterService implements InitializingBean {
         }
         List<Long> engineIds = engines.stream().map(Engine::getId).collect(Collectors.toList());
         // 查询默认版本或者多个版本
-        List<Component> components = multiVersion ?componentDao.listByEngineIds(engineIds):
+        List<Component> components = multiVersion ?componentDao.listByEngineIds(engineIds,null):
                 componentDao.listDefaultByEngineIds(engineIds);
 
         List<IComponentVO> componentConfigs = componentConfigService.getComponentVoByComponent(components,
@@ -938,6 +940,10 @@ public class ClusterService implements InitializingBean {
                 .map(Engine::getId)
                 .collect(Collectors.toList());
 
+        if(CollectionUtils.isEmpty(engineIds)){
+            return new ArrayList<>();
+        }
+
         List<Queue> queues = queueDao.listByEngineIdWithLeaf(engineIds);
 
         Map<Long, List<Queue>> engineQueueMapping = queues
@@ -1013,6 +1019,20 @@ public class ClusterService implements InitializingBean {
     private void dtScriptAgentInfo(JSONObject clusterConfigJson, JSONObject pluginInfo) {
         JSONObject dtScriptConf = clusterConfigJson.getJSONObject(EComponentType.DTSCRIPT_AGENT.getConfName());
         pluginInfo.putAll(dtScriptConf);
+    }
+
+    @Cacheable(cacheNames = "standalone")
+    public boolean hasStandalone(Long tenantId, Integer typeCode) {
+        Long clusterId = engineTenantDao.getClusterIdByTenantId(tenantId);
+        if (null != clusterId) {
+            return null != componentDao.getByClusterIdAndComponentType(clusterId, typeCode, null, EDeployType.STANDALONE.getType());
+        }
+        return false;
+    }
+
+    @CacheEvict(cacheNames = "standalone", allEntries = true)
+    public void clearStandaloneCache() {
+        LOGGER.info("clear all standalone cache");
     }
 }
 

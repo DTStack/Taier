@@ -32,7 +32,10 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
+
+import static com.dtstack.engine.common.constrant.ConfigConstant.DEPLOY_MODEL;
 
 @Component
 public class WorkerOperator {
@@ -63,7 +66,11 @@ public class WorkerOperator {
             if (null != info && !info.isEmpty()) {
                 return;
             }
-            jobClient.setPluginWrapperInfo(pluginWrapper.wrapperPluginInfo(jobClient.getParamAction()));
+            Map<String, Object> pluginInfo = pluginWrapper.wrapperPluginInfo(jobClient.getParamAction());
+            jobClient.setPluginWrapperInfo(pluginInfo);
+            if(pluginInfo.containsKey(DEPLOY_MODEL)){
+                jobClient.setDeployMode((Integer) pluginInfo.get(DEPLOY_MODEL));
+            }
         } catch (Exception e) {
             LOGGER.error("{} buildPluginInfo failed!",jobClient.getTaskId(), e);
             throw new RdosDefineException("buildPluginInfo error",e);
@@ -82,7 +89,7 @@ public class WorkerOperator {
             LOGGER.error("pluginInfo params lost {}", jobIdentifier);
             throw new RdosDefineException("pluginInfo params lost");
         }
-        EngineTypeComponentType engineTypeComponentType = EngineTypeComponentType.getByEngineName(jobIdentifier.getEngineType(), jobIdentifier.getDeployMode());
+        EngineTypeComponentType engineTypeComponentType = EngineTypeComponentType.getByEngineName(jobIdentifier.getEngineType());
         String componentVersionValue = scheduleDictService.convertVersionNameToValue(jobIdentifier.getComponentVersion(), engineTypeComponentType.getScheduleEngineType().getEngineName());
         JSONObject info = clusterService.pluginInfoJSON(jobIdentifier.getTenantId(), jobIdentifier.getEngineType(), jobIdentifier.getUserId(), jobIdentifier.getDeployMode(),
                 Collections.singletonMap(engineTypeComponentType.getComponentType().getTypeCode(),componentVersionValue));

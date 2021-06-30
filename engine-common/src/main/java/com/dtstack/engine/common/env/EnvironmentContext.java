@@ -599,7 +599,7 @@ public class EnvironmentContext {
      * @return
      */
     public String getDatasourceNode() {
-        return environment.getProperty("datasource.node", "127.0.0.1:8077");
+        return environment.getProperty("datasource.node", "");
     }
 
     /**
@@ -612,5 +612,14 @@ public class EnvironmentContext {
 
     public String getSqlParserDir(){
         return environment.getProperty("sqlParser.dir","/opt/dtstack/DTPlugin/SqlParser");
+    }
+
+    /**
+     * 是否优先走standalone的组件
+     *
+     * @return
+     */
+    public boolean checkStandalone() {
+        return Boolean.parseBoolean(environment.getProperty("check.standalone", "true"));
     }
 }

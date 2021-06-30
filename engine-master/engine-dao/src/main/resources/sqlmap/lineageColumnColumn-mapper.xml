@@ -22,7 +22,10 @@
         <if test="columnName!=null">
             and cc.input_column_name = #{columnName}
         </if>
-        and ref.app_type = #{appType} and ref.is_deleted = 0
+        <if test="appType !=null">
+            and ref.app_type = #{appType}
+        </if>
+         and ref.is_deleted = 0
     </select>
     <select id="queryColumnResultList" resultType="com.dtstack.engine.api.domain.LineageColumnColumn">
         select cc.* from lineage_column_column cc join lineage_column_column_unique_key_ref ref on cc.id = ref.lineage_column_column_id
@@ -30,7 +33,10 @@
         <if test="columnName!=null">
             and cc.result_column_name = #{columnName}
         </if>
-        and ref.app_type = #{appType} and ref.is_deleted = 0
+        <if test="appType !=null">
+            and ref.app_type = #{appType}
+        </if>
+         and ref.is_deleted = 0
     </select>
 
     <select id="queryByLineageKey" resultType="com.dtstack.engine.api.domain.LineageColumnColumn">
