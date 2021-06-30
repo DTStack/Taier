@@ -393,7 +393,7 @@ public class LineageService {
         DsServiceListDTO dsServiceListDTO = null;
         DsServiceInfoDTO dsServiceInfoDTO = new DsServiceInfoDTO();
         if (AppType.RDOS.getType().equals(parseColumnLineageParam.getAppType())) {
-            //从数据源中心查询meta数据源 todo
+            //从数据源中心查询meta数据源
             DsServiceListParam dsServiceListParam = getDsServiceListParam(parseColumnLineageParam.getDtUicTenantId(), parseColumnLineageParam.getDataSourceType(),parseColumnLineageParam.getProjectId());
             ApiResponse<PageResult<List<DsServiceListDTO>>> pageResultApiResponse = dataSourceAPIClient.appDsPage(dsServiceListParam);
             if(pageResultApiResponse.getCode() !=1 ){
@@ -438,15 +438,11 @@ public class LineageService {
             List<Table> subTables = resTables.stream().filter(table->
                     table.getOperate() != TableOperateEnum.CREATE ).collect(Collectors.toList());
             Set<com.dtstack.engine.api.pojo.lineage.Table> tables = subTables.stream().map(TableAdapter::sqlTable2ApiTable).collect(Collectors.toSet());
-            Set<String> dbSets = new HashSet<>();
             resTables.stream().forEach(table -> {
                 String db = table.getDb();
-                dbSets.add(db);
+                //数据源中心根据schemaNameList查询数据源列表
+
             });
-            if(dbSets.size()>1){
-                //跨schema查询
-                return;
-            }
             //获取表字段信息
             Map<String, List<Column>> tableColumnMap = lineageDataSetInfoService.getColumnsBySourceIdAndListTable(dsServiceInfoDTO.getDataInfoId(), Lists.newArrayList(tables));
             Map<String, List<com.dtstack.sqlparser.common.client.domain.Column>> sqlTableColumnMap = new HashMap<>();
