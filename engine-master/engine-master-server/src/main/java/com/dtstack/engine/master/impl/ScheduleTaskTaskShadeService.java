@@ -234,13 +234,14 @@ public class ScheduleTaskTaskShadeService {
         }
     }
 
-
     private boolean setKeyAndJudgedLoop(Map<Side, Set<String>> sideMap, List<ScheduleTaskTaskShade> scheduleChildTaskTaskShades, List<String> parentKeys, Boolean isChild) {
         Map<Side, Set<String>> newSideMap = Maps.newHashMap(sideMap);
 
         if (isChild) {
             // 向下查询
-            Map<String, List<ScheduleTaskTaskShade>> parentKey = scheduleChildTaskTaskShades.stream().collect(Collectors.groupingBy(ScheduleTaskTaskShade::getParentTaskKey));
+            Map<String, List<ScheduleTaskTaskShade>> parentKey = scheduleChildTaskTaskShades.stream()
+                    .filter(scheduleTaskTaskShade -> StringUtils.isNotBlank(scheduleTaskTaskShade.getParentTaskKey()))
+                    .collect(Collectors.groupingBy(ScheduleTaskTaskShade::getParentTaskKey));
 
             for (Map.Entry<Side, Set<String>> entry : newSideMap.entrySet()) {
                 Side side = entry.getKey();
@@ -271,7 +272,9 @@ public class ScheduleTaskTaskShadeService {
             }
         } else {
             // 向上查询
-            Map<String, List<ScheduleTaskTaskShade>> parentKey = scheduleChildTaskTaskShades.stream().collect(Collectors.groupingBy(ScheduleTaskTaskShade::getParentTaskKey));
+            Map<String, List<ScheduleTaskTaskShade>> parentKey = scheduleChildTaskTaskShades.stream()
+                    .filter(scheduleTaskTaskShade -> StringUtils.isNotBlank(scheduleTaskTaskShade.getParentTaskKey()))
+                    .collect(Collectors.groupingBy(ScheduleTaskTaskShade::getParentTaskKey));
 
             for (Map.Entry<Side, Set<String>> entry : newSideMap.entrySet()) {
                 Side side = entry.getKey();
