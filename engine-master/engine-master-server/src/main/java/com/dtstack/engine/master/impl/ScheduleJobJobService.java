@@ -286,14 +286,14 @@ public class ScheduleJobJobService {
             // 向上判断
             jobKeyMap = jobJobs.stream().collect(Collectors.groupingBy(ScheduleJobJobTaskDTO::getJobKey));
         }
-        if (isRing(jobKeyRelations, jobKeyMap)) {
+        if (isRing(getChild,jobKeyRelations, jobKeyMap)) {
             logger.error("jobKeyRelations:{}", JSON.toJSONString(jobKeyRelations));
             return Boolean.TRUE;
         }
         return false;
     }
 
-    private boolean isRing(Map<String, Set<String>> jobKeyRelations, Map<String, List<ScheduleJobJobTaskDTO>> jobKeyMap) {
+    private boolean isRing(Boolean getChild,Map<String, Set<String>> jobKeyRelations, Map<String, List<ScheduleJobJobTaskDTO>> jobKeyMap) {
         Map<String, Set<String>> temporaryMap = Maps.newHashMap(jobKeyRelations);
         for (Map.Entry<String, Set<String>> ketSetEntry : temporaryMap.entrySet()) {
             String key = ketSetEntry.getKey();
@@ -305,14 +305,26 @@ public class ScheduleJobJobService {
 
                 for (ScheduleJobJobTaskDTO scheduleJobJobTaskDTO : scheduleJobJobTaskDTOS) {
                     HashSet<String> newKeys = Sets.newHashSet(keys);
-
-                    if (!newKeys.add(scheduleJobJobTaskDTO.getJobKey())) {
-                        // 添加失败 说明成环
-                        return true;
+                    if (getChild) {
+                        // 向下判断
+                        if (!newKeys.add(scheduleJobJobTaskDTO.getJobKey())) {
+                            // 添加失败 说明成环
+                            return true;
+                        } else {
+                            // 添加成功
+                            jobKeyRelations.put(scheduleJobJobTaskDTO.getJobKey(), newKeys);
+                        }
                     } else {
-                        // 添加成功
-                        jobKeyRelations.put(scheduleJobJobTaskDTO.getJobKey(), newKeys);
+                        // 向上判断
+                        if (!newKeys.add(scheduleJobJobTaskDTO.getParentJobKey())) {
+                            // 添加失败 说明成环
+                            return true;
+                        } else {
+                            // 添加成功
+                            jobKeyRelations.put(scheduleJobJobTaskDTO.getParentJobKey(), newKeys);
+                        }
                     }
+
                 }
             }
         }
