@@ -17,6 +17,10 @@ export function isYarn (typeCode: number): boolean {
     return COMPONENT_TYPE_VALUE.YARN == typeCode
 }
 
+export function isFLink (typeCode: number): boolean {
+    return COMPONENT_TYPE_VALUE.FLINK == typeCode
+}
+
 export function isDtscriptAgent (typeCode: number): boolean {
     return COMPONENT_TYPE_VALUE.DTSCRIPT_AGENT == typeCode
 }
@@ -98,6 +102,10 @@ export function isFileParam (key: string): boolean {
 
 export function isMetaData (key: string): boolean {
     return ['isMetadata'].indexOf(key) > -1
+}
+
+export function isDefaultVersion (key: string): boolean {
+    return ['isDefault'].indexOf(key) > -1
 }
 
 export function isDeployMode (key: string): boolean {
@@ -401,10 +409,11 @@ export function handleComponentConfig (comp: any, turnp?: boolean): any {
 export function handleComponentConfigAndCustom (comp: any, typeCode: number): any {
     // 处理componentConfig
     let componentConfig = handleComponentConfig(comp)
+    const isFlinkStandalone = componentConfig?.clusterMode === 'standalone' // flink 组件含有 standalone 类型，没有 group 包裹
 
     // 自定义参数和componentConfig和并
     let customParamConfig = handleCustomParam(comp.customParam)
-    if (isHaveGroup(typeCode) && customParamConfig.length) {
+    if (isHaveGroup(typeCode) && !isFlinkStandalone && customParamConfig.length) {
         for (let config of customParamConfig) {
             for (let key in config) {
                 for (let groupConfig of config[key]) {
@@ -416,7 +425,7 @@ export function handleComponentConfigAndCustom (comp: any, typeCode: number): an
             }
         }
     }
-    if (!isHaveGroup(typeCode) && Object.values(customParamConfig).length) {
+    if ((!isHaveGroup(typeCode) || isFlinkStandalone) && Object.values(customParamConfig).length) {
         for (let item of customParamConfig) {
             componentConfig = {
                 ...componentConfig,

@@ -122,7 +122,8 @@ class EditCluster extends React.Component<any, IState> {
                 componentType: typeCode,
                 version,
                 originVersion,
-                storeType: params?.storeType ?? getFieldValue(`${typeCode}.storeType`) ?? ''
+                storeType: params?.storeType ?? getFieldValue(`${typeCode}.storeType`) ?? '',
+                deployType: params?.deployType ?? ''
             })
             if (res.code == 1) saveParams.componentTemplate = JSON.stringify(res.data)
             this.saveComp(saveParams)
@@ -344,6 +345,7 @@ class EditCluster extends React.Component<any, IState> {
     testConnects = (params?: any, callBack?: Function) => {
         const typeCode = params?.typeCode ?? ''
         const hadoopVersion = params?.hadoopVersion ?? ''
+        const deployType = params?.deployType ?? ''
         const { form } = this.props
         const { initialCompData, clusterName } = this.state
         form.validateFields(null, {}, (err: any, values: any) => {
@@ -371,6 +373,7 @@ class EditCluster extends React.Component<any, IState> {
                 callBack && callBack(true)
                 Api.testConnect({
                     clusterName,
+                    deployType,
                     componentType: typeCode,
                     componentVersion: hadoopVersion ?? ''
                 }).then((res: any) => {
@@ -503,6 +506,7 @@ class EditCluster extends React.Component<any, IState> {
                                                                 comp={vcomp}
                                                                 view={isViewMode(mode)}
                                                                 form={this.props.form}
+                                                                clusterInfo={{ clusterName, clusterId: cluster.clusterId }}
                                                             />
                                                             {!isViewMode(mode) && <ToolBar
                                                                 comp={vcomp}
