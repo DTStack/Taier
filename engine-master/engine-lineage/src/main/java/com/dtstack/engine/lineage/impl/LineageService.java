@@ -1164,6 +1164,7 @@ public class LineageService {
         return columnList.stream().distinct().collect(Collectors.toList());
     }
 
+
     /**
      * 查询表血缘下游字段列表
      * @param queryTableLineageColumnParam
@@ -1189,8 +1190,7 @@ public class LineageService {
         }
         List<LineageDataSetInfo> dataSetInfos = lineageDataSetInfoService.getListByParams(dsServiceInfoDTO.getDataInfoId(), dbName, tableName, dbName,appType);
         if (CollectionUtils.isEmpty(dataSetInfos)){
-            logger.error("do not find need dataSets");
-            throw new RdosDefineException("数据集不存在");
+            return ListUtils.EMPTY_LIST;
         }
         return dataSetInfos.stream().map(LineageDataSetInfo::getId).collect(Collectors.toList());
     }
