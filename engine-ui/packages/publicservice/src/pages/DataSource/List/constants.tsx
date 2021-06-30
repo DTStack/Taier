@@ -20,6 +20,7 @@ const columns = (props: any) => {
         //	meta标志 0-否 1-是
         record.isMeta === 0 ? (
           <span
+            title={record.dataName}
             style={{
               color: MAIN_COLOR,
             }}
@@ -27,9 +28,16 @@ const columns = (props: any) => {
             {record.dataName}
           </span>
         ) : (
-          <div style={{ color: MAIN_COLOR }} className="ellipsis">
-            <span style={{ marginRight: 4 }}>{record.dataName}</span>
-            <Tag className="show-meta">Meta</Tag>
+          <div style={{ color: MAIN_COLOR, width: '210px' }}>
+            <span
+              title={record.dataName}
+              style={{ marginRight: 4 }}
+              className="ellipsisSpec">
+              {record.dataName}
+            </span>
+            <Tag style={{ float: 'left' }} className="show-meta">
+              Meta
+            </Tag>
           </div>
         ),
     },

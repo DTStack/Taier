@@ -1,3 +1,4 @@
+import { utf8to16 } from '../../utils/utfEncode';
 export function getRules(item) {
   let ruleArr: any = [
     {
@@ -29,7 +30,7 @@ export function getRules(item) {
   }
 
   return {
-    initialValue: item.initialValue,
+    initialValue: utf8to16(item.initialValue),
     rules: ruleArr,
   };
 }
