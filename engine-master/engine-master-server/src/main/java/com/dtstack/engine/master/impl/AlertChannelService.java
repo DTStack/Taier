@@ -43,6 +43,13 @@ public class AlertChannelService {
             alertChannel = alertChannelDao.selectById(alertGateVO.getId());
         }
 
+        Integer isDefault = alertGateVO.getIsDefault();
+
+        if (IsDefaultEnum.DEFAULT.getType().equals(isDefault)) {
+            // 设置默认值
+            alertChannelDao.updateDefaultAlertByType( alertGateVO.getAlertGateType(),IsDefaultEnum.NOT_DEFAULT.getType(),IsDeletedEnum.NOT_DELETE.getType());
+        }
+
         int changed = 0;
         if (alertChannel == null) {
             // 插入通道
@@ -56,6 +63,7 @@ public class AlertChannelService {
             buildBean(alertGateVO, alertChannel);
             changed =  alertChannelDao.updateById(alertChannel);
         }
+
 
         return changed > 0 ? Boolean.TRUE : Boolean.FALSE;
     }
