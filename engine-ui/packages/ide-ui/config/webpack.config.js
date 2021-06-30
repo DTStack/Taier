@@ -308,6 +308,7 @@ module.exports = function (webpackEnv) {
       },
     },
     resolve: {
+      symlinks: false,
       // This allows you to set a fallback for where webpack should look for modules.
       // We placed these paths second because we want `node_modules` to "win"
       // if there are any conflicts. This matches Node resolution mechanism.
@@ -328,7 +329,8 @@ module.exports = function (webpackEnv) {
         // Support React Native Web
         // https://www.smashingmagazine.com/2016/08/a-glimpse-into-the-future-with-react-native-for-web/
         'react-native': 'react-native-web',
-        'mo': 'molecule/esm',
+        'react': path.resolve(paths.appNodeModules, 'react'),
+        'react-dom': path.resolve(paths.appNodeModules, 'react-dom'),
         // Allows for better profiling with ReactDevTools
         ...(isEnvProductionProfile && {
           'react-dom$': 'react-dom/profiling',
