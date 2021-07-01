@@ -4,9 +4,9 @@
 [submodule "engine-ui/packages/operation-ui"]
 	path = engine-ui/packages/operation-ui
 	url = ssh://git@gitlab.prod.dtstack.cn:10022/dagschedulex/operation-ui.git
-[submodule "engine-ui/packages/ide-ui"]
-	path = engine-ui/packages/ide-ui
-	url = ssh://git@gitlab.prod.dtstack.cn:10022/dagschedulex/ide-ui.git
 [submodule "engine-ui/packages/molecule"]
 	path = engine-ui/packages/molecule
 	url = git@github.com:DTStack/molecule.git
+[submodule "engine-ui/packages/ide-ui"]
+	path = engine-ui/packages/ide-ui
+	url = ssh://git@gitlab.prod.dtstack.cn:10022/dagschedulex/ide-ui.git
