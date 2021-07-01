@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.2.0-beta8](http://git.dtstack.cn/dtstack/data-stack-web/compare/v4.2.0-beta7...v4.2.0-beta8) (2021-07-01)
+
+
+### Features
+
+* **bindaccount:** analyticDB for PostgreSQL component add bind account ([cd26d93](http://git.dtstack.cn/dtstack/data-stack-web/commit/cd26d938b428f8ab8ce0aee488acd125861a39fb))
+* **nodelabel:** add cluster component uesr info ([e535c8a](http://git.dtstack.cn/dtstack/data-stack-web/commit/e535c8a26005cd77bfa51a2dcc78fb1047c0fdca))
+* **nodelable:** add default label select ([060ed8e](http://git.dtstack.cn/dtstack/data-stack-web/commit/060ed8e9f6b821d956031b4bdfc3b8fd686aa290))
+* add default version checkbox ([39688a5](http://git.dtstack.cn/dtstack/data-stack-web/commit/39688a5ff7638b5e67e76d0ddaed636171bed17b))
+* add deploy mode for multiple version component ([6cdd8f2](http://git.dtstack.cn/dtstack/data-stack-web/commit/6cdd8f29d38cfacfd65ed56af20f16ad1e903ade))
+* deploy type take the place of deploy mode ([016a117](http://git.dtstack.cn/dtstack/data-stack-web/commit/016a1176247f6ac3bb7f3e51ceaa8a9bcc1d36f2))
+* initail multiple version component deploy type ([5b4a994](http://git.dtstack.cn/dtstack/data-stack-web/commit/5b4a994b46a586325e1c55afdc7e63bbab8c4851))
+
+
+### Bug Fixes
+
+* **binfmodal:** modal and table styles ([0b7f80c](http://git.dtstack.cn/dtstack/data-stack-web/commit/0b7f80c41406f5f85aad2042cb151cedb2aa72c7))
+* add component is default params ([4d3607d](http://git.dtstack.cn/dtstack/data-stack-web/commit/4d3607d75e6bb71aeb8ace9b6b4a984d6a552dbb))
+* add user name and password valid ([f47e4ad](http://git.dtstack.cn/dtstack/data-stack-web/commit/f47e4ad12c199065cb54f3f42c5479a29c13be3d))
+* bind account modal show ([bd473f2](http://git.dtstack.cn/dtstack/data-stack-web/commit/bd473f2c33bf5847f69f650c419f1717b2850d9a))
+* **defaultversioncheckbox:** add vaild default version value ([ac489f8](http://git.dtstack.cn/dtstack/data-stack-web/commit/ac489f8be740ad75661ee5ba9f35f78bb2fa3e4c))
+* **defaultversioncheckbox:** reset default version checkbox value ([799d2c2](http://git.dtstack.cn/dtstack/data-stack-web/commit/799d2c2e1e894b139b569c30780fd75d26421f16))
+* **nodelabel:** add table column width and password check ([b922a49](http://git.dtstack.cn/dtstack/data-stack-web/commit/b922a49e272e89f5e61163fce942279887c6973d))
+* **nodelabel:** initail default node label ([e88e4a6](http://git.dtstack.cn/dtstack/data-stack-web/commit/e88e4a633f5deac65828a7dc886026b9ef798d38))
+* flink standalone component extract custom params ([59f381d](http://git.dtstack.cn/dtstack/data-stack-web/commit/59f381db8221e72706eaf4e1afda29ca253a90b6))
+
 ## [4.2.0-beta7](http://git.dtstack.cn/dtstack/data-stack-web/compare/v4.2.0-beta6...v4.2.0-beta7) (2021-06-24)
 
 
