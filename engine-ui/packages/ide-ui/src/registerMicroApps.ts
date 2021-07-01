@@ -1,15 +1,9 @@
 import { registerMicroApps, setDefaultMountApp, start } from 'qiankun';
-import { AppContainer } from './App';
 
+export const AppContainer = 'AppContainer';
 const container = `#${AppContainer}`;
 
 registerMicroApps([
-  {
-    name: 'IDE', // app name registered
-    entry: '//localhost:7100',
-    container: container,
-    activeRule: '/ide',
-  },
   {
     name: 'Operation',
     entry: '//dev.insight.dtstack.cn/console',
@@ -18,9 +12,9 @@ registerMicroApps([
   },
   {
     name: 'DTConsoleApp',
-    entry: 'http://local.dtstack.cn:8080/console',
+    entry: '//local.dtstack.cn:8080/console',
     container: container,
-    activeRule: '/console-ui',
+    activeRule: '#/console-ui',
   },{
     name: 'Database',
     entry: { scripts: ['//localhost:7100/main.js'] },
@@ -31,4 +25,4 @@ registerMicroApps([
 
 start();
 
-setDefaultMountApp('/ide');
+setDefaultMountApp('/');
