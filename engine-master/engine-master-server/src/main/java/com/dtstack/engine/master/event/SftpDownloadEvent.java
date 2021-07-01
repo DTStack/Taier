@@ -81,6 +81,11 @@ public class SftpDownloadEvent extends AdapterEventMonitor implements Initializi
                 }
             }
 
+            if (StringUtils.isBlank(sftpPath) || StringUtils.isBlank(destPath)) {
+                return;
+            }
+
+            logger.info("sftpPath:{} and destPath {}",sftpPath,destPath);
             String ifPresent = cacheSftpJar.getIfPresent(jarPath);
             if (StringUtils.isBlank(ifPresent)) {
                 SftpConfig sftpConfig = getSftpConfig();
