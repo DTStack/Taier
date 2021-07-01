@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.2.0-beta9](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.0-beta8...v4.2.0-beta9) (2021-07-01)
+
+
+### Features
+
+* add inceptor and aws s3 ([698514d](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/698514dd61b9e51ef7acb4f4c962b5fb584175ec))
+* add SPARKTHRIFT type display ([208aedc](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/208aedc14efc7fc0041cd270e080be208620a265))
+* change fieldname jdbcurl to url ([2c8aefa](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/2c8aefa4a779482303112ca2ea7fec197859ff81))
+* fix dataJsonString field encode fail ([d44df6f](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/d44df6fc2f99ceeb8f7652bb3352506c5a109697))
+* fix uncorrect code ([3bca669](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/3bca6697ccf25b2adfbf004198aa8f1e8e015d9a))
+* form component, select ([0b8a82f](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/0b8a82f64b071c2bedbe3ef046838c794ace7eb9))
+
+
+### Bug Fixes
+
+* add title for span ([95ca29f](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/95ca29f2c305325bc5de90a8856bd4c262c4cd10))
+* code lint ([859cca7](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/859cca7625240203eaad451a24ff1fb68ddafd19))
+* fix datasource name display when hover ([7902fb3](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/7902fb351931f35a6437d9520c0865c6ed3f0a8f))
+* lint code ([7064a27](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/7064a2741c235692017bf7c05f4819cc32e1c60d))
+
 ## [4.2.0-beta8](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.0-beta7...v4.2.0-beta8) (2021-06-22)
 
 
