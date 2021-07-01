@@ -6,8 +6,6 @@ import './registerMicroApps';
 import './App.css';
 import 'ant-design-dtinsight-theme/theme/dt-theme/default/index.less';
 
-export const AppContainer = 'AppContainer';
-
 function App() {
   return (
     <Layout>
