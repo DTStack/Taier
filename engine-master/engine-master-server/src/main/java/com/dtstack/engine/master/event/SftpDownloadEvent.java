@@ -55,6 +55,11 @@ public class SftpDownloadEvent extends AdapterEventMonitor {
                 }
             }
 
+            if (StringUtils.isBlank(sftpPath) || StringUtils.isBlank(destPath)) {
+                return;
+            }
+
+            logger.info("sftpPath:{} and destPath {}",sftpPath,destPath);
             String ifPresent = cacheSftpJar.getIfPresent(jarPath);
             if (StringUtils.isBlank(ifPresent)) {
                 SftpConfig sftpConfig = componentService.getComponentByClusterId(-1L, EComponentType.SFTP.getTypeCode(), false, SftpConfig.class);
