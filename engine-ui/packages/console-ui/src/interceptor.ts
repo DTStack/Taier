@@ -1,6 +1,6 @@
 
 import { message, notification } from 'antd'
-import { hashHistory } from 'react-router'
+// import { hashHistory } from 'react-router'
 import utils from 'dt-common/src/utils'
 import localDb from 'dt-common/src/utils/localDb'
 
