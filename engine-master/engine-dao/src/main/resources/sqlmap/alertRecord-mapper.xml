@@ -291,11 +291,11 @@
     </select>
 
     <select id="findMinIdByStatus" resultType="java.lang.Long">
-        SELECT count(*)
+        SELECT min(id)
         FROM alert_record
         WHERE
-        `gmt_created` &gt;= #{startDate}
-        AND `gmt_created` &lt;= #{endDate}
+        `gmt_created` &gt;= FROM_UNIXTIME(#{startDate}/1000)
+        AND `gmt_created` &lt;= FROM_UNIXTIME(#{endDate}/1000)
         AND `node_address` = #{nodeAddress}
         AND `alert_record_status`=#{sendStatus}
         AND `is_deleted`=0
@@ -318,10 +318,10 @@
             AND `id` > #{minId}
         </if>
         <if test="startDate!=null" >
-            AND `gmt_created` &gt;= FROM_UNIXTIME(#{startDate})
+            AND `gmt_created` &gt;= FROM_UNIXTIME(#{startDate}/1000)
         </if>
         <if test="endDate!=null">
-            AND `gmt_created` &lt;= FROM_UNIXTIME(#{endDate})
+            AND `gmt_created` &lt;= FROM_UNIXTIME(#{endDate}/1000)
         </if>
         <if test="alertRecordSendStatus != null">
             AND `alert_record_send_status` = #{alertRecordSendStatus}
