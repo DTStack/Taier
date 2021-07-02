@@ -138,8 +138,15 @@ public class EnvironmentContext {
         return Integer.parseInt(environment.getProperty("http.port", "9020"));
     }
 
+    private volatile String httpAddress;
+
     public String getHttpAddress() {
-        return environment.getProperty("http.address", AddressUtil.getOneIp());
+        if (StringUtils.isNotBlank(httpAddress)) {
+            return httpAddress;
+        }
+
+        httpAddress = environment.getProperty("http.address", AddressUtil.getOneIp());
+        return httpAddress;
     }
 
     /**
@@ -293,10 +300,17 @@ public class EnvironmentContext {
         return Integer.parseInt(environment.getProperty("slots", "10"));
     }
 
+    private volatile String localAddress;
+
     public String getLocalAddress() {
+        if (StringUtils.isNotBlank(localAddress)) {
+            return localAddress;
+        }
+
         String address = environment.getProperty("http.address", AddressUtil.getOneIp());
         String port = environment.getProperty("http.port", "8090");
-        return String.format("%s:%s", address, port);
+        localAddress = String.format("%s:%s", address, port);
+        return localAddress;
     }
 
     public String getNodeZkAddress() {
