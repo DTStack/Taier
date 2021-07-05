@@ -137,7 +137,8 @@ public class JobGraphBuilder {
             ExecutorService jobGraphBuildPool = new ThreadPoolExecutor(MAX_TASK_BUILD_THREAD, MAX_TASK_BUILD_THREAD, 10L, TimeUnit.SECONDS,
                     new LinkedBlockingQueue<>(MAX_TASK_BUILD_THREAD), new CustomThreadFactory("JobGraphBuilder"));
 
-            List<ScheduleBatchJob> allJobs = new ArrayList<>(totalTask);
+            List<ScheduleBatchJob> allFlowJobs = new ArrayList<>(totalTask);
+            List<Long> allJobExecuteOrder = Lists.newArrayList();
             Map<String, String> flowJobId = new ConcurrentHashMap<>(totalTask);
             //限制 thread 并发
             int totalBatch = totalTask / TASK_BATCH_SIZE;
@@ -148,6 +149,7 @@ public class JobGraphBuilder {
             CountDownLatch ctl = new CountDownLatch(totalBatch);
             long startId = 0L;
             int i = 0;
+
 
             while (true) {
                 final int batchIdx = ++i;
@@ -161,11 +163,11 @@ public class JobGraphBuilder {
 
                 startId = batchTaskShades.get(batchTaskShades.size() - 1).getId();
                 logger.info("batch-number:{} startId:{}", batchIdx, startId);
-
                 try {
                     buildSemaphore.acquire();
                     jobGraphBuildPool.execute(() -> {
                         try {
+                            List<ScheduleBatchJob> allJobs = Lists.newArrayList();
                             for (ScheduleTaskShade task : batchTaskShades) {
                                 try {
                                     List<ScheduleBatchJob> jobRunBeans = RetryUtil.executeWithRetry(() -> {
@@ -173,8 +175,19 @@ public class JobGraphBuilder {
                                         return buildJobRunBean(task, CRON_TRIGGER_TYPE, EScheduleType.NORMAL_SCHEDULE,
                                                 true, true, triggerDay, cronJobName, null, task.getProjectId(), task.getTenantId());
                                     }, environmentContext.getBuildJobErrorRetry(), 200, false);
-                                    synchronized (allJobs) {
-                                        allJobs.addAll(jobRunBeans);
+                                    synchronized (allFlowJobs) {
+                                        if (CollectionUtils.isNotEmpty(jobRunBeans)) {
+                                            jobRunBeans.forEach(job->{
+                                                String currentFlowJobId = job.getScheduleJob().getFlowJobId();
+                                                if (!NORMAL_TASK_FLOW_ID.equals(currentFlowJobId)) {
+                                                    // 说明是工作流子任务 工作流子任务后面统一插入
+                                                    allFlowJobs.add(job);
+                                                } else {
+                                                    allJobs.add(job);
+                                                }
+                                                allJobExecuteOrder.add(job.getJobExecuteOrder());
+                                            });
+                                        }
                                     }
 
                                     if (SPECIAL_TASK_TYPES.contains(task.getTaskType())) {
@@ -186,7 +199,9 @@ public class JobGraphBuilder {
                                     logger.error("build task failure taskId:{} apptype:{}",task.getTaskId(),task.getAppType(), e);
                                 }
                             }
-                            logger.info("batch-number:{} done!!! allJobs size:{}", batchIdx, allJobs.size());
+                            // 插入周期实例
+                            batchJobService.insertJobList(allJobs, EScheduleType.NORMAL_SCHEDULE.getType());
+                            logger.info("batch-number:{} done!!! allFlowJobs size:{}", batchIdx, allFlowJobs.size());
                         } catch (Throwable e) {
                             logger.error("!!! buildTaskJobGraph  build job error !!!", e);
                         } finally {
@@ -202,27 +217,25 @@ public class JobGraphBuilder {
             }
             ctl.await();
             if (isBuildError) {
-                logger.info("buildTaskJobGraph happend error jobSize {}", allJobs.size());
+                logger.info("buildTaskJobGraph happend error jobSize {}", allFlowJobs.size());
                 return;
             }
-            logger.info("buildTaskJobGraph all done!!! allJobs size:{}", allJobs.size());
+            logger.info("buildTaskJobGraph all done!!! allFlowJobs size:{}", allFlowJobs.size());
             jobGraphBuildPool.shutdown();
 
-            doSetFlowJobIdForSubTasks(allJobs, flowJobId);
+            doSetFlowJobIdForSubTasks(allFlowJobs, flowJobId);
 
-            allJobs.sort((ebj1, ebj2) -> {
-                Long date1 = Long.valueOf(ebj1.getCycTime());
-                Long date2 = Long.valueOf(ebj2.getCycTime());
-                if (date1 < date2) {
+            allJobExecuteOrder.sort((ebj1, ebj2) -> {
+                if (ebj1 < ebj2) {
                     return -1;
-                } else if (date1 > date2) {
+                } else if (ebj1 > ebj2) {
                     return 1;
                 }
                 return 0;
             });
 
             //存储生成的jobRunBean
-            jobGraphBuilder.saveJobGraph(allJobs, triggerDay);
+            jobGraphBuilder.saveJobGraph(allFlowJobs, triggerDay,allJobExecuteOrder);
         } catch (Exception e) {
             logger.error("buildTaskJobGraph ！！！", e);
         } finally {
@@ -309,11 +322,11 @@ public class JobGraphBuilder {
      */
     @Transactional
     @DtDruidRemoveAbandoned
-    public boolean saveJobGraph(List<ScheduleBatchJob> jobList, String triggerDay) {
+    public boolean saveJobGraph(List<ScheduleBatchJob> jobList, String triggerDay,List<Long> allJobExecuteOrder) {
         logger.info("start saveJobGraph to db {} jobSize {}", triggerDay, jobList.size());
-        //需要保存BatchJob, BatchJobJob
-        Long minJobId = batchJobService.insertJobList(jobList, EScheduleType.NORMAL_SCHEDULE.getType());
-
+        //插入工作流子节点
+        batchJobService.insertJobList(jobList, EScheduleType.NORMAL_SCHEDULE.getType());
+        Long minJobId = allJobExecuteOrder.get(allJobExecuteOrder.size() - 1);
         //记录当天job已经生成
         String triggerTimeStr = triggerDay + " 00:00:00";
         Timestamp timestamp = Timestamp.valueOf(triggerTimeStr);
@@ -401,7 +414,7 @@ public class JobGraphBuilder {
 
             ScheduleJob scheduleJob = new ScheduleJob();
             ScheduleBatchJob scheduleBatchJob = new ScheduleBatchJob(scheduleJob);
-
+            Date triggerDate = DateUtil.parseDate(triggerTime, DateUtil.STANDARD_DATETIME_FORMAT);
             triggerTime = DateUtil.getTimeStrWithoutSymbol(triggerTime);
             String jobKey = generateJobKey(keyPreStr, task.getId(), triggerTime);
             String targetJobName = jobName;
@@ -458,6 +471,9 @@ public class JobGraphBuilder {
 
             scheduleJob.setType(scheduleType.getType());
             scheduleJob.setCycTime(triggerTime);
+            if (triggerDate != null) {
+                scheduleJob.setJobExecuteOrder(triggerDate.getTime());
+            }
             scheduleJob.setIsRestart(Restarted.NORMAL.getStatus());
 
             scheduleJob.setDependencyType(scheduleCron.getSelfReliance());
