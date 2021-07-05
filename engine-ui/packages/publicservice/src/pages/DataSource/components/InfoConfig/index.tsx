@@ -667,11 +667,14 @@ const InfoConfig = (props) => {
               </Tooltip>
             )}
 
-            <Icon
+            {/* <Icon
               className="help-doc"
               type="copy"
               onClick={() => handleCopy(item)}
-            />
+            /> */}
+            <span className="help-module" onClick={() => handleCopy(item)}>
+              复制模板
+            </span>
           </Form.Item>
         );
       case 'RichText':
@@ -968,7 +971,7 @@ const InfoConfig = (props) => {
                   <Tooltip title={hdfsConfig} className="help-tooltip">
                     <Icon type="question-circle-o" />
                   </Tooltip>
-                  <Icon
+                  {/* <Icon
                     className="help-doc"
                     type="copy"
                     onClick={() =>
@@ -977,7 +980,15 @@ const InfoConfig = (props) => {
                         placeHold: HDFSCONG,
                       })
                     }
-                  />
+                  /> */}
+                  <span className="help-module" onClick={() =>
+                      handleCopy({
+                        label: '高可用配置',
+                        placeHold: HDFSCONG,
+                      })
+                    }>
+                    复制模板
+                  </span>
                 </Form.Item>
               </>
             )}
