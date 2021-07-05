@@ -200,18 +200,16 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
             {form.getFieldDecorator(`${typeCode}.specialConfig`, {
                 initialValue: config || {}
             })(<span style={{ display: 'none' }}></span>)}
-            {
-                template.length > 0 ? <CustomParams
-                    key={String(template.length)}
-                    typeCode={typeCode}
-                    form={form}
-                    comp={comp}
-                    view={view}
-                    template={template}
-                    labelCol={formItemLayout.labelCol.sm.span + 2}
-                    wrapperCol={formItemLayout.wrapperCol.sm.span - 3}
-                /> : null
-            }
+            <CustomParams
+                key={String(template.length)}
+                typeCode={typeCode}
+                form={form}
+                comp={comp}
+                view={view}
+                template={template}
+                labelCol={formItemLayout.labelCol.sm.span + 2}
+                wrapperCol={formItemLayout.wrapperCol.sm.span - 3}
+            />
         </>
     }
 
