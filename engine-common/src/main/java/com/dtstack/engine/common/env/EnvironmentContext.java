@@ -293,10 +293,15 @@ public class EnvironmentContext {
         return Integer.parseInt(environment.getProperty("slots", "10"));
     }
 
+    private volatile String  localAddress;
     public String getLocalAddress() {
+        if (null != localAddress) {
+            return localAddress;
+        }
         String address = environment.getProperty("http.address", AddressUtil.getOneIp());
         String port = environment.getProperty("http.port", "8090");
-        return String.format("%s:%s", address, port);
+        localAddress = String.format("%s:%s", address, port);
+        return localAddress;
     }
 
     public String getNodeZkAddress() {
