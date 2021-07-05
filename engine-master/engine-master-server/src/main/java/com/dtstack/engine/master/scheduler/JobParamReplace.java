@@ -32,6 +32,8 @@ public class JobParamReplace {
 
     private final static String VAR_FORMAT = "${%s}";
 
+    private final static String VAR_COMPONENT = "@@{%s}";
+
 
     public String paramReplace(String sql, List<ScheduleTaskParamShade> paramList, String cycTime) {
 
@@ -53,23 +55,34 @@ public class JobParamReplace {
             paramCommand = ((ScheduleTaskParamShade) param).getParamCommand();
 
             String targetVal = convertParam(type, paramName, paramCommand, cycTime, ((ScheduleTaskParamShade) param).getTaskId());
-            String replaceStr = String.format(VAR_FORMAT, paramName);
+            String parseSymbol = convertSymbol(type);
+            String replaceStr = String.format(parseSymbol, paramName);
             sql = sql.replace(replaceStr, targetVal);
         }
 
         return sql;
     }
 
+    private String convertSymbol(Integer type) {
+        if (EParamType.COMPONENT.getType().equals(type)) {
+            return VAR_COMPONENT;
+        } else {
+            return VAR_FORMAT;
+        }
+    }
+
     public String convertParam(Integer type, String paramName, String paramCommand, String cycTime, Long taskId) {
 
         String command = paramCommand;
-        if (type == EParamType.SYS_TYPE.getType()) {
+        if (EParamType.SYS_TYPE.getType().equals(type)) {
             // 特殊处理 bdp.system.currenttime
             if ("bdp.system.runtime".equals(paramName)) {
                 return TimeParamOperator.dealCustomizeTimeOperator(command, cycTime);
             }
 
             command = TimeParamOperator.transform(command, cycTime);
+            return command;
+        } else if (EParamType.COMPONENT.getType().equals(type)) {
             return command;
         } else {
             return TimeParamOperator.dealCustomizeTimeOperator(command, cycTime);
