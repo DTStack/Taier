@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.2.0-beta9](http://git.dtstack.cn/dtstack/data-stack-web/compare/v4.2.0-beta8...v4.2.0-beta9) (2021-07-06)
+
+
+### Bug Fixes
+
+* open limit yarn and hdfs custom params ([45ac5e4](http://git.dtstack.cn/dtstack/data-stack-web/commit/45ac5e47c2a5eaac39f27ba97812cb1d008c8e5b))
+
 ## [4.2.0-beta8](http://git.dtstack.cn/dtstack/data-stack-web/compare/v4.2.0-beta7...v4.2.0-beta8) (2021-07-01)
 
 
