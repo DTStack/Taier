@@ -60,7 +60,7 @@ export const COMPONENT_CONFIG_NAME = {
     18: 'DtScript Agent',
     19: 'Inceptor SQL',
     20: 'Flink on Standalone',
-    21: 'AnalyticDB for PostgreSQL'
+    21: 'AnalyticDB PostgreSQL'
 }
 
 export const TABS_TITLE = {
