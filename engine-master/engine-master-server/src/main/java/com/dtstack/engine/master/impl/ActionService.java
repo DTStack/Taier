@@ -285,15 +285,15 @@ public class ActionService {
         }
         // 出错重试配置,兼容之前的任务，没有这个参数则默认重试
         JSONObject scheduleConf = JSONObject.parseObject(batchTask.getScheduleConf());
-        if (scheduleConf.containsKey("isFailRetry")) {
+        if (scheduleConf != null && scheduleConf.containsKey("isFailRetry")) {
             actionParam.put("isFailRetry", scheduleConf.getBooleanValue("isFailRetry"));
             if (scheduleConf.getBooleanValue("isFailRetry")) {
                 int maxRetryNum = scheduleConf.getIntValue("maxRetryNum") == 0 ? 3 : scheduleConf.getIntValue("maxRetryNum");
                 actionParam.put("maxRetryNum", maxRetryNum);
                 //离线 单位 分钟
                 Integer retryIntervalTime = scheduleConf.getInteger("retryIntervalTime");
-                if(null != retryIntervalTime){
-                    actionParam.put("retryIntervalTime",retryIntervalTime * 60 * 1000);
+                if (null != retryIntervalTime) {
+                    actionParam.put("retryIntervalTime", retryIntervalTime * 60 * 1000);
                 }
             } else {
                 actionParam.put("maxRetryNum", 0);
