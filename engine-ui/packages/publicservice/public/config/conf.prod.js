@@ -9,5 +9,6 @@ var APP_CONF = {
   theme: 'default', // 主题
   hideUserCenter: false, // 隐藏用户中心按钮
   disableHelp: false, // 禁用帮助文档
-  IMG_URL:window.location.origin+"/publicService"
+  IMG_URL:window.location.origin+"/publicService",
+  closeBrowserCheck: false, // dt-common启用浏览器检测
 };

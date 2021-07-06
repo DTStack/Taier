@@ -13,7 +13,7 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "noUnusedLocals": true,
+    // "noUnusedLocals": true,
     "experimentalDecorators": true,
     "downlevelIteration": true,
     "typeRoots": ["node", "node_modules/@types", "./typings"],
@@ -32,7 +32,7 @@
     "./src/**/*.ts",
     "./src/**/*.tsx",
     "./src/**/*.js",
-    "./lib/dt-common/src/components/views/**/*.tsx"
+    // "./lib/dt-common/src/components/views/**/*.tsx"
   ],
   "exclude": [
     "node_modules",
