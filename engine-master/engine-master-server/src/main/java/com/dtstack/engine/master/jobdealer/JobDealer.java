@@ -18,6 +18,7 @@ import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.impl.TaskParamsService;
+import com.dtstack.engine.master.impl.DataSourceService;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.queue.GroupInfo;
@@ -82,6 +83,9 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
     @Autowired
     private TaskParamsService taskParamsService;
 
+    @Autowired
+    private DataSourceService dataSourceService;
+
     /**
      * key: jobResource, 计算引擎类型
      * value: queue
@@ -143,6 +147,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
      */
     public void addSubmitJob(JobClient jobClient) {
         String jobResource = jobComputeResourcePlain.getJobResource(jobClient);
+        jobClient.setPluginInfo(dataSourceService.loadJdbcInfo(jobClient.getPluginInfo()));
 
         jobClient.setCallBack((jobStatus) -> {
             updateJobStatus(jobClient.getTaskId(), jobStatus);

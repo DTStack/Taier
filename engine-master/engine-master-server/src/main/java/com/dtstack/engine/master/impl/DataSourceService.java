@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.KerberosConfig;
@@ -13,6 +14,7 @@ import com.dtstack.engine.dao.ComponentDao;
 import com.dtstack.engine.dao.KerberosDao;
 import com.dtstack.pubsvc.sdk.datasource.DataSourceAPIClient;
 import com.dtstack.pubsvc.sdk.dto.param.datasource.EditConsoleParam;
+import com.dtstack.pubsvc.sdk.dto.result.datasource.DsServiceInfoDTO;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -108,5 +110,42 @@ public class DataSourceService {
             editConsoleParam.setKerberosConfig(JSONObject.parseObject(JSONObject.toJSONString(kerberosConfigVO)));
         }
         return editConsoleParam;
+    }
+
+    public String loadJdbcInfo(String pluginInfo) {
+        if (null == dataSourceAPIClient) {
+            LOGGER.info("datasource url is not init so skip");
+            return pluginInfo;
+        }
+
+        LOGGER.info("pluginInfo:{}",pluginInfo);
+
+        if (StringUtils.isNotBlank(pluginInfo)) {
+            try {
+                JSONObject pluginInfoObj = JSON.parseObject(pluginInfo);
+
+                Long dataSourceId = pluginInfoObj.getLong(JdbcInfoConst.DATA_SOURCE_ID);
+                if (dataSourceId != null) {
+                    DsServiceInfoDTO data = dataSourceAPIClient.getDsInfoById(dataSourceId).getData();
+                    if (data != null) {
+                        String dataJson = data.getDataJson();
+                        LOGGER.info("dataJson:{}",dataJson);
+                        JSONObject dataSourceInfo = JSON.parseObject(dataJson);
+                        pluginInfoObj.putAll(dataSourceInfo);
+                    }
+                }
+                return pluginInfoObj.toJSONString();
+            } catch (Exception e) {
+                LOGGER.error("load dtDataSourceId{} error ", pluginInfo, e);
+                return pluginInfo;
+            }
+        } else {
+            return pluginInfo;
+        }
+    }
+
+    interface JdbcInfoConst {
+        String TYPE_NAME = "typeName";
+        String DATA_SOURCE_ID = "dtDataSourceId";
     }
 }
