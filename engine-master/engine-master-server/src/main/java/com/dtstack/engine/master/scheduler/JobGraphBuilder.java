@@ -138,7 +138,7 @@ public class JobGraphBuilder {
                     new LinkedBlockingQueue<>(MAX_TASK_BUILD_THREAD), new CustomThreadFactory("JobGraphBuilder"));
 
             List<ScheduleBatchJob> allFlowJobs = new ArrayList<>(totalTask);
-            List<Long> allJobExecuteOrder = Lists.newArrayList();
+            final Long[] minId = {0L};
             Map<String, String> flowJobId = new ConcurrentHashMap<>(totalTask);
             //限制 thread 并发
             int totalBatch = totalTask / TASK_BATCH_SIZE;
@@ -185,7 +185,13 @@ public class JobGraphBuilder {
                                                 } else {
                                                     allJobs.add(job);
                                                 }
-                                                allJobExecuteOrder.add(job.getJobExecuteOrder());
+
+                                                if (minId[0] == 0L) {
+                                                    minId[0] = job.getJobExecuteOrder();
+                                                } else if (minId[0] > job.getJobExecuteOrder()) {
+                                                    minId[0] = job.getJobExecuteOrder();
+                                                }
+
                                             });
                                         }
                                     }
@@ -225,17 +231,8 @@ public class JobGraphBuilder {
 
             doSetFlowJobIdForSubTasks(allFlowJobs, flowJobId);
 
-            allJobExecuteOrder.sort((ebj1, ebj2) -> {
-                if (ebj1 < ebj2) {
-                    return -1;
-                } else if (ebj1 > ebj2) {
-                    return 1;
-                }
-                return 0;
-            });
-
             //存储生成的jobRunBean
-            jobGraphBuilder.saveJobGraph(allFlowJobs, triggerDay,allJobExecuteOrder);
+            jobGraphBuilder.saveJobGraph(allFlowJobs, triggerDay, minId[0]);
         } catch (Exception e) {
             logger.error("buildTaskJobGraph ！！！", e);
         } finally {
@@ -322,11 +319,10 @@ public class JobGraphBuilder {
      */
     @Transactional
     @DtDruidRemoveAbandoned
-    public boolean saveJobGraph(List<ScheduleBatchJob> jobList, String triggerDay,List<Long> allJobExecuteOrder) {
+    public boolean saveJobGraph(List<ScheduleBatchJob> jobList, String triggerDay,Long minJobId) {
         logger.info("start saveJobGraph to db {} jobSize {}", triggerDay, jobList.size());
         //插入工作流子节点
         batchJobService.insertJobList(jobList, EScheduleType.NORMAL_SCHEDULE.getType());
-        Long minJobId = allJobExecuteOrder.get(allJobExecuteOrder.size() - 1);
         //记录当天job已经生成
         String triggerTimeStr = triggerDay + " 00:00:00";
         Timestamp timestamp = Timestamp.valueOf(triggerTimeStr);
