@@ -162,9 +162,7 @@ const showMapArr: any = {
     ['jdbcUrl', 'jdbcUrl'],
     ['username', '用户名'],
   ],
-  [DATA_SOURCE.OPENTSDB]: [
-    ['url', 'URL'],
-  ],
+  [DATA_SOURCE.OPENTSDB]: [['url', 'URL']],
   [DATA_SOURCE.DORIS]: [
     ['jdbcUrl', 'jdbcUrl'],
     ['username', '用户名'],

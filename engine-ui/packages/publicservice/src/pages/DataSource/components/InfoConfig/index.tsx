@@ -672,9 +672,9 @@ const InfoConfig = (props) => {
               type="copy"
               onClick={() => handleCopy(item)}
             /> */}
-            <span className="help-module" onClick={() => handleCopy(item)}>
-              复制模板
-            </span>
+            <div className="help-module" onClick={() => handleCopy(item)}>
+              点击复制模板
+            </div>
           </Form.Item>
         );
       case 'RichText':
@@ -981,13 +981,15 @@ const InfoConfig = (props) => {
                       })
                     }
                   /> */}
-                  <span className="help-module" onClick={() =>
+                  <span
+                    className="help-module"
+                    onClick={() =>
                       handleCopy({
                         label: '高可用配置',
                         placeHold: HDFSCONG,
                       })
                     }>
-                    复制模板
+                    点击复制模板
                   </span>
                 </Form.Item>
               </>

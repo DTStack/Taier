@@ -121,7 +121,7 @@ export const DATA_SOURCE_TEXT: any = {
   65: 'GaussDB',
   66: 'OpenTSDB',
   67: 'Doris',
-  68: 'Kylin JDBC'
+  68: 'Kylin JDBC',
 };
 
 export const PROJECT_TYPE: any = {
