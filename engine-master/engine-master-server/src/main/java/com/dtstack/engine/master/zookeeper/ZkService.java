@@ -2,6 +2,7 @@ package com.dtstack.engine.master.zookeeper;
 
 import com.dtstack.engine.common.akka.message.WorkerInfo;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.master.scheduler.DataClearSchedule;
 import com.dtstack.engine.master.zookeeper.data.BrokerHeartNode;
 import com.dtstack.engine.master.zookeeper.data.BrokersNode;
 import com.dtstack.engine.common.env.EnvironmentContext;
@@ -60,6 +61,9 @@ public class ZkService implements InitializingBean, DisposableBean {
     @Autowired
     private FailoverStrategy failoverStrategy;
 
+    @Autowired
+    private DataClearSchedule dataClearSchedule;
+
     @Override
     public void afterPropertiesSet() throws Exception {
         logger.info("Initializing " + this.getClass().getName());
@@ -100,7 +104,7 @@ public class ZkService implements InitializingBean, DisposableBean {
     private void initScheduledExecutorService() throws Exception {
         listeners.add(new HeartBeatListener(this));
         String latchPath = String.format("%s/%s", this.distributeRootNode, "masterLatchLock");
-        MasterListener masterListener = new MasterListener(failoverStrategy, zkClient, latchPath, localAddress);
+        MasterListener masterListener = new MasterListener(failoverStrategy,dataClearSchedule, zkClient, latchPath, localAddress);
         listeners.add(masterListener);
         listeners.add(new HeartBeatCheckListener(masterListener, failoverStrategy, this));
     }

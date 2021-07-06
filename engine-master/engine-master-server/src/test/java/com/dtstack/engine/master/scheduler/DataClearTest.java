@@ -12,8 +12,10 @@ import com.dtstack.engine.master.utils.Template;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -62,8 +64,7 @@ public class DataClearTest extends AbstractTest {
             scheduleDict.setSort(1);
             scheduleDictDao.insert(scheduleDict);
         }
-
-        dataClearSchedule.setIsMaster(true);
-        dataClearSchedule.process();
+        List<ScheduleDict> scheduleDicts = dictDao.listDictByType(DictType.DATA_CLEAR_NAME.type);
+        ReflectionTestUtils.invokeMethod(dataClearSchedule,"dataClear",scheduleDicts);
     }
 }

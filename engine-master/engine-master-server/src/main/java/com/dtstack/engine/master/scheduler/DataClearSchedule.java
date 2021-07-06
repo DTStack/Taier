@@ -6,6 +6,7 @@ import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.dao.ScheduleDictDao;
 import com.dtstack.engine.master.enums.DictType;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.Date;
+import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -64,7 +67,7 @@ public class DataClearSchedule {
             LOGGER.info("data clear table is empty");
             return;
         }
-        CompletableFuture.runAsync(()-> dataClear(scheduleDicts));
+        CompletableFuture.runAsync(() -> dataClear(scheduleDicts));
     }
 
     private void dataClear(List<ScheduleDict> scheduleDicts) {
@@ -77,10 +80,17 @@ public class DataClearSchedule {
                         clearConfig = new JSONObject();
                     }
                     long lastClearId = clearConfig.getLongValue(clearFlag);
-                    if (lastClearId < 0) {
-                        lastClearId = 0L;
+                    Statement statement = connection.createStatement();
+                    ResultSet resultSet = statement.executeQuery(String.format("select id from %s order by id limit 1", tableName));
+                    while (resultSet.next()) {
+                        long dbMinClearId = resultSet.getLong(1);
+                        LOGGER.info("DataClearSchedule table[{}] dbMinId:[{}] lastClearId:[{}]", tableName, dbMinClearId, lastClearId);
+                        lastClearId = Math.max(dbMinClearId, lastClearId);
                     }
+
                     String sqlAppendWhere = (String) clearConfig.getOrDefault(appendWhere, "");
+                    // 添加where 语句 会导致 update 部分区间为0
+                    boolean isAppendWhere = StringUtils.isBlank(sqlAppendWhere);
                     // 单位 day
                     Integer clearDate = (Integer) clearConfig.getOrDefault(clearDateConfig, 180);
                     Integer deleteDate = (Integer) clearConfig.getOrDefault(deleteDateConfig, 30);
@@ -96,11 +106,20 @@ public class DataClearSchedule {
                             String updateSql = String.format("update %s set is_deleted = 2 where id >= %s and id <= %s and gmt_create < %s %s",
                                     tableName, lastClearId, endClearId, clearTime.toString("yyyyMMddHHmmss"), sqlAppendWhere);
                             LOGGER.info("DataClearSchedule update sql [{}]", updateSql);
-                            Statement statement = connection.createStatement();
                             updateSize = statement.executeUpdate(updateSql);
                             LOGGER.info("DataClearSchedule update size [{}]", updateSize);
-                            if (updateSize > 0) {
+                            if (updateSize > 0 && isAppendWhere) {
                                 lastClearId = endClearId;
+                            }
+                            if (!isAppendWhere) {
+                                resultSet = statement.executeQuery(String.format("select gmt_create from %s where id > %s limit 1", tableName,endClearId));
+                                while (resultSet.next()) {
+                                    Date date = resultSet.getDate(1);
+                                    if (null != date && date.after(clearTime.toDate())) {
+                                        LOGGER.info("DataClearSchedule gmt_create is [{}]  lastCleatId [{}]", date.getTime(), clearTime.toString("yyyyMMddHHmmss"));
+                                        break;
+                                    }
+                                }
                             }
                         }
                     }
@@ -112,10 +131,9 @@ public class DataClearSchedule {
                         String deleteSql = String.format("delete from %s where is_deleted = 2 and id >= %s and id <= %s and gmt_create < %s %s",
                                 tableName, i, endClearId, deleteTime.toString("yyyyMMddHHmmss"), sqlAppendWhere);
                         LOGGER.info("DataClearSchedule delete sql [{}]", deleteSql);
-                        Statement statement = connection.createStatement();
                         int clearSize = statement.executeUpdate(deleteSql);
                         LOGGER.info("DataClearSchedule clear size [{}]", clearSize);
-                        if (clearSize <= 0) {
+                        if (clearSize <= 0 && isAppendWhere) {
                             break;
                         }
                     }

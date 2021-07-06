@@ -29,7 +29,7 @@ public class AlertRecord {
     private String nodeAddress;
     private String sendTime;
     private String sendEndTime;
-    private Timestamp gmtCreated;
+    private Timestamp gmtCreate;
     private Timestamp gmtModified;
 
     public Long getId() {
@@ -168,12 +168,12 @@ public class AlertRecord {
         this.sendEndTime = sendEndTime;
     }
 
-    public Timestamp getGmtCreated() {
-        return gmtCreated;
+    public Timestamp getGmtCreate() {
+        return gmtCreate;
     }
 
-    public void setGmtCreated(Timestamp gmtCreated) {
-        this.gmtCreated = gmtCreated;
+    public void setGmtCreate(Timestamp gmtCreate) {
+        this.gmtCreate = gmtCreate;
     }
 
     public Timestamp getGmtModified() {

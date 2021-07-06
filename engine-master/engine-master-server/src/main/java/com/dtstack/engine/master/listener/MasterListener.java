@@ -2,6 +2,7 @@ package com.dtstack.engine.master.listener;
 
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.master.failover.FailoverStrategy;
+import com.dtstack.engine.master.scheduler.DataClearSchedule;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.leader.LeaderLatch;
 import org.apache.curator.framework.recipes.leader.LeaderLatchListener;
@@ -29,13 +30,16 @@ public class MasterListener implements LeaderLatchListener, Listener {
     private final FailoverStrategy failoverStrategy;
 
     private final ScheduledExecutorService scheduledService;
+    private final DataClearSchedule dataClearSchedule;
     private LeaderLatch latch;
 
     public MasterListener(FailoverStrategy failoverStrategy,
+                          DataClearSchedule dataClearSchedule,
                           CuratorFramework curatorFramework,
                           String latchPath,
                           String localAddress) throws Exception {
         this.failoverStrategy = failoverStrategy;
+        this.dataClearSchedule = dataClearSchedule;
 
         this.latch = new LeaderLatch(curatorFramework, latchPath, localAddress);
         this.latch.addListener(this);
@@ -75,6 +79,8 @@ public class MasterListener implements LeaderLatchListener, Listener {
         logger.info("i am master:{} ...", isMaster.get());
 
         failoverStrategy.setIsMaster(isMaster.get());
+        dataClearSchedule.setIsMaster(isMaster.get());
+
     }
 
 }

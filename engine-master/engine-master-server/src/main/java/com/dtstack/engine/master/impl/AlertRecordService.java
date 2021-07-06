@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.dtstack.engine.alert.AlterContext;
 import com.dtstack.engine.alert.AlterSender;
 import com.dtstack.engine.alert.EventMonitor;
@@ -91,13 +90,13 @@ public class AlertRecordService {
         notifyRecordReadDTO.setProjectId(contentById.getProjectId());
         notifyRecordReadDTO.setContentId(alertRecord.getAlertContentId());
         notifyRecordReadDTO.setStatus(alertRecord.getStatus());
-        notifyRecordReadDTO.setGmtCreateFormat(DateUtil.getDate(alertRecord.getGmtCreated(),DateUtil.STANDARD_DATETIME_FORMAT));
+        notifyRecordReadDTO.setGmtCreateFormat(DateUtil.getDate(alertRecord.getGmtCreate(),DateUtil.STANDARD_DATETIME_FORMAT));
         notifyRecordReadDTO.setAppType(alertRecord.getAppType());
         notifyRecordReadDTO.setUserId(alertRecord.getUserId());
         notifyRecordReadDTO.setReadStatus(alertRecord.getReadStatus());
         notifyRecordReadDTO.setTenantId(alertRecord.getTenantId());
         notifyRecordReadDTO.setId(alertRecord.getId());
-        notifyRecordReadDTO.setGmtCreate(alertRecord.getGmtCreated());
+        notifyRecordReadDTO.setGmtCreate(alertRecord.getGmtCreate());
         notifyRecordReadDTO.setGmtModified(alertRecord.getGmtModified());
         notifyRecordReadDTO.setNotifyRecordId(alertRecord.getReadId());
         return notifyRecordReadDTO;
