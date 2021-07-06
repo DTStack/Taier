@@ -221,14 +221,6 @@ public class ActionService {
     private ScheduleJob buildScheduleJob(ScheduleTaskShade batchTask, String jobId, String flowJobId) throws IOException, ParseException {
         String cycTime = jobRichOperator.getCycTime(0);
         String scheduleConf = batchTask.getScheduleConf();
-        // 立即执行不需要重试
-        if (StringUtils.isNotBlank(scheduleConf)) {
-            Map jsonMap = objMapper.readValue(scheduleConf, Map.class);
-            jsonMap.put("isFailRetry",false);
-            scheduleConf = JSON.toJSONString(jsonMap);
-            batchTask.setScheduleConf(scheduleConf);
-        }
-        ScheduleCron scheduleCron = ScheduleFactory.parseFromJson(scheduleConf);
         ScheduleJob scheduleJob = new ScheduleJob();
         scheduleJob.setJobId(jobId);
         scheduleJob.setJobName(RUN_JOB_NAME+RUN_DELIMITER+batchTask.getName()+RUN_DELIMITER+cycTime);
@@ -248,14 +240,23 @@ public class ActionService {
         scheduleJob.setBusinessDate(getOrDefault(jobRichOperator.getCycTime(-1), ""));
         scheduleJob.setCycTime(getOrDefault(cycTime, DateTime.now().toString("yyyyMMddHHmmss")));
 
-        scheduleJob.setDependencyType(getOrDefault(scheduleCron.getSelfReliance(), 0));
+        if (StringUtils.isNotBlank(scheduleConf)) {
+            Map jsonMap = objMapper.readValue(scheduleConf, Map.class);
+            jsonMap.put("isFailRetry",false);
+            scheduleConf = JSON.toJSONString(jsonMap);
+            batchTask.setScheduleConf(scheduleConf);
+            ScheduleCron scheduleCron = ScheduleFactory.parseFromJson(scheduleConf);
+            scheduleJob.setDependencyType(getOrDefault(scheduleCron.getSelfReliance(), 0));
+            scheduleJob.setPeriodType(scheduleCron.getPeriodType());
+            scheduleJob.setMaxRetryNum(getOrDefault(scheduleCron.getMaxRetryNum(), 0));
+        }
+
         scheduleJob.setFlowJobId(getOrDefault(flowJobId, "0"));
         scheduleJob.setTaskType(getOrDefault(batchTask.getTaskType(), -2));
-        scheduleJob.setMaxRetryNum(getOrDefault(scheduleCron.getMaxRetryNum(), 0));
         scheduleJob.setNodeAddress(environmentContext.getLocalAddress());
         scheduleJob.setVersionId(getOrDefault(batchTask.getVersionId(), 0));
         scheduleJob.setComputeType(getOrDefault(batchTask.getComputeType(), 1));
-        scheduleJob.setPeriodType(scheduleCron.getPeriodType());
+
         return scheduleJob;
     }
 
