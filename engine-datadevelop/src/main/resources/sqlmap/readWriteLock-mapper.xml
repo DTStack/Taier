@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.batch.dao.ReadWriteLockDao">
+
+    <resultMap type="com.dtstack.batch.domain.ReadWriteLock" id="ReadWriteLockMap">
+    </resultMap>
+
+    <sql id="select_content_fragment">
+        id,lock_name,create_user_id,modify_user_id,version,gmt_create,gmt_modified,is_deleted,tenant_id,project_id,relation_id,type
+    </sql>
+
+    <sql id="update_fragment">
+        <set>
+           gmt_modified = now(),
+            <if test="id != null">
+                id = #{id},
+            </if>
+            <if test="lockName != null">
+                lock_name = #{lockName},
+            </if>
+            <if test="createUserId != null">
+                create_user_id = #{createUserId},
+            </if>
+            <if test="modifyUserId != null">
+                modify_user_id = #{modifyUserId},
+            </if>
+            <if test="version != null">
+                version = #{version},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted},
+            </if>
+            <if test="tenantId != null">
+                tenant_id = #{tenantId},
+            </if>
+            <if test="projectId != null">
+                project_id = #{projectId},
+            </if>
+            <if test="relationId != null">
+                relation_id = #{relationId},
+            </if>
+            <if test="type != null">
+                type = #{type},
+            </if>
+        </set>
+    </sql>
+
+    <select id="getOne" resultType="com.dtstack.batch.domain.ReadWriteLock">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_read_write_lock
+        WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <insert id="insert" parameterType="com.dtstack.batch.domain.ReadWriteLock" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO rdos_read_write_lock
+        (lock_name,create_user_id,modify_user_id,tenant_id,project_id,relation_id,type)
+        VALUES
+        (#{lockName},#{createUserId},#{createUserId},#{tenantId},#{projectId},#{relationId},#{type})
+    </insert>
+
+    <select id="getByLockName" resultType="com.dtstack.batch.domain.ReadWriteLock">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_read_write_lock
+        WHERE lock_name = #{lockName} AND is_deleted = 0 limit 1
+    </select>
+
+    <update id="updateVersionAndModifyUserId">
+        UPDATE
+        rdos_read_write_lock
+        SET version = version+1, modify_user_id = #{modifyUserId}, gmt_modified = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <select id="getByProjectIdAndRelationIdAndType" resultType="com.dtstack.batch.domain.ReadWriteLock">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_read_write_lock
+        WHERE project_id = #{projectId} AND relation_id = #{relationId} AND type = #{type} AND is_deleted = 0 limit 1
+    </select>
+
+    <select id="getLocksByIds" resultType="com.dtstack.batch.domain.ReadWriteLock">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_read_write_lock
+        WHERE project_id = #{projectId} AND type = #{type} AND is_deleted = 0
+        <if test="relationIds != null and relationIds.size() > 0">
+            And relation_id in
+            <foreach collection="relationIds" index="index" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <update id="updateVersionAndModifyUserIdDefinitized">
+        UPDATE
+        rdos_read_write_lock
+        SET version = version+1,modify_user_id = #{userId},gmt_modified = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="deleteByProjectId" parameterType="java.lang.Long">
+        UPDATE rdos_read_write_lock
+        SET is_deleted = 1, gmt_modified = now(), modify_user_id = #{userId}
+        WHERE project_id = #{projectId} AND is_deleted = 0;
+    </update>
+
+</mapper>

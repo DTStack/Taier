@@ -1,0 +1,141 @@
+package com.dtstack.batch.engine.rdbms.impala.service;
+
+import com.dtstack.batch.engine.rdbms.common.dto.ColumnDTO;
+import com.dtstack.batch.engine.rdbms.common.dto.TableDTO;
+import com.dtstack.batch.engine.rdbms.common.enums.StoredType;
+import com.dtstack.batch.engine.rdbms.service.ISqlBuildService;
+import com.dtstack.dtcenter.common.exception.DtCenterDefException;
+import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+/**
+ * @author jiangbo
+ */
+@Service
+public class ImpalaSqlBuildService implements ISqlBuildService {
+
+    @Override
+    public String buildCreateSql(TableDTO createTableDTO){
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("create ");
+
+        boolean isExternal = StringUtils.isNotEmpty(createTableDTO.getLocation());
+        if(isExternal){
+            sqlBuilder.append("external ");
+        }
+
+        // 表名
+        sqlBuilder.append("table ").append(quote(createTableDTO.getTableName()));
+
+        // 字段
+        if(CollectionUtils.isNotEmpty(createTableDTO.getColumns())){
+            String tempSql = StringUtils.join(buildColumnsSql(createTableDTO.getColumns(),true),",");
+            sqlBuilder.append(String.format("(%s) ",tempSql));
+        }
+
+        // 描述
+        if(StringUtils.isNotEmpty(createTableDTO.getTableDesc())){
+            sqlBuilder.append("comment ").append(String.format("'%s'",createTableDTO.getTableDesc())).append(" ");
+        }
+
+        // 分区
+        if(CollectionUtils.isNotEmpty(createTableDTO.getPartitionKeys())){
+            sqlBuilder.append("partitioned by ");
+            String tempSql = StringUtils.join(buildColumnsSql(createTableDTO.getPartitionKeys(),true),",");
+            sqlBuilder.append(String.format("(%s)",tempSql));
+        }
+
+        // 分隔符
+        if(StringUtils.isNotEmpty(createTableDTO.getStoredType())){
+            if(StoredType.TEXTFILE.getValue().equalsIgnoreCase(createTableDTO.getStoredType())){
+                String delim = StringUtils.isNotEmpty(createTableDTO.getDelim()) ? createTableDTO.getDelim() : ",";
+                sqlBuilder.append("row format delimited fields terminated by ")
+                        .append(String.format("'%s'",delim))
+                        .append(" ");
+            }
+
+            //存储格式
+            sqlBuilder.append("stored as ").append(createTableDTO.getStoredType()).append(" ");
+        }
+
+        // 外部表路径
+        if(isExternal){
+            sqlBuilder.append("location ").append(String.format("'%s'",createTableDTO.getLocation())).append(" ");
+        }
+
+        return sqlBuilder.toString();
+    }
+
+    @Override
+    public String buildRenameTableSql(String oldTable,String newTable){
+        return String.format("alter table %s rename to %s",quote(oldTable),quote(newTable));
+    }
+
+    @Override
+    public String buildAlterTableSql(String tableName, String comment, Integer lifecycle, Long catalogueId) {
+        String lifecycleStr = "";
+        if (lifecycle != null) {
+            lifecycleStr = String.format("lifecycle %s", lifecycle);
+        }
+
+        String catalogueStr = "";
+        if (catalogueId != null) {
+            catalogueStr = String.format("catalogue %s", catalogueId);
+        }
+
+        return String.format("alter table %s set tblproperties ('comment'='%s') %s %s", quote(tableName), comment, lifecycleStr, catalogueStr);
+    }
+
+    private List<String> buildColumnsSql(List<ColumnDTO> columns, boolean isAddCol){
+        List<String> columnsStr = Lists.newArrayList();
+        String colName;
+        String colType;
+        String colDesc;
+        String addColumnFormat = "%s %s comment '%s'";
+        String alterColumnFormat = "%s %s %s comment '%s'";
+        for (ColumnDTO col : columns) {
+
+            if(StringUtils.isEmpty(col.getColumnName()) || StringUtils.isEmpty(col.getColumnType())){
+                throw new DtCenterDefException("column name or type can not be null");
+            }
+
+            colName = col.getColumnName();
+            colType = col.getColumnType();
+            colDesc = col.getComment() == null ? "" : col.getComment();
+
+            if ("DECIMAL".equals(colType)){
+                int precision = col.getPrecision() == null ? 10 : col.getPrecision();
+                int scale = col.getScale() == null ? 0 : col.getScale();
+                colType += String.format("(%s,%s)",precision,scale);
+            }
+
+            if(isAddCol){
+                columnsStr.add(String.format(addColumnFormat,quote(colName),colType,colDesc));
+            } else {
+                columnsStr.add(String.format(alterColumnFormat,quote(colName),colName,colType,colDesc));
+            }
+        }
+
+        return columnsStr;
+    }
+
+    @Override
+    public String buildAddFuncSql(String funcName,String className,String resource){
+        return String.format("create function %s as '%s' using %s",funcName,className,resource);
+    }
+
+    @Override
+    public String buildDropFuncSql(String funcName){
+        return String.format("drop function if exists %s",funcName);
+    }
+
+    @Override
+    public String quote(String values){
+        return String.format("`%s`",values);
+    }
+}
+

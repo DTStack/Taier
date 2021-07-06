@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dtstack.batch.dao.TenantDao">
+
+    <sql id="select_content_fragment">
+        id,dtuic_tenant_id,tenant_name,tenant_desc,status,gmt_create,gmt_modified,is_deleted
+    </sql>
+
+    <sql id="update_fragment">
+        <set>
+            <if test="id != null">
+                id = #{id},
+            </if>
+            <if test="dtuicTenantId != null">
+                dtuic_tenant_id = #{dtuicTenantId},
+            </if>
+            <if test="tenantName != null">
+                tenant_name = #{tenantName},
+            </if>
+            <if test="tenantDesc != null">
+                tenant_desc = #{tenantDesc},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted},
+            </if>
+        </set>
+    </sql>
+
+    <select id="getByDtUicTenantId" resultType="Tenant">
+        select
+        <include refid="select_content_fragment"/>
+        from rdos_tenant
+        WHERE dtuic_tenant_id=#{dtUicTenantId} AND is_deleted=0 limit 1
+    </select>
+
+    <update id="updateCreateUserIdById">
+        UPDATE rdos_tenant
+        SET create_user_id=#{userId},gmt_modified=now()
+        WHERE id=#{id}
+    </update>
+
+    <insert id="insert" parameterType="Tenant" useGeneratedKeys="true" keyProperty="id">
+        INSERT IGNORE INTO rdos_tenant
+        (dtuic_tenant_id,tenant_name,tenant_desc,status)
+        VALUES
+        (#{dtuicTenantId},#{tenantName},#{tenantDesc},#{status})
+    </insert>
+
+    <select id="getOne" resultType="Tenant">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_tenant
+        WHERE id=#{id} AND is_deleted=0
+    </select>
+
+    <update id="update">
+        UPDATE rdos_tenant
+        <include refid="update_fragment"/>
+        WHERE id = #{id} AND is_deleted = 0
+    </update>
+
+    <select id="getByDtUicTenantIds" resultType="Tenant">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_tenant
+        <where>
+            <if test="dtUicTenantIdSet != null and dtUicTenantIdSet.size > 0 ">
+                dtuic_tenant_id IN
+                <foreach collection="dtUicTenantIdSet" item="item" separator="," open="(" close=")">
+                  #{item}
+                </foreach>
+            </if>
+            AND is_deleted=0
+        </where>
+    </select>
+
+    <select id="listAll" resultType="Tenant">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_tenant where is_deleted = 0
+    </select>
+
+
+    <select id="listDtuicTenantIdByTenantId" resultType="com.dtstack.batch.domain.Tenant">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_tenant
+        <where>
+            <if test="ids != null and ids.size > 0 ">
+                id IN
+                <foreach collection="ids" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+            </if>
+            AND is_deleted=0
+        </where>
+    </select>
+
+
+    <select id="getDtUicTenantIdListByIds" resultType="java.lang.Long">
+        select t.dtuic_tenant_id
+        from rdos_tenant t
+        where t.is_deleted = 0
+        <if test="ids != null and ids.size > 0">
+            and t.id IN
+            <foreach collection="ids" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+</mapper>
