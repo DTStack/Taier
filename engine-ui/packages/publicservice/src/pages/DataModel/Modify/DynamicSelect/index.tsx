@@ -83,7 +83,7 @@ const DynamicSelect = (props: IPropsDynamicSelect) => {
     try {
       const { success, data, message } = await API.getDataModelColumns(options);
       if (success) {
-        setCol(_.uniqBy(data, (item) => item.columnName));
+        setCol(_.uniqBy(data, (item) => (item as any).columnName));
       } else {
         Message.error(message);
       }

@@ -1,9 +1,9 @@
 import React, { lazy, Suspense } from 'react';
 //import from dt-common
-import Main from 'lib/dt-common/src/views';
-import MsgCenter from 'lib/dt-common/src/views/message';
-import MsgList from 'lib/dt-common/src/views/message/list';
-import MsgDetail from 'lib/dt-common/src/views/message/detail';
+import Main from 'dt-common/src/views';
+import MsgCenter from 'dt-common/src/views/message';
+import MsgList from 'dt-common/src/views/message/list';
+import MsgDetail from 'dt-common/src/views/message/detail';
 //custom components
 import Layout from '../layouts';
 import Exception from '@/components/Exception';
