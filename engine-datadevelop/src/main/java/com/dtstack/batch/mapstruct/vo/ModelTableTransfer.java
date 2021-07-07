@@ -56,7 +56,7 @@ public interface ModelTableTransfer {
      * @param listPageResult
      * @return
      */
-    com.dtstack.batch.web.pager.PageResult<List<BatchModelTableWithUserNameResultVO>> BatchModelTableWithUserNameToResultVO(PageResult<List<BatchModelTableWithUserName>> listPageResult);
+    PageResult<List<BatchModelTableWithUserNameResultVO>> BatchModelTableWithUserNameToResultVO(PageResult<List<BatchModelTableWithUserName>> listPageResult);
 
     /**
      * BatchModelTable -> BatchModelTableResultVO

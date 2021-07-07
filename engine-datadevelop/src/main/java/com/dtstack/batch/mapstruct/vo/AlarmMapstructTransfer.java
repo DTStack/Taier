@@ -1,19 +1,11 @@
 package com.dtstack.batch.mapstruct.vo;
 
 import com.dtstack.batch.domain.BatchAlarm;
-import com.dtstack.batch.vo.AlarmRecordVO;
-import com.dtstack.batch.vo.AlarmSearchRecordVO;
-import com.dtstack.batch.vo.AlarmSearchVO;
-import com.dtstack.batch.vo.AlarmVO;
-import com.dtstack.batch.vo.NotifySendTypeVO;
+import com.dtstack.batch.vo.*;
 import com.dtstack.batch.web.alarm.vo.query.BatchAlarmSearchRecordVO;
 import com.dtstack.batch.web.alarm.vo.query.BatchAlarmSearchVO;
 import com.dtstack.batch.web.alarm.vo.query.BatchAlarmVO;
-import com.dtstack.batch.web.alarm.vo.result.BatchAlarmListResultVO;
-import com.dtstack.batch.web.alarm.vo.result.BatchAlarmRecordResultVO;
-import com.dtstack.batch.web.alarm.vo.result.BatchAlarmResultVO;
-import com.dtstack.batch.web.alarm.vo.result.BatchAlarmSelectAlarmResultVO;
-import com.dtstack.batch.web.alarm.vo.result.BatchAlarmTypeListResultVO;
+import com.dtstack.batch.web.alarm.vo.result.*;
 import com.dtstack.batch.web.pager.PageResult;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

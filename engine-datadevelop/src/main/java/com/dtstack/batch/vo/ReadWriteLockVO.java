@@ -3,6 +3,7 @@ package com.dtstack.batch.vo;
 import com.dtstack.batch.domain.ReadWriteLock;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
+
 @Data
 public class ReadWriteLockVO extends ReadWriteLock {
 

@@ -2,10 +2,10 @@ package com.dtstack.batch.mapstruct.vo;
 
 import com.dtstack.batch.domain.BatchFunction;
 import com.dtstack.batch.dto.BatchFunctionDTO;
+import com.dtstack.batch.vo.BatchFunctionVO;
 import com.dtstack.batch.vo.TaskCatalogueVO;
 import com.dtstack.batch.web.function.vo.query.BatchFunctionAddVO;
 import com.dtstack.batch.web.function.vo.query.BatchFunctionQueryVO;
-import com.dtstack.batch.web.function.vo.query.BatchFunctionVO;
 import com.dtstack.batch.web.function.vo.result.BatchFunctionAddResultVO;
 import com.dtstack.batch.web.function.vo.result.BatchFunctionQueryResultVO;
 import com.dtstack.batch.web.pager.PageResult;
@@ -48,7 +48,7 @@ public interface FunctionMapstructTransfer {
      * @param vo
      * @return
      */
-    BatchFunctionQueryResultVO newFunctionToFunctionResultVo(com.dtstack.batch.vo.BatchFunctionVO vo);
+    BatchFunctionQueryResultVO newFunctionToFunctionResultVo(BatchFunctionVO vo);
 
     /**
      * TaskCatalogueVO  ->  BatchFunctionAddResultVO
@@ -64,5 +64,5 @@ public interface FunctionMapstructTransfer {
      * @param result
      * @return
      */
-    PageResult<List<BatchFunctionQueryResultVO>> newFunctionVoToFunctionQueryResultVo(PageResult<List<com.dtstack.batch.vo.BatchFunctionVO>> result);
+    PageResult<List<BatchFunctionQueryResultVO>> newFunctionVoToFunctionQueryResultVo(PageResult<List<BatchFunctionVO>> result);
 }

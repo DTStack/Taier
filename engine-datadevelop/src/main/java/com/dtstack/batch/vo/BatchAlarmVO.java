@@ -7,7 +7,7 @@ import lombok.Data;
  * @author sanyue
  */
 @Data
-public class BatchAlarmVO extends BatchAlarm{
+public class BatchAlarmVO extends BatchAlarm {
     /**
      * 允许通知的开始时间，如5：00，早上5点
      */

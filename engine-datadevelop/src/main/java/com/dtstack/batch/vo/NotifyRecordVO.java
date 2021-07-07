@@ -5,8 +5,9 @@ import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
+
 @Data
-public class NotifyRecordVO extends NotifyRecord{
+public class NotifyRecordVO extends NotifyRecord {
 
     private static final Logger logger = LoggerFactory.getLogger(NotifyRecordVO.class);
 

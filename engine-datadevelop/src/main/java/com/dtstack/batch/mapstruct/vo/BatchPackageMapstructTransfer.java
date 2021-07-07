@@ -36,7 +36,7 @@ public interface BatchPackageMapstructTransfer {
      * @param queryVO
      * @return
      */
-    BatchPackageQueryDTO  BatchPackagePageQueryVOToBatchPackageQueryDTO(BatchPackagePageQueryVO queryVO);
+    BatchPackageQueryDTO BatchPackagePageQueryVOToBatchPackageQueryDTO(BatchPackagePageQueryVO queryVO);
 
     /**
      * PageResult<List<BatchPackageItemVO>> -> PageResult<List<BatchPackageItemResultVO>>

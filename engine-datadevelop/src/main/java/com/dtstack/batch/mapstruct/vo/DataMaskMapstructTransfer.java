@@ -1,24 +1,13 @@
 package com.dtstack.batch.mapstruct.vo;
 
 import com.dtstack.batch.datamask.domain.DataMaskRule;
-import com.dtstack.batch.datamask.dto.DataMaskColumnsInfoDto;
-import com.dtstack.batch.datamask.dto.DataMaskConfigDto;
-import com.dtstack.batch.datamask.dto.DataMaskRuleDto;
-import com.dtstack.batch.datamask.dto.LineageDto;
-import com.dtstack.batch.datamask.dto.TableTableDto;
+import com.dtstack.batch.datamask.dto.*;
 import com.dtstack.batch.datamask.vo.DataMaskConfigVO;
 import com.dtstack.batch.datamask.vo.DataMaskRuleVO;
 import com.dtstack.batch.service.datamask.impl.DataMaskConfigService;
 import com.dtstack.batch.web.datamask.vo.query.BatchDataMaskConfigVO;
 import com.dtstack.batch.web.datamask.vo.query.BatchDataMaskRuleVO;
-import com.dtstack.batch.web.datamask.vo.result.BatchDataMaskConfigCheckColumnsResultVO;
-import com.dtstack.batch.web.datamask.vo.result.BatchDataMaskConfigLineageResultVO;
-import com.dtstack.batch.web.datamask.vo.result.BatchDataMaskConfigListResultVO;
-import com.dtstack.batch.web.datamask.vo.result.BatchDataMaskConfigProjectResultVO;
-import com.dtstack.batch.web.datamask.vo.result.BatchDataMaskConfigRelatedTableResultVO;
-import com.dtstack.batch.web.datamask.vo.result.BatchDataMaskConfigTableListResultVO;
-import com.dtstack.batch.web.datamask.vo.result.BatchDataMaskRuleListResultVO;
-import com.dtstack.batch.web.datamask.vo.result.BatchDataMaskRuleResultVO;
+import com.dtstack.batch.web.datamask.vo.result.*;
 import com.dtstack.batch.web.pager.PageResult;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

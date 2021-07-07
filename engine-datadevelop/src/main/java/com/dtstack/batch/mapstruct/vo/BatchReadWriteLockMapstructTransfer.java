@@ -18,7 +18,7 @@ public interface BatchReadWriteLockMapstructTransfer {
      * @param readWriteLock
      * @return
      */
-    ReadWriteLockResultVO  ReadWriteLockToResultVO(ReadWriteLock readWriteLock);
+    ReadWriteLockResultVO ReadWriteLockToResultVO(ReadWriteLock readWriteLock);
 
     /**
      * ReadWriteLockVO -> ReadWriteLockGetLockResultVO
@@ -26,6 +26,6 @@ public interface BatchReadWriteLockMapstructTransfer {
      * @return
      */
     @Mapping(source = "isGetLock", target = "getLock")
-    ReadWriteLockGetLockResultVO  ReadWriteLockVOToReadWriteLockGetLockResultVO(ReadWriteLockVO readWriteLockVO);
+    ReadWriteLockGetLockResultVO ReadWriteLockVOToReadWriteLockGetLockResultVO(ReadWriteLockVO readWriteLockVO);
 
 }

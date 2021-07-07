@@ -1,9 +1,9 @@
 package com.dtstack.batch.mapstruct.vo;
 
 import com.dtstack.batch.domain.BatchTableSyncLog;
+import com.dtstack.batch.vo.BatchDataSourceMigrationVO;
 import com.dtstack.batch.web.datasource.vo.query.BatchDataSourceMigrationTaskVO;
 import com.dtstack.batch.web.datasource.vo.query.BatchDataSourceMigrationTransformFieldVO;
-import com.dtstack.batch.web.datasource.vo.query.BatchDataSourceMigrationVO;
 import com.dtstack.batch.web.datasource.vo.result.BatchDataSourceMigrationResultVO;
 import com.dtstack.batch.web.datasource.vo.result.BatchDataSourceMigrationTableListResultVO;
 import com.dtstack.batch.web.pager.PageResult;
@@ -22,7 +22,7 @@ public interface DataSourceMigrationMapstructTransfer {
      * @param vo
      * @return
      */
-    com.dtstack.batch.vo.BatchDataSourceMigrationVO newDataSourceMigrationVoToVo(BatchDataSourceMigrationVO vo);
+    BatchDataSourceMigrationVO newDataSourceMigrationVoToVo(BatchDataSourceMigrationVO vo);
 
     /**
      * IdeDataSourceMigrationTaskVO -> BatchDataSourceMigrationVO
@@ -30,7 +30,7 @@ public interface DataSourceMigrationMapstructTransfer {
      * @param vo
      * @return
      */
-    com.dtstack.batch.vo.BatchDataSourceMigrationVO newDataSourceMigrationTaskVoToVo(BatchDataSourceMigrationTaskVO vo);
+    BatchDataSourceMigrationVO newDataSourceMigrationTaskVoToVo(BatchDataSourceMigrationTaskVO vo);
 
     /**
      * List<IdeDataSourceMigrationTransformFieldVO> -> List<BatchDataSourceMigrationVO.TransformField>
@@ -38,7 +38,7 @@ public interface DataSourceMigrationMapstructTransfer {
      * @param vo
      * @return
      */
-    List<com.dtstack.batch.vo.BatchDataSourceMigrationVO.TransformField> newTransformFieldVoToVo(List<BatchDataSourceMigrationTransformFieldVO> vo);
+    List<BatchDataSourceMigrationVO.TransformField> newTransformFieldVoToVo(List<BatchDataSourceMigrationTransformFieldVO> vo);
 
     /**
      * com.dtstack.batch.vo.BatchDataSourceMigrationVO  ->  BatchDataSourceMigrationResultVO
@@ -46,7 +46,7 @@ public interface DataSourceMigrationMapstructTransfer {
      * @param vo
      * @return
      */
-    BatchDataSourceMigrationResultVO newMigrationVoToMigrationResultVo(com.dtstack.batch.vo.BatchDataSourceMigrationVO vo);
+    BatchDataSourceMigrationResultVO newMigrationVoToMigrationResultVo(BatchDataSourceMigrationVO vo);
 
     /**
      * PageResult<List<BatchTableSyncLog>>  ->  PageResult<List<BatchDataSourceMigrationTableListResultVO>>
@@ -62,5 +62,5 @@ public interface DataSourceMigrationMapstructTransfer {
      * @param result
      * @return
      */
-    PageResult<List<BatchDataSourceMigrationResultVO>> newPageMigrationVoToMigrationResultVo(PageResult<List<com.dtstack.batch.vo.BatchDataSourceMigrationVO>> result);
+    PageResult<List<BatchDataSourceMigrationResultVO>> newPageMigrationVoToMigrationResultVo(PageResult<List<BatchDataSourceMigrationVO>> result);
 }

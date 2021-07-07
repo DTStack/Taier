@@ -27,6 +27,6 @@ public interface BatchCommonMapstructTransfer {
      * @param listPageResult
      * @return
      */
-    com.dtstack.batch.web.pager.PageResult<List<PartitionResultVO>> PartitionResultVOPageListTo(PageResult<List<PartitionDTO>> listPageResult);
+    PageResult<List<PartitionResultVO>> PartitionResultVOPageListTo(PageResult<List<PartitionDTO>> listPageResult);
 
 }

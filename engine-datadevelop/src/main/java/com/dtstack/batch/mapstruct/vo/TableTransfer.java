@@ -7,26 +7,10 @@ import com.dtstack.batch.domain.BatchTableInfo;
 import com.dtstack.batch.domain.po.StorageSizePO;
 import com.dtstack.batch.engine.rdbms.common.dto.ColumnDTO;
 import com.dtstack.batch.engine.rdbms.common.dto.TableDTO;
-import com.dtstack.batch.vo.BatchColumnVO;
-import com.dtstack.batch.vo.BatchTableBloodInfoVO;
-import com.dtstack.batch.vo.BatchTableBloodVO;
-import com.dtstack.batch.vo.BatchTableColumnMetaInfoDTO;
-import com.dtstack.batch.vo.BatchTableDataResultDTO;
-import com.dtstack.batch.vo.BatchTableInfoVO;
-import com.dtstack.batch.vo.BatchTableMetaInfoDTO;
-import com.dtstack.batch.vo.BatchTableRelationVO;
-import com.dtstack.batch.vo.BatchTableSearchVO;
+import com.dtstack.batch.vo.*;
 import com.dtstack.batch.web.pager.PageResult;
 import com.dtstack.batch.web.table.vo.query.BatchTableDataSourceVO;
-import com.dtstack.batch.web.table.vo.result.BatchEngineSqlTemplateResultVO;
-import com.dtstack.batch.web.table.vo.result.BatchSimpleTableResultVO;
-import com.dtstack.batch.web.table.vo.result.BatchTableBloodInfoResultVO;
-import com.dtstack.batch.web.table.vo.result.BatchTableBloodResultVO;
-import com.dtstack.batch.web.table.vo.result.BatchTableInfoGetDataResultVO;
-import com.dtstack.batch.web.table.vo.result.BatchTableInfoPOResultVO;
-import com.dtstack.batch.web.table.vo.result.BatchTableInfoResultVO;
-import com.dtstack.batch.web.table.vo.result.BatchTableRelationResultVO;
-import com.dtstack.batch.web.table.vo.result.BatchTableStorageSizeResultVO;
+import com.dtstack.batch.web.table.vo.result.*;
 import com.dtstack.batch.web.task.vo.query.BatchTableSearchInfoVO;
 import com.dtstack.batch.web.task.vo.query.BatchTableVO;
 import com.dtstack.dtcenter.loader.dto.ColumnMetaDTO;
@@ -82,14 +66,14 @@ public interface TableTransfer {
      * @param batchTableInfo
      * @return
      */
-    com.dtstack.batch.web.pager.PageResult<List<BatchTableInfoResultVO>>  BatchTableInfoPageListVOToResultPageListVO(PageResult<List<BatchTableInfoVO>> batchTableInfo);
+    PageResult<List<BatchTableInfoResultVO>>  BatchTableInfoPageListVOToResultPageListVO(PageResult<List<BatchTableInfoVO>> batchTableInfo);
 
     /**
      * PageResult<List<BatchTableInfo>> -> PageResult<List<BatchSimpleTableResultVO>>
      * @param batchTableInfo
      * @return
      */
-    com.dtstack.batch.web.pager.PageResult<List<BatchSimpleTableResultVO>>  BatchTableInfoPageListVOToBatchSimpleTableResultPageListVO(PageResult<List<BatchTableInfo>> batchTableInfo);
+    PageResult<List<BatchSimpleTableResultVO>>  BatchTableInfoPageListVOToBatchSimpleTableResultPageListVO(PageResult<List<BatchTableInfo>> batchTableInfo);
 
     /**
      * BatchEngineSqlTemplate -> BatchEngineSqlTemplateResultVO
@@ -117,7 +101,7 @@ public interface TableTransfer {
      * @param pageResult
      * @return
      */
-    com.dtstack.batch.web.pager.PageResult<List<Map<String, Object>>> PageListToPageList(PageResult<List<Map<String, Object>>> pageResult);
+    PageResult<List<Map<String, Object>>> PageListToPageList(PageResult<List<Map<String, Object>>> pageResult);
 
     /**
      * BatchTableBloodVO -> BatchTableBloodResultVO
@@ -145,14 +129,14 @@ public interface TableTransfer {
      * @param pageResult
      * @return
      */
-    com.dtstack.batch.web.pager.PageResult<List<BatchTableRelationResultVO>> BatchTableRelationPageListVOToResultPageListVO(PageResult<List<BatchTableRelationVO>> pageResult);
+    PageResult<List<BatchTableRelationResultVO>> BatchTableRelationPageListVOToResultPageListVO(PageResult<List<BatchTableRelationVO>> pageResult);
 
     /**
      * PageResult<List<BatchTableInfoVO>> -> PageResult<List<BatchTableInfoResultVO>>
      * @param batchTableInfo
      * @return
      */
-    com.dtstack.batch.web.pager.PageResult<List<BatchTableInfoResultVO>> BatchTableInfoPageListTOResultVOPageList(PageResult<List<BatchTableInfoVO>> batchTableInfo);
+    PageResult<List<BatchTableInfoResultVO>> BatchTableInfoPageListTOResultVOPageList(PageResult<List<BatchTableInfoVO>> batchTableInfo);
 
     /**
      * List<StorageSizePO> -> List<BatchTableStorageSizeResultVO>
