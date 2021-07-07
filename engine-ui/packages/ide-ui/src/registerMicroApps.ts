@@ -3,23 +3,34 @@ import { registerMicroApps, setDefaultMountApp, start } from 'qiankun';
 export const AppContainer = 'AppContainer';
 const container = `#${AppContainer}`;
 
+let ENTRY_CONSOLE = '//local.dtstack.cn:8080/console/';
+let ENTRY_OPERATION = '//local.dtstack.cn:8080/batch';
+let ENTRY_DATABASE = '//local.dtstack.cn:8080/batch/database';
+
+// For Production 
+if(process.env.NODE_ENV === 'production') {
+  ENTRY_CONSOLE = '/console';
+  ENTRY_OPERATION = '/batch/operation';
+  ENTRY_DATABASE = '/batch/database';
+}
+
 registerMicroApps([
   {
     name: 'Operation',
-    entry: '//dev.insight.dtstack.cn/console',
+    entry: ENTRY_OPERATION,
     container: container,
     activeRule: '/operation',
   },
   {
     name: 'DTConsoleApp',
-    entry: '//local.dtstack.cn:8080/console',
+    entry: ENTRY_CONSOLE,
     container: container,
     activeRule: '#/console-ui',
   },{
     name: 'Database',
-    entry: { scripts: ['//localhost:7100/main.js'] },
+    entry: ENTRY_DATABASE,
     container: container,
-    activeRule: '/database',
+    activeRule: '/batch/database',
   },
 ]);
 
