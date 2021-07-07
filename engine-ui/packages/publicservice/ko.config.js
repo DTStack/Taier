@@ -10,6 +10,8 @@ const isDev = process.env.NODE_ENV === 'development';
 const copyConfig = [
   { from: path.resolve(__dirname, 'public/config'), to: 'config' },
   { from: path.resolve(__dirname, 'public/assets'), to: 'assets' },
+  // dt-common定制化配置
+  { from: path.resolve(__dirname, 'public/img'), to: 'public/img' },
 ];
 
 if (process.env.NODE !== 'production') {
