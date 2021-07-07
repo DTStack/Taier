@@ -35,7 +35,6 @@ import java.util.concurrent.TimeUnit;
  * @Email:dazhi@dtstack.com
  * @Description:
  */
-@Component
 public class AlterRecordExecutor implements InitializingBean {
 
     private final Logger logger = LoggerFactory.getLogger(AlterRecordExecutor.class);
