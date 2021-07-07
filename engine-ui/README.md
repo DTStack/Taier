@@ -11,8 +11,16 @@ The frontEnd projects of DAGScheduleX.
 
 ## Build
 
-> yarn build
+Please go to the engine-ui directory:
+
+```bash
+yarn build
+```
 
 ## Running
+
+```bash
+yarn start
+```
 
 TODO
