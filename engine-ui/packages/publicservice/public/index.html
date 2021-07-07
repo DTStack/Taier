@@ -9,7 +9,7 @@
     <link rel="shortcut icon" href="./assets/imgs/bitbug_favicon.ico"/>
     <%= htmlWebpackPlugin.options.assets.config %> 
     <script>
-        if (!window.APP_CONF?.closeBrowserCheck && /Edge\/|Trident\/|MSIE /.test(window.navigator.userAgent)) {
+        if (!window.APP_CONF?.closeBrowserCheck && /Edg\/|Trident\/|MSIE /.test(window.navigator.userAgent)) {
             window.location.href = "public/compatibility/tips.html"
         }
     </script>
