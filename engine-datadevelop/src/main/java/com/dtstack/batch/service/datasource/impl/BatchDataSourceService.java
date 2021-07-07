@@ -26,8 +26,6 @@ import com.dtstack.batch.mapping.TableTypeEngineTypeMapping;
 import com.dtstack.batch.schedule.JobParamReplace;
 import com.dtstack.batch.service.datamask.impl.DataMaskColumnInfoService;
 import com.dtstack.batch.service.impl.*;
-import com.dtstack.batch.service.table.impl.BatchTableInfoService;
-import com.dtstack.batch.service.table.impl.BatchTablePermissionService;
 import com.dtstack.batch.service.task.impl.BatchTaskParamService;
 import com.dtstack.batch.service.task.impl.BatchTaskService;
 import com.dtstack.batch.service.testproduct.impl.BatchTestProduceDataSourceService;

@@ -11,7 +11,6 @@ import com.dtstack.batch.domain.Tenant;
 import com.dtstack.batch.domain.User;
 import com.dtstack.batch.service.alarm.impl.BatchAlarmReceiveUserService;
 import com.dtstack.batch.service.auth.IAuthService;
-import com.dtstack.batch.service.table.impl.BatchTableInfoService;
 import com.dtstack.batch.service.task.impl.BatchTaskService;
 import com.dtstack.batch.vo.UserRolePermissionVO;
 import com.dtstack.batch.vo.UserRoleVO;

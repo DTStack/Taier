@@ -75,9 +75,6 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
     private BatchTaskParamService batchTaskParamService;
 
     @Autowired
-    private BatchHadoopDirtyDataService batchHadoopDirtyDataService;
-
-    @Autowired
     private EnvironmentContext environmentContext;
 
     @Autowired
@@ -142,7 +139,8 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
             // 向导模式根据job中的sourceId填充数据源信息，保证每次运行取到最新的连接信息
             job = batchDataSourceService.setJobDataSourceInfo(job, dtuicTenantId, syncJob.getIntValue("createModel"));
             // 获取脏数据存储路径
-            job = batchHadoopDirtyDataService.replaceTablePath(false, job, batchTask.getId(), batchTask.getName(), batchTask.getCreateUserId(), batchTask.getTenantId(), batchTask.getProjectId(), isRoot, actionParam);
+            //todo skip
+//            job = batchHadoopDirtyDataService.replaceTablePath(false, job, batchTask.getId(), batchTask.getName(), batchTask.getCreateUserId(), batchTask.getTenantId(), batchTask.getProjectId(), isRoot, actionParam);
 
             batchTaskParamService.checkParams(batchTaskParamService.checkSyncJobParams(job), taskParamsToReplace);
 
@@ -303,7 +301,8 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
             job = batchDataSourceService.setJobDataSourceInfo(job, dtuicTenantId, syncJob.getIntValue("createModel"));
 
             // 获取脏数据存储路径
-            job = batchHadoopDirtyDataService.replaceTablePath(true, job, batchTask.getId(), batchTask.getName(), batchTask.getCreateUserId(), batchTask.getTenantId(), batchTask.getProjectId(), Boolean.FALSE, actionParam);
+            //todo skip dirtyData
+//            job = batchHadoopDirtyDataService.replaceTablePath(true, job, batchTask.getId(), batchTask.getName(), batchTask.getCreateUserId(), batchTask.getTenantId(), batchTask.getProjectId(), Boolean.FALSE, actionParam);
 
             batchTaskParamService.checkParams(batchTaskParamService.checkSyncJobParams(job), taskParamsToReplace);
             actionParam.put("job", job);

@@ -26,7 +26,6 @@ import com.dtstack.batch.service.impl.TenantService;
 import com.dtstack.batch.service.job.impl.BatchJobService;
 import com.dtstack.batch.service.table.IDataDownloadService;
 import com.dtstack.batch.service.table.impl.BatchSelectSqlService;
-import com.dtstack.batch.service.table.impl.BatchTableInfoService;
 import com.dtstack.dtcenter.common.annotation.Forbidden;
 import com.dtstack.dtcenter.common.engine.ConsoleSend;
 import com.dtstack.dtcenter.common.engine.JdbcInfo;

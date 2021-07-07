@@ -10,7 +10,6 @@ import com.dtstack.batch.engine.rdbms.service.impl.Engine2DTOService;
 import com.dtstack.batch.service.datasource.impl.BatchDataSourceService;
 import com.dtstack.batch.service.impl.UserService;
 import com.dtstack.batch.service.project.IProjectService;
-import com.dtstack.batch.service.table.impl.BatchTableInfoService;
 import com.dtstack.batch.vo.ProjectEngineVO;
 import com.dtstack.dtcenter.common.engine.JdbcInfo;
 import com.dtstack.dtcenter.common.enums.EJobType;

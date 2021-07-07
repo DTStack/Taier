@@ -14,7 +14,6 @@ import com.dtstack.batch.mapping.DataSourceTypeJobTypeMapping;
 import com.dtstack.batch.service.datasource.impl.BatchDataSourceService;
 import com.dtstack.batch.service.impl.UserService;
 import com.dtstack.batch.service.project.IProjectService;
-import com.dtstack.batch.service.table.impl.BatchTableInfoService;
 import com.dtstack.batch.vo.ProjectEngineVO;
 import com.dtstack.dtcenter.common.annotation.Forbidden;
 import com.dtstack.dtcenter.common.engine.JdbcInfo;

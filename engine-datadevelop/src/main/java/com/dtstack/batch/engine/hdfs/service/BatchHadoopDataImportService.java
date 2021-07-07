@@ -25,8 +25,6 @@ import com.dtstack.batch.service.datasource.impl.BatchDataSourceService;
 import com.dtstack.batch.service.impl.ProjectEngineService;
 import com.dtstack.batch.service.impl.ProjectService;
 import com.dtstack.batch.service.table.IDataImportService;
-import com.dtstack.batch.service.table.impl.BatchTableInfoService;
-import com.dtstack.batch.service.table.impl.BatchTablePartitionService;
 import com.dtstack.batch.utils.TableOperateUtils;
 import com.dtstack.dtcenter.common.annotation.Forbidden;
 import com.dtstack.dtcenter.common.enums.MultiEngineType;

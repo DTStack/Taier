@@ -35,8 +35,6 @@ import com.dtstack.batch.service.impl.*;
 import com.dtstack.batch.service.job.ITaskService;
 import com.dtstack.batch.service.job.impl.BatchJobService;
 import com.dtstack.batch.service.table.ISqlExeService;
-import com.dtstack.batch.service.table.impl.BatchTablePermissionService;
-import com.dtstack.batch.service.table.impl.BatchTableRelationService;
 import com.dtstack.batch.sync.job.PluginName;
 import com.dtstack.batch.sync.job.SyncJob;
 import com.dtstack.batch.sync.job.SyncJobCheck;
@@ -114,7 +112,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.dtstack.batch.service.impl.BatchDirtyDataService.DIRTY_TABLE_PREFIX;
 
 /**
  * company: www.dtstack.com
@@ -181,15 +178,6 @@ public class BatchTaskService {
     private BatchResourceService batchResourceService;
 
     @Autowired
-    private BatchAlarmDao batchAlarmDao;
-
-    @Autowired
-    private BatchAlarmService batchAlarmService;
-
-    @Autowired
-    private BatchScriptDao batchScriptDao;
-
-    @Autowired
     private BatchResourceDao batchResourceDao;
 
     @Autowired
@@ -199,15 +187,6 @@ public class BatchTaskService {
     private RoleUserService roleUserService;
 
     @Autowired
-    private BatchTablePermissionService batchTablePermissionService;
-
-    @Autowired
-    private BatchTableRelationDao batchTableRelationDao;
-
-    @Autowired
-    private BatchTableRelationService batchTableRelationService;
-
-    @Autowired
     private ProjectService projectService;
 
     @Autowired
@@ -215,9 +194,6 @@ public class BatchTaskService {
 
     @Autowired
     private TenantService tenantService;
-
-    @Autowired
-    private BatchTestProduceTaskDao batchTestProduceTaskDao;
 
     @Autowired
     private BatchDataSourceTaskRefService batchDataSourceTaskRefService;
@@ -277,10 +253,7 @@ public class BatchTaskService {
     private EnvironmentContext environmentContext;
 
     @Autowired
-    private com.dtstack.engine.api.service.ProjectService engineProjectService;
-
-    @Autowired
-    private com.dtstack.engine.api.service.LineageService engineLineageService;
+    private ProjectService engineProjectService;
 
     @Autowired
     private ComponentService componentService;
@@ -484,41 +457,7 @@ public class BatchTaskService {
         this.readWriteLockService.getLock(srcTask.getTenantId(), userId, ReadWriteLockType.BATCH_TASK.name(),
                 distTask.getId(), projectId, null, null);
 
-        //创建脏数据表
-        copySyncTaskDirtyTable(srcTask, distTask);
-
         return distTask;
-    }
-
-    private void copySyncTaskDirtyTable(final BatchTask srcTask, final BatchTask distTask) {
-        if (EJobType.SYNC.getVal().equals(distTask.getTaskType())) {
-            //查看源任务是否有脏数据表
-            final String srcDirtyTableName = DIRTY_TABLE_PREFIX + srcTask.getName();
-            final BatchTableInfo scrDirtyTable = this.batchTableInfoDao.getByTableName(srcDirtyTableName, srcTask.getTenantId(), srcTask.getProjectId(), ETableType.HIVE.getType());
-            if (Objects.nonNull(scrDirtyTable) && 1 == scrDirtyTable.getIsDirtyDataTable()) {
-                //源任务有脏数据表
-                final String copyDirtyTable = DIRTY_TABLE_PREFIX + distTask.getName();
-                final BatchTableInfo distDirtyTable = this.batchTableInfoDao.getByTableName(copyDirtyTable, distTask.getTenantId(), distTask.getProjectId(), ETableType.HIVE.getType());
-                final Long dtuicTenantId = this.tenantService.getDtuicTenantId(distTask.getTenantId());
-                if (Objects.nonNull(distDirtyTable)) {
-                    logger.info("copy src task {} dirty table  {} has exist ", srcTask.getId(), distDirtyTable);
-                    return;
-                }
-                //需要创建脏数据表
-                this.batchDirtyDataService.readyForSaveDirtyData(copyDirtyTable, 90, distTask.getCreateUserId(), distTask.getId(), distTask.getName(), distTask.getTenantId(),
-                        dtuicTenantId, distTask.getProjectId(), MultiEngineType.HADOOP.getType());
-                final String sqlText = distTask.getSqlText();
-                final JSONObject sql = JSON.parseObject(Base64Util.baseDecode(sqlText));
-                //更换sql脏数据路径
-                if (Objects.nonNull(sql) && Objects.nonNull(sql.get("job"))) {
-                    final JSONObject job = sql.getJSONObject("job");
-                    JSONPath.set(job, "$.job.setting.dirty.path", copyDirtyTable);
-                    sql.put("job", job.toJSONString());
-                    distTask.setSqlText(Base64Util.baseEncode(sql.toJSONString()));
-                    this.batchTaskDao.update(distTask);
-                }
-            }
-        }
     }
 
     /**
@@ -831,8 +770,7 @@ public class BatchTaskService {
         final String sqlText = this.buildSqlText(flowTask, distTask, lock, coordsExtra);
         flowTask.setSqlText(sqlText);
         this.batchTaskDao.update(flowTask);
-        //创建脏数据表
-        copySyncTaskDirtyTable(srcTask, distTask);
+
         return distTask;
     }
 
@@ -899,87 +837,7 @@ public class BatchTaskService {
      * @return
      */
     public List<Map<String, Object>> recommendDependencyTask(long projectId, long taskId) {
-        final BatchTask task = this.batchTaskDao.getOne(taskId);
-        if (task == null) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
-        }
-        if (task.getTaskType().intValue() == EJobType.VIRTUAL.getVal().intValue()) {
-            throw new RdosDefineException(ErrorCode.VIRTUAL_TASK_UNSUPPORTED_OPERATION);
-        }
-
-        // 只有sql任务自动推荐
-        if (!EJobType.SPARK_SQL.getVal().equals(task.getTaskType())) {
-            return Collections.emptyList();
-        }
-
-        final MultiEngineType multiEngineType = TaskTypeEngineTypeMapping.getEngineTypeByTaskType(task.getTaskType());
-        Preconditions.checkNotNull(multiEngineType, String.format("task type %d can't ref any multi engine type", task.getTaskType()));
-
-        final ProjectEngine projectEngine = this.projectEngineService.getProjectDb(task.getProjectId(), multiEngineType.getType());
-        Preconditions.checkNotNull(projectEngine, String.format("project %d not support engine type %s", task.getProjectId(), multiEngineType));
-
-        //推荐sql 里面除结果表  以外用到字段的表
-        final List<Table> tables = parseTable(task.getSqlText(), task.getTaskType(), projectEngine.getEngineIdentity(), false, projectId);
-        if (CollectionUtils.isEmpty(tables)) {
-            return Collections.emptyList();
-        }
-
-        final List<BatchTaskTask> taskTasks = this.batchTaskTaskService.getByParentTaskId(taskId);
-        final List<Long> excludeIds = new ArrayList<>(taskTasks.size());
-        excludeIds.add(taskId);
-        taskTasks.forEach(taskTask -> excludeIds.add(taskTask.getTaskId()));
-
-        final List<Map<String, Object>> tasks = this.scheduleTaskShadeService.listByTaskIdsNotIn(excludeIds, AppType.RDOS.getType(), projectId).getData();
-        if (CollectionUtils.isEmpty(tasks)) {
-            return Collections.emptyList();
-        }
-
-        final List<String> tableNames = new ArrayList<>();
-        for (final Table table : tables) {
-            tableNames.add(table.getName());
-        }
-        //推荐该表为结果表的相关任务区
-        final List<BatchTableRelation> tableRelations = this.batchTableRelationDao.listByTableNamesAndProjectId(tableNames, projectId, TableRelationType.TASK.getType(), RelationResultType.IS_RESULT.getVal());
-        final List<Long> taskIds = new ArrayList<>();
-        final Map<Long, String> taskIdTableMap = new HashMap<>(0);
-        tableRelations.forEach(r -> {
-            taskIds.add(r.getRelationId());
-            taskIdTableMap.put(r.getRelationId(), r.getTableName());
-        });
-
-        tasks.removeIf(item -> !taskIds.contains(MapUtils.getLong(item, "id")));
-
-        if (CollectionUtils.isNotEmpty(tasks)) {
-            final List<Long> userIds = new ArrayList<>(tasks.size());
-            for (final Map map : tasks) {
-                final Object createUserId = map.get("createUserId");
-                if (Objects.nonNull(createUserId) && createUserId instanceof Integer) {
-                    userIds.add(Long.valueOf((int) createUserId));
-                }
-            }
-            final Map<Long, User> userMap = this.userService.getUserMap(userIds);
-            for (final Map<String, Object> r : tasks) {
-                Long userId = null;
-                if (Objects.nonNull(r.get("createUserId")) && r.get("createUserId") instanceof Integer) {
-                    userId = Long.valueOf((int) r.get("createUserId"));
-                }
-                r.put("createUser", userMap.get(userId));
-                r.put("tableName", taskIdTableMap.get(MapUtils.getLong(r, "id")));
-            }
-        }
-
-        return tasks;
-    }
-
-    private List<Table> parseTable(final String sqlText, final Integer taskType, final String currentDb, final boolean isContainMainTable, Long projectId) {
-        final List<Table> tables = new ArrayList<>();
-        if (EJobType.SPARK_SQL.getVal().equals(taskType) || EJobType.LIBRA_SQL.getVal().equals(taskType)) {
-            this.parseTableFromSqlTask(currentDb, sqlText, tables, taskType, isContainMainTable, projectId);
-        } else if (EJobType.SYNC.getVal().equals(taskType)) {
-            this.parseWriteTableFromSyncTask(sqlText, currentDb, tables);
-        }
-
-        return tables;
+        return Collections.emptyList();
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -990,105 +848,6 @@ public class BatchTaskService {
         batchTaskVersionDao.deleteByProjectId(projectId);
         batchTaskRecordService.deleteByProjectId(projectId);
         batchTaskDao.deleteByProjectId(projectId, userId);
-    }
-
-    public void parseTableFromSqlTask(final String currentDb, String sqlText, final List<Table> tables, final Integer taskType, final boolean isContainMainTable, Long projectId) {
-        if (!sqlText.trim().endsWith(";")) {
-            sqlText = sqlText + ";";
-        }
-
-        //这个不能使用toOneLine 会导致去掉\n 导致移除comment sql为空
-        List<String> sqls = SqlFormatUtil.splitSqlText(SqlFormatUtil.init(sqlText).getSql());
-        if (CollectionUtils.isEmpty(sqls)) {
-            return;
-        }
-
-        final ETableType tableType;
-        if (EJobType.SPARK_SQL.getVal().equals(taskType)) {
-            tableType = ETableType.HIVE;
-        } else {
-            tableType = ETableType.LIBRA;
-        }
-        sqls = delCacheSql(sqls,currentDb);
-        MultiEngineType engineType = TableTypeEngineTypeMapping.getEngineTypeByTableType(tableType.getType());
-        DataSourceType dataSourceType = multiEngineServiceFactory.getDataSourceTypeByEngineTypeAndProjectId(engineType.getType(), projectId);
-
-        for (final String sql : sqls) {
-            if (StringUtils.isEmpty(sql)) {
-                continue;
-            }
-
-            if (sql.toLowerCase().startsWith("set")) {
-                continue;
-            }
-
-            try {
-                final Set<String> parseTable = new HashSet<>();
-                ParseColumnLineageParam parseColumnLineageParam = new ParseColumnLineageParam();
-                parseColumnLineageParam.setDataSourceType(dataSourceType.getVal());
-                parseColumnLineageParam.setDefaultDb(currentDb);
-                parseColumnLineageParam.setSql(sql);
-                parseColumnLineageParam.setTableColumnsMap(Maps.newHashMap());
-                ColumnLineageParseInfo columnLineageParseInfo = engineLineageService.parseColumnLineage(parseColumnLineageParam).getData();
-                if (Objects.isNull(columnLineageParseInfo)) {
-                    continue;
-                }
-                //解析血缘里面字段来源表
-                if (CollectionUtils.isNotEmpty(columnLineageParseInfo.getColumnLineages())) {
-                    for (final ColumnLineage columnLineage : columnLineageParseInfo.getColumnLineages()) {
-                        parseTable.add(columnLineage.getFromTable());
-                        if (isContainMainTable) {
-                            parseTable.add(columnLineage.getToTable());
-                        }
-                    }
-                } else {
-                    List<Table> resultTables = engineLineageService.parseTables(sql, currentDb, dataSourceType.getVal()).getData();
-                    if (!isContainMainTable && CollectionUtils.isNotEmpty(resultTables)) {
-                        resultTables.remove(engineLineageService.parseSqlInfo(sql, currentDb, dataSourceType.getVal()).getData().getMainTable());
-                    }
-                    if (CollectionUtils.isNotEmpty(resultTables)) {
-                        //没有解析到血缘（使用解析出来表（容错））
-                        tables.addAll(resultTables);
-                        continue;
-                    }
-                }
-                //解析全部表 过滤掉没用到字段的表
-                List<Table> parseTables = engineLineageService.parseTables(sql, currentDb, dataSourceType.getVal()).getData();
-                if (CollectionUtils.isNotEmpty(parseTables)) {
-                    for (final Table table : parseTables) {
-                        if (parseTable.contains(table.getName())) {
-                            tables.add(table);
-                        }
-                    }
-                }
-            } catch (final Exception e) {
-                logger.warn("parse tables from sql error: ", e);
-            }
-        }
-    }
-
-    public void parseWriteTableFromSyncTask(final String sqlText, final String currentDb, final List<Table> tables) {
-        final SyncJob syncJob = SyncJob.getSyncJob(sqlText);
-        final SyncJob.Plugin writer = syncJob.writer;
-        if (PluginName.HDFS_W.equalsIgnoreCase(writer.name) && writer.parameter.containsKey("connection")) {
-            if (null != writer.parameter) {
-                final JSONArray connection = (JSONArray) writer.parameter.get("connection");
-                if (CollectionUtils.isNotEmpty(connection)) {
-                    final UrlInfo urlInfo = JdbcUrlUtil.getUrlInfo(connection.getJSONObject(0).getString("jdbcUrl"));
-                    if (currentDb.equals(urlInfo.getDb())) {
-                        final List<String> tableJson = JSON.parseArray(connection.getJSONObject(0).getString("table"), String.class);
-                        final String tableName = tableJson.get(0);
-                        final Table table = new Table();
-                        table.setOperate(TableOperateEnum.INSERT);
-                        table.setName(tableName);
-                        table.setDb(currentDb);
-
-                        tables.add(table);
-                    }
-                }
-            }
-
-        }
     }
 
     /**
@@ -1662,11 +1421,6 @@ public class BatchTaskService {
 
         task.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
 
-        if (!EJobType.WORK_FLOW.getVal().equals(task.getTaskType()) && !EJobType.VIRTUAL.getVal().equals(task.getTaskType())) {
-            // 发布的时候就解析出表和任务的关系
-            this.batchTableRelationService.addRelationFromPublishTask(task);
-        }
-
         final BatchTaskVersion version = new BatchTaskVersion();
         version.setCreateUserId(userId);
 
@@ -1683,23 +1437,6 @@ public class BatchTaskService {
             String sqlTextShade = null == taskShade ? "" : taskShade.getSqlText();
             boolean checkSyntax = !((sqlTextShade != null && sqlTextShade.equals(task.getSqlText()))) && ignoreCheck;
 
-            //校验表权限
-            final ProjectEngine projectEngine = this.projectEngineService.getProjectDb(projectId, engineType);
-            Preconditions.checkNotNull(projectEngine, String.format("project %d not support engine type %d", projectId, engineType));
-            final ISqlExeService sqlExeService = this.multiEngineServiceFactory.getSqlExeService(engineType, task.getTaskType(), projectId);
-            final String sql = sqlExeService.process(versionSqlText, projectEngine.getEngineIdentity());
-            List<String> sqls = SqlFormatUtil.splitSqlText(sql);
-            //cache语法 要提前筛出去
-            sqls = delCacheSql(sqls, projectEngine.getEngineIdentity());
-            ExecuteContent executeContent = new ExecuteContent();
-            executeContent.setTenantId(task.getTenantId()).setProjectId(projectId).setUserId(userId).setSql(null).setRelationId(task.getId())
-                    .setRelationType(TableRelationType.TASK.getType()).setDetailType(task.getTaskType())
-                    .setRootUser(isRoot).setCheckSyntax(true).setIsdirtyDataTable(false).setSessionKey(null).setEnd(null)
-                    .setEngineType(MultiEngineType.HADOOP.getType()).setTableType(EJobType.LIBRA_SQL.getVal().intValue() == task.getTaskType().intValue()? ETableType.LIBRA.getType():ETableType.HIVE.getType());
-            checkVo = batchSqlExeService.checkTablePermission(sqls, executeContent, ignoreCheck);
-            if (!PublishTaskStatusEnum.NOMAL.getType().equals(checkVo.getErrorSign())){
-                return checkVo;
-            }
             CheckSyntaxResult syntaxResult = batchSqlExeService.processSqlText(dtuicTenantId,task.getTaskType(), versionSqlText, userId, task.getTenantId(),
                     task.getProjectId(), checkSyntax, isRoot, engineType, task.getTaskParams());
             if (!syntaxResult.getCheckResult()){
@@ -1707,9 +1444,6 @@ public class BatchTaskService {
                 checkVo.setErrorMessage(syntaxResult.getMessage());
                 return checkVo;
             }
-            ParseLineage process = new ParseLineage(sqls, task.getTenantId(), dtuicTenantId, projectId, userId,
-                    projectEngine.getEngineIdentity(), lineageService, engineType, task);
-            process.start();
 
         } else if (EJobType.TIDB_SQL.getVal().intValue() == task.getTaskType().intValue()) {
             // 语法检测
@@ -1719,9 +1453,7 @@ public class BatchTaskService {
             ISqlExeService sqlExeService = multiEngineServiceFactory.getSqlExeService(engineType, null, projectId);
             String sql = sqlExeService.process(versionSqlText, projectEngine.getEngineIdentity());
             List<String> sqls = SqlFormatUtil.splitSqlText(sql);
-            ParseLineage process = new ParseLineage(sqls, task.getTenantId(), dtuicTenantId, projectId, userId,
-                    projectEngine.getEngineIdentity(), lineageService, engineType, task);
-            process.start();
+
         } else if (EJobType.SYNC.getVal().intValue() == task.getTaskType().intValue()) {
             if (StringUtils.isNotEmpty(task.getSqlText())) {
                 final JSONObject jsonTask = JSON.parseObject(Base64Util.baseDecode(task.getSqlText()));
@@ -1734,10 +1466,6 @@ public class BatchTaskService {
                 // 检测job格式
                 SyncJobCheck.checkJobFormat(job.toJSONString(), createModelType);
                 versionSqlText = jsonTask.getString("job");
-
-                if (StringUtils.isNotBlank(versionSqlText)) {
-                    this.lineageService.parseLineageFromSyncJson(versionSqlText, task.getTenantId(), projectId, userId);
-                }
             }
         } else if (EJobType.PYTHON.getVal().equals(task.getTaskType())
                 || EJobType.SPARK_PYTHON.getVal().equals(task.getTaskType())) {
@@ -1748,43 +1476,8 @@ public class BatchTaskService {
                     versionSqlText = task.getSqlText();
                 }
             }
-        } else if (EJobType.INCEPTOR_SQL.getVal().equals(task.getTaskType())){
-            ProjectEngine projectEngine = this.projectEngineService.getProjectDb(projectId, engineType);
-            if (Objects.isNull(projectEngine)){
-                throw new RdosDefineException(String.format("project %d not support engine type %d", projectId, engineType));
-            }
-            // 语法检测
-            List<BatchTaskParam> taskParamsToReplace = batchTaskParamService.getTaskParam(task.getId());
-            versionSqlText = this.jobParamReplace.paramReplace(task.getSqlText(), taskParamsToReplace, this.sdf.format(new Date()));
-            String sql = batchInceptorSqlExeService.process(versionSqlText, projectEngine.getEngineIdentity());
-            List<String> sqls = SqlFormatUtil.splitSqlText(sql);
-            ExecuteContent executeContent = new ExecuteContent();
-            executeContent.setTenantId(task.getTenantId()).setProjectId(projectId).setUserId(userId).setSql(null)
-                    .setRelationType(TableRelationType.TASK.getType()).setDetailType(task.getTaskType())
-                    .setEngineType(MultiEngineType.HADOOP.getType()).setDatabase(projectEngine.getEngineIdentity());
-            checkVo = batchInceptorSqlExeService.checkPermission(sqls, executeContent);
-            if (!PublishTaskStatusEnum.NOMAL.getType().equals(checkVo.getErrorSign())){
-                return checkVo;
-            }
-        } else if (EJobType.ANALYTICDB_FOR_PG.getVal().equals(task.getTaskType())){
-            ProjectEngine projectEngine = this.projectEngineService.getProjectDb(projectId, engineType);
-            if (Objects.isNull(projectEngine)){
-                throw new RdosDefineException(String.format("project %d not support engine type %d", projectId, engineType));
-            }
-            // 语法检测
-            List<BatchTaskParam> taskParamsToReplace = batchTaskParamService.getTaskParam(task.getId());
-            versionSqlText = this.jobParamReplace.paramReplace(task.getSqlText(), taskParamsToReplace, this.sdf.format(new Date()));
-            String sql = batchInceptorSqlExeService.process(versionSqlText, projectEngine.getEngineIdentity());
-            List<String> sqls = SqlFormatUtil.splitSqlText(sql);
-            ExecuteContent executeContent = new ExecuteContent();
-            executeContent.setTenantId(task.getTenantId()).setProjectId(projectId).setUserId(userId).setSql(null)
-                    .setRelationType(TableRelationType.TASK.getType()).setDetailType(task.getTaskType())
-                    .setEngineType(MultiEngineType.ANALYTICDB_FOR_PG.getType()).setDatabase(projectEngine.getEngineIdentity());
-            checkVo = batchADBPGSqlExeService.checkPermission(sqls, executeContent);
-            if (!PublishTaskStatusEnum.NOMAL.getType().equals(checkVo.getErrorSign())){
-                return checkVo;
-            }
         }
+
         version.setSqlText(versionSqlText);
         version.setOriginSql(task.getSqlText());
         version.setProjectId(task.getProjectId());
@@ -2231,13 +1924,6 @@ public class BatchTaskService {
             Long ownerUserId = param.getOwnerUserId();
             if (ownerUserId == null) {
                 ownerUserId = param.getUserId();
-            }
-            //校验，任务的所有者的权限
-            try {
-                this.batchTablePermissionService.checkoutPermission(param.getProjectId(), param.getTenantId(), ownerUserId, param.getSqlText());
-            } catch (final RdosDefineException e) {
-                logger.error("check permission :" + e.getMessage());
-                throw new RdosDefineException("任务责任人没有权限操作配置的目标表.", ErrorCode.PERMISSION_LIMIT);
             }
         }
         return engineType;
@@ -2959,10 +2645,6 @@ public class BatchTaskService {
      * @author toutian
      */
     private String doGetDefaultTaskParam(Long dtuicTenantId, final int engineType, final int computeType) {
-        //DTSCRIPT_AGENT 任务环境参数单独处理
-        if(engineType == EngineType.DTSCRIPT_AGENT.getVal()){
-            return getShellOnAgentDefaultTaskParam(dtuicTenantId);
-        }
         final TaskTemplateVO taskTemplateParam = new TaskTemplateVO();
         taskTemplateParam.setEngineType(engineType);
         taskTemplateParam.setComputeType(computeType);
@@ -2978,32 +2660,6 @@ public class BatchTaskService {
         }
         return "";
     }
-
-    /**
-     * 从控制台获取label信息，并返回默认的label
-     * @param dtuicTenantId
-     * @return
-     */
-    private String getShellOnAgentDefaultTaskParam(Long dtuicTenantId){
-        String shellOnAgentClusterAndUserString = getShellOnAgentClusterAndUser(dtuicTenantId);
-        try {
-            List<BatchGetShellOnAgentClusterAndUserResultVO> labelList = JSONObject.parseArray(shellOnAgentClusterAndUserString, BatchGetShellOnAgentClusterAndUserResultVO.class);
-            for (BatchGetShellOnAgentClusterAndUserResultVO clusterAndUserResultVO : labelList){
-                if(BooleanUtils.isTrue(clusterAndUserResultVO.getIsDefault())){
-                    String label = "";
-                    if(StringUtils.isNotBlank(clusterAndUserResultVO.getLabel())){
-                        label = "node.label=" + clusterAndUserResultVO.getLabel() + "\r\n";
-                    }
-                    return label;
-                }
-            }
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            throw new RdosDefineException("解析控制台返回的label信息出错！");
-        }
-        return "";
-    }
-
 
     /**
      * 数据开发-删除任务
@@ -3074,25 +2730,7 @@ public class BatchTaskService {
         this.batchTaskParamService.deleteTaskParam(taskId);
         //删除发布相关的数据
         this.scheduleTaskShadeService.deleteTask(taskId, userId, AppType.RDOS.getType());
-        //删除相关告警
-        final List<BatchAlarm> alarmList = this.batchAlarmDao.listByTaskId(taskId, projectId, tenantId);
-        if (alarmList != null) {
-            alarmList.forEach(alarm -> this.batchAlarmService.deleteAlarm(alarm.getId(), projectId, tenantId));
-        }
-        //删除任务-表关联信息
-        this.batchTableRelationService.deleteByRelationId(taskId, projectId);
-        //删除测试任务和生产项目表关联信息
-        this.deleteTestProduceTask(projectId, taskId);
-    }
 
-    private void deleteTestProduceTask(final Long produceProjectId, final Long taskId) {
-        //判断是生产项目
-        final Project project = this.projectDao.getByProduceProjectId(produceProjectId);
-        if (Objects.isNull(project)) {
-            this.batchTestProduceTaskDao.deleteByTestTaskId(taskId);
-        } else {
-            this.batchTestProduceTaskDao.deleteByProduceTaskId(taskId);
-        }
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -3266,8 +2904,6 @@ public class BatchTaskService {
                 final Object obj;
                 if (type.equals(CatalogueType.TASK_DEVELOP.name())) {
                     obj = this.batchTaskDao.getByName(name, projectId);
-                } else if (type.equals(CatalogueType.SCRIPT_MANAGER.name())) {
-                    obj = this.batchScriptDao.listByNameAndProjectId(projectId, name);
                 } else if (type.equals(CatalogueType.RESOURCE_MANAGER.name())) {
                     obj = this.batchResourceDao.listByNameAndProjectId(projectId, name, Deleted.NORMAL.getStatus());
                 } else if (type.equals(CatalogueType.CUSTOM_FUNCTION.name())) {
@@ -3334,29 +2970,6 @@ public class BatchTaskService {
         final Long oldOwnUserId = batchTask.getOwnerUserId();
         batchTask.setOwnerUserId(ownerUserId);
         this.batchTaskDao.update(batchTask);
-
-        //如果任务责任人绑定在告警设置中的任务责任人也需要变动
-        if (this.batchAlarmDao.listByTaskId(taskId, projectId, tenantId) == null) {
-            throw new RdosDefineException(ErrorCode.DATA_NOT_FIND);
-        } else if (this.batchAlarmDao.listByTaskId(taskId, projectId, tenantId) != null) {
-            final List<BatchAlarm> batchAlarmList = this.batchAlarmDao.listByTaskId(taskId, projectId, tenantId);
-            final List list = new ArrayList<Long>();
-            for (final BatchAlarm batchAlarm : batchAlarmList) {
-                //存在任务责任人时才修改
-                if (batchAlarm.getIsTaskHolder() == 1) {
-                    list.add(batchAlarm.getId());
-                    final List<Long> batchAlarmReceiveUserIds = this.batchAlarmReceiveUserDao.listUserIdByAlarmIds(list);
-                    list.clear();
-                    batchAlarmReceiveUserIds.remove(oldOwnUserId);
-                    if (!batchAlarmReceiveUserIds.contains(ownerUserId)) {
-                        batchAlarmReceiveUserIds.add(ownerUserId);
-                    }
-
-                    final String receiveUsers = batchAlarmReceiveUserIds.stream().map(String::valueOf).collect(Collectors.joining(","));
-                    this.batchAlarmReceiveUserService.updateAlarmReceiveUsers(batchAlarm, receiveUsers);
-                }
-            }
-        }
     }
 
     /**

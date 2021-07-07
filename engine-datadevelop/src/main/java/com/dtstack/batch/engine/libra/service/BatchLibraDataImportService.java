@@ -17,7 +17,6 @@ import com.dtstack.batch.enums.RedisKey;
 import com.dtstack.batch.service.impl.ProjectEngineService;
 import com.dtstack.batch.service.impl.ProjectService;
 import com.dtstack.batch.service.table.IDataImportService;
-import com.dtstack.batch.service.table.impl.BatchTableInfoService;
 import com.dtstack.dtcenter.common.annotation.Forbidden;
 import com.dtstack.dtcenter.common.enums.EJobType;
 import com.dtstack.dtcenter.common.enums.MultiEngineType;

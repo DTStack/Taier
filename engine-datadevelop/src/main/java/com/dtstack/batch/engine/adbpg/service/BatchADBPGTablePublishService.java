@@ -9,7 +9,6 @@ import com.dtstack.batch.engine.rdbms.service.ITableService;
 import com.dtstack.batch.service.impl.ProjectEngineService;
 import com.dtstack.batch.service.impl.UserService;
 import com.dtstack.batch.service.table.ITablePublishService;
-import com.dtstack.batch.service.table.impl.BatchTableInfoService;
 import com.dtstack.dtcenter.common.enums.EJobType;
 import com.dtstack.dtcenter.common.enums.MultiEngineType;
 import com.dtstack.sqlparser.common.utils.SqlFormatUtil;

@@ -129,9 +129,6 @@ public class MultiEngineServiceFactory {
     @Resource(name = "batchHadoopTaskService")
     private ITaskService batchHadoopTaskService;
 
-    @Resource(name = "batchHadoopDirtyDataService")
-    private IDirtyDataService batchHadoopDirtyDataService;
-
     @Resource(name = "batchLibraDataImportService")
     private IDataImportService batchLibraDataImportService;
 
@@ -444,14 +441,6 @@ public class MultiEngineServiceFactory {
             return batchHadoopTaskService;
         }
         return null;
-    }
-
-    public IDirtyDataService getDirtyDataService(int multiEngineType) {
-        if (MultiEngineType.HADOOP.getType() == multiEngineType) {
-            return batchHadoopDirtyDataService;
-        }
-
-        throw new RdosDefineException(String.format("not support engine type %d now", multiEngineType));
     }
 
     public ITablePublishService getTablePublishService(int multiEngineType) {

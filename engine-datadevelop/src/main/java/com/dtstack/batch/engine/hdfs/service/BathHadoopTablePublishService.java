@@ -10,7 +10,6 @@ import com.dtstack.batch.mapping.DataSourceTypeJobTypeMapping;
 import com.dtstack.batch.service.datasource.impl.BatchDataSourceService;
 import com.dtstack.batch.service.impl.ProjectEngineService;
 import com.dtstack.batch.service.table.ITablePublishService;
-import com.dtstack.batch.service.table.impl.BatchTableInfoService;
 import com.dtstack.dtcenter.common.enums.MultiEngineType;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.sqlparser.common.utils.SqlFormatUtil;

@@ -14,7 +14,6 @@ import com.dtstack.batch.enums.TemplateCatalogue;
 import com.dtstack.batch.mapping.ScriptTypeEngineTypeMapping;
 import com.dtstack.batch.mapping.TableTypeEngineTypeMapping;
 import com.dtstack.batch.mapping.TaskTypeEngineTypeMapping;
-import com.dtstack.batch.service.table.impl.BatchTableInfoService;
 import com.dtstack.batch.service.task.impl.BatchTaskService;
 import com.dtstack.batch.service.task.impl.BatchTaskTemplateService;
 import com.dtstack.batch.service.task.impl.ReadWriteLockService;

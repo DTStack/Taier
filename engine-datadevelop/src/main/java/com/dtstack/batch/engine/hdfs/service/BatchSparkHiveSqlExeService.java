@@ -21,8 +21,6 @@ import com.dtstack.batch.service.impl.BatchSqlExeService;
 import com.dtstack.batch.service.impl.ProjectEngineService;
 import com.dtstack.batch.service.impl.UserService;
 import com.dtstack.batch.service.table.impl.BatchSelectSqlService;
-import com.dtstack.batch.service.table.impl.BatchTableFilterService;
-import com.dtstack.batch.service.table.impl.BatchTableInfoService;
 import com.dtstack.batch.utils.ParseResultUtils;
 import com.dtstack.batch.vo.ExecuteResultVO;
 import com.dtstack.dtcenter.common.enums.AppType;
