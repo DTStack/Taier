@@ -1,0 +1,569 @@
+package com.dtstack.batch.vo;
+
+import com.dtstack.batch.domain.BatchResource;
+import com.dtstack.batch.domain.BatchTask;
+import com.dtstack.batch.domain.BatchTaskVersionDetail;
+import com.dtstack.batch.dto.BatchTaskForFillDataDTO;
+import com.dtstack.batch.parser.ESchedulePeriodType;
+import com.dtstack.batch.parser.ScheduleCron;
+import com.dtstack.batch.parser.ScheduleFactory;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.api.vo.ScheduleTaskVO;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Created by Administrator on 2017/5/9 0009.
+ */
+public class BatchTaskBatchVO extends ScheduleTaskVO {
+
+    private static final Logger LOG = LoggerFactory.getLogger(BatchTaskBatchVO.class);
+    private static final String EMPYT = "";
+
+    public BatchTaskBatchVO(ScheduleTaskVO task) {
+        this.setComputeType(task.getComputeType());
+        this.setCreateUserId(task.getCreateUserId());
+        this.setOwnerUserId(task.getOwnerUserId());
+        this.setModifyUserId(task.getModifyUserId());
+        this.setUserId(task.getUserId());
+        this.setEngineType(task.getEngineType());
+        this.setName(task.getName());
+        this.setNodePid(task.getNodePid());
+        this.setScheduleConf(task.getScheduleConf());
+        this.setScheduleStatus(task.getScheduleStatus());
+        this.setSqlText(task.getSqlText());
+        this.setTaskParams(task.getTaskParams());
+        this.setTaskType(task.getTaskType());
+        this.setGmtCreate(task.getGmtCreate());
+        this.setGmtModified(task.getGmtModified());
+        this.setId(task.getId());
+        this.setIsDeleted(task.getIsDeleted());
+        this.setProjectId(task.getProjectId());
+        this.setTenantId(task.getTenantId());
+        this.setTaskDesc(task.getTaskDesc());
+        this.setMainClass(task.getMainClass());
+        this.setExeArgs(task.getExeArgs());
+        this.setSubmitStatus(task.getSubmitStatus());
+        this.setFlowId(task.getFlowId());
+        this.setTaskVOS(task.getTaskVOS());
+        this.setProjectName(task.getProjectName());
+        this.setAppType(task.getAppType());
+        this.setComponentVersion(task.getComponentVersion());
+        init();
+    }
+
+
+    public BatchTaskBatchVO(BatchTask task) {
+        this.setComputeType(task.getComputeType());
+        this.setCreateUserId(task.getCreateUserId());
+        this.setOwnerUserId(task.getOwnerUserId());
+        this.setModifyUserId(task.getModifyUserId());
+        this.setUserId(task.getModifyUserId());
+        this.setEngineType(task.getEngineType());
+        this.setName(task.getName());
+        this.setNodePid(task.getNodePid());
+        this.setScheduleConf(task.getScheduleConf());
+        this.setScheduleStatus(task.getScheduleStatus());
+        this.setSqlText(task.getSqlText());
+        this.setTaskParams(task.getTaskParams());
+        this.setTaskType(task.getTaskType());
+        this.setGmtCreate(task.getGmtCreate());
+        this.setGmtModified(task.getGmtModified());
+        this.setId(task.getId());
+        this.setIsDeleted(task.getIsDeleted());
+        this.setProjectId(task.getProjectId());
+        this.setTenantId(task.getTenantId());
+        this.setTaskDesc(task.getTaskDesc());
+        this.setMainClass(task.getMainClass());
+        this.setExeArgs(task.getExeArgs());
+        this.setSubmitStatus(task.getSubmitStatus());
+        this.setFlowId(task.getFlowId());
+        this.setAppType(task.getAppType());
+        init();
+    }
+
+    public BatchTaskBatchVO(ScheduleTaskShade taskShade, boolean getSimpleParams) {
+        BeanUtils.copyProperties(taskShade, this);
+        init();
+        if (getSimpleParams) {
+            //精简不需要的参数（尤其是长字符串）
+            setSqlText(EMPYT);
+            setTaskDesc(EMPYT);
+            setTaskParams(EMPYT);
+            setExeArgs(EMPYT);
+            setMainClass(EMPYT);
+            setScheduleConf(EMPYT);
+        }
+    }
+
+    public BatchTaskBatchVO(BatchTaskForFillDataDTO task) {
+        BeanUtils.copyProperties(task, this);
+        init();
+    }
+
+    private void init() {
+
+        if (StringUtils.isNotBlank(this.getScheduleConf())) {
+            try {
+                ScheduleCron cron = ScheduleFactory.parseFromJson(this.getScheduleConf());
+                this.cron = cron.getCronStr();
+                this.taskPeriodId = cron.getPeriodType();
+                if (ESchedulePeriodType.MIN.getVal() == cron.getPeriodType()) {
+                    taskPeriodType = "分钟任务";
+                } else if (ESchedulePeriodType.HOUR.getVal() == cron.getPeriodType()) {
+                    taskPeriodType = "小时任务";
+                } else if (ESchedulePeriodType.DAY.getVal() == cron.getPeriodType()) {
+                    taskPeriodType = "天任务";
+                } else if (ESchedulePeriodType.WEEK.getVal() == cron.getPeriodType()) {
+                    taskPeriodType = "周任务";
+                } else if (ESchedulePeriodType.MONTH.getVal() == cron.getPeriodType()) {
+                    taskPeriodType = "月任务";
+                } else if (ESchedulePeriodType.CRON.getVal() == cron.getPeriodType()) {
+                    taskPeriodType = "自定义任务";
+                }
+            } catch (Exception e) {
+                LOG.error("", e);
+            }
+        }
+    }
+
+    public void parsePeriodType() {
+        if (StringUtils.isNotBlank(this.getScheduleConf())) {
+            try {
+                ScheduleCron cron = ScheduleFactory.parseFromJson(this.getScheduleConf());
+                this.setPeriodType(cron.getPeriodType());
+            } catch (Exception e) {
+                LOG.error("", e);
+            }
+        }
+    }
+
+    public ScheduleTaskVO toVO(BatchTask batchTask) {
+        ScheduleTaskVO ScheduleTaskVO = new ScheduleTaskVO();
+        try {
+            BeanUtils.copyProperties(batchTask, ScheduleTaskVO);
+        } catch (Exception e) {
+            LOG.error("", e);
+        }
+        return ScheduleTaskVO;
+    }
+
+    public ScheduleTaskVO toVO(BatchTask batchTask, ScheduleTaskVO ScheduleTaskVO) {
+        try {
+            BeanUtils.copyProperties(batchTask, ScheduleTaskVO);
+        } catch (Exception e) {
+            LOG.error("", e);
+        }
+        return ScheduleTaskVO;
+    }
+
+    public BatchTaskBatchVO() {
+    }
+
+    private Integer taskPeriodId;
+    private String taskPeriodType;
+    private String nodePName;
+    private ReadWriteLockVO readWriteLockVO;
+    private Long userId;
+    private Integer lockVersion;
+    private List<Map> taskVariables;
+
+    private Long dataSourceId;
+
+    private ScheduleTaskVO subNodes;
+
+    private List<ScheduleTaskVO> relatedTasks;
+
+    private String tenantName;
+
+    private String projectName;
+
+    /**
+     * 0-向导模式，1-脚本模式
+     */
+    private Integer createModel = 0;
+
+    /**
+     * 操作模式 0-资源模式，1-编辑模式
+     */
+    private Integer operateModel = 0;
+
+    /**
+     * 2-python2.x,3-python3.x
+     */
+    private Integer pythonVersion = 0;
+
+    /**
+     * 0-TensorFlow,1-MXNet
+     */
+    private Integer learningType = 0;
+
+    /**
+     * 输入数据文件的路径
+     */
+    private String input;
+
+    /**
+     * 输出模型的路径
+     */
+    private String output;
+
+    /**
+     * 脚本的命令行参数
+     */
+    private String options;
+
+    private String flowName;
+
+    /**
+     * 同步模式
+     */
+    private Integer syncModel = 0;
+
+    private String increColumn;
+
+    /**
+     * 是否是当前项目
+     */
+    private Boolean currentProject = false;
+
+    private Long taskId;
+
+    @Override
+    public Long getTaskId() {
+        return taskId;
+    }
+
+    /**
+     * 'task版本'
+     */
+    private Integer version;
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    private List<ScheduleTaskVO> taskVOS;
+
+    private List<ScheduleTaskVO> subTaskVOS;
+
+    private List<BatchResource> resourceList;
+
+    private List<BatchResource> refResourceList;
+
+    private List<BatchTaskVersionDetail> taskVersions;
+
+    /**
+     * 工作流父任务版本号  用于子任务获取父任务锁
+     */
+    private Integer parentReadWriteLockVersion ;
+
+
+    public Integer getParentReadWriteLockVersion() {
+        return parentReadWriteLockVersion;
+    }
+
+    public void setParentReadWriteLockVersion(Integer parentReadWriteLockVersion) {
+        this.parentReadWriteLockVersion = parentReadWriteLockVersion;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
+
+    @Override
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
+    }
+
+    @Override
+    public boolean getCurrentProject() {
+        return currentProject;
+    }
+
+    @Override
+    public void setCurrentProject(boolean currentProject) {
+        this.currentProject = currentProject;
+    }
+
+    @Override
+    public String getTenantName() {
+        return tenantName;
+    }
+
+    @Override
+    public void setTenantName(String tenantName) {
+        this.tenantName = tenantName;
+    }
+
+    @Override
+    public String getProjectName() {
+        return projectName;
+    }
+
+    @Override
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+
+    @Override
+    public String getIncreColumn() {
+        return increColumn;
+    }
+
+    @Override
+    public void setIncreColumn(String increColumn) {
+        this.increColumn = increColumn;
+    }
+
+    @Override
+    public int getSyncModel() {
+        return syncModel;
+    }
+
+    @Override
+    public void setSyncModel(int syncModel) {
+        this.syncModel = syncModel;
+    }
+
+    @Override
+    public int getOperateModel() {
+        return operateModel;
+    }
+
+    @Override
+    public void setOperateModel(int operateModel) {
+        this.operateModel = operateModel;
+    }
+
+    @Override
+    public int getPythonVersion() {
+        return pythonVersion;
+    }
+
+    @Override
+    public void setPythonVersion(int pythonVersion) {
+        this.pythonVersion = pythonVersion;
+    }
+
+    @Override
+    public int getLearningType() {
+        return learningType;
+    }
+
+    @Override
+    public void setLearningType(int learningType) {
+        this.learningType = learningType;
+    }
+
+    @Override
+    public String getInput() {
+        return input;
+    }
+
+    @Override
+    public void setInput(String input) {
+        this.input = input;
+    }
+
+    @Override
+    public String getOutput() {
+        return output;
+    }
+
+    @Override
+    public void setOutput(String output) {
+        this.output = output;
+    }
+
+    @Override
+    public String getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(String options) {
+        this.options = options;
+    }
+
+    @Override
+    public Integer getTaskPeriodId() {
+        return taskPeriodId;
+    }
+
+    @Override
+    public void setTaskPeriodId(Integer taskPeriodId) {
+        this.taskPeriodId = taskPeriodId;
+    }
+
+    @Override
+    public String getTaskPeriodType() {
+        return taskPeriodType;
+    }
+
+    @Override
+    public void setTaskPeriodType(String taskPeriodType) {
+        this.taskPeriodType = taskPeriodType;
+    }
+
+    @Override
+    public List<ScheduleTaskVO> getTaskVOS() {
+        return taskVOS;
+    }
+
+    private String cron;
+
+    @Override
+    public ScheduleTaskVO setTaskVOS(List<ScheduleTaskVO> taskVOS) {
+        this.taskVOS = taskVOS;
+        return this;
+    }
+
+    public List<BatchResource> getResourceList() {
+        return resourceList;
+    }
+
+    public void setResourceList(List<BatchResource> resourceList) {
+        this.resourceList = resourceList;
+    }
+
+    @Override
+    public String getNodePName() {
+        return nodePName;
+    }
+
+    @Override
+    public void setNodePName(String nodePName) {
+        this.nodePName = nodePName;
+    }
+
+    @Override
+    public String getCron() {
+        return cron;
+    }
+
+    @Override
+    public void setCron(String cron) {
+        this.cron = cron;
+    }
+
+    public List<BatchTaskVersionDetail> getTaskVersions() {
+        return taskVersions;
+    }
+
+    public void setTaskVersions(List<BatchTaskVersionDetail> taskVersions) {
+        this.taskVersions = taskVersions;
+    }
+
+
+    public ReadWriteLockVO getReadWriteLockVO() {
+        return readWriteLockVO;
+    }
+
+    public void setReadWriteLockVO(ReadWriteLockVO readWriteLockVO) {
+        this.readWriteLockVO = readWriteLockVO;
+    }
+
+    @Override
+    public Integer getLockVersion() {
+        return lockVersion;
+    }
+
+    @Override
+    public void setLockVersion(Integer lockVersion) {
+        this.lockVersion = lockVersion;
+    }
+
+    @Override
+    public Long getUserId() {
+        return userId;
+    }
+
+    @Override
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    @Override
+    public List<Map> getTaskVariables() {
+        return taskVariables;
+    }
+
+    @Override
+    public void setTaskVariables(List<Map> taskVariables) {
+        this.taskVariables = taskVariables;
+    }
+
+    @Override
+    public List<ScheduleTaskVO> getSubTaskVOS() {
+        return subTaskVOS;
+    }
+
+    @Override
+    public void setSubTaskVOS(List<ScheduleTaskVO> subTaskVOS) {
+        this.subTaskVOS = subTaskVOS;
+    }
+
+    @Override
+    public int getCreateModel() {
+        return createModel;
+    }
+
+    @Override
+    public void setCreateModel(int createModel) {
+        this.createModel = createModel;
+    }
+
+    @Override
+    public String getFlowName() {
+        return flowName;
+    }
+
+    @Override
+    public void setFlowName(String flowName) {
+        this.flowName = flowName;
+    }
+
+    @Override
+    public ScheduleTaskVO getSubNodes() {
+        return subNodes;
+    }
+
+    @Override
+    public void setSubNodes(ScheduleTaskVO subNodes) {
+        this.subNodes = subNodes;
+    }
+
+    @Override
+    public List<ScheduleTaskVO> getRelatedTasks() {
+        return relatedTasks;
+    }
+
+    @Override
+    public void setRelatedTasks(List<ScheduleTaskVO> relatedTasks) {
+        this.relatedTasks = relatedTasks;
+    }
+
+    public List<BatchResource> getRefResourceList() {
+        return refResourceList;
+    }
+
+    public void setRefResourceList(List<BatchResource> refResourceList) {
+        this.refResourceList = refResourceList;
+    }
+
+    @Override
+    public Long getDataSourceId() {
+        return dataSourceId;
+    }
+
+    @Override
+    public void setDataSourceId(Long dataSourceId) {
+        this.dataSourceId = dataSourceId;
+    }
+}
