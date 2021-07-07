@@ -40,10 +40,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -149,7 +151,7 @@ public class JobGraphBuilder {
             CountDownLatch ctl = new CountDownLatch(totalBatch);
             long startId = 0L;
             int i = 0;
-
+            AtomicInteger count = new AtomicInteger();
 
             while (true) {
                 final int batchIdx = ++i;
@@ -173,7 +175,7 @@ public class JobGraphBuilder {
                                     List<ScheduleBatchJob> jobRunBeans = RetryUtil.executeWithRetry(() -> {
                                         String cronJobName = CRON_JOB_NAME + "_" + task.getName();
                                         return buildJobRunBean(task, CRON_TRIGGER_TYPE, EScheduleType.NORMAL_SCHEDULE,
-                                                true, true, triggerDay, cronJobName, null, task.getProjectId(), task.getTenantId());
+                                                true, true, triggerDay, cronJobName, null, task.getProjectId(), task.getTenantId(),count);
                                     }, environmentContext.getBuildJobErrorRetry(), 200, false);
                                     synchronized (allFlowJobs) {
                                         if (CollectionUtils.isNotEmpty(jobRunBeans)) {
@@ -343,9 +345,9 @@ public class JobGraphBuilder {
 
     public List<ScheduleBatchJob> buildJobRunBean(ScheduleTaskShade task, String keyPreStr, EScheduleType scheduleType,
                                                   boolean needAddFather, boolean needSelfDependency, String triggerDay,
-                                                  String jobName, Long createUserId, Long projectId, Long tenantId) throws Exception {
+                                                  String jobName, Long createUserId, Long projectId, Long tenantId,AtomicInteger count) throws Exception {
         return buildJobRunBean(task, keyPreStr, scheduleType, needAddFather, needSelfDependency, triggerDay,
-                jobName, createUserId, null, null, projectId, tenantId);
+                jobName, createUserId, null, null, projectId, tenantId,count);
     }
 
     /**
@@ -366,7 +368,7 @@ public class JobGraphBuilder {
      */
     public List<ScheduleBatchJob> buildJobRunBean(ScheduleTaskShade task, String keyPreStr, EScheduleType scheduleType, boolean needAddFather,
                                                   boolean needSelfDependency, String triggerDay, String jobName, Long createUserId,
-                                                  String beginTime, String endTime, Long projectId, Long tenantId) throws Exception {
+                                                  String beginTime, String endTime, Long projectId, Long tenantId,AtomicInteger count) throws Exception {
 
         String scheduleStr = task.getScheduleConf();
         ScheduleCron scheduleCron = ScheduleFactory.parseFromJson(scheduleStr);
@@ -410,7 +412,6 @@ public class JobGraphBuilder {
 
             ScheduleJob scheduleJob = new ScheduleJob();
             ScheduleBatchJob scheduleBatchJob = new ScheduleBatchJob(scheduleJob);
-            Date triggerDate = DateUtil.parseDate(triggerTime, DateUtil.STANDARD_DATETIME_FORMAT);
             triggerTime = DateUtil.getTimeStrWithoutSymbol(triggerTime);
             String jobKey = generateJobKey(keyPreStr, task.getId(), triggerTime);
             String targetJobName = jobName;
@@ -467,9 +468,8 @@ public class JobGraphBuilder {
 
             scheduleJob.setType(scheduleType.getType());
             scheduleJob.setCycTime(triggerTime);
-            if (triggerDate != null) {
-                scheduleJob.setJobExecuteOrder(triggerDate.getTime());
-            }
+            scheduleJob.setJobExecuteOrder(buildJobExecuteOrder(triggerTime,count));
+
             scheduleJob.setIsRestart(Restarted.NORMAL.getStatus());
 
             scheduleJob.setDependencyType(scheduleCron.getSelfReliance());
@@ -511,6 +511,17 @@ public class JobGraphBuilder {
         }
 
         return jobList;
+    }
+
+    private Long buildJobExecuteOrder(String triggerTime,AtomicInteger count) {
+        if (StringUtils.isBlank(triggerTime)) {
+            throw new RuntimeException("cycTime is not null");
+        }
+
+        // 时间格式 yyyyMMddHHmmss  截取 jobExecuteOrder = yyMMddHHmm +  9位的自增
+        String substring = triggerTime.substring(2, triggerTime.length() - 2);
+        String increasing = String.format("%09d", count.getAndIncrement());
+        return Long.parseLong(substring+increasing);
     }
 
     private void dealConcreteTime(List<String> triggerDayList, String triggerDay, String beginTime, String endTime) {
@@ -1072,11 +1083,11 @@ public class JobGraphBuilder {
 
     public Map<String, ScheduleBatchJob> buildFillDataJobGraph(ArrayNode jsonObject, String fillJobName, boolean needFather,
                                                                String triggerDay, Long createUserId,
-                                                               String beginTime, String endTime, Long projectId, Long tenantId, Boolean isRoot,Integer appType,Long fillId,Long dtuicTenantId) throws Exception {
+                                                               String beginTime, String endTime, Long projectId, Long tenantId, Boolean isRoot,Integer appType,Long fillId,Long dtuicTenantId,AtomicInteger count) throws Exception {
         Map<String, ScheduleBatchJob> result = new HashMap<>(16);
         if (jsonObject != null && jsonObject.size() > 0) {
             for (JsonNode jsonNode : jsonObject) {
-                Map<String, ScheduleBatchJob> stringScheduleBatchJobMap = buildFillDataJobGraph(jsonNode, fillJobName, needFather, triggerDay, createUserId, beginTime, endTime, projectId, tenantId, isRoot,appType,fillId,dtuicTenantId);
+                Map<String, ScheduleBatchJob> stringScheduleBatchJobMap = buildFillDataJobGraph(jsonNode, fillJobName, needFather, triggerDay, createUserId, beginTime, endTime, projectId, tenantId, isRoot,appType,fillId,dtuicTenantId,count);
                 result.putAll(stringScheduleBatchJobMap);
             }
         }
@@ -1085,11 +1096,11 @@ public class JobGraphBuilder {
 
 
     public Map<String, ScheduleBatchJob> buildFillDataJobGraph(ArrayNode jsonObject, String fillJobName, boolean needFather,
-                                                               String triggerDay, Long createUserId, Long projectId, Long tenantId, Boolean isRoot,Integer appType,Long fillId,Long dtuicTenantId) throws Exception {
+                                                               String triggerDay, Long createUserId, Long projectId, Long tenantId, Boolean isRoot,Integer appType,Long fillId,Long dtuicTenantId,AtomicInteger count) throws Exception {
         Map<String, ScheduleBatchJob> result = new HashMap<>();
         if (jsonObject != null && jsonObject.size() > 0) {
             for (JsonNode jsonNode : jsonObject) {
-                Map<String, ScheduleBatchJob> stringScheduleBatchJobMap = buildFillDataJobGraph(jsonNode, fillJobName, needFather, triggerDay, createUserId, null, null, projectId, tenantId, isRoot,appType,fillId,dtuicTenantId);
+                Map<String, ScheduleBatchJob> stringScheduleBatchJobMap = buildFillDataJobGraph(jsonNode, fillJobName, needFather, triggerDay, createUserId, null, null, projectId, tenantId, isRoot,appType,fillId,dtuicTenantId,count);
                 result.putAll(stringScheduleBatchJobMap);
             }
         }
@@ -1110,7 +1121,7 @@ public class JobGraphBuilder {
     public Map<String, ScheduleBatchJob> buildFillDataJobGraph(JsonNode jsonObject, String fillJobName, boolean needFather,
                                                                String triggerDay, Long createUserId,
                                                                String beginTime, String endTime, Long projectId, Long tenantId, Boolean isRoot,
-                                                               @Param("appType") Integer appType,Long fillId,Long dtuicTenantId) throws Exception {
+                                                               @Param("appType") Integer appType,Long fillId,Long dtuicTenantId,AtomicInteger count) throws Exception {
 
         if (!jsonObject.has("task")) {
             throw new RdosDefineException("can't get task field from jsonObject:" + jsonObject.toString(), ErrorCode.SERVER_EXCEPTION);
@@ -1119,17 +1130,16 @@ public class JobGraphBuilder {
         NumericNode fatherNode = (NumericNode) jsonObject.get("task");
         //生成jobList
         ScheduleTaskShade batchTask = batchTaskShadeService.getBatchTaskById(fatherNode.asLong(), appType);
-
         String preStr = FILL_DATA_TYPE + "_" + fillJobName;
         Map<String, ScheduleBatchJob> result = Maps.newLinkedHashMap();
         Map<String, String> flowJobId = Maps.newHashMap();
         List<ScheduleBatchJob> batchJobs;
         if (StringUtils.isNotBlank(beginTime) && StringUtils.isNotBlank(endTime)) {
             batchJobs = buildJobRunBean(batchTask, preStr, EScheduleType.FILL_DATA, needFather,
-                    true, triggerDay, fillJobName, createUserId, beginTime, endTime, projectId, tenantId);
+                    true, triggerDay, fillJobName, createUserId, beginTime, endTime, projectId, tenantId,count);
         } else {
             batchJobs = buildJobRunBean(batchTask, preStr, EScheduleType.FILL_DATA, needFather,
-                    true, triggerDay, fillJobName, createUserId, projectId, tenantId);
+                    true, triggerDay, fillJobName, createUserId, projectId, tenantId,count);
         }
         //针对专门补工作流子节点
         doSetFlowJobIdForSubTasks(batchJobs, flowJobId);
@@ -1163,7 +1173,7 @@ public class JobGraphBuilder {
         if (jsonObject.has("children")) {
             ArrayNode arrayNode = (ArrayNode) jsonObject.get("children");
             for (JsonNode node : arrayNode) {
-                Map<String, ScheduleBatchJob> childNodeMap = buildFillDataJobGraph(node, fillJobName, true, triggerDay, createUserId, beginTime, endTime, projectId, tenantId, true,appType,fillId,dtuicTenantId);
+                Map<String, ScheduleBatchJob> childNodeMap = buildFillDataJobGraph(node, fillJobName, true, triggerDay, createUserId, beginTime, endTime, projectId, tenantId, true,appType,fillId,dtuicTenantId,count);
                 if (childNodeMap != null) {
                     result.putAll(childNodeMap);
                 }
@@ -1183,13 +1193,14 @@ public class JobGraphBuilder {
                                                                String beginTime, String endTime, Long projectId, Long tenantId, Integer appType) throws Exception {
         List<ScheduleBatchJob> result = Lists.newArrayList();
         //获取全部子任务
-        List<ScheduleTaskShade> subTasks = batchTaskShadeService.getFlowWorkSubTasks(taskId, appType,null,null);
+        List<ScheduleTaskShade> subTasks = batchTaskShadeService.getFlowWorkSubTasks(taskId, appType, null, null);
+        AtomicInteger atomicInteger = new AtomicInteger();
         for (ScheduleTaskShade taskShade : subTasks) {
             String subKeyPreStr = preStr;
             String subFillJobName = fillJobName;
             //子任务需添加依赖关系
             List<ScheduleBatchJob> batchJobs = buildJobRunBean(taskShade, subKeyPreStr, EScheduleType.FILL_DATA, true, true,
-                    triggerDay, subFillJobName, createUserId, beginTime, endTime, projectId, tenantId);
+                    triggerDay, subFillJobName, createUserId, beginTime, endTime, projectId, tenantId,atomicInteger);
             result.addAll(batchJobs);
         }
 
