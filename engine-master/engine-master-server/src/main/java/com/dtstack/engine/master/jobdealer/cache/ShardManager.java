@@ -27,8 +27,7 @@ public class ShardManager implements Runnable {
     public ShardManager(String jobResource) {
         this.jobResource = jobResource;
         this.shard = new ConcurrentHashMap<>();
-        scheduledService = new ScheduledThreadPoolExecutor(ComputeResourceType.values().length,
-                new CustomThreadFactory(jobResource + this.getClass().getSimpleName()));
+        scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(jobResource + this.getClass().getSimpleName()));
         scheduledService.scheduleWithFixedDelay(
                 this,
                 0,

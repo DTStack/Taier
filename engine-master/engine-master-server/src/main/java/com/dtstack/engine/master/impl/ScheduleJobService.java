@@ -11,6 +11,7 @@ import com.dtstack.engine.api.enums.TaskRuleEnum;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ParamActionExt;
+import com.dtstack.engine.api.pojo.ScheduleJobCount;
 import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.api.vo.action.ActionLogVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobRuleTimeVO;
@@ -42,7 +43,6 @@ import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.scheduler.JobParamReplace;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
-import com.dtstack.engine.common.util.TaskParamsUtil;
 import com.dtstack.engine.master.sync.RestartRunnable;
 import com.dtstack.engine.master.utils.JobGraphUtils;
 import com.dtstack.engine.master.vo.BatchSecienceJobChartVO;
@@ -230,10 +230,15 @@ public class ScheduleJobService {
      * 获取各个状态任务的数量
      */
     public ScheduleJobStatusVO getStatusCount( Long projectId,  Long tenantId,  Integer appType,  Long dtuicTenantId) {
-        int all = 0;
         ScheduleJobStatusVO scheduleJobStatusVO =new ScheduleJobStatusVO();
         List<Map<String, Object>> data = scheduleJobDao.countByStatusAndType(EScheduleType.NORMAL_SCHEDULE.getType(), DateUtil.getUnStandardFormattedDate(DateUtil.calTodayMills()),
                 DateUtil.getUnStandardFormattedDate(DateUtil.TOMORROW_ZERO()), tenantId, projectId, appType, dtuicTenantId, null);
+        buildCount( scheduleJobStatusVO, data);
+        return scheduleJobStatusVO;
+    }
+
+    private void buildCount(ScheduleJobStatusVO scheduleJobStatusVO, List<Map<String, Object>> data) {
+        int all = 0;
         List<ScheduleJobStatusCountVO> scheduleJobStatusCountVOS = Lists.newArrayList();
         for (Integer code : RdosTaskStatus.getCollectionStatus().keySet()) {
             List<Integer> status = RdosTaskStatus.getCollectionStatus(code);
@@ -255,7 +260,6 @@ public class ScheduleJobService {
         }
         scheduleJobStatusVO.setAll(all);
         scheduleJobStatusVO.setScheduleJobStatusCountVO(scheduleJobStatusCountVOS);
-        return scheduleJobStatusVO;
     }
 
     public List<ScheduleJobStatusVO> getStatusCountByProjectIds(List<Long> projectIds, Long tenantId, Integer appType, Long dtuicTenantId) {
@@ -265,13 +269,48 @@ public class ScheduleJobService {
             return scheduleJobStatusVOS;
         }
 
-        for (Long projectId : projectIds) {
-            ScheduleJobStatusVO statusCount = getStatusCount(projectId, tenantId, appType, dtuicTenantId);
-            statusCount.setProjectId(projectId);
-            scheduleJobStatusVOS.add(statusCount);
+        if (projectIds.size() > environmentContext.getMaxBatchTask()) {
+            List<List<Long>> partition = Lists.partition(projectIds, environmentContext.getMaxBatchTask());
+            for (List<Long> ids : partition) {
+                JobStatusCount(ids, tenantId, appType, dtuicTenantId, scheduleJobStatusVOS);
+            }
+        } else {
+            JobStatusCount(projectIds, tenantId, appType, dtuicTenantId, scheduleJobStatusVOS);
         }
-
+        
         return scheduleJobStatusVOS;
+    }
+
+    private void JobStatusCount(List<Long> projectIds, Long tenantId, Integer appType, Long dtuicTenantId, List<ScheduleJobStatusVO> scheduleJobStatusVOS) {
+        List<ScheduleJobCount> scheduleJobCounts = scheduleJobDao.countByStatusAndTypeProjectIds(EScheduleType.NORMAL_SCHEDULE.getType(), DateUtil.getUnStandardFormattedDate(DateUtil.calTodayMills()),
+                DateUtil.getUnStandardFormattedDate(DateUtil.TOMORROW_ZERO()), tenantId, projectIds, appType, dtuicTenantId, null);
+
+        if (scheduleJobCounts != null) {
+            Map<Long, List<ScheduleJobCount>> listMap = scheduleJobCounts.stream().collect(Collectors.groupingBy(ScheduleJobCount::getProjectId));
+
+            for (Long projectId : projectIds) {
+                ScheduleJobStatusVO scheduleJobStatusVO = new ScheduleJobStatusVO();
+                scheduleJobStatusVO.setProjectId(projectId);
+                List<ScheduleJobCount> dataCount = listMap.get(projectId);
+                List<Map<String, Object>> data = toListMap(dataCount);
+                buildCount(scheduleJobStatusVO, data);
+                scheduleJobStatusVOS.add(scheduleJobStatusVO);
+            }
+        }
+    }
+
+    private List<Map<String, Object>> toListMap(List<ScheduleJobCount> dataCount) {
+        List<Map<String, Object>> data = Lists.newArrayList();
+        if (CollectionUtils.isEmpty(dataCount)) {
+            return data;
+        }
+        for (ScheduleJobCount scheduleJobCount : dataCount) {
+            Map<String, Object> map = Maps.newHashMap();
+            map.put("count", scheduleJobCount.getCount());
+            map.put("status", scheduleJobCount.getStatus());
+            data.add(map);
+        }
+        return data;
     }
 
     /**
@@ -771,7 +810,7 @@ public class ScheduleJobService {
         }
         vo.setSplitFiledFlag(true);
         ScheduleJobDTO batchJobDTO = createQuery(vo);
-        batchJobDTO.setQueryWorkFlowModel(QueryWorkFlowModel.Eliminate_Workflow_ParentNodes.getType());
+        batchJobDTO.setQueryWorkFlowModel(QueryWorkFlowModel.Eliminate_Workflow_SubNodes.getType());
         if (vo.getAppType() == AppType.DATASCIENCE.getType()) {
             batchJobDTO.setQueryWorkFlowModel(QueryWorkFlowModel.Eliminate_Workflow_SubNodes.getType());
         }
@@ -3166,12 +3205,15 @@ public class ScheduleJobService {
             LOGGER.info("syncRestartJob  {}  is doing ", key);
             return false;
         }
-        redisTemplate.execute((RedisCallback<String>) connection -> {
+        String execute = redisTemplate.execute((RedisCallback<String>) connection -> {
             JedisCommands commands = (JedisCommands) connection.getNativeConnection();
             SetParams setParams = SetParams.setParams();
-            setParams.nx().ex((int)environmentContext.getForkJoinResultTimeOut() * 2);
+            setParams.nx().ex((int) environmentContext.getForkJoinResultTimeOut() * 2);
             return commands.set(key, "-1", setParams);
         });
+        if(StringUtils.isBlank(execute)){
+            return false;
+        }
         if (BooleanUtils.isTrue(justRunChild) && null != id) {
             if (null == subJobIds) {
                 subJobIds = new ArrayList<>();

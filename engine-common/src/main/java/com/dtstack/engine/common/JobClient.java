@@ -130,6 +130,8 @@ public class JobClient extends OrderObject {
      */
     private Integer type;
 
+    private Integer deployMode;
+
     public JobClient() {
 
     }
@@ -221,6 +223,14 @@ public class JobClient extends OrderObject {
             }
         }
         return action;
+    }
+
+    public Integer getDeployMode() {
+        return deployMode;
+    }
+
+    public void setDeployMode(Integer deployMode) {
+        this.deployMode = deployMode;
     }
 
     public Boolean getForceCancel() {

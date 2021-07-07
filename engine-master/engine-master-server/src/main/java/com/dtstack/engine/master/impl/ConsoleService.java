@@ -14,6 +14,7 @@ import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.ComponentVersionUtil;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
@@ -488,7 +489,7 @@ public class ConsoleService {
             pluginInfo.put(EComponentType.YARN.getConfName(), componentConfig);
             if (StringUtils.isNotBlank(yarnComponent.getKerberosFileName())) {
                 //开启kerberos 添加信息
-                KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(), yarnComponent.getComponentTypeCode(),null);
+                KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(), yarnComponent.getComponentTypeCode(), ComponentVersionUtil.formatMultiVersion(yarnComponent.getComponentTypeCode(),yarnComponent.getHadoopVersion()));
                 Map sftpMap = componentService.getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class,null);
                 pluginInfo.put(EComponentType.SFTP.getConfName(), sftpMap);
                 pluginInfo = JSONObject.parseObject(componentService.wrapperConfig(yarnComponent.getComponentTypeCode(),componentConfig.toJSONString(),sftpMap,kerberosConfig,cluster.getClusterName()));
@@ -497,7 +498,7 @@ public class ConsoleService {
             if (StringUtils.isBlank(typeName)) {
                 //获取对应的插件名称
                 typeName = componentService.convertComponentTypeToClient(cluster.getClusterName(),
-                        EComponentType.YARN.getTypeCode(), yarnComponent.getHadoopVersion(),null,null);
+                        EComponentType.YARN.getTypeCode(), yarnComponent.getHadoopVersion(),null,null,null);
             }
             pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,typeName);
             return workerOperator.clusterResource(typeName, pluginInfo.toJSONString());

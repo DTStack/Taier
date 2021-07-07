@@ -30,3 +30,4 @@ tmpSave/
 /javadocs
 engine-master/engine-master-server/download/
 engine-master/engine-master-server/unzip/
+engine-worker/engine-plugins

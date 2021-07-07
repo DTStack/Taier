@@ -549,11 +549,9 @@ public class Template {
         LineageDataSetInfo lineageDataSetInfo = new LineageDataSetInfo();
         lineageDataSetInfo.setAppType(AppType.DATAASSETS.getType());
         lineageDataSetInfo.setDtUicTenantId(1L);
-        lineageDataSetInfo.setSourceId(1L);
-        lineageDataSetInfo.setRealSourceId(1L);
+        lineageDataSetInfo.setDataInfoId(1L);
         lineageDataSetInfo.setSourceName("hive");
         lineageDataSetInfo.setSourceType(DataSourceType.HIVE.getVal());
-        lineageDataSetInfo.setSourceKey("172.16.8.107#10000");
         lineageDataSetInfo.setSetType(0);
         lineageDataSetInfo.setDbName("default");
         lineageDataSetInfo.setSchemaName("default");
@@ -566,11 +564,9 @@ public class Template {
     public static LineageDataSetInfo getHiveDataSetInfoTemplate() {
         LineageDataSetInfo lineageDataSetInfo = new LineageDataSetInfo();
         lineageDataSetInfo.setAppType(AppType.DATAASSETS.getType());
-        lineageDataSetInfo.setSourceId(1L);
-        lineageDataSetInfo.setRealSourceId(1L);
+        lineageDataSetInfo.setDataInfoId(1L);
         lineageDataSetInfo.setSourceName("hive");
         lineageDataSetInfo.setSourceType(DataSourceType.HIVE.getVal());
-        lineageDataSetInfo.setSourceKey("172.16.8.107#10000");
         lineageDataSetInfo.setSetType(0);
         lineageDataSetInfo.setDbName("default");
         lineageDataSetInfo.setSchemaName("default");

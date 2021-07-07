@@ -138,8 +138,15 @@ public class EnvironmentContext {
         return Integer.parseInt(environment.getProperty("http.port", "9020"));
     }
 
+    private volatile String httpAddress;
+
     public String getHttpAddress() {
-        return environment.getProperty("http.address", AddressUtil.getOneIp());
+        if (StringUtils.isNotBlank(httpAddress)) {
+            return httpAddress;
+        }
+
+        httpAddress = environment.getProperty("http.address", AddressUtil.getOneIp());
+        return httpAddress;
     }
 
     /**
@@ -293,11 +300,13 @@ public class EnvironmentContext {
         return Integer.parseInt(environment.getProperty("slots", "10"));
     }
 
-    private volatile String  localAddress;
+    private volatile String localAddress;
+
     public String getLocalAddress() {
-        if (null != localAddress) {
+        if (StringUtils.isNotBlank(localAddress)) {
             return localAddress;
         }
+
         String address = environment.getProperty("http.address", AddressUtil.getOneIp());
         String port = environment.getProperty("http.port", "8090");
         localAddress = String.format("%s:%s", address, port);
@@ -414,9 +423,12 @@ public class EnvironmentContext {
         return Integer.parseInt(environment.getProperty("testConnectTimeout", "100"));
     }
 
-
     public int getBuildJobErrorRetry() {
         return Integer.parseInt(environment.getProperty("build.job.retry", "3"));
+    }
+
+    public int getJobSubmitConcurrent() {
+        return Integer.parseInt(environment.getProperty("job.submit.concurrent", "1"));
     }
 
     /**
@@ -601,7 +613,7 @@ public class EnvironmentContext {
      * @return
      */
     public String getDatasourceNode() {
-        return environment.getProperty("datasource.node", "127.0.0.1:8077");
+        return environment.getProperty("datasource.node", "");
     }
 
     /**
@@ -614,5 +626,14 @@ public class EnvironmentContext {
 
     public String getSqlParserDir(){
         return environment.getProperty("sqlParser.dir","/opt/dtstack/DTPlugin/SqlParser");
+    }
+
+    /**
+     * 是否优先走standalone的组件
+     *
+     * @return
+     */
+    public boolean checkStandalone() {
+        return Boolean.parseBoolean(environment.getProperty("check.standalone", "true"));
     }
 }

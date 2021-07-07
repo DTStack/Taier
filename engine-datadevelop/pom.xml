@@ -18,7 +18,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <dt-insight-common-base.version>4.1.2-SNAPSHOT</dt-insight-common-base.version>
+        <dt-insight-common-base.version>4.2.3</dt-insight-common-base.version>
         <dt-insight-sdk-core.version>4.1.2</dt-insight-sdk-core.version>
 
     </properties>
@@ -72,6 +72,12 @@
         <dependency>
             <groupId>com.dtstack.engine</groupId>
             <artifactId>sdk-engine-client</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.dtstack.engine</groupId>
+            <artifactId>engine-datasource</artifactId>
             <version>1.0.0</version>
         </dependency>
     </dependencies>

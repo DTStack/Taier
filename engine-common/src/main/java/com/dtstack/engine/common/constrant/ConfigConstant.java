@@ -32,14 +32,11 @@ public class ConfigConstant {
     public static final String MERGE_KRB5_NAME = "mergeKrb5.conf";
     public static final String MERGE_KRB5_CONTENT_KEY = "mergeKrbContent";
 
-    public static final String TYPE_NAME_KEY = "typeName";
-    public static final String TYPE_NAME = "typeName";
+
     public static final String VERSION = "version";
     public static final String IS_METADATA = "metadata";
-    public static final String HADOOP_VERSION = "hadoopVersion";
     public static final String CUSTOMER_PRIORITY_VAL = "job.priority";
 
-    public static final String MD5_SUM_KEY = "md5zip";
 
     public static final String AKKA_LOCALMODE = "akka.localMode";
     public static final String AKKA_ACTOR_PROVIDER = "akka.actor.provider";
@@ -101,5 +98,26 @@ public class ConfigConstant {
 
     public static final long DEFAULT_KUBERNETES_PARENT_NODE = -2L;
     public static final long DEFAULT_TENANT  = -1L;
+
+
+    /**
+     * component_config other类型 key
+     */
+    public static final String TYPE_NAME_KEY = "typeName";
+    public static final String TYPE_NAME = "typeName";
+    public static final String HADOOP_VERSION = "hadoopVersion";
+    public static final String MD5_SUM_KEY = "md5zip";
+    public static final String FLINK_ON_STANDALONE_CONF = "flinkOnStandaloneConf";
+
+
+    public static final Long DEFAULT_CLUSTER_ID = -1L;
+
+    public static final String DEFAULT_CLUSTER_NAME = "default";
+    public final static String CLUSTER = "cluster";
+    public final static String QUEUE = "queue";
+    public final static String TENANT_ID = "tenantId";
+    public static final String DEPLOY_MODEL = "deployMode";
+    public static final String NAMESPACE = "namespace";
+    public static final String MAILBOX_CUTTING = "@";
 
 }

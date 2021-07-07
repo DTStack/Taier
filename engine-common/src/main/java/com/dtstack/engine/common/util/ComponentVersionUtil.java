@@ -38,7 +38,6 @@ public class ComponentVersionUtil {
         Set<Integer> set = new HashSet<>(2);
         set.add(EComponentType.FLINK.getTypeCode());
         set.add(EComponentType.SPARK.getTypeCode());
-        set.add(EComponentType.FLINK_ON_STANDALONE.getTypeCode());
         return set;
     }
 
@@ -143,8 +142,8 @@ public class ComponentVersionUtil {
     }
 
 
-    public static Map<Integer,String > singletonMap(EComponentType componentType,String componentVersion){
-        return Collections.singletonMap(componentType.getTypeCode(),componentVersion);
+    public static String formatMultiVersion(Integer componentCode,String componentVersion){
+        return isMultiVersionComponent(componentCode)? componentVersion : null;
     }
 
 

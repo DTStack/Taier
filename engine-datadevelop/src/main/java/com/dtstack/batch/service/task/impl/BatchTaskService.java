@@ -2,7 +2,6 @@ package com.dtstack.batch.service.task.impl;
 
 
 import com.alibaba.fastjson.*;
-import com.dtstack.batch.bo.ExecuteContent;
 import com.dtstack.batch.common.enums.EDeployType;
 import com.dtstack.batch.common.enums.ETableType;
 import com.dtstack.batch.common.enums.PublishTaskStatusEnum;
@@ -12,7 +11,6 @@ import com.dtstack.batch.common.exception.ErrorCode;
 import com.dtstack.batch.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.*;
 import com.dtstack.batch.dao.po.TaskOwnerAndProjectPO;
-import com.dtstack.batch.datamask.helper.ParseLineage;
 import com.dtstack.batch.domain.*;
 import com.dtstack.batch.dto.BatchTaskDTO;
 import com.dtstack.batch.engine.adbpg.service.BatchADBPGSqlExeService;
@@ -25,9 +23,6 @@ import com.dtstack.batch.parser.ESchedulePeriodType;
 import com.dtstack.batch.parser.ScheduleCron;
 import com.dtstack.batch.parser.ScheduleFactory;
 import com.dtstack.batch.schedule.JobParamReplace;
-import com.dtstack.batch.service.alarm.impl.BatchAlarmReceiveUserService;
-import com.dtstack.batch.service.alarm.impl.BatchAlarmService;
-import com.dtstack.batch.service.datamask.impl.LineageService;
 import com.dtstack.batch.service.datasource.impl.BatchDataSourceService;
 import com.dtstack.batch.service.datasource.impl.BatchDataSourceTaskRefService;
 import com.dtstack.batch.service.datasource.impl.IMultiEngineService;
@@ -47,6 +42,7 @@ import com.dtstack.batch.web.task.vo.result.BatchTaskGetSupportJobTypesResultVO;
 import com.dtstack.batch.web.task.vo.result.BatchTaskRecentlyRunTimeResultVO;
 import com.dtstack.dtcenter.common.constant.PatternConstant;
 import com.dtstack.dtcenter.common.enums.*;
+import com.dtstack.dtcenter.common.enums.ESubmitStatus;
 import com.dtstack.dtcenter.common.login.DtUicUserConnect;
 import com.dtstack.dtcenter.common.thread.RdosThreadFactory;
 import com.dtstack.dtcenter.common.util.*;
@@ -199,12 +195,6 @@ public class BatchTaskService {
     private BatchDataSourceTaskRefService batchDataSourceTaskRefService;
 
     @Autowired
-    private LineageService lineageService;
-
-    @Autowired
-    private CarBonTaskRelationDao carBonTaskRelationDao;
-
-    @Autowired
     private IMultiEngineService multiEngineService;
 
     @Autowired
@@ -212,9 +202,6 @@ public class BatchTaskService {
 
     @Autowired
     private ProjectDao projectDao;
-
-    @Autowired
-    private BatchAlarmReceiveUserService batchAlarmReceiveUserService;
 
     @Autowired
     private BatchSqlExeService batchSqlExeService;
@@ -232,16 +219,7 @@ public class BatchTaskService {
     private ScheduleTaskTaskShadeService scheduleTaskTaskShadeService;
 
     @Autowired
-    private BatchTableInfoDao batchTableInfoDao;
-
-    @Autowired
-    private BatchDirtyDataService batchDirtyDataService;
-
-    @Autowired
     private ProjectEngineService projectEngineService;
-
-    @Autowired
-    private BatchAlarmReceiveUserDao batchAlarmReceiveUserDao;
 
     @Autowired
     private BatchJobService batchJobService;
@@ -253,7 +231,7 @@ public class BatchTaskService {
     private EnvironmentContext environmentContext;
 
     @Autowired
-    private ProjectService engineProjectService;
+    private com.dtstack.engine.api.service.ProjectService engineProjectService;
 
     @Autowired
     private ComponentService componentService;
@@ -530,8 +508,6 @@ public class BatchTaskService {
                 taskVO.setCreateModel(obj.get("createModel") == null ? Constant.CREATE_MODEL_GUIDE : Integer.parseInt(String.valueOf(obj.get("createModel"))));
                 formatSqlText(taskVO, obj);
             }
-        } else if (task.getTaskType().equals(EJobType.CARBON_SQL.getVal())) {
-            taskVO.setDataSourceId(this.carBonTaskRelationDao.getRelationByTaskId(ScheduleTaskVO.getId()).getSourceId());
         }
 
         this.setTaskOperatorModelAndOptions(taskVO, task);
@@ -1715,17 +1691,6 @@ public class BatchTaskService {
             this.updateTaskRefResource(params);
         }
 
-        //关联数据源
-        if (param.getTaskType().equals(EJobType.CARBON_SQL.getVal())) {
-            CarbonTaskRelation rel = this.carBonTaskRelationDao.getRelationByTaskId(task.getId());
-            if (rel == null) {
-                rel = new CarbonTaskRelation();
-                rel.setTaskId(task.getId());
-                rel.setSourceId(param.getDataSourceId());
-                this.carBonTaskRelationDao.insert(rel);
-            }
-        }
-
         final User user = this.userService.getUser(task.getModifyUserId());
         if (user != null) {
             taskCatalogueVO.setCreateUser(user.getUserName());
@@ -2334,8 +2299,6 @@ public class BatchTaskService {
 
         //fixme 右键编辑使用另一个接口
         if (BooleanUtils.isNotTrue(isEditBaseInfo)) {
-            //更新任务对应的参数配置---mr:args变化, sql:sqlText变化
-            // bug fix http://redmine.prod.dtstack.cn/issues/16896 存在老数据虚节点sqlText存储了下游任务的sqlText信息
             if (!EJobType.WORK_FLOW.getVal().equals(task.getTaskType())  &&
                     !EJobType.VIRTUAL.getVal().equals(task.getTaskType())) {
                 //新增加不校验自定义参数
@@ -3032,49 +2995,6 @@ public class BatchTaskService {
             throw new RdosDefineException("任务无提交记录");
         }
         return maxVersionId;
-    }
-
-    private List<String> delCacheSql(List<String> sqls, String dbName) {
-        List<String> cacheTable = new ArrayList<>();
-        List<String> noCacheSql = new ArrayList<>();
-        Integer dataSourceType = DataSourceType.Spark.getVal();
-        for (String sql : sqls) {
-            if (StringUtils.isEmpty(sql)) {
-                continue;
-            }
-
-            if (sql.toLowerCase().startsWith("set")) {
-                continue;
-            }
-            try {
-                if (BatchSqlExeService.CACHE_LAZY_SQL_PATTEN.matcher(sql.toLowerCase().trim()).matches()) {
-                    //cache table 替换成create table
-                    sql = sql.trim().replaceAll("(?i)^cache\\s+(lazy\\s+)?table", "create table ");
-                    SqlParseInfo sqlParseInfo = engineLineageService.parseSqlInfo(sql, dbName, dataSourceType).getData();
-                    cacheTable.add(String.format("%s.%s", sqlParseInfo.getMainTable().getDb(), sqlParseInfo.getMainTable().getName()));
-                    continue;
-                }
-                List<Table> tables = engineLineageService.parseTables(sql, dbName, dataSourceType).getData();
-                if (CollectionUtils.isNotEmpty(tables)) {
-                    List<String> allTable = tables.stream().map(bean -> String.format("%s.%s",
-                            bean.getDb(), bean.getName())).collect(Collectors.toList());
-                    boolean flag = false;
-                    for (String tableName : cacheTable) {
-                        if (allTable.contains(tableName)) {
-                            flag = true;
-                            break;
-                        }
-                    }
-                    if (!flag) {
-                        noCacheSql.add(sql.trim());
-                    }
-                }
-            } catch (Exception e) {
-                logger.info(String.format("血缘解析错误,sql为%s,原因是%s", sql, e.getMessage()));
-                noCacheSql.add(sql.trim());
-            }
-        }
-        return noCacheSql;
     }
 
     /**

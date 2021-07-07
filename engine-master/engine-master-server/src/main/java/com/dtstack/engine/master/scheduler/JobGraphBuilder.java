@@ -39,6 +39,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.support.CronSequenceGenerator;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -878,7 +879,11 @@ public class JobGraphBuilder {
                 dateTime = dateTime.minusMinutes(((ScheduleCronMinParser) cron).getGapNum());
             }
 
-        } else {
+        }else if (cron.getPeriodType() == ESchedulePeriodType.CUSTOM.getVal()){
+            dateTime = new DateTime(findLastDateBeforeCurrent(new CronSequenceGenerator(cron.getCronStr()),currTriggerDate,
+                    currTriggerDate.toInstant().atZone(DateUtil.DEFAULT_ZONE).toLocalDateTime(),0,true));
+        }
+        else {
             throw new RdosDefineException("not support of ESchedulePeriodType:" + cron.getPeriodType());
         }
 
@@ -953,6 +958,10 @@ public class JobGraphBuilder {
             dateTime = getCloseInDateTimeOfHour(dateTime, (ScheduleCronHourParser) fatherCron);
         } else if (fatherCron.getPeriodType() == ESchedulePeriodType.MIN.getVal()) {
             dateTime = getCloseInDateTimeOfMin(dateTime, (ScheduleCronMinParser) fatherCron);
+        }else if (fatherCron.getPeriodType() == ESchedulePeriodType.CUSTOM.getVal()){
+            // 父任务为自定义调度,则从当前子任务执行前寻找
+            dateTime = new DateTime(findLastDateBeforeCurrent(new CronSequenceGenerator(fatherCron.getCronStr()),dateTime.toDate(),
+                    dateTime.toDate().toInstant().atZone(DateUtil.DEFAULT_ZONE).toLocalDateTime(),0,false));
         } else {
             throw new RuntimeException("not support period type of " + fatherCron.getPeriodType());
         }
@@ -1276,5 +1285,39 @@ public class JobGraphBuilder {
         return EScheduleType.FILL_DATA;
     }
 
+
+    public static Date findLastDateBeforeCurrent(CronSequenceGenerator generator,Date currTriggerDate,
+                                                 LocalDateTime findDate,int change,boolean sameTask){
+        // 不同任务可能存在触发时间一样, 同个任务触发时间不可能相同, -1s防止下次执行时间刚好是本次
+        findDate = sameTask ? findDate.plusSeconds(-1): findDate;
+        if (change == 20){
+            change = 0;
+            findDate = findDate.plusDays(-1);
+        }else if (change > 15){
+            findDate = findDate.plusYears(-1L);
+        }else if (change > 10){
+            findDate =  findDate.plusMonths(-1L);
+        }else if (change > 5){
+            findDate = findDate.plusWeeks(-1L);
+        }else {
+            findDate = findDate.plusDays(-1L);
+        }
+        // 计算下次执行时间
+        Date isLastDate = generator.next(new Date(findDate.toInstant(DateUtil.DEFAULT_ZONE).toEpochMilli()));
+        // 前一次执行时间在本次之前，需要确定是不是最后一次
+        if (isLastDate.before(currTriggerDate)){
+            Date lastDate = isLastDate;
+            while ((isLastDate = generator.next(isLastDate)).before(currTriggerDate)){
+                lastDate = isLastDate;
+            }
+            // 如果不是同一个任务，并且触发时间相同则返回这个触发时间否则返回上一个触发时间
+            return !sameTask && !isLastDate.after(currTriggerDate)? isLastDate:lastDate;
+        }else if (!sameTask && !isLastDate.after(currTriggerDate) ){
+            return currTriggerDate;
+        }
+
+        return findLastDateBeforeCurrent(generator,currTriggerDate,sameTask?findDate.plusSeconds(1):findDate,change+1,sameTask);
+
+    }
 
 }

@@ -20,7 +20,6 @@ import com.dtstack.dtcenter.common.constant.PatternConstant;
 import com.dtstack.dtcenter.common.enums.*;
 import com.dtstack.dtcenter.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.common.util.PublicUtil;
-import com.dtstack.engine.api.service.LineageService;
 import com.dtstack.sqlparser.common.utils.SqlFormatUtil;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;

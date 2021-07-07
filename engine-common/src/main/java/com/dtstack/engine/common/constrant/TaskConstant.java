@@ -24,4 +24,6 @@ public class TaskConstant {
     public static final String FILE_NAME = "${file}";
     public static final String CMD = "${cmd}";
     public static final String DQ_JOB_ID = "#{jobId}";
+
+    public static final String CMD_OPTS = "--cmd-opts";
 }

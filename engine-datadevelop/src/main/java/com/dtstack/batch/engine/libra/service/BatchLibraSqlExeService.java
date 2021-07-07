@@ -24,7 +24,6 @@ import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.api.pojo.lineage.ColumnLineage;
 import com.dtstack.engine.api.service.ActionService;
-import com.dtstack.engine.api.service.LineageService;
 import com.dtstack.engine.api.vo.lineage.ColumnLineageParseInfo;
 import com.dtstack.engine.api.vo.lineage.SqlType;
 import com.dtstack.engine.api.vo.lineage.param.ParseColumnLineageParam;

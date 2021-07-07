@@ -1,11 +1,9 @@
 package com.dtstack.engine.master.multiengine.engine;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
-import com.dtstack.engine.api.domain.Cluster;
-import com.dtstack.engine.api.domain.Component;
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.ScheduleTaskParamShade;
 import com.dtstack.engine.api.enums.ScheduleEngineType;
 import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
@@ -17,17 +15,19 @@ import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ComponentService;
+import com.dtstack.engine.master.impl.TaskParamsService;
 import com.dtstack.engine.master.multiengine.JobStartTriggerBase;
 import com.dtstack.engine.master.scheduler.JobParamReplace;
-import com.dtstack.engine.common.util.TaskParamsUtil;
 import com.dtstack.schedule.common.enums.DataBaseType;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
@@ -54,6 +54,7 @@ import java.net.URLEncoder;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author yuebai
@@ -63,6 +64,9 @@ import java.util.*;
 public class HadoopJobStartTrigger extends JobStartTriggerBase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HadoopJobStartTrigger.class);
+
+    private static final String USER_NAME = "user.name";
+    private static final String USER_LABEL = "node.label";
 
     @Autowired
     private JobParamReplace jobParamReplace;
@@ -81,6 +85,9 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
 
     @Autowired
     private WorkerOperator workerOperator;
+
+    @Autowired
+    private TaskParamsService taskParamsService;
 
     private DateTimeFormatter dayFormatterAll = DateTimeFormat.forPattern("yyyyMMddHHmmss");
 
@@ -168,6 +175,8 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
            this.replaceTaskExeArgs(actionParam, scheduleJob, taskParamsToReplace, taskExeArgs,uploadPath);
         }
 
+        taskParams = addTaskPrams(taskParams,taskShade.getEngineType(),scheduleJob);
+
         actionParam.put("sqlText", sql);
         actionParam.put("taskParams", taskParams);
         //engine 不需要用到的参数 去除
@@ -200,6 +209,22 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             //替换参数 base64 生成launchCmd
             taskExeArgs = taskExeArgs.replace(TaskConstant.LAUNCH, Base64Util.baseEncode(launchCmd));
             LOGGER.info(" replaceTaskExeArgs job {} exeArgs {} ", scheduleJob.getJobId(), taskExeArgs);
+        }
+        if (taskExeArgs.contains(TaskConstant.CMD_OPTS)){
+            List<String> argList = DtStringUtil.splitIngoreBlank(taskExeArgs);
+            for (int i = 0; i < argList.size(); i++) {
+                if(TaskConstant.CMD_OPTS.equals(argList.get(i))){
+                    String base64 = argList.get(i + 1);
+                    try {
+                        base64 = Base64Util.baseEncode(jobParamReplace.paramReplace(Base64Util.baseDecode(base64),taskParamsToReplace, scheduleJob.getCycTime()));
+                        argList.set(i+1,base64);
+                    }catch (Exception e){
+                        argList.set(i+1,jobParamReplace.paramReplace(base64,taskParamsToReplace, scheduleJob.getCycTime()));
+                    }
+                    break;
+                }
+            }
+            taskExeArgs = String.join(" ", argList);
         }
         actionParam.put("exeArgs", taskExeArgs);
     }
@@ -537,7 +562,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         if(flinkComponent.isPresent()){
             ComponentsConfigOfComponentsVO componentsVO = flinkComponent.get();
             JSONObject flinkJsonObject = JSONObject.parseObject(componentsVO.getComponentConfig());
-            EDeployMode eDeployMode = TaskParamsUtil.parseDeployTypeByTaskParams(taskParam,computeType, EngineType.Flink.name());
+            EDeployMode eDeployMode = taskParamsService.parseDeployTypeByTaskParams(taskParam,computeType, EngineType.Flink.name(),dtUicTenantId);
             JSONObject flinkConfig = flinkJsonObject.getJSONObject(eDeployMode.getMode());
             String prometheusHost = flinkConfig.getString("prometheusHost");
             String prometheusPort = flinkConfig.getString("prometheusPort");
@@ -669,4 +694,34 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         }
         throw new RdosDefineException("Update task to HDFS failure:");
     }
+
+    /**
+     * 添加任务参数
+     */
+    private String addTaskPrams(String taskParam,Integer taskType,ScheduleJob scheduleJob){
+        if (ScheduleEngineType.DTSCRIPT_AGENT.getVal() == taskType){
+            List<String> paramList = DtStringUtil.splitIgnoreQuota(taskParam, '\n');
+            Map<String,String> labelUserMap = new HashMap<>(2);
+            for (String param : paramList) {
+                if (!param.contains("=")){
+                   continue;
+                }
+                String[] properties = param.split("=");
+                if (USER_NAME.equals(properties[0] = properties[0].trim()) || USER_LABEL.equals(properties[0])){
+                    labelUserMap.put(properties[0],properties[1].trim());
+                    if (labelUserMap.size() == 2){
+                        break;
+                    }
+                }
+            }
+            if (labelUserMap.size() != 2){
+                return taskParam;
+            }
+            // 离线会传入dtUicId
+            ComponentUser user = componentService.getComponentUser(scheduleJob.getDtuicTenantId(), EComponentType.DTSCRIPT_AGENT.getTypeCode(), labelUserMap.get(USER_LABEL), labelUserMap.get(USER_NAME));
+            taskParam = Objects.nonNull(user) && StringUtils.isNotBlank(user.getPassword())?taskParam + String.format("\r\n%s=%s", "user.password", Base64Util.baseDecode(user.getPassword())):taskParam;
+        }
+        return taskParam;
+    }
+
 }

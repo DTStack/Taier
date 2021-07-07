@@ -30,7 +30,6 @@ import com.dtstack.dtcenter.common.enums.TaskStatus;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.dtcenter.loader.utils.DBUtil;
 import com.dtstack.engine.api.pojo.lineage.Table;
-import com.dtstack.engine.api.service.LineageService;
 import com.dtstack.engine.api.vo.lineage.ColumnLineageParseInfo;
 import com.dtstack.engine.api.vo.lineage.SelectColumn;
 import com.dtstack.engine.api.vo.lineage.SqlParseInfo;

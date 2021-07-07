@@ -18,7 +18,8 @@ import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.bo.JobCheckpointInfo;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.impl.ClusterService;
-import com.dtstack.engine.common.util.TaskParamsUtil;
+import com.dtstack.engine.master.impl.ScheduleDictService;
+import com.dtstack.engine.master.impl.TaskParamsService;
 import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -101,6 +102,12 @@ public class JobCheckpointDealer implements InitializingBean {
 
     @Autowired
     private ClusterService clusterService;
+
+    @Autowired
+    private ScheduleDictService scheduleDictService;
+
+    @Autowired
+    private TaskParamsService taskParamsService;
 
     private CopyOnWriteArrayList<String> queuePutRecord = new CopyOnWriteArrayList<>();
 
@@ -232,11 +239,18 @@ public class JobCheckpointDealer implements InitializingBean {
         long checkpointInterval = getCheckpointInterval(taskId);
         if (checkpointInterval > 0 && !queuePutRecord.contains(taskId)) {
             //queuePutRecord去重 保证队列中taskId唯一 后续通过refreshExpired来间隔获取
+            int retainedNum = 11;
             try {
+                String componentVersionValue = scheduleDictService.convertVersionNameToValue(jobIdentifier.getComponentVersion(), jobIdentifier.getEngineType());
                 String pluginInfo = clusterService.pluginInfoJSON(jobIdentifier.getTenantId(),
                         jobIdentifier.getEngineType(), jobIdentifier.getUserId(), jobIdentifier.getDeployMode(),
-                        Collections.singletonMap(EngineTypeComponentType.getByEngineName(jobIdentifier.getEngineType(),jobIdentifier.getDeployMode()).getComponentType().getTypeCode(),jobIdentifier.getComponentVersion())).toJSONString();
-                int retainedNum = getRetainedNumFromPluginInfo(pluginInfo);
+                        Collections.singletonMap(EngineTypeComponentType.getByEngineName(jobIdentifier.getEngineType())
+                                .getComponentType().getTypeCode(), componentVersionValue)).toJSONString();
+                retainedNum = getRetainedNumFromPluginInfo(pluginInfo);
+            } catch (Exception e) {
+                LOGGER.info("get checkpoint plugin info {} error", taskId, e);
+            }
+            try {
                 taskEngineIdAndRetainedNum.put(jobIdentifier.getEngineJobId(), retainedNum);
 
                 JobCheckpointInfo taskInfo = new JobCheckpointInfo(computeType, taskId, jobIdentifier, engineTypeName, checkpointInterval);
@@ -283,7 +297,7 @@ public class JobCheckpointDealer implements InitializingBean {
             String jobInfo = engineJobCache.getJobInfo();
             Map<String, Object> pluginInfoMap = PublicUtil.jsonStrToObject(jobInfo, Map.class);
             String taskParamsStr = String.valueOf(pluginInfoMap.get(TASK_PARAMS_KEY));
-            Map<String, Object> paramInfo = TaskParamsUtil.convertPropertiesToMap(taskParamsStr);
+            Map<String, Object> paramInfo = taskParamsService.convertPropertiesToMap(taskParamsStr);
             String jobExtraFlinkCheckpointInterval = getFlinkJobExtraInfo(jobId, engineJobCache.getEngineType(), JobResultConstant.FLINK_CHECKPOINT);
             if (StringUtils.isNotBlank(jobExtraFlinkCheckpointInterval) && Integer.parseInt(jobExtraFlinkCheckpointInterval) > 0) {
                 LOGGER.info("flink {} job extra info checkpoint interval {}", jobId, jobExtraFlinkCheckpointInterval);

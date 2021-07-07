@@ -1,11 +1,13 @@
 package com.dtstack.engine.master.controller;
 
 import com.dtstack.engine.api.domain.Component;
+import com.dtstack.engine.api.domain.ComponentUser;
 import com.dtstack.engine.api.domain.KerberosConfig;
 import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.pojo.DtScriptAgentLabel;
 import com.dtstack.engine.api.pojo.lineage.ComponentMultiTestResult;
+import com.dtstack.engine.api.vo.ComponentUserVO;
 import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
 import com.dtstack.engine.api.vo.components.ComponentsResultVO;
 import com.dtstack.engine.master.impl.ComponentService;
@@ -16,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;
@@ -33,6 +36,11 @@ public class ComponentController {
     @RequestMapping(value="/listConfigOfComponents", method = {RequestMethod.POST})
     public List<ComponentsConfigOfComponentsVO> listConfigOfComponents(@DtRequestParam("tenantId") Long dtUicTenantId, @DtRequestParam("engineType") Integer engineType) {
         return componentService.listConfigOfComponents(dtUicTenantId, engineType,null);
+    }
+
+    @RequestMapping(value="/listComponents", method = {RequestMethod.POST})
+    public List<Component> listComponents(@DtRequestParam("tenantId") Long dtUicTenantId,@DtRequestParam("engineType") Integer engineType) {
+        return componentService.listComponents(dtUicTenantId,engineType);
     }
 
     @RequestMapping(value="/getOne", method = {RequestMethod.POST})
@@ -66,8 +74,9 @@ public class ComponentController {
     @RequestMapping(value="/loadTemplate", method = {RequestMethod.POST})
     @ApiOperation(value = "加载各个组件的默认值, 解析yml文件转换为前端渲染格式")
     public List<ClientTemplate> loadTemplate(@DtRequestParam("componentType") Integer componentType, @DtRequestParam("clusterName") String clusterName,
-                                             @DtRequestParam("version") String version,@DtRequestParam("storeType")Integer storeType,@DtRequestParam("originVersion") String originVersion) {
-        return componentService.loadTemplate(componentType, clusterName, version,storeType,originVersion);
+                                             @DtRequestParam("version") String version,@DtRequestParam("storeType")Integer storeType,
+                                             @DtRequestParam("originVersion") String originVersion,@DtRequestParam("deployType") Integer deployType) {
+        return componentService.loadTemplate(componentType, clusterName, version,storeType,originVersion,deployType);
     }
 
 
@@ -126,6 +135,28 @@ public class ComponentController {
     public List<Component> getComponentVersionByEngineType(@DtRequestParam("uicTenantId") Long tenantId,@DtRequestParam("engineType")String  engineType){
         return componentService.getComponentVersionByEngineType(tenantId,engineType);
     }
+
+    @RequestMapping(value = "/addOrUpdateComponentUser",method = {RequestMethod.POST})
+    public void addOrUpdateComponentUser(@DtRequestParam("componentUserList")List<ComponentUserVO> componentUserList){
+        componentService.addOrUpdateComponentUser(componentUserList);
+    }
+
+    @RequestMapping(value = "/getClusterComponentUser",method = {RequestMethod.POST})
+    public List<ComponentUserVO> getClusterComponentUser(@DtRequestParam("clusterId")Long clusterId,
+                                                         @DtRequestParam("componentTypeCode")Integer componentTypeCode,
+                                                         @DtRequestParam("needRefresh") Boolean needRefresh,
+                                                         @DtRequestParam("agentAddress")String agentAddress){
+        return componentService.getClusterComponentUser(clusterId,componentTypeCode,needRefresh,agentAddress,false);
+    }
+
+    @RequestMapping(value = "/getComponentUserByUic",method = {RequestMethod.POST})
+    public List<ComponentUserVO> getComponentUserByUic(@DtRequestParam("uicId")Long uicId,
+                                                         @DtRequestParam("componentTypeCode")Integer componentTypeCode,
+                                                         @DtRequestParam("needRefresh") Boolean needRefresh,
+                                                         @DtRequestParam("agentAddress")String agentAddress){
+        return componentService.getClusterComponentUser(uicId,componentTypeCode,needRefresh,agentAddress,true);
+    }
+
 }
 
 

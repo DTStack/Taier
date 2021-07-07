@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.engine.dao.LineageDataSetDao">
 
     <sql id="select_content_fragment">
-      id,dt_uic_tenant_id,real_source_id,source_id,source_name,source_key,app_type,source_type,set_type,db_name,schema_name,table_name,table_key,is_manual,gmt_create,gmt_modified,is_deleted
+      id,dt_uic_tenant_id,data_info_id,source_name,app_type,source_type,set_type,db_name,schema_name,table_name,table_key,is_manual,gmt_create,gmt_modified,is_deleted
     </sql>
 
     <sql id="select_where_fragment">
@@ -15,9 +15,9 @@
     </sql>
 
     <insert id="insertTableInfo" parameterType="com.dtstack.engine.api.domain.LineageDataSetInfo" useGeneratedKeys="true" keyProperty="id">
-        insert into lineage_data_set_info(dt_uic_tenant_id,real_source_id,source_id,source_name,source_key,app_type,source_type,set_type,db_name,table_name,schema_name,table_key,is_manual)
+        insert into lineage_data_set_info(dt_uic_tenant_id,data_info_id,source_name,app_type,source_type,set_type,db_name,table_name,schema_name,table_key,is_manual)
         values
-        (#{dtUicTenantId},#{realSourceId},#{sourceId},#{sourceName},#{sourceKey},#{appType},#{sourceType},#{setType},#{dbName},#{tableName},#{schemaName},#{tableKey},#{isManual})
+        (#{dtUicTenantId},#{dataInfoId},#{sourceName},#{appType},#{sourceType},#{setType},#{dbName},#{tableName},#{schemaName},#{tableKey},#{isManual})
         on duplicate key update gmt_modified=values(gmt_modified)
     </insert>
 
@@ -27,7 +27,7 @@
 
     <select id="getTableInfo" resultType="com.dtstack.engine.api.domain.LineageDataSetInfo">
         select <include refid="select_content_fragment"/>
-        from lineage_data_set_info where source_id = #{sourceId} and db_name = #{db} and table_name = #{tableName}
+        from lineage_data_set_info where data_info_id = #{sourceId} and db_name = #{db} and table_name = #{tableName}
     </select>
 
     <select id="getOneBySourceIdAndDbNameAndTableName" resultType="com.dtstack.engine.api.domain.LineageDataSetInfo">
@@ -37,7 +37,7 @@
         from lineage_data_set_info
         <where>
             <if test="sourceId != null">
-                AND source_id = #{sourceId}
+                AND data_info_id = #{sourceId}
             </if>
             <if test="tableName != null">
                 AND table_name = #{tableName}
@@ -47,6 +47,35 @@
             </if>
             <if test="schemaName != null">
                 AND schema_name = #{schemaName}
+            </if>
+            <if test="appType !=null">
+                AND app_type = #{appType}
+            </if>
+            AND is_deleted = 0
+        </where>
+    </select>
+
+
+    <select id="getListByParams" resultType="com.dtstack.engine.api.domain.LineageDataSetInfo">
+
+        select
+        <include refid="select_content_fragment" />
+        from lineage_data_set_info
+        <where>
+            <if test="sourceId != null">
+                AND data_info_id = #{sourceId}
+            </if>
+            <if test="tableName != null">
+                AND table_name = #{tableName}
+            </if>
+            <if test="dbName != null">
+                AND db_name = #{dbName}
+            </if>
+            <if test="schemaName != null">
+                AND schema_name = #{schemaName}
+            </if>
+            <if test="appType !=null">
+                AND app_type = #{appType}
             </if>
             AND is_deleted = 0
         </where>

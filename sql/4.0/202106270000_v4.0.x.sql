@@ -1,0 +1,1 @@
+CREATE INDEX index_parent_task_id ON schedule_task_task_shade(`parent_task_id`);
