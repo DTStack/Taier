@@ -61,7 +61,7 @@ module.exports = function(env) {
                 filename: 'index.html',
                 template: path.resolve( MY_PATH.WEB_PUBLIC, `index.html`),
                 inject: "body",
-                chunks: ['app', "manifest"],
+                chunks: ["manifest", 'main'],
                 showErrors: true,
                 hash: true,
                 minify: htmlMinify
