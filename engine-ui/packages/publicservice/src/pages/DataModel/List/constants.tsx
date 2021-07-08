@@ -21,12 +21,29 @@ const getColorByModelStatus = (status: EnumModelStatus) => {
   }
 };
 
+const container = (isPublished: boolean) => {
+  return (title, action) => {
+    return (
+      <a
+        className={classnames({
+          'btn-link': !isPublished,
+          'btn-disabled': isPublished,
+        })}
+        onClick={() =>
+          !isPublished && typeof action === 'function' && action()
+        }>
+        {title}
+      </a>
+    );
+  };
+};
+
 export const columnsGenerator = ({
   handleModelAction,
   handleDeleteBtnClick,
   handleModelNameClick,
   dataSourceFilterOptions,
-  router,
+  handleEditBtnClick,
 }) => {
   return [
     {
@@ -47,7 +64,7 @@ export const columnsGenerator = ({
       },
     },
     {
-      title: '模型英文名',
+      title: '模型编码',
       dataIndex: 'modelEnName',
       key: 'modelEnName',
       width: 200,
@@ -76,11 +93,7 @@ export const columnsGenerator = ({
       ),
       filterMultiple: true,
       render: (text, record) => {
-        return (
-          <span>
-            {record.dsName}({record.dsTypeName})
-          </span>
-        );
+        return `${record.dsName}(${record.dsTypeName})`;
       },
     },
     {
@@ -160,61 +173,31 @@ export const columnsGenerator = ({
       fixed: 'right',
       render: (text, record) => {
         const isPublished = record.modelStatus === 1;
-        const btnRelease = (
-          <a
-            className="btn-link"
-            onClick={() =>
-              handleModelAction({
-                type: EnumModelActionType.RELEASE,
-                id: record.id,
-              })
-            }>
-            发布
-          </a>
+        const wrapper = container(isPublished);
+        const relaeseWrapper = container(false);
+        const btnRelease = relaeseWrapper('发布', () =>
+          handleModelAction({
+            type: EnumModelActionType.RELEASE,
+            id: record.id,
+          })
         );
-        const btnUnrelease = (
-          <a
-            className="btn-link"
-            onClick={() =>
-              handleModelAction({
-                type: EnumModelActionType.UNRELEASE,
-                id: record.id,
-              })
-            }>
-            下线
-          </a>
+        const btnUnrelease = relaeseWrapper('下线', () =>
+          handleModelAction({
+            type: EnumModelActionType.UNRELEASE,
+            id: record.id,
+          })
         );
-        const btnDelete = (isPublish: boolean) => {
-          if (!isPublish) {
-            return (
-              <a
-                className="btn-link"
-                onClick={() => {
-                  handleDeleteBtnClick(record.id);
-                }}>
-                删除
-              </a>
-            );
-          } else {
-            return <span className="btn-disabled">删除</span>;
-          }
-        };
-        const btnEdit = (
-          <a
-            className="btn-link"
-            onClick={() => {
-              router.push(`/data-model/edit/${record.id}`);
-            }}>
-            编辑
-          </a>
+        const btnDelete = wrapper('删除', () =>
+          handleDeleteBtnClick(record.id)
         );
+        const btnEdit = wrapper('编辑', () => handleEditBtnClick(record.id));
         return (
           <span>
             {isPublished ? btnUnrelease : btnRelease}
             <Divider type="vertical" />
             {btnEdit}
             <Divider type="vertical" />
-            {btnDelete(isPublished)}
+            {btnDelete}
           </span>
         );
       },

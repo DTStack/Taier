@@ -10,6 +10,7 @@ interface ITableItem {
   dsId: number;
   schema: string;
   tableName: string;
+  tableAlias?: string;
 }
 
 interface IPropsDynamicSelect {
@@ -82,7 +83,7 @@ const DynamicSelect = (props: IPropsDynamicSelect) => {
     try {
       const { success, data, message } = await API.getDataModelColumns(options);
       if (success) {
-        setCol(_.uniqBy(data, (item) => item.columnName));
+        setCol(_.uniqBy(data, (item) => (item as any).columnName));
       } else {
         Message.error(message);
       }
@@ -114,7 +115,12 @@ const DynamicSelect = (props: IPropsDynamicSelect) => {
       ],
       setLeftColumns
     );
-  }, [leftTable.dsId, leftTable.schema, leftTable.tableName]);
+  }, [
+    leftTable.dsId,
+    leftTable.schema,
+    leftTable.tableName,
+    leftTable.tableAlias,
+  ]);
 
   useEffect(() => {
     getColumnList(

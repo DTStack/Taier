@@ -7,8 +7,9 @@
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
     <meta charset="utf-8">
     <link rel="shortcut icon" href="./assets/imgs/bitbug_favicon.ico"/>
+    <%= htmlWebpackPlugin.options.assets.config %> 
     <script>
-        if (/Edge\/|Trident\/|MSIE /.test(window.navigator.userAgent)) {
+        if (!window.APP_CONF?.closeBrowserCheck && /Edg\/|Trident\/|MSIE /.test(window.navigator.userAgent)) {
             window.location.href = "public/compatibility/tips.html"
         }
     </script>
@@ -161,7 +162,6 @@
             }
         }
     </style>
-     <%= htmlWebpackPlugin.options.assets.config %> 
 </head>
   <script>
     const global = globalThis;

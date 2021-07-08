@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { getStore } from 'lib/dt-common/src/utils/reduxUtils';
+import { getStore } from 'dt-common/src/utils/reduxUtils';
 import Root from './root';
 import 'assets/styles/index.less';
 

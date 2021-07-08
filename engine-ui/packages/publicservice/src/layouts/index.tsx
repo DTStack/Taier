@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Layout } from 'antd';
 //dt-common not exports complied outputs
-import Navigator from 'lib/dt-common/src/components/nav';
+import Navigator from 'dt-common/src/components/nav';
 import './style';
 
 declare var APP_CONF: any;

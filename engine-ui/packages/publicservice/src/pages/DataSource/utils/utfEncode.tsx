@@ -1,4 +1,5 @@
 export const utf16to8 = (str) => {
+  if (typeof str !== 'string') return str;
   if (!isUtf8(str)) return str;
   let out, i, len, c;
   out = '';
@@ -31,6 +32,7 @@ function isUtf8(s) {
 
 // utf8转为utf16：
 export const utf8to16 = (str) => {
+  if (typeof str !== 'string') return str;
   if (isUtf8(str)) return str;
   let out, i, len, c;
   let char2, char3;

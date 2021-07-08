@@ -38,7 +38,7 @@ export default function downloadFile(
       try {
         window.navigator.msSaveBlob(blob, fileName);
       } catch (e) {
-        console.log(e);
+        console.error(e);
       }
     } else {
       const link = document.createElement('a');
