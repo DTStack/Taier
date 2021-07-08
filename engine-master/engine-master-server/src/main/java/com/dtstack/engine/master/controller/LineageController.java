@@ -265,17 +265,6 @@ public class LineageController {
         return lineageService.queryColumnLineageByTaskIdAndAppType(taskId,appType);
     }
 
-    @RequestMapping(value = "/acquireOldTableTable", method = {RequestMethod.POST})
-    @ApiOperation(value = "批量同步表级血缘")
-    public void acquireOldTableTable(@RequestBody LineageTableTableParam lineageTableTableParam){
-        lineageService.acquireOldTableTable(lineageTableTableParam.getLineageTableTableVOs());
-    }
-
-    @RequestMapping(value = "/acquireOldColumnColumn", method = {RequestMethod.POST})
-    @ApiOperation(value = "批量同步字段级血缘")
-    public void acquireOldColumnColumn(@RequestBody LineageColumnColumnParam lineageTableTableParam) {
-        lineageService.acquireOldColumnColumn(lineageTableTableParam.getLineageTableTableVOs());
-    }
 
     @RequestMapping(value = "/queryTableLineageInputColumns", method = {RequestMethod.POST})
     @ApiOperation(value = "查询表的血缘上游字段列表")

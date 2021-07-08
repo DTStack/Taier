@@ -31,8 +31,6 @@ public class LineageColumnColumnService {
 
     private static final String COLUMN_COLUMN_KEY_TMP = "%s.%s_%s.%s";
 
-    @Autowired
-    private LineageDataSetInfoService lineageDataSetInfoService;
 
     @Autowired
     private LineageColumnColumnDao lineageColumnColumnDao;
@@ -112,9 +110,6 @@ public class LineageColumnColumnService {
         return res;
     }
 
-    private String generateColumnStr(Long tableId, String columnName) {
-        return String.format("%s.%s", tableId, columnName);
-    }
 
     public List<LineageColumnColumn> queryColumnResultLineageByAppType(Integer appType, Long tableId, String columnName, Set<Long> columnSet,Integer level) {
         List<LineageColumnColumn> res = Lists.newArrayList();
