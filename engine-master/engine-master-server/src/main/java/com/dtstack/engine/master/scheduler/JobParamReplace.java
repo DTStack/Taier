@@ -28,7 +28,7 @@ public class JobParamReplace {
     private static final Logger LOGGER = LoggerFactory.getLogger(JobParamReplace.class);
 
 
-    private static final Pattern PARAM_PATTERN = Pattern.compile("\\$\\{(.*?)\\}");
+    private static final Pattern PARAM_PATTERN = Pattern.compile("\\$\\{(.*?)\\}|\\@@\\{(.*?)\\}");
 
     private final static String VAR_FORMAT = "${%s}";
 
