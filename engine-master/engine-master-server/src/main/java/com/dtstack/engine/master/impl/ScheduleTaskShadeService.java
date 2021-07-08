@@ -733,7 +733,7 @@ public class ScheduleTaskShadeService {
         }
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @DtDruidRemoveAbandoned
     public Boolean taskCommit(String commitId) {
         LOG.info("提交任务commitId:{}",commitId);
