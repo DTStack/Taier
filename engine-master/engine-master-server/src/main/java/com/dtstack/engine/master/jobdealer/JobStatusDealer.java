@@ -182,7 +182,7 @@ public class JobStatusDealer implements Runnable {
                 //数据的更新顺序，先更新job_cache，再更新engine_batch_job
                 if (RdosTaskStatus.getStoppedStatus().contains(status)) {
                     if (EngineType.isFlink(engineType)){
-                        jobCheckpointDealer.updateCheckpointImmediately(new JobCheckpointInfo(jobIdentifier, engineType), jobId, status);
+                        jobCheckpointDealer.updateCheckpointImmediately(new JobCheckpointInfo(jobIdentifier, engineType), engineTaskId, status);
                     }
 
 
