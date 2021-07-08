@@ -404,7 +404,7 @@ public class LineageService {
             Set<com.dtstack.engine.api.pojo.lineage.Table> tables = subTables.stream().map(TableAdapter::sqlTable2ApiTable).collect(Collectors.toSet());
             List<String> schemaNameList = resTables.stream().map(Table::getDb).distinct().collect(Collectors.toList());
             //数据源中心根据schemaNameList查询数据源列表
-            DsServiceListParam dsServiceListParam = getDsServiceListParam(parseColumnLineageParam.getDtUicTenantId(), parseColumnLineageParam.getDataSourceType(),parseColumnLineageParam.getProjectId(),schemaNameList);
+            DsServiceListParam dsServiceListParam = getDsServiceListParam(parseColumnLineageParam.getDtUicTenantId(), parseColumnLineageParam.getDataSourceType(),null,schemaNameList);
             List<DsServiceListDTO> data = getDataSourceList(dsServiceListParam);
             if(schemaNameList.size() != data.size()){
                 logger.error("dataSource num do not match,param:{}",JSON.toJSONString(dsServiceListParam));
