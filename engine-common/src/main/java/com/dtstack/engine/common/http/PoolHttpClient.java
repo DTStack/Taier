@@ -105,8 +105,10 @@ public class PoolHttpClient {
 	public static String post(String url, Map<String, Object> bodyData, Map<String,Object> cookies,Boolean isRedirect) {
 		String responseBody = null;
 		CloseableHttpResponse response = null;
-		try {
-			HttpPost httpPost = new HttpPost(url);
+        int status = 0;
+        HttpPost httpPost = null;
+        try {
+            httpPost = new HttpPost(url);
 			if (cookies != null && cookies.size() > 0) {
 				httpPost.addHeader("Cookie", getCookieFormat(cookies));
 			}
@@ -119,7 +121,7 @@ public class PoolHttpClient {
 
 			response = httpClient.execute(httpPost);
 			// 请求数据
-			int status = response.getStatusLine().getStatusCode();
+			status = response.getStatusLine().getStatusCode();
 			if (status == HttpStatus.SC_OK) {
 				HttpEntity entity = response.getEntity();
 				// FIXME 暂时不从header读取
@@ -146,6 +148,9 @@ public class PoolHttpClient {
 		} catch (Exception e) {
 			LOGGER.error("url:{}--->http request error:", url, e);
 		}finally{
+            if (HttpStatus.SC_OK != status && null != httpPost) {
+                httpPost.abort();
+            }
 			if(response != null){
 				try {
 					response.close();
@@ -176,13 +181,14 @@ public class PoolHttpClient {
 		String respBody = null;
 		HttpGet httpGet = null;
 		CloseableHttpResponse response = null;
+        int statusCode = 0;
 		try {
 			httpGet = new HttpGet(url);
 			if(headers != null && headers.length > 0){
 				httpGet.setHeaders(headers);
 			}
 			response = httpClient.execute(httpGet);
-			int statusCode = response.getStatusLine().getStatusCode();
+            statusCode = response.getStatusLine().getStatusCode();
 			if (statusCode == HttpStatus.SC_OK) {
 				HttpEntity entity = response.getEntity();
 				respBody = EntityUtils.toString(entity,charset);
@@ -201,6 +207,9 @@ public class PoolHttpClient {
 			LOGGER.error("url:{}--->http request error:", url, e);
 			throw e;
 		} finally{
+            if (HttpStatus.SC_OK != statusCode && null != httpGet) {
+                httpGet.abort();
+            }
 			if(response!=null){
 				try {
 					response.close();
