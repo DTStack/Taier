@@ -1,10 +1,11 @@
 package com.dtstack.engine.datasource.service.impl.datasource;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;import com.dtstack.engine.datasource.dao.mapper.datasource.DsFormFieldMapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.dtstack.engine.datasource.dao.mapper.datasource.DsFormFieldMapper;
 import com.dtstack.engine.datasource.dao.po.datasource.DsFormField;
 import com.dtstack.engine.datasource.service.impl.BaseService;
 import com.dtstack.engine.datasource.param.datasource.DsTypeVersionParam;
-import dt.insight.plat.lang.base.Strings;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +31,7 @@ public class DsFormFieldService extends BaseService<DsFormFieldMapper, DsFormFie
      */
     public List<DsFormField> findFieldByTypeVersion(DsTypeVersionParam param) {
         String typeVersion = param.getDataType();
-        if (Strings.isNotBlank(param.getDataVersion())) {
+        if (StringUtils.isNotBlank(param.getDataVersion())) {
             typeVersion = param.getDataType() + "-" + param.getDataVersion();
         }
         return this.list(Wrappers.<DsFormField>query().eq("type_version", typeVersion).or().eq("type_version", COMMON));
@@ -44,7 +45,7 @@ public class DsFormFieldService extends BaseService<DsFormFieldMapper, DsFormFie
      */
     public List<DsFormField> findLinkFieldByTypeVersion(String dataType, String dataVersion) {
         String typeVersion = dataType;
-        if (Strings.isNotBlank(dataVersion)) {
+        if (StringUtils.isNotBlank(dataVersion)) {
             typeVersion = dataType + "-" + dataVersion;
         }
         return this.list(Wrappers.<DsFormField>query().eq("type_version", typeVersion).eq("is_link", 1));

@@ -1,10 +1,10 @@
 package com.dtstack.engine.datasource.common.utils.datakit;
 
 
+import com.dtstack.engine.common.exception.BizException;
+import com.dtstack.engine.common.lang.base.Strings;
+import com.dtstack.engine.common.lang.base.Validates;
 import com.dtstack.engine.datasource.common.exception.ErrorCode;
-import dt.insight.plat.lang.base.Strings;
-import dt.insight.plat.lang.base.Validates;
-import dt.insight.plat.lang.exception.biz.BizException;
 
 import java.util.Collection;
 

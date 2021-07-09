@@ -13,8 +13,6 @@ import com.dtstack.batch.dao.*;
 import com.dtstack.batch.dao.po.TaskOwnerAndProjectPO;
 import com.dtstack.batch.domain.*;
 import com.dtstack.batch.dto.BatchTaskDTO;
-import com.dtstack.batch.engine.adbpg.service.BatchADBPGSqlExeService;
-import com.dtstack.batch.engine.inceptor.service.BatchInceptorSqlExeService;
 import com.dtstack.batch.engine.rdbms.common.enums.Constant;
 import com.dtstack.batch.enums.*;
 import com.dtstack.batch.mapping.TableTypeEngineTypeMapping;
@@ -205,12 +203,6 @@ public class BatchTaskService {
 
     @Autowired
     private BatchSqlExeService batchSqlExeService;
-
-    @Autowired
-    private BatchInceptorSqlExeService batchInceptorSqlExeService;
-
-    @Autowired
-    private BatchADBPGSqlExeService batchADBPGSqlExeService;
 
     @Autowired
     private BatchTaskResourceShadeService batchTaskResourceShadeService;

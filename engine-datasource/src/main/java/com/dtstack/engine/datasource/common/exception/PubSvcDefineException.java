@@ -1,14 +1,14 @@
 package com.dtstack.engine.datasource.common.exception;
 
+import com.dtstack.dtcenter.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.common.exception.ExceptionEnums;
-import dt.insight.plat.lang.exception.biz.BizException;
 
 /**
  * company: www.dtstack.com
  * author: toutian
  * create: 2021/5/10
  */
-public class PubSvcDefineException extends BizException {
+public class PubSvcDefineException extends DtCenterDefException {
 
     public PubSvcDefineException(String message) {
         super(message);

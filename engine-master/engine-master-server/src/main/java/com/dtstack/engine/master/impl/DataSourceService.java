@@ -12,9 +12,9 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.ComponentVersionUtil;
 import com.dtstack.engine.dao.ComponentDao;
 import com.dtstack.engine.dao.KerberosDao;
-import com.dtstack.pubsvc.sdk.datasource.DataSourceAPIClient;
-import com.dtstack.pubsvc.sdk.dto.param.datasource.EditConsoleParam;
-import com.dtstack.pubsvc.sdk.dto.result.datasource.DsServiceInfoDTO;
+import com.dtstack.engine.datasource.facade.datasource.ApiServiceFacade;
+import com.dtstack.engine.datasource.param.datasource.api.EditConsoleParam;
+import com.dtstack.engine.datasource.vo.datasource.api.DsServiceInfoVO;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -36,8 +36,8 @@ public class DataSourceService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataSourceService.class);
 
-    @Autowired(required = false)
-    private DataSourceAPIClient dataSourceAPIClient;
+    @Autowired
+    private ApiServiceFacade apiServiceFacade;
 
     @Autowired
     private ComponentDao componentDao;
@@ -63,7 +63,7 @@ public class DataSourceService {
      * @param dtUicTenantIds
      */
     public void publishSqlComponent(Long clusterId, Long engineId, Integer componentTypeCode, Set<Long> dtUicTenantIds) {
-        if (null == dataSourceAPIClient) {
+        if (null == apiServiceFacade) {
             LOGGER.info("datasource url is not init so skip");
             return;
         }
@@ -84,7 +84,7 @@ public class DataSourceService {
         try {
             editConsoleParam = getEditConsoleParam(clusterId, componentTypeCode, dtUicTenantIds, component);
             editConsoleParam.setType(dataSourceType.getVal());
-            dataSourceAPIClient.editConsoleDs(editConsoleParam);
+            apiServiceFacade.editConsoleDs(editConsoleParam);
             LOGGER.info("update datasource jdbc engineId {} componentType {} component info {}", engineId, componentTypeCode, editConsoleParam.toString());
         } catch (Exception e) {
             LOGGER.error("update datasource jdbc engineId {} componentType {} component info {} error ", engineId, componentTypeCode, editConsoleParam.toString(), e);
@@ -113,7 +113,7 @@ public class DataSourceService {
     }
 
     public String loadJdbcInfo(String pluginInfo) {
-        if (null == dataSourceAPIClient) {
+        if (null == apiServiceFacade) {
             LOGGER.info("datasource url is not init so skip");
             return pluginInfo;
         }
@@ -126,7 +126,7 @@ public class DataSourceService {
 
                 Long dataSourceId = pluginInfoObj.getLong(JdbcInfoConst.DATA_SOURCE_ID);
                 if (dataSourceId != null) {
-                    DsServiceInfoDTO data = dataSourceAPIClient.getDsInfoById(dataSourceId).getData();
+                    DsServiceInfoVO data = apiServiceFacade.getDsInfoById(dataSourceId);
                     if (data != null) {
                         String dataJson = data.getDataJson();
                         LOGGER.info("dataJson:{}",dataJson);

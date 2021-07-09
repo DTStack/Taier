@@ -296,6 +296,13 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
     CANT_NOT_FIND_CLUSTER(651, "该集群不存在"),
     /***----------------end 组件管理 相关错误码 end ----------------------------------------****/
 
+    /**
+     * System Exception
+     */
+    SYS_404(404, "请求地址不存在"),
+    SYS_500(500, "系统异常"),
+    SYS_BUSINESS_EXCEPTION(501, "业务异常"),
+
     NOT_USED(10000000, "");
 
 

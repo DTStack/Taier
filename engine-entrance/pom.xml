@@ -28,6 +28,11 @@
         </dependency>
         <dependency>
             <groupId>com.dtstack.engine</groupId>
+            <artifactId>engine-datasource</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.dtstack.engine</groupId>
             <artifactId>engine-datadevelop</artifactId>
             <version>1.0.0</version>
         </dependency>

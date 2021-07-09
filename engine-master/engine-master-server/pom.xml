@@ -260,7 +260,7 @@
         <dependency>
             <groupId>com.dtstack.dtcenter</groupId>
             <artifactId>common.base</artifactId>
-            <version>4.2.3-SNAPSHOT</version>
+            <version>4.1.0-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <artifactId>spring-data-redis</artifactId>

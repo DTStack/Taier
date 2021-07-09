@@ -69,9 +69,6 @@ public class BatchCatalogueService {
     private BatchFunctionDao batchFunctionDao;
 
     @Autowired
-    private BatchScriptDao batchScriptDao;
-
-    @Autowired
     private DictService dictService;
 
     @Autowired
@@ -79,12 +76,6 @@ public class BatchCatalogueService {
 
     @Autowired
     private BatchDataCatalogueDao batchDataCatalogueDao;
-
-    @Autowired
-    private BatchTableInfoService batchTableInfoService;
-
-    @Autowired
-    private BatchTableInfoDao batchTableInfoDao;
 
     @Autowired
     public BatchTaskService batchTaskService;
@@ -595,20 +586,6 @@ public class BatchCatalogueService {
                     }
                 }
             }
-        } else if (CatalogueType.SCRIPT_MANAGER.getType().equals(catalogueType)) {
-            if (id != null) {
-                BatchScript script = batchScriptDao.getOne(id);
-                if (script != null) {
-                    getGrandCatalogueIds(script.getNodePid(), grandCatalogueIds);
-                }
-            } else if (StringUtils.isNotEmpty(name)) {
-                List<BatchScript> scripts = batchScriptDao.listByNameFuzzyAndProjectId(projectId, name);
-                if (CollectionUtils.isNotEmpty(scripts)) {
-                    for (BatchScript script : scripts) {
-                        getGrandCatalogueIds(script.getNodePid(), grandCatalogueIds);
-                    }
-                }
-            }
         }
 
         Catalogue rootCatalogue = null;
@@ -822,9 +799,8 @@ public class BatchCatalogueService {
         //判断文件夹下任务
         List<BatchTask> taskList = batchTaskDao.listBatchTaskByNodePid(catalogue.getId(), catalogue.getProjectId());
         List<BatchResource> resourceList = batchResourceDao.listByPidAndProjectId(catalogue.getProjectId(), catalogue.getId());
-        List<BatchScript> scriptList = batchScriptDao.listByProjectIdAndNodePid(catalogue.getProjectId(), catalogue.getId());
 
-        if (taskList.size() > 0 || resourceList.size() > 0 || scriptList.size() > 0) {
+        if (taskList.size() > 0 || resourceList.size() > 0) {
             throw new RdosDefineException(ErrorCode.CATALOGUE_NO_EMPTY);
         }
 
@@ -1129,81 +1105,6 @@ public class BatchCatalogueService {
                         files.add(childResource);
                     }
                 }
-            } else if (currentCatalogueVO.getCatalogueType().equals(CatalogueType.SCRIPT_MANAGER.getType())) {
-                List<BatchScript> scripts = batchScriptDao.listByProjectIdAndNodePid(projectId, currentCatalogueVO.getId());
-                scripts.sort(Comparator.comparing(BatchScript::getName));
-                // 将单个加锁改为每300个批量一起加锁
-                scripts = new ArrayList<>(scripts);
-                Map<Long, ReadWriteLockVO> lockVOMap = new HashMap<>();
-                int batchSize = 200;
-                for (int idx = 0; idx < scripts.size(); idx += batchSize) {
-                    // 每批次截取batchSize个,余数另算一批
-                    int begin = idx, end = Math.min(idx + batchSize, scripts.size());
-                    List<BatchScript> batchScripts = scripts.subList(begin, end);
-                    List<Long> relationIds = batchScripts.stream().map(BatchScript::getId).collect(Collectors.toList());
-                    Map<Long, BatchScript> batchScriptMap = new HashMap<>();
-                    batchScripts.forEach(bean -> {
-                        batchScriptMap.put(bean.getId(), bean);
-                    });
-
-                    // 走批量查询
-                    lockVOMap.putAll(readWriteLockService.getBatchDetail(
-                            projectId, relationIds,
-                            ReadWriteLockType.BATCH_SCRIPT, userId,
-                            batchScriptMap));
-                }
-                if (CollectionUtils.isNotEmpty(scripts)) {
-                    // 提前将catalogue实体存起来
-                    List<CatalogueVO> catalogueVOS = new ArrayList<>(scripts.size());
-                    for (BatchScript script : scripts) {
-                        CatalogueVO child = new CatalogueVO();
-                        child.setId(script.getId());
-                        child.setLevel(currentCatalogueVO.getLevel() + 1);
-                        child.setName(script.getName());
-                        child.setTaskType(script.getType());
-                        child.setType("file");
-                        child.setChildren(null);
-                        child.setCreateUser(getUserNameInMemory(userNames, script.getCreateUserId()));
-                        child.setParentId(script.getNodePid());
-                        child.setScriptType(script.getType());
-                        child.setReadWriteLockVO(lockVOMap.get(script.getId()));
-                        catalogueVOS.add(child);
-                    }
-                    files.addAll(catalogueVOS);
-                }
-
-            } else if (currentCatalogueVO.getCatalogueType().equals(CatalogueType.TABLE_QUERY.getType())) {
-                //数据来源为hive_catalogue表所以需要重新赋值
-                //兼容sass版本中，数据类目的根结点level=1
-                currentCatalogueVO.setLevel(hiveCatalogueRoot.getLevel() == 0L ? currentCatalogue.getLevel() + 1 : currentCatalogue.getLevel());
-                //todo  表的权限需要加上
-                List<BatchTableInfo> hiveTableInfos = batchTableInfoDao.listAllByCatalogueIdAndProjectId(currentCatalogueVO.getId(), tenantId, appointProjectId, TABLE_LIMIT);
-                if (CollectionUtils.isNotEmpty(hiveTableInfos)) {
-                    Map<Long, Project> idProjectMap = projectService.getProjectMap(null);
-                    Map<Long, User> idUserMap = userService.getUserMap(null);
-                    for (BatchTableInfo batchTableInfo : hiveTableInfos) {
-                        HiveTableCatalogueVO child = new HiveTableCatalogueVO();
-                        child.setId(batchTableInfo.getId());
-                        child.setLevel(currentCatalogueVO.getLevel() + 1);
-                        child.setName(batchTableInfo.getTableName());
-                        child.setType("file");
-                        child.setChildren(null);
-                        child.setLifeDay(batchTableInfo.getLifeDay());
-                        child.setTableDesc(batchTableInfo.getTableDesc());
-                        User user = idUserMap.get(batchTableInfo.getChargeUserId());
-                        if (user != null) {
-                            child.setChargeUser(user.getUserName());
-                        }
-                        Project project = idProjectMap.get(batchTableInfo.getProjectId());
-                        if (project != null) {
-                            child.setProject(project.getProjectName());
-                            child.setProjectAlias(project.getProjectAlias());
-                        }
-                        child.setParentId(currentCatalogueVO.getId());
-                        files.add(child);
-                    }
-
-                }
             }
             currentCatalogueVO.setChildren(files);
         }
@@ -1396,78 +1297,8 @@ public class BatchCatalogueService {
         }
     }
 
-    public CatalogueVO getTableList(String tableName, Long tenantId, Long appointProjectId, Integer taskType, Integer scriptType) {
-        Long rootId = batchDataCatalogueDao.getRootIdByTenantId(tenantId);
-        if (rootId == null || rootId < 0) {
-            throw new RdosDefineException("该租户下类目未生成");
-        }
-        CatalogueVO oneCatalogueVO = new CatalogueVO();
-        oneCatalogueVO.setId(rootId);
-        oneCatalogueVO.setLevel(1);
-        oneCatalogueVO.setName(TABLE_QUERY);
-        oneCatalogueVO.setType("folder");
-        oneCatalogueVO.setCatalogueType(CatalogueType.TABLE_QUERY.getType());
-        List<CatalogueVO> files = new ArrayList<>();
-        MultiEngineType engineType = null;
-        Integer tableTypeVal = null;
-        if (null != scriptType) {
-            engineType = ScriptTypeEngineTypeMapping.getEngineTypeByTaskType(scriptType);
-        }
-        if (null == engineType) {
-            engineType = TaskTypeEngineTypeMapping.getEngineTypeByTaskType(taskType);
-        }
-        if (null != engineType) {
-            ETableType tableType = TableTypeEngineTypeMapping.getTableTypeByEngineType(engineType.getType());
-            if (tableType != null) {
-                tableTypeVal = tableType.getType();
-            }
-        }
-
-        List<BatchTableInfo> tableList = batchTableInfoService.getTableList(tableName, tenantId, appointProjectId, tableTypeVal);
-        if (CollectionUtils.isNotEmpty(tableList)) {
-            Map<Long, Project> idProjectMap = projectService.getProjectMap(null);
-            Map<Long, User> idUserMap = userService.getUserMap(null);
-            for (BatchTableInfo batchTableInfo : tableList) {
-                HiveTableCatalogueVO child = new HiveTableCatalogueVO();
-                child.setId(batchTableInfo.getId());
-                child.setName(batchTableInfo.getTableName());
-                child.setType("file");
-                child.setChildren(null);
-                child.setLifeDay(batchTableInfo.getLifeDay());
-                child.setTableDesc(batchTableInfo.getTableDesc());
-                User user = idUserMap.get(batchTableInfo.getChargeUserId());
-                if (user != null) {
-                    child.setChargeUser(user.getUserName());
-                }
-                Project project = idProjectMap.get(batchTableInfo.getProjectId());
-                if (project != null) {
-                    child.setProject(project.getProjectName());
-                    child.setProjectAlias(project.getProjectAlias());
-                }
-                files.add(child);
-            }
-        }
-        oneCatalogueVO.setChildren(files);
-        return oneCatalogueVO;
-    }
-
     public CatalogueVO getProjectTableList(String tableName, String projectIdentifier, Integer taskType, Integer scriptType,
                                            Long userId, Boolean isRoot) {
-        Project project = projectDao.getByProjectIdentifier(projectIdentifier);
-        if (project == null) {
-            return null;
-        }
-
-        if (BooleanUtils.isTrue(isRoot)) {
-            return getTableList(tableName, project.getTenantId(), project.getId(), taskType, scriptType);
-        }
-
-        Set<Long> userAllProject = projectService.getUsefulProjectIds(userId, project.getTenantId(), false, false);
-        if (CollectionUtils.isNotEmpty(userAllProject)) {
-            if (userAllProject.contains(project.getId())) {
-                return getTableList(tableName, project.getTenantId(), project.getId(), taskType, scriptType);
-            }
-        }
         return null;
     }
 
