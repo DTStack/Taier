@@ -96,7 +96,7 @@ public class JobCheckpointDealer implements InitializingBean {
     @Autowired
     private ClusterService clusterService;
 
-    private CopyOnWriteArrayList<String> queuePutRecord = new CopyOnWriteArrayList<>();
+    private Map<String,String> queuePutRecord = new ConcurrentHashMap<>();
 
     private Cache<String, String> checkpointInsertedCache = CacheBuilder.newBuilder().maximumSize(CHECKPOINT_INSERTED_RECORD).build();
 
@@ -120,6 +120,11 @@ public class JobCheckpointDealer implements InitializingBean {
                         engineJobId = taskInfo.getJobIdentifier().getEngineJobId();
                     }
                     taskId = taskInfo.getTaskId();
+                    String recordEngineJobId = queuePutRecord.get(taskId);
+                    if(StringUtils.isBlank(recordEngineJobId) || !recordEngineJobId.equalsIgnoreCase(engineJobId)){
+                        logger.warn("delay queue jobId:{} engineJobId :{} is not same to record:{} so skip", taskId, engineJobId, recordEngineJobId);
+                        continue;
+                    }
                     Integer status = scheduleJobDao.getStatusByJobId(taskId);
                     updateCheckpointImmediately(taskInfo, engineJobId, status);
 
@@ -214,7 +219,12 @@ public class JobCheckpointDealer implements InitializingBean {
 
     public void addCheckpointTaskForQueue(Integer computeType, String taskId, JobIdentifier jobIdentifier, String engineTypeName) throws ExecutionException {
         long checkpointInterval = getCheckpointInterval(taskId);
-        if (checkpointInterval > 0 && !queuePutRecord.contains(taskId)) {
+        boolean canPutQueue = !queuePutRecord.containsKey(taskId);
+        if (queuePutRecord.containsKey(taskId) && !queuePutRecord.get(taskId).equalsIgnoreCase(jobIdentifier.getEngineJobId())) {
+            //jobId flink are not same
+            canPutQueue = true;
+        }
+        if (checkpointInterval > 0 && canPutQueue) {
             //queuePutRecord去重 保证队列中taskId唯一 后续通过refreshExpired来间隔获取
             try {
                 String pluginInfo = clusterService.pluginInfoJSON(jobIdentifier.getTenantId(),
@@ -225,7 +235,7 @@ public class JobCheckpointDealer implements InitializingBean {
                 JobCheckpointInfo taskInfo = new JobCheckpointInfo(computeType, taskId, jobIdentifier, engineTypeName, checkpointInterval);
 
                 delayBlockingQueue.put(taskInfo);
-                queuePutRecord.add(taskId);
+                queuePutRecord.put(taskId, jobIdentifier.getEngineJobId());
                 logger.info("add taskId {} to checkpoint delay queue,{}", taskId, taskInfo);
             } catch (Exception e) {
                 logger.error("taskId {} addCheckpointTaskForQueue error ", taskId, e);
