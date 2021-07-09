@@ -112,6 +112,10 @@ public class JobGraphBuilder {
      */
     public void buildTaskJobGraph(String triggerDay) {
 
+        if (environmentContext.getJobGraphBuilderSwitch()) {
+            return;
+        }
+
         lock.lock();
 
         try {
@@ -226,6 +230,7 @@ public class JobGraphBuilder {
         } catch (Exception e) {
             logger.error("buildTaskJobGraph ！！！", e);
         } finally {
+            logger.info("buildTaskJobGraph exit & unlock ...");
             lock.unlock();
         }
     }
@@ -307,7 +312,7 @@ public class JobGraphBuilder {
      * @param triggerDay
      * @return
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @DtDruidRemoveAbandoned
     public boolean saveJobGraph(List<ScheduleBatchJob> jobList, String triggerDay) {
         logger.info("start saveJobGraph to db {} jobSize {}", triggerDay, jobList.size());

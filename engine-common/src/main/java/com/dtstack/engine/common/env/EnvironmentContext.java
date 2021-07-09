@@ -431,6 +431,10 @@ public class EnvironmentContext {
         return Integer.parseInt(environment.getProperty("job.submit.concurrent", "1"));
     }
 
+    public boolean getJobGraphBuilderSwitch() {
+        return Boolean.parseBoolean(environment.getProperty("jobGraphBuilderSwitch", "false"));
+    }
+
     /**
      * 日志数据定时删除
      */
@@ -586,5 +590,13 @@ public class EnvironmentContext {
 
     public String getPluginPath() {
         return environment.getProperty("plugin.path",  System.getProperty("user.dir") + File.separator +"pluginLibs");
+    }
+
+    public int getBatchJobInsertSize() {
+        return Integer.parseInt(environment.getProperty("batchJob.insert.size", "20"));
+    }
+
+    public int getBatchJobJobInsertSize() {
+        return Integer.parseInt(environment.getProperty("batchJobJob.insert.size", "1000"));
     }
 }
