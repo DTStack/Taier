@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.2.0-beta10](http://git.dtstack.cn/dtstack/data-stack-web/compare/v4.2.0-beta9...v4.2.0-beta10) (2021-07-09)
+
+
+### Features
+
+* close browser check in product ([0893fb5](http://git.dtstack.cn/dtstack/data-stack-web/commit/0893fb5e1857c6453fe1bb3980057e4a46941258))
+
+
+### Bug Fixes
+
+* adjust config position ([fa8311e](http://git.dtstack.cn/dtstack/data-stack-web/commit/fa8311e144a0a795e6b5b06d0a6c2099140fd977))
+* compatible Windows Edge ([710c7f8](http://git.dtstack.cn/dtstack/data-stack-web/commit/710c7f82ef0f38957ae44af635fea34a99216b6e))
+* upgrade dt-common version ([892b0c1](http://git.dtstack.cn/dtstack/data-stack-web/commit/892b0c1b3bc65dd6f8057a70b797011b982fa1cd))
+
 ## [4.2.0-beta9](http://git.dtstack.cn/dtstack/data-stack-web/compare/v4.2.0-beta8...v4.2.0-beta9) (2021-07-06)
 
 
