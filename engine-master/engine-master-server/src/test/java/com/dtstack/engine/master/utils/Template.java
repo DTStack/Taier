@@ -14,15 +14,16 @@ import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.DataSourceType;
 
 import java.sql.Timestamp;
+import java.util.UUID;
 
 public class Template {
     public static ScheduleJob getScheduleJobTemplate() {
         ScheduleJob sj = new ScheduleJob();
         sj.setStatus(5);
-        sj.setJobId("testJobId");
+        sj.setJobId(UUID.randomUUID().toString());
         sj.setTenantId(15L);
         sj.setProjectId(-1L);
-        sj.setJobKey("testJobKey");
+        sj.setJobKey(UUID.randomUUID().toString());
         sj.setExecStartTime(new Timestamp(System.currentTimeMillis()));
         sj.setExecEndTime(new Timestamp(System.currentTimeMillis()));
         sj.setTaskId(-1L);

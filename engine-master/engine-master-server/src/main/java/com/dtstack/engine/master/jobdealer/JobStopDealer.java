@@ -2,24 +2,21 @@ package com.dtstack.engine.master.jobdealer;
 
 
 import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.domain.ScheduleJobOperatorRecord;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.CustomThreadRunsPolicy;
 import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.enums.ComputeType;
-import com.dtstack.engine.common.enums.EJobCacheStage;
+import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.StoppedJob;
 import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
-import com.dtstack.engine.dao.EngineJobStopRecordDao;
+import com.dtstack.engine.dao.ScheduleJobOperatorRecordDao;
 import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.api.domain.EngineJobStopRecord;
-import com.dtstack.engine.common.enums.StoppedStatus;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
@@ -62,7 +59,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
     private EngineJobCacheDao engineJobCacheDao;
 
     @Autowired
-    private EngineJobStopRecordDao engineJobStopRecordDao;
+    private ScheduleJobOperatorRecordDao engineJobStopRecordDao;
 
     @Autowired
     private ScheduleJobDao scheduleJobDao;
@@ -123,16 +120,17 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         if (CollectionUtils.isNotEmpty(needSendStopJobs)) {
             isForce = Optional.ofNullable(isForce).orElse(ForceCancelFlag.NO.getFlag());
             for (ScheduleJob job : needSendStopJobs) {
-                EngineJobStopRecord jobStopRecord = new EngineJobStopRecord();
-                jobStopRecord.setTaskId(job.getJobId());
+                ScheduleJobOperatorRecord jobStopRecord = new ScheduleJobOperatorRecord();
+                jobStopRecord.setJobId(job.getJobId());
                 if (ComputeType.STREAM.getType().equals(job.getComputeType()) && RdosTaskStatus.RUNNING.getStatus().equals(job.getStatus())) {
                     LOGGER.info("stream jobId:{} and status:{} is RUNNING, change status CANCELLING ", job.getJobId(), job.getStatus());
                     scheduleJobDao.updateJobStatus(job.getJobId(), RdosTaskStatus.CANCELLING.getStatus());
                 }
-                if (alreadyExistJobIds.contains(jobStopRecord.getTaskId())) {
-                    LOGGER.info("jobId:{} ignore insert stop record, because is already exist in table.", jobStopRecord.getTaskId());
+                if (alreadyExistJobIds.contains(jobStopRecord.getJobId())) {
+                    LOGGER.info("jobId:{} ignore insert stop record, because is already exist in table.", jobStopRecord.getJobId());
                     continue;
                 }
+                jobStopRecord.setOperatorType(OperatorType.STOP.getType());
                 jobStopRecord.setForceCancelFlag(isForce);
                 engineJobStopRecordDao.insert(jobStopRecord);
             }
@@ -181,14 +179,14 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
             while (true) {
                 try {
                     //根据条件判断是否有数据存在
-                    List<EngineJobStopRecord> jobStopRecords = engineJobStopRecordDao.listStopJob(tmpStartId);
+                    List<ScheduleJobOperatorRecord> jobStopRecords = engineJobStopRecordDao.listStopJob(tmpStartId);
                     if (jobStopRecords.isEmpty()) {
                         break;
                     }
                     //使用乐观锁防止多节点重复停止任务
-                    Iterator<EngineJobStopRecord> it = jobStopRecords.iterator();
+                    Iterator<ScheduleJobOperatorRecord> it = jobStopRecords.iterator();
                     while (it.hasNext()) {
-                        EngineJobStopRecord jobStopRecord = it.next();
+                        ScheduleJobOperatorRecord jobStopRecord = it.next();
                         tmpStartId = jobStopRecord.getId();
                         //已经被修改过version的任务代表其他节点正在处理，可以忽略
                         Integer update = engineJobStopRecordDao.updateOperatorExpiredVersion(jobStopRecord.getId(), operatorExpired, jobStopRecord.getVersion());
@@ -200,7 +198,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                     if (jobStopRecords.isEmpty()) {
                         break;
                     }
-                    List<String> jobIds = jobStopRecords.stream().map(EngineJobStopRecord::getTaskId).collect(Collectors.toList());
+                    List<String> jobIds = jobStopRecords.stream().map(ScheduleJobOperatorRecord::getJobId).collect(Collectors.toList());
                     List<EngineJobCache> jobCaches = engineJobCacheDao.getByJobIds(jobIds);
 
                     //为了下面兼容异常状态的任务停止
@@ -209,8 +207,8 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                         jobCacheMap.put(jobCache.getJobId(), jobCache);
                     }
 
-                    for (EngineJobStopRecord jobStopRecord : jobStopRecords) {
-                        EngineJobCache jobCache = jobCacheMap.get(jobStopRecord.getTaskId());
+                    for (ScheduleJobOperatorRecord jobStopRecord : jobStopRecords) {
+                        EngineJobCache jobCache = jobCacheMap.get(jobStopRecord.getJobId());
                         if (jobCache != null) {
                             //停止任务的时效性，发起停止操作要比任务存入jobCache表的时间要迟
                             if (jobCache.getGmtCreate().after(jobStopRecord.getGmtCreate())) {
@@ -223,9 +221,9 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                             asyncDealStopJobService.submit(() -> asyncDealStopJob(new StoppedJob<>(jobElement, jobStoppedRetry, jobStoppedDelay)));
                         } else {
                             //jobcache表没有记录，可能任务已经停止。在update表时增加where条件不等于stopped
-                            scheduleJobDao.updateTaskStatusNotStopped(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus(), RdosTaskStatus.getStoppedStatus());
-                            LOGGER.info("[Unnormal Job] jobId:{} update job status:{}, job is finished.", jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
-                            shardCache.updateLocalMemTaskStatus(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
+                            scheduleJobDao.updateTaskStatusNotStopped(jobStopRecord.getJobId(), RdosTaskStatus.CANCELED.getStatus(), RdosTaskStatus.getStoppedStatus());
+                            LOGGER.info("[Unnormal Job] jobId:{} update job status:{}, job is finished.", jobStopRecord.getJobId(), RdosTaskStatus.CANCELED.getStatus());
+                            shardCache.updateLocalMemTaskStatus(jobStopRecord.getJobId(), RdosTaskStatus.CANCELED.getStatus());
                             engineJobStopRecordDao.delete(jobStopRecord.getId());
                         }
                     }

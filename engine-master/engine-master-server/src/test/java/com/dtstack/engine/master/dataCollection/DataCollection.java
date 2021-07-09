@@ -603,39 +603,6 @@ public interface DataCollection {
         return scheduleTaskShade;
     }
 
-    @DatabaseInsertOperation(dao = TestEngineJobStopDao.class)
-    default EngineJobStopRecord getScheduleJobStop3(){
-
-        EngineJobCache engineJobCache = getEngineJobCache6();
-        EngineJobStopRecord jsr = new EngineJobStopRecord();
-        jsr.setTaskId(engineJobCache.getJobId());
-        jsr.setComputeType(jsr.getComputeType());
-        jsr.setEngineType(jsr.getEngineType());
-        jsr.setForceCancelFlag(1);
-        jsr.setJobResource(engineJobCache.getJobResource());
-        jsr.setOperatorExpired(new java.util.Date());
-        jsr.setTaskType(10);
-        jsr.setVersion(1);
-        return jsr;
-    }
-
-
-    @DatabaseInsertOperation(dao = TestEngineJobStopDao.class)
-    default EngineJobStopRecord getScheduleJobStop(){
-
-        EngineJobCache engineJobCache = getEngineJobCache();
-        EngineJobStopRecord jsr = new EngineJobStopRecord();
-        jsr.setTaskId(engineJobCache.getJobId());
-        jsr.setComputeType(jsr.getComputeType());
-        jsr.setEngineType(jsr.getEngineType());
-        jsr.setForceCancelFlag(1);
-        jsr.setJobResource(engineJobCache.getJobResource());
-        jsr.setOperatorExpired(new java.util.Date());
-        jsr.setTaskType(10);
-        jsr.setVersion(1);
-        return jsr;
-    }
-
 
     @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
     default ScheduleTaskShade getCronMonthTask() {
@@ -968,22 +935,6 @@ public interface DataCollection {
 
     /*************************血缘存储*****************************/
 
-
-    @DatabaseInsertOperation(dao = TestLineageDataSetInfoDao.class)
-    default LineageDataSetInfo getDefaultLineageDataSetInfo(){
-        LineageDataSetInfo defaultDataSetInfoTemplate = Template.getDefaultDataSetInfoTemplate();
-        LineageDataSource defaultHiveDataSourceTemplate = Template.getDefaultHiveDataSourceTemplate();
-        defaultDataSetInfoTemplate.setDataInfoId(defaultHiveDataSourceTemplate.getId());
-        return defaultDataSetInfoTemplate;
-    }
-
-    @DatabaseInsertOperation(dao = TestLineageDataSetInfoDao.class)
-    default LineageDataSetInfo getHiveLineageDataSetInfo(){
-        LineageDataSetInfo lineageDataSetInfo = Template.getHiveDataSetInfoTemplate();
-        LineageDataSource defaultHiveDataSourceTemplate = Template.getDefaultHiveDataSourceTemplate();
-        lineageDataSetInfo.setDataInfoId(defaultHiveDataSourceTemplate.getId());
-        return lineageDataSetInfo;
-    }
 
     @DatabaseInsertOperation(dao = TestLineageTableTableDao.class)
     default LineageTableTable getLineageTableTable(){

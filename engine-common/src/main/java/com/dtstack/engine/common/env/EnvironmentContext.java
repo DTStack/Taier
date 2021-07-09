@@ -33,38 +33,7 @@ public class EnvironmentContext {
     }
 
     public Integer getCycTimeDayGap() {
-        return Math.abs(Integer.parseInt(environment.getProperty("cycTimeDayGap", "0")));
-    }
-
-    /**补数据或重跑cycTime的间隔，正常环境7*24小时，压测环境2个小时**/
-    public Integer getFillDataCycTimeHourGap(){
-        return Math.abs(Integer.parseInt(environment.getProperty("fillDataCycTimeHourGap", "1440")));
-    }
-
-    /**是否给补数据做限制，默认不做限制**/
-    public Boolean getOpenFillDataCycTimeLimit(){
-        return Boolean.parseBoolean(environment.getProperty("openFillDataCycTimeLimit","false"));
-    }
-
-    /**
-     * 是否开启重跑时间限制，默认限制
-     */
-    public Boolean getOpenRestartDataCycTimeLimit(){
-        return Boolean.parseBoolean(environment.getProperty("openFillDataCycTimeLimit","true"));
-    }
-
-    /**
-     * 重跑默认当前时间前多少天，默认60天
-     */
-    public int getRestartCycTimeHourBefore(){
-        return Math.abs(Integer.parseInt(environment.getProperty("restartCycTimeBefore","1440")));
-    }
-
-    /**
-     * 周期实例往前推进多少天, 默认前1天
-     */
-    public int getNormalScheduleCycTimeHourBefore(){
-        return Math.abs(Integer.parseInt(environment.getProperty("normalScheduleCycTimeBefore","24")));
+        return Math.abs(Integer.parseInt(environment.getProperty("cycTimeDayGap", "1")));
     }
 
     public long getJobStatusDealerInterval() {
@@ -157,18 +126,6 @@ public class EnvironmentContext {
         return Integer.parseInt(environment.getProperty("redis.db", "1"));
     }
 
-    public int getCacheActiveCount() {
-        return Integer.parseInt(environment.getProperty("ehredis.active.count", "10"));
-    }
-
-    public boolean getCacheActiveRedis() {
-        return Boolean.parseBoolean(environment.getProperty("ehredis.active.redis", "true"));
-    }
-
-    public int getCacheLiveTime() {
-        return Integer.parseInt(environment.getProperty("ehredis.live.time", "3600"));
-    }
-
     public String getRedisUrl() {
         return environment.getProperty("redis.url", "127.0.0.1");
     }
@@ -257,47 +214,13 @@ public class EnvironmentContext {
         return environment.getProperty("hadoop.user.name", "admin");
     }
 
-    public String getHdfsBatchPath() {
-        return environment.getProperty("hdfs.batch.path", "/rdos/batch/");
-    }
-
-    /**
-     * =======vertx======
-     */
-
-    public int getInstances() {
-        return Integer.parseInt(environment.getProperty("vertx.instance", String.valueOf(2 * Runtime.getRuntime().availableProcessors())));
-    }
-
-    public int getEventLoopPoolSize() {
-        return Integer.parseInt(environment.getProperty("event.pool.size", String.valueOf(2 * Runtime.getRuntime().availableProcessors())));
-    }
-
-    public int getWorkerPoolSize() {
-        return Integer.parseInt(environment.getProperty("worker.pool.size", "1000"));
-    }
-
-    public long getMaxWorkerExecuteTime() {
-        return Long.parseLong(environment.getProperty("max.worker.execute.time", String.valueOf(1 * 60 * 1000 * 1000000L)));
-    }
 
     public String getJobGraphBuildCron() {
         return environment.getProperty("batch.job.graph.build.cron", "22:00:00");
     }
 
-    public String getMasterLock() {
-        return environment.getProperty("master.lock", "master_lock");
-    }
-
     public String getHdfsTaskPath() {
         return environment.getProperty("hdfs.task.path", "/dtInsight/task/");
-    }
-
-    /**
-     * ====engine=======
-     */
-    public int getSlots() {
-        return Integer.parseInt(environment.getProperty("slots", "10"));
     }
 
     private volatile String localAddress;
@@ -393,10 +316,6 @@ public class EnvironmentContext {
 
     public String getConfigPath() {
         return environment.getProperty("config.dir", System.getProperty("user.dir") + "/conf/");
-    }
-
-    public String getKerberosTemplatepath() {
-        return environment.getProperty("kerberos.template.path", System.getProperty("user.dir") + "/conf/kerberos");
     }
 
     public long getWorkerNodeTimeout() {

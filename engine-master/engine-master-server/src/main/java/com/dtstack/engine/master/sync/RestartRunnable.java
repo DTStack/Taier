@@ -1,16 +1,20 @@
 package com.dtstack.engine.master.sync;
 
 import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.domain.ScheduleJobOperatorRecord;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.common.enums.OperatorType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
+import com.dtstack.engine.dao.ScheduleJobOperatorRecordDao;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
+import com.dtstack.schedule.common.enums.ForceCancelFlag;
 import com.dtstack.schedule.common.enums.Restarted;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -19,11 +23,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
@@ -42,11 +44,13 @@ public class RestartRunnable implements Runnable {
     private EnvironmentContext environmentContext;
     private String redisKey;
     private StringRedisTemplate redisTemplate;
+    private ScheduleJobOperatorRecordDao scheduleJobOperatorRecordDao;
 
     public RestartRunnable(Long id, Boolean justRunChild, Boolean setSuccess, List<Long> subJobIds,
                            ScheduleJobDao scheduleJobDao, ScheduleTaskShadeDao scheduleTaskShadeDao,
                            ScheduleJobJobDao scheduleJobJobDao, EnvironmentContext environmentContext,
-                           String redisKey, StringRedisTemplate redisTemplate,ScheduleJobService scheduleJobService) {
+                           String redisKey, StringRedisTemplate redisTemplate,ScheduleJobService scheduleJobService,
+                           ScheduleJobOperatorRecordDao scheduleJobOperatorRecordDao) {
         this.id = id;
         this.justRunChild = BooleanUtils.toBoolean(justRunChild);
         this.setSuccess = BooleanUtils.toBoolean(setSuccess);
@@ -58,6 +62,7 @@ public class RestartRunnable implements Runnable {
         this.redisKey = redisKey;
         this.redisTemplate =  redisTemplate;
         this.scheduleJobService = scheduleJobService;
+        this.scheduleJobOperatorRecordDao = scheduleJobOperatorRecordDao;
     }
 
     @Override
@@ -162,7 +167,8 @@ public class RestartRunnable implements Runnable {
         }
     }
 
-    private void batchRestartScheduleJob(List<ScheduleJob> resumeBatchJobs) {
+    @Transactional(rollbackFor = Exception.class)
+    public void batchRestartScheduleJob(List<ScheduleJob> resumeBatchJobs) {
         if (CollectionUtils.isNotEmpty(resumeBatchJobs)) {
             resumeBatchJobs = resumeBatchJobs.stream()
                     .sorted(Comparator.nullsFirst(Comparator.comparing(ScheduleJob::getCycTime,Comparator.nullsFirst(String::compareTo))))
@@ -170,11 +176,20 @@ public class RestartRunnable implements Runnable {
         }
         List<List<ScheduleJob>> partition = Lists.partition(resumeBatchJobs, 20);
         for (List<ScheduleJob> scheduleJobs : partition) {
-            List<String> jobIds = scheduleJobs.stream()
-                    .map(ScheduleJob::getJobId)
-                    .collect(Collectors.toList());
+            Set<String> jobIds = new HashSet<>(scheduleJobs.size());
+            Set<ScheduleJobOperatorRecord> records = new HashSet<>(scheduleJobs.size());
             //更新任务为重跑任务--等待调度器获取并执行
-            scheduleJobDao.updateJobStatusAndPhaseStatus(jobIds, RdosTaskStatus.UNSUBMIT.getStatus(), JobPhaseStatus.CREATE.getCode(), Restarted.RESTARTED.getStatus());
+            for (ScheduleJob scheduleJob : scheduleJobs) {
+                jobIds.add(scheduleJob.getJobId());
+                ScheduleJobOperatorRecord record = new ScheduleJobOperatorRecord();
+                record.setJobId(scheduleJob.getJobId());
+                record.setForceCancelFlag(ForceCancelFlag.NO.getFlag());
+                record.setOperatorType(OperatorType.RESTART.getType());
+                record.setNodeAddress(scheduleJob.getNodeAddress());
+                records.add(record);
+            }
+            scheduleJobDao.updateJobStatusAndPhaseStatus(Lists.newArrayList(jobIds), RdosTaskStatus.UNSUBMIT.getStatus(), JobPhaseStatus.CREATE.getCode(), Restarted.RESTARTED.getStatus());
+            scheduleJobOperatorRecordDao.insertBatch(records);
             logger.info("reset job {}", jobIds);
         }
     }
