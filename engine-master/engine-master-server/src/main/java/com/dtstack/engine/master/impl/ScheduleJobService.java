@@ -1316,6 +1316,8 @@ public class ScheduleJobService {
         //1: 批量插入BatchJob
         //2: 批量插入BatchJobJobList
         int count = 0;
+        int jobBatchSize = environmentContext.getBatchJobInsertSize();
+        int jobJobBatchSize = environmentContext.getBatchJobJobInsertSize();
         Long minJobId=null;
         List<ScheduleJob> jobWaitForSave = Lists.newArrayList();
         List<ScheduleJobJob> jobJobWaitForSave = Lists.newArrayList();
@@ -1324,8 +1326,11 @@ public class ScheduleJobService {
         for (Map.Entry<String, Integer> nodeJobSizeEntry : nodeJobSize.entrySet()) {
             String nodeAddress = nodeJobSizeEntry.getKey();
             int nodeSize = nodeJobSizeEntry.getValue();
+            final int finalBatchNodeSize = nodeSize;
             while (nodeSize > 0 && batchJobIterator.hasNext()) {
                 nodeSize--;
+                count++;
+
                 ScheduleBatchJob scheduleBatchJob = batchJobIterator.next();
 
                 ScheduleJob scheduleJob = scheduleBatchJob.getScheduleJob();
@@ -1334,12 +1339,15 @@ public class ScheduleJobService {
                 jobWaitForSave.add(scheduleJob);
                 jobJobWaitForSave.addAll(scheduleBatchJob.getBatchJobJobList());
 
-                if (count++ % 20 == 0 || count == (batchJobCollection.size() - 1)) {
-                   minJobId = persisteJobs(jobWaitForSave, jobJobWaitForSave, minJobId);
+                logger.debug("insertJobList count:{} batchJobs:{} finalBatchNodeSize:{}", count, batchJobCollection.size(), finalBatchNodeSize);
+                if (count % jobBatchSize == 0 || count == (batchJobCollection.size() - 1) || jobJobWaitForSave.size() > jobJobBatchSize) {
+                    minJobId = persistJobs(jobWaitForSave, jobJobWaitForSave, minJobId,jobJobBatchSize);
+                    logger.info("insertJobList count:{} batchJobs:{} finalBatchNodeSize:{} jobJobSize:{}", count, batchJobCollection.size(), finalBatchNodeSize, jobJobWaitForSave.size());
                 }
             }
+            logger.info("insertJobList count:{} batchJobs:{} finalBatchNodeSize:{}",count, batchJobCollection.size(), finalBatchNodeSize);
             //结束前persist一次，flush所有jobs
-            minJobId = persisteJobs(jobWaitForSave, jobJobWaitForSave, minJobId);
+            minJobId = persistJobs(jobWaitForSave, jobJobWaitForSave, minJobId,jobJobBatchSize);
 
         }
         return minJobId;
@@ -1359,7 +1367,7 @@ public class ScheduleJobService {
         return jobSizeInfo;
     }
 
-    private Long persisteJobs(List<ScheduleJob> jobWaitForSave, List<ScheduleJobJob> jobJobWaitForSave, Long minJobId) {
+    private Long persistJobs(List<ScheduleJob> jobWaitForSave, List<ScheduleJobJob> jobJobWaitForSave, Long minJobId,Integer jobJobBatchSize) {
         try {
             return RetryUtil.executeWithRetry(() -> {
                 Long curMinJobId=minJobId;
@@ -1371,13 +1379,21 @@ public class ScheduleJobService {
                     jobWaitForSave.clear();
                 }
                 if (jobJobWaitForSave.size() > 0) {
-                    batchJobJobService.batchInsert(jobJobWaitForSave);
+                    if (jobJobWaitForSave.size() > jobJobBatchSize) {
+                        List<List<ScheduleJobJob>> partition = Lists.partition(jobJobWaitForSave, jobJobBatchSize);
+                        for (int i = 0; i < partition.size(); i++) {
+                            batchJobJobService.batchInsert(partition.get(i));
+                            jobJobWaitForSave.removeAll(partition.get(i));
+                        }
+                    } else {
+                        batchJobJobService.batchInsert(jobJobWaitForSave);
+                    }
                     jobJobWaitForSave.clear();
                 }
                 return curMinJobId;
             }, environmentContext.getBuildJobErrorRetry(), 200, false);
         } catch (Exception e) {
-            LOGGER.error("!!!!! persisteJobs job error !!!! job {} jobjob {}", jobWaitForSave, jobJobWaitForSave, e);
+            LOGGER.error("!!!!! persistJobs job error !!!! job {} jobjob {}", jobWaitForSave, jobJobWaitForSave, e);
             throw new RdosDefineException(e);
         } finally {
             if (jobWaitForSave.size() > 0) {
@@ -1393,7 +1409,7 @@ public class ScheduleJobService {
     /**
      * 补数据的时候，选中什么业务日期，参数替换结果是业务日期+1天
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @DtDruidRemoveAbandoned
     public String fillTaskData( String taskJsonStr,  String fillName,
                                 Long fromDay,  Long toDay,
@@ -2871,16 +2887,22 @@ public class ScheduleJobService {
     }
 
     public Long getListMinId(String nodeAddress,Integer scheduleType, String left, String right,Integer isRestart) {
-        // 如果没有时间限制, 默认返回0
-        if (StringUtils.isAnyBlank(left,right)){
-            return 0L;
+        String minJobId = null;
+        try {
+            // 如果没有时间限制, 默认返回0
+            if (StringUtils.isAnyBlank(left,right)){
+                return 0L;
+            }
+            // 如果当前时间范围没有数据, 返回NULL
+            minJobId = jobGraphTriggerDao.getMinJobIdByTriggerTime(left, right);
+            if (StringUtils.isBlank(minJobId)){
+                return 0L;
+            }
+            return Long.parseLong(minJobId);
+        } catch (Exception e) {
+           LOGGER.error("error get ListMinId left {} right {} error ",left,right);
+           return 0L;
         }
-        // 如果当前时间范围没有数据, 返回NULL
-        String minJobId = jobGraphTriggerDao.getMinJobIdByTriggerTime(left, right);
-        if (StringUtils.isBlank(minJobId)){
-            return null;
-        }
-        return Long.parseLong(minJobId);
     }
 
     public String getJobGraphJSON(String jobId) {

@@ -320,7 +320,7 @@ public class AccountService {
     /**
      * 更改数据库账号
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void updateBindAccount(AccountTenantVo accountTenantVo) throws Exception {
         if (null == accountTenantVo || null == accountTenantVo.getId()) {
             throw new RdosDefineException("Parameter cannot be empty");
