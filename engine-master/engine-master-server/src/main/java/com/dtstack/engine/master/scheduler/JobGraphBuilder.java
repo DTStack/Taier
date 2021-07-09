@@ -236,7 +236,7 @@ public class JobGraphBuilder {
         } catch (Exception e) {
             LOGGER.error("buildTaskJobGraph ！！！", e);
         } finally {
-            logger.info("buildTaskJobGraph exit & unlock ...");
+            LOGGER.info("buildTaskJobGraph exit & unlock ...");
             lock.unlock();
         }
     }
