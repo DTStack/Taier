@@ -1068,9 +1068,7 @@ public class LineageService {
     }
 
     private Long checkAndGetTableId(QueryTableLineageColumnParam queryTableLineageColumnParam){
-        Long dtUicTenantId = queryTableLineageColumnParam.getDtUicTenantId();
         Integer appType = queryTableLineageColumnParam.getAppType();
-        Integer sourceType = queryTableLineageColumnParam.getSourceType();
         String dbName = queryTableLineageColumnParam.getDbName();
         String tableName = queryTableLineageColumnParam.getTableName();
         DsServiceInfoDTO dsServiceInfoDTO = lineageDataSourceService.getDataSourceByIdAndAppType(queryTableLineageColumnParam.getDataInfoId(),queryTableLineageColumnParam.getAppType());

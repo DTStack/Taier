@@ -980,8 +980,6 @@ public interface DataCollection {
     @DatabaseInsertOperation(dao = TestLineageDataSetInfoDao.class)
     default LineageDataSetInfo getHiveLineageDataSetInfo(){
         LineageDataSetInfo lineageDataSetInfo = Template.getHiveDataSetInfoTemplate();
-        LineageDataSource defaultHiveDataSourceTemplate = Template.getDefaultHiveDataSourceTemplate();
-        lineageDataSetInfo.setDataInfoId(defaultHiveDataSourceTemplate.getId());
         return lineageDataSetInfo;
     }
 
