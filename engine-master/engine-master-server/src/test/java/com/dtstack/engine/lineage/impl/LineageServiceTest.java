@@ -91,7 +91,7 @@ public class LineageServiceTest extends AbstractTest {
     @Autowired
     private ComponentConfigDao componentConfigDao;
 
-    @Mock
+    @MockBean
     private DataSourceAPIClient dataSourceAPIClient;
 
 
@@ -214,7 +214,7 @@ public class LineageServiceTest extends AbstractTest {
         table.setOperate(TableOperateEnum.CREATE);
         tables.add(table);
         map.put("beihai",dsServiceInfoDTO);
-        Map<String, LineageDataSetInfo> tableRef = lineageService.getTableRef(1, "beihai", null, tables);
+        Map<String, LineageDataSetInfo> tableRef = lineageService.getTableRef(1, "beihai", dsServiceInfoDTO, tables);
         Assert.assertNotNull(tableRef);
     }
 
