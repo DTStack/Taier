@@ -358,7 +358,7 @@ export const ENGINE_TYPE_NAME = {
     ORACLE: 'Oracle',
     GREEN_PLUM: 'GreenPlum',
     PRESTO: 'PRESTO',
-    ANALYTIC_DB: 'AnalyticDB for PostgreSQL'
+    ANALYTIC_DB: 'AnalyticDB PostgreSQL'
 }
 
 export const ENGIN_TYPE_TEXT = {
@@ -368,7 +368,7 @@ export const ENGIN_TYPE_TEXT = {
     [ENGINE_TYPE.ORACLE]: 'Oracle',
     [ENGINE_TYPE.GREEN_PLUM]: 'GreenPlum',
     [ENGINE_TYPE.PRESTO]: 'Presto',
-    [ENGINE_TYPE.ANALYTIC_DB]: 'AnalyticDB for PostgreSQL',
+    [ENGINE_TYPE.ANALYTIC_DB]: 'AnalyticDB PostgreSQL',
     [ENGINE_TYPE.FLINK_ON_STANDALONE]: 'Flink on Standalone'
 }
 
