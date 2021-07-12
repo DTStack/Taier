@@ -187,7 +187,7 @@ class QueueManage extends React.Component<any, any> {
         let { clusterId, node } = this.state;
         const cluster = this.getClusterItem(clusterId);
         this.props.router.push({
-            pathname: '/console/queueManage/detail',
+            pathname: '/console-ui/queueManage/detail',
             query: {
                 node: node,
                 jobStage: jobStage,

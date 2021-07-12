@@ -107,7 +107,7 @@ class ClusterManage extends React.Component<any, any> {
     }
     viewCluster (item: any) {
         hashHistory.push({
-            pathname: '/console/clusterManage/editCluster',
+            pathname: '/console-ui/clusterManage/editCluster',
             state: {
                 cluster: item,
                 mode: 'view'
@@ -181,7 +181,7 @@ class ClusterManage extends React.Component<any, any> {
                         }}
                         className='dt-table-fixed-contain-footer'
                         scroll={{ y: true }}
-                        style={{ height: 'calc(100vh - 150px)' }}
+                        style={{ height: 'calc(100vh - 90px)' }}
                         pagination={false}
                         loading={loading}
                         dataSource={dataSource}

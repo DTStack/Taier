@@ -53,7 +53,7 @@ const AlarmChannel: React.FC = (props: any) => {
         let res = await Api.getByAlertId({ id });
         if (res.code === 1) {
             props.router.push({
-                pathname: '/console/alarmChannel/alarmRule',
+                pathname: '/console-ui/alarmChannel/alarmRule',
                 state: {
                     id,
                     ruleData: res.data || {}
@@ -145,7 +145,7 @@ const AlarmChannel: React.FC = (props: any) => {
                 <Form.Item>
                     <Button type='primary' onClick={() => {
                         props.router.push({
-                            pathname: '/console/alarmChannel/alarmRule',
+                            pathname: '/console-ui/alarmChannel/alarmRule',
                             query: {
                                 isCreate: true
                             }
@@ -156,7 +156,7 @@ const AlarmChannel: React.FC = (props: any) => {
             <Table
                 className='dt-table-fixed-contain-footer'
                 scroll={{ y: true }}
-                style={{ height: 'calc(100vh - 154px)' }}
+                style={{ height: 'calc(100vh - 90px)' }}
                 loading={loading}
                 columns={initColumns()}
                 dataSource={alarmList}

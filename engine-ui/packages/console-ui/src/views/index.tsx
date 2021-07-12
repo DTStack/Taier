@@ -2,7 +2,6 @@ import * as React from 'react';
 
 import Layout from './layout';
 class Main extends React.Component<any, any> {
-
     render () {
         let { children } = this.props
         return (

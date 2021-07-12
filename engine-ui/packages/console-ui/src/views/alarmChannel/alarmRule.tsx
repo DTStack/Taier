@@ -85,7 +85,7 @@ const AlarmRule: React.FC = (props: any) => {
         })
     }
     const goBack = () => {
-        props.router.push('/console/alarmChannel')
+        props.router.push('/console-ui/alarmChannel')
     }
     const handleSubmit = () => {
         validateFields(async (err, values) => {
@@ -176,7 +176,7 @@ const AlarmRule: React.FC = (props: any) => {
         <div className='alarm-rule__wrapper'>
             <Breadcrumb>
                 <Breadcrumb.Item> <a onClick={() => {
-                    props.router.push('/console/alarmChannel')
+                    props.router.push('/console-ui/alarmChannel')
                 }}>告警通道</a></Breadcrumb.Item>
                 <Breadcrumb.Item>{`${isCreate ? '新增告警通道' : `${ruleData?.alertGateName}`}`}</Breadcrumb.Item>
             </Breadcrumb>

@@ -160,7 +160,7 @@ class EditCluster extends React.Component<any, IState> {
         const { cluster } = this.props.location.state || {} as any;
         this.setState({ testLoading: false })
         hashHistory.push({
-            pathname: '/console/clusterManage/editCluster',
+            pathname: '/console-ui/clusterManage/editCluster',
             state: {
                 mode: type,
                 cluster
@@ -244,7 +244,7 @@ class EditCluster extends React.Component<any, IState> {
                 onOk: () => {
                 },
                 onCancel: () => {
-                    this.props.router.push('/console/clusterManage')
+                    this.props.router.push('/console-ui/clusterManage')
                 }
             })
         }
@@ -252,7 +252,7 @@ class EditCluster extends React.Component<any, IState> {
             console.log(err, values)
             let modifyCompsArr = getModifyComp(values, initialCompData);
             if (!modifyCompsArr.size) {
-                this.props.router.push('/console/clusterManage')
+                this.props.router.push('/console-ui/clusterManage')
                 return
             }
             showConfirm(modifyCompsArr)
@@ -305,7 +305,7 @@ class EditCluster extends React.Component<any, IState> {
                 <div className="c-editCluster__header">
                     <Breadcrumb>
                         <Breadcrumb.Item>
-                            <a onClick={() => { this.props.router.push('/console/clusterManage') }}>多集群管理</a>
+                            <a onClick={() => { this.props.router.push('/console-ui/clusterManage') }}>多集群管理</a>
                         </Breadcrumb.Item>
                         <Breadcrumb.Item>{clusterName}</Breadcrumb.Item>
                     </Breadcrumb>

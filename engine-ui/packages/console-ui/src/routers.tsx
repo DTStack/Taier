@@ -14,7 +14,7 @@ import AlarmChannel from './views/alarmChannel';
 import AlarmRule from './views/alarmChannel/alarmRule'
 
 export default (
-    <Route>
+    <Route path="/" >
         <IndexRedirect to="/console-ui" />
         <Route path="/console-ui" component={ Container }>
             <IndexRoute component={ QueueManage } />
