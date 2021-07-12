@@ -672,8 +672,8 @@ const InfoConfig = (props) => {
               type="copy"
               onClick={() => handleCopy(item)}
             /> */}
-            <div className="help-module" onClick={() => handleCopy(item)}>
-              点击复制模板
+            <div className="help-module">
+              <span onClick={() => handleCopy(item)}>点击复制模板</span>
             </div>
           </Form.Item>
         );
@@ -983,6 +983,7 @@ const InfoConfig = (props) => {
                   /> */}
                   <span
                     className="help-module"
+                    style={{ display: 'inline' }}
                     onClick={() =>
                       handleCopy({
                         label: '高可用配置',
