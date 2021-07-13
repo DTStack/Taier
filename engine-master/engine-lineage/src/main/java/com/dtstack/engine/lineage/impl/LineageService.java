@@ -13,6 +13,7 @@ import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.api.vo.lineage.*;
 import com.dtstack.engine.api.vo.lineage.param.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.lineage.adapter.*;
 import com.dtstack.engine.lineage.enums.SourceType2TableType;
@@ -118,7 +119,7 @@ public class LineageService {
                 parseResult = sqlParserClient.parseSql(sql, defaultDb, new HashMap<>(),sourceType2TableType.getTableType());
             } catch (Exception e) {
                 logger.error("解析sql异常:{}",e);
-                throw new RdosDefineException("sql解析异常，请检查语法");
+                throw new RdosDefineException(e);
             }
             parseInfo.setMainDb(parseResult.getCurrentDb());
             Table mainTable = parseResult.getMainTable();
@@ -134,8 +135,7 @@ public class LineageService {
             parseInfo.setRoot(QueryTableTreeAdapter.sqlQueryTableTree2ApiQueryTableTree(parseResult.getRoot()));
         } catch (Exception e) {
             logger.error("sql解析失败：{}", e);
-            parseInfo.setFailedMsg(e.getMessage());
-            parseInfo.setParseSuccess(false);
+            throw new RdosDefineException(e.getMessage(),ErrorCode.SQLPARSE_ERROR);
         }
         return parseInfo;
     }
@@ -176,7 +176,7 @@ public class LineageService {
                 parseResult = sqlParserClient.parseTableLineage(sql, defaultDb,sourceType2TableType.getTableType());
             } catch (Exception e) {
                 logger.error("解析sql异常:{}",e);
-                throw new RdosDefineException("sql解析异常，请检查语法");
+                throw new RdosDefineException(e);
             }
             parseInfo.setMainDb(parseResult.getCurrentDb());
             Table mainTable = parseResult.getMainTable();
@@ -194,8 +194,7 @@ public class LineageService {
             }
         } catch (Exception e) {
             logger.error("sql解析失败：{}", e);
-            parseInfo.setFailedMsg(e.getMessage());
-            parseInfo.setParseSuccess(false);
+            throw new RdosDefineException(e.getMessage(),ErrorCode.SQLPARSE_ERROR);
         }
 
         return parseInfo;
@@ -339,7 +338,7 @@ public class LineageService {
                 parseResult = sqlParserClient.parseSql(sql, defaultDb, sqlColumnMap,sourceType2TableType.getTableType());
             } catch (Exception e) {
                 logger.error("解析sql异常:{}",e);
-                throw new RdosDefineException("sql解析异常，请检查语法");
+                throw new RdosDefineException(e);
             }
             parseInfo.setMainDb(parseResult.getCurrentDb());
             Table mainTable = parseResult.getMainTable();
@@ -370,8 +369,7 @@ public class LineageService {
             }
         } catch (Exception e) {
             logger.error("sql解析失败：{}", e);
-            parseInfo.setFailedMsg(e.getMessage());
-            parseInfo.setParseSuccess(false);
+            throw new RdosDefineException(e.getMessage(), ErrorCode.SQLPARSE_ERROR);
         }
 
         return parseInfo;
@@ -1214,7 +1212,7 @@ public class LineageService {
             tableList = tables.stream().map(TableAdapter::sqlTable2ApiTable).collect(Collectors.toList());
         } catch (Exception e) {
             logger.error("sql解析表失败,e:{}",e);
-            return tableList;
+            throw new RdosDefineException(e.getMessage(),ErrorCode.SQLPARSE_ERROR);
         }
         return tableList;
     }
