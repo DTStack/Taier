@@ -4,14 +4,14 @@ export const AppContainer = 'AppContainer';
 const container = `#${AppContainer}`;
 
 let ENTRY_CONSOLE = '//local.dtstack.cn:8080/console/';
-let ENTRY_OPERATION = '//local.dtstack.cn:8080/batch';
-let ENTRY_DATABASE = '//local.dtstack.cn:8080/batch/database';
+let ENTRY_OPERATION = '//local.dtstack.cn:8080/batch/';
+let ENTRY_DATABASE = '//local.dtstack.cn:8080/batch/';
 
 // For Production 
 if(process.env.NODE_ENV === 'production') {
   ENTRY_CONSOLE = '/console';
-  ENTRY_OPERATION = '/batch/operation';
-  ENTRY_DATABASE = '/batch/database';
+  ENTRY_OPERATION = '/batch';
+  ENTRY_DATABASE = '/batch';
 }
 
 registerMicroApps([
@@ -19,7 +19,7 @@ registerMicroApps([
     name: 'Operation',
     entry: ENTRY_OPERATION,
     container: container,
-    activeRule: '/operation',
+    activeRule: '#/operation-ui/operation',
   },
   {
     name: 'DTConsoleApp',
@@ -30,7 +30,7 @@ registerMicroApps([
     name: 'Database',
     entry: ENTRY_DATABASE,
     container: container,
-    activeRule: '/batch/database',
+    activeRule: '#/operation-ui/database',
   },
 ]);
 
