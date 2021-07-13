@@ -9,13 +9,12 @@ import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveTask;
 import java.util.stream.Collectors;
@@ -25,17 +24,17 @@ import java.util.stream.Collectors;
  * @date 2021-02-01
  * 查询出当前任务的所有下游任务（同一调度日期内）
  */
-public class ForkJoinJobTask extends RecursiveTask<List<ScheduleJob>> {
+public class ForkJoinJobTask extends RecursiveTask<Map<String,String>> {
 
     private final static Logger logger = LoggerFactory.getLogger(ForkJoinJobTask.class);
     private static final List<Integer> SPECIAL_TASK_TYPES = Lists.newArrayList(EScheduleJobType.WORK_FLOW.getVal(), EScheduleJobType.ALGORITHM_LAB.getVal());
     private String jobId;
-    private CopyOnWriteArrayList<ScheduleJob> results;
+    private ConcurrentHashMap<String,String> results;
     private ScheduleJobDao scheduleJobDao;
     private ScheduleJobJobDao scheduleJobJobDao;
     private boolean isOnlyNextChild;
 
-    public ForkJoinJobTask(String jobId, CopyOnWriteArrayList<ScheduleJob> results,
+    public ForkJoinJobTask(String jobId, ConcurrentHashMap<String,String> results,
                            ScheduleJobDao scheduleJobDao, ScheduleJobJobDao scheduleJobJobDao, boolean isOnlyNextChild) {
         this.jobId = jobId;
         this.results = results;
@@ -45,7 +44,7 @@ public class ForkJoinJobTask extends RecursiveTask<List<ScheduleJob>> {
     }
 
     @Override
-    protected List<ScheduleJob> compute() {
+    protected ConcurrentHashMap<String,String> compute() {
         ScheduleJob job = scheduleJobDao.getRdosJobByJobId(jobId);
         if (null == job) {
             return null;
@@ -55,7 +54,7 @@ public class ForkJoinJobTask extends RecursiveTask<List<ScheduleJob>> {
         //从jobKey获取父任务的触发时间
         String parentJobDayStr = JobKeyUtils.getJobTriggerTimeFromJobKey(jobKey);
         if (Strings.isNullOrEmpty(parentJobDayStr)) {
-            return Lists.newArrayList();
+            return null;
         }
 
         //查询子工作任务
@@ -70,7 +69,7 @@ public class ForkJoinJobTask extends RecursiveTask<List<ScheduleJob>> {
             subJobsAndStatusByFlowId = scheduleJobDao.getSubJobsAndStatusByFlowId(job.getJobId());
         }
 
-        List<String> jobKeyList = this.filterJobKeyList(job, scheduleJobJobs, parentJobDayStr, subJobsAndStatusByFlowId);
+        Set<String> jobKeyList = this.filterJobKeyList(job, scheduleJobJobs, parentJobDayStr, subJobsAndStatusByFlowId);
 
         if (CollectionUtils.isEmpty(jobKeyList)) {
             return null;
@@ -78,7 +77,10 @@ public class ForkJoinJobTask extends RecursiveTask<List<ScheduleJob>> {
         List<ScheduleJob> listJobs = scheduleJobDao.listJobByJobKeys(jobKeyList);
         List<ForkJoinJobTask> tasks = new ArrayList<>();
         for (ScheduleJob childScheduleJob : listJobs) {
-            results.addIfAbsent(childScheduleJob);
+            if (results.containsKey(childScheduleJob.getJobId())) {
+                continue;
+            }
+            results.put(childScheduleJob.getJobId(),childScheduleJob.getCycTime());
             if (isOnlyNextChild) {
                 continue;
             }
@@ -89,18 +91,18 @@ public class ForkJoinJobTask extends RecursiveTask<List<ScheduleJob>> {
 
         Collection<ForkJoinJobTask> forkJoinJobTasks = ForkJoinTask.invokeAll(tasks);
         for (ForkJoinJobTask forkJoinJobTask : forkJoinJobTasks) {
-            List<ScheduleJob> scheduleJobs = forkJoinJobTask.join();
-            if (CollectionUtils.isNotEmpty(scheduleJobs)) {
-                results.addAllAbsent(scheduleJobs);
+            Map<String,String> scheduleJobs = forkJoinJobTask.join();
+            if (MapUtils.isNotEmpty(scheduleJobs)) {
+                results.putAll(scheduleJobs);
             }
         }
         return results;
     }
 
 
-    private List<String> filterJobKeyList(ScheduleJob scheduleJob, List<ScheduleJobJob> scheduleJobJobList, String parentJobDayStr, List<ScheduleJob> subJobsAndStatusByFlowId) {
+    private Set<String> filterJobKeyList(ScheduleJob scheduleJob, List<ScheduleJobJob> scheduleJobJobList, String parentJobDayStr, List<ScheduleJob> subJobsAndStatusByFlowId) {
         Long jobTaskShadeId = JobKeyUtils.getTaskShadeIdFromJobKey(scheduleJob.getJobKey());
-        List<String> jobKeyList = new ArrayList<>();
+        Set<String> jobKeyList = new HashSet<>();
         if (null == jobTaskShadeId) {
             return jobKeyList;
         }
