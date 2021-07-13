@@ -2,6 +2,7 @@
   "name": "ide-ui",
   "version": "0.1.0",
   "main": "src/app.js",
+  "license": "MIT",
   "dependencies": {
     "@babel/core": "7.12.3",
     "@babel/plugin-proposal-class-properties": "^7.13.0",
