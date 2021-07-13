@@ -17,9 +17,9 @@ export default function MyLayout(props: React.PropsWithChildren<any>) {
                     mode="horizontal"
                     defaultSelectedKeys={['devTask']}
                 >
-                    <Menu.Item key="dataSource"><a href="/database">数据源</a></Menu.Item>
+                    <Menu.Item key="dataSource"><a href="/#/operation-ui/database">数据源</a></Menu.Item>
                     <Menu.Item key="devTask"><a href="/">任务开发</a></Menu.Item>
-                    <Menu.Item key="operation"><a href="/operation">运维中心</a></Menu.Item>
+                    <Menu.Item key="operation"><a href="/#/operation-ui/operation">运维中心</a></Menu.Item>
                     <Menu.Item key="console"><a href="/#/console-ui">控制台</a></Menu.Item>
                 </Menu>
             </Header>
