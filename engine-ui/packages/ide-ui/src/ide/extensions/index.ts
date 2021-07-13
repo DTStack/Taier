@@ -1,4 +1,13 @@
-import { IExtension } from 'molecule/esm/model';
-import { ExtendsAccBar } from './activityBar';
+import { IExtension } from "molecule/esm/model";
 
-export const extensions: IExtension[] = [ new ExtendsAccBar() ];
+import { ExtendsAccBar } from "./activityBar";
+import EditorExtension from "./editor";
+import ExplorerExtensions from "./explorer";
+import FolderTreeExtension from "./folderTree";
+
+export const extensions: IExtension[] = [
+  new ExtendsAccBar(),
+  new ExplorerExtensions(),
+  new EditorExtension(),
+  new FolderTreeExtension()
+];
