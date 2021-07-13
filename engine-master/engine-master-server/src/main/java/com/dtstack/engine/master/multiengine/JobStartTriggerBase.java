@@ -29,6 +29,10 @@ public class JobStartTriggerBase {
         if (StringUtils.isNotBlank(sql) && sql.contains(TaskConstant.DQ_JOB_ID)) {
             sql = sql.replace(TaskConstant.DQ_JOB_ID, scheduleJob.getJobId());
         }
+
+        if (StringUtils.isNotBlank(sql) && sql.contains(TaskConstant.DQ_FLOW_JOB_ID)) {
+            sql = sql.replace(TaskConstant.DQ_FLOW_JOB_ID, scheduleJob.getFlowJobId());
+        }
         List<ScheduleTaskParamShade> taskParamsToReplace = JSONObject.parseArray((String) actionParam.get("taskParamsToReplace"), ScheduleTaskParamShade.class);
         actionParam.put("sqlText", jobParamReplace.paramReplace(sql, taskParamsToReplace, scheduleJob.getCycTime()));
     }
