@@ -30,6 +30,13 @@ export default class KerberosModal extends React.Component<IProps, IState> {
         krb5Content: ''
     }
 
+    componentDidMount () {
+        const { krbconfig } = this.props
+        this.setState({
+            krb5Content: krbconfig
+        })
+    }
+
     _editor: any;
 
     editorParamsChange = (preValue: string, nextValue: string) => {
@@ -43,7 +50,7 @@ export default class KerberosModal extends React.Component<IProps, IState> {
     onOK = async () => {
         const { onCancel } = this.props
         const { krb5Content } = this.state
-        const res = await Api.updateKrb5Conf({ krb5Content })
+        const res = await Api.updateKrb5Conf({ krb5Content: krb5Content })
         if (res.code == 1) {
             onCancel(krb5Content)
             message.success('更新成功')

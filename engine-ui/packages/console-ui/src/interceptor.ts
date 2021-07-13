@@ -3,8 +3,8 @@ import { message, notification } from 'antd'
 // import { hashHistory } from 'react-router'
 import utils from 'dt-common/src/utils'
 import localDb from 'dt-common/src/utils/localDb'
-
 // import UserApi from 'dt-common/src/api/user'
+import { versionMonitor } from 'dt-common/src/funcs'
 
 const maxHeightStyle: any = {
     maxHeight: '500px',
@@ -15,10 +15,10 @@ export function authBeforeFormate (response: any) {
     switch (response.status) {
         case 402:
         case 200:
-            return response;
+        case 412:
+            return versionMonitor(response, ['/api/console', '/node'], 'DT_CONSOLE');
         case 302:
-            message.info('登录超时, 请重新登录！')
-            return Promise.reject(response);
+            return versionMonitor(response, ['/api/console', '/node'], 'DT_CONSOLE');
         case 500:
             message.error('服务器出现了点问题')
             return Promise.reject(response);
@@ -26,7 +26,7 @@ export function authBeforeFormate (response: any) {
             if (process.env.NODE_ENV !== 'production') {
                 console.error('Request error: ', response.code, response.message)
             }
-            return response
+            return versionMonitor(response, ['/api/console', '/node'], 'DT_CONSOLE');
     }
 }
 

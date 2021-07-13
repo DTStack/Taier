@@ -3,7 +3,8 @@ import { isArray } from 'lodash'
 import { Input, Form, Radio, Select, Checkbox,
     Tooltip, Row, Col } from 'antd'
 import { COMPONENT_TYPE_VALUE, CONFIG_ITEM_TYPE } from '../const'
-import { getValueByJson } from '../help'
+import { getValueByJson, isDeployMode,
+    isRadioLinkage, isCustomType } from '../help'
 import { formItemLayout } from '../../../../consts'
 import CustomParams from './components/customParams'
 interface IProps {
@@ -21,6 +22,7 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
         const { view } = this.props
         switch (temp.type) {
             case CONFIG_ITEM_TYPE.RADIO:
+            case CONFIG_ITEM_TYPE.RADIO_LINKAGE:
                 return <RadioGroup disabled={view}>
                     {temp.values.map((comp: any) => {
                         return <Radio key={comp.key} value={comp.value}>{comp.key}</Radio>
@@ -52,7 +54,7 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
         const initialValue = temp.key === 'deploymode' && !isArray(temp.value) ? temp.value.split() : temp.value
         const fieldName = groupKey ? `${typeCode}.componentConfig.${groupKey}` : `${typeCode}.componentConfig`;
 
-        return !temp.id && <FormItem
+        return !isCustomType(temp.type) && <FormItem
             label={<Tooltip title={temp.key}>
                 <span className="c-formConfig__label">{temp.key}</span>
             </Tooltip>}
@@ -69,62 +71,78 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
         </FormItem>
     }
 
+    // 渲染group级别配置项
+    renderGroupConfigItem = (temps: any, notParams?: boolean) => {
+        const { form, comp, view } = this.props
+        const typeCode = comp?.componentTypeCode ?? ''
+        const dependencyValue = temps?.dependencyKey
+            ? form.getFieldValue(typeCode + '.componentConfig.' + temps?.dependencyKey)
+            : []
+
+        if (dependencyValue.includes(temps?.dependencyValue) || !temps?.dependencyValue) {
+            if (notParams) {
+                return temps.values.map((temp: any) => {
+                    return this.renderConfigItem(temp)
+                })
+            }
+            return (
+                <div className="c-formConfig__group" key={temps.key}>
+                    <div className="group__title">
+                        {temps.key}
+                    </div>
+                    <div className="group__content">
+                        {temps.values.map((temp: any) => {
+                            return this.renderConfigItem(temp, temps.key)
+                        })}
+                        <CustomParams
+                            typeCode={typeCode}
+                            form={form}
+                            view={view}
+                            template={temps}
+                            maxWidth={680}
+                        />
+                    </div>
+                </div>
+            )
+        }
+    }
+
     rendeConfigForm = () => {
         const { comp, form, view } = this.props;
         const typeCode = comp?.componentTypeCode ?? ''
         const template = getValueByJson(comp?.componentTemplate) ?? []
-        let isHaveGroup = false
 
-        return <>
-            {template.map((temps: any) => {
-                // 根据GROUP类型的模版对象的依赖值渲染单个配置项
-                // 每个组件添加自定义参数
-                if (temps.type == CONFIG_ITEM_TYPE.GROUP) {
-                    isHaveGroup = true
-                    const dependencyValue = form.getFieldValue(`${typeCode}.componentConfig.${temps.dependencyKey}`) ?? []
-                    if (dependencyValue.includes(temps?.dependencyValue) || !temps.dependencyValue) {
-                        return (
-                            <div className="c-formConfig__group" key={temps.key}>
-                                <div className="group__title">
-                                    {temps.key}
-                                </div>
-                                <div className="group__content">
-                                    {temps.values.map((temp: any) => {
-                                        return this.renderConfigItem(temp, temps.key)
-                                    })}
-                                    <CustomParams
-                                        typeCode={typeCode}
-                                        form={form}
-                                        view={view}
-                                        template={temps}
-                                    />
-                                </div>
-                            </div>
-                        )
-                    }
-                } else if (temps.dependencyValue) {
-                    const dependencyValue = form.getFieldValue(`${typeCode}.componentConfig.${temps.dependencyKey}`) ?? ''
-                    if (dependencyValue == temps?.dependencyValue) {
-                        return this.renderConfigItem(temps)
-                    }
-                } else {
-                    return this.renderConfigItem(temps)
-                }
-            })}
-            {!isHaveGroup && template.length ? <CustomParams
-                typeCode={typeCode}
-                form={form}
-                view={view}
-                template={template}
-                maxWidth={680}
-            /> : null}
-        </>
+        return template.map((temps: any, index: number) => {
+            /**
+             * 根据根结点deploymode判断是否需要读取二级数据
+             * Radio联动类型数据不添加自定义参数
+             */
+            if (isDeployMode(temps.key) || isRadioLinkage(temps.type)) {
+                return <>
+                    {this.renderConfigItem(temps)}
+                    {temps.values.map((temp: any) => this.renderGroupConfigItem(temp, isRadioLinkage(temps.type)))}
+                </>
+            } else if (temps.type == CONFIG_ITEM_TYPE.GROUP) {
+                return this.renderGroupConfigItem(temps)
+            } else {
+                return <>
+                    {this.renderConfigItem(temps)}
+                    {(index === template.length - 1) ? <CustomParams
+                        typeCode={typeCode}
+                        form={form}
+                        view={view}
+                        template={template}
+                        maxWidth={680}
+                    /> : null}
+                </>
+            }
+        })
     }
 
     renderKubernetsConfig = () => {
         const { comp, form } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
-        const config = form.getFieldValue(`${typeCode}.specialConfig`) ?? comp?.componentConfig ?? ''
+        const config = form.getFieldValue(typeCode + '.specialConfig') ?? comp?.componentConfig ?? ''
 
         return <>
             {config ? <div className="c-formConfig__kubernetsContent">
