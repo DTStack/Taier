@@ -139,7 +139,7 @@ public class JobGraphBuilder {
             ExecutorService jobGraphBuildPool = new ThreadPoolExecutor(MAX_TASK_BUILD_THREAD, MAX_TASK_BUILD_THREAD, 10L, TimeUnit.SECONDS,
                     new LinkedBlockingQueue<>(MAX_TASK_BUILD_THREAD), new CustomThreadFactory("JobGraphBuilder"));
 
-            List<ScheduleBatchJob> allFlowJobs = new ArrayList<>(totalTask);
+            Map<String,List<String>> allFlowJobs = Maps.newHashMap();
             final Long[] minId = {0L};
             Map<String, String> flowJobId = new ConcurrentHashMap<>(totalTask);
             //限制 thread 并发
@@ -177,23 +177,15 @@ public class JobGraphBuilder {
                                         return buildJobRunBean(task, CRON_TRIGGER_TYPE, EScheduleType.NORMAL_SCHEDULE,
                                                 true, true, triggerDay, cronJobName, null, task.getProjectId(), task.getTenantId(),count);
                                     }, environmentContext.getBuildJobErrorRetry(), 200, false);
-                                    synchronized (allFlowJobs) {
+                                    synchronized (allJobs) {
                                         if (CollectionUtils.isNotEmpty(jobRunBeans)) {
                                             jobRunBeans.forEach(job->{
-                                                String currentFlowJobId = job.getScheduleJob().getFlowJobId();
-                                                if (!NORMAL_TASK_FLOW_ID.equals(currentFlowJobId)) {
-                                                    // 说明是工作流子任务 工作流子任务后面统一插入
-                                                    allFlowJobs.add(job);
-                                                } else {
-                                                    allJobs.add(job);
-                                                }
-
+                                                allJobs.add(job);
                                                 if (minId[0] == 0L) {
                                                     minId[0] = job.getJobExecuteOrder();
                                                 } else if (minId[0] > job.getJobExecuteOrder()) {
                                                     minId[0] = job.getJobExecuteOrder();
                                                 }
-
                                             });
                                         }
                                     }
@@ -207,6 +199,29 @@ public class JobGraphBuilder {
                                     logger.error("build task failure taskId:{} apptype:{}",task.getTaskId(),task.getAppType(), e);
                                 }
                             }
+
+                            // 填充工作流任务
+                            for (ScheduleBatchJob job : allJobs) {
+                                String flowIdKey = job.getScheduleJob().getFlowJobId();
+                                if (!NORMAL_TASK_FLOW_ID.equals(flowIdKey)) {
+                                    // 说明是工作流子任务
+                                    String flowId = flowJobId.get(flowIdKey);
+                                    if (StringUtils.isBlank(flowId)) {
+                                        // 后面更新
+                                        synchronized (allFlowJobs) {
+                                            List<String> jodIds = allFlowJobs.get(flowIdKey);
+                                            if (CollectionUtils.isEmpty(jodIds)) {
+                                                jodIds = Lists.newArrayList();
+                                            }
+                                            jodIds.add(job.getJobId());
+                                            allFlowJobs.put(flowIdKey,jodIds);
+                                        }
+                                    } else {
+                                        job.getScheduleJob().setFlowJobId(flowId);
+                                    }
+                                }
+                            }
+
                             // 插入周期实例
                             batchJobService.insertJobList(allJobs, EScheduleType.NORMAL_SCHEDULE.getType());
                             logger.info("batch-number:{} done!!! allFlowJobs size:{}", batchIdx, allFlowJobs.size());
@@ -231,10 +246,18 @@ public class JobGraphBuilder {
             logger.info("buildTaskJobGraph all done!!! allFlowJobs size:{}", allFlowJobs.size());
             jobGraphBuildPool.shutdown();
 
-            doSetFlowJobIdForSubTasks(allFlowJobs, flowJobId);
+            // 更新未填充的工作流
+            for (Map.Entry<String, List<String>> listEntry : allFlowJobs.entrySet()) {
+                String placeholder = listEntry.getKey();
+                String flowJob = flowJobId.get(placeholder);
+
+                if (StringUtils.isNotBlank(flowJob)) {
+                    batchJobService.updateFlowJob(placeholder,flowJob);
+                }
+            }
 
             //存储生成的jobRunBean
-            jobGraphBuilder.saveJobGraph(allFlowJobs, triggerDay, minId[0]);
+            jobGraphBuilder.saveJobGraph(triggerDay, minId[0]);
         } catch (Exception e) {
             logger.error("buildTaskJobGraph ！！！", e);
         } finally {
@@ -315,16 +338,13 @@ public class JobGraphBuilder {
     /**
      * 保存生成的jobGraph记录
      *
-     * @param jobList
      * @param triggerDay
      * @return
      */
     @Transactional
     @DtDruidRemoveAbandoned
-    public boolean saveJobGraph(List<ScheduleBatchJob> jobList, String triggerDay,Long minJobId) {
-        logger.info("start saveJobGraph to db {} jobSize {}", triggerDay, jobList.size());
-        //插入工作流子节点
-        batchJobService.insertJobList(jobList, EScheduleType.NORMAL_SCHEDULE.getType());
+    public boolean saveJobGraph(String triggerDay,Long minJobId) {
+        logger.info("start saveJobGraph to db {}", triggerDay);
         //记录当天job已经生成
         String triggerTimeStr = triggerDay + " 00:00:00";
         Timestamp timestamp = Timestamp.valueOf(triggerTimeStr);

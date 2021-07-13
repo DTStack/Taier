@@ -2809,4 +2809,12 @@ public class ScheduleJobService {
     public String getJobGraphJSON(String jobId) {
         return scheduleJobDao.getJobGraph(jobId);
     }
+
+    public Integer updateFlowJob(String placeholder, String flowJob) {
+        if (StringUtils.isBlank(placeholder)) {
+            return 0;
+        }
+
+        return scheduleJobDao.updateFlowJob(placeholder, flowJob);
+    }
 }

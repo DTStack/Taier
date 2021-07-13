@@ -1716,6 +1716,13 @@
             #{jobId}
         </foreach>
     </update>
+    <update id="updateFlowJob">
+        update schedule_job set
+        `gmt_modified`=now(),
+        `flow_job_id` = #{flowJob}
+        where `flow_job_id` = #{placeholder}
+        and `is_deleted`=0
+    </update>
 
     <select id="getJobGraph" resultType="java.lang.String">
         select job_graph from schedule_job where job_id = #{jobId}
