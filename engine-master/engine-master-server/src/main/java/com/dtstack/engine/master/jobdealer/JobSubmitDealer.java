@@ -125,7 +125,7 @@ public class JobSubmitDealer implements Runnable {
                     if (simpleJobDelay != null && jobClient != null) {
                         logger.error("jobId:{} stage:{}", jobClient.getTaskId(), simpleJobDelay.getStage(), e);
                     } else {
-                        logger.error("{}", e);
+                        logger.error("", e);
                     }
                 }
             }
@@ -164,7 +164,9 @@ public class JobSubmitDealer implements Runnable {
         while (true) {
             try {
                 JobClient jobClient = queue.take();
-                logger.info("jobId:{} jobResource:{} queue size:{} take job from priorityQueue.", jobClient.getTaskId(), jobResource, queue.size());
+                if(logger.isDebugEnabled()){
+                    logger.debug("jobId:{} jobResource:{} queue size:{} take job from priorityQueue.", jobClient.getTaskId(), jobResource, queue.size());
+                }
                 if (checkIsFinished(jobClient)) {
                     continue;
                 }
@@ -294,7 +296,9 @@ public class JobSubmitDealer implements Runnable {
             // 判断资源
             JudgeResult judgeResult = workerOperator.judgeSlots(jobClient);
             if (JudgeResult.JudgeType.OK == judgeResult.getResult()) {
-                logger.info("jobId:{} engineType:{} submit jobClient:{} to engine start.", jobClient.getTaskId(), jobClient.getEngineType(), jobClient);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("jobId:{} engineType:{} submit jobClient:{} to engine start.", jobClient.getTaskId(), jobClient.getEngineType(), jobClient);
+                }
 
                 jobClient.doStatusCallBack(RdosTaskStatus.COMPUTING.getStatus());
 
@@ -303,7 +307,9 @@ public class JobSubmitDealer implements Runnable {
                 // 提交任务
                 jobResult = workerOperator.submitJob(jobClient);
 
-                logger.info("jobId:{} engineType:{} submit jobResult:{}.", jobClient.getTaskId(), jobClient.getEngineType(), jobResult);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("jobId:{} engineType:{} submit jobResult:{}.", jobClient.getTaskId(), jobClient.getEngineType(), jobResult);
+                }
 
                 String jobId = jobResult.getData(JobResult.JOB_ID_KEY);
                 jobClient.setEngineTaskId(jobId);

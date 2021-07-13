@@ -2,6 +2,7 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.PropertyFilter;
 import com.dtstack.engine.api.domain.EngineJobRetry;
 import com.dtstack.engine.api.domain.EngineUniqueSign;
 import com.dtstack.engine.api.domain.ScheduleJob;
@@ -116,13 +117,17 @@ public class ActionService {
                 new CustomThreadFactory("logTimeOutPool"),
                 new CustomThreadRunsPolicy("logTimeOutPool", "log"));
 
+    private static final PropertyFilter propertyFilter = (object, name, value) ->
+            !(name.equalsIgnoreCase("taskParams") || name.equalsIgnoreCase("sqlText"));
+
     /**
      * 接受来自客户端的请求, 并判断节点队列长度。
      * 如在当前节点,则直接处理任务
      */
     public Boolean start(ParamActionExt paramActionExt){
-
-        logger.info("start  actionParam: {}", JSONObject.toJSONString(paramActionExt));
+        if (logger.isInfoEnabled()) {
+            logger.info("start  actionParam: {}", JSONObject.toJSONString(paramActionExt,propertyFilter));
+        }
 
         try{
             checkParam(paramActionExt);

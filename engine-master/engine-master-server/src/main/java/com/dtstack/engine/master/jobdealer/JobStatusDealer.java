@@ -104,7 +104,9 @@ public class JobStatusDealer implements Runnable {
                     buildSemaphore.acquire();
                     taskStatusPool.submit(() -> {
                         try {
-                            logger.info("jobId:{} before dealJob status:{}", job.getKey(), job.getValue());
+                            if (logger.isDebugEnabled()) {
+                                logger.debug("jobId:{} before dealJob status:{}", job.getKey(), job.getValue());
+                            }
                             dealJob(job.getKey());
                         } catch (Throwable e) {
                             logger.error("jobId:{}", job.getKey(), e);
@@ -163,7 +165,9 @@ public class JobStatusDealer implements Runnable {
 
             RdosTaskStatus rdosTaskStatus = workerOperator.getJobStatus(jobIdentifier);
 
-            logger.info("------ jobId:{} dealJob status:{}", jobId, rdosTaskStatus);
+            if (logger.isDebugEnabled()) {
+                logger.debug("------ jobId:{} dealJob status:{}", jobId, rdosTaskStatus);
+            }
 
             if (rdosTaskStatus != null) {
 
@@ -196,7 +200,9 @@ public class JobStatusDealer implements Runnable {
                     jobCheckpointDealer.addCheckpointTaskForQueue(scheduleJob.getComputeType(), jobId, jobIdentifier, engineType);
                 }
 
-                logger.info("------ jobId:{} after dealJob status:{}", jobId, rdosTaskStatus);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("------ jobId:{} after dealJob status:{}", jobId, rdosTaskStatus);
+                }
             }
         }
     }
@@ -216,6 +222,8 @@ public class JobStatusDealer implements Runnable {
 
         if (ComputeType.BATCH.getType().equals(scheduleJob.getComputeType()) || isStreamUpdateConditions.test(scheduleJob) || isStreamCancellingConditions.test(scheduleJob)) {
             scheduleJobDao.updateJobStatusAndExecTime(jobId, status);
+            logger.info("------ jobId:{} update job status:{}", jobId, status);
+
         }
     }
 
