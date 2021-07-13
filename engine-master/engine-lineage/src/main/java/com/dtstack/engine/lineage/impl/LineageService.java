@@ -1211,7 +1211,7 @@ public class LineageService {
             tableList = tables.stream().map(TableAdapter::sqlTable2ApiTable).collect(Collectors.toList());
         } catch (Exception e) {
             logger.error("sql解析表失败,e:{}",e);
-            return tableList;
+            throw new RdosDefineException(e);
         }
         return tableList;
     }
