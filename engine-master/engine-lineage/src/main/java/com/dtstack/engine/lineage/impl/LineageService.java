@@ -215,18 +215,9 @@ public class LineageService {
         DsServiceInfoDTO dsServiceInfoDTO = new DsServiceInfoDTO();
         if (AppType.RDOS.getType().equals(appType)) {
             //从数据源中心查询meta数据源 todo
-            DsServiceListParam dsServiceListParam = getDsServiceListParam(dtUicTenantId, sourceType,-1L);
-            ApiResponse<PageResult<List<DsServiceListDTO>>> pageResultApiResponse = dataSourceAPIClient.appDsPage(dsServiceListParam);
-            if(pageResultApiResponse.getCode() !=1 ){
-                logger.error("appDsPage query failed,param:{}",JSON.toJSONString(dsServiceListParam));
-                throw new RdosDefineException("调用数据源中心查询已引入接口失败");
-            }
-            List<DsServiceListDTO> data = pageResultApiResponse.getData().getData();
-            if(data.size()<1){
-                logger.error("do not find need dataSource,param:{}",JSON.toJSONString(dsServiceListParam));
-                throw new RdosDefineException("没有可用的数据源");
-            }
-             dsServiceListDTO = data.get(0);
+            DsServiceListParam dsServiceListParam = getDsServiceListParam(dtUicTenantId, sourceType,-1L,new ArrayList<>());
+            List<DsServiceListDTO> data = getDataSourceList(dsServiceListParam);
+            dsServiceListDTO = data.get(0);
              BeanUtils.copyProperties(dsServiceListDTO,dsServiceInfoDTO);
         } else {
             //资产通过数据源中心id查询数据源
@@ -271,7 +262,7 @@ public class LineageService {
         }
     }
 
-    private DsServiceListParam getDsServiceListParam(Long dtUicTenantId, Integer sourceType,Long projectId) {
+    private DsServiceListParam getDsServiceListParam(Long dtUicTenantId, Integer sourceType,Long projectId,List<String> schemaNameList) {
         DsServiceListParam dsServiceListParam = new DsServiceListParam();
         dsServiceListParam.setDsDtuicTenantId(dtUicTenantId);
         dsServiceListParam.setAppType(AppType.RDOS.getType());
@@ -280,6 +271,7 @@ public class LineageService {
         dataTypeCodeList.add(sourceType);
         dsServiceListParam.setDataTypeCodeList(dataTypeCodeList);
         dsServiceListParam.setProjectId(projectId);
+        dsServiceListParam.setSchemaNameList(schemaNameList);
         return dsServiceListParam;
     }
 
@@ -388,35 +380,7 @@ public class LineageService {
         //4.获取表中的字段列表
         //5.解析字段级血缘关系
         //6.存储字段级血缘关系
-        DsServiceListDTO dsServiceListDTO = null;
-        DsServiceInfoDTO dsServiceInfoDTO = new DsServiceInfoDTO();
-        if (AppType.RDOS.getType().equals(parseColumnLineageParam.getAppType())) {
-            //从数据源中心查询meta数据源 todo
-            DsServiceListParam dsServiceListParam = getDsServiceListParam(parseColumnLineageParam.getDtUicTenantId(), parseColumnLineageParam.getDataSourceType(),parseColumnLineageParam.getProjectId());
-            ApiResponse<PageResult<List<DsServiceListDTO>>> pageResultApiResponse = dataSourceAPIClient.appDsPage(dsServiceListParam);
-            if(pageResultApiResponse.getCode() !=1 ){
-                logger.error("appDsPage query failed,param:{}",JSON.toJSONString(dsServiceListParam));
-                throw new RdosDefineException("调用数据源中心查询已引入接口失败");
-            }
-            List<DsServiceListDTO> data = pageResultApiResponse.getData().getData();
-            if(data.size()<1){
-                logger.error("do not find need dataSource,param:{}",JSON.toJSONString(dsServiceListParam));
-                throw new RdosDefineException("没有可用的数据源");
-            }
-            dsServiceListDTO = data.get(0);
-            BeanUtils.copyProperties(dsServiceListDTO,dsServiceInfoDTO);
-        } else {
-            //资产通过数据源中心id查询数据源
-            ApiResponse<DsServiceInfoDTO> dsInfoById = dataSourceAPIClient.getDsInfoById(parseColumnLineageParam.getDataInfoId());
-            if(dsInfoById.getCode() != 1){
-                logger.error("getDsInfoById query failed,param:{}",JSON.toJSONString(parseColumnLineageParam.getDataInfoId()));
-                throw new RdosDefineException("调用数据源中心根据id查询数据源接口失败");
-            }
-            dsServiceInfoDTO = dsInfoById.getData();
-        }
-        if(null == dsServiceInfoDTO){
-            throw new RdosDefineException("dataSource center do not have this dataSource}");
-        }
+        DsServiceInfoDTO dsServiceInfoDTO = getDsServiceInfoDTO(parseColumnLineageParam);
         //1.根据数据源id和appType查询数据源
         //2.解析出sql中的表
         SourceType2TableType sourceType2TableType = SourceType2TableType.getBySourceType(dsServiceInfoDTO.getType());
@@ -436,26 +400,20 @@ public class LineageService {
             List<Table> subTables = resTables.stream().filter(table->
                     table.getOperate() != TableOperateEnum.CREATE ).collect(Collectors.toList());
             Set<com.dtstack.engine.api.pojo.lineage.Table> tables = subTables.stream().map(TableAdapter::sqlTable2ApiTable).collect(Collectors.toSet());
-            Set<String> dbSets = new HashSet<>();
-            resTables.stream().forEach(table -> {
-                String db = table.getDb();
-                dbSets.add(db);
-            });
-            if(dbSets.size()>1){
-                //跨schema查询
-                return;
+            List<String> schemaNameList = resTables.stream().map(Table::getDb).distinct().collect(Collectors.toList());
+            //数据源中心根据schemaNameList查询数据源列表
+            DsServiceListParam dsServiceListParam = getDsServiceListParam(parseColumnLineageParam.getDtUicTenantId(), parseColumnLineageParam.getDataSourceType(),null,schemaNameList);
+            List<DsServiceListDTO> data = getDataSourceList(dsServiceListParam);
+            if(schemaNameList.size() != data.size()){
+                logger.error("dataSource num do not match,param:{}",JSON.toJSONString(dsServiceListParam));
+                throw new RdosDefineException("数据源查询结果个数不匹配");
+            }
+            Map<String,DsServiceListDTO> dbDsInfoMap = new  HashMap<>();
+            for (DsServiceListDTO dsInfo : data) {
+                dbDsInfoMap.put(dsInfo.getSchemaName(),dsInfo);
             }
             //获取表字段信息
-            Map<String, List<Column>> tableColumnMap = lineageDataSetInfoService.getColumnsBySourceIdAndListTable(dsServiceInfoDTO.getDataInfoId(), Lists.newArrayList(tables));
-            Map<String, List<com.dtstack.sqlparser.common.client.domain.Column>> sqlTableColumnMap = new HashMap<>();
-            for (Map.Entry<String,List<Column>> entry:tableColumnMap.entrySet()){
-                String dbName = entry.getKey();
-                List<Column> columns = entry.getValue();
-                if (Objects.isNull(columns)){
-                    throw new RdosDefineException("表字段获取失败");
-                }
-                sqlTableColumnMap.put(dbName,entry.getValue().stream().map(ColumnAdapter::apiColumn2SqlColumn).collect(Collectors.toList()));
-            }
+            Map<String, List<com.dtstack.sqlparser.common.client.domain.Column>> sqlTableColumnMap = getSqlTableColumnMap(dsServiceInfoDTO, tables);
             ParseResult parseResult = null;
             try {
                 parseResult = sqlParserClient.parseSql(parseColumnLineageParam.getSql(), parseColumnLineageParam.getDefaultDb(), sqlTableColumnMap,sourceType2TableType.getTableType());
@@ -471,7 +429,8 @@ public class LineageService {
             String tableKey = "%s.%s";
             for (int i = 0; i < resTables.size(); i++) {
                 Table ta = resTables.get(i);
-                LineageDataSetInfo dataSet = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dsServiceInfoDTO.getDataInfoId(), ta.getDb(), ta.getName(), ta.getDb(),parseColumnLineageParam.getAppType());
+                DsServiceListDTO dscInfo = dbDsInfoMap.get(ta.getDb());
+                LineageDataSetInfo dataSet = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dscInfo.getDataInfoId(), ta.getDb(), ta.getName(), ta.getDb(),parseColumnLineageParam.getAppType());
                 tableRef.put(String.format(tableKey, ta.getDb(), ta.getName()), dataSet);
             }
             try {
@@ -491,11 +450,62 @@ public class LineageService {
             if (CollectionUtils.isNotEmpty(columnLineages)) {
                 lineageColumnColumnService.saveColumnLineage(parseColumnLineageParam.getVersionId(),parseColumnLineageParam.getType(),columnLineages.stream().map(cl -> ColumnLineageAdapter.sqlColumnLineage2ColumnColumn(cl, parseColumnLineageParam.getAppType(), tableRef)).collect(Collectors.toList()),parseColumnLineageParam.getUniqueKey());
             }
-
         } catch (Exception e) {
             logger.error("parseAndSaveColumnLineage error", e);
             throw new RdosDefineException("解析保存字段血缘失败");
         }
+    }
+
+    private Map<String, List<com.dtstack.sqlparser.common.client.domain.Column>> getSqlTableColumnMap(DsServiceInfoDTO dsServiceInfoDTO, Set<com.dtstack.engine.api.pojo.lineage.Table> tables) {
+        Map<String, List<Column>> tableColumnMap = lineageDataSetInfoService.getColumnsBySourceIdAndListTable(dsServiceInfoDTO.getDataInfoId(), Lists.newArrayList(tables));
+        Map<String, List<com.dtstack.sqlparser.common.client.domain.Column>> sqlTableColumnMap = new HashMap<>();
+        for (Map.Entry<String,List<Column>> entry:tableColumnMap.entrySet()){
+            String dbName = entry.getKey();
+            List<Column> columns = entry.getValue();
+            if (Objects.isNull(columns)){
+                throw new RdosDefineException("表字段获取失败");
+            }
+            sqlTableColumnMap.put(dbName,entry.getValue().stream().map(ColumnAdapter::apiColumn2SqlColumn).collect(Collectors.toList()));
+        }
+        return sqlTableColumnMap;
+    }
+
+    private DsServiceInfoDTO getDsServiceInfoDTO(ParseColumnLineageParam parseColumnLineageParam) {
+        DsServiceListDTO dsServiceListDTO = null;
+        DsServiceInfoDTO dsServiceInfoDTO = new DsServiceInfoDTO();
+        if (AppType.RDOS.getType().equals(parseColumnLineageParam.getAppType())) {
+            //从数据源中心查询meta数据源
+            DsServiceListParam dsServiceListParam = getDsServiceListParam(parseColumnLineageParam.getDtUicTenantId(), parseColumnLineageParam.getDataSourceType(), parseColumnLineageParam.getProjectId(),null);
+            List<DsServiceListDTO> data = getDataSourceList(dsServiceListParam);
+            dsServiceListDTO = data.get(0);
+            BeanUtils.copyProperties(dsServiceListDTO,dsServiceInfoDTO);
+        } else {
+            //资产通过数据源中心id查询数据源
+            ApiResponse<DsServiceInfoDTO> dsInfoById = dataSourceAPIClient.getDsInfoById(parseColumnLineageParam.getDataInfoId());
+            if(dsInfoById.getCode() != 1){
+                logger.error("getDsInfoById query failed,param:{}",JSON.toJSONString(parseColumnLineageParam.getDataInfoId()));
+                throw new RdosDefineException("调用数据源中心根据id查询数据源接口失败");
+            }
+            dsServiceInfoDTO = dsInfoById.getData();
+        }
+        if(null == dsServiceInfoDTO){
+            throw new RdosDefineException("dataSource center do not have this dataSource}");
+        }
+        return dsServiceInfoDTO;
+    }
+
+    private List<DsServiceListDTO> getDataSourceList(DsServiceListParam dsServiceListParam) {
+        ApiResponse<PageResult<List<DsServiceListDTO>>> pageResultApiResponse = dataSourceAPIClient.appDsPage(dsServiceListParam);
+        if (pageResultApiResponse.getCode() != 1) {
+            logger.error("appDsPage query failed,param:{}", JSON.toJSONString(dsServiceListParam));
+            throw new RdosDefineException("调用数据源中心查询已引入接口失败");
+        }
+        List<DsServiceListDTO> data = pageResultApiResponse.getData().getData();
+        if (data.size() < 1) {
+            logger.error("do not find need dataSource,param:{}", JSON.toJSONString(dsServiceListParam));
+            throw new RdosDefineException("没有可用的数据源");
+        }
+        return data;
     }
 
     public Boolean handleDropTableAndAlterRename(DsServiceInfoDTO dsServiceInfoDTO, ParseResult parseResult,Integer appType) {
@@ -769,55 +779,6 @@ public class LineageService {
         }
     }
 
-    public void acquireOldTableTable(List<LineageTableTableVO> lineageTableTableVOs){
-        //最大批次200
-        if (lineageTableTableVOs.size()>200){
-            throw new RdosDefineException("请分批执行");
-        }
-        logger.info("start acquireOld tableLineage,count:{}",lineageTableTableVOs.size());
-        //FIXME 暂未考虑性能
-        Integer errorCount = 0;
-        for (LineageTableTableVO tableTableVO:lineageTableTableVOs){
-            try {
-                LineageTableTable lineageTableTable = null;
-                LineageTableVO inputTableInfoVo = tableTableVO.getInputTableInfo();
-                LineageDataSourceVO inputDataSourceVO = inputTableInfoVo.getDataSourceVO();
-                Integer appType = tableTableVO.getAppType();
-                DsServiceInfoDTO dataSource = lineageDataSourceService.getDataSourceByIdAndAppType(inputDataSourceVO.getDataInfoId(), appType);
-                if (Objects.isNull(dataSource)){
-                    continue;
-    //                throw new RdosDefineException("数据源不存在");
-                }
-                String inputDbName = inputTableInfoVo.getDbName();
-                LineageDataSetInfo inputTableInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName( dataSource.getDataInfoId(), inputDbName, inputTableInfoVo.getTableName(), inputDbName,appType);
-                LineageTableVO resultTableInfoVO = tableTableVO.getResultTableInfo();
-                LineageDataSourceVO resultDataSourceVO = resultTableInfoVO.getDataSourceVO();
-                DsServiceInfoDTO resultDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(resultDataSourceVO.getDataInfoId(), appType);
-
-                if (Objects.isNull(resultDataSource)){
-                    throw new RdosDefineException("数据源不存在");
-                }
-                String resultDbName = resultTableInfoVO.getDbName() ;
-                LineageDataSetInfo resultTableInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(resultDataSource.getDataInfoId(), resultDbName, resultTableInfoVO.getTableName(),resultDbName,appType);
-                lineageTableTable = new LineageTableTable();
-                lineageTableTable.setResultTableId(resultTableInfo.getId());
-                lineageTableTable.setResultTableKey(resultTableInfo.getTableKey());
-                lineageTableTable.setInputTableId(inputTableInfo.getId());
-                lineageTableTable.setInputTableKey(inputTableInfo.getTableKey());
-                lineageTableTable.setLineageSource(LineageOriginType.SQL_PARSE.getType());
-                lineageTableTable.setAppType(tableTableVO.getAppType());
-                lineageTableTable.setDtUicTenantId(tableTableVO.getDtUicTenantId());
-                Integer isManual = null;
-                if (Objects.nonNull(tableTableVO.getManual()) && tableTableVO.getManual()){
-                    isManual = LineageOriginType.MANUAL_ADD.getType();
-                }
-                lineageTableTableService.manualAddTableLineage(tableTableVO.getAppType(), lineageTableTable,tableTableVO.getUniqueKey(),isManual);
-            } catch (Exception e) {
-                errorCount ++;
-                logger.error("acquire old tableLineage error:{},errorCount:{},tableTableVO:{}",e,errorCount, JSON.toJSON(tableTableVO));
-            }
-        }
-    }
 
     /**
      * 手动删除表级血缘
@@ -1047,70 +1008,6 @@ public class LineageService {
         }
     }
 
-    public void acquireOldColumnColumn(List<LineageColumnColumnVO> lineageColumnColumnVOS){
-        if (lineageColumnColumnVOS.size()>200){
-            throw new RdosDefineException("请分批执行");
-        }
-        logger.info("start acquire oldColumnLineage,count:{}",lineageColumnColumnVOS.size());
-        Integer errorCount = 0;
-        //FIXME 优化性能
-        for (LineageColumnColumnVO lineageColumnColumnVO:lineageColumnColumnVOS){
-            try {
-                Integer appType = lineageColumnColumnVO.getAppType();
-                Long dtUicTenantId = lineageColumnColumnVO.getDtUicTenantId();
-                LineageTableVO inputTableInfoVo = lineageColumnColumnVO.getInputTableInfo();
-                LineageDataSourceVO inputDataSourceVO = inputTableInfoVo.getDataSourceVO();
-                DsServiceInfoDTO inputDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(inputDataSourceVO.getDataInfoId(), appType);
-                if (Objects.isNull(inputDataSource)){
-                    continue;
-    //                throw new RdosDefineException("数据源不存在");
-                }
-                String inputDbName = inputTableInfoVo.getDbName();
-                LineageDataSetInfo inputTableInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(inputDataSource.getDataInfoId(), inputDbName, inputTableInfoVo.getTableName(), inputDbName,appType);
-                LineageTableVO resultTableInfoVO = lineageColumnColumnVO.getResultTableInfo();
-                LineageDataSourceVO resultDataSourceVO = resultTableInfoVO.getDataSourceVO();
-                DsServiceInfoDTO resultDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(resultDataSourceVO.getDataInfoId(), appType);
-
-                if (Objects.isNull(resultDataSource)){
-                    throw new RdosDefineException("数据源不存在");
-                }
-                String resultDbName = resultTableInfoVO.getDbName();
-                LineageDataSetInfo resultTableInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(resultDataSource.getDataInfoId(), resultDbName, resultTableInfoVO.getTableName(), resultDbName,appType);
-                LineageTableTable lineageTableTable = new LineageTableTable();
-                lineageTableTable.setResultTableId(resultTableInfo.getId());
-                lineageTableTable.setResultTableKey(resultTableInfo.getTableKey());
-                lineageTableTable.setInputTableId(inputTableInfo.getId());
-                lineageTableTable.setInputTableKey(inputTableInfo.getTableKey());
-                lineageTableTable.setLineageSource(LineageOriginType.SQL_PARSE.getType());
-                lineageTableTable.setAppType(lineageColumnColumnVO.getAppType());
-                lineageTableTable.setDtUicTenantId(lineageColumnColumnVO.getDtUicTenantId());
-                Integer lineageSource = null;
-                if (Objects.nonNull(lineageColumnColumnVO.getManual()) && !lineageColumnColumnVO.getManual()){
-                    lineageTableTable.setLineageSource(LineageOriginType.MANUAL_ADD.getType());
-                    lineageSource = LineageOriginType.SQL_PARSE.getType();
-                }
-                lineageTableTableService.manualAddTableLineage(lineageColumnColumnVO.getAppType(),lineageTableTable,lineageColumnColumnVO.getUniqueKey(),lineageSource);
-                LineageColumnColumn lineageColumnColumn = new LineageColumnColumn();
-                lineageColumnColumn.setResultTableId(resultTableInfo.getId());
-                lineageColumnColumn.setResultTableKey(resultTableInfo.getTableKey());
-                lineageColumnColumn.setResultColumnName(lineageColumnColumnVO.getResultColumnName());
-                lineageColumnColumn.setInputTableId(inputTableInfo.getId());
-                lineageColumnColumn.setInputTableKey(inputTableInfo.getTableKey());
-                lineageColumnColumn.setInputColumnName(lineageColumnColumnVO.getInputColumnName());
-                lineageColumnColumn.setLineageSource(LineageOriginType.SQL_PARSE.getType());
-                lineageColumnColumn.setAppType(lineageColumnColumnVO.getAppType());
-                lineageColumnColumn.setDtUicTenantId(lineageColumnColumnVO.getDtUicTenantId());
-                if (Objects.nonNull(lineageColumnColumnVO.getManual()) && !lineageColumnColumnVO.getManual()){
-                    lineageColumnColumn.setLineageSource(LineageOriginType.MANUAL_ADD.getType());
-                    lineageSource = LineageOriginType.SQL_PARSE.getType();
-                }
-                lineageColumnColumnService.manualAddColumnLineage(lineageColumnColumnVO.getAppType(), lineageColumnColumn,lineageColumnColumnVO.getUniqueKey(),lineageSource);
-            } catch (Exception e) {
-                errorCount ++;
-                logger.error("acquire old columnLineage error:{},errorCount:{},lineageColumnColumnVO:{}",e,errorCount, JSON.toJSON(lineageColumnColumnVO));
-            }
-        }
-    }
 
     /**
      * 手动删除字段级级血缘

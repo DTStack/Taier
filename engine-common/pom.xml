@@ -28,7 +28,7 @@
         <dependency>
             <groupId>com.dtstack</groupId>
             <artifactId>public-service-sdk</artifactId>
-            <version>4.2.2</version>
+            <version>4.2.3-SNAPSHOT</version>
         </dependency>
 
         <dependency>

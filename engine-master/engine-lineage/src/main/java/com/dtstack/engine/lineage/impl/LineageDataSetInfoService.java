@@ -9,7 +9,6 @@ import com.dtstack.engine.common.client.ClientCache;
 import com.dtstack.engine.common.client.ClientOperator;
 import com.dtstack.engine.common.client.IClient;
 import com.dtstack.engine.common.enums.EComponentType;
-import com.dtstack.engine.common.enums.EComponentTypeDataSourceType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ClientAccessException;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -23,14 +22,12 @@ import com.dtstack.engine.dao.LineageDataSetDao;
 import com.dtstack.engine.lineage.util.DataSourceUtils;
 import com.dtstack.pubsvc.sdk.datasource.DataSourceAPIClient;
 import com.dtstack.pubsvc.sdk.dto.result.datasource.DsServiceInfoDTO;
-import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.sdk.core.common.ApiResponse;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,8 +44,6 @@ public class LineageDataSetInfoService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LineageDataSetInfoService.class);
 
-    @Autowired
-    private LineageDataSourceService sourceService;
 
     @Autowired
     private TenantDao tenantDao;
@@ -63,11 +58,7 @@ public class LineageDataSetInfoService {
     @Autowired
     private ComponentConfigDao componentConfigDao;
 
-    @Autowired
-    private KerberosDao kerberosDao;
 
-    @Autowired
-    private ClientOperator clientOperator;
 
     @Autowired
     private EnvironmentContext environmentContext;
