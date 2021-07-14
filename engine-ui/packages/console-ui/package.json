@@ -7,6 +7,7 @@
   "dependencies": {
     "@babel/plugin-proposal-optional-chaining": "7.8.3",
     "@babel/plugin-transform-modules-commonjs": "7.10.4",
+    "@dtinsight/dt-utils": "^1.0.3",
     "@handsontable/react": "^2.1.0",
     "@hot-loader/react-dom": "16.11.0",
     "@types/classnames": "^2.2.9",
@@ -32,7 +33,6 @@
     "core-js": "^3.3.2",
     "d3-selection": "1.1.0",
     "diff-match-patch": "1.0.0",
-    "dt-common": "4.8.7-temp",
     "dt-react-component": "^2.0.4",
     "dt-sql-parser": "3.0.5",
     "echarts": "3.8.5",

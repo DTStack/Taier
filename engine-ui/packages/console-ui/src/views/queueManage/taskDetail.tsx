@@ -2,9 +2,9 @@ import * as React from 'react';
 import { get } from 'lodash';
 import { Table, message, Radio, Row, Col, Icon,
     Dropdown, Menu, Breadcrumb, Pagination, Tooltip } from 'antd'
-
-import utils from 'dt-common/src/utils';
+import { Utils } from '@dtinsight/dt-utils';
 import CopyIcon from '../../components/copy-icon';
+import utils from '../../utils';
 
 import { displayTaskStatus } from '../../consts/clusterFunc';
 import ViewDetail from '../../components/viewDetail';
@@ -18,7 +18,7 @@ const RadioGroup = Radio.Group;
 const RadioButton = Radio.Button;
 
 const PAGE_SIZE = 15;
-const getURLParam = utils.getParameterByName;
+const getURLParam = Utils.getParameterByName;
 
 type fixedType = 'right' | 'left'
 
@@ -307,7 +307,7 @@ class TaskDetail extends React.Component<any, any> {
                 width: 300,
                 render (text: any, record: any) {
                     return <Tooltip title={record.waitReason} placement="top">
-                        {utils.textOverflowExchange(record.waitReason ?? '-', 20)}
+                        {Utils.textOverflowExchange(record.waitReason ?? '-', 20)}
                     </Tooltip>
                 }
             },

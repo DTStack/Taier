@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Select, Table, Input, Button, message, Popconfirm } from 'antd';
 import { get } from 'lodash';
-import utils from 'dt-common/src/utils';
+import utils from '../../../utils';
 
 import Api from '../../../api/console';
 import AccountApi from '../../../api/account';

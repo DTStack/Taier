@@ -1,10 +1,6 @@
 
 import { message, notification } from 'antd'
-// import { hashHistory } from 'react-router'
-import utils from 'dt-common/src/utils'
-import localDb from 'dt-common/src/utils/localDb'
-// import UserApi from 'dt-common/src/api/user'
-import { versionMonitor } from 'dt-common/src/funcs'
+import { Cookie, LocalDB } from '@dtinsight/dt-utils'
 
 const maxHeightStyle: any = {
     maxHeight: '500px',
@@ -16,17 +12,24 @@ export function authBeforeFormate (response: any) {
         case 402:
         case 200:
         case 412:
-            return versionMonitor(response, ['/api/console', '/node'], 'DT_CONSOLE');
+            // return versionMonitor(response, ['/api/console', '/node'], 'DT_CONSOLE');
+            return response;
         case 302:
-            return versionMonitor(response, ['/api/console', '/node'], 'DT_CONSOLE');
+            // return versionMonitor(response, ['/api/console', '/node'], 'DT_CONSOLE');
+            message.info('登录超时, 请重新登录！')
+            return Promise.reject(response);
         case 500:
             message.error('服务器出现了点问题')
             return Promise.reject(response);
         default:
-            if (process.env.NODE_ENV !== 'production') {
-                console.error('Request error: ', response.code, response.message)
+            // if (process.env.NODE_ENV !== 'production') {
+            //     console.error('Request error: ', response.code, response.message)
+            // }
+            // return versionMonitor(response, ['/api/console', '/node'], 'DT_CONSOLE');
+            if (response.message) {
+                message.error(response.message, 3) // 异常消息默认显示5s
             }
-            return versionMonitor(response, ['/api/console', '/node'], 'DT_CONSOLE');
+            return response
     }
 }
 
@@ -62,13 +65,13 @@ export function authAfterFormated (response: any) {
 }
 
 export function isSelectedProject () {
-    const pid = utils.getCookie('project_id')
+    const pid = Cookie.getCookie('project_id')
     if (!pid || pid === 'undefined') {
-        utils.deleteCookie('project_id')
+        Cookie.deleteCookie('project_id')
         // browserHistory.push('/')
     }
 }
 
 export function isLogin () {
-    return localDb.get('session')
+    return LocalDB.get('session')
 }

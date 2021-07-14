@@ -1,7 +1,6 @@
 import 'whatwg-fetch'
 
 import { ProgressBar } from 'dt-react-component'
-import { setRequestVersion, catchCustomAction } from 'dt-common/src/funcs'
 
 import { authAfterFormated, authBeforeFormate } from '../interceptor'
 class Http {
@@ -41,7 +40,6 @@ class Http {
     request (url: any, options: any) {
         ProgressBar.show()
         options.credentials = 'same-origin'
-        setRequestVersion(options, 'DT_CONSOLE')
         return fetch(url, options)
             .then(authBeforeFormate)
             .then((response: any) => {
@@ -52,7 +50,9 @@ class Http {
             })
             .then(authAfterFormated)
             .catch((err: any) => {
-                return catchCustomAction(err)
+                console.error(url + ':' + err)
+                /* eslint-disable-next-line */
+                return Promise.reject(err);
             })
     }
 

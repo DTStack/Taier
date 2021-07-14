@@ -60,8 +60,7 @@ module.exports = function () {
                 {
                     test: /\.worker.[jt]s$/,
                     include: [
-                        path.resolve(MY_PATH.APP_PATH),
-                        path.resolve(MY_PATH.ROOT_PATH, "node_modules/dt-common"),
+                        path.resolve(MY_PATH.APP_PATH)
                     ],
                     loader: [
                         'worker-loader',
@@ -70,8 +69,7 @@ module.exports = function () {
                 {
                     test: /\.[jt]sx?$/,
                     include: [
-                        path.resolve(MY_PATH.APP_PATH),
-                        path.resolve(MY_PATH.ROOT_PATH, "node_modules/dt-common"),
+                        path.resolve(MY_PATH.APP_PATH)
                     ],
                     loader: [
                         "happypack/loader?id=happy-babel",
@@ -123,10 +121,6 @@ module.exports = function () {
                     from: path.resolve(MY_PATH.WEB_PUBLIC),
                     to: path.resolve(MY_PATH.BUILD_PATH, 'public'),
                     ignore: ['*/index.html']
-                }, {
-                    from: path.resolve(MY_PATH.ROOT_PATH, 'node_modules/dt-common/src/public'),
-                    to: path.resolve(MY_PATH.BUILD_PATH, 'public'),
-                    ignore: ['*/index.html', 'common', 'config', 'favicon.*']
                 }, {
                     from: path.resolve(MY_PATH.ROOT_PATH, 'docs'),
                     to: path.resolve(MY_PATH.BUILD_PATH, 'docs')

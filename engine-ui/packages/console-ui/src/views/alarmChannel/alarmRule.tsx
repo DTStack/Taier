@@ -4,7 +4,7 @@ import { Breadcrumb, Card, Form, Radio, Select,
     message
 } from 'antd';
 import { cloneDeep } from 'lodash';
-import utils from 'dt-common/src/utils';
+import { Utils } from '@dtinsight/dt-utils'
 import Api from '../../api/console'
 import { formItemCenterLayout, ALARM_TYPE_TEXT, ALARM_TYPE,
     CHANNEL_MODE_VALUE, CHANNEL_MODE, CHANNEL_CONF_TEXT,
@@ -161,7 +161,7 @@ const AlarmRule: React.FC = (props: any) => {
     }
     let testText: string = isEmail ? '邮箱' : '手机号码';
     let alertKey: string = textAlertKey(getFieldValue('alertGateType'));
-    const isCreate = utils.getParameterByName('isCreate');
+    const isCreate = Utils.getParameterByName('isCreate');
     const alertGateType = getFieldValue('alertGateType');
     const alertGateCode = getFieldValue('alertGateCode');
 
