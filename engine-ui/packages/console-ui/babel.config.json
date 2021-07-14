@@ -18,6 +18,16 @@
     },
     "plugins": [
         ["import", { "libraryName": "antd", "style": false }],
+        [
+            "treasure",
+            {
+                "libraryName": "dt-react-component",
+                "libraryDirectory": "lib",
+                "camel2DashComponentName": "lower",
+                "style": true
+            },
+            "dt-react-component"
+        ],
         "@babel/transform-runtime",
         ["@babel/plugin-proposal-decorators",{"legacy": true}],
         "@babel/plugin-syntax-dynamic-import",

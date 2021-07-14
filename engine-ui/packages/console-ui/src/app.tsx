@@ -2,8 +2,8 @@ import './public-path';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
-import { getStore } from 'dt-common/src/utils/reduxUtils';
-import * as log from 'dt-common/src/utils/log';
+import { getStore } from './utils/reduxUtils';
+import * as log from './utils/log';
 
 import Root from './root';
 

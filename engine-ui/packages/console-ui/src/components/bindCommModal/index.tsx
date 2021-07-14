@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Modal, Form, Select, Icon, Tooltip, Input } from 'antd';
 import { debounce } from 'lodash';
 
-import API from 'dt-common/src/api';
+import API from '../../api/account';
 
 import { useEnv } from '../customHooks'
 

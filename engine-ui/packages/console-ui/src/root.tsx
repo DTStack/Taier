@@ -8,6 +8,9 @@ import zhCN from 'antd/es/locale/zh_CN'
 import 'ant-design-dtinsight-theme/theme/dt-theme/reset.less';
 import 'ant-design-dtinsight-theme/theme/dt-theme/index.less';
 
+// 引入RC
+import 'dt-react-component/lib/style/index.css'
+
 // Styles
 import './styles/main.scss'
 

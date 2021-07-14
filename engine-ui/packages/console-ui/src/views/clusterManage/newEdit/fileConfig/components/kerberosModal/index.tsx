@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { message, Modal } from 'antd'
-import Editor from 'dt-common/src/widgets/code-editor'
+import Editor from '../../../../../../components/code-editor'
 import { debounce } from 'lodash'
 import Api from '../../../../../../api/console'
 

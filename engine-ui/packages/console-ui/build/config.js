@@ -6,13 +6,6 @@ module.exports = {
         port: 8080,
         host: '0.0.0.0',
         proxy: {
-            '/dt-common': {
-                target: 'http://v4.insight.dtstack.cn/', // 开发环境
-                // ignorePath: true,
-                // pathRewrite:{"/dt-common": "/portal"},
-                changeOrigin: true,
-                secure: false
-            },
             '/uic': { // UIC地址
                 target: 'http://dtuic.dtstack.cn',
                 // target: 'http://uic.insight.cn',

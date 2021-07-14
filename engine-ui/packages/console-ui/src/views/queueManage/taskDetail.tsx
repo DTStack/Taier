@@ -4,7 +4,7 @@ import { Table, message, Radio, Row, Col, Icon,
     Dropdown, Menu, Breadcrumb, Pagination, Tooltip } from 'antd'
 
 import utils from 'dt-common/src/utils';
-import CopyIcon from 'dt-common/src/components/copy-icon';
+import CopyIcon from '../../components/copy-icon';
 
 import { displayTaskStatus } from '../../consts/clusterFunc';
 import ViewDetail from '../../components/viewDetail';
@@ -421,7 +421,7 @@ class TaskDetail extends React.Component<any, any> {
                 <div className={`${className}__title`}>
                     <Breadcrumb>
                         <Breadcrumb.Item>
-                            <a onClick={() => { this.props.router.push('/console/queueManage') }}>队列管理</a>
+                            <a onClick={() => { this.props.router.push('/console-ui/queueManage') }}>队列管理</a>
                         </Breadcrumb.Item>
                         <Breadcrumb.Item>{jobResource}</Breadcrumb.Item>
                     </Breadcrumb>

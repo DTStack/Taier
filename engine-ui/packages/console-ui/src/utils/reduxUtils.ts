@@ -5,6 +5,7 @@ import { createStore, applyMiddleware, compose } from 'redux'
 import { syncHistoryWithStore } from 'react-router-redux'
 
 declare var window: any;
+declare var APP: any;
 
 function configureStoreDev (rootReducer: any) {
     const store = createStore(

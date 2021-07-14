@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Modal, Form, Input, Checkbox, message } from 'antd';
 import { cloneDeep } from 'lodash';
-import EngineSelect from 'dt-common/src/components/engineSelect';
+import EngineSelect from './engineSelect';
 
 import { formItemLayout, ENGINE_TYPE_ARRAY, ENGINE_TYPE_NAME,
     COMPONENT_TYPE_VALUE, HADOOP_GROUP_VALUE } from '../../consts';

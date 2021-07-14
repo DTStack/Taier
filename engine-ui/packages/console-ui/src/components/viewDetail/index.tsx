@@ -6,7 +6,7 @@
 */
 import * as React from 'react';
 import { Modal } from 'antd';
-import CodeEditor from 'dt-common/src/widgets/editor';
+import CodeEditor from '../../components/editor';
 class ViewDetail extends React.Component<any, any> {
     state: any = {
         editor: {

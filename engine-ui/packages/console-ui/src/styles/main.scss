@@ -21,6 +21,10 @@ table{
 .overflow-x-hidden{
     overflow-x: hidden;
 }
+.container {
+    height: 100%;
+    position: relative;
+}
 .contentBox{
     margin:20px;
 }

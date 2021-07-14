@@ -1,11 +1,11 @@
 import 'whatwg-fetch'
 
-import ProgressBar from 'dt-common/src/widgets/progress-bar'
+import { ProgressBar } from 'dt-react-component'
 import { setRequestVersion, catchCustomAction } from 'dt-common/src/funcs'
 
 import { authAfterFormated, authBeforeFormate } from '../interceptor'
 class Http {
-    get (url: any, params: any) { // GET请求
+    get (url: any, params?: any) { // GET请求
         const newUrl = params ? this.build(url, params) : url
         return this.request(newUrl, {
             method: 'GET'

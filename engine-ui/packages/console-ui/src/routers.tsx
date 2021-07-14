@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Route, IndexRoute, IndexRedirect } from 'react-router'
-import NotFund from 'dt-common/src/widgets/notFund'
+import { NotFound } from 'dt-react-component'
 // 继承主应用的的公共View组件
 
 // 数据API
@@ -26,6 +26,6 @@ export default (
             <Route path='alarmChannel' component={AlarmChannel} />
             <Route path='alarmChannel/alarmRule' component={AlarmRule} />
         </Route>
-        <Route path="/*" component={NotFund} />
+        <Route path="/*" component={NotFound} />
     </Route>
 )

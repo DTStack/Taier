@@ -38,5 +38,11 @@ export default {
 
     unbindAccount (params: { id: numOrStr; name: string; password: string }) {
         return http.postWithDefaultHeader(req.ACCOUNT_UNBIND, params)
+    },
+
+    // 获取UIC租户
+    getFullTenants (value?: any) {
+        const getTenantsUrl = `${req.GET_FULL_TENANT + (value || '')}`
+        return http.get(getTenantsUrl);
     }
 }

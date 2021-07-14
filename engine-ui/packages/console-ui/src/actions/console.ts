@@ -1,4 +1,4 @@
-import API from 'dt-common/src/api'
+import API from '../api/account'
 import { userActions } from '../consts/consoleActions'
 
 // Action
