@@ -16,10 +16,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -71,7 +68,9 @@ public class DataClearSchedule {
     }
 
     private void dataClear(List<ScheduleDict> scheduleDicts) {
-        try (Connection connection = dataSource.getConnection()) {
+        ResultSet resultSet = null;
+        try (Connection connection = dataSource.getConnection();
+             Statement statement = connection.createStatement()) {
             for (ScheduleDict scheduleDict : scheduleDicts) {
                 String tableName = scheduleDict.getDictName();
                 try {
@@ -80,13 +79,9 @@ public class DataClearSchedule {
                         clearConfig = new JSONObject();
                     }
                     long lastClearId = clearConfig.getLongValue(clearFlag);
-                    Statement statement = connection.createStatement();
-                    ResultSet resultSet = statement.executeQuery(String.format("select id from %s order by id limit 1", tableName));
-                    while (resultSet.next()) {
-                        long dbMinClearId = resultSet.getLong(1);
-                        LOGGER.info("DataClearSchedule table[{}] dbMinId:[{}] lastClearId:[{}]", tableName, dbMinClearId, lastClearId);
-                        lastClearId = Math.max(dbMinClearId, lastClearId);
-                    }
+
+                    lastClearId = getLastClearId(tableName, lastClearId, statement, resultSet);
+
 
                     String sqlAppendWhere = (String) clearConfig.getOrDefault(appendWhere, "");
                     // 添加where 语句 会导致 update 部分区间为0
@@ -101,6 +96,7 @@ public class DataClearSchedule {
                         DateTime clearTime = DateTime.now().plusDays(-clearDate);
                         int updateSize = -1;
                         //1. 标记
+                        UPDATE_LABEL:
                         while (updateSize == -1 || updateSize > 0) {
                             long endClearId = lastClearId + idIncrement;
                             String updateSql = String.format("update %s set is_deleted = 2 where id >= %s and id <= %s and gmt_create < %s %s",
@@ -112,12 +108,15 @@ public class DataClearSchedule {
                                 lastClearId = endClearId;
                             }
                             if (!isAppendWhere) {
-                                resultSet = statement.executeQuery(String.format("select gmt_create from %s where id > %s limit 1", tableName,endClearId));
+                                resultSet = statement.executeQuery(String.format("select gmt_create from %s where id > %s limit 1", tableName, endClearId));
                                 while (resultSet.next()) {
                                     Date date = resultSet.getDate(1);
                                     if (null != date && date.after(clearTime.toDate())) {
                                         LOGGER.info("DataClearSchedule gmt_create is [{}]  lastCleatId [{}]", date.getTime(), clearTime.toString("yyyyMMddHHmmss"));
-                                        break;
+                                        break UPDATE_LABEL;
+                                    } else {
+                                        lastClearId = endClearId;
+                                        updateSize = -1;
                                     }
                                 }
                             }
@@ -147,7 +146,36 @@ public class DataClearSchedule {
             }
         } catch (Exception exception) {
             LOGGER.error("data clear process error ", exception);
+        } finally {
+            if (null != resultSet) {
+                try {
+                    resultSet.close();
+                } catch (SQLException exception) {
+                    LOGGER.error("data clear close result error ", exception);
+                }
+            }
         }
+    }
+
+    private long getLastClearId(String tableName, long lastClearId, Statement statement, ResultSet resultSet) throws SQLException {
+        resultSet = statement.executeQuery(String.format("select min(id) from %s", tableName));
+        long dbMinClearId = 0L;
+        while (resultSet.next()) {
+            dbMinClearId = resultSet.getLong(1);
+            LOGGER.info("DataClearSchedule table[{}] dbMinId:[{}] lastClearId:[{}]", tableName, dbMinClearId, lastClearId);
+            lastClearId = Math.max(dbMinClearId, lastClearId);
+        }
+
+        resultSet = statement.executeQuery(String.format("select max(id) from %s", tableName));
+        while (resultSet.next()) {
+            long dbMaxClearId = resultSet.getLong(1);
+            LOGGER.info("DataClearSchedule table[{}] dbMaxId:[{}] lastClearId:[{}]", tableName, dbMaxClearId, lastClearId);
+            if (lastClearId >= dbMaxClearId) {
+                //reset
+                lastClearId = dbMinClearId;
+            }
+        }
+        return lastClearId;
     }
 
 }
