@@ -296,9 +296,7 @@ public class JobSubmitDealer implements Runnable {
             // 判断资源
             JudgeResult judgeResult = workerOperator.judgeSlots(jobClient);
             if (JudgeResult.JudgeType.OK == judgeResult.getResult()) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("jobId:{} engineType:{} submit jobClient:{} to engine start.", jobClient.getTaskId(), jobClient.getEngineType(), jobClient);
-                }
+                logger.info("jobId:{} engineType:{} submit to engine start.", jobClient.getTaskId(), jobClient.getEngineType());
 
                 jobClient.doStatusCallBack(RdosTaskStatus.COMPUTING.getStatus());
 
