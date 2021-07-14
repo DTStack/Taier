@@ -12,9 +12,13 @@ import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.dao.LineageDataSetDao;
+import com.dtstack.pubsvc.sdk.datasource.DataSourceAPIClient;
+import com.dtstack.pubsvc.sdk.dto.result.datasource.DsServiceInfoDTO;
+import com.dtstack.sdk.core.common.ApiResponse;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
@@ -60,111 +64,137 @@ public class LineageDataSetInfoTest extends AbstractTest {
     @Autowired
     private EnvironmentContext environmentContext;
 
+    @Mock
+    private DataSourceAPIClient dataSourceAPIClient;
+
 
     @Before
     public void setup() throws Exception{
 
 
-        ReflectionTestUtils.setField(dataSetInfoService,"sourceService", dataSourceService);
         ReflectionTestUtils.setField(dataSetInfoService,"tenantDao", tenantDao);
         ReflectionTestUtils.setField(dataSetInfoService,"lineageDataSetDao", lineageDataSetDao);
         ReflectionTestUtils.setField(dataSetInfoService,"componentDao", componentDao);
         ReflectionTestUtils.setField(dataSetInfoService,"tenantDao", tenantDao);
         ReflectionTestUtils.setField(dataSetInfoService,"componentConfigDao", componentConfigDao);
         ReflectionTestUtils.setField(dataSetInfoService,"environmentContext", environmentContext);
+        ReflectionTestUtils.setField(dataSetInfoService,"dataSourceAPIClient",dataSourceAPIClient);
+        ApiResponse<DsServiceInfoDTO> dsInfoById = new ApiResponse<>();
+        DsServiceInfoDTO dsServiceInfoDTO = new DsServiceInfoDTO();
+        dsServiceInfoDTO.setDataInfoId(1L);
+        dsServiceInfoDTO.setType(1);
+        dsServiceInfoDTO.setDtuicTenantId(1L);
+        dsServiceInfoDTO.setDataName("测试数据源");
+        dsInfoById.setCode(1);
+        dsInfoById.setData(dsServiceInfoDTO);
+        when(dataSourceAPIClient.getDsInfoById(any())).thenReturn(dsInfoById);
         when(dataSetInfoService.getClient(any(),any(),any())).thenReturn(null);
         when(dataSetInfoService.getAllColumns(any(),any())).thenReturn(new ArrayList<>());
 
     }
 
 
-//    @Test
-//    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-//    @Rollback
-//    public void testGetOneBySourceIdAndDbNameAndTableName(){
-//
-//        String dbName = "default";
-//        String tableName = "t1";
-//        String schemaName = "t1";
-//        LineageDataSetInfo dataSetInfo = dataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSource.getId(), dbName, tableName, schemaName,1);
-//        Assert.assertNotNull(dataSetInfo);
-//    }
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testGetOneBySourceIdAndDbNameAndTableName(){
+
+        LineageDataSetInfo dataSetInfo = DataCollection.getData().getHiveLineageDataSetInfo();
+        String dbName = dataSetInfo.getDbName();
+        String tableName = dataSetInfo.getTableName();
+        String schemaName = dataSetInfo.getSchemaName();
+        LineageDataSetInfo setInfo = dataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSetInfo.getDataInfoId(), dbName, tableName, schemaName,dataSetInfo.getAppType());
+        Assert.assertNotNull(setInfo);
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testGetOneBySourceIdAndDbNameAndTableName2(){
+
+        LineageDataSetInfo dataSetInfo = DataCollection.getData().getHiveLineageDataSetInfo();
+        String dbName = dataSetInfo.getDbName();
+        String tableName = dataSetInfo.getTableName();
+        String schemaName = dataSetInfo.getSchemaName();
+        LineageDataSetInfo setInfo = dataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSetInfo.getDataInfoId(), dbName, tableName, schemaName,1);
+        Assert.assertNotNull(setInfo);
+    }
 
 
-//    @Test
-//    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-//    @Rollback
-//    public void testGetTableColumns(){
-//
-//        LineageDataSetInfo dataSetInfo = new LineageDataSetInfo();
-//        dataSetInfo.setDataInfoId(dataSource.getId());
-//        dataSetInfo.setTableName("chener");
-//        dataSetInfo.setDbName("beihai");
-//        dataSetInfo.setSchemaName("beihai");
-//        List<Column> tableColumns = dataSetInfoService.getTableColumns(dataSetInfo);
-//        Assert.assertNotNull(tableColumns);
-//    }
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testGetTableColumns(){
 
-//    @Test
-//    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-//    @Rollback
-//    public void testGetOneById(){
-//
-//        String dbName = "default";
-//        String tableName = "t1";
-//        String schemaName = "t1";
-//        LineageDataSetInfo dataSetInfo = dataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSource.getId(), dbName, tableName, schemaName,1);
-//        LineageDataSetInfo oneById = dataSetInfoService.getOneById(dataSetInfo.getId());
-//        Assert.assertNotNull(oneById);
-//    }
+        LineageDataSetInfo dataSetInfo = new LineageDataSetInfo();
+        dataSetInfo.setDataInfoId(1L);
+        dataSetInfo.setTableName("chener");
+        dataSetInfo.setDbName("beihai");
+        dataSetInfo.setSchemaName("beihai");
+        List<Column> tableColumns = dataSetInfoService.getTableColumns(dataSetInfo);
+        Assert.assertNotNull(tableColumns);
+    }
 
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testGetOneById(){
 
-
-//    @Test
-//    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-//    @Rollback
-//    public void testGetDataSetListByIds(){
-//
-//        String dbName = "default";
-//        String tableName = "t1";
-//        String schemaName = "t1";
-//        LineageDataSetInfo dataSetInfo = dataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSource.getId(), dbName, tableName, schemaName,1);
-//        List<LineageDataSetInfo> dataSetListByIds = dataSetInfoService.getDataSetListByIds(Arrays.asList(dataSetInfo.getId()));
-//        Assert.assertNotNull(dataSetListByIds);
-//    }
+        LineageDataSetInfo dataSetInfo = DataCollection.getData().getHiveLineageDataSetInfo();
+        String dbName = dataSetInfo.getDbName();
+        String tableName = dataSetInfo.getTableName();
+        String schemaName = dataSetInfo.getSchemaName();
+        LineageDataSetInfo setInfo = dataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSetInfo.getDataInfoId(), dbName, tableName, schemaName,dataSetInfo.getAppType());
+        LineageDataSetInfo oneById = dataSetInfoService.getOneById(setInfo.getId());
+        Assert.assertNotNull(oneById);
+    }
 
 
 
-//    @Test
-//    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-//    @Rollback
-//    public void testGetColumnsBySourceIdAndListTable(){
-//
-//        LineageDataSetInfo dataSetInfo = new LineageDataSetInfo();
-//        dataSetInfo.setDataInfoId(dataSource.getId());
-//        dataSetInfo.setTableName("chener");
-//        dataSetInfo.setDbName("beihai");
-//        dataSetInfo.setSchemaName("beihai");
-//        List<Table> tables = new ArrayList<>();
-//        Table table = new Table();
-//        table.setDb("beihai");
-//        table.setName("chener");
-//        tables.add(table);
-//        Map<String, List<Column>> columnsBySourceIdAndListTable = dataSetInfoService.getColumnsBySourceIdAndListTable(dataSource.getId(), tables);
-//        Assert.assertNotNull(columnsBySourceIdAndListTable);
-//    }
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testGetDataSetListByIds(){
 
-//    @Test
-//    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-//    @Rollback
-//    public void test(){
-//
-//        String dbName = "default";
-//        String tableName = "t1";
-//        String schemaName = "t1";
-//        LineageDataSetInfo dataSetInfo = dataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSource.getId(), dbName, tableName, schemaName,1);
-//        dataSetInfoService.updateTableNameByTableNameAndSourceId("t1","t2",dbName,dataSource.getSourceId());
-//    }
+        LineageDataSetInfo dataSetInfo = DataCollection.getData().getHiveLineageDataSetInfo();
+        String dbName = dataSetInfo.getDbName();
+        String tableName = dataSetInfo.getTableName();
+        String schemaName = dataSetInfo.getSchemaName();
+        LineageDataSetInfo setInfo = dataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSetInfo.getDataInfoId(), dbName, tableName, schemaName,dataSetInfo.getAppType());
+        List<LineageDataSetInfo> dataSetListByIds = dataSetInfoService.getDataSetListByIds(Arrays.asList(setInfo.getId()));
+        Assert.assertNotNull(dataSetListByIds);
+    }
+
+
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testGetColumnsBySourceIdAndListTable(){
+
+        LineageDataSetInfo dataSetInfo = new LineageDataSetInfo();
+        dataSetInfo.setDataInfoId(1L);
+        dataSetInfo.setTableName("chener");
+        dataSetInfo.setDbName("beihai");
+        dataSetInfo.setSchemaName("beihai");
+        List<Table> tables = new ArrayList<>();
+        Table table = new Table();
+        table.setDb("beihai");
+        table.setName("chener");
+        tables.add(table);
+        Map<String, List<Column>> columnsBySourceIdAndListTable = dataSetInfoService.getColumnsBySourceIdAndListTable(1L, tables);
+        Assert.assertNotNull(columnsBySourceIdAndListTable);
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void test(){
+
+        LineageDataSetInfo dataSetInfo = DataCollection.getData().getHiveLineageDataSetInfo();
+        LineageDataSetInfo setInfo = dataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSetInfo.getDataInfoId(), dataSetInfo.getDbName(), dataSetInfo.getTableName(), dataSetInfo.getSchemaName(),dataSetInfo.getAppType());
+        dataSetInfoService.updateTableNameByTableNameAndSourceId(setInfo.getTableName(),"t2",setInfo.getDbName(),setInfo.getDataInfoId());
+    }
 
 }
 
