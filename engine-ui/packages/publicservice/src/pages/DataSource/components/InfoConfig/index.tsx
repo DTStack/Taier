@@ -1065,7 +1065,7 @@ const InfoConfig = (props) => {
             {console.log('detailData: ', detailData)}
             <Form.Item label="认证方式" key="authentication">
               {getFieldDecorator('authentication', {
-                initialValue: detailData?.authentication || 'SASL_PLAINTEXT',
+                initialValue: detailData?.authentication || '无',
                 rules: [
                   {
                     required: true,
