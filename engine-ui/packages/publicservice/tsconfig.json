@@ -31,7 +31,7 @@
   "include": [
     "./src/**/*.ts",
     "./src/**/*.tsx",
-    "./src/**/*.js",
+    "./src/**/*.js"
     // "./lib/dt-common/src/components/views/**/*.tsx"
   ],
   "exclude": [
