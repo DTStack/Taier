@@ -62,7 +62,7 @@ export default class KerberosModal extends React.Component<IProps, IState> {
         return <Modal
             title="合并后的krb5.conf"
             visible={visible}
-            onCancel={() => onCancel()}
+            onCancel={() => onCancel(krbconfig)}
             onOk={this.onOK}
             okText="保存"
         >

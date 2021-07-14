@@ -4,13 +4,17 @@ import { Input, Form, Radio, Select, Checkbox,
     Tooltip, Row, Col } from 'antd'
 import { COMPONENT_TYPE_VALUE, CONFIG_ITEM_TYPE } from '../const'
 import { getValueByJson, isDeployMode,
-    isRadioLinkage, isCustomType } from '../help'
+    isRadioLinkage, isCustomType, isMultiVersion,
+    isDtscriptAgent } from '../help'
 import { formItemLayout } from '../../../../consts'
 import CustomParams from './components/customParams'
+import NodeLabel from './components/nodeLabel'
 interface IProps {
     comp: any;
     form: any;
     view: boolean;
+    clusterInfo?: any;
+    itemLayout?: any;
 }
 
 const FormItem = Form.Item;
@@ -49,17 +53,23 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
 
     // 渲染单个配置项
     renderConfigItem = (temp: any, groupKey?: string) => {
-        const { form, comp } = this.props
+        const { form, comp, itemLayout, clusterInfo, view } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
+        const hadoopVersion = comp?.hadoopVersion ?? ''
+        const layout = itemLayout ?? formItemLayout
         const initialValue = temp.key === 'deploymode' && !isArray(temp.value) ? temp.value.split() : temp.value
-        const fieldName = groupKey ? `${typeCode}.componentConfig.${groupKey}` : `${typeCode}.componentConfig`;
+
+        let formField = typeCode
+        if (isMultiVersion(typeCode)) formField = formField + '.' + hadoopVersion
+
+        const fieldName = groupKey ? `${formField}.componentConfig.${groupKey}` : `${formField}.componentConfig`;
 
         return !isCustomType(temp.type) && <FormItem
             label={<Tooltip title={temp.key}>
                 <span className="c-formConfig__label">{temp.key}</span>
             </Tooltip>}
             key={temp.key}
-            {...formItemLayout}
+            {...layout}
         >
             {form.getFieldDecorator(`${fieldName}.${temp.key.split('.').join('%')}`, {
                 rules: [{
@@ -68,6 +78,7 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
                 }],
                 initialValue: initialValue
             })(this.renderOptoinsType(temp))}
+            {isDtscriptAgent(typeCode) && <NodeLabel form={form} view={view} clusterInfo={clusterInfo} />}
         </FormItem>
     }
 
@@ -75,8 +86,12 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
     renderGroupConfigItem = (temps: any, notParams?: boolean) => {
         const { form, comp, view } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
+        const hadoopVersion = comp?.hadoopVersion ?? ''
+        let formField = typeCode
+        if (isMultiVersion(typeCode)) formField = formField + '.' + hadoopVersion
+
         const dependencyValue = temps?.dependencyKey
-            ? form.getFieldValue(typeCode + '.componentConfig.' + temps?.dependencyKey)
+            ? form.getFieldValue(formField + '.componentConfig.' + temps?.dependencyKey)
             : []
 
         if (dependencyValue.includes(temps?.dependencyValue) || !temps?.dependencyValue) {
@@ -96,6 +111,7 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
                         })}
                         <CustomParams
                             typeCode={typeCode}
+                            hadoopVersion={hadoopVersion}
                             form={form}
                             view={view}
                             template={temps}
@@ -108,8 +124,9 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
     }
 
     rendeConfigForm = () => {
-        const { comp, form, view } = this.props;
+        const { comp, form, view, itemLayout } = this.props;
         const typeCode = comp?.componentTypeCode ?? ''
+        const hadoopVersion = comp?.hadoopVersion ?? ''
         const template = getValueByJson(comp?.componentTemplate) ?? []
 
         return template.map((temps: any, index: number) => {
@@ -129,10 +146,13 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
                     {this.renderConfigItem(temps)}
                     {(index === template.length - 1) ? <CustomParams
                         typeCode={typeCode}
+                        hadoopVersion={hadoopVersion}
                         form={form}
                         view={view}
                         template={template}
                         maxWidth={680}
+                        labelCol={itemLayout?.labelCol?.sm?.span}
+                        wrapperCol={itemLayout?.wrapperCol?.sm?.span}
                     /> : null}
                 </>
             }
@@ -180,18 +200,17 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
             })}
             {form.getFieldDecorator(`${typeCode}.specialConfig`, {
                 initialValue: config || {}
-            })(<></>)}
-            {
-                keyAndValue.length > 0 ? <CustomParams
-                    typeCode={typeCode}
-                    form={form}
-                    comp={comp}
-                    view={view}
-                    template={template}
-                    labelCol={formItemLayout.labelCol.sm.span + 2}
-                    wrapperCol={formItemLayout.wrapperCol.sm.span - 3}
-                /> : null
-            }
+            })(<span style={{ display: 'none' }}></span>)}
+            <CustomParams
+                key={String(template.length)}
+                typeCode={typeCode}
+                form={form}
+                comp={comp}
+                view={view}
+                template={template}
+                labelCol={formItemLayout.labelCol.sm.span + 2}
+                wrapperCol={formItemLayout.wrapperCol.sm.span - 3}
+            />
         </>
     }
 
@@ -218,7 +237,11 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
             case COMPONENT_TYPE_VALUE.LEARNING:
             case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER:
             case COMPONENT_TYPE_VALUE.NFS:
-            case COMPONENT_TYPE_VALUE.HIVE_SERVER: {
+            case COMPONENT_TYPE_VALUE.HIVE_SERVER:
+            case COMPONENT_TYPE_VALUE.DTSCRIPT_AGENT:
+            case COMPONENT_TYPE_VALUE.INCEPTOR_SQL:
+            case COMPONENT_TYPE_VALUE.ANALYTIC_DB:
+            case COMPONENT_TYPE_VALUE.FLINK_ON_STANDALONE: {
                 return this.rendeConfigForm()
             }
             default:
@@ -227,8 +250,11 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
     }
 
     render () {
+        const typeCode = this.props.comp?.componentTypeCode ?? ''
+        const className = 'c-formConfig__container ' + (isDtscriptAgent(typeCode) ? 'c-formConfig__full' : '')
+
         return (
-            <div className="c-formConfig__container">
+            <div className={className}>
                 {this.renderComponentsConfig()}
             </div>
         )

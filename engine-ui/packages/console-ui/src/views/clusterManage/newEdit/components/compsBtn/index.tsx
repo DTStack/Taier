@@ -1,11 +1,11 @@
 import * as React from 'react'
 import { Button, Popconfirm, Checkbox, Radio,
-    Row, Col } from 'antd'
+    Row, Col, message } from 'antd'
 import * as _ from 'lodash'
 
-import ModifyCompsModal from '../modifyModal'
 import { isSourceTab } from '../../help'
-import { CONFIG_BUTTON_TYPE } from '../../const'
+import { CONFIG_BUTTON_TYPE, COMP_ACTION,
+    COMPONENT_CONFIG_NAME } from '../../const'
 
 const CheckboxGroup = Checkbox.Group;
 const RadioGroup = Radio.Group;
@@ -21,7 +21,6 @@ interface IProps {
 interface IState {
     visible: boolean;
     addComps: any[];
-    deleteComps: any[];
     initialValues: any[];
 }
 
@@ -29,7 +28,6 @@ export default class ComponentButton extends React.Component<IProps, IState> {
     state: IState = {
         visible: false,
         addComps: [],
-        deleteComps: [],
         initialValues: []
     }
 
@@ -67,31 +65,29 @@ export default class ComponentButton extends React.Component<IProps, IState> {
             return
         }
 
-        // 和初始值取两次交集可得删除的组件
-        const intersectionArr = _.xor(value, initialValues)
-        const deleteComps = _.intersection(intersectionArr, initialValues)
         // 和初始值取一次合集，一次交集可得增加的组件
         const unionArr = _.union(value, initialValues)
         const addComps = _.xor(unionArr, initialValues)
         this.setState({
-            deleteComps, addComps, initialValues: value
+            addComps, initialValues: value
         })
     }
 
     handleRadioValues = (e: any) => {
         const initialValues = this.getInitialValues()
 
-        // 和初始值取不一致时，新增为选中组件，删除已有组件，相同时同步value值
+        /**
+         * 初始值和选中值不一致时，若已选中值，则提示需删除组件
+         */
         if (!_.isEqual(initialValues[0], e.target.value)) {
-            const deleteComps = initialValues
+            if (initialValues[0]) {
+                message.error(`先删除${COMPONENT_CONFIG_NAME[initialValues[0]]}，才能切换为${COMPONENT_CONFIG_NAME[e.target.value]}`)
+                return
+            }
             let addComps = []
             addComps.push(e.target.value)
             this.setState({
-                deleteComps, addComps, initialValues: [e.target.value]
-            })
-        } else {
-            this.setState({
-                initialValues: [e.target.value]
+                addComps, initialValues: [e.target.value]
             })
         }
     }
@@ -118,7 +114,7 @@ export default class ComponentButton extends React.Component<IProps, IState> {
                     <Row>
                         {CONFIG_BUTTON_TYPE[activeKey].map((item: any) => {
                             return <Col key={`${item.code}`}>
-                                <Radio value={item.code}>{item.componentName}</Radio>
+                                <Radio disabled={this.getInitialValues().indexOf(item.code) > -1} value={item.code}>{item.componentName}</Radio>
                             </Col>
                         })}
                     </Row>
@@ -136,7 +132,7 @@ export default class ComponentButton extends React.Component<IProps, IState> {
                 <Row>
                     {CONFIG_BUTTON_TYPE[activeKey].map((item: any) => {
                         return <Col key={`${item.code}`}>
-                            <Checkbox value={item.code}>{item.componentName}</Checkbox>
+                            <Checkbox disabled={this.getInitialValues().indexOf(item.code) > -1} value={item.code}>{item.componentName}</Checkbox>
                         </Col>
                     })}
                 </Row>
@@ -145,29 +141,20 @@ export default class ComponentButton extends React.Component<IProps, IState> {
     }
 
     handleConfirm = () => {
-        const { addComps, deleteComps } = this.state
+        const { addComps } = this.state
         this.props.handlePopVisible(false)
-        if (deleteComps.length > 0) {
-            this.setState({
-                visible: true
-            })
-        } else {
-            this.props.handleConfirm(addComps, deleteComps)
-        }
+        this.props.handleConfirm(COMP_ACTION.ADD, addComps)
     }
 
     handleCancel = () => {
         this.setState({
             addComps: [],
-            deleteComps: [],
             visible: false
         })
         this.props.handlePopVisible(false)
     }
 
     render () {
-        const { deleteComps, addComps, visible } = this.state
-
         return (
             <>
                 <Popconfirm
@@ -182,18 +169,6 @@ export default class ComponentButton extends React.Component<IProps, IState> {
                         组件配置
                     </Button>
                 </Popconfirm>
-                <ModifyCompsModal
-                    visible={visible}
-                    addComps={addComps}
-                    deleteComps={deleteComps}
-                    onCancel={this.handleCancel}
-                    onOk={() => {
-                        this.setState({
-                            visible: false
-                        })
-                        this.props.handleConfirm(addComps, deleteComps)
-                    }}
-                />
             </>
         )
     }

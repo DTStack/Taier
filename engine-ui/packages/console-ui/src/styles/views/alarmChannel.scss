@@ -5,6 +5,11 @@
         margin-bottom: 12px;
         .ant-form-item {
             float: right;
+            margin-right: 0px;
+            .alarm-btn {
+                width: 104px;
+                margin-left: 12px;
+            }
         }
     }
     .alarm-name-wrap {
@@ -32,7 +37,7 @@
         }
     }
 }
-.alarm-rule__wrapper {
+.alarm-rule__wrapper, .alarm-config__wrapper {
     padding: 20px;
     height: 100%;
     .ant-card {
@@ -103,6 +108,16 @@
             .anticon-delete {
                 display: block;
             }
+        }
+    }
+}
+.alarm-config__wrapper {
+    .c-formConfig__container {
+        left: 0;
+    }
+    .alarm-config__footer {
+        .ant-btn {
+            margin-left: 12px;
         }
     }
 }

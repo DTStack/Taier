@@ -355,7 +355,7 @@ class Resource extends React.Component<any, any> {
             memRate, coresRate } = this.state.resourceMetrics
         console.log(this.state)
         return (
-            <div>
+            <div style={{ padding: 20 }}>
                 <div className="c-resourceView__container">
                     <div style={{ height: 110, width: '50%', marginRight: 10 }}>
                         <ResourceCard

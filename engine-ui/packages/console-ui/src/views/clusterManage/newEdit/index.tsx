@@ -5,24 +5,29 @@ import { hashHistory } from 'react-router'
 import * as _ from 'lodash'
 
 import Api from '../../../api/console'
-import { initialScheduling, isViewMode, isNeedTemp,
-    getModifyComp, isSameVersion, getCompsId } from './help'
+import { initialScheduling, isViewMode,
+    getModifyComp, isSameVersion, getCompsId,
+    isMultiVersion, getCurrentComp, includesCurrentComp,
+    getSingleTestStatus, isDataCheckBoxs, showDataCheckBox,
+    getCompsName, isSchedulings } from './help'
 import { TABS_TITLE, COMPONENT_CONFIG_NAME, DEFAULT_COMP_VERSION,
-    COMPONENT_TYPE_VALUE, TABS_POP_VISIBLE } from './const'
+    TABS_POP_VISIBLE, COMP_ACTION } from './const'
 
 import FileConfig from './fileConfig'
 import FormConfig from './formConfig'
 import ToolBar from './components/toolbar'
 import ComponentButton from './components/compsBtn'
+import MetaIcon from './components/metaIcon'
 import TestRestIcon from '../../../components/testResultIcon'
+import MultiVersionComp from './components/multiVerComp'
 
 const TabPane = Tabs.TabPane
 const confirm = Modal.confirm
 interface IState {
     testLoading: boolean;
+    disabledMeta: boolean;
     activeKey: number;
     clusterName: string;
-    commVersion: string;
     versionData: any;
     testStatus: any;
     popVisible: any;
@@ -33,9 +38,9 @@ interface IState {
 class EditCluster extends React.Component<any, IState> {
     state: IState = {
         testLoading: false,
+        disabledMeta: false,
         activeKey: 0,
         clusterName: '',
-        commVersion: '',
         versionData: {},
         testStatus: {},
         popVisible: TABS_POP_VISIBLE,
@@ -61,7 +66,8 @@ class EditCluster extends React.Component<any, IState> {
                 })
                 this.setState({
                     initialCompData: initData,
-                    clusterName: res.data.clusterName
+                    clusterName: res.data.clusterName,
+                    disabledMeta: !res.data.canModifyMetadata
                 }, this.getSaveComponentList)
             }
         })
@@ -99,44 +105,46 @@ class EditCluster extends React.Component<any, IState> {
         const { getFieldValue } = this.props.form
         const { clusterName, initialCompData, activeKey } = this.state
         const typeCode = key ?? initialCompData[activeKey][0]?.componentTypeCode
-        const comp = initialCompData[activeKey].find(comp => comp.componentTypeCode == typeCode)
+        const comp = getCurrentComp(initialCompData[activeKey], { typeCode })
+        const saveParams: any = {
+            componentTypeCode: Number(typeCode),
+            hadoopVersion: params?.compVersion ?? ''
+        }
+        const version = params?.compVersion ?? DEFAULT_COMP_VERSION[typeCode] ?? ''
+        const originVersion = isSameVersion(Number(typeCode)) ? version : ''
 
-        if ((!isNeedTemp(Number(typeCode)) && !comp?.componentTemplate && initialCompData[activeKey]?.length) ||
+        if (isMultiVersion(typeCode) && !params?.compVersion) return
+
+        if ((!comp?.componentTemplate && initialCompData[activeKey]?.length) ||
             params?.compVersion || params?.storeType) {
             const res = await Api.getLoadTemplate({
                 clusterName,
                 componentType: typeCode,
-                version: params?.compVersion ?? DEFAULT_COMP_VERSION[typeCode] ?? '',
-                storeType: params?.storeType ?? getFieldValue(`${typeCode}.storeType`) ?? ''
+                version,
+                originVersion,
+                storeType: params?.storeType ?? getFieldValue(`${typeCode}.storeType`) ?? '',
+                deployType: params?.deployType ?? ''
             })
-            if (res.code == 1) {
-                this.saveComp({
-                    componentTemplate: JSON.stringify(res.data),
-                    componentTypeCode: Number(typeCode)
-                })
-            }
+            if (res.code == 1) saveParams.componentTemplate = JSON.stringify(res.data)
+            this.saveComp(saveParams)
             this.getSaveComponentList()
         }
     }
 
     handleCompVersion = (typeCode: string, version: string) => {
-        if (isSameVersion(Number(typeCode))) {
-            this.setState({
-                commVersion: version[version.length - 1]
-            })
-            this.props.form.setFieldsValue({
-                [COMPONENT_TYPE_VALUE.YARN]: {
-                    hadoopVersion: version[version.length - 1],
-                    hadoopVersionSelect: version
-                },
-                [COMPONENT_TYPE_VALUE.HDFS]: {
-                    hadoopVersion: version[version.length - 1],
-                    hadoopVersionSelect: version
-                }
-            })
+        const { setFieldsValue } = this.props.form
+        if (!isSameVersion(Number(typeCode))) {
+            setFieldsValue({ [`${typeCode}.hadoopVersion`]: version })
+            this.getLoadTemplate(typeCode, { compVersion: version })
             return
         }
-        this.getLoadTemplate(typeCode, { compVersion: version })
+        setFieldsValue({
+            [typeCode]: {
+                hadoopVersion: version[version.length - 1],
+                hadoopVersionSelect: version
+            }
+        })
+        this.getLoadTemplate(typeCode, { compVersion: version[version.length - 1] })
     }
 
     onTabChange = (key: string) => {
@@ -171,62 +179,75 @@ class EditCluster extends React.Component<any, IState> {
         })
     }
 
-    handleConfirm = async (addComps: any[], deleteComps: any[]) => {
-        console.log(addComps, deleteComps)
-        // 先删除组件，再添加
+    handleConfirm = async (action: string, comps: any | any[], mulitple?: boolean) => {
         const { initialCompData, activeKey, testStatus } = this.state
         let newCompData = initialCompData
-        let newTestStatus = testStatus
         let currentCompArr = newCompData[activeKey]
-        let res: any
-        const componentIds = getCompsId(currentCompArr, deleteComps)
-
-        if (componentIds.length) {
-            res = await Api.deleteComponent({ componentIds })
+        if (comps.length && action !== COMP_ACTION.DELETE) {
+            const initialComp = comps.map(code => {
+                if (!isMultiVersion(code)) return { componentTypeCode: code, multiVersion: [undefined] }
+                return { componentTypeCode: code, multiVersion: [] }
+            })
+            currentCompArr = currentCompArr.concat(initialComp)
         }
 
-        if (deleteComps.length && (res?.code == 1 || !componentIds.length)) {
-            deleteComps.forEach(code => {
-                currentCompArr = currentCompArr.filter(comp => comp.componentTypeCode != code)
-                newTestStatus = {
-                    ...newTestStatus,
-                    [code]: null
-                }
-                this.props.form.setFieldsValue({
-                    [code]: {
-                        componentConfig: {},
-                        specialConfig: {}
+        if (action == COMP_ACTION.DELETE) {
+            const { componentTypeCode, hadoopVersion, id = '' } = comps
+            const componentIds = getCompsId(currentCompArr, id)
+            let res: any
+            if (componentIds.length) {
+                res = await Api.deleteComponent({ componentIds })
+            }
+
+            if (res?.code == 1 || !componentIds.length) {
+                let wrapper = new Set()
+                currentCompArr.forEach(comp => {
+                    if (isMultiVersion(comp.componentTypeCode) && mulitple) {
+                        comp.multiVersion = comp.multiVersion.filter(vComp => vComp?.hadoopVersion != hadoopVersion)
+                        wrapper.add(comp)
+                    }
+                    if (comp.componentTypeCode != componentTypeCode) wrapper.add(comp)
+                })
+                currentCompArr = Array.from(wrapper)
+
+                const multiVersion = getSingleTestStatus({ typeCode: componentTypeCode, hadoopVersion }, null, testStatus)
+                let fieldValue: any = {}
+                if (isMultiVersion(componentTypeCode)) { fieldValue = { [hadoopVersion]: {} } }
+
+                this.props.form.setFieldsValue({ [componentTypeCode]: fieldValue })
+                this.setState({
+                    testStatus: {
+                        ...testStatus,
+                        [componentTypeCode]: {
+                            ...testStatus[componentTypeCode],
+                            result: null,
+                            multiVersion: multiVersion
+                        }
                     }
                 })
-            })
-        }
-
-        if (addComps.length) {
-            addComps.forEach(code => {
-                currentCompArr.push({
-                    componentTypeCode: code,
-                    componentName: COMPONENT_CONFIG_NAME[code]
-                })
-            })
+            }
         }
 
         newCompData[activeKey] = currentCompArr
         this.setState({
-            initialCompData: newCompData,
-            testStatus: newTestStatus
+            initialCompData: newCompData
         }, this.getLoadTemplate)
     }
 
-    saveComp = (params: any) => {
+    saveComp = (params: any, type?: string) => {
         const { activeKey, initialCompData } = this.state
         let newCompData = _.cloneDeep(initialCompData)
-        let newComp = initialCompData[activeKey].map(comp => {
-            if (comp.componentTypeCode == params.componentTypeCode) {
-                return { ...comp, ...params }
-            }
+        newCompData[activeKey] = initialCompData[activeKey].map(comp => {
+            if (comp.componentTypeCode !== params.componentTypeCode) return comp
+            if (type == COMP_ACTION.ADD) comp.multiVersion.push(undefined)
+            comp.multiVersion = comp.multiVersion.map(vcomp => {
+                if (!vcomp) return { ...params }
+                if (!isMultiVersion(params.componentTypeCode)) return { ...vcomp, ...params }
+                if (!vcomp?.hadoopVersion || vcomp?.hadoopVersion == params.hadoopVersion) return { ...vcomp, ...params }
+                return vcomp
+            })
             return comp
         })
-        newCompData[activeKey] = newComp
         this.setState({
             initialCompData: newCompData
         })
@@ -237,9 +258,8 @@ class EditCluster extends React.Component<any, IState> {
         const { validateFieldsAndScroll } = this.props.form;
         const { initialCompData } = this.state
         const showConfirm = (arr: any[]) => {
-            const compsName = Array.from(arr).map((code: number) => `"${COMPONENT_CONFIG_NAME[code]}"`)
             confirm({
-                title: `${compsName.join('、')}尚未保存，是否需要保存？`,
+                title: `${getCompsName(arr).join('、')}尚未保存，是否需要保存？`,
                 content: null,
                 icon: <Icon style={{ color: '#FAAD14' }} type="exclamation-circle" theme="filled" />,
                 okText: '保存',
@@ -264,12 +284,51 @@ class EditCluster extends React.Component<any, IState> {
 
     setTestStatus = (status: any, isSingle?: boolean) => {
         if (isSingle) {
+            const { testStatus, initialCompData, activeKey } = this.state
+            const currentComp = initialCompData[activeKey].find(comp => comp.componentTypeCode == status.componentTypeCode)
+            if (!isMultiVersion(status.componentTypeCode)) {
+                this.setState({
+                    testStatus: {
+                        ...testStatus,
+                        [status.componentTypeCode]: {
+                            ...status
+                        }
+                    }
+                })
+                return
+            }
+            let multiVersion = getSingleTestStatus({
+                typeCode: status.componentTypeCode,
+                hadoopVersion: status?.componentVersion
+            }, status, testStatus)
+            multiVersion = multiVersion.filter(ver => ver)
+
+            let sign = false // 标记是否有测试连通性失败的多版本组件
+            let errorMsg = []
+
+            multiVersion.forEach(mv => {
+                if (mv && !mv.result) {
+                    sign = true
+                    errorMsg.push({
+                        componentVersion: mv.componentVersion,
+                        errorMsg: mv.errorMsg
+                    })
+                }
+            })
+
+            let msg: any = { result: null, errorMsg: [], multiVersion: multiVersion }
+            if (!sign && currentComp?.multiVersion?.length == multiVersion.length) {
+                msg.result = true
+            }
+            if (sign) {
+                msg.result = false
+                msg.errorMsg = errorMsg
+            }
+
             this.setState((preState) => ({
                 testStatus: {
                     ...preState.testStatus,
-                    [status.componentTypeCode]: {
-                        ...status
-                    }
+                    [status.componentTypeCode]: msg
                 }
             }))
             return
@@ -283,25 +342,40 @@ class EditCluster extends React.Component<any, IState> {
         })
     }
 
-    testConnects = (typeCode?: number, callBack?: Function) => {
+    testConnects = (params?: any, callBack?: Function) => {
+        const typeCode = params?.typeCode ?? ''
+        const hadoopVersion = params?.hadoopVersion ?? ''
+        const deployType = params?.deployType ?? ''
         const { form } = this.props
         const { initialCompData, clusterName } = this.state
         form.validateFields(null, {}, (err: any, values: any) => {
             console.log(err, values)
-            if ((err && !typeCode) || (err && Object.keys(err).includes(String(typeCode)))) {
+
+            /** 当前组件错误校验 */
+            const currentCompErr = err ? (err[String(typeCode)] || {}) : {}
+            if (isMultiVersion(typeCode) && Object.keys(currentCompErr).includes(hadoopVersion)) {
                 message.error('请检查配置')
                 return
             }
+            if ((err && !typeCode) || (err && !isMultiVersion(typeCode) && Object.keys(err).includes(String(typeCode)))) {
+                message.error('请检查配置')
+                return
+            }
+
             const modifyComps = getModifyComp(values, initialCompData)
-            if (typeCode || typeCode == 0) {
-                if (modifyComps.size > 0 && Array.from(modifyComps).includes(String(typeCode))) {
-                    message.error(`组件 ${COMPONENT_CONFIG_NAME[typeCode]} 参数变更未保存，请先保存再测试组件连通性`)
+            if (typeCode || typeCode === 0) {
+                if (modifyComps.size > 0 && includesCurrentComp(Array.from(modifyComps), { typeCode, hadoopVersion })) {
+                    let desc = COMPONENT_CONFIG_NAME[typeCode]
+                    if (isMultiVersion(typeCode)) desc = desc + ' ' + (Number(hadoopVersion) / 100).toFixed(2)
+                    message.error(`组件 ${desc} 参数变更未保存，请先保存再测试组件连通性`)
                     return
                 }
                 callBack && callBack(true)
                 Api.testConnect({
                     clusterName,
-                    componentType: typeCode
+                    deployType,
+                    componentType: typeCode,
+                    componentVersion: hadoopVersion ?? ''
                 }).then((res: any) => {
                     if (res.code === 1) {
                         this.setTestStatus(res.data, true)
@@ -310,8 +384,7 @@ class EditCluster extends React.Component<any, IState> {
                 })
             } else {
                 if (modifyComps.size > 0) {
-                    const modifyCompsName = Array.from(modifyComps).map((code: number) => COMPONENT_CONFIG_NAME[code])
-                    message.error(`组件 ${modifyCompsName.join('、')} 参数变更未保存，请先保存再测试组件连通性`)
+                    message.error(`组件 ${getCompsName(modifyComps).join('、')} 参数变更未保存，请先保存再测试组件连通性`)
                     return
                 }
                 this.setState({ testLoading: true });
@@ -329,8 +402,11 @@ class EditCluster extends React.Component<any, IState> {
 
     render () {
         const { mode, cluster } = this.props.location.state || {} as any
+        const { getFieldValue } = this.props.form
         const { clusterName, activeKey, initialCompData, versionData,
-            saveCompsData, testLoading, testStatus, commVersion, popVisible } = this.state
+            saveCompsData, testLoading, testStatus, popVisible,
+            disabledMeta } = this.state
+        const isScheduling = isSchedulings(initialCompData)
 
         return (
             <div className="c-editCluster__containerWrap">
@@ -358,6 +434,7 @@ class EditCluster extends React.Component<any, IState> {
                         tabBarExtraContent={<div className="c-editCluster__commonTabs__title">集群配置</div>}
                     >
                         {initialCompData.map((comps: any, key: number) => {
+                            const isCheckBoxs = isDataCheckBoxs(comps) // 存在HiveServer、SparkThrift两个组件
                             return (<TabPane
                                 tab={
                                     <div style={{ height: 19, display: 'flex', alignItems: 'center' }}>
@@ -380,39 +457,68 @@ class EditCluster extends React.Component<any, IState> {
                                         handlePopVisible={this.handlePopVisible}
                                     />}
                                     className="c-editCluster__container__componentTabs"
-                                    onChange={(key: any) => this.getLoadTemplate(key)}
+                                    onChange={(key: any) => {
+                                        if (!isMultiVersion(Number(key))) this.getLoadTemplate(key)
+                                    }}
                                 >
                                     {comps?.length > 0 && comps.map((comp: any) => {
                                         return (<TabPane
                                             tab={<span>
-                                                {comp.componentName}
+                                                {COMPONENT_CONFIG_NAME[comp.componentTypeCode]}
+                                                {showDataCheckBox(comp.componentTypeCode) && <MetaIcon
+                                                    comp={comp}
+                                                    isMetadata={getFieldValue(`${comp.componentTypeCode}.isMetadata`)} />}
                                                 <TestRestIcon testStatus={testStatus[comp.componentTypeCode] ?? {}}/>
                                             </span>}
                                             key={`${comp.componentTypeCode}`}
                                         >
-                                            <FileConfig
-                                                comp={comp}
-                                                view={isViewMode(mode)}
-                                                form={this.props.form}
-                                                versionData={versionData}
-                                                commVersion={commVersion}
-                                                saveCompsData={saveCompsData}
-                                                clusterInfo={{ clusterName, clusterId: cluster.clusterId }}
-                                                handleCompVersion={this.handleCompVersion}
-                                            />
-                                            <FormConfig
-                                                comp={comp}
-                                                view={isViewMode(mode)}
-                                                form={this.props.form}
-                                            />
-                                            {!isViewMode(mode) && <ToolBar
-                                                comp={comp}
-                                                clusterInfo={{ clusterName, clusterId: cluster.clusterId }}
-                                                initialCompData={initialCompData[activeKey]}
-                                                form={this.props.form}
-                                                saveComp={this.saveComp}
-                                                testConnects={this.testConnects}
-                                            />}
+                                            <>
+                                                {isMultiVersion(comp.componentTypeCode)
+                                                    ? <MultiVersionComp
+                                                        comp={comp}
+                                                        form={this.props.form}
+                                                        view={isViewMode(mode)}
+                                                        saveCompsData={saveCompsData}
+                                                        versionData={versionData}
+                                                        testStatus={testStatus[comp.componentTypeCode]?.multiVersion ?? []}
+                                                        clusterInfo={{ clusterName, clusterId: cluster.clusterId }}
+                                                        saveComp={this.saveComp}
+                                                        getLoadTemplate={this.getLoadTemplate}
+                                                        testConnects={this.testConnects}
+                                                        handleConfirm={this.handleConfirm}
+                                                    />
+                                                    : comp?.multiVersion?.map(vcomp => {
+                                                        return <>
+                                                            <FileConfig
+                                                                comp={vcomp}
+                                                                view={isViewMode(mode)}
+                                                                disabledMeta={disabledMeta}
+                                                                isCheckBoxs={isCheckBoxs}
+                                                                isSchedulings={isScheduling}
+                                                                form={this.props.form}
+                                                                versionData={versionData}
+                                                                saveCompsData={saveCompsData}
+                                                                clusterInfo={{ clusterName, clusterId: cluster.clusterId }}
+                                                                saveComp={this.saveComp}
+                                                                handleCompVersion={this.handleCompVersion}
+                                                            />
+                                                            <FormConfig
+                                                                comp={vcomp}
+                                                                view={isViewMode(mode)}
+                                                                form={this.props.form}
+                                                                clusterInfo={{ clusterName, clusterId: cluster.clusterId }}
+                                                            />
+                                                            {!isViewMode(mode) && <ToolBar
+                                                                comp={vcomp}
+                                                                clusterInfo={{ clusterName, clusterId: cluster.clusterId }}
+                                                                form={this.props.form}
+                                                                saveComp={this.saveComp}
+                                                                testConnects={this.testConnects}
+                                                                handleConfirm={this.handleConfirm}
+                                                            />}
+                                                        </>
+                                                    })}
+                                                </>
                                         </TabPane>)
                                     })}
                                 </Tabs>

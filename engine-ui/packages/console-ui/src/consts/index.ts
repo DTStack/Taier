@@ -346,14 +346,19 @@ export const ENGINE_TYPE = {
     TI_DB: 4,
     ORACLE: 5,
     GREEN_PLUM: 6,
-    PRESTO: 7
+    PRESTO: 7,
+    FLINK_ON_STANDALONE: 8,
+    ANALYTIC_DB: 9,
+    KUBERNETES: 'Kubernetes'
 }
 export const ENGINE_TYPE_NAME = {
     HADOOP: 'Hadoop',
     LIBRA: 'LibrA',
     TI_DB: 'TiDB',
     ORACLE: 'Oracle',
-    GREEN_PLUM: 'GreenPlum'
+    GREEN_PLUM: 'GreenPlum',
+    PRESTO: 'PRESTO',
+    ANALYTIC_DB: 'AnalyticDB PostgreSQL'
 }
 
 export const ENGIN_TYPE_TEXT = {
@@ -362,7 +367,9 @@ export const ENGIN_TYPE_TEXT = {
     [ENGINE_TYPE.TI_DB]: 'TiDB',
     [ENGINE_TYPE.ORACLE]: 'Oracle',
     [ENGINE_TYPE.GREEN_PLUM]: 'GreenPlum',
-    [ENGINE_TYPE.PRESTO]: 'Presto'
+    [ENGINE_TYPE.PRESTO]: 'Presto',
+    [ENGINE_TYPE.ANALYTIC_DB]: 'AnalyticDB PostgreSQL',
+    [ENGINE_TYPE.FLINK_ON_STANDALONE]: 'Flink on Standalone'
 }
 
 export const ENGINE_TYPE_ARRAY = [{ // 引擎类型下拉框数据

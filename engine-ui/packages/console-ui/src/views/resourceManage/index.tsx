@@ -1,10 +1,11 @@
 import * as React from 'react';
-import { Row, Col, Select, Button, Card, Form, Tabs, Table, Input, message } from 'antd';
+import { Row, Col, Select, Button, Card, Form,
+    Tabs, Table, Input, message } from 'antd';
 import { get } from 'lodash';
 
 import Api from '../../api/console';
 import { ENGIN_TYPE_TEXT } from '../../consts';
-import { isHadoopEngine, isTiDBEngine, isOracleEngine, isGreenPlumEngine, isKubernetesEngine } from '../../consts/clusterFunc';
+import { isHadoopEngine, isKubernetesEngine, isBindAccount } from '../../consts/clusterFunc';
 import BindCommModal from '../../components/bindCommModal';
 import ResourceManageModal from '../../components/resourceManageModal';
 import Resource from './resourceView';
@@ -165,8 +166,8 @@ class ResourceManage extends React.Component<any, any> {
             queryParams
         }, this.searchTenant)
     }
-    handleTableChange = (pagination: any, filters: any, sorter: any) => {
-        const queryParams = Object.assign(this.state.queryParams, { currentPage: pagination.current })
+    onPageChange = (current: any) => {
+        const queryParams = Object.assign(this.state.queryParams, { currentPage: current })
         this.setState({
             queryParams
         }, this.searchTenant)
@@ -277,15 +278,22 @@ class ResourceManage extends React.Component<any, any> {
         if (isHadoop && isKubernetesEngine(resourceType)) column = this.initKubernetesColumns()
         return column
     }
+
     render () {
         const { tableData, queryParams, total, loading, engineList, clusterList,
             tenantModal, queueModal, modalKey, clusterName, tenantInfo, manageModal } = this.state;
         const kubernetesEngine = isKubernetesEngine(engineList[0] && engineList[0].resourceType);
-        const pagination: any = {
+        const paginations: any = {
+            total: total,
             current: queryParams.currentPage,
             pageSize: PAGESIZE,
-            total
-        }
+            size: 'small',
+            showTotal: (total) => <span>
+              共<span style={{ color: '#3F87FF' }}>{total}</span>条数据，每页显示{PAGESIZE}条
+            </span>,
+            onChange: this.onPageChange
+        };
+
         console.log('console:', this.state);
         return (
             <div className='resource-wrapper'>
@@ -342,7 +350,7 @@ class ResourceManage extends React.Component<any, any> {
                                                     </TabPane> : null
                                                 }
                                                 <TabPane tab="租户绑定" key={`bindTenant`}>
-                                                    <div style={{ margin: 15 }}>
+                                                    <div style={{ padding: 20 }}>
                                                         <Search
                                                             style={{ width: '200px', marginBottom: '20px' }}
                                                             placeholder='按租户名称搜索'
@@ -355,13 +363,14 @@ class ResourceManage extends React.Component<any, any> {
                                                             onSearch={this.changeTenantName}
                                                         />
                                                         <Table
-                                                            className='dt-table-border'
+                                                            className='dt-table-border dt-table-fixed-base'
                                                             loading={loading}
                                                             rowKey={(record: any, index) => `${index}-${record.tenantName}`}
+                                                            style={{ height: 'calc(100vh - 296px)', boxShadow: 'unset' }}
+                                                            scroll={{ y: true }}
                                                             columns={this.getColumn(isHadoop, resourceType)}
                                                             dataSource={tableData}
-                                                            pagination={pagination}
-                                                            onChange={this.handleTableChange}
+                                                            pagination={paginations}
                                                         />
                                                     </div>
                                                 </TabPane>
@@ -374,7 +383,7 @@ class ResourceManage extends React.Component<any, any> {
                                                     </TabPane> : null
                                                 } */}
                                                 {
-                                                    isTiDBEngine(engineType) || isOracleEngine(engineType) || isGreenPlumEngine(engineType)
+                                                    isBindAccount(engineType)
                                                         ? <TabPane tab="账号绑定" key="bindAccount">
                                                             <BindAccountPane
                                                                 key={`${queryParams.clusterId}-${engineType}`}

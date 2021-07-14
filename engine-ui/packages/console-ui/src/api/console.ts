@@ -35,6 +35,8 @@ export default {
     testConnect (params: {
         clusterName: string;
         componentType: number;
+        componentVersion: string;
+        deployType: number | string;
     }) {
         return http.post(req.TEST_CONNECT, params);
     },
@@ -112,7 +114,26 @@ export default {
     }) {
         return http.post(req.UPDATE_KRB5CONF, params);
     },
+    // 4.2版本
+    getDtScriptAgentLabel (params: {
+        agentAddress: string;
+    }) {
+        return http.post(req.GET_DTSCRIPT_AGENT_LABEL, params);
+    },
+    getClusterComponentUser (params: {
+        clusterId: number;
+        needRefresh: boolean;
+        componentTypeCode: number;
+        agentAddress: string;
 
+    }) {
+        return http.post(req.GET_CLUSTER_COMPONENT_USER, params);
+    },
+    addOrUpdateComponentUser (params: {
+        componentUserList: any[];
+    }) {
+        return http.post(req.ADD_OR_UPDATE_COMPONENT_USER, params);
+    },
     // 任务管理模块
     // 概览-获取集群
     getClusterDetail (params: any) {
@@ -292,5 +313,17 @@ export default {
         clusterName: string;
     }) {
         return http.post(req.REFRESH_QUEUE, params);
+    },
+    getAlarmConfig () {
+        return http.post(req.GET_ALARM_CONFIG);
+    },
+    updateAlarmConfig (params: {
+        componentConfig: string;
+        componentTemplate: string;
+    }) {
+        return http.post(req.UPDATE_ALARM_CONFIG, params);
+    },
+    testAlarmConfig () {
+        return http.post(req.TEST_ALARM_CONFIG);
     }
 }

@@ -12,6 +12,7 @@ import EditCluster from './views/clusterManage/newEdit'
 import QueueManageDetail from './views/queueManage/taskDetail'
 import AlarmChannel from './views/alarmChannel';
 import AlarmRule from './views/alarmChannel/alarmRule'
+import AlarmConfig from './views/alarmChannel/alarmConfig'
 
 export default (
     <Route path="/" >
@@ -25,6 +26,7 @@ export default (
             <Route path="clusterManage/editCluster" component={ EditCluster } />
             <Route path='alarmChannel' component={AlarmChannel} />
             <Route path='alarmChannel/alarmRule' component={AlarmRule} />
+            <Route path='alarmChannel/AlarmConfig' component={AlarmConfig} />
         </Route>
         <Route path="/*" component={NotFound} />
     </Route>
