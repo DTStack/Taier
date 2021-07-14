@@ -291,7 +291,7 @@ class BindAccountTable extends React.Component<IProps, IState> {
                     loading={loading}
                     className='dt-table-border dt-table-fixed-base'
                     rowKey={(record, index) => `accounts-${index}-${record.userId}`}
-                    style={{ height: 'calc(100vh - 296px)', boxShadow: 'unset' }}
+                    style={{ height: 'calc(100vh - 230px)', boxShadow: 'unset' }}
                     scroll={{ y: true }}
                     columns={this.initColumns()}
                     dataSource={tableData}

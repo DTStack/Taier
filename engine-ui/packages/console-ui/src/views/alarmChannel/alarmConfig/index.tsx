@@ -120,7 +120,7 @@ const AlarmConfig: React.FC<IProps> = (props) => {
         <div className='alarm-config__wrapper'>
             <Breadcrumb>
                 <Breadcrumb.Item> <a onClick={() => {
-                    props.router.push('/console/alarmChannel')
+                    props.router.push('/console-ui/alarmChannel')
                 }}>告警通道</a></Breadcrumb.Item>
                 <Breadcrumb.Item>SFTP配置</Breadcrumb.Item>
             </Breadcrumb>
