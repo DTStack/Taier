@@ -21,9 +21,9 @@ import com.dtstack.engine.datasource.common.utils.Dozers;
 import com.dtstack.engine.datasource.common.utils.datakit.Asserts;
 import com.dtstack.engine.datasource.common.utils.PageUtil;
 import com.google.common.collect.Lists;
-import dt.insight.plat.lang.base.Strings;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -169,7 +169,7 @@ public class ApiServiceFacade {
     private void validImportDs(Long dataInfoId, Integer appType) {
         DsInfo dsInfo = dsInfoService.getOneById(dataInfoId);
         DsAppMapping appMapping = appMappingService.lambdaQuery().eq(DsAppMapping::getDataType, dsInfo.getDataType())
-                .eq(Strings.isNotBlank(dsInfo.getDataVersion()), DsAppMapping::getDataVersion, dsInfo.getDataVersion())
+                .eq(StringUtils.isNotBlank(dsInfo.getDataVersion()), DsAppMapping::getDataVersion, dsInfo.getDataVersion())
                 .eq(DsAppMapping::getAppType, appType)
                 .one();
         if (Objects.isNull(appMapping) || Objects.isNull(appMapping.getId())) {
@@ -267,7 +267,7 @@ public class ApiServiceFacade {
         dsInfo.setDataVersion(typeEnum.getDataVersion());
         dsInfo.setDataName(createDsParam.getDataName());
         dsInfo.setDataDesc(createDsParam.getDataDesc());
-        if (Strings.isNotBlank(createDsParam.getDataJson())) {
+        if (StringUtils.isNotBlank(createDsParam.getDataJson())) {
             JSONObject dataJsonObject = DataSourceUtils.getDataSourceJson(createDsParam.getDataJson());
             String linkInfo = datasourceFacade.getDataSourceLinkInfo(typeEnum.getDataType(), typeEnum.getDataVersion(), dataJsonObject);
             dsInfo.setDataJson(DataSourceUtils.getEncodeDataSource(dataJsonObject, true));
@@ -346,7 +346,7 @@ public class ApiServiceFacade {
         Asserts.notNull(typeEnum, ErrorCode.CAN_NOT_FITABLE_SOURCE_TYPE);
         dataSourceVO.setDataType(typeEnum.getDataType());
         dataSourceVO.setDataVersion(typeEnum.getDataVersion());
-        if (Strings.isNotBlank(createDsParam.getDataJson())) {
+        if (StringUtils.isNotBlank(createDsParam.getDataJson())) {
             dataSourceVO.setDataJson(DataSourceUtils.getDataSourceJson(createDsParam.getDataJson()));
         }
         dataSourceVO.setAppTypeList(Arrays.asList(createDsParam.getAppType()));
@@ -369,7 +369,7 @@ public class ApiServiceFacade {
                 .in(DsInfo::getDtuicTenantId, consoleParam.getDsDtuicTenantIdList())
                 .eq(DsInfo::getIsMeta, 1)
                 .eq(DsInfo::getDataType, typeEnum.getDataType())
-                .eq(Strings.isNotBlank(typeEnum.getDataVersion()), DsInfo::getDataVersion, typeEnum.getDataVersion())
+                .eq(StringUtils.isNotBlank(typeEnum.getDataVersion()), DsInfo::getDataVersion, typeEnum.getDataVersion())
                 .list();
         if (Collects.isEmpty(dsInfoList)) {
             log.info("本次控制台修改数据源信息为空, 无法进行修改. dsDtuicTenantIdList: [{}], type: [{}]", JSON.toJSONString(consoleParam.getDsDtuicTenantIdList()), consoleParam.getType());
@@ -379,7 +379,7 @@ public class ApiServiceFacade {
         log.info("本次控制台修改涉及到的数据源为 dsInfoIds: [{}]", dsInfoIds);
         List<DsInfo> editDsInfoList = Lists.newArrayList();
         for (DsInfo dsInfo : dsInfoList) {
-            if (Strings.isNotBlank(dsInfo.getDataJson())) {
+            if (StringUtils.isNotBlank(dsInfo.getDataJson())) {
                 JSONObject dataJson = DataSourceUtils.getDataSourceJson(dsInfo.getDataJson());
                 JSONObject linkDataJson = DataSourceUtils.getDataSourceJson(dsInfo.getLinkJson());
                 String editJdbcUrl = editJdbcUrl(CommonUtils.getStrFromJson(dataJson, FormNames.JDBC_URL), consoleParam.getJdbcUrl(), isOracle);
@@ -556,7 +556,7 @@ public class ApiServiceFacade {
 
         public String getJdbcUrl() {
             String jdbc = Optional.ofNullable(protocol).orElse("") + MARK_D + Optional.ofNullable(url).orElse("");
-            if (Strings.isNotBlank(schema)) {
+            if (StringUtils.isNotBlank(schema)) {
                 jdbc = jdbc + MARK_O + schema;
             }
             return jdbc;
@@ -564,7 +564,7 @@ public class ApiServiceFacade {
 
         public String getOracleUrl() {
             String jdbc = Optional.ofNullable(protocol).orElse("") + ORACLE_MARK_D + Optional.ofNullable(url).orElse("");
-            if (Strings.isNotBlank(schema)) {
+            if (StringUtils.isNotBlank(schema)) {
                 jdbc = jdbc + ORACLE_MARK_O + schema;
             }
             return jdbc;

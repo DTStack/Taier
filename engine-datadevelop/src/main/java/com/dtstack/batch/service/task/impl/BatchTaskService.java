@@ -64,9 +64,6 @@ import com.dtstack.engine.api.service.ScheduleTaskTaskShadeService;
 import com.dtstack.engine.api.service.TaskParamApiClient;
 import com.dtstack.engine.api.vo.ComponentUserVO;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
-import com.dtstack.engine.api.vo.lineage.ColumnLineageParseInfo;
-import com.dtstack.engine.api.vo.lineage.SqlParseInfo;
-import com.dtstack.engine.api.vo.lineage.param.ParseColumnLineageParam;
 import com.dtstack.engine.api.vo.project.ScheduleEngineProjectVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
@@ -75,7 +72,6 @@ import com.dtstack.engine.api.vo.task.SaveTaskTaskVO;
 import com.dtstack.engine.api.vo.template.TaskTemplateResultVO;
 import com.dtstack.engine.api.vo.template.TaskTemplateVO;
 import com.dtstack.sdk.core.common.ApiResponse;
-import com.dtstack.sqlparser.common.utils.SqlFormatUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -1274,7 +1270,10 @@ public class BatchTaskService {
 
             List<Integer> roleList = roleUserService.listRoleValueByUserIdAndProjectId(task.getOwnerUserId(), task.getTenantId(), task.getProjectId());
             if (CollectionUtils.isEmpty(roleList)){
-                Boolean isRootByDtUserId = DtUicUserConnect.getIsRootByDtUserId(environmentContext.getSdkToken(), environmentContext.getDtUicUrl(), user.getDtuicUserId());
+
+                //TODO
+//                Boolean isRootByDtUserId = DtUicUserConnect.getIsRootByDtUserId(environmentContext.getSdkToken(), environmentContext.getDtUicUrl(), user.getDtuicUserId());
+                Boolean isRootByDtUserId = null;
                 if (isRootByDtUserId == null || !isRootByDtUserId) {
                     throw new RdosDefineException("任务责任人在项目中不存在");
                 }
@@ -1420,7 +1419,6 @@ public class BatchTaskService {
             ProjectEngine projectEngine = projectEngineService.getProjectDb(projectId, engineType);
             ISqlExeService sqlExeService = multiEngineServiceFactory.getSqlExeService(engineType, null, projectId);
             String sql = sqlExeService.process(versionSqlText, projectEngine.getEngineIdentity());
-            List<String> sqls = SqlFormatUtil.splitSqlText(sql);
 
         } else if (EJobType.SYNC.getVal().intValue() == task.getTaskType().intValue()) {
             if (StringUtils.isNotEmpty(task.getSqlText())) {
@@ -1793,8 +1791,7 @@ public class BatchTaskService {
             engineType = operateSyncTask(param);
         } else if (EJobType.SPARK_PYTHON.getVal().equals(param.getTaskType()) ||
                 EJobType.PYTHON.getVal().equals(param.getTaskType())
-                || EJobType.SHELL.getVal().equals(param.getTaskType())
-                || EJobType.SHELL_ON_AGENT.getVal().equals(param.getTaskType())) {
+                || EJobType.SHELL.getVal().equals(param.getTaskType())) {
             engineType = operateShellOrPython(param);
         } else if (EJobType.CARBON_SQL.getVal().equals(param.getTaskType())) {
             if (param.getDataSourceId() == null) {
@@ -1813,10 +1810,6 @@ public class BatchTaskService {
             engineType = EngineType.ORACLE.getVal();
         } else if (EJobType.GREENPLUM_SQL.getVal().equals(param.getTaskType())) {
             engineType = EngineType.GREENPLUM.getVal();
-        } else if (EJobType.INCEPTOR_SQL.getVal().equals(param.getTaskType())) {
-            engineType = EngineType.INCEPTOR_SQL.getVal();
-        } else if (EJobType.ANALYTICDB_FOR_PG.getVal().equals(param.getTaskType())) {
-            engineType = EngineType.ANALYTICDB_FOR_PG.getVal();
         } else {
             if (CollectionUtils.isNotEmpty(param.getResourceIdList())) {
                 throw new RdosDefineException("该任务不能添加资源.", ErrorCode.INVALID_PARAMETERS);
@@ -1894,11 +1887,11 @@ public class BatchTaskService {
     private Integer operateShellOrPython(TaskResourceParam param) {
         Integer engineType;
         if (param.getId() <= 0) {
-            if (param.getOperateModel() == TaskOperateType.RESOURCE.getType() && !EJobType.SHELL.getVal().equals(param.getTaskType()) && !EJobType.SHELL_ON_AGENT.getVal().equals(param.getTaskType())) {
+            if (param.getOperateModel() == TaskOperateType.RESOURCE.getType() && !EJobType.SHELL.getVal().equals(param.getTaskType())) {
                 if (checkResourceType(param.getResourceIdList())) {
                     throw new RdosDefineException("python 任务必须添加资源.", ErrorCode.INVALID_PARAMETERS);
                 }
-            } else if (param.getOperateModel() == TaskOperateType.EDIT.getType() && !EJobType.SHELL.getVal().equals(param.getTaskType()) && !EJobType.SHELL_ON_AGENT.getVal().equals(param.getTaskType())) {
+            } else if (param.getOperateModel() == TaskOperateType.EDIT.getType() && !EJobType.SHELL.getVal().equals(param.getTaskType())) {
                 if (StringUtils.isBlank(param.getSqlText())) {
                     param.setSqlText("#coding=utf-8\n");
                 }
@@ -1908,11 +1901,7 @@ public class BatchTaskService {
         engineType = EngineType.Spark.getVal();
         exeArgs.put("operateModel", param.getOperateModel());
         exeArgs.put(CMD_OPTS, param.getOptions());
-        if (EJobType.SHELL_ON_AGENT.getVal().equals(param.getTaskType())){
-            //shell on agent 任务不需要exeArgs参数
-            param.setExeArgs("");
-            return EngineType.DTSCRIPT_AGENT.getVal();
-        } else if (EJobType.PYTHON.getVal().equals(param.getTaskType())
+        if (EJobType.PYTHON.getVal().equals(param.getTaskType())
                 || EJobType.SHELL.getVal().equals(param.getTaskType())){
             exeArgs.put("--app-name", param.getName());
             exeArgs.put("--input", param.getInput());
@@ -2080,12 +2069,10 @@ public class BatchTaskService {
 
         // 需要代码注释模版的任务类型
         Set<Integer> shouldNoteSqlTypes = Sets.newHashSet(EJobType.SPARK_SQL.getVal(), EJobType.CARBON_SQL.getVal(),
-                EJobType.LIBRA_SQL.getVal(), EJobType.IMPALA_SQL.getVal(),
-                EJobType.INCEPTOR_SQL.getVal(), EJobType.ANALYTICDB_FOR_PG.getVal());
+                EJobType.LIBRA_SQL.getVal(), EJobType.IMPALA_SQL.getVal());
 
         if (EJobType.PYTHON.getVal().equals(task.getTaskType())
-                || EJobType.SHELL.getVal().equals(task.getTaskType())
-                || EJobType.SHELL_ON_AGENT.getVal().equals(task.getTaskType())) {
+                || EJobType.SHELL.getVal().equals(task.getTaskType())) {
             NOTE_SIGN = "#";
             if (EJobType.PYTHON.getVal().equals(task.getTaskType())) {
                 type = "Python" + task.getPythonVersion();
@@ -3308,20 +3295,6 @@ public class BatchTaskService {
             }
             return o2.getComponentVersion().compareTo(o1.getComponentVersion());
         };
-    }
-
-    /**
-     * 根据uic租户id获取console配置的 DTSCRIPT_AGENT 组件的label和用户
-     * @param dtuicTenantId
-     * @return
-     */
-    public String getShellOnAgentClusterAndUser(Long dtuicTenantId){
-        ApiResponse<List<ComponentUserVO>> clusterComponentUser = componentService.getComponentUserByUic(dtuicTenantId, EComponentType.DTSCRIPT_AGENT.getTypeCode(), null, null);
-        List<ComponentUserVO> componentUserVOList = clusterComponentUser.getData();
-        if(CollectionUtils.isEmpty(componentUserVOList)){
-            return "";
-        }
-        return JSONObject.toJSONString(componentUserVOList);
     }
 
     /**

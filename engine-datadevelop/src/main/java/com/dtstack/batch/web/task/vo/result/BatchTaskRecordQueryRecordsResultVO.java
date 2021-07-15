@@ -1,5 +1,6 @@
 package com.dtstack.batch.web.task.vo.result;
 
+import com.dtstack.batch.web.task.vo.result.BatchTaskRecordResultVO;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

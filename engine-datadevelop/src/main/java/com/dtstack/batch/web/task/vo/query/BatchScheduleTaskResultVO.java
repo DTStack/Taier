@@ -47,10 +47,10 @@ public class BatchScheduleTaskResultVO {
     private Long dataSourceId;
 
     @ApiModelProperty(value = "任务信息")
-    private BatchScheduleTaskResultVO subNodes;
+    private com.dtstack.batch.web.task.vo.query.BatchScheduleTaskResultVO subNodes;
 
     @ApiModelProperty(value = "任务信息")
-    private List<BatchScheduleTaskResultVO> relatedTasks;
+    private List<com.dtstack.batch.web.task.vo.query.BatchScheduleTaskResultVO> relatedTasks;
 
     @ApiModelProperty(value = "租户名称", example = "dev租户")
     private String tenantName;
@@ -91,10 +91,10 @@ public class BatchScheduleTaskResultVO {
     private Boolean currentProject = false;
 
     @ApiModelProperty(value = "任务信息")
-    private List<BatchScheduleTaskResultVO> taskVOS;
+    private List<com.dtstack.batch.web.task.vo.query.BatchScheduleTaskResultVO> taskVOS;
 
     @ApiModelProperty(value = "任务信息")
-    private List<BatchScheduleTaskResultVO> subTaskVOS;
+    private List<com.dtstack.batch.web.task.vo.query.BatchScheduleTaskResultVO> subTaskVOS;
 
     @ApiModelProperty(value = "定时周期表达式", example = "* 0/1 * * * *")
     private String cron;
@@ -196,7 +196,7 @@ public class BatchScheduleTaskResultVO {
     private Integer isDeleted = 0;
 
     @ApiModelProperty(value = "关联的规则任务")
-    private List<BatchScheduleTaskResultVO> taskRuleList;
+    private List<com.dtstack.batch.web.task.vo.query.BatchScheduleTaskResultVO> taskRuleList;
 
     @ApiModelProperty(value = "是否存在开启的质量任务")
     private Boolean existsOnRule;

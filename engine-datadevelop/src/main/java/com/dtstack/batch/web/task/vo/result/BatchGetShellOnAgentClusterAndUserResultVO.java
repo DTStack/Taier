@@ -1,5 +1,6 @@
 package com.dtstack.batch.web.task.vo.result;
 
+import com.dtstack.batch.web.task.vo.result.BatchGetShellOnAgentUserNameResultVO;
 import lombok.Data;
 
 import java.util.List;

@@ -5,6 +5,9 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+/**
+ * @author zhaozhangwan
+ */
 @Data
 @ApiModel("任务信息")
 public class BatchTaskTaskVersionScheduleConfVO extends DtInsightAuthParam {

@@ -9,27 +9,19 @@ import com.dtstack.batch.dao.*;
 import com.dtstack.batch.domain.*;
 import com.dtstack.batch.domain.po.ProjectCataloguePO;
 import com.dtstack.batch.dto.ProjectDTO;
-import com.dtstack.batch.engine.rdbms.common.HdfsOperator;
 import com.dtstack.batch.engine.rdbms.service.IJdbcService;
 import com.dtstack.batch.enums.EScheduleType;
 import com.dtstack.batch.enums.RdosBatchCatalogueTypeEnum;
-import com.dtstack.batch.enums.TaskEngineType;
 import com.dtstack.batch.mapping.DataSourceTypeJobTypeMapping;
 import com.dtstack.batch.mapping.TableTypeEngineTypeMapping;
 import com.dtstack.batch.mapstruct.vo.ProjectMapstructTransfer;
-import com.dtstack.batch.service.alarm.impl.BatchAlarmRecordService;
-import com.dtstack.batch.service.alarm.impl.BatchAlarmService;
-import com.dtstack.batch.service.datamask.impl.DataMaskConfigService;
 import com.dtstack.batch.service.datasource.impl.BatchDataSourceService;
 import com.dtstack.batch.service.datasource.impl.IMultiEngineService;
-import com.dtstack.batch.service.model.impl.BatchModelMonitorDataService;
-import com.dtstack.batch.service.model.impl.BatchModelTableService;
 import com.dtstack.batch.service.multiengine.EngineInfo;
 import com.dtstack.batch.service.project.IProjectService;
 import com.dtstack.batch.service.table.impl.BatchHiveSelectSqlService;
 import com.dtstack.batch.service.task.impl.BatchTaskService;
 import com.dtstack.batch.service.task.impl.ReadWriteLockService;
-import com.dtstack.batch.service.testproduct.impl.BatchPackageService;
 import com.dtstack.batch.vo.*;
 import com.dtstack.batch.web.pager.PageQuery;
 import com.dtstack.batch.web.pager.PageResult;
@@ -38,7 +30,6 @@ import com.dtstack.batch.web.project.vo.result.BatchProjectGetUicNotInProjectRes
 import com.dtstack.dtcenter.common.annotation.Forbidden;
 import com.dtstack.dtcenter.common.constant.PatternConstant;
 import com.dtstack.dtcenter.common.enums.*;
-import com.dtstack.dtcenter.common.lock.RedLock;
 import com.dtstack.dtcenter.common.login.DtUicUserConnect;
 import com.dtstack.dtcenter.common.login.domain.UserTenant;
 import com.dtstack.dtcenter.common.thread.RdosThreadFactory;
@@ -52,9 +43,6 @@ import com.dtstack.engine.api.vo.EngineTenantVO;
 import com.dtstack.engine.api.vo.project.NotDeleteProjectVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusCountVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
-import com.dtstack.science.model.param.project.GetScienceProjectsParam;
-import com.dtstack.science.model.vo.project.ScienceProjectsVO;
-import com.dtstack.science.service.project.ScienceProjectService;
 import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sdk.core.common.DtInsightApi;
 import com.dtstack.uic.client.UIcUserTenantRelApiClient;
@@ -75,14 +63,12 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
@@ -102,9 +88,6 @@ public class ProjectService {
 
     @Autowired
     private RoleUserDao roleUserDao;
-
-    @Autowired
-    private BatchTableInfoDao batchTableInfoDao;
 
     @Autowired
     private UserDao userDao;
@@ -137,22 +120,10 @@ public class ProjectService {
     private ProjectEngineDao projectEngineDao;
 
     @Autowired
-    private BatchDataCatalogueService batchDataCatalogueService;
-
-    @Autowired
     private BatchCatalogueService batchCatalogueService;
 
     @Autowired
-    private BatchModelTableService batchModelTableService;
-
-    @Autowired
-    private BatchTableCountService batchTableCountService;
-
-    @Autowired
     private BatchTaskService batchTaskService;
-
-    @Autowired
-    private BatchTableInfoService batchTableInfoService;
 
     @Resource(name = "multiEngineService")
     private IMultiEngineService multiEngineService;
@@ -170,16 +141,7 @@ public class ProjectService {
     private com.dtstack.engine.api.service.ProjectService engineProjectService;
 
     @Autowired
-    private BatchAlarmRecordService batchAlarmRecordService;
-
-    @Autowired
-    private BatchApplyService batchApplyService;
-
-    @Autowired
     private BatchDataSourceService batchDataSourceService;
-
-    @Autowired
-    private BatchDataSourceMigrationService batchDataSourceMigrationService;
 
     @Autowired
     private BatchFunctionService batchFunctionService;
@@ -188,31 +150,10 @@ public class ProjectService {
     private BatchResourceService batchResourceService;
 
     @Autowired
-    private BatchScriptService batchScriptService;
-
-    @Autowired
-    private NotifyRecordService notifyRecordService;
-
-    @Autowired
-    private NotifyService notifyService;
-
-    @Autowired
     private BatchHiveSelectSqlService batchHiveSelectSqlService;
 
     @Autowired
     private ReadWriteLockService readWriteLockService;
-
-    @Autowired
-    private BatchPackageService batchPackageService;
-
-    @Autowired
-    private DataMaskConfigService dataMaskConfigService;
-
-    @Autowired
-    private BatchDirtyDataService batchDirtyDataService;
-
-    @Autowired
-    private BatchModelMonitorDataService batchModelMonitorDataService;
 
     @Autowired
     private StringRedisTemplate redisTemplate;
@@ -221,21 +162,10 @@ public class ProjectService {
     private DtInsightApi engineApi;
 
     @Autowired
-    private BatchAlarmService batchAlarmService;
-
-    @Autowired
     private ScheduleJobService scheduleJobService;
 
     @Autowired
-    private ScienceProjectService scienceProjectService;
-
-    @Autowired
     private UIcUserTenantRelApiClient uIcUserTenantRelApiClient;
-
-    @Autowired
-    private BatchFileManageRuleService batchFileManageRuleService;
-
-    private RedLock dealIntrinsicTableLock;
 
     private final Lock createProjectLock = new ReentrantLock();
 
@@ -274,11 +204,6 @@ public class ProjectService {
     private static final List<Integer> supportProjectTableList = Lists.newArrayList(ETableType.HIVE.getType(),
             ETableType.TIDB.getType(), ETableType.LIBRA.getType(), ETableType.ORACLE.getType(), ETableType.GREENPLUM.getType());
 
-    @PostConstruct
-    private void init(){
-        dealIntrinsicTableLock = new RedLock(redisTemplate).init("dealIntrinsicTable");
-    }
-
     /**
      * 删除所有和项目有关的业务数据
      * @param projectId 项目ID
@@ -290,30 +215,16 @@ public class ProjectService {
         deleteExecutorService.execute(() -> {
             //删除任务相关
             deleteTaskRelated(projectId, userId);
-            //删除表相关
-            deleteTableRelated(projectId, userId);
-            //删除告警相关
-            deleteAlarmRelated(projectId);
             //删除数据源、数据源和任务关联
             batchDataSourceService.deleteByProjectId(tenantId, projectId, userId);
-            //删除整库同步配置、任务、日志
-            batchDataSourceMigrationService.deleteByProjectId(projectId);
-            //删除权限申请记录
-            batchApplyService.deleteByProjectId(projectId, userId);
             //删除目录
             batchCatalogueService.deleteByProjectId(projectId);
             //删除函数
             batchFunctionService.deleteByProjectId(projectId, userId);
             //删除资源
             batchResourceService.deleteByProjectId(projectId, userId);
-            //删除脚本
-            batchScriptService.deleteByProjectId(projectId, userId);
             //删除读写锁
             readWriteLockService.deleteByProjectId(projectId, userId);
-            //删除发布包信息
-            batchPackageService.deleteByProjectId(projectId);
-            //删除对应的治理规则
-            batchFileManageRuleService.deleteRuleByProjectId(projectId, userId);
         });
     }
 
@@ -335,21 +246,6 @@ public class ProjectService {
     }
 
     /**
-     * 删除告警相关数据
-     * @param projectId
-     */
-    private void deleteAlarmRelated(Long projectId) {
-        //删除告警相关信息
-        batchAlarmService.deleteByProjectId(projectId);
-        //删除告警记录
-        batchAlarmRecordService.deleteByProjectId(projectId);
-        //删除通知
-        notifyService.deleteByProjectId(projectId);
-        //删除消息记录
-        notifyRecordService.deleteByProjectId(projectId);
-    }
-
-    /**
      * 删除任务相关数据
      * @param projectId
      * @param userId
@@ -359,24 +255,6 @@ public class ProjectService {
         batchTaskService.deleteByProjectId(projectId, userId);
         //删除sql查询临时
         batchHiveSelectSqlService.deleteByProjectId(projectId);
-    }
-
-    /**
-     * 删除表相关数据
-     * @param projectId
-     * @param userId
-     */
-    private void deleteTableRelated(Long projectId, Long userId) {
-        //删除表相关信息
-        batchTableInfoService.deleteByProjectId(projectId, userId);
-        //删除表和项目数量历史数据
-        batchTableCountService.deleteByProjectId(projectId);
-        //删除数据脱敏配置
-        dataMaskConfigService.deleteByProjectId(projectId, userId);
-        //删除脏数据数量统计
-        batchDirtyDataService.deleteByProjectId(projectId);
-        //删除字段不规范
-        batchModelMonitorDataService.deleteByProjectId(projectId);
     }
 
     /**
@@ -746,195 +624,6 @@ public class ProjectService {
         return project.getId();
     }
 
-    /**
-     * 比较并返回本地和元数据的差异表信息
-     *
-     * @param projectId
-     * @param dtuicTenantId
-     * @param tenantId
-     * @param dataSourceType
-     * @return
-     */
-    public BatchCompareIntrinsicTableResultVO compareIntrinsicTable(Long projectId, Long dtuicTenantId, Long tenantId,
-                                                                    Integer dataSourceType) {
-        Integer jobType = DataSourceTypeJobTypeMapping.getJobTypeByDataSourceType(dataSourceType);
-        MultiEngineType engineType = TaskEngineType.getEngineTypeByTaskTypeInt(jobType);
-        if (Objects.isNull(engineType)){
-            throw new RdosDefineException(String.format("无法获取到引擎类型通过任务类型：%s", jobType));
-        }
-        ETableType tableType = ETableType.getDatasourceType(dataSourceType);
-
-        ProjectEngine projectEngine = projectEngineService.getProjectDb(projectId, engineType.getType());
-        List<String> tableNames;
-        try {
-            tableNames = getTableNameList(dtuicTenantId, projectEngine.getEngineIdentity(), projectId, tableType.getType());
-        } catch (Exception e) {
-            throw new RdosDefineException(ErrorCode.GET_TABLE_INFO_FAILED, e);
-        }
-
-        List<String> localTableNames = batchTableInfoService.listNameByProjectIdAndTenantId(projectId, tenantId, tableType);
-        //解析并填充需要添加、删除的表
-        BatchCompareIntrinsicTableResultVO intrinsicTableResultVO = getMetaTableAndLocalTableDiff(tableNames, localTableNames);
-        intrinsicTableResultVO.setLifecycle(environmentContext.getTempTableLifecycle());
-        return intrinsicTableResultVO;
-    }
-
-    /**
-     * 检测元数据同步状态
-     *
-     * @return
-     */
-    public Integer checkDealStatus() {
-        try {
-            Boolean isLock =  dealIntrinsicTableLock.acquire(1000L);
-            if (BooleanUtils.isTrue(isLock)) {
-                dealIntrinsicTableLock.release();
-                return 1;
-            }
-        } catch (Exception e) {
-            logger.info("checkDealStatus acquire error " + e.getMessage(), e);
-        }
-        return 0;
-    }
-
-    /**
-     * hive元数据同步功能
-     * @param projectId
-     * @param catalogueId
-     * @param lifecycle
-     * @param userId
-     * @param dtuicTenantId
-     * @param addTableNamesParam
-     * @param dropTableNamesParam
-     */
-    public void dealIntrinsicTable(Long projectId, Long catalogueId, Integer lifecycle, Long userId, Long dtuicTenantId,
-                                   List<String> addTableNamesParam, List<String> dropTableNamesParam, Boolean synchronizeAllTable,
-                                   Integer dataSourceType, Long tenantId) {
-        checkIntrinsicTableParams(dataSourceType, catalogueId, lifecycle);
-        Integer jobType = DataSourceTypeJobTypeMapping.getJobTypeByDataSourceType(dataSourceType);
-        MultiEngineType engineType = TaskEngineType.getEngineTypeByTaskTypeInt(jobType);
-        if (Objects.isNull(engineType)){
-            throw new RdosDefineException(String.format("无法获取到引擎类型通过任务类型：%s", jobType));
-        }
-        Integer tableType = ETableType.getDatasourceType(dataSourceType).getType();
-
-        //获取Redis分布式锁，在上一次同步未处理完之前，不允许再次同步，锁超时时间为600秒
-        Boolean isLock = false;
-        try {
-            isLock = dealIntrinsicTableLock.acquire(600L * 1000L);
-        } catch (Exception e) {
-            throw new RdosDefineException("元数据同步获取锁出现异常!" + e.getMessage(), e);
-        }
-        if (BooleanUtils.isNotTrue(isLock)) {
-            throw new RdosDefineException("上次同步还在进行中，请稍后再试！");
-        }
-        try {
-            ProjectEngine projectEngine = projectEngineService.getProjectDb(projectId, engineType.getType());
-            String dbName = projectEngine.getEngineIdentity();
-
-            //默认添加和删除页面指定的表
-            List<String> addTableNames = CollectionUtils.isEmpty(addTableNamesParam) ? Lists.newArrayList() : addTableNamesParam;
-            List<String> dropTableNames = CollectionUtils.isEmpty(dropTableNamesParam) ? Lists.newArrayList() : dropTableNamesParam;
-            //判断是否同步所有的表
-            if (BooleanUtils.isTrue(synchronizeAllTable)) {
-                BatchCompareIntrinsicTableResultVO intrinsicTableResultVO = compareIntrinsicTable(projectId, dtuicTenantId, tenantId, dataSourceType);
-                addTableNames = intrinsicTableResultVO.getAddTablesName();
-                dropTableNames = intrinsicTableResultVO.getDropTablesName();
-            }
-
-            List<BatchTableInfo> tableInfoList = batchTableInfoService.listByTableNames(dropTableNames, projectId, tableType, tenantId);
-            //删除表需要通过id来删除，所以这里直接将需要删除的表名转换为id，避免在循环中查询id
-            List<Long> dropTableIds = tableInfoList.stream().map(tableInfo -> tableInfo.getId()).collect(Collectors.toList());
-            Map<Long, String> dropTableIdAndNameMap = tableInfoList.stream().collect(Collectors.toMap(BatchTableInfo::getId, BatchTableInfo::getTableName, (key1, key2) -> key1));
-
-            //开始执行添加表和删除表逻辑，创建一个map，key为表名，value为创建还是删除表，方便下面做区分
-            Map<Object,Boolean> tableNameOrIdMap = Maps.newHashMap();
-            addTableNames.forEach(str -> tableNameOrIdMap.put(str, true));
-            dropTableIds.forEach(str -> tableNameOrIdMap.put(str, false));
-            if (MapUtils.isEmpty(tableNameOrIdMap)) {
-                dealIntrinsicTableLock.release();
-                logger.info("dealIntrinsicTable method. No tables need to be synchronized, release lock. tenantId:{}, projectId:{}", tenantId, projectId);
-                return;
-            }
-            //交给线程池执行具体的表添加和删除逻辑
-            syncTableMetadata(dbName, tableNameOrIdMap, projectId, dtuicTenantId, tenantId, catalogueId,
-                    userId, lifecycle, dropTableIdAndNameMap, tableType);
-        } catch (Exception e) {
-            try {
-                dealIntrinsicTableLock.release();
-            } catch (Exception releaseException) {
-                logger.error("dealIntrinsicTable method. Metadata synchronization successful, but it failed to release the lock. ProjectId:{}" + e.getMessage(), projectId, e);
-            }
-            throw new RdosDefineException("元数据同步异常!" + e.getMessage(), e);
-        }
-    }
-
-    /**
-     * 检查元数据同步参数
-     *
-     * @param dataSourceType
-     * @param catalogueId
-     * @param lifecycle
-     */
-    public void checkIntrinsicTableParams(Integer dataSourceType, Long catalogueId, Integer lifecycle){
-        Set<Integer> hiveTableDataSourceType = Sets.newHashSet(DataSourceType.HIVE1X.getVal(), DataSourceType.HIVE.getVal(),
-                                                               DataSourceType.HIVE3X.getVal(), DataSourceType.SparkThrift2_1.getVal(),
-                                                               DataSourceType.IMPALA.getVal());
-        if (Objects.isNull(catalogueId)) {
-            throw new RdosDefineException("所属类目必填");
-        }
-        if (hiveTableDataSourceType.contains(dataSourceType) && Objects.isNull(lifecycle)) {
-            throw new RdosDefineException("生命周期必填");
-        }
-    }
-
-    /**
-     * 通过线程池，真正执行表添加和删除的逻辑
-     * @param dbNameFinal
-     * @param tableNameOrIdMap
-     * @param projectId
-     * @param dtuicTenantId
-     * @param tenantId
-     * @param catalogueId
-     * @param userId
-     * @param lifecycle
-     * @param dropTableIdAndNameMap
-     * @param tableType 表类型
-     */
-    private void syncTableMetadata(String dbNameFinal, final Map<Object,Boolean> tableNameOrIdMap, final Long projectId,
-                                   Long dtuicTenantId, Long tenantId, Long catalogueId, Long userId, Integer lifecycle,
-                                   Map<Long, String> dropTableIdAndNameMap, Integer tableType){
-        //使用线程安全的统计值，当统计值减为0时，则释放锁
-        AtomicInteger count= new AtomicInteger(tableNameOrIdMap.size());
-        for (Map.Entry<Object, Boolean> entry : tableNameOrIdMap.entrySet()) {
-            executorService.execute(() -> {
-                try {
-                    if(entry.getValue()){
-                        batchTableInfoService.addTableFromSql(dtuicTenantId, tenantId, projectId, (String)entry.getKey(), lifecycle, catalogueId, userId, NORMAL_TABLE, false, tableType, dbNameFinal);
-                    }else{
-                        batchTableInfoService.dropTable(tenantId, projectId, userId, (Long)entry.getKey(), dtuicTenantId, true);
-                    }
-                } catch (Exception e) {
-                    if(entry.getValue()){
-                        logger.error("syncTableMetadata method. projectId:{},[{}] Table synchronization failure!" + e.getMessage(), entry.getKey(), projectId, e);
-                    }else{
-                        logger.error("syncTableMetadata method. projectId:{},[{}] Table synchronization failure!" + e.getMessage(), dropTableIdAndNameMap.get(entry.getKey()), projectId, e);
-                    }
-                } finally {
-                    count.getAndDecrement();
-                    if(count.get() == 0){
-                        try {
-                            dealIntrinsicTableLock.release();
-                        } catch (Exception e) {
-                            logger.error("syncTableMetadata method. Metadata synchronization successful, but it failed to release the lock. projectId:{}. " + e.getMessage(), projectId, e);
-                        }
-                        logger.info("syncTableMetadata method. Metadata synchronization successful, lock released successfully. projectId:{}", projectId);
-                    }
-                }
-            });
-        }
-    }
-
     public void allInit(ProjectVO project, Long userId, Long dtuicTenantId, List<ProjectEngineVO> projectEngineVOS, String dtToken) {
         int status = ProjectStatus.NORMAL.getStatus();
         setDatabaseName(project);
@@ -942,10 +631,6 @@ public class ProjectService {
             initPermissions(project, userId, dtuicTenantId);
             //初始化离线目录
             batchCatalogueService.initCatalogue(project.getTenantId(), dtuicTenantId, project.getId(), project.getCreateUserId(), projectEngineVOS,dtToken);
-            //数据类目创建
-            batchDataCatalogueService.initTenantRootCatalogue(project.getTenantId());
-            // 初始化数据模型数据
-            batchModelTableService.initProjectModel(project.getTenantId(), project.getId(), project.getCreateUserId());
 
             for (ProjectEngineVO projectEngineVO : project.getProjectEngineList()) {
                 initSingleProjectEngine(projectEngineVO, project, userId, dtuicTenantId);
@@ -1228,26 +913,6 @@ public class ProjectService {
     }
 
     /**
-     * 获取数据科学项目信息
-     *
-     * @param dtuicTenantId
-     * @return
-     */
-    private List<Project> getDataScienceProjects(Long dtuicTenantId, Long dtuicUserId, Boolean isRoot){
-        List<Project> projects = Lists.newArrayList();
-        GetScienceProjectsParam projectsParam = new GetScienceProjectsParam();
-        projectsParam.setDtuicTenantId(dtuicTenantId);
-        projectsParam.setDtuicUserId(dtuicUserId);
-        projectsParam.setIsRoot(isRoot);
-        projectsParam.setTotal(false);
-        List<ScienceProjectsVO> scienceProjectsVOS = scienceProjectService.getProjectsByUserAndTenant(projectsParam).getData();
-        if (CollectionUtils.isNotEmpty(scienceProjectsVOS)) {
-            projects = ProjectMapstructTransfer.INSTANCE.scienceProjectVOToProject(scienceProjectsVOS);
-        }
-        return projects;
-    }
-
-    /**
      * 获取租户下所有的项目
      *
      * @param tenantId
@@ -1392,9 +1057,7 @@ public class ProjectService {
         if (project == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_PROJECT);
         }
-        Integer alarmStatus = this.batchAlarmService.getProjectAlarmStatusByProjectId(projectId);
-        alarmStatus = alarmStatus == null ? 1 : alarmStatus;
-        project.setAlarmStatus(alarmStatus);
+        project.setAlarmStatus(1);
         final ProjectVO projectVO = this.mapperProject(project, isRoot, userId);
         //为了页面展示效果 增加默认值
         projectVO.setProduceProject("(未绑定生产项目)");
@@ -1698,9 +1361,9 @@ public class ProjectService {
             tenantId) {
 
         //表数量
-        Integer tableCount = batchTableCountService.tableCount(userId, projectId, null, null, tenantId);
+        Integer tableCount = 0;
         //项目所占存储空间
-        String totalSize = batchTableCountService.totalSize(userId, projectId, null, null, tenantId);
+        String totalSize = "0";
         //统计任务数：已发布、总任务数
         Map<String, Integer> taskCountMap = batchTaskService.countTask(projectId, tenantId);
         //填充支持的引擎类型
@@ -2185,8 +1848,7 @@ public class ProjectService {
             totalCount = projectDao.countByIdsAndFuzzyNameAndType(new ArrayList<>(usefulProjectIds), null, null, FAILED_STATUS, null, tenantId,null);
             pageVo.setTotalProjects(totalCount);
             //总占用存储
-            Long size = batchTableInfoDao.countProjectTableSize(usefulProjectIds);
-            pageVo.setTotalDataSize(HdfsOperator.unitConverter(Optional.ofNullable(size).orElse(0L)));
+            pageVo.setTotalDataSize("0");
             //今日失败总数
             List<ScheduleJobStatusVO> scheduleJobStatusVOS = scheduleJobService.getStatusCountByProjectIds(new ArrayList<>(usefulProjectIds), tenantId, AppType.RDOS.getType(), null).getData();
             Map<Long, Map<String, Integer>> jobCounts = getJobCounts(scheduleJobStatusVOS);

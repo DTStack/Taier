@@ -62,6 +62,8 @@ import com.dtstack.dtcenter.loader.utils.DBUtil;
 import com.dtstack.engine.api.dto.DataSourceDTO;
 import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.api.pojo.lineage.Table;
+import com.dtstack.engine.datasource.facade.datasource.ApiServiceFacade;
+import com.dtstack.engine.datasource.param.datasource.DsListParam;
 import com.dtstack.pubsvc.sdk.datasource.DataSourceAPIClient;
 import com.dtstack.pubsvc.sdk.dto.param.datasource.*;
 import com.dtstack.pubsvc.sdk.dto.result.datasource.DsServiceInfoDTO;
@@ -276,7 +278,7 @@ public class BatchDataSourceService {
     private SyncBuilderFactory syncBuilderFactory;
 
     @Autowired
-    private DataSourceAPIClient dataSourceAPIClient;
+    private ApiServiceFacade apiServiceFacade;
 
     // 数据同步-模版导入 writer 不需要添加默认值的数据源类型
     private static final Set<Integer> notPutValueFoeWriterSourceTypeSet = Sets.newHashSet(DataSourceType.HIVE.getVal(), DataSourceType.HIVE3X.getVal(),
@@ -889,25 +891,6 @@ public class BatchDataSourceService {
             } else {
                 settingMap.put("isSaveDirty", 0);
             }
-
-            final Long dtuicTenantId = this.tenantService.getDtuicTenantId(param.getTenantId());
-
-            if (isSaveDirtyVal) {
-                String tableName = "";
-                if (settingMap.containsKey("tableName") && settingMap.get("tableName") != null) {
-                    tableName = settingMap.get("tableName").toString();
-                }
-
-                Integer lifeDay = null;
-                if (settingMap.get("lifeDay") != null) {
-                    lifeDay = Integer.parseInt(settingMap.get("lifeDay").toString());
-                }
-
-                final Map<String, Object> readyParam = batchDirtyDataService.readyForSaveDirtyData(tableName, lifeDay, param.getUserId(), param.getId(), param.getName(), param.getTenantId(), dtuicTenantId,
-                        param.getProjectId(), MultiEngineType.HADOOP.getType());
-
-                settingMap.putAll(readyParam);
-            }
         } else {
             settingMap.put("isSaveDirty", 0);
         }
@@ -1276,19 +1259,6 @@ public class BatchDataSourceService {
 
         if (DataSourceType.IMPALA.getVal().equals(sourceType)) {
             syncBuilderFactory.getSyncBuilder(DataSourceType.IMPALA.getVal()).setWriterJson(map, json,kerberos);
-            setSftpConfig(sourceId, json, dtuicTenantId, map, HADOOP_CONFIG);
-        }
-
-        if (DataSourceType.INCEPTOR.getVal().equals(sourceType)) {
-            DataBaseType dataBaseType = DataSourceDataBaseType.getBaseTypeBySourceType(sourceType);
-            map.put("type", dataBaseType);
-            map.put("password", JsonUtil.getStringDefaultEmpty(json, JDBC_PASSWORD));
-            map.put("username", JsonUtil.getStringDefaultEmpty(json, JDBC_USERNAME));
-            map.put("jdbcUrl", JsonUtil.getStringDefaultEmpty(json, JDBC_URL));
-            map.put("partition", map.get(HIVE_PARTITION));
-            map.put("defaultFS", JsonUtil.getStringDefaultEmpty(json, HDFS_DEFAULTFS));
-            map.put("hiveMetastoreUris", JsonUtil.getStringDefaultEmpty(json, HIVE_METASTORE_URIS));
-            checkLastHadoopConfig(map,json);
             setSftpConfig(sourceId, json, dtuicTenantId, map, HADOOP_CONFIG);
         }
 
@@ -1758,7 +1728,7 @@ public class BatchDataSourceService {
         //去数据源中心获取数据源的详细信息
         DsListParam param = new DsListParam();
         param.setDataInfoIdList(new ArrayList<>(infoIdSet));
-        List<DsServiceInfoDTO> dsInfoListByIdList = dataSourceAPIClient.getDsInfoListByIdList(param).getData();
+        List<DsServiceInfoDTO> dsInfoListByIdList = apiServiceFacade.getDsInfoListByIdList(param).getData();
         if (CollectionUtils.isEmpty(dsInfoListByIdList)) {
             return Lists.newArrayList();
         }
@@ -1845,65 +1815,7 @@ public class BatchDataSourceService {
         sqlQueryDTO.setSchema(dataSource);
         //如果是hive类型的数据源  过滤脏数据表 和 临时表
         tables = client.getTableList(sourceDTO, sqlQueryDTO);
-        filterTableName(projectId, tenantId, tables, source);
         return tables;
-    }
-
-    /**
-     * 如果是hive类型的数据源  过滤脏数据表 和 临时表
-     *
-     * @param projectId
-     * @param tenantId
-     * @param tables
-     * @param source
-     */
-    private void filterTableName(Long projectId, Long tenantId, List<String> tables, BatchDataSource source) {
-        if (source.getType().equals(DataSourceType.HIVE.getVal()) || source.getType().equals(DataSourceType.CarbonData.getVal())
-                || source.getType().equals(DataSourceType.HIVE1X.getVal()) || source.getType().equals(DataSourceType.HIVE3X.getVal()) || DataSourceType.SparkThrift2_1.getVal().equals(source.getType())) {
-            BatchTableSearchVO searchVO = new BatchTableSearchVO();
-            searchVO.setProjectId(projectId);
-            searchVO.setTenantId(tenantId);
-            PageResult<List<BatchTableInfoVO>> listPageResult = null;
-            try {
-                listPageResult = batchTableInfoService.queryDirtyDataTable(searchVO);
-            } catch (Exception e) {
-                logger.error("", e);
-            }
-            if (null != listPageResult && CollectionUtils.isNotEmpty(listPageResult.getData())) {
-                List<String> dirtyName = listPageResult.getData().stream().map(BatchTableInfoVO::getTableName).collect(Collectors.toList());
-                //过滤脏数据表
-                tables.removeAll(dirtyName);
-            }
-            // 过滤掉临时表和脏数据表
-            tables.removeIf(tableName -> (tableName.startsWith(TEMP_TABLE_PREFIX)
-                    || tableName.startsWith(TEMP_TABLE_PREFIX_FROM_DQ)));
-
-        }
-    }
-
-
-    /**
-     * 数据同步-获得获取HBASE表中所有列簇
-     *
-     * @param sourceId  数据源id
-     * @param tableName 表名
-     * @return
-     * @throws SQLException
-     */
-    public List<String> columnfamily(Long sourceId,String tableName) {
-        BatchDataSource source = getOne(sourceId);
-        Map<String, Object> kerberosConfig = fillKerberosConfig(sourceId);
-        String dataJson = source.getDataJson();
-        JSONObject json = JSON.parseObject(dataJson);
-        ISourceDTO iSourceDTO = SourceDTOType.getSourceDTO(json, source.getType(), kerberosConfig);
-        SqlQueryDTO sqlQueryDTO = SqlQueryDTO.builder().tableName(tableName).build();
-        IClient iClient = ClientCache.getClient(source.getType());
-        List<ColumnMetaDTO> columnMetaDataList = iClient.getColumnMetaData(iSourceDTO, sqlQueryDTO);
-        List<String> cfList = Lists.newArrayList();
-        if (CollectionUtils.isNotEmpty(columnMetaDataList)) {
-            columnMetaDataList.forEach(columnMetaDTO -> cfList.add(columnMetaDTO.getKey()));
-        }
-        return cfList;
     }
 
     /**
@@ -2093,15 +2005,6 @@ public class BatchDataSourceService {
                 //因为会把字段名也会返回 所以要去除第一行
                 dataList = dataList.subList(1, dataList.size());
             }
-            boolean needMask = !roleUserService.isAdmin(userId, projectId, isRoot);
-            if (DataSourceType.HIVE.getVal() == source.getType() || DataSourceType.HIVE1X.getVal() == source.getType() || DataSourceType.HIVE3X.getVal() == source.getType()) {
-                List<String> colM = mask(source.getProjectId(), tenantId, tableName, columnList, dataList, ETableType.HIVE.getType(), needMask);
-                columnList = colM;
-            } else if (DataSourceType.LIBRA.getVal() == source.getType()) {
-                List<String> colM = mask(source.getProjectId(), tenantId, tableName, columnList, dataList, ETableType.LIBRA.getType(), needMask);
-                checkPermissionColumn(columnList, dataList, dtuicTenantId, JsonUtil.getStringDefaultEmpty(json, JDBC_URL), userId, tableName, tenantId, ETableType.LIBRA.getType());
-                columnList = colM;
-            }
         } catch (Exception e) {
             logger.error("datasource preview end with error.", e);
             throw new RdosDefineException(String.format("%s获取预览数据失败", source.getDataName()), e);
@@ -2113,44 +2016,6 @@ public class BatchDataSourceService {
 
         return preview;
     }
-
-    private List<String> mask(Long projectId, Long tenantId, String tableName, List<String> columnList, List<List<String>> dataList, Integer tableType, boolean needMask) {
-        BatchTableInfo table = batchTableInfoService.getTableInfoByTableName(tableName, tenantId, projectId, tableType);
-        if (table == null) {
-            logger.warn("table [{}] in project [{}] not found.", tableName, projectId);
-            return columnList;
-        }
-        List<Integer> index = Lists.newArrayList();
-        List<String> colM = Lists.newArrayList();
-        Map<String, List<DataMaskRule>> colRules = dataMaskColumnInfoService.getRelatedRulesByTableId(table.getId());
-        if (colRules.isEmpty()) {
-            return columnList;
-        }
-        for (int i = 0; i < columnList.size(); i++) {
-            String col = columnList.get(i).toLowerCase();
-            if (colRules.containsKey(col)) {
-                colM.add(col + DataMaskUtil.SIGN_FOR_COLUMNS_NEED_MASK);
-                index.add(i);
-            } else {
-                colM.add(col);
-            }
-        }
-
-        // 如果不需要脱敏，则直接返回
-        if (!needMask) {
-            return colM;
-        }
-
-        for (List<String> data : dataList) {
-            for (Integer in : index) {
-                String source = data.get(in);
-                List<DataMaskRule> ru = colRules.get(columnList.get(in).toLowerCase());
-                data.set(in, DataMaskUtil.mask(source, DataMaskColumnInfoService.generateMaskRule(ru, source)));
-            }
-        }
-        return colM;
-    }
-
 
     /**
      * @param columnList
@@ -2434,7 +2299,7 @@ public class BatchDataSourceService {
         if(centerSource == null){
             throw new RdosDefineException("sourceId=" + sourceId + ":" + ErrorCode.CAN_NOT_FIND_DATA_SOURCE.getDescription());
         }
-        ApiResponse<DsServiceInfoDTO> dataSourceInfoResult = dataSourceAPIClient.getDsInfoById(centerSource.getDtCenterSourceId());
+        ApiResponse<DsServiceInfoDTO> dataSourceInfoResult = apiServiceFacade.getDsInfoById(centerSource.getDtCenterSourceId());
         DsServiceInfoDTO dataSourceInfo = dataSourceInfoResult.getData();
         if(dataSourceInfo == null){
             throw new RdosDefineException("sourceId=" + sourceId + ":" + ErrorCode.CAN_NOT_FIND_DATA_SOURCE.getDescription());
@@ -2455,7 +2320,7 @@ public class BatchDataSourceService {
         if(centerSource == null){
             return null;
         }
-        ApiResponse<DsServiceInfoDTO> dataSourceInfoResult = dataSourceAPIClient.getDsInfoById(centerSource.getDtCenterSourceId());
+        ApiResponse<DsServiceInfoDTO> dataSourceInfoResult = apiServiceFacade.getDsInfoById(centerSource.getDtCenterSourceId());
         DsServiceInfoDTO dataSourceInfo = dataSourceInfoResult.getData();
         if(dataSourceInfo == null){
             return null;
@@ -3336,7 +3201,7 @@ public class BatchDataSourceService {
         //然后根据id去数据源中心获取详细信息
         DsListParam dsListParam = new DsListParam();
         dsListParam.setDataInfoIdList(new ArrayList<>(defaultDataSourceCenterMap.keySet()));
-        ApiResponse<List<DsServiceInfoDTO>> InfoListResult = dataSourceAPIClient.getDsInfoListByIdList(dsListParam);
+        ApiResponse<List<DsServiceInfoDTO>> InfoListResult = apiServiceFacade.getDsInfoListByIdList(dsListParam);
 
         List<DsServiceInfoDTO> data = InfoListResult.getData();
         if(CollectionUtils.isNotEmpty(data)){
@@ -3585,7 +3450,7 @@ public class BatchDataSourceService {
         Long dtuicTenantId = tenantService.getDtuicTenantId(vo.getTenantId());
         appImportParam.setDtUicTenantId(dtuicTenantId);
         try {
-            ApiResponse<Boolean> booleanApiResponse = dataSourceAPIClient.appImportDs(appImportParam);
+            ApiResponse<Boolean> booleanApiResponse = apiServiceFacade.appImportDs(appImportParam);
             if(!BooleanUtils.isTrue(booleanApiResponse.getData())){
                 throw new RdosDefineException("数据源中心引入数据源失败，请重试！" + booleanApiResponse.getMessage());
             }
@@ -3614,7 +3479,7 @@ public class BatchDataSourceService {
         Long dtuicTenantId = tenantService.getDtuicTenantId(vo.getTenantId());
         appImportParam.setDtUicTenantId(dtuicTenantId);
         try {
-            ApiResponse<Boolean> booleanApiResponse = dataSourceAPIClient.appCancelDs(appImportParam);
+            ApiResponse<Boolean> booleanApiResponse = apiServiceFacade.appCancelDs(appImportParam);
             if(!BooleanUtils.isTrue(booleanApiResponse.getData())){
                 throw new RdosDefineException("数据源中心取消引入数据源失败，请重试！" + booleanApiResponse.getMessage());
             }
@@ -3645,7 +3510,7 @@ public class BatchDataSourceService {
         Long dtuicTenantId = tenantService.getDtuicTenantId(tenantId);
         appImportParam.setDtUicTenantId(dtuicTenantId);
         try {
-            ApiResponse<Boolean> booleanApiResponse = dataSourceAPIClient.appCancelDs(appImportParam);
+            ApiResponse<Boolean> booleanApiResponse = apiServiceFacade.appCancelDs(appImportParam);
             if(!BooleanUtils.isTrue(booleanApiResponse.getData())){
                 throw new RdosDefineException("数据源中心取消引入数据源失败，请重试！" + booleanApiResponse.getMessage());
             }
@@ -3677,7 +3542,7 @@ public class BatchDataSourceService {
                 rollDsParam.setDsTenantId(tenantId);
                 rollDsParam.setDsDtuicTenantId(dtuicTenantId);
                 rollDsParam.setDataInfoId(dataInfoId);
-                ApiResponse<Boolean> booleanApiResponse = dataSourceAPIClient.rollDsInfoById(rollDsParam);
+                ApiResponse<Boolean> booleanApiResponse = apiServiceFacade.rollDsInfoById(rollDsParam);
                 if(!BooleanUtils.isTrue(booleanApiResponse.getData())){
                     logger.error("数据源中心取消引入数据源失败，请重试！" + booleanApiResponse.getMessage());
                 }
@@ -3696,7 +3561,7 @@ public class BatchDataSourceService {
         BeanUtils.copyProperties(vo, dsServiceListParam);
         dsServiceListParam.setAppType(AppType.RDOS.getType());
         dsServiceListParam.setDsDtuicTenantId(vo.getDtuicTenantId());
-        ApiResponse<com.dtstack.dtcenter.common.pager.PageResult<List<DsServiceListDTO>>> response = dataSourceAPIClient.importDsPage(dsServiceListParam);
+        ApiResponse<com.dtstack.dtcenter.common.pager.PageResult<List<DsServiceListDTO>>> response = apiServiceFacade.importDsPage(dsServiceListParam);
         com.dtstack.dtcenter.common.pager.PageResult<List<DsServiceListDTO>> pageResult = response.getData();
 
         List<DsServiceListDTO> dsServiceListDTOList = pageResult.getData();
@@ -3731,7 +3596,7 @@ public class BatchDataSourceService {
 
         DsShiftReturnDTO data;
         try {
-            ApiResponse<DsShiftReturnDTO> response = dataSourceAPIClient.createMetaDs(createDsParam);
+            ApiResponse<DsShiftReturnDTO> response = apiServiceFacade.createMetaDs(createDsParam);
             data = response.getData();
             if(data == null){
                 throw new RdosDefineException("数据源中心创建默认数据源失败！" + response.getMessage());
@@ -3774,7 +3639,7 @@ public class BatchDataSourceService {
         listParam.setPageSize(vo.getPageSize());
         listParam.setCurrentPage(vo.getCurrentPage());
         listParam.setDataName(vo.getDataName());
-        ApiResponse<com.dtstack.dtcenter.common.pager.PageResult<List<DsServiceListDTO>>> response = dataSourceAPIClient.appDsPage(listParam);
+        com.dtstack.dtcenter.common.pager.PageResult<List<DsServiceListDTO>> response = apiServiceFacade.appDsPage(listParam);
         com.dtstack.dtcenter.common.pager.PageResult<List<DsServiceListDTO>> data = response.getData();
         return data;
     }

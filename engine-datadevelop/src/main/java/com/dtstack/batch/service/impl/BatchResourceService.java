@@ -10,9 +10,6 @@ import com.dtstack.batch.dto.BatchResourceAddDTO;
 import com.dtstack.batch.dto.BatchResourceDTO;
 import com.dtstack.batch.engine.rdbms.common.HadoopConf;
 import com.dtstack.batch.engine.rdbms.common.HdfsOperator;
-import com.dtstack.batch.enums.PackageStatus;
-import com.dtstack.batch.export.dto.ResourceExeclData;
-import com.dtstack.batch.export.vo.ResourceExeclVO;
 import com.dtstack.batch.service.task.impl.BatchTaskResourceService;
 import com.dtstack.batch.service.task.impl.BatchTaskService;
 import com.dtstack.batch.vo.BatchResourceVO;
@@ -64,12 +61,6 @@ public class BatchResourceService {
 
     @Autowired
     private UserDao userDao;
-
-    @Autowired
-    private BatchTestProduceResourceDao testProduceResourceDao;
-
-    @Autowired
-    private BatchPackageItemDao batchPackageItemDao;
 
     @Autowired
     EnvironmentContext environmentContext;
@@ -236,8 +227,6 @@ public class BatchResourceService {
         //删除资源记录
         batchResourceDao.deleteById(resourceId, projectId);
         logger.info(String.format("detele resource success  resourceId = %s, projectId = %s",resourceId,projectId));
-        //删除资源时，将发布关联关系一并删除
-        this.testProduceResourceDao.deleteByProduceResourceId(resourceId, com.dtstack.batch.enums.ResourceType.RESOURCE.getType());
         return resourceId;
     }
 
@@ -387,61 +376,6 @@ public class BatchResourceService {
             if (tmpFile.exists()) {
                 tmpFile.delete();
             }
-        }
-        return hdfsPath;
-    }
-
-
-    public void uploadPackageInsertResource(ResourceExeclData resourceExeclData, ResourceExeclVO resourceExeclVO){
-        BatchPackageItem packageItem = resourceExeclData.toPackAgeItem(resourceExeclVO.getBatchPackage());
-        BatchResource resource = resourceExeclData.toResource();
-        try {
-            Long newCatalogueId = resourceExeclVO.getIdMap().get(resource.getNodePid());
-            if (newCatalogueId != null) {
-                resource.setNodePid(newCatalogueId);
-            }
-            resource.setUrl(uploadHdfs(String.format("%s/%s/%s",resourceExeclVO.getZipFile(),"resources",resourceExeclData.getOriginName()),resourceExeclData.getResourceName(),resourceExeclData.getResourceName(),resourceExeclVO.getBatchPackage(),resourceExeclVO.getHdfsBatchPath()));
-            resource.setCreateUserId(resourceExeclVO.getUser().getId());
-            resource.setModifyUserId(resourceExeclVO.getUser().getId());
-            resource.setProjectId(resourceExeclVO.getProject().getId());
-            resource.setTenantId(resourceExeclVO.getProject().getTenantId());
-            resource.setResourceDesc("导入导出上传资源");
-            BatchResource byName = batchResourceDao.getByName(resource.getTenantId(), resource.getProjectId(), resource.getResourceName());
-            if (byName != null){
-                //更新的直接执行  新增的批量插入
-                resource.setId(byName.getId());
-                batchResourceDao.update(resource);
-            }else {
-                batchResourceDao.insert(resource);
-            }
-            packageItem.setStatus(PackageStatus.SUCCESS.getStatus());
-        }catch (Exception e){
-            //导入失败
-            packageItem.setLog(e.getMessage());
-            packageItem.setStatus(PackageStatus.FAILURE.getStatus());
-        }
-        batchPackageItemDao.updateBean(packageItem);
-    }
-
-
-    /**
-     * 上传hdfs
-     * @param path
-     * @param resourceName
-     * @param oriFileName
-     * @return
-     */
-    private String uploadHdfs(String path,String resourceName,String oriFileName,BatchPackage batchPackage,String hdfsBatchPath){
-
-        String hdfsFileName = batchPackage.getProjectId() + "_" + resourceName + "_" + oriFileName;
-        String hdfsPath = HadoopConf.getDefaultFs(batchPackage.getTenantId()) + hdfsBatchPath + hdfsFileName ;
-
-        try {
-            Map<String,Object> kerberos = HadoopConf.getHadoopKerberosConf(batchPackage.getDtuicTenantId());
-            HdfsOperator.uploadLocalFileToHdfs(HadoopConf.getConfiguration(batchPackage.getDtuicTenantId()),kerberos, path, hdfsPath);
-        } catch (Exception e) {
-            log.error("{}", e);
-            throw new RdosDefineException(e.getMessage());
         }
         return hdfsPath;
     }

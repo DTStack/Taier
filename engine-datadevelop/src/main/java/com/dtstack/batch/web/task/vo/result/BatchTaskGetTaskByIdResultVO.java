@@ -1,6 +1,9 @@
 package com.dtstack.batch.web.task.vo.result;
 
 import com.dtstack.batch.web.task.vo.query.BatchScheduleTaskResultVO;
+import com.dtstack.batch.web.task.vo.result.BatchResourceResultVO;
+import com.dtstack.batch.web.task.vo.result.BatchTaskVersionDetailResultVO;
+import com.dtstack.batch.web.task.vo.result.ReadWriteLockResultVO;
 import com.dtstack.batch.web.user.vo.result.BatchUserGetTaskByIdResultVO;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

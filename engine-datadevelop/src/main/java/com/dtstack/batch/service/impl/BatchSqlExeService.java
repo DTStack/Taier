@@ -588,31 +588,6 @@ public class BatchSqlExeService {
         return result;
     }
 
-    public TaskCheckResultVO checkTablePermission(List<String> sqlList,ExecuteContent executeContent, Boolean ignoreCheck){
-        TaskCheckResultVO checkPermissionVO = new TaskCheckResultVO();
-         if (CollectionUtils.isNotEmpty(sqlList) && (!executeContent.getTableType().equals(ETableType.LIBRA.getType()))){
-             for (String sql : sqlList){
-
-                 if (sql.toLowerCase().startsWith("use")) {
-                     continue;
-                 }
-
-                 if (sql.toLowerCase().startsWith("set")) {
-                     continue;
-                 }
-                 checkPermissionVO =  preExecuteSql(executeContent.setSql(sql));
-                 if (!PublishTaskStatusEnum.NOMAL.getType().equals(checkPermissionVO.getErrorSign())){
-                     if (!ignoreCheck && PublishTaskStatusEnum.CHECKSYNTAXERROR.getType().equals(checkPermissionVO.getErrorSign())) {
-                        continue;
-                     }
-                     return checkPermissionVO;
-                 }
-             }
-         }
-        checkPermissionVO.setErrorSign(PublishTaskStatusEnum.NOMAL.getType());
-         return checkPermissionVO;
-
-    }
 
     /**
      * 执行sql前的操作,操作权限检查

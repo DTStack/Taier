@@ -1,5 +1,7 @@
 package com.dtstack.batch.web.task.vo.query;
 
+import com.dtstack.batch.web.task.vo.query.BatchReadWriteLockBaseVO;
+import com.dtstack.batch.web.task.vo.query.BatchTaskBaseVO;
 import com.dtstack.sdk.core.common.DtInsightAuthParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -80,7 +82,7 @@ public class BatchTaskResourceParamVO extends DtInsightAuthParam {
     private String options;
 
     @ApiModelProperty(value = "任务流中待更新的子任务D")
-    private List<BatchTaskResourceParamVO> toUpdateTasks;
+    private List<com.dtstack.batch.web.task.vo.query.BatchTaskResourceParamVO> toUpdateTasks;
 
     @ApiModelProperty(value = "是否是右键编辑任务", example = "false")
     private Boolean isEditBaseInfo = false;

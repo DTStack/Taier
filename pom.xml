@@ -23,6 +23,7 @@
         <commons-lang3.version>3.11</commons-lang3.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <httpclient.version>4.5.2</httpclient.version>
+        <dt-insight-common-base.version>4.2.3</dt-insight-common-base.version>
     </properties>
 
     <modules>
@@ -75,6 +76,28 @@
                 <groupId>com.dtstack.engine</groupId>
                 <artifactId>engine-common</artifactId>
                 <version>${common.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>1.18.12</version>
+            </dependency>
+
+            <dependency>
+                <groupId>dt.insight.plat</groupId>
+                <artifactId>dt-insight-common-base</artifactId>
+                <version>${dt-insight-common-base.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>guava</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.alibaba</groupId>
+                        <artifactId>fastjson</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
         </dependencies>
 

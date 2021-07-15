@@ -1,5 +1,7 @@
 package com.dtstack.batch.web.pager;
 
+import com.dtstack.batch.web.pager.PageResult;
+
 import java.util.List;
 
 /**

@@ -38,5 +38,5 @@ public class BatchTaskTaskFindTaskRuleTaskResultVO {
     private String projectAlias;
 
     @ApiModelProperty(value = "绑定的规则任务")
-    private List<BatchTaskTaskFindTaskRuleTaskResultVO> scheduleDetailsVOList;
+    private List<com.dtstack.batch.web.task.vo.result.BatchTaskTaskFindTaskRuleTaskResultVO> scheduleDetailsVOList;
 }

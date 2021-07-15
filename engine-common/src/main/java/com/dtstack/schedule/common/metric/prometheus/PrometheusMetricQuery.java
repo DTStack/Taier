@@ -74,7 +74,6 @@ public class PrometheusMetricQuery implements IMetricQuery {
             return null;
         }
 
-        System.out.println(result);
         return ResultParser.parseResult(metricName, result, tagName);
     }
 
@@ -106,7 +105,6 @@ public class PrometheusMetricQuery implements IMetricQuery {
             return null;
         }
 
-        System.out.println(result);
         return ResultParser.parseResult(metricName, result, tagName);
     }
 }

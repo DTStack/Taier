@@ -60,9 +60,6 @@ public class MultiEngineServiceFactory {
     @Resource(name = "batchInceptorSqlExeService")
     private ISqlExeService batchInceptorSqlExeService;
 
-    @Resource(name = "batchADBPGSqlExeService")
-    private ISqlExeService batchADBPGSqlExeService;
-
     @Resource(name = "batchHiveTablePartitionService")
     private ITablePartitionService batchHiveTablePartitionService;
 
@@ -81,9 +78,6 @@ public class MultiEngineServiceFactory {
     @Resource(name = "batchGreenplumJobExeService")
     private IBatchJobExeService batchGreenplumJobExeService;
 
-    @Resource(name = "batchADBPGJobExeService")
-    private IBatchJobExeService batchADBPGJobExeService;
-
     @Resource(name = "batchHadoopSelectSqlService")
     private IBatchSelectSqlService batchHadoopSelectSqlService;
 
@@ -98,9 +92,6 @@ public class MultiEngineServiceFactory {
 
     @Resource(name = "batchGreenplumSelectSqlService")
     private IBatchSelectSqlService batchGreenplumSelectSqlService;
-
-    @Resource(name = "batchADBPGSelectSqlService")
-    private IBatchSelectSqlService batchADBPGSelectSqlService;
 
     @Resource(name = "batchHadoopDataImportService")
     private IDataImportService batchHadoopDataImportService;
@@ -122,9 +113,6 @@ public class MultiEngineServiceFactory {
 
     @Resource(name = "batchOracleDataDownLoadService")
     private IDataDownloadService batchOracleDataDownLoadService;
-
-    @Resource(name = "batchADBPGDataDownLoadService")
-    private IDataDownloadService batchADBPGDataDownLoadService;
 
     @Resource(name = "batchHadoopTaskService")
     private ITaskService batchHadoopTaskService;
@@ -156,9 +144,6 @@ public class MultiEngineServiceFactory {
     @Resource(name = "greenplumProjectService")
     private IProjectService greenplumProjectService;
 
-    @Resource(name = "batchADBPGProjectService")
-    private IProjectService batchADBPGProjectService;
-
     @Resource(name = "bathHadoopTablePublishService")
     private ITablePublishService bathHadoopTablePublishService;
 
@@ -174,9 +159,6 @@ public class MultiEngineServiceFactory {
     @Resource(name = "greenplumTablePublishService")
     private ITablePublishService greenplumTablePublishService;
 
-    @Resource(name = "batchADBPGTablePublishService")
-    private ITablePublishService batchADBPGTablePublishService;
-
     @Resource(name = "batchHiveFunctionService")
     private IFunctionService batchHiveFunctionService;
 
@@ -191,8 +173,7 @@ public class MultiEngineServiceFactory {
         if (MultiEngineType.HADOOP.getType() == multiEngineType) {
             return hiveSqlBuildService;
         }
-        if (MultiEngineType.LIBRA.getType() == multiEngineType
-                || MultiEngineType.ANALYTICDB_FOR_PG.getType() == multiEngineType) {
+        if (MultiEngineType.LIBRA.getType() == multiEngineType) {
             return libraSqlBuildService;
         }
 
@@ -214,9 +195,6 @@ public class MultiEngineServiceFactory {
         }
         if (MultiEngineType.GREENPLUM.getType() == multiEngineType) {
             return greenplumProjectService;
-        }
-        if (MultiEngineType.ANALYTICDB_FOR_PG.getType() == multiEngineType) {
-            return batchADBPGProjectService;
         }
         return null;
     }
@@ -282,9 +260,6 @@ public class MultiEngineServiceFactory {
         if (MultiEngineType.GREENPLUM.getType() == multiEngineType) {
             return DataSourceType.GREENPLUM6;
         }
-        if (MultiEngineType.ANALYTICDB_FOR_PG.getType() == multiEngineType) {
-            return DataSourceType.ADB_FOR_PG;
-        }
         throw new RdosDefineException(String.format("not support engine type %d now", multiEngineType));
     }
 
@@ -327,9 +302,6 @@ public class MultiEngineServiceFactory {
         if(MultiEngineType.GREENPLUM.getType() == multiEngineType){
             return batchGreenplumSqlExeService;
         }
-        if (MultiEngineType.ANALYTICDB_FOR_PG.getType() == multiEngineType) {
-            return batchADBPGSqlExeService;
-        }
         throw new RdosDefineException(String.format("not support engine type %d now", multiEngineType));
     }
 
@@ -357,9 +329,6 @@ public class MultiEngineServiceFactory {
         if (MultiEngineType.GREENPLUM.getType() == multiEngineType){
             return batchGreenplumJobExeService;
         }
-        if (MultiEngineType.ANALYTICDB_FOR_PG.getType() == multiEngineType){
-            return batchADBPGJobExeService;
-        }
         throw new RdosDefineException(String.format("not support engine type %d now", multiEngineType));
     }
 
@@ -378,9 +347,6 @@ public class MultiEngineServiceFactory {
         }
         if (MultiEngineType.GREENPLUM.getType() == multiEngineType){
             return batchGreenplumSelectSqlService;
-        }
-        if (MultiEngineType.ANALYTICDB_FOR_PG.getType() == multiEngineType){
-            return batchADBPGSelectSqlService;
         }
         throw new RdosDefineException(String.format("not support engine type %d now", multiEngineType));
     }
@@ -429,9 +395,6 @@ public class MultiEngineServiceFactory {
         if(MultiEngineType.ORACLE.getType() == multiEngineType){
             return batchOracleDataDownLoadService;
         }
-        if (MultiEngineType.ANALYTICDB_FOR_PG.getType() == multiEngineType){
-            return batchADBPGDataDownLoadService;
-        }
         throw new RdosDefineException(String.format("not support engine type %d now", multiEngineType));
     }
 
@@ -458,9 +421,6 @@ public class MultiEngineServiceFactory {
         }
         if (MultiEngineType.GREENPLUM.getType() == multiEngineType){
             return greenplumTablePublishService;
-        }
-        if (MultiEngineType.ANALYTICDB_FOR_PG.getType() == multiEngineType){
-            return batchADBPGTablePublishService;
         }
 
         throw new RdosDefineException(String.format("not support engine type %d now", multiEngineType));

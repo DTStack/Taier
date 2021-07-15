@@ -2,6 +2,8 @@ package com.dtstack.batch.web.task.vo.result;
 
 import com.dtstack.batch.web.catalogue.vo.result.BatchCatalogueResultVO;
 import com.dtstack.batch.web.catalogue.vo.result.ReadWriteLockVO;
+import com.dtstack.batch.web.task.vo.result.BatchTaskResultVO;
+import com.dtstack.batch.web.task.vo.result.CatalogueResultVO;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

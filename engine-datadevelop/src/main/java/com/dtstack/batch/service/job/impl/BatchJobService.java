@@ -10,16 +10,12 @@ import com.dtstack.batch.dao.BatchTaskDao;
 import com.dtstack.batch.dao.BatchTaskShadeDao;
 import com.dtstack.batch.dao.BatchTaskVersionDao;
 import com.dtstack.batch.dao.UserDao;
-import com.dtstack.batch.datamask.dao.DataMaskParseRecordDao;
-import com.dtstack.batch.datamask.domain.DataMaskParseRecord;
-import com.dtstack.batch.datamask.util.DataMaskUtil;
 import com.dtstack.batch.domain.*;
 import com.dtstack.batch.domain.po.TaskIdAndVersionIdPO;
 import com.dtstack.batch.dto.BatchParamDTO;
 import com.dtstack.batch.enums.EScheduleType;
 import com.dtstack.batch.mapping.TaskTypeEngineTypeMapping;
 import com.dtstack.batch.schedule.JobParamReplace;
-import com.dtstack.batch.service.datamask.impl.LineageService;
 import com.dtstack.batch.service.impl.*;
 import com.dtstack.batch.service.job.IBatchJobExeService;
 import com.dtstack.batch.service.table.impl.BatchSelectSqlService;
@@ -122,12 +118,6 @@ public class BatchJobService {
 
     @Autowired
     private TenantService tenantService;
-
-    @Autowired
-    private DataMaskParseRecordDao dataMaskParseRecordDao;
-
-    @Autowired
-    private LineageService lineageService;
 
     @Autowired
     private MultiEngineServiceFactory multiEngineServiceFactory;
@@ -497,10 +487,6 @@ public class BatchJobService {
             actionParam.put("engineType", EngineType.ORACLE.getEngineName());
         } else if (EJobType.GREENPLUM_SQL.getVal().equals(batchTask.getTaskType())) {
             actionParam.put("engineType", EngineType.GREENPLUM.getEngineName());
-        } else if (EJobType.INCEPTOR_SQL.equals(batchTask.getTaskType())) {
-            actionParam.put("engineType", EngineType.INCEPTOR_SQL.getEngineName());
-        } else if (EJobType.SHELL_ON_AGENT.getVal().equals(batchTask.getTaskType())) {
-            actionParam.put("engineType", EngineType.DTSCRIPT_AGENT.getEngineName());
         }
         User user;
         if (userId == null) {
@@ -925,23 +911,6 @@ public class BatchJobService {
                 resultVO.setMsg("运行中");
             }
 
-            if (DataMaskUtil.STATUS_NEED_PARSE.contains(status)) {
-                final DataMaskParseRecord record = this.dataMaskParseRecordDao.getRecordByJobId(jobId);
-                if (record == null) {
-                    try {
-                        BatchJobService.logger.info("parse sync lineage for job [{}]", jobId);
-                        //解析血缘
-                        final BatchHiveSelectSql selectSql = this.batchSelectSqlService.getByJobId(jobId, tenantId, null);
-                        this.lineageService.parseLineageFromSyncJson(URLDecoder.decode(selectSql.getSqlText(), Charsets.UTF_8.name()), tenantId, selectSql.getProjectId(), userId);
-                        final DataMaskParseRecord insert = new DataMaskParseRecord();
-                        insert.setJobId(jobId);
-                        insert.setStatus(status);
-                        this.dataMaskParseRecordDao.insert(insert);
-                    } catch (Exception e1) {
-                        logger.error("parse sync lineage error", e1);
-                    }
-                }
-            }
             final JSONObject logsBody = new JSONObject(2);
             logsBody.put("jobId", jobId);
             logsBody.put("jobIds", Lists.newArrayList(jobId));

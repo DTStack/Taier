@@ -1,5 +1,6 @@
 package com.dtstack.batch.web.pager;
 
+import com.dtstack.batch.web.pager.Sort;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

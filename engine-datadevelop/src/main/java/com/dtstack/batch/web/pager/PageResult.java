@@ -1,5 +1,6 @@
 package com.dtstack.batch.web.pager;
 
+import com.dtstack.batch.web.pager.PageQuery;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -15,7 +16,7 @@ public class PageResult<T> {
     /**
      * 空分页结果
      */
-    public final static PageResult EMPTY_PAGE_RESULT = new PageResult<>();
+    public final static com.dtstack.batch.web.pager.PageResult EMPTY_PAGE_RESULT = new com.dtstack.batch.web.pager.PageResult<>();
 
     /**
      * 当前页

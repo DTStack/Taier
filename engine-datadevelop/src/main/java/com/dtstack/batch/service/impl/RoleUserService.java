@@ -9,9 +9,10 @@ import com.dtstack.batch.domain.Role;
 import com.dtstack.batch.domain.RoleUser;
 import com.dtstack.batch.domain.Tenant;
 import com.dtstack.batch.domain.User;
-import com.dtstack.batch.service.alarm.impl.BatchAlarmReceiveUserService;
 import com.dtstack.batch.service.auth.IAuthService;
 import com.dtstack.batch.service.task.impl.BatchTaskService;
+import com.dtstack.batch.service.uic.impl.UicUserApiClient;
+import com.dtstack.batch.service.uic.impl.domain.UICUserVO;
 import com.dtstack.batch.vo.UserRolePermissionVO;
 import com.dtstack.batch.vo.UserRoleVO;
 import com.dtstack.batch.web.pager.PageQuery;
@@ -22,8 +23,6 @@ import com.dtstack.dtcenter.common.console.SecurityResult;
 import com.dtstack.dtcenter.common.enums.ActionType;
 import com.dtstack.dtcenter.common.enums.EntityStatus;
 import com.dtstack.dtcenter.common.enums.RoleValue;
-import com.dtstack.uic.client.UicUserApiClient;
-import com.dtstack.uic.domain.vo.UICUserVO;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
@@ -72,12 +71,6 @@ public class RoleUserService {
     private ProjectService projectService;
 
     @Autowired
-    private PermissionService permissionService;
-
-    @Autowired
-    private RolePermissionService rolePermissionService;
-
-    @Autowired
     private RoleDao roleDao;
 
     @Autowired
@@ -87,13 +80,7 @@ public class RoleUserService {
     private BatchTaskService batchTaskService;
 
     @Autowired
-    private BatchTableInfoService batchTableInfoService;
-
-    @Autowired
     private UicUserApiClient uicUserApiClient;
-
-    @Autowired
-    private BatchAlarmReceiveUserService batchAlarmReceiveUserService;
 
     private static final String CANT_REMOVE_PROJECT_USER_MSG = "无法移除用户: 此用户下任务: %s个,表: %s个, 告警接收: %s个";
 
@@ -349,7 +336,7 @@ public class RoleUserService {
      */
     private List<Long> addUserDefaultRole(Long uicUserId, Long uicTenantId, Map<Integer, Role> roleMap){
         List<Long> roleList = new ArrayList<>();
-        UICUserVO uicUserVO = uicUserApiClient.getByTenantId(uicUserId, uicTenantId).getData();
+        UICUserVO uicUserVO = uicUserApiClient.getByTenantId(uicUserId, uicTenantId);
         // 判断是否是超级管理员
         if (BooleanUtils.isTrue(uicUserVO.isRoot())) {
             Role role = (Role) MapUtils.getObject(roleMap, RoleValue.APPADMIN.getRoleValue());
@@ -465,7 +452,7 @@ public class RoleUserService {
                 return;
             } else {
                 // 添加uic用户信息
-                UICUserVO uicUserVO = uicUserApiClient.getByTenantId(dtuicUserId, dtuicTenantId).getData();
+                UICUserVO uicUserVO = uicUserApiClient.getByTenantId(dtuicUserId, dtuicTenantId);
                 if (Objects.isNull(uicUserVO)) {
                     logger.error(String.format("not get user info by dtuicUserId: %s and dtuicTenantId : %s", dtuicUserId, dtuicTenantId));
                     return;
@@ -594,7 +581,6 @@ public class RoleUserService {
     @SecurityAudit(actionType = ActionType.REMOVE_USER,orderedKeys = "removedUser")
     public SecurityResult<Integer> removeRoleUserFromProject(long userId, long targetUserId, long projectId, Long tenantId, Boolean isRoot) {
         checkRemovePermission(isRoot, targetUserId, userId, projectId);
-        checkUserHaveOwner(targetUserId, projectId);
         Integer delete = roleUserDao.deleteByUserIdAndProjectId(targetUserId, userId, projectId);
         if (delete > 0) {
             //清二级缓存
@@ -607,27 +593,6 @@ public class RoleUserService {
         result.setResult(delete);
         result.addSecurityData("removedUser",userService.getUser(targetUserId).getUserName());
         return result;
-    }
-
-    /**
-     * 获取此项目下是否还有任务、已提交任务、表责任人,告警接受人为被删除用户的
-     *
-     * @param userId
-     * @param targetUserId
-     * @param projectId
-     * @param isRoot
-     * @return
-     */
-    public Boolean checkUserHaveOwner(Long userId, Long targetUserId, Long projectId, Boolean isRoot) {
-        checkRemovePermission(isRoot, targetUserId, userId, projectId);
-        Integer countTask = batchTaskService.generalCount(projectId, targetUserId);
-        Integer countTable = batchTableInfoService.generalCount(projectId, targetUserId);
-        Integer countAlarm = batchAlarmReceiveUserService.generalCount(projectId, targetUserId);
-
-        if (countTask != 0 || countTable != 0  || countAlarm != 0) {
-            return true;
-        }
-        return false;
     }
 
     /**
@@ -743,29 +708,8 @@ public class RoleUserService {
         }
         // 更新任务责任人
         batchTaskService.updateTaskOwnerUser(oldOwnerUserId, newOwnerUserId, projectId);
-        // 更新表责任人
-        batchTableInfoService.updateTableOwnerUser(oldOwnerUserId, newOwnerUserId, projectId);
-        // 更新告警接受人
-        batchAlarmReceiveUserService.updateReceiverUser(oldOwnerUserId, newOwnerUserId, projectId, tenantId);
         // 调用删除接口
         removeRoleUserFromProject(userId, oldOwnerUserId, projectId, tenantId, isRoot);
-    }
-
-
-    /**
-     * 获取此项目下是否还有任务、已提交任务、表责任人,告警接受人为被删除用户的
-     *
-     * @param targetUserId
-     * @param projectId
-     */
-    private void checkUserHaveOwner(Long targetUserId, Long projectId) {
-        Integer countTask = batchTaskService.generalCount(projectId, targetUserId);
-        Integer countTable = batchTableInfoService.generalCount(projectId, targetUserId);
-        Integer countAlarm = batchAlarmReceiveUserService.generalCount(projectId, targetUserId);
-
-        if (countTask != 0 || countTable != 0  || countAlarm != 0) {
-            throw new RdosDefineException(String.format(CANT_REMOVE_PROJECT_USER_MSG, countTask, countTable, countAlarm));
-        }
     }
 
     /**
@@ -1184,24 +1128,6 @@ public class RoleUserService {
             }
             return;
         }
-    }
-
-    /**
-     * 查询出 所有任务、表、告警关联的 所属人和项目 判断 是否要恢复已移除的角色信息
-     * 有个问题 这样 拉入内存的实例太多了 。但是最坏的情况下 就是 每个用户在每个项目下创建了一个任务
-     */
-    public void replyDeleOwnerUserRole(){
-        List<TaskOwnerAndProjectPO> task = batchTaskService.getTaskOwnerAndProjectId();
-        List<TaskOwnerAndProjectPO> tableInfo = batchTableInfoService.getTableInfoOwnerAndProjectId();
-        List<TaskOwnerAndProjectPO> alarm = batchAlarmReceiveUserService.getAlarmUserAndProjectId();
-        task.addAll(tableInfo);
-        task.addAll(alarm);
-
-        task = task.stream().collect(
-                collectingAndThen(
-                        toCollection(() -> new TreeSet<>(comparing(o -> o.getOwnerId() + "_" + o.getProjectId()))), ArrayList::new)
-        );
-        operateRoleUser(task);
     }
 
     /**

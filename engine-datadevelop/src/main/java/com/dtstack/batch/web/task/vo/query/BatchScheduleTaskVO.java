@@ -47,10 +47,10 @@ public class BatchScheduleTaskVO {
     private Long dataSourceId;
 
     @ApiModelProperty(value = "任务信息")
-    private BatchScheduleTaskVO subNodes;
+    private com.dtstack.batch.web.task.vo.query.BatchScheduleTaskVO subNodes;
 
     @ApiModelProperty(value = "任务信息")
-    private List<BatchScheduleTaskVO> relatedTasks;
+    private List<com.dtstack.batch.web.task.vo.query.BatchScheduleTaskVO> relatedTasks;
 
     @ApiModelProperty(value = "租户名称", example = "dev租户")
     private String tenantName;
@@ -92,10 +92,10 @@ public class BatchScheduleTaskVO {
     private Boolean currentProject = false;
 
     @ApiModelProperty(value = "任务信息")
-    private List<BatchScheduleTaskVO> taskVOS;
+    private List<com.dtstack.batch.web.task.vo.query.BatchScheduleTaskVO> taskVOS;
 
     @ApiModelProperty(value = "任务信息")
-    private List<BatchScheduleTaskVO> subTaskVOS;
+    private List<com.dtstack.batch.web.task.vo.query.BatchScheduleTaskVO> subTaskVOS;
 
     @ApiModelProperty(value = "定时周期表达式", example = "* 0/1 * * * *")
     private String cron;

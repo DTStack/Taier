@@ -5,14 +5,14 @@ import com.dtstack.batch.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.TenantDao;
 import com.dtstack.batch.domain.Tenant;
 import com.dtstack.batch.enums.ProductCodeEnum;
+import com.dtstack.batch.service.uic.impl.UIcUserTenantRelApiClient;
+import com.dtstack.batch.service.uic.impl.UicUserApiClient;
+import com.dtstack.batch.service.uic.impl.domain.TenantUsersVO;
 import com.dtstack.batch.vo.TenantVO;
 import com.dtstack.dtcenter.common.enums.EComponentType;
 import com.dtstack.dtcenter.common.login.DtUicUserConnect;
 import com.dtstack.dtcenter.common.login.domain.UserTenant;
 import com.dtstack.engine.api.service.ClusterService;
-import com.dtstack.uic.client.UIcUserTenantRelApiClient;
-import com.dtstack.uic.client.UicUserApiClient;
-import com.dtstack.uic.domain.vo.TenantUsersVO;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.BooleanUtils;
@@ -164,7 +164,7 @@ public class TenantService {
         // 调用uic接口得到哪些产品是有权限的
         List<Integer> appCanLookList = productCodeEnumList.stream().filter(produceCodeEnum -> {
             return BooleanUtils.isTrue(uicUserApiClient.userHasSubProduct(uicUserId, tenant.getDtuicTenantId(), produceCodeEnum.getSubProductCode(),
-                    productCode, token).getData());
+                    productCode, token));
         }).map(ProductCodeEnum::getType).collect(Collectors.toList());
         return appCanLookList;
     }
@@ -179,7 +179,7 @@ public class TenantService {
      */
     public List<TenantUsersVO> findUicAdminRoleUserByDtuicTenantId(Long dtuicTenantId){
         // 获取该租户下所有的用户
-        List<TenantUsersVO> tenantUsersVOList = uIcUserTenantRelApiClient.findUsersByTenantId(dtuicTenantId).getData();
+        List<TenantUsersVO> tenantUsersVOList = uIcUserTenantRelApiClient.findUsersByTenantId(dtuicTenantId);
 
         List<TenantUsersVO> adminRoleUserList = new ArrayList<>();
         for (TenantUsersVO tenantUsersVO : tenantUsersVOList) {

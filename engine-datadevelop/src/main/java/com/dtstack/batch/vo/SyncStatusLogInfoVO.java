@@ -1,6 +1,6 @@
 package com.dtstack.batch.vo;
 
-import com.dtstack.batch.datamask.util.BinaryConversion;
+import com.dtstack.batch.common.convert.BinaryConversion;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
