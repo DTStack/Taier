@@ -1062,7 +1062,6 @@ const InfoConfig = (props) => {
               </Form.Item>
             )}
             {/* 新增需求-2175 */}
-            {console.log('detailData: ', detailData)}
             <Form.Item label="认证方式" key="authentication">
               {getFieldDecorator('authentication', {
                 initialValue: detailData?.authentication || '无',
