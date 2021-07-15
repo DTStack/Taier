@@ -3,36 +3,41 @@ import axios from "axios";
 import { localize } from "molecule/esm/i18n/localize";
 import molecule from "molecule/esm";
 import Open from "./open";
+import { TASK_RUN_ID, TASK_STOP_ID } from "../editor";
+import { resetEditorGroup } from "../common";
 
 function init() {
   axios.post("/api/rdos/batch/batchCatalogue/getCatalogue").then(({ data }) => {
     const res = data.data;
     if (res.success) {
       const { id, name } = res.data;
-      molecule.folderTree.addRootFolder(
-        new TreeNodeModel({
-          id,
-          name,
-          location: name,
-          fileType: FileTypes.RootFolder,
-        })
-      );
+      const node = new TreeNodeModel({
+        id,
+        name,
+        location: name,
+        fileType: FileTypes.RootFolder,
+      });
+
+      molecule.folderTree.addRootFolder(node);
     }
   });
 }
 
 function createTask() {
   molecule.folderTree.onNewFile((id) => {
+    resetEditorGroup();
+
     const onSubmit = (values: any) => {
+      const { name, ...rest } = values;
       molecule.editor.closeTab("createTask", 1);
-      molecule.folderTree.addNode(
-        id,
-        new TreeNodeModel({
-          id: "testtest",
-          name: values.name,
-          fileType: FileTypes.File,
-        })
-      );
+      const node = new TreeNodeModel({
+        id: new Date().getTime(),
+        name,
+        data: rest,
+        fileType: FileTypes.File,
+      });
+
+      molecule.folderTree.addNode(id, node);
     };
 
     const tabData = {
@@ -47,7 +52,13 @@ function createTask() {
       },
     };
 
-    molecule.editor.open(tabData);
+    const { groups = [] } = molecule.editor.getState();
+    const isExist = groups.some((group) =>
+      group.data?.some((tab) => tab.id === "createTask")
+    );
+    if (!isExist) {
+      molecule.editor.open(tabData);
+    }
   });
 }
 
@@ -59,10 +70,21 @@ function createFolder() {
       new TreeNodeModel({
         id: "folder",
         name: "",
+        isLeaf: false,
         fileType: FileTypes.Folder,
         isEditable: true,
       })
     );
+  });
+}
+
+function onSelectFile() {
+  molecule.folderTree.onSelectFile((file) => {
+    if (file.data.taskType === "SparkSql") {
+      molecule.editor.updateActions([{ id: TASK_RUN_ID, disabled: false }]);
+    } else {
+      resetEditorGroup();
+    }
   });
 }
 
@@ -72,5 +94,6 @@ export default class FolderTreeExtension implements IExtension {
 
     createTask();
     createFolder();
+    onSelectFile();
   }
 }

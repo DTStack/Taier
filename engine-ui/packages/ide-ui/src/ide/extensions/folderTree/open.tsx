@@ -63,12 +63,19 @@ class Open extends React.PureComponent<OpenProps, {}> {
                 max: 64,
                 message: "任务名称不得超过20个字符！",
               },
+              {
+                required: true,
+              },
             ],
           })(<Input />)}
         </FormItem>
         <FormItem {...formItemLayout} label="任务类型">
           {getFieldDecorator("taskType", {
-            rules: [{}],
+            rules: [
+              {
+                required: true,
+              },
+            ],
           })(
             <Select>
               {taskType.map((type) => (

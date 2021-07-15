@@ -1,9 +1,14 @@
 import React from "react";
-import { Col, Row, Tag } from "antd";
+import { Col, Row } from "antd";
 import { IEditor } from "molecule/esm/model";
 
 export default function TaskInfo({ current }: IEditor) {
-  if (!current?.activeTab) return <div>无法提供活动属性</div>;
+  if (!current?.activeTab)
+    return (
+      <div style={{ marginTop: 10, textAlign: "center", color: "#fff" }}>
+        无法提供活动属性
+      </div>
+    );
   const tab = current.tab;
   //   const taskInfo = props.taskInfo;
   //   const couldEdit = props.couldEdit;
