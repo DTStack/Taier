@@ -158,6 +158,23 @@ public class SecurityAuditService {
         });
     }
 
+    /**
+     * 添加安全日志接口免登陆，需将参数加密传输
+     */
+    public void addSecurityLog(SecurityLogVO securityLogVO) {
+        executor.execute(() -> {
+            SecurityLog log = new SecurityLog();
+            log.setAction(securityLogVO.getAction());
+            log.setAppTag(securityLogVO.getAppTag());
+            log.setOperator(securityLogVO.getOperator());
+            log.setOperatorId(securityLogVO.getOperatorId());
+            log.setTenantId(securityLogVO.getTenantId());
+            log.setOperation(securityLogVO.getOperation()==null?"":securityLogVO.getOperation());
+            log.setOperationObject(securityLogVO.getOperationObject()==null?"":securityLogVO.getOperationObject());
+            securityLogDao.insert(log);
+        });
+    }
+
     public List<ApiOperateTypeVO> getOperationList(@Param("appTag") String appTag){
         List<ApiOperateTypeVO> result = new ArrayList<>();
         Map<Integer, String> map = null;

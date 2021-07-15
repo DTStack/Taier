@@ -22,6 +22,8 @@ import com.dtstack.batch.service.project.IProjectService;
 import com.dtstack.batch.service.table.impl.BatchHiveSelectSqlService;
 import com.dtstack.batch.service.task.impl.BatchTaskService;
 import com.dtstack.batch.service.task.impl.ReadWriteLockService;
+import com.dtstack.batch.service.uic.impl.UIcUserTenantRelApiClient;
+import com.dtstack.batch.service.uic.impl.domain.TenantUsersVO;
 import com.dtstack.batch.vo.*;
 import com.dtstack.batch.web.pager.PageQuery;
 import com.dtstack.batch.web.pager.PageResult;
@@ -45,8 +47,6 @@ import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusCountVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sdk.core.common.DtInsightApi;
-import com.dtstack.uic.client.UIcUserTenantRelApiClient;
-import com.dtstack.uic.domain.vo.TenantUsersVO;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -893,23 +893,12 @@ public class ProjectService {
      * @author toutian
      */
     public List<Project> getProjects(Long userId, Boolean isAdmin, Long tenantId, Boolean isRoot, Integer appType) {
-        appType = appType == null ? AppType.RDOS.getType() : appType;
         List<Project> projects = Lists.newArrayList();
-        Long dtuicTenantId = tenantService.getDtuicTenantId(tenantId);
-        User user = userService.getUser(userId);
-        Long dtuicUserId = user.getDtuicUserId();
-        if (appType.intValue() == AppType.RDOS.getType()) {
-            Set<Long> usefulProjectIds = this.getUsefulProjectIds(userId, tenantId, isAdmin, isRoot);
-            if (CollectionUtils.isNotEmpty(usefulProjectIds)) {
-                projects = projectDao.listByIds(usefulProjectIds);
-            }
-        } else if (appType.intValue() == AppType.DATASCIENCE.getType()) {
-            projects = getDataScienceProjects(dtuicTenantId, dtuicUserId, isRoot);
-        } else if (appType.intValue() == AppType.TAG.getType()){
-            // 目前先这样做，等和标签进行任务打通时完善
-            projects = new ArrayList<>();
+        Set<Long> usefulProjectIds = this.getUsefulProjectIds(userId, tenantId, isAdmin, isRoot);
+        if (CollectionUtils.isNotEmpty(usefulProjectIds)) {
+            projects = projectDao.listByIds(usefulProjectIds);
         }
-        return CollectionUtils.isEmpty(projects) ? Lists.newArrayList() : projects;
+        return projects;
     }
 
     /**
@@ -1027,7 +1016,7 @@ public class ProjectService {
      */
     public List<BatchProjectGetUicNotInProjectResultVO> getUicUsersNotInProject(Long projectId, Long dtuicTenantId) {
         // 获取该租户下所有的用户
-        List<TenantUsersVO> tenantUserList = uIcUserTenantRelApiClient.findUsersByTenantId(dtuicTenantId).getData();
+        List<TenantUsersVO> tenantUserList = uIcUserTenantRelApiClient.findUsersByTenantId(dtuicTenantId);
 
         // 获取已经存在该项目下的用户
         List<RoleUser> roleUsers = roleUserDao.listByProjectId(projectId);

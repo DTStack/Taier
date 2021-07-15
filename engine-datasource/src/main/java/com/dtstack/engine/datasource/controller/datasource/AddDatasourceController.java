@@ -1,7 +1,7 @@
 package com.dtstack.engine.datasource.controller.datasource;
 
 import com.dtstack.engine.common.exception.BizException;
-import com.dtstack.engine.common.web.template.APITemplate;
+import dt.insight.plat.lang.coc.template.APITemplate;
 import com.dtstack.engine.datasource.common.annotation.FileUpload;
 import com.dtstack.engine.datasource.common.utils.PublicUtil;
 import com.dtstack.engine.datasource.common.utils.datakit.Asserts;

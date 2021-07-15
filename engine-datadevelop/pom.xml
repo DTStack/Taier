@@ -51,6 +51,16 @@
 
         <dependency>
             <groupId>dt.insight.plat</groupId>
+            <artifactId>dt-insight-lang</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>dt.insight.plat</groupId>
+            <artifactId>dt-insight-web-security-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>dt.insight.plat</groupId>
             <artifactId>dt-insight-sdk-core</artifactId>
             <version>${dt-insight-sdk-core.version}</version>
         </dependency>

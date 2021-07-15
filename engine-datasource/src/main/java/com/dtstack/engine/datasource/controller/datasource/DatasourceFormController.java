@@ -1,7 +1,7 @@
 package com.dtstack.engine.datasource.controller.datasource;
 
 import com.dtstack.engine.common.exception.BizException;
-import com.dtstack.engine.common.web.template.APITemplate;
+import dt.insight.plat.lang.coc.template;
 import com.dtstack.engine.datasource.common.utils.datakit.Asserts;
 import com.dtstack.engine.datasource.facade.datasource.FormTemplateFacade;
 import com.dtstack.engine.datasource.param.datasource.DsTypeVersionParam;

@@ -63,6 +63,7 @@ import com.dtstack.engine.api.service.ScheduleTaskShadeService;
 import com.dtstack.engine.api.service.ScheduleTaskTaskShadeService;
 import com.dtstack.engine.api.service.TaskParamApiClient;
 import com.dtstack.engine.api.vo.ComponentUserVO;
+import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.api.vo.project.ScheduleEngineProjectVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
@@ -620,8 +621,37 @@ public class BatchTaskService {
      * @return
      * @author toutian
      */
-    public List<BatchTask> getTasksByProjectId(long projectId) {
-        return this.batchTaskDao.listByProjectId(projectId);
+    public List<BatchTask> getTasksByProjectId(Long tenantId, Long projectId, String taskName) {
+        //构建查询条件
+        ScheduleTaskShadeDTO dto = new ScheduleTaskShadeDTO();
+        dto.setTenantId(tenantId);
+        dto.setProjectId(projectId);
+        dto.setTaskName(taskName);
+        dto.setAppType(AppType.RDOS.getType());
+        dto.setPageIndex(1);
+        dto.setPageSize(200);
+
+        List<BatchTask> returnList = getTaskIdAndNameBySchedule(dto);
+        return returnList;
+    }
+
+    /**
+     * 根据信息 去dagScheduleX获取 任务信息 只返回taskId 和TaskName
+     *
+     * @param dto
+     * @return
+     */
+    public List<BatchTask> getTaskIdAndNameBySchedule(ScheduleTaskShadeDTO dto) {
+        ApiResponse<PageResult<List<ScheduleTaskShadeVO>>> submitTaskList = scheduleTaskShadeService.pageQuery(dto);
+        List<ScheduleTaskShadeVO> scheduleTaskVOS = submitTaskList.getData().getData();
+        List<BatchTask> returnList=  new ArrayList<>();
+        scheduleTaskVOS.forEach(bean ->{
+            BatchTask task = new BatchTask();
+            task.setId(bean.getTaskId());
+            task.setName(bean.getName());
+            returnList.add(task);
+        });
+        return returnList;
     }
 
     /**

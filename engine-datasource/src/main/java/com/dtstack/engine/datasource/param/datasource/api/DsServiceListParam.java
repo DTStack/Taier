@@ -28,6 +28,9 @@ public class DsServiceListParam extends BasePageParam {
     @ApiModelProperty("搜索参数")
     private String search;
 
+    @ApiModelProperty("数据源名称")
+    private String dataName;
+
     @ApiModelProperty("租户主键id")
     private Long dsTenantId;
 
@@ -36,6 +39,9 @@ public class DsServiceListParam extends BasePageParam {
 
     @ApiModelProperty("项目id projectId")
     private Long projectId;
+
+    @ApiModelProperty("是否为meta数据源")
+    private Integer isMeta;
 
 
 }

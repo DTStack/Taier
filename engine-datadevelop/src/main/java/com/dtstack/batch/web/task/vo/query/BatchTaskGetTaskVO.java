@@ -13,4 +13,10 @@ public class BatchTaskGetTaskVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "项目 ID", hidden = true)
     private Long projectId;
 
+    @ApiModelProperty(value = "租户 ID", hidden = true)
+    private Long tenantId;
+
+    @ApiModelProperty(value = "任务名称 用于模糊查询")
+    private String taskName;
+
 }

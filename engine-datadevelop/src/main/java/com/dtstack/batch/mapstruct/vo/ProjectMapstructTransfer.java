@@ -2,6 +2,7 @@ package com.dtstack.batch.mapstruct.vo;
 
 import com.dtstack.batch.domain.Project;
 import com.dtstack.batch.domain.User;
+import com.dtstack.batch.service.uic.impl.domain.TenantUsersVO;
 import com.dtstack.batch.vo.*;
 import com.dtstack.batch.web.pager.PageResult;
 import com.dtstack.batch.web.project.vo.query.BatchProjectAddNewEngineVO;
@@ -11,8 +12,6 @@ import com.dtstack.batch.web.role.vo.result.BatchUserRoleResultVO;
 import com.dtstack.batch.web.table.vo.result.BatchTableTypeResultVO;
 import com.dtstack.batch.web.user.vo.result.BatchUserBaseResultVO;
 import com.dtstack.engine.api.vo.project.ScheduleEngineProjectVO;
-import com.dtstack.science.model.vo.project.ScienceProjectsVO;
-import com.dtstack.uic.domain.vo.TenantUsersVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -150,23 +149,6 @@ public interface ProjectMapstructTransfer {
      * @return
      */
     PageResult<List<BatchUserRoleResultVO>> getProjectTaskUsersPageResultToBatchUserRoleResultVOPageResult(PageResult<List<UserRoleVO>> listPageResult);
-
-    /**
-     * List<ScheduleEngineProjectVO> -> List<Project>
-     *
-     * @param scheduleEngineProjectVOS
-     * @return
-     */
-    List<Project> scheduleEngineProjectVOToProject(List<ScheduleEngineProjectVO> scheduleEngineProjectVOS);
-
-    /**
-     * List<ScienceProjectsVO> -> List<Project>
-     *
-     * @param scienceProjectsVOS
-     * @return
-     */
-    List<Project> scienceProjectVOToProject(List<ScienceProjectsVO> scienceProjectsVOS);
-
 
     /**
      * TenantUsersVO -> BatchProjectGetUicNotInProjectResultVO

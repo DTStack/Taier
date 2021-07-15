@@ -6,9 +6,7 @@ import com.dtstack.batch.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.*;
 import com.dtstack.batch.domain.*;
 import com.dtstack.batch.dto.BatchFunctionDTO;
-import com.dtstack.batch.enums.PackageStatus;
-import com.dtstack.batch.export.dto.FunctionExeclData;
-import com.dtstack.batch.export.vo.FunctionExeclVO;
+import com.dtstack.batch.engine.rdbms.common.util.SqlFormatUtil;
 import com.dtstack.batch.mapping.TaskTypeEngineTypeMapping;
 import com.dtstack.batch.service.table.IFunctionService;
 import com.dtstack.batch.service.task.impl.BatchTaskService;
@@ -20,7 +18,6 @@ import com.dtstack.dtcenter.common.constant.PatternConstant;
 import com.dtstack.dtcenter.common.enums.*;
 import com.dtstack.dtcenter.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.common.util.PublicUtil;
-import com.dtstack.sqlparser.common.utils.SqlFormatUtil;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -62,9 +59,6 @@ public class BatchFunctionService {
     private BatchResourceService batchResourceService;
 
     @Autowired
-    private BatchPackageItemDao batchPackageItemDao;
-
-    @Autowired
     private BatchTaskService batchTaskService;
 
     @Autowired
@@ -77,16 +71,7 @@ public class BatchFunctionService {
     private BatchCatalogueDao batchCatalogueDao;
 
     @Autowired
-    private BatchTestProduceResourceDao testProduceResourceDao;
-
-    @Autowired
-    private BatchResourceDao batchResourceDao;
-
-    @Autowired
     private TenantService tenantService;
-
-    @Autowired
-    private LineageService lineageService;
 
     /**
      * 系统函数缓存
@@ -354,9 +339,6 @@ public class BatchFunctionService {
         }
         if (engineType.intValue() != MultiEngineType.GREENPLUM.getType()) {
             batchResourceFunctionDao.deleteByFunctionId(functionId);
-            //删除资源/函数时，删除发布关联
-            //删除资源时，将发布关联关系一并删除
-            testProduceResourceDao.deleteByProduceResourceId(functionId, com.dtstack.batch.enums.ResourceType.FUNCTION.getType());
         }
         bf = new BatchFunction();
         bf.setId(functionId);
@@ -458,101 +440,6 @@ public class BatchFunctionService {
         return new PageResult<>(functionVOS, count, query);
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public void uploadAddFunction(FunctionExeclData functionExeclData, FunctionExeclVO functionExeclVO){
-        BatchPackage batchPackage = functionExeclVO.getBatchPackage();
-        BatchPackageItem packageItem = functionExeclData.toPackAgeItem(batchPackage);
-        //首先寻找resource  根据tenantId project resourceName
-        if (MultiEngineType.GREENPLUM.getType() != functionExeclData.getEngineType().intValue()) {
-            BatchResource byName = batchResourceDao.getByName(batchPackage.getTenantId(), batchPackage.getProjectId(), functionExeclData.getResourceName());
-            if (byName == null){
-                packageItem.setLog("函数关联资源未找到");
-                packageItem.setStatus(PackageStatus.FAILURE.getStatus());
-            }else {
-                // 真正解析  首先转换函数 然后转化 函数与resource之间的关系
-                // 因为 要插入两张表 所以不能批量插入
-                BatchFunction function = functionExeclData.toFunction();
-                //默认是资源的导入人
-                function.setCreateUserId(batchPackage.getCreateUserId());
-                function.setProjectId(batchPackage.getProjectId());
-                function.setModifyUserId(batchPackage.getCreateUserId());
-                function.setTenantId(batchPackage.getTenantId());
-                try {
-                    Long newCatalogueId = functionExeclVO.getIdMap().get(function.getNodePid());
-                    if (newCatalogueId != null) {
-                        function.setNodePid(newCatalogueId);
-                    }
-                    BatchFunction byNameAndProjectId = batchFunctionDao.getByNameAndProjectId(function.getProjectId(), function.getName());
-                    if (byNameAndProjectId != null){
-                        function.setId(byNameAndProjectId.getId());
-                        batchFunctionDao.update(function);
-                    }else {
-                        batchFunctionDao.insert(function);
-                    }
-                    //插入函数憨resource之间的关系
-                    BatchFunctionResource functionResource = new BatchFunctionResource();
-                    functionResource.setFunctionId(function.getId());
-                    functionResource.setResourceId(byName.getId());
-                    functionResource.setResource_Id(byName.getId());
-                    functionResource.setProjectId(batchPackage.getProjectId());
-                    functionResource.setTenantId(batchPackage.getTenantId());
-
-                    BatchFunctionResource beanByResourceIdAndFunctionId = batchResourceFunctionDao.getBeanByResourceIdAndFunctionId(functionResource.getResourceId(), functionResource.getFunctionId());
-                    if (beanByResourceIdAndFunctionId == null){
-                        batchResourceFunctionDao.insert(functionResource);
-                    }
-
-                    packageItem.setStatus(PackageStatus.SUCCESS.getStatus());
-                    packageItem.setItemId(function.getId());
-                }catch (Exception e){
-                    packageItem.setLog(String.format("函数插入失败，原因是：%s",e.getMessage()));
-                    packageItem.setStatus(PackageStatus.FAILURE.getStatus());
-                }
-            }
-        } else {
-            BatchFunction function = functionExeclData.toFunction();
-            //默认是资源的导入人
-            function.setCreateUserId(batchPackage.getCreateUserId());
-            function.setProjectId(batchPackage.getProjectId());
-            function.setModifyUserId(batchPackage.getCreateUserId());
-            function.setTenantId(batchPackage.getTenantId());
-            try {
-                Long newCatalogueId = functionExeclVO.getIdMap().get(function.getNodePid());
-                if (newCatalogueId != null) {
-                    function.setNodePid(newCatalogueId);
-                }
-                BatchFunction byNameAndProjectId = batchFunctionDao.getByNameAndProjectId(function.getProjectId(), function.getName());
-                ProjectEngine projectDb = projectEngineService.getProjectDb(batchPackage.getProjectId(), function.getEngineType());
-                Preconditions.checkNotNull(projectDb, "当前项目不支持Greenplum引擎");
-                String preSql = String.format("create or replace function %s.%s", projectDb.getEngineIdentity(), function.getName());
-                String sufSql = function.getSqlText().substring(function.getSqlText().indexOf("("));
-                String sqlText = preSql + sufSql;
-                function.setSqlText(sqlText);
-                if (byNameAndProjectId != null){
-                    function.setId(byNameAndProjectId.getId());
-                    batchFunctionDao.update(function);
-                }else {
-                    IFunctionService functionService = multiEngineServiceFactory.getFunctionService(function.getEngineType());
-                    batchFunctionDao.insert(function);
-                    try {
-                        functionService.addProcedure(batchPackage.getDtuicTenantId(), projectDb.getEngineIdentity(), function);
-                    } catch (Exception e) {
-                        //由于会重试三次，可能存在第一次重试socketTimeout，第二次重试发现函数已经添加成功的情况。
-                        if(!e.getClass().getSimpleName().equalsIgnoreCase("FunctionAlreadyExistsException")){
-                            logger.error("w{}",e);
-                            throw new RdosDefineException("未找到函数对应引擎的数据源信息");
-                        }
-                    }
-                }
-                packageItem.setStatus(PackageStatus.SUCCESS.getStatus());
-                packageItem.setItemId(function.getId());
-            }catch (Exception e){
-                packageItem.setLog(String.format("函数插入失败，原因是：%s",e.getMessage()));
-                packageItem.setStatus(PackageStatus.FAILURE.getStatus());
-            }
-        }
-        batchPackageItemDao.updateBean(packageItem);
-    }
 
     /**
      * 处理并返回 sql 自定义函数的 SQL
@@ -581,7 +468,7 @@ public class BatchFunctionService {
         StringBuilder sb = new StringBuilder();
         sql = SqlFormatUtil.formatSql(sql).toLowerCase();
         // sql中的自定义函数
-        Set<String> sqlFunctionNames = lineageService.parseFunction(sql).getData();
+        List<String> sqlFunctionNames = SqlFormatUtil.splitSqlWithoutSemi(sql);
         if (CollectionUtils.isEmpty(sqlFunctionNames)) {
             return StringUtils.EMPTY;
         }
@@ -615,7 +502,7 @@ public class BatchFunctionService {
         }
         sql = SqlFormatUtil.formatSql(sql).toLowerCase();
         // sql中的自定义函数
-        Set<String> sqlFunctionNames = lineageService.parseFunction(sql).getData();
+        List<String> sqlFunctionNames = SqlFormatUtil.splitSqlWithoutSemi(sql);
         if (CollectionUtils.isEmpty(sqlFunctionNames)) {
             return false;
         }

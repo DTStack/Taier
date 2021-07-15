@@ -46,6 +46,9 @@ public class CreateDsParam extends PubSvcBaseParam {
     @ApiModelProperty(value = "创建数据源的dtuic 租户id", required = true)
     private Long dsDtuicTenantId;
 
+    @ApiModelProperty(value = "项目id ", required = false)
+    private Long projectId;
+
     @ApiModelProperty("创建时间")
     private Date gmtCreate;
 
