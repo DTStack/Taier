@@ -50,12 +50,8 @@ const layout = {
  */
 const PartitionField = (props: IPropsPartitionField) => {
   const { form, cref, modelDetail, mode } = props;
-  const {
-    getFieldDecorator,
-    getFieldsValue,
-    validateFields,
-    setFieldsValue,
-  } = form;
+  const { getFieldDecorator, getFieldsValue, validateFields, setFieldsValue } =
+    form;
   const currentForm = getFieldsValue();
   const { columns = [] } = modelDetail;
   // 新增模型或者模型处于未发布状态下可编辑分区字段

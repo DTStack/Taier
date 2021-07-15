@@ -40,12 +40,8 @@ interface IProps extends FormComponentProps {
 
 const InfoConfig = (props) => {
   const { form, cRef, record } = props;
-  const {
-    getFieldDecorator,
-    validateFields,
-    getFieldValue,
-    setFieldsValue,
-  } = form;
+  const { getFieldDecorator, validateFields, getFieldValue, setFieldsValue } =
+    form;
 
   const [templateData, setTemplateData] = useState([]);
   const [showUpload, setShowUpload] = useState<boolean>(false);
@@ -329,9 +325,11 @@ const InfoConfig = (props) => {
           setLoading(false);
           props.changeBtnStatus(false);
         } else {
-          let { success, message: msg, data } = await API.addDatasource(
-            handelParams
-          );
+          let {
+            success,
+            message: msg,
+            data,
+          } = await API.addDatasource(handelParams);
 
           if (success && data) {
             message.success(`${infoMsg}`);

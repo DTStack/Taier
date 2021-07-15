@@ -107,7 +107,9 @@ export default function SelectSource(props) {
   // 计算图片缩放倍率
   const computeScaleRatio = _.debounce(() => {
     if (!refContainer.current) return;
-    const width = parseFloat(window.getComputedStyle(refContainer.current)['width']);
+    const width = parseFloat(
+      window.getComputedStyle(refContainer.current)['width']
+    );
     const len = Math.floor(width / (216 + 16));
     const ratio = (width - 16 * len) / len / 216;
     setRatio(ratio);
@@ -117,7 +119,7 @@ export default function SelectSource(props) {
     computeScaleRatio();
     window.addEventListener('resize', () => {
       computeScaleRatio();
-    })
+    });
   }, [refContainer.current]);
 
   return (
