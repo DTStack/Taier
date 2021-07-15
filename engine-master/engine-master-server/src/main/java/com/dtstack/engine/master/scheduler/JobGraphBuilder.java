@@ -177,18 +177,17 @@ public class JobGraphBuilder {
                                         return buildJobRunBean(task, CRON_TRIGGER_TYPE, EScheduleType.NORMAL_SCHEDULE,
                                                 true, true, triggerDay, cronJobName, null, task.getProjectId(), task.getTenantId(),count);
                                     }, environmentContext.getBuildJobErrorRetry(), 200, false);
-                                    synchronized (allJobs) {
-                                        if (CollectionUtils.isNotEmpty(jobRunBeans)) {
-                                            jobRunBeans.forEach(job->{
-                                                allJobs.add(job);
-                                                if (minId[0] == 0L) {
-                                                    minId[0] = job.getJobExecuteOrder();
-                                                } else if (minId[0] > job.getJobExecuteOrder()) {
-                                                    minId[0] = job.getJobExecuteOrder();
-                                                }
-                                            });
-                                        }
+                                    if (CollectionUtils.isNotEmpty(jobRunBeans)) {
+                                        jobRunBeans.forEach(job->{
+                                            allJobs.add(job);
+                                            if (minId[0] == 0L) {
+                                                minId[0] = job.getJobExecuteOrder();
+                                            } else if (minId[0] > job.getJobExecuteOrder()) {
+                                                minId[0] = job.getJobExecuteOrder();
+                                            }
+                                        });
                                     }
+
 
                                     if (SPECIAL_TASK_TYPES.contains(task.getTaskType())) {
                                         for (ScheduleBatchJob jobRunBean : jobRunBeans) {
@@ -663,9 +662,9 @@ public class JobGraphBuilder {
             }
         }
 
-        //所有父任务的jobKey
-        //return getJobKeys(pIdList, batchJob, scheduleCron, keyPreStr);
-        //补数据运行时，需要所有周期实例立即运行
+        // 所有父任务的jobKey
+        // return getJobKeys(pIdList, batchJob, scheduleCron, keyPreStr);
+        // 补数据运行时，需要所有周期实例立即运行
         if (EScheduleType.FILL_DATA.getType() == scheduleType.getType()) {
             return getJobKeys(pIdList, scheduleJob, scheduleCron, keyPreStr);
         }
