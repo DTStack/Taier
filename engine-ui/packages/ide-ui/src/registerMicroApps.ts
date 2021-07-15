@@ -4,14 +4,14 @@ export const AppContainer = 'AppContainer';
 const container = `#${AppContainer}`;
 
 let ENTRY_CONSOLE = '//local.dtstack.cn:8080/console/';
-let ENTRY_OPERATION = '//local.dtstack.cn:8080/batch/';
-let ENTRY_DATABASE = '//local.dtstack.cn:8080/batch/';
+let ENTRY_OPERATION = '//local.dtstack.cn:3000/batch/';
+let ENTRY_DATABASE = '//local.dtstack.cn:3000/batch/';
 
 // For Production 
 if(process.env.NODE_ENV === 'production') {
-  ENTRY_CONSOLE = '/console';
-  ENTRY_OPERATION = '/batch';
-  ENTRY_DATABASE = '/batch';
+  ENTRY_CONSOLE = '/console/';
+  ENTRY_OPERATION = '/batch/';
+  ENTRY_DATABASE = '/batch/';
 }
 
 registerMicroApps([
@@ -34,6 +34,11 @@ registerMicroApps([
   },
 ]);
 
-start();
+
+start({
+  sandbox:{
+    experimentalStyleIsolation: true,
+  }
+})
 
 setDefaultMountApp('/');
