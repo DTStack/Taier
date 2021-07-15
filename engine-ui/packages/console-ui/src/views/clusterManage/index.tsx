@@ -129,7 +129,7 @@ class ClusterManage extends React.Component<any, any> {
             if (res.code === 1) {
                 this.onCancel()
                 hashHistory.push({
-                    pathname: '/console/clusterManage/editCluster',
+                    pathname: '/console-ui/clusterManage/editCluster',
                     state: {
                         mode: 'new',
                         cluster: res.data

@@ -284,7 +284,7 @@ class BindAccountTable extends React.Component<IProps, IState> {
                     } }
                     onSearch={this.fetchData}
                 />
-                <span className="right">
+                <span style={{ marginLeft: 10 }}>
                     <Button type="primary" onClick={() => this.showHideBindModal()}>绑定账号</Button>
                 </span>
                 <Table
