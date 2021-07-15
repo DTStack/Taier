@@ -253,6 +253,8 @@ public class JobGraphBuilder {
 
                 if (StringUtils.isNotBlank(flowJob)) {
                     batchJobService.updateFlowJob(placeholder,flowJob);
+                } else {
+                    batchJobService.updateFlowJob(placeholder,NORMAL_TASK_FLOW_ID);
                 }
             }
 
