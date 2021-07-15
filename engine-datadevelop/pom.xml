@@ -4,8 +4,8 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>engine-master</artifactId>
         <groupId>com.dtstack.engine</groupId>
+        <artifactId>engine-all</artifactId>
         <version>1.0.0</version>
         <relativePath>..</relativePath>
     </parent>
@@ -71,10 +71,5 @@
             <version>1.0.0</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.dtstack.engine</groupId>
-            <artifactId>engine-datasource</artifactId>
-            <version>1.0.0</version>
-        </dependency>
     </dependencies>
 </project>
