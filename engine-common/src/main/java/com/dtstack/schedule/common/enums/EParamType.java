@@ -8,15 +8,15 @@ package com.dtstack.schedule.common.enums;
  */
 public enum EParamType {
 
-    SYS_TYPE(0), CUSTOMIZE_TYPE(1);
+    SYS_TYPE(0), CUSTOMIZE_TYPE(1),COMPONENT(2);
 
-    private int type;
+    private Integer type;
 
-    EParamType(int type){
+    EParamType(Integer type){
         this.type = type;
     }
 
-    public int getType(){
+    public Integer getType(){
         return type;
     }
 
