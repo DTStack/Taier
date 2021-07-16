@@ -137,50 +137,6 @@ public class BatchFunctionService {
     }
 
     /**
-     * greenplum新增存储过程、函数
-     * @param batchFunction
-     * @param dtuicTenantId
-     * @throws Exception
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public TaskCatalogueVO addGpProcedureOrFunction(BatchFunction batchFunction, Long dtuicTenantId) {
-        if (!PublicUtil.matcher(batchFunction.getName(), "^[0-9a-zA-Z_]{1,}$")) {
-            throw new RdosDefineException("名称只能由字母、数字、下划线组成!", ErrorCode.NAME_FORMAT_ERROR);
-        }
-        ProjectEngine projectEngine = projectEngineService.getProjectDb(batchFunction.getProjectId(), batchFunction.getEngineType());
-        Preconditions.checkNotNull(projectEngine, String.format("project %d not support engine %d.",
-                batchFunction.getProjectId(), batchFunction.getEngineType()));
-        if (batchFunction.getId() < 1) {
-            //编辑，不校验名称是否存在getEngineIdentity
-            String catalogueType = FuncType.PROCEDURE.getType().intValue() == batchFunction.getType() ?
-                    CatalogueType.PROCEDURE_FUNCTION.name() : CatalogueType.GREENPLUM_CUSTOM_FUNCTION.name();
-
-            batchTaskService.checkName(batchFunction.getName(), catalogueType, null, 1,
-                    batchFunction.getProjectId());
-        }
-        IFunctionService functionService = multiEngineServiceFactory.getFunctionService(batchFunction.getEngineType());
-
-        functionService.addProcedure(dtuicTenantId, projectEngine.getEngineIdentity(), batchFunction);
-
-        batchFunction.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
-        batchFunction.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
-        addOrUpdate(batchFunction);
-
-        // 添加类目关系
-        TaskCatalogueVO taskCatalogueVO = new TaskCatalogueVO();
-        taskCatalogueVO.setId(batchFunction.getId());
-        taskCatalogueVO.setName(batchFunction.getName());
-        taskCatalogueVO.setType("file");
-        taskCatalogueVO.setLevel(null);
-        taskCatalogueVO.setChildren(null);
-        taskCatalogueVO.setParentId(batchFunction.getNodePid());
-
-        User user = userDao.getOne(batchFunction.getCreateUserId());
-        taskCatalogueVO.setCreateUser(user.getUserName());
-        return taskCatalogueVO;
-    }
-
-    /**
      * 添加函数
      */
     @Transactional(rollbackFor = Exception.class)

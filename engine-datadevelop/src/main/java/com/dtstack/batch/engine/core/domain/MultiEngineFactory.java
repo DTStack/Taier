@@ -26,10 +26,6 @@ public class MultiEngineFactory {
             return new TiDBEngineInfo();
         } else if (engineType == MultiEngineType.ORACLE.getType()) {
             return new OracleEngineInfo();
-        } else if (engineType == MultiEngineType.GREENPLUM.getType()) {
-            return new GreenplumEngineInfo();
-        } else if (engineType == MultiEngineType.ANALYTICDB_FOR_PG.getType()) {
-            return new ADBPGEngineInfo();
         }
         return null;
     }
@@ -43,7 +39,6 @@ public class MultiEngineFactory {
     public static List<EComponentType> getComponentTypeByEngineType(List<Integer> engineTypeList) {
         List<EComponentType> list = Lists.newArrayList();
         list.add(EComponentType.FLINK);
-        list.add(EComponentType.DTSCRIPT_AGENT);
         list.add(EComponentType.DT_SCRIPT);
 
         if (CollectionUtils.isEmpty(engineTypeList)){
@@ -65,16 +60,8 @@ public class MultiEngineFactory {
         if (engineTypeList.contains(MultiEngineType.TIDB.getType())){
             list.add(EComponentType.TIDB_SQL);
         }
-
         if (engineTypeList.contains(MultiEngineType.ORACLE.getType())){
             list.add(EComponentType.ORACLE_SQL);
-        }
-
-        if (engineTypeList.contains(MultiEngineType.GREENPLUM.getType())){
-            list.add(EComponentType.GREENPLUM_SQL);
-        }
-        if (engineTypeList.contains(MultiEngineType.ANALYTICDB_FOR_PG.getType())){
-            list.add(EComponentType.ANALYTICDB_FOR_PG);
         }
         return list;
     }

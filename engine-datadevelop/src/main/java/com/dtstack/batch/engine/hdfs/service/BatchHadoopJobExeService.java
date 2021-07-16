@@ -7,7 +7,6 @@ import com.dtstack.batch.bo.ExecuteContent;
 import com.dtstack.batch.common.env.EnvironmentContext;
 import com.dtstack.batch.common.exception.ErrorCode;
 import com.dtstack.batch.common.exception.RdosDefineException;
-import com.dtstack.batch.dao.CarBonTaskRelationDao;
 import com.dtstack.batch.dao.ProjectEngineDao;
 import com.dtstack.batch.domain.*;
 import com.dtstack.batch.engine.core.service.BatchSqlRemoteExeService;
@@ -32,7 +31,6 @@ import com.dtstack.dtcenter.common.enums.*;
 import com.dtstack.dtcenter.common.util.Base64Util;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.engine.api.ApiURL;
-import com.dtstack.sqlparser.common.utils.SqlFormatUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -63,9 +61,6 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
     private BatchHadoopSelectSqlService batchHadoopSelectSqlService;
 
     @Autowired
-    private CarBonTaskRelationDao carBonTaskRelationDao;
-
-    @Autowired
     private BatchDataSourceService batchDataSourceService;
 
     @Autowired
@@ -81,14 +76,7 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
     private BatchSqlExeService batchSqlExeService;
 
     @Autowired
-    private MultiEngineServiceFactory multiEngineServiceFactory;
-
-    @Autowired
     private ProjectEngineDao projectEngineDao;
-
-    @Autowired
-    private BatchSqlRemoteExeService batchSqlRemoteExeService;
-
 
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
@@ -222,13 +210,6 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
                 || EJobType.SPARK_PYTHON.getVal().equals(task.getTaskType())) {
             task.setTaskParams(formatLearnTaskParams(task.getTaskParams()));
             result = batchHadoopSelectSqlService.runPythonShellWithTask(task, sql, userId, jobId);
-        } else if (EJobType.CARBON_SQL.getVal().equals(task.getTaskType())) {
-            String database = getDatabaseForCarbonTask(task.getId());
-            result = batchHadoopSelectSqlService.runCarbonSqlTask(dtuicTenantId, SqlFormatUtil.formatSql(sql), tenantId, projectId, userId, database, taskId, getDataJson(taskId), jobId);
-        } else if (EJobType.IMPALA_SQL.getVal().equals(task.getTaskType())) {
-            result = batchHadoopSelectSqlService.runImpalaSqlTask(SqlFormatUtil.formatSql(sql), tenantId, projectId, userId, taskId, projectEngine.getEngineIdentity());
-        } else if (EJobType.INCEPTOR_SQL.getVal().equals(task.getTaskType())){
-            result = batchHadoopSelectSqlService.runInceptorSqlTask(SqlFormatUtil.formatSql(sql), tenantId, projectId, userId, taskId, projectEngine.getEngineIdentity());
         } else {
 
             throw new RdosDefineException("不支持" + EJobType.getEJobType(task.getTaskType()).getName() + "类型的任务直接运行");
@@ -287,10 +268,6 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
             if (EJobType.HIVE_SQL.getVal().equals(batchTask.getTaskType())) {
                 sql = sql.replace("\n", "");
             }
-        } else if (EJobType.IMPALA_SQL.getVal().equals(batchTask.getTaskType()) || EJobType.CARBON_SQL.getVal().equals(batchTask.getTaskType())) {
-            batchTaskParamService.checkParams(sql, taskParamsToReplace);
-            ISqlExeService sqlExeService = multiEngineServiceFactory.getSqlExeService(MultiEngineType.HADOOP.getType(), batchTask.getTaskType(), project.getId());
-            sql = sqlExeService.process(sql, EJobType.CARBON_SQL.getVal().equals(batchTask.getTaskType()) ? getDatabaseForCarbonTask(batchTask.getId()) : null);
         } else if (batchTask.getTaskType().equals(EJobType.SYNC.getVal())) {
             JSONObject syncJob = JSON.parseObject(Base64Util.baseDecode(batchTask.getSqlText()));
             taskParams = replaceSyncParll(taskParams, parseSyncChannel(syncJob));
@@ -407,22 +384,6 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
         }
 
         return StringUtils.join(params, "\n");
-    }
-
-    private String getDatabaseForCarbonTask(Long taskId) {
-        JSONObject json = JSON.parseObject(getDataJson(taskId));
-        String jdbcUrl = json.getString("jdbcUrl");
-        String database = jdbcUrl.substring(jdbcUrl.lastIndexOf("/") + 1);
-        return database;
-    }
-
-    private String getDataJson(Long taskId) {
-        CarbonTaskRelation rel = carBonTaskRelationDao.getRelationByTaskId(taskId);
-        if (rel == null) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_DATA_SOURCE);
-        }
-        BatchDataSource source = batchDataSourceService.getOne(rel.getSourceId());
-        return source.getDataJson();
     }
 
     private String formatAddJarSQL(String url, String mainClass) {

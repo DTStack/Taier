@@ -7,7 +7,6 @@ import com.dtstack.batch.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.BatchHiveSelectSqlDao;
 import com.dtstack.batch.domain.BatchHiveSelectSql;
 import com.dtstack.batch.engine.hdfs.service.BatchHadoopSelectSqlService;
-import com.dtstack.batch.engine.hdfs.service.HadoopDataDownloadService;
 import com.dtstack.batch.engine.hdfs.service.SyncDownload;
 import com.dtstack.batch.engine.rdbms.common.IDownload;
 import com.dtstack.batch.enums.DownloadType;

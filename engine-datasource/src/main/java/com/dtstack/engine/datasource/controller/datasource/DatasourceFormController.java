@@ -1,11 +1,11 @@
 package com.dtstack.engine.datasource.controller.datasource;
 
 import com.dtstack.engine.common.exception.BizException;
-import dt.insight.plat.lang.coc.template;
 import com.dtstack.engine.datasource.common.utils.datakit.Asserts;
 import com.dtstack.engine.datasource.facade.datasource.FormTemplateFacade;
 import com.dtstack.engine.datasource.param.datasource.DsTypeVersionParam;
 import com.dtstack.engine.datasource.vo.datasource.form.DsFormTemplateVo;
+import dt.insight.plat.lang.coc.template.APITemplate;
 import dt.insight.plat.lang.web.R;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

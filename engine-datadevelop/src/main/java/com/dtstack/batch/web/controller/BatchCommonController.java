@@ -8,6 +8,7 @@ import com.dtstack.batch.web.catalogue.vo.query.BatchCatalogueProjectCataVO;
 import com.dtstack.batch.web.catalogue.vo.result.BatchCatalogueResultVO;
 import dt.insight.plat.autoconfigure.web.security.permissions.annotation.Security;
 import dt.insight.plat.lang.coc.template.APITemplate;
+import dt.insight.plat.lang.web.R;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;

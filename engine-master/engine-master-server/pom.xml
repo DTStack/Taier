@@ -255,7 +255,6 @@
         <dependency>
             <groupId>dt.insight.plat</groupId>
             <artifactId>dt-insight-sdk-core</artifactId>
-            <version>4.1.2</version>
         </dependency>
 
         <dependency>

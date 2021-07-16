@@ -12,6 +12,7 @@ import com.dtstack.batch.domain.BatchTableInfo;
 import com.dtstack.batch.domain.Project;
 import com.dtstack.batch.domain.ProjectEngine;
 import com.dtstack.batch.domain.User;
+import com.dtstack.batch.engine.rdbms.common.util.SqlFormatUtil;
 import com.dtstack.batch.engine.rdbms.service.IJdbcService;
 import com.dtstack.batch.engine.rdbms.service.ITableService;
 import com.dtstack.batch.mapping.DataSourceTypeJobTypeMapping;
@@ -191,21 +192,6 @@ public class BatchSparkHiveSqlExeService {
      */
     protected List<ParseResult> parseLineageFromSqls(List<String> sqls, Long tenantId, Long projectId, String dbName, Long dtUicTenantId, DataSourceType dataSourceType) {
         List<ParseResult> parseResultList = new ArrayList<>();
-        for (String sql : sqls) {
-            try {
-                ParseColumnLineageParam parseColumnLineageParam = new ParseColumnLineageParam();
-                parseColumnLineageParam.setSql(sql);
-                parseColumnLineageParam.setAppType(AppType.RDOS.getType());
-                parseColumnLineageParam.setDefaultDb(dbName);
-                parseColumnLineageParam.setDataSourceType(dataSourceType.getVal());
-                parseColumnLineageParam.setTableColumnsMap(Maps.newHashMap());
-                ColumnLineageParseInfo columnLineageParseInfo = lineageService.parseColumnLineage(parseColumnLineageParam).getData();
-                ParseResult parseResult = ParseResultUtils.convertParseResult(columnLineageParseInfo);
-                parseResultList.add(parseResult);
-            } catch (Exception e) {
-                log.error("parse sql [{}] error", sql, e);
-            }
-        }
         return parseResultList;
     }
 

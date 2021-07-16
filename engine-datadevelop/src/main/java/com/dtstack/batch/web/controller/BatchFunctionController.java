@@ -54,19 +54,6 @@ public class BatchFunctionController {
         }.execute();
     }
 
-    @PostMapping(value = "addGpProcedureOrFunction")
-    @ApiOperation(value = "GreenPlum新增存储过程/函数")
-    @Security(code = AuthCode.DATADEVELOP_BATCH_FUNCTIONMANAGER)
-    public R<BatchFunctionAddResultVO> addGpProcedureOrFunction(@RequestBody BatchFunctionVO vo) {
-        return new APITemplate<BatchFunctionAddResultVO>() {
-            @Override
-            protected BatchFunctionAddResultVO process() {
-                TaskCatalogueVO result = batchFunctionService.addGpProcedureOrFunction(FunctionMapstructTransfer.INSTANCE.newFunctionVoToFunctionVo(vo), vo.getDtuicTenantId());
-                return FunctionMapstructTransfer.INSTANCE.newTaskCatalogueVoToFunctionAddResultVo(result);
-            }
-        }.execute();
-    }
-
     @PostMapping(value = "addOrUpdateFunction")
     @ApiOperation(value = "添加函数")
     @Security(code = AuthCode.DATADEVELOP_BATCH_FUNCTIONMANAGER)

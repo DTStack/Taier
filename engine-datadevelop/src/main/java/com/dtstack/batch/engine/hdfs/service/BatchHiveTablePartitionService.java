@@ -32,40 +32,6 @@ public class BatchHiveTablePartitionService implements ITablePartitionService {
     @Autowired
     public ITableService iTableServiceImpl;
 
-    @Autowired
-    private BatchHiveTablePartitionDao batchHiveTablePartitionDao;
-
-    /**
-     * 分页查询 分区信息
-     *
-     * @param search
-     * @return
-     */
-    @Override
-    public PageResult<List<PartitionDTO>> getPartitions(HivePatitionSearchVO search) {
-        List<PartitionDTO> partitionDTOS = new ArrayList<>();
-        List<BatchHiveTablePartition> batchHiveTablePartitions = new ArrayList<>();
-        Integer count = batchHiveTablePartitionDao.generalCount(search);
-        if (count>0){
-            PageQuery<HivePatitionSearchVO> query = new PageQuery<>(search.getPageIndex(), search.getPageSize(), search.getSortColumn(), search.getSort());
-            query.setModel(search);
-            batchHiveTablePartitions= batchHiveTablePartitionDao.generalQuery(query);
-        }
-        if (CollectionUtils.isNotEmpty(batchHiveTablePartitions)){
-            for (BatchHiveTablePartition b : batchHiveTablePartitions){
-                PartitionDTO p = PartitionDTO.builder()
-                        .name(b.getPartitionName())
-                        .fileCount(b.getFileCount())
-                        .partId(b.getId())
-                        .storeSize(HdfsOperator.unitConverter(b.getStoreSize()))
-                        .lastDDLTime(b.getLastDDLTime().getTime())
-                        .build();
-                partitionDTOS.add(p);
-            }
-        }
-        return new PageResult<>(partitionDTOS, count, new PageQuery(search.getPageIndex(), search.getPageSize(), search.getSortColumn(), search.getSort()));
-    }
-
 
     /**
      * 判断分区是否存在

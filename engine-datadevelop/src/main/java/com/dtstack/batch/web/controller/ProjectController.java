@@ -16,7 +16,7 @@ import com.dtstack.batch.web.project.vo.result.*;
 import com.dtstack.batch.web.role.vo.result.BatchUserRoleResultVO;
 import com.dtstack.batch.web.table.vo.result.BatchTableTypeResultVO;
 import com.dtstack.batch.web.user.vo.result.BatchUserBaseResultVO;
-import dt.insight.plat.lang.coc.template;
+import dt.insight.plat.lang.coc.template.APITemplate;
 import dt.insight.plat.autoconfigure.web.security.permissions.annotation.Security;
 import dt.insight.plat.lang.exception.biz.BizException;
 import dt.insight.plat.lang.web.R;
@@ -438,48 +438,6 @@ public class ProjectController {
             }
         }.execute();
     }
-
-    @ApiOperation(value = "比较并返回本地和元数据的差异表信息")
-    @Security(code = AuthCode.DATAINTEGRATION_BATCH_EDIT)
-    @PostMapping(value = "compareIntrinsicTable")
-    public R<BatchCompareIntrinsicTableResultVO> compareIntrinsicTable(@RequestBody BatchProjectBaseVO vo) {
-
-        return new APITemplate<BatchCompareIntrinsicTableResultVO>() {
-            @Override
-            protected BatchCompareIntrinsicTableResultVO process() throws BizException {
-                return projectService.compareIntrinsicTable(vo.getProjectId(), vo.getDtuicTenantId(), vo.getTenantId(), vo.getDataSourceType());
-            }
-        }.execute();
-    }
-
-    @ApiOperation("检查解除状态")
-    @Security(code = AuthCode.DATAINTEGRATION_BATCH_EDIT)
-    @PostMapping(value = "checkDealStatus")
-    public R<Integer> checkDealStatus() {
-
-        return new APITemplate<Integer>() {
-            @Override
-            protected Integer process() throws BizException {
-                return projectService.checkDealStatus();
-            }
-        }.execute();
-    }
-
-    @ApiOperation("数据源-同步元数据")
-    @PostMapping(value = "dealIntrinsicTable")
-    @Security(code = AuthCode.DATAINTEGRATION_BATCH_EDIT)
-    public R<Void> dealIntrinsicTable(@RequestBody BatchProjectDealIntrinsicTableVO vo) {
-        return new APITemplate<Void>() {
-            @Override
-            protected Void process() throws BizException {
-                projectService.dealIntrinsicTable(vo.getProjectId(),vo.getCatalogueId(), vo.getLifecycle(),vo.getUserId(), vo.getDtuicTenantId(),
-                        vo.getAddTableNames(), vo.getDropTableNames(), vo.getSynchronizeAllTable(), vo.getDataSourceType(),
-                        vo.getTenantId());
-                return null;
-            }
-        }.execute();
-    }
-
 
     @ApiOperation(value = "控制台-项目列表")
     @PostMapping(value = "queryProjects")

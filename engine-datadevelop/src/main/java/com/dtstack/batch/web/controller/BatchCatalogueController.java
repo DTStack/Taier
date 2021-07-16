@@ -91,19 +91,6 @@ public class BatchCatalogueController {
         }.execute();
     }
 
-    @PostMapping(value = "getTableList")
-    @ApiOperation(value = "获取表列表")
-    @Security(code = AuthCode.DATAMANAGER_TABLMANAGER_QUERY)
-    public R<BatchCatalogueResultVO> getTableList(@RequestBody BatchCatalogueTableListVO vo) {
-        return new APITemplate<BatchCatalogueResultVO>() {
-            @Override
-            protected BatchCatalogueResultVO process() {
-                CatalogueVO catalogue = batchCatalogueService.getTableList(vo.getTableName(), vo.getTenantId(), vo.getAppointProjectId(), vo.getTaskType(), vo.getScriptType());
-                return BatchCatalogueMapstructTransfer.INSTANCE.newCatalogueVoToCatalogueResultVo(catalogue);
-            }
-        }.execute();
-    }
-
     @PostMapping(value = "getProjectTableList")
     @ApiOperation(value = "获取项目下表列表")
     @Security(code = AuthCode.DATAMANAGER_TABLMANAGER_QUERY)

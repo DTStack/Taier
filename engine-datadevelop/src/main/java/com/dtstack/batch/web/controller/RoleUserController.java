@@ -14,7 +14,7 @@ import com.dtstack.dtcenter.common.console.SecurityResult;
 import com.dtstack.dtcenter.common.enums.ActionType;
 import dt.insight.plat.autoconfigure.web.security.permissions.annotation.Security;
 import dt.insight.plat.lang.coc.template.APITemplate;
-StringUtils.R;
+import dt.insight.plat.lang.web.R;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,19 +112,6 @@ public class RoleUserController {
         }.execute();
     }
 
-    @ApiOperation(value = "获取此项目下是否还有任务、已提交任务、表责任人,告警接受人为被删除用户的")
-    @PostMapping(value = "checkUserHaveOwner")
-    @Security(code = AuthCode.PROJECT_MEMBER_EDIT)
-    @SecurityAudit(actionType = ActionType.REMOVE_USER,orderedKeys = "removedUser")
-    public R<Boolean> checkUserHaveOwner(@RequestBody BatchRoleUserCheckUserHaveOwnerVO vo) {
-        return new APITemplate<Boolean>() {
-            @Override
-            protected Boolean process() {
-                return roleUserService.checkUserHaveOwner(vo.getUserId(), vo.getTargetUserId(), vo.getProjectId(), vo.getIsRoot());
-            }
-        }.execute();
-    }
-
     @ApiOperation(value = "模糊查询出用户以及在该项目下的权限")
     @PostMapping(value = "getUsersAndPermission")
     public R<List<BatchUserRolePermissionResultVO>> getUsersAndPermission(@RequestBody BatchRoleUserGetUsersAndPermissionVO vo){
@@ -153,15 +140,4 @@ public class RoleUserController {
         }.execute();
     }
 
-    @ApiOperation(value = "恢复已移除的角色信息")
-    @PostMapping(value = "replyDeleOwnerUserRole")
-    public R<Void> replyDeleOwnerUserRole() {
-        return new APITemplate<Void>() {
-            @Override
-            protected Void process() {
-                roleUserService.replyDeleOwnerUserRole();
-                return null;
-            }
-        }.execute();
-    }
 }

@@ -2,7 +2,7 @@ package com.dtstack.engine.datasource.controller.datasource;
 
 import com.dtstack.dtcenter.common.pager.PageResult;
 import com.dtstack.engine.common.exception.BizException;
-import dt.insight.plat.lang.coc.template;
+import dt.insight.plat.lang.coc.template.APITemplate;
 import com.dtstack.engine.datasource.common.utils.datakit.Asserts;
 import com.dtstack.engine.datasource.facade.datasource.DatasourceFacade;
 import com.dtstack.engine.datasource.param.PubSvcBaseParam;

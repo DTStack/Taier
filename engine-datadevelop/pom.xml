@@ -20,7 +20,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <dt-insight-sdk-core.version>4.1.2</dt-insight-sdk-core.version>
 
     </properties>
 
@@ -62,8 +61,8 @@
         <dependency>
             <groupId>dt.insight.plat</groupId>
             <artifactId>dt-insight-sdk-core</artifactId>
-            <version>${dt-insight-sdk-core.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

@@ -42,7 +42,6 @@ import com.dtstack.engine.api.dto.UserDTO;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.api.pojo.ParamTaskAction;
-import com.dtstack.engine.api.service.ActionService;
 import com.dtstack.engine.api.service.ScheduleJobService;
 import com.dtstack.engine.api.service.ScheduleTaskShadeService;
 import com.dtstack.engine.api.vo.*;
@@ -50,9 +49,9 @@ import com.dtstack.engine.api.vo.action.ActionJobEntityVO;
 import com.dtstack.engine.api.vo.action.ActionLogVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusCountVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
+import com.dtstack.engine.master.impl.ActionService;
 import com.dtstack.sdk.core.common.ApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -66,7 +65,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.net.URLDecoder;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -861,12 +859,9 @@ public class BatchJobService {
             scheduleTaskShade.setScheduleConf(batchTask.getScheduleConf());
             scheduleTaskShade.setComponentVersion(batchTask.getComponentVersion());
             paramTaskAction.setBatchTask(scheduleTaskShade);
-            ApiResponse<ParamActionExt> paramActionExtApiResponse = actionService.paramActionExt(paramTaskAction);
-            if (StringUtils.isNotEmpty(paramActionExtApiResponse.getMessage())) {
-                throw new RdosDefineException(paramActionExtApiResponse.getMessage());
-            }
-            String jobId = paramActionExtApiResponse.getData().getTaskId();
-            actionService.start(paramActionExtApiResponse.getData());
+            ParamActionExt paramActionExt = actionService.paramActionExt(paramTaskAction.getBatchTask(),paramTaskAction.getJobId(),paramTaskAction.getFlowJobId());
+            String jobId = paramActionExt.getTaskId();
+            actionService.start(paramActionExt);
             String name = MathUtil.getString(actionParam.get("name"));
             String job = MathUtil.getString(actionParam.get("job"));
             this.batchSelectSqlService.addSelectSql(jobId, name, TempJobType.SYNC_TASK.getType(), batchTask.getTenantId(),
@@ -915,7 +910,7 @@ public class BatchJobService {
             logsBody.put("jobId", jobId);
             logsBody.put("jobIds", Lists.newArrayList(jobId));
             logsBody.put("computeType", ComputeType.BATCH.getType());
-            ActionLogVO actionLogVO = actionService.log(jobId, ComputeType.BATCH.getType()).getData();
+            ActionLogVO actionLogVO = actionService.log(jobId, ComputeType.BATCH.getType());
             String engineLogStr = actionLogVO.getEngineLog();
             final String logInfoStr = actionLogVO.getLogInfo();
             if(StringUtils.isNotBlank(engineLogStr)){
@@ -950,7 +945,7 @@ public class BatchJobService {
                     BatchJobService.logger.info("can not find job tenent{}.", tenantId);
                     throw new RdosDefineException(ErrorCode.SERVER_EXCEPTION);
                 }
-                List<ActionJobEntityVO> engineEntities = actionService.entitys(Collections.singletonList(jobId), ComputeType.BATCH.getType()).getData();
+                List<ActionJobEntityVO> engineEntities = actionService.entitys(Collections.singletonList(jobId));
 
                 String applicationId = "";
                 if (CollectionUtils.isNotEmpty(engineEntities)) {
@@ -1074,13 +1069,10 @@ public class BatchJobService {
             List<BatchTaskParamShade> taskParamsToReplace = this.batchTaskParamService.convertShade(params);
             task.setSqlText(sql);
             ParamTaskAction paramTaskAction = getParamTaskAction(task, userId, taskParamsToReplace);
-            ApiResponse<ParamActionExt> paramActionExtApiResponse = actionService.paramActionExt(paramTaskAction);
-            if (StringUtils.isNotEmpty(paramActionExtApiResponse.getMessage())) {
-                throw new RdosDefineException(paramActionExtApiResponse.getMessage());
-            }
-            sql = paramActionExtApiResponse.getData().getSqlText();
-            String jobId = paramActionExtApiResponse.getData().getTaskId();
-            task.setTaskParams(paramActionExtApiResponse.getData().getTaskParams());
+            ParamActionExt paramActionExt = actionService.paramActionExt(paramTaskAction.getBatchTask(),paramTaskAction.getJobId(),paramTaskAction.getFlowJobId());
+            sql = paramActionExt.getSqlText();
+            String jobId = paramActionExt.getTaskId();
+            task.setTaskParams(paramActionExt.getTaskParams());
             multiEngineType = TaskTypeEngineTypeMapping.getEngineTypeByTaskType(task.getTaskType());
             final IBatchJobExeService batchJobService = this.multiEngineServiceFactory.getBatchJobExeService(multiEngineType.getType());
             result = batchJobService.startSqlImmediately(userId, tenantId, uniqueKey, projectId, taskId, sql, isRoot, dtuicTenantId, task, dtToken, isEnd, jobId);
@@ -1172,7 +1164,7 @@ public class BatchJobService {
      * @return
      */
     //FIXME 任务类型只统计了完成和失败的。。然后其他状态呢？运行中。。提交中。。。
-    public ScheduleJobExeStaticsVO statisticsTaskRecentInfo(Long taskId, int count, Long projectId) {
+    public ScheduleJobExeStaticsVO statisticsTaskRecentInfo(Long taskId, int count, Long projectId) throws Exception {
         final BatchTask task = this.batchTaskDao.getOne(taskId);
         if (task == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
@@ -1194,7 +1186,7 @@ public class BatchJobService {
             JSONObject logsBody = new JSONObject(2);
             logsBody.put("jobId", jobId);
             logsBody.put("computeType", ComputeType.BATCH.getType());
-            ActionLogVO log = actionService.log(jobId, ComputeType.BATCH.getType()).getData();
+            ActionLogVO log = actionService.log(jobId, ComputeType.BATCH.getType());
             if (null != log){
                 JSONObject logInfo =  log.getLogInfo() != null && log.getLogInfo().contains("jobid") ? JSONObject.parseObject(log.getLogInfo()) : null;
                 if (logInfo != null){
@@ -1263,7 +1255,7 @@ public class BatchJobService {
 
 
     public String getEngineJobId(String jobId) {
-        List<ActionJobEntityVO> engineEntities = actionService.entitys(Lists.newArrayList(jobId), ComputeType.BATCH.getType()).getData();
+        List<ActionJobEntityVO> engineEntities = actionService.entitys(Lists.newArrayList(jobId));
         if (CollectionUtils.isNotEmpty(engineEntities)) {
             return engineEntities.get(0).getEngineJobId();
         }
@@ -1276,9 +1268,9 @@ public class BatchJobService {
      * @param jobId
      * @return
      */
-    public JSONObject getLogInfoFromEngine(String jobId) {
+    public JSONObject getLogInfoFromEngine(String jobId) throws Exception {
         //先获取job的日志 如果日志为空 再去engine获取
-        ActionLogVO log = actionService.log(jobId, ComputeType.BATCH.getType()).getData();
+        ActionLogVO log = actionService.log(jobId, ComputeType.BATCH.getType());
         if (Objects.isNull(log)) {
             return new JSONObject();
         }

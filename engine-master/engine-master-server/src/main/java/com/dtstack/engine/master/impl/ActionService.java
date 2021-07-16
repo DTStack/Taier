@@ -623,7 +623,7 @@ public class ActionService {
     /**
      * 根据jobids 和 计算类型，查询job
      */
-    public List<ActionJobEntityVO> entitys( List<String> jobIds) throws Exception {
+    public List<ActionJobEntityVO> entitys( List<String> jobIds) {
 
         if (CollectionUtils.isEmpty(jobIds)){
             throw new RdosDefineException("jobId  is not allow null", ErrorCode.INVALID_PARAMETERS);

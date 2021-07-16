@@ -93,9 +93,6 @@ public class MultiEngineServiceFactory {
     @Resource(name = "batchGreenplumSelectSqlService")
     private IBatchSelectSqlService batchGreenplumSelectSqlService;
 
-    @Resource(name = "batchHadoopDataImportService")
-    private IDataImportService batchHadoopDataImportService;
-
     @Resource(name = "hadoopDataDownloadService")
     private IDataDownloadService hadoopDataDownloadService;
 
@@ -117,18 +114,6 @@ public class MultiEngineServiceFactory {
     @Resource(name = "batchHadoopTaskService")
     private ITaskService batchHadoopTaskService;
 
-    @Resource(name = "batchLibraDataImportService")
-    private IDataImportService batchLibraDataImportService;
-
-    @Resource(name = "batchTiDBDataImportService")
-    private IDataImportService batchTiDBDataImportService;
-
-    @Resource(name = "batchOracleDataImportService")
-    private IDataImportService batchOracleDataImportService;
-
-    @Resource(name = "batchGreenplumDataImportService")
-    private IDataImportService batchGreenplumDataImportService;
-
     @Resource(name = "hadoopProjectService")
     public IProjectService hadoopProjectService;
 
@@ -143,21 +128,6 @@ public class MultiEngineServiceFactory {
 
     @Resource(name = "greenplumProjectService")
     private IProjectService greenplumProjectService;
-
-    @Resource(name = "bathHadoopTablePublishService")
-    private ITablePublishService bathHadoopTablePublishService;
-
-    @Resource(name = "batchLibraTablePublishService")
-    private ITablePublishService batchLibraTablePublishService;
-
-    @Resource(name = "batchTiDBTablePublishService")
-    private ITablePublishService batchTiDBTablePublishService;
-
-    @Resource(name = "batchOracleTablePublishService")
-    private ITablePublishService batchOracleTablePublishService;
-
-    @Resource(name = "greenplumTablePublishService")
-    private ITablePublishService greenplumTablePublishService;
 
     @Resource(name = "batchHiveFunctionService")
     private IFunctionService batchHiveFunctionService;
@@ -351,25 +321,6 @@ public class MultiEngineServiceFactory {
         throw new RdosDefineException(String.format("not support engine type %d now", multiEngineType));
     }
 
-    public IDataImportService getDataImportService(int multiEngineType) {
-        if (MultiEngineType.HADOOP.getType() == multiEngineType) {
-            return batchHadoopDataImportService;
-        }
-        if (MultiEngineType.LIBRA.getType() == multiEngineType) {
-            return batchLibraDataImportService;
-        }
-        if (MultiEngineType.TIDB.getType() == multiEngineType){
-            return batchTiDBDataImportService;
-        }
-        if (MultiEngineType.ORACLE.getType() == multiEngineType){
-            return batchOracleDataImportService;
-        }
-        if (MultiEngineType.GREENPLUM.getType() == multiEngineType){
-            return batchGreenplumDataImportService;
-        }
-        throw new RdosDefineException(String.format("not support engine type %d now", multiEngineType));
-    }
-
     public IDataDownloadService getDataDownloadService(int multiEngineType) {
         return getDataDownloadService(multiEngineType, null);
     }
@@ -404,26 +355,6 @@ public class MultiEngineServiceFactory {
             return batchHadoopTaskService;
         }
         return null;
-    }
-
-    public ITablePublishService getTablePublishService(int multiEngineType) {
-        if (MultiEngineType.HADOOP.getType() == multiEngineType) {
-            return bathHadoopTablePublishService;
-        }
-        if (MultiEngineType.LIBRA.getType() == multiEngineType) {
-            return batchLibraTablePublishService;
-        }
-        if (MultiEngineType.TIDB.getType() == multiEngineType){
-            return batchTiDBTablePublishService;
-        }
-        if (MultiEngineType.ORACLE.getType() == multiEngineType){
-            return batchOracleTablePublishService;
-        }
-        if (MultiEngineType.GREENPLUM.getType() == multiEngineType){
-            return greenplumTablePublishService;
-        }
-
-        throw new RdosDefineException(String.format("not support engine type %d now", multiEngineType));
     }
 
     public IFunctionService getFunctionService(int multiEngineType) {
