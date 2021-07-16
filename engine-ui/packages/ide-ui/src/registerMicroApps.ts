@@ -3,9 +3,9 @@ import { registerMicroApps, setDefaultMountApp, start } from 'qiankun';
 export const AppContainer = 'AppContainer';
 const container = `#${AppContainer}`;
 
-let ENTRY_CONSOLE = '//local.dtstack.cn:3000/console/';
-let ENTRY_OPERATION = '//local.dtstack.cn:3000/batch/';
-let ENTRY_DATABASE = '//local.dtstack.cn:3000/batch/';
+let ENTRY_CONSOLE = '//local.dtstack.cn:8080/console/';
+let ENTRY_OPERATION = '//local.dtstack.cn:8080/batch/';
+let ENTRY_DATABASE = '//local.dtstack.cn:8080/batch/';
 
 // For Production 
 if(process.env.NODE_ENV === 'production') {
