@@ -5,13 +5,13 @@
     "static/js/1.7738e9f8.chunk.js": "/static/js/1.7738e9f8.chunk.js",
     "static/js/1.7738e9f8.chunk.js.map": "/static/js/1.7738e9f8.chunk.js.map",
     "main.css": "/static/css/main.59a69dd7.chunk.css",
-    "main.js": "/static/js/main.6c6df2a7.chunk.js",
-    "main.js.map": "/static/js/main.6c6df2a7.chunk.js.map",
+    "main.js": "/static/js/main.79ff45b6.chunk.js",
+    "main.js.map": "/static/js/main.79ff45b6.chunk.js.map",
     "runtime-main.js": "/static/js/runtime-main.a2a38105.js",
     "runtime-main.js.map": "/static/js/runtime-main.a2a38105.js.map",
-    "static/css/4.b4b95533.chunk.css": "/static/css/4.b4b95533.chunk.css",
-    "static/js/4.1e36bbd5.chunk.js": "/static/js/4.1e36bbd5.chunk.js",
-    "static/js/4.1e36bbd5.chunk.js.map": "/static/js/4.1e36bbd5.chunk.js.map",
+    "static/css/4.95997edf.chunk.css": "/static/css/4.95997edf.chunk.css",
+    "static/js/4.f4582865.chunk.js": "/static/js/4.f4582865.chunk.js",
+    "static/js/4.f4582865.chunk.js.map": "/static/js/4.f4582865.chunk.js.map",
     "static/js/5.527494e3.chunk.js": "/static/js/5.527494e3.chunk.js",
     "static/js/5.527494e3.chunk.js.map": "/static/js/5.527494e3.chunk.js.map",
     "static/js/6.c63cb4b9.chunk.js": "/static/js/6.c63cb4b9.chunk.js",
@@ -155,17 +155,17 @@
     "static/js/75.92fd38df.chunk.js": "/static/js/75.92fd38df.chunk.js",
     "static/js/75.92fd38df.chunk.js.map": "/static/js/75.92fd38df.chunk.js.map",
     "index.html": "/index.html",
-    "static/css/4.b4b95533.chunk.css.map": "/static/css/4.b4b95533.chunk.css.map",
+    "static/css/4.95997edf.chunk.css.map": "/static/css/4.95997edf.chunk.css.map",
     "static/css/main.59a69dd7.chunk.css.map": "/static/css/main.59a69dd7.chunk.css.map",
-    "static/js/4.1e36bbd5.chunk.js.LICENSE.txt": "/static/js/4.1e36bbd5.chunk.js.LICENSE.txt",
+    "static/js/4.f4582865.chunk.js.LICENSE.txt": "/static/js/4.f4582865.chunk.js.LICENSE.txt",
     "static/js/67.6c69e4dd.chunk.js.LICENSE.txt": "/static/js/67.6c69e4dd.chunk.js.LICENSE.txt",
     "static/media/codicon.css": "/static/media/codicon.74d8acf8.ttf"
   },
   "entrypoints": [
     "static/js/runtime-main.a2a38105.js",
-    "static/css/4.b4b95533.chunk.css",
-    "static/js/4.1e36bbd5.chunk.js",
+    "static/css/4.95997edf.chunk.css",
+    "static/js/4.f4582865.chunk.js",
     "static/css/main.59a69dd7.chunk.css",
-    "static/js/main.6c6df2a7.chunk.js"
+    "static/js/main.79ff45b6.chunk.js"
   ]
 }
