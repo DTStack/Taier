@@ -8,15 +8,21 @@
 
 module.exports = {
     'name': 'DAGScheduleX',
-    'listen': 3000,
+    'listen': 8080,
     'root': './out',
     'location': {
         '/ide': `./out/`,
-        '/console-ui': `./out/`
+        '/console-ui': `./out/`,
+        '/operation-ui': './out/'
     },
     'proxyTable': {
         '/node': { // 控制台
             target: 'http://172.16.100.225:7001/proxy/44', // doraemon
+            changeOrigin: true,
+            secure: false
+        },
+        '/api/rdos': {
+            target: "http://172.16.100.225:7001/proxy/46", // doraam
             changeOrigin: true,
             secure: false
         },
