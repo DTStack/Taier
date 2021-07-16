@@ -3,7 +3,7 @@ import axios from "axios";
 import { localize } from "molecule/esm/i18n/localize";
 import molecule from "molecule/esm";
 import Open from "./open";
-import { TASK_RUN_ID, TASK_STOP_ID } from "../editor";
+import { TASK_RUN_ID } from "../editor";
 import { resetEditorGroup } from "../common";
 
 function init() {
@@ -33,11 +33,20 @@ function createTask() {
       const node = new TreeNodeModel({
         id: new Date().getTime(),
         name,
-        data: rest,
         fileType: FileTypes.File,
+        isLeaf: true,
+        data: {
+          ...rest,
+          language: "sql",
+        },
       });
 
       molecule.folderTree.addNode(id, node);
+
+      const { current } = molecule.editor.getState();
+      if (current?.tab?.data.taskType === "SparkSql") {
+        molecule.editor.updateActions([{ id: TASK_RUN_ID, disabled: false }]);
+      }
     };
 
     const tabData = {
@@ -58,6 +67,7 @@ function createTask() {
     );
     if (!isExist) {
       molecule.editor.open(tabData);
+      molecule.explorer.forceUpdate();
     }
   });
 }
@@ -80,10 +90,12 @@ function createFolder() {
 
 function onSelectFile() {
   molecule.folderTree.onSelectFile((file) => {
-    if (file.data.taskType === "SparkSql") {
-      molecule.editor.updateActions([{ id: TASK_RUN_ID, disabled: false }]);
-    } else {
-      resetEditorGroup();
+    if (file.fileType === FileTypes.File) {
+      if (file.data.taskType === "SparkSql") {
+        molecule.editor.updateActions([{ id: TASK_RUN_ID, disabled: false }]);
+      } else {
+        resetEditorGroup();
+      }
     }
   });
 }
