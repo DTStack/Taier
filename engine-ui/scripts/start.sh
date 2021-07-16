@@ -2,9 +2,14 @@
 
 echo "Starting the DAGScheduleX UI Application...";
 
-# TODO: check whether has installed the cup app before running 
-echo "Install the server Application Cup";
-npm install -g mini-cup;
+res=`npm list -g mini-cup`
+sub='mini-cup'
+
+if [[ !($res =~ $sub) ]]
+then
+    echo "Install the server Application Cup";
+    npm install -g mini-cup;
+fi
 
 echo "Starting the Application Server"
 
