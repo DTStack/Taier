@@ -63,6 +63,7 @@ export const DATA_SOURCE = {
   OPENTSDB: 66,
   DORIS: 67,
   KYLINJDBC: 68,
+  SQLSERVERJDBC: 69,
 };
 
 export const DATA_SOURCE_TEXT: any = {
@@ -122,6 +123,7 @@ export const DATA_SOURCE_TEXT: any = {
   66: 'OpenTSDB',
   67: 'Doris',
   68: 'Kylin JDBC',
+  69: 'SQLServer JDBC',
 };
 
 export const PROJECT_TYPE: any = {

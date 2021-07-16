@@ -25,6 +25,7 @@ import { utf8to16, utf16to8 } from '../../utils/utfEncode';
 import { getRules, IParams, formItemLayout, formNewLayout } from './formRules';
 import { HDFSCONG } from '../../constants/index';
 import { hdfsConfig } from './tooltips';
+import { KAFKA_OPTION } from '@/pages/DataSource/constants/dataSource';
 import '../../List/style.scss';
 
 const { TextArea } = Input;
@@ -39,12 +40,8 @@ interface IProps extends FormComponentProps {
 
 const InfoConfig = (props) => {
   const { form, cRef, record } = props;
-  const {
-    getFieldDecorator,
-    validateFields,
-    getFieldValue,
-    setFieldsValue,
-  } = form;
+  const { getFieldDecorator, validateFields, getFieldValue, setFieldsValue } =
+    form;
 
   const [templateData, setTemplateData] = useState([]);
   const [showUpload, setShowUpload] = useState<boolean>(false);
@@ -129,7 +126,7 @@ const InfoConfig = (props) => {
 
           let data: any = {};
           try {
-            data = JSON.parse(Base64.decode(detailData.dataJson));
+            data = JSON.parse(utf8to16(Base64.decode(detailData.dataJson)));
           } catch (error) {}
           setDetailData(data);
 
@@ -165,7 +162,6 @@ const InfoConfig = (props) => {
       if (!err) {
         setLoading(true);
         let handelParams: any = { ...otherParams };
-        console.log(handelParams, 'handelParams---');
         //Remove leading and trailing spaces
         for (const key in fieldsValue) {
           if (typeof fieldsValue[key] === 'string') {
@@ -210,10 +206,13 @@ const InfoConfig = (props) => {
             handelParams.dataJsonString = Base64.encode(
               JSON.stringify(fieldsValue)
             );
+            console.log('fieldsValue: ', fieldsValue);
           } catch (error) {
             console.log('error: ', error);
             setLoading(false);
           }
+
+          console.log('handelParams: ', handelParams);
 
           if (submit) {
             //确定按钮
@@ -242,6 +241,7 @@ const InfoConfig = (props) => {
           } catch (error) {
             setLoading(false);
           }
+          console.log('fieldsValue: ', fieldsValue);
 
           // 将未添加到请求参数中的字段值添加进去
           Object.keys(fieldsValue).forEach((key) => {
@@ -249,6 +249,7 @@ const InfoConfig = (props) => {
               handelParams[key] = fieldsValue[key];
             }
           });
+          console.log('handelParams: ', handelParams);
 
           if (submit) {
             //确定按钮
@@ -324,9 +325,11 @@ const InfoConfig = (props) => {
           setLoading(false);
           props.changeBtnStatus(false);
         } else {
-          let { success, message: msg, data } = await API.addDatasource(
-            handelParams
-          );
+          let {
+            success,
+            message: msg,
+            data,
+          } = await API.addDatasource(handelParams);
 
           if (success && data) {
             message.success(`${infoMsg}`);
@@ -1055,6 +1058,65 @@ const InfoConfig = (props) => {
                   />
                 )}
               </Form.Item>
+            )}
+            {/* 新增需求-2175 */}
+            <Form.Item label="认证方式" key="authentication">
+              {getFieldDecorator('authentication', {
+                initialValue: detailData?.authentication || '无',
+                rules: [
+                  {
+                    required: true,
+                    message: '认证方式不能为空',
+                  },
+                ],
+              })(
+                <Select>
+                  {KAFKA_OPTION.map((item) => (
+                    <Option key={item.key} value={item.key}>
+                      {item.name}
+                    </Option>
+                  ))}
+                </Select>
+              )}
+            </Form.Item>
+            {getFieldValue('authentication') === 'SASL_PLAINTEXT' && (
+              <>
+                <Form.Item label="用户名" key="username">
+                  {getFieldDecorator('username', {
+                    initialValue: detailData?.username,
+                    rules: [
+                      {
+                        required: true,
+                        message: '用户名不能为空',
+                      },
+                    ],
+                  })(<Input type="text" />)}
+                </Form.Item>
+                <Form.Item label="密码" key="password">
+                  {getFieldDecorator('password', {
+                    initialValue: detailData?.password,
+                  })(<Input type="password" />)}
+                </Form.Item>
+              </>
+            )}
+            {getFieldValue('authentication') === 'kerberos' && (
+              <>
+                {uploadForm()}
+                {getFieldValue('kerberosFile') && (
+                  <Form.Item label="Kerberos Principal" key="principal">
+                    {getFieldDecorator('principal', {
+                      rules: [
+                        {
+                          required: true,
+                          message: 'Kerberos Principal不可为空',
+                        },
+                      ],
+                      initialValue:
+                        detailData?.principal || principalsList[0] || '',
+                    })(<Select>{principalsOptions}</Select>)}
+                  </Form.Item>
+                )}
+              </>
             )}
           </div>
         );

@@ -33,12 +33,8 @@ const setId = (item) => {
 
 const DynamicSelect = (props: IPropsDynamicSelect) => {
   const { form, joinPairs = [], leftTable, rightTable, cref } = props;
-  const {
-    getFieldDecorator,
-    validateFields,
-    setFieldsValue,
-    getFieldsValue,
-  } = form;
+  const { getFieldDecorator, validateFields, setFieldsValue, getFieldsValue } =
+    form;
   const [joinPairsList, setJoinPairsList] = useState(() => {
     joinPairs.forEach(setId);
     return joinPairs;

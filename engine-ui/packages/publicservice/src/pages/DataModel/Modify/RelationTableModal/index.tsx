@@ -56,21 +56,10 @@ const formItemLayout = {
 };
 
 const RelationTableModal = (props: IPropsRelationTableModal) => {
-  const {
-    form,
-    updateTypeList,
-    tableList,
-    value,
-    modelDetail,
-    mode,
-    cref,
-  } = props;
-  const {
-    getFieldsValue,
-    getFieldDecorator,
-    setFieldsValue,
-    validateFields,
-  } = form;
+  const { form, updateTypeList, tableList, value, modelDetail, mode, cref } =
+    props;
+  const { getFieldsValue, getFieldDecorator, setFieldsValue, validateFields } =
+    form;
   const [schemaList, setSchemaList] = useState<string[]>([]);
   const [relationTableList, setRelationTableList] = useState<
     { tableName: string }[]
@@ -101,9 +90,8 @@ const RelationTableModal = (props: IPropsRelationTableModal) => {
               );
               const joinPairs = Object.keys(group).map((index) => {
                 return group[index].reduce((temp, key) => {
-                  const [schema, tableName, columnName] = joinPairsObj[
-                    key
-                  ].split('-');
+                  const [schema, tableName, columnName] =
+                    joinPairsObj[key].split('-');
                   let _key = 'rightValue';
                   if (/left/.test(key)) {
                     _key = 'leftValue';

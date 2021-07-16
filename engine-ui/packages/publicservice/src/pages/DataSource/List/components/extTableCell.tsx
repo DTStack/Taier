@@ -171,6 +171,10 @@ const showMapArr: any = {
     ['jdbcUrl', 'jdbcUrl'],
     ['username', '用户名'],
   ],
+  [DATA_SOURCE.SQLSERVERJDBC]: [
+    ['jdbcUrl', 'jdbcUrl'],
+    ['username', '用户名'],
+  ],
 };
 
 export function ExtTableCell(props: any) {
