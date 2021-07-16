@@ -760,16 +760,15 @@ public class JobRichOperator {
         // 当前时间
         Calendar calendar = Calendar.getInstance();
         String endTime = sdf.format(calendar.getTime());
-        // 获得配置的前几天
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
         if(isTrigger && mindJobId){
+            // 获得配置的前几天
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
             // 获取minJobId的方法
             calendar.add(Calendar.HOUR,-environmentContext.getNormalScheduleCycTimeHourBefore());
         }else if(isTrigger){
             // 查询具体数据范围
-            calendar.set(Calendar.HOUR_OF_DAY, 0);
             calendar.add(Calendar.DATE, -environmentContext.getCycTimeDayGap());
         }else{
             // 补数据或重跑
