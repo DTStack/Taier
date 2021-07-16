@@ -13,10 +13,11 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.quartz.CronExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.support.CronSequenceGenerator;
 
+import java.text.ParseException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -225,8 +226,14 @@ public class JobGraphUtils {
             }
 
         }else if (cron.getPeriodType() == ESchedulePeriodType.CUSTOM.getVal()){
-            dateTime = new DateTime(JobGraphBuilder.findLastDateBeforeCurrent(new CronSequenceGenerator(cron.getCronStr()),
-                    currTriggerDate,currTriggerDate.toInstant().atZone(DateUtil.DEFAULT_ZONE).toLocalDateTime(),0,true));
+            try {
+                CronExpression expression = new CronExpression(cron.getCronStr());
+                dateTime = new DateTime(JobGraphBuilder.findLastDateBeforeCurrent(expression,
+                        currTriggerDate,currTriggerDate.toInstant().atZone(DateUtil.DEFAULT_ZONE).toLocalDateTime(),0,true));
+            } catch (ParseException e) {
+                throw new RdosDefineException("cron express is invalid:" + cron.getCronStr(), e);
+            }
+
         }
         else {
             throw new RdosDefineException("not support of ESchedulePeriodType:" + cron.getPeriodType());
@@ -306,7 +313,13 @@ public class JobGraphUtils {
         } else if (fatherCron.getPeriodType() == ESchedulePeriodType.MIN.getVal()) {
             dateTime = getCloseInDateTimeOfMin(dateTime, (ScheduleCronMinParser) fatherCron);
         }else if (fatherCron.getPeriodType() == ESchedulePeriodType.CUSTOM.getVal()){
-            dateTime = new DateTime(JobGraphBuilder.findLastDateBeforeCurrent(new CronSequenceGenerator(fatherCron.getCronStr()),dateTime.toDate(),
+            CronExpression expression = null;
+            try {
+                expression = new CronExpression(fatherCron.getCronStr());
+            } catch (ParseException e) {
+                throw new RdosDefineException("cron express is invalid:" + fatherCron.getCronStr(), e);
+            }
+            dateTime = new DateTime(JobGraphBuilder.findLastDateBeforeCurrent(expression,dateTime.toDate(),
                     dateTime.toDate().toInstant().atZone(DateUtil.DEFAULT_ZONE).toLocalDateTime(),0,false));
         } else {
             throw new RuntimeException("not support period type of " + fatherCron.getPeriodType());
