@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.2.2](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.1...v4.2.2) (2021-07-18)
+
+
+### Bug Fixes
+
+* repair yarn.lock file ([de69abd](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/de69abd994b985e69c7dd3c34a12582d9eed476c))
+
 ### [4.2.1](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.0-beta11...v4.2.1) (2021-07-12)
 
 ## [4.2.0-beta11](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.0-beta10...v4.2.0-beta11) (2021-07-12)
