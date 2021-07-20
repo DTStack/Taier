@@ -22,12 +22,8 @@ interface TableItem {
 
 const RelationTableSelect = (props: IPropsRelationTableSelect) => {
   const { form, cref, modelDetail, globalStep, mode, setDisabled } = props;
-  const {
-    getFieldDecorator,
-    validateFields,
-    getFieldsValue,
-    setFieldsValue,
-  } = form;
+  const { getFieldDecorator, validateFields, getFieldsValue, setFieldsValue } =
+    form;
   const [schemaList, setSchemaList] = useState<string[]>([]);
   const [tableList, setTableList] = useState<TableItem[]>([]);
   const [visibleUpdateType, setVisibleUpdateType] = useState(false);

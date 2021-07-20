@@ -48,7 +48,7 @@ export const DATA_SOURCE = {
   CARBONDATA: 50,
   GREENPLUM: 51,
   GBASE_8A: 52,
-  KYLIN: 53,
+  KYLINURL: 53,
   ELASTICSEARCH: 54,
   PHOENIX: 56,
   PRESTO: 57,
@@ -60,6 +60,10 @@ export const DATA_SOURCE = {
   AWSS3: 63,
   SPARKTHRIFT: 64,
   GAUSSDB: 65,
+  OPENTSDB: 66,
+  DORIS: 67,
+  KYLINJDBC: 68,
+  SQLSERVERJDBC: 69,
 };
 
 export const DATA_SOURCE_TEXT: any = {
@@ -104,7 +108,7 @@ export const DATA_SOURCE_TEXT: any = {
   51: 'Greenplum',
   31: 'TiDB',
   52: 'GBase_8a',
-  53: 'Kylin',
+  53: 'Kylin URL',
   54: 'Elasticsearch',
   56: 'Phoenix',
   57: 'Presto',
@@ -116,6 +120,10 @@ export const DATA_SOURCE_TEXT: any = {
   63: 'AWS S3',
   64: 'SparkThrift',
   65: 'GaussDB',
+  66: 'OpenTSDB',
+  67: 'Doris',
+  68: 'Kylin JDBC',
+  69: 'SQLServer JDBC',
 };
 
 export const PROJECT_TYPE: any = {

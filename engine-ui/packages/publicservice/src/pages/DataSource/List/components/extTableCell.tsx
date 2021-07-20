@@ -124,7 +124,7 @@ const showMapArr: any = {
   [DATA_SOURCE.WEBSOCKET]: [['url', 'url']],
   [DATA_SOURCE.SOCKET]: [['url', 'url']],
   [DATA_SOURCE.GREENPLUM]: [['jdbcUrl', 'jdbcUrl']],
-  [DATA_SOURCE.KYLIN]: [
+  [DATA_SOURCE.KYLINURL]: [
     ['authURL', 'authURL'],
     ['username', '用户名'],
   ],
@@ -159,6 +159,19 @@ const showMapArr: any = {
     ['defaultFS', 'defaultFS'],
   ],
   [DATA_SOURCE.GAUSSDB]: [
+    ['jdbcUrl', 'jdbcUrl'],
+    ['username', '用户名'],
+  ],
+  [DATA_SOURCE.OPENTSDB]: [['url', 'URL']],
+  [DATA_SOURCE.DORIS]: [
+    ['jdbcUrl', 'jdbcUrl'],
+    ['username', '用户名'],
+  ],
+  [DATA_SOURCE.KYLINJDBC]: [
+    ['jdbcUrl', 'jdbcUrl'],
+    ['username', '用户名'],
+  ],
+  [DATA_SOURCE.SQLSERVERJDBC]: [
     ['jdbcUrl', 'jdbcUrl'],
     ['username', '用户名'],
   ],

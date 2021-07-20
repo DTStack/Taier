@@ -27,12 +27,8 @@ interface DataSourceItem {
 
 const BasicInfo = (props: IPropsBasicInfo) => {
   const { form, cref, modelDetail, globalStep, mode } = props;
-  const {
-    getFieldDecorator,
-    getFieldsValue,
-    setFieldsValue,
-    validateFields,
-  } = form;
+  const { getFieldDecorator, getFieldsValue, setFieldsValue, validateFields } =
+    form;
   const [dataSourceList, setDataSourceList] = useState<DataSourceItem[]>([]);
   const [extra, setExtra] = useState<any>({});
   const isDisabled = mode === 'EDIT' && globalStep >= 0;

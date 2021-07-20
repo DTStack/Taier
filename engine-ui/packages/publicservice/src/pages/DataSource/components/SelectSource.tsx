@@ -3,8 +3,10 @@ import SearchInput from '@/components/SearchInput';
 import { Menu, notification } from 'antd';
 import { API } from '@/services';
 import { getSaveStatus } from '../utils/handelSession';
+import { useRef } from 'react';
 declare var APP_CONF: any;
 const IMG_URL = APP_CONF.IMG_URL || '';
+import _ from 'lodash';
 
 export default function SelectSource(props) {
   const { nextType } = props;
@@ -12,6 +14,8 @@ export default function SelectSource(props) {
   const [list, setList] = useState([]);
   const [iconList, setIconList] = useState([]);
   const [defaultMenu, setDefaultMenu] = useState(null);
+  const refContainer = useRef(null);
+  const [ratio, setRatio] = useState(1.0);
 
   const getClassifyList = async () => {
     let saveStatus = getSaveStatus();
@@ -100,6 +104,24 @@ export default function SelectSource(props) {
     sessionStorage.removeItem('version');
   };
 
+  // 计算图片缩放倍率
+  const computeScaleRatio = _.debounce(() => {
+    if (!refContainer.current) return;
+    const width = parseFloat(
+      window.getComputedStyle(refContainer.current)['width']
+    );
+    const len = Math.floor(width / (216 + 16));
+    const ratio = (width - 16 * len) / len / 216;
+    setRatio(ratio);
+  }, 500);
+
+  useEffect(() => {
+    computeScaleRatio();
+    window.addEventListener('resize', () => {
+      computeScaleRatio();
+    });
+  }, [refContainer.current]);
+
   return (
     <div className="fill">
       <SearchInput
@@ -125,19 +147,20 @@ export default function SelectSource(props) {
         </div>
         <div className="right-menu">
           <div className="right-menu-main">
-            <div className="right-menu-main-content">
+            <div className="right-menu-main-content" ref={refContainer}>
               {iconList.length > 0 &&
                 iconList.map((item, index) => {
                   let col = (
                     <div
                       className="right-menu-item"
                       key={index}
-                      style={{ width: '20%', marginBottom: 20 }}
+                      style={{ width: 'auto', marginBottom: 20 }}
                       onClick={() => onSelectType(item)}>
                       <img
                         src={item.imgUrl}
                         alt="图片显示失败"
                         className={item.selected ? 'selected' : ''}
+                        style={{ width: 216 * ratio, height: 108 * ratio }}
                       />
                       <p style={{ textAlign: 'center', marginTop: 12 }}>
                         {item.dataType}
