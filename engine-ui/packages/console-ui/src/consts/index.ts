@@ -356,7 +356,7 @@ export const ENGINE_TYPE_NAME = {
     LIBRA: 'LibrA',
     TI_DB: 'TiDB',
     ORACLE: 'Oracle',
-    GREEN_PLUM: 'GreenPlum',
+    GREEN_PLUM: 'Greenplum',
     PRESTO: 'PRESTO',
     ANALYTIC_DB: 'AnalyticDB PostgreSQL'
 }
@@ -366,7 +366,7 @@ export const ENGIN_TYPE_TEXT = {
     [ENGINE_TYPE.LIBRA]: 'LibrA',
     [ENGINE_TYPE.TI_DB]: 'TiDB',
     [ENGINE_TYPE.ORACLE]: 'Oracle',
-    [ENGINE_TYPE.GREEN_PLUM]: 'GreenPlum',
+    [ENGINE_TYPE.GREEN_PLUM]: 'Greenplum',
     [ENGINE_TYPE.PRESTO]: 'Presto',
     [ENGINE_TYPE.ANALYTIC_DB]: 'AnalyticDB PostgreSQL',
     [ENGINE_TYPE.FLINK_ON_STANDALONE]: 'Flink on Standalone'
