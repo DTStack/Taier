@@ -16,7 +16,6 @@ import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
-import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.druid.DtDruidRemoveAbandoned;
 import com.dtstack.engine.master.impl.*;
 import com.dtstack.engine.master.scheduler.parser.*;
@@ -36,10 +35,10 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.quartz.CronExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.support.CronSequenceGenerator;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -885,7 +884,13 @@ public class JobGraphBuilder {
             }
 
         }else if (cron.getPeriodType() == ESchedulePeriodType.CUSTOM.getVal()){
-            dateTime = new DateTime(findLastDateBeforeCurrent(new CronSequenceGenerator(cron.getCronStr()),currTriggerDate,
+            CronExpression expression = null;
+            try {
+                expression = new CronExpression(cron.getCronStr());
+            } catch (ParseException e) {
+                throw new RdosDefineException("cron express is invalid:" + cron.getCronStr(), e);
+            }
+            dateTime = new DateTime(findLastDateBeforeCurrent(expression,currTriggerDate,
                     currTriggerDate.toInstant().atZone(DateUtil.DEFAULT_ZONE).toLocalDateTime(),0,true));
         }
         else {
@@ -964,8 +969,14 @@ public class JobGraphBuilder {
         } else if (fatherCron.getPeriodType() == ESchedulePeriodType.MIN.getVal()) {
             dateTime = getCloseInDateTimeOfMin(dateTime, (ScheduleCronMinParser) fatherCron);
         }else if (fatherCron.getPeriodType() == ESchedulePeriodType.CUSTOM.getVal()){
+            CronExpression expression = null;
+            try {
+                expression = new CronExpression(fatherCron.getCronStr());
+            } catch (ParseException e) {
+                throw new RdosDefineException("cron express is invalid:" + fatherCron.getCronStr(), e);
+            }
             // 父任务为自定义调度,则从当前子任务执行前寻找
-            dateTime = new DateTime(findLastDateBeforeCurrent(new CronSequenceGenerator(fatherCron.getCronStr()),dateTime.toDate(),
+            dateTime = new DateTime(findLastDateBeforeCurrent(expression,dateTime.toDate(),
                     dateTime.toDate().toInstant().atZone(DateUtil.DEFAULT_ZONE).toLocalDateTime(),0,false));
         } else {
             throw new RuntimeException("not support period type of " + fatherCron.getPeriodType());
@@ -1291,8 +1302,8 @@ public class JobGraphBuilder {
     }
 
 
-    public static Date findLastDateBeforeCurrent(CronSequenceGenerator generator,Date currTriggerDate,
-                                                 LocalDateTime findDate,int change,boolean sameTask){
+    public static Date findLastDateBeforeCurrent(CronExpression expression, Date currTriggerDate,
+                                                 LocalDateTime findDate, int change, boolean sameTask){
         // 不同任务可能存在触发时间一样, 同个任务触发时间不可能相同, -1s防止下次执行时间刚好是本次
         findDate = sameTask ? findDate.plusSeconds(-1): findDate;
         if (change == 20){
@@ -1308,11 +1319,11 @@ public class JobGraphBuilder {
             findDate = findDate.plusDays(-1L);
         }
         // 计算下次执行时间
-        Date isLastDate = generator.next(new Date(findDate.toInstant(DateUtil.DEFAULT_ZONE).toEpochMilli()));
+        Date isLastDate = expression.getNextValidTimeAfter(new Date(findDate.toInstant(DateUtil.DEFAULT_ZONE).toEpochMilli()));
         // 前一次执行时间在本次之前，需要确定是不是最后一次
         if (isLastDate.before(currTriggerDate)){
             Date lastDate = isLastDate;
-            while ((isLastDate = generator.next(isLastDate)).before(currTriggerDate)){
+            while ((isLastDate = expression.getNextValidTimeAfter(isLastDate)).before(currTriggerDate)){
                 lastDate = isLastDate;
             }
             // 如果不是同一个任务，并且触发时间相同则返回这个触发时间否则返回上一个触发时间
@@ -1321,7 +1332,7 @@ public class JobGraphBuilder {
             return currTriggerDate;
         }
 
-        return findLastDateBeforeCurrent(generator,currTriggerDate,sameTask?findDate.plusSeconds(1):findDate,change+1,sameTask);
+        return findLastDateBeforeCurrent(expression,currTriggerDate,sameTask?findDate.plusSeconds(1):findDate,change+1,sameTask);
 
     }
 
