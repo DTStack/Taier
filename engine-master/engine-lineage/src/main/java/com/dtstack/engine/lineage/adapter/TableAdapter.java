@@ -43,8 +43,11 @@ public class TableAdapter {
         apiTable.setTemp(sqlTable.isTemp());
         apiTable.setView(sqlTable.isView());
         TableOperateEnum operate = sqlTable.getOperate();
-        com.dtstack.engine.api.enums.TableOperateEnum operateEnum = com.dtstack.engine.api.enums.TableOperateEnum.getOperateBySqlType(operate.getVal());
-        apiTable.setOperate(operateEnum);
+        if(null !=operate) {
+            com.dtstack.engine.api.enums.TableOperateEnum operateEnum = com.dtstack.engine.api.enums.TableOperateEnum.getOperateBySqlType(operate.getVal());
+            apiTable.setOperate(operateEnum);
+        }
+        apiTable.setIgnore(sqlTable.isIgnore());
         apiTable.setTableType(sqlTable.getTableType());
         apiTable.setMain(sqlTable.isMain());
         return apiTable;
