@@ -394,19 +394,18 @@ public class JobGraphBuilder {
         for (int idx = 0; idx < triggerDayList.size(); idx++) {
             String triggerTime = triggerDayList.get(idx);
             String nextTriggerTime = null;
-            if ((scheduleCron.getPeriodType() == ESchedulePeriodType.MIN.getVal() || scheduleCron.getPeriodType() == ESchedulePeriodType.HOUR.getVal())) {
+            if (triggerDayList.size() > 1) {
                 if ((idx < triggerDayList.size() - 1)) {
                     //当前不是最后一个
                     nextTriggerTime = triggerDayList.get(idx + 1);
                 } else {
                     DateTime nextDayExecute = new DateTime(jobBuildTime.getTime()).plusDays(1);
                     //当前最后一个，则获取下个周期的第一个
-                    List<String> nextTriggerDays = scheduleCron.getTriggerTime(nextDayExecute.toString("yyyy-MM-dd"));
+                    List<String> nextTriggerDays = scheduleCron.getTriggerTime(nextDayExecute.toString(DateUtil.DATE_FORMAT));
                     if (CollectionUtils.isNotEmpty(nextTriggerDays)) {
                         nextTriggerTime = nextTriggerDays.get(0);
                     }
                 }
-
             }
 
             ScheduleJob scheduleJob = new ScheduleJob();
@@ -438,20 +437,20 @@ public class JobGraphBuilder {
                 scheduleJob.setFlowJobId(NORMAL_TASK_FLOW_ID);
             } else {
                 //工作流子节点
-                String flowJobTime = triggerTime;
-                //非 小时&分钟 任务
-                if (scheduleCron.getPeriodType() != ESchedulePeriodType.MIN.getVal() && scheduleCron.getPeriodType() != ESchedulePeriodType.HOUR.getVal()) {
-                    List<String> cycTime = getFlowWorkCycTime(task.getFlowId(), triggerDay, task.getAppType());
-                    //其他类型的任务每天只会生成一个实例
-                    if (CollectionUtils.isNotEmpty(cycTime)) {
-                        flowJobTime = DateUtil.getTimeStrWithoutSymbol(cycTime.get(0));
-                    }
-                }
                 ScheduleTaskShade flowTaskShade = batchTaskShadeService.getBatchTaskById(task.getFlowId(), task.getAppType());
-                if ( null == flowTaskShade ) {
+                if (null == flowTaskShade) {
                     scheduleJob.setFlowJobId(NORMAL_TASK_FLOW_ID);
                 } else {
-                    scheduleJob.setFlowJobId(this.buildFlowReplaceId(flowTaskShade.getTaskId(),flowJobTime,flowTaskShade.getAppType()));
+                    //非 小时&分钟 任务
+                    String flowJobTime = triggerTime;
+                    if (triggerDayList.size() == 1) {
+                        List<String> cycTime = getFlowWorkCycTime(flowTaskShade, triggerDay);
+                        //其他类型的任务每天只会生成一个实例
+                        if (CollectionUtils.isNotEmpty(cycTime)) {
+                            flowJobTime = DateUtil.getTimeStrWithoutSymbol(cycTime.get(0));
+                        }
+                    }
+                    scheduleJob.setFlowJobId(this.buildFlowReplaceId(flowTaskShade.getTaskId(), flowJobTime, flowTaskShade.getAppType()));
                 }
             }
 
@@ -542,16 +541,15 @@ public class JobGraphBuilder {
         triggerDayList.removeAll(remove);
     }
 
-    private List<String> getFlowWorkCycTime(Long flowId, String triggerDay, Integer appType) {
-        ScheduleTaskShade flowWork = batchTaskShadeService.getBatchTaskById(flowId, appType);
+    private List<String> getFlowWorkCycTime(ScheduleTaskShade flowTaskShade, String triggerDay) {
         List<String> triggerTime = Lists.newArrayList();
-        if (flowWork != null) {
+        if (flowTaskShade != null) {
             try {
-                String scheduleStr = flowWork.getScheduleConf();
+                String scheduleStr = flowTaskShade.getScheduleConf();
                 ScheduleCron scheduleCron = ScheduleFactory.parseFromJson(scheduleStr);
                 triggerTime = scheduleCron.getTriggerTime(triggerDay);
             } catch (Exception e) {
-                LOGGER.error("getFlowWorkCycTime error with flowId: " + flowId, e);
+                LOGGER.error("getFlowWorkCycTime error with flowId: " + flowTaskShade.getTaskId(), e);
             }
         }
         return triggerTime;
