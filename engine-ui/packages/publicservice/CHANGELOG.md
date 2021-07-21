@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.2.3](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.2...v4.2.3) (2021-07-21)
+
+
+### Features
+
+*  add kafka ([e11390e](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/e11390e162976931897eb4fd0011e475b9867946))
+* add null ([d05fa87](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/d05fa87512c86b62655d65b825474ec4ab5a702a))
+* data source, add source sql server jdbc ([3b9b749](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/3b9b749c000aedf4d90b7b87a29b7e7ba6124910))
+* upgrade 1.3 ([5805971](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/58059714f5dca65a4cc46f3d40026134846d796f))
+
+
+### Bug Fixes
+
+* copy area hot area fix ([8c67557](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/8c6755764497b48db88b5a4ae6281d851e6b49c5))
+* data source list, image scale ratio ([edc0708](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/edc070811dea6f1b6b046b555cc8e135e38b0412))
+* remove console ([44109e3](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/44109e357300163c204026ce7034b66a04b4dc0a))
+
 ### [4.2.2](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.1...v4.2.2) (2021-07-18)
 
 
