@@ -33,7 +33,7 @@ public class EnvironmentContext {
     }
 
     public Integer getCycTimeDayGap() {
-        return Math.abs(Integer.parseInt(environment.getProperty("cycTimeDayGap", "0")));
+        return Math.abs(Integer.parseInt(environment.getProperty("cycTimeDayGap", "1")));
     }
 
     /**补数据或重跑cycTime的间隔，正常环境7*24小时，压测环境2个小时**/

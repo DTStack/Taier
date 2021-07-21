@@ -255,6 +255,7 @@ public class ScheduleTaskShadeServiceTest extends AbstractTest {
 
     @Test
     public void testRecentlyRunTime(){
-        scheduleTaskShadeService.recentlyRunTime("2021-04-29","2021-05-03","0 0 0/13 * * ?",10);
+        List<String> strings = scheduleTaskShadeService.recentlyRunTime("2021-04-29", "2021-12-03", "0 15 10 ? * 5L", 10);
+        Assert.assertNotNull(strings);
     }
 }
