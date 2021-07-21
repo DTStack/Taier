@@ -17,6 +17,7 @@ import { API } from '@/services';
 import './style';
 import _ from 'lodash';
 import SearchInput from 'components/SearchInput';
+import historyPsuhWithQuery from '@/utils/historyPushWithQuery';
 
 interface IPagination {
   current: number;
@@ -223,13 +224,13 @@ const List = (props: IPropList) => {
       Modal.confirm({
         title: title,
         onOk: () => {
-          router.push(`/data-model/edit/${id}`);
+          historyPsuhWithQuery(router, `/data-model/edit/${id}`);
         },
         okText: '确定',
         cancelText: '取消',
       });
     } else {
-      router.push(`/data-model/edit/${id}`);
+      historyPsuhWithQuery(router, `/data-model/edit/${id}`);
     }
   };
 
@@ -272,7 +273,7 @@ const List = (props: IPropList) => {
           <Button
             className="float-right"
             type="primary"
-            onClick={() => router.push('/data-model/add')}>
+            onClick={() => historyPsuhWithQuery(router, '/data-model/add')}>
             新建模型
           </Button>
         </header>
