@@ -6,18 +6,16 @@ All notable changes to this project will be documented in this file. See [standa
 
 ## [4.2.0-beta11](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.0-beta10...v4.2.0-beta11) (2021-07-12)
 
-
 ### Features
 
-* ko.config ([f372efc](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/f372efcae7b576c9f303d15e728a937309c80480))
-
+- ko.config ([f372efc](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/f372efcae7b576c9f303d15e728a937309c80480))
 
 ### Bug Fixes
 
-* # issue 2655 ([a435001](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/a4350014cfbb0341c8713ceee9e537b3b810d516))
-* compatible Windows Edge to Edg ([f6b86ef](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/f6b86ef3b4e0b90ee5c17a3ffd27bbc27f67cea3))
-* dt-common image path config ([8b6ba62](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/8b6ba62577ad5b6ea78a40f04d0d50ec830e5835))
-* upgrade dt-common@.9.2-temp ([fa3963c](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/fa3963c5702e4d2306634d75199fcad3edadd6e5))
+- # issue 2655 ([a435001](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/a4350014cfbb0341c8713ceee9e537b3b810d516))
+- compatible Windows Edge to Edg ([f6b86ef](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/f6b86ef3b4e0b90ee5c17a3ffd27bbc27f67cea3))
+- dt-common image path config ([8b6ba62](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/8b6ba62577ad5b6ea78a40f04d0d50ec830e5835))
+- upgrade dt-common@.9.2-temp ([fa3963c](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/fa3963c5702e4d2306634d75199fcad3edadd6e5))
 
 ## [4.2.0-beta10](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.0-beta9...v4.2.0-beta10) (2021-07-06)
 

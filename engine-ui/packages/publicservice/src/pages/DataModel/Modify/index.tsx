@@ -85,7 +85,7 @@ const Modify = (props: IPropsModify) => {
   const [current, setCurrent] = useState<EnumModifyStep>(
     EnumModifyStep.BASIC_STEP
   );
-  // 按钮迪纳吉状态
+  // 按钮点击状态
   const [disabled, setDisabled] = useState(false);
 
   const globalStep = useRef(-1);
@@ -277,7 +277,9 @@ const Modify = (props: IPropsModify) => {
               {current === EnumModifyStep.BASIC_STEP ? (
                 <Button
                   className="margin-right-8 width-80"
-                  onClick={() => historyPsuhWithQuery(router, '/data-model/list')}>
+                  onClick={() =>
+                    historyPsuhWithQuery(router, '/data-model/list')
+                  }>
                   取消
                 </Button>
               ) : null}
