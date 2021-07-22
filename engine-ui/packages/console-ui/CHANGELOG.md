@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.2.3](http://git.dtstack.cn/dtstack/data-stack-web/compare/v4.2.2...v4.2.3) (2021-07-22)
+
+
+### Bug Fixes
+
+* greenplum engine name ([f522eb3](http://git.dtstack.cn/dtstack/data-stack-web/commit/f522eb32868ca1f0586ba38af3cde357cff79ee7))
+
 ### [4.2.2](http://git.dtstack.cn/dtstack/data-stack-web/compare/v4.2.1...v4.2.2) (2021-07-16)
 
 ### [4.2.1](http://git.dtstack.cn/dtstack/data-stack-web/compare/v4.2.0-beta10...v4.2.1) (2021-07-12)
