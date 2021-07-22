@@ -96,6 +96,13 @@ function onSelectFile() {
       } else {
         resetEditorGroup();
       }
+
+      file.data.taskType &&
+        molecule.statusBar.appendRightItem({
+          id: "language",
+          sortIndex: 3,
+          name: file.data.taskType,
+        });
     }
   });
 }
