@@ -109,6 +109,11 @@ public class DataSourceService {
             KerberosConfigVO kerberosConfigVO = clusterService.addKerberosConfigWithHdfs(componentTypeCode, clusterId, kerberosConfig);
             editConsoleParam.setKerberosConfig(JSONObject.parseObject(JSONObject.toJSONString(kerberosConfigVO)));
         }
+
+        JSONObject hdfsConfig = componentService.getComponentByClusterId(clusterId, EComponentType.HDFS.getTypeCode(), false, JSONObject.class, null);
+        if (null != hdfsConfig) {
+            editConsoleParam.setHdfsConfig(hdfsConfig);
+        }
         return editConsoleParam;
     }
 

@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.lineage;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.domain.LineageTableTable;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleSqlTextTemp;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
@@ -10,11 +11,14 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleSqlTextTempDao;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
+import com.dtstack.engine.lineage.impl.LineageService;
+import com.dtstack.engine.lineage.impl.LineageTableTableService;
 import com.dtstack.engine.master.event.ScheduleJobBatchEvent;
 import com.dtstack.engine.master.event.ScheduleJobEventLister;
 import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +48,9 @@ public abstract class SqlJobFinishedListener implements ScheduleJobEventLister {
     @Autowired
     private ScheduleSqlTextTempDao sqlTextTempDao;
 
+    @Autowired
+    private LineageTableTableService lineageTableTableService;
+
     @Override
     public void publishBatchEvent(ScheduleJobBatchEvent event) {
         Integer status = event.getStatus();
@@ -72,8 +79,10 @@ public abstract class SqlJobFinishedListener implements ScheduleJobEventLister {
                 }
                 ScheduleJob lastJob = getLastScheduleJob(taskShade.getTaskId(),scheduleJob.getId());
                 Integer lastVersionId = null != lastJob ? lastJob.getVersionId() : null;
-                if(null != lastVersionId && lastVersionId.equals(scheduleJob.getVersionId())){
-                    //相邻两个相同task的job versionId相同，不解析sql
+                List<LineageTableTable> lineageTableTables = lineageTableTableService.queryTableLineageByTaskIdAndAppType(taskShade.getTaskId(), AppType.RDOS.getType());
+                if(null != lastVersionId && lastVersionId.equals(scheduleJob.getVersionId())
+                    && CollectionUtils.isEmpty(lineageTableTables)){
+                    //相邻两个相同task的job versionId相同，并且血缘表存在该taskId的血缘关系，则不解析sql。
                     continue;
                 }
                 String extraInfo = taskShade.getExtraInfo();

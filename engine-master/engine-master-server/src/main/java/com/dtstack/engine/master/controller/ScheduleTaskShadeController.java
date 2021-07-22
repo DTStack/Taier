@@ -11,11 +11,14 @@ import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskV
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
 import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
+import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.dtstack.engine.master.router.DtRequestParam;
 import org.springframework.web.bind.annotation.*;
@@ -218,6 +221,12 @@ public class ScheduleTaskShadeController {
     @RequestMapping(value = "/recentlyRunTime",method = {RequestMethod.POST})
     public List<String > recentlyRunTime(@DtRequestParam("startDate")String startDate,@DtRequestParam("endDate")String endDate,
                                          @DtRequestParam("cron")String cron,@DtRequestParam("num")Integer num){
+        if (StringUtils.isBlank(startDate)) {
+            startDate = DateTime.now().withTime(0, 0, 0, 0).toString(DateUtil.DATE_FORMAT);
+        }
+        if (StringUtils.isBlank(endDate)) {
+            endDate = DateTime.now().plusDays(1).withTime(0, 0, 0, 0).toString(DateUtil.DATE_FORMAT);
+        }
         return scheduleTaskShadeService.recentlyRunTime(startDate,endDate,cron, Objects.isNull(num)?10:num);
     }
 }

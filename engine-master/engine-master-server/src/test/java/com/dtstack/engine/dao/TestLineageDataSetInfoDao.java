@@ -13,7 +13,7 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface TestLineageDataSetInfoDao {
 
-    @Insert({"INSERT INTO lineage_data_set_info(dt_uic_tenant_id,app_type,source_id,real_source_id,source_name,source_type,source_key,set_type,db_name,schema_name,table_name,table_key,is_manual)VALUES(#{lineageDataSetInfo.dtUicTenantId},#{lineageDataSetInfo.appType},#{lineageDataSetInfo.sourceId},#{lineageDataSetInfo.realSourceId},#{lineageDataSetInfo.sourceName},#{lineageDataSetInfo.sourceType},#{lineageDataSetInfo.sourceKey},#{lineageDataSetInfo.setType},#{lineageDataSetInfo.dbName},#{lineageDataSetInfo.schemaName},#{lineageDataSetInfo.tableName},#{lineageDataSetInfo.tableKey},#{lineageDataSetInfo.isManual})"})
+    @Insert({"INSERT INTO lineage_data_set_info(dt_uic_tenant_id,app_type,source_name,source_type,set_type,db_name,schema_name,table_name,table_key,is_manual,data_info_id)VALUES(#{lineageDataSetInfo.dtUicTenantId},#{lineageDataSetInfo.appType},#{lineageDataSetInfo.sourceName},#{lineageDataSetInfo.sourceType},#{lineageDataSetInfo.setType},#{lineageDataSetInfo.dbName},#{lineageDataSetInfo.schemaName},#{lineageDataSetInfo.tableName},#{lineageDataSetInfo.tableKey},#{lineageDataSetInfo.isManual},#{lineageDataSetInfo.dataInfoId})"})
     @Options(useGeneratedKeys=true, keyProperty = "lineageDataSetInfo.id", keyColumn = "id")
     Integer insert(@Param("lineageDataSetInfo") LineageDataSetInfo lineageDataSetInfo);
 

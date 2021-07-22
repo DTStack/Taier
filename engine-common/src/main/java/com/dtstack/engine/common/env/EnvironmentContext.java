@@ -33,7 +33,7 @@ public class EnvironmentContext {
     }
 
     public Integer getCycTimeDayGap() {
-        return Math.abs(Integer.parseInt(environment.getProperty("cycTimeDayGap", "0")));
+        return Math.abs(Integer.parseInt(environment.getProperty("cycTimeDayGap", "1")));
     }
 
     /**补数据或重跑cycTime的间隔，正常环境7*24小时，压测环境2个小时**/
@@ -431,6 +431,10 @@ public class EnvironmentContext {
         return Integer.parseInt(environment.getProperty("job.submit.concurrent", "1"));
     }
 
+    public boolean getJobGraphBuilderSwitch() {
+        return Boolean.parseBoolean(environment.getProperty("jobGraphBuilderSwitch", "false"));
+    }
+
     /**
      * 日志数据定时删除
      */
@@ -635,5 +639,13 @@ public class EnvironmentContext {
      */
     public boolean checkStandalone() {
         return Boolean.parseBoolean(environment.getProperty("check.standalone", "true"));
+    }
+
+    public int getBatchJobInsertSize() {
+        return Integer.parseInt(environment.getProperty("batchJob.insert.size", "20"));
+    }
+
+    public int getBatchJobJobInsertSize() {
+        return Integer.parseInt(environment.getProperty("batchJobJob.insert.size", "1000"));
     }
 }

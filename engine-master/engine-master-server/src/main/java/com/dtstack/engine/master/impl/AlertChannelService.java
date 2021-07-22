@@ -142,7 +142,7 @@ public class AlertChannelService {
     }
 
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Boolean setDefaultAlert(ClusterAlertParam param) {
         checkDefaultParam(param);
         AlertChannel channel = alertChannelDao.selectById(param.getAlertId());
