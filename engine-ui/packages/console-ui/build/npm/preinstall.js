@@ -27,7 +27,7 @@ if (LOCK_YARN_VERSION) {
 }
 
 if (FORCE_YARN_INSTALL) {
-    if (!/yarn[\w-.]*\.js$|yarnpkg$/.test(process.env['npm_execpath'])) {
+    if (!/yarn[\w-.]*\.js$|yarnpkg$|lerna\/cli\.js$/.test(process.env['npm_execpath'])) {
         console.error('\033[1;31m*** Please use yarn to install dependencies.\033[0;0m')
         err = true
     }
