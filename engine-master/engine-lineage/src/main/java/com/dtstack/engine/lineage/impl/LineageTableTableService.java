@@ -36,8 +36,6 @@ public class LineageTableTableService {
      */
     private static final String TABLE_TABLE_KEY_TMP = "%s_%s";
 
-    @Autowired
-    private LineageDataSetInfoService dataSetInfoService;
 
     @Autowired
     private LineageTableTableDao lineageTableTableDao;
