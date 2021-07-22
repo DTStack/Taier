@@ -21,8 +21,6 @@ import com.dtstack.engine.common.util.UnitConvertUtil;
 import com.dtstack.engine.dao.ScheduleTaskCommitMapper;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.dao.TenantResourceDao;
-import com.dtstack.engine.master.executor.CronJobExecutor;
-import com.dtstack.engine.master.executor.FillJobExecutor;
 import com.dtstack.schedule.common.enums.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -59,12 +57,6 @@ public class ScheduleTaskShadeService {
 
     @Autowired
     private TenantResourceDao tenantResourceDao;
-
-    @Autowired
-    private CronJobExecutor cronJobExecutor;
-
-    @Autowired
-    private FillJobExecutor fillJobExecutor;
 
     @Autowired
     private EnvironmentContext environmentContext;
