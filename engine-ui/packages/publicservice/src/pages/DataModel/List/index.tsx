@@ -82,6 +82,7 @@ const List = (props: IPropList) => {
       setLoading(true);
       const { success, data, message } = await API.getModelList(requestParams);
       if (success) {
+        data.data = data.data === null ? [] : data.data;
         setModelList(
           data.data.map((item) => {
             Object.keys(item).map(
