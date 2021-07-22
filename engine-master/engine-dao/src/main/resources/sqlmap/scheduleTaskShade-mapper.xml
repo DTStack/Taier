@@ -511,6 +511,15 @@
                 ${item}
             </foreach>
         </if>
+        <if test="model.modifyUserId != null">
+            AND modify_user_id = #{model.modifyUserId}
+        </if>
+        <if test="model.createUserId != null">
+            AND create_user_id = #{model.createUserId}
+        </if>
+        <if test="model.ownerUserId != null">
+            AND owner_user_id = #{model.ownerUserId}
+        </if>
         and if(is_publish_to_produce = 0, is_deleted = 0,1=1) and flow_id = 0
 
         <if test="orderBy != null and sort != null">
@@ -568,6 +577,16 @@
         <if test="model.name != null">
             and name like '%${model.name}%'
         </if>
+        <if test="model.modifyUserId != null">
+            AND modify_user_id = #{model.modifyUserId}
+        </if>
+        <if test="model.createUserId != null">
+            AND create_user_id = #{model.createUserId}
+        </if>
+        <if test="model.ownerUserId != null">
+            AND owner_user_id = #{model.ownerUserId}
+        </if>
+
         and if(is_publish_to_produce = 0, is_deleted = 0,1=1) and flow_id = 0
     </select>
 
