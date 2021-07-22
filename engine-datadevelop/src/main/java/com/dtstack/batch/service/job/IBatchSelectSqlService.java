@@ -27,9 +27,6 @@ public interface IBatchSelectSqlService {
     String runSqlByTask(Long dtuicTenantId, ParseResult parseResult, Long tenantId, Long projectId,
                         Long userId, String database, boolean isCreateAs, Long taskId, int type, String preJobId);
 
-    ExecuteResultVO runCarbonSqlTask(Long dtuicTenantId, String originSql, Long tenantId, Long projectId,
-                                Long userId, String database, Long taskId, String dataJson, String jobId);
-
     /**
      * 根据jobId 获取任务执行结果
      * @param task
@@ -77,6 +74,4 @@ public interface IBatchSelectSqlService {
     ExecuteResultVO selectRunLog(BatchTask task, BatchHiveSelectSql selectSql, Long tenantId, Long projectId, Long dtuicTenantId, Long userId, Boolean isRoot, Integer taskType) throws Exception;;
 
     ActionJobEntityVO getTaskStatus(String jobId);
-
-    ExecuteResultVO runImpalaSqlTask(String formatSql, Long tenantId, long projectId, Long userId, long taskId, String database) throws Exception;
 }
