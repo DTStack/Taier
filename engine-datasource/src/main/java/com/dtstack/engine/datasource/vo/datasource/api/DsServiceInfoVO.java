@@ -55,4 +55,10 @@ public class DsServiceInfoVO implements Serializable {
     @ApiModelProperty("kerberos路径")
     private String kerberosDir;
 
+    /**
+     * dtuic 租户id
+     */
+    @ApiModelProperty("dtuicTenantId")
+    private Long dtuicTenantId;
+
 }

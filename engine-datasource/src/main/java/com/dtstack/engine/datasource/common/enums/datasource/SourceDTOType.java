@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.net.URI;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * 获取数据源对应的sourceDTO
@@ -202,6 +203,17 @@ public enum SourceDTOType {
             return buildHiveSourceDTO(dataJson, confMap, schema, DataSourceType.HIVE.getVal());
         }
     },
+    INCEPTOR(DataSourceType.INCEPTOR.getVal()) {
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
+            return getSourceDTO(dataJson, confMap, null);
+        }
+
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+            return buildInceptorSourceDTO(dataJson, confMap, schema, DataSourceType.INCEPTOR.getVal());
+        }
+    },
     HIVE3X(DataSourceType.HIVE3X.getVal()) {
         @Override
         public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
@@ -351,7 +363,7 @@ public enum SourceDTOType {
     /**
      * Kylin
      */
-    Kylin(DataSourceType.Kylin.getVal()) {
+    Kylin(DataSourceType.KylinRestful.getVal()) {
         @Override
         public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
             return getSourceDTO(dataJson, confMap, null);
@@ -359,7 +371,7 @@ public enum SourceDTOType {
 
         @Override
         public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
-            return buildKylinDTO(dataJson, confMap, schema);
+            return buildKylinUrlDTO(dataJson, confMap, schema);
         }
     },
     /**
@@ -514,6 +526,20 @@ public enum SourceDTOType {
         @Override
         public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
             return buildS3SourceDTO(dataJson, confMap, schema, DataSourceType.S3.getVal());
+        }
+    },
+    /**
+     * S3
+     */
+    AWS_S3(DataSourceType.AWS_S3.getVal()) {
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
+            return getSourceDTO(dataJson, confMap, null);
+        }
+
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+            return buildAwsS3SourceDTO(dataJson, confMap, schema, DataSourceType.AWS_S3.getVal());
         }
     },
     /**
@@ -682,7 +708,46 @@ public enum SourceDTOType {
         public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
             return buildInfluxDBSourceDTO(dataJson);
         }
+    },
+    /**
+     * InfluxDB
+     */
+    OPENTSDB(DataSourceType.OPENTSDB.getVal()) {
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
+            return getSourceDTO(dataJson, confMap, null);
+        }
+
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+            return buildOpenTSDBSourceDTO(dataJson);
+        }
+    },
+
+
+    DORISDB(DataSourceType.DORIS.getVal()){
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
+            return getSourceDTO(dataJson,confMap,null);
+        }
+
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+            return buildDorisDBSourceDTO(dataJson,schema);
+        }
+    },
+    KylinJdbc(DataSourceType.Kylin.getVal()){
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
+            return getSourceDTO(dataJson,confMap,null);
+        }
+
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+            return buildRdbmsSourceDTO(dataJson,confMap,schema, DataSourceType.Kylin.getVal());
+        }
     }
+
     ;
 
     SourceDTOType(Integer val) {
@@ -821,23 +886,17 @@ public enum SourceDTOType {
      * @param schema
      * @return
      */
-    public KylinSourceDTO buildKylinDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+    public KylinRestfulSourceDTO buildKylinUrlDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
         String url = CommonUtils.getStrFromJson(dataJson, FormNames.AUTH_URL);
         String username = CommonUtils.getStrFromJson(dataJson, FormNames.USERNAME);
         String password = CommonUtils.getStrFromJson(dataJson, FormNames.PASSWORD);
         String project = CommonUtils.getStrFromJson(dataJson, FormNames.PROJECT);
-        URI uri = URI.create(url);
-        StringBuilder sb = new StringBuilder();
-        sb.append("jdbc:kylin://").append(uri.getHost()).append(":").append(uri.getPort()).append("/").append(project);
-        String jdbcUrl = sb.toString();
-        return KylinSourceDTO.builder()
-                .url(jdbcUrl)
-                .username(username)
+        return KylinRestfulSourceDTO.builder()
+                .url(url).userName(username)
                 .password(password)
-                .sourceType(DataSourceType.Kylin.getVal())
-                .schema(schema)
-                .kerberosConfig(confMap)
+                .project(project)
                 .build();
+
     }
 
     /**
@@ -859,15 +918,6 @@ public enum SourceDTOType {
         sourceDTO.setSchema(schema);
         sourceDTO.setKerberosConfig(confMap);
         return sourceDTO;
-//        return RdbmsSourceDTO
-//                .builder()
-//                .url(url)
-//                .username(username)
-//                .password(password)
-//                .sourceType(val)
-//                .schema(schema)
-//                .kerberosConfig(confMap)
-//                .build();
     }
 
     public RdbmsSourceDTO getDataValObj(Integer val) {
@@ -936,7 +986,7 @@ public enum SourceDTOType {
      * @return
      */
     public InfluxDBSourceDTO buildInfluxDBSourceDTO(JSONObject dataJson) {
-        String url = CommonUtils.getStrFromJson(dataJson, FormNames.JDBC_URL);
+        String url = CommonUtils.getStrFromJson(dataJson, FormNames.URL);
         String username = CommonUtils.getStrFromJson(dataJson, FormNames.USERNAME);
         String password = CommonUtils.getStrFromJson(dataJson, FormNames.PASSWORD);
         return InfluxDBSourceDTO
@@ -944,6 +994,19 @@ public enum SourceDTOType {
                 .url(url)
                 .username(username)
                 .password(password)
+                .build();
+    }
+
+    /**
+     * 构建InfluxDB数据库DTO参数
+     * @param dataJson
+     * @return
+     */
+    public OpenTSDBSourceDTO buildOpenTSDBSourceDTO(JSONObject dataJson) {
+        String url = CommonUtils.getStrFromJson(dataJson, FormNames.URL);
+        return OpenTSDBSourceDTO
+                .builder()
+                .url(url)
                 .build();
     }
 
@@ -976,15 +1039,50 @@ public enum SourceDTOType {
         String password = CommonUtils.getStrFromJson(dataJson, FormNames.PASSWORD);
         String defaultFS = null;
         String hadoopConfig = null;
+        defaultFS = dataJson.getString(FormNames.DEFAULT_FS);
+        if (!defaultFS.matches(RegexMatch.DEFAULT_FS_REGEX)) {
+            // 不匹配HDFS正则
+            throw new PubSvcDefineException(ErrorCode.ERROR_DEFAULT_FS_FORMAT);
+        }
         if (dataJson.containsKey(FormNames.HADOOP_CONFIG) && Strings.isNotBlank(dataJson.getString(FormNames.HADOOP_CONFIG))) {
-            defaultFS = dataJson.getString(FormNames.DEFAULT_FS);
-            if (!defaultFS.matches(RegexMatch.DEFAULT_FS_REGEX)) {
-                // 不匹配HDFS正则
-                throw new PubSvcDefineException(ErrorCode.ERROR_DEFAULT_FS_FORMAT);
-            }
             hadoopConfig = dataJson.getString(FormNames.HADOOP_CONFIG);
         }
         return  HiveSourceDTO
+                .builder()
+                .url(url)
+                .username(username)
+                .password(password)
+                .schema(schema)
+                .sourceType(val)
+                .defaultFS(defaultFS)
+                .config(hadoopConfig)
+                .kerberosConfig(confMap)
+                .build();
+    }
+
+    /**
+     * 构建Inceptor DTO参数
+     * @param dataJson
+     * @param confMap
+     * @param schema
+     * @param val
+     * @return
+     */
+    public InceptorSourceDTO buildInceptorSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Integer val) {
+        String url = CommonUtils.getStrFromJson(dataJson, FormNames.JDBC_URL);
+        String username = CommonUtils.getStrFromJson(dataJson, FormNames.USERNAME);
+        String password = CommonUtils.getStrFromJson(dataJson, FormNames.PASSWORD);
+        String defaultFS = null;
+        String hadoopConfig = null;
+        defaultFS = dataJson.getString(FormNames.DEFAULT_FS);
+        if (!defaultFS.matches(RegexMatch.DEFAULT_FS_REGEX)) {
+            // 不匹配HDFS正则
+            throw new PubSvcDefineException(ErrorCode.ERROR_DEFAULT_FS_FORMAT);
+        }
+        if (dataJson.containsKey(FormNames.HADOOP_CONFIG) && Strings.isNotBlank(dataJson.getString(FormNames.HADOOP_CONFIG))) {
+            hadoopConfig = dataJson.getString(FormNames.HADOOP_CONFIG);
+        }
+        return  InceptorSourceDTO
                 .builder()
                 .url(url)
                 .username(username)
@@ -1011,12 +1109,12 @@ public enum SourceDTOType {
         String password = CommonUtils.getStrFromJson(dataJson, FormNames.PASSWORD);
         String defaultFS = null;
         String hadoopConfig = null;
+        defaultFS = dataJson.getString(FormNames.DEFAULT_FS);
+        if (!defaultFS.matches(RegexMatch.DEFAULT_FS_REGEX)) {
+            // 不匹配HDFS正则
+            throw new PubSvcDefineException(ErrorCode.ERROR_DEFAULT_FS_FORMAT);
+        }
         if (dataJson.containsKey(FormNames.HADOOP_CONFIG) && Strings.isNotBlank(dataJson.getString(FormNames.HADOOP_CONFIG))) {
-            defaultFS = dataJson.getString(FormNames.DEFAULT_FS);
-            if (!defaultFS.matches(RegexMatch.DEFAULT_FS_REGEX)) {
-                // 不匹配HDFS正则
-                throw new PubSvcDefineException(ErrorCode.ERROR_DEFAULT_FS_FORMAT);
-            }
             hadoopConfig = dataJson.getString(FormNames.HADOOP_CONFIG);
         }
         return  Hive3SourceDTO
@@ -1046,12 +1144,12 @@ public enum SourceDTOType {
         String password = CommonUtils.getStrFromJson(dataJson, FormNames.PASSWORD);
         String defaultFS = null;
         String hadoopConfig = null;
+        defaultFS = dataJson.getString(FormNames.DEFAULT_FS);
+        if (!defaultFS.matches(RegexMatch.DEFAULT_FS_REGEX)) {
+            // 不匹配HDFS正则
+            throw new PubSvcDefineException(ErrorCode.ERROR_DEFAULT_FS_FORMAT);
+        }
         if (dataJson.containsKey(FormNames.HADOOP_CONFIG) && Strings.isNotBlank(dataJson.getString(FormNames.HADOOP_CONFIG))) {
-            defaultFS = dataJson.getString(FormNames.DEFAULT_FS);
-            if (!defaultFS.matches(RegexMatch.DEFAULT_FS_REGEX)) {
-                // 不匹配HDFS正则
-                throw new PubSvcDefineException(ErrorCode.ERROR_DEFAULT_FS_FORMAT);
-            }
             hadoopConfig = dataJson.getString(FormNames.HADOOP_CONFIG);
         }
         return  Hive1SourceDTO
@@ -1081,12 +1179,12 @@ public enum SourceDTOType {
         String password = dataJson.containsKey("password") ? dataJson.getString("password") : "";
         String defaultFS = null;
         String hadoopConfig = null;
+        defaultFS = dataJson.getString(FormNames.DEFAULT_FS);
+        if (!defaultFS.matches(RegexMatch.DEFAULT_FS_REGEX)) {
+            // 不匹配HDFS正则
+            throw new PubSvcDefineException(ErrorCode.ERROR_DEFAULT_FS_FORMAT);
+        }
         if (dataJson.containsKey(FormNames.HADOOP_CONFIG) && Strings.isNotBlank(dataJson.getString(FormNames.HADOOP_CONFIG))) {
-            defaultFS = dataJson.getString(FormNames.DEFAULT_FS);
-            if (!defaultFS.matches(RegexMatch.DEFAULT_FS_REGEX)) {
-                // 不匹配HDFS正则
-                throw new PubSvcDefineException(ErrorCode.ERROR_DEFAULT_FS_FORMAT);
-            }
             hadoopConfig = dataJson.getString(FormNames.HADOOP_CONFIG);
         }
         return SparkSourceDTO.builder()
@@ -1355,6 +1453,28 @@ public enum SourceDTOType {
     }
 
     /**
+     * 构建AWSS3DTO参数
+     * @param dataJson
+     * @param confMap
+     * @param schema
+     * @param val
+     * @return
+     */
+    public AwsS3SourceDTO buildAwsS3SourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Integer val) {
+        String regine = CommonUtils.getStrFromJson(dataJson, FormNames.REGINE);
+        String accessKey = CommonUtils.getStrFromJson(dataJson, FormNames.ACCESS_KEY);
+        String secretKey = CommonUtils.getStrFromJson(dataJson, FormNames.SECRET_KEY);
+
+        return AwsS3SourceDTO
+                .builder()
+                .region(regine)
+                .accessKey(accessKey)
+                .secretKey(secretKey)
+                .build();
+
+    }
+
+    /**
      * 构造KafkaDTO参数
      * @param dataJson
      * @param confMap
@@ -1364,6 +1484,8 @@ public enum SourceDTOType {
      */
     public KafkaSourceDTO buildKafkaSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Integer val) {
         String url = CommonUtils.getStrFromJson(dataJson, FormNames.ADDRESS);
+        String username = CommonUtils.getStrFromJson(dataJson, FormNames.USERNAME);
+        String password = CommonUtils.getStrFromJson(dataJson, FormNames.PASSWORD);
         String brokerUrls = dataJson.getString(FormNames.BROKER_LIST);
         return KafkaSourceDTO
                 .builder()
@@ -1371,6 +1493,8 @@ public enum SourceDTOType {
                 .sourceType(val)
                 .kerberosConfig(confMap)
                 .url(url)
+                .username(username)
+                .password(password)
                 .build();
     }
 
@@ -1487,6 +1611,17 @@ public enum SourceDTOType {
         JSONObject dataJson = DataSourceUtils.getDataSourceJson(data);
         SourceDTOType sourceDTOType = getSourceDTOType(sourceType);
         return sourceDTOType.getSourceDTO(dataJson, confMap, schema);
+    }
+
+    public ISourceDTO buildDorisDBSourceDTO(JSONObject dataJson, String schema){
+        Function<String ,String > getOrEmpty = (v)->
+                StringUtils.isBlank(v)?StringUtils.EMPTY:v;
+        return DorisSourceDTO.builder()
+                .url(getOrEmpty.apply(dataJson.getString(FormNames.JDBC_URL)))
+                .schema(schema)
+                .username(getOrEmpty.apply(dataJson.getString(FormNames.USERNAME)))
+                .password(getOrEmpty.apply(dataJson.getString(FormNames.PASSWORD)))
+                .build();
     }
 
     public static void main(String[] args) {

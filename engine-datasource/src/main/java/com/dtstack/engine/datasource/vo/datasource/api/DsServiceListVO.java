@@ -38,6 +38,9 @@ public class DsServiceListVO implements Serializable {
     @ApiModelProperty("数据源连接信息 json")
     private String linkJson;
 
+    @ApiModelProperty("数据源信息 json")
+    private String dataJson;
+
     @ApiModelProperty("是否有meta标志 0-否 1-是")
     private Integer isMeta;
 
@@ -53,5 +56,8 @@ public class DsServiceListVO implements Serializable {
     @ApiModelProperty("最近修改时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date gmtModified;
+
+    @ApiModelProperty("数据库名称")
+    private String schemaName;
 
 }

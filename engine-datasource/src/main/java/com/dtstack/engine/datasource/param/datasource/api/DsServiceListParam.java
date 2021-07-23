@@ -43,5 +43,8 @@ public class DsServiceListParam extends BasePageParam {
     @ApiModelProperty("是否为meta数据源")
     private Integer isMeta;
 
+    @ApiModelProperty("数据库名称列表")
+    private List<String> schemaNameList;
+
 
 }

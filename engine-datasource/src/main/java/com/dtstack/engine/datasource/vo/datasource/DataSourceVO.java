@@ -138,5 +138,8 @@ public class DataSourceVO {
      */
     private Integer isMeta;
 
+    /**数据库名称**/
+    private String schemaName;
+
 
 }

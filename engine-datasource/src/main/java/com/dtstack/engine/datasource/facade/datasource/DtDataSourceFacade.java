@@ -5,6 +5,7 @@ import com.dtstack.dtcenter.loader.client.IKerberos;
 import com.dtstack.dtcenter.loader.dto.ColumnMetaDTO;
 import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
+import com.dtstack.engine.datasource.auth.MetaObjectHolder;
 import com.dtstack.engine.datasource.common.enums.datasource.DataSourceTypeEnum;
 import com.dtstack.engine.datasource.common.enums.datasource.SourceDTOType;
 import com.dtstack.engine.datasource.common.exception.ErrorCode;
@@ -115,7 +116,9 @@ public class DtDataSourceFacade {
             return Collections.emptyList();
         }
         List<DsInfo> dsInfoList = dsInfoService.lambdaQuery()
-                .in(DsInfo::getDataType, Collections.mapperList(dataSourceEnums, DataSourceTypeEnum::getDataType)).list();
+                .in(DsInfo::getDataType, Collections.mapperList(dataSourceEnums, DataSourceTypeEnum::getDataType))
+                .orderByDesc(DsInfo::getGmtModified, DsInfo::getDataType)
+                .list();
         return Dozers.convertList(dsInfoList, DsServiceInfoVO.class, (retList, target, source, destinationClass) -> {
             target.setDataInfoId(source.getId());
             DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(source.getDataType(), source.getDataVersion());
@@ -235,16 +238,14 @@ public class DtDataSourceFacade {
         String localKerberosPath;
         Map<String, Object> temConfMap = null;
 
-        //TODO  Check (repleace MetaObjectHolder to dsInfo.getDtuicTenantId )
-        Long dtuicTenantId = dsInfo.getDtuicTenantId();
-
+        Long dtuicTenantId = MetaObjectHolder.uid();
         if (openKerberos) {
             Map<String, Object> kerberosConfig = null;
             localKerberosPath = kerberosService.getLocalKerberosPath(dsInfo.getId());
             try {
                 if (!CommonUtils.filePathExist(localKerberosPath)) {
                     // 当前文件不存在则从SFTP下载
-                    kerberosService.downloadKerberosFromSftp(dsInfo.getId(), DataSourceUtils.getDataSourceJson(dsInfo.getDataJson()), localKerberosPath, dtuicTenantId);
+                    kerberosService.downloadKerberosFromSftp(dsInfo.getIsMeta(), dsInfo.getId(), DataSourceUtils.getDataSourceJson(dsInfo.getDataJson()), localKerberosPath, dtuicTenantId);
                 }
                 // 若当前文件存在则不从SFTP下载
                 kerberosConfig = DataSourceUtils.getOriginKerberosConfig(dsInfo.getDataJson(), false);

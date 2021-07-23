@@ -92,6 +92,9 @@ public interface FormNames {
      * Hbase集群地址
      */
     String HBASE_QUORUM = "hbase_quorum";
+
+    String HBASE_ZK_QUORUM = "hbase.zookeeper.quorum";
+
     /**
      * Hbase根目录
      */
@@ -206,5 +209,21 @@ public interface FormNames {
      * solr zkHost
      */
     String ZK_HOSt = "zkHost";
+
+    /**AWS S3 regine**/
+    String REGINE = "regine";
+
+    /**kafka 认证**/
+    String AUTHENTICATION = "authentication";
+
+    /**kafka SASL_PLAINTEXT认证**/
+    String SASL_PLAINTEXT = "SASL_PLAINTEXT";
+
+    /**kafka 无认证**/
+    String NONE = "无";
+
+    /**kafka 开启kerberos认证**/
+    String KERBROS = "kerberos";
+
 
 }

@@ -61,4 +61,7 @@ public class CreateDsParam extends PubSvcBaseParam {
     @ApiModelProperty("修改用户Id")
     private Long modifyUserId;
 
+    @ApiModelProperty("数据库名称")
+    private String schemaName;
+
 }

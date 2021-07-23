@@ -68,6 +68,12 @@ public class DsInfo extends TenantModel<DsInfo> {
     @TableField("is_meta")
     private Integer isMeta;
 
+    /**
+     * 数据库名称
+     */
+    @TableField("schema_name")
+    private String schemaName;
+
 //    /**
 //     * 租户主键id
 //     */

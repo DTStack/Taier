@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 /**
  * company: www.dtstack.com
@@ -92,5 +94,8 @@ public class DsFormFieldVo implements Serializable {
      */
     @ApiModelProperty("正则校验表达式")
     private String regex;
+
+    @ApiModelProperty("select组件下拉内容")
+    private List<Map> options;
 
 }

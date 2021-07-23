@@ -3,8 +3,10 @@ package com.dtstack.engine.datasource.common.enums.datasource;
 import com.dtstack.engine.datasource.common.exception.ErrorCode;
 import com.dtstack.engine.datasource.common.exception.PubSvcDefineException;
 import com.dtstack.engine.datasource.common.utils.datakit.Asserts;
+import com.google.common.collect.Lists;
 import dt.insight.plat.lang.base.Strings;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -23,9 +25,9 @@ public enum DataSourceTypeEnum {
     Polardb_For_MySQL(28, "PolarDB for MySQL8", null),
     Oracle(2, "Oracle", null),
     SQLServer(3, "SQLServer", null),
-    SQLSERVER_2017_LATER(32, "SQLServer_2017_LATER", null),
+    SQLSERVER_2017_LATER(32, "SQLServer JDBC", null),
     PostgreSQL(4, "PostgreSQL", null),
-    ADB_PostgreSQL(49, "ADB_PostgreSQL", null),
+    ADB_PostgreSQL(54, "ADB_PostgreSQL", null),
     DB2(19, "DB2", null),
     DMDB(35, "DMDB", null),
     RDBMS(5, "RDBMS", null),
@@ -37,7 +39,7 @@ public enum DataSourceTypeEnum {
     SparkThrift2_1(45, "SparkThrift", null),
     MAXCOMPUTE(10, "Maxcompute", null),
     GREENPLUM6(36, "Greenplum", null),
-    LIBRA(21, "LibrA", null),
+    LIBRA(21, "GaussDB", null),
     GBase_8a(22, "GBase_8a", null),
     HDFS(6, "HDFS", null),
     FTP(9, "FTP", null),
@@ -46,7 +48,7 @@ public enum DataSourceTypeEnum {
     TiDB(31, "TiDB", null),
     CarbonData(20, "CarbonData", null),
     Kudu(24,"Kudu", null),
-    Kylin(23, "Kylin", null),
+    Kylin(58, "Kylin URL", "3.x"),
     HBASE(8, "HBase", "1.x"),
     HBASE2(39, "HBase", "2.x"),
     Phoenix4(30, "Phoenix", "4.x"),
@@ -69,7 +71,12 @@ public enum DataSourceTypeEnum {
     ADS(15, "AnalyticDB", null),
     Presto(48, "Presto", null),
     SOLR(53,"Solr","7.x"),
-    INFLUXDB(55,"InfluxDB","1.x")
+    INFLUXDB(55,"InfluxDB","1.x"),
+    INCEPTOR(52, "Inceptor", null),
+    AWS_S3(51, "AWS S3", null),
+    Kylin_Jdbc(23, "Kylin JDBC", "3.x"),
+    OPENTSDB(56,"OpenTSDB","2.x"),
+    Doris(57,"Doris","0.14.x")
     ;
 
 
@@ -96,6 +103,12 @@ public enum DataSourceTypeEnum {
             }
         }
         throw new PubSvcDefineException(ErrorCode.CAN_NOT_FITABLE_SOURCE_TYPE);
+    }
+
+    public static List<Integer> hadoopSourceCode = Lists.newArrayList(HIVE1X.val,
+            HIVE2X.val, HIVE3X.val, SparkThrift2_1.val,INCEPTOR.val, IMPALA.val);
+    public static Boolean isHadoopType(Integer typeCode){
+        return hadoopSourceCode.contains(typeCode);
     }
 
     /**

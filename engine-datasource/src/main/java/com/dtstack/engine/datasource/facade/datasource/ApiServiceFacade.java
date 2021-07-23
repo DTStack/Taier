@@ -23,6 +23,8 @@ import com.dtstack.engine.datasource.common.utils.PageUtil;
 import com.google.common.collect.Lists;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,6 +49,11 @@ public class ApiServiceFacade {
     private static String ORACLE_MARK_D = "@";
 
     private static String ORACLE_MARK_O = ":";
+
+    private static final String SEMICOLON = ";";
+
+    private static final String EQUAL = "=";
+
 
 
     @Autowired
@@ -205,6 +212,8 @@ public class ApiServiceFacade {
         DsImportRef importRef = new DsImportRef();
         importRef.setDataInfoId(dataSourceId);
         importRef.setAppType(createDsParam.getAppType());
+        importRef.setDtUicTenantId(createDsParam.getDsDtuicTenantId());
+        importRef.setProjectId(createDsParam.getProjectId());
         importRefService.save(importRef);
 
         DsShiftReturnVO vo = new DsShiftReturnVO();
@@ -341,7 +350,7 @@ public class ApiServiceFacade {
         dataSourceVO.setDataName(createDsParam.getDataName());
         dataSourceVO.setDataDesc(createDsParam.getDataDesc());
         dataSourceVO.setType(createDsParam.getType());
-
+        dataSourceVO.setSchemaName(createDsParam.getSchemaName());
         DataSourceTypeEnum typeEnum = DataSourceTypeEnum.valOf(createDsParam.getType());
         Asserts.notNull(typeEnum, ErrorCode.CAN_NOT_FITABLE_SOURCE_TYPE);
         dataSourceVO.setDataType(typeEnum.getDataType());
@@ -351,6 +360,19 @@ public class ApiServiceFacade {
         }
         dataSourceVO.setAppTypeList(Arrays.asList(createDsParam.getAppType()));
         dataSourceVO.setIsMeta(createDsParam.getIsMeta());
+        JSONObject dataSourceJson = DataSourceUtils.getDataSourceJson(createDsParam.getDataJson());
+        if(null != dataSourceJson.getJSONObject(DataSourceUtils.KERBEROS_CONFIG)){
+            JSONObject kerberosConfig = dataSourceJson.getJSONObject(DataSourceUtils.KERBEROS_CONFIG);
+            String principalFile = kerberosConfig.getString("principalFile");
+            String principalFileStr = principalFile.substring(principalFile.lastIndexOf("/")+1);
+            kerberosConfig.put("principalFile",principalFileStr);
+            String krb5File = kerberosConfig.getString("java.security.krb5.conf");
+            if(StringUtils.isNotBlank(krb5File)) {
+                kerberosConfig.put("krb5File", krb5File.substring(krb5File.lastIndexOf("/") + 1));
+            }
+            kerberosConfig.put("kerberosDir",kerberosConfig.getString("remotePath"));
+            dataSourceVO.setDataJson(dataSourceJson);
+        }
         return dataSourceVO;
     }
 
@@ -379,24 +401,51 @@ public class ApiServiceFacade {
         log.info("本次控制台修改涉及到的数据源为 dsInfoIds: [{}]", dsInfoIds);
         List<DsInfo> editDsInfoList = Lists.newArrayList();
         for (DsInfo dsInfo : dsInfoList) {
-            if (StringUtils.isNotBlank(dsInfo.getDataJson())) {
-                JSONObject dataJson = DataSourceUtils.getDataSourceJson(dsInfo.getDataJson());
-                JSONObject linkDataJson = DataSourceUtils.getDataSourceJson(dsInfo.getLinkJson());
-                String editJdbcUrl = editJdbcUrl(CommonUtils.getStrFromJson(dataJson, FormNames.JDBC_URL), consoleParam.getJdbcUrl(), isOracle);
-                editJsonObjectField(dataJson, FormNames.JDBC_URL, editJdbcUrl, String.class);
-                editJsonObjectField(dataJson, FormNames.USERNAME, consoleParam.getUsername(), String.class);
-                editJsonObjectField(dataJson, FormNames.PASSWORD, consoleParam.getPassword(), String.class);
-
-                editJsonObjectField(linkDataJson, FormNames.JDBC_URL, editJdbcUrl, String.class);
-                editJsonObjectField(linkDataJson, FormNames.USERNAME, consoleParam.getUsername(), String.class);
-                dsInfo.setDataJson(DataSourceUtils.getEncodeDataSource(dataJson, true));
-                dsInfo.setLinkJson(DataSourceUtils.getEncodeDataSource(linkDataJson, true));
-                // 测试联通性
-                if (!datasourceFacade.checkConnectByDsInfo(dsInfo)) {
-                    throw new PubSvcDefineException(ErrorCode.CONSOLE_EDIT_CAN_NOT_CONNECT);
-                }
-                editDsInfoList.add(dsInfo);
+            if(StringUtils.isBlank(dsInfo.getDataJson())){
+                continue;
             }
+            JSONObject dataJson = DataSourceUtils.getDataSourceJson(dsInfo.getDataJson());
+            JSONObject kerberosConfig = consoleParam.getKerberosConfig();
+            String originUrl = CommonUtils.getStrFromJson(dataJson, FormNames.JDBC_URL);
+            if(StringUtils.isBlank(originUrl)){
+                log.error("该数据源为脏数据,dataInfoId:{}",dsInfo.getId());
+                continue;
+            }
+            if(null != kerberosConfig){
+                List<DsImportRef> dsImportRefs = importRefService.getImportDsByInfoId(dsInfo.getId());
+                if(dsImportRefs.size()>0){
+                    //是迁移过来的meta数据源，需要取消他的迁移标识
+                    DsImportRef dsImportRef = dsImportRefs.get(0);
+                    dsImportRef.setOldDataInfoId(-1L);
+                    importRefService.updateById(dsImportRef);
+                }
+                handleKerberosConfig(kerberosConfig);
+                dataJson.put(DataSourceUtils.KERBEROS_CONFIG,kerberosConfig);
+                originUrl = null != kerberosConfig.getString(FormNames.PRINCIPAL) ? originUrl + SEMICOLON + FormNames.PRINCIPAL +
+                        EQUAL + kerberosConfig.get(FormNames.PRINCIPAL) : originUrl;
+            }else{
+                originUrl = originUrl.contains(FormNames.PRINCIPAL) ? originUrl.substring(0,originUrl.indexOf(SEMICOLON)):originUrl;
+                dataJson.remove(DataSourceUtils.KERBEROS_CONFIG);
+            }
+            JSONObject hdfsConfig = consoleParam.getHdfsConfig();
+            if(null != hdfsConfig && DataSourceTypeEnum.isHadoopType(dsInfo.getDataTypeCode())){
+                JSONObject highAvaConfig = createHadoopConfigObject(hdfsConfig);
+                dataJson.put(FormNames.HADOOP_CONFIG,highAvaConfig);
+            }
+            JSONObject linkDataJson = DataSourceUtils.getDataSourceJson(dsInfo.getLinkJson());
+            String editJdbcUrl = editJdbcUrl(originUrl, consoleParam.getJdbcUrl(), isOracle);
+            editJsonObjectField(dataJson, FormNames.JDBC_URL, editJdbcUrl, String.class);
+            editJsonObjectField(dataJson, FormNames.USERNAME, consoleParam.getUsername(), String.class);
+            editJsonObjectField(dataJson, FormNames.PASSWORD, consoleParam.getPassword(), String.class);
+            editJsonObjectField(linkDataJson, FormNames.JDBC_URL, editJdbcUrl, String.class);
+            editJsonObjectField(linkDataJson, FormNames.USERNAME, consoleParam.getUsername(), String.class);
+            dsInfo.setDataJson(DataSourceUtils.getEncodeDataSource(dataJson, true));
+            dsInfo.setLinkJson(DataSourceUtils.getEncodeDataSource(linkDataJson, true));
+            // 测试联通性
+//                if (!datasourceFacade.checkConnectByDsInfo(dsInfo)) {
+//                    throw new PubSvcDefineException(ErrorCode.CONSOLE_EDIT_CAN_NOT_CONNECT);
+//                }
+            editDsInfoList.add(dsInfo);
         }
         dsInfoService.updateBatchById(editDsInfoList);
 
@@ -406,6 +455,37 @@ public class ApiServiceFacade {
             vo.setDataName(e.getDataName());
             return vo;
         }).collect(Collectors.toList());
+    }
+
+    public JSONObject createHadoopConfigObject(JSONObject hdfsConfig) {
+        JSONObject hadoop = new JSONObject();
+        String nameServices = hdfsConfig.getOrDefault("dfs.nameservices","").toString();
+        if (StringUtils.isNotBlank(nameServices)) {
+            hadoop.put("dfs.nameservices", nameServices);
+            String nameNodes = hdfsConfig.getOrDefault(String.format("dfs.ha.namenodes.%s", nameServices),"").toString();
+            if (StringUtils.isNotBlank(nameNodes)) {
+                hadoop.put(String.format("dfs.ha.namenodes.%s", nameServices), nameNodes);
+                for (String nameNode : nameNodes.split(",")) {
+                    String key = String.format("dfs.namenode.rpc-address.%s.%s", nameServices, nameNode);
+                    hadoop.put(key, hdfsConfig.get(key));
+                }
+            }
+            String failoverKey = String.format("dfs.client.failover.proxy.provider.%s", nameServices);
+            hadoop.put(failoverKey, hdfsConfig.get(failoverKey));
+        }
+        return hadoop;
+    }
+
+
+
+
+    private void handleKerberosConfig(JSONObject kerberosConfig) {
+        kerberosConfig.put("principalFile",kerberosConfig.getString("name"));
+        kerberosConfig.put("java.security.krb5.conf",kerberosConfig.getString("krbName"));
+        String remotePath = kerberosConfig.getString("remotePath");
+        if(null != remotePath){
+            kerberosConfig.put("kerberosDir",remotePath.substring(remotePath.indexOf("CONSOLE")));
+        }
     }
 
 
@@ -468,6 +548,7 @@ public class ApiServiceFacade {
         return dto;
     }
 
+
     /**
      * 分割oracle jdbcUrl原字符串, 生成DTO
      * @param originStr
@@ -524,6 +605,9 @@ public class ApiServiceFacade {
      */
     public List<DsServiceInfoVO> getDsInfoListByIdList(List<Long> dataInfoIdList) {
 
+        if(CollectionUtils.isEmpty(dataInfoIdList)){
+            return ListUtils.EMPTY_LIST;
+        }
         List<DsInfo> dsInfoList = dsInfoService.getDsInfoListByIdList(dataInfoIdList);
         List<DsServiceInfoVO> dsServiceInfoVOS = new ArrayList<>();
         for (DsInfo dsInfo : dsInfoList) {
@@ -569,10 +653,6 @@ public class ApiServiceFacade {
             }
             return jdbc;
         }
-    }
-
-    public static void main(String[] args) {
-
     }
 
 }

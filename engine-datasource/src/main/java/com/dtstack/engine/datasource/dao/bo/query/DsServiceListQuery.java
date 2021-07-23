@@ -35,4 +35,13 @@ public class DsServiceListQuery extends DaoPageParam {
     /**数据源类型编码列表**/
     private List<Integer> dataTypeCodeList;
 
+    /**是否为meta数据源**/
+    private Integer isMeta;
+
+    /**数据源名称**/
+    private String dataName;
+
+    /**数据库名称列表**/
+    private List<String> schemaNameList;
+
 }

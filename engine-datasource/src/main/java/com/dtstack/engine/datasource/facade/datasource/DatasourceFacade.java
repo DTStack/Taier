@@ -29,7 +29,6 @@ import com.dtstack.engine.datasource.vo.datasource.DataSourceVO;
 import com.dtstack.engine.datasource.vo.datasource.DsAppListVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
-import com.jcraft.jsch.SftpException;
 import dt.insight.plat.lang.base.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
@@ -78,6 +77,8 @@ public class DatasourceFacade {
 
     @Autowired
     private DsTypeService typeService;
+
+    public static final String DSC_INFO_CHANGE_CHANNEL = "dscInfoChangeChannel";
 
 
 
@@ -188,8 +189,8 @@ public class DatasourceFacade {
         try {
             // 获取kerberos本地路径
             String localKerberosConf = kerberosService.getLocalKerberosPath(sourceId);
-            kerberosService.downloadKerberosFromSftp(sourceId, DataSourceUtils.getDataSourceJson(dataSource.getDataJson()), localKerberosConf, dtuicTenantId);
-        } catch (SftpException e) {
+            kerberosService.downloadKerberosFromSftp(dataSource.getIsMeta(), sourceId, DataSourceUtils.getDataSourceJson(dataSource.getDataJson()), localKerberosConf, dtuicTenantId);
+        } catch (Exception e) {
             throw new DtCenterDefException(String.format("获取kerberos认证文件失败,Caused by: %s", e.getMessage()), e);
         }
         return kerberosConfig;
@@ -377,7 +378,7 @@ public class DatasourceFacade {
             id = addOrUpdate(dataSourceVO, userId, projectId);
         } catch (Exception e) {
             log.error("addOrUpdateSourceWithKerberos error",e);
-            throw new PubSvcDefineException("新增数据源失败");
+            throw new PubSvcDefineException(e.getMessage());
         }
         return id;
     }
@@ -426,6 +427,7 @@ public class DatasourceFacade {
                 throw new PubSvcDefineException(ErrorCode.DATASOURCE_DUP_NAME);
             }
             dsInfoService.updateById(dsInfo);
+
         } else {
             // add 存在授权产品操作
             dsInfo.setCreateUserId(dataSourceVO.getUserId());
@@ -465,18 +467,32 @@ public class DatasourceFacade {
         dsInfo.setIsMeta(dataSourceVO.getIsMeta());
         dsInfo.setTenantId(dataSourceVO.getTenantId());
         dsInfo.setDtuicTenantId(dataSourceVO.getDtuicTenantId());
+        dsInfo.setSchemaName(dataSourceVO.getSchemaName());
         dsInfo.setDataTypeCode(DataSourceTypeEnum.typeVersionOf(dataSourceVO.getDataType(),dataSourceVO.getDataVersion()).getVal());
 
         // dataJson
         if (Objects.nonNull(dataSourceVO.getDataJson())) {
-            dsInfo.setDataJson(DataSourceUtils.getEncodeDataSource(dataSourceVO.getDataJson(), true));
+            JSONObject dataJson = dataSourceVO.getDataJson();
+            if(dataSourceVO.getDataType().equals(DataSourceTypeEnum.HBASE2.getDataType())){
+                //Hbase需要特殊处理
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put(FormNames.HBASE_ZK_QUORUM,dataJson.get(FormNames.HBASE_QUORUM));
+                dataJson.put("hbaseConfig",jsonObject);
+            }
+            dsInfo.setDataJson(DataSourceUtils.getEncodeDataSource(dataJson, true));
             String linkInfo = getDataSourceLinkInfo(dataSourceVO.getDataType(), dataSourceVO.getDataVersion(), dataSourceVO.getDataJson());
             dsInfo.setLinkJson(DataSourceUtils.getEncodeDataSource(linkInfo, true));
         } else if(Strings.isNotBlank(dataSourceVO.getDataJsonString())) {
-            dsInfo.setDataJson(DataSourceUtils.getEncodeDataSource(dataSourceVO.getDataJsonString(), true));
+            JSONObject dataSourceJson = DataSourceUtils.getDataSourceJson(dataSourceVO.getDataJsonString());
+            if(dataSourceVO.getDataType().equals(DataSourceTypeEnum.HBASE2.getDataType())){
+                //Hbase需要特殊处理
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put(FormNames.HBASE_QUORUM,dataSourceJson.get(FormNames.HBASE_QUORUM));
+                dataSourceJson.put("hbaseConfig",jsonObject);
+            }
+            dsInfo.setDataJson(DataSourceUtils.getEncodeDataSource(dataSourceJson, true));
             //获取连接信息
-            JSONObject dataJson = DataSourceUtils.getDataSourceJson(dataSourceVO.getDataJsonString());
-            String linkInfo = getDataSourceLinkInfo(dataSourceVO.getDataType(), dataSourceVO.getDataVersion(), dataJson);
+            String linkInfo = getDataSourceLinkInfo(dataSourceVO.getDataType(), dataSourceVO.getDataVersion(), dataSourceJson);
             dsInfo.setLinkJson(DataSourceUtils.getEncodeDataSource(linkInfo, true));
         } else {
             throw new PubSvcDefineException(ErrorCode.DATASOURCE_CONF_ERROR);
@@ -569,5 +585,26 @@ public class DatasourceFacade {
         // 测试连通性
         ISourceDTO sourceDTO = SourceDTOType.getSourceDTO(dsInfo.getDataJson(), typeEnum.getVal(), null);
         return ClientCache.getClient(typeEnum.getVal()).testCon(sourceDTO);
+    }
+
+
+    public ISourceDTO getSource(DataSourceVO source, Map<String, Object> kerberosConfig, String localKerberosPath){
+        DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(source.getDataType(), source.getDataVersion());
+        if (MapUtils.isEmpty(kerberosConfig) && source.getId() > 0L) {
+            kerberosConfig = fillKerberosConfig(source.getId());
+            localKerberosPath = kerberosService.getLocalKerberosPath(source.getId());
+        }
+
+        if(DataSourceTypeEnum.ADB_PostgreSQL == typeEnum){
+            typeEnum = DataSourceTypeEnum.PostgreSQL;
+        }
+        // 替换相对绝对路径
+        Map<String, Object> tempConfMap = null;
+        if (MapUtils.isNotEmpty(kerberosConfig)) {
+            tempConfMap = Maps.newHashMap(kerberosConfig);
+            IKerberos kerberos = ClientCache.getKerberos(typeEnum.getVal());
+            kerberos.prepareKerberosForConnect(tempConfMap, localKerberosPath);
+        }
+        return SourceDTOType.getSourceDTO(source.getDataJson(), typeEnum.getVal(), tempConfMap);
     }
 }

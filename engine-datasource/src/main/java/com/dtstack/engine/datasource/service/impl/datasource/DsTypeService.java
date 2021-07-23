@@ -58,7 +58,7 @@ public class DsTypeService extends BaseService<DsTypeMapper, DsType> {
                 .orderByDesc(DsClassifyEnum.MOST_USE.getClassifyId().equals(classifyId), DsType::getWeight)
                 .orderByDesc(DsType::getSorted)
                 .orderByAsc(DsType::getId)
-                .last(!DsClassifyEnum.TOTAL.getClassifyId().equals(classifyId), "limit 8").list();
+                .last(DsClassifyEnum.MOST_USE.getClassifyId().equals(classifyId), "limit 8").list();
         List<String> versionList = dsVersionService.list().stream().map(DsVersion::getDataType)
                 .collect(Collectors.toList());
         return dsTypes.stream().map(x -> Dozers.convert(x, DsTypeVO.class, (t, s, c) -> {

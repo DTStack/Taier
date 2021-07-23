@@ -25,6 +25,7 @@
         a.status as status,
         a.is_meta as isMeta,
         a.tenant_id as tenantId,
+        a.dtuic_tenant_id as dtuicTenantId,
         a.is_deleted as deleted,
         a.gmt_modified as gmtModified,
         a.gmt_create as gmtCreate,
@@ -74,11 +75,25 @@
             and b.is_deleted = 0
             and b.`app_type` = #{listQuery.appType}
             and a.`dtuic_tenant_id` = #{listQuery.dsDtuicTenantId}
-            and b.project_id = #{listQuery.projectId}
+            <if test="listQuery.projectId !=null">
+                and b.project_id = #{listQuery.projectId}
+            </if>
+            <if test="listQuery.dataName !=null and listQuery.dataName !=''">
+                and a.data_name = #{listQuery.dataName}
+            </if>
+            <if test="listQuery.isMeta !=null ">
+                and a.is_meta = #{listQuery.isMeta}
+            </if>
             <if test="listQuery.dataTypeCodeList !=null and listQuery.dataTypeCodeList.size()>0">
                 and a.`data_type_code` in
-                <foreach collection="listQuery.dataTypeList" item="dataTypeCode" open="(" separator="," close=")">
+                <foreach collection="listQuery.dataTypeCodeList" item="dataTypeCode" open="(" separator="," close=")">
                     #{dataTypeCode}
+                </foreach>
+            </if>
+            <if test="listQuery.schemaNameList !=null and listQuery.schemaNameList.size()>0 ">
+                and a.`schema_name` in
+                <foreach collection="listQuery.schemaNameList" item="schemaName" open="(" separator="," close=")">
+                    #{schemaName}
                 </foreach>
             </if>
             <if test="listQuery.search != null and listQuery.search != ''">
@@ -210,8 +225,12 @@
         a.data_version as dataVersion,
         a.data_desc as dataDesc,
         a.link_json as linkJson,
+        a.data_json as dataJson,
         a.is_meta as isMeta,
         a.status as status,
+        a.gmt_modified as gmtModified,
+        a.schema_name as schemaName,
+        a.data_type_code as dataTypeCode,
         a.gmt_modified as gmtModified
         from dsc_info a left join dsc_import_ref b
         on a.id = b.data_info_id

@@ -114,7 +114,8 @@ public class DsAuthRefService extends BaseService<DsAuthRefMapper, DsAuthRef> {
    @Transactional(rollbackFor = Exception.class)
    public Boolean productAuth(ProductAuthParam productAuthParam) {
       //查询该数据源给哪些产品授权了
-      List<Integer> appTypeList = this.getCodeByDsId(productAuthParam.getDataInfoId());
+      List<Integer> appTypeList = this.getCodeByDsId(productAuthParam.getDataInfoId())
+              .stream().distinct().collect(Collectors.toList());
       //获取要取消授权的产品
       List subtract = ListUtils.subtract(appTypeList, productAuthParam.getAppTypes());
       //判断该数据源是否给这些被取消授权的产品所引用
@@ -124,7 +125,7 @@ public class DsAuthRefService extends BaseService<DsAuthRefMapper, DsAuthRef> {
                  .eq(DsImportRef::isDeleted, 0)
                  .in(DsImportRef::getAppType, subtract).list();
          if(dsImportRefs.size()>0){
-            throw new PubSvcDefineException(ErrorCode.IMPORT_DATA_SOURCE_DUP_FAIL);
+            throw new PubSvcDefineException(ErrorCode.CANCEL_AUTH_DATA_SOURCE_FAIL);
          }
       }
       // 删除对应数据源id的所有授权状态

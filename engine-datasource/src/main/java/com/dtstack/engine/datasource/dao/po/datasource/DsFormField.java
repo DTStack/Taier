@@ -100,4 +100,9 @@ public class DsFormField extends BaseModel<DsFormField> {
     @TableField("type_version")
     private String typeVersion;
 
+    /**
+     * select组件的下拉内容
+     */
+    @TableField("options")
+    private String options;
 }

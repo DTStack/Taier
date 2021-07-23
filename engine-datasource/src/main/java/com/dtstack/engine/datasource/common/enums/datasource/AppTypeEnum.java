@@ -19,7 +19,7 @@ public enum AppTypeEnum {
     /**
      * 离线计算
      */
-    RODS(1, "batch", "离线开发", "rdos"),
+    RDOS(1, "batch", "离线开发", "rdos"),
     /**
      * 数据质量
      */

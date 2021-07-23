@@ -36,6 +36,9 @@ public class EditConsoleParam extends PubSvcBaseParam implements Serializable {
     @ApiModelProperty(value = "kerberos配置文件参数")
     private JSONObject kerberosConfig;
 
+    @ApiModelProperty(value = "高可用配置")
+    private JSONObject hdfsConfig;
+
     @ApiModelProperty(value = "sftp配置文件参数")
     private JSONObject sftpConf;
 

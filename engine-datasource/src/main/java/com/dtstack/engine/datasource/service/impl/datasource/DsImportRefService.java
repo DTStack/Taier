@@ -7,8 +7,10 @@ import com.dtstack.engine.datasource.dao.mapper.datasource.DsImportRefMapper;
 import com.dtstack.engine.datasource.dao.po.datasource.DsImportRef;
 import com.dtstack.engine.datasource.service.impl.BaseService;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -78,5 +80,12 @@ public class DsImportRefService extends BaseService<DsImportRefMapper, DsImportR
     public List<DsImportRef> getImportDsByInfoId(Long dsInfoId){
 
         return  dsImportRefMapper.getImportDsByInfoId(dsInfoId);
+    }
+
+    public List<DsImportRef> getImportDsByInfoIdList(List<Long> dsInfoIdList) {
+        if (CollectionUtils.isEmpty(dsInfoIdList)){
+            return Collections.emptyList();
+        }
+        return dsImportRefMapper.getImportDsByInfoIdList(dsInfoIdList);
     }
 }

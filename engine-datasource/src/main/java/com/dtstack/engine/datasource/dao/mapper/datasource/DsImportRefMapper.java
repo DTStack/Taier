@@ -3,6 +3,7 @@ package com.dtstack.engine.datasource.dao.mapper.datasource;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.dtstack.engine.datasource.dao.po.datasource.DsImportRef;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -20,4 +21,6 @@ public interface DsImportRefMapper extends BaseMapper<DsImportRef> {
      * @return
      */
     List<DsImportRef> getImportDsByInfoId(Long dsInfoId);
+
+    List<DsImportRef> getImportDsByInfoIdList(@Param("dsInfoIdList") List<Long> dsInfoIdList);
 }

@@ -1,17 +1,15 @@
 package com.dtstack.engine.datasource.service.impl.datasource;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.dtcenter.common.enums.AppType;
 import com.dtstack.dtcenter.common.kerberos.KerberosConfigVerify;
 import com.dtstack.dtcenter.common.sftp.SFTPHandler;
-import com.dtstack.engine.api.service.ClusterService;
 import com.dtstack.engine.datasource.common.env.EnvironmentContext;
 import com.dtstack.engine.datasource.common.constant.FormNames;
-import com.dtstack.engine.datasource.common.enums.datasource.AppTypeEnum;
 import com.dtstack.engine.datasource.common.exception.ErrorCode;
 import com.dtstack.engine.datasource.common.exception.PubSvcDefineException;
 import com.dtstack.engine.datasource.dao.po.datasource.DsImportRef;
 import com.dtstack.sdk.core.common.ApiResponse;
-import com.jcraft.jsch.SftpException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,8 +35,8 @@ public class KerberosService {
     @Autowired
     private EnvironmentContext environmentContext;
 
-    @Autowired
-    private ClusterService clusterService;
+//    @Autowired
+//    private ClusterService clusterService;
 
     @Autowired
     private DsImportRefService importRefService;
@@ -113,9 +111,9 @@ public class KerberosService {
      * @param dataJson
      * @param localKerberosConf
      * @param dtuicTenantId
-     * @throws SftpException
+     * @throws Exception
      */
-    public void downloadKerberosFromSftp(Long sourceId, JSONObject dataJson, String localKerberosConf, Long dtuicTenantId) throws SftpException {
+    public void downloadKerberosFromSftp(Integer isMeta, Long sourceId, JSONObject dataJson, String localKerberosConf, Long dtuicTenantId) throws Exception {
         // 需要读取配置文件
         Map<String, String> sftpMap = getSftpMap(dtuicTenantId);
         List<DsImportRef> dsImportRefs = importRefService.getImportDsByInfoId(sourceId);
@@ -123,11 +121,19 @@ public class KerberosService {
             throw new PubSvcDefineException(String.format("dirty data exists, dataInfoId: %s", sourceId));
         }
         DsImportRef dsImportRef = dsImportRefs.size() == 0 ? null : dsImportRefs.get(0);
-        String name = null;
+        String kerberosDir;
         if(Objects.nonNull(dsImportRef)){
-            name = AppTypeEnum.appTypeAt(dsImportRef.getAppType()).getAppCode();
+            if(isMeta == 1){
+                JSONObject kerberosConfig = dataJson.getJSONObject(FormNames.KERBEROS_CONFIG);
+                String remotePath = kerberosConfig.getString("remotePath");
+                kerberosDir = remotePath.substring(remotePath.indexOf("CONSOLE"));
+            } else{
+                kerberosDir = getSourceKey(dsImportRef.getOldDataInfoId(), AppType.getValue(dsImportRef.getAppType()).name());
+            }
+        } else{
+            kerberosDir = getSourceKey(sourceId, null);
         }
-        KerberosConfigVerify.downloadKerberosFromSftp(getSourceKey(dsImportRef.getOldDataInfoId(), name), localKerberosConf, sftpMap, dataJson.getTimestamp(FormNames.KERBEROS_FILE_TIMESTAMP));
+        KerberosConfigVerify.downloadKerberosFromSftp(kerberosDir, localKerberosConf, sftpMap, dataJson.getTimestamp(FormNames.KERBEROS_FILE_TIMESTAMP));
     }
 
     /**
@@ -136,13 +142,17 @@ public class KerberosService {
      * @return
      */
     public Map<String, String> getSftpMap(Long dtuicTenantId) {
-        ApiResponse<String> apiResponse = clusterService.clusterInfo(dtuicTenantId);
-        if (apiResponse == null || apiResponse.getData() == null) {
-            throw new PubSvcDefineException(ErrorCode.HTTP_CONSOLE_ERROR);
-        }
+
+//        ApiResponse<String> apiResponse = clusterService.clusterInfo(dtuicTenantId);
+//        if (apiResponse == null || apiResponse.getData() == null) {
+//            throw new PubSvcDefineException(ErrorCode.HTTP_CONSOLE_ERROR);
+//        }
+//        apiResponse.getData();
+        String sftpData = "";//TODO
+
         // 解析SFTP配置信息
         Map<String, String> map = new HashMap<>();
-        JSONObject clusterJson = JSONObject.parseObject(apiResponse.getData());
+        JSONObject clusterJson = JSONObject.parseObject(sftpData);
         JSONObject sftpConfig = clusterJson.getJSONObject(SFTP_CONF);
         if (Objects.isNull(sftpConfig)) {
             throw new PubSvcDefineException(ErrorCode.CAN_NOT_FIND_SFTP);

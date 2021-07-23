@@ -9,12 +9,6 @@ import lombok.Data;
  * author: toutian
  * create: 2021/5/10
  */
-/**
- *
- * @author 全阅
- * @Description:
- * @Date: 2021/3/9 14:22
- */
 @ApiModel("产品列表信息")
 @Data
 public class ProductListVO {

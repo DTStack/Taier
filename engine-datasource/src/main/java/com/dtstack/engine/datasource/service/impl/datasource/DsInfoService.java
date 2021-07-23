@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.dtstack.dtcenter.common.enums.AppType;
 import com.dtstack.dtcenter.common.pager.PageResult;
+import com.dtstack.engine.datasource.common.constant.FormNames;
 import com.dtstack.engine.datasource.common.constant.SystemConst;
 import com.dtstack.engine.datasource.common.enums.datasource.DataSourceTypeEnum;
 import com.dtstack.engine.datasource.common.exception.ErrorCode;
@@ -102,6 +103,17 @@ public class DsInfoService extends BaseService<DsInfoMapper, DsInfo> {
     public DsDetailVO dsInfoDetail(Long dataInfoId) {
         DsInfo dsInfo = lambdaQuery().eq(DsInfo::getId, dataInfoId).one();
         return Dozers.convert(dsInfo, DsDetailVO.class, (target, source, destinationClass) -> {
+            String dataJson = source.getDataJson();
+            JSONObject dataSourceJson = DataSourceUtils.getDataSourceJson(dataJson);
+            if(DataSourceUtils.judgeOpenKerberos(dataJson) && null == dataSourceJson.getString(FormNames.PRINCIPAL)){
+                JSONObject kerberosConfig = dataSourceJson.getJSONObject(FormNames.KERBEROS_CONFIG);
+                dataSourceJson.put(FormNames.PRINCIPAL,kerberosConfig.getString(FormNames.PRINCIPAL));
+            }
+            if(DataSourceUtils.judgeOpenKerberos(source.getDataJson()) && source.getDataType().equals(DataSourceTypeEnum.KAFKA.getDataType())){
+                //kafka开启了kerberos认证
+                dataSourceJson.put(FormNames.AUTHENTICATION,FormNames.KERBROS);
+            }
+            target.setDataJson(DataSourceUtils.getEncodeDataSource(dataSourceJson,true));
             target.setDataInfoId(source.getId());
         });
     }
@@ -164,8 +176,6 @@ public class DsInfoService extends BaseService<DsInfoMapper, DsInfo> {
         listParam.turn();
         DsServiceListQuery listQuery = new DsServiceListQuery();
         BeanUtils.copyProperties(listParam, listQuery);
-        Long projectId =  listQuery.getProjectId() == null ? -1L : listQuery.getProjectId();
-        listQuery.setProjectId(projectId);
         Long dtuicTenantId =  listQuery.getDsDtuicTenantId() == null ? 0L : listQuery.getDsDtuicTenantId();
         listQuery.setDsDtuicTenantId(dtuicTenantId);
         return this.baseMapper.countAppDsPage(listQuery);
@@ -180,16 +190,50 @@ public class DsInfoService extends BaseService<DsInfoMapper, DsInfo> {
         listParam.turn();
         DsServiceListQuery listQuery = new DsServiceListQuery();
         BeanUtils.copyProperties(listParam, listQuery);
-        Long projectId =  listQuery.getProjectId() == null ? -1L : listQuery.getProjectId();
-        listQuery.setProjectId(projectId);
         Long dtuicTenantId =  listQuery.getDsDtuicTenantId() == null ? 0L : listQuery.getDsDtuicTenantId();
         listQuery.setDsDtuicTenantId(dtuicTenantId);
         List<DsServiceListBO> serviceListBOS = this.baseMapper.queryAppDsPage(listQuery);
-        return Dozers.convertList(serviceListBOS, DsServiceListVO.class, (retList, target, source, destinationClass) -> {
-            DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(source.getDataType(), source.getDataVersion());
-            target.setType(typeEnum.getVal());
+
+        List<Long> dsInfoIdList = serviceListBOS.stream().filter(dataSource -> DataSourceUtils.judgeOpenKerberos(dataSource.getDataJson()))
+                .map(DsServiceListBO::getDataInfoId).collect(Collectors.toList());
+        Map<Long, List<DsImportRef>> kerberosCache = importRefService.getImportDsByInfoIdList(dsInfoIdList).stream()
+                .collect(Collectors.groupingBy(DsImportRef::getDataInfoId));
+
+        List<DsServiceListBO> listBOS = serviceListBOS.stream().peek(dataSource -> {
+            if (kerberosCache.containsKey(dataSource.getDataInfoId())){
+                JSONObject dataSourceJson = DataSourceUtils.getDataSourceJson(dataSource.getDataJson());
+                List<DsImportRef> dsImportRefList = kerberosCache.get(dataSource.getDataInfoId());
+                if (dsImportRefList.size() > 1) {
+                    log.error("this is ditty data,dataInfoId:{}}", dataSource.getDataInfoId());
+                }
+                DsImportRef dsImportRef = dsImportRefList.size() == 1 ? dsImportRefList.get(0) : null;
+                Long oldDataInfoId = null != dsImportRef ? dsImportRef.getOldDataInfoId() : null;
+                Integer appType = null != dsImportRef ? dsImportRef.getAppType() : null;
+                handleKerberosConf(dataSourceJson, oldDataInfoId, appType,dataSource.getIsMeta());
+                dataSource.setDataJson(dataSourceJson.toJSONString());
+            }
+        }).collect(Collectors.toList());
+        return Dozers.convertList(listBOS, DsServiceListVO.class, (retList, target, source, destinationClass) -> {
+            DataSourceTypeEnum typeEnum = null;
+            try {
+                typeEnum = DataSourceTypeEnum.typeVersionOf(source.getDataType(), source.getDataVersion());
+            } catch (Exception e) {
+                handleOldFaultDataInfoDataType(source);
+            }
+            target.setType(typeEnum==null ? source.getDataTypeCode() : typeEnum.getVal());
             retList.add(target);
         });
+    }
+
+    private void handleOldFaultDataInfoDataType(DsServiceListBO source) {
+        //dataType和dataVersion数据不对，需要同步修改
+        DsInfo dsInfo = new DsInfo();
+        dsInfo.setId(source.getDataInfoId());
+        Integer dataTypeCode = source.getDataTypeCode();
+        DataSourceTypeEnum dataSourceTypeEnum = DataSourceTypeEnum.valOf(dataTypeCode);
+        dsInfo.setDataType(dataSourceTypeEnum.getDataType());
+        dsInfo.setDataVersion(dataSourceTypeEnum.getDataVersion());
+        dsInfoMapper.updateById(dsInfo);
     }
 
     /**
@@ -213,7 +257,7 @@ public class DsInfoService extends BaseService<DsInfoMapper, DsInfo> {
             if(DataSourceUtils.judgeOpenKerberos(dataSource.getDataJson())) {
                 Long oldDataInfoId = null != dsImportRef ? dsImportRef.getOldDataInfoId() : null;
                 Integer appType = null != dsImportRef ? dsImportRef.getAppType() : null;
-                handleKerberosConf(dataSourceJson, oldDataInfoId, appType);
+                handleKerberosConf(dataSourceJson, oldDataInfoId, appType,dataSource.getIsMeta());
             }
         }
         dataSource.setDataJson(dataSourceJson.toJSONString());
@@ -242,7 +286,7 @@ public class DsInfoService extends BaseService<DsInfoMapper, DsInfo> {
                 if (DataSourceUtils.judgeOpenKerberos(dataSource.getDataJson())) {
                     Long oldDataInfoId = null != dsImportRef ? dsImportRef.getOldDataInfoId() : null;
                     Integer appType = null != dsImportRef ? dsImportRef.getAppType() : null;
-                    handleKerberosConf(dataSourceJson, oldDataInfoId, appType);
+                    handleKerberosConf(dataSourceJson, oldDataInfoId, appType,dataSource.getIsMeta());
                 }
             }
             dataSource.setDataJson(dataSourceJson.toJSONString());
@@ -250,7 +294,7 @@ public class DsInfoService extends BaseService<DsInfoMapper, DsInfo> {
         }).collect(Collectors.toList());
     }
 
-    private void handleKerberosConf(JSONObject dataSourceJson, Long oldDataInfoId, Integer appType ) {
+    private void handleKerberosConf(JSONObject dataSourceJson, Long oldDataInfoId, Integer appType, Integer isMeta ) {
 
         JSONObject kerberosConfig = dataSourceJson.getJSONObject(KERBEROS_CONFIG);
         String principalFile = kerberosConfig.getString("principalFile");
@@ -258,10 +302,15 @@ public class DsInfoService extends BaseService<DsInfoMapper, DsInfo> {
         kerberosConfig.put("principalFile",principalFileStr);
         String krb5File = kerberosConfig.getString("java.security.krb5.conf");
         if(StringUtils.isNotBlank(krb5File)) {
-            kerberosConfig.put("krb5File", krb5File.substring(krb5File.lastIndexOf("/") + 1));
+            kerberosConfig.put("java.security.krb5.conf", krb5File.substring(krb5File.lastIndexOf("/") + 1));
         }
         if(null != oldDataInfoId){
-            String kerberosDir =  AppType.getValue(appType).name()+"_"+oldDataInfoId;
+            String kerberosDir;
+            if(isMeta == 1){
+                String remotePath = kerberosConfig.getString("remotePath");
+                kerberosDir = remotePath.substring(remotePath.indexOf("CONSOLE"));
+            }
+            kerberosDir =  AppType.getValue(appType).name()+"_"+oldDataInfoId;
             kerberosConfig.put(KERBEROS_DIR,kerberosDir);
         }
     }
@@ -280,7 +329,7 @@ public class DsInfoService extends BaseService<DsInfoMapper, DsInfo> {
         JSONObject dataSourceJson = DataSourceUtils.getDataSourceJson(dsInfo.getDataJson());
         if(DataSourceUtils.judgeOpenKerberos(dsInfo.getDataJson())){
             //处理kerberosConfig
-            handleKerberosConf(dataSourceJson, oldDataInfoId, appType);
+            handleKerberosConf(dataSourceJson, oldDataInfoId, appType,dsInfo.getIsMeta());
         }
         dsInfo.setDataJson(dataSourceJson.toJSONString());
         return dsInfo;

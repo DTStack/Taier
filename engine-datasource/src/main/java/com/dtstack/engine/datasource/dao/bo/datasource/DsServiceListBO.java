@@ -59,4 +59,12 @@ public class DsServiceListBO {
      */
     private Date gmtModified;
 
+    /**数据库名称**/
+    private String schemaName;
+
+    /**
+     * 数据源code
+     */
+    private Integer dataTypeCode;
+
 }

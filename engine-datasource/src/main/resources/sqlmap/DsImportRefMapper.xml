@@ -16,4 +16,17 @@
         and old_data_info_id != -1
         and is_deleted = 0
     </select>
+    <select id="getImportDsByInfoIdList" resultType="com.dtstack.engine.datasource.dao.po.datasource.DsImportRef">
+        select
+        <include refid="select_content" />
+        from dsc_import_ref
+        where
+        data_info_id in (
+            <foreach collection="dsInfoIdList" item="id" separator=",">
+                #{id}
+            </foreach>
+        )
+        and old_data_info_id != -1
+        and is_deleted = 0
+    </select>
 </mapper>
