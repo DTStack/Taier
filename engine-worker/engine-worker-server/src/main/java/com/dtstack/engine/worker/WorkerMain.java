@@ -1,17 +1,18 @@
 package com.dtstack.engine.worker;
 
-import com.dtstack.engine.common.akka.config.AkkaLoad;
 import com.dtstack.engine.common.security.NoExitSecurityManager;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
-import com.dtstack.engine.common.akka.config.AkkaConfig;
-import com.dtstack.engine.common.jobdealer.TaskLogStoreDealer;
+import com.dtstack.engine.worker.jobdealer.TaskLogStoreDealer;
+import com.dtstack.engine.remote.annotation.EnableRemoteClient;
 import com.dtstack.engine.worker.log.LogbackComponent;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+@SpringBootApplication
+@EnableRemoteClient(basePackage = "com.dtstack.engine.common.api")
 public class WorkerMain {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkerMain.class);
@@ -21,13 +22,7 @@ public class WorkerMain {
             LOGGER.info("engine-worker start begin...");
             SystemPropertyUtil.setSystemUserDir();
             LogbackComponent.setupLogger();
-            String property = System.getProperty("user.dir");
-            Config workerConfig = AkkaConfig.init(AkkaLoad.load(property+"/conf/"));
-            TaskLogStoreDealer.getInstance();
-
-            if (!AkkaConfig.isLocalMode()) {
-                AkkaWorkerServerImpl.getAkkaWorkerServer().start(workerConfig);
-            }
+            new SpringApplication(WorkerMain.class).run(args);
             ShutdownHookUtil.addShutdownHook(WorkerMain::shutdown, WorkerMain.class.getSimpleName(), LOGGER);
             System.setSecurityManager(new NoExitSecurityManager());
             LOGGER.info("engine-worker start end...");

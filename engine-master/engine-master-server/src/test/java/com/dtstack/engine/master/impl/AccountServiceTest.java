@@ -7,7 +7,7 @@ import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.AccountTenantVo;
 import com.dtstack.engine.api.vo.AccountVo;
 import com.dtstack.engine.api.vo.ClusterVO;
-import com.dtstack.engine.common.client.ClientOperator;
+import com.dtstack.engine.worker.client.ClientOperator;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.dao.TenantDao;

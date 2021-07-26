@@ -9,7 +9,7 @@ import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.client.ClientOperator;
+import com.dtstack.engine.worker.client.ClientOperator;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EComponentScheduleType;
 import com.dtstack.engine.common.enums.EComponentType;

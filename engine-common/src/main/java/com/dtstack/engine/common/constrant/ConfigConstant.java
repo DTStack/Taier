@@ -120,4 +120,9 @@ public class ConfigConstant {
     public static final String NAMESPACE = "namespace";
     public static final String MAILBOX_CUTTING = "@";
 
+    public static final String WORKER_TIMEOUT = "worker.timeout";
+    public static final String WORKER_LOGSTORE_JDBCURL = "worker.logstore.jdbcUrl";
+    public static final String WORKER_LOGSTORE_USERNAME = "worker.logstore.username";
+    public static final String WORKER_LOGSTORE_PASSWORD = "worker.logstore.password";
+
 }

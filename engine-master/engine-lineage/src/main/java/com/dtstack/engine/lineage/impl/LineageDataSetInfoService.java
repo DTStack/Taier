@@ -2,23 +2,22 @@ package com.dtstack.engine.lineage.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.api.domain.Component;
+import com.dtstack.engine.api.domain.ComponentConfig;
+import com.dtstack.engine.api.domain.LineageDataSetInfo;
 import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.api.pojo.lineage.Table;
-import com.dtstack.engine.common.client.ClientCache;
-import com.dtstack.engine.common.client.ClientOperator;
-import com.dtstack.engine.common.client.IClient;
+import com.dtstack.engine.common.api.WorkerApi;
+import com.dtstack.engine.common.api.message.MessageAllColumns;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.common.exception.ClientAccessException;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.ComponentConfigUtils;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.ComponentConfigDao;
 import com.dtstack.engine.dao.ComponentDao;
-import com.dtstack.engine.dao.KerberosDao;
-import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.dao.LineageDataSetDao;
+import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.lineage.util.DataSourceUtils;
 import com.dtstack.pubsvc.sdk.datasource.DataSourceAPIClient;
 import com.dtstack.pubsvc.sdk.dto.result.datasource.DsServiceInfoDTO;
@@ -31,7 +30,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @Author tengzhen
@@ -66,7 +68,8 @@ public class LineageDataSetInfoService {
     @Autowired
     private DataSourceAPIClient dataSourceAPIClient;
 
-
+    @Autowired
+    private WorkerApi workerApi;
 
     /**
      * @author zyd
@@ -154,8 +157,7 @@ public class LineageDataSetInfoService {
         if(null == dsServiceInfoDTO){
             throw new RdosDefineException("找不到对应的数据源");
         }
-        ClientCache clientCache = ClientCache.getInstance(environmentContext.getPluginPath());
-        IClient iClient ;
+
         try {
             String dataJson = dsServiceInfoDTO.getDataJson();
             JSONObject jsonObject = DataSourceUtils.getDataSourceJson(dataJson);
@@ -169,8 +171,7 @@ public class LineageDataSetInfoService {
             String typeName = DataSourceType.getEngineType(DataSourceType.getSourceType(dsServiceInfoDTO.getType()));
             jsonObject.put("typeName",typeName);
             String pluginInfo = PublicUtil.objToString(jsonObject);
-            iClient = getClient(dsServiceInfoDTO, clientCache, pluginInfo);
-            return getAllColumns(dataSetInfo, iClient);
+            return getAllColumns(dataSetInfo,pluginInfo,dsServiceInfoDTO);
         } catch (Exception e) {
             throw new RdosDefineException("获取client异常",e);
         }
@@ -214,19 +215,21 @@ public class LineageDataSetInfoService {
         return JSONObject.parseObject(JSONObject.toJSONString(sftpConfigMap));
     }
 
-    public List<Column> getAllColumns(LineageDataSetInfo dataSetInfo, IClient iClient) {
+    public List<Column> getAllColumns(LineageDataSetInfo dataSetInfo,String pluginInfo,DsServiceInfoDTO dsServiceInfoDTO) {
 
         if(null == dataSetInfo){
             return new ArrayList<>();
         }
-        return iClient.getAllColumns(dataSetInfo.getTableName(), dataSetInfo.getSchemaName(), dataSetInfo.getDbName());
-    }
-
-    public IClient getClient(DsServiceInfoDTO dsServiceInfoDTO, ClientCache clientCache, String pluginInfo) throws ClientAccessException {
-        if(null == clientCache || null == dsServiceInfoDTO){
+        try {
+            return workerApi.getAllColumns(new MessageAllColumns(dataSetInfo.getTableName(),
+                    dataSetInfo.getSchemaName(),
+                    dataSetInfo.getDbName(),
+                    pluginInfo,
+                    DataSourceType.getEngineType(DataSourceType.getSourceType(dsServiceInfoDTO.getType()))));
+        } catch (Exception e) {
+            LOGGER.error("getAllColumns error: ",e);
             return null;
         }
-        return clientCache.getClient(DataSourceType.getEngineType(DataSourceType.getSourceType(dsServiceInfoDTO.getType())), pluginInfo);
     }
 
     /**

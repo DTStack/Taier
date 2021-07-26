@@ -18,7 +18,7 @@ import com.dtstack.engine.dao.AccountDao;
 import com.dtstack.engine.dao.AccountTenantDao;
 import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.dao.UserDao;
-import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.worker.WorkerOperator;
 import com.dtstack.engine.master.enums.AccountType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.router.cache.ConsoleCache;

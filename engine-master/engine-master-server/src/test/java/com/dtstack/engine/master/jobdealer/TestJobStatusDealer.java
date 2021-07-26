@@ -1,16 +1,14 @@
 package com.dtstack.engine.master.jobdealer;
 
 import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.client.ClientOperator;
+import com.dtstack.engine.common.api.WorkerApi;
+import com.dtstack.engine.common.api.message.MessageGetJobStatus;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.master.AbstractTest;
-import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.worker.WorkerOperator;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.jobdealer.cache.ShardManager;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -42,7 +40,7 @@ public class TestJobStatusDealer extends AbstractTest {
     private WorkerOperator workerOperator;
 
     @MockBean
-    private ClientOperator clientOperator;
+    private WorkerApi clientOperator;
 
 
 
@@ -83,7 +81,11 @@ public class TestJobStatusDealer extends AbstractTest {
         jobStatusDealer.setShardCache(shardCache);
         ReflectionTestUtils.setField(jobStatusDealer,"workerOperator", workerOperator);
         jobStatusDealer.setApplicationContext(applicationContext);
-        when(clientOperator.getJobStatus(any(),any(),any())).thenReturn(RdosTaskStatus.FINISHED);
+        try {
+            when(clientOperator.getJobStatus(new MessageGetJobStatus(any(),any(),any()))).thenReturn(RdosTaskStatus.FINISHED);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         jobStatusDealer.run();
     }
 

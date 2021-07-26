@@ -15,7 +15,7 @@ import com.dtstack.engine.dao.TestComponentDao;
 import com.dtstack.engine.dao.TestEngineJobCacheDao;
 import com.dtstack.engine.dao.TestScheduleJobDao;
 import com.dtstack.engine.master.AbstractTest;
-import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.worker.WorkerOperator;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.utils.Template;
 import com.dtstack.engine.master.vo.TaskTypeResourceTemplateVO;

@@ -20,7 +20,7 @@ import com.dtstack.engine.dao.EngineJobStopRecordDao;
 import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.EngineJobStopRecord;
 import com.dtstack.engine.common.enums.StoppedStatus;
-import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.worker.WorkerOperator;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.schedule.common.enums.EScheduleJobType;

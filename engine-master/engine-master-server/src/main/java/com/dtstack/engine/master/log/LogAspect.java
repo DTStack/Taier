@@ -36,7 +36,7 @@ public class LogAspect {
     private static final PropertyFilter propertyFilter = (object, name, value) ->
             !(name.equalsIgnoreCase("pluginInfo") || name.equalsIgnoreCase("paramAction"));
 
-    @AfterReturning(pointcut = "execution(public * com.dtstack.engine.master.akka.WorkerOperator.*(..))", returning = "ret")
+    @AfterReturning(pointcut = "execution(public * com.dtstack.engine.master.worker.WorkerOperator.*(..))", returning = "ret")
     public void afterReturningAdvice(JoinPoint joinPoint, Object ret) {
         try {
             String methodName = joinPoint.getSignature().getName();

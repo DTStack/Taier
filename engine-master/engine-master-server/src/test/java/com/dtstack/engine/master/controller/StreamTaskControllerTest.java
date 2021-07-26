@@ -7,7 +7,6 @@ import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.common.akka.config.AkkaConfig;
 import com.dtstack.engine.dao.EngineJobCheckpointDao;
 import com.dtstack.engine.master.AbstractTest;
-import com.dtstack.engine.master.akka.MasterServer;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.typesafe.config.ConfigFactory;
 import org.apache.commons.collections.CollectionUtils;
@@ -33,11 +32,6 @@ public class StreamTaskControllerTest extends AbstractTest {
 
     @Autowired
     private EngineJobCheckpointDao engineJobCheckpointDao;
-
-    @Autowired(required = false)
-    private MasterServer masterServer;
-
-
 
 
     @Test

@@ -5,7 +5,7 @@ import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
 import com.dtstack.engine.dao.ScheduleJobDao;
-import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.worker.WorkerOperator;
 import com.dtstack.engine.master.bo.JobCompletedInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

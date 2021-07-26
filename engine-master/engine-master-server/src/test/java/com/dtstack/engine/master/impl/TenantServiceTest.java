@@ -13,7 +13,7 @@ import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.dao.TestQueueDao;
 import com.dtstack.engine.dao.TestTenantDao;
 import com.dtstack.engine.master.AbstractTest;
-import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.worker.WorkerOperator;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;

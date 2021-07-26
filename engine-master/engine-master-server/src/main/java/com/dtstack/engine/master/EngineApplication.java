@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.dtstack.engine.common.security.NoExitSecurityManager;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
+import com.dtstack.engine.remote.annotation.EnableRemoteClient;
 import org.mybatis.spring.annotation.MapperScan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 })
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableCaching
+@EnableRemoteClient(basePackage = "com.dtstack.engine.common.api")
 public class EngineApplication {
 
     private static Logger LOGGER = LoggerFactory.getLogger(EngineApplication.class);
