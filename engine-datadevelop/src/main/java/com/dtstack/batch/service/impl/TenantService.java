@@ -12,7 +12,7 @@ import com.dtstack.batch.vo.TenantVO;
 import com.dtstack.dtcenter.common.enums.EComponentType;
 import com.dtstack.dtcenter.common.login.DtUicUserConnect;
 import com.dtstack.dtcenter.common.login.domain.UserTenant;
-import com.dtstack.engine.api.service.ClusterService;
+import com.dtstack.engine.master.impl.ClusterService;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.BooleanUtils;
@@ -213,7 +213,7 @@ public class TenantService {
      * @return
      */
     public Boolean hasStandAlone(Long dtuicTenantId){
-        return clusterService.hasStandalone(dtuicTenantId, EComponentType.FLINK.getTypeCode()).getData();
+        return clusterService.hasStandalone(dtuicTenantId, EComponentType.FLINK.getTypeCode());
     }
 
     /**

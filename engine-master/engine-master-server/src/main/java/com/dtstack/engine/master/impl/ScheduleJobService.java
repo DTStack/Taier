@@ -460,7 +460,7 @@ public class ScheduleJobService {
      * @return
      * @author toutian
      */
-    public PageResult<List<com.dtstack.engine.api.vo.ScheduleJobVO>> queryJobs(QueryJobDTO vo) throws Exception {
+    public PageResult<List<com.dtstack.engine.api.vo.ScheduleJobVO>> queryJobs(QueryJobDTO vo) {
 
         if (vo.getType() == null && CollectionUtils.isEmpty(vo.getTypes())) {
             throw new RdosDefineException("Type parameter is required", ErrorCode.INVALID_PARAMETERS);
@@ -536,7 +536,7 @@ public class ScheduleJobService {
      * @return
      * @throws Exception
      */
-    private int queryNormalJob(ScheduleJobDTO batchJobDTO, boolean queryAll, PageQuery<ScheduleJobDTO> pageQuery, List<com.dtstack.engine.api.vo.ScheduleJobVO> result) throws Exception {
+    private int queryNormalJob(ScheduleJobDTO batchJobDTO, boolean queryAll, PageQuery<ScheduleJobDTO> pageQuery, List<com.dtstack.engine.api.vo.ScheduleJobVO> result) {
         int count = scheduleJobDao.generalCount(batchJobDTO);
         if (count > 0) {
             List<ScheduleJob> scheduleJobs = scheduleJobDao.generalQuery(pageQuery);
@@ -575,7 +575,7 @@ public class ScheduleJobService {
      * @return
      * @throws Exception
      */
-    private int queryScienceJob(ScheduleJobDTO batchJobDTO, boolean queryAll, PageQuery<ScheduleJobDTO> pageQuery, List<com.dtstack.engine.api.vo.ScheduleJobVO> result) throws Exception {
+    private int queryScienceJob(ScheduleJobDTO batchJobDTO, boolean queryAll, PageQuery<ScheduleJobDTO> pageQuery, List<com.dtstack.engine.api.vo.ScheduleJobVO> result)  {
 
         int count = scheduleJobDao.generalScienceCount(batchJobDTO);
         if (count > 0) {
@@ -607,7 +607,7 @@ public class ScheduleJobService {
         return count;
     }
 
-    public List<SchedulePeriodInfoVO> displayPeriods( boolean isAfter,  Long jobId,  Long projectId,  int limit) throws Exception {
+    public List<SchedulePeriodInfoVO> displayPeriods( boolean isAfter,  Long jobId,  Long projectId,  int limit) {
         ScheduleJob job = scheduleJobDao.getOne(jobId);
         if (job == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
@@ -657,7 +657,7 @@ public class ScheduleJobService {
      * @return
      * @throws Exception
      */
-    public ScheduleJobVO getRelatedJobs( String jobId,  String query) throws Exception {
+    public ScheduleJobVO getRelatedJobs( String jobId,  String query) {
         QueryJobDTO vo = JSONObject.parseObject(query, QueryJobDTO.class);
         if(null == vo){
             return null;
@@ -701,7 +701,7 @@ public class ScheduleJobService {
 
 
     //处理工作流子节点
-    private void dealFlowWorkSubJobs(List<ScheduleJobVO> vos) throws Exception {
+    private void dealFlowWorkSubJobs(List<ScheduleJobVO> vos) {
 
         Map<String, ScheduleJobVO> record = Maps.newHashMap();
         Map<String, Integer> voIndex = Maps.newHashMap();
@@ -1219,18 +1219,17 @@ public class ScheduleJobService {
         return false;
     }
 
-    public String stopJob( long jobId, Integer appType) throws Exception {
+    public void stopJob( long jobId, Integer appType) {
 
         ScheduleJob scheduleJob = scheduleJobDao.getOne(jobId);
-        String result = stopJobByScheduleJob(appType, scheduleJob);
+        stopJobByScheduleJob(appType, scheduleJob);
         // 杀死工作流任务，已经强规则任务
         List<ScheduleJob> jobs = Lists.newArrayList(scheduleJob);
         getDependentJob(jobs);
         jobStopDealer.addStopJobs(jobs);
-        return result;
     }
 
-    private String stopJobByScheduleJob(  Integer appType, ScheduleJob scheduleJob) throws Exception {
+    private void stopJobByScheduleJob(  Integer appType, ScheduleJob scheduleJob) {
 
         if (scheduleJob == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
@@ -1245,19 +1244,18 @@ public class ScheduleJobService {
         }
 
         jobStopDealer.addStopJobs(Lists.newArrayList(scheduleJob));
-        return "";
     }
 
-    public String stopJobByJobId( String jobId, Integer appType) throws Exception{
+    public void stopJobByJobId( String jobId, Integer appType) throws Exception{
         if(StringUtils.isBlank(jobId)){
-            return "";
+            return;
         }
         LOGGER.info("stop job by jobId {}",jobId);
         ScheduleJob batchJob = scheduleJobDao.getByJobId(jobId,Deleted.NORMAL.getStatus());
-        return stopJobByScheduleJob(appType, batchJob);
+        this.stopJobByScheduleJob(appType, batchJob);
     }
 
-    public void stopFillDataJobs( String fillDataJobName,  Long projectId,  Long dtuicTenantId,  Integer appType) throws Exception {
+    public void stopFillDataJobs( String fillDataJobName,  Long projectId,  Long dtuicTenantId,  Integer appType) {
         //还未发送到engine部分---直接停止
         if (StringUtils.isBlank(fillDataJobName)) {
             return;
@@ -1416,7 +1414,7 @@ public class ScheduleJobService {
                                 String beginTime,  String endTime,
                                 Long projectId,  Long userId,
                                 Long tenantId,
-                                Boolean isRoot,  Integer appType,  Long dtuicTenantId,Boolean ignoreCycTime) throws Exception {
+                                Boolean isRoot,  Integer appType,  Long dtuicTenantId,Boolean ignoreCycTime) {
 
         if(StringUtils.isEmpty(taskJsonStr)){
             throw new RdosDefineException("(taskJsonStr 参数不能为空)", ErrorCode.INVALID_PARAMETERS);
@@ -1771,7 +1769,7 @@ public class ScheduleJobService {
                                                                           List<String> flowJobIdList,
                                                                           String fillJobName,
                                                                           Long dutyUserId,  String searchType,
-                                                                          Integer appType) throws Exception {
+                                                                          Integer appType) {
         if (Strings.isNullOrEmpty(fillJobName)) {
             throw new RdosDefineException("(The supplementary data name cannot be empty)", ErrorCode.INVALID_PARAMETERS);
         }
@@ -1871,7 +1869,7 @@ public class ScheduleJobService {
      * @throws Exception
      */
     public ScheduleFillDataJobDetailVO.FillDataRecord getRelatedJobsForFillData( String jobId,  String query,
-                                                                                 String fillJobName) throws Exception {
+                                                                                 String fillJobName) {
 
         QueryJobDTO vo = JSONObject.parseObject(query, QueryJobDTO.class);
         ScheduleJob scheduleJob = scheduleJobDao.getByJobId(jobId, Deleted.NORMAL.getStatus());
@@ -1906,7 +1904,7 @@ public class ScheduleJobService {
      * @return
      * @throws Exception
      */
-    private List<ScheduleFillDataJobDetailVO.FillDataRecord> getOnlyRelatedJobsForFillData(String jobId, Map<Long, ScheduleTaskForFillDataDTO> taskShadeMap) throws Exception {
+    private List<ScheduleFillDataJobDetailVO.FillDataRecord> getOnlyRelatedJobsForFillData(String jobId, Map<Long, ScheduleTaskForFillDataDTO> taskShadeMap) {
         taskShadeMap = Optional.ofNullable(taskShadeMap).orElse(Maps.newHashMap());
 
         List<ScheduleJob> subJobs = scheduleJobDao.getSubJobsByFlowIds(Lists.newArrayList(jobId));
@@ -1920,7 +1918,7 @@ public class ScheduleJobService {
     }
 
     private List<ScheduleFillDataJobDetailVO.FillDataRecord> getRelatedJobsForFillDataByQueryDTO(ScheduleJobDTO queryDTO, QueryJobDTO vo, String jobId, Map<String, ScheduleEngineJob> engineJobMap,
-                                                                                                 Map<Long, ScheduleTaskForFillDataDTO> taskShadeMap) throws Exception {
+                                                                                                 Map<Long, ScheduleTaskForFillDataDTO> taskShadeMap) {
 
         queryDTO.setPageQuery(false);
         queryDTO.setFlowJobId(jobId);
@@ -1959,7 +1957,7 @@ public class ScheduleJobService {
     }
 
 
-    private void dealFlowWorkSubJobsInFillData(List<ScheduleFillDataJobDetailVO.FillDataRecord> vos) throws Exception {
+    private void dealFlowWorkSubJobsInFillData(List<ScheduleFillDataJobDetailVO.FillDataRecord> vos) {
         Map<String, ScheduleFillDataJobDetailVO.FillDataRecord> record = Maps.newHashMap();
         Map<String, Integer> voIndex = Maps.newHashMap();
         vos.forEach(job -> voIndex.put(job.getJobId(), vos.indexOf(job)));
@@ -1995,7 +1993,7 @@ public class ScheduleJobService {
         }
     }
 
-    private Map<Long, ScheduleTaskForFillDataDTO> prepareForFillDataDetailInfo(List<ScheduleJob> scheduleJobs) throws Exception {
+    private Map<Long, ScheduleTaskForFillDataDTO> prepareForFillDataDetailInfo(List<ScheduleJob> scheduleJobs) {
         if (CollectionUtils.isEmpty(scheduleJobs)) {
             return new HashMap<>();
         }
@@ -2055,7 +2053,7 @@ public class ScheduleJobService {
      * @throws Exception
      */
     private ScheduleFillDataJobDetailVO.FillDataRecord transferBatchJob2FillDataRecord(ScheduleJob scheduleJob, List<String> flowJobIdList,
-                                                                                       Map<Long, ScheduleTaskForFillDataDTO> taskShadeMap) throws Exception {
+                                                                                       Map<Long, ScheduleTaskForFillDataDTO> taskShadeMap) {
         String bizDayVO = scheduleJob.getBusinessDate();
         bizDayVO = bizDayVO.substring(0, 4) + "-" + bizDayVO.substring(4, 6) + "-" + bizDayVO.substring(6, 8);
         int status = scheduleJob.getStatus();
@@ -2084,18 +2082,6 @@ public class ScheduleJobService {
         record.setFlowJobId(scheduleJob.getFlowJobId());
         record.setIsRestart(scheduleJob.getIsRestart());
         record.setBusinessType(scheduleJob.getBusinessType());
-
-        // 判断taskType为2的，查出脏数据量，判断增加标识
-        if (taskType == 2) {
-            //fixme redmine[16670]暂时关闭脏数据读取，后续版本优化
-            /*BatchServerLogVO batchServerLogVO = batchServerLogService.getLogsByJobId(batchJob.getJobId(),-1);
-            if (batchServerLogVO.getSyncJobInfo() != null) {
-                Float dirtyPercent = batchServerLogVO.getSyncJobInfo().getDirtyPercent();
-                if (dirtyPercent != null && dirtyPercent > 0.0f) {
-                    record.setIsDirty(1);
-                }
-            }*/
-        }
 
         //展开特定工作流子节点
         if (EScheduleJobType.WORK_FLOW.getVal().equals(taskType) &&
@@ -2596,12 +2582,7 @@ public class ScheduleJobService {
      * @return
      */
     public ActionLogVO getLogInfoFromEngine(String jobId) {
-        try {
-            return actionService.log(jobId, ComputeType.BATCH.getType());
-        } catch (Exception e) {
-            LOGGER.error("Exception when getLogInfoFromEngine by jobId: {} and computeType: {}", jobId, ComputeType.BATCH.getType(), e);
-        }
-        return null;
+        return actionService.log(jobId, ComputeType.BATCH.getType());
     }
 
 

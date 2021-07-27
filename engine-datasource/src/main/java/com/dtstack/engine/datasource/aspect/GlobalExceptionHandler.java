@@ -4,7 +4,6 @@ import com.dtstack.dtcenter.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.common.exception.ExceptionEnums;
 import com.dtstack.dtcenter.loader.exception.DtLoaderException;
 import com.dtstack.engine.datasource.common.exception.ErrorCode;
-import com.dtstack.sdk.core.common.SdkException;
 import dt.insight.plat.lang.web.R;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,15 +31,6 @@ public class GlobalExceptionHandler {
     public R<Void> dtLoaderExceptionHandler(HttpServletRequest req, DtLoaderException e) {
         ExceptionEnums errorCode = ErrorCode.UNKNOWN_ERROR;
         logger.error("uri:{}, params:{} dtLoaderException:", req.getRequestURI(), req.getQueryString(), e);
-        return R.fail(errorCode.getCode(), e.getMessage());
-    }
-
-    @ExceptionHandler(value = SdkException.class)
-    @ResponseBody
-    @ResponseStatus(HttpStatus.PAYMENT_REQUIRED)
-    public R<Void> sdkExceptionHandler(HttpServletRequest req, SdkException e) {
-        ExceptionEnums errorCode = ErrorCode.UNKNOWN_ERROR;
-        logger.error("uri:{}, params:{} sdkException:", req.getRequestURI(), req.getQueryString(), e);
         return R.fail(errorCode.getCode(), e.getMessage());
     }
 

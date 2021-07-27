@@ -20,7 +20,7 @@ public class TaskParamTemplateService {
     private TaskParamTemplateDao taskParamTemplateDao;
 
     public TaskTemplateResultVO getEngineParamTmplByComputeType(Integer engineType, Integer computeType, Integer taskType) {
-        TaskParamTemplate taskParamTemplate = taskParamTemplateDao.getByEngineTypeAndComputeType(engineType, computeType, taskType == null ? 0 : taskType);
+        TaskParamTemplate taskParamTemplate = taskParamTemplateDao.getByEngineTypeAndComputeType(engineType, computeType, taskType);
         if (taskParamTemplate != null) {
             TaskTemplateResultVO vo = new TaskTemplateResultVO();
             vo.setId(taskParamTemplate.getId());

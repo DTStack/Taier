@@ -12,6 +12,7 @@ import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
+import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
@@ -49,7 +50,7 @@ public class BatchTaskShadeService {
     private UserService userService;
 
     @Autowired
-    private com.dtstack.engine.api.service.ScheduleTaskShadeService ScheduleTaskShadeService;
+    private com.dtstack.engine.master.impl.ScheduleTaskShadeService scheduleTaskShadeService;
 
     @Autowired
     private BatchTaskShadeDao batchTaskShadeDao;
@@ -59,7 +60,7 @@ public class BatchTaskShadeService {
      */
     public PageResult<List<BatchTaskShadePageQueryResultVO>> pageQuery(ScheduleTaskShadeDTO dto) {
         dto.setAppType(AppType.RDOS.getType());
-        PageResult pageResult = ScheduleTaskShadeService.pageQuery(dto).getData();
+        PageResult pageResult = scheduleTaskShadeService.pageQuery(dto);
         if (Objects.isNull(pageResult)) {
             return null;
         }

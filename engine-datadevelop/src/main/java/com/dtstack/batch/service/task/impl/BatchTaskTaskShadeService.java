@@ -1,8 +1,8 @@
 package com.dtstack.batch.service.task.impl;
 
 import com.dtstack.dtcenter.common.enums.AppType;
-import com.dtstack.engine.api.service.ScheduleTaskTaskShadeService;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
+import com.dtstack.engine.master.impl.ScheduleTaskTaskShadeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +21,7 @@ public class BatchTaskTaskShadeService {
     private ScheduleTaskTaskShadeService schduleTaskTaskShadeRpcService;
 
     public ScheduleTaskVO displayOffSpring(Long taskId, Long projectId, Long userId, Integer level, Integer directType) {
-        return schduleTaskTaskShadeRpcService.displayOffSpring(taskId, projectId, userId, level, directType, null).getData();
+        return schduleTaskTaskShadeRpcService.displayOffSpring(taskId, projectId, level, directType, AppType.RDOS.getType());
     }
 
 
@@ -32,7 +32,7 @@ public class BatchTaskTaskShadeService {
      * @return
      */
     public ScheduleTaskVO getAllFlowSubTasks(Long taskId) {
-        return schduleTaskTaskShadeRpcService.getAllFlowSubTasks(taskId, AppType.RDOS.getType()).getData();
+        return schduleTaskTaskShadeRpcService.getAllFlowSubTasks(taskId, AppType.RDOS.getType());
     }
 
 }

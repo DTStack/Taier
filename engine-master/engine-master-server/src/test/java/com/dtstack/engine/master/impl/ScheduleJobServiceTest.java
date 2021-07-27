@@ -286,9 +286,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Rollback
     public void testStopJob() throws Exception {
         ScheduleJob runningJob = DataCollection.getData().getScheduleJobDefiniteTaskId();
-        String result = scheduleJobService.stopJob(runningJob.getId(),runningJob.getAppType());
-
-        Assert.assertEquals(result, "");
+        scheduleJobService.stopJob(runningJob.getId(),runningJob.getAppType());
     }
 
     @Test
@@ -296,8 +294,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Rollback
     public void testStopJobByJobId() throws Exception {
         ScheduleJob runningJob = DataCollection.getData().getScheduleJobDefiniteTaskId();
-        String result = scheduleJobService.stopJobByJobId(runningJob.getJobId(),runningJob.getAppType());
-        Assert.assertEquals(result, "");
+        scheduleJobService.stopJobByJobId(runningJob.getJobId(),runningJob.getAppType());
     }
 
     @Test

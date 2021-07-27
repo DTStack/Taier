@@ -19,8 +19,8 @@ import com.dtstack.dtcenter.common.enums.Deleted;
 import com.dtstack.dtcenter.common.enums.EJobType;
 import com.dtstack.dtcenter.common.enums.MultiEngineType;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
-import com.dtstack.engine.api.service.ActionService;
 import com.dtstack.engine.api.vo.action.ActionRetryLogVO;
+import com.dtstack.engine.master.impl.ActionService;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
@@ -445,7 +445,7 @@ public class BatchDownloadService {
      *
      * @param jobId
      */
-    private String getLog(String jobId) throws Exception {
+    private String getLog(String jobId) {
         StringBuilder log = new StringBuilder();
         //hdfs没有日志就下载engine里的日志
         if (StringUtils.isNotBlank(jobId)) {
@@ -466,7 +466,7 @@ public class BatchDownloadService {
                 retryParamsMap.put("jobId", jobId);
                 retryParamsMap.put("computeType", ComputeType.BATCH.getType());
                 //先获取engine的日志总数信息
-                List<ActionRetryLogVO> actionRetryLogVOs = actionService.retryLog(jobId, ComputeType.BATCH.getType()).getData();
+                List<ActionRetryLogVO> actionRetryLogVOs = actionService.retryLog(jobId);
                 if (CollectionUtils.isNotEmpty(actionRetryLogVOs)){
                     int size = actionRetryLogVOs.size();
                     for (int i = size - 1; i >= 0; i--) {

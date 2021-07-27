@@ -42,15 +42,14 @@ import com.dtstack.engine.api.dto.UserDTO;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.api.pojo.ParamTaskAction;
-import com.dtstack.engine.api.service.ScheduleJobService;
-import com.dtstack.engine.api.service.ScheduleTaskShadeService;
 import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.api.vo.action.ActionJobEntityVO;
 import com.dtstack.engine.api.vo.action.ActionLogVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusCountVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.master.impl.ActionService;
-import com.dtstack.sdk.core.common.ApiResponse;
+import com.dtstack.engine.master.impl.ScheduleJobService;
+import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -157,14 +156,14 @@ public class BatchJobService {
      * @author toutian
      */
     public ScheduleJob getJobById(long jobId) {
-        return this.scheduleJobService.getJobById(jobId).getData();
+        return this.scheduleJobService.getJobById(jobId);
     }
 
     public Integer getJobStatus(String jobId) {
         if (StringUtils.isBlank(jobId)) {
             return null;
         }
-        final ScheduleJob job = this.scheduleJobService.getByJobId(jobId, Deleted.NORMAL.getStatus()).getData();
+        final ScheduleJob job = this.scheduleJobService.getByJobId(jobId, Deleted.NORMAL.getStatus());
         if (Objects.isNull(job)) {
             return null;
         }
@@ -176,7 +175,7 @@ public class BatchJobService {
      */
     public Map<String,Object> getStatusCount(long projectId, Long tenantId) {
         Map<String,Object> return_map = new HashMap<>();
-        ScheduleJobStatusVO data = scheduleJobService.getStatusCount(projectId, tenantId, AppType.RDOS.getType(), null).getData();
+        ScheduleJobStatusVO data = scheduleJobService.getStatusCount(projectId, tenantId, AppType.RDOS.getType(), null);
         List<ScheduleJobStatusCountVO> scheduleJobStatusCountVOList = data.getScheduleJobStatusCountVO();
         if (CollectionUtils.isNotEmpty(scheduleJobStatusCountVOList)){
             for (ScheduleJobStatusCountVO vo : scheduleJobStatusCountVOList){
@@ -192,7 +191,7 @@ public class BatchJobService {
      * 运行时长top排序
      */
     public List<JobTopOrderVO> runTimeTopOrder(long projectId, Long startTime, Long endTime, Long dtuicTenantId) {
-        final List<JobTopOrderVO> jobTopOrderVo = this.scheduleJobService.runTimeTopOrder(projectId, startTime, endTime, AppType.RDOS.getType(), dtuicTenantId).getData();
+        final List<JobTopOrderVO> jobTopOrderVo = this.scheduleJobService.runTimeTopOrder(projectId, startTime, endTime, AppType.RDOS.getType(), dtuicTenantId);
         if (CollectionUtils.isEmpty(jobTopOrderVo)) {
             return new ArrayList<>();
         }
@@ -220,7 +219,7 @@ public class BatchJobService {
      * 近30天任务出错排行
      */
     public List<JobTopErrorVO> errorTopOrder(long projectId, Long tenantId) {
-        final List<JobTopErrorVO> errors = this.scheduleJobService.errorTopOrder(projectId, tenantId, AppType.RDOS.getType(), null).getData();
+        final List<JobTopErrorVO> errors = this.scheduleJobService.errorTopOrder(projectId, tenantId, AppType.RDOS.getType(), null);
         if (CollectionUtils.isEmpty(errors)) {
             return errors;
         }
@@ -250,7 +249,7 @@ public class BatchJobService {
      * 曲线图数据
      */
     public ScheduleJobChartVO getJobGraph(long projectId, Long tenantId) {
-        return this.scheduleJobService.getJobGraph(projectId, tenantId, AppType.RDOS.getType(), null).getData();
+        return this.scheduleJobService.getJobGraph(projectId, tenantId, AppType.RDOS.getType(), null);
     }
 
 
@@ -266,7 +265,7 @@ public class BatchJobService {
             vo.setSearchType(searchType);
             vo.setAppType(AppType.RDOS.getType());
         }
-        PageResult pageResult = this.scheduleJobService.queryJobs(vo).getData();
+        PageResult pageResult = this.scheduleJobService.queryJobs(vo);
         if (Objects.isNull(pageResult) || Objects.isNull(pageResult.getData())) {
             return com.dtstack.batch.web.pager.PageResult.EMPTY_PAGE_RESULT;
         }
@@ -370,7 +369,7 @@ public class BatchJobService {
     }
 
     public List<SchedulePeriodInfoVO> displayPeriods(boolean isAfter, Long jobId, Long projectId, int limit) {
-        List<SchedulePeriodInfoVO> data = scheduleJobService.displayPeriods(isAfter, jobId, projectId, limit).getData();
+        List<SchedulePeriodInfoVO> data = scheduleJobService.displayPeriods(isAfter, jobId, projectId, limit);
         return data == null ? Lists.newArrayList() : data;
     }
 
@@ -383,7 +382,7 @@ public class BatchJobService {
      * @throws Exception
      */
     public ScheduleJobVO getRelatedJobs(String jobId, QueryJobDTO vo) {
-        final ScheduleJobVO data = this.scheduleJobService.getRelatedJobs(jobId, JSON.toJSONString(vo)).getData();
+        final ScheduleJobVO data = this.scheduleJobService.getRelatedJobs(jobId, JSON.toJSONString(vo));
         fillProjectAndUserInfo(Lists.newArrayList(data));
         return data;
     }
@@ -400,11 +399,11 @@ public class BatchJobService {
             throw new RdosDefineException("类型必填", ErrorCode.INVALID_PARAMETERS);
         }
         vo.setAppType(AppType.RDOS.getType());
-        return this.scheduleJobService.queryJobsStatusStatistics(vo).getData();
+        return this.scheduleJobService.queryJobsStatusStatistics(vo);
     }
 
     public List<ScheduleRunDetailVO> jobDetail(Long taskId) {
-        return this.scheduleJobService.jobDetail(taskId, AppType.RDOS.getType()).getData();
+        return this.scheduleJobService.jobDetail(taskId, AppType.RDOS.getType());
     }
 
     public String updateStatusById(String jobId, Integer status) {
@@ -551,13 +550,13 @@ public class BatchJobService {
 
     public String stopJob(long jobId, Long userId, Long projectId, Long tenantId, Long dtuicTenantId, Boolean isRoot) {
 
-        final ScheduleJob ScheduleJob = this.scheduleJobService.getById(jobId).getData();
+        final ScheduleJob ScheduleJob = this.scheduleJobService.getById(jobId);
         if (ScheduleJob == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
         }
 
         this.checkJobOperateValid(ScheduleJob, userId, ScheduleJob.getProjectId(), ScheduleJob.getTenantId(), isRoot);
-        this.scheduleJobService.stopJob(jobId, userId, projectId, tenantId, dtuicTenantId, null, AppType.RDOS.getType());
+        this.scheduleJobService.stopJob(jobId, AppType.RDOS.getType());
         return "success";
     }
 
@@ -572,7 +571,7 @@ public class BatchJobService {
      * @param isRoot
      */
     private void checkJobOperateValid(final ScheduleJob ScheduleJob, final Long userId, final Long projectId, final Long tenantId, final Boolean isRoot) {
-        final ScheduleTaskShade task = this.scheduleTaskShadeService.findTaskId(ScheduleJob.getTaskId(), Deleted.NORMAL.getStatus(), AppType.RDOS.getType()).getData();
+        final ScheduleTaskShade task = this.scheduleTaskShadeService.findTaskId(ScheduleJob.getTaskId(), Deleted.NORMAL.getStatus(), AppType.RDOS.getType());
         if (task != null) {
             this.roleUserService.checkUserRole(userId, RoleValue.OPERATION.getRoleValue(), ErrorCode.PERMISSION_LIMIT.getDescription(), projectId, tenantId, isRoot);
         }
@@ -585,8 +584,8 @@ public class BatchJobService {
         engineVO.setDtuicTenantId(dtuicTenantId);
         engineVO.setRoot(isRoot);
         engineVO.setUserId(userId);
-        ApiResponse<Integer> stringApiResponse = scheduleJobService.stopJobByCondition(engineVO);
-        return "取消了" +  stringApiResponse.getData() + "个任务";
+        Integer stringApiResponse = scheduleJobService.stopJobByCondition(engineVO);
+        return "取消了" +  stringApiResponse + "个任务";
     }
 
     public void stopFillDataJobs(String fillDataJobName, Long projectId, Long dtuicTenantId) {
@@ -599,7 +598,7 @@ public class BatchJobService {
         if (CollectionUtils.isEmpty(jobIdList)) {
             return 0;
         }
-        final List<ScheduleJob> jobs = this.scheduleJobService.getByIds(jobIdList, projectId).getData();
+        final List<ScheduleJob> jobs = this.scheduleJobService.getByIds(jobIdList);
         if (CollectionUtils.isEmpty(jobs)) {
             return 0;
         }
@@ -612,7 +611,7 @@ public class BatchJobService {
             }
         }
 
-        return this.scheduleJobService.batchStopJobs(jobIdList, projectId,dtuicTenantId, AppType.RDOS.getType()).getData();
+        return this.scheduleJobService.batchStopJobs(jobIdList);
     }
 
     public String stopUnsubmitJob(ScheduleJob ScheduleJob) {
@@ -625,7 +624,7 @@ public class BatchJobService {
      */
     public String fillTaskData(String taskJson, String fillName, Long fromDay, Long toDay, String concreteStartTime, String concreteEndTime, Long projectId, Long userId, Long tenantId, Boolean isRoot, Long dtuicTenantId) {
         taskJson = StringUtils.isEmpty(taskJson) ? "[]" : taskJson;
-        return this.scheduleJobService.fillTaskData(taskJson, fillName, fromDay, toDay, concreteStartTime, concreteEndTime, projectId, userId, tenantId, isRoot, AppType.RDOS.getType(), dtuicTenantId, null).getData();
+        return this.scheduleJobService.fillTaskData(taskJson, fillName, fromDay, toDay, concreteStartTime, concreteEndTime, projectId, userId, tenantId, isRoot, AppType.RDOS.getType(), dtuicTenantId, false);
     }
 
     /**
@@ -639,7 +638,7 @@ public class BatchJobService {
         if (Objects.isNull(bizEndDay)) {
             bizEndDay = bizDay;
         }
-        PageResult fillDataJobInfoPreview = scheduleJobService.getFillDataJobInfoPreview(jobName, runDay, bizStartDay, bizEndDay, dutyUserId, projectId, AppType.RDOS.getType(), userId.intValue(), currentPage, pageSize, tenantId).getData();
+        PageResult fillDataJobInfoPreview = scheduleJobService.getFillDataJobInfoPreview(jobName, runDay, bizStartDay, bizEndDay, dutyUserId, projectId, AppType.RDOS.getType(), currentPage, pageSize, tenantId);
         if (Objects.isNull(fillDataJobInfoPreview) || Objects.isNull(fillDataJobInfoPreview.getData())) {
             return com.dtstack.batch.web.pager.PageResult.EMPTY_PAGE_RESULT;
         }
@@ -668,7 +667,7 @@ public class BatchJobService {
             throw new RdosDefineException("(补数据名称不能为空)", ErrorCode.INVALID_PARAMETERS);
         }
         vo.setSplitFiledFlag(true);
-        PageResult<ScheduleFillDataJobDetailVO> fillDataDetailInfo = scheduleJobService.getFillDataDetailInfo(JSONObject.toJSONString(vo), flowJobIdList, fillJobName, dutyUserId, searchType, AppType.RDOS.getType()).getData();
+        PageResult<ScheduleFillDataJobDetailVO> fillDataDetailInfo = scheduleJobService.getFillDataDetailInfo(JSONObject.toJSONString(vo), flowJobIdList, fillJobName, dutyUserId, searchType, AppType.RDOS.getType());
         if (Objects.isNull(fillDataDetailInfo) || Objects.isNull(fillDataDetailInfo.getData())) {
             return com.dtstack.batch.web.pager.PageResult.EMPTY_PAGE_RESULT;
         }
@@ -712,7 +711,7 @@ public class BatchJobService {
      * @throws Exception
      */
     public ScheduleFillDataJobDetailVO.FillDataRecord  getRelatedJobsForFillData(String jobId, QueryJobDTO vo, String fillJobName) {
-        final ScheduleFillDataJobDetailVO.FillDataRecord relatedJobsForFillData = this.scheduleJobService.getRelatedJobsForFillData(jobId, JSON.toJSONString(vo), fillJobName).getData();
+        final ScheduleFillDataJobDetailVO.FillDataRecord relatedJobsForFillData = this.scheduleJobService.getRelatedJobsForFillData(jobId, JSON.toJSONString(vo), fillJobName);
         final List<ScheduleFillDataJobDetailVO.FillDataRecord> records = new ArrayList<>();
         records.add(relatedJobsForFillData);
         if(CollectionUtils.isNotEmpty(relatedJobsForFillData.getRelatedRecords())){
@@ -810,7 +809,7 @@ public class BatchJobService {
      * @return
      */
     public List<RestartJobVO> getRestartChildJob(ScheduleJob ScheduleJob, boolean isOnlyNextChild) {
-        return this.scheduleJobService.getRestartChildJob(ScheduleJob.getJobKey(), ScheduleJob.getTaskId(), isOnlyNextChild).getData();
+        return this.scheduleJobService.getRestartChildJob(ScheduleJob.getJobKey(), ScheduleJob.getTaskId(), isOnlyNextChild);
     }
 
 
@@ -837,7 +836,7 @@ public class BatchJobService {
         }
 
         try {
-            List<String> resourceLimitErrors = scheduleTaskShadeService.checkResourceLimit(dtuicTenantId, batchTask.getTaskType(), taskParams).getData();
+            List<String> resourceLimitErrors = scheduleTaskShadeService.checkResourceLimit(dtuicTenantId, batchTask.getTaskType(), taskParams, null);
             if (CollectionUtils.isNotEmpty(resourceLimitErrors)) {
                 batchStartSyncResultVO.setMsg(StringUtils.join(resourceLimitErrors, ","));
                 batchStartSyncResultVO.setStatus(TaskStatus.FAILED.getStatus());
@@ -894,7 +893,7 @@ public class BatchJobService {
         resultVO.setStatus(TaskStatus.RUNNING.getStatus());
 
         try {
-            final ScheduleJob job = this.scheduleJobService.getByJobId(jobId, Deleted.NORMAL.getStatus()).getData();
+            final ScheduleJob job = this.scheduleJobService.getByJobId(jobId, Deleted.NORMAL.getStatus());
             if (job == null) {
                 resultVO.setMsg("无法获取engine数据");
                 return resultVO;
@@ -1057,7 +1056,7 @@ public class BatchJobService {
                 throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
             }
 
-            List<String> resourceLimitErrors = scheduleTaskShadeService.checkResourceLimit(dtuicTenantId, task.getTaskType(), taskParams).getData();
+            List<String> resourceLimitErrors = scheduleTaskShadeService.checkResourceLimit(dtuicTenantId, task.getTaskType(), taskParams, null);
             if (CollectionUtils.isNotEmpty(resourceLimitErrors)) {
                 result.setMsg(StringUtils.join(resourceLimitErrors, ","));
                 result.setStatus(TaskStatus.FAILED.getStatus());
@@ -1176,7 +1175,7 @@ public class BatchJobService {
         Integer cronNum = 0;
         Integer failNum = 0;
 
-        final List<Map<String, Object>> resultMap = this.scheduleJobService.statisticsTaskRecentInfo(taskId, AppType.RDOS.getType(), projectId, count).getData();
+        final List<Map<String, Object>> resultMap = this.scheduleJobService.statisticsTaskRecentInfo(taskId, AppType.RDOS.getType(), projectId, count);
         for ( Map<String, Object> map : resultMap) {
             Object execStartTime = map.getOrDefault("execStartTime","0");
             Object execEndTime = map.getOrDefault("execEndTime","0");
@@ -1187,15 +1186,12 @@ public class BatchJobService {
             logsBody.put("jobId", jobId);
             logsBody.put("computeType", ComputeType.BATCH.getType());
 
-            try {
-                ActionLogVO log = actionService.log(jobId, ComputeType.BATCH.getType());
-                if (null != log){
-                    JSONObject logInfo =  log.getLogInfo() != null && log.getLogInfo().contains("jobid") ? JSONObject.parseObject(log.getLogInfo()) : null;
-                    if (logInfo != null){
-                        application = logInfo.getOrDefault("jobid",jobId);
-                    }
+            ActionLogVO log = actionService.log(jobId, ComputeType.BATCH.getType());
+            if (null != log){
+                JSONObject logInfo =  log.getLogInfo() != null && log.getLogInfo().contains("jobid") ? JSONObject.parseObject(log.getLogInfo()) : null;
+                if (logInfo != null){
+                    application = logInfo.getOrDefault("jobid",jobId);
                 }
-            } catch (Exception e){
             }
 
             final Object status = map.get("status");
@@ -1243,7 +1239,7 @@ public class BatchJobService {
     }
 
     public List<String> listJobIdByTaskNameAndStatusList(String taskName, List<Integer> statusList, Long projectId) {
-        return this.scheduleJobService.listJobIdByTaskNameAndStatusList(taskName, statusList, projectId, AppType.RDOS.getType()).getData();
+        return this.scheduleJobService.listJobIdByTaskNameAndStatusList(taskName, statusList, projectId, AppType.RDOS.getType());
     }
 
 
@@ -1255,7 +1251,7 @@ public class BatchJobService {
      * @return
      */
     public Map<String, ScheduleJob> getLabTaskRelationMap(List<String> jobIdList, Long projectId) {
-        return this.scheduleJobService.getLabTaskRelationMap(jobIdList, projectId).getData();
+        return this.scheduleJobService.getLabTaskRelationMap(jobIdList, projectId);
     }
 
 
@@ -1273,7 +1269,7 @@ public class BatchJobService {
      * @param jobId
      * @return
      */
-    public JSONObject getLogInfoFromEngine(String jobId) throws Exception {
+    public JSONObject getLogInfoFromEngine(String jobId) {
         //先获取job的日志 如果日志为空 再去engine获取
         ActionLogVO log = actionService.log(jobId, ComputeType.BATCH.getType());
         if (Objects.isNull(log)) {
@@ -1318,7 +1314,7 @@ public class BatchJobService {
                     dto.setProjectId(task.getProjectId());
                     dto.setVersionId(Integer.parseInt(bytaskIdAndVersionId.getId().toString()));
                     dto.setAppType(AppType.RDOS.getType());
-                    commitId = scheduleTaskShadeService.addOrUpdateBatchTask(Lists.newArrayList(dto), null).getData();
+                    commitId = scheduleTaskShadeService.addOrUpdateBatchTask(Lists.newArrayList(dto), null);
                     this.sendTaskStartTrigger(task.getTaskId(), null, commitId);
                     scheduleTaskShadeService.taskCommit(commitId);
                     LOG.info("previous sendTask {} success", task.toString());
@@ -1378,7 +1374,7 @@ public class BatchJobService {
      * @return
      */
     public ScheduleDetailsVO findTaskRuleJob(String jobId) {
-        return scheduleJobService.findTaskRuleJob(jobId).getData();
+        return scheduleJobService.findTaskRuleJob(jobId);
     }
 }
 

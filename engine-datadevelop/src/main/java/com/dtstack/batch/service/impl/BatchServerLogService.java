@@ -31,12 +31,13 @@ import com.dtstack.dtcenter.common.util.JsonUtils;
 import com.dtstack.dtcenter.common.util.MathUtil;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.service.ActionService;
-import com.dtstack.engine.api.service.ClusterService;
-import com.dtstack.engine.api.service.ScheduleTaskShadeService;
 import com.dtstack.engine.api.vo.action.ActionJobEntityVO;
 import com.dtstack.engine.api.vo.action.ActionLogVO;
 import com.dtstack.engine.api.vo.action.ActionRetryLogVO;
+import com.dtstack.engine.master.impl.ActionService;
+import com.dtstack.engine.master.impl.ClusterService;
+import com.dtstack.engine.master.impl.ScheduleJobService;
+import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import com.dtstack.schedule.common.metric.batch.IMetric;
 import com.dtstack.schedule.common.metric.batch.MetricBuilder;
 import com.dtstack.schedule.common.metric.prometheus.PrometheusMetricQuery;
@@ -79,7 +80,7 @@ public class BatchServerLogService {
     private ConsoleSend consoleSend;
 
     @Autowired
-    private com.dtstack.engine.api.service.ScheduleJobService ScheduleJobService;
+    private com.dtstack.engine.master.impl.ScheduleJobService ScheduleJobService;
 
     @Autowired
     private BatchTaskService batchTaskService;
@@ -119,14 +120,14 @@ public class BatchServerLogService {
             return null;
         }
 
-        final ScheduleJob job = this.ScheduleJobService.getByJobId(jobId, null).getData();
+        final ScheduleJob job = this.ScheduleJobService.getByJobId(jobId, null);
         if (Objects.isNull(job)) {
             BatchServerLogService.logger.info("can not find job by id:{}.", jobId);
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
         }
         final Long dtUicTenantId = job.getDtuicTenantId();
 
-        final ScheduleTaskShade scheduleTaskShade = this.scheduleTaskShadeService.findTaskId(job.getTaskId(), null, AppType.RDOS.getType()).getData();
+        final ScheduleTaskShade scheduleTaskShade = this.scheduleTaskShadeService.findTaskId(job.getTaskId(), null, AppType.RDOS.getType());
         if (Objects.isNull(scheduleTaskShade)) {
             BatchServerLogService.logger.info("can not find task shade  by jobId:{}.", jobId);
             throw new RdosDefineException(ErrorCode.SERVER_EXCEPTION);
@@ -138,7 +139,7 @@ public class BatchServerLogService {
         final JSONObject logsBody = new JSONObject(2);
         logsBody.put("jobId", jobId);
         logsBody.put("computeType", ComputeType.BATCH.getType());
-        ActionLogVO actionLogVO = actionService.log(jobId, ComputeType.BATCH.getType()).getData();
+        ActionLogVO actionLogVO = actionService.log(jobId, ComputeType.BATCH.getType());
         JSONObject info = new JSONObject();
         if (!Strings.isNullOrEmpty(actionLogVO.getLogInfo())) {
             try {
@@ -193,7 +194,7 @@ public class BatchServerLogService {
             jobStr = this.jobParamReplace.paramReplace(jobStr, taskParamsToReplace, job.getCycTime());
             info.put("sql", JsonUtils.formatJSON(jobStr));
             if (Objects.nonNull(job.getExecEndTime()) && Objects.nonNull(job.getExecStartTime())) {
-                List<ActionJobEntityVO> engineEntities = actionService.entitys(Collections.singletonList(logsBody.getString("jobId")), ComputeType.BATCH.getType()).getData();
+                List<ActionJobEntityVO> engineEntities = actionService.entitys(Collections.singletonList(logsBody.getString("jobId")));
                 String engineJobId = "";
                 if (CollectionUtils.isNotEmpty(engineEntities)) {
                     engineJobId =  engineEntities.get(0).getEngineJobId();
@@ -290,7 +291,7 @@ public class BatchServerLogService {
         retryParamsMap.put("jobId", jobId);
         retryParamsMap.put("computeType", ComputeType.BATCH.getType());
         //先获取engine的日志总数信息
-        List<ActionRetryLogVO> actionRetryLogVOs = actionService.retryLog(jobId, ComputeType.BATCH.getType()).getData();
+        List<ActionRetryLogVO> actionRetryLogVOs = actionService.retryLog(jobId);
         if (CollectionUtils.isEmpty(actionRetryLogVOs)) {
             return "";
         }
@@ -307,7 +308,7 @@ public class BatchServerLogService {
         }
         retryParamsMap.put("retryNum", pageInfo);
         //获取对应的日志
-        ActionRetryLogVO retryLogContent = actionService.retryLogDetail(jobId, ComputeType.BATCH.getType(), pageInfo).getData();
+        ActionRetryLogVO retryLogContent = actionService.retryLogDetail(jobId, pageInfo);
         StringBuilder builder = new StringBuilder();
         if (Objects.isNull(retryLogContent)) {
             return "";
@@ -616,7 +617,7 @@ public class BatchServerLogService {
 
     public String formatPerfLogInfo(final String applicationId, final String jobId, final long startTime, final long endTime, final Long dtUicTenantId) {
 
-        final ScheduleJob job = this.ScheduleJobService.getByJobId(jobId, null).getData();
+        final ScheduleJob job = this.ScheduleJobService.getByJobId(jobId, null);
         if (Objects.isNull(job)) {
             BatchServerLogService.logger.info("can not find job by id:{}.", jobId);
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
@@ -656,7 +657,7 @@ public class BatchServerLogService {
         Boolean hasStandAlone = tenantService.hasStandAlone(dtUicTenantId);
         JSONObject flinkJsonObject ;
         if (hasStandAlone) {
-            String configByKey = clusterService.getConfigByKey(dtUicTenantId, EComponentType.FLINK.getConfName(), false).getData();
+            String configByKey = clusterService.getConfigByKey(dtUicTenantId, EComponentType.FLINK.getConfName(), false, null);
             flinkJsonObject = JSONObject.parseObject(configByKey);
         }else {
             String enginePluginInfo = this.consoleSend.getEnginePluginInfo(dtUicTenantId, MultiEngineType.HADOOP.getType());
@@ -679,7 +680,7 @@ public class BatchServerLogService {
 
     public SyncStatusLogInfoVO getSyncJobLogInfo(final String jobId, final Long taskId, final long startTime, final long endTime, final Long dtUicTenantId){
 
-        final ScheduleTaskShade scheduleTaskShade = this.scheduleTaskShadeService.findTaskId(taskId, null, AppType.RDOS.getType()).getData();
+        final ScheduleTaskShade scheduleTaskShade = this.scheduleTaskShadeService.findTaskId(taskId, null, AppType.RDOS.getType());
 
         final SyncStatusLogInfoVO syncStatusLogInfoVO = new SyncStatusLogInfoVO();
         final Pair<String, String> prometheusHostAndPort = this.getPrometheusHostAndPort(dtUicTenantId,scheduleTaskShade.getTaskParams());
@@ -717,7 +718,7 @@ public class BatchServerLogService {
      * @return
      */
     public SyncErrorCountInfoVO getSyncJobCountInfo(final String jobId, final Long taskId, final long startTime, final long endTime, final Long dtUicTenantId){
-         ScheduleTaskShade scheduleTaskShade = this.scheduleTaskShadeService.findTaskId(taskId, null, AppType.RDOS.getType()).getData();
+         ScheduleTaskShade scheduleTaskShade = this.scheduleTaskShadeService.findTaskId(taskId, null, AppType.RDOS.getType());
 
          SyncErrorCountInfoVO countInfoVO = new SyncErrorCountInfoVO();
          Pair<String, String> prometheusHostAndPort = this.getPrometheusHostAndPort(dtUicTenantId,scheduleTaskShade.getTaskParams());

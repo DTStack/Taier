@@ -11,7 +11,7 @@ import com.dtstack.batch.vo.ExecuteResultVO;
 import com.dtstack.batch.vo.ExecuteSelectSqlData;
 import com.dtstack.dtcenter.common.enums.ComputeType;
 import com.dtstack.dtcenter.common.exception.DtCenterDefException;
-import com.dtstack.engine.api.service.ActionService;
+import com.dtstack.engine.master.impl.ActionService;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -39,7 +39,7 @@ public class BatchSelectSqlService {
     private BatchHiveSelectSqlDao batchHiveSelectSqlDao;
 
     @Autowired
-    ActionService actionService;
+    private ActionService actionService;
 
     @Autowired
     private MultiEngineServiceFactory multiEngineServiceFactory;

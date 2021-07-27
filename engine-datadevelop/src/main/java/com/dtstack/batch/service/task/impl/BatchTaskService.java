@@ -3,9 +3,7 @@ package com.dtstack.batch.service.task.impl;
 
 import com.alibaba.fastjson.*;
 import com.dtstack.batch.common.enums.EDeployType;
-import com.dtstack.batch.common.enums.ETableType;
 import com.dtstack.batch.common.enums.PublishTaskStatusEnum;
-import com.dtstack.batch.common.enums.RelationResultType;
 import com.dtstack.batch.common.env.EnvironmentContext;
 import com.dtstack.batch.common.exception.ErrorCode;
 import com.dtstack.batch.common.exception.RdosDefineException;
@@ -15,7 +13,6 @@ import com.dtstack.batch.domain.*;
 import com.dtstack.batch.dto.BatchTaskDTO;
 import com.dtstack.batch.engine.rdbms.common.enums.Constant;
 import com.dtstack.batch.enums.*;
-import com.dtstack.batch.mapping.TableTypeEngineTypeMapping;
 import com.dtstack.batch.mapping.TaskTypeEngineTypeMapping;
 import com.dtstack.batch.parser.ESchedulePeriodType;
 import com.dtstack.batch.parser.ScheduleCron;
@@ -29,40 +26,28 @@ import com.dtstack.batch.service.job.ITaskService;
 import com.dtstack.batch.service.job.impl.BatchJobService;
 import com.dtstack.batch.service.table.ISqlExeService;
 import com.dtstack.batch.sync.job.PluginName;
-import com.dtstack.batch.sync.job.SyncJob;
 import com.dtstack.batch.sync.job.SyncJobCheck;
 import com.dtstack.batch.vo.*;
 import com.dtstack.batch.web.pager.PageQuery;
 import com.dtstack.batch.web.task.vo.query.AllProductGlobalSearchVO;
-import com.dtstack.batch.web.task.vo.result.BatchGetShellOnAgentClusterAndUserResultVO;
 import com.dtstack.batch.web.task.vo.result.BatchTaskGetComponentVersionResultVO;
 import com.dtstack.batch.web.task.vo.result.BatchTaskGetSupportJobTypesResultVO;
 import com.dtstack.batch.web.task.vo.result.BatchTaskRecentlyRunTimeResultVO;
 import com.dtstack.dtcenter.common.constant.PatternConstant;
 import com.dtstack.dtcenter.common.enums.*;
 import com.dtstack.dtcenter.common.enums.ESubmitStatus;
-import com.dtstack.dtcenter.common.login.DtUicUserConnect;
 import com.dtstack.dtcenter.common.thread.RdosThreadFactory;
 import com.dtstack.dtcenter.common.util.*;
 import com.dtstack.dtcenter.loader.client.ClientCache;
 import com.dtstack.dtcenter.loader.client.IClient;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
-import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.CronExceptionVO;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.api.dto.UserDTO;
-import com.dtstack.engine.api.enums.TableOperateEnum;
 import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.pojo.lineage.ColumnLineage;
-import com.dtstack.engine.api.pojo.lineage.Table;
-import com.dtstack.engine.api.service.ComponentService;
-import com.dtstack.engine.api.service.ScheduleTaskShadeService;
-import com.dtstack.engine.api.service.ScheduleTaskTaskShadeService;
-import com.dtstack.engine.api.service.TaskParamApiClient;
-import com.dtstack.engine.api.vo.ComponentUserVO;
 import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.api.vo.project.ScheduleEngineProjectVO;
@@ -72,7 +57,10 @@ import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
 import com.dtstack.engine.api.vo.task.SaveTaskTaskVO;
 import com.dtstack.engine.api.vo.template.TaskTemplateResultVO;
 import com.dtstack.engine.api.vo.template.TaskTemplateVO;
-import com.dtstack.sdk.core.common.ApiResponse;
+import com.dtstack.engine.master.impl.ComponentService;
+import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
+import com.dtstack.engine.master.impl.ScheduleTaskTaskShadeService;
+import com.dtstack.engine.master.impl.TaskParamTemplateService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -127,7 +115,7 @@ public class BatchTaskService {
     private BatchTaskDao batchTaskDao;
 
     @Autowired
-    private TaskParamApiClient taskParamApiClient;
+    private TaskParamTemplateService taskParamTemplateService;
 
     @Autowired
     private BatchTaskResourceService batchTaskResourceService;
@@ -220,7 +208,7 @@ public class BatchTaskService {
     private EnvironmentContext environmentContext;
 
     @Autowired
-    private com.dtstack.engine.api.service.ProjectService engineProjectService;
+    private com.dtstack.engine.master.impl.ProjectService engineProjectService;
 
     @Autowired
     private ComponentService componentService;
@@ -471,7 +459,7 @@ public class BatchTaskService {
     public BatchTaskBatchVO getTaskById(final ScheduleTaskVO ScheduleTaskVO) {
         // 如果非离线的任务，则调用engine获取任务信息
         if (Objects.nonNull(ScheduleTaskVO.getAppType()) && AppType.RDOS.getType() != ScheduleTaskVO.getAppType()) {
-            ScheduleTaskShade taskShade = scheduleTaskShadeService.findTaskId(ScheduleTaskVO.getId(), Deleted.NORMAL.getStatus(),ScheduleTaskVO.getAppType()).getData();
+            ScheduleTaskShade taskShade = scheduleTaskShadeService.findTaskId(ScheduleTaskVO.getId(), Deleted.NORMAL.getStatus(),ScheduleTaskVO.getAppType());
             BatchTaskBatchVO taskBatchVO = new BatchTaskBatchVO();
             BeanUtils.copyProperties(taskShade, taskBatchVO);
             return taskBatchVO;
@@ -642,8 +630,8 @@ public class BatchTaskService {
      * @return
      */
     public List<BatchTask> getTaskIdAndNameBySchedule(ScheduleTaskShadeDTO dto) {
-        ApiResponse<PageResult<List<ScheduleTaskShadeVO>>> submitTaskList = scheduleTaskShadeService.pageQuery(dto);
-        List<ScheduleTaskShadeVO> scheduleTaskVOS = submitTaskList.getData().getData();
+        PageResult<List<ScheduleTaskShadeVO>> submitTaskList = scheduleTaskShadeService.pageQuery(dto);
+        List<ScheduleTaskShadeVO> scheduleTaskVOS = submitTaskList.getData();
         List<BatchTask> returnList=  new ArrayList<>();
         scheduleTaskVOS.forEach(bean ->{
             BatchTask task = new BatchTask();
@@ -877,7 +865,7 @@ public class BatchTaskService {
             searchProjectId = projectId;
         }
 
-        final List<Map<String, Object>> result = this.scheduleTaskShadeService.listDependencyTask(excludeIds, AppType.RDOS.getType(), name, searchProjectId).getData();
+        final List<Map<String, Object>> result = this.scheduleTaskShadeService.listDependencyTask(excludeIds, name, searchProjectId);
         if (CollectionUtils.isNotEmpty(result)) {
 
             List<Long> taskIds = Lists.newArrayList();
@@ -1061,10 +1049,10 @@ public class BatchTaskService {
                                           Integer pageSize, String searchType) {
 
         //需要处理用户信息
-        ApiResponse<ScheduleTaskShadePageVO> data = scheduleTaskShadeService.queryTasks(tenantId, projectId, name, ownerId, startTime, endTime, scheduleStatus, taskTypeList, periodTypeList, currentPage, pageSize, searchType, AppType.RDOS.getType());
+        ScheduleTaskShadePageVO data = scheduleTaskShadeService.queryTasks(tenantId, projectId, name, ownerId, startTime, endTime, scheduleStatus, taskTypeList, periodTypeList, currentPage, pageSize, searchType, AppType.RDOS.getType());
         Map<String,Object> resMap = new HashMap<>(8);
-        PageResult<List<ScheduleTaskVO>> pageResult = data.getData().getPageResult();
-        List<ScheduleTaskVO> vos = data.getData().getPageResult().getData();
+        PageResult<List<ScheduleTaskVO>> pageResult = data.getPageResult();
+        List<ScheduleTaskVO> vos = data.getPageResult().getData();
         if (CollectionUtils.isNotEmpty(vos)) {
             Set<Long> userIds = vos.stream().map(ScheduleTaskVO::getCreateUserId).collect(Collectors.toSet());
             userIds.addAll(vos.stream().map(ScheduleTaskVO::getOwnerUserId).collect(Collectors.toSet()));
@@ -1135,7 +1123,7 @@ public class BatchTaskService {
         if (StringUtils.isNotBlank(taskTypes)) {
             types = Arrays.stream(taskTypes.split(",")).map(Integer::valueOf).collect(Collectors.toList());
         }
-        return buildUserInfo(this.scheduleTaskShadeService.dealFlowWorkTask(taskId, AppType.RDOS.getType(), types, ownerId).getData());
+        return buildUserInfo(this.scheduleTaskShadeService.dealFlowWorkTask(taskId, AppType.RDOS.getType(), types, ownerId));
     }
 
     private BatchTaskBatchVO buildUserInfo(final ScheduleTaskVO batchTask) {
@@ -1243,7 +1231,7 @@ public class BatchTaskService {
         if (task == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
         }
-        List<String> resourceLimitErrors = scheduleTaskShadeService.checkResourceLimit(dtuicTenantId, task.getTaskType(), task.getTaskParams()).getData();
+        List<String> resourceLimitErrors = scheduleTaskShadeService.checkResourceLimit(dtuicTenantId, task.getTaskType(), task.getTaskParams(), null);
         if (CollectionUtils.isNotEmpty(resourceLimitErrors)) {
             vo = new TaskCheckResultVO();
             vo.setErrorMessage(StringUtils.join(resourceLimitErrors, ","));
@@ -1330,7 +1318,7 @@ public class BatchTaskService {
         List<ScheduleTaskShadeDTO> scheduleTasks = subTasks.stream().map(task -> buildScheduleTaskShadeDTO(task, allTaskTaskList)).collect(Collectors.toList());
         logger.info("待发布任务检查完毕，{}个任务准备处于待提交状态，taskId：{}", scheduleTasks.size(), scheduleTasks.stream().map(ScheduleTaskShade::getTaskId).collect(Collectors.toList()));
         // 批量发布任务
-        String taskCommitId = this.scheduleTaskShadeService.addOrUpdateBatchTask(scheduleTasks, commitId).getData();
+        String taskCommitId = this.scheduleTaskShadeService.addOrUpdateBatchTask(scheduleTasks, commitId);
         logger.info("待发布任务提交完毕，commitId：{}", taskCommitId);
         if (StringUtils.isBlank(taskCommitId)) {
             throw new RdosDefineException("engine返回commitId为空");
@@ -1338,7 +1326,7 @@ public class BatchTaskService {
 
         // 判断任务依赖关系
         if (CollectionUtils.isNotEmpty(allTaskTaskList)) {
-            SaveTaskTaskVO saveTaskTaskVO = scheduleTaskTaskShadeService.saveTaskTaskList(JSON.toJSONString(allTaskTaskList), taskCommitId).getData();
+            SaveTaskTaskVO saveTaskTaskVO = scheduleTaskTaskShadeService.saveTaskTaskList(JSON.toJSONString(allTaskTaskList), taskCommitId);
             // 判断任务关系是否正常
             // 失败情况：1、任务成环  2、依赖的任务已经被删除
             if (BooleanUtils.isFalse(saveTaskTaskVO.getSave())) {
@@ -1430,7 +1418,7 @@ public class BatchTaskService {
             List<BatchTaskParam> taskParamsToReplace = batchTaskParamService.getTaskParam(task.getId());
             versionSqlText = this.jobParamReplace.paramReplace(task.getSqlText(), taskParamsToReplace, this.sdf.format(new Date()));
             //避免重复校验
-            ScheduleTaskShade taskShade = this.scheduleTaskShadeService.findTaskId(task.getId(), Deleted.NORMAL.getStatus(), AppType.RDOS.getType()).getData();
+            ScheduleTaskShade taskShade = this.scheduleTaskShadeService.findTaskId(task.getId(), Deleted.NORMAL.getStatus(), AppType.RDOS.getType());
             String sqlTextShade = null == taskShade ? "" : taskShade.getSqlText();
             boolean checkSyntax = !((sqlTextShade != null && sqlTextShade.equals(task.getSqlText()))) && ignoreCheck;
 
@@ -1593,12 +1581,12 @@ public class BatchTaskService {
             int i = 1;
             for (Map<String, Object> dependencyTask : dependencyTasks) {
                 ScheduleTaskShade taskShade = scheduleTaskShadeService.findTaskId(MathUtil.getLongVal(dependencyTask.get("parentTaskId")),
-                        Deleted.NORMAL.getStatus(), MathUtil.getIntegerVal(dependencyTask.get("parentAppType"))).getData();
+                        Deleted.NORMAL.getStatus(), MathUtil.getIntegerVal(dependencyTask.get("parentAppType")));
                 if (taskShade != null) {
                     JSONObject taskParam = new JSONObject();
                     taskParam.put("taskName", taskShade.getName());
                     taskParam.put("tenantName", this.tenantService.getTenantById(taskShade.getTenantId()).getTenantName());
-                    ScheduleEngineProjectVO engineProjectVO= engineProjectService.findProject(taskShade.getProjectId(),taskShade.getAppType()).getData();
+                    ScheduleEngineProjectVO engineProjectVO= engineProjectService.findProject(taskShade.getProjectId(),taskShade.getAppType());
                     if (engineProjectVO != null) {
                         taskParam.put("projectName", engineProjectVO.getProjectName());
                     } else {
@@ -2617,20 +2605,13 @@ public class BatchTaskService {
      * @author toutian
      */
     private String doGetDefaultTaskParam(Long dtuicTenantId, final int engineType, final int computeType) {
-        final TaskTemplateVO taskTemplateParam = new TaskTemplateVO();
-        taskTemplateParam.setEngineType(engineType);
-        taskTemplateParam.setComputeType(computeType);
-        final ApiResponse<TaskTemplateResultVO> engineParamTmplByComputeType = this.taskParamApiClient.getEngineParamTmplByComputeType(taskTemplateParam);
+        final TaskTemplateResultVO engineParamTmplByComputeType = this.taskParamTemplateService.getEngineParamTmplByComputeType(engineType, computeType, 0);
 
-        if (engineParamTmplByComputeType != null) {
-            final TaskTemplateResultVO data = engineParamTmplByComputeType.getData();
-            if (data == null) {
-                logger.error("systbatchJobem don't have init param of engineType {} of compute Type: {} ,data {}", engineType, computeType, JSON.toJSONString(engineParamTmplByComputeType));
-                throw new RdosDefineException("system don't have init param of engineType: " + engineType + " of compute Type:" + computeType);
-            }
-            return data.getParams();
+        if (engineParamTmplByComputeType == null) {
+            logger.error("systbatchJobem don't have init param of engineType {} of compute Type: {} ,data {}", engineType, computeType, JSON.toJSONString(engineParamTmplByComputeType));
+            throw new RdosDefineException("system don't have init param of engineType: " + engineType + " of compute Type:" + computeType);
         }
-        return "";
+        return engineParamTmplByComputeType.getParams();
     }
 
     /**
@@ -2655,7 +2636,7 @@ public class BatchTaskService {
             throw new RdosDefineException("(当前任务被其他任务依赖)", ErrorCode.CAN_NOT_DELETE_TASK);
         }
 
-        final ScheduleTaskShade dbTask = this.scheduleTaskShadeService.findTaskId(taskId, Deleted.NORMAL.getStatus(), AppType.RDOS.getType()).getData();
+        final ScheduleTaskShade dbTask = this.scheduleTaskShadeService.findTaskId(taskId, Deleted.NORMAL.getStatus(), AppType.RDOS.getType());
         if (batchTask.getFlowId() == 0 && Objects.nonNull(dbTask) &&
         batchTask.getScheduleStatus().intValue() == EScheduleStatus.NORMAL.getVal().intValue()){
             throw new RdosDefineException("(当前任务未被冻结)", ErrorCode.CAN_NOT_DELETE_TASK);
@@ -2738,7 +2719,7 @@ public class BatchTaskService {
         batchTasks.addAll(subList);
         taskIdList = batchTasks.stream().map(BaseEntity::getId).collect(Collectors.toList());
         //更新taskShade表
-        this.scheduleTaskShadeService.frozenTask(taskIdList, scheduleStatus, null, null, AppType.RDOS.getType());
+        this.scheduleTaskShadeService.frozenTask(taskIdList, scheduleStatus, AppType.RDOS.getType());
         //更新task表
         this.batchTaskDao.batchUpdateTaskScheduleStatus(taskIdList, scheduleStatus);
         final List<BatchTaskRecord> taskRecords = new ArrayList<>(taskIdList.size());
@@ -3101,7 +3082,7 @@ public class BatchTaskService {
             }
 
             // 获取引擎的版本信息，如果版本信息为空，说明之前任务没提交过则直接跳过，不提交
-            ScheduleTaskShade scheduleTaskShade = scheduleTaskShadeService.getBatchTaskById(batchTask.getId(), AppType.RDOS.getType()).getData();
+            ScheduleTaskShade scheduleTaskShade = scheduleTaskShadeService.getBatchTaskById(batchTask.getId(), AppType.RDOS.getType());
             if (scheduleTaskShade == null) {
                 countDownLatch.countDown();
                 continue;
@@ -3195,9 +3176,9 @@ public class BatchTaskService {
      * @return
      */
     public List<ScheduleTaskShadeTypeVO> allProductGlobalSearch(AllProductGlobalSearchVO searchVO) {
-        ApiResponse<List<ScheduleTaskShadeTypeVO>> apiResponse = scheduleTaskShadeService.findFuzzyTaskNameByCondition(
+        List<ScheduleTaskShadeTypeVO> apiResponse = scheduleTaskShadeService.findFuzzyTaskNameByCondition(
                 searchVO.getTaskName(), searchVO.getAppType(), searchVO.getUicTenantId(), searchVO.getProjectId());
-        return apiResponse.getData();
+        return apiResponse;
     }
 
     /**
@@ -3226,7 +3207,7 @@ public class BatchTaskService {
      * @return
      */
     public List<NotDeleteTaskVO> getChildTasks(Long taskId) {
-        List<NotDeleteTaskVO> notDeleteTaskVOs = scheduleTaskShadeService.getNotDeleteTask(taskId, AppType.RDOS.getType()).getData();
+        List<NotDeleteTaskVO> notDeleteTaskVOs = scheduleTaskShadeService.getNotDeleteTask(taskId, AppType.RDOS.getType());
         if (CollectionUtils.isEmpty(notDeleteTaskVOs)) {
             return Lists.newArrayList();
         }
@@ -3242,14 +3223,14 @@ public class BatchTaskService {
      * @return
      */
     public BatchTaskRecentlyRunTimeResultVO recentlyRunTime(String startDate, String endDate, String cron, Integer num) {
-        CronExceptionVO cronExceptionVO = scheduleTaskShadeService.checkCronExpression(cron, MIN_PERIOD).getData();
+        CronExceptionVO cronExceptionVO = scheduleTaskShadeService.checkCronExpression(cron, MIN_PERIOD);
         BatchTaskRecentlyRunTimeResultVO recentlyRunTimeResultVO = new BatchTaskRecentlyRunTimeResultVO();
         if (cronExceptionVO != null && StringUtils.isNotEmpty(cronExceptionVO.getErrMessage()) && cronExceptionVO.getErrCode() == 1) {
             recentlyRunTimeResultVO.setIsCronValid(false);
             return recentlyRunTimeResultVO;
         }
         recentlyRunTimeResultVO.setIsCronValid(true);
-        List<String> recentlyRunTimes = scheduleTaskShadeService.recentlyRunTime(startDate, endDate, cron, num).getData();
+        List<String> recentlyRunTimes = scheduleTaskShadeService.recentlyRunTime(startDate, endDate, cron, num);
         recentlyRunTimeResultVO.setRecentlyRunTimes(recentlyRunTimes);
         return recentlyRunTimeResultVO;
     }
@@ -3262,7 +3243,7 @@ public class BatchTaskService {
         Integer periodType = scheduleConf.getInteger("periodType");
         if (periodType == ESchedulePeriodType.CRON.getVal()) {
             String cron = scheduleConf.getString("cron");
-            CronExceptionVO cronExceptionVO = scheduleTaskShadeService.checkCronExpression(cron, MIN_PERIOD).getData();
+            CronExceptionVO cronExceptionVO = scheduleTaskShadeService.checkCronExpression(cron, MIN_PERIOD);
             if (cronExceptionVO != null && StringUtils.isNotEmpty(cronExceptionVO.getErrMessage())) {
                 if (cronExceptionVO.getErrCode() == 1) {
                     throw new RdosDefineException("请填写合法的Cron表达式！");
@@ -3288,7 +3269,7 @@ public class BatchTaskService {
         } else {
             throw new RdosDefineException("这种任务类型不支持多版本选择！");
         }
-        List<Component> components = componentService.getComponentVersionByEngineType(dtuicTenantId, engineType).getData();
+        List<Component> components = componentService.getComponentVersionByEngineType(dtuicTenantId, engineType);
         List<BatchTaskGetComponentVersionResultVO> componentVersionResultVOS = Lists.newArrayList();
         for (Component component : components) {
             BatchTaskGetComponentVersionResultVO resultVO = new BatchTaskGetComponentVersionResultVO();
@@ -3415,7 +3396,7 @@ public class BatchTaskService {
      * @return
      */
     private Set<Long> getParentTaskIds(Long taskId, Set<Long> currentTaskIds) {
-        List<ScheduleTaskTaskShade> allParentTasks = scheduleTaskTaskShadeService.getAllParentTask(taskId, AppType.RDOS.getType()).getData();
+        List<ScheduleTaskTaskShade> allParentTasks = scheduleTaskTaskShadeService.getAllParentTask(taskId, AppType.RDOS.getType());
         Set<Long> resultParentTaskIds = allParentTasks.stream().map(ScheduleTaskTaskShade::getParentTaskId).collect(Collectors.toSet());
 
         // 取并集

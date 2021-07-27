@@ -1,8 +1,8 @@
 package com.dtstack.batch.service.job.impl;
 
 import com.dtstack.dtcenter.common.enums.AppType;
-import com.dtstack.engine.api.service.ScheduleJobJobService;
 import com.dtstack.engine.api.vo.ScheduleJobVO;
+import com.dtstack.engine.master.impl.ScheduleJobJobService;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ public class BatchJobJobService {
      * @author toutian
      */
     public ScheduleJobVO displayOffSpring(Long jobId, Long projectId, Integer level) {
-        ScheduleJobVO jobVO = scheduleJobJobService.displayOffSpring(jobId, projectId, level).getData();
+        ScheduleJobVO jobVO = scheduleJobJobService.displayOffSpring(jobId, level);
         batchJobService.fillProjectAndUserInfo(Lists.newArrayList(jobVO));
         return jobVO;
     }
@@ -33,14 +33,14 @@ public class BatchJobJobService {
      * @return
      */
     public ScheduleJobVO displayOffSpringWorkFlow(Long jobId) {
-        return scheduleJobJobService.displayOffSpringWorkFlow(jobId, AppType.RDOS.getType()).getData();
+        return scheduleJobJobService.displayOffSpringWorkFlow(jobId, AppType.RDOS.getType());
     }
 
     /**
      * @author toutian
      */
     public ScheduleJobVO displayForefathers(Long jobId, Integer level) {
-        return scheduleJobJobService.displayForefathers(jobId, level).getData();
+        return scheduleJobJobService.displayForefathers(jobId, level);
     }
 
 }

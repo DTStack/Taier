@@ -516,7 +516,7 @@ public class ActionService {
     /**
      * 根据jobid 和 计算类型，查询job的日志
      */
-    public ActionLogVO log( String jobId, Integer computeType) throws Exception {
+    public ActionLogVO log( String jobId, Integer computeType) {
 
         if (StringUtils.isBlank(jobId)||computeType==null){
             throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
@@ -528,11 +528,14 @@ public class ActionService {
             vo.setLogInfo(scheduleJob.getLogInfo());
         	String engineLog = scheduleJob.getEngineLog();
             if (StringUtils.isBlank(engineLog)) {
-                engineLog = CompletableFuture.supplyAsync(
-                        () ->
-                        jobDealer.getAndUpdateEngineLog(jobId, scheduleJob.getEngineJobId(), scheduleJob.getApplicationId(), scheduleJob.getDtuicTenantId()),
-                        logTimeOutPool
-                ).get(environmentContext.getLogTimeout(), TimeUnit.SECONDS);
+                try {
+                    engineLog = CompletableFuture.supplyAsync(
+                            () ->
+                                    jobDealer.getAndUpdateEngineLog(jobId, scheduleJob.getEngineJobId(), scheduleJob.getApplicationId(), scheduleJob.getDtuicTenantId()),
+                            logTimeOutPool
+                    ).get(environmentContext.getLogTimeout(), TimeUnit.SECONDS);
+                } catch (Exception e){
+                }
                 if (engineLog == null) {
                     engineLog = "";
                 }
@@ -566,7 +569,7 @@ public class ActionService {
     /**
      * 根据jobid 和 计算类型，查询job的重试retry日志
      */
-    public List<ActionRetryLogVO> retryLog( String jobId) throws Exception {
+    public List<ActionRetryLogVO> retryLog( String jobId) {
 
         if (StringUtils.isBlank(jobId)){
             throw new RdosDefineException("jobId is not allow null", ErrorCode.INVALID_PARAMETERS);
@@ -588,7 +591,7 @@ public class ActionService {
     /**
      * 根据jobid 和 计算类型，查询job的重试retry日志
      */
-    public ActionRetryLogVO retryLogDetail( String jobId, Integer retryNum) throws Exception {
+    public ActionRetryLogVO retryLogDetail( String jobId, Integer retryNum) {
 
         if (StringUtils.isBlank(jobId)){
             throw new RdosDefineException("jobId  is not allow null", ErrorCode.INVALID_PARAMETERS);

@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.dtstack.dtcenter.common.pager.PageResult;
 import com.dtstack.engine.datasource.common.utils.datakit.Asserts;
 import com.dtstack.engine.datasource.common.utils.datakit.Collections;
-import com.dtstack.sdk.core.common.DtInsightPageAuthParam;
+import com.dtstack.engine.datasource.param.BasePageParam;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +47,7 @@ public class PageUtil {
      *
      * @return 视图层page
      */
-    public static <V> PageResult<List<V>> transfer(List<V> dataList, DtInsightPageAuthParam param, int total) {
+    public static <V> PageResult<List<V>> transfer(List<V> dataList, BasePageParam param, int total) {
         Asserts.notNull(param);
         int pageSize = param.getPageSize() == null || param.getPageSize() == 0 ? DEFAULT_PAGE_SIZE : param.getPageSize();
         int currentPage = param.getCurrentPage() == null ? DEFAULT_CURRENT_PAGE : param.getCurrentPage();
@@ -65,7 +65,7 @@ public class PageUtil {
      *
      * @param param 分页参数
      */
-    public static <V> PageResult<List<V>> empty(DtInsightPageAuthParam param) {
+    public static <V> PageResult<List<V>> empty(BasePageParam param) {
         return transfer(null, param, 0);
     }
 

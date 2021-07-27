@@ -131,8 +131,8 @@ public class ScheduleJobController {
     }
 
     @RequestMapping(value = "/stopJob", method = {RequestMethod.POST})
-    public String stopJob(@DtRequestParam("jobId") long jobId, @DtRequestParam("appType") Integer appType) throws Exception {
-        return scheduleJobService.stopJob(jobId, appType);
+    public void stopJob(@DtRequestParam("jobId") long jobId, @DtRequestParam("appType") Integer appType) throws Exception {
+        scheduleJobService.stopJob(jobId, appType);
     }
 
 
@@ -382,8 +382,8 @@ public class ScheduleJobController {
 
     @RequestMapping(value = "/stopJobByJobId", method = {RequestMethod.POST})
     @ApiOperation(value = "根据任务ID 停止任务")
-    public String stopJobByJobId(@DtRequestParam("jobId") String jobId, @DtRequestParam("appType") Integer appType) throws Exception {
-        return scheduleJobService.stopJobByJobId(jobId, appType);
+    public void stopJobByJobId(@DtRequestParam("jobId") String jobId, @DtRequestParam("appType") Integer appType) throws Exception {
+        scheduleJobService.stopJobByJobId(jobId, appType);
     }
 
     @RequestMapping(value = "/buildTaskJobGraphTest", method = {RequestMethod.POST})

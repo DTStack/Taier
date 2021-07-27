@@ -39,14 +39,12 @@ import com.dtstack.dtcenter.common.util.MathUtil;
 import com.dtstack.dtcenter.common.util.PublicUtil;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.engine.api.param.ScheduleEngineProjectParam;
-import com.dtstack.engine.api.service.ClusterService;
-import com.dtstack.engine.api.service.ScheduleJobService;
 import com.dtstack.engine.api.vo.EngineTenantVO;
 import com.dtstack.engine.api.vo.project.NotDeleteProjectVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusCountVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
-import com.dtstack.sdk.core.common.ApiResponse;
-import com.dtstack.sdk.core.common.DtInsightApi;
+import com.dtstack.engine.master.impl.ClusterService;
+import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -129,7 +127,7 @@ public class ProjectService {
     private IMultiEngineService multiEngineService;
 
     @Autowired
-    com.dtstack.engine.api.service.TenantService engineTenantService;
+    private com.dtstack.engine.master.impl.TenantService engineTenantService;
 
     @Autowired
     private MultiEngineServiceFactory multiEngineServiceFactory;
@@ -138,7 +136,7 @@ public class ProjectService {
     private EnvironmentContext environmentContext;
 
     @Autowired
-    private com.dtstack.engine.api.service.ProjectService engineProjectService;
+    private com.dtstack.engine.master.impl.ProjectService engineProjectService;
 
     @Autowired
     private BatchDataSourceService batchDataSourceService;
@@ -159,7 +157,7 @@ public class ProjectService {
     private StringRedisTemplate redisTemplate;
 
     @Autowired
-    private DtInsightApi engineApi;
+    private ClusterService clusterService;
 
     @Autowired
     private ScheduleJobService scheduleJobService;
@@ -309,7 +307,7 @@ public class ProjectService {
             }
         }
 
-        List<NotDeleteProjectVO> projectVOS = engineProjectService.getNotDeleteTaskByProjectId(projectId, AppType.RDOS.getType()).getData();
+        List<NotDeleteProjectVO> projectVOS = engineProjectService.getNotDeleteTaskByProjectId(projectId, AppType.RDOS.getType());
         if (CollectionUtils.isNotEmpty(projectVOS)) {
             checkResult.setTaskList(projectVOS);
         }
@@ -519,9 +517,8 @@ public class ProjectService {
      *         false：对比租户中不存在租户和当前租户在一个集群
      */
     private boolean isSameCluster(Long tenantId, List<Long> tidList){
-        ClusterService slbApiClient = engineApi.getSlbApiClient(ClusterService.class);
-        ApiResponse<Boolean> clusterVOApiResponse = slbApiClient.isSameCluster(tenantId, tidList);
-        return clusterVOApiResponse.getData();
+        Boolean isSameCluster = clusterService.isSameCluster(tenantId, tidList);
+        return isSameCluster;
     }
 
     /**
@@ -609,7 +606,7 @@ public class ProjectService {
             scheduleEngineProjectParam.setGmtCreate(gmtCreate);
             scheduleEngineProjectParam.setGmtModified(gmtModified);
             scheduleEngineProjectParam.setCreateUserId(project.getCreateUserId().intValue());
-            engineProjectService.addProject(scheduleEngineProjectParam);
+            engineProjectService.addProjectOrUpdate(scheduleEngineProjectParam);
         } finally {
             createProjectLock.unlock();
         }
@@ -654,7 +651,7 @@ public class ProjectService {
         scheduleEngineProjectParam.setAppType(AppType.RDOS.getType());
         scheduleEngineProjectParam.setGmtModified(new Date(System.currentTimeMillis()));
         scheduleEngineProjectParam.setUicTenantId(dtuicTenantId);
-        engineProjectService.updateProject(scheduleEngineProjectParam);
+        engineProjectService.addProjectOrUpdate(scheduleEngineProjectParam);
     }
 
     /**
@@ -1103,7 +1100,7 @@ public class ProjectService {
         scheduleEngineProjectParam.setProjectId(project.getId());
         scheduleEngineProjectParam.setGmtModified(gmtModified);
         scheduleEngineProjectParam.setAppType(AppType.RDOS.getType());
-        engineProjectService.updateProject(scheduleEngineProjectParam);
+        engineProjectService.addProjectOrUpdate(scheduleEngineProjectParam);
     }
 
     /**
@@ -1289,7 +1286,7 @@ public class ProjectService {
         List<Long> projectDTOMapIds = projects.stream().map(ProjectDTO::getId).collect(Collectors.toList());
         // engine返回的项目统计数据
         List<ScheduleJobStatusVO> projectStatusVOs = scheduleJobService.getStatusCountByProjectIds(projectDTOMapIds,
-                tenantId, AppType.RDOS.getType(), null).getData();
+                tenantId, AppType.RDOS.getType(), null);
         Map<Long, Map<String, Integer>> jobCounts = getJobCounts(projectStatusVOs);
 
         if (OrderBy_JOBSUM.equals(orderBy)) {
@@ -1683,7 +1680,7 @@ public class ProjectService {
             }
 
             //移除已经使用过的db
-            List<EngineTenantVO> engineTenantList = engineTenantService.listEngineTenant(dtuicTenantId, engineType).getData();
+            List<EngineTenantVO> engineTenantList = engineTenantService.listEngineTenant(dtuicTenantId, engineType);
             if (engineTenantList == null){
                 engineTenantList = new ArrayList<>();
             }
@@ -1839,7 +1836,7 @@ public class ProjectService {
             //总占用存储
             pageVo.setTotalDataSize("0");
             //今日失败总数
-            List<ScheduleJobStatusVO> scheduleJobStatusVOS = scheduleJobService.getStatusCountByProjectIds(new ArrayList<>(usefulProjectIds), tenantId, AppType.RDOS.getType(), null).getData();
+            List<ScheduleJobStatusVO> scheduleJobStatusVOS = scheduleJobService.getStatusCountByProjectIds(new ArrayList<>(usefulProjectIds), tenantId, AppType.RDOS.getType(), null);
             Map<Long, Map<String, Integer>> jobCounts = getJobCounts(scheduleJobStatusVOS);
             int jobFaileds = jobCounts.values().stream().map(p -> p.get(TaskStatus.FAILED.name()))
                     .collect(Collectors.toList()).stream().mapToInt(Integer::intValue).sum();

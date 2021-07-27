@@ -134,7 +134,7 @@ public class ScheduleJobJobService {
      * @author toutian
      */
     public com.dtstack.engine.master.vo.ScheduleJobVO displayOffSpring( Long jobId,
-                                                                        Integer level) throws Exception {
+                                                                        Integer level) {
         ScheduleJob job = scheduleJobDao.getOne(jobId);
         if (job == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
@@ -175,7 +175,7 @@ public class ScheduleJobJobService {
     }
 
     private void getRelationData(Set<String> allJobKeys, Map<String, ScheduleJob> keyJobMap,
-                                 Map<String, ScheduleTaskShade> idTaskMap) throws Exception {
+                                 Map<String, ScheduleTaskShade> idTaskMap) {
         List<ScheduleJob> jobs = scheduleJobDao.listJobByJobKeys(allJobKeys);
         if(CollectionUtils.isEmpty(jobs)){
             return;
@@ -583,7 +583,7 @@ public class ScheduleJobJobService {
     /**
      * 为工作流节点展开子节点
      */
-    public com.dtstack.engine.master.vo.ScheduleJobVO displayOffSpringWorkFlow( Long jobId, Integer appType) throws Exception {
+    public com.dtstack.engine.master.vo.ScheduleJobVO displayOffSpringWorkFlow( Long jobId, Integer appType) {
 
         ScheduleJob job = batchJobService.getJobById(jobId);
         if(null == job){
@@ -650,7 +650,7 @@ public class ScheduleJobJobService {
         return getForefathers(root, keyJobMap, idTaskMap);
     }
 
-    public com.dtstack.engine.master.vo.ScheduleJobVO displayForefathers( Long jobId,  Integer level) throws Exception {
+    public com.dtstack.engine.master.vo.ScheduleJobVO displayForefathers( Long jobId,  Integer level) {
 
         ScheduleJob job = scheduleJobDao.getOne(jobId);
         if (job == null) {

@@ -52,7 +52,7 @@ import static com.dtstack.engine.common.constrant.ConfigConstant.*;
 import static java.lang.String.format;
 
 @Service
-public class ClusterService implements InitializingBean {
+public class ClusterService implements com.dtstack.engine.api.service.ClusterService, InitializingBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClusterService.class);
 

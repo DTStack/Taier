@@ -4,12 +4,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.common.enums.AppType;
 import com.dtstack.dtcenter.common.kerberos.KerberosConfigVerify;
 import com.dtstack.dtcenter.common.sftp.SFTPHandler;
+import com.dtstack.engine.api.service.ClusterService;
 import com.dtstack.engine.datasource.common.env.EnvironmentContext;
 import com.dtstack.engine.datasource.common.constant.FormNames;
 import com.dtstack.engine.datasource.common.exception.ErrorCode;
 import com.dtstack.engine.datasource.common.exception.PubSvcDefineException;
 import com.dtstack.engine.datasource.dao.po.datasource.DsImportRef;
-import com.dtstack.sdk.core.common.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,12 +31,11 @@ public class KerberosService {
 
     private static final String SFTP_CONF = "sftpConf";
 
-
     @Autowired
     private EnvironmentContext environmentContext;
 
-//    @Autowired
-//    private ClusterService clusterService;
+    @Autowired
+    private ClusterService clusterService;
 
     @Autowired
     private DsImportRefService importRefService;
@@ -143,12 +142,7 @@ public class KerberosService {
      */
     public Map<String, String> getSftpMap(Long dtuicTenantId) {
 
-//        ApiResponse<String> apiResponse = clusterService.clusterInfo(dtuicTenantId);
-//        if (apiResponse == null || apiResponse.getData() == null) {
-//            throw new PubSvcDefineException(ErrorCode.HTTP_CONSOLE_ERROR);
-//        }
-//        apiResponse.getData();
-        String sftpData = "";//TODO
+        String sftpData = clusterService.clusterInfo(dtuicTenantId);
 
         // 解析SFTP配置信息
         Map<String, String> map = new HashMap<>();

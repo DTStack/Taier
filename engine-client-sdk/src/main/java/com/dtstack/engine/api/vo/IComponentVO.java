@@ -10,8 +10,6 @@ import java.util.List;
 /**
  * @author xinge
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-@com.dtstack.fasterxml.jackson.annotation.JsonTypeInfo(use = com.dtstack.fasterxml.jackson.annotation.JsonTypeInfo.Id.CLASS)
 public interface IComponentVO {
 
 

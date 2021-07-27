@@ -20,9 +20,9 @@ import com.dtstack.dtcenter.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.common.util.PublicUtil;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.engine.api.domain.Component;
-import com.dtstack.engine.api.service.ComponentService;
-import com.dtstack.engine.api.service.EngineService;
 import com.dtstack.engine.api.vo.engine.EngineSupportVO;
+import com.dtstack.engine.master.impl.ComponentService;
+import com.dtstack.engine.master.impl.EngineService;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -115,7 +115,7 @@ public class MultiEngineService implements IMultiEngineService {
      */
     @Override
     public List<EJobType> getTenantSupportJobType(Long dtuicTenantId, Long projectId) {
-        List<Component> engineSupportVOS = componentService.listComponents(dtuicTenantId, null).getData();
+        List<Component> engineSupportVOS = componentService.listComponents(dtuicTenantId, null);
         if(CollectionUtils.isEmpty(engineSupportVOS)){
             throw new DtCenterDefException("该租户 console 未配置任何 集群");
         }

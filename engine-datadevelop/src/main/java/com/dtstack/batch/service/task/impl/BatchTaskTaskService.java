@@ -12,11 +12,11 @@ import com.dtstack.batch.vo.BatchTaskBatchVO;
 import com.dtstack.dtcenter.common.enums.AppType;
 import com.dtstack.dtcenter.common.enums.Deleted;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.service.ScheduleTaskShadeService;
-import com.dtstack.engine.api.service.ScheduleTaskTaskShadeService;
 import com.dtstack.engine.api.vo.ScheduleDetailsVO;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.api.vo.project.ScheduleEngineProjectVO;
+import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
+import com.dtstack.engine.master.impl.ScheduleTaskTaskShadeService;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.BeanUtils;
@@ -61,7 +61,7 @@ public class BatchTaskTaskService {
     private ScheduleTaskShadeService scheduleTaskShadeService;
 
     @Autowired
-    private com.dtstack.engine.api.service.ProjectService engineProjectService;
+    private com.dtstack.engine.master.impl.ProjectService engineProjectService;
 
     @Autowired
     private BatchTaskService batchTaskService;
@@ -179,7 +179,7 @@ public class BatchTaskTaskService {
                                            Integer level,
                                            Integer type,
                                            Integer appType) {
-        ScheduleTaskVO scheduleTaskVO = scheduleTaskTaskShadeService.displayOffSpring(taskId, projectId, userId, level, type, appType).getData();
+        ScheduleTaskVO scheduleTaskVO = scheduleTaskTaskShadeService.displayOffSpring(taskId, projectId, level, type, appType);
         return scheduleTaskVO;
     }
 
@@ -208,14 +208,14 @@ public class BatchTaskTaskService {
         for (BatchTaskTask taskTask : taskTasks) {
             Long parentTaskId = taskTask.getParentTaskId();
             Integer parentAppType = taskTask.getParentAppType();
-            ScheduleTaskShade taskShade = scheduleTaskShadeService.findTaskId(parentTaskId, Deleted.NORMAL.getStatus(), parentAppType).getData();
+            ScheduleTaskShade taskShade = scheduleTaskShadeService.findTaskId(parentTaskId, Deleted.NORMAL.getStatus(), parentAppType);
             if (taskShade != null) {
                 ScheduleTaskVO scheduleTaskVO = new ScheduleTaskVO();
                 BeanUtils.copyProperties(taskShade, scheduleTaskVO);
                 scheduleTaskVO.setId(taskShade.getTaskId());
-                ScheduleEngineProjectVO engineProjectVO= engineProjectService.findProject(taskShade.getProjectId(),taskShade.getAppType()).getData();
+                ScheduleEngineProjectVO engineProjectVO= engineProjectService.findProject(taskShade.getProjectId(),taskShade.getAppType());
                 if (engineProjectVO != null) {
-                    scheduleTaskVO.setProjectName(engineProjectService.findProject(taskShade.getProjectId(),taskShade.getAppType()).getData().getProjectName());
+                    scheduleTaskVO.setProjectName(engineProjectService.findProject(taskShade.getProjectId(),taskShade.getAppType()).getProjectName());
                 }
                 scheduleTaskVO.setTenantName(tenantService.getTenantByDtUicTenantId(taskShade.getDtuicTenantId()).getTenantName());
                 fatherTaskVOs.add(scheduleTaskVO);
@@ -248,7 +248,7 @@ public class BatchTaskTaskService {
     }
 
     public ScheduleDetailsVO findTaskRuleTask(Long taskId, Integer appType) {
-        return scheduleTaskShadeService.findTaskRuleTask(taskId, appType).getData();
+        return scheduleTaskShadeService.findTaskRuleTask(taskId, appType);
     }
 
     /**

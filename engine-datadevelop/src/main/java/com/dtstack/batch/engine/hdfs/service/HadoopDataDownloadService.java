@@ -26,20 +26,16 @@ import com.dtstack.dtcenter.common.enums.ComputeType;
 import com.dtstack.dtcenter.common.enums.Deleted;
 import com.dtstack.dtcenter.common.enums.EJobType;
 import com.dtstack.dtcenter.common.enums.MultiEngineType;
-import com.dtstack.dtcenter.common.util.JdbcUrlUtil;
 import com.dtstack.dtcenter.common.util.PublicUtil;
 import com.dtstack.dtcenter.common.util.RetryUtil;
-import com.dtstack.dtcenter.common.util.UrlInfo;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.pojo.lineage.Table;
-import com.dtstack.engine.api.service.ActionService;
-import com.dtstack.engine.api.service.ScheduleJobService;
 import com.dtstack.engine.api.vo.action.ActionLogVO;
-import com.dtstack.sdk.core.common.ApiResponse;
+import com.dtstack.engine.master.impl.ActionService;
+import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -350,7 +346,7 @@ public class HadoopDataDownloadService implements IDataDownloadService {
             //同步任务
             StringBuilder syncLog = new StringBuilder();
             SyncDownload syncDownload = new SyncDownload();
-            ActionLogVO log = actionService.log(jobId, ComputeType.BATCH.getType()).getData();
+            ActionLogVO log = actionService.log(jobId, ComputeType.BATCH.getType());
             if (!Objects.isNull(log)) {
                 String engineLogStr = log.getEngineLog();
                 String logInfoStr = log.getLogInfo();
@@ -440,15 +436,11 @@ public class HadoopDataDownloadService implements IDataDownloadService {
      * @return dtuicUserId
      */
     private String getSubmitUserNameByJobId(String jobId) {
-        ApiResponse<ScheduleJob> response = scheduleJobService.getByJobId(jobId, Deleted.NORMAL.getStatus());
-        if (response.getData() != null) {
-            String submitUserName = response.getData().getSubmitUserName();
-            if (StringUtils.isEmpty(submitUserName)) {
-                submitUserName = environmentContext.getHadoopUserName();
-            }
-            return submitUserName;
-        } else {
-            throw new RdosDefineException("engine接口返回信息错误，/node/scheduleJob/getByJobId，jobId:" + jobId);
+        ScheduleJob scheduleJob = scheduleJobService.getByJobId(jobId, Deleted.NORMAL.getStatus());
+        String submitUserName = scheduleJob.getSubmitUserName();
+        if (StringUtils.isEmpty(submitUserName)) {
+            submitUserName = environmentContext.getHadoopUserName();
         }
+        return submitUserName;
     }
 }
