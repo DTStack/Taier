@@ -1,6 +1,7 @@
 import React from 'react';
 import { Breadcrumb } from 'antd';
 import { withRouter } from 'react-router';
+import historyPsuhWithQuery from '@/utils/historyPushWithQuery';
 
 interface IBreadcrumbLink {
   label: string;
@@ -19,7 +20,7 @@ const BreadcrumbRender = (props: IPropsBreadcrumbRender) => {
     <Breadcrumb>
       {links.map((item, index) => {
         const { onClick, href } = item;
-        let callback = () => router.push(href);
+        let callback = () => historyPsuhWithQuery(router, href);
         if (typeof onClick === 'function') callback = onClick;
         return (
           <Breadcrumb.Item key={index}>

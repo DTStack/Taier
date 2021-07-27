@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Layout } from 'antd';
 //dt-common not exports complied outputs
 import Navigator from 'dt-common/src/components/nav';
+import classnames from 'classnames';
 import './style';
 
 declare var APP_CONF: any;
@@ -26,6 +27,7 @@ const initState = {
       needRoot: false,
     },
   ],
+  visibleNavigator: true,
 };
 type IState = typeof initState;
 
@@ -35,6 +37,7 @@ interface IProps {
     disableExt: boolean;
     disableMessage: boolean;
   };
+  location: any;
 }
 
 const { Content } = Layout;
@@ -52,11 +55,21 @@ class BasicLayout extends React.PureComponent<IProps, IState> {
     ...initState,
   };
 
+  componentDidMount() {
+    const query = this.props.location.query;
+    if (query.iframe === 'true') {
+      this.setState({
+        visibleNavigator: false,
+      });
+    }
+  }
+
   render() {
     const app = {
       ...this.props.app,
       disableExt: true,
     };
+    const { visibleNavigator } = this.state;
 
     const navigatorProps = {
       ...this.props,
@@ -73,13 +86,23 @@ class BasicLayout extends React.PureComponent<IProps, IState> {
     };
 
     return (
-      <Layout className="dt-assets-container">
-        <Navigator {...navigatorProps} />
-        <Layout className="assets-container dt-container">
-          <Layout>
-            <Content>{this.props.children}</Content>
-          </Layout>
-        </Layout>
+      <Layout
+        className={classnames({
+          'dt-assets-container': true,
+          'without-navigator': !visibleNavigator,
+        })}>
+        {visibleNavigator ? (
+          <>
+            <Navigator {...navigatorProps} />
+            <Layout className="assets-container dt-container">
+              <Layout>
+                <Content>{this.props.children}</Content>
+              </Layout>
+            </Layout>
+          </>
+        ) : (
+          this.props.children
+        )}
       </Layout>
     );
   }
