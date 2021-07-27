@@ -1,7 +1,6 @@
 package com.dtstack.engine.master.controller;
 
 import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.api.pojo.ParamTaskAction;
@@ -28,7 +27,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/node/action")
 @Api(value = "/node/action", tags = {"任务动作接口"})
-public class ActionController {
+public class ActionController implements com.dtstack.engine.api.service.ActionService {
 
     @Autowired
     private ActionService actionService;

@@ -2,10 +2,6 @@ package com.dtstack.engine.api.service;
 
 import com.dtstack.engine.api.vo.template.TaskTemplateResultVO;
 import com.dtstack.engine.api.vo.template.TaskTemplateVO;
-import com.dtstack.sdk.core.common.ApiResponse;
-import com.dtstack.sdk.core.common.DtInsightServer;
-import com.dtstack.sdk.core.feign.Headers;
-import com.dtstack.sdk.core.feign.RequestLine;
 
 /**
  * @Auther: dazhi
@@ -13,7 +9,7 @@ import com.dtstack.sdk.core.feign.RequestLine;
  * @Email:dazhi@dtstack.com
  * @Description:
  */
-public interface TaskParamApiClient extends DtInsightServer {
+public interface TaskParamApiClient {
 
     /**
      *  获取指定任务类型的任务参数
@@ -22,7 +18,5 @@ public interface TaskParamApiClient extends DtInsightServer {
      * @param param
      * @return
      */
-    @RequestLine("POST /node/taskParam/getEngineParamTmplByComputeType")
-    @Headers(value={"Content-Type: application/json"})
-    ApiResponse<TaskTemplateResultVO> getEngineParamTmplByComputeType(TaskTemplateVO param);
+    TaskTemplateResultVO getEngineParamTmplByComputeType(TaskTemplateVO param);
 }

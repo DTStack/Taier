@@ -65,11 +65,6 @@
         </dependency>
 
         <dependency>
-            <groupId>dt.insight.plat</groupId>
-            <artifactId>dt-insight-sdk-core</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>

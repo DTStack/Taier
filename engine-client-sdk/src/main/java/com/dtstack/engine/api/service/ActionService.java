@@ -8,21 +8,16 @@ import com.dtstack.engine.api.vo.action.ActionJobEntityVO;
 import com.dtstack.engine.api.vo.action.ActionJobStatusVO;
 import com.dtstack.engine.api.vo.action.ActionLogVO;
 import com.dtstack.engine.api.vo.action.ActionRetryLogVO;
-import com.dtstack.sdk.core.common.ApiResponse;
-import com.dtstack.sdk.core.common.DtInsightServer;
-import com.dtstack.sdk.core.feign.*;
 
 import java.util.List;
 import java.util.Map;
 
-public interface ActionService extends DtInsightServer {
+public interface ActionService {
     /**
      * 接受来自客户端的请求, 并判断节点队列长度。
      * 如在当前节点,则直接处理任务
      */
-    @RequestLine("POST /node/action/start")
-    @Headers(value={"Content-Type: application/json"})
-    ApiResponse<Boolean> start(ParamActionExt paramActionExt);
+    Boolean start(ParamActionExt paramActionExt);
 
     /**
      * 如在当前节点,则直接处理任务(包括预处理)
@@ -30,9 +25,7 @@ public interface ActionService extends DtInsightServer {
      * @param paramTaskAction
      * @return
      */
-    @RequestLine("POST /node/action/startJob")
-    @Headers(value={"Content-Type: application/json"})
-    ApiResponse<Boolean> startJob(ParamTaskAction paramTaskAction);
+    Boolean startJob(ParamTaskAction paramTaskAction) throws Exception;
 
     /**
      * 执行前预处理，逻辑
@@ -40,106 +33,84 @@ public interface ActionService extends DtInsightServer {
      * @param paramActionExt
      * @return
      */
-    @RequestLine("POST /node/action/paramActionExt")
-    @Headers(value={"Content-Type: application/json"})
-    ApiResponse<ParamActionExt> paramActionExt(ParamTaskAction paramActionExt);
+    ParamActionExt paramActionExt(ParamTaskAction paramActionExt) throws Exception;
 
 
     /**
-     *
      * @param jobIds 任务id
      * @
      */
-    @RequestLine("POST /node/action/stop")
-    @Headers(value={"Content-Type: application/json"})
-    ApiResponse<Boolean> stop(@Param("jobIds") List<String> jobIds) ;
+    Boolean stop(List<String> jobIds) throws Exception;
 
     /**
-     *
-     * @param jobIds 任务id
+     * @param jobIds  任务id
      * @param isForce 是否强制
      * @return
      */
-    @RequestLine("POST /node/action/forceStop")
-    @Headers(value={"Content-Type: application/json"})
-    ApiResponse<Boolean> stop(@Param("jobIds") List<String> jobIds,@Param("isForce") Integer isForce);
+    Boolean stop(List<String> jobIds, Integer isForce) throws Exception;
 
     /**
      * 根据jobid 和 计算类型，查询job的状态
      */
-    @RequestLine("POST /node/action/status")
-    ApiResponse<Integer> status(@Param("jobId") String jobId, @Param("computeType") Integer computeType) ;
+    Integer status(String jobId) throws Exception;
 
     /**
      * 根据jobid 和 计算类型，查询job的状态
      */
-    @RequestLine("POST /node/action/statusByJobIds")
-    ApiResponse<Map<String, Integer>> statusByJobIds(@Param("jobIds") List<String> jobIds, @Param("computeType") Integer computeType) ;
+    Map<String, Integer> statusByJobIds(List<String> jobIds) throws Exception;
 
     /**
      * 根据jobid 和 计算类型，查询job开始运行的时间
      * return 毫秒级时间戳
      */
-    @RequestLine("POST /node/action/startTime")
-    ApiResponse<Long> startTime(@Param("jobId") String jobId, @Param("computeType") Integer computeType) ;
+    Long startTime(String jobId) throws Exception;
 
     /**
      * 根据jobid 和 计算类型，查询job的日志
      */
-    @RequestLine("POST /node/action/log")
-    ApiResponse<ActionLogVO> log(@Param("jobId") String jobId, @Param("computeType") Integer computeType) ;
+    ActionLogVO log(String jobId, Integer computeType) throws Exception;
 
     /**
      * 根据jobid 和 计算类型，查询k8s调度下job的日志
      */
-    @RequestLine("POST /node/action/logFromEs")
-    ApiResponse<String> logFromEs(@Param("jobId") String jobId, @Param("computeType") Integer computeType);
+    String logFromEs(String jobId) throws Exception;
 
     /**
      * 根据jobid 和 计算类型，查询job的重试retry日志
      */
-    @RequestLine("POST /node/action/retryLog")
-    ApiResponse<List<ActionRetryLogVO>> retryLog(@Param("jobId") String jobId, @Param("computeType") Integer computeType) ;
+    List<ActionRetryLogVO> retryLog(String jobId) throws Exception;
 
     /**
      * 根据jobid 和 计算类型，查询job的重试retry日志
      */
-    @RequestLine("POST /node/action/retryLogDetail")
-    ApiResponse<ActionRetryLogVO> retryLogDetail(@Param("jobId") String jobId, @Param("computeType") Integer computeType, @Param("retryNum") Integer retryNum) ;
+    ActionRetryLogVO retryLogDetail(String jobId, Integer retryNum) throws Exception;
 
     /**
      * 根据jobids 和 计算类型，查询job
      */
-    @RequestLine("POST /node/action/entitys")
-    ApiResponse<List<ActionJobEntityVO>> entitys(@Param("jobIds") List<String> jobIds, @Param("computeType") Integer computeType) ;
+    List<ActionJobEntityVO> entitys(List<String> jobIds) throws Exception;
 
     /**
      * 根据jobid 和 计算类型，查询container 信息
      */
-    @RequestLine("POST /node/action/containerInfos")
-    @Headers(value={"Content-Type: application/json"})
-    ApiResponse<List<String>> containerInfos(ParamAction paramAction) ;
+    List<String> containerInfos(ParamAction paramAction) throws Exception;
 
 
     /**
      * 重置任务状态为未提交
+     *
      * @return
      */
-    @RequestLine("POST /node/action/resetTaskStatus")
-    ApiResponse<String> resetTaskStatus(@Param("jobId") String jobId, @Param("computeType") Integer computeType);
+    String resetTaskStatus(String jobId);
 
     /**
      * task 工程使用
      */
-    @RequestLine("POST /node/action/listJobStatus")
-    ApiResponse<List<ActionJobStatusVO>> listJobStatus(@Param("time") Long time,@Param("appType") Integer appType);
+    List<ActionJobStatusVO> listJobStatus(Long time,Integer appType);
 
-    @RequestLine("POST /node/action/listJobStatusScheduleJob")
-    ApiResponse<List<ScheduleJob>> listJobStatusScheduleJob(@Param("time") Long time, @Param("appType") Integer appType);
-    
-    @RequestLine("POST /node/action/listJobStatusByJobIds")
-    ApiResponse<List<ActionJobStatusVO>> listJobStatusByJobIds(@Param("jobIds") List<String> jobIds) ;
+    List<ScheduleJob> listJobStatusScheduleJob(Long time,Integer appType);
 
-    @RequestLine("POST /node/action/generateUniqueSign")
-    ApiResponse<String> generateUniqueSign();
+    List<ActionJobStatusVO> listJobStatusByJobIds(List<String> jobIds) throws Exception;
+
+    String generateUniqueSign();
 }

@@ -3,21 +3,16 @@ package com.dtstack.engine.api.service;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.EngineTenantVO;
 import com.dtstack.engine.api.vo.tenant.UserTenantVO;
-import com.dtstack.sdk.core.common.ApiResponse;
-import com.dtstack.sdk.core.common.DtInsightServer;
-import com.dtstack.sdk.core.feign.Param;
-import com.dtstack.sdk.core.feign.RequestLine;
 
 import java.util.List;
 
-public interface TenantService extends DtInsightServer {
+public interface TenantService {
 
-    @RequestLine("POST /node/tenant/pageQuery")
-    ApiResponse<PageResult<List<EngineTenantVO>>> pageQuery(@Param("clusterId") Long clusterId,
-                                                            @Param("engineType") Integer engineType,
-                                                            @Param("tenantName") String tenantName,
-                                                            @Param("pageSize") int pageSize,
-                                                            @Param("currentPage") int currentPage);
+    PageResult<List<EngineTenantVO>> pageQuery(Long clusterId,
+                                               Integer engineType,
+                                               String tenantName,
+                                               int pageSize,
+                                               int currentPage);
 
     /**
      * 获取处于统一集群的全部tenant
@@ -26,25 +21,16 @@ public interface TenantService extends DtInsightServer {
      * @param engineType
      * @return
      */
-    @RequestLine("POST /node/tenant/listEngineTenant")
-    ApiResponse<List<EngineTenantVO>> listEngineTenant(@Param("dtuicTenantId") Long dtuicTenantId,
-                                                       @Param("engineType") Integer engineType);
+    List<EngineTenantVO> listEngineTenant(Long dtuicTenantId, Integer engineType);
 
-    @RequestLine("POST /node/tenant/dtToken")
-    ApiResponse<List<UserTenantVO>> listTenant(@Param("dtToken") String dtToken);
+    List<UserTenantVO> listTenant(String dtToken);
 
-    @RequestLine("POST /node/tenant/bindingTenant")
-    ApiResponse<Void> bindingTenant(@Param("tenantId") Long dtUicTenantId, @Param("clusterId") Long clusterId,
-                              @Param("queueId") Long queueId, @Param("dtToken") String dtToken) ;
+    Void bindingTenant(Long dtUicTenantId, Long clusterId,
+                       Long queueId, String dtToken);
 
 
-    @RequestLine("POST /node/tenant/bindingQueue")
-    ApiResponse<Void> bindingQueue(@Param("queueId") Long queueId,
-                             @Param("tenantId") Long dtUicTenantId,
-                              @Param("taskTypeResourceJson") String taskTypeResourceJson);
+    Void bindingQueue(Long queueId, Long dtUicTenantId, String taskTypeResourceJson);
 
 
-    @RequestLine("POST /node/tenant/queryResourceLimitByTenantIdAndTaskType")
-    ApiResponse<String> queryResourceLimitByTenantIdAndTaskType(@Param("dtUicTenantId") Long dtUicTenantId,
-                                   @Param("taskType") Integer taskType);
+    String queryResourceLimitByTenantIdAndTaskType(Long dtUicTenantId, Integer taskType);
 }

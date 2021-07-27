@@ -4,27 +4,20 @@ import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.pojo.CheckResult;
 import com.dtstack.engine.api.pojo.ParamActionExt;
-import com.dtstack.engine.api.pojo.ParamTaskAction;
-import com.dtstack.sdk.core.common.ApiResponse;
-import com.dtstack.sdk.core.common.DtInsightServer;
-import com.dtstack.sdk.core.feign.Headers;
-import com.dtstack.sdk.core.feign.Param;
-import com.dtstack.sdk.core.feign.RequestLine;
 
 import java.util.List;
 
-public interface StreamTaskService extends DtInsightServer {
+public interface StreamTaskService  {
     /**
      * 查询checkPoint
      */
-    @RequestLine("POST /node/streamTask/getCheckPoint")
-    ApiResponse<List<EngineJobCheckpoint>> getCheckPoint(@Param("taskId") String taskId, @Param("triggerStart") Long triggerStart, @Param("triggerEnd") Long triggerEnd);
+    List<EngineJobCheckpoint> getCheckPoint(@Param("taskId") String taskId, @Param("triggerStart") Long triggerStart, @Param("triggerEnd") Long triggerEnd);
 
     /**
      * 查询生成失败的 checkPoint
      */
     @RequestLine("POST /node/streamTask/getFailedCheckPoint")
-    ApiResponse<List<EngineJobCheckpoint>> getFailedCheckPoint(@Param("taskId") String taskId, @Param("triggerStart") Long triggerStart, @Param("triggerEnd") Long triggerEnd);
+    List<EngineJobCheckpoint> getFailedCheckPoint(@Param("taskId") String taskId, @Param("triggerStart") Long triggerStart, @Param("triggerEnd") Long triggerEnd);
 
     /**
      * 查询savepoint
