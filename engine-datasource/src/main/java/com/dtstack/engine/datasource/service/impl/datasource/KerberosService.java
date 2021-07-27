@@ -121,15 +121,13 @@ public class KerberosService {
         }
         DsImportRef dsImportRef = dsImportRefs.size() == 0 ? null : dsImportRefs.get(0);
         String kerberosDir;
-        if(Objects.nonNull(dsImportRef)){
-            if(isMeta == 1){
-                JSONObject kerberosConfig = dataJson.getJSONObject(FormNames.KERBEROS_CONFIG);
-                String remotePath = kerberosConfig.getString("remotePath");
-                kerberosDir = remotePath.substring(remotePath.indexOf("CONSOLE"));
-            } else{
-                kerberosDir = getSourceKey(dsImportRef.getOldDataInfoId(), AppType.getValue(dsImportRef.getAppType()).name());
-            }
-        } else{
+        if (isMeta == 1){
+            JSONObject kerberosConfig = dataJson.getJSONObject(FormNames.KERBEROS_CONFIG);
+            String remotePath = kerberosConfig.getString("remotePath");
+            kerberosDir = remotePath.substring(remotePath.indexOf("CONSOLE"));
+        }else if (Objects.nonNull(dsImportRef)){
+            kerberosDir = getSourceKey(dsImportRef.getOldDataInfoId(), AppType.getValue(dsImportRef.getAppType()).name());
+        }else {
             kerberosDir = getSourceKey(sourceId, null);
         }
         KerberosConfigVerify.downloadKerberosFromSftp(kerberosDir, localKerberosConf, sftpMap, dataJson.getTimestamp(FormNames.KERBEROS_FILE_TIMESTAMP));

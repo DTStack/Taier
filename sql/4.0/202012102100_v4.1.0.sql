@@ -1,1 +1,0 @@
-ALTER TABLE `console_kerberos` ADD `merge_krb_content` TEXT COMMENT '合并后的krb5';

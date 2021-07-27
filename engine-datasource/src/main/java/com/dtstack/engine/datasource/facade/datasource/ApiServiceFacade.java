@@ -411,6 +411,7 @@ public class ApiServiceFacade {
                 log.error("该数据源为脏数据,dataInfoId:{}",dsInfo.getId());
                 continue;
             }
+            String principalPre = String.format("%s%s%s", SEMICOLON, FormNames.PRINCIPAL,EQUAL);
             if(null != kerberosConfig){
                 List<DsImportRef> dsImportRefs = importRefService.getImportDsByInfoId(dsInfo.getId());
                 if(dsImportRefs.size()>0){
@@ -421,10 +422,19 @@ public class ApiServiceFacade {
                 }
                 handleKerberosConfig(kerberosConfig);
                 dataJson.put(DataSourceUtils.KERBEROS_CONFIG,kerberosConfig);
-                originUrl = null != kerberosConfig.getString(FormNames.PRINCIPAL) ? originUrl + SEMICOLON + FormNames.PRINCIPAL +
-                        EQUAL + kerberosConfig.get(FormNames.PRINCIPAL) : originUrl;
+                String jdbcUrl = consoleParam.getJdbcUrl();
+                if(!jdbcUrl.contains(principalPre)){
+                    log.info("控制台修改jdbcUrl格式不正确, origin: [{}], editUrl: [{}]", originUrl, jdbcUrl);
+                    throw new PubSvcDefineException(ErrorCode.CONSOLE_EDIT_JDBC_FORMAT_ERROR);
+                }
+                String principal = jdbcUrl.substring(jdbcUrl.indexOf(principalPre));
+                if (originUrl.contains(principalPre)) {
+                    originUrl = String.format("%s%s",originUrl.substring(0,originUrl.indexOf(principalPre)),(com.baomidou.mybatisplus.core.toolkit.StringUtils.isBlank(principal)? com.baomidou.mybatisplus.core.toolkit.StringUtils.EMPTY:principal));
+                }else {
+                    originUrl = String.format("%s%s",originUrl,principal);
+                }
             }else{
-                originUrl = originUrl.contains(FormNames.PRINCIPAL) ? originUrl.substring(0,originUrl.indexOf(SEMICOLON)):originUrl;
+                originUrl = originUrl.contains(principalPre) ? originUrl.substring(0,originUrl.indexOf(SEMICOLON)):originUrl;
                 dataJson.remove(DataSourceUtils.KERBEROS_CONFIG);
             }
             JSONObject hdfsConfig = consoleParam.getHdfsConfig();

@@ -90,7 +90,7 @@ public interface DsInfoMapper extends BaseMapper<DsInfo> {
      * @param dtUicTenantId
      * @return
      */
-    List<DsListBO> queryDsByAppTypeList(@Param("appTypeList") List<Integer> appTypeList, @Param("dtUicTenantId") Long dtUicTenantId);
+    List<DsListBO> queryDsByAppTypeList(@Param("appTypeList") List<Integer> appTypeList, @Param("dtUicTenantId") Long dtUicTenantId, @Param("datasourceId") Long datasourceId);
 
 
     /**

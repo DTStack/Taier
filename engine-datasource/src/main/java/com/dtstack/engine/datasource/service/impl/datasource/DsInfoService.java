@@ -375,7 +375,7 @@ public class DsInfoService extends BaseService<DsInfoMapper, DsInfo> {
      * @param dtUicTenantId
      * @return
      */
-    public List<DsListBO> queryDsByAppTypeList(List<Integer> appTypeList, Long dtUicTenantId) {
-        return this.baseMapper.queryDsByAppTypeList(appTypeList, dtUicTenantId);
+    public List<DsListBO> queryDsByAppTypeList(List<Integer> appTypeList, Long dtUicTenantId, Long datasourceId) {
+        return this.baseMapper.queryDsByAppTypeList(appTypeList, dtUicTenantId, datasourceId);
     }
 }

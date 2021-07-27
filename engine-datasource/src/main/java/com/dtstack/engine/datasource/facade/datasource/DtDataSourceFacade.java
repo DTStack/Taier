@@ -82,12 +82,12 @@ public class DtDataSourceFacade {
      * @param dtUicTenantId
      * @return
      */
-    public List<DsListBO> queryDsByAppTypeList(List<Integer> appTypeList, Long dtUicTenantId) {
+    public List<DsListBO> queryDsByAppTypeList(List<Integer> appTypeList, Long dtUicTenantId,Long datasourceId) {
         if (Collections.isEmpty(appTypeList)) {
             return Collections.emptyList();
         }
         Objects.requireNonNull(dtUicTenantId);
-        return dsInfoService.queryDsByAppTypeList(appTypeList, dtUicTenantId);
+        return dsInfoService.queryDsByAppTypeList(appTypeList, dtUicTenantId, datasourceId);
     }
 
     public List<DsServiceInfoVO> queryDsByIds(List<Long> dsIds) {

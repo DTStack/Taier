@@ -1,1 +1,0 @@
-delete from schedule_engine_job_checkpoint where is_deleted = 1;

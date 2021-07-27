@@ -1,6 +1,9 @@
 package com.dtstack.engine.datasource.conf.mybatis;
 
+import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
+import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.dtstack.engine.datasource.auth.MetaObjectHolder;
 import com.dtstack.engine.datasource.dao.BaseMapperField;
 import org.apache.ibatis.reflection.MetaObject;
@@ -35,5 +38,12 @@ public class MyBatisPlusConf {
                 this.strictUpdateFill(metaObject, BaseMapperField.FIELD_UPDATE_BY, Long.class, MetaObjectHolder.uid());
             }
         };
+    }
+
+    @Bean
+    public MybatisPlusInterceptor mybatisPlusInterceptor() {
+        MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
+        interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL));
+        return interceptor;
     }
 }

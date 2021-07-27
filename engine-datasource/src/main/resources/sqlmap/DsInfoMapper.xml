@@ -295,6 +295,9 @@
             </if>
         )
         and a.dtuic_tenant_id = #{dtUicTenantId}
+        <if test="datasourceId != null">
+            and a.id = #{datasourceId}
+        </if>
         and (a.data_type = 'Presto' or a.data_type = 'Impala')
     </select>
 
