@@ -23,44 +23,28 @@ import com.dtstack.batch.bo.ExecuteContent;
 import com.dtstack.batch.bo.ParseResult;
 import com.dtstack.batch.common.enums.ETableType;
 import com.dtstack.batch.common.enums.PublishTaskStatusEnum;
-import com.dtstack.batch.common.enums.RelationResultType;
-import com.dtstack.batch.common.env.EnvironmentContext;
 import com.dtstack.batch.common.exception.RdosDefineException;
-import com.dtstack.batch.dao.BatchTableInfoDao;
-import com.dtstack.batch.dao.BatchTablePermissionDao;
-import com.dtstack.batch.dao.BatchTableRelationDao;
 import com.dtstack.batch.domain.*;
+import com.dtstack.batch.engine.rdbms.common.util.SqlFormatUtil;
 import com.dtstack.batch.engine.rdbms.service.ITableService;
-import com.dtstack.batch.enums.HiveTablePermissionType;
 import com.dtstack.batch.enums.TableRelationType;
 import com.dtstack.batch.mapping.TableTypeEngineTypeMapping;
 import com.dtstack.batch.service.auth.IAuthService;
-import com.dtstack.batch.service.datamask.impl.DataMaskConfigService;
-import com.dtstack.batch.service.datamask.impl.LineageService;
-import com.dtstack.batch.service.datasource.impl.BatchDataSourceService;
 import com.dtstack.batch.service.table.ISqlExeService;
 import com.dtstack.batch.service.task.impl.BatchTaskService;
-import com.dtstack.batch.utils.ParseResultUtils;
 import com.dtstack.batch.vo.CheckSyntaxResult;
 import com.dtstack.batch.vo.ExecuteResultVO;
 import com.dtstack.batch.vo.ExecuteSqlParseVO;
 import com.dtstack.batch.vo.TaskCheckResultVO;
 import com.dtstack.dtcenter.common.annotation.Forbidden;
 import com.dtstack.dtcenter.common.enums.*;
-import com.dtstack.dtcenter.common.login.domain.LicenseProductComponent;
-import com.dtstack.dtcenter.common.login.domain.LicenseProductComponentWidget;
 import com.dtstack.dtcenter.common.util.PublicUtil;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
-import com.dtstack.engine.api.enums.TableOperateEnum;
+import com.dtstack.engine.api.enums.SqlType;
 import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.api.pojo.lineage.Table;
-import com.dtstack.engine.api.vo.lineage.ColumnLineageParseInfo;
-import com.dtstack.engine.api.vo.lineage.SqlType;
-import com.dtstack.engine.api.vo.lineage.param.ParseColumnLineageParam;
-import com.dtstack.sqlparser.common.utils.SqlFormatUtil;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -76,7 +60,6 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * @author jiangbo
@@ -91,16 +74,7 @@ public class BatchSqlExeService {
     private ProjectService projectService;
 
     @Autowired
-    private BatchTableInfoDao batchTableInfoDao;
-
-    @Autowired
     private TenantService tenantService;
-
-    @Autowired
-    private DataMaskConfigService dataMaskConfigService;
-
-    @Autowired
-    private EnvironmentContext environmentContext;
 
     @Autowired
     private ProjectEngineService projectEngineService;
@@ -109,28 +83,13 @@ public class BatchSqlExeService {
     private MultiEngineServiceFactory multiEngineServiceFactory;
 
     @Autowired
-    private IAuthService authService;
-
-    @Autowired
-    private BatchDataSourceService batchDataSourceService;
-
-    @Autowired
     private UserService userService;
-
-    @Autowired
-    private BatchTableRelationDao batchTableRelationDao;
-
-    @Autowired
-    private ITableService iTableServiceImpl;
 
     @Autowired
     private BatchFunctionService batchFunctionService;
 
     @Autowired
     private BatchTaskService batchTaskService;
-
-    @Autowired
-    private com.dtstack.engine.api.service.LineageService engineLineageService;
 
     private static final String SHOW_LIFECYCLE = "%s表的生命周期为%s天";
 
@@ -142,10 +101,6 @@ public class BatchSqlExeService {
 
     private static final String CREATE_TEMP_FUNCTION_SQL = "%s %s";
 
-    private static final List<SqlType> CreateTableTypeList = Arrays.asList(
-            SqlType.CREATE, SqlType.CREATE_AS, SqlType.CREATE_LIKE
-    );
-
     private static final Set<Integer> notDataMapOpera = new HashSet<>();
     static {
         notDataMapOpera.add(EJobType.ORACLE_SQL.getVal());
@@ -153,11 +108,6 @@ public class BatchSqlExeService {
         notDataMapOpera.add(EJobType.GREENPLUM_SQL.getVal());
         notDataMapOpera.add(EJobType.INCEPTOR_SQL.getVal());
     }
-
-    /**
-     * 不允许执行的sql类型
-     */
-    private static final Set<SqlType> notSupportExecuteSql = Sets.newHashSet(SqlType.WITH_QUERY);
 
     @Forbidden
     public void directExecutionSql(final ExecuteContent executeContent) throws Exception {
@@ -277,67 +227,14 @@ public class BatchSqlExeService {
      * @return
      */
     private ParseResult parseSql(final ExecuteContent executeContent){
-        final String formatSql = SqlFormatUtil.formatSql(executeContent.getSql());
-        final boolean needColumns = StringUtils.isNotEmpty(formatSql) && (!formatSql.matches(BatchSqlExeService.NOT_GET_COLUMN_SQL_REGEX) || formatSql.matches(BatchSqlExeService.CREATE_AS_REGEX));
         final String dbName = this.getDbName(executeContent);
         executeContent.setDatabase(dbName);
-        final Integer engineType = this.getEngineType(executeContent);
-        final Integer taskType = executeContent.getDetailType();
-        DataSourceType dataSourceType = multiEngineServiceFactory.getDataSourceTypeByEngineTypeAndTaskType(engineType, taskType, executeContent.getProjectId());
-        ParseResult parseResult = null;
-        Map<String, List<Column>> tableColsMap = new HashMap<>();
-        if (needColumns) {
-            try {
-                final List<Table> tables = engineLineageService.parseTables(executeContent.getSql(), dbName, dataSourceType.getVal()).getData();
-                tableColsMap = iTableServiceImpl.getTablesColumns(executeContent.getDtuicTenantId(), null, ETableType.getTableType(executeContent.getTableType()), tables);
-            } catch (final Exception e) {
-                parseResult = new ParseResult();
-                executeContent.setParseResult(parseResult);
-                //单 session  sql解析出错也允许执行
-                parseResult.setParseSuccess(true);
-                parseResult.setStandardSql(SqlFormatUtil.formatSql(executeContent.getSql()));
-                return parseResult;
-            }
-        }
-        if (tableColsMap == null){
-            tableColsMap = new HashMap<>();
-        }
-
+        ParseResult parseResult = new ParseResult();
+        parseResult.setParseSuccess(false);
+        parseResult.setStandardSql(SqlFormatUtil.getStandardSql(executeContent.getSql()));
         return parseResult;
     }
 
-    /**
-     *
-     * @param executeContent
-     * @param result
-     */
-    private void checkCreateTableExist(final ExecuteContent executeContent, final ExecuteResultVO result){
-        final ParseResult parseResult = executeContent.getParseResult();
-
-        final Integer engineType = this.getEngineType(executeContent);
-
-        result.setSqlText(executeContent.getSql());
-
-        //建表语句添加生命周期提示
-        //parseResult.getMainTable().isIgnore() == true 意味有if not exists
-        if (BatchSqlExeService.CreateTableTypeList.contains(parseResult.getSqlType())
-                && parseResult.getMainTable().getLifecycle() != null && !parseResult.getMainTable().isIgnore()) {
-            final Long projectIdFromMainTable = this.getProjectIdFromMainTable(parseResult, executeContent.getTenantId(), engineType);
-            final ETableType tableType = TableTypeEngineTypeMapping.getTableTypeByEngineType(engineType);
-            final BatchTableInfo tableInfo = this.batchTableInfoDao.getByTableName(parseResult.getMainTable().getName(), executeContent.getTenantId(),
-                    projectIdFromMainTable == null ? executeContent.getProjectId() : projectIdFromMainTable, null == tableType ? 0 : tableType.getType());
-
-            if (tableInfo != null) {
-                result.setMsg(parseResult.getMainTable().getName() + " 表已存在，无须重复创建");
-                result.setStatus(TaskStatus.FAILED.getStatus());
-                return;
-            }
-            if (ETableType.HIVE.equals(tableType)) {
-                //libra 没有lifecycle
-                result.setMsg(String.format(BatchSqlExeService.SHOW_LIFECYCLE, parseResult.getMainTable().getName(), parseResult.getMainTable().getLifecycle()));
-            }
-        }
-    }
     /**
      *
      */
@@ -347,33 +244,10 @@ public class BatchSqlExeService {
         final ExecuteResultVO result = new ExecuteResultVO();
         final Integer engineType = this.getEngineType(executeContent);
         // 前置操作  权限校验放到最前面
-        TaskCheckResultVO checkPermissionVO = this.preExecuteSql(executeContent);
+        this.preExecuteSql(executeContent);
         result.setSqlText(executeContent.getSql());
-        if (!PublishTaskStatusEnum.NOMAL.getType().equals(checkPermissionVO.getErrorSign())){
-            result.setMsg(checkPermissionVO.getErrorMessage());
-            result.setStatus(TaskStatus.FAILED.getStatus());
-            return result;
-        }
+
         this.prepareExecuteContent(executeContent);
-        final ParseResult parseResult = executeContent.getParseResult();
-
-        if (MultiEngineType.HADOOP.getType() == engineType){
-            if (!parseResult.isParseSuccess()){
-                final ExecuteResultVO resultVO = new ExecuteResultVO();
-                resultVO.setStatus(TaskStatus.FAILED.getStatus());
-                resultVO.setMsg(parseResult.getFailedMsg());
-                return resultVO;
-            }
-        }
-
-
-        //建表语句检查
-        if (parseResult.getExtraType() == null || !SqlType.CREATE_TEMP.equals(parseResult.getExtraType())) {
-            this.checkCreateTableExist(executeContent, result);
-        }
-        if (TaskStatus.FAILED.getStatus().equals(result.getStatus())){
-            return result;
-        }
 
         final ISqlExeService sqlExeService = this.multiEngineServiceFactory.getSqlExeService(engineType, executeContent.getDetailType(), executeContent.getProjectId());
         final ExecuteResultVO engineExecuteResult = sqlExeService.executeSql(executeContent);
@@ -381,11 +255,6 @@ public class BatchSqlExeService {
             return engineExecuteResult;
         }
         PublicUtil.copyPropertiesIgnoreNull(engineExecuteResult, result);
-
-        // 删除操作把sql放到最后执行
-        if (executeContent.isExecuteSqlLater()) {
-            this.directExecutionSql(executeContent);
-        }
 
         return result;
     }
@@ -398,72 +267,26 @@ public class BatchSqlExeService {
      */
     public ExecuteSqlParseVO batchExeSqlParse(final ExecuteContent executeContent)throws Exception {
         final Integer engineType = this.getEngineType(executeContent);
-        this.prepareExecuteContent(executeContent);
-        List<ParseResult> parseResultList = executeContent.getParseResultList();
-        final ExecuteSqlParseVO sqlParseVO = new ExecuteSqlParseVO();
-        if (MultiEngineType.HADOOP.getType() == engineType) {
-            parseResultList.forEach(parseResult -> {
-                if (!parseResult.isParseSuccess()) {
-                    sqlParseVO.setStatus(TaskStatus.FAILED.getStatus());
-                    sqlParseVO.setMsg(parseResult.getFailedMsg());
-                    sqlParseVO.setSqlText(parseResult.getOriginSql());
-                }
-            });
-            if (Objects.nonNull(sqlParseVO.getStatus()) && TaskStatus.FAILED.getStatus().equals(sqlParseVO.getStatus())){
-                return sqlParseVO;
-            }
-        }
-        // 前置操作
-        this.preExecuteSql(executeContent);
+//        this.prepareExecuteContent(executeContent);
+//        List<ParseResult> parseResultList = executeContent.getParseResultList();
+//        final ExecuteSqlParseVO sqlParseVO = new ExecuteSqlParseVO();
+//        if (MultiEngineType.HADOOP.getType() == engineType) {
+//            parseResultList.forEach(parseResult -> {
+//                if (!parseResult.isParseSuccess()) {
+//                    sqlParseVO.setStatus(TaskStatus.FAILED.getStatus());
+//                    sqlParseVO.setMsg(parseResult.getFailedMsg());
+//                    sqlParseVO.setSqlText(parseResult.getOriginSql());
+//                }
+//            });
+//            if (Objects.nonNull(sqlParseVO.getStatus()) && TaskStatus.FAILED.getStatus().equals(sqlParseVO.getStatus())){
+//                return sqlParseVO;
+//            }
+//        }
+//        //前置操作
+//        this.preExecuteSql(executeContent);
 
         final ISqlExeService sqlExeService = this.multiEngineServiceFactory.getSqlExeService(engineType, executeContent.getDetailType(), executeContent.getProjectId());
         return sqlExeService.batchExecuteSql(executeContent);
-    }
-
-    private void dropTableIfAddTableFail(final ExecuteContent content) {
-        final ParseResult parseResult = content.getParseResult();
-        if (SqlType.CREATE.equals(parseResult.getSqlType())
-                || SqlType.CREATE_LIKE.equals(parseResult.getSqlType())) {
-            final ProjectEngine projectDb = this.projectEngineService.getProjectDb(content.getProjectId(), content.getEngineType());
-            Preconditions.checkNotNull(projectDb, "引擎不能为空");
-            iTableServiceImpl.dropTable(content.getDtuicTenantId(), null, projectDb.getEngineIdentity(), ETableType.getTableType(content.getTableType()), parseResult.getMainTable().getName());
-        }
-    }
-
-    private Long getProjectIdFromMainTable(final ParseResult parseResult, final Long tenantId, final Integer engineType) {
-        if (parseResult.getMainTable() != null) {
-            if (StringUtils.isNotEmpty(parseResult.getMainTable().getDb())) {
-                final Project project = this.projectEngineService.getProjectByDbName(parseResult.getMainTable().getDb(), engineType, tenantId);
-                if (project != null) {
-                    return project.getId();
-                } else {
-                    return null;
-                }
-            } else {
-                return null;
-            }
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * 处理spark sql和Hive sql自定义函数
-     * @param sqlText
-     * @param projectId
-     * @param taskType
-     * @param engineType
-     * @return
-     */
-    public String buildCustomFunctionSparkSql(String sqlText, Long projectId, Integer taskType, Integer engineType) {
-        String sqlPlus = SqlFormatUtil.formatSql(sqlText);
-        if (engineType == MultiEngineType.HADOOP.getType() && !EJobType.IMPALA_SQL.getVal().equals(taskType)) {
-            String containFunction = batchFunctionService.buildContainFunction(sqlText, projectId);
-            if (StringUtils.isNotBlank(containFunction)) {
-                sqlPlus = String.format(CREATE_TEMP_FUNCTION_SQL,containFunction,sqlPlus);
-            }
-        }
-        return sqlPlus;
     }
 
     /**
@@ -489,36 +312,36 @@ public class BatchSqlExeService {
 
         final ISqlExeService sqlExeService = this.multiEngineServiceFactory.getSqlExeService(engineType, taskType, projectId);
         // 校验语法
-        String sqlPlus = buildCustomFunctionSparkSql(sqlText, projectId, taskType, engineType);
-        String sqls = sqlExeService.process(sqlPlus, projectEngine.getEngineIdentity());
-        result.setSql(sqls);
-        if (checkSyntax) {
-            List<ParseResult> parseResultList;
-            try {
-                parseResultList = sqlExeService.checkMulitSqlSyntax(dtuicTenantId, sqls, userId, projectId, taskParam);
-            }catch (Exception e){
-                LOG.error(String.format("语法校验失败，原因是:%s", e.getMessage()), e);
-                result.setMessage(e.getMessage());
-                result.setCheckResult(false);
-                return result;
-            }
-            ETableType tableType = TableTypeEngineTypeMapping.getTableTypeByEngineType(engineType);
-            ExecuteContent content;
-            for (ParseResult parseResult : parseResultList) {
-                content = new ExecuteContent();
-                content.setParseResult(parseResult)
-                        .setTenantId(tenantId)
-                        .setSql(parseResult.getOriginSql())
-                        .setUserId(userId)
-                        .setEngineType(engineType)
-                        .setProjectId(projectId)
-                        .setTableType(tableType.getType())
-                        .setProjectId(projectId)
-                        .setSql(parseResult.getStandardSql())
-                        .setRootUser(isRoot);
-                this.preExecuteSql(content);
-            }
-        }
+//        String sqlPlus = buildCustomFunctionSparkSql(sqlText, projectId, taskType, engineType);
+//        String sqls = sqlExeService.process(sqlPlus, projectEngine.getEngineIdentity());
+//        result.setSql(sqls);
+//        if (checkSyntax) {
+//            List<ParseResult> parseResultList;
+//            try {
+//                parseResultList = sqlExeService.checkMulitSqlSyntax(dtuicTenantId, sqls, userId, projectId, taskParam);
+//            }catch (Exception e){
+//                LOG.error(String.format("语法校验失败，原因是:%s", e.getMessage()), e);
+//                result.setMessage(e.getMessage());
+//                result.setCheckResult(false);
+//                return result;
+//            }
+//            ETableType tableType = TableTypeEngineTypeMapping.getTableTypeByEngineType(engineType);
+//            ExecuteContent content;
+//            for (ParseResult parseResult : parseResultList) {
+//                content = new ExecuteContent();
+//                content.setParseResult(parseResult)
+//                        .setTenantId(tenantId)
+//                        .setSql(parseResult.getOriginSql())
+//                        .setUserId(userId)
+//                        .setEngineType(engineType)
+//                        .setProjectId(projectId)
+//                        .setTableType(tableType.getType())
+//                        .setProjectId(projectId)
+//                        .setSql(parseResult.getStandardSql())
+//                        .setRootUser(isRoot);
+//                this.preExecuteSql(content);
+//            }
+//        }
         result.setCheckResult(true);
         return result;
     }
@@ -528,122 +351,16 @@ public class BatchSqlExeService {
      * 执行sql前的操作,操作权限检查
      */
     private TaskCheckResultVO preExecuteSql(final ExecuteContent executeContent) {
-        Long dtuicTenantId = this.tenantService.getDtuicTenantId(executeContent.getTenantId());
-        executeContent.setDtuicTenantId(dtuicTenantId);
-        TaskCheckResultVO checkPermissionVO = new TaskCheckResultVO();
-        checkPermissionVO.setErrorSign(PublishTaskStatusEnum.NOMAL.getType());
         String dbName = getDbName(executeContent);
-        //只校验hadoop引擎的任务 只有sparkSql和hiveSql
-        if (MultiEngineType.HADOOP.getType() != executeContent.getEngineType()) {
-            return checkPermissionVO;
-        }
-
-        if (StringUtils.isBlank(dbName)){
-            //进入这里说明dtUicTenantId 在数栈中找不到对应的项目
-            checkPermissionVO.setErrorSign(PublishTaskStatusEnum.PERMISSIONERROR.getType());
-            return checkPermissionVO;
-        }
-        //提前做一次血缘解析 主要是为了 校验权限
-        if (BatchSqlExeService.CACHE_LAZY_SQL_PATTEN.matcher(executeContent.getSql().toLowerCase()).matches()){
-            //cache table 替换成create table
-            executeContent.setSql(executeContent.getSql().trim().replaceAll("(?i)^cache\\s+(lazy\\s+)?table","create table "));
-        }
-        ParseResult parseResult ;
-        try {
-            ParseColumnLineageParam parseColumnLineageParam = new ParseColumnLineageParam();
-            parseColumnLineageParam.setSql(executeContent.getSql());
-            parseColumnLineageParam.setDefaultDb(executeContent.getDatabase());
-            parseColumnLineageParam.setDataSourceType(DataSourceType.Spark.getVal());
-            parseColumnLineageParam.setTableColumnsMap(Maps.newHashMap());
-            ColumnLineageParseInfo columnLineageParseInfo = engineLineageService.parseColumnLineage(parseColumnLineageParam).getData();
-            parseResult = ParseResultUtils.convertParseResult(columnLineageParseInfo);
-        } catch (final Exception e) {
-            BatchSqlExeService.LOG.error("权限校验 解析sql异常:{}",e);
-            //防止空指针 先塞入默认值
-            parseResult = new ParseResult();
-            parseResult.setSqlType(SqlType.QUERY);
-            parseResult.setFailedMsg(ExceptionUtils.getStackTrace(e));
-            parseResult.setStandardSql(SqlFormatUtil.getStandardSql(executeContent.getSql()));
-        }
+        ParseResult parseResult = new ParseResult();
+        parseResult.setSqlType(SqlType.QUERY);
+        parseResult.setStandardSql(SqlFormatUtil.getStandardSql(executeContent.getSql()));
         executeContent.setParseResult(parseResult);
-        //校验sql是否可以运行
-        if (!checkSqlCanExecute(checkPermissionVO, executeContent)) {
-            return checkPermissionVO;
-        }
-        // 权限判断
-        List<ProjectEngine> projectByDbNameList = projectEngineService.getProjectByDbNameList(executeContent.getEngineType(), null);
-        List<ProjectEngine> userCanLookProject = projectEngineService.getProjectListByUserId(executeContent.getEngineType(), executeContent.getUserId());
-        if (CollectionUtils.isNotEmpty(projectByDbNameList) && CollectionUtils.isNotEmpty(userCanLookProject)) {
-            try {
-                checkPermissionVO = checkSchemaAndTableAuth(executeContent, projectByDbNameList, userCanLookProject);
-            }catch (Exception e){
-                LOG.error(String.format("校验权限失败，原因是：%s", e.getMessage()), e);
-                checkPermissionVO.setErrorSign(PublishTaskStatusEnum.PERMISSIONERROR.getType());
-            }
-        }else {
-            if (CollectionUtils.isEmpty(projectByDbNameList)){
-                throw new RdosDefineException(String.format("鉴权失败，查询不到engineType = %s 的项目",executeContent.getEngineType()));
-            }
-            if (CollectionUtils.isEmpty(userCanLookProject)){
-                throw new RdosDefineException(String.format("鉴权失败，根据当前 engineType = %s userId = %s 查询不到可用的项目",executeContent.getEngineType(),executeContent.getUserId()));
-            }
-        }
-        return checkPermissionVO;
+        executeContent.setDatabase(dbName);
+        return null;
     }
 
-    /**
-     * 校验sql的类型是否可以运行
-     *
-     * @param checkSyntaxResult
-     * @param executeContent
-     * @return
-     */
-    private Boolean checkSqlCanExecute(TaskCheckResultVO checkSyntaxResult, ExecuteContent executeContent){
 
-        SqlType type = executeContent.getParseResult().getSqlType();
-
-        // 特殊校验 license
-        if (BatchSqlExeService.CreateTableTypeList.contains(type)) {
-            this.checkLicense();
-        }
-
-        // 部分sql不允许执行
-        if (SqlType.getForbidenType().contains(type)) {
-            throw new RdosDefineException(String.format("can not execute this sql: %s", executeContent.getParseResult().getOriginSql()));
-        }
-
-        // explain句式不做处理
-        if (SqlType.EXPLAIN.equals(type)) {
-            return false;
-        }
-
-        if (notSupportExecuteSql.contains(type)) {
-            //修改为不抛出异常 返回错误信息
-            checkSyntaxResult.setErrorMessage(String.format("页面运行暂不支持%s语句，周期运行无此限制。", type.getType()));
-            checkSyntaxResult.setErrorSign(PublishTaskStatusEnum.CHECKSYNTAXERROR.getType());
-            return false;
-        }
-
-        if (executeContent.isRootUser()) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * 向map中增加数据
-     * @param schemaAndTable
-     * @param table
-     */
-    private void insetSchameAndTableMap(Map<String,Set<String>> schemaAndTable, Table table){
-        if (schemaAndTable.containsKey(table.getDb())){
-            schemaAndTable.get(table.getDb()).add(table.getName());
-        }else {
-            Set<String> tableList = new HashSet<>();
-            tableList.add(table.getName());
-            schemaAndTable.put(table.getDb(),tableList);
-        }
-    }
 
     /**
      * 清除sql中的注释

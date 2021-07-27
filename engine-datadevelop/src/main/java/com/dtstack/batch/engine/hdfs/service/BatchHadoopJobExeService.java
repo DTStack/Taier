@@ -194,7 +194,6 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
                                                Boolean isEnd,
                                                String jobId) throws Exception {
         ExecuteResultVO result;
-        ProjectEngine projectEngine = projectEngineDao.getDefaultByProjectAndEngineType(projectId, MultiEngineType.HADOOP.getType());
         if (EJobType.SPARK_SQL.getVal().equals(task.getTaskType())
                 || EJobType.HIVE_SQL.getVal().equals(task.getTaskType())
         ) {
@@ -203,13 +202,9 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
                     .setRelationType(TableRelationType.TASK.getType()).setDetailType(task.getTaskType())
                     .setRootUser(isRoot).setCheckSyntax(environmentContext.getExplainEnable()).setIsdirtyDataTable(false).setSessionKey(uniqueKey).setEnd(isEnd)
                     .setEngineType(MultiEngineType.HADOOP.getType()).setTableType(ETableType.HIVE.getType()).setPreJobId(jobId);
+
+
             result = batchSqlExeService.executeSql(content);
-        } else if (EJobType.PYTHON.getVal().equals(task.getTaskType())
-                || EJobType.SHELL.getVal().equals(task.getTaskType())
-                || EJobType.SHELL_ON_AGENT.getVal().equals(task.getTaskType())
-                || EJobType.SPARK_PYTHON.getVal().equals(task.getTaskType())) {
-            task.setTaskParams(formatLearnTaskParams(task.getTaskParams()));
-            result = batchHadoopSelectSqlService.runPythonShellWithTask(task, sql, userId, jobId);
         } else {
 
             throw new RdosDefineException("不支持" + EJobType.getEJobType(task.getTaskType()).getName() + "类型的任务直接运行");
