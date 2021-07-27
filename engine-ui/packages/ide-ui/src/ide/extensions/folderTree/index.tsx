@@ -1,26 +1,30 @@
 import { FileTypes, IExtension, TreeNodeModel } from "molecule/esm/model";
-import axios from "axios";
 import { localize } from "molecule/esm/i18n/localize";
 import molecule from "molecule/esm";
 import Open from "./open";
 import { TASK_RUN_ID } from "../editor";
 import { resetEditorGroup } from "../common";
+import ajax from "../../api";
 
 function init() {
-  axios.post("/api/rdos/batch/batchCatalogue/getCatalogue").then(({ data }) => {
-    const res = data.data;
-    if (res.success) {
-      const { id, name } = res.data;
-      const node = new TreeNodeModel({
-        id,
-        name,
-        location: name,
-        fileType: FileTypes.RootFolder,
-      });
+  ajax
+    .getOfflineCatalogue({
+      isGetFile: !!1,
+      nodePid: 0,
+    })
+    .then((res) => {
+      if (res.code === 1) {
+        const { id, name } = res.data;
+        const node = new TreeNodeModel({
+          id,
+          name,
+          location: name,
+          fileType: FileTypes.RootFolder,
+        });
 
-      molecule.folderTree.addRootFolder(node);
-    }
-  });
+        molecule.folderTree.addRootFolder(node);
+      }
+    });
 }
 
 function createTask() {
@@ -30,6 +34,7 @@ function createTask() {
     const onSubmit = (values: any) => {
       const { name, ...rest } = values;
       molecule.editor.closeTab("createTask", 1);
+      molecule.explorer.forceUpdate();
       const node = new TreeNodeModel({
         id: new Date().getTime(),
         name,

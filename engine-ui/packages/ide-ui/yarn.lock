@@ -1881,6 +1881,11 @@
   resolved "https://registry.nlark.com/@types/json5/download/@types/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"
   integrity sha1-7ihweulOEdK4J7y+UnC86n8+ce4=
 
+"@types/lodash@^4.14.171":
+  version "4.14.171"
+  resolved "https://registry.nlark.com/@types/lodash/download/@types/lodash-4.14.171.tgz#f01b3a5fe3499e34b622c362a46a609fdb23573b"
+  integrity sha1-8Bs6X+NJnjS2IsNipGpgn9sjVzs=
+
 "@types/minimatch@*":
   version "3.0.4"
   resolved "https://registry.nlark.com/@types/minimatch/download/@types/minimatch-3.0.4.tgz#f0ec25dbf2f0e4b18647313ac031134ca5b24b21"
@@ -7736,6 +7741,11 @@ lodash.uniq@^4.5.0:
   resolved "https://registry.npm.taobao.org/lodash.uniq/download/lodash.uniq-4.5.0.tgz#d0225373aeb652adc1bc82e4945339a842754773"
   integrity sha1-0CJTc662Uq3BvILklFM5qEJ1R3M=
 
+lodash@4.17.12:
+  version "4.17.12"
+  resolved "https://registry.nlark.com/lodash/download/lodash-4.17.12.tgz?cache=0&sync_timestamp=1618847150612&other_urls=https%3A%2F%2Fregistry.nlark.com%2Flodash%2Fdownload%2Flodash-4.17.12.tgz#a712c74fdc31f7ecb20fe44f157d802d208097ef"
+  integrity sha1-pxLHT9wx9+yyD+RPFX2ALSCAl+8=
+
 "lodash@>=3.5 <5", lodash@^4.16.5, lodash@^4.17.11, lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.19, lodash@^4.17.20, lodash@^4.17.21, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.7.0:
   version "4.17.21"
   resolved "https://registry.nlark.com/lodash/download/lodash-4.17.21.tgz?cache=0&sync_timestamp=1618847150612&other_urls=https%3A%2F%2Fregistry.nlark.com%2Flodash%2Fdownload%2Flodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
@@ -8075,7 +8085,7 @@ mkdirp@^1.0.3, mkdirp@^1.0.4:
   integrity sha1-PrXtYmInVteaXw4qIh3+utdcL34=
 
 "molecule@file:../molecule":
-  version "0.9.0-alpha.2.1"
+  version "0.9.0-alpha.3"
   dependencies:
     "@dtinsight/dt-utils" "^1.0.3"
     "@types/react" "^17.0.3"
@@ -8085,6 +8095,7 @@ mkdirp@^1.0.3, mkdirp@^1.0.4:
     monaco-editor "^0.23.0"
     rc-dialog "8.2.1"
     rc-textarea "~0.3.1"
+    rc-tooltip "^5.1.1"
     rc-tree "~3.10.0"
     rc-util "~5.5.0"
     react-dnd "^9.3.4"
@@ -8092,7 +8103,7 @@ mkdirp@^1.0.3, mkdirp@^1.0.4:
     react-scrollbars-custom "^4.0.25"
     react-split-pane "^2.0.3"
     reflect-metadata "^0.1.13"
-    tsyringe "^4.5.0"
+    tsyringe "4.5.0"
     vscode-codicons "^0.0.12"
 
 moment@2.x, moment@^2.24.0:
@@ -9844,6 +9855,17 @@ rc-align@^2.4.0, rc-align@^2.4.1:
     prop-types "^15.5.8"
     rc-util "^4.0.4"
 
+rc-align@^4.0.0:
+  version "4.0.9"
+  resolved "https://registry.npm.taobao.org/rc-align/download/rc-align-4.0.9.tgz?cache=0&sync_timestamp=1604568458772&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Frc-align%2Fdownload%2Frc-align-4.0.9.tgz#46d8801c4a139ff6a65ad1674e8efceac98f85f2"
+  integrity sha1-RtiAHEoTn/amWtFnTo786smPhfI=
+  dependencies:
+    "@babel/runtime" "^7.10.1"
+    classnames "2.x"
+    dom-align "^1.7.0"
+    rc-util "^5.3.0"
+    resize-observer-polyfill "^1.5.1"
+
 rc-animate@2.x, rc-animate@^2.10.1, rc-animate@^2.10.2, rc-animate@^2.3.0, rc-animate@^2.6.0, rc-animate@^2.8.2:
   version "2.11.1"
   resolved "https://registry.npm.taobao.org/rc-animate/download/rc-animate-2.11.1.tgz#2666eeb6f1f2a495a13b2af09e236712278fdb2c"
@@ -10043,7 +10065,7 @@ rc-menu@^7.3.0, rc-menu@^7.4.22, rc-menu@~7.5.1:
     resize-observer-polyfill "^1.5.0"
     shallowequal "^1.1.0"
 
-rc-motion@^2.0.1:
+rc-motion@^2.0.0, rc-motion@^2.0.1:
   version "2.4.4"
   resolved "https://registry.nlark.com/rc-motion/download/rc-motion-2.4.4.tgz?cache=0&other_urls=https%3A%2F%2Fregistry.nlark.com%2Frc-motion%2Fdownload%2Frc-motion-2.4.4.tgz#e995d5fa24fc93065c24f714857cf2677d655bb0"
   integrity sha1-6ZXV+iT8kwZcJPcUhXzyZ31lW7A=
@@ -10223,6 +10245,14 @@ rc-tooltip@^3.7.0, rc-tooltip@~3.7.3:
     prop-types "^15.5.8"
     rc-trigger "^2.2.2"
 
+rc-tooltip@^5.1.1:
+  version "5.1.1"
+  resolved "https://registry.nlark.com/rc-tooltip/download/rc-tooltip-5.1.1.tgz#94178ed162d0252bc4993b725f5dc2ac0fccf154"
+  integrity sha1-lBeO0WLQJSvEmTtyX13CrA/M8VQ=
+  dependencies:
+    "@babel/runtime" "^7.11.2"
+    rc-trigger "^5.0.0"
+
 rc-tree-select@~2.9.1:
   version "2.9.4"
   resolved "https://registry.nlark.com/rc-tree-select/download/rc-tree-select-2.9.4.tgz#6aa794e1f0e65c66c406aa0a2a0e74fd0a557b09"
@@ -10290,6 +10320,17 @@ rc-trigger@^3.0.0:
     rc-animate "^3.0.0-rc.1"
     rc-util "^4.15.7"
 
+rc-trigger@^5.0.0:
+  version "5.2.9"
+  resolved "https://registry.nlark.com/rc-trigger/download/rc-trigger-5.2.9.tgz#795a787d2b038347dcde27b89a4a5cec8fc40f3e"
+  integrity sha1-eVp4fSsDg0fc3ie4mkpc7I/EDz4=
+  dependencies:
+    "@babel/runtime" "^7.11.2"
+    classnames "^2.2.6"
+    rc-align "^4.0.0"
+    rc-motion "^2.0.0"
+    rc-util "^5.5.0"
+
 rc-upload@~2.9.1:
   version "2.9.4"
   resolved "https://registry.nlark.com/rc-upload/download/rc-upload-2.9.4.tgz?cache=0&sync_timestamp=1623401069520&other_urls=https%3A%2F%2Fregistry.nlark.com%2Frc-upload%2Fdownload%2Frc-upload-2.9.4.tgz#8e34a73a468d7907fe31982c38100e4593857d32"
@@ -10315,6 +10356,15 @@ rc-util@^5.0.0, rc-util@^5.0.1, rc-util@^5.0.7, rc-util@^5.2.1, rc-util@^5.7.0:
   version "5.13.1"
   resolved "https://registry.nlark.com/rc-util/download/rc-util-5.13.1.tgz#03e74955b5c46a58cbc6236e4d30dd462c755290"
   integrity sha1-A+dJVbXEaljLxiNuTTDdRix1UpA=
+  dependencies:
+    "@babel/runtime" "^7.12.5"
+    react-is "^16.12.0"
+    shallowequal "^1.1.0"
+
+rc-util@^5.3.0, rc-util@^5.5.0:
+  version "5.13.2"
+  resolved "https://registry.nlark.com/rc-util/download/rc-util-5.13.2.tgz?cache=0&sync_timestamp=1625711434684&other_urls=https%3A%2F%2Fregistry.nlark.com%2Frc-util%2Fdownload%2Frc-util-5.13.2.tgz#a8a0bb77743351841ba8bed6393e03b8d2f685c8"
+  integrity sha1-qKC7d3QzUYQbqL7WOT4DuNL2hcg=
   dependencies:
     "@babel/runtime" "^7.12.5"
     react-is "^16.12.0"
@@ -12153,9 +12203,9 @@ tsutils@^3.17.1, tsutils@^3.21.0:
   dependencies:
     tslib "^1.8.1"
 
-tsyringe@^4.5.0:
+tsyringe@4.5.0:
   version "4.5.0"
-  resolved "https://registry.npm.taobao.org/tsyringe/download/tsyringe-4.5.0.tgz#fc88cbab57deac47a2a2033bbca94c96d3c2702a"
+  resolved "https://registry.nlark.com/tsyringe/download/tsyringe-4.5.0.tgz#fc88cbab57deac47a2a2033bbca94c96d3c2702a"
   integrity sha1-/IjLq1ferEeiogM7vKlMltPCcCo=
   dependencies:
     tslib "^1.9.3"
@@ -12716,6 +12766,11 @@ whatwg-encoding@^1.0.5:
   integrity sha1-WrrPd3wyFmpR0IXWtPPn0nET3bA=
   dependencies:
     iconv-lite "0.4.24"
+
+whatwg-fetch@2.0.3:
+  version "2.0.3"
+  resolved "https://registry.nlark.com/whatwg-fetch/download/whatwg-fetch-2.0.3.tgz#9c84ec2dcf68187ff00bc64e1274b442176e1c84"
+  integrity sha1-nITsLc9oGH/wC8ZOEnS0QhduHIQ=
 
 whatwg-fetch@>=0.10.0, whatwg-fetch@^3.4.1:
   version "3.6.2"
