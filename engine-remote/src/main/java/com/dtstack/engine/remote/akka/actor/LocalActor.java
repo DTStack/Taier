@@ -22,7 +22,7 @@ import java.util.concurrent.Executor;
  */
 public class LocalActor extends AbstractLoggingActor {
 
-    private static final Logger logger = LoggerFactory.getLogger(LocalActor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LocalActor.class);
 
     @Override
     public Receive createReceive() {

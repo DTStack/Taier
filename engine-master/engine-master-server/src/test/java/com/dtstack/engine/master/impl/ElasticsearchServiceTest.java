@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.AbstractTest;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.HttpHost;

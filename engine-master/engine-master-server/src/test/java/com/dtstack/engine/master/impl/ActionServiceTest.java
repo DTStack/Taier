@@ -3,10 +3,10 @@ package com.dtstack.engine.master.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.api.vo.action.ActionJobStatusVO;
 import com.dtstack.engine.api.vo.action.ActionLogVO;
-import com.dtstack.engine.worker.client.ClientOperator;
-import com.dtstack.engine.api.pojo.ParamActionExt;
+import com.dtstack.engine.common.api.WorkerApi;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.ScheduleJobDao;
@@ -24,19 +24,18 @@ import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import static org.mockito.Mockito.*;
-
-
 import java.util.*;
 
 import static junit.framework.TestCase.fail;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
 
 public class ActionServiceTest extends AbstractTest {
 
     private final static List<String> mockInfos = Lists.newArrayList("Mock Info");
 
     @MockBean
-    private ClientOperator clientOperator;
+    private WorkerApi clientOperator;
 
     @MockBean
     private JobDealer jobDealer;

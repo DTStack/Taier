@@ -121,8 +121,12 @@ public class ConfigConstant {
     public static final String MAILBOX_CUTTING = "@";
 
     public static final String WORKER_TIMEOUT = "worker.timeout";
-    public static final String WORKER_LOGSTORE_JDBCURL = "worker.logstore.jdbcUrl";
-    public static final String WORKER_LOGSTORE_USERNAME = "worker.logstore.username";
-    public static final String WORKER_LOGSTORE_PASSWORD = "worker.logstore.password";
+    public static final String WORKER_LOGSTORE_JDBCURL = "akka.worker.logstore.jdbcUrl";
+    public static final String WORKER_LOGSTORE_USERNAME = "akka.worker.logstore.username";
+    public static final String WORKER_LOGSTORE_PASSWORD = "akka.worker.logstore.password";
+    public static final String WORKER_INITIAL_SIZE = "akka.worker.initial.size";
+    public static final String WORKER_MIN_ACTIVE = "akka.worker.min.active";
+    public static final String WORKER_MAX_ACTIVE = "akka.worker.max.active";
+
 
 }

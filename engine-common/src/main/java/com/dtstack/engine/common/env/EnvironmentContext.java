@@ -1,5 +1,6 @@
 package com.dtstack.engine.common.env;
 
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.util.AddressUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -647,5 +648,40 @@ public class EnvironmentContext {
 
     public int getBatchJobJobInsertSize() {
         return Integer.parseInt(environment.getProperty("batchJobJob.insert.size", "1000"));
+    }
+
+    public Long getWorkerTimeout() {
+        String keyName = ConfigConstant.WORKER_TIMEOUT;
+        return Long.valueOf(environment.getProperty(keyName, "300000"));
+    }
+
+    public String getWorkerLogstoreJdbcUrl() {
+        String keyName = ConfigConstant.WORKER_LOGSTORE_JDBCURL;
+        return environment.getProperty(keyName, StringUtils.EMPTY);
+    }
+
+    public String getWorkerLogstoreUsername() {
+        String keyName = ConfigConstant.WORKER_LOGSTORE_USERNAME;
+        return environment.getProperty(keyName, StringUtils.EMPTY);
+    }
+
+    public String getWorkerLogstorePassword() {
+        String keyName = ConfigConstant.WORKER_LOGSTORE_PASSWORD;
+        return environment.getProperty(keyName, StringUtils.EMPTY);
+    }
+
+    public String getWorkerInitialSize() {
+        String keyName = ConfigConstant.WORKER_INITIAL_SIZE;
+        return environment.getProperty(keyName, "20");
+    }
+
+    public String getWorkerMinActive() {
+        String keyName = ConfigConstant.WORKER_MIN_ACTIVE;
+        return environment.getProperty(keyName, "20");
+    }
+
+    public String getWorkerMaxActive() {
+        String keyName = ConfigConstant.WORKER_MAX_ACTIVE;
+        return environment.getProperty(keyName, "20");
     }
 }

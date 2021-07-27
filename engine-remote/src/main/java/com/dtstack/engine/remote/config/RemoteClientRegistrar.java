@@ -37,15 +37,20 @@ public class RemoteClientRegistrar implements ImportBeanDefinitionRegistrar, Env
         }
 
         AnnotationAttributes annotationAttributes = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(EnableRemoteClient.class.getName(), false));
-        RemoteClientScanner scanner = new RemoteClientScanner(registry);
-        if (annotationAttributes != null) {
-            String basePackage = annotationAttributes.getString("basePackage");
-            if (StringUtils.isBlank(basePackage)) {
-                // 扫描默认路径
 
-            } else {
-                scanner.doScan(basePackage);
-            }
+        String properties = annotationAttributes.getString("properties");
+
+        if (StringUtils.isNotBlank(properties)) {
+            System.setProperty("remote.properties.file.name",properties);
+        }
+
+        RemoteClientScanner scanner = new RemoteClientScanner(registry);
+        String basePackage = annotationAttributes.getString("basePackage");
+        if (StringUtils.isBlank(basePackage)) {
+            // 扫描默认路径
+
+        } else {
+            scanner.doScan(basePackage);
         }
     }
 

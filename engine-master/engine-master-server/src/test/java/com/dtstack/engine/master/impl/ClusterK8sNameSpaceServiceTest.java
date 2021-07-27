@@ -7,7 +7,8 @@ import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.*;
-import com.dtstack.engine.worker.client.ClientOperator;
+import com.dtstack.engine.common.api.WorkerApi;
+import com.dtstack.engine.common.api.message.MessageTestConnectInfo;
 import com.dtstack.engine.common.enums.EComponentScheduleType;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.MultiEngineType;
@@ -49,7 +50,7 @@ public class ClusterK8sNameSpaceServiceTest extends AbstractTest {
     private EngineDao engineDao;
 
     @MockBean
-    private ClientOperator clientOperator;
+    private WorkerApi clientOperator;
 
     @Autowired
     private TenantDao tenantDao;
@@ -71,7 +72,7 @@ public class ClusterK8sNameSpaceServiceTest extends AbstractTest {
         ComponentTestResult componentTestResult = new ComponentTestResult();
         componentTestResult.setResult(true);
 
-        when(clientOperator.testConnect(any(),any())).thenReturn(componentTestResult);
+        when(clientOperator.testConnect(new MessageTestConnectInfo(any(),any()))).thenReturn(componentTestResult);
     }
 
     public void testCreateCluster() {

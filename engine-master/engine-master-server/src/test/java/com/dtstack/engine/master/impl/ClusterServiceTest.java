@@ -9,7 +9,8 @@ import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.worker.client.ClientOperator;
+import com.dtstack.engine.common.api.WorkerApi;
+import com.dtstack.engine.common.api.message.MessageTestConnectInfo;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EComponentScheduleType;
 import com.dtstack.engine.common.enums.EComponentType;
@@ -74,7 +75,7 @@ public class ClusterServiceTest extends AbstractTest {
 
 
     @MockBean
-    private ClientOperator clientOperator;
+    private WorkerApi clientOperator;
 
     @Autowired
     private QueueDao queueDao;
@@ -107,7 +108,7 @@ public class ClusterServiceTest extends AbstractTest {
 
         ComponentTestResult.ClusterResourceDescription clusterResourceDescription = new ComponentTestResult.ClusterResourceDescription(1024,1024,1024,new ArrayList<>());
         componentTestResult.setClusterResourceDescription(clusterResourceDescription);
-        when(clientOperator.testConnect(any(),any())).thenReturn(componentTestResult);
+        when(clientOperator.testConnect(new MessageTestConnectInfo(any(),any()))).thenReturn(componentTestResult);
 
 
         ReflectionTestUtils.setField(tenantService,"clusterDao", clusterDao);

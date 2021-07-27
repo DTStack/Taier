@@ -27,7 +27,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 })
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableCaching
-@EnableRemoteClient(basePackage = "com.dtstack.engine.common.api")
+@EnableRemoteClient(basePackage = "com.dtstack.engine.common.api",properties = "application-master.properties")
 public class EngineApplication {
 
     private static Logger LOGGER = LoggerFactory.getLogger(EngineApplication.class);

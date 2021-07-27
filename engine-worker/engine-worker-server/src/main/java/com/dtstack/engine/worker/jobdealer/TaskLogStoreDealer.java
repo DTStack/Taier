@@ -1,11 +1,10 @@
 package com.dtstack.engine.worker.jobdealer;
 
 import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.akka.config.AkkaConfig;
 import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.logstore.AbstractLogStore;
 import com.dtstack.engine.common.logstore.LogStoreFactory;
-import com.dtstack.engine.worker.env.WorkerEnvironmentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -33,7 +32,7 @@ public class TaskLogStoreDealer implements Runnable, InitializingBean {
     private Map<String, String> dbConfig = new HashMap<>(3);
 
     @Autowired
-    private WorkerEnvironmentContext workerEnvironmentContext;
+    private EnvironmentContext workerEnvironmentContext;
 
     @Override
     public void run() {

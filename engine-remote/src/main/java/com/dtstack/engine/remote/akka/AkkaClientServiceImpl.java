@@ -3,7 +3,7 @@ package com.dtstack.engine.remote.akka;
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
-import com.dtstack.engine.remote.config.AkkaConfig;
+import com.dtstack.engine.remote.akka.config.AkkaConfig;
 import com.dtstack.engine.remote.message.Message;
 import com.dtstack.engine.remote.service.ClientService;
 import org.slf4j.Logger;
@@ -24,7 +24,7 @@ public class AkkaClientServiceImpl  implements ClientService {
 
     private ActorRef actorRef;
 
-    private static final Logger logger = LoggerFactory.getLogger(ClientServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AkkaClientServiceImpl.class);
 
     @Override
     public Message sendMassage(Message message) throws Exception {
@@ -35,7 +35,7 @@ public class AkkaClientServiceImpl  implements ClientService {
         if (result instanceof Message) {
             Message resultMsg = (Message) result;
             if (Message.MessageStatue.ERROR.equals(resultMsg.getStatue()) && resultMsg.getTransport() instanceof Exception) {
-                logger.error("");
+                LOGGER.error("");
                 throw (Exception) resultMsg.getTransport();
             } else {
                 return resultMsg;

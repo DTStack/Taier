@@ -7,7 +7,9 @@ import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.AccountTenantVo;
 import com.dtstack.engine.api.vo.AccountVo;
 import com.dtstack.engine.api.vo.ClusterVO;
-import com.dtstack.engine.worker.client.ClientOperator;
+import com.dtstack.engine.common.api.WorkerApi;
+import com.dtstack.engine.common.api.message.MessageExecuteQuery;
+import com.dtstack.engine.common.api.message.MessageTestConnectInfo;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.dao.TenantDao;
@@ -61,7 +63,7 @@ public class AccountServiceTest extends AbstractTest {
     private DtUicUserConnect dtUicUserConnect;
 
     @MockBean
-    private ClientOperator clientOperator;
+    private WorkerApi clientOperator;
 
     @Before
     public void setup() throws Exception {
@@ -76,8 +78,8 @@ public class AccountServiceTest extends AbstractTest {
         users.add(rootMap);
 
         when(dtUicUserConnect.getAllUicUsers(any(),any(),any(),any())).thenReturn(users);
-        when(clientOperator.testConnect(any(), any())).thenReturn(componentTestResult);
-        when(clientOperator.executeQuery(any(), any(), any(), any())).thenReturn(new ArrayList());
+        when(clientOperator.testConnect(new MessageTestConnectInfo(any(), any()))).thenReturn(componentTestResult);
+        when(clientOperator.executeQuery(new MessageExecuteQuery(any(), any(), any(), any()))).thenReturn(new ArrayList());
     }
 
 

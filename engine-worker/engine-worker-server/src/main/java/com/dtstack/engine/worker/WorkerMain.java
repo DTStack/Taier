@@ -10,9 +10,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@EnableRemoteClient(basePackage = "com.dtstack.engine.common.api")
+@ComponentScan(basePackages = {"com.dtstack.engine.*"})
+@EnableRemoteClient(basePackage = "com.dtstack.engine.common.api",properties = "application-worker.properties")
 public class WorkerMain {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkerMain.class);

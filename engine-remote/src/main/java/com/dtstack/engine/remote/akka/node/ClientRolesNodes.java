@@ -22,7 +22,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class ClientRolesNodes {
 
-    private static final Logger logger = LoggerFactory.getLogger(ClientRolesNodes.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClientRolesNodes.class);
     private final String roleName;
     private List<ClientRolesNode> refs;
     private Router router;
@@ -52,7 +52,7 @@ public class ClientRolesNodes {
                 if (!refs.contains(node)) {
                     refs.add(node);
                     router = router.addRoutee(new ActorRefRoutee(actorFor));
-                    logger.info("roles:{} add node :{},refs:{}",roleName,node.toString(),refs.toString());
+                    LOGGER.info("roles:{} add node :{},refs:{}",roleName,node.toString(),refs.toString());
                 }
             } finally {
                 lock.unlock();
@@ -77,7 +77,7 @@ public class ClientRolesNodes {
             } finally {
                 lock.unlock();
             }
-            logger.info("roles:{} remove node :{},refs:{}",roleName,node.toString(),refs.toString());
+            LOGGER.info("roles:{} remove node :{},refs:{}",roleName,node.toString(),refs.toString());
             return Boolean.FALSE;
         }
         return Boolean.TRUE;
@@ -92,7 +92,7 @@ public class ClientRolesNodes {
     }
 
     public void route(Message msg, ActorRef sender) {
-        logger.info("roles:{} ,refs:{}",msg.getRoles(),msg.getTransport());
+        LOGGER.info("roles:{} ,refs:{}",msg.getRoles(),msg.getTransport());
         if (router.routees().size() == 0) {
             // 无节点不可以发送
             sender.tell(msg.ask(new NoNodeException("[ "+msg.getRoles()+" ]: no usable node"), Message.MessageStatue.ERROR),sender);

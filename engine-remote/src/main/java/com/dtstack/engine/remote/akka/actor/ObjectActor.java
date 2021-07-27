@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ObjectActor extends AbstractLoggingActor {
 
-    private static final Logger logger = LoggerFactory.getLogger(ObjectActor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ObjectActor.class);
     private ActorHandler remoteRef;
     private ActorHandler localRef;
     private Cluster cluster = Cluster.get(context().system());

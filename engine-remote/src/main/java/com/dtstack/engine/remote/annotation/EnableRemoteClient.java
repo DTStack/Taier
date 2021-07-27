@@ -17,6 +17,18 @@ import java.lang.annotation.*;
 @Import({RemoteClientRegistrar.class})
 public @interface EnableRemoteClient {
 
+    /**
+     * 设置扫描包路径
+     *
+     * @return 包路径
+     */
     String basePackage() default "";
+
+    /**
+     * 设置配置文件
+     *
+     * @return
+     */
+    String properties() default "";
 
 }

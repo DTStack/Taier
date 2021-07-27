@@ -5,6 +5,7 @@ import akka.cluster.ClusterEvent;
 import akka.cluster.Member;
 import akka.cluster.MemberStatus;
 import com.dtstack.engine.remote.akka.config.AkkaConfig;
+import com.dtstack.engine.remote.akka.node.ClientRolesNodes;
 import com.dtstack.engine.remote.constant.ServerConstant;
 import com.dtstack.engine.remote.exception.NoNodeException;
 import com.dtstack.engine.remote.exception.RemoteException;
@@ -12,6 +13,7 @@ import com.dtstack.engine.remote.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -23,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ClientActor extends AbstractLoggingActor {
     private Map<String, ClientRolesNodes> roles = new ConcurrentHashMap<>();
-    private static final Logger logger = LoggerFactory.getLogger(ClientActor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClientActor.class);
 
     @Override
     public Receive createReceive() {
@@ -56,25 +58,25 @@ public class ClientActor extends AbstractLoggingActor {
                 })
                 .match(ClusterEvent.ReachableMember.class,
                         x -> {
-                            logger.info("Member is Reachable: {}", x.member());
+                            LOGGER.info("Member is Reachable: {}", x.member());
                             register(x.member());
                         }
                 )
                 .match(ClusterEvent.UnreachableMember.class,
                         x -> {
-                            logger.info("Member is Unreachable: {}", x.member());
+                            LOGGER.info("Member is Unreachable: {}", x.member());
                             //unRegister(x.member());
                         }
                 )
                 .match(ClusterEvent.MemberUp.class,
                         x -> {
-                            logger.info("Member is Up: {}", x.member());
+                            LOGGER.info("Member is Up: {}", x.member());
                             register(x.member());
                         }
                 )
                 .match(ClusterEvent.MemberRemoved.class,
                         x -> {
-                            logger.info("Member is Removed: {}", x.member());
+                            LOGGER.info("Member is Removed: {}", x.member());
                             unRegister(x.member());
                         }
                 )

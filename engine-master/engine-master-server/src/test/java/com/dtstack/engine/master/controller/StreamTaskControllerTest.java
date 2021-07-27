@@ -4,11 +4,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.api.pojo.CheckResult;
 import com.dtstack.engine.api.pojo.ParamActionExt;
-import com.dtstack.engine.common.akka.config.AkkaConfig;
 import com.dtstack.engine.dao.EngineJobCheckpointDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
-import com.typesafe.config.ConfigFactory;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +48,7 @@ public class StreamTaskControllerTest extends AbstractTest {
     @Test
     public void testGrammarCheck(){
         try {
-            AkkaConfig.init(ConfigFactory.load());
+//            AkkaConfig.init(ConfigFactory.load());
             Map<String, Object> params = getParams(getJsonString(getRandomStr()));
             ParamActionExt paramActionExt = com.dtstack.engine.common.util.PublicUtil.mapToObject(params, ParamActionExt.class);
 //            paramActionExt.setTaskType(0);

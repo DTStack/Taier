@@ -6,7 +6,7 @@ import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.akka.config.AkkaConfig;
+import com.dtstack.engine.remote.akka.config.AkkaConfig;
 import com.dtstack.engine.worker.callback.CallBack;
 import com.dtstack.engine.worker.callback.ClassLoaderCallBackMethod;
 import com.dtstack.engine.common.enums.RdosTaskStatus;

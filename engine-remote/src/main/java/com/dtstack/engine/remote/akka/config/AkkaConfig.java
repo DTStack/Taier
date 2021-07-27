@@ -44,11 +44,12 @@ public class AkkaConfig {
         String property = environment.getProperty(AkkaConfigConstant.CONFIG_PATH);
         if (StringUtils.isBlank(property)) {
             // 不配置配置文件，默认{user.dir}/conf下文件 application-common.properties 和 application.properties
-            AkkaLoad.load(environment.getProperty(GlobalConstant.BASE_PATH));
+            config = AkkaLoad.load(environment.getProperty(GlobalConstant.BASE_PATH));
             return;
         }
 
-        AkkaLoad.load(property);
+        config = AkkaLoad.load(property);
+
     }
 
     public static Boolean hasLoad(){
@@ -138,4 +139,8 @@ public class AkkaConfig {
         return applicationContext;
     }
 
+    public static long getWorkerTimeout() {
+        String keyName = AkkaConfigConstant.WORKER_TIMEOUT;
+        return Long.parseLong(getValueWithDefault(keyName, "300000"));
+    }
 }

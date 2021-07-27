@@ -77,6 +77,17 @@
         </encoder>
     </appender>
 
+    <appender name="remote" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${user.dir}/logs/rdos_remote.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${user.dir}/logs/rdos_alert_%d{yyyy-MM-dd}.log</fileNamePattern>
+            <MaxHistory>5</MaxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} [%file:%line] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
     <logger name="org.apache.flink.runtime" level="warn" additivity="false">
         <appender-ref ref="flinkAppender" />
     </logger>
@@ -119,6 +130,9 @@
         <appender-ref ref="alert" />
     </logger>
 
+    <logger name="com.dtstack.engine.remote" level="info" additivity="false">
+        <appender-ref ref="remote" />
+    </logger>
 
     <root level="info">
         <appender-ref ref="allAppender" />

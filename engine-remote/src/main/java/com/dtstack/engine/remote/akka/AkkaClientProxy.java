@@ -25,7 +25,7 @@ import java.lang.reflect.Method;
  * @Description: 对扫描到的接口生成代理对象。
  */
 public class AkkaClientProxy<T> implements FactoryBean, ApplicationContextAware {
-    private static final Logger logger = LoggerFactory.getLogger(AkkaClientProxy.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AkkaClientProxy.class);
     //被代理的接口Class对象
     private final Class<T> interfaceClass;
     private final RemoteClient annotation;
@@ -44,7 +44,7 @@ public class AkkaClientProxy<T> implements FactoryBean, ApplicationContextAware 
                 targetClass = fallback;
                 fallbackObject = fallback.newInstance();
             } catch (Exception e) {
-                logger.error("fallback is error!");
+                LOGGER.error("fallback is error!");
                 targetClass = null;
                 fallbackObject = null;
             }
@@ -61,12 +61,12 @@ public class AkkaClientProxy<T> implements FactoryBean, ApplicationContextAware 
                     try {
                         if (checkMethod(method)) {
                             // Object 的方法执行Object
-                            logger.info("Object method,no handler");
+                            LOGGER.info("Object method,no handler");
                             objectName = getMethod(method);
                             return objectName.invoke(interfaceClass, args);
                         }
 
-                        logger.info("create Proxy start!!");
+                        LOGGER.info("create Proxy start!!");
                         //实现业务逻辑,比如发起网络连接，执行远程调用，获取到结果，并返回
                         ClientService service = applicationContext.getBean(ClientService.class);
 
@@ -86,7 +86,7 @@ public class AkkaClientProxy<T> implements FactoryBean, ApplicationContextAware 
                         Message result = service.sendMassage(message);
                         return result.result(method.getReturnType());
                     } catch (Exception e) {
-                        logger.error("an error occurred:e:{}, perform fusing",e.toString());
+                        LOGGER.error("an error occurred:e:{}, perform fusing",e.toString());
                         if (targetClass == null || fallbackObject == null) {
                             throw e;
                         } else {

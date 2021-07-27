@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
  * @Description:
  */
 public class ActorHandler {
-    private static final Logger logger = LoggerFactory.getLogger(ActorHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ActorHandler.class);
     /**
      * actor的class文件
      */

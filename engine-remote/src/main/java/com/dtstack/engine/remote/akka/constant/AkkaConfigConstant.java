@@ -34,6 +34,11 @@ public class AkkaConfigConstant {
     public static final String AKKA_ASK_TIMEOUT = "akka.ask.timeout";
 
     /**
+     * worker线程提交超时时间
+     */
+    public static final String WORKER_TIMEOUT = "worker.client.timeout";
+
+    /**
      * akka的处理actor数量
      */
     public static final String AKKA_ACTOR_HANDLER_NUMBER = "akka.actor.handler.number";

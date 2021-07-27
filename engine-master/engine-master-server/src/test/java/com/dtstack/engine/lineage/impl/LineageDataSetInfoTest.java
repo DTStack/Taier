@@ -88,8 +88,7 @@ public class LineageDataSetInfoTest extends AbstractTest {
         dsInfoById.setCode(1);
         dsInfoById.setData(dsServiceInfoDTO);
         when(dataSourceAPIClient.getDsInfoById(any())).thenReturn(dsInfoById);
-        when(dataSetInfoService.getClient(any(),any(),any())).thenReturn(null);
-        when(dataSetInfoService.getAllColumns(any(),any())).thenReturn(new ArrayList<>());
+        when(dataSetInfoService.getAllColumns(any(),any(),any())).thenReturn(new ArrayList<>());
 
     }
 
