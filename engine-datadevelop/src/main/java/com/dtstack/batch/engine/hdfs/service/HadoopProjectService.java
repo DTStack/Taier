@@ -51,9 +51,6 @@ public class HadoopProjectService implements IProjectService {
     public static Logger LOG = LoggerFactory.getLogger(HadoopProjectService.class);
 
     @Autowired
-    private BatchTableInfoService batchTableInfoService;
-
-    @Autowired
     private IJdbcService jdbcServiceImpl;
 
     @Autowired
@@ -68,9 +65,6 @@ public class HadoopProjectService implements IProjectService {
     @Autowired
     private MultiEngineService multiEngineService;
 
-    private final static ExecutorService HADOOP_CREATE_PROJECT = new ThreadPoolExecutor(5, 5, 60L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(1000), new RdosThreadFactory("hadoop_create_project"), new ThreadPoolExecutor.CallerRunsPolicy());
-
     @Override
     public int createProject(Long projectId, String projectName, String projectDesc, Long userId, Long tenantId,
                              Long dtuicTenantId, ProjectEngineVO projectEngineVO) throws Exception {
@@ -81,8 +75,6 @@ public class HadoopProjectService implements IProjectService {
         if (ProjectCreateModel.intrinsic.getType().equals(projectEngineVO.getCreateModel())) {
             //如果是对接已有数据源，则先初始化项目默认hive数据源，这样可以避免在循环同步hive表的时候频繁调用Engine获取mete数据源类型
             dbName = projectEngineVO.getDatabase();
-            //同步hive表到本地项目
-            addIntrinsicTable(dtuicTenantId, tenantId, projectId, userId, projectEngineVO);
         } else {
             // 如果是新建数据源，则需要先在hive中创建db，本地再初始化数据源
             iTableServiceImpl.createDatabase(dtuicTenantId, null, projectName.toLowerCase(), ETableType.getDatasourceType(dataSourceType.getVal()), projectDesc);
@@ -110,23 +102,6 @@ public class HadoopProjectService implements IProjectService {
         DataSourceType metaDataSourceType = multiEngineService.getTenantSupportHadoopMetaDataSource(dtuicTenantId);
         List<String> tableList = jdbcServiceImpl.getTableList(dtuicTenantId, null, DataSourceTypeJobTypeMapping.getTaskTypeByDataSourceType(metaDataSourceType.getVal()), dbName);
         return tableList;
-    }
-
-    private void addIntrinsicTable(Long dtuicTenantId, Long tenantId, Long projectId, Long userId, ProjectEngineVO projectEngineVO) {
-        List<String> tableNameList = getTableNameList(dtuicTenantId, projectEngineVO.getDatabase(), projectId);
-
-        if (CollectionUtils.isNotEmpty(tableNameList)) {
-            for (String tableName : tableNameList) {
-                try {
-                    HADOOP_CREATE_PROJECT.execute(() ->
-                            batchTableInfoService.addTableFromSql(dtuicTenantId, tenantId, projectId, tableName, projectEngineVO.getLifecycle(), projectEngineVO.getCatalogueId(),
-                                    userId, NORMAL_TABLE, false, ETableType.HIVE.getType(), projectEngineVO.getDatabase())
-                    );
-                } catch (Exception e){
-                    LOG.warn("Import table from Hive source error: ", e);
-                }
-            }
-        }
     }
 
     /**

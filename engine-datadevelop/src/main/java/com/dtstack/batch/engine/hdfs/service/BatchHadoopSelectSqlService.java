@@ -4,23 +4,15 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.batch.bo.ExecuteContent;
 import com.dtstack.batch.bo.ParseResult;
 import com.dtstack.batch.common.enums.ETableType;
 import com.dtstack.batch.common.enums.TempJobType;
 import com.dtstack.batch.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.BatchHiveSelectSqlDao;
-import com.dtstack.batch.dao.BatchTableInfoDao;
-import com.dtstack.batch.datamask.dao.DataMaskParseRecordDao;
-import com.dtstack.batch.datamask.domain.DataMaskParseRecord;
-import com.dtstack.batch.datamask.util.DataMaskUtil;
 import com.dtstack.batch.domain.*;
-import com.dtstack.batch.engine.inceptor.service.BatchInceptorSqlExeService;
 import com.dtstack.batch.engine.rdbms.common.IDownload;
 import com.dtstack.batch.engine.rdbms.service.impl.Engine2DTOService;
 import com.dtstack.batch.enums.TableRelationType;
-import com.dtstack.batch.enums.TaskOperateType;
-import com.dtstack.batch.service.datamask.impl.LineageService;
 import com.dtstack.batch.service.impl.*;
 import com.dtstack.batch.service.job.IBatchSelectSqlService;
 import com.dtstack.batch.service.table.impl.BatchSelectSqlService;
@@ -83,37 +75,16 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
     private BatchDownloadService batchDownloadService;
 
     @Autowired
-    private DataMaskParseRecordDao dataMaskParseRecordDao;
-
-    @Autowired
     private BatchTaskService batchTaskService;
 
     @Autowired
-    private LineageService lineageService;
-
-    @Autowired
-    private BatchTableInfoDao batchTableInfoDao;
-
-    @Autowired
     private RoleUserService roleUserService;
-
-    @Autowired
-    private BatchHadoopScriptService batchHadoopScriptService;
 
     @Autowired
     private ProjectEngineService projectEngineService;
 
     @Autowired
     private BatchSelectSqlService batchSelectSqlService;
-
-    @Autowired
-    private TenantService tenantService;
-
-    @Autowired
-    private BatchHadoopJobExeService batchHadoopJobExeService;
-
-    @Autowired
-    private BatchImpalaSqlExeService batchImpalaSqlExeService;
 
     @Autowired
     private ScheduleJobService scheduleJobService;
@@ -157,144 +128,6 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
 
     private static final String DOWNLOAD_LOG = "/api/rdos/download/batch/batchDownload/downloadJobLog?jobId=%s&taskType=%s&projectId=%s";
 
-    /**
-     * python,shell 任务只有hadoop引擎支撑
-     */
-    @Override
-    public ExecuteResultVO runPythonShellScript(BatchScript script, String content, Long userId) {
-        String jobId = actionService.generateUniqueSign();
-        JSONObject actionParam = batchHadoopScriptService.buildPythonShellArgs(script.getType(), script.getName(),
-                script.getTenantId(), script.getProjectId(), content, jobId, userId);
-        JSONObject saveData = batchHadoopScriptService.buildSaveData(script.getType(), script.getName());
-
-        return runPythonShell(actionParam, script.getType(), saveData, jobId, script.getTenantId(), script.getProjectId(), userId);
-    }
-
-    private ExecuteResultVO runPythonShell(JSONObject actionParam, Integer scriptType, JSONObject saveData, String jobId,
-                                           Long tenantId, Long projectId, Long userId) {
-        if (!actionParam.containsKey("userId")) {
-            actionParam.put("userId", userService.getUser(userId).getDtuicUserId());
-        }
-        // 发送job
-        ParamActionExt actionExt = null;
-        try {
-            if (actionParam.containsKey("job")){
-                actionParam.remove("job").toString();
-            }
-            actionExt = objectMapper.readValue(actionParam.toJSONString(), ParamActionExt.class);
-        } catch (IOException e) {
-            LOGGER.error("",e);
-            throw new DtCenterDefException("参数异常");
-        }
-        actionService.start(actionExt);
-
-        // 添加纪录
-        String taskName = batchHadoopScriptService.createTaskName(scriptType);
-        batchSelectSqlService.addSelectSql(jobId, taskName, TempJobType.PYTHON_SHELL.getType(),
-                tenantId, projectId, saveData.toJSONString(), userId, MultiEngineType.HADOOP.getType());
-        return new ExecuteResultVO(jobId);
-    }
-
-    @Override
-    public ExecuteResultVO runPythonShellWithTask(BatchTask task, String content, Long userId, String jobId) {
-
-        JSONObject actionParam = buildPythonShellArgs(task.getTaskType(), task.getExeArgs(), task.getName(),
-                content, task.getTaskParams(), task.getTenantId(), task.getProjectId(), jobId);
-        JSONObject saveData = buildSaveData(task.getEngineType(), task.getName());
-
-        return runPythonShell(actionParam, task.getTaskType(), saveData, jobId, task.getTenantId(), task.getProjectId(), userId);
-    }
-
-
-    public JSONObject buildPythonShellArgs(Integer taskType, String exeArgs, String name,
-                                           String content, String taskParams, Long tenantId,
-                                           Long projectId, String jobId) {
-        Long dtuicTenantId = tenantService.getDtuicTenantId(tenantId);
-
-        JSONObject actionParam = new JSONObject();
-        actionParam.put("taskId", jobId);
-        actionParam.put("taskType", EJobType.SPARK_PYTHON.getVal());
-
-        String taskName = "";
-        EngineType engineType = EngineType.DtScript;
-        if (taskType.equals(EJobType.PYTHON.getVal())) {
-            taskName = String.format(TASK_NAME_PREFIX, "python", System.currentTimeMillis());
-            engineType = EngineType.DtScript;
-        } else if (taskType.equals(EJobType.SHELL.getVal())) {
-            taskName = String.format(TASK_NAME_PREFIX, "shell", System.currentTimeMillis());
-            engineType = EngineType.DtScript;
-        } else if (EJobType.SHELL_ON_AGENT.getVal().equals(taskType)) {
-            taskName = String.format(TASK_NAME_PREFIX, "shell_on_agent", System.currentTimeMillis());
-            engineType = EngineType.DTSCRIPT_AGENT;
-        } else if (taskType.equals(EJobType.SPARK_PYTHON.getVal())) {
-            taskName = String.format(TASK_NAME_PREFIX, "pyspark", System.currentTimeMillis());
-            engineType = EngineType.Spark;
-        }
-        List<BatchResource> resourceList = new ArrayList<>();
-        actionParam.put("engineType", engineType.getEngineName());
-        //SHELL_ON_AGENT 任务不需要传exeArgs,只需要sqlText就可以，直接执行sqlText中的内容
-        if(!EJobType.SHELL_ON_AGENT.getVal().equals(taskType)){
-            exeArgs = batchHadoopJobExeService.buildExeArgs(dtuicTenantId, exeArgs, taskType, engineType.getVal(), name, content,
-                resourceList, null, tenantId, projectId, null, null, null);
-        }
-        actionParam.put("name", taskName);
-        actionParam.put("computeType", ComputeType.BATCH.getType());
-        if (EJobType.SPARK_PYTHON.getVal().equals(taskType)) {
-            actionParam.put("sqlText", batchHadoopJobExeService.setAddJarSql(taskType, "", resourceList, ""));
-            actionParam.put("exeArgs", "");
-        } else if (EJobType.SHELL_ON_AGENT.getVal().equals(taskType)) {
-            actionParam.put("sqlText", content);
-            actionParam.put("exeArgs", "");
-        } else {
-            actionParam.put("sqlText", "");
-            actionParam.put("exeArgs", exeArgs);
-        }
-        actionParam.put("taskParams", taskParams);
-        //dtuicTenantId
-        actionParam.put("tenantId", dtuicTenantId);
-        actionParam.put("sourceType", SourceType.TEMP_QUERY.getType());
-        actionParam.put("isFailRetry", false);
-        actionParam.put("maxRetryNum", 0);
-        actionParam.put("appType", AppType.RDOS.getType());
-
-        return actionParam;
-    }
-
-
-    public String getFilePathFromExeArgs(String exeArgs) {
-        String filePath = "";
-        if (StringUtils.isNotEmpty(exeArgs)) {
-            String[] strs = exeArgs.split(" ");
-            for (int i = 0; i < strs.length; ++i) {
-                if (strs[i].equals("--files")) {
-                    filePath = strs[i + 1];
-                    break;
-                }
-            }
-        }
-        return filePath;
-    }
-
-
-    public JSONObject buildSaveData(Integer engineType, String taskName) {
-        Integer operateModel;
-        operateModel = TaskOperateType.RESOURCE.getType();
-
-        String appType = EngineType.getEngineType(engineType).getEngineName();
-
-        JSONObject exeArgs = new JSONObject();
-        exeArgs.put("--app-name", taskName);
-        exeArgs.put("--cmd-opts", "");
-        exeArgs.put("--files", null);
-        exeArgs.put("operateModel", TaskOperateType.EDIT.getType());
-        exeArgs.put("--app-type", appType);
-
-        JSONObject saveData = new JSONObject();
-        saveData.put("operateModel", operateModel);
-        saveData.put("exeArgs", exeArgs);
-
-        return saveData;
-    }
 
     @Override
     public String runSqlByTask(Long dtuicTenantId, ParseResult parseResult, Long tenantId, Long projectId, Long userId, String database, Long taskId, int type, String preJobId) {
@@ -428,8 +261,6 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
             sql = formatSql(jobType, database, tempTable, originSql);
         } else {
             isSelectSql = TempJobType.SELECT.getType();
-            Map<Long, Map<String, String>> cols = parseSelectTableAndColumns(parseResult, tenantId);
-            parsedColumns = JSONObject.toJSONString(cols);
             sql = buildSelectSqlCustomFunction(originSql, projectId, database, tempTable);
         }
 
@@ -464,67 +295,6 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
 		}
 		return String.format(CREATE_TEMP_WITH_TABLE, database, tempTable, originSql);
 	}
-
-    @Override
-    public ExecuteResultVO runCarbonSqlTask(Long dtuicTenantId, String originSql, Long tenantId, Long projectId, Long userId, String database, Long taskId, String dataJson, String jobId) {
-
-        ExecuteResultVO result = new ExecuteResultVO(jobId);
-        // 生成临时表名
-        String tempTable = TEMP_TABLE_PREFIX + System.nanoTime();
-        String sql;
-        Matcher matcher = SELECT_PATTERN.matcher(originSql);
-        if (matcher.find()) {
-            sql = String.format(CREATE_TEMP_TABLE, database, tempTable, originSql);
-        } else {
-            sql = String.format(USE_DB, database, originSql);
-        }
-        JSONObject obj = new JSONObject();
-        obj.put("db", database);
-        JSONObject cfg = JSONObject.parseObject(dataJson);
-        obj.putAll(cfg);
-        BatchTask batchTask = batchTaskService.getBatchTaskById(taskId);
-        String taskParam = batchTask.getTaskParams();
-        Long dtuicUserId = userService.getUser(userId).getDtuicUserId();
-        // 发送sql任务
-        sendSqlTask(dtuicTenantId, sql, SourceType.TEMP_QUERY, taskParam, jobId, taskId, TableRelationType.TASK.getType(), dtuicUserId, projectId);
-        // 记录job
-        batchSelectSqlService.addSelectSql(jobId, tempTable, TempJobType.CARBON_SQL.getType(), tenantId, projectId,
-                originSql, userId, obj.toJSONString(), MultiEngineType.HADOOP.getType());
-        result.setSqlText(originSql);
-        return result;
-    }
-
-    public Map<Long, Map<String, String>> parseSelectTableAndColumns(ParseResult parseResult, Long tenantId) {
-        List<ColumnLineage> columnLineages = parseResult.getColumnLineages();
-        if (CollectionUtils.isEmpty(columnLineages)) {
-            return new HashMap<>();
-        }
-
-        Map<String, Map<String, String>> tableColsMap = Maps.newHashMap();
-        for (ColumnLineage columnLineage : columnLineages) {
-            String dbTable = String.format("%s.%s", columnLineage.getFromDb(), columnLineage.getFromTable());
-            if (tableColsMap.containsKey(dbTable)) {
-                tableColsMap.get(dbTable).put(columnLineage.getFromColumn(), columnLineage.getFromColumn());
-            } else {
-                Map<String, String> cols = new HashMap<>();
-                cols.put(columnLineage.getFromColumn(), columnLineage.getFromColumn());
-                tableColsMap.put(dbTable, cols);
-            }
-        }
-
-        Map<Long, Map<String, String>> tableIdColsMap = Maps.newHashMap();
-        tableColsMap.forEach((dbTable, col) -> {
-            String[] info = dbTable.split("\\.", 2);
-            Project project = projectService.getByName(info[0], tenantId);
-            BatchTableInfo batchTableInfo = batchTableInfoDao.getByTableNameAndProjectId(info[1], project.getId(), ETableType.HIVE.getType());
-            if (batchTableInfo.getId() != null) {
-                tableIdColsMap.put(batchTableInfo.getId(), col);
-            }
-        });
-
-        LOGGER.info("parse columns from sql result [{}]", JSON.toJSONString(tableIdColsMap));
-        return tableIdColsMap;
-    }
 
     /**
      * 从临时表查询数据
@@ -562,38 +332,6 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
             }
             Integer status = TaskStatusConstrant.getShowStatus(engineEntity.getStatus());
             result.setStatus(status);
-
-            if (DataMaskUtil.STATUS_NEED_PARSE.contains(status) && EJobType.SPARK_SQL.getVal().equals(taskType)) {
-                ProjectEngine projectEngine = projectEngineService.getProjectDb(projectId, MultiEngineType.HADOOP.getType());
-                if (TempJobType.INSERT.getType() == selectSql.getIsSelectSql()
-                        || TempJobType.SELECT.getType() == selectSql.getIsSelectSql()) {
-                    DataMaskParseRecord record = dataMaskParseRecordDao.getRecordByJobId(jobId);
-                    if (record == null && Objects.nonNull(batchTask)) {
-                        Preconditions.checkNotNull(projectEngine, String.format("project %d not support hadoop engine.", projectId));
-                        try {
-                            lineageService.parseLineageFromSql(selectSql.getSqlText(), tenantId, projectId,
-                                    projectEngine.getEngineIdentity(), dtuicTenantId, userId, MultiEngineType.HADOOP.getType(), batchTask);
-                        } catch (Exception e) {
-                            LOGGER.info("parse projectId[{}]  sql [{}] lineage error ", projectId, selectSql.getSqlText(), ExceptionUtils.getRootCause(e));
-                        }
-                        DataMaskParseRecord insert = new DataMaskParseRecord();
-                        insert.setJobId(jobId);
-                        insert.setStatus(status);
-                        dataMaskParseRecordDao.insert(insert);
-                    }
-                    if (TempJobType.INSERT.getType().equals(selectSql.getIsSelectSql())) {
-                        return result;
-                    }
-                } else if(TempJobType.CREATE.getType() == selectSql.getIsSelectSql()){
-                    try {
-                        lineageService.parseCreateAsSql(selectSql.getSqlText(), projectId, projectEngine.getEngineIdentity(),
-                                userId, tenantId, dtuicTenantId, MultiEngineType.HADOOP.getType(), batchTask);
-                    } catch (Exception e) {
-                        LOGGER.info("parse projectId[{}]  sql [{}] lineage error ", projectId, selectSql.getSqlText(), ExceptionUtils.getRootCause(e));
-                    }
-                    return result;
-                }
-            }
 
             if (EJobType.HIVE_SQL.getVal().equals(taskType)) {
                 buildHiveSqlData(result, status, jobId, taskType, engineEntity, selectSql, projectId, dtuicTenantId, batchTask, tenantId, userId);
@@ -738,16 +476,6 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
                                   Long tenantId, Long userId) throws Exception {
         // HIVE SQL 没有日志统一处理 hive 逻辑，不管成功或者失败都走表查询
         if ((TaskStatus.FINISHED.getStatus().equals(status) || TaskStatus.FAILED.getStatus().equals(status)) && EJobType.HIVE_SQL.getVal().equals(taskType)) {
-            if (TempJobType.CREATE_AS.getType() == selectSql.getIsSelectSql() && Objects.nonNull(batchTask)) {
-                ProjectEngine projectEngine = projectEngineService.getProjectDb(projectId, MultiEngineType.HADOOP.getType());
-                Preconditions.checkNotNull(projectEngine, String.format("project %d not support hadoop engine.", projectId));
-                try {
-                    lineageService.parseCreateAsSql(selectSql.getSqlText(), projectId, projectEngine.getEngineIdentity(),
-                            userId, tenantId, dtuicTenantId, MultiEngineType.HADOOP.getType(), batchTask);
-                } catch (Exception e) {
-                    LOGGER.info("parse projectId[{}]  sql [{}] lineage error ", projectId, selectSql.getSqlText(), ExceptionUtils.getRootCause(e));
-                }
-            }
             if (selectSql.getIsSelectSql() == TempJobType.SELECT.getType()
                     || selectSql.getIsSelectSql() == TempJobType.SIMPLE_SELECT.getType()) {
                 ProjectEngine projectEngine = projectEngineService.getProjectDb(projectId, null);
@@ -778,16 +506,6 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
      */
     private boolean buildLogsWithCheckTaskStatus(BatchTask batchTask, BatchHiveSelectSql selectSql, Long tenantId, Long projectId, Long dtuicTenantId, Long userId, ExecuteResultVO result, String jobId, boolean needMask, ActionJobEntityVO engineEntity, Integer status) throws Exception {
         if (TaskStatus.FINISHED.getStatus().equals(status)) {
-            if (TempJobType.CREATE_AS.getType().equals(selectSql.getIsSelectSql()) && Objects.nonNull(batchTask)) {
-                ProjectEngine projectEngine = projectEngineService.getProjectDb(projectId, MultiEngineType.HADOOP.getType());
-                Preconditions.checkNotNull(projectEngine, String.format("project %d not support hadoop engine.", projectId));
-                try {
-                    lineageService.parseCreateAsSql(selectSql.getSqlText(), projectId, projectEngine.getEngineIdentity(),
-                            userId, tenantId, dtuicTenantId, MultiEngineType.HADOOP.getType(), batchTask);
-                } catch (Exception e) {
-                    LOGGER.info("parse projectId[{}]  sql [{}] lineage error ", projectId, selectSql.getSqlText(), ExceptionUtils.getRootCause(e));
-                }
-            }
             List<TempJobType> values = Arrays.asList(TempJobType.values());
             List<Integer> types = values.stream().map(TempJobType::getType).collect(Collectors.toList());
             if (types.contains(selectSql.getIsSelectSql()) && StringUtils.isEmpty(selectSql.getFatherJobId())) {
@@ -825,18 +543,6 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
      */
     private boolean buildDataWithCheckTaskStatus(BatchTask batchTask, BatchHiveSelectSql selectSql, Long tenantId, Long projectId, Long dtuicTenantId, Long userId, ExecuteResultVO result, String jobId, boolean needMask, ActionJobEntityVO engineEntity, Integer status) throws Exception {
         if (TaskStatus.FINISHED.getStatus().equals(status)) {
-            if (TempJobType.CREATE_AS.getType().equals(selectSql.getIsSelectSql()) && Objects.nonNull(batchTask)) {
-                ProjectEngine projectEngine = projectEngineService.getProjectDb(projectId, MultiEngineType.HADOOP.getType());
-                Preconditions.checkNotNull(projectEngine, String.format("project %d not support hadoop engine.", projectId));
-                try {
-                    lineageService.parseCreateAsSql(selectSql.getSqlText(), projectId, projectEngine.getEngineIdentity(),
-                            userId, tenantId, dtuicTenantId, MultiEngineType.HADOOP.getType(), batchTask);
-                } catch (Exception e) {
-                    LOGGER.info("parse projectId[{}]  sql [{}] lineage error ", projectId, selectSql.getSqlText(), ExceptionUtils.getRootCause(e));
-                }
-                return false;
-            }
-
             if (TempJobType.INSERT.getType().equals(selectSql.getIsSelectSql())
                     || TempJobType.CREATE_AS.getType().equals(selectSql.getIsSelectSql())
                     || TempJobType.PYTHON_SHELL.getType().equals(selectSql.getIsSelectSql())) {

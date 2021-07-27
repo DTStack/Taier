@@ -11,7 +11,6 @@ import com.dtstack.batch.common.exception.RdosDefineException;
 import com.dtstack.batch.domain.BatchTableInfo;
 import com.dtstack.batch.domain.Project;
 import com.dtstack.batch.domain.ProjectEngine;
-import com.dtstack.batch.domain.User;
 import com.dtstack.batch.engine.rdbms.common.util.SqlFormatUtil;
 import com.dtstack.batch.engine.rdbms.service.IJdbcService;
 import com.dtstack.batch.engine.rdbms.service.ITableService;
@@ -22,24 +21,16 @@ import com.dtstack.batch.service.impl.BatchSqlExeService;
 import com.dtstack.batch.service.impl.ProjectEngineService;
 import com.dtstack.batch.service.impl.UserService;
 import com.dtstack.batch.service.table.impl.BatchSelectSqlService;
-import com.dtstack.batch.utils.ParseResultUtils;
 import com.dtstack.batch.vo.ExecuteResultVO;
-import com.dtstack.dtcenter.common.enums.AppType;
 import com.dtstack.dtcenter.common.enums.EJobType;
 import com.dtstack.dtcenter.common.enums.MultiEngineType;
 import com.dtstack.dtcenter.common.enums.TaskStatus;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.dtcenter.loader.utils.DBUtil;
-import com.dtstack.engine.api.pojo.lineage.Table;
-import com.dtstack.engine.api.vo.lineage.ColumnLineageParseInfo;
 import com.dtstack.engine.api.vo.lineage.SelectColumn;
-import com.dtstack.engine.api.vo.lineage.SqlParseInfo;
 import com.dtstack.engine.api.vo.lineage.SqlType;
-import com.dtstack.engine.api.vo.lineage.param.ParseColumnLineageParam;
-import com.dtstack.sqlparser.common.utils.SqlFormatUtil;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -50,7 +41,6 @@ import java.sql.Connection;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -84,13 +74,7 @@ public class BatchSparkHiveSqlExeService {
     private IJdbcService jdbcServiceImpl;
 
     @Autowired
-    private BatchTableFilterService batchTableFilterService;
-
-    @Autowired
     private BatchSqlExeService batchSqlExeService;
-
-    @Autowired
-    private LineageService lineageService;
 
     @Autowired
     protected BatchHadoopSelectSqlService batchHadoopSelectSqlService;
@@ -109,9 +93,6 @@ public class BatchSparkHiveSqlExeService {
 
     @Autowired
     protected UserService userService;
-
-    @Autowired
-    private BatchTableInfoService batchTableInfoService;
 
     @Autowired
     private EnvironmentContext environmentContext;
@@ -136,9 +117,6 @@ public class BatchSparkHiveSqlExeService {
             if (SqlType.getShowType().contains(parseResult.getSqlType())
                     && !parseResult.getStandardSql().matches(INSERT_REGEX)) {
                 List<List<Object>> executeResult = jdbcServiceImpl.executeQuery(dtuicTenantId, null, DataSourceTypeJobTypeMapping.getTaskTypeByDataSourceType(dataSourceType.getVal()), projectDb.getEngineIdentity(), parseResult.getStandardSql());
-                if (SqlType.SHOW_TABLES.equals(parseResult.getSqlType())) {
-                    executeResult = batchTableFilterService.filterTable(parseResult.getCurrentDb(), executeResult, executeContent.getTenantId());
-                }
                 batchSqlExeService.dealResultDoubleList(executeResult);
                 result.setResult(executeResult);
             } else {
@@ -376,27 +354,7 @@ public class BatchSparkHiveSqlExeService {
             String jobId = UUID.randomUUID().toString();
             Project project = getProjectByDbName(db, currentDb, engineType, tenantId);
 
-            ETableType tableTypeByEngineType = TableTypeEngineTypeMapping.getTableTypeByEngineType(engineType);
             String parseColumnsString = "{}";
-            if (null != project && null != tableTypeByEngineType) {
-                BatchTableInfo queryTable = batchTableInfoService.getTableInfoByTableName(tableName, project.getTenantId(),project.getId(), tableTypeByEngineType.getType());
-                if (null != queryTable && null != parseResult.getRoot()) {
-                    Map<Long, Map<String, String>> cols = new HashMap<>();
-                    Map<String,String> columns = new HashMap<>();
-                    boolean isQueryAll = false;
-                    for (SelectColumn column : parseResult.getRoot().getColumns()) {
-                        if ("*".equals(column.getName())) {
-                            isQueryAll = true;
-                            break;
-                        }
-                        columns.put(column.getName(), column.getAlias());
-                    }
-                    if (!isQueryAll) {
-                        cols.put(queryTable.getId(), columns);
-                        parseColumnsString = JSONObject.toJSONString(cols);
-                    }
-                }
-            }
             selectSqlService.addSelectSql(jobId, tableName, TempJobType.SIMPLE_SELECT.getType(), tenantId, project.getId(), parseResult.getStandardSql(), userId, parseColumnsString, engineType);
             result.setJobId(jobId);
             result.setIsContinue(false);
@@ -450,106 +408,7 @@ public class BatchSparkHiveSqlExeService {
      * @return
      */
     protected List<ParseResult> checkMulitSqlSyntax(Long dtuicTenantId, String sqlText, Long userId, Long projectId, String taskParam, EJobType eJobType) {
-        List<ParseResult> parseResults = new ArrayList<>();
-        ProjectEngine projectEngine = projectEngineService.getProjectDb(projectId, MultiEngineType.HADOOP.getType());
-        Preconditions.checkNotNull(projectEngine, String.format("project %d not support hadoop engine.", projectId));
-        User user = userService.getUser(userId);
-        Long dtUicUserId = user == null ? null : user.getDtuicUserId();
-        String database = projectEngine.getEngineIdentity();
-        DataSourceType dataSourceType = eJobType == EJobType.SPARK_SQL ? DataSourceType.Spark : DataSourceType.HIVE;
-        List<String> sqls = SqlFormatUtil.splitSqlText(sqlText);
-        List<String> cacheTable = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(sqls)) {
-            Connection connection = null;
-            try {
-                List<String> createTables = new ArrayList<>();
-                connection =  jdbcServiceImpl.getConnection(dtuicTenantId, null, eJobType, database, taskParam);
-                for (String sql : sqls) {
-                    sql = sql.replace("\n", "").trim();
-                    if (StringUtils.isEmpty(sql)) {
-                        continue;
-                    }
-
-                    if (sql.toLowerCase().startsWith("use")||sql.toLowerCase().startsWith("set")
-                            || BatchSqlExeService.CACHE_LAZY_SQL_PATTEN.matcher(sql.toLowerCase()).matches()) {
-                        jdbcServiceImpl.executeQueryWithoutResult(dtuicTenantId, dtUicUserId, eJobType, database, sql, connection);
-                        continue;
-                    }
-
-                    if (BatchSqlExeService.CACHE_LAZY_SQL_PATTEN.matcher(sql.toLowerCase().trim()).matches()){
-                        //cache table 替换成create table
-                        sql = sql.trim().replaceAll("(?i)^cache\\s+(lazy\\s+)?table","create table ");
-                        SqlParseInfo sqlParseInfo = lineageService.parseSqlInfo(sql, projectEngine.getEngineIdentity(), dataSourceType.getVal()).getData();
-                        cacheTable.add(String.format("%s.%s", sqlParseInfo.getMainTable().getDb(), sqlParseInfo.getMainTable().getName()));
-                        continue;
-                    }
-                    //改为前置解析 如果解析出的表包含cache表  跳过explain解析
-                    List<Table> tables = lineageService.parseTables(sql, projectEngine.getEngineIdentity(), dataSourceType.getVal()).getData();
-                    if (CollectionUtils.isNotEmpty(tables)){
-                        List<String> allTable = tables.stream().map(bean -> String.format("%s.%s", bean.getDb(), bean.getName())).collect(Collectors.toList());
-                        boolean flag = false;
-                        for (String tableName : cacheTable) {
-                            if (allTable.contains(tableName)) {
-                                flag = true;
-                                break;
-                            }
-                        }
-                        if (flag) {
-                            continue;
-                        }
-                    }
-
-                    // 如果存在自定义函数创建，需要优先执行
-                    if (sql.trim().toLowerCase().startsWith(CREATE_TEMP_FUNCTION)) {
-                        jdbcServiceImpl.executeQueryWithoutResult(dtuicTenantId, dtUicUserId, eJobType, database, sql, connection);
-                        continue;
-                    }
-
-                    String explainSql = "explain " + sql;
-                    log.info("sql:{}", explainSql);
-                    List<List<Object>> lists = jdbcServiceImpl.executeQueryWithVariables(dtuicTenantId, dtUicUserId, eJobType, database, explainSql, Collections.EMPTY_LIST, connection);
-                    if (CollectionUtils.isNotEmpty(lists) && lists.size() > 1) {
-                        for (int i = 1; i < lists.size(); i++) {
-                            List<Object> list = lists.get(i);
-                            String result = list.get(0).toString();
-                            if (StringUtils.isNotEmpty(result) && result.matches(SQL_EXCEPTION_REDEX)) {
-                                if (result.contains(TABLE_NOT_FOUND)) {
-                                    Matcher matcher = TABLE_NOT_FOUND_PATTERN.matcher(result);
-                                    if (matcher.find()) {
-                                        String table = matcher.group("table");
-                                        if (CollectionUtils.isEmpty(createTables) || !createTables.stream().anyMatch(s -> table.contains(s))) {
-                                            throw new RdosDefineException(result);
-                                        }
-                                    }
-                                } else {
-                                    throw new RdosDefineException(result);
-                                }
-                            }
-                        }
-                    }
-                    ParseColumnLineageParam parseColumnLineageParam = new ParseColumnLineageParam();
-                    parseColumnLineageParam.setSql(sql);
-                    parseColumnLineageParam.setDefaultDb(projectEngine.getEngineIdentity());
-                    parseColumnLineageParam.setDataSourceType(dataSourceType.getVal());
-                    parseColumnLineageParam.setTableColumnsMap(Maps.newHashMap());
-                    ColumnLineageParseInfo columnLineageParseInfo = lineageService.parseColumnLineage(parseColumnLineageParam).getData();
-                    if (CreateTableTypeList.contains(columnLineageParseInfo.getSqlType())) {
-                        createTables.add(columnLineageParseInfo.getMainTable().getName());
-                    }
-                    ParseResult parseResult = ParseResultUtils.convertParseResult(columnLineageParseInfo);
-                    parseResults.add(parseResult);
-                }
-            } catch (RdosDefineException e) {
-                log.error("", e);
-                throw e;
-            } catch (Exception e) {
-                log.error("", e);
-                throw new RdosDefineException("校验sql失败: " + e.getMessage(), ErrorCode.SQL_FORMAT_ERROR, e);
-            } finally {
-                DBUtil.closeDBResources(null, null, connection);
-            }
-        }
-        return parseResults;
+        return null;
     }
 
 }

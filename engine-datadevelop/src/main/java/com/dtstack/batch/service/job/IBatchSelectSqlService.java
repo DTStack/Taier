@@ -17,10 +17,6 @@ import com.dtstack.engine.api.vo.action.ActionJobEntityVO;
 
 public interface IBatchSelectSqlService {
 
-    ExecuteResultVO runPythonShellScript(BatchScript script, String content, Long userId);
-
-    ExecuteResultVO runPythonShellWithTask(BatchTask task, String content, Long userId, String jobId);
-
     String runSqlByTask(Long dtuicTenantId, ParseResult parseResult, Long tenantId,
                         Long projectId, Long userId, String database, Long taskId, int type, String preJobId);
 

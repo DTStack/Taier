@@ -1164,7 +1164,7 @@ public class BatchJobService {
      * @return
      */
     //FIXME 任务类型只统计了完成和失败的。。然后其他状态呢？运行中。。提交中。。。
-    public ScheduleJobExeStaticsVO statisticsTaskRecentInfo(Long taskId, int count, Long projectId) throws Exception {
+    public ScheduleJobExeStaticsVO statisticsTaskRecentInfo(Long taskId, int count, Long projectId)  {
         final BatchTask task = this.batchTaskDao.getOne(taskId);
         if (task == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
@@ -1186,13 +1186,18 @@ public class BatchJobService {
             JSONObject logsBody = new JSONObject(2);
             logsBody.put("jobId", jobId);
             logsBody.put("computeType", ComputeType.BATCH.getType());
-            ActionLogVO log = actionService.log(jobId, ComputeType.BATCH.getType());
-            if (null != log){
-                JSONObject logInfo =  log.getLogInfo() != null && log.getLogInfo().contains("jobid") ? JSONObject.parseObject(log.getLogInfo()) : null;
-                if (logInfo != null){
-                    application = logInfo.getOrDefault("jobid",jobId);
+
+            try {
+                ActionLogVO log = actionService.log(jobId, ComputeType.BATCH.getType());
+                if (null != log){
+                    JSONObject logInfo =  log.getLogInfo() != null && log.getLogInfo().contains("jobid") ? JSONObject.parseObject(log.getLogInfo()) : null;
+                    if (logInfo != null){
+                        application = logInfo.getOrDefault("jobid",jobId);
+                    }
                 }
+            } catch (Exception e){
             }
+
             final Object status = map.get("status");
             final Object execTime = map.get("execTime");
             final Integer type = MathUtil.getIntegerVal(map.get("type"));

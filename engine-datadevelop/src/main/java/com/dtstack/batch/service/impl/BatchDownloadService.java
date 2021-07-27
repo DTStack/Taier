@@ -445,7 +445,7 @@ public class BatchDownloadService {
      *
      * @param jobId
      */
-    private String getLog(String jobId){
+    private String getLog(String jobId) throws Exception {
         StringBuilder log = new StringBuilder();
         //hdfs没有日志就下载engine里的日志
         if (StringUtils.isNotBlank(jobId)) {

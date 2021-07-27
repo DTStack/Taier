@@ -21,8 +21,6 @@ package com.dtstack.batch.service.impl;
 
 import com.dtstack.batch.bo.ExecuteContent;
 import com.dtstack.batch.bo.ParseResult;
-import com.dtstack.batch.common.enums.ETableType;
-import com.dtstack.batch.common.enums.PublishTaskStatusEnum;
 import com.dtstack.batch.common.exception.RdosDefineException;
 import com.dtstack.batch.domain.*;
 import com.dtstack.batch.engine.rdbms.common.util.SqlFormatUtil;
@@ -32,6 +30,7 @@ import com.dtstack.batch.mapping.TableTypeEngineTypeMapping;
 import com.dtstack.batch.service.auth.IAuthService;
 import com.dtstack.batch.service.table.ISqlExeService;
 import com.dtstack.batch.service.task.impl.BatchTaskService;
+import com.dtstack.batch.utils.ParseResultUtils;
 import com.dtstack.batch.vo.CheckSyntaxResult;
 import com.dtstack.batch.vo.ExecuteResultVO;
 import com.dtstack.batch.vo.ExecuteSqlParseVO;
@@ -40,9 +39,12 @@ import com.dtstack.dtcenter.common.annotation.Forbidden;
 import com.dtstack.dtcenter.common.enums.*;
 import com.dtstack.dtcenter.common.util.PublicUtil;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
-import com.dtstack.engine.api.enums.SqlType;
 import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.api.pojo.lineage.Table;
+import com.dtstack.engine.api.vo.lineage.ColumnLineageParseInfo;
+import com.dtstack.engine.api.vo.lineage.SqlType;
+import com.dtstack.engine.api.vo.lineage.param.ParseColumnLineageParam;
+import com.dtstack.engine.lineage.impl.LineageService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -87,6 +89,8 @@ public class BatchSqlExeService {
 
     @Autowired
     private BatchFunctionService batchFunctionService;
+
+    private LineageService lineageService;
 
     @Autowired
     private BatchTaskService batchTaskService;
@@ -229,9 +233,23 @@ public class BatchSqlExeService {
     private ParseResult parseSql(final ExecuteContent executeContent){
         final String dbName = this.getDbName(executeContent);
         executeContent.setDatabase(dbName);
-        ParseResult parseResult = new ParseResult();
-        parseResult.setParseSuccess(false);
-        parseResult.setStandardSql(SqlFormatUtil.getStandardSql(executeContent.getSql()));
+        final Integer engineType = this.getEngineType(executeContent);
+        final Integer taskType = executeContent.getDetailType();
+        DataSourceType dataSourceType = multiEngineServiceFactory.getDataSourceTypeByEngineTypeAndTaskType(engineType, taskType, executeContent.getProjectId());
+        ParseResult parseResult = null;
+        try {
+            com.dtstack.sqlparser.common.client.domain.ParseResult originParseResult = lineageService.parseSql(executeContent.getSql(), dbName, dataSourceType.getVal());
+            parseResult = ParseResultUtils.convertParseResult(originParseResult);
+        } catch (final Exception e) {
+            BatchSqlExeService.LOG.error("解析sql异常:{}",e);
+            parseResult = new ParseResult();
+            //libra解析失败也提交sql执行
+            if (MultiEngineType.HADOOP.getType() == engineType){
+                parseResult.setParseSuccess(false);
+            }
+            parseResult.setFailedMsg(ExceptionUtils.getStackTrace(e));
+            parseResult.setStandardSql(SqlFormatUtil.getStandardSql(executeContent.getSql()));
+        }
         return parseResult;
     }
 

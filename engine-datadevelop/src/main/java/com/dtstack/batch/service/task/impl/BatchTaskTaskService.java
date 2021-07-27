@@ -4,6 +4,7 @@ import com.dtstack.batch.dao.BatchTaskDao;
 import com.dtstack.batch.dao.BatchTaskTaskDao;
 import com.dtstack.batch.domain.BatchTask;
 import com.dtstack.batch.domain.BatchTaskTask;
+import com.dtstack.batch.domain.Project;
 import com.dtstack.batch.service.impl.ProjectService;
 import com.dtstack.batch.service.impl.TenantService;
 import com.dtstack.batch.service.impl.UserService;
@@ -256,7 +257,8 @@ public class BatchTaskTaskService {
      * @return
      */
     private List<BatchTaskTask> listTaskTaskByProjectId(Long projectId) {
-        List<BatchTask> tasks = batchTaskService.getTasksByProjectId(projectId);
+        Project projectById = projectService.getProjectById(projectId);
+        List<BatchTask> tasks = batchTaskService.getTasksByProjectId(projectById.getTenantId(), projectId, null);
         if (CollectionUtils.isNotEmpty(tasks)) {
             List<Long> taskIds = tasks.stream().map(BatchTask::getId).collect(Collectors.toList());
             return batchTaskTaskDao.listTaskTaskByTaskIds(taskIds);
