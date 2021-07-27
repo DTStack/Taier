@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.2.4](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.3...v4.2.4) (2021-07-27)
+
+
+### Features
+
+* add datasource_id to request headers ([f4c7dfa](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/f4c7dfaa8881d13e5bd877b6fe0280640de7c416))
+* router change, restore query params ([7feb0f3](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/7feb0f327996a9206bb7c17fcc17508bc5270a0c))
+* style for no-navigation ([3edfaf3](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/3edfaf3823269827b1f18a15065df3e695fac3ae))
+
+
+### Bug Fixes
+
+* data model list data is null ([3b800c4](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/3b800c453cbdd9e9bb7d58263fd652ecf088a2b9))
+* dt-common public directory update ([17a6ee9](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/17a6ee9ff0816be627260660349b90bd8832c12c))
+
 ### [4.2.3](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.2...v4.2.3) (2021-07-21)
 
 
