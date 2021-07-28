@@ -89,7 +89,6 @@ export default class MultiVersionComp extends React.Component<IProps, IState> {
     }
 
     getCompVersion = (value: string) => {
-        console.log('hct', value)
         const flinkVersion = ['110', '112']
         if (!flinkVersion.includes(value)) return (Number(value) / 100).toFixed(1)
         return (Number(value) / 100).toFixed(2)
@@ -114,6 +113,10 @@ export default class MultiVersionComp extends React.Component<IProps, IState> {
         const typeCode = comp?.componentTypeCode ?? ''
         const className = 'c-multiVersionComp'
         const isDefault = this.getDefaultVerionCompStatus(comp)
+        // flink 并且 standalone 的话只展示 1.10
+        const displayVersion: any[] = (isFLink(typeCode) && deployType === FLINK_DEPLOY_TYPE.STANDALONE)
+            ? [{ key: '1.10', value: '110' }]
+            : versionData[VERSION_TYPE[typeCode]]
 
         if (!comp?.multiVersion[0]?.hadoopVersion) {
             return <div className={className}>
@@ -134,7 +137,7 @@ export default class MultiVersionComp extends React.Component<IProps, IState> {
                     <Row className={`${className}__intail__row`}>
                         <Col span={10}>选择版本：</Col>
                         <Col style={{ display: 'flex' }}>
-                            {versionData[VERSION_TYPE[typeCode]]?.map(({ key, value }) => {
+                            {displayVersion?.map(({ key, value }) => {
                                 return <div
                                     key={key}
                                     className={`${className}__intail__container__desc`}
