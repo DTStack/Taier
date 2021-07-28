@@ -1,11 +1,15 @@
 import * as React from 'react'
 import { isArray } from 'lodash'
-import { Input, Form, Radio, Select, Checkbox,
-    Tooltip, Row, Col } from 'antd'
+import { Input, Form, Radio, Select, Checkbox, Tooltip, Row, Col, Icon } from 'antd'
 import { COMPONENT_TYPE_VALUE, CONFIG_ITEM_TYPE } from '../const'
-import { getValueByJson, isDeployMode,
-    isRadioLinkage, isCustomType, isMultiVersion,
-    isDtscriptAgent } from '../help'
+import {
+    getValueByJson,
+    isDeployMode,
+    isRadioLinkage,
+    isCustomType,
+    isMultiVersion,
+    isDtscriptAgent
+} from '../help'
 import { formItemLayout } from '../../../../consts'
 import CustomParams from './components/customParams'
 import NodeLabel from './components/nodeLabel'
@@ -64,6 +68,18 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
 
         const fieldName = groupKey ? `${formField}.componentConfig.${groupKey}` : `${formField}.componentConfig`;
 
+        // hover 提示相关
+        const showHover = temp.key === 'jdbcUrl'
+        const hoverText = {
+            MySQL: '示例：jdbc:mysql://localhost:3306/def',
+            DB2: '示例：jdbc:db2://localhost:60000/def',
+            OceanBase: '示例：jdbc:oceanbase://localhost:2883/def（Mysql模式）jdbc:oceanbase:oracle://localhost:2883/def（Oralce模式）',
+            SQLServer: '示例：jdbc:sqlserver://localhost:1433;databaseName=def'
+        }[typeCode] || '无'
+        if (showHover) {
+            console.log(typeCode, temp)
+        }
+
         return !isCustomType(temp.type) && <FormItem
             label={<Tooltip title={temp.key}>
                 <span className="c-formConfig__label">{temp.key}</span>
@@ -79,6 +95,8 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
                 initialValue: initialValue
             })(this.renderOptoinsType(temp))}
             {isDtscriptAgent(typeCode) && <NodeLabel form={form} view={view} clusterInfo={clusterInfo} />}
+            &nbsp;&nbsp;
+            {showHover && <Tooltip title={hoverText}><Icon style={{ fontSize: '16px' }} type="question-circle" /></Tooltip>}
         </FormItem>
     }
 
