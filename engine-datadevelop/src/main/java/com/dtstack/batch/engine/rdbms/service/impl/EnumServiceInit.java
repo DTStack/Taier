@@ -1,6 +1,6 @@
 package com.dtstack.batch.engine.rdbms.service.impl;
 
-import com.dtstack.batch.common.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.dtcenter.common.engine.ConsoleSend;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

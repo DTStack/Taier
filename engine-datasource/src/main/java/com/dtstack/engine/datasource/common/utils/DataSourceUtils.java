@@ -7,7 +7,6 @@ import com.dtstack.engine.datasource.common.constant.FormNames;
 import com.dtstack.engine.datasource.common.exception.PubSvcDefineException;
 import dt.insight.plat.lang.base.Strings;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -117,26 +116,6 @@ public class DataSourceUtils {
         kafkaSettings.put("sasl.mechansim", "GSSAPI");
         kafkaSettings.put(FormNames.SASL_KERBEROS_SERVICE_NAME, serviceName);
         return kafkaSettings;
-    }
-
-    /**
-     * 解析数据库中存储的连接字段
-     *
-     * @param dataJson
-     */
-    public static void parseDataJson(JSONObject dataJson) {
-        if (StringUtils.isNotBlank(dataJson.getString(FormNames.PASSWORD))) {
-            dataJson.put("password", dataJson.getString(JDBC_PASSWORD));
-            dataJson.remove(JDBC_PASSWORD);
-        }
-        if (StringUtils.isNotBlank(dataJson.getString(JDBC_USERNAME))) {
-            dataJson.put("username", dataJson.getString(JDBC_USERNAME));
-            dataJson.remove(JDBC_USERNAME);
-        }
-        if (StringUtils.isNotBlank(dataJson.getString(JDBC_URL))) {
-            dataJson.put("jdbcUrl", dataJson.getString(JDBC_URL));
-            dataJson.remove(JDBC_URL);
-        }
     }
 
 

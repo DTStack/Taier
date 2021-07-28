@@ -36,7 +36,7 @@ public class UploadAspect {
 
     private static String uploadLocation = System.getProperty("user.dir") + File.separator + "upload";
 
-    @Pointcut("@annotation(com.dtstack.pubsvc.common.annotation.FileUpload)")
+    @Pointcut("@annotation(com.dtstack.engine.datasource.common.annotation.FileUpload)")
     public void logPointCut() {
     }
 

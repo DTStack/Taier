@@ -1,7 +1,7 @@
 package com.dtstack.engine.datasource.facade.dtuic;
 
 import com.dtstack.dtcenter.common.http.PoolHttpClient;
-import com.dtstack.engine.datasource.common.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.datasource.common.exception.PubSvcDefineException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

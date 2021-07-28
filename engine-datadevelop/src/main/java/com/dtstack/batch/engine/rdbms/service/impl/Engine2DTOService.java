@@ -2,7 +2,7 @@ package com.dtstack.batch.engine.rdbms.service.impl;
 
 import com.dtstack.batch.common.enums.ETableType;
 import com.dtstack.batch.common.enums.HiveVersion;
-import com.dtstack.batch.common.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.batch.common.exception.RdosDefineException;
 import com.dtstack.batch.engine.rdbms.common.HadoopConf;
 import com.dtstack.dtcenter.common.engine.ConsoleSend;

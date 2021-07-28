@@ -2,7 +2,7 @@ package com.dtstack.batch.engine.hdfs.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.batch.common.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.batch.common.exception.RdosDefineException;
 import com.dtstack.batch.domain.BatchTask;
 import com.dtstack.batch.engine.rdbms.common.HadoopConf;

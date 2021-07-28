@@ -35,7 +35,7 @@ public class LoggingAspect {
     /**
      * 拦截所有controller包下的方法
      */
-    @Pointcut("execution(* com.dtstack.pubsvc.web..*.*Controller.*(..))")
+    @Pointcut("execution(* com.dtstack.engine.datasource..*.*Controller.*(..))")
     private void controllerMethod() {
     }
 

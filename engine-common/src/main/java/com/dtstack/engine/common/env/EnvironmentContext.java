@@ -1,8 +1,10 @@
 package com.dtstack.engine.common.env;
 
 import com.dtstack.engine.common.util.AddressUtil;
+import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -15,6 +17,7 @@ import java.io.File;
  */
 @Component
 @PropertySource(value = "file:${user.dir.conf}/application.properties")
+@Data
 public class EnvironmentContext {
 
 
@@ -648,4 +651,104 @@ public class EnvironmentContext {
     public int getBatchJobJobInsertSize() {
         return Integer.parseInt(environment.getProperty("batchJobJob.insert.size", "1000"));
     }
+
+
+
+    /* datadevelop */
+
+
+    @Value("${notify.sendtype.phone:false}")
+    private Boolean notifyPhone;
+
+    @Value("${create.table.type:parquet}")
+    private String createTableType;
+
+    @Value("${http.port:9020}")
+    private Integer httpPort;
+
+//    @Value("${http.address:0.0.0.0}")
+//    private String httpAddress;
+
+    @Value("${hadoop.user.name:admin}")
+    private String hadoopUserName;
+
+    @Value("${hdfs.batch.path:/dtInsight/batch/}")
+    private String hdfsBatchPath;
+
+    @Value("${dtuic.url}")
+    private String dtUicUrl;
+
+    @Value("${public.service.node:}")
+    private String publicServiceNode;
+
+    @Value("${sync.log.promethues:true}")
+    private Boolean syncLogPromethues;
+
+    @Value("${kerberos.local.path:}")
+    private String kerberosLocalPath;
+
+    public String getKerberosLocalPath() {
+        return StringUtils.isNotBlank(kerberosLocalPath) ? kerberosLocalPath : String.format("%s%s%s",
+                System.getProperty("user.dir"), File.separator, "kerberosConf");
+    }
+
+    @Value("${kerberos.template.path:}")
+    private String kerberosTemplatePath;
+
+    public String getKerberosTemplatePath() {
+        return  StringUtils.isNotBlank(kerberosLocalPath) ? kerberosTemplatePath : String.format("%s%s%s%s%s",
+                System.getProperty("user.dir"), File.separator, "conf", File.separator, "kerberos");
+    }
+
+    @Value("${temp.table.lifecycle:1440}")
+    private Integer tempTableLifecycle;
+
+    @Value("${delete.life.time:7}")
+    private Integer deleteLifeTime;
+
+    @Value("${explain.enable:true}")
+    private Boolean explainEnable;
+
+    @Value("${table.limit:200}")
+    private Integer tableLimit;
+
+    /**
+     * 小文件合并的备份文件删除时间，单位：天
+     */
+    @Value("${delete.merge.file.time:7}")
+    private Long deleteMergeFileTime;
+
+    @Value("${sdk.token}")
+    private String sdkToken;
+
+    /**
+     * 数据保留天数
+     */
+    @Value("${data.keepDay:180}")
+    private Long dataKeepDay;
+
+
+    /* datasource */
+
+//    @Value("${dtuic.url}")
+//    private String dtUicUrl;
+
+    /**
+     * 数据源插件地址
+     */
+    @Value("${datasource.plugin.path:}")
+    private String dataSourcePluginPath;
+
+//    @Value("${kerberos.local.path:}")
+//    private String kerberosLocalPath;
+
+
+//    @Override
+//    public void afterPropertiesSet() throws Exception {
+//        ClientCache.setUserDir(getDataSourcePluginPath());
+//    }
+
+//    public String getKerberosLocalPath() {
+//        return StringUtils.isNotBlank(kerberosLocalPath) ? kerberosLocalPath : System.getProperty("user.dir") + File.separator + "kerberosConf";
+//    }
 }

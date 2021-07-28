@@ -1,6 +1,6 @@
 package com.dtstack.batch.service.impl;
 
-import com.dtstack.batch.common.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.batch.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.TenantDao;
 import com.dtstack.batch.domain.Tenant;

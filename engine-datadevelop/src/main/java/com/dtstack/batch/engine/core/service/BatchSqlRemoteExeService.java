@@ -1,7 +1,7 @@
 package com.dtstack.batch.engine.core.service;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.batch.common.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
