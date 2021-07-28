@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-### [4.2.3](http://git.dtstack.cn/dtstack/data-stack-web/compare/v4.2.2...v4.2.3) (2021-07-22)
+## [4.3.0-beta1](http://git.dtstack.cn/dtstack/data-stack-web/compare/v4.2.2...v4.3.0-beta1) (2021-07-21)
 
 
 ### Bug Fixes
