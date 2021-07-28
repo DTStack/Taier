@@ -144,7 +144,7 @@
   },
   "scripts": {
     "start": "npm run dev",
-    "dev": "node --max_old_space_size=4092 ./node_modules/.bin/webpack-dev-server --inline --config build/dev.js --open",
+    "dev": "node --max_old_space_size=4092 ./node_modules/.bin/webpack-dev-server --inline --config build/dev.js",
     "dev:win": "./node_modules/.bin/webpack-dev-server --inline --config build/dev.js --open",
     "build": "rm -rf dist/* && node --max_old_space_size=4092 ./node_modules/.bin/webpack --config build/prod.js",
     "mock": "cup config",

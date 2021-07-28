@@ -1,8 +1,12 @@
 import * as React from 'react'
-import { Tabs, Icon, Menu, Dropdown, Button,
-    Radio, Row, Col } from 'antd'
-import { VERSION_TYPE, COMP_ACTION, COMPONENT_CONFIG_NAME,
-    FLINK_DEPLOY_TYPE, FLINK_DEPLOY_NAME } from '../../const'
+import { Tabs, Icon, Menu, Dropdown, Button, Radio, Row, Col } from 'antd'
+import {
+    VERSION_TYPE,
+    COMP_ACTION,
+    COMPONENT_CONFIG_NAME,
+    FLINK_DEPLOY_TYPE,
+    FLINK_DEPLOY_NAME
+} from '../../const'
 import { isFLink } from '../../help'
 
 import FileConfig from '../../fileConfig'
@@ -85,8 +89,9 @@ export default class MultiVersionComp extends React.Component<IProps, IState> {
     }
 
     getCompVersion = (value: string) => {
-        const flinkVersion = '110'
-        if (value !== flinkVersion) return (Number(value) / 100).toFixed(1)
+        console.log('hct', value)
+        const flinkVersion = ['110', '112']
+        if (!flinkVersion.includes(value)) return (Number(value) / 100).toFixed(1)
         return (Number(value) / 100).toFixed(2)
     }
 
@@ -136,7 +141,7 @@ export default class MultiVersionComp extends React.Component<IProps, IState> {
                                     onClick={() => this.addMultiVersionComp(value)}
                                 >
                                     <span className="comp-name">
-                                        <img src={`public/img/${VERSION_TYPE[typeCode]}.png`}/>
+                                        <img src={`public/img/${VERSION_TYPE[typeCode]}.png`} />
                                         <span>{!isFLink(typeCode) && (COMPONENT_CONFIG_NAME[typeCode] + ' ')}{this.getCompVersion(value)}</span>
                                     </span>
                                     <Icon type="right-circle" theme="filled" />
@@ -174,7 +179,7 @@ export default class MultiVersionComp extends React.Component<IProps, IState> {
                             tab={
                                 <span>
                                     {this.getComponentName(componentTypeCode, deployType)} {this.getCompVersion(hadoopVersion)}
-                                    <TestRestIcon testStatus={testStatus.find(status => status?.componentVersion == hadoopVersion)}/>
+                                    <TestRestIcon testStatus={testStatus.find(status => status?.componentVersion == hadoopVersion)} />
                                 </span>
                             }
                             key={String(hadoopVersion)}
