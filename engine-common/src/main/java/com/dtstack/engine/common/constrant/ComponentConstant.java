@@ -16,5 +16,5 @@ public class ComponentConstant {
     /**
      * 引擎名
      */
-    public static final String ANALYTICDB_FOR_PG_ENGINE = "AnalyticDb for PostgreSQL";
+    public static final String ANALYTICDB_FOR_PG_ENGINE = "AnalyticDb PostgreSQL";
 }
