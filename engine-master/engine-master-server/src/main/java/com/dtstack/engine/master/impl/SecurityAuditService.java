@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 @Service
 public class SecurityAuditService {
 
-    private static Logger logger = LoggerFactory.getLogger(SecurityAuditService.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(SecurityAuditService.class);
 
     private static final int corePoolSize = 10;
 
@@ -138,7 +138,7 @@ public class SecurityAuditService {
                 }
                 securityLogVO = PublicUtil.strToObject(decrypt, SecurityLogVO.class);
             } catch (Exception e) {
-                logger.error("参数错误:{}",e);
+                LOGGER.error("参数错误:",e);
             }
         }
         if (securityLogVO == null){
@@ -154,6 +154,23 @@ public class SecurityAuditService {
             log.setTenantId(finalSecurityLogVO.getTenantId());
             log.setOperation(finalSecurityLogVO.getOperation()==null?"":finalSecurityLogVO.getOperation());
             log.setOperationObject(finalSecurityLogVO.getOperationObject()==null?"":finalSecurityLogVO.getOperationObject());
+            securityLogDao.insert(log);
+        });
+    }
+
+    /**
+     * 添加安全日志接口免登陆，需将参数加密传输
+     */
+    public void addSecurityLog(SecurityLogVO securityLogVO) {
+        executor.execute(() -> {
+            SecurityLog log = new SecurityLog();
+            log.setAction(securityLogVO.getAction());
+            log.setAppTag(securityLogVO.getAppTag());
+            log.setOperator(securityLogVO.getOperator());
+            log.setOperatorId(securityLogVO.getOperatorId());
+            log.setTenantId(securityLogVO.getTenantId());
+            log.setOperation(securityLogVO.getOperation()==null?"":securityLogVO.getOperation());
+            log.setOperationObject(securityLogVO.getOperationObject()==null?"":securityLogVO.getOperationObject());
             securityLogDao.insert(log);
         });
     }

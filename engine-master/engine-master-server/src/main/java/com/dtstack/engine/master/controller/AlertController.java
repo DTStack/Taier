@@ -8,13 +8,17 @@ import com.dtstack.engine.api.domain.po.ClusterAlertPO;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.param.ClusterAlertPageParam;
 import com.dtstack.engine.api.param.ClusterAlertParam;
+import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.api.vo.AlterSftpVO;
 import com.dtstack.engine.api.vo.alert.AlertGateTestVO;
 import com.dtstack.engine.api.vo.alert.AlertGateVO;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.config.MvcConfig;
+import com.dtstack.engine.master.event.AlterEnvHandlerEvent;
 import com.dtstack.engine.master.event.SftpDownloadEvent;
 import com.dtstack.engine.master.impl.AlertChannelService;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.utils.CheckUtils;
 import com.dtstack.lang.data.R;
@@ -43,7 +47,7 @@ import java.util.List;
 @RequestMapping("/node/alert")
 public class AlertController {
 
-    private final Logger log = LoggerFactory.getLogger(AlertController.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(AlertController.class);
 
     @Autowired
     private AlterSender alterSender;
@@ -65,6 +69,9 @@ public class AlertController {
 
     @Autowired(required = false)
     private SftpDownloadEvent sftpDownloadEvent;
+
+    @Autowired
+    private AlterEnvHandlerEvent alterEnvHandlerEvent;
 
     @ApiOperation("新增编辑告警通道 用于替换console接口: /api/console/service/alert/edit")
     @PostMapping("/edit")
@@ -187,12 +194,13 @@ public class AlertController {
                 }
             }
         }
-        log.info("testAlert jar path :{}", alertGateTestVO.getFilePath());
+        LOGGER.info("testAlert jar path :{}", alertGateTestVO.getFilePath());
 
         // build test alertParam
         AlterContext alertParam = buildTestAlterContext(alertGateTestVO);
         List<EventMonitor> eventMonitors = Lists.newArrayList();
         eventMonitors.add(contentReplaceEvent);
+        eventMonitors.add(alterEnvHandlerEvent);
         R send = null;
         try {
             send = alterSender.sendSyncAlter(alertParam,eventMonitors);
@@ -208,6 +216,23 @@ public class AlertController {
             throw new RdosDefineException(send.getMessage());
         }
 
+    }
+
+    @PostMapping("/sftp/get")
+    @ApiOperation("获得通道的sftp信息")
+    public AlterSftpVO sftpGet() {
+        return alertChannelService.sftpGet();
+    }
+
+    @PostMapping("/sftp/update")
+    @ApiOperation("获得通道的sftp信息")
+    public Boolean sftpUpdate(@RequestBody AlterSftpVO vo) {
+        return alertChannelService.sftpUpdate(vo);
+    }
+
+    @PostMapping("/sftp/testConnect")
+    public ComponentTestResult  sftpTestConnect(){
+        return alertChannelService.sftpTestConnect(sftpDownloadEvent.getSftpConfig());
     }
 
     private AlterContext buildTestAlterContext(AlertGateTestVO alertGateTestVO) {

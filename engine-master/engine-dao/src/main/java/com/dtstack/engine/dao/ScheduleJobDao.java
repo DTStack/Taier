@@ -5,11 +5,14 @@ import com.dtstack.engine.api.domain.StatusCount;
 import com.dtstack.engine.api.domain.po.SimpleScheduleJobPO;
 import com.dtstack.engine.api.dto.ScheduleJobDTO;
 import com.dtstack.engine.api.pager.PageQuery;
+import com.dtstack.engine.api.pojo.ScheduleJobCount;
 import com.dtstack.engine.api.vo.JobTopErrorVO;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
 import org.apache.ibatis.annotations.Param;
 
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +33,8 @@ public interface ScheduleJobDao {
 
     List<Map<String, Object>> countByStatusAndType(@Param("type") Integer type, @Param("startTime") String startTime, @Param("endTime") String endTime, @Param("tenantId") Long tenantId, @Param("projectId") Long projectId, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId, @Param("statuses") List<Integer> status);
 
+    List<ScheduleJobCount> countByStatusAndTypeProjectIds(@Param("type") Integer type, @Param("startTime") String startTime, @Param("endTime") String endTime, @Param("tenantId") Long tenantId, @Param("projectIds") List<Long> projectIds, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId, @Param("statuses") List<Integer> status);
+
     List<Map<String, Object>> selectStatusAndType(@Param("type") Integer type, @Param("startTime") String startTime, @Param("endTime") String endTime, @Param("tenantId") Long tenantId, @Param("projectId") Long projectId, @Param("appType") Integer appType,
                                                   @Param("dtuicTenantId") Long dtuicTenantId, @Param("statuses") List<Integer> status, @Param("startPage") Integer startPage, @Param("pageSize") Integer pageSize);
 
@@ -46,6 +51,8 @@ public interface ScheduleJobDao {
     List<Map<String, Object>> listThirtyDayJobs(@Param("statusList") List<Integer> statusList, @Param("type") Integer type, @Param("taskTypes") List<Integer> taskTypes, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId);
 
     List<ScheduleJob> listJobByJobKeys(@Param("jobKeys") Collection<String> jobKeys);
+
+    List<ScheduleJob> listRuleJobByJobKeys(@Param("jobKeys") Collection<String> jobKeys, @Param("ruleCode") Integer ruleCode);
 
     List<ScheduleJob> listIdByTaskIdAndStatus(@Param("taskId") Long taskId, @Param("statuses") List<Integer> status, @Param("appType") Integer appType,@Param("cycTime") String cycTime,@Param("type") Integer type);
 
@@ -109,6 +116,8 @@ public interface ScheduleJobDao {
      */
     List<ScheduleJob> getSubJobsAndStatusByFlowId(@Param("jobId") String jobId);
 
+    ScheduleJob getSubJobsAndStatusByFlowIdLimit(@Param("jobId") String jobId);
+
     /**
      * 获取补数据job的各状态的数量
      *
@@ -116,15 +125,14 @@ public interface ScheduleJobDao {
      * @return
      */
     List<Map<String, Long>> countFillDataAllStatusByJobName(@Param("jobName") String jobName, @Param("jobIds") List<String> jobIds);
-//    List<Map<String, Long>> countFillDataAllStatusByJobName(@Param("jobName") String jobName);
 
     /**
-     * 根据id获取其中工作流类型的实例
+     * 获取其中工作流类型的实例
      *
-     * @param ids
+     * @param
      * @return
      */
-    List<String> getWorkFlowJobId(@Param("ids") List<Long> ids, @Param("taskTypes") List<Integer> taskTypes);
+    List<ScheduleJob> getWorkFlowSubJobId(@Param("jobIds") List<String> jobIds);
 
     /**
      * 根据工作流实例jobId获取全部子任务实例
@@ -138,7 +146,7 @@ public interface ScheduleJobDao {
 
     List<String> getFlowJobIdsByJobName(@Param("jobName") String jobName);
 
-    List<Map<String, Long>> countByFillDataAllStatus(@Param("fillIdList") List<Long> fillJobIdList, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId);
+    List<Map<String, Long>> countByFillDataAllStatus(@Param("fillIdList") List<Long> fillJobIdList, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("appType") Integer appType);
 
     List<Long> listFillIdList(PageQuery<ScheduleJobDTO> pageQuer);
 
@@ -152,7 +160,7 @@ public interface ScheduleJobDao {
 
     Map<String, Object> countScienceJobStatus(@Param("status") Integer runStatus, @Param("projectIds") List<Long> projectIds, @Param("type") Integer type, @Param("taskTypes") List<Integer> taskTypes, @Param("tenantId") long tenantId,@Param("cycStartDay") String cycStartDay, @Param("cycEndDay") String cycEndDay);
 
-    List<ScheduleJob> listByJobIdList(@Param("jobIds") List<String> jobIds, @Param("projectId") Long projectId);
+    List<ScheduleJob> listByJobIdList(@Param("jobIds") Collection<String> jobIds, @Param("projectId") Long projectId);
 
     List<String> listJobIdByTaskType(@Param("taskType") Integer taskType);
 
@@ -175,7 +183,7 @@ public interface ScheduleJobDao {
 
     ScheduleJob getByTaskIdAndStatusOrderByIdLimit(@Param("taskId") Long taskId, @Param("status") Integer status, @Param("time") Timestamp time,@Param("appType") Integer appType);
 
-    Integer updateStatusByJobId(@Param("jobId") String jobId, @Param("status") Integer status, @Param("logInfo") String logInfo,@Param("versionId") Integer versionId);
+    Integer updateStatusByJobId(@Param("jobId") String jobId, @Param("status") Integer status, @Param("logInfo") String logInfo, @Param("versionId") Integer versionId, @Param("execStartTime") Date execStartTime,@Param("execEndTime") Date execEndTime);
 
     List<ScheduleJob> listByBusinessDateAndPeriodTypeAndStatusList(PageQuery<ScheduleJobDTO> pageQuery);
 
@@ -222,7 +230,7 @@ public interface ScheduleJobDao {
 
     List<String> getJobIdsByStatus(@Param("status")Integer status, @Param("computeType")Integer computeType);
 
-    List<ScheduleJob> listJobStatus(@Param("time") Timestamp timeStamp, @Param("computeType")Integer computeType);
+    List<ScheduleJob> listJobStatus(@Param("time") Timestamp timeStamp, @Param("computeType")Integer computeType,@Param("appType")Integer appType);
 
     Integer updateJobStatusByJobIds(@Param("jobIds") List<String> jobIds, @Param("status") Integer status);
 
@@ -232,10 +240,17 @@ public interface ScheduleJobDao {
 
     Integer updateListPhaseStatus(@Param("jobIds") List<String> ids, @Param("update") Integer update);
 
-    Integer updateJobStatusAndPhaseStatus(@Param("jobId") String jobId, @Param("status") Integer status, @Param("phaseStatus") Integer phaseStatus);
+    Integer updateJobStatusAndPhaseStatus(@Param("jobIds") List<String> jobIds, @Param("status") Integer status, @Param("phaseStatus") Integer phaseStatus,@Param("isRestart") Integer isRestart);
 
-    String getJobGraph(@Param("jobId") String jobId);
+    String getJobExtraInfo(@Param("jobId") String jobId);
 
     ScheduleJob getLastScheduleJob(@Param("taskId") Long taskId,@Param("id") Long id);
 
+    void updateStatusByJobIdEqualsStatus(@Param("jobId") String jobId, @Param("status") Integer status, @Param("status1") Integer status1);
+
+    void updateLogInfoByJobId(@Param("jobId") String jobId, @Param("msg") String msg);
+
+    Integer updateJobStatusAndPhaseStatusByIds(@Param("jobIds") List<String> jobIds, @Param("status") Integer status, @Param("phaseStatus") Integer phaseStatus);
+
+    List<SimpleScheduleJobPO> listJobByStatusAddressAndPhaseStatus(@Param("startId") Long startId, @Param("statuses") List<Integer> statuses, @Param("nodeAddress") String nodeAddress,@Param("phaseStatus") Integer phaseStatus);
 }

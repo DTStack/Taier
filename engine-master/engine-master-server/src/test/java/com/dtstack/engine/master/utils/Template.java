@@ -4,11 +4,12 @@ import com.dtstack.engine.alert.enums.AlertGateCode;
 import com.dtstack.engine.alert.enums.AlertGateTypeEnum;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.enums.LineageOriginType;
+import com.dtstack.engine.api.enums.TaskRuleEnum;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.MD5Util;
-import com.dtstack.engine.domain.AlertChannel;
-import com.dtstack.engine.domain.AlertRecord;
+import com.dtstack.engine.api.domain.AlertChannel;
+import com.dtstack.engine.api.domain.AlertRecord;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.DataSourceType;
 
@@ -28,10 +29,10 @@ public class Template {
         sj.setJobName("Python");
         sj.setCreateUserId(0L);
         sj.setIsDeleted(0);
-        sj.setBusinessDate("20200608234500");
+        sj.setBusinessDate(DateUtil.getUnStandardFormattedDate(System.currentTimeMillis()));
         sj.setCycTime(DateUtil.getUnStandardFormattedDate(System.currentTimeMillis()));
         sj.setTaskType(EJobType.SQL.getType());
-        sj.setAppType(0);
+        sj.setAppType(1);
         sj.setType(0);
         sj.setIsRestart(0);
         sj.setDependencyType(0);
@@ -42,6 +43,7 @@ public class Template {
         sj.setComputeType(1);
         sj.setLogInfo("{err: test_log_info}");
         sj.setEngineLog("{err: test_engine_log}");
+        sj.setTaskRule(TaskRuleEnum.NO_RULE.getCode());
         return sj;
     }
 
@@ -75,6 +77,7 @@ public class Template {
         jc.setTaskEngineId("haier111");
         return jc;
     }
+
 
     public static EngineJobCheckpoint getEngineJobSavepointTemplate() {
         EngineJobCheckpoint jc = new EngineJobCheckpoint();
@@ -254,6 +257,7 @@ public class Template {
         component.setUploadFileName("conf.zip");
         component.setKerberosFileName("kb.zip");
         component.setStoreType(EComponentType.HDFS.getTypeCode());
+        component.setIsDefault(true);
         return component;
     }
 
@@ -267,6 +271,7 @@ public class Template {
         component.setUploadFileName("conf.zip");
         component.setKerberosFileName("kb.zip");
         component.setStoreType(EComponentType.HDFS.getTypeCode());
+        component.setIsDefault(true);
         return component;
     }
 
@@ -280,6 +285,7 @@ public class Template {
         component.setUploadFileName("");
         component.setKerberosFileName("");
         component.setStoreType(EComponentType.SFTP.getTypeCode());
+        component.setIsDefault(true);
         return component;
     }
 
@@ -293,6 +299,7 @@ public class Template {
         component.setUploadFileName("");
         component.setKerberosFileName("");
         component.setStoreType(0);
+        component.setIsDefault(true);
         return component;
     }
 
@@ -451,11 +458,14 @@ public class Template {
         scheduleJobJob.setTenantId(1L);
         scheduleJobJob.setProjectId(1L);
         scheduleJobJob.setDtuicTenantId(1L);
+        scheduleJobJob.setParentAppType(1);
         scheduleJobJob.setAppType(AppType.RDOS.getType());
+        scheduleJobJob.setParentAppType(AppType.RDOS.getType());
         scheduleJobJob.setJobKey("cronTrigger_3377_20201127000000");
         scheduleJobJob.setParentJobKey("cronTrigger_3381_20201127000000");
         scheduleJobJob.setGmtCreate(new Timestamp(1592559742000L));
         scheduleJobJob.setGmtModified(new Timestamp(1592559742000L));
+        scheduleJobJob.setParentAppType(1);
         return scheduleJobJob;
     }
 
@@ -483,14 +493,34 @@ public class Template {
         return lineageRealDataSource;
     }
 
+
     public static LineageDataSource getDefaultHiveDataSourceTemplate() {
+        LineageDataSource lineageDataSource = new LineageDataSource();
+        lineageDataSource.setDtUicTenantId(1L);
+        lineageDataSource.setSourceName("hive");
+        lineageDataSource.setAppType(AppType.DATAASSETS.getType());
+        lineageDataSource.setSourceType(DataSourceType.HIVE.getVal());
+        lineageDataSource.setDataJson("{}");
+        lineageDataSource.setKerberosConf("-1");
+        lineageDataSource.setOpenKerberos(0);
+        lineageDataSource.setAppSourceId(-1);
+        lineageDataSource.setInnerSource(-1);
+        lineageDataSource.setComponentId(-1);
+        lineageDataSource.setSourceId(100L);
+        return lineageDataSource;
+    }
+
+    public static LineageDataSource getRdostHiveDataSourceTemplate() {
         LineageDataSource lineageDataSource = new LineageDataSource();
         lineageDataSource.setDtUicTenantId(1L);
         lineageDataSource.setRealSourceId(1L);
         lineageDataSource.setSourceKey("172.16.8.107#10000");
-        lineageDataSource.setSourceName("hive");
-        lineageDataSource.setAppType(AppType.DATAASSETS.getType());
+        lineageDataSource.setSourceName("hive2");
+        lineageDataSource.setAppType(AppType.RDOS.getType());
         lineageDataSource.setSourceType(DataSourceType.HIVE.getVal());
+        lineageDataSource.setProjectId(-1L);
+        lineageDataSource.setSourceId(1L);
+        lineageDataSource.setSchemaName("beihai");
         lineageDataSource.setDataJson("{}");
         lineageDataSource.setKerberosConf("-1");
         lineageDataSource.setOpenKerberos(0);
@@ -517,11 +547,9 @@ public class Template {
         LineageDataSetInfo lineageDataSetInfo = new LineageDataSetInfo();
         lineageDataSetInfo.setAppType(AppType.DATAASSETS.getType());
         lineageDataSetInfo.setDtUicTenantId(1L);
-        lineageDataSetInfo.setSourceId(1L);
-        lineageDataSetInfo.setRealSourceId(1L);
+        lineageDataSetInfo.setDataInfoId(1L);
         lineageDataSetInfo.setSourceName("hive");
         lineageDataSetInfo.setSourceType(DataSourceType.HIVE.getVal());
-        lineageDataSetInfo.setSourceKey("172.16.8.107#10000");
         lineageDataSetInfo.setSetType(0);
         lineageDataSetInfo.setDbName("default");
         lineageDataSetInfo.setSchemaName("default");
@@ -534,11 +562,9 @@ public class Template {
     public static LineageDataSetInfo getHiveDataSetInfoTemplate() {
         LineageDataSetInfo lineageDataSetInfo = new LineageDataSetInfo();
         lineageDataSetInfo.setAppType(AppType.DATAASSETS.getType());
-        lineageDataSetInfo.setSourceId(1L);
-        lineageDataSetInfo.setRealSourceId(1L);
+        lineageDataSetInfo.setDataInfoId(1L);
         lineageDataSetInfo.setSourceName("hive");
         lineageDataSetInfo.setSourceType(DataSourceType.HIVE.getVal());
-        lineageDataSetInfo.setSourceKey("172.16.8.107#10000");
         lineageDataSetInfo.setSetType(0);
         lineageDataSetInfo.setDbName("default");
         lineageDataSetInfo.setSchemaName("default");
@@ -651,7 +677,7 @@ public class Template {
         return alertContent;
     }
 
-    public static AlertChannel getDefaultAlterChannelTemplateDingDt() {
+    public static AlertChannel getDefaultAlterChannelTemplateDingDt(){
         AlertChannel alertContent = new AlertChannel();
         alertContent.setId(5L);
         alertContent.setAlertGateSource("ding_dt_test");
@@ -710,5 +736,4 @@ public class Template {
         alertRecord.setAlertChannelId(1L);
         return alertRecord;
     }
-
 }

@@ -29,7 +29,7 @@ import java.util.concurrent.locks.ReentrantLock;
 @Component
 public class ScheduleJobBack {
 
-    private static final Logger log = LoggerFactory.getLogger(ScheduleJobBack.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleJobBack.class);
 
     @Autowired
     private EnvironmentContext environment;
@@ -58,11 +58,14 @@ public class ScheduleJobBack {
         if (isMaster && environment.openScheduleJobCron()) {
             String cron = environment.getScheduleJobCron();
             long mill = getTimeMillis(cron);
-            if (System.currentTimeMillis() - mill < environment.getScheduleJobScope()) {
-                lock.lock();
-                process();
-                lock.unlock();
+            if (System.currentTimeMillis() - mill < 0) {
+                return;
             }
+            lock.lock();
+            if (System.currentTimeMillis() - mill < environment.getScheduleJobScope()) {
+                process();
+            }
+            lock.unlock();
         }
     }
 
@@ -73,7 +76,7 @@ public class ScheduleJobBack {
             Date curDate = dateFormat.parse(dayFormat.format(new Date()) + " " + time);
             return curDate.getTime();
         } catch (ParseException e) {
-            log.error("ScheduleJobBack.getTimeMillis error:", e);
+            LOGGER.error("ScheduleJobBack.getTimeMillis error:", e);
         }
         return 0;
     }
@@ -81,9 +84,9 @@ public class ScheduleJobBack {
     public void process() {
         try (Connection connection = dataSource.getConnection()) {
             if (null == connection) {
-                log.error("back up get connect error");
+                LOGGER.error("back up get connect error");
             }
-            log.info("back up schedule job start");
+            LOGGER.info("back up schedule job start");
             if (CollectionUtils.isNotEmpty(expireTableName)) {
                 //创建备份表
                 for (String tableName : expireTableName) {
@@ -99,7 +102,7 @@ public class ScheduleJobBack {
             Long lastJobBackId = this.getLastId(connection, "SELECT id from schedule_job_back ORDER BY id desc limit 1;");
 
 
-            log.info("back up schedule job lastJobBackId {}",lastJobBackId);
+            LOGGER.info("back up schedule job lastJobBackId {}",lastJobBackId);
             //schedule_job表
             for (Pair<Integer, String> pair : timePeriodTypeMapping) {
                 String limitDate = null == pair.getKey() ? "" : String.format("'%s'",
@@ -115,9 +118,9 @@ public class ScheduleJobBack {
             if (lastJobBackId >= 0L) {
                 this.backUpTables("schedule_job_job", null, null, connection, JOB_JOB_WHERE_SQL.replace("#{lastId}", String.valueOf(lastJobBackId)));
             }
-            log.info("back up schedule job end");
+            LOGGER.info("back up schedule job end");
         } catch (Exception e) {
-            log.error("process back up job error ", e);
+            LOGGER.error("process back up job error ", e);
         }
     }
 
@@ -151,11 +154,11 @@ public class ScheduleJobBack {
             while (resultSet.next()) {
                 createSql = resultSet.getString(2).replace("`" + tableName + "`", "`" + backUpTableName + "`");
             }
-            log.info("create table {} sql\n {}", backUpTableName, createSql);
+            LOGGER.info("create table {} sql\n {}", backUpTableName, createSql);
             statement.execute(createSql);
             statement.execute("truncate table " + "`" + backUpTableName + "`");
         } catch (SQLException e) {
-            log.error("create table error... tableName:{}", tableName);
+            LOGGER.error("create table error... tableName:{}", tableName);
             throw e;
         } finally {
             if (resultSet != null) {
@@ -176,7 +179,7 @@ public class ScheduleJobBack {
                 return resultSet.getLong(1);
             }
         } catch (Exception e) {
-            log.error("getLastId error", e);
+            LOGGER.error("getLastId error", e);
         }
         return 0L;
     }
@@ -191,18 +194,18 @@ public class ScheduleJobBack {
             String limitDate = null == maxDays ? "" : String.format("'%s'", new DateTime().minusDays(maxDays).toString("yyyyMMddHHmmss"));
             String where = where_sql.replace("#{limitDate}", limitDate)
                     .replace("#{periodType}", String.format("(%s)", periodType));
-            log.info("start to backUpTables :{}  {}", tableName, where);
+            LOGGER.info("start to backUpTables :{}  {}", tableName, where);
             //导入备份表
             String backUpSql = String.format("INSERT INTO `%s` SELECT * FROM `%s` %s", backUpTableName, tableName, where);
-            log.info("backUpSql : {}", backUpSql);
+            LOGGER.info("backUpSql : {}", backUpSql);
             statement.execute(backUpSql);
             //删除原表
             String deleteSql = String.format("DELETE FROM %s %s", tableName, where);
-            log.info("deleteSql : {}", deleteSql);
+            LOGGER.info("deleteSql : {}", deleteSql);
             statement.execute(deleteSql);
             connection.commit();
         } catch (Exception e) {
-            log.error("backUpTables error rollBack...");
+            LOGGER.error("backUpTables error rollBack...");
             connection.rollback();
             throw e;
         }

@@ -1,1 +1,0 @@
-mvn -T 12 clean package -DskipTests -pl engine-common,engine-sql/data-collect -am

@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dtstack.batch.dao.UserDao">
+
+    <sql id="select_content_fragment">
+        id,dtuic_user_id,user_name,email,status,gmt_create,gmt_modified,is_deleted,default_project_id,phone_number
+    </sql>
+
+    <sql id="update_fragment">
+        <set>
+            <if test="id != null">
+                id = #{id},
+            </if>
+            <if test="dtuicUserId != null">
+                dtuic_user_id = #{dtuicUserId},
+            </if>
+            <if test="userName != null">
+                user_name = #{userName},
+            </if>
+            <if test="email != null">
+                email = #{email},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted},
+            </if>
+            <if test="defaultProjectId != null">
+                default_project_id = #{defaultProjectId},
+            </if>
+            <if test="phoneNumber != null">
+                phone_number = #{phoneNumber},
+            </if>
+        </set>
+    </sql>
+
+    <select id="getByDtUicUserId" resultType="User">
+      SELECT
+      <include refid="select_content_fragment"/>
+      FROM rdos_user
+      WHERE dtuic_user_id=#{dtUicUserId} AND is_deleted=0 limit 1
+    </select>
+
+    <select id="listByIds" resultType="User">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_user
+        WHERE 1=1
+        <if test="userIds !=null and userIds.size() > 0">
+            AND id IN
+            <foreach item="userId" index="index" collection="userIds" separator="," open="(" close=")">
+                #{userId}
+            </foreach>
+        </if>
+        AND is_deleted=0
+    </select>
+
+    <select id="listByDtuicUserIds" resultType="com.dtstack.batch.domain.User">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_user
+        <where>
+            <if test="dtuicUserIds !=null and dtuicUserIds.size() > 0">
+                dtuic_user_id IN
+                <foreach item="dtuicUserId" index="index" collection="dtuicUserIds" separator="," open="(" close=")">
+                    #{dtuicUserId}
+                </foreach>
+            </if>
+            AND is_deleted=0
+        </where>
+
+    </select>
+
+    <select id="listUsersIncludeDeletedByIds" resultType="User">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_user
+        WHERE 1=1
+        <if test="userIds !=null and userIds.size() > 0">
+            AND id IN
+            <foreach item="userId" index="index" collection="userIds" separator="," open="(" close=")">
+                #{userId}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getOne" resultType="User">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_user
+        WHERE id=#{id} AND is_deleted=0
+    </select>
+
+    <select id="getUserByUserName" resultType="User">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_user
+        WHERE user_name = #{userName} AND is_deleted=0
+    </select>
+
+    <select id="getUsersByUserName" resultType="com.dtstack.batch.domain.User">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_user
+        WHERE is_deleted=0
+        <if test="userName != null">
+            AND user_name LIKE CONCAT('%', #{userName}, '%')
+        </if>
+    </select>
+
+    <select id="getUserByUserNameAndProjectId" resultType="User">
+        SELECT
+        a.id, a.dtuic_user_id, a.user_name, a.email, a.status, a.gmt_create, a.gmt_modified, a.is_deleted, a.default_project_id, a.phone_number
+        FROM rdos_user  a
+        left join rdos_role_user b on a.id = b.user_id
+        WHERE a.user_name = #{userName} AND a.is_deleted=0 and b.is_deleted=0 and b.project_id = #{projectId}
+    </select>
+
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO rdos_user
+        (dtuic_user_id,user_name,email,status,default_project_id,phone_number)
+        VALUES
+        <foreach item="user" collection="userList" separator=",">
+            (#{user.dtuicUserId},#{user.userName},#{user.email},#{user.status},#{user.defaultProjectId},#{user.phoneNumber})
+        </foreach>
+    </insert>
+
+    <select id="listByNotInIdsAndName" resultType="User">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_user
+        WHERE id NOT IN
+        <foreach item="userId" index="index" collection="ids"  separator="," open="(" close=")">
+            #{userId}
+        </foreach>
+        <if test="userName!=null">
+            AND  user_name LIKE CONCAT('%',#{userName},'%')
+        </if>
+        AND is_deleted=0
+    </select>
+
+    <insert id="insert" parameterType="User" useGeneratedKeys="true" keyProperty="id">
+        INSERT IGNORE INTO rdos_user
+        (dtuic_user_id,user_name,email,status,default_project_id,phone_number)
+        VALUES
+        (#{dtuicUserId},#{userName},#{email},#{status},#{defaultProjectId},#{phoneNumber})
+    </insert>
+
+    <update id="update">
+        UPDATE rdos_user
+        <include refid="update_fragment"/>
+        WHERE id = #{id} AND is_deleted = 0
+    </update>
+
+    <select id="listUserAdmin" resultType="User">
+        select DISTINCT u.id,u.dtuic_user_id,u.user_name,u.email,u.status,u.gmt_create,u.gmt_modified,u.is_deleted,u.default_project_id,u.phone_number
+        from rdos_user u
+        LEFT JOIN rdos_role_user ru ON ru.user_id = u.id
+        LEFT JOIN rdos_role r on r.id = ru.role_id
+        where r.role_value &lt;= 3 and ru.project_id = #{projectId} and ru.tenant_id = #{tenantId}
+    </select>
+
+    <select id="getUsersByUserNameAndUserIds" resultType="com.dtstack.batch.domain.User">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_user
+        WHERE is_deleted=0
+        <if test="userIds != null and userIds.size() > 0">
+            AND id IN
+            <foreach item="userId" index="index" collection="userIds" separator="," open="(" close=")">
+                #{userId}
+            </foreach>
+        </if>
+        <if test="userName != null and userName != ''">
+            AND user_name LIKE CONCAT('%', #{userName}, '%')
+        </if>
+        ORDER BY user_name ASC
+        LIMIT 50
+    </select>
+</mapper>

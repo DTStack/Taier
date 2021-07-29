@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dtstack.batch.dao.ProjectDao">
+
+    <sql id="select_content_fragment">
+        id,tenant_id,project_name,project_alias,project_Identifier,project_desc,status,create_user_id,modify_user_id,gmt_create,gmt_modified,is_deleted,project_type,produce_project_id,schedule_status,is_allow_download,catalogue_id
+    </sql>
+
+    <sql id="update_fragment">
+        <set>
+           gmt_modified = now(),
+            <if test="id != null">
+                id = #{id},
+            </if>
+            <if test="tenantId != null">
+                tenant_id = #{tenantId},
+            </if>
+            <if test="projectName != null">
+                project_name = #{projectName},
+            </if>
+            <if test="projectAlias != null">
+                project_alias = #{projectAlias},
+            </if>
+            <if test="projectIdentifier != null">
+                project_Identifier = #{projectIdentifier},
+            </if>
+            <if test="projectDesc != null">
+                project_desc = #{projectDesc},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="createUserId != null">
+                create_user_id = #{createUserId},
+            </if>
+            <if test="modifyUserId != null">
+                modify_user_id = #{modifyUserId},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted},
+            </if>
+            <if test="projectType != null">
+                project_type = #{projectType},
+            </if>
+            <if test="produceProjectId != null">
+                produce_project_id = #{produceProjectId},
+            </if>
+            <if test="scheduleStatus != null">
+                schedule_status = #{scheduleStatus},
+            </if>
+            <if test="isAllowDownload != null">
+                is_allow_download = #{isAllowDownload},
+            </if>
+            <if test="catalogueId != null">
+                catalogue_id = #{catalogueId}
+            </if>
+        </set>
+    </sql>
+
+    <select id="listByIds" resultType="com.dtstack.batch.domain.Project">
+        select
+        <include refid="select_content_fragment"/>
+        from rdos_project
+        where is_deleted=0
+        <if test="projectIds != null">
+            and id in
+            <foreach item="projectId" index="index" collection="projectIds" open="(" separator="," close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        and status=1 order by gmt_modified desc
+    </select>
+
+    <update id="updateStatusById">
+        update rdos_project set status = #{status},gmt_modified= now(), modify_user_id=#{modifyUserId} where id=#{id} and is_deleted=0
+    </update>
+
+    <select id="getOne" resultType="com.dtstack.batch.domain.Project">
+        select
+        <include refid="select_content_fragment"/>
+        from rdos_project
+        where is_deleted=0 and id = #{projectId}
+    </select>
+
+    <select id="getOneWithoutDeleted" resultType="com.dtstack.batch.domain.Project">
+        select
+        <include refid="select_content_fragment"/>
+        from rdos_project
+        where id in
+        <foreach collection="projectIds" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="getByProjectIdentifier" resultType="com.dtstack.batch.domain.Project">
+        select
+        <include refid="select_content_fragment"/>
+        from rdos_project
+        where is_deleted=0 and project_identifier = #{projectIdentifier} limit 1
+    </select>
+
+    <select id="getProjectIdByProjectIdentifier" resultType="java.lang.Long">
+        select id
+        from rdos_project
+        where is_deleted=0 and project_identifier = #{projectIdentifier} limit 1
+    </select>
+
+    <select id="listByProjectAlias" resultType="com.dtstack.batch.domain.Project">
+        select
+        <include refid="select_content_fragment"/>
+        from rdos_project
+        where is_deleted=0 and project_alias = #{projectAlias}
+    </select>
+
+    <update id="deleteById">
+        update rdos_project set is_deleted = 1 , gmt_modified=now(), modify_user_id=#{modifyUserId} where id = #{projectId}
+    </update>
+
+    <select id="getByName" resultType="com.dtstack.batch.domain.Project">
+        select
+        <include refid="select_content_fragment"/>
+        from rdos_project
+        where project_name = #{projectName}  and is_deleted = 0
+        <if test="tenantId!=null">
+            and tenant_id = #{tenantId}
+        </if>
+        limit 1
+    </select>
+
+    <select id="getListByIdsAndProjectName" resultType="com.dtstack.batch.domain.Project">
+       select
+        <include refid="select_content_fragment"/>
+        from rdos_project
+        where is_deleted = 0
+        <if test="projectName != null">
+            and project_alias LIKE CONCAT('%',#{projectName},'%')
+        </if>
+
+        <if test="projectIds != null and projectIds.size() > 0">
+            and id in
+            <foreach item="projectId" index="index" collection="projectIds" open="(" separator="," close=")">
+                #{projectId}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="listByIdsAndTenantId" resultType="com.dtstack.batch.domain.Project">
+        select
+        DISTINCT rp.id,rp.tenant_id,rp.project_name,rp.project_alias,rp.project_Identifier,rp.project_desc,rp.status,
+        rp.create_user_id,rp.modify_user_id,rp.gmt_create,rp.gmt_modified,rp.is_deleted,rp.project_type,rp.produce_project_id,
+        rp.schedule_status,rp.is_allow_download,rps.stick
+        from rdos_project rp
+        LEFT JOIN rdos_project_stick rps ON rps.project_id = rp.id
+        where rp.is_deleted = 0 and rp.tenant_id = #{tenantId}
+        <if test="projectIds != null and projectIds.size() > 0">
+            and rp.id in
+            <foreach item="projectId" index="index" collection="projectIds" open="(" separator="," close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        GROUP BY rp.id
+        order by
+        rps.stick desc,rp.gmt_modified desc
+    </select>
+
+    <select id="listByIdNotIn" resultType="com.dtstack.batch.domain.Project">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_project
+        WHERE is_deleted = 0 AND tenant_id = #{tenantId} AND id NOT IN
+        <foreach item="projectId" index="index" collection="projectIds" open="(" separator="," close=")">
+            #{projectId}
+        </foreach>
+        limit #{pageQuery.pageSize}
+    </select>
+
+    <update id="update">
+        UPDATE rdos_project
+        <include refid="update_fragment"/>
+        WHERE id = #{id}
+    </update>
+
+    <insert id="insert" parameterType="com.dtstack.batch.domain.Project" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO rdos_project
+        (tenant_id,project_name,project_alias,project_Identifier,project_desc,status,create_user_id,modify_user_id,project_type,produce_project_id,schedule_status,is_allow_download,catalogue_id)
+        VALUES
+        (#{tenantId},#{projectName},#{projectAlias},#{projectIdentifier},#{projectDesc},#{status},#{createUserId},#{createUserId},#{projectType},#{produceProjectId},#{scheduleStatus},#{isAllowDownload},#{catalogueId})
+    </insert>
+
+    <select id="listByIdsAndProjectAlias" resultType="com.dtstack.batch.domain.Project">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_project
+        WHERE id IN
+        <foreach item="id" index="index" collection="projectIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        <if test="projectAlias != null">
+            AND project_alias LIKE CONCAT('%',#{projectAlias},'%')
+        </if>
+        AND is_deleted = 0
+        order by ${pageQuery.orderBy} ${pageQuery.sort} limit #{pageQuery.start} , #{pageQuery.pageSize}
+    </select>
+
+    <select id="countByIdsAndProjectAlias" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+        FROM rdos_project
+        WHERE
+        is_deleted = 0
+        and id IN
+        <foreach item="id" index="index" collection="projectIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        <if test="projectAlias != null">
+            AND project_alias LIKE CONCAT('%',#{projectAlias},'%')
+        </if>
+        limit 1
+    </select>
+
+
+    <select id="listJobSumByIdsAndFuzzyNameAndType" resultType="com.dtstack.batch.dto.ProjectDTO">
+        select
+        DISTINCT rp.id,rp.tenant_id,rp.project_name,rp.project_alias, rp.catalogue_id,rp.project_Identifier,rp.project_desc,rp.status,rp.create_user_id,rp.modify_user_id,rp.gmt_create gmtCreate,rp.gmt_modified,rp.is_deleted,project_type,produce_project_id,rp.schedule_status,rp.is_allow_download
+        , rps.stick,rp.catalogue_id
+        from rdos_project rp
+        LEFT JOIN rdos_project_stick rps ON rps.project_id = rp.id
+        WHERE rp.tenant_id = #{tenantId} and rp.is_deleted = 0
+        AND rps.create_user_id = #{userId}
+        <if test="ids != null and ids.size() > 0">
+            AND rp.id in
+            <foreach collection="ids" separator="," item="item" open="(" close=")" index="index">
+                #{item}
+            </foreach>
+        </if>
+        <if test="fuzzyName != null and fuzzyName != ''">
+            AND (rp.project_alias LIKE CONCAT('%',#{fuzzyName},'%') escape '/'
+            OR rp.project_name LIKE CONCAT('%',#{fuzzyName},'%') escape '/')
+        </if>
+        <if test="projectType != null">
+            AND rp.project_type = #{projectType}
+        </if>
+        <if test="catalogueId != null">
+            AND rp.catalogue_id = #{catalogueId}
+        </if>
+        ORDER BY
+        <choose>
+            <when test="model.orderBy != null and model.orderBy != 'jobSum'">
+                ${model.orderBy} ${model.sort}
+            </when>
+            <otherwise>
+                rps.stick ${model.sort}
+            </otherwise>
+        </choose>
+        , rp.gmt_modified desc
+        <if test="model.orderBy != 'jobSum'">
+            <if test="model.start != null and model.pageSize != null">
+                limit #{model.start},#{model.pageSize}
+            </if>
+            <if test="model.page == null and model.pageSize == null">
+                limit 20
+            </if>
+        </if>
+    </select>
+
+
+    <select id="countByIdsAndFuzzyNameAndType" resultType="java.lang.Integer">
+        select
+        COUNT(1)
+        from rdos_project rp
+        WHERE rp.tenant_id = #{tenantId} and rp.is_deleted = 0
+        <if test="ids != null and ids.size() > 0">
+            AND rp.id in
+            <foreach collection="ids" separator="," item="item" open="(" close=")" index="index">
+                #{item}
+            </foreach>
+        </if>
+        <if test="fuzzyName != null">
+            AND (rp.project_alias LIKE CONCAT('%',#{fuzzyName},'%') escape '/'
+            or  rp.project_name LIKE CONCAT('%',#{fuzzyName},'%') escape '/')
+        </if>
+        <if test="projectType != null">
+            AND rp.project_type = #{projectType}
+        </if>
+        <if test="catalogueId != null">
+            AND rp.catalogue_id = #{catalogueId}
+        </if>
+    </select>
+
+    <select id="mapProjectNames" resultType="java.util.Map">
+        SELECT id,project_name
+        FROM rdos_project
+        WHERE tenant_id = #{tenantId} and is_deleted = 0
+    </select>
+
+    <select id="listByType" resultType="com.dtstack.batch.domain.Project">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_project where project_type = #{projectType} and tenant_id = #{tenantId}
+        and is_deleted = 0 and status=1
+        <if test="name != null">
+            and project_alias like CONCAT('%',#{name},'%')
+        </if>
+    </select>
+
+    <select id="getByProduceProjectId" resultType="com.dtstack.batch.domain.Project">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_project where produce_project_id = #{produceProjectId}
+        and is_deleted = 0 and status = 1
+        limit 1
+    </select>
+
+    <update id="updateProduceProject">
+        update rdos_project set produce_project_id = #{produceProjectId},project_type = #{projectType}
+        , gmt_modified =now(), modify_user_id=#{modifyUserId}
+        where  id = #{projectId}
+    </update>
+
+    <update id="updateScheduleById">
+        update rdos_project set schedule_status = #{scheduleStatus}, gmt_modified=now(), modify_user_id= #{modifyUserId}
+        where tenant_id = #{tenantId} and id = #{projectId}
+    </update>
+
+    <select id="listIdByScheduleStatus" resultType="java.lang.Long">
+        select id from rdos_project where schedule_status = #{scheduleStatus} and is_deleted = 0 and status = 1
+    </select>
+
+    <select id="listNameByTenantId" resultType="java.lang.String">
+        SELECT project_name
+        from rdos_project
+        where tenant_id = #{tenantId} and is_deleted = 0
+    </select>
+
+    <select id="listIdByTenantId" resultType="java.lang.Long">
+        select id from rdos_project where tenant_id = #{tenantId} and is_deleted = 0
+    </select>
+
+    <select id="listIdByTenantIdForMask" resultType="java.lang.Long">
+        select id from rdos_project where tenant_id = #{tenantId} and is_deleted = 0 and status = 1
+    </select>
+
+    <select id="listAllForMask" resultType="java.lang.Long">
+        select id from rdos_project where is_deleted = 0 and status = 1
+    </select>
+
+    <update id="updateAllowDownload">
+        update rdos_project set is_allow_download = #{isAllowDownload}, gmt_modified=now(), modify_user_id=#{modifyUserId}
+        where tenant_id = #{tenantId} and id = #{projectId}
+    </update>
+
+    <select id="listByTenantId" resultType="com.dtstack.batch.domain.Project">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_project
+        WHERE is_deleted = 0 AND tenant_id = #{tenantId} AND status = 1
+    </select>
+
+    <select id="getCatalogueListByTenantIdAndCatalogueId" resultType="com.dtstack.batch.domain.po.ProjectCataloguePO">
+        select rbc.id, rbc.tenant_id, rbc.project_id, rbc.node_name, rbc.node_pid, rbc.order_val, rbc.level, rbc.engine_type,
+        rbc.gmt_create, rbc.gmt_modified, rbc.create_user_id, rbc.is_deleted, rbc.catalogue_type ,rp.id as projectRealId ,
+        rp.project_name as projectName ,rp.project_alias as projectAlias
+        FROM rdos_project rp
+        left join rdos_batch_catalogue rbc  on rp.catalogue_id = rbc.id
+        where rp.is_deleted = 0 and rp.tenant_id = #{tenantId} and rbc.catalogue_type =#{catalogueType}
+        <if test="projectIds != null and  projectIds.size() > 0">
+            AND rp.id in
+            <foreach collection="projectIds" separator="," item="item" open="(" close=")" index="index">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="listAll" resultType="com.dtstack.batch.domain.Project">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_project
+        WHERE is_deleted = 0
+    </select>
+
+    <select id="getTenantIdListByProjectIdentifier" resultType="java.lang.Long">
+        select p.tenant_id
+        from rdos_project p
+        where p.is_deleted = 0
+        and p.project_Identifier = #{projectIdentifier}
+    </select>
+
+    <select id="getByCatalogueId" resultType="com.dtstack.batch.domain.Project">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_project
+        WHERE is_deleted = 0 and catalogue_id = #{catalogueId}
+    </select>
+
+    <select id="listByTenantIds" resultType="com.dtstack.batch.domain.Project">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_project
+        where is_deleted = 0
+        <if test="tenantIds != null and tenantIds.size() > 0">
+            AND tenant_id in
+            <foreach collection="tenantIds" separator="," item="item" open="(" close=")" index="index">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+</mapper>

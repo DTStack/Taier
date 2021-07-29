@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dtstack.batch.dao.BatchTaskShadeDao">
+
+    <sql id="select_content_fragment">
+        id,tenant_id,project_id,node_pid,name,task_type,engine_type,compute_type,sql_text,task_params,schedule_conf,schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,version,is_deleted,task_desc,main_class,exe_args
+    </sql>
+
+    <select id="getOne" resultType="BatchTaskShade">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_task_shade
+        WHERE id = #{id} and is_deleted = 0
+    </select>
+
+    <select id="listByIdsAndType" resultType="BatchTaskShade">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_task_shade
+        WHERE id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        and is_deleted = 0
+    </select>
+
+    <select id="listTaskId" resultType="java.lang.Long">
+        SELECT id
+        FROM rdos_batch_task_shade
+        where is_deleted = 0
+    </select>
+
+    <select id="listTaskIdAndVersionId" resultType="com.dtstack.batch.domain.po.TaskIdAndVersionIdPO">
+        SELECT id as taskId,version as versionId,project_id as projectId
+        FROM rdos_batch_task_shade
+        where is_deleted = 0
+    </select>
+
+    <update id="deleteByProjectId" parameterType="java.lang.Long">
+        UPDATE rdos_batch_task_shade
+        SET is_deleted = 1, gmt_modified = now(), modify_user_id = #{userId}
+        WHERE project_id = #{projectId} AND is_deleted = 0;
+    </update>
+</mapper>

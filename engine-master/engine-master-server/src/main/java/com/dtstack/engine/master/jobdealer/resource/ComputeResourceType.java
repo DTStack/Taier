@@ -25,6 +25,10 @@ public enum ComputeResourceType {
     GreenPlum,
     Dummy,
     Presto,
-    KingBase;
+    KingBase,
+    InceptorSQL,
+    DtScriptAgent,
+    AnalyticdbForPg,
+    FlinkOnStandalone;
 
 }

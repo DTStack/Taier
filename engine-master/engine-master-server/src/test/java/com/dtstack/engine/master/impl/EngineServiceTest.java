@@ -62,7 +62,7 @@ public class EngineServiceTest extends AbstractTest {
     @Rollback
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public void testListSupportEngine() {
-        List<EngineSupportVO> listSupportEngine = engineService.listSupportEngine(1L);
+        List<EngineSupportVO> listSupportEngine = engineService.listSupportEngine(1L,false);
         Assert.assertTrue(CollectionUtils.isNotEmpty(listSupportEngine));
     }
 
@@ -95,12 +95,4 @@ public class EngineServiceTest extends AbstractTest {
         Assert.assertNotNull(getOne);
     }
 
-    @Test
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-    @Rollback
-    public void testListClusterEngines() {
-        Cluster defaultCluster = DataCollection.getData().getDefaultCluster();
-        List<EngineVO> listClusterEngines = engineService.listClusterEngines(defaultCluster.getId(), true);
-        Assert.assertTrue(CollectionUtils.isNotEmpty(listClusterEngines));
-    }
 }

@@ -21,26 +21,23 @@
 
     <dependencies>
 
-        <dependency>
-            <groupId>com.dtstack.engine</groupId>
-            <artifactId>engine-lineage-service</artifactId>
-            <version>1.0.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.hive</groupId>
-                    <artifactId>hive-exec</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
+        <!-- 应用内依赖 -->
         <dependency>
             <groupId>com.dtstack.engine</groupId>
             <artifactId>engine-common</artifactId>
-            <version>${common.version}</version>
+            <version>1.0.0</version>
             <exclusions>
                 <exclusion>
                     <artifactId>zookeeper</artifactId>
                     <groupId>org.apache.zookeeper</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>spring-data-redis</artifactId>
+                    <groupId>org.springframework.data</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>spring-session-core</artifactId>
+                    <groupId>org.springframework.session</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -53,10 +50,17 @@
 
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>engine-alter-sender</artifactId>
+            <artifactId>engine-alter</artifactId>
             <version>1.0.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.dtstack.engine</groupId>
+            <artifactId>engine-datasource</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <!--应用外部依赖-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -100,6 +104,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+            <version>2.3.2</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.mchange</groupId>
             <artifactId>c3p0</artifactId>
             <version>0.9.5.2</version>
@@ -132,7 +142,6 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.4</version>
         </dependency>
 
         <dependency>
@@ -245,6 +254,11 @@
             <artifactId>mockito-all</artifactId>
             <version>1.9.0</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>dt.insight.plat</groupId>
+            <artifactId>dt-insight-common-base</artifactId>
         </dependency>
 
     </dependencies>

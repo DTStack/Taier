@@ -20,7 +20,7 @@ import java.util.Map;
 
 public class ScheduleCronMonthParser extends ScheduleCron {
 
-    private static final Logger logger = LoggerFactory.getLogger(ScheduleCronMonthParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleCronMonthParser.class);
 
     private static final String CRON_FORMAT = "0 ${min} ${hour} ${days} * ?";
 
@@ -70,7 +70,7 @@ public class ScheduleCronMonthParser extends ScheduleCron {
         int day = MathUtil.getIntegerVal(specifyDate.substring(8,10));
         String canExeDay = CronStrUtil.getDayStr(getCronStr());
         if(canExeDay == null){
-            logger.error("error cronStr:{}", getCronStr());
+            LOGGER.error("error cronStr:{}", getCronStr());
             return false;
         }
 

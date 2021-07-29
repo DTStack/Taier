@@ -1,1 +1,0 @@
-ALTER  TABLE `schedule_task_commit` MODIFY  `task_json` LONGTEXT COMMENT '额外参数';

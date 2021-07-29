@@ -71,7 +71,10 @@ public enum RdosTaskStatus implements Serializable {
 
     LACKING(25),
 
-    AUTOCANCELED(26);
+    AUTOCANCELED(26),
+
+    RUNNING_TASK_RULE(27),
+    ;
 	
 	private int status;
 
@@ -81,10 +84,10 @@ public enum RdosTaskStatus implements Serializable {
             DEPLOYING.getStatus(), RUNNING.getStatus(),
             SUBMITTING.getStatus(), RESTARTING.getStatus(),
             SUBMITTED.getStatus(), WAITENGINE.getStatus(),
-            WAITCOMPUTE.getStatus(), LACKING.getStatus(),NOTFOUND.getStatus()
+            WAITCOMPUTE.getStatus(), LACKING.getStatus(),NOTFOUND.getStatus(),RUNNING_TASK_RULE.getStatus()
     );
 
-    private final static List<Integer> STOPPED_STATUS = Lists.newArrayList(
+    public final static List<Integer> STOPPED_STATUS = Lists.newArrayList(
             MANUALSUCCESS.getStatus(),
             PARENTFAILED.getStatus(),
             FAILED.getStatus(),
@@ -96,6 +99,18 @@ public enum RdosTaskStatus implements Serializable {
             FROZEN.getStatus(),
             AUTOCANCELED.getStatus()
     );
+
+    private final static List<Integer> CAN_RESTART_STATUS = Lists.newArrayList(FINISHED.getStatus(),
+            CANCELED.getStatus(),
+            SUBMITFAILD.getStatus(),
+            FAILED.getStatus(),
+            MANUALSUCCESS.getStatus(),
+            UNSUBMIT.getStatus(),
+            KILLED.getStatus(),
+            PARENTFAILED.getStatus(),
+            EXPIRE.getStatus(),
+            LACKING.getStatus(),
+            AUTOCANCELED.getStatus());
 
     private static final Logger logger = LoggerFactory.getLogger(RdosTaskStatus.class);
 
@@ -159,6 +174,10 @@ public enum RdosTaskStatus implements Serializable {
         return false;
     }
 
+    public static boolean canRestart(Integer status){
+        return CAN_RESTART_STATUS.contains(status);
+    }
+
     public static boolean canReset(Integer currStatus){
         return STOPPED_STATUS.contains(currStatus) || RdosTaskStatus.UNSUBMIT.getStatus().equals(currStatus);
 
@@ -186,7 +205,7 @@ public enum RdosTaskStatus implements Serializable {
     }
 
     public final static List<Integer> UNSUBMIT_STATUS = Lists.newArrayList(UNSUBMIT.getStatus());
-    public final static List<Integer> RUNNING_STATUS = Lists.newArrayList(RUNNING.getStatus(), NOTFOUND.getStatus());
+    public final static List<Integer> RUNNING_STATUS = Lists.newArrayList(RUNNING.getStatus(), NOTFOUND.getStatus(),RUNNING_TASK_RULE.getStatus());
     public final static List<Integer> FINISH_STATUS = Lists.newArrayList(FINISHED.getStatus(), MANUALSUCCESS.getStatus());
     public final static List<Integer> FAILED_STATUS = Lists.newArrayList(FAILED.getStatus(), SUBMITFAILD.getStatus(),
             PARENTFAILED.getStatus(), FAILING.getStatus());
@@ -198,7 +217,7 @@ public enum RdosTaskStatus implements Serializable {
             ENGINEDISTRIBUTE.getStatus(), SCHEDULED.getStatus(), CREATED.getStatus(),
             DEPLOYING.getStatus(), COMPUTING.getStatus(), LACKING.getStatus());
     public final static List<Integer> SUBMITTING_STATUS = Lists.newArrayList(SUBMITTING.getStatus());
-    public final static List<Integer> STOP_STATUS = Lists.newArrayList(KILLED.getStatus(), CANCELED.getStatus(), EXPIRE.getStatus(), AUTOCANCELED.getStatus());
+    public final static List<Integer> STOP_STATUS = Lists.newArrayList(KILLED.getStatus(), CANCELED.getStatus(), EXPIRE.getStatus(), AUTOCANCELED.getStatus());;
     public final static List<Integer> EXPIRE_STATUS = Lists.newArrayList(EXPIRE.getStatus(),AUTOCANCELED.getStatus());
     public final static List<Integer> FROZEN_STATUS = Lists.newArrayList(FROZEN.getStatus());
 
@@ -237,6 +256,11 @@ public enum RdosTaskStatus implements Serializable {
             RESTARTING.getStatus(),
             SUBMITTING.getStatus());
 
+
+    private final static List<Integer> UN_SUBMIT_STATUSES = Lists.newArrayList(
+            ENGINEACCEPTED.getStatus(),
+            UNSUBMIT.getStatus());
+
     static {
         UNFINISHED_STATUSES.addAll(WAIT_STATUS);
     }
@@ -246,6 +270,10 @@ public enum RdosTaskStatus implements Serializable {
      */
     public static List<Integer> getUnfinishedStatuses() {
         return UNFINISHED_STATUSES;
+    }
+
+    public static List<Integer> getUnSubmitStatus() {
+        return UN_SUBMIT_STATUSES;
     }
 
     private final static Map<Integer, List<Integer>> COLLECTION_STATUS = new HashMap<>();
@@ -265,7 +293,7 @@ public enum RdosTaskStatus implements Serializable {
 
     static {
         STATUS_FAILED_DETAIL.put(UNSUBMIT.getStatus(), Lists.newArrayList(UNSUBMIT.getStatus()));
-        STATUS_FAILED_DETAIL.put(RUNNING.getStatus(), Lists.newArrayList(RUNNING.getStatus(), NOTFOUND.getStatus()));
+        STATUS_FAILED_DETAIL.put(RUNNING.getStatus(), Lists.newArrayList(RUNNING.getStatus(), NOTFOUND.getStatus(),RUNNING_TASK_RULE.getStatus()));
         STATUS_FAILED_DETAIL.put(FINISHED.getStatus(), FINISH_STATUS);
         STATUS_FAILED_DETAIL.put(FAILED.getStatus(), Lists.newArrayList(FAILED.getStatus(), FAILING.getStatus()));
         STATUS_FAILED_DETAIL.put(SUBMITFAILD.getStatus(), Lists.newArrayList(SUBMITFAILD.getStatus()));
@@ -275,6 +303,13 @@ public enum RdosTaskStatus implements Serializable {
         STATUS_FAILED_DETAIL.put(CANCELED.getStatus(), STOP_STATUS);
         STATUS_FAILED_DETAIL.put(FROZEN.getStatus(), Lists.newArrayList(FROZEN.getStatus()));
 
+    }
+
+    private final static Map<Integer, List<Integer>> STATUS_FAILED_DETAIL_EXPIRE = new HashMap<>();
+
+    static {
+        STATUS_FAILED_DETAIL_EXPIRE.putAll(STATUS_FAILED_DETAIL);
+        STATUS_FAILED_DETAIL_EXPIRE.put(EXPIRE.getStatus(), Lists.newArrayList(EXPIRE.getStatus()));
     }
 
 
@@ -290,6 +325,10 @@ public enum RdosTaskStatus implements Serializable {
 
     public static Map<Integer, List<Integer>> getStatusFailedDetail() {
         return STATUS_FAILED_DETAIL;
+    }
+
+    public static Map<Integer, List<Integer>> getStatusFailedDetailAndExpire() {
+        return STATUS_FAILED_DETAIL_EXPIRE;
     }
 
     public static int getShowStatus(Integer status) {

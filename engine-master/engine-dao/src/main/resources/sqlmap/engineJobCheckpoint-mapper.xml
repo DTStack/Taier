@@ -11,17 +11,14 @@
         values(#{taskId}, #{engineTaskId}, #{checkpointId}, #{checkpointTrigger}, #{checkpointSavepath}, #{checkpointCounts});
     </insert>
 
-    <update id="batchDeleteByEngineTaskIdAndCheckpointId">
-        update schedule_engine_job_checkpoint
-        set is_deleted = 1
+    <delete id="batchDeleteByEngineTaskIdAndCheckpointId">
+        delete from schedule_engine_job_checkpoint
         where task_engine_id = #{taskEngineId} and #{checkpointId}+0 >checkpoint_id and is_deleted = 0;
-    </update>
+    </delete>
 
-    <update id="cleanAllCheckpointByTaskEngineId">
-        update schedule_engine_job_checkpoint
-        set is_deleted = 1
-        where task_engine_id = #{taskEngineId} and is_deleted = 0;
-    </update>
+    <delete id="cleanAllCheckpointByTaskEngineId">
+        delete from schedule_engine_job_checkpoint where task_engine_id = #{taskEngineId} and is_deleted = 0;
+    </delete>
 
     <select id="listByTaskIdAndRangeTime" resultType="EngineJobCheckpoint">
         select
@@ -29,7 +26,7 @@
         from schedule_engine_job_checkpoint
         where is_deleted=0 and task_id=#{taskId}
         <if test="triggerStart != null and triggerEnd != null">
-            and (UNIX_TIMESTAMP(checkpoint_trigger)>=#{triggerStart} or #{triggerEnd}>=UNIX_TIMESTAMP(checkpoint_trigger))
+            and (#{triggerStart} &lt;= UNIX_TIMESTAMP(checkpoint_trigger) &lt;= #{triggerEnd})
         </if>
         and checkpoint_savepath is not null
         order by checkpoint_trigger asc
@@ -41,7 +38,7 @@
         from schedule_engine_job_checkpoint
         where task_id=#{taskId}
         <if test="triggerStart != null and triggerEnd != null">
-            and (UNIX_TIMESTAMP(gmt_create)>=#{triggerStart} or #{triggerEnd}>=UNIX_TIMESTAMP(gmt_create))
+            and (#{triggerStart} &lt;= UNIX_TIMESTAMP(gmt_create) &lt;= #{triggerEnd})
         </if>
         and checkpoint_savepath is null
         order by gmt_create desc
@@ -66,15 +63,16 @@
         from schedule_engine_job_checkpoint
         where is_deleted=0 and task_id=#{taskId}
         and task_engine_id = #{taskEngineId} and checkpoint_savepath is not null
-        order by checkpoint_id desc limit 1
+        order by CONVERT(checkpoint_id,SIGNED) desc limit 1
     </select>
 
     <select id="getByTaskEngineIdAndCheckpointIndexAndCount" resultType="EngineJobCheckpoint">
         select
         <include refid="select_content_fragment"/>
         from schedule_engine_job_checkpoint
-        where is_deleted =0 and task_engine_id = #{taskEngineId} and checkpoint_savepath is not null
-        order by checkpoint_id desc
+        where is_deleted =0 and task_engine_id = #{taskEngineId}
+        and task_id=#{taskId} and checkpoint_savepath is not null
+        order by CONVERT(checkpoint_id,SIGNED) desc
         limit #{startIndex}, #{count}
     </select>
 
@@ -101,7 +99,7 @@
         <include refid="select_content_fragment"/>
         from schedule_engine_job_checkpoint
         where is_deleted=0 and task_id=#{taskId} and checkpoint_savepath is not null
-        order by checkpoint_id desc limit 1
+        order by CONVERT(checkpoint_id,SIGNED) desc limit 1
     </select>
 
     <delete id="deleteByTaskId">

@@ -1,25 +1,25 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.api.domain.EngineJobCheckpoint;
-import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.pojo.CheckResult;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.pojo.ParamActionExt;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.enums.ComputeType;
-import com.dtstack.engine.common.enums.EDeployMode;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.JobIdentifier;
+import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.dao.EngineJobCacheDao;
-import com.dtstack.engine.dao.EngineJobCheckpointDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
+import com.dtstack.engine.dao.EngineJobCheckpointDao;
+import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.domain.EngineJobCache;
+import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.common.enums.EDeployMode;
 import com.google.common.base.Preconditions;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -40,7 +40,7 @@ import java.util.List;
 @Service
 public class StreamTaskService {
 
-    private static final Logger logger = LoggerFactory.getLogger(StreamTaskService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StreamTaskService.class);
 
     @Autowired
     private EngineJobCheckpointDao engineJobCheckpointDao;
@@ -64,6 +64,7 @@ public class StreamTaskService {
         }
         return failedCheckPointList;
     }
+
 
     /**
      * 查询checkPoint
@@ -161,7 +162,7 @@ public class StreamTaskService {
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
 
             jobIdentifier = new JobIdentifier(scheduleJob.getEngineJobId(), applicationId, taskId,scheduleJob.getDtuicTenantId(),engineJobCache.getEngineType(),
-                    EDeployMode.PERJOB.getType(),paramAction.getUserId(),null);
+                    EDeployMode.PERJOB.getType(),paramAction.getUserId(),null,paramAction.getComponentVersion());
             jobClient = new JobClient(paramAction);
 
             return workerOperator.getRollingLogBaseInfo(jobIdentifier);
@@ -185,7 +186,7 @@ public class StreamTaskService {
     }
 
     public CheckResult grammarCheck(ParamActionExt paramActionExt) {
-        logger.info("grammarCheck actionParam: {}", JSONObject.toJSONString(paramActionExt));
+        LOGGER.info("grammarCheck actionParam: {}", JSONObject.toJSONString(paramActionExt));
         CheckResult checkResult = null;
         try {
             JobClient jobClient = new JobClient(paramActionExt);
@@ -195,4 +196,5 @@ public class StreamTaskService {
         }
         return checkResult;
     }
+
 }

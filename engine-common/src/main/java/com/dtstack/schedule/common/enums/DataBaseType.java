@@ -40,7 +40,10 @@ public enum DataBaseType {
     MySql8("mysql8", "com.mysql.cj.jdbc.Driver"),
     DMDB("DMDB","dm.jdbc.driver.DmDriver"),
     Greenplum6("Greenplum6", "com.pivotal.jdbc.GreenplumDriver"),
-    Presto("presto", "com.facebook.presto.jdbc.PrestoDriver");
+    Presto("presto", "com.facebook.presto.jdbc.PrestoDriver"),
+    HIVE3("hive3", "org.apache.hive.jdbc.HiveDriver"),
+    Inceptor("inceptor", "org.apache.hive.jdbc.HiveDriver"),
+    adb_Postgrepsql("adb-postgresql", "org.postgresql.Driver"),;
 
     private String typeName;
     private String driverClassName;
@@ -222,6 +225,22 @@ public enum DataBaseType {
 
     public void setTypeName(String typeName) {
         this.typeName = typeName;
+    }
+
+    public static String getHiveTypeName(DataSourceType hiveDataSourceType) {
+        switch (hiveDataSourceType) {
+            case HIVE1X:
+                return HIVE1X.getTypeName();
+            case HIVE:
+            case SPARKTHRIFT2_1:
+                return HIVE.getTypeName();
+            case HIVE3:
+                return HIVE3.getTypeName();
+            case INCEPTOR_SQL:
+                return Inceptor.getTypeName();
+            default:
+                return null;
+        }
     }
 
 }

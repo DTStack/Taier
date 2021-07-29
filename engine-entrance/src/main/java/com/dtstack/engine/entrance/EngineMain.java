@@ -15,23 +15,22 @@ import org.slf4j.LoggerFactory;
  */
 public class EngineMain {
 
-    private static final Logger logger = LoggerFactory.getLogger(EngineMain.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EngineMain.class);
 
     public static void main(String[] args){
         try {
             EngineApplication.main(args);
-            WorkerMain.main(null);
             // add hook
-            ShutdownHookUtil.addShutdownHook(EngineMain::shutdown, EngineMain.class.getSimpleName(), logger);
+            ShutdownHookUtil.addShutdownHook(EngineMain::shutdown, EngineMain.class.getSimpleName(), LOGGER);
             System.setSecurityManager(new NoExitSecurityManager());
             JavaPolicyUtils.checkJavaPolicy();
         } catch (Throwable e) {
-            logger.error("EngineMain start error:", e);
+            LOGGER.error("EngineMain start error:", e);
             System.exit(-1);
         }
     }
 
     private static void shutdown() {
-        logger.info("EngineMain is shutdown...");
+        LOGGER.info("EngineMain is shutdown...");
     }
 }

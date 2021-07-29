@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.controller;
 
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.api.pojo.ParamTaskAction;
@@ -9,10 +9,16 @@ import com.dtstack.engine.api.vo.action.ActionJobStatusVO;
 import com.dtstack.engine.api.vo.action.ActionLogVO;
 import com.dtstack.engine.api.vo.action.ActionRetryLogVO;
 import com.dtstack.engine.master.impl.ActionService;
-import io.swagger.annotations.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.dtstack.engine.master.router.DtRequestParam;
-import org.springframework.web.bind.annotation.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
@@ -21,7 +27,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/node/action")
 @Api(value = "/node/action", tags = {"任务动作接口"})
-public class ActionController {
+public class ActionController  {
 
     @Autowired
     private ActionService actionService;
@@ -171,8 +177,17 @@ public class ActionController {
     @ApiImplicitParams({
             @ApiImplicitParam(name="time",value="查询的job的调整的时间点",required=true, dataType = "long")
     })
-    public List<ActionJobStatusVO> listJobStatus(@DtRequestParam("time") Long time) {
-        return actionService.listJobStatus(time);
+    public List<ActionJobStatusVO> listJobStatus(@DtRequestParam("time") Long time , @DtRequestParam("appType") Integer appType) {
+        return actionService.listJobStatus(time,appType);
+    }
+
+    @RequestMapping(value="/listJobStatusScheduleJob", method = {RequestMethod.POST})
+    @ApiOperation(value = "查询某个时间开始的Job的状态、执行时间等信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="time",value="查询的job的调整的时间点",required=true, dataType = "long")
+    })
+    public List<ScheduleJob> listJobStatusScheduleJob(@DtRequestParam("time") Long time , @DtRequestParam("appType") Integer appType) {
+        return actionService.listJobStatusScheduleJob(time,appType);
     }
 
     @RequestMapping(value="/generateUniqueSign", method = {RequestMethod.POST, RequestMethod.GET})

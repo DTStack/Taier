@@ -1,17 +1,13 @@
 package com.dtstack.engine.master.jobdealer.resource;
 
 import com.dtstack.engine.api.domain.Component;
-import com.dtstack.engine.api.domain.Engine;
-import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.ComputeType;
-import com.dtstack.engine.common.enums.MultiEngineType;
+import com.dtstack.engine.common.enums.EDeployType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.enums.EComponentType;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,6 +25,7 @@ public class FlinkResource extends CommonResource {
 
     private static final String SESSION = "session";
     private static final String PER_JOB = "per_job";
+    private static final String STANDALONE = "standalone";
 
     @Override
     public ComputeResourceType getComputeResourceType(JobClient jobClient) {
@@ -40,8 +37,10 @@ public class FlinkResource extends CommonResource {
         Properties properties = jobClient.getConfProperties();
         ComputeType computeType = jobClient.getComputeType();
         String modeStr = properties.getProperty(FLINK_TASK_RUN_MODE_KEY);
-
-        if (EComponentType.YARN.getTypeCode().equals(componentType.getTypeCode())) {
+        if (EComponentType.FLINK.getTypeCode().equals(componentType.getTypeCode())) {
+            //flink on standalone
+            return ComputeResourceType.FlinkOnStandalone;
+        } else if (EComponentType.YARN.getTypeCode().equals(componentType.getTypeCode())) {
             if (StringUtils.isEmpty(modeStr)) {
                 if (ComputeType.STREAM == computeType) {
                     return ComputeResourceType.Yarn;
@@ -53,6 +52,8 @@ public class FlinkResource extends CommonResource {
                 return ComputeResourceType.FlinkYarnSession;
             } else if (PER_JOB.equalsIgnoreCase(modeStr)) {
                 return ComputeResourceType.Yarn;
+            } else if (STANDALONE.equals(modeStr)) {
+                return ComputeResourceType.FlinkOnStandalone;
             }
         } else if (EComponentType.KUBERNETES.getTypeCode().equals(componentType.getTypeCode())) {
             if (StringUtils.isEmpty(modeStr)) {
@@ -66,46 +67,30 @@ public class FlinkResource extends CommonResource {
                 return ComputeResourceType.FlinkKubernetesSession;
             } else if (PER_JOB.equalsIgnoreCase(modeStr)) {
                 return ComputeResourceType.Kubernetes;
+            }else if(STANDALONE.equals(modeStr)){
+                return ComputeResourceType.FlinkOnStandalone;
             }
         }
 
         throw new RdosDefineException("not support mode: " + modeStr);
     }
 
-    public EComponentType getResourceEComponentType(JobClient jobClient){
-        long tenantId = jobClient.getTenantId();
+    public EComponentType getResourceEComponentType(JobClient jobClient) {
+        long dtUicTenantId = jobClient.getTenantId();
 
-        ClusterVO cluster = clusterService.getClusterByTenant(tenantId);
-        if (null == cluster){
-            throw new RdosDefineException("No found cluster by tenantId: " + tenantId);
-        }
-
-        Long clusterId = cluster.getClusterId();
-        List<Engine> engines = engineDao.listByClusterId(clusterId);
-        if (CollectionUtils.isEmpty(engines)){
-            throw new RdosDefineException("No found engines by clusterId: " + clusterId);
-        }
-
-        Engine hadoopEngine = null;
-        for (Engine engine : engines) {
-            if (engine.getEngineType() == MultiEngineType.HADOOP.getType()) {
-                hadoopEngine = engine;
-                break;
-            }
-        }
-        if (null == hadoopEngine) {
-            throw new RdosDefineException("No found hadoopEngine");
-        }
-
-        List<Component> componentList = componentService.listComponent(hadoopEngine.getId());
-        for (Component component : componentList) {
-            if (EComponentType.KUBERNETES.getTypeCode().equals(component.getComponentTypeCode())) {
-                return EComponentType.KUBERNETES;
-            } else if (EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode())) {
+        Long clusterId = engineTenantDao.getClusterIdByTenantId(dtUicTenantId);
+        Component flinkComponent = componentService.getComponentByClusterId(clusterId, EComponentType.FLINK.getTypeCode(), null);
+        if (null != flinkComponent) {
+            if (EDeployType.STANDALONE.getType() == flinkComponent.getDeployType()) {
+                return EComponentType.FLINK;
+            } else if (EDeployType.YARN.getType() == flinkComponent.getDeployType()) {
                 return EComponentType.YARN;
             }
         }
-
+        Component kubernetesComponent = componentService.getComponentByClusterId(clusterId, EComponentType.KUBERNETES.getTypeCode(), null);
+        if (null != kubernetesComponent) {
+            return EComponentType.KUBERNETES;
+        }
         throw new RdosDefineException("No found resource EComponentType");
     }
 }

@@ -30,9 +30,13 @@ import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.api.vo.action.ActionLogVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.common.enums.EScheduleType;
+import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.util.ComponentVersionUtil;
+import com.dtstack.engine.dao.ComponentDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
@@ -40,7 +44,6 @@ import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.multiengine.engine.HadoopJobStartTrigger;
-import com.dtstack.engine.master.utils.TaskParamsUtil;
 import com.dtstack.engine.master.utils.Template;
 import com.dtstack.engine.master.utils.ValueUtils;
 import com.dtstack.engine.master.vo.ScheduleJobVO;
@@ -88,6 +91,12 @@ public class ScheduleJobServiceTest extends AbstractTest {
 
     @Autowired
     private ScheduleJobJobDao scheduleJobJobDao;
+
+    @Autowired
+    private ComponentDao componentDao;
+
+    @Autowired
+    private TaskParamsService taskParamsService;
 
     @Before
     public void init() throws Exception {
@@ -183,6 +192,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
         todayJob.setJobId(ValueUtils.getChangedStr());
         todayJob.setJobKey(ValueUtils.getChangedStr());
         todayJob.setStatus(RdosTaskStatus.FINISHED.getStatus());
+        buildComponentVersion(todayJob);
         scheduleJobDao.insert(todayJob);
 
         Long projectId = todayJob.getProjectId();
@@ -190,13 +200,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
         Integer appType = todayJob.getAppType();
         Long dtuicTenantId = todayJob.getDtuicTenantId();
 
-        ScheduleJobChartVO jobGraph = scheduleJobService.getJobGraph(projectId, tenantId, appType, dtuicTenantId);
-        List<ChartMetaDataVO> y = jobGraph.getY();
-        ChartMetaDataVO today = y.get(0);
-        ChartMetaDataVO yesterday = y.get(1);
-
-        long todaySum = today.getData().stream().mapToLong((Object i) -> (Long) i).filter(i -> i > 0).count();
-        Assert.assertTrue(todaySum >= 1);
+        scheduleJobService.getJobGraph(projectId, tenantId, appType, dtuicTenantId);
     }
 
 
@@ -208,6 +212,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
         todayJob.setJobId(ValueUtils.getChangedStr());
         todayJob.setJobKey(ValueUtils.getChangedStr());
         todayJob.setStatus(RdosTaskStatus.FINISHED.getStatus());
+        buildComponentVersion(todayJob);
         scheduleJobDao.insert(todayJob);
         Long projectId = todayJob.getProjectId();
         Long tenantId = todayJob.getTenantId();
@@ -249,6 +254,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
             afterJob.setJobId("testAfter");
             afterJob.setJobKey("testAfterkey");
             afterJob.setCycTime(DateTime.now().toString("yyyy-mm-dd HH:mm:ss"));
+            buildComponentVersion(afterJob);
             scheduleJobDao.insert(afterJob);
             List<SchedulePeriodInfoVO> schedulePeriodInfoVOS = scheduleJobService.displayPeriods(true, jobId, job.getProjectId(), 10);
             Assert.assertTrue(schedulePeriodInfoVOS.size() > 1 && schedulePeriodInfoVOS.get(0).getTaskId().equals(job.getTaskId()));
@@ -271,7 +277,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Transactional
     @Rollback
     public void testParseDeployTypeByTaskParams() {
-        EDeployMode eDeployMode = TaskParamsUtil.parseDeployTypeByTaskParams("flinkTaskRunMode=session",0);
+        EDeployMode eDeployMode = taskParamsService.parseDeployTypeByTaskParams("flinkTaskRunMode=session",0, EngineType.Flink.name(),-1L);
         Assert.assertEquals(eDeployMode, EDeployMode.SESSION);
     }
 
@@ -280,9 +286,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Rollback
     public void testStopJob() throws Exception {
         ScheduleJob runningJob = DataCollection.getData().getScheduleJobDefiniteTaskId();
-        String result = scheduleJobService.stopJob(runningJob.getId(),runningJob.getAppType());
-
-        Assert.assertEquals(result, "");
+        scheduleJobService.stopJob(runningJob.getId(),runningJob.getAppType());
     }
 
     @Test
@@ -290,8 +294,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Rollback
     public void testStopJobByJobId() throws Exception {
         ScheduleJob runningJob = DataCollection.getData().getScheduleJobDefiniteTaskId();
-        String result = scheduleJobService.stopJobByJobId(runningJob.getJobId(),runningJob.getAppType());
-        Assert.assertEquals(result, "");
+        scheduleJobService.stopJobByJobId(runningJob.getJobId(),runningJob.getAppType());
     }
 
     @Test
@@ -448,6 +451,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
         scheduleTaskShade.setScheduleStatus(1);
         scheduleTaskShade.setProjectScheduleStatus(0);
         scheduleTaskShade.setAppType(scheduleJob.getAppType());
+        buildComponentVersion(scheduleTaskShade);
         scheduleTaskShadeDao.insert(scheduleTaskShade);
 
         ScheduleJob scheduleJobTemplate = Template.getScheduleJobTemplate();
@@ -467,6 +471,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
         scheduleJobTemplate.setGmtCreate(new Timestamp(System.currentTimeMillis()));
         scheduleJobTemplate.setGmtModified(new Timestamp(System.currentTimeMillis()));
         scheduleJobTemplate.setAppType(scheduleJob.getAppType());
+        buildComponentVersion(scheduleJobTemplate);
         scheduleJobDao.insert(scheduleJobTemplate);
         ScheduleJobJob jobJob = new ScheduleJobJob();
         jobJob.setParentJobKey(scheduleJob.getJobKey());
@@ -518,7 +523,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
         //{"fillName":"P_123_2020_11_28_17_41","taskJson":"[{\"task\":165}]","fromDay":1606406400,"toDay":1606492799}
         try {
             //补数据
-            scheduleJobService.fillTaskData("[{\"task\":471}]",fillName, runDay,toDay,null,null,projectId,userId,tenant, true,appType,dtuicTenantId);
+            scheduleJobService.fillTaskData("[{\"task\":471}]",fillName, runDay,toDay,null,null,projectId,userId,tenant, true,appType,dtuicTenantId,false);
             //查询工作流外部
             PageResult<List<ScheduleFillDataJobPreViewVO>> fillDataJobInfoPreview = scheduleJobService.getFillDataJobInfoPreview("", null, null, null, null, projectId, appType, 1, 20, tenant);
             Assert.assertNotNull(fillDataJobInfoPreview);
@@ -586,6 +591,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
         parentTaskShadeTemplate.setTaskId(471L);
         parentTaskShadeTemplate.setAppType(1);
         parentTaskShadeTemplate.setTaskType(EScheduleJobType.WORK_FLOW.getType());
+        buildComponentVersion(parentTaskShadeTemplate);
         scheduleTaskShadeDao.insert(parentTaskShadeTemplate);
 
         //顶节点
@@ -594,6 +600,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
         parentTaskShadeTemplate.setName("virtual");
         parentTaskShadeTemplate.setTaskId(499L);
         parentTaskShadeTemplate.setAppType(1);
+        buildComponentVersion(parentTaskShadeTemplate);
         scheduleTaskShadeDao.insert(parentTaskShadeTemplate);
 
         //子节点
@@ -602,6 +609,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
         parentTaskShadeTemplate.setName("first");
         parentTaskShadeTemplate.setTaskId(525L);
         parentTaskShadeTemplate.setAppType(1);
+        buildComponentVersion(parentTaskShadeTemplate);
         scheduleTaskShadeDao.insert(parentTaskShadeTemplate);
 
         //子节点
@@ -610,13 +618,14 @@ public class ScheduleJobServiceTest extends AbstractTest {
         parentTaskShadeTemplate.setName("second");
         parentTaskShadeTemplate.setTaskId(600L);
         parentTaskShadeTemplate.setAppType(1);
+        buildComponentVersion(parentTaskShadeTemplate);
         scheduleTaskShadeDao.insert(parentTaskShadeTemplate);
 
         //插入关系
         String taskTaskStr = "[{\"appType\":1,\"dtuicTenantId\":1,\"gmtCreate\":1606101569150,\"gmtModified\":1606101569150,\"id\":233,\"isDeleted\":0,\"parentTaskId\":499,\"projectId\":3,\"taskId\":525,\"tenantId\":1}," +
                 "{\"appType\":1,\"dtuicTenantId\":1,\"gmtCreate\":1606101569150,\"gmtModified\":1606101569150,\"id\":233,\"isDeleted\":0,\"parentTaskId\":525,\"projectId\":3,\"taskId\":600,\"tenantId\":1}," +
                 "]";
-        scheduleTaskTaskShadeService.saveTaskTaskList(taskTaskStr);
+        scheduleTaskTaskShadeService.saveTaskTaskList(taskTaskStr,null);
         List<ScheduleTaskTaskShade> allParentTask = scheduleTaskTaskShadeService.getAllParentTask(525L, 1);
         Assert.assertNotNull(allParentTask);
     }
@@ -652,6 +661,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
         scheduleTaskShade.setPeriodType(2);
         scheduleTaskShade.setScheduleStatus(1);
         scheduleTaskShade.setProjectScheduleStatus(0);
+        buildComponentVersion(scheduleTaskShade);
         scheduleTaskShadeDao.insert(scheduleTaskShade);
 
         scheduleTaskShadeDao.updateTaskExtInfo(scheduleTaskShade.getTaskId(),
@@ -689,8 +699,8 @@ public class ScheduleJobServiceTest extends AbstractTest {
         scheduleJobTemplate.setGmtCreate(new Timestamp(System.currentTimeMillis()));
         scheduleJobTemplate.setGmtModified(new Timestamp(System.currentTimeMillis()));
         scheduleJobTemplate.setAppType(scheduleTaskShade.getAppType());
+        scheduleJobTemplate.setTaskRule(0);
         ScheduleBatchJob scheduleBatchJob = new ScheduleBatchJob(scheduleJobTemplate);
-
 
         scheduleJobService.insertJobList(Lists.newArrayList(scheduleBatchJob), EScheduleType.NORMAL_SCHEDULE.getType());
         scheduleJobService.testCheckCanRun(jobId);
@@ -752,6 +762,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
         scheduleTaskShade.setPeriodType(1);
         scheduleTaskShade.setScheduleStatus(1);
         scheduleTaskShade.setProjectScheduleStatus(0);
+        buildComponentVersion(scheduleTaskShade);
         scheduleTaskShadeDao.insert(scheduleTaskShade);
         scheduleJobService.createTodayTaskShade(scheduleTaskShade.getTaskId(),scheduleTaskShade.getAppType(),null);
         ScheduleJobDTO scheduleJobDTO = new ScheduleJobDTO();
@@ -779,9 +790,54 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
     public void testSendTaskStartTrigger() throws Exception {
+        String jobId = "9ead3d68";
+        ScheduleTaskShade scheduleTaskShade = Template.getScheduleTaskShadeTemplate();
+        scheduleTaskShade.setTaskId(1392L);
+        scheduleTaskShade.setName("hbase_hdfs");
+        scheduleTaskShade.setTaskType(2);
+        scheduleTaskShade.setEngineType(0);
+        scheduleTaskShade.setComputeType(1);
+        scheduleTaskShade.setTaskParams("## 任务运行方式：\n" +
+                "## per_job:单独为任务创建flink yarn session，适用于低频率，大数据量同步\n" +
+                "## session：多个任务共用一个flink yarn session，适用于高频率、小数据量同步，默认session\n" +
+                "flinkTaskRunMode=per_job\n" +
+                "## per_job模式下jobManager配置的内存大小，默认1024（单位M)\n" +
+                "## jobmanager.memory.mb=1024\n" +
+                "## per_job模式下taskManager配置的内存大小，默认1024（单位M）\n" +
+                "## taskmanager.memory.mb=1024\n" +
+                "## per_job模式下每个taskManager 对应 slot的数量\n" +
+                "## slots=1\n" +
+                "## checkpoint保存时间间隔\n" +
+                "## flink.checkpoint.interval=300000\n" +
+                "## 任务优先级, 范围:1-1000\n" +
+                "## job.priority=10");
+        scheduleTaskShade.setScheduleConf("{\"selfReliance\":false, \"min\":0,\"hour\":0,\"periodType\":\"2\",\"beginDate\":\"2001-01-01\",\"endDate\":\"2121-01-01\",\"isFailRetry\":true,\"maxRetryNum\":\"3\"}");
+        scheduleTaskShade.setPeriodType(2);
+        scheduleTaskShade.setScheduleStatus(1);
+        scheduleTaskShade.setProjectScheduleStatus(0);
+        scheduleTaskShadeDao.insert(scheduleTaskShade);
 
-        ScheduleJob job = DataCollection.getData().getScheduleJobVirtual();
-        scheduleJobService.sendTaskStartTrigger(job);
+        ScheduleJob scheduleJobTemplate = Template.getScheduleJobTemplate();
+        scheduleJobTemplate.setJobId(jobId);
+        scheduleJobTemplate.setProjectId(scheduleTaskShade.getProjectId());
+        scheduleJobTemplate.setTaskId(scheduleTaskShade.getTaskId());
+        scheduleJobTemplate.setTenantId(scheduleTaskShade.getTenantId());
+        scheduleJobTemplate.setDtuicTenantId(scheduleTaskShade.getDtuicTenantId());
+        scheduleJobTemplate.setJobKey("cronTrigger_941_20201210000000");
+        scheduleJobTemplate.setJobName("cronJob_hbase_hdfs_20201210000000");
+        scheduleJobTemplate.setType(0);
+        scheduleJobTemplate.setBusinessDate("20201209000000");
+        scheduleJobTemplate.setCycTime("20201210000000");
+        scheduleJobTemplate.setDependencyType(0);
+        scheduleJobTemplate.setStatus(0);
+        scheduleJobTemplate.setTaskType(0);
+        scheduleJobTemplate.setGmtCreate(new Timestamp(System.currentTimeMillis()));
+        scheduleJobTemplate.setGmtModified(new Timestamp(System.currentTimeMillis()));
+        scheduleJobTemplate.setAppType(scheduleTaskShade.getAppType());
+        scheduleJobTemplate.setTaskRule(1);
+        ScheduleBatchJob scheduleBatchJob = new ScheduleBatchJob(scheduleJobTemplate);
+        scheduleJobService.insertJobList(Lists.newArrayList(scheduleBatchJob), EScheduleType.NORMAL_SCHEDULE.getType());
+        scheduleJobService.sendTaskStartTrigger(scheduleJobTemplate);
     }
 
 
@@ -852,4 +908,25 @@ public class ScheduleJobServiceTest extends AbstractTest {
         scheduleJobService.deleteJobsByJobKey(Lists.newArrayList("falfjaljfla"));
     }
 
+    private void buildComponentVersion(ScheduleTaskShade taskShade) {
+        if (StringUtils.isNotBlank(taskShade.getComponentVersion())){
+            return;
+        }
+        EComponentType componentType = ComponentVersionUtil.transformTaskType2ComponentType(taskShade.getTaskType());
+        if (Objects.nonNull(componentType)){
+            taskShade.setComponentVersion(componentDao.getDefaultVersionDictNameByUicIdAndComponentType(
+                    taskShade.getTenantId(), componentType.getTypeCode()));
+        }
+    }
+
+    private void buildComponentVersion(ScheduleJob scheduleJob) {
+       /* if (StringUtils.isNotBlank(scheduleJob.getComponentVersion())){
+            return;
+        }
+        EComponentType componentType = ComponentVersionUtil.transformTaskType2ComponentType(scheduleJob.getTaskType());
+        if (Objects.nonNull(componentType)){
+            scheduleJob.setComponentVersion(componentDao.getDefaultComponentVersionByUicIdAndComponentType(
+                    scheduleJob.getTenantId(),componentType.getTypeCode()));
+        }*/
+    }
 }

@@ -1,13 +1,10 @@
 package com.dtstack.engine.common.client;
 
-import com.dtstack.engine.api.pojo.CheckResult;
-import com.dtstack.engine.api.pojo.ClientTemplate;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.api.pojo.*;
 import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.EJobType;
-import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JobStatusFrequency;
@@ -31,7 +28,7 @@ import java.util.Map;
 
 public abstract class AbstractClient implements IClient {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractClient.class);
 
     public Map<String, JobStatusFrequency> jobStatusMap = Maps.newConcurrentMap();
 
@@ -50,7 +47,7 @@ public abstract class AbstractClient implements IClient {
                         " you need to set it in(" + StringUtils.join(EJobType.values(), ",") + ")");
             }
         } catch (Exception e) {
-            logger.error("", e);
+            LOGGER.error("", e);
             jobResult = JobResult.createErrorResult(e);
         } finally {
             afterSubmitFunc(jobClient);
@@ -65,7 +62,7 @@ public abstract class AbstractClient implements IClient {
         try {
             status = processJobStatus(jobIdentifier);
         }catch (Exception e) {
-            logger.error("get job status error: {}", e.getMessage());
+            LOGGER.error("get job status error: {}", e.getMessage());
         } finally {
             handleJobStatus(jobIdentifier, status);
         }
@@ -151,6 +148,11 @@ public abstract class AbstractClient implements IClient {
 
     @Override
     public CheckResult grammarCheck(JobClient jobClient){
+        return null;
+    }
+
+    @Override
+    public List<DtScriptAgentLabel> getDtScriptAgentLabel(String pluginInfo) {
         return null;
     }
 }

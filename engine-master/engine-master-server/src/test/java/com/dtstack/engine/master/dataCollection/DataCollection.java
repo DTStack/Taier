@@ -3,8 +3,8 @@ package com.dtstack.engine.master.dataCollection;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.domain.AlertChannel;
-import com.dtstack.engine.domain.AlertRecord;
+import com.dtstack.engine.api.domain.AlertChannel;
+import com.dtstack.engine.api.domain.AlertRecord;
 import com.dtstack.engine.master.anno.DataSource;
 import com.dtstack.engine.master.anno.DatabaseInsertOperation;
 import com.dtstack.engine.master.anno.IgnoreUniqueRandomSet;
@@ -924,79 +924,6 @@ public interface DataCollection {
         return Template.getDefaultScheduleJobJobFlowTemplate();
     }
 
-    @DatabaseInsertOperation(dao = TestClusterDao.class)
-    default Cluster getCluster() {
-        Cluster cluster = new Cluster();
-        cluster.setClusterName("test_01");
-        cluster.setHadoopVersion("1.2");
-        return cluster;
-    }
-
-    /*************************血缘存储*****************************/
-
-    @DatabaseInsertOperation(dao = TestLineageRealDataSourceDao.class)
-    default LineageRealDataSource getHiveLineageRealDataSource(){
-        LineageRealDataSource defaultHiveRealDataSourceTemplate = Template.getDefaultHiveRealDataSourceTemplate();
-        defaultHiveRealDataSourceTemplate.setId(1L);
-        return defaultHiveRealDataSourceTemplate;
-    }
-
-    @DatabaseInsertOperation(dao = TestLineageRealDataSourceDao.class)
-    default LineageRealDataSource getDefaultLineageRealDataSource(){
-        LineageRealDataSource defaultHiveRealDataSourceTemplate = Template.getDefaultHiveRealDataSourceTemplate();
-        defaultHiveRealDataSourceTemplate.setSourceType(DataSourceType.Oracle.getVal());
-        defaultHiveRealDataSourceTemplate.setSourceKey("172.16.8.107#5432");
-        defaultHiveRealDataSourceTemplate.setId(2L);
-        return defaultHiveRealDataSourceTemplate;
-    }
-
-    @DatabaseInsertOperation(dao = TestLineageDataSourceDao.class)
-    default LineageDataSource getDefaultLineageDataSource(){
-        LineageDataSource defaultHiveDataSourceTemplate = Template.getDefaultHiveDataSourceTemplate();
-        defaultHiveDataSourceTemplate.setRealSourceId(1L);
-        return defaultHiveDataSourceTemplate;
-    }
-
-//    @DatabaseInsertOperation(dao = TestLineageDataSourceDao.class)
-//    default LineageDataSource getHiveLineageDataSource(){
-//        LineageDataSource defaultHiveDataSourceTemplate = Template.getDefaultHiveDataSourceTemplate();
-//        defaultHiveDataSourceTemplate.setRealSourceId(1L);
-//        return defaultHiveDataSourceTemplate;
-//    }
-
-    @DatabaseInsertOperation(dao = TestLineageDataSetInfoDao.class)
-    default LineageDataSetInfo getDefaultLineageDataSetInfo(){
-        LineageDataSetInfo defaultDataSetInfoTemplate = Template.getDefaultDataSetInfoTemplate();
-        LineageDataSource defaultHiveDataSourceTemplate = Template.getDefaultHiveDataSourceTemplate();
-        defaultDataSetInfoTemplate.setSourceId(defaultHiveDataSourceTemplate.getId());
-        return defaultDataSetInfoTemplate;
-    }
-
-    @DatabaseInsertOperation(dao = TestLineageDataSetInfoDao.class)
-    default LineageDataSetInfo getHiveLineageDataSetInfo(){
-        LineageDataSetInfo lineageDataSetInfo = Template.getHiveDataSetInfoTemplate();
-        LineageDataSource defaultHiveDataSourceTemplate = Template.getDefaultHiveDataSourceTemplate();
-        lineageDataSetInfo.setSourceId(defaultHiveDataSourceTemplate.getId());
-        return lineageDataSetInfo;
-    }
-
-    @DatabaseInsertOperation(dao = TestLineageTableTableDao.class)
-    default LineageTableTable getLineageTableTable(){
-        LineageTableTable lineageTableTable = Template.getLineageTableTableTemplate();
-        return lineageTableTable;
-    }
-
-    @DatabaseInsertOperation(dao = TestLineageTableTableDao.class)
-    default LineageTableTable getDefaultLineageTableTable(){
-        return Template.getDefaultTableTable();
-    }
-
-    @DatabaseInsertOperation(dao = TestLineageColumnColumnDao.class)
-    default LineageColumnColumn getDefaultLineageColumnColumn() {
-        LineageColumnColumn defaultColumnColumn = Template.getDefaultColumnColumn();
-        return defaultColumnColumn;
-    }
-
     @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
     default AlertChannel getDefaultAlterChannelDingDt() {
         return Template.getDefaultAlterChannelTemplateDingDt();
@@ -1026,6 +953,51 @@ public interface DataCollection {
     @DatabaseInsertOperation(dao = TestAlertRecordDao.class)
     default AlertRecord getDefaultRecord(){
         return Template.getDefaultRecord();
+    }
+
+
+
+
+    @DatabaseInsertOperation(dao = TestClusterDao.class)
+    default Cluster getCluster() {
+        Cluster cluster = new Cluster();
+        cluster.setClusterName("test_01");
+        cluster.setHadoopVersion("1.2");
+        return cluster;
+    }
+
+    /*************************血缘存储*****************************/
+
+
+    @DatabaseInsertOperation(dao = TestLineageDataSetInfoDao.class)
+    default LineageDataSetInfo getDefaultLineageDataSetInfo(){
+        LineageDataSetInfo defaultDataSetInfoTemplate = Template.getDefaultDataSetInfoTemplate();
+        LineageDataSource defaultHiveDataSourceTemplate = Template.getDefaultHiveDataSourceTemplate();
+        defaultDataSetInfoTemplate.setDataInfoId(defaultHiveDataSourceTemplate.getId());
+        return defaultDataSetInfoTemplate;
+    }
+
+    @DatabaseInsertOperation(dao = TestLineageDataSetInfoDao.class)
+    default LineageDataSetInfo getHiveLineageDataSetInfo(){
+        LineageDataSetInfo lineageDataSetInfo = Template.getHiveDataSetInfoTemplate();
+        return lineageDataSetInfo;
+    }
+
+    @DatabaseInsertOperation(dao = TestLineageTableTableDao.class)
+    default LineageTableTable getLineageTableTable(){
+        LineageTableTable lineageTableTable = Template.getLineageTableTableTemplate();
+        return lineageTableTable;
+    }
+
+    @DatabaseInsertOperation(dao = TestLineageTableTableDao.class)
+    default LineageTableTable getDefaultLineageTableTable(){
+        return Template.getDefaultTableTable();
+    }
+
+    @DatabaseInsertOperation(dao = TestLineageColumnColumnDao.class)
+    default LineageColumnColumn getDefaultLineageColumnColumn() {
+        LineageColumnColumn defaultColumnColumn = Template.getDefaultColumnColumn();
+        return defaultColumnColumn;
     }
 
 }

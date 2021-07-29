@@ -1,16 +1,33 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.alert.enums.AlertGateTypeEnum;
+import com.dtstack.engine.api.domain.ComponentConfig;
+import com.dtstack.engine.api.domain.ScheduleDict;
 import com.dtstack.engine.api.domain.po.ClusterAlertPO;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.param.ClusterAlertPageParam;
 import com.dtstack.engine.api.param.ClusterAlertParam;
+import com.dtstack.engine.api.pojo.ClientTemplate;
+import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.api.vo.AlterSftpVO;
 import com.dtstack.engine.api.vo.alert.AlertGateVO;
+import com.dtstack.engine.common.enums.EComponentType;
+import com.dtstack.engine.common.enums.EFrontType;
 import com.dtstack.engine.common.enums.IsDefaultEnum;
 import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.sftp.SftpConfig;
+import com.dtstack.engine.common.util.ComponentConfigUtils;
 import com.dtstack.engine.dao.AlertChannelDao;
-import com.dtstack.engine.domain.AlertChannel;
+import com.dtstack.engine.api.domain.AlertChannel;
+import com.dtstack.engine.dao.ComponentConfigDao;
+import com.dtstack.engine.dao.ScheduleDictDao;
+import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.enums.DictType;
+import com.dtstack.engine.master.event.SftpDownloadEvent;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.google.common.collect.Lists;
@@ -20,7 +37,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
 import java.util.List;
 
 /**
@@ -35,12 +51,32 @@ public class AlertChannelService {
     @Autowired
     private AlertChannelDao alertChannelDao;
 
+    @Autowired
+    private ScheduleDictDao scheduleDictDao;
+
+    @Autowired
+    private ComponentConfigDao componentConfigDao;
+
+    @Autowired
+    private ComponentConfigService componentConfigService;
+
+    @Autowired
+    private WorkerOperator workerOperator;
+
+
     @Transactional
     public Boolean addChannelOrEditChannel(AlertGateVO alertGateVO) {
         AlertChannel alertChannel = null;
 
         if (alertGateVO.getId() != null) {
             alertChannel = alertChannelDao.selectById(alertGateVO.getId());
+        }
+
+        Integer isDefault = alertGateVO.getIsDefault();
+
+        if (IsDefaultEnum.DEFAULT.getType().equals(isDefault)) {
+            // 设置默认值
+            alertChannelDao.updateDefaultAlertByType( alertGateVO.getAlertGateType(),IsDefaultEnum.NOT_DEFAULT.getType(),IsDeletedEnum.NOT_DELETE.getType());
         }
 
         int changed = 0;
@@ -56,6 +92,7 @@ public class AlertChannelService {
             buildBean(alertGateVO, alertChannel);
             changed =  alertChannelDao.updateById(alertChannel);
         }
+
 
         return changed > 0 ? Boolean.TRUE : Boolean.FALSE;
     }
@@ -105,13 +142,13 @@ public class AlertChannelService {
     }
 
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Boolean setDefaultAlert(ClusterAlertParam param) {
         checkDefaultParam(param);
         AlertChannel channel = alertChannelDao.selectById(param.getAlertId());
 
         if (channel == null) {
-            throw new RdosDefineException("通道不存在!");
+            throw new RdosDefineException("channel does not exist!");
         }
 
         // 重设默认通道
@@ -131,15 +168,15 @@ public class AlertChannelService {
         }
 
         if (param.getAlertId() == null) {
-            throw new RdosDefineException("通道ID（AlterId）是必传参数");
+            throw new RdosDefineException("Channel id（AlterId）is a required parameter");
         }
 
         if (param.getAlertGateType() == null) {
-            throw new RdosDefineException("通道类型（AlertGateType）是必传参数");
+            throw new RdosDefineException("Channel type（AlertGateType）is a required parameter");
         }
 
         if (AlertGateTypeEnum.CUSTOMIZE.getType().equals(param.getAlertGateType())) {
-            throw new RdosDefineException("自定义通道类型（AlertGateType）不能设置默认值");
+            throw new RdosDefineException("Custom channel type（AlertGateType）cannot set default value");
         }
     }
 
@@ -266,5 +303,49 @@ public class AlertChannelService {
         }
 
         return pos;
+    }
+
+    public AlterSftpVO sftpGet() {
+        AlterSftpVO vo = new AlterSftpVO();
+        List<ComponentConfig> componentConfigs = componentConfigDao.listByComponentId(SftpDownloadEvent.Constant.COMPONENT_TEMPLATE_ID, Boolean.FALSE);
+        if (CollectionUtils.isEmpty(componentConfigs)) {
+            String pluginName = EComponentType.convertPluginNameByComponent(EComponentType.SFTP);
+            ScheduleDict typeNameMapping = scheduleDictDao.getByNameValue(DictType.TYPENAME_MAPPING.type, pluginName.trim(), null,null);
+            if (null != typeNameMapping) {
+                componentConfigs = componentConfigDao.listByComponentId(Long.parseLong(typeNameMapping.getDictValue()), true);
+            }
+        }
+
+        vo.setComponentTemplate(JSONObject.toJSONString(ComponentConfigUtils.buildDBDataToClientTemplate(componentConfigs)));
+        vo.setComponentConfig(JSONObject.toJSONString(ComponentConfigUtils.convertComponentConfigToMap(componentConfigs)));
+        return vo;
+    }
+
+    public Boolean sftpUpdate(AlterSftpVO vo) {
+        String componentTemplate = vo.getComponentTemplate();
+
+        if (StringUtils.isBlank(componentTemplate)) {
+            throw new RdosDefineException("template is null");
+        }
+
+        List<ClientTemplate> clientTemplates = JSONArray.parseArray(componentTemplate, ClientTemplate.class);
+        componentConfigService.addOrUpdateComponentConfig(clientTemplates, SftpDownloadEvent.Constant.COMPONENT_TEMPLATE_ID
+                , SftpDownloadEvent.Constant.COMPONENT_TEMPLATE_ID, EComponentType.SFTP.getTypeCode());
+
+        return Boolean.TRUE;
+    }
+
+
+    public ComponentTestResult sftpTestConnect(SftpConfig sftpConfig) {
+        if (sftpConfig == null) {
+            throw new RdosDefineException("sftp未配置或者未保存，请先配置或者保存后在进行测试联通性");
+        }
+
+        EComponentType sftp = EComponentType.SFTP;
+        String pluginName = EComponentType.convertPluginNameByComponent(sftp);
+
+        JSONObject dataInfo = JSONObject.parseObject(JSON.toJSONString(sftpConfig));
+        dataInfo.put("componentType", EComponentType.SFTP.getName());
+        return workerOperator.testConnect(pluginName, dataInfo.toJSONString());
     }
 }

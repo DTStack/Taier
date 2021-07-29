@@ -1,6 +1,9 @@
 package com.dtstack.engine.master.jobdealer;
 
-import com.dtstack.engine.api.domain.ScheduleJob;
+import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.domain.EngineJobCache;
+import com.dtstack.engine.common.constrant.JobResultConstant;
+import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -13,8 +16,10 @@ import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.bo.JobCheckpointInfo;
+import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.impl.ClusterService;
-import com.dtstack.schedule.common.enums.Deleted;
+import com.dtstack.engine.master.impl.ScheduleDictService;
+import com.dtstack.engine.master.impl.TaskParamsService;
 import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -29,15 +34,11 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import java.util.concurrent.*;
 
 /**
  *  checkpoint管理
@@ -46,7 +47,7 @@ import java.util.stream.Collectors;
 @Component
 public class JobCheckpointDealer implements InitializingBean {
 
-    private static Logger logger = LoggerFactory.getLogger(JobCheckpointDealer.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(JobCheckpointDealer.class);
 
     private final static String CHECKPOINT_RETAINED_KEY = "state.checkpoints.num-retained";
 
@@ -102,7 +103,13 @@ public class JobCheckpointDealer implements InitializingBean {
     @Autowired
     private ClusterService clusterService;
 
-    private Map<String, JobCheckpointInfo> checkpointJobMap = Maps.newHashMap();
+    @Autowired
+    private ScheduleDictService scheduleDictService;
+
+    @Autowired
+    private TaskParamsService taskParamsService;
+
+    private Map<String,String> queuePutRecord = new ConcurrentHashMap<>();
 
     private Cache<String, String> checkpointInsertedCache = CacheBuilder.newBuilder().maximumSize(CHECKPOINT_INSERTED_RECORD).build();
 
@@ -126,21 +133,31 @@ public class JobCheckpointDealer implements InitializingBean {
                         engineJobId = taskInfo.getJobIdentifier().getEngineJobId();
                     }
                     taskId = taskInfo.getTaskId();
-                    ScheduleJob scheduleJob = scheduleJobDao.getByJobId(taskId, Deleted.NORMAL.getStatus());
-                    if (null == scheduleJob) {
+                    String recordEngineJobId = queuePutRecord.get(taskId);
+                    if(StringUtils.isBlank(recordEngineJobId) || !recordEngineJobId.equalsIgnoreCase(engineJobId)){
+                        LOGGER.warn("delay queue jobId:{} engineJobId :{} is not same to record:{} so skip", taskId, engineJobId, recordEngineJobId);
                         continue;
                     }
-                    if (StringUtils.isBlank(scheduleJob.getEngineJobId()) || !scheduleJob.getEngineJobId().equalsIgnoreCase(engineJobId)) {
-                        logger.info("jobId {} queue engineJobId {} is not same to db {} so skip", taskId, scheduleJob.getEngineJobId(), engineJobId);
-                        continue;
-                    }
-                    updateCheckpointImmediately(taskInfo, engineJobId, scheduleJob.getStatus());
+                    Integer status = scheduleJobDao.getStatusByJobId(taskId);
+                    updateCheckpointImmediately(taskInfo, engineJobId, status);
 
                 } catch (Exception e) {
-                    logger.error("update delay checkpoint jobId {}  engineJobId {} error ", taskId, engineJobId, e);
+                    LOGGER.error("update delay checkpoint jobId {}  engineJobId {} error ", taskId, engineJobId, e);
+                    if (StringUtils.isNotBlank(taskId)) {
+                        try {
+                            queuePutRecord.remove(taskId);
+                            addFailedCheckpoint(taskId, engineJobId);
+                        } catch (Exception exception) {
+                            LOGGER.error("update addFailedCheckpoint jobId {}  engineJobId {} error ", taskId, engineJobId, exception);
+                        }
+                    }
                 }
             }
         });
+    }
+
+    private void addFailedCheckpoint(String taskId, String engineJobId){
+        engineJobCheckpointDao.insert(taskId, engineJobId, null, null, null, null);
     }
 
     /**
@@ -152,7 +169,7 @@ public class JobCheckpointDealer implements InitializingBean {
         String taskId = "";
         try {
             taskId = taskInfo.getJobIdentifier().getTaskId();
-            if (getCheckpointInterval(taskId) > 0) {
+            if (getCheckpointInterval(taskId) > 0 || RdosTaskStatus.getStoppedStatus().contains(status)) {
                 updateJobCheckpoints(taskInfo.getJobIdentifier());
                 subtractionCheckpointRecord(engineJobId, taskId);
 
@@ -163,17 +180,17 @@ public class JobCheckpointDealer implements InitializingBean {
 
                 if (RdosTaskStatus.getStoppedStatus().contains(status)) {
                     boolean checkpointStopClean = isCheckpointStopClean(taskId);
-                    logger.info(" taskId {}  status is stop {}  cleanCheckpoint {}", taskId, status, checkpointStopClean);
+                    LOGGER.info(" taskId {}  status is stop {}  cleanCheckpoint {}", taskId, status, checkpointStopClean);
                     if (checkpointStopClean) {
                         engineJobCheckpointDao.cleanAllCheckpointByTaskEngineId(engineJobId);
                     }
                     taskEngineIdAndRetainedNum.remove(engineJobId);
                     checkpointConfigCache.invalidate(taskId);
-                    checkpointJobMap.remove(engineJobId);
+                    queuePutRecord.remove(taskId);
                 }
             }
         } catch (Exception e) {
-            logger.error(" taskId {}  engineJobId {}  updateCheckpointImmediately error", taskId, engineJobId, e);
+            LOGGER.error(" taskId {}  engineJobId {}  updateCheckpointImmediately error", taskId, engineJobId, e);
         }
     }
 
@@ -183,13 +200,14 @@ public class JobCheckpointDealer implements InitializingBean {
         String taskId = jobIdentifier.getTaskId();
 
         if (Strings.isNullOrEmpty(checkpointJsonStr)) {
-            logger.info("taskId {} engineTaskId {} can't get checkpoint info.", taskId, engineTaskId);
+            addFailedCheckpoint(taskId, engineTaskId);
+            LOGGER.info("taskId {} engineTaskId {} can't get checkpoint info.", taskId, engineTaskId);
             return;
         }
         try {
             Map<String, Object> checkpointInfo = PublicUtil.jsonStrToObject(checkpointJsonStr, Map.class);
             if (!checkpointInfo.containsKey(FLINK_CP_HISTORY_KEY) || null == checkpointInfo.get(FLINK_CP_HISTORY_KEY)) {
-                logger.info("taskId {} engineTaskId {} can't get checkpoint history key....", taskId, engineTaskId);
+                LOGGER.info("taskId {} engineTaskId {} can't get checkpoint history key....", taskId, engineTaskId);
                 return;
             }
 
@@ -211,39 +229,48 @@ public class JobCheckpointDealer implements InitializingBean {
                     engineJobCheckpointDao.insert(taskId, engineTaskId, checkpointId, checkpointTriggerTimestamp, checkpointSavePath, checkpointCountsInfo);
                     checkpointInsertedCache.put(checkpointCacheKey, "1");
                 } else {
-                    logger.info("no add checkpoint to db checkpointId [{}]  checkpointSavePath {} status {} checkpointCacheKey {}",
+                    LOGGER.info("no add checkpoint to db checkpointId [{}]  checkpointSavePath {} status {} checkpointCacheKey {}",
                             checkpointId, checkpointSavePath, status, checkpointCacheKey);
                 }
             }
         } catch (IOException e) {
-            engineJobCheckpointDao.insert(taskId, engineTaskId, null, null, null, null);
-            logger.error("taskID:{} ,engineTaskId:{}, error:", taskId, engineTaskId, e);
+            addFailedCheckpoint(taskId, engineTaskId);
+            LOGGER.error("taskID:{} ,engineTaskId:{}, error:", taskId, engineTaskId, e);
         }
     }
 
 
     public void addCheckpointTaskForQueue(Integer computeType, String taskId, JobIdentifier jobIdentifier, String engineTypeName) throws ExecutionException {
         long checkpointInterval = getCheckpointInterval(taskId);
-        if (checkpointInterval > 0) {
-            String engineJobId = jobIdentifier.getEngineJobId();
-            checkpointJobMap.computeIfAbsent(engineJobId, (info) -> {
-                try {
-                    String pluginInfo = clusterService.pluginInfoJSON(jobIdentifier.getTenantId(),
-                            jobIdentifier.getEngineType(), jobIdentifier.getUserId(), jobIdentifier.getDeployMode()).toJSONString();
-                    int retainedNum = getRetainedNumFromPluginInfo(pluginInfo);
-                    taskEngineIdAndRetainedNum.put(engineJobId, retainedNum);
+        boolean canPutQueue = !queuePutRecord.containsKey(taskId);
+        if (queuePutRecord.containsKey(taskId) && !queuePutRecord.get(taskId).equalsIgnoreCase(jobIdentifier.getEngineJobId())) {
+            //jobId flink are not same
+            canPutQueue = true;
+        }
+        if (checkpointInterval > 0 && canPutQueue) {
+            //queuePutRecord去重 保证队列中taskId唯一 后续通过refreshExpired来间隔获取
+            int retainedNum = 11;
+            try {
+                String componentVersionValue = scheduleDictService.convertVersionNameToValue(jobIdentifier.getComponentVersion(), jobIdentifier.getEngineType());
+                String pluginInfo = clusterService.pluginInfoJSON(jobIdentifier.getTenantId(),
+                        jobIdentifier.getEngineType(), jobIdentifier.getUserId(), jobIdentifier.getDeployMode(),
+                        Collections.singletonMap(EngineTypeComponentType.getByEngineName(jobIdentifier.getEngineType())
+                                .getComponentType().getTypeCode(), componentVersionValue)).toJSONString();
+                retainedNum = getRetainedNumFromPluginInfo(pluginInfo);
+            } catch (Exception e) {
+                LOGGER.info("get checkpoint plugin info {} error", taskId, e);
+            }
+            try {
+                taskEngineIdAndRetainedNum.put(jobIdentifier.getEngineJobId(), retainedNum);
 
-                    JobCheckpointInfo taskInfo = new JobCheckpointInfo(computeType, taskId, jobIdentifier, engineTypeName, checkpointInterval);
+                JobCheckpointInfo taskInfo = new JobCheckpointInfo(computeType, taskId, jobIdentifier, engineTypeName, checkpointInterval);
 
-                    delayBlockingQueue.put(taskInfo);
-                    logger.info("add taskId {} to checkpoint delay queue,{}", taskId, taskInfo);
-
-                    return taskInfo;
-                } catch (Exception e) {
-                    logger.error("taskId {} addCheckpointTaskForQueue error ", taskId, e);
-                }
-                return null;
-            });
+                delayBlockingQueue.put(taskInfo);
+                queuePutRecord.put(taskId, jobIdentifier.getEngineJobId());
+                LOGGER.info("add taskId {} to checkpoint delay queue,{}", taskId, taskInfo);
+            } catch (Exception e) {
+                LOGGER.error("taskId {} addCheckpointTaskForQueue error ", taskId, e);
+            }
         }
 
     }
@@ -261,7 +288,7 @@ public class JobCheckpointDealer implements InitializingBean {
                 engineJobCheckpointDao.batchDeleteByEngineTaskIdAndCheckpointId(thresholdCheckpoint.getTaskEngineId(), thresholdCheckpoint.getCheckpointId());
             }
         } catch (Exception e) {
-            logger.error("engineJobId Id :{}  error ", engineJobId, e);
+            LOGGER.error("engineJobId Id :{}  error ", engineJobId, e);
         }
     }
 
@@ -271,21 +298,42 @@ public class JobCheckpointDealer implements InitializingBean {
      * @return
      * @throws ExecutionException
      */
-    private Map<String, Object> getJobParamsByJobId(String jobId) throws ExecutionException{
+    private Map<String, Object> getJobParamsByJobId(String jobId) throws ExecutionException {
         return checkpointConfigCache.get(jobId, () -> {
-            Map<String, Object> paramInfo = Maps.newConcurrentMap();
-            String jobInfo = engineJobCacheDao.getOne(jobId).getJobInfo();
+            EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
+            if(null == engineJobCache){
+                return new HashMap<>(0);
+            }
+            String jobInfo = engineJobCache.getJobInfo();
             Map<String, Object> pluginInfoMap = PublicUtil.jsonStrToObject(jobInfo, Map.class);
             String taskParamsStr = String.valueOf(pluginInfoMap.get(TASK_PARAMS_KEY));
-
-            if (StringUtils.isNotEmpty(taskParamsStr)) {
-                paramInfo = Arrays.stream(taskParamsStr.split("\n"))
-                        .map(param -> param.split("="))
-                        .filter(paramKv -> paramKv.length > 1)
-                        .collect(Collectors.toConcurrentMap((kv) -> kv[0].trim(), (kv) -> kv[1].trim(), (oldValue, newValue) -> newValue));
+            Map<String, Object> paramInfo = taskParamsService.convertPropertiesToMap(taskParamsStr);
+            String jobExtraFlinkCheckpointInterval = getFlinkJobExtraInfo(jobId, engineJobCache.getEngineType(), JobResultConstant.FLINK_CHECKPOINT);
+            if (StringUtils.isNotBlank(jobExtraFlinkCheckpointInterval) && Integer.parseInt(jobExtraFlinkCheckpointInterval) > 0) {
+                LOGGER.info("flink {} job extra info checkpoint interval {}", jobId, jobExtraFlinkCheckpointInterval);
+                paramInfo.putIfAbsent(FLINK_CHECKPOINT_INTERVAL_KEY, jobExtraFlinkCheckpointInterval);
             }
             return paramInfo;
         });
+    }
+
+    /**
+     * 获取flink任务job_graph的flink.checkpoint.interval参数信息
+     * 优先级低于task_param
+     * @param jobId
+     * @param engineType
+     * @return
+     */
+    private String getFlinkJobExtraInfo(String jobId, String engineType,String key) {
+        if (EngineType.isFlink(engineType)) {
+            String jobExtraInfo = scheduleJobDao.getJobExtraInfo(jobId);
+            if(StringUtils.isBlank(jobExtraInfo)){
+                return null;
+            }
+            return JSONObject.parseObject(jobExtraInfo).getString(key);
+
+        }
+        return null;
     }
 
 
@@ -294,7 +342,7 @@ public class JobCheckpointDealer implements InitializingBean {
         try {
             pluginInfoMap = PublicUtil.jsonStrToObject(pluginInfo, Map.class);
         } catch (IOException e) {
-            logger.error("plugin info {}  parse error ..", pluginInfo, e);
+            LOGGER.error("plugin info {}  parse error ..", pluginInfo, e);
         }
         if (MapUtils.isEmpty(pluginInfoMap)) {
             return 1;

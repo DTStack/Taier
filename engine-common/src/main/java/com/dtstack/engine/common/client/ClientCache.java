@@ -23,10 +23,11 @@ import java.util.Properties;
 
 public class ClientCache {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ClientCache.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClientCache.class);
 
     private static final String MD5_SUM_KEY = "md5sum";
     private static final String MD5_ZIP_KEY = "md5zip";
+    private String pluginPath;
 
     private Map<String, IClient> defaultClientMap = Maps.newConcurrentMap();
 
@@ -36,7 +37,8 @@ public class ClientCache {
 
     private ClientCache(){}
 
-    public static ClientCache getInstance(){
+    public static ClientCache getInstance(String pluginPath){
+        singleton.pluginPath = pluginPath;
         return singleton;
     }
 
@@ -72,7 +74,7 @@ public class ClientCache {
                 synchronized (clientMap) {
                     client = clientMap.get(md5sum);
                     if (client == null){
-                        client = ClientFactory.buildPluginClient(pluginInfo);
+                        client = ClientFactory.buildPluginClient(pluginInfo,pluginPath);
                         client.init(properties);
                         clientMap.putIfAbsent(md5sum, client);
                     }
@@ -81,7 +83,7 @@ public class ClientCache {
 
             return client;
         } catch (Throwable e) {
-            LOG.error("------- engineType {}  plugin info {} get client error ", engineType, pluginInfo, e);
+            LOGGER.error("------- engineType {}  plugin info {} get client error ", engineType, pluginInfo, e);
             throw new ClientAccessException(e);
         }
     }
@@ -95,14 +97,14 @@ public class ClientCache {
                     if (defaultClient == null){
                         JSONObject pluginInfo = new JSONObject();
                         pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,engineType);
-                        defaultClient = ClientFactory.buildPluginClient(pluginInfo.toJSONString());
+                        defaultClient = ClientFactory.buildPluginClient(pluginInfo.toJSONString(),pluginPath);
                         defaultClientMap.putIfAbsent(engineType, defaultClient);
                     }
                 }
 
             }
         } catch (Exception e) {
-            LOG.error("-------job.pluginInfo is empty, either can't find plugin('In console is the typeName') which engineType:{}", engineType);
+            LOGGER.error("-------job.pluginInfo is empty, either can't find plugin('In console is the typeName') which engineType:{}", engineType, e);
             throw new IllegalArgumentException("job.pluginInfo is empty, either can't find plugin('In console is the typeName') which engineType:" + engineType);
         }
         return defaultClient;

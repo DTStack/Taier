@@ -110,7 +110,7 @@ public class AccountServiceTest extends AbstractTest {
         Assert.assertNotNull(dbCluster);
         componentService.addOrUpdateComponent(dbCluster.getClusterId(), "{\"jdbcUrl\":\"jdbc:mysql://127.0.0.1:4000/\",\"maxJobPoolSize\":\"\",\"minJobPoolSize\":\"\",\"password\":\"\",\"username\":\"\"}",
                 null, "", "", "[{\"key\":\"jdbcUrl\",\"required\":true,\"type\":\"INPUT\",\"value\":\"jdbc:hive2://127.0.0.1:4000/%s\"},{\"key\":\"maxJobPoolSize\",\"required\":false,\"type\":\"INPUT\",\"value\":\"\"},{\"key\":\"minJobPoolSize\",\"required\":false,\"type\":\"INPUT\",\"value\":\"\"},{\"key\":\"password\",\"required\":false,\"type\":\"PASSWORD\",\"value\":\"\"},{\"key\":\"queue\",\"required\":false,\"type\":\"INPUT\",\"value\":\"\"},{\"key\":\"username\",\"required\":false,\"type\":\"INPUT\",\"value\":\"\"}]", EComponentType.TIDB_SQL.getTypeCode(),
-                null,"","");
+                null,"","",true,true,null);
         //添加测试租户
         Tenant tenant = Template.getTenantTemplate();
         tenant.setDtUicTenantId(-1112L);

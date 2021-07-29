@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.mapper.BatchDataSourceTaskRefDao">
+
+    <sql id="select_content_fragment">
+      id,data_source_id,task_id,project_id,tenant_id,gmt_create,gmt_modified,is_deleted
+    </sql>
+
+    <sql id="update_fragment">
+        <set>
+            <if test="id != null">
+                id = #{id},
+            </if>
+            <if test="dataSourceId != null">
+                data_source_id = #{dataSourceId},
+            </if>
+            <if test="taskId != null">
+                task_id = #{taskId},
+            </if>
+            <if test="projectId != null">
+                project_id = #{projectId},
+            </if>
+            <if test="tenantId != null">
+                tenant_id = #{tenantId},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted},
+            </if>
+        </set>
+    </sql>
+
+    <select id="getBySourceIdAndTaskId" resultType="BatchDataSourceTaskRef">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_data_source_task_ref
+        WHERE data_source_id = #{dataSourceId} and task_id = #{taskId} and is_deleted = 0
+    </select>
+
+    <delete id="deleteByTaskId">
+        DELETE FROM rdos_batch_data_source_task_ref
+        WHERE task_id = #{taskId}
+    </delete>
+
+    <insert id="insert" parameterType="BatchDataSourceTaskRef" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO rdos_batch_data_source_task_ref
+          (data_source_id,task_id,project_id,tenant_id,gmt_create,gmt_modified,is_deleted)
+        VALUES
+          (#{dataSourceId},#{taskId},#{projectId},#{tenantId},#{gmtCreate},#{gmtModified},#{isDeleted})
+    </insert>
+
+    <update id="update" parameterType="BatchDataSourceTaskRef">
+        UPDATE
+        rdos_batch_data_source_task_ref
+        <include refid="update_fragment"/>
+        WHERE
+        id = #{id} AND is_deleted = 0
+    </update>
+
+    <select id="pageQueryBySourceId" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="BatchTask">
+        select
+        task.id,task.name
+        from rdos_batch_data_source_task_ref ref
+        left join rdos_batch_task task on task.id = ref.task_id
+        WHERE ref.data_source_id = #{model.sourceId}
+        and ref.is_deleted = 0
+        <if test="model.taskName != null and model.taskName.length > 0">
+            and task.name like CONCAT('%',#{model.taskName},'%')
+        </if>
+        order by ref.gmt_modified desc
+        <if test="start != null and pageSize != null">
+            limit #{start} , #{pageSize}
+        </if>
+        <if test="start == null and pageSize != null">
+            limit #{pageSize}
+        </if>
+        <if test="start == null and pageSize == null">
+            limit 1000
+        </if>
+    </select>
+
+    <select id="countBySourceId" resultType="int">
+        SELECT
+        COUNT(1)
+        from rdos_batch_data_source_task_ref ref
+        left join rdos_batch_task task on task.id = ref.task_id
+        WHERE ref.data_source_id = #{dataSourceId}
+        and ref.is_deleted = 0
+        <if test="taskName != null and taskName.length > 0">
+            and task.name like CONCAT('%',#{taskName},'%')
+        </if>
+    </select>
+
+    <select id="listSourceIdByTaskId" resultType="java.lang.Long">
+        select data_source_id from rdos_batch_data_source_task_ref
+        where task_id = #{taskId} and is_deleted = 0
+    </select>
+
+    <update id="deleteByProjectId" parameterType="java.lang.Long">
+        UPDATE rdos_batch_data_source_task_ref
+        SET is_deleted = 1, gmt_modified = now()
+        WHERE project_id = #{projectId} AND is_deleted = 0;
+    </update>
+</mapper>

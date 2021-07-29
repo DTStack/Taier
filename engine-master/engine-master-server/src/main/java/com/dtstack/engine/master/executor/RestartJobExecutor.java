@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 重跑任务的执行器
@@ -21,7 +22,7 @@ import java.util.List;
 @Component
 public class RestartJobExecutor extends AbstractJobExecutor {
 
-    private final Logger logger = LoggerFactory.getLogger(RestartJobExecutor.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(RestartJobExecutor.class);
 
     @Override
     public EScheduleType getScheduleType() {
@@ -31,7 +32,7 @@ public class RestartJobExecutor extends AbstractJobExecutor {
     @Override
     public void stop() {
         RUNNING.set(false);
-        logger.info("---stop RestartJobExecutor----");
+        LOGGER.info("---stop RestartJobExecutor----");
     }
 
     @Override
@@ -46,7 +47,7 @@ public class RestartJobExecutor extends AbstractJobExecutor {
         //重跑查询补数据和周期调度的
         List<ScheduleJob> scheduleJobs = scheduleJobDao.listExecJobByCycTimeTypeAddress(startId, nodeAddress, null, null, null,
                 JobPhaseStatus.CREATE.getCode(), isEq, lasTime, Restarted.RESTARTED.getStatus());
-        logger.info("getRestartDataJob scheduleType {} nodeAddress {} start scanning since when startId:{}  isEq {} queryJobSize {}. lastTime {}", getScheduleType(), nodeAddress, startId, isEq,
+        LOGGER.info("getRestartDataJob scheduleType {} nodeAddress {} start scanning since when startId:{}  isEq {} queryJobSize {}. lastTime {}", getScheduleType(), nodeAddress, startId, isEq,
                 scheduleJobs.size(),lasTime.getTime());
         return getScheduleBatchJobList(scheduleJobs);
     }
@@ -55,8 +56,8 @@ public class RestartJobExecutor extends AbstractJobExecutor {
     protected Long getListMinId(String nodeAddress, Integer isRestart) {
         Pair<String, String> cycTime = this.getCycTime(true);
         Long listMinId = batchJobService.getListMinId(nodeAddress, null, cycTime.getLeft(), cycTime.getRight(), Restarted.RESTARTED.getStatus());
-        logger.info("getListMinId scheduleType {} nodeAddress {} isRestart {} lastMinId is {} .", getScheduleType(), nodeAddress, Restarted.RESTARTED.getStatus(), listMinId);
-        return listMinId;
+        LOGGER.info("getListMinId scheduleType {} nodeAddress {} isRestart {} lastMinId is {} .", getScheduleType(), nodeAddress, Restarted.RESTARTED.getStatus(), listMinId);
+        return Objects.isNull(listMinId) ? 0L: listMinId;
     }
 
     public Pair<String, String> getCycTime(boolean minJobId) {

@@ -1,0 +1,19 @@
+package com.dtstack.batch.web.job.vo.query;
+
+import com.dtstack.sdk.core.common.DtInsightAuthParam;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
+@Data
+@ApiModel("更新状态信息")
+public class BatchJobUpdateStatusVO extends DtInsightAuthParam {
+    @ApiModelProperty(value = "任务实例Id", example = "bd0619ba", required = true)
+    private String jobId;
+
+    @ApiModelProperty(value = "任务实例状态", example = "1", required = true)
+    private Integer status;
+
+    @ApiModelProperty(value = "任务实例信息", example = "msg...", required = true)
+    private String msg;
+}

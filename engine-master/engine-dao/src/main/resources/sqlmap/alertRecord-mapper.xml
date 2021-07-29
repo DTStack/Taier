@@ -143,7 +143,7 @@
             </if>
     </update>
 
-    <update id="updateByMap" parameterType="com.dtstack.engine.domain.AlertRecord">
+    <update id="updateByMap" parameterType="com.dtstack.engine.api.domain.AlertRecord">
         update alert_record
         <set>
             <if test="record.id != null">
@@ -217,7 +217,7 @@
 
     </update>
 
-    <select id="selectQuery" resultType="com.dtstack.engine.domain.AlertRecord">
+    <select id="selectQuery" resultType="com.dtstack.engine.api.domain.AlertRecord">
         SELECT
         `id`, `tenant_id`,`app_type`,`alert_content_id`, `user_id`, `read_status`,`title`,`status`,`gmt_created`, `gmt_modified`,`context`,`read_id`
         FROM alert_record
@@ -291,37 +291,37 @@
     </select>
 
     <select id="findMinIdByStatus" resultType="java.lang.Long">
-        SELECT count(*)
+        SELECT min(id)
         FROM alert_record
         WHERE
-        `gmt_created` &gt;= ${startDate}
-        AND `gmt_created` &lt;= ${endDate}
+        `gmt_created` &gt;= FROM_UNIXTIME(#{startDate}/1000)
+        AND `gmt_created` &lt;= FROM_UNIXTIME(#{endDate}/1000)
         AND `node_address` = #{nodeAddress}
-        AND `alert_record_status`=${sendStatus}
+        AND `alert_record_status`=#{sendStatus}
         AND `is_deleted`=0
     </select>
 
-    <select id="findListByStatus" resultType="com.dtstack.engine.domain.AlertRecord">
+    <select id="findListByStatus" resultType="com.dtstack.engine.api.domain.AlertRecord">
         SELECT
             `id`,`context`
         FROM alert_record
         WHERE
         `node_address` = #{nodeAddress}
         AND `is_deleted`=0
-        <if test="alert_record_status!=null">
+        <if test="sendStatusList!=null and sendStatusList.size()>0">
             AND `alert_record_status`IN
             <foreach collection="sendStatusList" separator="," open="(" close=")" item="sendStatus">
-                ${sendStatus}
+                #{sendStatus}
             </foreach>
         </if>
         <if test="minId!=null">
-            AND `id` > ${minId}
+            AND `id` > #{minId}
         </if>
         <if test="startDate!=null" >
-            AND `gmt_created` &gt;= ${startDate}
+            AND `gmt_created` &gt;= FROM_UNIXTIME(#{startDate}/1000)
         </if>
         <if test="endDate!=null">
-            AND `gmt_created` &lt;= ${endDate}
+            AND `gmt_created` &lt;= FROM_UNIXTIME(#{endDate}/1000)
         </if>
         <if test="alertRecordSendStatus != null">
             AND `alert_record_send_status` = #{alertRecordSendStatus}

@@ -5,7 +5,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.data.redis.core.RedisTemplate;
 
 /**
- * 用户缓存 集群信息、hadoopConf、HiveJdbc连接池
  *
  * @author toutian
  */

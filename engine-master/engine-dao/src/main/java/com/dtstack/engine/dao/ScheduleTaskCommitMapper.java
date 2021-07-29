@@ -18,6 +18,8 @@ public interface ScheduleTaskCommitMapper {
 
     String getExtInfoByTaskId(@Param("taskId") Long taskId, @Param("appType") Integer appType,@Param("commitId") String commitId);
 
+    ScheduleTaskCommit getTaskCommitByTaskId(@Param("taskId") Long taskId, @Param("appType") Integer appType,@Param("commitId") String commitId);
+
     Boolean updateTaskExtInfo(@Param("taskId") Long taskId, @Param("appType") Integer appType, @Param("info") String info, @Param("commitId") String commitId);
 
     Long findMinIdOfTaskCommitByCommitId(@Param("commitId") String commitId);

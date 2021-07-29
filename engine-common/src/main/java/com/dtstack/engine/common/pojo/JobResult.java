@@ -1,6 +1,7 @@
 package com.dtstack.engine.common.pojo;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.common.constrant.JobResultConstant;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.DateUtil;
 import com.google.common.base.Strings;
@@ -9,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -21,7 +21,7 @@ import java.util.Date;
 
 public class JobResult implements Serializable {
 
-    private static final Logger logger = LoggerFactory.getLogger(JobResult.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobResult.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -33,9 +33,12 @@ public class JobResult implements Serializable {
 
     public static final String MSG_INFO = "msg_info";
 
-    public static final String JOB_GRAPH = "job_graph";
-
     private JSONObject json = new JSONObject();
+
+    /**
+     * schedule_job 中 job_extra_info 字段数据
+     */
+    private JSONObject extraInfoJson = new JSONObject();
 
     public static JobResult newInstance(boolean checkRetry){
         JobResult result = new JobResult();
@@ -92,7 +95,7 @@ public class JobResult implements Serializable {
             jobResult.setData(EXT_ID_KEY, extId);
         }
         if (!StringUtils.isEmpty(jobGraph)) {
-            jobResult.setData(JOB_GRAPH, jobGraph);
+            jobResult.setExtraData(JobResultConstant.JOB_GRAPH, jobGraph);
         }
 
         return jobResult;
@@ -111,7 +114,18 @@ public class JobResult implements Serializable {
             json.put(key, value);
             return true;
         }catch (Exception e){
-            logger.error("", e);
+            LOGGER.error("", e);
+            return false;
+        }
+    }
+
+
+    public boolean setExtraData(String key, String value){
+        try{
+            extraInfoJson.put(key, value);
+            return true;
+        }catch (Exception e){
+            LOGGER.error("", e);
             return false;
         }
     }
@@ -131,6 +145,14 @@ public class JobResult implements Serializable {
 
     public JSONObject getJson() {
         return json;
+    }
+
+    public JSONObject getExtraInfoJson() {
+        return extraInfoJson;
+    }
+
+    public void setExtraInfoJson(JSONObject extraInfoJson) {
+        this.extraInfoJson = extraInfoJson;
     }
 
     public String getJsonStr(){

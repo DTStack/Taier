@@ -11,7 +11,7 @@ import java.util.Set;
 
 public class AkkaMasterActor extends AbstractActor {
 
-    private static final Logger logger = LoggerFactory.getLogger(AkkaMasterActor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AkkaMasterActor.class);
 
     public static final String GET_WORKER_INFOS = "getWorkerInfos";
     private final static String IP_PORT_TEMPLATE = "%s:%s";
@@ -26,8 +26,8 @@ public class AkkaMasterActor extends AbstractActor {
                     String ipAndPort = String.format(IP_PORT_TEMPLATE, workerInfo.getIp(), workerInfo.getPort());
                     workerInfos.remove(workerInfo);
                     workerInfos.add(workerInfo);
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(ipAndPort + " is alive.");
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug(ipAndPort + " is alive.");
                     }
                     sender().tell(SUCCUSS_INFO, getSelf());
                 })

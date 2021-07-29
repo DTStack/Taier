@@ -15,7 +15,7 @@ import org.apache.ibatis.annotations.Select;
  */
 public interface TestComponentDao {
 
-    @Insert({"INSERT INTO console_component(engine_id,component_name,component_type_code,hadoop_version,upload_file_name,kerberos_file_name,store_type)VALUES(#{component.engineId},#{component.componentName},#{component.componentTypeCode},#{component.hadoopVersion},#{component.uploadFileName},#{component.kerberosFileName},#{component.storeType})"})
+    @Insert({"INSERT INTO console_component(engine_id,component_name,component_type_code,hadoop_version,upload_file_name,kerberos_file_name,store_type,is_default)VALUES(#{component.engineId},#{component.componentName},#{component.componentTypeCode},#{component.hadoopVersion},#{component.uploadFileName},#{component.kerberosFileName},#{component.storeType},#{component.isDefault})"})
     @Options(useGeneratedKeys=true, keyProperty = "component.id", keyColumn = "id")
     Integer insert(@Param("component") Component component);
 

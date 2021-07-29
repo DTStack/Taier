@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dtstack.batch.dao.PermissionDao">
+
+    <sql id="select_content_fragment">
+        id,code,name,display,parent_id,type,gmt_create,gmt_modified,is_deleted
+    </sql>
+
+    <insert id="insert" parameterType="Permission" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO rdos_permission
+        (code,name,display,parent_id,type)
+        VALUES
+        (#{code},#{name},#{display},#{parentId},#{type})
+    </insert>
+
+    <select id="getByCode" resultType="Permission">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_permission
+        WHERE is_deleted = 0 AND code = #{code} limit 1
+    </select>
+
+    <select id="listAll" resultType="Permission">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_permission
+        WHERE is_deleted = 0
+    </select>
+
+    <update id="deleteByCodes">
+        UPDATE rdos_permission
+        SET is_deleted = 1, gmt_modified = #{gmtModified}
+        WHERE code IN
+        <foreach item="code" index="index" collection="codes" open="(" separator="," close=")">
+            #{code}
+        </foreach>
+        AND is_deleted = 0 AND parent_id != 0
+    </update>
+
+    <select id="getOne" resultType="Permission">
+        select
+        <include refid="select_content_fragment"/>
+        from rdos_permission
+        where id = #{id} and is_deleted = 0
+    </select>
+
+</mapper>

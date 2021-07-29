@@ -1,6 +1,7 @@
 package com.dtstack.engine.dao;
 
 import com.dtstack.engine.api.domain.Component;
+import com.dtstack.engine.common.enums.EComponentType;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -13,19 +14,43 @@ public interface ComponentDao {
 
     Integer update(Component component);
 
-    List<Component> listByEngineId(@Param("engineId") Long engineId);
+    Integer updateMetadata(@Param("engineId") Long engineId, @Param("type") Integer type,@Param("isMetadata") Integer isMetadata);
 
-    List<Component> listByEngineIds(@Param("engineIds") List<Long> engineId);
+    List<Component> listByEngineIds(@Param("engineIds") List<Long> engineId,@Param("type") Integer type);
+
+    List<Component> listDefaultByEngineIds(@Param("engineIds") List<Long> engineIdList);
 
     Component getByEngineIdAndComponentType(@Param("engineId") Long engineId, @Param("type") Integer type);
 
-    Component getByClusterIdAndComponentType(@Param("clusterId") Long clusterId, @Param("type") Integer type);
+
+    Component getByClusterIdAndComponentType(@Param("clusterId") Long clusterId, @Param("type") Integer type,@Param("componentVersion")String componentVersion,@Param("deployType") Integer deployType);
 
     Long getClusterIdByComponentId(@Param("componentId") Long componentId);
 
     void deleteById(@Param("componentId") Long componentId);
 
-    Integer getIdByTenantIdComponentType(@Param("tenantId") Long tenantId,@Param("componentType") Integer componentType);
+    Component getByTenantIdComponentType(@Param("tenantId") Long tenantId,@Param("componentType") Integer componentType);
 
     List<Component> listByTenantId(@Param("tenantId") Long tenantId);
+
+    Component getNextDefaultComponent(@Param("engineId") Long engineId, @Param("componentTypeCode") Integer componentTypeCode,@Param("currentDeleteId") Long currentDeleteId);
+
+    String getDefaultComponentVersionByClusterAndComponentType(@Param("clusterId") Long clusterId, @Param("componentType") Integer type);
+
+    String getDefaultComponentVersionByTenantAndComponentType(@Param("tenantId")Long tenantId,@Param("componentType")Integer componentType);
+
+    /**
+     * 此接口返回的component_version为schedule_dict的dict_name
+     * e.g 1.10 - 110
+     */
+    List<Component> getComponentVersionByEngineType(@Param("uicTenantId") Long uicTenantId, @Param("componentTypeCode") Integer componentTypeCode);
+
+    String getDefaultVersionDictNameByUicIdAndComponentType(@Param("uicTenantId") Long uicTenantId, @Param("componentTypeCode") Integer componentTypeCode);
+
+    List<Long> allUseUicTenant(@Param("componentId") Long componentId);
+
+    Component getMetadataComponent(@Param("clusterId") Long clusterId);
+
+    int updateDefault(@Param("engineId")Long engineId, @Param("componentType")Integer componentType, @Param("isDefault") boolean isDefault);
 }
+

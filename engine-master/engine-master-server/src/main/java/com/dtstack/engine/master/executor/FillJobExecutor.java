@@ -5,6 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 /**
  * 补数据任务的执行器
  * <p>
@@ -16,7 +18,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class FillJobExecutor extends AbstractJobExecutor {
 
-    private final Logger logger = LoggerFactory.getLogger(FillJobExecutor.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(FillJobExecutor.class);
 
     @Override
     public EScheduleType getScheduleType() {
@@ -26,7 +28,12 @@ public class FillJobExecutor extends AbstractJobExecutor {
     @Override
     public void stop() {
         RUNNING.set(false);
-        logger.info("---stop FillJobExecutor----");
+        LOGGER.info("---stop FillJobExecutor----");
     }
 
+    @Override
+    protected Long getListMinId(String nodeAddress, Integer isRestart) {
+        Long listMinId = super.getListMinId(nodeAddress, isRestart);
+        return Objects.isNull(listMinId) ? 0L:listMinId;
+    }
 }

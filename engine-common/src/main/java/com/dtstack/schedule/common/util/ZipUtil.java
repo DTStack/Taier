@@ -204,6 +204,9 @@ public class ZipUtil {
             for (Enumeration entries = _zipFile.getEntries(); entries.hasMoreElements(); ) {
                 org.apache.tools.zip.ZipEntry entry = (org.apache.tools.zip.ZipEntry) entries.nextElement();
                 File _file = new File(descDir + File.separator + entry.getName());
+                if(_file.isHidden()){
+                    continue;
+                }
                 if (entry.isDirectory()) {
                     _file.mkdirs();
                 } else {

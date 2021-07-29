@@ -4,13 +4,12 @@ import com.dtstack.engine.api.domain.ComponentConfig;
 import com.dtstack.engine.api.domain.ScheduleDict;
 import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.common.enums.EComponentType;
-import com.dtstack.engine.common.enums.EFrontType;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.common.util.ComponentConfigUtils;
-import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.ComponentConfigDao;
 import com.dtstack.engine.dao.ScheduleDictDao;
+import com.dtstack.engine.master.cache.DictCache;
 import com.dtstack.engine.master.enums.DictType;
+import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +53,7 @@ public class ScheduleDictService {
         versions.put(EComponentType.SPARK_THRIFT.getName(), getNormalVersion(DictType.SPARK_THRIFT_VERSION.type));
         versions.put(EComponentType.SPARK.getName(), getNormalVersion(DictType.SPARK_VERSION.type));
         versions.put(EComponentType.HIVE_SERVER.getName(), getNormalVersion(DictType.HIVE_VERSION.type));
+        versions.put(EComponentType.INCEPTOR_SQL.getName(),getNormalVersion(DictType.INCEPTOR_SQL.type));
         return versions;
     }
 
@@ -125,5 +125,36 @@ public class ScheduleDictService {
         }
         return clientTemplates;
     }
+    
+    public String convertVersionNameToValue(String componentVersion, String engineType) {
+        if (StringUtils.isNotBlank(componentVersion)) {
+            Integer componentType = EngineTypeComponentType.engineName2ComponentType(engineType);
+            if (null != componentType) {
+                Integer dictType = DictType.getByEComponentType(EComponentType.getByCode(componentType));
+                if (null != dictType) {
+                    ScheduleDict versionDict = getByNameAndValue(dictType, componentVersion.trim(), null, null);
+                    if (null != versionDict) {
+                        return versionDict.getDictValue();
+                    }
+                }
+            }
+        }
+        return null;
+    }
 
+    public List<ScheduleDict> listById(Long id, Integer size) {
+        if (id == null) {
+            id = 0L;
+        }
+
+        if (size == null) {
+            size = DictCache.size;
+        }
+
+        return scheduleDictDao.listById(id,size);
+    }
+
+    public ScheduleDict getByNameAndCodeAndDependName(String dictCode, String dictName, String dependName) {
+        return scheduleDictDao.getByNameAndCodeAndDependName(dictCode,dictName,dependName);
+    }
 }

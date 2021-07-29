@@ -10,7 +10,7 @@ import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.DateUtil;
-import com.dtstack.engine.domain.AlertRecord;
+import com.dtstack.engine.api.domain.AlertRecord;
 import com.dtstack.engine.master.enums.AlertSendStatusEnum;
 import com.dtstack.engine.master.impl.AlertRecordService;
 import com.google.common.collect.Lists;
@@ -35,10 +35,9 @@ import java.util.concurrent.TimeUnit;
  * @Email:dazhi@dtstack.com
  * @Description:
  */
-@Component
 public class AlterRecordExecutor implements InitializingBean {
 
-    private final Logger logger = LoggerFactory.getLogger(AlterRecordExecutor.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(AlterRecordExecutor.class);
 
     @Autowired
     private EnvironmentContext env;
@@ -99,7 +98,7 @@ public class AlterRecordExecutor implements InitializingBean {
 
                             minId = record.getId();
                         } catch (Exception e) {
-                            logger.error(ExceptionUtil.getErrorMessage(e));
+                            LOGGER.error(ExceptionUtil.getErrorMessage(e));
                         }
                     }
 
@@ -108,7 +107,7 @@ public class AlterRecordExecutor implements InitializingBean {
             }
 
         } catch (Exception e) {
-            logger.error(ExceptionUtil.getErrorMessage(e));
+            LOGGER.error(ExceptionUtil.getErrorMessage(e));
         }
     }
 

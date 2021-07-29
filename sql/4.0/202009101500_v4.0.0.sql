@@ -1,1 +1,0 @@
-ALTER TABLE `console_account` MODIFY COLUMN `type` int(11) NOT NULL COMMENT '账号类型';

@@ -143,7 +143,7 @@ public class ScheduleTaskShadeServiceTest extends AbstractTest {
         scheduleTaskShadeService.getSimpleTaskRangeAllByIds(Lists.newArrayList(), 2);
         scheduleTaskShadeService.getTaskNameByJobKey("cronTrigger_19", 1);
         scheduleTaskShadeService.getTaskNameByJobKey("cronTrigger_-19_2020112000", 1);
-        scheduleTaskShadeService.getWorkFlowTopNode(null);
+        scheduleTaskShadeService.getWorkFlowTopNode(null,1);
         scheduleTaskShadeService.dealFlowWorkTask(emptyTaskId, 1, new ArrayList<>(), 1L);
         scheduleTaskShadeService.findTaskId(emptyTaskId, 1, 1);
         scheduleTaskShadeService.findTaskId(scheduleTaskShadeDTO.getTaskId(), 1, 10);
@@ -241,5 +241,21 @@ public class ScheduleTaskShadeServiceTest extends AbstractTest {
         String commitId = scheduleTaskShadeService.addOrUpdateBatchTask(Lists.newArrayList(shadeDTO),null);
         Boolean flag = scheduleTaskShadeService.taskCommit(commitId);
         Assert.assertTrue(flag);
+    }
+
+    @Test
+    public void testCheckCronExpression(){
+        scheduleTaskShadeService.checkCronExpression("0 0 0/13 * * ?",null);
+        try {
+            scheduleTaskShadeService.checkCronExpression("0 0 0/13 * * ? *",null);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testRecentlyRunTime(){
+        List<String> strings = scheduleTaskShadeService.recentlyRunTime("2021-04-29", "2021-12-03", "0 15 10 ? * 5L", 10);
+        Assert.assertNotNull(strings);
     }
 }

@@ -17,6 +17,10 @@
         </set>
     </sql>
 
+    <sql id="tenant_filed" >
+        `id`,`dt_uic_tenant_id`,`tenant_name`,`tenant_desc`,`gmt_create`,`gmt_modified`,`is_deleted`
+    </sql>
+
     <insert id="insert" parameterType="Tenant" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO console_dtuic_tenant(dt_uic_tenant_id,tenant_name,tenant_desc)
         VALUES (#{dtUicTenantId},#{tenantName},#{tenantDesc})
@@ -41,7 +45,8 @@
     </select>
 
     <select id="getByDtUicTenantId"  resultType="Tenant">
-        SELECT *
+        SELECT
+        <include refid="tenant_filed"/>
         FROM console_dtuic_tenant
         WHERE is_deleted = 0 AND dt_uic_tenant_id = #{dtUicTenantId} LIMIT 1
     </select>
@@ -59,7 +64,8 @@
     </select>
 
     <select id="listAllTenantByDtUicTenantIds" resultType="Tenant">
-        SELECT *
+        SELECT
+        <include refid="tenant_filed"/>
         FROM console_dtuic_tenant
         WHERE is_deleted = 0
         <if test="ids.size() > 0">
@@ -71,7 +77,7 @@
     </select>
 
     <update id="delete">
-        update console_dtuic_tenant set is_deleted = 1 where id = #{id}
+        update console_dtuic_tenant set is_deleted = 1 where dt_uic_tenant_id = #{dtUicTenantId}
     </update>
 
     <update id="updateByDtUicTenantId">

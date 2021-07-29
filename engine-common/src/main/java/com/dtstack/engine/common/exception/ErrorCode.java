@@ -274,6 +274,7 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
     ONLY_ACCEPT_ONE_SQL(610, "ddl建表不支持多条语句"),
     CREATE_TABLE_ERR_2(611, "表名不符合规范"),
     DROP_TABLE_ERROR(612, "删除表失败"),
+    SAVE_TASK_RINK(613,"任务依赖成环"),
     /***----------------end hive 相关错误码 end ------------------------------------------****/
 
 
@@ -293,13 +294,28 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
     CAN_NOT_FIN_SFTP(650, "sftp组件不存在"),
     SFTP_PATH_CAN_NOT_BE_EMPTY(650, "sftp路径不能为空"),
     CANT_NOT_FIND_CLUSTER(651, "该集群不存在"),
+
+
+    /***----------------end sql解析失败 end ----------------------------------------****/
+
+    SQLPARSE_ERROR(652,"sql解析失败"),
+
     /***----------------end 组件管理 相关错误码 end ----------------------------------------****/
+
+    /**
+     * System Exception
+     */
+    SYS_404(404, "请求地址不存在"),
+    SYS_500(500, "系统异常"),
+    SYS_BUSINESS_EXCEPTION(501, "业务异常"),
 
     NOT_USED(10000000, "");
 
 
 
-	private int code;
+
+
+    private int code;
 
 	private String description;
 

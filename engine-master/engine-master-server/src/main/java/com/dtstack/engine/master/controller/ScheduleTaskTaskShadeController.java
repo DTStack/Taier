@@ -2,6 +2,7 @@ package com.dtstack.engine.master.controller;
 
 import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
+import com.dtstack.engine.api.vo.task.SaveTaskTaskVO;
 import com.dtstack.engine.master.impl.ScheduleTaskTaskShadeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -27,8 +28,8 @@ public class ScheduleTaskTaskShadeController {
     }
 
     @RequestMapping(value="/saveTaskTaskList", method = {RequestMethod.POST})
-    public void saveTaskTaskList(@DtRequestParam("taskTask") String taskLists) {
-        scheduleTaskTaskShadeService.saveTaskTaskList(taskLists);
+    public SaveTaskTaskVO saveTaskTaskList(@DtRequestParam("taskTask") String taskLists,@DtRequestParam("commitId") String commitId) {
+        return scheduleTaskTaskShadeService.saveTaskTaskList(taskLists,commitId);
     }
 
     @RequestMapping(value="/getAllParentTask", method = {RequestMethod.POST})

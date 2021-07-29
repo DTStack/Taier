@@ -19,7 +19,7 @@ import java.util.*;
 
 public class MysqlLogStore extends AbstractLogStore {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MysqlLogStore.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MysqlLogStore.class);
 
     private static final String REPLACE_INTO_SQL = "replace into schedule_plugin_job_info(job_id, job_info, status, log_info, gmt_create, gmt_modified) values(?, ?, ?, ?, NOW(), NOW())";
 
@@ -98,7 +98,7 @@ public class MysqlLogStore extends AbstractLogStore {
             return pstmt.executeUpdate();
 
         } catch (SQLException e) {
-            LOG.error("", e);
+            LOGGER.error("", e);
             return 0;
         } finally {
             closeDBResources(null, pstmt, null, connection);
@@ -119,7 +119,7 @@ public class MysqlLogStore extends AbstractLogStore {
             return pstmt.executeUpdate();
 
         } catch (SQLException e) {
-            LOG.error("", e);
+            LOGGER.error("", e);
             return 0;
         } finally {
             closeDBResources(null, pstmt, null, connection);
@@ -141,7 +141,7 @@ public class MysqlLogStore extends AbstractLogStore {
             pstmt.executeBatch();
 
         } catch (SQLException e) {
-            LOG.error("", e);
+            LOGGER.error("", e);
         } finally {
             closeDBResources(null, pstmt, null, connection);
         }
@@ -160,7 +160,7 @@ public class MysqlLogStore extends AbstractLogStore {
 
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            LOG.error("", e);
+            LOGGER.error("", e);
         } finally {
             closeDBResources(null, pstmt, null, connection);
         }
@@ -186,7 +186,7 @@ public class MysqlLogStore extends AbstractLogStore {
                 return resultSet.getInt("status");
             }
         } catch (SQLException e) {
-            LOG.error("", e);
+            LOGGER.error("", e);
         } finally {
             closeDBResources(resultSet, preparedStatement, null, connection);
         }
@@ -210,7 +210,7 @@ public class MysqlLogStore extends AbstractLogStore {
                 return resultSet.getString(1);
             }
         } catch (SQLException e) {
-            LOG.error("", e);
+            LOGGER.error("", e);
         } finally {
             closeDBResources(resultSet, pstmt, null, connection);
         }
@@ -260,14 +260,14 @@ public class MysqlLogStore extends AbstractLogStore {
 
                     updateStmt=batchUpdateJobTimeOutById(sql,ids,connection);
                 } catch (SQLException e) {
-                    LOG.error("", e);
+                    LOGGER.error("", e);
                     break;
                 } finally {
                     closeDBResources(resultSet, stmt, updateStmt, null);
                 }
             }
         } catch (SQLException e) {
-            LOG.error("", e);
+            LOGGER.error("", e);
         } finally {
             closeDBResources(null, null, null, connection);
         }
@@ -291,7 +291,7 @@ public class MysqlLogStore extends AbstractLogStore {
                 conn.close();
             }
         } catch (Throwable t) {
-            LOG.error("", t);
+            LOGGER.error("", t);
         }
     }
 
@@ -303,14 +303,17 @@ public class MysqlLogStore extends AbstractLogStore {
             prepareStatementSql.append("?,");
         }
         prepareStatementSql.deleteCharAt(prepareStatementSql.length() - 1).append(") ");
-
-        PreparedStatement updateStmt = connection.prepareStatement(prepareStatementSql.toString());
-        int parameterIndex = 1;
-        for (long id : ids) {
-            updateStmt.setLong(parameterIndex++, id);
+        try(PreparedStatement updateStmt = connection.prepareStatement(prepareStatementSql.toString())){
+            int parameterIndex = 1;
+            for (long id : ids) {
+                updateStmt.setLong(parameterIndex++, id);
+            }
+            updateStmt.executeUpdate();
+            return updateStmt;
+        }catch (Exception e){
+            LOGGER.error("executeUpdate error:",e);
         }
-        updateStmt.executeUpdate();
-        return updateStmt;
+        return null;
     }
 
 }

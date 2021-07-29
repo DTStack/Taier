@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.ScheduleSqlTextTempDao">
+
+
+    <insert id="insert" parameterType="com.dtstack.engine.api.domain.ScheduleSqlTextTemp" useGeneratedKeys="true" keyProperty="id">
+        insert into schedule_sql_text_temp
+        (job_id,sql_text,engine_type)
+        values
+        (#{jobId},#{sqlText},#{engineType})
+
+    </insert>
+
+
+    <select id="selectByJobId"  resultType="com.dtstack.engine.api.domain.ScheduleSqlTextTemp">
+
+        select id,job_id,sql_text,engine_type,gmt_create,gmt_modified,is_deleted
+        from schedule_sql_text_temp
+        where job_id = #{jobId} and is_deleted = 0
+    </select>
+
+
+</mapper>

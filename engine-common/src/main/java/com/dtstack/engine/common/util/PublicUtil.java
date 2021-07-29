@@ -2,9 +2,7 @@ package com.dtstack.engine.common.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 
 import com.alibaba.fastjson.JSONObject;
 import org.codehaus.jackson.JsonGenerationException;
@@ -153,5 +151,18 @@ public class PublicUtil {
 		}
 
 		return objectMapper.writeValueAsString(object);
+	}
+
+	public static void removeEmptyValue(Map<String, Object> paramMap) {
+		Set<String> set = paramMap.keySet();
+		Iterator<String> it = set.iterator();
+		while (it.hasNext()) {
+			String str = it.next();
+			if (paramMap.get(str) == null) {
+				paramMap.remove(str);
+				set = paramMap.keySet();
+				it = set.iterator();
+			}
+		}
 	}
 }

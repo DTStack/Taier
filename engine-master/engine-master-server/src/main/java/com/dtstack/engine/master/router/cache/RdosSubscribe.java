@@ -33,7 +33,9 @@ public class RdosSubscribe implements MessageListener {
             String topic = redisTemplate.getStringSerializer().deserialize(channel);
 
             LOGGER.info("receive redis message, topic:{}, value:{}", topic, itemValue);
-
+            if(null == itemValue){
+                return;
+            }
             if (RdosTopic.SESSION.equals(topic)) {
                 sessionCache.remove(itemValue.toString());
             }
@@ -41,7 +43,7 @@ public class RdosSubscribe implements MessageListener {
                 consumer.accept(new Pair<>(topic,itemValue.toString()));
             }
         } catch (Exception e) {
-            LOGGER.error("{}", e);
+            LOGGER.error("", e);
         }
     }
 

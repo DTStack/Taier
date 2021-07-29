@@ -38,16 +38,21 @@ public class ScheduleDictServiceTest extends AbstractTest {
     }
 
     @Test
-    public void testAddConfigToXml(){
+    public void testAddConfigToXml() {
         URL resource = this.getClass().getResource("/xml/hive-site.xml");
         File file = new File(resource.getFile());
-        Map<String,Object> extraConfig = new HashMap<>();
-        extraConfig.put("test1","test1");
-        extraConfig.put("test2","test2");
-        extraConfig.put("test3","test3");
-        extraConfig.put("test4","test4");
         try {
-            Xml2JsonUtil.addInfoIntoXml(file,extraConfig,true);
+            Xml2JsonUtil.xml2map(file);
+        } catch (Exception e) {
+            Assert.fail();
+        }
+        Map<String, Object> extraConfig = new HashMap<>();
+        extraConfig.put("test1", "test1");
+        extraConfig.put("test2", "test2");
+        extraConfig.put("test3", "test3");
+        extraConfig.put("test4", "test4");
+        try {
+            Xml2JsonUtil.addInfoIntoXml(file, extraConfig, true);
         } catch (Exception e) {
             e.printStackTrace();
         }

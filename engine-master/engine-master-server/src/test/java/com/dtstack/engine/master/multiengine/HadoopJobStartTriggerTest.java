@@ -60,7 +60,7 @@ public class HadoopJobStartTriggerTest extends AbstractTest {
 
     @Before
     public void init() {
-        when(clusterService.pluginInfoJSON(any(),any(),any(),any())).thenReturn(new JSONObject());
+        when(clusterService.pluginInfoJSON(any(),any(),any(),any(),any())).thenReturn(new JSONObject());
         when(componentService.formatHadoopVersion(any(), any())).thenReturn("yarn2-hdfs2-hadoop");
         try {
             when(workerOperator.uploadStringToHdfs(any(), any(), any(), any())).thenReturn("hdfs://ns1/dtInsight/test.sh");
@@ -94,7 +94,7 @@ public class HadoopJobStartTriggerTest extends AbstractTest {
                     "            \"componentConfig\": \"{\\\"maxJobPoolSize\\\":\\\"\\\",\\\"password\\\":\\\"admin123\\\",\\\"minJobPoolSize\\\":\\\"\\\",\\\"jdbcUrl\\\":\\\"jdbc:impala://172.16.101.13:21050/%s;AuthMech=3\\\",\\\"username\\\":\\\"hxb\\\"}\"\n" +
                     "        }]";
             List<ComponentsConfigOfComponentsVO> finkCompoent = JSONObject.parseArray(data,ComponentsConfigOfComponentsVO.class);
-           when(componentService.listConfigOfComponents(anyLong(),anyInt())).thenReturn(finkCompoent);
+           when(componentService.listConfigOfComponents(anyLong(),anyInt(),any())).thenReturn(finkCompoent);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -74,7 +74,7 @@ public interface ScheduleTaskShadeDao {
 
     String getSqlTextById(@Param("id") Long id);
 
-    ScheduleTaskShade getWorkFlowTopNode(@Param("workFlowId") Long workFlowId);
+    ScheduleTaskShade getWorkFlowTopNode(@Param("workFlowId") Long workFlowId, @Param("appType") Integer appType);
 
     /**
      *  ps- 省略了一些大字符串 如 sql_text、task_params
@@ -95,4 +95,27 @@ public interface ScheduleTaskShadeDao {
     ScheduleTaskShade getById(@Param("id") Long id);
 
     void updateProjectScheduleStatus(@Param("projectId")Long projectId,@Param("appType")Integer appType,@Param("scheduleStatus") Integer scheduleStatus);
+
+    List<ScheduleTaskShade> findFuzzyTaskNameByCondition(@Param("name") String name, @Param("appType") Integer appType, @Param("uicTenantId") Long uicTenantId, @Param("projectId") Long projectId, @Param("fuzzyProjectByProjectAliasLimit") Integer fuzzyProjectByProjectAliasLimit);
+
+    List<ScheduleTaskShade> getChildTaskByOtherPlatform(@Param("taskId") Long taskId, @Param("appType") Integer appType, @Param("limit") Integer limit);
+
+    List<ScheduleTaskShade> getTaskOtherPlatformByProjectId(@Param("projectId") Long projectId, @Param("appType") Integer appType, @Param("limit") Integer limit);
+
+    List<ScheduleTaskShade> listTaskRuleTask(@Param("taskId") Long taskId, @Param("appType") Integer appType);
+
+    /**
+     * 根据appType和taskId查询任务
+     * @param taskId
+     * @param appType
+     * @return
+     */
+    ScheduleTaskShade getOneByTaskIdAndAppType(@Param("taskId") Long taskId, @Param("appType") Integer appType);
+
+    /**
+     * @param useUicTenantList 不能为空
+     * @param componentVersion 不能为空
+     * @return
+     */
+    Long hasTaskSubmit(@Param("useUicTenantList") List<Long> useUicTenantList, @Param("componentVersion") String componentVersion);
 }

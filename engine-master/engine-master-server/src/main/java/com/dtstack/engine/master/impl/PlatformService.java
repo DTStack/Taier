@@ -1,11 +1,9 @@
 package com.dtstack.engine.master.impl;
 
 
-import com.dtstack.engine.api.domain.Tenant;
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.dao.TenantDao;
-import com.dtstack.engine.master.enums.PlatformEventType;
 import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.master.enums.PlatformEventType;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.engine.master.vo.PlatformEventVO;
 import org.slf4j.Logger;
@@ -26,7 +24,7 @@ public class PlatformService {
     private EnvironmentContext environmentContext;
 
     @Autowired
-    private TenantDao tenantDao;
+    private TenantService tenantService;
 
     @Autowired
     private DtUicUserConnect dtUicUserConnect;
@@ -48,7 +46,7 @@ public class PlatformService {
             }
             PlatformEventType eventType = PlatformEventType.getByCode(eventVO.getEventCode());
             if (null == eventType) {
-                throw new RdosDefineException("不支持的事件类型");
+                throw new RdosDefineException("Unsupported event type");
             }
             if (null == eventVO.getTenantId()) {
                 logger.info("callback {} tenantId is null ", eventVO);
@@ -56,18 +54,10 @@ public class PlatformService {
             }
             switch (eventType) {
                 case DELETE_TENANT:
-                    Long consoleTenantId = tenantDao.getIdByDtUicTenantId(eventVO.getTenantId());
-                    if (null != consoleTenantId) {
-                        logger.info("delete console tenant id {} by callback {}", consoleTenantId, eventVO.getTenantId());
-                        tenantDao.delete(consoleTenantId);
-                    }
+                    tenantService.deleteTenantId(eventVO.getTenantId());
                     break;
                 case EDIT_TENANT:
-                    Tenant tenant = new Tenant();
-                    tenant.setDtUicTenantId(eventVO.getTenantId());
-                    tenant.setTenantName(eventVO.getTenantName());
-                    tenant.setTenantDesc(eventVO.getTenantDesc());
-                    tenantDao.updateByDtUicTenantId(tenant);
+                    tenantService.updateTenantInfo(eventVO.getTenantId(), eventVO.getTenantName(), eventVO.getTenantDesc());
                 default:
                     break;
             }

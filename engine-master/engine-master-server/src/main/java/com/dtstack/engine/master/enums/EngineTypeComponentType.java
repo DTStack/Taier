@@ -19,8 +19,12 @@
 package com.dtstack.engine.master.enums;
 
 
+import com.dtstack.dtcenter.common.enums.DeployMode;
 import com.dtstack.engine.api.enums.ScheduleEngineType;
+import com.dtstack.engine.common.constrant.ComponentConstant;
 import com.dtstack.engine.common.enums.EComponentType;
+
+import java.util.Objects;
 
 public enum EngineTypeComponentType {
 
@@ -37,7 +41,11 @@ public enum EngineTypeComponentType {
     ORACLE_SQL(ScheduleEngineType.ORACLE, EComponentType.ORACLE_SQL),
     KUBERNETES(ScheduleEngineType.KUBERNETES, EComponentType.KUBERNETES),
     GREENPLUM_SQL(ScheduleEngineType.GREENPLUM, EComponentType.GREENPLUM_SQL),
-    PRESTO_SQL(ScheduleEngineType.Presto, EComponentType.PRESTO_SQL);
+    PRESTO_SQL(ScheduleEngineType.Presto, EComponentType.PRESTO_SQL),
+    INCEPTOR_SQL(ScheduleEngineType.INCEPTOR_SQL,EComponentType.INCEPTOR_SQL),
+    DTSCRIPT_AGENT(ScheduleEngineType.DTSCRIPT_AGENT,EComponentType.DTSCRIPT_AGENT),
+    ANALYTICDB_FOR_PG(ScheduleEngineType.ANALYTICDB_FOR_PG,EComponentType.ANALYTICDB_FOR_PG),
+    ;
 
     private ScheduleEngineType scheduleEngineType;
 
@@ -55,6 +63,8 @@ public enum EngineTypeComponentType {
     public EComponentType getComponentType() {
         return componentType;
     }
+
+
 
     public static EngineTypeComponentType getByEngineName(String engineName){
         switch (engineName.toLowerCase()) {
@@ -100,9 +110,31 @@ public enum EngineTypeComponentType {
                 return EngineTypeComponentType.GREENPLUM_SQL;
             case "presto":
                 return EngineTypeComponentType.PRESTO_SQL;
+            case "inceptor":
+                return EngineTypeComponentType.INCEPTOR_SQL;
+            case "dtscript-agent":
+                return EngineTypeComponentType.DTSCRIPT_AGENT;
+            case ComponentConstant.ANALYTICDB_FOR_PG_PLUGIN:
+                return EngineTypeComponentType.ANALYTICDB_FOR_PG;
             default:
                 throw new UnsupportedOperationException("未知引擎类型:" + engineName);
         }
+    }
+
+    public static EComponentType getComponentByEngineName(String engineName){
+        EngineTypeComponentType engineTypeComponentType = getByEngineName(engineName);
+        if (Objects.nonNull(engineTypeComponentType)){
+            return engineTypeComponentType.componentType;
+        }
+        return null;
+    }
+
+    public static Integer engineName2ComponentType(String engineName){
+        EngineTypeComponentType engineTypeComponentType = getByEngineName(engineName);
+        if (Objects.nonNull(engineTypeComponentType)){
+            return engineTypeComponentType.componentType.getTypeCode();
+        }
+        return null;
     }
 }
 

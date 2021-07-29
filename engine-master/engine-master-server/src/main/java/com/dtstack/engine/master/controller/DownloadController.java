@@ -27,7 +27,7 @@ import java.net.URLEncoder;
 @RequestMapping("/node/download")
 @Api(value = "/node/download", tags = {"下载接口"})
 public class DownloadController {
-    private static final Logger logger = LoggerFactory.getLogger(DownloadController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DownloadController.class);
 
     @Autowired
     private ComponentService componentService;
@@ -43,14 +43,16 @@ public class DownloadController {
     public void handleDownload(@RequestParam(value = "componentId",required = false) Long componentId,
                                @RequestParam("type") Integer downloadType,
                                @RequestParam("componentType") Integer componentType,
-                               @RequestParam("hadoopVersion") String hadoopVersion,
-                               @RequestParam("clusterName") String clusterName, HttpServletResponse response) {
-        response.setHeader("content-type", "application/octet-stream;charset=UTF-8");
+                               @RequestParam("hadoopVersion") String componentVersion,
+                               @RequestParam("clusterName") String clusterName,
+                               @RequestParam(value = "deployType",required = false) Integer deployType,
+                               HttpServletResponse response) {
+        response.setHeader("Content-Type", "application/octet-stream;charset=UTF-8");
         response.setHeader("Pragma", "no-cache");
         response.setHeader("Cache-Control", "no-cache");
         File downLoadFile = null;
         try {
-            downLoadFile = componentService.downloadFile(componentId, downloadType, componentType, hadoopVersion, clusterName);
+            downLoadFile = componentService.downloadFile(componentId, downloadType, componentType, componentVersion, clusterName,deployType);
             if (null != downLoadFile && downLoadFile.isFile()) {
                 response.setHeader("Content-Disposition", "attachment;filename=" + encodeURIComponent(downLoadFile.getName()));
                 ServletOutputStream outputStream = response.getOutputStream();
@@ -60,11 +62,11 @@ public class DownloadController {
             }
         } catch (Exception e) {
             response.setHeader("Content-Disposition", "attachment;filename=error.log");
-            logger.error("", e);
+            LOGGER.error("", e);
             try {
                 response.getWriter().write("下载文件异常:" + e.getMessage());
             } catch (Exception eMsg) {
-                logger.error("", eMsg);
+                LOGGER.error("", eMsg);
             }
         } finally {
             if(null != downLoadFile){
@@ -112,11 +114,11 @@ public class DownloadController {
 
         } catch (Exception e) {
             response.setHeader("Content-Disposition", "attachment;filename=error.log");
-            logger.error("", e);
+            LOGGER.error("", e);
             try {
                 response.getWriter().write("下载文件异常:" + e.getMessage());
             } catch (Exception eMsg) {
-                logger.error("", eMsg);
+                LOGGER.error("", eMsg);
             }
         }
     }

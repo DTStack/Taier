@@ -1,8 +1,11 @@
 package com.dtstack.schedule.common.enums;
 
 
+import com.dtstack.engine.common.constrant.ComponentConstant;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -54,6 +57,11 @@ public enum DataSourceType {
     PHOENIX5(38),
     KINGBASE8(40),
     VERTICA(43),
+    SPARKTHRIFT2_1(45),
+    INCEPTOR_SQL(52),
+    HIVE3(50),
+
+    ADB_POSTGREPSQL(54),
 
     /**
      * spark thrift
@@ -67,8 +75,7 @@ public enum DataSourceType {
     /**
      * 未知数据源，即类型暂时不确定，后续可能会修改为正确类型的数据源
      */
-    UNKNOWN(3000)
-    ;
+    UNKNOWN(3000);
 
     private int val;
 
@@ -141,6 +148,10 @@ public enum DataSourceType {
                 return DataBaseType.Greenplum6;
             case Presto:
                 return DataBaseType.Presto;
+            case INCEPTOR_SQL:
+                return DataBaseType.Inceptor;
+            case HIVE3:
+                return DataBaseType.HIVE3;
             default:
                 throw new RdosDefineException("不支持数据源类型");
         }
@@ -151,7 +162,7 @@ public enum DataSourceType {
         return getBaseType(sourceType);
     }
 
-    public static List<Integer> getRDBMS(){
+    public static List<Integer> getRDBMS() {
         return Lists.newArrayList(
                 MySQL.getVal(),
                 Oracle.getVal(),
@@ -176,12 +187,13 @@ public enum DataSourceType {
                 Presto.getVal());
     }
 
-    public static String getEngineType(DataSourceType sourceType){
+    public static String getEngineType(DataSourceType sourceType) {
 
         switch (sourceType) {
             case MySQL:
                 return "mysql";
             case HIVE:
+            case SPARKTHRIFT2_1:
                 return "hive2";
             case HIVE1X:
                 return "hive";
@@ -201,10 +213,45 @@ public enum DataSourceType {
                 return "tidb";
             case KINGBASE8:
                 return "kingbase";
+            case ADB_POSTGREPSQL:
+                return ComponentConstant.ANALYTICDB_FOR_PG_NAME;
             default:
                 throw new RdosDefineException("不支持的数据源类型");
         }
     }
 
-    public static List<DataSourceType> noNeedUserNamePasswordDataSources = Lists.newArrayList(DataSourceType.HBASE,DataSourceType.Phoenix,DataSourceType.HIVE);
+    public static DataSourceType convertEComponentType(EComponentType componentType, String version) {
+        switch (componentType) {
+            case TIDB_SQL:
+                return TiDB;
+            case IMPALA_SQL:
+                return IMPALA;
+            case ORACLE_SQL:
+                return Oracle;
+            case HIVE_SERVER:
+                return StringUtils.isBlank(version) || version.startsWith("2") ? HIVE : HIVE1X;
+            case GREENPLUM_SQL:
+                return GREENPLUM6;
+            case PRESTO_SQL:
+                return Presto;
+            case LIBRA_SQL:
+                return PostgreSQL;
+            case SPARK_THRIFT:
+                return SPARKTHRIFT2_1;
+            default:
+                return null;
+        }
+    }
+
+    public static List<DataSourceType> noNeedUserNamePasswordDataSources = Lists.newArrayList(DataSourceType.HBASE,
+            DataSourceType.Phoenix,DataSourceType.HIVE,DataSourceType.SPARKTHRIFT2_1,
+            DataSourceType.HIVE1X,DataSourceType.IMPALA,DataSourceType.HIVE3,DataSourceType.PHOENIX5,DataSourceType.INCEPTOR_SQL);
+
+
+    public static List<Integer> hadoopDirtyDataSource = Lists.newArrayList(
+            DataSourceType.HIVE1X.getVal(),
+            DataSourceType.HIVE.getVal(),
+            DataSourceType.HIVE3.getVal(),
+            DataSourceType.SPARKTHRIFT2_1.getVal());
+
 }

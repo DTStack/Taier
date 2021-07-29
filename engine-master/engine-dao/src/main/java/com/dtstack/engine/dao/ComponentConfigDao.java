@@ -15,6 +15,8 @@ public interface ComponentConfigDao {
 
     List<ComponentConfig> listByClusterId(@Param("clusterId")Long clusterId,@Param("isFilter") boolean isFilter);
 
+    List<ComponentConfig> listByComponentTypeAndKey(@Param("clusterId")Long clusterId,@Param("key")String key,@Param("componentTypeCode")Integer componentTypeCode);
+
     ComponentConfig listByKey(@Param("componentId") Long componentId,@Param("key")String key);
 
     Integer insertBatch(@Param("componentConfigs") List<ComponentConfig> componentConfigs);
@@ -22,4 +24,6 @@ public interface ComponentConfigDao {
     Integer deleteByComponentId(@Param("componentId")Long componentId);
 
     ComponentConfig listFirst();
+
+    void update(ComponentConfig componentConfig);
 }

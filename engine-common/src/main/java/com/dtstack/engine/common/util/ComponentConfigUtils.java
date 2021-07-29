@@ -4,6 +4,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ComponentConfig;
 import com.dtstack.engine.api.pojo.ClientTemplate;
+import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.engine.common.enums.EComponentType;
+import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.common.enums.EFrontType;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -21,7 +24,7 @@ import java.util.stream.Collectors;
  */
 public class ComponentConfigUtils {
 
-    private final static String DEPLOY_MODE = "deploymode";
+    public final static String DEPLOY_MODE = "deploymode";
     private final static String dependencySeparator = "$";
     private static Predicate<String> isOtherControl = s -> "typeName".equalsIgnoreCase(s) || "md5Key".equalsIgnoreCase(s);
     private static Predicate<ClientTemplate> isAuth = c -> (c.getKey().equalsIgnoreCase("password") || c.getKey().equalsIgnoreCase("rsaPath"))
@@ -150,6 +153,8 @@ public class ComponentConfigUtils {
                 if (!CollectionUtils.isEmpty(deepToBuildConfigMap)) {
                     if (EFrontType.RADIO_LINKAGE.name().equalsIgnoreCase(componentConfig.getType())) {
                         parseRadioLinkage(dependencyMapping, configMaps, componentConfig, deepToBuildConfigMap);
+                    } else if (EFrontType.SELECT.name().equalsIgnoreCase(componentConfig.getType())){
+                        configMaps.put(componentConfig.getKey(), componentConfig.getValue());
                     } else {
                         configMaps.putAll(deepToBuildConfigMap);
                         if (EFrontType.RADIO.name().equalsIgnoreCase(componentConfig.getType())) {

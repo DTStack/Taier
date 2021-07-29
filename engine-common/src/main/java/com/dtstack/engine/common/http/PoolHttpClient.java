@@ -44,7 +44,7 @@ import static com.dtstack.engine.common.exception.ErrorCode.HTTP_CALL_ERROR;
  */
 public class PoolHttpClient {
 
-	private static final Logger logger = LoggerFactory.getLogger(PoolHttpClient.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(PoolHttpClient.class);
 
 	private static int SocketTimeout = 5000;// 5秒
 
@@ -99,10 +99,16 @@ public class PoolHttpClient {
 	}
 
 	public static String post(String url, Map<String, Object> bodyData, Map<String,Object> cookies) {
+		return post(url,bodyData,cookies, Boolean.FALSE);
+	}
+
+	public static String post(String url, Map<String, Object> bodyData, Map<String,Object> cookies,Boolean isRedirect) {
 		String responseBody = null;
 		CloseableHttpResponse response = null;
-		try {
-			HttpPost httpPost = new HttpPost(url);
+        int status = 0;
+        HttpPost httpPost = null;
+        try {
+            httpPost = new HttpPost(url);
 			if (cookies != null && cookies.size() > 0) {
 				httpPost.addHeader("Cookie", getCookieFormat(cookies));
 			}
@@ -113,24 +119,43 @@ public class PoolHttpClient {
 						.writeValueAsString(bodyData),charset));
 			}
 
-			// 请求数据
 			response = httpClient.execute(httpPost);
-			int status = response.getStatusLine().getStatusCode();
+			// 请求数据
+			status = response.getStatusLine().getStatusCode();
 			if (status == HttpStatus.SC_OK) {
 				HttpEntity entity = response.getEntity();
 				// FIXME 暂时不从header读取
 				responseBody = EntityUtils.toString(entity, charset);
 			} else {
-				logger.warn("request url:{} fail:{}", url, response.getStatusLine().getStatusCode());
+				LOGGER.warn("request url:{} fail:{}", url, response.getStatusLine().getStatusCode());
+				if (isRedirect && status == HttpStatus.SC_TEMPORARY_REDIRECT) {
+					Header header = response.getFirstHeader("location"); // 跳转的目标地址是在 HTTP-HEAD上
+					String newuri = header.getValue();
+					HttpPost newHttpPost = new HttpPost(newuri);
+					newHttpPost.setHeader("Content-type","application/json;charset=UTF-8");
+					if (bodyData != null && bodyData.size() > 0) {
+						newHttpPost.setEntity(new StringEntity(objectMapper
+								.writeValueAsString(bodyData),charset));
+					}
+
+					response = httpClient.execute(newHttpPost);
+					int newStatus = response.getStatusLine().getStatusCode();
+					if (newStatus == HttpStatus.SC_OK) {
+						responseBody = EntityUtils.toString(response.getEntity(), charset);
+					}
+				}
 			}
 		} catch (Exception e) {
-			logger.error("url:{}--->http request error:", url, e);
+			LOGGER.error("url:{}--->http request error:", url, e);
 		}finally{
+            if (HttpStatus.SC_OK != status && null != httpPost) {
+                httpPost.abort();
+            }
 			if(response != null){
 				try {
 					response.close();
 				} catch (IOException e) {
-					logger.error("", e);
+					LOGGER.error("", e);
 				}
 			}
 		}
@@ -156,20 +181,21 @@ public class PoolHttpClient {
 		String respBody = null;
 		HttpGet httpGet = null;
 		CloseableHttpResponse response = null;
+        int statusCode = 0;
 		try {
 			httpGet = new HttpGet(url);
 			if(headers != null && headers.length > 0){
 				httpGet.setHeaders(headers);
 			}
 			response = httpClient.execute(httpGet);
-			int statusCode = response.getStatusLine().getStatusCode();
+            statusCode = response.getStatusLine().getStatusCode();
 			if (statusCode == HttpStatus.SC_OK) {
 				HttpEntity entity = response.getEntity();
 				respBody = EntityUtils.toString(entity,charset);
 			}else if (statusCode == HttpStatus.SC_UNAUTHORIZED){
 				throw new RdosDefineException("登陆状态失效", ErrorCode.NOT_LOGIN);
 			}else{
-				logger.warn("request url:{} fail:{}",url,response.getStatusLine().getStatusCode());
+				LOGGER.warn("request url:{} fail:{}",url,response.getStatusLine().getStatusCode());
 
 				if(response.getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND){
 					throw new RdosDefineException(HttpStatus.SC_NOT_FOUND + "", HTTP_CALL_ERROR);
@@ -178,14 +204,17 @@ public class PoolHttpClient {
 				}
 			}
 		} catch (IOException e) {
-			logger.error("url:{}--->http request error:", url, e);
+			LOGGER.error("url:{}--->http request error:", url, e);
 			throw e;
 		} finally{
+            if (HttpStatus.SC_OK != statusCode && null != httpGet) {
+                httpGet.abort();
+            }
 			if(response!=null){
 				try {
 					response.close();
 				} catch (IOException e) {
-					logger.error("", e);
+					LOGGER.error("", e);
 				}
 			}
 		}

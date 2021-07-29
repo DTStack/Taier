@@ -1,11 +1,15 @@
 package com.dtstack.engine.common.env;
 
 import com.dtstack.engine.common.util.AddressUtil;
+import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
+
+import java.io.File;
 
 
 /**
@@ -13,6 +17,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @PropertySource(value = "file:${user.dir.conf}/application.properties")
+@Data
 public class EnvironmentContext {
 
 
@@ -31,7 +36,7 @@ public class EnvironmentContext {
     }
 
     public Integer getCycTimeDayGap() {
-        return Math.abs(Integer.parseInt(environment.getProperty("cycTimeDayGap", "0")));
+        return Math.abs(Integer.parseInt(environment.getProperty("cycTimeDayGap", "1")));
     }
 
     /**补数据或重跑cycTime的间隔，正常环境7*24小时，压测环境2个小时**/
@@ -122,7 +127,7 @@ public class EnvironmentContext {
      */
 
     public String getMybatisMapperLocations() {
-        return environment.getProperty("mybatis.mapper-locations", "classpath*:sqlmap/*-mapper.xml");
+        return environment.getProperty("mybatis.mapper-locations", "classpath*:sqlmap/**/*.xml");
     }
 
     public String getMybatisConfigLocation() {
@@ -136,8 +141,15 @@ public class EnvironmentContext {
         return Integer.parseInt(environment.getProperty("http.port", "9020"));
     }
 
+    private volatile String httpAddress;
+
     public String getHttpAddress() {
-        return environment.getProperty("http.address", AddressUtil.getOneIp());
+        if (StringUtils.isNotBlank(httpAddress)) {
+            return httpAddress;
+        }
+
+        httpAddress = environment.getProperty("http.address", AddressUtil.getOneIp());
+        return httpAddress;
     }
 
     /**
@@ -291,10 +303,17 @@ public class EnvironmentContext {
         return Integer.parseInt(environment.getProperty("slots", "10"));
     }
 
+    private volatile String localAddress;
+
     public String getLocalAddress() {
+        if (StringUtils.isNotBlank(localAddress)) {
+            return localAddress;
+        }
+
         String address = environment.getProperty("http.address", AddressUtil.getOneIp());
         String port = environment.getProperty("http.port", "8090");
-        return String.format("%s:%s", address, port);
+        localAddress = String.format("%s:%s", address, port);
+        return localAddress;
     }
 
     public String getNodeZkAddress() {
@@ -407,9 +426,16 @@ public class EnvironmentContext {
         return Integer.parseInt(environment.getProperty("testConnectTimeout", "100"));
     }
 
-
     public int getBuildJobErrorRetry() {
         return Integer.parseInt(environment.getProperty("build.job.retry", "3"));
+    }
+
+    public int getJobSubmitConcurrent() {
+        return Integer.parseInt(environment.getProperty("job.submit.concurrent", "1"));
+    }
+
+    public boolean getJobGraphBuilderSwitch() {
+        return Boolean.parseBoolean(environment.getProperty("jobGraphBuilderSwitch", "false"));
     }
 
     /**
@@ -436,7 +462,7 @@ public class EnvironmentContext {
     }
 
     public Integer getScheduleJobScope() {
-        return Integer.valueOf(environment.getProperty("job.back.scope", "60000"));
+        return Integer.valueOf(environment.getProperty("job.back.scope", "5000"));
     }
 
     public Integer getJobExecutorPoolCorePoolSize() {
@@ -495,6 +521,34 @@ public class EnvironmentContext {
         return Integer.valueOf(environment.getProperty("dataSource.time.between.eviction.runs.millis", "60000"));
     }
 
+    /**控制任务展开层数**/
+    public Integer getJobJobLevel(){
+        return Integer.valueOf(environment.getProperty("max.jobJob.level","20"));
+    }
+
+    /**控制工作流节点展开层数**/
+    public Integer getWorkFlowLevel(){
+        return Integer.valueOf(environment.getProperty("max.workFlow.level","20"));
+    }
+
+    public Boolean getUseOptimize(){
+
+        return Boolean.parseBoolean(environment.getProperty("engine.useOptimize","true"));
+    }
+
+    public int getMaxDeepShow() {
+        return Integer.parseInt(environment.getProperty("max.deep.show", "20"));
+    }
+
+    /**
+     * 是否开启任务调度
+     *
+     * @return
+     */
+    public boolean openJobSchedule() {
+        return Boolean.parseBoolean(environment.getProperty("job.schedule", "true"));
+    }
+
     public boolean getKeepAlive() {
         return Boolean.parseBoolean(environment.getProperty("dataSource.keep.alive", "true"));
     }
@@ -528,34 +582,9 @@ public class EnvironmentContext {
         return Integer.valueOf(environment.getProperty("dataSource.max.prepared.statement.per.connection.size", "20"));
     }
 
-    /**控制任务展开层数**/
-    public Integer getJobJobLevel(){
-        return Integer.valueOf(environment.getProperty("max.jobJob.level","20"));
+    public long getForkJoinResultTimeOut() {
+        return Long.parseLong(environment.getProperty("fork.join.timeout", Long.toString(60L * 5)));
     }
-
-    /**控制工作流节点展开层数**/
-    public Integer getWorkFlowLevel(){
-        return Integer.valueOf(environment.getProperty("max.workFlow.level","20"));
-    }
-
-    public Boolean getUseOptimize(){
-
-        return Boolean.parseBoolean(environment.getProperty("engine.useOptimize","true"));
-    }
-
-    public int getMaxDeepShow() {
-        return Integer.parseInt(environment.getProperty("max.deep.show", "20"));
-    }
-
-    /**
-     * 是否开启任务调度
-     *
-     * @return
-     */
-    public boolean openJobSchedule() {
-        return Boolean.parseBoolean(environment.getProperty("job.schedule", "true"));
-    }
-
     /**
      * 是否根据版本加载默认的配置
      *
@@ -564,4 +593,162 @@ public class EnvironmentContext {
     public boolean isCanAddExtraConfig() {
         return Boolean.parseBoolean(environment.getProperty("console.extra.config", "true"));
     }
+
+
+    public Integer getFuzzyProjectByProjectAliasLimit() {
+        return Integer.parseInt(environment.getProperty("fuzzy.project.alias.limit", "20"));
+    }
+
+    public Long getTaskRuleTimeout() {
+        return Long.parseLong(environment.getProperty("task.rule.timeout", "600000"));
+    }
+
+    public Integer getListChildTaskLimit() {
+        return Integer.parseInt(environment.getProperty("list.child.task.limit", "20"));
+    }
+
+    public boolean getOpenDummy() {
+        return Boolean.parseBoolean(environment.getProperty("open.dummy", "false"));
+    }
+
+    public String getPluginPath() {
+        return environment.getProperty("plugin.path",  System.getProperty("user.dir") + File.separator +"pluginLibs");
+    }
+
+    /**
+     * 数据源中心配置地址
+     * @return
+     */
+    public String getDatasourceNode() {
+        return environment.getProperty("datasource.node", "");
+    }
+
+    /**
+     * SDK TOKEN
+     * @return
+     */
+    public String getSdkToken() {
+        return environment.getProperty("sdk.token", "");
+    }
+
+    public String getSqlParserDir(){
+        return environment.getProperty("sqlParser.dir","/opt/dtstack/DTPlugin/SqlParser");
+    }
+
+    /**
+     * 是否优先走standalone的组件
+     *
+     * @return
+     */
+    public boolean checkStandalone() {
+        return Boolean.parseBoolean(environment.getProperty("check.standalone", "true"));
+    }
+
+    public int getBatchJobInsertSize() {
+        return Integer.parseInt(environment.getProperty("batchJob.insert.size", "20"));
+    }
+
+    public int getBatchJobJobInsertSize() {
+        return Integer.parseInt(environment.getProperty("batchJobJob.insert.size", "1000"));
+    }
+
+
+
+    /* datadevelop */
+
+
+    @Value("${notify.sendtype.phone:false}")
+    private Boolean notifyPhone;
+
+    @Value("${create.table.type:parquet}")
+    private String createTableType;
+
+    @Value("${http.port:9020}")
+    private Integer httpPort;
+
+//    @Value("${http.address:0.0.0.0}")
+//    private String httpAddress;
+
+    @Value("${hadoop.user.name:admin}")
+    private String hadoopUserName;
+
+    @Value("${hdfs.batch.path:/dtInsight/batch/}")
+    private String hdfsBatchPath;
+
+    @Value("${dtuic.url}")
+    private String dtUicUrl;
+
+    @Value("${public.service.node:}")
+    private String publicServiceNode;
+
+    @Value("${sync.log.promethues:true}")
+    private Boolean syncLogPromethues;
+
+    @Value("${kerberos.local.path:}")
+    private String kerberosLocalPath;
+
+    public String getKerberosLocalPath() {
+        return StringUtils.isNotBlank(kerberosLocalPath) ? kerberosLocalPath : String.format("%s%s%s",
+                System.getProperty("user.dir"), File.separator, "kerberosConf");
+    }
+
+    @Value("${kerberos.template.path:}")
+    private String kerberosTemplatePath;
+
+    public String getKerberosTemplatePath() {
+        return  StringUtils.isNotBlank(kerberosLocalPath) ? kerberosTemplatePath : String.format("%s%s%s%s%s",
+                System.getProperty("user.dir"), File.separator, "conf", File.separator, "kerberos");
+    }
+
+    @Value("${temp.table.lifecycle:1440}")
+    private Integer tempTableLifecycle;
+
+    @Value("${delete.life.time:7}")
+    private Integer deleteLifeTime;
+
+    @Value("${explain.enable:true}")
+    private Boolean explainEnable;
+
+    @Value("${table.limit:200}")
+    private Integer tableLimit;
+
+    /**
+     * 小文件合并的备份文件删除时间，单位：天
+     */
+    @Value("${delete.merge.file.time:7}")
+    private Long deleteMergeFileTime;
+
+    @Value("${sdk.token}")
+    private String sdkToken;
+
+    /**
+     * 数据保留天数
+     */
+    @Value("${data.keepDay:180}")
+    private Long dataKeepDay;
+
+
+    /* datasource */
+
+//    @Value("${dtuic.url}")
+//    private String dtUicUrl;
+
+    /**
+     * 数据源插件地址
+     */
+    @Value("${datasource.plugin.path:}")
+    private String dataSourcePluginPath;
+
+//    @Value("${kerberos.local.path:}")
+//    private String kerberosLocalPath;
+
+
+//    @Override
+//    public void afterPropertiesSet() throws Exception {
+//        ClientCache.setUserDir(getDataSourcePluginPath());
+//    }
+
+//    public String getKerberosLocalPath() {
+//        return StringUtils.isNotBlank(kerberosLocalPath) ? kerberosLocalPath : System.getProperty("user.dir") + File.separator + "kerberosConf";
+//    }
 }

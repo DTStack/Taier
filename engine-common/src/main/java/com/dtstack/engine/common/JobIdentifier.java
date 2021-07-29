@@ -32,13 +32,16 @@ public class JobIdentifier implements Serializable {
 
     private Long timeout;
 
-    private Boolean forceCancel;
+    private Boolean forceCancel = Boolean.FALSE;
+
+    private String componentVersion;
+
 
     private JobIdentifier() {
 
     }
 
-    public JobIdentifier(String engineJobId, String applicationId, String taskId, Long tenantId, String engineType, Integer deployMode, Long userId,String pluginInfo) {
+    public JobIdentifier(String engineJobId, String applicationId, String taskId, Long tenantId, String engineType, Integer deployMode, Long userId,String pluginInfo,String componentVersion) {
         this.engineJobId = engineJobId;
         this.applicationId = applicationId;
         this.taskId = taskId;
@@ -47,6 +50,7 @@ public class JobIdentifier implements Serializable {
         this.deployMode = deployMode;
         this.userId = userId;
         this.pluginInfo = pluginInfo;
+        this.componentVersion = componentVersion;
     }
 
     public JobIdentifier(String engineJobId, String applicationId, String taskId, Boolean forceCancel){
@@ -75,7 +79,7 @@ public class JobIdentifier implements Serializable {
     }
 
     public void setForceCancel(Boolean forceCancel) {
-        forceCancel = forceCancel;
+        this.forceCancel = forceCancel;
     }
 
     public Long getTimeout() {
@@ -118,6 +122,13 @@ public class JobIdentifier implements Serializable {
         return userId;
     }
 
+    public String getComponentVersion() {
+        return componentVersion;
+    }
+
+    public void setComponentVersion(String componentVersion) {
+        this.componentVersion = componentVersion;
+    }
 
     @Override
     public String toString() {

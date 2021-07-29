@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SftpPool {
 
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(SftpPool.class);
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(SftpPool.class);
 
     private GenericObjectPool<ChannelSftp> pool;
 
@@ -33,7 +33,7 @@ public class SftpPool {
     public ChannelSftp borrowObject() {
         try {
             ChannelSftp channelSftp = pool.borrowObject();
-            logger.info("从Sfpt连接池中获取一个连接channelSftp : " + channelSftp);
+            LOGGER.info("从Sfpt连接池中获取一个连接channelSftp : " + channelSftp);
             return channelSftp;
         } catch (Exception e) {
             throw new RuntimeException("从Sfpt连接池中获取连接失败", e);
@@ -46,7 +46,7 @@ public class SftpPool {
     public void returnObject(ChannelSftp channelSftp) {
         if (channelSftp != null) {
             pool.returnObject(channelSftp);
-            logger.info("归还channelSftp到Sfpt连接池中 : " + channelSftp);
+            LOGGER.info("归还channelSftp到Sfpt连接池中 : " + channelSftp);
         }
     }
 
