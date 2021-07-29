@@ -1,10 +1,7 @@
 package com.dtstack.engine.master.scheduler;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.ScheduleJobJob;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.DependencyType;
 import com.dtstack.engine.common.enums.EScheduleType;
@@ -15,6 +12,7 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.RetryUtil;
+import com.dtstack.engine.dao.ScheduleEngineProjectDao;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.druid.DtDruidRemoveAbandoned;
 import com.dtstack.engine.master.impl.*;
@@ -26,6 +24,7 @@ import com.dtstack.schedule.common.enums.Restarted;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.annotations.Param;
 import org.codehaus.jackson.JsonNode;
@@ -103,6 +102,9 @@ public class JobGraphBuilder {
     @Autowired
     private JobGraphBuilder jobGraphBuilder;
 
+    @Autowired
+    private ScheduleEngineProjectDao engineProjectDao;
+
     private Lock lock = new ReentrantLock();
 
     private volatile boolean isBuildError = false;
@@ -136,7 +138,12 @@ public class JobGraphBuilder {
             //清理周期实例脏数据
             cleanDirtyJobGraph(triggerDay);
 
-            int totalTask = batchTaskShadeService.countTaskByStatus(ESubmitStatus.SUBMIT.getStatus(), EProjectScheduleStatus.NORMAL.getStatus());
+            int totalTask = 0;
+            Map<Integer, Set<Long>> projectAppMapping = getProjectWhiteListMapping();
+            if (environmentContext.getJobGraphWhiteList() && MapUtils.isEmpty(projectAppMapping)) {
+                return;
+            }
+            totalTask = getTotalTask(totalTask, projectAppMapping);
             LOGGER.info("Counting task which status=SUBMIT scheduleStatus=NORMAL totalTask:{}", totalTask);
 
             if (totalTask <= 0) {
@@ -163,7 +170,7 @@ public class JobGraphBuilder {
                 if (batchIdx > totalBatch) {
                     break;
                 }
-                final List<ScheduleTaskShade> batchTaskShades = batchTaskShadeService.listTaskByStatus(startId, ESubmitStatus.SUBMIT.getStatus(), EProjectScheduleStatus.NORMAL.getStatus(), TASK_BATCH_SIZE);
+                final List<ScheduleTaskShade> batchTaskShades = getScheduleTaskShades(projectAppMapping, startId);
                 if (batchTaskShades.isEmpty()) {
                     break;
                 }
@@ -238,6 +245,61 @@ public class JobGraphBuilder {
             LOGGER.info("buildTaskJobGraph exit & unlock ...");
             lock.unlock();
         }
+    }
+
+    /**
+     * get white list project
+     * @return
+     */
+    private Map<Integer, Set<Long>> getProjectWhiteListMapping() {
+        if (!environmentContext.getJobGraphWhiteList()) {
+            return null;
+        }
+        List<ScheduleEngineProject> scheduleEngineProjects = engineProjectDao.listWhiteListProject();
+        if (CollectionUtils.isEmpty(scheduleEngineProjects)) {
+            LOGGER.info("Counting task which white list is empty");
+            return null;
+        }
+        return scheduleEngineProjects.stream()
+                .collect(Collectors.groupingBy(ScheduleEngineProject::getAppType,
+                        Collectors.mapping(ScheduleEngineProject::getProjectId, Collectors.toSet())));
+    }
+
+    /**
+     * get taskShade need to build job graph
+     * @param projectAppMapping
+     * @param startId
+     * @return
+     */
+    private List<ScheduleTaskShade> getScheduleTaskShades(Map<Integer, Set<Long>> projectAppMapping, long startId) {
+        if (!environmentContext.getJobGraphWhiteList()) {
+            return batchTaskShadeService.listTaskByStatus(startId, ESubmitStatus.SUBMIT.getStatus(), EProjectScheduleStatus.NORMAL.getStatus(), TASK_BATCH_SIZE, null, null);
+        } else {
+            List<ScheduleTaskShade> whiteListTaskShade = new ArrayList<>();
+            if (null != projectAppMapping) {
+                for (Integer appType : projectAppMapping.keySet()) {
+                    LOGGER.info("get white project {} appType {} ",projectAppMapping.get(appType),appType);
+                    List<ScheduleTaskShade> taskShades = batchTaskShadeService.listTaskByStatus(startId, ESubmitStatus.SUBMIT.getStatus(), EProjectScheduleStatus.NORMAL.getStatus(),
+                            TASK_BATCH_SIZE, projectAppMapping.get(appType), appType);
+                    if (CollectionUtils.isNotEmpty(taskShades)) {
+                        whiteListTaskShade.addAll(taskShades);
+                    }
+                }
+            }
+            return whiteListTaskShade;
+        }
+    }
+
+    private int getTotalTask(int totalTask, Map<Integer, Set<Long>> projectAppMapping) {
+        if (environmentContext.getJobGraphWhiteList()) {
+            for (Integer appType : projectAppMapping.keySet()) {
+                totalTask += batchTaskShadeService.countTaskByStatus(ESubmitStatus.SUBMIT.getStatus(), EProjectScheduleStatus.NORMAL.getStatus(),
+                        projectAppMapping.get(appType), appType);
+            }
+        } else {
+            totalTask = batchTaskShadeService.countTaskByStatus(ESubmitStatus.SUBMIT.getStatus(), EProjectScheduleStatus.NORMAL.getStatus(), null, null);
+        }
+        return totalTask;
     }
 
 

@@ -38,6 +38,7 @@ public interface TestCommonDao {
             "delete from lineage_column_column;"+
             "delete from lineage_column_column_unique_key_ref;"+
             "delete from console_component_config;" +
+            "delete from schedule_engine_project;" +
             "delete from console_tenant_resource;")
     void truncate();
 }

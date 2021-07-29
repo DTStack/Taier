@@ -249,6 +249,15 @@
         <include refid="select_content_fragment_with_sql"/>
         FROM schedule_task_shade
         WHERE id > #{startId} AND submit_status = #{submitStatus} and project_schedule_status = #{projectScheduleStatus} and is_deleted = 0
+        <if test="appType != null">
+            and app_type = #{appType}
+        </if>
+        <if test="projectIds != null and projectIds.size() > 0">
+            and   project_id in
+            <foreach collection="projectIds" open="(" separator="," close=")" item="projectId">
+                #{projectId}
+            </foreach>
+        </if>
         order by id asc
         limit #{batchTaskSize}
     </select>
@@ -258,6 +267,15 @@
         count(1)
         FROM schedule_task_shade
         WHERE submit_status = #{submitStatus} and project_schedule_status = #{projectScheduleStatus} and is_deleted = 0
+        <if test="appType != null">
+            and app_type = #{appType}
+        </if>
+        <if test="projectIds != null and projectIds.size() > 0">
+            and   project_id in
+            <foreach collection="projectIds" open="(" separator="," close=")" item="projectId">
+                #{projectId}
+            </foreach>
+        </if>
     </select>
 
     <select id="listByTaskIds" resultType="ScheduleTaskShade">
