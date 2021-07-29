@@ -18,12 +18,15 @@ import './index.scss'
 const TabPane = Tabs.TabPane
 const MenuItem = Menu.Item
 
+/** getComponentVersion 接口获取 versionData 的数组类型 */
+interface VersionInfo { deployTypes: number[]; key: string; value: string }
+
 interface IProps {
     comp: any;
     form: any;
     view: boolean;
     saveCompsData: any[];
-    versionData: any;
+    versionData: { [key: string]: VersionInfo[] };
     clusterInfo: any;
     testStatus: any;
     saveComp: (params: any, type?: string) => void;
@@ -59,13 +62,13 @@ export default class MultiVersionComp extends React.Component<IProps, IState> {
         getLoadTemplate(typeCode, { compVersion: e.key, deployType })
     }
 
-    getMeunItem = () => {
-        const { versionData, comp } = this.props
+    getMeunItem = (displayVersion: VersionInfo[]) => {
+        const { comp } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
         const { deployType } = this.state
 
         return <Menu onClick={this.handleMenuClick}>
-            {versionData[VERSION_TYPE[typeCode]]?.map(({ key, value }) => {
+            {displayVersion?.map(({ value }) => {
                 const disabled = comp?.multiVersion?.findIndex(vcomp => vcomp.hadoopVersion == value)
                 return <MenuItem disabled={disabled > -1} key={value} >
                     {isFLink(typeCode) ? FLINK_DEPLOY_NAME[deployType] : COMPONENT_CONFIG_NAME[typeCode]} {this.getCompVersion(value)}
@@ -89,9 +92,8 @@ export default class MultiVersionComp extends React.Component<IProps, IState> {
     }
 
     getCompVersion = (value: string) => {
-        const flinkVersion = ['110', '112']
-        if (!flinkVersion.includes(value)) return (Number(value) / 100).toFixed(1)
-        return (Number(value) / 100).toFixed(2)
+        const keep2Decimal = ['110', '112']
+        return (Number(value) / 100).toFixed(keep2Decimal.includes(value) ? 2 : 1)
     }
 
     getComponentName = (typeCode: number, deployType: number = FLINK_DEPLOY_TYPE.YARN) => {
@@ -113,10 +115,12 @@ export default class MultiVersionComp extends React.Component<IProps, IState> {
         const typeCode = comp?.componentTypeCode ?? ''
         const className = 'c-multiVersionComp'
         const isDefault = this.getDefaultVerionCompStatus(comp)
-        // flink 并且 standalone 的话只展示 1.10
-        const displayVersion: any[] = (isFLink(typeCode) && deployType === FLINK_DEPLOY_TYPE.STANDALONE)
-            ? [{ key: '1.10', value: '110' }]
-            : versionData[VERSION_TYPE[typeCode]]
+
+        // flink 由后端 deployTypes 字段控制展示版本
+        let displayVersion = versionData[VERSION_TYPE[typeCode]] || []
+        if (isFLink(typeCode)) {
+            displayVersion = displayVersion.filter(item => item.deployTypes.includes(deployType))
+        }
 
         if (!comp?.multiVersion[0]?.hadoopVersion) {
             return <div className={className}>
@@ -168,7 +172,7 @@ export default class MultiVersionComp extends React.Component<IProps, IState> {
             <Tabs
                 tabPosition="top"
                 className={`${className}__tabs`}
-                tabBarExtraContent={<Dropdown disabled={view} overlay={this.getMeunItem()} placement="bottomCenter">
+                tabBarExtraContent={<Dropdown disabled={view} overlay={this.getMeunItem(displayVersion)} placement="bottomCenter">
                     <Button type="primary" size="small" style={{ marginRight: 20 }}>
                         添加版本
                         <Icon type="down" />
