@@ -64,7 +64,9 @@ public class ClientProxy implements IClient {
                     throw new RdosDefineException(e);
                 }
             }, executorService).get(timeout, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+        } catch (Exception e) {
+            // 初始化失败,关闭线程池
+            executorService.shutdown();
             throw new RdosDefineException(e);
         }
     }
