@@ -174,12 +174,12 @@ public class ScheduleTaskShadeService {
     /**
      * 获取所有需要需要生成调度的task 没有sqlText字段
      */
-    public List<ScheduleTaskShade> listTaskByStatus(Long startId, Integer submitStatus, Integer projectSubmitStatus, Integer batchTaskSize) {
-        return scheduleTaskShadeDao.listTaskByStatus(startId, submitStatus, projectSubmitStatus, batchTaskSize);
+    public List<ScheduleTaskShade> listTaskByStatus(Long startId, Integer submitStatus, Integer projectSubmitStatus, Integer batchTaskSize,Collection<Long> projectIds,Integer appType) {
+        return scheduleTaskShadeDao.listTaskByStatus(startId, submitStatus, projectSubmitStatus, batchTaskSize,projectIds,appType);
     }
 
-    public Integer countTaskByStatus(Integer submitStatus, Integer projectSubmitStatus) {
-        return scheduleTaskShadeDao.countTaskByStatus(submitStatus, projectSubmitStatus);
+    public Integer countTaskByStatus(Integer submitStatus, Integer projectSubmitStatus,Collection<Long> projectIds,Integer appType) {
+        return scheduleTaskShadeDao.countTaskByStatus(submitStatus, projectSubmitStatus,projectIds,appType);
     }
 
     /**

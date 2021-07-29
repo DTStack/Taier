@@ -435,6 +435,10 @@ public class EnvironmentContext {
         return Boolean.parseBoolean(environment.getProperty("jobGraphBuilderSwitch", "false"));
     }
 
+    public boolean getJobGraphWhiteList() {
+        return Boolean.parseBoolean(environment.getProperty("jobGraphWhiteList", "false"));
+    }
+
     /**
      * 日志数据定时删除
      */
