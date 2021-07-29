@@ -10,6 +10,7 @@ import com.dtstack.engine.dao.ScheduleDictDao;
 import com.dtstack.engine.master.cache.DictCache;
 import com.dtstack.engine.master.enums.DictType;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,8 +43,7 @@ public class ScheduleDictService {
     private ComponentConfigDao componentConfigDao;
 
     /**
-     * 获取hadoop 和 flink spark组件的版本
-     *
+     * 获取hadoop 和 flink spark组件的版本(有版本选择的才会在这获取)
      * @return
      */
     public Map<String, List<ClientTemplate>> getVersion() {
@@ -91,9 +91,16 @@ public class ScheduleDictService {
         if (CollectionUtils.isEmpty(normalVersionDict)) {
             return new ArrayList<>(0);
         }
+
         return normalVersionDict
                 .stream()
-                .map(s -> new ClientTemplate(s.getDictName(), s.getDictValue()))
+                .map(s -> {
+                    ClientTemplate clientTemplate = new ClientTemplate(s.getDictName(), s.getDictValue());
+                    if (DictType.FLINK_VERSION.type.equals(s.getType()) && StringUtils.isNotBlank(s.getDependName())) {
+                        clientTemplate.setDeployTypes(Lists.newArrayList(s.getDependName().split(",")));
+                    }
+                    return clientTemplate;
+                })
                 .collect(Collectors.toList());
     }
 

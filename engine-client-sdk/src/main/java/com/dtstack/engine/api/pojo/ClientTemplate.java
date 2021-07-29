@@ -46,6 +46,8 @@ public class ClientTemplate implements Serializable {
     @JSONField(serialize = false)
     private Long id = 0L;
 
+    private List<String> deployTypes;
+
     public Long getId() {
         return id;
     }
@@ -113,6 +115,14 @@ public class ClientTemplate implements Serializable {
     public ClientTemplate(String key, Object value) {
         this.key = key;
         this.value = value;
+    }
+
+    public List<String> getDeployTypes() {
+        return deployTypes;
+    }
+
+    public void setDeployTypes(List<String> deployTypes) {
+        this.deployTypes = deployTypes;
     }
 
     public ClientTemplate() {
