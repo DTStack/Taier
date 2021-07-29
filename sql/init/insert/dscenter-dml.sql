@@ -397,10 +397,6 @@ VALUES
 INSERT INTO `dsc_version` (`data_type`, `data_version`, `sorted`, `is_deleted`, `gmt_create`, `gmt_modified`, `create_user_id`, `modify_user_id`)VALUES
 	( 'Hive', '3.x', 2, 0, '2021-06-09 14:49:27', '2021-06-09 14:49:42', 0, 0);
 
--- 任务调度表
-INSERT INTO `dt_center_cron_schedule` (`job_detail_name`, `job_detail_group`, `job_trigger_name`, `job_trigger_group`, `class_name`, `cron`, `concurrent`, `start_time`, `end_time`, `biz_type`, `gmt_create`, `gmt_modified`, `is_deleted`)
-VALUES
-('batchCreateAsJob', 'batchCreateAsJob', 'batchCreateAsJobTrigger', 'batchCreateAsJobJobTriggerGroup', 'com.dtstack.pubsvc.job.BatchCreateAsJob', '0 0/10 * * * ?', 0, NULL, NULL, 'rdos', '2021-01-05 20:12:21', '2021-01-05 20:12:21', 0);
 
 -- 在数据源和产品映射表dsc_app_mapping表中新增一条数据
 INSERT INTO `dsc_app_mapping` (`app_type`, `data_type`, `data_version`, `is_deleted`, `gmt_create`, `gmt_modified`, `create_user_id`, `modify_user_id`)
@@ -408,9 +404,3 @@ VALUES
 	(1, 'Hive', '3.x', 0, '2021-06-09 14:49:27', '2021-06-09 14:49:42', 0, 0),
 	(7, 'Hive', '3.x', 0, '2021-06-09 14:49:27', '2021-06-09 14:49:42', 0, 0);
 
-
-
--- 任务调度表
-INSERT INTO `dt_center_cron_schedule` (`job_detail_name`, `job_detail_group`, `job_trigger_name`, `job_trigger_group`, `class_name`, `cron`, `concurrent`, `start_time`, `end_time`, `biz_type`, `gmt_create`, `gmt_modified`, `is_deleted`)
-VALUES
-	('batchCreateAsJob', 'batchCreateAsJob', 'batchCreateAsJobTrigger', 'batchCreateAsJobJobTriggerGroup', 'com.dtstack.pubsvc.job.BatchCreateAsJob', '0 0/10 * * * ?', 0, NULL, NULL, 'rdos', '2021-01-05 20:12:21', '2021-01-05 20:12:21', 0);

@@ -160,8 +160,6 @@ CREATE TABLE `rdos_read_write_lock` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT ='读写锁记录表';
 
 
------------
-
 CREATE TABLE `rdos_batch_catalogue` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `tenant_id` int(11) NOT NULL COMMENT '租户id',
