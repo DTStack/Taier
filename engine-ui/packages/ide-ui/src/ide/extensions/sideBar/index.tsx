@@ -12,7 +12,7 @@ function initTaskParams() {
     iconName: "codicon-history",
   });
 
-  molecule.editor.editorInstance;
+  // molecule.editor.editorInstance;
 
   const TaskParamsView = connect(molecule.editor, TaskParams);
 
