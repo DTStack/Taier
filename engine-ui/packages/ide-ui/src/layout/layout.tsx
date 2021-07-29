@@ -1,6 +1,6 @@
 import React from 'react';
 import { Layout, Menu } from 'antd';
-import { AppContainer } from '../registerMicroApps';
+import { AppContainer } from '../views/registerMicroApps';
 
 const { Header, Content } = Layout;
 

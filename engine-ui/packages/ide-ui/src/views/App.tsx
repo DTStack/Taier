@@ -1,6 +1,6 @@
 import React from 'react';
-import Layout from './layout/layout';
-import IDE from './ide/workbench';
+import Layout from '../layout/layout';
+import IDE from './workbench';
 
 import './registerMicroApps';
 import './App.css';
