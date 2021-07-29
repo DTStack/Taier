@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ComponentConfig;
 import com.dtstack.engine.api.domain.ScheduleDict;
 import com.dtstack.engine.api.pojo.ClientTemplate;
@@ -21,6 +22,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author yuebai
@@ -97,7 +99,9 @@ public class ScheduleDictService {
                 .map(s -> {
                     ClientTemplate clientTemplate = new ClientTemplate(s.getDictName(), s.getDictValue());
                     if (DictType.FLINK_VERSION.type.equals(s.getType()) && StringUtils.isNotBlank(s.getDependName())) {
-                        clientTemplate.setDeployTypes(Lists.newArrayList(s.getDependName().split(",")));
+                        List<Integer> collect = Stream.of(s.getDependName().split(",")).mapToInt(Integer::parseInt)
+                                .boxed().collect(Collectors.toList());
+                        clientTemplate.setDeployTypes(collect);
                     }
                     return clientTemplate;
                 })
