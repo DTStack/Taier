@@ -25,6 +25,7 @@ const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 const Option = Select.Option;
 const CheckboxGroup = Checkbox.Group;
+
 export default class FormConfig extends React.PureComponent<IProps, any> {
     renderOptoinsType = (temp: any) => {
         const { view } = this.props
