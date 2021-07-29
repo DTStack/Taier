@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.2.4](http://git.dtstack.cn/dtstack/data-stack-web/compare/v4.2.3...v4.2.4) (2021-07-29)
+
+
+### Bug Fixes
+
+* upgrade dt-common version ([55765f4](http://git.dtstack.cn/dtstack/data-stack-web/commit/55765f49876fd96dab0b2ae227a7829edfad625a))
+
 ### [4.2.3](http://git.dtstack.cn/dtstack/data-stack-web/compare/v4.2.2...v4.2.3) (2021-07-22)
 
 
