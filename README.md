@@ -5,13 +5,12 @@
 > Engine！！！
 ><br/>~~~ 是数栈平台的核心应用，核心功能是将不同类型的任务（Job）提交到对应类型的执行引擎组件之上运行。
 
-
 * ***向上*** 负责接收数栈各个应用application所提交的任务（Job）
 * ***内部*** 负责任务的负载均衡 & 优先级调度
 * ***向下*** 负责将各种类型的任务（Job）真正地提交（submit）到具体的执行引擎组件上
 
 <div align=center>
-	<img src=docs/images/dtinsight_artifact.png width=600 />
+ <img src=docs/images/dtinsight_artifact.png width=600 />
 </div>
 
 ## 2. Engine 架构
@@ -19,7 +18,7 @@
 Engine 在实现上仅依赖于mysql数据库与zookeeper分布式一致性服务，支持分布式部署。
 
 <div align=center>
-	<img src=docs/images/engine_artifact.png width=600 />
+ <img src=docs/images/engine_artifact.png width=600 />
 </div>
 
 ## 3. 快速起步
@@ -37,8 +36,6 @@ Engine 在实现上仅依赖于mysql数据库与zookeeper分布式一致性服�
 * spark-2.1.0
 * hive-2.1.1
 
-
-
 ### 3.3 打包
 
 进入项目根目录，使用maven打包：
@@ -54,7 +51,6 @@ mvn clean package -Dmaven.test.skip
 ```
 bin/bash.sh
 ```
-
 
 ## 4. 任务（Job）模版
 
@@ -77,14 +73,15 @@ bin/bash.sh
 ```
 
 ### 4.1 名词解释
+
 1. name: 任务名称
 
 2. taskId: 全局唯一标识，定位任务（Job）时的主要条件之一
 
 3. computeType: 计算类型
-	* stream（流计算）
-	* batch（离线计算）
-	
+ * stream（流计算）
+ * batch（离线计算）
+ 
 4. engineType: 执行引擎组件类型
     * flink
     * spark
@@ -97,13 +94,13 @@ bin/bash.sh
     * hadoop
     * hive
     * postgreSQL
-   	
+    
 5. taskType: 任务类型
-	* 0：sql任务
-	* 1：mr任务
-	* 2：sync数据同步任务
-	* 3：python任务
-	
+ * 0：sql任务
+ * 1：mr任务
+ * 2：sync数据同步任务
+ * 3：python任务
+ 
 6. sqlText: sql文本
 7. exeArgs: 执行参数
 8. taskParams: 环境参数
@@ -141,7 +138,6 @@ hiveConf内容包括hive数据源的 jdbcUrl、username和password，用户名�
 
 hadoopConf内容包括hadoop的链接信息，支持HA模式与非HA模式
 
-
 #### 4.4.1 HA模式
 
 以 nameservices=ns1、namenode=nn1,nn2 为例
@@ -162,6 +158,7 @@ hadoopConf内容包括hadoop的链接信息，支持HA模式与非HA模式
 ```
 
 #### 4.4.2 非HA模式
+
 ```非HA模式
 
     "hadoopConf":{
@@ -175,7 +172,6 @@ hadoopConf内容包括hadoop的链接信息，支持HA模式与非HA模式
 ### 4.5 yarnConf
 
 yarnConf内容包括yarn的链接信息，支持HA模式与非HA模式
-
 
 #### 4.5.1 HA模式
 
@@ -196,6 +192,7 @@ yarnConf内容包括yarn的链接信息，支持HA模式与非HA模式
 ```
 
 #### 4.5.2 非HA模式
+
 ```非HA模式
 
     "yarnConf":{
@@ -215,7 +212,7 @@ yarnConf内容包括yarn的链接信息，支持HA模式与非HA模式
 * [spark_yarn插件](docs/spark_yarn.md)
 * [dtyarnshell插件](docs/dtyarnshell.md)
 * [mysql插件](docs/mysql.md)
-    * 使用 mysql插件 用户需要create 权限并且mysql配置要设置 enforce_gtid_consistency=OFF，gtid_mode=OFF
+  * 使用 mysql插件 用户需要create 权限并且mysql配置要设置 enforce_gtid_consistency=OFF，gtid_mode=OFF
 * [oracle插件](docs/oracle.md)
 * [sqlserver插件](docs/sqlserver.md)
 * [maxcompute插件](docs/maxcompute.md)

@@ -1,0 +1,12 @@
+{
+  "name": "root",
+  "private": true,
+  "scripts": {
+    "build": "sh ./scripts/build.sh",
+    "start": "sh ./scripts/start.sh",
+    "molecule": "lerna run build --scope=molecule && lerna bootstrap --scope=ide-ui"
+  },
+  "devDependencies": {
+    "lerna": "^4.0.0"
+  }
+}
