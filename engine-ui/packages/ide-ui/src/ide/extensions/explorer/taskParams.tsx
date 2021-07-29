@@ -1,9 +1,10 @@
 import * as React from "react";
-import { Form, Collapse, Input, Tooltip, Icon } from "antd";
-// import { debounce } from "lodash";
-import { customParams, customSystemParams } from "./doc";
+import { Form, Collapse, Input } from "antd";
+import debounce from "lodash/debounce";
 
-import './styles.css';
+import "./styles.css";
+import molecule from "molecule/esm";
+import HelpDoc from "../../components/helpDoc";
 
 const FormItem = Form.Item;
 const Panel = Collapse.Panel;
@@ -38,8 +39,7 @@ class TaskParams extends React.Component<any, any> {
     }
   };
 
-  // debounceChange = debounce(this.onChange, 300, { maxWait: 2000 });
-  debounceChange = this.onChange;
+  debounceChange = debounce(this.onChange, 300, { maxWait: 2000 });
 
   removeParams = (index: any) => {
     const { tabData, onChange } = this.props;
@@ -115,51 +115,48 @@ class TaskParams extends React.Component<any, any> {
     const formItems = this.getFormItems();
 
     return (
-      <Form className="taskParams" style={{ position: "relative" }}>
-        {isLocked || !couldEdit ? <div className="cover-mask"></div> : null}
-        <Collapse
-          style={{ background: "transparent" }}
-          bordered={false}
-          defaultActiveKey={["1", "2"]}
-        >
-          <Panel
-            key="1"
-            style={{ borderBottomColor: "transparent" }}
-            header={
-              <span style={{ background: "transparent", color: "#fff" }}>
-                系统参数配置{" "}
-                <Tooltip
-                  title={customSystemParams}
-                  style={{ position: "inherit" }}
-                >
-                  <Icon className="help-doc" type="question-circle-o" />
-                </Tooltip>
-              </span>
-            }
+      <molecule.component.Scrollable>
+        <Form className="taskParams" style={{ position: "relative" }}>
+          {isLocked || !couldEdit ? <div className="cover-mask"></div> : null}
+          <Collapse
+            style={{ background: "transparent" }}
+            bordered={false}
+            defaultActiveKey={["1", "2"]}
           >
-            {formItems.sysItems.length
-              ? formItems.sysItems
-              : this.renderNothing("无系统参数")}
-          </Panel>
-          <Panel
-            key="2"
-            style={{ borderBottomColor: "transparent" }}
-            header={
-              <span style={{ background: "transparent", color: "#fff" }}>
-                自定义参数配置{" "}
-                {/* <HelpDoc style={{ position: "inherit" }} doc="customParams" /> */}
-                <Tooltip title={customParams} style={{ position: "inherit" }}>
-                  <Icon className="help-doc" type="question-circle-o" />
-                </Tooltip>
-              </span>
-            }
-          >
-            {formItems.customItems.length
-              ? formItems.customItems
-              : this.renderNothing("无自定义参数")}
-          </Panel>
-        </Collapse>
-      </Form>
+            <Panel
+              key="1"
+              style={{ borderBottomColor: "transparent" }}
+              header={
+                <span style={{ background: "transparent", color: "#fff" }}>
+                  系统参数配置{" "}
+                  <HelpDoc
+                    style={{ position: "inherit" }}
+                    doc="customSystemParams"
+                  />
+                </span>
+              }
+            >
+              {formItems.sysItems.length
+                ? formItems.sysItems
+                : this.renderNothing("无系统参数")}
+            </Panel>
+            <Panel
+              key="2"
+              style={{ borderBottomColor: "transparent" }}
+              header={
+                <span style={{ background: "transparent", color: "#fff" }}>
+                  自定义参数配置{" "}
+                  <HelpDoc style={{ position: "inherit" }} doc="customParams" />
+                </span>
+              }
+            >
+              {formItems.customItems.length
+                ? formItems.customItems
+                : this.renderNothing("无自定义参数")}
+            </Panel>
+          </Collapse>
+        </Form>
+      </molecule.component.Scrollable>
     );
   }
 }

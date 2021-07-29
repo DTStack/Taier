@@ -1,5 +1,4 @@
 import { Icon } from "antd";
-import axios from "axios";
 import molecule from "molecule";
 import {
   getEditorInitialActions,
@@ -9,6 +8,7 @@ import {
 import { searchById } from "molecule/esm/services/helper";
 import { resetEditorGroup } from "../common";
 import Result from "./result";
+import ajax from "../../api";
 
 export const TASK_RUN_ID = "task.run";
 export const TASK_STOP_ID = "task.stop";
@@ -131,24 +131,21 @@ function emitEvent() {
           molecule.panel.appendOutput(`===========任务信息===========${"\n"}`);
           molecule.panel.appendOutput(`show tables${"\n"}`);
           molecule.panel.appendOutput(`============================${"\n"}`);
-          axios
-            .post("api/rdos/batch/batchJob/startSqlImmediately")
-            .then(({ data }) => {
-              const res = data.data;
-              if (res.success) {
-                const nowDate = new Date();
-                molecule.panel.appendOutput(
-                  `${nowDate.getHours()}:${nowDate.getMinutes()}:${nowDate.getSeconds()}<info>执行完成!` +
-                    "\n"
-                );
-                const resultTable = res.data;
+          ajax
+            .execSQLImmediately({})
+            .then((res) => {
+              const nowDate = new Date();
+              molecule.panel.appendOutput(
+                `${nowDate.getHours()}:${nowDate.getMinutes()}:${nowDate.getSeconds()}<info>执行完成!` +
+                  "\n"
+              );
+              const resultTable = res.data;
 
-                molecule.panel.open({
-                  id: new Date().getTime().toString(),
-                  name: "结果1",
-                  renderPane: () => <Result data={resultTable.result} />,
-                });
-              }
+              molecule.panel.open({
+                id: new Date().getTime().toString(),
+                name: "结果1",
+                renderPane: () => <Result data={resultTable.result} />,
+              });
             })
             .finally(() => {
               molecule.editor.updateActions([
