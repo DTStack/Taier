@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.2.5](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.4...v4.2.5) (2021-07-29)
+
+
+### Bug Fixes
+
+* upgrade dt-common ([c75140d](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/c75140de4cc4d00341206fecc943efae68807b83))
+
 ### [4.2.4](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.3...v4.2.4) (2021-07-27)
 
 
