@@ -14,7 +14,8 @@ import Api from '../../../../api'
 import MyIcon from '../../../../components/icon'
 import StatusColumn from '../../../../components/statusColumn'
 import { APP_TYPE } from '../../../../consts'
-import { TASK_TYPE, TASK_ALL_TYPE, getVertxtStyle } from '../../../../consts/comm'
+import { TASK_TYPE, TASK_ALL_TYPE } from '../../../../consts/comm'
+import { getVertxtStyle } from '../hlep'
 import { taskTypeText, taskStatusText } from '../../../../components/display'
 
 import MxFactory from 'dt-common/src/widgets/mxGraph';

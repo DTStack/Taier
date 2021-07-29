@@ -618,3 +618,7 @@
 .dt-batch-table-height.ant-table-wrapper .ant-spin-nested-loading .ant-spin-container .ant-table-fixed-header:not(:last-child), .dt-batch-table-height .ant-table-wrapper .ant-spin-nested-loading .ant-spin-container .ant-table-fixed-header:not(:last-child){
     height: calc(100% - 18px) !important
 }
+
+.ant-spin-nested-loading.c-task__content__spin-box.batch-task-height {
+    height: 100%;
+ }

@@ -1,5 +1,4 @@
 import api from '../api'
-import { hashHistory } from 'react-router'
 
 export const workbenchActions = (dispatch?: any) => {
     return {
@@ -12,16 +11,8 @@ export const workbenchActions = (dispatch?: any) => {
                     console.log('data: ', data);
                 }
             });
-            if (data.appType == '10') {
-                if (data.taskType == 18) {
-                    let path2 = `http://${window.location.hostname}:8099/easy-index/index-define?taskId=${data.id}`;
-                    window.open(path2)
-                } else if (data.taskType == 7) {
-                    hashHistory.push({ pathname: '/operation/dependence', query: { id: data.id } });
-                } else {
-
-                }
-            }
+            let path2 = `http://dev.insight.dtstack.cn/batch/#/offline/task?taskId=${data.id}&pid=${data.projectId}`
+            window.open(path2)
         }
     }
 }
