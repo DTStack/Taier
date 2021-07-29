@@ -78,7 +78,7 @@ public class ComponentMethodTest extends AbstractTest {
         componentConfig.setRequired(1);
         componentConfigDao.insertBatch(Lists.newArrayList(componentConfig));
 
-        componentService.refreshVersion(EComponentType.YARN,engineId,refreshComponent,dbComponent,"hadoop3");
+        componentService.refreshVersion(EComponentType.YARN,engineId,refreshComponent,dbComponent.getHadoopVersion(),"hadoop3");
 
         ComponentConfig refreshConfig = componentConfigDao.listByKey(flinkComponent.getId(), ConfigConstant.TYPE_NAME_KEY);
         Assert.assertNotNull(refreshConfig);
