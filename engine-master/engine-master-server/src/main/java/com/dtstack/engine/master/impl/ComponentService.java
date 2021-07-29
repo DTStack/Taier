@@ -519,18 +519,18 @@ public class ComponentService {
         if (null == engine) {
             throw new RdosDefineException("Engine cannot be empty");
         }
-
+        Component addComponent = new ComponentDTO();
+        BeanUtils.copyProperties(componentDTO, addComponent);
         // 判断是否是更新组件, 需要校验组件版本
-        Component addComponent, dbComponent = componentDao.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode(),ComponentVersionUtil.isMultiVersionComponent(componentCode)?hadoopVersion:null,deployType);
+        Component dbComponent = componentDao.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode(),ComponentVersionUtil.isMultiVersionComponent(componentCode)?hadoopVersion:null,deployType);
+        String dbHadoopVersion = "";
         boolean isUpdate = false;
         boolean isOpenKerberos = isOpenKerberos(kerberosFileName, dbComponent);
         if (null != dbComponent) {
             //更新
+            dbHadoopVersion = dbComponent.getHadoopVersion();
             addComponent = dbComponent;
             isUpdate = true;
-        }else {
-            addComponent = new ComponentDTO();
-            BeanUtils.copyProperties(componentDTO, addComponent);
         }
         componentConfig = this.checkKubernetesConfig(componentConfig, resources, componentType);
 
@@ -552,7 +552,7 @@ public class ComponentService {
         addComponent.setClusterId(clusterId);
         if (isUpdate) {
             componentDao.update(addComponent);
-            refreshVersion(componentType, engine.getId(), addComponent, dbComponent,hadoopVersion);
+            refreshVersion(componentType, engine.getId(), addComponent, dbHadoopVersion,hadoopVersion);
             clusterDao.updateGmtModified(clusterId);
         } else {
             componentDao.insert(addComponent);
@@ -607,9 +607,9 @@ public class ComponentService {
      * @param componentType
      * @param engineId
      * @param addComponent
-     * @param dbComponent
+     * @param dbHadoopVersion
      */
-    public void refreshVersion(EComponentType componentType, Long engineId, Component addComponent, Component dbComponent, String hadoopVersion) {
+    public void refreshVersion(EComponentType componentType, Long engineId, Component addComponent, String dbHadoopVersion, String hadoopVersion) {
         if (!EComponentType.YARN.equals(componentType)) {
             return;
         }
@@ -617,7 +617,7 @@ public class ComponentService {
         if (null == hdfsComponent) {
             return;
         }
-        String oldVersion = formatHadoopVersion(dbComponent.getHadoopVersion(), componentType);
+        String oldVersion = formatHadoopVersion(dbHadoopVersion, componentType);
         String newVersion = formatHadoopVersion(addComponent.getHadoopVersion(), componentType);
         String hdfsVersion = formatHadoopVersion(hdfsComponent.getHadoopVersion(), EComponentType.HDFS);
         if (newVersion.equalsIgnoreCase(oldVersion) && newVersion.equalsIgnoreCase(hdfsVersion)) {
@@ -651,7 +651,7 @@ public class ComponentService {
                         newValue = oldValue.replace(oldTypeNamePrefix, newTypeNamePrefix);
                     }
                     typeNameComponentConfig.setValue(newValue);
-                    LOGGER.info("refresh clusterId {} component {} typeName {} to {}", component.getClusterId(), component.getComponentName(), oldValue, newValue);
+                    LOGGER.info("refresh engineId {} component {} typeName {} to {}", engineId, component.getComponentName(), oldValue, newValue);
                     componentConfigService.updateValueComponentConfig(typeNameComponentConfig);
                 }
             }
