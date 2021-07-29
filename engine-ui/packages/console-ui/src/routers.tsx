@@ -1,6 +1,8 @@
 import * as React from 'react'
 import { Route, IndexRoute, IndexRedirect } from 'react-router'
 import NotFund from 'dt-common/src/widgets/notFund'
+import asyncComponent from 'dt-common/src/utils/asyncLoad'
+
 // 继承主应用的的公共View组件
 import Main from 'dt-common/src/views'
 import MsgCenter from 'dt-common/src/views/message'
@@ -26,6 +28,17 @@ import AlarmConfig from './views/alarmChannel/alarmConfig'
 // ======= 测试 =======
 // const Test = asyncComponent(() => import('./views/test')
 // .then((module: any) => module.default), { name: 'testPage' })
+
+// 运维中心
+import OpeOfflineList from './views/operation/offline/taskOperation'
+import OpeOfflineTaskMana from './views/operation/offline/taskMana'
+import OpeOfflineTaskRunTime from './views/operation/offline/taskFlowView/taskRuntime'
+import OperationPatchData from './views/operation/offline/patchDataList'
+import OperationPatchDataDetail from './views/operation/offline/patchDataDetail'
+import { isSelectedProject } from './interceptor'
+
+const Operation = asyncComponent(() => import('./views/operation/container')
+    .then((module: any) => module.default), { name: 'operationPage' })
 
 export default (
     <Route path="/" component={ Main }>
@@ -53,6 +66,15 @@ export default (
             <Route path='alarmChannel' component={AlarmChannel} />
             <Route path='alarmChannel/alarmRule' component={AlarmRule} />
             <Route path='alarmChannel/AlarmConfig' component={AlarmConfig} />
+        </Route>
+        <Route path="/operation" component={Operation} onEnter={isSelectedProject}>
+            <IndexRoute component={OpeOfflineTaskMana} />
+            <Route path="offline-operation" component={OpeOfflineList} />
+            <Route path="offline-management" component={OpeOfflineTaskMana} />
+            <Route path="offline-operation" component={OpeOfflineList} />
+            <Route path="task-runtime/:jobId" component={OpeOfflineTaskRunTime} />
+            <Route path="task-patch-data" component={OperationPatchData} />
+            <Route path="task-patch-data/:fillJobName" component={OperationPatchDataDetail} />
         </Route>
         <Route path="/*" component={NotFund} />
     </Route>

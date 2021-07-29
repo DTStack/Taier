@@ -1,0 +1,32 @@
+.app-science {
+    .sidebar {
+        height: 100%;
+        position: relative;
+    }
+    .container{
+        background: #f2f7fa;
+        .ant-layout{
+            background: #f2f7fa;
+        }
+    }
+    .c-header_wrapper {
+        >img {
+            height: 28px;
+            margin-top: -11px;
+        }
+        .c-header-title__link {
+            text-decoration: none;
+            font-size: 24px;
+            color: #F2F2F2;
+            padding-left: 8px;
+        }
+    }
+
+    header {
+        .menu {
+            .my-menu-item.ant-menu-submenu-horizontal.ant-menu-submenu{
+                font-size: 16px;
+            }
+        }
+    }
+}

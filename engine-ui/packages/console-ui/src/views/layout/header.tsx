@@ -44,6 +44,11 @@ class Header extends React.Component<any, any> {
             name: '多集群管理',
             link: `${baseUrl}/clusterManage`,
             enable: true
+        }, {
+            id: 'operation',
+            name: '运维中心',
+            link: '/operation',
+            enable: true
         }];
 
         const logo = (
