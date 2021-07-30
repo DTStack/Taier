@@ -33,13 +33,12 @@ public interface TestCommonDao {
             "delete from console_tenant_resource;"+
             "delete from schedule_job_graph_trigger;"+
             "delete from lineage_data_set_info;"+
-            "delete from lineage_data_source;" +
-            "delete from lineage_real_data_source;"+
             "delete from lineage_table_table;"+
             "delete from lineage_table_table_unique_key_ref;"+
             "delete from lineage_column_column;"+
             "delete from lineage_column_column_unique_key_ref;"+
             "delete from console_component_config;" +
+            "delete from schedule_engine_project;" +
             "delete from console_tenant_resource;")
     void truncate();
 }

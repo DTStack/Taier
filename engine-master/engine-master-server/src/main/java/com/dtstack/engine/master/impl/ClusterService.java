@@ -215,7 +215,8 @@ public class ClusterService implements InitializingBean {
         if (type == null) {
             return null;
         }
-        ClusterVO cluster = getClusterByTenant(dtUicTenantId);
+        Long clusterId = engineTenantDao.getClusterIdByTenantId(dtUicTenantId);
+        ClusterVO cluster = getCluster(clusterId,false,true);
         if (cluster == null) {
             String msg = format("The tenant [%s] is not bound to any cluster", dtUicTenantId);
             throw new RdosDefineException(msg);

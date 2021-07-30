@@ -497,8 +497,6 @@ public class Template {
     public static LineageDataSource getDefaultHiveDataSourceTemplate() {
         LineageDataSource lineageDataSource = new LineageDataSource();
         lineageDataSource.setDtUicTenantId(1L);
-        lineageDataSource.setRealSourceId(1L);
-        lineageDataSource.setSourceKey("172.16.8.107#10000");
         lineageDataSource.setSourceName("hive");
         lineageDataSource.setAppType(AppType.DATAASSETS.getType());
         lineageDataSource.setSourceType(DataSourceType.HIVE.getVal());

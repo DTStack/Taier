@@ -29,15 +29,6 @@ public class LineageDataSourceService {
     private static final Logger logger = LoggerFactory.getLogger(LineageDataSourceService.class);
 
 
-    @Resource
-    private TenantDao tenantDao;
-
-    @Resource
-    private ComponentDao componentDao;
-
-    @Resource
-    private ComponentConfigDao componentConfigDao;
-
     @Autowired
     private DataSourceAPIClient dataSourceAPIClient;
 
@@ -91,12 +82,6 @@ public class LineageDataSourceService {
         }
         return dsInfoListByIdList.getData();
     }
-
-
-
-
-
-
 
 
 }

@@ -29,9 +29,6 @@ import com.dtstack.engine.dao.TenantResourceDao;
 import com.dtstack.engine.master.druid.DtDruidRemoveAbandoned;
 import com.dtstack.engine.common.util.*;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.master.enums.DictType;
-import com.dtstack.engine.master.executor.CronJobExecutor;
-import com.dtstack.engine.master.executor.FillJobExecutor;
 import com.dtstack.engine.master.scheduler.parser.ESchedulePeriodType;
 import com.dtstack.schedule.common.enums.*;
 import com.google.common.collect.Lists;
@@ -39,11 +36,11 @@ import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
+import org.quartz.CronExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.support.CronSequenceGenerator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,12 +67,6 @@ public class ScheduleTaskShadeService {
 
     @Autowired
     private TenantResourceDao tenantResourceDao;
-
-    @Autowired
-    private CronJobExecutor cronJobExecutor;
-
-    @Autowired
-    private FillJobExecutor fillJobExecutor;
 
     @Autowired
     private TenantDao tenantDao;
@@ -183,12 +174,12 @@ public class ScheduleTaskShadeService {
     /**
      * 获取所有需要需要生成调度的task 没有sqlText字段
      */
-    public List<ScheduleTaskShade> listTaskByStatus(Long startId, Integer submitStatus, Integer projectSubmitStatus, Integer batchTaskSize) {
-        return scheduleTaskShadeDao.listTaskByStatus(startId, submitStatus, projectSubmitStatus, batchTaskSize);
+    public List<ScheduleTaskShade> listTaskByStatus(Long startId, Integer submitStatus, Integer projectSubmitStatus, Integer batchTaskSize,Collection<Long> projectIds,Integer appType) {
+        return scheduleTaskShadeDao.listTaskByStatus(startId, submitStatus, projectSubmitStatus, batchTaskSize,projectIds,appType);
     }
 
-    public Integer countTaskByStatus(Integer submitStatus, Integer projectSubmitStatus) {
-        return scheduleTaskShadeDao.countTaskByStatus(submitStatus, projectSubmitStatus);
+    public Integer countTaskByStatus(Integer submitStatus, Integer projectSubmitStatus,Collection<Long> projectIds,Integer appType) {
+        return scheduleTaskShadeDao.countTaskByStatus(submitStatus, projectSubmitStatus,projectIds,appType);
     }
 
     /**
@@ -378,7 +369,7 @@ public class ScheduleTaskShadeService {
             //过滤掉任务流中的子任务
             batchTaskDTO.setFlowId(0L);
         }
-        setBatchTaskDTO(tenantId, projectId, name, ownerId, startTime, endTime, scheduleStatus, taskTypeList, periodTypeList, searchType, batchTaskDTO);
+        setBatchTaskDTO(tenantId, projectId, name, ownerId, startTime, endTime, scheduleStatus, taskTypeList, periodTypeList, searchType, batchTaskDTO,appType);
         PageQuery<ScheduleTaskShadeDTO> pageQuery = new PageQuery<>(currentPage, pageSize, "gmt_modified", Sort.DESC.name());
         pageQuery.setModel(batchTaskDTO);
         ScheduleTaskShadePageVO scheduleTaskShadeTaskVO = new ScheduleTaskShadePageVO();
@@ -424,12 +415,14 @@ public class ScheduleTaskShadeService {
      * @param batchTaskDTO:
      * @return: void
      **/
-    private void setBatchTaskDTO(Long tenantId, Long projectId, String name, Long ownerId, Long startTime, Long endTime, Integer scheduleStatus, String taskTypeList, String periodTypeList, String searchType, ScheduleTaskShadeDTO batchTaskDTO) {
+    private void setBatchTaskDTO(Long tenantId, Long projectId, String name, Long ownerId, Long startTime, Long endTime, Integer scheduleStatus,
+                                 String taskTypeList, String periodTypeList, String searchType, ScheduleTaskShadeDTO batchTaskDTO,Integer appType) {
         batchTaskDTO.setTenantId(tenantId);
         batchTaskDTO.setProjectId(projectId);
         batchTaskDTO.setSubmitStatus(ESubmitStatus.SUBMIT.getStatus());
         batchTaskDTO.setTaskTypeList(convertStringToList(taskTypeList));
         batchTaskDTO.setPeriodTypeList(convertStringToList(periodTypeList));
+        batchTaskDTO.setAppType(appType);
         if (StringUtils.isNotBlank(name)) {
             batchTaskDTO.setFuzzName(name);
         }
@@ -1025,22 +1018,23 @@ public class ScheduleTaskShadeService {
      * @return
      */
     public CronExceptionVO checkCronExpression(String cron,Long minPeriod) {
-        CronSequenceGenerator sequenceGenerator ;
+        CronExpression cronExpression = null;
         try {
-           sequenceGenerator = new CronSequenceGenerator(cron);
+            CronExpression.validateExpression(cron);
+            cronExpression = new CronExpression(cron);
         }catch (Exception e){
             return new CronExceptionVO(CronExceptionVO.CHECK_EXCEPTION,ExceptionUtil.getErrorMessage(e));
         }
         minPeriod*=1000;
         // 第一次执行的时间
-        Date curRunTime = sequenceGenerator.next(new Date()), nextRunTime ;
+        Date curRunTime = cronExpression.getNextValidTimeAfter(new Date()), nextRunTime ;
         Date startDateTime = new Date(curRunTime.toInstant().atOffset(DateUtil.DEFAULT_ZONE)
                 .toLocalDate().atStartOfDay().plusSeconds(-1L).toInstant(DateUtil.DEFAULT_ZONE).toEpochMilli());
 
         Date endTDateTime = new Date(curRunTime.toInstant().atOffset(DateUtil.DEFAULT_ZONE)
                 .toLocalDate().plusDays(1).atStartOfDay().toInstant(DateUtil.DEFAULT_ZONE).toEpochMilli());
         while (curRunTime.after(startDateTime) && curRunTime.before(endTDateTime)){
-            nextRunTime = sequenceGenerator.next(curRunTime);
+            nextRunTime = cronExpression.getNextValidTimeAfter(curRunTime);
             if (nextRunTime.getTime()- minPeriod < curRunTime.getTime()){
                 return new CronExceptionVO(CronExceptionVO.PERIOD_EXCEPTION,String.format("%s run too frequency and min period = %sS",cron,minPeriod/1000));
             }
@@ -1058,9 +1052,9 @@ public class ScheduleTaskShadeService {
      * @return 运行数据
      */
     public List<String> recentlyRunTime(String startDate, String endDate, String cron, int num) {
-        CronSequenceGenerator generator;
+        CronExpression cronExpression;
         try {
-            generator = new CronSequenceGenerator(cron);
+            cronExpression = new CronExpression(cron);
         }catch (Exception e){
             throw new RdosDefineException("illegal cron expression");
         }
@@ -1077,10 +1071,10 @@ public class ScheduleTaskShadeService {
         Date end = new Date(DateUtil.parseDate(endDate,DateUtil.DATE_FORMAT).toInstant().atOffset(DateUtil.DEFAULT_ZONE)
                 .toLocalDate().plusDays(1).atStartOfDay().toInstant(DateUtil.DEFAULT_ZONE).toEpochMilli());
 
-        Date curDate = generator.next(start);
+        Date curDate = cronExpression.getNextValidTimeAfter(start);
         while (num-- > 0 && curDate.before(end) && curDate.after(start)){
             recentlyList.add(DateUtil.getDate(curDate,DateUtil.STANDARD_DATETIME_FORMAT));
-            curDate = generator.next(curDate);
+            curDate = cronExpression.getNextValidTimeAfter(curDate);
         }
         return recentlyList;
     }

@@ -1550,14 +1550,12 @@ public class ScheduleJobService {
         }
         //设置分页查询参数
         PageQuery<ScheduleJobDTO> pageQuery = getScheduleJobDTOPageQuery(runDay, bizStartDay, bizEndDay, dutyUserId, projectId, appType, currentPage, pageSize, tenantId, batchJobDTO);
+        pageQuery.getModel().setTenantId(tenantId);
+        List<ScheduleFillDataJob> fillJobList = scheduleFillDataJobDao.listFillJobByPageQuery(pageQuery);
 
-        List<Long> fillIdList = scheduleJobDao.listFillIdListWithOutTask(pageQuery);
-
-        if(CollectionUtils.isEmpty(fillIdList)){
+        if(CollectionUtils.isEmpty(fillJobList)){
             return new PageResult<>(null, 0, pageQuery);
         }
-        //根据补数据名称查询出记录
-        List<ScheduleFillDataJob> fillJobList = scheduleFillDataJobDao.getFillJobList(fillIdList, projectId, tenantId);
 
         //内存中按照时间排序
         if (CollectionUtils.isNotEmpty(fillJobList)) {

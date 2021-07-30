@@ -20,9 +20,10 @@ public interface ScheduleTaskShadeDao {
 
     ScheduleTaskShade getOne(@Param("taskId") long taskId , @Param("appType")Integer appType);
 
-    List<ScheduleTaskShade> listTaskByStatus(@Param("startId") Long startId, @Param("submitStatus") Integer submitStatus, @Param("projectScheduleStatus") Integer projectScheduleStatus, @Param("batchTaskSize") Integer batchTaskSize);
+    List<ScheduleTaskShade> listTaskByStatus(@Param("startId") Long startId, @Param("submitStatus") Integer submitStatus, @Param("projectScheduleStatus") Integer projectScheduleStatus, @Param("batchTaskSize") Integer batchTaskSize
+    ,@Param("projectIds")Collection<Long> projectIds, @Param("appType")Integer appType);
 
-    Integer countTaskByStatus(@Param("submitStatus") Integer submitStatus, @Param("projectScheduleStatus") Integer projectScheduleStatus);
+    Integer countTaskByStatus(@Param("submitStatus") Integer submitStatus, @Param("projectScheduleStatus") Integer projectScheduleStatus,@Param("projectIds")Collection<Long> projectIds, @Param("appType")Integer appType);
 
     List<ScheduleTaskShadeCountTaskVO> countTaskByType(@Param("tenantId") Long tenantId, @Param("dtuicTenantId") Long dtuicTenantId, @Param("projectIds")List<Long> projectIds, @Param("appType")Integer appType, @Param("taskTypes")List<Integer> taskTypes,
                                                        @Param("flowId") Long flowId);
