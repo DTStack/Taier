@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Tag, Badge } from 'antd'
 import { TASK_STATUS, TASK_TYPE, SCRIPT_TYPE, RESOURCE_TYPE, DATA_SOURCE } from '../../consts/comm'
-import { Circle } from 'dt-common/src/widgets/circle'
+import { Circle } from 'dt-react-component'
 
 export function ProjectStatus (props: any) {
     const value = props.value
@@ -24,77 +24,77 @@ export function TaskStatus (props: any) {
         case TASK_STATUS.RUNNING:
         case TASK_STATUS.TASK_STATUS_NOT_FOUND:
             return <span>
-                <Circle className="status_running" />&nbsp;
-                    运行中
+                <Circle type="running" />&nbsp;
+                运行中
             </span>
         case TASK_STATUS.FINISHED:
             return <span>
-                <Circle className="status_finished" />&nbsp;
+                <Circle type="finished" />&nbsp;
                 成功
             </span>
         case TASK_STATUS.STOPED:
             return <span>
-                <Circle className="status_stoped" />&nbsp;
+                <Circle type="stopped" />&nbsp;
                 手动取消
             </span>
         case TASK_STATUS.AUTO_CANCEL:
             return <span>
-                <Circle className="status_stoped" />&nbsp;
+                <Circle type="stopped" />&nbsp;
                 自动取消
             </span>
         case TASK_STATUS.RUN_FAILED:
             return <span>
-                <Circle className="status_run_fail" />&nbsp;
+                <Circle type="fail" />&nbsp;
                 运行失败
             </span>
         case TASK_STATUS.SUBMITTING:
             return <span>
-                <Circle className="status_submitting" />&nbsp;
+                <Circle type="submitting" />&nbsp;
                 提交中
             </span>
         case TASK_STATUS.SUBMIT_FAILED:
             return <span>
-                <Circle className="status_submit_failed" />&nbsp;
+                <Circle type="fail" />&nbsp;
                 提交失败
             </span>
         case TASK_STATUS.PARENT_FAILD:
             return <span>
-                <Circle className="status_submit_failed" />&nbsp;
+                <Circle type="fail" />&nbsp;
                 上游失败
             </span>
         case TASK_STATUS.WAIT_RUN:
             return <span>
-                <Circle className="status_wait_run" />&nbsp;
+                <Circle type="waitSubmit" />&nbsp;
                 等待运行
             </span>
         case TASK_STATUS.FROZEN:
             return <span>
-                <Circle className="status_frozen" />&nbsp;
-                    冻结
+                <Circle type="frozen" />&nbsp;
+                冻结
             </span>
         case TASK_STATUS.KILLED:
             return <span>
-                <Circle className="status_killed" />&nbsp;
-                    已停止
+                <Circle type="frozen" />&nbsp;
+                已停止
             </span>
         case TASK_STATUS.RESTARTING:
             return <span>
-                <Circle className="status_restarting" />&nbsp;
-                    重试中
+                <Circle type="restarting" />&nbsp;
+                重试中
             </span>
         case TASK_STATUS.WAIT_SUBMIT:
             return <span>
-                <Circle className="status_wait_submit" />&nbsp;
+                <Circle type="waitSubmit" />&nbsp;
                 等待提交
             </span>
         case TASK_STATUS.DO_FAIL:
             return <span>
-                <Circle className="status_submit_failed" />&nbsp;
+                <Circle type="fail" />&nbsp;
                 失败
             </span>
         default:
             return <span>
-                <Circle className="status_submit_failed" />&nbsp;
+                <Circle type="fail" />&nbsp;
                 异常
             </span>
     }

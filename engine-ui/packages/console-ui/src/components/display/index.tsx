@@ -1,7 +1,6 @@
 import * as React from 'react'
 
-import { TASK_TYPE, SCHEDULE_STATUS, TASK_STATUS } from '../../consts/comm'
-import { Circle } from 'dt-common/src/widgets/circle'
+import { TASK_TYPE, TASK_STATUS } from '../../consts/comm'
 
 export function taskTypeText (type: any) {
     switch (type) {
@@ -93,16 +92,6 @@ export function taskStatusText (type: any) {
             return '冻结';
         default:
             return '异常';
-    }
-}
-
-export function TaskScheduleStatus (props: any) {
-    switch (props.value) {
-        case SCHEDULE_STATUS.STOPPED:
-            return <Circle title="已冻结" style={{ background: '#26DAD2' }} />;
-        case SCHEDULE_STATUS.NORMAL:
-        default:
-            return <Circle title="正常" style={{ background: '#2491F7' }} />;
     }
 }
 
