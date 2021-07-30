@@ -3,7 +3,7 @@ import { Row, Col, Card, Radio } from 'antd'
 import moment from 'moment'
 import { cloneDeep } from 'lodash'
 
-import Resize from 'dt-common/src/widgets/resize'
+import { Resize } from 'dt-react-component'
 
 import Api from '../../../../api'
 import { lineAreaChartOptions } from '../../../../consts/comm'
