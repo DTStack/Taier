@@ -231,7 +231,6 @@ public class ComponentService {
         clusterService.clearStandaloneCache();
         Set<Long> dtUicTenantIds = new HashSet<>();
         if ( null != componentCode && EComponentType.sqlComponent.contains(EComponentType.getByCode(componentCode))) {
-            //tidb 和libra 没有queue
             List<EngineTenantVO> tenantVOS = engineTenantDao.listEngineTenant(engineId);
             if (CollectionUtils.isNotEmpty(tenantVOS)) {
                 for (EngineTenantVO tenantVO : tenantVOS) {

@@ -320,7 +320,9 @@ public enum EComponentType {
             EComponentType.TIDB_SQL, EComponentType.ORACLE_SQL,
             EComponentType.LIBRA_SQL, EComponentType.IMPALA_SQL,
             EComponentType.GREENPLUM_SQL, EComponentType.PRESTO_SQL,
-            EComponentType.INCEPTOR_SQL,EComponentType.ANALYTICDB_FOR_PG
+            EComponentType.INCEPTOR_SQL,EComponentType.ANALYTICDB_FOR_PG,
+            EComponentType.MYSQL, EComponentType.SQL_SERVER,
+            EComponentType.DB2, EComponentType.OCEANBASE
     );
 
     //基础配置信息
