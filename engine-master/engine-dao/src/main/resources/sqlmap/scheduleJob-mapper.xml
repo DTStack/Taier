@@ -1768,6 +1768,9 @@
         <if test="isRestart!=null">
             `is_restart` = #{isRestart},
         </if>
+        <if test="nodeAddress!=null">
+            node_address = #{nodeAddress},
+        </if>
         application_id = null, engine_job_id = null, engine_log = null, log_info = null,
         retry_task_params = null, exec_end_time = null, exec_start_time = null, exec_time = 0, gmt_modified=now(),retry_num = 0
         where job_id IN

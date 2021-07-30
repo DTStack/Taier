@@ -250,11 +250,12 @@ public class PluginWrapper{
                 //解析参数
                 deployMode = taskParamsService.parseDeployTypeByTaskParams(taskParams, computeType,EngineType.Flink.name(),tenantId).getType();
             }
-
+            String componentVersionValue = scheduleDictService.convertVersionNameToValue(componentVersion, engineType);
             String cacheKey = String.format("%s.%s.%s.%s.%s", tenantId, engineType, userId, deployMode,componentVersion);
             Integer finalDeployMode = deployMode;
             return pluginInfoCache.computeIfAbsent(cacheKey, (k) -> {
-                JSONObject infoJSON = clusterService.pluginInfoJSON(tenantId, engineType, userId, finalDeployMode,StringUtils.isBlank(componentVersion)?null:Collections.singletonMap(EngineTypeComponentType.getByEngineName(engineType).getComponentType().getTypeCode(),componentVersion));
+                JSONObject infoJSON = clusterService.pluginInfoJSON(tenantId, engineType, userId, finalDeployMode,
+                        StringUtils.isBlank(componentVersionValue)?null:Collections.singletonMap(EngineTypeComponentType.getByEngineName(engineType).getComponentType().getTypeCode(),componentVersionValue));
                 if (Objects.nonNull(infoJSON)) {
                     return infoJSON.toJSONString();
                 }
@@ -262,7 +263,7 @@ public class PluginWrapper{
             });
 
         } catch (Exception e) {
-            LOGGER.error("getPluginInfo tenantId {} engineType {} error ", tenantId, engineType);
+            LOGGER.error("getPluginInfo tenantId {} engineType {} error ", tenantId, engineType,e);
         }
         return "";
     }
