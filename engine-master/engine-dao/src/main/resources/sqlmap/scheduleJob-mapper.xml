@@ -1247,8 +1247,7 @@
         schedule_job bj
         left join schedule_task_shade ts on bj.task_id = ts.task_id
         <include refid="select_where_fragment"/>
-        and bj.fill_id = (
-        SELECT id from schedule_fill_data_job WHERE job_name = #{model.fillDataJobName})
+        and bj.fill_id = #{model.fillId}
         <include refid="queryWorkFlow"/>
         <if test="model.ownerUserId != null">
             AND ts.owner_user_id = #{model.ownerUserId}
@@ -1264,8 +1263,7 @@
         from schedule_job bj
         left join schedule_task_shade ts on bj.task_id = ts.task_id
         <include refid="select_where_fragment"/>
-        and bj.fill_id  = (
-        SELECT id from schedule_fill_data_job WHERE job_name = #{model.fillDataJobName})
+        and bj.fill_id  = #{model.fillId}
         <include refid="queryWorkFlow"/>
         <if test="model.ownerUserId != null">
             AND ts.owner_user_id = #{model.ownerUserId}
