@@ -21,7 +21,7 @@ import {
 
 import utils from 'dt-common/src/utils';
 import { replaceObjectArrayFiledName } from 'dt-common/src/funcs';
-import { SlidePane } from 'dt-react-component';
+import { SlidePane, MultiSearchInput } from 'dt-react-component';
 
 import Api from '../../../api';
 import {
@@ -36,7 +36,6 @@ import { workbenchActions } from '../../../actions/operation';
 
 import TaskJobFlowView from './taskJobFlowView';
 import KillJobForm from './killJobForm';
-import MultiSearchInput from 'dt-common/src/widgets/multiSearchInput';
 
 import './index.scss';
 

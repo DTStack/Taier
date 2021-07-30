@@ -9,7 +9,7 @@ import {
     Icon, DatePicker, Tooltip, Form, Breadcrumb, Pagination
 } from 'antd'
 
-import { SlidePane } from 'dt-react-component'
+import { SlidePane, MultiSearchInput } from 'dt-react-component'
 import { replaceObjectArrayFiledName } from 'dt-common/src/funcs';
 
 import Api from '../../../api'
@@ -27,9 +27,6 @@ import {
 } from '../../../actions/operation';
 
 import TaskJobFlowView from './taskJobFlowView';
-// import utils from 'dt-common/src/utils';
-import MultiSearchInput from 'dt-common/src/widgets/multiSearchInput';
-// import console from '@/api/console';
 
 const Option: any = Select.Option
 const confirm = Modal.confirm
