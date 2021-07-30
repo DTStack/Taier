@@ -20,8 +20,11 @@ public enum MultiEngineType {
     GREENPLUM(6, "Greenplum"),
     PRESTO(7, "Presto"),
     FLINK_ON_STANDALONE(8,"FlinkOnStandalone"),
-    ANALYTICDB_FOR_PG(9, ComponentConstant.ANALYTICDB_FOR_PG_ENGINE)
-    ;
+    ANALYTICDB_FOR_PG(9, ComponentConstant.ANALYTICDB_FOR_PG_ENGINE),
+    MYSQL(10, "Mysql"),
+    SQL_SERVER(11, "SqlServer"),
+    DB2(12, "DB2"),
+    OCEANBASE(13, "OceanBase");
 
     private int type;
 

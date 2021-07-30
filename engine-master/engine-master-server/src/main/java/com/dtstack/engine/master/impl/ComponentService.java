@@ -1654,7 +1654,7 @@ public class ComponentService {
         }
 
         //调度或存储单个组件
-        if (EComponentType.NFS.equals(componentCode) || EComponentType.ResourceScheduling.contains(componentCode)) {
+        if (EComponentType.YARN.equals(componentCode)) {
             return String.format("%s%s", componentCode.name().toLowerCase(), this.formatHadoopVersion(version, componentCode));
         }
 

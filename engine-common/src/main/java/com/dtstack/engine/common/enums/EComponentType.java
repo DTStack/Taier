@@ -34,7 +34,11 @@ public enum EComponentType {
     DTSCRIPT_AGENT(18,"DtScript Agent","dtScriptAgentConf"),
     INCEPTOR_SQL(19,"InceptorSql","inceptorSqlConf"),
 //    FLINK_ON_STANDALONE(20,"FlinkOnStandalone","flinkOnStandaloneConf"),
-    ANALYTICDB_FOR_PG(21, ComponentConstant.ANALYTICDB_FOR_PG_NAME,ComponentConstant.ANALYTICDB_FOR_PG_CONFIG_NAME);
+    ANALYTICDB_FOR_PG(21, ComponentConstant.ANALYTICDB_FOR_PG_NAME,ComponentConstant.ANALYTICDB_FOR_PG_CONFIG_NAME),
+    MYSQL(22, "Mysql", "mysqlConf"),
+    SQL_SERVER(23, "SqlServer", "sqlServerConf"),
+    DB2(24, "DB2", "db2Conf"),
+    OCEANBASE(25, "OceanBase", "oceanBaseConf");
 
     private Integer typeCode;
 
@@ -100,44 +104,26 @@ public enum EComponentType {
 
 
     // 资源调度组件
-    public static List<EComponentType> ResourceScheduling = Lists.newArrayList(EComponentType.YARN, EComponentType.KUBERNETES);
+    private static List<EComponentType> ResourceScheduling = Lists.newArrayList(EComponentType.YARN, EComponentType.KUBERNETES);
 
     // 存储组件
-    public static List<EComponentType> StorageScheduling = Lists.newArrayList(EComponentType.HDFS, EComponentType.NFS);
+    private static List<EComponentType> StorageScheduling = Lists.newArrayList(EComponentType.HDFS, EComponentType.NFS);
 
     // 计算组件
-    public static List<EComponentType> ComputeScheduling = Lists.newArrayList(EComponentType.SPARK, EComponentType.SPARK_THRIFT,
-            EComponentType.FLINK, EComponentType.HIVE_SERVER, EComponentType.IMPALA_SQL, EComponentType.DT_SCRIPT,
-            EComponentType.LEARNING, EComponentType.TIDB_SQL, EComponentType.PRESTO_SQL, EComponentType.LIBRA_SQL, EComponentType.ORACLE_SQL, EComponentType.CARBON_DATA, EComponentType.GREENPLUM_SQL,EComponentType.INCEPTOR_SQL,EComponentType.DTSCRIPT_AGENT,EComponentType.ANALYTICDB_FOR_PG);
+    private static List<EComponentType> ComputeScheduling = Lists.newArrayList(
+            EComponentType.SPARK, EComponentType.SPARK_THRIFT,
+            EComponentType.FLINK, EComponentType.HIVE_SERVER,
+            EComponentType.IMPALA_SQL, EComponentType.DT_SCRIPT,
+            EComponentType.LEARNING, EComponentType.TIDB_SQL,
+            EComponentType.PRESTO_SQL, EComponentType.LIBRA_SQL,
+            EComponentType.ORACLE_SQL, EComponentType.CARBON_DATA,
+            EComponentType.GREENPLUM_SQL,EComponentType.INCEPTOR_SQL,
+            EComponentType.DTSCRIPT_AGENT,EComponentType.ANALYTICDB_FOR_PG,
+            EComponentType.MYSQL,EComponentType.SQL_SERVER,
+            EComponentType.DB2,EComponentType.OCEANBASE
+    );
 
-    public static List<EComponentType> CommonScheduling = Lists.newArrayList(EComponentType.SFTP);
-
-
-    // hadoop引擎组件
-    public static List<EComponentType> HadoopComponents = Lists.newArrayList(EComponentType.SPARK, EComponentType.SPARK_THRIFT,
-            EComponentType.FLINK, EComponentType.HIVE_SERVER, EComponentType.IMPALA_SQL, EComponentType.DT_SCRIPT,
-            EComponentType.LEARNING, EComponentType.YARN, EComponentType.KUBERNETES, EComponentType.SFTP, EComponentType.CARBON_DATA,EComponentType.INCEPTOR_SQL);
-
-    // TiDB引擎组件
-    public static List<EComponentType> TiDBComponents = Lists.newArrayList(EComponentType.TIDB_SQL);
-
-    // LibrA引擎组件
-    public static List<EComponentType> LibrAComponents = Lists.newArrayList(EComponentType.LIBRA_SQL);
-
-    // Oracle引擎组件
-    public static List<EComponentType> OracleComponents = Lists.newArrayList(EComponentType.ORACLE_SQL);
-
-    public static List<EComponentType> GreenplumComponents = Lists.newArrayList(EComponentType.GREENPLUM_SQL);
-
-    //Presto引擎组件
-    public static List<EComponentType> PrestoComponents = Lists.newArrayList(EComponentType.PRESTO_SQL);
-
-    public static List<EComponentType> EmptyComponents = Lists.newArrayList(EComponentType.DTSCRIPT_AGENT);
-
-    public static List<EComponentType> analyticDbForPgComponents = Collections.unmodifiableList(Lists.newArrayList(EComponentType.ANALYTICDB_FOR_PG));
-    // 需要添加TypeName的组件
-    public static List<EComponentType> typeComponentVersion = Lists.newArrayList(EComponentType.DT_SCRIPT, EComponentType.FLINK, EComponentType.LEARNING, EComponentType.SPARK,
-            EComponentType.HDFS, EComponentType.FLINK);
+    private static List<EComponentType> CommonScheduling = Lists.newArrayList(EComponentType.SFTP);
 
     public static EComponentScheduleType getScheduleTypeByComponent(Integer componentCode) {
         EComponentType code = getByCode(componentCode);
@@ -156,6 +142,84 @@ public enum EComponentType {
         throw new RdosDefineException("不支持的组件");
     }
 
+
+    // hadoop引擎组件
+    private static List<EComponentType> HadoopComponents = Lists.newArrayList(
+            EComponentType.SPARK, EComponentType.SPARK_THRIFT,
+            EComponentType.FLINK, EComponentType.HIVE_SERVER,
+            EComponentType.IMPALA_SQL, EComponentType.DT_SCRIPT,
+            EComponentType.LEARNING, EComponentType.YARN,
+            EComponentType.KUBERNETES, EComponentType.SFTP,
+            EComponentType.CARBON_DATA,EComponentType.INCEPTOR_SQL
+    );
+
+    // TiDB引擎组件
+    private static List<EComponentType> TiDBComponents = Lists.newArrayList(EComponentType.TIDB_SQL);
+
+    // LibrA引擎组件
+    private static List<EComponentType> LibrAComponents = Lists.newArrayList(EComponentType.LIBRA_SQL);
+
+    // Oracle引擎组件
+    private static List<EComponentType> OracleComponents = Lists.newArrayList(EComponentType.ORACLE_SQL);
+
+    private static List<EComponentType> GreenplumComponents = Lists.newArrayList(EComponentType.GREENPLUM_SQL);
+
+    //Presto引擎组件
+    private static List<EComponentType> PrestoComponents = Lists.newArrayList(EComponentType.PRESTO_SQL);
+
+    private static List<EComponentType> EmptyComponents = Lists.newArrayList(EComponentType.DTSCRIPT_AGENT);
+
+    private static List<EComponentType> analyticDbForPgComponents = Collections.unmodifiableList(Lists.newArrayList(EComponentType.ANALYTICDB_FOR_PG));
+
+    public static MultiEngineType getEngineTypeByComponent(EComponentType componentType,Integer deployType) {
+        if(EComponentType.FLINK.equals(componentType) && EDeployType.STANDALONE.getType() == deployType){
+            return MultiEngineType.FLINK_ON_STANDALONE;
+        }
+        if (HadoopComponents.contains(componentType)) {
+            return MultiEngineType.HADOOP;
+        }
+        if (LibrAComponents.contains(componentType)) {
+            return MultiEngineType.LIBRA;
+        }
+        if (OracleComponents.contains(componentType)) {
+            return MultiEngineType.ORACLE;
+        }
+        if (TiDBComponents.contains(componentType)) {
+            return MultiEngineType.TIDB;
+        }
+        if (GreenplumComponents.contains(componentType)) {
+            return MultiEngineType.GREENPLUM;
+        }
+        if (PrestoComponents.contains(componentType)) {
+            return MultiEngineType.PRESTO;
+        }
+        if (EmptyComponents.contains(componentType)){
+            return MultiEngineType.COMMON;
+        }
+        if (analyticDbForPgComponents.contains(componentType)){
+            return MultiEngineType.ANALYTICDB_FOR_PG;
+        }
+        if (EComponentType.MYSQL == componentType) {
+            return MultiEngineType.MYSQL;
+        }
+        if (EComponentType.SQL_SERVER == componentType) {
+            return MultiEngineType.SQL_SERVER;
+        }
+        if (EComponentType.DB2 == componentType) {
+            return MultiEngineType.DB2;
+        }
+        if (EComponentType.OCEANBASE == componentType) {
+            return MultiEngineType.OCEANBASE;
+        }
+        return null;
+    }
+
+    // 需要添加TypeName的组件
+    public static List<EComponentType> typeComponentVersion = Lists.newArrayList(
+            EComponentType.DT_SCRIPT, EComponentType.FLINK,
+            EComponentType.LEARNING, EComponentType.SPARK,
+            EComponentType.HDFS
+    );
 
     /**
      * 直接定位的插件的组件类型
@@ -189,6 +253,14 @@ public enum EComponentType {
                 return "dtscript-agent";
             case ANALYTICDB_FOR_PG:
                 return ComponentConstant.ANALYTICDB_FOR_PG_PLUGIN;
+            case MYSQL:
+                return "mysql";
+            case SQL_SERVER:
+                return "sqlserver";
+            case DB2:
+                return "db2";
+            case OCEANBASE:
+                return "oceanbase";
         }
         return "";
     }
@@ -215,27 +287,48 @@ public enum EComponentType {
         }
         return "";
     }
-    public static List<EComponentType> notCheckComponent = Lists.newArrayList(EComponentType.SPARK, EComponentType.DT_SCRIPT, EComponentType.LEARNING, EComponentType.FLINK);
+
+    public static List<EComponentType> notCheckComponent = Lists.newArrayList(
+            EComponentType.SPARK, EComponentType.DT_SCRIPT,
+            EComponentType.LEARNING, EComponentType.FLINK
+    );
+
     //允许一个组件 on yarn 或 其他多种模式
     public static List<EComponentType> deployTypeComponents = Lists.newArrayList(EComponentType.FLINK);
     //允许一个组件多个版本
     public static List<EComponentType> multiVersionComponents = Lists.newArrayList(EComponentType.FLINK,EComponentType.SPARK);
 
+    //对应引擎的组件不能删除
+    public static List<EComponentType> requireComponent = Lists.newArrayList(
+            EComponentType.ORACLE_SQL, EComponentType.TIDB_SQL,
+            EComponentType.LIBRA_SQL, EComponentType.GREENPLUM_SQL,
+            EComponentType.PRESTO_SQL
+    );
+
+    /**没有queue的组件**/
+    public static List<EComponentType> noQueueComponents = Lists.newArrayList(
+            EComponentType.ORACLE_SQL, EComponentType.TIDB_SQL,
+            EComponentType.LIBRA_SQL, EComponentType.GREENPLUM_SQL,
+            EComponentType.PRESTO_SQL, EComponentType.MYSQL,
+            EComponentType.SQL_SERVER, EComponentType.DB2,
+            EComponentType.OCEANBASE
+    );
 
     //SQL组件
-    public static List<EComponentType> sqlComponent = Lists.newArrayList(EComponentType.SPARK_THRIFT, EComponentType.HIVE_SERVER, EComponentType.TIDB_SQL, EComponentType.ORACLE_SQL,
-            EComponentType.LIBRA_SQL, EComponentType.IMPALA_SQL, EComponentType.GREENPLUM_SQL, EComponentType.PRESTO_SQL,EComponentType.INCEPTOR_SQL,EComponentType.ANALYTICDB_FOR_PG);
-
-    //对应引擎的组件不能删除
-    public static List<EComponentType> requireComponent = Lists.newArrayList(EComponentType.ORACLE_SQL, EComponentType.TIDB_SQL, EComponentType.ORACLE_SQL,
-            EComponentType.LIBRA_SQL, EComponentType.GREENPLUM_SQL, EComponentType.PRESTO_SQL);
+    public static List<EComponentType> sqlComponent = Lists.newArrayList(
+            EComponentType.SPARK_THRIFT, EComponentType.HIVE_SERVER,
+            EComponentType.TIDB_SQL, EComponentType.ORACLE_SQL,
+            EComponentType.LIBRA_SQL, EComponentType.IMPALA_SQL,
+            EComponentType.GREENPLUM_SQL, EComponentType.PRESTO_SQL,
+            EComponentType.INCEPTOR_SQL,EComponentType.ANALYTICDB_FOR_PG
+    );
 
     //基础配置信息
-    public static List<String> BASE_CONFIG = Lists.newArrayList(EComponentType.HDFS.getConfName(),EComponentType.NFS.getConfName(),
-            EComponentType.YARN.getConfName(), EComponentType.SPARK_THRIFT.getConfName(), EComponentType.SFTP.getConfName(),EComponentType.KUBERNETES.getConfName());
-    /**没有queue的组件**/
-    public static List<EComponentType> noQueueComponents = Lists.newArrayList(EComponentType.ORACLE_SQL,EComponentType.TIDB_SQL,EComponentType.LIBRA_SQL,
-            EComponentType.GREENPLUM_SQL, EComponentType.PRESTO_SQL);
+    public static List<String> BASE_CONFIG = Lists.newArrayList(
+            EComponentType.HDFS.getConfName(), EComponentType.NFS.getConfName(),
+            EComponentType.YARN.getConfName(), EComponentType.SPARK_THRIFT.getConfName(),
+            EComponentType.SFTP.getConfName(),EComponentType.KUBERNETES.getConfName()
+    );
 
     //没有控件渲染的组件
     public static List<EComponentType> noControlComponents = Lists.newArrayList(EComponentType.YARN, EComponentType.KUBERNETES,EComponentType.HDFS);
@@ -245,37 +338,6 @@ public enum EComponentType {
 
     //metadata组件
     public static List<EComponentType> metadataComponents = Lists.newArrayList(EComponentType.HIVE_SERVER,EComponentType.SPARK_THRIFT);
-
-    public static MultiEngineType getEngineTypeByComponent(EComponentType componentType,Integer deployType) {
-        if(EComponentType.FLINK.equals(componentType) && EDeployType.STANDALONE.getType() == deployType){
-            return MultiEngineType.FLINK_ON_STANDALONE;
-        }
-        if (HadoopComponents.contains(componentType)) {
-            return MultiEngineType.HADOOP;
-        }
-        if (LibrAComponents.contains(componentType)) {
-            return MultiEngineType.LIBRA;
-        }
-        if (OracleComponents.contains(componentType)) {
-            return MultiEngineType.ORACLE;
-        }
-        if (TiDBComponents.contains(componentType)) {
-            return MultiEngineType.TIDB;
-        }
-        if (GreenplumComponents.contains(componentType)) {
-            return MultiEngineType.GREENPLUM;
-        }
-        if (PrestoComponents.contains(componentType)) {
-            return MultiEngineType.PRESTO;
-        }
-        if (EmptyComponents.contains(componentType)){
-            return MultiEngineType.COMMON;
-        }
-        if (analyticDbForPgComponents.contains(componentType)){
-            return MultiEngineType.ANALYTICDB_FOR_PG;
-        }
-        return null;
-    }
 
 
 }
