@@ -9,7 +9,7 @@ import {
     Icon, DatePicker, Tooltip, Form, Breadcrumb, Pagination
 } from 'antd'
 
-import SlidePane from 'dt-common/src/widgets/slidePane'
+import { SlidePane } from 'dt-react-component'
 import { replaceObjectArrayFiledName } from 'dt-common/src/funcs';
 
 import Api from '../../../api'

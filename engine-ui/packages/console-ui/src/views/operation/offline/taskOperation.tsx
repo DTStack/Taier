@@ -21,7 +21,7 @@ import {
 
 import utils from 'dt-common/src/utils';
 import { replaceObjectArrayFiledName } from 'dt-common/src/funcs';
-import SlidePane from 'dt-common/src/widgets/slidePane';
+import { SlidePane } from 'dt-react-component';
 
 import Api from '../../../api';
 import {
@@ -98,7 +98,7 @@ class OfflineTaskList extends React.Component<any, any> {
         });
     }
     /* eslint-disable-next-line */
-    componentWillReceiveProps(nextProps: any) {
+    componentWillReceiveProps (nextProps: any) {
         const project = nextProps.project;
         const oldProj = this.props.project;
         if (oldProj && project && oldProj.id !== project.id) {
@@ -781,7 +781,7 @@ class OfflineTaskList extends React.Component<any, any> {
                         : children.map((childItem: any) => {
                             return (
                                 <span key={childItem.title}>
-                                    {childItem.title}: {childItem.dataSource || 0 }
+                                    {childItem.title}: {childItem.dataSource || 0}
                                 </span>
                             );
                         })}
@@ -871,7 +871,7 @@ class OfflineTaskList extends React.Component<any, any> {
                             重跑当前任务
                         </Dropdown.Button>
                     </div>
-                    <Pagination {...pagination } style={{ top: 20 }} />
+                    <Pagination {...pagination} style={{ top: 20 }} />
                 </div>
             );
         };

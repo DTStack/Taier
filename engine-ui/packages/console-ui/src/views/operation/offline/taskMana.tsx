@@ -7,7 +7,7 @@ import { Table, message, Card, Select, Form, Checkbox, Tabs, Pagination } from '
 
 import utils from 'dt-common/src/utils';
 import { replaceObjectArrayFiledName } from 'dt-common/src/funcs';
-import SlidePane from 'dt-common/src/widgets/slidePane';
+import { SlidePane } from 'dt-react-component';
 import MultiSearchInput from 'dt-common/src/widgets/multiSearchInput';
 import Api from '../../../api';
 import { offlineTaskPeriodFilter, SCHEDULE_STATUS, PROJECT_TYPE, TASK_TYPE } from '../../../consts/comm';
@@ -115,7 +115,7 @@ class OfflineTaskMana extends React.Component<any, any> {
         }
     }
     /* eslint-disable-next-line */
-    componentWillReceiveProps(nextProps: any) {
+    componentWillReceiveProps (nextProps: any) {
         const project = nextProps.project;
         const oldProj = this.props.project;
         if (project && oldProj.id !== project.id) {
@@ -342,9 +342,7 @@ class OfflineTaskMana extends React.Component<any, any> {
 
     onSearchByTaskName = () => {
         this.setState(
-            {
-                current: 1
-            },
+            { current: 1 },
             this.search
         );
     };
