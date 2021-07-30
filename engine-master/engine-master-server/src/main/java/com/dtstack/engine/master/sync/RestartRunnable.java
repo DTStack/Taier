@@ -177,7 +177,7 @@ public class RestartRunnable implements Runnable {
             List<List<String>> partition = Lists.partition(restartJobId, 20);
             for (List<String> jobIds : partition) {
                 //更新任务为重跑任务--等待调度器获取并执行
-                scheduleJobDao.updateJobStatusAndPhaseStatus(jobIds, RdosTaskStatus.UNSUBMIT.getStatus(), JobPhaseStatus.CREATE.getCode(), Restarted.RESTARTED.getStatus());
+                scheduleJobDao.updateJobStatusAndPhaseStatus(jobIds, RdosTaskStatus.UNSUBMIT.getStatus(), JobPhaseStatus.CREATE.getCode(), Restarted.RESTARTED.getStatus(),environmentContext.getLocalAddress());
                 logger.info("reset job {}", jobIds);
             }
         }
