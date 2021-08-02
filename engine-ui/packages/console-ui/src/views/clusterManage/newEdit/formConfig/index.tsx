@@ -70,7 +70,12 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
         const fieldName = groupKey ? `${formField}.componentConfig.${groupKey}` : `${formField}.componentConfig`;
 
         // hover 提示相关
-        const showHover = temp.key === 'jdbcUrl'
+        const showHover = [
+            COMPONENT_TYPE_VALUE.MYSQL,
+            COMPONENT_TYPE_VALUE.DB2,
+            COMPONENT_TYPE_VALUE.OCEANBASE,
+            COMPONENT_TYPE_VALUE.SQLSERVER
+        ].includes(typeCode) && temp.key === 'jdbcUrl'
         const hoverText = {
             [COMPONENT_TYPE_VALUE.MYSQL]: '示例：jdbc:mysql://localhost:3306/def',
             [COMPONENT_TYPE_VALUE.DB2]: '示例：jdbc:db2://localhost:60000/def',
