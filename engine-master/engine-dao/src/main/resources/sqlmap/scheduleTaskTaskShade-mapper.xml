@@ -149,7 +149,8 @@
         LEFT JOIN schedule_task_shade ts ON ts.task_id = tts.task_id AND ts.app_type = tts.app_type
         WHERE
         tts.parent_task_id IN ( SELECT task_id FROM schedule_task_shade WHERE project_id = #{projectId} AND app_type = #{appType} )
-        AND tts.project_id != #{projectId} AND tts.parent_app_type = #{appType} AND ts.project_id != #{projectId}
+        AND tts.parent_app_type = #{appType}
+        AND ts.project_id != #{projectId}
         LIMIT #{listChildTaskLimit}
     </select>
 
