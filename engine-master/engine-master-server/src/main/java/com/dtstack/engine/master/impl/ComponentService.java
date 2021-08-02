@@ -1639,6 +1639,15 @@ public class ComponentService {
             }
 
         }
+
+        if (componentCode == EComponentType.MYSQL) {
+            String simpleVer = "5";
+            if (version.startsWith("8.")) {
+                simpleVer = "8";
+            }
+            return String.format("mysql%s", simpleVer);
+        }
+
         //flink on standalone处理
         if(EComponentType.FLINK.getTypeCode().equals(componentType) && EDeployType.STANDALONE.getType() == deployType){
             return String.format("%s%s",String.format("%s%s",EComponentType.FLINK.name().toLowerCase(),version),"-standalone");

@@ -253,8 +253,6 @@ public enum EComponentType {
                 return "dtscript-agent";
             case ANALYTICDB_FOR_PG:
                 return ComponentConstant.ANALYTICDB_FOR_PG_PLUGIN;
-            case MYSQL:
-                return "mysql";
             case SQL_SERVER:
                 return "sqlserver";
             case DB2:
