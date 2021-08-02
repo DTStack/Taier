@@ -1641,7 +1641,7 @@ public class ComponentService {
         }
 
         if (componentCode == EComponentType.MYSQL) {
-            String simpleVer = "5";
+            String simpleVer = "";
             if (version.startsWith("8.")) {
                 simpleVer = "8";
             }
