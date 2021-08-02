@@ -72,10 +72,10 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
         // hover 提示相关
         const showHover = temp.key === 'jdbcUrl'
         const hoverText = {
-            MySQL: '示例：jdbc:mysql://localhost:3306/def',
-            DB2: '示例：jdbc:db2://localhost:60000/def',
-            OceanBase: '示例：jdbc:oceanbase://localhost:2883/def（Mysql模式）jdbc:oceanbase:oracle://localhost:2883/def（Oralce模式）',
-            SQLServer: '示例：jdbc:sqlserver://localhost:1433;databaseName=def'
+            [COMPONENT_TYPE_VALUE.MYSQL]: '示例：jdbc:mysql://localhost:3306/def',
+            [COMPONENT_TYPE_VALUE.DB2]: '示例：jdbc:db2://localhost:60000/def',
+            [COMPONENT_TYPE_VALUE.OCEANBASE]: '示例：jdbc:oceanbase://localhost:2883/def（Mysql模式）jdbc:oceanbase:oracle://localhost:2883/def（Oralce模式）',
+            [COMPONENT_TYPE_VALUE.SQLSERVER]: '示例：jdbc:sqlserver://localhost:1433;databaseName=def'
         }[typeCode] || '无'
         if (showHover) {
             console.log(typeCode, temp)
@@ -243,6 +243,10 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
                 return this.renderYarnOrHdfsConfig()
             case COMPONENT_TYPE_VALUE.KUBERNETES:
                 return this.renderKubernetsConfig()
+            case COMPONENT_TYPE_VALUE.MYSQL:
+            case COMPONENT_TYPE_VALUE.SQLSERVER:
+            case COMPONENT_TYPE_VALUE.DB2:
+            case COMPONENT_TYPE_VALUE.OCEANBASE:
             case COMPONENT_TYPE_VALUE.SFTP:
             case COMPONENT_TYPE_VALUE.TIDB_SQL:
             case COMPONENT_TYPE_VALUE.LIBRA_SQL:
