@@ -4,6 +4,7 @@ import molecule from "molecule/esm";
 import Open from "./open";
 import { TASK_RUN_ID } from "../editor";
 import { resetEditorGroup } from "../common";
+import DataSync from '../../views/dataSync'
 import ajax from "../../api";
 
 function init() {
@@ -98,6 +99,20 @@ function onSelectFile() {
     if (file.fileType === FileTypes.File) {
       if (file.data.taskType === "SparkSql") {
         molecule.editor.updateActions([{ id: TASK_RUN_ID, disabled: false }]);
+      } else if(file.data.taskType === "DataSync") {
+        const tabData = {
+          id: "createTask",
+          modified: false,
+          name: localize("create task", "新建任务"),
+          data: {
+            value: file.data.id,
+          },
+          renderPane: () => {
+            return <DataSync />;
+          },
+        };
+        molecule.editor.updateActions([{ id: TASK_RUN_ID, disabled: false }]);
+        molecule.editor.open(tabData);
       } else {
         resetEditorGroup();
       }

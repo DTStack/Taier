@@ -902,4 +902,45 @@ export default {
       return http.post(req.GET_PACKAGE_ISHASFTP, params);
     }
   },
+    // =========== 组件模块 ==================//
+    saveComponent(params: any) {
+      return http.post(offlineReq.SAVE_COMPONENT, params)
+  },
+  updateComponentOwner(params: any) {
+      return http.post(offlineReq.CHANGE_COMPONENT_OWNER_USER, params)
+  },
+  cloneComponent(params: any) {
+      return http.post(offlineReq.CLONE_COMPONENT, params)
+  },
+  deleteComponent(params: any) {
+      return http.post(offlineReq.DELETE_COMPONENT_BY_ID, params)
+  },
+  getComponentById(params: any) {
+      return http.post(offlineReq.GET_COMPONENT_BY_ID, params)
+  },
+  getComponentByVersionId(params: any) {
+      return http.post(offlineReq.GET_COMPONENT_BY_VERSIONID, params)
+  },
+
+  publishComponent(params: any) {
+      return http.post(offlineReq.PUBLISH_COMPONENT, params)
+  },
+  execComponent(params: any) {
+      return http.post(offlineReq.EXECUTE_COMPONENT, params)
+  },
+  getComponentTypes(params?: any) {
+      return http.post(offlineReq.GET_SUPPORT_COMPONENT_TYPE, params)
+  },
+  pageQueryByProjectIdInComponent(params: any) {
+	  return http.post(offlineReq.PAGE_QUERY_BY_PROJECT, params)
+  },
+  selectStatus (params: any) { // 非数据同步接口轮训状态
+  	  return http.post(offlineReq.SELECT_SQL_STATUS, params)
+  },
+  selectRunLog (params: any) { // 非数据同步接口获取日志
+	  return http.post(offlineReq.SELECT_SQL_LOG, params)
+  },
+  selectExecResultDataSync (params: any) { // 数据同步接口获取结果表
+	  return http.post(offlineReq.SELECT_DATA_SYNC_RESULT, params)
+  },
 };

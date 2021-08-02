@@ -40,6 +40,10 @@ const taskType = [
     value: "SparkSql",
     text: "SparkSql",
   },
+  {
+    value: "DataSync",
+    text: "数据同步",
+  }
 ];
 
 class Open extends React.PureComponent<OpenProps, {}> {

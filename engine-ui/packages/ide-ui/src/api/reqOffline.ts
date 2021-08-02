@@ -74,6 +74,8 @@ export default {
   EXEC_SPARK_SQL_ADVANCED_MODE: `${RDOS_BASE_URL}/batch/batchJob/startSqlSophisticated`, // 执行sparkSQL高级模式
   STOP_SQL_IMMEDIATELY: `${RDOS_BASE_URL}/batch/batchJob/stopSqlImmediately`, // 停止执行SQL
   SELECT_SQL_RESULT_DATA: `${RDOS_BASE_URL}/batch/batchSelectSql/selectData`, // 轮询调度查询sql结果
+  SELECT_SQL_STATUS: `${RDOS_BASE_URL}/batch/batchSelectSql/selectStatus`, // 轮询调度查询sql状态
+  SELECT_SQL_LOG: `${RDOS_BASE_URL}/batch/batchSelectSql/selectRunLog`, // 轮询调度查询sql状态
   EXEC_DATA_SYNC_IMMEDIATELY: `${RDOS_BASE_URL}/batch/batchJob/startSyncImmediately`, // 立即执行数据同步
   STOP_DATA_SYNC_IMMEDIATELY: `${RDOS_BASE_URL}/batch/batchJob/stopSyncJob`, // 停止执行数据同步
   SELECT_DATA_SYNC_RESULT: `${RDOS_BASE_URL}/batch/batchJob/getSyncTaskStatus`, // 获取数据同步执行状态
@@ -167,4 +169,16 @@ export default {
   PROJECT_STORE_TOP: `${RDOS_BASE_URL}/batch/hiveTableCount/projectSizeTopOrder`, // 项目占用排行
   PROJECT_TABLE_STORE_TOP: `${RDOS_BASE_URL}/batch/hiveTableCount/tableSizeTopOrder`, // 表占用排行
   PROJECT_DATA_OVERVIEW: `${RDOS_BASE_URL}/batch/hiveTableCount/dataHistory`, // 数据趋势概览
+
+   // ===== 组件模块 ===== //
+   SAVE_COMPONENT: `${RDOS_BASE_URL}/batch/batchComponent/addOrUpdateComponent`, // 新建、更新组件
+   GET_COMPONENT_BY_ID: `${RDOS_BASE_URL}/batch/batchComponent/getComponentById`, // 获取组件信息
+   GET_COMPONENT_BY_VERSIONID: `${RDOS_BASE_URL}/batch/batchComponent/getComponentByVersionId`, // 获取组件信息
+   PUBLISH_COMPONENT: `${RDOS_BASE_URL}/batch/batchComponent/publishComponent`, // 提交组件
+   CLONE_COMPONENT: `${RDOS_BASE_URL}/batch/batchComponent/cloneComponent`, // 克隆组件
+   DELETE_COMPONENT_BY_ID: `${RDOS_BASE_URL}/batch/batchComponent/deleteComponentById`, // 删除组件
+   EXECUTE_COMPONENT: `${RDOS_BASE_URL}/batch/batchComponent/executeComponent`, // 运行组件
+   GET_SUPPORT_COMPONENT_TYPE: `${RDOS_BASE_URL}/batch/batchComponent/getSupportComponentType`, // 获取组件类型
+   PAGE_QUERY_BY_PROJECT: `${RDOS_BASE_URL}/batch/batchTableInfo/pageQueryByProjectId`, // 获取表
+   CHANGE_COMPONENT_OWNER_USER: `${RDOS_BASE_URL}/batch/batchComponent/changeComponentOwnerUser`, // 修改任务组件责任人
 };
