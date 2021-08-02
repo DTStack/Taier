@@ -14,6 +14,7 @@ import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskV
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
 import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
+import com.dtstack.engine.api.vo.task.TaskTypeVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EScheduleStatus;
@@ -857,7 +858,7 @@ public class ScheduleTaskShadeService {
         if (StringUtils.isBlank(name)) {
             return buildTypeVo(null);
         }
-        List<ScheduleTaskShade> tasks = scheduleTaskShadeDao.findFuzzyTaskNameByCondition(name, appType, uicTenantId, projectId, environmentContext.getFuzzyProjectByProjectAliasLimit());
+        List<ScheduleTaskShade> tasks = scheduleTaskShadeDao.findFuzzyTaskNameByCondition(name, appType, uicTenantId, projectId, environmentContext.getFuzzyProjectByProjectAliasLimit(),EProjectScheduleStatus.NORMAL.getStatus());
 
         return buildTypeVo(tasks);
     }
@@ -1100,5 +1101,18 @@ public class ScheduleTaskShadeService {
             throw new RdosDefineException(cronExceptionVO.getErrMessage());
         }
 
+    }
+
+    public List<TaskTypeVO> getTaskType() {
+        EScheduleJobType[] values = EScheduleJobType.values();
+        List<TaskTypeVO> taskTypeVOS = Lists.newArrayList();
+        for (EScheduleJobType value : values) {
+            TaskTypeVO vo = new TaskTypeVO();
+            vo.setCode(value.getType());
+            vo.setName(value.getName());
+            vo.setEnumName(value.name());
+            taskTypeVOS.add(vo);
+        }
+        return taskTypeVOS;
     }
 }
