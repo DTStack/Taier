@@ -1,24 +1,12 @@
 import * as React from 'react'
 import { Popconfirm, Button, message, Modal, Icon } from 'antd'
 import Api from '../../../../../api/console'
-import {
-    COMPONENT_CONFIG_NAME,
-    COMP_ACTION, FLINK_DEPLOY_NAME,
-    FLINK_DEPLOY_TYPE,
-    DEFAULT_COMP_VERSION
-} from '../../const'
+import { COMPONENT_CONFIG_NAME, COMP_ACTION, FLINK_DEPLOY_NAME,
+    FLINK_DEPLOY_TYPE } from '../../const'
 
-import {
-    handleComponentTemplate,
-    handleComponentConfigAndCustom,
-    handleComponentConfig,
-    isNeedTemp,
-    handleCustomParam,
-    isKubernetes,
-    isMultiVersion,
-    isFLink
-} from '../../help'
-
+import { handleComponentTemplate, handleComponentConfigAndCustom,
+    handleComponentConfig, isNeedTemp, handleCustomParam,
+    isKubernetes, isMultiVersion, isFLink } from '../../help'
 interface IProps {
     form: any;
     comp: any;
@@ -114,8 +102,7 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
 
     testConnects = () => {
         const typeCode = this.props.comp?.componentTypeCode ?? ''
-        let hadoopVersion = isMultiVersion(typeCode) ? this.props.comp?.hadoopVersion : ''
-        hadoopVersion = hadoopVersion || DEFAULT_COMP_VERSION[typeCode] || ''
+        const hadoopVersion = isMultiVersion(typeCode) ? this.props.comp?.hadoopVersion : ''
         const deployType = this.props.comp?.deployType ?? ''
         this.props.testConnects({ typeCode, hadoopVersion, deployType }, (loading: boolean) => {
             this.setState({ loading })
@@ -182,13 +169,13 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
                     <Button>取消</Button>
                 </Popconfirm>
                 <Button style={{ marginLeft: 8 }} onClick={this.showModal}>
-                    {mulitple ? `删除${multipleText}组件` : `删除${defaultText}组件`}
+                    { mulitple ? `删除${multipleText}组件` : `删除${defaultText}组件` }
                 </Button>
                 <Button style={{ marginLeft: 8 }} loading={loading} ghost onClick={this.testConnects}>
-                    {mulitple ? `测试${multipleText}连通性` : `测试${defaultText}连通性`}
+                    { mulitple ? `测试${multipleText}连通性` : `测试${defaultText}连通性` }
                 </Button>
                 <Button style={{ marginLeft: 8 }} type="primary" onClick={this.onOk}>
-                    {mulitple ? `保存${multipleText}组件` : `保存${defaultText}组件`}
+                    { mulitple ? `保存${multipleText}组件` : `保存${defaultText}组件` }
                 </Button>
             </div>
         )
