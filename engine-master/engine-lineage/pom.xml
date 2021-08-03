@@ -16,7 +16,7 @@
         <dependency>
             <groupId>dt.insight.plat</groupId>
             <artifactId>dt-insight-sql-common</artifactId>
-            <version>4.2.2-SNAPSHOT</version>
+            <version>4.2.2</version>
         </dependency>
 
         <dependency>
