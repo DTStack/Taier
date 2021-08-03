@@ -3,6 +3,7 @@ import 'whatwg-fetch'
 import ProgressBar from 'dt-common/src/widgets/progress-bar'
 import { setRequestVersion, catchCustomAction } from 'dt-common/src/funcs'
 
+import HTTP from 'dt-common/src/api/http'
 import { authAfterFormated, authBeforeFormate } from '../interceptor'
 class Http {
     get (url: any, params: any) { // GET请求
@@ -38,7 +39,8 @@ class Http {
         return this.request(url, options)
     }
 
-    request (url: any, options: any) {
+    request (url: any, options: any, isNotJudge?: boolean) {
+        !isNotJudge && HTTP.judgeCookieEffectTime()
         ProgressBar.show()
         options.credentials = 'same-origin'
         setRequestVersion(options, 'DT_CONSOLE')
