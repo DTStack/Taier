@@ -1,6 +1,5 @@
 import * as React from "react";
 // import ajax from "../../../../api";
-import { message } from "antd";
 import { debounceEventHander } from "../../../comm";
 
 class TaskSelector extends React.Component<any, any> {

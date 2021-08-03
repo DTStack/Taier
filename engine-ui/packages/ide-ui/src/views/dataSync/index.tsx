@@ -21,7 +21,7 @@ const initialState = {
 }
 type Istate=typeof initialState
 @(connect((state: any) => {
-    const { workbench, dataSync } = state.offlineTask;
+    const { workbench, dataSync } = state.dataSync;
     const { currentTab, tabs } = workbench;
     const currentTabData = tabs.filter((tab: any) => {
         return tab.id === currentTab;

@@ -29,9 +29,9 @@ class DataSync extends React.Component<any, any> {
     componentDidMount () {
         const { currentTabData } = this.props;
 
-        this.getJobData({ taskId: currentTabData.id });
-        this.props.setTabId(currentTabData.id);
-        this.props.getDataSource();
+        this.getJobData({ taskId: currentTabData?.id });
+        // this.props.setTabId(currentTabData?.id);
+        // this.props.getDataSource();
         this.isStandeAlone()
     }
 
@@ -143,8 +143,8 @@ class DataSync extends React.Component<any, any> {
 
     getJobData = (params: any) => {
         const { currentTabData } = this.props;
-        const { dataSyncSaved } = currentTabData;
-        const { taskId } = params
+        // const { dataSyncSaved } = currentTabData;
+        // const { taskId } = params
         // ajax.getOfflineJobData(params).then((res: any) => {
         //     const { data = {} } = res;
         //     if (data) {
@@ -201,7 +201,7 @@ class DataSync extends React.Component<any, any> {
             return;
         }
         this.props.saveDataSyncToTab({
-            id: currentTabData.id,
+            id: currentTabData?.id,
             data: dataSync
         })
     }
@@ -237,7 +237,7 @@ class DataSync extends React.Component<any, any> {
         const { currentStep, loading,isStandeAlone } = this.state;
         const {
             sourceMap, targetMap,
-            currentTabData,
+            currentTabData = {},
             taskCustomParams,
             updateDataSyncVariables
         } = this.props;
@@ -322,15 +322,15 @@ class DataSync extends React.Component<any, any> {
 }
 
 const mapState = (state: any) => {
-    const { workbench, dataSync } = state.offlineTask;
+    const { workbench, dataSync } = state.dataSync;
     return {
         user: state.user,
         project: state.project,
         tabs: workbench.tabs,
         dataSync: dataSync,
         isCurrentTabNew: workbench.isCurrentTabNew,
-        sourceMap: dataSync.sourceMap,
-        targetMap: dataSync.targetMap,
+        sourceMap: dataSync?.sourceMap,
+        targetMap: dataSync?.targetMap,
         currentTab: workbench.currentTab,
         taskCustomParams: workbench.taskCustomParams
     }
