@@ -948,7 +948,7 @@ class OfflineTaskList extends React.Component<any, any> {
                                     <FormItem label="" className="batch-operation_offlineImg dt-form-shadow-bg">
                                         <MultiSearchInput
                                             placeholder="按任务名称搜索"
-                                            style={{ width: 210 }}
+                                            style={{ width: 250 }}
                                             value={jobName}
                                             searchType={searchType}
                                             onChange={this.changeTaskName}
