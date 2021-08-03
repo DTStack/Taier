@@ -3,6 +3,10 @@ import PropTypes from 'prop-types'
 import { Layout } from 'antd'
 import Sidebar from './sidebar'
 import Header from '../layout/header'
+import { connect } from 'react-redux'
+
+import { updateApp } from 'dt-common/src/actions/app'
+import { consoleApp } from 'dt-common/src/consts/defaultApps'
 
 const { Sider, Content } = Layout;
 const propType: any = {
@@ -12,12 +16,24 @@ const defaultPro: any = {
     children: []
 }
 
+const mapStateToProps = (state: any) => {
+    const { common } = state;
+    return { common }
+};
+@(connect(
+    mapStateToProps
+) as any)
 class Container extends React.Component<any, any> {
     state: any = {
         collapsed: false
     };
     static propTypes = propType
     static defaultProps = defaultPro
+
+    componentDidMount () {
+        const { dispatch } = this.props;
+        dispatch(updateApp(consoleApp));
+    }
 
     toggleCollapsed = (data) => {
         this.setState({
@@ -28,7 +44,7 @@ class Container extends React.Component<any, any> {
     render () {
         const { children } = this.props
         const { collapsed } = this.state
-        let header = <Header />
+        let header = <Header operationHeader={true} />
 
         return (
             <div className="main">
