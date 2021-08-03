@@ -62,6 +62,7 @@ public enum DataSourceType {
     HIVE3(50),
 
     ADB_POSTGREPSQL(54),
+    OCEANBASE(55),
 
     /**
      * spark thrift

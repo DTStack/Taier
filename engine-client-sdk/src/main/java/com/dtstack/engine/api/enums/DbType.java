@@ -12,7 +12,8 @@ public enum DbType {
     TiDB(31),
     GREENPLUM6(36),
     ANALYTICDB_FOR_PG(54),
-    MYSQL(1);
+    MYSQL(1),
+    OCEANBASE(55);
 
     private int typeCode;
 

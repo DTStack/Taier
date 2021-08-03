@@ -781,6 +781,12 @@ public class ClusterService implements InitializingBean {
             componentType = EComponentType.ANALYTICDB_FOR_PG;
         } else if (DataSourceType.MySQL.equals(dataSourceType)) {
             componentType = EComponentType.MYSQL;
+        } else if (DataSourceType.DB2.equals(dataSourceType)) {
+            componentType = EComponentType.DB2;
+        } else if (DataSourceType.SQLServer.equals(dataSourceType)) {
+            componentType = EComponentType.SQL_SERVER;
+        } else if (DataSourceType.OCEANBASE.equals(dataSourceType)) {
+            componentType = EComponentType.OCEANBASE;
         }
         if (componentType == null) {
             throw new RdosDefineException("Unsupported data source type");
