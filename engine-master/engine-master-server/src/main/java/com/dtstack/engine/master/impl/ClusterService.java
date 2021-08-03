@@ -748,6 +748,21 @@ public class ClusterService implements InitializingBean {
         return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.Oracle,componentVersionMap);
     }
 
+    public String mysqlInfo(Long dtUicTenantId, Long dtUicUserId,Map<Integer,String > componentVersionMap){
+        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.MySQL,componentVersionMap);
+    }
+
+    public String db2Info(Long dtUicTenantId, Long dtUicUserId,Map<Integer,String > componentVersionMap){
+        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.DB2,componentVersionMap);
+    }
+
+    public String sqlServerInfo(Long dtUicTenantId, Long dtUicUserId,Map<Integer,String > componentVersionMap){
+        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.SQLServer,componentVersionMap);
+    }
+
+    public String oceanBaseInfo(Long dtUicTenantId, Long dtUicUserId,Map<Integer,String > componentVersionMap){
+        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.OCEANBASE,componentVersionMap);
+    }
 
     public String greenplumInfo(Long dtUicTenantId, Long dtUicUserId,Map<Integer,String > componentVersionMap){
         return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.GREENPLUM6,componentVersionMap);
