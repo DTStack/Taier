@@ -2,8 +2,8 @@ import React from "react";
 import { Row, Col, Collapse, Radio, message } from "antd";
 import FormWrap from "./scheduleForm";
 import TaskDependence from "./taskDependence";
-import { TASK_TYPE } from "../../../comm/const";
-import HelpDoc from "../../../components/helpDoc";
+import { TASK_TYPE } from "../../../../comm/const";
+import HelpDoc from "../../../../components/helpDoc";
 import molecule from "molecule/esm";
 
 const Panel = Collapse.Panel;

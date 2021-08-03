@@ -1263,8 +1263,8 @@
 
 "@dtinsight/dt-utils@^1.0.3":
   version "1.0.3"
-  resolved "https://registry.nlark.com/@dtinsight/dt-utils/download/@dtinsight/dt-utils-1.0.3.tgz#72fc9e55d3707875c3258c5c639aaf3fc6c54a24"
-  integrity sha1-cvyeVdNweHXDJYxcY5qvP8bFSiQ=
+  resolved "https://registry.yarnpkg.com/@dtinsight/dt-utils/-/dt-utils-1.0.3.tgz#72fc9e55d3707875c3258c5c639aaf3fc6c54a24"
+  integrity sha512-1HGkj5tMrckH3Rqms94KS4rJqdpji82hUNgG8s1eijS+VqU0rzYn3oN2Kiq4uqB7GsU1/JuXZkf7gsAjCS6DUQ==
   dependencies:
     lodash "^4.17.15"
 

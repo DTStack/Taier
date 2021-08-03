@@ -4,8 +4,8 @@ import molecule from "molecule/esm";
 import Open from "./open";
 import { TASK_RUN_ID } from "../editor";
 import { resetEditorGroup } from "../common";
-import DataSync from '../../views/dataSync'
-import ajax from "../../api";
+import DataSync from '../../dataSync'
+import ajax from "../../../api";
 
 function init() {
   ajax

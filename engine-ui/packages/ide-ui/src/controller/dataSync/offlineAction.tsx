@@ -2,7 +2,7 @@ import * as React from 'react';
 import { message, Modal, Tag } from 'antd'
 import { uniqBy, cloneDeep, isArray, get, assign } from 'lodash'
 
-import { offlineWorkbenchDB as idb } from '../../database';
+import { offlineWorkbenchDB as idb } from '../database';
 
 import ajax from '../../api'
 import { MENU_TYPE, DATA_SYNC_MODE, ENGINE_SOURCE_TYPE } from '../../comm/const'

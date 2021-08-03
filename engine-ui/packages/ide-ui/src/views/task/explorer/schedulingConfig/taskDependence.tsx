@@ -6,7 +6,7 @@ import { Row, Col, Form, Button, Table, Select } from "antd";
 import TaskSelector from "./taskSelector";
 import RecommentTaskModal from "./recommentTaskModal";
 
-import { TASK_TYPE } from "../../../comm/const";
+import { TASK_TYPE } from "../../../../comm/const";
 // import ajax from "../../../../api";
 
 const FormItem = Form.Item;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { MoleculeProvider, Workbench } from 'molecule';
 import 'molecule/esm/style/mo.css';
-import { extensions } from '../extensions';
+import { extensions } from './task';
 
 function IDE() {
   return (

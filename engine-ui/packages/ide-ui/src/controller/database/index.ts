@@ -1,4 +1,4 @@
-import LocalIndexedDB from './indexedDB';
+import { LocalIndexedDB } from '@dtinsight/dt-utils';
 
 /**
  * 离线计算工作台

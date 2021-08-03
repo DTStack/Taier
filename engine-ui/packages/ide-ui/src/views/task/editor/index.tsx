@@ -8,7 +8,7 @@ import {
 import { searchById } from "molecule/esm/services/helper";
 import { resetEditorGroup } from "../common";
 import Result from "./result";
-import ajax from "../../api";
+import ajax from "../../../api";
 
 export const TASK_RUN_ID = "task.run";
 export const TASK_STOP_ID = "task.stop";
