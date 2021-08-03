@@ -775,10 +775,12 @@ public class ClusterService implements InitializingBean {
             componentType = EComponentType.GREENPLUM_SQL;
         } else if (DataSourceType.Presto.equals(dataSourceType)) {
             componentType = EComponentType.PRESTO_SQL;
-        }else if (DataSourceType.INCEPTOR_SQL.equals(dataSourceType)){
+        } else if (DataSourceType.INCEPTOR_SQL.equals(dataSourceType)){
             componentType=EComponentType.INCEPTOR_SQL;
-        }else if (DataSourceType.ADB_POSTGREPSQL.equals(dataSourceType)){
+        } else if (DataSourceType.ADB_POSTGREPSQL.equals(dataSourceType)){
             componentType = EComponentType.ANALYTICDB_FOR_PG;
+        } else if (DataSourceType.MySQL.equals(dataSourceType)) {
+            componentType = EComponentType.MYSQL;
         }
         if (componentType == null) {
             throw new RdosDefineException("Unsupported data source type");
