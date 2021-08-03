@@ -4,7 +4,7 @@ import debounce from "lodash/debounce";
 
 import "./styles.css";
 import molecule from "molecule/esm";
-import HelpDoc from "../../../components/helpDoc";
+import HelpDoc from "../../components/helpDoc";
 
 const FormItem = Form.Item;
 const Panel = Collapse.Panel;

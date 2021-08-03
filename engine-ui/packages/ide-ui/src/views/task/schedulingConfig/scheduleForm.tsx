@@ -3,7 +3,7 @@ import moment from "moment";
 import get from "lodash/get";
 
 import { Col, Checkbox, Form, DatePicker, Select, Input, Radio } from "antd";
-import HelpDoc, { relativeStyle } from "../../../../components/helpDoc";
+import HelpDoc, { relativeStyle } from "../../../components/helpDoc";
 
 const Group = Radio.Group;
 const Option = Select.Option;

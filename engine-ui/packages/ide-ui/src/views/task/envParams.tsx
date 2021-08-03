@@ -1,8 +1,8 @@
 import { MonacoEditor } from "molecule/esm/components";
 import { editor as monacoEditor, Uri } from "molecule/esm/monaco";
 import { useEffect, useRef } from "react";
-import { ENV_PARAMS } from ".";
 import { IEditor, IEditorTab } from "molecule/esm/model";
+import { ENV_PARAMS } from "../common/utils/const";
 
 /**
  * [TODO]: [#231](https://github.com/DTStack/molecule/issues/231) will resolve this problems

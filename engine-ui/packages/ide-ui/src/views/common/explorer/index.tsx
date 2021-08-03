@@ -2,9 +2,10 @@ import molecule from "molecule";
 import { IExtension, SAMPLE_FOLDER_PANEL_ID } from "molecule/esm/model";
 import { localize } from "molecule/esm/i18n/localize";
 import { connect } from "molecule/esm/react";
-import TaskInfo from "./taskInfo";
-import TaskParams from "./taskParams";
-import { SchedulingConfig } from "./schedulingConfig";
+import TaskInfo from "../../task/taskInfo";
+import TaskParams from "../../task/taskParams";
+import { SchedulingConfig } from "../../task/schedulingConfig";
+import { TASK_ATTRIBUTONS, TASK_PARAMS_ID, TASK_SCHEDULE_CONFIG } from "../utils/const";
 
 function changeContextMenuName() {
   const explorerData = molecule.explorer.getState().data?.concat() || [];
@@ -18,10 +19,6 @@ function changeContextMenuName() {
     });
   }
 }
-
-const TASK_ATTRIBUTONS = "task.attributions";
-const TASK_PARAMS_ID = "task.params";
-const TASK_SCHEDULE_CONFIG = "task.schedule.config";
 
 function initTaskInfo() {
   const TaskinfoView = connect(molecule.editor, TaskInfo);

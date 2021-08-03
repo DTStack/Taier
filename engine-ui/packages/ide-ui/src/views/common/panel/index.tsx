@@ -1,9 +1,9 @@
 import molecule from "molecule";
 import type { IEditorTab, IExtension } from "molecule/esm/model";
 import { connect } from "molecule/esm/react";
-import EnvParams from "./envParams";
+import EnvParams from "../../task/envParams";
+import { ENV_PARAMS } from "../utils/const";
 
-export const ENV_PARAMS = "env.params";
 
 function initEnvParams() {
   const EnvParamsView = connect(molecule.editor, EnvParams);

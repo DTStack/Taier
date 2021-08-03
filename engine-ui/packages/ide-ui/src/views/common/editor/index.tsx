@@ -6,15 +6,10 @@ import {
   PANEL_OUTPUT,
 } from "molecule/esm/model";
 import { searchById } from "molecule/esm/services/helper";
-import { resetEditorGroup } from "../common";
-import Result from "./result";
+import { resetEditorGroup } from "../utils";
+import Result from "../../task/result";
 import ajax from "../../../api";
-
-export const TASK_RUN_ID = "task.run";
-export const TASK_STOP_ID = "task.stop";
-export const TASK_SUBMIT_ID = "task.submit";
-export const TASK_RELEASE_ID = "task.release";
-export const TASK_OPS_ID = "task_ops";
+import { TASK_RUN_ID, TASK_STOP_ID, TASK_SUBMIT_ID, TASK_RELEASE_ID, TASK_OPS_ID } from "../utils/const";
 
 function initActions() {
   molecule.editor.setDefaultActions([
