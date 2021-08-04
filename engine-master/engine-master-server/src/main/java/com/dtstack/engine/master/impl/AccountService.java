@@ -117,6 +117,18 @@ public class AccountService {
         } else if (MultiEngineType.ANALYTICDB_FOR_PG.getType() == accountVo.getEngineType()) {
             jdbc = JSONObject.parseObject(clusterService.adbPostgrepsqlInfo(accountVo.getBindTenantId(), null,null));
             dataBaseType = DataBaseType.adb_Postgrepsql;
+        } else if (MultiEngineType.MYSQL.getType() == accountVo.getEngineType()) {
+            jdbc = JSONObject.parseObject(clusterService.mysqlInfo(accountVo.getBindTenantId(), null,null));
+            dataBaseType = DataBaseType.MySql8;
+        } else if (MultiEngineType.DB2.getType() == accountVo.getEngineType()) {
+            jdbc = JSONObject.parseObject(clusterService.db2Info(accountVo.getBindTenantId(), null,null));
+            dataBaseType = DataBaseType.DB2;
+        } else if (MultiEngineType.SQL_SERVER.getType() == accountVo.getEngineType()) {
+            jdbc = JSONObject.parseObject(clusterService.sqlServerInfo(accountVo.getBindTenantId(), null,null));
+            dataBaseType = DataBaseType.SQLServer;
+        } else if (MultiEngineType.OCEANBASE.getType() == accountVo.getEngineType()) {
+            jdbc = JSONObject.parseObject(clusterService.oceanBaseInfo(accountVo.getBindTenantId(), null,null));
+            dataBaseType = DataBaseType.OCEANBASE;
         } else if (MultiEngineType.HADOOP.getType() == accountVo.getEngineType()) {
             //如果是HADOOP，则添加ldap,无需校验连通性
             return;

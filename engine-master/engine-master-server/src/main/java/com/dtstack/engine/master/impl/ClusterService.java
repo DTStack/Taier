@@ -748,6 +748,21 @@ public class ClusterService implements InitializingBean {
         return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.Oracle,componentVersionMap);
     }
 
+    public String mysqlInfo(Long dtUicTenantId, Long dtUicUserId,Map<Integer,String > componentVersionMap){
+        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.MySQL,componentVersionMap);
+    }
+
+    public String db2Info(Long dtUicTenantId, Long dtUicUserId,Map<Integer,String > componentVersionMap){
+        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.DB2,componentVersionMap);
+    }
+
+    public String sqlServerInfo(Long dtUicTenantId, Long dtUicUserId,Map<Integer,String > componentVersionMap){
+        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.SQLServer,componentVersionMap);
+    }
+
+    public String oceanBaseInfo(Long dtUicTenantId, Long dtUicUserId,Map<Integer,String > componentVersionMap){
+        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.OCEANBASE,componentVersionMap);
+    }
 
     public String greenplumInfo(Long dtUicTenantId, Long dtUicUserId,Map<Integer,String > componentVersionMap){
         return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.GREENPLUM6,componentVersionMap);
@@ -775,10 +790,18 @@ public class ClusterService implements InitializingBean {
             componentType = EComponentType.GREENPLUM_SQL;
         } else if (DataSourceType.Presto.equals(dataSourceType)) {
             componentType = EComponentType.PRESTO_SQL;
-        }else if (DataSourceType.INCEPTOR_SQL.equals(dataSourceType)){
+        } else if (DataSourceType.INCEPTOR_SQL.equals(dataSourceType)){
             componentType=EComponentType.INCEPTOR_SQL;
-        }else if (DataSourceType.ADB_POSTGREPSQL.equals(dataSourceType)){
+        } else if (DataSourceType.ADB_POSTGREPSQL.equals(dataSourceType)){
             componentType = EComponentType.ANALYTICDB_FOR_PG;
+        } else if (DataSourceType.MySQL.equals(dataSourceType)) {
+            componentType = EComponentType.MYSQL;
+        } else if (DataSourceType.DB2.equals(dataSourceType)) {
+            componentType = EComponentType.DB2;
+        } else if (DataSourceType.SQLServer.equals(dataSourceType)) {
+            componentType = EComponentType.SQL_SERVER;
+        } else if (DataSourceType.OCEANBASE.equals(dataSourceType)) {
+            componentType = EComponentType.OCEANBASE;
         }
         if (componentType == null) {
             throw new RdosDefineException("Unsupported data source type");

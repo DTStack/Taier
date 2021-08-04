@@ -43,7 +43,8 @@ public enum DataBaseType {
     Presto("presto", "com.facebook.presto.jdbc.PrestoDriver"),
     HIVE3("hive3", "org.apache.hive.jdbc.HiveDriver"),
     Inceptor("inceptor", "org.apache.hive.jdbc.HiveDriver"),
-    adb_Postgrepsql("adb-postgresql", "org.postgresql.Driver"),;
+    adb_Postgrepsql("adb-postgresql", "org.postgresql.Driver"),
+    OCEANBASE("oceanbase", "com.mysql.jdbc.Driver");
 
     private String typeName;
     private String driverClassName;
