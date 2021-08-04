@@ -4743,10 +4743,10 @@ dt-common@4.9.2-temp:
     styled-components "3.1.6"
     whatwg-fetch "2.0.3"
 
-dt-react-component@^2.0.5:
-  version "2.0.5"
-  resolved "https://registry.nlark.com/dt-react-component/download/dt-react-component-2.0.5.tgz#c46bc3521ea2f3ea257a5c7d5b5219574c989fe5"
-  integrity sha1-xGvDUh6i8+olelx9W1IZV0yYn+U=
+dt-react-component@^2.0.6:
+  version "2.0.6"
+  resolved "https://registry.nlark.com/dt-react-component/download/dt-react-component-2.0.6.tgz#b06b1bae61080a456703e530d95e9a94894e4a57"
+  integrity sha1-sGsbrmEICkVnA+Uw2V6alIlOSlc=
   dependencies:
     "@handsontable/react" "^2.1.0"
     antd "3.26.13"

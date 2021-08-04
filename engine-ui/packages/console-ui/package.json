@@ -33,7 +33,7 @@
     "d3-selection": "1.1.0",
     "diff-match-patch": "1.0.0",
     "dt-common": "4.9.2-temp",
-    "dt-react-component": "^2.0.5",
+    "dt-react-component": "^2.0.6",
     "dt-sql-parser": "3.0.5",
     "echarts": "3.8.5",
     "handsontable": "^6.2.2",
