@@ -2371,7 +2371,7 @@ public class ScheduleJobService {
     public ScheduleJob getByJobId( String jobId,  Integer isDeleted) {
         ScheduleJob scheduleJob = scheduleJobDao.getByJobId(jobId, isDeleted);
 
-        if (StringUtils.isBlank(scheduleJob.getSubmitUserName())) {
+        if (scheduleJob != null && StringUtils.isBlank(scheduleJob.getSubmitUserName())) {
             scheduleJob.setSubmitUserName(environmentContext.getHadoopUserName());
         }
 
