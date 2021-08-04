@@ -44,6 +44,10 @@ public class AkkaClientServiceImpl  implements ClientService {
         return message;
     }
 
+    @Override
+    public void destroy() throws Exception {
+    }
+
     public void setActorRef(ActorRef actorRef) {
         this.actorRef = actorRef;
     }

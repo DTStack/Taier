@@ -92,10 +92,10 @@ public class ClientRolesNodes {
     }
 
     public void route(Message msg, ActorRef sender) {
-        LOGGER.info("roles:{} ,refs:{}",msg.getRoles(),msg.getTransport());
+        LOGGER.info("roles:{} ,refs:{}",msg.getIdentifier(),msg.getTransport());
         if (router.routees().size() == 0) {
             // 无节点不可以发送
-            sender.tell(msg.ask(new NoNodeException("[ "+msg.getRoles()+" ]: no usable node"), Message.MessageStatue.ERROR),sender);
+            sender.tell(msg.ask(new NoNodeException("[ "+msg.getIdentifier()+" ]: no usable node"), Message.MessageStatue.ERROR),sender);
             return;
         }
 

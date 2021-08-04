@@ -36,8 +36,8 @@ public class ObjectActor extends AbstractLoggingActor {
     }
 
     private void initActor() {
-        remoteRef = new ActorHandler(ClientActor.class,"remoteRef",getContext());
-        localRef = new ActorHandler(LocalActor.class,"localRef",getContext(),"blocking-dispatcher");
+        remoteRef = new ActorHandler(ServerActor.class,"remoteRef",getContext());
+        localRef = new ActorHandler(ClientActor.class,"localRef",getContext(),"blocking-dispatcher");
     }
 
 //    public SupervisorStrategy supervisorStrategy(){
@@ -57,7 +57,7 @@ public class ObjectActor extends AbstractLoggingActor {
         return receiveBuilder()
                 .match(Message.class, msg->{
                     // 判断当前msg是 当前actor处理对象
-                    if (AkkaConfig.getLocalRoles().contains(msg.getRoles())) {
+                    if (AkkaConfig.getLocalRoles().contains(msg.getIdentifier())) {
                         msg.setStatue(Message.MessageStatue.SENDER);
                         localRef.forward(msg);
                     } else {

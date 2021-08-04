@@ -10,7 +10,7 @@ import java.io.Serializable;
  */
 public class Message implements Serializable {
     private static final long serialVersionUID = -9071808313610178621L;
-    private String roles;
+    private String identifier;
 
     private MessageStatue statue;
 
@@ -22,12 +22,12 @@ public class Message implements Serializable {
         statue = MessageStatue.START;
     }
 
-    public String getRoles() {
-        return roles;
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public void setRoles(String roles) {
-        this.roles = roles;
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 
     public TargetInfo getTargetInfo() {

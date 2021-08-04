@@ -31,4 +31,10 @@ public @interface EnableRemoteClient {
      */
     String properties() default "";
 
+    /**
+     * 设置transport框架
+     *
+     */
+    String transport() default "akka";
+
 }

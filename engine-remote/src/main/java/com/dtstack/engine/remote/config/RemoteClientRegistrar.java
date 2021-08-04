@@ -1,7 +1,9 @@
 package com.dtstack.engine.remote.config;
 
-import com.dtstack.engine.remote.akka.config.ServerConfig;
+import com.dtstack.engine.remote.akka.config.AkkaServerConfig;
 import com.dtstack.engine.remote.annotation.EnableRemoteClient;
+import com.dtstack.engine.remote.enums.Transport;
+import com.dtstack.engine.remote.exception.RemoteException;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -29,7 +31,7 @@ public class RemoteClientRegistrar implements ImportBeanDefinitionRegistrar, Env
 
         if (!registry.containsBeanDefinition("serverConfig")) {
             GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
-            beanDefinition.setBeanClass(ServerConfig.class);
+            beanDefinition.setBeanClass(AkkaServerConfig.class);
             beanDefinition.setInitMethodName("init");
             beanDefinition.setScope(ConfigurableBeanFactory.SCOPE_SINGLETON);
             beanDefinition.setAutowireCandidate(Boolean.TRUE);
@@ -38,11 +40,22 @@ public class RemoteClientRegistrar implements ImportBeanDefinitionRegistrar, Env
 
         AnnotationAttributes annotationAttributes = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(EnableRemoteClient.class.getName(), false));
 
+        // 设置配置文件 默认加载 usr.dir 位置下的
         String properties = annotationAttributes.getString("properties");
-
         if (StringUtils.isNotBlank(properties)) {
             System.setProperty("remote.properties.file.name",properties);
         }
+
+        // 加载配置类
+        String transport = annotationAttributes.getString("transport");
+        Class<?> aClass = loadClass(transport);
+        GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
+        beanDefinition.setBeanClass(aClass);
+        beanDefinition.setInitMethodName("init");
+        beanDefinition.setScope(ConfigurableBeanFactory.SCOPE_SINGLETON);
+        beanDefinition.setAutowireCandidate(Boolean.TRUE);
+        registry.registerBeanDefinition("serverConfig", beanDefinition);
+
 
         RemoteClientScanner scanner = new RemoteClientScanner(registry);
         String basePackage = annotationAttributes.getString("basePackage");
@@ -52,6 +65,19 @@ public class RemoteClientRegistrar implements ImportBeanDefinitionRegistrar, Env
         } else {
             scanner.doScan(basePackage);
         }
+    }
+
+    private Class<? extends ServerConfig> loadClass(String transport) {
+        Class<? extends ServerConfig> aClass = Transport.getClass(transport);
+        if (aClass ==null) {
+            try {
+                return (Class<? extends ServerConfig>)Class.forName(transport);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new RemoteException(e);
+            }
+        }
+        return aClass;
     }
 
 

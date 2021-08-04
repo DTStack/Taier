@@ -1,6 +1,5 @@
 package com.dtstack.engine.remote.config;
 
-import com.dtstack.engine.remote.akka.AkkaClientProxy;
 import com.dtstack.engine.remote.annotation.RemoteClient;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
@@ -63,7 +62,7 @@ public class RemoteClientScanner extends ClassPathBeanDefinitionScanner {
             GenericBeanDefinition beanDefinition = ((GenericBeanDefinition) beanDefinitionHolder.getBeanDefinition());
             //将bean的真实类型改变为FactoryBean
             beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(beanDefinition.getBeanClassName());
-            beanDefinition.setBeanClass(AkkaClientProxy.class);
+            beanDefinition.setBeanClass(SpringBeanRemoteProxy.class);
             beanDefinition.setAutowireMode(GenericBeanDefinition.AUTOWIRE_BY_TYPE);
         }
     }

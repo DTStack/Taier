@@ -1,102 +1,77 @@
 package com.dtstack.engine.remote.akka.actor;
 
 import akka.actor.AbstractLoggingActor;
-import akka.cluster.ClusterEvent;
-import akka.cluster.Member;
-import akka.cluster.MemberStatus;
+import akka.pattern.Patterns;
 import com.dtstack.engine.remote.akka.config.AkkaConfig;
-import com.dtstack.engine.remote.akka.node.ClientRolesNodes;
-import com.dtstack.engine.remote.constant.ServerConstant;
-import com.dtstack.engine.remote.exception.NoNodeException;
 import com.dtstack.engine.remote.exception.RemoteException;
 import com.dtstack.engine.remote.message.Message;
+import com.dtstack.engine.remote.message.TargetInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 /**
  * @Auther: dazhi
- * @Date: 2020/8/28 2:04 下午
+ * @Date: 2020/9/2 2:14 下午
  * @Email:dazhi@dtstack.com
  * @Description:
  */
 public class ClientActor extends AbstractLoggingActor {
-    private Map<String, ClientRolesNodes> roles = new ConcurrentHashMap<>();
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientActor.class);
 
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-                .match(Message.class,msg->{
+                .match(Message.class, msg->{
                     try {
-                        String roles = msg.getRoles();
-                        ClientRolesNodes nodes = this.roles.get(roles);
+                        msg.setStatue(Message.MessageStatue.RECEIVE);
+                        TargetInfo targetInfo = msg.getTargetInfo();
 
-                        if (nodes==null) {
-                            // 没有集群可用
-                            sender().tell(msg.ask(new NoNodeException("[ " + msg.getRoles() + " ]: no usable node"), Message.MessageStatue.ERROR), sender());
+                        if (targetInfo == null || targetInfo.getClazz() == null || targetInfo.getMethod() == null) {
+                            getSender().tell(msg.ask(new RemoteException("无目标信息，无法调用"), Message.MessageStatue.ERROR), self());
                             return;
                         }
-                        msg.setStatue(Message.MessageStatue.SENDER);
-                        nodes.route(msg,sender());
+                        Object transport = msg.getTransport();
+
+                        String methodName = targetInfo.getMethod();
+
+                        Object bean = AkkaConfig.getApplicationContext().getBean(Class.forName(targetInfo.getClazz()));
+
+                        Method targetMethod;
+                        if (transport.getClass().isArray()) {
+                            Object[] objects = (Object[]) transport;
+                            Class<?>[] clazzs = new Class<?>[objects.length];
+
+                            for (int i = 0; i < objects.length; i++) {
+                                clazzs[i] = objects[i].getClass();
+                            }
+                            targetMethod = bean.getClass().getMethod(methodName, clazzs);
+
+                            Executor ex = context().system().dispatchers().lookup("blocking-io-dispatcher");
+                            CompletableFuture<Object> future = CompletableFuture.supplyAsync(
+                                    () -> {
+                                        try {
+                                            return msg.ask(targetMethod.invoke(bean, objects), Message.MessageStatue.RESULT);
+                                        } catch (IllegalAccessException | InvocationTargetException e) {
+                                            return msg.ask(new RemoteException(e), Message.MessageStatue.ERROR);
+                                        }
+                                    }, ex);
+
+                            Patterns.pipe(future,context().system().dispatcher()).to(sender());
+                        } else {
+                            getSender().tell(msg.ask(new RemoteException("Parameter error :" + transport), Message.MessageStatue.ERROR), self());
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                         sender().tell(msg.ask(new RemoteException(e), Message.MessageStatue.ERROR),sender());
                     }
                 })
-                .match(ClusterEvent.CurrentClusterState.class, state -> {
-                    // 当前节点在刚刚加入集群时，会收到CurrentClusterState消息，从中可以解析出集群中的所有前端节点
-                    roles.clear();
-                    for (Member member : state.getMembers()) {
-                        if (member.status().equals(MemberStatus.up())) {
-                            register(member);
-                        }
-                    }
-                })
-                .match(ClusterEvent.ReachableMember.class,
-                        x -> {
-                            LOGGER.info("Member is Reachable: {}", x.member());
-                            register(x.member());
-                        }
-                )
-                .match(ClusterEvent.UnreachableMember.class,
-                        x -> {
-                            LOGGER.info("Member is Unreachable: {}", x.member());
-                            //unRegister(x.member());
-                        }
-                )
-                .match(ClusterEvent.MemberUp.class,
-                        x -> {
-                            LOGGER.info("Member is Up: {}", x.member());
-                            register(x.member());
-                        }
-                )
-                .match(ClusterEvent.MemberRemoved.class,
-                        x -> {
-                            LOGGER.info("Member is Removed: {}", x.member());
-                            unRegister(x.member());
-                        }
-                )
                 .matchAny(this::unhandled)
                 .build();
-    }
-
-    private void register(Member member) {
-        Set<String> rolesSet = member.getRoles();
-        for (String role : rolesSet) {
-            ClientRolesNodes nodes = this.roles.computeIfAbsent(role, k -> new ClientRolesNodes(role, AkkaConfig.getRouter()));
-            nodes.addNodes(getContext().actorFor(member.address() + "/user/" + ServerConstant.BASE_PATH));
-        }
-    }
-
-    private void unRegister(Member member) {
-        Set<String> rolesSet = member.getRoles();
-        for (String role : rolesSet) {
-            ClientRolesNodes nodes = this.roles.computeIfAbsent(role, k -> new ClientRolesNodes(role, AkkaConfig.getRouter()));
-            nodes.remove(getContext().actorFor(member.address() + "/user/" + ServerConstant.BASE_PATH));
-        }
     }
 }

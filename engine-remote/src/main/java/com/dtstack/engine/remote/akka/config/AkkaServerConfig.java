@@ -4,6 +4,7 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import com.dtstack.engine.remote.akka.actor.ObjectActor;
+import com.dtstack.engine.remote.config.ServerConfig;
 import com.dtstack.engine.remote.constant.ServerConstant;
 import com.dtstack.engine.remote.service.ClientService;
 import com.dtstack.engine.remote.akka.AkkaClientServiceImpl;
@@ -15,6 +16,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
 /**
@@ -22,21 +24,22 @@ import org.springframework.core.env.Environment;
  * author: toutian
  * create: 2020/2/26
  */
-public class ServerConfig implements ApplicationContextAware, EnvironmentAware {
+public class AkkaServerConfig implements ApplicationContextAware, EnvironmentAware, ServerConfig {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServerConfig.class);
+    private static final Logger logger = LoggerFactory.getLogger(AkkaServerConfig.class);
 
     private ApplicationContext applicationContext;
 
     private Environment environment;
 
+    @Override
     public void init(){
         if (!AkkaConfig.hasLoad()) {
             AkkaConfig.init(environment,applicationContext);
         }
     }
 
-    @Bean(name="clientService")
+    @Bean(name="clientService",destroyMethod = "destroy")
     @ConditionalOnMissingBean
     public ClientService clientService(){
         AkkaClientServiceImpl clientService = new AkkaClientServiceImpl();
