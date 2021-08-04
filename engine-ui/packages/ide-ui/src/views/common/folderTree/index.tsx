@@ -124,11 +124,14 @@ function onSelectFile() {
     }
 
     file.data.taskType &&
-      molecule.statusBar.appendRightItem({
-        id: "language",
-        sortIndex: 3,
-        name: file.data.taskType,
-      });
+      molecule.statusBar.add(
+        {
+          id: "language",
+          sortIndex: 3,
+          name: file.data.taskType,
+        },
+        "right"
+      );
   });
 }
 
