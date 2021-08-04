@@ -181,7 +181,7 @@
     font-weight: bold;
     font-size: 12px;
     span {
-        margin: 0 10px;
+        margin: 0 8px;
         white-space: nowrap;
         height: 32px;
         line-height: 23px;
@@ -622,3 +622,31 @@
 .ant-spin-nested-loading.c-task__content__spin-box.batch-task-height {
     height: 100%;
  }
+
+// 新增 operation 样式
+
+.c-taskMana__wrap {
+    padding: 20px;
+}
+
+.c-patchDataList__wrap {
+    padding: 20px;
+    .form-label {
+        display: inline-block;
+        width: 50px;
+    }
+}
+
+.c-taskOperation__wrap {
+    min-width: 1240px;
+    padding: 20px;
+    .form-label {
+        display: inline-block;
+        width: 50px;
+    }
+    &__tab {
+        box-shadow: 0px 2px 8px 0px rgba(6,14,26,0.08);
+        background: #FFFFFF;
+        position: relative;
+    }
+}

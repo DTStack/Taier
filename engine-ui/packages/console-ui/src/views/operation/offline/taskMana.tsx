@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import moment from 'moment';
 import { cloneDeep } from 'lodash';
 
-import { Table, message, Card, Select, Form, Checkbox, Tabs, Pagination } from 'antd';
+import { Table, message, Select, Form, Checkbox, Tabs, Pagination, Col } from 'antd';
 
 import utils from 'dt-common/src/utils';
 import { replaceObjectArrayFiledName } from 'dt-common/src/funcs';
@@ -11,6 +11,7 @@ import SlidePane from 'dt-common/src/widgets/slidePane';
 import MultiSearchInput from 'dt-common/src/widgets/multiSearchInput';
 import Api from '../../../api';
 import { offlineTaskPeriodFilter, SCHEDULE_STATUS, PROJECT_TYPE, TASK_TYPE } from '../../../consts/comm';
+import { APPS_TYPE } from '../../../consts'
 
 import { TaskTimeType, TaskType } from '../../../components/status';
 
@@ -49,80 +50,28 @@ class OfflineTaskMana extends React.Component<any, any> {
         expandedRowKeys: [],
         searchType: 'fuzzy',
         projectUsers: [],
-        appType: '',
-        projectId: ''
+        appType: APPS_TYPE.INDEX,
+        projectId: '',
+        projectList: []
     };
 
     componentDidMount () {
-        let ywappType = sessionStorage.getItem('ywappType')
-        // 判断是否有taskId存在，如有则现实详情
-        if (this.props.router.location.query.taskId) {
-            let record = {
-                id: this.props.router.location.query.taskId,
-                appType: this.props.router.location.query.appType,
-                projectId: this.props.router.location.query.pid
-            }
-            this.showTask(record)
-            this.search();
-            this.getPersonApi(1);
+        const { appType, pid, taskId } = this.props.router.location?.query ?? {}
+        const params = { appType: appType ?? APPS_TYPE.INDEX, projectId: pid ?? '' }
+        if (!taskId && !appType && !pid) {
+            this.search()
+            this.getPersonApi(1)
             this.getTaskTypesX()
+            this.getProjectList()
+            return
         }
-        let urlAppType = this.props.router.location.query.appType
-        let urlProjectId = this.props.router.location.query.pid
-        if (ywappType && ywappType != undefined && ywappType != '') {
-            if (urlAppType && urlAppType != undefined && urlAppType != '') {
-                this.setState({
-                    appType: urlAppType,
-                    projectId: urlProjectId
-                }, () => {
-                    sessionStorage.setItem('ywappType', urlAppType)
-                    sessionStorage.setItem('ywprojectId', urlProjectId)
-                    if (this.props.project?.id !== 0) {
-                        this.search();
-                        this.getPersonApi(1);
-                        this.getTaskTypesX()
-                    };
-                });
-            } else {
-                this.setState({
-                    appType: sessionStorage.getItem('ywappType'),
-                    projectId: sessionStorage.getItem('ywprojectId')
-                }, () => {
-                    if (this.props.project?.id !== 0) {
-                        this.search();
-                        this.getPersonApi(1);
-                        this.getTaskTypesX()
-                    };
-                });
-            }
-        } else {
-            if (urlAppType == undefined) {
-                this.props.router.location.query.appType = ''
-                this.props.router.location.query.pid = ''
-            }
-            this.setState({
-                appType: this.props.router.location.query.appType,
-                projectId: this.props.router.location.query.pid
-            }, () => {
-                sessionStorage.setItem('ywappType', this.props.router.location.query.appType)
-                sessionStorage.setItem('ywprojectId', this.props.router.location.query.pid)
-                if (this.props.project?.id !== 0) {
-                    this.search();
-                    this.getPersonApi(1);
-                    this.getTaskTypesX()
-                };
-            });
-        }
-    }
-    /* eslint-disable-next-line */
-    componentWillReceiveProps(nextProps: any) {
-        const project = nextProps.project;
-        const oldProj = this.props.project;
-        if (project && oldProj.id !== project.id) {
-            this.setState({ current: 1, taskName: '', visibleSlidePane: false }, () => {
-                this.search();
-            });
-        }
+        this.setState({ ...params }, () => {
+            this.search()
+            this.getPersonApi(1)
+            this.getTaskTypesX()
+            this.getProjectList()
+            if (taskId) this.showTask({ ...params, id: taskId })
+        })
     }
 
     getReqParams = () => {
@@ -173,6 +122,7 @@ class OfflineTaskMana extends React.Component<any, any> {
         const reqParams = this.getReqParams();
         this.loadTaskList(reqParams);
     };
+
     getTaskTypesX = () => {
         const ctx = this;
         let parmms = {
@@ -204,6 +154,16 @@ class OfflineTaskMana extends React.Component<any, any> {
             this.setState({ loading: false });
         });
     }
+
+    getProjectList = (value?: string) => {
+        const { appType } = this.state
+        Api.getProjectList({ name: value ?? '', appType }).then((res: any) => {
+            if (res.code === 1) {
+                this.setState({ projectList: res.data })
+            }
+        });
+    }
+
     loadTaskList (params: any) {
         // currentPage, pageSize, isMine, status
         const ctx = this;
@@ -287,11 +247,8 @@ class OfflineTaskMana extends React.Component<any, any> {
             let path2 = `${document.location.origin}/easy-index/index-define?taskId=${record.id}`
             window.open(path2);
         }
-        // else{
-        //     // const url=`${document.location.origin}/batch/#/offline/task?taskId=${id}`
-        //     // window.open(url)
-        // }
-    };
+    }
+
     showTask = (task: any) => {
         this.setState({
             visibleSlidePane: true,
@@ -405,6 +362,10 @@ class OfflineTaskMana extends React.Component<any, any> {
         }
         this.setState(conditions, this.search);
     };
+
+    changeProject = (value: string | number) => {
+        this.setState({ projectId: value }, this.search)
+    }
 
     closeSlidePane = () => {
         this.setState({
@@ -554,26 +515,11 @@ class OfflineTaskMana extends React.Component<any, any> {
         });
     };
     render () {
-        // const { projectUsers, project } = this.props;
         const {
-            tasks,
-            patchDataVisible,
-            selectedTask,
-            person,
-            checkVals,
-            patchTargetTask,
-            current,
-            taskName,
-            visibleSlidePane,
-            selectedRowKeys,
-            tabKey,
-            searchType,
-            pageSize,
-            projectUsers
+            tasks, patchDataVisible, selectedTask, person, checkVals, patchTargetTask, current,
+            taskName, visibleSlidePane, selectedRowKeys, tabKey, searchType, pageSize, projectUsers,
+            appType, projectId, projectList
         } = this.state;
-        // const isPro = project?.projectType == PROJECT_TYPE.PRO;
-        const isPro = false
-        // const isTest = project.projectType == PROJECT_TYPE.TEST;
         const userItems =
             projectUsers && projectUsers.length > 0
                 ? projectUsers.map((item: any) => {
@@ -618,127 +564,144 @@ class OfflineTaskMana extends React.Component<any, any> {
                         </Button> */}
                     </div>
                     <div>
-                        <Pagination style={{ top: 20 }} {...pagination} />
+                        <Pagination style={{ top: 12 }} {...pagination} />
                     </div>
                 </div>
             );
         };
 
-        let clientHeight = document.documentElement.clientHeight - 280;
+        const getTitle = (label: string) => {
+            return <span className="form-label">{label}</span>
+        }
+
+        const clientHeight = document.documentElement.clientHeight - 280;
+
         return (
-            <div>
-                <div
-                    className={`m-card box-2 task-manage offline__search-normal offline__search-normal_left`}
-                    style={{ padding: 0 }}
-                >
-                    <Card
-                        bordered={false}
-                        loading={false}
-                        className="dt-table-fixed-base"
-                        title={
-                            <Form layout="inline" className="m-form-inline font-weight-400" style={{ height: '36px' }}>
-                                <FormItem label="" className="batch-operation_offlineImg dt-form-shadow-bg">
-                                    <MultiSearchInput
-                                        placeholder="按任务名称搜索"
-                                        style={{ width: 250 }}
-                                        value={taskName}
-                                        searchType={searchType}
-                                        onChange={this.changeTaskName}
-                                        onTypeChange={this.changeSearchType}
-                                        onSearch={this.onSearchByTaskName}
-                                    />
-                                </FormItem>
-                                <FormItem label="责任人">
-                                    <Select
-                                        allowClear
-                                        showSearch
-                                        size="default"
-                                        className="dt-form-shadow-bg"
-                                        style={{ width: 220 }}
-                                        placeholder="请选择责任人"
-                                        optionFilterProp="name"
-                                        value={person}
-                                        onChange={this.changePerson}
-                                    >
-                                        {userItems}
-                                    </Select>
-                                </FormItem>
-                                <FormItem>
-                                    <Checkbox.Group value={checkVals} onChange={this.onCheckChange}>
-                                        <Checkbox value="person" className="select-task">
-                                            我的任务
-                                        </Checkbox>
-                                        <Checkbox value="todayUpdate" className="select-task">
-                                            今日修改的任务
-                                        </Checkbox>
-                                        <Checkbox value="stopped" className="select-task">
-                                            冻结的任务
-                                        </Checkbox>
-                                    </Checkbox.Group>
-                                </FormItem>
-                            </Form>
-                        }
-                    >
-                        <Table
-                            key={`task-list${tasks.data && tasks.data.length}`}
-                            rowKey="id"
-                            rowClassName={(record: any, index: any) => {
-                                if (this.state.selectedTask && this.state.selectedTask.id == record.id) {
-                                    return 'row-select';
-                                } else {
-                                    return '';
-                                }
-                            }}
-                            style={{ marginTop: '1px', height: `calc(100vh - 160px)` }}
-                            className={`dt-ant-table dt-ant-table--border rdos-ant-table-placeholder border-table ${
-                                isPro ? 'full-screen-table-90' : 'full-screen-table-120'
-                            } dt-table-fixed-base dt-table-fixed-contain-footer dt-batch-table-height`}
-                            expandedRowKeys={this.state.expandedRowKeys}
-                            pagination={false}
-                            rowSelection={rowSelection}
-                            loading={this.state.loading}
-                            scroll={{ y: clientHeight }}
-                            columns={this.initTaskColumns()}
-                            dataSource={tasks.data || []}
-                            onChange={this.handleTableChange}
-                            onExpand={this.onExpand}
-                            onExpandedRowsChange={this.onExpandRows}
-                            footer={tableFooter}
-                        />
-                        <SlidePane
-                            className="m-tabs bd-top bd-right m-slide-pane"
-                            onClose={this.closeSlidePane}
-                            visible={visibleSlidePane}
-                            style={{
-                                right: '0px',
-                                width: '60%',
-                                height: '100%',
-                                position: 'fixed',
-                                minHeight: '600px',
-                                paddingTop: '64px'
-                            }}
-                        >
-                            <Tabs
-                                className="c-taskMana__slidePane__tabs"
-                                animated={false}
-                                onChange={this.onTabChange}
-                                tabBarStyle={{ zIndex: 3 }}
-                                style={{ height: '100%' }}
+            <div className="c-taskMana__wrap">
+                <Form layout="inline" style={{ marginBottom: 8 }}>
+                    <Col>
+                        <FormItem label={getTitle('产品')}>
+                            <Select
+                                className="dt-form-shadow-bg"
+                                style={{ width: 220 }}
+                                placeholder="请选择产品"
+                                value={appType}
                             >
-                                <TabPane tab="依赖视图" key="taskFlow">
-                                    <TaskFlowView
-                                        reload={this.search}
-                                        key={`taskGraph-${selectedTask && selectedTask.id}-${tabKey}`}
-                                        visibleSlidePane={visibleSlidePane}
-                                        goToTaskDev={this.props.goToTaskDev}
-                                        clickPatchData={this.clickPatchData}
-                                        tabData={selectedTask}
-                                    />
-                                </TabPane>
-                            </Tabs>
-                        </SlidePane>
-                    </Card>
-                </div>
+                                <Option value={APPS_TYPE.INDEX}>指标管理</Option>
+                            </Select>
+                        </FormItem>
+                        <FormItem label={getTitle('项目')}>
+                            <Select
+                                className="dt-form-shadow-bg"
+                                style={{ width: 220 }}
+                                placeholder="请选择项目"
+                                value={projectId}
+                                showSearch
+                                onSearch={this.getProjectList}
+                                onChange={this.changeProject}
+                            >
+                                {projectList.map(item => <Option key={item.id} value={item.id}>{item.projectName}</Option>)}
+                            </Select>
+                        </FormItem>
+                        <FormItem label="" className="batch-operation_offlineImg dt-form-shadow-bg">
+                            <MultiSearchInput
+                                placeholder="按任务名称搜索"
+                                style={{ width: 250 }}
+                                value={taskName}
+                                searchType={searchType}
+                                onChange={this.changeTaskName}
+                                onTypeChange={this.changeSearchType}
+                                onSearch={this.onSearchByTaskName}
+                            />
+                        </FormItem>
+                        <FormItem label={getTitle('责任人')}>
+                            <Select
+                                allowClear
+                                showSearch
+                                size="default"
+                                className="dt-form-shadow-bg"
+                                style={{ width: 220 }}
+                                placeholder="请选择责任人"
+                                optionFilterProp="name"
+                                value={person}
+                                onChange={this.changePerson}
+                            >
+                                {userItems}
+                            </Select>
+                        </FormItem>
+                    </Col>
+                    <Col style={{ marginTop: 6 }}>
+                        <FormItem>
+                            <Checkbox.Group value={checkVals} onChange={this.onCheckChange}>
+                                <Checkbox value="person" className="select-task">
+                                    我的任务
+                                </Checkbox>
+                                <Checkbox value="todayUpdate" className="select-task">
+                                    今日修改的任务
+                                </Checkbox>
+                                <Checkbox value="stopped" className="select-task">
+                                    冻结的任务
+                                </Checkbox>
+                            </Checkbox.Group>
+                        </FormItem>
+                    </Col>
+                </Form>
+                <Table
+                    key={`task-list${tasks.data && tasks.data.length}`}
+                    rowKey="id"
+                    rowClassName={(record: any, index: any) => {
+                        if (this.state.selectedTask && this.state.selectedTask.id == record.id) {
+                            return 'row-select';
+                        } else {
+                            return '';
+                        }
+                    }}
+                    style={{ height: `calc(100vh - 196px)` }}
+                    className="dt-table-fixed-contain-footer dt-table-border"
+                    expandedRowKeys={this.state.expandedRowKeys}
+                    pagination={false}
+                    rowSelection={rowSelection}
+                    loading={this.state.loading}
+                    scroll={{ y: clientHeight }}
+                    columns={this.initTaskColumns()}
+                    dataSource={tasks.data || []}
+                    onChange={this.handleTableChange}
+                    onExpand={this.onExpand}
+                    onExpandedRowsChange={this.onExpandRows}
+                    footer={tableFooter}
+                />
+                <SlidePane
+                    className="m-tabs bd-top bd-right m-slide-pane"
+                    onClose={this.closeSlidePane}
+                    visible={visibleSlidePane}
+                    style={{
+                        right: '0px',
+                        width: '60%',
+                        height: '100%',
+                        position: 'fixed',
+                        minHeight: '600px',
+                        paddingTop: '64px'
+                    }}
+                >
+                    <Tabs
+                        className="c-taskMana__slidePane__tabs"
+                        animated={false}
+                        onChange={this.onTabChange}
+                        tabBarStyle={{ zIndex: 3 }}
+                        style={{ height: '100%' }}
+                    >
+                        <TabPane tab="依赖视图" key="taskFlow">
+                            <TaskFlowView
+                                reload={this.search}
+                                key={`taskGraph-${selectedTask && selectedTask.id}-${tabKey}`}
+                                visibleSlidePane={visibleSlidePane}
+                                goToTaskDev={this.props.goToTaskDev}
+                                clickPatchData={this.clickPatchData}
+                                tabData={selectedTask}
+                            />
+                        </TabPane>
+                    </Tabs>
+                </SlidePane>
                 <PatchDataModal
                     visible={patchDataVisible}
                     task={patchTargetTask}
@@ -747,7 +710,7 @@ class OfflineTaskMana extends React.Component<any, any> {
                     }}
                 />
             </div>
-        );
+        )
     }
 }
 export default connect(

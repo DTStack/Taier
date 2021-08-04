@@ -92,6 +92,10 @@ export default {
         return http.post(offlineReq.GET_APPTYPE, params)
     },
 
+    getProjectList (params: any) {
+        return http.post(offlineReq.GET_PROJECT_LIST, params)
+    },
+
     // 202105运维中心新增负责人接口
     getPersonInCharge (params: any) {
         return http.post(offlineReq.USER_QUERYUSER, params)

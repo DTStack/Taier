@@ -30,6 +30,7 @@ export default {
     GET_APPTYPE: `/node/action/appType`,
     GET_WORKFLOW_RELATED_TASKS: `node/scheduleTaskShade/dealFlowWorkTask`, // 获取工作流的子任务-x
     GET_WORKFLOW_RELATED_JOBS: `/node/scheduleJob/getRelatedJobs`, // 获取工作流实例的子任务-x
+    GET_PROJECT_LIST: `/node/project/findFuzzyProjectByProjectAlias`, // 根据别名模糊查询项目名称
 
     // 202105运维中心新增接口
     USER_QUERYUSER: `/node/user/queryUser`, // 获取负责人

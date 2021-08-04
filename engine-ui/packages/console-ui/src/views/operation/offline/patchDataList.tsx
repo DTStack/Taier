@@ -2,10 +2,13 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import moment from 'moment';
 import { Link } from 'react-router';
+import { Input, Select, message, Checkbox,
+    Form, DatePicker, Table, Modal,
+    Pagination, Col } from 'antd';
 
-import { Input, Select, message, Checkbox, Form, DatePicker, Table, Card, Modal, Pagination } from 'antd';
-
+import { APPS_TYPE } from '../../../consts'
 import Api from '../../../api';
+
 const Search = Input.Search;
 const Option = Select.Option;
 const FormItem = Form.Item;
@@ -287,86 +290,110 @@ class PatchDataList extends React.Component<any, any> {
             onShowSizeChange: (page: any, pageSize: any) => this.pageChange({ current: page, pageSize })
         };
 
-        const title = (
-            <Form layout="inline" className="m-form-inline font-weight-400">
-                <FormItem>
-                    <Search
-                        placeholder="按任务名称搜索"
-                        style={{ width: '150' }}
-                        value={jobName}
-                        size="default"
-                        className="dt-form-shadow-bg"
-                        onChange={this.onChangeJobName}
-                        onSearch={this.onSearchByJobName}
-                    />
-                </FormItem>
-                <FormItem label="操作人">
-                    <Select
-                        allowClear
-                        showSearch
-                        style={{ width: 150 }}
-                        placeholder="请选择操作人"
-                        optionFilterProp="name"
-                        className="dt-form-shadow-bg"
-                        value={dutyUserId}
-                        onChange={this.onOwnerChange}
-                    >
-                        {userItems}
-                    </Select>
-                </FormItem>
-                <FormItem label="业务日期">
-                    <DatePicker
-                        format="YYYY-MM-DD"
-                        placeholder="业务日期"
-                        style={{ width: 150 }}
-                        className="dt-form-shadow-bg"
-                        value={bizDay || null}
-                        size="default"
-                        onChange={this.onBuisTimeChange}
-                    />
-                </FormItem>
-                <FormItem label="运行日期">
-                    <DatePicker
-                        format="YYYY-MM-DD"
-                        placeholder="运行日期"
-                        className="dt-form-shadow-bg"
-                        style={{ width: 150 }}
-                        size="default"
-                        value={runDay || null}
-                        disabledDate={this.disabledDate}
-                        onChange={this.onRunningTime}
-                    />
-                </FormItem>
-                <FormItem>
-                    <Checkbox.Group value={checkVals} onChange={this.onCheckChange}>
-                        <Checkbox value="person" style={{ fontWeight: 400, color: '#333333' }}>我的任务</Checkbox>
-                        <Checkbox value="todayUpdate" style={{ fontWeight: 400, color: '#333333' }}>我今天补的</Checkbox>
-                    </Checkbox.Group>
-                </FormItem>
-            </Form>
-        );
-        let clientHeight = document.documentElement.clientHeight - 260;
+        const getTitle = (label: string) => {
+            return <span className="form-label">{label}</span>
+        }
+
+        const clientHeight = document.documentElement.clientHeight - 260;
 
         return (
-            <div className="box-1 m-card offline__search-normal offline__search-normal_left" style={{ padding: 0, marginTop: 0, minWidth: 1080 }}>
-                <Card title={title} bordered={false} loading={false}>
-                    <Table
-                        rowKey="id"
-                        columns={this.initTaskColumns()}
-                        className="dt-table-fixed-base dt-table-fixed-contain-footer"
-                        style={{ marginTop: 1, height: 'calc(100vh - 160px)' }}
-                        pagination={false}
-                        dataSource={tasks.data || []}
-                        onChange={this.pageChange}
-                        loading={loading}
-                        scroll={{ x: '920px', y: clientHeight }}
-                        footer={() => {
-                            return <Pagination {...pagination}/>
-                        }}
-                    />
-                </Card>
+            <div className="c-patchDataList__wrap">
+                <Form layout="inline" style={{ marginBottom: 8 }}>
+                    <Col>
+                        <FormItem label={getTitle('产品')}>
+                            <Select
+                                allowClear
+                                className="dt-form-shadow-bg"
+                                style={{ width: 220 }}
+                                placeholder="请选择产品"
+                            >
+                                <Option value={APPS_TYPE.INDEX}>指标管理</Option>
+                            </Select>
+                        </FormItem>
+                        <FormItem label={getTitle('项目')}>
+                            <Select
+                                allowClear
+                                className="dt-form-shadow-bg"
+                                style={{ width: 220 }}
+                                placeholder="请选择项目"
+                            >
+                                <Option value={APPS_TYPE.INDEX}>指标管理</Option>
+                            </Select>
+                        </FormItem>
+                        <FormItem>
+                            <Search
+                                placeholder="按任务名称搜索"
+                                style={{ width: 220 }}
+                                value={jobName}
+                                size="default"
+                                className="dt-form-shadow-bg"
+                                onChange={this.onChangeJobName}
+                                onSearch={this.onSearchByJobName}
+                            />
+                        </FormItem>
+                        <FormItem label={getTitle('操作人')}>
+                            <Select
+                                allowClear
+                                showSearch
+                                style={{ width: 220 }}
+                                placeholder="请选择操作人"
+                                optionFilterProp="name"
+                                className="dt-form-shadow-bg"
+                                value={dutyUserId}
+                                onChange={this.onOwnerChange}
+                            >
+                                {userItems}
+                            </Select>
+                        </FormItem>
+                    </Col>
+                    <Col style={{ marginTop: 6 }}>
+                        <FormItem label={getTitle('业务日期')}>
+                            <DatePicker
+                                format="YYYY-MM-DD"
+                                placeholder="业务日期"
+                                style={{ width: 220 }}
+                                className="dt-form-shadow-bg"
+                                value={bizDay || null}
+                                size="default"
+                                onChange={this.onBuisTimeChange}
+                            />
+                        </FormItem>
+                        <FormItem label={getTitle('运行日期')}>
+                            <DatePicker
+                                format="YYYY-MM-DD"
+                                placeholder="运行日期"
+                                className="dt-form-shadow-bg"
+                                style={{ width: 220 }}
+                                size="default"
+                                value={runDay || null}
+                                disabledDate={this.disabledDate}
+                                onChange={this.onRunningTime}
+                            />
+                        </FormItem>
+                        <FormItem>
+                            <Checkbox.Group value={checkVals} onChange={this.onCheckChange}>
+                                <Checkbox value="person" style={{ fontWeight: 400, color: '#333333' }}>我的任务</Checkbox>
+                                <Checkbox value="todayUpdate" style={{ fontWeight: 400, color: '#333333' }}>我今天补的</Checkbox>
+                            </Checkbox.Group>
+                        </FormItem>
+                    </Col>
+                </Form>
+                <Table
+                    rowKey="id"
+                    columns={this.initTaskColumns()}
+                    className="dt-table-fixed-base dt-table-fixed-contain-footer"
+                    style={{ marginTop: 1, height: 'calc(100vh - 196px)' }}
+                    pagination={false}
+                    dataSource={tasks.data || []}
+                    onChange={this.pageChange}
+                    loading={loading}
+                    scroll={{ x: '920px', y: clientHeight }}
+                    footer={() => {
+                        return <Pagination {...pagination}/>
+                    }}
+                />
             </div>
-        );
+        )
     }
 }
 export default connect((state: any) => {
