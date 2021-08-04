@@ -105,7 +105,7 @@ function emitEvent() {
           });
 
           const nowDate = new Date();
-          molecule.panel.clearOutput();
+          molecule.panel.cleanOutput();
           molecule.panel.appendOutput(
             `${nowDate.getHours()}:${nowDate.getMinutes()}:${nowDate.getSeconds()}<info>正在提交...` +
               "\n"
@@ -139,6 +139,7 @@ function emitEvent() {
               molecule.panel.open({
                 id: new Date().getTime().toString(),
                 name: "结果1",
+                closable: true,
                 renderPane: () => <Result data={resultTable.result} />,
               });
             })

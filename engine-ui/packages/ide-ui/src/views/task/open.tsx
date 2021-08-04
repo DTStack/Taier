@@ -30,7 +30,7 @@ const tailFormItemLayout = {
 };
 
 interface OpenProps {
-  currentId: number;
+  currentId?: number;
   onSubmit?: (values: any) => void;
   form: WrappedFormUtils<any>;
 }
