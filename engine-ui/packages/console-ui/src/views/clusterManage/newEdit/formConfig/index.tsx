@@ -1,14 +1,15 @@
 import * as React from 'react'
 import { isArray } from 'lodash'
 import { Input, Form, Radio, Select, Checkbox, Tooltip, Row, Col, Icon } from 'antd'
-import { COMPONENT_TYPE_VALUE, CONFIG_ITEM_TYPE } from '../const'
+import { COMPONENT_TYPE_VALUE, CONFIG_ITEM_TYPE, HOVER_TEXT } from '../const'
 import {
     getValueByJson,
     isDeployMode,
     isRadioLinkage,
     isCustomType,
     isMultiVersion,
-    isDtscriptAgent
+    isDtscriptAgent,
+    showHover
 } from '../help'
 import { formItemLayout } from '../../../../consts'
 import CustomParams from './components/customParams'
@@ -69,23 +70,6 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
 
         const fieldName = groupKey ? `${formField}.componentConfig.${groupKey}` : `${formField}.componentConfig`;
 
-        // hover 提示相关
-        const showHover = [
-            COMPONENT_TYPE_VALUE.MYSQL,
-            COMPONENT_TYPE_VALUE.DB2,
-            COMPONENT_TYPE_VALUE.OCEANBASE,
-            COMPONENT_TYPE_VALUE.SQLSERVER
-        ].includes(typeCode) && temp.key === 'jdbcUrl'
-        const hoverText = {
-            [COMPONENT_TYPE_VALUE.MYSQL]: '示例：jdbc:mysql://localhost:3306/def',
-            [COMPONENT_TYPE_VALUE.DB2]: '示例：jdbc:db2://localhost:60000/def',
-            [COMPONENT_TYPE_VALUE.OCEANBASE]: '示例：jdbc:oceanbase://localhost:2883/def（Mysql模式）jdbc:oceanbase:oracle://localhost:2883/def（Oralce模式）',
-            [COMPONENT_TYPE_VALUE.SQLSERVER]: '示例：jdbc:sqlserver://localhost:1433;databaseName=def'
-        }[typeCode] || '无'
-        if (showHover) {
-            console.log(typeCode, temp)
-        }
-
         return !isCustomType(temp.type) && <FormItem
             label={<Tooltip title={temp.key}>
                 <span className="c-formConfig__label">{temp.key}</span>
@@ -101,7 +85,7 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
                 initialValue: initialValue
             })(this.renderOptoinsType(temp))}
             {isDtscriptAgent(typeCode) && <NodeLabel form={form} view={view} clusterInfo={clusterInfo} />}
-            {showHover && <Tooltip title={hoverText}>
+            {showHover(typeCode, temp.key) && <Tooltip title={HOVER_TEXT[typeCode]}>
                 <Icon style={{ fontSize: '16px', position: 'absolute', top: 0, right: '-24px' }} type="question-circle" />
             </Tooltip>}
         </FormItem>
