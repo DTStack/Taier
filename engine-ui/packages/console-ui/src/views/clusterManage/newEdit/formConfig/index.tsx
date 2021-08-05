@@ -101,8 +101,9 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
                 initialValue: initialValue
             })(this.renderOptoinsType(temp))}
             {isDtscriptAgent(typeCode) && <NodeLabel form={form} view={view} clusterInfo={clusterInfo} />}
-            &nbsp;&nbsp;
-            {showHover && <Tooltip title={hoverText}><Icon style={{ fontSize: '16px' }} type="question-circle" /></Tooltip>}
+            {showHover && <Tooltip title={hoverText}>
+                <Icon style={{ fontSize: '16px', position: 'absolute', top: 0, right: '-24px' }} type="question-circle" />
+            </Tooltip>}
         </FormItem>
     }
 
