@@ -6,8 +6,6 @@ import cover from './public/login-cover.png';
 
 import '@/styles/style.css';
 
-document.title = '登录';
-
 class LoginContainer extends Component<any,any> {
     state = {
         loading: true,
