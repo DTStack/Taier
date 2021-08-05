@@ -1,17 +1,17 @@
 import { Component, Fragment } from 'react';
-import { setItem } from '@/utils/local';
+import { setItem } from '../../utils/local';
 import { Form, Button, message as Message } from 'antd';
 import { USER_NAME } from '../../consts';
 import '@/styles/base.css';
 
-class BaseLoginFrom extends Component {
+class BaseLoginFrom extends Component<any, any> {
     state = {
         submitLoading: false,
     };
 
     handleLoginSubmit = async () => {
         const { form } = this.props;
-        form.validateFields(async (err, value) => {
+        form.validateFields(async (err:any, value:any) => {
             if (!err) {
                 this.setState({
                     submitLoading: true,
@@ -105,4 +105,4 @@ class BaseLoginFrom extends Component {
         );
     }
 }
-export default Form.create()(BaseLoginFrom);
+export default (Form.create() as any)(BaseLoginFrom);

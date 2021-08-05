@@ -6,27 +6,24 @@ import cover from './public/login-cover.png';
 
 import '@/styles/style.css';
 
-class LoginContainer extends Component {
-    constructor(props) {
-        super(props);
-        document.title = '登录';
-        this.state = {
-            loading: true,
-            sysId: '',
-            sysType: 0,
-            showButton: false,
-            loginUrl: '',
-            defineIntoUIC: false,
-        };
-    }
+document.title = '登录';
+
+class LoginContainer extends Component<any,any> {
+    state = {
+        loading: true,
+        sysId: '',
+        sysType: 0,
+        showButton: false,
+        loginUrl: '',
+        defineIntoUIC: false,
+    };
 
     getRenderLoginForm = () => {
-        const { form, config } = this.props;
+        const { form } = this.props;
         const { sysType, loginUrl, showButton } = this.state;
 
         return (
             <BaseLoginFrom
-                config={config}
                 form={form}
                 loginUrl={loginUrl}
                 sysType={sysType}
@@ -66,5 +63,4 @@ class LoginContainer extends Component {
     }
 }
 
-LoginContainer = Form.create()(LoginContainer);
-export default LoginContainer;
+export default Form.create()(LoginContainer);
