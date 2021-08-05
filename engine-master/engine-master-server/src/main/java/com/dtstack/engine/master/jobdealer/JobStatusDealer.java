@@ -215,7 +215,12 @@ public class JobStatusDealer implements Runnable {
                         && RdosTaskStatus.STOPPED_STATUS.contains(status);
 
         if (ComputeType.BATCH.getType().equals(scheduleJob.getComputeType()) || isStreamUpdateConditions.test(scheduleJob) || isStreamCancellingConditions.test(scheduleJob)) {
-            scheduleJobDao.updateJobStatusAndExecTime(jobId, status);
+            if (RdosTaskStatus.getStoppedStatus().contains(status)) {
+                // 如果是停止状态 更新停止时间
+                scheduleJobDao.updateJobStatusAndExecTime(jobId, status);
+            } else {
+                scheduleJobDao.updateJobStatus(jobId, status);
+            }
         }
     }
 
