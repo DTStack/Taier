@@ -207,6 +207,7 @@ public class ActionService {
         paramActionExt.setComponentVersion(batchTask.getComponentVersion());
         paramActionExt.setBusinessType(batchTask.getBusinessType());
         paramActionExt.setBusinessDate(scheduleJob.getBusinessDate());
+        paramActionExt.setFlowJobId(flowJobId);
         return paramActionExt;
     }
 
