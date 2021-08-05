@@ -83,30 +83,22 @@ class OfflineTaskList extends React.Component<any, any> {
         killJobVisible: false,
         searchType: 'fuzzy',
         projectUsers: [],
-        appType: '',
-        projectId: ''
+        appType: APPS_TYPE.INDEX,
+        projectId: '',
+        projectList: []
     };
 
     componentDidMount () {
-        this.setState({
-            appType: sessionStorage.getItem('ywappType'),
-            projectId: sessionStorage.getItem('ywprojectId')
-        }, () => {
-            this.search();
-            this.getPersonApi(1);
+        const { appType, pid } = this.props.router.location?.query ?? {}
+        const params = { appType: appType ?? APPS_TYPE.INDEX, projectId: pid ?? '' }
+        this.setState({ ...params }, () => {
+            this.search()
+            this.getPersonApi(1)
             this.getTaskTypesX()
-        });
+            this.getProjectList()
+        })
     }
-    /* eslint-disable-next-line */
-    componentWillReceiveProps(nextProps: any) {
-        const project = nextProps.project;
-        const oldProj = this.props.project;
-        if (oldProj && project && oldProj.id !== project.id) {
-            this.setState({ current: 1, visibleSlidePane: false }, () => {
-                this.search();
-            });
-        }
-    }
+
     getTaskTypesX = () => {
         const ctx = this;
         let parmms = {
@@ -137,6 +129,16 @@ class OfflineTaskList extends React.Component<any, any> {
             this.setState({ loading: false });
         });
     }
+
+    getProjectList = (value?: string) => {
+        const { appType } = this.state
+        Api.getProjectList({ name: value ?? '', appType }).then((res: any) => {
+            if (res.code === 1) {
+                this.setState({ projectList: res.data })
+            }
+        });
+    }
+
     getReqParams = () => {
         const {
             jobName,
@@ -567,6 +569,10 @@ class OfflineTaskList extends React.Component<any, any> {
         });
     };
 
+    changeProject = (value: string | number) => {
+        this.setState({ projectId: value }, this.search)
+    }
+
     initTaskColumns = () => {
         const { taskStatus, taskTypeFilter } = this.state;
         // const { taskTypeFilter } = this.props;
@@ -791,19 +797,9 @@ class OfflineTaskList extends React.Component<any, any> {
     };
     render () {
         const {
-            tasks,
-            selectedRowKeys,
-            jobName,
-            bussinessDate,
-            current,
-            statistics,
-            selectedTask,
-            visibleSlidePane,
-            cycDate,
-            killJobVisible,
-            searchType,
-            pageSize,
-            projectUsers
+            tasks, selectedRowKeys, jobName, bussinessDate, current, statistics, selectedTask,
+            visibleSlidePane, cycDate, killJobVisible, searchType, pageSize, projectUsers,
+            appType, projectList, projectId
         } = this.state;
 
         const { project } = this.props;
@@ -818,8 +814,6 @@ class OfflineTaskList extends React.Component<any, any> {
                     );
                 })
                 : [];
-        // const isPro = project?.projectType == PROJECT_TYPE.PRO;
-        const isPro = false
         const pagination: any = {
             total: tasks.totalCount,
             showTotal: () => (
@@ -953,6 +947,7 @@ class OfflineTaskList extends React.Component<any, any> {
                                 className="dt-form-shadow-bg"
                                 style={{ width: 220 }}
                                 placeholder="请选择产品"
+                                value={appType}
                             >
                                 <Option value={APPS_TYPE.INDEX}>指标管理</Option>
                             </Select>
@@ -960,11 +955,16 @@ class OfflineTaskList extends React.Component<any, any> {
                         <FormItem label={getTitle('项目')}>
                             <Select
                                 allowClear
+                                showSearch
                                 className="dt-form-shadow-bg"
                                 style={{ width: 220 }}
                                 placeholder="请选择项目"
+                                value={projectId}
+                                optionFilterProp="children"
+                                onSearch={this.getProjectList}
+                                onChange={this.changeProject}
                             >
-                                <Option value={APPS_TYPE.INDEX}>指标管理</Option>
+                                {projectList.map(item => <Option key={item.projectId} value={`${item.projectId}`}>{item.projectName}</Option>)}
                             </Select>
                         </FormItem>
                         <FormItem label="" className="batch-operation_offlineImg dt-form-shadow-bg">
@@ -1083,7 +1083,7 @@ class OfflineTaskList extends React.Component<any, any> {
                         }}
                     >
                         <TaskJobFlowView
-                            isPro={isPro}
+                            isPro={false}
                             visibleSlidePane={visibleSlidePane}
                             goToTaskDev={this.props.goToTaskDev}
                             reload={this.search}

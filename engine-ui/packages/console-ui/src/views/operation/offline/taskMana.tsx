@@ -3,7 +3,8 @@ import { connect } from 'react-redux';
 import moment from 'moment';
 import { cloneDeep } from 'lodash';
 
-import { Table, message, Select, Form, Checkbox, Tabs, Pagination, Col } from 'antd';
+import { Table, message, Select, Form, Checkbox, Tabs,
+    Pagination, Col, Button } from 'antd';
 
 import utils from 'dt-common/src/utils';
 import { replaceObjectArrayFiledName } from 'dt-common/src/funcs';
@@ -58,13 +59,6 @@ class OfflineTaskMana extends React.Component<any, any> {
     componentDidMount () {
         const { appType, pid, taskId } = this.props.router.location?.query ?? {}
         const params = { appType: appType ?? APPS_TYPE.INDEX, projectId: pid ?? '' }
-        if (!taskId && !appType && !pid) {
-            this.search()
-            this.getPersonApi(1)
-            this.getTaskTypesX()
-            this.getProjectList()
-            return
-        }
         this.setState({ ...params }, () => {
             this.search()
             this.getPersonApi(1)
@@ -159,7 +153,7 @@ class OfflineTaskMana extends React.Component<any, any> {
         const { appType } = this.state
         Api.getProjectList({ name: value ?? '', appType }).then((res: any) => {
             if (res.code === 1) {
-                this.setState({ projectList: res.data })
+                this.setState({ projectList: res?.data ?? [] })
             }
         });
     }
@@ -556,12 +550,12 @@ class OfflineTaskMana extends React.Component<any, any> {
             return (
                 <div className="flex-between">
                     <div style={{ paddingLeft: '25px' }}>
-                        {/* <Button type="primary" onClick={this.forzenTasks.bind(this, 2)}>
+                        <Button type="primary" onClick={this.forzenTasks.bind(this, 2)}>
                             冻结
                         </Button>
                         <Button style={{ marginLeft: 15 }} onClick={this.forzenTasks.bind(this, 1)}>
                             解冻
-                        </Button> */}
+                        </Button>
                     </div>
                     <div>
                         <Pagination style={{ top: 12 }} {...pagination} />
@@ -592,15 +586,19 @@ class OfflineTaskMana extends React.Component<any, any> {
                         </FormItem>
                         <FormItem label={getTitle('项目')}>
                             <Select
+                                allowClear
+                                showSearch
                                 className="dt-form-shadow-bg"
                                 style={{ width: 220 }}
                                 placeholder="请选择项目"
                                 value={projectId}
-                                showSearch
+                                optionFilterProp="children"
                                 onSearch={this.getProjectList}
                                 onChange={this.changeProject}
                             >
-                                {projectList.map(item => <Option key={item.id} value={item.id}>{item.projectName}</Option>)}
+                                {projectList.map(item => {
+                                    return <Option key={item.projectId} value={`${item.projectId}`}>{item.projectName}</Option>
+                                })}
                             </Select>
                         </FormItem>
                         <FormItem label="" className="batch-operation_offlineImg dt-form-shadow-bg">

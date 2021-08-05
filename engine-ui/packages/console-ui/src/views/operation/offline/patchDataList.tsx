@@ -29,25 +29,18 @@ class PatchDataList extends React.Component<any, any> {
         checkVals: [],
         projectUsers: [],
         appType: '',
-        projectId: ''
+        projectId: '',
+        projectList: []
     };
 
     componentDidMount () {
-        this.setState({
-            appType: sessionStorage.getItem('ywappType'),
-            projectId: sessionStorage.getItem('ywprojectId')
-        }, () => {
-            this.loadPatchData();
-            this.getPersonApi(1);
-        });
-    }
-    /* eslint-disable-next-line */
-    componentWillReceiveProps(nextProps: any) {
-        const { project } = nextProps;
-        const oldProj = this.props.project;
-        if (oldProj && project && oldProj.id !== project.id) {
-            this.loadPatchData();
-        }
+        const { appType, pid } = this.props.router.location?.query ?? {}
+        const params = { appType: appType ?? APPS_TYPE.INDEX, projectId: pid ?? '' }
+        this.setState({ ...params }, () => {
+            this.loadPatchData()
+            this.getPersonApi(1)
+            this.getProjectList()
+        })
     }
 
     loadPatchData = (params?: any) => {
@@ -72,6 +65,16 @@ class PatchDataList extends React.Component<any, any> {
             this.setState({ loading: false });
         });
     }
+
+    getProjectList = (value?: string) => {
+        const { appType } = this.state
+        Api.getProjectList({ name: value ?? '', appType }).then((res: any) => {
+            if (res.code === 1) {
+                this.setState({ projectList: res.data })
+            }
+        });
+    }
+
     killAllJobs = (job: any) => {
         confirm({
             title: '确认提示',
@@ -194,6 +197,10 @@ class PatchDataList extends React.Component<any, any> {
         this.setState(conditions, this.loadPatchData);
     };
 
+    changeProject = (value: string) => {
+        this.setState({ projectId: value }, this.loadPatchData)
+    }
+
     initTaskColumns = () => {
         return [
             {
@@ -264,9 +271,11 @@ class PatchDataList extends React.Component<any, any> {
     };
 
     render () {
-        const { tasks, current, checkVals, dutyUserId, bizDay, runDay, jobName, pageSize, loading, projectUsers } = this.state;
+        const {
+            tasks, current, checkVals, dutyUserId, bizDay, runDay, jobName, pageSize, loading,
+            projectUsers, appType, projectId, projectList
+        } = this.state;
 
-        // const { projectUsers } = this.props;
         const userItems =
             projectUsers && projectUsers.length > 0
                 ? projectUsers.map((item: any) => {
@@ -302,10 +311,10 @@ class PatchDataList extends React.Component<any, any> {
                     <Col>
                         <FormItem label={getTitle('产品')}>
                             <Select
-                                allowClear
                                 className="dt-form-shadow-bg"
                                 style={{ width: 220 }}
                                 placeholder="请选择产品"
+                                value={appType}
                             >
                                 <Option value={APPS_TYPE.INDEX}>指标管理</Option>
                             </Select>
@@ -313,11 +322,16 @@ class PatchDataList extends React.Component<any, any> {
                         <FormItem label={getTitle('项目')}>
                             <Select
                                 allowClear
+                                showSearch
                                 className="dt-form-shadow-bg"
                                 style={{ width: 220 }}
                                 placeholder="请选择项目"
+                                value={projectId}
+                                optionFilterProp="children"
+                                onSearch={this.getProjectList}
+                                onChange={this.changeProject}
                             >
-                                <Option value={APPS_TYPE.INDEX}>指标管理</Option>
+                                {projectList.map(item => <Option key={item.projectId} value={`${item.projectId}`}>{item.projectName}</Option>)}
                             </Select>
                         </FormItem>
                         <FormItem>

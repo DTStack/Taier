@@ -627,10 +627,12 @@
 
 .c-taskMana__wrap {
     padding: 20px;
+    min-width: 1240px;
 }
 
 .c-patchDataList__wrap {
     padding: 20px;
+    min-width: 1240px;
     .form-label {
         display: inline-block;
         width: 50px;
