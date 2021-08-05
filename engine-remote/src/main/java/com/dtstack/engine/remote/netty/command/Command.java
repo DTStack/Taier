@@ -1,5 +1,10 @@
 package com.dtstack.engine.remote.netty.command;
 
+import com.alibaba.fastjson.JSON;
+import com.dtstack.engine.remote.exception.NoNodeException;
+import com.dtstack.engine.remote.exception.RemoteException;
+import com.dtstack.engine.remote.message.Message;
+
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -36,6 +41,17 @@ public class Command implements Serializable {
      *  data body
      */
     private byte[] body;
+
+    public static Command buildBody(Message message) {
+        if (message == null) {
+            throw new RemoteException("message not null");
+        }
+
+        Command command = new Command();
+        command.setBody(JSON.toJSONString(message).getBytes());
+        command.setType(CommandType.REQUEST);
+        return command;
+    }
 
     public CommandType getType() {
         return type;

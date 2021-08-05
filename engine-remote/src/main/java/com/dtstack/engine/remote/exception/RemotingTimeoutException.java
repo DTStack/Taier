@@ -15,21 +15,24 @@
  * limitations under the License.
  */
 
-package com.dtstack.engine.remote.netty.command;
+package com.dtstack.engine.remote.exception;
 
-public enum CommandType {
-    /**
-     * request
-     */
-    REQUEST,
 
-    /**
-     * ping
-     */
-    PING,
+/**
+ *  timeout exception
+ */
+public class RemotingTimeoutException extends RemoteException{
 
-    /**
-     *  pong
-     */
-    PONG;
+    public RemotingTimeoutException(String message) {
+        super(message);
+    }
+
+
+    public RemotingTimeoutException(String address, long timeoutMillis) {
+        this(address, timeoutMillis, null);
+    }
+
+    public RemotingTimeoutException(String address, long timeoutMillis, Throwable cause) {
+        super(String.format("wait response on the channel %s timeout %s : cause : %s", address, timeoutMillis,cause));
+    }
 }

@@ -14,22 +14,51 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.dtstack.engine.remote.netty.command;
 
-public enum CommandType {
-    /**
-     * request
-     */
-    REQUEST,
+import java.io.Serializable;
+
+/**
+ *  command header
+ */
+public class CommandHeader implements Serializable {
 
     /**
-     * ping
+     * type
      */
-    PING,
+    private byte type;
 
     /**
-     *  pong
+     * request unique identification
      */
-    PONG;
+    private long opaque;
+
+    /**
+     *  body length
+     */
+    private int bodyLength;
+
+    public int getBodyLength() {
+        return bodyLength;
+    }
+
+    public void setBodyLength(int bodyLength) {
+        this.bodyLength = bodyLength;
+    }
+
+    public byte getType() {
+        return type;
+    }
+
+    public void setType(byte type) {
+        this.type = type;
+    }
+
+    public long getOpaque() {
+        return opaque;
+    }
+
+    public void setOpaque(long opaque) {
+        this.opaque = opaque;
+    }
 }

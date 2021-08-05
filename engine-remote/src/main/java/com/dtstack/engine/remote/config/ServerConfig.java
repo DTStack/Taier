@@ -1,5 +1,7 @@
 package com.dtstack.engine.remote.config;
 
+import com.dtstack.engine.remote.node.strategy.NodeInfoStrategy;
+
 /**
  * @Auther: dazhi
  * @Date: 2021/8/3 3:52 下午

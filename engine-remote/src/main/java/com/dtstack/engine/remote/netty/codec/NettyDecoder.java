@@ -18,12 +18,12 @@
 package com.dtstack.engine.remote.netty.codec;
 
 
+import com.dtstack.engine.remote.netty.command.Command;
+import com.dtstack.engine.remote.netty.command.CommandHeader;
+import com.dtstack.engine.remote.netty.command.CommandType;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ReplayingDecoder;
-import org.apache.dolphinscheduler.remote.command.Command;
-import org.apache.dolphinscheduler.remote.command.CommandHeader;
-import org.apache.dolphinscheduler.remote.command.CommandType;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.dtstack.engine.remote.akka.constant;
+package com.dtstack.engine.remote.constant;
 
 /**
  * @Auther: dazhi
@@ -22,4 +22,5 @@ public class GlobalConstant {
      * 基本配置文件命名
      */
     public final static String PROPERTIES_FILE_PATH = "/application.properties";
+
 }

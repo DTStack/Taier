@@ -17,7 +17,7 @@ public class NettyClientServiceImpl implements ClientService {
 
     @Override
     public Message sendMassage(Message message) throws Exception {
-        return client.sendMessage(message);
+        return client.send(message);
     }
 
     @Override

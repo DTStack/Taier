@@ -6,12 +6,15 @@ import akka.actor.Props;
 import com.dtstack.engine.remote.akka.AkkaClientServiceImpl;
 import com.dtstack.engine.remote.akka.actor.ObjectActor;
 import com.dtstack.engine.remote.akka.config.AkkaConfig;
+import com.dtstack.engine.remote.config.NodeStrategyServerConfig;
 import com.dtstack.engine.remote.config.ServerConfig;
 import com.dtstack.engine.remote.constant.ServerConstant;
 import com.dtstack.engine.remote.netty.NettyClientServiceImpl;
 import com.dtstack.engine.remote.netty.NettyRemoteClient;
+import com.dtstack.engine.remote.node.strategy.NodeInfoStrategy;
 import com.dtstack.engine.remote.service.ClientService;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -25,10 +28,12 @@ import org.springframework.core.env.Environment;
  * @Email:dazhi@dtstack.com
  * @Description:
  */
-public class NettyServerConfig implements ServerConfig, ApplicationContextAware, EnvironmentAware {
+public class NettyServerConfig implements NodeStrategyServerConfig, ApplicationContextAware, EnvironmentAware {
 
     private ApplicationContext applicationContext;
     private Environment environment;
+
+    private NodeInfoStrategy nodeInfoStrategy;
 
     @Override
     public void init() {
@@ -41,7 +46,7 @@ public class NettyServerConfig implements ServerConfig, ApplicationContextAware,
     @ConditionalOnMissingBean
     public ClientService clientService() {
         NettyClientServiceImpl nettyClientService = new NettyClientServiceImpl();
-        NettyRemoteClient nettyRemoteClient = new NettyRemoteClient();
+        NettyRemoteClient nettyRemoteClient = new NettyRemoteClient(nodeInfoStrategy);
         nettyClientService.setClient(nettyRemoteClient);
         return nettyClientService;
     }
@@ -56,5 +61,11 @@ public class NettyServerConfig implements ServerConfig, ApplicationContextAware,
     @Override
     public void setEnvironment(Environment environment) {
         this.environment = environment;
+    }
+
+    @Override
+    @Autowired
+    public void setNodeInfoStrategy(NodeInfoStrategy nodeInfoStrategy) {
+        this.nodeInfoStrategy = nodeInfoStrategy;
     }
 }

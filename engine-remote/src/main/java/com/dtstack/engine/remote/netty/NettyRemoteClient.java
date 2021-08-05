@@ -7,19 +7,24 @@ import com.dtstack.engine.remote.netty.codec.NettyDecoder;
 import com.dtstack.engine.remote.netty.codec.NettyEncoder;
 import com.dtstack.engine.remote.netty.config.NettyConfig;
 import com.dtstack.engine.remote.netty.future.ResponseFuture;
+import com.dtstack.engine.remote.netty.handler.NettyClientHandler;
+import com.dtstack.engine.remote.netty.node.NettyNode;
 import com.dtstack.engine.remote.netty.util.CallerThreadExecutePolicy;
 import com.dtstack.engine.remote.netty.util.NettyUtils;
+import com.dtstack.engine.remote.node.AbstractNode;
 import com.dtstack.engine.remote.node.RemoteNodes;
+import com.dtstack.engine.remote.node.strategy.ConfigurationNodeInfoStrategy;
+import com.dtstack.engine.remote.node.strategy.NodeInfoStrategy;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -44,7 +49,12 @@ public class NettyRemoteClient {
     /**
      * channels
      */
-    private final ConcurrentHashMap<String, RemoteNodes> channels = new ConcurrentHashMap(128);
+    private final ConcurrentHashMap<String, RemoteNodes> channels = new ConcurrentHashMap<>(128);
+
+    /**
+     * 节点获取策略
+     */
+    private NodeInfoStrategy nodeInfoStrategy;
 
     /**
      * started flag
@@ -78,9 +88,13 @@ public class NettyRemoteClient {
 
     /**
      * server init
-     *
      */
-    public NettyRemoteClient() {
+    public NettyRemoteClient(NodeInfoStrategy nodeInfoStrategy) {
+        if (nodeInfoStrategy == null) {
+            throw new NoNodeException("Please configure node information");
+        }
+        this.nodeInfoStrategy = nodeInfoStrategy;
+
         if (NettyUtils.useEpoll()) {
             this.workerGroup = new EpollEventLoopGroup(NettyConfig.getWorkerThreads(), new RemoteThreadFactory(this.getClass().getName()));
         } else {
@@ -124,8 +138,67 @@ public class NettyRemoteClient {
                 ResponseFuture.scanFutureTable();
             }
         }, 5000, 1000, TimeUnit.MILLISECONDS);
-        //
+
+        createNodes();
         isStarted.compareAndSet(false, true);
+    }
+
+    /**
+     * 创建节点
+     */
+    private void createNodes() {
+        if (nodeInfoStrategy == null) {
+            throw new NoNodeException("Please configure node information");
+        }
+        Map<String, List<String>> nodeInfo = nodeInfoStrategy.getNodeInfo();
+
+        if (nodeInfo == null) {
+            throw new NoNodeException("Please configure node information");
+        }
+
+        for (Map.Entry<String, List<String>> entry : nodeInfo.entrySet()) {
+
+            String key = entry.getKey();
+            List<String> value = entry.getValue();
+            RemoteNodes remoteNodes = new RemoteNodes(key);
+            Map<String, AbstractNode> refs = remoteNodes.getRefs();
+            for (String address : value) {
+                String[] split = address.split(":");
+
+                if (split.length < 2) {
+                    LOGGER.warn("node info error : {}",address);
+                    continue;
+                }
+
+                String ip = split[0];
+                Integer port = Integer.parseInt(split[1]);
+                Channel channel= getChannel(ip,port,Boolean.FALSE);
+                NettyNode node = new NettyNode(key,ip,port,channel);
+                node.setStatus(AbstractNode.NodeStatus.USABLE);
+                refs.put(address,node);
+            }
+            channels.put(key,remoteNodes);
+        }
+
+
+    }
+
+    private Channel getChannel(String ip, Integer port, boolean isSync) {
+        ChannelFuture future;
+        try {
+            synchronized (bootstrap) {
+                future = bootstrap.connect(new InetSocketAddress(ip, port));
+            }
+            if (isSync) {
+                future.sync();
+            }
+            if (future.isSuccess()) {
+                return future.channel();
+            }
+        } catch (Exception ex) {
+            LOGGER.warn(String.format("connect to %s error", ip + ":" + port), ex);
+        }
+        return null;
     }
 
     /**
@@ -165,22 +238,32 @@ public class NettyRemoteClient {
     /**
      * close channel
      *
-     * @param identifier 节点标识
+     * @param address 节点标识
      */
-    public void closeChannel(String identifier) {
-        RemoteNodes nodes = this.channels.remove(identifier);
-        if (nodes != null) {
-            nodes.close();
+    public void closeChannel(String address) {
+        for (Map.Entry<String, RemoteNodes> nodesEntry : channels.entrySet()) {
+            RemoteNodes nodes = nodesEntry.getValue();
+            nodes.close(address);
         }
     }
 
-    public Message sendMessage(Message message) {
+
+    /**
+     * 发送信息
+     *
+     * @param message
+     * @return
+     */
+    public Message send(Message message) {
         RemoteNodes nodes = this.channels.get(message.getIdentifier());
 
         if (nodes == null) {
             throw new NoNodeException(String.format("node not find,identifier:%s",message.getIdentifier()));
         }
 
-        return null;
+        AbstractNode route = nodes.route();
+        return route.sendMessage(message);
     }
+
+
 }

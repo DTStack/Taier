@@ -1,6 +1,6 @@
 package com.dtstack.engine.remote.akka.config;
 
-import com.dtstack.engine.remote.akka.constant.GlobalConstant;
+import com.dtstack.engine.remote.constant.GlobalConstant;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.apache.commons.lang.StringUtils;

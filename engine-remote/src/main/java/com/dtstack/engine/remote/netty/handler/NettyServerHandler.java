@@ -1,5 +1,6 @@
-package com.dtstack.engine.remote.netty;
+package com.dtstack.engine.remote.netty.handler;
 
+import com.dtstack.engine.remote.netty.NettyRemoteServer;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
 /**

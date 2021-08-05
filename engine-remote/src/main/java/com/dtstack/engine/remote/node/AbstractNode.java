@@ -13,22 +13,27 @@ public abstract class AbstractNode {
     /**
      * 节点名称
      */
-    private String identifier;
+    private final String identifier;
 
     /**
      * address
      */
-    private String address;
+    private final String address;
 
     /**
      * ip
      */
-    private String ip;
+    private final String ip;
 
     /**
      * port
      */
-    private int port;
+    private final int port;
+
+    /**
+     * status 节点的状态
+     */
+    private NodeStatus status;
 
 
     public AbstractNode(String identifier, String ip, int port) {
@@ -55,13 +60,21 @@ public abstract class AbstractNode {
         return port;
     }
 
+    public NodeStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(NodeStatus status) {
+        this.status = status;
+    }
+
     /**
      * 负载均衡，发送消息
      *
      * @param message 消息
      * @return
      */
-    protected abstract Message sendMessage(Message message);
+    public abstract Message sendMessage(Message message);
 
     /**
      * 初始化方法
@@ -73,5 +86,9 @@ public abstract class AbstractNode {
      *
      */
     protected abstract void close();
+
+    public enum NodeStatus {
+        USABLE,UNAVAILABLE
+    }
 
 }

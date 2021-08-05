@@ -18,21 +18,23 @@ import java.util.concurrent.locks.ReentrantLock;
 public class RemoteNodes {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoteNodes.class);
-    private final Lock lock = new ReentrantLock();
     /**
      * 节点信息
      */
-    private String identifier;
+    private final String identifier;
 
     /**
      * key : address
      * value : node
      */
-    private Map<String , AbstractNode> refs = new ConcurrentHashMap<>(128);
+    private final Map<String , AbstractNode> refs = new ConcurrentHashMap<>(128);
 
     public RemoteNodes(String identifier) {
         this.identifier = identifier;
+    }
 
+    public Map<String, AbstractNode> getRefs() {
+        return refs;
     }
 
     public String getIdentifier() {
@@ -45,6 +47,17 @@ public class RemoteNodes {
             AbstractNode value = entry.getValue();
             value.close();
         }
+    }
+
+    public void close(String address) {
+        AbstractNode abstractNode = refs.get(address);
+        if (abstractNode != null) {
+            abstractNode.close();
+        }
+    }
+
+    public AbstractNode route() {
+        return null;
     }
 
 

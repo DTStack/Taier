@@ -4,6 +4,7 @@ import com.dtstack.engine.remote.akka.config.AkkaServerConfig;
 import com.dtstack.engine.remote.annotation.EnableRemoteClient;
 import com.dtstack.engine.remote.enums.Transport;
 import com.dtstack.engine.remote.exception.RemoteException;
+import com.dtstack.engine.remote.node.strategy.NodeInfoStrategy;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -29,25 +30,34 @@ public class RemoteClientRegistrar implements ImportBeanDefinitionRegistrar, Env
             return;
         }
 
-        if (!registry.containsBeanDefinition("serverConfig")) {
-            GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
-            beanDefinition.setBeanClass(AkkaServerConfig.class);
-            beanDefinition.setInitMethodName("init");
-            beanDefinition.setScope(ConfigurableBeanFactory.SCOPE_SINGLETON);
-            beanDefinition.setAutowireCandidate(Boolean.TRUE);
-            registry.registerBeanDefinition("serverConfig", beanDefinition);
-        }
-
         AnnotationAttributes annotationAttributes = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(EnableRemoteClient.class.getName(), false));
 
+        if (annotationAttributes == null) {
+            throw new RemoteException("remote exception");
+        }
+
         // 设置配置文件 默认加载 usr.dir 位置下的
-        String properties = annotationAttributes.getString("properties");
+        String properties = annotationAttributes.getString(EnableRemoteClientConst.PROPERTIES);
         if (StringUtils.isNotBlank(properties)) {
             System.setProperty("remote.properties.file.name",properties);
         }
 
         // 加载配置类
-        String transport = annotationAttributes.getString("transport");
+        loadConfiguration(registry, annotationAttributes);
+
+        RemoteClientScanner scanner = new RemoteClientScanner(registry);
+        String basePackage = annotationAttributes.getString(EnableRemoteClientConst.BASE_PACKAGE);
+        if (StringUtils.isBlank(basePackage)) {
+            // 扫描默认路径
+
+        } else {
+            scanner.doScan(basePackage);
+        }
+    }
+
+    private void loadConfiguration(BeanDefinitionRegistry registry, AnnotationAttributes annotationAttributes) {
+        // 加载 serverConfig
+        String transport = annotationAttributes.getString(EnableRemoteClientConst.TRANSPORT);
         Class<?> aClass = loadClass(transport);
         GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
         beanDefinition.setBeanClass(aClass);
@@ -56,15 +66,12 @@ public class RemoteClientRegistrar implements ImportBeanDefinitionRegistrar, Env
         beanDefinition.setAutowireCandidate(Boolean.TRUE);
         registry.registerBeanDefinition("serverConfig", beanDefinition);
 
-
-        RemoteClientScanner scanner = new RemoteClientScanner(registry);
-        String basePackage = annotationAttributes.getString("basePackage");
-        if (StringUtils.isBlank(basePackage)) {
-            // 扫描默认路径
-
-        } else {
-            scanner.doScan(basePackage);
-        }
+        // 加载 NodeInfoStrategy
+        Class<?> aClass1 = annotationAttributes.getClass(EnableRemoteClientConst.NODE_INFO_STRATEGY);
+        beanDefinition.setBeanClass(aClass1);
+        beanDefinition.setScope(ConfigurableBeanFactory.SCOPE_SINGLETON);
+        beanDefinition.setAutowireCandidate(Boolean.TRUE);
+        registry.registerBeanDefinition("nodeInfoStrategy", beanDefinition);
     }
 
     private Class<? extends ServerConfig> loadClass(String transport) {
@@ -78,6 +85,15 @@ public class RemoteClientRegistrar implements ImportBeanDefinitionRegistrar, Env
             }
         }
         return aClass;
+    }
+
+    static class EnableRemoteClientConst {
+        public static final String  TRANSPORT = "transport";
+        public static final String  NODE_INFO_STRATEGY = "nodeInfoStrategy";
+        public static final String  BASE_PACKAGE = "basePackage";
+        public static final String  PROPERTIES = "properties";
+
+
     }
 
 

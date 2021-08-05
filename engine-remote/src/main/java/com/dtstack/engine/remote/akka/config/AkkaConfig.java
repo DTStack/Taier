@@ -4,7 +4,7 @@ import akka.routing.RoundRobinRoutingLogic;
 import akka.routing.Router;
 import akka.routing.RoutingLogic;
 import com.dtstack.engine.remote.akka.constant.AkkaConfigConstant;
-import com.dtstack.engine.remote.akka.constant.GlobalConstant;
+import com.dtstack.engine.remote.constant.GlobalConstant;
 import com.dtstack.engine.remote.enums.RouterTypeEnum;
 import com.typesafe.config.Config;
 import org.apache.commons.collections.CollectionUtils;
