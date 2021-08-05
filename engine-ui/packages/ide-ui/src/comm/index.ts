@@ -1,9 +1,9 @@
 import debounce from "lodash/debounce";
+import moment from 'moment';
 import {
   RDB_TYPE_ARRAY,
   ENGINE_SOURCE_TYPE
 } from './const';
-import moment from 'moment';
 
 // 日志下载
 export function createLinkMark (attrs: any) {
@@ -119,4 +119,20 @@ export function trim (str: string) {
     return typeof str === 'string'
         ? str.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '')
         : str;
+}
+
+export function formJsonValidator (rule: any, value: any, callback: any) {
+  let msg: any;
+  try {
+      if (value) {
+          let t = JSON.parse(value);
+          if (typeof t != 'object') {
+              msg = '请填写正确的JSON'
+          }
+      }
+  } catch (e) {
+      msg = '请检查JSON格式，确认无中英文符号混用！'
+  } finally {
+      callback(msg);
+  }
 }

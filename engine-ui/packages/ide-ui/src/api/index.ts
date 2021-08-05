@@ -943,4 +943,7 @@ export default {
   selectExecResultDataSync (params: any) { // 数据同步接口获取结果表
 	  return http.post(offlineReq.SELECT_DATA_SYNC_RESULT, params)
   },
+  ftpRegexPre(params: any) {
+      return http.post(offlineReq.GET_OFFLINE_FTP_REG, params)
+  },
 };

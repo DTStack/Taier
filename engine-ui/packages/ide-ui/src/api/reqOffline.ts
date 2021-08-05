@@ -101,6 +101,7 @@ export default {
   GET_OFFLINE_TABLELISTPAGE: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/tableList`,
   GET_OFFLINE_ALLSCHEMAS: `${RDOS_BASE_URL}/batch/batchDataSource/getAllSchemas`,
   GET_OFFLINE_CUBEKYLININFO: `${RDOS_BASE_URL}/batch/batchDataSource/getKylinCubeinfo`,
+  GET_OFFLINE_FTP_REG: `${RDOS_BASE_URL}/batch/batchDataSource/ftpRegexPre`,
   GET_OFFLINE_TABLECOLUMN: `${RDOS_BASE_URL}/batch/batchDataSource/tablecolumn`,
   GET_OFFLINE_COLUMNFORSYNCOPATE: `${RDOS_BASE_URL}/batch/batchDataSource/columnForSyncopate`,
   GET_OFFLINE_JOBDATA: `${RDOS_BASE_URL}/batch/batchDataSource/trace`,

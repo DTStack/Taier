@@ -3,7 +3,7 @@ import { Steps } from "antd";
 import { connect } from "react-redux";
 import { isEqual, get } from "lodash";
 
-// import DataSyncSource from './source';
+import DataSyncSource from './source';
 // import DataSyncTarget from './target';
 // import DataSyncKeymap from './keymap';
 // import DataSyncChannel from './channel';
@@ -18,7 +18,7 @@ const Step = Steps.Step;
 class DataSync extends React.Component<any, any> {
   state: any = {
     currentStep: 0,
-    loading: true,
+    loading: false,
     isStandeAlone: false,
   };
   _datasyncDom: any;
@@ -276,16 +276,15 @@ class DataSync extends React.Component<any, any> {
     const steps: any = [
       {
         title: "数据来源",
-        // content: <DataSyncSource
-        //     getPopupContainer={this.getPopupContainer}
-        //     currentStep={currentStep}
-        //     currentTabData={currentTabData}
-        //     isIncrementMode={isIncrementMode}
-        //     updateDataSyncVariables={updateDataSyncVariables}
-        //     taskCustomParams={taskCustomParams}
-        //     navtoStep={this.navtoStep.bind(this)}
-        // />
-        content: <p>111</p>,
+        content: <DataSyncSource
+            getPopupContainer={this.getPopupContainer}
+            currentStep={currentStep}
+            currentTabData={currentTabData}
+            isIncrementMode={isIncrementMode}
+            updateDataSyncVariables={updateDataSyncVariables}
+            taskCustomParams={taskCustomParams}
+            navtoStep={this.navtoStep.bind(this)}
+        />
       },
       {
         title: "选择目标",
