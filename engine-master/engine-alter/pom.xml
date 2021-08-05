@@ -13,10 +13,16 @@
     <artifactId>engine-alter</artifactId>
 
     <dependencies>
+
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>engine-alert-sdk</artifactId>
+            <artifactId>engine-common</artifactId>
             <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>dt.insight.plat</groupId>
+            <artifactId>dt-insight-lang</artifactId>
         </dependency>
 
         <dependency>

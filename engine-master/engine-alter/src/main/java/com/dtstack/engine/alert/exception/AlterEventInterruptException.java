@@ -1,6 +1,6 @@
 package com.dtstack.engine.alert.exception;
 
-import com.dtstack.lang.exception.BizException;
+import com.dtstack.engine.common.exception.BizException;
 
 /**
  * @Auther: dazhi

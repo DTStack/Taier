@@ -1,17 +1,18 @@
 package com.dtstack.engine.alert.client.ding.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.channel.IDingChannel;
+import com.dtstack.engine.alert.channel.IDingChannel;
 import com.dtstack.engine.alert.AlterContext;
 import com.dtstack.engine.alert.client.ding.AbstractDingAlterClient;
 import com.dtstack.engine.alert.client.ding.AlterSendDingBean;
-import com.dtstack.engine.alert.client.sms.AbstractSmsAlterClient;
 import com.dtstack.engine.alert.enums.AlertGateCode;
 import com.dtstack.engine.alert.enums.DingTypeEnums;
 import com.dtstack.engine.alert.exception.AlterException;
 import com.dtstack.engine.alert.load.JarCache;
-import com.dtstack.lang.data.R;
-import com.dtstack.lang.exception.BizException;
+import com.dtstack.engine.common.exception.ErrorCode;
+import dt.insight.plat.lang.enums.ErrorEnum;
+import dt.insight.plat.lang.web.R;
+import com.dtstack.engine.common.exception.BizException;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -74,7 +75,7 @@ public class JarDingAlterClient extends AbstractDingAlterClient {
         } catch (Exception e) {
             logger.info("[sendMail] end, cost={}, mails={}, title={}, message={}", (System.currentTimeMillis() - startTime), alterSendDingBean.getDing(), alterSendDingBean.getTitle(),
                     alterSendDingBean.getContent(), e);
-            return R.fail("jarPath:" + alterSendDingBean.getJarPath() + " loading failed, please check the configuration! the reason:" + e.getLocalizedMessage());
+            return R.fail(ErrorCode.SERVER_EXCEPTION.getCode(), "jarPath:" + alterSendDingBean.getJarPath() + " loading failed, please check the configuration! the reason:" + e.getLocalizedMessage());
         }
     }
 

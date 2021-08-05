@@ -5,7 +5,7 @@ import com.dtstack.engine.alert.enums.AlertGateCode;
 import com.dtstack.engine.alert.enums.AlertGateTypeEnum;
 import com.dtstack.engine.alert.exception.AlterException;
 import com.dtstack.engine.alert.factory.AlterClientFactory;
-import com.dtstack.lang.data.R;
+import dt.insight.plat.lang.web.R;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,14 +1,15 @@
 package com.dtstack.engine.alert.client.sms.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.channel.ISmsChannel;
+import com.dtstack.engine.alert.channel.ISmsChannel;
 import com.dtstack.engine.alert.AlterContext;
 import com.dtstack.engine.alert.client.sms.AbstractSmsAlterClient;
 import com.dtstack.engine.alert.client.sms.AlterSendSmsBean;
 import com.dtstack.engine.alert.enums.AlertGateCode;
 import com.dtstack.engine.alert.exception.AlterException;
 import com.dtstack.engine.alert.load.JarCache;
-import com.dtstack.lang.data.R;
+import com.dtstack.engine.common.exception.ErrorCode;
+import dt.insight.plat.lang.web.R;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -39,7 +40,7 @@ public class JarSmsAlterClient extends AbstractSmsAlterClient {
             return r;
         } catch (Exception e) {
             LOGGER.info("[sendSms] error, cost={}, phones={}, message={}",(System.currentTimeMillis() - startTime), phones, message, e);
-            return R.fail("jarPath:"+jarPath +"加载失败，请检查配置！");
+            return R.fail(ErrorCode.SERVER_EXCEPTION.getCode(), "jarPath:"+jarPath +"加载失败，请检查配置！");
         }
     }
 

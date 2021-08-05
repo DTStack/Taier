@@ -5,7 +5,7 @@ import com.dtstack.engine.alert.AlterContext;
 import com.dtstack.engine.alert.client.AbstractAlterClient;
 import com.dtstack.engine.alert.client.mail.AlterSendMailBean;
 import com.dtstack.engine.alert.exception.AlterException;
-import com.dtstack.lang.data.R;
+import dt.insight.plat.lang.web.R;
 import org.apache.commons.lang3.StringUtils;
 
 /**

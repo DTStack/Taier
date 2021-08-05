@@ -6,7 +6,8 @@ import com.dtstack.engine.alert.client.mail.AbstractMailAlterClient;
 import com.dtstack.engine.alert.client.mail.AlterSendMailBean;
 import com.dtstack.engine.alert.enums.AlertGateCode;
 import com.dtstack.engine.alert.exception.AlterException;
-import com.dtstack.lang.data.R;
+import com.dtstack.engine.common.exception.ErrorCode;
+import dt.insight.plat.lang.web.R;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
@@ -56,11 +57,11 @@ public class DTMailAlterClient extends AbstractMailAlterClient {
             String result = htmlEmail.send();
             LOGGER.info("[sendMail] end, cost={}, mails={}, subject={}, message={}, result={}", (System.currentTimeMillis() - startTime), alterSendMailBean.getEmails(), alterSendMailBean.getSubject(),
                     alterSendMailBean.getContent(), result);
-            return R.ok();
+            return R.ok(null);
         } catch (EmailException e) {
             LOGGER.info("[sendMail] end, cost={}, mails={}, subject={}, message={}", (System.currentTimeMillis() - startTime), alterSendMailBean.getEmails(), alterSendMailBean.getSubject(),
                     alterSendMailBean.getContent(), e);
-            return R.fail(e.getLocalizedMessage());
+            return R.fail(ErrorCode.SERVER_EXCEPTION.getCode(), e.getLocalizedMessage());
         }
 
     }

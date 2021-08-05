@@ -1,14 +1,14 @@
 package com.dtstack.engine.alert.client.customize;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.channel.ICustomizeChannel;
+import com.dtstack.engine.alert.channel.ICustomizeChannel;
 import com.dtstack.engine.alert.AlterContext;
 import com.dtstack.engine.alert.client.AbstractAlterClient;
-import com.dtstack.engine.alert.client.sms.AbstractSmsAlterClient;
 import com.dtstack.engine.alert.enums.AlertGateCode;
 import com.dtstack.engine.alert.exception.AlterException;
 import com.dtstack.engine.alert.load.JarCache;
-import com.dtstack.lang.data.R;
+import com.dtstack.engine.common.exception.ErrorCode;
+import dt.insight.plat.lang.web.R;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +62,7 @@ public class CustomizeAlterClient extends AbstractAlterClient {
             return r;
         } catch (Exception e) {
             LOGGER.info("[CustomizeAlert] error, cost={}, data={}",(System.currentTimeMillis() - startTime), data, e);
-            return R.fail("jarPath:"+jarPath +" ,loading failed, please check the configuration！");
+            return R.fail(ErrorCode.SERVER_EXCEPTION.getCode(), "jarPath:"+jarPath +" ,loading failed, please check the configuration！");
         }
     }
 

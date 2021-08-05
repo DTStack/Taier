@@ -5,7 +5,7 @@ import com.dtstack.engine.alert.AlterContext;
 import com.dtstack.engine.alert.EventMonitor;
 import com.dtstack.engine.alert.pool.AlterDiscardPolicy;
 import com.dtstack.engine.alert.pool.CustomThreadFactory;
-import com.dtstack.lang.data.R;
+import dt.insight.plat.lang.web.R;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -63,7 +63,7 @@ public abstract class AbstractAlterClient implements AlterClient,Runnable {
         eventMonitors = setDefaultEvent(alterContext, eventMonitors);
         for (EventMonitor eventMonitor : eventMonitors) {
             if (!eventMonitor.startEvent(alterContext)) {
-                return R.ok();
+                return R.ok(null);
             }
         }
         return sendAlter(alterContext, eventMonitors);
