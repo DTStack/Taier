@@ -10,7 +10,7 @@ import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.dao.AlertRecordDao;
 import com.dtstack.engine.api.domain.AlertRecord;
 import com.dtstack.engine.master.enums.AlertSendStatusEnum;
-import com.dtstack.lang.data.R;
+import dt.insight.plat.lang.web.R;
 import com.google.common.collect.Maps;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -23,7 +23,7 @@ public class FtpBase extends BaseSource{
     /**
      * 写入文件名 可以多个 以逗号分割 离线不处理
      */
-    private String fileName;
+    private String ftpFileName;
 
 }
 

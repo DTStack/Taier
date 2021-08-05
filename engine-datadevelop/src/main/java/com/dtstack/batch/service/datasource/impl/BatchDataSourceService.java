@@ -259,7 +259,7 @@ public class BatchDataSourceService {
 
     // 数据同步-模版导入 writer 不需要添加默认值的数据源类型
     private static final Set<Integer> notPutValueFoeWriterSourceTypeSet = Sets.newHashSet(DataSourceType.HIVE.getVal(), DataSourceType.HIVE3X.getVal(),
-            DataSourceType.HIVE1X.getVal(), DataSourceType.CarbonData.getVal(), DataSourceType.INCEPTOR.getVal());
+            DataSourceType.HIVE1X.getVal(), DataSourceType.CarbonData.getVal(), DataSourceType.INCEPTOR.getVal(), DataSourceType.SparkThrift2_1.getVal());
 
     /**
      * 判断任务是否可以配置增量标识
@@ -1156,7 +1156,7 @@ public class BatchDataSourceService {
         } else if (DataSourceType.FTP.getVal().equals(target.getType())) {
             obj = MapUtils.getObject(targetMap, "column");
             typeMap.put("encoding", MapUtils.getString(targetMap, "encoding"));
-            typeMap.put("fileName", MapUtils.getString(targetMap, "fileName"));
+            typeMap.put("ftpFileName", MapUtils.getString(targetMap, "ftpFileName"));
             typeMap.put("path", MapUtils.getString(targetMap, "path"));
             typeMap.put("writeMode", MapUtils.getString(targetMap, "writeMode"));
             typeMap.put("fieldDelimiter", MapUtils.getString(targetMap, "fieldDelimiter"));
@@ -1763,8 +1763,6 @@ public class BatchDataSourceService {
         JSONObject json = JSON.parseObject(dataJson);
         //返回条数
         Integer limitNum = BooleanUtils.isNotTrue(isAll) ? environmentContext.getTableLimit() : null;
-        //是否查询视图
-        boolean isView = false;
         //查询的db
         String dataSource = schema;
 
@@ -1778,15 +1776,8 @@ public class BatchDataSourceService {
                     dataSource = projectDb.getEngineIdentity();
                 }
             }
-            // oracle、mysql、inceptor 判断是否要展示视图
-            if (DataSourceType.Oracle.getVal().equals(source.getType()) || DataSourceType.MySQL.getVal().equals(source.getType())
-                || DataSourceType.INCEPTOR.getVal().equals(source.getType())) {
-                // 限制表名返回条数
-                isView = DataSourceType.MySQL.getVal() == source.getType() ? BooleanUtils.isTrue(isRead) : false;
-            }
-
         }
-        sqlQueryDTO.setView(isView);
+        sqlQueryDTO.setView(true);
         sqlQueryDTO.setSchema(dataSource);
         //如果是hive类型的数据源  过滤脏数据表 和 临时表
         tables = client.getTableList(sourceDTO, sqlQueryDTO);
@@ -3395,15 +3386,31 @@ public class BatchDataSourceService {
      * @param userId
      */
     @Transactional
-    public void callbackPubDataSourceByProject(Long tenantId, Long projectId, Long userId){
+    public void callbackPubDataSourceByProject(Long tenantId, Long projectId, Long userId, Integer projectEngineType){
         try {
-            List<BatchDataSourceCenter> dataSourceCenterList = batchDataSourceCenterDao.getInfoIdsByProject(projectId);
-            if(CollectionUtils.isEmpty(dataSourceCenterList)){
+            Set<Long> infoIdSet = Sets.newHashSet();
+            //添加计算引擎失败时，回滚单个数据源
+            if(projectEngineType != null){
+                DataSourceType dataSourceType = getDataSourceTypeByEngineType(projectEngineType, projectId);
+                BatchDataSource dataSourceOrNull = getDefaultDataSourceOrNull(projectId, dataSourceType.getVal());
+                if(dataSourceOrNull == null){
+                    return;
+                }
+                Long infoIdByCenterId = batchDataSourceCenterDao.getInfoIdByCenterId(dataSourceOrNull.getId());
+                infoIdSet.add(infoIdByCenterId);
+
+                batchDataSourceCenterDao.deleteById(dataSourceOrNull.getId(), userId);
+            } else{
+                //创建项目失败时，回滚所有数据源
+                List<BatchDataSourceCenter> dataSourceCenterList = batchDataSourceCenterDao.getInfoIdsByProject(projectId);
+                infoIdSet = dataSourceCenterList.stream().map(BatchDataSourceCenter::getDtCenterSourceId).collect(Collectors.toSet());
+
+                batchDataSourceCenterDao.deleteByProjectId(projectId, userId);
+            }
+
+            if(CollectionUtils.isEmpty(infoIdSet)){
                 return;
             }
-            Set<Long> infoIdSet = dataSourceCenterList.stream().map(BatchDataSourceCenter::getDtCenterSourceId).collect(Collectors.toSet());
-
-            batchDataSourceCenterDao.deleteByProjectId(projectId, userId);
 
             Long dtuicTenantId = tenantService.getDtuicTenantId(tenantId);
             for(Long dataInfoId : infoIdSet){
@@ -3451,7 +3458,7 @@ public class BatchDataSourceService {
      * 创建meta数据源
      * @return
      */
-    public void createMateDataSource(Long dtuicTenantId, Long tenantId, Long projectId, Long userId, String dataJson, String dataName, Integer dataType){
+    public void createMateDataSource(Long dtuicTenantId, Long tenantId, Long projectId, Long userId, String dataJson, String dataName, Integer dataType, String dataDesc, String schemaName){
         CreateDsParam createDsParam = new CreateDsParam();
         createDsParam.setAppType(AppType.RDOS.getType());
         createDsParam.setCreateUserId(userId);
@@ -3462,6 +3469,8 @@ public class BatchDataSourceService {
         createDsParam.setType(dataType);
         createDsParam.setProjectId(projectId);
         createDsParam.setDsTenantId(tenantId);
+        createDsParam.setDataDesc(StringUtils.isNotEmpty(dataDesc) ? dataDesc : "");
+        createDsParam.setSchemaName(schemaName);
 
         DsShiftReturnVO data = apiServiceFacade.createMetaDs(createDsParam);
         if(data == null){

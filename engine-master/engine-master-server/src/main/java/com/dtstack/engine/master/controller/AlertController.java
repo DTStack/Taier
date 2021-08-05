@@ -21,7 +21,7 @@ import com.dtstack.engine.master.impl.AlertChannelService;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.utils.CheckUtils;
-import com.dtstack.lang.data.R;
+import dt.insight.plat.lang.web.R;
 import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
