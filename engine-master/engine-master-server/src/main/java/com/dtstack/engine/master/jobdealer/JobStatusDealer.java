@@ -205,7 +205,13 @@ public class JobStatusDealer implements Runnable {
         Predicate<ScheduleJob> isStreamUpdateConditions = job ->
                 ComputeType.STREAM.getType().equals(job.getComputeType()) && !job.getStatus().equals(status);
         if (ComputeType.BATCH.getType().equals(scheduleJob.getComputeType()) || isStreamUpdateConditions.test(scheduleJob)) {
-            scheduleJobDao.updateJobStatusAndExecTime(jobId, status);
+            if (RdosTaskStatus.getStoppedStatus().contains(status)) {
+                // 如果是停止状态 更新停止时间
+                scheduleJobDao.updateJobStatusAndExecTime(jobId, status);
+            } else {
+                scheduleJobDao.updateJobStatus(jobId, status);
+            }
+
         }
     }
 
