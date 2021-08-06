@@ -1,7 +1,9 @@
 import _ from 'lodash'
-import { TABS_TITLE_KEY, COMPONENT_TYPE_VALUE,
+import {
+    TABS_TITLE_KEY, COMPONENT_TYPE_VALUE,
     CONFIG_ITEM_TYPE, FILE_TYPE, DEFAULT_PARAMS,
-    COMPONENT_CONFIG_NAME } from './const'
+    COMPONENT_CONFIG_NAME
+} from './const'
 
 // 是否为yarn、hdfs、Kubernetes组件
 export function isNeedTemp (typeCode: number): boolean {
@@ -436,7 +438,7 @@ export function handleComponentConfigAndCustom (comp: any, typeCode: number): an
     return componentConfig
 }
 
-export function getSingleTestStatus (params: { typeCode: number; hadoopVersion?: string}, value: any, testStatus: any): any[] {
+export function getSingleTestStatus (params: { typeCode: number; hadoopVersion?: string }, value: any, testStatus: any): any[] {
     const typeCode = params.typeCode ?? ''
     const hadoopVersion = params.hadoopVersion ?? ''
     const currentStatus = testStatus[String(typeCode)] ?? {}
@@ -572,4 +574,14 @@ export function getModifyComp (comps: any, initialCompData: any[]): any {
         }
     }
     return modifyComps
+}
+
+/** 指定引擎的 jdbcUrl 项展示 hover 提示 */
+export function showHover (componentTypeValue: number, label: string) {
+    return [
+        COMPONENT_TYPE_VALUE.MYSQL,
+        COMPONENT_TYPE_VALUE.DB2,
+        COMPONENT_TYPE_VALUE.OCEANBASE,
+        COMPONENT_TYPE_VALUE.SQLSERVER
+    ].includes(componentTypeValue) && label === 'jdbcUrl'
 }

@@ -35,7 +35,11 @@ export const COMPONENT_TYPE_VALUE = {
     DTSCRIPT_AGENT: 18,
     INCEPTOR_SQL: 19,
     FLINK_ON_STANDALONE: 20,
-    ANALYTIC_DB: 21
+    ANALYTIC_DB: 21,
+    MYSQL: 22,
+    SQLSERVER: 23,
+    DB2: 24,
+    OCEANBASE: 25
 }
 
 export const COMPONENT_CONFIG_NAME = {
@@ -60,7 +64,11 @@ export const COMPONENT_CONFIG_NAME = {
     18: 'DtScript Agent',
     19: 'Inceptor SQL',
     20: 'Flink on Standalone',
-    21: 'AnalyticDB PostgreSQL'
+    21: 'AnalyticDB PostgreSQL',
+    22: 'MySQL',
+    23: 'SQLServer',
+    24: 'DB2',
+    25: 'OceanBase'
 }
 
 export const TABS_TITLE = {
@@ -97,7 +105,11 @@ export const CONFIG_BUTTON_TYPE = {
         { code: COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL, componentName: COMPONENT_CONFIG_NAME[COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL] },
         { code: COMPONENT_TYPE_VALUE.DTSCRIPT_AGENT, componentName: COMPONENT_CONFIG_NAME[COMPONENT_TYPE_VALUE.DTSCRIPT_AGENT] },
         { code: COMPONENT_TYPE_VALUE.INCEPTOR_SQL, componentName: COMPONENT_CONFIG_NAME[COMPONENT_TYPE_VALUE.INCEPTOR_SQL] },
-        { code: COMPONENT_TYPE_VALUE.ANALYTIC_DB, componentName: COMPONENT_CONFIG_NAME[COMPONENT_TYPE_VALUE.ANALYTIC_DB] }
+        { code: COMPONENT_TYPE_VALUE.ANALYTIC_DB, componentName: COMPONENT_CONFIG_NAME[COMPONENT_TYPE_VALUE.ANALYTIC_DB] },
+        { code: COMPONENT_TYPE_VALUE.MYSQL, componentName: COMPONENT_CONFIG_NAME[COMPONENT_TYPE_VALUE.MYSQL] },
+        { code: COMPONENT_TYPE_VALUE.SQLSERVER, componentName: COMPONENT_CONFIG_NAME[COMPONENT_TYPE_VALUE.SQLSERVER] },
+        { code: COMPONENT_TYPE_VALUE.DB2, componentName: COMPONENT_CONFIG_NAME[COMPONENT_TYPE_VALUE.DB2] },
+        { code: COMPONENT_TYPE_VALUE.OCEANBASE, componentName: COMPONENT_CONFIG_NAME[COMPONENT_TYPE_VALUE.OCEANBASE] }
     ]
 }
 
@@ -132,7 +144,8 @@ export const DEFAULT_COMP_VERSION = {
     [COMPONENT_TYPE_VALUE.SPARK]: '210',
     [COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER]: '2.x',
     [COMPONENT_TYPE_VALUE.HIVE_SERVER]: '2.x',
-    [COMPONENT_TYPE_VALUE.INCEPTOR_SQL]: '6.2.x'
+    [COMPONENT_TYPE_VALUE.INCEPTOR_SQL]: '6.2.x',
+    [COMPONENT_TYPE_VALUE.MYSQL]: '8.0'
 }
 
 export const CONFIG_FILE_DESC = {
@@ -171,4 +184,11 @@ export const FLINK_DEPLOY_NAME = {
 export const MAPPING_DEFAULT_VERSION = {
     '180': '110',
     '110': '180'
+}
+
+export const HOVER_TEXT = {
+    [COMPONENT_TYPE_VALUE.MYSQL]: '示例：jdbc:mysql://localhost:3306/def',
+    [COMPONENT_TYPE_VALUE.DB2]: '示例：jdbc:db2://localhost:60000/def',
+    [COMPONENT_TYPE_VALUE.OCEANBASE]: '示例：jdbc:oceanbase://localhost:2883/def（Mysql模式）jdbc:oceanbase:oracle://localhost:2883/def（Oralce模式）',
+    [COMPONENT_TYPE_VALUE.SQLSERVER]: '示例：jdbc:sqlserver://localhost:1433;databaseName=def'
 }

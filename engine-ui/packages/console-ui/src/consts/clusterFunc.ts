@@ -480,6 +480,14 @@ export function isKubernetesEngine (resourceType: string): boolean {
 }
 
 export function isBindAccount (engineType: number): boolean {
-    return [ENGINE_TYPE.TI_DB, ENGINE_TYPE.ORACLE, ENGINE_TYPE.GREEN_PLUM,
-        ENGINE_TYPE.ANALYTIC_DB].indexOf(engineType) > -1
+    return [
+        ENGINE_TYPE.TI_DB,
+        ENGINE_TYPE.ORACLE,
+        ENGINE_TYPE.GREEN_PLUM,
+        ENGINE_TYPE.ANALYTIC_DB,
+        ENGINE_TYPE.MYSQL,
+        ENGINE_TYPE.SQLSERVER,
+        ENGINE_TYPE.DB2,
+        ENGINE_TYPE.OCEANBASE
+    ].includes(engineType)
 }
