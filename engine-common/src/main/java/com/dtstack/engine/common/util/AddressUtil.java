@@ -1,5 +1,6 @@
 package com.dtstack.engine.common.util;
 
+import com.dtstack.engine.common.lang.base.Strings;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,8 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by sishu.yss on 2018/3/1.
@@ -20,6 +23,7 @@ public class AddressUtil {
     private static Logger LOGGER = LoggerFactory.getLogger(AddressUtil.class);
 
     private static List<String> localAddrList = Lists.newArrayList("0.0.0.0", "127.0.0.1", "localhost");
+    public static final String IP = "([1-9]|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3}";
 
 
     /**
@@ -123,6 +127,26 @@ public class AddressUtil {
                 LOGGER.error("",e);
             }
         }
+    }
+
+
+    public static final boolean ip(String ip) {
+        if (Strings.isBlank(ip)) {
+            return false;
+        } else {
+            return _regexMatch(ip, IP);
+        }
+    }
+
+    private static boolean _regexMatch(String plainText, String regex) {
+        try {
+            Pattern p = Pattern.compile(regex);
+            Matcher matcher = p.matcher(plainText);
+            return matcher.matches();
+        } catch (Exception e) {
+            LOGGER.error("regex Error.", e);
+        }
+        return false;
     }
 
     public static void main(String[] args){

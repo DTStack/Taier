@@ -46,7 +46,7 @@ public class RequestAspect extends AbstractAspect {
             String param = getRequestParam(joinPoint);
             String header = JSON.toJSONString(getHeaders(req));
             log.info("url:[{}] param:[{}] header:[{}] handleTime:[{}]", url, param, header, handleTime);
-            if (result != null){
+            if (result instanceof R){
                 R r = (R) result;
                 r.setSpace(startTime);
             }
