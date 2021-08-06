@@ -7,7 +7,7 @@ import { TaskInfo } from './taskInfo';
 import { LogInfo } from '../taskLog';
 import RestartModal from './restartModal';
 
-import Api from '../../../../api';
+import Api from '../../../../api/operation';
 import { TASK_STATUS, TASK_TYPE } from '../../../../consts/comm';
 import { APP_TYPE } from '../../../../consts';
 import { taskStatusText } from '../../../../components/display';
@@ -387,20 +387,6 @@ class TaskJobFlowView extends React.Component<any, any> {
                     });
                 }
             };
-        }
-    };
-
-    updateSelected = async (cellValue: any) => {
-        if (cellValue) {
-            const res = await Api.getOfflineTaskByID({
-                id: cellValue.taskId
-            });
-            if (res.code === 1) {
-                cellValue.batchTask = res.data;
-                this.setState({
-                    selectedJob: cellValue
-                });
-            }
         }
     };
 

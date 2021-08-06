@@ -1,4 +1,4 @@
-import api from '../api'
+import api from '../api/operation'
 import { hashHistory } from 'react-router'
 
 export const workbenchActions = (dispatch?: any) => {

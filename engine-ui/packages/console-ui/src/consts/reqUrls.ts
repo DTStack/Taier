@@ -103,5 +103,37 @@ export default {
     TEST_ALERT: `${CONSOLE_BASE_URL}/alert/testAlert`,
     GET_ALARM_CONFIG: `${CONSOLE_BASE_URL}/alert/sftp/get`,
     UPDATE_ALARM_CONFIG: `${CONSOLE_BASE_URL}/alert/sftp/update`,
-    TEST_ALARM_CONFIG: `${CONSOLE_BASE_URL}/alert/sftp/testConnect`
+    TEST_ALARM_CONFIG: `${CONSOLE_BASE_URL}/alert/sftp/testConnect`,
+
+    // 任务运维
+    QUERY_TASKS: `${CONSOLE_BASE_URL}/scheduleTaskShade/queryTasks`, // 任务管理 - 搜索-x
+    GET_TASK_CHILDREN: `${CONSOLE_BASE_URL}/scheduleTaskTaskShade/displayOffSpring`, // 获取任务自己节点-x
+    FIND_TASK_RULE_JOB: `${CONSOLE_BASE_URL}/scheduleJob/findTaskRuleJob`, // 获取补数据、周期 hover 信息-x
+    FIND_TASK_RULE_TASK: `${CONSOLE_BASE_URL}/scheduleTaskShade/findTaskRuleTask`, // 获取任务hover信息-x
+    GET_TASK_LOG: `${CONSOLE_BASE_URL}/action/log/unite`, // 获取任务告警日志-x
+    GET_TASK_TYPESX: `${CONSOLE_BASE_URL}/component/getSupportJobTypes`, // 获取任务类型-x新
+    FROZEN_TASK: `${CONSOLE_BASE_URL}/scheduleTaskShade/frozenTask`, // 冻结/解冻任务-x
+    QUERY_JOBS: `${CONSOLE_BASE_URL}/scheduleJob/queryJobs`, // 任务运维 - 补数据搜索
+    GET_JOB_GRAPH: `${CONSOLE_BASE_URL}/scheduleJob/getJobGraph`, // 今天、昨天、月平均折线图数据-x
+    GET_JOB_TOP_TIME: `${CONSOLE_BASE_URL}/scheduleJob/runTimeTopOrder`, // 离线任务运行时长top排序-x
+    GET_JOB_TOP_ERROR: `${CONSOLE_BASE_URL}/scheduleJob/errorTopOrder`, // 离线任务错误top排序-x
+    PATCH_TASK_DATA: `${CONSOLE_BASE_URL}/scheduleJob/fillTaskData`, // 补数据-x
+    STOP_JOB: `${CONSOLE_BASE_URL}/scheduleJob/stopJob`, // 停止任务-x
+    BATCH_STOP_JOBS: `${CONSOLE_BASE_URL}/scheduleJob/batchStopJobs`, // 停止任务-x
+    BATCH_STOP_JOBS_BY_DATE: `${CONSOLE_BASE_URL}/scheduleJob/stopJobByCondition`, // 按照业务日期杀任务-x
+    RESTART_AND_RESUME_JOB: `${CONSOLE_BASE_URL}/scheduleJob/syncRestartJob`, // 重启并恢复任务-x
+    BATCH_RESTART_AND_RESUME_JOB: `${CONSOLE_BASE_URL}/scheduleJob/restartJobAndResume`, // 批量重启-x
+    GET_FILL_DATA: `${CONSOLE_BASE_URL}/scheduleJob/getFillDataJobInfoPreview`, // 获取补数据-x
+    GET_FILL_DATA_DETAIL: `${CONSOLE_BASE_URL}/scheduleJob/getJobGetFillDataDetailInfo`, // 获取补数据详情-x
+    GET_JOB_CHILDREN: `${CONSOLE_BASE_URL}/scheduleJobJob/displayOffSpring`, // 获取子job-x
+    GET_TASK_PERIODS: `${CONSOLE_BASE_URL}/scheduleJob/displayPeriods`, // 转到前后周期实例-x
+    GET_JOB_PARENT: `${CONSOLE_BASE_URL}/scheduleJobJob/displayForefathers`, // 获取父节点-x
+    QUERY_JOB_STATISTICS: `${CONSOLE_BASE_URL}/scheduleJob/queryJobsStatusStatistics`, // 查询Job统计-x
+    STOP_FILL_DATA_JOBS: `${CONSOLE_BASE_URL}/scheduleJob/stopFillDataJobs`, // 停止补数据任务-x
+    GET_RESTART_JOBS: `${CONSOLE_BASE_URL}/scheduleJob/getRestartChildJob`, // 获取restart job列表-x
+    GET_APPTYPE: `${CONSOLE_BASE_URL}/action/appType`,
+    GET_WORKFLOW_RELATED_TASKS: `${CONSOLE_BASE_URL}/scheduleTaskShade/dealFlowWorkTask`, // 获取工作流的子任务-x
+    GET_WORKFLOW_RELATED_JOBS: `${CONSOLE_BASE_URL}/scheduleJob/getRelatedJobs`, // 获取工作流实例的子任务-x
+    GET_PROJECT_LIST: `${CONSOLE_BASE_URL}/project/findFuzzyProjectByProjectAlias`, // 根据别名模糊查询项目名称
+    USER_QUERYUSER: `${CONSOLE_BASE_URL}/user/queryUser` // 获取负责人
 }

@@ -6,7 +6,7 @@ import {
     Tooltip, Spin, Icon, Card
 } from 'antd'
 
-import Api from '../../../../api'
+import Api from '../../../../api/operation'
 
 import utils from 'dt-common/src/utils'
 import { removeToolTips } from 'dt-common/src/funcs';

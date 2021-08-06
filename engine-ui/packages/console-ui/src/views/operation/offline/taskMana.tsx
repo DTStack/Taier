@@ -10,7 +10,7 @@ import utils from 'dt-common/src/utils';
 import { replaceObjectArrayFiledName } from 'dt-common/src/funcs';
 import SlidePane from 'dt-common/src/widgets/slidePane';
 import MultiSearchInput from 'dt-common/src/widgets/multiSearchInput';
-import Api from '../../../api';
+import Api from '../../../api/operation';
 import { offlineTaskPeriodFilter, SCHEDULE_STATUS, PROJECT_TYPE, TASK_TYPE } from '../../../consts/comm';
 import { APPS_TYPE } from '../../../consts'
 

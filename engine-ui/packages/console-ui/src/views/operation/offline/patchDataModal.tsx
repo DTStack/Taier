@@ -8,7 +8,7 @@ import {
 } from 'antd'
 
 import { visitTree } from 'dt-common/src/funcs';
-import Api from '../../../api'
+import Api from '../../../api/operation'
 import { formItemLayout } from '../../../consts/comm'
 import { TaskType } from '../../../components/status'
 const confirm = Modal.confirm

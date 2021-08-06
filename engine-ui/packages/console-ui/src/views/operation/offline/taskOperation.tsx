@@ -22,7 +22,7 @@ import utils from 'dt-common/src/utils';
 import { replaceObjectArrayFiledName } from 'dt-common/src/funcs';
 import SlidePane from 'dt-common/src/widgets/slidePane';
 
-import Api from '../../../api';
+import Api from '../../../api/operation';
 import {
     offlineTaskStatusFilter,
     offlineTaskPeriodFilter,

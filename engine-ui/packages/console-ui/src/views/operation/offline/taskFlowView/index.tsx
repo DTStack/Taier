@@ -6,7 +6,7 @@ import {
     message, Modal
 } from 'antd'
 
-import Api from '../../../../api'
+import Api from '../../../../api/operation'
 import { TASK_TYPE } from '../../../../consts/comm'
 import { APP_TYPE } from '../../../../consts'
 

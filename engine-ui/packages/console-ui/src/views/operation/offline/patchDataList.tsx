@@ -7,7 +7,7 @@ import { Input, Select, message, Checkbox,
     Pagination, Col } from 'antd';
 
 import { APPS_TYPE } from '../../../consts'
-import Api from '../../../api';
+import Api from '../../../api/operation';
 
 const Search = Input.Search;
 const Option = Select.Option;
