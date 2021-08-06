@@ -55,8 +55,11 @@ public class ProjectController {
     }
 
     @RequestMapping(value = "/findFuzzyProjectByProjectAlias", method = {RequestMethod.POST})
-    public List<ScheduleEngineProjectVO> findFuzzyProjectByProjectAlias(@DtRequestParam("name") String name, @DtRequestParam("appType") Integer appType, @DtParamOrHeader(value = "uicTenantId", header = "cookie", cookie = "dt_tenant_id") Long uicTenantId) {
-        return projectService.findFuzzyProjectByProjectAlias(name, appType, uicTenantId);
+    public List<ScheduleEngineProjectVO> findFuzzyProjectByProjectAlias(@DtRequestParam("name") String name,
+                                                                        @DtRequestParam("appType") Integer appType,
+                                                                        @DtParamOrHeader(value = "uicTenantId", header = "cookie", cookie = "dt_tenant_id") Long uicTenantId,
+                                                                        @DtRequestParam("projectId") Long projectId ) {
+        return projectService.findFuzzyProjectByProjectAlias(name, appType, uicTenantId,projectId);
     }
 
 }

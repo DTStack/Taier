@@ -135,7 +135,7 @@ public class ProjectService {
         scheduleEngineProjectDao.deleteByProjectIdAppType(projectId, appType);
     }
 
-    public List<ScheduleEngineProjectVO> findFuzzyProjectByProjectAlias(String name, Integer appType, Long uicTenantId) {
+    public List<ScheduleEngineProjectVO> findFuzzyProjectByProjectAlias(String name, Integer appType, Long uicTenantId,Long projectId) {
         if (appType == null) {
             throw new RdosDefineException("appType must be passed");
         }
@@ -144,7 +144,7 @@ public class ProjectService {
             throw new RdosDefineException("uicTenantId must be passed");
         }
 
-        List<ScheduleEngineProject> deans = scheduleEngineProjectDao.selectFuzzyProjectByProjectAlias(name, appType, uicTenantId, environmentContext.getFuzzyProjectByProjectAliasLimit());
+        List<ScheduleEngineProject> deans = scheduleEngineProjectDao.selectFuzzyProjectByProjectAlias(name, appType, uicTenantId,projectId, environmentContext.getFuzzyProjectByProjectAliasLimit());
 
         return buildProjectList(deans);
     }
