@@ -26,6 +26,9 @@ const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin');
 const ForkTsCheckerWebpackPlugin = require('react-dev-utils/ForkTsCheckerWebpackPlugin');
 const typescriptFormatter = require('react-dev-utils/typescriptFormatter');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
+const ROOT_PATH = path.resolve(__dirname, '../')
+const APP_PATH = path.resolve(ROOT_PATH, 'src') // 应用根路径
+const WEB_PUBLIC = path.resolve(ROOT_PATH, 'public') // 公开资源  
 
 const postcssNormalize = require('postcss-normalize');
 
@@ -328,6 +331,8 @@ module.exports = function (webpackEnv) {
       alias: {
         // Support React Native Web
         // https://www.smashingmagazine.com/2016/08/a-glimpse-into-the-future-with-react-native-for-web/
+        '@': APP_PATH,
+        public: WEB_PUBLIC,
         'react-native': 'react-native-web',
         'react': path.resolve(paths.appNodeModules, 'react'),
         'react-dom': path.resolve(paths.appNodeModules, 'react-dom'),

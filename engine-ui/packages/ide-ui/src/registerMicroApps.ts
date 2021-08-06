@@ -26,7 +26,8 @@ registerMicroApps([
     entry: ENTRY_CONSOLE,
     container: container,
     activeRule: '#/console-ui',
-  },{
+  },
+  {
     name: 'Database',
     entry: ENTRY_DATABASE,
     container: container,
