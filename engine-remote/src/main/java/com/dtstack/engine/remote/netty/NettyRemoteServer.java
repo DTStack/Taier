@@ -129,7 +129,7 @@ public class NettyRemoteServer {
         pipeline.addLast("handler", serverHandler);
     }
 
-
-
-
+    public ExecutorService getDefaultExecutor() {
+        return defaultExecutor;
+    }
 }
