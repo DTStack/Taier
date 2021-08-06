@@ -1,8 +1,12 @@
 import * as React from 'react'
-import { Tabs, Icon, Menu, Dropdown, Button,
-    Radio, Row, Col } from 'antd'
-import { VERSION_TYPE, COMP_ACTION, COMPONENT_CONFIG_NAME,
-    FLINK_DEPLOY_TYPE, FLINK_DEPLOY_NAME } from '../../const'
+import { Tabs, Icon, Menu, Dropdown, Button, Radio, Row, Col } from 'antd'
+import {
+    VERSION_TYPE,
+    COMP_ACTION,
+    COMPONENT_CONFIG_NAME,
+    FLINK_DEPLOY_TYPE,
+    FLINK_DEPLOY_NAME
+} from '../../const'
 import { isFLink } from '../../help'
 
 import FileConfig from '../../fileConfig'
@@ -14,12 +18,15 @@ import './index.scss'
 const TabPane = Tabs.TabPane
 const MenuItem = Menu.Item
 
+/** getComponentVersion 接口获取 versionData 的数组类型 */
+interface VersionInfo { deployTypes: number[]; key: string; value: string }
+
 interface IProps {
     comp: any;
     form: any;
     view: boolean;
     saveCompsData: any[];
-    versionData: any;
+    versionData: { [key: string]: VersionInfo[] };
     clusterInfo: any;
     testStatus: any;
     saveComp: (params: any, type?: string) => void;
@@ -55,13 +62,13 @@ export default class MultiVersionComp extends React.Component<IProps, IState> {
         getLoadTemplate(typeCode, { compVersion: e.key, deployType })
     }
 
-    getMeunItem = () => {
-        const { versionData, comp } = this.props
+    getMeunItem = (displayVersion: VersionInfo[]) => {
+        const { comp } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
         const { deployType } = this.state
 
         return <Menu onClick={this.handleMenuClick}>
-            {versionData[VERSION_TYPE[typeCode]]?.map(({ key, value }) => {
+            {displayVersion?.map(({ value }) => {
                 const disabled = comp?.multiVersion?.findIndex(vcomp => vcomp.hadoopVersion == value)
                 return <MenuItem disabled={disabled > -1} key={value} >
                     {isFLink(typeCode) ? FLINK_DEPLOY_NAME[deployType] : COMPONENT_CONFIG_NAME[typeCode]} {this.getCompVersion(value)}
@@ -85,9 +92,8 @@ export default class MultiVersionComp extends React.Component<IProps, IState> {
     }
 
     getCompVersion = (value: string) => {
-        const flinkVersion = '110'
-        if (value !== flinkVersion) return (Number(value) / 100).toFixed(1)
-        return (Number(value) / 100).toFixed(2)
+        const keep2Decimal = ['110', '112']
+        return (Number(value) / 100).toFixed(keep2Decimal.includes(value) ? 2 : 1)
     }
 
     getComponentName = (typeCode: number, deployType: number = FLINK_DEPLOY_TYPE.YARN) => {
@@ -110,6 +116,12 @@ export default class MultiVersionComp extends React.Component<IProps, IState> {
         const className = 'c-multiVersionComp'
         const isDefault = this.getDefaultVerionCompStatus(comp)
 
+        // flink 由后端 deployTypes 字段控制展示版本
+        let displayVersion = versionData[VERSION_TYPE[typeCode]] || []
+        if (isFLink(typeCode)) {
+            displayVersion = displayVersion.filter(item => item.deployTypes.includes(deployType))
+        }
+
         if (!comp?.multiVersion[0]?.hadoopVersion) {
             return <div className={className}>
                 <div className={`${className}__intail`}>
@@ -129,14 +141,14 @@ export default class MultiVersionComp extends React.Component<IProps, IState> {
                     <Row className={`${className}__intail__row`}>
                         <Col span={10}>选择版本：</Col>
                         <Col style={{ display: 'flex' }}>
-                            {versionData[VERSION_TYPE[typeCode]]?.map(({ key, value }) => {
+                            {displayVersion?.map(({ key, value }) => {
                                 return <div
                                     key={key}
                                     className={`${className}__intail__container__desc`}
                                     onClick={() => this.addMultiVersionComp(value)}
                                 >
                                     <span className="comp-name">
-                                        <img src={`public/img/${VERSION_TYPE[typeCode]}.png`}/>
+                                        <img src={`public/img/${VERSION_TYPE[typeCode]}.png`} />
                                         <span>{!isFLink(typeCode) && (COMPONENT_CONFIG_NAME[typeCode] + ' ')}{this.getCompVersion(value)}</span>
                                     </span>
                                     <Icon type="right-circle" theme="filled" />
@@ -160,7 +172,7 @@ export default class MultiVersionComp extends React.Component<IProps, IState> {
             <Tabs
                 tabPosition="top"
                 className={`${className}__tabs`}
-                tabBarExtraContent={<Dropdown disabled={view} overlay={this.getMeunItem()} placement="bottomCenter">
+                tabBarExtraContent={<Dropdown disabled={view} overlay={this.getMeunItem(displayVersion)} placement="bottomCenter">
                     <Button type="primary" size="small" style={{ marginRight: 20 }}>
                         添加版本
                         <Icon type="down" />
@@ -174,7 +186,7 @@ export default class MultiVersionComp extends React.Component<IProps, IState> {
                             tab={
                                 <span>
                                     {this.getComponentName(componentTypeCode, deployType)} {this.getCompVersion(hadoopVersion)}
-                                    <TestRestIcon testStatus={testStatus.find(status => status?.componentVersion == hadoopVersion)}/>
+                                    <TestRestIcon testStatus={testStatus.find(status => status?.componentVersion == hadoopVersion)} />
                                 </span>
                             }
                             key={String(hadoopVersion)}
