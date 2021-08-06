@@ -2,12 +2,21 @@ package com.dtstack.engine.master.router.login;
 
 
 import com.dtstack.engine.api.dto.UserDTO;
+import com.dtstack.engine.common.constrant.Cookies;
+import com.dtstack.engine.master.router.login.domain.DTToken;
 import com.dtstack.engine.master.router.login.domain.DtUicUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -17,6 +26,13 @@ import java.util.function.Consumer;
 public class LoginService {
 
     private static Logger LOGGER = LoggerFactory.getLogger(LoginService.class);
+
+
+    @Autowired
+    private CookieService cookieService;
+
+    @Autowired
+    private TokenService tokenService;
 
 
     public void login(DtUicUser dtUicUser, String token, Consumer<UserDTO> resultHandler) {
@@ -36,6 +52,58 @@ public class LoginService {
         } catch (Throwable e) {
             LOGGER.error("login fail:", e);
             throw e;
+        }
+    }
+
+
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, DtUicUser dtUicUser) {
+        String dtToken = cookieService.token(request);
+
+        //若Token不存在,则生成Token
+        if (Objects.isNull(dtToken)
+        ) {
+            cookie(request, response, dtUicUser);
+        } else {
+            DTToken token = tokenService.decryption(dtToken);
+            boolean equalsUserId = dtUicUser.getUserId().equals(token.getUserId());
+            boolean nonNullTenantId = Objects.nonNull(dtUicUser.getTenantId());
+            if (nonNullTenantId && !dtUicUser.getTenantId().equals(token.getTenantId())) {
+                cookie(request, response, dtUicUser);
+            } else if (!equalsUserId) {
+                cookie(request, response, dtUicUser);
+            }
+        }
+    }
+
+    private void cookie(HttpServletRequest request, HttpServletResponse response, DtUicUser user) {
+        Objects.requireNonNull(request);
+        Objects.requireNonNull(response);
+        Objects.requireNonNull(user);
+        cookieService.addCookie(request, response, Cookies.USER_ID, user.getUserId());
+        cookieService.addCookie(request, response, Cookies.USER_NAME, user.getUserName());
+        cookieService.addCookie(request, response, Cookies.DT_TOKEN, tokenService.encryption(user.getUserId(), user.getUserName(), user.getTenantId()));
+
+        Set<String> clearCookies = new HashSet<>();
+        clearCookies.add(Cookies.TENANT_IS_CREATOR);
+        clearCookies.add(Cookies.TENANT_IS_ADMIN);
+
+        if (Objects.nonNull(user.getTenantId())) {
+            cookieService.addCookie(request, response, Cookies.TENANT_ID, user.getTenantId());
+            cookieService.addCookie(request, response, Cookies.TENANT_NAME, user.getTenantName());
+        } else {
+            clearCookies.add(Cookies.TENANT_ID);
+            clearCookies.add(Cookies.TENANT_NAME);
+        }
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null && cookies.length > 0) {
+            for (Cookie cookie : cookies) {
+                if (clearCookies.contains(cookie.getName())) {
+                    cookie.setMaxAge(0);
+                    cookie.setValue(null);
+                    cookie.setPath("/");
+                    response.addCookie(cookie);
+                }
+            }
         }
     }
 
