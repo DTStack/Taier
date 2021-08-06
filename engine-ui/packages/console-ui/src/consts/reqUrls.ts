@@ -135,5 +135,8 @@ export default {
     GET_WORKFLOW_RELATED_TASKS: `${CONSOLE_BASE_URL}/scheduleTaskShade/dealFlowWorkTask`, // 获取工作流的子任务-x
     GET_WORKFLOW_RELATED_JOBS: `${CONSOLE_BASE_URL}/scheduleJob/getRelatedJobs`, // 获取工作流实例的子任务-x
     GET_PROJECT_LIST: `${CONSOLE_BASE_URL}/project/findFuzzyProjectByProjectAlias`, // 根据别名模糊查询项目名称
-    USER_QUERYUSER: `${CONSOLE_BASE_URL}/user/queryUser` // 获取负责人
+    USER_QUERYUSER: `${CONSOLE_BASE_URL}/user/queryUser`, // 获取负责人
+    GET_TASK_JOB_WORKFLOW_NODES: `${CONSOLE_BASE_URL}/scheduleJobJob/displayOffSpringWorkFlow`, // 刷新任务实例获取工作流节点
+    GET_WORKFLOW_FILLDATA_RELATED_JOBS: `${CONSOLE_BASE_URL}/scheduleJob/getRelatedJobsForFillData`, // 补数据工作流子节点
+    GET_TASK_WORKFLOW_NODES: `${CONSOLE_BASE_URL}/scheduleTaskTaskShade/getAllFlowSubTasks` // 查看获取工作流节点
 }

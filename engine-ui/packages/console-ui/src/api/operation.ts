@@ -1,8 +1,6 @@
 import http from './http'
 import req from '../consts/reqUrls'
 
-import offlineReq from './reqOffline';
-
 export default {
     queryOfflineTasks (params: any) {
         return http.post(req.QUERY_TASKS, params)
@@ -95,21 +93,19 @@ export default {
     getPersonInCharge (params: any) {
         return http.post(req.USER_QUERYUSER, params)
     },
-
-    // 存在疑问的接口方法
     /**
      * 获取工作流任务节点实例的子节点
      */
     getTaskJobWorkflowNodes (params: any) {
-        return http.post(offlineReq.GET_TASK_JOB_WORKFLOW_NODES, params)
+        return http.post(req.GET_TASK_JOB_WORKFLOW_NODES, params)
     },
     /**
      * 获取工作流任务的子节点
      */
     getTaskWorkflowNodes (params: any) {
-        return http.post(offlineReq.GET_TASK_WORKFLOW_NODES, params)
+        return http.post(req.GET_TASK_WORKFLOW_NODES, params)
     },
     getFillDataRelatedJobs (params: any) {
-        return http.post(offlineReq.GET_WORKFLOW_FILLDATA_RELATED_JOBS, params)
+        return http.post(req.GET_WORKFLOW_FILLDATA_RELATED_JOBS, params)
     }
 }
