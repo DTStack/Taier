@@ -189,6 +189,6 @@ export const MAPPING_DEFAULT_VERSION = {
 export const HOVER_TEXT = {
     [COMPONENT_TYPE_VALUE.MYSQL]: '示例：jdbc:mysql://localhost:3306/def',
     [COMPONENT_TYPE_VALUE.DB2]: '示例：jdbc:db2://localhost:60000/def',
-    [COMPONENT_TYPE_VALUE.OCEANBASE]: '示例：jdbc:oceanbase://localhost:2883/def（Mysql模式）jdbc:oceanbase:oracle://localhost:2883/def（Oralce模式）',
-    [COMPONENT_TYPE_VALUE.SQLSERVER]: '示例：jdbc:sqlserver://localhost:1433;databaseName=def'
+    [COMPONENT_TYPE_VALUE.OCEANBASE]: '示例：jdbc:mysql://localhost:2881',
+    [COMPONENT_TYPE_VALUE.SQLSERVER]: '示例：jdbc:jtds:sqlserver://172.16.101.246:1433;databaseName=db_dev'
 }
