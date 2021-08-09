@@ -1164,3 +1164,8 @@ export enum APP_TYPE {
     '数据资产',
     '指标开发'=10
 }
+
+export const APPS_TYPE = {
+    BATCH: 1,
+    INDEX: 10
+}

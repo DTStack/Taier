@@ -6,8 +6,7 @@ import {
     message, Modal
 } from 'antd'
 
-import Api from '../../../../api'
-import OperaRecordModal from './operaRecordModal';
+import Api from '../../../../api/operation'
 import { TASK_TYPE } from '../../../../consts/comm'
 import { APP_TYPE } from '../../../../consts'
 
@@ -28,9 +27,7 @@ class TaskFlowView extends React.Component<any, any> {
         graphData: null, // 图表数据
         workflowData: null, // 选中的工作流节点
         selectedWorkflowNode: null, // 选中的工作流子节点
-        recordModalVisible: false,
         visibleWorkflowVisible: false, // 是否打开工作流
-        currentNodeData: {}, // 缓存节点数据,
         currentInfo: {}
     }
     _originData: any;
@@ -137,22 +134,6 @@ class TaskFlowView extends React.Component<any, any> {
             }
         })
     }
-    /**
-     * 操作记录
-     */
-    // clickOperaRecord = (currentNode: any) => {
-    //     this.setState({
-    //         recordModalVisible: true,
-    //         currentNodeData: currentNode
-    //     })
-    // }
-
-    closeOperaRecordModal = () => {
-        this.setState({
-            recordModalVisible: false,
-            currentNodeData: {}
-        })
-    }
 
     initContextMenu = (graph: any) => {
         const ctx = this
@@ -175,7 +156,7 @@ class TaskFlowView extends React.Component<any, any> {
             // 如果为工作流节点，且工作流处于冻结状态时，需要禁用子节点的解冻或者调用功能
             // const disableRunCtrl = isWorkflowNode && currentNode.workflow && currentNode.workflow.scheduleStatus === SCHEDULE_STATUS.STOPPED;
             const appType = cell?.value?.appType
-            if (APP_TYPE[appType] === APP_TYPE[10]) {
+            if (APP_TYPE[appType] === APP_TYPE[10] || APP_TYPE[appType] === APP_TYPE[1]) {
                 if (!isWorkflowNode) {
                     menu.addItem('展开上游（6层）', null, function () {
                         ctx.loadTaskParent({
@@ -318,10 +299,8 @@ class TaskFlowView extends React.Component<any, any> {
     render () {
         const { goToTaskDev } = this.props
         const {
-            selectedTask, loading,
-            recordModalVisible, currentNodeData,
-            workflowData, graphData, selectedWorkflowNode,
-            currentInfo
+            selectedTask, loading, workflowData,
+            graphData, selectedWorkflowNode, currentInfo
         } = this.state;
         const heightFix = {
             height: '600px'
@@ -372,11 +351,6 @@ class TaskFlowView extends React.Component<any, any> {
                         currentInfo={currentInfo}
                     />
                 </Modal>
-                <OperaRecordModal
-                    visible={recordModalVisible}
-                    onCancel={this.closeOperaRecordModal}
-                    currentNodeData={currentNodeData}
-                />
             </div>
         )
     }

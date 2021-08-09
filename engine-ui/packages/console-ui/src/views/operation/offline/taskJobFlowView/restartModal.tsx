@@ -7,7 +7,7 @@ import {
 
 import utils from 'dt-common/src/utils'
 
-import Api from '../../../../api'
+import Api from '../../../../api/operation'
 import { TaskType, TaskStatus } from '../../../../components/status'
 import { TASK_STATUS } from '../../../../consts/comm'
 

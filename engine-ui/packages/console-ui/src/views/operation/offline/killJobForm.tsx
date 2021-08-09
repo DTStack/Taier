@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Modal, Form, DatePicker, Checkbox, Row, Col, Alert, message, Select, Radio } from 'antd';
 import moment from 'moment';
-import Api from '../../../api'
+import Api from '../../../api/operation'
 const FormItem = Form.Item;
 const RangePicker = DatePicker.RangePicker
 const CheckboxGroup = Checkbox.Group;

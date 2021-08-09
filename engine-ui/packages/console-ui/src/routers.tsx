@@ -15,7 +15,6 @@ import RoleAdd from 'dt-common/src/views/admin/role/add'
 import RoleEdit from 'dt-common/src/views/admin/role/edit'
 import Audit from 'dt-common/src/views/admin/audit'
 
-// 数据API
 import Container from './views'
 import QueueManage from './views/queueManage'
 import ResourceManage from './views/resourceManage'
@@ -25,17 +24,17 @@ import QueueManageDetail from './views/queueManage/taskDetail'
 import AlarmChannel from './views/alarmChannel';
 import AlarmRule from './views/alarmChannel/alarmRule'
 import AlarmConfig from './views/alarmChannel/alarmConfig'
+
 // ======= 测试 =======
 // const Test = asyncComponent(() => import('./views/test')
 // .then((module: any) => module.default), { name: 'testPage' })
 
 // 运维中心
-import OpeOfflineList from './views/operation/offline/taskOperation'
+import { isSelectedProject } from './interceptor'
 import OpeOfflineTaskMana from './views/operation/offline/taskMana'
-import OpeOfflineTaskRunTime from './views/operation/offline/taskFlowView/taskRuntime'
+import OpeOfflineList from './views/operation/offline/taskOperation'
 import OperationPatchData from './views/operation/offline/patchDataList'
 import OperationPatchDataDetail from './views/operation/offline/patchDataDetail'
-import { isSelectedProject } from './interceptor'
 
 const Operation = asyncComponent(() => import('./views/operation/container')
     .then((module: any) => module.default), { name: 'operationPage' })
@@ -69,10 +68,8 @@ export default (
         </Route>
         <Route path="/operation" component={Operation} onEnter={isSelectedProject}>
             <IndexRoute component={OpeOfflineTaskMana} />
-            <Route path="offline-operation" component={OpeOfflineList} />
             <Route path="offline-management" component={OpeOfflineTaskMana} />
             <Route path="offline-operation" component={OpeOfflineList} />
-            <Route path="task-runtime/:jobId" component={OpeOfflineTaskRunTime} />
             <Route path="task-patch-data" component={OperationPatchData} />
             <Route path="task-patch-data/:fillJobName" component={OperationPatchDataDetail} />
         </Route>

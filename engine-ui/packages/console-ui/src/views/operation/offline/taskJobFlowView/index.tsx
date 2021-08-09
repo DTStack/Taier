@@ -7,7 +7,7 @@ import { TaskInfo } from './taskInfo';
 import { LogInfo } from '../taskLog';
 import RestartModal from './restartModal';
 
-import Api from '../../../../api';
+import Api from '../../../../api/operation';
 import { TASK_STATUS, TASK_TYPE } from '../../../../consts/comm';
 import { APP_TYPE } from '../../../../consts';
 import { taskStatusText } from '../../../../components/display';
@@ -248,7 +248,7 @@ class TaskJobFlowView extends React.Component<any, any> {
                     currentNode.batchTask && currentNode.batchTask.isDeleted === 1; // 已删除
                 if (isDelete) return;
                 const appType = cell?.value?.appType;
-                if (APP_TYPE[appType] === APP_TYPE[10]) {
+                if (APP_TYPE[appType] === APP_TYPE[10] || APP_TYPE[appType] === APP_TYPE[1]) {
                     menu.addItem('展开上游（6层）', null, function () {
                         ctx.loadTaskParent({
                             jobId: currentNode.id,
@@ -387,20 +387,6 @@ class TaskJobFlowView extends React.Component<any, any> {
                     });
                 }
             };
-        }
-    };
-
-    updateSelected = async (cellValue: any) => {
-        if (cellValue) {
-            const res = await Api.getOfflineTaskByID({
-                id: cellValue.taskId
-            });
-            if (res.code === 1) {
-                cellValue.batchTask = res.data;
-                this.setState({
-                    selectedJob: cellValue
-                });
-            }
         }
     };
 

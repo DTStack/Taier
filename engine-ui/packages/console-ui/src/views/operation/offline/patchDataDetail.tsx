@@ -12,7 +12,7 @@ import {
 import { SlidePane, MultiSearchInput } from 'dt-react-component'
 import { replaceObjectArrayFiledName } from 'dt-common/src/funcs';
 
-import Api from '../../../api'
+import Api from '../../../api/operation'
 import {
     offlineTaskStatusFilter,
     TASK_STATUS, TASK_TYPE
@@ -622,8 +622,6 @@ class PatchDataDetail extends React.Component<any, any> {
                     })
                 }
             })
-        } else {
-            console.log('record')
         }
     }
     renderStatus = (list: any) => {

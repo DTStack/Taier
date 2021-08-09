@@ -10,7 +10,7 @@ import {
 import utils from 'dt-common/src/utils'
 import { removeToolTips } from 'dt-common/src/funcs'
 
-import Api from '../../../../api'
+import Api from '../../../../api/operation'
 import MyIcon from '../../../../components/icon'
 import StatusColumn from '../../../../components/statusColumn'
 import { APP_TYPE } from '../../../../consts'

@@ -14,7 +14,6 @@ import {
     Form,
     Dropdown,
     Menu,
-    Row,
     Col,
     Pagination
 } from 'antd';
@@ -23,13 +22,14 @@ import utils from 'dt-common/src/utils';
 import { replaceObjectArrayFiledName } from 'dt-common/src/funcs';
 import { SlidePane, MultiSearchInput } from 'dt-react-component';
 
-import Api from '../../../api';
+import Api from '../../../api/operation';
 import {
     offlineTaskStatusFilter,
     offlineTaskPeriodFilter,
     TASK_STATUS,
     TASK_TYPE
 } from '../../../consts/comm';
+import { APPS_TYPE } from '../../../consts'
 import { TaskStatus, TaskTimeType, TaskType } from '../../../components/status';
 
 import { workbenchActions } from '../../../actions/operation';
@@ -82,30 +82,22 @@ class OfflineTaskList extends React.Component<any, any> {
         killJobVisible: false,
         searchType: 'fuzzy',
         projectUsers: [],
-        appType: '',
-        projectId: ''
+        appType: APPS_TYPE.INDEX,
+        projectId: '',
+        projectList: []
     };
 
     componentDidMount () {
-        this.setState({
-            appType: sessionStorage.getItem('ywappType'),
-            projectId: sessionStorage.getItem('ywprojectId')
-        }, () => {
-            this.search();
-            this.getPersonApi(1);
+        const { appType, pid } = this.props.router.location?.query ?? {}
+        const params = { appType: appType ?? APPS_TYPE.INDEX, projectId: pid ?? '' }
+        this.setState({ ...params }, () => {
+            this.search()
+            this.getPersonApi(1)
             this.getTaskTypesX()
-        });
+            this.getProjectList()
+        })
     }
-    /* eslint-disable-next-line */
-    componentWillReceiveProps (nextProps: any) {
-        const project = nextProps.project;
-        const oldProj = this.props.project;
-        if (oldProj && project && oldProj.id !== project.id) {
-            this.setState({ current: 1, visibleSlidePane: false }, () => {
-                this.search();
-            });
-        }
-    }
+
     getTaskTypesX = () => {
         const ctx = this;
         let parmms = {
@@ -136,6 +128,16 @@ class OfflineTaskList extends React.Component<any, any> {
             this.setState({ loading: false });
         });
     }
+
+    getProjectList = (value?: string) => {
+        const { appType } = this.state
+        Api.getProjectList({ name: value ?? '', appType }).then((res: any) => {
+            if (res.code === 1) {
+                this.setState({ projectList: res.data })
+            }
+        });
+    }
+
     getReqParams = () => {
         const {
             jobName,
@@ -566,6 +568,10 @@ class OfflineTaskList extends React.Component<any, any> {
         });
     };
 
+    changeProject = (value: string | number) => {
+        this.setState({ projectId: value }, this.search)
+    }
+
     initTaskColumns = () => {
         const { taskStatus, taskTypeFilter } = this.state;
         // const { taskTypeFilter } = this.props;
@@ -790,19 +796,9 @@ class OfflineTaskList extends React.Component<any, any> {
     };
     render () {
         const {
-            tasks,
-            selectedRowKeys,
-            jobName,
-            bussinessDate,
-            current,
-            statistics,
-            selectedTask,
-            visibleSlidePane,
-            cycDate,
-            killJobVisible,
-            searchType,
-            pageSize,
-            projectUsers
+            tasks, selectedRowKeys, jobName, bussinessDate, current, statistics, selectedTask,
+            visibleSlidePane, cycDate, killJobVisible, searchType, pageSize, projectUsers,
+            appType, projectList, projectId
         } = this.state;
 
         const { project } = this.props;
@@ -817,8 +813,6 @@ class OfflineTaskList extends React.Component<any, any> {
                     );
                 })
                 : [];
-        // const isPro = project?.projectType == PROJECT_TYPE.PRO;
-        const isPro = false
         const pagination: any = {
             total: tasks.totalCount,
             showTotal: () => (
@@ -870,7 +864,7 @@ class OfflineTaskList extends React.Component<any, any> {
                             重跑当前任务
                         </Dropdown.Button>
                     </div>
-                    <Pagination {...pagination} style={{ top: 20 }} />
+                    <Pagination {...pagination } style={{ top: 12 }} />
                 </div>
             );
         };
@@ -936,144 +930,166 @@ class OfflineTaskList extends React.Component<any, any> {
             }
         ];
 
-        let clientHeight = document.documentElement.clientHeight - 330;
+        const getTitle = (label: string) => {
+            return <span className="form-label">{label}</span>
+        }
+
+        const clientHeight = document.documentElement.clientHeight - 330;
 
         return (
-            <div style={{ minWidth: 1240 }}>
-                <h1 className="box-title" style={{ lineHeight: 2.5, height: 'auto', padding: '7px 20px' }}>
-                    <div>
-                        <Row style={{ marginTop: '5px' }}>
-                            <Col span={23}>
-                                <Form layout="inline" className="m-form-inline">
-                                    <FormItem label="" className="batch-operation_offlineImg dt-form-shadow-bg">
-                                        <MultiSearchInput
-                                            placeholder="按任务名称搜索"
-                                            style={{ width: 250 }}
-                                            value={jobName}
-                                            searchType={searchType}
-                                            onChange={this.changeTaskName}
-                                            onTypeChange={this.changeSearchType}
-                                            onSearch={this.onSearchByTaskName}
-                                        />
-                                    </FormItem>
-                                    <FormItem label="责任人">
-                                        <Select
-                                            allowClear
-                                            showSearch
-                                            size="default"
-                                            style={{ width: 220 }}
-                                            placeholder="请选择责任人"
-                                            optionFilterProp="name"
-                                            className="dt-form-shadow-bg"
-                                            onChange={this.changePerson}
-                                        >
-                                            {userItems}
-                                        </Select>
-                                    </FormItem>
-                                    <FormItem label="业务日期">
-                                        <div className="m-date-margin">
-                                            <RangePicker
-                                                size="default"
-                                                style={{ width: 220 }}
-                                                className="dt-form-shadow-bg"
-                                                format="YYYY-MM-DD"
-                                                disabledDate={this.disabledDate}
-                                                ranges={{
-                                                    昨天: [(moment() as any).subtract(2, 'days'), yesterDay],
-                                                    最近7天: [(moment() as any).subtract(8, 'days'), yesterDay],
-                                                    最近30天: [(moment() as any).subtract(31, 'days'), yesterDay]
-                                                }}
-                                                value={bussinessDate || null}
-                                                onChange={this.changeBussinessDate}
-                                            />
-                                        </div>
-                                    </FormItem>
-                                    <FormItem label="计划时间">
-                                        <div className="m-date-margin">
-                                            <RangePicker
-                                                size="default"
-                                                style={{ width: 260 }}
-                                                className="dt-form-shadow-bg"
-                                                showTime
-                                                format="YYYY/MM/DD HH:mm:ss"
-                                                ranges={{
-                                                    今天: [moment() as any, moment() as any],
-                                                    最近7天: [(moment() as any).subtract(7, 'days'), moment() as any],
-                                                    最近30天: [(moment() as any).subtract(30, 'days'), moment() as any]
-                                                }}
-                                                value={cycDate || null}
-                                                onChange={this.changeCycDate}
-                                                onOk={this.search}
-                                            />
-                                        </div>
-                                    </FormItem>
-                                </Form>
-                            </Col>
-                            <Col span={1}>
-                                <div className="office__refresh_normal">
-                                    <Tooltip title="刷新数据">
-                                        <Icon
-                                            type="sync"
-                                            onClick={this.search}
-                                            className="refresh__icon_normal"
-                                        />
-                                    </Tooltip>
-                                </div>
-                            </Col>
-                        </Row>
-                    </div>
-                </h1>
-                <div className="box-2 m-card task-manage page-change-antd office__table_normal offline__search-normal_left">
-                    <div>
-                        <div className="ope-statistics" style={{ padding: '16px 10px' }}>
-                            {this.renderStatus(statusList)}
-                        </div>
-                        <Table
-                            rowKey="uid"
-                            rowClassName={(record: any, index: any) => {
-                                if (this.state.selectedTask && this.state.selectedTask.id == record.id) {
-                                    return 'row-select';
-                                } else {
-                                    return '';
-                                }
-                            }}
-                            style={{ marginTop: '1px', height: 'calc(100vh - 220px)' }}
-                            className="dt-table-fixed-base dt-table-fixed-contain-footer"
-                            expandedRowKeys={this.state.expandedRowKeys}
-                            rowSelection={rowSelection}
-                            pagination={false}
-                            loading={this.state.loading}
-                            columns={columns}
-                            dataSource={tasks.data || []}
-                            onChange={this.handleTableChange}
-                            footer={tableFooter}
-                            onExpand={this.onExpand}
-                            onExpandedRowsChange={this.onExpandRows}
-                            scroll={{ x: 1709.6, y: clientHeight }}
-                        />
-                        <SlidePane
-                            className="m-tabs bd-top bd-right m-slide-pane"
-                            onClose={this.closeSlidePane}
-                            visible={visibleSlidePane}
-                            style={{
-                                right: '0px',
-                                width: '60%',
-                                height: '100%',
-                                minHeight: '600px',
-                                position: 'fixed',
-                                paddingTop: '64px'
-                            }}
-                        >
-                            <TaskJobFlowView
-                                isPro={isPro}
-                                visibleSlidePane={visibleSlidePane}
-                                goToTaskDev={this.props.goToTaskDev}
-                                reload={this.search}
-                                taskJob={selectedTask}
-                                project={project}
+            <div className="c-taskOperation__wrap">
+                <Form layout="inline" style={{ marginBottom: 8 }}>
+                    <Col>
+                        <FormItem label={getTitle('产品')}>
+                            <Select
+                                allowClear
+                                className="dt-form-shadow-bg"
+                                style={{ width: 220 }}
+                                placeholder="请选择产品"
+                                value={appType}
+                            >
+                                <Option value={APPS_TYPE.INDEX}>指标管理</Option>
+                            </Select>
+                        </FormItem>
+                        <FormItem label={getTitle('项目')}>
+                            <Select
+                                allowClear
+                                showSearch
+                                className="dt-form-shadow-bg"
+                                style={{ width: 220 }}
+                                placeholder="请选择项目"
+                                value={projectId}
+                                optionFilterProp="children"
+                                onSearch={this.getProjectList}
+                                onChange={this.changeProject}
+                            >
+                                {projectList.map(item => <Option key={item.projectId} value={`${item.projectId}`}>{item.projectName}</Option>)}
+                            </Select>
+                        </FormItem>
+                        <FormItem label="" className="batch-operation_offlineImg dt-form-shadow-bg">
+                            <MultiSearchInput
+                                placeholder="按任务名称搜索"
+                                style={{ width: 220 }}
+                                value={jobName}
+                                searchType={searchType}
+                                onChange={this.changeTaskName}
+                                onTypeChange={this.changeSearchType}
+                                onSearch={this.onSearchByTaskName}
                             />
-                        </SlidePane>
+                        </FormItem>
+                        <FormItem label={getTitle('责任人')}>
+                            <Select
+                                allowClear
+                                showSearch
+                                size="default"
+                                style={{ width: 220 }}
+                                placeholder="请选择责任人"
+                                optionFilterProp="name"
+                                className="dt-form-shadow-bg"
+                                onChange={this.changePerson}
+                            >
+                                {userItems}
+                            </Select>
+                        </FormItem>
+                        <div className="office__refresh_normal">
+                            <Tooltip title="刷新数据">
+                                <Icon
+                                    type="sync"
+                                    onClick={this.search}
+                                    className="refresh__icon_normal"
+                                />
+                            </Tooltip>
+                        </div>
+                    </Col>
+                    <Col style={{ marginTop: 6 }}>
+                        <FormItem label={getTitle('业务日期')}>
+                            <div className="m-date-margin">
+                                <RangePicker
+                                    size="default"
+                                    style={{ width: 220 }}
+                                    className="dt-form-shadow-bg"
+                                    format="YYYY-MM-DD"
+                                    disabledDate={this.disabledDate}
+                                    ranges={{
+                                        昨天: [(moment() as any).subtract(2, 'days'), yesterDay],
+                                        最近7天: [(moment() as any).subtract(8, 'days'), yesterDay],
+                                        最近30天: [(moment() as any).subtract(31, 'days'), yesterDay]
+                                    }}
+                                    value={bussinessDate || null}
+                                    onChange={this.changeBussinessDate}
+                                />
+                            </div>
+                        </FormItem>
+                        <FormItem label={getTitle('计划时间')}>
+                            <div className="m-date-margin">
+                                <RangePicker
+                                    size="default"
+                                    style={{ width: 220 }}
+                                    className="dt-form-shadow-bg"
+                                    showTime
+                                    format="YYYY/MM/DD HH:mm:ss"
+                                    ranges={{
+                                        今天: [moment() as any, moment() as any],
+                                        最近7天: [(moment() as any).subtract(7, 'days'), moment() as any],
+                                        最近30天: [(moment() as any).subtract(30, 'days'), moment() as any]
+                                    }}
+                                    value={cycDate || null}
+                                    onChange={this.changeCycDate}
+                                    onOk={this.search}
+                                />
+                            </div>
+                        </FormItem>
+                    </Col>
+                </Form>
+                <div className="c-taskOperation__wrap__tab">
+                    <div className="ope-statistics" style={{ padding: '16px 10px' }}>
+                        {this.renderStatus(statusList)}
                     </div>
+                    <Table
+                        rowKey="uid"
+                        rowClassName={(record: any, index: any) => {
+                            if (this.state.selectedTask && this.state.selectedTask.id == record.id) {
+                                return 'row-select';
+                            } else {
+                                return '';
+                            }
+                        }}
+                        style={{ height: 'calc(100vh - 254px)' }}
+                        className="dt-table-fixed-contain-footer"
+                        expandedRowKeys={this.state.expandedRowKeys}
+                        rowSelection={rowSelection}
+                        pagination={false}
+                        loading={this.state.loading}
+                        columns={columns}
+                        dataSource={tasks.data || []}
+                        onChange={this.handleTableChange}
+                        footer={tableFooter}
+                        onExpand={this.onExpand}
+                        onExpandedRowsChange={this.onExpandRows}
+                        scroll={{ x: 1709.6, y: clientHeight }}
+                    />
+                    <SlidePane
+                        className="m-tabs bd-top bd-right m-slide-pane"
+                        onClose={this.closeSlidePane}
+                        visible={visibleSlidePane}
+                        style={{
+                            right: '0px',
+                            width: '60%',
+                            height: '100%',
+                            minHeight: '600px',
+                            position: 'fixed',
+                            paddingTop: '64px'
+                        }}
+                    >
+                        <TaskJobFlowView
+                            isPro={false}
+                            visibleSlidePane={visibleSlidePane}
+                            goToTaskDev={this.props.goToTaskDev}
+                            reload={this.search}
+                            taskJob={selectedTask}
+                            project={project}
+                        />
+                    </SlidePane>
 
                     <KillJobForm
                         visible={killJobVisible}
