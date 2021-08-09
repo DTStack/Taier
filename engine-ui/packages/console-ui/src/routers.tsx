@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Route, IndexRoute, IndexRedirect } from 'react-router'
-import NotFund from 'dt-common/src/widgets/notFund'
+import { NotFound } from 'dt-react-component'
 import asyncComponent from 'dt-common/src/utils/asyncLoad'
 
 // 继承主应用的的公共View组件
@@ -40,28 +40,28 @@ const Operation = asyncComponent(() => import('./views/operation/container')
     .then((module: any) => module.default), { name: 'operationPage' })
 
 export default (
-    <Route path="/" component={ Main }>
+    <Route path="/" component={Main}>
         <IndexRedirect to="/console" />
-        <Route path="/message" component={ MsgCenter }>
-            <IndexRoute component={ MsgList } />
-            <Route path="list" component={ MsgList } />
-            <Route path="detail/:msgId" component={ MsgDetail } />
+        <Route path="/message" component={MsgCenter}>
+            <IndexRoute component={MsgList} />
+            <Route path="list" component={MsgList} />
+            <Route path="detail/:msgId" component={MsgDetail} />
         </Route>
-        <Route path="/admin" component={ SysAdmin }>
-            <IndexRoute component={ AdminUser } />
-            <Route path="user" component={ AdminUser } />
-            <Route path="role" component={ AdminRole } />
-            <Route path="role/add" component={ RoleAdd } />
-            <Route path="role/edit/:roleId" component={ RoleEdit } />
-            <Route path="audit" component={ Audit } />
+        <Route path="/admin" component={SysAdmin}>
+            <IndexRoute component={AdminUser} />
+            <Route path="user" component={AdminUser} />
+            <Route path="role" component={AdminRole} />
+            <Route path="role/add" component={RoleAdd} />
+            <Route path="role/edit/:roleId" component={RoleEdit} />
+            <Route path="audit" component={Audit} />
         </Route>
-        <Route path="/console" component={ Container }>
-            <IndexRoute component={ QueueManage } />
+        <Route path="/console" component={Container}>
+            <IndexRoute component={QueueManage} />
             <Route path="queueManage" component={QueueManage} />
             <Route path="queueManage/detail" component={QueueManageDetail} />
-            <Route path="resourceManage" component={ ResourceManage } />
+            <Route path="resourceManage" component={ResourceManage} />
             <Route path="clusterManage" component={ClusterManage} />
-            <Route path="clusterManage/editCluster" component={ EditCluster } />
+            <Route path="clusterManage/editCluster" component={EditCluster} />
             <Route path='alarmChannel' component={AlarmChannel} />
             <Route path='alarmChannel/alarmRule' component={AlarmRule} />
             <Route path='alarmChannel/AlarmConfig' component={AlarmConfig} />
@@ -73,6 +73,6 @@ export default (
             <Route path="task-patch-data" component={OperationPatchData} />
             <Route path="task-patch-data/:fillJobName" component={OperationPatchDataDetail} />
         </Route>
-        <Route path="/*" component={NotFund} />
+        <Route path="/*" component={NotFound} />
     </Route>
 )

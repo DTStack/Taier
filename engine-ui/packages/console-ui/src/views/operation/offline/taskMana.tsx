@@ -7,8 +7,8 @@ import { Table, message, Select, Form, Checkbox, Tabs,
 
 import utils from 'dt-common/src/utils';
 import { replaceObjectArrayFiledName } from 'dt-common/src/funcs';
-import SlidePane from 'dt-common/src/widgets/slidePane';
-import MultiSearchInput from 'dt-common/src/widgets/multiSearchInput';
+import { SlidePane, MultiSearchInput } from 'dt-react-component';
+
 
 import PatchDataModal from './patchDataModal';
 import TaskFlowView from './taskFlowView';
@@ -269,9 +269,7 @@ class OfflineTaskMana extends React.Component<any, any> {
 
     onSearchByTaskName = () => {
         this.setState(
-            {
-                current: 1
-            },
+            { current: 1 },
             this.search
         );
     };

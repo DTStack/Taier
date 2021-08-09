@@ -9,9 +9,8 @@ import {
     Icon, DatePicker, Tooltip, Form, Breadcrumb, Pagination
 } from 'antd'
 
-import SlidePane from 'dt-common/src/widgets/slidePane'
-import { replaceObjectArrayFiledName } from 'dt-common/src/funcs';
-import MultiSearchInput from 'dt-common/src/widgets/multiSearchInput';
+import { SlidePane, MultiSearchInput } from 'dt-react-component'
+import { replaceObjectArrayFiledName } from 'dt-common/src/funcs'
 
 import TaskJobFlowView from './taskJobFlowView';
 

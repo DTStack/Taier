@@ -11,8 +11,7 @@ import {
 
 import utils from 'dt-common/src/utils';
 import { replaceObjectArrayFiledName } from 'dt-common/src/funcs';
-import SlidePane from 'dt-common/src/widgets/slidePane';
-import MultiSearchInput from 'dt-common/src/widgets/multiSearchInput';
+import { SlidePane, MultiSearchInput } from 'dt-react-component';
 
 import TaskJobFlowView from './taskJobFlowView';
 import KillJobForm from './killJobForm';
@@ -759,7 +758,7 @@ class OfflineTaskList extends React.Component<any, any> {
                         : children.map((childItem: any) => {
                             return (
                                 <span key={childItem.title}>
-                                    {childItem.title}: {childItem.dataSource || 0 }
+                                    {childItem.title}: {childItem.dataSource || 0}
                                 </span>
                             );
                         })}
