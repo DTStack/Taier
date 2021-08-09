@@ -21,8 +21,8 @@ public class RemoteConditional implements Condition {
     @Override
     public boolean matches(ConditionContext conditionContext, AnnotatedTypeMetadata annotatedTypeMetadata) {
         // 加载一下配置文件防止配置文件没有被加载
-        conditionContext.getBeanFactory().getBean(AkkaServerConfig.class);
-        Set<String> localRoles = AkkaConfig.getLocalRoles();
+        conditionContext.getBeanFactory().getBean("serverConfig");
+        Set<String> localRoles = RemoteConfig.getLocalRoles();
 
         AnnotationAttributes annotationAttributes = AnnotationAttributes.fromMap(annotatedTypeMetadata.getAnnotationAttributes(RemoteClient.class.getName(), false));
         if (annotationAttributes != null) {

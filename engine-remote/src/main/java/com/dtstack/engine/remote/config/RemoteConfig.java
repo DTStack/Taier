@@ -2,6 +2,7 @@ package com.dtstack.engine.remote.config;
 
 import com.dtstack.engine.remote.akka.constant.AkkaConfigConstant;
 import com.dtstack.engine.remote.constant.GlobalConstant;
+import com.dtstack.engine.remote.exception.RemoteException;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +11,10 @@ import org.springframework.core.env.Environment;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -86,4 +90,14 @@ public class RemoteConfig {
     public static boolean hasLoad() {
         return load.get();
     }
+
+
+    public static Set<String> getLocalRoles() {
+        String value = getValueByKey("remote.local.identifier");
+        if (StringUtils.isBlank(value)) {
+            throw new RemoteException("config : remote.local.identifier is not null");
+        }
+        return new HashSet<>(Arrays.asList(value.split(",")));
+    }
+
 }

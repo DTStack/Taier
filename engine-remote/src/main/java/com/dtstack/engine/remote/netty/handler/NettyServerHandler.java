@@ -68,35 +68,35 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
         Message message = deserialization(msg.getBody());
         TargetInfo targetInfo = message.getTargetInfo();
         ExecutorService defaultExecutor = nettyRemoteServer.getDefaultExecutor();
-        defaultExecutor.submit(()->{
-                try {
-                    if (targetInfo == null || targetInfo.getClazz() == null || targetInfo.getMethod() == null) {
-                        channel.writeAndFlush(message.ask(new RemoteException("无目标信息，无法调用"),Message.MessageStatue.ERROR));
-                    }
-                    Object transport = message.getTransport();
-
-                    String methodName = targetInfo.getMethod();
-                    Object bean = NettyConfig.getApplicationContext().getBean(Class.forName(targetInfo.getClazz()));
-
-                    Method targetMethod;
-                    if (transport.getClass().isArray()) {
-                        Object[] objects = (Object[]) transport;
-                        Class<?>[] clazzs = new Class<?>[objects.length];
-
-                        for (int i = 0; i < objects.length; i++) {
-                            clazzs[i] = objects[i].getClass();
-                        }
-                        targetMethod = bean.getClass().getMethod(methodName, clazzs);
-
-                        return channel.writeAndFlush(message.ask(targetMethod.invoke(bean, objects), Message.MessageStatue.RESULT));
-                    } else {
-                        channel.writeAndFlush(message.ask(new RemoteException("Parameter error :"+transport),Message.MessageStatue.ERROR));
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    channel.writeAndFlush(message.ask(new RemoteException(e),Message.MessageStatue.ERROR));
+        defaultExecutor.submit(() -> {
+            try {
+                if (targetInfo == null || targetInfo.getClazz() == null || targetInfo.getMethod() == null) {
+                    channel.writeAndFlush(message.ask(new RemoteException("无目标信息，无法调用"), Message.MessageStatue.ERROR));
+                    return;
                 }
-            });
+                Object transport = message.getTransport();
+
+                String methodName = targetInfo.getMethod();
+                Object bean = NettyConfig.getApplicationContext().getBean(Class.forName(targetInfo.getClazz()));
+
+                Method targetMethod;
+                if (transport.getClass().isArray()) {
+                    Object[] objects = (Object[]) transport;
+                    Class<?>[] clazzs = new Class<?>[objects.length];
+
+                    for (int i = 0; i < objects.length; i++) {
+                        clazzs[i] = objects[i].getClass();
+                    }
+                    targetMethod = bean.getClass().getMethod(methodName, clazzs);
+                    channel.writeAndFlush(message.ask(targetMethod.invoke(bean, objects), Message.MessageStatue.RESULT));
+                } else {
+                    channel.writeAndFlush(message.ask(new RemoteException("Parameter error :"+transport),Message.MessageStatue.ERROR));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                channel.writeAndFlush(message.ask(new RemoteException(e),Message.MessageStatue.ERROR));
+            }
+        });
     }
 
     private Message deserialization(byte[] body) {
