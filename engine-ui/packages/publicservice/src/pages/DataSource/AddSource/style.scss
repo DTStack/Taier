@@ -1,7 +1,7 @@
 .source {
   padding: 20px;
   background: #f2f7fa;
-  height: 100%;
+  height: calc(100vh - 64px);
   .content {
     margin-top: 12px;
     width: 100%;

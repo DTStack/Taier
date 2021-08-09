@@ -46,7 +46,7 @@ $highlight-color: #3f87ff;
 .source {
   padding: 20px;
   background: #f2f7fa;
-  height: 100%;
+  height: calc(100vh - 64px);
   .bottom {
     height: calc(100% - 44px);
     background-color: #fff;
