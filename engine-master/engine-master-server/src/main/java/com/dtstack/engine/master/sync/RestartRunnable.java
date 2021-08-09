@@ -14,16 +14,14 @@ import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.schedule.common.enums.Restarted;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
@@ -80,8 +78,7 @@ public class RestartRunnable implements Runnable {
                 logger.error("job {} status {}  can not restart ", batchJob.getJobId(), batchJob.getStatus());
                 return;
             }
-
-            List<ScheduleJob> resumeBatchJobs = Lists.newArrayList();
+            Map<String,String> resumeBatchJobs = new HashMap<>();
             //置成功并恢复调度
             if (setSuccess && justRunChild) {
                 List<String> jobIds = getSubFlowJob(batchJob);
@@ -96,26 +93,26 @@ public class RestartRunnable implements Runnable {
 
             //重跑并恢复调度
             if (!justRunChild) {
-                resumeBatchJobs.add(batchJob);
+                resumeBatchJobs.put(batchJob.getJobId(),batchJob.getCycTime());
             }
 
             //重跑工作流中的子任务时，加入工作流任务，用于更新状态
             if (!StringUtils.equals("0", batchJob.getFlowJobId())) {
                 ScheduleJob flowJob = scheduleJobDao.getByJobId(batchJob.getFlowJobId(), Deleted.NORMAL.getStatus());
                 if (flowJob != null) {
-                    resumeBatchJobs.add(flowJob);
+                    resumeBatchJobs.put(flowJob.getJobId(),flowJob.getCycTime());
                 }
             }
 
             // 子任务不为空 重跑当前任务和自身
             if (CollectionUtils.isNotEmpty(subJobIds)) {
                 List<ScheduleJob> jobs = scheduleJobDao.listByJobIds(subJobIds);
-                resumeBatchJobs.addAll(jobs);
+                resumeBatchJobs.putAll(jobs.stream().collect(Collectors.toMap(ScheduleJob::getJobId,ScheduleJob::getCycTime)));
 
                 // 判断该节点是否被强弱规则任务所依赖
                 List<ScheduleJob> taskRuleSonJob = scheduleJobService.getTaskRuleSonJob(batchJob);
                 if (CollectionUtils.isNotEmpty(taskRuleSonJob)) {
-                    resumeBatchJobs.addAll(taskRuleSonJob);
+                    resumeBatchJobs.putAll(taskRuleSonJob.stream().collect(Collectors.toMap(ScheduleJob::getJobId,ScheduleJob::getCycTime)));
 
                     // 判断所依赖的任务是否是工作流任务
                     for (ScheduleJob scheduleJob : taskRuleSonJob) {
@@ -127,9 +124,9 @@ public class RestartRunnable implements Runnable {
                 setSubFlowJob(batchJob, resumeBatchJobs);
 
             } else {
-                List<ScheduleJob> allChildJobWithSameDayByForkJoin = getAllChildJobWithSameDayByForkJoin(batchJob.getJobId(), false);
-                if (CollectionUtils.isNotEmpty(allChildJobWithSameDayByForkJoin)) {
-                    resumeBatchJobs.addAll(allChildJobWithSameDayByForkJoin);
+                Map<String,String> allChildJobWithSameDayByForkJoin = getAllChildJobWithSameDayByForkJoin(batchJob.getJobId(), false);
+                if (MapUtils.isNotEmpty(allChildJobWithSameDayByForkJoin)) {
+                    resumeBatchJobs.putAll(allChildJobWithSameDayByForkJoin);
                 }
             }
 
@@ -155,28 +152,36 @@ public class RestartRunnable implements Runnable {
         return ruleJobs;
     }
 
-    private void setSubFlowJob(ScheduleJob batchJob, List<ScheduleJob> resumeBatchJobs) {
+    private void setSubFlowJob(ScheduleJob batchJob, Map<String,String> resumeBatchJobs) {
         List<String> subFlowJob = getSubFlowJob(batchJob);
         if (CollectionUtils.isNotEmpty(subFlowJob)) {
-            resumeBatchJobs.addAll(scheduleJobDao.getRdosJobByJobIds(subFlowJob));
+            List<ScheduleJob> jobs = scheduleJobDao.getRdosJobByJobIds(subFlowJob);
+            if(CollectionUtils.isNotEmpty(jobs)){
+                resumeBatchJobs.putAll(jobs.stream().collect(Collectors.toMap(ScheduleJob::getJobId,ScheduleJob::getCycTime)));
+            }
         }
     }
 
-    private void batchRestartScheduleJob(List<ScheduleJob> resumeBatchJobs) {
-        if (CollectionUtils.isNotEmpty(resumeBatchJobs)) {
-            resumeBatchJobs = resumeBatchJobs.stream()
-                    .sorted(Comparator.nullsFirst(Comparator.comparing(ScheduleJob::getCycTime,Comparator.nullsFirst(String::compareTo))))
-                    .collect(Collectors.toList());
+    private void batchRestartScheduleJob(Map<String,String> resumeBatchJobs) {
+        if (MapUtils.isNotEmpty(resumeBatchJobs)) {
+            List<String> restartJobId = new ArrayList<>(resumeBatchJobs.size());
+            resumeBatchJobs.entrySet()
+                    .stream()
+                    .sorted(Comparator.nullsFirst(Map.Entry.comparingByValue(Comparator.nullsFirst(String::compareTo))))
+                    .forEachOrdered(v -> {
+                        if (null!= v && StringUtils.isNotBlank(v.getKey())) {
+                            restartJobId.add(v.getKey());
+                        }
+                    });
+
+            List<List<String>> partition = Lists.partition(restartJobId, 20);
+            for (List<String> jobIds : partition) {
+                //更新任务为重跑任务--等待调度器获取并执行
+                scheduleJobDao.updateJobStatusAndPhaseStatus(jobIds, RdosTaskStatus.UNSUBMIT.getStatus(), JobPhaseStatus.CREATE.getCode(), Restarted.RESTARTED.getStatus(),environmentContext.getLocalAddress());
+                logger.info("reset job {}", jobIds);
+            }
         }
-        List<List<ScheduleJob>> partition = Lists.partition(resumeBatchJobs, 20);
-        for (List<ScheduleJob> scheduleJobs : partition) {
-            List<String> jobIds = scheduleJobs.stream()
-                    .map(ScheduleJob::getJobId)
-                    .collect(Collectors.toList());
-            //更新任务为重跑任务--等待调度器获取并执行
-            scheduleJobDao.updateJobStatusAndPhaseStatus(jobIds, RdosTaskStatus.UNSUBMIT.getStatus(), JobPhaseStatus.CREATE.getCode(), Restarted.RESTARTED.getStatus());
-            logger.info("reset job {}", jobIds);
-        }
+
     }
 
     /**
@@ -207,11 +212,11 @@ public class RestartRunnable implements Runnable {
      * @param isOnlyNextChild
      * @return
      */
-    private List<ScheduleJob> getAllChildJobWithSameDayByForkJoin(String jobId, boolean isOnlyNextChild) {
+    private Map<String,String> getAllChildJobWithSameDayByForkJoin(String jobId, boolean isOnlyNextChild) {
         ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
-        CopyOnWriteArrayList<ScheduleJob> results = new CopyOnWriteArrayList<>();
+        ConcurrentHashMap<String,String> results = new ConcurrentHashMap<>();
         ForkJoinJobTask forkJoinJobTask = new ForkJoinJobTask(jobId, results, scheduleJobDao, scheduleJobJobDao, isOnlyNextChild);
-        ForkJoinTask<List<ScheduleJob>> submit = forkJoinPool.submit(forkJoinJobTask);
+        ForkJoinTask<Map<String,String>> submit = forkJoinPool.submit(forkJoinJobTask);
         try {
             return submit.get(environmentContext.getForkJoinResultTimeOut(), TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {

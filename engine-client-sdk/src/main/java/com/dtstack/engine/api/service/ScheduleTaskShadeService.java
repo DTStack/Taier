@@ -1,5 +1,6 @@
 package com.dtstack.engine.api.service;
 
+import com.dtstack.engine.api.domain.CronExceptionVO;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.api.pager.PageResult;
@@ -10,6 +11,7 @@ import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskV
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
 import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
+import com.dtstack.engine.api.vo.task.TaskTypeVO;
 import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sdk.core.common.DtInsightServer;
 import com.dtstack.sdk.core.feign.Body;
@@ -229,4 +231,15 @@ public interface ScheduleTaskShadeService extends DtInsightServer {
 
     @RequestLine("POST /node/scheduleTaskShade/findTaskRuleTask")
     ApiResponse<ScheduleDetailsVO> findTaskRuleTask(@Param("taskId") Long taskId, @Param("appType") Integer appType);
+
+
+    @RequestLine("POST /node/scheduleTaskShade/checkCronExpression")
+    ApiResponse<CronExceptionVO> checkCronExpression(@Param("cron") String cron, @Param("minPeriod") Long minPeriod);
+
+    @RequestLine("POST /node/scheduleTaskShade/recentlyRunTime")
+    ApiResponse<List<String >> recentlyRunTime(@Param("startDate") String startDate,@Param("endDate") String endDate,
+                                               @Param("cron") String cron,@Param("num") Integer num);
+
+    @RequestLine("POST /node/scheduleTaskShade/taskType")
+    ApiResponse<List<TaskTypeVO>> getTaskType();
 }

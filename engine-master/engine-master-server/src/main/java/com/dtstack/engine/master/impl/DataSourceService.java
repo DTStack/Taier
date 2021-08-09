@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.KerberosConfig;
@@ -8,10 +9,12 @@ import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.ComponentVersionUtil;
 import com.dtstack.engine.dao.ComponentDao;
 import com.dtstack.engine.dao.KerberosDao;
 import com.dtstack.pubsvc.sdk.datasource.DataSourceAPIClient;
 import com.dtstack.pubsvc.sdk.dto.param.datasource.EditConsoleParam;
+import com.dtstack.pubsvc.sdk.dto.result.datasource.DsServiceInfoDTO;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -72,9 +75,15 @@ public class DataSourceService {
             LOGGER.info("engineId {} componentType {} component is null", engineId, componentTypeCode);
             return;
         }
+        DataSourceType dataSourceType = DataSourceType.convertEComponentType(EComponentType.getByCode(componentTypeCode), component.getHadoopVersion());
+        if(null == dataSourceType){
+            LOGGER.info("engineId {} componentType {} is not support datasource ", engineId, componentTypeCode);
+            return;
+        }
         EditConsoleParam editConsoleParam = new EditConsoleParam();
         try {
             editConsoleParam = getEditConsoleParam(clusterId, componentTypeCode, dtUicTenantIds, component);
+            editConsoleParam.setType(dataSourceType.getVal());
             dataSourceAPIClient.editConsoleDs(editConsoleParam);
             LOGGER.info("update datasource jdbc engineId {} componentType {} component info {}", engineId, componentTypeCode, editConsoleParam.toString());
         } catch (Exception e) {
@@ -94,16 +103,54 @@ public class DataSourceService {
         editConsoleParam.setDataVersion(component.getHadoopVersion());
         JSONObject sftpConfig = componentService.getComponentByClusterId(clusterId, EComponentType.SFTP.getTypeCode(), false, JSONObject.class,null);
         editConsoleParam.setSftpConf(sftpConfig);
-        DataSourceType dataSourceType = DataSourceType.convertEComponentType(EComponentType.getByCode(componentTypeCode), component.getHadoopVersion());
-        if (null != dataSourceType) {
-            editConsoleParam.setType(dataSourceType.getVal());
-        }
         if (StringUtils.isNotBlank(component.getKerberosFileName())) {
             //kerberos 配置信息
-            KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, componentTypeCode,component.getHadoopVersion());
+            KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, componentTypeCode, ComponentVersionUtil.formatMultiVersion(componentTypeCode,component.getHadoopVersion()));
             KerberosConfigVO kerberosConfigVO = clusterService.addKerberosConfigWithHdfs(componentTypeCode, clusterId, kerberosConfig);
             editConsoleParam.setKerberosConfig(JSONObject.parseObject(JSONObject.toJSONString(kerberosConfigVO)));
         }
+
+        JSONObject hdfsConfig = componentService.getComponentByClusterId(clusterId, EComponentType.HDFS.getTypeCode(), false, JSONObject.class, null);
+        if (null != hdfsConfig) {
+            editConsoleParam.setHdfsConfig(hdfsConfig);
+        }
         return editConsoleParam;
+    }
+
+    public String loadJdbcInfo(String pluginInfo) {
+        if (null == dataSourceAPIClient) {
+            LOGGER.info("datasource url is not init so skip");
+            return pluginInfo;
+        }
+
+        LOGGER.info("pluginInfo:{}",pluginInfo);
+
+        if (StringUtils.isNotBlank(pluginInfo)) {
+            try {
+                JSONObject pluginInfoObj = JSON.parseObject(pluginInfo);
+
+                Long dataSourceId = pluginInfoObj.getLong(JdbcInfoConst.DATA_SOURCE_ID);
+                if (dataSourceId != null) {
+                    DsServiceInfoDTO data = dataSourceAPIClient.getDsInfoById(dataSourceId).getData();
+                    if (data != null) {
+                        String dataJson = data.getDataJson();
+                        LOGGER.info("dataJson:{}",dataJson);
+                        JSONObject dataSourceInfo = JSON.parseObject(dataJson);
+                        pluginInfoObj.putAll(dataSourceInfo);
+                    }
+                }
+                return pluginInfoObj.toJSONString();
+            } catch (Exception e) {
+                LOGGER.error("load dtDataSourceId{} error ", pluginInfo, e);
+                return pluginInfo;
+            }
+        } else {
+            return pluginInfo;
+        }
+    }
+
+    interface JdbcInfoConst {
+        String TYPE_NAME = "typeName";
+        String DATA_SOURCE_ID = "dtDataSourceId";
     }
 }

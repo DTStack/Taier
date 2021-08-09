@@ -30,6 +30,8 @@ public class ScheduleTaskShadeTypeVO {
 
     private String projectName;
 
+    private String projectAlias;
+
     public Long getId() {
         return id;
     }
@@ -116,5 +118,13 @@ public class ScheduleTaskShadeTypeVO {
 
     public void setProjectName(String projectName) {
         this.projectName = projectName;
+    }
+
+    public String getProjectAlias() {
+        return projectAlias;
+    }
+
+    public void setProjectAlias(String projectAlias) {
+        this.projectAlias = projectAlias;
     }
 }

@@ -40,7 +40,7 @@ public class ScheduleFillDataJobService  {
         return scheduleFillDataJobDao.listFillJob(fillJobName, projectId);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public ScheduleFillDataJob saveData(String jobName, Long tenantId, Long projectId, String runDay,
                                         String fromDay, String toDay, Long userId, Integer appType, Long dtuicTenantId) {
 

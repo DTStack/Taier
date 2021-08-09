@@ -12,8 +12,9 @@ import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.impl.ClusterService;
+import com.dtstack.engine.master.impl.ScheduleDictService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
-import com.dtstack.engine.master.utils.TaskParamsUtil;
+import com.dtstack.engine.master.impl.TaskParamsService;
 import com.dtstack.schedule.common.enums.Deleted;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
@@ -23,6 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+
+import static com.dtstack.engine.common.constrant.ConfigConstant.DEPLOY_MODEL;
 
 @Component
 public class PluginWrapper{
@@ -35,7 +38,7 @@ public class PluginWrapper{
     private static final String LADP_PASSWORD = "ldapPassword";
     private static final String DB_NAME = "dbName";
     private static final String CLUSTER = "cluster";
-    private static final String DEPLOY_MODEL = "deployMode";
+
     private static final String QUEUE = "queue";
     private static final String NAMESPACE = "namespace";
     public static final String PLUGIN_INFO = "pluginInfo";
@@ -48,6 +51,12 @@ public class PluginWrapper{
 
     @Autowired
     private ScheduleTaskShadeDao scheduleTaskShadeDao;
+
+    @Autowired
+    private TaskParamsService taskParamsService;
+
+    @Autowired
+    private ScheduleDictService scheduleDictService;
 
     public Map<String, Object> wrapperPluginInfo(ParamAction action) throws Exception{
 
@@ -68,15 +77,16 @@ public class PluginWrapper{
         String engineType = action.getEngineType();
         if (null == deployMode && ScheduleEngineType.Flink.getEngineName().equalsIgnoreCase(engineType)) {
             //解析参数
-            deployMode = TaskParamsUtil.parseDeployTypeByTaskParams(action.getTaskParams(),action.getComputeType(), EngineType.Flink.name()).getType();
-
+            deployMode = taskParamsService.parseDeployTypeByTaskParams(action.getTaskParams(),action.getComputeType(), EngineType.Flink.name(),tenantId).getType();
         }
+        String componentVersionValue = scheduleDictService.convertVersionNameToValue(action.getComponentVersion(), action.getEngineType());
         // 需要传入组件版本,涉及Null值构建Map需要检验Null兼容
         JSONObject pluginInfoJson = clusterService.pluginInfoJSON(tenantId, engineType, action.getUserId(),deployMode,
-                Collections.singletonMap(EngineTypeComponentType.engineName2ComponentType(engineType),action.getComponentVersion()));
+                Collections.singletonMap(EngineTypeComponentType.engineName2ComponentType(engineType),componentVersionValue));
         String groupName = ConfigConstant.DEFAULT_GROUP_NAME;
         action.setGroupName(groupName);
         if (null != pluginInfoJson && !pluginInfoJson.isEmpty()) {
+            pluginInfoJson.put(DEPLOY_MODEL,deployMode);
             addParamsToJdbcUrl(actionParam, pluginInfoJson);
             addUserNameToHadoop(pluginInfoJson, ldapUserName);
             addUserNameToImpalaOrHive(pluginInfoJson, ldapUserName, ldapPassword, dbName, engineType);
@@ -94,6 +104,8 @@ public class PluginWrapper{
 
         return pluginInfoJson;
     }
+
+
 
     private void addParamsToJdbcUrl(Map<String, Object> actionParam, JSONObject pluginInfoJson){
         if(pluginInfoJson == null || actionParam == null){
@@ -231,18 +243,19 @@ public class PluginWrapper{
         engineJobCacheDao.updateJobInfo(dbPluginInfo.toJSONString(), jobId);
     }*/
 
-    public String getPluginInfo(String taskParams, Integer computeType, String engineType, Long tenantId, Long userId, Map<String, String> pluginInfoCache) {
+    public String getPluginInfo(String taskParams, Integer computeType, String engineType, Long tenantId, Long userId, Map<String, String> pluginInfoCache,String componentVersion) {
         try {
             Integer deployMode = null;
             if (ScheduleEngineType.Flink.getEngineName().equalsIgnoreCase(engineType)) {
                 //解析参数
-                deployMode = TaskParamsUtil.parseDeployTypeByTaskParams(taskParams, computeType,EngineType.Flink.name()).getType();
+                deployMode = taskParamsService.parseDeployTypeByTaskParams(taskParams, computeType,EngineType.Flink.name(),tenantId).getType();
             }
-
-            String cacheKey = String.format("%s.%s.%s.%s", tenantId, engineType, userId, deployMode);
+            String componentVersionValue = scheduleDictService.convertVersionNameToValue(componentVersion, engineType);
+            String cacheKey = String.format("%s.%s.%s.%s.%s", tenantId, engineType, userId, deployMode,componentVersion);
             Integer finalDeployMode = deployMode;
             return pluginInfoCache.computeIfAbsent(cacheKey, (k) -> {
-                JSONObject infoJSON = clusterService.pluginInfoJSON(tenantId, engineType, userId, finalDeployMode,null);
+                JSONObject infoJSON = clusterService.pluginInfoJSON(tenantId, engineType, userId, finalDeployMode,
+                        StringUtils.isBlank(componentVersionValue)?null:Collections.singletonMap(EngineTypeComponentType.getByEngineName(engineType).getComponentType().getTypeCode(),componentVersionValue));
                 if (Objects.nonNull(infoJSON)) {
                     return infoJSON.toJSONString();
                 }
@@ -250,7 +263,7 @@ public class PluginWrapper{
             });
 
         } catch (Exception e) {
-            LOGGER.error("getPluginInfo tenantId {} engineType {} error ", tenantId, engineType);
+            LOGGER.error("getPluginInfo tenantId {} engineType {} error ", tenantId, engineType,e);
         }
         return "";
     }

@@ -1,5 +1,6 @@
 package com.dtstack.engine.common.akka.config;
 
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
@@ -58,11 +59,29 @@ public class AkkaLoad {
         } catch (IOException e) {
             LOGGER.error("loadProperties error:",e);
         }
-
+        putLogStoreConfigIfNotExist(properties);
         if (config != null) {
             config = config.withFallback(ConfigFactory.parseProperties(properties));
         }
 
         return config;
+    }
+
+
+    /**
+     * logstore 默认和 dagschedulex 数据库一致
+     *
+     * @param properties
+     */
+    private static void putLogStoreConfigIfNotExist(Properties properties) {
+        if (properties.containsKey(ConfigConstant.DAGSCHEULEX_JDBC_URL)) {
+            properties.putIfAbsent(ConfigConstant.AKKA_WORKER_LOGSTORE_JDBCURL, properties.getProperty(ConfigConstant.DAGSCHEULEX_JDBC_URL));
+        }
+        if (properties.containsKey(ConfigConstant.DAGSCHEULEX_JDBC_USERNAME)) {
+            properties.putIfAbsent(ConfigConstant.AKKA_WORKER_LOGSTORE_USERNAME, properties.getProperty(ConfigConstant.DAGSCHEULEX_JDBC_USERNAME));
+        }
+        if (properties.containsKey(ConfigConstant.DAGSCHEULEX_JDBC_PASSWORD)) {
+            properties.putIfAbsent(ConfigConstant.AKKA_WORKER_LOGSTORE_PASSWORD, properties.getProperty(ConfigConstant.DAGSCHEULEX_JDBC_PASSWORD));
+        }
     }
 }

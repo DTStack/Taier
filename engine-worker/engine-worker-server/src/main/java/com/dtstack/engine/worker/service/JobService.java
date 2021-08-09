@@ -1,6 +1,7 @@
 package com.dtstack.engine.worker.service;
 
 import akka.actor.AbstractActor;
+import com.dtstack.engine.api.pojo.DtScriptAgentLabel;
 import com.dtstack.engine.common.akka.message.*;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.api.pojo.ClusterResource;
@@ -8,10 +9,13 @@ import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.client.ClientOperator;
 import com.dtstack.engine.common.pojo.JudgeResult;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class JobService extends AbstractActor {
 
@@ -102,6 +106,12 @@ public class JobService extends AbstractActor {
                         rollingLogBaseInfo = new ArrayList<>();
                     }
                     sender().tell(rollingLogBaseInfo, getSelf());
+                })
+                .match(MessageDtScriptAgentLabel.class,msg ->{
+                    List<DtScriptAgentLabel> dtScriptAgentLabel =
+                            ClientOperator.getInstance(pluginPath).getDtScriptAgentLabel(msg.getEngineType(), msg.getAgentAddress());
+                    sender().tell(CollectionUtils.isEmpty(dtScriptAgentLabel)?
+                            Collections.emptyList():dtScriptAgentLabel, getSelf());
                 })
                 .build();
     }

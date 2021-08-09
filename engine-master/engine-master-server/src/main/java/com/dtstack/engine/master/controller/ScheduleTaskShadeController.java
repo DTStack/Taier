@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.controller;
 
+import com.dtstack.engine.api.domain.CronExceptionVO;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.api.pager.PageResult;
@@ -10,6 +11,8 @@ import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskV
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
 import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
+import com.dtstack.engine.api.vo.task.TaskTypeVO;
+import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import com.dtstack.engine.master.router.DtHeader;
 import com.dtstack.engine.master.router.DtParamOrHeader;
@@ -17,12 +20,15 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.dtstack.engine.master.router.DtRequestParam;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/node/scheduleTaskShade")
@@ -212,4 +218,27 @@ public class ScheduleTaskShadeController {
                                                           @DtRequestParam("appType") Integer appType) {
         return scheduleTaskShadeService.findTaskRuleTask(taskId, appType);
     }
+
+    @RequestMapping(value = "/checkCronExpression",method = {RequestMethod.POST})
+    public CronExceptionVO checkCronExpression(@DtRequestParam("cron") String cron, @DtRequestParam("minPeriod") Long minPeriod){
+        return scheduleTaskShadeService.checkCronExpression(cron,Objects.isNull(minPeriod)?300L:minPeriod);
+    }
+    @RequestMapping(value = "/recentlyRunTime",method = {RequestMethod.POST})
+    public List<String > recentlyRunTime(@DtRequestParam("startDate")String startDate,@DtRequestParam("endDate")String endDate,
+                                         @DtRequestParam("cron")String cron,@DtRequestParam("num")Integer num){
+        if (StringUtils.isBlank(startDate)) {
+            startDate = DateTime.now().withTime(0, 0, 0, 0).toString(DateUtil.DATE_FORMAT);
+        }
+        if (StringUtils.isBlank(endDate)) {
+            endDate = DateTime.now().plusDays(1).withTime(0, 0, 0, 0).toString(DateUtil.DATE_FORMAT);
+        }
+        return scheduleTaskShadeService.recentlyRunTime(startDate,endDate,cron, Objects.isNull(num)?10:num);
+    }
+
+    @RequestMapping(value = "/taskType",method = {RequestMethod.POST})
+    public List<TaskTypeVO> getTaskType() {
+        return scheduleTaskShadeService.getTaskType();
+    }
+
+
 }

@@ -294,6 +294,12 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
     CAN_NOT_FIN_SFTP(650, "sftp组件不存在"),
     SFTP_PATH_CAN_NOT_BE_EMPTY(650, "sftp路径不能为空"),
     CANT_NOT_FIND_CLUSTER(651, "该集群不存在"),
+
+
+    /***----------------end sql解析失败 end ----------------------------------------****/
+
+    SQLPARSE_ERROR(652,"sql解析失败"),
+
     /***----------------end 组件管理 相关错误码 end ----------------------------------------****/
 
     NOT_USED(10000000, "");
@@ -301,7 +307,8 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
 
 
 
-	private int code;
+
+    private int code;
 
 	private String description;
 

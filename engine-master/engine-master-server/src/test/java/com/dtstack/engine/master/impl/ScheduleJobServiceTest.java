@@ -33,6 +33,7 @@ import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.common.enums.EScheduleType;
+import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.util.ComponentVersionUtil;
 import com.dtstack.engine.dao.ComponentDao;
@@ -43,7 +44,6 @@ import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.multiengine.engine.HadoopJobStartTrigger;
-import com.dtstack.engine.master.utils.TaskParamsUtil;
 import com.dtstack.engine.master.utils.Template;
 import com.dtstack.engine.master.utils.ValueUtils;
 import com.dtstack.engine.master.vo.ScheduleJobVO;
@@ -94,6 +94,9 @@ public class ScheduleJobServiceTest extends AbstractTest {
 
     @Autowired
     private ComponentDao componentDao;
+
+    @Autowired
+    private TaskParamsService taskParamsService;
 
     @Before
     public void init() throws Exception {
@@ -274,7 +277,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Transactional
     @Rollback
     public void testParseDeployTypeByTaskParams() {
-        EDeployMode eDeployMode = TaskParamsUtil.parseDeployTypeByTaskParams("flinkTaskRunMode=session",0);
+        EDeployMode eDeployMode = taskParamsService.parseDeployTypeByTaskParams("flinkTaskRunMode=session",0, EngineType.Flink.name(),-1L);
         Assert.assertEquals(eDeployMode, EDeployMode.SESSION);
     }
 
@@ -523,7 +526,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
         //{"fillName":"P_123_2020_11_28_17_41","taskJson":"[{\"task\":165}]","fromDay":1606406400,"toDay":1606492799}
         try {
             //补数据
-            scheduleJobService.fillTaskData("[{\"task\":471}]",fillName, runDay,toDay,null,null,projectId,userId,tenant, true,appType,dtuicTenantId);
+            scheduleJobService.fillTaskData("[{\"task\":471}]",fillName, runDay,toDay,null,null,projectId,userId,tenant, true,appType,dtuicTenantId,false);
             //查询工作流外部
             PageResult<List<ScheduleFillDataJobPreViewVO>> fillDataJobInfoPreview = scheduleJobService.getFillDataJobInfoPreview("", null, null, null, null, projectId, appType, 1, 20, tenant,null);
             Assert.assertNotNull(fillDataJobInfoPreview);
@@ -625,7 +628,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
         String taskTaskStr = "[{\"appType\":1,\"dtuicTenantId\":1,\"gmtCreate\":1606101569150,\"gmtModified\":1606101569150,\"id\":233,\"isDeleted\":0,\"parentTaskId\":499,\"projectId\":3,\"taskId\":525,\"tenantId\":1}," +
                 "{\"appType\":1,\"dtuicTenantId\":1,\"gmtCreate\":1606101569150,\"gmtModified\":1606101569150,\"id\":233,\"isDeleted\":0,\"parentTaskId\":525,\"projectId\":3,\"taskId\":600,\"tenantId\":1}," +
                 "]";
-        scheduleTaskTaskShadeService.saveTaskTaskList(taskTaskStr);
+        scheduleTaskTaskShadeService.saveTaskTaskList(taskTaskStr,null);
         List<ScheduleTaskTaskShade> allParentTask = scheduleTaskTaskShadeService.getAllParentTask(525L, 1);
         Assert.assertNotNull(allParentTask);
     }
@@ -838,6 +841,12 @@ public class ScheduleJobServiceTest extends AbstractTest {
         ScheduleBatchJob scheduleBatchJob = new ScheduleBatchJob(scheduleJobTemplate);
         scheduleJobService.insertJobList(Lists.newArrayList(scheduleBatchJob), EScheduleType.NORMAL_SCHEDULE.getType());
         scheduleJobService.sendTaskStartTrigger(scheduleJobTemplate);
+        try {
+            ScheduleJob job = DataCollection.getData().getScheduleJobVirtual();
+            scheduleJobService.sendTaskStartTrigger(job);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -914,19 +923,19 @@ public class ScheduleJobServiceTest extends AbstractTest {
         }
         EComponentType componentType = ComponentVersionUtil.transformTaskType2ComponentType(taskShade.getTaskType());
         if (Objects.nonNull(componentType)){
-            taskShade.setComponentVersion(componentDao.getDefaultComponentVersionByTenantAndComponentType(
-                    taskShade.getTenantId(),componentType.getTypeCode()));
+            taskShade.setComponentVersion(componentDao.getDefaultVersionDictNameByUicIdAndComponentType(
+                    taskShade.getTenantId(), componentType.getTypeCode()));
         }
     }
 
     private void buildComponentVersion(ScheduleJob scheduleJob) {
-        if (StringUtils.isNotBlank(scheduleJob.getComponentVersion())){
+       /* if (StringUtils.isNotBlank(scheduleJob.getComponentVersion())){
             return;
         }
         EComponentType componentType = ComponentVersionUtil.transformTaskType2ComponentType(scheduleJob.getTaskType());
         if (Objects.nonNull(componentType)){
-            scheduleJob.setComponentVersion(componentDao.getDefaultComponentVersionByTenantAndComponentType(
+            scheduleJob.setComponentVersion(componentDao.getDefaultComponentVersionByUicIdAndComponentType(
                     scheduleJob.getTenantId(),componentType.getTypeCode()));
-        }
+        }*/
     }
 }

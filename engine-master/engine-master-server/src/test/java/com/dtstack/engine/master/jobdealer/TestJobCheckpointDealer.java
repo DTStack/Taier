@@ -83,7 +83,7 @@ public class TestJobCheckpointDealer extends AbstractTest {
         Integer computeType = 1;
         String taskId = checkpoint.getTaskId();
         JobIdentifier jobIdentifier = new JobIdentifier(jobId.getJobId(),jobId.getApplicationId(),taskId,
-                jobId.getTenantId(),engineJobCache.getEngineType(),1,1L,"");
+                jobId.getTenantId(),engineJobCache.getEngineType(),1,1L,"",null);
         String engineTypeName = "spark";
 //        jobCheckpointDealer.addCheckpointTaskForQueue(computeType,engineJobCache.getJobId(),jobIdentifier,engineTypeName);
         //2

@@ -6,6 +6,7 @@ import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.domain.LineageTableTable;
 import com.dtstack.engine.api.enums.LineageOriginType;
 import com.dtstack.engine.api.vo.lineage.LineageTableTableVO;
+import com.dtstack.pubsvc.sdk.dto.result.datasource.DsServiceInfoDTO;
 import com.dtstack.sqlparser.common.client.domain.TableLineage;
 import org.junit.Assert;
 import org.junit.Test;
@@ -55,8 +56,8 @@ public class TableLineageAdapterTest {
         tableTable.setLineageSource(0);
         LineageDataSetInfo inputTable = new LineageDataSetInfo();
         LineageDataSetInfo resultTable = new LineageDataSetInfo();
-        LineageDataSource inputSource = new LineageDataSource();
-        LineageDataSource resultSource = new LineageDataSource();
+        DsServiceInfoDTO inputSource = new DsServiceInfoDTO();
+        DsServiceInfoDTO resultSource = new DsServiceInfoDTO();
         LineageTableTableVO tableTableVO = TableLineageAdapter.tableTable2TableTableVO(tableTable, inputTable, resultTable, inputSource, resultSource);
         Assert.assertNotNull(tableTableVO);
     }

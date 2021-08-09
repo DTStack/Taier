@@ -2,6 +2,7 @@ package com.dtstack.engine.lineage.adapter;
 
 import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.vo.lineage.LineageDataSourceVO;
+import com.dtstack.pubsvc.sdk.dto.result.datasource.DsServiceInfoDTO;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -17,8 +18,7 @@ public class DataSourceAdapterTest {
     @Test
     public void testDataSource2DataSourceVO(){
 
-        LineageDataSource dataSource = new LineageDataSource();
-        dataSource.setAppType(1);
+        DsServiceInfoDTO dataSource = new DsServiceInfoDTO();
         LineageDataSourceVO lineageDataSourceVO = DataSourceAdapter.dataSource2DataSourceVO(dataSource);
         Assert.assertNotNull(lineageDataSourceVO);
     }

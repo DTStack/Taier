@@ -5,7 +5,9 @@ import com.dtstack.engine.api.domain.StatusCount;
 import com.dtstack.engine.api.domain.po.SimpleScheduleJobPO;
 import com.dtstack.engine.api.dto.ScheduleJobDTO;
 import com.dtstack.engine.api.pager.PageQuery;
+import com.dtstack.engine.api.pojo.ScheduleJobCount;
 import com.dtstack.engine.api.vo.JobTopErrorVO;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
 import org.apache.ibatis.annotations.Param;
 
 import java.sql.Timestamp;
@@ -30,6 +32,8 @@ public interface ScheduleJobDao {
     ScheduleJob getByJobKey(@Param("jobKey") String jobKey);
 
     List<Map<String, Object>> countByStatusAndType(@Param("type") Integer type, @Param("startTime") String startTime, @Param("endTime") String endTime, @Param("tenantId") Long tenantId, @Param("projectId") Long projectId, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId, @Param("statuses") List<Integer> status);
+
+    List<ScheduleJobCount> countByStatusAndTypeProjectIds(@Param("type") Integer type, @Param("startTime") String startTime, @Param("endTime") String endTime, @Param("tenantId") Long tenantId, @Param("projectIds") List<Long> projectIds, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId, @Param("statuses") List<Integer> status);
 
     List<Map<String, Object>> selectStatusAndType(@Param("type") Integer type, @Param("startTime") String startTime, @Param("endTime") String endTime, @Param("tenantId") Long tenantId, @Param("projectId") Long projectId, @Param("appType") Integer appType,
                                                   @Param("dtuicTenantId") Long dtuicTenantId, @Param("statuses") List<Integer> status, @Param("startPage") Integer startPage, @Param("pageSize") Integer pageSize);
@@ -236,13 +240,17 @@ public interface ScheduleJobDao {
 
     Integer updateListPhaseStatus(@Param("jobIds") List<String> ids, @Param("update") Integer update);
 
-    Integer updateJobStatusAndPhaseStatus(@Param("jobIds") List<String> jobIds, @Param("status") Integer status, @Param("phaseStatus") Integer phaseStatus,@Param("isRestart") Integer isRestart);
+    Integer updateJobStatusAndPhaseStatus(@Param("jobIds") List<String> jobIds, @Param("status") Integer status, @Param("phaseStatus") Integer phaseStatus,@Param("isRestart") Integer isRestart,@Param("nodeAddress") String nodeAddress);
 
-    String getJobGraph(@Param("jobId") String jobId);
+    String getJobExtraInfo(@Param("jobId") String jobId);
 
     ScheduleJob getLastScheduleJob(@Param("taskId") Long taskId,@Param("id") Long id);
 
     void updateStatusByJobIdEqualsStatus(@Param("jobId") String jobId, @Param("status") Integer status, @Param("status1") Integer status1);
 
     void updateLogInfoByJobId(@Param("jobId") String jobId, @Param("msg") String msg);
+
+    Integer updateJobStatusAndPhaseStatusByIds(@Param("jobIds") List<String> jobIds, @Param("status") Integer status, @Param("phaseStatus") Integer phaseStatus);
+
+    List<SimpleScheduleJobPO> listJobByStatusAddressAndPhaseStatus(@Param("startId") Long startId, @Param("statuses") List<Integer> statuses, @Param("nodeAddress") String nodeAddress,@Param("phaseStatus") Integer phaseStatus);
 }

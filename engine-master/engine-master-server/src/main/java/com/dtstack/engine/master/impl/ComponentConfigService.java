@@ -108,6 +108,18 @@ public class ComponentConfigService {
                 //兼容旧数据 前端的自定义参数标识
                 clientTemplate.setType(EFrontType.CUSTOM_CONTROL.name());
             }
+            if (ComponentConfigUtils.DEPLOY_MODE.equalsIgnoreCase(clientTemplate.getKey()) && clientTemplate.getValue() instanceof String) {
+                // {
+                //     "deploymode":"perjob",
+                //}
+                //兼容为数组
+                String templateValue = (String) clientTemplate.getValue();
+                if(!templateValue.startsWith("[")){
+                    JSONArray templateArray = new JSONArray();
+                    templateArray.add(templateValue);
+                    clientTemplate.setValue(templateArray);
+                }
+            }
         }
 
         if (EComponentType.SFTP.getTypeCode().equals(componentTypeCode)) {
@@ -128,6 +140,10 @@ public class ComponentConfigService {
 
     public ComponentConfig getComponentConfigByKey(Long componentId,String key) {
         return componentConfigDao.listByKey(componentId,key);
+    }
+
+    public List<ComponentConfig> getComponentConfigListByTypeCodeAndKey(Long clusterId,Integer componentTypeCode,String key) {
+        return componentConfigDao.listByComponentTypeAndKey(clusterId,key,componentTypeCode);
     }
 
     public Map<String, Object> convertComponentConfigToMap(Long componentId, boolean isFilter) {
@@ -185,8 +201,10 @@ public class ComponentConfigService {
                 //hdfs yarn 4.1 config为xml配置参数
                 componentVO.setComponentConfig(JSONObject.toJSONString(ComponentConfigUtils.convertComponentConfigToMap(configTypeMapping.get(EFrontType.XML.name()))));
             } else {
+                Map<String, Object> configToMap = ComponentConfigUtils.convertComponentConfigToMap(configs);
                 componentVO.setComponentTemplate(JSONObject.toJSONString(ComponentConfigUtils.buildDBDataToClientTemplate(configs)));
-                componentVO.setComponentConfig(JSONObject.toJSONString(ComponentConfigUtils.convertComponentConfigToMap(configs)));
+                componentVO.setComponentConfig(JSONObject.toJSONString(configToMap));
+                componentVO.setDeployType(component.getDeployType());
             }
 
             if (isConvertHadoopVersion && isHadoopControl) {

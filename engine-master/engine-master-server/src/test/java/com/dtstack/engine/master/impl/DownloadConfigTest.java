@@ -47,7 +47,7 @@ public class DownloadConfigTest extends AbstractTest {
     public void init() {
         Component sftp = new Component();
         sftp.setComponentName("sftp");
-        when(componentDao.getByClusterIdAndComponentType(anyLong(), anyInt(),any())).thenReturn(sftp);
+        when(componentDao.getByClusterIdAndComponentType(anyLong(), anyInt(),any(),anyInt())).thenReturn(sftp);
         Component component = new Component();
         component.setComponentName("oracle");
         component.setComponentTypeCode(EComponentType.ORACLE_SQL.getTypeCode());
@@ -63,7 +63,7 @@ public class DownloadConfigTest extends AbstractTest {
 
     @Test
     public void testDownloadConfig() {
-        File file = componentService.downloadFile(100L, DownloadType.Config.getCode(), EComponentType.ORACLE_SQL.getTypeCode(), "", "");
+        File file = componentService.downloadFile(100L, DownloadType.Config.getCode(), EComponentType.ORACLE_SQL.getTypeCode(), "", "",null);
         Assert.assertNotNull(file);
         try {
             String contentFromFile = FileUtil.getContentFromFile(file.getPath());

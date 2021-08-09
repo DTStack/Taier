@@ -1,8 +1,7 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
-import com.dtstack.engine.api.domain.Tenant;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.enums.TaskRuleEnum;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.api.vo.task.SaveTaskTaskVO;
@@ -11,13 +10,15 @@ import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.ScheduleEngineProjectDao;
+import com.dtstack.engine.dao.ScheduleTaskCommitMapper;
 import com.dtstack.engine.dao.ScheduleTaskTaskShadeDao;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.master.druid.DtDruidRemoveAbandoned;
 import com.dtstack.engine.dao.TenantDao;
-import com.dtstack.engine.api.domain.ScheduleEngineProject;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -39,6 +40,7 @@ import java.util.stream.Collectors;
 public class ScheduleTaskTaskShadeService {
 
     private static final Long IS_WORK_FLOW_SUBNODE = 0L;
+    private static final String SPI_SYMBOL = "&";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleTaskTaskShadeService.class);
 
@@ -57,12 +59,16 @@ public class ScheduleTaskTaskShadeService {
     @Autowired
     private ScheduleEngineProjectDao scheduleEngineProjectDao;
 
+    @Autowired
+    private ScheduleTaskCommitMapper scheduleTaskCommitMapper;
+
     public void clearDataByTaskId( Long taskId,Integer appType) {
         scheduleTaskTaskShadeDao.deleteByTaskId(taskId,appType);
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public SaveTaskTaskVO saveTaskTaskList(String taskLists) {
+    @DtDruidRemoveAbandoned
+    public SaveTaskTaskVO saveTaskTaskList(String taskLists,String commitId) {
         if(StringUtils.isBlank(taskLists)){
             return SaveTaskTaskVO.save();
         }
@@ -75,16 +81,8 @@ public class ScheduleTaskTaskShadeService {
             // 保存时成环检测
             for (ScheduleTaskTaskShade scheduleTaskTaskShade : taskTaskList) {
                 Long parentTaskId = scheduleTaskTaskShade.getParentTaskId();
-                if (parentTaskId != null) {
-                    Integer parentAppType = scheduleTaskTaskShade.getParentAppType();
-                    if (parentAppType == null) {
-                        parentAppType = scheduleTaskTaskShade.getAppType();
-                    }
-                    ScheduleTaskShade batchTaskById = taskShadeService.getBatchTaskById(parentTaskId, parentAppType);
-
-                    if (batchTaskById == null) {
-                        return SaveTaskTaskVO.noSave("任务依赖报错失败，父任务被删除，你检查父任务");
-                    }
+                if (checkParentCommit(commitId, scheduleTaskTaskShade, parentTaskId)){
+                    return SaveTaskTaskVO.noSave("任务依赖报错失败，父任务不存在，请检查父任务");
                 }
 
                 List<ScheduleTaskTaskShade> shades = Lists.newArrayList(taskTaskList);
@@ -116,6 +114,30 @@ public class ScheduleTaskTaskShadeService {
         return SaveTaskTaskVO.save();
     }
 
+    private boolean checkParentCommit(String commitId, ScheduleTaskTaskShade scheduleTaskTaskShade, Long parentTaskId) {
+        if (parentTaskId != null) {
+            Integer parentAppType = scheduleTaskTaskShade.getParentAppType();
+            if (parentAppType == null ) {
+                parentAppType = scheduleTaskTaskShade.getAppType();
+            }
+
+
+            if (!scheduleTaskTaskShade.getAppType().equals(parentAppType)) {
+                ScheduleTaskShade batchTaskById = taskShadeService.getBatchTaskById(parentTaskId, parentAppType);
+                return batchTaskById == null;
+            } else {
+                if (StringUtils.isNotBlank(commitId)) {
+                    ScheduleTaskShade batchTaskById = taskShadeService.getBatchTaskById(parentTaskId, parentAppType);
+                    if (batchTaskById == null) {
+                        ScheduleTaskCommit taskCommitByTaskId = scheduleTaskCommitMapper.getTaskCommitByTaskId(parentTaskId, parentAppType, commitId);
+                        return taskCommitByTaskId == null;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     /**
      * 判断是否成环
      *
@@ -127,7 +149,11 @@ public class ScheduleTaskTaskShadeService {
             // 节点或者是父节点是null，都表示没有成环
             return Boolean.FALSE;
         }
-        HashSet<String> sideSet = Sets.newHashSet();
+        Map<Side,Set<String>> sideMap = Maps.newHashMap();
+        Side side = new Side();
+        side.setDown(scheduleTaskTaskShade.getTaskKey());
+        side.setUp(scheduleTaskTaskShade.getParentTaskKey());
+        sideMap.put(side,Sets.newHashSet(scheduleTaskTaskShade.getTaskKey()));
 
         // 向上查询,向上查询会查询出自己的边
         Integer loopUp = 0;
@@ -135,7 +161,7 @@ public class ScheduleTaskTaskShadeService {
         while (CollectionUtils.isNotEmpty(scheduleParentTaskTaskShades)) {
             List<String> parentKeys = Lists.newArrayList();
 
-            if (setKeyAndJudgedLoop(sideSet, scheduleParentTaskTaskShades, parentKeys,Boolean.FALSE)) {
+            if (setKeyAndJudgedLoop(sideMap, scheduleParentTaskTaskShades, parentKeys,Boolean.FALSE)) {
                 return Boolean.TRUE;
             }
 
@@ -155,7 +181,7 @@ public class ScheduleTaskTaskShadeService {
         while (CollectionUtils.isNotEmpty(scheduleChildTaskTaskShades)) {
             List<String> childKeys = Lists.newArrayList();
 
-            if (setKeyAndJudgedLoop(sideSet, scheduleChildTaskTaskShades, childKeys,Boolean.TRUE)) {
+            if (setKeyAndJudgedLoop(sideMap, scheduleChildTaskTaskShades, childKeys,Boolean.TRUE)) {
                 return Boolean.TRUE;
             }
 
@@ -170,6 +196,116 @@ public class ScheduleTaskTaskShadeService {
 
         }
 
+        return Boolean.FALSE;
+    }
+
+    static class Side {
+        private String up;
+        private String down;
+
+        public String getUp() {
+            return up;
+        }
+
+        public void setUp(String up) {
+            this.up = up;
+        }
+
+        public String getDown() {
+            return down;
+        }
+
+        public void setDown(String down) {
+            this.down = down;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Side side = (Side) o;
+            return up.equals(side.up) &&
+                    down.equals(side.down);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(up, down);
+        }
+    }
+
+    private boolean setKeyAndJudgedLoop(Map<Side, Set<String>> sideMap, List<ScheduleTaskTaskShade> scheduleChildTaskTaskShades, List<String> parentKeys, Boolean isChild) {
+        Map<Side, Set<String>> newSideMap = Maps.newHashMap(sideMap);
+
+        if (isChild) {
+            // 向下查询
+            Map<String, List<ScheduleTaskTaskShade>> parentKey = scheduleChildTaskTaskShades.stream()
+                    .filter(scheduleTaskTaskShade -> StringUtils.isNotBlank(scheduleTaskTaskShade.getParentTaskKey()))
+                    .collect(Collectors.groupingBy(ScheduleTaskTaskShade::getParentTaskKey));
+
+            for (Map.Entry<Side, Set<String>> entry : newSideMap.entrySet()) {
+                Side side = entry.getKey();
+                String taskKey = side.getDown();
+                List<ScheduleTaskTaskShade> taskTaskShades = parentKey.get(taskKey);
+
+                if (CollectionUtils.isNotEmpty(taskTaskShades)) {
+
+                    for (ScheduleTaskTaskShade taskTaskShade : taskTaskShades) {
+                        Side sideSon = new Side();
+                        Set<String> element = entry.getValue();
+
+                        sideSon.setUp(side.up);
+                        sideSon.setDown(taskTaskShade.getTaskKey());
+
+                        Set<String> newElement = Sets.newHashSet(element);
+
+                        if (!newElement.add(taskTaskShade.getTaskKey())) {
+                            // 添加不进去，说明边重复了，已经成环
+                            LOGGER.warn("saveTaskTask is loop,loop:{} -------- repeat side:{}, map: {}", taskTaskShade.getTaskKey(),newElement, sideMap);
+                            return Boolean.TRUE;
+                        }
+                        sideMap.remove(side);
+                        sideMap.put(sideSon,newElement);
+                        parentKeys.add(taskTaskShade.getTaskKey());
+                    }
+                }
+            }
+        } else {
+            // 向上查询
+            Map<String, List<ScheduleTaskTaskShade>> parentKey = scheduleChildTaskTaskShades.stream()
+                    .filter(scheduleTaskTaskShade -> StringUtils.isNotBlank(scheduleTaskTaskShade.getParentTaskKey()))
+                    .collect(Collectors.groupingBy(ScheduleTaskTaskShade::getParentTaskKey));
+
+            for (Map.Entry<Side, Set<String>> entry : newSideMap.entrySet()) {
+                Side side = entry.getKey();
+                String taskKey = side.getUp();
+
+                List<ScheduleTaskTaskShade> taskTaskShades = parentKey.get(taskKey);
+
+                if (CollectionUtils.isNotEmpty(taskTaskShades)) {
+                    for (ScheduleTaskTaskShade taskTaskShade : taskTaskShades) {
+                        Side sideSon = new Side();
+                        Set<String> element = entry.getValue();
+
+                        sideSon.setUp(taskTaskShade.getParentTaskKey());
+                        sideSon.setDown(side.down);
+
+                        Set<String> newElement = Sets.newHashSet(element);
+
+                        if (!newElement.add(taskTaskShade.getParentTaskKey())) {
+                            // 添加不进去，说明边重复了，已经成环
+                            LOGGER.warn("saveTaskTask is loop,loop:{} -------- repeat side:{}, map: {}", taskTaskShade.getTaskKey(),newElement, sideMap);
+                            return Boolean.TRUE;
+                        }
+                        sideMap.remove(side);
+                        sideMap.put(sideSon,newElement);
+                        parentKeys.add(taskTaskShade.getParentTaskKey());
+                    }
+                }
+            }
+        }
+
+        // 未成环
         return Boolean.FALSE;
     }
 
@@ -205,31 +341,6 @@ public class ScheduleTaskTaskShadeService {
             taskTaskShades.addAll(shades);
         }
         return taskTaskShades;
-    }
-
-    private boolean setKeyAndJudgedLoop(HashSet<String> sideSet, List<ScheduleTaskTaskShade> scheduleChildTaskTaskShades, List<String> parentKeys,Boolean isChild) {
-        for (ScheduleTaskTaskShade taskTaskShade : scheduleChildTaskTaskShades) {
-            if (StringUtils.isBlank(taskTaskShade.getParentTaskKey())) {
-                // 说明是头节点了
-                continue;
-            }
-
-            String sideKey = taskTaskShade.getTaskKey() + "&" + taskTaskShade.getParentTaskKey();
-            if (!sideSet.add(sideKey)) {
-                // 添加不进去，说明边重复了，已经成环
-                LOGGER.warn("saveTaskTask is loop,loop:{} -------- repeat side:{}", sideSet, sideKey);
-                return Boolean.TRUE;
-            }
-
-            if (isChild) {
-                parentKeys.add(taskTaskShade.getTaskKey());
-            } else {
-                parentKeys.add(taskTaskShade.getParentTaskKey());
-            }
-        }
-
-        // 未成环
-        return Boolean.FALSE;
     }
 
     public List<ScheduleTaskTaskShade> getAllParentTask( Long taskId,Integer appType) {
@@ -455,6 +566,7 @@ public class ScheduleTaskTaskShadeService {
 
         if (projectByProjectIdAndApptype != null) {
             vo.setProjectName(projectByProjectIdAndApptype.getProjectName());
+            vo.setProjectAlias(projectByProjectIdAndApptype.getProjectAlias());
         }
     }
 
@@ -691,5 +803,9 @@ public class ScheduleTaskTaskShadeService {
 
     public List<ScheduleTaskTaskShade> listChildTask(Long taskId, Integer appType,Integer limit) {
         return scheduleTaskTaskShadeDao.listChildTaskLimit(taskId,appType,limit);
+    }
+
+    public List<ScheduleTaskTaskShade> getTaskOtherPlatformByProjectId(Long projectId, Integer appType, Integer listChildTaskLimit) {
+        return scheduleTaskTaskShadeDao.getTaskOtherPlatformByProjectId(projectId,appType,listChildTaskLimit);
     }
 }

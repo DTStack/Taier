@@ -7,6 +7,7 @@ import com.dtstack.engine.api.enums.LineageOriginType;
 import com.dtstack.engine.api.pojo.lineage.ColumnLineage;
 import com.dtstack.engine.api.vo.lineage.LineageColumnColumnVO;
 import com.dtstack.engine.api.vo.lineage.LineageTableVO;
+import com.dtstack.pubsvc.sdk.dto.result.datasource.DsServiceInfoDTO;
 
 import java.util.Map;
 
@@ -57,7 +58,7 @@ public class ColumnLineageAdapter {
         return lineageColumnColumn;
     }
 
-    public static LineageColumnColumnVO columnColumn2ColumnColumnVO(LineageColumnColumn columnColumn, LineageDataSetInfo inputTable, LineageDataSetInfo resultTable, LineageDataSource inputSource, LineageDataSource resultSource){
+    public static LineageColumnColumnVO columnColumn2ColumnColumnVO(LineageColumnColumn columnColumn, LineageDataSetInfo inputTable, LineageDataSetInfo resultTable, DsServiceInfoDTO inputSource, DsServiceInfoDTO resultSource){
         LineageColumnColumnVO columnColumnVO = new LineageColumnColumnVO();
         columnColumnVO.setAppType(columnColumn.getAppType());
         columnColumnVO.setDtUicTenantId(columnColumn.getDtUicTenantId());

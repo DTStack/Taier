@@ -205,7 +205,7 @@ public class ClusterController{
     @RequestMapping(value="/getCluster", method = {RequestMethod.POST})
     @ApiOperation(value = "获取集群信息详情")
     public ClusterVO getCluster(@DtRequestParam("clusterId") Long clusterId, @DtRequestParam("kerberosConfig") Boolean kerberosConfig,@DtRequestParam("removeTypeName") Boolean removeTypeName) {
-        return clusterService.getCluster(clusterId, removeTypeName, true);
+        return clusterService.getCluster(clusterId, removeTypeName, true,true);
     }
 
     @RequestMapping(value="/getAllCluster", method = {RequestMethod.POST})
@@ -227,5 +227,16 @@ public class ClusterController{
     @RequestMapping(value="/isSameCluster", method = {RequestMethod.POST})
     public Boolean isSameCluster(@DtRequestParam("tenantId") Long dtUicTenantId,@DtRequestParam("aimTenantIds") List<Long> dtUicTenantIds){
         return clusterService.isSameCluster(dtUicTenantId,dtUicTenantIds);
+    }
+
+
+    @ApiOperation(value = "判断的租户对应集群是否有standalone组件")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "tenantId", value = "租户id", required = true, dataType = "Long", allowMultiple = true),
+            @ApiImplicitParam(name = "componentType", value = "组件类型", required = true, dataType = "Integer", allowMultiple = true)
+    })
+    @RequestMapping(value = "/hasStandalone", method = {RequestMethod.POST, RequestMethod.GET})
+    public Boolean hasStandalone(@DtRequestParam("tenantId") Long dtUicTenantId, @DtRequestParam("componentType") Integer componentType) {
+        return clusterService.hasStandalone(dtUicTenantId, componentType);
     }
 }

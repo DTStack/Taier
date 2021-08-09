@@ -28,11 +28,17 @@ public class ParseTableLineageParam {
     @ApiModelProperty("血缘批次码")
     private String uniqueKey;
 
-    @ApiModelProperty("引擎数据源id")
-    private Long engineDataSourceId;
+    @ApiModelProperty("数据源中心id")
+    private Long dataInfoId;
 
     /**任务类型，周期实例、临时运行**/
     private Integer type;
+
+    /**周期实例提交版本号**/
+    private Integer versionId;
+
+    /**项目id**/
+    private Long projectId;
 
     public Long getDtUicTenantId() {
         return dtUicTenantId;
@@ -82,12 +88,12 @@ public class ParseTableLineageParam {
         this.uniqueKey = uniqueKey;
     }
 
-    public Long getEngineDataSourceId() {
-        return engineDataSourceId;
+    public Long getDataInfoId() {
+        return dataInfoId;
     }
 
-    public void setEngineDataSourceId(Long engineDataSourceId) {
-        this.engineDataSourceId = engineDataSourceId;
+    public void setDataInfoId(Long dataInfoId) {
+        this.dataInfoId = dataInfoId;
     }
 
     public Integer getType() {
@@ -96,5 +102,21 @@ public class ParseTableLineageParam {
 
     public void setType(Integer type) {
         this.type = type;
+    }
+
+    public Integer getVersionId() {
+        return versionId;
+    }
+
+    public void setVersionId(Integer versionId) {
+        this.versionId = versionId;
+    }
+
+    public Long getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(Long projectId) {
+        this.projectId = projectId;
     }
 }

@@ -9,7 +9,6 @@ import com.dtstack.engine.common.client.ClientCache;
 import com.dtstack.engine.common.client.ClientOperator;
 import com.dtstack.engine.common.client.IClient;
 import com.dtstack.engine.common.enums.EComponentType;
-import com.dtstack.engine.common.enums.EComponentTypeDataSourceType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ClientAccessException;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -20,13 +19,15 @@ import com.dtstack.engine.dao.ComponentDao;
 import com.dtstack.engine.dao.KerberosDao;
 import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.dao.LineageDataSetDao;
-import com.dtstack.schedule.common.enums.AppType;
+import com.dtstack.engine.lineage.util.DataSourceUtils;
+import com.dtstack.pubsvc.sdk.datasource.DataSourceAPIClient;
+import com.dtstack.pubsvc.sdk.dto.result.datasource.DsServiceInfoDTO;
 import com.dtstack.schedule.common.enums.DataSourceType;
+import com.dtstack.sdk.core.common.ApiResponse;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,8 +44,6 @@ public class LineageDataSetInfoService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LineageDataSetInfoService.class);
 
-    @Autowired
-    private LineageDataSourceService sourceService;
 
     @Autowired
     private TenantDao tenantDao;
@@ -59,14 +58,13 @@ public class LineageDataSetInfoService {
     @Autowired
     private ComponentConfigDao componentConfigDao;
 
-    @Autowired
-    private KerberosDao kerberosDao;
 
-    @Autowired
-    private ClientOperator clientOperator;
 
     @Autowired
     private EnvironmentContext environmentContext;
+
+    @Autowired
+    private DataSourceAPIClient dataSourceAPIClient;
 
 
 
@@ -80,29 +78,52 @@ public class LineageDataSetInfoService {
      * @param schemaName:
      * @return: com.dtstack.lineage.impl.LineageTableInfoService
      **/
-    public LineageDataSetInfo getOneBySourceIdAndDbNameAndTableName(Long sourceId, String dbName, String tableName, String schemaName){
+    public LineageDataSetInfo getOneBySourceIdAndDbNameAndTableName(Long sourceId, String dbName, String tableName, String schemaName,Integer appType){
 
-        LineageDataSetInfo lineageDataSetInfo = lineageDataSetDao.getOneBySourceIdAndDbNameAndTableName(sourceId,dbName,tableName,schemaName);
+        LineageDataSetInfo lineageDataSetInfo = lineageDataSetDao.getOneBySourceIdAndDbNameAndTableName(sourceId,dbName,tableName,schemaName,appType);
         if(null != lineageDataSetInfo){
             return lineageDataSetInfo;
         }
         //如果没有查到，则新增表信息
         //根据sourceId查询数据源信息
-        LineageDataSource dataSource = sourceService.getDataSourceById(sourceId);
-        if(null == dataSource){
-            throw new RdosDefineException("该数据源不存在");
+        ApiResponse<DsServiceInfoDTO> dsInfoById = dataSourceAPIClient.getDsInfoById(sourceId);
+        if(dsInfoById.getCode() != 1){
+            LOGGER.error("getDsInfoById query failed,param:{}",JSON.toJSONString(sourceId));
+            throw new RdosDefineException("调用数据源中心根据id查询数据源接口失败");
         }
-        lineageDataSetInfo = generateDataSet(sourceId, tableName, schemaName, dataSource, dbName);
+        if( null == dsInfoById.getData()){
+            throw new RdosDefineException("该id对应的数据源在数据源中心不存在");
+        }
+        DsServiceInfoDTO dsServiceInfoDTO = dsInfoById.getData();
+        lineageDataSetInfo = generateDataSet(sourceId, tableName, schemaName, dsServiceInfoDTO, dbName,appType);
         lineageDataSetDao.insertTableInfo(lineageDataSetInfo);
         return lineageDataSetInfo;
     }
 
-    private LineageDataSetInfo generateDataSet(Long sourceId, String tableName, String schemaName, LineageDataSource dataSource, String dbName) {
+    /**
+     * @author zyd
+     * @Description 根据条件查询表信息，如果没有则新增
+     * @Date 2020/10/30 4:20 下午
+     * @param sourceId:
+     * @param dbName:
+     * @param tableName:
+     * @param schemaName:
+     * @return: com.dtstack.lineage.impl.LineageTableInfoService
+     **/
+    public List<LineageDataSetInfo> getListByParams(Long sourceId, String dbName, String tableName, String schemaName,Integer appType){
+
+        return lineageDataSetDao.getListByParams(sourceId,dbName,tableName,schemaName,appType);
+    }
+
+    private LineageDataSetInfo generateDataSet(Long sourceId, String tableName, String schemaName, DsServiceInfoDTO dataSource, String dbName,Integer appType) {
         LineageDataSetInfo dataSetInfo = new LineageDataSetInfo();
-        BeanUtils.copyProperties(dataSource,dataSetInfo);
-        dataSetInfo.setSourceId(sourceId);
+        dataSetInfo.setAppType(appType);
+        dataSetInfo.setSourceName(dataSource.getDataName());
+        dataSetInfo.setSourceType(dataSource.getType());
+        dataSetInfo.setDataInfoId(sourceId);
         dataSetInfo.setDbName(dbName);
         dataSetInfo.setIsManual(0);
+        dataSetInfo.setDtUicTenantId(dataSource.getDtuicTenantId());
         if(StringUtils.isNotEmpty(schemaName)){
             dataSetInfo.setSchemaName(schemaName);
         }else {
@@ -111,7 +132,7 @@ public class LineageDataSetInfoService {
         dataSetInfo.setSetType(0);
         dataSetInfo.setTableName(tableName);
         //生成tableKey
-        String tableKey = generateTableKey(dataSource.getId(), dbName, tableName);
+        String tableKey = generateTableKey(sourceId, dbName, tableName);
         dataSetInfo.setTableKey(tableKey);
         return dataSetInfo;
     }
@@ -124,78 +145,61 @@ public class LineageDataSetInfoService {
     public List<Column> getTableColumns(LineageDataSetInfo dataSetInfo){
 
         //获取数据源信息
-        LineageDataSource dataSource = sourceService.getDataSourceById(dataSetInfo.getSourceId());
-        if(null == dataSource){
+        ApiResponse<DsServiceInfoDTO> dsInfoById = dataSourceAPIClient.getDsInfoById(dataSetInfo.getDataInfoId());
+        if(dsInfoById.getCode() != 1){
+            LOGGER.error("getDsInfoById query failed,param:{}",JSON.toJSONString(dataSetInfo.getDataInfoId()));
+            throw new RdosDefineException("调用数据源中心根据id查询数据源接口失败");
+        }
+        DsServiceInfoDTO dsServiceInfoDTO = dsInfoById.getData();
+        if(null == dsServiceInfoDTO){
             throw new RdosDefineException("找不到对应的数据源");
         }
         ClientCache clientCache = ClientCache.getInstance(environmentContext.getPluginPath());
         IClient iClient ;
         try {
-            String kerberosConf = dataSource.getKerberosConf();
-            String dataJson = dataSource.getDataJson();
-            JSONObject jsonObject = JSON.parseObject(dataJson);
-            JSONObject kerberosJsonObj = new JSONObject();
-            if(!"-1".equals(kerberosConf)) {
-                kerberosJsonObj = JSON.parseObject(kerberosConf);
-            }
-            Long dtUicTenantId = dataSource.getDtUicTenantId();
+            String dataJson = dsServiceInfoDTO.getDataJson();
+            JSONObject jsonObject = DataSourceUtils.getDataSourceJson(dataJson);
+            Long dtUicTenantId = dsServiceInfoDTO.getDtuicTenantId();
             Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
-            if(dataSource.getOpenKerberos() == 1 && dataSource.getAppType().equals(AppType.RDOS.getType())){
-                //离线开启了kerberos，但是没有存kerberos配置
-                Component one = componentDao.getByTenantIdComponentType(tenantId, dataSource.getSourceType());
-                if(null == one){
-                    throw new RdosDefineException("do not have this component");
-                }
-                //根据engineId和组件类型获取kerberos配置
-                EComponentTypeDataSourceType code = EComponentTypeDataSourceType.getByCode(dataSource.getSourceType());
-                if(null == code){
-                    throw new RdosDefineException("this type dataSource do not have component");
-                }
-                KerberosConfig kerberosConfig = kerberosDao.getByEngineIdAndComponentType(one.getEngineId(),code.getComponentType().getTypeCode());
-                if(null == kerberosConfig){
-                    LOGGER.error("do not have kerberos config,dtUicTenantId:{},engineId:{},sourceType:{}",dtUicTenantId,one.getEngineId(),dataSource.getSourceType());
-                    throw new RdosDefineException("do not have kerberos config");
-                }
-                kerberosJsonObj.put("remoteDir",kerberosConfig.getRemotePath());
-                kerberosJsonObj.put("principalFile",kerberosConfig.getPrincipal());
-                kerberosJsonObj.put("krbName",kerberosConfig.getKrbName());
-                kerberosJsonObj.put("principal",kerberosConfig.getPrincipals());
-            }
-
-            JSONObject sftpConf = getJsonObject(dataSource,EComponentType.SFTP.getTypeCode(),tenantId);
-            if(dataSource.getOpenKerberos()==1) {
-                //开启kerberos
-                //获取yarnConf
-                JSONObject yarnConf = getJsonObject(dataSource,EComponentType.YARN.getTypeCode(),tenantId);
-                jsonObject.put("yarnConf",yarnConf);
-                jsonObject.put("sftpConf", sftpConf);
-                jsonObject.put("remoteDir",kerberosJsonObj.get("remoteDir"));
-                jsonObject.put("principalFile",kerberosJsonObj.get("principalFile"));
-                jsonObject.put("krbName",kerberosJsonObj.get("krbName"));
-                jsonObject.put("principal",kerberosJsonObj.get("principal"));
-                jsonObject.put("kerberosFileTimestamp",kerberosJsonObj.get("kerberosFileTimestamp"));
-                jsonObject.put("openKerberos",true);
+            JSONObject sftpConf = getJsonObject(EComponentType.SFTP.getTypeCode(),tenantId);
+            if(DataSourceUtils.judgeOpenKerberos(dataJson)) {
+                handleKerberosConfig(dataJson, jsonObject, tenantId, sftpConf);
             }
             //需要在pluginInfo中补充typeName
-            String typeName = DataSourceType.getEngineType(DataSourceType.getSourceType(dataSource.getSourceType()));
+            String typeName = DataSourceType.getEngineType(DataSourceType.getSourceType(dsServiceInfoDTO.getType()));
             jsonObject.put("typeName",typeName);
             String pluginInfo = PublicUtil.objToString(jsonObject);
-            iClient = getClient(dataSource, clientCache, pluginInfo);
+            iClient = getClient(dsServiceInfoDTO, clientCache, pluginInfo);
             return getAllColumns(dataSetInfo, iClient);
         } catch (Exception e) {
             throw new RdosDefineException("获取client异常",e);
         }
     }
 
+    private void handleKerberosConfig(String dataJson, JSONObject jsonObject, Long tenantId, JSONObject sftpConf) {
+        JSONObject dataSourceJson = DataSourceUtils.getDataSourceJson(dataJson);
+        JSONObject kerberosConfig = dataSourceJson.getJSONObject(DataSourceUtils.KERBEROS_CONFIG);
+        //开启kerberos
+        //获取yarnConf
+        JSONObject yarnConf = getJsonObject(EComponentType.YARN.getTypeCode(), tenantId);
+        jsonObject.put("yarnConf",yarnConf);
+        jsonObject.put("sftpConf", sftpConf);
+        jsonObject.put("remoteDir",kerberosConfig.get("kerberosDir"));
+        jsonObject.put("principalFile",kerberosConfig.get("principalFile"));
+        jsonObject.put("krbName",kerberosConfig.get("krbName"));
+        jsonObject.put("principal",kerberosConfig.get("principal"));
+        jsonObject.put("kerberosFileTimestamp",kerberosConfig.get("kerberosFileTimestamp"));
+        jsonObject.put("openKerberos",true);
+    }
+
     /**
      * @author ZYD
      * @Description 获取组件配置
      * @Date 2021/1/29 11:11
-     * @param dataSource:
      * @param typeCode:
      * @return: com.alibaba.fastjson.JSONObject
      **/
-    private JSONObject getJsonObject(LineageDataSource dataSource,Integer typeCode,Long tenantId) {
+    private JSONObject getJsonObject(Integer typeCode,Long tenantId) {
         //获取sftp配置
         Component one = componentDao.getByTenantIdComponentType(tenantId, typeCode);
         if(null == one){
@@ -218,11 +222,11 @@ public class LineageDataSetInfoService {
         return iClient.getAllColumns(dataSetInfo.getTableName(), dataSetInfo.getSchemaName(), dataSetInfo.getDbName());
     }
 
-    public IClient getClient(LineageDataSource dataSource, ClientCache clientCache, String pluginInfo) throws ClientAccessException {
-        if(null == clientCache || null == dataSource){
+    public IClient getClient(DsServiceInfoDTO dsServiceInfoDTO, ClientCache clientCache, String pluginInfo) throws ClientAccessException {
+        if(null == clientCache || null == dsServiceInfoDTO){
             return null;
         }
-        return clientCache.getClient(DataSourceType.getEngineType(DataSourceType.getSourceType(dataSource.getSourceType())), pluginInfo);
+        return clientCache.getClient(DataSourceType.getEngineType(DataSourceType.getSourceType(dsServiceInfoDTO.getType())), pluginInfo);
     }
 
     /**
@@ -272,7 +276,7 @@ public class LineageDataSetInfoService {
             dataSetInfo.setDbName(table.getDb());
             dataSetInfo.setSchemaName(table.getSchemaName());
             dataSetInfo.setTableName(table.getName());
-            dataSetInfo.setSourceId(sourceId);
+            dataSetInfo.setDataInfoId(sourceId);
             List<Column> tableColumns = getTableColumns(dataSetInfo);
             listHashMap.put(table.getDb()+"."+table.getName(),tableColumns);
         }
@@ -283,12 +287,12 @@ public class LineageDataSetInfoService {
      * 根据表名和数据源信息修改表名
      * @param oldTableName
      * @param newTableName
-     * @param dataSource
+     * @param dataSourceId
      */
-    public void updateTableNameByTableNameAndSourceId(String oldTableName,String newTableName,LineageDataSource dataSource) {
+    public void updateTableNameByTableNameAndSourceId(String oldTableName,String newTableName,String dbName,Long dataSourceId) {
 
-        String oldTableKey = generateTableKey(dataSource.getId(), dataSource.getSchemaName(), oldTableName);
-        String newTableKey = generateTableKey(dataSource.getId(), dataSource.getSchemaName(), oldTableName);
+        String oldTableKey = generateTableKey(dataSourceId, dbName, oldTableName);
+        String newTableKey = generateTableKey(dataSourceId, dbName, newTableName);
         lineageDataSetDao.updateTableNameByTableNameAndSourceId(newTableName,oldTableKey,newTableKey);
     }
 }

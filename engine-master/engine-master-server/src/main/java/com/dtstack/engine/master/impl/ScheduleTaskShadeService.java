@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
@@ -13,25 +14,30 @@ import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskV
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
 import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
+import com.dtstack.engine.api.vo.task.TaskTypeVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EScheduleStatus;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.ComponentVersionUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.UnitConvertUtil;
+import com.dtstack.engine.dao.ScheduleTaskCommitMapper;
+import com.dtstack.engine.dao.ScheduleTaskShadeDao;
+import com.dtstack.engine.dao.TenantResourceDao;
+import com.dtstack.engine.master.druid.DtDruidRemoveAbandoned;
+import com.dtstack.engine.common.util.*;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.master.executor.CronJobExecutor;
-import com.dtstack.engine.master.executor.FillJobExecutor;
+import com.dtstack.engine.master.scheduler.parser.ESchedulePeriodType;
 import com.dtstack.schedule.common.enums.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
+import org.quartz.CronExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -64,12 +70,6 @@ public class ScheduleTaskShadeService {
     private TenantResourceDao tenantResourceDao;
 
     @Autowired
-    private CronJobExecutor cronJobExecutor;
-
-    @Autowired
-    private FillJobExecutor fillJobExecutor;
-
-    @Autowired
     private TenantDao tenantDao;
 
     @Autowired
@@ -83,6 +83,9 @@ public class ScheduleTaskShadeService {
 
     @Autowired
     private ComponentDao componentDao;
+
+    @Autowired
+    private ScheduleDictDao scheduleDictDao;
 
     @Autowired
     private UserService userService;
@@ -116,10 +119,13 @@ public class ScheduleTaskShadeService {
                 batchTaskShadeDTO.setTaskRule(0);
             }
             EComponentType componentType;
-            if (StringUtils.isBlank(batchTaskShadeDTO.getComponentVersion()) &&
-                    Objects.nonNull(componentType= ComponentVersionUtil.transformTaskType2ComponentType(batchTaskShadeDTO.getTaskType()))){
-                batchTaskShadeDTO.setComponentVersion(componentDao.getDefaultComponentVersionByTenantAndComponentType(
-                        batchTaskShadeDTO.getTenantId(),componentType.getTypeCode()));
+            if (Objects.nonNull(componentType = ComponentVersionUtil.transformTaskType2ComponentType(batchTaskShadeDTO.getTaskType())) &&
+                    StringUtils.isBlank(batchTaskShadeDTO.getComponentVersion())) {
+                // 查询版本 e.g 1.10
+                batchTaskShadeDTO.setComponentVersion(componentDao.getDefaultVersionDictNameByUicIdAndComponentType(
+                        batchTaskShadeDTO.getTenantId(), componentType.getTypeCode()));
+            } else if (StringUtils.isNotBlank(batchTaskShadeDTO.getComponentVersion())) {
+                batchTaskShadeDTO.setComponentVersion(batchTaskShadeDTO.getComponentVersion());
             }
             scheduleTaskShadeDao.insert(batchTaskShadeDTO);
         }
@@ -172,12 +178,12 @@ public class ScheduleTaskShadeService {
     /**
      * 获取所有需要需要生成调度的task 没有sqlText字段
      */
-    public List<ScheduleTaskShade> listTaskByStatus(Long startId, Integer submitStatus, Integer projectSubmitStatus, Integer batchTaskSize) {
-        return scheduleTaskShadeDao.listTaskByStatus(startId, submitStatus, projectSubmitStatus, batchTaskSize);
+    public List<ScheduleTaskShade> listTaskByStatus(Long startId, Integer submitStatus, Integer projectSubmitStatus, Integer batchTaskSize,Collection<Long> projectIds,Integer appType) {
+        return scheduleTaskShadeDao.listTaskByStatus(startId, submitStatus, projectSubmitStatus, batchTaskSize,projectIds,appType);
     }
 
-    public Integer countTaskByStatus(Integer submitStatus, Integer projectSubmitStatus) {
-        return scheduleTaskShadeDao.countTaskByStatus(submitStatus, projectSubmitStatus);
+    public Integer countTaskByStatus(Integer submitStatus, Integer projectSubmitStatus,Collection<Long> projectIds,Integer appType) {
+        return scheduleTaskShadeDao.countTaskByStatus(submitStatus, projectSubmitStatus,projectIds,appType);
     }
 
     /**
@@ -427,11 +433,12 @@ public class ScheduleTaskShadeService {
         batchTaskDTO.setSubmitStatus(ESubmitStatus.SUBMIT.getStatus());
         batchTaskDTO.setTaskTypeList(convertStringToList(taskTypeList));
         batchTaskDTO.setPeriodTypeList(convertStringToList(periodTypeList));
+        batchTaskDTO.setAppType(appType);
         if (StringUtils.isNotBlank(name)) {
             batchTaskDTO.setFuzzName(name);
         }
         if (null != ownerId && ownerId != 0) {
-            batchTaskDTO.setCreateUserId(ownerId);
+            batchTaskDTO.setOwnerUserId(ownerId);
         }
         if (null != startTime && null != endTime) {
             batchTaskDTO.setStartGmtModified(new Timestamp(startTime * 1000));
@@ -757,6 +764,7 @@ public class ScheduleTaskShadeService {
         try {
             List<ScheduleTaskCommit> scheduleTaskCommits = Lists.newArrayList();
             for (ScheduleTaskShadeDTO batchTaskShadeDTO : batchTaskShadeDTOs) {
+                checkSubmitTaskCron(batchTaskShadeDTO);
                 ScheduleTaskCommit scheduleTaskCommit = new ScheduleTaskCommit();
                 scheduleTaskCommit.setAppType(batchTaskShadeDTO.getAppType());
                 scheduleTaskCommit.setCommitId(commitId);
@@ -799,7 +807,8 @@ public class ScheduleTaskShadeService {
         }
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
+    @DtDruidRemoveAbandoned
     public Boolean taskCommit(String commitId) {
         LOGGER.info("submit task commitId:{}",commitId);
         Long minId = scheduleTaskCommitMapper.findMinIdOfTaskCommitByCommitId(commitId);
@@ -859,7 +868,7 @@ public class ScheduleTaskShadeService {
         if (StringUtils.isBlank(name)) {
             return buildTypeVo(null);
         }
-        List<ScheduleTaskShade> tasks = scheduleTaskShadeDao.findFuzzyTaskNameByCondition(name, appType, uicTenantId, projectId, environmentContext.getFuzzyProjectByProjectAliasLimit());
+        List<ScheduleTaskShade> tasks = scheduleTaskShadeDao.findFuzzyTaskNameByCondition(name, appType, uicTenantId, projectId, environmentContext.getFuzzyProjectByProjectAliasLimit(),EProjectScheduleStatus.NORMAL.getStatus());
 
         return buildTypeVo(tasks);
     }
@@ -899,6 +908,7 @@ public class ScheduleTaskShadeService {
 
             if (scheduleEngineProject != null) {
                 vo.setProjectName(scheduleEngineProject.getProjectName());
+                vo.setProjectAlias(scheduleEngineProject.getProjectAlias());
             }
 
             vos.add(vo);
@@ -907,8 +917,8 @@ public class ScheduleTaskShadeService {
         return vos;
     }
 
-    public List<ScheduleTaskShade> getTaskOtherPlatformByProjectId(Long projectId, Integer appType, Integer listChildTaskLimit) {
-        return scheduleTaskShadeDao.getTaskOtherPlatformByProjectId(projectId,appType,listChildTaskLimit);
+    public List<ScheduleTaskTaskShade> getTaskOtherPlatformByProjectId(Long projectId, Integer appType, Integer listChildTaskLimit) {
+        return scheduleTaskTaskShadeService.getTaskOtherPlatformByProjectId(projectId,appType,listChildTaskLimit);
     }
 
     public ScheduleDetailsVO findTaskRuleTask(Long taskId, Integer appType) {
@@ -967,6 +977,7 @@ public class ScheduleTaskShadeService {
 
             if (projectByProjectIdAndApptype != null) {
                 vo.setProjectName(projectByProjectIdAndApptype.getProjectName());
+                vo.setProjectAlias(projectByProjectIdAndApptype.getProjectAlias());
             }
             return vo;
         }
@@ -1007,8 +1018,111 @@ public class ScheduleTaskShadeService {
         }
         Map<Integer,List<ScheduleTaskShade>> scheduleTaskShadeMap=new HashMap<>(groupByAppMap.size());
         for (Map.Entry<Integer, Set<Long>> entry : groupByAppMap.entrySet()) {
-            scheduleTaskShadeMap.put(entry.getKey(),scheduleTaskShadeDao.listSimpleByTaskIds(entry.getValue(), Deleted.NORMAL.getStatus(), entry.getKey()));
+            scheduleTaskShadeMap.put(entry.getKey(),scheduleTaskShadeDao.listByTaskIds(entry.getValue(), Deleted.NORMAL.getStatus(), entry.getKey()));
         }
         return scheduleTaskShadeMap;
+    }
+
+    /**
+     * 校验cron表达式
+     * @param expression
+     * @return
+     */
+    public CronExceptionVO checkCronExpression(String cron,Long minPeriod) {
+        CronExpression cronExpression = null;
+        try {
+            CronExpression.validateExpression(cron);
+            cronExpression = new CronExpression(cron);
+        }catch (Exception e){
+            return new CronExceptionVO(CronExceptionVO.CHECK_EXCEPTION,ExceptionUtil.getErrorMessage(e));
+        }
+        minPeriod*=1000;
+        // 第一次执行的时间
+        Date curRunTime = cronExpression.getNextValidTimeAfter(new Date()), nextRunTime ;
+        Date startDateTime = new Date(curRunTime.toInstant().atOffset(DateUtil.DEFAULT_ZONE)
+                .toLocalDate().atStartOfDay().plusSeconds(-1L).toInstant(DateUtil.DEFAULT_ZONE).toEpochMilli());
+
+        Date endTDateTime = new Date(curRunTime.toInstant().atOffset(DateUtil.DEFAULT_ZONE)
+                .toLocalDate().plusDays(1).atStartOfDay().toInstant(DateUtil.DEFAULT_ZONE).toEpochMilli());
+        while (curRunTime.after(startDateTime) && curRunTime.before(endTDateTime)){
+            nextRunTime = cronExpression.getNextValidTimeAfter(curRunTime);
+            if (nextRunTime.getTime()- minPeriod < curRunTime.getTime()){
+                return new CronExceptionVO(CronExceptionVO.PERIOD_EXCEPTION,String.format("%s run too frequency and min period = %sS",cron,minPeriod/1000));
+            }
+            curRunTime = nextRunTime;
+        }
+        return null;
+    }
+
+    /**
+     * 指定范围内最近多少条运行时间
+     * @param startDate 开始
+     * @param endDate 结束
+     * @param expression cron
+     * @param num 条数
+     * @return 运行数据
+     */
+    public List<String> recentlyRunTime(String startDate, String endDate, String cron, int num) {
+        CronExpression cronExpression;
+        try {
+            cronExpression = new CronExpression(cron);
+        }catch (Exception e){
+            throw new RdosDefineException("illegal cron expression");
+        }
+        List<String > recentlyList = new ArrayList<>(num);
+        Date nowDate = new Date();
+        Date start = DateUtil.parseDate(startDate, DateUtil.DATE_FORMAT);
+        // 当前时间在开始时间后,以下一天开始的时间为起始时间
+        if (nowDate.after(start)){
+            start = new Date(nowDate.toInstant().atOffset(DateUtil.DEFAULT_ZONE)
+                    .toLocalDate().plusDays(1).atStartOfDay().toInstant(DateUtil.DEFAULT_ZONE).toEpochMilli());
+        }else {
+            start = new Date(start.getTime()-1000);
+        }
+        Date end = new Date(DateUtil.parseDate(endDate,DateUtil.DATE_FORMAT).toInstant().atOffset(DateUtil.DEFAULT_ZONE)
+                .toLocalDate().plusDays(1).atStartOfDay().toInstant(DateUtil.DEFAULT_ZONE).toEpochMilli());
+
+        Date curDate = cronExpression.getNextValidTimeAfter(start);
+        while (num-- > 0 && curDate.before(end) && curDate.after(start)){
+            recentlyList.add(DateUtil.getDate(curDate,DateUtil.STANDARD_DATETIME_FORMAT));
+            curDate = cronExpression.getNextValidTimeAfter(curDate);
+        }
+        return recentlyList;
+    }
+
+    private void checkSubmitTaskCron(ScheduleTaskShadeDTO taskShade){
+        // 优先使用periodType
+        if (taskShade.getPeriodType()!=null &&
+                taskShade.getPeriodType() != ESchedulePeriodType.CUSTOM.getVal()){
+            return;
+        }
+        // 没有periodType再去反序列化
+        JSONObject scheduleConf = JSON.parseObject(taskShade.getScheduleConf());
+        if (Objects.isNull(scheduleConf)){
+            throw new RdosDefineException("empty schedule conf");
+        }
+        // 非自定义调度
+        if (scheduleConf.getInteger("periodType")!=ESchedulePeriodType.CUSTOM.getVal()){
+            return;
+        }
+        String cron = scheduleConf.getString("cron");
+        CronExceptionVO cronExceptionVO = checkCronExpression(cron, 300L);
+        if (Objects.nonNull(cronExceptionVO)){
+            throw new RdosDefineException(cronExceptionVO.getErrMessage());
+        }
+
+    }
+
+    public List<TaskTypeVO> getTaskType() {
+        EScheduleJobType[] values = EScheduleJobType.values();
+        List<TaskTypeVO> taskTypeVOS = Lists.newArrayList();
+        for (EScheduleJobType value : values) {
+            TaskTypeVO vo = new TaskTypeVO();
+            vo.setCode(value.getType());
+            vo.setName(value.getName());
+            vo.setEnumName(value.name());
+            taskTypeVOS.add(vo);
+        }
+        return taskTypeVOS;
     }
 }

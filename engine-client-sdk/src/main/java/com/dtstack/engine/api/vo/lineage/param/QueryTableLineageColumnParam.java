@@ -10,6 +10,9 @@ package com.dtstack.engine.api.vo.lineage.param;
 public class QueryTableLineageColumnParam {
     private Long tableId;
 
+    /**数据源中心id**/
+    private Long dataInfoId;
+
     private String sourceName;
 
     private Integer sourceType;
@@ -76,5 +79,13 @@ public class QueryTableLineageColumnParam {
 
     public void setDtUicTenantId(Long dtUicTenantId) {
         this.dtUicTenantId = dtUicTenantId;
+    }
+
+    public Long getDataInfoId() {
+        return dataInfoId;
+    }
+
+    public void setDataInfoId(Long dataInfoId) {
+        this.dataInfoId = dataInfoId;
     }
 }

@@ -21,11 +21,8 @@ public class QueryTableLineageParam {
     @ApiModelProperty("数据源名称，资产可能存在仅有数据源名称的数据源")
     private String sourceName;
 
-    @ApiModelProperty(value = "engine数据源id",notes = "数据资产必须传，离线不传")
-    private Long engineSourceId;
-
-    @ApiModelProperty(value = "平台数据源id")
-    private Long sourceId;
+    @ApiModelProperty(value = "数据源中心id")
+    private Long dataInfoId;
 
     @ApiModelProperty("uic租户id")
     private Long dtUicTenantId;
@@ -66,12 +63,12 @@ public class QueryTableLineageParam {
         this.sourceName = sourceName;
     }
 
-    public Long getEngineSourceId() {
-        return engineSourceId;
+    public Long getDataInfoId() {
+        return dataInfoId;
     }
 
-    public void setEngineSourceId(Long engineSourceId) {
-        this.engineSourceId = engineSourceId;
+    public void setDataInfoId(Long dataInfoId) {
+        this.dataInfoId = dataInfoId;
     }
 
     public Long getDtUicTenantId() {
@@ -106,13 +103,6 @@ public class QueryTableLineageParam {
         this.tableName = tableName;
     }
 
-    public Long getSourceId() {
-        return sourceId;
-    }
-
-    public void setSourceId(Long sourceId) {
-        this.sourceId = sourceId;
-    }
 
     public Integer getLevel() {
         return level;

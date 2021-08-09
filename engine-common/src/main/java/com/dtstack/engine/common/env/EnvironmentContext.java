@@ -33,7 +33,7 @@ public class EnvironmentContext {
     }
 
     public Integer getCycTimeDayGap() {
-        return Math.abs(Integer.parseInt(environment.getProperty("cycTimeDayGap", "0")));
+        return Math.abs(Integer.parseInt(environment.getProperty("cycTimeDayGap", "1")));
     }
 
     /**补数据或重跑cycTime的间隔，正常环境7*24小时，压测环境2个小时**/
@@ -138,8 +138,15 @@ public class EnvironmentContext {
         return Integer.parseInt(environment.getProperty("http.port", "9020"));
     }
 
+    private volatile String httpAddress;
+
     public String getHttpAddress() {
-        return environment.getProperty("http.address", AddressUtil.getOneIp());
+        if (StringUtils.isNotBlank(httpAddress)) {
+            return httpAddress;
+        }
+
+        httpAddress = environment.getProperty("http.address", AddressUtil.getOneIp());
+        return httpAddress;
     }
 
     /**
@@ -293,10 +300,17 @@ public class EnvironmentContext {
         return Integer.parseInt(environment.getProperty("slots", "10"));
     }
 
+    private volatile String localAddress;
+
     public String getLocalAddress() {
+        if (StringUtils.isNotBlank(localAddress)) {
+            return localAddress;
+        }
+
         String address = environment.getProperty("http.address", AddressUtil.getOneIp());
         String port = environment.getProperty("http.port", "8090");
-        return String.format("%s:%s", address, port);
+        localAddress = String.format("%s:%s", address, port);
+        return localAddress;
     }
 
     public String getNodeZkAddress() {
@@ -409,9 +423,20 @@ public class EnvironmentContext {
         return Integer.parseInt(environment.getProperty("testConnectTimeout", "100"));
     }
 
-
     public int getBuildJobErrorRetry() {
         return Integer.parseInt(environment.getProperty("build.job.retry", "3"));
+    }
+
+    public int getJobSubmitConcurrent() {
+        return Integer.parseInt(environment.getProperty("job.submit.concurrent", "1"));
+    }
+
+    public boolean getJobGraphBuilderSwitch() {
+        return Boolean.parseBoolean(environment.getProperty("jobGraphBuilderSwitch", "false"));
+    }
+
+    public boolean getJobGraphWhiteList() {
+        return Boolean.parseBoolean(environment.getProperty("jobGraphWhiteList", "false"));
     }
 
     /**
@@ -525,6 +550,11 @@ public class EnvironmentContext {
         return Boolean.parseBoolean(environment.getProperty("job.schedule", "true"));
     }
 
+
+    public long getForkJoinResultTimeOut() {
+        return Long.parseLong(environment.getProperty("fork.join.timeout", Long.toString(60 * 5)));
+    }
+
     public boolean getKeepAlive() {
         return Boolean.parseBoolean(environment.getProperty("dataSource.keep.alive", "true"));
     }
@@ -558,9 +588,9 @@ public class EnvironmentContext {
         return Integer.valueOf(environment.getProperty("dataSource.max.prepared.statement.per.connection.size", "20"));
     }
 
-    public long getForkJoinResultTimeOut() {
-        return Long.parseLong(environment.getProperty("fork.join.timeout", Long.toString(60L * 5)));
-    }
+//    public long getForkJoinResultTimeOut() {
+//        return Long.parseLong(environment.getProperty("fork.join.timeout", Long.toString(60 * 5)));
+//    }
     /**
      * 是否根据版本加载默认的配置
      *
@@ -596,7 +626,7 @@ public class EnvironmentContext {
      * @return
      */
     public String getDatasourceNode() {
-        return environment.getProperty("datasource.node", "127.0.0.1:8077");
+        return environment.getProperty("datasource.node", "");
     }
 
     /**
@@ -608,6 +638,23 @@ public class EnvironmentContext {
     }
 
     public String getSqlParserDir(){
-        return environment.getProperty("sqlParser.dir","/opt/dtstack/DTCommon/SQLParser");
+        return environment.getProperty("sqlParser.dir","/opt/dtstack/DTPlugin/SqlParser");
+    }
+
+    /**
+     * 是否优先走standalone的组件
+     *
+     * @return
+     */
+    public boolean checkStandalone() {
+        return Boolean.parseBoolean(environment.getProperty("check.standalone", "true"));
+    }
+
+    public int getBatchJobInsertSize() {
+        return Integer.parseInt(environment.getProperty("batchJob.insert.size", "20"));
+    }
+
+    public int getBatchJobJobInsertSize() {
+        return Integer.parseInt(environment.getProperty("batchJobJob.insert.size", "1000"));
     }
 }

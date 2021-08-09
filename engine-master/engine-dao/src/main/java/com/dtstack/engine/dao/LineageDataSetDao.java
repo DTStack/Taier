@@ -21,7 +21,7 @@ public interface LineageDataSetDao {
     Integer deleteTableInfo(@Param("id")Long id);
 
     LineageDataSetInfo getOneBySourceIdAndDbNameAndTableName(@Param("sourceId") Long sourceId, @Param("dbName") String dbName,
-                                                             @Param("tableName") String tableName,@Param("schemaName") String schemaName);
+                                                             @Param("tableName") String tableName,@Param("schemaName") String schemaName,@Param("appType")Integer appType);
 
     /**
      * @author zyd
@@ -48,4 +48,7 @@ public interface LineageDataSetDao {
      * @param newTableKey
      */
     void updateTableNameByTableNameAndSourceId(@Param("newTableName") String newTableName,@Param("oldTableKey") String oldTableKey,@Param("newTableKey") String newTableKey);
+
+    List<LineageDataSetInfo> getListByParams(@Param("sourceId") Long sourceId, @Param("dbName") String dbName,
+                                             @Param("tableName") String tableName,@Param("schemaName") String schemaName,@Param("appType")Integer appType);
 }

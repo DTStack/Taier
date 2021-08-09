@@ -166,8 +166,9 @@ public class ScheduleJobController {
                                @DtRequestParam("tenantId") Long tenantId,
                                @DtRequestParam("isRoot") Boolean isRoot,
                                @DtRequestParam("appType") Integer appType,
-                               @DtParamOrHeader(value = "dtuicTenantId",header = "cookie",cookie = "dt_tenant_id") Long dtuicTenantId) throws Exception {
-        return scheduleJobService.fillTaskData(taskJsonStr, fillName, fromDay, toDay, beginTime, endTime, projectId, userId, tenantId, isRoot, appType, dtuicTenantId);
+                               @DtParamOrHeader(value = "dtuicTenantId",header = "cookie",cookie = "dt_tenant_id") Long dtuicTenantId,
+                               @DtRequestParam("ignoreCycTime") Boolean ignoreCycTime) throws Exception {
+        return scheduleJobService.fillTaskData(taskJsonStr, fillName, fromDay, toDay, beginTime, endTime, projectId, userId, tenantId, isRoot, appType, dtuicTenantId,ignoreCycTime);
     }
 
 

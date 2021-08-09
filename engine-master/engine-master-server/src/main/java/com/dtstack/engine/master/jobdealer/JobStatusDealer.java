@@ -3,37 +3,36 @@ package com.dtstack.engine.master.jobdealer;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.ScheduleJobJob;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.enums.TaskRuleEnum;
+import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.BlockCallerPolicy;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.enums.*;
+import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.common.enums.EScheduleType;
+import com.dtstack.engine.common.enums.EngineType;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.pojo.JobStatusFrequency;
 import com.dtstack.engine.common.util.LogCountUtil;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
-import com.dtstack.engine.dao.ScheduleJobJobDao;
-import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.bo.JobCheckpointInfo;
 import com.dtstack.engine.master.bo.JobCompletedInfo;
+import com.dtstack.engine.master.impl.ScheduleJobService;
+import com.dtstack.engine.master.impl.TaskParamsService;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.jobdealer.cache.ShardManager;
-import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.master.impl.ScheduleJobService;
-import com.dtstack.engine.master.utils.TaskParamsUtil;
 import com.google.common.collect.Maps;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -69,9 +68,7 @@ public class  JobStatusDealer implements Runnable {
     private ShardCache shardCache;
     private String jobResource;
     private ScheduleJobDao scheduleJobDao;
-    private ScheduleJobJobDao scheduleJobJobDao;
     private EngineJobCacheDao engineJobCacheDao;
-    private ScheduleTaskShadeDao scheduleTaskShadeDao;
     private JobCheckpointDealer jobCheckpointDealer;
     private JobRestartDealer jobRestartDealer;
     private WorkerOperator workerOperator;
@@ -81,6 +78,7 @@ public class  JobStatusDealer implements Runnable {
     private ScheduleJobService batchJobService;
 
     private int taskStatusDealerPoolSize;
+    private TaskParamsService taskParamsService;
 
     /**
      * 记录job 连续某个状态的频次
@@ -88,8 +86,6 @@ public class  JobStatusDealer implements Runnable {
     private final Map<String, JobStatusFrequency> jobStatusFrequency = Maps.newConcurrentMap();
 
     private ExecutorService taskStatusPool;
-
-    private ScheduleJobService scheduleJobService;
 
     @Override
     public void run() {
@@ -162,11 +158,11 @@ public class  JobStatusDealer implements Runnable {
             String engineTaskId = scheduleJob.getEngineJobId();
             String appId = scheduleJob.getApplicationId();
             String engineType = engineJobCache.getEngineType();
-            JSONObject info = JSONObject.parseObject(engineJobCache.getJobInfo());
-            String taskParams = info.getString("taskParams");
-            String pluginInfo = info.getString("pluginInfo");
-            Long userId = info.getLong("userId");
-            JobIdentifier jobIdentifier = new JobIdentifier(engineTaskId, appId, jobId,scheduleJob.getDtuicTenantId(),engineType, TaskParamsUtil.parseDeployTypeByTaskParams(taskParams,scheduleJob.getComputeType(),engineType).getType(),userId, pluginInfo);
+            ParamAction paramAction = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), ParamAction.class);
+            Map<String, Object> pluginInfo = paramAction.getPluginInfo();
+            JobIdentifier jobIdentifier = new JobIdentifier(engineTaskId, appId, jobId,scheduleJob.getDtuicTenantId(),engineType,
+                    taskParamsService.parseDeployTypeByTaskParams(paramAction.getTaskParams(),scheduleJob.getComputeType(),engineType,scheduleJob.getDtuicTenantId()).getType(),
+                    paramAction.getUserId(),  MapUtils.isEmpty(pluginInfo) ? null : JSONObject.toJSONString(pluginInfo),paramAction.getComponentVersion());
 
             RdosTaskStatus rdosTaskStatus = workerOperator.getJobStatus(jobIdentifier);
 
@@ -190,7 +186,7 @@ public class  JobStatusDealer implements Runnable {
                 //数据的更新顺序，先更新job_cache，再更新engine_batch_job
                 if (RdosTaskStatus.getStoppedStatus().contains(status)) {
                     if (EngineType.isFlink(engineType)){
-                        jobCheckpointDealer.updateCheckpointImmediately(new JobCheckpointInfo(jobIdentifier, engineType), jobId, status);
+                        jobCheckpointDealer.updateCheckpointImmediately(new JobCheckpointInfo(jobIdentifier, engineType), engineTaskId, status);
                     }
 
 
@@ -228,19 +224,23 @@ public class  JobStatusDealer implements Runnable {
                 // 判断子节点是否存在强弱任务
                 LOGGER.info("jobId:{} taskRule update {}",jobId,RdosTaskStatus.RUNNING_TASK_RULE.getStatus());
                 scheduleJobDao.updateJobStatusAndExecTime(jobId,RdosTaskStatus.RUNNING_TASK_RULE.getStatus());
-
             } else {
                 LOGGER.info("jobId:{} right update {}",jobId,status);
-                scheduleJobDao.updateJobStatusAndExecTime(jobId, status);
+                if (RdosTaskStatus.getStoppedStatus().contains(status)) {
+                    // 如果是停止状态 更新停止时间
+                    scheduleJobDao.updateJobStatusAndExecTime(jobId, status);
+                } else {
+                    scheduleJobDao.updateJobStatus(jobId, status);
+                }
             }
 
             if (TaskRuleEnum.STRONG_RULE.getCode().equals(scheduleJob.getTaskRule())) {
                 // 强规则任务,查询父任务
-                batchJobService.handleTaskRule(scheduleJob,status);
+                batchJobService.handleTaskRule(scheduleJob, status);
             }
         }
     }
-
+    
     private RdosTaskStatus checkNotFoundStatus(RdosTaskStatus taskStatus, String jobId) {
         JobStatusFrequency statusPair = updateJobStatusFrequency(jobId, taskStatus.getStatus());
         //如果状态为NotFound，则对频次进行判断
@@ -307,10 +307,8 @@ public class  JobStatusDealer implements Runnable {
         this.jobRestartDealer = applicationContext.getBean(JobRestartDealer.class);
         this.workerOperator = applicationContext.getBean(WorkerOperator.class);
         this.scheduleJobDao = applicationContext.getBean(ScheduleJobDao.class);
-        this.scheduleJobService = applicationContext.getBean(ScheduleJobService.class);
-        this.scheduleJobJobDao = applicationContext.getBean(ScheduleJobJobDao.class);
         this.batchJobService = applicationContext.getBean(ScheduleJobService.class);
-        this.scheduleTaskShadeDao = applicationContext.getBean(ScheduleTaskShadeDao.class);;
+        this.taskParamsService = applicationContext.getBean(TaskParamsService.class);
 
     }
 

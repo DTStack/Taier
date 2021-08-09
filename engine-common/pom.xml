@@ -22,7 +22,13 @@
         <dependency>
             <groupId>com.dtstack.engine</groupId>
             <artifactId>sdk-engine-client</artifactId>
-            <version>4.2.3-SNAPSHOT</version>
+            <version>4.2.12-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.dtstack</groupId>
+            <artifactId>public-service-sdk</artifactId>
+            <version>4.2.6</version>
         </dependency>
 
         <dependency>

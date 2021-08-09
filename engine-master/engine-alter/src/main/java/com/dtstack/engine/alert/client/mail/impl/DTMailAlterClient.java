@@ -85,7 +85,7 @@ public class DTMailAlterClient extends AbstractMailAlterClient {
 
         String password = jsonObject.getString(ConstMailAlter.MAIL_PASSWORD);
         if (StringUtils.isBlank(password)) {
-            throw new AlterException("There must be a mailbox sender to send mail. Please configure the field in configuration:"+ ConstMailAlter.MAIL_USERNAME);
+            throw new AlterException("There must be a mailbox sender to send mail. Please configure the field in configuration:"+ ConstMailAlter.MAIL_PASSWORD);
         }
 
         String from = jsonObject.getString(ConstMailAlter.MAIL_FROM);

@@ -32,4 +32,6 @@ public interface ScheduleTaskTaskShadeDao {
     List<ScheduleTaskTaskShade> listParentTaskKeys(@Param("taskKeys") List<String> taskKeys);
 
     List<ScheduleTaskTaskShade> listTaskKeys(@Param("taskKeys") List<String> taskKeys);
+
+    List<ScheduleTaskTaskShade> getTaskOtherPlatformByProjectId(@Param("projectId") Long projectId, @Param("appType") Integer appType, @Param("listChildTaskLimit") Integer listChildTaskLimit);
 }

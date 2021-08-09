@@ -11,6 +11,7 @@ import com.dtstack.engine.api.enums.TaskRuleEnum;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ParamActionExt;
+import com.dtstack.engine.api.pojo.ScheduleJobCount;
 import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.api.vo.action.ActionLogVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobRuleTimeVO;
@@ -18,6 +19,7 @@ import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusCountVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.common.constrant.GlobalConst;
+import com.dtstack.engine.common.constrant.JobResultConstant;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
@@ -33,6 +35,7 @@ import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.api.domain.ScheduleEngineProject;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
+import com.dtstack.engine.master.druid.DtDruidRemoveAbandoned;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
 import com.dtstack.engine.master.queue.JobPartitioner;
@@ -151,13 +154,13 @@ public class ScheduleJobService {
     private EnvironmentContext environmentContext;
 
     @Autowired
+    private StringRedisTemplate redisTemplate;
+
+    @Autowired
     private TenantDao tenantDao;
 
     @Autowired
     private ScheduleEngineProjectDao scheduleEngineProjectDao;
-
-    @Autowired
-    private StringRedisTemplate redisTemplate;
 
     @Autowired
     private JobGraphTriggerDao jobGraphTriggerDao;
@@ -230,10 +233,15 @@ public class ScheduleJobService {
      * 获取各个状态任务的数量
      */
     public ScheduleJobStatusVO getStatusCount( Long projectId,  Long tenantId,  Integer appType,  Long dtuicTenantId) {
-        int all = 0;
         ScheduleJobStatusVO scheduleJobStatusVO =new ScheduleJobStatusVO();
         List<Map<String, Object>> data = scheduleJobDao.countByStatusAndType(EScheduleType.NORMAL_SCHEDULE.getType(), DateUtil.getUnStandardFormattedDate(DateUtil.calTodayMills()),
                 DateUtil.getUnStandardFormattedDate(DateUtil.TOMORROW_ZERO()), tenantId, projectId, appType, dtuicTenantId, null);
+        buildCount( scheduleJobStatusVO, data);
+        return scheduleJobStatusVO;
+    }
+
+    private void buildCount(ScheduleJobStatusVO scheduleJobStatusVO, List<Map<String, Object>> data) {
+        int all = 0;
         List<ScheduleJobStatusCountVO> scheduleJobStatusCountVOS = Lists.newArrayList();
         for (Integer code : RdosTaskStatus.getCollectionStatus().keySet()) {
             List<Integer> status = RdosTaskStatus.getCollectionStatus(code);
@@ -255,7 +263,6 @@ public class ScheduleJobService {
         }
         scheduleJobStatusVO.setAll(all);
         scheduleJobStatusVO.setScheduleJobStatusCountVO(scheduleJobStatusCountVOS);
-        return scheduleJobStatusVO;
     }
 
     public List<ScheduleJobStatusVO> getStatusCountByProjectIds(List<Long> projectIds, Long tenantId, Integer appType, Long dtuicTenantId) {
@@ -265,13 +272,48 @@ public class ScheduleJobService {
             return scheduleJobStatusVOS;
         }
 
-        for (Long projectId : projectIds) {
-            ScheduleJobStatusVO statusCount = getStatusCount(projectId, tenantId, appType, dtuicTenantId);
-            statusCount.setProjectId(projectId);
-            scheduleJobStatusVOS.add(statusCount);
+        if (projectIds.size() > environmentContext.getMaxBatchTask()) {
+            List<List<Long>> partition = Lists.partition(projectIds, environmentContext.getMaxBatchTask());
+            for (List<Long> ids : partition) {
+                JobStatusCount(ids, tenantId, appType, dtuicTenantId, scheduleJobStatusVOS);
+            }
+        } else {
+            JobStatusCount(projectIds, tenantId, appType, dtuicTenantId, scheduleJobStatusVOS);
         }
-
+        
         return scheduleJobStatusVOS;
+    }
+
+    private void JobStatusCount(List<Long> projectIds, Long tenantId, Integer appType, Long dtuicTenantId, List<ScheduleJobStatusVO> scheduleJobStatusVOS) {
+        List<ScheduleJobCount> scheduleJobCounts = scheduleJobDao.countByStatusAndTypeProjectIds(EScheduleType.NORMAL_SCHEDULE.getType(), DateUtil.getUnStandardFormattedDate(DateUtil.calTodayMills()),
+                DateUtil.getUnStandardFormattedDate(DateUtil.TOMORROW_ZERO()), tenantId, projectIds, appType, dtuicTenantId, null);
+
+        if (scheduleJobCounts != null) {
+            Map<Long, List<ScheduleJobCount>> listMap = scheduleJobCounts.stream().collect(Collectors.groupingBy(ScheduleJobCount::getProjectId));
+
+            for (Long projectId : projectIds) {
+                ScheduleJobStatusVO scheduleJobStatusVO = new ScheduleJobStatusVO();
+                scheduleJobStatusVO.setProjectId(projectId);
+                List<ScheduleJobCount> dataCount = listMap.get(projectId);
+                List<Map<String, Object>> data = toListMap(dataCount);
+                buildCount(scheduleJobStatusVO, data);
+                scheduleJobStatusVOS.add(scheduleJobStatusVO);
+            }
+        }
+    }
+
+    private List<Map<String, Object>> toListMap(List<ScheduleJobCount> dataCount) {
+        List<Map<String, Object>> data = Lists.newArrayList();
+        if (CollectionUtils.isEmpty(dataCount)) {
+            return data;
+        }
+        for (ScheduleJobCount scheduleJobCount : dataCount) {
+            Map<String, Object> map = Maps.newHashMap();
+            map.put("count", scheduleJobCount.getCount());
+            map.put("status", scheduleJobCount.getStatus());
+            data.add(map);
+        }
+        return data;
     }
 
     /**
@@ -423,7 +465,7 @@ public class ScheduleJobService {
      */
     public PageResult<List<com.dtstack.engine.api.vo.ScheduleJobVO>> queryJobs(QueryJobDTO vo) throws Exception {
 
-        if (vo.getType() == null) {
+        if (vo.getType() == null && CollectionUtils.isEmpty(vo.getTypes())) {
             throw new RdosDefineException("Type parameter is required", ErrorCode.INVALID_PARAMETERS);
         }
         vo.setSplitFiledFlag(true);
@@ -461,7 +503,7 @@ public class ScheduleJobService {
                 return new PageResult<>(result, count, pageQuery);
             }
         }
-        if (AppType.DATASCIENCE.getType() == vo.getAppType()) {
+        if (AppType.DATASCIENCE.getType().equals(vo.getAppType())) {
             batchJobDTO.setQueryWorkFlowModel(QueryWorkFlowModel.Eliminate_Workflow_SubNodes.getType());
             count = queryScienceJob(batchJobDTO, queryAll, pageQuery, result);
         } else {
@@ -772,7 +814,7 @@ public class ScheduleJobService {
         }
         vo.setSplitFiledFlag(true);
         ScheduleJobDTO batchJobDTO = createQuery(vo);
-        batchJobDTO.setQueryWorkFlowModel(QueryWorkFlowModel.Eliminate_Workflow_ParentNodes.getType());
+        batchJobDTO.setQueryWorkFlowModel(QueryWorkFlowModel.Eliminate_Workflow_SubNodes.getType());
         if (vo.getAppType() == AppType.DATASCIENCE.getType()) {
             batchJobDTO.setQueryWorkFlowModel(QueryWorkFlowModel.Eliminate_Workflow_SubNodes.getType());
         }
@@ -842,7 +884,7 @@ public class ScheduleJobService {
     private Map<Integer, List<Integer>> getStatusMap(Boolean splitFiledFlag) {
         Map<Integer, List<Integer>> statusMap;
         if (null != splitFiledFlag && splitFiledFlag) {
-            statusMap = RdosTaskStatus.getStatusFailedDetail();
+            statusMap = RdosTaskStatus.getStatusFailedDetailAndExpire();
         } else {
             statusMap = RdosTaskStatus.getCollectionStatus();
         }
@@ -916,6 +958,8 @@ public class ScheduleJobService {
         batchJobDTO.setBusinessDateSort(vo.getBusinessDateSort());
         batchJobDTO.setTaskPeriodId(convertStringToList(vo.getTaskPeriodId()));
         batchJobDTO.setAppType(vo.getAppType());
+        batchJobDTO.setBusinessType(vo.getBusinessType());
+        batchJobDTO.setTypes(vo.getTypes());
 
         if (CollectionUtils.isNotEmpty(vo.getProjectIds())) {
             batchJobDTO.setProjectIds(vo.getProjectIds());
@@ -1276,6 +1320,8 @@ public class ScheduleJobService {
         //1: 批量插入BatchJob
         //2: 批量插入BatchJobJobList
         int count = 0;
+        int jobBatchSize = environmentContext.getBatchJobInsertSize();
+        int jobJobBatchSize = environmentContext.getBatchJobJobInsertSize();
         Long minJobId=null;
         List<ScheduleJob> jobWaitForSave = Lists.newArrayList();
         List<ScheduleJobJob> jobJobWaitForSave = Lists.newArrayList();
@@ -1284,8 +1330,11 @@ public class ScheduleJobService {
         for (Map.Entry<String, Integer> nodeJobSizeEntry : nodeJobSize.entrySet()) {
             String nodeAddress = nodeJobSizeEntry.getKey();
             int nodeSize = nodeJobSizeEntry.getValue();
+            final int finalBatchNodeSize = nodeSize;
             while (nodeSize > 0 && batchJobIterator.hasNext()) {
                 nodeSize--;
+                count++;
+
                 ScheduleBatchJob scheduleBatchJob = batchJobIterator.next();
 
                 ScheduleJob scheduleJob = scheduleBatchJob.getScheduleJob();
@@ -1294,12 +1343,15 @@ public class ScheduleJobService {
                 jobWaitForSave.add(scheduleJob);
                 jobJobWaitForSave.addAll(scheduleBatchJob.getBatchJobJobList());
 
-                if (count++ % 20 == 0 || count == (batchJobCollection.size() - 1)) {
-                   minJobId = persisteJobs(jobWaitForSave, jobJobWaitForSave, minJobId);
+                LOGGER.debug("insertJobList count:{} batchJobs:{} finalBatchNodeSize:{}", count, batchJobCollection.size(), finalBatchNodeSize);
+                if (count % jobBatchSize == 0 || count == (batchJobCollection.size() - 1) || jobJobWaitForSave.size() > jobJobBatchSize) {
+                    minJobId = persistJobs(jobWaitForSave, jobJobWaitForSave, minJobId,jobJobBatchSize);
+                    LOGGER.info("insertJobList count:{} batchJobs:{} finalBatchNodeSize:{} jobJobSize:{}", count, batchJobCollection.size(), finalBatchNodeSize, jobJobWaitForSave.size());
                 }
             }
+            LOGGER.info("insertJobList count:{} batchJobs:{} finalBatchNodeSize:{}",count, batchJobCollection.size(), finalBatchNodeSize);
             //结束前persist一次，flush所有jobs
-            minJobId = persisteJobs(jobWaitForSave, jobJobWaitForSave, minJobId);
+            minJobId = persistJobs(jobWaitForSave, jobJobWaitForSave, minJobId,jobJobBatchSize);
 
         }
         return minJobId;
@@ -1319,7 +1371,7 @@ public class ScheduleJobService {
         return jobSizeInfo;
     }
 
-    private Long persisteJobs(List<ScheduleJob> jobWaitForSave, List<ScheduleJobJob> jobJobWaitForSave, Long minJobId) {
+    private Long persistJobs(List<ScheduleJob> jobWaitForSave, List<ScheduleJobJob> jobJobWaitForSave, Long minJobId,Integer jobJobBatchSize) {
         try {
             return RetryUtil.executeWithRetry(() -> {
                 Long curMinJobId=minJobId;
@@ -1331,13 +1383,21 @@ public class ScheduleJobService {
                     jobWaitForSave.clear();
                 }
                 if (jobJobWaitForSave.size() > 0) {
-                    batchJobJobService.batchInsert(jobJobWaitForSave);
+                    if (jobJobWaitForSave.size() > jobJobBatchSize) {
+                        List<List<ScheduleJobJob>> partition = Lists.partition(jobJobWaitForSave, jobJobBatchSize);
+                        for (int i = 0; i < partition.size(); i++) {
+                            batchJobJobService.batchInsert(partition.get(i));
+                            jobJobWaitForSave.removeAll(partition.get(i));
+                        }
+                    } else {
+                        batchJobJobService.batchInsert(jobJobWaitForSave);
+                    }
                     jobJobWaitForSave.clear();
                 }
                 return curMinJobId;
             }, environmentContext.getBuildJobErrorRetry(), 200, false);
         } catch (Exception e) {
-            LOGGER.error("!!!!! persisteJobs job error !!!! job {} jobjob {}", jobWaitForSave, jobJobWaitForSave, e);
+            LOGGER.error("!!!!! persistJobs job error !!!! job {} jobjob {}", jobWaitForSave, jobJobWaitForSave, e);
             throw new RdosDefineException(e);
         } finally {
             if (jobWaitForSave.size() > 0) {
@@ -1353,13 +1413,14 @@ public class ScheduleJobService {
     /**
      * 补数据的时候，选中什么业务日期，参数替换结果是业务日期+1天
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
+    @DtDruidRemoveAbandoned
     public String fillTaskData( String taskJsonStr,  String fillName,
                                 Long fromDay,  Long toDay,
                                 String beginTime,  String endTime,
                                 Long projectId,  Long userId,
                                 Long tenantId,
-                                Boolean isRoot,  Integer appType,  Long dtuicTenantId) throws Exception {
+                                Boolean isRoot,  Integer appType,  Long dtuicTenantId,Boolean ignoreCycTime) throws Exception {
 
         if(StringUtils.isEmpty(taskJsonStr)){
             throw new RdosDefineException("(taskJsonStr 参数不能为空)", ErrorCode.INVALID_PARAMETERS);
@@ -1400,7 +1461,11 @@ public class ScheduleJobService {
                 if (MapUtils.isEmpty(result)) {
                     continue;
                 }
-
+                if (BooleanUtils.isTrue(ignoreCycTime)) {
+                    for (ScheduleBatchJob value : result.values()) {
+                        value.getScheduleJob().setCycTime(DateTime.now().toString(DateUtil.UN_STANDARD_DATETIME_FORMAT));
+                    }
+                }
                 insertJobList(result.values(), EScheduleType.FILL_DATA.getType());
                 addBatchMap.putAll(result);
 
@@ -1488,15 +1553,13 @@ public class ScheduleJobService {
             }
         }
         //设置分页查询参数
-        PageQuery<ScheduleJobDTO> pageQuery = getScheduleJobDTOPageQuery(runDay, bizStartDay, bizEndDay, dutyUserId, projectId, appType, currentPage, pageSize, tenantId,dtuicTenantId, batchJobDTO);
+        PageQuery<ScheduleJobDTO> pageQuery = getScheduleJobDTOPageQuery(runDay, bizStartDay, bizEndDay, dutyUserId, projectId, appType, currentPage, pageSize, tenantId, dtuicTenantId, batchJobDTO);
+        pageQuery.getModel().setTenantId(tenantId);
+        List<ScheduleFillDataJob> fillJobList = scheduleFillDataJobDao.listFillJobByPageQuery(pageQuery);
 
-        List<Long> fillIdList = scheduleJobDao.listFillIdListWithOutTask(pageQuery);
-
-        if(CollectionUtils.isEmpty(fillIdList)){
+        if(CollectionUtils.isEmpty(fillJobList)){
             return new PageResult<>(null, 0, pageQuery);
         }
-        //根据补数据名称查询出记录
-        List<ScheduleFillDataJob> fillJobList = scheduleFillDataJobDao.getFillJobList(fillIdList, projectId, tenantId,dtuicTenantId);
 
         //内存中按照时间排序
         if (CollectionUtils.isNotEmpty(fillJobList)) {
@@ -1590,7 +1653,7 @@ public class ScheduleJobService {
             int showStatus = entry.getKey();
             long sum = 0;
             for (Integer value : entry.getValue()) {
-                Long statusSum = statisticsMap.get(value.longValue());
+                Long statusSum = statisticsMap.get(value);
                 sum += statusSum == null ? 0L : statusSum;
             }
             resultMap.put(showStatus, sum);
@@ -1760,6 +1823,7 @@ public class ScheduleJobService {
         batchJobDTO.setQueryWorkFlowModel(QueryWorkFlowModel.Eliminate_Workflow_SubNodes.getType());
         batchJobDTO.setFillDataJobName(fillJobName);
         batchJobDTO.setNeedQuerySonNode(true);
+        Long projectId = batchJobDTO.getProjectId();
         //跨租户、项目条件
         batchJobDTO.setProjectId(null);
         batchJobDTO.setTenantId(null);
@@ -1818,6 +1882,12 @@ public class ScheduleJobService {
             } else {
                 return new PageResult<>(scheduleFillDataJobDetailVO, 0, pageQuery);
             }
+        }
+
+        ScheduleFillDataJob byJobName = scheduleFillDataJobDao.getByJobName(batchJobDTO.getFillDataJobName(), projectId);
+
+        if (byJobName != null) {
+            batchJobDTO.setFillId(byJobName.getId());
         }
 
         Integer totalCount = scheduleJobDao.countByFillData(batchJobDTO);
@@ -2062,6 +2132,7 @@ public class ScheduleJobService {
         record.setJobId(scheduleJob.getJobId());
         record.setFlowJobId(scheduleJob.getFlowJobId());
         record.setIsRestart(scheduleJob.getIsRestart());
+        record.setBusinessType(scheduleJob.getBusinessType());
 
         // 判断taskType为2的，查出脏数据量，判断增加标识
         if (taskType == 2) {
@@ -2867,20 +2938,31 @@ public class ScheduleJobService {
     }
 
     public Long getListMinId(String nodeAddress,Integer scheduleType, String left, String right,Integer isRestart) {
-        // 如果没有时间限制, 默认返回0
-        if (StringUtils.isAnyBlank(left,right)){
-            return 0L;
+        String minJobId = null;
+        try {
+            // 如果没有时间限制, 默认返回0
+            if (StringUtils.isAnyBlank(left,right)){
+                return 0L;
+            }
+            // 如果当前时间范围没有数据, 返回NULL
+            minJobId = jobGraphTriggerDao.getMinJobIdByTriggerTime(left, right);
+            if (StringUtils.isBlank(minJobId)){
+                return 0L;
+            }
+            return Long.parseLong(minJobId);
+        } catch (Exception e) {
+           LOGGER.error("error get ListMinId left {} right {} error ",left,right);
+           return 0L;
         }
-        // 如果当前时间范围没有数据, 返回NULL
-        String minJobId = jobGraphTriggerDao.getMinJobIdByTriggerTime(left, right);
-        if (StringUtils.isBlank(minJobId)){
-            return null;
-        }
-        return Long.parseLong(minJobId);
     }
 
     public String getJobGraphJSON(String jobId) {
-        return scheduleJobDao.getJobGraph(jobId);
+        String jobExtraInfo = scheduleJobDao.getJobExtraInfo(jobId);
+        JSONObject jobExtraObj = JSONObject.parseObject(jobExtraInfo);
+        if (null != jobExtraObj) {
+            return jobExtraObj.getString(JobResultConstant.JOB_GRAPH);
+        }
+        return "";
     }
 
     public void updateNotRuleResult(String jobId,Integer rule,String result) {
@@ -2996,7 +3078,7 @@ public class ScheduleJobService {
                 List<ScheduleJob> jobs = sonScheduleJobs.stream().filter(job -> TaskRuleEnum.STRONG_RULE.getCode().equals(job.getTaskRule()) && !job.getJobKey().equals(currentScheduleJob.getJobKey())).collect(Collectors.toList());
 
                 // 添加日志
-                String log = String.format(LOG_TEM, currentScheduleJob.getJobName(), "运行成功", StringUtils.isBlank(nameByDtUicTenantId) ? "" : nameByDtUicTenantId, project == null ? "" : project.getProjectAlias());
+                String log = String.format(LOG_TEM, currentScheduleJob.getJobName(), "校验通过", StringUtils.isBlank(nameByDtUicTenantId) ? "" : nameByDtUicTenantId, project == null ? "" : project.getProjectAlias());
                 this.updateLogInfoById(fatherScheduleJob.getJobId(),addLog(fatherScheduleJob.getLogInfo(),log));
                 if (CollectionUtils.isNotEmpty(jobs)) {
                     List<ScheduleJob> noFinishJobs = jobs.stream().filter(job -> !RdosTaskStatus.FINISH_STATUS.contains(job.getStatus())).collect(Collectors.toList());
@@ -3031,30 +3113,26 @@ public class ScheduleJobService {
         String addLog = LOG_TEM;
 
         boolean isRule = Boolean.FALSE;
-        if (EScheduleJobType.WORK_FLOW.getType().equals(currentScheduleJob.getTaskType())) {
-            // 如果工作流任务，查询是否有null任务
-            List<ScheduleJob> subJobsAndStatusByFlowId = this.getSubJobsAndStatusByFlowId(currentScheduleJob.getJobId());
-            List<ScheduleJob> jobs = subJobsAndStatusByFlowId.stream().filter(job -> EScheduleJobType.NOT_DO_TASK.getType().equals(job.getTaskType())).collect(Collectors.toList());
+        // 如果工作流任务，查询是否有null任务
+        List<ScheduleJob> subJobsAndStatusByFlowId = this.getSubJobsAndStatusByFlowId(currentScheduleJob.getJobId());
+        List<ScheduleJob> jobs = subJobsAndStatusByFlowId.stream().filter(job -> EScheduleJobType.NOT_DO_TASK.getType().equals(job.getTaskType())).collect(Collectors.toList());
 
-            if (CollectionUtils.isNotEmpty(jobs)) {
-                // 有空任务
-                for (ScheduleJob job : jobs) {
-                    if (RdosTaskStatus.FAILED_STATUS.contains(job.getStatus())) {
-                        // 存在空任务失败的情况
-                        String logInfo1 = "运行失败";
-                        try {
-                            JSONObject jsonObject = JSON.parseObject(job.getLogInfo());
-                            logInfo1 = jsonObject.getString("result");
-                        } catch (Exception e) {
-                            LOGGER.error("log json parseObject error:",e);
-                        }
-                        addLog = String.format(addLog, currentScheduleJob.getJobName(), logInfo1, StringUtils.isBlank(nameByDtUicTenantId)?"":nameByDtUicTenantId,project==null? "":project.getProjectAlias());
-                        isRule = Boolean.TRUE;
-                        break;
+        if (CollectionUtils.isNotEmpty(jobs)) {
+            // 有空任务
+            for (ScheduleJob job : jobs) {
+                if (RdosTaskStatus.FAILED_STATUS.contains(job.getStatus())) {
+                    // 存在空任务失败的情况
+                    String logInfo1 = "运行失败";
+                    try {
+                        JSONObject jsonObject = JSON.parseObject(job.getLogInfo());
+                        logInfo1 = jsonObject.getString("result");
+                    } catch (Exception e) {
+                        LOGGER.error("log json parseObject error:",e);
                     }
+                    addLog = String.format(addLog, currentScheduleJob.getJobName(), logInfo1, StringUtils.isBlank(nameByDtUicTenantId)?"":nameByDtUicTenantId,project==null? "":project.getProjectAlias());
+                    isRule = Boolean.TRUE;
+                    break;
                 }
-
-
             }
         }
 
@@ -3180,6 +3258,7 @@ public class ScheduleJobService {
 
             if (projectByProjectIdAndApptype != null) {
                 vo.setProjectName(projectByProjectIdAndApptype.getProjectName());
+                vo.setProjectAlias(projectByProjectIdAndApptype.getProjectAlias());
             }
         }
     }
@@ -3199,12 +3278,15 @@ public class ScheduleJobService {
             LOGGER.info("syncRestartJob  {}  is doing ", key);
             return false;
         }
-        redisTemplate.execute((RedisCallback<String>) connection -> {
+        String execute = redisTemplate.execute((RedisCallback<String>) connection -> {
             JedisCommands commands = (JedisCommands) connection.getNativeConnection();
             SetParams setParams = SetParams.setParams();
-            setParams.nx().ex((int)environmentContext.getForkJoinResultTimeOut() * 2);
+            setParams.nx().ex((int) environmentContext.getForkJoinResultTimeOut() * 2);
             return commands.set(key, "-1", setParams);
         });
+        if(StringUtils.isBlank(execute)){
+            return false;
+        }
         if (BooleanUtils.isTrue(justRunChild) && null != id) {
             if (null == subJobIds) {
                 subJobIds = new ArrayList<>();

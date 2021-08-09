@@ -601,7 +601,7 @@ CREATE TABLE `task_param_template` (
 
 
 -- 物理数据源表
-create table lineage_real_data_source(
+create table if not exists lineage_real_data_source(
     id int(11) NOT NULL AUTO_INCREMENT,
     source_name VARCHAR(155) NOT NULL COMMENT '数据源名称',
     source_key VARCHAR(155) NOT NULL COMMENT '数据源定位码，不同数据源类型计算方式不同。',
@@ -617,7 +617,7 @@ create table lineage_real_data_source(
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 逻辑数据源表
-create table lineage_data_source(
+create table if not exists lineage_data_source(
     id int(11) NOT NULL AUTO_INCREMENT,
     dt_uic_tenant_id int(11) NOT NULL COMMENT '租户id',
     real_source_id int(11) NOT NULL COMMENT '真实数据源id',
@@ -634,15 +634,16 @@ create table lineage_data_source(
     app_source_id int(11) NOT NULL default -1 COMMENT '应用内的sourceId',
     inner_source tinyint(1) NOT NULL default 0 COMMENT '是否内部数据源；0 不是；1 内部数据源。内部数据源有ComponentId',
     component_id int(11) NOT NULL default -1 COMMENT '数据源对应的组件id',
+    is_default tinyint(1) NULL DEFAULT 0 COMMENT '是否是默认数据源，1是，0否',
     gmt_create datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
     gmt_modified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
     is_deleted tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
     PRIMARY KEY (id),
-    UNIQUE KEY uni_tenant_source_key (dt_uic_tenant_id,source_key,app_type,source_name,schema_name)
+    UNIQUE KEY uni_tenant_source_key (dt_uic_tenant_id,source_key,app_type,source_name,schema_name,project_id)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 表信息表。表可能并不能关联上data source。
-create table lineage_data_set_info(
+create table if not exists lineage_data_set_info(
     id int(11) NOT NULL AUTO_INCREMENT,
     dt_uic_tenant_id int(11) NOT NULL COMMENT '租户id',
     app_type smallint(4) NOT NULL COMMENT '应用类型',
@@ -665,7 +666,7 @@ create table lineage_data_set_info(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 表级血缘记录表
-create table lineage_table_table(
+create table if not exists lineage_table_table(
     id int(11) NOT NULL AUTO_INCREMENT,
     app_type smallint(3) NOT NULL COMMENT '应用类型',
     dt_uic_tenant_id int(11) NOT NULL COMMENT '租户id',
@@ -683,11 +684,12 @@ create table lineage_table_table(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 表血缘与应用关联表
-create table lineage_table_table_unique_key_ref(
+create table if not exists lineage_table_table_unique_key_ref(
     id int(11) NOT NULL AUTO_INCREMENT,
     app_type smallint(4) NOT NULL COMMENT '应用类型',
     unique_key varchar(32) NOT NULL COMMENT '血缘批次码，离线中通常为taskId',
     lineage_table_table_id int(11) NOT NULL COMMENT 'lineage_table_table表id',
+    version_id int(11) NULL DEFAULT 0 COMMENT '任务提交版本号',
     gmt_create datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
     gmt_modified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
     is_deleted tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
@@ -696,7 +698,7 @@ create table lineage_table_table_unique_key_ref(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 字段级血缘存储方案
-create table lineage_column_column(
+create table if not exists lineage_column_column(
     id int(11) NOT NULL AUTO_INCREMENT,
     app_type smallint(3) NOT NULL COMMENT '应用类型',
     dt_uic_tenant_id int(11) NOT NULL COMMENT '租户id',
@@ -716,11 +718,12 @@ create table lineage_column_column(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 字段血缘与应用关联表
-create table lineage_column_column_unique_key_ref(
+create table if not exists lineage_column_column_unique_key_ref(
     id int(11) NOT NULL AUTO_INCREMENT,
     app_type smallint(4) NOT NULL COMMENT '应用类型',
     unique_key varchar(32) NOT NULL COMMENT '血缘批次码，离线中通常为taskId',
     lineage_column_column_id int(11) NOT NULL COMMENT 'lineage_column_column表id',
+    version_id  int(11) NULL DEFAULT 0 COMMENT '任务提交版本号',
     gmt_create datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
     gmt_modified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
     is_deleted tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
@@ -850,14 +853,16 @@ CREATE TABLE `alert_channel` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='告警通道';
 
 
-CREATE TABLE `schedule_sql_text_temp` (
-  `id` bigint(20) NOT NULL,
-  `job_id` bigint(20) NOT NULL COMMENT '临时运行job的job_id',
+CREATE TABLE if not exists `schedule_sql_text_temp` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `job_id` varchar(32) NOT NULL COMMENT '临时运行job的job_id',
   `sql_text` longtext NOT NULL COMMENT '临时运行任务的sql文本内容',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  `engine_type` varchar(64) NOT NULL COMMENT 'engineType类型',
+  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) DEFAULT '0' COMMENT '0正常 1逻辑删除',
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_job_id` (`job_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='临时任务sql_text关联表';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='临时任务sql_text关联表';
+
 

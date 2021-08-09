@@ -20,10 +20,10 @@ public class LineageDataSourceVO {
     private Integer appType;
 
     /**
-     * 数据源id
+     * 数据源中心id
      */
-    @ApiModelProperty("数据源id")
-    private Long sourceId;
+    @ApiModelProperty("数据源中心id")
+    private Long dataInfoId;
 
     /**
      * 数据源名称
@@ -45,12 +45,12 @@ public class LineageDataSourceVO {
         this.appType = appType;
     }
 
-    public Long getSourceId() {
-        return sourceId;
+    public Long getDataInfoId() {
+        return dataInfoId;
     }
 
-    public void setSourceId(Long sourceId) {
-        this.sourceId = sourceId;
+    public void setDataInfoId(Long dataInfoId) {
+        this.dataInfoId = dataInfoId;
     }
 
     public String getSourceName() {

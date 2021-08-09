@@ -19,7 +19,9 @@
 package com.dtstack.engine.master.enums;
 
 
+import com.dtstack.dtcenter.common.enums.DeployMode;
 import com.dtstack.engine.api.enums.ScheduleEngineType;
+import com.dtstack.engine.common.constrant.ComponentConstant;
 import com.dtstack.engine.common.enums.EComponentType;
 
 import java.util.Objects;
@@ -41,7 +43,9 @@ public enum EngineTypeComponentType {
     GREENPLUM_SQL(ScheduleEngineType.GREENPLUM, EComponentType.GREENPLUM_SQL),
     PRESTO_SQL(ScheduleEngineType.Presto, EComponentType.PRESTO_SQL),
     INCEPTOR_SQL(ScheduleEngineType.INCEPTOR_SQL,EComponentType.INCEPTOR_SQL),
-    DTSCRIPT_AGENT(ScheduleEngineType.DTSCRIPT_AGENT,EComponentType.DTSCRIPT_AGENT);
+    DTSCRIPT_AGENT(ScheduleEngineType.DTSCRIPT_AGENT,EComponentType.DTSCRIPT_AGENT),
+    ANALYTICDB_FOR_PG(ScheduleEngineType.ANALYTICDB_FOR_PG,EComponentType.ANALYTICDB_FOR_PG),
+    ;
 
     private ScheduleEngineType scheduleEngineType;
 
@@ -59,6 +63,8 @@ public enum EngineTypeComponentType {
     public EComponentType getComponentType() {
         return componentType;
     }
+
+
 
     public static EngineTypeComponentType getByEngineName(String engineName){
         switch (engineName.toLowerCase()) {
@@ -108,6 +114,8 @@ public enum EngineTypeComponentType {
                 return EngineTypeComponentType.INCEPTOR_SQL;
             case "dtscript-agent":
                 return EngineTypeComponentType.DTSCRIPT_AGENT;
+            case ComponentConstant.ANALYTICDB_FOR_PG_PLUGIN:
+                return EngineTypeComponentType.ANALYTICDB_FOR_PG;
             default:
                 throw new UnsupportedOperationException("未知引擎类型:" + engineName);
         }

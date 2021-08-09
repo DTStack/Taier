@@ -11,6 +11,7 @@ import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.queue.OrderObject;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
@@ -120,6 +121,16 @@ public class JobClient extends OrderObject {
      */
     private Long retryIntervalTime;
 
+    /**
+     * 任务运行版本
+     */
+    private String componentVersion;
+    /**
+     * 0正常调度 1补数据 2临时运行
+     */
+    private Integer type;
+
+    private Integer deployMode;
 
     public JobClient() {
 
@@ -132,7 +143,7 @@ public class JobClient extends OrderObject {
         this.taskId = paramAction.getTaskId();
         this.engineTaskId = paramAction.getEngineTaskId();
         this.applicationId = paramAction.getApplicationId();
-        this.jobType = EJobType.getEjobType(paramAction.getTaskType());
+        this.jobType = EJobType.getEjobType(EScheduleJobType.getEngineJobType(paramAction.getTaskType()));
         this.computeType = ComputeType.getType(paramAction.getComputeType());
         this.externalPath = paramAction.getExternalPath();
         this.engineType = paramAction.getEngineType();
@@ -145,6 +156,7 @@ public class JobClient extends OrderObject {
         this.queueSourceType = EQueueSourceType.NORMAL.getCode();
         this.submitExpiredTime = paramAction.getSubmitExpiredTime();
         this.retryIntervalTime = paramAction.getRetryIntervalTime();
+        this.componentVersion = paramAction.getComponentVersion();
 
         this.maxRetryNum = paramAction.getMaxRetryNum() == null ? 0 : paramAction.getMaxRetryNum();
         if (paramAction.getPluginInfo() != null) {
@@ -157,7 +169,7 @@ public class JobClient extends OrderObject {
             String valStr = confProperties == null ? null : confProperties.getProperty(ConfigConstant.CUSTOMER_PRIORITY_VAL);
             this.priorityLevel = valStr == null ? DEFAULT_PRIORITY_LEVEL_VALUE : MathUtil.getIntegerVal(valStr);
             //设置priority值, 值越小，优先级越高
-            this.priority = paramAction.getGenerateTime() + priorityLevel * PRIORITY_LEVEL_WEIGHT;
+            this.priority = paramAction.getGenerateTime() + (long) priorityLevel * PRIORITY_LEVEL_WEIGHT;
         } else {
             priority = paramAction.getPriority();
         }
@@ -168,6 +180,14 @@ public class JobClient extends OrderObject {
         //将任务id 标识为对象id
         this.id = taskId;
 
+    }
+
+    public String getComponentVersion() {
+        return componentVersion;
+    }
+
+    public void setComponentVersion(String componentVersion) {
+        this.componentVersion = componentVersion;
     }
 
     public ParamAction getParamAction() {
@@ -193,6 +213,7 @@ public class JobClient extends OrderObject {
         action.setAppType(appType);
         action.setRetryIntervalTime(retryIntervalTime);
         action.setSubmitExpiredTime(submitExpiredTime);
+        action.setComponentVersion(componentVersion);
         if (!Strings.isNullOrEmpty(pluginInfo)) {
             try {
                 action.setPluginInfo(PublicUtil.jsonStrToObject(pluginInfo, Map.class));
@@ -202,6 +223,14 @@ public class JobClient extends OrderObject {
             }
         }
         return action;
+    }
+
+    public Integer getDeployMode() {
+        return deployMode;
+    }
+
+    public void setDeployMode(Integer deployMode) {
+        this.deployMode = deployMode;
     }
 
     public Boolean getForceCancel() {
@@ -502,6 +531,14 @@ public class JobClient extends OrderObject {
         this.retryIntervalTime = retryIntervalTime;
     }
 
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
+
     @Override
     public String toString() {
         return "JobClient{" +
@@ -531,5 +568,4 @@ public class JobClient extends OrderObject {
                 ", appType=" + appType +
                 '}';
     }
-
 }

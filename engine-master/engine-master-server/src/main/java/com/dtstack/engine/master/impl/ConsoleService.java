@@ -14,6 +14,7 @@ import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.ComponentVersionUtil;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
@@ -94,6 +95,9 @@ public class ConsoleService {
 
     @Autowired
     private JobComputeResourcePlain jobComputeResourcePlain;
+
+    @Autowired
+    private KerberosDao kerberosDao;
 
     private static long DELAULT_TENANT  = -1L;
 
@@ -294,7 +298,7 @@ public class ConsoleService {
         if (!jobInfoJSON.containsKey(PluginWrapper.PLUGIN_INFO)) {
             //获取插件信息
             String pluginInfo = pluginWrapper.getPluginInfo(jobInfoJSON.getString("taskParams"), engineJobCache.getComputeType(), engineJobCache.getEngineType(),
-                    null == tenant ? -1L : tenant.getDtUicTenantId(), jobInfoJSON.getLong("userId"),pluginInfoCache);
+                    null == tenant ? -1L : tenant.getDtUicTenantId(), jobInfoJSON.getLong("userId"),pluginInfoCache,jobInfoJSON.getString("componentVersion"));
             jobInfoJSON.put(PluginWrapper.PLUGIN_INFO, JSONObject.parseObject(pluginInfo));
             theJobMap.put("jobInfo", jobInfoJSON);
         }
@@ -483,18 +487,18 @@ public class ConsoleService {
         try {
             JSONObject pluginInfo = new JSONObject();
             pluginInfo.put(EComponentType.YARN.getConfName(), componentConfig);
-            String typeName = Optional.ofNullable(componentConfig).orElse(new JSONObject()).getString(ConfigConstant.TYPE_NAME_KEY);
+            if (StringUtils.isNotBlank(yarnComponent.getKerberosFileName())) {
+                //开启kerberos 添加信息
+                KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(), yarnComponent.getComponentTypeCode(), ComponentVersionUtil.formatMultiVersion(yarnComponent.getComponentTypeCode(),yarnComponent.getHadoopVersion()));
+                Map sftpMap = componentService.getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class,null);
+                pluginInfo.put(EComponentType.SFTP.getConfName(), sftpMap);
+                pluginInfo = JSONObject.parseObject(componentService.wrapperConfig(yarnComponent.getComponentTypeCode(),componentConfig.toJSONString(),sftpMap,kerberosConfig,cluster.getClusterName()));
+            }
+            String typeName = componentConfig.getString(ConfigConstant.TYPE_NAME_KEY);
             if (StringUtils.isBlank(typeName)) {
                 //获取对应的插件名称
-                Component hdfsComponent = componentService.getComponentByClusterId(cluster.getId(), EComponentType.HDFS.getTypeCode(),null);
-                String clusterName = cluster.getClusterName();
-                if (null == hdfsComponent) {
-                    typeName = componentService.convertComponentTypeToClient(clusterName,
-                            EComponentType.HDFS.getTypeCode(), yarnComponent.getHadoopVersion(),null,null);
-                } else {
-                    typeName = componentService.convertComponentTypeToClient(clusterName,
-                            EComponentType.HDFS.getTypeCode(), hdfsComponent.getHadoopVersion(),hdfsComponent.getStoreType(),null);
-                }
+                typeName = componentService.convertComponentTypeToClient(cluster.getClusterName(),
+                        EComponentType.YARN.getTypeCode(), yarnComponent.getHadoopVersion(),null,null,null);
             }
             pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,typeName);
             return workerOperator.clusterResource(typeName, pluginInfo.toJSONString());

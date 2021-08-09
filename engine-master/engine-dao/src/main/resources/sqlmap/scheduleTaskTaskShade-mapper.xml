@@ -128,7 +128,31 @@
             #{taskKey}
         </foreach>
     </select>
-
+    <select id="getTaskOtherPlatformByProjectId"
+            resultType="com.dtstack.engine.api.domain.ScheduleTaskTaskShade">
+        SELECT
+            tts.id,
+            tts.tenant_id,
+            tts.project_id,
+            tts.dtuic_tenant_id,
+            tts.app_type,
+            tts.task_id,
+            tts.parent_task_id,
+            tts.gmt_create,
+            tts.gmt_modified,
+            tts.is_deleted,
+            tts.parent_app_type,
+            tts.task_key,
+            tts.parent_task_key
+        FROM
+        schedule_task_task_shade tts
+        LEFT JOIN schedule_task_shade ts ON ts.task_id = tts.task_id AND ts.app_type = tts.app_type
+        WHERE
+        tts.parent_task_id IN ( SELECT task_id FROM schedule_task_shade WHERE project_id = #{projectId} AND app_type = #{appType} )
+        AND tts.parent_app_type = #{appType}
+        AND ts.project_id != #{projectId}
+        LIMIT #{listChildTaskLimit}
+    </select>
 
 
 </mapper>

@@ -31,8 +31,6 @@ public class LineageColumnColumnService {
 
     private static final String COLUMN_COLUMN_KEY_TMP = "%s.%s_%s.%s";
 
-    @Autowired
-    private LineageDataSetInfoService lineageDataSetInfoService;
 
     @Autowired
     private LineageColumnColumnDao lineageColumnColumnDao;
@@ -40,7 +38,8 @@ public class LineageColumnColumnService {
     @Autowired
     private LineageColumnColumnUniqueKeyRefDao lineageColumnColumnUniqueKeyRefDao;
 
-    public void saveColumnLineage(Integer type,List<LineageColumnColumn> columnColumns, String uniqueKey) {
+
+    public void saveColumnLineage(Integer versionId,Integer type,List<LineageColumnColumn> columnColumns, String uniqueKey) {
         if (CollectionUtils.isEmpty(columnColumns)) {
             return;
         }
@@ -52,26 +51,26 @@ public class LineageColumnColumnService {
             for (LineageColumnColumn columnColumn : columnColumns) {
                 LineageColumnColumn column = lineageColumnColumnDao.queryByLineageKey(columnColumn.getAppType(), columnColumn.getColumnLineageKey());
                 if(null == column){
-                    lineageColumnColumnDao.batchInsertColumnColumn(Arrays.asList(columnColumn));
-                    String finalUniqueKey = StringUtils.isEmpty(uniqueKey) ? generateDefaultUniqueKey(columnColumn.getAppType()) : uniqueKey;
-                    LineageColumnColumnUniqueKeyRef ref = new LineageColumnColumnUniqueKeyRef();
-                    ref.setAppType(columnColumn.getAppType());
-                    ref.setLineageColumnColumnId(columnColumn.getId());
-                    ref.setUniqueKey(finalUniqueKey);
-                    lineageColumnColumnUniqueKeyRefDao.batchInsert(Arrays.asList(ref));
+                    lineageColumnColumnDao.batchInsertColumnColumn(Collections.singletonList(columnColumn));
                 }
+                String finalUniqueKey = StringUtils.isEmpty(uniqueKey) ? generateDefaultUniqueKey(columnColumn.getAppType()) : uniqueKey;
+                LineageColumnColumnUniqueKeyRef ref = new LineageColumnColumnUniqueKeyRef();
+                ref.setAppType(columnColumn.getAppType());
+                ref.setLineageColumnColumnId(columnColumn.getId());
+                ref.setUniqueKey(finalUniqueKey);
+                lineageColumnColumnUniqueKeyRefDao.batchInsert(Collections.singletonList(ref));
             }
         }else {
             //1.存入或者更新lineageColumnColumn表
             lineageColumnColumnDao.batchInsertColumnColumn(columnColumns);
             Set<String> columnLineageKeys = columnColumns.stream().map(LineageColumnColumn::getColumnLineageKey).collect(Collectors.toSet());
             columnColumns = queryByColumnLineageKeys(columnColumns.get(0).getAppType(), columnLineageKeys);
-            //2.删除uniqueKey对应批次的ref，插入新的ref
+            //2.不是同一批scheduleJob,删除uniqueKey对应批次的ref，插入新的ref
             if (StringUtils.isEmpty(uniqueKey)) {
                 uniqueKey = generateDefaultUniqueKey(columnColumns.get(0).getAppType());
             } else {
                 //资产没有uniqueKey，不能删除。
-                lineageColumnColumnUniqueKeyRefDao.deleteByUniqueKey(uniqueKey);
+                lineageColumnColumnUniqueKeyRefDao.deleteByUniqueKeyAndVersionId(uniqueKey,versionId);
             }
             String finalUniqueKey = uniqueKey;
             List<LineageColumnColumnUniqueKeyRef> refList = columnColumns.stream().map(cc -> {
@@ -79,6 +78,7 @@ public class LineageColumnColumnService {
                 ref.setAppType(cc.getAppType());
                 ref.setLineageColumnColumnId(cc.getId());
                 ref.setUniqueKey(finalUniqueKey);
+                ref.setVersionId(versionId);
                 return ref;
             }).collect(Collectors.toList());
             lineageColumnColumnUniqueKeyRefDao.batchInsert(refList);
@@ -110,9 +110,6 @@ public class LineageColumnColumnService {
         return res;
     }
 
-    private String generateColumnStr(Long tableId, String columnName) {
-        return String.format("%s.%s", tableId, columnName);
-    }
 
     public List<LineageColumnColumn> queryColumnResultLineageByAppType(Integer appType, Long tableId, String columnName, Set<Long> columnSet,Integer level) {
         List<LineageColumnColumn> res = Lists.newArrayList();

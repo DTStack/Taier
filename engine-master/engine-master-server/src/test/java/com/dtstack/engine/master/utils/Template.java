@@ -78,7 +78,6 @@ public class Template {
         return jc;
     }
 
-
     public static EngineJobCheckpoint getEngineJobSavepointTemplate() {
         EngineJobCheckpoint jc = new EngineJobCheckpoint();
         jc.setTaskId("taskId");
@@ -497,8 +496,6 @@ public class Template {
     public static LineageDataSource getDefaultHiveDataSourceTemplate() {
         LineageDataSource lineageDataSource = new LineageDataSource();
         lineageDataSource.setDtUicTenantId(1L);
-        lineageDataSource.setRealSourceId(1L);
-        lineageDataSource.setSourceKey("172.16.8.107#10000");
         lineageDataSource.setSourceName("hive");
         lineageDataSource.setAppType(AppType.DATAASSETS.getType());
         lineageDataSource.setSourceType(DataSourceType.HIVE.getVal());
@@ -549,11 +546,9 @@ public class Template {
         LineageDataSetInfo lineageDataSetInfo = new LineageDataSetInfo();
         lineageDataSetInfo.setAppType(AppType.DATAASSETS.getType());
         lineageDataSetInfo.setDtUicTenantId(1L);
-        lineageDataSetInfo.setSourceId(1L);
-        lineageDataSetInfo.setRealSourceId(1L);
+        lineageDataSetInfo.setDataInfoId(1L);
         lineageDataSetInfo.setSourceName("hive");
         lineageDataSetInfo.setSourceType(DataSourceType.HIVE.getVal());
-        lineageDataSetInfo.setSourceKey("172.16.8.107#10000");
         lineageDataSetInfo.setSetType(0);
         lineageDataSetInfo.setDbName("default");
         lineageDataSetInfo.setSchemaName("default");
@@ -566,11 +561,9 @@ public class Template {
     public static LineageDataSetInfo getHiveDataSetInfoTemplate() {
         LineageDataSetInfo lineageDataSetInfo = new LineageDataSetInfo();
         lineageDataSetInfo.setAppType(AppType.DATAASSETS.getType());
-        lineageDataSetInfo.setSourceId(1L);
-        lineageDataSetInfo.setRealSourceId(1L);
+        lineageDataSetInfo.setDataInfoId(1L);
         lineageDataSetInfo.setSourceName("hive");
         lineageDataSetInfo.setSourceType(DataSourceType.HIVE.getVal());
-        lineageDataSetInfo.setSourceKey("172.16.8.107#10000");
         lineageDataSetInfo.setSetType(0);
         lineageDataSetInfo.setDbName("default");
         lineageDataSetInfo.setSchemaName("default");

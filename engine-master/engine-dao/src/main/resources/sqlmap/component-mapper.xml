@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.engine.dao.ComponentDao">
 
     <sql id="select_content_fragment">
-      id,engine_id,component_name,component_type_code,gmt_create,gmt_modified,is_deleted,hadoop_version,upload_file_name,kerberos_file_name,store_type,is_metadata,is_default
+      id,engine_id,component_name,component_type_code,gmt_create,gmt_modified,is_deleted,hadoop_version,upload_file_name,kerberos_file_name,store_type,is_metadata,is_default,deploy_type
     </sql>
 
     <sql id="update_fragment">
@@ -37,8 +37,8 @@
     </select>
 
     <insert id="insert" parameterType="Component" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO console_component(engine_id,component_name,component_type_code,upload_file_name,hadoop_version,kerberos_file_name,store_type,is_metadata,is_default)
-        VALUES (#{engineId},#{componentName},#{componentTypeCode},#{uploadFileName},#{hadoopVersion},#{kerberosFileName},#{storeType},#{isMetadata},#{isDefault})
+        INSERT INTO console_component(engine_id,component_name,component_type_code,upload_file_name,hadoop_version,kerberos_file_name,store_type,is_metadata,is_default,deploy_type)
+        VALUES (#{engineId},#{componentName},#{componentTypeCode},#{uploadFileName},#{hadoopVersion},#{kerberosFileName},#{storeType},#{isMetadata},#{isDefault},#{deployType})
     </insert>
 
     <update id="update">
@@ -61,6 +61,9 @@
                 #{engineId}
             </foreach>
         </if>
+        <if test="type!=null">
+            and component_type_code = #{type}
+        </if>
     </select>
 
     <select id="getByEngineIdAndComponentType" resultType="Component">
@@ -74,7 +77,7 @@
     <select id="getByClusterIdAndComponentType" resultType="Component">
         SELECT
         c.id,c.engine_id,c.component_name,c.component_type_code,c.gmt_create,c.gmt_modified,c.is_deleted,
-        c.hadoop_version,c.upload_file_name,c.kerberos_file_name,c.is_metadata
+        c.hadoop_version,c.upload_file_name,c.kerberos_file_name,c.is_metadata,c.deploy_type
         FROM
         console_component c
         LEFT JOIN console_engine ENGINE ON ENGINE.id = c.engine_id
@@ -82,13 +85,16 @@
         WHERE
         cluster.id = #{clusterId} and c.component_type_code = #{type}
         <choose>
-            <when test="componentVersion == null">
+            <when test="componentVersion == null or componentVersion == ''">
                 and c.is_default = 1
             </when>
             <otherwise>
                and c.hadoop_version = #{componentVersion}
             </otherwise>
         </choose>
+        <if test="deployType!= null">
+            and  deploy_type = #{deployType}
+        </if>
           and c.is_deleted = 0 LIMIT 1
     </select>
 
@@ -113,7 +119,7 @@
     <select id="getByTenantIdComponentType" resultType="Component">
         select
         cc.id,cc.engine_id,cc.component_name,cc.component_type_code,cc.gmt_create,cc.gmt_modified,cc.is_deleted,
-        cc.hadoop_version,cc.upload_file_name,cc.kerberos_file_name
+        cc.hadoop_version,cc.upload_file_name,cc.kerberos_file_name,cc.deploy_type
         from
         console_component cc
         INNER JOIN console_engine_tenant cet
@@ -164,9 +170,10 @@
         FROM
         console_component cc
         LEFT JOIN console_engine ce ON ce.id = cc.engine_id
-        LEFT JOIN console_cluster ccl ON ccl.id = ce.cluster_id and ccl.id=#{clusterId}
+        LEFT JOIN console_cluster ccl ON ccl.id = ce.cluster_id
         WHERE
-        cc.component_type_code = #{componentType}
+        ccl.id=#{clusterId}
+        AND cc.component_type_code = #{componentType}
         and is_default = 1
         and cc.is_deleted = 0 LIMIT 1
     </select>
@@ -182,4 +189,66 @@
         and cc.is_default = 1
         and cc.is_deleted = 0 limit 1
     </select>
+    <select id="getComponentVersionByEngineType" resultType="com.dtstack.engine.api.domain.Component">
+        SELECT
+            sd.dict_name as hadoop_version,
+            cc.gmt_create,
+            cc.is_default
+        FROM
+            console_component cc
+                INNER JOIN console_engine_tenant cet ON cc.engine_id = cet.engine_id
+                INNER JOIN console_dtuic_tenant cdt ON cdt.id = cet.tenant_id
+                INNER JOIN schedule_dict sd ON sd.dict_value = cc.hadoop_version
+        WHERE
+            cc.component_type_code = #{componentTypeCode}
+          AND cdt.dt_uic_tenant_id = #{uicTenantId}
+          AND cc.is_deleted = 0
+    </select>
+
+    <select id="getDefaultVersionDictNameByUicIdAndComponentType" resultType="java.lang.String">
+        select sd.dict_name
+        from console_component cc
+                 INNER JOIN console_engine_tenant cet
+                            on cc.engine_id = cet.engine_id
+                 INNER JOIN console_dtuic_tenant cdt on cdt.id = cet.tenant_id
+                 INNER JOIN schedule_dict sd on sd.dict_value = cc.hadoop_version
+        where cc.component_type_code = #{componentTypeCode}
+          and cc.is_default = 1
+          and cdt.dt_uic_tenant_id = #{uicTenantId}
+          and cc.is_deleted = 0 limit 1
+    </select>
+
+    <select id="allUseUicTenant" resultType="java.lang.Long">
+        SELECT
+            cdt.dt_uic_tenant_id
+        FROM
+            console_component cc
+                INNER JOIN console_engine_tenant cet ON cet.engine_id = cc.engine_id
+                INNER JOIN console_dtuic_tenant cdt ON cdt.id = cet.tenant_id
+                where cc.id = #{componentId}
+    </select>
+
+
+    <select id="getMetadataComponent" resultType="com.dtstack.engine.api.domain.Component">
+        SELECT
+            c.id,c.engine_id,c.component_name,c.component_type_code,c.gmt_create,c.gmt_modified,c.is_deleted,
+            c.hadoop_version,c.upload_file_name,c.kerberos_file_name,c.is_metadata,c.deploy_type
+        FROM
+            console_component c
+                LEFT JOIN console_engine ce ON ce.id = c.engine_id
+                LEFT JOIN console_cluster ccl ON ccl.id = ce.cluster_id
+        WHERE
+            c.is_metadata = 1
+          and ccl.id=#{clusterId}
+          and is_default = 1
+          and c.is_deleted = 0 LIMIT 1
+    </select>
+
+    <update id="updateDefault">
+        update console_component set is_default = #{isDefault}
+        where engine_id = #{engineId} and is_deleted = 0 and component_type_code = #{componentType}
+        <if test="true == isDefault">
+            and is_default = 0 order by id desc limit 1
+        </if>
+    </update>
 </mapper>

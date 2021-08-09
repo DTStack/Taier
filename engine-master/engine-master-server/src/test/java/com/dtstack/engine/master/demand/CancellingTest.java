@@ -115,6 +115,7 @@ public class CancellingTest extends AbstractTest implements ApplicationContextAw
         scheduleJobTemplate.setJobId(UUID.randomUUID().toString());
         scheduleJobTemplate.setJobKey(UUID.randomUUID().toString());
         scheduleJobDao.insert(scheduleJobTemplate);
+        scheduleJobDao.updateJobStatus(scheduleJobTemplate.getJobId(),RdosTaskStatus.FINISHED.getStatus());
         Boolean stop = actionService.stop(Lists.newArrayList(scheduleJobTemplate.getJobId()));
         if (Boolean.TRUE.equals(stop)) {
             ScheduleJob dbSchedule = scheduleJobDao.getByJobId(scheduleJobTemplate.getJobId(), null);

@@ -15,12 +15,13 @@ import java.util.Set;
  * @Created chener@dtstack.com
  */
 public enum SourceType2TableType {
-    HIVE(ETableType.HIVE, Sets.newHashSet(DataSourceType.HIVE1X,DataSourceType.HIVE,DataSourceType.Spark,DataSourceType.SPARKTHRIFT2_1)),
+    HIVE(ETableType.HIVE, Sets.newHashSet(DataSourceType.HIVE1X,DataSourceType.HIVE,DataSourceType.Spark,DataSourceType.SPARKTHRIFT2_1,DataSourceType.HIVE3,DataSourceType.INCEPTOR_SQL)),
     LIBRA(ETableType.LIBRA,Sets.newHashSet(DataSourceType.LIBRA)),
     TIDB(ETableType.TIDB,Sets.newHashSet(DataSourceType.TiDB)),
     ORACLE(ETableType.ORACLE,Sets.newHashSet(DataSourceType.Oracle)),
     GREENPLUM(ETableType.GREENPLUM,Sets.newHashSet(DataSourceType.GREENPLUM6)),
     IMPALA(ETableType.IMPALA,Sets.newHashSet(DataSourceType.IMPALA)),
+    ADB_POSTGREPSQL(ETableType.ADB_POSTGREPSQL,Sets.newHashSet(DataSourceType.ADB_POSTGREPSQL)),
     ;
 
     private ETableType tableType;

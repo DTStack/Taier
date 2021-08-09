@@ -5,15 +5,20 @@ import com.dtstack.engine.api.domain.LineageDataSetInfo;
 import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.api.pojo.lineage.Table;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.dao.ComponentConfigDao;
 import com.dtstack.engine.dao.ComponentDao;
 import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.dao.LineageDataSetDao;
+import com.dtstack.pubsvc.sdk.datasource.DataSourceAPIClient;
+import com.dtstack.pubsvc.sdk.dto.result.datasource.DsServiceInfoDTO;
+import com.dtstack.sdk.core.common.ApiResponse;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
@@ -56,17 +61,33 @@ public class LineageDataSetInfoTest extends AbstractTest {
     @Autowired
     private ComponentConfigDao componentConfigDao;
 
+    @Autowired
+    private EnvironmentContext environmentContext;
+
+    @Mock
+    private DataSourceAPIClient dataSourceAPIClient;
+
 
     @Before
     public void setup() throws Exception{
 
 
-        ReflectionTestUtils.setField(dataSetInfoService,"sourceService", dataSourceService);
         ReflectionTestUtils.setField(dataSetInfoService,"tenantDao", tenantDao);
         ReflectionTestUtils.setField(dataSetInfoService,"lineageDataSetDao", lineageDataSetDao);
         ReflectionTestUtils.setField(dataSetInfoService,"componentDao", componentDao);
         ReflectionTestUtils.setField(dataSetInfoService,"tenantDao", tenantDao);
         ReflectionTestUtils.setField(dataSetInfoService,"componentConfigDao", componentConfigDao);
+        ReflectionTestUtils.setField(dataSetInfoService,"environmentContext", environmentContext);
+        ReflectionTestUtils.setField(dataSetInfoService,"dataSourceAPIClient",dataSourceAPIClient);
+        ApiResponse<DsServiceInfoDTO> dsInfoById = new ApiResponse<>();
+        DsServiceInfoDTO dsServiceInfoDTO = new DsServiceInfoDTO();
+        dsServiceInfoDTO.setDataInfoId(1L);
+        dsServiceInfoDTO.setType(1);
+        dsServiceInfoDTO.setDtuicTenantId(1L);
+        dsServiceInfoDTO.setDataName("测试数据源");
+        dsInfoById.setCode(1);
+        dsInfoById.setData(dsServiceInfoDTO);
+        when(dataSourceAPIClient.getDsInfoById(any())).thenReturn(dsInfoById);
         when(dataSetInfoService.getClient(any(),any(),any())).thenReturn(null);
         when(dataSetInfoService.getAllColumns(any(),any())).thenReturn(new ArrayList<>());
 
@@ -78,12 +99,25 @@ public class LineageDataSetInfoTest extends AbstractTest {
     @Rollback
     public void testGetOneBySourceIdAndDbNameAndTableName(){
 
-        LineageDataSource dataSource = DataCollection.getData().getDefaultLineageDataSource();
-        String dbName = "default";
-        String tableName = "t1";
-        String schemaName = "t1";
-        LineageDataSetInfo dataSetInfo = dataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSource.getId(), dbName, tableName, schemaName);
-        Assert.assertNotNull(dataSetInfo);
+        LineageDataSetInfo dataSetInfo = DataCollection.getData().getHiveLineageDataSetInfo();
+        String dbName = dataSetInfo.getDbName();
+        String tableName = dataSetInfo.getTableName();
+        String schemaName = dataSetInfo.getSchemaName();
+        LineageDataSetInfo setInfo = dataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSetInfo.getDataInfoId(), dbName, tableName, schemaName,dataSetInfo.getAppType());
+        Assert.assertNotNull(setInfo);
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testGetOneBySourceIdAndDbNameAndTableName2(){
+
+        LineageDataSetInfo dataSetInfo = DataCollection.getData().getHiveLineageDataSetInfo();
+        String dbName = dataSetInfo.getDbName();
+        String tableName = dataSetInfo.getTableName();
+        String schemaName = dataSetInfo.getSchemaName();
+        LineageDataSetInfo setInfo = dataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSetInfo.getDataInfoId(), dbName, tableName, schemaName,1);
+        Assert.assertNotNull(setInfo);
     }
 
 
@@ -92,9 +126,8 @@ public class LineageDataSetInfoTest extends AbstractTest {
     @Rollback
     public void testGetTableColumns(){
 
-        LineageDataSource dataSource = DataCollection.getData().getDefaultLineageDataSource();
         LineageDataSetInfo dataSetInfo = new LineageDataSetInfo();
-        dataSetInfo.setSourceId(dataSource.getId());
+        dataSetInfo.setDataInfoId(1L);
         dataSetInfo.setTableName("chener");
         dataSetInfo.setDbName("beihai");
         dataSetInfo.setSchemaName("beihai");
@@ -107,12 +140,12 @@ public class LineageDataSetInfoTest extends AbstractTest {
     @Rollback
     public void testGetOneById(){
 
-        LineageDataSource dataSource = DataCollection.getData().getDefaultLineageDataSource();
-        String dbName = "default";
-        String tableName = "t1";
-        String schemaName = "t1";
-        LineageDataSetInfo dataSetInfo = dataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSource.getId(), dbName, tableName, schemaName);
-        LineageDataSetInfo oneById = dataSetInfoService.getOneById(dataSetInfo.getId());
+        LineageDataSetInfo dataSetInfo = DataCollection.getData().getHiveLineageDataSetInfo();
+        String dbName = dataSetInfo.getDbName();
+        String tableName = dataSetInfo.getTableName();
+        String schemaName = dataSetInfo.getSchemaName();
+        LineageDataSetInfo setInfo = dataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSetInfo.getDataInfoId(), dbName, tableName, schemaName,dataSetInfo.getAppType());
+        LineageDataSetInfo oneById = dataSetInfoService.getOneById(setInfo.getId());
         Assert.assertNotNull(oneById);
     }
 
@@ -123,12 +156,12 @@ public class LineageDataSetInfoTest extends AbstractTest {
     @Rollback
     public void testGetDataSetListByIds(){
 
-        LineageDataSource dataSource = DataCollection.getData().getDefaultLineageDataSource();
-        String dbName = "default";
-        String tableName = "t1";
-        String schemaName = "t1";
-        LineageDataSetInfo dataSetInfo = dataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSource.getId(), dbName, tableName, schemaName);
-        List<LineageDataSetInfo> dataSetListByIds = dataSetInfoService.getDataSetListByIds(Arrays.asList(dataSetInfo.getId()));
+        LineageDataSetInfo dataSetInfo = DataCollection.getData().getHiveLineageDataSetInfo();
+        String dbName = dataSetInfo.getDbName();
+        String tableName = dataSetInfo.getTableName();
+        String schemaName = dataSetInfo.getSchemaName();
+        LineageDataSetInfo setInfo = dataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSetInfo.getDataInfoId(), dbName, tableName, schemaName,dataSetInfo.getAppType());
+        List<LineageDataSetInfo> dataSetListByIds = dataSetInfoService.getDataSetListByIds(Arrays.asList(setInfo.getId()));
         Assert.assertNotNull(dataSetListByIds);
     }
 
@@ -139,9 +172,8 @@ public class LineageDataSetInfoTest extends AbstractTest {
     @Rollback
     public void testGetColumnsBySourceIdAndListTable(){
 
-        LineageDataSource dataSource = DataCollection.getData().getDefaultLineageDataSource();
         LineageDataSetInfo dataSetInfo = new LineageDataSetInfo();
-        dataSetInfo.setSourceId(dataSource.getId());
+        dataSetInfo.setDataInfoId(1L);
         dataSetInfo.setTableName("chener");
         dataSetInfo.setDbName("beihai");
         dataSetInfo.setSchemaName("beihai");
@@ -150,7 +182,7 @@ public class LineageDataSetInfoTest extends AbstractTest {
         table.setDb("beihai");
         table.setName("chener");
         tables.add(table);
-        Map<String, List<Column>> columnsBySourceIdAndListTable = dataSetInfoService.getColumnsBySourceIdAndListTable(dataSource.getId(), tables);
+        Map<String, List<Column>> columnsBySourceIdAndListTable = dataSetInfoService.getColumnsBySourceIdAndListTable(1L, tables);
         Assert.assertNotNull(columnsBySourceIdAndListTable);
     }
 
@@ -159,12 +191,9 @@ public class LineageDataSetInfoTest extends AbstractTest {
     @Rollback
     public void test(){
 
-        LineageDataSource dataSource = DataCollection.getData().getDefaultLineageDataSource();
-        String dbName = "default";
-        String tableName = "t1";
-        String schemaName = "t1";
-        LineageDataSetInfo dataSetInfo = dataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSource.getId(), dbName, tableName, schemaName);
-        dataSetInfoService.updateTableNameByTableNameAndSourceId("t1","t2",dataSource);
+        LineageDataSetInfo dataSetInfo = DataCollection.getData().getHiveLineageDataSetInfo();
+        LineageDataSetInfo setInfo = dataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSetInfo.getDataInfoId(), dataSetInfo.getDbName(), dataSetInfo.getTableName(), dataSetInfo.getSchemaName(),dataSetInfo.getAppType());
+        dataSetInfoService.updateTableNameByTableNameAndSourceId(setInfo.getTableName(),"t2",setInfo.getDbName(),setInfo.getDataInfoId());
     }
 
 }

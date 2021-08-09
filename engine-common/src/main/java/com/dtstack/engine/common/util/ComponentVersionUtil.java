@@ -49,6 +49,9 @@ public class ComponentVersionUtil {
         set.add(EScheduleJobType.HADOOP_MR.getType());
         set.add(EScheduleJobType.NOT_DO_TASK.getType());
         set.add(EScheduleJobType.KINGBASE.getType());
+        set.add(EScheduleJobType.NOTEBOOK.getType());
+        set.add(EScheduleJobType.ALGORITHM_LAB.getType());
+        set.add(EScheduleJobType.ANALYTICDB_FOR_PG.getType());
         return set;
     }
     private static Map<Integer,EComponentType> initComponent(){
@@ -62,9 +65,8 @@ public class ComponentVersionUtil {
         // R
         // Deep learning
         // Shell
+        map.put(EScheduleJobType.SHELL.getType(),EComponentType.DT_SCRIPT);
         // ML_Lib
-        // Notebook
-        // ALGORITHM_LAB
 
         // DtScript
         map.put(EScheduleJobType.PYTHON.getType(),EComponentType.DT_SCRIPT);
@@ -90,7 +92,8 @@ public class ComponentVersionUtil {
         map.put(EScheduleJobType.KERAS.getType(),EComponentType.LEARNING);
         map.put(EScheduleJobType.PYTORCH.getType(),EComponentType.LEARNING);
         map.put(EScheduleJobType.INCEPTOR_SQL.getType(),EComponentType.INCEPTOR_SQL);
-        map.put(EScheduleJobType.DTSCRIPT_AGENT.getType(),EComponentType.DTSCRIPT_AGENT);
+        map.put(EScheduleJobType.SHELL_ON_AGENT.getType(),EComponentType.DTSCRIPT_AGENT);
+        map.put(EScheduleJobType.FLINK_SQL.getType(),EComponentType.FLINK);
         return map;
     }
 
@@ -139,8 +142,8 @@ public class ComponentVersionUtil {
     }
 
 
-    public static Map<Integer,String > singletonMap(EComponentType componentType,String componentVersion){
-        return Collections.singletonMap(componentType.getTypeCode(),componentVersion);
+    public static String formatMultiVersion(Integer componentCode,String componentVersion){
+        return isMultiVersionComponent(componentCode)? componentVersion : null;
     }
 
 
