@@ -1625,7 +1625,7 @@ public class ScheduleJobService {
         batchJobDTO.setNeedQuerySonNode(true);
         batchJobDTO.setAppType(appType);
         batchJobDTO.setOwnerUserId(dutyUserId);
-
+        batchJobDTO.setDtuicTenantId(dtuicTenantId);
         PageQuery<ScheduleJobDTO> pageQuery = new PageQuery<>(currentPage, pageSize, "gmt_create", Sort.DESC.name());
         pageQuery.setModel(batchJobDTO);
         return pageQuery;

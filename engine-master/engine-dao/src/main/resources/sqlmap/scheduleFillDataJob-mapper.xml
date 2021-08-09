@@ -69,7 +69,12 @@
         WHERE
         sfdj.project_id = #{model.projectId}
         AND sfdj.app_type = #{model.appType}
-        AND sfdj.tenant_id = #{model.tenantId}
+        <if test="model.tenantId != null">
+            AND sfdj.tenant_id = #{model.tenantId}
+        </if>
+        <if test="model.dtuicTenantId != null">
+            AND sfdj.dtuic_tenant_id = #{model.dtuicTenantId}
+        </if>
         <if test="model.createUserId != null">
             AND sfdj.create_user_id = #{model.createUserId}
         </if>
