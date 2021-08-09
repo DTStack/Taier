@@ -55,9 +55,9 @@ class PatchDataList extends React.Component<any, any> {
     };
 
     getProjectList = (value?: string) => {
-        const { appType } = this.state
         const { dispatch } = this.props
-        dispatch(getProjectList({ name: value ?? '', appType }))
+        const { appType, projectId } = this.state
+        dispatch(getProjectList({ name: value ?? '', appType, projectId }))
     }
 
     killAllJobs = (job: any) => {

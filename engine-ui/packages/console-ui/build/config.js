@@ -27,12 +27,6 @@ module.exports = {
                 changeOrigin: true,
                 secure: false,
                 onProxyReq: ProxyReq
-            },
-            '/api/rdos': {
-                target: "http://172.16.100.225:7001/proxy/46", // doraemon
-                changeOrigin: true,
-                secure: false,
-                onProxyReq: ProxyReq
             }
         }
     }
