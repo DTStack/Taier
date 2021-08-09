@@ -19,7 +19,7 @@ import { TaskTimeType, TaskType } from '../../../components/status';
 import PatchDataModal from './patchDataModal';
 import TaskFlowView from './taskFlowView';
 
-import { workbenchActions } from '../../../actions/operation';
+import { workbenchActions, getProjectList } from '../../../actions/operation';
 
 const FormItem = Form.Item;
 const Option: any = Select.Option;
@@ -50,10 +50,8 @@ class OfflineTaskMana extends React.Component<any, any> {
         selectedRowKeys: [],
         expandedRowKeys: [],
         searchType: 'fuzzy',
-        projectUsers: [],
         appType: APPS_TYPE.INDEX,
-        projectId: '',
-        projectList: []
+        projectId: ''
     };
 
     componentDidMount () {
@@ -61,7 +59,6 @@ class OfflineTaskMana extends React.Component<any, any> {
         const params = { appType: appType ?? APPS_TYPE.INDEX, projectId: pid ?? '' }
         this.setState({ ...params }, () => {
             this.search()
-            this.getPersonApi(1)
             this.getTaskTypesX()
             this.getProjectList()
             if (taskId) this.showTask({ ...params, id: taskId })
@@ -138,24 +135,9 @@ class OfflineTaskMana extends React.Component<any, any> {
         });
     }
 
-    // 责任人接口
-    getPersonApi (parmms: any) {
-        const ctx = this;
-        Api.getPersonInCharge(parmms).then((res: any) => {
-            if (res.code === 1) {
-                ctx.setState({ projectUsers: res.data });
-            }
-            this.setState({ loading: false });
-        });
-    }
-
     getProjectList = (value?: string) => {
         const { appType } = this.state
-        Api.getProjectList({ name: value ?? '', appType }).then((res: any) => {
-            if (res.code === 1) {
-                this.setState({ projectList: res?.data ?? [] })
-            }
-        });
+        this.props.getProjectList({ name: value ?? '', appType })
     }
 
     loadTaskList (params: any) {
@@ -511,19 +493,10 @@ class OfflineTaskMana extends React.Component<any, any> {
     render () {
         const {
             tasks, patchDataVisible, selectedTask, person, checkVals, patchTargetTask, current,
-            taskName, visibleSlidePane, selectedRowKeys, tabKey, searchType, pageSize, projectUsers,
-            appType, projectId, projectList
+            taskName, visibleSlidePane, selectedRowKeys, tabKey, searchType, pageSize,
+            appType, projectId
         } = this.state;
-        const userItems =
-            projectUsers && projectUsers.length > 0
-                ? projectUsers.map((item: any) => {
-                    return (
-                        <Option key={item.dtuicUserId} value={`${item.dtuicUserId}`} name={item.userName}>
-                            {item.userName}
-                        </Option>
-                    );
-                })
-                : [];
+        const { projectList, personList } = this.props
 
         const pagination: any = {
             total: tasks.totalCount,
@@ -624,7 +597,9 @@ class OfflineTaskMana extends React.Component<any, any> {
                                 value={person}
                                 onChange={this.changePerson}
                             >
-                                {userItems}
+                                {personList.map((item: any) => {
+                                    return <Option key={item.dtuicUserId} value={`${item.dtuicUserId}`}>{item.userName}</Option>
+                                })}
                             </Select>
                         </FormItem>
                     </Col>
@@ -712,13 +687,21 @@ class OfflineTaskMana extends React.Component<any, any> {
     }
 }
 export default connect(
-    null,
+    (state: any) => {
+        return {
+            projectList: state.operation.projectList,
+            personList: state.operation.personList
+        }
+    },
     (dispatch: any) => {
         const actions = workbenchActions(dispatch);
         return {
             goToTaskDev: (record: any) => {
                 actions.openTaskInDev(record);
+            },
+            getProjectList: (params: any) => {
+                dispatch(getProjectList(params))
             }
-        };
+        }
     }
 )(OfflineTaskMana);

@@ -90,8 +90,8 @@ export default {
     getProjectList (params: any) {
         return http.post(req.GET_PROJECT_LIST, params)
     },
-    getPersonInCharge (params: any) {
-        return http.post(req.USER_QUERYUSER, params)
+    getPersonInCharge () {
+        return http.post(req.USER_QUERYUSER)
     },
     /**
      * 获取工作流任务节点实例的子节点

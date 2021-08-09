@@ -32,7 +32,7 @@ import {
 import { APPS_TYPE } from '../../../consts'
 import { TaskStatus, TaskTimeType, TaskType } from '../../../components/status';
 
-import { workbenchActions } from '../../../actions/operation';
+import { workbenchActions, getProjectList } from '../../../actions/operation';
 
 import TaskJobFlowView from './taskJobFlowView';
 import KillJobForm from './killJobForm';
@@ -84,8 +84,7 @@ class OfflineTaskList extends React.Component<any, any> {
         searchType: 'fuzzy',
         projectUsers: [],
         appType: APPS_TYPE.INDEX,
-        projectId: '',
-        projectList: []
+        projectId: ''
     };
 
     componentDidMount () {
@@ -93,7 +92,6 @@ class OfflineTaskList extends React.Component<any, any> {
         const params = { appType: appType ?? APPS_TYPE.INDEX, projectId: pid ?? '' }
         this.setState({ ...params }, () => {
             this.search()
-            this.getPersonApi(1)
             this.getTaskTypesX()
             this.getProjectList()
         })
@@ -119,24 +117,10 @@ class OfflineTaskList extends React.Component<any, any> {
             }
         });
     }
-    // 责任人接口
-    getPersonApi (parmms: any) {
-        const ctx = this;
-        Api.getPersonInCharge(parmms).then((res: any) => {
-            if (res.code === 1) {
-                ctx.setState({ projectUsers: res.data });
-            }
-            this.setState({ loading: false });
-        });
-    }
 
     getProjectList = (value?: string) => {
         const { appType } = this.state
-        Api.getProjectList({ name: value ?? '', appType }).then((res: any) => {
-            if (res.code === 1) {
-                this.setState({ projectList: res.data })
-            }
-        });
+        this.props.getProjectList({ name: value ?? '', appType })
     }
 
     getReqParams = () => {
@@ -798,22 +782,12 @@ class OfflineTaskList extends React.Component<any, any> {
     render () {
         const {
             tasks, selectedRowKeys, jobName, bussinessDate, current, statistics, selectedTask,
-            visibleSlidePane, cycDate, killJobVisible, searchType, pageSize, projectUsers,
-            appType, projectList, projectId
+            visibleSlidePane, cycDate, killJobVisible, searchType, pageSize,
+            appType, projectId
         } = this.state;
 
-        const { project } = this.props;
+        const { projectList, personList } = this.props;
 
-        const userItems =
-            projectUsers && projectUsers.length > 0
-                ? projectUsers.map((item: any) => {
-                    return (
-                        <Option key={item.dtuicUserId} value={`${item.dtuicUserId}`} name={item.userName}>
-                            {item.userName}
-                        </Option>
-                    );
-                })
-                : [];
         const pagination: any = {
             total: tasks.totalCount,
             showTotal: () => (
@@ -989,7 +963,9 @@ class OfflineTaskList extends React.Component<any, any> {
                                 className="dt-form-shadow-bg"
                                 onChange={this.changePerson}
                             >
-                                {userItems}
+                                {personList.map((item: any) => {
+                                    return <Option key={item.dtuicUserId} value={`${item.dtuicUserId}`}>{item.userName}</Option>
+                                })}
                             </Select>
                         </FormItem>
                         <div className="office__refresh_normal">
@@ -1088,7 +1064,6 @@ class OfflineTaskList extends React.Component<any, any> {
                             goToTaskDev={this.props.goToTaskDev}
                             reload={this.search}
                             taskJob={selectedTask}
-                            project={project}
                         />
                     </SlidePane>
 
@@ -1104,12 +1079,20 @@ class OfflineTaskList extends React.Component<any, any> {
 }
 
 export default connect(
-    null,
+    (state: any) => {
+        return {
+            projectList: state.operation.projectList,
+            personList: state.operation.personList
+        }
+    },
     (dispatch: any) => {
         const actions = workbenchActions(dispatch);
         return {
             goToTaskDev: (id: any) => {
                 actions.openTaskInDev(id);
+            },
+            getProjectList: (params: any) => {
+                dispatch(getProjectList(params))
             }
         };
     }

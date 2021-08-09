@@ -6,6 +6,7 @@ import { Input, Select, message, Checkbox,
     Form, DatePicker, Table, Modal,
     Pagination, Col } from 'antd';
 
+import { getProjectList } from '../../../actions/operation';
 import { APPS_TYPE } from '../../../consts'
 import Api from '../../../api/operation';
 
@@ -27,10 +28,8 @@ class PatchDataList extends React.Component<any, any> {
         bizDay: '',
         dutyUserId: undefined,
         checkVals: [],
-        projectUsers: [],
         appType: '',
-        projectId: '',
-        projectList: []
+        projectId: ''
     };
 
     componentDidMount () {
@@ -38,7 +37,6 @@ class PatchDataList extends React.Component<any, any> {
         const params = { appType: appType ?? APPS_TYPE.INDEX, projectId: pid ?? '' }
         this.setState({ ...params }, () => {
             this.loadPatchData()
-            this.getPersonApi(1)
             this.getProjectList()
         })
     }
@@ -55,24 +53,11 @@ class PatchDataList extends React.Component<any, any> {
             this.setState({ loading: false });
         });
     };
-    // 责任人接口
-    getPersonApi (parmms: any) {
-        const ctx = this;
-        Api.getPersonInCharge(parmms).then((res: any) => {
-            if (res.code === 1) {
-                ctx.setState({ projectUsers: res.data });
-            }
-            this.setState({ loading: false });
-        });
-    }
 
     getProjectList = (value?: string) => {
         const { appType } = this.state
-        Api.getProjectList({ name: value ?? '', appType }).then((res: any) => {
-            if (res.code === 1) {
-                this.setState({ projectList: res.data })
-            }
-        });
+        const { dispatch } = this.props
+        dispatch(getProjectList({ name: value ?? '', appType }))
     }
 
     killAllJobs = (job: any) => {
@@ -273,19 +258,9 @@ class PatchDataList extends React.Component<any, any> {
     render () {
         const {
             tasks, current, checkVals, dutyUserId, bizDay, runDay, jobName, pageSize, loading,
-            projectUsers, appType, projectId, projectList
+            appType, projectId
         } = this.state;
-
-        const userItems =
-            projectUsers && projectUsers.length > 0
-                ? projectUsers.map((item: any) => {
-                    return (
-                        <Option key={item.dtuicUserId} value={`${item.dtuicUserId}`} >
-                            {item.userName}
-                        </Option>
-                    );
-                })
-                : [];
+        const { projectList, personList } = this.props
 
         const pagination: any = {
             total: tasks.totalCount,
@@ -356,7 +331,9 @@ class PatchDataList extends React.Component<any, any> {
                                 value={dutyUserId}
                                 onChange={this.onOwnerChange}
                             >
-                                {userItems}
+                                {personList.map((item: any) => {
+                                    return <Option key={item.dtuicUserId} value={`${item.dtuicUserId}`}>{item.userName}</Option>
+                                })}
                             </Select>
                         </FormItem>
                     </Col>
@@ -412,6 +389,8 @@ class PatchDataList extends React.Component<any, any> {
 }
 export default connect((state: any) => {
     return {
-        user: state.user
+        user: state.user,
+        projectList: state.operation.projectList,
+        personList: state.operation.personList
     };
 })(PatchDataList);

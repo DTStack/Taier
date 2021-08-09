@@ -7,6 +7,7 @@ import { connect } from 'react-redux'
 
 import { updateApp } from 'dt-common/src/actions/app'
 import { consoleApp } from 'dt-common/src/consts/defaultApps'
+import { getPersonList } from '../../actions/operation'
 
 const { Sider, Content } = Layout;
 const propType: any = {
@@ -33,6 +34,7 @@ class Container extends React.Component<any, any> {
     componentDidMount () {
         const { dispatch } = this.props;
         dispatch(updateApp(consoleApp));
+        dispatch(getPersonList());
     }
 
     toggleCollapsed = (data) => {

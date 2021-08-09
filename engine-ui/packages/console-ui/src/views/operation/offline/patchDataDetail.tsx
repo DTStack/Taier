@@ -62,7 +62,6 @@ class PatchDataDetail extends React.Component<any, any> {
         visibleSlidePane: false,
         selectedTask: {},
         searchType: 'fuzzy',
-        projectUsers: [],
         appType: '',
         projectId: ''
     }
@@ -77,7 +76,6 @@ class PatchDataDetail extends React.Component<any, any> {
         }, () => {
             this.search();
             ctx.getTaskTypesX()
-            ctx.getpersonList(1)
         });
     }
     componentWillUnmount () {
@@ -89,9 +87,6 @@ class PatchDataDetail extends React.Component<any, any> {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
-            // this.setState({ current: 1, visibleSlidePane: false }, () => {
-            //     this.search()
-            // })
             hashHistory.push('/operation/task-patch-data'); // 直接跳转到补数据列表页
         }
     }
@@ -414,18 +409,7 @@ class PatchDataDetail extends React.Component<any, any> {
     disabledDate = (current: any) => {
         return current && current.valueOf() > new Date().getTime();
     }
-    // 责任人接口
-    getpersonList (parmms: any) {
-        const ctx = this;
-        Api.getPersonInCharge(parmms).then((res: any) => {
-            console.log(res)
-            if (res.code == 1) {
-                ctx.setState({ projectUsers: res.data });
-            }
-            ctx.setState({ loading: false });
-            console.log(ctx.state.projectUsers)
-        });
-    }
+
     showTask = (task: any) => {
         this.setState({
             visibleSlidePane: true,
@@ -649,21 +633,11 @@ class PatchDataDetail extends React.Component<any, any> {
         const {
             table, selectedRowKeys, fillJobName,
             bizDay, current, statistics, taskName,
-            selectedTask, visibleSlidePane, searchType, projectUsers
+            selectedTask, visibleSlidePane, searchType
         } = this.state
 
-        const { goToTaskDev } = this.props
+        const { goToTaskDev, personList } = this.props
         const columns: any = this.initTaskColumns();
-        console.log(projectUsers)
-        const userItems = projectUsers && projectUsers.length > 0
-            ? projectUsers.map((item: any) => {
-                return (
-                    <Option key={item.dtuicUserId} value={`${item.dtuicUserId}`} name={item.userName}>
-                        {item.userName}
-                    </Option>
-                );
-            })
-            : [];
         const pagination: any = {
             total: table.totalCount,
             defaultPageSize: 20,
@@ -767,15 +741,12 @@ class PatchDataDetail extends React.Component<any, any> {
                         <Breadcrumb.Item>{fillJobName}</Breadcrumb.Item>
                     </Breadcrumb>
                 </div>
-                <div className="flex-between" style={{ borderTop: '1px solid #ddd', padding: '16px 20px' }}>
-                    <Form
-                        layout="inline"
-                        className="m-form-inline"
-                    >
+                <div style={{ borderTop: '1px solid #ddd', padding: '16px 20px', display: 'flex', justifyContent: 'space-between' }}>
+                    <Form layout="inline">
                         <FormItem label="" className="batch-operation_offlineImg dt-form-shadow-bg">
                             <MultiSearchInput
                                 placeholder="按任务名称搜索"
-                                style={{ width: '210px', height: '32px' }}
+                                style={{ width: '220px', height: '32px' }}
                                 value={taskName}
                                 searchType={searchType}
                                 onChange={this.changeTaskName}
@@ -795,7 +766,9 @@ class PatchDataDetail extends React.Component<any, any> {
                                 optionFilterProp="name"
                                 onChange={this.changePerson}
                             >
-                                {userItems}
+                                {personList.map((item: any) => {
+                                    return <Option key={item.dtuicUserId} value={`${item.dtuicUserId}`}>{item.userName}</Option>
+                                })}
                             </Select>
                         </FormItem>
                         <FormItem
@@ -888,7 +861,11 @@ class PatchDataDetail extends React.Component<any, any> {
 }
 
 export default connect(
-    null,
+    (state: any) => {
+        return {
+            personList: state.operation.personList
+        }
+    },
     (dispatch: any) => {
         const actions = workbenchActions(dispatch)
         return {
