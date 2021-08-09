@@ -4,49 +4,43 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### [4.2.5](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.4...v4.2.5) (2021-07-29)
 
-
 ### Bug Fixes
 
-* upgrade dt-common ([c75140d](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/c75140de4cc4d00341206fecc943efae68807b83))
+- upgrade dt-common ([c75140d](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/c75140de4cc4d00341206fecc943efae68807b83))
 
 ### [4.2.4](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.3...v4.2.4) (2021-07-27)
 
-
 ### Features
 
-* add datasource_id to request headers ([f4c7dfa](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/f4c7dfaa8881d13e5bd877b6fe0280640de7c416))
-* router change, restore query params ([7feb0f3](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/7feb0f327996a9206bb7c17fcc17508bc5270a0c))
-* style for no-navigation ([3edfaf3](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/3edfaf3823269827b1f18a15065df3e695fac3ae))
-
+- add datasource_id to request headers ([f4c7dfa](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/f4c7dfaa8881d13e5bd877b6fe0280640de7c416))
+- router change, restore query params ([7feb0f3](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/7feb0f327996a9206bb7c17fcc17508bc5270a0c))
+- style for no-navigation ([3edfaf3](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/3edfaf3823269827b1f18a15065df3e695fac3ae))
 
 ### Bug Fixes
 
-* data model list data is null ([3b800c4](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/3b800c453cbdd9e9bb7d58263fd652ecf088a2b9))
-* dt-common public directory update ([17a6ee9](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/17a6ee9ff0816be627260660349b90bd8832c12c))
+- data model list data is null ([3b800c4](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/3b800c453cbdd9e9bb7d58263fd652ecf088a2b9))
+- dt-common public directory update ([17a6ee9](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/17a6ee9ff0816be627260660349b90bd8832c12c))
 
 ### [4.2.3](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.2...v4.2.3) (2021-07-21)
 
-
 ### Features
 
-*  add kafka ([e11390e](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/e11390e162976931897eb4fd0011e475b9867946))
-* add null ([d05fa87](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/d05fa87512c86b62655d65b825474ec4ab5a702a))
-* data source, add source sql server jdbc ([3b9b749](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/3b9b749c000aedf4d90b7b87a29b7e7ba6124910))
-* upgrade 1.3 ([5805971](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/58059714f5dca65a4cc46f3d40026134846d796f))
-
+- add kafka ([e11390e](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/e11390e162976931897eb4fd0011e475b9867946))
+- add null ([d05fa87](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/d05fa87512c86b62655d65b825474ec4ab5a702a))
+- data source, add source sql server jdbc ([3b9b749](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/3b9b749c000aedf4d90b7b87a29b7e7ba6124910))
+- upgrade 1.3 ([5805971](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/58059714f5dca65a4cc46f3d40026134846d796f))
 
 ### Bug Fixes
 
-* copy area hot area fix ([8c67557](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/8c6755764497b48db88b5a4ae6281d851e6b49c5))
-* data source list, image scale ratio ([edc0708](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/edc070811dea6f1b6b046b555cc8e135e38b0412))
-* remove console ([44109e3](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/44109e357300163c204026ce7034b66a04b4dc0a))
+- copy area hot area fix ([8c67557](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/8c6755764497b48db88b5a4ae6281d851e6b49c5))
+- data source list, image scale ratio ([edc0708](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/edc070811dea6f1b6b046b555cc8e135e38b0412))
+- remove console ([44109e3](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/44109e357300163c204026ce7034b66a04b4dc0a))
 
 ### [4.2.2](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.1...v4.2.2) (2021-07-18)
 
-
 ### Bug Fixes
 
-* repair yarn.lock file ([de69abd](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/de69abd994b985e69c7dd3c34a12582d9eed476c))
+- repair yarn.lock file ([de69abd](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/de69abd994b985e69c7dd3c34a12582d9eed476c))
 
 ### [4.2.1](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.0-beta11...v4.2.1) (2021-07-12)
 
