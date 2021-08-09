@@ -35,12 +35,18 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_fill_data_job WHERE
-            tenant_id = #{tenantId} AND
-            project_id = #{projectId} AND is_deleted = 0 AND
-        id IN
-        <foreach collection="fillIdList" item="item" open="(" separator="," close=")">
-            #{item}
-        </foreach>
+            is_deleted = 0
+            AND project_id = #{projectId}
+            AND id IN
+            <foreach collection="fillIdList" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+            <if test="tenantId !=null">
+                AND tenant_id = #{tenantId}
+            </if>
+            <if test="dtuicTenantId !=null" >
+                AND dtuic_tenant_id = #{dtuicTenantId}
+            </if>
     </select>
 
     <select id="listFillJobByPageQuery" resultType="com.dtstack.engine.api.domain.ScheduleFillDataJob">

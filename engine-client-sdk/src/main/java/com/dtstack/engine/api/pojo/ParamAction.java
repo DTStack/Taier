@@ -28,11 +28,11 @@ public class ParamAction {
 
 	private String name;
 
-	private Integer taskType;
+    private Integer taskType;
 
-	private String engineType;
+    private String engineType;
 
-	private Integer computeType;
+    private Integer computeType;
 
 	//实时独有
 	private String externalPath;
