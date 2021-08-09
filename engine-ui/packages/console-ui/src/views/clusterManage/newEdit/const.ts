@@ -180,11 +180,8 @@ export const FLINK_DEPLOY_NAME = {
     [FLINK_DEPLOY_TYPE.STANDALONE]: 'Flink on Standalone',
     [FLINK_DEPLOY_TYPE.YARN]: 'Flink on YARN'
 }
-
-export const MAPPING_DEFAULT_VERSION = {
-    '180': '110',
-    '110': '180'
-}
+/** 用于设置了默认版本，取消勾选其他默认版本 */
+export const MAPPING_DEFAULT_VERSION = ['180', '110', '112']
 
 export const HOVER_TEXT = {
     [COMPONENT_TYPE_VALUE.MYSQL]: '示例：jdbc:mysql://localhost:3306/def',
