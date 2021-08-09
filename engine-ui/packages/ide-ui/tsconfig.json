@@ -8,6 +8,7 @@
     ],
     "allowJs": true,
     "skipLibCheck": true,
+    "experimentalDecorators": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
@@ -29,6 +30,7 @@
     },
   },
   "include": [
-    "src"
+    "src", 
+    "test/setupTests.ts"
   ]
 }
