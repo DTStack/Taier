@@ -15,7 +15,7 @@ import MyIcon from '../../../../components/icon'
 import StatusColumn from '../../../../components/statusColumn'
 import { APP_TYPE } from '../../../../consts'
 import { TASK_TYPE, TASK_ALL_TYPE } from '../../../../consts/comm'
-import { getVertxtStyle } from '../hlep'
+import { getVertxtStyle, goToTaskDev } from '../hlep'
 import { taskTypeText, taskStatusText } from '../../../../components/display'
 
 import MxFactory from 'dt-common/src/widgets/mxGraph';
@@ -577,7 +577,7 @@ class JobGraphView extends React.Component<any, any> {
     }
 
     render () {
-        const { goToTaskDev, data, isPro, showJobLog, isCurrentProjectTask } = this.props;
+        const { data, isPro, showJobLog } = this.props;
         return (
             <div className="graph-editor"
                 style={{

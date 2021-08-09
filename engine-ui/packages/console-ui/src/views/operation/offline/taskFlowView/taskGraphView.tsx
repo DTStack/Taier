@@ -15,6 +15,7 @@ import MyIcon from '../../../../components/icon'
 import { APP_TYPE } from '../../../../consts'
 import { TASK_TYPE, SCHEDULE_STATUS, TASK_ALL_TYPE } from '../../../../consts/comm'
 import { taskTypeText } from '../../../../components/display'
+import { goToTaskDev } from '../hlep'
 
 import MxFactory from 'dt-common/src/widgets/mxGraph';
 
@@ -528,7 +529,7 @@ class TaskGraphView extends React.Component<any, any> {
             </Card>)
     }
     render () {
-        const { goToTaskDev, data, hideFooter, height } = this.props;
+        const { data, hideFooter, height } = this.props;
         const editorHeight = hideFooter ? height || '800px' : 'calc(100% - 35px)';
         return (
             <div className="graph-editor"

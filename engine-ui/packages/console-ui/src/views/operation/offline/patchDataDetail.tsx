@@ -11,25 +11,13 @@ import {
 
 import SlidePane from 'dt-common/src/widgets/slidePane'
 import { replaceObjectArrayFiledName } from 'dt-common/src/funcs';
-
-import Api from '../../../api/operation'
-import {
-    offlineTaskStatusFilter,
-    TASK_STATUS, TASK_TYPE
-} from '../../../consts/comm'
-
-import {
-    TaskStatus, TaskType
-} from '../../../components/status'
-
-import {
-    workbenchActions
-} from '../../../actions/operation';
+import MultiSearchInput from 'dt-common/src/widgets/multiSearchInput';
 
 import TaskJobFlowView from './taskJobFlowView';
-// import utils from 'dt-common/src/utils';
-import MultiSearchInput from 'dt-common/src/widgets/multiSearchInput';
-// import console from '@/api/console';
+
+import Api from '../../../api/operation'
+import { offlineTaskStatusFilter, TASK_STATUS, TASK_TYPE } from '../../../consts/comm'
+import { TaskStatus, TaskType } from '../../../components/status'
 
 const Option: any = Select.Option
 const confirm = Modal.confirm
@@ -636,7 +624,7 @@ class PatchDataDetail extends React.Component<any, any> {
             selectedTask, visibleSlidePane, searchType
         } = this.state
 
-        const { goToTaskDev, personList } = this.props
+        const { personList } = this.props
         const columns: any = this.initTaskColumns();
         const pagination: any = {
             total: table.totalCount,
@@ -848,7 +836,6 @@ class PatchDataDetail extends React.Component<any, any> {
                         >
                             <TaskJobFlowView
                                 visibleSlidePane={visibleSlidePane}
-                                goToTaskDev={goToTaskDev}
                                 taskJob={selectedTask}
                                 realod={this.search}
                             />
@@ -864,14 +851,6 @@ export default connect(
     (state: any) => {
         return {
             personList: state.operation.personList
-        }
-    },
-    (dispatch: any) => {
-        const actions = workbenchActions(dispatch)
-        return {
-            goToTaskDev: (id: any) => {
-                actions.openTaskInDev(id)
-            }
         }
     }
 )(PatchDataDetail)

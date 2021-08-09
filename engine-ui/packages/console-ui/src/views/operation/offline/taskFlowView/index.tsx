@@ -297,7 +297,6 @@ class TaskFlowView extends React.Component<any, any> {
     }
 
     render () {
-        const { goToTaskDev } = this.props
         const {
             selectedTask, loading, workflowData,
             graphData, selectedWorkflowNode, currentInfo
@@ -319,7 +318,6 @@ class TaskFlowView extends React.Component<any, any> {
                     isCurrentProjectTask={this.isCurrentProjectTask}
                     graphData={graphData}
                     loading={loading}
-                    goToTaskDev={goToTaskDev}
                     refresh={this.refresh}
                     registerEvent={this.initGraphEvent}
                     key={`task-graph-view-${graphData && graphData.id}`}
@@ -342,7 +340,6 @@ class TaskFlowView extends React.Component<any, any> {
                         loading={loading}
                         data={selectedWorkflowNode}
                         isCurrentProjectTask={this.isCurrentProjectTask}
-                        goToTaskDev={goToTaskDev}
                         registerEvent={this.initGraphEvent}
                         registerContextMenu={this.initContextMenu}
                         graphData={workflowData && workflowData.subTaskVOS[0]}

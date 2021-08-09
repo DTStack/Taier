@@ -2,7 +2,6 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import moment from 'moment';
 import { cloneDeep } from 'lodash';
-
 import { Table, message, Select, Form, Checkbox, Tabs,
     Pagination, Col, Button } from 'antd';
 
@@ -10,16 +9,17 @@ import utils from 'dt-common/src/utils';
 import { replaceObjectArrayFiledName } from 'dt-common/src/funcs';
 import SlidePane from 'dt-common/src/widgets/slidePane';
 import MultiSearchInput from 'dt-common/src/widgets/multiSearchInput';
-import Api from '../../../api/operation';
-import { offlineTaskPeriodFilter, SCHEDULE_STATUS, PROJECT_TYPE, TASK_TYPE } from '../../../consts/comm';
-import { APPS_TYPE } from '../../../consts'
-
-import { TaskTimeType, TaskType } from '../../../components/status';
 
 import PatchDataModal from './patchDataModal';
 import TaskFlowView from './taskFlowView';
 
-import { workbenchActions, getProjectList } from '../../../actions/operation';
+import { goToTaskDev } from './hlep';
+import Api from '../../../api/operation';
+import { offlineTaskPeriodFilter, SCHEDULE_STATUS,
+    PROJECT_TYPE, TASK_TYPE } from '../../../consts/comm';
+import { APPS_TYPE } from '../../../consts';
+import { TaskTimeType, TaskType } from '../../../components/status';
+import { getProjectList } from '../../../actions/operation';
 
 const FormItem = Form.Item;
 const Option: any = Select.Option;
@@ -137,7 +137,8 @@ class OfflineTaskMana extends React.Component<any, any> {
 
     getProjectList = (value?: string) => {
         const { appType } = this.state
-        this.props.getProjectList({ name: value ?? '', appType })
+        const { dispatch } = this.props
+        dispatch(getProjectList({ name: value ?? '', appType }))
     }
 
     loadTaskList (params: any) {
@@ -230,13 +231,6 @@ class OfflineTaskMana extends React.Component<any, any> {
             visibleSlidePane: true,
             selectedTask: task
         });
-    };
-
-    clickMenu = (target: any) => {
-        const task = target.item.props.value;
-        if (target.key === 'edit') {
-            this.props.goToTaskDev(task.id);
-        }
     };
 
     changePerson = (target: any) => {
@@ -429,8 +423,7 @@ class OfflineTaskMana extends React.Component<any, any> {
                             </a>
                             <span className="ant-divider"></span>
                             <a onClick={() => {
-                                console.log('gg修改')
-                                this.props.goToTaskDev(record);
+                                goToTaskDev(record)
                             }}
                             >
                                 修改
@@ -668,7 +661,6 @@ class OfflineTaskMana extends React.Component<any, any> {
                                 reload={this.search}
                                 key={`taskGraph-${selectedTask && selectedTask.id}-${tabKey}`}
                                 visibleSlidePane={visibleSlidePane}
-                                goToTaskDev={this.props.goToTaskDev}
                                 clickPatchData={this.clickPatchData}
                                 tabData={selectedTask}
                             />
@@ -691,17 +683,6 @@ export default connect(
         return {
             projectList: state.operation.projectList,
             personList: state.operation.personList
-        }
-    },
-    (dispatch: any) => {
-        const actions = workbenchActions(dispatch);
-        return {
-            goToTaskDev: (record: any) => {
-                actions.openTaskInDev(record);
-            },
-            getProjectList: (params: any) => {
-                dispatch(getProjectList(params))
-            }
         }
     }
 )(OfflineTaskMana);

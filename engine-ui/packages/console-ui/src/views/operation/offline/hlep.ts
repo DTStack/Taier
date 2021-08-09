@@ -1,4 +1,6 @@
+import { hashHistory } from 'react-router'
 import { TASK_STATUS } from '../../../consts/comm'
+import { APPS_TYPE } from '../../../consts'
 
 export function getVertxtStyle (type: any) {
     switch (type) {
@@ -25,5 +27,17 @@ export function getVertxtStyle (type: any) {
         default:
         // 默认
             return 'whiteSpace=wrap;fillColor=#F3F3F3;strokeColor=#D4D4D4;';
+    }
+}
+
+export function goToTaskDev (record: any) {
+    const { appType, taskType, id } = record
+    if (appType == APPS_TYPE.INDEX) {
+        if (taskType == 18) {
+            let path2 = `http://${window.location.hostname}:8099/easy-index/index-define?taskId=${id}`;
+            window.open(path2)
+        } else if (taskType == 7) {
+            hashHistory.push({ pathname: '/operation/dependence', query: { id } });
+        }
     }
 }

@@ -4,39 +4,26 @@ import moment from 'moment';
 import { isEmpty, cloneDeep, get } from 'lodash';
 
 import {
-    Table,
-    message,
-    Modal,
-    Select,
-    Icon,
-    DatePicker,
-    Tooltip,
-    Form,
-    Dropdown,
-    Menu,
-    Col,
-    Pagination
+    Table, message, Modal, Select, Icon,
+    DatePicker, Tooltip, Form, Dropdown,
+    Menu, Col, Pagination
 } from 'antd';
 
 import utils from 'dt-common/src/utils';
 import { replaceObjectArrayFiledName } from 'dt-common/src/funcs';
 import SlidePane from 'dt-common/src/widgets/slidePane';
-
-import Api from '../../../api/operation';
-import {
-    offlineTaskStatusFilter,
-    offlineTaskPeriodFilter,
-    TASK_STATUS,
-    TASK_TYPE
-} from '../../../consts/comm';
-import { APPS_TYPE } from '../../../consts'
-import { TaskStatus, TaskTimeType, TaskType } from '../../../components/status';
-
-import { workbenchActions, getProjectList } from '../../../actions/operation';
+import MultiSearchInput from 'dt-common/src/widgets/multiSearchInput';
 
 import TaskJobFlowView from './taskJobFlowView';
 import KillJobForm from './killJobForm';
-import MultiSearchInput from 'dt-common/src/widgets/multiSearchInput';
+
+import {
+    offlineTaskStatusFilter, offlineTaskPeriodFilter, TASK_STATUS, TASK_TYPE
+} from '../../../consts/comm';
+import { APPS_TYPE } from '../../../consts';
+import Api from '../../../api/operation';
+import { getProjectList } from '../../../actions/operation';
+import { TaskStatus, TaskTimeType, TaskType } from '../../../components/status';
 
 import './index.scss';
 
@@ -120,7 +107,8 @@ class OfflineTaskList extends React.Component<any, any> {
 
     getProjectList = (value?: string) => {
         const { appType } = this.state
-        this.props.getProjectList({ name: value ?? '', appType })
+        const { dispatch } = this.props
+        dispatch(getProjectList({ name: value ?? '', appType }))
     }
 
     getReqParams = () => {
@@ -1059,7 +1047,6 @@ class OfflineTaskList extends React.Component<any, any> {
                         }}
                     >
                         <TaskJobFlowView
-                            isPro={false}
                             visibleSlidePane={visibleSlidePane}
                             goToTaskDev={this.props.goToTaskDev}
                             reload={this.search}
@@ -1084,16 +1071,5 @@ export default connect(
             projectList: state.operation.projectList,
             personList: state.operation.personList
         }
-    },
-    (dispatch: any) => {
-        const actions = workbenchActions(dispatch);
-        return {
-            goToTaskDev: (id: any) => {
-                actions.openTaskInDev(id);
-            },
-            getProjectList: (params: any) => {
-                dispatch(getProjectList(params))
-            }
-        };
     }
 )(OfflineTaskList);

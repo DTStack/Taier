@@ -10,6 +10,7 @@ import RestartModal from './restartModal';
 import Api from '../../../../api/operation';
 import { TASK_STATUS, TASK_TYPE } from '../../../../consts/comm';
 import { APP_TYPE } from '../../../../consts';
+import { goToTaskDev } from '../hlep'
 import { taskStatusText } from '../../../../components/display';
 import { hashHistory } from 'react-router';
 import JobGraphView, {
@@ -295,7 +296,7 @@ class TaskJobFlowView extends React.Component<any, any> {
                     if (isCurrentProjectTask) {
                         menu.addItem(`${isPro ? '查看' : '修改'}任务`, null, function () {
                             if (isPro) {
-                                ctx.props.goToTaskDev(taskId);
+                                goToTaskDev(taskId);
                             } else {
                                 console.log('ctx.props.batchTask: ', ctx.props);
 
@@ -515,7 +516,7 @@ class TaskJobFlowView extends React.Component<any, any> {
             logPage,
             currentInfo
         } = this.state;
-        const { taskJob, goToTaskDev, isPro } = this.props;
+        const { taskJob, isPro } = this.props;
         const heightFix = {
             height: 600
         };
@@ -532,7 +533,6 @@ class TaskJobFlowView extends React.Component<any, any> {
                     graphData={graphData}
                     isCurrentProjectTask={this.isCurrentProjectTask}
                     loading={loading}
-                    goToTaskDev={goToTaskDev}
                     showJobLog={this.showJobLog}
                     refresh={this.refresh}
                     registerEvent={this.initGraphEvent}
@@ -556,7 +556,6 @@ class TaskJobFlowView extends React.Component<any, any> {
                         isCurrentProjectTask={this.isCurrentProjectTask}
                         loading={loading}
                         data={selectedJob}
-                        goToTaskDev={goToTaskDev}
                         showJobLog={this.showJobLog}
                         registerEvent={this.initGraphEvent}
                         registerContextMenu={this.initContextMenu}
