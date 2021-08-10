@@ -1054,6 +1054,8 @@ class OfflineTaskList extends React.Component<any, any> {
 
                     <KillJobForm
                         visible={killJobVisible}
+                        appType={appType}
+                        projectId={projectId}
                         autoFresh={this.search}
                         onCancel={() => this.showKillJobsByDate(false)}
                     />

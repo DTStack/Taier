@@ -21,9 +21,7 @@ const formItemLayout: any = {
 const reqParams = {
     currentPage: 1,
     pageSize: 200,
-    searchType: 'front',
-    appType: sessionStorage.getItem('ywappType'),
-    projectId: sessionStorage.getItem('ywprojectId')
+    searchType: 'front'
 }
 class KillJobForm extends React.Component<any, any> {
     state: any = {
@@ -77,6 +75,7 @@ class KillJobForm extends React.Component<any, any> {
         const { validateFields, getFieldValue } = this.props.form
         validateFields((err: any, values: any) => {
             if (!err) {
+                const { appType, projectId } = this.props
                 const type = getFieldValue('select')
                 const { taskIds } = values
                 if (type === 2 && (!taskIds || (Array.isArray(taskIds) && taskIds.length === 0))) {
@@ -86,8 +85,8 @@ class KillJobForm extends React.Component<any, any> {
                     submitLoading: true
                 })
                 Api.batchStopJobByDate({
-                    appType: sessionStorage.getItem('ywappType'),
-                    projectId: sessionStorage.getItem('ywprojectId'),
+                    appType,
+                    projectId,
                     type: 0,
                     taskIds: values.taskIds || undefined,
                     taskPeriodId: values.schedulingCycle ? values.schedulingCycle.join(',') : undefined,
@@ -108,9 +107,11 @@ class KillJobForm extends React.Component<any, any> {
     }
 
     searchTask = async (value?: string) => {
+        const { appType, projectId } = this.props
         const reg = new RegExp(/^[\u4E00-\u9FA5A-Za-z0-9_]+$/)
+        const reqParam = { ...reqParams, appType, projectId }
         if (reg.exec(value) === null) return
-        const params = value ? Object.assign({}, { name: value }, reqParams) : reqParams
+        const params = value ? Object.assign({}, { name: value }, reqParam) : reqParam
         const res = await Api.queryOfflineTasks(params)
         if (!res) { return this.setState({ taskList: [] }) }
         this.setState({
