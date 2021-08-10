@@ -114,40 +114,40 @@ export const sourceMap = (state: any = {}, action: any) => {
             return clone;
         }
 
-        case sourceMapAction.DATA_SOURCE_CHANGE: {
-            const { type, id, dataName, schema } = action.payload;
-            const key = action.key;
-            const clone = cloneDeep(state);
-            if (typeof key !== 'undefined') {
-                for (let i in clone.sourceList) {
-                    let source = clone.sourceList[i];
-                    if (source.key === key) {
-                        clone.sourceList[i] = {
-                            name: dataName,
-                            sourceId: id,
-                            type: type,
-                            tables: [],
-                            key: key,
-                            schema
-                        }
-                    }
-                }
-            } else {
-                clone.sourceId = id;
-                clone.name = dataName;
-                clone.type = { type };
-                clone.sourceList = [{
-                    name: dataName,
-                    sourceId: id,
-                    type: type,
-                    tables: [],
-                    key: 'main'
-                }]
-            }
-            if (type === 6) clone.column = [];
+        // case sourceMapAction.DATA_SOURCE_CHANGE: {
+        //     const { type, id, dataName, schema } = action?.payload;
+        //     const key = action.key;
+        //     const clone = cloneDeep(state);
+        //     if (typeof key !== 'undefined') {
+        //         for (let i in clone.sourceList) {
+        //             let source = clone.sourceList[i];
+        //             if (source.key === key) {
+        //                 clone.sourceList[i] = {
+        //                     name: dataName,
+        //                     sourceId: id,
+        //                     type: type,
+        //                     tables: [],
+        //                     key: key,
+        //                     schema
+        //                 }
+        //             }
+        //         }
+        //     } else {
+        //         clone.sourceId = id;
+        //         clone.name = dataName;
+        //         clone.type = { type };
+        //         clone.sourceList = [{
+        //             name: dataName,
+        //             sourceId: id,
+        //             type: type,
+        //             tables: [],
+        //             key: 'main'
+        //         }]
+        //     }
+        //     if (type === 6) clone.column = [];
 
-            return clone;
-        }
+        //     return clone;
+        // }
 
         case sourceMapAction.DATA_SOURCEMAP_CHANGE: {
             const { sourceId, splitPK, src, table, extralConfig, extTable = {} } = action.payload;

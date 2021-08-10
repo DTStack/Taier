@@ -1,14 +1,6 @@
 import { RDOS_BASE_URL } from "./req";
 
-export default {
-  // isTableExist(); 添加参数tableType
-  // createTable(); 添加参数tableType
-  // alterTable();  添加参数tableType
-  // ddlCreateTable();添加参数tableType;  --- >todo 修改解析器
-  // isPartitionTable() 添加参数tableType;
-  // dropAndCreateTable 添加参数tableType;
-  // addTableMeta 添加参数tableType
-  //  copyTableStructure: 添加参数tableType
+const dataManageReq = {
   CREATE_TABLE: `${RDOS_BASE_URL}/batch/batchTableInfo/createTable`,
   SEARCH_TABLE: `${RDOS_BASE_URL}/batch/batchTableInfo/showTables`,
   GET_TABLE: `${RDOS_BASE_URL}/batch/batchTableInfo/getTable`,
@@ -113,3 +105,5 @@ export default {
   UPDATE_RULE: `${RDOS_BASE_URL}/batch/dataMaskRule/updateRule`, // 确定更新规则
   DEL_RULE: `${RDOS_BASE_URL}/batch/dataMaskRule/deleteRule`, // 删除规则
 };
+
+export default dataManageReq;

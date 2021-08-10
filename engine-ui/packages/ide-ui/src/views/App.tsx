@@ -1,23 +1,21 @@
-import React from 'react';
-import { Provider } from 'react-redux'
-import { getStore } from '../views/common/utils'
-import Layout from '../layout/layout';
-import IDE from './workbench';
+import { Router } from 'react-router'
+import Layout from '../layout/layout'
+import routers from '../routers'
+import 'ant-design-dtinsight-theme/theme/dt-theme/reset.less'
+import 'ant-design-dtinsight-theme/theme/dt-theme/index.less'
 
-import './registerMicroApps';
-import './App.css';
-import 'ant-design-dtinsight-theme/theme/dt-theme/default/index.less';
+import './registerMicroApps'
+import '@/styles/App.css'
+import 'ant-design-dtinsight-theme/theme/dt-theme/default/index.less'
 
-function App() {
-  const rootReducer = require('../controller').default;
-  const { store } = getStore(rootReducer, 'hash');
-  return (
-    <Provider store={store}>
-      <Layout>
-        <IDE />
-      </Layout>
-    </Provider>
-  );
+function App (props: any) {
+    const { history } = props
+
+    return (
+        <Layout history={history}>
+            <Router routes={routers} history={history} />
+        </Layout>
+    )
 }
 
-export default App;
+export default App

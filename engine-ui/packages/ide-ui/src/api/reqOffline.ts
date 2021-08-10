@@ -1,6 +1,6 @@
 import { RDOS_BASE_URL } from "./req";
 
-export default {
+const offlineReq = {
   UNLOCK_FILE: `${RDOS_BASE_URL}/common/readWriteLock/getLock`, // 解锁文件
 
   // ========================= 离线任务请求 ========================= //
@@ -185,3 +185,4 @@ export default {
    CHANGE_COMPONENT_OWNER_USER: `${RDOS_BASE_URL}/batch/batchComponent/changeComponentOwnerUser`, // 修改任务组件责任人
    GET_CHILD_TASKS: `${RDOS_BASE_URL}/batch/batchTask/getChildTasks`,
 };
+export default offlineReq;

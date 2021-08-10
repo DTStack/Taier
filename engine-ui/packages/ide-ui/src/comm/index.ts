@@ -1,4 +1,4 @@
-import debounce from "lodash/debounce";
+import { debounce } from "lodash";
 import moment from 'moment';
 import {
   RDB_TYPE_ARRAY,

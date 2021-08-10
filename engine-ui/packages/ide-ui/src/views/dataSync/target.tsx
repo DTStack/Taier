@@ -1,37 +1,37 @@
-import * as React from 'react';
-import { connect } from 'react-redux';
-import { Form, Input, Select, Button, Radio, Icon, message, Spin, AutoComplete } from 'antd';
-import { isEmpty, debounce, get } from 'lodash';
-import assign from 'object-assign';
+import * as React from 'react'
+import { connect } from 'react-redux'
+import { Form, Input, Select, Button, Radio, Icon, message, Spin, AutoComplete } from 'antd'
+import { isEmpty, debounce, get } from 'lodash'
+import assign from 'object-assign'
 
-import { Utils } from '@dtinsight/dt-utils';
+import { Utils } from '@dtinsight/dt-utils'
 import { singletonNotification, filterValueOption } from '../../components/func'
-import { getProjectTableTypes } from '../../controller/dataSync/tableType';
-import ajax from '../../api';
+import { getProjectTableTypes } from '../../controller/dataSync/tableType'
+import ajax from '../../api'
 import {
     targetMapAction,
     dataSyncAction,
     settingAction,
     workbenchAction
-} from '../../controller/dataSync/actionType';
+} from '../../controller/dataSync/actionType'
 import {
     formItemLayout,
     DATA_SOURCE,
     DATA_SOURCE_TEXT
-} from '../../comm/const';
+} from '../../comm/const'
 
 import { formJsonValidator } from '../../comm'
 
-import HelpDoc from '../../components/helpDoc';
+import HelpDoc from '../../components/helpDoc'
 
-const FormItem = Form.Item;
-const Option = Select.Option;
-const RadioGroup = Radio.Group;
-const TextArea = Input.TextArea;
+const FormItem = Form.Item
+const Option = Select.Option
+const RadioGroup = Radio.Group
+const TextArea = Input.TextArea
 
 class TargetForm extends React.Component<any, any> {
     constructor (props: any) {
-        super(props);
+        super(props)
 
         this.state = {
             tableList: [],
@@ -47,34 +47,34 @@ class TargetForm extends React.Component<any, any> {
             fetching: false,
             schemaId: '',
             version: '0',
-            bucketList: [], // aws s3 bucket 数据
-        };
+            bucketList: [] // aws s3 bucket 数据
+        }
     }
+
     componentDidMount () {
-        const { targetMap, getProjectTableTypes, project } = this.props;
-        const { sourceId, type = {} } = targetMap;
+        const { targetMap, getProjectTableTypes, project } = this.props
+        const { sourceId, type = {} } = targetMap
         const schema = isEmpty(targetMap)
             ? ''
-            : targetMap?.schema ?? targetMap.type.schema;
-        const projectId = project && project.id;
+            : targetMap?.schema ?? targetMap.type.schema
+        const projectId = project && project.id
         if (projectId) {
-            getProjectTableTypes(projectId);
+            getProjectTableTypes(projectId)
         }
         if (!sourceId) {
-            return;
+            return
         }
-        if (type.type === DATA_SOURCE.POSTGRESQL || type.type === DATA_SOURCE.ORACLE ) {
-            this.getSchemaList(sourceId);
-            schema ? this.getTableList(sourceId, schema) : this.getTableList(sourceId);
-        }
-        else {
-            this.getTableList(sourceId);
+        if (type.type === DATA_SOURCE.POSTGRESQL || type.type === DATA_SOURCE.ORACLE) {
+            this.getSchemaList(sourceId)
+            schema ? this.getTableList(sourceId, schema) : this.getTableList(sourceId)
+        } else {
+            this.getTableList(sourceId)
         }
         if (type) {
-            this.checkIsNativeHive(type.tableName);
+            this.checkIsNativeHive(type.tableName)
             // 如果是已经添加过分区信息，则加载其分区列表信息
             if (type.partition) {
-                this.getHivePartitions(type.table);
+                this.getHivePartitions(type.table)
             }
         }
     }
@@ -89,12 +89,12 @@ class TargetForm extends React.Component<any, any> {
                     kingbaseId: sourceId
                 })
             }
-        });
+        })
     }
 
     getDataSourceVersion = async (dataSourceId: number) => {
         const res = await ajax.getDataSourceVersion({ dataSourceId })
-        if(res.code === 1) {
+        if (res.code === 1) {
             this.setState({
                 version: res.data
             })
@@ -105,11 +105,9 @@ class TargetForm extends React.Component<any, any> {
         const ctx = this
         const { targetMap } = this.props
         // 排除条件
-        if (targetMap.type?.type === DATA_SOURCE.HDFS )
-         {
-            return true;
+        if (targetMap.type?.type === DATA_SOURCE.HDFS) {
+            return true
         }
-
 
         ctx.setState({
             tableList: [],
@@ -127,15 +125,15 @@ class TargetForm extends React.Component<any, any> {
             })
                 .then((res: any) => {
                     if (res.code === 1) {
-                        const { data = [] } = res;
-                        let arr = data;
+                        const { data = [] } = res
+                        let arr = data
                         if (data.length && data.length > 200) {
-                            arr = data.slice(0, 200);
+                            arr = data.slice(0, 200)
                         }
                         ctx.setState({
                             tableList: res.data,
                             tableListSearch: arr
-                        });
+                        })
                     }
                 })
                 .finally(() => {
@@ -145,10 +143,10 @@ class TargetForm extends React.Component<any, any> {
     }
 
     onSearchTable = (str: any) => {
-        const { tableList } = this.state;
-        let arr = tableList.filter((item: any) => item.indexOf(str) !== -1);
+        const { tableList } = this.state
+        let arr = tableList.filter((item: any) => item.indexOf(str) !== -1)
         if (arr.length && arr.length > 200) {
-            arr = arr.slice(0, 200);
+            arr = arr.slice(0, 200)
         }
         this.setState({
             tableListSearch: arr
@@ -160,28 +158,28 @@ class TargetForm extends React.Component<any, any> {
      * @param {*} id
      */
     getDataObjById (id: any) {
-        const { dataSourceList } = this.props;
+        const { dataSourceList } = this.props
         return dataSourceList.filter((src: any) => {
-            return src.id === id;
-        })[0];
+            return src.id === id
+        })[0]
     }
 
     changeSource (value: any, option: any) {
-        const { handleSourceChange } = this.props;
+        const { handleSourceChange } = this.props
         const { dataType } = option.props
         setTimeout(() => {
             // 有schema才需要获取schemalist
-            (dataType === DATA_SOURCE.POSTGRESQL
-            || dataType === DATA_SOURCE.ORACLE) 
-            && this.getSchemaList(value);
-        }, 0);
-        handleSourceChange(this.getDataObjById(value));
-        this.resetTable();
+            (dataType === DATA_SOURCE.POSTGRESQL ||
+            dataType === DATA_SOURCE.ORACLE) &&
+            this.getSchemaList(value)
+        }, 0)
+        handleSourceChange(this.getDataObjById(value))
+        this.resetTable()
     }
 
     resetTable () {
-        const { form } = this.props;
-        this.changeTable('');
+        const { form } = this.props
+        this.changeTable('')
         // 这边先隐藏结点，然后再reset，再显示。不然会有一个组件自带bug。
         this.setState({
             selectHack: true
@@ -196,9 +194,9 @@ class TargetForm extends React.Component<any, any> {
     getHivePartitions = (tableName: any) => {
         const {
             targetMap, handleTargetMapChange
-        } = this.props;
+        } = this.props
 
-        const { sourceId, type } = targetMap;
+        const { sourceId, type } = targetMap
         // TODO 这里获取 Hive 分区的条件有点模糊
         if (type && (
             type.type === DATA_SOURCE.HIVE_1 ||
@@ -212,34 +210,34 @@ class TargetForm extends React.Component<any, any> {
             }).then((res: any) => {
                 this.setState({
                     tablePartitionList: res.data || []
-                });
-                const havePartition = res.data && res.data.length > 0;
-                handleTargetMapChange({ havePartition });
-            });
+                })
+                const havePartition = res.data && res.data.length > 0
+                handleTargetMapChange({ havePartition })
+            })
         }
     }
 
     changeTable (type?: any, value?: any) {
         if (value) {
             // Reset partition
-            this.props.form.setFieldsValue({ partition: '' });
-            const schema = this.props.form.getFieldValue('schema');
+            this.props.form.setFieldsValue({ partition: '' })
+            const schema = this.props.form.getFieldValue('schema')
             // 获取表列字段
-            this.getTableColumn(value, schema);
+            this.getTableColumn(value, schema)
             // 检测是否有 native hive
-            this.checkIsNativeHive(value);
+            this.checkIsNativeHive(value)
         }
-        this.submitForm();
+        this.submitForm()
     }
 
     getPartitionType = async (tableName: string, isUpdate: boolean) => {
         const {
             targetMap
-        } = this.props;
-        const res = await ajax.getPartitionType({ sourceId: targetMap.sourceId, tableName });
+        } = this.props
+        const res = await ajax.getPartitionType({ sourceId: targetMap.sourceId, tableName })
         if (res.code === 1) {
-            const data = res.data || {};
-            const isImpalaHiveTable = data.tableLocationType === 'hive';
+            const data = res.data || {}
+            const isImpalaHiveTable = data.tableLocationType === 'hive'
             this.setState({ isImpalaHiveTable }, () => {
                 this.getHivePartitions(tableName)
             })
@@ -250,15 +248,15 @@ class TargetForm extends React.Component<any, any> {
     }
 
     getTableColumn = (tableName: any, schema?: any) => {
-        const { form, handleTableColumnChange, targetMap } = this.props;
-        const sourceId = form.getFieldValue('sourceId');
+        const { form, handleTableColumnChange, targetMap } = this.props
+        const sourceId = form.getFieldValue('sourceId')
 
         this.setState({
             loading: true
         })
         // Hive 作为结果表时，需要获取分区字段
-        const targetType = get(targetMap, 'type.type', null);
-        const includePart = +targetType === DATA_SOURCE.HIVE_1 || +targetType === DATA_SOURCE.HIVE_2 || +targetType === DATA_SOURCE.HIVE_3 || +targetType === DATA_SOURCE.HIVE_SERVER;
+        const targetType = get(targetMap, 'type.type', null)
+        const includePart = +targetType === DATA_SOURCE.HIVE_1 || +targetType === DATA_SOURCE.HIVE_2 || +targetType === DATA_SOURCE.HIVE_3 || +targetType === DATA_SOURCE.HIVE_SERVER
 
         ajax.getOfflineTableColumn({
             sourceId,
@@ -270,98 +268,96 @@ class TargetForm extends React.Component<any, any> {
                 loading: false
             })
             if (res.code === 1) {
-                handleTableColumnChange(res.data);
+                handleTableColumnChange(res.data)
             } else {
-                handleTableColumnChange([]);
+                handleTableColumnChange([])
             }
         })
     }
 
     checkIsNativeHive (tableName: any) {
-        const { form } = this.props;
-        const sourceId = form.getFieldValue('sourceId');
-        if (!tableName || !sourceId) {
-            return;
-        }
+        const { form } = this.props
+        const sourceId = form.getFieldValue('sourceId')
+        if (!tableName || !sourceId) { return false }
     }
 
     submitForm = () => {
         const {
             form, updateTabAsUnSave, handleTargetMapChange
-        } = this.props;
+        } = this.props
 
         setTimeout(() => {
             /**
              * targetMap
              */
-            let values = form.getFieldsValue();
-            const keyAndValues = Object.entries(values);
+            let values = form.getFieldsValue()
+            const keyAndValues = Object.entries(values)
             /**
              * 这边将 ·writeMode@hdfs· 类的key全部转化为writeMode
              * 加上@ 的原因是避免antd相同key引发的bug
              */
             values = (() => {
-                let values: any = {};
+                const values: any = {}
                 keyAndValues.forEach(([key, value]) => {
                     if (key.indexOf('@') > -1) {
-                        values[key.split('@')[0]] = value;
+                        values[key.split('@')[0]] = value
                     } else {
-                        values[key] = value;
+                        values[key] = value
                     }
-                });
-                return values;
-            })();
+                })
+                return values
+            })()
             // 去空格
             if (values.partition) {
-                values.partition = Utils.removeAllSpaces(values.partition);
+                values.partition = Utils.removeAllSpaces(values.partition)
             }
             if (values.path) {
-                values.path = Utils.removeAllSpaces(values.path);
+                values.path = Utils.removeAllSpaces(values.path)
             }
             if (values.fileName) {
-                values.fileName = Utils.removeAllSpaces(values.fileName);
+                values.fileName = Utils.removeAllSpaces(values.fileName)
             }
             if (values.bucket) {
-                values.bucket = Utils.removeAllSpaces(values.bucket);
+                values.bucket = Utils.removeAllSpaces(values.bucket)
             }
             if (values.object) {
-                values.object = Utils.removeAllSpaces(values.object);
+                values.object = Utils.removeAllSpaces(values.object)
             }
             if (values.fileName) {
-                values.fileName = Utils.removeAllSpaces(values.fileName);
+                values.fileName = Utils.removeAllSpaces(values.fileName)
             }
             if (values.ftpFileName) {
-                values.ftpFileName = Utils.removeAllSpaces(values.ftpFileName);
+                values.ftpFileName = Utils.removeAllSpaces(values.ftpFileName)
             }
             const srcmap = assign(values, {
                 src: this.getDataObjById(values.sourceId)
-            });
+            })
 
             // 处理数据同步变量
-            handleTargetMapChange(srcmap);
-            updateTabAsUnSave();
-        }, 0);
+            handleTargetMapChange(srcmap)
+            updateTabAsUnSave()
+        }, 0)
     }
 
     validateChineseCharacter = (data: any) => {
-        const reg = /(，|。|；|[\u4e00-\u9fa5]+)/; // 中文字符，中文逗号，句号，分号
-        let has = false;
-        let fieldsName: any = [];
+        const reg = /(，|。|；|[\u4e00-\u9fa5]+)/ // 中文字符，中文逗号，句号，分号
+        let has = false
+        const fieldsName: any = []
         if (data.path && reg.test(data.path)) {
-            has = true;
-            fieldsName.push('路径');
+            has = true
+            fieldsName.push('路径')
         }
         if (data.fileName && reg.test(data.fileName)) {
-            has = true;
-            fieldsName.push('文件名');
+            has = true
+            fieldsName.push('文件名')
         }
         if (data.ftpFileName && reg.test(data.ftpFileName)) {
-            has = true;
-            fieldsName.push('文件名');
+            has = true
+            fieldsName.push('文件名')
         }
         if (data.fieldDelimiter && reg.test(data.fieldDelimiter)) {
-            has = true;
-            fieldsName.push('列分隔符');
+            has = true
+            fieldsName.push('列分隔符')
         }
         if (has) {
             singletonNotification('提示', `${fieldsName.join('、')}参数中有包含中文或者中文标点符号！`, 'warning')
@@ -378,30 +374,32 @@ class TargetForm extends React.Component<any, any> {
     }
 
     next (cb: any) {
-        const { form, currentTabData, saveDataSyncToTab, dataSync } = this.props;
+        const { form, currentTabData, saveDataSyncToTab, dataSync } = this.props
         form.validateFields((err: any, values: any) => {
             if (!err) {
                 saveDataSyncToTab({
                     id: currentTabData.id,
                     data: dataSync
                 })
-                this.validateChineseCharacter(values);
+                this.validateChineseCharacter(values)
                 /* eslint-disable-next-line */
                 cb.call(null, 2);
             }
         })
     }
+
     handleCancel () {
         this.setState({
             textSql: '',
             visible: false
         })
     }
+
     createTable () {
-        const { textSql } = this.state;
-        const { targetMap, form } = this.props;
+        const { textSql } = this.state
+        const { targetMap, form } = this.props
         const tableType = form.getFieldValue('tableType')
-        const dataSourceType = targetMap.type && targetMap.type.type;
+        const dataSourceType = targetMap.type && targetMap.type.type
         this.setState({
             modalLoading: true
         })
@@ -410,8 +408,8 @@ class TargetForm extends React.Component<any, any> {
                 modalLoading: false
             })
             if (res.code === 1) {
-                this.getTableList(targetMap.sourceId);
-                this.changeTable(dataSourceType, res.data.tableName);
+                this.getTableList(targetMap.sourceId)
+                this.changeTable(dataSourceType, res.data.tableName)
                 this.props.form.setFieldsValue({ table: res.data.tableName })
                 this.setState({
                     visible: false
@@ -425,50 +423,51 @@ class TargetForm extends React.Component<any, any> {
         if (value) {
             this.setState({
                 loading: true
-            });
+            })
 
-            this.getTableColumn(value, schema);
+            this.getTableColumn(value, schema)
         }
         // 不可简化sourceKey, 在submitForm上对应的不同的逻辑，即第四个参数对应的逻辑不同，在不同场景可能不存在第四个参数，不能简化
-        this.submitForm();
+        this.submitForm()
         this.setState({
             showPreview: false
-        });
+        })
     }
 
-    getBucketList = async ( resourceId:number ,schema?: any) =>{
-        const { currentTab }=this.props
-        const params ={
-            projectId : currentTab,
+    getBucketList = async (resourceId:number, schema?: any) => {
+        const { currentTab } = this.props
+        const params = {
+            projectId: currentTab,
             sourceId: resourceId,
             schema
         }
         const res = await ajax.getAllSchemas(params)
-        const { data }=res
-        if(res.code === 1 && Array.isArray(res.data) && res.data?.length > 0 ){
+        const { data } = res
+        if (res.code === 1 && Array.isArray(res.data) && res.data?.length > 0) {
             this.setState({
                 bucketList: data
             })
         }
     }
-    checkEffective=()=>{
-        const { tableListSearch }= this.state
-        const { form, targetMap }=this.props
+
+    checkEffective=() => {
+        const { tableListSearch } = this.state
+        const { form, targetMap } = this.props
         const value = form.getFieldValue('table')
-        if(!Array.isArray(tableListSearch) || tableListSearch.length === 0  || !tableListSearch?.includes(value)){
+        if (!Array.isArray(tableListSearch) || tableListSearch.length === 0 || !tableListSearch?.includes(value)) {
             form.setFieldsValue({ table: undefined })
             return this.getTableList(targetMap.sourceId, targetMap?.type?.schema)
         }
     }
-    
+
     showCreateModal = () => {
-        const { sourceMap, targetMap } = this.props;
-        const schema = this.props.form.getFieldValue('schema');
+        const { sourceMap, targetMap } = this.props
+        const schema = this.props.form.getFieldValue('schema')
         this.setState({
             loading: true
         })
-        const tableName = typeof sourceMap.type.table === 'string' ? sourceMap.type.table : sourceMap.type.table && sourceMap.type.table[0];
-        const targetTableName = typeof targetMap.type.table === 'string' ? targetMap.type.table : targetMap.type.table && targetMap.type.table[0];
+        const tableName = typeof sourceMap.type.table === 'string' ? sourceMap.type.table : sourceMap.type.table && sourceMap.type.table[0]
+        const targetTableName = typeof targetMap.type.table === 'string' ? targetMap.type.table : targetMap.type.table && targetMap.type.table[0]
         ajax.getCreateTargetTable({
             originSourceId: sourceMap.sourceId,
             tableName,
@@ -477,27 +476,28 @@ class TargetForm extends React.Component<any, any> {
             originSchema: sourceMap?.type?.schema || null,
             targetSchema: schema || null
         }).then(
-                (res: any) => {
-                    this.setState({
-                        loading: false
-                    })
-                    if (res.code === 1) {
-                        let textSql = res.data;
-                        if (targetTableName) {
-                            const reg = /create\s+table\s+`(.*)`\s*\(/i;
-                            textSql = res.data.replace(reg, function (match: any, p1: any, offset: any, string: string) {
-                                return match.replace(p1, targetTableName);
-                            });
-                        }
-                        this.setState({
-                            textSql: textSql,
-                            sync: true,
-                            visible: true
+            (res: any) => {
+                this.setState({
+                    loading: false
+                })
+                if (res.code === 1) {
+                    let textSql = res.data
+                    if (targetTableName) {
+                        const reg = /create\s+table\s+`(.*)`\s*\(/i
+                        textSql = res.data.replace(reg, function (match: any, p1: any, offset: any, string: string) {
+                            return match.replace(p1, targetTableName)
                         })
                     }
+                    this.setState({
+                        textSql: textSql,
+                        sync: true,
+                        visible: true
+                    })
                 }
-            )
+            }
+        )
     }
+
     ddlChange = (newVal: any) => {
         this.setState({
             textSql: newVal,
@@ -505,29 +505,29 @@ class TargetForm extends React.Component<any, any> {
         })
     }
 
-    versionDiff =  (version1: any, version2: any) => {
-        let v1 = version1.split(".");
-        let v2 = version2.split(".");
+    versionDiff = (version1: any, version2: any) => {
+        const v1 = version1.split('.')
+        const v2 = version2.split('.')
         for (let i = 0; i < Math.max(v1.length, v2.length); i++) {
-            let tempV1 = Number(v1[i]??0)
-            let tempV2 = Number(v2[i]??0)
-            if(tempV1 > tempV2) return true;
-            if(tempV1 < tempV2) return false;
+            const tempV1 = Number(v1[i] ?? 0)
+            const tempV2 = Number(v2[i] ?? 0)
+            if (tempV1 > tempV2) return true
+            if (tempV1 < tempV2) return false
         }
-        return true;
+        return true
     };
 
     checkData = (value: any) => {
-        const { tableListSearch } = this.state;
-        const { setFieldsValue } = this.props.form;
+        const { tableListSearch } = this.state
+        const { setFieldsValue } = this.props.form
 
-        if(!tableListSearch.includes(value)){
-            setFieldsValue({table: undefined})
+        if (!tableListSearch.includes(value)) {
+            setFieldsValue({ table: undefined })
         }
     }
 
     renderTableList = (taskType: any) => {
-        const { tableListSearch } = this.state;
+        const { tableListSearch } = this.state
         return tableListSearch.map((table: any) => {
             return <Option
                 key={`rdb-target-${table}`}
@@ -538,12 +538,12 @@ class TargetForm extends React.Component<any, any> {
     }
 
     render () {
-        const { getFieldDecorator } = this.props.form;
-        const { tableListLoading } = this.state;
+        const { getFieldDecorator } = this.props.form
+        const { tableListLoading } = this.state
         const {
             targetMap, dataSourceList, navtoStep
-        } = this.props;
-        const getPopupContainer = this.props.getPopupContainer;
+        } = this.props
+        const getPopupContainer = this.props.getPopupContainer
         return <Spin spinning={tableListLoading}>
             <div className="g-step2">
                 <Form>
@@ -564,17 +564,16 @@ class TargetForm extends React.Component<any, any> {
                                     this.setState({
                                         tableList: [],
                                         tableListSearch: []
-                                    }, () => {this.changeSource(value, options)})
-
+                                    }, () => { this.changeSource(value, options) })
                                 }}
                                 optionFilterProp="name"
                             >
                                 {dataSourceList.map((src: any) => {
-                                    let title = `${src.dataName}（${(DATA_SOURCE_TEXT as any)[src.type]}）`;
+                                    const title = `${src.dataName}（${(DATA_SOURCE_TEXT as any)[src.type]}）`
 
                                     return <Option
                                         key={src.id}
-                                        {...{ 
+                                        {...{
                                             name: src.dataName,
                                             dataType: src.type
                                         }}
@@ -586,26 +585,28 @@ class TargetForm extends React.Component<any, any> {
                         )}
                     </FormItem>
                     {this.renderDynamicForm()}
-                    {!isEmpty(targetMap) ? (
-                        <FormItem
-                            {...formItemLayout}
-                            label="高级配置"
-                        >
-                            {getFieldDecorator('extralConfig', {
-                                rules: [{
-                                    validator: formJsonValidator
-                                }],
-                                initialValue: get(targetMap, 'extralConfig', '')
-                            })(
-                                <TextArea
-                                    onChange={this.submitForm.bind(this)}
-                                    placeholder={"以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize"}
-                                    autosize={{ minRows: 2, maxRows: 6 }}
-                                />
-                            )}
-                            <HelpDoc doc={'dataSyncExtralConfigHelp'} />
-                        </FormItem>
-                    ) : null}
+                    {!isEmpty(targetMap)
+                        ? (
+                            <FormItem
+                                {...formItemLayout}
+                                label="高级配置"
+                            >
+                                {getFieldDecorator('extralConfig', {
+                                    rules: [{
+                                        validator: formJsonValidator
+                                    }],
+                                    initialValue: get(targetMap, 'extralConfig', '')
+                                })(
+                                    <TextArea
+                                        onChange={this.submitForm.bind(this)}
+                                        placeholder={'以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize'}
+                                        autosize={{ minRows: 2, maxRows: 6 }}
+                                    />
+                                )}
+                                <HelpDoc doc={'dataSyncExtralConfigHelp'} />
+                            </FormItem>
+                        )
+                        : null}
                 </Form>
                 {!this.props.readonly && <div className="steps-action">
                     <Button style={{ marginRight: 8 }} onClick={() => this.prev(navtoStep)}>上一步</Button>
@@ -621,20 +622,20 @@ class TargetForm extends React.Component<any, any> {
         </Spin>
     }
 
-    debounceTableSearch = debounce(this.changeTable, 600, { 'maxWait': 2000 })
+    debounceTableSearch = debounce(this.changeTable, 600, { maxWait: 2000 })
     debounceTableNameSearch = debounce(this.getTableList, 500, { maxWait: 2000 });
 
     renderDynamicForm = () => {
-        const { selectHack, loading, schemaList, kingbaseId, tableListSearch, schemaId, tableList, bucketList, fetching, version } = this.state;
+        const { selectHack, loading, schemaList, kingbaseId, tableListSearch, schemaId, tableList, fetching } = this.state
 
-        const { targetMap, sourceMap, form } = this.props;
-        const { getFieldDecorator } = form;
-        const sourceType = sourceMap.type && sourceMap.type.type;
-        const targetType = targetMap?.type?.type;
+        const { targetMap, sourceMap, form } = this.props
+        const { getFieldDecorator } = form
+        const sourceType = sourceMap.type && sourceMap.type.type
+        const targetType = targetMap?.type?.type
         // 是否拥有分区
-        let formItem: any;
-        const havePartition = targetMap.type && (!!targetMap.type.partition || targetMap.type.havePartition);
-        const getPopupContainer = this.props.getPopupContainer;
+        let formItem: any
+        const havePartition = targetMap.type && (!!targetMap.type.partition || targetMap.type.havePartition)
+        const getPopupContainer = this.props.getPopupContainer
         const showCreateTable = (
             targetType === DATA_SOURCE.HIVE_2 ||
             targetType === DATA_SOURCE.HIVE_3 ||
@@ -642,7 +643,7 @@ class TargetForm extends React.Component<any, any> {
             targetType === DATA_SOURCE.HIVE_1 ||
             targetType === DATA_SOURCE.POSTGRESQL ||
             targetType === DATA_SOURCE.MYSQL
-        );
+        )
         const showCreateTableSource = (
             sourceType === DATA_SOURCE.MYSQL ||
             sourceType === DATA_SOURCE.ORACLE ||
@@ -652,18 +653,20 @@ class TargetForm extends React.Component<any, any> {
             sourceType === DATA_SOURCE.HIVE_3 ||
             sourceType === DATA_SOURCE.HIVE_SERVER ||
             sourceType === DATA_SOURCE.HIVE_1
-        );
+        )
 
         const oneKeyCreateTable = showCreateTable && showCreateTableSource && (
-            loading ? <Icon type="loading" /> : <a
-                style={{ top: '0px', right: '-103px' }}
-                onClick={this.showCreateModal.bind(this)}
-                className="help-doc" >一键生成目标表</a>
-        );
+            loading
+                ? <Icon type="loading" />
+                : <a
+                    style={{ top: '0px', right: '-103px' }}
+                    onClick={this.showCreateModal.bind(this)}
+                    className="help-doc" >一键生成目标表</a>
+        )
 
-        if (isEmpty(targetMap)) return null;
+        if (isEmpty(targetMap)) return null
         switch (targetMap.type.type) {
-            case DATA_SOURCE.MYSQL:{
+            case DATA_SOURCE.MYSQL: {
                 formItem = [
                     !selectHack && <FormItem
                         {...formItemLayout}
@@ -748,8 +751,8 @@ class TargetForm extends React.Component<any, any> {
                             </Select>
                         )}
                     </FormItem>
-                ];
-                break;
+                ]
+                break
             }
             case DATA_SOURCE.ORACLE: {
                 formItem = [
@@ -766,8 +769,8 @@ class TargetForm extends React.Component<any, any> {
 
                                 allowClear={true}
                                 onChange={(val: any) => {
-                                    this.getTableList(kingbaseId, val);
-                                    form.setFieldsValue({ table: '' });
+                                    this.getTableList(kingbaseId, val)
+                                    form.setFieldsValue({ table: '' })
                                 }}
                             >
                                 {schemaList.map((copateValue: any, index: any) => {
@@ -779,7 +782,7 @@ class TargetForm extends React.Component<any, any> {
                                             {/* ORACLE数据库单独考虑ROW_NUMBER() 这个函数， 展示去除括号 */}
                                             { copateValue === 'ROW_NUMBER()' ? 'ROW_NUMBER' : copateValue}
                                         </Option>
-                                    );
+                                    )
                                 })}
                             </Select>
                         )}
@@ -868,8 +871,8 @@ class TargetForm extends React.Component<any, any> {
                             </Select>
                         )}
                     </FormItem>
-                ];
-                break;
+                ]
+                break
             }
             case DATA_SOURCE.HIVE_1:
             case DATA_SOURCE.HIVE_2:
@@ -893,7 +896,7 @@ class TargetForm extends React.Component<any, any> {
                                 showSearch
                                 mode="combobox"
                                 onBlur={this.checkData}
-                                onSearch = {(str)=>{
+                                onSearch = {(str) => {
                                     this.onSearchTable(str)
                                 }}
                                 onSelect={this.debounceTableSearch.bind(this, null)}
@@ -912,40 +915,42 @@ class TargetForm extends React.Component<any, any> {
                         )}
                         { oneKeyCreateTable }
                     </FormItem>,
-                    havePartition ? <FormItem
-                        {...formItemLayout}
-                        label="分区"
-                        key="partition"
-                    >
-                        {getFieldDecorator('partition', {
-                            rules: [{
-                                required: true,
-                                message: '目标分区为必填项！'
-                            }],
-                            initialValue: get(targetMap, 'type.partition', '')
-                        })(
-                            <AutoComplete
-                                showSearch
-                                {...{ showArrow: true }}
-                                placeholder="请填写分区信息"
-                                onChange={this.submitForm.bind(this)}
-                                filterOption={filterValueOption}
-                            >
-                                {
-                                    this.state.tablePartitionList.map((pt: any) => {
-                                        return (
-                                            <AutoComplete.Option
-                                                key={`rdb-${pt}`}
-                                                value={pt}
-                                            >
-                                                {pt}
-                                            </AutoComplete.Option>
-                                        );
-                                    })}
-                            </AutoComplete>
-                        )}
-                        <HelpDoc doc="partitionDesc" />
-                    </FormItem> : '',
+                    havePartition
+                        ? <FormItem
+                            {...formItemLayout}
+                            label="分区"
+                            key="partition"
+                        >
+                            {getFieldDecorator('partition', {
+                                rules: [{
+                                    required: true,
+                                    message: '目标分区为必填项！'
+                                }],
+                                initialValue: get(targetMap, 'type.partition', '')
+                            })(
+                                <AutoComplete
+                                    showSearch
+                                    {...{ showArrow: true }}
+                                    placeholder="请填写分区信息"
+                                    onChange={this.submitForm.bind(this)}
+                                    filterOption={filterValueOption}
+                                >
+                                    {
+                                        this.state.tablePartitionList.map((pt: any) => {
+                                            return (
+                                                <AutoComplete.Option
+                                                    key={`rdb-${pt}`}
+                                                    value={pt}
+                                                >
+                                                    {pt}
+                                                </AutoComplete.Option>
+                                            )
+                                        })}
+                                </AutoComplete>
+                            )}
+                            <HelpDoc doc="partitionDesc" />
+                        </FormItem>
+                        : '',
                     <FormItem
                         {...formItemLayout}
                         label="写入模式"
@@ -968,8 +973,8 @@ class TargetForm extends React.Component<any, any> {
                             </RadioGroup>
                         )}
                     </FormItem>
-                ];
-                break;
+                ]
+                break
             }
             case DATA_SOURCE.POSTGRESQL: {
                 formItem = [
@@ -984,8 +989,8 @@ class TargetForm extends React.Component<any, any> {
                                 {...{ showArrow: true }}
                                 allowClear={true}
                                 onChange={(val: any) => {
-                                    val && this.getTableList(kingbaseId, val);
-                                    form.setFieldsValue({ table: '', splitPK: undefined });
+                                    val && this.getTableList(kingbaseId, val)
+                                    form.setFieldsValue({ table: '', splitPK: undefined })
                                     this.setState({
                                         tableListSearch: []
                                     })
@@ -999,7 +1004,7 @@ class TargetForm extends React.Component<any, any> {
                                         >
                                             {copateValue}
                                         </Option>
-                                    );
+                                    )
                                 })}
                             </Select>
                         )}
@@ -1081,20 +1086,19 @@ class TargetForm extends React.Component<any, any> {
                             </Select>
                         )}
                     </FormItem>
-                ];
-                break;
+                ]
+                break
             }
-            default: break;
+            default: break
         }
 
-        return formItem;
+        return formItem
     }
 }
 
-const TargetFormWrap = Form.create<any>()(TargetForm);
+const TargetFormWrap = Form.create<any>()(TargetForm)
 
 class Target extends React.Component<any, any> {
-
     render () {
         return <div>
             <TargetFormWrap {...this.props} />
@@ -1103,75 +1107,72 @@ class Target extends React.Component<any, any> {
 }
 
 const mapState = (state: any) => {
-    const { workbench, dataSync } = state.offlineTask;
-    const { isCurrentTabNew, currentTab } = workbench;
+    const { workbench, dataSync } = state.dataSync
+    const { isCurrentTabNew, currentTab } = workbench
     return {
         currentTab,
         isCurrentTabNew,
         project: state.project,
-        sourceMap: dataSync.sourceMap,
-        targetMap: dataSync.targetMap,
-        dataSourceList: dataSync.dataSourceList,
-        projectTableTypes: state.tableTypes.projectTableTypes,
-        dataSync
-    };
-};
+        projectTableTypes: state.tableTypes?.projectTableTypes || [],
+        ...dataSync
+    }
+}
 
 const mapDispatch = (dispatch: any, ownProps: any) => {
     return {
         handleSourceChange (src: any) {
             dispatch({
                 type: dataSyncAction.RESET_TARGET_MAP
-            });
+            })
             dispatch({
                 type: settingAction.INIT_CHANNEL_SETTING
-            });
+            })
             dispatch({
                 type: dataSyncAction.RESET_KEYMAP
-            });
+            })
             dispatch({
                 type: targetMapAction.DATA_SOURCE_TARGET_CHANGE,
                 payload: src
-            });
+            })
             dispatch({
                 type: workbenchAction.MAKE_TAB_DIRTY
-            });
+            })
         },
 
         handleTargetMapChange (srcmap: any) {
             dispatch({
                 type: targetMapAction.DATA_TARGETMAP_CHANGE,
                 payload: srcmap
-            });
+            })
         },
         updateTabAsUnSave () {
             dispatch({
                 type: workbenchAction.MAKE_TAB_DIRTY
-            });
+            })
         },
         handleTableColumnChange: (colData: any) => {
             dispatch({
                 type: dataSyncAction.RESET_KEYMAP
-            });
+            })
             dispatch({
                 type: targetMapAction.TARGET_TABLE_COLUMN_CHANGE,
                 payload: colData
-            });
+            })
             dispatch({
                 type: workbenchAction.MAKE_TAB_DIRTY
-            });
+            })
         },
         changeNativeHive: (isNativeHive: any) => {
             dispatch({
                 type: targetMapAction.CHANGE_NATIVE_HIVE,
                 payload: isNativeHive
-            });
+            })
         },
         updateTaskFields (params: any) {
             dispatch({
                 type: workbenchAction.SET_TASK_FIELDS_VALUE,
                 payload: params
-            });
+            })
         },
         getProjectTableTypes: (projectId: any) => {
             dispatch(getProjectTableTypes(projectId))
@@ -1183,9 +1184,9 @@ const mapDispatch = (dispatch: any, ownProps: any) => {
                     id: params.id,
                     data: params.data
                 }
-            });
-        },
-    };
+            })
+        }
+    }
 }
 
-export default connect(mapState, mapDispatch)(Target);
+export default connect(mapState, mapDispatch)(Target)

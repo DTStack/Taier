@@ -1,14 +1,14 @@
-import React from 'react';
-import { MoleculeProvider, Workbench } from 'molecule';
-import 'molecule/esm/style/mo.css';
-import { extensions } from './common';
+import React from 'react'
+import { extensions } from './common'
+import { MoleculeProvider, Workbench } from 'molecule'
+import 'molecule/esm/style/mo.css'
 
-function IDE() {
-  return (
-    <MoleculeProvider extensions={extensions}>
-      <Workbench />
-    </MoleculeProvider>
-  )
+function IDE () {
+    return (
+        <MoleculeProvider extensions={extensions}>
+            <Workbench />
+        </MoleculeProvider>
+    )
 }
 
-export default IDE;
+export default IDE

@@ -1,9 +1,9 @@
 // 从config文件全局读取
 export const RDOS_BASE_URL = "/api/rdos";
 
-export default {
-  // ===== 用户模块 ===== //
-  // LOGIN: `${RDOS_BASE_URL}/user/login`,
+const req = {
+    // ===== 用户模块 ===== //
+    // LOGIN: `${RDOS_BASE_URL}/user/login`,
   ADD_ROLE_USRE: `${RDOS_BASE_URL}/common/roleUser/addRoleUser`, // 项目用户
   GET_NOT_PROJECT_USERS: `${RDOS_BASE_URL}/common/project/getUsersNotInProject`, // 获取所以用户
   LOGOUT: `/uic/api/v2/logout`,
@@ -95,3 +95,5 @@ export default {
   GET_TASKS_BY_APP_TYPE: `${RDOS_BASE_URL}/batch/batchTask/getTasksByAppType`, // 根据任务名称查询任务信息
   ALL_PRODUCT_GLOBAL_SEARCH: `${RDOS_BASE_URL}/batch/batchTask/allProductGlobalSearch`, // 所有产品的已提交任务查询
 };
+
+export default req

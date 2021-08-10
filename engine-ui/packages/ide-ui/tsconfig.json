@@ -9,6 +9,7 @@
     ],
     "allowJs": true,
     "skipLibCheck": true,
+    "experimentalDecorators": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
@@ -19,9 +20,18 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "paths": {
+      "@": [
+        "./src"
+      ],
+      "public": [
+        "./public"
+      ]
+    },
   },
   "include": [
-    "src"
+    "src", 
+    "test/setupTests.ts"
   ]
 }

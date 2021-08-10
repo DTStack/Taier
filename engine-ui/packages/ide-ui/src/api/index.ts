@@ -8,7 +8,7 @@ import offlineReq from "./reqOffline";
 import dataManageReq from "./reqDataManage";
 import { publishType, TASK_TYPE } from "../comm/const";
 
-export default {
+const api = {
   sqlFormat(params: any) {
     // SQL格式化
     return http.post(offlineReq.SQL_FORMAT, params);
@@ -969,3 +969,4 @@ export default {
       return http.post(offlineReq.GET_CHILD_TASKS, params)
   },
 };
+export default api;
