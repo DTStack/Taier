@@ -119,7 +119,7 @@ export default class MultiVersionComp extends React.Component<IProps, IState> {
         // flink 由后端 deployTypes 字段控制展示版本
         let displayVersion = versionData[VERSION_TYPE[typeCode]] || []
         if (isFLink(typeCode)) {
-            displayVersion = displayVersion.filter(item => item.deployTypes.includes(deployType))
+            displayVersion = displayVersion.filter(item => item?.deployTypes?.includes(deployType))
         }
 
         if (!comp?.multiVersion[0]?.hadoopVersion) {

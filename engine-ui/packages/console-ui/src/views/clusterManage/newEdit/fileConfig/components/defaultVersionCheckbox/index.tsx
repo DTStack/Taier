@@ -28,12 +28,25 @@ export default class DefaultVersionCheckbox extends React.PureComponent<IProps, 
     }
 
     validDefaultdata = (rule: any, value: any, callback: any) => {
-        let error = null
-        if (this.props.isDefault && !value) {
-            error = '请设置默认版本'
+        const { form, comp, isDefault } = this.props
+        const error = '请设置默认版本'
+        // 只有一个版本时
+        if (isDefault && !value) {
+            callback(error)
+            return
+        }
+        // 有多个版本时，都没选得提示
+        let hasTrue = false
+        const typeCode = comp?.componentTypeCode ?? ''
+        for (const v of MAPPING_DEFAULT_VERSION) {
+            hasTrue = hasTrue || !!form.getFieldValue(`${typeCode}.${v}.isDefault`)
+        }
+        // 传 null 或者 undefined 回调都不会继续，没法三元
+        if (hasTrue) {
+            callback()
+        } else {
             callback(error)
         }
-        callback()
     }
 
     handleChange = (e: any) => {
@@ -41,10 +54,14 @@ export default class DefaultVersionCheckbox extends React.PureComponent<IProps, 
         const typeCode = comp?.componentTypeCode ?? ''
         const hadoopVersion = comp?.hadoopVersion ?? ''
 
-        if (!isDefault) {
-            form.setFieldsValue({
-                [`${typeCode}.${MAPPING_DEFAULT_VERSION[hadoopVersion]}.isDefault`]: !e.target.checked
-            })
+        if (!isDefault && e.target.checked) {
+            for (const v of MAPPING_DEFAULT_VERSION) {
+                if (v !== hadoopVersion) {
+                    form.setFieldsValue({
+                        [`${typeCode}.${v}.isDefault`]: !e.target.checked
+                    })
+                }
+            }
         }
         form.setFieldsValue({
             [`${typeCode}.${hadoopVersion}.isDefault`]: e.target.checked
