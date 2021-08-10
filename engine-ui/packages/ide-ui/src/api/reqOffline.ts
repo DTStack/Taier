@@ -102,6 +102,7 @@ export default {
   GET_OFFLINE_ALLSCHEMAS: `${RDOS_BASE_URL}/batch/batchDataSource/getAllSchemas`,
   GET_OFFLINE_CUBEKYLININFO: `${RDOS_BASE_URL}/batch/batchDataSource/getKylinCubeinfo`,
   GET_OFFLINE_FTP_REG: `${RDOS_BASE_URL}/batch/batchDataSource/ftpRegexPre`,
+  GET_DATA_SOURCE_VERSION: `${RDOS_BASE_URL}/batch/batchDataSource/getDataSourceVersion`,
   GET_OFFLINE_TABLECOLUMN: `${RDOS_BASE_URL}/batch/batchDataSource/tablecolumn`,
   GET_OFFLINE_COLUMNFORSYNCOPATE: `${RDOS_BASE_URL}/batch/batchDataSource/columnForSyncopate`,
   GET_OFFLINE_JOBDATA: `${RDOS_BASE_URL}/batch/batchDataSource/trace`,
@@ -182,4 +183,5 @@ export default {
    GET_SUPPORT_COMPONENT_TYPE: `${RDOS_BASE_URL}/batch/batchComponent/getSupportComponentType`, // 获取组件类型
    PAGE_QUERY_BY_PROJECT: `${RDOS_BASE_URL}/batch/batchTableInfo/pageQueryByProjectId`, // 获取表
    CHANGE_COMPONENT_OWNER_USER: `${RDOS_BASE_URL}/batch/batchComponent/changeComponentOwnerUser`, // 修改任务组件责任人
+   GET_CHILD_TASKS: `${RDOS_BASE_URL}/batch/batchTask/getChildTasks`,
 };

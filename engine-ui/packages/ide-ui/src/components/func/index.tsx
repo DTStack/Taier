@@ -70,7 +70,7 @@ export function singletonNotification (title: any, message?: any, type?: any, st
     * 3.存在实例，并且相等，但是已经超出了限定的时间
     */
     if (!notifyMsgs.length ||
-        notifyMsgs[notifyMsgs.length - 1].innerHTML != message ||
+        notifyMsgs[notifyMsgs.length - 1].innerHTML !== message ||
         checkIsTimeout()
     ) {
         dtNotification(title, message, type, {
@@ -84,7 +84,7 @@ export function formJsonValidator (rule: any, value: any, callback: any) {
   try {
       if (value) {
           let t = JSON.parse(value);
-          if (typeof t != 'object') {
+          if (typeof t !== 'object') {
               msg = '请填写正确的JSON'
           }
       }

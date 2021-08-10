@@ -247,7 +247,7 @@ export const workbenchActions = (dispatch?: any) => {
 
     const closeOthers = (id: any, tabs: any) => {
         for (let i in tabs) {
-            if (tabs[i].id == id) {
+            if (tabs[i].id === id) {
                 continue;
             }
             dispatch(stopSql(tabs[i].id, null, true))
@@ -565,7 +565,7 @@ export const workbenchActions = (dispatch?: any) => {
         confirmClone (data: any) {
             return ajax.cloneTask(data)
                 .then((res: any) => {
-                    if (res.code == 1) {
+                    if (res.code === 1) {
                         dispatch({
                             type: workflowAction.CLONE
                         })
@@ -854,7 +854,7 @@ export const workbenchActions = (dispatch?: any) => {
             }
 
             let dirty = tabs.filter((tab: any) => {
-                return tab.id == tabId
+                return tab.id === tabId
             })[0].notSynced;
 
             if (!dirty) {
@@ -947,7 +947,7 @@ export const workbenchActions = (dispatch?: any) => {
             })
                 .then(
                     (res: any) => {
-                        if (res.code == 1) {
+                        if (res.code === 1) {
                             let { data } = res;
                             data.children && dispatch({
                                 type: tableTreeAction.LOAD_FOLDER_CONTENT,
@@ -970,7 +970,7 @@ export const workbenchActions = (dispatch?: any) => {
             });
             const getFuncTree = (data: any, cateType: string, engineType: number) => {
                 return data.children
-                    ? data.children.find((item: any) => item.catalogueType == cateType && item.engineType == engineType)
+                    ? data.children.find((item: any) => item.catalogueType === cateType && item.engineType === engineType)
                     : [];
             }
             if (res.code === 1) {
@@ -1081,7 +1081,7 @@ export const workbenchActions = (dispatch?: any) => {
         delOfflineTask (params?: any, nodePid?: any, type?: any) {
             return ajax.delOfflineTask(params)
                 .then((res: any) => {
-                    if (res.code == 1) {
+                    if (res.code === 1) {
                         message.success('删除成功');
                         dispatch({
                             type: taskTreeAction.DEL_OFFLINE_TASK,
@@ -1102,7 +1102,7 @@ export const workbenchActions = (dispatch?: any) => {
         delOfflineScript (params?: any, nodePid?: any, type?: any) {
             ajax.deleteScript(params)
                 .then((res: any) => {
-                    if (res.code == 1) {
+                    if (res.code === 1) {
                         message.success('删除成功');
                         dispatch({
                             type: scriptTreeAction.DEL_SCRIPT,
@@ -1122,7 +1122,7 @@ export const workbenchActions = (dispatch?: any) => {
         deleteComponent (params?: any, nodePid?: any, type?: any) {
             ajax.deleteComponent(params)
                 .then((res: any) => {
-                    if (res.code == 1) {
+                    if (res.code === 1) {
                         message.success('删除成功');
                         dispatch({
                             type: componentTreeAction.DELETE_COMPONENT,
@@ -1419,7 +1419,7 @@ export const getDataSyncReqParams = (dataSyncStore: any) => {
      * 获取source或者target的key,因为RDB和非RDB存储结构不一样，所以要区分
      */
     function getKey (item: any) {
-        if (typeof item == 'string') {
+        if (typeof item === 'string') {
             return item
         } else {
             return item.key;

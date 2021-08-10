@@ -43,7 +43,7 @@ function getUniqueKey (id: any) {
 }
 
 function typeCreate (status: any) {
-    return status == taskStatus.FAILED ? 'error' : 'info';
+    return status === taskStatus.FAILED ? 'error' : 'info';
 }
 
 function getDataOver (dispatch: any, currentTab: any, res: any, jobId?: any, isAdvancedMode?: boolean) {
@@ -79,7 +79,7 @@ function doSelect (resolve: any, dispatch: any, jobId: any, currentTab: number, 
             return;
         }
         for (let i = 0; i < offlineTaskStatusFilter.length; i++) {
-            if (offlineTaskStatusFilter[i].value == status) {
+            if (offlineTaskStatusFilter[i].value === status) {
                 dispatch(output(currentTab, createLog(`${offlineTaskStatusFilter[i].text}${extText || ''}`, 'info')))
                 continue;
             }
@@ -304,7 +304,7 @@ function selectData (dispatch: any, jobId: any, currentTab: number, task: any, t
 */
 function exec (dispatch: any, currentTab: number, task: any, params: any, sqls: any, index: any, resolve: any, reject: any) {
     params.sql = `${sqls[index]}`
-    params.isEnd = sqls.length == index + 1;
+    params.isEnd = sqls.length === index + 1;
     dispatch(output(currentTab, createLog(`第${index + 1}条任务开始执行`, 'info')))
     // 判断是否要继续执行SQL
     function judgeIfContinueExec () {
@@ -335,7 +335,7 @@ function exec (dispatch: any, currentTab: number, task: any, params: any, sqls: 
         }
         if (res && res.code && res.message) dispatch(output(currentTab, createLog(`${res.message}`, 'error')))
         // 执行结束
-        if (!res || (res && res.code != 1)) {
+        if (!res || (res && res.code !== 1)) {
             dispatch(output(currentTab, createLog(`请求异常！`, 'error')))
             dispatch(removeLoadingTab(currentTab))
             resolve(true)
@@ -353,10 +353,10 @@ function exec (dispatch: any, currentTab: number, task: any, params: any, sqls: 
                     isTiDBEngine(engineType) ||
                     isOracleEngine(engineType) ||
                     isGreenPlumEngine(engineType) ||
-                    task.taskType == TASK_TYPE.ADB ||
-                    task.taskType == TASK_TYPE.IMPALA_SQL ||
-                    task.type == SCRIPT_TYPE.IMPALA_SQL || 
-                    task.taskType == TASK_TYPE.INCEPTOR
+                    task.taskType === TASK_TYPE.ADB ||
+                    task.taskType === TASK_TYPE.IMPALA_SQL ||
+                    task.type === SCRIPT_TYPE.IMPALA_SQL || 
+                    task.taskType === TASK_TYPE.INCEPTOR
                 ) {
                     getDataOver(dispatch, currentTab, res, res.data.jobId)
                     judgeIfContinueExec();
@@ -417,7 +417,7 @@ export async function execSparkSQLAdvancedMode (dispatch: any, currentTab: numbe
 
     if (res && res.code && res.message) dispatch(output(currentTab, createLog(`${res.message}`, 'error')))
     // 执行结束
-    if (!res || (res && res.code != 1)) {
+    if (!res || (res && res.code !== 1)) {
         dispatch(output(currentTab, createLog(`请求异常！`, 'error')))
         dispatch(removeLoadingTab(currentTab))
         return;
@@ -565,7 +565,7 @@ export function execDataSync (currentTab: any, params: any) {
         const res = await API.execDataSyncImmediately(params);
         if (res && res.code && res.message) dispatch(output(currentTab, createLog(`${res.message}`, 'error')))
         // 执行结束
-        if (!res || (res && res.code != 1)) {
+        if (!res || (res && res.code !== 1)) {
             dispatch(output(currentTab, createLog(`请求异常！`, 'error')))
             dispatch(removeLoadingTab(currentTab))
         }

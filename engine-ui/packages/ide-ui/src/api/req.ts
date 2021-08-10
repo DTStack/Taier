@@ -91,4 +91,7 @@ export default {
   GET_PACKAGE_ITEM_STATUS: `${RDOS_BASE_URL}/batch/batchPackageItem/getPackageItemStatus`, // 查看发布包列表
   INIT_UPLOAD_PACKAGE: `${RDOS_BASE_URL}/batch/batchPackage/initUploadPackage`, // 跳过检查继续导入
   GET_PACKAGE_ISHASFTP: `${RDOS_BASE_URL}/batch/batchPackage/isHasFtp`, // 是否开启sftp
+  GET_PROJECTS_BY_APP_TYPE: `${RDOS_BASE_URL}/common/project/getProjectsByAppType`, // 获取模糊查询项目名称
+  GET_TASKS_BY_APP_TYPE: `${RDOS_BASE_URL}/batch/batchTask/getTasksByAppType`, // 根据任务名称查询任务信息
+  ALL_PRODUCT_GLOBAL_SEARCH: `${RDOS_BASE_URL}/batch/batchTask/allProductGlobalSearch`, // 所有产品的已提交任务查询
 };

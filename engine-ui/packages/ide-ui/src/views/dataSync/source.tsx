@@ -12,9 +12,10 @@ import {
     Col,
     Tooltip,
     Checkbox,
-    Spin
+    Spin,
+    AutoComplete
 } from 'antd';
-import { isEmpty, debounce, get, isArray, cloneDeep } from 'lodash';
+import { isEmpty, debounce, get, isArray } from 'lodash';
 import assign from 'object-assign';
 
 import { Utils } from '@dtinsight/dt-utils';
@@ -36,7 +37,6 @@ import {
     formItemLayout,
     DATA_SOURCE,
     DATA_SOURCE_TEXT,
-    OPENTSDB_CULUMNS,
     SUPPROT_SUB_LIBRARY_DB_ARRAY,
     RDB_TYPE_ARRAY
 } from '../../comm/const';
@@ -103,17 +103,9 @@ class SourceForm extends React.Component<any, any> {
                 if (dataSourceType === DATA_SOURCE.POSTGRESQL || dataSourceType === DATA_SOURCE.ORACLE) {
                     this.getSchemaList(source.sourceId);
                     schema ? this.getTableList(source.sourceId, schema) : this.getTableList(source.sourceId);
-                } else if (dataSourceType === DATA_SOURCE.ADB ) {
-                    schema && this.getTableList(source.sourceId, schema)
-                }else if (dataSourceType === DATA_SOURCE.KINGBASE || dataSourceType === DATA_SOURCE.INFLUXDB) {
-                    this.getSchemaList(source.sourceId);
-                    this.getTableList(source.sourceId, schema);
-                } else if (dataSourceType === DATA_SOURCE.S3) {
-                    this.getBucketList(source.sourceId);
-                }
-                else {
+                } else {
                     this.getTableList(source.sourceId);
-                    if (source.tables && i == 0) {
+                    if (source.tables && i === 0) {
                         tableName = source.tables;
                         sourceId = source.sourceId;
                     }
@@ -128,13 +120,6 @@ class SourceForm extends React.Component<any, any> {
         ) {
             this.getCopate(sourceId, tableName);
             this.loadIncrementColumn(tableName);
-        }
-        if ((dataSourceType === DATA_SOURCE.INFLUXDB) && tableName) {
-            this.getCopate(sourceId, tableName);
-        }
-        if ((dataSourceType === DATA_SOURCE.IMPALA) && tableName) {
-            this.getPartitionType(tableName)
-            this.loadIncrementColumn(tableName, schema);
         }
     }
 
@@ -189,16 +174,11 @@ class SourceForm extends React.Component<any, any> {
         const ctx = this;
         const { sourceMap, handleTableCopateChange } = this.props;
         handleTableCopateChange([])
-        if (sourceMap.type && (
-            sourceMap.type.type === DATA_SOURCE.HDFS 
-            || sourceMap.type.type === DATA_SOURCE.FTP
-            || sourceMap.type.type === DATA_SOURCE.OPEN_TS_DB
-            )
-        ) {
+        if (sourceMap.type && sourceMap.type.type === DATA_SOURCE.HDFS) {
             return;
         }
 
-        this.isMysqlTable = sourceMap.type.type === DATA_SOURCE.MYSQL;
+        this.isMysqlTable = sourceMap.type?.type === DATA_SOURCE.MYSQL;
 
         // 保证不同mySql类型表切换是批量选择出现的数据错误问题
         this.state.isChecked[sourceMap.sourceId] && this.setState((preState: any) => ({ isChecked: { ...preState.isChecked, ...{ [sourceMap.sourceId]: !preState.isChecked[sourceMap.sourceId] } } }));
@@ -227,7 +207,7 @@ class SourceForm extends React.Component<any, any> {
                     name: str,
                     isRead: true
                 }).then((res: any) => {
-                    if (res.code === 1) {
+                    if (res && res.code === 1) {
                         if (ctx._isMounted) {
                             const { data = [] } = res;
                             let arr = data;
@@ -300,21 +280,11 @@ class SourceForm extends React.Component<any, any> {
             return;
         }
 
-        if (sourceType === DATA_SOURCE.HBASE) {
-            this.setState({
-                loading: false
-            });
-            return;
-        }
-
-        if (isRDB(sourceType) 
-            || sourceType === DATA_SOURCE.INFLUXDB
-            || sourceType === DATA_SOURCE.ADB
-            || sourceType === DATA_SOURCE.POSTGRESQL) {
+        if (isRDB(sourceType) || sourceType === DATA_SOURCE.POSTGRESQL) {
             this.getCopate(sourceMap.sourceId, tableName);
         }
         // Hive，Impala 作为结果表时，需要获取分区字段
-        const includePart = +sourceType === DATA_SOURCE.HIVE_1 || +sourceType === DATA_SOURCE.HIVE_2 || +sourceType === DATA_SOURCE.HIVE_3 || +sourceType === DATA_SOURCE.HIVE_SERVER || +sourceType === DATA_SOURCE.IMPALA;
+        const includePart = +sourceType === DATA_SOURCE.HIVE_1 || +sourceType === DATA_SOURCE.HIVE_2 || +sourceType === DATA_SOURCE.HIVE_3 || +sourceType === DATA_SOURCE.HIVE_SERVER;
 
         ajax.getOfflineTableColumn({
             sourceId: sourceMap.sourceId,
@@ -356,7 +326,7 @@ class SourceForm extends React.Component<any, any> {
     getDataObjById(id: any) {
         const { dataSourceList } = this.props;
         return dataSourceList.filter((src: any) => {
-            return src.id == id;
+            return src.id === id;
         })[0];
     }
 
@@ -390,36 +360,16 @@ class SourceForm extends React.Component<any, any> {
     }
 
     changeSource (value: any, option: any) {
-        const { handleSourceChange, sourceMap, handleSourceMapChange, handleTableColumnChange, form: { setFieldsValue } } = this.props;
-        // TODO: path 在ftp模式为数组，但是在其他模式不存在，所以此处删除该字段
-        const srcmap = Object.assign({}, sourceMap);
+        const { handleSourceChange } = this.props;
         const { dataType } = option.props
-        if (option.props.dataType !== DATA_SOURCE.FTP && srcmap?.type?.path) {
-            srcmap.type.path = null;
-            handleSourceMapChange(srcmap);
-        }
         setTimeout(() => {
             // KINGBASE/ORACLE需要加schema字段
-            // TODO:ORACLE为了兼容历史任务，所以该数据源的schema字段为非必填，如果不选择schema则后端返回全量数据表
-            (dataType === DATA_SOURCE.KINGBASE 
-                || dataType === DATA_SOURCE.ORACLE 
-                || dataType === DATA_SOURCE.POSTGRESQL // POSTGRESQL有schema但schema为非必填
-                || dataType === DATA_SOURCE.INFLUXDB
-                || dataType === DATA_SOURCE.ADB) 
+            (dataType === DATA_SOURCE.ORACLE 
+                || dataType === DATA_SOURCE.POSTGRESQL) 
                 && this.getSchemaList(value);
-            // KINGBASE需要加schema字段
-            (dataType !== DATA_SOURCE.KINGBASE 
-            && dataType !== DATA_SOURCE.S3
-            && dataType !== DATA_SOURCE.ADB
-            && dataType !== DATA_SOURCE.OPEN_TS_DB// openstsDB没有 schema 和 table
-            ) && this.getTableList(value);
-            dataType === DATA_SOURCE.S3 && (setFieldsValue({ bucket: undefined }) || this.getBucketList(value))
         }, 0);
         handleSourceChange(this.getDataObjById(value));
         this.resetTable();
-        if (dataType === DATA_SOURCE.OPEN_TS_DB) { // opentsdb的字段为固定值
-            handleTableColumnChange(cloneDeep(OPENTSDB_CULUMNS))
-        }
     }
     
     addDataSource() {
@@ -477,16 +427,12 @@ class SourceForm extends React.Component<any, any> {
     changeTable(type?: any, value?: any, sourceKey?: any) {
         const { tableListMap }= this.state
         const { sourceMap, form }=this.props
-        const targetSource = [DATA_SOURCE.ADB, DATA_SOURCE.POSTGRESQL]
+        const targetSource = [DATA_SOURCE.POSTGRESQL]
         const schema = form.getFieldValue("schema")
         if(targetSource.includes(sourceMap.type?.type) && (!Array.isArray(tableListMap[sourceMap.sourceId]) || tableListMap[sourceMap.sourceId].length === 0  || !tableListMap[sourceMap.sourceId]?.includes(value))){
             form.setFieldsValue({ table: undefined })
             this.getTableList(sourceMap?.sourceId, schema, "")
             return;
-        }
-
-        if (type === DATA_SOURCE.IMPALA && value) {
-            this.getPartitionType(value)
         }
         if (value) {
             this.setState({
@@ -537,8 +483,7 @@ class SourceForm extends React.Component<any, any> {
             sourceMap.type.type !== DATA_SOURCE.HIVE_2 &&
             sourceMap.type.type !== DATA_SOURCE.HIVE_3 &&
             sourceMap.type.type !== DATA_SOURCE.HIVE_SERVER &&
-            sourceMap.type.type !== DATA_SOURCE.HIVE_1 &&
-            sourceMap.type.type !== DATA_SOURCE.IMPALA) {
+            sourceMap.type.type !== DATA_SOURCE.HIVE_1) {
             return;
         }
         // Reset partition
@@ -804,39 +749,20 @@ class SourceForm extends React.Component<any, any> {
             sourceMap,
             dataSourceList,
             navtoStep,
-            isIncrementMode,
             currentTab,
             taskVariables
         } = this.props;
 
         const disablePreview =
             isEmpty(sourceMap) ||
-            sourceMap.type.type === DATA_SOURCE.HDFS ||
-            sourceMap.type.type === DATA_SOURCE.HBASE ||
-            sourceMap.type.type === DATA_SOURCE.FTP ||
-            sourceMap.type.type === DATA_SOURCE.OPEN_TS_DB;
+            sourceMap.type.type === DATA_SOURCE.HDFS
         const {
             tableListLoading,
-            showRegModal,
             currentObject,
             showPreviewPath,
             previewPath
         } = this.state;
-        const regExpModalParams = {
-            sourceMap,
-            currentTab,
-            onCancel: () => {
-                this.setState({
-                    showRegModal: false,
-                    currentObject: { object: [''], index: 0, bucket: '' }
-                })
-            },
-            currentObject,
-            ref: this.saveFormRef,
-            onSubmit: this.synchronizationObject,
-        }
         const getPopupContainer = this.props.getPopupContainer;
-        const dataSourceListFltKylin = dataSourceList && dataSourceList.filter((src: any) => src.type !== DATA_SOURCE.KYLIN && src.type !== DATA_SOURCE.INCEPTOR);
         const disableFix = { disabled: disablePreview }
         return (
             <div className="g-step1">
@@ -860,14 +786,9 @@ class SourceForm extends React.Component<any, any> {
                                     onSelect={this.changeSource.bind(this)}
                                     optionFilterProp="name"
                                 >
-                                    {dataSourceListFltKylin.map((src: any) => {
+                                    {dataSourceList.map((src: any) => {
                                         let title = `${src.dataName}（${(DATA_SOURCE_TEXT as any)[src.type]}）`;
-                                        const disableSelect =
-                                            src.type === DATA_SOURCE.ES ||
-                                            src.type === DATA_SOURCE.REDIS ||
-                                            src.type === DATA_SOURCE.MONGODB ||
-                                            // 增量模式需要禁用非关系型数据库
-                                            (isIncrementMode && !isRDB(src.type));
+                                        const disableSelect = !isRDB(src.type);
 
                                         return (
                                             <Option
@@ -898,53 +819,51 @@ class SourceForm extends React.Component<any, any> {
                                 })(
                                     <TextArea
                                         onChange={this.submitForm.bind(this)}
-                                        placeholder={sourceMap.type.type === DATA_SOURCE.S3 ? '以JSON格式添加其他参数' : "以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize"}
+                                        placeholder={"以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize"}
                                         autosize={{ minRows: 2, maxRows: 6 }}
                                     />
                                 )}
-                                <HelpDoc doc={sourceMap.type.type === DATA_SOURCE.S3 ? 's3ExtralConfigHelp' : 'dataSyncExtralConfigHelp'} />
+                                <HelpDoc doc={'dataSyncExtralConfigHelp'} />
                             </FormItem>
                         ) : null}
                     </Form>
-                    {sourceMap?.type?.type !== (DATA_SOURCE.S3 || DATA_SOURCE.OPEN_TS_DB) &&
-                        <div
-                            className="m-datapreview"
-                            style={{
-                                width: '90%',
-                                margin: '0 auto',
-                                overflow: 'auto',
-                                textAlign: 'center'
-                            }}
-                        >
-                            <p style={{ cursor: 'pointer', marginBottom: 10 }}>
-                                <a
-                                    {...disableFix}
-                                    href="javascript:void(0)"
-                                    onClick={this.loadPreview.bind(this)}
-                                >
-                                    数据预览
-                                {this.state.showPreview ? (
-                                        <Icon type="up" />
-                                    ) : (
-                                        <Icon type="down" />
-                                    )}
-                                </a>
-                            </p>
+                    <div
+                        className="m-datapreview"
+                        style={{
+                            width: '90%',
+                            margin: '0 auto',
+                            overflow: 'auto',
+                            textAlign: 'center'
+                        }}
+                    >
+                        <p style={{ cursor: 'pointer', marginBottom: 10 }}>
+                            <a
+                                {...disableFix}
+                                href="javascript:void(0)"
+                                onClick={this.loadPreview.bind(this)}
+                            >
+                                数据预览
                             {this.state.showPreview ? (
-                                <Table
-                                    dataSource={this.state.dataSource}
-                                    columns={this.state.columns}
-                                    scroll={{
-                                        x: this.state.columns.reduce((a: any, b: any) => {
-                                            return a + b.width;
-                                        }, 0)
-                                    }}
-                                    pagination={false}
-                                    bordered={false}
-                                />
-                            ) : null}
-                        </div>
-                    }
+                                    <Icon type="up" />
+                                ) : (
+                                    <Icon type="down" />
+                                )}
+                            </a>
+                        </p>
+                        {this.state.showPreview ? (
+                            <Table
+                                dataSource={this.state.dataSource}
+                                columns={this.state.columns}
+                                scroll={{
+                                    x: this.state.columns.reduce((a: any, b: any) => {
+                                        return a + b.width;
+                                    }, 0)
+                                }}
+                                pagination={false}
+                                bordered={false}
+                            />
+                        ) : null}
+                    </div>
                     {!this.props.readonly && (
                         <div className="steps-action">
                             <Button
@@ -974,12 +893,12 @@ class SourceForm extends React.Component<any, any> {
 
     loadPreview() {
         const { showPreview } = this.state;
-        const { form, sourceMap } = this.props;
+        const { form } = this.props;
         const sourceId = form.getFieldValue('sourceId');
         const schema = form.getFieldValue('schema');
         let tableName = form.getFieldValue('table');
 
-        if (!sourceId || !tableName || (sourceMap.type.type === DATA_SOURCE.KINGBASE && !schema)) {
+        if (!sourceId || !tableName) {
             message.error('数据源或表名缺失');
             return;
         }
@@ -1051,10 +970,10 @@ class SourceForm extends React.Component<any, any> {
         }
         return sourceList
             .filter((source: any) => {
-                return source.key != 'main';
+                return source.key !== 'main';
             })
             .map((source: any) => {
-                const tableValue = source.sourceId == null
+                const tableValue = source.sourceId === null
                     ? null
                     : '' + source.sourceId;
                 return (
@@ -1087,21 +1006,12 @@ class SourceForm extends React.Component<any, any> {
                                         })
                                         .map((src: any) => {
                                             let title = `${src.dataName}（${(DATA_SOURCE_TEXT as any)[src.type]}）`;
-
-                                            const disableSelect =
-                                                src.type === DATA_SOURCE.ES ||
-                                                src.type ===
-                                                DATA_SOURCE.REDIS ||
-                                                src.type ===
-                                                DATA_SOURCE.MONGODB;
-
                                             return (
                                                 <Option
                                                     dataType={src.type}
                                                     key={src.id}
                                                     name={src.dataName}
                                                     value={`${src.id}`}
-                                                    disabled={disableSelect}
                                                 >
                                                     {title}
                                                 </Option>
@@ -1185,8 +1095,8 @@ class SourceForm extends React.Component<any, any> {
                                             >
                                                 {/* 选择一张或多张表，选择多张表时，请保持它们的表结构一致，大批量选择，可以 */}
                                                 {/* disabled注意添加数据源之后无数据产生的bug问题 */}
-                                                <Checkbox name='isChecked' disabled={source.sourceId == null} onChange={(event: any) => this.handleCheckboxChange(`extTable.${source.key}`, event)} checked={isChecked[`extTable.${source.key}`]} >
-                                                    <a {...{ disabled: source.sourceId == null }}>
+                                                <Checkbox name='isChecked' disabled={source.sourceId === null} onChange={(event: any) => this.handleCheckboxChange(`extTable.${source.key}`, event)} checked={isChecked[`extTable.${source.key}`]} >
+                                                    <a {...{ disabled: source.sourceId === null }}>
                                                         批量选择
                                                     </a>
                                                 </Checkbox>
@@ -1215,36 +1125,6 @@ class SourceForm extends React.Component<any, any> {
         })
     }
 
-    renderIncrementColumns = () => {
-        const { sourceMap, isIncrementMode } = this.props;
-        const { incrementColumns } = this.state;
-        const { getFieldDecorator } = this.props.form;
-        const columnsOpts = incrementColumns.map((o: any) => <Option key={o.key}>{o.key}（{o.type}）</Option>);
-        return isIncrementMode
-            ? <FormItem
-                {...formItemLayout}
-                label="增量标识字段"
-                style={{ height: '32px' }}
-            >
-                {getFieldDecorator('syncModel', {
-                    rules: [{
-                        required: true,
-                        message: '必须选择增量标识字段！'
-                    }],
-                    initialValue: sourceMap.increColumn || undefined
-                })(
-                    <Select
-                        placeholder="请选择增量标识字段"
-                        onChange={this.onIncrementColumnChange}
-                    >
-                        {columnsOpts}
-                    </Select>
-                )}
-                <HelpDoc doc="incrementColumnHelp" />
-            </FormItem>
-            : '';
-    }
-
     // sourceKey 用在isChecked中来判断具体是哪一个sourceId已选中
     handleCheckboxChange = (sourceKey: any, event: any) => {
         const { isChecked } = this.state;
@@ -1267,11 +1147,11 @@ class SourceForm extends React.Component<any, any> {
     }
 
     renderDynamicForm = () => {
-        const { selectHack, isChecked, tableListMap, isShowImpala, tableListSearch, schemaList, kingbaseId, schemaId, bucketList, fetching } = this.state;
+        const { selectHack, isChecked, tableListMap, tableListSearch, schemaList, kingbaseId, schemaId, fetching } = this.state;
         const { sourceMap, isIncrementMode, form } = this.props;
         const { getFieldDecorator, getFieldValue } = form;
-        const fileType = (sourceMap.type && sourceMap.type.fileType) || 'text';
         const getPopupContainer = this.props.getPopupContainer;
+        const fileType = (sourceMap.type && sourceMap.type.fileType) || 'text';
         const haveChineseQuote = !!(sourceMap && sourceMap.type && /(‘|’|”|“)/.test(sourceMap.type.where));
         // 非增量模式
         const supportSubLibrary = SUPPROT_SUB_LIBRARY_DB_ARRAY.indexOf(sourceMap &&
@@ -1291,44 +1171,6 @@ class SourceForm extends React.Component<any, any> {
                     !selectHack ? (
                         <div>
                             {
-                                sourceMap.type.type === DATA_SOURCE.KINGBASE &&
-                                <FormItem {...formItemLayout} label="schema" key="schema">
-                                    {getFieldDecorator('schema', {
-                                        rules: [
-                                            {
-                                                required: true,
-                                                message: 'schema为必选项！'
-                                            }
-                                        ],
-                                        initialValue: isEmpty(sourceMap)
-                                            ? ''
-                                            : sourceMap?.schema ? sourceMap?.schema : sourceMap.type.schema
-                                    })(
-                                        <Select
-                                            showSearch
-                                            {...{ showArrow: true }}
-                                            allowClear={true}
-                                            onChange={(val: any) => {
-                                                val && this.getTableList(kingbaseId, val);
-                                                form.setFieldsValue({ table: '', syncModel: '' });
-                                            }}
-                                        >
-                                            {schemaList.map((copateValue: any, index: any) => {
-                                                return (
-                                                    <Option
-                                                        key={`copate-${index}`}
-                                                        value={copateValue}
-                                                    >
-                                                        {/* ORACLE数据库单独考虑ROW_NUMBER() 这个函数， 展示去除括号 */}
-                                                        { (sourceMap.type.type === DATA_SOURCE.ORACLE && copateValue === 'ROW_NUMBER()') ? 'ROW_NUMBER' : copateValue}
-                                                    </Option>
-                                                );
-                                            })}
-                                        </Select>
-                                    )}
-                                </FormItem>
-                            }
-                            {
                                 supportSubLibrary ? <FormItem {...formItemLayout} label={this.isMysqlTable ? '表名(批量)' : '表名'} key="rdbtable">
                                     {getFieldDecorator('table', {
                                         rules: [
@@ -1346,14 +1188,11 @@ class SourceForm extends React.Component<any, any> {
                                             mode={'multiple'}
                                             showSearch
                                             {...{ showArrow: true }}
-                                              onSelect={ sourceMap.type.type === DATA_SOURCE.KINGBASE
-                                                    ? this.getTableData.bind(this, sourceMap.type.type)
-                                                    : this.debounceTableSearch.bind(
-                                                        this,
-                                                        sourceMap.type.type
-                                                    )
-                                                }
-
+                                            onSelect={this.debounceTableSearch.bind(
+                                                    this,
+                                                    sourceMap.type.type
+                                                )
+                                            }
                                             onChange={(val: any) => this.debounceTableSearch(
                                                 sourceMap.type.type,
                                                 val
@@ -1425,9 +1264,7 @@ class SourceForm extends React.Component<any, any> {
                                                 mode={'combobox'}
                                                 showSearch
                                                 {...{ showArrow: true }}
-                                                onSelect={sourceMap.type.type === DATA_SOURCE.KINGBASE
-                                                    ? this.getTableData.bind(this, sourceMap.type.type)
-                                                    : this.debounceTableSearch.bind(
+                                                onSelect={this.debounceTableSearch.bind(
                                                         this,
                                                         sourceMap.type.type
                                                     )
@@ -1481,7 +1318,7 @@ class SourceForm extends React.Component<any, any> {
                                         >
                                             {/* 选择一张或多张表，选择多张表时，请保持它们的表结构一致，大批量选择，可以 */}
                                             <Checkbox name='isChecked' onChange={(event: any) => { this.handleCheckboxChange(sourceMap.sourceId, event) }} checked={isChecked[sourceMap.sourceId]} >
-                                                <a {...{ disabled: sourceMap.sourceId == null }}>
+                                                <a {...{ disabled: sourceMap.sourceId === null }}>
                                                     批量选择
                                                 </a>
                                             </Checkbox>
@@ -1499,13 +1336,12 @@ class SourceForm extends React.Component<any, any> {
                                 span={formItemLayout.wrapperCol.sm.span}
                                 offset={formItemLayout.labelCol.sm.span}
                             >
-                                <a onClick={this.addDataSource.bind(this)}>
+                                <a onClick={() => this.addDataSource()}>
                                     添加数据源
                                 </a>
                             </Col>
                         </Row>
                     ),
-                    this.renderIncrementColumns(),
                     <FormItem {...formItemLayout} label="数据过滤" key="where">
                         {getFieldDecorator('where', {
                             rules: [
@@ -1567,8 +1403,7 @@ class SourceForm extends React.Component<any, any> {
                                             key={`copate-${index}`}
                                             value={copateValue}
                                         >
-                                            {/* ORACLE数据库单独考虑ROW_NUMBER() 这个函数， 展示去除括号 */}
-                                            { (sourceMap.type.type === DATA_SOURCE.ORACLE && copateValue === 'ROW_NUMBER()') ? 'ROW_NUMBER' : copateValue}
+                                            {copateValue}
                                         </Option>
                                     );
                                 })}
@@ -1654,7 +1489,6 @@ class SourceForm extends React.Component<any, any> {
                         </div>
                     ) : null,
                     ...this.renderExtDataSource(),
-                    this.renderIncrementColumns(),
                     <FormItem {...formItemLayout} label="数据过滤" key="where">
                         {getFieldDecorator('where', {
                             rules: [
@@ -1718,7 +1552,7 @@ class SourceForm extends React.Component<any, any> {
                                             value={copateValue}
                                         >
                                             {/* ORACLE数据库单独考虑ROW_NUMBER() 这个函数， 展示去除括号 */}
-                                            { (sourceMap.type.type === DATA_SOURCE.ORACLE && copateValue === 'ROW_NUMBER()') ? 'ROW_NUMBER' : copateValue}
+                                            {copateValue === 'ROW_NUMBER()' ? 'ROW_NUMBER' : copateValue}
                                         </Option>
                                     );
                                 })}
@@ -1730,7 +1564,6 @@ class SourceForm extends React.Component<any, any> {
                 break;
             }
             case DATA_SOURCE.POSTGRESQL: {
-                const sourceId = sourceMap.type.type
                 const tableValue = isEmpty(sourceMap) ? '' : supportSubLibrary
                     ? sourceMap.sourceList[0].tables
                     : sourceMap.type.table;
@@ -1739,12 +1572,6 @@ class SourceForm extends React.Component<any, any> {
                         <div>
                             <FormItem {...formItemLayout} label="schema" key="schema">
                                 {getFieldDecorator('schema', {
-                                    rules: [
-                                        {
-                                            required: sourceId === DATA_SOURCE.ADB,
-                                            message: 'schema为必选项！'
-                                        }
-                                    ],
                                     initialValue: isEmpty(sourceMap)
                                         ? ''
                                         : sourceMap?.schema ? sourceMap?.schema : sourceMap.type.schema
@@ -1767,8 +1594,7 @@ class SourceForm extends React.Component<any, any> {
                                                     key={`copate-${index}`}
                                                     value={copateValue}
                                                 >
-                                                    {/* ORACLE数据库单独考虑ROW_NUMBER() 这个函数， 展示去除括号 */}
-                                                    { (sourceMap.type.type === DATA_SOURCE.ORACLE && copateValue === 'ROW_NUMBER()') ? 'ROW_NUMBER' : copateValue}
+                                                    {copateValue}
                                                 </Option>
                                             );
                                         })}
@@ -1902,7 +1728,7 @@ class SourceForm extends React.Component<any, any> {
                                         >
                                             {/* 选择一张或多张表，选择多张表时，请保持它们的表结构一致，大批量选择，可以 */}
                                             <Checkbox name='isChecked' onChange={(event: any) => { this.handleCheckboxChange(sourceMap.sourceId, event) }} checked={isChecked[sourceMap.sourceId]} >
-                                                <a {...{ disabled: sourceMap.sourceId == null }}>
+                                                <a {...{ disabled: sourceMap.sourceId === null }}>
                                                     批量选择
                                                 </a>
                                             </Checkbox>
@@ -1926,7 +1752,6 @@ class SourceForm extends React.Component<any, any> {
                             </Col>
                         </Row>
                     ),
-                    this.renderIncrementColumns(),
                     <FormItem {...formItemLayout} label="数据过滤" key="where">
                         {getFieldDecorator('where', {
                             rules: [
@@ -1990,13 +1815,204 @@ class SourceForm extends React.Component<any, any> {
                                             value={copateValue}
                                         >
                                             {/* ORACLE数据库单独考虑ROW_NUMBER() 这个函数， 展示去除括号 */}
-                                            { (sourceMap.type.type === DATA_SOURCE.ORACLE && copateValue === 'ROW_NUMBER()') ? 'ROW_NUMBER' : copateValue}
+                                            {copateValue}
                                         </Option>
                                     );
                                 })}
                             </Select>
                         )}
-                        <HelpDoc doc={ sourceId === DATA_SOURCE.ADB ? "selectADBKey"  : "selectKey"}  />
+                        <HelpDoc doc={"selectKey"}  />
+                    </FormItem>
+                ];
+                break;
+            }
+            case DATA_SOURCE.HDFS: {
+                // HDFS
+                formItem = [
+                    <FormItem
+                        {...formItemLayout}
+                        label="路径"
+                        key="path"
+                    >
+                        {getFieldDecorator('path', {
+                            rules: [
+                                {
+                                    required: true,
+                                    message: '路径不得为空！'
+                                },
+                                {
+                                    max: 200,
+                                    message: '路径不得超过200个字符！'
+                                },
+                                {
+                                    validator: this.validatePath
+                                }
+                            ],
+                            validateTrigger: 'onSubmit',
+                            initialValue: isEmpty(sourceMap)
+                                ? ''
+                                : sourceMap.type.path
+                        })(
+                            <Input
+                                placeholder="例如: /rdos/batch"
+                                onChange={this.submitForm.bind(this)}
+                            />
+                        )}
+                        <HelpDoc doc="hdfsPath" />
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="文件类型"
+                        key="fileType"
+                    >
+                        {getFieldDecorator('fileType', {
+                            rules: [
+                                {
+                                    required: true
+                                }
+                            ],
+                            initialValue:
+                                sourceMap.type && sourceMap.type.fileType
+                                    ? sourceMap.type.fileType
+                                    : 'text'
+                        })(
+                            <Select
+                                getPopupContainer={getPopupContainer}
+                                onChange={this.submitForm.bind(this)}
+                            >
+                                <Option value="orc">orc</Option>
+                                <Option value="text">text</Option>
+                                <Option value="parquet">parquet</Option>
+                            </Select>
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        style={{
+                            display: fileType === 'text' ? 'block' : 'none'
+                        }}
+                        label="列分隔符"
+                        key="fieldDelimiter"
+                    >
+                        {getFieldDecorator('fieldDelimiter', {
+                            rules: [],
+                            initialValue: isEmpty(sourceMap)
+                                ? ','
+                                : sourceMap.type.fieldDelimiter
+                        })(
+                            <Input
+                                /* eslint-disable */
+                                placeholder="若不填写，则默认为\001"
+                                /* eslint-disable */
+                                onChange={this.submitForm.bind(this)}
+                            />
+                        )}
+                        <HelpDoc doc="splitCharacter" />
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="编码"
+                        key="encoding"
+                        style={{
+                            display: fileType === 'text' ? 'block' : 'none'
+                        }}
+                    >
+                        {getFieldDecorator('encoding', {
+                            rules: [
+                                {
+                                    required: true
+                                }
+                            ],
+                            initialValue:
+                                !sourceMap.type || !sourceMap.type.encoding
+                                    ? 'utf-8'
+                                    : sourceMap.type.encoding
+                        })(
+                            <Select
+                                getPopupContainer={getPopupContainer}
+                                onChange={this.submitForm.bind(this)}
+                            >
+                                <Option value="utf-8">utf-8</Option>
+                                <Option value="gbk">gbk</Option>
+                            </Select>
+                        )}
+                    </FormItem>
+                ];
+                break;
+            }
+            case DATA_SOURCE.HIVE_1:
+            case DATA_SOURCE.HIVE_2:
+            case DATA_SOURCE.HIVE_3:
+            case DATA_SOURCE.HIVE_SERVER: {
+                // Hive
+                formItem = [
+                    !selectHack && (
+                        <FormItem {...formItemLayout} label="表名" key="table">
+                            {getFieldDecorator('table', {
+                                rules: [
+                                    {
+                                        required: true,
+                                        message: '数据源表为必选项！'
+                                    }
+                                ],
+                                initialValue: isEmpty(sourceMap)
+                                    ? ''
+                                    : sourceMap.type.table
+                            })(
+                                <Select
+                                    getPopupContainer={getPopupContainer}
+                                    showSearch
+                                    onBlur={this.debounceTableSearch.bind(
+                                        this,
+                                        null
+                                    )}
+                                    optionFilterProp="value"
+                                    onSearch={(str: any) => this.onSearchTable(str, sourceMap.sourceId)}
+                                >
+                                    {(
+                                        tableListSearch[sourceMap.sourceId] || []
+                                    ).map((table: any) => {
+                                        return (
+                                            <Option
+                                                key={`rdb-${table}`}
+                                                value={table}
+                                            >
+                                                {table}
+                                            </Option>
+                                        );
+                                    })}
+                                </Select>
+                            )}
+                        </FormItem>
+                    ),
+                    <FormItem {...formItemLayout} label="分区" key="partition">
+                        {getFieldDecorator('partition', {
+                            rules: [],
+                            initialValue: isEmpty(sourceMap)
+                                ? ''
+                                : sourceMap.type.partition
+                        })(
+                            <AutoComplete
+                                showSearch
+                                {...{ showArrow: true }}
+                                placeholder="请填写分区信息"
+                                onChange={this.submitForm.bind(this)}
+                                filterOption={filterValueOption}
+                            >
+                                {
+                                    (this.state.tablePartitionList || []).map((pt: any) => {
+                                        return (
+                                            <AutoComplete.Option
+                                                key={`rdb-${pt}`}
+                                                value={pt}
+                                            >
+                                                {pt}
+                                            </AutoComplete.Option>
+                                        );
+                                    })}
+                            </AutoComplete>
+                        )}
+                        <HelpDoc doc="partitionDesc" />
                     </FormItem>
                 ];
                 break;
@@ -2010,9 +2026,6 @@ class SourceForm extends React.Component<any, any> {
 const SourceFormWrap = Form.create<any>()(SourceForm);
 
 class Source extends React.Component<any, any> {
-    constructor(props: any) {
-        super(props);
-    }
 
     render() {
         return (
@@ -2028,7 +2041,7 @@ const mapState = (state: any) => {
     const { isCurrentTabNew = {}, currentTab = {}, tabs } = workbench;
     let taskVariables = [];
     try {
-        const thisTab = tabs.length > 0 && tabs?.filter((item: any) => item.id == currentTab)[0];
+        const thisTab = tabs.length > 0 && tabs?.filter((item: any) => item.id === currentTab)[0];
         taskVariables = thisTab.taskVariables || []
     } catch (error) {}
     return {
@@ -2037,7 +2050,7 @@ const mapState = (state: any) => {
         dataSync,
         sourceMap: dataSync.sourceMap || {},
         targetMap: dataSync.targetMap || {},
-        dataSourceList: dataSync.dataSourceList || [],
+        dataSourceList: [{"dataDesc":"","createUserId":5,"gmtModified":1598798357000,"modifyUserId":5,"active":0,"dataName":"test","dataJson":{"jdbcUrl":"jdbc:pivotal:greenplum://172.16.10.90:5432;DatabaseName=exampledb","username":"gpadmin"},"gmtCreate":1598798357000,"type":1,"linkState":0,"modifyUser":{"gmtModified":1592466563000,"phoneNumber":"17858263016","isDeleted":0,"id":5,"gmtCreate":1592466563000,"userName":"admin@dtstack.com","dtuicUserId":1,"email":"123456.com@1.com","status":0},"isDefault":1,"tenantId":3,"id":131,"projectId":95}],
         taskVariables
     };
 };

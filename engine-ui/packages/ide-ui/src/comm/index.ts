@@ -17,7 +17,7 @@ export function createLinkMark (attrs: any) {
 */
 export function createLog (log: string, type = '') {
   let now = moment().format('HH:mm:ss');
-  if (process.env.NODE_ENV == 'test') {
+  if (process.env.NODE_ENV === 'test') {
       now = 'test'
   }
   return `[${now}] <${type}> ${log}`

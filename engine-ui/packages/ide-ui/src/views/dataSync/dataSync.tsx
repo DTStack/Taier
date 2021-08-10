@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { isEqual, get } from "lodash";
 
 import DataSyncSource from './source';
-// import DataSyncTarget from './target';
+import DataSyncTarget from './target';
 // import DataSyncKeymap from './keymap';
 // import DataSyncChannel from './channel';
 import DataSyncSave from "./save";
@@ -32,16 +32,16 @@ class DataSync extends React.Component<any, any> {
   }
 
   // eslint-disable-next-line
-  UNSAFE_componentWillReceiveProps(nextProps: any) {
-    // 如果列发生变化，则检测更新系统变量
-    if (this.onVariablesChange(this.props, nextProps)) {
-      this.props.updateDataSyncVariables(
-        nextProps.sourceMap,
-        nextProps.targetMap,
-        nextProps.taskCustomParams
-      );
-    }
-  }
+  // UNSAFE_componentWillReceiveProps(nextProps: any) {
+  //   // 如果列发生变化，则检测更新系统变量
+  //   if (this.onVariablesChange(this.props, nextProps)) {
+  //     this.props.updateDataSyncVariables(
+  //       nextProps.sourceMap,
+  //       nextProps.targetMap,
+  //       nextProps.taskCustomParams
+  //     );
+  //   }
+  // }
 
   isStandeAlone = async () => {
     // const res = await ajax.getIsStandeAlone()
@@ -288,14 +288,13 @@ class DataSync extends React.Component<any, any> {
       },
       {
         title: "选择目标",
-        // content: <DataSyncTarget
-        //     getPopupContainer={this.getPopupContainer}
-        //     currentStep={currentStep}
-        //     currentTabData={currentTabData}
-        //     isIncrementMode={isIncrementMode}
-        //     navtoStep={this.navtoStep.bind(this)}
-        // />
-        content: <p>222</p>,
+        content: <DataSyncTarget
+            getPopupContainer={this.getPopupContainer}
+            currentStep={currentStep}
+            currentTabData={currentTabData}
+            isIncrementMode={isIncrementMode}
+            navtoStep={this.navtoStep.bind(this)}
+        />
       },
       {
         title: "字段映射",

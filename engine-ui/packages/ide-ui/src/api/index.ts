@@ -946,4 +946,26 @@ export default {
   ftpRegexPre(params: any) {
       return http.post(offlineReq.GET_OFFLINE_FTP_REG, params)
   },
+  /**
+   * - 查询数据同步任务，SQL 执行结果
+   * - 需要补充增量同步
+   * @param {Object} params 请求参数
+   * @param {Number} taskType 任务类型
+   */
+  getDataSourceVersion(params: any) {
+      return http.post(offlineReq.GET_DATA_SOURCE_VERSION, params)
+  },
+  getProjectsByAppType(params: any) {
+      return http.post(req.GET_PROJECTS_BY_APP_TYPE, params)
+  },
+  getTasksByAppType(params: any) {
+      return http.post(req.GET_TASKS_BY_APP_TYPE, params)
+  },
+  allProductGlobalSearch(params: any) {
+      return http.post(req.ALL_PRODUCT_GLOBAL_SEARCH, params)
+  },
+  // =========== 离线文件操作 ==================//
+  getChildTasks(params: any) {
+      return http.post(offlineReq.GET_CHILD_TASKS, params)
+  },
 };

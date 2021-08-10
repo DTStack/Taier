@@ -10,7 +10,7 @@ export const console = (state: any = {}, action: any) => {
     switch (action.type) {
         case editorAction.GET_TAB: { // 初始化console
             const origin = cloneDeep(state)
-            if (action.key || action.key == 0) {
+            if (action.key || action.key === 0) {
                 const tab = origin[action.key]
                 if (!tab) {
                     origin[action.key] = { log: '', results: [] }
@@ -20,7 +20,7 @@ export const console = (state: any = {}, action: any) => {
         }
         case editorAction.RESET_CONSOLE: { // reset console
             const origin = cloneDeep(state)
-            if (action.key || action.key == 0) {
+            if (action.key || action.key === 0) {
                 origin[action.key] = { log: '', results: [] }
             }
             return origin
@@ -28,7 +28,7 @@ export const console = (state: any = {}, action: any) => {
         case editorAction.SET_TAB: { // 设置Tab
             const obj = cloneDeep(state)
             const map = action.data
-            if (map && (map.key || map.key == 0)) {
+            if (map && (map.key || map.key === 0)) {
                 obj[map.key] = map.data
             }
             return obj;
