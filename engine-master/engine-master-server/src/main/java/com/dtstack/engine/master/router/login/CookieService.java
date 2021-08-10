@@ -2,8 +2,8 @@ package com.dtstack.engine.master.router.login;
 
 import com.dtstack.engine.common.constrant.Cookies;
 import com.dtstack.engine.common.util.AddressUtil;
-import com.dtstack.lang.Langs;
 import com.google.common.collect.Maps;
+import dt.insight.plat.lang.Langs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -96,7 +96,7 @@ public class CookieService {
         try {
             ResponseCookie cookie;
             if (httpsEnable) {
-                cookie = ResponseCookie.from(cookieName, URLEncoder.encode(Langs.toString(cookieValue), "UTF-8"))
+                cookie = ResponseCookie.from(cookieName, URLEncoder.encode(cookieValue.toString(), "UTF-8"))
                         .httpOnly(false)
                         .secure(true)
                         .domain(decisionCookieDomain(request))
@@ -105,7 +105,7 @@ public class CookieService {
                         .sameSite("None")
                         .build();
             } else {
-                cookie = ResponseCookie.from(cookieName, URLEncoder.encode(Langs.toString(cookieValue), "UTF-8"))
+                cookie = ResponseCookie.from(cookieName, URLEncoder.encode(cookieValue.toString(), "UTF-8"))
                         .httpOnly(false)
                         .domain(decisionCookieDomain(request))
                         .path("/")
