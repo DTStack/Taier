@@ -484,10 +484,6 @@ export function isBindAccount (engineType: number): boolean {
         ENGINE_TYPE.TI_DB,
         ENGINE_TYPE.ORACLE,
         ENGINE_TYPE.GREEN_PLUM,
-        ENGINE_TYPE.ANALYTIC_DB,
-        ENGINE_TYPE.MYSQL,
-        ENGINE_TYPE.SQLSERVER,
-        ENGINE_TYPE.DB2,
-        ENGINE_TYPE.OCEANBASE
+        ENGINE_TYPE.ANALYTIC_DB
     ].includes(engineType)
 }
