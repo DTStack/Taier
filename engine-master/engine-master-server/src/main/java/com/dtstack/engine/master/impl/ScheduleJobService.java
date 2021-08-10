@@ -1583,6 +1583,7 @@ public class ScheduleJobService {
             preViewVO.setDutyUserId(fillJob.getCreateUserId());
             preViewVO.setFromDay(fillJob.getFromDay());
             preViewVO.setToDay(fillJob.getToDay());
+            preViewVO.setProjectId(fillJob.getProjectId());
             //获取补数据执行进度
             this.setFillDataJobProgress(statistics, preViewVO);
             resultContent.add(preViewVO);

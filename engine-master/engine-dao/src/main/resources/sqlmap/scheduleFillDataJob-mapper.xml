@@ -67,8 +67,10 @@
         FROM schedule_fill_data_job sfdj right join schedule_job sj
         ON sfdj.id = sj.fill_id
         WHERE
-        sfdj.project_id = #{model.projectId}
-        AND sfdj.app_type = #{model.appType}
+         sfdj.app_type = #{model.appType}
+        <if test="model.projectId != null">
+            AND sfdj.project_id = #{model.projectId}
+        </if>
         <if test="model.tenantId != null">
             AND sfdj.tenant_id = #{model.tenantId}
         </if>

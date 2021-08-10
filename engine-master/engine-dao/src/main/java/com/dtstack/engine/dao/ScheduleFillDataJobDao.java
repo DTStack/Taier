@@ -15,7 +15,7 @@ import java.util.List;
  */
 public interface ScheduleFillDataJobDao {
 
-    ScheduleFillDataJob getByJobName(@Param("jobName") String jobName, @Param("projectId") long projectId);
+    ScheduleFillDataJob getByJobName(@Param("jobName") String jobName, @Param("projectId") Long projectId);
 
     Integer insert(ScheduleFillDataJob fillDataJob);
 

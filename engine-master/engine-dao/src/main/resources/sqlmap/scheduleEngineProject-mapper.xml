@@ -82,7 +82,7 @@
         <if test="name !=null">
             AND `project_alias` LIKE '${name}%'
         </if>
-        <if test="project_id !=null">
+        <if test="projectId !=null">
             AND `project_id` = #{projectId}
         </if>
         LIMIT #{fuzzyProjectByProjectAliasLimit}
