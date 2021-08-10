@@ -28,6 +28,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableCaching
 @EnableRemoteClient(
+        identifier = "master",
         basePackage = "com.dtstack.engine.common.api",
         properties = "application-master-netty.properties",
         transport = "netty")

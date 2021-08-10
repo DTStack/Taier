@@ -52,7 +52,9 @@ public class SpringBeanRemoteProxy<T> extends RemoteProxy<T> implements Applicat
                 throw new RemoteException("not get remoteClient info ，unable to send remote service");
             }
 
-            if (AkkaConfig.getLocalRoles().contains(annotation.value())) {
+            String identifier = System.getProperty("remote.local.identifier");
+
+            if (identifier.equals(annotation.value())) {
                 throw new RemoteException("unable to proxy local calls");
             }
 

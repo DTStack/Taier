@@ -3,6 +3,8 @@ package com.dtstack.engine.remote.annotation;
 import com.dtstack.engine.remote.config.RemoteClientRegistrar;
 import com.dtstack.engine.remote.node.strategy.ConfigurationNodeInfoStrategy;
 import com.dtstack.engine.remote.node.strategy.NodeInfoStrategy;
+import com.dtstack.engine.remote.route.BalancedRouteStrategy;
+import com.dtstack.engine.remote.route.RouteStrategy;
 import org.springframework.context.annotation.Import;
 
 import java.lang.annotation.*;
@@ -40,8 +42,19 @@ public @interface EnableRemoteClient {
     String transport() default "akka";
 
     /**
+     * 唯一标识
+     * @return
+     */
+    String identifier();
+
+    /**
      * 设置 节点加载策略
      */
     Class<? extends NodeInfoStrategy> nodeInfoStrategy() default ConfigurationNodeInfoStrategy.class;
+
+    /**
+     * 设置 路由策略
+     */
+    Class<? extends RouteStrategy> routeStrategy() default BalancedRouteStrategy.class;
 
 }

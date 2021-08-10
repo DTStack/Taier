@@ -40,7 +40,7 @@ public class Command implements Serializable {
     /**
      *  data body
      */
-    private byte[] body;
+    private Message body;
 
     public static Command buildBody(Message message) {
         if (message == null) {
@@ -48,7 +48,7 @@ public class Command implements Serializable {
         }
 
         Command command = new Command();
-        command.setBody(JSON.toJSONString(message).getBytes());
+        command.setBody(message);
         command.setType(CommandType.REQUEST);
         return command;
     }
@@ -69,11 +69,11 @@ public class Command implements Serializable {
         this.opaque = opaque;
     }
 
-    public byte[] getBody() {
+    public Message getBody() {
         return body;
     }
 
-    public void setBody(byte[] body) {
+    public void setBody(Message body) {
         this.body = body;
     }
 
@@ -102,7 +102,7 @@ public class Command implements Serializable {
 
     @Override
     public String toString() {
-        return "Command [type=" + type + ", opaque=" + opaque + ", bodyLen=" + (body == null ? 0 : body.length) + "]";
+        return "Command [type=" + type + ", opaque=" + opaque + ", bodyLen=" + (body == null ? 0 : body) + "]";
     }
 
 }

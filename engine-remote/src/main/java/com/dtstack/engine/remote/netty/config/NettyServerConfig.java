@@ -7,13 +7,17 @@ import com.dtstack.engine.remote.akka.AkkaClientServiceImpl;
 import com.dtstack.engine.remote.akka.actor.ObjectActor;
 import com.dtstack.engine.remote.akka.config.AkkaConfig;
 import com.dtstack.engine.remote.config.NodeStrategyServerConfig;
+import com.dtstack.engine.remote.config.RemoteConfig;
 import com.dtstack.engine.remote.config.ServerConfig;
 import com.dtstack.engine.remote.constant.ServerConstant;
 import com.dtstack.engine.remote.netty.NettyClientServiceImpl;
 import com.dtstack.engine.remote.netty.NettyRemoteClient;
+import com.dtstack.engine.remote.netty.NettyRemoteServer;
 import com.dtstack.engine.remote.node.strategy.NodeInfoStrategy;
+import com.dtstack.engine.remote.route.RouteStrategy;
 import com.dtstack.engine.remote.service.ClientService;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
@@ -32,13 +36,18 @@ public class NettyServerConfig implements NodeStrategyServerConfig, ApplicationC
 
     private ApplicationContext applicationContext;
     private Environment environment;
-
     private NodeInfoStrategy nodeInfoStrategy;
+    private NettyRemoteServer nettyRemoteServer;
+    private RouteStrategy routeStrategy;
 
     @Override
     public void init() {
-        if (!NettyConfig.hasLoad()) {
-            NettyConfig.init(environment,applicationContext);
+        if (!RemoteConfig.hasLoad()) {
+            RemoteConfig.init(environment, applicationContext);
+
+            // 初始化结束后，启动服务器
+            nettyRemoteServer = new NettyRemoteServer();
+            nettyRemoteServer.start();
         }
     }
 
@@ -46,7 +55,7 @@ public class NettyServerConfig implements NodeStrategyServerConfig, ApplicationC
     @ConditionalOnMissingBean
     public ClientService clientService() {
         NettyClientServiceImpl nettyClientService = new NettyClientServiceImpl();
-        NettyRemoteClient nettyRemoteClient = new NettyRemoteClient(nodeInfoStrategy);
+        NettyRemoteClient nettyRemoteClient = new NettyRemoteClient(nodeInfoStrategy,routeStrategy);
         nettyClientService.setClient(nettyRemoteClient);
         return nettyClientService;
     }
@@ -68,4 +77,12 @@ public class NettyServerConfig implements NodeStrategyServerConfig, ApplicationC
     public void setNodeInfoStrategy(NodeInfoStrategy nodeInfoStrategy) {
         this.nodeInfoStrategy = nodeInfoStrategy;
     }
+
+    @Override
+    @Autowired
+    public void setRouteStrategy(RouteStrategy routeStrategy) {
+        this.routeStrategy = routeStrategy;
+    }
+
+
 }

@@ -24,7 +24,7 @@ public class ConfigurationNodeInfoStrategy implements NodeInfoStrategy {
         String values = RemoteConfig.getValueByKey(CLUSTER_INFO_NAME);
 
         if (StringUtils.isBlank(values)) {
-            throw new NoNodeException("Please configure node information in properties");
+            return null;
         }
 
         String[] split = values.split(",");
@@ -36,7 +36,7 @@ public class ConfigurationNodeInfoStrategy implements NodeInfoStrategy {
 
                 String nodes = RemoteConfig.getValueByKey(String.format(CLUSTER_INFO_NODE_NAME,identifier));
 
-                if (StringUtils.isBlank(nodes)) {
+                if (StringUtils.isNotBlank(nodes)) {
                     String[] nodeArray = nodes.split(",");
                     List<String> nodeLists = Arrays.asList(nodeArray);
                     nodeInfoMap.put(identifier,nodeLists);

@@ -15,6 +15,7 @@ import com.dtstack.engine.remote.node.AbstractNode;
 import com.dtstack.engine.remote.node.RemoteNodes;
 import com.dtstack.engine.remote.node.strategy.ConfigurationNodeInfoStrategy;
 import com.dtstack.engine.remote.node.strategy.NodeInfoStrategy;
+import com.dtstack.engine.remote.route.RouteStrategy;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.epoll.EpollEventLoopGroup;
@@ -87,14 +88,19 @@ public class NettyRemoteClient {
     private final ScheduledExecutorService responseFutureExecutor;
 
     /**
+     * 路由策越
+     */
+    private RouteStrategy routeStrategy;
+
+    /**
      * server init
      */
-    public NettyRemoteClient(NodeInfoStrategy nodeInfoStrategy) {
+    public NettyRemoteClient(NodeInfoStrategy nodeInfoStrategy, RouteStrategy routeStrategy) {
         if (nodeInfoStrategy == null) {
             throw new NoNodeException("Please configure node information");
         }
         this.nodeInfoStrategy = nodeInfoStrategy;
-
+        this.routeStrategy = routeStrategy;
         if (NettyUtils.useEpoll()) {
             this.workerGroup = new EpollEventLoopGroup(NettyConfig.getWorkerThreads(), new RemoteThreadFactory(this.getClass().getName()));
         } else {
@@ -153,7 +159,7 @@ public class NettyRemoteClient {
         Map<String, List<String>> nodeInfo = nodeInfoStrategy.getNodeInfo();
 
         if (nodeInfo == null) {
-            throw new NoNodeException("Please configure node information");
+            return;
         }
 
         for (Map.Entry<String, List<String>> entry : nodeInfo.entrySet()) {
@@ -161,6 +167,7 @@ public class NettyRemoteClient {
             String key = entry.getKey();
             List<String> value = entry.getValue();
             RemoteNodes remoteNodes = new RemoteNodes(key);
+            remoteNodes.setRouteStrategy(routeStrategy);
             Map<String, AbstractNode> refs = remoteNodes.getRefs();
             for (String address : value) {
                 String[] split = address.split(":");
@@ -169,10 +176,9 @@ public class NettyRemoteClient {
                     LOGGER.warn("node info error : {}",address);
                     continue;
                 }
-
                 String ip = split[0];
                 Integer port = Integer.parseInt(split[1]);
-                Channel channel= getChannel(ip,port,Boolean.FALSE);
+                Channel channel= getChannel(ip,port,Boolean.TRUE);
                 NettyNode node = new NettyNode(key,ip,port,channel);
                 node.setStatus(AbstractNode.NodeStatus.USABLE);
                 refs.put(address,node);

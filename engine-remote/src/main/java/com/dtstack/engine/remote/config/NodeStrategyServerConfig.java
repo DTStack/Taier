@@ -1,6 +1,7 @@
 package com.dtstack.engine.remote.config;
 
 import com.dtstack.engine.remote.node.strategy.NodeInfoStrategy;
+import com.dtstack.engine.remote.route.RouteStrategy;
 
 /**
  * @Auther: dazhi
@@ -18,5 +19,6 @@ public interface NodeStrategyServerConfig extends ServerConfig {
     /**
      * 设置节点负载均衡策略
      */
+    void setRouteStrategy(RouteStrategy routeStrategy);
 
 }

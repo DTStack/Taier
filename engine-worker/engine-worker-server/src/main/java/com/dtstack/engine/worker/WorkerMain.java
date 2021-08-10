@@ -14,7 +14,11 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 @ComponentScan(basePackages = {"com.dtstack.engine.*"})
-@EnableRemoteClient(basePackage = "com.dtstack.engine.common.api",properties = "application-worker.properties")
+@EnableRemoteClient(
+        identifier = "worker",
+        basePackage = "com.dtstack.engine.common.api",
+        properties = "application-worker-netty.properties",
+        transport = "netty")
 public class WorkerMain {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkerMain.class);

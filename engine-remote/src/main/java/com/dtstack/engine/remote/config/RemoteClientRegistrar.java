@@ -36,6 +36,11 @@ public class RemoteClientRegistrar implements ImportBeanDefinitionRegistrar, Env
             throw new RemoteException("remote exception");
         }
 
+        String identifier = annotationAttributes.getString(EnableRemoteClientConst.IDENTIFIER);
+        if (StringUtils.isNotBlank(identifier)) {
+            System.setProperty("remote.local.identifier",identifier);
+        }
+
         // 设置配置文件 默认加载 usr.dir 位置下的
         String properties = annotationAttributes.getString(EnableRemoteClientConst.PROPERTIES);
         if (StringUtils.isNotBlank(properties)) {
@@ -59,19 +64,28 @@ public class RemoteClientRegistrar implements ImportBeanDefinitionRegistrar, Env
         // 加载 serverConfig
         String transport = annotationAttributes.getString(EnableRemoteClientConst.TRANSPORT);
         Class<?> aClass = loadClass(transport);
-        GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
-        beanDefinition.setBeanClass(aClass);
-        beanDefinition.setInitMethodName("init");
-        beanDefinition.setScope(ConfigurableBeanFactory.SCOPE_SINGLETON);
-        beanDefinition.setAutowireCandidate(Boolean.TRUE);
-        registry.registerBeanDefinition("serverConfig", beanDefinition);
+        GenericBeanDefinition serverConfigBeanDefinition = new GenericBeanDefinition();
+        serverConfigBeanDefinition.setBeanClass(aClass);
+        serverConfigBeanDefinition.setInitMethodName("init");
+        serverConfigBeanDefinition.setScope(ConfigurableBeanFactory.SCOPE_SINGLETON);
+        serverConfigBeanDefinition.setAutowireCandidate(Boolean.TRUE);
+        registry.registerBeanDefinition("serverConfig", serverConfigBeanDefinition);
 
         // 加载 NodeInfoStrategy
-        Class<?> aClass1 = annotationAttributes.getClass(EnableRemoteClientConst.NODE_INFO_STRATEGY);
-        beanDefinition.setBeanClass(aClass1);
-        beanDefinition.setScope(ConfigurableBeanFactory.SCOPE_SINGLETON);
-        beanDefinition.setAutowireCandidate(Boolean.TRUE);
-        registry.registerBeanDefinition("nodeInfoStrategy", beanDefinition);
+        Class<?> nodeInfoStrategy = annotationAttributes.getClass(EnableRemoteClientConst.NODE_INFO_STRATEGY);
+        GenericBeanDefinition nodeInfoStrategyBeanDefinition = new GenericBeanDefinition();
+        nodeInfoStrategyBeanDefinition.setBeanClass(nodeInfoStrategy);
+        nodeInfoStrategyBeanDefinition.setScope(ConfigurableBeanFactory.SCOPE_SINGLETON);
+        nodeInfoStrategyBeanDefinition.setAutowireCandidate(Boolean.TRUE);
+        registry.registerBeanDefinition("nodeInfoStrategy", nodeInfoStrategyBeanDefinition);
+
+        // 加载 routeStrategy
+        Class<?> routeStrategy = annotationAttributes.getClass(EnableRemoteClientConst.ROUTE_STRATEGY);
+        GenericBeanDefinition routeStrategyBeanDefinition = new GenericBeanDefinition();
+        routeStrategyBeanDefinition.setBeanClass(routeStrategy);
+        routeStrategyBeanDefinition.setScope(ConfigurableBeanFactory.SCOPE_SINGLETON);
+        routeStrategyBeanDefinition.setAutowireCandidate(Boolean.TRUE);
+        registry.registerBeanDefinition("routeStrategy", routeStrategyBeanDefinition);
     }
 
     private Class<? extends ServerConfig> loadClass(String transport) {
@@ -90,8 +104,11 @@ public class RemoteClientRegistrar implements ImportBeanDefinitionRegistrar, Env
     static class EnableRemoteClientConst {
         public static final String  TRANSPORT = "transport";
         public static final String  NODE_INFO_STRATEGY = "nodeInfoStrategy";
+        public static final String  ROUTE_STRATEGY = "routeStrategy";
         public static final String  BASE_PACKAGE = "basePackage";
         public static final String  PROPERTIES = "properties";
+        public static final String  IDENTIFIER = "identifier";
+
 
 
     }

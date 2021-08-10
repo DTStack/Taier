@@ -3,6 +3,8 @@ package com.dtstack.engine.remote.config;
 import com.dtstack.engine.remote.akka.config.AkkaConfig;
 import com.dtstack.engine.remote.akka.config.AkkaServerConfig;
 import com.dtstack.engine.remote.annotation.RemoteClient;
+import com.dtstack.engine.remote.exception.RemoteException;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.annotation.AnnotationAttributes;
@@ -16,22 +18,30 @@ import java.util.Set;
  * @Email:dazhi@dtstack.com
  * @Description:
  */
-public class RemoteConditional implements Condition {
+public class RemoteConditional implements Condition  {
 
     @Override
     public boolean matches(ConditionContext conditionContext, AnnotatedTypeMetadata annotatedTypeMetadata) {
         // 加载一下配置文件防止配置文件没有被加载
-        conditionContext.getBeanFactory().getBean("serverConfig");
-        Set<String> localRoles = RemoteConfig.getLocalRoles();
+       String identifier = getIdentifier();
 
         AnnotationAttributes annotationAttributes = AnnotationAttributes.fromMap(annotatedTypeMetadata.getAnnotationAttributes(RemoteClient.class.getName(), false));
         if (annotationAttributes != null) {
             String role = annotationAttributes.getString("value");
-            if (localRoles.contains(role)) {
+            if (identifier.equals(role)) {
                 return Boolean.FALSE;
             }
         }
 
         return Boolean.TRUE;
+    }
+
+    private String getIdentifier() {
+        String identifier = System.getProperty("remote.local.identifier");
+
+        if (StringUtils.isBlank(identifier)) {
+            throw new RemoteException("identifier not find");
+        }
+        return identifier;
     }
 }

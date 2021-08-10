@@ -1,8 +1,10 @@
 package com.dtstack.engine.remote.node;
 
+import com.dtstack.engine.remote.route.RouteStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,6 +26,11 @@ public class RemoteNodes {
     private final String identifier;
 
     /**
+     * 路由策越
+     */
+    private RouteStrategy routeStrategy;
+
+    /**
      * key : address
      * value : node
      */
@@ -41,6 +48,9 @@ public class RemoteNodes {
         return identifier;
     }
 
+    public void setRouteStrategy(RouteStrategy routeStrategy) {
+        this.routeStrategy = routeStrategy;
+    }
 
     public void close() {
         for (Map.Entry<String, AbstractNode> entry : refs.entrySet()) {
@@ -57,7 +67,7 @@ public class RemoteNodes {
     }
 
     public AbstractNode route() {
-        return null;
+        return routeStrategy.route(new ArrayList<>(refs.values()));
     }
 
 
