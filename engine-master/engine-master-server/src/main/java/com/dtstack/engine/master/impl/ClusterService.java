@@ -216,6 +216,9 @@ public class ClusterService implements InitializingBean {
             return null;
         }
         Long clusterId = engineTenantDao.getClusterIdByTenantId(dtUicTenantId);
+        if(null == clusterId){
+            clusterId = DEFAULT_CLUSTER_ID;
+        }
         ClusterVO cluster = getCluster(clusterId,false,true);
         if (cluster == null) {
             String msg = format("The tenant [%s] is not bound to any cluster", dtUicTenantId);
