@@ -1,6 +1,7 @@
+import React from 'react'
+import { extensions } from './common'
 import { MoleculeProvider, Workbench } from 'molecule'
 import 'molecule/esm/style/mo.css'
-import { extensions } from './extensions'
 
 function IDE () {
     return (

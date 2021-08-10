@@ -1,0 +1,12 @@
+.taskParams .ant-collapse > .ant-collapse-item > .ant-collapse-header{
+    color: #fff;
+}
+
+.taskParams .ant-form-item-label > label{
+    color: #fff;
+}
+
+.taskParams .ant-input{
+    background: #fff;
+    color: #000;
+}
