@@ -1,5 +1,6 @@
 package com.dtstack.batch.service.auth;
 
+import com.dtstack.batch.common.constant.PublicConstent;
 import com.dtstack.batch.dao.PermissionDao;
 import com.dtstack.batch.dao.RolePermissionDao;
 import com.dtstack.batch.dao.RoleUserDao;
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -49,7 +51,7 @@ public class AuthService implements IAuthService {
      * @return
      */
     @Override
-    @Cacheable(value = AuthCode.AUTH_EH_CACHE)
+    @Cacheable(value = PublicConstent.AUTH_EH_CACHE, key = "'UserRole_' + #userId + '_' + #projectId + '_' + #tenantId")
     public Set<String> getUserCodes(Long userId, Long projectId, Long tenantId) {
         List<RoleUser> roleUsers = roleUserDao.listByUserIdProjectIdTenantId(userId, projectId, tenantId);
         Set<Long> roleIds = roleUsers.stream().map(RoleUser::getRoleId).collect(Collectors.toSet());
@@ -68,7 +70,10 @@ public class AuthService implements IAuthService {
     }
 
     @Override
-    @CacheEvict(value = AuthCode.AUTH_EH_CACHE)
+    @Caching(evict = {
+            @CacheEvict(value = PublicConstent.AUTH_EH_CACHE, key = "'UserRole_' + #userId + '_' + #projectId + '_' + #tenantId"),
+            @CacheEvict(value = PublicConstent.AUTH_EH_CACHE, key = "'ProjectAdmin_' + #userId + '_' + #tenantId")
+    })
     public boolean clearCache(Long userId, Long project, Long tenantId) {
         return true;
     }
@@ -98,15 +103,23 @@ public class AuthService implements IAuthService {
     }
 
     @Override
-    @Cacheable(value = AuthCode.AUTH_EH_CACHE)
+    @Cacheable(value = PublicConstent.AUTH_EH_CACHE, key = "'lincense_' + #uicUrl + '_' + #componentCode")
     public LicenseProductComponent fetchLicense(String uicUrl, String componentCode) {
         return DtUicUserConnect.getUicComponentLicense(uicUrl, componentCode);
     }
 
     @Override
-    @CacheEvict(value = AuthCode.AUTH_EH_CACHE)
+    @CacheEvict(value = PublicConstent.AUTH_EH_CACHE, key = "'lincense_' + #uicUrl + '_' + #componentCode")
     public boolean clearLicenseCache(String uicUrl, String componentCode) {
         return true;
+    }
+
+    @Override
+    @Cacheable(value = PublicConstent.AUTH_EH_CACHE, key = "'ProjectAdmin_' + #userId + '_' + #tenantId")
+    public Set<Long> getUserAdminProjectIds(Long userId, Long tenantId) {
+        List<RoleUser> roleUserList = roleUserDao.listRoleUserIsAdminByUserId(userId, tenantId);
+        Set<Long> projectIdList = roleUserList.stream().map(RoleUser::getProjectId).collect(Collectors.toSet());
+        return projectIdList;
     }
 
 }

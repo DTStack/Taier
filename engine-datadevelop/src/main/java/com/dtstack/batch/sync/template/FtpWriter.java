@@ -36,7 +36,7 @@ public class FtpWriter extends FtpBase implements Writer {
         parameter.put("path", Optional.ofNullable(this.getPath()).orElse(""));
         parameter.put("host", this.getHost());
         parameter.put("port", this.getPort());
-        parameter.put("fileName", this.getFileName());
+        parameter.put("ftpFileName", this.getFtpFileName());
         parameter.put("username", this.getUsername());
         parameter.put("fieldDelimiter", this.fieldDelimiter);
         parameter.put("writeMode", this.getWriteMode());

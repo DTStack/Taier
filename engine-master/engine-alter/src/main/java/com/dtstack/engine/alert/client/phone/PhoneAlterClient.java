@@ -5,7 +5,7 @@ import com.dtstack.engine.alert.AlterContext;
 import com.dtstack.engine.alert.client.AbstractAlterClient;
 import com.dtstack.engine.alert.enums.AlertGateCode;
 import com.dtstack.engine.alert.http.HttpKit;
-import com.dtstack.lang.data.R;
+import dt.insight.plat.lang.web.R;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +43,7 @@ public class PhoneAlterClient extends AbstractAlterClient {
                         logger.error("HttpKit send error, httpConfig={}", tencentCloudConfig, e);
                     }
                 });
-        return R.ok();
+        return R.ok(null);
     }
 
     @Override

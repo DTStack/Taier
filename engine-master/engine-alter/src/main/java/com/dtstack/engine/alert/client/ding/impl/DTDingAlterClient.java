@@ -1,6 +1,5 @@
 package com.dtstack.engine.alert.client.ding.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.alert.AlterContext;
 import com.dtstack.engine.alert.client.ding.AbstractDingAlterClient;
@@ -10,15 +9,14 @@ import com.dtstack.engine.alert.enums.AlertGateCode;
 import com.dtstack.engine.alert.enums.DingTypeEnums;
 import com.dtstack.engine.alert.exception.AlterException;
 import com.dtstack.engine.alert.http.HttpKit;
-import com.dtstack.lang.data.R;
-import com.dtstack.lang.exception.BizException;
-import org.apache.commons.collections.CollectionUtils;
+import com.dtstack.engine.common.exception.ErrorCode;
+import dt.insight.plat.lang.web.R;
+import com.dtstack.engine.common.exception.BizException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -63,14 +61,14 @@ public class DTDingAlterClient extends AbstractDingAlterClient {
             DingResultBean dingResultBean = JSONObject.parseObject(result, DingResultBean.class);
             if (dingResultBean != null && !"0".equals(dingResultBean.getErrcode())) {
                 logger.info("[sendDing] usage of time = {}, the message = {} result:{}", (System.currentTimeMillis() - startTime), alterSendDingBean.getContent(),dingResultBean.getErrmsg());
-                return R.fail(dingResultBean.getErrmsg());
+                return R.fail(ErrorCode.SERVER_EXCEPTION.getCode(), dingResultBean.getErrmsg());
             } else {
                 logger.info("[sendDing] usage of time = {}, the message = {}", (System.currentTimeMillis() - startTime), alterSendDingBean.getContent());
-                return R.ok();
+                return R.ok(null);
             }
         } catch (Exception e) {
             logger.info("[sendDing] error, time cost = {}, the message = {}", (System.currentTimeMillis() - startTime), alterSendDingBean.getContent(), e);
-            return R.fail(e.getMessage());
+            return R.fail(ErrorCode.SERVER_EXCEPTION.getCode(), e.getMessage());
         }
 
     }

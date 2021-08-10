@@ -26,6 +26,17 @@
             <version>1.0.0</version>
         </dependency>
 
+        <!-- 基础依赖 -->
+        <dependency>
+            <groupId>dt.insight.plat</groupId>
+            <artifactId>dt-insight-common-base</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>dt.insight.plat</groupId>
+            <artifactId>dt-insight-lang</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.sling</groupId>
             <artifactId>org.apache.sling.commons.json</artifactId>
@@ -59,7 +70,6 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>${fastjson}</version>
         </dependency>
 
         <dependency>
@@ -143,7 +153,6 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>${guava.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>

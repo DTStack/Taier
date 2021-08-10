@@ -1,6 +1,6 @@
 package com.dtstack.engine.alert;
 
-import com.dtstack.lang.data.R;
+import dt.insight.plat.lang.web.R;
 
 /**
  * @Auther: dazhi

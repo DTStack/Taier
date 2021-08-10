@@ -1,6 +1,6 @@
-package com.dtstack.channel;
+package com.dtstack.engine.alert.channel;
 
-import com.dtstack.lang.data.R;
+import dt.insight.plat.lang.web.R;
 
 import java.util.Map;
 

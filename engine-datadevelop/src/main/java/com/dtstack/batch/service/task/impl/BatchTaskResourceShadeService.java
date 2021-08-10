@@ -1,5 +1,6 @@
 package com.dtstack.batch.service.task.impl;
 
+import com.dtstack.batch.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.BatchTaskResourceShadeDao;
 import com.dtstack.batch.domain.BatchResource;
 import com.dtstack.batch.domain.BatchTaskResource;
@@ -40,12 +41,19 @@ public class BatchTaskResourceShadeService {
         for (BatchTaskResource resource : taskResourceList) {
             BatchTaskResourceShade shade = new BatchTaskResourceShade();
             BeanUtils.copyProperties(resource, shade);
+            //把taskResourceShade的id置为null 防止误更新
+            shade.setId(null);
             addOrUpdate(shade);
         }
     }
 
     public void addOrUpdate(BatchTaskResourceShade batchTaskResourceShade) {
-        if (batchTaskResourceShadeDao.getOne(batchTaskResourceShade.getId()) != null) {
+        if (batchTaskResourceShade.getId()!= null && batchTaskResourceShade.getId()>0) {
+            //查询是否传入参数有问题
+            BatchTaskResourceShade one = batchTaskResourceShadeDao.getOne(batchTaskResourceShade.getId());
+            if (one == null){
+                throw new RdosDefineException(String.format("未查询到id = %s对应的记录", batchTaskResourceShade.getId()));
+            }
             batchTaskResourceShadeDao.update(batchTaskResourceShade);
         } else {
             batchTaskResourceShadeDao.insert(batchTaskResourceShade);
@@ -74,5 +82,15 @@ public class BatchTaskResourceShadeService {
 
     public void deleteByProjectId(Long projectId) {
         batchTaskResourceShadeDao.deleteByProjectId(projectId);
+    }
+
+    /**
+     * 根据taskId 删除任务
+     *
+     * @param taskId
+     * @return
+     */
+    public Integer deleteByTaskId(Long taskId) {
+        return batchTaskResourceShadeDao.deleteByTaskId(taskId);
     }
 }

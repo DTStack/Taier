@@ -71,17 +71,15 @@ public class HadoopProjectService implements IProjectService {
 
         //从console获取Hadoop默认数据源的类型
         DataSourceType dataSourceType = multiEngineService.getTenantSupportHadoopMetaDataSource(dtuicTenantId);
-        String dbName = projectName;
+        String dbName = projectName.toLowerCase();
         if (ProjectCreateModel.intrinsic.getType().equals(projectEngineVO.getCreateModel())) {
             //如果是对接已有数据源，则先初始化项目默认hive数据源，这样可以避免在循环同步hive表的时候频繁调用Engine获取mete数据源类型
             dbName = projectEngineVO.getDatabase();
         } else {
             // 如果是新建数据源，则需要先在hive中创建db，本地再初始化数据源
-            iTableServiceImpl.createDatabase(dtuicTenantId, null, projectName.toLowerCase(), ETableType.getDatasourceType(dataSourceType.getVal()), projectDesc);
-            //初始化项目默认hive数据源
-            dbName = projectName;
+            iTableServiceImpl.createDatabase(dtuicTenantId, null, dbName, ETableType.getDatasourceType(dataSourceType.getVal()), projectDesc);
         }
-        initDefaultSource(dtuicTenantId, projectId, dbName, dataSourceType.getVal(), projectDesc, tenantId, userId);
+        initDefaultSource(dtuicTenantId, projectId, projectName, dataSourceType.getVal(), projectDesc, tenantId, userId, dbName);
         return 1;
     }
 
@@ -119,7 +117,7 @@ public class HadoopProjectService implements IProjectService {
     }
 
     @Forbidden
-    private void initDefaultSource(Long dtuicTenantId, Long projectId, String projectName, Integer dataSourceType, String projectDesc, Long tenantId, Long userId) throws IOException, SftpException {
+    private void initDefaultSource(Long dtuicTenantId, Long projectId, String projectName, Integer dataSourceType, String projectDesc, Long tenantId, Long userId, String dbName) throws IOException, SftpException {
         Long dtUiceUser = null;
         User user = userService.getUser(userId);
         if (user != null) {
@@ -133,7 +131,7 @@ public class HadoopProjectService implements IProjectService {
         if (!jdbcUrl.contains("%s")) {
             throw new RdosDefineException("控制台 HiveServer URL 不包含占位符 %s");
         }
-        jdbcUrl = String.format(jdbcUrl, projectName);
+        jdbcUrl = String.format(jdbcUrl, dbName);
         dataJson.put("jdbcUrl", jdbcUrl);
         String defaultFs = HadoopConf.getDefaultFs(dtuicTenantId);
         if (StringUtils.isNotBlank(defaultFs)) {
@@ -159,7 +157,7 @@ public class HadoopProjectService implements IProjectService {
             kerberosConfig.put("hive.server2.authentication", "KERBEROS");
             dataJson.put("kerberosConfig", hive.getKerberosConfig());
         }
-        batchDataSourceService.createMateDataSource(dtuicTenantId, tenantId, projectId, userId, dataJson.toJSONString(), dataSourceName, dataSourceType);
+        batchDataSourceService.createMateDataSource(dtuicTenantId, tenantId, projectId, userId, dataJson.toJSONString(), dataSourceName, dataSourceType, projectDesc, dbName);
     }
 
     //TODO 需要抽取出来一个公用的方法

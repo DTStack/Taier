@@ -13,9 +13,10 @@
     <artifactId>engine-alter</artifactId>
 
     <dependencies>
+
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>engine-alert-sdk</artifactId>
+            <artifactId>engine-common</artifactId>
             <version>1.0.0</version>
         </dependency>
 
@@ -38,12 +39,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${guava.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${commons-lang3.version}</version>
@@ -61,13 +56,6 @@
             <version>${httpclient.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>${fastjson}</version>
-            <scope>provided</scope>
-            <optional>true</optional>
-        </dependency>
     </dependencies>
 
 </project>

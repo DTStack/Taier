@@ -1,7 +1,7 @@
-package com.dtstack.channel;
+package com.dtstack.engine.alert.channel;
 
-import com.dtstack.lang.data.R;
-import com.dtstack.lang.exception.BizException;
+import dt.insight.plat.lang.web.R;
+import com.dtstack.engine.common.exception.BizException;
 
 import java.io.File;
 import java.util.List;

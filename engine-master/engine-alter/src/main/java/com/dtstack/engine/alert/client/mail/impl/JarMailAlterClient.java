@@ -1,20 +1,18 @@
 package com.dtstack.engine.alert.client.mail.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.channel.IMailChannel;
+import com.dtstack.engine.alert.channel.IMailChannel;
 import com.dtstack.engine.alert.AlterContext;
 import com.dtstack.engine.alert.client.mail.AbstractMailAlterClient;
 import com.dtstack.engine.alert.client.mail.AlterSendMailBean;
-import com.dtstack.engine.alert.client.sms.AbstractSmsAlterClient;
 import com.dtstack.engine.alert.enums.AlertGateCode;
 import com.dtstack.engine.alert.exception.AlterException;
 import com.dtstack.engine.alert.load.JarCache;
-import com.dtstack.lang.data.R;
+import com.dtstack.engine.common.exception.ErrorCode;
+import dt.insight.plat.lang.web.R;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Map;
 
 /**
  * @Auther: dazhi
@@ -43,7 +41,7 @@ public class JarMailAlterClient extends AbstractMailAlterClient {
         } catch (Exception e) {
             logger.info("[sendMail] end, cost={}, mails={}, subject={}, message={}", (System.currentTimeMillis() - startTime), alterSendMailBean.getEmails(), alterSendMailBean.getSubject(),
                     alterSendMailBean.getContent(), e);
-            return R.fail("jarPath:" + alterSendMailBean.getJarPath() + " loading failed, please check the configuration! reason:" + e.getLocalizedMessage());
+            return R.fail(ErrorCode.SERVER_EXCEPTION.getCode(), "jarPath:" + alterSendMailBean.getJarPath() + " loading failed, please check the configuration! reason:" + e.getLocalizedMessage());
         }
     }
 

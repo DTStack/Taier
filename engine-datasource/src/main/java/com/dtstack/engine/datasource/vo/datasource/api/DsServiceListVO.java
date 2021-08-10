@@ -1,6 +1,5 @@
 package com.dtstack.engine.datasource.vo.datasource.api;
 
-import com.dtstack.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -54,7 +53,6 @@ public class DsServiceListVO implements Serializable {
     private Boolean openKerberos;
 
     @ApiModelProperty("最近修改时间")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date gmtModified;
 
     @ApiModelProperty("数据库名称")

@@ -4,6 +4,12 @@ package com.dtstack.batch.service.task.impl;
 import com.alibaba.fastjson.*;
 import com.dtstack.batch.common.enums.EDeployType;
 import com.dtstack.batch.common.enums.PublishTaskStatusEnum;
+import com.dtstack.batch.domain.BaseEntity;
+import com.dtstack.batch.domain.BatchDataSource;
+import com.dtstack.batch.domain.BatchTask;
+import com.dtstack.batch.domain.Tenant;
+import com.dtstack.batch.domain.User;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.batch.common.exception.ErrorCode;
 import com.dtstack.batch.common.exception.RdosDefineException;
@@ -41,10 +47,6 @@ import com.dtstack.dtcenter.common.util.*;
 import com.dtstack.dtcenter.loader.client.ClientCache;
 import com.dtstack.dtcenter.loader.client.IClient;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
-import com.dtstack.engine.api.domain.Component;
-import com.dtstack.engine.api.domain.CronExceptionVO;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.api.dto.UserDTO;
 import com.dtstack.engine.api.pager.PageResult;
@@ -2629,10 +2631,12 @@ public class BatchTaskService {
         if (batchTask == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
         }
-        // 判断该任务是否有子任务(调用engine接口)
-        List<NotDeleteTaskVO>  notDeleteTaskVOS = getChildTasks(taskId);
-        if (CollectionUtils.isNotEmpty(notDeleteTaskVOS)) {
-            throw new RdosDefineException("(当前任务被其他任务依赖)", ErrorCode.CAN_NOT_DELETE_TASK);
+        // 判断该任务是否有子任务(调用engine接口) 工作流不需要判断
+        if (batchTask.getFlowId() == 0) {
+            List<NotDeleteTaskVO> notDeleteTaskVOS = getChildTasks(taskId);
+            if (CollectionUtils.isNotEmpty(notDeleteTaskVOS)) {
+                throw new RdosDefineException("(当前任务被其他任务依赖)", ErrorCode.CAN_NOT_DELETE_TASK);
+            }
         }
 
         final ScheduleTaskShade dbTask = this.scheduleTaskShadeService.findTaskId(taskId, Deleted.NORMAL.getStatus(), AppType.RDOS.getType());
@@ -2678,6 +2682,7 @@ public class BatchTaskService {
         this.dataSourceTaskRefService.removeRef(taskId);
         //删除关联的函数资源
         this.batchTaskResourceService.deleteTaskResource(taskId, projectId);
+        this.batchTaskResourceShadeService.deleteByTaskId(taskId);
         //删除关联的参数表信息
         this.batchTaskParamService.deleteTaskParam(taskId);
         //删除发布相关的数据
@@ -3305,6 +3310,40 @@ public class BatchTaskService {
             }
             return o2.getComponentVersion().compareTo(o1.getComponentVersion());
         };
+    }
+
+    /**
+     * 传入一个任务集合 返回已经排序好的任务
+     * 流程如下：
+     * 1.因为工作流的特殊性 所以要把工作流和普通任务分开
+     * 2.非工作流的任务 进行排序  工作流子任务进行排序
+     *
+     * @param taskShades
+     * @return 已经排序好的任务
+     */
+    public List<ScheduleTaskShade> sortTaskShade(List<ScheduleTaskShade> taskShades){
+        List<ScheduleTaskShade> sortResultList = new ArrayList<>();
+        //非工作流任务进行排序 工作流子任务进行排序 然后把工作流子任务加在后面
+        List<ScheduleTaskShade> subTaskShade = taskShades.stream().filter(bean -> bean.getFlowId() > 0).collect(Collectors.toList());
+        List<ScheduleTaskShade> notSubTaskShade = taskShades.stream().filter(bean -> bean.getFlowId() == 0).collect(Collectors.toList());
+
+        //因为虚节点没有上游 工作流子节点不能被依赖 所以不用特殊考虑
+        notSubTaskShade = scheduleTaskSort(notSubTaskShade);
+        if (CollectionUtils.isNotEmpty(subTaskShade)) {
+            subTaskShade = scheduleTaskSort(subTaskShade);
+            //工作流子节点要紧跟父节点 用于工作流提前导入
+            Map<Long, List<ScheduleTaskShade>> flowIdAndMap = subTaskShade.stream().collect(Collectors.groupingBy(ScheduleTask::getFlowId));
+            //遍历不含工作流子节点的任务 把工作流子节点插入工作流的下方
+            for (ScheduleTaskShade shade : notSubTaskShade) {
+                sortResultList.add(shade);
+                if (EJobType.WORK_FLOW.getType().equals(shade.getTaskType())) {
+                    sortResultList.addAll((List<ScheduleTaskShade>) MapUtils.getObject(flowIdAndMap, shade.getTaskId(), Lists.newArrayList()));
+                }
+            }
+        } else {
+            return notSubTaskShade;
+        }
+        return sortResultList;
     }
 
     /**

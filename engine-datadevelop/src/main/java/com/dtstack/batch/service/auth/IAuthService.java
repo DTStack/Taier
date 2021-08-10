@@ -1,5 +1,6 @@
 package com.dtstack.batch.service.auth;
 
+import com.dtstack.batch.common.constant.PublicConstent;
 import com.dtstack.dtcenter.common.login.domain.LicenseProductComponent;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -15,7 +16,6 @@ public interface IAuthService {
     @Cacheable(value = AuthCode.AUTH_EH_CACHE)
     Set<String> getUserCodes(Long userId, Long projectId, Long tenantId);
 
-    @CacheEvict(value = AuthCode.AUTH_EH_CACHE)
     boolean clearCache(Long userId, Long project, Long tenantId);
 
     List<String> getPermissionCodesByRoleId(Long roleId);
@@ -32,5 +32,9 @@ public interface IAuthService {
 
     @CacheEvict(value = AuthCode.AUTH_EH_CACHE)
     boolean clearLicenseCache(String uicUrl,String componentCode);
+
+    @Cacheable(value = PublicConstent.AUTH_EH_CACHE)
+    Set<Long> getUserAdminProjectIds(Long userId, Long tenantId);
+
 
 }
