@@ -9,7 +9,6 @@ import utils from 'dt-common/src/utils';
 import { replaceObjectArrayFiledName } from 'dt-common/src/funcs';
 import { SlidePane, MultiSearchInput } from 'dt-react-component';
 
-
 import PatchDataModal from './patchDataModal';
 import TaskFlowView from './taskFlowView';
 

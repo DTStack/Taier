@@ -108,7 +108,11 @@ class PatchData extends React.Component<any, any> {
                         confirmLoading: false
                     })
                     if (res.code === 1) {
-                        this.showAddResult(reqParams.fillName)
+                        this.showAddResult({
+                            fillJobName: reqParams.fillName,
+                            appType: reqParams.appType,
+                            projectId: reqParams.projectId
+                        })
                         setTimeout(() => {
                             form.resetFields()
                             this.setState({
@@ -121,14 +125,17 @@ class PatchData extends React.Component<any, any> {
         });
     }
 
-    showAddResult = (fillJobName: any) => {
+    showAddResult = (params: any) => {
         this.props.handCancel()
         confirm({
             okText: '查看',
             title: '查看补数据结果',
             content: '补数据任务已在执行中，点击下方按钮查看结果',
             onOk () {
-                hashHistory.push(`/operation/task-patch-data/${fillJobName}`)
+                hashHistory.push({
+                    pathname: `/operation/task-patch-data/detail`,
+                    state: params
+                })
             },
             onCancel () {
                 console.log('Cancel');

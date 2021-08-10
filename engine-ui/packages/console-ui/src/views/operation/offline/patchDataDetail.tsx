@@ -54,21 +54,20 @@ class PatchDataDetail extends React.Component<any, any> {
     }
     _timeClock: any;
     _isUnmounted: any;
+
     componentDidMount () {
-        const ctx = this
-        this.setState({
-            fillJobName: this.props.params.fillJobName,
-            appType: sessionStorage.getItem('ywappType'),
-            projectId: sessionStorage.getItem('ywprojectId')
-        }, () => {
+        const { fillJobName, appType = '', projectId = '' } = this.props.location?.state ?? {}
+        this.setState({ fillJobName, appType, projectId }, () => {
             this.search();
-            ctx.getTaskTypesX()
+            this.getTaskTypesX()
         });
     }
+
     componentWillUnmount () {
         this._isUnmounted = true;
         clearTimeout(this._timeClock);
     }
+
     /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps: any) {
         const project = nextProps.project
@@ -733,7 +732,7 @@ class PatchDataDetail extends React.Component<any, any> {
                         <FormItem label="" className="batch-operation_offlineImg dt-form-shadow-bg">
                             <MultiSearchInput
                                 placeholder="按任务名称搜索"
-                                style={{ width: '220px', height: '32px' }}
+                                style={{ height: '32px' }}
                                 value={taskName}
                                 searchType={searchType}
                                 onChange={this.changeTaskName}
@@ -831,7 +830,7 @@ class PatchDataDetail extends React.Component<any, any> {
                             className="m-tabs bd-top bd-right m-slide-pane"
                             onClose={this.closeSlidePane}
                             visible={visibleSlidePane}
-                            style={{ right: '0px', width: '60%', height: '95%', minHeight: '400px', position: 'fixed', paddingTop: '64px' }}
+                            style={{ right: '0px', width: '60%', bottom: 0, minHeight: '400px', position: 'fixed', paddingTop: '64px' }}
                         >
                             <TaskJobFlowView
                                 visibleSlidePane={visibleSlidePane}

@@ -146,7 +146,7 @@ class PatchDataList extends React.Component<any, any> {
             current: 1
         };
         let checkArr: any = [...checkVals];
-        if (value == user.id) {
+        if (value == user.dtuicUserId) {
             if (checkArr.indexOf('person') === -1) {
                 checkArr.push('person');
             }
@@ -167,15 +167,15 @@ class PatchDataList extends React.Component<any, any> {
 
         checkedList.forEach((item: any) => {
             if (item === 'person') {
-                conditions.dutyUserId = `${user.id}`;
+                conditions.dutyUserId = `${user.dtuicUserId}`;
             } else if (item === 'todayUpdate') {
                 conditions.runDay = moment();
-                conditions.dutyUserId = `${user.id}`;
+                conditions.dutyUserId = `${user.dtuicUserId}`;
             }
         });
 
         // 清理掉责任人信息
-        if (!conditions.dutyUserId && dutyUserId === `${user.id}`) {
+        if (!conditions.dutyUserId && dutyUserId === `${user.dtuicUserId}`) {
             conditions.dutyUserId = '';
         }
 
@@ -187,6 +187,7 @@ class PatchDataList extends React.Component<any, any> {
     }
 
     initTaskColumns = () => {
+        const { appType } = this.state
         return [
             {
                 title: '补数据名称',
@@ -194,7 +195,10 @@ class PatchDataList extends React.Component<any, any> {
                 key: 'fillDataJobName',
                 width: 300,
                 render: (text: any, record: any) => {
-                    return <Link to={`/operation/task-patch-data/${text}`}>{text}</Link>;
+                    return <Link to={{
+                        pathname: '/operation/task-patch-data/detail',
+                        state: { fillJobName: text, appType, projectId: record.projectId }
+                    }}>{text}</Link>;
                 }
             },
             {
@@ -372,7 +376,7 @@ class PatchDataList extends React.Component<any, any> {
                 <Table
                     rowKey="id"
                     columns={this.initTaskColumns()}
-                    className="dt-table-fixed-base dt-table-fixed-contain-footer"
+                    className="dt-table-fixed-contain-footer"
                     style={{ marginTop: 1, height: 'calc(100vh - 196px)' }}
                     pagination={false}
                     dataSource={tasks.data || []}

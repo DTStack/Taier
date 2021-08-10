@@ -71,7 +71,7 @@ export default (
             <Route path="offline-management" component={OpeOfflineTaskMana} />
             <Route path="offline-operation" component={OpeOfflineList} />
             <Route path="task-patch-data" component={OperationPatchData} />
-            <Route path="task-patch-data/:fillJobName" component={OperationPatchDataDetail} />
+            <Route path="task-patch-data/detail" component={OperationPatchDataDetail} />
         </Route>
         <Route path="/*" component={NotFound} />
     </Route>
