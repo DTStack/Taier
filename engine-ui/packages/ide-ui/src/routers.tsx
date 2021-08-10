@@ -1,7 +1,7 @@
 import { Route, hashHistory } from 'react-router'
 import { getItem } from './utils/local'
 import { USER_NAME } from './consts'
-import IDE from './ide/workbench'
+import IDE from './views/workbench'
 import Login from './uic'
 
 export function isLogin () {
