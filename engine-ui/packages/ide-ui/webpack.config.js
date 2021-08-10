@@ -1,17 +1,17 @@
-'use strict';
+'use strict'
 
 module.exports = {
     devServer: {
         port: 8080,
         host: '0.0.0.0',
         proxy: {
-            '/': 'http://172.16.100.225:3001',
             '/node': {
                 // Login
                 target: 'http://172.16.101.187:8090',
                 changeOrigin: true,
-                secure: false,
+                secure: false
             },
+            '/api': 'http://172.16.100.225:3001'
         }
     }
-};
+}

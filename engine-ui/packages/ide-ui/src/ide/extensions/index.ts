@@ -1,4 +1,4 @@
-import { IExtension } from 'molecule/esm/model';
-import { ExtendsAccBar } from './activityBar';
+import { IExtension } from 'molecule/esm/model'
+import { ExtendsAccBar } from './activityBar'
 
-export const extensions: IExtension[] = [ new ExtendsAccBar() ];
+export const extensions: IExtension[] = [new ExtendsAccBar()]

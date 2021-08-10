@@ -1,5 +1,5 @@
-import molecule from "molecule";
-import { IExtension } from "molecule/esm/model";
+import molecule from 'molecule'
+import { IExtension } from 'molecule/esm/model'
 
 export function init () {
     // molecule.activityBar.addBar([
@@ -13,8 +13,7 @@ export function init () {
 }
 
 export class ExtendsAccBar implements IExtension {
-  
-    activate(extensionCtx: molecule.IExtensionService): void {
+    activate (extensionCtx: molecule.IExtensionService): void {
         init()
     }
 }

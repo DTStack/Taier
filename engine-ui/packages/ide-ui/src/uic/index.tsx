@@ -1,24 +1,24 @@
-import { Component } from 'react';
-import { Form } from 'antd';
-import BaseLoginFrom from './login/baseLoginFrom';
-import background from './public/background.jpg';
-import cover from './public/login-cover.png';
+import { Component } from 'react'
+import { Form } from 'antd'
+import BaseLoginFrom from './login/baseLoginFrom'
+import background from './public/background.jpg'
+import cover from './public/login-cover.png'
 
-import '@/styles/style.css';
+import '@/styles/style.css'
 
-class LoginContainer extends Component<any,any> {
+class LoginContainer extends Component<any, any> {
     state = {
         loading: true,
         sysId: '',
         sysType: 0,
         showButton: false,
         loginUrl: '',
-        defineIntoUIC: false,
+        defineIntoUIC: false
     };
 
     getRenderLoginForm = () => {
-        const { form } = this.props;
-        const { sysType, loginUrl, showButton } = this.state;
+        const { form } = this.props
+        const { sysType, loginUrl, showButton } = this.state
 
         return (
             <BaseLoginFrom
@@ -27,10 +27,10 @@ class LoginContainer extends Component<any,any> {
                 sysType={sysType}
                 showButton={showButton}
             />
-        );
+        )
     };
 
-    render() {
+    render () {
         return (
             <div className="login-container">
                 <img className="c-login__bg" alt="" src={background} />
@@ -57,8 +57,8 @@ class LoginContainer extends Component<any,any> {
                     </div>
                 </div>
             </div>
-        );
+        )
     }
 }
 
-export default Form.create()(LoginContainer);
+export default Form.create()(LoginContainer)
