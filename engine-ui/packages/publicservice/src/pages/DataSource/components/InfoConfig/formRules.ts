@@ -22,6 +22,13 @@ export function getRules(item) {
     }
   } catch (error) {}
 
+  if (item.label === 'JDBC URL') {
+    ruleArr.push({
+      pattern: /^[\S]+$/,
+      message: 'JDBC URL不能包含空格'
+    })
+  }
+
   if (item.label === '数据源名称') {
     ruleArr.push({
       pattern: /^[\u4e00-\u9fa50-9A-Za-z_]+$/,
@@ -32,6 +39,7 @@ export function getRules(item) {
   return {
     initialValue: utf8to16(item.initialValue),
     rules: ruleArr,
+    validateFirst: true,
   };
 }
 
