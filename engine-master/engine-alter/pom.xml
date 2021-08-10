@@ -21,11 +21,6 @@
         </dependency>
 
         <dependency>
-            <groupId>dt.insight.plat</groupId>
-            <artifactId>dt-insight-lang</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-email</artifactId>
             <version>1.4</version>
@@ -41,12 +36,6 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j-api.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${guava.version}</version>
         </dependency>
 
         <dependency>
@@ -67,13 +56,6 @@
             <version>${httpclient.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>${fastjson}</version>
-            <scope>provided</scope>
-            <optional>true</optional>
-        </dependency>
     </dependencies>
 
 </project>

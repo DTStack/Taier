@@ -256,11 +256,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>dt.insight.plat</groupId>
-            <artifactId>dt-insight-common-base</artifactId>
-        </dependency>
-
     </dependencies>
 
 

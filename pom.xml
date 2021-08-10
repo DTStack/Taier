@@ -42,6 +42,23 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>dt.insight.plat</groupId>
+                <artifactId>dt-insight-common-base</artifactId>
+                <version>${dt-insight-common-base.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>dt.insight.plat</groupId>
+                <artifactId>dt-insight-lang</artifactId>
+                <version>${dt-insight-lang.version}</version>
+            </dependency>
+            <!-- 鉴权包 -->
+            <dependency>
+                <groupId>dt.insight.plat</groupId>
+                <artifactId>dt-insight-web-security-starter</artifactId>
+                <version>${dt-insight-web-security.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
                 <version>2.2.4.RELEASE</version>
@@ -53,30 +70,6 @@
                 <groupId>org.mybatis.spring.boot</groupId>
                 <artifactId>mybatis-spring-boot-starter</artifactId>
                 <version>2.1.1</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.junit.jupiter</groupId>
-                        <artifactId>junit-jupiter</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.hadoop</groupId>
-                <artifactId>hadoop-common</artifactId>
-                <version>${hadoop.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.junit.jupiter</groupId>
-                        <artifactId>junit-jupiter</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>com.dtstack.engine</groupId>
-                <artifactId>engine-common</artifactId>
-                <version>1.0.0</version>
             </dependency>
 
             <dependency>
@@ -86,50 +79,15 @@
             </dependency>
 
             <dependency>
-                <groupId>dt.insight.plat</groupId>
-                <artifactId>dt-insight-common-base</artifactId>
-                <version>${dt-insight-common-base.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.google.guava</groupId>
-                        <artifactId>guava</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.alibaba</groupId>
-                        <artifactId>fastjson</artifactId>
-                    </exclusion>
-                </exclusions>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>dt.insight.plat</groupId>
-                <artifactId>dt-insight-lang</artifactId>
-                <version>${dt-insight-lang.version}</version>
-            </dependency>
-
-            <!-- 鉴权包 -->
-            <dependency>
-                <groupId>dt.insight.plat</groupId>
-                <artifactId>dt-insight-web-security-starter</artifactId>
-                <version>${dt-insight-web-security.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>dt-insight-lang</artifactId>
-                        <groupId>dt.insight.plat</groupId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>dt.insight.plat</groupId>
-                <artifactId>dt-insight-sdk-core</artifactId>
-                <version>${dt-insight-sdk-core.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>dt.insight.plat</groupId>
-                <artifactId>dt-insight-sdk-shade</artifactId>
-                <version>4.0.2</version>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>${fastjson}</version>
             </dependency>
 
             <dependency>
