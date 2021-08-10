@@ -1295,8 +1295,7 @@
         schedule_job bj
         left join schedule_task_shade ts on bj.task_id = ts.task_id
         <include refid="select_where_fragment"/>
-        and bj.fill_id = (
-        SELECT id from schedule_fill_data_job WHERE job_name = #{model.fillDataJobName})
+        and bj.fill_id = #{model.fillId}
         <include refid="queryWorkFlow"/>
         <if test="model.ownerUserId != null">
             AND ts.owner_user_id = #{model.ownerUserId}
@@ -1312,8 +1311,7 @@
         from schedule_job bj
         left join schedule_task_shade ts on bj.task_id = ts.task_id
         <include refid="select_where_fragment"/>
-        and bj.fill_id  = (
-        SELECT id from schedule_fill_data_job WHERE job_name = #{model.fillDataJobName})
+        and bj.fill_id  = #{model.fillId}
         <include refid="queryWorkFlow"/>
         <if test="model.ownerUserId != null">
             AND ts.owner_user_id = #{model.ownerUserId}
@@ -1767,6 +1765,9 @@
         update schedule_job set gmt_modified=now(),status=#{status},`phase_status` = #{phaseStatus},
         <if test="isRestart!=null">
             `is_restart` = #{isRestart},
+        </if>
+        <if test="nodeAddress!=null">
+            node_address = #{nodeAddress},
         </if>
         application_id = null, engine_job_id = null, engine_log = null, log_info = null,
         retry_task_params = null, exec_end_time = null, exec_start_time = null, exec_time = 0, gmt_modified=now(),retry_num = 0

@@ -83,6 +83,7 @@
             AND sj.cyc_time <![CDATA[>=]]> #{model.cycStartDay}
             AND sj.cyc_time <![CDATA[<]]> #{model.cycEndDay}
         </if>
+        GROUP BY sfdj.id
         ORDER BY sfdj.gmt_create desc
         limit #{start} , #{pageSize}
     </select>

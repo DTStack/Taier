@@ -240,7 +240,7 @@ public interface ScheduleJobDao {
 
     Integer updateListPhaseStatus(@Param("jobIds") List<String> ids, @Param("update") Integer update);
 
-    Integer updateJobStatusAndPhaseStatus(@Param("jobIds") List<String> jobIds, @Param("status") Integer status, @Param("phaseStatus") Integer phaseStatus,@Param("isRestart") Integer isRestart);
+    Integer updateJobStatusAndPhaseStatus(@Param("jobIds") List<String> jobIds, @Param("status") Integer status, @Param("phaseStatus") Integer phaseStatus,@Param("isRestart") Integer isRestart,@Param("nodeAddress") String nodeAddress);
 
     String getJobExtraInfo(@Param("jobId") String jobId);
 

@@ -1781,6 +1781,7 @@ public class ScheduleJobService {
         batchJobDTO.setQueryWorkFlowModel(QueryWorkFlowModel.Eliminate_Workflow_SubNodes.getType());
         batchJobDTO.setFillDataJobName(fillJobName);
         batchJobDTO.setNeedQuerySonNode(true);
+        Long projectId = batchJobDTO.getProjectId();
         //跨租户、项目条件
         batchJobDTO.setProjectId(null);
         batchJobDTO.setTenantId(null);
@@ -1839,6 +1840,12 @@ public class ScheduleJobService {
             } else {
                 return new PageResult<>(scheduleFillDataJobDetailVO, 0, pageQuery);
             }
+        }
+
+        ScheduleFillDataJob byJobName = scheduleFillDataJobDao.getByJobName(batchJobDTO.getFillDataJobName(), projectId);
+
+        if (byJobName != null) {
+            batchJobDTO.setFillId(byJobName.getId());
         }
 
         Integer totalCount = scheduleJobDao.countByFillData(batchJobDTO);
@@ -2368,7 +2375,7 @@ public class ScheduleJobService {
     public ScheduleJob getByJobId( String jobId,  Integer isDeleted) {
         ScheduleJob scheduleJob = scheduleJobDao.getByJobId(jobId, isDeleted);
 
-        if (StringUtils.isBlank(scheduleJob.getSubmitUserName())) {
+        if (scheduleJob != null && StringUtils.isBlank(scheduleJob.getSubmitUserName())) {
             scheduleJob.setSubmitUserName(environmentContext.getHadoopUserName());
         }
 

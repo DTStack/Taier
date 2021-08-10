@@ -11,6 +11,7 @@ import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskV
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
 import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
+import com.dtstack.engine.api.vo.task.TaskTypeVO;
 import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sdk.core.common.DtInsightServer;
 import com.dtstack.sdk.core.feign.Body;
@@ -239,4 +240,6 @@ public interface ScheduleTaskShadeService extends DtInsightServer {
     ApiResponse<List<String >> recentlyRunTime(@Param("startDate") String startDate,@Param("endDate") String endDate,
                                                @Param("cron") String cron,@Param("num") Integer num);
 
+    @RequestLine("POST /node/scheduleTaskShade/taskType")
+    ApiResponse<List<TaskTypeVO>> getTaskType();
 }

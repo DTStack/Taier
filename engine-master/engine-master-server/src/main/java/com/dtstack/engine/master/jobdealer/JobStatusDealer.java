@@ -224,15 +224,19 @@ public class  JobStatusDealer implements Runnable {
                 // 判断子节点是否存在强弱任务
                 LOGGER.info("jobId:{} taskRule update {}",jobId,RdosTaskStatus.RUNNING_TASK_RULE.getStatus());
                 scheduleJobDao.updateJobStatusAndExecTime(jobId,RdosTaskStatus.RUNNING_TASK_RULE.getStatus());
-
             } else {
                 LOGGER.info("jobId:{} right update {}",jobId,status);
-                scheduleJobDao.updateJobStatusAndExecTime(jobId, status);
+                if (RdosTaskStatus.getStoppedStatus().contains(status)) {
+                    // 如果是停止状态 更新停止时间
+                    scheduleJobDao.updateJobStatusAndExecTime(jobId, status);
+                } else {
+                    scheduleJobDao.updateJobStatus(jobId, status);
+                }
             }
 
             if (TaskRuleEnum.STRONG_RULE.getCode().equals(scheduleJob.getTaskRule())) {
                 // 强规则任务,查询父任务
-                batchJobService.handleTaskRule(scheduleJob,status);
+                batchJobService.handleTaskRule(scheduleJob, status);
             }
         }
     }
