@@ -291,7 +291,7 @@ class PatchDataList extends React.Component<any, any> {
                         <FormItem label={getTitle('产品')}>
                             <Select
                                 className="dt-form-shadow-bg"
-                                style={{ width: 220 }}
+                                style={{ width: 210 }}
                                 placeholder="请选择产品"
                                 value={appType}
                             >
@@ -303,7 +303,7 @@ class PatchDataList extends React.Component<any, any> {
                                 allowClear
                                 showSearch
                                 className="dt-form-shadow-bg"
-                                style={{ width: 220 }}
+                                style={{ width: 210 }}
                                 placeholder="请选择项目"
                                 value={projectId}
                                 optionFilterProp="children"
@@ -316,7 +316,7 @@ class PatchDataList extends React.Component<any, any> {
                         <FormItem>
                             <Search
                                 placeholder="按任务名称搜索"
-                                style={{ width: 220 }}
+                                style={{ width: 210 }}
                                 value={jobName}
                                 size="default"
                                 className="dt-form-shadow-bg"
@@ -328,7 +328,7 @@ class PatchDataList extends React.Component<any, any> {
                             <Select
                                 allowClear
                                 showSearch
-                                style={{ width: 220 }}
+                                style={{ width: 210 }}
                                 placeholder="请选择操作人"
                                 optionFilterProp="name"
                                 className="dt-form-shadow-bg"
@@ -340,13 +340,11 @@ class PatchDataList extends React.Component<any, any> {
                                 })}
                             </Select>
                         </FormItem>
-                    </Col>
-                    <Col style={{ marginTop: 6 }}>
                         <FormItem label={getTitle('业务日期')}>
                             <DatePicker
                                 format="YYYY-MM-DD"
                                 placeholder="业务日期"
-                                style={{ width: 220 }}
+                                style={{ width: 210 }}
                                 className="dt-form-shadow-bg"
                                 value={bizDay || null}
                                 size="default"
@@ -358,7 +356,7 @@ class PatchDataList extends React.Component<any, any> {
                                 format="YYYY-MM-DD"
                                 placeholder="运行日期"
                                 className="dt-form-shadow-bg"
-                                style={{ width: 220 }}
+                                style={{ width: 210 }}
                                 size="default"
                                 value={runDay || null}
                                 disabledDate={this.disabledDate}
@@ -377,7 +375,7 @@ class PatchDataList extends React.Component<any, any> {
                     rowKey="id"
                     columns={this.initTaskColumns()}
                     className="dt-table-fixed-contain-footer"
-                    style={{ marginTop: 1, height: 'calc(100vh - 196px)' }}
+                    style={{ marginTop: 1, height: 'calc(100vh - 200px)' }}
                     pagination={false}
                     dataSource={tasks.data || []}
                     onChange={this.pageChange}

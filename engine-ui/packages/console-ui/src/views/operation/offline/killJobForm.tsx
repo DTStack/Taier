@@ -97,7 +97,7 @@ class KillJobForm extends React.Component<any, any> {
                         submitLoading: false
                     })
                     if (res.code === 1) {
-                        message.success(res.data);
+                        message.success(`取消了${res.data}个任务`);
                         this.props.autoFresh();
                         this.handleCancel();
                     }

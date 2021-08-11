@@ -533,7 +533,7 @@ class OfflineTaskMana extends React.Component<any, any> {
                         <FormItem label={getTitle('产品')}>
                             <Select
                                 className="dt-form-shadow-bg"
-                                style={{ width: 220 }}
+                                style={{ width: 200 }}
                                 placeholder="请选择产品"
                                 value={appType}
                             >
@@ -545,7 +545,7 @@ class OfflineTaskMana extends React.Component<any, any> {
                                 allowClear
                                 showSearch
                                 className="dt-form-shadow-bg"
-                                style={{ width: 220 }}
+                                style={{ width: 200 }}
                                 placeholder="请选择项目"
                                 value={projectId}
                                 optionFilterProp="children"
@@ -574,7 +574,7 @@ class OfflineTaskMana extends React.Component<any, any> {
                                 showSearch
                                 size="default"
                                 className="dt-form-shadow-bg"
-                                style={{ width: 220 }}
+                                style={{ width: 200 }}
                                 placeholder="请选择责任人"
                                 optionFilterProp="name"
                                 value={person}
@@ -585,8 +585,6 @@ class OfflineTaskMana extends React.Component<any, any> {
                                 })}
                             </Select>
                         </FormItem>
-                    </Col>
-                    <Col style={{ marginTop: 6 }}>
                         <FormItem>
                             <Checkbox.Group value={checkVals} onChange={this.onCheckChange}>
                                 <Checkbox value="person" className="select-task">
@@ -612,7 +610,7 @@ class OfflineTaskMana extends React.Component<any, any> {
                             return '';
                         }
                     }}
-                    style={{ height: `calc(100vh - 196px)` }}
+                    style={{ height: `calc(100vh - 200px)` }}
                     className="dt-table-fixed-contain-footer dt-table-border"
                     expandedRowKeys={this.state.expandedRowKeys}
                     pagination={false}

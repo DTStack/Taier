@@ -746,7 +746,7 @@ class PatchDataDetail extends React.Component<any, any> {
                             <Select
                                 allowClear
                                 showSearch
-                                style={{ width: '220px' }}
+                                style={{ width: '210px' }}
                                 className="dt-form-shadow-bg"
                                 placeholder="请选择责任人"
                                 optionFilterProp="name"
@@ -763,7 +763,7 @@ class PatchDataDetail extends React.Component<any, any> {
                             <RangePicker
                                 disabledDate={this.disabledDate}
                                 size="default"
-                                style={{ width: '220px' }}
+                                style={{ width: '210px' }}
                                 className="dt-form-shadow-bg"
                                 format="YYYY-MM-DD"
                                 ranges={{

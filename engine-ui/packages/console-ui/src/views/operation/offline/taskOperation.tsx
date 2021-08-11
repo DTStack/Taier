@@ -6,7 +6,7 @@ import { isEmpty, cloneDeep, get } from 'lodash';
 import {
     Table, message, Modal, Select, Icon,
     DatePicker, Tooltip, Form, Dropdown,
-    Menu, Col, Pagination
+    Menu, Col, Pagination, Row
 } from 'antd';
 
 import utils from 'dt-common/src/utils';
@@ -900,109 +900,111 @@ class OfflineTaskList extends React.Component<any, any> {
 
         return (
             <div className="c-taskOperation__wrap">
-                <Form layout="inline" style={{ marginBottom: 8 }}>
-                    <Col>
-                        <FormItem label={getTitle('产品')}>
-                            <Select
-                                allowClear
-                                className="dt-form-shadow-bg"
-                                style={{ width: 220 }}
-                                placeholder="请选择产品"
-                                value={appType}
-                            >
-                                <Option value={APPS_TYPE.INDEX}>指标管理</Option>
-                            </Select>
-                        </FormItem>
-                        <FormItem label={getTitle('项目')}>
-                            <Select
-                                allowClear
-                                showSearch
-                                className="dt-form-shadow-bg"
-                                style={{ width: 220 }}
-                                placeholder="请选择项目"
-                                value={projectId}
-                                optionFilterProp="children"
-                                onSearch={this.getProjectList}
-                                onChange={this.changeProject}
-                            >
-                                {projectList.map(item => <Option key={item.projectId} value={`${item.projectId}`}>{item.projectName}</Option>)}
-                            </Select>
-                        </FormItem>
-                        <FormItem label="" className="batch-operation_offlineImg dt-form-shadow-bg">
-                            <MultiSearchInput
-                                placeholder="按任务名称搜索"
-                                value={jobName}
-                                searchType={searchType}
-                                onChange={this.changeTaskName}
-                                onTypeChange={this.changeSearchType}
-                                onSearch={this.onSearchByTaskName}
-                            />
-                        </FormItem>
-                        <FormItem label={getTitle('责任人')}>
-                            <Select
-                                allowClear
-                                showSearch
-                                size="default"
-                                style={{ width: 220 }}
-                                placeholder="请选择责任人"
-                                optionFilterProp="name"
-                                className="dt-form-shadow-bg"
-                                onChange={this.changePerson}
-                            >
-                                {personList.map((item: any) => {
-                                    return <Option key={item.dtuicUserId} value={`${item.dtuicUserId}`}>{item.userName}</Option>
-                                })}
-                            </Select>
-                        </FormItem>
-                        <div className="office__refresh_normal">
-                            <Tooltip title="刷新数据">
-                                <Icon
-                                    type="sync"
-                                    onClick={this.search}
-                                    className="refresh__icon_normal"
-                                />
-                            </Tooltip>
-                        </div>
-                    </Col>
-                    <Col style={{ marginTop: 6 }}>
-                        <FormItem label={getTitle('业务日期')}>
-                            <div className="m-date-margin">
-                                <RangePicker
-                                    size="default"
-                                    style={{ width: 220 }}
+                <Form layout="inline" style={{ marginBottom: 12 }}>
+                    <Row>
+                        <Col span={23}>
+                            <FormItem label={getTitle('产品')}>
+                                <Select
+                                    allowClear
                                     className="dt-form-shadow-bg"
-                                    format="YYYY-MM-DD"
-                                    disabledDate={this.disabledDate}
-                                    ranges={{
-                                        昨天: [(moment() as any).subtract(2, 'days'), yesterDay],
-                                        最近7天: [(moment() as any).subtract(8, 'days'), yesterDay],
-                                        最近30天: [(moment() as any).subtract(31, 'days'), yesterDay]
-                                    }}
-                                    value={bussinessDate || null}
-                                    onChange={this.changeBussinessDate}
-                                />
-                            </div>
-                        </FormItem>
-                        <FormItem label={getTitle('计划时间')}>
-                            <div className="m-date-margin">
-                                <RangePicker
-                                    size="default"
-                                    style={{ width: 220 }}
+                                    style={{ width: 210 }}
+                                    placeholder="请选择产品"
+                                    value={appType}
+                                >
+                                    <Option value={APPS_TYPE.INDEX}>指标管理</Option>
+                                </Select>
+                            </FormItem>
+                            <FormItem label={getTitle('项目')}>
+                                <Select
+                                    allowClear
+                                    showSearch
                                     className="dt-form-shadow-bg"
-                                    showTime
-                                    format="YYYY/MM/DD HH:mm:ss"
-                                    ranges={{
-                                        今天: [moment() as any, moment() as any],
-                                        最近7天: [(moment() as any).subtract(7, 'days'), moment() as any],
-                                        最近30天: [(moment() as any).subtract(30, 'days'), moment() as any]
-                                    }}
-                                    value={cycDate || null}
-                                    onChange={this.changeCycDate}
-                                    onOk={this.search}
+                                    style={{ width: 210 }}
+                                    placeholder="请选择项目"
+                                    value={projectId}
+                                    optionFilterProp="children"
+                                    onSearch={this.getProjectList}
+                                    onChange={this.changeProject}
+                                >
+                                    {projectList.map(item => <Option key={item.projectId} value={`${item.projectId}`}>{item.projectName}</Option>)}
+                                </Select>
+                            </FormItem>
+                            <FormItem label="" className="batch-operation_offlineImg dt-form-shadow-bg">
+                                <MultiSearchInput
+                                    placeholder="按任务名称搜索"
+                                    value={jobName}
+                                    searchType={searchType}
+                                    onChange={this.changeTaskName}
+                                    onTypeChange={this.changeSearchType}
+                                    onSearch={this.onSearchByTaskName}
                                 />
+                            </FormItem>
+                            <FormItem label={getTitle('责任人')}>
+                                <Select
+                                    allowClear
+                                    showSearch
+                                    size="default"
+                                    style={{ width: 210 }}
+                                    placeholder="请选择责任人"
+                                    optionFilterProp="name"
+                                    className="dt-form-shadow-bg"
+                                    onChange={this.changePerson}
+                                >
+                                    {personList.map((item: any) => {
+                                        return <Option key={item.dtuicUserId} value={`${item.dtuicUserId}`}>{item.userName}</Option>
+                                    })}
+                                </Select>
+                            </FormItem>
+                            <FormItem label={getTitle('业务日期')}>
+                                <div className="m-date-margin">
+                                    <RangePicker
+                                        size="default"
+                                        style={{ width: 210 }}
+                                        className="dt-form-shadow-bg"
+                                        format="YYYY-MM-DD"
+                                        disabledDate={this.disabledDate}
+                                        ranges={{
+                                            昨天: [(moment() as any).subtract(2, 'days'), yesterDay],
+                                            最近7天: [(moment() as any).subtract(8, 'days'), yesterDay],
+                                            最近30天: [(moment() as any).subtract(31, 'days'), yesterDay]
+                                        }}
+                                        value={bussinessDate || null}
+                                        onChange={this.changeBussinessDate}
+                                    />
+                                </div>
+                            </FormItem>
+                            <FormItem label={getTitle('计划时间')}>
+                                <div className="m-date-margin">
+                                    <RangePicker
+                                        size="default"
+                                        style={{ width: 210 }}
+                                        className="dt-form-shadow-bg"
+                                        showTime
+                                        format="YYYY/MM/DD HH:mm:ss"
+                                        ranges={{
+                                            今天: [moment() as any, moment() as any],
+                                            最近7天: [(moment() as any).subtract(7, 'days'), moment() as any],
+                                            最近30天: [(moment() as any).subtract(30, 'days'), moment() as any]
+                                        }}
+                                        value={cycDate || null}
+                                        onChange={this.changeCycDate}
+                                        onOk={this.search}
+                                    />
+                                </div>
+                            </FormItem>
+                        </Col>
+                        <Col span={1}>
+                            <div className="office__refresh_normal">
+                                <Tooltip title="刷新数据">
+                                    <Icon
+                                        type="sync"
+                                        onClick={this.search}
+                                        className="refresh__icon_normal"
+                                    />
+                                </Tooltip>
                             </div>
-                        </FormItem>
-                    </Col>
+                        </Col>
+                    </Row>
                 </Form>
                 <div className="c-taskOperation__wrap__tab">
                     <div className="ope-statistics" style={{ padding: '16px 10px' }}>
@@ -1017,7 +1019,7 @@ class OfflineTaskList extends React.Component<any, any> {
                                 return '';
                             }
                         }}
-                        style={{ height: 'calc(100vh - 254px)' }}
+                        style={{ height: 'calc(100vh - 264px)' }}
                         className="dt-table-fixed-contain-footer"
                         expandedRowKeys={this.state.expandedRowKeys}
                         rowSelection={rowSelection}

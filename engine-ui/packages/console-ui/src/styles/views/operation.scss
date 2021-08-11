@@ -582,27 +582,35 @@
 }
 
 // 新增 operation 样式
-
 .c-taskMana__wrap {
-    padding: 20px;
+    padding: 8px 20px 20px 20px;
     min-width: 1240px;
+    .ant-form-item {
+        margin-top: 12px;
+    }
 }
 
 .c-patchDataList__wrap {
-    padding: 20px;
+    padding: 8px 20px 20px 20px;
     min-width: 1240px;
     .form-label {
         display: inline-block;
         width: 50px;
     }
+    .ant-form-item {
+        margin-top: 12px;
+    }
 }
 
 .c-taskOperation__wrap {
     min-width: 1240px;
-    padding: 20px;
+    padding: 8px 20px 20px 20px;
     .form-label {
         display: inline-block;
         width: 50px;
+    }
+    .ant-form-item {
+        margin-top: 12px;
     }
     &__tab {
         box-shadow: 0px 2px 8px 0px rgba(6, 14, 26, 0.08);
