@@ -1,4 +1,4 @@
-import mc from 'mirror-creator';
+import mc from 'mirror-creator'
 
 export const commAction = mc([
     'GET_TASK_TYPES',
@@ -7,7 +7,7 @@ export const commAction = mc([
     'GET_SCRIPT_TYPES',
     'GET_COMPONENT_TYPES',
     'SET_PROJECT_TABLE_LIST'
-], { prefix: 'offline/comm/' });
+], { prefix: 'offline/comm/' })
 
 export const modalAction = mc([
     'SET_ENGINE_TYPE',
@@ -37,13 +37,13 @@ export const modalAction = mc([
     'TOGGLE_SAVE_MODAL',
     'TOGGLE_PUBLISH_MODAL',
     'IS_SAVE_FINISH'
-], { prefix: 'offline/modal/' });
+], { prefix: 'offline/modal/' })
 
 export const workflowAction = mc([
     'CLONE',
     'UPDATE',
     'RESET'
-], { prefix: 'offline/workflow/' });
+], { prefix: 'offline/workflow/' })
 
 export const taskTreeAction = mc([
     'RESET_TASK_TREE',
@@ -54,7 +54,7 @@ export const taskTreeAction = mc([
     'EDIT_FOLDER_CHILD',
     'EDIT_FOLDER_CHILD_FIELDS',
     'MERGE_FOLDER_CONTENT'
-], { prefix: 'offline/taskTree/' });
+], { prefix: 'offline/taskTree/' })
 
 export const componentTreeAction = mc([
     'RESET_COMPONENT_TREE',
@@ -62,7 +62,7 @@ export const componentTreeAction = mc([
     'LOAD_FOLDER_CONTENT',
     'EDIT_FOLDER_CHILD',
     'MERGE_FOLDER_CONTENT'
-], { prefix: 'offline/componentTree/' });
+], { prefix: 'offline/componentTree/' })
 
 export const resTreeAction = mc([
     'RESET_RES_TREE',
@@ -71,7 +71,7 @@ export const resTreeAction = mc([
     'DEL_OFFLINE_RES',
     'DEL_OFFLINE_FOLDER',
     'EDIT_FOLDER_CHILD'
-], { prefix: 'offline/resTree/' });
+], { prefix: 'offline/resTree/' })
 
 export const sparkFnTreeAction = mc([
     'GET_SPARK_ROOT',
@@ -130,7 +130,7 @@ export const greenPlumFnTreeActon = mc([
     'DEL_OFFLINE_FOLDER',
     'DEL_OFFLINE_FN',
     'EDIT_FOLDER_CHILD'
-], { prefix: 'offline/greenPlumFnTree/' });
+], { prefix: 'offline/greenPlumFnTree/' })
 
 export const greenPlumProdTreeActon = mc([
     'RESET_FUC_TREE',
@@ -139,7 +139,7 @@ export const greenPlumProdTreeActon = mc([
     'DEL_OFFLINE_FOLDER',
     'DEL_OFFLINE_FN',
     'EDIT_FOLDER_CHILD'
-], { prefix: 'offline/greenPlumProdTree/' });
+], { prefix: 'offline/greenPlumProdTree/' })
 
 export const fnTreeAction = mc([
     'RESET_FUC_TREE',
@@ -148,14 +148,14 @@ export const fnTreeAction = mc([
     'DEL_OFFLINE_FOLDER',
     'DEL_OFFLINE_FN',
     'EDIT_FOLDER_CHILD'
-], { prefix: 'offline/fnTree/' });
+], { prefix: 'offline/fnTree/' })
 
 export const sysFnTreeActon = mc([
     'RESET_SYSFUC_TREE',
     'LOAD_FOLDER_CONTENT',
     'ADD_FOLDER_CHILD',
     'DEL_OFFLINE_FOLDER'
-], { prefix: 'offline/sysFnTree/' });
+], { prefix: 'offline/sysFnTree/' })
 
 export const scriptTreeAction = mc([
     'RESET_SCRIPT_TREE',
@@ -166,7 +166,7 @@ export const scriptTreeAction = mc([
     'EDIT_FOLDER_CHILD',
     'EDIT_FOLDER_CHILD_FIELDS',
     'MERGE_FOLDER_CONTENT'
-], { prefix: 'offline/scriptTree/' });
+], { prefix: 'offline/scriptTree/' })
 
 export const tableTreeAction = mc([
     'RESET_TABLE_TREE',
@@ -175,7 +175,7 @@ export const tableTreeAction = mc([
     'DEL_TABLE',
     'DEL_OFFLINE_FOLDER',
     'EDIT_FOLDER_CHILD'
-], { prefix: 'offline/tableTree/' });
+], { prefix: 'offline/tableTree/' })
 
 export const workbenchAction = mc([
     'LOAD_TASK_DETAIL',
@@ -199,12 +199,12 @@ export const workbenchAction = mc([
     'LOAD_TASK_CUSTOM_PARAMS',
     'SAVE_DATASYNC_TO_TAB',
     'INIT_WORKBENCH'
-], { prefix: 'offline/workbench/' });
+], { prefix: 'offline/workbench/' })
 
 export const dataSourceListAction = mc([
     'LOAD_DATASOURCE',
     'RESET_DATASOURCE'
-], { prefix: 'offline/dataSync/dataSourceList/' });
+], { prefix: 'offline/dataSync/dataSourceList/' })
 
 export const sourceMapAction = mc([
     'DATA_SOURCEMAP_UPDATE',
@@ -219,7 +219,7 @@ export const sourceMapAction = mc([
     'DATA_SOURCE_ADD',
     'DATA_SOURCE_DELETE',
     'EDIT_SOURCE_KEYROW'
-], { prefix: 'offline/dataSync/sourceMap/' });
+], { prefix: 'offline/dataSync/sourceMap/' })
 
 export const targetMapAction = mc([
     'DATA_SOURCE_TARGET_CHANGE',
@@ -232,7 +232,7 @@ export const targetMapAction = mc([
     'REMOVE_TARGET_KEYROW',
     'COPY_TARGET_ROWS_TO_SOURCE',
     'CHANGE_NATIVE_HIVE'
-], { prefix: 'offline/dataSync/targetMap/' });
+], { prefix: 'offline/dataSync/targetMap/' })
 
 export const keyMapAction = mc([
     'ADD_LINKED_KEYS',
@@ -243,13 +243,13 @@ export const keyMapAction = mc([
     'EDIT_KEYMAP_TARGET',
     'EDIT_KEYMAP_SOURCE',
     'REMOVE_KEYMAP'
-], { prefix: 'offline/dataSync/keyMap/' });
+], { prefix: 'offline/dataSync/keyMap/' })
 
 export const settingAction = mc([
     'CHANGE_CHANNEL_SETTING',
     'CHANGE_CHANNEL_FIELDS',
     'INIT_CHANNEL_SETTING'
-], { prefix: 'offline/dataSync/setting/' });
+], { prefix: 'offline/dataSync/setting/' })
 
 export const dataSyncAction = mc([
     'INIT_JOBDATA',
@@ -261,4 +261,4 @@ export const dataSyncAction = mc([
     'SET_TABID',
     'RESET_TABID',
     'GET_DATASYNC_SAVED'
-], { prefix: 'offline/dataSync/' });
+], { prefix: 'offline/dataSync/' })

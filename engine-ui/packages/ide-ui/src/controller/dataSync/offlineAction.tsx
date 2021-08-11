@@ -1,8 +1,8 @@
-import * as React from 'react';
+import * as React from 'react'
 import { message, Modal, Tag } from 'antd'
 import { uniqBy, cloneDeep, isArray, get, assign } from 'lodash'
 
-import { offlineWorkbenchDB as idb } from '../database';
+import { offlineWorkbenchDB as idb } from '../database'
 
 import ajax from '../../api'
 import { MENU_TYPE, DATA_SYNC_MODE, ENGINE_SOURCE_TYPE } from '../../comm/const'
@@ -10,9 +10,9 @@ import { MENU_TYPE, DATA_SYNC_MODE, ENGINE_SOURCE_TYPE } from '../../comm/const'
 import {
     stopSql,
     setSelectionContent
-} from '../editor/editorAction';
+} from '../editor/editorAction'
 
-import { matchTaskParams, formatDateTime } from '../../comm';
+import { matchTaskParams, formatDateTime } from '../../comm'
 
 import {
     modalAction,
@@ -37,9 +37,9 @@ import {
     tableTreeAction,
     componentTreeAction,
     workflowAction
-} from './actionType';
+} from './actionType'
 
-const confirm = Modal.confirm;
+const confirm = Modal.confirm
 
 // keyMap模块
 export const keyMapActions = (dispatch: any, ownProps: any) => {
@@ -48,81 +48,81 @@ export const keyMapActions = (dispatch: any, ownProps: any) => {
             dispatch({
                 type: keyMapAction.ADD_LINKED_KEYS,
                 payload: params
-            });
+            })
             dispatch({
                 type: workbenchAction.MAKE_TAB_DIRTY
-            });
+            })
         },
         delLinkedKeys: (params: any) => {
             dispatch({
                 type: keyMapAction.DEL_LINKED_KEYS,
                 payload: params
-            });
+            })
             dispatch({
                 type: workbenchAction.MAKE_TAB_DIRTY
-            });
+            })
         },
         handleTargetMapChange (srcmap: any) {
             dispatch({
                 type: targetMapAction.DATA_TARGETMAP_CHANGE,
                 payload: srcmap
-            });
+            })
             dispatch({
                 type: workbenchAction.MAKE_TAB_DIRTY
-            });
+            })
         },
         setRowMap: (params: any) => {
             dispatch({
                 type: keyMapAction.SET_ROW_MAP,
                 payload: params
-            });
+            })
             dispatch({
                 type: workbenchAction.MAKE_TAB_DIRTY
-            });
+            })
         },
         setNameMap: (params: any) => {
             dispatch({
                 type: keyMapAction.SET_NAME_MAP,
                 payload: params
-            });
+            })
             dispatch({
                 type: workbenchAction.MAKE_TAB_DIRTY
-            });
+            })
         },
         resetLinkedKeys: () => {
             dispatch({
                 type: keyMapAction.RESET_LINKED_KEYS
-            });
+            })
             dispatch({
                 type: workbenchAction.MAKE_TAB_DIRTY
-            });
+            })
         },
         addSourceKeyRow (params: any) {
             dispatch({
                 type: sourceMapAction.ADD_SOURCE_KEYROW,
                 payload: params
-            });
+            })
             dispatch({
                 type: workbenchAction.MAKE_TAB_DIRTY
-            });
+            })
         },
         addBatchSourceKeyRow (params: any) {
             dispatch({
                 type: sourceMapAction.ADD_BATCH_SOURCE_KEYROW,
                 payload: params
-            });
+            })
             dispatch({
                 type: workbenchAction.MAKE_TAB_DIRTY
-            });
+            })
         },
         replaceBatchSourceKeyRow (params: any) {
             dispatch({
                 type: sourceMapAction.REPLACE_BATCH_SOURCE_KEYROW,
                 payload: params
-            });
+            })
             dispatch({
                 type: workbenchAction.MAKE_TAB_DIRTY
-            });
+            })
         },
 
         /**
@@ -132,94 +132,94 @@ export const keyMapActions = (dispatch: any, ownProps: any) => {
             dispatch({
                 type: sourceMapAction.COPY_TARGET_ROWS_TO_SOURCE,
                 payload: params
-            });
+            })
             dispatch({
                 type: workbenchAction.MAKE_TAB_DIRTY
-            });
+            })
         },
         editSourceKeyRow (params: any) {
             dispatch({
                 type: sourceMapAction.EDIT_SOURCE_KEYROW,
                 payload: params
-            });
+            })
             dispatch({
                 type: workbenchAction.MAKE_TAB_DIRTY
-            });
+            })
         },
         removeSourceKeyRow (source: any, index: any) {
             dispatch({
                 type: sourceMapAction.REMOVE_SOURCE_KEYROW,
                 payload: index
-            });
+            })
             dispatch({
                 type: keyMapAction.REMOVE_KEYMAP,
                 payload: { source }
-            });
+            })
         },
         addTargetKeyRow (params: any) {
             dispatch({
                 type: targetMapAction.ADD_TARGET_KEYROW,
                 payload: params
-            });
+            })
             dispatch({
                 type: workbenchAction.MAKE_TAB_DIRTY
-            });
+            })
         },
         editKeyMapSource (params: any) {
             dispatch({
                 type: keyMapAction.EDIT_KEYMAP_SOURCE,
                 payload: params
-            });
+            })
         },
         editKeyMapTarget (params: any) {
             dispatch({
                 type: keyMapAction.EDIT_KEYMAP_TARGET,
                 payload: params
-            });
+            })
         },
         editTargetKeyRow (params: any) {
             dispatch({
                 type: targetMapAction.EDIT_TARGET_KEYROW,
                 payload: params
-            });
+            })
             dispatch({
                 type: workbenchAction.MAKE_TAB_DIRTY
-            });
+            })
         },
         addBatchTargetKeyRow (params: any) {
             dispatch({
                 type: targetMapAction.ADD_BATCH_TARGET_KEYROW,
                 payload: params
-            });
+            })
             dispatch({
                 type: workbenchAction.MAKE_TAB_DIRTY
-            });
+            })
         },
         replaceBatchTargetKeyRow (params: any) {
             dispatch({
                 type: targetMapAction.REPLACE_BATCH_TARGET_KEYROW,
                 payload: params
-            });
+            })
             dispatch({
                 type: workbenchAction.MAKE_TAB_DIRTY
-            });
+            })
         },
         removeTargetKeyRow (target: any, index: any) {
             dispatch({
                 type: targetMapAction.REMOVE_TARGET_KEYROW,
                 payload: index
-            });
+            })
             dispatch({
                 type: keyMapAction.REMOVE_KEYMAP,
                 payload: { target }
-            });
+            })
         },
 
         removeKeyMap ({ source, target }: any) {
             dispatch({
                 type: keyMapAction.REMOVE_KEYMAP,
                 payload: { source, target }
-            });
+            })
         },
 
         saveDataSyncToTab: (params: any) => {
@@ -229,26 +229,26 @@ export const keyMapActions = (dispatch: any, ownProps: any) => {
                     id: params.id,
                     data: params.data
                 }
-            });
-        },
+            })
+        }
     }
-};
+}
 
 // workbenchActions
 export const workbenchActions = (dispatch?: any) => {
     const closeAll = (tabs: any) => {
-        for (let i in tabs) {
+        for (const i in tabs) {
             dispatch(stopSql(tabs[i].id, null, true))
         }
         dispatch({
             type: workbenchAction.CLOSE_ALL_TABS
         })
-    };
+    }
 
     const closeOthers = (id: any, tabs: any) => {
-        for (let i in tabs) {
+        for (const i in tabs) {
             if (tabs[i].id === id) {
-                continue;
+                continue
             }
             dispatch(stopSql(tabs[i].id, null, true))
         }
@@ -256,10 +256,10 @@ export const workbenchActions = (dispatch?: any) => {
             type: workbenchAction.CLOSE_OTHER_TABS,
             payload: id
         })
-    };
+    }
 
     const reloadTaskTab = (taskId: any, isScript?: any) => {
-        let method: any = isScript ? 'getScriptById' : 'getOfflineTaskDetail';
+        const method: any = isScript ? 'getScriptById' : 'getOfflineTaskDetail';
         // 更新tabs数据
         (ajax as any)[method]({
             id: taskId
@@ -267,14 +267,14 @@ export const workbenchActions = (dispatch?: any) => {
             if (res.code === 1) {
                 dispatch({
                     type: workbenchAction.MAKE_TAB_CLEAN
-                });
+                })
                 dispatch({
                     type: workbenchAction.UPDATE_TASK_TAB,
                     payload: res.data
-                });
+                })
             }
-        });
-    };
+        })
+    }
 
     const reloadComponentTab = (id: any) => {
         ajax.getComponentById({
@@ -283,14 +283,14 @@ export const workbenchActions = (dispatch?: any) => {
             if (res.code === 1) {
                 dispatch({
                     type: workbenchAction.MAKE_TAB_CLEAN
-                });
+                })
                 dispatch({
                     type: workbenchAction.UPDATE_TASK_TAB,
                     payload: res.data
-                });
+                })
             }
-        });
-    };
+        })
+    }
 
     /**
      * 确定保存，提交Modal
@@ -299,20 +299,20 @@ export const workbenchActions = (dispatch?: any) => {
         dispatch({
             type: modalAction.TOGGLE_SAVE_MODAL,
             payload: data
-        });
-    };
+        })
+    }
     const togglePublishModal = (data: any) => {
         dispatch({
             type: modalAction.TOGGLE_PUBLISH_MODAL,
             payload: data
-        });
-    };
+        })
+    }
     const isSaveFInish = (data: any) => {
         dispatch({
             type: modalAction.IS_SAVE_FINISH,
             payload: data
-        });
-    };
+        })
+    }
 
     /**
      * 在 Modal 框编辑任务
@@ -324,7 +324,7 @@ export const workbenchActions = (dispatch?: any) => {
             lockVersion: task.readWriteLockVO.version
         }).then((res: any) => {
             if (res.code === 1) {
-                const data = res.data;
+                const data = res.data
                 dispatch({
                     type: modalAction.SET_MODAL_DEFAULT,
                     payload: data
@@ -332,7 +332,7 @@ export const workbenchActions = (dispatch?: any) => {
                 dispatch({
                     type: modalAction.TOGGLE_CREATE_TASK,
                     payload: data
-                });
+                })
             }
         })
     }
@@ -343,16 +343,16 @@ export const workbenchActions = (dispatch?: any) => {
      */
     const initWorkbenchCacheData = async (projectId: string | number) => {
         if (projectId && projectId > 0) {
-            let pid = projectId !== 0 ? projectId : '';
+            const pid = projectId !== 0 ? projectId : ''
 
-            const db = await idb.open();
+            const db = await idb.open()
             if (db) {
-                let result: any = await idb.get(`${pid ? pid + '_' : ''}offline_workbench`);
+                const result: any = await idb.get(`${pid ? pid + '_' : ''}offline_workbench`)
                 if (result) {
                     dispatch({
                         type: workbenchAction.INIT_WORKBENCH,
                         payload: result
-                    });
+                    })
                 }
             }
         }
@@ -384,7 +384,7 @@ export const workbenchActions = (dispatch?: any) => {
             dispatch({
                 type: taskTreeAction.EDIT_FOLDER_CHILD_FIELDS,
                 payload: catalogue
-            });
+            })
         },
 
         convertDataSyncToScriptMode: async (task: any) => {
@@ -396,10 +396,10 @@ export const workbenchActions = (dispatch?: any) => {
                 preSave: task.preSave,
                 readWriteLockVO: task.readWriteLockVO
             }
-            const res = await ajax.convertDataSyncToScriptMode(reqParams);
+            const res = await ajax.convertDataSyncToScriptMode(reqParams)
             if (res.code === 1) {
-                message.success('转换成功！');
-                reloadTaskTab(task.id);
+                message.success('转换成功！')
+                reloadTaskTab(task.id)
             }
         },
 
@@ -410,7 +410,7 @@ export const workbenchActions = (dispatch?: any) => {
             dispatch({
                 type: workbenchAction.UPDATE_TASK_TAB,
                 payload: data
-            });
+            })
         },
 
         /**
@@ -421,7 +421,7 @@ export const workbenchActions = (dispatch?: any) => {
             dispatch({
                 type: workbenchAction.CHANGE_TASK_SUBMITSTATUS,
                 payload: (res.data && res.data.submitStatus) || 1
-            });
+            })
             dispatch({
                 type: workbenchAction.MAKE_TAB_CLEAN
             })
@@ -435,7 +435,7 @@ export const workbenchActions = (dispatch?: any) => {
             dispatch({
                 type: workbenchAction.SET_TASK_FIELDS_VALUE,
                 payload: taskFields
-            });
+            })
         },
 
         /**
@@ -444,41 +444,40 @@ export const workbenchActions = (dispatch?: any) => {
          * @param {Object} dataSync
          */
         updateDataSyncVariables (sourceMap: any, targetMap: any, taskCustomParams: any) {
-            let taskVariables: any = [];
+            let taskVariables: any = []
 
             // SourceMapupdateDataSyncVariables
             if (sourceMap) {
                 if (sourceMap.type && sourceMap.type.where) {
                     const vbs = matchTaskParams(taskCustomParams, sourceMap.type.where)
-                    taskVariables = taskVariables.concat(vbs);
+                    taskVariables = taskVariables.concat(vbs)
                 }
 
                 if (sourceMap.type && sourceMap.type.start) {
                     const vbs = matchTaskParams(taskCustomParams, sourceMap.type.start)
-                    taskVariables = taskVariables.concat(vbs);
+                    taskVariables = taskVariables.concat(vbs)
                 }
 
                 if (sourceMap.type && sourceMap.type.end) {
                     const vbs = matchTaskParams(taskCustomParams, sourceMap.type.end)
-                    taskVariables = taskVariables.concat(vbs);
+                    taskVariables = taskVariables.concat(vbs)
                 }
 
                 // 分区，获取任务自定义参数
                 if (sourceMap.type && sourceMap.type.partition) {
                     const vbs = matchTaskParams(taskCustomParams, sourceMap.type.partition)
-                    taskVariables = taskVariables.concat(vbs);
+                    taskVariables = taskVariables.concat(vbs)
                 }
 
                 // 匹配原表字段中的系统变量
                 if (sourceMap.column && sourceMap.column.length > 0) {
-                    let str = '';
+                    let str = ''
                     for (let i = 0; i < sourceMap.column.length; i++) {
-                        str += `${sourceMap.column[i].key || sourceMap.column[i].index} ${sourceMap.column[i].value || ''}`;
+                        str += `${sourceMap.column[i].key || sourceMap.column[i].index} ${sourceMap.column[i].value || ''}`
                     }
-                    const vbs = matchTaskParams(taskCustomParams, str);
-                    taskVariables = taskVariables.concat(vbs);
+                    const vbs = matchTaskParams(taskCustomParams, str)
+                    taskVariables = taskVariables.concat(vbs)
                 }
-
 
                 let objects = get(sourceMap, 'type.objects')
                 if (objects) {
@@ -486,7 +485,7 @@ export const workbenchActions = (dispatch?: any) => {
                         objects = objects.map((o: any) => `${o}`).join(',')
                     }
                     const vbs = matchTaskParams(taskCustomParams, objects)
-                    taskVariables = taskVariables.concat(vbs);
+                    taskVariables = taskVariables.concat(vbs)
                 }
 
                 // 处理路径中的变量
@@ -496,7 +495,7 @@ export const workbenchActions = (dispatch?: any) => {
                         path = path.map((o: any) => `${o}`).join(',')
                     }
                     const vbs = matchTaskParams(taskCustomParams, path)
-                    taskVariables = taskVariables.concat(vbs);
+                    taskVariables = taskVariables.concat(vbs)
                 }
             }
 
@@ -506,22 +505,22 @@ export const workbenchActions = (dispatch?: any) => {
                 const sqlText = `${targetMap.type.preSql} ${targetMap.type.postSql}`
                 if (sqlText) {
                     const vbs = matchTaskParams(taskCustomParams, sqlText)
-                    taskVariables = taskVariables.concat(vbs);
+                    taskVariables = taskVariables.concat(vbs)
                 }
 
                 if (targetMap.type.partition) {
                     const vbs = matchTaskParams(taskCustomParams, targetMap.type.partition)
-                    taskVariables = taskVariables.concat(vbs);
+                    taskVariables = taskVariables.concat(vbs)
                 }
 
                 if (targetMap.type.object) {
                     const vbs = matchTaskParams(taskCustomParams, targetMap.type.object)
-                    taskVariables = taskVariables.concat(vbs);
+                    taskVariables = taskVariables.concat(vbs)
                 }
 
                 if (targetMap.type.fileName) {
                     const vbs = matchTaskParams(taskCustomParams, targetMap.type.fileName)
-                    taskVariables = taskVariables.concat(vbs);
+                    taskVariables = taskVariables.concat(vbs)
                 }
 
                 // 处理路径中的变量
@@ -531,24 +530,24 @@ export const workbenchActions = (dispatch?: any) => {
                         path = path.map((o: any) => `${o}`).join(',')
                     }
                     const vbs = matchTaskParams(taskCustomParams, path)
-                    taskVariables = taskVariables.concat(vbs);
+                    taskVariables = taskVariables.concat(vbs)
                 }
             }
             // 去重复参数
-            const uniqArr = uniqBy(taskVariables, (o: any) => o.paramName);
+            const uniqArr = uniqBy(taskVariables, (o: any) => o.paramName)
             dispatch({
                 type: workbenchAction.SET_TASK_FIELDS_VALUE,
                 payload: {
                     taskVariables: uniqArr
                 }
-            });
+            })
         },
 
         createWorkflowTask (data: any) {
             return ajax.addOfflineTask(data)
                 .then((res: any) => {
                     if (res.code === 1) {
-                        const newTask = res.data;
+                        const newTask = res.data
                         dispatch({
                             type: workflowAction.UPDATE,
                             payload: {
@@ -556,9 +555,9 @@ export const workbenchActions = (dispatch?: any) => {
                                 status: 'created'
                             }
                         })
-                        return true;
+                        return true
                     }
-                });
+                })
         },
 
         // 确定克隆
@@ -569,27 +568,27 @@ export const workbenchActions = (dispatch?: any) => {
                         dispatch({
                             type: workflowAction.CLONE
                         })
-                        return true;
+                        return true
                     }
                 })
         },
 
         saveTask (task?: any, noMsg?: any) {
             // 删除不必要的字段
-            delete task.taskVersions;
+            delete task.taskVersions
 
-            task.preSave = true;
-            task.submitStatus = 0;
+            task.preSave = true
+            task.submitStatus = 0
 
             // 接口要求上游任务字段名修改为dependencyTasks
             if (task.taskVOS) {
-                task.dependencyTasks = task.taskVOS.map((o: any) => o);
-                task.taskVOS = null;
+                task.dependencyTasks = task.taskVOS.map((o: any) => o)
+                task.taskVOS = null
             }
 
             const succCallback = (res: any) => {
                 const updateTabData = (res: any) => {
-                    const resData = res.data;
+                    const resData = res.data
                     const data: any = {
                         id: task.id,
                         name: resData.name,
@@ -600,16 +599,16 @@ export const workbenchActions = (dispatch?: any) => {
                     dispatch({
                         type: workbenchAction.UPDATE_TASK_TAB,
                         payload: data
-                    });
+                    })
                 }
 
                 if (res.code === 1) {
-                    const fileData = res.data;
-                    const lockInfo = fileData.readWriteLockVO;
-                    const lockStatus = lockInfo.result; // 1-正常，2-被锁定，3-需同步
+                    const fileData = res.data
+                    const lockInfo = fileData.readWriteLockVO
+                    const lockStatus = lockInfo.result // 1-正常，2-被锁定，3-需同步
                     if (lockStatus === 0) {
-                        updateTabData(res);
-                        if (!noMsg) message.success('保存成功！');
+                        updateTabData(res)
+                        if (!noMsg) message.success('保存成功！')
                     // 如果是锁定状态，点击确定按钮，强制更新，否则，取消保存
                     } else if (lockStatus === 1) { // 2-被锁定
                         confirm({
@@ -625,7 +624,7 @@ export const workbenchActions = (dispatch?: any) => {
                             onOk () {
                                 ajax.forceUpdateOfflineTask(task).then(updateTabData)
                             }
-                        });
+                        })
                         // 如果同步状态，则提示会覆盖代码，
                         // 点击确认，重新拉取代码并覆盖当前代码，取消则退出
                     } else if (lockStatus === 2) { // 2-需同步
@@ -646,15 +645,15 @@ export const workbenchActions = (dispatch?: any) => {
                                     lockVersion: lockInfo.version
                                 }
                                 // 更新version, getLock信息
-                                ajax.getOfflineTaskDetail(reqParams).then(updateTabData);
+                                ajax.getOfflineTaskDetail(reqParams).then(updateTabData)
                             }
-                        });
+                        })
                     }
                 }
-                return res;
+                return res
             }
 
-            return ajax.saveOfflineJobData(task).then(succCallback);
+            return ajax.saveOfflineJobData(task).then(succCallback)
         },
 
         /**
@@ -670,20 +669,20 @@ export const workbenchActions = (dispatch?: any) => {
                 dispatch({
                     type: workbenchAction.SET_TASK_FIELDS_VALUE,
                     payload: data
-                });
+                })
                 dispatch({
                     type: workbenchAction.MAKE_TAB_CLEAN
-                });
+                })
             }
 
             const succCallback = (res: any) => {
-                isSaveFInish(true);
+                isSaveFInish(true)
                 if (res.code === 1) {
-                    const fileData = res.data;
-                    const lockInfo = fileData.readWriteLockVO;
-                    const lockStatus = lockInfo?.result; // 1-正常，2-被锁定，3-需同步
-                    const { isChangeComponent } = res.data;
-                    if( isChangeComponent ) { // 引用组件的任务，组件被更新，走这一步
+                    const fileData = res.data
+                    const lockInfo = fileData.readWriteLockVO
+                    const lockStatus = lockInfo?.result // 1-正常，2-被锁定，3-需同步
+                    const { isChangeComponent } = res.data
+                    if (isChangeComponent) { // 引用组件的任务，组件被更新，走这一步
                         confirm({
                             title: '组件版本更新', // 更新提示
                             content: <span>
@@ -692,27 +691,27 @@ export const workbenchActions = (dispatch?: any) => {
                             okText: '确定',
                             cancelText: '取消',
                             onOk () {
-                                ajax.getOfflineTaskByID({id: params.id}).then((res: any) => {
+                                ajax.getOfflineTaskByID({ id: params.id }).then((res: any) => {
                                     if (res.code === 1) {
                                         const taskInfo = res.data
-                                        taskInfo.merged = true;
-                                        updateTaskInfo(taskInfo);
+                                        taskInfo.merged = true
+                                        updateTaskInfo(taskInfo)
                                     }
                                 })
                             }
-                        });
-                    }else if (lockStatus === 0) {
-                        message.success(isSave ? '保存成功！' : '发布成功！');
+                        })
+                    } else if (lockStatus === 0) {
+                        message.success(isSave ? '保存成功！' : '发布成功！')
                         setTimeout(() => {
                             if (isButtonSubmit) {
-                                toggleConfirmModal(false);
-                                togglePublishModal(true);
+                                toggleConfirmModal(false)
+                                togglePublishModal(true)
                             }
                         }, 500)
                         if (type === 'component') {
-                            reloadComponentTab(fileData.id);
+                            reloadComponentTab(fileData.id)
                         } else {
-                            reloadTaskTab(fileData.id, typeof params.type !== 'undefined');
+                            reloadTaskTab(fileData.id, typeof params.type !== 'undefined')
                         }
                         // 如果是锁定状态，点击确定按钮，强制更新，否则，取消保存
                     } else if (lockStatus === 1) { // 2-被锁定
@@ -745,7 +744,7 @@ export const workbenchActions = (dispatch?: any) => {
                                     ajax.saveComponent(params).then(succCall)
                                 }
                             }
-                        });
+                        })
                         // 如果同步状态，则提示会覆盖代码，
                         // 点击确认，重新拉取代码并覆盖当前代码，取消则退出
                     } else if (lockStatus === 2) { // 2-需同步
@@ -770,7 +769,7 @@ export const workbenchActions = (dispatch?: any) => {
                                     ajax.getOfflineTaskDetail(reqParams).then((res: any) => {
                                         if (res.code === 1) {
                                             const taskInfo = res.data
-                                            taskInfo.merged = true;
+                                            taskInfo.merged = true
                                             updateTaskInfo(taskInfo)
                                         }
                                     })
@@ -778,7 +777,7 @@ export const workbenchActions = (dispatch?: any) => {
                                     ajax.getScriptById(reqParams).then((res: any) => {
                                         if (res.code === 1) {
                                             const scriptInfo = res.data
-                                            scriptInfo.merged = true;
+                                            scriptInfo.merged = true
                                             updateTaskInfo(scriptInfo)
                                         }
                                     })
@@ -788,60 +787,60 @@ export const workbenchActions = (dispatch?: any) => {
                                     ajax.getComponentById(reqParams).then((res: any) => {
                                         if (res.code === 1) {
                                             const componentInfo = res.data
-                                            componentInfo.merged = true;
+                                            componentInfo.merged = true
                                             updateTaskInfo(componentInfo)
                                         }
                                     })
                                 }
                             }
-                        });
+                        })
                     }
-                    return res;
+                    return res
                 }
             }
 
-            params.lockVersion = params.readWriteLockVO.version;
+            params.lockVersion = params.readWriteLockVO.version
             if (type === 'task') {
-                return ajax.saveOfflineJobData(params).then(succCallback);
+                return ajax.saveOfflineJobData(params).then(succCallback)
             } else if (type === 'script') {
-                return ajax.saveScript(params).then(succCallback);
+                return ajax.saveScript(params).then(succCallback)
             } else if (type === 'component') {
-                return ajax.saveComponent(params).then(succCallback);
+                return ajax.saveComponent(params).then(succCallback)
             }
         },
 
         openTab: function (data: any) {
             const { id, tabs, currentTab, treeType } = data
-            const isExist = tabs && tabs.find((tab: any) => tab.id === id);
+            const isExist = tabs && tabs.find((tab: any) => tab.id === id)
             if (!isExist) {
                 const succCallBack = (res: any) => {
                     if (res.code === 1) {
                         dispatch({
                             type: workbenchAction.LOAD_TASK_DETAIL,
                             payload: res.data
-                        });
+                        })
                     }
                 }
                 if (treeType && treeType === MENU_TYPE.SCRIPT) { // 脚本类型
                     ajax.getScriptById({
                         id: id
-                    }).then(succCallBack);
+                    }).then(succCallBack)
                 } else if (treeType && treeType === MENU_TYPE.COMPONENT) { // 组件类型
                     ajax.getComponentById({
                         componentId: id
-                    }).then(succCallBack);
+                    }).then(succCallBack)
                 } else { // 默认任务类型
                     ajax.getOfflineTaskDetail({
                         id: id
-                    }).then(succCallBack);
+                    }).then(succCallBack)
                 }
             } else {
                 id !== currentTab && dispatch({
                     type: workbenchAction.OPEN_TASK_TAB,
                     payload: id
-                });
+                })
             }
-            dispatch(setSelectionContent(''));
+            dispatch(setSelectionContent(''))
         },
 
         closeTab: (tabId: any, tabs: any) => {
@@ -853,69 +852,69 @@ export const workbenchActions = (dispatch?: any) => {
                 })
             }
 
-            let dirty = tabs.filter((tab: any) => {
+            const dirty = tabs.filter((tab: any) => {
                 return tab.id === tabId
-            })[0].notSynced;
+            })[0].notSynced
 
             if (!dirty) {
-                doClose(+tabId);
+                doClose(+tabId)
             } else {
                 confirm({
                     title: '修改尚未同步到服务器，是否强制关闭 ?',
                     content: '强制关闭将丢弃当前修改数据',
                     onOk () {
-                        doClose(+tabId);
+                        doClose(+tabId)
                     },
                     onCancel () { }
-                });
+                })
             }
         },
 
         closeAllorOthers: (action: any, tabs: any, currentTab: any) => {
             if (action === 'ALL') {
-                let allClean = true;
+                let allClean = true
 
-                for (let tab of tabs) {
+                for (const tab of tabs) {
                     console.log('ALL notSynced:', tab.notSynced)
                     if (tab.notSynced) {
-                        allClean = false;
-                        break;
+                        allClean = false
+                        break
                     }
                 }
 
                 if (allClean) {
-                    closeAll(tabs);
+                    closeAll(tabs)
                 } else {
                     confirm({
                         title: '部分任务修改尚未同步到服务器，是否强制关闭 ?',
                         content: '强制关闭将丢弃所有修改数据',
                         onOk () {
-                            closeAll(tabs);
+                            closeAll(tabs)
                         },
                         onCancel () { }
-                    });
+                    })
                 }
             } else {
-                let allClean = true;
-                for (let tab of tabs) {
+                let allClean = true
+                for (const tab of tabs) {
                     console.log('notSynced:', tab.notSynced)
                     if (tab.notSynced && tab.id !== currentTab) {
-                        allClean = false;
-                        break;
+                        allClean = false
+                        break
                     }
                 }
 
                 if (allClean) {
-                    closeOthers(currentTab, tabs);
+                    closeOthers(currentTab, tabs)
                 } else {
                     confirm({
                         title: '部分任务修改尚未同步到服务器，是否强制关闭 ?',
                         content: '强制关闭将丢弃这些修改数据',
                         onOk () {
-                            closeOthers(currentTab, tabs);
+                            closeOthers(currentTab, tabs)
                         },
                         onCancel () { }
-                    });
+                    })
                 }
             }
         },
@@ -928,17 +927,17 @@ export const workbenchActions = (dispatch?: any) => {
                 dispatch({
                     type: taskTreeAction.MERGE_FOLDER_CONTENT,
                     payload: data
-                });
+                })
             } else if (MENU_TYPE.SCRIPT) {
                 dispatch({
                     type: scriptTreeAction.MERGE_FOLDER_CONTENT,
                     payload: data
-                });
+                })
             } else if (MENU_TYPE.COMPONENT) {
                 dispatch({
                     type: componentTreeAction.MERGE_FOLDER_CONTENT,
                     payload: data
-                });
+                })
             }
         },
         loadTableListNodeByName: (nodePid: any, option = {}) => {
@@ -948,11 +947,11 @@ export const workbenchActions = (dispatch?: any) => {
                 .then(
                     (res: any) => {
                         if (res.code === 1) {
-                            let { data } = res;
+                            const { data } = res
                             data.children && dispatch({
                                 type: tableTreeAction.LOAD_FOLDER_CONTENT,
                                 payload: data
-                            });
+                            })
                         }
                     }
                 )
@@ -967,82 +966,82 @@ export const workbenchActions = (dispatch?: any) => {
                 nodePid,
                 catalogueType: type,
                 ...option
-            });
+            })
             const getFuncTree = (data: any, cateType: string, engineType: number) => {
                 return data.children
                     ? data.children.find((item: any) => item.catalogueType === cateType && item.engineType === engineType)
-                    : [];
+                    : []
             }
             if (res.code === 1) {
-                let { data } = res;
-                let action: any;
+                const { data } = res
+                let action: any
                 switch (type) {
                     case MENU_TYPE.TASK:
                     case MENU_TYPE.TASK_DEV:
-                        action = taskTreeAction;
-                        break;
+                        action = taskTreeAction
+                        break
                     case MENU_TYPE.COMPONENT:
-                        action = componentTreeAction;
-                        break;
+                        action = componentTreeAction
+                        break
                     case MENU_TYPE.RESOURCE:
-                        action = resTreeAction;
-                        break;
+                        action = resTreeAction
+                        break
                     case MENU_TYPE.SPARKFUNC:
-                        action = sparkFnTreeAction;
-                        break;
+                        action = sparkFnTreeAction
+                        break
                     case MENU_TYPE.LIBRAFUNC:
-                        action = libraFnTreeAction;
-                        break;
+                        action = libraFnTreeAction
+                        break
                     case MENU_TYPE.LIBRASYSFUN:
-                        action = libraSysFnTreeActon;
-                        break;
+                        action = libraSysFnTreeActon
+                        break
                     case MENU_TYPE.TIDB_SYS_FUNC:
-                        action = tiDBSysFnTreeActon;
-                        break;
+                        action = tiDBSysFnTreeActon
+                        break
                     case MENU_TYPE.ORACLE_SYS_FUNC:
-                        action = oracleSysFnTreeActon;
-                        break;
+                        action = oracleSysFnTreeActon
+                        break
                     case MENU_TYPE.GREEN_PLUM_PROD:
-                        action = greenPlumProdTreeActon;
-                        break;
+                        action = greenPlumProdTreeActon
+                        break
                     case MENU_TYPE.GREEN_PLUM_SYS_FUNC:
-                        action = greenPlumSysFnTreeActon;
-                        break;
+                        action = greenPlumSysFnTreeActon
+                        break
                     case MENU_TYPE.GREEN_PLUM_FUNC:
-                        action = greenPlumFnTreeActon;
-                        break;
+                        action = greenPlumFnTreeActon
+                        break
                     case MENU_TYPE.GREEN_PLUM:
-                        action = greenPlumTreeAction;
-                        break;
+                        action = greenPlumTreeAction
+                        break
                     case MENU_TYPE.FUNCTION:
                     case MENU_TYPE.COSTOMFUC:
-                        action = fnTreeAction;
-                        break;
+                        action = fnTreeAction
+                        break
                     case MENU_TYPE.SYSFUC:
-                        action = sysFnTreeActon;
-                        break;
+                        action = sysFnTreeActon
+                        break
                     case MENU_TYPE.SCRIPT:
-                        action = scriptTreeAction;
-                        break;
+                        action = scriptTreeAction
+                        break
                     case MENU_TYPE.TABLE:
                         action = tableTreeAction
-                        break;
+                        break
                     default:
-                        action = taskTreeAction;
+                        action = taskTreeAction
                 }
                 data.children && dispatch({
                     type: action.LOAD_FOLDER_CONTENT,
                     payload: data
-                });
+                })
                 if (isFunc) {
-                    const sparkCusFunc = getFuncTree(data, MENU_TYPE.COSTOMFUC, ENGINE_SOURCE_TYPE.HADOOP);
-                    const sparkSysFunc = getFuncTree(data, MENU_TYPE.SYSFUC, ENGINE_SOURCE_TYPE.HADOOP);
-                    const libraSysFunc = getFuncTree(data, MENU_TYPE.SYSFUC, ENGINE_SOURCE_TYPE.LIBRA);
-                    const tiDBSysFunc = getFuncTree(data, MENU_TYPE.SYSFUC, ENGINE_SOURCE_TYPE.TI_DB);
-                    const oracleSysFunc = getFuncTree(data, MENU_TYPE.SYSFUC, ENGINE_SOURCE_TYPE.ORACLE);
-                    const greenPlumSysFunc = getFuncTree(data, MENU_TYPE.SYSFUC, ENGINE_SOURCE_TYPE.GREEN_PLUM);
-                    const greenPlumFunc = getFuncTree(data, MENU_TYPE.GREEN_PLUM_FUNC, ENGINE_SOURCE_TYPE.GREEN_PLUM);
-                    const greenPlumProd = getFuncTree(data, MENU_TYPE.GREEN_PLUM_PROD, ENGINE_SOURCE_TYPE.GREEN_PLUM);
+                    const sparkCusFunc = getFuncTree(data, MENU_TYPE.COSTOMFUC, ENGINE_SOURCE_TYPE.HADOOP)
+                    const sparkSysFunc = getFuncTree(data, MENU_TYPE.SYSFUC, ENGINE_SOURCE_TYPE.HADOOP)
+                    const libraSysFunc = getFuncTree(data, MENU_TYPE.SYSFUC, ENGINE_SOURCE_TYPE.LIBRA)
+                    const tiDBSysFunc = getFuncTree(data, MENU_TYPE.SYSFUC, ENGINE_SOURCE_TYPE.TI_DB)
+                    const oracleSysFunc = getFuncTree(data, MENU_TYPE.SYSFUC, ENGINE_SOURCE_TYPE.ORACLE)
+                    const greenPlumSysFunc = getFuncTree(data, MENU_TYPE.SYSFUC, ENGINE_SOURCE_TYPE.GREEN_PLUM)
+                    const greenPlumFunc = getFuncTree(data, MENU_TYPE.GREEN_PLUM_FUNC, ENGINE_SOURCE_TYPE.GREEN_PLUM)
+                    const greenPlumProd = getFuncTree(data, MENU_TYPE.GREEN_PLUM_PROD, ENGINE_SOURCE_TYPE.GREEN_PLUM)
                     dispatch({
                         type: fnTreeAction.RESET_FUC_TREE, // spark自定义函数
                         payload: sparkCusFunc
@@ -1082,86 +1081,86 @@ export const workbenchActions = (dispatch?: any) => {
             return ajax.delOfflineTask(params)
                 .then((res: any) => {
                     if (res.code === 1) {
-                        message.success('删除成功');
+                        message.success('删除成功')
                         dispatch({
                             type: taskTreeAction.DEL_OFFLINE_TASK,
                             payload: {
                                 id: res.data,
                                 parentId: nodePid
                             }
-                        });
+                        })
                         dispatch({
                             type: workbenchAction.CLOSE_TASK_TAB,
                             payload: res.data
-                        });
+                        })
                     }
-                    return res;
-                });
+                    return res
+                })
         },
 
         delOfflineScript (params?: any, nodePid?: any, type?: any) {
             ajax.deleteScript(params)
                 .then((res: any) => {
                     if (res.code === 1) {
-                        message.success('删除成功');
+                        message.success('删除成功')
                         dispatch({
                             type: scriptTreeAction.DEL_SCRIPT,
                             payload: {
                                 id: params.scriptId,
                                 parentId: nodePid
                             }
-                        });
+                        })
                         dispatch({
                             type: workbenchAction.CLOSE_TASK_TAB,
                             payload: params.scriptId
-                        });
+                        })
                     }
-                });
+                })
         },
 
         deleteComponent (params?: any, nodePid?: any, type?: any) {
             ajax.deleteComponent(params)
                 .then((res: any) => {
                     if (res.code === 1) {
-                        message.success('删除成功');
+                        message.success('删除成功')
                         dispatch({
                             type: componentTreeAction.DELETE_COMPONENT,
                             payload: {
                                 id: params.componentId,
                                 parentId: nodePid
                             }
-                        });
+                        })
                         dispatch({
                             type: workbenchAction.CLOSE_TASK_TAB,
                             payload: params.scriptId
-                        });
+                        })
                     }
-                });
+                })
         },
 
         delOfflineFolder (params: any, nodePid: any, cateType: any) {
             ajax.delOfflineFolder(params)
                 .then((res: any) => {
                     if (res.code === 1) {
-                        let action: any;
+                        let action: any
 
                         switch (cateType) {
                             case MENU_TYPE.TASK:
                             case MENU_TYPE.TASK_DEV:
-                                action = taskTreeAction;
-                                break;
+                                action = taskTreeAction
+                                break
                             case MENU_TYPE.RESOURCE:
-                                action = resTreeAction;
-                                break;
+                                action = resTreeAction
+                                break
                             case MENU_TYPE.FUNCTION:
                             case MENU_TYPE.COSTOMFUC:
-                                action = fnTreeAction;
-                                break;
+                                action = fnTreeAction
+                                break
                             case MENU_TYPE.SCRIPT:
-                                action = scriptTreeAction;
-                                break;
+                                action = scriptTreeAction
+                                break
                             default:
-                                action = taskTreeAction;
+                                action = taskTreeAction
                         }
 
                         dispatch({
@@ -1209,28 +1208,28 @@ export const workbenchActions = (dispatch?: any) => {
             dispatch({
                 type: modalAction.TOGGLE_CREATE_FOLDER,
                 payload: type
-            });
+            })
         },
 
         toggleCreateTask: function (data?: any) {
             dispatch({
                 type: modalAction.TOGGLE_CREATE_TASK,
                 payload: data
-            });
+            })
         },
         // 克隆任务
         toggleCloneTask: function (data?: any) {
             dispatch({
                 type: modalAction.TOGGLE_CLONE_TASK,
                 payload: data
-            });
+            })
         },
         // 克隆至工作流
         toggleCloneToWorkflow: function (data?: any) {
             dispatch({
                 type: modalAction.TOGGLE_CLONE_TO_WORKFLOW,
                 payload: data
-            });
+            })
         },
         // 获取工作流列表
         getWorkFlowList (params: any) {
@@ -1239,33 +1238,33 @@ export const workbenchActions = (dispatch?: any) => {
                     dispatch({
                         type: modalAction.GET_WORKFLOW_LIST,
                         payload: res.data
-                    });
+                    })
                 }
             })
         },
         toggleCreateScript: function () {
             dispatch({
                 type: modalAction.TOGGLE_CREATE_SCRIPT
-            });
+            })
         },
 
         toggleCreateComponent: function () {
             dispatch({
                 type: modalAction.TOGGLE_CREATE_COMPONENT
-            });
+            })
         },
 
         toggleCreateFn: function (params: any) {
             dispatch({
                 type: modalAction.TOGGLE_CREATE_FN,
                 payload: { fnType: params }
-            });
+            })
         },
 
         toggleCreateProcedure: function () {
             dispatch({
                 type: modalAction.TOGGLE_CREATE_PROD
-            });
+            })
         },
         toggleChangeProcedure: function (params: any) {
             dispatch({
@@ -1283,19 +1282,19 @@ export const workbenchActions = (dispatch?: any) => {
             dispatch({
                 type: modalAction.TOGGLE_MOVE_FN,
                 payload: params
-            });
+            })
         },
 
         toggleMoveProd: function (params: any) {
             dispatch({
                 type: modalAction.TOGGLE_MOVE_PROD,
                 payload: params
-            });
+            })
         },
         toggleUpload: function () {
             dispatch({
                 type: modalAction.TOGGLE_UPLOAD
-            });
+            })
         },
 
         toggleCoverUpload: function () {
@@ -1304,7 +1303,7 @@ export const workbenchActions = (dispatch?: any) => {
                 payload: {
                     isCoverUpload: true
                 }
-            });
+            })
         },
 
         delOfflineRes (params: any, nodePid: any) {
@@ -1371,7 +1370,7 @@ export const workbenchActions = (dispatch?: any) => {
             dispatch({
                 type: modalAction.SHOW_RESVIEW_MODAL,
                 payload: id
-            });
+            })
         },
 
         /**
@@ -1393,9 +1392,9 @@ export const workbenchActions = (dispatch?: any) => {
         reloadWorkflowTabNode (flowId: any, tabs: any) {
             if (tabs && tabs.length > 0) {
                 for (let i = 0; i < tabs.length; i++) {
-                    const tab = tabs[i];
+                    const tab = tabs[i]
                     if (tab.flowId === flowId) {
-                        reloadTaskTab(tab.id);
+                        reloadTaskTab(tab.id)
                     }
                 }
             }
@@ -1409,11 +1408,11 @@ export const workbenchActions = (dispatch?: any) => {
  */
 export const getDataSyncReqParams = (dataSyncStore: any) => {
     // deepClone避免直接mutate store
-    let clone = cloneDeep(dataSyncStore);
+    const clone = cloneDeep(dataSyncStore)
 
-    const { keymap, sourceMap, targetMap } = clone;
-    let { source = [], target = [] } = keymap;
-    let serverSource: any = []; let serverTarget: any = [];
+    const { keymap, sourceMap, targetMap } = clone
+    const { source = [], target = [] } = keymap
+    let serverSource: any = []; let serverTarget: any = []
 
     /**
      * 获取source或者target的key,因为RDB和非RDB存储结构不一样，所以要区分
@@ -1422,37 +1421,37 @@ export const getDataSyncReqParams = (dataSyncStore: any) => {
         if (typeof item === 'string') {
             return item
         } else {
-            return item.key;
+            return item.key
         }
     }
     /**
      * 获取targetMap的顺序
      */
-    const { column: targetColumn = [] } = targetMap;
-    let indexMap: any = {};// 顺序记录表
-    let tmpTarget: any = [];// 含有映射关系的target数组
+    const { column: targetColumn = [] } = targetMap
+    const indexMap: any = {}// 顺序记录表
+    const tmpTarget: any = []// 含有映射关系的target数组
     for (let i = 0; i < target.length; i++) {
-        const targetItem = target[i];
-        const sourceItem = source[i];
+        const targetItem = target[i]
+        const sourceItem = source[i]
         tmpTarget[i] = {
             target: targetItem,
             source: sourceItem
         }
     }
     targetColumn.map((item: any, index: any) => {
-        indexMap[getKey(item)] = index;
+        indexMap[getKey(item)] = index
     })
 
     tmpTarget.sort(
         (a: any, b: any) => {
-            const indexA = indexMap[getKey(a.target)];
-            const indexB = indexMap[getKey(b.target)];
-            return indexA - indexB;
+            const indexA = indexMap[getKey(a.target)]
+            const indexB = indexMap[getKey(b.target)]
+            return indexA - indexB
         }
     )
     serverSource = tmpTarget.map(
         (item: any) => {
-            return item.source;
+            return item.source
         }
     )
     serverTarget = tmpTarget.map(
@@ -1463,38 +1462,38 @@ export const getDataSyncReqParams = (dataSyncStore: any) => {
 
     // 转换字段
     // 接口要求keymap中的连线映射数组放到sourceMap中
-    clone.sourceMap.column = serverSource;
-    clone.targetMap.column = serverTarget;
-    clone.settingMap = clone.setting;
+    clone.sourceMap.column = serverSource
+    clone.targetMap.column = serverTarget
+    clone.settingMap = clone.setting
 
     // type中的特定配置项也放到sourceMap中
-    const targetTypeObj = targetMap.type;
-    const sourceTypeObj = sourceMap.type;
+    const targetTypeObj = targetMap.type
+    const sourceTypeObj = sourceMap.type
 
-    for (let key in sourceTypeObj) {
+    for (const key in sourceTypeObj) {
         if (sourceTypeObj.hasOwnProperty(key)) {
             sourceMap[key] = sourceTypeObj[key]
         }
     }
-    for (let k2 in targetTypeObj) {
+    for (const k2 in targetTypeObj) {
         if (targetTypeObj.hasOwnProperty(k2)) {
             targetMap[k2] = targetTypeObj[k2]
         }
     }
 
     // 删除接口不必要的字段
-    delete clone.keymap;
-    delete clone.setting;
-    delete clone.dataSourceList;
-    delete clone.dataSyncSaved;
+    delete clone.keymap
+    delete clone.setting
+    delete clone.dataSourceList
+    delete clone.dataSyncSaved
 
-    const paths = get(clone, 'sourceMap.path');
+    const paths = get(clone, 'sourceMap.path')
     if (paths && isArray(paths)) {
-        clone.sourceMap.path = paths.filter((o: any) => o !== '');
+        clone.sourceMap.path = paths.filter((o: any) => o !== '')
     }
 
     // 数据拼装结果
-    return clone;
+    return clone
 }
 
 /**
@@ -1503,28 +1502,28 @@ export const getDataSyncReqParams = (dataSyncStore: any) => {
  */
 export const getDataSyncSaveTabParams = (currentTabData: any, dataSync: any) => {
     // deepClone避免直接mutate store
-    let reqBody = cloneDeep(currentTabData);
+    let reqBody = cloneDeep(currentTabData)
     // 如果当前任务为数据同步任务
     if (currentTabData.id === dataSync.tabId) {
-        const isIncrementMode = currentTabData.syncModel !== undefined && DATA_SYNC_MODE.INCREMENT === currentTabData.syncModel;
-        reqBody = assign(reqBody, getDataSyncReqParams(dataSync));
+        const isIncrementMode = currentTabData.syncModel !== undefined && DATA_SYNC_MODE.INCREMENT === currentTabData.syncModel
+        reqBody = assign(reqBody, getDataSyncReqParams(dataSync))
         if (!isIncrementMode) {
-            reqBody.sourceMap.increColumn = undefined; // Delete increColumn
+            reqBody.sourceMap.increColumn = undefined // Delete increColumn
         }
     }
     // 修改task配置时接口要求的标记位
-    reqBody.preSave = true;
+    reqBody.preSave = true
 
     // 接口要求上游任务字段名修改为dependencyTasks
     if (reqBody.taskVOS) {
-        reqBody.dependencyTasks = reqBody.taskVOS.map((o: any) => o);
-        reqBody.taskVOS = null;
+        reqBody.dependencyTasks = reqBody.taskVOS.map((o: any) => o)
+        reqBody.taskVOS = null
     }
 
     // 删除不必要的字段
-    delete reqBody.taskVersions;
-    delete reqBody.dataSyncSaved;
+    delete reqBody.taskVersions
+    delete reqBody.dataSyncSaved
 
     // 数据拼装结果
-    return reqBody;
+    return reqBody
 }

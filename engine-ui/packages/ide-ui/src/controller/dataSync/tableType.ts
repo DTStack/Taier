@@ -1,4 +1,4 @@
-import mc from 'mirror-creator';
+import mc from 'mirror-creator'
 import Api from '../../api'
 
 const tableTypeAction = mc([
@@ -28,7 +28,7 @@ export function getProjectTableTypes (projectId: any) {
     return async (dispatch: any) => {
         const res = await Api.getProjectTableTypes({
             projectId: projectId
-        });
+        })
         if (res.code === 1) {
             return dispatch({
                 type: tableTypeAction.GET_PROJECT_TABLE_TYPES,
@@ -39,7 +39,7 @@ export function getProjectTableTypes (projectId: any) {
 }
 export function getTenantTableTypes (params: any) {
     return async (dispatch: any) => {
-        const res = await Api.getTenantTableTypes(params);
+        const res = await Api.getTenantTableTypes(params)
         if (res.code === 1) {
             return dispatch({
                 type: tableTypeAction.GET_TENANT_TABLE_TYPES,

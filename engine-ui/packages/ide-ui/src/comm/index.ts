@@ -2,7 +2,8 @@ import { debounce } from 'lodash'
 import moment from 'moment'
 import {
     RDB_TYPE_ARRAY,
-    ENGINE_SOURCE_TYPE
+    ENGINE_SOURCE_TYPE,
+    DATA_SOURCE
 } from './const'
 
 // 日志下载
@@ -106,21 +107,20 @@ export function isGreenPlumEngine (engineType: any) {
 }
 
 /**
+ * 是否为HDFS类型
+ * @param {*} type
+ */
+export function isHdfsType (type: any) {
+    return DATA_SOURCE.HDFS === parseInt(type, 10)
+}
+
+/**
  * Judge tiDB engine
  * @param engineType any
  */
 export function isTiDBEngine (engineType: any) {
     return ENGINE_SOURCE_TYPE.TI_DB === parseInt(engineType, 10)
 }
-/**
- * 去除空串
- */
-export function trim (str: string) {
-    return typeof str === 'string'
-        ? str.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '')
-        : str
-}
-
 export function formJsonValidator (rule: any, value: any, callback: any) {
     let msg: any
     try {

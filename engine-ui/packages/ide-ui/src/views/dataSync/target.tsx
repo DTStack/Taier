@@ -160,7 +160,7 @@ class TargetForm extends React.Component<any, any> {
     getDataObjById (id: any) {
         const { dataSourceList } = this.props
         return dataSourceList.filter((src: any) => {
-            return src.id === id
+            return `${src.id}` === id
         })[0]
     }
 
@@ -626,7 +626,7 @@ class TargetForm extends React.Component<any, any> {
     debounceTableNameSearch = debounce(this.getTableList, 500, { maxWait: 2000 });
 
     renderDynamicForm = () => {
-        const { selectHack, loading, schemaList, kingbaseId, tableListSearch, schemaId, tableList, fetching } = this.state
+        const { selectHack, loading, schemaList, kingbaseId, tableListSearch = ['111'], schemaId, tableList, fetching } = this.state
 
         const { targetMap, sourceMap, form } = this.props
         const { getFieldDecorator } = form
@@ -691,13 +691,19 @@ class TargetForm extends React.Component<any, any> {
                                 onSelect={this.debounceTableSearch.bind(this, null)}
                                 notFoundContent={fetching ? <Spin size="small" /> : null}
                             >
-                                {tableListSearch.map((table: any) => {
+                                {/* {tableListSearch.map((table: any) => {
                                     return <Option
                                         key={`rdb-target-${table}`}
                                         value={table}>
                                         {table}
                                     </Option>
-                                })}
+                                })} */}
+                                <Option
+                                    key={'rdb-1'}
+                                    value={1}
+                                >
+                                    {1}
+                                </Option>
                             </Select>
                         )}
                         { oneKeyCreateTable }
@@ -1114,7 +1120,8 @@ const mapState = (state: any) => {
         isCurrentTabNew,
         project: state.project,
         projectTableTypes: state.tableTypes?.projectTableTypes || [],
-        ...dataSync
+        ...dataSync,
+        dataSourceList: [{ dataDesc: '', createUserId: 5, gmtModified: 1598798357000, modifyUserId: 5, active: 0, dataName: 'test', dataJson: { jdbcUrl: 'jdbc:pivotal:greenplum://172.16.10.90:5432;DatabaseName=exampledb', username: 'gpadmin' }, gmtCreate: 1598798357000, type: 1, linkState: 0, modifyUser: { gmtModified: 1592466563000, phoneNumber: '17858263016', isDeleted: 0, id: 5, gmtCreate: 1592466563000, userName: 'admin@dtstack.com', dtuicUserId: 1, email: '123456.com@1.com', status: 0 }, isDefault: 1, tenantId: 3, id: 131, projectId: 95 }]
     }
 }
 

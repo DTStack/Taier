@@ -298,6 +298,7 @@ class SourceForm extends React.Component<any, any> {
             } else {
                 handleTableColumnChange([])
             }
+        }).finally(() => {
             this.setState({
                 loading: false
             })
@@ -326,9 +327,10 @@ class SourceForm extends React.Component<any, any> {
 
     getDataObjById (id: any) {
         const { dataSourceList } = this.props
-        return dataSourceList.filter((src: any) => {
-            return src.id === id
+        const data = dataSourceList.filter((src: any) => {
+            return `${src.id}` === id
         })[0]
+        return data
     }
 
     changeExtSource (key: any, value: any) {

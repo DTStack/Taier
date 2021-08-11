@@ -5,7 +5,7 @@ import { isEqual, get } from 'lodash'
 
 import DataSyncSource from './source'
 import DataSyncTarget from './target'
-// import DataSyncKeymap from './keymap';
+import DataSyncKeymap from './keymap'
 // import DataSyncChannel from './channel';
 import DataSyncSave from './save'
 import ajax from '../../api'
@@ -164,7 +164,7 @@ class DataSync extends React.Component<any, any> {
   };
 
   getJobData = (params: any) => {
-    //   const { currentTabData } = this.props
+      //   const { currentTabData } = this.props
       // const { dataSyncSaved } = currentTabData;
       // const { taskId } = params;
       // ajax.getOfflineJobData(params).then((res: any) => {
@@ -263,7 +263,9 @@ class DataSync extends React.Component<any, any> {
       const {
           currentTabData = {},
           taskCustomParams,
-          updateDataSyncVariables
+          updateDataSyncVariable,
+          sourceMap,
+          targetMap
       } = this.props
 
       const { readWriteLockVO, syncModel } = currentTabData
@@ -280,7 +282,7 @@ class DataSync extends React.Component<any, any> {
                   currentStep={currentStep}
                   currentTabData={currentTabData}
                   isIncrementMode={isIncrementMode}
-                  updateDataSyncVariables={updateDataSyncVariables}
+                  updateDataSyncVariables={updateDataSyncVariable}
                   taskCustomParams={taskCustomParams}
                   navtoStep={this.navtoStep.bind(this)}
               />
@@ -297,14 +299,13 @@ class DataSync extends React.Component<any, any> {
           },
           {
               title: '字段映射',
-              // content: <DataSyncKeymap
-              //     currentStep={currentStep as any}
-              //     currentTabData={currentTabData}
-              //     sourceMap={sourceMap}
-              //     targetMap={targetMap}
-              //     navtoStep={this.navtoStep.bind(this)}
-              // />
-              content: <p>333</p>
+              content: <DataSyncKeymap
+                  currentStep={currentStep as any}
+                  currentTabData={currentTabData}
+                  sourceMap={sourceMap}
+                  targetMap={targetMap}
+                  navtoStep={this.navtoStep.bind(this)}
+              />
           },
           {
               title: '通道控制',
