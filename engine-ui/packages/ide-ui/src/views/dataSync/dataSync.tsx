@@ -6,7 +6,7 @@ import { isEqual, get } from 'lodash'
 import DataSyncSource from './source'
 import DataSyncTarget from './target'
 import DataSyncKeymap from './keymap'
-// import DataSyncChannel from './channel';
+import DataSyncChannel from './channel';
 import DataSyncSave from './save'
 import ajax from '../../api'
 import { getDataSyncSaveTabParams } from '../../controller/dataSync/offlineAction'
@@ -259,7 +259,7 @@ class DataSync extends React.Component<any, any> {
   };
 
   render () {
-      const { currentStep, loading } = this.state
+      const { currentStep, loading, isStandeAlone } = this.state
       const {
           currentTabData = {},
           taskCustomParams,
@@ -309,27 +309,25 @@ class DataSync extends React.Component<any, any> {
           },
           {
               title: '通道控制',
-              // content: <DataSyncChannel
-              //     getPopupContainer={this.getPopupContainer}
-              //     currentStep={currentStep}
-              //     currentTabData={currentTabData}
-              //     isIncrementMode={isIncrementMode}
-              //     navtoStep={this.navtoStep.bind(this)}
-              //     isStandeAlone={isStandeAlone}
-              // />
-              content: <p>544</p>
+              content: <DataSyncChannel
+                  getPopupContainer={this.getPopupContainer}
+                  currentStep={currentStep}
+                  currentTabData={currentTabData}
+                  isIncrementMode={isIncrementMode}
+                  navtoStep={this.navtoStep.bind(this)}
+                  isStandeAlone={isStandeAlone}
+              />
           },
           {
               title: '预览保存',
-              // content: <DataSyncSave
-              //     currentStep={currentStep}
-              //     notSynced={notSynced}
-              //     isIncrementMode={isIncrementMode}
-              //     navtoStep={this.navtoStep.bind(this)}
-              //     saveJob={this.save.bind(this)}
-              //     isStandeAlone={isStandeAlone}
-              // />
-              content: <p>555</p>
+              content: <DataSyncSave
+                  currentStep={currentStep}
+                  notSynced={notSynced}
+                  isIncrementMode={isIncrementMode}
+                  navtoStep={this.navtoStep.bind(this)}
+                  saveJob={this.save.bind(this)}
+                  isStandeAlone={isStandeAlone}
+              />
           }
       ]
 

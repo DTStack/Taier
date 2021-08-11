@@ -1,7 +1,9 @@
 import * as React from 'react';
 import { Card, Button } from 'antd';
 
-// import Keymap from './keymap';
+import Source from './source';
+import Target from './target';
+import Keymap from './keymap';
 import Channel from './channel';
 
 function Mask () {
@@ -29,10 +31,10 @@ export default class Save extends React.Component<any, any> {
                         onClick={ () => this.navtoStep(0) }>修改</a>
                     }
                 >
-                    {/* <Source
+                    <Source
                         readonly
                         isIncrementMode={isIncrementMode}
-                    /> */}
+                    />
                     <Mask />
                 </Card>
                 <Card bordered={ false }
@@ -42,10 +44,10 @@ export default class Save extends React.Component<any, any> {
                         onClick={ () => this.navtoStep(1) }>修改</a>
                     }
                 >
-                    {/* <Target
+                    <Target
                         readonly
                         isIncrementMode={isIncrementMode}
-                    /> */}
+                    />
                     <Mask />
                 </Card>
                 <Card bordered={ false }
@@ -55,7 +57,7 @@ export default class Save extends React.Component<any, any> {
                         onClick={ () => this.navtoStep(2) }>修改</a>
                     }
                 >
-                    {/* <Keymap readonly /> */}
+                    <Keymap readonly />
                     <Mask />
                 </Card>
                 <Card bordered={ false }
