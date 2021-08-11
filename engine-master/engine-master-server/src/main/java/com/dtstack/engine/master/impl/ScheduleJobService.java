@@ -45,6 +45,7 @@ import com.dtstack.engine.master.scheduler.JobParamReplace;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
 import com.dtstack.engine.master.sync.RestartRunnable;
 import com.dtstack.engine.master.utils.JobGraphUtils;
+import com.dtstack.engine.master.utils.RequestUtil;
 import com.dtstack.engine.master.vo.BatchSecienceJobChartVO;
 import com.dtstack.engine.master.vo.ScheduleJobVO;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
@@ -74,6 +75,7 @@ import org.springframework.transaction.annotation.Transactional;
 import redis.clients.jedis.commands.JedisCommands;
 import redis.clients.jedis.params.SetParams;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
@@ -170,6 +172,9 @@ public class ScheduleJobService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private HttpServletRequest request;
 
     private final static List<Integer> FINISH_STATUS = Lists.newArrayList(RdosTaskStatus.FINISHED.getStatus(), RdosTaskStatus.MANUALSUCCESS.getStatus(), RdosTaskStatus.CANCELLING.getStatus(), RdosTaskStatus.CANCELED.getStatus());
     private final static List<Integer> FAILED_STATUS = Lists.newArrayList(RdosTaskStatus.FAILED.getStatus(), RdosTaskStatus.SUBMITFAILD.getStatus(), RdosTaskStatus.KILLED.getStatus());
@@ -470,6 +475,7 @@ public class ScheduleJobService {
         }
         vo.setSplitFiledFlag(true);
         ScheduleJobDTO batchJobDTO = this.createQuery(vo);
+        buildDtuicTenantId(batchJobDTO);
 
         boolean queryAll = false;
         if (StringUtils.isNotBlank(vo.getTaskName()) ||
@@ -511,6 +517,14 @@ public class ScheduleJobService {
         }
         userService.fillScheduleJobVO(result);
         return new PageResult<>(result, count, pageQuery);
+    }
+
+    private void buildDtuicTenantId(ScheduleJobDTO batchJobDTO) {
+        Map<String, Object> map = RequestUtil.paramToMap(request.getHeader("Cookie"));
+        Object o = map.get("dt_tenant_id");
+        if (o != null) {
+            batchJobDTO.setDtuicTenantId(Long.parseLong(o.toString()));
+        }
     }
 
     private void changeSearchType(ScheduleJobDTO batchJobDTO, String searchType) {
@@ -814,6 +828,7 @@ public class ScheduleJobService {
         }
         vo.setSplitFiledFlag(true);
         ScheduleJobDTO batchJobDTO = createQuery(vo);
+        buildDtuicTenantId(batchJobDTO);
         batchJobDTO.setQueryWorkFlowModel(QueryWorkFlowModel.Eliminate_Workflow_SubNodes.getType());
         if (vo.getAppType() == AppType.DATASCIENCE.getType()) {
             batchJobDTO.setQueryWorkFlowModel(QueryWorkFlowModel.Eliminate_Workflow_SubNodes.getType());
