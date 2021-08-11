@@ -772,7 +772,6 @@ class TargetForm extends React.Component<any, any> {
                             <Select
                                 showSearch
                                 {...{ showArrow: true }}
-
                                 allowClear={true}
                                 onChange={(val: any) => {
                                     this.getTableList(kingbaseId, val)

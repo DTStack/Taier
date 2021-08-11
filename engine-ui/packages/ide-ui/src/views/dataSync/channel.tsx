@@ -61,7 +61,6 @@ class ChannelForm extends React.Component<any, any> {
         //         isTransTable
         //     })
         // }
-
     }
 
     onLifeDayChange = (val: any) => {

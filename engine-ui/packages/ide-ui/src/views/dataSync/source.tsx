@@ -615,10 +615,7 @@ class SourceForm extends React.Component<any, any> {
         if (!isArray(objects)) {
             objects = [objects]
         }
-        objects.push('')
         const srcmap = Object.assign({}, sourceMap)
-        srcmap.type.objects = objects
-        handleSourceMapChange(srcmap)
     }
 
     onRemoveFtpPath = (index: any) => {
@@ -1992,7 +1989,6 @@ class SourceForm extends React.Component<any, any> {
 const SourceFormWrap = Form.create<any>()(SourceForm);
 
 class Source extends React.Component<any, any> {
-
     render() {
         return (
             <>

@@ -11,10 +11,11 @@ module.exports = function (env) {
                 new TerserPlugin({
                     parallel: true,
                     terserOptions: {
-                        keep_classnames: true, keep_fnames: true
-                    }
-                })
-            ]
-        }
-    })
-}
+                        keep_classnames: true,
+                        keep_fnames: true,
+                    },
+                }),
+            ],
+        },
+    });
+};

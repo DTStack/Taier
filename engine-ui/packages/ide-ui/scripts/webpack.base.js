@@ -1,10 +1,10 @@
-const path = require('path')
-const webpack = require('webpack')
-const HtmlWebPackPlugin = require('html-webpack-plugin')
-const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin')
-const ROOT_PATH = path.resolve(__dirname, '../')
-const APP_PATH = path.resolve(ROOT_PATH, 'src') // 应用根路径
-const WEB_PUBLIC = path.resolve(ROOT_PATH, 'public') // 公开资源
+const path = require('path');
+const webpack = require('webpack');
+const HtmlWebPackPlugin = require('html-webpack-plugin');
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
+const ROOT_PATH = path.resolve(__dirname, '../');
+const APP_PATH = path.resolve(ROOT_PATH, 'src'); // 应用根路径
+const WEB_PUBLIC = path.resolve(ROOT_PATH, 'public'); // 公开资源
 
 module.exports = {
     resolve: {
@@ -24,8 +24,9 @@ module.exports = {
         }
     },
     entry: {
-        app: path.resolve(__dirname, '../src/index.tsx')
-        // 'sparksql.worker': path.resolve(__dirname, '../src/sparksql/sparksql.worker.js'),
+        app: path.resolve(__dirname, '../src/index.tsx'),
+        'sparksql.worker':
+            'monaco-sql-languages/out/esm/sparksql/sparksql.worker.js',
     },
     output: {
         globalObject: 'this',
