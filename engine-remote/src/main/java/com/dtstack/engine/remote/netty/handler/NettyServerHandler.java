@@ -65,7 +65,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void processReceived(Channel channel, Command msg) {
-        Message message = msg.getBody();
+        Message message = deserialization(msg.getBody());
         TargetInfo targetInfo = message.getTargetInfo();
         ExecutorService defaultExecutor = nettyRemoteServer.getDefaultExecutor();
         defaultExecutor.submit(() -> {

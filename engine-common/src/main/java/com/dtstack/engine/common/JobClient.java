@@ -32,7 +32,7 @@ import java.util.Properties;
 
 public class JobClient extends OrderObject {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JobClient.class);
+    private transient static final Logger LOGGER = LoggerFactory.getLogger(JobClient.class);
 
     /**
      * 默认的优先级，值越小，优先级越高
@@ -44,7 +44,7 @@ public class JobClient extends OrderObject {
      */
     private static final int PRIORITY_LEVEL_WEIGHT = 100000;
 
-    private JobClientCallBack jobClientCallBack;
+    private transient JobClientCallBack jobClientCallBack;
 
     private List<JarFileInfo> attachJarInfos = Lists.newArrayList();
 

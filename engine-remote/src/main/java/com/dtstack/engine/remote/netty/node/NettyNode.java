@@ -62,7 +62,7 @@ public class NettyNode extends AbstractNode {
             }
         }
 
-        return result.getBody();
+        return JSON.parseObject(new String(result.getBody()), Message.class);
     }
 
     @Override
