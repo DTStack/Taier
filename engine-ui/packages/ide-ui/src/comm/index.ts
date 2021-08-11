@@ -1,9 +1,6 @@
 import { debounce } from 'lodash'
 import moment from 'moment'
-import {
-    RDB_TYPE_ARRAY,
-    ENGINE_SOURCE_TYPE
-} from './const'
+import { RDB_TYPE_ARRAY, ENGINE_SOURCE_TYPE } from './const'
 
 // 日志下载
 export function createLinkMark (attrs: any) {
@@ -11,10 +8,10 @@ export function createLinkMark (attrs: any) {
 }
 
 /**
-* dtlog日志构造器
-* @param {string} log 日志内容
-* @param {string} type 日志类型
-*/
+ * dtlog日志构造器
+ * @param {string} log 日志内容
+ * @param {string} type 日志类型
+ */
 export function createLog (log: string, type = '') {
     let now = moment().format('HH:mm:ss')
     if (process.env.NODE_ENV === 'test') {
@@ -25,7 +22,7 @@ export function createLog (log: string, type = '') {
 
 export function createTitle (title = '') {
     const baseLength = 15
-    const offsetLength = Math.floor(1.5 * title.length / 2)
+    const offsetLength = Math.floor((1.5 * title.length) / 2)
     const arr = new Array(Math.max(baseLength - offsetLength, 5))
     const wraptext = arr.join('=')
     return `${wraptext}${title}${wraptext}`
@@ -63,7 +60,9 @@ export function matchTaskParams (taskCustomParams: any, sqlText: any) {
             paramName: name,
             paramCommand: ''
         }
-        const sysParam = taskCustomParams.find((item: any) => item.paramName === name)
+        const sysParam = taskCustomParams.find(
+            (item: any) => item.paramName === name
+        )
         if (sysParam) {
             param.type = 0
             param.paramCommand = sysParam.paramCommand

@@ -154,10 +154,12 @@ describe('editor reducer', () => {
         expect(state).toEqual({
             test: {
                 log: '123 \n123',
-                results: [{
-                    list: ['1'],
-                    id: 1
-                }],
+                results: [
+                    {
+                        list: ['1'],
+                        id: 1
+                    }
+                ],
                 showRes: true
             }
         })
@@ -168,10 +170,12 @@ describe('editor reducer', () => {
         expect(state).toEqual({
             test: {
                 log: '123 \n123',
-                results: [{
-                    list: ['1'],
-                    id: 1
-                }],
+                results: [
+                    {
+                        list: ['1'],
+                        id: 1
+                    }
+                ],
                 showRes: false
             }
         })
@@ -185,13 +189,16 @@ describe('editor reducer', () => {
         expect(state).toEqual({
             test: {
                 log: '123 \n123',
-                results: [{
-                    list: ['1'],
-                    id: 1
-                }, {
-                    list: ['12'],
-                    id: 2
-                }],
+                results: [
+                    {
+                        list: ['1'],
+                        id: 1
+                    },
+                    {
+                        list: ['12'],
+                        id: 2
+                    }
+                ],
                 showRes: true
             }
         })
@@ -203,10 +210,12 @@ describe('editor reducer', () => {
         expect(state).toEqual({
             test: {
                 log: '123 \n123',
-                results: [{
-                    list: ['12'],
-                    id: 2
-                }],
+                results: [
+                    {
+                        list: ['12'],
+                        id: 2
+                    }
+                ],
                 showRes: true
             }
         })
@@ -220,13 +229,16 @@ describe('editor reducer', () => {
         expect(state).toEqual({
             test: {
                 log: '123 \n123',
-                results: [{
-                    list: ['12'],
-                    id: 2
-                }, {
-                    list: ['123'],
-                    id: 3
-                }],
+                results: [
+                    {
+                        list: ['12'],
+                        id: 2
+                    },
+                    {
+                        list: ['123'],
+                        id: 3
+                    }
+                ],
                 showRes: true
             }
         })

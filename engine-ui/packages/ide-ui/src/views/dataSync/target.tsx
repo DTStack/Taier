@@ -1,11 +1,24 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
-import { Form, Input, Select, Button, Radio, Icon, message, Spin, AutoComplete } from 'antd'
+import {
+    Form,
+    Input,
+    Select,
+    Button,
+    Radio,
+    Icon,
+    message,
+    Spin,
+    AutoComplete
+} from 'antd'
 import { isEmpty, debounce, get } from 'lodash'
 import assign from 'object-assign'
 
 import { Utils } from '@dtinsight/dt-utils'
-import { singletonNotification, filterValueOption } from '../../components/func'
+import {
+    singletonNotification,
+    filterValueOption
+} from '../../components/func'
 import { getProjectTableTypes } from '../../controller/dataSync/tableType'
 import ajax from '../../api'
 import {
@@ -64,9 +77,14 @@ class TargetForm extends React.Component<any, any> {
         if (!sourceId) {
             return
         }
-        if (type.type === DATA_SOURCE.POSTGRESQL || type.type === DATA_SOURCE.ORACLE) {
+        if (
+            type.type === DATA_SOURCE.POSTGRESQL ||
+            type.type === DATA_SOURCE.ORACLE
+        ) {
             this.getSchemaList(sourceId)
-            schema ? this.getTableList(sourceId, schema) : this.getTableList(sourceId)
+            schema
+                ? this.getTableList(sourceId, schema)
+                : this.getTableList(sourceId)
         } else {
             this.getTableList(sourceId)
         }
@@ -90,7 +108,7 @@ class TargetForm extends React.Component<any, any> {
                 })
             }
         })
-    }
+    };
 
     getDataSourceVersion = async (dataSourceId: number) => {
         const res = await ajax.getDataSourceVersion({ dataSourceId })
@@ -99,7 +117,7 @@ class TargetForm extends React.Component<any, any> {
                 version: res.data
             })
         }
-    }
+    };
 
     getTableList = (sourceId: any, schema?: any, name?: any) => {
         const ctx = this
@@ -109,38 +127,44 @@ class TargetForm extends React.Component<any, any> {
             return true
         }
 
-        ctx.setState({
-            tableList: [],
-            tableListSearch: [],
-            tableListLoading: !name,
-            schemaId: schema,
-            fetching: !!name
-        }, () => {
-            ajax.getOfflineTableList({
-                sourceId,
-                isSys: false,
-                schema,
-                name,
-                isRead: false
-            })
-                .then((res: any) => {
-                    if (res.code === 1) {
-                        const { data = [] } = res
-                        let arr = data
-                        if (data.length && data.length > 200) {
-                            arr = data.slice(0, 200)
+        ctx.setState(
+            {
+                tableList: [],
+                tableListSearch: [],
+                tableListLoading: !name,
+                schemaId: schema,
+                fetching: !!name
+            },
+            () => {
+                ajax.getOfflineTableList({
+                    sourceId,
+                    isSys: false,
+                    schema,
+                    name,
+                    isRead: false
+                })
+                    .then((res: any) => {
+                        if (res.code === 1) {
+                            const { data = [] } = res
+                            let arr = data
+                            if (data.length && data.length > 200) {
+                                arr = data.slice(0, 200)
+                            }
+                            ctx.setState({
+                                tableList: res.data,
+                                tableListSearch: arr
+                            })
                         }
+                    })
+                    .finally(() => {
                         ctx.setState({
-                            tableList: res.data,
-                            tableListSearch: arr
+                            tableListLoading: false,
+                            fetching: false
                         })
-                    }
-                })
-                .finally(() => {
-                    ctx.setState({ tableListLoading: false, fetching: false })
-                })
-        })
-    }
+                    })
+            }
+        )
+    };
 
     onSearchTable = (str: any) => {
         const { tableList } = this.state
@@ -151,7 +175,7 @@ class TargetForm extends React.Component<any, any> {
         this.setState({
             tableListSearch: arr
         })
-    }
+    };
 
     /**
      * 根据数据源id获取数据源信息
@@ -170,8 +194,8 @@ class TargetForm extends React.Component<any, any> {
         setTimeout(() => {
             // 有schema才需要获取schemalist
             (dataType === DATA_SOURCE.POSTGRESQL ||
-            dataType === DATA_SOURCE.ORACLE) &&
-            this.getSchemaList(value)
+                dataType === DATA_SOURCE.ORACLE) &&
+                this.getSchemaList(value)
         }, 0)
         handleSourceChange(this.getDataObjById(value))
         this.resetTable()
@@ -181,29 +205,31 @@ class TargetForm extends React.Component<any, any> {
         const { form } = this.props
         this.changeTable('')
         // 这边先隐藏结点，然后再reset，再显示。不然会有一个组件自带bug。
-        this.setState({
-            selectHack: true
-        }, () => {
-            form.resetFields(['table'])
-            this.setState({
-                selectHack: false
-            })
-        })
+        this.setState(
+            {
+                selectHack: true
+            },
+            () => {
+                form.resetFields(['table'])
+                this.setState({
+                    selectHack: false
+                })
+            }
+        )
     }
 
     getHivePartitions = (tableName: any) => {
-        const {
-            targetMap, handleTargetMapChange
-        } = this.props
+        const { targetMap, handleTargetMapChange } = this.props
 
         const { sourceId, type } = targetMap
         // TODO 这里获取 Hive 分区的条件有点模糊
-        if (type && (
-            type.type === DATA_SOURCE.HIVE_1 ||
-            type.type === DATA_SOURCE.HIVE_2 ||
-            type.type === DATA_SOURCE.HIVE_3 ||
-            type.type === DATA_SOURCE.HIVE_SERVER
-        )) {
+        if (
+            type &&
+            (type.type === DATA_SOURCE.HIVE_1 ||
+                type.type === DATA_SOURCE.HIVE_2 ||
+                type.type === DATA_SOURCE.HIVE_3 ||
+                type.type === DATA_SOURCE.HIVE_SERVER)
+        ) {
             ajax.getHivePartitions({
                 sourceId: sourceId,
                 tableName
@@ -215,7 +241,7 @@ class TargetForm extends React.Component<any, any> {
                 handleTargetMapChange({ havePartition })
             })
         }
-    }
+    };
 
     changeTable (type?: any, value?: any) {
         if (value) {
@@ -231,21 +257,25 @@ class TargetForm extends React.Component<any, any> {
     }
 
     getPartitionType = async (tableName: string, isUpdate: boolean) => {
-        const {
-            targetMap
-        } = this.props
-        const res = await ajax.getPartitionType({ sourceId: targetMap.sourceId, tableName })
+        const { targetMap } = this.props
+        const res = await ajax.getPartitionType({
+            sourceId: targetMap.sourceId,
+            tableName
+        })
         if (res.code === 1) {
             const data = res.data || {}
             const isImpalaHiveTable = data.tableLocationType === 'hive'
             this.setState({ isImpalaHiveTable }, () => {
                 this.getHivePartitions(tableName)
             })
-            if (isUpdate) { // isUpdate为 true reset writeMode
-                this.props.handleTargetMapChange({ writeMode: isImpalaHiveTable ? 'replace' : 'insert' })
+            if (isUpdate) {
+                // isUpdate为 true reset writeMode
+                this.props.handleTargetMapChange({
+                    writeMode: isImpalaHiveTable ? 'replace' : 'insert'
+                })
             }
         }
-    }
+    };
 
     getTableColumn = (tableName: any, schema?: any) => {
         const { form, handleTableColumnChange, targetMap } = this.props
@@ -256,7 +286,11 @@ class TargetForm extends React.Component<any, any> {
         })
         // Hive 作为结果表时，需要获取分区字段
         const targetType = get(targetMap, 'type.type', null)
-        const includePart = +targetType === DATA_SOURCE.HIVE_1 || +targetType === DATA_SOURCE.HIVE_2 || +targetType === DATA_SOURCE.HIVE_3 || +targetType === DATA_SOURCE.HIVE_SERVER
+        const includePart =
+            +targetType === DATA_SOURCE.HIVE_1 ||
+            +targetType === DATA_SOURCE.HIVE_2 ||
+            +targetType === DATA_SOURCE.HIVE_3 ||
+            +targetType === DATA_SOURCE.HIVE_SERVER
 
         ajax.getOfflineTableColumn({
             sourceId,
@@ -273,18 +307,18 @@ class TargetForm extends React.Component<any, any> {
                 handleTableColumnChange([])
             }
         })
-    }
+    };
 
     checkIsNativeHive (tableName: any) {
         const { form } = this.props
         const sourceId = form.getFieldValue('sourceId')
-        if (!tableName || !sourceId) { return false }
+        if (!tableName || !sourceId) {
+            return false
+        }
     }
 
     submitForm = () => {
-        const {
-            form, updateTabAsUnSave, handleTargetMapChange
-        } = this.props
+        const { form, updateTabAsUnSave, handleTargetMapChange } = this.props
 
         setTimeout(() => {
             /**
@@ -337,7 +371,7 @@ class TargetForm extends React.Component<any, any> {
             handleTargetMapChange(srcmap)
             updateTabAsUnSave()
         }, 0)
-    }
+    };
 
     validateChineseCharacter = (data: any) => {
         const reg = /(，|。|；|[\u4e00-\u9fa5]+)/ // 中文字符，中文逗号，句号，分号
@@ -360,9 +394,13 @@ class TargetForm extends React.Component<any, any> {
             fieldsName.push('列分隔符')
         }
         if (has) {
-            singletonNotification('提示', `${fieldsName.join('、')}参数中有包含中文或者中文标点符号！`, 'warning')
+            singletonNotification(
+                '提示',
+                `${fieldsName.join('、')}参数中有包含中文或者中文标点符号！`,
+                'warning'
+            )
         }
-    }
+    };
 
     prev (cb: any) {
         /* eslint-disable-next-line */
@@ -371,10 +409,11 @@ class TargetForm extends React.Component<any, any> {
 
     onSearchObject = (str: any, sourceId: any) => {
         this.getBucketList(sourceId, str)
-    }
+    };
 
     next (cb: any) {
-        const { form, currentTabData, saveDataSyncToTab, dataSync } = this.props
+        const { form, currentTabData, saveDataSyncToTab, dataSync } =
+            this.props
         form.validateFields((err: any, values: any) => {
             if (!err) {
                 saveDataSyncToTab({
@@ -403,7 +442,11 @@ class TargetForm extends React.Component<any, any> {
         this.setState({
             modalLoading: true
         })
-        ajax.createDdlTable({ sql: textSql, sourceId: targetMap.sourceId, tableType }).then((res: any) => {
+        ajax.createDdlTable({
+            sql: textSql,
+            sourceId: targetMap.sourceId,
+            tableType
+        }).then((res: any) => {
             this.setState({
                 modalLoading: false
             })
@@ -432,9 +475,9 @@ class TargetForm extends React.Component<any, any> {
         this.setState({
             showPreview: false
         })
-    }
+    };
 
-    getBucketList = async (resourceId:number, schema?: any) => {
+    getBucketList = async (resourceId: number, schema?: any) => {
         const { currentTab } = this.props
         const params = {
             projectId: currentTab,
@@ -448,17 +491,24 @@ class TargetForm extends React.Component<any, any> {
                 bucketList: data
             })
         }
-    }
+    };
 
-    checkEffective=() => {
+    checkEffective = () => {
         const { tableListSearch } = this.state
         const { form, targetMap } = this.props
         const value = form.getFieldValue('table')
-        if (!Array.isArray(tableListSearch) || tableListSearch.length === 0 || !tableListSearch?.includes(value)) {
+        if (
+            !Array.isArray(tableListSearch) ||
+            tableListSearch.length === 0 ||
+            !tableListSearch?.includes(value)
+        ) {
             form.setFieldsValue({ table: undefined })
-            return this.getTableList(targetMap.sourceId, targetMap?.type?.schema)
+            return this.getTableList(
+                targetMap.sourceId,
+                targetMap?.type?.schema
+            )
         }
-    }
+    };
 
     showCreateModal = () => {
         const { sourceMap, targetMap } = this.props
@@ -466,8 +516,14 @@ class TargetForm extends React.Component<any, any> {
         this.setState({
             loading: true
         })
-        const tableName = typeof sourceMap.type.table === 'string' ? sourceMap.type.table : sourceMap.type.table && sourceMap.type.table[0]
-        const targetTableName = typeof targetMap.type.table === 'string' ? targetMap.type.table : targetMap.type.table && targetMap.type.table[0]
+        const tableName =
+            typeof sourceMap.type.table === 'string'
+                ? sourceMap.type.table
+                : sourceMap.type.table && sourceMap.type.table[0]
+        const targetTableName =
+            typeof targetMap.type.table === 'string'
+                ? targetMap.type.table
+                : targetMap.type.table && targetMap.type.table[0]
         ajax.getCreateTargetTable({
             originSourceId: sourceMap.sourceId,
             tableName,
@@ -475,35 +531,41 @@ class TargetForm extends React.Component<any, any> {
             targetSourceId: targetMap.sourceId,
             originSchema: sourceMap?.type?.schema || null,
             targetSchema: schema || null
-        }).then(
-            (res: any) => {
-                this.setState({
-                    loading: false
-                })
-                if (res.code === 1) {
-                    let textSql = res.data
-                    if (targetTableName) {
-                        const reg = /create\s+table\s+`(.*)`\s*\(/i
-                        textSql = res.data.replace(reg, function (match: any, p1: any, offset: any, string: string) {
+        }).then((res: any) => {
+            this.setState({
+                loading: false
+            })
+            if (res.code === 1) {
+                let textSql = res.data
+                if (targetTableName) {
+                    const reg = /create\s+table\s+`(.*)`\s*\(/i
+                    textSql = res.data.replace(
+                        reg,
+                        function (
+                            match: any,
+                            p1: any,
+                            offset: any,
+                            string: string
+                        ) {
                             return match.replace(p1, targetTableName)
-                        })
-                    }
-                    this.setState({
-                        textSql: textSql,
-                        sync: true,
-                        visible: true
-                    })
+                        }
+                    )
                 }
+                this.setState({
+                    textSql: textSql,
+                    sync: true,
+                    visible: true
+                })
             }
-        )
-    }
+        })
+    };
 
     ddlChange = (newVal: any) => {
         this.setState({
             textSql: newVal,
             sync: false
         })
-    }
+    };
 
     versionDiff = (version1: any, version2: any) => {
         const v1 = version1.split('.')
@@ -524,109 +586,146 @@ class TargetForm extends React.Component<any, any> {
         if (!tableListSearch.includes(value)) {
             setFieldsValue({ table: undefined })
         }
-    }
+    };
 
     renderTableList = (taskType: any) => {
         const { tableListSearch } = this.state
         return tableListSearch.map((table: any) => {
-            return <Option
-                key={`rdb-target-${table}`}
-                value={table}>
-                {table}
-            </Option>
+            return (
+                <Option key={`rdb-target-${table}`} value={table}>
+                    {table}
+                </Option>
+            )
         })
-    }
+    };
 
     render () {
         const { getFieldDecorator } = this.props.form
         const { tableListLoading } = this.state
-        const {
-            targetMap, dataSourceList, navtoStep
-        } = this.props
+        const { targetMap, dataSourceList, navtoStep } = this.props
         const getPopupContainer = this.props.getPopupContainer
-        return <Spin spinning={tableListLoading}>
-            <div className="g-step2">
-                <Form>
-                    <FormItem
-                        {...formItemLayout}
-                        label="数据同步目标"
-                    >
-                        {getFieldDecorator('sourceId', {
-                            rules: [{
-                                required: true
-                            }],
-                            initialValue: isEmpty(targetMap) ? '' : `${targetMap.sourceId}`
-                        })(
-                            <Select
-                                getPopupContainer={getPopupContainer}
-                                showSearch
-                                onSelect={(value, options) => {
-                                    this.setState({
-                                        tableList: [],
-                                        tableListSearch: []
-                                    }, () => { this.changeSource(value, options) })
-                                }}
-                                optionFilterProp="name"
-                            >
-                                {dataSourceList.map((src: any) => {
-                                    const title = `${src.dataName}（${(DATA_SOURCE_TEXT as any)[src.type]}）`
+        return (
+            <Spin spinning={tableListLoading}>
+                <div className="g-step2">
+                    <Form>
+                        <FormItem {...formItemLayout} label="数据同步目标">
+                            {getFieldDecorator('sourceId', {
+                                rules: [
+                                    {
+                                        required: true
+                                    }
+                                ],
+                                initialValue: isEmpty(targetMap)
+                                    ? ''
+                                    : `${targetMap.sourceId}`
+                            })(
+                                <Select
+                                    getPopupContainer={getPopupContainer}
+                                    showSearch
+                                    onSelect={(value, options) => {
+                                        this.setState(
+                                            {
+                                                tableList: [],
+                                                tableListSearch: []
+                                            },
+                                            () => {
+                                                this.changeSource(
+                                                    value,
+                                                    options
+                                                )
+                                            }
+                                        )
+                                    }}
+                                    optionFilterProp="name"
+                                >
+                                    {dataSourceList.map((src: any) => {
+                                        const title = `${src.dataName}（${
+                                            (DATA_SOURCE_TEXT as any)[src.type]
+                                        }）`
 
-                                    return <Option
-                                        key={src.id}
-                                        {...{
-                                            name: src.dataName,
-                                            dataType: src.type
-                                        }}
-                                        value={`${src.id}`}>
-                                        {title}
-                                    </Option>
-                                })}
-                            </Select>
-                        )}
-                    </FormItem>
-                    {this.renderDynamicForm()}
-                    {!isEmpty(targetMap)
-                        ? (
-                            <FormItem
-                                {...formItemLayout}
-                                label="高级配置"
+                                        return (
+                                            <Option
+                                                key={src.id}
+                                                {...{
+                                                    name: src.dataName,
+                                                    dataType: src.type
+                                                }}
+                                                value={`${src.id}`}
+                                            >
+                                                {title}
+                                            </Option>
+                                        )
+                                    })}
+                                </Select>
+                            )}
+                        </FormItem>
+                        {this.renderDynamicForm()}
+                        {!isEmpty(targetMap)
+                            ? (
+                                <FormItem {...formItemLayout} label="高级配置">
+                                    {getFieldDecorator('extralConfig', {
+                                        rules: [
+                                            {
+                                                validator: formJsonValidator
+                                            }
+                                        ],
+                                        initialValue: get(
+                                            targetMap,
+                                            'extralConfig',
+                                            ''
+                                        )
+                                    })(
+                                        <TextArea
+                                            onChange={this.submitForm.bind(this)}
+                                            placeholder={
+                                                '以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize'
+                                            }
+                                            autosize={{ minRows: 2, maxRows: 6 }}
+                                        />
+                                    )}
+                                    <HelpDoc doc={'dataSyncExtralConfigHelp'} />
+                                </FormItem>
+                            )
+                            : null}
+                    </Form>
+                    {!this.props.readonly && (
+                        <div className="steps-action">
+                            <Button
+                                style={{ marginRight: 8 }}
+                                onClick={() => this.prev(navtoStep)}
                             >
-                                {getFieldDecorator('extralConfig', {
-                                    rules: [{
-                                        validator: formJsonValidator
-                                    }],
-                                    initialValue: get(targetMap, 'extralConfig', '')
-                                })(
-                                    <TextArea
-                                        onChange={this.submitForm.bind(this)}
-                                        placeholder={'以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize'}
-                                        autosize={{ minRows: 2, maxRows: 6 }}
-                                    />
-                                )}
-                                <HelpDoc doc={'dataSyncExtralConfigHelp'} />
-                            </FormItem>
-                        )
-                        : null}
-                </Form>
-                {!this.props.readonly && <div className="steps-action">
-                    <Button style={{ marginRight: 8 }} onClick={() => this.prev(navtoStep)}>上一步</Button>
-                    <Button
-                        type="primary"
-                        onClick={() => this.next(navtoStep)}
-                        loading={this.state.loading}
-                    >
-                    下一步
-                    </Button>
-                </div>}
-            </div>
-        </Spin>
+                                上一步
+                            </Button>
+                            <Button
+                                type="primary"
+                                onClick={() => this.next(navtoStep)}
+                                loading={this.state.loading}
+                            >
+                                下一步
+                            </Button>
+                        </div>
+                    )}
+                </div>
+            </Spin>
+        )
     }
 
-    debounceTableSearch = debounce(this.changeTable, 600, { maxWait: 2000 })
-    debounceTableNameSearch = debounce(this.getTableList, 500, { maxWait: 2000 });
+    debounceTableSearch = debounce(this.changeTable, 600, { maxWait: 2000 });
+    debounceTableNameSearch = debounce(this.getTableList, 500, {
+        maxWait: 2000
+    });
 
     renderDynamicForm = () => {
-        const { selectHack, loading, schemaList, kingbaseId, tableListSearch, schemaId, tableList, fetching } = this.state
+        const {
+            selectHack,
+            loading,
+            schemaList,
+            kingbaseId,
+            tableListSearch,
+            schemaId,
+            tableList,
+            fetching
+        } = this.state
 
         const { targetMap, sourceMap, form } = this.props
         const { getFieldDecorator } = form
@@ -634,17 +733,18 @@ class TargetForm extends React.Component<any, any> {
         const targetType = targetMap?.type?.type
         // 是否拥有分区
         let formItem: any
-        const havePartition = targetMap.type && (!!targetMap.type.partition || targetMap.type.havePartition)
+        const havePartition =
+            targetMap.type &&
+            (!!targetMap.type.partition || targetMap.type.havePartition)
         const getPopupContainer = this.props.getPopupContainer
-        const showCreateTable = (
+        const showCreateTable =
             targetType === DATA_SOURCE.HIVE_2 ||
             targetType === DATA_SOURCE.HIVE_3 ||
             targetType === DATA_SOURCE.HIVE_SERVER ||
             targetType === DATA_SOURCE.HIVE_1 ||
             targetType === DATA_SOURCE.POSTGRESQL ||
             targetType === DATA_SOURCE.MYSQL
-        )
-        const showCreateTableSource = (
+        const showCreateTableSource =
             sourceType === DATA_SOURCE.MYSQL ||
             sourceType === DATA_SOURCE.ORACLE ||
             sourceType === DATA_SOURCE.SQLSERVER ||
@@ -653,55 +753,76 @@ class TargetForm extends React.Component<any, any> {
             sourceType === DATA_SOURCE.HIVE_3 ||
             sourceType === DATA_SOURCE.HIVE_SERVER ||
             sourceType === DATA_SOURCE.HIVE_1
-        )
 
-        const oneKeyCreateTable = showCreateTable && showCreateTableSource && (
-            loading
-                ? <Icon type="loading" />
-                : <a
-                    style={{ top: '0px', right: '-103px' }}
-                    onClick={this.showCreateModal.bind(this)}
-                    className="help-doc" >一键生成目标表</a>
-        )
+        const oneKeyCreateTable =
+            showCreateTable &&
+            showCreateTableSource &&
+            (loading
+                ? (
+                    <Icon type="loading" />
+                )
+                : (
+                    <a
+                        style={{ top: '0px', right: '-103px' }}
+                        onClick={this.showCreateModal.bind(this)}
+                        className="help-doc"
+                    >
+                    一键生成目标表
+                    </a>
+                ))
 
         if (isEmpty(targetMap)) return null
         switch (targetMap.type.type) {
             case DATA_SOURCE.MYSQL: {
                 formItem = [
-                    !selectHack && <FormItem
-                        {...formItemLayout}
-                        label="表名"
-                        key="table"
-                    >
-                        {getFieldDecorator('table', {
-                            rules: [{
-                                required: true,
-                                message: '请选择表'
-                            }],
-                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.table
-                        })(
-                            <Select
-                                getPopupContainer={getPopupContainer}
-                                showSearch
-                                optionFilterProp="value"
-                                filterOption={false}
-                                onSearch={(str: any) => {
-                                    this.debounceTableNameSearch(targetMap.sourceId, null, str)
-                                }}
-                                onSelect={this.debounceTableSearch.bind(this, null)}
-                                notFoundContent={fetching ? <Spin size="small" /> : null}
-                            >
-                                {tableListSearch.map((table: any) => {
-                                    return <Option
-                                        key={`rdb-target-${table}`}
-                                        value={table}>
-                                        {table}
-                                    </Option>
-                                })}
-                            </Select>
-                        )}
-                        { oneKeyCreateTable }
-                    </FormItem>,
+                    !selectHack && (
+                        <FormItem {...formItemLayout} label="表名" key="table">
+                            {getFieldDecorator('table', {
+                                rules: [
+                                    {
+                                        required: true,
+                                        message: '请选择表'
+                                    }
+                                ],
+                                initialValue: isEmpty(targetMap)
+                                    ? ''
+                                    : targetMap.type.table
+                            })(
+                                <Select
+                                    getPopupContainer={getPopupContainer}
+                                    showSearch
+                                    optionFilterProp="value"
+                                    filterOption={false}
+                                    onSearch={(str: any) => {
+                                        this.debounceTableNameSearch(
+                                            targetMap.sourceId,
+                                            null,
+                                            str
+                                        )
+                                    }}
+                                    onSelect={this.debounceTableSearch.bind(
+                                        this,
+                                        null
+                                    )}
+                                    notFoundContent={
+                                        fetching ? <Spin size="small" /> : null
+                                    }
+                                >
+                                    {tableListSearch.map((table: any) => {
+                                        return (
+                                            <Option
+                                                key={`rdb-target-${table}`}
+                                                value={table}
+                                            >
+                                                {table}
+                                            </Option>
+                                        )
+                                    })}
+                                </Select>
+                            )}
+                            {oneKeyCreateTable}
+                        </FormItem>
+                    ),
                     <FormItem
                         {...formItemLayout}
                         label="导入前准备语句"
@@ -709,7 +830,9 @@ class TargetForm extends React.Component<any, any> {
                     >
                         {getFieldDecorator('preSql', {
                             rules: [],
-                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.preSql
+                            initialValue: isEmpty(targetMap)
+                                ? ''
+                                : targetMap.type.preSql
                         })(
                             <Input.TextArea
                                 onChange={this.submitForm.bind(this)}
@@ -724,7 +847,9 @@ class TargetForm extends React.Component<any, any> {
                     >
                         {getFieldDecorator('postSql', {
                             rules: [],
-                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.postSql
+                            initialValue: isEmpty(targetMap)
+                                ? ''
+                                : targetMap.type.postSql
                         })(
                             <Input.TextArea
                                 onChange={this.submitForm.bind(this)}
@@ -739,15 +864,28 @@ class TargetForm extends React.Component<any, any> {
                         className="txt-left"
                     >
                         {getFieldDecorator('writeMode@mysql', {
-                            rules: [{
-                                required: true
-                            }],
-                            initialValue: targetMap.type && targetMap.type.writeMode ? targetMap.type.writeMode : 'insert'
+                            rules: [
+                                {
+                                    required: true
+                                }
+                            ],
+                            initialValue:
+                                targetMap.type && targetMap.type.writeMode
+                                    ? targetMap.type.writeMode
+                                    : 'insert'
                         })(
                             <Select onChange={this.submitForm.bind(this)}>
-                                <Option key="writeModeInsert" value="insert">insert into（当主键/约束冲突，报脏数据）</Option>
-                                <Option key="writeModeReplace" value="replace">replace into（当主键/约束冲突，先delete再insert，未映射的字段会被映射为NULL）</Option>
-                                <Option key="writeModeUpdate" value="update">on duplicate key update（当主键/约束冲突，update数据，未映射的字段值不变）</Option>
+                                <Option key="writeModeInsert" value="insert">
+                                    insert into（当主键/约束冲突，报脏数据）
+                                </Option>
+                                <Option key="writeModeReplace" value="replace">
+                                    replace
+                                    into（当主键/约束冲突，先delete再insert，未映射的字段会被映射为NULL）
+                                </Option>
+                                <Option key="writeModeUpdate" value="update">
+                                    on duplicate key
+                                    update（当主键/约束冲突，update数据，未映射的字段值不变）
+                                </Option>
                             </Select>
                         )}
                     </FormItem>
@@ -766,60 +904,79 @@ class TargetForm extends React.Component<any, any> {
                             <Select
                                 showSearch
                                 {...{ showArrow: true }}
-
                                 allowClear={true}
                                 onChange={(val: any) => {
                                     this.getTableList(kingbaseId, val)
                                     form.setFieldsValue({ table: '' })
                                 }}
                             >
-                                {schemaList.map((copateValue: any, index: any) => {
-                                    return (
-                                        <Option
-                                            key={`copate-${index}`}
-                                            value={copateValue}
-                                        >
-                                            {/* ORACLE数据库单独考虑ROW_NUMBER() 这个函数， 展示去除括号 */}
-                                            { copateValue === 'ROW_NUMBER()' ? 'ROW_NUMBER' : copateValue}
-                                        </Option>
-                                    )
-                                })}
+                                {schemaList.map(
+                                    (copateValue: any, index: any) => {
+                                        return (
+                                            <Option
+                                                key={`copate-${index}`}
+                                                value={copateValue}
+                                            >
+                                                {/* ORACLE数据库单独考虑ROW_NUMBER() 这个函数， 展示去除括号 */}
+                                                {copateValue === 'ROW_NUMBER()'
+                                                    ? 'ROW_NUMBER'
+                                                    : copateValue}
+                                            </Option>
+                                        )
+                                    }
+                                )}
                             </Select>
                         )}
                     </FormItem>,
-                    !selectHack && <FormItem
-                        {...formItemLayout}
-                        label="表名"
-                        key="table"
-                    >
-                        {getFieldDecorator('table', {
-                            rules: [{
-                                required: true,
-                                message: '请选择表'
-                            }],
-                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.table
-                        })(
-                            <Select
-                                getPopupContainer={getPopupContainer}
-                                showSearch
-                                mode="combobox"
-                                optionFilterProp="value"
-                                filterOption={false}
-                                onSearch={(val: any) => this.debounceTableNameSearch(kingbaseId, schemaId, val)}
-                                notFoundContent={fetching ? <Spin size="small" /> : null}
-                                onSelect={this.debounceTableSearch.bind(this, null)}
-                            >
-                                {tableList.map((table: any) => {
-                                    return <Option
-                                        key={`rdb-target-${table}`}
-                                        value={table}>
-                                        {table}
-                                    </Option>
-                                })}
-                            </Select>
-                        )}
-                        { oneKeyCreateTable }
-                    </FormItem>,
+                    !selectHack && (
+                        <FormItem {...formItemLayout} label="表名" key="table">
+                            {getFieldDecorator('table', {
+                                rules: [
+                                    {
+                                        required: true,
+                                        message: '请选择表'
+                                    }
+                                ],
+                                initialValue: isEmpty(targetMap)
+                                    ? ''
+                                    : targetMap.type.table
+                            })(
+                                <Select
+                                    getPopupContainer={getPopupContainer}
+                                    showSearch
+                                    mode="combobox"
+                                    optionFilterProp="value"
+                                    filterOption={false}
+                                    onSearch={(val: any) =>
+                                        this.debounceTableNameSearch(
+                                            kingbaseId,
+                                            schemaId,
+                                            val
+                                        )
+                                    }
+                                    notFoundContent={
+                                        fetching ? <Spin size="small" /> : null
+                                    }
+                                    onSelect={this.debounceTableSearch.bind(
+                                        this,
+                                        null
+                                    )}
+                                >
+                                    {tableList.map((table: any) => {
+                                        return (
+                                            <Option
+                                                key={`rdb-target-${table}`}
+                                                value={table}
+                                            >
+                                                {table}
+                                            </Option>
+                                        )
+                                    })}
+                                </Select>
+                            )}
+                            {oneKeyCreateTable}
+                        </FormItem>
+                    ),
                     <FormItem
                         {...formItemLayout}
                         label="导入前准备语句"
@@ -827,7 +984,9 @@ class TargetForm extends React.Component<any, any> {
                     >
                         {getFieldDecorator('preSql', {
                             rules: [],
-                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.preSql
+                            initialValue: isEmpty(targetMap)
+                                ? ''
+                                : targetMap.type.preSql
                         })(
                             <Input
                                 onChange={this.submitForm.bind(this)}
@@ -843,7 +1002,9 @@ class TargetForm extends React.Component<any, any> {
                     >
                         {getFieldDecorator('postSql', {
                             rules: [],
-                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.postSql
+                            initialValue: isEmpty(targetMap)
+                                ? ''
+                                : targetMap.type.postSql
                         })(
                             <Input
                                 onChange={this.submitForm.bind(this)}
@@ -859,15 +1020,28 @@ class TargetForm extends React.Component<any, any> {
                         className="txt-left"
                     >
                         {getFieldDecorator('writeMode@mysql', {
-                            rules: [{
-                                required: true
-                            }],
-                            initialValue: targetMap.type && targetMap.type.writeMode ? targetMap.type.writeMode : 'insert'
+                            rules: [
+                                {
+                                    required: true
+                                }
+                            ],
+                            initialValue:
+                                targetMap.type && targetMap.type.writeMode
+                                    ? targetMap.type.writeMode
+                                    : 'insert'
                         })(
                             <Select onChange={this.submitForm.bind(this)}>
-                                <Option key="writeModeInsert" value="insert">insert into（当主键/约束冲突，报脏数据）</Option>
-                                <Option key="writeModeReplace" value="replace">replace into（当主键/约束冲突，先delete再insert，未映射的字段会被映射为NULL）</Option>
-                                <Option key="writeModeUpdate" value="update">on duplicate key update（当主键/约束冲突，update数据，未映射的字段值不变）</Option>
+                                <Option key="writeModeInsert" value="insert">
+                                    insert into（当主键/约束冲突，报脏数据）
+                                </Option>
+                                <Option key="writeModeReplace" value="replace">
+                                    replace
+                                    into（当主键/约束冲突，先delete再insert，未映射的字段会被映射为NULL）
+                                </Option>
+                                <Option key="writeModeUpdate" value="update">
+                                    on duplicate key
+                                    update（当主键/约束冲突，update数据，未映射的字段值不变）
+                                </Option>
                             </Select>
                         )}
                     </FormItem>
@@ -879,78 +1053,98 @@ class TargetForm extends React.Component<any, any> {
             case DATA_SOURCE.HIVE_3:
             case DATA_SOURCE.HIVE_SERVER: {
                 formItem = [
-                    !selectHack && <FormItem
-                        {...formItemLayout}
-                        label="表名"
-                        key="table"
-                    >
-                        {getFieldDecorator('table', {
-                            rules: [{
-                                required: true,
-                                message: '请选择表'
-                            }],
-                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.table
-                        })(
-                            <Select
-                                getPopupContainer={getPopupContainer}
-                                showSearch
-                                mode="combobox"
-                                onBlur={this.checkData}
-                                onSearch = {(str) => {
-                                    this.onSearchTable(str)
-                                }}
-                                onSelect={this.debounceTableSearch.bind(this, null)}
-                                notFoundContent={fetching ? <Spin size="small" /> : null}
-                                optionFilterProp="value"
-                            >
-                                {tableListSearch.map((table: any) => {
-                                    return <Option
-                                        key={`rdb-target-${table}`}
-                                        value={table}
-                                    >
-                                        {table}
-                                    </Option>
-                                })}
-                            </Select>
-                        )}
-                        { oneKeyCreateTable }
-                    </FormItem>,
-                    havePartition
-                        ? <FormItem
-                            {...formItemLayout}
-                            label="分区"
-                            key="partition"
-                        >
-                            {getFieldDecorator('partition', {
-                                rules: [{
-                                    required: true,
-                                    message: '目标分区为必填项！'
-                                }],
-                                initialValue: get(targetMap, 'type.partition', '')
-                            })(
-                                <AutoComplete
-                                    showSearch
-                                    {...{ showArrow: true }}
-                                    placeholder="请填写分区信息"
-                                    onChange={this.submitForm.bind(this)}
-                                    filterOption={filterValueOption}
-                                >
+                    !selectHack && (
+                        <FormItem {...formItemLayout} label="表名" key="table">
+                            {getFieldDecorator('table', {
+                                rules: [
                                     {
-                                        this.state.tablePartitionList.map((pt: any) => {
-                                            return (
-                                                <AutoComplete.Option
-                                                    key={`rdb-${pt}`}
-                                                    value={pt}
-                                                >
-                                                    {pt}
-                                                </AutoComplete.Option>
-                                            )
-                                        })}
-                                </AutoComplete>
+                                        required: true,
+                                        message: '请选择表'
+                                    }
+                                ],
+                                initialValue: isEmpty(targetMap)
+                                    ? ''
+                                    : targetMap.type.table
+                            })(
+                                <Select
+                                    getPopupContainer={getPopupContainer}
+                                    showSearch
+                                    mode="combobox"
+                                    onBlur={this.checkData}
+                                    onSearch={(str) => {
+                                        this.onSearchTable(str)
+                                    }}
+                                    onSelect={this.debounceTableSearch.bind(
+                                        this,
+                                        null
+                                    )}
+                                    notFoundContent={
+                                        fetching ? <Spin size="small" /> : null
+                                    }
+                                    optionFilterProp="value"
+                                >
+                                    {tableListSearch.map((table: any) => {
+                                        return (
+                                            <Option
+                                                key={`rdb-target-${table}`}
+                                                value={table}
+                                            >
+                                                {table}
+                                            </Option>
+                                        )
+                                    })}
+                                </Select>
                             )}
-                            <HelpDoc doc="partitionDesc" />
+                            {oneKeyCreateTable}
                         </FormItem>
-                        : '',
+                    ),
+                    havePartition
+                        ? (
+                            <FormItem
+                                {...formItemLayout}
+                                label="分区"
+                                key="partition"
+                            >
+                                {getFieldDecorator('partition', {
+                                    rules: [
+                                        {
+                                            required: true,
+                                            message: '目标分区为必填项！'
+                                        }
+                                    ],
+                                    initialValue: get(
+                                        targetMap,
+                                        'type.partition',
+                                        ''
+                                    )
+                                })(
+                                    <AutoComplete
+                                        showSearch
+                                        {...{ showArrow: true }}
+                                        placeholder="请填写分区信息"
+                                        onChange={this.submitForm.bind(this)}
+                                        filterOption={filterValueOption}
+                                    >
+                                        {this.state.tablePartitionList.map(
+                                            (pt: any) => {
+                                                return (
+                                                    <AutoComplete.Option
+                                                        key={`rdb-${pt}`}
+                                                        value={pt}
+                                                    >
+                                                        {pt}
+                                                    </AutoComplete.Option>
+                                                )
+                                            }
+                                        )}
+                                    </AutoComplete>
+                                )}
+                                <HelpDoc doc="partitionDesc" />
+                            </FormItem>
+                        )
+                        : (
+                            ''
+                        ),
                     <FormItem
                         {...formItemLayout}
                         label="写入模式"
@@ -958,13 +1152,21 @@ class TargetForm extends React.Component<any, any> {
                         className="txt-left"
                     >
                         {getFieldDecorator('writeMode@hive', {
-                            rules: [{
-                                required: true
-                            }],
-                            initialValue: targetMap.type && targetMap.type.writeMode ? targetMap.type.writeMode : 'replace'
+                            rules: [
+                                {
+                                    required: true
+                                }
+                            ],
+                            initialValue:
+                                targetMap.type && targetMap.type.writeMode
+                                    ? targetMap.type.writeMode
+                                    : 'replace'
                         })(
                             <RadioGroup onChange={this.submitForm.bind(this)}>
-                                <Radio value="replace" style={{ float: 'left' }}>
+                                <Radio
+                                    value="replace"
+                                    style={{ float: 'left' }}
+                                >
                                     覆盖（Insert Overwrite）
                                 </Radio>
                                 <Radio value="insert" style={{ float: 'left' }}>
@@ -982,7 +1184,9 @@ class TargetForm extends React.Component<any, any> {
                         {getFieldDecorator('schema', {
                             initialValue: isEmpty(targetMap)
                                 ? ''
-                                : targetMap?.schema ? targetMap?.schema : targetMap.type.schema
+                                : targetMap?.schema
+                                    ? targetMap?.schema
+                                    : targetMap.type.schema
                         })(
                             <Select
                                 showSearch
@@ -990,51 +1194,67 @@ class TargetForm extends React.Component<any, any> {
                                 allowClear={true}
                                 onChange={(val: any) => {
                                     val && this.getTableList(kingbaseId, val)
-                                    form.setFieldsValue({ table: '', splitPK: undefined })
+                                    form.setFieldsValue({
+                                        table: '',
+                                        splitPK: undefined
+                                    })
                                     this.setState({
                                         tableListSearch: []
                                     })
                                 }}
                             >
-                                {schemaList.map((copateValue: any, index: any) => {
-                                    return (
-                                        <Option
-                                            key={`copate-${index}`}
-                                            value={copateValue}
-                                        >
-                                            {copateValue}
-                                        </Option>
-                                    )
-                                })}
-                            </Select>
-                        )}
-                    </FormItem>,
-                    !selectHack && <FormItem
-                        {...formItemLayout}
-                        label="表名"
-                        key="table"
-                    >
-                        {getFieldDecorator('table', {
-                            rules: [{
-                                required: true,
-                                message: '请选择表'
-                            }],
-                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.table
-                        })(
-                            <Select
-                                getPopupContainer={getPopupContainer}
-                                showSearch
-                                onSearch={(val: any) => this.debounceTableNameSearch(
-                                    targetMap.sourceId, form.getFieldValue('schema'), val
+                                {schemaList.map(
+                                    (copateValue: any, index: any) => {
+                                        return (
+                                            <Option
+                                                key={`copate-${index}`}
+                                                value={copateValue}
+                                            >
+                                                {copateValue}
+                                            </Option>
+                                        )
+                                    }
                                 )}
-                                notFoundContent={fetching ? <Spin size="small" /> : null}
-                                onSelect={this.debounceTableSearch.bind(this, null)}
-                            >
-                                {this.renderTableList(targetType)}
                             </Select>
                         )}
-                        { oneKeyCreateTable }
                     </FormItem>,
+                    !selectHack && (
+                        <FormItem {...formItemLayout} label="表名" key="table">
+                            {getFieldDecorator('table', {
+                                rules: [
+                                    {
+                                        required: true,
+                                        message: '请选择表'
+                                    }
+                                ],
+                                initialValue: isEmpty(targetMap)
+                                    ? ''
+                                    : targetMap.type.table
+                            })(
+                                <Select
+                                    getPopupContainer={getPopupContainer}
+                                    showSearch
+                                    onSearch={(val: any) =>
+                                        this.debounceTableNameSearch(
+                                            targetMap.sourceId,
+                                            form.getFieldValue('schema'),
+                                            val
+                                        )
+                                    }
+                                    notFoundContent={
+                                        fetching ? <Spin size="small" /> : null
+                                    }
+                                    onSelect={this.debounceTableSearch.bind(
+                                        this,
+                                        null
+                                    )}
+                                >
+                                    {this.renderTableList(targetType)}
+                                </Select>
+                            )}
+                            {oneKeyCreateTable}
+                        </FormItem>
+                    ),
                     <FormItem
                         {...formItemLayout}
                         label="导入前准备语句"
@@ -1042,7 +1262,9 @@ class TargetForm extends React.Component<any, any> {
                     >
                         {getFieldDecorator('preSql', {
                             rules: [],
-                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.preSql
+                            initialValue: isEmpty(targetMap)
+                                ? ''
+                                : targetMap.type.preSql
                         })(
                             <Input
                                 onChange={this.submitForm.bind(this)}
@@ -1058,7 +1280,9 @@ class TargetForm extends React.Component<any, any> {
                     >
                         {getFieldDecorator('postSql', {
                             rules: [],
-                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.postSql
+                            initialValue: isEmpty(targetMap)
+                                ? ''
+                                : targetMap.type.postSql
                         })(
                             <Input
                                 onChange={this.submitForm.bind(this)}
@@ -1074,35 +1298,52 @@ class TargetForm extends React.Component<any, any> {
                         className="txt-left"
                     >
                         {getFieldDecorator('writeMode@mysql', {
-                            rules: [{
-                                required: true
-                            }],
-                            initialValue: targetMap.type && targetMap.type.writeMode ? targetMap.type.writeMode : 'insert'
+                            rules: [
+                                {
+                                    required: true
+                                }
+                            ],
+                            initialValue:
+                                targetMap.type && targetMap.type.writeMode
+                                    ? targetMap.type.writeMode
+                                    : 'insert'
                         })(
                             <Select onChange={this.submitForm.bind(this)}>
-                                <Option key="writeModeInsert" value="insert">insert into（当主键/约束冲突，报脏数据）</Option>,
-                                <Option key="writeModeReplace" value="replace">replace into（当主键/约束冲突，先delete再insert，未映射的字段会被映射为NULL）</Option>
-                                <Option key="writeModeUpdate" value="update">on duplicate key update（当主键/约束冲突，update数据，未映射的字段值不变）</Option>
+                                <Option key="writeModeInsert" value="insert">
+                                    insert into（当主键/约束冲突，报脏数据）
+                                </Option>
+                                ,
+                                <Option key="writeModeReplace" value="replace">
+                                    replace
+                                    into（当主键/约束冲突，先delete再insert，未映射的字段会被映射为NULL）
+                                </Option>
+                                <Option key="writeModeUpdate" value="update">
+                                    on duplicate key
+                                    update（当主键/约束冲突，update数据，未映射的字段值不变）
+                                </Option>
                             </Select>
                         )}
                     </FormItem>
                 ]
                 break
             }
-            default: break
+            default:
+                break
         }
 
         return formItem
-    }
+    };
 }
 
 const TargetFormWrap = Form.create<any>()(TargetForm)
 
 class Target extends React.Component<any, any> {
     render () {
-        return <div>
-            <TargetFormWrap {...this.props} />
-        </div>
+        return (
+            <div>
+                <TargetFormWrap {...this.props} />
+            </div>
+        )
     }
 }
 

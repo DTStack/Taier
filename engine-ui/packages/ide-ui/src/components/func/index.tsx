@@ -35,21 +35,36 @@ export const filterValueOption = (input: any, option: any) => {
 /**
  * 包装一下
  */
-export function dtNotification (title: any, message: any, type: any, config: any) {
+export function dtNotification (
+    title: any,
+    message: any,
+    type: any,
+    config: any
+) {
     const showType: any = type || 'error'
     const WrapperModal: any = Modal
-    const showMessage = message.length > 100
-        ? (<span>
-            {message.substring(0, 100)}... <a onClick={() => {
-                WrapperModal[showType]({
-                    title: title,
-                    content: message,
-                    width: 520,
-                    style: { wordBreak: 'break-word' }
-                })
-            }}>查看详情</a>
-        </span>)
-        : message
+    const showMessage =
+        message.length > 100
+            ? (
+                <span>
+                    {message.substring(0, 100)}...{' '}
+                    <a
+                        onClick={() => {
+                            WrapperModal[showType]({
+                                title: title,
+                                content: message,
+                                width: 520,
+                                style: { wordBreak: 'break-word' }
+                            })
+                        }}
+                    >
+                    查看详情
+                    </a>
+                </span>
+            )
+            : (
+                message
+            )
     notification[showType as keyof NotificationApi]({
         ...config,
         message: title,
@@ -63,15 +78,23 @@ export function dtNotification (title: any, message: any, type: any, config: any
  * @param {*} title
  * @param {*} message
  */
-export function singletonNotification (title: any, message?: any, type?: any, style?: any) {
-    const notifyMsgs = document.querySelectorAll('.ant-notification-notice-description')
+export function singletonNotification (
+    title: any,
+    message?: any,
+    type?: any,
+    style?: any
+) {
+    const notifyMsgs = document.querySelectorAll(
+        '.ant-notification-notice-description'
+    )
 
     /**
-    * 1.当前无实例
-    * 2.当前存在实例，但是当前实例的最后一个信息和调用的信息不相等
-    * 3.存在实例，并且相等，但是已经超出了限定的时间
-    */
-    if (!notifyMsgs.length ||
+     * 1.当前无实例
+     * 2.当前存在实例，但是当前实例的最后一个信息和调用的信息不相等
+     * 3.存在实例，并且相等，但是已经超出了限定的时间
+     */
+    if (
+        !notifyMsgs.length ||
         notifyMsgs[notifyMsgs.length - 1].innerHTML !== message ||
         checkIsTimeout()
     ) {

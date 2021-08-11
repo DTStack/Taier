@@ -2,16 +2,8 @@ export const respWithoutPoll: any = {
     code: 1,
     data: {
         result: [
-            [
-                'database',
-                'tableName',
-                'isTemporary'
-            ],
-            [
-                'mufeng_0129',
-                'ads_ct_ks_bank_card_info',
-                false
-            ]
+            ['database', 'tableName', 'isTemporary'],
+            ['mufeng_0129', 'ads_ct_ks_bank_card_info', false]
         ],
         jobId: null,
         sqlText: 'show tables'
@@ -57,12 +49,10 @@ export const pollRespCollection: any = [
     {
         code: 1,
         data: {
-            download: '/api/rdos/download/batch/batchDownload/downloadJobLog?jobId=e5edd8c0&taskType=0',
+            download:
+                '/api/rdos/download/batch/batchDownload/downloadJobLog?jobId=e5edd8c0&taskType=0',
             msg: '',
-            result: [
-                ['count(1)'],
-                ['0']
-            ],
+            result: [['count(1)'], ['0']],
             status: 5
         },
         message: null,

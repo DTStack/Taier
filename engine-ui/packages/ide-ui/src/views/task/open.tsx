@@ -30,9 +30,9 @@ const tailFormItemLayout = {
 }
 
 interface OpenProps {
-  currentId?: number;
-  onSubmit?: (values: any) => void;
-  form: WrappedFormUtils<any>;
+    currentId?: number;
+    onSubmit?: (values: any) => void;
+    form: WrappedFormUtils<any>;
 }
 
 const taskType = [
@@ -47,67 +47,67 @@ const taskType = [
 ]
 
 class Open extends React.PureComponent<OpenProps, {}> {
-  handleSubmit = (e: any) => {
-      e.preventDefault()
-      this.props.form.validateFieldsAndScroll((err, values) => {
-          if (!err) {
-              this.props.onSubmit?.(values)
-          }
-      })
-  };
+    handleSubmit = (e: any) => {
+        e.preventDefault()
+        this.props.form.validateFieldsAndScroll((err, values) => {
+            if (!err) {
+                this.props.onSubmit?.(values)
+            }
+        })
+    };
 
-  render () {
-      const { getFieldDecorator } = this.props.form
-      return (
-          <Form onSubmit={this.handleSubmit}>
-              <FormItem {...formItemLayout} label="任务名称">
-                  {getFieldDecorator('name', {
-                      rules: [
-                          {
-                              max: 64,
-                              message: '任务名称不得超过20个字符！'
-                          },
-                          {
-                              required: true
-                          }
-                      ]
-                  })(<Input />)}
-              </FormItem>
-              <FormItem {...formItemLayout} label="任务类型">
-                  {getFieldDecorator('taskType', {
-                      rules: [
-                          {
-                              required: true
-                          }
-                      ]
-                  })(
-                      <Select>
-                          {taskType.map((type) => (
-                              <Option key={type.value} value={type.value}>
-                                  {type.text}
-                              </Option>
-                          ))}
-                      </Select>
-                  )}
-              </FormItem>
-              <FormItem {...formItemLayout} label="描述" hasFeedback>
-                  {getFieldDecorator('taskDesc', {
-                      rules: [
-                          {
-                              max: 200,
-                              message: '描述请控制在200个字符以内！'
-                          }
-                      ]
-                  })(<Input.TextArea disabled={false} rows={4} />)}
-              </FormItem>
-              <FormItem {...tailFormItemLayout}>
-                  <Button type="primary" htmlType="submit">
-            Submit
-                  </Button>
-              </FormItem>
-          </Form>
-      )
-  }
+    render () {
+        const { getFieldDecorator } = this.props.form
+        return (
+            <Form onSubmit={this.handleSubmit}>
+                <FormItem {...formItemLayout} label="任务名称">
+                    {getFieldDecorator('name', {
+                        rules: [
+                            {
+                                max: 64,
+                                message: '任务名称不得超过20个字符！'
+                            },
+                            {
+                                required: true
+                            }
+                        ]
+                    })(<Input />)}
+                </FormItem>
+                <FormItem {...formItemLayout} label="任务类型">
+                    {getFieldDecorator('taskType', {
+                        rules: [
+                            {
+                                required: true
+                            }
+                        ]
+                    })(
+                        <Select>
+                            {taskType.map((type) => (
+                                <Option key={type.value} value={type.value}>
+                                    {type.text}
+                                </Option>
+                            ))}
+                        </Select>
+                    )}
+                </FormItem>
+                <FormItem {...formItemLayout} label="描述" hasFeedback>
+                    {getFieldDecorator('taskDesc', {
+                        rules: [
+                            {
+                                max: 200,
+                                message: '描述请控制在200个字符以内！'
+                            }
+                        ]
+                    })(<Input.TextArea disabled={false} rows={4} />)}
+                </FormItem>
+                <FormItem {...tailFormItemLayout}>
+                    <Button type="primary" htmlType="submit">
+                        Submit
+                    </Button>
+                </FormItem>
+            </Form>
+        )
+    }
 }
 
 export default Form.create<OpenProps>({ name: 'open' })(Open)

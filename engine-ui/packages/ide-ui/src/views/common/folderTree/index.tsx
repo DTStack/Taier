@@ -8,24 +8,22 @@ import ajax from '../../../api'
 import { TASK_RUN_ID } from '../utils/const'
 
 function init () {
-    ajax
-        .getOfflineCatalogue({
-            isGetFile: !!1,
-            nodePid: 0
-        })
-        .then((res) => {
-            if (res.code === 1) {
-                const { id, name } = res.data
-                const node = new TreeNodeModel({
-                    id,
-                    name,
-                    location: name,
-                    fileType: FileTypes.RootFolder
-                })
+    ajax.getOfflineCatalogue({
+        isGetFile: !!1,
+        nodePid: 0
+    }).then((res) => {
+        if (res.code === 1) {
+            const { id, name } = res.data
+            const node = new TreeNodeModel({
+                id,
+                name,
+                location: name,
+                fileType: FileTypes.RootFolder
+            })
 
-                molecule.folderTree.add(node)
-            }
-        })
+            molecule.folderTree.add(node)
+        }
+    })
 }
 
 function createTask () {
@@ -52,7 +50,9 @@ function createTask () {
 
                 const { current } = molecule.editor.getState()
                 if (current?.tab?.data.taskType === 'SparkSql') {
-                    molecule.editor.updateActions([{ id: TASK_RUN_ID, disabled: false }])
+                    molecule.editor.updateActions([
+                        { id: TASK_RUN_ID, disabled: false }
+                    ])
                 }
             }
 
@@ -104,7 +104,9 @@ function onSelectFile () {
                 }
             }
             molecule.editor.open(tabData)
-            molecule.editor.updateActions([{ id: TASK_RUN_ID, disabled: false }])
+            molecule.editor.updateActions([
+                { id: TASK_RUN_ID, disabled: false }
+            ])
         } else if (file.data.taskType === 'DataSync') {
             const tabData = {
                 id: file.id,
@@ -118,20 +120,22 @@ function onSelectFile () {
                 }
             }
             molecule.editor.open(tabData)
-            molecule.editor.updateActions([{ id: TASK_RUN_ID, disabled: false }])
+            molecule.editor.updateActions([
+                { id: TASK_RUN_ID, disabled: false }
+            ])
         } else {
             resetEditorGroup()
         }
 
         file.data.taskType &&
-      molecule.statusBar.add(
-          {
-              id: 'language',
-              sortIndex: 3,
-              name: file.data.taskType
-          },
-          'right'
-      )
+            molecule.statusBar.add(
+                {
+                    id: 'language',
+                    sortIndex: 3,
+                    name: file.data.taskType
+                },
+                'right'
+            )
     })
 }
 

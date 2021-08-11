@@ -17,7 +17,7 @@ function App (props: any) {
 
     return (
         <Layout history={history}>
-            <Provider store={store} >
+            <Provider store={store}>
                 <Router routes={routers} history={history} />
             </Provider>
         </Layout>

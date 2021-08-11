@@ -10,12 +10,12 @@ import { publishType, TASK_TYPE } from '../comm/const'
 
 const api = {
     sqlFormat (params: any) {
-    // SQL格式化
+        // SQL格式化
         return http.post(offlineReq.SQL_FORMAT, params)
     },
 
     unlockFile (params: any) {
-    // 解锁文件
+        // 解锁文件
         return http.post(offlineReq.UNLOCK_FILE, params)
     },
 
@@ -50,10 +50,10 @@ const api = {
     },
 
     /**
-   * 跟踪采集用户行为
-   * @param {string} target
-   * @param {object} params
-   */
+     * 跟踪采集用户行为
+     * @param {string} target
+     * @param {object} params
+     */
     //   async trackUserActions(target: any, params: any) {
     //     const trackTarget = `track_${target}`;
     //     const tracked = utils.getCookie(trackTarget);
@@ -66,15 +66,15 @@ const api = {
     //   },
     // ========== Project ========== //
     compareIntrinsicTable (params: any) {
-    // hive同步页面中获取新增或删除的表名称
+        // hive同步页面中获取新增或删除的表名称
         return http.post(req.COMPAREINTRINSICTABLE, params)
     },
     dealIntrinsicTable (params: any) {
-    // hive同步页面中同步新增或删除的表
+        // hive同步页面中同步新增或删除的表
         return http.post(req.DEALINTRINSICTABLE, params)
     },
     checkDealStatus (params?: any) {
-    // hive同步页面中获取同步状态的接口
+        // hive同步页面中获取同步状态的接口
         return http.post(req.CHECKDEALSTATUS, params)
     },
     queryProjects (params: any) {
@@ -87,18 +87,18 @@ const api = {
         return http.post(req.GET_PROJECT_BY_TENANT, params)
     },
     getProjects (params: any) {
-    // 获取项目
+        // 获取项目
         return http.post(req.GET_PROJECT_LIST, params)
     },
     getAllProjects (params: any) {
-    // 获取所有项目
+        // 获取所有项目
         return http.post(req.GET_ALL_PROJECTS, params)
     },
     getProjectSummary () {
         return http.post(req.GET_PROJECT_SUMMARY)
     },
     getTenantProjects (params: any) {
-    // 获取租户下所有项目
+        // 获取租户下所有项目
         return http.post(req.GET_ALL_TENANT_PROJECTS, params)
     },
     getProjectSupportEngines (params: any) {
@@ -168,23 +168,23 @@ const api = {
         return http.post(req.GET_RETAINDB_LIST, params)
     },
     getSupportEngineType (params?: any) {
-    // 项目支持的引擎类型
+        // 项目支持的引擎类型
         return http.post(req.GET_SUPPORT_ENGINE_TYPE, params)
     },
     getProjectTableTypes (params: any) {
-    // 项目支持的表类型
+        // 项目支持的表类型
         return http.post(req.GET_SUPPORT_TABLE_TYPE, params)
     },
     getTenantTableTypes (params: any) {
-    // 租户支持的表类型
+        // 租户支持的表类型
         return http.post(req.GET_TENANT_TABLE_TYPE, params)
     },
     getProjectUsedEngineInfo (params?: any) {
-    // 获取项目在用引擎信息
+        // 获取项目在用引擎信息
         return http.post(req.GET_PRO_USE_ENGINE, params)
     },
     getProjectUnUsedEngine (params?: any) {
-    // 获取项目未接入的引擎信息
+        // 获取项目未接入的引擎信息
         return http.post(req.GET_PRO_UNUSE_ENGINE, params)
     },
     addNewEngine (params: any) {
@@ -270,11 +270,11 @@ const api = {
         return http.post(offlineReq.QUERY_TASKS, params)
     },
     getOfflineTaskLog (params: any) {
-    // 获取离线任务日志
+        // 获取离线任务日志
         return http.post(offlineReq.GET_TASK_LOG, params)
     },
     getOfflineTaskPeriods (params: any) {
-    // 转到前后周期
+        // 转到前后周期
         return http.post(offlineReq.GET_TASK_PERIODS, params)
     },
     searchOfflineTask (params: any) {
@@ -312,7 +312,7 @@ const api = {
         return http.post(offlineReq.EXEC_SCRIPT, params)
     },
     stopScript (params: any) {
-    // 获取离线任务日志
+        // 获取离线任务日志
         return http.post(offlineReq.STOP_SCRIPT, params)
     },
     deleteScript (params: any) {
@@ -351,134 +351,134 @@ const api = {
         return http.post(offlineReq.GET_JOB_TOP_ERROR, params)
     },
     patchTaskData (params: any) {
-    // 补数据
+        // 补数据
         return http.post(offlineReq.PATCH_TASK_DATA, params)
     },
     operaRecordData (params: any) {
-    // 操作记录
+        // 操作记录
         return http.post(offlineReq.OPERA_RECORD_DATA, params)
     },
     getTaskChildren (params: any) {
-    // 获取任务子节点
+        // 获取任务子节点
         return http.post(offlineReq.GET_TASK_CHILDREN, params)
     },
     getTaskParents (params: any) {
-    // 获取任务父节点
+        // 获取任务父节点
         return http.post(offlineReq.GET_TASK_PARENTS, params)
     },
     getFillData (params: any) {
-    // 补数据搜索
+        // 补数据搜索
         return http.post(offlineReq.GET_FILL_DATA, params)
     },
     getFillDate (params: any) {
-    // 补数据日期列表
+        // 补数据日期列表
         return http.post(offlineReq.GET_FILL_DATE, params)
     },
     getFillDataDetail (params: any) {
-    // 补数据详情
+        // 补数据详情
         return http.post(offlineReq.GET_FILL_DATA_DETAIL, params)
     },
     startJob (params: any) {
-    // 启动任务
+        // 启动任务
         return http.post(offlineReq.START_JOB, params)
     },
     stopJob (params: any) {
-    // 停止任务
+        // 停止任务
         return http.post(offlineReq.STOP_JOB, params)
     },
     restartAndResume (params: any) {
-    // 重启并恢复任务
+        // 重启并恢复任务
         return http.post(offlineReq.RESTART_AND_RESUME_JOB, params)
     },
     batchStopJob (params: any) {
-    // 批量停止任务
+        // 批量停止任务
         return http.post(offlineReq.BATCH_STOP_JOBS, params)
     },
     batchStopJobByDate (params: any) {
-    // 按业务日期批量杀任务
+        // 按业务日期批量杀任务
         return http.post(offlineReq.BATCH_STOP_JOBS_BY_DATE, params)
     },
     batchRestartAndResume (params: any) {
-    // 重启并恢复任务
+        // 重启并恢复任务
         return http.post(offlineReq.BATCH_RESTART_AND_RESUME_JOB, params)
     },
     getJobChildren (params: any) {
-    // 获取任务子Job
+        // 获取任务子Job
         return http.post(offlineReq.GET_JOB_CHILDREN, params)
     },
     getJobParents (params: any) {
-    // 获取任务父Job
+        // 获取任务父Job
         return http.post(offlineReq.GET_JOB_PARENT, params)
     },
     /**
-   * 获取工作流任务的子节点
-   */
+     * 获取工作流任务的子节点
+     */
     getTaskWorkflowNodes (params: any) {
         return http.post(offlineReq.GET_TASK_WORKFLOW_NODES, params)
     },
     /**
-   * 获取工作流任务节点实例的子节点
-   */
+     * 获取工作流任务节点实例的子节点
+     */
     getTaskJobWorkflowNodes (params: any) {
         return http.post(offlineReq.GET_TASK_JOB_WORKFLOW_NODES, params)
     },
     execSQLImmediately (params: any) {
-    // 立即执行SQL
+        // 立即执行SQL
         return http.post(offlineReq.EXEC_SQL_IMMEDIATELY, params)
     },
     /**
-   * sparkSql高级运行模式
-   * @param params 执行参数
-   */
+     * sparkSql高级运行模式
+     * @param params 执行参数
+     */
     execSparkSQLAdvancedMode (params: {
-    projectId: string;
-    isCheckDDL: number;
-    taskVariables: any[];
-    sqlList: string[];
-    taskId: number;
-  }) {
-    // 执行 SparkSQL 高级模式
+        projectId: string;
+        isCheckDDL: number;
+        taskVariables: any[];
+        sqlList: string[];
+        taskId: number;
+    }) {
+        // 执行 SparkSQL 高级模式
         return http.post(offlineReq.EXEC_SPARK_SQL_ADVANCED_MODE, params)
     },
     stopSQLImmediately (params: any) {
-    // 停止执行数据同步
+        // 停止执行数据同步
         return http.post(offlineReq.STOP_SQL_IMMEDIATELY, params)
     },
     execDataSyncImmediately (params: any) {
-    // 立即执行数据同步
+        // 立即执行数据同步
         return http.post(offlineReq.EXEC_DATA_SYNC_IMMEDIATELY, params)
     },
     stopDataSyncImmediately (params: any) {
-    // 停止执行SQL
+        // 停止执行SQL
         return http.post(offlineReq.STOP_DATA_SYNC_IMMEDIATELY, params)
     },
     getIncrementColumns (params: any) {
-    // 获取增量字段
+        // 获取增量字段
         return http.post(offlineReq.GET_INCREMENT_COLUMNS, params)
     },
     checkSyncMode (params: any) {
-    // 检测是否满足增量数据同步
+        // 检测是否满足增量数据同步
         return http.post(offlineReq.CHECK_SYNC_MODE, params)
     },
     getHivePartitions (params: any) {
-    // 获取Hive分区
+        // 获取Hive分区
         return http.post(offlineReq.CHECK_HIVE_PARTITIONS, params)
     },
     getPartitionType (params: any) {
         return http.post(offlineReq.GET_PARTITION_TYPE, params)
     },
     /**
-   * - 查询数据同步任务，SQL 执行结果
-   * - 需要补充增量同步
-   * @param {Object} params 请求参数
-   * @param {Number} taskType 任务类型
-   */
+     * - 查询数据同步任务，SQL 执行结果
+     * - 需要补充增量同步
+     * @param {Object} params 请求参数
+     * @param {Number} taskType 任务类型
+     */
     selectExecResultData (params: any, taskType: any) {
-    //
+        //
         const url =
-      taskType && taskType === TASK_TYPE.SYNC
-          ? offlineReq.SELECT_DATA_SYNC_RESULT
-          : offlineReq.SELECT_SQL_RESULT_DATA
+            taskType && taskType === TASK_TYPE.SYNC
+                ? offlineReq.SELECT_DATA_SYNC_RESULT
+                : offlineReq.SELECT_SQL_RESULT_DATA
         return http.post(url, params)
     },
     checkIsLoop (prams: any) {
@@ -551,11 +551,11 @@ const api = {
         return http.post(offlineReq.GET_OFFLINE_CUBEKYLININFO, params)
     },
     getOfflineTableColumn (params: {
-    sourceId: string;
-    schema?: any;
-    tableName: string;
-    isIncludePart?: boolean;
-  }) {
+        sourceId: string;
+        schema?: any;
+        tableName: string;
+        isIncludePart?: boolean;
+    }) {
         return http.post(offlineReq.GET_OFFLINE_TABLECOLUMN, params)
     },
     isNativeHive (params: any) {
@@ -658,7 +658,10 @@ const api = {
         return http.post(offlineReq.SAVE_DATA_SOURCE, source)
     },
     addOrUpdateSourceKerberos (source: any) {
-        return http.postAsFormData(offlineReq.SAVE_DATA_SOURCE_KERBEROS, source)
+        return http.postAsFormData(
+            offlineReq.SAVE_DATA_SOURCE_KERBEROS,
+            source
+        )
     },
     deleteDataSource (params: any) {
         return http.post(offlineReq.DELETE_DATA_SOURCE, params)
@@ -764,7 +767,7 @@ const api = {
         return http.post(dataManageReq.CHECK_TABLE_PARTITION, params)
     },
     importLocalData (params: any) {
-    // 导入本地数据
+        // 导入本地数据
         return http.postAsFormData(dataManageReq.UPLOAD_TABLE_DATA, params)
     },
     getUploadStatus (params: any) {
@@ -797,7 +800,7 @@ const api = {
         return http.post(dataManageReq.GET_DIRTY_DATA_TABLES, params)
     },
     getPubSyncTask (params: any) {
-    // 导入本地数据
+        // 导入本地数据
         return http.post(dataManageReq.GET_PUB_SYNC_TASK, params)
     },
     getDirtyDataTableInfo (params: any) {
@@ -840,7 +843,11 @@ const api = {
             return http.post(req.GET_OFFLINE_LINK_SOURCE, params)
         }
     },
-    getRePublishList (params: any, type = 'offline', listType = publishType.TASK) {
+    getRePublishList (
+        params: any,
+        type = 'offline',
+        listType = publishType.TASK
+    ) {
         const urlMap: any = {
             offline: {
                 [publishType.TASK]: req.GET_OFFLINE_TASKS,
@@ -932,26 +939,29 @@ const api = {
         return http.post(offlineReq.GET_SUPPORT_COMPONENT_TYPE, params)
     },
     pageQueryByProjectIdInComponent (params: any) {
-	  return http.post(offlineReq.PAGE_QUERY_BY_PROJECT, params)
+        return http.post(offlineReq.PAGE_QUERY_BY_PROJECT, params)
     },
-    selectStatus (params: any) { // 非数据同步接口轮训状态
-  	  return http.post(offlineReq.SELECT_SQL_STATUS, params)
+    selectStatus (params: any) {
+        // 非数据同步接口轮训状态
+        return http.post(offlineReq.SELECT_SQL_STATUS, params)
     },
-    selectRunLog (params: any) { // 非数据同步接口获取日志
-	  return http.post(offlineReq.SELECT_SQL_LOG, params)
+    selectRunLog (params: any) {
+        // 非数据同步接口获取日志
+        return http.post(offlineReq.SELECT_SQL_LOG, params)
     },
-    selectExecResultDataSync (params: any) { // 数据同步接口获取结果表
-	  return http.post(offlineReq.SELECT_DATA_SYNC_RESULT, params)
+    selectExecResultDataSync (params: any) {
+        // 数据同步接口获取结果表
+        return http.post(offlineReq.SELECT_DATA_SYNC_RESULT, params)
     },
     ftpRegexPre (params: any) {
         return http.post(offlineReq.GET_OFFLINE_FTP_REG, params)
     },
     /**
-   * - 查询数据同步任务，SQL 执行结果
-   * - 需要补充增量同步
-   * @param {Object} params 请求参数
-   * @param {Number} taskType 任务类型
-   */
+     * - 查询数据同步任务，SQL 执行结果
+     * - 需要补充增量同步
+     * @param {Object} params 请求参数
+     * @param {Number} taskType 任务类型
+     */
     getDataSourceVersion (params: any) {
         return http.post(offlineReq.GET_DATA_SOURCE_VERSION, params)
     },

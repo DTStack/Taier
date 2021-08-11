@@ -8,16 +8,17 @@ import {
 
 import api from '../../../../api'
 
-import {
-    editorAction
-} from '../actionTypes'
+import { editorAction } from '../actionTypes'
 
 // import { TASK_TYPE, offlineTaskStatusFilter } from '../../../../comm/const'
 // import { createLog, createTitle, createLinkMark } from 'dt-common/src/widgets/code-editor/utils'
 // import { respWithoutPoll, errorResp, respWithPoll, pollRespCollection } from './mockData';
 
 import { TASK_TYPE } from '../../../../comm/const'
-import { createLog, createTitle } from 'dt-common/src/widgets/code-editor/utils'
+import {
+    createLog,
+    createTitle
+} from 'dt-common/src/widgets/code-editor/utils'
 import { respWithoutPoll, errorResp } from './mockData'
 
 jest.mock('../../../../api')
@@ -61,77 +62,106 @@ describe('editor action', () => {
         }
         const sqls = testSqls.slice(0, 1)
 
-        return execSql(currentTab, task, params, sqls)(store.dispatch).then((isComplete: any) => {
-            expect(isComplete).toBeTruthy()
-            const allActions = store.getActions()
-            expect(allActions).toEqual([{
-                type: editorAction.ADD_LOADING_TAB,
-                data: {
-                    id: currentTab
+        return execSql(
+            currentTab,
+            task,
+            params,
+            sqls
+        )(store.dispatch)
+            .then((isComplete: any) => {
+                expect(isComplete).toBeTruthy()
+                const allActions = store.getActions()
+                expect(allActions).toEqual([
+                    {
+                        type: editorAction.ADD_LOADING_TAB,
+                        data: {
+                            id: currentTab
+                        }
+                    },
+                    {
+                        type: editorAction.APPEND_CONSOLE_LOG,
+                        data: createLog('第1条任务开始执行', 'info'),
+                        key: currentTab
+                    },
+                    {
+                        type: editorAction.APPEND_CONSOLE_LOG,
+                        data: createLog(respWithoutPoll.message, 'error'),
+                        key: currentTab
+                    },
+                    {
+                        type: editorAction.APPEND_CONSOLE_LOG,
+                        data: `${createTitle('任务信息')}\n${
+                            respWithoutPoll.data.sqlText
+                        }\n${createTitle('')}`,
+                        key: currentTab
+                    },
+                    {
+                        type: editorAction.APPEND_CONSOLE_LOG,
+                        data: createLog('执行完成!', 'info'),
+                        key: currentTab
+                    },
+                    {
+                        type: editorAction.UPDATE_RESULTS,
+                        data: {
+                            jobId: undefined,
+                            data: respWithoutPoll.data.result
+                        },
+                        key: currentTab
+                    },
+                    {
+                        type: editorAction.REMOVE_LOADING_TAB,
+                        data: {
+                            id: currentTab
+                        }
+                    }
+                ])
+            })
+            .then(() => {
+                store.clearActions()
+                if (isScript) {
+                    task.type = TASK_TYPE.SQL;
+                    (api.execScript as any).mockResolvedValue(errorResp)
+                } else {
+                    task.taskType = TASK_TYPE.SQL;
+                    (api.execSQLImmediately as any).mockResolvedValue(
+                        errorResp
+                    )
                 }
-            }, {
-                type: editorAction.APPEND_CONSOLE_LOG,
-                data: createLog('第1条任务开始执行', 'info'),
-                key: currentTab
-            }, {
-                type: editorAction.APPEND_CONSOLE_LOG,
-                data: createLog(respWithoutPoll.message, 'error'),
-                key: currentTab
-            }, {
-                type: editorAction.APPEND_CONSOLE_LOG,
-                data: `${createTitle('任务信息')}\n${respWithoutPoll.data.sqlText}\n${createTitle('')}`,
-                key: currentTab
-            }, {
-                type: editorAction.APPEND_CONSOLE_LOG,
-                data: createLog('执行完成!', 'info'),
-                key: currentTab
-            }, {
-                type: editorAction.UPDATE_RESULTS,
-                data: { jobId: undefined, data: respWithoutPoll.data.result },
-                key: currentTab
-            }, {
-                type: editorAction.REMOVE_LOADING_TAB,
-                data: {
-                    id: currentTab
-                }
-            }])
-        }).then(() => {
-            store.clearActions()
-            if (isScript) {
-                task.type = TASK_TYPE.SQL;
-                (api.execScript as any).mockResolvedValue(errorResp)
-            } else {
-                task.taskType = TASK_TYPE.SQL;
-                (api.execSQLImmediately as any).mockResolvedValue(errorResp)
-            }
-            return execSql(currentTab, task, params, sqls)(store.dispatch)
-        }).then((isComplete: any) => {
-            expect(isComplete).toBeTruthy()
-            const allActions = store.getActions()
-            expect(allActions).toEqual([{
-                type: editorAction.ADD_LOADING_TAB,
-                data: {
-                    id: currentTab
-                }
-            }, {
-                type: editorAction.APPEND_CONSOLE_LOG,
-                data: createLog('第1条任务开始执行', 'info'),
-                key: currentTab
-            }, {
-                type: editorAction.APPEND_CONSOLE_LOG,
-                data: createLog(respWithoutPoll.message, 'error'),
-                key: currentTab
-            }, {
-                type: editorAction.APPEND_CONSOLE_LOG,
-                data: createLog('请求异常！', 'error'),
-                key: currentTab
-            }, {
-                type: editorAction.REMOVE_LOADING_TAB,
-                data: {
-                    id: currentTab
-                }
-            }])
-        })
+                return execSql(currentTab, task, params, sqls)(store.dispatch)
+            })
+            .then((isComplete: any) => {
+                expect(isComplete).toBeTruthy()
+                const allActions = store.getActions()
+                expect(allActions).toEqual([
+                    {
+                        type: editorAction.ADD_LOADING_TAB,
+                        data: {
+                            id: currentTab
+                        }
+                    },
+                    {
+                        type: editorAction.APPEND_CONSOLE_LOG,
+                        data: createLog('第1条任务开始执行', 'info'),
+                        key: currentTab
+                    },
+                    {
+                        type: editorAction.APPEND_CONSOLE_LOG,
+                        data: createLog(respWithoutPoll.message, 'error'),
+                        key: currentTab
+                    },
+                    {
+                        type: editorAction.APPEND_CONSOLE_LOG,
+                        data: createLog('请求异常！', 'error'),
+                        key: currentTab
+                    },
+                    {
+                        type: editorAction.REMOVE_LOADING_TAB,
+                        data: {
+                            id: currentTab
+                        }
+                    }
+                ])
+            })
     }
     // function mockMultipleTaskWithPoll (isScript?: any, testStop?: any) {
     //     let currentTab = 666;

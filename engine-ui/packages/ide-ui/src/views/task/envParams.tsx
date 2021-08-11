@@ -48,7 +48,7 @@ const getUniqPath = (path: string) => {
 }
 
 interface IEnvParams extends IEditor {
-  onChange?: (tab: IEditorTab, value: string) => void;
+    onChange?: (tab: IEditorTab, value: string) => void;
 }
 
 export default ({ current, onChange }: IEnvParams) => {
@@ -57,18 +57,24 @@ export default ({ current, onChange }: IEnvParams) => {
     useEffect(() => {
         if (current && current.tab?.id !== 'createTask') {
             const model =
-        monacoEditor.getModel(getUniqPath(current.tab?.data.path)) ||
-        monacoEditor.createModel(
-            current.tab?.data.taskParams || defualt_sql_value,
-            'ini',
-            getUniqPath(current.tab?.data.path)
-        )
+                monacoEditor.getModel(getUniqPath(current.tab?.data.path)) ||
+                monacoEditor.createModel(
+                    current.tab?.data.taskParams || defualt_sql_value,
+                    'ini',
+                    getUniqPath(current.tab?.data.path)
+                )
 
             editorIns.current?.setModel(model)
         }
     }, [current?.id && current.tab?.id])
 
-    if (!current || !current.activeTab) { return <div style={{ textAlign: 'center', marginTop: 20 }}>无法获取环境参数</div> }
+    if (!current || !current.activeTab) {
+        return (
+            <div style={{ textAlign: 'center', marginTop: 20 }}>
+                无法获取环境参数
+            </div>
+        )
+    }
     return (
         <MonacoEditor
             options={{
@@ -93,12 +99,14 @@ export default ({ current, onChange }: IEnvParams) => {
                 })
 
                 const model =
-          monacoEditor.getModel(getUniqPath(current.tab?.data.path)) ||
-          monacoEditor.createModel(
-              current.tab?.data.taskParams || defualt_sql_value,
-              'ini',
-              getUniqPath(current.tab?.data.path)
-          )
+                    monacoEditor.getModel(
+                        getUniqPath(current.tab?.data.path)
+                    ) ||
+                    monacoEditor.createModel(
+                        current.tab?.data.taskParams || defualt_sql_value,
+                        'ini',
+                        getUniqPath(current.tab?.data.path)
+                    )
 
                 editorInstance.setModel(model)
             }}

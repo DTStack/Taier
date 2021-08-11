@@ -3,7 +3,8 @@
  */
 export const PROJECT_KEY = 'project_id'
 
-export const formItemLayout: any = { // 表单正常布局
+export const formItemLayout: any = {
+    // 表单正常布局
     labelCol: {
         xs: { span: 24 },
         sm: { span: 6 }
@@ -23,11 +24,12 @@ export const publishType = {
     PRODUCER: 4
 }
 
-export const TASK_TYPE = { // 任务类型
+export const TASK_TYPE = {
+    // 任务类型
     VIRTUAL_NODE: -1,
     /**
-   * SparkSQL
-   */
+     * SparkSQL
+     */
     SQL: 0,
     MR: 1,
     SYNC: 2,
@@ -88,8 +90,8 @@ export const DATA_SOURCE = {
     TI_DB: 31,
     SQLSERVER_2017_LATER: 32,
     /**
-   * 达梦数据库
-   */
+     * 达梦数据库
+     */
     DM: 35,
     GREEN_PLUM: 36,
     PHOENIX5: 38,
@@ -122,7 +124,8 @@ export const OPENTSDB_CULUMNS = [
     }
 ]
 
-export const SUPPROT_SUB_LIBRARY_DB_ARRAY: any = [ // 支持分库分表的数据库类型r
+export const SUPPROT_SUB_LIBRARY_DB_ARRAY: any = [
+    // 支持分库分表的数据库类型r
     DATA_SOURCE.MYSQL
     // DATA_SOURCE.ORACLE,
     // DATA_SOURCE.SQLSERVER,
@@ -134,10 +137,11 @@ export const HELP_DOC_URL = {
     DATA_SOURCE: '/public/helpSite/batch/v3.0/DataIntegration/Overview.html',
     DATA_SYNC: '/public/helpSite/batch/v3.0/DataIntegration/JobConfig.html',
     TASKPARAMS:
-    '/public/helpSite/batch/v3.0/DataDevelop/ScheduleConfig.html#ParamConfig'
+        '/public/helpSite/batch/v3.0/DataDevelop/ScheduleConfig.html#ParamConfig'
 }
 
-export const DATA_SYNC_MODE = { // 数据同步模式-正常/增量
+export const DATA_SYNC_MODE = {
+    // 数据同步模式-正常/增量
     NORMAL: 0, // 正常
     INCREMENT: 1 // 增量
 }
@@ -180,7 +184,8 @@ export const DATA_SOURCE_TEXT = {
     [DATA_SOURCE.OPEN_TS_DB]: 'OpenTSDB'
 }
 
-export const RDB_TYPE_ARRAY: any = [ // sql/oracle/sqlserver/postgresql/db2
+export const RDB_TYPE_ARRAY: any = [
+    // sql/oracle/sqlserver/postgresql/db2
     DATA_SOURCE.MYSQL,
     DATA_SOURCE.ORACLE,
     DATA_SOURCE.SQLSERVER,
@@ -246,53 +251,66 @@ export const taskStatus = {
     FROZEN: 18
 }
 
-export const offlineTaskStatusFilter: any = [{
-    id: 1,
-    text: '等待提交',
-    value: 0
-}, {
-    id: 2,
-    text: '提交中',
-    value: 10
-}, {
-    id: 3,
-    text: '等待运行',
-    value: 16
-}, {
-    id: 4,
-    text: '运行中',
-    value: 4
-}, {
-    id: 5,
-    text: '成功',
-    value: 5
-}, {
-    id: 6,
-    text: '手动取消',
-    value: 7
-}, {
-    id: 11,
-    text: '自动取消',
-    value: 24
-}, {
-    id: 7,
-    text: '提交失败',
-    value: 9
-}, {
-    id: 8,
-    text: '运行失败',
-    value: 8
-}, {
-    id: 9,
-    text: '上游失败',
-    value: 21
-}, {
-    id: 10,
-    text: '冻结',
-    value: 18
-}]
+export const offlineTaskStatusFilter: any = [
+    {
+        id: 1,
+        text: '等待提交',
+        value: 0
+    },
+    {
+        id: 2,
+        text: '提交中',
+        value: 10
+    },
+    {
+        id: 3,
+        text: '等待运行',
+        value: 16
+    },
+    {
+        id: 4,
+        text: '运行中',
+        value: 4
+    },
+    {
+        id: 5,
+        text: '成功',
+        value: 5
+    },
+    {
+        id: 6,
+        text: '手动取消',
+        value: 7
+    },
+    {
+        id: 11,
+        text: '自动取消',
+        value: 24
+    },
+    {
+        id: 7,
+        text: '提交失败',
+        value: 9
+    },
+    {
+        id: 8,
+        text: '运行失败',
+        value: 8
+    },
+    {
+        id: 9,
+        text: '上游失败',
+        value: 21
+    },
+    {
+        id: 10,
+        text: '冻结',
+        value: 18
+    }
+]
 
-export const TASK_STATUS = { // 任务状态
+export const TASK_STATUS = {
+    // 任务状态
     ALL: null as any,
     WAIT_SUBMIT: 0,
     CREATED: 1,
@@ -317,7 +335,8 @@ export const TASK_STATUS = { // 任务状态
     AUTO_CANCEL: 24 // 自动取消
 }
 
-export const SCRIPT_TYPE = { // 脚本类型
+export const SCRIPT_TYPE = {
+    // 脚本类型
     SQL: 0,
     PYTHON2: 1,
     PYTHON3: 2,
@@ -327,7 +346,8 @@ export const SCRIPT_TYPE = { // 脚本类型
     TI_DB_SQL: 6
 }
 
-export const hdfsFieldTypes: any = [ // hdfs 类型
+export const hdfsFieldTypes: any = [
+    // hdfs 类型
     'STRING',
     'VARCHAR',
     'CHAR',
@@ -342,7 +362,8 @@ export const hdfsFieldTypes: any = [ // hdfs 类型
     'DATE'
 ]
 
-export const hbaseFieldTypes = [ // HBase 类型
+export const hbaseFieldTypes = [
+    // HBase 类型
     'BOOLEAN',
     'INT',
     'STRING',

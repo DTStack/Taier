@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 module.exports = {
     devServer: {
@@ -9,9 +9,9 @@ module.exports = {
                 // Login
                 target: 'http://172.16.101.187:8090',
                 changeOrigin: true,
-                secure: false
+                secure: false,
             },
-            '/api': 'http://172.16.100.225:3001'
-        }
-    }
-}
+            '/api': 'http://172.16.100.225:3001',
+        },
+    },
+};

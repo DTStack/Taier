@@ -6,7 +6,7 @@ import { PROJECT_KEY } from '../comm/const'
 
 class Http {
     get (url: any, params: any) {
-    // GET请求
+        // GET请求
         const newUrl = params ? this.build(url, params) : url
         return this.request(newUrl, {
             method: 'GET'
@@ -14,7 +14,7 @@ class Http {
     }
 
     post (url: any, body?: any) {
-    // POST请求
+        // POST请求
         const options: any = { method: 'POST' }
         if (body) options.body = JSON.stringify(body)
         return this.request(url, options)
@@ -32,8 +32,8 @@ class Http {
         return this.request(url, options)
     }
 
-    request (url: any, options: RequestInit) {
-    // ProgressBar.show();
+    request (url: any, options: any) {
+        // ProgressBar.show();
         options.credentials = 'same-origin'
         const projectId = sessionStorage.getItem(PROJECT_KEY)
         if (projectId) {
@@ -43,18 +43,18 @@ class Http {
         }
         return (
             fetch(url, options)
-            //   .then(authBeforeFormate)
+                //   .then(authBeforeFormate)
                 .then((response: any) => {
                     setTimeout(() => {
                         //   ProgressBar.hide();
                     }, 300)
                     return response.json()
                 })
-            // [TODO] moquerie 测试专用
+                // [TODO] moquerie 测试专用
                 .then((res) => {
                     return res.data
                 })
-            //   .then(authAfterFormated)
+                //   .then(authAfterFormated)
                 .catch((err: any) => {
                     // ProgressBar.hide();
                     console.log(err)
@@ -64,7 +64,7 @@ class Http {
     }
 
     defaultHeader () {
-    // 默认头
+        // 默认头
         const header: any = {
             Accept: '*/*',
             'Content-Type': 'application/json'
@@ -73,7 +73,7 @@ class Http {
     }
 
     build (url: any, params: any) {
-    // URL构建方法
+        // URL构建方法
         const ps: any = []
         if (params) {
             for (const p in params) {

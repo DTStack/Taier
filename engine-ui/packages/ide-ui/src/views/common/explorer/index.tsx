@@ -5,7 +5,11 @@ import { connect } from 'molecule/esm/react'
 import TaskInfo from '../../task/taskInfo'
 import TaskParams from '../../task/taskParams'
 import { SchedulingConfig } from '../../task/schedulingConfig'
-import { TASK_ATTRIBUTONS, TASK_PARAMS_ID, TASK_SCHEDULE_CONFIG } from '../utils/const'
+import {
+    TASK_ATTRIBUTONS,
+    TASK_PARAMS_ID,
+    TASK_SCHEDULE_CONFIG
+} from '../utils/const'
 
 function changeContextMenuName () {
     const explorerData = molecule.explorer.getState().data?.concat() || []

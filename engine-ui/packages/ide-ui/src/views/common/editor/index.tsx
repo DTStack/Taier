@@ -9,7 +9,13 @@ import { searchById } from 'molecule/esm/services/helper'
 import { resetEditorGroup } from '../utils'
 import Result from '../../task/result'
 import ajax from '../../../api'
-import { TASK_RUN_ID, TASK_STOP_ID, TASK_SUBMIT_ID, TASK_RELEASE_ID, TASK_OPS_ID } from '../utils/const'
+import {
+    TASK_RUN_ID,
+    TASK_STOP_ID,
+    TASK_SUBMIT_ID,
+    TASK_RELEASE_ID,
+    TASK_OPS_ID
+} from '../utils/const'
 
 function initActions () {
     molecule.editor.setDefaultActions([
@@ -108,7 +114,7 @@ function emitEvent () {
                     molecule.panel.cleanOutput()
                     molecule.panel.appendOutput(
                         `${nowDate.getHours()}:${nowDate.getMinutes()}:${nowDate.getSeconds()}<info>正在提交...` +
-              '\n'
+                            '\n'
                     )
 
                     // mock sleeping
@@ -120,19 +126,22 @@ function emitEvent () {
 
                     molecule.panel.appendOutput(
                         `${nowDate.getHours()}:${nowDate.getMinutes()}:${nowDate.getSeconds()}<info>第1条任务开始执行` +
-              '\n'
+                            '\n'
                     )
 
-                    molecule.panel.appendOutput(`===========任务信息===========${'\n'}`)
+                    molecule.panel.appendOutput(
+                        `===========任务信息===========${'\n'}`
+                    )
                     molecule.panel.appendOutput(`show tables${'\n'}`)
-                    molecule.panel.appendOutput(`============================${'\n'}`)
-                    ajax
-                        .execSQLImmediately({})
+                    molecule.panel.appendOutput(
+                        `============================${'\n'}`
+                    )
+                    ajax.execSQLImmediately({})
                         .then((res) => {
                             const nowDate = new Date()
                             molecule.panel.appendOutput(
                                 `${nowDate.getHours()}:${nowDate.getMinutes()}:${nowDate.getSeconds()}<info>执行完成!` +
-                  '\n'
+                                    '\n'
                             )
                             const resultTable = res.data
 
@@ -140,7 +149,9 @@ function emitEvent () {
                                 id: new Date().getTime().toString(),
                                 name: '结果1',
                                 closable: true,
-                                renderPane: () => <Result data={resultTable.result} />
+                                renderPane: () => (
+                                    <Result data={resultTable.result} />
+                                )
                             })
                         })
                         .finally(() => {
@@ -180,7 +191,9 @@ export default class EditorExtension implements IExtension {
             if (group) {
                 const targetTab = group.data?.find(searchById(tabId))
                 if (targetTab?.data.taskType === 'SparkSql') {
-                    molecule.editor.updateActions([{ id: TASK_RUN_ID, disabled: false }])
+                    molecule.editor.updateActions([
+                        { id: TASK_RUN_ID, disabled: false }
+                    ])
                 } else {
                     resetEditorGroup()
                 }
@@ -190,7 +203,9 @@ export default class EditorExtension implements IExtension {
         molecule.editor.onCloseTab(() => {
             const { current } = molecule.editor.getState()
             if (current?.tab?.data.taskType === 'SparkSql') {
-                molecule.editor.updateActions([{ id: TASK_RUN_ID, disabled: false }])
+                molecule.editor.updateActions([
+                    { id: TASK_RUN_ID, disabled: false }
+                ])
             } else {
                 resetEditorGroup()
             }

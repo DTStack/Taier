@@ -5,7 +5,7 @@ class BatchSelect extends React.Component<any, any> {
     state: any = {
         targetKeys: [],
         tabData: []
-    }
+    };
 
     isOtherSourceFlag = false;
 
@@ -25,7 +25,7 @@ class BatchSelect extends React.Component<any, any> {
     getData (newData: any = [], table: any = []) {
         const mockData: any = []
         const targetData: any = []
-        newData.map((item: any) => {
+        newData.foreach((item: any) => {
             mockData.push({
                 key: item,
                 item
@@ -40,29 +40,37 @@ class BatchSelect extends React.Component<any, any> {
 
     handleChange = (targetKeys: any) => {
         const { handleSelectFinish, sourceMap, sourceKey } = this.props
-        this.setState({
-            targetKeys
-        }, () => {
-            // 通过一个标志位flag来判断处理是否来自于增加数据源的extTable数据
-            handleSelectFinish(this.state.targetKeys, sourceMap.type.type, sourceKey || '')
-        })
-    }
+        this.setState(
+            {
+                targetKeys
+            },
+            () => {
+                // 通过一个标志位flag来判断处理是否来自于增加数据源的extTable数据
+                handleSelectFinish(
+                    this.state.targetKeys,
+                    sourceMap.type.type,
+                    sourceKey || ''
+                )
+            }
+        )
+    };
 
     filterOption = (inputValue: any, option: any) => {
         return option.key.indexOf(inputValue) > -1
-    }
+    };
 
     render () {
         return (
-            <Transfer className="form-item-follow-text"
+            <Transfer
+                className="form-item-follow-text"
                 listStyle={{ width: '260px', height: '235PX' }}
-                dataSource={ this.state.tabData }
+                dataSource={this.state.tabData}
                 showSearch
-                filterOption={ this.filterOption }
+                filterOption={this.filterOption}
                 targetKeys={this.state.targetKeys}
                 onChange={this.handleChange}
                 render={(ele: any) => ele.item}
-                titles={ ['张表', '张表'] }
+                titles={['张表', '张表']}
             />
         )
     }

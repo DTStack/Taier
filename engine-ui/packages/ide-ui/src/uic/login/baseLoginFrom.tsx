@@ -11,7 +11,7 @@ class BaseLoginFrom extends Component<any, any> {
 
     handleLoginSubmit = async () => {
         const { form } = this.props
-        form.validateFields(async (err:any, value:any) => {
+        form.validateFields(async (err: any, value: any) => {
             if (!err) {
                 this.setState({
                     submitLoading: true

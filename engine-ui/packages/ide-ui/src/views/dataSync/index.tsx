@@ -44,70 +44,70 @@ type Istate = typeof initialState;
     }
 ) as any)
 class DataSyncWorkbench extends React.Component<any, Istate> {
-  state = {
-      changeTab: true,
-      size: undefined,
-      runTitle: 'Command/Ctrl + R'
-  };
+    state = {
+        changeTab: true,
+        size: undefined,
+        runTitle: 'Command/Ctrl + R'
+    };
 
-  static propTypes = propType;
-  componentDidMount () {
-      const currentNode = this.props.currentTabData
-      if (currentNode) {
-          this.props.getTab(currentNode.id) // 初始化console所需的数据结构
-      }
-  }
+    static propTypes = propType;
+    componentDidMount () {
+        const currentNode = this.props.currentTabData
+        if (currentNode) {
+            this.props.getTab(currentNode.id) // 初始化console所需的数据结构
+        }
+    }
 
-  // eslint-disable-next-line
-  UNSAFE_componentWillReceiveProps(nextProps: any) {
-      const current = nextProps.currentTabData
-      const old = this.props.currentTabData
-      if (current && current.id !== old.id) {
-          this.props.getTab(current.id)
-      }
-  }
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps(nextProps: any) {
+        const current = nextProps.currentTabData
+        const old = this.props.currentTabData
+        if (current && current.id !== old.id) {
+            this.props.getTab(current.id)
+        }
+    }
 
-  changeTab = (state: any) => {
-      let changeTab = false
-      if (state) {
-          changeTab = true
-      } else {
-          changeTab = false
-      }
+    changeTab = (state: any) => {
+        let changeTab = false
+        if (state) {
+            changeTab = true
+        } else {
+            changeTab = false
+        }
 
-      this.setState({
-          changeTab
-      })
-  };
+        this.setState({
+            changeTab
+        })
+    };
 
-  render () {
-      const { currentTabData } = this.props
+    render () {
+        const { currentTabData } = this.props
 
-      return (
-          <div className="ide-editor">
-              <div style={{ zIndex: 901 }} className="ide-content">
-                  <SplitPane
-                      split="horizontal"
-                      minSize={100}
-                      maxSize={-77}
-                      primary="first"
-                      key={'ide-split-pane'}
-                  >
-                      <div
-                          style={{
-                              width: '100%',
-                              height: '100%',
-                              minHeight: '400px',
-                              position: 'relative'
-                          }}
-                      >
-                          <DataSync currentTabData={currentTabData} />
-                      </div>
-                  </SplitPane>
-              </div>
-          </div>
-      )
-  }
+        return (
+            <div className="ide-editor">
+                <div style={{ zIndex: 901 }} className="ide-content">
+                    <SplitPane
+                        split="horizontal"
+                        minSize={100}
+                        maxSize={-77}
+                        primary="first"
+                        key={'ide-split-pane'}
+                    >
+                        <div
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                minHeight: '400px',
+                                position: 'relative'
+                            }}
+                        >
+                            <DataSync currentTabData={currentTabData} />
+                        </div>
+                    </SplitPane>
+                </div>
+            </div>
+        )
+    }
 }
 
 export default DataSyncWorkbench

@@ -5,21 +5,28 @@ import { HELP_DOC_URL } from '../../comm/const'
 
 export const dataFilterDoc = (
     <div>
-        where 条件即针对源头数据筛选条件，根据指定的 column、table、where 条件拼接 SQL 进行数据抽取，暂时不支持limit关键字过滤。利用 where 条件可进行全量同步和增量同步，具体说明如下：<br/>
+        where 条件即针对源头数据筛选条件，根据指定的 column、table、where
+        条件拼接 SQL 进行数据抽取，暂时不支持limit关键字过滤。利用 where
+        条件可进行全量同步和增量同步，具体说明如下：
+        <br />
         <ul>
-            <li>1）全量同步：第一次做数据导入时通常为全量导入，可不用设置 where 条件。</li>
-            <li>2）增量同步：增量导入在实际业务场景中，往往会选择当天的数据进行同步，通常需要编写 where 条件语句，请先确认表中描述增量字段（时间戳）为哪一个。如tableA增量的字段为create_time，则填写create_time {'>'} 您需要的日期，如果需要日期动态变化，请参考帮助文档。</li>
+            <li>
+                1）全量同步：第一次做数据导入时通常为全量导入，可不用设置 where
+                条件。
+            </li>
+            <li>
+                2）增量同步：增量导入在实际业务场景中，往往会选择当天的数据进行同步，通常需要编写
+                where
+                条件语句，请先确认表中描述增量字段（时间戳）为哪一个。如tableA增量的字段为create_time，则填写create_time{' '}
+                {'>'} 您需要的日期，如果需要日期动态变化，请参考帮助文档。
+            </li>
         </ul>
     </div>
 )
 
-export const mrTaskHelp = (
-    <p>支持基于Spark API的Java、Scala处理程序</p>
-)
+export const mrTaskHelp = <p>支持基于Spark API的Java、Scala处理程序</p>
 
-export const mlTaskHelp = (
-    <p>支持基于Spark MLLib的机器学习任务</p>
-)
+export const mlTaskHelp = <p>支持基于Spark MLLib的机器学习任务</p>
 
 export const switchKey = (
     <ul>
@@ -29,15 +36,14 @@ export const switchKey = (
 )
 
 export const selectKey = (
-    <div>
-        MySQL、SQLServer、PostgreSQL、Oracle：支持数值型切分键
-    </div>
+    <div>MySQL、SQLServer、PostgreSQL、Oracle：支持数值型切分键</div>
 )
 
 export const hdfsPath = (
     <div>
-        user/hive/warehouse/projectName.db/<br/>tableName
-        是RD-OS默认的HDFS文件组织方式，projectName为项目名，
+        user/hive/warehouse/projectName.db/
+        <br />
+        tableName 是RD-OS默认的HDFS文件组织方式，projectName为项目名，
         其中每个tableName是HDFS内的一个目录，储存着一张表的数据。
         如果此表的数据存储在当前项目空间内，只需修改tableName即可，
         否则需要根据HDFS的存储位置填写。
@@ -45,9 +51,7 @@ export const hdfsPath = (
 )
 
 export const splitCharacter = (
-    <div>
-        配置不可见字符，可通过“\”作为转义字符，例如\001
-    </div>
+    <div>配置不可见字符，可通过“\”作为转义字符，例如\001</div>
 )
 
 export const jobSpeedLimit = ( // 作业上限速度
@@ -58,9 +62,7 @@ export const jobSpeedLimit = ( // 作业上限速度
 )
 
 export const jobConcurrence = ( // 作业并发数
-    <div>
-        作业并发数可以根据业务需求和集群资源设定，并发数最大能选择5。
-    </div>
+    <div>作业并发数可以根据业务需求和集群资源设定，并发数最大能选择5。</div>
 )
 
 export const errorCount = ( // 作业并发数
@@ -76,22 +78,32 @@ export const hdfsConfig = ( // hdfs config
         <ul>
             <li>
                 1、分别要填写：nameservice名称、
-                namenode名称（多个以逗号分隔）、proxy.provider参数；</li>
+                namenode名称（多个以逗号分隔）、proxy.provider参数；
+            </li>
             <li>2、所有参数以JSON格式填写；</li>
-            <li>3、格式为：<br/>
+            <li>
+                3、格式为：
+                <br />
                 "dfs.nameservices": "nameservice名称",
                 "dfs.ha.namenodes.nameservice名称": "namenode名称，以逗号分隔",
                 "dfs.namenode.rpc-address.nameservice名称.namenode名称": "",
                 "dfs.namenode.rpc-address.nameservice名称.namenode名称": "",
-                "dfs.client.failover.proxy.provider.<br/>
-                nameservice名称": "org.apache.hadoop.<br/>
-                hdfs.server.namenode.ha.<br/>
+                "dfs.client.failover.proxy.provider.
+                <br />
+                nameservice名称": "org.apache.hadoop.
+                <br />
+                hdfs.server.namenode.ha.
+                <br />
                 ConfiguredFailoverProxyProvider"
             </li>
             <li>
                 4、详细参数含义请参考《帮助文档》或
-                <a href="http://hadoop.apache.org/docs/r2.7.4/hadoop-project-dist/hadoop-hdfs/HDFSHighAvailabilityWithQJM.html"
-                    target="blank">Hadoop官方文档</a>
+                <a
+                    href="http://hadoop.apache.org/docs/r2.7.4/hadoop-project-dist/hadoop-hdfs/HDFSHighAvailabilityWithQJM.html"
+                    target="blank"
+                >
+                    Hadoop官方文档
+                </a>
             </li>
         </ul>
     </div>
@@ -112,8 +124,16 @@ export const hBaseConfig = ( // HBase configuration
     <div>
         HBase配置说明：
         <ul>
-            <li>1、Zookeeper 集群的地址，多个地址间用逗号分割。例 如：" IP1:Port, IP2:Port, IP3:Port/子目录".默认是 localhost,是给伪分布式用的。要修改才能在完全分布式的情况下使用。如果在hbase-env.sh设置了HBASEMANAGESZK， 这些ZooKeeper节点就会和HBase一起启动</li>
-            <li>2、Port: ZooKeeper的zoo.conf中的配置。客户端连接的端口， 默认2181</li>
+            <li>
+                1、Zookeeper 集群的地址，多个地址间用逗号分割。例 如："
+                IP1:Port, IP2:Port, IP3:Port/子目录".默认是
+                localhost,是给伪分布式用的。要修改才能在完全分布式的情况下使用。如果在hbase-env.sh设置了HBASEMANAGESZK，
+                这些ZooKeeper节点就会和HBase一起启动
+            </li>
+            <li>
+                2、Port: ZooKeeper的zoo.conf中的配置。客户端连接的端口，
+                默认2181
+            </li>
             <li>3、子目录：HBase在ZooKeeper中配置的子目录</li>
         </ul>
     </div>
@@ -121,31 +141,47 @@ export const hBaseConfig = ( // HBase configuration
 
 export const recordDirtyData = (
     <div>
-        <p>保存到默认位置，您可以在“数据管理-脏数据管理”中查看，表名：defaultName（生命周期：30天）</p>
+        <p>
+            保存到默认位置，您可以在“数据管理-脏数据管理”中查看，表名：defaultName（生命周期：30天）
+        </p>
     </div>
 )
 
 export const errorPercentConfig = (
     <div>
-        <p>任务执行结束后统计错误记录占比，当比例过高时，将此任务实例置为失败</p>
+        <p>
+            任务执行结束后统计错误记录占比，当比例过高时，将此任务实例置为失败
+        </p>
     </div>
 )
 
 const baseSystemParams = (
     <p>
-        <span>${'{bdp.system.bizdate}'}     --业务日期，格式：yyyyMMdd</span><br/>
-        <span>${'{bdp.system.bizdate2}'}    --业务日期，格式：yyyy-MM-dd</span><br/>
-        <span>${'{bdp.system.cyctime}'}     --计划时间，格式：yyyyMMddHHmmss</span><br/>
-        <span>${'{bdp.system.premonth}'}    --上个月（以计划时间为基准），格式：yyyyMM</span><br/>
-        <span>${'{bdp.system.currmonth}'}   --当前月（以计划时间为基准），格式：yyyyMM</span><br/>
-        <span>${'{bdp.system.runtime}'} --当前时间，即任务实际运行的时间，格式：yyyyMMddHHmmss</span>
+        <span>${'{bdp.system.bizdate}'} --业务日期，格式：yyyyMMdd</span>
+        <br />
+        <span>${'{bdp.system.bizdate2}'} --业务日期，格式：yyyy-MM-dd</span>
+        <br />
+        <span>${'{bdp.system.cyctime}'} --计划时间，格式：yyyyMMddHHmmss</span>
+        <br />
+        <span>
+            ${'{bdp.system.premonth}'}{' '}
+            --上个月（以计划时间为基准），格式：yyyyMM
+        </span>
+        <br />
+        <span>
+            ${'{bdp.system.currmonth}'}{' '}
+            --当前月（以计划时间为基准），格式：yyyyMM
+        </span>
+        <br />
+        <span>
+            ${'{bdp.system.runtime}'}{' '}
+            --当前时间，即任务实际运行的时间，格式：yyyyMMddHHmmss
+        </span>
     </p>
 )
 export const customSystemParams = (
     <div>
-        <p>
-            常用系统变量:
-        </p>
+        <p>常用系统变量:</p>
         {baseSystemParams}
     </div>
 )
@@ -160,21 +196,34 @@ export const partitionDesc = (
 // 自定义参数配置
 export const customParams = (
     <div>
-        <p>在代码中输入的格式为：${'{key1}'}，key1 为变量名，在当前面板中为 key1 赋值</p>
+        <p>
+            在代码中输入的格式为：${'{key1}'}，key1 为变量名，在当前面板中为
+            key1 赋值
+        </p>
         <p>支持常量或变量赋值，常量直接输入字符串或数字</p>
         <p>变量有 $[yyyyMMdd] 和${'{yyyyMMdd}'}格式，二者时间基点不同</p>
-        <p>$[]格式：变量基于 bdp.system.cyctime 取值，格式为：key1=$[yyyy]，其中的 yyyy 是取 bdp.system.cyctime 的年的部分</p>
-        <p>${'{}'}格式：变量基于 bdp.system.bizdate 取值，格式为：key1=${'{yyyy}'}，其中的 yyyy 是取 bdp.system.bizdate 的年的部分</p>
-        <p>详细说明请参考<a href={HELP_DOC_URL.TASKPARAMS} target="blank">《帮助文档》</a></p>
+        <p>
+            $[]格式：变量基于 bdp.system.cyctime
+            取值，格式为：key1=$[yyyy]，其中的 yyyy 是取 bdp.system.cyctime
+            的年的部分
+        </p>
+        <p>
+            ${'{}'}格式：变量基于 bdp.system.bizdate 取值，格式为：key1=$
+            {'{yyyy}'}，其中的 yyyy 是取 bdp.system.bizdate 的年的部分
+        </p>
+        <p>
+            详细说明请参考
+            <a href={HELP_DOC_URL.TASKPARAMS} target="blank">
+                《帮助文档》
+            </a>
+        </p>
     </div>
 )
 
 //
 export const taskDependentTypeDesc = (
     <div>
-        <p>
-            任务结束包括成功、失败、取消3种情况
-        </p>
+        <p>任务结束包括成功、失败、取消3种情况</p>
     </div>
 )
 
@@ -198,15 +247,12 @@ export const outputTaskHelp = (
     </div>
 )
 
-export const optionsTaskHelp = (
-    <div>
-        任务执行时的命令行参数
-    </div>
-)
+export const optionsTaskHelp = <div>任务执行时的命令行参数</div>
 
 export const switchPartition = (
     <span>
-        将上游节点与 JoinTable 节点的数据传输改成按 key 分区。这样通常可以缩小单个节点的 key 个数，提高缓存的命中率
+        将上游节点与 JoinTable 节点的数据传输改成按 key
+        分区。这样通常可以缩小单个节点的 key 个数，提高缓存的命中率
     </span>
 )
 
@@ -216,17 +262,9 @@ export const stringColumnFormat = (
     </span>
 )
 
-export const dateTimeFormat = (
-    <span>
-        修改Date类型的格式
-    </span>
-)
+export const dateTimeFormat = <span>修改Date类型的格式</span>
 
-export const taskFailRetry = (
-    <span>
-        默认出错自动重试3次，时间间隔2分钟
-    </span>
-)
+export const taskFailRetry = <span>默认出错自动重试3次，时间间隔2分钟</span>
 
 export const syncTaskHelp = (
     <div>
@@ -234,7 +272,9 @@ export const syncTaskHelp = (
         <br />
         脚本模式：全能 高效，可深度调优，支持全部数据源
         <br />
-        <a href={HELP_DOC_URL.DATA_SOURCE} target="blank">查看支持的数据源</a>
+        <a href={HELP_DOC_URL.DATA_SOURCE} target="blank">
+            查看支持的数据源
+        </a>
     </div>
 )
 
@@ -269,14 +309,15 @@ export const minuteParticleHelp = (
 )
 export const dataSyncExtralConfigHelp = (
     <div>
-        以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize，每类数据源支持不同的参数，可参考<a href={HELP_DOC_URL.DATA_SYNC} target='blank'>《帮助文档》</a>
+        以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize，每类数据源支持不同的参数，可参考
+        <a href={HELP_DOC_URL.DATA_SYNC} target="blank">
+            《帮助文档》
+        </a>
     </div>
 )
 
 export const kylinRestfulHelp = (
-    <div>
-        访问Kylin的认证地址，格式为：http://ip:port
-    </div>
+    <div>访问Kylin的认证地址，格式为：http://ip:port</div>
 )
 
 export const breakpointContinualTransferHelp = (
@@ -294,12 +335,11 @@ export const theLastExample = (
 
 export const autoSkipJobHelp = (
     <div>
-        仅适用于周期为小时和分钟的调度任务，假设某任务的调度周期为10分钟，1:00的实例到1:53才运行完成，勾选此项后将直接运行2:00的实例，1:10 - 1:50的实例会被置为“自动取消”状态。
+        仅适用于周期为小时和分钟的调度任务，假设某任务的调度周期为10分钟，1:00的实例到1:53才运行完成，勾选此项后将直接运行2:00的实例，1:10
+        - 1:50的实例会被置为“自动取消”状态。
     </div>
 )
 
 export const projectCategories = (
-    <div>
-        当项目较多时，可建立多级分类管理项目
-    </div>
+    <div>当项目较多时，可建立多级分类管理项目</div>
 )

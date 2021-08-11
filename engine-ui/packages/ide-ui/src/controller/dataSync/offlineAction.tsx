@@ -5,12 +5,13 @@ import { uniqBy, cloneDeep, isArray, get, assign } from 'lodash'
 import { offlineWorkbenchDB as idb } from '../database'
 
 import ajax from '../../api'
-import { MENU_TYPE, DATA_SYNC_MODE, ENGINE_SOURCE_TYPE } from '../../comm/const'
-
 import {
-    stopSql,
-    setSelectionContent
-} from '../editor/editorAction'
+    MENU_TYPE,
+    DATA_SYNC_MODE,
+    ENGINE_SOURCE_TYPE
+} from '../../comm/const'
+
+import { stopSql, setSelectionContent } from '../editor/editorAction'
 
 import { matchTaskParams, formatDateTime } from '../../comm'
 
@@ -261,19 +262,21 @@ export const workbenchActions = (dispatch?: any) => {
     const reloadTaskTab = (taskId: any, isScript?: any) => {
         const method: any = isScript ? 'getScriptById' : 'getOfflineTaskDetail';
         // 更新tabs数据
-        (ajax as any)[method]({
-            id: taskId
-        }).then((res: any) => {
-            if (res.code === 1) {
-                dispatch({
-                    type: workbenchAction.MAKE_TAB_CLEAN
-                })
-                dispatch({
-                    type: workbenchAction.UPDATE_TASK_TAB,
-                    payload: res.data
-                })
-            }
-        })
+        (ajax as any)
+            [method]({
+                id: taskId
+            })
+            .then((res: any) => {
+                if (res.code === 1) {
+                    dispatch({
+                        type: workbenchAction.MAKE_TAB_CLEAN
+                    })
+                    dispatch({
+                        type: workbenchAction.UPDATE_TASK_TAB,
+                        payload: res.data
+                    })
+                }
+            })
     }
 
     const reloadComponentTab = (id: any) => {
@@ -347,7 +350,9 @@ export const workbenchActions = (dispatch?: any) => {
 
             const db = await idb.open()
             if (db) {
-                const result: any = await idb.get(`${pid ? pid + '_' : ''}offline_workbench`)
+                const result: any = await idb.get(
+                    `${pid ? pid + '_' : ''}offline_workbench`
+                )
                 if (result) {
                     dispatch({
                         type: workbenchAction.INIT_WORKBENCH,
@@ -372,7 +377,7 @@ export const workbenchActions = (dispatch?: any) => {
         onEditTaskByModal,
         /**
          * 保存提交Modal
-        */
+         */
         toggleConfirmModal,
         togglePublishModal,
         isSaveFInish,
@@ -416,7 +421,7 @@ export const workbenchActions = (dispatch?: any) => {
         /**
          * 发布任务
          * @param {*} res
-        */
+         */
         publishTask (res: any) {
             dispatch({
                 type: workbenchAction.CHANGE_TASK_SUBMITSTATUS,
@@ -430,7 +435,7 @@ export const workbenchActions = (dispatch?: any) => {
         /**
          * 更新当前任务的字段
          * @param {*} taskFields
-        */
+         */
         updateTaskField (taskFields: any) {
             dispatch({
                 type: workbenchAction.SET_TASK_FIELDS_VALUE,
@@ -443,29 +448,45 @@ export const workbenchActions = (dispatch?: any) => {
          * 集中处理Data同步中的变量,例如${system.date}
          * @param {Object} dataSync
          */
-        updateDataSyncVariables (sourceMap: any, targetMap: any, taskCustomParams: any) {
+        updateDataSyncVariables (
+            sourceMap: any,
+            targetMap: any,
+            taskCustomParams: any
+        ) {
             let taskVariables: any = []
 
             // SourceMapupdateDataSyncVariables
             if (sourceMap) {
                 if (sourceMap.type && sourceMap.type.where) {
-                    const vbs = matchTaskParams(taskCustomParams, sourceMap.type.where)
+                    const vbs = matchTaskParams(
+                        taskCustomParams,
+                        sourceMap.type.where
+                    )
                     taskVariables = taskVariables.concat(vbs)
                 }
 
                 if (sourceMap.type && sourceMap.type.start) {
-                    const vbs = matchTaskParams(taskCustomParams, sourceMap.type.start)
+                    const vbs = matchTaskParams(
+                        taskCustomParams,
+                        sourceMap.type.start
+                    )
                     taskVariables = taskVariables.concat(vbs)
                 }
 
                 if (sourceMap.type && sourceMap.type.end) {
-                    const vbs = matchTaskParams(taskCustomParams, sourceMap.type.end)
+                    const vbs = matchTaskParams(
+                        taskCustomParams,
+                        sourceMap.type.end
+                    )
                     taskVariables = taskVariables.concat(vbs)
                 }
 
                 // 分区，获取任务自定义参数
                 if (sourceMap.type && sourceMap.type.partition) {
-                    const vbs = matchTaskParams(taskCustomParams, sourceMap.type.partition)
+                    const vbs = matchTaskParams(
+                        taskCustomParams,
+                        sourceMap.type.partition
+                    )
                     taskVariables = taskVariables.concat(vbs)
                 }
 
@@ -473,7 +494,9 @@ export const workbenchActions = (dispatch?: any) => {
                 if (sourceMap.column && sourceMap.column.length > 0) {
                     let str = ''
                     for (let i = 0; i < sourceMap.column.length; i++) {
-                        str += `${sourceMap.column[i].key || sourceMap.column[i].index} ${sourceMap.column[i].value || ''}`
+                        str += `${
+                            sourceMap.column[i].key || sourceMap.column[i].index
+                        } ${sourceMap.column[i].value || ''}`
                     }
                     const vbs = matchTaskParams(taskCustomParams, str)
                     taskVariables = taskVariables.concat(vbs)
@@ -509,17 +532,26 @@ export const workbenchActions = (dispatch?: any) => {
                 }
 
                 if (targetMap.type.partition) {
-                    const vbs = matchTaskParams(taskCustomParams, targetMap.type.partition)
+                    const vbs = matchTaskParams(
+                        taskCustomParams,
+                        targetMap.type.partition
+                    )
                     taskVariables = taskVariables.concat(vbs)
                 }
 
                 if (targetMap.type.object) {
-                    const vbs = matchTaskParams(taskCustomParams, targetMap.type.object)
+                    const vbs = matchTaskParams(
+                        taskCustomParams,
+                        targetMap.type.object
+                    )
                     taskVariables = taskVariables.concat(vbs)
                 }
 
                 if (targetMap.type.fileName) {
-                    const vbs = matchTaskParams(taskCustomParams, targetMap.type.fileName)
+                    const vbs = matchTaskParams(
+                        taskCustomParams,
+                        targetMap.type.fileName
+                    )
                     taskVariables = taskVariables.concat(vbs)
                 }
 
@@ -544,33 +576,31 @@ export const workbenchActions = (dispatch?: any) => {
         },
 
         createWorkflowTask (data: any) {
-            return ajax.addOfflineTask(data)
-                .then((res: any) => {
-                    if (res.code === 1) {
-                        const newTask = res.data
-                        dispatch({
-                            type: workflowAction.UPDATE,
-                            payload: {
-                                node: newTask,
-                                status: 'created'
-                            }
-                        })
-                        return true
-                    }
-                })
+            return ajax.addOfflineTask(data).then((res: any) => {
+                if (res.code === 1) {
+                    const newTask = res.data
+                    dispatch({
+                        type: workflowAction.UPDATE,
+                        payload: {
+                            node: newTask,
+                            status: 'created'
+                        }
+                    })
+                    return true
+                }
+            })
         },
 
         // 确定克隆
         confirmClone (data: any) {
-            return ajax.cloneTask(data)
-                .then((res: any) => {
-                    if (res.code === 1) {
-                        dispatch({
-                            type: workflowAction.CLONE
-                        })
-                        return true
-                    }
-                })
+            return ajax.cloneTask(data).then((res: any) => {
+                if (res.code === 1) {
+                    dispatch({
+                        type: workflowAction.CLONE
+                    })
+                    return true
+                }
+            })
         },
 
         saveTask (task?: any, noMsg?: any) {
@@ -609,33 +639,45 @@ export const workbenchActions = (dispatch?: any) => {
                     if (lockStatus === 0) {
                         updateTabData(res)
                         if (!noMsg) message.success('保存成功！')
-                    // 如果是锁定状态，点击确定按钮，强制更新，否则，取消保存
-                    } else if (lockStatus === 1) { // 2-被锁定
+                        // 如果是锁定状态，点击确定按钮，强制更新，否则，取消保存
+                    } else if (lockStatus === 1) {
+                        // 2-被锁定
                         confirm({
                             title: '锁定提醒', // 锁定提示
-                            content: <span>
-                                文件正在被{lockInfo.lastKeepLockUserName}编辑中，开始编辑时间为
-                                {formatDateTime(lockInfo.gmtModified)}。
-                                强制保存可能导致{lockInfo.lastKeepLockUserName}对文件的修改无法正常保存！
-                            </span>,
+                            content: (
+                                <span>
+                                    文件正在被{lockInfo.lastKeepLockUserName}
+                                    编辑中，开始编辑时间为
+                                    {formatDateTime(lockInfo.gmtModified)}。
+                                    强制保存可能导致
+                                    {lockInfo.lastKeepLockUserName}
+                                    对文件的修改无法正常保存！
+                                </span>
+                            ),
                             okText: '确定保存',
                             okType: 'danger',
                             cancelText: '取消',
                             onOk () {
-                                ajax.forceUpdateOfflineTask(task).then(updateTabData)
+                                ajax.forceUpdateOfflineTask(task).then(
+                                    updateTabData
+                                )
                             }
                         })
                         // 如果同步状态，则提示会覆盖代码，
                         // 点击确认，重新拉取代码并覆盖当前代码，取消则退出
-                    } else if (lockStatus === 2) { // 2-需同步
+                    } else if (lockStatus === 2) {
+                        // 2-需同步
                         confirm({
                             title: '保存警告',
-                            content: <span>
-                                文件已经被{lockInfo.lastKeepLockUserName}编辑过，编辑时间为
-                                {formatDateTime(lockInfo.gmtModified)}。
-                                点击确认按钮会<Tag color="orange">覆盖</Tag>
-                                您本地的代码，请您提前做好备份！
-                            </span>,
+                            content: (
+                                <span>
+                                    文件已经被{lockInfo.lastKeepLockUserName}
+                                    编辑过，编辑时间为
+                                    {formatDateTime(lockInfo.gmtModified)}。
+                                    点击确认按钮会<Tag color="orange">覆盖</Tag>
+                                    您本地的代码，请您提前做好备份！
+                                </span>
+                            ),
                             okText: '确定覆盖',
                             okType: 'danger',
                             cancelText: '取消',
@@ -645,7 +687,9 @@ export const workbenchActions = (dispatch?: any) => {
                                     lockVersion: lockInfo.version
                                 }
                                 // 更新version, getLock信息
-                                ajax.getOfflineTaskDetail(reqParams).then(updateTabData)
+                                ajax.getOfflineTaskDetail(reqParams).then(
+                                    updateTabData
+                                )
                             }
                         })
                     }
@@ -682,22 +726,28 @@ export const workbenchActions = (dispatch?: any) => {
                     const lockInfo = fileData.readWriteLockVO
                     const lockStatus = lockInfo?.result // 1-正常，2-被锁定，3-需同步
                     const { isChangeComponent } = res.data
-                    if (isChangeComponent) { // 引用组件的任务，组件被更新，走这一步
+                    if (isChangeComponent) {
+                        // 引用组件的任务，组件被更新，走这一步
                         confirm({
                             title: '组件版本更新', // 更新提示
-                            content: <span>
-                                组件“{params.componentName}”存在版本更新，点击“确定”加载到最新版本。
-                            </span>,
+                            content: (
+                                <span>
+                                    组件“{params.componentName}
+                                    ”存在版本更新，点击“确定”加载到最新版本。
+                                </span>
+                            ),
                             okText: '确定',
                             cancelText: '取消',
                             onOk () {
-                                ajax.getOfflineTaskByID({ id: params.id }).then((res: any) => {
-                                    if (res.code === 1) {
-                                        const taskInfo = res.data
-                                        taskInfo.merged = true
-                                        updateTaskInfo(taskInfo)
+                                ajax.getOfflineTaskByID({ id: params.id }).then(
+                                    (res: any) => {
+                                        if (res.code === 1) {
+                                            const taskInfo = res.data
+                                            taskInfo.merged = true
+                                            updateTaskInfo(taskInfo)
+                                        }
                                     }
-                                })
+                                )
                             }
                         })
                     } else if (lockStatus === 0) {
@@ -711,17 +761,26 @@ export const workbenchActions = (dispatch?: any) => {
                         if (type === 'component') {
                             reloadComponentTab(fileData.id)
                         } else {
-                            reloadTaskTab(fileData.id, typeof params.type !== 'undefined')
+                            reloadTaskTab(
+                                fileData.id,
+                                typeof params.type !== 'undefined'
+                            )
                         }
                         // 如果是锁定状态，点击确定按钮，强制更新，否则，取消保存
-                    } else if (lockStatus === 1) { // 2-被锁定
+                    } else if (lockStatus === 1) {
+                        // 2-被锁定
                         confirm({
                             title: '锁定提醒', // 锁定提示
-                            content: <span>
-                                文件正在被{lockInfo.lastKeepLockUserName}编辑中，开始编辑时间为
-                                {formatDateTime(lockInfo.gmtModified)}。
-                                强制保存可能导致{lockInfo.lastKeepLockUserName}对文件的修改无法正常保存！
-                            </span>,
+                            content: (
+                                <span>
+                                    文件正在被{lockInfo.lastKeepLockUserName}
+                                    编辑中，开始编辑时间为
+                                    {formatDateTime(lockInfo.gmtModified)}。
+                                    强制保存可能导致
+                                    {lockInfo.lastKeepLockUserName}
+                                    对文件的修改无法正常保存！
+                                </span>
+                            ),
                             okText: '确定保存',
                             okType: 'danger',
                             cancelText: '取消',
@@ -731,14 +790,19 @@ export const workbenchActions = (dispatch?: any) => {
                                         message.success('保存成功！')
                                         updateTaskInfo({
                                             version: res.data.version,
-                                            readWriteLockVO: res.data.readWriteLockVO
+                                            readWriteLockVO:
+                                                res.data.readWriteLockVO
                                         })
                                     }
                                 }
                                 if (type === 'task') {
-                                    ajax.forceUpdateOfflineTask(params).then(succCall)
+                                    ajax.forceUpdateOfflineTask(params).then(
+                                        succCall
+                                    )
                                 } else if (type === 'script') {
-                                    ajax.forceUpdateOfflineScript(params).then(succCall)
+                                    ajax.forceUpdateOfflineScript(params).then(
+                                        succCall
+                                    )
                                 } else if (type === 'component') {
                                     params.forceUpdate = true
                                     ajax.saveComponent(params).then(succCall)
@@ -747,15 +811,19 @@ export const workbenchActions = (dispatch?: any) => {
                         })
                         // 如果同步状态，则提示会覆盖代码，
                         // 点击确认，重新拉取代码并覆盖当前代码，取消则退出
-                    } else if (lockStatus === 2) { // 2-需同步
+                    } else if (lockStatus === 2) {
+                        // 2-需同步
                         confirm({
                             title: '保存警告',
-                            content: <span>
-                                文件已经被{lockInfo.lastKeepLockUserName}编辑过，编辑时间为
-                                {formatDateTime(lockInfo.gmtModified)}。
-                                点击确认按钮会<Tag color="orange">覆盖</Tag>
-                                您本地的代码，请您提前做好备份！
-                            </span>,
+                            content: (
+                                <span>
+                                    文件已经被{lockInfo.lastKeepLockUserName}
+                                    编辑过，编辑时间为
+                                    {formatDateTime(lockInfo.gmtModified)}。
+                                    点击确认按钮会<Tag color="orange">覆盖</Tag>
+                                    您本地的代码，请您提前做好备份！
+                                </span>
+                            ),
                             okText: '确定覆盖',
                             okType: 'danger',
                             cancelText: '取消',
@@ -766,31 +834,37 @@ export const workbenchActions = (dispatch?: any) => {
                                 }
                                 if (type === 'task') {
                                     // 更新version, getLock信息
-                                    ajax.getOfflineTaskDetail(reqParams).then((res: any) => {
-                                        if (res.code === 1) {
-                                            const taskInfo = res.data
-                                            taskInfo.merged = true
-                                            updateTaskInfo(taskInfo)
+                                    ajax.getOfflineTaskDetail(reqParams).then(
+                                        (res: any) => {
+                                            if (res.code === 1) {
+                                                const taskInfo = res.data
+                                                taskInfo.merged = true
+                                                updateTaskInfo(taskInfo)
+                                            }
                                         }
-                                    })
+                                    )
                                 } else if (type === 'script') {
-                                    ajax.getScriptById(reqParams).then((res: any) => {
-                                        if (res.code === 1) {
-                                            const scriptInfo = res.data
-                                            scriptInfo.merged = true
-                                            updateTaskInfo(scriptInfo)
+                                    ajax.getScriptById(reqParams).then(
+                                        (res: any) => {
+                                            if (res.code === 1) {
+                                                const scriptInfo = res.data
+                                                scriptInfo.merged = true
+                                                updateTaskInfo(scriptInfo)
+                                            }
                                         }
-                                    })
+                                    )
                                 } else if (type === 'component') {
                                     reqParams.componentId = reqParams.id
                                     delete reqParams.id
-                                    ajax.getComponentById(reqParams).then((res: any) => {
-                                        if (res.code === 1) {
-                                            const componentInfo = res.data
-                                            componentInfo.merged = true
-                                            updateTaskInfo(componentInfo)
+                                    ajax.getComponentById(reqParams).then(
+                                        (res: any) => {
+                                            if (res.code === 1) {
+                                                const componentInfo = res.data
+                                                componentInfo.merged = true
+                                                updateTaskInfo(componentInfo)
+                                            }
                                         }
-                                    })
+                                    )
                                 }
                             }
                         })
@@ -821,24 +895,28 @@ export const workbenchActions = (dispatch?: any) => {
                         })
                     }
                 }
-                if (treeType && treeType === MENU_TYPE.SCRIPT) { // 脚本类型
+                if (treeType && treeType === MENU_TYPE.SCRIPT) {
+                    // 脚本类型
                     ajax.getScriptById({
                         id: id
                     }).then(succCallBack)
-                } else if (treeType && treeType === MENU_TYPE.COMPONENT) { // 组件类型
+                } else if (treeType && treeType === MENU_TYPE.COMPONENT) {
+                    // 组件类型
                     ajax.getComponentById({
                         componentId: id
                     }).then(succCallBack)
-                } else { // 默认任务类型
+                } else {
+                    // 默认任务类型
                     ajax.getOfflineTaskDetail({
                         id: id
                     }).then(succCallBack)
                 }
             } else {
-                id !== currentTab && dispatch({
-                    type: workbenchAction.OPEN_TASK_TAB,
-                    payload: id
-                })
+                id !== currentTab &&
+                    dispatch({
+                        type: workbenchAction.OPEN_TASK_TAB,
+                        payload: id
+                    })
             }
             dispatch(setSelectionContent(''))
         },
@@ -865,7 +943,7 @@ export const workbenchActions = (dispatch?: any) => {
                     onOk () {
                         doClose(+tabId)
                     },
-                    onCancel () { }
+                    onCancel () {}
                 })
             }
         },
@@ -891,7 +969,7 @@ export const workbenchActions = (dispatch?: any) => {
                         onOk () {
                             closeAll(tabs)
                         },
-                        onCancel () { }
+                        onCancel () {}
                     })
                 }
             } else {
@@ -913,7 +991,7 @@ export const workbenchActions = (dispatch?: any) => {
                         onOk () {
                             closeOthers(currentTab, tabs)
                         },
-                        onCancel () { }
+                        onCancel () {}
                     })
                 }
             }
@@ -943,33 +1021,44 @@ export const workbenchActions = (dispatch?: any) => {
         loadTableListNodeByName: (nodePid: any, option = {}) => {
             ajax.getTableListByName({
                 ...option
+            }).then((res: any) => {
+                if (res.code === 1) {
+                    const { data } = res
+                    data.children &&
+                        dispatch({
+                            type: tableTreeAction.LOAD_FOLDER_CONTENT,
+                            payload: data
+                        })
+                }
             })
-                .then(
-                    (res: any) => {
-                        if (res.code === 1) {
-                            const { data } = res
-                            data.children && dispatch({
-                                type: tableTreeAction.LOAD_FOLDER_CONTENT,
-                                payload: data
-                            })
-                        }
-                    }
-                )
         },
         /**
          * TODO 代码需重构
          * @param isFunc // 函数管理，默认请求第一层数据
          */
-        loadTreeNode: async (nodePid?: any, type?: any, option = {}, isFunc?: any) => {
+        loadTreeNode: async (
+            nodePid?: any,
+            type?: any,
+            option = {},
+            isFunc?: any
+        ) => {
             const res = await ajax.getOfflineCatalogue({
                 isGetFile: !!1,
                 nodePid,
                 catalogueType: type,
                 ...option
             })
-            const getFuncTree = (data: any, cateType: string, engineType: number) => {
+            const getFuncTree = (
+                data: any,
+                cateType: string,
+                engineType: number
+            ) => {
                 return data.children
-                    ? data.children.find((item: any) => item.catalogueType === cateType && item.engineType === engineType)
+                    ? data.children.find(
+                        (item: any) =>
+                            item.catalogueType === cateType &&
+                              item.engineType === engineType
+                    )
                     : []
             }
             if (res.code === 1) {
@@ -1029,19 +1118,52 @@ export const workbenchActions = (dispatch?: any) => {
                     default:
                         action = taskTreeAction
                 }
-                data.children && dispatch({
-                    type: action.LOAD_FOLDER_CONTENT,
-                    payload: data
-                })
+                data.children &&
+                    dispatch({
+                        type: action.LOAD_FOLDER_CONTENT,
+                        payload: data
+                    })
                 if (isFunc) {
-                    const sparkCusFunc = getFuncTree(data, MENU_TYPE.COSTOMFUC, ENGINE_SOURCE_TYPE.HADOOP)
-                    const sparkSysFunc = getFuncTree(data, MENU_TYPE.SYSFUC, ENGINE_SOURCE_TYPE.HADOOP)
-                    const libraSysFunc = getFuncTree(data, MENU_TYPE.SYSFUC, ENGINE_SOURCE_TYPE.LIBRA)
-                    const tiDBSysFunc = getFuncTree(data, MENU_TYPE.SYSFUC, ENGINE_SOURCE_TYPE.TI_DB)
-                    const oracleSysFunc = getFuncTree(data, MENU_TYPE.SYSFUC, ENGINE_SOURCE_TYPE.ORACLE)
-                    const greenPlumSysFunc = getFuncTree(data, MENU_TYPE.SYSFUC, ENGINE_SOURCE_TYPE.GREEN_PLUM)
-                    const greenPlumFunc = getFuncTree(data, MENU_TYPE.GREEN_PLUM_FUNC, ENGINE_SOURCE_TYPE.GREEN_PLUM)
-                    const greenPlumProd = getFuncTree(data, MENU_TYPE.GREEN_PLUM_PROD, ENGINE_SOURCE_TYPE.GREEN_PLUM)
+                    const sparkCusFunc = getFuncTree(
+                        data,
+                        MENU_TYPE.COSTOMFUC,
+                        ENGINE_SOURCE_TYPE.HADOOP
+                    )
+                    const sparkSysFunc = getFuncTree(
+                        data,
+                        MENU_TYPE.SYSFUC,
+                        ENGINE_SOURCE_TYPE.HADOOP
+                    )
+                    const libraSysFunc = getFuncTree(
+                        data,
+                        MENU_TYPE.SYSFUC,
+                        ENGINE_SOURCE_TYPE.LIBRA
+                    )
+                    const tiDBSysFunc = getFuncTree(
+                        data,
+                        MENU_TYPE.SYSFUC,
+                        ENGINE_SOURCE_TYPE.TI_DB
+                    )
+                    const oracleSysFunc = getFuncTree(
+                        data,
+                        MENU_TYPE.SYSFUC,
+                        ENGINE_SOURCE_TYPE.ORACLE
+                    )
+                    const greenPlumSysFunc = getFuncTree(
+                        data,
+                        MENU_TYPE.SYSFUC,
+                        ENGINE_SOURCE_TYPE.GREEN_PLUM
+                    )
+                    const greenPlumFunc = getFuncTree(
+                        data,
+                        MENU_TYPE.GREEN_PLUM_FUNC,
+                        ENGINE_SOURCE_TYPE.GREEN_PLUM
+                    )
+                    const greenPlumProd = getFuncTree(
+                        data,
+                        MENU_TYPE.GREEN_PLUM_PROD,
+                        ENGINE_SOURCE_TYPE.GREEN_PLUM
+                    )
                     dispatch({
                         type: fnTreeAction.RESET_FUC_TREE, // spark自定义函数
                         payload: sparkCusFunc
@@ -1078,114 +1200,110 @@ export const workbenchActions = (dispatch?: any) => {
             }
         },
         delOfflineTask (params?: any, nodePid?: any, type?: any) {
-            return ajax.delOfflineTask(params)
-                .then((res: any) => {
-                    if (res.code === 1) {
-                        message.success('删除成功')
-                        dispatch({
-                            type: taskTreeAction.DEL_OFFLINE_TASK,
-                            payload: {
-                                id: res.data,
-                                parentId: nodePid
-                            }
-                        })
-                        dispatch({
-                            type: workbenchAction.CLOSE_TASK_TAB,
-                            payload: res.data
-                        })
-                    }
-                    return res
-                })
+            return ajax.delOfflineTask(params).then((res: any) => {
+                if (res.code === 1) {
+                    message.success('删除成功')
+                    dispatch({
+                        type: taskTreeAction.DEL_OFFLINE_TASK,
+                        payload: {
+                            id: res.data,
+                            parentId: nodePid
+                        }
+                    })
+                    dispatch({
+                        type: workbenchAction.CLOSE_TASK_TAB,
+                        payload: res.data
+                    })
+                }
+                return res
+            })
         },
 
         delOfflineScript (params?: any, nodePid?: any, type?: any) {
-            ajax.deleteScript(params)
-                .then((res: any) => {
-                    if (res.code === 1) {
-                        message.success('删除成功')
-                        dispatch({
-                            type: scriptTreeAction.DEL_SCRIPT,
-                            payload: {
-                                id: params.scriptId,
-                                parentId: nodePid
-                            }
-                        })
-                        dispatch({
-                            type: workbenchAction.CLOSE_TASK_TAB,
-                            payload: params.scriptId
-                        })
-                    }
-                })
+            ajax.deleteScript(params).then((res: any) => {
+                if (res.code === 1) {
+                    message.success('删除成功')
+                    dispatch({
+                        type: scriptTreeAction.DEL_SCRIPT,
+                        payload: {
+                            id: params.scriptId,
+                            parentId: nodePid
+                        }
+                    })
+                    dispatch({
+                        type: workbenchAction.CLOSE_TASK_TAB,
+                        payload: params.scriptId
+                    })
+                }
+            })
         },
 
         deleteComponent (params?: any, nodePid?: any, type?: any) {
-            ajax.deleteComponent(params)
-                .then((res: any) => {
-                    if (res.code === 1) {
-                        message.success('删除成功')
-                        dispatch({
-                            type: componentTreeAction.DELETE_COMPONENT,
-                            payload: {
-                                id: params.componentId,
-                                parentId: nodePid
-                            }
-                        })
-                        dispatch({
-                            type: workbenchAction.CLOSE_TASK_TAB,
-                            payload: params.scriptId
-                        })
-                    }
-                })
+            ajax.deleteComponent(params).then((res: any) => {
+                if (res.code === 1) {
+                    message.success('删除成功')
+                    dispatch({
+                        type: componentTreeAction.DELETE_COMPONENT,
+                        payload: {
+                            id: params.componentId,
+                            parentId: nodePid
+                        }
+                    })
+                    dispatch({
+                        type: workbenchAction.CLOSE_TASK_TAB,
+                        payload: params.scriptId
+                    })
+                }
+            })
         },
 
         delOfflineFolder (params: any, nodePid: any, cateType: any) {
-            ajax.delOfflineFolder(params)
-                .then((res: any) => {
-                    if (res.code === 1) {
-                        let action: any
+            ajax.delOfflineFolder(params).then((res: any) => {
+                if (res.code === 1) {
+                    let action: any
 
-                        switch (cateType) {
-                            case MENU_TYPE.TASK:
-                            case MENU_TYPE.TASK_DEV:
-                                action = taskTreeAction
-                                break
-                            case MENU_TYPE.RESOURCE:
-                                action = resTreeAction
-                                break
-                            case MENU_TYPE.FUNCTION:
-                            case MENU_TYPE.COSTOMFUC:
-                                action = fnTreeAction
-                                break
-                            case MENU_TYPE.SCRIPT:
-                                action = scriptTreeAction
-                                break
-                            default:
-                                action = taskTreeAction
-                        }
-
-                        dispatch({
-                            type: action.DEL_OFFLINE_FOLDER,
-                            payload: {
-                                id: params.id,
-                                parentId: nodePid
-                            }
-                        })
+                    switch (cateType) {
+                        case MENU_TYPE.TASK:
+                        case MENU_TYPE.TASK_DEV:
+                            action = taskTreeAction
+                            break
+                        case MENU_TYPE.RESOURCE:
+                            action = resTreeAction
+                            break
+                        case MENU_TYPE.FUNCTION:
+                        case MENU_TYPE.COSTOMFUC:
+                            action = fnTreeAction
+                            break
+                        case MENU_TYPE.SCRIPT:
+                            action = scriptTreeAction
+                            break
+                        default:
+                            action = taskTreeAction
                     }
-                })
+
+                    dispatch({
+                        type: action.DEL_OFFLINE_FOLDER,
+                        payload: {
+                            id: params.id,
+                            parentId: nodePid
+                        }
+                    })
+                }
+            })
         },
 
         loadTaskParams () {
-            ajax.getCustomParams()
-                .then((res: any) => {
-                    if (res.code === 1) {
-                        dispatch({
-                            type: workbenchAction.LOAD_TASK_CUSTOM_PARAMS,
-                            payload: res.data
-                        })
-                    }
-                })
+            ajax.getCustomParams().then((res: any) => {
+                if (res.code === 1) {
+                    dispatch({
+                        type: workbenchAction.LOAD_TASK_CUSTOM_PARAMS,
+                        payload: res.data
+                    })
+                }
+            })
         },
-        saveEngineType (data: any) { // 保存节点engineType
+        saveEngineType (data: any) {
+            // 保存节点engineType
             dispatch({
                 type: modalAction.SET_ENGINE_TYPE,
                 payload: data
@@ -1307,57 +1425,54 @@ export const workbenchActions = (dispatch?: any) => {
         },
 
         delOfflineRes (params: any, nodePid: any) {
-            ajax.delOfflineRes(params)
-                .then((res: any) => {
-                    if (res.code === 1) {
-                        dispatch({
-                            type: resTreeAction.DEL_OFFLINE_RES,
-                            payload: {
-                                id: params.resourceId,
-                                parentId: nodePid
-                            }
-                        })
-                    }
-                })
+            ajax.delOfflineRes(params).then((res: any) => {
+                if (res.code === 1) {
+                    dispatch({
+                        type: resTreeAction.DEL_OFFLINE_RES,
+                        payload: {
+                            id: params.resourceId,
+                            parentId: nodePid
+                        }
+                    })
+                }
+            })
         },
 
         delOfflineFn (params: any, nodePid: any, type: string) {
-            ajax.delOfflineFn(params)
-                .then((res: any) => {
-                    if (res.code === 1) {
-                        if (type === 'GreenPlumCustomFunction') {
-                            dispatch({
-                                type: greenPlumFnTreeActon.DEL_OFFLINE_FN,
-                                payload: {
-                                    id: params.functionId,
-                                    parentId: nodePid
-                                }
-                            })
-                        } else {
-                            dispatch({
-                                type: fnTreeAction.DEL_OFFLINE_FN,
-                                payload: {
-                                    id: params.functionId,
-                                    parentId: nodePid
-                                }
-                            })
-                        }
-                    }
-                })
-        },
-        delOfflineProd (params: any, nodePid: any) {
-            ajax.delOfflineFn(params)
-                .then((res: any) => {
-                    if (res.code === 1) {
+            ajax.delOfflineFn(params).then((res: any) => {
+                if (res.code === 1) {
+                    if (type === 'GreenPlumCustomFunction') {
                         dispatch({
-                            type: greenPlumProdTreeActon.DEL_OFFLINE_FN,
+                            type: greenPlumFnTreeActon.DEL_OFFLINE_FN,
+                            payload: {
+                                id: params.functionId,
+                                parentId: nodePid
+                            }
+                        })
+                    } else {
+                        dispatch({
+                            type: fnTreeAction.DEL_OFFLINE_FN,
                             payload: {
                                 id: params.functionId,
                                 parentId: nodePid
                             }
                         })
                     }
-                })
+                }
+            })
+        },
+        delOfflineProd (params: any, nodePid: any) {
+            ajax.delOfflineFn(params).then((res: any) => {
+                if (res.code === 1) {
+                    dispatch({
+                        type: greenPlumProdTreeActon.DEL_OFFLINE_FN,
+                        payload: {
+                            id: params.functionId,
+                            parentId: nodePid
+                        }
+                    })
+                }
+            })
         },
         showFnViewModal (id: any) {
             dispatch({
@@ -1412,7 +1527,8 @@ export const getDataSyncReqParams = (dataSyncStore: any) => {
 
     const { keymap, sourceMap, targetMap } = clone
     const { source = [], target = [] } = keymap
-    let serverSource: any = []; let serverTarget: any = []
+    let serverSource: any = []
+    let serverTarget: any = []
 
     /**
      * 获取source或者target的key,因为RDB和非RDB存储结构不一样，所以要区分
@@ -1428,8 +1544,8 @@ export const getDataSyncReqParams = (dataSyncStore: any) => {
      * 获取targetMap的顺序
      */
     const { column: targetColumn = [] } = targetMap
-    const indexMap: any = {}// 顺序记录表
-    const tmpTarget: any = []// 含有映射关系的target数组
+    const indexMap: any = {} // 顺序记录表
+    const tmpTarget: any = [] // 含有映射关系的target数组
     for (let i = 0; i < target.length; i++) {
         const targetItem = target[i]
         const sourceItem = source[i]
@@ -1438,27 +1554,21 @@ export const getDataSyncReqParams = (dataSyncStore: any) => {
             source: sourceItem
         }
     }
-    targetColumn.map((item: any, index: any) => {
+    targetColumn.forEach((item: any, index: any) => {
         indexMap[getKey(item)] = index
     })
 
-    tmpTarget.sort(
-        (a: any, b: any) => {
-            const indexA = indexMap[getKey(a.target)]
-            const indexB = indexMap[getKey(b.target)]
-            return indexA - indexB
-        }
-    )
-    serverSource = tmpTarget.map(
-        (item: any) => {
-            return item.source
-        }
-    )
-    serverTarget = tmpTarget.map(
-        (item: any) => {
-            return item.target
-        }
-    )
+    tmpTarget.sort((a: any, b: any) => {
+        const indexA = indexMap[getKey(a.target)]
+        const indexB = indexMap[getKey(b.target)]
+        return indexA - indexB
+    })
+    serverSource = tmpTarget.map((item: any) => {
+        return item.source
+    })
+    serverTarget = tmpTarget.map((item: any) => {
+        return item.target
+    })
 
     // 转换字段
     // 接口要求keymap中的连线映射数组放到sourceMap中
@@ -1471,12 +1581,12 @@ export const getDataSyncReqParams = (dataSyncStore: any) => {
     const sourceTypeObj = sourceMap.type
 
     for (const key in sourceTypeObj) {
-        if (sourceTypeObj.hasOwnProperty(key)) {
+        if (Object.prototype.hasOwnProperty.call(sourceTypeObj, key)) {
             sourceMap[key] = sourceTypeObj[key]
         }
     }
     for (const k2 in targetTypeObj) {
-        if (targetTypeObj.hasOwnProperty(k2)) {
+        if (Object.prototype.hasOwnProperty.call(targetTypeObj, k2)) {
             targetMap[k2] = targetTypeObj[k2]
         }
     }
@@ -1500,12 +1610,17 @@ export const getDataSyncReqParams = (dataSyncStore: any) => {
  *  获取数据同步Tab保存的数据参数
  *  ! 当保存Tab中的数据同步时使用
  */
-export const getDataSyncSaveTabParams = (currentTabData: any, dataSync: any) => {
+export const getDataSyncSaveTabParams = (
+    currentTabData: any,
+    dataSync: any
+) => {
     // deepClone避免直接mutate store
     let reqBody = cloneDeep(currentTabData)
     // 如果当前任务为数据同步任务
     if (currentTabData.id === dataSync.tabId) {
-        const isIncrementMode = currentTabData.syncModel !== undefined && DATA_SYNC_MODE.INCREMENT === currentTabData.syncModel
+        const isIncrementMode =
+            currentTabData.syncModel !== undefined &&
+            DATA_SYNC_MODE.INCREMENT === currentTabData.syncModel
         reqBody = assign(reqBody, getDataSyncReqParams(dataSync))
         if (!isIncrementMode) {
             reqBody.sourceMap.increColumn = undefined // Delete increColumn

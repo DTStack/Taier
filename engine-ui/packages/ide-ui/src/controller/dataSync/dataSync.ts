@@ -47,7 +47,8 @@ const tabId = (state: any = {}, action: any) => {
             return tabId
         }
 
-        default: return state
+        default:
+            return state
     }
 }
 
@@ -67,7 +68,8 @@ const dataSourceList = (state: any = [], action: any) => {
             return dataSourceList
         }
 
-        default: return state
+        default:
+            return state
     }
 }
 
@@ -106,11 +108,9 @@ export const sourceMap = (state: any = {}, action: any) => {
         case sourceMapAction.DATA_SOURCE_DELETE: {
             const key = action.key
             const clone = cloneDeep(state)
-            clone.sourceList = clone.sourceList.filter(
-                (source: any) => {
-                    return source.key !== key
-                }
-            )
+            clone.sourceList = clone.sourceList.filter((source: any) => {
+                return source.key !== key
+            })
             return clone
         }
 
@@ -150,7 +150,14 @@ export const sourceMap = (state: any = {}, action: any) => {
         // }
 
         case sourceMapAction.DATA_SOURCEMAP_CHANGE: {
-            const { sourceId, splitPK, src, table, extralConfig, extTable = {} } = action.payload
+            const {
+                sourceId,
+                splitPK,
+                src,
+                table,
+                extralConfig,
+                extTable = {}
+            } = action.payload
             if (!src) return state
             const { type } = src
             const key = action.key
@@ -210,7 +217,11 @@ export const sourceMap = (state: any = {}, action: any) => {
             const colData = action.payload
             const clone = cloneDeep(state)
             if (colData) {
-                clone.column[colData.index] = assign({}, clone.column[colData.index], colData.value)
+                clone.column[colData.index] = assign(
+                    {},
+                    clone.column[colData.index],
+                    colData.value
+                )
             }
             return clone
         }
@@ -224,10 +235,14 @@ export const sourceMap = (state: any = {}, action: any) => {
             if (clone.column) {
                 let name = '索引值'
                 if (checkExist(colData.index)) {
-                    column = clone.column.find((o: any) => o.index === colData.index)
+                    column = clone.column.find(
+                        (o: any) => o.index === colData.index
+                    )
                 } else if (checkExist(colData.key)) {
                     name = '字段名'
-                    column = clone.column.find((o: any) => o.key === colData.key)
+                    column = clone.column.find(
+                        (o: any) => o.key === colData.key
+                    )
                 }
                 if (checkExist(column)) {
                     message.error(`添加失败：${name}不能重复`)
@@ -253,18 +268,23 @@ export const sourceMap = (state: any = {}, action: any) => {
             const colData = action.payload
             const clone = cloneDeep(state)
             if (colData && colData.length > 0) {
-            // 不存在直接赋值
+                // 不存在直接赋值
                 if (!clone.column || clone.column.length === 0) {
                     clone.column = colData
-                } else { // 否则数据合并
+                } else {
+                    // 否则数据合并
                     const originArr: any = [...clone.column]
                     for (let i = 0; i < colData.length; i++) {
                         const col = colData[i]
                         let findOut = null
                         if (col.index !== undefined) {
-                            findOut = clone.column.find((c: any) => c.index === col.index)
+                            findOut = clone.column.find(
+                                (c: any) => c.index === col.index
+                            )
                         } else if (col.key !== undefined) {
-                            findOut = clone.column.find((c: any) => c.key === col.key)
+                            findOut = clone.column.find(
+                                (c: any) => c.key === col.key
+                            )
                         }
 
                         if (!findOut) {
@@ -287,7 +307,8 @@ export const sourceMap = (state: any = {}, action: any) => {
             return clone
         }
 
-        default: return state
+        default:
+            return state
     }
 }
 
@@ -326,7 +347,11 @@ export const targetMap = (state: any = {}, action: any) => {
          */
         case targetMapAction.DATA_TARGETMAP_CHANGE: {
             const {
-                sourceId, src, rowkey, extralConfig, writeMode // havePartition
+                sourceId,
+                src,
+                rowkey,
+                extralConfig,
+                writeMode // havePartition
             } = action.payload
             const clone = cloneDeep(state)
 
@@ -404,14 +429,17 @@ export const targetMap = (state: any = {}, action: any) => {
             const colData = action.payload
             const clone = cloneDeep(state)
             if (colData && colData.length > 0) {
-            // 不存在直接赋值
+                // 不存在直接赋值
                 if (!clone.column || clone.column.length === 0) {
                     clone.column = colData
-                } else { // 否则数据合并
+                } else {
+                    // 否则数据合并
                     const originArr: any = [...clone.column]
                     for (let i = 0; i < colData.length; i++) {
                         const col = colData[i]
-                        const findOut = clone.column.find((c: any) => c.key === col.key)
+                        const findOut = clone.column.find(
+                            (c: any) => c.key === col.key
+                        )
                         if (!findOut) {
                             originArr.push(col)
                         }
@@ -442,11 +470,15 @@ export const targetMap = (state: any = {}, action: any) => {
             return clone
         }
 
-        default: return state
+        default:
+            return state
     }
 }
 
-export const keymap = (state: any = { source: [], target: [] }, action: any) => {
+export const keymap = (
+    state: any = { source: [], target: [] },
+    action: any
+) => {
     switch (action.type) {
         case dataSyncAction.INIT_JOBDATA: {
             if (action.payload === null) return { source: [], target: [] }
@@ -499,8 +531,12 @@ export const keymap = (state: any = { source: [], target: [] }, action: any) => 
             const { source, target } = clone
             const mapSource = map.source
             const mapTarget = map.target
-            const newSource = source.filter((keyObj: any) => !isFieldMatch(keyObj, mapSource))
-            const newTarget = target.filter((keyObj: any) => !isFieldMatch(keyObj, mapTarget))
+            const newSource = source.filter(
+                (keyObj: any) => !isFieldMatch(keyObj, mapSource)
+            )
+            const newTarget = target.filter(
+                (keyObj: any) => !isFieldMatch(keyObj, mapTarget)
+            )
 
             clone.source = newSource
             clone.target = newTarget
@@ -510,7 +546,8 @@ export const keymap = (state: any = { source: [], target: [] }, action: any) => 
 
         case keyMapAction.SET_ROW_MAP: {
             const { targetCol, sourceCol } = action.payload
-            const source: any = []; const target: any = []
+            const source: any = []
+            const target: any = []
 
             sourceCol.forEach((o: any, i: any) => {
                 if (targetCol[i]) {
@@ -524,7 +561,8 @@ export const keymap = (state: any = { source: [], target: [] }, action: any) => 
 
         case keyMapAction.SET_NAME_MAP: {
             const { targetCol, sourceCol } = action.payload
-            const source: any = []; const target: any = []
+            const source: any = []
+            const target: any = []
 
             sourceCol.forEach((o: any, i: any) => {
                 const name = o.key.toUpperCase()
@@ -546,9 +584,15 @@ export const keymap = (state: any = { source: [], target: [] }, action: any) => 
             const { old, replace } = map
             const clone = cloneDeep(state)
             if (map) {
-                const index = clone.source.findIndex((item: any) => isFieldMatch(item, old))
+                const index = clone.source.findIndex((item: any) =>
+                    isFieldMatch(item, old)
+                )
                 if (index > -1) {
-                    clone.source[index] = assign({}, clone.source[index], replace)
+                    clone.source[index] = assign(
+                        {},
+                        clone.source[index],
+                        replace
+                    )
                     return clone
                 }
             }
@@ -560,7 +604,9 @@ export const keymap = (state: any = { source: [], target: [] }, action: any) => 
             const { old, replace } = map
             const clone = cloneDeep(state)
             if (map) {
-                const index = clone.target.findIndex((item: any) => isFieldMatch(item, old))
+                const index = clone.target.findIndex((item: any) =>
+                    isFieldMatch(item, old)
+                )
                 if (index > -1) {
                     clone.target[index] = replace
                     return clone
@@ -575,14 +621,18 @@ export const keymap = (state: any = { source: [], target: [] }, action: any) => 
             const { source, target } = map
             const clone = cloneDeep(state)
             if (source) {
-                const index = clone.source.findIndex((item: any) => isFieldMatch(item, source))
+                const index = clone.source.findIndex((item: any) =>
+                    isFieldMatch(item, source)
+                )
                 if (index > -1) {
                     clone.source.splice(index, 1)
                     clone.target.splice(index, 1)
                     return clone
                 }
             } else if (target) {
-                const index = clone.target.findIndex((item: any) => isFieldMatch(item, target))
+                const index = clone.target.findIndex((item: any) =>
+                    isFieldMatch(item, target)
+                )
                 if (index > -1) {
                     clone.source.splice(index, 1)
                     clone.target.splice(index, 1)
@@ -595,17 +645,24 @@ export const keymap = (state: any = { source: [], target: [] }, action: any) => 
         case keyMapAction.RESET_LINKED_KEYS:
             return { source: [], target: [] }
 
-        default: return state
+        default:
+            return state
     }
 }
 
 const initialChannelSettingState = {
-    speed: -1, channel: 1, record: 100, isSaveDirty: false
+    speed: -1,
+    channel: 1,
+    record: 100,
+    isSaveDirty: false
 }
 
 type IChannelSettingState = typeof initialChannelSettingState;
 
-const setting = (state: IChannelSettingState = initialChannelSettingState, action: any) => {
+const setting = (
+    state: IChannelSettingState = initialChannelSettingState,
+    action: any
+) => {
     switch (action.type) {
         case dataSyncAction.INIT_JOBDATA: {
             if (action.payload === null) return initialChannelSettingState
@@ -627,11 +684,13 @@ const setting = (state: IChannelSettingState = initialChannelSettingState, actio
             return setting
         }
 
-        default: return state
+        default:
+            return state
     }
 }
 
-const currentStep = (state: any = { step: 0 }, action: any) => { // 缓存数据同步当前操作界面
+const currentStep = (state: any = { step: 0 }, action: any) => {
+    // 缓存数据同步当前操作界面
     switch (action.type) {
         case dataSyncAction.INIT_CURRENT_STEP: {
             const clone = cloneDeep(state)
@@ -652,7 +711,8 @@ const currentStep = (state: any = { step: 0 }, action: any) => { // 缓存数据
             return currentStep
         }
 
-        default: return state
+        default:
+            return state
     }
 }
 

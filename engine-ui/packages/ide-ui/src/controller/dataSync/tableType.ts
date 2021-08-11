@@ -1,10 +1,13 @@
 import mc from 'mirror-creator'
 import Api from '../../api'
 
-const tableTypeAction = mc([
-    'GET_PROJECT_TABLE_TYPES', // 获取项目表类型
-    'GET_TENANT_TABLE_TYPES' // 获取租户下的表类型
-], { prefix: 'tableType/' })
+const tableTypeAction = mc(
+    [
+        'GET_PROJECT_TABLE_TYPES', // 获取项目表类型
+        'GET_TENANT_TABLE_TYPES' // 获取租户下的表类型
+    ],
+    { prefix: 'tableType/' }
+)
 
 const initialState: any = {
     teantTableTypes: [],

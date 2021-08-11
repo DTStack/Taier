@@ -1,6 +1,12 @@
 import moment from 'moment'
 import API from '../../api'
-import { taskStatus, offlineTaskStatusFilter, TASK_TYPE, TASK_STATUS, SCRIPT_TYPE } from '../../comm/const'
+import {
+    taskStatus,
+    offlineTaskStatusFilter,
+    TASK_TYPE,
+    TASK_STATUS,
+    SCRIPT_TYPE
+} from '../../comm/const'
 import { editorAction } from './actionTypes'
 import {
     checkExist,
@@ -13,9 +19,11 @@ import {
     isGreenPlumEngine
 } from '../../comm'
 
-enum SQLType {
+export enum SQLType {
+    /* eslint-disable-next-line */
     Normal = 0,
-    Advanced = 1
+    /* eslint-disable-next-line */
+    Advanced = 1,
 }
 interface SQLJob {
     sqlId: string;
@@ -46,33 +54,80 @@ function typeCreate (status: any) {
     return status === taskStatus.FAILED ? 'error' : 'info'
 }
 
-function getDataOver (dispatch: any, currentTab: any, res: any, jobId?: any, isAdvancedMode?: boolean) {
+function getDataOver (
+    dispatch: any,
+    currentTab: any,
+    res: any,
+    jobId?: any,
+    isAdvancedMode?: boolean
+) {
     // 高级运行需要额外处理finish状态，不能提示用户执行完成，因为无法确认是否后续还有轮训接口请求数据并展示
     // isAdvancedMode： 是否是高级运行，非必填字段，不影响之前逻辑
     if (isAdvancedMode) {
-        dispatch(output(currentTab, createLog(res?.data?.msg || '高级运行已完成，正在查询数据中!', 'info')))
-        res?.data?.sqlText && dispatch(output(currentTab, `${createTitle('任务信息')}\n${res?.data?.sqlText}\n${createTitle('')}`))
+        dispatch(
+            output(
+                currentTab,
+                createLog(
+                    res?.data?.msg || '高级运行已完成，正在查询数据中!',
+                    'info'
+                )
+            )
+        )
+        res?.data?.sqlText &&
+            dispatch(
+                output(
+                    currentTab,
+                    `${createTitle('任务信息')}\n${
+                        res?.data?.sqlText
+                    }\n${createTitle('')}`
+                )
+            )
     } else {
         dispatch(output(currentTab, createLog('执行完成!', 'info')))
     }
-    jobId && jobId.advancedModeId && res?.data?.sqlText && dispatch(output(currentTab, `${createTitle('任务信息')}\n${res?.data?.sqlText}\n${createTitle('')}`))
+    jobId &&
+        jobId.advancedModeId &&
+        res?.data?.sqlText &&
+        dispatch(
+            output(
+                currentTab,
+                `${createTitle('任务信息')}\n${
+                    res?.data?.sqlText
+                }\n${createTitle('')}`
+            )
+        )
     if (res.data.result) {
         dispatch(outputRes(currentTab, res.data.result, jobId))
     }
     if (res.data && res.data.download) {
-        dispatch(output(currentTab, `完整日志下载地址：${createLinkMark({ href: res.data.download, download: '' })}\n`))
+        dispatch(
+            output(
+                currentTab,
+                `完整日志下载地址：${createLinkMark({
+                    href: res.data.download,
+                    download: ''
+                })}\n`
+            )
+        )
     }
 }
 
 /**
-* 获取执行结果
-* @param {*} resolve
-* @param {*} dispatch
-* @param {*} jobId
-* @param {*} currentTab
-* @param {*} taskType 任务类型
-*/
-function doSelect (resolve: any, dispatch: any, jobId: any, currentTab: number, task: any, taskType: number) {
+ * 获取执行结果
+ * @param {*} resolve
+ * @param {*} dispatch
+ * @param {*} jobId
+ * @param {*} currentTab
+ * @param {*} taskType 任务类型
+ */
+function doSelect (
+    resolve: any,
+    dispatch: any,
+    jobId: any,
+    currentTab: number,
+    task: any,
+    taskType: number
+) {
     function outputStatus (status: any, extText?: any) {
         // 当为数据同步日志时，运行日志就不显示了
         if (taskType === TASK_TYPE.SYNC && status === TASK_STATUS.RUNNING) {
@@ -80,7 +135,17 @@ function doSelect (resolve: any, dispatch: any, jobId: any, currentTab: number, 
         }
         for (let i = 0; i < offlineTaskStatusFilter.length; i++) {
             if (offlineTaskStatusFilter[i].value === status) {
-                dispatch(output(currentTab, createLog(`${offlineTaskStatusFilter[i].text}${extText || ''}`, 'info')))
+                dispatch(
+                    output(
+                        currentTab,
+                        createLog(
+                            `${offlineTaskStatusFilter[i].text}${
+                                extText || ''
+                            }`,
+                            'info'
+                        )
+                    )
+                )
                 continue
             }
         }
@@ -97,7 +162,16 @@ function doSelect (resolve: any, dispatch: any, jobId: any, currentTab: number, 
     // cancle状态和faild状态(接口正常，业务异常状态)特殊处理
     const abnormal = (data: any) => {
         data.status && outputStatus(data.status)
-        data.download && dispatch(output(currentTab, `完整日志下载地址：${createLinkMark({ href: data.download, download: '' })}\n`))
+        data.download &&
+            dispatch(
+                output(
+                    currentTab,
+                    `完整日志下载地址：${createLinkMark({
+                        href: data.download,
+                        download: ''
+                    })}\n`
+                )
+            )
     }
 
     const showMsg = (res: any) => {
@@ -106,7 +180,12 @@ function doSelect (resolve: any, dispatch: any, jobId: any, currentTab: number, 
             dispatch(output(currentTab, createLog(`${res.message}`, 'error')))
         }
         if (res.data && res.data.msg) {
-            dispatch(output(currentTab, createLog(`${res.data.msg}`, typeCreate(res.data.status))))
+            dispatch(
+                output(
+                    currentTab,
+                    createLog(`${res.data.msg}`, typeCreate(res.data.status))
+                )
+            )
         }
     }
 
@@ -125,29 +204,37 @@ function doSelect (resolve: any, dispatch: any, jobId: any, currentTab: number, 
             taskId: task.id,
             type: type,
             sqlId: jobId && jobId.advancedModeId ? jobId.advancedModeId : null
+        }).then((res: any) => {
+            if (stopSign[currentTab]) {
+                stopSign[currentTab] = false
+                resolve(false)
+                return
+            }
+            const { code, data } = res
+            const { retryLog } = res
+            if (code) showMsg(res)
+            if (code !== 1) {
+                dispatch(output(currentTab, createLog('请求异常！', 'error')))
+            }
+            if (data && data.download) {
+                dispatch(
+                    output(
+                        currentTab,
+                        `完整日志下载地址：${createLinkMark({
+                            href: res.data.download,
+                            download: ''
+                        })}\n`
+                    )
+                )
+            }
+            if (retryLog && num && num <= 3) {
+                selectRunLog(num + 1)
+                outputStatus(
+                    taskStatus.WAITING_RUN,
+                    `正在进行第${num + 1}次重试，请等候`
+                )
+            }
         })
-            .then(
-                (res: any) => {
-                    if (stopSign[currentTab]) {
-                        stopSign[currentTab] = false
-                        resolve(false)
-                        return
-                    }
-                    const { code, data } = res
-                    const { retryLog } = res
-                    if (code) showMsg(res)
-                    if (code !== 1) {
-                        dispatch(output(currentTab, createLog('请求异常！', 'error')))
-                    }
-                    if (data && data.download) {
-                        dispatch(output(currentTab, `完整日志下载地址：${createLinkMark({ href: res.data.download, download: '' })}\n`))
-                    }
-                    if (retryLog && num && num <= 3) {
-                        selectRunLog(num + 1)
-                        outputStatus(taskStatus.WAITING_RUN, `正在进行第${num + 1}次重试，请等候`)
-                    }
-                }
-            )
     }
     // 获取结果接口
     const selectExecResultData = () => {
@@ -180,56 +267,62 @@ function doSelect (resolve: any, dispatch: any, jobId: any, currentTab: number, 
             taskId: task.id,
             type: isTask ? SELECT_TYPE.TASK : SELECT_TYPE.SCRIPT,
             sqlId: jobId && jobId.advancedModeId ? jobId.advancedModeId : null
-        })
-            .then(
-                (res: any) => {
-                    if (stopSign[currentTab]) {
-                        stopSign[currentTab] = false
-                        resolve(false)
+        }).then((res: any) => {
+            if (stopSign[currentTab]) {
+                stopSign[currentTab] = false
+                resolve(false)
+                return
+            }
+            if (res && res.code) showMsg(res)
+            // 状态正常
+            if (res && res.code === 1) {
+                switch (res.data.status) {
+                    case taskStatus.FINISHED: {
+                        // 成功
+                        getDataOver(dispatch, currentTab, res, jobId)
+                        resolve(true)
                         return
                     }
-                    if (res && res.code) showMsg(res)
-                    // 状态正常
-                    if (res && res.code === 1) {
-                        switch (res.data.status) {
-                            case taskStatus.FINISHED: {
-                                // 成功
-                                getDataOver(dispatch, currentTab, res, jobId)
-                                resolve(true)
-                                return
-                            }
-                            case taskStatus.FAILED: {
-                                // 失败时，判断msg字段内部是否包含appLogs标示，若有，则直接展示
-                                if (res.data.msg && res.data.msg.indexOf('appLogs') > -1) {
-                                    abnormal(res.data)
-                                    dispatch(removeLoadingTab(currentTab))
-                                    return
-                                } else { // 否则重新执行该请求
-                                    retationRequestSync(res.data)
-                                    return
-                                }
-                            }
-                            case taskStatus.CANCELED: {
-                                abnormal(res.data)
-                                dispatch(removeLoadingTab(currentTab))
-                                return
-                            }
-                            default: {
-                                // 正常运行，则再次请求,并记录定时器id
-                                intervalsStore[currentTab] = setTimeout(
-                                    () => {
-                                        outputStatus(res.data.status, '.....')
-                                        doSelect(resolve, dispatch, jobId, currentTab, task, taskType)
-                                    }, INTERVALS
-                                )
-                            }
+                    case taskStatus.FAILED: {
+                        // 失败时，判断msg字段内部是否包含appLogs标示，若有，则直接展示
+                        if (
+                            res.data.msg &&
+                            res.data.msg.indexOf('appLogs') > -1
+                        ) {
+                            abnormal(res.data)
+                            dispatch(removeLoadingTab(currentTab))
+                            return
+                        } else {
+                            // 否则重新执行该请求
+                            retationRequestSync(res.data)
+                            return
                         }
-                    } else {
-                        dispatch(output(currentTab, createLog('请求异常！', 'error')))
-                        retationRequestSync(res.data)
+                    }
+                    case taskStatus.CANCELED: {
+                        abnormal(res.data)
+                        dispatch(removeLoadingTab(currentTab))
+                        return
+                    }
+                    default: {
+                        // 正常运行，则再次请求,并记录定时器id
+                        intervalsStore[currentTab] = setTimeout(() => {
+                            outputStatus(res.data.status, '.....')
+                            doSelect(
+                                resolve,
+                                dispatch,
+                                jobId,
+                                currentTab,
+                                task,
+                                taskType
+                            )
+                        }, INTERVALS)
                     }
                 }
-            )
+            } else {
+                dispatch(output(currentTab, createLog('请求异常！', 'error')))
+                retationRequestSync(res.data)
+            }
+        })
     } else {
         API.selectStatus({
             jobId: jobId && jobId.jobId ? jobId.jobId : jobId,
@@ -237,75 +330,92 @@ function doSelect (resolve: any, dispatch: any, jobId: any, currentTab: number, 
             // type: isTask ? SELECT_TYPE.TASK : SELECT_TYPE.SCRIPT,
             type: type,
             sqlId: jobId && jobId.advancedModeId ? jobId.advancedModeId : null
-        })
-            .then(
-                (res: any) => {
-                    if (stopSign[currentTab]) {
-                        stopSign[currentTab] = false
-                        resolve(false)
+        }).then((res: any) => {
+            if (stopSign[currentTab]) {
+                stopSign[currentTab] = false
+                resolve(false)
+                return
+            }
+            // 状态正常
+            if (res && res.code === 1) {
+                switch (res.data.status) {
+                    case taskStatus.FINISHED: {
+                        // 成功
+                        outputStatus(res.data.status, '结果获取中，请稍后')
+                        selectExecResultData()
+                        selectRunLog()
+                        return resolve(true)
+                    }
+                    case taskStatus.FAILED:
+                    case taskStatus.CANCELED: {
+                        outputStatus(res.data.status)
+                        dispatch(removeLoadingTab(currentTab))
+                        selectRunLog()
                         return
                     }
-                    // 状态正常
-                    if (res && res.code === 1) {
-                        switch (res.data.status) {
-                            case taskStatus.FINISHED: {
-                                // 成功
-                                outputStatus(res.data.status, '结果获取中，请稍后')
-                                selectExecResultData()
-                                selectRunLog()
-                                return resolve(true)
-                            }
-                            case taskStatus.FAILED:
-                            case taskStatus.CANCELED: {
-                                outputStatus(res.data.status)
-                                dispatch(removeLoadingTab(currentTab))
-                                selectRunLog()
-                                return
-                            }
-                            default: {
-                                // 正常运行，则再次请求,并记录定时器id
-                                intervalsStore[currentTab] = setTimeout(
-                                    () => {
-                                        outputStatus(res.data.status, '.....')
-                                        doSelect(resolve, dispatch, jobId, currentTab, task, taskType)
-                                    }, INTERVALS
-                                )
-                            }
-                        }
-                    } else {
-                        dispatch(output(currentTab, createLog('请求异常！', 'error')))
-                        res.data && abnormal(res.data)
-                        // data为null时特殊处理，跳出当前运行状态
-                        resolve(false)
+                    default: {
+                        // 正常运行，则再次请求,并记录定时器id
+                        intervalsStore[currentTab] = setTimeout(() => {
+                            outputStatus(res.data.status, '.....')
+                            doSelect(
+                                resolve,
+                                dispatch,
+                                jobId,
+                                currentTab,
+                                task,
+                                taskType
+                            )
+                        }, INTERVALS)
                     }
                 }
-            )
+            } else {
+                dispatch(output(currentTab, createLog('请求异常！', 'error')))
+                res.data && abnormal(res.data)
+                // data为null时特殊处理，跳出当前运行状态
+                resolve(false)
+            }
+        })
     }
 }
 
-function selectData (dispatch: any, jobId: any, currentTab: number, task: any, taskType: number = 0) {
-    return new Promise(
-        (resolve: any, reject: any) => {
-            doSelect(resolve, dispatch, jobId, currentTab, task, taskType)
-        }
-    )
+function selectData (
+    dispatch: any,
+    jobId: any,
+    currentTab: number,
+    task: any,
+    taskType: number = 0
+) {
+    return new Promise((resolve: any, reject: any) => {
+        doSelect(resolve, dispatch, jobId, currentTab, task, taskType)
+    })
 }
 
 /**
-* 执行一系列sql任务
-* @param {dispath} dispatch redux dispatch
-* @param {index} currentTab 当前tabID
-* @param {Task} task 任务对象
-* @param {Params} params 额外参数
-* @param {Array} sqls 要执行的Sql数组
-* @param {Int} index 当前执行的数组下标
-* @param {function} resolve promise resolve
-* @param {function} reject promise reject
-*/
-function exec (dispatch: any, currentTab: number, task: any, params: any, sqls: any, index: any, resolve: any, reject: any) {
+ * 执行一系列sql任务
+ * @param {dispath} dispatch redux dispatch
+ * @param {index} currentTab 当前tabID
+ * @param {Task} task 任务对象
+ * @param {Params} params 额外参数
+ * @param {Array} sqls 要执行的Sql数组
+ * @param {Int} index 当前执行的数组下标
+ * @param {function} resolve promise resolve
+ * @param {function} reject promise reject
+ */
+function exec (
+    dispatch: any,
+    currentTab: number,
+    task: any,
+    params: any,
+    sqls: any,
+    index: any,
+    resolve: any,
+    reject: any
+) {
     params.sql = `${sqls[index]}`
     params.isEnd = sqls.length === index + 1
-    dispatch(output(currentTab, createLog(`第${index + 1}条任务开始执行`, 'info')))
+    dispatch(
+        output(currentTab, createLog(`第${index + 1}条任务开始执行`, 'info'))
+    )
     // 判断是否要继续执行SQL
     function judgeIfContinueExec () {
         if (index < sqls.length - 1) {
@@ -323,7 +433,16 @@ function exec (dispatch: any, currentTab: number, task: any, params: any, sqls: 
             dispatch(removeLoadingTab(currentTab))
             return
         }
-        exec(dispatch, currentTab, task, params, sqls, index + 1, resolve, reject)
+        exec(
+            dispatch,
+            currentTab,
+            task,
+            params,
+            sqls,
+            index + 1,
+            resolve,
+            reject
+        )
     }
     const succCall = (res: any) => {
         // 假如已经是停止状态，则弃用结果
@@ -333,7 +452,7 @@ function exec (dispatch: any, currentTab: number, task: any, params: any, sqls: 
             dispatch(removeLoadingTab(currentTab))
             return
         }
-        if (res && res.code && res.message) dispatch(output(currentTab, createLog(`${res.message}`, 'error')))
+        if (res && res.code && res.message) { dispatch(output(currentTab, createLog(`${res.message}`, 'error'))) }
         // 执行结束
         if (!res || (res && res.code !== 1)) {
             dispatch(output(currentTab, createLog('请求异常！', 'error')))
@@ -342,9 +461,28 @@ function exec (dispatch: any, currentTab: number, task: any, params: any, sqls: 
             return
         }
         if (res && res.code === 1) {
-            if (res.data && res.data.msg) dispatch(output(currentTab, createLog(`${res.data.msg}`, typeCreate(res.data.status))))
+            if (res.data && res.data.msg) {
+                dispatch(
+                    output(
+                        currentTab,
+                        createLog(
+                            `${res.data.msg}`,
+                            typeCreate(res.data.status)
+                        )
+                    )
+                )
+            }
             // 在立即执行sql成功后，显示转化之后的任务信息(sqlText)
-            if (res.data && res.data.sqlText) dispatch(output(currentTab, `${createTitle('任务信息')}\n${res.data.sqlText}\n${createTitle('')}`))
+            if (res.data && res.data.sqlText) {
+                dispatch(
+                    output(
+                        currentTab,
+                        `${createTitle('任务信息')}\n${
+                            res.data.sqlText
+                        }\n${createTitle('')}`
+                    )
+                )
+            }
             if (res.data.jobId) {
                 runningSql[currentTab] = res.data.jobId
                 const engineType = res.data.engineType
@@ -361,17 +499,16 @@ function exec (dispatch: any, currentTab: number, task: any, params: any, sqls: 
                     getDataOver(dispatch, currentTab, res, res.data.jobId)
                     judgeIfContinueExec()
                 } else {
-                    selectData(dispatch, res.data.jobId, currentTab, task)
-                        .then(
-                            (isSuccess: any) => {
-                                if (index < sqls.length - 1 && isSuccess) {
-                                    execContinue()
-                                } else {
-                                    dispatch(removeLoadingTab(currentTab))
-                                    resolve(true)
-                                }
+                    selectData(dispatch, res.data.jobId, currentTab, task).then(
+                        (isSuccess: any) => {
+                            if (index < sqls.length - 1 && isSuccess) {
+                                execContinue()
+                            } else {
+                                dispatch(removeLoadingTab(currentTab))
+                                resolve(true)
                             }
-                        )
+                        }
+                    )
                 }
             } else {
                 // 不存在jobId，则直接返回结果
@@ -381,13 +518,16 @@ function exec (dispatch: any, currentTab: number, task: any, params: any, sqls: 
             }
         }
     }
-    if (checkExist(task.taskType)) { // 任务执行
+    if (checkExist(task.taskType)) {
+        // 任务执行
         params.taskId = task.id
         API.execSQLImmediately(params).then(succCall)
-    } else if (checkExist(task.type)) { // 脚本执行
+    } else if (checkExist(task.type)) {
+        // 脚本执行
         params.scriptId = task.id
         API.execScript(params).then(succCall)
-    } else if (checkExist(task.componentType)) { // 组件执行
+    } else if (checkExist(task.componentType)) {
+        // 组件执行
         params.componentId = task.id
         params.componentType = task.componentType
         API.execComponent(params).then(succCall)
@@ -408,14 +548,22 @@ function exec (dispatch: any, currentTab: number, task: any, params: any, sqls: 
  * @param resolve Promise.resolve
  * @param reject Promise.reject
  */
-export async function execSparkSQLAdvancedMode (dispatch: any, currentTab: number, task: any, params: any, sqls: any, resolve: any, reject: any) {
+export async function execSparkSQLAdvancedMode (
+    dispatch: any,
+    currentTab: number,
+    task: any,
+    params: any,
+    sqls: any,
+    resolve: any,
+    reject: any
+) {
     params.taskId = task.id
     params.sqlList = sqls
     dispatch(output(currentTab, createLog('任务开始执行高级模式', 'info')))
 
     const res = await API.execSparkSQLAdvancedMode(params)
 
-    if (res && res.code && res.message) dispatch(output(currentTab, createLog(`${res.message}`, 'error')))
+    if (res && res.code && res.message) { dispatch(output(currentTab, createLog(`${res.message}`, 'error'))) }
     // 执行结束
     if (!res || (res && res.code !== 1)) {
         dispatch(output(currentTab, createLog('请求异常！', 'error')))
@@ -423,9 +571,25 @@ export async function execSparkSQLAdvancedMode (dispatch: any, currentTab: numbe
         return
     }
     if (res && res.code === 1) {
-        if (res.data && res.data.msg) dispatch(output(currentTab, createLog(`${res.data.msg}`, typeCreate(res.data.status))))
+        if (res.data && res.data.msg) {
+            dispatch(
+                output(
+                    currentTab,
+                    createLog(`${res.data.msg}`, typeCreate(res.data.status))
+                )
+            )
+        }
         // 在立即执行sql成功后，显示转化之后的任务信息(sqlText)
-        if (res.data && res.data.sqlText) dispatch(output(currentTab, `${createTitle('任务信息')}\n${res.data.sqlText}\n${createTitle('')}`))
+        if (res.data && res.data.sqlText) {
+            dispatch(
+                output(
+                    currentTab,
+                    `${createTitle('任务信息')}\n${
+                        res.data.sqlText
+                    }\n${createTitle('')}`
+                )
+            )
+        }
 
         let jobIndex = 0
         const jobList: SQLJob[] = res.data?.sqlIdList || []
@@ -466,7 +630,13 @@ export async function execSparkSQLAdvancedMode (dispatch: any, currentTab: numbe
              * 一般 SQL 结果直接输出
              */
             if (job.type === SQLType.Normal) {
-                getDataOver(dispatch, currentTab, wrapResult(job), job.sqlId, true)
+                getDataOver(
+                    dispatch,
+                    currentTab,
+                    wrapResult(job),
+                    job.sqlId,
+                    true
+                )
                 ifContinueExec()
             } else {
                 /**
@@ -477,9 +647,11 @@ export async function execSparkSQLAdvancedMode (dispatch: any, currentTab: numbe
                     jobId: res.data?.jobId,
                     advancedModeId: job.sqlId
                 }
-                selectData(dispatch, jobId, currentTab, task).then((isSuccess) => {
-                    ifContinueExec()
-                })
+                selectData(dispatch, jobId, currentTab, task).then(
+                    (isSuccess) => {
+                        ifContinueExec()
+                    }
+                )
             }
         }
 
@@ -506,9 +678,26 @@ export function execSql (currentTab: any, task: any, params: any, sqls: any) {
             }
             // 如果是sparkSQL，运行高级模式，则走单独的执行接口
             if (task.taskType === TASK_TYPE.SQL && params.singleSession) {
-                execSparkSQLAdvancedMode(dispatch, currentTab, task, params, sqls, resolve, reject)
+                execSparkSQLAdvancedMode(
+                    dispatch,
+                    currentTab,
+                    task,
+                    params,
+                    sqls,
+                    resolve,
+                    reject
+                )
             } else {
-                exec(dispatch, currentTab, task, params, sqls, 0, resolve, reject)
+                exec(
+                    dispatch,
+                    currentTab,
+                    task,
+                    params,
+                    sqls,
+                    0,
+                    resolve,
+                    reject
+                )
             }
         })
     }
@@ -536,49 +725,70 @@ export function stopSql (currentTab: any, currentTabData: any, isSilent: any) {
         if (!jobId) return
         const succCall = (res: any) => {
             /**
-            * 目前执行停止之后还需要继续轮训后端状态，所以停止方法调用成功也不主动执行停止操作，而且根据后续轮训状态来执行停止操作
-            */
+             * 目前执行停止之后还需要继续轮训后端状态，所以停止方法调用成功也不主动执行停止操作，而且根据后续轮训状态来执行停止操作
+             */
         }
-        if (checkExist(currentTabData.taskType)) { // 任务执行
+        if (checkExist(currentTabData.taskType)) {
+            // 任务执行
             API.stopSQLImmediately({
                 taskId: currentTabData.id,
                 jobId: jobId
             }).then(succCall)
-        } else if (checkExist(currentTabData.type)) { // 脚本执行
+        } else if (checkExist(currentTabData.type)) {
+            // 脚本执行
             API.stopScript({
                 scriptId: currentTabData.id,
                 jobId: jobId
-            }).then(
-                succCall)
+            }).then(succCall)
         }
     }
 }
 
 /**
-* 执行数据同步任务
-*/
+ * 执行数据同步任务
+ */
 export function execDataSync (currentTab: any, params: any) {
     return async (dispatch: any) => {
         stopSign[currentTab] = false
         dispatch(setOutput(currentTab, `同步任务【${params.name}】开始执行`))
         dispatch(addLoadingTab(currentTab))
         const res = await API.execDataSyncImmediately(params)
-        if (res && res.code && res.message) dispatch(output(currentTab, createLog(`${res.message}`, 'error')))
+        if (res && res.code && res.message) { dispatch(output(currentTab, createLog(`${res.message}`, 'error'))) }
         // 执行结束
         if (!res || (res && res.code !== 1)) {
             dispatch(output(currentTab, createLog('请求异常！', 'error')))
             dispatch(removeLoadingTab(currentTab))
         }
         if (res && res.code === 1) {
-            dispatch(output(currentTab, createLog('已经成功发送执行请求...', 'info')))
-            if (res.data && res.data.msg) dispatch(output(currentTab, createLog(`${res.data.msg}`, typeCreate(res.data.status))))
+            dispatch(
+                output(currentTab, createLog('已经成功发送执行请求...', 'info'))
+            )
+            if (res.data && res.data.msg) {
+                dispatch(
+                    output(
+                        currentTab,
+                        createLog(
+                            `${res.data.msg}`,
+                            typeCreate(res.data.status)
+                        )
+                    )
+                )
+            }
             if (res.data.jobId) {
                 runningSql[currentTab] = res.data.jobId
-                selectData(dispatch, res.data.jobId, currentTab, params, TASK_TYPE.SYNC).then(() => {
+                selectData(
+                    dispatch,
+                    res.data.jobId,
+                    currentTab,
+                    params,
+                    TASK_TYPE.SYNC
+                ).then(() => {
                     dispatch(removeLoadingTab(currentTab))
                 })
             } else {
-                dispatch(output(currentTab, createLog('执行返回结果异常', 'error')))
+                dispatch(
+                    output(currentTab, createLog('执行返回结果异常', 'error'))
+                )
                 dispatch(removeLoadingTab(currentTab))
             }
         }
@@ -586,8 +796,8 @@ export function execDataSync (currentTab: any, params: any) {
 }
 
 /**
-* 停止数据同步任务
-*/
+ * 停止数据同步任务
+ */
 export function stopDataSync (currentTab: any, isSilent: any) {
     return async (dispatch: any, getState: any) => {
         // 静默关闭，不通知任何人（服务器，用户）
@@ -657,9 +867,9 @@ export function resetConsole (tab: any) {
 }
 
 /**
-* 初始化tab的console对象
-* @param {tabId} key
-*/
+ * 初始化tab的console对象
+ * @param {tabId} key
+ */
 export function getTab (key: any) {
     return {
         type: editorAction.GET_TAB,
@@ -719,9 +929,9 @@ export function updateEditorOptions (data: any) {
 }
 
 /**
-* 更新右侧面板行为
-* @param {String} showAction 展示行为
-*/
+ * 更新右侧面板行为
+ * @param {String} showAction 展示行为
+ */
 export function showRightTablePane () {
     return {
         type: editorAction.SHOW_RIGHT_PANE,

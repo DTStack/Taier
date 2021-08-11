@@ -1,11 +1,10 @@
+/* eslint-disable no-unused-vars */
 import assign from 'object-assign'
 import { cloneDeep, isArray } from 'lodash'
 
 import { offlineWorkbenchDB as idb } from '../database'
 
-import {
-    workbenchAction
-} from './actionType'
+import { workbenchAction } from './actionType'
 import { PROJECT_KEY } from '../../comm/const'
 
 const getProjectId = () => {
@@ -22,7 +21,10 @@ export const getWorkbenchInitialState = () => {
     }
 }
 
-export const workbenchReducer = (state = getWorkbenchInitialState(), action: any) => {
+export const workbenchReducer = (
+    state = getWorkbenchInitialState(),
+    action: any
+) => {
     let nextState: any
 
     // 按原有逻辑读取项目信息，最好还是通过Action传递，由于对老代码业务逻辑有影响，
@@ -105,13 +107,15 @@ export const workbenchReducer = (state = getWorkbenchInitialState(), action: any
         case workbenchAction.CHANGE_SCHEDULE_CONF: {
             const newConf = action.payload
 
-            newConf.beginDate = newConf.beginDate && newConf.beginDate.format
-                ? newConf.beginDate.format('YYYY-MM-DD')
-                : newConf.beginDate
+            newConf.beginDate =
+                newConf.beginDate && newConf.beginDate.format
+                    ? newConf.beginDate.format('YYYY-MM-DD')
+                    : newConf.beginDate
 
-            newConf.endDate = newConf.endDate && newConf.endDate.format
-                ? newConf.endDate.format('YYYY-MM-DD')
-                : newConf.endDate
+            newConf.endDate =
+                newConf.endDate && newConf.endDate.format
+                    ? newConf.endDate.format('YYYY-MM-DD')
+                    : newConf.endDate
 
             if (newConf.weekDay && isArray(newConf.weekDay)) {
                 newConf.weekDay = newConf.weekDay.join(',')
@@ -335,7 +339,9 @@ export const workbenchReducer = (state = getWorkbenchInitialState(), action: any
         }
 
         case workbenchAction.SAVE_DATASYNC_TO_TAB: {
-            const index = state.tabs.findIndex((t: any) => t.id === action.payload.id)
+            const index = state.tabs.findIndex(
+                (t: any) => t.id === action.payload.id
+            )
             const newTabs: any = [...state.tabs]
             const data = action.payload.data ? action.payload.data : {}
 

@@ -8,7 +8,8 @@ export const KEY_EDITOR_OPTIONS = 'editor_options'
 // Console Reducers
 export const console = (state: any = {}, action: any) => {
     switch (action.type) {
-        case editorAction.GET_TAB: { // 初始化console
+        case editorAction.GET_TAB: {
+            // 初始化console
             const origin = cloneDeep(state)
             if (action.key || action.key === 0) {
                 const tab = origin[action.key]
@@ -18,14 +19,16 @@ export const console = (state: any = {}, action: any) => {
             }
             return origin
         }
-        case editorAction.RESET_CONSOLE: { // reset console
+        case editorAction.RESET_CONSOLE: {
+            // reset console
             const origin = cloneDeep(state)
             if (action.key || action.key === 0) {
                 origin[action.key] = { log: '', results: [] }
             }
             return origin
         }
-        case editorAction.SET_TAB: { // 设置Tab
+        case editorAction.SET_TAB: {
+            // 设置Tab
             const obj = cloneDeep(state)
             const map = action.data
             if (map && (map.key || map.key === 0)) {
@@ -33,10 +36,13 @@ export const console = (state: any = {}, action: any) => {
             }
             return obj
         }
-        case editorAction.APPEND_CONSOLE_LOG: { // 追加日志
+        case editorAction.APPEND_CONSOLE_LOG: {
+            // 追加日志
             const { key, data } = action
             const newLog = cloneDeep(state)
-            newLog[key].log = newLog[key] ? `${newLog[key].log} \n${data}` : `${data}`
+            newLog[key].log = newLog[key]
+                ? `${newLog[key].log} \n${data}`
+                : `${data}`
             return newLog
         }
         case editorAction.SET_CONSOLE_LOG: {
@@ -46,7 +52,8 @@ export const console = (state: any = {}, action: any) => {
             newLog[key].showRes = false
             return newLog
         }
-        case editorAction.UPDATE_RESULTS: { // 更新结果
+        case editorAction.UPDATE_RESULTS: {
+            // 更新结果
             const updatedKey = action.key
             const updated = cloneDeep(state)
             const updateArr: any = [...updated[updatedKey].results]
@@ -55,7 +62,9 @@ export const console = (state: any = {}, action: any) => {
                 let index = 1
                 // 根据最后一个结果的id序号来递增序号
                 if (lastResult) {
-                    index = lastResult.id ? (lastResult.id + 1) : (updateArr.length + 1)
+                    index = lastResult.id
+                        ? lastResult.id + 1
+                        : updateArr.length + 1
                 }
                 updateArr.push({ ...action.data, id: index })
                 updated[updatedKey].results = updateArr
@@ -66,7 +75,8 @@ export const console = (state: any = {}, action: any) => {
 
             return updated
         }
-        case editorAction.DELETE_RESULT: { // 删除结果
+        case editorAction.DELETE_RESULT: {
+            // 删除结果
             const key = action.key
             const index = action.data
             const origin = cloneDeep(state)
@@ -140,7 +150,7 @@ export const options = (state = initialEditorOptions(), action: any) => {
 
 /**
  * 是否展示右侧面板
-*/
+ */
 export const showRightExtraPane = (state = '', action: any) => {
     switch (action.type) {
         case editorAction.SHOW_RIGHT_PANE: {

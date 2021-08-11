@@ -6,7 +6,7 @@ export default function TaskInfo ({ current }: IEditor) {
     if (!current?.activeTab) {
         return (
             <div style={{ marginTop: 10, textAlign: 'center', color: '#fff' }}>
-        无法提供活动属性
+                无法提供活动属性
             </div>
         )
     }
@@ -26,7 +26,9 @@ export default function TaskInfo ({ current }: IEditor) {
                 <Col span={10} className="txt-right">
                     {labelPrefix}类型：
                 </Col>
-                <Col span={14}>{/* <TaskType value={taskInfo.taskType} /> */}</Col>
+                <Col span={14}>
+                    {/* <TaskType value={taskInfo.taskType} /> */}
+                </Col>
             </Row>
             {/* {taskInfo.resourceList.length && (
         <Row>
@@ -45,19 +47,19 @@ export default function TaskInfo ({ current }: IEditor) {
 
             <Row>
                 <Col span={10} className="txt-right">
-          创建时间：
+                    创建时间：
                 </Col>
                 {/* <Col span={14}>{utils.formatDateTime(taskInfo.gmtCreate)}</Col> */}
             </Row>
             <Row>
                 <Col span={10} className="txt-right">
-          最近修改时间：
+                    最近修改时间：
                 </Col>
                 {/* <Col span={14}>{utils.formatDateTime(taskInfo.gmtModified)}</Col> */}
             </Row>
             <Row>
                 <Col span={10} className="txt-right">
-          描述：
+                    描述：
                 </Col>
                 <Col
                     span={14}
