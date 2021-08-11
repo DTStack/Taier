@@ -1,6 +1,7 @@
-import { hashHistory } from 'react-router'
 import { TASK_STATUS } from '../../../consts/comm'
 import { APPS_TYPE } from '../../../consts'
+
+declare var window: any
 
 export function getVertxtStyle (type: any) {
     switch (type) {
@@ -31,13 +32,8 @@ export function getVertxtStyle (type: any) {
 }
 
 export function goToTaskDev (record: any) {
-    const { appType, taskType, id } = record
+    const { appType, id, projectId } = record ?? {}
     if (appType == APPS_TYPE.INDEX) {
-        if (taskType == 18) {
-            let path2 = `http://${window.location.hostname}:8099/easy-index/index-define?taskId=${id}`;
-            window.open(path2)
-        } else if (taskType == 7) {
-            hashHistory.push({ pathname: '/operation/dependence', query: { id } });
-        }
+        window.open(`${window.APP_CONF.EASY_INDEX_URL}/#/easy-index/index-define?taskId=${id}&pid=${projectId}`)
     }
 }

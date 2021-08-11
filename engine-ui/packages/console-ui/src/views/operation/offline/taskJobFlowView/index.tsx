@@ -12,7 +12,6 @@ import { TASK_STATUS, TASK_TYPE } from '../../../../consts/comm';
 import { APP_TYPE } from '../../../../consts';
 import { goToTaskDev } from '../hlep'
 import { taskStatusText } from '../../../../components/display';
-import { hashHistory } from 'react-router';
 import JobGraphView, {
     mergeTreeNodes,
     replaceTreeNodeField
@@ -244,12 +243,11 @@ class TaskJobFlowView extends React.Component<any, any> {
                 );
                 const isWorkflowNode =
                     currentNode.batchTask && currentNode.batchTask.flowId !== 0;
-                const taskId = currentNode.batchTask && currentNode.batchTask.id;
                 const isDelete =
                     currentNode.batchTask && currentNode.batchTask.isDeleted === 1; // 已删除
                 if (isDelete) return;
                 const appType = cell?.value?.appType;
-                if (APP_TYPE[appType] === APP_TYPE[10] || APP_TYPE[appType] === APP_TYPE[1]) {
+                if (APP_TYPE[appType] === APP_TYPE[10]) {
                     menu.addItem('展开上游（6层）', null, function () {
                         ctx.loadTaskParent({
                             jobId: currentNode.id,
@@ -295,27 +293,7 @@ class TaskJobFlowView extends React.Component<any, any> {
                     ctx.loadPeriodsData(menu, nextParams, nextPeriods);
                     if (isCurrentProjectTask) {
                         menu.addItem(`${isPro ? '查看' : '修改'}任务`, null, function () {
-                            if (isPro) {
-                                goToTaskDev(taskId);
-                            } else {
-                                console.log('ctx.props.batchTask: ', ctx.props);
-
-                                if (
-                                    ctx.props.taskJob.taskType == 18 ||
-                                    ctx.props.taskJob.batchTask.taskType == 18
-                                ) {
-                                    let path2 = `http://${window.location.hostname}:8099/easy-index/index-define?taskId=${taskId}`;
-                                    window.open(path2);
-                                } else if (
-                                    ctx.props.taskJob.taskType == 7 ||
-                                    ctx.props.taskJob.batchTask.taskType == 7
-                                ) {
-                                    hashHistory.push({
-                                        pathname: '/operation/dependence',
-                                        query: { id: taskId }
-                                    });
-                                }
-                            }
+                            goToTaskDev(currentNode.batchTask)
                         });
                     }
                     menu.addItem(

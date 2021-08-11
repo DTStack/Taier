@@ -218,13 +218,6 @@ class OfflineTaskMana extends React.Component<any, any> {
         });
     };
 
-    goToTaskDevHtml = (record: any) => {
-        if (record.appType == 10) {
-            let path2 = `${document.location.origin}/easy-index/index-define?taskId=${record.id}`
-            window.open(path2);
-        }
-    }
-
     showTask = (task: any) => {
         this.setState({
             visibleSlidePane: true,
