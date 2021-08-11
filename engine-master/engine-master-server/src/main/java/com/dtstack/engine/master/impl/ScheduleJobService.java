@@ -143,6 +143,9 @@ public class ScheduleJobService {
     @Autowired
     private JobGraphTriggerDao jobGraphTriggerDao;
 
+    @Autowired
+    private ScheduleJobFailedDao scheduleJobFailedDao;
+
     private final static List<Integer> FINISH_STATUS = Lists.newArrayList(RdosTaskStatus.FINISHED.getStatus(), RdosTaskStatus.MANUALSUCCESS.getStatus(), RdosTaskStatus.CANCELLING.getStatus(), RdosTaskStatus.CANCELED.getStatus());
     private final static List<Integer> FAILED_STATUS = Lists.newArrayList(RdosTaskStatus.FAILED.getStatus(), RdosTaskStatus.SUBMITFAILD.getStatus(), RdosTaskStatus.KILLED.getStatus());
 
@@ -334,11 +337,23 @@ public class ScheduleJobService {
      * 近30天任务出错排行
      */
     public List<JobTopErrorVO> errorTopOrder( Long projectId,  Long tenantId,  Integer appType,  Long dtuicTenantId) {
-
-        Timestamp time = new Timestamp(DateUtil.getLastDay(30));
+        // 查询当天任务排名
+        Timestamp time = new Timestamp(DateUtil.getLastDay(0));
         PageQuery<Object> pageQuery = new PageQuery<>(1, 10);
         String startCycTime = dayFormatterAll.print(getTime(time.getTime(), 0).getTime());
-        return scheduleJobDao.listTopErrorByType(dtuicTenantId,tenantId, projectId, EScheduleType.NORMAL_SCHEDULE.getType(), startCycTime, FAILED_STATUS, pageQuery, appType);
+        List<JobTopErrorVO> jobTopErrorVOS = scheduleJobDao.listTopErrorByType(dtuicTenantId, tenantId, projectId, EScheduleType.NORMAL_SCHEDULE.getType(), startCycTime, FAILED_STATUS, pageQuery, appType);
+
+        // 查询前29天任务排名
+        Timestamp timeTo = new Timestamp(DateUtil.getLastDay(30));
+        List<JobTopErrorVO> jobTopErrorVOSTo = scheduleJobFailedDao.listTopError(appType,dtuicTenantId,projectId,timeTo);
+        return merge(jobTopErrorVOS,jobTopErrorVOSTo);
+    }
+
+    private List<JobTopErrorVO> merge(List<JobTopErrorVO> jobTopErrorVOS, List<JobTopErrorVO> jobTopErrorVOSTo) {
+
+
+
+        return null;
     }
 
 
