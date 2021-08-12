@@ -3,8 +3,9 @@
 <mapper namespace="com.dtstack.engine.dao.ScheduleJobFailedDao">
 
     <sql id="schedule_job_failed">
-        `id`, `tenant_id`, `project_id`, `task_id`, `app_type`, `gmt_create`, `error_count`
+        `id`, `uic_tenant_id`, `project_id`, `task_id`, `app_type`, `gmt_create`, `error_count`
     </sql>
+
 
     <select id="listTopError" resultType="com.dtstack.engine.api.vo.JobTopErrorVO">
         SELECT task_id AS taskId, error_count AS errorCount
@@ -15,11 +16,33 @@
             AND project_id = #{projectId}
         </if>
         <if test="dtuicTenantId!=null">
-            AND tenant_id = #{dtuicTenantId}
+            AND uic_tenant_id = #{dtuicTenantId}
         </if>
         and gmt_create >= #{timeTo}
         group by bj.task_id
     </select>
+
+    <insert id="insertBatch">
+        INSERT INTO schedule_job_failed (`uic_tenant_id`, `project_id`, `task_id`, `app_type`, `gmt_create`, `error_count`)
+        VALUES
+        <foreach collection="scheduleJobFaileds" separator="," item="scheduleJobFailed">
+            (#{scheduleJobFailed.uicTenantId},
+            #{scheduleJobFailed.projectId},
+            #{scheduleJobFailed.taskId},
+            #{scheduleJobFailed.appType},
+            #{scheduleJobFailed.gmtCreate},
+            #{scheduleJobFailed.errorCount})
+        </foreach>
+    </insert>
+
+    <delete id="deleteByGmtCreate">
+        DELETE FROM schedule_job_failed
+        WHERE
+        app_type = #{appType}
+        AND uic_tenant_id = #{dtuicTenantId}
+        AND project_id = #{projectId}
+        AND gmt_create &lt;= #{toDate}
+    </delete>
 
 
 </mapper>

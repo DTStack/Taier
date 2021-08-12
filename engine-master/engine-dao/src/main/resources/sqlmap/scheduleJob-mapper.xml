@@ -628,6 +628,28 @@
         ORDER BY count(1) desc limit #{pageQuery.start}, #{pageQuery.pageSize}
     </select>
 
+    <select id="listTopError" resultType="com.dtstack.engine.api.vo.JobTopErrorVO">
+        SELECT bj.task_id AS taskId, count(1) as errorCount
+        FROM schedule_job bj
+        WHERE bj.is_deleted = 0
+        <if test="dtuicTenantId != null and dtuicTenantId != -1">
+            AND bj.dtuic_tenant_id = #{dtuicTenantId}
+        </if>
+        <if test="projectId!=null and projectId != -1">
+            AND bj.project_id = #{projectId}
+        </if>
+        AND bj.app_type = #{appType}
+        AND bj.status in
+        <foreach item="status" index="index" collection="statuses" open="(" separator="," close=")">
+            #{status}
+        </foreach>
+        AND bj.type = #{type}
+        AND bj.cyc_time >= #{startCycTime}
+        AND bj.cyc_time &lt;= #{endCycTime}
+        group by bj.task_id
+        ORDER BY count(1) desc limit #{pageQuery.start}, #{pageQuery.pageSize}
+    </select>
+
     <select id="listThirtyDayJobs" resultType="java.util.HashMap">
         SELECT DATE_FORMAT(bj.cyc_time, '%m/%d') AS day, COUNT(1) AS cnt
         FROM schedule_job bj
@@ -1749,5 +1771,6 @@
         AND `phase_status` = #{phaseStatus}
         order by id asc limit 500
     </select>
+
 
 </mapper>

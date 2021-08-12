@@ -732,6 +732,21 @@
         where id = #{id} and is_deleted = 0
     </select>
 
+    <select id="listByUicTenantId" resultType="com.dtstack.engine.api.domain.ScheduleTaskShade">
+        SELECT
+            dtuic_tenant_id,
+            project_id
+        FROM schedule_task_shade
+        WHERE
+        dtuic_tenant_id IN
+        <foreach item="tenantId" collection="tenantIds" open="(" separator="," close=")">
+            #{tenantId}
+        </foreach>
+        AND app_type = #{appType}
+        and is_deleted = 0
+        GROUP BY project_id
+    </select>
+
 
     <update id="updateProjectScheduleStatus">
         update schedule_task_shade

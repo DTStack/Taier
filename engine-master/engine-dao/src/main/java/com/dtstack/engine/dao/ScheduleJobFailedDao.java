@@ -1,9 +1,11 @@
 package com.dtstack.engine.dao;
 
+import com.dtstack.engine.api.domain.ScheduleJobFailed;
 import com.dtstack.engine.api.vo.JobTopErrorVO;
 import org.apache.ibatis.annotations.Param;
 
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -19,4 +21,10 @@ public interface ScheduleJobFailedDao {
                                      @Param("dtuicTenantId") Long dtuicTenantId,
                                      @Param("projectId") Long projectId,
                                      @Param("timeTo") Timestamp timeTo);
+
+    Integer insertBatch(@Param("scheduleJobFaileds") List<ScheduleJobFailed> scheduleJobFaileds);
+
+    Integer deleteByGmtCreate(@Param("uicTenantId") Long uicTenantId,
+                              @Param("projectId") Long projectId,
+                              @Param("toDate") Date toDate);
 }

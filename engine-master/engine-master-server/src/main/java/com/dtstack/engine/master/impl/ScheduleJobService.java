@@ -336,24 +336,51 @@ public class ScheduleJobService {
     /**
      * 近30天任务出错排行
      */
-    public List<JobTopErrorVO> errorTopOrder( Long projectId,  Long tenantId,  Integer appType,  Long dtuicTenantId) {
-        // 查询当天任务排名
-        Timestamp time = new Timestamp(DateUtil.getLastDay(0));
-        PageQuery<Object> pageQuery = new PageQuery<>(1, 10);
-        String startCycTime = dayFormatterAll.print(getTime(time.getTime(), 0).getTime());
-        List<JobTopErrorVO> jobTopErrorVOS = scheduleJobDao.listTopErrorByType(dtuicTenantId, tenantId, projectId, EScheduleType.NORMAL_SCHEDULE.getType(), startCycTime, FAILED_STATUS, pageQuery, appType);
+    public List<JobTopErrorVO> errorTopOrder(Long projectId, Long tenantId, Integer appType, Long dtuicTenantId) {
+        if (environmentContext.getOpenErrorTop()) {
+            // 查询当天任务排名
+            Timestamp time = new Timestamp(DateUtil.getLastDay(0));
+            PageQuery<Object> pageQuery = new PageQuery<>(1, 10);
+            String startCycTime = dayFormatterAll.print(getTime(time.getTime(), 0).getTime());
+            List<JobTopErrorVO> jobTopErrorVOS = scheduleJobDao.listTopErrorByType(dtuicTenantId, tenantId, projectId, EScheduleType.NORMAL_SCHEDULE.getType(), startCycTime, FAILED_STATUS, pageQuery, appType);
 
-        // 查询前29天任务排名
-        Timestamp timeTo = new Timestamp(DateUtil.getLastDay(30));
-        List<JobTopErrorVO> jobTopErrorVOSTo = scheduleJobFailedDao.listTopError(appType,dtuicTenantId,projectId,timeTo);
-        return merge(jobTopErrorVOS,jobTopErrorVOSTo);
+            // 查询前29天任务排名
+            Timestamp timeTo = new Timestamp(DateUtil.getLastDay(30));
+            List<JobTopErrorVO> jobTopErrorVOSTo = scheduleJobFailedDao.listTopError(appType, dtuicTenantId, projectId, timeTo);
+            List<JobTopErrorVO> merge = merge(jobTopErrorVOS, jobTopErrorVOSTo);
+            return merge.stream().sorted(Comparator.comparing(JobTopErrorVO::getErrorCount).reversed()).collect(Collectors.toList()).subList(0, 9);
+        } else {
+            // 查询当天任务排名
+            Timestamp time = new Timestamp(DateUtil.getLastDay(30));
+            PageQuery<Object> pageQuery = new PageQuery<>(1, 10);
+            String startCycTime = dayFormatterAll.print(getTime(time.getTime(), 0).getTime());
+            List<JobTopErrorVO> jobTopErrorVOS = scheduleJobDao.listTopErrorByType(dtuicTenantId, tenantId, projectId, EScheduleType.NORMAL_SCHEDULE.getType(), startCycTime, FAILED_STATUS, pageQuery, appType);
+            return jobTopErrorVOS;
+        }
     }
 
     private List<JobTopErrorVO> merge(List<JobTopErrorVO> jobTopErrorVOS, List<JobTopErrorVO> jobTopErrorVOSTo) {
+        Map<Long,JobTopErrorVO> totalMaps = Maps.newHashMap();
+        for (JobTopErrorVO jobTopErrorVO : jobTopErrorVOS) {
+            sumErrorCount(totalMaps, jobTopErrorVO);
+        }
 
+        for (JobTopErrorVO errorVO : jobTopErrorVOSTo) {
+            sumErrorCount(totalMaps, errorVO);
+        }
 
+        return Lists.newArrayList(totalMaps.values());
+    }
 
-        return null;
+    private void sumErrorCount(Map<Long, JobTopErrorVO> totalMaps, JobTopErrorVO jobTopErrorVO) {
+        long taskId = jobTopErrorVO.getTaskId();
+        JobTopErrorVO jobTopVO = totalMaps.get(taskId);
+        if (jobTopVO == null) {
+             jobTopVO = new JobTopErrorVO();
+        }
+        int errorCount = jobTopVO.getErrorCount();
+        jobTopVO.setErrorCount(errorCount+jobTopErrorVO.getErrorCount());
+        totalMaps.put(taskId,jobTopVO);
     }
 
 
