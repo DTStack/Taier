@@ -30,4 +30,4 @@ ADD COLUMN `version_id`  int(11) NULL DEFAULT 0 COMMENT '任务提交版本号' 
 
 -- 字段血缘表修改result_table_key字段comment
 ALTER TABLE `lineage_column_column`
-MODIFY COLUMN `result_table_key` varchar(32)  NOT NULL COMMENT '输出表表物理定位码' AFTER `result_table_id`;
+MODIFY COLUMN `result_table_key` varchar(256)  NOT NULL COMMENT '输出表表物理定位码' AFTER `result_table_id`;
