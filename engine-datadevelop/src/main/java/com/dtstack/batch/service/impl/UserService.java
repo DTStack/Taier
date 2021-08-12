@@ -25,6 +25,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -37,7 +38,7 @@ public class UserService {
 
     private static Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    @Autowired
+    @Resource(name = "batchUserDao")
     private UserDao userDao;
 
     @Autowired

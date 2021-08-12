@@ -24,4 +24,6 @@ public interface TenantDao {
     void delete(@Param("dtUicTenantId") Long dtUicTenantId);
 
     void updateByDtUicTenantId(Tenant tenant);
+
+    Tenant getOne(@Param("id") Long id);
 }

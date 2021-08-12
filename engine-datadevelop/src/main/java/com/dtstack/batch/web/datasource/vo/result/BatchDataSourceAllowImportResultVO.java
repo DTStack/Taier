@@ -1,6 +1,5 @@
 package com.dtstack.batch.web.datasource.vo.result;
 
-import com.dtstack.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -41,9 +40,6 @@ public class BatchDataSourceAllowImportResultVO {
     private Integer status;
 
     @ApiModelProperty(value = "修改时间", example = "2020-12-29T11:39:13.000+00:00")
-    @JsonFormat(
-            pattern = "yyyy-MM-dd HH:mm:ss"
-    )
     private Date gmtModified;
 
 }

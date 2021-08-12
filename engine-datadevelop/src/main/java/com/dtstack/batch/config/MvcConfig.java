@@ -1,25 +1,21 @@
 
 
-package com.dtstack.engine.master.config;
+package com.dtstack.batch.config;
 
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.router.DtArgumentCookieResolver;
 import com.dtstack.engine.master.router.DtArgumentResolver;
 import com.dtstack.engine.master.router.login.LoginInterceptor;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.servlet.MultipartConfigFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.util.unit.DataSize;
-import org.springframework.util.unit.DataUnit;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.*;
 
-import javax.servlet.MultipartConfigElement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,6 +59,9 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
     @Autowired
     private DtArgumentCookieResolver dtArgumentCookieResolver;
 
+    @Autowired
+    private EnvironmentContext environmentContext;
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
@@ -70,9 +69,6 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
                 .allowedHeaders("*/*")
                 .allowedMethods("*");
     }
-
-    @Value("${engine.console.upload.path:${user.dir}/upload}")
-    private String uploadPath;
 
     @Bean
     public LoginInterceptor loginInterceptor() {
@@ -114,9 +110,5 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
         super.addResourceHandlers(registry);
     }
 
-    public String getPluginPath(boolean isTmp,String gateSource) {
-        String tmp = isTmp ? "/tmp" : "/normal";
-        return uploadPath + tmp + "/" + gateSource;
-    }
 }
 

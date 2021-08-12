@@ -3,16 +3,15 @@ package com.dtstack.engine.master.controller;
 import com.dtstack.engine.api.param.ScheduleEngineProjectParam;
 import com.dtstack.engine.api.vo.project.NotDeleteProjectVO;
 import com.dtstack.engine.api.vo.project.ScheduleEngineProjectVO;
-import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
 import com.dtstack.engine.master.impl.ProjectService;
 import com.dtstack.engine.master.router.DtRequestParam;
 import io.swagger.annotations.Api;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 @RestController
@@ -20,7 +19,7 @@ import java.util.List;
 @Api(value = "/node/project", tags = {"项目接口"})
 public class ProjectController {
 
-    @Autowired
+    @Resource(name = "engineProjectService")
     private ProjectService projectService;
 
     @RequestMapping(value="/updateSchedule", method = {RequestMethod.POST})

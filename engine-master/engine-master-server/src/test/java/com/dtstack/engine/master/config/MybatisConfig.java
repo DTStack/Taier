@@ -27,7 +27,7 @@ import java.beans.PropertyVetoException;
  */
 @Configuration
 @EnableTransactionManagement
-@ComponentScan(basePackages = {"com.dtstack.engine.*","com.dtstack.batch.*"})
+@ComponentScan(basePackages = {"com.dtstack.engine.*"})
 @MapperScan(basePackages = {"com.dtstack.engine.dao","com.dtstack.engine.datasource.dao","com.dtstack.batch.dao"}, sqlSessionTemplateRef = "sqlSessionTemplate")
 public class MybatisConfig {
 

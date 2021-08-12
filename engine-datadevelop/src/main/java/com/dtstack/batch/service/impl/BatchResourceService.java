@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -59,7 +60,7 @@ public class BatchResourceService {
     @Autowired
     private BatchTaskService batchTaskService;
 
-    @Autowired
+    @Resource(name = "batchUserDao")
     private UserDao userDao;
 
     @Autowired

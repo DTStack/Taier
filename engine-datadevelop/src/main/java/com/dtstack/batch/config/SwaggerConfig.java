@@ -1,8 +1,9 @@
-package com.dtstack.engine.master.config;
+package com.dtstack.batch.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -24,7 +25,7 @@ public class SwaggerConfig {
                 .apiInfo(apiInfo())
                 .enable(swaggerEnable)
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.dtstack.engine.master.controller"))
+                .apis(RequestHandlerSelectors.withClassAnnotation(RestController.class))
                 .paths(PathSelectors.any())
                 .build();
     }

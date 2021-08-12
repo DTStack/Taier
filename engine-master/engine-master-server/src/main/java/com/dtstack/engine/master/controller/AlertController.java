@@ -14,11 +14,9 @@ import com.dtstack.engine.api.vo.alert.AlertGateTestVO;
 import com.dtstack.engine.api.vo.alert.AlertGateVO;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.master.config.MvcConfig;
 import com.dtstack.engine.master.event.AlterEnvHandlerEvent;
 import com.dtstack.engine.master.event.SftpDownloadEvent;
 import com.dtstack.engine.master.impl.AlertChannelService;
-import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.utils.CheckUtils;
 import dt.insight.plat.lang.web.R;
@@ -53,9 +51,6 @@ public class AlertController {
     private AlterSender alterSender;
 
     @Autowired
-    private MvcConfig mvcConfig;
-
-    @Autowired
     private ComponentService componentService;
 
     @Autowired
@@ -72,6 +67,11 @@ public class AlertController {
 
     @Autowired
     private AlterEnvHandlerEvent alterEnvHandlerEvent;
+    
+    private String getPluginPath(boolean isTmp,String gateSource) {
+        String tmp = isTmp ? "/tmp" : "/normal";
+        return environmentContext.getUploadPath() + tmp + "/" + gateSource;
+    }
 
     @ApiOperation("新增编辑告警通道 用于替换console接口: /api/console/service/alert/edit")
     @PostMapping("/edit")
@@ -84,7 +84,7 @@ public class AlertController {
             }
 
             if (file != null) {
-                String filePath = mvcConfig.getPluginPath(false,alertGateVO.getAlertGateSource());
+                String filePath = this.getPluginPath(false,alertGateVO.getAlertGateSource());
                 String destPath = filePath + "/" + file.getOriginalFilename();
                 File destFile = new File(destPath);
                 if (!destFile.exists()) {
@@ -155,7 +155,7 @@ public class AlertController {
     @ApiOperation("jar上传接口")
     @PostMapping("/jarUpload")
     public String jarUpload(@RequestParam("file") MultipartFile file, String gateSource) throws Exception {
-        String filePath = mvcConfig.getPluginPath(false, gateSource);
+        String filePath = this.getPluginPath(false, gateSource);
         String destPath = filePath + "/" + file.getOriginalFilename();
         File destFile = new File(destPath);
         if (!destFile.exists()) {
@@ -174,7 +174,7 @@ public class AlertController {
     public void testAlert(@RequestParam(value = "file", required = false) MultipartFile file,
                                 AlertGateTestVO alertGateTestVO) throws Exception {
         CheckUtils.checkFormat(alertGateTestVO);
-        String filePath = mvcConfig.getPluginPath(true,alertGateTestVO.getAlertGateSource());
+        String filePath = this.getPluginPath(true,alertGateTestVO.getAlertGateSource());
         if (file != null) {
             String destPath = filePath + "/" + file.getOriginalFilename();
             File destFile = new File(destPath);

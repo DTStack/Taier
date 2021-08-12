@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.dtstack.engine.master.router.DtRequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +23,8 @@ import java.util.Map;
 @RequestMapping("/node/tenant")
 @Api(value = "/node/tenant", tags = {"租户接口"})
 public class TenantController {
-    @Autowired
+
+    @Resource(name = "engineTenantService")
     private TenantService tenantService;
 
     @Autowired

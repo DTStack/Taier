@@ -39,7 +39,6 @@ import com.dtstack.batch.web.datasource.vo.result.BatchDataSourceAllowImportResu
 import com.dtstack.batch.web.datasource.vo.result.BatchDataSourceHaveImportResultVO;
 import com.dtstack.batch.web.pager.PageQuery;
 import com.dtstack.batch.web.pager.PageResult;
-import com.dtstack.dtcenter.common.engine.ConsoleSend;
 import com.dtstack.dtcenter.common.engine.JdbcInfo;
 import com.dtstack.dtcenter.common.enums.*;
 import com.dtstack.dtcenter.common.exception.DtCenterDefException;
@@ -65,6 +64,8 @@ import com.dtstack.engine.datasource.param.datasource.api.RollDsParam;
 import com.dtstack.engine.datasource.vo.datasource.api.DsServiceInfoVO;
 import com.dtstack.engine.datasource.vo.datasource.api.DsServiceListVO;
 import com.dtstack.engine.datasource.vo.datasource.api.DsShiftReturnVO;
+import com.dtstack.engine.master.impl.ClusterService;
+import com.dtstack.engine.master.impl.ComponentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -81,6 +82,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -203,7 +205,7 @@ public class BatchDataSourceService {
         BatchDataSourceService.DATASOURCE_PERMISSION_MAP.put(DataSourceType.INCEPTOR.getVal(), EDataSourcePermission.WRITE.getType());
     }
 
-    @Autowired
+    @Resource(name = "batchJobParamReplace")
     private JobParamReplace jobParamReplace;
 
     @Autowired
@@ -221,7 +223,7 @@ public class BatchDataSourceService {
     @Autowired
     private RoleUserService roleUserService;
 
-    @Autowired
+    @Resource(name = "batchUserDao")
     private UserDao userDao;
 
     @Autowired
@@ -246,9 +248,6 @@ public class BatchDataSourceService {
     private EnvironmentContext environmentContext;
 
     @Autowired
-    private ConsoleSend consoleSend;
-
-    @Autowired
     private UserService userService;
 
     @Autowired
@@ -256,6 +255,12 @@ public class BatchDataSourceService {
 
     @Autowired
     private ApiServiceFacade apiServiceFacade;
+
+    @Autowired
+    private ComponentService componentService;
+
+    @Autowired
+    private ClusterService clusterService;
 
     // 数据同步-模版导入 writer 不需要添加默认值的数据源类型
     private static final Set<Integer> notPutValueFoeWriterSourceTypeSet = Sets.newHashSet(DataSourceType.HIVE.getVal(), DataSourceType.HIVE3X.getVal(),
@@ -2312,7 +2317,7 @@ public class BatchDataSourceService {
         if(null == dtUicTenantId){
             return null;
         }
-        String enginePluginInfo = consoleSend.getEnginePluginInfo(dtUicTenantId, MultiEngineType.HADOOP.getType());
+        String enginePluginInfo = Engine2DTOService.getEnginePluginInfo(dtUicTenantId, MultiEngineType.HADOOP.getType());
         if(StringUtils.isBlank(enginePluginInfo)){
             return null;
         }
@@ -2981,7 +2986,7 @@ public class BatchDataSourceService {
 
     public Map<String, String> getSftpMap(Long dtuicTenantId) {
         Map<String, String> map = new HashMap<>();
-        String cluster = consoleSend.getCluster(dtuicTenantId);
+        String cluster = clusterService.clusterInfo(dtuicTenantId);
         JSONObject clusterObj = JSON.parseObject(cluster);
         JSONObject sftpConfig = clusterObj.getJSONObject(EComponentType.SFTP.getConfName());
         if (Objects.isNull(sftpConfig)) {
@@ -3386,31 +3391,15 @@ public class BatchDataSourceService {
      * @param userId
      */
     @Transactional
-    public void callbackPubDataSourceByProject(Long tenantId, Long projectId, Long userId, Integer projectEngineType){
+    public void callbackPubDataSourceByProject(Long tenantId, Long projectId, Long userId){
         try {
-            Set<Long> infoIdSet = Sets.newHashSet();
-            //添加计算引擎失败时，回滚单个数据源
-            if(projectEngineType != null){
-                DataSourceType dataSourceType = getDataSourceTypeByEngineType(projectEngineType, projectId);
-                BatchDataSource dataSourceOrNull = getDefaultDataSourceOrNull(projectId, dataSourceType.getVal());
-                if(dataSourceOrNull == null){
-                    return;
-                }
-                Long infoIdByCenterId = batchDataSourceCenterDao.getInfoIdByCenterId(dataSourceOrNull.getId());
-                infoIdSet.add(infoIdByCenterId);
-
-                batchDataSourceCenterDao.deleteById(dataSourceOrNull.getId(), userId);
-            } else{
-                //创建项目失败时，回滚所有数据源
-                List<BatchDataSourceCenter> dataSourceCenterList = batchDataSourceCenterDao.getInfoIdsByProject(projectId);
-                infoIdSet = dataSourceCenterList.stream().map(BatchDataSourceCenter::getDtCenterSourceId).collect(Collectors.toSet());
-
-                batchDataSourceCenterDao.deleteByProjectId(projectId, userId);
-            }
-
-            if(CollectionUtils.isEmpty(infoIdSet)){
+            List<BatchDataSourceCenter> dataSourceCenterList = batchDataSourceCenterDao.getInfoIdsByProject(projectId);
+            if(CollectionUtils.isEmpty(dataSourceCenterList)){
                 return;
             }
+            Set<Long> infoIdSet = dataSourceCenterList.stream().map(BatchDataSourceCenter::getDtCenterSourceId).collect(Collectors.toSet());
+
+            batchDataSourceCenterDao.deleteByProjectId(projectId, userId);
 
             Long dtuicTenantId = tenantService.getDtuicTenantId(tenantId);
             for(Long dataInfoId : infoIdSet){

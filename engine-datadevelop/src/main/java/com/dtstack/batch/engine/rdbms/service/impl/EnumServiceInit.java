@@ -1,7 +1,9 @@
 package com.dtstack.batch.engine.rdbms.service.impl;
 
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.dtcenter.common.engine.ConsoleSend;
+import com.dtstack.engine.master.impl.ClusterService;
+import com.dtstack.engine.master.impl.ComponentService;
+import com.dtstack.engine.master.impl.EngineService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,13 +20,19 @@ import javax.annotation.PostConstruct;
 public class EnumServiceInit {
 
     @Autowired
-    private ConsoleSend consoleSend;
+    private EnvironmentContext environmentContext;
 
     @Autowired
-    private EnvironmentContext environmentContext;
+    private ClusterService clusterService;
+
+    @Autowired
+    private EngineService engineService;
+
+    @Autowired
+    private ComponentService componentService;
 
     @PostConstruct
     public void init() {
-        Engine2DTOService.setConsoleSend(consoleSend, environmentContext);
+        Engine2DTOService.init(componentService, engineService, clusterService, environmentContext);
     }
 }

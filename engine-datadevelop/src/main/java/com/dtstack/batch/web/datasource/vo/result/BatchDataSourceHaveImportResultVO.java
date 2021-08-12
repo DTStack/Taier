@@ -1,6 +1,5 @@
 package com.dtstack.batch.web.datasource.vo.result;
 
-import com.dtstack.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -53,9 +52,6 @@ public class BatchDataSourceHaveImportResultVO {
     private Integer active;
 
     @ApiModelProperty(value = "修改时间", example = "2020-12-29T11:39:13.000+00:00")
-    @JsonFormat(
-            pattern = "yyyy-MM-dd HH:mm:ss"
-    )
     private Date gmtModified;
 
     @ApiModelProperty(value = "是否对接hadoop引擎 如果false 默认数据源不显示整库同步和同步记录")

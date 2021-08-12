@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  * @author xuchao
  */
 
-@Component
+@Component("batchJobParamReplace")
 public class JobParamReplace {
 
     @Autowired

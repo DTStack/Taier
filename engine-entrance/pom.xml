@@ -18,12 +18,7 @@
 
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>engine-master-server</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.dtstack.engine</groupId>
-            <artifactId>engine-worker-server</artifactId>
+            <artifactId>engine-datadevelop</artifactId>
             <version>1.0.0</version>
         </dependency>
 
@@ -67,7 +62,7 @@
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.dtstack.engine.entrance.EngineMain</mainClass>
+                                    <mainClass>com.dtstack.batch.EngineApplication</mainClass>
                                 </transformer>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>reference.conf</resource>

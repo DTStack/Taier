@@ -1,12 +1,14 @@
 package com.dtstack.engine.common.jobdealer;
 
 import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.akka.config.AkkaConfig;
 import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.logstore.AbstractLogStore;
 import com.dtstack.engine.common.logstore.LogStoreFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by sishu.yss on 2018/2/26.
  */
+@Component
 public class TaskLogStoreDealer implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskLogStoreDealer.class);
@@ -27,19 +30,16 @@ public class TaskLogStoreDealer implements Runnable {
     private ScheduledExecutorService scheduledService;
     private Map<String, String> dbConfig = new HashMap<>(3);
 
-    public static TaskLogStoreDealer instance = new TaskLogStoreDealer();
-
-    public static TaskLogStoreDealer getInstance() {
-        return instance;
-    }
+    @Autowired
+    private EnvironmentContext environmentContext;
 
     public TaskLogStoreDealer() {
-        dbConfig.put(ConfigConstant.JDBCURL, AkkaConfig.getWorkerLogstoreJdbcUrl());
-        dbConfig.put(ConfigConstant.USERNAME, AkkaConfig.getWorkerLogstoreUsername());
-        dbConfig.put(ConfigConstant.PASSWORD, AkkaConfig.getWorkerLogstorePassword());
-        dbConfig.put(ConfigConstant.INITIAL_SIZE, AkkaConfig.getWorkerInitialSize());
-        dbConfig.put(ConfigConstant.MINIDLE, AkkaConfig.getWorkerMinActive());
-        dbConfig.put(ConfigConstant.MAXACTIVE, AkkaConfig.getWorkerMaxActive());
+        dbConfig.put(ConfigConstant.JDBCURL, environmentContext.getJdbcUrl());
+        dbConfig.put(ConfigConstant.USERNAME, environmentContext.getJdbcUser());
+        dbConfig.put(ConfigConstant.PASSWORD, environmentContext.getJdbcPassword());
+        dbConfig.put(ConfigConstant.INITIAL_SIZE, String.valueOf(environmentContext.getInitialPoolSize()));
+        dbConfig.put(ConfigConstant.MINIDLE, String.valueOf(environmentContext.getMinPoolSize()));
+        dbConfig.put(ConfigConstant.MAXACTIVE, String.valueOf(environmentContext.getMaxPoolSize()));
 
         logStore = LogStoreFactory.getLogStore(dbConfig);
 

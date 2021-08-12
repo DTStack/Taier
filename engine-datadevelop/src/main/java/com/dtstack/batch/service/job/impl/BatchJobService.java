@@ -64,6 +64,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -101,13 +102,13 @@ public class BatchJobService {
     @Autowired
     private BatchTaskParamService batchTaskParamService;
 
-    @Autowired
+    @Resource(name = "batchUserDao")
     private UserDao userDao;
 
     @Autowired
     private BatchSelectSqlService batchSelectSqlService;
 
-    @Autowired
+    @Resource(name = "batchJobParamReplace")
     private JobParamReplace jobParamReplace;
 
     @Autowired

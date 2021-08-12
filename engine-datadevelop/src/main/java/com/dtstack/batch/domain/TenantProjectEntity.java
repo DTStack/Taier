@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 public class TenantProjectEntity extends BaseEntity {
 
-    private Long tenantId;
+    private Long tenantTenantProjectEntityId;
 
     private Long projectId;
 

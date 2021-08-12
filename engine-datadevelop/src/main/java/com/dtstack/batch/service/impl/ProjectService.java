@@ -87,7 +87,7 @@ public class ProjectService {
     @Autowired
     private RoleUserDao roleUserDao;
 
-    @Autowired
+    @Resource(name = "batchUserDao")
     private UserDao userDao;
 
     @Autowired
@@ -126,7 +126,7 @@ public class ProjectService {
     @Resource(name = "multiEngineService")
     private IMultiEngineService multiEngineService;
 
-    @Autowired
+    @Resource(name = "engineTenantService")
     private com.dtstack.engine.master.impl.TenantService engineTenantService;
 
     @Autowired
@@ -135,7 +135,7 @@ public class ProjectService {
     @Autowired
     private EnvironmentContext environmentContext;
 
-    @Autowired
+    @Resource(name = "engineProjectService")
     private com.dtstack.engine.master.impl.ProjectService engineProjectService;
 
     @Autowired

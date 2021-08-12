@@ -80,6 +80,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -103,7 +104,7 @@ public class BatchTaskService {
 
     public static Logger logger = LoggerFactory.getLogger(BatchTaskService.class);
 
-    @Autowired
+    @Resource(name = "batchJobParamReplace")
     private JobParamReplace jobParamReplace;
 
     @Autowired
@@ -208,7 +209,7 @@ public class BatchTaskService {
     @Autowired
     private EnvironmentContext environmentContext;
 
-    @Autowired
+    @Resource(name = "engineProjectService")
     private com.dtstack.engine.master.impl.ProjectService engineProjectService;
 
     @Autowired

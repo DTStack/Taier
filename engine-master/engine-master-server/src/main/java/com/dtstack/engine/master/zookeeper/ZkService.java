@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.zookeeper;
 
-import com.dtstack.engine.common.akka.message.WorkerInfo;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.zookeeper.data.BrokerHeartNode;
 import com.dtstack.engine.master.zookeeper.data.BrokersNode;
@@ -207,15 +206,6 @@ public class ZkService implements InitializingBean, DisposableBean {
             }
         }
         return allWorkers;
-    }
-
-    public void updateBrokerWorkersNode(Set<WorkerInfo> workerData) {
-        String nodePath = String.format("%s/%s", localNode, WORKER_NODE);
-        try {
-            zkClient.setData().forPath(nodePath, objectMapper.writeValueAsBytes(workerData));
-        } catch (Exception e) {
-            LOGGER.error("{}:updateBrokerWorkersNode error:", nodePath, e);
-        }
     }
 
     public String getLocalAddress() {

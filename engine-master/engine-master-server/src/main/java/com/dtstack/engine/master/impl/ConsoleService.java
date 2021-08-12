@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -84,7 +85,7 @@ public class ConsoleService {
     @Autowired
     private TenantDao tenantDao;
 
-    @Autowired
+    @Resource(name = "engineTenantService")
     private TenantService tenantService;
 
     @Autowired
