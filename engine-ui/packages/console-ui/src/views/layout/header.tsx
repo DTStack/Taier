@@ -22,7 +22,7 @@ class Header extends React.Component<any, any> {
 
     render () {
         const baseUrl = '/console';
-        const { app, licenseApps } = this.props;
+        const { app, licenseApps, operationHeader } = this.props;
 
         const menuItems: any = [{
             id: 'queueManage',
@@ -46,6 +46,18 @@ class Header extends React.Component<any, any> {
             enable: true
         }];
 
+        const operationMenuItems: any = [{
+            id: 'operation',
+            name: '运维中心',
+            link: '/operation',
+            enable: true
+        }];
+
+        const getHeadTitle = () => {
+            if (!operationHeader) return (window.APP_CONF?.prefix ?? '') + window.APP_CONF.name
+            return (window.APP_CONF?.prefix ?? '') + '系统管理'
+        }
+
         const logo = (
             <div className="logo dt-header-log-wrapper" style={{ float: 'left' }}>
                 <img
@@ -54,13 +66,13 @@ class Header extends React.Component<any, any> {
                     src={getHeaderLogo(app.id)}
                 />
                 <span className='c-header__title'>
-                    {window.APP_CONF.prefix ? `${window.APP_CONF.prefix}.` : ''}{window.APP_CONF.name}
+                    {getHeadTitle()}
                 </span>
             </div>
         )
         return <Navigator
             logo={logo}
-            menuItems={menuItems}
+            menuItems={operationHeader ? operationMenuItems : menuItems}
             licenseApps={licenseApps}
             {...this.props}
         />

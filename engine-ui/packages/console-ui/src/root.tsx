@@ -11,6 +11,9 @@ import 'ant-design-dtinsight-theme/theme/dt-theme/index.less';
 // Styles
 import './styles/main.scss'
 
+// dt-react-component style
+import 'dt-react-component/lib/style/index.css'
+
 import routers from './routers'
 
 export default class Root extends React.Component<any, any> {

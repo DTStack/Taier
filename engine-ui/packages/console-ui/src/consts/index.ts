@@ -1158,3 +1158,22 @@ export const RESOURCE_TYPE = {
     YARN: 'YARN',
     KUBERNETES: 'Kubernetes'
 }
+
+/** '新增运维中心' */
+export enum APP_TYPE {
+    '离线开发'=1,
+    '数据质量',
+    '数据API',
+    '标签引擎',
+    '分析引擎',
+    '控制台',
+    '实时开发',
+    '数据科学',
+    '数据资产',
+    '指标开发'=10
+}
+
+export const APPS_TYPE = {
+    BATCH: 1,
+    INDEX: 10
+}

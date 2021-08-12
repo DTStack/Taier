@@ -1,6 +1,6 @@
 import 'whatwg-fetch'
 
-import ProgressBar from 'dt-common/src/widgets/progress-bar'
+import { ProgressBar } from 'dt-react-component'
 import { setRequestVersion, catchCustomAction } from 'dt-common/src/funcs'
 
 import HTTP from 'dt-common/src/api/http'

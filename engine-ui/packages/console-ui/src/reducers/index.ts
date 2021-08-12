@@ -7,6 +7,7 @@ import { apps, app, licenseApps } from 'dt-common/src/reducers/modules/apps'
 import { msgList } from 'dt-common/src/reducers/modules/message'
 
 import { testStatus, showRequireStatus } from './modules/cluster';
+import operation from './modules/operation'
 
 // 全局State
 const rootReducer = combineReducers({
@@ -18,7 +19,8 @@ const rootReducer = combineReducers({
     licenseApps,
     consoleUser,
     testStatus,
-    showRequireStatus
+    showRequireStatus,
+    operation
 })
 
 export default rootReducer
