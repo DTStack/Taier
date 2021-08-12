@@ -1,11 +1,16 @@
 import * as React from 'react'
 import { isArray } from 'lodash'
-import { Input, Form, Radio, Select, Checkbox,
-    Tooltip, Row, Col } from 'antd'
-import { COMPONENT_TYPE_VALUE, CONFIG_ITEM_TYPE } from '../const'
-import { getValueByJson, isDeployMode,
-    isRadioLinkage, isCustomType, isMultiVersion,
-    isDtscriptAgent } from '../help'
+import { Input, Form, Radio, Select, Checkbox, Tooltip, Row, Col, Icon } from 'antd'
+import { COMPONENT_TYPE_VALUE, CONFIG_ITEM_TYPE, HOVER_TEXT } from '../const'
+import {
+    getValueByJson,
+    isDeployMode,
+    isRadioLinkage,
+    isCustomType,
+    isMultiVersion,
+    isDtscriptAgent,
+    showHover
+} from '../help'
 import { formItemLayout } from '../../../../consts'
 import CustomParams from './components/customParams'
 import NodeLabel from './components/nodeLabel'
@@ -21,6 +26,7 @@ const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 const Option = Select.Option;
 const CheckboxGroup = Checkbox.Group;
+
 export default class FormConfig extends React.PureComponent<IProps, any> {
     renderOptoinsType = (temp: any) => {
         const { view } = this.props
@@ -79,6 +85,9 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
                 initialValue: initialValue
             })(this.renderOptoinsType(temp))}
             {isDtscriptAgent(typeCode) && <NodeLabel form={form} view={view} clusterInfo={clusterInfo} />}
+            {showHover(typeCode, temp.key) && <Tooltip title={HOVER_TEXT[typeCode]}>
+                <Icon style={{ fontSize: '16px', position: 'absolute', top: 0, right: '-24px' }} type="question-circle" />
+            </Tooltip>}
         </FormItem>
     }
 
@@ -224,6 +233,10 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
                 return this.renderYarnOrHdfsConfig()
             case COMPONENT_TYPE_VALUE.KUBERNETES:
                 return this.renderKubernetsConfig()
+            case COMPONENT_TYPE_VALUE.MYSQL:
+            case COMPONENT_TYPE_VALUE.SQLSERVER:
+            case COMPONENT_TYPE_VALUE.DB2:
+            case COMPONENT_TYPE_VALUE.OCEANBASE:
             case COMPONENT_TYPE_VALUE.SFTP:
             case COMPONENT_TYPE_VALUE.TIDB_SQL:
             case COMPONENT_TYPE_VALUE.LIBRA_SQL:

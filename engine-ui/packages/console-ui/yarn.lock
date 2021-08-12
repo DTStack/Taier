@@ -4677,10 +4677,10 @@ draft-js@^0.10.0, draft-js@~0.10.0:
     immutable "~3.7.4"
     object-assign "^4.1.0"
 
-dt-common@4.9.2-temp:
-  version "4.9.2-temp"
-  resolved "http://registry.npm.dtstack.com/dt-common/-/dt-common-4.9.2-temp.tgz#8382eebb57155e6add12a8ef0f3fd85f9757db03"
-  integrity sha512-/KYHpnWxhaMM0N5m1FHTSXpRkZmYBKnNZqXtxt9dTREx8RRHnBGnuKX9mT6mT517Qk+87Aeu/qo4tkrdEyUhOw==
+dt-common@4.9.4-temp:
+  version "4.9.4-temp"
+  resolved "http://registry.npm.dtstack.com/dt-common/-/dt-common-4.9.4-temp.tgz#389b4d06318b3659f5a34b21e8b207b11c428b48"
+  integrity sha512-8p7NPnPhYW0gi/fzouHhxIKiXiB1ek6tjV3gOSaxdt308rKADYrNle9tFS82FQL7+YyoSMOqsmGkWfR1TMMBKw==
   dependencies:
     "@babel/core" "^7.7.7"
     "@babel/plugin-proposal-class-properties" "^7.1.0"

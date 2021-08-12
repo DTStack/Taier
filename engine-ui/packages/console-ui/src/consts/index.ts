@@ -349,7 +349,11 @@ export const ENGINE_TYPE = {
     PRESTO: 7,
     FLINK_ON_STANDALONE: 8,
     ANALYTIC_DB: 9,
-    KUBERNETES: 'Kubernetes'
+    KUBERNETES: 'Kubernetes',
+    MYSQL: 10,
+    SQLSERVER: 11,
+    DB2: 12,
+    OCEANBASE: 13
 }
 export const ENGINE_TYPE_NAME = {
     HADOOP: 'Hadoop',
@@ -369,7 +373,11 @@ export const ENGIN_TYPE_TEXT = {
     [ENGINE_TYPE.GREEN_PLUM]: 'Greenplum',
     [ENGINE_TYPE.PRESTO]: 'Presto',
     [ENGINE_TYPE.ANALYTIC_DB]: 'AnalyticDB PostgreSQL',
-    [ENGINE_TYPE.FLINK_ON_STANDALONE]: 'Flink on Standalone'
+    [ENGINE_TYPE.FLINK_ON_STANDALONE]: 'Flink on Standalone',
+    [ENGINE_TYPE.MYSQL]: 'MySQL',
+    [ENGINE_TYPE.SQLSERVER]: 'SQLServer',
+    [ENGINE_TYPE.DB2]: 'DB2',
+    [ENGINE_TYPE.OCEANBASE]: 'OceanBase'
 }
 
 export const ENGINE_TYPE_ARRAY = [{ // 引擎类型下拉框数据
