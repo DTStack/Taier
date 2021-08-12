@@ -15,18 +15,7 @@ LS_LIB_DIR=$CMD_HOME/lib
 COMPONENT=$1
 echo 'start component is' $COMPONENT
 
-if [ "$COMPONENT" = "master" ] ; then
-  ENTRY_POINT_CLASS='com.dtstack.engine.master.MasterMain'
-  LIB=`ls $LS_LIB_DIR/ |grep engine-master`
-elif [ "$COMPONENT" = "worker" ] ; then
-  ENTRY_POINT_CLASS='com.dtstack.engine.worker.WorkerMain'
-  LIB=`ls $LS_LIB_DIR/ |grep engine-worker`
-else
-  ENTRY_POINT_CLASS='com.dtstack.engine.entrance.EngineMain'
-  LIB=`ls $LS_LIB_DIR/ |grep engine-entrance`
-fi
-echo 'exec java MainClass is' $ENTRY_POINT_CLASS   ' LIB is' $LIB.
-
+ENTRY_POINT_CLASS='com.dtstack.batch.EngineApplication'
 
 unset CDPATH
 export basedir=$(cd `dirname $0`/..; pwd)
@@ -43,14 +32,10 @@ JAVA_OPTS="$JAVA_OPTS -XX:HeapDumpPath=../logs/heapdump.hprof"
 
 JAVA_OPTS="$JAVA_OPTS -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=4547 -XX:-OmitStackTraceInFastThrow"
 
-#-XX:MaxDirectMemorySize=16M According to owner memory
 JAVA_OPTS="$JAVA_OPTS -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:+HeapDumpOnOutOfMemoryError -XX:+DisableExplicitGC -Dfile.encoding=UTF-8 -Djna.nosys=true -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps"
 
 JAVA_OPTS="$JAVA_OPTS -Djava.security.policy=$LS_CONF_DIR/java.policy"
 
 JAVA_OPTS="$JAVA_OPTS -Djava.io.tmpdir=./tmpSave"
 
-#Comment to speed up starting time
-#JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
-
-exec java $JAVA_OPTS -cp $basedir/lib/$LIB $ENTRY_POINT_CLASS "$@"
+exec java $JAVA_OPTS -cp $basedir/lib/* $ENTRY_POINT_CLASS "$@"

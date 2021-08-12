@@ -8,8 +8,10 @@ import com.dtstack.engine.common.logstore.LogStoreFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
@@ -20,6 +22,7 @@ import java.util.concurrent.TimeUnit;
  * Created by sishu.yss on 2018/2/26.
  */
 @Component
+@DependsOn("environmentContext")
 public class TaskLogStoreDealer implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskLogStoreDealer.class);
@@ -28,12 +31,13 @@ public class TaskLogStoreDealer implements Runnable {
 
     private AbstractLogStore logStore;
     private ScheduledExecutorService scheduledService;
-    private Map<String, String> dbConfig = new HashMap<>(3);
+    private Map<String, String> dbConfig = new HashMap<>();
 
     @Autowired
     private EnvironmentContext environmentContext;
 
-    public TaskLogStoreDealer() {
+    @PostConstruct
+    public void init() {
         dbConfig.put(ConfigConstant.JDBCURL, environmentContext.getJdbcUrl());
         dbConfig.put(ConfigConstant.USERNAME, environmentContext.getJdbcUser());
         dbConfig.put(ConfigConstant.PASSWORD, environmentContext.getJdbcPassword());

@@ -15,7 +15,7 @@ import java.io.File;
 /**
  * @author sishu.yss
  */
-@Component
+@Component("environmentContext")
 @PropertySource(value = "file:${user.dir.conf}/application.properties")
 @Data
 public class EnvironmentContext {

@@ -83,18 +83,10 @@ public class BatchCatalogueService {
     private ProjectService projectService;
 
     @Autowired
-    private RedLock initProjectCatalogueLock;
-
-    @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
     @Autowired
     private TenantService tenantService;
-
-    @PostConstruct
-    public void init() {
-        initProjectCatalogueLock = new RedLock(stringRedisTemplate).init("initProjectCatalogueLock");
-    }
 
     private static List<String> FUNCTION_MANAGER = Lists.newArrayList("函数管理");
 
@@ -318,34 +310,24 @@ public class BatchCatalogueService {
      * @param userId
      */
     public void initProjectCatalogue(Long tenantId, Long userId) {
-        Boolean acquire = null;
         try {
-            acquire = initProjectCatalogueLock.acquire(3000);
-            if (Objects.nonNull(acquire) && acquire) {
-                // 检测根目录是否存在
-                BatchCatalogue projectRoot = batchCatalogueDao.getProjectRoot(tenantId, RdosBatchCatalogueTypeEnum.PROJECT.getType());
-                if (projectRoot ==null){
-                    BatchCatalogue batchCatalogue = new BatchCatalogue();
-                    batchCatalogue.setNodeName(PROJECT_ROOT_DEFAULT_NAME);
-                    batchCatalogue.setNodePid(DEFAULT_NODE_PID);
-                    batchCatalogue.setProjectId(-1L);
-                    batchCatalogue.setOrderVal(0);
-                    batchCatalogue.setEngineType(-1);
-                    batchCatalogue.setLevel(CatalogueLevel.ONE.getLevel());
-                    batchCatalogue.setTenantId(tenantId);
-                    batchCatalogue.setCreateUserId(userId);
-                    batchCatalogue.setCatalogueType(RdosBatchCatalogueTypeEnum.PROJECT.getType());
-                    addOrUpdate(batchCatalogue);
-                }
+            // 检测根目录是否存在
+            BatchCatalogue projectRoot = batchCatalogueDao.getProjectRoot(tenantId, RdosBatchCatalogueTypeEnum.PROJECT.getType());
+            if (projectRoot ==null){
+                BatchCatalogue batchCatalogue = new BatchCatalogue();
+                batchCatalogue.setNodeName(PROJECT_ROOT_DEFAULT_NAME);
+                batchCatalogue.setNodePid(DEFAULT_NODE_PID);
+                batchCatalogue.setProjectId(-1L);
+                batchCatalogue.setOrderVal(0);
+                batchCatalogue.setEngineType(-1);
+                batchCatalogue.setLevel(CatalogueLevel.ONE.getLevel());
+                batchCatalogue.setTenantId(tenantId);
+                batchCatalogue.setCreateUserId(userId);
+                batchCatalogue.setCatalogueType(RdosBatchCatalogueTypeEnum.PROJECT.getType());
+                addOrUpdate(batchCatalogue);
             }
         } catch (Exception e) {
             logger.info("initProjectRootCatalogue {} acquire error", tenantId, e);
-        } finally {
-            try {
-                initProjectCatalogueLock.release();
-            } catch (Exception e) {
-                logger.info("initProjectRootCatalogue {} release error", tenantId, e);
-            }
         }
     }
 
