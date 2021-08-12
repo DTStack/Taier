@@ -115,7 +115,7 @@ public class ErrorTopCron implements InitializingBean {
     private void deleteErrorTop30(Long uicTenantId, Long projectId) {
         DateTime dateTime = new DateTime(DateUtil.getTodayStart(System.currentTimeMillis(), "MS"));
         DateTime yesterdayDate = dateTime.minusDays(30);
-        scheduleJobFailedDao.deleteByGmtCreate(uicTenantId,projectId,yesterdayDate.toDate());
+        scheduleJobFailedDao.deleteByGmtCreate(AppType.RDOS.getType(),uicTenantId,projectId,yesterdayDate.toDate());
     }
 
     private void addErrorTop(Long uicTenantId, Long projectId,DateTime dateTime) {
@@ -154,28 +154,28 @@ public class ErrorTopCron implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         try {
-            if(!environmentContext.getOpenErrorTop()){
+            if (!environmentContext.getOpenErrorTop()) {
                 return;
             }
 
-            Integer count = scheduleDictDao.update(CODE, NAME, "true","false");
+            Integer count = scheduleDictDao.update(CODE, NAME, "true", "false");
 
             if (count > 0) {
                 // 初始化前30天的数据
                 findTenantAndProject((uicTenantId, projectId) -> {
                     DateTime dateTime = new DateTime(DateUtil.getTodayStart(System.currentTimeMillis(), "MS"));
-                    for (int i = 0;i < DAY_COUNT ; i++) {
+                    for (int i = 0; i < DAY_COUNT; i++) {
                         try {
-                            addErrorTop(uicTenantId,projectId,dateTime);
+                            addErrorTop(uicTenantId, projectId, dateTime);
                             dateTime = dateTime.minusDays(1);
                         } catch (Exception e) {
-                            LOGGER.error("",e);
+                            LOGGER.error("", e);
                         }
                     }
                 });
             }
         } catch (Exception e) {
-            LOGGER.error("",e);
+            LOGGER.error("", e);
         }
     }
 

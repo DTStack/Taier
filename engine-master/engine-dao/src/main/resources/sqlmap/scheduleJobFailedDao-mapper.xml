@@ -19,7 +19,7 @@
             AND uic_tenant_id = #{dtuicTenantId}
         </if>
         and gmt_create >= #{timeTo}
-        group by bj.task_id
+        group by task_id
     </select>
 
     <insert id="insertBatch">
@@ -39,7 +39,7 @@
         DELETE FROM schedule_job_failed
         WHERE
         app_type = #{appType}
-        AND uic_tenant_id = #{dtuicTenantId}
+        AND uic_tenant_id = #{uicTenantId}
         AND project_id = #{projectId}
         AND gmt_create &lt;= #{toDate}
     </delete>

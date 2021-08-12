@@ -348,7 +348,12 @@ public class ScheduleJobService {
             Timestamp timeTo = new Timestamp(DateUtil.getLastDay(30));
             List<JobTopErrorVO> jobTopErrorVOSTo = scheduleJobFailedDao.listTopError(appType, dtuicTenantId, projectId, timeTo);
             List<JobTopErrorVO> merge = merge(jobTopErrorVOS, jobTopErrorVOSTo);
-            return merge.stream().sorted(Comparator.comparing(JobTopErrorVO::getErrorCount).reversed()).collect(Collectors.toList()).subList(0, 9);
+            List<JobTopErrorVO> result = merge.stream().sorted(Comparator.comparing(JobTopErrorVO::getErrorCount).reversed()).collect(Collectors.toList());
+
+            if (result.size()>10) {
+                return result.subList(0,9);
+            }
+            return result;
         } else {
             // 查询当天任务排名
             Timestamp time = new Timestamp(DateUtil.getLastDay(30));
@@ -379,6 +384,7 @@ public class ScheduleJobService {
              jobTopVO = new JobTopErrorVO();
         }
         int errorCount = jobTopVO.getErrorCount();
+        jobTopVO.setTaskId(taskId);
         jobTopVO.setErrorCount(errorCount+jobTopErrorVO.getErrorCount());
         totalMaps.put(taskId,jobTopVO);
     }

@@ -24,7 +24,8 @@ public interface ScheduleJobFailedDao {
 
     Integer insertBatch(@Param("scheduleJobFaileds") List<ScheduleJobFailed> scheduleJobFaileds);
 
-    Integer deleteByGmtCreate(@Param("uicTenantId") Long uicTenantId,
+    Integer deleteByGmtCreate(@Param("appType") Integer appType,
+                              @Param("uicTenantId") Long uicTenantId,
                               @Param("projectId") Long projectId,
                               @Param("toDate") Date toDate);
 }
