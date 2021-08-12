@@ -204,6 +204,7 @@
           AND cdt.dt_uic_tenant_id = #{uicTenantId}
           AND cc.is_deleted = 0
     </select>
+
     <select id="getDefaultVersionDictNameByUicIdAndComponentType" resultType="java.lang.String">
         select sd.dict_name
         from console_component cc

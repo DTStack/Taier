@@ -15,13 +15,14 @@ import java.util.List;
  */
 public interface ScheduleFillDataJobDao {
 
-    ScheduleFillDataJob getByJobName(@Param("jobName") String jobName, @Param("projectId") long projectId);
+    ScheduleFillDataJob getByJobName(@Param("jobName") String jobName, @Param("projectId") Long projectId);
 
     Integer insert(ScheduleFillDataJob fillDataJob);
 
     List<ScheduleFillDataJob> listFillJob(@Param("nameList") List<String> nameList, @Param("projectId") long projectId);
 
-    List<ScheduleFillDataJob> getFillJobList(@Param("fillIdList") List<Long> fillIdList, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId);
-
     List<ScheduleFillDataJob> listFillJobByPageQuery( PageQuery<ScheduleJobDTO> pageQuery);
+
+    List<ScheduleFillDataJob> getFillJobList(@Param("fillIdList") List<Long> fillIdList, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId,@Param("dtuicTenantId") Long dtuicTenantId);
+
 }

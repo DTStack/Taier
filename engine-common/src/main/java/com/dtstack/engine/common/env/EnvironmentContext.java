@@ -550,6 +550,11 @@ public class EnvironmentContext {
         return Boolean.parseBoolean(environment.getProperty("job.schedule", "true"));
     }
 
+
+    public long getForkJoinResultTimeOut() {
+        return Long.parseLong(environment.getProperty("fork.join.timeout", Long.toString(60 * 5)));
+    }
+
     public boolean getKeepAlive() {
         return Boolean.parseBoolean(environment.getProperty("dataSource.keep.alive", "true"));
     }
@@ -583,9 +588,9 @@ public class EnvironmentContext {
         return Integer.valueOf(environment.getProperty("dataSource.max.prepared.statement.per.connection.size", "20"));
     }
 
-    public long getForkJoinResultTimeOut() {
-        return Long.parseLong(environment.getProperty("fork.join.timeout", Long.toString(60L * 5)));
-    }
+//    public long getForkJoinResultTimeOut() {
+//        return Long.parseLong(environment.getProperty("fork.join.timeout", Long.toString(60 * 5)));
+//    }
     /**
      * 是否根据版本加载默认的配置
      *

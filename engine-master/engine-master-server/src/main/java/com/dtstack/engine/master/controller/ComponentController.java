@@ -1,7 +1,6 @@
 package com.dtstack.engine.master.controller;
 
 import com.dtstack.engine.api.domain.Component;
-import com.dtstack.engine.api.domain.ComponentUser;
 import com.dtstack.engine.api.domain.KerberosConfig;
 import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
@@ -10,7 +9,9 @@ import com.dtstack.engine.api.pojo.lineage.ComponentMultiTestResult;
 import com.dtstack.engine.api.vo.ComponentUserVO;
 import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
 import com.dtstack.engine.api.vo.components.ComponentsResultVO;
+import com.dtstack.engine.api.vo.task.TaskGetSupportJobTypesResultVO;
 import com.dtstack.engine.master.impl.ComponentService;
+import com.dtstack.engine.master.router.DtParamOrHeader;
 import com.dtstack.engine.master.router.DtRequestParam;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -18,7 +19,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;
@@ -123,6 +123,12 @@ public class ComponentController {
         return componentService.isYarnSupportGpus(clusterName);
     }
 
+    @RequestMapping(value="/getSupportJobTypes", method = {RequestMethod.POST})
+    public List<TaskGetSupportJobTypesResultVO>  getSupportJobTypes(@DtRequestParam("appType") Integer appType,
+                                                              @DtRequestParam("projectId") Long projectId,
+                                                              @DtParamOrHeader(value = "dtuicTenantId",header = "cookie",cookie = "dt_tenant_id") Long dtuicTenantId) {
+        return componentService.getSupportJobTypes(appType, projectId, dtuicTenantId);
+    }
 
     @RequestMapping(value="/getDtScriptAgentLabel", method = {RequestMethod.POST})
     @ApiOperation(value = "获取dtScript agent label信息")

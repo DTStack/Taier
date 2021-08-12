@@ -5,6 +5,7 @@ import com.dtstack.engine.api.vo.project.NotDeleteProjectVO;
 import com.dtstack.engine.api.vo.project.ScheduleEngineProjectVO;
 import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
 import com.dtstack.engine.master.impl.ProjectService;
+import com.dtstack.engine.master.router.DtParamOrHeader;
 import com.dtstack.engine.master.router.DtRequestParam;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,8 +55,11 @@ public class ProjectController {
     }
 
     @RequestMapping(value = "/findFuzzyProjectByProjectAlias", method = {RequestMethod.POST})
-    public List<ScheduleEngineProjectVO> findFuzzyProjectByProjectAlias(@DtRequestParam("name") String name, @DtRequestParam("appType") Integer appType, @DtRequestParam("uicTenantId") Long uicTenantId) {
-        return projectService.findFuzzyProjectByProjectAlias(name,appType,uicTenantId);
+    public List<ScheduleEngineProjectVO> findFuzzyProjectByProjectAlias(@DtRequestParam("name") String name,
+                                                                        @DtRequestParam("appType") Integer appType,
+                                                                        @DtParamOrHeader(value = "uicTenantId", header = "cookie", cookie = "dt_tenant_id") Long uicTenantId,
+                                                                        @DtRequestParam("projectId") Long projectId ) {
+        return projectService.findFuzzyProjectByProjectAlias(name, appType, uicTenantId,projectId);
     }
 
 }

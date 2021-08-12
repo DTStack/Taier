@@ -528,7 +528,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
             //补数据
             scheduleJobService.fillTaskData("[{\"task\":471}]",fillName, runDay,toDay,null,null,projectId,userId,tenant, true,appType,dtuicTenantId,false);
             //查询工作流外部
-            PageResult<List<ScheduleFillDataJobPreViewVO>> fillDataJobInfoPreview = scheduleJobService.getFillDataJobInfoPreview("", null, null, null, null, projectId, appType, 1, 20, tenant);
+            PageResult<List<ScheduleFillDataJobPreViewVO>> fillDataJobInfoPreview = scheduleJobService.getFillDataJobInfoPreview("", null, null, null, null, projectId, appType, 1, 20, tenant,null);
             Assert.assertNotNull(fillDataJobInfoPreview);
             Assert.assertNotNull(fillDataJobInfoPreview.getData());
             Assert.assertTrue(fillDataJobInfoPreview.getData().stream().anyMatch(f -> f.getFillDataJobName().contains(fillName)));
@@ -841,6 +841,12 @@ public class ScheduleJobServiceTest extends AbstractTest {
         ScheduleBatchJob scheduleBatchJob = new ScheduleBatchJob(scheduleJobTemplate);
         scheduleJobService.insertJobList(Lists.newArrayList(scheduleBatchJob), EScheduleType.NORMAL_SCHEDULE.getType());
         scheduleJobService.sendTaskStartTrigger(scheduleJobTemplate);
+        try {
+            ScheduleJob job = DataCollection.getData().getScheduleJobVirtual();
+            scheduleJobService.sendTaskStartTrigger(job);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 

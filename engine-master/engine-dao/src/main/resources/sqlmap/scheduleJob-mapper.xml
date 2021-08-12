@@ -28,6 +28,9 @@
             <if test="model.tenantId != null">
                 AND bj.tenant_id = #{model.tenantId}
             </if>
+            <if test="model.dtuicTenantId != null and model.dtuicTenantId!=0">
+                AND bj.dtuic_tenant_id = #{model.dtuicTenantId}
+            </if>
             <if test="model.projectId != null and model.projectId != -1">
                 AND bj.project_id = #{model.projectId}
             </if>
@@ -248,6 +251,9 @@
             </if>
             <if test="model.tenantId != null">
                 AND tenant_id = #{model.tenantId}
+            </if>
+            <if test="model.dtuicTenantId != null and model.dtuicTenantId!=0">
+                AND dtuic_tenant_id = #{model.dtuicTenantId}
             </if>
             <if test="model.projectId != null">
                 AND project_id = #{model.projectId}
