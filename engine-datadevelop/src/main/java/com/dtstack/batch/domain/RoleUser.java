@@ -1,6 +1,8 @@
 package com.dtstack.batch.domain;
 
 
+import com.dtstack.engine.api.domain.TenantProjectEntity;
+import com.dtstack.engine.api.domain.User;
 import lombok.Data;
 
 /**

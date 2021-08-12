@@ -7,8 +7,8 @@ import com.dtstack.batch.dao.RoleUserDao;
 import com.dtstack.batch.dao.po.TaskOwnerAndProjectPO;
 import com.dtstack.batch.domain.Role;
 import com.dtstack.batch.domain.RoleUser;
-import com.dtstack.batch.domain.Tenant;
-import com.dtstack.batch.domain.User;
+import com.dtstack.engine.api.domain.Tenant;
+import com.dtstack.engine.api.domain.User;
 import com.dtstack.batch.service.auth.IAuthService;
 import com.dtstack.batch.service.task.impl.BatchTaskService;
 import com.dtstack.batch.service.uic.impl.UicUserApiClient;
@@ -42,8 +42,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.stream.Collectors.toCollection;
 
 
 /**

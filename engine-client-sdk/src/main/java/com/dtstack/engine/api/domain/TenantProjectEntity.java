@@ -1,30 +1,26 @@
 package com.dtstack.engine.api.domain;
 
-import io.swagger.annotations.ApiModel;
 
+import lombok.Data;
 
-@ApiModel
+/**
+ * @author sishu.yss
+ */
+@Data
 public class TenantProjectEntity extends BaseEntity {
 
-
-    private Long tenantId;
+    private Long tenantTenantProjectEntityId;
 
     private Long projectId;
 
-    public Long getTenantId() {
-        return tenantId;
-    }
+    private Long dtuicTenantId;
 
-    public void setTenantId(Long tenantId) {
-        this.tenantId = tenantId;
-    }
+    private Long tenantId;
 
-    public Long getProjectId() {
-        return projectId;
-    }
+    /**
+     * RDOS(1), DQ(2), API(3), TAG(4), MAP(5), CONSOLE(6), STREAM(7), DATASCIENCE(8)
+     */
+    private Integer appType;
 
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
-    }
 
 }

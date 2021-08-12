@@ -7,7 +7,7 @@ import com.dtstack.batch.dao.TenantDao;
 import com.dtstack.batch.domain.Project;
 import com.dtstack.batch.domain.ProjectEngine;
 import com.dtstack.batch.domain.RoleUser;
-import com.dtstack.batch.domain.Tenant;
+import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.batch.mapping.TableTypeEngineTypeMapping;
 import com.dtstack.dtcenter.common.annotation.Forbidden;
 import com.dtstack.dtcenter.common.enums.MultiEngineType;

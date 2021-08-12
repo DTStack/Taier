@@ -1,7 +1,7 @@
 package com.dtstack.batch.vo;
 
 import com.dtstack.batch.domain.BatchScript;
-import com.dtstack.batch.domain.User;
+import com.dtstack.engine.api.domain.User;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

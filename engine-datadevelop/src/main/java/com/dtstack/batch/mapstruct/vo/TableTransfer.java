@@ -1,10 +1,10 @@
 package com.dtstack.batch.mapstruct.vo;
 
 
-import com.dtstack.batch.domain.BatchDataSource;
+import com.dtstack.engine.api.domain.BatchDataSource;
 import com.dtstack.batch.domain.BatchEngineSqlTemplate;
 import com.dtstack.batch.domain.BatchTableInfo;
-import com.dtstack.batch.domain.po.StorageSizePO;
+import com.dtstack.engine.api.domain.po.StorageSizePO;
 import com.dtstack.batch.engine.rdbms.common.dto.ColumnDTO;
 import com.dtstack.batch.engine.rdbms.common.dto.TableDTO;
 import com.dtstack.batch.vo.*;

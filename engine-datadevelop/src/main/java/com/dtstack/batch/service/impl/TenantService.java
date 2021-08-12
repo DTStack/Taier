@@ -1,32 +1,21 @@
 package com.dtstack.batch.service.impl;
 
-import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.batch.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.TenantDao;
-import com.dtstack.batch.domain.Tenant;
-import com.dtstack.batch.enums.ProductCodeEnum;
+import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.batch.service.uic.impl.UIcUserTenantRelApiClient;
-import com.dtstack.batch.service.uic.impl.UicUserApiClient;
 import com.dtstack.batch.service.uic.impl.domain.TenantUsersVO;
-import com.dtstack.batch.vo.TenantVO;
 import com.dtstack.dtcenter.common.enums.EComponentType;
-import com.dtstack.dtcenter.common.login.DtUicUserConnect;
-import com.dtstack.dtcenter.common.login.domain.UserTenant;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author sishu.yss

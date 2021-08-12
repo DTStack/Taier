@@ -1,6 +1,7 @@
 package com.dtstack.batch.domain;
 
 import com.dtstack.batch.common.enums.TempJobType;
+import com.dtstack.engine.api.domain.TenantProjectEntity;
 import com.google.common.base.Charsets;
 import lombok.Data;
 

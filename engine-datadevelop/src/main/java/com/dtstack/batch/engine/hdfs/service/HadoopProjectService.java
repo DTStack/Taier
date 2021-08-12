@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.batch.common.enums.ETableType;
 import com.dtstack.batch.common.enums.ProjectCreateModel;
 import com.dtstack.batch.common.exception.RdosDefineException;
-import com.dtstack.batch.domain.User;
+import com.dtstack.engine.api.domain.User;
 import com.dtstack.batch.engine.core.service.MultiEngineService;
 import com.dtstack.batch.engine.rdbms.common.HadoopConf;
 import com.dtstack.batch.engine.rdbms.service.IJdbcService;
@@ -18,11 +18,9 @@ import com.dtstack.batch.vo.ProjectEngineVO;
 import com.dtstack.dtcenter.common.annotation.Forbidden;
 import com.dtstack.dtcenter.common.engine.JdbcInfo;
 import com.dtstack.dtcenter.common.enums.MultiEngineType;
-import com.dtstack.dtcenter.common.thread.RdosThreadFactory;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.google.common.collect.Lists;
 import com.jcraft.jsch.SftpException;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,10 +31,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * hadoop集群项目相关的操作

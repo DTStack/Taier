@@ -1,6 +1,6 @@
 package com.dtstack.batch.dao;
 
-import com.dtstack.batch.domain.User;
+import com.dtstack.engine.api.domain.User;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
 

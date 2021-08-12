@@ -5,7 +5,7 @@ import com.dtstack.batch.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.RoleUserDao;
 import com.dtstack.batch.dao.UserDao;
 import com.dtstack.batch.domain.RoleUser;
-import com.dtstack.batch.domain.User;
+import com.dtstack.engine.api.domain.User;
 import com.dtstack.batch.mapstruct.vo.UserMapstructTransfer;
 import com.dtstack.batch.service.uic.impl.domain.TenantUsersVO;
 import com.dtstack.batch.vo.UserVO;

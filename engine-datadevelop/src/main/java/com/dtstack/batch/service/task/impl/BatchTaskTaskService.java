@@ -2,7 +2,7 @@ package com.dtstack.batch.service.task.impl;
 
 import com.dtstack.batch.dao.BatchTaskDao;
 import com.dtstack.batch.dao.BatchTaskTaskDao;
-import com.dtstack.batch.domain.BatchTask;
+import com.dtstack.engine.api.domain.BatchTask;
 import com.dtstack.batch.domain.BatchTaskTask;
 import com.dtstack.batch.domain.Project;
 import com.dtstack.batch.service.impl.ProjectService;

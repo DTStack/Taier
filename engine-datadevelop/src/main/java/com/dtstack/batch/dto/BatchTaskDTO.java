@@ -1,7 +1,7 @@
 package com.dtstack.batch.dto;
 
 
-import com.dtstack.batch.domain.BatchTask;
+import com.dtstack.engine.api.domain.BatchTask;
 import lombok.Data;
 
 import java.sql.Timestamp;

@@ -1,6 +1,6 @@
 package com.dtstack.batch.dto;
 
-import com.dtstack.batch.domain.BaseEntity;
+import com.dtstack.engine.api.domain.BaseEntity;
 import lombok.Data;
 
 /**

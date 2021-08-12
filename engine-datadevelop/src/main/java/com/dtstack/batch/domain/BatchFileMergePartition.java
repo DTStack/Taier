@@ -1,5 +1,7 @@
 package com.dtstack.batch.domain;
 
+import com.dtstack.engine.api.domain.TenantProjectEntity;
+
 import java.sql.Timestamp;
 
 /**

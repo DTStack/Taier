@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.dtstack.batch.bo.ExecuteContent;
+import com.dtstack.engine.api.domain.BatchDataSource;
+import com.dtstack.engine.api.domain.BatchTask;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.batch.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.ProjectEngineDao;

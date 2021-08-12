@@ -2,7 +2,7 @@ package com.dtstack.batch.mapstruct.vo;
 
 import com.dtstack.batch.domain.BatchResource;
 import com.dtstack.batch.domain.BatchSysParameter;
-import com.dtstack.batch.domain.BatchTask;
+import com.dtstack.engine.api.domain.BatchTask;
 import com.dtstack.batch.domain.BatchTaskVersionDetail;
 import com.dtstack.batch.vo.*;
 import com.dtstack.batch.web.task.vo.query.*;

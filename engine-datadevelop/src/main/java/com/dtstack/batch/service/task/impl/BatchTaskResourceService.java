@@ -4,7 +4,7 @@ import com.dtstack.batch.common.exception.ErrorCode;
 import com.dtstack.batch.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.BatchTaskResourceDao;
 import com.dtstack.batch.domain.BatchResource;
-import com.dtstack.batch.domain.BatchTask;
+import com.dtstack.engine.api.domain.BatchTask;
 import com.dtstack.batch.domain.BatchTaskResource;
 import com.dtstack.batch.service.impl.BatchResourceService;
 import com.google.common.collect.Lists;

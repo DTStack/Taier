@@ -1,5 +1,6 @@
 package com.dtstack.batch.domain;
 
+import com.dtstack.engine.api.domain.TenantProjectEntity;
 import lombok.Data;
 
 /**
@@ -8,7 +9,7 @@ import lombok.Data;
  * create: 2017/7/5
  */
 @Data
-public class BatchTableActionRecord extends TenantProjectEntity{
+public class BatchTableActionRecord extends TenantProjectEntity {
 
     private Long tableId;
 

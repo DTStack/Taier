@@ -9,7 +9,7 @@ import com.dtstack.batch.engine.rdbms.service.impl.Engine2DTOService;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.batch.common.exception.ErrorCode;
 import com.dtstack.batch.common.exception.RdosDefineException;
-import com.dtstack.batch.domain.BatchTask;
+import com.dtstack.engine.api.domain.BatchTask;
 import com.dtstack.batch.domain.BatchTaskParamShade;
 import com.dtstack.batch.domain.BatchTaskVersionDetail;
 import com.dtstack.batch.engine.rdbms.common.util.SqlFormatterUtil;

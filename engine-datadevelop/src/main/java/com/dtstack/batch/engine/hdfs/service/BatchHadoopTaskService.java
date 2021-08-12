@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.batch.common.exception.RdosDefineException;
-import com.dtstack.batch.domain.BatchTask;
+import com.dtstack.engine.api.domain.BatchTask;
 import com.dtstack.batch.engine.rdbms.common.HadoopConf;
 import com.dtstack.batch.engine.rdbms.common.HdfsOperator;
 import com.dtstack.batch.enums.TaskOperateType;

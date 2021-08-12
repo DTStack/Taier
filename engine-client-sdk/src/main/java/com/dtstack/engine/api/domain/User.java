@@ -20,6 +20,8 @@ public class User extends BaseEntity {
 
     private Integer status;
 
+    private Long defaultProjectId;
+
     public String getUserName() {
         return userName;
     }
@@ -60,4 +62,11 @@ public class User extends BaseEntity {
         this.status = status;
     }
 
+    public Long getDefaultProjectId() {
+        return defaultProjectId;
+    }
+
+    public void setDefaultProjectId(Long defaultProjectId) {
+        this.defaultProjectId = defaultProjectId;
+    }
 }

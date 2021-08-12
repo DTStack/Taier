@@ -90,7 +90,7 @@
     </select>
 
 
-    <select id="listDtuicTenantIdByTenantId" resultType="com.dtstack.batch.domain.Tenant">
+    <select id="listDtuicTenantIdByTenantId" resultType="com.dtstack.engine.api.domain.Tenant">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_tenant

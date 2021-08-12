@@ -23,6 +23,7 @@ import com.dtstack.dtcenter.common.engine.JdbcInfo;
 import com.dtstack.dtcenter.common.enums.*;
 import com.dtstack.dtcenter.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.common.util.DtStringUtil;
+import com.dtstack.engine.api.domain.BatchTask;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.api.vo.action.ActionJobEntityVO;

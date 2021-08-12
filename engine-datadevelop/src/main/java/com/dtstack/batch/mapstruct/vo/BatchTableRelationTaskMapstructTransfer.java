@@ -1,6 +1,6 @@
 package com.dtstack.batch.mapstruct.vo;
 
-import com.dtstack.batch.domain.BatchTask;
+import com.dtstack.engine.api.domain.BatchTask;
 import com.dtstack.batch.web.table.vo.query.BatchTableRelationTaskVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

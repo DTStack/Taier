@@ -1,6 +1,6 @@
 package com.dtstack.batch.mapstruct.vo;
 
-import com.dtstack.batch.domain.User;
+import com.dtstack.engine.api.domain.User;
 import com.dtstack.batch.web.user.vo.result.BatchGetUserByIdResultVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

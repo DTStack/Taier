@@ -3,8 +3,8 @@ package com.dtstack.batch.vo;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.batch.domain.BatchDataSource;
-import com.dtstack.batch.domain.User;
+import com.dtstack.engine.api.domain.BatchDataSource;
+import com.dtstack.engine.api.domain.User;
 import com.dtstack.dtcenter.common.util.Base64Util;
 import lombok.Data;
 
