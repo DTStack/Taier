@@ -9,6 +9,6 @@ import org.aspectj.lang.annotation.Pointcut;
  */
 public abstract class AbstractAspect {
 
-    @Pointcut(value = "execution(public * com.dtstack..controller..*.*(..))")
+    @Pointcut(value = "execution(public * com.dtstack.engine.datasource..controller..*.*(..))")
     public void pointCut() {}
 }
