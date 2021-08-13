@@ -12,10 +12,10 @@ module.exports = function (env) {
                     parallel: true,
                     terserOptions: {
                         keep_classnames: true,
-                        keep_fnames: true,
-                    },
-                }),
-            ],
-        },
+                        keep_fnames: true
+                    }
+                })
+            ]
+        }
     });
 };
