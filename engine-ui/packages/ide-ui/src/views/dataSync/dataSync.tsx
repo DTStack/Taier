@@ -268,7 +268,7 @@ class DataSync extends React.Component<any, any> {
           targetMap
       } = this.props
 
-      const { readWriteLockVO, syncModel } = currentTabData
+      const { readWriteLockVO, syncModel, notSynced } = currentTabData
 
       const isLocked = readWriteLockVO && !readWriteLockVO.getLock
       const isIncrementMode =
