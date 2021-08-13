@@ -20,7 +20,6 @@ import com.dtstack.batch.service.job.impl.BatchJobService;
 import com.dtstack.batch.service.table.IDataDownloadService;
 import com.dtstack.batch.service.table.impl.BatchSelectSqlService;
 import com.dtstack.dtcenter.common.annotation.Forbidden;
-import com.dtstack.dtcenter.common.engine.ConsoleSend;
 import com.dtstack.dtcenter.common.engine.JdbcInfo;
 import com.dtstack.dtcenter.common.enums.ComputeType;
 import com.dtstack.dtcenter.common.enums.Deleted;
@@ -81,9 +80,6 @@ public class HadoopDataDownloadService implements IDataDownloadService {
 
     @Autowired
     private BatchJobService batchJobService;
-
-    @Autowired
-    private ConsoleSend consoleSend;
 
     @Autowired
     private ScheduleJobService scheduleJobService;
@@ -290,15 +286,15 @@ public class HadoopDataDownloadService implements IDataDownloadService {
     public IDownload getSelectDownLoader(Long dtUicTenantId, Long projectId, List<String> queryFieldNames,
                                          List<String> fieldNamesShow, boolean permissionStyle, boolean needMask,
                                          String db, String tableName, String partition, Integer taskType){
-        Map<String, Object> hadoop = consoleSend.getHdfs(dtUicTenantId);
+        Map<String, Object> hadoop = Engine2DTOService.getHdfs(dtUicTenantId);
         JdbcInfo jdbcInfo = null;
         if (EJobType.HIVE_SQL.getVal().equals(taskType) || EJobType.SPARK_SQL.getVal().equals(taskType)) {
             if (EJobType.HIVE_SQL.getVal().equals(taskType)) {
                 // hiveSql查询，获取hiveServer jdbc配置
-                jdbcInfo = this.consoleSend.getHiveServer(dtUicTenantId);
+                jdbcInfo = Engine2DTOService.getHiveServer(dtUicTenantId);
             } else {
                 // sparkSql查询，获取sparkThrift jdbc配置
-                jdbcInfo = this.consoleSend.getSparkThrift(dtUicTenantId);
+                jdbcInfo = Engine2DTOService.getSparkThrift(dtUicTenantId);
             }
 
             try {
@@ -318,7 +314,7 @@ public class HadoopDataDownloadService implements IDataDownloadService {
 
     public IDownload getDownloader(Long dtuicTenantId, String tableName, String db, List<String> columns,
                                    String partition, Integer dataSourceType){
-        Map<String, Object> hadoop = this.consoleSend.getHdfs(dtuicTenantId);
+        Map<String, Object> hadoop = Engine2DTOService.getHdfs(dtuicTenantId);
         JdbcInfo jdbcInfo = Engine2DTOService.getJdbcInfo(dtuicTenantId, null, DataSourceTypeJobTypeMapping.getTaskTypeByDataSourceType(dataSourceType));
         try {
             return new HiveSelectDownload(hadoop, jdbcInfo, null, null, true, false,
@@ -380,8 +376,8 @@ public class HadoopDataDownloadService implements IDataDownloadService {
         IDownload iDownload = null;
         try {
             iDownload = RetryUtil.executeWithRetry(() -> {
-                 final Map<String, Object> hadoopConf = this.consoleSend.getHdfs(dtuicTenantId);
-                final String clusterConfig = this.consoleSend.getCluster(dtuicTenantId);
+                 final Map<String, Object> hadoopConf = Engine2DTOService.getHdfs(dtuicTenantId);
+                final String clusterConfig = Engine2DTOService.getCluster(dtuicTenantId);
                 Map<String, Object> yarnConf = null;
                 if (StringUtils.isNotBlank(clusterConfig)) {
                     final JSONObject cluster = JSON.parseObject(clusterConfig);
@@ -410,8 +406,8 @@ public class HadoopDataDownloadService implements IDataDownloadService {
         IDownload iDownload = null;
         try {
             iDownload = RetryUtil.executeWithRetry(() -> {
-                final Map<String, Object> hadoopConf = this.consoleSend.getHdfs(dtuicTenantId);
-                final String clusterConfig = this.consoleSend.getCluster(dtuicTenantId);
+                final Map<String, Object> hadoopConf = Engine2DTOService.getHdfs(dtuicTenantId);
+                final String clusterConfig = Engine2DTOService.getCluster(dtuicTenantId);
                 Map<String, Object> yarnConf = null;
                 if (StringUtils.isNotBlank(clusterConfig)) {
                     final JSONObject cluster = JSON.parseObject(clusterConfig);

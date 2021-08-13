@@ -74,6 +74,10 @@
         <appender-ref ref="allAppender" />
     </logger>
 
+    <logger name="com.dtstack.batch" level="info" additivity="false">
+        <appender-ref ref="allAppender" />
+    </logger>
+
     <logger name="com.dtstack.engine.master.listener" level="info" additivity="false">
         <appender-ref ref="zkAppender" />
     </logger>

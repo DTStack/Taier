@@ -15,7 +15,7 @@ import java.io.File;
 /**
  * @author sishu.yss
  */
-@Component
+@Component("environmentContext")
 @PropertySource(value = "file:${user.dir.conf}/application.properties")
 @Data
 public class EnvironmentContext {
@@ -666,9 +666,6 @@ public class EnvironmentContext {
     @Value("${http.port:9020}")
     private Integer httpPort;
 
-//    @Value("${http.address:0.0.0.0}")
-//    private String httpAddress;
-
     @Value("${hadoop.user.name:admin}")
     private String hadoopUserName;
 
@@ -727,28 +724,13 @@ public class EnvironmentContext {
     @Value("${data.keepDay:180}")
     private Long dataKeepDay;
 
-
-    /* datasource */
-
-//    @Value("${dtuic.url}")
-//    private String dtUicUrl;
-
     /**
      * 数据源插件地址
      */
     @Value("${datasource.plugin.path:}")
     private String dataSourcePluginPath;
 
-//    @Value("${kerberos.local.path:}")
-//    private String kerberosLocalPath;
+    @Value("${engine.console.upload.path:${user.dir}/upload}")
+    private String uploadPath;
 
-
-//    @Override
-//    public void afterPropertiesSet() throws Exception {
-//        ClientCache.setUserDir(getDataSourcePluginPath());
-//    }
-
-//    public String getKerberosLocalPath() {
-//        return StringUtils.isNotBlank(kerberosLocalPath) ? kerberosLocalPath : System.getProperty("user.dir") + File.separator + "kerberosConf";
-//    }
 }

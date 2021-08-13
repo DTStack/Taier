@@ -2,6 +2,8 @@ package com.dtstack.batch.service.impl;
 
 import com.dtstack.batch.common.enums.ETableType;
 import com.dtstack.batch.common.enums.ProjectCreateModel;
+import com.dtstack.engine.api.domain.Tenant;
+import com.dtstack.engine.api.domain.User;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.batch.common.exception.ErrorCode;
 import com.dtstack.batch.common.exception.RdosDefineException;
@@ -87,7 +89,7 @@ public class ProjectService {
     @Autowired
     private RoleUserDao roleUserDao;
 
-    @Autowired
+    @Resource(name = "batchUserDao")
     private UserDao userDao;
 
     @Autowired
@@ -126,7 +128,7 @@ public class ProjectService {
     @Resource(name = "multiEngineService")
     private IMultiEngineService multiEngineService;
 
-    @Autowired
+    @Resource(name = "engineTenantService")
     private com.dtstack.engine.master.impl.TenantService engineTenantService;
 
     @Autowired
@@ -135,7 +137,7 @@ public class ProjectService {
     @Autowired
     private EnvironmentContext environmentContext;
 
-    @Autowired
+    @Resource(name = "engineProjectService")
     private com.dtstack.engine.master.impl.ProjectService engineProjectService;
 
     @Autowired

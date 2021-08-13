@@ -1,7 +1,7 @@
 package com.dtstack.batch.mapstruct.vo;
 
 import com.dtstack.batch.domain.Project;
-import com.dtstack.batch.domain.User;
+import com.dtstack.engine.api.domain.User;
 import com.dtstack.batch.service.uic.impl.domain.TenantUsersVO;
 import com.dtstack.batch.vo.*;
 import com.dtstack.batch.web.pager.PageResult;
@@ -11,7 +11,6 @@ import com.dtstack.batch.web.project.vo.result.*;
 import com.dtstack.batch.web.role.vo.result.BatchUserRoleResultVO;
 import com.dtstack.batch.web.table.vo.result.BatchTableTypeResultVO;
 import com.dtstack.batch.web.user.vo.result.BatchUserBaseResultVO;
-import com.dtstack.engine.api.vo.project.ScheduleEngineProjectVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;

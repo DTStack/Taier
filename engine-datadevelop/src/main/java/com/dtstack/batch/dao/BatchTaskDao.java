@@ -1,7 +1,7 @@
 package com.dtstack.batch.dao;
 
 import com.dtstack.batch.dao.po.TaskOwnerAndProjectPO;
-import com.dtstack.batch.domain.BatchTask;
+import com.dtstack.engine.api.domain.BatchTask;
 import com.dtstack.batch.dto.BatchTaskDTO;
 import com.dtstack.batch.web.pager.PageQuery;
 import org.apache.ibatis.annotations.Param;

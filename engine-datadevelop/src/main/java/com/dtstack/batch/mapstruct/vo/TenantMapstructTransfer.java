@@ -1,6 +1,6 @@
 package com.dtstack.batch.mapstruct.vo;
 
-import com.dtstack.batch.domain.Tenant;
+import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.batch.vo.TenantVO;
 import com.dtstack.batch.web.tenant.vo.query.BatchTenantAddOrUpdateVO;
 import com.dtstack.batch.web.tenant.vo.result.TenantResultVO;

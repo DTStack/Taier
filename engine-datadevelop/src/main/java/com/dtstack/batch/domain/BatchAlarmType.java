@@ -1,6 +1,8 @@
 package com.dtstack.batch.domain;
 
 
+import com.dtstack.engine.api.domain.TenantProjectEntity;
+
 public class BatchAlarmType extends TenantProjectEntity {
 
     // 告警规则id

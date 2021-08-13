@@ -5,7 +5,7 @@ import com.dtstack.batch.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.RoleUserDao;
 import com.dtstack.batch.dao.UserDao;
 import com.dtstack.batch.domain.RoleUser;
-import com.dtstack.batch.domain.User;
+import com.dtstack.engine.api.domain.User;
 import com.dtstack.batch.mapstruct.vo.UserMapstructTransfer;
 import com.dtstack.batch.service.uic.impl.domain.TenantUsersVO;
 import com.dtstack.batch.vo.UserVO;
@@ -25,6 +25,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -37,7 +38,7 @@ public class UserService {
 
     private static Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    @Autowired
+    @Resource(name = "batchUserDao")
     private UserDao userDao;
 
     @Autowired

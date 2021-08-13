@@ -5,10 +5,11 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.dtstack.batch.common.convert.BinaryConversion;
+import com.dtstack.batch.engine.rdbms.service.impl.Engine2DTOService;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.batch.common.exception.ErrorCode;
 import com.dtstack.batch.common.exception.RdosDefineException;
-import com.dtstack.batch.domain.BatchTask;
+import com.dtstack.engine.api.domain.BatchTask;
 import com.dtstack.batch.domain.BatchTaskParamShade;
 import com.dtstack.batch.domain.BatchTaskVersionDetail;
 import com.dtstack.batch.engine.rdbms.common.util.SqlFormatterUtil;
@@ -23,7 +24,6 @@ import com.dtstack.batch.vo.BatchServerLogVO;
 import com.dtstack.batch.vo.SyncErrorCountInfoVO;
 import com.dtstack.batch.vo.SyncStatusLogInfoVO;
 import com.dtstack.batch.web.server.vo.result.BatchServerLogByAppLogTypeResultVO;
-import com.dtstack.dtcenter.common.engine.ConsoleSend;
 import com.dtstack.dtcenter.common.enums.*;
 import com.dtstack.dtcenter.common.util.Base64Util;
 import com.dtstack.dtcenter.common.util.DataFilter;
@@ -36,6 +36,7 @@ import com.dtstack.engine.api.vo.action.ActionLogVO;
 import com.dtstack.engine.api.vo.action.ActionRetryLogVO;
 import com.dtstack.engine.master.impl.ActionService;
 import com.dtstack.engine.master.impl.ClusterService;
+import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import com.dtstack.schedule.common.metric.batch.IMetric;
 import com.dtstack.schedule.common.metric.batch.MetricBuilder;
@@ -52,6 +53,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -60,7 +62,7 @@ public class BatchServerLogService {
 
     private static final Logger logger = LoggerFactory.getLogger(BatchServerLogService.class);
 
-    @Autowired
+    @Resource(name = "batchJobParamReplace")
     private JobParamReplace jobParamReplace;
 
     @Autowired
@@ -74,9 +76,6 @@ public class BatchServerLogService {
 
     @Autowired
     private BatchTaskVersionService batchTaskVersionService;
-
-    @Autowired
-    private ConsoleSend consoleSend;
 
     @Autowired
     private com.dtstack.engine.master.impl.ScheduleJobService ScheduleJobService;
@@ -95,6 +94,9 @@ public class BatchServerLogService {
 
     @Autowired
     private ClusterService clusterService;
+
+    @Autowired
+    private ComponentService componentService;
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -355,7 +357,7 @@ public class BatchServerLogService {
         }
         try {
             final DeployModeEnum deployModeEnum = DeployModeEnum.parseDeployTypeByTaskParams(taskParams);
-            final String enginePluginInfo = this.consoleSend.getEnginePluginInfo(dtUicTenantId, MultiEngineType.HADOOP.getType());
+            final String enginePluginInfo = Engine2DTOService.getEnginePluginInfo(dtUicTenantId, MultiEngineType.HADOOP.getType());
             final JSONObject jsonObject = JSON.parseObject(enginePluginInfo);
             final JSONObject flinkJsonObject = jsonObject.getJSONObject(EComponentType.FLINK.getTypeCode() + "");
             final String prometheusHost = flinkJsonObject.getJSONObject(deployModeEnum.getName()).getString("prometheusHost");
@@ -659,7 +661,7 @@ public class BatchServerLogService {
             String configByKey = clusterService.getConfigByKey(dtUicTenantId, EComponentType.FLINK.getConfName(), false, null);
             flinkJsonObject = JSONObject.parseObject(configByKey);
         }else {
-            String enginePluginInfo = this.consoleSend.getEnginePluginInfo(dtUicTenantId, MultiEngineType.HADOOP.getType());
+            String enginePluginInfo = Engine2DTOService.getEnginePluginInfo(dtUicTenantId, MultiEngineType.HADOOP.getType());
             if (StringUtils.isBlank(enginePluginInfo)) {
                 BatchServerLogService.logger.info("console uicTenantId {} pluginInfo is null", dtUicTenantId);
                 return null;

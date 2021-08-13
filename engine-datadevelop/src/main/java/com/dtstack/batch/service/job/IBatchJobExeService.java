@@ -1,6 +1,6 @@
 package com.dtstack.batch.service.job;
 
-import com.dtstack.batch.domain.BatchTask;
+import com.dtstack.engine.api.domain.BatchTask;
 import com.dtstack.batch.domain.BatchTaskParamShade;
 import com.dtstack.batch.domain.Project;
 import com.dtstack.batch.vo.ExecuteResultVO;

@@ -1,7 +1,7 @@
 package com.dtstack.batch.vo;
 
 import com.dtstack.batch.domain.Project;
-import com.dtstack.batch.domain.User;
+import com.dtstack.engine.api.domain.User;
 import lombok.Data;
 
 import java.util.List;

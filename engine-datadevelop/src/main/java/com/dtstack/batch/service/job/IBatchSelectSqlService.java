@@ -2,8 +2,7 @@ package com.dtstack.batch.service.job;
 
 import com.dtstack.batch.bo.ParseResult;
 import com.dtstack.batch.domain.BatchHiveSelectSql;
-import com.dtstack.batch.domain.BatchScript;
-import com.dtstack.batch.domain.BatchTask;
+import com.dtstack.engine.api.domain.BatchTask;
 import com.dtstack.batch.vo.ExecuteResultVO;
 import com.dtstack.engine.api.vo.action.ActionJobEntityVO;
 

@@ -1,6 +1,7 @@
 package com.dtstack.batch.domain;
 
 import com.dtstack.batch.common.enums.EFileMergeStatus;
+import com.dtstack.engine.api.domain.TenantProjectEntity;
 
 /**
  * <p>小文件合并规则实体类

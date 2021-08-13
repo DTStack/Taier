@@ -1,7 +1,8 @@
 package com.dtstack.batch.dao;
 
-import com.dtstack.batch.domain.Tenant;
+import com.dtstack.engine.api.domain.Tenant;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Set;
@@ -11,6 +12,7 @@ import java.util.Set;
  * @author sishu.yss
  *
  */
+@Component("batchTenantDao")
 public interface TenantDao {
 	Tenant getByDtUicTenantId(@Param("dtUicTenantId")long dtUicTenantId);
 

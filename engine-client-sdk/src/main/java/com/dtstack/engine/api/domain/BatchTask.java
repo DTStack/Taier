@@ -104,6 +104,11 @@ public class BatchTask extends TenantProjectEntity {
      */
     private Integer isExpire;
 
+    /**
+     * 组件版本
+     */
+    private String componentVersion;
+
     public Integer getIsExpire() {
         return isExpire;
     }
@@ -271,5 +276,13 @@ public class BatchTask extends TenantProjectEntity {
 
     public void setFlowId(Long flowId) {
         this.flowId = flowId;
+    }
+
+    public String getComponentVersion() {
+        return componentVersion;
+    }
+
+    public void setComponentVersion(String componentVersion) {
+        this.componentVersion = componentVersion;
     }
 }

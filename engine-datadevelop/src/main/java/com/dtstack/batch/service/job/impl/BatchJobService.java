@@ -3,6 +3,9 @@ package com.dtstack.batch.service.job.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.batch.common.enums.TempJobType;
+import com.dtstack.engine.api.domain.Tenant;
+import com.dtstack.engine.api.domain.User;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.batch.common.exception.ErrorCode;
 import com.dtstack.batch.common.exception.RdosDefineException;
@@ -33,9 +36,6 @@ import com.dtstack.dtcenter.common.thread.RdosThreadFactory;
 import com.dtstack.dtcenter.common.util.DateUtil;
 import com.dtstack.dtcenter.common.util.JsonUtils;
 import com.dtstack.dtcenter.common.util.MathUtil;
-import com.dtstack.engine.api.domain.ScheduleEngineJob;
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.QueryJobDTO;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.api.dto.UserDTO;
@@ -64,6 +64,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -101,13 +102,13 @@ public class BatchJobService {
     @Autowired
     private BatchTaskParamService batchTaskParamService;
 
-    @Autowired
+    @Resource(name = "batchUserDao")
     private UserDao userDao;
 
     @Autowired
     private BatchSelectSqlService batchSelectSqlService;
 
-    @Autowired
+    @Resource(name = "batchJobParamReplace")
     private JobParamReplace jobParamReplace;
 
     @Autowired

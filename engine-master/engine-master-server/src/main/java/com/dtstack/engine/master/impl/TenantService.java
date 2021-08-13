@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
  * author: toutian
  * create: 2018/7/16
  */
-@Service
+@Service("engineTenantService")
 public class TenantService {
 
     private static Logger LOGGER = LoggerFactory.getLogger(TenantService.class);
@@ -285,6 +285,14 @@ public class TenantService {
 
         tenant = addTenant(dtUicTenantId, dtToken);
         return tenant;
+    }
+
+    public Long getDtuicTenantId(Long id) {
+        Tenant tenant = tenantDao.getOne(id);
+        if (tenant != null) {
+            return tenant.getDtUicTenantId();
+        }
+        return null;
     }
 
     @Transactional(rollbackFor = Exception.class)

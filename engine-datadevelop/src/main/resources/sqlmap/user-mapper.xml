@@ -62,7 +62,7 @@
         AND is_deleted=0
     </select>
 
-    <select id="listByDtuicUserIds" resultType="com.dtstack.batch.domain.User">
+    <select id="listByDtuicUserIds" resultType="com.dtstack.engine.api.domain.User">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_user
@@ -105,7 +105,7 @@
         WHERE user_name = #{userName} AND is_deleted=0
     </select>
 
-    <select id="getUsersByUserName" resultType="com.dtstack.batch.domain.User">
+    <select id="getUsersByUserName" resultType="com.dtstack.engine.api.domain.User">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_user
@@ -167,7 +167,7 @@
         where r.role_value &lt;= 3 and ru.project_id = #{projectId} and ru.tenant_id = #{tenantId}
     </select>
 
-    <select id="getUsersByUserNameAndUserIds" resultType="com.dtstack.batch.domain.User">
+    <select id="getUsersByUserNameAndUserIds" resultType="com.dtstack.engine.api.domain.User">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_user

@@ -1,5 +1,6 @@
 package com.dtstack.batch.domain;
 
+import com.dtstack.engine.api.domain.BaseEntity;
 import lombok.Data;
 
 /**
@@ -8,7 +9,7 @@ import lombok.Data;
  * create: 2018/1/9
  */
 @Data
-public class ReadWriteLock extends BaseEntity{
+public class ReadWriteLock extends BaseEntity {
     /**
      * 锁名称
      */

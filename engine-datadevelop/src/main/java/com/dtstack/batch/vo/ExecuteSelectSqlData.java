@@ -2,7 +2,7 @@
 package com.dtstack.batch.vo;
 
 import com.dtstack.batch.domain.BatchHiveSelectSql;
-import com.dtstack.batch.domain.BatchTask;
+import com.dtstack.engine.api.domain.BatchTask;
 import com.dtstack.batch.service.job.IBatchSelectSqlService;
 import lombok.AllArgsConstructor;
 import lombok.Data;

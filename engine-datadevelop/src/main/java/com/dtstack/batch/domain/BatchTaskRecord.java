@@ -1,6 +1,7 @@
 package com.dtstack.batch.domain;
 
 
+import com.dtstack.engine.api.domain.TenantProjectEntity;
 import lombok.Data;
 
 import java.sql.Timestamp;

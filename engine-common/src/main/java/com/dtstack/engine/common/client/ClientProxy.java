@@ -6,7 +6,6 @@ import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.akka.config.AkkaConfig;
 import com.dtstack.engine.common.callback.CallBack;
 import com.dtstack.engine.common.callback.ClassLoaderCallBackMethod;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
@@ -46,7 +45,6 @@ public class ClientProxy implements IClient {
 
     public ClientProxy(IClient targetClient) {
         this.targetClient = targetClient;
-        this.timeout = AkkaConfig.getWorkerTimeout();
         executorService = new ThreadPoolExecutor(10, 10, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(), new CustomThreadFactory(targetClient.getClass().getSimpleName() + "_" + this.getClass().getSimpleName()));
     }

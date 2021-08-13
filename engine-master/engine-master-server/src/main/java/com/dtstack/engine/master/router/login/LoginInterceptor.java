@@ -39,16 +39,6 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
         if (StringUtils.isBlank(token)) {
             throw new RdosDefineException(ErrorCode.NOT_LOGIN);
         }
-        /*loginSessionStore.createSession(token, UserDTO.class, dtUicUser -> {
-            //获取到dtuic的数据后的处理方式
-            loginService.login(dtUicUser, token, userVO -> {
-                if (userVO == null) {
-                    throw new RdosDefineException(ErrorCode.USER_IS_NULL);
-                }
-
-                sessionUtil.setUser(token, userVO);
-            });
-        });*/
 
         return true;
     }

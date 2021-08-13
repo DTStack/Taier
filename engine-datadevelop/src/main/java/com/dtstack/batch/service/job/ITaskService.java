@@ -1,6 +1,6 @@
 package com.dtstack.batch.service.job;
 
-import com.dtstack.batch.domain.BatchTask;
+import com.dtstack.engine.api.domain.BatchTask;
 
 /**
  * 任务操作相关

@@ -10,7 +10,6 @@ import com.dtstack.batch.service.datasource.impl.BatchDataSourceService;
 import com.dtstack.batch.service.datasource.impl.IMultiEngineService;
 import com.dtstack.batch.service.impl.ProjectEngineService;
 import com.dtstack.batch.service.multiengine.EngineInfo;
-import com.dtstack.dtcenter.common.engine.ConsoleSend;
 import com.dtstack.dtcenter.common.engine.JdbcInfo;
 import com.dtstack.dtcenter.common.enums.EComponentType;
 import com.dtstack.dtcenter.common.enums.EJobType;
@@ -50,9 +49,6 @@ public class MultiEngineService implements IMultiEngineService {
     private static final Logger LOG = LoggerFactory.getLogger(MultiEngineService.class);
 
     @Autowired
-    private ConsoleSend consoleSend;
-
-    @Autowired
     private ProjectEngineService projectEngineService;
 
     @Autowired
@@ -73,7 +69,7 @@ public class MultiEngineService implements IMultiEngineService {
 
     @Override
     public List<Integer> getTenantSupportMultiEngine(Long dtuicTenantId) {
-        List<EngineSupportVO> engineSupportVOS = consoleSend.listSupportEngine(dtuicTenantId);
+        List<EngineSupportVO> engineSupportVOS = Engine2DTOService.listSupportEngine(dtuicTenantId);
         return engineSupportVOS.stream().map(EngineSupportVO::getEngineType).collect(Collectors.toList());
     }
 
@@ -84,7 +80,7 @@ public class MultiEngineService implements IMultiEngineService {
      */
     @Override
     public DataSourceType getTenantSupportHadoopMetaDataSource(Long dtuicTenantId) {
-        List<EngineSupportVO> engineSupportVOS = consoleSend.listSupportEngine(dtuicTenantId);
+        List<EngineSupportVO> engineSupportVOS = Engine2DTOService.listSupportEngine(dtuicTenantId);
         for (EngineSupportVO engineSupportVO : engineSupportVOS) {
             if (MultiEngineType.HADOOP.getType() == engineSupportVO.getEngineType()) {
                 if (EComponentType.HIVE_SERVER.getTypeCode() == engineSupportVO.getMetadataComponent()){
@@ -215,7 +211,7 @@ public class MultiEngineService implements IMultiEngineService {
                     scriptTypes.add(EScriptType.Python_2x);
                     scriptTypes.add(EScriptType.Python_3x);
                     scriptTypes.add(EScriptType.Shell);
-                    String  enginePluginInfo = consoleSend.getEnginePluginInfo(dtuicTenantId, MultiEngineType.HADOOP.getType());
+                    String  enginePluginInfo = Engine2DTOService.getEnginePluginInfo(dtuicTenantId, MultiEngineType.HADOOP.getType());
                     Map<String,Object>  pluginMap = null;
                     try {
                         pluginMap = PublicUtil.strToMap(enginePluginInfo);
@@ -242,7 +238,7 @@ public class MultiEngineService implements IMultiEngineService {
 
     @Override
     public EngineInfo getEnginePluginInfo(Long dtuicTenantId, Integer engineType, Long projectId) {
-        String jsonStr = consoleSend.getEnginePluginInfo(dtuicTenantId, engineType);
+        String jsonStr = Engine2DTOService.getEnginePluginInfo(dtuicTenantId, engineType);
         if (StringUtils.isEmpty(jsonStr)) {
             throw new RdosDefineException(String.format("该租户 console 集群类型 %d 未配置任何插件.", engineType));
         }

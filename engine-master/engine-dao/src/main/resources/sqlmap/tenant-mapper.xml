@@ -86,4 +86,11 @@
         where dt_uic_tenant_id = #{dtUicTenantId}
     </update>
 
+    <select id="getOne" resultType="Tenant">
+        SELECT
+        <include refid="tenant_filed"/>
+        FROM console_dtuic_tenant
+        WHERE id=#{id} AND is_deleted=0
+    </select>
+
 </mapper>

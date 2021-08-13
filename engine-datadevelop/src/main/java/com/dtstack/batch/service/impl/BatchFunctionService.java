@@ -18,6 +18,8 @@ import com.dtstack.dtcenter.common.constant.PatternConstant;
 import com.dtstack.dtcenter.common.enums.*;
 import com.dtstack.dtcenter.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.common.util.PublicUtil;
+import com.dtstack.engine.api.domain.Tenant;
+import com.dtstack.engine.api.domain.User;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;

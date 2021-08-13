@@ -2,14 +2,9 @@ package com.dtstack.engine.master.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.EngineJobCheckpoint;
-import com.dtstack.engine.api.pojo.CheckResult;
-import com.dtstack.engine.api.pojo.ParamActionExt;
-import com.dtstack.engine.common.akka.config.AkkaConfig;
 import com.dtstack.engine.dao.EngineJobCheckpointDao;
 import com.dtstack.engine.master.AbstractTest;
-import com.dtstack.engine.master.akka.MasterServer;
 import com.dtstack.engine.master.dataCollection.DataCollection;
-import com.typesafe.config.ConfigFactory;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,11 +29,6 @@ public class StreamTaskControllerTest extends AbstractTest {
     @Autowired
     private EngineJobCheckpointDao engineJobCheckpointDao;
 
-    @Autowired(required = false)
-    private MasterServer masterServer;
-
-
-
 
     @Test
     public void testGetFailedCheckPoint() {
@@ -50,35 +40,6 @@ public class StreamTaskControllerTest extends AbstractTest {
             System.out.println(CollectionUtils.isEmpty(list) ? list : list.get(0));
         } catch (Exception e) {
             fail("GetFailedCheckPoint failed: " + e.getMessage());
-        }
-    }
-
-    @Test
-    public void testGrammarCheck(){
-        try {
-            AkkaConfig.init(ConfigFactory.load());
-            Map<String, Object> params = getParams(getJsonString(getRandomStr()));
-            ParamActionExt paramActionExt = com.dtstack.engine.common.util.PublicUtil.mapToObject(params, ParamActionExt.class);
-//            paramActionExt.setTaskType(0);
-//            paramActionExt.setComputeType(0);
-//            paramActionExt.setEngineType("flink");
-//            paramActionExt.setSqlText("select * from a");
-//            paramActionExt.setAppType(0);
-//            paramActionExt.setDeployMode("1");
-//            paramActionExt.setGenerateTime(1615534634216L);
-//            paramActionExt.setIsFailRetry(true);
-//            paramActionExt.setLackingCount(0);
-//            paramActionExt.setName("test");
-//            paramActionExt.setPriority(0);
-//            paramActionExt.setRequestStart(0);
-//            paramActionExt.setStopJobId(0);
-//            paramActionExt.setTaskId("440dc30b");
-//            paramActionExt.setTaskParams("sql.env.parallelism=1\\nflink.checkpoint.interval=300000\\nsql.checkpoint.timeout=180000\\nsql.checkpoint.cleanup.mode=false\\nslots=1\\nlogLevel=info\\njob.priority=10\\nsecurity.kerberos.login.contexts=KafkaClient");
-//            paramActionExt.setTaskType(0);
-//            paramActionExt.setTenantId(1L);
-            CheckResult checkResult = streamTaskController.grammarCheck(paramActionExt);
-        } catch (Exception e) {
-            fail("GrammarCheck failed: " + e.getMessage());
         }
     }
 

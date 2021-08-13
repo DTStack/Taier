@@ -30,35 +30,14 @@ import java.util.Objects;
 @Component
 public class MultiEngineServiceFactory {
 
-    @Resource(name = "libraSqlBuildService")
-    private ISqlBuildService libraSqlBuildService;
-
     @Resource(name = "hiveSqlBuildService")
     private ISqlBuildService hiveSqlBuildService;
 
     @Resource(name = "batchSparkSqlExeService")
     private ISqlExeService batchSparkSqlExeService;
 
-    @Resource(name = "batchLibraSqlExeService")
-    private ISqlExeService batchLibraSqlExeService;
-
-    @Resource(name = "batchTiDBSqlExeService")
-    private ISqlExeService batchTiDBSqlExeService;
-
-    @Resource(name = "batchOracleSqlExeService")
-    private ISqlExeService batchOracleSqlExeService;
-
-    @Resource(name = "batchGreenplumSqlExeService")
-    private ISqlExeService batchGreenplumSqlExeService;
-
     @Resource(name = "batchHiveSqlExeService")
     private ISqlExeService batchHiveSqlExeService;
-
-    @Resource(name = "batchImpalaSqlExeService")
-    private ISqlExeService batchImpalaSqlExeService;
-
-    @Resource(name = "batchInceptorSqlExeService")
-    private ISqlExeService batchInceptorSqlExeService;
 
     @Resource(name = "batchHiveTablePartitionService")
     private ITablePartitionService batchHiveTablePartitionService;
@@ -66,50 +45,11 @@ public class MultiEngineServiceFactory {
     @Resource(name = "batchHadoopJobExeService")
     private IBatchJobExeService batchHadoopJobExeService;
 
-    @Resource(name = "batchLibraJobExeService")
-    private IBatchJobExeService batchLibraJobExeService;
-
-    @Resource(name = "batchTiDBJobExeService")
-    private IBatchJobExeService batchTiDBJobExeService;
-
-    @Resource(name = "batchOracleJobExeService")
-    private IBatchJobExeService batchOracleJobExeService;
-
-    @Resource(name = "batchGreenplumJobExeService")
-    private IBatchJobExeService batchGreenplumJobExeService;
-
     @Resource(name = "batchHadoopSelectSqlService")
     private IBatchSelectSqlService batchHadoopSelectSqlService;
 
-    @Resource(name = "batchLibraSelectSqlService")
-    private IBatchSelectSqlService batchLibraSelectSqlService;
-
-    @Resource(name = "batchTiDBSelectSqlService")
-    private IBatchSelectSqlService batchTiDBSelectSqlService;
-
-    @Resource(name = "batchOracleSelectSqlService")
-    private IBatchSelectSqlService batchOracleSelectSqlService;
-
-    @Resource(name = "batchGreenplumSelectSqlService")
-    private IBatchSelectSqlService batchGreenplumSelectSqlService;
-
     @Resource(name = "hadoopDataDownloadService")
     private IDataDownloadService hadoopDataDownloadService;
-
-    @Resource(name = "libraDataDownLoadService")
-    private IDataDownloadService libraDataDownLoadService;
-
-    @Resource(name = "impalaDownloadService")
-    private IDataDownloadService impalaDownloadService;
-
-    @Resource(name = "batchInceptorDataDownloadService")
-    private IDataDownloadService batchInceptorDataDownloadService;
-
-    @Resource(name = "batchTiDBDataDownLoadService")
-    private IDataDownloadService batchTiDBDataDownLoadService;
-
-    @Resource(name = "batchOracleDataDownLoadService")
-    private IDataDownloadService batchOracleDataDownLoadService;
 
     @Resource(name = "batchHadoopTaskService")
     private ITaskService batchHadoopTaskService;
@@ -117,54 +57,22 @@ public class MultiEngineServiceFactory {
     @Resource(name = "hadoopProjectService")
     public IProjectService hadoopProjectService;
 
-    @Resource(name = "libraProjectService")
-    private IProjectService libraProjectService;
-
-    @Resource(name = "tiDBProjectService")
-    private IProjectService tiDBProjectService;
-
-    @Resource(name = "oracleProjectService")
-    private IProjectService oracleProjectService;
-
-    @Resource(name = "greenplumProjectService")
-    private IProjectService greenplumProjectService;
-
     @Resource(name = "batchHiveFunctionService")
     private IFunctionService batchHiveFunctionService;
 
-    @Resource(name = "batchGreenplumFunctionService")
-    private IFunctionService batchGreenplumFunctionService;
-
     @Autowired
     private BatchDataSourceService batchDataSourceService;
-
 
     public ISqlBuildService getSqlBuildService(int multiEngineType) {
         if (MultiEngineType.HADOOP.getType() == multiEngineType) {
             return hiveSqlBuildService;
         }
-        if (MultiEngineType.LIBRA.getType() == multiEngineType) {
-            return libraSqlBuildService;
-        }
-
         throw new RdosDefineException(String.format("not support engine type %d now", multiEngineType));
     }
 
     public IProjectService getProjectService(int multiEngineType) {
         if (MultiEngineType.HADOOP.getType() == multiEngineType) {
             return hadoopProjectService;
-        }
-        if (MultiEngineType.LIBRA.getType() == multiEngineType) {
-            return libraProjectService;
-        }
-        if (MultiEngineType.TIDB.getType() == multiEngineType) {
-            return tiDBProjectService;
-        }
-        if (MultiEngineType.ORACLE.getType() == multiEngineType) {
-            return oracleProjectService;
-        }
-        if (MultiEngineType.GREENPLUM.getType() == multiEngineType) {
-            return greenplumProjectService;
         }
         return null;
     }
@@ -238,9 +146,6 @@ public class MultiEngineServiceFactory {
             if (EJobType.HIVE_SQL.getVal().equals(taskType)) {
                 return batchHiveSqlExeService;
             }
-            if (EJobType.IMPALA_SQL.getVal().equals(taskType)) {
-                return batchImpalaSqlExeService;
-            }
             if (EJobType.SPARK_SQL.getVal().equals(taskType)) {
                 return batchSparkSqlExeService;
             }
@@ -249,28 +154,10 @@ public class MultiEngineServiceFactory {
                 if (DataSourceType.HIVE.equals(dataSourceType) || DataSourceType.HIVE1X.equals(dataSourceType) || DataSourceType.HIVE3X.equals(dataSourceType)) {
                     return batchHiveSqlExeService;
                 }
-                if (DataSourceType.IMPALA.equals(dataSourceType)) {
-                    return batchImpalaSqlExeService;
-                }
                 if (DataSourceType.SparkThrift2_1.equals(dataSourceType)) {
                     return batchSparkSqlExeService;
                 }
-                if (DataSourceType.INCEPTOR.equals(dataSourceType)){
-                    return batchInceptorSqlExeService;
-                }
             }
-        }
-        if (MultiEngineType.LIBRA.getType() == multiEngineType) {
-            return batchLibraSqlExeService;
-        }
-        if(MultiEngineType.TIDB.getType() == multiEngineType){
-            return batchTiDBSqlExeService;
-        }
-        if(MultiEngineType.ORACLE.getType() == multiEngineType){
-            return batchOracleSqlExeService;
-        }
-        if(MultiEngineType.GREENPLUM.getType() == multiEngineType){
-            return batchGreenplumSqlExeService;
         }
         throw new RdosDefineException(String.format("not support engine type %d now", multiEngineType));
     }
@@ -287,36 +174,12 @@ public class MultiEngineServiceFactory {
         if (MultiEngineType.HADOOP.getType() == multiEngineType) {
             return batchHadoopJobExeService;
         }
-        if (MultiEngineType.LIBRA.getType() == multiEngineType) {
-            return batchLibraJobExeService;
-        }
-        if (MultiEngineType.TIDB.getType() == multiEngineType){
-            return batchTiDBJobExeService;
-        }
-        if (MultiEngineType.ORACLE.getType() == multiEngineType){
-            return batchOracleJobExeService;
-        }
-        if (MultiEngineType.GREENPLUM.getType() == multiEngineType){
-            return batchGreenplumJobExeService;
-        }
         throw new RdosDefineException(String.format("not support engine type %d now", multiEngineType));
     }
 
     public IBatchSelectSqlService getBatchSelectSqlService(int multiEngineType) {
         if (MultiEngineType.HADOOP.getType() == multiEngineType) {
             return batchHadoopSelectSqlService;
-        }
-        if (MultiEngineType.LIBRA.getType() == multiEngineType) {
-            return batchLibraSelectSqlService;
-        }
-        if (MultiEngineType.TIDB.getType() == multiEngineType){
-            return batchTiDBSelectSqlService;
-        }
-        if (MultiEngineType.ORACLE.getType() == multiEngineType){
-            return batchOracleSelectSqlService;
-        }
-        if (MultiEngineType.GREENPLUM.getType() == multiEngineType){
-            return batchGreenplumSelectSqlService;
         }
         throw new RdosDefineException(String.format("not support engine type %d now", multiEngineType));
     }
@@ -326,25 +189,8 @@ public class MultiEngineServiceFactory {
     }
 
     public IDataDownloadService getDataDownloadService(int multiEngineType, Integer otherTypes) {
-        if (null != otherTypes && otherTypes != 0) {
-            if (SelectSqlTypeEnum.IMPALA.getType().equals(otherTypes)) {
-                return impalaDownloadService;
-            }
-            if (SelectSqlTypeEnum.INCEPTOR.getType().equals(otherTypes)) {
-                return batchInceptorDataDownloadService;
-            }
-        }
         if (MultiEngineType.HADOOP.getType() == multiEngineType) {
             return hadoopDataDownloadService;
-        }
-        if (MultiEngineType.LIBRA.getType() == multiEngineType) {
-            return libraDataDownLoadService;
-        }
-        if(MultiEngineType.TIDB.getType() == multiEngineType){
-            return batchTiDBDataDownLoadService;
-        }
-        if(MultiEngineType.ORACLE.getType() == multiEngineType){
-            return batchOracleDataDownLoadService;
         }
         throw new RdosDefineException(String.format("not support engine type %d now", multiEngineType));
     }
@@ -360,8 +206,6 @@ public class MultiEngineServiceFactory {
     public IFunctionService getFunctionService(int multiEngineType) {
         if (MultiEngineType.HADOOP.getType() == multiEngineType) {
             return batchHiveFunctionService;
-        } else if (MultiEngineType.GREENPLUM.getType() == multiEngineType) {
-            return batchGreenplumFunctionService;
         }
 
         throw new RdosDefineException(String.format("not support engine type %d now", multiEngineType));

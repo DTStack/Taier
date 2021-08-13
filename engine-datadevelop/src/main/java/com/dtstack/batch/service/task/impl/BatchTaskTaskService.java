@@ -2,7 +2,7 @@ package com.dtstack.batch.service.task.impl;
 
 import com.dtstack.batch.dao.BatchTaskDao;
 import com.dtstack.batch.dao.BatchTaskTaskDao;
-import com.dtstack.batch.domain.BatchTask;
+import com.dtstack.engine.api.domain.BatchTask;
 import com.dtstack.batch.domain.BatchTaskTask;
 import com.dtstack.batch.domain.Project;
 import com.dtstack.batch.service.impl.ProjectService;
@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -60,7 +61,7 @@ public class BatchTaskTaskService {
     @Autowired
     private ScheduleTaskShadeService scheduleTaskShadeService;
 
-    @Autowired
+    @Resource(name = "engineProjectService")
     private com.dtstack.engine.master.impl.ProjectService engineProjectService;
 
     @Autowired

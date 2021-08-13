@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 
 /**
  * @author yuebai
@@ -23,7 +24,7 @@ public class PlatformService {
     @Autowired
     private EnvironmentContext environmentContext;
 
-    @Autowired
+    @Resource(name = "engineTenantService")
     private TenantService tenantService;
 
     @Autowired

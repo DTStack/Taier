@@ -1,12 +1,13 @@
 package com.dtstack.batch.domain;
 
+import com.dtstack.engine.api.domain.BaseEntity;
 import lombok.Data;
 
 /**
  * @author sanyue
  */
 @Data
-public class BatchTaskTemplate extends BaseEntity{
+public class BatchTaskTemplate extends BaseEntity {
 
     /**
      * 任务类型：EJobType
