@@ -29,8 +29,6 @@ import com.dtstack.engine.dao.TenantResourceDao;
 import com.dtstack.engine.master.druid.DtDruidRemoveAbandoned;
 import com.dtstack.engine.common.util.*;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.master.executor.CronJobExecutor;
-import com.dtstack.engine.master.executor.FillJobExecutor;
 import com.dtstack.engine.master.scheduler.parser.ESchedulePeriodType;
 import com.dtstack.schedule.common.enums.*;
 import com.google.common.collect.Lists;
@@ -69,12 +67,6 @@ public class ScheduleTaskShadeService {
 
     @Autowired
     private TenantResourceDao tenantResourceDao;
-
-    @Autowired
-    private CronJobExecutor cronJobExecutor;
-
-    @Autowired
-    private FillJobExecutor fillJobExecutor;
 
     @Autowired
     private TenantDao tenantDao;
@@ -377,7 +369,7 @@ public class ScheduleTaskShadeService {
             //过滤掉任务流中的子任务
             batchTaskDTO.setFlowId(0L);
         }
-        setBatchTaskDTO(tenantId, projectId, name, ownerId, startTime, endTime, scheduleStatus, taskTypeList, periodTypeList, searchType, batchTaskDTO);
+        setBatchTaskDTO(tenantId, projectId, name, ownerId, startTime, endTime, scheduleStatus, taskTypeList, periodTypeList, searchType, batchTaskDTO,appType);
         PageQuery<ScheduleTaskShadeDTO> pageQuery = new PageQuery<>(currentPage, pageSize, "gmt_modified", Sort.DESC.name());
         pageQuery.setModel(batchTaskDTO);
         ScheduleTaskShadePageVO scheduleTaskShadeTaskVO = new ScheduleTaskShadePageVO();
@@ -423,12 +415,14 @@ public class ScheduleTaskShadeService {
      * @param batchTaskDTO:
      * @return: void
      **/
-    private void setBatchTaskDTO(Long tenantId, Long projectId, String name, Long ownerId, Long startTime, Long endTime, Integer scheduleStatus, String taskTypeList, String periodTypeList, String searchType, ScheduleTaskShadeDTO batchTaskDTO) {
+    private void setBatchTaskDTO(Long tenantId, Long projectId, String name, Long ownerId, Long startTime, Long endTime, Integer scheduleStatus,
+                                 String taskTypeList, String periodTypeList, String searchType, ScheduleTaskShadeDTO batchTaskDTO,Integer appType) {
         batchTaskDTO.setTenantId(tenantId);
         batchTaskDTO.setProjectId(projectId);
         batchTaskDTO.setSubmitStatus(ESubmitStatus.SUBMIT.getStatus());
         batchTaskDTO.setTaskTypeList(convertStringToList(taskTypeList));
         batchTaskDTO.setPeriodTypeList(convertStringToList(periodTypeList));
+        batchTaskDTO.setAppType(appType);
         if (StringUtils.isNotBlank(name)) {
             batchTaskDTO.setFuzzName(name);
         }
