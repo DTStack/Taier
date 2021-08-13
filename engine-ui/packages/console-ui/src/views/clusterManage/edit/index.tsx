@@ -29,13 +29,13 @@ function giveMeAKey () {
 function renderCompIcon (scheduling: any) {
     switch (scheduling.schedulingCode) {
         case TABS_TITLE_KEY.STORE:
-            return (<i className="iconfont iconcunchuzujian" style={{ marginRight: 2 }}></i>)
+            return (<i className="iconfont icon-cunchuzujian" style={{ marginRight: 2 }}></i>)
         case TABS_TITLE_KEY.COMMON:
-            return (<i className="iconfont icongonggongzujian" style={{ marginRight: 2 }}></i>)
+            return (<i className="iconfont icon-gonggongzujian" style={{ marginRight: 2 }}></i>)
         case TABS_TITLE_KEY.COMPUTE:
-            return (<i className="iconfont iconjisuanzujian" style={{ marginRight: 2 }}></i>)
+            return (<i className="iconfont icon-jisuanzujian" style={{ marginRight: 2 }}></i>)
         case TABS_TITLE_KEY.SOURCE:
-            return (<i className="iconfont iconziyuantiaodu" style={{ marginRight: 2 }}></i>)
+            return (<i className="iconfont icon-ziyuantiaodu" style={{ marginRight: 2 }}></i>)
         default:
             return '';
     }

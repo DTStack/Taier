@@ -1,7 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router'
 import { Menu, Icon, Layout } from 'antd'
-import SvgIcon from '../../components/svgIcon'
 
 const SubMenu = Menu.SubMenu;
 const { Sider } = Layout;
@@ -82,10 +81,9 @@ export default class Sidebar extends React.Component<any, StateStandard> {
                     >
                         <SubMenu key="offline" title={
                             <span>
-                                <SvgIcon
-                                    className="anticon"
-                                    linkHref="iconmenu_task"
-                                />
+                                <span className="anticon">
+                                    <i className="iconfont icon-menu_task" />
+                                </span>
                                 <span>任务与实例</span>
                             </span>
                         }>
