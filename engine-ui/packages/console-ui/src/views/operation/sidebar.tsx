@@ -86,7 +86,7 @@ export default class Sidebar extends React.Component<any, StateStandard> {
                                     className="anticon"
                                     linkHref="iconmenu_task"
                                 />
-                                <span>离线任务</span>
+                                <span>任务与实例</span>
                             </span>
                         }>
                             <Menu.Item key="offline-management">
