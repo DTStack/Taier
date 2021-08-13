@@ -72,10 +72,10 @@ export const COMPONENT_CONFIG_NAME = {
 }
 
 export const TABS_TITLE = {
-    [TABS_TITLE_KEY.COMMON]: { iconName: 'icongonggongzujian', name: '公共组件' },
-    [TABS_TITLE_KEY.SOURCE]: { iconName: 'iconziyuantiaodu', name: '资源调度组件' },
-    [TABS_TITLE_KEY.STORE]: { iconName: 'iconcunchuzujian', name: '存储组件' },
-    [TABS_TITLE_KEY.COMPUTE]: { iconName: 'iconjisuanzujian', name: '计算组件' }
+    [TABS_TITLE_KEY.COMMON]: { iconName: 'icon-gonggongzujian', name: '公共组件' },
+    [TABS_TITLE_KEY.SOURCE]: { iconName: 'icon-ziyuantiaodu', name: '资源调度组件' },
+    [TABS_TITLE_KEY.STORE]: { iconName: 'icon-cunchuzujian', name: '存储组件' },
+    [TABS_TITLE_KEY.COMPUTE]: { iconName: 'icon-jisuanzujian', name: '计算组件' }
 }
 
 export const CONFIG_BUTTON_TYPE = {
