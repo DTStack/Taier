@@ -706,7 +706,7 @@ create table if not exists lineage_column_column(
     input_table_key varchar(155) NOT NULL COMMENT '输入表表物理定位码',
     input_column_name VARCHAR(55) NOT NULL COMMENT '输入字段名称',
     result_table_id int(11) NOT NULL COMMENT '输出表id',
-    result_table_key varchar(155) NOT NULL COMMENT '输出表表物理定位码',
+    result_table_key varchar(256) NOT NULL COMMENT '输出表表物理定位码',
     result_column_name VARCHAR(55) NOT NULL COMMENT '输出字段名称',
     column_lineage_key VARCHAR(60) NOT NULL COMMENT '字段级血缘定位码，根据输入字段和输出字段定位码计算出',
     gmt_create datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',

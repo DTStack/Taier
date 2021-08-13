@@ -67,12 +67,12 @@ public class ScheduleTaskShadeServiceTest extends AbstractTest {
         //更新
         scheduleTaskShadeService.addOrUpdate(scheduleTaskShadeDTO);
         //查询
-        List<ScheduleTaskShade> scheduleTaskShades = scheduleTaskShadeService.listTaskByStatus(0L, ESubmitStatus.SUBMIT.getStatus(), EProjectScheduleStatus.NORMAL.getStatus(), 100);
+        List<ScheduleTaskShade> scheduleTaskShades = scheduleTaskShadeService.listTaskByStatus(0L, ESubmitStatus.SUBMIT.getStatus(), EProjectScheduleStatus.NORMAL.getStatus(), 100,null,null);
         Assert.assertNotNull(scheduleTaskShades);
         long count = scheduleTaskShades.stream().filter(s -> s.getTaskId().equals(scheduleTaskShadeTemplate.getTaskId())
                 && s.getAppType().equals(scheduleTaskShadeTemplate.getAppType())).count();
         Assert.assertTrue(count > 0);
-        Integer countTaskByStatus = scheduleTaskShadeService.countTaskByStatus(ESubmitStatus.SUBMIT.getStatus(), EProjectScheduleStatus.NORMAL.getStatus());
+        Integer countTaskByStatus = scheduleTaskShadeService.countTaskByStatus(ESubmitStatus.SUBMIT.getStatus(), EProjectScheduleStatus.NORMAL.getStatus(),null,null);
         Assert.assertTrue(countTaskByStatus > 0);
 
         List<ScheduleTaskShadeCountTaskVO> scheduleTaskShadeCountTaskVOS = scheduleTaskShadeService.countTaskByTypes(scheduleTaskShadeTemplate.getTenantId(),

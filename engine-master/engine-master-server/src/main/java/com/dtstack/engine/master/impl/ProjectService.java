@@ -194,6 +194,11 @@ public class ProjectService {
 
         ScheduleEngineProject dean = scheduleEngineProjectDao.getProjectByProjectIdAndApptype(projectId,appType);
         ScheduleEngineProjectVO vo = new ScheduleEngineProjectVO();
+
+        if (dean == null) {
+            return null;
+        }
+        
         build(dean, vo);
         return vo;
     }

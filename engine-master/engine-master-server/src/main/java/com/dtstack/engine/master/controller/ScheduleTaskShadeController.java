@@ -11,6 +11,7 @@ import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskV
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
 import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
+import com.dtstack.engine.api.vo.task.TaskTypeVO;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import io.swagger.annotations.Api;
@@ -229,4 +230,11 @@ public class ScheduleTaskShadeController {
         }
         return scheduleTaskShadeService.recentlyRunTime(startDate,endDate,cron, Objects.isNull(num)?10:num);
     }
+
+    @RequestMapping(value = "/taskType",method = {RequestMethod.POST})
+    public List<TaskTypeVO> getTaskType() {
+        return scheduleTaskShadeService.getTaskType();
+    }
+
+
 }

@@ -714,7 +714,7 @@ public class ActionService {
         }
 
         //do reset status
-        scheduleJobDao.updateJobStatusAndPhaseStatus(Collections.singletonList(jobId), RdosTaskStatus.UNSUBMIT.getStatus(), JobPhaseStatus.CREATE.getCode(),null);
+        scheduleJobDao.updateJobStatusAndPhaseStatus(Collections.singletonList(jobId), RdosTaskStatus.UNSUBMIT.getStatus(), JobPhaseStatus.CREATE.getCode(),null,environmentContext.getLocalAddress());
         LOGGER.info("jobId:{} update job status:{}.", jobId, RdosTaskStatus.UNSUBMIT.getStatus());
         return jobId;
     }

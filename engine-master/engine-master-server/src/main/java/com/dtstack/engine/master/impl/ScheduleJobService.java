@@ -1548,14 +1548,12 @@ public class ScheduleJobService {
         }
         //设置分页查询参数
         PageQuery<ScheduleJobDTO> pageQuery = getScheduleJobDTOPageQuery(runDay, bizStartDay, bizEndDay, dutyUserId, projectId, appType, currentPage, pageSize, tenantId, batchJobDTO);
+        pageQuery.getModel().setTenantId(tenantId);
+        List<ScheduleFillDataJob> fillJobList = scheduleFillDataJobDao.listFillJobByPageQuery(pageQuery);
 
-        List<Long> fillIdList = scheduleJobDao.listFillIdListWithOutTask(pageQuery);
-
-        if(CollectionUtils.isEmpty(fillIdList)){
+        if(CollectionUtils.isEmpty(fillJobList)){
             return new PageResult<>(null, 0, pageQuery);
         }
-        //根据补数据名称查询出记录
-        List<ScheduleFillDataJob> fillJobList = scheduleFillDataJobDao.getFillJobList(fillIdList, projectId, tenantId);
 
         //内存中按照时间排序
         if (CollectionUtils.isNotEmpty(fillJobList)) {
@@ -1781,6 +1779,7 @@ public class ScheduleJobService {
         batchJobDTO.setQueryWorkFlowModel(QueryWorkFlowModel.Eliminate_Workflow_SubNodes.getType());
         batchJobDTO.setFillDataJobName(fillJobName);
         batchJobDTO.setNeedQuerySonNode(true);
+        Long projectId = batchJobDTO.getProjectId();
         //跨租户、项目条件
         batchJobDTO.setProjectId(null);
         batchJobDTO.setTenantId(null);
@@ -1839,6 +1838,12 @@ public class ScheduleJobService {
             } else {
                 return new PageResult<>(scheduleFillDataJobDetailVO, 0, pageQuery);
             }
+        }
+
+        ScheduleFillDataJob byJobName = scheduleFillDataJobDao.getByJobName(batchJobDTO.getFillDataJobName(), projectId);
+
+        if (byJobName != null) {
+            batchJobDTO.setFillId(byJobName.getId());
         }
 
         Integer totalCount = scheduleJobDao.countByFillData(batchJobDTO);
@@ -2356,7 +2361,7 @@ public class ScheduleJobService {
     public ScheduleJob getByJobId( String jobId,  Integer isDeleted) {
         ScheduleJob scheduleJob = scheduleJobDao.getByJobId(jobId, isDeleted);
 
-        if (StringUtils.isBlank(scheduleJob.getSubmitUserName())) {
+        if (scheduleJob != null && StringUtils.isBlank(scheduleJob.getSubmitUserName())) {
             scheduleJob.setSubmitUserName(environmentContext.getHadoopUserName());
         }
 

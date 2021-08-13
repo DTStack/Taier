@@ -27,7 +27,7 @@ import java.util.List;
  */
 @Configuration
 public class MvcConfig extends DelegatingWebMvcConfiguration {
-    
+
     private static final List<String> INTERCEPT_LIST;
 
     static {
