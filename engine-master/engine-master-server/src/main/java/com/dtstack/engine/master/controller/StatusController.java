@@ -8,6 +8,7 @@ import com.dtstack.engine.master.router.DtRequestParam;
 import com.dtstack.engine.master.router.login.SessionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -17,7 +18,7 @@ public class StatusController {
     @Autowired
     private SessionUtil sessionUtil;
 
-    @RequestMapping(value = "/status")
+    @RequestMapping(value = "/status", method = {RequestMethod.GET, RequestMethod.POST})
     public String status(@DtHeader(value = "cookie", cookie = "dt_token") String dtToken) {
         UserDTO user = sessionUtil.getUser(dtToken, UserDTO.class);
         if (null == user) {
@@ -31,7 +32,7 @@ public class StatusController {
         throw new RdosDefineException(ErrorCode.PERMISSION_LIMIT);
     }
 
-    @RequestMapping(value = "/value")
+    @RequestMapping(value = "/value", method = {RequestMethod.GET, RequestMethod.POST})
     public String value(@DtRequestParam("value") String value) {
         return value;
     }
