@@ -425,7 +425,7 @@ public class ClusterService implements InitializingBean {
                 List<IComponentVO> components = schedulingVo.getComponents();
                 if (CollectionUtils.isNotEmpty(components)) {
                     for (IComponentVO componentVO : components) {
-                        String version = MapUtils.isEmpty(componentVersionMap) ? "" : componentVersionMap.get(componentVO.getComponentTypeCode());
+                        String version = MapUtils.isEmpty(componentVersionMap) ? "" : componentVersionMap.getOrDefault(componentVO.getComponentTypeCode(),"");
                         EComponentType type = EComponentType.getByCode(componentVO.getComponentTypeCode());
                         //IComponentVO contains  flink on standalone and on yarn
                         ComponentVO component = componentVO.getComponent(version);
