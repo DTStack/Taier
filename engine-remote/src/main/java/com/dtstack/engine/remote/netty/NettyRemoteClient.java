@@ -178,34 +178,17 @@ public class NettyRemoteClient {
                 }
                 String ip = split[0];
                 Integer port = Integer.parseInt(split[1]);
-                Channel channel= getChannel(ip,port,Boolean.TRUE);
-                NettyNode node = new NettyNode(key,ip,port,channel);
-                node.setStatus(AbstractNode.NodeStatus.USABLE);
+                NettyNode node = new NettyNode(key,ip,port,bootstrap);
                 refs.put(address,node);
             }
+            remoteNodes.start();
             channels.put(key,remoteNodes);
         }
 
 
     }
 
-    private Channel getChannel(String ip, Integer port, boolean isSync) {
-        ChannelFuture future;
-        try {
-            synchronized (bootstrap) {
-                future = bootstrap.connect(new InetSocketAddress(ip, port));
-            }
-            if (isSync) {
-                future.sync();
-            }
-            if (future.isSuccess()) {
-                return future.channel();
-            }
-        } catch (Exception ex) {
-            LOGGER.warn(String.format("connect to %s error", ip + ":" + port), ex);
-        }
-        return null;
-    }
+
 
     /**
      * close

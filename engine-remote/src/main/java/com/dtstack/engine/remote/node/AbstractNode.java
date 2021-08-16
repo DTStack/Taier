@@ -87,6 +87,20 @@ public abstract class AbstractNode {
      */
     protected abstract void close();
 
+    /**
+     *
+     *
+     * @return true 活的 false 死的
+     */
+    public abstract Boolean heartbeat();
+
+    /**
+     * 重新发起连接
+     *
+     * @return true 连接成功 false 连接失败
+     */
+    public abstract Boolean connect();
+
     public enum NodeStatus {
         USABLE,UNAVAILABLE
     }

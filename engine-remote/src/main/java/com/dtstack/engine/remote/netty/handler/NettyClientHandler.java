@@ -1,7 +1,11 @@
 package com.dtstack.engine.remote.netty.handler;
 
 import com.dtstack.engine.remote.netty.NettyRemoteClient;
+import com.dtstack.engine.remote.netty.command.Command;
+import com.dtstack.engine.remote.netty.future.ResponseFuture;
 import com.dtstack.engine.remote.netty.util.ChannelUtils;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.slf4j.Logger;
@@ -15,6 +19,7 @@ import java.util.concurrent.ExecutorService;
  * @Email:dazhi@dtstack.com
  * @Description:
  */
+@ChannelHandler.Sharable
 public class NettyClientHandler extends ChannelInboundHandlerAdapter {
 
     private final Logger LOGGER = LoggerFactory.getLogger(NettyClientHandler.class);
@@ -48,6 +53,42 @@ public class NettyClientHandler extends ChannelInboundHandlerAdapter {
         client.closeChannel(ChannelUtils.toAddress(ctx.channel()));
         ctx.channel().close();
     }
+
+    /**
+     * The current channel reads data from the remote
+     *
+     * @param ctx channel handler context
+     * @param msg message
+     * @throws Exception
+     */
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        processReceived(ctx.channel(), (Command) msg);
+    }
+
+    /**
+     * process received logic
+     *
+     * @param command command
+     */
+    private void processReceived(final Channel channel, final Command command) {
+        ResponseFuture future = ResponseFuture.getFuture(command.getOpaque());
+        if (future != null) {
+            future.setResponseCommand(command);
+            future.release();
+            if (future.getInvokeCallback() != null) {
+                this.callbackExecutor.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        future.executeInvokeCallback();
+                    }
+                });
+            } else {
+                future.putResponse(command);
+            }
+        }
+    }
+
 
     /**
      * caught exception

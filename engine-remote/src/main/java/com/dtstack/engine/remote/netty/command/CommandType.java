@@ -24,6 +24,11 @@ public enum CommandType {
     REQUEST,
 
     /**
+     * response
+     */
+    RESPONSE,
+
+    /**
      * ping
      */
     PING,

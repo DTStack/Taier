@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.dtstack.engine.remote.exception.NoNodeException;
 import com.dtstack.engine.remote.exception.RemoteException;
 import com.dtstack.engine.remote.message.Message;
+import com.dtstack.engine.remote.node.SerializableUtil;
 
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicLong;
@@ -46,11 +47,26 @@ public class Command implements Serializable {
         if (message == null) {
             throw new RemoteException("message not null");
         }
-
         Command command = new Command();
-        command.setBody(JSON.toJSONString(message).getBytes());
+        command.setBody(SerializableUtil.ObjectToByte(message));
         command.setType(CommandType.REQUEST);
         return command;
+    }
+
+    public static Command buildBeat(Command command,CommandType commandType) {
+        command.setType(commandType);
+        byte[] bytes = new byte[1];
+        command.setBody(bytes);
+        return command;
+    }
+
+    public static Command response(Command msg,Message response) {
+        if (response == null) {
+            throw new RemoteException("message not null");
+        }
+        msg.setBody(SerializableUtil.ObjectToByte(response));
+        msg.setType(CommandType.RESPONSE);
+        return msg;
     }
 
     public CommandType getType() {
