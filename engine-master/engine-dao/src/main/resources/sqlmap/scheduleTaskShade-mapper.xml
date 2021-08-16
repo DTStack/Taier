@@ -31,7 +31,7 @@
                 AND tenant_id = #{model.tenantId}
             </if>
 
-            <if test="model.dtuicTenantId != null">
+            <if test="model.dtuicTenantId != null AND model.dtuicTenantId !=0">
                 AND dtuic_tenant_id = #{model.dtuicTenantId}
             </if>
             <if test="model.projectId != null">
