@@ -5,7 +5,6 @@ import MsgCenter from 'dt-common/src/views/message';
 import MsgList from 'dt-common/src/views/message/list';
 import MsgDetail from 'dt-common/src/views/message/detail';
 //custom components
-import Layout from '../layouts';
 import Exception from '@/components/Exception';
 import Loading from '@/components/loading';
 
@@ -61,7 +60,6 @@ export function getRoutes() {
         },
         {
           path: '/data-model',
-          component: Layout,
           childRoutes: [
             {
               path: 'list',
@@ -79,7 +77,6 @@ export function getRoutes() {
         },
         {
           path: '/data-source',
-          component: Layout,
           childRoutes: [
             {
               path: 'list',
