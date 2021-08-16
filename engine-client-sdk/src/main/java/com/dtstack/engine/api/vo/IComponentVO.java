@@ -2,6 +2,7 @@ package com.dtstack.engine.api.vo;
 
 import com.dtstack.engine.api.domain.Component;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 
@@ -51,9 +52,9 @@ public interface IComponentVO {
         boolean needDefault= StringUtils.isBlank(componentVersion);
         List<ComponentVO> componentVOList = loadComponents();
         for (ComponentVO componentVO : componentVOList) {
-            if (needDefault && componentVO.getIsDefault()){
+            if (needDefault && BooleanUtils.isTrue(componentVO.getIsDefault())){
                 return componentVO;
-            }else if (componentVersion.equals(componentVO.getHadoopVersion())){
+            }else if (StringUtils.isNotBlank(componentVersion) && componentVersion.equals(componentVO.getHadoopVersion())){
                 return componentVO;
             }
         }
