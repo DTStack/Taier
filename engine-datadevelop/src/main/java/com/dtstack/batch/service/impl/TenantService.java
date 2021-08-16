@@ -20,7 +20,7 @@ import java.util.*;
 /**
  * @author sishu.yss
  */
-@Service
+@Service("batchTenantService")
 public class TenantService {
 
     public static Logger LOG = LoggerFactory.getLogger(TenantService.class);

@@ -72,7 +72,7 @@ public class RoleUserService {
     @Autowired
     private RoleDao roleDao;
 
-    @Autowired
+    @Resource(name = "batchTenantService")
     private TenantService tenantService;
 
     @Autowired

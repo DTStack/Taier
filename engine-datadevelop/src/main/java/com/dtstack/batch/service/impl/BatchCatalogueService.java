@@ -86,7 +86,7 @@ public class BatchCatalogueService {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
-    @Autowired
+    @Resource(name = "batchTenantService")
     private TenantService tenantService;
 
     private static List<String> FUNCTION_MANAGER = Lists.newArrayList("函数管理");

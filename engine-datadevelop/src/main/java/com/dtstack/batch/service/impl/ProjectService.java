@@ -107,7 +107,7 @@ public class ProjectService {
     @Autowired
     private IJdbcService jdbcServiceImpl;
 
-    @Autowired
+    @Resource(name = "batchTenantService")
     private TenantService tenantService;
 
     @Autowired
@@ -137,7 +137,7 @@ public class ProjectService {
     @Autowired
     private EnvironmentContext environmentContext;
 
-    @Resource
+    @Autowired
     private com.dtstack.engine.master.impl.ProjectService engineProjectService;
 
     @Autowired

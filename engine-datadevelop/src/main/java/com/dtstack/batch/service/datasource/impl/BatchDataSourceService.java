@@ -229,7 +229,7 @@ public class BatchDataSourceService {
     @Resource(name = "batchUserDao")
     private UserDao userDao;
 
-    @Autowired
+    @Resource(name = "batchTenantService")
     private TenantService tenantService;
 
     @Resource(name = "batchProjectService")

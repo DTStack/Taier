@@ -72,7 +72,7 @@ public class BatchSqlExeService {
     @Resource(name = "batchProjectService")
     private ProjectService projectService;
 
-    @Autowired
+    @Resource(name = "batchTenantService")
     private TenantService tenantService;
 
     @Autowired

@@ -89,7 +89,7 @@ public class BatchServerLogService {
     @Autowired
     private ActionService actionService;
 
-    @Autowired
+    @Resource(name = "batchTenantService")
     private TenantService tenantService;
 
     @Autowired

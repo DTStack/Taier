@@ -173,7 +173,7 @@ public class BatchTaskService {
     @Autowired
     private DictService dictService;
 
-    @Autowired
+    @Resource(name = "batchTenantService")
     private TenantService tenantService;
 
     @Autowired
@@ -209,7 +209,7 @@ public class BatchTaskService {
     @Autowired
     private EnvironmentContext environmentContext;
 
-    @Resource
+    @Autowired
     private com.dtstack.engine.master.impl.ProjectService engineProjectService;
 
     @Autowired

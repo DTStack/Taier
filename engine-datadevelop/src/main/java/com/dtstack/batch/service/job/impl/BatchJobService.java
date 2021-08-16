@@ -114,7 +114,7 @@ public class BatchJobService {
     @Autowired
     private EnvironmentContext env;
 
-    @Autowired
+    @Resource(name = "batchTenantService")
     private TenantService tenantService;
 
     @Autowired
