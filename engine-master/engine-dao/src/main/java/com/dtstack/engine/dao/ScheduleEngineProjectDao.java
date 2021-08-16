@@ -21,7 +21,7 @@ public interface ScheduleEngineProjectDao {
 
     Integer deleteByProjectIdAppType(@Param("projectId") Long projectId, @Param("appType") Integer appType);
 
-    List<ScheduleEngineProject> selectFuzzyProjectByProjectAlias(@Param("name") String name, @Param("appType") Integer appType, @Param("uicTenantId") Long uicTenantId, @Param("fuzzyProjectByProjectAliasLimit") Integer fuzzyProjectByProjectAliasLimit);
+    List<ScheduleEngineProject> selectFuzzyProjectByProjectAlias(@Param("name") String name, @Param("appType") Integer appType, @Param("uicTenantId") Long uicTenantId,@Param("projectId") Long projectId, @Param("fuzzyProjectByProjectAliasLimit") Integer fuzzyProjectByProjectAliasLimit);
 
     List<ScheduleEngineProject> listByProjectIds(@Param("projectIds") List<Long> projectIds, @Param("appType") Integer appType);
 

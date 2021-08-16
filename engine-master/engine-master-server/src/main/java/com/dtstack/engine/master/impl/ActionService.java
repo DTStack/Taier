@@ -7,6 +7,8 @@ import com.dtstack.engine.api.dto.ScheduleTaskParamShade;
 import com.dtstack.engine.api.enums.ScheduleEngineType;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.pojo.ParamActionExt;
+import com.dtstack.engine.api.vo.AppTypeVO;
+import com.dtstack.engine.api.vo.JobLogVO;
 import com.dtstack.engine.api.vo.action.ActionJobEntityVO;
 import com.dtstack.engine.api.vo.action.ActionJobStatusVO;
 import com.dtstack.engine.api.vo.action.ActionLogVO;
@@ -38,6 +40,8 @@ import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.schedule.common.enums.ForceCancelFlag;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -115,6 +119,9 @@ public class ActionService {
     @Autowired
     private ComponentDao componentDao;
 
+    @Autowired
+    private ScheduleTaskShadeDao scheduleTaskShadeDao;
+
     private final ObjectMapper objMapper = new ObjectMapper();
 
 
@@ -145,6 +152,7 @@ public class ActionService {
             //会对重复数据做校验
             if(canAccepted){
                 JobClient jobClient = new JobClient(paramActionExt);
+                jobClient.setType(getOrDefault(paramActionExt.getType(), EScheduleType.TEMP_JOB.getType()));
                 jobDealer.addSubmitJob(jobClient);
                 return true;
             }
@@ -277,6 +285,7 @@ public class ActionService {
         actionParam.put("taskType", batchTask.getTaskType());
         actionParam.put("appType", batchTask.getAppType());
         actionParam.put("componentVersion",batchTask.getComponentVersion());
+        actionParam.put("type",scheduleJob.getType());
         Object tenantId = actionParam.get("tenantId");
         if (Objects.isNull(tenantId)) {
             actionParam.put("tenantId", batchTask.getDtuicTenantId());
@@ -528,23 +537,140 @@ public class ActionService {
         ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
         if (scheduleJob != null) {
             vo.setLogInfo(scheduleJob.getLogInfo());
-        	String engineLog = scheduleJob.getEngineLog();
-            if (StringUtils.isBlank(engineLog)) {
-                try {
-                    engineLog = CompletableFuture.supplyAsync(
-                            () ->
-                                    jobDealer.getAndUpdateEngineLog(jobId, scheduleJob.getEngineJobId(), scheduleJob.getApplicationId(), scheduleJob.getDtuicTenantId()),
-                            logTimeOutPool
-                    ).get(environmentContext.getLogTimeout(), TimeUnit.SECONDS);
-                } catch (Exception e){
-                }
-                if (engineLog == null) {
-                    engineLog = "";
-                }
-            }
+            String engineLog = getEngineLog(jobId, scheduleJob);
             vo.setEngineLog(engineLog);
         }
         return vo;
+    }
+
+    private String getEngineLog(String jobId, ScheduleJob scheduleJob) throws InterruptedException, java.util.concurrent.ExecutionException, java.util.concurrent.TimeoutException {
+        String engineLog = scheduleJob.getEngineLog();
+        if (StringUtils.isBlank(engineLog)) {
+            engineLog = CompletableFuture.supplyAsync(
+                    () ->
+                    jobDealer.getAndUpdateEngineLog(jobId, scheduleJob.getEngineJobId(), scheduleJob.getApplicationId(), scheduleJob.getDtuicTenantId()),
+                    logTimeOutPool
+            ).get(environmentContext.getLogTimeout(), TimeUnit.SECONDS);
+            if (engineLog == null) {
+                engineLog = "";
+            }
+        }
+        return engineLog;
+    }
+
+    public JobLogVO logUnite(String jobId,Integer pageInfo)  throws Exception {
+        if (StringUtils.isBlank(jobId)) {
+            throw new RdosDefineException("jobId is not allow null", ErrorCode.INVALID_PARAMETERS);
+        }
+
+        ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
+
+        if (scheduleJob == null) {
+            throw new RdosDefineException("job is not exist");
+        }
+
+        ScheduleTaskShade taskShadeDao = scheduleTaskShadeDao.getOne(scheduleJob.getTaskId(), scheduleJob.getAppType());
+
+        if (taskShadeDao == null) {
+            throw new RdosDefineException("task is not exist");
+        }
+
+        JobLogVO jobLogVO = new JobLogVO();
+        jobLogVO.setName(taskShadeDao.getName());
+        jobLogVO.setComputeType(taskShadeDao.getComputeType());
+        jobLogVO.setTaskType(taskShadeDao.getTaskType());
+
+        jobLogVO.setExecEndTime(scheduleJob.getExecEndTime());
+        jobLogVO.setExecStartTime(scheduleJob.getExecStartTime());
+
+        String engineLog = getEngineLog(jobId, scheduleJob);
+        jobLogVO.setEngineLog(engineLog);
+
+        // 封装日志信息
+        JSONObject info = new JSONObject();
+        try {
+            info = JSON.parseObject(scheduleJob.getLogInfo());
+        } catch (final Exception e) {
+            LOGGER.error("parse jobId {} } logInfo error {}", jobId, scheduleJob.getLogInfo());
+            info.put("msg_info", scheduleJob.getLogInfo());
+        }
+
+        if (info == null) {
+            info = new JSONObject();
+        }
+
+        info.put("sql",taskShadeDao.getSqlText());
+        info.put("engineLogErr",engineLog);
+        jobLogVO.setLogInfo(info.toJSONString());
+        try {
+            if (scheduleJob.getRetryNum() > 0) {
+                String retryLog = buildRetryLog(scheduleJob.getJobId(), pageInfo, jobLogVO);
+                if (StringUtils.isNotBlank(retryLog)) {
+                    jobLogVO.setLogInfo(retryLog);
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.error("",e);
+        }
+
+        return jobLogVO;
+    }
+
+    private String buildRetryLog(final String jobId, Integer pageInfo,JobLogVO batchServerLogVO) throws Exception {
+        //先获取engine的日志总数信息
+        List<ActionRetryLogVO> actionRetryLogVOs = retryLog(jobId);
+        if (CollectionUtils.isEmpty(actionRetryLogVOs)) {
+            return "";
+        }
+        batchServerLogVO.setPageSize(actionRetryLogVOs.size());
+        if(Objects.isNull(pageInfo)){
+            pageInfo = 0;
+        }
+        //engine 的 retryNum 从1 开始
+        if (0 == pageInfo) {
+            pageInfo = actionRetryLogVOs.size();
+        }
+        if (pageInfo > actionRetryLogVOs.size()) {
+            throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS);
+        }
+        //获取对应的日志
+        ActionRetryLogVO retryLogContent = retryLogDetail(jobId, pageInfo);
+        StringBuilder builder = new StringBuilder();
+        if (Objects.isNull(retryLogContent)) {
+            return "";
+        }
+        Integer retryNumVal = retryLogContent.getRetryNum();
+        int retryNum = 0;
+        if(Objects.nonNull(retryNumVal)){
+            retryNum = retryNumVal + 1;
+        }
+        String logInfo = retryLogContent.getLogInfo();
+        String engineInfo = retryLogContent.getEngineLog();
+        String retryTaskParams = retryLogContent.getRetryTaskParams();
+        builder.append("====================第 ").append(retryNum).append("次重试====================").append("\n");
+
+        if (!Strings.isNullOrEmpty(logInfo)) {
+            builder.append("====================LogInfo start====================").append("\n");
+            builder.append(logInfo).append("\n");
+            builder.append("=====================LogInfo end=====================").append("\n");
+        }
+        if (!Strings.isNullOrEmpty(engineInfo)) {
+            builder.append("==================EngineInfo  start==================").append("\n");
+            builder.append(engineInfo).append("\n");
+            builder.append("===================EngineInfo  end===================").append("\n");
+        }
+        if (!Strings.isNullOrEmpty(retryTaskParams)) {
+            builder.append("==================RetryTaskParams  start==================").append("\n");
+            builder.append(retryTaskParams).append("\n");
+            builder.append("===================RetryTaskParams  end===================").append("\n");
+        }
+
+        builder.append("==================第").append(retryNum).append("次重试结束==================").append("\n");
+        for (int j = 0; j < 10; j++) {
+            builder.append("==" + "\n");
+        }
+
+        return builder.toString();
     }
 
     /**
@@ -773,6 +899,22 @@ public class ActionService {
         return vo;
     }
 
+
+
+    public List<AppTypeVO> getAllAppType() {
+        AppType[] appTypes = AppType.values();
+        List<AppTypeVO> appTypeVOS = Lists.newArrayList();
+
+        for (AppType appType : appTypes) {
+            AppTypeVO appTypeVO = new AppTypeVO();
+            appTypeVO.setCode(appType.getType());
+            appTypeVO.setMsg(appType.getName());
+
+            appTypeVOS.add(appTypeVO);
+        }
+
+        return appTypeVOS;
+    }
 
 
 }

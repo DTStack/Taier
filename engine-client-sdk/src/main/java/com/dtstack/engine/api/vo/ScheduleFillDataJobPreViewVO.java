@@ -41,6 +41,9 @@ public class ScheduleFillDataJobPreViewVO {
     @ApiModelProperty(notes = "完成的job数量")
     private Long doneJobSum;
 
+    @ApiModelProperty(notes = "项目id")
+    private Long projectId;
+
     /**
      * 责任人
      * @return
@@ -128,5 +131,11 @@ public class ScheduleFillDataJobPreViewVO {
         this.finishedJobSum = finishedJobSum;
     }
 
+    public Long getProjectId() {
+        return projectId;
+    }
 
+    public void setProjectId(Long projectId) {
+        this.projectId = projectId;
+    }
 }

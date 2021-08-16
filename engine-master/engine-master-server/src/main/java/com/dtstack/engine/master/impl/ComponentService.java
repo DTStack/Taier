@@ -2232,6 +2232,25 @@ public class ComponentService {
 
     }
 
+    /**
+     *
+     * @param appType 后面可能会用
+     * @param projectId 后面可能会用
+     * @param dtuicTenantId 后面可能会用
+     * @return
+     */
+    public List<TaskGetSupportJobTypesResultVO> getSupportJobTypes(Integer appType, Long projectId, Long dtuicTenantId) {
+        EScheduleJobType[] eScheduleJobType = EScheduleJobType.values();
+        List<TaskGetSupportJobTypesResultVO> vos = Lists.newArrayList();
+        for (EScheduleJobType scheduleJobType : eScheduleJobType) {
+            TaskGetSupportJobTypesResultVO vo = new TaskGetSupportJobTypesResultVO();
+            vo.setKey(scheduleJobType.getType());
+            vo.setValue(scheduleJobType.getName());
+            vos.add(vo);
+        }
+        return vos;
+    }
+
     public List<DtScriptAgentLabel> getDtScriptAgentLabel(String agentAddress) {
         try {
             String pluginInfo = new JSONObject(1).fluentPut("agentAddress",agentAddress).toJSONString();

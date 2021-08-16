@@ -18,6 +18,7 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.ComponentVersionUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.schedule.common.enums.DataSourceType;

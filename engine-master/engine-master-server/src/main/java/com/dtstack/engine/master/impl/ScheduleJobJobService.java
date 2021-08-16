@@ -60,6 +60,9 @@ public class ScheduleJobJobService {
     @Autowired
     private ScheduleTaskShadeService taskShadeService;
 
+    @Autowired
+    private UserService userService;
+
     /**
      * @author newman
      * @Description
@@ -576,8 +579,9 @@ public class ScheduleJobJobService {
 
 
     private ScheduleTaskVO getTaskVo(ScheduleTaskShade batchTaskShade) {
-
-        return  new ScheduleTaskVO(batchTaskShade, true);
+        ScheduleTaskVO scheduleTaskVO = new ScheduleTaskVO(batchTaskShade, true);
+        userService.fillUser(Lists.newArrayList(scheduleTaskVO));
+        return scheduleTaskVO;
     }
 
     /**

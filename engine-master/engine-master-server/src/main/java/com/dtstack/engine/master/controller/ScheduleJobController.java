@@ -12,10 +12,11 @@ import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.impl.ScheduleJobService;
+import com.dtstack.engine.master.router.DtParamOrHeader;
+import com.dtstack.engine.master.router.DtRequestParam;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.dtstack.engine.master.router.DtRequestParam;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
@@ -131,13 +132,17 @@ public class ScheduleJobController {
     }
 
     @RequestMapping(value = "/stopJob", method = {RequestMethod.POST})
-    public void stopJob(@DtRequestParam("jobId") long jobId, @DtRequestParam("appType") Integer appType) throws Exception {
-        scheduleJobService.stopJob(jobId, appType);
+    public String stopJob(@DtRequestParam("jobId") Long jobId,
+                          @DtRequestParam("appType") Integer appType) throws Exception {
+        return scheduleJobService.stopJob(jobId, appType);
     }
 
 
     @RequestMapping(value = "/stopFillDataJobs", method = {RequestMethod.POST})
-    public void stopFillDataJobs(@DtRequestParam("fillDataJobName") String fillDataJobName, @DtRequestParam("projectId") Long projectId, @DtRequestParam("dtuicTenantId") Long dtuicTenantId, @DtRequestParam("appType") Integer appType) throws Exception {
+    public void stopFillDataJobs(@DtRequestParam("fillDataJobName") String fillDataJobName,
+                                 @DtRequestParam("projectId") Long projectId,
+                                 @DtParamOrHeader(value = "dtuicTenantId",header = "cookie",cookie = "dt_tenant_id") Long dtuicTenantId,
+                                 @DtRequestParam("appType") Integer appType) throws Exception {
         scheduleJobService.stopFillDataJobs(fillDataJobName, projectId, dtuicTenantId, appType);
     }
 
@@ -150,22 +155,36 @@ public class ScheduleJobController {
 
     @RequestMapping(value = "/fillTaskData", method = {RequestMethod.POST})
     @ApiOperation(value = "补数据")
-    public String fillTaskData(@DtRequestParam("taskJson") String taskJsonStr, @DtRequestParam("fillName") String fillName,
-                               @DtRequestParam("fromDay") Long fromDay, @DtRequestParam("toDay") Long toDay,
-                               @DtRequestParam("concreteStartTime") String beginTime, @DtRequestParam("concreteEndTime") String endTime,
-                               @DtRequestParam("projectId") Long projectId, @DtRequestParam("userId") Long userId,
+    public String fillTaskData(@DtRequestParam("taskJson") String taskJsonStr,
+                               @DtRequestParam("fillName") String fillName,
+                               @DtRequestParam("fromDay") Long fromDay,
+                               @DtRequestParam("toDay") Long toDay,
+                               @DtRequestParam("concreteStartTime") String beginTime,
+                               @DtRequestParam("concreteEndTime") String endTime,
+                               @DtRequestParam("projectId") Long projectId,
+                               @DtParamOrHeader(value = "userId",header = "userId") Long userId,
                                @DtRequestParam("tenantId") Long tenantId,
-                               @DtRequestParam("isRoot") Boolean isRoot, @DtRequestParam("appType") Integer appType, @DtRequestParam("dtuicTenantId") Long dtuicTenantId,@DtRequestParam(name = "ignoreCycTime") Boolean ignoreCycTime) throws Exception {
+                               @DtRequestParam("isRoot") Boolean isRoot,
+                               @DtRequestParam("appType") Integer appType,
+                               @DtParamOrHeader(value = "dtuicTenantId",header = "cookie",cookie = "dt_tenant_id") Long dtuicTenantId,
+                               @DtRequestParam("ignoreCycTime") Boolean ignoreCycTime) throws Exception {
         return scheduleJobService.fillTaskData(taskJsonStr, fillName, fromDay, toDay, beginTime, endTime, projectId, userId, tenantId, isRoot, appType, dtuicTenantId,ignoreCycTime);
     }
 
 
     @RequestMapping(value = "/getFillDataJobInfoPreview", method = {RequestMethod.POST})
-    public PageResult<List<ScheduleFillDataJobPreViewVO>> getFillDataJobInfoPreview(@DtRequestParam("jobName") String jobName, @DtRequestParam("runDay") Long runDay,
-                                                                                    @DtRequestParam("bizStartDay") Long bizStartDay, @DtRequestParam("bizEndDay") Long bizEndDay, @DtRequestParam("dutyUserId") Long dutyUserId,
-                                                                                    @DtRequestParam("projectId") Long projectId, @DtRequestParam("appType") Integer appType,
-                                                                                    @DtRequestParam("currentPage") Integer currentPage, @DtRequestParam("pageSize") Integer pageSize, @DtRequestParam("tenantId") Long tenantId) {
-        return scheduleJobService.getFillDataJobInfoPreview(jobName, runDay, bizStartDay, bizEndDay, dutyUserId, projectId, appType, currentPage, pageSize, tenantId);
+    public PageResult<List<ScheduleFillDataJobPreViewVO>> getFillDataJobInfoPreview(@DtRequestParam("jobName") String jobName,
+                                                                                    @DtRequestParam("runDay") Long runDay,
+                                                                                    @DtRequestParam("bizStartDay") Long bizStartDay,
+                                                                                    @DtRequestParam("bizEndDay") Long bizEndDay,
+                                                                                    @DtParamOrHeader(value = "user",header = "userId") Long dutyUserId,
+                                                                                    @DtRequestParam("projectId") Long projectId,
+                                                                                    @DtRequestParam("appType") Integer appType,
+                                                                                    @DtRequestParam("currentPage") Integer currentPage,
+                                                                                    @DtRequestParam("pageSize") Integer pageSize,
+                                                                                    @DtRequestParam("tenantId") Long tenantId,
+                                                                                    @DtParamOrHeader(value = "dtuicTenantId",header = "cookie",cookie = "dt_tenant_id") Long dtuicTenantId) {
+        return scheduleJobService.getFillDataJobInfoPreview(jobName, runDay, bizStartDay, bizEndDay, dutyUserId, projectId, appType, currentPage, pageSize, tenantId,dtuicTenantId);
     }
 
 
@@ -181,7 +200,8 @@ public class ScheduleJobController {
     public PageResult<ScheduleFillDataJobDetailVO> getFillDataDetailInfo(@DtRequestParam("vo") String queryJobDTO,
                                                                          @DtRequestParam("flowJobIdList") List<String> flowJobIdList,
                                                                          @DtRequestParam("fillJobName") String fillJobName,
-                                                                         @DtRequestParam("dutyUserId") Long dutyUserId, @DtRequestParam("searchType") String searchType,
+                                                                         @DtRequestParam("dutyUserId") Long dutyUserId,
+                                                                         @DtRequestParam("searchType") String searchType,
                                                                          @DtRequestParam("appType") Integer appType) throws Exception {
         return scheduleJobService.getFillDataDetailInfo(queryJobDTO, flowJobIdList, fillJobName, dutyUserId, searchType, appType);
     }
@@ -200,11 +220,12 @@ public class ScheduleJobController {
                                                                                @DtRequestParam("execTimeSort") String execTimeSort, @DtRequestParam("execStartSort") String execStartSort,
                                                                                @DtRequestParam("execEndSort") String execEndSort, @DtRequestParam("cycSort") String cycSort,
                                                                                @DtRequestParam("businessDateSort") String businessDateSort, @DtRequestParam("retryNumSort") String retryNumSort,
+                                                                               @DtRequestParam("taskType") String taskType,
                                                                                @DtRequestParam("jobStatuses") String jobStatuses,
                                                                                @DtRequestParam("currentPage") Integer currentPage,
                                                                                @DtRequestParam("pageSize") Integer pageSize) throws Exception {
         return scheduleJobService.getJobGetFillDataDetailInfo(taskName, bizStartDay, bizEndDay, flowJobIdList, fillJobName, dutyUserId, searchType, appType, projectId, dtuicTenantId,
-                execTimeSort, execStartSort, execEndSort, cycSort, businessDateSort, retryNumSort, jobStatuses,currentPage, pageSize);
+                execTimeSort, execStartSort, execEndSort, cycSort, businessDateSort, retryNumSort,taskType, jobStatuses,currentPage, pageSize);
     }
 
 
@@ -443,6 +464,11 @@ public class ScheduleJobController {
     @RequestMapping(value = "/syncRestartJob", method = {RequestMethod.POST, RequestMethod.GET})
     public boolean syncRestartJob(@DtRequestParam("id") Long id, @DtRequestParam("justRunChild") Boolean justRunChild, @DtRequestParam("setSuccess") Boolean setSuccess, @DtRequestParam("subJobIds") List<Long> subJobIds) {
         return scheduleJobService.syncRestartJob(id, justRunChild, setSuccess, subJobIds);
+    }
+
+    @RequestMapping(value = "/restartJobAndResume", method = {RequestMethod.POST, RequestMethod.GET})
+    public OperatorVO restartJobAndResume(@DtRequestParam("jobIdList") List<Long> jobIdList, @DtRequestParam("runCurrentJob") Boolean runCurrentJob) {
+        return scheduleJobService.restartJobAndResume(jobIdList, runCurrentJob);
     }
 
     @RequestMapping(value="/stopJobByCondition", method = {RequestMethod.POST})
