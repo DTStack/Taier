@@ -128,7 +128,7 @@ public class ProjectService {
     @Resource(name = "multiEngineService")
     private IMultiEngineService multiEngineService;
 
-    @Resource(name = "engineTenantService")
+    @Autowired
     private com.dtstack.engine.master.impl.TenantService engineTenantService;
 
     @Autowired

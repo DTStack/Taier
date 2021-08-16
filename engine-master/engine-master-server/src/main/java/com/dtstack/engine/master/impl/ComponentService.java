@@ -140,7 +140,7 @@ public class ComponentService {
     @Autowired
     private ConsoleService consoleService;
 
-    @javax.annotation.Resource(name = "engineTenantService")
+    @Autowired
     private TenantService tenantService;
 
     @Autowired

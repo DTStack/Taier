@@ -24,7 +24,7 @@ public class PlatformService {
     @Autowired
     private EnvironmentContext environmentContext;
 
-    @Resource(name = "engineTenantService")
+    @Autowired
     private TenantService tenantService;
 
     @Autowired
