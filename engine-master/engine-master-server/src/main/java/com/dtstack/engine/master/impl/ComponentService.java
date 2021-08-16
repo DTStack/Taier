@@ -250,11 +250,14 @@ public class ComponentService {
                 return;
             }
             List<Long> tenantIds = engineTenantDao.listTenantIdByQueueIds(queueIds);
-            dtUicTenantIds = new HashSet<>(tenantDao.listDtUicTenantIdByIds(tenantIds));
+            List<Long> listDtUicTenantIdByIds = tenantDao.listDtUicTenantIdByIds(tenantIds);
+            if (CollectionUtils.isNotEmpty(listDtUicTenantIdByIds)) {
+                dtUicTenantIds = new HashSet<>(listDtUicTenantIdByIds);
+            }
         }
         dataSourceService.publishSqlComponent(clusterId,engineId,componentCode,dtUicTenantIds);
         //缓存刷新
-        if (!dtUicTenantIds.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(dtUicTenantIds)) {
             for (Long uicTenantId : dtUicTenantIds) {
                 consoleCache.publishRemoveMessage(uicTenantId.toString());
             }
@@ -1246,7 +1249,8 @@ public class ComponentService {
         Map<String, Map<String,Object>> xmlConfigMap = this.parseUploadFileToMap(resources);
         boolean isLostXmlFile = xmlConfigMap.keySet().containsAll(xmlName);
         if(!isLostXmlFile){
-            throw new RdosDefineException("Missing necessary configuration file");
+            LOGGER.error("Missing necessary configuration file, maybe the Zip file corrupt, please retry zip files.");
+            throw new RdosDefineException("Missing necessary configuration file, maybe the Zip file corrupt, please retry zip files.");
         }
         //多个配置文件合并为一个map
         if(MapUtils.isNotEmpty(xmlConfigMap)){

@@ -709,7 +709,7 @@ create table if not exists lineage_column_column(
     result_table_key varchar(256) NOT NULL COMMENT '输出表表物理定位码',
     result_column_name VARCHAR(55) NOT NULL COMMENT '输出字段名称',
     column_lineage_key VARCHAR(60) NOT NULL COMMENT '字段级血缘定位码，根据输入字段和输出字段定位码计算出',
-    gmt_create datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+    gmt_create datetime NOT NULL DEFAULT CURRENT_TIMESTAMP CComponentService.javaOMMENT '新增时间',
     gmt_modified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
     is_deleted tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
     lineage_source smallint(3) NOT NULL DEFAULT '0' COMMENT '血缘来源：0-sql解析；1-手动维护；2-json解析',
