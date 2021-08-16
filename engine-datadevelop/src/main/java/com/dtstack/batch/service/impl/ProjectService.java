@@ -78,7 +78,7 @@ import java.util.stream.Collectors;
 /**
  * @author sishu.yss
  */
-@Service
+@Service("batchProjectService")
 public class ProjectService {
 
     private static final Logger logger = LoggerFactory.getLogger(ProjectService.class);
@@ -137,7 +137,7 @@ public class ProjectService {
     @Autowired
     private EnvironmentContext environmentContext;
 
-    @Resource(name = "engineProjectService")
+    @Resource
     private com.dtstack.engine.master.impl.ProjectService engineProjectService;
 
     @Autowired

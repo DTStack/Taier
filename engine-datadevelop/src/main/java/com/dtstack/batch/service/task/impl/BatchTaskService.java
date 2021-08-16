@@ -167,7 +167,7 @@ public class BatchTaskService {
     @Autowired
     private RoleUserService roleUserService;
 
-    @Autowired
+    @Resource(name = "batchProjectService")
     private ProjectService projectService;
 
     @Autowired
@@ -209,7 +209,7 @@ public class BatchTaskService {
     @Autowired
     private EnvironmentContext environmentContext;
 
-    @Resource(name = "engineProjectService")
+    @Resource
     private com.dtstack.engine.master.impl.ProjectService engineProjectService;
 
     @Autowired

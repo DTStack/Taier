@@ -42,6 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -61,7 +62,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
     @Autowired
     private BatchHiveSelectSqlDao batchHiveSelectSqlDao;
 
-    @Autowired
+    @Resource(name = "batchProjectService")
     private ProjectService projectService;
 
     @Autowired

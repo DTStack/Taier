@@ -52,7 +52,7 @@ public class BatchTaskTaskService {
     @Autowired
     private TenantService tenantService;
 
-    @Autowired
+    @Resource(name = "batchProjectService")
     private ProjectService projectService;
 
     @Autowired
@@ -61,7 +61,7 @@ public class BatchTaskTaskService {
     @Autowired
     private ScheduleTaskShadeService scheduleTaskShadeService;
 
-    @Resource(name = "engineProjectService")
+    @Resource
     private com.dtstack.engine.master.impl.ProjectService engineProjectService;
 
     @Autowired

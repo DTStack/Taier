@@ -25,7 +25,7 @@ import java.util.List;
  * @author yuebai
  * @date 2020-01-19
  */
-@Service("engineProjectService")
+@Service
 public class ProjectService {
 
     private final Logger LOGGER = LoggerFactory.getLogger(ProjectService.class);

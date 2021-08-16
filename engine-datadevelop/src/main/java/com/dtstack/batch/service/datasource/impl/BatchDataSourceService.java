@@ -232,7 +232,7 @@ public class BatchDataSourceService {
     @Autowired
     private TenantService tenantService;
 
-    @Autowired
+    @Resource(name = "batchProjectService")
     private ProjectService projectService;
 
     @Autowired

@@ -19,7 +19,7 @@ import java.util.List;
 @Api(value = "/node/project", tags = {"项目接口"})
 public class ProjectController {
 
-    @Resource(name = "engineProjectService")
+    @Resource
     private ProjectService projectService;
 
     @RequestMapping(value="/updateSchedule", method = {RequestMethod.POST})

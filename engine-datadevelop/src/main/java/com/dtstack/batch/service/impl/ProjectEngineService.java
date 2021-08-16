@@ -41,7 +41,7 @@ public class ProjectEngineService {
     @Autowired
     private ProjectEngineDao projectEngineDao;
 
-    @Autowired
+    @Resource(name = "batchProjectService")
     private ProjectService projectService;
 
     @Resource(name = "batchTenantDao")
