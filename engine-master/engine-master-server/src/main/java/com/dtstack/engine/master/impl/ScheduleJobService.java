@@ -277,7 +277,7 @@ public class ScheduleJobService {
         } else {
             JobStatusCount(projectIds, tenantId, appType, dtuicTenantId, scheduleJobStatusVOS);
         }
-        
+
         return scheduleJobStatusVOS;
     }
 
@@ -506,7 +506,7 @@ public class ScheduleJobService {
         } else {
             count = queryNormalJob(batchJobDTO, queryAll, pageQuery, result);
         }
-
+        userService.fillScheduleJobVO(result);
         return new PageResult<>(result, count, pageQuery);
     }
 
@@ -692,6 +692,7 @@ public class ScheduleJobService {
             List<com.dtstack.engine.api.vo.ScheduleJobVO> relatedJobVOs= new ArrayList<>(subJobVOs.size());
             subJobVOs.forEach(subJobVO -> relatedJobVOs.add(subJobVO));
             batchJobVO.setRelatedJobs(relatedJobVOs);
+            userService.fillScheduleJobVO(Lists.newArrayList(batchJobVO));
             return batchJobVO;
         } else {
             throw new RdosDefineException("Only workflow tasks have subordinate nodes");
@@ -1582,6 +1583,8 @@ public class ScheduleJobService {
             resultContent.add(preViewVO);
         }
 
+        userService.fillFillDataJobUserName(resultContent);
+
         int totalCount = scheduleJobDao.countFillJobNameDistinctWithOutTask(batchJobDTO);
 
         return new PageResult<>(resultContent, totalCount, pageQuery);
@@ -1761,6 +1764,37 @@ public class ScheduleJobService {
 
 
         return new PageResult<>(scheduleFillDataJobDetailVO, totalCount, pageQuery);
+    }
+
+    public PageResult<ScheduleFillDataJobDetailVO> getJobGetFillDataDetailInfo(String taskName, Long bizStartDay,
+                                                                               Long bizEndDay, List<String> flowJobIdList,
+                                                                               String fillJobName, Long dutyUserId,
+                                                                               String searchType, Integer appType,
+                                                                               Long projectId,Long dtuicTenantId,
+                                                                               String execTimeSort, String execStartSort,
+                                                                               String execEndSort, String cycSort,
+                                                                               String businessDateSort, String retryNumSort,
+                                                                               String jobStatuses,
+                                                                               Integer currentPage, Integer pageSize) throws Exception {
+        QueryJobDTO vo = new QueryJobDTO();
+        vo.setCurrentPage(currentPage);
+        vo.setPageSize(pageSize);
+        vo.setBizStartDay(bizStartDay);
+        vo.setBizEndDay(bizEndDay);
+        vo.setFillTaskName(fillJobName);
+        vo.setSearchType(searchType);
+        vo.setProjectId(projectId);
+        vo.setDtuicTenantId(dtuicTenantId);
+        vo.setTaskName(taskName);
+        vo.setSplitFiledFlag(true);
+        vo.setExecTimeSort(execTimeSort);
+        vo.setExecStartSort(execStartSort);
+        vo.setExecEndSort(execEndSort);
+        vo.setCycSort(cycSort);
+        vo.setBusinessDateSort(businessDateSort);
+        vo.setRetryNumSort(retryNumSort);
+        vo.setJobStatuses(jobStatuses);
+        return getScheduleFillDataJobDetailVOPageResult(flowJobIdList, fillJobName, dutyUserId, searchType, appType, vo);
     }
 
     public PageResult<ScheduleFillDataJobDetailVO> getFillDataDetailInfo( String queryJobDTO,
@@ -2004,7 +2038,9 @@ public class ScheduleJobService {
         }
         Set<Long> taskIdSet = scheduleJobs.stream().map(ScheduleJob::getTaskId).collect(Collectors.toSet());
         Integer appType = scheduleJobs.get(0).getAppType();
-        return scheduleTaskShadeDao.listSimpleTaskByTaskIds(taskIdSet, null,appType).stream().collect(Collectors.toMap(ScheduleTaskForFillDataDTO::getTaskId, scheduleTaskForFillDataDTO -> scheduleTaskForFillDataDTO));
+        List<ScheduleTaskForFillDataDTO> scheduleTaskForFillDataDTOS = scheduleTaskShadeDao.listSimpleTaskByTaskIds(taskIdSet, null, appType);
+        userService.fillScheduleTaskForFillDataDTO(scheduleTaskForFillDataDTOS);
+        return scheduleTaskForFillDataDTOS.stream().collect(Collectors.toMap(ScheduleTaskForFillDataDTO::getTaskId, scheduleTaskForFillDataDTO -> scheduleTaskForFillDataDTO));
 
     }
 

@@ -15,6 +15,7 @@ import com.dtstack.engine.api.pojo.lineage.ComponentMultiTestResult;
 import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
 import com.dtstack.engine.api.vo.components.ComponentsResultVO;
+import com.dtstack.engine.api.vo.task.TaskGetSupportJobTypesResultVO;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.*;
@@ -41,6 +42,7 @@ import com.dtstack.engine.master.utils.XmlFileUtil;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.util.Base64Util;
+import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.schedule.common.util.Xml2JsonUtil;
 import com.dtstack.schedule.common.util.ZipUtil;
 import com.google.common.collect.HashBasedTable;
@@ -2448,5 +2450,24 @@ public class ComponentService {
             return componentDao.listByTenantId(tenant.getId());
 
         }
+    }
+
+    /**
+     *
+     * @param appType 后面可能会用
+     * @param projectId 后面可能会用
+     * @param dtuicTenantId 后面可能会用
+     * @return
+     */
+    public List<TaskGetSupportJobTypesResultVO> getSupportJobTypes(Integer appType, Long projectId, Long dtuicTenantId) {
+        EScheduleJobType[] eScheduleJobType = EScheduleJobType.values();
+        List<TaskGetSupportJobTypesResultVO> vos = Lists.newArrayList();
+        for (EScheduleJobType scheduleJobType : eScheduleJobType) {
+            TaskGetSupportJobTypesResultVO vo = new TaskGetSupportJobTypesResultVO();
+            vo.setKey(scheduleJobType.getType());
+            vo.setValue(scheduleJobType.getName());
+            vos.add(vo);
+        }
+        return vos;
     }
 }

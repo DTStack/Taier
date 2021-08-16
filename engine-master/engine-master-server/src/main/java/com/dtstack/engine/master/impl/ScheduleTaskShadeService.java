@@ -87,6 +87,9 @@ public class ScheduleTaskShadeService {
     @Autowired
     private ScheduleDictDao scheduleDictDao;
 
+    @Autowired
+    private UserService userService;
+
     /**
      * web 接口
      * 例如：离线计算BatchTaskService.publishTaskInfo 触发 batchTaskShade 保存task的必要信息
@@ -393,6 +396,8 @@ public class ScheduleTaskShadeService {
             //默认不查询全部工作流子节点
             //vos = dealFlowWorkTasks(vos);
         }
+
+        userService.fillUser(vos);
         PageResult<List<ScheduleTaskVO>> pageResult = new PageResult<>(vos, count, pageQuery);
         scheduleTaskShadeTaskVO.setPageResult(pageResult);
         return scheduleTaskShadeTaskVO;

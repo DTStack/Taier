@@ -186,6 +186,29 @@ public class ScheduleJobController {
         return scheduleJobService.getFillDataDetailInfo(queryJobDTO, flowJobIdList, fillJobName, dutyUserId, searchType, appType);
     }
 
+    @RequestMapping(value = "/getJobGetFillDataDetailInfo", method = {RequestMethod.POST})
+    public PageResult<ScheduleFillDataJobDetailVO> getJobGetFillDataDetailInfo(@DtRequestParam("taskName") String taskName,
+                                                                               @DtRequestParam("bizStartDay") Long bizStartDay,
+                                                                               @DtRequestParam("bizEndDay") Long bizEndDay,
+                                                                               @DtRequestParam("flowJobIdList") List<String> flowJobIdList,
+                                                                               @DtRequestParam("fillJobName") String fillJobName,
+                                                                               @DtRequestParam("dutyUserId") Long dutyUserId,
+                                                                               @DtRequestParam("searchType") String searchType,
+                                                                               @DtRequestParam("appType") Integer appType,
+                                                                               @DtRequestParam("projectId") Long projectId,
+                                                                               @DtParamOrHeader(value = "dtuicTenantId", header = "cookie", cookie = "dt_tenant_id") Long dtuicTenantId,
+                                                                               @DtRequestParam("execTimeSort") String execTimeSort, @DtRequestParam("execStartSort") String execStartSort,
+                                                                               @DtRequestParam("execEndSort") String execEndSort, @DtRequestParam("cycSort") String cycSort,
+                                                                               @DtRequestParam("businessDateSort") String businessDateSort, @DtRequestParam("retryNumSort") String retryNumSort,
+                                                                               @DtRequestParam("jobStatuses") String jobStatuses,
+                                                                               @DtRequestParam("currentPage") Integer currentPage,
+                                                                               @DtRequestParam("pageSize") Integer pageSize) throws Exception {
+        return scheduleJobService.getJobGetFillDataDetailInfo(taskName, bizStartDay, bizEndDay, flowJobIdList, fillJobName, dutyUserId, searchType, appType, projectId, dtuicTenantId,
+                execTimeSort, execStartSort, execEndSort, cycSort, businessDateSort, retryNumSort, jobStatuses,currentPage, pageSize);
+    }
+
+
+
 
     @RequestMapping(value = "/getRelatedJobsForFillData", method = {RequestMethod.POST})
     @ApiOperation(value = "获取补数据实例工作流节点的父节点和子节点关联信息")
