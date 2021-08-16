@@ -98,37 +98,34 @@ public class RemoteNodes {
             for (Map.Entry<String, AbstractNode> entry : refs.entrySet()) {
                 String key = entry.getKey();
                 AbstractNode node = entry.getValue();
-
-                callbackExecutor.submit(()->{
-                    if (node.getStatus().equals(AbstractNode.NodeStatus.UNAVAILABLE)) {
-                        // 结点已经是不可用的，尝试重新连接
-                        if (node.connect()) {
-                            // 连接成功
-                            LOGGER.info("{} connect success",key);
-                        } else {
-                            // 连接失败
-                            LOGGER.warn("{} connect fail",key);
-                        }
-                        return;
-                    }
-
-                    // 检查心跳
-                    if (node.heartbeat()){
-                        heartBeatCount.remove(node.getAddress());
+                if (node.getStatus().equals(AbstractNode.NodeStatus.UNAVAILABLE)) {
+                    // 结点已经是不可用的，尝试重新连接
+                    if (node.connect()) {
+                        // 连接成功
+                        LOGGER.info("{} connect success",key);
                     } else {
-                        AtomicInteger count = heartBeatCount.get(node.getAddress());
-                        if (count == null) {
-                            count = new AtomicInteger(0);
-                            heartBeatCount.put(node.getAddress(),count);
-                        } else {
-                            int i = count.addAndGet(1);
-                            if (i > 3) {
-                                node.setStatus(AbstractNode.NodeStatus.UNAVAILABLE);
-                            }
-                        }
-
+                        // 连接失败
+                        LOGGER.warn("{} connect fail",key);
                     }
-                });
+                    return;
+                }
+
+                // 检查心跳
+                if (node.heartbeat()){
+                    heartBeatCount.remove(node.getAddress());
+                } else {
+                    AtomicInteger count = heartBeatCount.get(node.getAddress());
+                    if (count == null) {
+                        count = new AtomicInteger(0);
+                        heartBeatCount.put(node.getAddress(),count);
+                    } else {
+                        int i = count.addAndGet(1);
+                        if (i > 3) {
+                            node.setStatus(AbstractNode.NodeStatus.UNAVAILABLE);
+                        }
+                    }
+
+                }
             }
         },10L,2,TimeUnit.SECONDS);
     }
