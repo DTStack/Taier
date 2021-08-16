@@ -251,7 +251,7 @@ public class BatchDataSourceService {
     private EnvironmentContext environmentContext;
 
     @Autowired
-    private UserService userService;
+    private BatchUserService batchUserService;
 
     @Autowired
     private SyncBuilderFactory syncBuilderFactory;

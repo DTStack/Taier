@@ -7,7 +7,7 @@ import com.dtstack.batch.domain.BatchTaskTask;
 import com.dtstack.batch.domain.Project;
 import com.dtstack.batch.service.impl.ProjectService;
 import com.dtstack.batch.service.impl.TenantService;
-import com.dtstack.batch.service.impl.UserService;
+import com.dtstack.batch.service.impl.BatchUserService;
 import com.dtstack.batch.vo.BatchTaskBatchVO;
 import com.dtstack.dtcenter.common.enums.AppType;
 import com.dtstack.dtcenter.common.enums.Deleted;
@@ -47,7 +47,7 @@ public class BatchTaskTaskService {
     private BatchTaskDao batchTaskDao;
 
     @Autowired
-    private UserService userService;
+    private BatchUserService batchUserService;
 
     @Resource(name = "batchTenantService")
     private TenantService tenantService;
@@ -194,9 +194,9 @@ public class BatchTaskTaskService {
         BatchTaskBatchVO vo = new BatchTaskBatchVO();
         BeanUtils.copyProperties(task, vo);
         vo.setVersion(task.getVersion());
-        vo.setCreateUser(userService.getUserByDTO(task.getCreateUserId()));
-        vo.setModifyUser(userService.getUserByDTO(task.getModifyUserId()));
-        vo.setOwnerUser(userService.getUserByDTO(task.getOwnerUserId()));
+        vo.setCreateUser(batchUserService.getUserByDTO(task.getCreateUserId()));
+        vo.setModifyUser(batchUserService.getUserByDTO(task.getModifyUserId()));
+        vo.setOwnerUser(batchUserService.getUserByDTO(task.getOwnerUserId()));
         vo.setTenantName(tenantService.getTenantById(task.getTenantId()).getTenantName());
         vo.setProjectName(projectService.getProjectById(task.getProjectId()).getProjectName());
 

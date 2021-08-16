@@ -1,6 +1,6 @@
 package com.dtstack.batch.web.controller;
 
-import com.dtstack.batch.service.impl.UserService;
+import com.dtstack.batch.service.impl.BatchUserService;
 import com.dtstack.batch.web.user.vo.query.BatchUserGetVO;
 import com.dtstack.batch.web.user.vo.result.BatchGetUserByIdResultVO;
 import com.dtstack.batch.web.user.vo.result.BatchUserGetUsersInTenantVO;
@@ -18,12 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @Api(value = "用户管理", tags = {"用户管理"})
-@RestController
+@RestController("batchUserController")
 @RequestMapping(value =  "/api/rdos/common/user")
 public class UserController {
 
     @Autowired
-    private UserService userService;
+    private BatchUserService batchUserService;
 
     @ApiOperation(value = "获取租户下的用户")
     @PostMapping(value = "getUsersInTenant")
@@ -32,7 +32,7 @@ public class UserController {
         return new APITemplate<List<BatchUserGetUsersInTenantVO>>() {
             @Override
             protected List<BatchUserGetUsersInTenantVO> process() throws BizException {
-                return userService.getUsersInTenant(baseParam.getTenantId());
+                return batchUserService.getUsersInTenant(baseParam.getTenantId());
             }
         }.execute();
     }
@@ -44,7 +44,7 @@ public class UserController {
         return new APITemplate<BatchGetUserByIdResultVO>() {
             @Override
             protected BatchGetUserByIdResultVO process() throws BizException {
-                return userService.getUserById(baseParam.getTenantId(), baseParam.getUserId(), baseParam.getDtToken());
+                return batchUserService.getUserById(baseParam.getTenantId(), baseParam.getUserId(), baseParam.getDtToken());
             }
         }.execute();
     }

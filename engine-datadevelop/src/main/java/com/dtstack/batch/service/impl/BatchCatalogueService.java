@@ -16,7 +16,6 @@ import com.dtstack.batch.service.task.impl.ReadWriteLockService;
 import com.dtstack.batch.vo.*;
 import com.dtstack.batch.web.task.vo.result.BatchTaskGetComponentVersionResultVO;
 import com.dtstack.dtcenter.common.enums.*;
-import com.dtstack.dtcenter.common.lock.RedLock;
 import com.dtstack.dtcenter.common.util.PublicUtil;
 import com.dtstack.engine.api.domain.BatchTask;
 import com.google.common.collect.Lists;
@@ -32,7 +31,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -69,7 +67,7 @@ public class BatchCatalogueService {
     private DictService dictService;
 
     @Autowired
-    private UserService userService;
+    private BatchUserService batchUserService;
 
     @Autowired
     private BatchDataCatalogueDao batchDataCatalogueDao;
@@ -913,7 +911,7 @@ public class BatchCatalogueService {
                 childTask.setLevel(currentCatalogueVO.getLevel() + 1);
                 childTask.setChildren(null);
                 childTask.setParentId(currentCatalogueVO.getId());
-                childTask.setCreateUser(userService.getUserName(task.getCreateUserId()));
+                childTask.setCreateUser(batchUserService.getUserName(task.getCreateUserId()));
                 if (task.getTaskType().equals(EJobType.PYTHON.getVal())) {
                     JSONObject exeArgs = JSONObject.parseObject(task.getExeArgs());
                     childTask.setOperateModel(exeArgs.getInteger("operateModel"));
@@ -1170,7 +1168,7 @@ public class BatchCatalogueService {
         if (names.containsKey(userId)) {
             return names.get(userId);
         } else {
-            String name = userService.getUserName(userId);
+            String name = batchUserService.getUserName(userId);
             names.put(userId, name);
             return name;
         }

@@ -4,7 +4,7 @@ import com.dtstack.batch.dao.BatchTaskShadeDao;
 import com.dtstack.batch.dao.BatchTaskVersionDao;
 import com.dtstack.batch.domain.BatchTaskVersionDetail;
 import com.dtstack.engine.api.domain.User;
-import com.dtstack.batch.service.impl.UserService;
+import com.dtstack.batch.service.impl.BatchUserService;
 import com.dtstack.batch.web.task.vo.result.BatchTaskShadePageQueryResultVO;
 import com.dtstack.dtcenter.common.annotation.Forbidden;
 import com.dtstack.dtcenter.common.enums.AppType;
@@ -46,7 +46,7 @@ public class BatchTaskShadeService {
     private BatchTaskVersionDao batchTaskVersionDao;
 
     @Autowired
-    private UserService userService;
+    private BatchUserService batchUserService;
 
     @Autowired
     private com.dtstack.engine.master.impl.ScheduleTaskShadeService scheduleTaskShadeService;
@@ -79,7 +79,7 @@ public class BatchTaskShadeService {
                 userIds.add(t.getOwnerUserId());
             });
             taskShades.forEach(t -> taskIds.add(t.getId()));
-            Map<Long, User> userMap = userService.getUserMap(userIds);
+            Map<Long, User> userMap = batchUserService.getUserMap(userIds);
             List<BatchTaskVersionDetail> versions = batchTaskVersionDao.getLatestTaskVersionByTaskIds(taskIds);
             Map<Long, String> descs = Maps.newHashMap();
             versions.forEach(v -> descs.put(v.getTaskId(), v.getPublishDesc()));

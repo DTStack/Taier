@@ -123,7 +123,7 @@ public class BatchSparkSqlExeService extends BatchSparkHiveSqlExeService impleme
         }
 
         String sqlToEngine = StringUtils.join(sqlList,";");
-        Long dtuicUserId = userService.getUser(userId).getDtuicUserId();
+        Long dtuicUserId = batchUserService.getUser(userId).getDtuicUserId();
         //除简单查询，其他sql发送到engine执行
         String jobId =  batchHadoopSelectSqlService.sendSqlTask(dtuicTenantId, sqlToEngine, SourceType.TEMP_QUERY, buildSqlVO.getTaskParam(), preJobId, relationId, relationType, dtuicUserId, projectId);
 

@@ -82,7 +82,7 @@ public class BatchSqlExeService {
     private MultiEngineServiceFactory multiEngineServiceFactory;
 
     @Autowired
-    private UserService userService;
+    private BatchUserService batchUserService;
 
     @Autowired
     private BatchFunctionService batchFunctionService;
@@ -117,7 +117,7 @@ public class BatchSqlExeService {
         final String dbName = this.getDbName(executeContent);
         final ISqlExeService sqlExeService = this.multiEngineServiceFactory.getSqlExeService(engineType, executeContent.getDetailType(), executeContent.getProjectId());
         Long dtuicUserId = null;
-        User user = userService.getUser(executeContent.getUserId());
+        User user = batchUserService.getUser(executeContent.getUserId());
         if (Objects.nonNull(user)) {
             dtuicUserId = user.getDtuicUserId();
         }

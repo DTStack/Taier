@@ -102,7 +102,7 @@ public class ProjectService {
     private RoleService roleService;
 
     @Autowired
-    private UserService userService;
+    private BatchUserService batchUserService;
 
     @Autowired
     private IJdbcService jdbcServiceImpl;
@@ -681,7 +681,7 @@ public class ProjectService {
         List<TenantUsersVO> tenantUsersVOList = tenantService.findUicAdminRoleUserByDtuicTenantId(dtuicTenantId);
         List<User> userList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(tenantUsersVOList)) {
-            userList = userService.dealTenantUicUserList(tenantUsersVOList);
+            userList = batchUserService.dealTenantUicUserList(tenantUsersVOList);
         }
         Map<Long, User> dtuicUserIdUserMap = userList.stream().collect(Collectors.toMap(User::getDtuicUserId, Function.identity(), (key1, key2) -> key2));
 
@@ -1140,7 +1140,7 @@ public class ProjectService {
     private ProjectVO mapperProject(Project project, boolean isRoot, Long userId) {
         ProjectVO projectVO = new ProjectVO();
         BeanUtils.copyProperties(project, projectVO);
-        projectVO.setCreateUser(userService.getUser(project.getCreateUserId()));
+        projectVO.setCreateUser(batchUserService.getUser(project.getCreateUserId()));
         projectVO.setAdminUsers(roleUserService.getProjectAdminUser(project.getId(), isRoot, userId));
         return projectVO;
     }
@@ -1281,7 +1281,7 @@ public class ProjectService {
         List<ProjectDTO> projects = projectDao.listJobSumByIdsAndFuzzyNameAndType(usefulProjectIdList, fuzzyName, projectType, userId, pageQuery, tenantId,
                 null, null, null, EScheduleType.NORMAL_SCHEDULE.getType(), catalogueId);
         for (ProjectDTO projectDTO : projects) {
-            projectDTO.setCreateUserName(userService.getUserName(projectDTO.getCreateUserId()));
+            projectDTO.setCreateUserName(batchUserService.getUserName(projectDTO.getCreateUserId()));
         }
 
         Map<Long, ProjectDTO> projectDTOMap = projects.stream().collect(Collectors.toMap(ProjectDTO::getId, Function.identity()));
@@ -1899,7 +1899,7 @@ public class ProjectService {
         if (Objects.isNull(tenant)) {
             return Collections.EMPTY_LIST;
         }
-        User user = userService.getUserByDtUicUserId(dtuicUserId);
+        User user = batchUserService.getUserByDtUicUserId(dtuicUserId);
         if (Objects.isNull(user)) {
             return Collections.EMPTY_LIST;
         }

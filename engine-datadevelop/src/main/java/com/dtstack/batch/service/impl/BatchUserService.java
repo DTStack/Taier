@@ -34,9 +34,9 @@ import java.util.stream.Collectors;
  * @author sishu.yss
  */
 @Service
-public class UserService {
+public class BatchUserService {
 
-    private static Logger logger = LoggerFactory.getLogger(UserService.class);
+    private static Logger logger = LoggerFactory.getLogger(BatchUserService.class);
 
     @Resource(name = "batchUserDao")
     private UserDao userDao;

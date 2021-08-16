@@ -123,13 +123,6 @@ public class ComponentController {
         return componentService.isYarnSupportGpus(clusterName);
     }
 
-    @RequestMapping(value="/getSupportJobTypes", method = {RequestMethod.POST})
-    public List<TaskGetSupportJobTypesResultVO>  getSupportJobTypes(@DtRequestParam("appType") Integer appType,
-                                                              @DtRequestParam("projectId") Long projectId,
-                                                              @DtParamOrHeader(value = "dtuicTenantId",header = "cookie",cookie = "dt_tenant_id") Long dtuicTenantId) {
-        return componentService.getSupportJobTypes(appType, projectId, dtuicTenantId);
-    }
-
     @RequestMapping(value="/getDtScriptAgentLabel", method = {RequestMethod.POST})
     @ApiOperation(value = "获取dtScript agent label信息")
     public List<DtScriptAgentLabel> getDtScriptAgentLabel(@DtRequestParam("agentAddress")String agentAddress){

@@ -90,7 +90,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
     private BatchFunctionService batchFunctionService;
 
     @Autowired
-    private UserService userService;
+    private BatchUserService batchUserService;
 
     @Autowired
     private ActionService actionService;
@@ -137,7 +137,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
     @Override
     public String runSqlByTask(Long dtuicTenantId, ParseResult parseResult, Long tenantId, Long projectId, Long userId, String database, boolean isCreateAs, Long taskId, int type, String preJobId) {
         try {
-            Long dtuicUserId = userService.getUser(userId).getDtuicUserId();
+            Long dtuicUserId = batchUserService.getUser(userId).getDtuicUserId();
             BuildSqlVO buildSqlVO = buidSql(parseResult, tenantId, projectId, userId, database, isCreateAs, taskId, type);
             // 发送sql任务
             sendSqlTask(dtuicTenantId, buildSqlVO.getSql(), SourceType.TEMP_QUERY, buildSqlVO.getTaskParam(), preJobId, taskId, type, dtuicUserId, projectId);

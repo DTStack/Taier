@@ -543,17 +543,20 @@ public class ActionService {
         return vo;
     }
 
-    private String getEngineLog(String jobId, ScheduleJob scheduleJob) throws InterruptedException, java.util.concurrent.ExecutionException, java.util.concurrent.TimeoutException {
+    private String getEngineLog(String jobId, ScheduleJob scheduleJob) {
         String engineLog = scheduleJob.getEngineLog();
-        if (StringUtils.isBlank(engineLog)) {
-            engineLog = CompletableFuture.supplyAsync(
-                    () ->
-                    jobDealer.getAndUpdateEngineLog(jobId, scheduleJob.getEngineJobId(), scheduleJob.getApplicationId(), scheduleJob.getDtuicTenantId()),
-                    logTimeOutPool
-            ).get(environmentContext.getLogTimeout(), TimeUnit.SECONDS);
-            if (engineLog == null) {
-                engineLog = "";
+        try {
+            if (StringUtils.isBlank(engineLog)) {
+                engineLog = CompletableFuture.supplyAsync(
+                        () ->
+                        jobDealer.getAndUpdateEngineLog(jobId, scheduleJob.getEngineJobId(), scheduleJob.getApplicationId(), scheduleJob.getDtuicTenantId()),
+                        logTimeOutPool
+                ).get(environmentContext.getLogTimeout(), TimeUnit.SECONDS);
+                if (engineLog == null) {
+                    engineLog = "";
+                }
             }
+        } catch (Exception e){
         }
         return engineLog;
     }

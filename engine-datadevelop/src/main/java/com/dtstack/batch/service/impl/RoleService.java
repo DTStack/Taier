@@ -43,7 +43,7 @@ public class RoleService {
     private RoleUserDao roleUserDao;
 
     @Autowired
-    private UserService userService;
+    private BatchUserService batchUserService;
 
     /**
      * 新建或修改角色
@@ -219,7 +219,7 @@ public class RoleService {
             for (Role role : roles) {
                 RoleVO vo = RoleVO.toVO(role);
                 if (vo.getModifyUserId() != null && vo.getModifyUserId() > 0) {
-                    vo.setModifyUserName(userService.getUserName(vo.getModifyUserId()));
+                    vo.setModifyUserName(batchUserService.getUserName(vo.getModifyUserId()));
                 }
                 roleVOS.add(vo);
             }
