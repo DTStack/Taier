@@ -89,8 +89,8 @@ class SourceForm extends React.Component<any, any> {
             (isEmpty(sourceMap)
                 ? ''
                 : sourceMap?.schema
-                    ? sourceMap?.schema
-                    : sourceMap.type.schema) || form.getFieldValue('schema');
+                ? sourceMap?.schema
+                : sourceMap.type.schema) || form.getFieldValue('schema');
         let tableName = '';
         let sourceId = '';
         if (sourceList) {
@@ -142,8 +142,8 @@ class SourceForm extends React.Component<any, any> {
         const res = await ajax.getIncrementColumns(
             schema
                 ? Object.assign(value, {
-                    schema,
-                })
+                      schema,
+                  })
                 : value
         );
 
@@ -1083,8 +1083,8 @@ class SourceForm extends React.Component<any, any> {
                 const tableValue = isEmpty(sourceMap)
                     ? ''
                     : supportSubLibrary
-                        ? sourceMap.sourceList[0].tables
-                        : sourceMap.type.table;
+                    ? sourceMap.sourceList[0].tables
+                    : sourceMap.type.table;
                 formItem = [
                     !selectHack ? (
                         <div>
@@ -1250,8 +1250,8 @@ class SourceForm extends React.Component<any, any> {
                                     initialValue: isEmpty(sourceMap)
                                         ? ''
                                         : sourceMap?.schema
-                                            ? sourceMap?.schema
-                                            : sourceMap.type.schema,
+                                        ? sourceMap?.schema
+                                        : sourceMap.type.schema,
                                 })(
                                     <Select
                                         showSearch
@@ -1423,8 +1423,8 @@ class SourceForm extends React.Component<any, any> {
                 const tableValue = isEmpty(sourceMap)
                     ? ''
                     : supportSubLibrary
-                        ? sourceMap.sourceList[0].tables
-                        : sourceMap.type.table;
+                    ? sourceMap.sourceList[0].tables
+                    : sourceMap.type.table;
                 formItem = [
                     !selectHack ? (
                         <div>
@@ -1437,8 +1437,8 @@ class SourceForm extends React.Component<any, any> {
                                     initialValue: isEmpty(sourceMap)
                                         ? ''
                                         : sourceMap?.schema
-                                            ? sourceMap?.schema
-                                            : sourceMap.type.schema,
+                                        ? sourceMap?.schema
+                                        : sourceMap.type.schema,
                                 })(
                                     <Select
                                         showSearch

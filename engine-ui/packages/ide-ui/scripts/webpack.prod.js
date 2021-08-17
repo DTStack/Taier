@@ -1,6 +1,6 @@
-const { merge } = require('webpack-merge')
-const webpackConf = require('./webpack.base')
-const TerserPlugin = require('terser-webpack-plugin')
+const { merge } = require('webpack-merge');
+const webpackConf = require('./webpack.base');
+const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = function (env) {
     return merge(webpackConf, {
@@ -12,10 +12,10 @@ module.exports = function (env) {
                     parallel: true,
                     terserOptions: {
                         keep_classnames: true,
-                        keep_fnames: true
-                    }
-                })
-            ]
-        }
+                        keep_fnames: true,
+                    },
+                }),
+            ],
+        },
     });
 };

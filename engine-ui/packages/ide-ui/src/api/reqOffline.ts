@@ -1,4 +1,4 @@
-import { RDOS_BASE_URL } from "./req";
+import { RDOS_BASE_URL } from './req';
 
 const offlineReq = {
     UNLOCK_FILE: `${RDOS_BASE_URL}/common/readWriteLock/getLock`, // 解锁文件
@@ -183,6 +183,6 @@ const offlineReq = {
     GET_SUPPORT_COMPONENT_TYPE: `${RDOS_BASE_URL}/batch/batchComponent/getSupportComponentType`, // 获取组件类型
     PAGE_QUERY_BY_PROJECT: `${RDOS_BASE_URL}/batch/batchTableInfo/pageQueryByProjectId`, // 获取表
     CHANGE_COMPONENT_OWNER_USER: `${RDOS_BASE_URL}/batch/batchComponent/changeComponentOwnerUser`, // 修改任务组件责任人
-    GET_CHILD_TASKS: `${RDOS_BASE_URL}/batch/batchTask/getChildTasks`
+    GET_CHILD_TASKS: `${RDOS_BASE_URL}/batch/batchTask/getChildTasks`,
 };
 export default offlineReq;

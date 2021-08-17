@@ -9,12 +9,12 @@ module.exports = {
                 // Login
                 target: 'http://172.16.101.187:8090',
                 changeOrigin: true,
-                secure: false
+                secure: false,
             },
             '/api/rdos': {
-                target: "http://172.16.100.225:3001/", // doraam
+                target: 'http://172.16.100.225:3001/', // doraam
                 changeOrigin: true,
-                secure: false
+                secure: false,
             },
             '/api/publicService': {
                 target: 'http://172.16.101.189:8077',

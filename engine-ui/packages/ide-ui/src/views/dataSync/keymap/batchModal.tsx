@@ -1,67 +1,73 @@
-import * as React from 'react'
-import {
-    Modal, Input
-} from 'antd'
+import * as React from 'react';
+import { Modal, Input } from 'antd';
 
 import {
     DATA_SOURCE,
     hdfsFieldTypes,
-    hbaseFieldTypes
-} from '../../../comm/const'
+    hbaseFieldTypes,
+} from '../../../comm/const';
 
 const renderTypes = (sourceType: number) => {
-    const types = sourceType === DATA_SOURCE.HBASE ? hbaseFieldTypes : hdfsFieldTypes
-    const typeItems = types?.map((type: any) => <b key={type}>{type}, </b>)
-    return <span style={{ wordBreak: 'break-all' }}>
-        {typeItems}
-    </span>
-}
+    const types =
+        sourceType === DATA_SOURCE.HBASE ? hbaseFieldTypes : hdfsFieldTypes;
+    const typeItems = types?.map((type: any) => <b key={type}>{type}, </b>);
+    return <span style={{ wordBreak: 'break-all' }}>{typeItems}</span>;
+};
 
-export default function BatchModal (props: any) {
+export default function BatchModal(props: any) {
     const {
-        title, desc,
-        visible, onOk,
-        placeholder, value, sourceType,
-        onCancel, onChange,
-        columnFamily
-    } = props
-    const rowsFix = { rows: 6 }
-    const isNotHBase = sourceType !== DATA_SOURCE.HBASE
+        title,
+        desc,
+        visible,
+        onOk,
+        placeholder,
+        value,
+        sourceType,
+        onCancel,
+        onChange,
+        columnFamily,
+    } = props;
+    const rowsFix = { rows: 6 };
+    const isNotHBase = sourceType !== DATA_SOURCE.HBASE;
     return (
         <Modal
             title={title}
             onOk={onOk}
             onCancel={onCancel}
             maskClosable={false}
-            visible={visible}>
+            visible={visible}
+        >
             <div>
-                { isNotHBase ? '批量导入的语法格式（index 从 0 开始）：' : '批量添加的语法格式:' }
+                {isNotHBase
+                    ? '批量导入的语法格式（index 从 0 开始）：'
+                    : '批量添加的语法格式:'}
                 <b style={{ color: 'rgb(255, 102, 0)' }}>
-                    {
-                        desc &&
-                        Object.prototype.toString.call(desc)?.slice(8, -1) === 'String'
-                            ? (
-                                desc.split(',').map((item: any) => (
-                                    <p key={item}>{item}</p>
-                                ))
-                            )
-                            : { desc }
-                    }
+                    {desc &&
+                    Object.prototype.toString.call(desc)?.slice(8, -1) ===
+                        'String'
+                        ? desc
+                              .split(',')
+                              .map((item: any) => <p key={item}>{item}</p>)
+                        : { desc }}
                 </b>
-                <p>常用数据类型（type)：
+                <p>
+                    常用数据类型（type)：
                     <span style={{ color: 'rgb(255, 102, 0)' }}>
                         {renderTypes(sourceType)}
                     </span>
                 </p>
-                {columnFamily
-                    ? <p>已有列族：
+                {columnFamily ? (
+                    <p>
+                        已有列族：
                         <span style={{ color: 'rgb(255, 102, 0)' }}>
-                            {columnFamily?.map((col: any) => `${col},`) }
+                            {columnFamily?.map((col: any) => `${col},`)}
                         </span>
                     </p>
-                    : ''}
+                ) : (
+                    ''
+                )}
             </div>
-            <br/>
+            <br />
             <Input.TextArea
                 {...rowsFix}
                 value={value}
@@ -69,5 +75,5 @@ export default function BatchModal (props: any) {
                 placeholder={placeholder}
             />
         </Modal>
-    )
+    );
 }

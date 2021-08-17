@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
-import { Layout, Menu, Dropdown, Icon, message } from 'antd'
-import { hashHistory } from 'react-router'
+import React, { useState } from 'react';
+import { Layout, Menu, Dropdown, Icon, message } from 'antd';
+import { hashHistory } from 'react-router';
 import { AppContainer } from '../views/registerMicroApps';
-import { getItem, setItem } from '../utils/local'
-import { USER_NAME } from '../consts'
+import { getItem, setItem } from '../utils/local';
+import { USER_NAME } from '../consts';
 
 const { Header, Content } = Layout;
 

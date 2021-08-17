@@ -1,17 +1,17 @@
-.taskParams .ant-collapse > .ant-collapse-item > .ant-collapse-header{
+.taskParams .ant-collapse > .ant-collapse-item > .ant-collapse-header {
     color: #fff;
 }
 
-.taskParams .ant-form-item-label > label{
+.taskParams .ant-form-item-label > label {
     color: #fff;
 }
 
-.taskParams .ant-input{
+.taskParams .ant-input {
     background: #fff;
     color: #000;
 }
 
-.mo-editor__group-container .mo-open-task{
+.mo-editor__group-container .mo-open-task {
     width: 60%;
     margin: 20px auto;
 }

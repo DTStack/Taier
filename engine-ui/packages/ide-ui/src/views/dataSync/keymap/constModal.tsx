@@ -1,88 +1,93 @@
-import * as React from 'react'
-import {
-    Modal, Input, message, Select
-} from 'antd'
+import * as React from 'react';
+import { Modal, Input, message, Select } from 'antd';
 
-import { Utils } from '@dtinsight/dt-utils'
-import HelpDoc, { relativeStyle } from '../../../components/helpDoc'
+import { Utils } from '@dtinsight/dt-utils';
+import HelpDoc, { relativeStyle } from '../../../components/helpDoc';
 // eslint-disable-next-line no-template-curly-in-string
-const systemVariable = ['${bdp.system.bizdate}', '${bdp.system.bizdate2}', '${bdp.system.cyctime}', '${bdp.system.premonth}', '${bdp.system.currmonth}', '${bdp.system.runtime}']
-const Option = Select.Option
+const systemVariable = [
+    '${bdp.system.bizdate}',
+    '${bdp.system.bizdate2}',
+    '${bdp.system.cyctime}',
+    '${bdp.system.premonth}',
+    '${bdp.system.currmonth}',
+    '${bdp.system.runtime}',
+];
+const Option = Select.Option;
 export default class ConstModal extends React.Component<any, any> {
     state: any = {
         constValue: '',
         constName: '',
         constFormat: '',
-        type: 'STRING'
-    }
+        type: 'STRING',
+    };
 
     onChange = (e: any) => {
         this.setState({
-            constValue: e.target.value
-        })
-    }
+            constValue: e.target.value,
+        });
+    };
 
     onChangeType = (type: any) => {
         this.setState({
-            type
-        })
-    }
+            type,
+        });
+    };
 
     onNameChange = (e: any) => {
         this.setState({
-            constName: e.target.value
-        })
-    }
+            constName: e.target.value,
+        });
+    };
 
     oFormatChange = (e: any) => {
         this.setState({
-            constFormat: e.target.value
-        })
-    }
+            constFormat: e.target.value,
+        });
+    };
 
     submit = () => {
-        const { onOk } = this.props
-        const constValue = Utils.trim(this.state.constValue)
-        const constName = Utils.trim(this.state.constName)
-        const constFormat = Utils.trim(this.state.constFormat)
-        const type = Utils.trim(this.state.type)
+        const { onOk } = this.props;
+        const constValue = Utils.trim(this.state.constValue);
+        const constName = Utils.trim(this.state.constName);
+        const constFormat = Utils.trim(this.state.constFormat);
+        const type = Utils.trim(this.state.type);
 
         if (constName === '') {
-            message.error('常量名称不可为空！')
-            return
+            message.error('常量名称不可为空！');
+            return;
         }
 
         if (systemVariable.indexOf(constValue) > -1 && type === 'TIMESTAMP') {
-            message.error('常量的值中存在参数时类型不可选timestamp！')
-            return
+            message.error('常量的值中存在参数时类型不可选timestamp！');
+            return;
         }
 
         if (constValue === '') {
-            message.error('常量值不可为空！')
-            return
+            message.error('常量值不可为空！');
+            return;
         }
         const constObj: any = {
             type,
             key: constName,
             value: constValue,
-            format: constFormat
-        }
+            format: constFormat,
+        };
         if (onOk) {
-            onOk(constObj)
-            this.close()
+            onOk(constObj);
+            this.close();
         }
-    }
+    };
 
     close = () => {
-        const { onCancel } = this.props
+        const { onCancel } = this.props;
         this.setState({ constValue: '', constName: '' }, () => {
-            if (onCancel) onCancel()
-        })
-    }
+            if (onCancel) onCancel();
+        });
+    };
 
-    render () {
-        const { constValue, constName, constFormat, type } = this.state
-        const { visible } = this.props
+    render() {
+        const { constValue, constName, constFormat, type } = this.state;
+        const { visible } = this.props;
         /* eslint-disable */
         return (
             <Modal
@@ -102,7 +107,7 @@ export default class ConstModal extends React.Component<any, any> {
                 <div className="flex batch-dataSync_form">
                     <span>值 : </span>
                     <Input
-                        style={{ width: '440px', marginLeft: 11  }}
+                        style={{ width: '440px', marginLeft: 11 }}
                         value={constValue}
                         onChange={this.onChange}
                         placeholder="请输入常量值"
@@ -111,7 +116,7 @@ export default class ConstModal extends React.Component<any, any> {
                 <div className="flex batch-dataSync_form">
                     <span>类型 :</span>
                     <Select
-                        style={{ width: '440px'}}
+                        style={{ width: '440px' }}
                         placeholder="请选择类型"
                         value={type}
                         onChange={this.onChangeType}
@@ -129,11 +134,15 @@ export default class ConstModal extends React.Component<any, any> {
                         placeholder="格式化, 例如：yyyy-MM-dd"
                     />
                 </div>
-                <p style={{ marginTop: '10px' }}>1.输入的常量值将会被英文单引号包括，如'abc'、'123'等</p>
-                <p>2.可以配合调度参数使用，如 ${`{bdp.system.bizdate}`}
-                等 <HelpDoc style={relativeStyle} doc="customSystemParams" /></p>
+                <p style={{ marginTop: '10px' }}>
+                    1.输入的常量值将会被英文单引号包括，如'abc'、'123'等
+                </p>
+                <p>
+                    2.可以配合调度参数使用，如 ${`{bdp.system.bizdate}`}等{' '}
+                    <HelpDoc style={relativeStyle} doc="customSystemParams" />
+                </p>
                 <p>3.如果您输入的值无法解析，则类型显示为'未识别'</p>
             </Modal>
-        )
+        );
     }
 }

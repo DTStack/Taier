@@ -7,5 +7,5 @@ import { tableTypes } from './tableType';
 export const dataSync = combineReducers({
     workbench: workbenchReducer,
     dataSync: dataSyncReducer,
-    tableTypes // 表类型
+    tableTypes, // 表类型
 });

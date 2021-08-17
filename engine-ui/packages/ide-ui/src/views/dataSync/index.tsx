@@ -1,22 +1,22 @@
-import * as React from "react";
-import PropTypes from "prop-types";
-import SplitPane from "react-split-pane";
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
+import * as React from 'react';
+import PropTypes from 'prop-types';
+import SplitPane from 'react-split-pane';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { Scrollable } from 'molecule/esm/components';
-import DataSync from "./dataSync";
-import { workbenchActions } from "../../controller/dataSync/offlineAction";
-import * as editorActions from "../../controller/dataSync/workbench";
+import DataSync from './dataSync';
+import { workbenchActions } from '../../controller/dataSync/offlineAction';
+import * as editorActions from '../../controller/dataSync/workbench';
 
 const propType: any = {
     editor: PropTypes.object,
     toolbar: PropTypes.object,
-    console: PropTypes.object
+    console: PropTypes.object,
 };
 const initialState = {
     changeTab: true,
     size: undefined,
-    runTitle: "Command/Ctrl + R"
+    runTitle: 'Command/Ctrl + R',
 };
 type Istate = typeof initialState;
 
@@ -34,7 +34,7 @@ type Istate = typeof initialState;
             user: state.user,
             currentTab,
             currentTabData,
-            dataSync
+            dataSync,
         };
     },
     (dispatch: any) => {
@@ -45,72 +45,72 @@ type Istate = typeof initialState;
     }
 ) as any)
 class DataSyncWorkbench extends React.Component<any, Istate> {
-  state = {
-      changeTab: true,
-      size: undefined,
-      runTitle: "Command/Ctrl + R"
-  };
+    state = {
+        changeTab: true,
+        size: undefined,
+        runTitle: 'Command/Ctrl + R',
+    };
 
-  static propTypes = propType;
-  componentDidMount() {
-      const currentNode = this.props.currentTabData;
-      if (currentNode) {
-          this.props.getTab(currentNode.id); // 初始化console所需的数据结构
-      }
-  }
+    static propTypes = propType;
+    componentDidMount() {
+        const currentNode = this.props.currentTabData;
+        if (currentNode) {
+            this.props.getTab(currentNode.id); // 初始化console所需的数据结构
+        }
+    }
 
-  // eslint-disable-next-line
-  UNSAFE_componentWillReceiveProps(nextProps: any) {
-      const current = nextProps.currentTabData;
-      const old = this.props.currentTabData;
-      if (current && current.id !== old.id) {
-          this.props.getTab(current.id);
-      }
-  }
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps(nextProps: any) {
+        const current = nextProps.currentTabData;
+        const old = this.props.currentTabData;
+        if (current && current.id !== old.id) {
+            this.props.getTab(current.id);
+        }
+    }
 
-  changeTab = (state: any) => {
-      let changeTab = false;
-      if (state) {
-          changeTab = true;
-      } else {
-          changeTab = false;
-      }
+    changeTab = (state: any) => {
+        let changeTab = false;
+        if (state) {
+            changeTab = true;
+        } else {
+            changeTab = false;
+        }
 
-      this.setState({
-          changeTab
-      });
-  };
+        this.setState({
+            changeTab,
+        });
+    };
 
-  render() {
-      const { currentTabData } = this.props;
+    render() {
+        const { currentTabData } = this.props;
 
-      return (
-          <Scrollable>
-              <div className="ide-editor">
-                  <div style={{ zIndex: 901 }} className="ide-content">
-                      <SplitPane
-                          split="horizontal"
-                          minSize={100}
-                          maxSize={-77}
-                          primary="first"
-                          key={`ide-split-pane`}
-                      >
-                          <div
-                              style={{
-                                  width: "100%",
-                                  height: "100%",
-                                  minHeight: "400px",
-                                  position: "relative"
-                              }}
-                          >
-                              <DataSync currentTabData={currentTabData} />
-                          </div>
-                      </SplitPane>
-                  </div>
-              </div>
-          </Scrollable>
-      );
-  }
+        return (
+            <Scrollable>
+                <div className="ide-editor">
+                    <div style={{ zIndex: 901 }} className="ide-content">
+                        <SplitPane
+                            split="horizontal"
+                            minSize={100}
+                            maxSize={-77}
+                            primary="first"
+                            key={`ide-split-pane`}
+                        >
+                            <div
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    minHeight: '400px',
+                                    position: 'relative',
+                                }}
+                            >
+                                <DataSync currentTabData={currentTabData} />
+                            </div>
+                        </SplitPane>
+                    </div>
+                </div>
+            </Scrollable>
+        );
+    }
 }
 
 export default DataSyncWorkbench;
