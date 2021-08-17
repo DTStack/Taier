@@ -6,17 +6,15 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HAPPY_PACK = require.resolve('happypack/loader');
 const InsertHtmlPlugin = require('./plugins/insert-html-webpack-plugin');
 
-const BASE_NAME = process.env.BASE_NAME || '/database/'; // 资源目录 默认访问路径
+const BASE_NAME = '/datasource/'; // 资源目录 默认访问路径
 const ROOT_PATH = path.resolve(__dirname, './');
 const BUILD_PATH = path.resolve(ROOT_PATH, `dist${BASE_NAME}`);
 
 const packageName = require('./package.json').name;
 const PUBLICPATH =
   process.env.NODE_ENV === 'production'
-    ? 'http://schedule.dtstack.cn/database'
+    ? 'http://schedule.dtstack.cn/datasource'
     : `http://localhost:8082`;
-// http://localhost:8082/assets/imgs/SparkThrift.png
-const isDev = process.env.NODE_ENV === 'development';
 
 const copyConfig = [
   { from: path.resolve(__dirname, 'public/config'), to: 'config' },
@@ -40,10 +38,10 @@ module.exports = () => {
       entry: [corejs, regenerator, './src/app.tsx'],
       output: {
         path: BUILD_PATH,
-        publicPath: isDev ? '/' : '/publicService/',
+        publicPath: '/datasource/',
         globalObject: 'window',
         jsonpFunction: `webpackJsonp_${packageName}`,
-        library: `Database`,
+        library: `Datasource`,
         libraryTarget: 'umd',
       },
       module: {
