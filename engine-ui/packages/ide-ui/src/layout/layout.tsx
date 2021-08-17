@@ -66,37 +66,47 @@ export default function MyLayout (props: React.PropsWithChildren<any>) {
                             >
                                 <span className="c-header__title">
                                 DAGScheduleX
-                                </span>
-                            </div>
-                            <Menu
-                                mode="horizontal"
-                                defaultSelectedKeys={['devTask']}
-                            >
-                                <Menu.Item key="dataSource">
-                                    <a href="/#/operation-ui/database">数据源</a>
-                                </Menu.Item>
-                                <Menu.Item key="devTask">
-                                    <a href="/">任务开发</a>
-                                </Menu.Item>
-                                <Menu.Item key="operation">
-                                    <a href="/#/operation-ui/operation">运维中心</a>
-                                </Menu.Item>
-                                <Menu.Item key="console">
-                                    <a href="/#/console-ui">控制台</a>
-                                </Menu.Item>
-                            </Menu>
-                            <div
-                                className="logo dt-header-log-wrapper"
-                                style={{ marginRight: '50px' }}
-                            >
-                                <Dropdown overlay={userMenu} trigger={['click']}>
-                                    <span
+                            </span>
+                        </div>
+                        <Menu
+                            mode="horizontal"
+                            defaultSelectedKeys={['devTask']}
+                        >
+                            <Menu.Item key="dataSource">
+                                <a href="/#/data-source/list">数据源</a>
+                            </Menu.Item>
+                            <Menu.Item key="devTask">
+                                <a href="/">任务开发</a>
+                            </Menu.Item>
+                            <Menu.Item key="operation">
+                                <a href="/#/operation-ui/operation">运维中心</a>
+                            </Menu.Item>
+                            <Menu.Item key="console">
+                                <a href="/#/console-ui">控制台</a>
+                            </Menu.Item>
+                        </Menu>
+                        <div
+                            className="logo dt-header-log-wrapper"
+                            style={{ marginRight: '50px' }}
+                        >
+                            <Dropdown overlay={userMenu} trigger={['click']}>
+                                <span
+                                    style={{
+                                        position: 'absolute',
+                                        right: 20,
+                                        fontSize: 14,
+                                    }}
+                                >
+                                    <span className="username">
+                                        {getItem(USER_NAME) || '未知用户'}
+                                    </span>
+                                    <Icon
                                         style={{
                                             position: 'absolute',
                                             right: 20,
                                             fontSize: 14
                                         }}
-                                    >
+                                    />
                                         <span className="username">
                                             {getItem(USER_NAME) || '未知用户'}
                                         </span>
