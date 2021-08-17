@@ -26,7 +26,7 @@ module.exports = {
     entry: {
         app: path.resolve(__dirname, '../src/index.tsx'),
         'sparksql.worker':
-            'monaco-sql-languages/out/esm/sparksql/sparksql.worker.js',
+            'monaco-sql-languages/out/esm/sparksql/sparksql.worker.js'
     },
     output: {
         globalObject: 'this',
