@@ -2454,8 +2454,7 @@ public class ScheduleJobService {
             if (isOnlyNextChild) {
                 continue;
             }
-            level --;
-            scheduleJobList.addAll(getAllChildJobWithSameDay(childScheduleJob, isOnlyNextChild, appType,level));
+            scheduleJobList.addAll(getAllChildJobWithSameDay(childScheduleJob, isOnlyNextChild, appType, level-1));
             logger.info("count info --- scheduleJob jobKey:{} flowJobId:{} jobJobList size:{}", scheduleJob.getJobKey(), scheduleJob.getFlowJobId(),scheduleJobList.size());
         }
         return scheduleJobList;
