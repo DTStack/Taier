@@ -19,8 +19,8 @@ module.exports = function (env) {
         ),
         plugins: [
             new BundleAnalyzerPlugin({
-                analyzerPort: 3001
-            })
-        ].filter(Boolean)
-    })
-}
+                analyzerPort: 3001,
+            }),
+        ].filter(Boolean),
+    });
+};
