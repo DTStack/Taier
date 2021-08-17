@@ -1,5 +1,5 @@
-import * as React from 'react'
-import { connect } from 'react-redux'
+import * as React from 'react';
+import { connect } from 'react-redux';
 import {
     Form,
     Input,
@@ -9,42 +9,42 @@ import {
     Icon,
     message,
     Spin,
-    AutoComplete
-} from 'antd'
-import { isEmpty, debounce, get } from 'lodash'
-import assign from 'object-assign'
+    AutoComplete,
+} from 'antd';
+import { isEmpty, debounce, get } from 'lodash';
+import assign from 'object-assign';
 
-import { Utils } from '@dtinsight/dt-utils'
+import { Utils } from '@dtinsight/dt-utils';
 import {
     singletonNotification,
-    filterValueOption
-} from '../../components/func'
-import { getProjectTableTypes } from '../../controller/dataSync/tableType'
-import ajax from '../../api'
+    filterValueOption,
+} from '../../components/func';
+import { getProjectTableTypes } from '../../controller/dataSync/tableType';
+import ajax from '../../api';
 import {
     targetMapAction,
     dataSyncAction,
     settingAction,
-    workbenchAction
-} from '../../controller/dataSync/actionType'
+    workbenchAction,
+} from '../../controller/dataSync/actionType';
 import {
     formItemLayout,
     DATA_SOURCE,
-    DATA_SOURCE_TEXT
-} from '../../comm/const'
+    DATA_SOURCE_TEXT,
+} from '../../comm/const';
 
-import { formJsonValidator } from '../../comm'
+import { formJsonValidator } from '../../comm';
 
-import HelpDoc from '../../components/helpDoc'
+import HelpDoc from '../../components/helpDoc';
 
-const FormItem = Form.Item
-const Option = Select.Option
-const RadioGroup = Radio.Group
-const TextArea = Input.TextArea
+const FormItem = Form.Item;
+const Option = Select.Option;
+const RadioGroup = Radio.Group;
+const TextArea = Input.TextArea;
 
 class TargetForm extends React.Component<any, any> {
-    constructor (props: any) {
-        super(props)
+    constructor(props: any) {
+        super(props);
 
         this.state = {
             tableList: [],
@@ -60,71 +60,71 @@ class TargetForm extends React.Component<any, any> {
             fetching: false,
             schemaId: '',
             version: '0',
-            bucketList: [] // aws s3 bucket 数据
-        }
+            bucketList: [], // aws s3 bucket 数据
+        };
     }
 
-    componentDidMount () {
-        const { targetMap, getProjectTableTypes, project } = this.props
-        const { sourceId, type = {} } = targetMap
+    componentDidMount() {
+        const { targetMap, getProjectTableTypes, project } = this.props;
+        const { sourceId, type = {} } = targetMap;
         const schema = isEmpty(targetMap)
             ? ''
-            : targetMap?.schema ?? targetMap.type.schema
-        const projectId = project && project.id
+            : targetMap?.schema ?? targetMap.type.schema;
+        const projectId = project && project.id;
         if (projectId) {
-            getProjectTableTypes(projectId)
+            getProjectTableTypes(projectId);
         }
         if (!sourceId) {
-            return
+            return;
         }
         if (
             type.type === DATA_SOURCE.POSTGRESQL ||
             type.type === DATA_SOURCE.ORACLE
         ) {
-            this.getSchemaList(sourceId)
+            this.getSchemaList(sourceId);
             schema
                 ? this.getTableList(sourceId, schema)
-                : this.getTableList(sourceId)
+                : this.getTableList(sourceId);
         } else {
-            this.getTableList(sourceId)
+            this.getTableList(sourceId);
         }
         if (type) {
-            this.checkIsNativeHive(type.tableName)
+            this.checkIsNativeHive(type.tableName);
             // 如果是已经添加过分区信息，则加载其分区列表信息
             if (type.partition) {
-                this.getHivePartitions(type.table)
+                this.getHivePartitions(type.table);
             }
         }
     }
 
     getSchemaList = (sourceId: any) => {
         ajax.getAllSchemas({
-            sourceId
+            sourceId,
         }).then((res: any) => {
             if (res.code === 1) {
                 this.setState({
                     schemaList: res.data || [],
-                    kingbaseId: sourceId
-                })
+                    kingbaseId: sourceId,
+                });
             }
-        })
+        });
     };
 
     getDataSourceVersion = async (dataSourceId: number) => {
-        const res = await ajax.getDataSourceVersion({ dataSourceId })
+        const res = await ajax.getDataSourceVersion({ dataSourceId });
         if (res.code === 1) {
             this.setState({
-                version: res.data
-            })
+                version: res.data,
+            });
         }
     };
 
     getTableList = (sourceId: any, schema?: any, name?: any) => {
-        const ctx = this
-        const { targetMap } = this.props
+        const ctx = this;
+        const { targetMap } = this.props;
         // 排除条件
         if (targetMap.type?.type === DATA_SOURCE.HDFS) {
-            return true
+            return true;
         }
 
         ctx.setState(
@@ -133,7 +133,7 @@ class TargetForm extends React.Component<any, any> {
                 tableListSearch: [],
                 tableListLoading: !name,
                 schemaId: schema,
-                fetching: !!name
+                fetching: !!name,
             },
             () => {
                 ajax.getOfflineTableList({
@@ -141,87 +141,87 @@ class TargetForm extends React.Component<any, any> {
                     isSys: false,
                     schema,
                     name,
-                    isRead: false
+                    isRead: false,
                 })
                     .then((res: any) => {
                         if (res.code === 1) {
-                            const { data = [] } = res
-                            let arr = data
+                            const { data = [] } = res;
+                            let arr = data;
                             if (data.length && data.length > 200) {
-                                arr = data.slice(0, 200)
+                                arr = data.slice(0, 200);
                             }
                             ctx.setState({
                                 tableList: res.data,
-                                tableListSearch: arr
-                            })
+                                tableListSearch: arr,
+                            });
                         }
                     })
                     .finally(() => {
                         ctx.setState({
                             tableListLoading: false,
-                            fetching: false
-                        })
-                    })
+                            fetching: false,
+                        });
+                    });
             }
-        )
+        );
     };
 
     onSearchTable = (str: any) => {
-        const { tableList } = this.state
-        let arr = tableList.filter((item: any) => item.indexOf(str) !== -1)
+        const { tableList } = this.state;
+        let arr = tableList.filter((item: any) => item.indexOf(str) !== -1);
         if (arr.length && arr.length > 200) {
-            arr = arr.slice(0, 200)
+            arr = arr.slice(0, 200);
         }
         this.setState({
-            tableListSearch: arr
-        })
+            tableListSearch: arr,
+        });
     };
 
     /**
      * 根据数据源id获取数据源信息
      * @param {*} id
      */
-    getDataObjById (id: any) {
-        const { dataSourceList } = this.props
+    getDataObjById(id: any) {
+        const { dataSourceList } = this.props;
         return dataSourceList.filter((src: any) => {
-            return src.id === id
-        })[0]
+            return src.id === id;
+        })[0];
     }
 
-    changeSource (value: any, option: any) {
-        const { handleSourceChange } = this.props
-        const { dataType } = option.props
+    changeSource(value: any, option: any) {
+        const { handleSourceChange } = this.props;
+        const { dataType } = option.props;
         setTimeout(() => {
             // 有schema才需要获取schemalist
             (dataType === DATA_SOURCE.POSTGRESQL ||
                 dataType === DATA_SOURCE.ORACLE) &&
-                this.getSchemaList(value)
-        }, 0)
-        handleSourceChange(this.getDataObjById(value))
-        this.resetTable()
+                this.getSchemaList(value);
+        }, 0);
+        handleSourceChange(this.getDataObjById(value));
+        this.resetTable();
     }
 
-    resetTable () {
-        const { form } = this.props
-        this.changeTable('')
+    resetTable() {
+        const { form } = this.props;
+        this.changeTable('');
         // 这边先隐藏结点，然后再reset，再显示。不然会有一个组件自带bug。
         this.setState(
             {
-                selectHack: true
+                selectHack: true,
             },
             () => {
-                form.resetFields(['table'])
+                form.resetFields(['table']);
                 this.setState({
-                    selectHack: false
-                })
+                    selectHack: false,
+                });
             }
-        )
+        );
     }
 
     getHivePartitions = (tableName: any) => {
-        const { targetMap, handleTargetMapChange } = this.props
+        const { targetMap, handleTargetMapChange } = this.props;
 
-        const { sourceId, type } = targetMap
+        const { sourceId, type } = targetMap;
         // TODO 这里获取 Hive 分区的条件有点模糊
         if (
             type &&
@@ -232,313 +232,313 @@ class TargetForm extends React.Component<any, any> {
         ) {
             ajax.getHivePartitions({
                 sourceId: sourceId,
-                tableName
+                tableName,
             }).then((res: any) => {
                 this.setState({
-                    tablePartitionList: res.data || []
-                })
-                const havePartition = res.data && res.data.length > 0
-                handleTargetMapChange({ havePartition })
-            })
+                    tablePartitionList: res.data || [],
+                });
+                const havePartition = res.data && res.data.length > 0;
+                handleTargetMapChange({ havePartition });
+            });
         }
     };
 
-    changeTable (type?: any, value?: any) {
+    changeTable(type?: any, value?: any) {
         if (value) {
             // Reset partition
-            this.props.form.setFieldsValue({ partition: '' })
-            const schema = this.props.form.getFieldValue('schema')
+            this.props.form.setFieldsValue({ partition: '' });
+            const schema = this.props.form.getFieldValue('schema');
             // 获取表列字段
-            this.getTableColumn(value, schema)
+            this.getTableColumn(value, schema);
             // 检测是否有 native hive
-            this.checkIsNativeHive(value)
+            this.checkIsNativeHive(value);
         }
-        this.submitForm()
+        this.submitForm();
     }
 
     getPartitionType = async (tableName: string, isUpdate: boolean) => {
-        const { targetMap } = this.props
+        const { targetMap } = this.props;
         const res = await ajax.getPartitionType({
             sourceId: targetMap.sourceId,
-            tableName
-        })
+            tableName,
+        });
         if (res.code === 1) {
-            const data = res.data || {}
-            const isImpalaHiveTable = data.tableLocationType === 'hive'
+            const data = res.data || {};
+            const isImpalaHiveTable = data.tableLocationType === 'hive';
             this.setState({ isImpalaHiveTable }, () => {
-                this.getHivePartitions(tableName)
-            })
+                this.getHivePartitions(tableName);
+            });
             if (isUpdate) {
                 // isUpdate为 true reset writeMode
                 this.props.handleTargetMapChange({
-                    writeMode: isImpalaHiveTable ? 'replace' : 'insert'
-                })
+                    writeMode: isImpalaHiveTable ? 'replace' : 'insert',
+                });
             }
         }
     };
 
     getTableColumn = (tableName: any, schema?: any) => {
-        const { form, handleTableColumnChange, targetMap } = this.props
-        const sourceId = form.getFieldValue('sourceId')
+        const { form, handleTableColumnChange, targetMap } = this.props;
+        const sourceId = form.getFieldValue('sourceId');
 
         this.setState({
-            loading: true
-        })
+            loading: true,
+        });
         // Hive 作为结果表时，需要获取分区字段
-        const targetType = get(targetMap, 'type.type', null)
+        const targetType = get(targetMap, 'type.type', null);
         const includePart =
             +targetType === DATA_SOURCE.HIVE_1 ||
             +targetType === DATA_SOURCE.HIVE_2 ||
             +targetType === DATA_SOURCE.HIVE_3 ||
-            +targetType === DATA_SOURCE.HIVE_SERVER
+            +targetType === DATA_SOURCE.HIVE_SERVER;
 
         ajax.getOfflineTableColumn({
             sourceId,
             schema,
             tableName,
-            isIncludePart: includePart
+            isIncludePart: includePart,
         }).then((res: any) => {
             this.setState({
-                loading: false
-            })
+                loading: false,
+            });
             if (res.code === 1) {
-                handleTableColumnChange(res.data)
+                handleTableColumnChange(res.data);
             } else {
-                handleTableColumnChange([])
+                handleTableColumnChange([]);
             }
-        })
+        });
     };
 
-    checkIsNativeHive (tableName: any) {
-        const { form } = this.props
-        const sourceId = form.getFieldValue('sourceId')
+    checkIsNativeHive(tableName: any) {
+        const { form } = this.props;
+        const sourceId = form.getFieldValue('sourceId');
         if (!tableName || !sourceId) {
-            return false
+            return false;
         }
     }
 
     submitForm = () => {
-        const { form, updateTabAsUnSave, handleTargetMapChange } = this.props
+        const { form, updateTabAsUnSave, handleTargetMapChange } = this.props;
 
         setTimeout(() => {
             /**
              * targetMap
              */
-            let values = form.getFieldsValue()
-            const keyAndValues = Object.entries(values)
+            let values = form.getFieldsValue();
+            const keyAndValues = Object.entries(values);
             /**
              * 这边将 ·writeMode@hdfs· 类的key全部转化为writeMode
              * 加上@ 的原因是避免antd相同key引发的bug
              */
             values = (() => {
-                const values: any = {}
+                const values: any = {};
                 keyAndValues.forEach(([key, value]) => {
                     if (key.indexOf('@') > -1) {
-                        values[key.split('@')[0]] = value
+                        values[key.split('@')[0]] = value;
                     } else {
-                        values[key] = value
+                        values[key] = value;
                     }
-                })
-                return values
-            })()
+                });
+                return values;
+            })();
             // 去空格
             if (values.partition) {
-                values.partition = Utils.removeAllSpaces(values.partition)
+                values.partition = Utils.removeAllSpaces(values.partition);
             }
             if (values.path) {
-                values.path = Utils.removeAllSpaces(values.path)
+                values.path = Utils.removeAllSpaces(values.path);
             }
             if (values.fileName) {
-                values.fileName = Utils.removeAllSpaces(values.fileName)
+                values.fileName = Utils.removeAllSpaces(values.fileName);
             }
             if (values.bucket) {
-                values.bucket = Utils.removeAllSpaces(values.bucket)
+                values.bucket = Utils.removeAllSpaces(values.bucket);
             }
             if (values.object) {
-                values.object = Utils.removeAllSpaces(values.object)
+                values.object = Utils.removeAllSpaces(values.object);
             }
             if (values.fileName) {
-                values.fileName = Utils.removeAllSpaces(values.fileName)
+                values.fileName = Utils.removeAllSpaces(values.fileName);
             }
             if (values.ftpFileName) {
-                values.ftpFileName = Utils.removeAllSpaces(values.ftpFileName)
+                values.ftpFileName = Utils.removeAllSpaces(values.ftpFileName);
             }
             const srcmap = assign(values, {
-                src: this.getDataObjById(values.sourceId)
-            })
+                src: this.getDataObjById(values.sourceId),
+            });
 
             // 处理数据同步变量
-            handleTargetMapChange(srcmap)
-            updateTabAsUnSave()
-        }, 0)
+            handleTargetMapChange(srcmap);
+            updateTabAsUnSave();
+        }, 0);
     };
 
     validateChineseCharacter = (data: any) => {
-        const reg = /(，|。|；|[\u4e00-\u9fa5]+)/ // 中文字符，中文逗号，句号，分号
-        let has = false
-        const fieldsName: any = []
+        const reg = /(，|。|；|[\u4e00-\u9fa5]+)/; // 中文字符，中文逗号，句号，分号
+        let has = false;
+        const fieldsName: any = [];
         if (data.path && reg.test(data.path)) {
-            has = true
-            fieldsName.push('路径')
+            has = true;
+            fieldsName.push('路径');
         }
         if (data.fileName && reg.test(data.fileName)) {
-            has = true
-            fieldsName.push('文件名')
+            has = true;
+            fieldsName.push('文件名');
         }
         if (data.ftpFileName && reg.test(data.ftpFileName)) {
-            has = true
-            fieldsName.push('文件名')
+            has = true;
+            fieldsName.push('文件名');
         }
         if (data.fieldDelimiter && reg.test(data.fieldDelimiter)) {
-            has = true
-            fieldsName.push('列分隔符')
+            has = true;
+            fieldsName.push('列分隔符');
         }
         if (has) {
             singletonNotification(
                 '提示',
                 `${fieldsName.join('、')}参数中有包含中文或者中文标点符号！`,
                 'warning'
-            )
+            );
         }
     };
 
-    prev (cb: any) {
+    prev(cb: any) {
         /* eslint-disable-next-line */
         cb.call(null, 0);
     }
 
     onSearchObject = (str: any, sourceId: any) => {
-        this.getBucketList(sourceId, str)
+        this.getBucketList(sourceId, str);
     };
 
-    next (cb: any) {
+    next(cb: any) {
         const { form, currentTabData, saveDataSyncToTab, dataSync } =
-            this.props
+            this.props;
         form.validateFields((err: any, values: any) => {
             if (!err) {
                 saveDataSyncToTab({
                     id: currentTabData.id,
-                    data: dataSync
-                })
-                this.validateChineseCharacter(values)
+                    data: dataSync,
+                });
+                this.validateChineseCharacter(values);
                 /* eslint-disable-next-line */
                 cb.call(null, 2);
             }
-        })
+        });
     }
 
-    handleCancel () {
+    handleCancel() {
         this.setState({
             textSql: '',
-            visible: false
-        })
+            visible: false,
+        });
     }
 
-    createTable () {
-        const { textSql } = this.state
-        const { targetMap, form } = this.props
-        const tableType = form.getFieldValue('tableType')
-        const dataSourceType = targetMap.type && targetMap.type.type
+    createTable() {
+        const { textSql } = this.state;
+        const { targetMap, form } = this.props;
+        const tableType = form.getFieldValue('tableType');
+        const dataSourceType = targetMap.type && targetMap.type.type;
         this.setState({
-            modalLoading: true
-        })
+            modalLoading: true,
+        });
         ajax.createDdlTable({
             sql: textSql,
             sourceId: targetMap.sourceId,
-            tableType
+            tableType,
         }).then((res: any) => {
             this.setState({
-                modalLoading: false
-            })
+                modalLoading: false,
+            });
             if (res.code === 1) {
-                this.getTableList(targetMap.sourceId)
-                this.changeTable(dataSourceType, res.data.tableName)
-                this.props.form.setFieldsValue({ table: res.data.tableName })
+                this.getTableList(targetMap.sourceId);
+                this.changeTable(dataSourceType, res.data.tableName);
+                this.props.form.setFieldsValue({ table: res.data.tableName });
                 this.setState({
-                    visible: false
-                })
-                message.success('表创建成功!')
+                    visible: false,
+                });
+                message.success('表创建成功!');
             }
-        })
+        });
     }
 
     getTableData = (type: any, schema: any, value: any, sourceKey?: any) => {
         if (value) {
             this.setState({
-                loading: true
-            })
+                loading: true,
+            });
 
-            this.getTableColumn(value, schema)
+            this.getTableColumn(value, schema);
         }
         // 不可简化sourceKey, 在submitForm上对应的不同的逻辑，即第四个参数对应的逻辑不同，在不同场景可能不存在第四个参数，不能简化
-        this.submitForm()
+        this.submitForm();
         this.setState({
-            showPreview: false
-        })
+            showPreview: false,
+        });
     };
 
     getBucketList = async (resourceId: number, schema?: any) => {
-        const { currentTab } = this.props
+        const { currentTab } = this.props;
         const params = {
             projectId: currentTab,
             sourceId: resourceId,
-            schema
-        }
-        const res = await ajax.getAllSchemas(params)
-        const { data } = res
+            schema,
+        };
+        const res = await ajax.getAllSchemas(params);
+        const { data } = res;
         if (res.code === 1 && Array.isArray(res.data) && res.data?.length > 0) {
             this.setState({
-                bucketList: data
-            })
+                bucketList: data,
+            });
         }
     };
 
     checkEffective = () => {
-        const { tableListSearch } = this.state
-        const { form, targetMap } = this.props
-        const value = form.getFieldValue('table')
+        const { tableListSearch } = this.state;
+        const { form, targetMap } = this.props;
+        const value = form.getFieldValue('table');
         if (
             !Array.isArray(tableListSearch) ||
             tableListSearch.length === 0 ||
             !tableListSearch?.includes(value)
         ) {
-            form.setFieldsValue({ table: undefined })
+            form.setFieldsValue({ table: undefined });
             return this.getTableList(
                 targetMap.sourceId,
                 targetMap?.type?.schema
-            )
+            );
         }
     };
 
     showCreateModal = () => {
-        const { sourceMap, targetMap } = this.props
-        const schema = this.props.form.getFieldValue('schema')
+        const { sourceMap, targetMap } = this.props;
+        const schema = this.props.form.getFieldValue('schema');
         this.setState({
-            loading: true
-        })
+            loading: true,
+        });
         const tableName =
             typeof sourceMap.type.table === 'string'
                 ? sourceMap.type.table
-                : sourceMap.type.table && sourceMap.type.table[0]
+                : sourceMap.type.table && sourceMap.type.table[0];
         const targetTableName =
             typeof targetMap.type.table === 'string'
                 ? targetMap.type.table
-                : targetMap.type.table && targetMap.type.table[0]
+                : targetMap.type.table && targetMap.type.table[0];
         ajax.getCreateTargetTable({
             originSourceId: sourceMap.sourceId,
             tableName,
             partition: sourceMap.type.partition,
             targetSourceId: targetMap.sourceId,
             originSchema: sourceMap?.type?.schema || null,
-            targetSchema: schema || null
+            targetSchema: schema || null,
         }).then((res: any) => {
             this.setState({
-                loading: false
-            })
+                loading: false,
+            });
             if (res.code === 1) {
-                let textSql = res.data
+                let textSql = res.data;
                 if (targetTableName) {
-                    const reg = /create\s+table\s+`(.*)`\s*\(/i
+                    const reg = /create\s+table\s+`(.*)`\s*\(/i;
                     textSql = res.data.replace(
                         reg,
                         function (
@@ -547,63 +547,63 @@ class TargetForm extends React.Component<any, any> {
                             offset: any,
                             string: string
                         ) {
-                            return match.replace(p1, targetTableName)
+                            return match.replace(p1, targetTableName);
                         }
-                    )
+                    );
                 }
                 this.setState({
                     textSql: textSql,
                     sync: true,
-                    visible: true
-                })
+                    visible: true,
+                });
             }
-        })
+        });
     };
 
     ddlChange = (newVal: any) => {
         this.setState({
             textSql: newVal,
-            sync: false
-        })
+            sync: false,
+        });
     };
 
     versionDiff = (version1: any, version2: any) => {
-        const v1 = version1.split('.')
-        const v2 = version2.split('.')
+        const v1 = version1.split('.');
+        const v2 = version2.split('.');
         for (let i = 0; i < Math.max(v1.length, v2.length); i++) {
-            const tempV1 = Number(v1[i] ?? 0)
-            const tempV2 = Number(v2[i] ?? 0)
-            if (tempV1 > tempV2) return true
-            if (tempV1 < tempV2) return false
+            const tempV1 = Number(v1[i] ?? 0);
+            const tempV2 = Number(v2[i] ?? 0);
+            if (tempV1 > tempV2) return true;
+            if (tempV1 < tempV2) return false;
         }
-        return true
+        return true;
     };
 
     checkData = (value: any) => {
-        const { tableListSearch } = this.state
-        const { setFieldsValue } = this.props.form
+        const { tableListSearch } = this.state;
+        const { setFieldsValue } = this.props.form;
 
         if (!tableListSearch.includes(value)) {
-            setFieldsValue({ table: undefined })
+            setFieldsValue({ table: undefined });
         }
     };
 
     renderTableList = (taskType: any) => {
-        const { tableListSearch } = this.state
+        const { tableListSearch } = this.state;
         return tableListSearch.map((table: any) => {
             return (
                 <Option key={`rdb-target-${table}`} value={table}>
                     {table}
                 </Option>
-            )
-        })
+            );
+        });
     };
 
-    render () {
-        const { getFieldDecorator } = this.props.form
-        const { tableListLoading } = this.state
-        const { targetMap, dataSourceList, navtoStep } = this.props
-        const getPopupContainer = this.props.getPopupContainer
+    render() {
+        const { getFieldDecorator } = this.props.form;
+        const { tableListLoading } = this.state;
+        const { targetMap, dataSourceList, navtoStep } = this.props;
+        const getPopupContainer = this.props.getPopupContainer;
         return (
             <Spin spinning={tableListLoading}>
                 <div className="g-step2">
@@ -612,12 +612,12 @@ class TargetForm extends React.Component<any, any> {
                             {getFieldDecorator('sourceId', {
                                 rules: [
                                     {
-                                        required: true
-                                    }
+                                        required: true,
+                                    },
                                 ],
                                 initialValue: isEmpty(targetMap)
                                     ? ''
-                                    : `${targetMap.sourceId}`
+                                    : `${targetMap.sourceId}`,
                             })(
                                 <Select
                                     getPopupContainer={getPopupContainer}
@@ -626,67 +626,65 @@ class TargetForm extends React.Component<any, any> {
                                         this.setState(
                                             {
                                                 tableList: [],
-                                                tableListSearch: []
+                                                tableListSearch: [],
                                             },
                                             () => {
                                                 this.changeSource(
                                                     value,
                                                     options
-                                                )
+                                                );
                                             }
-                                        )
+                                        );
                                     }}
                                     optionFilterProp="name"
                                 >
                                     {dataSourceList.map((src: any) => {
                                         const title = `${src.dataName}（${
                                             (DATA_SOURCE_TEXT as any)[src.type]
-                                        }）`
+                                        }）`;
 
                                         return (
                                             <Option
                                                 key={src.id}
                                                 {...{
                                                     name: src.dataName,
-                                                    dataType: src.type
+                                                    dataType: src.type,
                                                 }}
                                                 value={`${src.id}`}
                                             >
                                                 {title}
                                             </Option>
-                                        )
+                                        );
                                     })}
                                 </Select>
                             )}
                         </FormItem>
                         {this.renderDynamicForm()}
-                        {!isEmpty(targetMap)
-                            ? (
-                                <FormItem {...formItemLayout} label="高级配置">
-                                    {getFieldDecorator('extralConfig', {
-                                        rules: [
-                                            {
-                                                validator: formJsonValidator
-                                            }
-                                        ],
-                                        initialValue: get(
-                                            targetMap,
-                                            'extralConfig',
-                                            ''
-                                        )
-                                    })(
-                                        <TextArea
-                                            onChange={this.submitForm.bind(this)}
-                                            placeholder={
-                                                '以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize'
-                                            }
-                                            autosize={{ minRows: 2, maxRows: 6 }}
-                                        />
-                                    )}
-                                    <HelpDoc doc={'dataSyncExtralConfigHelp'} />
-                                </FormItem>
-                            )
-                            : null}
+                        {!isEmpty(targetMap) ? (
+                            <FormItem {...formItemLayout} label="高级配置">
+                                {getFieldDecorator('extralConfig', {
+                                    rules: [
+                                        {
+                                            validator: formJsonValidator,
+                                        },
+                                    ],
+                                    initialValue: get(
+                                        targetMap,
+                                        'extralConfig',
+                                        ''
+                                    ),
+                                })(
+                                    <TextArea
+                                        onChange={this.submitForm.bind(this)}
+                                        placeholder={
+                                            '以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize'
+                                        }
+                                        autosize={{ minRows: 2, maxRows: 6 }}
+                                    />
+                                )}
+                                <HelpDoc doc={'dataSyncExtralConfigHelp'} />
+                            </FormItem>
+                        ) : null}
                     </Form>
                     {!this.props.readonly && (
                         <div className="steps-action">
@@ -707,12 +705,12 @@ class TargetForm extends React.Component<any, any> {
                     )}
                 </div>
             </Spin>
-        )
+        );
     }
 
     debounceTableSearch = debounce(this.changeTable, 600, { maxWait: 2000 });
     debounceTableNameSearch = debounce(this.getTableList, 500, {
-        maxWait: 2000
+        maxWait: 2000,
     });
 
     renderDynamicForm = () => {
@@ -724,26 +722,26 @@ class TargetForm extends React.Component<any, any> {
             tableListSearch,
             schemaId,
             tableList,
-            fetching
-        } = this.state
+            fetching,
+        } = this.state;
 
-        const { targetMap, sourceMap, form } = this.props
-        const { getFieldDecorator } = form
-        const sourceType = sourceMap.type && sourceMap.type.type
-        const targetType = targetMap?.type?.type
+        const { targetMap, sourceMap, form } = this.props;
+        const { getFieldDecorator } = form;
+        const sourceType = sourceMap.type && sourceMap.type.type;
+        const targetType = targetMap?.type?.type;
         // 是否拥有分区
-        let formItem: any
+        let formItem: any;
         const havePartition =
             targetMap.type &&
-            (!!targetMap.type.partition || targetMap.type.havePartition)
-        const getPopupContainer = this.props.getPopupContainer
+            (!!targetMap.type.partition || targetMap.type.havePartition);
+        const getPopupContainer = this.props.getPopupContainer;
         const showCreateTable =
             targetType === DATA_SOURCE.HIVE_2 ||
             targetType === DATA_SOURCE.HIVE_3 ||
             targetType === DATA_SOURCE.HIVE_SERVER ||
             targetType === DATA_SOURCE.HIVE_1 ||
             targetType === DATA_SOURCE.POSTGRESQL ||
-            targetType === DATA_SOURCE.MYSQL
+            targetType === DATA_SOURCE.MYSQL;
         const showCreateTableSource =
             sourceType === DATA_SOURCE.MYSQL ||
             sourceType === DATA_SOURCE.ORACLE ||
@@ -752,26 +750,24 @@ class TargetForm extends React.Component<any, any> {
             sourceType === DATA_SOURCE.HIVE_2 ||
             sourceType === DATA_SOURCE.HIVE_3 ||
             sourceType === DATA_SOURCE.HIVE_SERVER ||
-            sourceType === DATA_SOURCE.HIVE_1
+            sourceType === DATA_SOURCE.HIVE_1;
 
         const oneKeyCreateTable =
             showCreateTable &&
             showCreateTableSource &&
-            (loading
-                ? (
-                    <Icon type="loading" />
-                )
-                : (
-                    <a
-                        style={{ top: '0px', right: '-103px' }}
-                        onClick={this.showCreateModal.bind(this)}
-                        className="help-doc"
-                    >
+            (loading ? (
+                <Icon type="loading" />
+            ) : (
+                <a
+                    style={{ top: '0px', right: '-103px' }}
+                    onClick={this.showCreateModal.bind(this)}
+                    className="help-doc"
+                >
                     一键生成目标表
-                    </a>
-                ))
+                </a>
+            ));
 
-        if (isEmpty(targetMap)) return null
+        if (isEmpty(targetMap)) return null;
         switch (targetMap.type.type) {
             case DATA_SOURCE.MYSQL: {
                 formItem = [
@@ -781,12 +777,12 @@ class TargetForm extends React.Component<any, any> {
                                 rules: [
                                     {
                                         required: true,
-                                        message: '请选择表'
-                                    }
+                                        message: '请选择表',
+                                    },
                                 ],
                                 initialValue: isEmpty(targetMap)
                                     ? ''
-                                    : targetMap.type.table
+                                    : targetMap.type.table,
                             })(
                                 <Select
                                     getPopupContainer={getPopupContainer}
@@ -798,7 +794,7 @@ class TargetForm extends React.Component<any, any> {
                                             targetMap.sourceId,
                                             null,
                                             str
-                                        )
+                                        );
                                     }}
                                     onSelect={this.debounceTableSearch.bind(
                                         this,
@@ -816,7 +812,7 @@ class TargetForm extends React.Component<any, any> {
                                             >
                                                 {table}
                                             </Option>
-                                        )
+                                        );
                                     })}
                                 </Select>
                             )}
@@ -832,7 +828,7 @@ class TargetForm extends React.Component<any, any> {
                             rules: [],
                             initialValue: isEmpty(targetMap)
                                 ? ''
-                                : targetMap.type.preSql
+                                : targetMap.type.preSql,
                         })(
                             <Input.TextArea
                                 onChange={this.submitForm.bind(this)}
@@ -849,7 +845,7 @@ class TargetForm extends React.Component<any, any> {
                             rules: [],
                             initialValue: isEmpty(targetMap)
                                 ? ''
-                                : targetMap.type.postSql
+                                : targetMap.type.postSql,
                         })(
                             <Input.TextArea
                                 onChange={this.submitForm.bind(this)}
@@ -866,13 +862,13 @@ class TargetForm extends React.Component<any, any> {
                         {getFieldDecorator('writeMode@mysql', {
                             rules: [
                                 {
-                                    required: true
-                                }
+                                    required: true,
+                                },
                             ],
                             initialValue:
                                 targetMap.type && targetMap.type.writeMode
                                     ? targetMap.type.writeMode
-                                    : 'insert'
+                                    : 'insert',
                         })(
                             <Select onChange={this.submitForm.bind(this)}>
                                 <Option key="writeModeInsert" value="insert">
@@ -888,9 +884,9 @@ class TargetForm extends React.Component<any, any> {
                                 </Option>
                             </Select>
                         )}
-                    </FormItem>
-                ]
-                break
+                    </FormItem>,
+                ];
+                break;
             }
             case DATA_SOURCE.ORACLE: {
                 formItem = [
@@ -899,15 +895,15 @@ class TargetForm extends React.Component<any, any> {
                             rules: [],
                             initialValue: isEmpty(targetMap)
                                 ? ''
-                                : targetMap.type.schema
+                                : targetMap.type.schema,
                         })(
                             <Select
                                 showSearch
                                 {...{ showArrow: true }}
                                 allowClear={true}
                                 onChange={(val: any) => {
-                                    this.getTableList(kingbaseId, val)
-                                    form.setFieldsValue({ table: '' })
+                                    this.getTableList(kingbaseId, val);
+                                    form.setFieldsValue({ table: '' });
                                 }}
                             >
                                 {schemaList.map(
@@ -922,7 +918,7 @@ class TargetForm extends React.Component<any, any> {
                                                     ? 'ROW_NUMBER'
                                                     : copateValue}
                                             </Option>
-                                        )
+                                        );
                                     }
                                 )}
                             </Select>
@@ -934,12 +930,12 @@ class TargetForm extends React.Component<any, any> {
                                 rules: [
                                     {
                                         required: true,
-                                        message: '请选择表'
-                                    }
+                                        message: '请选择表',
+                                    },
                                 ],
                                 initialValue: isEmpty(targetMap)
                                     ? ''
-                                    : targetMap.type.table
+                                    : targetMap.type.table,
                             })(
                                 <Select
                                     getPopupContainer={getPopupContainer}
@@ -970,7 +966,7 @@ class TargetForm extends React.Component<any, any> {
                                             >
                                                 {table}
                                             </Option>
-                                        )
+                                        );
                                     })}
                                 </Select>
                             )}
@@ -986,7 +982,7 @@ class TargetForm extends React.Component<any, any> {
                             rules: [],
                             initialValue: isEmpty(targetMap)
                                 ? ''
-                                : targetMap.type.preSql
+                                : targetMap.type.preSql,
                         })(
                             <Input
                                 onChange={this.submitForm.bind(this)}
@@ -1004,7 +1000,7 @@ class TargetForm extends React.Component<any, any> {
                             rules: [],
                             initialValue: isEmpty(targetMap)
                                 ? ''
-                                : targetMap.type.postSql
+                                : targetMap.type.postSql,
                         })(
                             <Input
                                 onChange={this.submitForm.bind(this)}
@@ -1022,13 +1018,13 @@ class TargetForm extends React.Component<any, any> {
                         {getFieldDecorator('writeMode@mysql', {
                             rules: [
                                 {
-                                    required: true
-                                }
+                                    required: true,
+                                },
                             ],
                             initialValue:
                                 targetMap.type && targetMap.type.writeMode
                                     ? targetMap.type.writeMode
-                                    : 'insert'
+                                    : 'insert',
                         })(
                             <Select onChange={this.submitForm.bind(this)}>
                                 <Option key="writeModeInsert" value="insert">
@@ -1044,9 +1040,9 @@ class TargetForm extends React.Component<any, any> {
                                 </Option>
                             </Select>
                         )}
-                    </FormItem>
-                ]
-                break
+                    </FormItem>,
+                ];
+                break;
             }
             case DATA_SOURCE.HIVE_1:
             case DATA_SOURCE.HIVE_2:
@@ -1059,12 +1055,12 @@ class TargetForm extends React.Component<any, any> {
                                 rules: [
                                     {
                                         required: true,
-                                        message: '请选择表'
-                                    }
+                                        message: '请选择表',
+                                    },
                                 ],
                                 initialValue: isEmpty(targetMap)
                                     ? ''
-                                    : targetMap.type.table
+                                    : targetMap.type.table,
                             })(
                                 <Select
                                     getPopupContainer={getPopupContainer}
@@ -1072,7 +1068,7 @@ class TargetForm extends React.Component<any, any> {
                                     mode="combobox"
                                     onBlur={this.checkData}
                                     onSearch={(str) => {
-                                        this.onSearchTable(str)
+                                        this.onSearchTable(str);
                                     }}
                                     onSelect={this.debounceTableSearch.bind(
                                         this,
@@ -1091,60 +1087,58 @@ class TargetForm extends React.Component<any, any> {
                                             >
                                                 {table}
                                             </Option>
-                                        )
+                                        );
                                     })}
                                 </Select>
                             )}
                             {oneKeyCreateTable}
                         </FormItem>
                     ),
-                    havePartition
-                        ? (
-                            <FormItem
-                                {...formItemLayout}
-                                label="分区"
-                                key="partition"
-                            >
-                                {getFieldDecorator('partition', {
-                                    rules: [
-                                        {
-                                            required: true,
-                                            message: '目标分区为必填项！'
+                    havePartition ? (
+                        <FormItem
+                            {...formItemLayout}
+                            label="分区"
+                            key="partition"
+                        >
+                            {getFieldDecorator('partition', {
+                                rules: [
+                                    {
+                                        required: true,
+                                        message: '目标分区为必填项！',
+                                    },
+                                ],
+                                initialValue: get(
+                                    targetMap,
+                                    'type.partition',
+                                    ''
+                                ),
+                            })(
+                                <AutoComplete
+                                    showSearch
+                                    {...{ showArrow: true }}
+                                    placeholder="请填写分区信息"
+                                    onChange={this.submitForm.bind(this)}
+                                    filterOption={filterValueOption}
+                                >
+                                    {this.state.tablePartitionList.map(
+                                        (pt: any) => {
+                                            return (
+                                                <AutoComplete.Option
+                                                    key={`rdb-${pt}`}
+                                                    value={pt}
+                                                >
+                                                    {pt}
+                                                </AutoComplete.Option>
+                                            );
                                         }
-                                    ],
-                                    initialValue: get(
-                                        targetMap,
-                                        'type.partition',
-                                        ''
-                                    )
-                                })(
-                                    <AutoComplete
-                                        showSearch
-                                        {...{ showArrow: true }}
-                                        placeholder="请填写分区信息"
-                                        onChange={this.submitForm.bind(this)}
-                                        filterOption={filterValueOption}
-                                    >
-                                        {this.state.tablePartitionList.map(
-                                            (pt: any) => {
-                                                return (
-                                                    <AutoComplete.Option
-                                                        key={`rdb-${pt}`}
-                                                        value={pt}
-                                                    >
-                                                        {pt}
-                                                    </AutoComplete.Option>
-                                                )
-                                            }
-                                        )}
-                                    </AutoComplete>
-                                )}
-                                <HelpDoc doc="partitionDesc" />
-                            </FormItem>
-                        )
-                        : (
-                            ''
-                        ),
+                                    )}
+                                </AutoComplete>
+                            )}
+                            <HelpDoc doc="partitionDesc" />
+                        </FormItem>
+                    ) : (
+                        ''
+                    ),
                     <FormItem
                         {...formItemLayout}
                         label="写入模式"
@@ -1154,13 +1148,13 @@ class TargetForm extends React.Component<any, any> {
                         {getFieldDecorator('writeMode@hive', {
                             rules: [
                                 {
-                                    required: true
-                                }
+                                    required: true,
+                                },
                             ],
                             initialValue:
                                 targetMap.type && targetMap.type.writeMode
                                     ? targetMap.type.writeMode
-                                    : 'replace'
+                                    : 'replace',
                         })(
                             <RadioGroup onChange={this.submitForm.bind(this)}>
                                 <Radio
@@ -1174,9 +1168,9 @@ class TargetForm extends React.Component<any, any> {
                                 </Radio>
                             </RadioGroup>
                         )}
-                    </FormItem>
-                ]
-                break
+                    </FormItem>,
+                ];
+                break;
             }
             case DATA_SOURCE.POSTGRESQL: {
                 formItem = [
@@ -1185,22 +1179,22 @@ class TargetForm extends React.Component<any, any> {
                             initialValue: isEmpty(targetMap)
                                 ? ''
                                 : targetMap?.schema
-                                    ? targetMap?.schema
-                                    : targetMap.type.schema
+                                ? targetMap?.schema
+                                : targetMap.type.schema,
                         })(
                             <Select
                                 showSearch
                                 {...{ showArrow: true }}
                                 allowClear={true}
                                 onChange={(val: any) => {
-                                    val && this.getTableList(kingbaseId, val)
+                                    val && this.getTableList(kingbaseId, val);
                                     form.setFieldsValue({
                                         table: '',
-                                        splitPK: undefined
-                                    })
+                                        splitPK: undefined,
+                                    });
                                     this.setState({
-                                        tableListSearch: []
-                                    })
+                                        tableListSearch: [],
+                                    });
                                 }}
                             >
                                 {schemaList.map(
@@ -1212,7 +1206,7 @@ class TargetForm extends React.Component<any, any> {
                                             >
                                                 {copateValue}
                                             </Option>
-                                        )
+                                        );
                                     }
                                 )}
                             </Select>
@@ -1224,12 +1218,12 @@ class TargetForm extends React.Component<any, any> {
                                 rules: [
                                     {
                                         required: true,
-                                        message: '请选择表'
-                                    }
+                                        message: '请选择表',
+                                    },
                                 ],
                                 initialValue: isEmpty(targetMap)
                                     ? ''
-                                    : targetMap.type.table
+                                    : targetMap.type.table,
                             })(
                                 <Select
                                     getPopupContainer={getPopupContainer}
@@ -1264,7 +1258,7 @@ class TargetForm extends React.Component<any, any> {
                             rules: [],
                             initialValue: isEmpty(targetMap)
                                 ? ''
-                                : targetMap.type.preSql
+                                : targetMap.type.preSql,
                         })(
                             <Input
                                 onChange={this.submitForm.bind(this)}
@@ -1282,7 +1276,7 @@ class TargetForm extends React.Component<any, any> {
                             rules: [],
                             initialValue: isEmpty(targetMap)
                                 ? ''
-                                : targetMap.type.postSql
+                                : targetMap.type.postSql,
                         })(
                             <Input
                                 onChange={this.submitForm.bind(this)}
@@ -1300,13 +1294,13 @@ class TargetForm extends React.Component<any, any> {
                         {getFieldDecorator('writeMode@mysql', {
                             rules: [
                                 {
-                                    required: true
-                                }
+                                    required: true,
+                                },
                             ],
                             initialValue:
                                 targetMap.type && targetMap.type.writeMode
                                     ? targetMap.type.writeMode
-                                    : 'insert'
+                                    : 'insert',
                         })(
                             <Select onChange={this.submitForm.bind(this)}>
                                 <Option key="writeModeInsert" value="insert">
@@ -1323,111 +1317,111 @@ class TargetForm extends React.Component<any, any> {
                                 </Option>
                             </Select>
                         )}
-                    </FormItem>
-                ]
-                break
+                    </FormItem>,
+                ];
+                break;
             }
             default:
-                break
+                break;
         }
 
-        return formItem
+        return formItem;
     };
 }
 
-const TargetFormWrap = Form.create<any>()(TargetForm)
+const TargetFormWrap = Form.create<any>()(TargetForm);
 
 class Target extends React.Component<any, any> {
-    render () {
+    render() {
         return (
             <div>
                 <TargetFormWrap {...this.props} />
             </div>
-        )
+        );
     }
 }
 
 const mapState = (state: any) => {
-    const { workbench, dataSync } = state.dataSync
-    const { isCurrentTabNew, currentTab } = workbench
+    const { workbench, dataSync } = state.dataSync;
+    const { isCurrentTabNew, currentTab } = workbench;
     return {
         currentTab,
         isCurrentTabNew,
         project: state.project,
         projectTableTypes: state.tableTypes?.projectTableTypes || [],
-        ...dataSync
-    }
-}
+        ...dataSync,
+    };
+};
 
 const mapDispatch = (dispatch: any, ownProps: any) => {
     return {
-        handleSourceChange (src: any) {
+        handleSourceChange(src: any) {
             dispatch({
-                type: dataSyncAction.RESET_TARGET_MAP
-            })
+                type: dataSyncAction.RESET_TARGET_MAP,
+            });
             dispatch({
-                type: settingAction.INIT_CHANNEL_SETTING
-            })
+                type: settingAction.INIT_CHANNEL_SETTING,
+            });
             dispatch({
-                type: dataSyncAction.RESET_KEYMAP
-            })
+                type: dataSyncAction.RESET_KEYMAP,
+            });
             dispatch({
                 type: targetMapAction.DATA_SOURCE_TARGET_CHANGE,
-                payload: src
-            })
+                payload: src,
+            });
             dispatch({
-                type: workbenchAction.MAKE_TAB_DIRTY
-            })
+                type: workbenchAction.MAKE_TAB_DIRTY,
+            });
         },
 
-        handleTargetMapChange (srcmap: any) {
+        handleTargetMapChange(srcmap: any) {
             dispatch({
                 type: targetMapAction.DATA_TARGETMAP_CHANGE,
-                payload: srcmap
-            })
+                payload: srcmap,
+            });
         },
-        updateTabAsUnSave () {
+        updateTabAsUnSave() {
             dispatch({
-                type: workbenchAction.MAKE_TAB_DIRTY
-            })
+                type: workbenchAction.MAKE_TAB_DIRTY,
+            });
         },
         handleTableColumnChange: (colData: any) => {
             dispatch({
-                type: dataSyncAction.RESET_KEYMAP
-            })
+                type: dataSyncAction.RESET_KEYMAP,
+            });
             dispatch({
                 type: targetMapAction.TARGET_TABLE_COLUMN_CHANGE,
-                payload: colData
-            })
+                payload: colData,
+            });
             dispatch({
-                type: workbenchAction.MAKE_TAB_DIRTY
-            })
+                type: workbenchAction.MAKE_TAB_DIRTY,
+            });
         },
         changeNativeHive: (isNativeHive: any) => {
             dispatch({
                 type: targetMapAction.CHANGE_NATIVE_HIVE,
-                payload: isNativeHive
-            })
+                payload: isNativeHive,
+            });
         },
-        updateTaskFields (params: any) {
+        updateTaskFields(params: any) {
             dispatch({
                 type: workbenchAction.SET_TASK_FIELDS_VALUE,
-                payload: params
-            })
+                payload: params,
+            });
         },
         getProjectTableTypes: (projectId: any) => {
-            dispatch(getProjectTableTypes(projectId))
+            dispatch(getProjectTableTypes(projectId));
         },
         saveDataSyncToTab: (params: any) => {
             dispatch({
                 type: workbenchAction.SAVE_DATASYNC_TO_TAB,
                 payload: {
                     id: params.id,
-                    data: params.data
-                }
-            })
-        }
-    }
-}
+                    data: params.data,
+                },
+            });
+        },
+    };
+};
 
-export default connect(mapState, mapDispatch)(Target)
+export default connect(mapState, mapDispatch)(Target);

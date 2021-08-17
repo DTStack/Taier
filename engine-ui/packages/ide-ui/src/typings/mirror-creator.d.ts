@@ -4,5 +4,5 @@ declare module 'mirror-creator' {
         options?: {
             prefix: string;
         }
-    ): any
+    ): any;
 }

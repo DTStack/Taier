@@ -1,32 +1,32 @@
-import * as React from 'react'
-import moment from 'moment'
-import get from 'lodash/get'
+import * as React from 'react';
+import moment from 'moment';
+import get from 'lodash/get';
 
-import { Col, Checkbox, Form, DatePicker, Select, Input, Radio } from 'antd'
-import HelpDoc, { relativeStyle } from '../../../components/helpDoc'
+import { Col, Checkbox, Form, DatePicker, Select, Input, Radio } from 'antd';
+import HelpDoc, { relativeStyle } from '../../../components/helpDoc';
 
-const Group = Radio.Group
-const Option = Select.Option
-const FormItem = Form.Item
+const Group = Radio.Group;
+const Option = Select.Option;
+const FormItem = Form.Item;
 
 const formItemLayout: any = {
     // 表单正常布局
     labelCol: {
         xs: { span: 24 },
-        sm: { span: 7 }
+        sm: { span: 7 },
     },
     wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 17 }
-    }
-}
+        sm: { span: 17 },
+    },
+};
 
 class ScheduleForm extends React.Component<any, any> {
-    constructor (props: any) {
-        super(props)
-        this.changeScheduleStatus = this.props.handleScheduleStatus
-        this.changeScheduleConf = this.props.handleScheduleConf
-        this.changeScheduleType = this.props.handleScheduleType
+    constructor(props: any) {
+        super(props);
+        this.changeScheduleStatus = this.props.handleScheduleStatus;
+        this.changeScheduleConf = this.props.handleScheduleConf;
+        this.changeScheduleType = this.props.handleScheduleType;
     }
 
     changeScheduleStatus: any;
@@ -34,48 +34,48 @@ class ScheduleForm extends React.Component<any, any> {
     changeScheduleType: any;
 
     changeEndDisabledDate = (currentDate: any) => {
-        const { form } = this.props
-        const date = form.getFieldValue('beginDate')
-        return date && currentDate.valueOf() < date
+        const { form } = this.props;
+        const date = form.getFieldValue('beginDate');
+        return date && currentDate.valueOf() < date;
     };
 
     changeStartDisabledDate = (currentDate: any) => {
-        const { form } = this.props
-        const date = form.getFieldValue('endDate')
-        return date && currentDate.valueOf() > date
+        const { form } = this.props;
+        const date = form.getFieldValue('endDate');
+        return date && currentDate.valueOf() > date;
     };
 
-    render () {
-        const { getFieldDecorator } = this.props.form
+    render() {
+        const { getFieldDecorator } = this.props.form;
         const {
             status,
             scheduleConf,
             isWorkflowNode,
             wFScheduleConf,
             isWorkflowRoot,
-            isScienceTask
-        } = this.props
-        const { beginDate, endDate } = scheduleConf
-        const { periodType, isFailRetry } = scheduleConf
+            isScienceTask,
+        } = this.props;
+        const { beginDate, endDate } = scheduleConf;
+        const { periodType, isFailRetry } = scheduleConf;
         // 调度周期为小时或者分钟
         const isHourOrMinTask =
             scheduleConf &&
             (scheduleConf.periodType === '0' ||
-                scheduleConf.periodType === '1')
+                scheduleConf.periodType === '1');
         // 当工作流节点的调度周期为小时-1， 分-0时禁用调用时间选项
         const disabledInvokeTime =
             wFScheduleConf &&
             (wFScheduleConf.periodType === '0' ||
-                wFScheduleConf.periodType === '1')
+                wFScheduleConf.periodType === '1');
 
         const generateHours = () => {
-            const options: any = []
+            const options: any = [];
             for (let i = 0; i <= 23; i++) {
                 options.push(
                     <Option key={i} value={`${i}`}>
                         {i < 10 ? `0${i}` : i}
                     </Option>
-                )
+                );
             }
             return (
                 <Select
@@ -84,16 +84,16 @@ class ScheduleForm extends React.Component<any, any> {
                 >
                     {options}
                 </Select>
-            )
-        }
+            );
+        };
         const generateMins = () => {
-            const options: any = []
+            const options: any = [];
             for (let i = 0, l = 59; i <= l; i++) {
                 options.push(
                     <Option key={i} value={`${i}`}>
                         {i < 10 ? `0${i}` : i}
                     </Option>
-                )
+                );
             }
             return (
                 <Select
@@ -102,14 +102,14 @@ class ScheduleForm extends React.Component<any, any> {
                 >
                     {options}
                 </Select>
-            )
-        }
+            );
+        };
         const generateDate = () => {
-            const options: any = []
+            const options: any = [];
             for (let i = 1; i <= 31; i++) {
                 options.push(
                     <Option key={i} value={`${i}`}>{`每月${i}号`}</Option>
-                )
+                );
             }
             return (
                 <Select
@@ -120,8 +120,8 @@ class ScheduleForm extends React.Component<any, any> {
                 >
                     {options}
                 </Select>
-            )
-        }
+            );
+        };
         const generateDays = () => {
             return (
                 <Select
@@ -152,14 +152,14 @@ class ScheduleForm extends React.Component<any, any> {
                         星期天
                     </Option>
                 </Select>
-            )
-        }
+            );
+        };
         return (
             <Form key={periodType} className="schedule-form">
                 <FormItem {...formItemLayout} label="调度状态">
                     {getFieldDecorator('scheduleStatus', {
                         valuePropName: 'checked',
-                        initialValue: status === 0 || status === 2
+                        initialValue: status === 0 || status === 2,
                     })(
                         <Checkbox
                             disabled={isScienceTask}
@@ -174,7 +174,7 @@ class ScheduleForm extends React.Component<any, any> {
                         <FormItem {...formItemLayout} label="出错重试">
                             {getFieldDecorator('isFailRetry', {
                                 valuePropName: 'checked',
-                                initialValue: get(scheduleConf, 'isFailRetry')
+                                initialValue: get(scheduleConf, 'isFailRetry'),
                             })(
                                 <Checkbox
                                     disabled={isScienceTask}
@@ -193,14 +193,14 @@ class ScheduleForm extends React.Component<any, any> {
                                         rules: [
                                             {
                                                 required: true,
-                                                message: '请选择重试次数'
-                                            }
+                                                message: '请选择重试次数',
+                                            },
                                         ],
                                         initialValue: get(
                                             scheduleConf,
                                             'maxRetryNum',
                                             3
-                                        )
+                                        ),
                                     })(
                                         <Select
                                             disabled={isScienceTask}
@@ -241,9 +241,9 @@ class ScheduleForm extends React.Component<any, any> {
                                 rules: [
                                     {
                                         required: true,
-                                        message: '请选择生效日期开始时间'
-                                    }
-                                ]
+                                        message: '请选择生效日期开始时间',
+                                    },
+                                ],
                             })(
                                 <DatePicker
                                     allowClear={false}
@@ -266,9 +266,9 @@ class ScheduleForm extends React.Component<any, any> {
                                 rules: [
                                     {
                                         required: true,
-                                        message: '请选择生效日期结束时间'
-                                    }
-                                ]
+                                        message: '请选择生效日期结束时间',
+                                    },
+                                ],
                             })(
                                 <DatePicker
                                     allowClear={false}
@@ -287,9 +287,9 @@ class ScheduleForm extends React.Component<any, any> {
                                     initialValue: `${scheduleConf?.periodType}`,
                                     rules: [
                                         {
-                                            required: true
-                                        }
-                                    ]
+                                            required: true,
+                                        },
+                                    ],
                                 })(
                                     <Select
                                         disabled={isScienceTask}
@@ -320,11 +320,11 @@ class ScheduleForm extends React.Component<any, any> {
                 )}
                 <FormItem style={{ display: 'none' }}>
                     {getFieldDecorator('selfReliance', {
-                        initialValue: scheduleConf.selfReliance
+                        initialValue: scheduleConf.selfReliance,
                     })(<Input disabled={isScienceTask} type="hidden"></Input>)}
                 </FormItem>
                 {(function (type: any, ctx: any) {
-                    let dom: any
+                    let dom: any;
                     switch (type) {
                         case 0: {
                             // 分钟
@@ -338,16 +338,16 @@ class ScheduleForm extends React.Component<any, any> {
                                             {getFieldDecorator('beginHour', {
                                                 rules: [
                                                     {
-                                                        required: true
+                                                        required: true,
                                                     },
                                                     {
                                                         validator:
                                                             ctx.checkTimeS1.bind(
                                                                 ctx
-                                                            )
-                                                    }
+                                                            ),
+                                                    },
                                                 ],
-                                                initialValue: `${scheduleConf.beginHour}`
+                                                initialValue: `${scheduleConf.beginHour}`,
                                             })(generateHours())}
                                         </Col>
 
@@ -356,18 +356,18 @@ class ScheduleForm extends React.Component<any, any> {
                                             {getFieldDecorator('beginMin', {
                                                 rules: [
                                                     {
-                                                        required: true
+                                                        required: true,
                                                     },
                                                     {
                                                         validator:
                                                             ctx.checkTimeS1.bind(
                                                                 ctx
-                                                            )
-                                                    }
+                                                            ),
+                                                    },
                                                 ],
                                                 initialValue: `${
                                                     scheduleConf.beginMin || '0'
-                                                }`
+                                                }`,
                                             })(generateMins())}
                                         </Col>
 
@@ -381,10 +381,10 @@ class ScheduleForm extends React.Component<any, any> {
                                             {getFieldDecorator('gapMin', {
                                                 rules: [
                                                     {
-                                                        required: true
-                                                    }
+                                                        required: true,
+                                                    },
                                                 ],
-                                                initialValue: `${scheduleConf.gapMin}`
+                                                initialValue: `${scheduleConf.gapMin}`,
                                             })(
                                                 <Select
                                                     disabled={isScienceTask}
@@ -393,7 +393,7 @@ class ScheduleForm extends React.Component<any, any> {
                                                     )}
                                                 >
                                                     {(function () {
-                                                        const options: any = []
+                                                        const options: any = [];
                                                         for (
                                                             let i = 5;
                                                             i <= 55;
@@ -406,9 +406,9 @@ class ScheduleForm extends React.Component<any, any> {
                                                                 >
                                                                     {i}分钟
                                                                 </Option>
-                                                            )
+                                                            );
                                                         }
-                                                        return options
+                                                        return options;
                                                     })()}
                                                 </Select>
                                             )}
@@ -422,16 +422,16 @@ class ScheduleForm extends React.Component<any, any> {
                                             {getFieldDecorator('endHour', {
                                                 rules: [
                                                     {
-                                                        required: true
+                                                        required: true,
                                                     },
                                                     {
                                                         validator:
                                                             ctx.checkTimeE1.bind(
                                                                 ctx
-                                                            )
-                                                    }
+                                                            ),
+                                                    },
                                                 ],
-                                                initialValue: `${scheduleConf.endHour}`
+                                                initialValue: `${scheduleConf.endHour}`,
                                             })(generateHours())}
                                         </Col>
                                         <span className="split-text">时</span>
@@ -439,25 +439,25 @@ class ScheduleForm extends React.Component<any, any> {
                                             {getFieldDecorator('endMin', {
                                                 rules: [
                                                     {
-                                                        required: true
+                                                        required: true,
                                                     },
                                                     {
                                                         validator:
                                                             ctx.checkTimeE1.bind(
                                                                 ctx
-                                                            )
-                                                    }
+                                                            ),
+                                                    },
                                                 ],
                                                 initialValue: `${
                                                     scheduleConf.endMin || '59'
-                                                }`
+                                                }`,
                                             })(generateMins())}
                                         </Col>
                                         <span className="split-text">分</span>
                                     </FormItem>
                                 </span>
-                            )
-                            break
+                            );
+                            break;
                         }
                         case 1: {
                             // 小时
@@ -471,16 +471,16 @@ class ScheduleForm extends React.Component<any, any> {
                                             {getFieldDecorator('beginHour', {
                                                 rules: [
                                                     {
-                                                        required: true
+                                                        required: true,
                                                     },
                                                     {
                                                         validator:
                                                             ctx.checkTimeS1.bind(
                                                                 ctx
-                                                            )
-                                                    }
+                                                            ),
+                                                    },
                                                 ],
-                                                initialValue: `${scheduleConf.beginHour}`
+                                                initialValue: `${scheduleConf.beginHour}`,
                                             })(generateHours())}
                                         </Col>
 
@@ -489,16 +489,16 @@ class ScheduleForm extends React.Component<any, any> {
                                             {getFieldDecorator('beginMin', {
                                                 rules: [
                                                     {
-                                                        required: true
+                                                        required: true,
                                                     },
                                                     {
                                                         validator:
                                                             ctx.checkTimeS1.bind(
                                                                 ctx
-                                                            )
-                                                    }
+                                                            ),
+                                                    },
                                                 ],
-                                                initialValue: `${scheduleConf.beginMin}`
+                                                initialValue: `${scheduleConf.beginMin}`,
                                             })(generateMins())}
                                         </Col>
 
@@ -512,10 +512,10 @@ class ScheduleForm extends React.Component<any, any> {
                                             {getFieldDecorator('gapHour', {
                                                 rules: [
                                                     {
-                                                        required: true
-                                                    }
+                                                        required: true,
+                                                    },
                                                 ],
-                                                initialValue: `${scheduleConf.gapHour}`
+                                                initialValue: `${scheduleConf.gapHour}`,
                                             })(
                                                 <Select
                                                     onChange={ctx.changeScheduleConf.bind(
@@ -524,7 +524,7 @@ class ScheduleForm extends React.Component<any, any> {
                                                     disabled={isScienceTask}
                                                 >
                                                     {(function () {
-                                                        const options: any = []
+                                                        const options: any = [];
                                                         for (
                                                             let i = 1, l = 23;
                                                             i <= l;
@@ -537,9 +537,9 @@ class ScheduleForm extends React.Component<any, any> {
                                                                 >
                                                                     {i}小时
                                                                 </Option>
-                                                            )
+                                                            );
                                                         }
-                                                        return options
+                                                        return options;
                                                     })()}
                                                 </Select>
                                             )}
@@ -553,16 +553,16 @@ class ScheduleForm extends React.Component<any, any> {
                                             {getFieldDecorator('endHour', {
                                                 rules: [
                                                     {
-                                                        required: true
+                                                        required: true,
                                                     },
                                                     {
                                                         validator:
                                                             ctx.checkTimeE1.bind(
                                                                 ctx
-                                                            )
-                                                    }
+                                                            ),
+                                                    },
                                                 ],
-                                                initialValue: `${scheduleConf.endHour}`
+                                                initialValue: `${scheduleConf.endHour}`,
                                             })(generateHours())}
                                         </Col>
                                         <span className="split-text">时</span>
@@ -570,10 +570,10 @@ class ScheduleForm extends React.Component<any, any> {
                                             {getFieldDecorator('endMin', {
                                                 rules: [
                                                     {
-                                                        required: true
-                                                    }
+                                                        required: true,
+                                                    },
                                                 ],
-                                                initialValue: '59'
+                                                initialValue: '59',
                                             })(
                                                 <Select disabled>
                                                     <Option value="59">
@@ -585,12 +585,12 @@ class ScheduleForm extends React.Component<any, any> {
                                         <span className="split-text">分</span>
                                     </FormItem>
                                 </span>
-                            )
-                            break
+                            );
+                            break;
                         }
                         case 2: {
                             // 天
-                            const prefix = isWorkflowNode ? '起调' : '具体'
+                            const prefix = isWorkflowNode ? '起调' : '具体';
                             dom = (
                                 <span key={type}>
                                     <FormItem
@@ -601,10 +601,10 @@ class ScheduleForm extends React.Component<any, any> {
                                             {getFieldDecorator('hour', {
                                                 rules: [
                                                     {
-                                                        required: true
-                                                    }
+                                                        required: true,
+                                                    },
                                                 ],
-                                                initialValue: `${scheduleConf.hour}`
+                                                initialValue: `${scheduleConf.hour}`,
                                             })(generateHours())}
                                         </Col>
 
@@ -613,17 +613,17 @@ class ScheduleForm extends React.Component<any, any> {
                                             {getFieldDecorator('min', {
                                                 rules: [
                                                     {
-                                                        required: true
-                                                    }
+                                                        required: true,
+                                                    },
                                                 ],
-                                                initialValue: `${scheduleConf.min}`
+                                                initialValue: `${scheduleConf.min}`,
                                             })(generateMins())}
                                         </Col>
                                         <span className="split-text">分</span>
                                     </FormItem>
                                 </span>
-                            )
-                            break
+                            );
+                            break;
                         }
                         case 3: {
                             // 周
@@ -637,13 +637,13 @@ class ScheduleForm extends React.Component<any, any> {
                                             {getFieldDecorator('weekDay', {
                                                 rules: [
                                                     {
-                                                        required: true
-                                                    }
+                                                        required: true,
+                                                    },
                                                 ],
                                                 initialValue:
                                                     `${scheduleConf.weekDay}`.split(
                                                         ','
-                                                    )
+                                                    ),
                                             })(generateDays())}
                                         </Col>
                                     </FormItem>
@@ -655,10 +655,10 @@ class ScheduleForm extends React.Component<any, any> {
                                             {getFieldDecorator('hour', {
                                                 rules: [
                                                     {
-                                                        required: true
-                                                    }
+                                                        required: true,
+                                                    },
                                                 ],
-                                                initialValue: `${scheduleConf.hour}`
+                                                initialValue: `${scheduleConf.hour}`,
                                             })(generateHours())}
                                         </Col>
 
@@ -667,18 +667,18 @@ class ScheduleForm extends React.Component<any, any> {
                                             {getFieldDecorator('min', {
                                                 rules: [
                                                     {
-                                                        required: true
-                                                    }
+                                                        required: true,
+                                                    },
                                                 ],
-                                                initialValue: `${scheduleConf.min}`
+                                                initialValue: `${scheduleConf.min}`,
                                             })(generateMins())}
                                         </Col>
 
                                         <span className="split-text">分</span>
                                     </FormItem>
                                 </span>
-                            )
-                            break
+                            );
+                            break;
                         }
                         case 4: {
                             // 月
@@ -692,13 +692,13 @@ class ScheduleForm extends React.Component<any, any> {
                                             {getFieldDecorator('day', {
                                                 rules: [
                                                     {
-                                                        required: true
-                                                    }
+                                                        required: true,
+                                                    },
                                                 ],
                                                 initialValue:
                                                     `${scheduleConf.day}`.split(
                                                         ','
-                                                    )
+                                                    ),
                                             })(generateDate())}
                                         </Col>
                                     </FormItem>
@@ -710,10 +710,10 @@ class ScheduleForm extends React.Component<any, any> {
                                             {getFieldDecorator('hour', {
                                                 rules: [
                                                     {
-                                                        required: true
-                                                    }
+                                                        required: true,
+                                                    },
                                                 ],
-                                                initialValue: `${scheduleConf.hour}`
+                                                initialValue: `${scheduleConf.hour}`,
                                             })(generateHours())}
                                         </Col>
 
@@ -722,29 +722,29 @@ class ScheduleForm extends React.Component<any, any> {
                                             {getFieldDecorator('min', {
                                                 rules: [
                                                     {
-                                                        required: true
-                                                    }
+                                                        required: true,
+                                                    },
                                                 ],
-                                                initialValue: `${scheduleConf.min}`
+                                                initialValue: `${scheduleConf.min}`,
                                             })(generateMins())}
                                         </Col>
                                         <span className="split-text">分</span>
                                     </FormItem>
                                 </span>
-                            )
-                            break
+                            );
+                            break;
                         }
 
                         default:
-                            dom = <span>something wrong</span>
+                            dom = <span>something wrong</span>;
                     }
-                    return dom
+                    return dom;
                 })(+periodType, this)}
                 {isHourOrMinTask && ( // 仅小时或者
                     <FormItem {...formItemLayout} label="延迟实例">
                         {getFieldDecorator('isExpire', {
                             valuePropName: 'checked',
-                            initialValue: get(scheduleConf, 'isExpire')
+                            initialValue: get(scheduleConf, 'isExpire'),
                         })(
                             <Checkbox
                                 onChange={this.changeScheduleConf.bind(this)}
@@ -758,7 +758,7 @@ class ScheduleForm extends React.Component<any, any> {
                 {scheduleConf.isExpire && (
                     <FormItem {...formItemLayout} label="当天最后一个实例">
                         {getFieldDecorator('isLastInstance', {
-                            initialValue: scheduleConf?.isLastInstance ?? true
+                            initialValue: scheduleConf?.isLastInstance ?? true,
                         })(
                             <Group
                                 onChange={this.changeScheduleConf.bind(this)}
@@ -773,58 +773,58 @@ class ScheduleForm extends React.Component<any, any> {
                     </FormItem>
                 )}
             </Form>
-        )
+        );
     }
 
-    checkTimeS (rule: any, value: any, callback: any) {
-        const { form } = this.props
-        const endHour = form.getFieldValue('endHour')
+    checkTimeS(rule: any, value: any, callback: any) {
+        const { form } = this.props;
+        const endHour = form.getFieldValue('endHour');
         if (+value > +endHour) {
             /* eslint-disable-next-line */
             callback('开始时间不能晚于结束时间');
         }
-        callback()
+        callback();
     }
 
-    checkTimeE (rule: any, value: any, callback: any) {
-        const { form } = this.props
-        const beginHour = form.getFieldValue('beginHour')
+    checkTimeE(rule: any, value: any, callback: any) {
+        const { form } = this.props;
+        const beginHour = form.getFieldValue('beginHour');
 
         if (+value < +beginHour) {
             /* eslint-disable-next-line */
             callback('结束时间不能早于开始时间');
         }
-        callback()
+        callback();
     }
 
-    checkTimeS1 (rule: any, value: any, callback: any) {
-        const { form } = this.props
-        const beginHour = +form.getFieldValue('beginHour')
-        const beginMin = +form.getFieldValue('beginMin')
-        const endHour = +form.getFieldValue('endHour') * 60 + 59
+    checkTimeS1(rule: any, value: any, callback: any) {
+        const { form } = this.props;
+        const beginHour = +form.getFieldValue('beginHour');
+        const beginMin = +form.getFieldValue('beginMin');
+        const endHour = +form.getFieldValue('endHour') * 60 + 59;
 
         if (beginHour * 60 + beginMin > endHour) {
             /* eslint-disable-next-line */
             callback('开始时间不能晚于结束时间');
-            return
+            return;
         }
-        callback()
+        callback();
     }
 
-    checkTimeE1 (rule: any, value: any, callback: any) {
-        const { form } = this.props
-        const beginHour = +form.getFieldValue('beginHour')
-        const beginMin = +form.getFieldValue('beginMin')
-        const endHour = +form.getFieldValue('endHour') * 60 + 59
+    checkTimeE1(rule: any, value: any, callback: any) {
+        const { form } = this.props;
+        const beginHour = +form.getFieldValue('beginHour');
+        const beginMin = +form.getFieldValue('beginMin');
+        const endHour = +form.getFieldValue('endHour') * 60 + 59;
 
         if (beginHour * 60 + beginMin > endHour) {
             /* eslint-disable-next-line */
             callback('结束时间不能早于开始时间');
-            return
+            return;
         }
-        callback()
+        callback();
     }
 }
 
-const FormWrap = Form.create<any>()(ScheduleForm)
-export default FormWrap
+const FormWrap = Form.create<any>()(ScheduleForm);
+export default FormWrap;

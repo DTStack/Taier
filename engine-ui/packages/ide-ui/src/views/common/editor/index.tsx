@@ -1,44 +1,45 @@
-import { Icon } from 'antd'
-import molecule from 'molecule'
+import React from 'react';
+import { Icon } from 'antd';
+import molecule from 'molecule';
 import {
     getEditorInitialActions,
     IExtension,
-    PANEL_OUTPUT
-} from 'molecule/esm/model'
-import { searchById } from 'molecule/esm/services/helper'
-import { resetEditorGroup } from '../utils'
-import Result from '../../task/result'
-import ajax from '../../../api'
+    PANEL_OUTPUT,
+} from 'molecule/esm/model';
+import { searchById } from 'molecule/esm/services/helper';
+import { resetEditorGroup } from '../utils';
+import Result from '../../task/result';
+import ajax from '../../../api';
 import {
     TASK_RUN_ID,
     TASK_STOP_ID,
     TASK_SUBMIT_ID,
     TASK_RELEASE_ID,
-    TASK_OPS_ID
-} from '../utils/const'
+    TASK_OPS_ID,
+} from '../utils/const';
 
-function initActions () {
+function initActions() {
     molecule.editor.setDefaultActions([
         {
             id: TASK_RUN_ID,
             name: 'Run Task',
             icon: 'play',
             place: 'outer',
-            disabled: true
+            disabled: true,
         },
         {
             id: TASK_STOP_ID,
             name: 'Stop Task',
             icon: 'debug-pause',
             place: 'outer',
-            disabled: true
+            disabled: true,
         },
         {
             id: TASK_SUBMIT_ID,
             name: '提交至调度引擎',
             icon: <Icon type="upload" />,
             place: 'outer',
-            disabled: true
+            disabled: true,
         },
         {
             id: TASK_RELEASE_ID,
@@ -59,7 +60,7 @@ function initActions () {
                 </span>
             ),
             place: 'outer',
-            disabled: true
+            disabled: true,
         },
         {
             id: TASK_OPS_ID,
@@ -80,70 +81,70 @@ function initActions () {
                 </span>
             ),
             place: 'outer',
-            disabled: true
+            disabled: true,
         },
-        ...getEditorInitialActions()
-    ])
+        ...getEditorInitialActions(),
+    ]);
 }
 
-function emitEvent () {
+function emitEvent() {
     molecule.editor.onActionsClick(async (menuId, current) => {
         switch (menuId) {
             case TASK_RUN_ID: {
                 // TODO
-                const value = current.tab?.data.value || ''
+                const value = current.tab?.data.value || '';
                 if (value) {
                     molecule.editor.updateActions([
                         {
                             id: TASK_RUN_ID,
                             icon: 'loading~spin',
-                            disabled: true
+                            disabled: true,
                         },
                         {
                             id: TASK_STOP_ID,
-                            disabled: false
-                        }
-                    ])
+                            disabled: false,
+                        },
+                    ]);
 
-                    const { data } = molecule.panel.getState()
+                    const { data } = molecule.panel.getState();
                     molecule.panel.setState({
-                        current: data?.find((item) => item.id === PANEL_OUTPUT)
-                    })
+                        current: data?.find((item) => item.id === PANEL_OUTPUT),
+                    });
 
-                    const nowDate = new Date()
-                    molecule.panel.cleanOutput()
+                    const nowDate = new Date();
+                    molecule.panel.cleanOutput();
                     molecule.panel.appendOutput(
                         `${nowDate.getHours()}:${nowDate.getMinutes()}:${nowDate.getSeconds()}<info>正在提交...` +
                             '\n'
-                    )
+                    );
 
                     // mock sleeping
                     await new Promise<void>((resolve) => {
                         setTimeout(() => {
-                            resolve()
-                        }, 2000)
-                    })
+                            resolve();
+                        }, 2000);
+                    });
 
                     molecule.panel.appendOutput(
                         `${nowDate.getHours()}:${nowDate.getMinutes()}:${nowDate.getSeconds()}<info>第1条任务开始执行` +
                             '\n'
-                    )
+                    );
 
                     molecule.panel.appendOutput(
                         `===========任务信息===========${'\n'}`
-                    )
-                    molecule.panel.appendOutput(`show tables${'\n'}`)
+                    );
+                    molecule.panel.appendOutput(`show tables${'\n'}`);
                     molecule.panel.appendOutput(
                         `============================${'\n'}`
-                    )
+                    );
                     ajax.execSQLImmediately({})
                         .then((res) => {
-                            const nowDate = new Date()
+                            const nowDate = new Date();
                             molecule.panel.appendOutput(
                                 `${nowDate.getHours()}:${nowDate.getMinutes()}:${nowDate.getSeconds()}<info>执行完成!` +
                                     '\n'
-                            )
-                            const resultTable = res.data
+                            );
+                            const resultTable = res.data;
 
                             molecule.panel.open({
                                 id: new Date().getTime().toString(),
@@ -151,64 +152,64 @@ function emitEvent () {
                                 closable: true,
                                 renderPane: () => (
                                     <Result data={resultTable.result} />
-                                )
-                            })
+                                ),
+                            });
                         })
                         .finally(() => {
                             molecule.editor.updateActions([
                                 {
                                     id: TASK_RUN_ID,
                                     icon: 'play',
-                                    disabled: false
+                                    disabled: false,
                                 },
                                 {
                                     id: TASK_STOP_ID,
-                                    disabled: true
-                                }
-                            ])
-                        })
+                                    disabled: true,
+                                },
+                            ]);
+                        });
                 }
-                break
+                break;
             }
             case TASK_STOP_ID: {
                 // TODO
-                console.log('stop task')
-                break
+                console.log('stop task');
+                break;
             }
         }
-    })
+    });
 }
 
 export default class EditorExtension implements IExtension {
-    activate () {
-        initActions()
-        emitEvent()
+    activate() {
+        initActions();
+        emitEvent();
 
         molecule.editor.onSelectTab((tabId, groupId) => {
-            const { current } = molecule.editor.getState()
-            if (!current) return
-            const group = molecule.editor.getGroupById(groupId || current.id!)
+            const { current } = molecule.editor.getState();
+            if (!current) return;
+            const group = molecule.editor.getGroupById(groupId || current.id!);
             if (group) {
-                const targetTab = group.data?.find(searchById(tabId))
+                const targetTab = group.data?.find(searchById(tabId));
                 if (targetTab?.data.taskType === 'SparkSql') {
                     molecule.editor.updateActions([
-                        { id: TASK_RUN_ID, disabled: false }
-                    ])
+                        { id: TASK_RUN_ID, disabled: false },
+                    ]);
                 } else {
-                    resetEditorGroup()
+                    resetEditorGroup();
                 }
             }
-        })
+        });
 
         molecule.editor.onCloseTab(() => {
-            const { current } = molecule.editor.getState()
+            const { current } = molecule.editor.getState();
             if (current?.tab?.data.taskType === 'SparkSql') {
                 molecule.editor.updateActions([
-                    { id: TASK_RUN_ID, disabled: false }
-                ])
+                    { id: TASK_RUN_ID, disabled: false },
+                ]);
             } else {
-                resetEditorGroup()
+                resetEditorGroup();
             }
-        })
+        });
     }
 }

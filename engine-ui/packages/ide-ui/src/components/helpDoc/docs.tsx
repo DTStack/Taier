@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unescaped-entities */
 // 帮助文档
-import React from 'react'
-import { HELP_DOC_URL } from '../../comm/const'
+import React from 'react';
+import { HELP_DOC_URL } from '../../comm/const';
 
 export const dataFilterDoc = (
     <div>
@@ -22,22 +22,22 @@ export const dataFilterDoc = (
             </li>
         </ul>
     </div>
-)
+);
 
-export const mrTaskHelp = <p>支持基于Spark API的Java、Scala处理程序</p>
+export const mrTaskHelp = <p>支持基于Spark API的Java、Scala处理程序</p>;
 
-export const mlTaskHelp = <p>支持基于Spark MLLib的机器学习任务</p>
+export const mlTaskHelp = <p>支持基于Spark MLLib的机器学习任务</p>;
 
 export const switchKey = (
     <ul>
         <li>MySQL：支持数值型切分键</li>
         <li>Oracle：支持数值型、字符串类型切分键</li>
     </ul>
-)
+);
 
 export const selectKey = (
     <div>MySQL、SQLServer、PostgreSQL、Oracle：支持数值型切分键</div>
-)
+);
 
 export const hdfsPath = (
     <div>
@@ -48,29 +48,29 @@ export const hdfsPath = (
         如果此表的数据存储在当前项目空间内，只需修改tableName即可，
         否则需要根据HDFS的存储位置填写。
     </div>
-)
+);
 
 export const splitCharacter = (
     <div>配置不可见字符，可通过“\”作为转义字符，例如\001</div>
-)
+);
 
 export const jobSpeedLimit = ( // 作业上限速度
     <div>
         设置作业速率上限，则数据同步作业的总速率将尽可能按照这个上限进行同步，
         需根据实际硬件配置调整，默认为5
     </div>
-)
+);
 
 export const jobConcurrence = ( // 作业并发数
     <div>作业并发数可以根据业务需求和集群资源设定，并发数最大能选择5。</div>
-)
+);
 
 export const errorCount = ( // 作业并发数
     <div>
         表示脏数据的最大容忍条数，如果您配置0，
         则表示严格不允许脏数据存在；如果不填则代表容忍脏数据
     </div>
-)
+);
 
 export const hdfsConfig = ( // hdfs config
     <div>
@@ -107,7 +107,7 @@ export const hdfsConfig = ( // hdfs config
             </li>
         </ul>
     </div>
-)
+);
 
 export const rdbConfig = ( // relational db config
     <div>
@@ -118,7 +118,7 @@ export const rdbConfig = ( // relational db config
             <li>Hive: jdbc:hive2://host:port/projectName</li>
         </ul>
     </div>
-)
+);
 
 export const hBaseConfig = ( // HBase configuration
     <div>
@@ -137,7 +137,7 @@ export const hBaseConfig = ( // HBase configuration
             <li>3、子目录：HBase在ZooKeeper中配置的子目录</li>
         </ul>
     </div>
-)
+);
 
 export const recordDirtyData = (
     <div>
@@ -145,7 +145,7 @@ export const recordDirtyData = (
             保存到默认位置，您可以在“数据管理-脏数据管理”中查看，表名：defaultName（生命周期：30天）
         </p>
     </div>
-)
+);
 
 export const errorPercentConfig = (
     <div>
@@ -153,7 +153,7 @@ export const errorPercentConfig = (
             任务执行结束后统计错误记录占比，当比例过高时，将此任务实例置为失败
         </p>
     </div>
-)
+);
 
 const baseSystemParams = (
     <p>
@@ -178,20 +178,20 @@ const baseSystemParams = (
             --当前时间，即任务实际运行的时间，格式：yyyyMMddHHmmss
         </span>
     </p>
-)
+);
 export const customSystemParams = (
     <div>
         <p>常用系统变量:</p>
         {baseSystemParams}
     </div>
-)
+);
 
 export const partitionDesc = (
     <div>
         <p>分区配置支持调度参数，比如常用系统变量:</p>
         {baseSystemParams}
     </div>
-)
+);
 
 // 自定义参数配置
 export const customParams = (
@@ -218,14 +218,14 @@ export const customParams = (
             </a>
         </p>
     </div>
-)
+);
 
 //
 export const taskDependentTypeDesc = (
     <div>
         <p>任务结束包括成功、失败、取消3种情况</p>
     </div>
-)
+);
 
 export const incrementModeScheduleTypeHelp = (
     <div>
@@ -233,38 +233,38 @@ export const incrementModeScheduleTypeHelp = (
         <br />
         支持将数值类型、Timestamp类型作为增量标识字段
     </div>
-)
+);
 
 export const inputTaskHelp = (
     <div>
         利用TensorFlow或MXNet进行数据处理时，可指定此任务在HDFS上的路径信息，无需更新任务代码，方便您通过修改路径来更新数据
     </div>
-)
+);
 
 export const outputTaskHelp = (
     <div>
         利用python、TensorFlow或shell进行模型训练时，可将训练完成的模型参数保存在此位置，无需更新任务代码，方便您通过修改路径来频繁训练
     </div>
-)
+);
 
-export const optionsTaskHelp = <div>任务执行时的命令行参数</div>
+export const optionsTaskHelp = <div>任务执行时的命令行参数</div>;
 
 export const switchPartition = (
     <span>
         将上游节点与 JoinTable 节点的数据传输改成按 key
         分区。这样通常可以缩小单个节点的 key 个数，提高缓存的命中率
     </span>
-)
+);
 
 export const stringColumnFormat = (
     <span>
         如果源库的一个字符串类型，映射到了目标库的date或time类型，则需要配置转换规则
     </span>
-)
+);
 
-export const dateTimeFormat = <span>修改Date类型的格式</span>
+export const dateTimeFormat = <span>修改Date类型的格式</span>;
 
-export const taskFailRetry = <span>默认出错自动重试3次，时间间隔2分钟</span>
+export const taskFailRetry = <span>默认出错自动重试3次，时间间隔2分钟</span>;
 
 export const syncTaskHelp = (
     <div>
@@ -276,7 +276,7 @@ export const syncTaskHelp = (
             查看支持的数据源
         </a>
     </div>
-)
+);
 
 export const syncModeHelp = (
     <div>
@@ -284,7 +284,7 @@ export const syncModeHelp = (
         <br />
         有增量标识：系统记录每次同步的点位，执行时可从上次点位继续同步
     </div>
-)
+);
 
 export const incrementColumnHelp = (
     <div>
@@ -292,7 +292,7 @@ export const incrementColumnHelp = (
         <br />
         支持将数值类型、Timestamp类型作为增量标识字段
     </div>
-)
+);
 export const minuteParticleHelp = (
     <div>
         产生指定的业务日期内，指定的时间范围内计划开始运行的实例，例如：
@@ -306,7 +306,7 @@ export const minuteParticleHelp = (
         <br />
         选择分钟粒度后，补数据时，跨周期依赖配置无效
     </div>
-)
+);
 export const dataSyncExtralConfigHelp = (
     <div>
         以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize，每类数据源支持不同的参数，可参考
@@ -314,32 +314,32 @@ export const dataSyncExtralConfigHelp = (
             《帮助文档》
         </a>
     </div>
-)
+);
 
 export const kylinRestfulHelp = (
     <div>访问Kylin的认证地址，格式为：http://ip:port</div>
-)
+);
 
 export const breakpointContinualTransferHelp = (
     <div>
         支持关系型数据库（MySQL、Oracle、SQLServer、PostgreSQL、DB2）到关系型数据库，数栈、MaxCompute的断点续传
     </div>
-)
+);
 export const theLastExample = (
     <div>
         始终保留：无论是否延迟都可正常执行。
         <br />
         延迟至第二天后自动取消：当天最后一个实例延迟至第二天还未执行完成则自动取消。
     </div>
-)
+);
 
 export const autoSkipJobHelp = (
     <div>
         仅适用于周期为小时和分钟的调度任务，假设某任务的调度周期为10分钟，1:00的实例到1:53才运行完成，勾选此项后将直接运行2:00的实例，1:10
         - 1:50的实例会被置为“自动取消”状态。
     </div>
-)
+);
 
 export const projectCategories = (
     <div>当项目较多时，可建立多级分类管理项目</div>
-)
+);

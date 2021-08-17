@@ -1,31 +1,31 @@
-import * as React from 'react'
-import PropTypes from 'prop-types'
-import SplitPane from 'react-split-pane'
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
-import DataSync from './dataSync'
-import { workbenchActions } from '../../controller/dataSync/offlineAction'
-import * as editorActions from '../../controller/dataSync/workbench'
+import * as React from 'react';
+import PropTypes from 'prop-types';
+import SplitPane from 'react-split-pane';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import DataSync from './dataSync';
+import { workbenchActions } from '../../controller/dataSync/offlineAction';
+import * as editorActions from '../../controller/dataSync/workbench';
 
 const propType: any = {
     editor: PropTypes.object,
     toolbar: PropTypes.object,
-    console: PropTypes.object
-}
+    console: PropTypes.object,
+};
 const initialState = {
     changeTab: true,
     size: undefined,
-    runTitle: 'Command/Ctrl + R'
-}
+    runTitle: 'Command/Ctrl + R',
+};
 type Istate = typeof initialState;
 
 @(connect(
     (state: any) => {
-        const { workbench, dataSync } = state.dataSync
-        const { currentTab, tabs } = workbench
+        const { workbench, dataSync } = state.dataSync;
+        const { currentTab, tabs } = workbench;
         const currentTabData = tabs.filter((tab: any) => {
-            return tab.id === currentTab
-        })[0]
+            return tab.id === currentTab;
+        })[0];
 
         return {
             editor: state.editor,
@@ -33,55 +33,55 @@ type Istate = typeof initialState;
             user: state.user,
             currentTab,
             currentTabData,
-            dataSync
-        }
+            dataSync,
+        };
     },
     (dispatch: any) => {
-        const taskAc = workbenchActions(dispatch)
-        const editorAc = bindActionCreators(editorActions, dispatch)
-        const actions = Object.assign(editorAc, taskAc)
-        return actions
+        const taskAc = workbenchActions(dispatch);
+        const editorAc = bindActionCreators(editorActions, dispatch);
+        const actions = Object.assign(editorAc, taskAc);
+        return actions;
     }
 ) as any)
 class DataSyncWorkbench extends React.Component<any, Istate> {
     state = {
         changeTab: true,
         size: undefined,
-        runTitle: 'Command/Ctrl + R'
+        runTitle: 'Command/Ctrl + R',
     };
 
     static propTypes = propType;
-    componentDidMount () {
-        const currentNode = this.props.currentTabData
+    componentDidMount() {
+        const currentNode = this.props.currentTabData;
         if (currentNode) {
-            this.props.getTab(currentNode.id) // 初始化console所需的数据结构
+            this.props.getTab(currentNode.id); // 初始化console所需的数据结构
         }
     }
 
     // eslint-disable-next-line
     UNSAFE_componentWillReceiveProps(nextProps: any) {
-        const current = nextProps.currentTabData
-        const old = this.props.currentTabData
+        const current = nextProps.currentTabData;
+        const old = this.props.currentTabData;
         if (current && current.id !== old.id) {
-            this.props.getTab(current.id)
+            this.props.getTab(current.id);
         }
     }
 
     changeTab = (state: any) => {
-        let changeTab = false
+        let changeTab = false;
         if (state) {
-            changeTab = true
+            changeTab = true;
         } else {
-            changeTab = false
+            changeTab = false;
         }
 
         this.setState({
-            changeTab
-        })
+            changeTab,
+        });
     };
 
-    render () {
-        const { currentTabData } = this.props
+    render() {
+        const { currentTabData } = this.props;
 
         return (
             <div className="ide-editor">
@@ -98,7 +98,7 @@ class DataSyncWorkbench extends React.Component<any, Istate> {
                                 width: '100%',
                                 height: '100%',
                                 minHeight: '400px',
-                                position: 'relative'
+                                position: 'relative',
                             }}
                         >
                             <DataSync currentTabData={currentTabData} />
@@ -106,8 +106,8 @@ class DataSyncWorkbench extends React.Component<any, Istate> {
                     </SplitPane>
                 </div>
             </div>
-        )
+        );
     }
 }
 
-export default DataSyncWorkbench
+export default DataSyncWorkbench;

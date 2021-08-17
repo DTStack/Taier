@@ -1,34 +1,34 @@
-import * as React from 'react'
+import * as React from 'react';
 // import ajax from "../../../../api";
-import { debounceEventHander } from '../../../comm'
+import { debounceEventHander } from '../../../comm';
 
 class TaskSelector extends React.Component<any, any> {
-    constructor (props: any) {
-        super(props)
-        this.$input = React.createRef()
-        this.searchVOS = this.fetchVOS.bind(this)
-        this.handleClick = this.handleClick.bind(this)
-        this.selectVOS = this.props.onSelect
-        this.taskId = this.props.taskId
+    constructor(props: any) {
+        super(props);
+        this.$input = React.createRef();
+        this.searchVOS = this.fetchVOS.bind(this);
+        this.handleClick = this.handleClick.bind(this);
+        this.selectVOS = this.props.onSelect;
+        this.taskId = this.props.taskId;
 
-        this.state = { list: [], emptyError: false }
+        this.state = { list: [], emptyError: false };
     }
 
     $input: any;
     searchVOS: any;
     selectVOS: any;
     taskId: any;
-    fetchVOS (evt: any) {
-        const value = evt.target.value
-        const { projectId } = this.props
+    fetchVOS(evt: any) {
+        const value = evt.target.value;
+        const { projectId } = this.props;
         if (!projectId) {
-            return
+            return;
         }
         if (value.trim() === '') {
             this.setState({
-                list: []
-            })
-            this.resetError()
+                list: [],
+            });
+            this.resetError();
         }
 
         // ajax
@@ -52,7 +52,7 @@ class TaskSelector extends React.Component<any, any> {
         //   });
     }
 
-    handleClick (task: any) {
+    handleClick(task: any) {
         // ajax
         //   .checkIsLoop({
         //     taskId: this.taskId,
@@ -75,30 +75,30 @@ class TaskSelector extends React.Component<any, any> {
         //   });
     }
 
-    resetError () {
+    resetError() {
         this.setState({
-            emptyError: false
-        })
+            emptyError: false,
+        });
     }
 
-    render () {
-        const { list, emptyError } = this.state
+    render() {
+        const { list, emptyError } = this.state;
         const emptyErrorStyle: any = {
             position: 'absolute',
             width: '100%',
             bottom: '-28px',
             left: '0px',
-            color: 'red'
-        }
+            color: 'red',
+        };
 
         return (
             <div className="m-taskselector">
                 <input
                     onInput={(event: any) => {
-                        this.resetError()
+                        this.resetError();
                         debounceEventHander(this.searchVOS, 500, {
-                            maxWait: 2000
-                        })(event)
+                            maxWait: 2000,
+                        })(event);
                     }}
                     ref={this.$input}
                     className="ant-input"
@@ -113,7 +113,7 @@ class TaskSelector extends React.Component<any, any> {
                             <li
                                 className="taskitem"
                                 onClick={() => {
-                                    this.handleClick(o)
+                                    this.handleClick(o);
                                 }}
                                 key={o.id}
                             >
@@ -123,7 +123,7 @@ class TaskSelector extends React.Component<any, any> {
                     </ul>
                 )}
             </div>
-        )
+        );
     }
 }
-export default TaskSelector
+export default TaskSelector;

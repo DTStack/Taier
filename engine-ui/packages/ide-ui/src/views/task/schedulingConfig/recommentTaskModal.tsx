@@ -1,78 +1,78 @@
-import * as React from 'react'
+import * as React from 'react';
 
-import { Table, Modal, message } from 'antd'
+import { Table, Modal, message } from 'antd';
 
 class RecommentTaskModal extends React.Component<any, any> {
     state: any = {
         choosetask: [], // 选择的任务
-        selectedRows: []
+        selectedRows: [],
     };
 
-    resetState () {
+    resetState() {
         this.setState({
             choosetask: [],
-            selectedRows: []
-        })
+            selectedRows: [],
+        });
     }
 
-    onOk () {
-        const { selectedRows } = this.state
+    onOk() {
+        const { selectedRows } = this.state;
         if (selectedRows.length == 0) {
-            message.warning('请选择依赖')
-            return
+            message.warning('请选择依赖');
+            return;
         }
-        this.props.onOk(selectedRows)
-        this.resetState()
+        this.props.onOk(selectedRows);
+        this.resetState();
     }
 
-    onCancel () {
-        this.resetState()
-        this.props.onCancel()
+    onCancel() {
+        this.resetState();
+        this.props.onCancel();
     }
 
-    initColumns () {
+    initColumns() {
         return [
             {
                 title: '表名',
                 dataIndex: 'tableName',
-                width: '200px'
+                width: '200px',
             },
             {
                 title: '任务名称',
-                dataIndex: 'name'
-            }
-        ]
+                dataIndex: 'name',
+            },
+        ];
     }
 
-    rowSelection () {
-        const { existTask } = this.props
+    rowSelection() {
+        const { existTask } = this.props;
         return {
             selectedRowKeys: this.state.choosetask,
             onChange: (selectedRowKeys: any, selectedRows: any) => {
                 this.setState({
                     choosetask: selectedRowKeys,
-                    selectedRows: selectedRows
-                })
+                    selectedRows: selectedRows,
+                });
             },
             getCheckboxProps: (record: any) => {
-                const id = record.id
-                let isExist = false
+                const id = record.id;
+                let isExist = false;
                 existTask &&
                     existTask.map((item: any) => {
                         if (item.id == id) {
-                            isExist = true
+                            isExist = true;
                         }
-                    })
+                    });
                 if (isExist) {
-                    return { disabled: true }
+                    return { disabled: true };
                 }
-                return {}
-            }
-        }
+                return {};
+            },
+        };
     }
 
-    render () {
-        const { visible, taskList } = this.props
+    render() {
+        const { visible, taskList } = this.props;
         return (
             <Modal
                 title="推荐上游依赖"
@@ -93,7 +93,7 @@ class RecommentTaskModal extends React.Component<any, any> {
                     scroll={{ y: 400 }}
                 />
             </Modal>
-        )
+        );
     }
 }
-export default RecommentTaskModal
+export default RecommentTaskModal;

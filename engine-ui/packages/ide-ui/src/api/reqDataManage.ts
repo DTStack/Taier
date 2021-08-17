@@ -1,4 +1,4 @@
-import { RDOS_BASE_URL } from './req'
+import { RDOS_BASE_URL } from './req';
 
 const dataManageReq = {
     CREATE_TABLE: `${RDOS_BASE_URL}/batch/batchTableInfo/createTable`,
@@ -103,7 +103,7 @@ const dataManageReq = {
     ADD_RULE: `${RDOS_BASE_URL}/batch/dataMaskRule/createRule`, // 添加规则
     EDIT_RULE: `${RDOS_BASE_URL}/batch/dataMaskRule/getRuleById`, // 编辑规则
     UPDATE_RULE: `${RDOS_BASE_URL}/batch/dataMaskRule/updateRule`, // 确定更新规则
-    DEL_RULE: `${RDOS_BASE_URL}/batch/dataMaskRule/deleteRule` // 删除规则
-}
+    DEL_RULE: `${RDOS_BASE_URL}/batch/dataMaskRule/deleteRule`, // 删除规则
+};
 
-export default dataManageReq
+export default dataManageReq;

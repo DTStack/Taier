@@ -1,5 +1,5 @@
-import * as React from 'react'
-import { connect } from 'react-redux'
+import * as React from 'react';
+import { connect } from 'react-redux';
 import {
     Form,
     InputNumber,
@@ -8,56 +8,58 @@ import {
     Button,
     AutoComplete,
     Checkbox,
-    Spin
-} from 'antd'
+    Spin,
+} from 'antd';
 
 import {
     settingAction,
-    workbenchAction
-} from '../../controller/dataSync/actionType'
+    workbenchAction,
+} from '../../controller/dataSync/actionType';
 
-import HelpDoc from '../../components/helpDoc'
-import { isRDB } from '../../comm'
-import { DATA_SOURCE } from '../../comm/const'
+import HelpDoc from '../../components/helpDoc';
+import { isRDB } from '../../comm';
+import { DATA_SOURCE } from '../../comm/const';
 
-const FormItem = Form.Item
-const Option = Select.Option
+const FormItem = Form.Item;
+const Option = Select.Option;
 
 const formItemLayout: any = {
     labelCol: {
-        sm: { span: 6 }
+        sm: { span: 6 },
     },
     wrapperCol: {
-        sm: { span: 14 }
-    }
-}
+        sm: { span: 14 },
+    },
+};
 
 class ChannelForm extends React.Component<any, any> {
     state: any = {
         isRecord: false,
         idFields: [], // 标识字段
         isTransTable: true,
-        loading: false
+        loading: false,
     };
 
-    async componentDidMount () {
+    async componentDidMount() {
         // 开启断点续传功能，需要加载标识字段
         const {
             targetMap: { type: targetType, sourceId: dataSourceId },
-            form: { setFieldsValue }
-        } = this.props
+            form: { setFieldsValue },
+        } = this.props;
 
         if (this.props.setting.isRestore) {
-            this.loadIdFields()
+            this.loadIdFields();
         }
-        if (targetType.type !== DATA_SOURCE.INCEPTOR) { return this.setState({ isTransTable: false }) }
+        if (targetType.type !== DATA_SOURCE.INCEPTOR) {
+            return this.setState({ isTransTable: false });
+        }
         this.setState({
-            loading: true
-        })
+            loading: true,
+        });
         // const res = await ajax.getTableInfoByDataSource({ dataSourceId, tableName: targetType.table, schema: targetType.schema })
         this.setState({
-            loading: false
-        })
+            loading: false,
+        });
         // if (res) {
         //     const { data: { isTransTable } } = res
         //     if (isTransTable) {
@@ -71,12 +73,12 @@ class ChannelForm extends React.Component<any, any> {
 
     onLifeDayChange = (val: any) => {
         this.props.changeChannelSetting({
-            lifeDay: val
-        })
+            lifeDay: val,
+        });
     };
 
     loadIdFields = async () => {
-        const { sourceMap } = this.props
+        const { sourceMap } = this.props;
         // const res = await ajax.getIncrementColumns({
         //     sourceId: sourceMap.sourceId,
         //     tableName: sourceMap.type.table,
@@ -92,128 +94,128 @@ class ChannelForm extends React.Component<any, any> {
 
     onEnableContinualTransfer = (e: any) => {
         if (e.target.checked) {
-            this.loadIdFields()
+            this.loadIdFields();
         }
     };
 
     renderBreakpointContinualTransfer = () => {
-        const { idFields } = this.state
+        const { idFields } = this.state;
         const {
             form,
             setting,
             isIncrementMode,
             sourceMap,
             targetMap,
-            isStandeAlone
-        } = this.props
-        const { getFieldDecorator } = form
+            isStandeAlone,
+        } = this.props;
+        const { getFieldDecorator } = form;
 
-        const sourceType = sourceMap?.type?.type
-        const targetType = targetMap?.type?.type
+        const sourceType = sourceMap?.type?.type;
+        const targetType = targetMap?.type?.type;
 
         const idFieldInitialValue = isIncrementMode
             ? sourceMap.increColumn
-            : setting.restoreColumnName
+            : setting.restoreColumnName;
 
         return isRDB(sourceType) &&
             (isRDB(targetType) ||
                 targetType === DATA_SOURCE.HIVE_1 ||
                 targetType === DATA_SOURCE.HIVE_2 ||
                 targetType === DATA_SOURCE.MAXCOMPUTE) ? (
-                <div>
-                    {!isStandeAlone && (
-                        <FormItem
-                            {...formItemLayout}
-                            label="断点续传"
-                            className="txt-left"
-                        >
-                            {getFieldDecorator('isRestore', {
-                                rules: [],
-                                initialValue: setting.isRestore
-                            })(
-                                <Checkbox
-                                    onChange={this.onEnableContinualTransfer}
-                                    checked={setting.isRestore}
-                                >
-                                    {' '}
+            <div>
+                {!isStandeAlone && (
+                    <FormItem
+                        {...formItemLayout}
+                        label="断点续传"
+                        className="txt-left"
+                    >
+                        {getFieldDecorator('isRestore', {
+                            rules: [],
+                            initialValue: setting.isRestore,
+                        })(
+                            <Checkbox
+                                onChange={this.onEnableContinualTransfer}
+                                checked={setting.isRestore}
+                            >
+                                {' '}
                                 开启{' '}
-                                </Checkbox>
-                            )}
-                            <HelpDoc doc="breakpointContinualTransferHelp" />
-                        </FormItem>
-                    )}
-                    {setting.isRestore ? (
-                        <FormItem
-                            {...formItemLayout}
-                            label="标识字段"
-                            key="restoreColumnName"
-                        >
-                            {getFieldDecorator('restoreColumnName', {
-                                rules: [
-                                    {
-                                        required: true,
-                                        message: '请选择标识字段'
-                                    }
-                                ],
-                                initialValue: idFieldInitialValue
-                            })(
-                                <Select
-                                    showSearch
-                                    placeholder="请选择标识字段"
-                                    disabled={isIncrementMode} // 增量模式时，默认使用增量字段，此处禁用选项
-                                >
-                                    {idFields.map((o: any) => (
-                                        <Option key={o.key}>
-                                            {o.key}（{o.type}）
-                                        </Option>
-                                    ))}
-                                </Select>
-                            )}
-                        </FormItem>
-                    ) : null}
-                </div>
-            ) : null
+                            </Checkbox>
+                        )}
+                        <HelpDoc doc="breakpointContinualTransferHelp" />
+                    </FormItem>
+                )}
+                {setting.isRestore ? (
+                    <FormItem
+                        {...formItemLayout}
+                        label="标识字段"
+                        key="restoreColumnName"
+                    >
+                        {getFieldDecorator('restoreColumnName', {
+                            rules: [
+                                {
+                                    required: true,
+                                    message: '请选择标识字段',
+                                },
+                            ],
+                            initialValue: idFieldInitialValue,
+                        })(
+                            <Select
+                                showSearch
+                                placeholder="请选择标识字段"
+                                disabled={isIncrementMode} // 增量模式时，默认使用增量字段，此处禁用选项
+                            >
+                                {idFields.map((o: any) => (
+                                    <Option key={o.key}>
+                                        {o.key}（{o.type}）
+                                    </Option>
+                                ))}
+                            </Select>
+                        )}
+                    </FormItem>
+                ) : null}
+            </div>
+        ) : null;
     };
 
-    render () {
-        const { isTransTable, loading } = this.state
+    render() {
+        const { isTransTable, loading } = this.state;
         const {
             setting,
             navtoStep,
             targetMap,
             isStandeAlone,
             sourceMap,
-            form: { getFieldDecorator }
-        } = this.props
-        const sourceType = sourceMap.type.type
-        const targetType = targetMap?.type?.type
+            form: { getFieldDecorator },
+        } = this.props;
+        const sourceType = sourceMap.type.type;
+        const targetType = targetMap?.type?.type;
         const isClickHouse =
             targetType === DATA_SOURCE.CLICK_HOUSE ||
             targetType === DATA_SOURCE.S3 ||
             sourceType === DATA_SOURCE.OPEN_TS_DB ||
-            isTransTable
+            isTransTable;
 
-        const speedOption: any = []
-        const channelOption: any = []
+        const speedOption: any = [];
+        const channelOption: any = [];
         const unLimitedOption: any[] = [
             <Option value="-1" key={-1}>
                 不限制传输速率
-            </Option>
-        ]
+            </Option>,
+        ];
 
         for (let i = 1; i <= 20; i++) {
             speedOption.push(
                 <Option value={`${i}`} key={i}>
                     {i}
                 </Option>
-            )
+            );
         }
         for (let i = 1; i <= 5; i++) {
             channelOption.push(
                 <Option value={`${i}`} key={i}>
                     {i}
                 </Option>
-            )
+            );
         }
 
         return (
@@ -228,10 +230,10 @@ class ChannelForm extends React.Component<any, any> {
                             {getFieldDecorator('speed', {
                                 rules: [
                                     {
-                                        required: true
-                                    }
+                                        required: true,
+                                    },
                                 ],
-                                initialValue: `${setting.speed}`
+                                initialValue: `${setting.speed}`,
                             })(
                                 <AutoComplete
                                     dataSource={unLimitedOption.concat(
@@ -251,12 +253,12 @@ class ChannelForm extends React.Component<any, any> {
                             {getFieldDecorator('channel', {
                                 rules: [
                                     {
-                                        required: true
-                                    }
+                                        required: true,
+                                    },
                                 ],
                                 initialValue: `${
                                     !isClickHouse ? setting.channel : 1
-                                }`
+                                }`,
                             })(
                                 <AutoComplete
                                     disabled={isClickHouse}
@@ -269,8 +271,8 @@ class ChannelForm extends React.Component<any, any> {
                                     targetType === DATA_SOURCE.S3
                                         ? 'S3Concurrence'
                                         : isTransTable
-                                            ? 'transTableConcurrence'
-                                            : 'jobConcurrence'
+                                        ? 'transTableConcurrence'
+                                        : 'jobConcurrence'
                                 }
                             />
                         </FormItem>
@@ -283,7 +285,7 @@ class ChannelForm extends React.Component<any, any> {
                                 >
                                     {getFieldDecorator('isSaveDirty', {
                                         rules: [],
-                                        initialValue: setting.isSaveDirty
+                                        initialValue: setting.isSaveDirty,
                                     })(
                                         <Checkbox checked={setting.isSaveDirty}>
                                             {' '}
@@ -298,7 +300,7 @@ class ChannelForm extends React.Component<any, any> {
                                 >
                                     {getFieldDecorator('record', {
                                         rules: [],
-                                        initialValue: setting.record
+                                        initialValue: setting.record,
                                     })(
                                         <InputNumber
                                             style={{ float: 'left' }}
@@ -318,7 +320,7 @@ class ChannelForm extends React.Component<any, any> {
                                     </span>
                                     {getFieldDecorator('percentage', {
                                         rules: [],
-                                        initialValue: setting.percentage
+                                        initialValue: setting.percentage,
                                     })(
                                         <InputNumber
                                             style={{ float: 'left' }}
@@ -351,91 +353,91 @@ class ChannelForm extends React.Component<any, any> {
                     )}
                 </Spin>
             </div>
-        )
+        );
     }
 
-    prev (cb: any) {
+    prev(cb: any) {
         // eslint-disable-next-line
         cb.call(null, 2);
     }
 
-    next (cb: any) {
+    next(cb: any) {
         const { form, saveDataSyncToTab, dataSync, currentTabData } =
-            this.props
+            this.props;
         form.validateFields((err: any, values: any) => {
             if (!err) {
                 saveDataSyncToTab({
                     id: currentTabData.id,
-                    data: dataSync
-                })
+                    data: dataSync,
+                });
                 // eslint-disable-next-line
                 cb.call(null, 4);
             }
-        })
+        });
     }
 }
 
 const ChannelFormWrap = Form.create({
     onValuesChange: function (props: any, values: any) {
         const { changeChannelSetting, setting, isIncrementMode, sourceMap } =
-            props
+            props;
         if (setting.isSaveDirty && !setting.lifeDay) {
-            values.lifeDay = 90
+            values.lifeDay = 90;
         }
         if (!setting.isSaveDirty) {
-            values.tableName = null
+            values.tableName = null;
         }
         if (values.isRestore === false) {
-            values.restoreColumnName = undefined
+            values.restoreColumnName = undefined;
         }
         // 增量模式下，开启断点续传字段默认与增量字段保存一致
         if (isIncrementMode && values.isRestore === true) {
-            values.restoreColumnName = sourceMap.increColumn
+            values.restoreColumnName = sourceMap.increColumn;
         }
         // Remove no use
-        setting.syncModel = undefined
-        changeChannelSetting(values)
-    }
-})(ChannelForm)
+        setting.syncModel = undefined;
+        changeChannelSetting(values);
+    },
+})(ChannelForm);
 
 class Channel extends React.Component<any, any> {
-    render () {
+    render() {
         return (
             <div>
                 <ChannelFormWrap {...this.props} />
             </div>
-        )
+        );
     }
 }
 
 const mapState = (state: any) => {
-    const { dataSync } = state.offlineTask
-    const { setting, targetMap, sourceMap } = dataSync
+    const { dataSync } = state.offlineTask;
+    const { setting, targetMap, sourceMap } = dataSync;
 
-    return { setting, targetMap, sourceMap, dataSync }
-}
+    return { setting, targetMap, sourceMap, dataSync };
+};
 
 const mapDispatch = (dispatch: any) => {
     return {
-        changeChannelSetting (params: any) {
+        changeChannelSetting(params: any) {
             dispatch({
                 type: settingAction.CHANGE_CHANNEL_FIELDS,
-                payload: params
-            })
+                payload: params,
+            });
             dispatch({
-                type: workbenchAction.MAKE_TAB_DIRTY
-            })
+                type: workbenchAction.MAKE_TAB_DIRTY,
+            });
         },
         saveDataSyncToTab: (params: any) => {
             dispatch({
                 type: workbenchAction.SAVE_DATASYNC_TO_TAB,
                 payload: {
                     id: params.id,
-                    data: params.data
-                }
-            })
-        }
-    }
-}
+                    data: params.data,
+                },
+            });
+        },
+    };
+};
 
-export default connect(mapState, mapDispatch)(Channel)
+export default connect(mapState, mapDispatch)(Channel);
