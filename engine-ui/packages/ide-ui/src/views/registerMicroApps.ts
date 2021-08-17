@@ -5,13 +5,13 @@ const container = `#${AppContainer}`;
 
 let ENTRY_CONSOLE = '//local.dtstack.cn:8080/console/';
 let ENTRY_OPERATION = '//local.dtstack.cn:8080/console/';
-let ENTRY_DATABASE = '//local.dtstack.cn:8082/database/';
+let ENTRY_DATABASE = '//local.dtstack.cn:8082/datasource/';
 
 // For Production
 if (process.env.NODE_ENV === 'production') {
     ENTRY_CONSOLE = '/console/';
     ENTRY_OPERATION = '/console/';
-    ENTRY_DATABASE = '/database/';
+    ENTRY_DATABASE = '/datasource/';
 }
 
 registerMicroApps([
