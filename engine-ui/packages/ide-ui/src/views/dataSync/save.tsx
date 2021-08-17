@@ -15,6 +15,7 @@ export default class Save extends React.Component<any, any> {
         super(props);
         this.navtoStep = this.props.navtoStep;
     }
+
     navtoStep: any;
     render () {
         const { navtoStep } = this;

@@ -11,10 +11,8 @@ module.exports = {
                 changeOrigin: true,
                 secure: false
             },
-            // TODO 临时任务树接口
-            '/api/rdos/batch/batchCatalogue/getCatalogue': 'http://172.16.100.225:3001',
             '/api/rdos': {
-                target: "http://172.16.101.187:8090/", // doraam
+                target: "http://172.16.100.225:3001/", // doraam
                 changeOrigin: true,
                 secure: false
             }

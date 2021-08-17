@@ -1441,6 +1441,7 @@ export const getDataSyncReqParams = (dataSyncStore: any) => {
     }
     targetColumn.map((item: any, index: any) => {
         indexMap[getKey(item)] = index
+        return item;
     })
 
     tmpTarget.sort(
@@ -1472,11 +1473,13 @@ export const getDataSyncReqParams = (dataSyncStore: any) => {
     const sourceTypeObj = sourceMap.type
 
     for (const key in sourceTypeObj) {
+        // eslint-disable-next-line no-prototype-builtins
         if (sourceTypeObj.hasOwnProperty(key)) {
             sourceMap[key] = sourceTypeObj[key]
         }
     }
     for (const k2 in targetTypeObj) {
+        // eslint-disable-next-line no-prototype-builtins
         if (targetTypeObj.hasOwnProperty(k2)) {
             targetMap[k2] = targetTypeObj[k2]
         }

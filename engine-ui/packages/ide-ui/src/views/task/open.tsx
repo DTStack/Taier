@@ -9,11 +9,11 @@ const Option = Select.Option;
 const formItemLayout = {
     labelCol: {
         xs: { span: 24 },
-        sm: { span: 8 }
+        sm: { span: 6 }
     },
     wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 16 }
+        sm: { span: 14 }
     }
 };
 const tailFormItemLayout = {
@@ -59,7 +59,7 @@ class Open extends React.PureComponent<OpenProps, {}> {
   render() {
       const { getFieldDecorator } = this.props.form;
       return (
-          <Form onSubmit={this.handleSubmit}>
+          <Form onSubmit={this.handleSubmit} className="mo-open-task">
               <FormItem {...formItemLayout} label="任务名称">
                   {getFieldDecorator("name", {
                       rules: [
@@ -102,7 +102,7 @@ class Open extends React.PureComponent<OpenProps, {}> {
               </FormItem>
               <FormItem {...tailFormItemLayout}>
                   <Button type="primary" htmlType="submit">
-            Submit
+                    Submit
                   </Button>
               </FormItem>
           </Form>
