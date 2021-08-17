@@ -13,7 +13,7 @@ module.exports = function (env) {
                 progress: false,
                 hot: true,
                 port: 8080,
-                disableHostCheck: false,
+                disableHostCheck: true,
             },
             config.devServer
         ),
