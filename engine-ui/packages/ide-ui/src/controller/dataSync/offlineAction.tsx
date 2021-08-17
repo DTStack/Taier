@@ -962,9 +962,10 @@ export const workbenchActions = (dispatch?: any) => {
          */
         loadTreeNode: async (nodePid?: any, type?: any, option = {}, isFunc?: any) => {
             const res = await ajax.getOfflineCatalogue({
-                isGetFile: !!1,
+                isGetFile: false,
                 nodePid,
                 catalogueType: type,
+                taskType: 1,
                 ...option
             })
             const getFuncTree = (data: any, cateType: string, engineType: number) => {

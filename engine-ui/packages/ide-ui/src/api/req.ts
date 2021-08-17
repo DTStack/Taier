@@ -8,6 +8,7 @@ const req = {
     GET_NOT_PROJECT_USERS: `${RDOS_BASE_URL}/common/project/getUsersNotInProject`, // 获取所以用户
     LOGOUT: `/uic/api/v2/logout`,
     APP_LOGOUT: `${RDOS_BASE_URL}/login/out`,
+    GET_IS_STANDE_ALONE: `${RDOS_BASE_URL}/batch/tenant/isStandeAlone`,
     UPDATE_USER_ROLE: `${RDOS_BASE_URL}/common/roleUser/updateUserRole`, // 更新用户角色
     GET_USER_BY_ID: `${RDOS_BASE_URL}/common/user/getUserById`, // 根据用户ID获取用户
     SEARCH_UIC_USERS: `${RDOS_BASE_URL}/common/project/getUicUsersNotInProject`,

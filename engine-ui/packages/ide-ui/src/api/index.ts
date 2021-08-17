@@ -15,6 +15,9 @@ const api = {
         return http.post(offlineReq.UNLOCK_FILE, params);
     },
 
+    getIsStandeAlone(params?: any) {
+        return http.post(req.GET_IS_STANDE_ALONE, params)
+    },
     addRoleUser(user: any) {
         return http.post(req.ADD_ROLE_USRE, user);
     },

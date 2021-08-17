@@ -43,8 +43,6 @@ import {
 
 import BatchSelect from './batchSelect'
 
-import './index.scss'
-
 const FormItem = Form.Item
 const Option: any = Select.Option
 const TextArea = Input.TextArea
@@ -610,12 +608,15 @@ class SourceForm extends React.Component<any, any> {
     }
 
     onAddS3Object = () => {
-        const { sourceMap, handleSourceMapChange } = this.props
-        let objects = get(sourceMap, 'type.objects', [''])
+        const { sourceMap, handleSourceMapChange } = this.props;
+        let objects = get(sourceMap, 'type.objects', ['']);
         if (!isArray(objects)) {
-            objects = [objects]
+            objects = [objects];
         }
-        const srcmap = Object.assign({}, sourceMap)
+        objects.push('');
+        const srcmap = Object.assign({}, sourceMap);
+        srcmap.type.objects = objects;
+        handleSourceMapChange(srcmap);
     }
 
     onRemoveFtpPath = (index: any) => {
@@ -963,160 +964,6 @@ class SourceForm extends React.Component<any, any> {
         maxWait: 2000
     });
 
-    renderExtDataSource = () => {
-        const { selectHack, isChecked, tableListMap } = this.state
-        const { sourceMap, dataSourceList } = this.props
-        const { getFieldDecorator } = this.props.form
-        const sourceList = sourceMap.sourceList
-        const showArrowFix = { showArrow: true }
-        if (!sourceList) {
-            return []
-        }
-        return sourceList
-            .filter((source: any) => {
-                return source.key !== 'main'
-            })
-            .map((source: any) => {
-                const tableValue = source.sourceId === null
-                    ? null
-                    : '' + source.sourceId
-                return (
-                    <div key={source.key}>
-                        <FormItem {...formItemLayout} label="数据源">
-                            {getFieldDecorator(`extSourceId.${source.key}`, {
-                                rules: [
-                                    {
-                                        required: true,
-                                        message: '数据源为必填项'
-                                    }
-                                ],
-                                initialValue:
-                                    tableValue
-                            })(
-                                <Select
-                                    showSearch
-                                    onSelect={this.changeExtSource.bind(
-                                        this,
-                                        source.key
-                                    )}
-                                    optionFilterProp="name"
-                                >
-                                    {dataSourceList
-                                        .filter((dataSource: any) => {
-                                            return (
-                                                dataSource.type ===
-                                                sourceList[0].type
-                                            )
-                                        })
-                                        .map((src: any) => {
-                                            const title = `${src.dataName}（${(DATA_SOURCE_TEXT as any)[src.type]}）`
-                                            return (
-                                                <Option
-                                                    dataType={src.type}
-                                                    key={src.id}
-                                                    name={src.dataName}
-                                                    value={`${src.id}`}
-                                                >
-                                                    {title}
-                                                </Option>
-                                            )
-                                        })}
-                                </Select>
-                            )}
-                            <Icon
-                                onClick={this.deleteExtSource.bind(
-                                    this,
-                                    source.key
-                                )}
-                                className="help-doc click-icon"
-                                type="delete"
-                            />
-                        </FormItem>
-                        {!selectHack && (
-                            <div>
-                                <FormItem
-                                    {...formItemLayout}
-                                    label="表名"
-                                    key="table"
-                                >
-                                    {getFieldDecorator(`extTable.${source.key}`, {
-                                        rules: [
-                                            {
-                                                required: true,
-                                                message: '数据源表为必选项！'
-                                            }
-                                        ],
-                                        initialValue: source.tables
-                                    })(
-                                        <Select style={{ display: isChecked[`extTable.${source.key}`] ? 'none' : 'block' }}
-                                            mode="tags"
-                                            showSearch
-                                            {...showArrowFix}
-                                            onChange={this.debounceExtTableSearch.bind(
-                                                this,
-                                                source.key
-                                            )}
-                                            optionFilterProp="value"
-                                            onSearch={(str: any) => this.onSearchTable(str, sourceMap.sourceId)}
-                                        >
-                                            {(
-                                                this.state.tableListSearch[source.sourceId] || []
-                                            ).map((table: any) => {
-                                                return (
-                                                    <Option
-                                                        key={`rdb-${table}`}
-                                                        value={table}
-                                                    >
-                                                        {table}
-                                                    </Option>
-                                                )
-                                            })}
-                                        </Select>
-                                    )}
-                                    <Tooltip title="此处可以选择多表，请保证它们的表结构一致">
-                                        <Icon
-                                            className="help-doc"
-                                            type="question-circle-o"
-                                        />
-                                    </Tooltip>
-                                    {
-                                        (this.isMysqlTable && isChecked[`extTable.${source.key}`])
-                                            ? (
-                                                <Row>
-                                                    <Col>
-                                                        <BatchSelect sourceKey={source.key} sourceMap={sourceMap} key={tableValue} tabData={tableListMap[source.sourceId]} handleSelectFinish={this.handleSelectFinishFromBatch} />
-                                                    </Col>
-                                                </Row>
-                                            )
-                                            : null
-                                    }
-                                </FormItem>
-                                {
-                                    this.isMysqlTable ? (
-                                        <Row className="form-item-follow-text">
-                                            <Col
-                                                style={{ textAlign: 'right', fontSize: '13PX' }}
-                                                span={formItemLayout.wrapperCol.sm.span}
-                                                offset={formItemLayout.labelCol.sm.span}
-                                            >
-                                                {/* 选择一张或多张表，选择多张表时，请保持它们的表结构一致，大批量选择，可以 */}
-                                                {/* disabled注意添加数据源之后无数据产生的bug问题 */}
-                                                <Checkbox name='isChecked' disabled={source.sourceId === null} onChange={(event: any) => this.handleCheckboxChange(`extTable.${source.key}`, event)} checked={isChecked[`extTable.${source.key}`]} >
-                                                    <a {...{ disabled: source.sourceId === null }}>
-                                                        批量选择
-                                                    </a>
-                                                </Checkbox>
-                                            </Col>
-                                        </Row>
-                                    ) : null
-                                }
-                            </div>
-                        )}
-                    </div>
-                )
-            })
-    };
-
     getPreview = (previewPath?: string) => {
         this.setState({
             showPreviewPath: true,
@@ -1279,20 +1126,6 @@ class SourceForm extends React.Component<any, any> {
                             </Row>
                         </div>
                     ) : null,
-                    ...this.renderExtDataSource(),
-                    supportSubLibrary && (
-                        <Row className="form-item-follow-text">
-                            <Col
-                                style={{ textAlign: 'left' }}
-                                span={formItemLayout.wrapperCol.sm.span}
-                                offset={formItemLayout.labelCol.sm.span}
-                            >
-                                <a onClick={() => this.addDataSource()}>
-                                    添加数据源
-                                </a>
-                            </Col>
-                        </Row>
-                    ),
                     <FormItem {...formItemLayout} label="数据过滤" key="where">
                         {getFieldDecorator('where', {
                             rules: [
@@ -1439,7 +1272,6 @@ class SourceForm extends React.Component<any, any> {
                             </FormItem>
                         </div>
                     ) : null,
-                    ...this.renderExtDataSource(),
                     <FormItem {...formItemLayout} label="数据过滤" key="where">
                         {getFieldDecorator('where', {
                             rules: [
@@ -1701,20 +1533,6 @@ class SourceForm extends React.Component<any, any> {
                             }
                         </div>
                     ) : null,
-                    ...this.renderExtDataSource(),
-                    supportSubLibrary && (
-                        <Row className="form-item-follow-text">
-                            <Col
-                                style={{ textAlign: 'left' }}
-                                span={formItemLayout.wrapperCol.sm.span}
-                                offset={formItemLayout.labelCol.sm.span}
-                            >
-                                <a onClick={this.addDataSource.bind(this)}>
-                                    添加数据源
-                                </a>
-                            </Col>
-                        </Row>
-                    ),
                     <FormItem {...formItemLayout} label="数据过滤" key="where">
                         {getFieldDecorator('where', {
                             rules: [

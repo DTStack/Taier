@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Steps } from 'antd'
+import { Steps, message } from 'antd'
 import { connect } from 'react-redux'
 import { isEqual, get } from 'lodash'
 
@@ -9,7 +9,12 @@ import DataSyncKeymap from './keymap'
 import DataSyncChannel from './channel';
 import DataSyncSave from './save'
 import ajax from '../../api'
-import { getDataSyncSaveTabParams } from '../../controller/dataSync/offlineAction'
+import { getDataSyncSaveTabParams, workbenchActions as WBenchActions } from '../../controller/dataSync/offlineAction'
+import {
+    dataSourceListAction,
+    dataSyncAction,
+    workbenchAction
+} from '../../controller/dataSync/actionType';
 
 import { DATA_SYNC_MODE } from '../../comm/const'
 
@@ -18,8 +23,7 @@ const Step = Steps.Step
 class DataSync extends React.Component<any, any> {
   state: any = {
       currentStep: 0,
-      loading: false,
-      isStandeAlone: false
+      loading: false
   };
 
   _datasyncDom: any;
@@ -27,30 +31,21 @@ class DataSync extends React.Component<any, any> {
       const { currentTabData } = this.props
 
       this.getJobData({ taskId: currentTabData?.id })
-      // this.props.setTabId(currentTabData?.id);
-      // this.props.getDataSource();
-      this.isStandeAlone()
+      //   this.props.setTabId(currentTabData?.id);
+      this.props.getDataSource();
   }
 
-  // eslint-disable-next-line
-  // UNSAFE_componentWillReceiveProps(nextProps: any) {
-  //   // 如果列发生变化，则检测更新系统变量
-  //   if (this.onVariablesChange(this.props, nextProps)) {
-  //     this.props.updateDataSyncVariables(
-  //       nextProps.sourceMap,
-  //       nextProps.targetMap,
-  //       nextProps.taskCustomParams
-  //     );
-  //   }
-  // }
-
-  isStandeAlone = async () => {
-      // const res = await ajax.getIsStandeAlone()
-      // if (res?.code !== 1) return
-      // this.setState({
-      //     isStandeAlone: res?.data
-      // })
-  };
+  //   eslint-disable-next-line
+  UNSAFE_componentWillReceiveProps(nextProps: any) {
+      // 如果列发生变化，则检测更新系统变量
+      if (this.onVariablesChange(this.props, nextProps)) {
+          this.props.updateDataSyncVariables(
+              nextProps.sourceMap,
+              nextProps.targetMap,
+              nextProps.taskCustomParams
+          );
+      }
+  }
 
   onVariablesChange = (oldProps: any, nextProps: any) => {
       const { sourceMap: oldSource, targetMap: oldTarget } = oldProps
@@ -259,7 +254,7 @@ class DataSync extends React.Component<any, any> {
   };
 
   render () {
-      const { currentStep, loading, isStandeAlone } = this.state
+      const { currentStep, loading } = this.state
       const {
           currentTabData = {},
           taskCustomParams,
@@ -315,7 +310,6 @@ class DataSync extends React.Component<any, any> {
                   currentTabData={currentTabData}
                   isIncrementMode={isIncrementMode}
                   navtoStep={this.navtoStep.bind(this)}
-                  isStandeAlone={isStandeAlone}
               />
           },
           {
@@ -326,7 +320,6 @@ class DataSync extends React.Component<any, any> {
                   isIncrementMode={isIncrementMode}
                   navtoStep={this.navtoStep.bind(this)}
                   saveJob={this.save.bind(this)}
-                  isStandeAlone={isStandeAlone}
               />
           }
       ]
@@ -371,9 +364,86 @@ const mapState = (state: any) => {
 }
 
 const mapDispatch = (dispatch: any, ownProps: any) => {
-    // const wbActions = WBenchActions(dispatch);
+    const wbActions = WBenchActions(dispatch);
 
-    return {}
+    return {
+        getDataSource: () => {
+            ajax.getOfflineDataSource({
+                projectId: 1,
+                userId: 1
+            })
+                .then((res: any) => {
+                    let data: any = []
+                    if (res.code === 1) {
+                        data = res.data
+                    }
+                    dispatch({
+                        type: dataSourceListAction.LOAD_DATASOURCE,
+                        payload: data
+                    });
+                });
+        },
+        initJobData: (data: any) => {
+            dispatch({
+                type: dataSyncAction.INIT_JOBDATA,
+                payload: data
+            });
+        },
+        setTabNew: () => {
+            dispatch({
+                type: workbenchAction.SET_CURRENT_TAB_NEW
+            });
+        },
+        setTabSaved: () => {
+            dispatch({
+                type: workbenchAction.SET_CURRENT_TAB_SAVED
+            });
+        },
+        saveDataSyncToTab: (params: any) => {
+            dispatch({
+                type: workbenchAction.SAVE_DATASYNC_TO_TAB,
+                payload: {
+                    id: params.id,
+                    data: params.data
+                }
+            });
+        },
+        getDataSyncSaved: (params: any) => {
+            dispatch({
+                type: dataSyncAction.GET_DATASYNC_SAVED,
+                payload: params
+            });
+        },
+        setTabId: (id: any) => {
+            dispatch({
+                type: dataSyncAction.SET_TABID,
+                payload: id
+            });
+        },
+        setCurrentStep: (step: any) => {
+            dispatch({
+                type: dataSyncAction.SET_CURRENT_STEP,
+                payload: step
+            });
+        },
+        saveJobData (params: any) {
+            ajax.saveOfflineJobData(params)
+                .then((res: any) => {
+                    if (res.code === 1) {
+                        message.success('保存成功！');
+                        dispatch({
+                            type: workbenchAction.SET_CURRENT_TAB_SAVED
+                        });
+                        dispatch({
+                            type: workbenchAction.MAKE_TAB_CLEAN
+                        })
+                    }
+                })
+        },
+        updateDataSyncVariables (sourceMap: any, targetMap: any, taskCustomParams: any) {
+            wbActions.updateDataSyncVariables(sourceMap, targetMap, taskCustomParams);
+        }
+    }
 }
 
 export default connect(mapState, mapDispatch)(DataSync)
