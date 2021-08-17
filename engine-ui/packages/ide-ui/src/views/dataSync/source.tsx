@@ -202,6 +202,7 @@ class SourceForm extends React.Component<any, any> {
                         if (ctx._isMounted) {
                             const { data = [] } = res
                             let arr = data
+                            // 前端本地模糊搜索，最多展示 200 条
                             if (data.length && data.length > 200) {
                                 arr = data.slice(0, 200)
                             }
