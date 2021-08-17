@@ -198,7 +198,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             }
             launchCmd = jobParamReplace.paramReplace(launchCmd, taskParamsToReplace, scheduleJob.getCycTime());
             //替换参数 base64 生成launchCmd
-            taskExeArgs = taskExeArgs.replace(TaskConstant.LAUNCH, Base64Util.baseEncode(launchCmd));
+            taskExeArgs = taskExeArgs.replace(TaskConstant.LAUNCH, Base64Util.baseEncode(URLEncoder.encode(launchCmd, Charsets.UTF_8.name())));
             LOG.info(" replaceTaskExeArgs job {} exeArgs {} ", scheduleJob.getJobId(), taskExeArgs);
         }
         if (taskExeArgs.contains(TaskConstant.CMD_OPTS)){
