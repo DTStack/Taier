@@ -71,7 +71,7 @@ export default function MyLayout(props: React.PropsWithChildren<any>) {
                             defaultSelectedKeys={['devTask']}
                         >
                             <Menu.Item key="dataSource">
-                                <a href="/#/operation-ui/database">数据源</a>
+                                <a href="/#/data-source/list">数据源</a>
                             </Menu.Item>
                             <Menu.Item key="devTask">
                                 <a href="/">任务开发</a>
