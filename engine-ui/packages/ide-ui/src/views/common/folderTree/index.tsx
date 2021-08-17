@@ -1,40 +1,41 @@
-import { FileTypes, IExtension, TreeNodeModel } from 'molecule/esm/model'
-import { localize } from 'molecule/esm/i18n/localize'
-import molecule from 'molecule/esm'
-import Open from '../../task/open'
-import { resetEditorGroup } from '../utils'
-import DataSync from '../../dataSync'
-import ajax from '../../../api'
-import { TASK_RUN_ID } from '../utils/const'
+import React from 'react';
+import { FileTypes, IExtension, TreeNodeModel } from 'molecule/esm/model';
+import { localize } from 'molecule/esm/i18n/localize';
+import molecule from 'molecule/esm';
+import Open from '../../task/open';
+import { resetEditorGroup } from '../utils';
+import DataSync from '../../dataSync';
+import ajax from '../../../api';
+import { TASK_RUN_ID } from '../utils/const';
 
-function init () {
+function init() {
     ajax.getOfflineCatalogue({
         isGetFile: !!1,
-        nodePid: 0
+        nodePid: 0,
     }).then((res) => {
         if (res.code === 1) {
-            const { id, name } = res.data
+            const { id, name } = res.data;
             const node = new TreeNodeModel({
                 id,
                 name,
                 location: name,
-                fileType: FileTypes.RootFolder
-            })
+                fileType: FileTypes.RootFolder,
+            });
 
-            molecule.folderTree.add(node)
+            molecule.folderTree.add(node);
         }
-    })
+    });
 }
 
-function createTask () {
+function createTask() {
     molecule.folderTree.onCreate((type, id) => {
         if (type === 'File') {
-            resetEditorGroup()
+            resetEditorGroup();
 
             const onSubmit = (values: any) => {
-                const { name, ...rest } = values
-                molecule.editor.closeTab('createTask', 1)
-                molecule.explorer.forceUpdate()
+                const { name, ...rest } = values;
+                molecule.editor.closeTab('createTask', 1);
+                molecule.explorer.forceUpdate();
                 const node = new TreeNodeModel({
                     id: new Date().getTime(),
                     name,
@@ -42,39 +43,39 @@ function createTask () {
                     isLeaf: true,
                     data: {
                         ...rest,
-                        language: 'sparksql'
-                    }
-                })
+                        language: 'sparksql',
+                    },
+                });
 
-                molecule.folderTree.add(node, id)
+                molecule.folderTree.add(node, id);
 
-                const { current } = molecule.editor.getState()
+                const { current } = molecule.editor.getState();
                 if (current?.tab?.data.taskType === 'SparkSql') {
                     molecule.editor.updateActions([
-                        { id: TASK_RUN_ID, disabled: false }
-                    ])
+                        { id: TASK_RUN_ID, disabled: false },
+                    ]);
                 }
-            }
+            };
 
             const tabData = {
                 id: 'createTask',
                 modified: false,
                 name: localize('create task', '新建任务'),
                 data: {
-                    value: id
+                    value: id,
                 },
                 renderPane: () => {
-                    return <Open currentId={id} onSubmit={onSubmit} />
-                }
-            }
+                    return <Open currentId={id} onSubmit={onSubmit} />;
+                },
+            };
 
-            const { groups = [] } = molecule.editor.getState()
+            const { groups = [] } = molecule.editor.getState();
             const isExist = groups.some((group) =>
                 group.data?.some((tab) => tab.id === 'createTask')
-            )
+            );
             if (!isExist) {
-                molecule.editor.open(tabData)
-                molecule.explorer.forceUpdate()
+                molecule.editor.open(tabData);
+                molecule.explorer.forceUpdate();
             }
         } else if (type === 'Folder') {
             // work through addNode function
@@ -84,15 +85,15 @@ function createTask () {
                     name: '',
                     isLeaf: false,
                     fileType: FileTypes.Folder,
-                    isEditable: true
+                    isEditable: true,
                 }),
                 id
-            )
+            );
         }
-    })
+    });
 }
 
-function onSelectFile () {
+function onSelectFile() {
     molecule.folderTree.onSelectFile((file) => {
         if (file.data.taskType === 'SparkSql') {
             const tabData = {
@@ -100,31 +101,31 @@ function onSelectFile () {
                 name: file.name,
                 data: {
                     ...file.data,
-                    content: file.content
-                }
-            }
-            molecule.editor.open(tabData)
+                    content: file.content,
+                },
+            };
+            molecule.editor.open(tabData);
             molecule.editor.updateActions([
-                { id: TASK_RUN_ID, disabled: false }
-            ])
+                { id: TASK_RUN_ID, disabled: false },
+            ]);
         } else if (file.data.taskType === 'DataSync') {
             const tabData = {
                 id: file.id,
                 name: file.name,
                 data: {
                     ...file.data,
-                    content: file.content
+                    content: file.content,
                 },
                 renderPane: () => {
-                    return <DataSync />
-                }
-            }
-            molecule.editor.open(tabData)
+                    return <DataSync />;
+                },
+            };
+            molecule.editor.open(tabData);
             molecule.editor.updateActions([
-                { id: TASK_RUN_ID, disabled: false }
-            ])
+                { id: TASK_RUN_ID, disabled: false },
+            ]);
         } else {
-            resetEditorGroup()
+            resetEditorGroup();
         }
 
         file.data.taskType &&
@@ -132,18 +133,18 @@ function onSelectFile () {
                 {
                     id: 'language',
                     sortIndex: 3,
-                    name: file.data.taskType
+                    name: file.data.taskType,
                 },
                 'right'
-            )
-    })
+            );
+    });
 }
 
 export default class FolderTreeExtension implements IExtension {
-    activate () {
-        init()
+    activate() {
+        init();
 
-        createTask()
-        onSelectFile()
+        createTask();
+        onSelectFile();
     }
 }

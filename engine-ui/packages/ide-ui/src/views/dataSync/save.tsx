@@ -1,23 +1,23 @@
-import * as React from 'react'
-import { Card, Button } from 'antd'
+import * as React from 'react';
+import { Card, Button } from 'antd';
 
 // import Keymap from './keymap';
-import Channel from './channel'
+import Channel from './channel';
 
-function Mask () {
-    return <div className="mask-lock-layer" />
+function Mask() {
+    return <div className="mask-lock-layer" />;
 }
 
 export default class Save extends React.Component<any, any> {
-    constructor (props: any) {
-        super(props)
-        this.navtoStep = this.props.navtoStep
+    constructor(props: any) {
+        super(props);
+        this.navtoStep = this.props.navtoStep;
     }
 
     navtoStep: any;
-    render () {
-        const { navtoStep } = this
-        const { notSynced, isIncrementMode, isStandeAlone } = this.props
+    render() {
+        const { navtoStep } = this;
+        const { notSynced, isIncrementMode, isStandeAlone } = this.props;
 
         return (
             <div className="g-step5">
@@ -113,10 +113,10 @@ export default class Save extends React.Component<any, any> {
                     </Button>
                 </div>
             </div>
-        )
+        );
     }
 
-    prev (cb: any) {
+    prev(cb: any) {
         /* eslint-disable */
         cb.call(null, 3);
         /* eslint-disable */

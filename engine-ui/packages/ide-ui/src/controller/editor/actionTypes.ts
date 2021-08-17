@@ -1,4 +1,4 @@
-import mc from 'mirror-creator'
+import mc from 'mirror-creator';
 
 export const editorAction = mc(
     [
@@ -17,7 +17,7 @@ export const editorAction = mc(
         'SHOW_RIGHT_PANE', // 显示右侧面板
         'SHOW_TABLE_TIP_PANE', // 打开表提示面板
         'SHOW_SYNTAX_HELP_PANE', // 打开语法提示面板
-        'UPDATE_SYNTAX_PANE' // 更新帮助面板状态
+        'UPDATE_SYNTAX_PANE', // 更新帮助面板状态
     ],
     { prefix: 'editor/' }
-)
+);

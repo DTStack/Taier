@@ -1,13 +1,13 @@
-import moment from 'moment'
-import API from '../../api'
+import moment from 'moment';
+import API from '../../api';
 import {
     taskStatus,
     offlineTaskStatusFilter,
     TASK_TYPE,
     TASK_STATUS,
-    SCRIPT_TYPE
-} from '../../comm/const'
-import { editorAction } from './actionTypes'
+    SCRIPT_TYPE,
+} from '../../comm/const';
+import { editorAction } from './actionTypes';
 import {
     checkExist,
     createLinkMark,
@@ -16,8 +16,8 @@ import {
     isLibraEngine,
     isTiDBEngine,
     isOracleEngine,
-    isGreenPlumEngine
-} from '../../comm'
+    isGreenPlumEngine,
+} from '../../comm';
 
 export enum SQLType {
     /* eslint-disable-next-line */
@@ -31,30 +31,30 @@ interface SQLJob {
     result: any;
 }
 
-const INTERVALS = 1500
+const INTERVALS = 1500;
 
 const SELECT_TYPE = {
     SCRIPT: 0, // 脚本
     TASK: 1, // 任务
-    COMPONENT: 2 // 组件
-}
+    COMPONENT: 2, // 组件
+};
 
 // 储存各个tab的定时器id，用来stop任务时候清楚定时任务
-const intervalsStore: any = {}
+const intervalsStore: any = {};
 // 停止信号量，stop执行成功之后，设置信号量，来让所有正在执行中的网络请求知道任务已经无需再继续
-const stopSign: any = {}
+const stopSign: any = {};
 // 正在运行中的sql key，调用stop接口的时候需要使用
-const runningSql: any = {}
+const runningSql: any = {};
 
-function getUniqueKey (id: any) {
-    return `${id}_${moment().valueOf()}`
+function getUniqueKey(id: any) {
+    return `${id}_${moment().valueOf()}`;
 }
 
-function typeCreate (status: any) {
-    return status === taskStatus.FAILED ? 'error' : 'info'
+function typeCreate(status: any) {
+    return status === taskStatus.FAILED ? 'error' : 'info';
 }
 
-function getDataOver (
+function getDataOver(
     dispatch: any,
     currentTab: any,
     res: any,
@@ -72,7 +72,7 @@ function getDataOver (
                     'info'
                 )
             )
-        )
+        );
         res?.data?.sqlText &&
             dispatch(
                 output(
@@ -81,9 +81,9 @@ function getDataOver (
                         res?.data?.sqlText
                     }\n${createTitle('')}`
                 )
-            )
+            );
     } else {
-        dispatch(output(currentTab, createLog('执行完成!', 'info')))
+        dispatch(output(currentTab, createLog('执行完成!', 'info')));
     }
     jobId &&
         jobId.advancedModeId &&
@@ -95,9 +95,9 @@ function getDataOver (
                     res?.data?.sqlText
                 }\n${createTitle('')}`
             )
-        )
+        );
     if (res.data.result) {
-        dispatch(outputRes(currentTab, res.data.result, jobId))
+        dispatch(outputRes(currentTab, res.data.result, jobId));
     }
     if (res.data && res.data.download) {
         dispatch(
@@ -105,10 +105,10 @@ function getDataOver (
                 currentTab,
                 `完整日志下载地址：${createLinkMark({
                     href: res.data.download,
-                    download: ''
+                    download: '',
                 })}\n`
             )
-        )
+        );
     }
 }
 
@@ -120,7 +120,7 @@ function getDataOver (
  * @param {*} currentTab
  * @param {*} taskType 任务类型
  */
-function doSelect (
+function doSelect(
     resolve: any,
     dispatch: any,
     jobId: any,
@@ -128,10 +128,10 @@ function doSelect (
     task: any,
     taskType: number
 ) {
-    function outputStatus (status: any, extText?: any) {
+    function outputStatus(status: any, extText?: any) {
         // 当为数据同步日志时，运行日志就不显示了
         if (taskType === TASK_TYPE.SYNC && status === TASK_STATUS.RUNNING) {
-            return
+            return;
         }
         for (let i = 0; i < offlineTaskStatusFilter.length; i++) {
             if (offlineTaskStatusFilter[i].value === status) {
@@ -145,8 +145,8 @@ function doSelect (
                             'info'
                         )
                     )
-                )
-                continue
+                );
+                continue;
             }
         }
     }
@@ -154,30 +154,30 @@ function doSelect (
     // 数据同步轮训请求
     const retationRequestSync = (data: any) => {
         // 取消重拾请求，改为一次性请求
-        data && abnormal(data)
+        data && abnormal(data);
         // data为null时特殊处理，跳出当前运行状态
-        resolve(false)
-    }
+        resolve(false);
+    };
 
     // cancle状态和faild状态(接口正常，业务异常状态)特殊处理
     const abnormal = (data: any) => {
-        data.status && outputStatus(data.status)
+        data.status && outputStatus(data.status);
         data.download &&
             dispatch(
                 output(
                     currentTab,
                     `完整日志下载地址：${createLinkMark({
                         href: data.download,
-                        download: ''
+                        download: '',
                     })}\n`
                 )
-            )
-    }
+            );
+    };
 
     const showMsg = (res: any) => {
         // 获取到返回值
         if (res.message) {
-            dispatch(output(currentTab, createLog(`${res.message}`, 'error')))
+            dispatch(output(currentTab, createLog(`${res.message}`, 'error')));
         }
         if (res.data && res.data.msg) {
             dispatch(
@@ -185,17 +185,17 @@ function doSelect (
                     currentTab,
                     createLog(`${res.data.msg}`, typeCreate(res.data.status))
                 )
-            )
+            );
         }
-    }
+    };
 
-    const isTask = checkExist(task && task.taskType)
-    const isComponent = checkExist(task && task.componentType)
-    let type = SELECT_TYPE.SCRIPT
+    const isTask = checkExist(task && task.taskType);
+    const isComponent = checkExist(task && task.componentType);
+    let type = SELECT_TYPE.SCRIPT;
     if (isTask) {
-        type = SELECT_TYPE.TASK
+        type = SELECT_TYPE.TASK;
     } else if (isComponent) {
-        type = SELECT_TYPE.COMPONENT
+        type = SELECT_TYPE.COMPONENT;
     }
     // 获取日志接口
     const selectRunLog = (num: number = 0) => {
@@ -203,18 +203,18 @@ function doSelect (
             jobId: jobId && jobId.jobId ? jobId.jobId : jobId,
             taskId: task.id,
             type: type,
-            sqlId: jobId && jobId.advancedModeId ? jobId.advancedModeId : null
+            sqlId: jobId && jobId.advancedModeId ? jobId.advancedModeId : null,
         }).then((res: any) => {
             if (stopSign[currentTab]) {
-                stopSign[currentTab] = false
-                resolve(false)
-                return
+                stopSign[currentTab] = false;
+                resolve(false);
+                return;
             }
-            const { code, data } = res
-            const { retryLog } = res
-            if (code) showMsg(res)
+            const { code, data } = res;
+            const { retryLog } = res;
+            if (code) showMsg(res);
             if (code !== 1) {
-                dispatch(output(currentTab, createLog('请求异常！', 'error')))
+                dispatch(output(currentTab, createLog('请求异常！', 'error')));
             }
             if (data && data.download) {
                 dispatch(
@@ -222,20 +222,20 @@ function doSelect (
                         currentTab,
                         `完整日志下载地址：${createLinkMark({
                             href: res.data.download,
-                            download: ''
+                            download: '',
                         })}\n`
                     )
-                )
+                );
             }
             if (retryLog && num && num <= 3) {
-                selectRunLog(num + 1)
+                selectRunLog(num + 1);
                 outputStatus(
                     taskStatus.WAITING_RUN,
                     `正在进行第${num + 1}次重试，请等候`
-                )
+                );
             }
-        })
-    }
+        });
+    };
     // 获取结果接口
     const selectExecResultData = () => {
         // API.selectExecResultData({
@@ -259,29 +259,29 @@ function doSelect (
         //             }
         //         }
         //     )
-    }
+    };
 
     if (taskType && taskType === TASK_TYPE.SYNC) {
         API.selectExecResultDataSync({
             jobId: jobId && jobId.jobId ? jobId.jobId : jobId,
             taskId: task.id,
             type: isTask ? SELECT_TYPE.TASK : SELECT_TYPE.SCRIPT,
-            sqlId: jobId && jobId.advancedModeId ? jobId.advancedModeId : null
+            sqlId: jobId && jobId.advancedModeId ? jobId.advancedModeId : null,
         }).then((res: any) => {
             if (stopSign[currentTab]) {
-                stopSign[currentTab] = false
-                resolve(false)
-                return
+                stopSign[currentTab] = false;
+                resolve(false);
+                return;
             }
-            if (res && res.code) showMsg(res)
+            if (res && res.code) showMsg(res);
             // 状态正常
             if (res && res.code === 1) {
                 switch (res.data.status) {
                     case taskStatus.FINISHED: {
                         // 成功
-                        getDataOver(dispatch, currentTab, res, jobId)
-                        resolve(true)
-                        return
+                        getDataOver(dispatch, currentTab, res, jobId);
+                        resolve(true);
+                        return;
                     }
                     case taskStatus.FAILED: {
                         // 失败时，判断msg字段内部是否包含appLogs标示，若有，则直接展示
@@ -289,24 +289,24 @@ function doSelect (
                             res.data.msg &&
                             res.data.msg.indexOf('appLogs') > -1
                         ) {
-                            abnormal(res.data)
-                            dispatch(removeLoadingTab(currentTab))
-                            return
+                            abnormal(res.data);
+                            dispatch(removeLoadingTab(currentTab));
+                            return;
                         } else {
                             // 否则重新执行该请求
-                            retationRequestSync(res.data)
-                            return
+                            retationRequestSync(res.data);
+                            return;
                         }
                     }
                     case taskStatus.CANCELED: {
-                        abnormal(res.data)
-                        dispatch(removeLoadingTab(currentTab))
-                        return
+                        abnormal(res.data);
+                        dispatch(removeLoadingTab(currentTab));
+                        return;
                     }
                     default: {
                         // 正常运行，则再次请求,并记录定时器id
                         intervalsStore[currentTab] = setTimeout(() => {
-                            outputStatus(res.data.status, '.....')
+                            outputStatus(res.data.status, '.....');
                             doSelect(
                                 resolve,
                                 dispatch,
@@ -314,49 +314,49 @@ function doSelect (
                                 currentTab,
                                 task,
                                 taskType
-                            )
-                        }, INTERVALS)
+                            );
+                        }, INTERVALS);
                     }
                 }
             } else {
-                dispatch(output(currentTab, createLog('请求异常！', 'error')))
-                retationRequestSync(res.data)
+                dispatch(output(currentTab, createLog('请求异常！', 'error')));
+                retationRequestSync(res.data);
             }
-        })
+        });
     } else {
         API.selectStatus({
             jobId: jobId && jobId.jobId ? jobId.jobId : jobId,
             taskId: task.id,
             // type: isTask ? SELECT_TYPE.TASK : SELECT_TYPE.SCRIPT,
             type: type,
-            sqlId: jobId && jobId.advancedModeId ? jobId.advancedModeId : null
+            sqlId: jobId && jobId.advancedModeId ? jobId.advancedModeId : null,
         }).then((res: any) => {
             if (stopSign[currentTab]) {
-                stopSign[currentTab] = false
-                resolve(false)
-                return
+                stopSign[currentTab] = false;
+                resolve(false);
+                return;
             }
             // 状态正常
             if (res && res.code === 1) {
                 switch (res.data.status) {
                     case taskStatus.FINISHED: {
                         // 成功
-                        outputStatus(res.data.status, '结果获取中，请稍后')
-                        selectExecResultData()
-                        selectRunLog()
-                        return resolve(true)
+                        outputStatus(res.data.status, '结果获取中，请稍后');
+                        selectExecResultData();
+                        selectRunLog();
+                        return resolve(true);
                     }
                     case taskStatus.FAILED:
                     case taskStatus.CANCELED: {
-                        outputStatus(res.data.status)
-                        dispatch(removeLoadingTab(currentTab))
-                        selectRunLog()
-                        return
+                        outputStatus(res.data.status);
+                        dispatch(removeLoadingTab(currentTab));
+                        selectRunLog();
+                        return;
                     }
                     default: {
                         // 正常运行，则再次请求,并记录定时器id
                         intervalsStore[currentTab] = setTimeout(() => {
-                            outputStatus(res.data.status, '.....')
+                            outputStatus(res.data.status, '.....');
                             doSelect(
                                 resolve,
                                 dispatch,
@@ -364,21 +364,21 @@ function doSelect (
                                 currentTab,
                                 task,
                                 taskType
-                            )
-                        }, INTERVALS)
+                            );
+                        }, INTERVALS);
                     }
                 }
             } else {
-                dispatch(output(currentTab, createLog('请求异常！', 'error')))
-                res.data && abnormal(res.data)
+                dispatch(output(currentTab, createLog('请求异常！', 'error')));
+                res.data && abnormal(res.data);
                 // data为null时特殊处理，跳出当前运行状态
-                resolve(false)
+                resolve(false);
             }
-        })
+        });
     }
 }
 
-function selectData (
+function selectData(
     dispatch: any,
     jobId: any,
     currentTab: number,
@@ -386,8 +386,8 @@ function selectData (
     taskType: number = 0
 ) {
     return new Promise((resolve: any, reject: any) => {
-        doSelect(resolve, dispatch, jobId, currentTab, task, taskType)
-    })
+        doSelect(resolve, dispatch, jobId, currentTab, task, taskType);
+    });
 }
 
 /**
@@ -401,7 +401,7 @@ function selectData (
  * @param {function} resolve promise resolve
  * @param {function} reject promise reject
  */
-function exec (
+function exec(
     dispatch: any,
     currentTab: number,
     task: any,
@@ -411,27 +411,27 @@ function exec (
     resolve: any,
     reject: any
 ) {
-    params.sql = `${sqls[index]}`
-    params.isEnd = sqls.length === index + 1
+    params.sql = `${sqls[index]}`;
+    params.isEnd = sqls.length === index + 1;
     dispatch(
         output(currentTab, createLog(`第${index + 1}条任务开始执行`, 'info'))
-    )
+    );
     // 判断是否要继续执行SQL
-    function judgeIfContinueExec () {
+    function judgeIfContinueExec() {
         if (index < sqls.length - 1) {
             // 剩余任务，则继续执行
-            execContinue()
+            execContinue();
         } else {
-            dispatch(removeLoadingTab(currentTab))
-            resolve(true)
+            dispatch(removeLoadingTab(currentTab));
+            resolve(true);
         }
     }
-    function execContinue () {
+    function execContinue() {
         if (stopSign[currentTab]) {
-            console.log('find stop sign in exec')
-            stopSign[currentTab] = false
-            dispatch(removeLoadingTab(currentTab))
-            return
+            console.log('find stop sign in exec');
+            stopSign[currentTab] = false;
+            dispatch(removeLoadingTab(currentTab));
+            return;
         }
         exec(
             dispatch,
@@ -442,23 +442,25 @@ function exec (
             index + 1,
             resolve,
             reject
-        )
+        );
     }
     const succCall = (res: any) => {
         // 假如已经是停止状态，则弃用结果
         if (stopSign[currentTab]) {
-            console.log('find stop sign in succCall')
-            stopSign[currentTab] = false
-            dispatch(removeLoadingTab(currentTab))
-            return
+            console.log('find stop sign in succCall');
+            stopSign[currentTab] = false;
+            dispatch(removeLoadingTab(currentTab));
+            return;
         }
-        if (res && res.code && res.message) { dispatch(output(currentTab, createLog(`${res.message}`, 'error'))) }
+        if (res && res.code && res.message) {
+            dispatch(output(currentTab, createLog(`${res.message}`, 'error')));
+        }
         // 执行结束
         if (!res || (res && res.code !== 1)) {
-            dispatch(output(currentTab, createLog('请求异常！', 'error')))
-            dispatch(removeLoadingTab(currentTab))
-            resolve(true)
-            return
+            dispatch(output(currentTab, createLog('请求异常！', 'error')));
+            dispatch(removeLoadingTab(currentTab));
+            resolve(true);
+            return;
         }
         if (res && res.code === 1) {
             if (res.data && res.data.msg) {
@@ -470,7 +472,7 @@ function exec (
                             typeCreate(res.data.status)
                         )
                     )
-                )
+                );
             }
             // 在立即执行sql成功后，显示转化之后的任务信息(sqlText)
             if (res.data && res.data.sqlText) {
@@ -481,11 +483,11 @@ function exec (
                             res.data.sqlText
                         }\n${createTitle('')}`
                     )
-                )
+                );
             }
             if (res.data.jobId) {
-                runningSql[currentTab] = res.data.jobId
-                const engineType = res.data.engineType
+                runningSql[currentTab] = res.data.jobId;
+                const engineType = res.data.engineType;
                 if (
                     isLibraEngine(engineType) || // libra, tiDB, oracle 不去轮训 selectData 接口，直接返回数据
                     isTiDBEngine(engineType) ||
@@ -496,41 +498,41 @@ function exec (
                     task.type === SCRIPT_TYPE.IMPALA_SQL ||
                     task.taskType === TASK_TYPE.INCEPTOR
                 ) {
-                    getDataOver(dispatch, currentTab, res, res.data.jobId)
-                    judgeIfContinueExec()
+                    getDataOver(dispatch, currentTab, res, res.data.jobId);
+                    judgeIfContinueExec();
                 } else {
                     selectData(dispatch, res.data.jobId, currentTab, task).then(
                         (isSuccess: any) => {
                             if (index < sqls.length - 1 && isSuccess) {
-                                execContinue()
+                                execContinue();
                             } else {
-                                dispatch(removeLoadingTab(currentTab))
-                                resolve(true)
+                                dispatch(removeLoadingTab(currentTab));
+                                resolve(true);
                             }
                         }
-                    )
+                    );
                 }
             } else {
                 // 不存在jobId，则直接返回结果
-                getDataOver(dispatch, currentTab, res)
+                getDataOver(dispatch, currentTab, res);
                 // 判断是否继续执行
-                judgeIfContinueExec()
+                judgeIfContinueExec();
             }
         }
-    }
+    };
     if (checkExist(task.taskType)) {
         // 任务执行
-        params.taskId = task.id
-        API.execSQLImmediately(params).then(succCall)
+        params.taskId = task.id;
+        API.execSQLImmediately(params).then(succCall);
     } else if (checkExist(task.type)) {
         // 脚本执行
-        params.scriptId = task.id
-        API.execScript(params).then(succCall)
+        params.scriptId = task.id;
+        API.execScript(params).then(succCall);
     } else if (checkExist(task.componentType)) {
         // 组件执行
-        params.componentId = task.id
-        params.componentType = task.componentType
-        API.execComponent(params).then(succCall)
+        params.componentId = task.id;
+        params.componentType = task.componentType;
+        API.execComponent(params).then(succCall);
     }
 }
 
@@ -548,7 +550,7 @@ function exec (
  * @param resolve Promise.resolve
  * @param reject Promise.reject
  */
-export async function execSparkSQLAdvancedMode (
+export async function execSparkSQLAdvancedMode(
     dispatch: any,
     currentTab: number,
     task: any,
@@ -557,18 +559,20 @@ export async function execSparkSQLAdvancedMode (
     resolve: any,
     reject: any
 ) {
-    params.taskId = task.id
-    params.sqlList = sqls
-    dispatch(output(currentTab, createLog('任务开始执行高级模式', 'info')))
+    params.taskId = task.id;
+    params.sqlList = sqls;
+    dispatch(output(currentTab, createLog('任务开始执行高级模式', 'info')));
 
-    const res = await API.execSparkSQLAdvancedMode(params)
+    const res = await API.execSparkSQLAdvancedMode(params);
 
-    if (res && res.code && res.message) { dispatch(output(currentTab, createLog(`${res.message}`, 'error'))) }
+    if (res && res.code && res.message) {
+        dispatch(output(currentTab, createLog(`${res.message}`, 'error')));
+    }
     // 执行结束
     if (!res || (res && res.code !== 1)) {
-        dispatch(output(currentTab, createLog('请求异常！', 'error')))
-        dispatch(removeLoadingTab(currentTab))
-        return
+        dispatch(output(currentTab, createLog('请求异常！', 'error')));
+        dispatch(removeLoadingTab(currentTab));
+        return;
     }
     if (res && res.code === 1) {
         if (res.data && res.data.msg) {
@@ -577,7 +581,7 @@ export async function execSparkSQLAdvancedMode (
                     currentTab,
                     createLog(`${res.data.msg}`, typeCreate(res.data.status))
                 )
-            )
+            );
         }
         // 在立即执行sql成功后，显示转化之后的任务信息(sqlText)
         if (res.data && res.data.sqlText) {
@@ -588,12 +592,12 @@ export async function execSparkSQLAdvancedMode (
                         res.data.sqlText
                     }\n${createTitle('')}`
                 )
-            )
+            );
         }
 
-        let jobIndex = 0
-        const jobList: SQLJob[] = res.data?.sqlIdList || []
-        runningSql[currentTab] = res.data?.jobId
+        let jobIndex = 0;
+        const jobList: SQLJob[] = res.data?.sqlIdList || [];
+        runningSql[currentTab] = res.data?.jobId;
 
         /**
          * 这个方法有些多余，主要是为了 getDataOver 方法构造一个
@@ -603,29 +607,29 @@ export async function execSparkSQLAdvancedMode (
         const wrapResult = (data: any) => {
             return {
                 data: {
-                    ...data
-                }
-            }
-        }
+                    ...data,
+                },
+            };
+        };
         const ifContinueExec = () => {
             if (jobIndex < jobList.length - 1) {
-                handJobRes(++jobIndex)
+                handJobRes(++jobIndex);
             } else {
-                dispatch(removeLoadingTab(currentTab))
-                resolve(true)
+                dispatch(removeLoadingTab(currentTab));
+                resolve(true);
             }
-        }
+        };
 
         const handJobRes = function (jobIndex: number) {
             // 假如已经是停止状态，则弃用结果
             if (stopSign[currentTab]) {
-                stopSign[currentTab] = false
-                dispatch(removeLoadingTab(currentTab))
-                resolve(true)
-                return
+                stopSign[currentTab] = false;
+                dispatch(removeLoadingTab(currentTab));
+                resolve(true);
+                return;
             }
 
-            const job: SQLJob = jobList[jobIndex]
+            const job: SQLJob = jobList[jobIndex];
             /**
              * 一般 SQL 结果直接输出
              */
@@ -636,8 +640,8 @@ export async function execSparkSQLAdvancedMode (
                     wrapResult(job),
                     job.sqlId,
                     true
-                )
-                ifContinueExec()
+                );
+                ifContinueExec();
             } else {
                 /**
                  *  高级模式SQL需要通过单独轮询查询结果
@@ -645,37 +649,37 @@ export async function execSparkSQLAdvancedMode (
                  */
                 const jobId = {
                     jobId: res.data?.jobId,
-                    advancedModeId: job.sqlId
-                }
+                    advancedModeId: job.sqlId,
+                };
                 selectData(dispatch, jobId, currentTab, task).then(
                     (isSuccess) => {
-                        ifContinueExec()
+                        ifContinueExec();
                     }
-                )
+                );
             }
-        }
+        };
 
         if (jobList.length > 0) {
-            handJobRes(jobIndex)
+            handJobRes(jobIndex);
         } else {
             // 不存在jobId，则直接返回结果
-            getDataOver(dispatch, currentTab, res)
-            dispatch(removeLoadingTab(currentTab))
+            getDataOver(dispatch, currentTab, res);
+            dispatch(removeLoadingTab(currentTab));
         }
     }
 }
 
 // 执行任务
-export function execSql (currentTab: any, task: any, params: any, sqls: any) {
+export function execSql(currentTab: any, task: any, params: any, sqls: any) {
     return (dispatch: any) => {
-        stopSign[currentTab] = false
+        stopSign[currentTab] = false;
         return new Promise((resolve: any, reject: any) => {
-            dispatch(addLoadingTab(currentTab))
-            const key = getUniqueKey(task.id)
+            dispatch(addLoadingTab(currentTab));
+            const key = getUniqueKey(task.id);
             params = {
                 ...params,
-                uniqueKey: key
-            }
+                uniqueKey: key,
+            };
             // 如果是sparkSQL，运行高级模式，则走单独的执行接口
             if (task.taskType === TASK_TYPE.SQL && params.singleSession) {
                 execSparkSQLAdvancedMode(
@@ -686,7 +690,7 @@ export function execSql (currentTab: any, task: any, params: any, sqls: any) {
                     sqls,
                     resolve,
                     reject
-                )
+                );
             } else {
                 exec(
                     dispatch,
@@ -697,72 +701,74 @@ export function execSql (currentTab: any, task: any, params: any, sqls: any) {
                     0,
                     resolve,
                     reject
-                )
+                );
             }
-        })
-    }
+        });
+    };
 }
 
 // 停止sql
-export function stopSql (currentTab: any, currentTabData: any, isSilent: any) {
+export function stopSql(currentTab: any, currentTabData: any, isSilent: any) {
     return (dispatch: any, getState: any) => {
         // 静默关闭，不通知任何人（服务器，用户）
         if (isSilent) {
-            const running = getState().editor.running
+            const running = getState().editor.running;
             if (running.indexOf(currentTab) > -1) {
-                stopSign[currentTab] = true
-                dispatch(output(currentTab, createLog('执行停止', 'warning')))
-                dispatch(removeLoadingTab(currentTab))
+                stopSign[currentTab] = true;
+                dispatch(output(currentTab, createLog('执行停止', 'warning')));
+                dispatch(removeLoadingTab(currentTab));
                 if (intervalsStore[currentTab]) {
-                    clearTimeout(intervalsStore[currentTab])
-                    intervalsStore[currentTab] = null
+                    clearTimeout(intervalsStore[currentTab]);
+                    intervalsStore[currentTab] = null;
                 }
-                return
+                return;
             }
-            return
+            return;
         }
-        const jobId = runningSql[currentTab]
-        if (!jobId) return
+        const jobId = runningSql[currentTab];
+        if (!jobId) return;
         const succCall = (res: any) => {
             /**
              * 目前执行停止之后还需要继续轮训后端状态，所以停止方法调用成功也不主动执行停止操作，而且根据后续轮训状态来执行停止操作
              */
-        }
+        };
         if (checkExist(currentTabData.taskType)) {
             // 任务执行
             API.stopSQLImmediately({
                 taskId: currentTabData.id,
-                jobId: jobId
-            }).then(succCall)
+                jobId: jobId,
+            }).then(succCall);
         } else if (checkExist(currentTabData.type)) {
             // 脚本执行
             API.stopScript({
                 scriptId: currentTabData.id,
-                jobId: jobId
-            }).then(succCall)
+                jobId: jobId,
+            }).then(succCall);
         }
-    }
+    };
 }
 
 /**
  * 执行数据同步任务
  */
-export function execDataSync (currentTab: any, params: any) {
+export function execDataSync(currentTab: any, params: any) {
     return async (dispatch: any) => {
-        stopSign[currentTab] = false
-        dispatch(setOutput(currentTab, `同步任务【${params.name}】开始执行`))
-        dispatch(addLoadingTab(currentTab))
-        const res = await API.execDataSyncImmediately(params)
-        if (res && res.code && res.message) { dispatch(output(currentTab, createLog(`${res.message}`, 'error'))) }
+        stopSign[currentTab] = false;
+        dispatch(setOutput(currentTab, `同步任务【${params.name}】开始执行`));
+        dispatch(addLoadingTab(currentTab));
+        const res = await API.execDataSyncImmediately(params);
+        if (res && res.code && res.message) {
+            dispatch(output(currentTab, createLog(`${res.message}`, 'error')));
+        }
         // 执行结束
         if (!res || (res && res.code !== 1)) {
-            dispatch(output(currentTab, createLog('请求异常！', 'error')))
-            dispatch(removeLoadingTab(currentTab))
+            dispatch(output(currentTab, createLog('请求异常！', 'error')));
+            dispatch(removeLoadingTab(currentTab));
         }
         if (res && res.code === 1) {
             dispatch(
                 output(currentTab, createLog('已经成功发送执行请求...', 'info'))
-            )
+            );
             if (res.data && res.data.msg) {
                 dispatch(
                     output(
@@ -772,10 +778,10 @@ export function execDataSync (currentTab: any, params: any) {
                             typeCreate(res.data.status)
                         )
                     )
-                )
+                );
             }
             if (res.data.jobId) {
-                runningSql[currentTab] = res.data.jobId
+                runningSql[currentTab] = res.data.jobId;
                 selectData(
                     dispatch,
                     res.data.jobId,
@@ -783,186 +789,186 @@ export function execDataSync (currentTab: any, params: any) {
                     params,
                     TASK_TYPE.SYNC
                 ).then(() => {
-                    dispatch(removeLoadingTab(currentTab))
-                })
+                    dispatch(removeLoadingTab(currentTab));
+                });
             } else {
                 dispatch(
                     output(currentTab, createLog('执行返回结果异常', 'error'))
-                )
-                dispatch(removeLoadingTab(currentTab))
+                );
+                dispatch(removeLoadingTab(currentTab));
             }
         }
-    }
+    };
 }
 
 /**
  * 停止数据同步任务
  */
-export function stopDataSync (currentTab: any, isSilent: any) {
+export function stopDataSync(currentTab: any, isSilent: any) {
     return async (dispatch: any, getState: any) => {
         // 静默关闭，不通知任何人（服务器，用户）
         if (isSilent) {
-            const running = getState().editor.running
+            const running = getState().editor.running;
             if (running.indexOf(currentTab) > -1) {
-                stopSign[currentTab] = true
-                dispatch(output(currentTab, createLog('执行停止', 'warning')))
-                dispatch(removeLoadingTab(currentTab))
+                stopSign[currentTab] = true;
+                dispatch(output(currentTab, createLog('执行停止', 'warning')));
+                dispatch(removeLoadingTab(currentTab));
                 if (intervalsStore[currentTab]) {
-                    clearTimeout(intervalsStore[currentTab])
-                    intervalsStore[currentTab] = null
+                    clearTimeout(intervalsStore[currentTab]);
+                    intervalsStore[currentTab] = null;
                 }
-                return
+                return;
             }
-            return
+            return;
         }
-        const jobId = runningSql[currentTab]
-        if (!jobId) return
+        const jobId = runningSql[currentTab];
+        if (!jobId) return;
 
-        const res = await API.stopDataSyncImmediately({ jobId: jobId })
+        const res = await API.stopDataSyncImmediately({ jobId: jobId });
         if (res && res.code === 1) {
-            dispatch(removeLoadingTab(currentTab))
-            dispatch(output(currentTab, createLog('执行停止', 'warning')))
+            dispatch(removeLoadingTab(currentTab));
+            dispatch(output(currentTab, createLog('执行停止', 'warning')));
         }
-    }
+    };
 }
 
 // Actions
-export function output (tab: any, log: any) {
+export function output(tab: any, log: any) {
     return {
         type: editorAction.APPEND_CONSOLE_LOG,
         data: log,
-        key: tab
-    }
+        key: tab,
+    };
 }
 
-export function setOutput (tab: any, log: any) {
+export function setOutput(tab: any, log: any) {
     return {
         type: editorAction.SET_CONSOLE_LOG,
         data: createLog(log, 'info'),
-        key: tab
-    }
+        key: tab,
+    };
 }
 
-export function outputRes (tab: any, item: any, jobId: any) {
+export function outputRes(tab: any, item: any, jobId: any) {
     return {
         type: editorAction.UPDATE_RESULTS,
         data: { jobId: jobId, data: item },
-        key: tab
-    }
+        key: tab,
+    };
 }
 
-export function removeRes (tab: any, index: any) {
+export function removeRes(tab: any, index: any) {
     return {
         type: editorAction.DELETE_RESULT,
         data: index,
-        key: tab
-    }
+        key: tab,
+    };
 }
 
-export function resetConsole (tab: any) {
+export function resetConsole(tab: any) {
     return {
         type: editorAction.RESET_CONSOLE,
-        key: tab
-    }
+        key: tab,
+    };
 }
 
 /**
  * 初始化tab的console对象
  * @param {tabId} key
  */
-export function getTab (key: any) {
+export function getTab(key: any) {
     return {
         type: editorAction.GET_TAB,
-        key
-    }
+        key,
+    };
 }
 
-export function setSelectionContent (data: any) {
+export function setSelectionContent(data: any) {
     return {
         type: editorAction.SET_SELECTION_CONTENT,
-        data
-    }
+        data,
+    };
 }
 
 // Loading actions
-export function addLoadingTab (id: any) {
+export function addLoadingTab(id: any) {
     return {
         type: editorAction.ADD_LOADING_TAB,
         data: {
-            id: id
-        }
-    }
+            id: id,
+        },
+    };
 }
-export function removeLoadingTab (id: any) {
+export function removeLoadingTab(id: any) {
     return {
         type: editorAction.REMOVE_LOADING_TAB,
         data: {
-            id: id
-        }
-    }
+            id: id,
+        },
+    };
 }
-export function removeAllLoadingTab () {
+export function removeAllLoadingTab() {
     return {
-        type: editorAction.REMOVE_ALL_LOAING_TAB
-    }
+        type: editorAction.REMOVE_ALL_LOAING_TAB,
+    };
 }
 
-function themePreChange () {
-    const styleDom = document.createElement('style')
-    styleDom.type = 'text/css'
-    styleDom.innerText = '*{transition-duration: 0s !important;}'
-    styleDom.id = 'myThemePreChange'
-    document.head.appendChild(styleDom)
+function themePreChange() {
+    const styleDom = document.createElement('style');
+    styleDom.type = 'text/css';
+    styleDom.innerText = '*{transition-duration: 0s !important;}';
+    styleDom.id = 'myThemePreChange';
+    document.head.appendChild(styleDom);
     setTimeout(() => {
-        document.head.removeChild(styleDom)
-    }, 300)
+        document.head.removeChild(styleDom);
+    }, 300);
 }
 
-export function updateEditorOptions (data: any) {
+export function updateEditorOptions(data: any) {
     if (data.theme) {
-        themePreChange()
+        themePreChange();
     }
     return {
         type: editorAction.UPDATE_OPTIONS,
-        data
-    }
+        data,
+    };
 }
 
 /**
  * 更新右侧面板行为
  * @param {String} showAction 展示行为
  */
-export function showRightTablePane () {
+export function showRightTablePane() {
     return {
         type: editorAction.SHOW_RIGHT_PANE,
-        data: editorAction.SHOW_TABLE_TIP_PANE
-    }
+        data: editorAction.SHOW_TABLE_TIP_PANE,
+    };
 }
 
-export function showRightSyntaxPane () {
+export function showRightSyntaxPane() {
     return {
         type: editorAction.SHOW_RIGHT_PANE,
-        data: editorAction.SHOW_SYNTAX_HELP_PANE
-    }
+        data: editorAction.SHOW_SYNTAX_HELP_PANE,
+    };
 }
 
-export function hideRightPane () {
+export function hideRightPane() {
     return {
         type: editorAction.SHOW_RIGHT_PANE,
-        data: ''
-    }
+        data: '',
+    };
 }
 
-export function updateSyntaxPane (data: any) {
+export function updateSyntaxPane(data: any) {
     return {
         type: editorAction.UPDATE_SYNTAX_PANE,
-        data: data
-    }
+        data: data,
+    };
 }
 
-export function getEditorThemeClassName (editorTheme: any) {
+export function getEditorThemeClassName(editorTheme: any) {
     // 如果是dark类的编辑器，则切换ide的theme为dark风格
     return editorTheme === 'vs-dark' || editorTheme === 'hc-black'
         ? 'theme-dark'
-        : 'theme-white'
+        : 'theme-white';
 }

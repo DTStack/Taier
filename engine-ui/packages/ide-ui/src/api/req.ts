@@ -1,5 +1,5 @@
 // 从config文件全局读取
-export const RDOS_BASE_URL = '/api/rdos'
+export const RDOS_BASE_URL = '/api/rdos';
 
 const req = {
     // ===== 用户模块 ===== //
@@ -93,7 +93,7 @@ const req = {
     GET_PACKAGE_ISHASFTP: `${RDOS_BASE_URL}/batch/batchPackage/isHasFtp`, // 是否开启sftp
     GET_PROJECTS_BY_APP_TYPE: `${RDOS_BASE_URL}/common/project/getProjectsByAppType`, // 获取模糊查询项目名称
     GET_TASKS_BY_APP_TYPE: `${RDOS_BASE_URL}/batch/batchTask/getTasksByAppType`, // 根据任务名称查询任务信息
-    ALL_PRODUCT_GLOBAL_SEARCH: `${RDOS_BASE_URL}/batch/batchTask/allProductGlobalSearch` // 所有产品的已提交任务查询
-}
+    ALL_PRODUCT_GLOBAL_SEARCH: `${RDOS_BASE_URL}/batch/batchTask/allProductGlobalSearch`, // 所有产品的已提交任务查询
+};
 
-export default req
+export default req;

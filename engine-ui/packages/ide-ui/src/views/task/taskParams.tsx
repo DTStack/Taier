@@ -1,40 +1,40 @@
-import * as React from 'react'
-import { Form, Collapse, Input } from 'antd'
-import { debounce } from 'lodash'
+import * as React from 'react';
+import { Form, Collapse, Input } from 'antd';
+import { debounce } from 'lodash';
 
-import './styles.css'
-import molecule from 'molecule/esm'
-import HelpDoc from '../../components/helpDoc'
+import './styles.css';
+import molecule from 'molecule/esm';
+import HelpDoc from '../../components/helpDoc';
 
-const FormItem = Form.Item
-const Panel = Collapse.Panel
+const FormItem = Form.Item;
+const Panel = Collapse.Panel;
 
 const formItemLayout: any = {
     // 表单正常布局
     labelCol: {
         xs: { span: 24 },
-        sm: { span: 8 }
+        sm: { span: 8 },
     },
     wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 14 }
-    }
-}
+        sm: { span: 14 },
+    },
+};
 
 // 匹配规则：$[函数]或$[a-z0-9+-两个字符]或随意输入几个字符
 // 原来的正则：/(^\$\[(\S+\(\S*\)|[a-z0-9\+\-\:\s\/\\\*]{2,})\]$)|(^(?!\$)\S+$)/i;
 export const paramsRegPattern =
     /* eslint-disable-next-line */
-    /^\$[\{\[\(](\S+\((.*)\)|.+)[\}\]\)]$|^(?!\$)\S+$/i
+    /^\$[\{\[\(](\S+\((.*)\)|.+)[\}\]\)]$|^(?!\$)\S+$/i;
 
 class TaskParams extends React.Component<any, any> {
     onChange = (index: any, value: any) => {
-        const { tabData } = this.props
+        const { tabData } = this.props;
 
         if (!value || paramsRegPattern.test(value)) {
-            const taskVariables: any = [...tabData.taskVariables]
-            taskVariables[index].paramCommand = value
-            console.log('onChange:', { taskVariables })
+            const taskVariables: any = [...tabData.taskVariables];
+            taskVariables[index].paramCommand = value;
+            console.log('onChange:', { taskVariables });
             // onChange({ taskVariables });
         }
     };
@@ -42,17 +42,17 @@ class TaskParams extends React.Component<any, any> {
     debounceChange = debounce(this.onChange, 300, { maxWait: 2000 });
 
     removeParams = (index: any) => {
-        const { tabData, onChange } = this.props
-        const taskVariables: any = [...tabData.taskVariables]
-        taskVariables.splice(index, 1)
-        onChange({ taskVariables })
+        const { tabData, onChange } = this.props;
+        const taskVariables: any = [...tabData.taskVariables];
+        taskVariables.splice(index, 1);
+        onChange({ taskVariables });
     };
 
     getFormItems = () => {
-        const { getFieldDecorator } = this.props.form
-        const { taskVariables } = this.props.tabData
-        const sysArr: any = []
-        const customArr: any = []
+        const { getFieldDecorator } = this.props.form;
+        const { taskVariables } = this.props.tabData;
+        const sysArr: any = [];
+        const customArr: any = [];
         const getFormItem = (index: any, param: any) => (
             <FormItem
                 key={param.paramName}
@@ -63,67 +63,65 @@ class TaskParams extends React.Component<any, any> {
                     rules: [
                         {
                             pattern: paramsRegPattern,
-                            message: '参数格式不正确'
-                        }
+                            message: '参数格式不正确',
+                        },
                     ],
-                    initialValue: param.paramCommand
+                    initialValue: param.paramCommand,
                 })(
                     <Input
                         disabled={param.type === 0}
                         onChange={(e: any) => {
-                            this.debounceChange(index, e.target.value)
+                            this.debounceChange(index, e.target.value);
                         }}
                     />
                 )}
             </FormItem>
-        )
+        );
         if (taskVariables) {
             for (let i = 0; i < taskVariables.length; i++) {
-                const param = taskVariables[i]
-                const formItem = getFormItem(i, param)
+                const param = taskVariables[i];
+                const formItem = getFormItem(i, param);
                 if (param.type === 0) {
                     // 系统参数
-                    sysArr.push(formItem)
+                    sysArr.push(formItem);
                 } else if (param.type === 1) {
                     // 自定义参数
-                    customArr.push(formItem)
+                    customArr.push(formItem);
                 }
             }
         }
         return {
             sysItems: sysArr,
-            customItems: customArr
-        }
+            customItems: customArr,
+        };
     };
 
-    renderNothing (text: any) {
+    renderNothing(text: any) {
         return (
             <p
                 style={{
                     textAlign: 'center',
                     fontSize: '14px',
-                    color: '#a1a1a1'
+                    color: '#a1a1a1',
                 }}
             >
                 {text || '无参数'}
             </p>
-        )
+        );
     }
 
-    render () {
-        const { tabData, couldEdit } = this.props
+    render() {
+        const { tabData, couldEdit } = this.props;
         const isLocked =
-            tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
-        const formItems = this.getFormItems()
+            tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock;
+        const formItems = this.getFormItems();
 
         return (
             <molecule.component.Scrollable>
                 <Form className="taskParams" style={{ position: 'relative' }}>
-                    {isLocked || !couldEdit
-                        ? (
-                            <div className="cover-mask"></div>
-                        )
-                        : null}
+                    {isLocked || !couldEdit ? (
+                        <div className="cover-mask"></div>
+                    ) : null}
                     <Collapse
                         style={{ background: 'transparent' }}
                         bordered={false}
@@ -136,7 +134,7 @@ class TaskParams extends React.Component<any, any> {
                                 <span
                                     style={{
                                         background: 'transparent',
-                                        color: '#fff'
+                                        color: '#fff',
                                     }}
                                 >
                                     系统参数配置{' '}
@@ -158,7 +156,7 @@ class TaskParams extends React.Component<any, any> {
                                 <span
                                     style={{
                                         background: 'transparent',
-                                        color: '#fff'
+                                        color: '#fff',
                                     }}
                                 >
                                     自定义参数配置{' '}
@@ -176,10 +174,10 @@ class TaskParams extends React.Component<any, any> {
                     </Collapse>
                 </Form>
             </molecule.component.Scrollable>
-        )
+        );
     }
 }
 
-const FormWrapper = Form.create<any>()(TaskParams)
+const FormWrapper = Form.create<any>()(TaskParams);
 
-export default FormWrapper
+export default FormWrapper;

@@ -1,8 +1,9 @@
-import { MonacoEditor } from 'molecule/esm/components'
-import { editor as monacoEditor, Uri } from 'molecule/esm/monaco'
-import { useEffect, useRef } from 'react'
-import { IEditor, IEditorTab } from 'molecule/esm/model'
-import { ENV_PARAMS } from '../common/utils/const'
+import React from 'react';
+import { MonacoEditor } from 'molecule/esm/components';
+import { editor as monacoEditor, Uri } from 'molecule/esm/monaco';
+import { useEffect, useRef } from 'react';
+import { IEditor, IEditorTab } from 'molecule/esm/model';
+import { ENV_PARAMS } from '../common/utils/const';
 
 /**
  * [TODO]: [#231](https://github.com/DTStack/molecule/issues/231) will resolve this problems
@@ -41,18 +42,18 @@ job.priority=10
 # spark.network.timeout=120s
 
 ## executor的OffHeap内存，和spark.executor.memory配置使用
-# spark.yarn.executor.memoryOverhead`
+# spark.yarn.executor.memoryOverhead`;
 
 const getUniqPath = (path: string) => {
-    return Uri.parse(`file://tab/${path}`)
-}
+    return Uri.parse(`file://tab/${path}`);
+};
 
 interface IEnvParams extends IEditor {
     onChange?: (tab: IEditorTab, value: string) => void;
 }
 
 export default ({ current, onChange }: IEnvParams) => {
-    const editorIns = useRef<IStandaloneCodeEditor>(null)
+    const editorIns = useRef<IStandaloneCodeEditor>(null);
 
     useEffect(() => {
         if (current && current.tab?.id !== 'createTask') {
@@ -62,18 +63,18 @@ export default ({ current, onChange }: IEnvParams) => {
                     current.tab?.data.taskParams || defualt_sql_value,
                     'ini',
                     getUniqPath(current.tab?.data.path)
-                )
+                );
 
-            editorIns.current?.setModel(model)
+            editorIns.current?.setModel(model);
         }
-    }, [current?.id && current.tab?.id])
+    }, [current?.id && current.tab?.id]);
 
     if (!current || !current.activeTab) {
         return (
             <div style={{ textAlign: 'center', marginTop: 20 }}>
                 无法获取环境参数
             </div>
-        )
+        );
     }
     return (
         <MonacoEditor
@@ -82,21 +83,21 @@ export default ({ current, onChange }: IEnvParams) => {
                 language: 'ini',
                 automaticLayout: true,
                 minimap: {
-                    enabled: false
-                }
+                    enabled: false,
+                },
             }}
             path={ENV_PARAMS}
             editorInstanceRef={(editorInstance) => {
                 // This assignment will trigger moleculeCtx update, and subNodes update
-                editorIns.current = editorInstance
+                editorIns.current = editorInstance;
 
                 editorInstance.onDidChangeModelContent(() => {
                     const currentValue = editorIns.current
                         .getModel(getUniqPath(current.tab?.data.path))
-                        ?.getValue()
+                        ?.getValue();
 
-                    onChange?.(current.tab!, currentValue)
-                })
+                    onChange?.(current.tab!, currentValue);
+                });
 
                 const model =
                     monacoEditor.getModel(
@@ -106,10 +107,10 @@ export default ({ current, onChange }: IEnvParams) => {
                         current.tab?.data.taskParams || defualt_sql_value,
                         'ini',
                         getUniqPath(current.tab?.data.path)
-                    )
+                    );
 
-                editorInstance.setModel(model)
+                editorInstance.setModel(model);
             }}
         />
-    )
-}
+    );
+};

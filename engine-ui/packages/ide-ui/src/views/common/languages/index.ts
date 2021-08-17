@@ -3,11 +3,11 @@ import 'monaco-sql-languages/out/esm/sparksql/sparksql.contribution';
     getWorkerUrl: function (moduleId: string, label: string) {
         switch (label) {
             case 'sparksql': {
-                return './sparksql.worker.js'
+                return './sparksql.worker.js';
             }
             default: {
-                return './editor.worker.js'
+                return './editor.worker.js';
             }
         }
-    }
-}
+    },
+};

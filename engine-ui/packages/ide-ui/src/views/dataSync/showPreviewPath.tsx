@@ -1,60 +1,60 @@
-import React, { useState } from 'react'
-import { Modal, Row, Col, Input, Button, Spin, Form } from 'antd'
-import HelpDoc from '../../components/helpDoc'
-import ajax from '../../api'
+import React, { useState } from 'react';
+import { Modal, Row, Col, Input, Button, Spin, Form } from 'antd';
+import HelpDoc from '../../components/helpDoc';
+import ajax from '../../api';
 
 const formItemLayout: any = {
     // 表单正常布局
     labelCol: {
         xs: { span: 24 },
-        sm: { span: 4 }
+        sm: { span: 4 },
     },
     wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 13 }
-    }
-}
-function ShowPreviewPath (props: any) {
+        sm: { span: 13 },
+    },
+};
+function ShowPreviewPath(props: any) {
     const {
         visible,
         handleCancel,
         previewPath,
         sourceId,
         taskVariables,
-        form
-    } = props
-    const [list, setList] = useState([])
-    const [loading, setLoading] = useState(false)
-    const { getFieldDecorator, validateFields } = form
-    const [num, setNum] = useState(0)
+        form,
+    } = props;
+    const [list, setList] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const { getFieldDecorator, validateFields } = form;
+    const [num, setNum] = useState(0);
     const searchPath = async () => {
         validateFields(async (err: any, values: any) => {
             if (!err) {
-                setList([])
-                setLoading(true)
+                setList([]);
+                setLoading(true);
                 const res = await ajax.ftpRegexPre({
                     sourceId,
                     regexStr: form?.getFieldValue('regexStr'),
-                    taskParamList: taskVariables
-                })
-                const { data } = res
+                    taskParamList: taskVariables,
+                });
+                const { data } = res;
                 if (res?.code === 1) {
-                    const { fileNameList = [], number } = data
+                    const { fileNameList = [], number } = data;
                     if (
                         Array.isArray(fileNameList) &&
                         fileNameList.length > 0
                     ) {
-                        setList(fileNameList as any)
-                        setNum(number || 0)
+                        setList(fileNameList as any);
+                        setNum(number || 0);
                     }
                 }
-                setLoading(false)
+                setLoading(false);
             }
-        })
-    }
+        });
+    };
     const textStyle: any = {
-        'line-height': 32
-    }
+        'line-height': 32,
+    };
     return (
         <Modal
             title="匹配预览"
@@ -77,9 +77,9 @@ function ShowPreviewPath (props: any) {
                 >
                     {getFieldDecorator('regexStr', {
                         rules: [
-                            { required: true, message: '请输入路径进行匹配' }
+                            { required: true, message: '请输入路径进行匹配' },
                         ],
-                        initialValue: previewPath || ''
+                        initialValue: previewPath || '',
                     })(<Input style={{ width: 272 }} />)}
                     <Button
                         style={{ position: 'absolute', top: 0, right: -127 }}
@@ -97,30 +97,26 @@ function ShowPreviewPath (props: any) {
                     </p>
                 </Col>
                 <Col span={20}>
-                    {loading
-                        ? (
-                            <Spin />
-                        )
-                        : (
-                            <p style={textStyle}>
-                                {num > 0
-                                    ? (
-                                        <>
-                                            <span style={{ color: '#3F87FF' }}>
-                                                {num > 100 ? '100+' : num}{' '}
-                                            </span>
+                    {loading ? (
+                        <Spin />
+                    ) : (
+                        <p style={textStyle}>
+                            {num > 0 ? (
+                                <>
+                                    <span style={{ color: '#3F87FF' }}>
+                                        {num > 100 ? '100+' : num}{' '}
+                                    </span>
                                     Object
-                                            {num > 20 &&
+                                    {num > 20 &&
                                         `（${
                                             num > 100 ? '已停止匹配，' : ''
                                         }以下随机列出 20 个匹配结果)`}
-                                        </>
-                                    )
-                                    : (
-                                        <span style={{ paddingLeft: 12 }}> 无 </span>
-                                    )}
-                            </p>
-                        )}
+                                </>
+                            ) : (
+                                <span style={{ paddingLeft: 12 }}> 无 </span>
+                            )}
+                        </p>
+                    )}
                     {num > 0 && (
                         <div className="regExpModal_info__normal">
                             {list.map((item, index) =>
@@ -131,7 +127,7 @@ function ShowPreviewPath (props: any) {
                 </Col>
             </Row>
         </Modal>
-    )
+    );
 }
 
-export default Form.create({})(ShowPreviewPath)
+export default Form.create({})(ShowPreviewPath);

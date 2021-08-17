@@ -1,19 +1,19 @@
-import React from 'react'
-import { Col, Row } from 'antd'
-import { IEditor } from 'molecule/esm/model'
+import React from 'react';
+import { Col, Row } from 'antd';
+import { IEditor } from 'molecule/esm/model';
 
-export default function TaskInfo ({ current }: IEditor) {
+export default function TaskInfo({ current }: IEditor) {
     if (!current?.activeTab) {
         return (
             <div style={{ marginTop: 10, textAlign: 'center', color: '#fff' }}>
                 无法提供活动属性
             </div>
-        )
+        );
     }
-    const tab = current.tab
+    const tab = current.tab;
     //   const taskInfo = props.taskInfo;
     //   const couldEdit = props.couldEdit;
-    const labelPrefix = '任务'
+    const labelPrefix = '任务';
     return (
         <Row className="task-info">
             <Row>
@@ -65,12 +65,12 @@ export default function TaskInfo ({ current }: IEditor) {
                     span={14}
                     style={{
                         lineHeight: '20px',
-                        padding: '10 0'
+                        padding: '10 0',
                     }}
                 >
                     {/* {taskInfo.taskDesc} */}
                 </Col>
             </Row>
         </Row>
-    )
+    );
 }

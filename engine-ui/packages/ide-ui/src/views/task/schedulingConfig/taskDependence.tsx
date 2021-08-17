@@ -1,28 +1,28 @@
-import * as React from 'react'
+import * as React from 'react';
 // import { connect } from "react-redux";
-import { get } from 'lodash'
+import { get } from 'lodash';
 
-import { Row, Col, Form, Button, Table, Select } from 'antd'
-import TaskSelector from './taskSelector'
-import RecommentTaskModal from './recommentTaskModal'
+import { Row, Col, Form, Button, Table, Select } from 'antd';
+import TaskSelector from './taskSelector';
+import RecommentTaskModal from './recommentTaskModal';
 
-import { TASK_TYPE } from '../../../comm/const'
+import { TASK_TYPE } from '../../../comm/const';
 // import ajax from "../../../../api";
 
-const FormItem = Form.Item
-const Option = Select.Option
+const FormItem = Form.Item;
+const Option = Select.Option;
 
 const formItemLayout: any = {
     // 表单正常布局
     labelCol: {
         xs: { span: 24 },
-        sm: { span: 4 }
+        sm: { span: 4 },
     },
     wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 18 }
-    }
-}
+        sm: { span: 18 },
+    },
+};
 
 // @(connect((state: any) => {
 //   return {
@@ -37,30 +37,30 @@ class TaskDependence extends React.Component<any, any> {
         recommentTaskList: [],
         projectList: [],
         tenantId: null,
-        projectId: null
+        projectId: null,
     };
 
-    componentDidMount () {
-        this.initTenant()
+    componentDidMount() {
+        this.initTenant();
     }
 
-    initTenant () {
-        const tenantId = get(this.props, 'tenant.currentTenant.tenantId')
+    initTenant() {
+        const tenantId = get(this.props, 'tenant.currentTenant.tenantId');
         if (tenantId) {
             this.setState(
                 {
-                    tenantId
+                    tenantId,
                 },
                 this.loadProjectList.bind(this)
-            )
+            );
         }
     }
 
-    showRecommentTask () {
-        const { tabData } = this.props
+    showRecommentTask() {
+        const { tabData } = this.props;
         this.setState({
-            loading: true
-        })
+            loading: true,
+        });
         // ajax
         //   .getRecommentTask({
         //     taskId: tabData.id,
@@ -78,44 +78,44 @@ class TaskDependence extends React.Component<any, any> {
         //   });
     }
 
-    recommentTaskClose () {
+    recommentTaskClose() {
         this.setState({
-            recommentTaskModalVisible: false
-        })
+            recommentTaskModalVisible: false,
+        });
     }
 
-    goEdit (task: any) {
-        this.props.getTaskDetail(task.id)
+    goEdit(task: any) {
+        this.props.getTaskDetail(task.id);
     }
 
-    initColumn () {
-        const { project, tenant } = this.props
-        const currentTenantName = tenant.currentTenant.tenantName
-        const currentProjectName = project.projectName
+    initColumn() {
+        const { project, tenant } = this.props;
+        const currentTenantName = tenant.currentTenant.tenantName;
+        const currentProjectName = project.projectName;
         return [
             {
                 title: '租户',
                 dataIndex: 'tenantName',
                 key: 'tenantName',
-                render (tenantName: any) {
+                render(tenantName: any) {
                     if (tenantName) {
-                        return tenantName
+                        return tenantName;
                     } else {
-                        return currentTenantName
+                        return currentTenantName;
                     }
-                }
+                },
             },
             {
                 title: '项目标识',
                 dataIndex: 'projectName',
                 key: 'projectName',
-                render (projectName: any) {
+                render(projectName: any) {
                     if (projectName) {
-                        return projectName
+                        return projectName;
                     } else {
-                        return currentProjectName
+                        return currentProjectName;
                     }
-                }
+                },
             },
             {
                 title: '任务名称',
@@ -133,16 +133,16 @@ class TaskDependence extends React.Component<any, any> {
                             >
                                 {text}
                             </a>
-                        )
+                        );
                     } else {
-                        return text
+                        return text;
                     }
-                }
+                },
             },
             {
                 title: '责任人',
                 dataIndex: 'createUser.userName',
-                key: 'createUser.userName'
+                key: 'createUser.userName',
             },
             {
                 title: '操作',
@@ -152,39 +152,39 @@ class TaskDependence extends React.Component<any, any> {
                         <a
                             href="javascript:void(0)"
                             onClick={() => {
-                                this.props.handleDelVOS(record)
+                                this.props.handleDelVOS(record);
                             }}
                         >
                             删除
                         </a>
                     </span>
-                )
-            }
-        ]
+                ),
+            },
+        ];
     }
 
-    recommentTaskChoose (list: any) {
+    recommentTaskChoose(list: any) {
         for (let i = 0; i < list.length; i++) {
-            this.props.handleAddVOS(list[i])
+            this.props.handleAddVOS(list[i]);
         }
         this.setState({
-            recommentTaskModalVisible: false
-        })
+            recommentTaskModalVisible: false,
+        });
     }
 
-    onSelectTenant (value: any) {
+    onSelectTenant(value: any) {
         this.setState(
             {
                 tenantId: value,
                 projectList: [],
-                projectId: null
+                projectId: null,
             },
             this.loadProjectList.bind(this)
-        )
+        );
     }
 
-    async loadProjectList () {
-        const { tenantId } = this.state
+    async loadProjectList() {
+        const { tenantId } = this.state;
         // let res = await ajax.getProjectByTenant({ searchTenantId: tenantId });
         // if (res && res.code == 1) {
         //   this.setState(
@@ -197,33 +197,33 @@ class TaskDependence extends React.Component<any, any> {
     }
 
     setDefaultProject = () => {
-        const { project, tenant } = this.props
-        const { tenantId } = this.state
+        const { project, tenant } = this.props;
+        const { tenantId } = this.state;
         if (tenant.currentTenant.tenantId == tenantId) {
             this.setState({
-                projectId: project.id
-            })
+                projectId: project.id,
+            });
         }
     };
 
-    onSelectProject (value: any) {
+    onSelectProject(value: any) {
         this.setState({
-            projectId: value
-        })
+            projectId: value,
+        });
     }
 
-    render () {
-        const { tabData, handleAddVOS, tenant } = this.props
+    render() {
+        const { tabData, handleAddVOS, tenant } = this.props;
         const {
             loading,
             recommentTaskModalVisible,
             recommentTaskList,
             tenantId,
             projectId,
-            projectList = []
-        } = this.state
-        const tenantList = tenant.tenantList || []
-        const isSql = tabData.taskType == TASK_TYPE.SQL
+            projectList = [],
+        } = this.state;
+        const tenantList = tenant.tenantList || [];
+        const isSql = tabData.taskType == TASK_TYPE.SQL;
         return (
             <React.Fragment>
                 {isSql && (
@@ -250,7 +250,7 @@ class TaskDependence extends React.Component<any, any> {
                                     >
                                         {tenantItem.tenantName}
                                     </Option>
-                                )
+                                );
                             })}
                         </Select>
                     </FormItem>
@@ -267,7 +267,7 @@ class TaskDependence extends React.Component<any, any> {
                                     >
                                         {projectItem.projectAlias}
                                     </Option>
-                                )
+                                );
                             })}
                         </Select>
                     </FormItem>
@@ -279,23 +279,21 @@ class TaskDependence extends React.Component<any, any> {
                         />
                     </FormItem>
                 </Form>
-                {tabData.taskVOS && tabData.taskVOS.length > 0
-                    ? (
-                        <Row>
-                            <Col>
-                                <Table
-                                    className="dt-ant-table dt-ant-table--border"
-                                    columns={this.initColumn()}
-                                    bordered={false}
-                                    dataSource={tabData.taskVOS}
-                                    rowKey={(record: any) => record.id}
-                                />
-                            </Col>
-                        </Row>
-                    )
-                    : (
-                        ''
-                    )}
+                {tabData.taskVOS && tabData.taskVOS.length > 0 ? (
+                    <Row>
+                        <Col>
+                            <Table
+                                className="dt-ant-table dt-ant-table--border"
+                                columns={this.initColumn()}
+                                bordered={false}
+                                dataSource={tabData.taskVOS}
+                                rowKey={(record: any) => record.id}
+                            />
+                        </Col>
+                    </Row>
+                ) : (
+                    ''
+                )}
                 <RecommentTaskModal
                     visible={recommentTaskModalVisible}
                     taskList={recommentTaskList}
@@ -304,7 +302,7 @@ class TaskDependence extends React.Component<any, any> {
                     existTask={tabData.taskVOS}
                 />
             </React.Fragment>
-        )
+        );
     }
 }
-export default TaskDependence
+export default TaskDependence;

@@ -1,19 +1,19 @@
 /**
  * 存储项目ID的 key 名称
  */
-export const PROJECT_KEY = 'project_id'
+export const PROJECT_KEY = 'project_id';
 
 export const formItemLayout: any = {
     // 表单正常布局
     labelCol: {
         xs: { span: 24 },
-        sm: { span: 6 }
+        sm: { span: 6 },
     },
     wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 14 }
-    }
-}
+        sm: { span: 14 },
+    },
+};
 
 // 发布的item类别
 export const publishType = {
@@ -21,8 +21,8 @@ export const publishType = {
     TABLE: 1,
     RESOURCE: 2,
     FUNCTION: 3,
-    PRODUCER: 4
-}
+    PRODUCER: 4,
+};
 
 export const TASK_TYPE = {
     // 任务类型
@@ -58,8 +58,8 @@ export const TASK_TYPE = {
     PYTORCH: 25,
     INCEPTOR: 28,
     SHELL_AGENT: 29,
-    ADB: 30
-}
+    ADB: 30,
+};
 
 export const DATA_SOURCE = {
     MYSQL: 1,
@@ -102,49 +102,49 @@ export const DATA_SOURCE = {
     INCEPTOR: 52,
     ADB: 54,
     INFLUXDB: 55,
-    OPEN_TS_DB: 56
-}
+    OPEN_TS_DB: 56,
+};
 
 export const OPENTSDB_CULUMNS = [
     {
         type: 'STRING',
-        key: 'metric'
+        key: 'metric',
     },
     {
         type: 'STRING',
-        key: 'timestamp'
+        key: 'timestamp',
     },
     {
         type: 'STRING',
-        key: 'value'
+        key: 'value',
     },
     {
         type: 'STRING',
-        key: 'tags'
-    }
-]
+        key: 'tags',
+    },
+];
 
 export const SUPPROT_SUB_LIBRARY_DB_ARRAY: any = [
     // 支持分库分表的数据库类型r
-    DATA_SOURCE.MYSQL
+    DATA_SOURCE.MYSQL,
     // DATA_SOURCE.ORACLE,
     // DATA_SOURCE.SQLSERVER,
     // DATA_SOURCE.POSTGRESQL,
-]
+];
 
 export const HELP_DOC_URL = {
     INDEX: '/public/helpSite/batch/v3.0/Summary.html',
     DATA_SOURCE: '/public/helpSite/batch/v3.0/DataIntegration/Overview.html',
     DATA_SYNC: '/public/helpSite/batch/v3.0/DataIntegration/JobConfig.html',
     TASKPARAMS:
-        '/public/helpSite/batch/v3.0/DataDevelop/ScheduleConfig.html#ParamConfig'
-}
+        '/public/helpSite/batch/v3.0/DataDevelop/ScheduleConfig.html#ParamConfig',
+};
 
 export const DATA_SYNC_MODE = {
     // 数据同步模式-正常/增量
     NORMAL: 0, // 正常
-    INCREMENT: 1 // 增量
-}
+    INCREMENT: 1, // 增量
+};
 
 export const DATA_SOURCE_TEXT = {
     [DATA_SOURCE.MYSQL]: 'MySQL',
@@ -181,8 +181,8 @@ export const DATA_SOURCE_TEXT = {
     [DATA_SOURCE.INCEPTOR]: 'Inceptor',
     [DATA_SOURCE.ADB]: 'AnalyticDB PostgreSQL',
     [DATA_SOURCE.INFLUXDB]: 'InfluxDB',
-    [DATA_SOURCE.OPEN_TS_DB]: 'OpenTSDB'
-}
+    [DATA_SOURCE.OPEN_TS_DB]: 'OpenTSDB',
+};
 
 export const RDB_TYPE_ARRAY: any = [
     // sql/oracle/sqlserver/postgresql/db2
@@ -199,8 +199,8 @@ export const RDB_TYPE_ARRAY: any = [
     DATA_SOURCE.DM,
     DATA_SOURCE.GREEN_PLUM,
     DATA_SOURCE.KINGBASE,
-    DATA_SOURCE.ADB
-]
+    DATA_SOURCE.ADB,
+];
 
 export const MENU_TYPE = {
     TASK: 'TaskManager',
@@ -224,8 +224,8 @@ export const MENU_TYPE = {
     GREEN_PLUM: 'GreenPlumSQLFunction',
     GREEN_PLUM_FUNC: 'GreenPlumCustomFunction',
     GREEN_PLUM_SYS_FUNC: 'GreenPlumSysFunc',
-    GREEN_PLUM_PROD: 'ProcedureFunction'
-}
+    GREEN_PLUM_PROD: 'ProcedureFunction',
+};
 
 // Engine source 类型
 export const ENGINE_SOURCE_TYPE = {
@@ -234,8 +234,8 @@ export const ENGINE_SOURCE_TYPE = {
     TI_DB: 4,
     ORACLE: 5,
     GREEN_PLUM: 6,
-    ADB: 9
-}
+    ADB: 9,
+};
 
 export const taskStatus = {
     ALL: null as any,
@@ -248,66 +248,66 @@ export const taskStatus = {
     SUBMITFAILD: 9,
     PARENTFAILED: 21,
     SUBMITTING: 10,
-    FROZEN: 18
-}
+    FROZEN: 18,
+};
 
 export const offlineTaskStatusFilter: any = [
     {
         id: 1,
         text: '等待提交',
-        value: 0
+        value: 0,
     },
     {
         id: 2,
         text: '提交中',
-        value: 10
+        value: 10,
     },
     {
         id: 3,
         text: '等待运行',
-        value: 16
+        value: 16,
     },
     {
         id: 4,
         text: '运行中',
-        value: 4
+        value: 4,
     },
     {
         id: 5,
         text: '成功',
-        value: 5
+        value: 5,
     },
     {
         id: 6,
         text: '手动取消',
-        value: 7
+        value: 7,
     },
     {
         id: 11,
         text: '自动取消',
-        value: 24
+        value: 24,
     },
     {
         id: 7,
         text: '提交失败',
-        value: 9
+        value: 9,
     },
     {
         id: 8,
         text: '运行失败',
-        value: 8
+        value: 8,
     },
     {
         id: 9,
         text: '上游失败',
-        value: 21
+        value: 21,
     },
     {
         id: 10,
         text: '冻结',
-        value: 18
-    }
-]
+        value: 18,
+    },
+];
 
 export const TASK_STATUS = {
     // 任务状态
@@ -332,8 +332,8 @@ export const TASK_STATUS = {
     WAIT_COMPUTE: 17,
     FROZEN: 18,
     DO_FAIL: 22,
-    AUTO_CANCEL: 24 // 自动取消
-}
+    AUTO_CANCEL: 24, // 自动取消
+};
 
 export const SCRIPT_TYPE = {
     // 脚本类型
@@ -343,8 +343,8 @@ export const SCRIPT_TYPE = {
     SHELL: 3,
     LIBRASQL: 4,
     IMPALA_SQL: 5,
-    TI_DB_SQL: 6
-}
+    TI_DB_SQL: 6,
+};
 
 export const hdfsFieldTypes: any = [
     // hdfs 类型
@@ -359,8 +359,8 @@ export const hdfsFieldTypes: any = [
     'DECIMAL',
     'DOUBLE',
     'TIMESTAMP',
-    'DATE'
-]
+    'DATE',
+];
 
 export const hbaseFieldTypes = [
     // HBase 类型
@@ -370,5 +370,5 @@ export const hbaseFieldTypes = [
     'LONG',
     'DOUBLE',
     'SHORT',
-    'FLOAT'
-]
+    'FLOAT',
+];
