@@ -4,6 +4,17 @@ const regenerator = require.resolve('regenerator-runtime/runtime');
 const proxy = require('./config');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HAPPY_PACK = require.resolve('happypack/loader');
+const InsertHtmlPlugin = require('./plugins/version-webpack-plugin');
+
+const BASE_NAME = process.env.BASE_NAME || '/database/'; // 资源目录 默认访问路径
+const ROOT_PATH = path.resolve(__dirname, './');
+const BUILD_PATH = path.resolve(ROOT_PATH, `dist${BASE_NAME}`);
+
+const packageName = require('./package.json').name;
+const PUBLICPATH =
+  process.env.NODE_ENV === 'production'
+    ? 'http://schedule.dtstack.cn/'
+    : `http://localhost:8082/`;
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -25,11 +36,15 @@ module.exports = () => {
       port: 8082,
     },
     proxy,
-    dll: ['classnames'],
     webpack: {
       entry: [corejs, regenerator, './src/app.tsx'],
       output: {
+        path: BUILD_PATH,
         publicPath: isDev ? '/' : '/publicService/',
+        globalObject: 'window',
+        jsonpFunction: `webpackJsonp_${packageName}`,
+        library: `Database`,
+        libraryTarget: 'umd',
       },
       module: {
         rules: [
@@ -50,7 +65,18 @@ module.exports = () => {
           },
         ],
       },
-      plugins: [new CopyWebpackPlugin(copyConfig)],
+      plugins: [
+        new CopyWebpackPlugin(copyConfig),
+        new InsertHtmlPlugin(PUBLICPATH),
+        // new HtmlWebpackPlugin({
+        //   filename: 'index.html',
+        //   template: path.resolve(WEB_PUBLIC, `index.html`),
+        //   inject: 'body',
+        //   showErrors: true,
+        //   hash: true,
+        // }),
+      ],
+      devServer: {},
       externals: {
         APP_CONF: 'APP_CONF',
       },

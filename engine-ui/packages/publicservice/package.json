@@ -1,5 +1,5 @@
 {
-  "name": "dt-public-service-front",
+  "name": "public-service",
   "version": "4.3.0-beta1",
   "description": "public service",
   "license": "MIT",
@@ -10,7 +10,7 @@
     "check-types": "tsc --skipLibCheck",
     "dll": "ko dll",
     "dev": "ko dev -t",
-    "build": "rm -rf dist && ko build -t",
+    "build": "rm -rf dist && export NODE_ENV='production' && ko build -t",
     "swagger": "ko swagger -t",
     "prepare": "husky install",
     "test": "jest --coverage"
@@ -79,7 +79,7 @@
     "jest": "^26.6.3",
     "jest-canvas-mock": "^2.3.1",
     "jest-sonar-reporter": "2.0.0",
-    "ko-script": "4.25.10",
+    "ko-script": "4.25.11",
     "prettier": "^2.2.1",
     "redux-devtools-extension": "^2.13.8",
     "sonarqube-scanner": "2.5.0",

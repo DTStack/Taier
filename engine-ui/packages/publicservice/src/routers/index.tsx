@@ -1,9 +1,5 @@
 import React, { lazy, Suspense } from 'react';
-//import from dt-common
-import Main from 'dt-common/src/views';
-import MsgCenter from 'dt-common/src/views/message';
-import MsgList from 'dt-common/src/views/message/list';
-import MsgDetail from 'dt-common/src/views/message/detail';
+
 //custom components
 import Exception from '@/components/Exception';
 import Loading from '@/components/loading';
@@ -22,17 +18,14 @@ const createLazyRoute = (RouteComponent: any) => {
   };
 };
 
-const ModelList = createLazyRoute(lazy(() => import('pages/DataModel/List')));
-const ModelModify = createLazyRoute(
-  lazy(() => import('pages/DataModel/Modify'))
-);
-
 const DataSourceList = createLazyRoute(
   lazy(() => import('pages/DataSource/List'))
 );
+
 const AddSource = createLazyRoute(
   lazy(() => import('pages/DataSource/AddSource'))
 );
+
 const EditSource = createLazyRoute(
   lazy(() => import('pages/DataSource/EditSource'))
 );
@@ -40,57 +33,19 @@ const EditSource = createLazyRoute(
 export function getRoutes() {
   return [
     {
-      path: '/',
-      component: Main,
+      path: '/data-source',
       childRoutes: [
         {
-          path: '/message',
-          component: MsgCenter,
-          indexRoute: { component: MsgList },
-          childRoutes: [
-            {
-              path: 'list',
-              component: MsgList,
-            },
-            {
-              path: 'detail/:msgId',
-              component: MsgDetail,
-            },
-          ],
+          path: 'list',
+          component: DataSourceList,
         },
         {
-          path: '/data-model',
-          childRoutes: [
-            {
-              path: 'list',
-              component: ModelList,
-            },
-            {
-              path: 'add',
-              component: ModelModify,
-            },
-            {
-              path: 'edit/:id',
-              component: ModelModify,
-            },
-          ],
+          path: 'add',
+          component: AddSource,
         },
         {
-          path: '/data-source',
-          childRoutes: [
-            {
-              path: 'list',
-              component: DataSourceList,
-            },
-            {
-              path: 'add',
-              component: AddSource,
-            },
-            {
-              path: 'edit',
-              component: EditSource,
-            },
-          ],
+          path: 'edit',
+          component: EditSource,
         },
       ],
     },

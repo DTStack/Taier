@@ -4,8 +4,7 @@ import { Menu, notification } from 'antd';
 import { API } from '@/services';
 import { getSaveStatus } from '../utils/handelSession';
 import { useRef } from 'react';
-declare var APP_CONF: any;
-const IMG_URL = APP_CONF.IMG_URL || '';
+const IMG_URL = '';
 import _ from 'lodash';
 
 export default function SelectSource(props) {

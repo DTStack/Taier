@@ -8793,10 +8793,10 @@ ko-request@^1.3.7:
     qs "^6.9.4"
     whatwg-fetch "^3.4.0"
 
-ko-script@4.25.10:
-  version "4.25.10"
-  resolved "http://registry.npm.dtstack.com/ko-script/-/ko-script-4.25.10.tgz#ae0d27b8dee08ef76662f965c874e7dc5a49df64"
-  integrity sha1-rg0nuN7gjvdmYvllyHTn3FpJ32Q=
+ko-script@4.25.11:
+  version "4.25.11"
+  resolved "http://registry.npm.dtstack.com/ko-script/-/ko-script-4.25.11.tgz#630070608e4b429afb0ce55cbd7599909585d248"
+  integrity sha1-YwBwYI5LQpr7DOVcvXWZkJWF0kg=
   dependencies:
     "@kodesign/ko-babel-app" "^8.0.1"
     assets-webpack-plugin "^3.9.10"
