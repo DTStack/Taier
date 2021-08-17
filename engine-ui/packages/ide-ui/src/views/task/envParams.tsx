@@ -1,8 +1,9 @@
-import { MonacoEditor } from "molecule/esm/components";
-import { editor as monacoEditor, Uri } from "molecule/esm/monaco";
-import { useEffect, useRef } from "react";
-import { IEditor, IEditorTab } from "molecule/esm/model";
-import { ENV_PARAMS } from "../common/utils/const";
+import React from 'react';
+import { MonacoEditor } from 'molecule/esm/components';
+import { editor as monacoEditor, Uri } from 'molecule/esm/monaco';
+import { useEffect, useRef } from 'react';
+import { IEditor, IEditorTab } from 'molecule/esm/model';
+import { ENV_PARAMS } from '../common/utils/const';
 
 /**
  * [TODO]: [#231](https://github.com/DTStack/molecule/issues/231) will resolve this problems
@@ -44,65 +45,71 @@ job.priority=10
 # spark.yarn.executor.memoryOverhead`;
 
 const getUniqPath = (path: string) => {
-  return Uri.parse(`file://tab/${path}`);
+    return Uri.parse(`file://tab/${path}`);
 };
 
 interface IEnvParams extends IEditor {
-  onChange?: (tab: IEditorTab, value: string) => void;
+    onChange?: (tab: IEditorTab, value: string) => void;
 }
 
 export default ({ current, onChange }: IEnvParams) => {
-  const editorIns = useRef<IStandaloneCodeEditor>(null);
+    const editorIns = useRef<IStandaloneCodeEditor>(null);
 
-  useEffect(() => {
-    if (current && current.tab?.id !== "createTask") {
-      const model =
-        monacoEditor.getModel(getUniqPath(current.tab?.data.path)) ||
-        monacoEditor.createModel(
-          current.tab?.data.taskParams || defualt_sql_value,
-          "ini",
-          getUniqPath(current.tab?.data.path)
+    useEffect(() => {
+        if (current && current.tab?.id !== 'createTask') {
+            const model =
+                monacoEditor.getModel(getUniqPath(current.tab?.data.path)) ||
+                monacoEditor.createModel(
+                    current.tab?.data.taskParams || defualt_sql_value,
+                    'ini',
+                    getUniqPath(current.tab?.data.path)
+                );
+
+            editorIns.current?.setModel(model);
+        }
+    }, [current?.id && current.tab?.id]);
+
+    if (!current || !current.activeTab)
+        return (
+            <div style={{ textAlign: 'center', marginTop: 20 }}>
+                无法获取环境参数
+            </div>
         );
+    return (
+        <MonacoEditor
+            options={{
+                value: '',
+                language: 'ini',
+                automaticLayout: true,
+                minimap: {
+                    enabled: false,
+                },
+            }}
+            path={ENV_PARAMS}
+            editorInstanceRef={(editorInstance) => {
+                // This assignment will trigger moleculeCtx update, and subNodes update
+                editorIns.current = editorInstance;
 
-      editorIns.current?.setModel(model);
-    }
-  }, [current?.id && current.tab?.id]);
+                editorInstance.onDidChangeModelContent(() => {
+                    const currentValue = editorIns.current
+                        .getModel(getUniqPath(current.tab?.data.path))
+                        ?.getValue();
 
-  if (!current || !current.activeTab)
-    return <div style={{ textAlign: "center", marginTop: 20 }}>无法获取环境参数</div>;
-  return (
-    <MonacoEditor
-      options={{
-        value: "",
-        language: "ini",
-        automaticLayout: true,
-        minimap: {
-          enabled: false,
-        },
-      }}
-      path={ENV_PARAMS}
-      editorInstanceRef={(editorInstance) => {
-        // This assignment will trigger moleculeCtx update, and subNodes update
-        editorIns.current = editorInstance;
+                    onChange?.(current.tab!, currentValue);
+                });
 
-        editorInstance.onDidChangeModelContent(() => {
-          const currentValue = editorIns.current
-            .getModel(getUniqPath(current.tab?.data.path))
-            ?.getValue();
+                const model =
+                    monacoEditor.getModel(
+                        getUniqPath(current.tab?.data.path)
+                    ) ||
+                    monacoEditor.createModel(
+                        current.tab?.data.taskParams || defualt_sql_value,
+                        'ini',
+                        getUniqPath(current.tab?.data.path)
+                    );
 
-          onChange?.(current.tab!, currentValue);
-        });
-
-        const model =
-          monacoEditor.getModel(getUniqPath(current.tab?.data.path)) ||
-          monacoEditor.createModel(
-            current.tab?.data.taskParams || defualt_sql_value,
-            "ini",
-            getUniqPath(current.tab?.data.path)
-          );
-
-        editorInstance.setModel(model);
-      }}
-    />
-  );
+                editorInstance.setModel(model);
+            }}
+        />
+    );
 };

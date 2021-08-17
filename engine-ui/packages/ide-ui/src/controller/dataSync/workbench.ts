@@ -1,16 +1,14 @@
-import assign from 'object-assign'
-import { cloneDeep, isArray } from 'lodash'
+import assign from 'object-assign';
+import { cloneDeep, isArray } from 'lodash';
 
-import { offlineWorkbenchDB as idb } from '../database'
+import { offlineWorkbenchDB as idb } from '../database';
 
-import {
-    workbenchAction
-} from './actionType'
-import { PROJECT_KEY } from '../../comm/const'
+import { workbenchAction } from './actionType';
+import { PROJECT_KEY } from '../../comm/const';
 
 const getProjectId = () => {
-    return sessionStorage.getItem(PROJECT_KEY)
-}
+    return sessionStorage.getItem(PROJECT_KEY);
+};
 
 export const getWorkbenchInitialState = () => {
     return {
@@ -18,49 +16,52 @@ export const getWorkbenchInitialState = () => {
         currentTab: undefined,
         isCurrentTabNew: undefined,
         taskCustomParams: [],
-        showPanel: true
-    }
-}
+        showPanel: true,
+    };
+};
 
-export const workbenchReducer = (state = getWorkbenchInitialState(), action: any) => {
-    let nextState: any
+export const workbenchReducer = (
+    state = getWorkbenchInitialState(),
+    action: any
+) => {
+    let nextState: any;
 
     // 按原有逻辑读取项目信息，最好还是通过Action传递，由于对老代码业务逻辑有影响，
-    const projectID = getProjectId()
+    const projectID = getProjectId();
 
     switch (action.type) {
         case workbenchAction.LOAD_TASK_DETAIL: {
-            const tab = action.payload
-            const index = state.tabs.findIndex((t: any) => t.id === tab.id)
+            const tab = action.payload;
+            const index = state.tabs.findIndex((t: any) => t.id === tab.id);
             if (index > -1) {
-                const newTabs: any = [...state.tabs]
-                newTabs[index] = tab
+                const newTabs: any = [...state.tabs];
+                newTabs[index] = tab;
                 nextState = assign({}, state, {
                     tabs: newTabs,
-                    currentTab: tab.id
-                })
+                    currentTab: tab.id,
+                });
             } else {
                 nextState = assign({}, state, {
                     tabs: [...state.tabs, tab],
-                    currentTab: tab.id
-                })
+                    currentTab: tab.id,
+                });
             }
-            break
+            break;
         }
 
         case workbenchAction.LOAD_TASK_CUSTOM_PARAMS: {
-            const data = action.payload
+            const data = action.payload;
             nextState = assign({}, state, {
-                taskCustomParams: data
-            })
-            break
+                taskCustomParams: data,
+            });
+            break;
         }
 
         case workbenchAction.OPEN_TASK_TAB: {
-            const tabId = action.payload
+            const tabId = action.payload;
 
-            nextState = assign({}, state, { currentTab: tabId })
-            break
+            nextState = assign({}, state, { currentTab: tabId });
+            break;
         }
 
         // case workbenchAction.CLOSE_TASK_TAB: {
@@ -81,46 +82,48 @@ export const workbenchReducer = (state = getWorkbenchInitialState(), action: any
         // }
 
         case workbenchAction.CLOSE_ALL_TABS: {
-            const clone = cloneDeep(state)
+            const clone = cloneDeep(state);
 
-            clone.tabs = []
-            clone.currentTab = undefined
+            clone.tabs = [];
+            clone.currentTab = undefined;
 
-            nextState = clone
-            break
+            nextState = clone;
+            break;
         }
 
         case workbenchAction.CLOSE_OTHER_TABS: {
-            const tabId = action.payload
-            const clone = cloneDeep(state)
+            const tabId = action.payload;
+            const clone = cloneDeep(state);
 
             clone.tabs = clone.tabs.filter((tab: any) => {
-                return tab.id === tabId
-            })
+                return tab.id === tabId;
+            });
 
-            nextState = clone
-            break
+            nextState = clone;
+            break;
         }
 
         case workbenchAction.CHANGE_SCHEDULE_CONF: {
-            const newConf = action.payload
+            const newConf = action.payload;
 
-            newConf.beginDate = newConf.beginDate && newConf.beginDate.format
-                ? newConf.beginDate.format('YYYY-MM-DD')
-                : newConf.beginDate
+            newConf.beginDate =
+                newConf.beginDate && newConf.beginDate.format
+                    ? newConf.beginDate.format('YYYY-MM-DD')
+                    : newConf.beginDate;
 
-            newConf.endDate = newConf.endDate && newConf.endDate.format
-                ? newConf.endDate.format('YYYY-MM-DD')
-                : newConf.endDate
+            newConf.endDate =
+                newConf.endDate && newConf.endDate.format
+                    ? newConf.endDate.format('YYYY-MM-DD')
+                    : newConf.endDate;
 
             if (newConf.weekDay && isArray(newConf.weekDay)) {
-                newConf.weekDay = newConf.weekDay.join(',')
+                newConf.weekDay = newConf.weekDay.join(',');
             }
             if (newConf.day && isArray(newConf.day)) {
-                newConf.day = newConf.day.join(',')
+                newConf.day = newConf.day.join(',');
             }
 
-            const clone = cloneDeep(state)
+            const clone = cloneDeep(state);
             // clone.tabs = clone.tabs.map((tab: any) => {
             //     if (tab.id === clone.currentTab) {
             //         tab.scheduleConf = JSON.stringify(newConf);
@@ -131,14 +134,14 @@ export const workbenchReducer = (state = getWorkbenchInitialState(), action: any
             //     }
             // });
 
-            nextState = clone
-            break
+            nextState = clone;
+            break;
         }
 
         case workbenchAction.CHANGE_SCHEDULE_STATUS: {
-            const status = action.payload
+            const status = action.payload;
 
-            const clone = cloneDeep(state)
+            const clone = cloneDeep(state);
             // clone.tabs = clone.tabs.map((tab: any) => {
             //     if (tab.id === clone.currentTab) {
             //         tab.scheduleStatus = status;
@@ -149,14 +152,14 @@ export const workbenchReducer = (state = getWorkbenchInitialState(), action: any
             //     }
             // });
 
-            nextState = clone
-            break
+            nextState = clone;
+            break;
         }
 
         case workbenchAction.CHANGE_TASK_SUBMITSTATUS: {
-            const submitStatus = action.payload
+            const submitStatus = action.payload;
 
-            const clone = cloneDeep(state)
+            const clone = cloneDeep(state);
             // clone.tabs = clone.tabs.map((tab: any) => {
             //     if (tab.id === clone.currentTab) {
             //         tab.submitStatus = submitStatus;
@@ -167,13 +170,13 @@ export const workbenchReducer = (state = getWorkbenchInitialState(), action: any
             //     }
             // });
 
-            nextState = clone
-            break
+            nextState = clone;
+            break;
         }
 
         case workbenchAction.ADD_VOS: {
-            const newVOS = action.payload
-            const clone = cloneDeep(state)
+            const newVOS = action.payload;
+            const clone = cloneDeep(state);
 
             // debugger;
             // clone.tabs = clone.tabs.map((tab: any) => {
@@ -201,13 +204,13 @@ export const workbenchReducer = (state = getWorkbenchInitialState(), action: any
             //     }
             // });
 
-            nextState = clone
-            break
+            nextState = clone;
+            break;
         }
 
         case workbenchAction.DEL_VOS: {
-            const id = action.payload
-            const clone = cloneDeep(state)
+            const id = action.payload;
+            const clone = cloneDeep(state);
 
             // clone.tabs = clone.tabs.map((tab: any) => {
             //     if (tab.id === clone.currentTab) {
@@ -221,14 +224,14 @@ export const workbenchReducer = (state = getWorkbenchInitialState(), action: any
             //     }
             // });
 
-            nextState = clone
-            break
+            nextState = clone;
+            break;
         }
 
         // 修改任务属性
         case workbenchAction.SET_TASK_FIELDS_VALUE: {
-            const obj = action.payload
-            const clone = cloneDeep(state)
+            const obj = action.payload;
+            const clone = cloneDeep(state);
 
             // clone.tabs = clone.tabs.map((tab: any) => {
             //     if (tab.id === clone.currentTab) {
@@ -251,13 +254,13 @@ export const workbenchReducer = (state = getWorkbenchInitialState(), action: any
             //     }
             // });
 
-            nextState = clone
-            break
+            nextState = clone;
+            break;
         }
 
         case workbenchAction.UPDATE_TASK_TAB: {
-            const obj = action.payload
-            const clone = cloneDeep(state)
+            const obj = action.payload;
+            const clone = cloneDeep(state);
 
             // clone.tabs = clone.tabs.map((tab: any) => {
             //     if (tab.id === obj.id) {
@@ -277,13 +280,13 @@ export const workbenchReducer = (state = getWorkbenchInitialState(), action: any
             //     }
             //     return tab;
             // });
-            nextState = clone
-            break
+            nextState = clone;
+            break;
         }
 
         // 修改任务属性(代码编辑器)
         case workbenchAction.SET_TASK_FIELDS_VALUE_SILENT: {
-            const obj = action.payload
+            const obj = action.payload;
 
             // 故意不走immutable, 避免编辑器rerender导致光标回零
             // state.tabs = state.tabs.map((tab: any) => {
@@ -296,14 +299,14 @@ export const workbenchReducer = (state = getWorkbenchInitialState(), action: any
             //     }
             // });
 
-            nextState = state
-            break
+            nextState = state;
+            break;
         }
 
         // 设置SQL
         case workbenchAction.SET_TASK_SQL_FIELD_VALUE: {
-            const obj = action.payload
-            const clone = cloneDeep(state)
+            const obj = action.payload;
+            const clone = cloneDeep(state);
 
             // clone.tabs = clone.tabs.map((tab: any) => {
             //     if (tab.id === clone.currentTab) {
@@ -315,44 +318,46 @@ export const workbenchReducer = (state = getWorkbenchInitialState(), action: any
             //     }
             // });
 
-            nextState = clone
-            break
+            nextState = clone;
+            break;
         }
 
         // 新建的dataSync任务标记
         case workbenchAction.SET_CURRENT_TAB_NEW: {
             nextState = assign({}, state, {
-                isCurrentTabNew: true
-            })
-            break
+                isCurrentTabNew: true,
+            });
+            break;
         }
 
         case workbenchAction.SET_CURRENT_TAB_SAVED: {
             nextState = assign({}, state, {
-                isCurrentTabNew: undefined
-            })
-            break
+                isCurrentTabNew: undefined,
+            });
+            break;
         }
 
         case workbenchAction.SAVE_DATASYNC_TO_TAB: {
-            const index = state.tabs.findIndex((t: any) => t.id === action.payload.id)
-            const newTabs: any = [...state.tabs]
-            const data = action.payload.data ? action.payload.data : {}
+            const index = state.tabs.findIndex(
+                (t: any) => t.id === action.payload.id
+            );
+            const newTabs: any = [...state.tabs];
+            const data = action.payload.data ? action.payload.data : {};
 
             if (index > -1) {
-                newTabs[index].dataSyncSaved = data
+                newTabs[index].dataSyncSaved = data;
                 nextState = assign({}, state, {
-                    tabs: newTabs
-                })
+                    tabs: newTabs,
+                });
             } else {
-                nextState = state
+                nextState = state;
             }
 
-            break
+            break;
         }
 
         case workbenchAction.MAKE_TAB_DIRTY: {
-            const clone = cloneDeep(state)
+            const clone = cloneDeep(state);
 
             // clone.tabs = clone.tabs.map((tab: any) => {
             //     if (tab.id === clone.currentTab) {
@@ -363,12 +368,12 @@ export const workbenchReducer = (state = getWorkbenchInitialState(), action: any
             //     }
             // });
 
-            nextState = clone
-            break
+            nextState = clone;
+            break;
         }
 
         case workbenchAction.MAKE_TAB_CLEAN: {
-            const clone = cloneDeep(state)
+            const clone = cloneDeep(state);
 
             // clone.tabs = clone.tabs.map((tab: any) => {
             //     if (tab.id === clone.currentTab) {
@@ -379,20 +384,20 @@ export const workbenchReducer = (state = getWorkbenchInitialState(), action: any
             //     }
             // });
 
-            nextState = clone
-            break
+            nextState = clone;
+            break;
         }
 
         case workbenchAction.INIT_WORKBENCH: {
             if (action.payload) {
-                return action.payload
+                return action.payload;
             }
-            nextState = state
-            break
+            nextState = state;
+            break;
         }
         default: {
-            nextState = state
-            break
+            nextState = state;
+            break;
         }
     }
 
@@ -403,9 +408,9 @@ export const workbenchReducer = (state = getWorkbenchInitialState(), action: any
     if (projectID && nextState && nextState.currentTab !== undefined) {
         idb.open().then((db) => {
             if (db) {
-                idb.set(`${projectID}_offline_workbench`, nextState)
+                idb.set(`${projectID}_offline_workbench`, nextState);
             }
-        })
+        });
     }
-    return nextState
-}
+    return nextState;
+};

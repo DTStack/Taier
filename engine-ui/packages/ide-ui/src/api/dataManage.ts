@@ -1,6 +1,6 @@
-import http from "./http";
-import dataManageReq from "./reqDataManage";
-import req from "./req";
+import http from './http';
+import dataManageReq from './reqDataManage';
+import req from './req';
 
 export default {
     // ============== dataManage 数据管理 ==================
@@ -65,7 +65,7 @@ export default {
         return http.post(dataManageReq.DELETE_BY_IDS, params);
     },
     importLocalData(params: any) {
-    // 导入本地数据
+        // 导入本地数据
         return http.postAsFormData(dataManageReq.UPLOAD_TABLE_DATA, params);
     },
     applyTable(params: any) {
@@ -134,7 +134,7 @@ export default {
         return http.post(dataManageReq.GET_DIRTY_DATA_TABLES, params);
     },
     getPubSyncTask(params: any) {
-    // 导入本地数据
+        // 导入本地数据
         return http.post(dataManageReq.GET_PUB_SYNC_TASK, params);
     },
     getDirtyDataTableInfo(params: any) {
@@ -263,5 +263,5 @@ export default {
     },
     delRule(params: any) {
         return http.post(dataManageReq.DEL_RULE, params);
-    }
+    },
 };
