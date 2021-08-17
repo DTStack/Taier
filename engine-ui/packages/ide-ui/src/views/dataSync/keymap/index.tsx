@@ -1696,7 +1696,14 @@ class Keymap extends React.Component<any, any> {
 const mapState = (state: any) => {
     const { dataSync } = state.dataSync
     return {
-        ...dataSync
+        ...dataSync,
+        targetCol: dataSync.targetMap.column || [],
+        targetSrcType: dataSync.targetMap.type && dataSync.targetMap.type.type, // 目标数据源类型
+        targetFileType: dataSync.sourceMap.type && dataSync.targetMap.type?.fileType,
+        isNativeHive: dataSync.targetMap.isNativeHive,
+        sourceCol: dataSync.sourceMap.column || [],
+        sourceSrcType: dataSync.sourceMap.type && dataSync.sourceMap.type.type, // 源头数据源类型
+        sourceFileType: dataSync.sourceMap.type && dataSync.sourceMap.type.fileType,
     }
 }
 

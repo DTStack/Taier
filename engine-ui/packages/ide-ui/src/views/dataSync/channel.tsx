@@ -244,7 +244,7 @@ class ChannelForm extends React.Component<any, any> {
                             )}
                             <span style={{ float: 'left' }}>
                                 条, 任务自动结束
-                            <HelpDoc
+                                <HelpDoc
                                     doc="errorCount"
                                 />
                             </span>
@@ -255,7 +255,7 @@ class ChannelForm extends React.Component<any, any> {
                         >
                             <span style={{ float: 'left' }}>
                                 任务执行结束后，统计错误记录占比，大于
-                        </span>
+                            </span>
                             {getFieldDecorator('percentage', {
                                 rules: [],
                                 initialValue: setting.percentage
@@ -266,7 +266,7 @@ class ChannelForm extends React.Component<any, any> {
                             )}
                             <span style={{ float: 'left' }}>
                                 %时，任务置为失败
-                        </span>
+                            </span>
                             <HelpDoc
                                 doc="errorPercentConfig"
                             />
@@ -334,7 +334,7 @@ class Channel extends React.Component<any, any> {
 }
 
 const mapState = (state: any) => {
-    const { dataSync } = state.offlineTask;
+    const { dataSync } = state.dataSync;
     const { setting, targetMap, sourceMap } = dataSync;
 
     return { setting, targetMap, sourceMap, dataSync };

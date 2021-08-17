@@ -907,13 +907,13 @@
 
             .m-col {
                 border-bottom: 1px dotted #ccc;
-                background: #eee;
+                background: var(--badge-background);
                 line-height: 40px;
                 &.title {
-                    background: #ddd;
+                    background: var(--badge-background);
                 }
                 &.footer {
-                    background: #eee;
+                    background: var(--badge-background);
                 }
                 .cell {
                     float: left;
@@ -1216,7 +1216,7 @@
         bottom: 0px;
         right: 0px;
         z-index: 3;
-        background: rgba(255, 255, 255, 0.4);
+        background: rgba(0, 0, 0, 0.45);
         cursor: not-allowed;
     }
     .ant-form-item-children{

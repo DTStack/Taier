@@ -10,8 +10,6 @@ import {
     message,
     Row,
     Col,
-    Tooltip,
-    Checkbox,
     Spin,
     AutoComplete
 } from 'antd'
@@ -41,8 +39,6 @@ import {
     RDB_TYPE_ARRAY
 } from '../../comm/const'
 
-import BatchSelect from './batchSelect'
-
 const FormItem = Form.Item
 const Option: any = Select.Option
 const TextArea = Input.TextArea
@@ -60,7 +56,6 @@ class SourceForm extends React.Component<any, any> {
             tablePartitionList: [], // 表分区列表
             incrementColumns: [], // 增量字段
             loading: false, // 请求
-            isChecked: {}, // checkbox默认是否选中
             isShowImpala: false,
             tableListSearch: {},
             schemaList: [], // schema数据
@@ -178,9 +173,6 @@ class SourceForm extends React.Component<any, any> {
         }
 
         this.isMysqlTable = sourceMap.type?.type === DATA_SOURCE.MYSQL
-
-        // 保证不同mySql类型表切换是批量选择出现的数据错误问题
-        this.state.isChecked[sourceMap.sourceId] && this.setState((preState: any) => ({ isChecked: { ...preState.isChecked, ...{ [sourceMap.sourceId]: !preState.isChecked[sourceMap.sourceId] } } }))
         const { tableListSearch, tableListMap } = this.state
         this.setState(
             {
@@ -978,17 +970,6 @@ class SourceForm extends React.Component<any, any> {
         })
     }
 
-    // sourceKey 用在isChecked中来判断具体是哪一个sourceId已选中
-    handleCheckboxChange = (sourceKey: any, event: any) => {
-        const { isChecked } = this.state
-        const target = event.target
-        const value = target.type === 'checkbox' ? target.checked : target.value // 拿到布尔值
-        this.setState({
-            isChecked: { ...isChecked, ...{ [sourceKey]: value } }
-        })
-        // this.props.form.setFieldsValue({ table: this.props.sourceMap.type.table, [`extTable.${sourceKey}`]: this.props.sourceMap.type.extTable[sourceKey] });
-    }
-
     // sourceKey 为需要向redux处理的其他数据源的key值，构造action数据
     // selectKey 为穿梭框选中的数据
     handleSelectFinishFromBatch = (selectKey: any, type: any, sourceKey: any) => {
@@ -1000,7 +981,7 @@ class SourceForm extends React.Component<any, any> {
     }
 
     renderDynamicForm = () => {
-        const { selectHack, isChecked, tableListMap, tableListSearch, schemaList, kingbaseId, schemaId, fetching } = this.state
+        const { selectHack, tableListMap, tableListSearch, schemaList, kingbaseId, schemaId, fetching } = this.state
         const { sourceMap, isIncrementMode, form } = this.props
         const { getFieldDecorator, getFieldValue } = form
         const getPopupContainer = this.props.getPopupContainer
@@ -1035,8 +1016,7 @@ class SourceForm extends React.Component<any, any> {
                                     initialValue: tableValue
                                 })(
                                     <Select
-                                        style={{ display: isChecked[sourceMap.sourceId] ? 'none' : 'block' }}
-                                        disabled={this.isMysqlTable && isChecked[sourceMap.sourceId]}
+                                        disabled={this.isMysqlTable}
                                         getPopupContainer={getPopupContainer}
                                         mode={'multiple'}
                                         showSearch
@@ -1084,46 +1064,7 @@ class SourceForm extends React.Component<any, any> {
                                         </Option>
                                     </Select>
                                 )}
-                                {
-                                    (this.isMysqlTable && isChecked[sourceMap.sourceId])
-                                        ? (
-                                            <Row>
-                                                <Col>
-                                                    <BatchSelect sourceMap={sourceMap} key={tableValue} tabData={tableListMap[sourceMap.sourceId]} handleSelectFinish={this.handleSelectFinishFromBatch} />
-                                                </Col>
-                                            </Row>
-                                        )
-                                        : null
-                                }
-                                {
-                                    isChecked[sourceMap.sourceId]
-                                        ? null
-                                        : (
-                                            supportSubLibrary && (
-                                                <Tooltip title="此处可以选择多表，请保证它们的表结构一致">
-                                                    <Icon
-                                                        className="help-doc"
-                                                        type="question-circle-o"
-                                                    />
-                                                </Tooltip>
-                                            )
-                                        )
-                                }
                             </FormItem>
-                            <Row className="form-item-follow-text">
-                                <Col
-                                    style={{ textAlign: 'right', fontSize: '13PX' }}
-                                    span={formItemLayout.wrapperCol.sm.span}
-                                    offset={formItemLayout.labelCol.sm.span}
-                                >
-                                    {/* 选择一张或多张表，选择多张表时，请保持它们的表结构一致，大批量选择，可以 */}
-                                    <Checkbox name='isChecked' onChange={(event: any) => { this.handleCheckboxChange(sourceMap.sourceId, event) }} checked={isChecked[sourceMap.sourceId]} >
-                                        <a {...{ disabled: sourceMap.sourceId === null }}>
-                                            批量选择
-                                        </a>
-                                    </Checkbox>
-                                </Col>
-                            </Row>
                         </div>
                     ) : null,
                     <FormItem {...formItemLayout} label="数据过滤" key="where">
@@ -1244,8 +1185,7 @@ class SourceForm extends React.Component<any, any> {
                                     initialValue: tableValue
                                 })(
                                     <Select
-                                        style={{ display: isChecked[sourceMap.sourceId] ? 'none' : 'block' }}
-                                        disabled={this.isMysqlTable && isChecked[sourceMap.sourceId]}
+                                        disabled={this.isMysqlTable}
                                         getPopupContainer={getPopupContainer}
                                         mode={'combobox'}
                                         showSearch
@@ -1398,8 +1338,6 @@ class SourceForm extends React.Component<any, any> {
                                         initialValue: tableValue
                                     })(
                                         <Select
-                                            style={{ display: isChecked[sourceMap.sourceId] ? 'none' : 'block' }}
-                                            disabled={isChecked[sourceMap.sourceId]}
                                             getPopupContainer={getPopupContainer}
                                             mode={'multiple'}
                                             showSearch
@@ -1433,31 +1371,6 @@ class SourceForm extends React.Component<any, any> {
                                             })}
                                         </Select>
                                     )}
-                                    {
-                                        (this.isMysqlTable && isChecked[sourceMap.sourceId])
-                                            ? (
-                                                <Row>
-                                                    <Col>
-                                                        <BatchSelect sourceMap={sourceMap} key={tableValue} tabData={tableListMap[sourceMap.sourceId]} handleSelectFinish={this.handleSelectFinishFromBatch} />
-                                                    </Col>
-                                                </Row>
-                                            )
-                                            : null
-                                    }
-                                    {
-                                        isChecked[sourceMap.sourceId]
-                                            ? null
-                                            : (
-                                                supportSubLibrary && (
-                                                    <Tooltip title="此处可以选择多表，请保证它们的表结构一致">
-                                                        <Icon
-                                                            className="help-doc"
-                                                            type="question-circle-o"
-                                                        />
-                                                    </Tooltip>
-                                                )
-                                            )
-                                    }
                                 </FormItem>
                                     : <FormItem {...formItemLayout} label={this.isMysqlTable ? '表名(批量)' : '表名'} key="rdbtable">
                                         {getFieldDecorator('table', {
@@ -1470,8 +1383,7 @@ class SourceForm extends React.Component<any, any> {
                                             initialValue: tableValue
                                         })(
                                             <Select
-                                                style={{ display: isChecked[sourceMap.sourceId] ? 'none' : 'block' }}
-                                                disabled={this.isMysqlTable && isChecked[sourceMap.sourceId]}
+                                                disabled={this.isMysqlTable}
                                                 getPopupContainer={getPopupContainer}
                                                 mode={'combobox'}
                                                 showSearch
@@ -1481,7 +1393,6 @@ class SourceForm extends React.Component<any, any> {
                                                     this,
                                                     sourceMap.type.type
                                                 )}
-                                                // onBlur={()=>this.changeTable(sourceMap.type?.type, getFieldValue("table"))}
                                                 optionFilterProp="value"
                                                 filterOption={filterValueOption}
                                             >
@@ -1500,36 +1411,7 @@ class SourceForm extends React.Component<any, any> {
                                                     })}
                                             </Select>
                                         )}
-                                        {
-                                            (this.isMysqlTable && isChecked[sourceMap.sourceId])
-                                                ? (
-                                                    <Row>
-                                                        <Col>
-                                                            <BatchSelect sourceMap={sourceMap} key={tableValue} tabData={tableListMap[sourceMap.sourceId]} handleSelectFinish={this.handleSelectFinishFromBatch} />
-                                                        </Col>
-                                                    </Row>
-                                                )
-                                                : null
-                                        }
                                     </FormItem>
-                            }
-                            {
-                                this.isMysqlTable ? (
-                                    <Row className="form-item-follow-text">
-                                        <Col
-                                            style={{ textAlign: 'right', fontSize: '13PX' }}
-                                            span={formItemLayout.wrapperCol.sm.span}
-                                            offset={formItemLayout.labelCol.sm.span}
-                                        >
-                                            {/* 选择一张或多张表，选择多张表时，请保持它们的表结构一致，大批量选择，可以 */}
-                                            <Checkbox name='isChecked' onChange={(event: any) => { this.handleCheckboxChange(sourceMap.sourceId, event) }} checked={isChecked[sourceMap.sourceId]} >
-                                                <a {...{ disabled: sourceMap.sourceId === null }}>
-                                                    批量选择
-                                                </a>
-                                            </Checkbox>
-                                        </Col>
-                                    </Row>
-                                ) : null
                             }
                         </div>
                     ) : null,
