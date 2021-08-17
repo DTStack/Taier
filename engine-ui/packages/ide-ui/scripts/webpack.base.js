@@ -20,8 +20,9 @@ module.exports = {
             )
         },
         fallback: {
-            fs: false
-        }
+            fs: false,
+            process: false,
+        },
     },
     entry: {
         app: path.resolve(__dirname, '../src/index.tsx'),
