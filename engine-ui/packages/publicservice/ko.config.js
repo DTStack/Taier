@@ -4,7 +4,7 @@ const regenerator = require.resolve('regenerator-runtime/runtime');
 const proxy = require('./config');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HAPPY_PACK = require.resolve('happypack/loader');
-const InsertHtmlPlugin = require('./plugins/version-webpack-plugin');
+const InsertHtmlPlugin = require('./plugins/insert-html-webpack-plugin');
 
 const BASE_NAME = process.env.BASE_NAME || '/database/'; // 资源目录 默认访问路径
 const ROOT_PATH = path.resolve(__dirname, './');
@@ -13,9 +13,9 @@ const BUILD_PATH = path.resolve(ROOT_PATH, `dist${BASE_NAME}`);
 const packageName = require('./package.json').name;
 const PUBLICPATH =
   process.env.NODE_ENV === 'production'
-    ? 'http://schedule.dtstack.cn/'
-    : `http://localhost:8082/`;
-
+    ? 'http://schedule.dtstack.cn/database'
+    : `http://localhost:8082`;
+// http://localhost:8082/assets/imgs/SparkThrift.png
 const isDev = process.env.NODE_ENV === 'development';
 
 const copyConfig = [
@@ -63,18 +63,20 @@ module.exports = () => {
               id: 'happy-babel-ts',
             },
           },
+          {
+            test: /\.(png|jpe?g|gif|webp|woff2?|eot|ttf|otf)$/i,
+            use: [
+              {
+                loader: 'url-loader',
+                options: {},
+              },
+            ],
+          },
         ],
       },
       plugins: [
         new CopyWebpackPlugin(copyConfig),
-        new InsertHtmlPlugin(PUBLICPATH),
-        // new HtmlWebpackPlugin({
-        //   filename: 'index.html',
-        //   template: path.resolve(WEB_PUBLIC, `index.html`),
-        //   inject: 'body',
-        //   showErrors: true,
-        //   hash: true,
-        // }),
+        new InsertHtmlPlugin({ addCode: PUBLICPATH }),
       ],
       devServer: {},
       externals: {
