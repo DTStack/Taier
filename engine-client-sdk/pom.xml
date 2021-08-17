@@ -7,7 +7,7 @@
     <packaging>jar</packaging>
     <groupId>com.dtstack.engine</groupId>
     <artifactId>sdk-engine-client</artifactId>
-    <version>4.2.12-SNAPSHOT</version>
+    <version>4.2.13-RELEASE</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
