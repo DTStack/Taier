@@ -21,6 +21,7 @@ module.exports = {
         },
         fallback: {
             fs: false,
+            process: false,
         },
     },
     entry: {
