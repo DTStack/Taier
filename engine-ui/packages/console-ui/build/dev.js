@@ -50,7 +50,7 @@ const devServer = Object.assign(
     {
         hot: true, // 开启服务器的模块热替换
         host: "0.0.0.0",
-        port: 8080,
+        port: 8082,
         historyApiFallback: true,
         disableHostCheck: true,
         quiet: true,

@@ -3,7 +3,7 @@ const ProxyReq = require('./proxyMiddleware');
 
 module.exports = {
     server: {
-        port: 8080,
+        port: 8082,
         host: '0.0.0.0',
         proxy: {
             '/uic': { // UIC地址

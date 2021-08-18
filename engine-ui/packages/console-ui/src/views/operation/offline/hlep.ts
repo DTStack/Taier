@@ -44,7 +44,7 @@ export function goToTaskDev (record: any) {
  * @param {*} targetField
  * @param {*} replaceName
  */
- export function replaceObjectArrayFiledName (data: any, targetField: any, replaceName: any) {
+export function replaceObjectArrayFiledName (data: any, targetField: any, replaceName: any) {
     data && data.map((item: any) => {
         if (item[targetField] && item[targetField].length > 0) {
             item[replaceName] = [...item[targetField]];
@@ -57,7 +57,7 @@ export function goToTaskDev (record: any) {
 /**
  * 先序遍历树
  */
- export function visitTree (tree: any[], callback: (node: any, level: number) => void, subKey: string = 'subTaskVOS', level: number = 0) {
+export function visitTree (tree: any[], callback: (node: any, level: number) => void, subKey: string = 'subTaskVOS', level: number = 0) {
     if (!tree) {
         return;
     }
@@ -71,7 +71,7 @@ export function goToTaskDev (record: any) {
 /**
  * 从document.body 隐藏 mxGraph 所产生的的tooltip
  */
- export const removeToolTips = () => {
+export const removeToolTips = () => {
     const remove = () => {
         const tips = document.querySelectorAll('.mxTooltip');
         if (tips) {

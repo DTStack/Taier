@@ -196,7 +196,7 @@ class PatchDataList extends React.Component<any, any> {
                 width: 300,
                 render: (text: any, record: any) => {
                     return <Link to={{
-                        pathname: '/operation/task-patch-data/detail',
+                        pathname: '/operation-ui/task-patch-data/detail',
                         state: { fillJobName: text, appType, projectId: record.projectId }
                     }}>{text}</Link>;
                 }

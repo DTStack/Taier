@@ -133,7 +133,7 @@ class PatchData extends React.Component<any, any> {
             content: '补数据任务已在执行中，点击下方按钮查看结果',
             onOk () {
                 hashHistory.push({
-                    pathname: `/operation/task-patch-data/detail`,
+                    pathname: `/operation-ui/task-patch-data/detail`,
                     state: params
                 })
             },

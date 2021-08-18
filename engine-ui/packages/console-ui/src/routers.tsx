@@ -35,7 +35,7 @@ export default (
             <Route path='alarmChannel/alarmRule' component={AlarmRule} />
             <Route path='alarmChannel/AlarmConfig' component={AlarmConfig} />
         </Route>
-        <Route path="/operation" component={Operation} onEnter={isSelectedProject}>
+        <Route path="/operation-ui" component={Operation} onEnter={isSelectedProject}>
             <IndexRoute component={OpeOfflineTaskMana} />
             <Route path="offline-management" component={OpeOfflineTaskMana} />
             <Route path="offline-operation" component={OpeOfflineList} />

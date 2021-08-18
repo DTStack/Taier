@@ -74,7 +74,7 @@ class PatchDataDetail extends React.Component<any, any> {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
-            hashHistory.push('/operation/task-patch-data'); // 直接跳转到补数据列表页
+            hashHistory.push('/operation-ui/task-patch-data'); // 直接跳转到补数据列表页
         }
     }
     getTaskTypesX = () => {
@@ -723,7 +723,7 @@ class PatchDataDetail extends React.Component<any, any> {
                 <div style={{ margin: '12px 20px' }}>
                     <Breadcrumb>
                         <Breadcrumb.Item>
-                            <a href="/console/#/operation/task-patch-data">补数据实例</a>
+                            <a href="/console/#/operation-ui/task-patch-data">补数据实例</a>
                         </Breadcrumb.Item>
                         <Breadcrumb.Item>{fillJobName}</Breadcrumb.Item>
                     </Breadcrumb>

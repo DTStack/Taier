@@ -62,7 +62,7 @@ export default class Sidebar extends React.Component<any, StateStandard> {
     };
 
     render () {
-        const base = '/operation'
+        const base = '/operation-ui'
         const { collapsed, mode } = this.state
         return (
             <Layout className="sidebar m-ant-menu">

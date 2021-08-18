@@ -199,7 +199,7 @@ class TaskFlowView extends React.Component<any, any> {
                     // })
                     if (!isWorkflowNode) {
                         menu.addItem('查看实例', null, function () {
-                            hashHistory.push(`/operation/offline-operation?job=${currentNode.name}`)
+                            hashHistory.push(`/operation-ui/offline-operation?job=${currentNode.name}`)
                         })
                     }
                 }
