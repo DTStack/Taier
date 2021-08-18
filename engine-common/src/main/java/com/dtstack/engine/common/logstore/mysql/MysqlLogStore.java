@@ -201,7 +201,7 @@ public class MysqlLogStore extends AbstractLogStore {
             while (resultSet.next()) {
                 Timestamp gmtModified = resultSet.getTimestamp("gmt_modified");
                 if (gmtModified.getTime() < System.currentTimeMillis() - TIMEOUT){
-                    batchUpdateJobTimeOutById(UPDATE_TIME_OUT_TO_FAIL_SQL, Collections.singletonList(resultSet.getLong("id")),connection);
+                    batchExecuteJobTimeOutById(UPDATE_TIME_OUT_TO_FAIL_SQL, Collections.singletonList(resultSet.getLong("id")),connection);
                 }
                 return resultSet.getInt("status");
             }
@@ -279,7 +279,8 @@ public class MysqlLogStore extends AbstractLogStore {
                         break;
                     }
 
-                    updateStmt=batchUpdateJobTimeOutById(dealSql, ids, connection);
+                    updateStmt= batchExecuteJobTimeOutById(dealSql, ids, connection);
+                    LOG.info("deal SQL:{} affect ids:{}", dealSql, ids);
                 } catch (SQLException e) {
                     LOG.error("", e);
                     break;
@@ -334,7 +335,7 @@ public class MysqlLogStore extends AbstractLogStore {
         return 0L;
     }
 
-    private PreparedStatement batchUpdateJobTimeOutById(String sql,List<Long> ids,Connection connection)
+    private PreparedStatement batchExecuteJobTimeOutById(String sql, List<Long> ids, Connection connection)
             throws SQLException {
         StringBuilder prepareStatementSql = new StringBuilder(sql);
         prepareStatementSql.append(" (");
