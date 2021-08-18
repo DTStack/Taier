@@ -1,6 +1,5 @@
 import * as React from 'react'
-import { Form, Select, message, Icon, Cascader,
-    notification, Tooltip } from 'antd'
+import { Form, Select, message, Icon, Cascader, notification, Tooltip } from 'antd'
 
 import req from '../../../../consts/reqUrls'
 import Api from '../../../../api/console'
@@ -8,11 +7,26 @@ import UploadFile from './components/uploadFileBtn'
 import KerberosModal from './components/kerberosModal'
 import DataCheckbox from './components/dataCheckbox'
 import DefaultVersionCheckbox from './components/defaultVersionCheckbox'
-import { COMPONENT_TYPE_VALUE, VERSION_TYPE, FILE_TYPE,
-    CONFIG_FILE_DESC, DEFAULT_COMP_VERSION } from '../const'
-import { isOtherVersion, isSameVersion, handleComponentConfig,
-    needZipFile, getOptions, getInitialValue, isMultiVersion,
-    isYarn, showDataCheckBox, notFileConfig, isFLink } from '../help'
+import {
+    COMPONENT_TYPE_VALUE,
+    VERSION_TYPE,
+    FILE_TYPE,
+    CONFIG_FILE_DESC,
+    DEFAULT_COMP_VERSION
+} from '../const'
+import {
+    isOtherVersion,
+    isSameVersion,
+    handleComponentConfig,
+    needZipFile,
+    getOptions,
+    getInitialValue,
+    isMultiVersion,
+    isYarn,
+    showDataCheckBox,
+    notFileConfig,
+    isFLink
+} from '../help'
 
 interface IProps {
     comp: any;
@@ -523,6 +537,10 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             case COMPONENT_TYPE_VALUE.FLINK_ON_STANDALONE: {
                 return this.renderParamsFile()
             }
+            case COMPONENT_TYPE_VALUE.MYSQL:
+            case COMPONENT_TYPE_VALUE.SQLSERVER:
+            case COMPONENT_TYPE_VALUE.DB2:
+            case COMPONENT_TYPE_VALUE.OCEANBASE:
             case COMPONENT_TYPE_VALUE.ORACLE_SQL:
             case COMPONENT_TYPE_VALUE.LIBRA_SQL:
             case COMPONENT_TYPE_VALUE.TIDB_SQL:

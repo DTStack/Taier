@@ -165,7 +165,7 @@ export default class ComponentButton extends React.Component<IProps, IState> {
                     onCancel={this.handleCancel}
                 >
                     <Button className="c-editCluster__componentButton" onClick={() => this.props.handlePopVisible()}>
-                        <i className="iconfont iconzujianpeizhi" style={{ marginRight: 2 }} />
+                        <i className="iconfont icon-zujianpeizhi" style={{ marginRight: 2 }} />
                         组件配置
                     </Button>
                 </Popconfirm>

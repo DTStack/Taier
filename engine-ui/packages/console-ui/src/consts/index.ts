@@ -349,14 +349,18 @@ export const ENGINE_TYPE = {
     PRESTO: 7,
     FLINK_ON_STANDALONE: 8,
     ANALYTIC_DB: 9,
-    KUBERNETES: 'Kubernetes'
+    KUBERNETES: 'Kubernetes',
+    MYSQL: 10,
+    SQLSERVER: 11,
+    DB2: 12,
+    OCEANBASE: 13
 }
 export const ENGINE_TYPE_NAME = {
     HADOOP: 'Hadoop',
     LIBRA: 'LibrA',
     TI_DB: 'TiDB',
     ORACLE: 'Oracle',
-    GREEN_PLUM: 'GreenPlum',
+    GREEN_PLUM: 'Greenplum',
     PRESTO: 'PRESTO',
     ANALYTIC_DB: 'AnalyticDB PostgreSQL'
 }
@@ -366,10 +370,14 @@ export const ENGIN_TYPE_TEXT = {
     [ENGINE_TYPE.LIBRA]: 'LibrA',
     [ENGINE_TYPE.TI_DB]: 'TiDB',
     [ENGINE_TYPE.ORACLE]: 'Oracle',
-    [ENGINE_TYPE.GREEN_PLUM]: 'GreenPlum',
+    [ENGINE_TYPE.GREEN_PLUM]: 'Greenplum',
     [ENGINE_TYPE.PRESTO]: 'Presto',
     [ENGINE_TYPE.ANALYTIC_DB]: 'AnalyticDB PostgreSQL',
-    [ENGINE_TYPE.FLINK_ON_STANDALONE]: 'Flink on Standalone'
+    [ENGINE_TYPE.FLINK_ON_STANDALONE]: 'Flink on Standalone',
+    [ENGINE_TYPE.MYSQL]: 'MySQL',
+    [ENGINE_TYPE.SQLSERVER]: 'SQLServer',
+    [ENGINE_TYPE.DB2]: 'DB2',
+    [ENGINE_TYPE.OCEANBASE]: 'OceanBase'
 }
 
 export const ENGINE_TYPE_ARRAY = [{ // 引擎类型下拉框数据
@@ -1149,4 +1157,23 @@ export const EMAIL_REG = /^[0-9a-zA-Z_.-]+[@][0-9a-zA-Z_.-]+([.][a-zA-Z]+){1,2}$
 export const RESOURCE_TYPE = {
     YARN: 'YARN',
     KUBERNETES: 'Kubernetes'
+}
+
+/** '新增运维中心' */
+export enum APP_TYPE {
+    '离线开发'=1,
+    '数据质量',
+    '数据API',
+    '标签引擎',
+    '分析引擎',
+    '控制台',
+    '实时开发',
+    '数据科学',
+    '数据资产',
+    '指标开发'=10
+}
+
+export const APPS_TYPE = {
+    BATCH: 1,
+    INDEX: 10
 }

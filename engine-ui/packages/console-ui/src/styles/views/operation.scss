@@ -1,0 +1,620 @@
+.dt-operation {
+    height: 100%;
+    .operation-content {
+        padding: 20px;
+        min-height: 100%;
+        position: relative;
+        background: #f2f3f8;
+        .ant-pagination {
+            margin-right: 10px;
+        }
+        .ant-tabs-tabpane {
+            background: #fff;
+        }
+    }
+
+    .ant-table-row-spaced {
+        display: none;
+    }
+
+    .graph-content {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        background: #fff;
+    }
+    .ant-layout-sider-collapsed {
+        .nav-text {
+            display: none;
+        }
+        .anticon {
+            font-size: 16px;
+            // margin-left: 8px;
+            line-height: 42px;
+        }
+        .ant-menu-submenu-vertical > .ant-menu-submenu-title:after {
+            display: none;
+        }
+        .ant-slider-pos--collapsed i.anticon {
+            margin-left: 0;
+        }
+    }
+    .count {
+        font-size: 36px;
+    }
+    .warning {
+        color: #ff9b1b;
+    }
+    .row-item {
+        padding: 15px;
+        h2 {
+            border-bottom: 1px solid #e9e9e9;
+            padding-bottom: 10px;
+            font-size: 14px;
+        }
+    }
+    .my-table {
+        background: #fff;
+        font-size: 13px;
+        width: 100%;
+        border-collapse: collapse;
+        tr td {
+            padding: 15px;
+        }
+        .tb-title {
+            width: 110px;
+            background: #f5f5f5;
+            color: #666666;
+            text-align: center;
+        }
+    }
+    .m-table .ant-table-tbody > tr > td {
+        height: 30px;
+    }
+}
+
+.operation-overview {
+    header {
+        height: 45px;
+        .left {
+            font-size: 14px;
+            color: #333333;
+        }
+    }
+    .operation-statistics {
+        margin-top: 25px;
+        text-align: center;
+        .ant-card-body {
+            padding: 0;
+            padding-bottom: 10px;
+        }
+        p {
+            text-align: center;
+        }
+    }
+}
+
+.alarm-list {
+    .ant-tabs-bar {
+        margin-bottom: 0px;
+    }
+    .ant-tabs-content {
+        border: 1px solid #e9e9e9;
+        border-radius: 3px;
+        border-top: 0;
+    }
+}
+
+// 任务运维-流程管理
+.sidebar-taskflow {
+    width: inherit;
+    height: 100%;
+    .ant-tabs-nav-container {
+        height: 30px;
+    }
+    .flow-operation {
+        position: relative;
+        height: 100%;
+        .ant-checkbox-wrapper {
+            margin-left: 0px;
+            font-size: 13px;
+        }
+        .ant-form-inline .ant-form-item {
+            margin-bottom: 10px;
+        }
+    }
+    .flow-menu {
+        position: absolute;
+        top: 35px;
+        width: 100%;
+        display: block;
+        overflow: hidden;
+        height: 100%;
+        padding-bottom: 35px;
+    }
+    .task-list {
+        width: 100%;
+        height: 100%;
+        padding-bottom: 300px !important;
+        overflow: auto;
+    }
+    .title {
+        height: 35px;
+        line-height: 35px;
+        text-indent: 10px;
+        font-weight: bold;
+    }
+    .filter-bar {
+        padding: 0 10px 10px 10px;
+        font-size: 13px;
+    }
+}
+
+.patch-data {
+    .ant-pagination {
+        margin-right: 10px;
+    }
+    .ant-tree-node-content-wrapper {
+        width: calc(100% - 44px);
+    }
+    .patch-header {
+        margin: 5px;
+        > div {
+            background: #f7f7f7;
+            font-weight: 500;
+            transition: background 0.3s ease;
+            text-align: left;
+            color: rgba(0, 0, 0, 0.85);
+            line-height: 30px;
+            text-indent: 5px;
+        }
+    }
+}
+
+.task-detail {
+    table tr > td {
+        width: 80px;
+    }
+}
+
+.ope-statistics {
+    font-weight: bold;
+    font-size: 12px;
+    span {
+        margin: 0 8px;
+        white-space: nowrap;
+        height: 32px;
+        line-height: 23px;
+    }
+}
+
+.circle {
+    display: inline-block;
+    widows: 8px;
+    height: 8px;
+    border-radius: 50% 50%;
+}
+
+.runtime-page {
+    background: #f2f3f8;
+    header {
+        line-height: 20px;
+        height: 40px;
+        background: #f7f7f7;
+        color: #333333;
+        font-size: 14px;
+        padding: 10px 20px;
+    }
+    .runtime-content {
+        padding: 0 20px;
+        min-height: 100%;
+        position: relative;
+    }
+    .runtime-trend,
+    .runtime-info {
+        background: #fff;
+    }
+    .runtime-section {
+        margin-top: 10px;
+        h1 {
+            font-size: 13px;
+            color: #333333;
+            line-height: 30px;
+            padding: 0;
+            margin: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
+            text-align: left;
+            border-radius: 4px 4px 0 0;
+            tr td {
+                padding: 10px 20px;
+                border: 1px solid #e1e6eb;
+            }
+        }
+    }
+}
+.page-change-antd {
+    .ant-pagination-item,
+    .ant-pagination-disabled,
+    .ant-pagination-prev,
+    .ant-pagination-item-link {
+        border: none;
+    }
+}
+.m-card.task-manage {
+    .ant-form-inline .ant-form-item {
+        display: inline-block;
+        margin-right: 20px;
+        margin-bottom: 0;
+    }
+    .ant-card .ant-card-body {
+        padding: 0;
+        position: relative;
+    }
+    .m-table,
+    .dt-ant-table {
+        .ant-table-footer {
+            background: #fff;
+            padding: 10px 0 0;
+            border-bottom: 0;
+            border-top: 1px solid #e8e8e8;
+        }
+        .ant-pagination {
+            position: relative;
+            top: -60px;
+            right: 20px;
+            margin-right: 0;
+            border-top: none;
+        }
+        .ant-table-pagination.ant-pagination {
+            margin: 0;
+            float: right;
+        }
+    }
+    .ant-btn-sm {
+        margin-right: 16px;
+    }
+}
+.o-chart__placeholder--empty {
+    line-height: 350px;
+    margin: 20px;
+    text-align: center;
+    color: #959fb1;
+    font-size: 18px;
+    border: 1px solid #e5e3e3;
+}
+.c-taskMana__slidePane__tabs {
+    > .ant-tabs-content {
+        height: 100%;
+        > .ant-tabs-tabpane {
+            height: 95%;
+            overflow: auto;
+        }
+        > .ant-tabs-tabpane-inactive {
+            height: 0;
+            min-height: 0 !important;
+        }
+    }
+}
+.c-jobGraph__spin-box {
+    height: 100%;
+    > .ant-spin-container {
+        height: 100%;
+    }
+}
+.c-jobflow__modal {
+    .ant-modal-content {
+        height: 100%;
+        > .ant-modal-body {
+            height: calc(100% - 48px);
+        }
+    }
+}
+.m-count {
+    height: 108px;
+    text-align: center;
+}
+
+.m-count .m-count-section {
+    width: 40px;
+    height: 60px;
+    margin: auto;
+    margin-top: 25px;
+    cursor: pointer;
+}
+
+.m-count .m-count-section .m-count-title {
+    font-size: 12px;
+    color: #999999;
+    font-family: PingFangSC-Regular;
+}
+
+.m-count .m-count-section .m-count-content {
+    font-size: 30px;
+    letter-spacing: 0;
+    font-family: PingFangSC-Medium;
+    font-weight: bolder;
+    display: block;
+}
+.m-card {
+    .m-operation-title {
+        font-size: 16px;
+        font-weight: 500;
+        color: #333333;
+        line-height: 24px;
+        margin-bottom: 19px;
+    }
+}
+
+.font-black {
+    color: #333333;
+}
+
+.font-red {
+    color: #ef5350;
+}
+
+.font-organge {
+    color: #f5a623;
+}
+
+.font-green {
+    color: #00a755;
+}
+
+.font-gray {
+    color: #9eabb2;
+}
+
+.font-darkgreen {
+    color: #94a8c6;
+}
+
+.font-blue {
+    color: #2491f7;
+}
+
+.font-cold-blue {
+    color: rgb(38, 218, 210);
+}
+
+.status_overview_fail_font {
+    @extend .status_overview_basic_block;
+    color: #ef5350;
+    background: #ffe9e9;
+}
+.status_overview_running_font {
+    @extend .status_overview_basic_block;
+    color: #2491f7;
+    background: #ddeeff;
+}
+.status_overview_grey_font {
+    @extend .status_overview_basic_block;
+    color: #94a8c6;
+    background: #e6e9f2;
+}
+.status_overview_yellow_font {
+    @extend .status_overview_basic_block;
+    color: #f5a623;
+    background: #f9f3de;
+}
+.status_overview_finished_font {
+    @extend .status_overview_basic_block;
+    color: #00a755;
+    background: #cdf7e2;
+}
+.status_overview_count_font {
+    @extend .status_overview_basic_block;
+    color: #333333;
+    background: #f2f2f2;
+}
+.status_overview_basic_block {
+    display: inline-block;
+    padding: 4px 20px;
+    border-radius: 30px;
+    font-weight: 400;
+}
+.status_overview_item {
+    font-weight: normal;
+    font-size: 12px;
+    margin-left: 25px;
+}
+.m-ant-menu {
+    .ant-menu-submenu {
+        .ant-menu {
+            background: none;
+        }
+    }
+}
+.m-filter {
+    > span {
+        &:first-child {
+            margin: 0px;
+        }
+        margin-left: 10px;
+        margin-right: 8px;
+    }
+}
+.m-card.task-manage {
+    .ant-form-inline .ant-form-item {
+        display: inline-block;
+        margin-right: 20px;
+        margin-bottom: 0;
+    }
+    .select-task {
+        margin-right: 13px;
+        font-size: 13px;
+        font-weight: 400;
+        color: #333333;
+    }
+}
+
+.m-count-section-new {
+    display: flex;
+    justify-content: 'flex-start';
+    padding: 27px 24px;
+    height: 110px;
+
+    img {
+        width: 56px;
+        height: 56px;
+        margin-right: 8px;
+    }
+    .title {
+        font-size: 14px;
+        font-weight: 400;
+        color: #666666;
+        line-height: 22px;
+    }
+    .count {
+        font-size: 38px;
+        color: #333333;
+        line-height: 38px;
+        text-align: left;
+        margin-top: 4px;
+    }
+}
+// 引入特殊数字字体
+@font-face {
+    font-family: 'bebasNeue';
+    src: url('/console/public/font/bebasNeue.otf');
+}
+.m-operation-20 {
+    padding-right: 20px;
+    width: 20%;
+
+    .ant-card {
+        box-shadow: 0px 2px 8px 0px rgba(6, 14, 26, 0.08);
+    }
+    .ant-card:hover {
+        box-shadow: 0px 2px 8px 0px rgba(218, 75, 10, 0.12);
+    }
+    .count {
+        font-family: 'bebasNeue';
+    }
+}
+.m-operation-alarm {
+    padding-right: 20px;
+
+    .count {
+        font-family: 'bebasNeue';
+    }
+
+    .title {
+        color: #666666;
+        font-size: 14px;
+    }
+
+    .m-count-div {
+        margin-left: 12px;
+    }
+}
+.batch-operation_offlineImg {
+    img {
+        margin-top: -18px !important;
+    }
+}
+.Resizer.horizontal {
+    height: 10px;
+    margin: -5px 0;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    cursor: row-resize;
+    width: 100%;
+    z-index: 999;
+}
+.Resizer.horizontal:hover {
+    opacity: 0.2;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+}
+.ant-tabs-tabpane-inactive {
+    min-height: 0 !important;
+}
+.offline__search-normal .ant-tabs-top-content {
+    overflow: auto;
+}
+.m-data-detail-page {
+    .ant-spin-container > .ant-table-pagination {
+        z-index: 11;
+    }
+}
+.ant-form-item-control-wrapper {
+    .ant-checkbox-group {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        height: 39px;
+    }
+}
+.no-padding {
+    .ant-card-body {
+        padding: 0;
+    }
+}
+.offline__search-normal_left {
+    .ant-card {
+        .ant-card-head {
+            padding-left: 0;
+        }
+    }
+}
+.batch_radio_button {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 17px;
+
+    .ant-radio-button-wrapper {
+        height: 36px;
+        line-height: 36px;
+    }
+}
+.dt-batch-table-height.ant-table-wrapper .ant-spin-nested-loading .ant-spin-container .ant-table-fixed-header:not(:last-child),
+.dt-batch-table-height .ant-table-wrapper .ant-spin-nested-loading .ant-spin-container .ant-table-fixed-header:not(:last-child) {
+    height: calc(100% - 18px) !important;
+}
+
+.ant-spin-nested-loading.c-task__content__spin-box.batch-task-height {
+    height: 100%;
+}
+
+// 新增 operation 样式
+.c-taskMana__wrap {
+    padding: 8px 20px 20px 20px;
+    min-width: 1240px;
+    .ant-form-item {
+        margin-top: 12px;
+    }
+}
+
+.c-patchDataList__wrap {
+    padding: 8px 20px 20px 20px;
+    min-width: 1240px;
+    .form-label {
+        display: inline-block;
+        width: 50px;
+    }
+    .ant-form-item {
+        margin-top: 12px;
+    }
+}
+
+.c-taskOperation__wrap {
+    min-width: 1240px;
+    padding: 8px 20px 20px 20px;
+    .form-label {
+        display: inline-block;
+        width: 50px;
+    }
+    .ant-form-item {
+        margin-top: 12px;
+    }
+    &__tab {
+        box-shadow: 0px 2px 8px 0px rgba(6, 14, 26, 0.08);
+        background: #ffffff;
+        position: relative;
+    }
+}

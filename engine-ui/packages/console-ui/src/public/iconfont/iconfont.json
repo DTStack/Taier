@@ -2,9 +2,23 @@
   "id": "1819717",
   "name": "控制台",
   "font_family": "iconfont",
-  "css_prefix_text": "icon",
+  "css_prefix_text": "icon-",
   "description": "",
   "glyphs": [
+    {
+      "icon_id": "23576960",
+      "name": "menu_task",
+      "font_class": "menu_task",
+      "unicode": "e752",
+      "unicode_decimal": 59218
+    },
+    {
+      "icon_id": "14002202",
+      "name": "空状态",
+      "font_class": "kongzhuangtai",
+      "unicode": "e6b6",
+      "unicode_decimal": 59062
+    },
     {
       "icon_id": "14726264",
       "name": "组件配置",

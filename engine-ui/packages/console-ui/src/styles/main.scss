@@ -2,10 +2,14 @@
 /**
 ** CSS 主引入口
 **/
+@import './views/layout.scss';
+@import './views/iconfont.scss';
 @import './views/queueManage.scss';
 @import './views/resourceManage.scss';
 @import './views/clusterManage.scss';
 @import './views/alarmChannel.scss';
+@import './views/operation.scss';
+@import './views/graph-editor.scss';
 .root {
     height: 100%;
 }

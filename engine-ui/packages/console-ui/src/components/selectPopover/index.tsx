@@ -96,7 +96,7 @@ export default class SelectPopver extends React.Component<any, any> {
                 content={content}
                 style={{ width: 240 }}
             >
-                <Button className="c-editCluster__componentButton" onClick={() => setPopverVisible()}><i className="iconfont iconzujianpeizhi" style={{ marginRight: 2 }}></i>组件配置</Button>
+                <Button className="c-editCluster__componentButton" onClick={() => setPopverVisible()}><i className="iconfont icon-zujianpeizhi" style={{ marginRight: 2 }}></i>组件配置</Button>
             </Popover>
         )
     }
