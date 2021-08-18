@@ -10,3 +10,6 @@
 [submodule "engine-ui/packages/ide-ui"]
 	path = engine-ui/packages/ide-ui
 	url = ssh://git@gitlab.prod.dtstack.cn:10022/dagschedulex/ide-ui.git
+[submodule "engine-ui/packages/publicservice"]
+	path = engine-ui/packages/publicservice
+	url = ssh://git@gitlab.prod.dtstack.cn:10022/dagschedulex/publicservice.git
