@@ -3,10 +3,12 @@ import { FileTypes, IExtension, TreeNodeModel } from 'molecule/esm/model';
 import { localize } from 'molecule/esm/i18n/localize';
 import molecule from 'molecule/esm';
 import Open from '../../task/open';
-import { resetEditorGroup } from '../utils';
+import { resetEditorGroup, updateStatusBarLanguage } from '../utils';
 import DataSync from '../../dataSync';
 import ajax from '../../../api';
 import { TASK_RUN_ID } from '../utils/const';
+import store from '../../../store';
+import { workbenchAction } from '../../../controller/dataSync/actionType';
 
 function init() {
     ajax.getOfflineCatalogue({
@@ -99,18 +101,42 @@ function createTask() {
 function onSelectFile() {
     molecule.folderTree.onSelectFile((file) => {
         if (file.data.taskType === 'SparkSql') {
-            const tabData = {
-                id: file.id,
-                name: file.name,
-                data: {
-                    ...file.data,
-                    content: file.content,
-                },
-            };
-            molecule.editor.open(tabData);
-            molecule.editor.updateActions([
-                { id: TASK_RUN_ID, disabled: false },
-            ]);
+            const id = file.id;
+            ajax.getOfflineTaskByID({ id }).then((res) => {
+                const { success, data } = res;
+                if (success) {
+                    // save to redux
+                    store.dispatch({
+                        type: workbenchAction.LOAD_TASK_DETAIL,
+                        payload: data,
+                    });
+                    store.dispatch({
+                        type: workbenchAction.OPEN_TASK_TAB,
+                        payload: id,
+                    });
+
+                    // open in molecule
+                    const tabData = {
+                        id,
+                        name: file.name,
+                        data: {
+                            ...data,
+                            value: data.sqlText,
+                            language: 'sql',
+                            taskDesc: file.data.taskDesc,
+                        },
+                        breadcrumb:
+                            file.location?.split('/')?.map((item: string) => ({
+                                id: item,
+                                name: item,
+                            })) || [],
+                    };
+                    molecule.editor.open(tabData);
+                    molecule.editor.updateActions([
+                        { id: TASK_RUN_ID, disabled: false },
+                    ]);
+                }
+            });
         } else if (file.data.taskType === 'DataSync') {
             const tabData = {
                 id: file.id,
@@ -131,15 +157,13 @@ function onSelectFile() {
             resetEditorGroup();
         }
 
+        molecule.explorer.forceUpdate();
         file.data.taskType &&
-            molecule.statusBar.add(
-                {
-                    id: 'language',
-                    sortIndex: 3,
-                    name: file.data.taskType,
-                },
-                'right'
-            );
+            updateStatusBarLanguage({
+                id: 'language',
+                sortIndex: 3,
+                name: file.data.taskType,
+            });
     });
 }
 

@@ -44,24 +44,7 @@ function initTaskParams() {
         config: {
             grow: 2,
         },
-        renderPanel: () => (
-            <TaskParamsView
-                tabData={{
-                    taskVariables: [
-                        {
-                            paramName: '$system',
-                            paramCommand: 'xiuneng',
-                            type: 0,
-                        },
-                        {
-                            paramName: '$key',
-                            paramCommand: '',
-                            type: 1,
-                        },
-                    ],
-                }}
-            />
-        ),
+        renderPanel: () => <TaskParamsView />,
     });
 }
 
