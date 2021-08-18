@@ -114,6 +114,7 @@ const offlineReq = {
     GET_WORKFLOW_RELATED_TASKS: `${RDOS_BASE_URL}/batch/batchTask/dealFlowWorkTask`, // 获取工作流的子任务
     GET_WORKFLOW_RELATED_JOBS: `${RDOS_BASE_URL}/batch/batchJob/getRelatedJobs`, // 获取工作流实例的子任务
     GET_WORKFLOW_FILLDATA_RELATED_JOBS: `${RDOS_BASE_URL}/batch/batchJob/getRelatedJobsForFillData`, // 补数据工作流子节点
+    GET_TABLE_INFO_BY_DATASOURCE: `${RDOS_BASE_URL}/batch/batchDataSource/getTableInfoByDataSource`, // 从目标表位置获取表格信息
     IS_NATIVE_HIVE: `${RDOS_BASE_URL}/batch/batchDataSource/isNativeHive`, // 校验是不是标准分区
 
     // 离线文件操作

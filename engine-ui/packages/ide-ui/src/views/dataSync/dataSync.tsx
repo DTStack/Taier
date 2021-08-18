@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Steps, message } from 'antd';
+import { Steps } from 'antd';
 import { connect } from 'react-redux';
 import { isEqual, get } from 'lodash';
 
@@ -137,16 +137,6 @@ class DataSync extends React.Component<any, any> {
             newSourceStart !== oldSourceStart;
         const isEndChange =
             !!oldSourceEnd && !!newSourceEnd && newSourceEnd !== oldSourceEnd;
-        // Output test conditions
-        // console.log('old', oldDataSync);
-        // console.log('new', dataSync);
-        // console.log('isWhereChange', isWhereChange);
-        // console.log('isSourcePartitionChange', isSourcePartitionChange);
-        // console.log('isTargetPartitionChange', isTargetPartitionChange);
-        // console.log('isSQLChange', isSQLChange);
-        // console.log('isSourceColumnChange', isSourceColumnChange);
-        // console.log('isTargetFileNameChange', isTargetFileNameChange);
-        // console.log(isObjectChange, ' ', isObjectsChange)
 
         return (
             isWhereChange || // source type update
@@ -437,19 +427,6 @@ const mapDispatch = (dispatch: any, ownProps: any) => {
             dispatch({
                 type: dataSyncAction.SET_CURRENT_STEP,
                 payload: step,
-            });
-        },
-        saveJobData(params: any) {
-            ajax.saveOfflineJobData(params).then((res: any) => {
-                if (res.code === 1) {
-                    message.success('保存成功！');
-                    dispatch({
-                        type: workbenchAction.SET_CURRENT_TAB_SAVED,
-                    });
-                    dispatch({
-                        type: workbenchAction.MAKE_TAB_CLEAN,
-                    });
-                }
             });
         },
         updateDataSyncVariables(

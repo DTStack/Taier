@@ -58,9 +58,7 @@ class TargetForm extends React.Component<any, any> {
             kingbaseId: '',
             tableListLoading: false,
             fetching: false,
-            schemaId: '',
-            version: '0',
-            bucketList: [], // aws s3 bucket 数据
+            schemaId: ''
         };
     }
 
@@ -108,15 +106,6 @@ class TargetForm extends React.Component<any, any> {
                 });
             }
         });
-    };
-
-    getDataSourceVersion = async (dataSourceId: number) => {
-        const res = await ajax.getDataSourceVersion({ dataSourceId });
-        if (res.code === 1) {
-            this.setState({
-                version: res.data,
-            });
-        }
     };
 
     getTableList = (sourceId: any, schema?: any, name?: any) => {
@@ -256,27 +245,6 @@ class TargetForm extends React.Component<any, any> {
         this.submitForm();
     }
 
-    getPartitionType = async (tableName: string, isUpdate: boolean) => {
-        const { targetMap } = this.props;
-        const res = await ajax.getPartitionType({
-            sourceId: targetMap.sourceId,
-            tableName,
-        });
-        if (res.code === 1) {
-            const data = res.data || {};
-            const isImpalaHiveTable = data.tableLocationType === 'hive';
-            this.setState({ isImpalaHiveTable }, () => {
-                this.getHivePartitions(tableName);
-            });
-            if (isUpdate) {
-                // isUpdate为 true reset writeMode
-                this.props.handleTargetMapChange({
-                    writeMode: isImpalaHiveTable ? 'replace' : 'insert',
-                });
-            }
-        }
-    };
-
     getTableColumn = (tableName: any, schema?: any) => {
         const { form, handleTableColumnChange, targetMap } = this.props;
         const sourceId = form.getFieldValue('sourceId');
@@ -407,10 +375,6 @@ class TargetForm extends React.Component<any, any> {
         cb.call(null, 0);
     }
 
-    onSearchObject = (str: any, sourceId: any) => {
-        this.getBucketList(sourceId, str);
-    };
-
     next(cb: any) {
         const { form, currentTabData, saveDataSyncToTab, dataSync } =
             this.props;
@@ -424,13 +388,6 @@ class TargetForm extends React.Component<any, any> {
                 /* eslint-disable-next-line */
                 cb.call(null, 2);
             }
-        });
-    }
-
-    handleCancel() {
-        this.setState({
-            textSql: '',
-            visible: false,
         });
     }
 
@@ -461,54 +418,6 @@ class TargetForm extends React.Component<any, any> {
             }
         });
     }
-
-    getTableData = (type: any, schema: any, value: any, sourceKey?: any) => {
-        if (value) {
-            this.setState({
-                loading: true,
-            });
-
-            this.getTableColumn(value, schema);
-        }
-        // 不可简化sourceKey, 在submitForm上对应的不同的逻辑，即第四个参数对应的逻辑不同，在不同场景可能不存在第四个参数，不能简化
-        this.submitForm();
-        this.setState({
-            showPreview: false,
-        });
-    };
-
-    getBucketList = async (resourceId: number, schema?: any) => {
-        const { currentTab } = this.props;
-        const params = {
-            projectId: currentTab,
-            sourceId: resourceId,
-            schema,
-        };
-        const res = await ajax.getAllSchemas(params);
-        const { data } = res;
-        if (res.code === 1 && Array.isArray(res.data) && res.data?.length > 0) {
-            this.setState({
-                bucketList: data,
-            });
-        }
-    };
-
-    checkEffective = () => {
-        const { tableListSearch } = this.state;
-        const { form, targetMap } = this.props;
-        const value = form.getFieldValue('table');
-        if (
-            !Array.isArray(tableListSearch) ||
-            tableListSearch.length === 0 ||
-            !tableListSearch?.includes(value)
-        ) {
-            form.setFieldsValue({ table: undefined });
-            return this.getTableList(
-                targetMap.sourceId,
-                targetMap?.type?.schema
-            );
-        }
-    };
 
     showCreateModal = () => {
         const { sourceMap, targetMap } = this.props;
@@ -558,25 +467,6 @@ class TargetForm extends React.Component<any, any> {
                 });
             }
         });
-    };
-
-    ddlChange = (newVal: any) => {
-        this.setState({
-            textSql: newVal,
-            sync: false,
-        });
-    };
-
-    versionDiff = (version1: any, version2: any) => {
-        const v1 = version1.split('.');
-        const v2 = version2.split('.');
-        for (let i = 0; i < Math.max(v1.length, v2.length); i++) {
-            const tempV1 = Number(v1[i] ?? 0);
-            const tempV2 = Number(v2[i] ?? 0);
-            if (tempV1 > tempV2) return true;
-            if (tempV1 < tempV2) return false;
-        }
-        return true;
     };
 
     checkData = (value: any) => {
@@ -1179,8 +1069,8 @@ class TargetForm extends React.Component<any, any> {
                             initialValue: isEmpty(targetMap)
                                 ? ''
                                 : targetMap?.schema
-                                ? targetMap?.schema
-                                : targetMap.type.schema,
+                                    ? targetMap?.schema
+                                    : targetMap.type.schema,
                         })(
                             <Select
                                 showSearch
@@ -1428,18 +1318,6 @@ const mapDispatch = (dispatch: any, ownProps: any) => {
             });
             dispatch({
                 type: workbenchAction.MAKE_TAB_DIRTY,
-            });
-        },
-        changeNativeHive: (isNativeHive: any) => {
-            dispatch({
-                type: targetMapAction.CHANGE_NATIVE_HIVE,
-                payload: isNativeHive,
-            });
-        },
-        updateTaskFields(params: any) {
-            dispatch({
-                type: workbenchAction.SET_TASK_FIELDS_VALUE,
-                payload: params,
             });
         },
         getProjectTableTypes: (projectId: any) => {

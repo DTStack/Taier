@@ -336,6 +336,9 @@ const api = {
     getJobTopTime(params: any) {
         return http.post(offlineReq.GET_JOB_TOP_TIME, params);
     },
+    getTableInfoByDataSource(params: any) {
+        return http.post(offlineReq.GET_TABLE_INFO_BY_DATASOURCE, params)
+    },
     getJobTopError(params?: any) {
         return http.post(offlineReq.GET_JOB_TOP_ERROR, params);
     },
