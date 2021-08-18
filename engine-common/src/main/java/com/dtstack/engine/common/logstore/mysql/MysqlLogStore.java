@@ -77,8 +77,7 @@ public class MysqlLogStore extends AbstractLogStore {
     /**
      * 清理数据库中更新时间超过7天的记录
      */
-    private static int retainTime = 604800;
-
+    private static final long RETAIN_TIME = 604800000;
 
     private static MysqlDataConnPool dataConnPool;
 
@@ -243,7 +242,7 @@ public class MysqlLogStore extends AbstractLogStore {
 
     @Override
     public void clearJob() {
-        dealBatchDataTimeout(SELECT_JOB_FINISHED_STATUS_TEMPLATE, DELETE_RETAIN_CLEAR_SQL, retainTime);
+        dealBatchDataTimeout(SELECT_JOB_FINISHED_STATUS_TEMPLATE, DELETE_RETAIN_CLEAR_SQL, RETAIN_TIME);
     }
 
     private void dealBatchDataTimeout(String selectSqlTemplate, String dealSql, long timeout) {
