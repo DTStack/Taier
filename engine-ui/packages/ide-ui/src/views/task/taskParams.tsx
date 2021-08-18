@@ -115,7 +115,7 @@ class TaskParams extends React.Component<any, any> {
     }
 
     render() {
-        const { current, couldEdit } = this.props;
+        const { current } = this.props;
         if (!current) {
             return (
                 <div
@@ -138,7 +138,7 @@ class TaskParams extends React.Component<any, any> {
         return (
             <molecule.component.Scrollable>
                 <Form className="taskParams" style={{ position: 'relative' }}>
-                    {isLocked || !couldEdit ? (
+                    {isLocked ? (
                         <div className="cover-mask"></div>
                     ) : null}
                     <Collapse

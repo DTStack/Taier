@@ -211,12 +211,6 @@ export const customParams = (
             ${`{}`}格式：变量基于 bdp.system.bizdate 取值，格式为：key1=$
             {`{yyyy}`}，其中的 yyyy 是取 bdp.system.bizdate 的年的部分
         </p>
-        <p>
-            详细说明请参考
-            <a href={HELP_DOC_URL.TASKPARAMS} target="blank">
-                《帮助文档》
-            </a>
-        </p>
     </div>
 );
 
