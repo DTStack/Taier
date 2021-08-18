@@ -13,16 +13,16 @@ module.exports = {
     'location': {
         '/ide': `./out/`,
         '/console-ui': `./out/`,
-        '/operation-ui': './out/'
+        '/data-source': './out/',
     },
     'proxyTable': {
         '/node': { // 控制台
-            target: 'http://172.16.100.225:7001/proxy/44', // doraemon
+            target: 'http://schedule.dtstack.cn:8090', // doraemon
             changeOrigin: true,
             secure: false
         },
         '/api/rdos': {
-            target: "http://172.16.100.225:7001/proxy/46", // doraam
+            target: "http://schedule.dtstack.cn:8090", // doraam
             changeOrigin: true,
             secure: false
         },
