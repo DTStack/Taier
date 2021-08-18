@@ -1,15 +1,10 @@
 const path = require('path');
-const corejs = require.resolve('core-js/stable');
-const regenerator = require.resolve('regenerator-runtime/runtime');
-const proxy = require('./config');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HAPPY_PACK = require.resolve('happypack/loader');
 const InsertHtmlPlugin = require('./plugins/insert-html-webpack-plugin');
-
 const BASE_NAME = '/datasource/'; // 资源目录 默认访问路径
 const ROOT_PATH = path.resolve(__dirname, './');
 const BUILD_PATH = path.resolve(ROOT_PATH, `dist${BASE_NAME}`);
-
 const packageName = require('./package.json').name;
 const PUBLICPATH =
   process.env.NODE_ENV === 'production'
@@ -33,12 +28,12 @@ module.exports = () => {
       host: '127.0.0.1',
       port: 8082,
     },
-    proxy,
+    // proxy,
     webpack: {
-      entry: [corejs, regenerator, './src/app.tsx'],
+      entry: './src/app.tsx',
       output: {
         path: BUILD_PATH,
-        publicPath: '/datasource/',
+        publicPath: BASE_NAME,
         globalObject: 'window',
         jsonpFunction: `webpackJsonp_${packageName}`,
         library: `Datasource`,
@@ -76,7 +71,6 @@ module.exports = () => {
         new CopyWebpackPlugin(copyConfig),
         new InsertHtmlPlugin({ addCode: PUBLICPATH }),
       ],
-      devServer: {},
       externals: {
         APP_CONF: 'APP_CONF',
       },
