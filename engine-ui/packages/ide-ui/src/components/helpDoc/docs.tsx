@@ -24,17 +24,6 @@ export const dataFilterDoc = (
     </div>
 );
 
-export const mrTaskHelp = <p>支持基于Spark API的Java、Scala处理程序</p>;
-
-export const mlTaskHelp = <p>支持基于Spark MLLib的机器学习任务</p>;
-
-export const switchKey = (
-    <ul>
-        <li>MySQL：支持数值型切分键</li>
-        <li>Oracle：支持数值型、字符串类型切分键</li>
-    </ul>
-);
-
 export const selectKey = (
     <div>MySQL、SQLServer、PostgreSQL、Oracle：支持数值型切分键</div>
 );
@@ -69,73 +58,6 @@ export const errorCount = ( // 作业并发数
     <div>
         表示脏数据的最大容忍条数，如果您配置0，
         则表示严格不允许脏数据存在；如果不填则代表容忍脏数据
-    </div>
-);
-
-export const hdfsConfig = ( // hdfs config
-    <div>
-        高可用模式下的填写规则：
-        <ul>
-            <li>
-                1、分别要填写：nameservice名称、
-                namenode名称（多个以逗号分隔）、proxy.provider参数；
-            </li>
-            <li>2、所有参数以JSON格式填写；</li>
-            <li>
-                3、格式为：
-                <br />
-                "dfs.nameservices": "nameservice名称",
-                "dfs.ha.namenodes.nameservice名称": "namenode名称，以逗号分隔",
-                "dfs.namenode.rpc-address.nameservice名称.namenode名称": "",
-                "dfs.namenode.rpc-address.nameservice名称.namenode名称": "",
-                "dfs.client.failover.proxy.provider.
-                <br />
-                nameservice名称": "org.apache.hadoop.
-                <br />
-                hdfs.server.namenode.ha.
-                <br />
-                ConfiguredFailoverProxyProvider"
-            </li>
-            <li>
-                4、详细参数含义请参考《帮助文档》或
-                <a
-                    href="http://hadoop.apache.org/docs/r2.7.4/hadoop-project-dist/hadoop-hdfs/HDFSHighAvailabilityWithQJM.html"
-                    target="blank"
-                >
-                    Hadoop官方文档
-                </a>
-            </li>
-        </ul>
-    </div>
-);
-
-export const rdbConfig = ( // relational db config
-    <div>
-        JDBC URL配置参考：
-        <ul>
-            <li>MySQL: jdbc:mysql://host:port/batch?useCursorFetch=true</li>
-            <li>Oracle: jdbc:oracle:thin:@host:port:ORCL</li>
-            <li>Hive: jdbc:hive2://host:port/projectName</li>
-        </ul>
-    </div>
-);
-
-export const hBaseConfig = ( // HBase configuration
-    <div>
-        HBase配置说明：
-        <ul>
-            <li>
-                1、Zookeeper 集群的地址，多个地址间用逗号分割。例 如："
-                IP1:Port, IP2:Port, IP3:Port/子目录".默认是
-                localhost,是给伪分布式用的。要修改才能在完全分布式的情况下使用。如果在hbase-env.sh设置了HBASEMANAGESZK，
-                这些ZooKeeper节点就会和HBase一起启动
-            </li>
-            <li>
-                2、Port: ZooKeeper的zoo.conf中的配置。客户端连接的端口，
-                默认2181
-            </li>
-            <li>3、子目录：HBase在ZooKeeper中配置的子目录</li>
-        </ul>
     </div>
 );
 
@@ -229,78 +151,12 @@ export const incrementModeScheduleTypeHelp = (
     </div>
 );
 
-export const inputTaskHelp = (
-    <div>
-        利用TensorFlow或MXNet进行数据处理时，可指定此任务在HDFS上的路径信息，无需更新任务代码，方便您通过修改路径来更新数据
-    </div>
-);
-
-export const outputTaskHelp = (
-    <div>
-        利用python、TensorFlow或shell进行模型训练时，可将训练完成的模型参数保存在此位置，无需更新任务代码，方便您通过修改路径来频繁训练
-    </div>
-);
-
-export const optionsTaskHelp = <div>任务执行时的命令行参数</div>;
-
-export const switchPartition = (
-    <span>
-        将上游节点与 JoinTable 节点的数据传输改成按 key
-        分区。这样通常可以缩小单个节点的 key 个数，提高缓存的命中率
-    </span>
-);
-
 export const stringColumnFormat = (
     <span>
         如果源库的一个字符串类型，映射到了目标库的date或time类型，则需要配置转换规则
     </span>
 );
 
-export const dateTimeFormat = <span>修改Date类型的格式</span>;
-
-export const taskFailRetry = <span>默认出错自动重试3次，时间间隔2分钟</span>;
-
-export const syncTaskHelp = (
-    <div>
-        向导模式：便捷、简单，可视化字段映射，快速完成同步任务配置
-        <br />
-        脚本模式：全能 高效，可深度调优，支持全部数据源
-        <br />
-        <a href={HELP_DOC_URL.DATA_SOURCE} target="blank">
-            查看支持的数据源
-        </a>
-    </div>
-);
-
-export const syncModeHelp = (
-    <div>
-        无增量标识：可通过简单的过滤语句实现增量同步；
-        <br />
-        有增量标识：系统记录每次同步的点位，执行时可从上次点位继续同步
-    </div>
-);
-
-export const incrementColumnHelp = (
-    <div>
-        每次同步时，自动记录增量标识的最大值，下次运行时，会从上一次的最大值继续同步数据，实现增量同步
-        <br />
-        支持将数值类型、Timestamp类型作为增量标识字段
-    </div>
-);
-export const minuteParticleHelp = (
-    <div>
-        产生指定的业务日期内，指定的时间范围内计划开始运行的实例，例如：
-        <br />
-        业务日期：2019-01-01~2019-01-03
-        <br />
-        具体时间：01:30~03:00
-        <br />
-        表示：2019-01-01~2019-01-03期间内，每天的01:30~03:00开始运行的实例，时间范围为闭区间，时间范围选择了23:59后，计划23:59开始运行的实例也会产生
-        支持将数值类型、Timestamp类型作为增量标识字段
-        <br />
-        选择分钟粒度后，补数据时，跨周期依赖配置无效
-    </div>
-);
 export const dataSyncExtralConfigHelp = (
     <div>
         以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize，每类数据源支持不同的参数，可参考
@@ -308,10 +164,6 @@ export const dataSyncExtralConfigHelp = (
             《帮助文档》
         </a>
     </div>
-);
-
-export const kylinRestfulHelp = (
-    <div>访问Kylin的认证地址，格式为：http://ip:port</div>
 );
 
 export const breakpointContinualTransferHelp = (
@@ -332,8 +184,4 @@ export const autoSkipJobHelp = (
         仅适用于周期为小时和分钟的调度任务，假设某任务的调度周期为10分钟，1:00的实例到1:53才运行完成，勾选此项后将直接运行2:00的实例，1:10
         - 1:50的实例会被置为“自动取消”状态。
     </div>
-);
-
-export const projectCategories = (
-    <div>当项目较多时，可建立多级分类管理项目</div>
 );
