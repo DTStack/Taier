@@ -2,6 +2,7 @@ package com.dtstack.engine.datasource.service.impl.datasource;
 
 import com.dtstack.engine.datasource.common.enums.datasource.AppTypeEnum;
 import com.dtstack.engine.datasource.common.utils.Dozers;
+import com.dtstack.engine.datasource.dao.mapper.IMapper;
 import com.dtstack.engine.datasource.dao.mapper.datasource.DsAppListMapper;
 import com.dtstack.engine.datasource.dao.po.datasource.DsAppList;
 import com.dtstack.engine.datasource.param.PubSvcBaseParam;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class DsAppListService extends BaseService<DsAppListMapper, DsAppList> {
+
     @Autowired
     private DtuicFacade dtuicFacade;
 

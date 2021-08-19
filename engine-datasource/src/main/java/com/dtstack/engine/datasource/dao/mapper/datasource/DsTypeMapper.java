@@ -1,6 +1,7 @@
 package com.dtstack.engine.datasource.dao.mapper.datasource;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.dtstack.engine.datasource.dao.mapper.IMapper;
 import com.dtstack.engine.datasource.dao.po.datasource.DsType;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -11,7 +12,7 @@ import org.apache.ibatis.annotations.Param;
  * create: 2021/5/10
  */
 @Mapper
-public interface DsTypeMapper extends BaseMapper<DsType> {
+public interface DsTypeMapper extends IMapper<DsType> {
     /**
      * 添加数据源类型的权重值
      * 目前固定增加1

@@ -1,10 +1,10 @@
 package com.dtstack.engine.datasource.dao.mapper.datasource;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.dtstack.engine.datasource.dao.bo.datasource.DsListBO;
 import com.dtstack.engine.datasource.dao.bo.datasource.DsServiceListBO;
 import com.dtstack.engine.datasource.dao.bo.query.DsListQuery;
 import com.dtstack.engine.datasource.dao.bo.query.DsServiceListQuery;
+import com.dtstack.engine.datasource.dao.mapper.IMapper;
 import com.dtstack.engine.datasource.dao.po.datasource.DsInfo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -18,7 +18,7 @@ import java.util.List;
  * create: 2021/5/10
  */
 @Mapper
-public interface DsInfoMapper extends BaseMapper<DsInfo> {
+public interface DsInfoMapper extends IMapper<DsInfo> {
     /**
      * 获取外部引入数据源分页总数
      * @param listQuery

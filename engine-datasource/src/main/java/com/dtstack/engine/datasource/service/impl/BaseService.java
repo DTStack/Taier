@@ -2,9 +2,9 @@ package com.dtstack.engine.datasource.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.dtstack.engine.datasource.dao.mapper.IMapper;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
@@ -16,7 +16,7 @@ import java.util.function.Function;
  * create: 2021/5/10
  */
 @Slf4j
-public abstract class BaseService<M extends BaseMapper<T>, T> extends ServiceImpl<M, T> {
+public abstract class BaseService<M extends IMapper<T>, T> extends ServiceImpl<M, T> {
 
     /**
      * Object -> Integer

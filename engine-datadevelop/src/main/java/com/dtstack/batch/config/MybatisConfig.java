@@ -1,6 +1,7 @@
 package com.dtstack.batch.config;
 
 import com.alibaba.druid.pool.DruidDataSource;
+import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -62,9 +63,9 @@ public class MybatisConfig {
     @Primary
     @Bean(name = "sqlSessionFactory")
     public SqlSessionFactory sqlSessionFactory() throws Exception {
-        SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
+        MybatisSqlSessionFactoryBean sqlSessionFactoryBean = new MybatisSqlSessionFactoryBean();
         sqlSessionFactoryBean.setDataSource(dataSource());
-        sqlSessionFactoryBean.setTypeAliasesPackage("com.dtstack.engine.api.domain,com.dtstack.engine.api.domain.po,com.dtstack.batch.domain");
+        sqlSessionFactoryBean.setTypeAliasesPackage("com.dtstack.engine.api.domain,com.dtstack.engine.api.domain.po,com.dtstack.batch.domain,com.dtstack.engine.datasource.dao.po.datasource");
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         Resource[] resourceDash = resolver.getResources(environmentContext.getMybatisMapperLocations());
         Resource[] resources = (Resource[]) ArrayUtils.addAll(resourceDash);
