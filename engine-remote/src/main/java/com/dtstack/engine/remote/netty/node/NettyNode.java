@@ -1,6 +1,5 @@
 package com.dtstack.engine.remote.netty.node;
 
-import com.alibaba.fastjson.JSON;
 import com.dtstack.engine.remote.exception.RemoteException;
 import com.dtstack.engine.remote.exception.RemotingTimeoutException;
 import com.dtstack.engine.remote.message.Message;

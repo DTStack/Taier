@@ -47,4 +47,15 @@ public class AkkaConfigConstant {
      * akka等到的超时时间
      */
     public static final String AKKA_ASK_RESULTTIMEOUT = "akka.ask.resultTimeout";
+
+    /**
+     * akka 的identifiers列表
+     */
+    public static final String REMOTE_CLUSTER_WORKER_IDENTIFIERS = "remote.cluster.worker.identifiers";
+
+    /**
+     * akka的节点列表
+     */
+    public static final String REMOTE_CLUSTER_WORKER_NODES = "remote.cluster.worker.%s.seed-nodes";
+
 }

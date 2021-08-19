@@ -30,7 +30,6 @@ public class ActorHandler {
     /**
      * 处理个数
      */
-    private final Integer handlerNumber;
     private final AbstractActor.ActorContext context;
     private ActorRef roundRobinRouting;
 
@@ -39,41 +38,22 @@ public class ActorHandler {
         this.actorClass = actorClass;
         this.actorName = actorName;
         this.context = context;
-        this.handlerNumber = AkkaConfig.getHandlerNumber();
         init(null);
     }
 
-    public ActorHandler(Class<? extends AbstractActor> actorClass, String actorName,AbstractActor.ActorContext context,Integer handlerNumber) {
-        this.actorClass = actorClass;
-        this.actorName = actorName;
-        this.context = context;
-        this.handlerNumber = handlerNumber;
-        init(null);
-    }
-
-    public ActorHandler(Class<? extends AbstractActor> actorClass, String actorName,AbstractActor.ActorContext context,Integer handlerNumber,String dispatcher) {
-        this.actorClass = actorClass;
-        this.actorName = actorName;
-        this.context = context;
-        this.handlerNumber = handlerNumber;
-        init(dispatcher);
-    }
 
     public ActorHandler(Class<? extends AbstractActor> actorClass, String actorName,AbstractActor.ActorContext context,String dispatcher) {
         this.actorClass = actorClass;
         this.actorName = actorName;
         this.context = context;
-        this.handlerNumber = AkkaConfig.getHandlerNumber();
         init(dispatcher);
     }
 
     private void init(String dispatcher) {
         if (StringUtils.isNotBlank(dispatcher)) {
-            roundRobinRouting = context.actorOf(Props.create(actorClass)
-                    .withRouter(new RoundRobinPool(handlerNumber).withDispatcher(dispatcher)),actorName);
+            roundRobinRouting = context.actorOf(Props.create(actorClass).withDispatcher(dispatcher),actorName);
         } else {
-            roundRobinRouting = context.actorOf(Props.create(actorClass)
-                    .withRouter(new RoundRobinPool(handlerNumber)),actorName);
+            roundRobinRouting = context.actorOf(Props.create(actorClass),actorName);
         }
         context.watch(roundRobinRouting);
     }

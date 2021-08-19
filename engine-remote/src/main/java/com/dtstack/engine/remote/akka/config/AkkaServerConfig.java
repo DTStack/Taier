@@ -4,13 +4,17 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import com.dtstack.engine.remote.akka.actor.ObjectActor;
+import com.dtstack.engine.remote.config.NodeStrategyServerConfig;
 import com.dtstack.engine.remote.config.ServerConfig;
 import com.dtstack.engine.remote.constant.ServerConstant;
+import com.dtstack.engine.remote.node.strategy.NodeInfoStrategy;
+import com.dtstack.engine.remote.route.RouteStrategy;
 import com.dtstack.engine.remote.service.ClientService;
 import com.dtstack.engine.remote.akka.AkkaClientServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -24,18 +28,20 @@ import org.springframework.core.env.Environment;
  * author: toutian
  * create: 2020/2/26
  */
-public class AkkaServerConfig implements ApplicationContextAware, EnvironmentAware, ServerConfig {
+public class AkkaServerConfig implements ApplicationContextAware, EnvironmentAware, NodeStrategyServerConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(AkkaServerConfig.class);
 
     private ApplicationContext applicationContext;
 
     private Environment environment;
+    private NodeInfoStrategy nodeInfoStrategy;
+    private RouteStrategy routeStrategy;
 
     @Override
     public void init(){
         if (!AkkaConfig.hasLoad()) {
-            AkkaConfig.init(environment,applicationContext);
+            AkkaConfig.init(environment,applicationContext,nodeInfoStrategy,routeStrategy);
         }
     }
 
@@ -66,4 +72,17 @@ public class AkkaServerConfig implements ApplicationContextAware, EnvironmentAwa
     public Environment getEnvironment() {
         return environment;
     }
+
+    @Override
+    @Autowired
+    public void setNodeInfoStrategy(NodeInfoStrategy nodeInfoStrategy) {
+        this.nodeInfoStrategy = nodeInfoStrategy;
+    }
+
+    @Override
+    @Autowired
+    public void setRouteStrategy(RouteStrategy routeStrategy) {
+        this.routeStrategy = routeStrategy;
+    }
+
 }

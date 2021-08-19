@@ -100,4 +100,7 @@ public class RemoteConfig {
         return new HashSet<>(Arrays.asList(value.split(",")));
     }
 
+    public static Properties getConfig() {
+        return config;
+    }
 }

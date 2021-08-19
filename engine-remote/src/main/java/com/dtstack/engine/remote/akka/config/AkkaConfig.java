@@ -4,8 +4,11 @@ import akka.routing.RoundRobinRoutingLogic;
 import akka.routing.Router;
 import akka.routing.RoutingLogic;
 import com.dtstack.engine.remote.akka.constant.AkkaConfigConstant;
+import com.dtstack.engine.remote.config.RemoteConfig;
 import com.dtstack.engine.remote.constant.GlobalConstant;
 import com.dtstack.engine.remote.enums.RouterTypeEnum;
+import com.dtstack.engine.remote.node.strategy.NodeInfoStrategy;
+import com.dtstack.engine.remote.route.RouteStrategy;
 import com.typesafe.config.Config;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -14,10 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -31,26 +31,24 @@ public class AkkaConfig {
     private static Config config;
     private static Environment environment;
     private static ApplicationContext applicationContext;
+    private static NodeInfoStrategy nodeInfoStrategy;
+    private static RouteStrategy routeStrategy;
+    private static Properties properties;
     private static final AtomicBoolean load = new AtomicBoolean(Boolean.FALSE);
 
-    public static void init(Environment environment, ApplicationContext applicationContext) {
+    public static void init(Environment environment, ApplicationContext applicationContext,NodeInfoStrategy nodeInfoStrategy,RouteStrategy routeStrategy) {
         AkkaConfig.applicationContext = applicationContext;
         AkkaConfig.environment = environment;
-        init();
+        AkkaConfig.nodeInfoStrategy = nodeInfoStrategy;
+        AkkaConfig.routeStrategy = routeStrategy;
+        if (!RemoteConfig.hasLoad()) {
+            RemoteConfig.init(environment, applicationContext);
+        }
+        properties = RemoteConfig.getConfig();
+        config = AkkaLoad.loadProperties(properties);
         load.set(Boolean.TRUE);
     }
 
-    public static void init() {
-        String property = environment.getProperty(AkkaConfigConstant.CONFIG_PATH);
-        if (StringUtils.isBlank(property)) {
-            // 不配置配置文件，默认{user.dir}/conf下文件 application-common.properties 和 application.properties
-            config = AkkaLoad.load(environment.getProperty(GlobalConstant.BASE_PATH));
-            return;
-        }
-
-        config = AkkaLoad.load(property);
-
-    }
 
     public static Boolean hasLoad(){
         return load.get();
@@ -121,6 +119,16 @@ public class AkkaConfig {
         return Integer.valueOf(getValueWithDefault(keyName, "20"));
     }
 
+    public static List<String> getNodes(String identifiers) {
+        String keyName = String.format(AkkaConfigConstant.REMOTE_CLUSTER_WORKER_NODES,identifiers);
+        return config.getStringList(keyName);
+    }
+
+    public static List<String> getIdentifiers() {
+        String keyName = AkkaConfigConstant.REMOTE_CLUSTER_WORKER_IDENTIFIERS;
+        return config.getStringList(keyName);
+    }
+
     private static String getValueWithDefault(String configKey, String defaultValue) {
         String configValue = null;
         if (config.hasPath(configKey)) {
@@ -139,8 +147,26 @@ public class AkkaConfig {
         return applicationContext;
     }
 
+    public static NodeInfoStrategy getNodeInfoStrategy() {
+        return nodeInfoStrategy;
+    }
+
+    public static void setNodeInfoStrategy(NodeInfoStrategy nodeInfoStrategy) {
+        AkkaConfig.nodeInfoStrategy = nodeInfoStrategy;
+    }
+
+    public static RouteStrategy getRouteStrategy() {
+        return routeStrategy;
+    }
+
+    public static void setRouteStrategy(RouteStrategy routeStrategy) {
+        AkkaConfig.routeStrategy = routeStrategy;
+    }
+
     public static long getWorkerTimeout() {
         String keyName = AkkaConfigConstant.WORKER_TIMEOUT;
         return Long.parseLong(getValueWithDefault(keyName, "300000"));
     }
+
+
 }
