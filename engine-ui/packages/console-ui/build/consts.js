@@ -8,7 +8,7 @@ const PWA = path.resolve(APP_PATH, 'pwa');              // pwa
 
 const BASE_NAME = process.env.BASE_NAME || '/console/'; // 资源目录 默认访问路径
 const BUILD_PATH = path.resolve(ROOT_PATH, `dist${BASE_NAME}`);      // 发布文件所存放的目录
-const PUBLICPATH =  process.env.NODE_ENV === 'production' ? 'http://schedule.dtstack.cn/console' : 'http://127.0.0.1:8080/console'
+const PUBLICPATH =  process.env.NODE_ENV === 'production' ? 'http://schedule.dtstack.cn/console' : 'http://127.0.0.1:8082/console'
 
 // app 文件地址
 const APP_FILE = path.resolve(APP_PATH, 'app');

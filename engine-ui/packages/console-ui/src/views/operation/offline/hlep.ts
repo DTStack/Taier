@@ -1,5 +1,4 @@
 import { TASK_STATUS } from '../../../consts/comm'
-import { APPS_TYPE } from '../../../consts'
 
 declare var window: any
 
@@ -32,10 +31,8 @@ export function getVertxtStyle (type: any) {
 }
 
 export function goToTaskDev (record: any) {
-    const { appType, id, projectId } = record ?? {}
-    if (appType == APPS_TYPE.INDEX) {
-        window.open(`${window.APP_CONF.EASY_INDEX_URL}/#/easy-index/index-define?taskId=${id}&pid=${projectId}`)
-    }
+    const { id } = record ?? {}
+    window.open(`${location.pathname}#/?taskId=${id}`);
 }
 
 /**

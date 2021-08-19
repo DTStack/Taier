@@ -7,8 +7,9 @@ import { Input, Select, message, Checkbox,
     Pagination, Col } from 'antd';
 
 import { getProjectList } from '../../../actions/operation';
-import { APPS_TYPE } from '../../../consts'
+import { APPS_TYPE, APP_TYPE_ID, PROJECT_ID } from '../../../consts'
 import Api from '../../../api/operation';
+import utils from '../../../utils'
 
 const Search = Input.Search;
 const Option = Select.Option;
@@ -34,7 +35,12 @@ class PatchDataList extends React.Component<any, any> {
 
     componentDidMount () {
         const { appType, pid } = this.props.router.location?.query ?? {}
-        const params = { appType: appType ?? APPS_TYPE.INDEX, projectId: pid ?? '' }
+        const appTypeFormCookie = utils.getCookie(APP_TYPE_ID)
+        const pidFormCookie = utils.getCookie(PROJECT_ID)
+        const params = {
+            appType: appTypeFormCookie ?? appType ?? APPS_TYPE.BATCH,
+            projectId: pidFormCookie ?? pid ?? ''
+        }
         this.setState({ ...params }, () => {
             this.loadPatchData()
             this.getProjectList()
@@ -261,10 +267,9 @@ class PatchDataList extends React.Component<any, any> {
 
     render () {
         const {
-            tasks, current, checkVals, dutyUserId, bizDay, runDay, jobName, pageSize, loading,
-            appType, projectId
+            tasks, current, checkVals, dutyUserId, bizDay, runDay, jobName, pageSize, loading
         } = this.state;
-        const { projectList, personList } = this.props
+        const { personList } = this.props
 
         const pagination: any = {
             total: tasks.totalCount,
@@ -288,31 +293,6 @@ class PatchDataList extends React.Component<any, any> {
             <div className="c-patchDataList__wrap">
                 <Form layout="inline" style={{ marginBottom: 8 }}>
                     <Col>
-                        <FormItem label={getTitle('产品')}>
-                            <Select
-                                className="dt-form-shadow-bg"
-                                style={{ width: 210 }}
-                                placeholder="请选择产品"
-                                value={appType}
-                            >
-                                <Option value={APPS_TYPE.INDEX}>指标管理</Option>
-                            </Select>
-                        </FormItem>
-                        <FormItem label={getTitle('项目')}>
-                            <Select
-                                allowClear
-                                showSearch
-                                className="dt-form-shadow-bg"
-                                style={{ width: 210 }}
-                                placeholder="请选择项目"
-                                value={projectId}
-                                optionFilterProp="children"
-                                onSearch={this.getProjectList}
-                                onChange={this.changeProject}
-                            >
-                                {projectList.map(item => <Option key={item.projectId} value={`${item.projectId}`}>{item.projectName}</Option>)}
-                            </Select>
-                        </FormItem>
                         <FormItem>
                             <Search
                                 placeholder="按任务名称搜索"

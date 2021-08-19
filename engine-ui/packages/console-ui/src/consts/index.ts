@@ -1177,3 +1177,7 @@ export const APPS_TYPE = {
     BATCH: 1,
     INDEX: 10
 }
+
+export const APP_TYPE_ID = 'dt_apptype_id'
+
+export const PROJECT_ID = 'dt_project_id'

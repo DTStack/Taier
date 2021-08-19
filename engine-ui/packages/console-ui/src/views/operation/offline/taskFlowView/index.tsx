@@ -156,7 +156,7 @@ class TaskFlowView extends React.Component<any, any> {
             // 如果为工作流节点，且工作流处于冻结状态时，需要禁用子节点的解冻或者调用功能
             // const disableRunCtrl = isWorkflowNode && currentNode.workflow && currentNode.workflow.scheduleStatus === SCHEDULE_STATUS.STOPPED;
             const appType = cell?.value?.appType
-            if (APP_TYPE[appType] === APP_TYPE[10]) {
+            if (APP_TYPE[appType] === APP_TYPE[1]) {
                 if (!isWorkflowNode) {
                     menu.addItem('展开上游（6层）', null, function () {
                         ctx.loadTaskParent({

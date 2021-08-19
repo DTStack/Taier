@@ -14,7 +14,7 @@ import Api from '../../../api/operation';
 import { offlineTaskPeriodFilter, SCHEDULE_STATUS,
     PROJECT_TYPE, TASK_TYPE } from '../../../consts/comm';
 import utils from '../../../utils';
-import { APPS_TYPE } from '../../../consts';
+import { APPS_TYPE, APP_TYPE_ID, PROJECT_ID } from '../../../consts';
 import { goToTaskDev, replaceObjectArrayFiledName } from './hlep';
 import { TaskTimeType, TaskType } from '../../../components/status';
 import { getProjectList } from '../../../actions/operation';
@@ -48,13 +48,18 @@ class OfflineTaskMana extends React.Component<any, any> {
         selectedRowKeys: [],
         expandedRowKeys: [],
         searchType: 'fuzzy',
-        appType: APPS_TYPE.INDEX,
+        appType: APPS_TYPE.BATCH,
         projectId: ''
     };
 
     componentDidMount () {
         const { appType, pid, taskId } = this.props.router.location?.query ?? {}
-        const params = { appType: appType ?? APPS_TYPE.INDEX, projectId: pid ?? '' }
+        const appTypeFormCookie = utils.getCookie(APP_TYPE_ID)
+        const pidFormCookie = utils.getCookie(PROJECT_ID)
+        const params = {
+            appType: appTypeFormCookie ?? appType ?? APPS_TYPE.BATCH,
+            projectId: pidFormCookie ?? pid ?? ''
+        }
         this.setState({ ...params }, () => {
             this.search()
             this.getTaskTypesX()
@@ -475,10 +480,9 @@ class OfflineTaskMana extends React.Component<any, any> {
     render () {
         const {
             tasks, patchDataVisible, selectedTask, person, checkVals, patchTargetTask, current,
-            taskName, visibleSlidePane, selectedRowKeys, tabKey, searchType, pageSize,
-            appType, projectId
+            taskName, visibleSlidePane, selectedRowKeys, tabKey, searchType, pageSize
         } = this.state;
-        const { projectList, personList } = this.props
+        const { personList } = this.props
 
         const pagination: any = {
             total: tasks.totalCount,
@@ -529,33 +533,6 @@ class OfflineTaskMana extends React.Component<any, any> {
             <div className="c-taskMana__wrap">
                 <Form layout="inline" style={{ marginBottom: 8 }}>
                     <Col>
-                        <FormItem label={getTitle('产品')}>
-                            <Select
-                                className="dt-form-shadow-bg"
-                                style={{ width: 200 }}
-                                placeholder="请选择产品"
-                                value={appType}
-                            >
-                                <Option value={APPS_TYPE.INDEX}>指标管理</Option>
-                            </Select>
-                        </FormItem>
-                        <FormItem label={getTitle('项目')}>
-                            <Select
-                                allowClear
-                                showSearch
-                                className="dt-form-shadow-bg"
-                                style={{ width: 200 }}
-                                placeholder="请选择项目"
-                                value={projectId}
-                                optionFilterProp="children"
-                                onSearch={this.getProjectList}
-                                onChange={this.changeProject}
-                            >
-                                {projectList.map(item => {
-                                    return <Option key={item.projectId} value={`${item.projectId}`}>{item.projectName}</Option>
-                                })}
-                            </Select>
-                        </FormItem>
                         <FormItem label="" className="batch-operation_offlineImg dt-form-shadow-bg">
                             <MultiSearchInput
                                 placeholder="按任务名称搜索"
@@ -609,7 +586,7 @@ class OfflineTaskMana extends React.Component<any, any> {
                             return '';
                         }
                     }}
-                    style={{ height: `calc(100vh - 200px)` }}
+                    style={{ height: `calc(100vh - 154px)` }}
                     className="dt-table-fixed-contain-footer dt-table-border"
                     expandedRowKeys={this.state.expandedRowKeys}
                     pagination={false}

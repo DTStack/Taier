@@ -723,7 +723,7 @@ class PatchDataDetail extends React.Component<any, any> {
                 <div style={{ margin: '12px 20px' }}>
                     <Breadcrumb>
                         <Breadcrumb.Item>
-                            <a href="/console/#/operation-ui/task-patch-data">补数据实例</a>
+                            <a href="/#/operation-ui/task-patch-data">补数据实例</a>
                         </Breadcrumb.Item>
                         <Breadcrumb.Item>{fillJobName}</Breadcrumb.Item>
                     </Breadcrumb>
