@@ -95,4 +95,6 @@ public interface ScheduleTaskShadeDao {
     ScheduleTaskShade getById(@Param("id") Long id);
 
     void updateProjectScheduleStatus(@Param("projectId")Long projectId,@Param("appType")Integer appType,@Param("scheduleStatus") Integer scheduleStatus);
+
+    List<ScheduleTaskShade> listByUicTenantId(@Param("tenantIds") List<Long> tenantIds, @Param("appType") Integer appType);
 }

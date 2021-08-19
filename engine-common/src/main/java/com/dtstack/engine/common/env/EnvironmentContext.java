@@ -534,6 +534,10 @@ public class EnvironmentContext {
         return Integer.parseInt(environment.getProperty("max.deep.show", "20"));
     }
 
+    public int getMaxTenantSize() {
+        return Integer.parseInt(environment.getProperty("max.tenant.size", "20"));
+    }
+
     /**
      * 是否根据版本加载默认的配置
      *
@@ -545,5 +549,9 @@ public class EnvironmentContext {
 
     public String getPluginPath() {
         return environment.getProperty("plugin.path",  System.getProperty("user.dir") + File.separator +"pluginLibs");
+    }
+
+    public Boolean getOpenErrorTop() {
+        return Boolean.parseBoolean(environment.getProperty("open.error.top", "true"));
     }
 }
