@@ -280,7 +280,7 @@ public class MysqlLogStore extends AbstractLogStore {
                     }
 
                     updateStmt= batchExecuteJobTimeOutById(dealSql, ids, connection);
-                    LOG.info("deal SQL:{} affect ids:{}", dealSql, ids);
+                    LOGGER.info("deal SQL:{} affect ids:{}", dealSql, ids);
                 } catch (SQLException e) {
                     LOGGER.error("", e);
                     break;
@@ -328,7 +328,7 @@ public class MysqlLogStore extends AbstractLogStore {
                 return minId;
             }
         } catch (Exception e) {
-            LOG.error("", e);
+            LOGGER.error("", e);
         } finally {
             closeDBResources(minIdRs, minIdPs,null,null);
         }
