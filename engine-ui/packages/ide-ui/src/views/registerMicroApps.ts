@@ -3,8 +3,8 @@ import { registerMicroApps, setDefaultMountApp, start } from 'qiankun';
 export const AppContainer = 'AppContainer';
 const container = `#${AppContainer}`;
 
-let ENTRY_CONSOLE = '//local.dtstack.cn:8080/console/';
-let ENTRY_OPERATION = '//local.dtstack.cn:8080/console/';
+let ENTRY_CONSOLE = '//local.dtstack.cn:8082/console/';
+let ENTRY_OPERATION = '//local.dtstack.cn:8082/console/';
 let ENTRY_DATABASE = '//local.dtstack.cn:8082/datasource/';
 
 // For Production
@@ -19,13 +19,13 @@ registerMicroApps([
         name: 'Operation',
         entry: ENTRY_OPERATION,
         container: container,
-        activeRule: '#/operation',
+        activeRule: '#/operation-ui',
     },
     {
         name: 'DTConsoleApp',
         entry: ENTRY_CONSOLE,
         container: container,
-        activeRule: '#/console',
+        activeRule: '#/console-ui',
     },
     {
         name: 'Database',
