@@ -121,6 +121,7 @@ public class JobGraphBuilder {
 
             boolean hasBuild = jobGraphTriggerService.checkHasBuildJobGraph(triggerTime);
             if (hasBuild) {
+                logger.info("trigger Day {} has build so break", triggerDay);
                 return;
             }
             //清理周期实例脏数据
