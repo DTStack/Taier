@@ -18,7 +18,6 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.ComponentVersionUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.schedule.common.enums.DataSourceType;
@@ -765,7 +764,7 @@ public class ClusterService implements InitializingBean {
     }
 
     public String oceanBaseInfo(Long dtUicTenantId, Long dtUicUserId,Map<Integer,String > componentVersionMap){
-        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.OCEANBASE,componentVersionMap);
+        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.OceanBase,componentVersionMap);
     }
 
     public String greenplumInfo(Long dtUicTenantId, Long dtUicUserId,Map<Integer,String > componentVersionMap){
@@ -804,7 +803,7 @@ public class ClusterService implements InitializingBean {
             componentType = EComponentType.DB2;
         } else if (DataSourceType.SQLServer.equals(dataSourceType)) {
             componentType = EComponentType.SQL_SERVER;
-        } else if (DataSourceType.OCEANBASE.equals(dataSourceType)) {
+        } else if (DataSourceType.OceanBase.equals(dataSourceType)) {
             componentType = EComponentType.OCEANBASE;
         }
         if (componentType == null) {
