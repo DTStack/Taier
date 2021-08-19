@@ -78,7 +78,6 @@ public class Template {
         return jc;
     }
 
-
     public static EngineJobCheckpoint getEngineJobSavepointTemplate() {
         EngineJobCheckpoint jc = new EngineJobCheckpoint();
         jc.setTaskId("taskId");

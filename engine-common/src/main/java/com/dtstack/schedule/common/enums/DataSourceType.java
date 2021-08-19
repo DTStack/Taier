@@ -76,6 +76,9 @@ public enum DataSourceType {
     INFLUXDB(55),
     OPENTSDB(56),
     BEATS(16),
+    /**
+     * spark thrift
+     */
     Spark(1002),
     KylinRestful(58),
 

@@ -3,6 +3,7 @@
 package com.dtstack.engine.master.config;
 
 import com.dtstack.engine.master.router.DtArgumentCookieResolver;
+import com.dtstack.engine.master.router.DtArgumentParamOrHeaderResolver;
 import com.dtstack.engine.master.router.DtArgumentResolver;
 import com.dtstack.engine.master.router.login.LoginInterceptor;
 import com.google.common.collect.Lists;
@@ -14,7 +15,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-import org.springframework.web.servlet.config.annotation.*;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.DelegatingWebMvcConfiguration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +63,9 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
     @Autowired
     private DtArgumentCookieResolver dtArgumentCookieResolver;
 
+    @Autowired
+    private DtArgumentParamOrHeaderResolver dtArgumentParamOrHeaderResolver;
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
@@ -91,6 +98,7 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
         super.addArgumentResolvers(argumentResolvers);
         argumentResolvers.add(dtArgumentResolver);
         argumentResolvers.add(dtArgumentCookieResolver);
+        argumentResolvers.add(dtArgumentParamOrHeaderResolver);
     }
 
     @Override

@@ -1,9 +1,13 @@
 package com.dtstack.engine.master.router;
 
+import com.alibaba.fastjson.util.TypeUtils;
+import com.dtstack.engine.api.dto.UserDTO;
+import com.dtstack.engine.master.router.login.SessionUtil;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -23,6 +27,11 @@ import java.util.Map;
 public class DtArgumentCookieResolver implements HandlerMethodArgumentResolver {
 
     private final String COOKIE = "cookie";
+    private final String USER_ID = "userId";
+
+    @Autowired
+    private SessionUtil sessionUtil;
+
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         return parameter.hasParameterAnnotation(DtHeader.class);
@@ -44,20 +53,34 @@ public class DtArgumentCookieResolver implements HandlerMethodArgumentResolver {
             return null;
         }
         String header = servletRequest.getHeader(paramName);
-
+        Class<?> parameterType = methodParameter.getParameterType();
         if (COOKIE.equals(paramName) && StringUtils.isNotBlank(requestParam.cookie())) {
             if (StringUtils.isBlank(header)) {
                 return header;
             }
 
-            return paramToMap(header).get(requestParam.cookie());
+            Object value = paramToMap(header).get(requestParam.cookie());
+            return TypeUtils.castToJavaBean(value, parameterType);
+        }
+        if (USER_ID.equals(paramName) && StringUtils.isNotBlank(requestParam.cookie())) {
+            Object dtToken = paramToMap(header).get("dt_token");
+
+            if (dtToken != null) {
+                UserDTO user = sessionUtil.getUser(dtToken.toString(), UserDTO.class);
+
+                if (user != null) {
+                    Long dtuicUserId = user.getDtuicUserId();
+                    return TypeUtils.castToJavaBean(dtuicUserId, parameterType);
+                }
+            }
+            return null;
         } else {
             return header;
         }
     }
 
-    private Map<String, String> paramToMap(String header) {
-        Map<String, String> map = Maps.newHashMap();
+    private Map<String, Object> paramToMap(String header) {
+        Map<String, Object> map = Maps.newHashMap();
 
         List<String> strings = Splitter.on(";").trimResults().splitToList(header);
 

@@ -30,6 +30,10 @@
             <if test="model.tenantId != null">
                 AND tenant_id = #{model.tenantId}
             </if>
+
+            <if test="model.dtuicTenantId != null and model.dtuicTenantId != 0">
+                AND dtuic_tenant_id = #{model.dtuicTenantId}
+            </if>
             <if test="model.projectId != null">
                 AND project_id = #{model.projectId}
             </if>
@@ -303,7 +307,7 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_task_shade
-        WHERE project_id = #{projectId}  and is_deleted = 0 and app_type = #{appType}
+        WHERE is_deleted = 0 and app_type = #{appType}
         <if test="ownerId!=null">
            AND owner_user_id = #{ownerId}
         </if>
@@ -326,7 +330,7 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_task_shade
-        WHERE project_id = #{projectId}  and is_deleted = 0 and app_type = #{appType}
+        WHERE is_deleted = 0 and app_type = #{appType}
         <if test="ownerId!=null">
             AND owner_user_id = #{ownerId}
         </if>
