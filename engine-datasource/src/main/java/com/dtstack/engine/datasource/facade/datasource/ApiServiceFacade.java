@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.dtcenter.common.pager.PageResult;
 import com.dtstack.engine.datasource.dao.po.datasource.*;
 import com.dtstack.engine.datasource.param.datasource.api.*;
-import com.dtstack.engine.datasource.param.datasource.*;
 import com.dtstack.engine.datasource.service.impl.datasource.*;
 import com.dtstack.engine.datasource.vo.datasource.*;
 import com.dtstack.engine.datasource.vo.datasource.api.*;
@@ -162,7 +161,7 @@ public class ApiServiceFacade {
             dsImportRef.setAppType(importParam.getAppType());
             dsImportRef.setProjectId(projectId);
             dsImportRef.setDtUicTenantId(dtUicTenantId);
-            dsImportRef.setCreateUserId(importParam.getDtuicUserId());
+            dsImportRef.setCreateUserId(importParam.getUserId());
             dsImportRefs.add(dsImportRef);
         });
         return importRefService.saveBatch(dsImportRefs);
@@ -207,7 +206,7 @@ public class ApiServiceFacade {
     public DsShiftReturnVO createMetaDs(CreateDsParam createDsParam) {
         DataSourceVO dataSourceVO = convertParamToVO(createDsParam);
         //方法复用
-        Long dataSourceId = datasourceFacade.addOrUpdateSource(dataSourceVO, dataSourceVO.getProjectId(), createDsParam.getUserId(), createDsParam.getDtuicTenantId());
+        Long dataSourceId = datasourceFacade.addOrUpdateSource(dataSourceVO, dataSourceVO.getProjectId(), createDsParam.getUserId(), createDsParam.getTenantId());
         // 保存数据源和产品引入关系
         DsImportRef importRef = new DsImportRef();
         importRef.setDataInfoId(dataSourceId);

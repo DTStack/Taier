@@ -33,6 +33,11 @@
         </dependency>
 
         <dependency>
+            <groupId>com.dtstack.dtcenter</groupId>
+            <artifactId>common.loader.core</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis</artifactId>
             <version>3.5.5</version>

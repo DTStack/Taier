@@ -6,8 +6,7 @@ package com.dtstack.engine.common.constrant;
  */
 public interface Cookies {
     String DT_TOKEN = "dt_token";
-
-    String DT_SESSION_ID = "DT_SESSION_ID";
+    String TOKEN = "token";
 
     String DT_USER_ID = "dt_user_id";
     String DT_USER_NAME = "dt_username";
@@ -19,9 +18,8 @@ public interface Cookies {
     String DT_PROJECT_ID = "dt_project_id";
     String DT_PROJECT_NAME = "dt_project_name";
 
-    String DT_CAN_REDIRECT = "dt_can_redirect";
 
-    String DT_PRODUCT_CODE = "dt_product_code";
-
-    String DT_COOKIE_TIME = "dt_cookie_time";
+    String USER_ID = "userId";
+    String TENANT_ID = "tenantId";
+    String PROJECT_ID = "projectId";
 }
