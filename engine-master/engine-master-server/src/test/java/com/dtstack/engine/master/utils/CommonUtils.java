@@ -7,6 +7,7 @@ import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 
 import java.io.File;
+import java.io.IOException;
 
 public class CommonUtils {
     private final static String SEP = File.separator;
@@ -25,7 +26,7 @@ public class CommonUtils {
         while (parentDir != null && parentDir.contains(SEP)) {
             String testConfDir = parentDir + SEP + TEST_CONF;
             if (new File(testConfDir).exists()) {
-                System.setProperty("user.dir", testConfDir);
+                System.setProperty("user.dir.conf", testConfDir);
                 return;
             } else {
                 parentDir = parentDir.substring(0, parentDir.lastIndexOf(SEP));

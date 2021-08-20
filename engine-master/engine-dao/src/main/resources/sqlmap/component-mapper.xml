@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.engine.dao.ComponentDao">
 
     <sql id="select_content_fragment">
-      id,engine_id,component_name,component_type_code,gmt_create,gmt_modified,is_deleted,hadoop_version,upload_file_name,kerberos_file_name
+      id,engine_id,component_name,component_type_code,gmt_create,gmt_modified,is_deleted,hadoop_version,upload_file_name,kerberos_file_name,store_type
     </sql>
 
     <sql id="update_fragment">
@@ -20,6 +20,9 @@
             <if test="kerberosFileName != null">
                 kerberos_file_name = #{kerberosFileName},
             </if>
+            <if test="storeType != null">
+                store_type = #{storeType},
+            </if>
             gmt_modified =now()
         </set>
     </sql>
@@ -31,8 +34,8 @@
     </select>
 
     <insert id="insert" parameterType="Component" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO console_component(engine_id,component_name,component_type_code,upload_file_name,hadoop_version,kerberos_file_name)
-        VALUES (#{engineId},#{componentName},#{componentTypeCode},#{uploadFileName},#{hadoopVersion},#{kerberosFileName})
+        INSERT INTO console_component(engine_id,component_name,component_type_code,upload_file_name,hadoop_version,kerberos_file_name,store_type)
+        VALUES (#{engineId},#{componentName},#{componentTypeCode},#{uploadFileName},#{hadoopVersion},#{kerberosFileName},#{storeType})
     </insert>
 
     <update id="update">
@@ -96,4 +99,26 @@
     <delete id="deleteById">
         delete from console_component where id = #{componentId}
     </delete>
+
+    <select id="getIdByTenantIdComponentType" resultType="java.lang.Integer">
+        select
+		cc.id
+        from
+        console_component cc
+        INNER JOIN console_engine_tenant cet
+        on cc.engine_id = cet.engine_id
+        and cet.tenant_id =  #{tenantId}
+        where cc.component_type_code = #{componentType}
+        and cc.is_deleted = 0
+    </select>
+
+    <select id="listByTenantId" resultType="Component">
+        select
+        cc.id,cc.component_name,cc.component_type_code
+        from console_component cc
+        INNER JOIN console_engine_tenant cet
+        on cc.engine_id = cet.engine_id
+        and cet.tenant_id =  #{tenantId}
+        where cc.is_deleted = 0
+    </select>
 </mapper>

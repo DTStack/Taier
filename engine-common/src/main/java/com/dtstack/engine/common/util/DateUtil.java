@@ -1,7 +1,9 @@
 package com.dtstack.engine.common.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.ref.SoftReference;
-import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -18,19 +20,21 @@ import java.util.concurrent.TimeUnit;
  */
 public class DateUtil {
 
-    private static final String TIME_ZONE = "GMT+8";
-    private static final String STANDARD_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
-    private static final String UN_STANDARD_DATETIME_FORMAT = "yyyyMMddHHmmss";
-    private static final String DATE_FORMAT = "yyyy-MM-dd";
-    private static final String TIME_FORMAT = "HH:mm:ss";
-    private static final String YEAR_FORMAT = "yyyy";
+    public static final String TIME_ZONE = "GMT+8";
+    public static final String STANDARD_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    public static final String UN_STANDARD_DATETIME_FORMAT = "yyyyMMddHHmmss";
+    public static final String DATE_FORMAT = "yyyy-MM-dd";
+    public static final String TIME_FORMAT = "HH:mm:ss";
+    public static final String YEAR_FORMAT = "yyyy";
 
-    private static final String STANDARD_DATETIME_FORMAT_KEY = "standardDatetimeFormatter";
-    private static final String UN_STANDARD_DATETIME_FORMAT_KEY = "unStandardDatetimeFormatter";
-    private static final String DATE_FORMAT_KEY = "dateFormatter";
-    private static final String TIME_FORMAT_KEY = "timeFormatter";
-    private static final String YEAR_FORMAT_KEY = "yearFormatter";
-    private static final String START_TIME = "1970-01-01";
+    public static final String STANDARD_DATETIME_FORMAT_KEY = "standardDatetimeFormatter";
+    public static final String UN_STANDARD_DATETIME_FORMAT_KEY = "unStandardDatetimeFormatter";
+    public static final String DATE_FORMAT_KEY = "dateFormatter";
+    public static final String TIME_FORMAT_KEY = "timeFormatter";
+    public static final String YEAR_FORMAT_KEY = "yearFormatter";
+    public static final String START_TIME = "1970-01-01";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DateUtil.class);
 
     private static final ThreadLocal<SoftReference<Map<String, SimpleDateFormat>>>
             THREADLOCAL_FORMATS = new ThreadLocal<SoftReference<Map<String, SimpleDateFormat>>>();
@@ -64,23 +68,6 @@ public class DateUtil {
         return formatterMap;
     });
 
-    public static java.sql.Date columnToDate(Object column) {
-        if(column instanceof String) {
-            return new java.sql.Date(stringToDate((String)column).getTime());
-        } else if (column instanceof Integer) {
-            Integer rawData = (Integer) column;
-            return new java.sql.Date(rawData.longValue());
-        } else if (column instanceof Long) {
-            Long rawData = (Long) column;
-            return new java.sql.Date(rawData.longValue());
-        } else if (column instanceof java.sql.Date) {
-            return (java.sql.Date) column;
-        } else if(column instanceof java.sql.Timestamp) {
-            Timestamp ts = (Timestamp) column;
-            return new java.sql.Date(ts.getTime());
-        }
-        throw new IllegalArgumentException("Can't convert " + column.getClass().getName() + " to Date");
-    }
 
     public static Date stringToDate(String strDate)  {
         if(strDate == null || strDate.trim().length() == 0) {
@@ -713,7 +700,7 @@ public class DateUtil {
      */
     public static int getMinusDate(int day, int minusDay) {
         Calendar cal = Calendar.getInstance();
-        cal.setTime(new Date(day * 1000));
+        cal.setTime(new Date(day * 1000L));
         cal.set(Calendar.DATE, cal.get(Calendar.DATE) - minusDay);
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
@@ -912,7 +899,7 @@ public class DateUtil {
             Date date = simpleDateFormat.parse(simpleDateFormat.format(new Date()));
             return date.getTime();
         } catch (ParseException e) {
-            e.printStackTrace();
+            LOGGER.error("DateUtil.calTodayMills error:{}",e.getMessage());
         }
         return 0L;
     }
@@ -983,7 +970,7 @@ public class DateUtil {
             Date date = simpleDateFormat.parse(formattedDate);
             return date.getTime();
         } catch (ParseException e) {
-            e.printStackTrace();
+            LOGGER.error("DateUtil.getTimestamp error:", e);
         }
         return 0L;
     }

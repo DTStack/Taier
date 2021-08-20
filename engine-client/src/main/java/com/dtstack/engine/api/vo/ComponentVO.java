@@ -33,6 +33,36 @@ public class ComponentVO extends Component {
         this.componentTemplate = componentTemplate;
     }
 
+    private String principals;
+
+    private String principal;
+
+    private String mergeKrb5Content;
+
+    public String getMergeKrb5Content() {
+        return mergeKrb5Content;
+    }
+
+    public void setMergeKrb5Content(String mergeKrb5Content) {
+        this.mergeKrb5Content = mergeKrb5Content;
+    }
+
+    public String getPrincipals() {
+        return principals;
+    }
+
+    public void setPrincipals(String principals) {
+        this.principals = principals;
+    }
+
+    public String getPrincipal() {
+        return principal;
+    }
+
+    public void setPrincipal(String principal) {
+        this.principal = principal;
+    }
+
     public String getClusterName() {
         return clusterName;
     }
@@ -43,7 +73,7 @@ public class ComponentVO extends Component {
 
     public static List<ComponentVO> toVOS(List<Component> components) {
         List<ComponentVO> vos = new ArrayList<>();
-        if(CollectionUtils.isEmpty(components)){
+        if (CollectionUtils.isEmpty(components)) {
             return vos;
         }
         for (Component component : components) {

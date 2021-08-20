@@ -1,10 +1,17 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.domain.Cluster;
+import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.vo.console.ConsoleJobVO;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.dao.TestClusterDao;
+import com.dtstack.engine.dao.TestComponentDao;
 import com.dtstack.engine.dao.TestEngineJobCacheDao;
 import com.dtstack.engine.dao.TestScheduleJobDao;
 import com.dtstack.engine.master.AbstractTest;
@@ -13,6 +20,7 @@ import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.utils.Template;
 import com.dtstack.engine.master.vo.TaskTypeResourceTemplateVO;
 import com.dtstack.engine.master.zookeeper.ZkService;
+import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,6 +60,11 @@ public class ConsoleServiceTest extends AbstractTest {
     @Autowired
     TestEngineJobCacheDao engineJobCacheDao;
 
+    @Autowired
+    TestClusterDao clusterDao;
+
+    @Autowired
+    TestComponentDao componentDao;
 
     @Before
     public void setup() throws Exception {
@@ -144,6 +157,16 @@ public class ConsoleServiceTest extends AbstractTest {
     @Test
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
+    public void testGroupDetail() {
+        EngineJobCache one = engineJobCacheDao.getOne();
+        PageResult groupDetail = consoleService.groupDetail(one.getJobResource(), one.getNodeAddress(), one.getStage(), 10, 1, "");
+        Assert.assertNotNull(groupDetail);
+        Assert.assertTrue(groupDetail.getTotalCount()>0);
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testJobStick() {
         EngineJobCache engineJobCache2 = DataCollection.getData().getEngineJobCache2();
         engineJobCache2.setJobId("abcdefg");
@@ -166,6 +189,44 @@ public class ConsoleServiceTest extends AbstractTest {
     public void testStopAll() throws Exception {
         EngineJobCache engineJobCache = DataCollection.getData().getEngineJobCache();
         consoleService.stopAll(engineJobCache.getJobResource(), engineJobCache.getNodeAddress());
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testStopJobList() throws Exception {
+        EngineJobCache one = engineJobCacheDao.getOne();
+        consoleService.stopJobList(one.getJobResource(), one.getNodeAddress(), one.getStage(), Lists.newArrayList(one.getJobId()));
+    }
+
+    @Test
+    @Rollback
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    public void testClusterResources() {
+        Cluster one = DataCollection.getData().getDefaultCluster();
+        ClusterResource clusterResources = consoleService.clusterResources(one.getClusterName());
+        Assert.assertNotNull(clusterResources);
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testGetResources() {
+        Component hdfsComponent = Template.getDefaultHdfsComponentTemplate();
+        Cluster cluster = clusterDao.getOne();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(ConfigConstant.TYPE_NAME_KEY,"yarn2-hdfs2-flink180");
+        ClusterResource getResources = consoleService.getResources(hdfsComponent, cluster,jsonObject);
+        Assert.assertNotNull(getResources);
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testGetYarnComponent() {
+        Cluster defaultCluster = DataCollection.getData().getDefaultCluster();
+        Component getYarnComponent = consoleService.getYarnComponent(defaultCluster.getId());
+        Assert.assertNotNull(getYarnComponent);
     }
 
     @Test

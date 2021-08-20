@@ -18,7 +18,11 @@ public class KerberosConfig extends BaseEntity {
     @ApiModelProperty(notes = "集群文件夹的sftp路径")
     private String remotePath;
 
+    @ApiModelProperty(notes = "kerberos认证用户名")
     private String principal;
+
+    @ApiModelProperty(notes = "keytab中所有用户名")
+    private String principals;
 
     private Integer componentType;
 
@@ -27,6 +31,24 @@ public class KerberosConfig extends BaseEntity {
      */
     @ApiModelProperty(notes = "krb5 的文件名称")
     private String krbName;
+
+    private String mergeKrbContent;
+
+    public String getMergeKrbContent() {
+        return mergeKrbContent;
+    }
+
+    public void setMergeKrbContent(String mergeKrbContent) {
+        this.mergeKrbContent = mergeKrbContent;
+    }
+
+    public String getPrincipals() {
+        return principals;
+    }
+
+    public void setPrincipals(String principals) {
+        this.principals = principals;
+    }
 
     public String getKrbName() {
         return krbName;
@@ -77,7 +99,6 @@ public class KerberosConfig extends BaseEntity {
     }
 
     public Long getClusterId() {
-
         return clusterId;
     }
 

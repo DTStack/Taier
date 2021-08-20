@@ -32,14 +32,6 @@ public class JobParamReplace {
 
     private final static String VAR_FORMAT = "${%s}";
 
-    public final static List<String> NOTEBOOK_FEATURE_PARAMETERS = new ArrayList<>();
-
-    static {
-        NOTEBOOK_FEATURE_PARAMETERS.add("bdp.system.localPath");
-        NOTEBOOK_FEATURE_PARAMETERS.add("bdp.system.remotePath");
-        NOTEBOOK_FEATURE_PARAMETERS.add("bdp.system.hdfsServer");
-    }
-
 
     public String paramReplace(String sql, List<ScheduleTaskParamShade> paramList, String cycTime) {
 
@@ -76,16 +68,9 @@ public class JobParamReplace {
             if ("bdp.system.runtime".equals(paramName)) {
                 return TimeParamOperator.dealCustomizeTimeOperator(command, cycTime);
             }
-            if (NOTEBOOK_FEATURE_PARAMETERS.contains(paramName)) {
-                if (paramName.equals(NOTEBOOK_FEATURE_PARAMETERS.get(1))) {
-                    return paramCommand.concat("/") + taskId + "/";
-                } else {
-                    return paramCommand;
-                }
-            } else {
-                command = TimeParamOperator.transform(command, cycTime);
-                return command;
-            }
+
+            command = TimeParamOperator.transform(command, cycTime);
+            return command;
         } else {
             return TimeParamOperator.dealCustomizeTimeOperator(command, cycTime);
         }

@@ -22,8 +22,6 @@ public class RdosSubscribe implements MessageListener {
 
     private SessionCache sessionCache;
 
-    private ConsoleCache consoleCache;
-
     private List<Consumer<Pair<String,String>>> consumers = new ArrayList<>();
 
     @Override
@@ -38,8 +36,6 @@ public class RdosSubscribe implements MessageListener {
 
             if (RdosTopic.SESSION.equals(topic)) {
                 sessionCache.remove(itemValue.toString());
-            } else if (RdosTopic.CONSOLE.equals(topic)) {
-                consoleCache.remove(itemValue.toString());
             }
             for (Consumer<Pair<String,String>> consumer : consumers) {
                 consumer.accept(new Pair<>(topic,itemValue.toString()));
@@ -55,10 +51,6 @@ public class RdosSubscribe implements MessageListener {
 
     public void setSessionCache(SessionCache sessionCache) {
         this.sessionCache = sessionCache;
-    }
-
-    public void setConsoleCache(ConsoleCache consoleCache) {
-        this.consoleCache = consoleCache;
     }
 
     public void setCallBack(Consumer<Pair<String,String>> consumer){

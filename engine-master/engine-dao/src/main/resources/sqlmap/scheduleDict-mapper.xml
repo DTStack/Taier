@@ -52,4 +52,18 @@
         AND is_deleted = 0
         AND dict_value = #{oldUpdate}
     </update>
+    <select id="listById" resultType="com.dtstack.engine.api.domain.ScheduleDict">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_dict
+        WHERE id > #{id}
+        ORDER BY id
+        LIMIT #{size}
+    </select>
+    <select id="getByNameAndCodeAndDependName" resultType="com.dtstack.engine.api.domain.ScheduleDict">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_dict
+        WHERE `dict_code` = #{dictCode} AND is_deleted = 0 AND depend_name = #{dependName} and dict_name = #{dictName}
+    </select>
 </mapper>

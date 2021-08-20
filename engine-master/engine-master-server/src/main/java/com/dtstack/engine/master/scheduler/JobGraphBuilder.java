@@ -1,21 +1,19 @@
 package com.dtstack.engine.master.scheduler;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.ScheduleJobJob;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.DependencyType;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
+import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.master.druid.DtDruidRemoveAbandoned;
 import com.dtstack.engine.master.impl.*;
 import com.dtstack.engine.master.scheduler.parser.*;
 import com.dtstack.schedule.common.enums.EProjectScheduleStatus;
@@ -97,6 +95,9 @@ public class JobGraphBuilder {
     @Autowired
     private EnvironmentContext environmentContext;
 
+    @Autowired
+    private JobGraphBuilder jobGraphBuilder;
+
     private Lock lock = new ReentrantLock();
 
     private volatile boolean isBuildError = false;
@@ -110,6 +111,10 @@ public class JobGraphBuilder {
      * @return
      */
     public void buildTaskJobGraph(String triggerDay) {
+
+        if (environmentContext.getJobGraphBuilderSwitch()) {
+            return;
+        }
 
         lock.lock();
 
@@ -221,10 +226,11 @@ public class JobGraphBuilder {
             });
 
             //存储生成的jobRunBean
-            saveJobGraph(allJobs, triggerDay);
+            jobGraphBuilder.saveJobGraph(allJobs, triggerDay);
         } catch (Exception e) {
             logger.error("buildTaskJobGraph ！！！", e);
         } finally {
+            logger.info("buildTaskJobGraph exit & unlock ...");
             lock.unlock();
         }
     }
@@ -306,7 +312,8 @@ public class JobGraphBuilder {
      * @param triggerDay
      * @return
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
+    @DtDruidRemoveAbandoned
     public boolean saveJobGraph(List<ScheduleBatchJob> jobList, String triggerDay) {
         logger.info("start saveJobGraph to db {} jobSize {}", triggerDay, jobList.size());
         //需要保存BatchJob, BatchJobJob

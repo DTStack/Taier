@@ -1,5 +1,7 @@
 package com.dtstack.engine.master.enums;
 
+import com.dtstack.engine.common.enums.EComponentType;
+
 /**
  * @author yuebai
  * @date 2021-03-02

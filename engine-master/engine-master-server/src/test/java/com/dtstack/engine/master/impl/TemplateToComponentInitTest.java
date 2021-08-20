@@ -98,6 +98,25 @@ public class TemplateToComponentInitTest extends AbstractTest {
         }
     }
 
+    @Test
+    public void initNfs() {
+        try {
+            URL resource = this.getClass().getResource(String.format("/config/%s.yaml", "nfs"));
+            if (null == resource || StringUtils.isBlank(resource.getFile())) {
+                return;
+            }
+            File file = new File(resource.getFile());
+            InputStream is = new ByteArrayInputStream(FileUtils.readFileToByteArray(file));
+            List<ClientTemplate> clientTemplates = new YamlConfigParser().parse(is);
+            Pair<Long, Integer> nfs = TypeNameDefaultTemplateUtils.getDefaultComponentIdByTypeName("nfs");
+            List<ComponentConfig> componentConfigs = ComponentConfigUtils.saveTreeToList(clientTemplates, templateInitCluster, nfs.getKey(), null, null, nfs.getValue());
+            componentConfigService.batchSaveComponentConfig(componentConfigs);
+            Assert.assertNotNull(clientTemplates);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     @Test
     public void initTypeName() {

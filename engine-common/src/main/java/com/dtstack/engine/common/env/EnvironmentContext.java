@@ -14,7 +14,7 @@ import java.io.File;
  * @author sishu.yss
  */
 @Component
-@PropertySource(value = "file:${user.dir}/conf/application.properties")
+@PropertySource(value = "file:${user.dir.conf}/application.properties")
 public class EnvironmentContext {
 
 
@@ -100,7 +100,7 @@ public class EnvironmentContext {
     }
 
     public int getMaxPoolSize() {
-        return Integer.parseInt(environment.getProperty("max.pool.size", "1000"));
+        return Integer.parseInt(environment.getProperty("max.pool.size", "500"));
     }
 
     public int getMinPoolSize() {
@@ -388,7 +388,7 @@ public class EnvironmentContext {
     }
 
     public String getLocalKerberosDir() {
-        return environment.getProperty("local.kerberos.dir", System.getProperty("user.dir") + "/kerberosConfig");
+        return environment.getProperty("local.kerberos.dir", System.getProperty("user.dir") + "/kerberosUploadTempDir");
     }
 
     public String getConfigPath() {
@@ -423,9 +423,16 @@ public class EnvironmentContext {
         return Integer.parseInt(environment.getProperty("testConnectTimeout", "100"));
     }
 
-
     public int getBuildJobErrorRetry() {
         return Integer.parseInt(environment.getProperty("build.job.retry", "3"));
+    }
+
+    public int getJobSubmitConcurrent() {
+        return Integer.parseInt(environment.getProperty("job.submit.concurrent", "1"));
+    }
+
+    public boolean getJobGraphBuilderSwitch() {
+        return Boolean.parseBoolean(environment.getProperty("jobGraphBuilderSwitch", "false"));
     }
 
     /**
@@ -451,12 +458,8 @@ public class EnvironmentContext {
         return Boolean.parseBoolean(environment.getProperty("job.back.cron.open", "false"));
     }
 
-    public long getConsoleStopExpireTime() {
-        return Long.parseLong(environment.getProperty("consoleStopExpireTime", Long.toString(60 * 1000 * 24)));
-    }
-
     public Integer getScheduleJobScope() {
-        return Integer.valueOf(environment.getProperty("job.back.scope", "1000*60"));
+        return Integer.valueOf(environment.getProperty("job.back.scope", "60000"));
     }
 
     public Integer getJobExecutorPoolCorePoolSize() {
@@ -476,7 +479,7 @@ public class EnvironmentContext {
     }
 
     public Boolean getOpenConsoleSftp() {
-        return Boolean.parseBoolean(environment.getProperty("console.sftp.open", "false"));
+        return Boolean.parseBoolean(environment.getProperty("console.sftp.open", "true"));
     }
 
     public Integer getRetryFrequency() {
@@ -507,12 +510,45 @@ public class EnvironmentContext {
         return Integer.parseInt(environment.getProperty("max.batch.task.sql.insert", "10"));
     }
 
-    public Integer setIdleConnectionTestPeriod() {
-        return Integer.valueOf(environment.getProperty("idle.connection.test.period", "60"));
+    public Integer getMinEvictableIdleTimeMillis() {
+        return Integer.valueOf(environment.getProperty("dataSource.min.evictable.idle.time.millis", "300000"));
     }
 
-    public Integer setMaxIdleTime() {
-        return Integer.valueOf(environment.getProperty("max.idle.time", "60"));
+    public Integer getTimeBetweenEvictionRunsMillis() {
+        return Integer.valueOf(environment.getProperty("dataSource.time.between.eviction.runs.millis", "60000"));
+    }
+
+    public boolean getKeepAlive() {
+        return Boolean.parseBoolean(environment.getProperty("dataSource.keep.alive", "true"));
+    }
+
+    public boolean getRemoveAbandoned() {
+        return Boolean.parseBoolean(environment.getProperty("dataSource.remove.abandoned", "true"));
+    }
+
+    public Integer getRemoveAbandonedTimeout() {
+        return Integer.valueOf(environment.getProperty("dataSource.remove.abandoned.timeout", "120"));
+    }
+
+
+    public boolean getTestWhileIdle() {
+        return Boolean.parseBoolean(environment.getProperty("dataSource.test.while.idle", "true"));
+    }
+
+    public boolean getTestOnBorrow() {
+        return Boolean.parseBoolean(environment.getProperty("dataSource.test.on.borrow", "false"));
+    }
+
+    public boolean getTestOnReturn() {
+        return Boolean.parseBoolean(environment.getProperty("dataSource.test.on.return", "false"));
+    }
+
+    public boolean getPoolPreparedStatements() {
+        return Boolean.parseBoolean(environment.getProperty("dataSource.pool.prepared.statements", "true"));
+    }
+
+    public Integer getMaxPoolPreparedStatementPerConnectionSize() {
+        return Integer.valueOf(environment.getProperty("dataSource.max.prepared.statement.per.connection.size", "20"));
     }
 
     /**控制任务展开层数**/
@@ -539,6 +575,15 @@ public class EnvironmentContext {
     }
 
     /**
+     * 是否开启任务调度
+     *
+     * @return
+     */
+    public boolean openJobSchedule() {
+        return Boolean.parseBoolean(environment.getProperty("job.schedule", "true"));
+    }
+
+    /**
      * 是否根据版本加载默认的配置
      *
      * @return
@@ -550,8 +595,16 @@ public class EnvironmentContext {
     public String getPluginPath() {
         return environment.getProperty("plugin.path",  System.getProperty("user.dir") + File.separator +"pluginLibs");
     }
-
+    
     public Boolean getOpenErrorTop() {
         return Boolean.parseBoolean(environment.getProperty("open.error.top", "true"));
+    }
+
+    public int getBatchJobInsertSize() {
+        return Integer.parseInt(environment.getProperty("batchJob.insert.size", "20"));
+    }
+
+    public int getBatchJobJobInsertSize() {
+        return Integer.parseInt(environment.getProperty("batchJobJob.insert.size", "1000"));
     }
 }

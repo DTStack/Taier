@@ -5,7 +5,6 @@ import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.enums.PlatformEventType;
-import com.dtstack.engine.master.impl.PlatformService;
 import com.dtstack.engine.master.utils.Template;
 import com.dtstack.engine.master.vo.PlatformEventVO;
 import org.junit.Assert;

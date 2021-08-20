@@ -1,5 +1,6 @@
 package com.dtstack.engine.common.client;
 
+import com.dtstack.engine.api.pojo.CheckResult;
 import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.JobClient;
@@ -27,7 +28,6 @@ import java.util.Properties;
  *
  * @author xuchao
  */
-
 public class ClientOperator {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClientOperator.class);
@@ -128,7 +128,8 @@ public class ClientOperator {
         }
         EDeployMode eDeployMode = TaskParamsUtil.parseDeployTypeByTaskParams(jobClient.getTaskParams(), jobClient.getComputeType().getType(), jobClient.getEngineType());
         JobIdentifier jobIdentifier = new JobIdentifier(jobClient.getEngineTaskId(), jobClient.getApplicationId(), jobClient.getTaskId()
-        ,jobClient.getTenantId(),jobClient.getEngineType(),eDeployMode.getType(),jobClient.getUserId(),jobClient.getPluginInfo());
+                , jobClient.getTenantId(), jobClient.getEngineType(), eDeployMode.getType(), jobClient.getUserId(), jobClient.getPluginInfo());
+        jobIdentifier.setForceCancel(jobClient.getForceCancel());
         checkoutOperator(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
 
         jobIdentifier.setTimeout(getCheckoutTimeout(jobClient));
@@ -189,7 +190,7 @@ public class ClientOperator {
     }
 
     public ClusterResource getClusterResource(String engineType, String pluginInfo) throws ClientAccessException{
-        IClient client = clientCache.getClient(engineType,pluginInfo);
+        IClient client = clientCache.getClient(engineType, pluginInfo);
         return client.getClusterResource();
     }
 
@@ -203,4 +204,8 @@ public class ClientOperator {
         }
     }
 
+    public CheckResult grammarCheck(JobClient jobClient) throws ClientAccessException {
+        IClient clusterClient = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
+        return clusterClient.grammarCheck(jobClient);
+    }
 }

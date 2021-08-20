@@ -3,13 +3,18 @@ package com.dtstack.engine.master.jobdealer;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.common.BlockCallerPolicy;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.EQueueSourceType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.exception.*;
+import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.common.exception.ClientAccessException;
+import com.dtstack.engine.common.exception.ClientArgumentException;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.WorkerAccessException;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.pojo.SimpleJobDelay;
@@ -19,7 +24,6 @@ import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
-import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.queue.GroupInfo;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.queue.JobPartitioner;
@@ -29,11 +33,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.Objects;
+import java.util.concurrent.*;
 
 /**
  * company: www.dtstack.com
@@ -62,6 +63,7 @@ public class JobSubmitDealer implements Runnable {
     private long jobSubmitExpired;
     private long jobLackingCountLimited = 3;
     private boolean checkJobMaxPriorityStrategy = false;
+    private int jobSubmitConcurrent = 1;
 
     private String localAddress;
     private String jobResource = null;
@@ -69,6 +71,7 @@ public class JobSubmitDealer implements Runnable {
     private PriorityBlockingQueue<JobClient> queue = null;
     private DelayBlockingQueue<SimpleJobDelay<JobClient>> delayJobQueue = null;
     private JudgeResult workerNotFindResult = JudgeResult.notOk( "worker not find");
+    private ExecutorService jobSubmitConcurrentService;
 
     public JobSubmitDealer(String localAddress, GroupPriorityQueue priorityQueue, ApplicationContext applicationContext) {
         this.jobPartitioner = applicationContext.getBean(JobPartitioner.class);
@@ -80,18 +83,6 @@ public class JobSubmitDealer implements Runnable {
         if (null == priorityQueue) {
             throw new RdosDefineException("priorityQueue must not null.");
         }
-        if (null == jobPartitioner) {
-            throw new RdosDefineException("jobPartitioner must not null.");
-        }
-        if (null == workerOperator) {
-            throw new RdosDefineException("workerOperator must not null.");
-        }
-        if (null == engineJobCacheDao) {
-            throw new RdosDefineException("engineJobCacheDao must not null.");
-        }
-        if (null == environmentContext) {
-            throw new RdosDefineException("environmentContext must not null.");
-        }
 
         jobRestartDelay = environmentContext.getJobRestartDelay();
         jobLackingDelay = environmentContext.getJobLackingDelay();
@@ -100,6 +91,7 @@ public class JobSubmitDealer implements Runnable {
         jobSubmitExpired = environmentContext.getJobSubmitExpired();
         jobLackingCountLimited = environmentContext.getJobLackingCountLimited();
         checkJobMaxPriorityStrategy = environmentContext.getCheckJobMaxPriorityStrategy();
+        jobSubmitConcurrent = environmentContext.getJobSubmitConcurrent();
 
         this.localAddress = localAddress;
         this.priorityQueue = priorityQueue;
@@ -110,6 +102,9 @@ public class JobSubmitDealer implements Runnable {
         ExecutorService executorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory(this.getClass().getSimpleName() + "_" + jobResource + "_DelayJobProcessor"));
         executorService.submit(new RestartJobProcessor());
+
+        this.jobSubmitConcurrentService = new ThreadPoolExecutor(jobSubmitConcurrent, jobSubmitConcurrent, 60L, TimeUnit.SECONDS,
+                new SynchronousQueue<>(true), new CustomThreadFactory(this.getClass().getSimpleName() + "_" + jobResource + "_JobSubmitConcurrent"), new BlockCallerPolicy());
     }
 
     private class RestartJobProcessor implements Runnable {
@@ -138,7 +133,7 @@ public class JobSubmitDealer implements Runnable {
     }
 
     public boolean tryPutRestartJob(JobClient jobClient) {
-        boolean tryPut = delayJobQueue.tryPut(new SimpleJobDelay<>(jobClient, EJobCacheStage.RESTART.getStage(), jobRestartDelay));
+        boolean tryPut = delayJobQueue.tryPut(new SimpleJobDelay<>(jobClient, EJobCacheStage.RESTART.getStage(), Objects.isNull(jobClient.getRetryIntervalTime()) ? jobRestartDelay : jobClient.getRetryIntervalTime()));
         logger.info("jobId:{} {} add job to restart delayJobQueue.", jobClient.getTaskId(), tryPut ? "success" : "failed");
         if (tryPut) {
             //restart的状态修改会在外面处理，这里只需要set stage
@@ -173,7 +168,7 @@ public class JobSubmitDealer implements Runnable {
                 if (checkIsFinished(jobClient)) {
                     continue;
                 }
-                if (checkJobSubmitExpired(jobClient.getGenerateTime())) {
+                if (checkJobSubmitExpired(jobClient)){
                     shardCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.AUTOCANCELED.getStatus());
                     jobClient.doStatusCallBack(RdosTaskStatus.AUTOCANCELED.getStatus());
                     engineJobCacheDao.delete(jobClient.getTaskId());
@@ -186,8 +181,11 @@ public class JobSubmitDealer implements Runnable {
                     Thread.sleep(jobLackingInterval);
                     continue;
                 }
+
                 //提交任务
-                submitJob(jobClient);
+                jobSubmitConcurrentService.submit(()->{
+                    submitJob(jobClient);
+                });
             } catch (Exception e) {
                 logger.error("", e);
             }
@@ -242,12 +240,15 @@ public class JobSubmitDealer implements Runnable {
         return false;
     }
 
-    private boolean checkJobSubmitExpired(long generateTime) {
+    private boolean checkJobSubmitExpired(JobClient jobClient) {
+        long submitExpiredTime = jobClient.getSubmitExpiredTime();
+        if(submitExpiredTime > 0){
+            return System.currentTimeMillis() - jobClient.getGenerateTime() > submitExpiredTime;
+        }
         if (jobSubmitExpired <= 0) {
             return false;
         }
-        long diff = System.currentTimeMillis() - generateTime;
-        return diff > jobSubmitExpired;
+        return System.currentTimeMillis() - jobClient.getGenerateTime() > jobSubmitExpired;
     }
 
     private boolean checkMaxPriority(String jobResource) {
@@ -371,7 +372,6 @@ public class JobSubmitDealer implements Runnable {
             queue.put(jobClient);
             SleepUtil.sleep(jobLackingInterval);
             logger.info("jobId:{} unlimited_lackingCount:{} add to priorityQueue.", jobClient.getTaskId(), jobClient.getLackingCount());
-
         }
     }
 

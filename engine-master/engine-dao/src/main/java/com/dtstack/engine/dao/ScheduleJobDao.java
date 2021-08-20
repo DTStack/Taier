@@ -144,13 +144,6 @@ public interface ScheduleJobDao {
 
     List<String> getFlowJobIdsByJobName(@Param("jobName") String jobName);
 
-    /**
-     * 测试时使用，上线前删除
-     *
-     * @param jobIds
-     */
-    void setJobRestart(@Param("list") List<String> jobIds);
-
     List<Map<String, Long>> countByFillDataAllStatus(@Param("fillIdList") List<Long> fillJobIdList, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId);
 
     List<Long> listFillIdList(PageQuery<ScheduleJobDTO> pageQuer);
@@ -177,7 +170,7 @@ public interface ScheduleJobDao {
 
     Integer updateNodeAddress(@Param("nodeAddress") String nodeAddress, @Param("ids") List<Long> ids);
 
-    Integer updateJobStatusByIds(@Param("status") Integer status, @Param("ids") List<Long> ids);
+    Integer updateJobStatusByIds(@Param("status") Integer status, @Param("jobIds") List<String> jobIds);
 
     void stopUnsubmitJob(@Param("likeName") String likeName, @Param("projectId") Long projectId, @Param("appType") Integer appType, @Param("status") Integer status);
 
@@ -187,8 +180,6 @@ public interface ScheduleJobDao {
     Integer updateJobInfoByJobId(@Param("jobId") String jobId, @Param("status") Integer status, @Param("execStartTime") Timestamp execStartTime, @Param("execEndTime") Timestamp execEndTime, @Param("execTime") Long execTime, @Param("retryNum") Integer retryNum,@Param("stopStatuses") List<Integer> stopStatuses);
 
     ScheduleJob getByTaskIdAndStatusOrderByIdLimit(@Param("taskId") Long taskId, @Param("status") Integer status, @Param("time") Timestamp time,@Param("appType") Integer appType);
-
-    Integer updateStatusAndLogInfoById(@Param("id") Long id, @Param("status") Integer status, @Param("logInfo") String logInfo);
 
     Integer updateStatusByJobId(@Param("jobId") String jobId, @Param("status") Integer status, @Param("logInfo") String logInfo,@Param("versionId") Integer versionId);
 
@@ -231,8 +222,6 @@ public interface ScheduleJobDao {
 
     void updateRetryTaskParams(@Param("jobId")String jobId,  @Param("retryTaskParams")String retryTaskParams);
 
-    Integer updateTaskStatusCompareOld(@Param("jobId") String jobId, @Param("status")Integer status,@Param("oldStatus") Integer oldStatus, @Param("jobName")String jobName);
-
     ScheduleJob getByName(@Param("jobName") String jobName);
 
     void updateRetryNum(@Param("jobId")String jobId, @Param("retryNum")Integer retryNum);
@@ -252,6 +241,8 @@ public interface ScheduleJobDao {
     Integer updateJobStatusAndPhaseStatus(@Param("jobId") String jobId, @Param("status") Integer status, @Param("phaseStatus") Integer phaseStatus);
 
     String getJobGraph(@Param("jobId") String jobId);
+
+    ScheduleJob getLastScheduleJob(@Param("taskId") Long taskId,@Param("id") Long id);
 
     Integer updateJobStatusAndPhaseStatusByIds(@Param("jobIds") List<String> jobIds, @Param("status") Integer status, @Param("phaseStatus") Integer phaseStatus);
 

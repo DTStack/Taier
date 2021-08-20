@@ -3,14 +3,15 @@ package com.dtstack.engine.master.impl;
 import com.dtstack.engine.api.domain.ComponentConfig;
 import com.dtstack.engine.api.domain.ScheduleDict;
 import com.dtstack.engine.api.pojo.ClientTemplate;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EFrontType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.util.ComponentConfigUtils;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.ComponentConfigDao;
 import com.dtstack.engine.dao.ScheduleDictDao;
+import com.dtstack.engine.master.cache.DictCache;
 import com.dtstack.engine.master.enums.DictType;
-import com.dtstack.engine.master.enums.EComponentType;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,4 +127,20 @@ public class ScheduleDictService {
         return clientTemplates;
     }
 
+
+    public List<ScheduleDict> listById(Long id, Integer size) {
+        if (id == null) {
+            id = 0L;
+        }
+
+        if (size == null) {
+            size = DictCache.size;
+        }
+
+        return scheduleDictDao.listById(id,size);
+    }
+
+    public ScheduleDict getByNameAndCodeAndDependName(String dictCode, String dictName, String dependName) {
+        return scheduleDictDao.getByNameAndCodeAndDependName(dictCode,dictName,dependName);
+    }
 }

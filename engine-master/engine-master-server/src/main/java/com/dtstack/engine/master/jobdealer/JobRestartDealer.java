@@ -10,6 +10,7 @@ import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.common.util.SleepUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.bo.EngineJobRetry;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
@@ -108,6 +109,7 @@ public class JobRestartDealer {
             return false;
         }
 
+
         JobClient jobClient = checkResult.getValue();
         // 是否需要重新提交
         int alreadyRetryNum = getAlreadyRetryNum(scheduleJob.getJobId());
@@ -154,7 +156,9 @@ public class JobRestartDealer {
      * @param jobClient client
      */
     private void setCheckpointPath(JobClient jobClient){
-        boolean openCheckpoint = Boolean.parseBoolean(jobClient.getConfProperties().getProperty("openCheckpoint"));
+
+        String checkpoint = jobClient.getConfProperties().getProperty("openCheckpoint");
+        boolean openCheckpoint = checkpoint != null && Boolean.parseBoolean(checkpoint.trim());
         if (!openCheckpoint){
             return;
         }

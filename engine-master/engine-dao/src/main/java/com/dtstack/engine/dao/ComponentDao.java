@@ -25,4 +25,7 @@ public interface ComponentDao {
 
     void deleteById(@Param("componentId") Long componentId);
 
+    Integer getIdByTenantIdComponentType(@Param("tenantId") Long tenantId,@Param("componentType") Integer componentType);
+
+    List<Component> listByTenantId(@Param("tenantId") Long tenantId);
 }

@@ -67,7 +67,7 @@ public class PublicUtil {
         JSONObject origin = JSONObject.parseObject(jsonStr);
         JSONObject change = new JSONObject();
         for (String key : origin.keySet()) {
-            if (Objects.nonNull(origin.get(key))) {
+            if (null != origin.get(key)) {
                 change.put(key, origin.get(key));
             }
         }

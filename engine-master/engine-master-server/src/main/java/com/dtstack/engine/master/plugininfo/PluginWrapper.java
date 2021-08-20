@@ -6,10 +6,10 @@ import com.dtstack.engine.api.enums.ScheduleEngineType;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EngineType;
+import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
-import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.common.util.TaskParamsUtil;
@@ -68,14 +68,14 @@ public class PluginWrapper{
 
         Long tenantId = action.getTenantId();
         String engineType = action.getEngineType();
-        if (Objects.isNull(deployMode) && ScheduleEngineType.Flink.getEngineName().equalsIgnoreCase(engineType)) {
+        if (null == deployMode && ScheduleEngineType.Flink.getEngineName().equalsIgnoreCase(engineType)) {
             //解析参数
             deployMode = TaskParamsUtil.parseDeployTypeByTaskParams(action.getTaskParams(),action.getComputeType(), EngineType.Flink.name()).getType();
         }
         JSONObject pluginInfoJson = clusterService.pluginInfoJSON(tenantId, engineType, action.getUserId(),deployMode);
         String groupName = ConfigConstant.DEFAULT_GROUP_NAME;
         action.setGroupName(groupName);
-        if (Objects.nonNull(pluginInfoJson) && !pluginInfoJson.isEmpty()) {
+        if (null != pluginInfoJson && !pluginInfoJson.isEmpty()) {
             addParamsToJdbcUrl(actionParam, pluginInfoJson);
             addUserNameToHadoop(pluginInfoJson, ldapUserName);
             addUserNameToImpalaOrHive(pluginInfoJson, ldapUserName, ldapPassword, dbName, engineType);
@@ -107,12 +107,12 @@ public class PluginWrapper{
         String jobId = (String)actionParam.get("taskId");
         Integer appType = MapUtils.getInteger(actionParam, "appType");
         ScheduleJob scheduleJob = scheduleJobService.getByJobId(jobId, Deleted.NORMAL.getStatus());
-        if(Objects.isNull(scheduleJob) || Objects.isNull(appType)){
+        if(null == scheduleJob || null == appType){
             logger.info("dbUrl {} jobId {} appType or scheduleJob is null",dbUrl,jobId);
             return;
         }
         JSONObject info = JSONObject.parseObject(scheduleTaskShadeDao.getExtInfoByTaskId(scheduleJob.getTaskId(), appType));
-        if(Objects.isNull(info)){
+        if(null == info){
             return;
         }
 
@@ -215,11 +215,11 @@ public class PluginWrapper{
             return;
         }
         EngineJobCache jobCache = engineJobCacheDao.getOne(jobId);
-        if (Objects.isNull(jobCache)) {
+        if (null == jobCache) {
             return;
         }
         JSONObject dbPluginInfo = JSONObject.parseObject(jobCache.getJobInfo());
-        if (Objects.isNull(dbPluginInfo)) {
+        if (null == dbPluginInfo) {
             dbPluginInfo = new JSONObject();
         }
         if (dbPluginInfo.containsKey(PLUGIN_INFO) && !dbPluginInfo.getJSONObject(PLUGIN_INFO).isEmpty()) {
@@ -235,8 +235,9 @@ public class PluginWrapper{
             Integer deployMode = null;
             if (ScheduleEngineType.Flink.getEngineName().equalsIgnoreCase(engineType)) {
                 //解析参数
-                deployMode = TaskParamsUtil.parseDeployTypeByTaskParams(taskParams, computeType, EngineType.Flink.name()).getType();
+                deployMode = TaskParamsUtil.parseDeployTypeByTaskParams(taskParams, computeType,EngineType.Flink.name()).getType();
             }
+
             String cacheKey = String.format("%s.%s.%s.%s", tenantId, engineType, userId, deployMode);
             Integer finalDeployMode = deployMode;
             return pluginInfoCache.computeIfAbsent(cacheKey, (k) -> {

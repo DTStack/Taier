@@ -211,6 +211,7 @@ public class JobCheckpointDealer implements InitializingBean {
                 }
             }
         } catch (IOException e) {
+            engineJobCheckpointDao.insert(taskId, engineTaskId, null, null, null, null);
             logger.error("taskID:{} ,engineTaskId:{}, error:", taskId, engineTaskId, e);
         }
     }
@@ -294,6 +295,7 @@ public class JobCheckpointDealer implements InitializingBean {
         if (MapUtils.isEmpty(pluginInfoMap)) {
             return 1;
         }
+
         return Integer.parseInt(pluginInfoMap.getOrDefault(CHECKPOINT_RETAINED_KEY, 1).toString());
     }
 

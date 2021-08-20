@@ -1,11 +1,16 @@
 package com.dtstack.engine.master.utils;
 
+import com.dtstack.engine.alert.enums.AlertGateCode;
+import com.dtstack.engine.alert.enums.AlertGateTypeEnum;
 import com.dtstack.engine.api.domain.*;
-import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.api.enums.LineageOriginType;
+import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.util.DateUtil;
-import com.dtstack.engine.master.enums.EComponentType;
-import com.dtstack.engine.master.enums.MultiEngineType;
+import com.dtstack.engine.common.util.MD5Util;
+import com.dtstack.engine.domain.AlertChannel;
+import com.dtstack.engine.domain.AlertRecord;
 import com.dtstack.schedule.common.enums.AppType;
+import com.dtstack.schedule.common.enums.DataSourceType;
 
 import java.sql.Timestamp;
 
@@ -61,6 +66,13 @@ public class Template {
         jc.setCheckpointTrigger(Timestamp.valueOf("2020-06-14 12:12:12"));
         jc.setCheckpointSavepath("hdfs://tmp/flink/checkpoint/test");
         jc.setCheckpointCounts("2");
+        return jc;
+    }
+
+    public static EngineJobCheckpoint getFailedEngineJobCheckpointTemplate() {
+        EngineJobCheckpoint jc = new EngineJobCheckpoint();
+        jc.setTaskId("myTaskId");
+        jc.setTaskEngineId("haier111");
         return jc;
     }
 
@@ -181,7 +193,7 @@ public class Template {
         return scheduleTaskShade;
     }
 
-    public static ScheduleTaskTaskShade getTaskTask(){
+    public static ScheduleTaskTaskShade getTaskTask() {
         ScheduleTaskTaskShade scheduleTaskShade = new ScheduleTaskTaskShade();
         scheduleTaskShade.setTaskId(5L);
         scheduleTaskShade.setParentTaskId(6L);
@@ -196,7 +208,7 @@ public class Template {
         return scheduleTaskShade;
     }
 
-    public static Tenant getTenantTemplate(){
+    public static Tenant getTenantTemplate() {
         Tenant tenant = new Tenant();
         tenant.setDtUicTenantId(ValueUtils.getChangedLong());
         tenant.setTenantName("testCase");
@@ -219,7 +231,7 @@ public class Template {
         return null;
     }
 
-    public static Engine getDefaultEngineTemplate(){
+    public static Engine getDefaultEngineTemplate() {
         Engine engine = new Engine();
         engine.setId(1L);
         engine.setClusterId(1L);
@@ -241,6 +253,7 @@ public class Template {
         component.setHadoopVersion("hadoop3");
         component.setUploadFileName("conf.zip");
         component.setKerberosFileName("kb.zip");
+        component.setStoreType(EComponentType.HDFS.getTypeCode());
         return component;
     }
 
@@ -253,6 +266,7 @@ public class Template {
         component.setHadoopVersion("hadoop3");
         component.setUploadFileName("conf.zip");
         component.setKerberosFileName("kb.zip");
+        component.setStoreType(EComponentType.HDFS.getTypeCode());
         return component;
     }
 
@@ -265,10 +279,11 @@ public class Template {
         component.setHadoopVersion("hadoop3");
         component.setUploadFileName("");
         component.setKerberosFileName("");
+        component.setStoreType(EComponentType.SFTP.getTypeCode());
         return component;
     }
 
-    public static Component getDefaultK8sComponentTemplate(){
+    public static Component getDefaultK8sComponentTemplate() {
         Component component = new Component();
         component.setEngineId(1L);
         component.setComponentName(EComponentType.KUBERNETES.name());
@@ -277,10 +292,11 @@ public class Template {
         component.setHadoopVersion("");
         component.setUploadFileName("");
         component.setKerberosFileName("");
+        component.setStoreType(0);
         return component;
     }
 
-    public static ScheduleFillDataJob getDefaultScheduleFillDataJobTemplate(){
+    public static ScheduleFillDataJob getDefaultScheduleFillDataJobTemplate() {
         ScheduleFillDataJob scheduleFillDataJob = new ScheduleFillDataJob();
         scheduleFillDataJob.setRunDay("2020-11-26");
         scheduleFillDataJob.setFromDay("2020-11-26");
@@ -294,7 +310,7 @@ public class Template {
         return scheduleFillDataJob;
     }
 
-    public static ScheduleJob getDefaultScheduleJobForSpring1Template(){
+    public static ScheduleJob getDefaultScheduleJobForSpring1Template() {
         ScheduleJob scheduleJob = new ScheduleJob();
         scheduleJob.setTenantId(1L);
         scheduleJob.setProjectId(11L);
@@ -323,7 +339,7 @@ public class Template {
         return scheduleJob;
     }
 
-    public static ScheduleJob getDefaultScheduleJobForSpring2Template(){
+    public static ScheduleJob getDefaultScheduleJobForSpring2Template() {
         ScheduleJob scheduleJob = new ScheduleJob();
         scheduleJob.setTenantId(1L);
         scheduleJob.setProjectId(11L);
@@ -352,7 +368,7 @@ public class Template {
         return scheduleJob;
     }
 
-    public static ScheduleJobJob getDefaultScheduleJobJobForSpring1Template(){
+    public static ScheduleJobJob getDefaultScheduleJobJobForSpring1Template() {
         ScheduleJobJob scheduleJobJob = new ScheduleJobJob();
         scheduleJobJob.setTenantId(1L);
         scheduleJobJob.setProjectId(11L);
@@ -365,7 +381,7 @@ public class Template {
         return scheduleJobJob;
     }
 
-    public static ScheduleTaskShade getDefaultScheduleTaskFlowTemplate(){
+    public static ScheduleTaskShade getDefaultScheduleTaskFlowTemplate() {
         ScheduleTaskShade taskShade = new ScheduleTaskShade();
         taskShade.setTenantId(1L);
         taskShade.setProjectId(1L);
@@ -399,7 +415,7 @@ public class Template {
         return taskShade;
     }
 
-    public static ScheduleTaskShade getDefaultScheduleTaskFlowParentTemplate(){
+    public static ScheduleTaskShade getDefaultScheduleTaskFlowParentTemplate() {
         ScheduleTaskShade taskShade = getDefaultScheduleTaskFlowTemplate();
         taskShade.setName("test_workflow");
         taskShade.setTaskType(10);
@@ -410,7 +426,7 @@ public class Template {
         return taskShade;
     }
 
-    public static ScheduleJob getDefaultScheduleJobFlowParentTemplate(){
+    public static ScheduleJob getDefaultScheduleJobFlowParentTemplate() {
         ScheduleJob scheduleJob = getDefaultScheduleJobForSpring1Template();
         scheduleJob.setJobId("a4636a9f");
         scheduleJob.setJobKey("cronTrigger_3381_20201127000000");
@@ -420,7 +436,7 @@ public class Template {
         return scheduleJob;
     }
 
-    public static ScheduleJob getDefaultScheduleJobFlowChildTemplate(){
+    public static ScheduleJob getDefaultScheduleJobFlowChildTemplate() {
         ScheduleJob scheduleJob = getDefaultScheduleJobForSpring1Template();
         scheduleJob.setJobId("55545a40");
         scheduleJob.setJobKey("cronTrigger_3377_20201127000000");
@@ -430,7 +446,7 @@ public class Template {
         return scheduleJob;
     }
 
-    public static ScheduleJobJob getDefaultScheduleJobJobFlowTemplate(){
+    public static ScheduleJobJob getDefaultScheduleJobJobFlowTemplate() {
         ScheduleJobJob scheduleJobJob = new ScheduleJobJob();
         scheduleJobJob.setTenantId(1L);
         scheduleJobJob.setProjectId(1L);
@@ -442,4 +458,257 @@ public class Template {
         scheduleJobJob.setGmtModified(new Timestamp(1592559742000L));
         return scheduleJobJob;
     }
+
+    public static LineageTableTable getLineageTableTableTemplate() {
+        LineageTableTable lineageTableTable = new LineageTableTable();
+        lineageTableTable.setDtUicTenantId(1L);
+        lineageTableTable.setAppType(AppType.RDOS.getType());
+        lineageTableTable.setLineageSource(0);
+        lineageTableTable.setInputTableId(-2020L);
+        lineageTableTable.setInputTableKey("-2020");
+        lineageTableTable.setResultTableId(-2021L);
+        lineageTableTable.setResultTableKey("-2021");
+        lineageTableTable.setTableLineageKey("");
+        return lineageTableTable;
+    }
+
+    public static LineageRealDataSource getDefaultHiveRealDataSourceTemplate() {
+        LineageRealDataSource lineageRealDataSource = new LineageRealDataSource();
+        lineageRealDataSource.setSourceName("testHive1");
+        lineageRealDataSource.setSourceKey("172.16.8.107#10000");
+        lineageRealDataSource.setSourceType(DataSourceType.HIVE.getVal());
+        lineageRealDataSource.setDataJason("{\"jdbcUrl\": \"jdbc:hive2://172.16.8.107:10000/default\", \"password\": \"\", \"typeName\": \"hive\", \"username\": \"admin\", \"maxJobPoolSize\": \"\", \"minJobPoolSize\": \"\"}");
+        lineageRealDataSource.setKerberosConf("-1");
+        lineageRealDataSource.setOpenKerberos(0);
+        return lineageRealDataSource;
+    }
+
+    public static LineageDataSource getDefaultHiveDataSourceTemplate() {
+        LineageDataSource lineageDataSource = new LineageDataSource();
+        lineageDataSource.setDtUicTenantId(1L);
+        lineageDataSource.setRealSourceId(1L);
+        lineageDataSource.setSourceKey("172.16.8.107#10000");
+        lineageDataSource.setSourceName("hive");
+        lineageDataSource.setAppType(AppType.DATAASSETS.getType());
+        lineageDataSource.setSourceType(DataSourceType.HIVE.getVal());
+        lineageDataSource.setDataJson("{}");
+        lineageDataSource.setKerberosConf("-1");
+        lineageDataSource.setOpenKerberos(0);
+        lineageDataSource.setAppSourceId(-1);
+        lineageDataSource.setInnerSource(-1);
+        lineageDataSource.setComponentId(-1);
+        return lineageDataSource;
+    }
+
+    public static LineageTableTable getDefaultLineageTableTableTemplate() {
+        LineageTableTable lineageTableTable = new LineageTableTable();
+        lineageTableTable.setDtUicTenantId(1L);
+        lineageTableTable.setAppType(AppType.DATAASSETS.getType());
+        lineageTableTable.setLineageSource(0);
+        lineageTableTable.setInputTableId(-2020L);
+        lineageTableTable.setInputTableKey("-2020");
+        lineageTableTable.setResultTableId(-2021L);
+        lineageTableTable.setResultTableKey("-2021");
+        lineageTableTable.setTableLineageKey("");
+        return lineageTableTable;
+    }
+
+    public static LineageDataSetInfo getDefaultDataSetInfoTemplate() {
+        LineageDataSetInfo lineageDataSetInfo = new LineageDataSetInfo();
+        lineageDataSetInfo.setAppType(AppType.DATAASSETS.getType());
+        lineageDataSetInfo.setDtUicTenantId(1L);
+        lineageDataSetInfo.setSourceId(1L);
+        lineageDataSetInfo.setRealSourceId(1L);
+        lineageDataSetInfo.setSourceName("hive");
+        lineageDataSetInfo.setSourceType(DataSourceType.HIVE.getVal());
+        lineageDataSetInfo.setSourceKey("172.16.8.107#10000");
+        lineageDataSetInfo.setSetType(0);
+        lineageDataSetInfo.setDbName("default");
+        lineageDataSetInfo.setSchemaName("default");
+        lineageDataSetInfo.setTableName("test");
+        lineageDataSetInfo.setTableKey("1defaulttest");
+        lineageDataSetInfo.setIsManual(0);
+        return lineageDataSetInfo;
+    }
+
+    public static LineageDataSetInfo getHiveDataSetInfoTemplate() {
+        LineageDataSetInfo lineageDataSetInfo = new LineageDataSetInfo();
+        lineageDataSetInfo.setAppType(AppType.DATAASSETS.getType());
+        lineageDataSetInfo.setSourceId(1L);
+        lineageDataSetInfo.setRealSourceId(1L);
+        lineageDataSetInfo.setSourceName("hive");
+        lineageDataSetInfo.setSourceType(DataSourceType.HIVE.getVal());
+        lineageDataSetInfo.setSourceKey("172.16.8.107#10000");
+        lineageDataSetInfo.setSetType(0);
+        lineageDataSetInfo.setDbName("default");
+        lineageDataSetInfo.setSchemaName("default");
+        lineageDataSetInfo.setTableName("test1");
+        lineageDataSetInfo.setTableKey("1defaulttest1");
+        lineageDataSetInfo.setIsManual(0);
+        lineageDataSetInfo.setDtUicTenantId(1L);
+        return lineageDataSetInfo;
+    }
+
+    public static LineageTableTable getDefaultTableTable() {
+        LineageDataSetInfo lineageDataSetInfo = Template.getDefaultDataSetInfoTemplate();
+        LineageDataSetInfo lineageDataSetInfo2 = Template.getHiveDataSetInfoTemplate();
+        LineageTableTable lineageTableTable = new LineageTableTable();
+        lineageTableTable.setAppType(AppType.DATAASSETS.getType());
+        lineageTableTable.setDtUicTenantId(1L);
+        lineageTableTable.setInputTableId(lineageDataSetInfo.getId());
+        lineageTableTable.setInputTableKey(lineageDataSetInfo.getTableKey());
+        lineageTableTable.setResultTableId(lineageDataSetInfo2.getId());
+        lineageTableTable.setResultTableKey(lineageDataSetInfo2.getTableKey());
+        lineageTableTable.setTableLineageKey(lineageDataSetInfo.getId() + "_" + lineageDataSetInfo2.getId());
+        lineageTableTable.setLineageSource(LineageOriginType.SQL_PARSE.getType());
+        return lineageTableTable;
+    }
+
+    public static LineageColumnColumn getDefaultColumnColumn() {
+        LineageDataSetInfo lineageDataSetInfo = Template.getDefaultDataSetInfoTemplate();
+        LineageDataSetInfo lineageDataSetInfo2 = Template.getHiveDataSetInfoTemplate();
+
+        LineageColumnColumn lineageColumnColumn = new LineageColumnColumn();
+        lineageColumnColumn.setAppType(AppType.DATAASSETS.getType());
+        lineageColumnColumn.setInputTableKey(lineageDataSetInfo.getTableKey());
+        lineageColumnColumn.setInputTableId(lineageDataSetInfo.getId());
+        lineageColumnColumn.setInputColumnName("id");
+        lineageColumnColumn.setResultTableKey(lineageDataSetInfo2.getTableKey());
+        lineageColumnColumn.setResultTableId(lineageDataSetInfo2.getId());
+        lineageColumnColumn.setResultColumnName("tid");
+        lineageColumnColumn.setDtUicTenantId(1L);
+        lineageColumnColumn.setLineageSource(LineageOriginType.SQL_PARSE.getType());
+        String rawKey = String.format("%s.%s_%s.%s", lineageDataSetInfo.getId(), "id", lineageColumnColumn.getResultTableId(), lineageColumnColumn.getResultColumnName());
+        lineageColumnColumn.setColumnLineageKey(MD5Util.getMd5String(rawKey));
+        return lineageColumnColumn;
+    }
+
+    public static AlertChannel getDefaultAlterChannelTemplateSmsJar() {
+        AlertChannel alertContent = new AlertChannel();
+        alertContent.setId(1L);
+        alertContent.setAlertGateSource("sms_test");
+        alertContent.setIsDefault(IsDefaultEnum.DEFAULT.getType());
+        alertContent.setAlertGateType(AlertGateTypeEnum.SMS.getType());
+        alertContent.setIsDeleted(IsDeletedEnum.NOT_DELETE.getType());
+        alertContent.setAlertGateName("短信测试");
+        alertContent.setAlertGateJson("{\"className\":\"com.dtstack.sdk.example.ISmsChannelExample\"}");
+        alertContent.setAlertTemplate("");
+        alertContent.setClusterId(1L);
+        alertContent.setAlertGateCode(AlertGateCode.AG_GATE_SMS_JAR.code());
+        String classPath = Template.class.getResource("/").getPath();
+        alertContent.setFilePath(classPath+"/alter/console-alert-plugin-sdk-example-4.0.0.jar");
+        return alertContent;
+    }
+
+    public static AlertChannel getDefaultAlterChannelTemplateDingJar() {
+        AlertChannel alertContent = new AlertChannel();
+        alertContent.setId(2L);
+        alertContent.setAlertGateSource("ding_test");
+        alertContent.setIsDefault(IsDefaultEnum.DEFAULT.getType());
+        alertContent.setAlertGateType(AlertGateTypeEnum.DINGDING.getType());
+        alertContent.setIsDeleted(IsDeletedEnum.NOT_DELETE.getType());
+        alertContent.setAlertGateName("钉钉jar测试");
+        alertContent.setAlertGateJson("{\"className\":\"com.dtstack.sdk.example.IDingChannelExample\"}");
+        alertContent.setAlertTemplate("");
+        alertContent.setClusterId(1L);
+        alertContent.setAlertGateCode(AlertGateCode.AG_GATE_DING_JAR.code());
+        String classPath = Template.class.getResource("/").getPath();
+        alertContent.setFilePath(classPath+"/alter/console-alert-plugin-sdk-example-4.0.0.jar");
+        return alertContent;
+    }
+
+    public static AlertChannel getDefaultAlterChannelTemplateMailJar() {
+        AlertChannel alertContent = new AlertChannel();
+        alertContent.setId(3L);
+        alertContent.setAlertGateSource("mail_test");
+        alertContent.setIsDefault(IsDefaultEnum.DEFAULT.getType());
+        alertContent.setAlertGateType(AlertGateTypeEnum.MAIL.getType());
+        alertContent.setIsDeleted(IsDeletedEnum.NOT_DELETE.getType());
+        alertContent.setAlertGateName("邮箱jar测试");
+        alertContent.setAlertGateJson("{\"className\":\"com.dtstack.sdk.example.IMailChannelExample\"}");
+        alertContent.setAlertTemplate("");
+        alertContent.setClusterId(1L);
+        alertContent.setAlertGateCode(AlertGateCode.AG_GATE_MAIL_JAR.code());
+        String classPath = Template.class.getResource("/").getPath();
+        alertContent.setFilePath(classPath+"/alter/console-alert-plugin-sdk-example-4.0.0.jar");
+        return alertContent;
+    }
+
+    public static AlertChannel getDefaultAlterChannelTemplateICustomizeJar() {
+        AlertChannel alertContent = new AlertChannel();
+        alertContent.setId(4L);
+        alertContent.setAlertGateSource("customize_test");
+        alertContent.setIsDefault(IsDefaultEnum.NOT_DEFAULT.getType());
+        alertContent.setAlertGateType(AlertGateTypeEnum.CUSTOMIZE.getType());
+        alertContent.setIsDeleted(IsDeletedEnum.NOT_DELETE.getType());
+        alertContent.setAlertGateName("自定义jar测试");
+        alertContent.setAlertGateJson("{\"className\":\"com.dtstack.sdk.example.ICustomizeChannelExample\"}");
+        alertContent.setAlertTemplate("");
+        alertContent.setClusterId(1L);
+        alertContent.setAlertGateCode(AlertGateCode.AG_GATE_CUSTOM_JAR.code());
+        String classPath = Template.class.getResource("/").getPath();
+        alertContent.setFilePath(classPath+"/alter/console-alert-plugin-sdk-example-4.0.0.jar");
+        return alertContent;
+    }
+
+    public static AlertChannel getDefaultAlterChannelTemplateDingDt() {
+        AlertChannel alertContent = new AlertChannel();
+        alertContent.setId(5L);
+        alertContent.setAlertGateSource("ding_dt_test");
+        alertContent.setIsDefault(IsDefaultEnum.NOT_DEFAULT.getType());
+        alertContent.setAlertGateType(AlertGateTypeEnum.DINGDING.getType());
+        alertContent.setIsDeleted(IsDeletedEnum.NOT_DELETE.getType());
+        alertContent.setAlertGateName("钉钉DT测试");
+        alertContent.setAlertGateJson("{}");
+        alertContent.setAlertTemplate("");
+        alertContent.setClusterId(1L);
+        alertContent.setAlertGateCode(AlertGateCode.AG_GATE_DING_DT.code());
+        return alertContent;
+    }
+
+    public static AlertChannel getDefaultAlterChannelTemplateMailDt() {
+        AlertChannel alertContent = new AlertChannel();
+        alertContent.setId(6L);
+        alertContent.setAlertGateSource("mail_dt_test");
+        alertContent.setIsDefault(IsDefaultEnum.NOT_DEFAULT.getType());
+        alertContent.setAlertGateType(AlertGateTypeEnum.MAIL.getType());
+        alertContent.setIsDeleted(IsDeletedEnum.NOT_DELETE.getType());
+        alertContent.setAlertGateName("邮箱DT测试");
+        alertContent.setAlertGateJson("{\n" +
+                "    \"mail.smtp.host\":\"smtp.yeah.net\",\n" +
+                "    \"mail.smtp.port\":\"25\",\n" +
+                "    \"mail.smtp.ssl.enable\":true,\n" +
+                "    \"mail.smtp.username\":\"dashuww@yeah.net\",\n" +
+                "    \"mail.smtp.password\":\"dt1234\",\n" +
+                "    \"mail.smtp.from\":\"dashuww@yeah.net\"\n" +
+                "}");
+        alertContent.setAlertTemplate("");
+        alertContent.setClusterId(1L);
+        alertContent.setAlertGateCode(AlertGateCode.AG_GATE_MAIL_DT.code());
+        return alertContent;
+    }
+
+    public static AlertRecord getDefaultRecord() {
+        AlertRecord alertRecord = new AlertRecord();
+        alertRecord.setId(0L);
+        alertRecord.setContext("");
+        alertRecord.setNodeAddress("");
+        alertRecord.setFailureReason("");
+        alertRecord.setSendTime("");
+        alertRecord.setSendEndTime("");
+        alertRecord.setUserId(1L);
+        alertRecord.setAppType(1);
+        alertRecord.setTenantId(1L);
+        alertRecord.setReadStatus(0);
+        alertRecord.setIsDeleted(0);
+        alertRecord.setAlertRecordSendStatus(0);
+        alertRecord.setAlertRecordStatus(0);
+        alertRecord.setJobId("");
+        alertRecord.setStatus(0);
+        alertRecord.setTitle("");
+        alertRecord.setAlertContentId(1L);
+        alertRecord.setAlertChannelId(1L);
+        return alertRecord;
+    }
+
 }

@@ -5,11 +5,11 @@ import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.common.enums.DisplayDirect;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.ScheduleTaskTaskShadeDao;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.master.druid.DtDruidRemoveAbandoned;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.google.common.base.Preconditions;
 import org.apache.commons.collections.CollectionUtils;
@@ -49,6 +49,7 @@ public class ScheduleTaskTaskShadeService {
     }
 
     @Transactional(rollbackFor = Exception.class)
+    @DtDruidRemoveAbandoned
     public void saveTaskTaskList( String taskLists) {
         if(StringUtils.isBlank(taskLists)){
             return;
@@ -86,14 +87,9 @@ public class ScheduleTaskTaskShadeService {
                                                                          Long projectId,
                                                                          Integer level,
                                                                          Integer directType, Integer appType) {
-        ScheduleTaskShade task = null;
-        try {
-            task = taskShadeService.getBatchTaskById(taskId,appType);
-        } catch (RdosDefineException rdosDefineException) {
-            if (rdosDefineException.getErrorCode().equals(ErrorCode.CAN_NOT_FIND_TASK)) {
-                return null;
-            }
-            throw rdosDefineException;
+        ScheduleTaskShade task = taskShadeService.getBatchTaskById(taskId,appType);
+        if(null == task){
+            return null;
         }
 
         if (task == null) {
@@ -451,7 +447,7 @@ public class ScheduleTaskTaskShadeService {
      * @param appType:
      * @return: java.util.List<com.dtstack.engine.api.vo.ScheduleTaskVO>
      **/
-    private List<ScheduleTaskVO> getFlowWorkSubTasksRefTask(Set<Long> taskIds, int level, Integer directType, Integer appType,int max) {
+    public List<ScheduleTaskVO> getFlowWorkSubTasksRefTask(Set<Long> taskIds, int level, Integer directType, Integer appType,int max) {
 
         //获得所有父节点task
         List<ScheduleTaskShade> tasks = taskShadeService.getTaskByIds(new ArrayList<>(taskIds),appType);

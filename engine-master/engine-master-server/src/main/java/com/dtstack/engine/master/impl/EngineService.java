@@ -8,12 +8,13 @@ import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.EngineVO;
 import com.dtstack.engine.api.vo.QueueVO;
 import com.dtstack.engine.api.vo.engine.EngineSupportVO;
+import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.EngineDao;
 import com.dtstack.engine.dao.EngineTenantDao;
 import com.dtstack.engine.dao.QueueDao;
 import com.dtstack.engine.dao.TenantDao;
-import com.dtstack.engine.master.enums.MultiEngineType;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -59,8 +60,6 @@ public class EngineService {
      * ]
      */
     public List<EngineSupportVO> listSupportEngine( Long dtUicTenantId){
-
-        //todo 校验dtUicTenantId不能为空
         List<EngineSupportVO> vos = Lists.newArrayList();
         Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
         if (tenantId == null){
@@ -118,20 +117,6 @@ public class EngineService {
         }
     }
 
-    private void checkEngineRepeat(Long clusterId, MultiEngineType engineType){
-        List<Engine> engines = engineDao.listByClusterId(clusterId);
-        if(CollectionUtils.isEmpty(engines)){
-            return;
-        }
-
-        for (Engine engine : engines) {
-            if(engine.getEngineType() == engineType.getType()){
-                throw new RdosDefineException("引擎类型:" + engine.getEngineName() + " 已存在，不能重复添加");
-            }
-        }
-    }
-
-
     public void updateResource(Long engineId, ComponentTestResult.ClusterResourceDescription description){
         Engine engine = engineDao.getOne(engineId);
         engine.setTotalCore(description.getTotalCores());
@@ -153,6 +138,12 @@ public class EngineService {
         if (queryQueue) {
             for (EngineVO engineVO : result) {
                 List<Queue> queues = queueDao.listByEngineIdWithLeaf(engineVO.getId());
+                engineVO.setResourceType(EComponentType.YARN.getName());
+                if (engineVO.getEngineType() == MultiEngineType.HADOOP.getType()) {
+                    if (null != componentService.getComponentByClusterId(clusterId, EComponentType.KUBERNETES.getTypeCode())) {
+                        engineVO.setResourceType(EComponentType.KUBERNETES.getName());
+                    }
+                }
                 engineVO.setQueues(QueueVO.toVOs(queues));
             }
         }

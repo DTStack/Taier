@@ -147,7 +147,7 @@ public class AccountVo  extends BaseEntity {
     }
 
     public AccountVo(AccountDTO accountDTO) {
-        if( null != accountDTO ){
+        if(null != accountDTO){
             this.setName(accountDTO.getName());
             this.setUsername(accountDTO.getUsername());
             this.setModifyUserName(accountDTO.getModifyUserName());

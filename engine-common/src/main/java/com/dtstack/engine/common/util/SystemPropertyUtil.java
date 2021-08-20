@@ -23,6 +23,8 @@ public class SystemPropertyUtil {
                 System.setProperty("user.dir", dir);
             }
         }
+        System.setProperty("sqlParser.dir",dir);
+        System.setProperty("user.dir.conf", System.getProperty("user.dir") + "/conf");
 
     }
 

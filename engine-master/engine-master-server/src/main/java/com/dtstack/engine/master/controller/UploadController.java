@@ -4,14 +4,15 @@ import com.dtstack.engine.api.dto.Resource;
 import com.dtstack.engine.api.vo.ComponentVO;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.impl.ComponentService;
-import com.dtstack.engine.master.router.DtRequestParam;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -40,13 +41,26 @@ public class UploadController {
     public ComponentVO addOrUpdateComponent(@RequestParam("resources1") List<MultipartFile> files1, @RequestParam("resources2") List<MultipartFile> files2, @RequestParam("clusterId") Long clusterId,
                                             @RequestParam("componentConfig") String componentConfig, @RequestParam("hadoopVersion") String hadoopVersion,
                                             @RequestParam("kerberosFileName") String kerberosFileName, @RequestParam("componentTemplate") String componentTemplate,
-                                            @RequestParam("componentCode") Integer componentCode) {
+                                            @RequestParam("componentCode") Integer componentCode, @RequestParam("storeType")Integer storeType,
+                                            @RequestParam("principals")String principals,@RequestParam("principal")String principal) {
         List<Resource> resources = getResourcesFromFiles(files1);
         List<Resource> resourcesAdd = getResourcesFromFiles(files2);
         resources.addAll(resourcesAdd);
-        return componentService.addOrUpdateComponent(clusterId, componentConfig, resources, hadoopVersion, kerberosFileName, componentTemplate, componentCode);
+        return componentService.addOrUpdateComponent(clusterId, componentConfig, resources, hadoopVersion, kerberosFileName, componentTemplate, componentCode,storeType,principals,principal);
     }
 
+    @RequestMapping(value="/component/parseKerberos", method = {RequestMethod.POST})
+    @ApiOperation(value = "解析kerberos文件中信息")
+    public List<String> parseKerberos(@RequestParam("fileName") List<MultipartFile> files) {
+        return componentService.parseKerberos(getResourcesFromFiles(files));
+    }
+
+    @RequestMapping(value="/component/uploadKerberos", method = {RequestMethod.POST})
+    public String uploadKerberos(@RequestParam("kerberosFile") List<MultipartFile> files, @RequestParam("clusterId") Long clusterId,
+                                 @RequestParam("componentCode") Integer componentCode) {
+        List<Resource> resources = getResourcesFromFiles(files);
+        return componentService.uploadKerberos(resources, clusterId, componentCode);
+    }
 
     private List<Resource> getResourcesFromFiles(List<MultipartFile> files) {
         List<Resource> resources = new ArrayList<>(files.size());

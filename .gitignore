@@ -17,5 +17,16 @@ entrance/dependency-reduced-pom.xml
 .DS_Store
 kerberosConfig/
 tmpK8sConf/
+<<<<<<< HEAD
 *.exec
 *.zip
+/conf
+keytab/
+tmp/
+tmp1100/
+tmpSave/
+*jacoco.exec
+/javadocs
+engine-master/engine-master-server/download/
+engine-master/engine-master-server/unzip/
+engine-worker/engine-plugins

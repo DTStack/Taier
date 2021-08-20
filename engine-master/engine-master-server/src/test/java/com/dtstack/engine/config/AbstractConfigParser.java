@@ -195,7 +195,7 @@ public abstract class AbstractConfigParser implements IPluginConfigParser<InputS
                     ClientTemplate sonClientTemplate = parseKeyValueToVo(sonKey, sonMap, true, required);
                     sonClientTemplate.setRequired(null);
                     templateVo.setType(EFrontType.RADIO.name());
-                    if (Objects.isNull(templateVo.getValues())) {
+                    if (null == templateVo.getValues()) {
                         templateVo.setValues(new ArrayList<>());
                     }
                     templateVo.getValues().add(sonClientTemplate);

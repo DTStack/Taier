@@ -72,18 +72,26 @@ public class ScheduleJob extends AppTenantEntity {
     private Integer periodType;
 
     private Integer status;
+
     private Integer taskType;
+
     private Long fillId;
+
     private Timestamp execStartTime;
+
     private Timestamp execEndTime;
+
     private Long execTime;
+
     private Date submitTime;
+
     private Integer maxRetryNum;
+
     private Integer retryNum;
+
     private String nodeAddress;
 
     private String nextCycTime;
-
 
     private String logInfo;
 
@@ -109,9 +117,18 @@ public class ScheduleJob extends AppTenantEntity {
 
     private Integer phaseStatus;
 
+    private Boolean isForce;
+
+    public Boolean getForce() {
+        return isForce;
+    }
+
+    public void setForce(Boolean force) {
+        isForce = force;
+    }
 
     /**
-     * 执行引擎任务id
+     * 提交用户名
      */
     @ApiModelProperty(notes = "任务提交用户")
     private String submitUserName;

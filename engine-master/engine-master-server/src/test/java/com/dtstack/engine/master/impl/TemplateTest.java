@@ -6,11 +6,14 @@ import com.dtstack.engine.api.domain.Cluster;
 import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.ComponentConfig;
 import com.dtstack.engine.api.pojo.ClientTemplate;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.util.ComponentConfigUtils;
 import com.dtstack.engine.dao.ClusterDao;
 import com.dtstack.engine.dao.ComponentConfigDao;
+import com.dtstack.engine.dao.ComponentDao;
+import com.dtstack.engine.dao.EngineDao;
 import com.dtstack.engine.master.AbstractTest;
-import com.dtstack.engine.master.enums.EComponentType;
+import com.dtstack.engine.master.router.cache.ConsoleCache;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
@@ -19,13 +22,14 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
 
 /**
@@ -46,18 +50,42 @@ public class TemplateTest extends AbstractTest {
     @Autowired
     private ComponentConfigService componentConfigService;
 
-    @SpyBean
+    @MockBean
     private ComponentService componentService;
 
     @Autowired
     private ClusterDao clusterDao;
 
     @Autowired
+    private ComponentDao componentDao;
+
+    @Autowired
+    private ConsoleCache consoleCache;
+
+    @Autowired
+    private EngineService engineService;
+
+    @Autowired
+    private EngineDao engineDao;
+
+    @Autowired
+    private ScheduleDictService scheduleDictService;
+
+
+    @Autowired
     private ComponentConfigOldCovertService componentConfigOldCovertService;
 
     @Before
     public void init() {
-        doReturn(typeName).when(componentService).convertComponentTypeToClient(any(), anyInt(), any());
+        doReturn(typeName).when(componentService).convertComponentTypeToClient(any(), any(), any(),any());
+        doCallRealMethod().when(componentService).addOrUpdateComponent(any(), any(), any(),any(),any(),any(),any(),any(),any(),any());
+        ReflectionTestUtils.setField(componentService,"clusterDao", clusterDao);
+        ReflectionTestUtils.setField(componentService,"componentDao", componentDao);
+        ReflectionTestUtils.setField(componentService,"consoleCache", consoleCache);
+        ReflectionTestUtils.setField(componentService,"componentConfigService", componentConfigService);
+        ReflectionTestUtils.setField(componentService,"engineService", engineService);
+        ReflectionTestUtils.setField(componentService,"engineDao", engineDao);
+        ReflectionTestUtils.setField(componentService,"scheduleDictService", scheduleDictService);
     }
 
     @Test
@@ -142,8 +170,8 @@ public class TemplateTest extends AbstractTest {
         cluster.setHadoopVersion("hadoop2");
         clusterDao.insert(cluster);
         //添加组件 添加引擎
-        componentService.addOrUpdateComponent(cluster.getId(), "", null, "hadoop2", "", templateString, EComponentType.SFTP.getTypeCode());
-        Component sftpComponent = componentService.getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode());
+        componentService.addOrUpdateComponent(cluster.getId(), "", null, "hadoop2", "", templateString, EComponentType.SFTP.getTypeCode(),null,null,null);
+        Component sftpComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.SFTP.getTypeCode());
         Assert.assertNotNull(sftpComponent);
         Map<String, Object> sftpConfig = componentConfigService.convertComponentConfigToMap(sftpComponent.getId(), true);
         Assert.assertNotNull(sftpConfig);
@@ -151,13 +179,7 @@ public class TemplateTest extends AbstractTest {
         for (String key : originMap.keySet()) {
             Assert.assertEquals(originMap.get(key), sftpConfig.get(key));
         }
-        for (int i = 0; i < 3; i++) {
-            Map<String, Object> cacheComponentConfigMap = componentService.getCacheComponentConfigMap(cluster.getId(), EComponentType.SFTP.getTypeCode(), true);
-            if (i == 0) {
-                componentService.clearComponentCache();
-            }
-            Assert.assertNotNull(cacheComponentConfigMap);
-        }
+        componentService.getCacheComponentConfigMap(cluster.getId(), EComponentType.SFTP.getTypeCode(), true);
     }
 
 

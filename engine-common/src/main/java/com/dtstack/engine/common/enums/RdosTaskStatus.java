@@ -84,7 +84,7 @@ public enum RdosTaskStatus implements Serializable {
             WAITCOMPUTE.getStatus(), LACKING.getStatus(),NOTFOUND.getStatus()
     );
 
-    private final static List<Integer> STOPPED_STATUS = Lists.newArrayList(
+    public final static List<Integer> STOPPED_STATUS = Lists.newArrayList(
             MANUALSUCCESS.getStatus(),
             PARENTFAILED.getStatus(),
             FAILED.getStatus(),
@@ -186,7 +186,7 @@ public enum RdosTaskStatus implements Serializable {
     }
 
     public final static List<Integer> UNSUBMIT_STATUS = Lists.newArrayList(UNSUBMIT.getStatus());
-    public final static List<Integer> RUNNING_STATUS = Lists.newArrayList(RUNNING.getStatus(), NOTFOUND.getStatus(), CANCELLING.getStatus());
+    public final static List<Integer> RUNNING_STATUS = Lists.newArrayList(RUNNING.getStatus(), NOTFOUND.getStatus());
     public final static List<Integer> FINISH_STATUS = Lists.newArrayList(FINISHED.getStatus(), MANUALSUCCESS.getStatus());
     public final static List<Integer> FAILED_STATUS = Lists.newArrayList(FAILED.getStatus(), SUBMITFAILD.getStatus(),
             PARENTFAILED.getStatus(), FAILING.getStatus());
@@ -198,7 +198,7 @@ public enum RdosTaskStatus implements Serializable {
             ENGINEDISTRIBUTE.getStatus(), SCHEDULED.getStatus(), CREATED.getStatus(),
             DEPLOYING.getStatus(), COMPUTING.getStatus(), LACKING.getStatus());
     public final static List<Integer> SUBMITTING_STATUS = Lists.newArrayList(SUBMITTING.getStatus());
-    public final static List<Integer> STOP_STATUS = Lists.newArrayList(KILLED.getStatus(), CANCELED.getStatus(), EXPIRE.getStatus(), AUTOCANCELED.getStatus());
+    public final static List<Integer> STOP_STATUS = Lists.newArrayList(KILLED.getStatus(), CANCELED.getStatus(), EXPIRE.getStatus(), AUTOCANCELED.getStatus());;
     public final static List<Integer> EXPIRE_STATUS = Lists.newArrayList(EXPIRE.getStatus(),AUTOCANCELED.getStatus());
     public final static List<Integer> FROZEN_STATUS = Lists.newArrayList(FROZEN.getStatus());
 

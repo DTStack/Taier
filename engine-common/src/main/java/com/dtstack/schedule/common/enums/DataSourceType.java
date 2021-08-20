@@ -50,7 +50,24 @@ public enum DataSourceType {
     EMQ(34),
     DMDB(35),
     GREENPLUM6(36),
-    Presto(37)
+    Presto(37),
+    PHOENIX5(38),
+    KINGBASE8(40),
+    VERTICA(43),
+
+    /**
+     * spark thrift
+     */
+    Spark(1002),
+
+    /**
+     * 因为数据资产新增自定义数据集，将该类型与之做对应
+     */
+    CUSTOM(1000),
+    /**
+     * 未知数据源，即类型暂时不确定，后续可能会修改为正确类型的数据源
+     */
+    UNKNOWN(3000)
     ;
 
     private int val;
@@ -158,4 +175,36 @@ public enum DataSourceType {
                 GREENPLUM6.getVal(),
                 Presto.getVal());
     }
+
+    public static String getEngineType(DataSourceType sourceType){
+
+        switch (sourceType) {
+            case MySQL:
+                return "mysql";
+            case HIVE:
+                return "hive2";
+            case HIVE1X:
+                return "hive";
+            case GREENPLUM6:
+                return "greenplum";
+            case IMPALA:
+                return "impala";
+            case Oracle:
+                return "oracle";
+            case PostgreSQL:
+                return "postgresql";
+            case Presto:
+                return "presto";
+            case SQLServer:
+                return "sqlserver";
+            case TiDB:
+                return "tidb";
+            case KINGBASE8:
+                return "kingbase";
+            default:
+                throw new RdosDefineException("不支持的数据源类型");
+        }
+    }
+
+    public static List<DataSourceType> noNeedUserNamePasswordDataSources = Lists.newArrayList(DataSourceType.HBASE,DataSourceType.Phoenix,DataSourceType.HIVE);
 }

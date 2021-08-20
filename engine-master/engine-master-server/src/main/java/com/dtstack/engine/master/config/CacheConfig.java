@@ -1,12 +1,12 @@
 package com.dtstack.engine.master.config;
 
-import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.router.cache.RdosSubscribe;
+import com.dtstack.schedule.common.enums.AppType;
+import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.router.cache.RdosTopic;
 import com.dtstack.engine.master.router.cache.SessionCache;
-import com.dtstack.schedule.common.enums.AppType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -31,12 +31,8 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.Topic;
 import redis.clients.jedis.JedisPoolConfig;
-import redis.clients.jedis.JedisSentinelPool;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author toutian
@@ -84,8 +80,6 @@ public class CacheConfig extends CachingConfigurerSupport {
             for (RedisNode sn : nodes) {
                 sentinelConfig.sentinel(sn.getHost(), sn.getPort());
             }
-            JedisSentinelPool sentinelPool = new JedisSentinelPool("mymaster", getSentinelAddress());
-            logger.info("redis sentinel master = {}", String.valueOf(sentinelPool.getCurrentHostMaster()));
         }
         return sentinelConfig;
     }
@@ -146,7 +140,6 @@ public class CacheConfig extends CachingConfigurerSupport {
     @Bean
     public ConsoleCache consoleCache(RedisTemplate<String, Object> redisTemplate) {
         ConsoleCache consoleCache = new ConsoleCache();
-        consoleCache.setExpire(environmentContext.getRdosSessionExpired());
         consoleCache.setRedisTemplate(redisTemplate);
         return consoleCache;
     }
@@ -156,7 +149,6 @@ public class CacheConfig extends CachingConfigurerSupport {
         RdosSubscribe rdosSubscribe = new RdosSubscribe();
         rdosSubscribe.setRedisTemplate(redisTemplate);
         rdosSubscribe.setSessionCache(sessionCache);
-        rdosSubscribe.setConsoleCache(consoleCache);
         return rdosSubscribe;
     }
 
@@ -165,7 +157,6 @@ public class CacheConfig extends CachingConfigurerSupport {
         RedisMessageListenerContainer messageContainer = new RedisMessageListenerContainer();
         messageContainer.setConnectionFactory(jedisConnectionFactory);
         messageContainer.addMessageListener(rdosSubscribe, sessionTopic());
-        messageContainer.addMessageListener(rdosSubscribe, consoleTopic());
         return messageContainer;
     }
 

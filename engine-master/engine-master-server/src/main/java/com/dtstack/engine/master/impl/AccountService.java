@@ -11,6 +11,7 @@ import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.AccountTenantVo;
 import com.dtstack.engine.api.vo.AccountVo;
 import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.AccountDao;
@@ -19,7 +20,6 @@ import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.dao.UserDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.enums.AccountType;
-import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
@@ -82,10 +82,10 @@ public class AccountService {
      * 绑定数据库账号 到对应数栈账号下的集群
      */
     public void bindAccount(AccountVo accountVo) throws Exception {
-        if ( null == accountVo ) {
+        if (null == accountVo) {
             throw new RdosDefineException("绑定参数不能为空");
         }
-        if ( null == accountVo.getUserId() || null == accountVo.getUsername() || null == accountVo.getPassword()
+        if (null == accountVo.getUserId() || null == accountVo.getUsername() || null == accountVo.getPassword()
                 || null == accountVo.getBindTenantId() || null == accountVo.getBindUserId() || null == accountVo.getName()) {
             throw new RdosDefineException("请填写必要参数");
         }
@@ -119,7 +119,7 @@ public class AccountService {
             return;
         }
 
-        if ( null == jdbc ) {
+        if (null == jdbc) {
             if (MultiEngineType.TIDB.getType() == accountVo.getEngineType()) {
                 throw new RdosDefineException("请先绑定TiDB组件");
             } else if (MultiEngineType.ORACLE.getType() == accountVo.getEngineType()) {
@@ -261,7 +261,7 @@ public class AccountService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void unbindAccount(AccountTenantVo accountTenantVo) throws Exception {
-        if ( null == accountTenantVo || null == accountTenantVo.getId()) {
+        if (null == accountTenantVo || null == accountTenantVo.getId()) {
             throw new RdosDefineException("参数不能为空");
         }
         if (StringUtils.isBlank(accountTenantVo.getName())) {
@@ -271,11 +271,11 @@ public class AccountService {
             accountTenantVo.setPassword("");
         }
         AccountTenant dbAccountTenant = accountTenantDao.getById(accountTenantVo.getId());
-        if (null == dbAccountTenant ) {
+        if (null == dbAccountTenant) {
             throw new RdosDefineException("该账号未绑定对应集群");
         }
         Account account = accountDao.getById(dbAccountTenant.getAccountId());
-        if (null == account ) {
+        if (null == account) {
             throw new RdosDefineException("解绑账号不存在");
         }
         if (!account.getName().equals(accountTenantVo.getName())) {
@@ -315,9 +315,9 @@ public class AccountService {
     /**
      * 更改数据库账号
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void updateBindAccount(AccountTenantVo accountTenantVo) throws Exception {
-        if (Objects.isNull(accountTenantVo) || Objects.isNull(accountTenantVo.getId())) {
+        if (null == accountTenantVo || null == accountTenantVo.getId()) {
             throw new RdosDefineException("参数不能为空");
         }
         if (StringUtils.isBlank(accountTenantVo.getName())) {
@@ -327,7 +327,7 @@ public class AccountService {
             accountTenantVo.setPassword("");
         }
         AccountTenant dbAccountTenant = accountTenantDao.getById(accountTenantVo.getId());
-        if (Objects.isNull(dbAccountTenant)) {
+        if (null == dbAccountTenant) {
             throw new RdosDefineException("该账号未绑定对应集群");
         }
         AccountVo accountVO = new AccountVo();
@@ -365,7 +365,7 @@ public class AccountService {
         accountTenantDao.update(dbAccountTenant);
         log.info("modify db account id [{}] old account [{}] new account [{}]  success ", dbAccountTenant.getId(), oldAccount.getId(), newAccount.getId());
         User dbUser = userDao.getByUserId(dbAccountTenant.getUserId());
-        if (Objects.nonNull(dbUser)) {
+        if (null != dbUser) {
             consoleCache.publishRemoveMessage(String.format("%s.%s", dtUicTenantIdByIds.get(0), dbUser.getDtuicUserId()));
         }
     }
@@ -382,7 +382,7 @@ public class AccountService {
      */
     public PageResult<List<AccountVo>> pageQuery( Long dtuicTenantId,  String username,  Integer currentPage,
                                                   Integer pageSize,  Integer engineType,Long dtuicUserId) {
-        if ( null == dtuicTenantId ) {
+        if (null == dtuicTenantId) {
             throw new RdosDefineException("绑定参数不能为空");
         }
         Long tenantId = tenantDao.getIdByDtUicTenantId(dtuicTenantId);
@@ -413,18 +413,18 @@ public class AccountService {
      */
     public List<Map<String, Object>> getTenantUnBandList( Long dtuicTenantId,  String dtToken,  Long userId,
                                                          Integer engineType) {
-        if ( null == dtuicTenantId ) {
+        if (null == dtuicTenantId) {
             throw new RdosDefineException("请选择对应租户");
         }
         //获取uic下该租户所有用户
         List<Map<String, Object>> uicUsers = dtUicUserConnect.getAllUicUsers(environmentContext.getDtUicUrl(), "RDOS", dtuicTenantId, dtToken);
         Long tenantId = tenantDao.getIdByDtUicTenantId(dtuicTenantId);
-        if ( null == tenantId ) {
+        if (null == tenantId) {
             throw new RdosDefineException("请先绑定租户到集群");
         }
         //添加超级管理员
         User rootUser = userDao.getByUserId(userId);
-        if ( null != rootUser ) {
+        if (null != rootUser) {
             Map<String, Object> rootMap = new HashMap<>(5);
             rootMap.put("userName", rootUser.getUserName());
             rootMap.put("userId", rootUser.getDtuicUserId());
@@ -448,32 +448,6 @@ public class AccountService {
                 .filter((uicUser) -> !userInIds.contains(Long.valueOf(uicUser.get("userId").toString())))
                 .collect(Collectors.toList());
 
-    }
-
-    public AccountVo getAccountVo(Long dtUicTenantId, Long dtUicUserId,Integer accountType) {
-        AccountVo accountVo = new AccountVo();
-        Tenant tenant = tenantDao.getByDtUicTenantId(dtUicTenantId);
-        if (Objects.isNull(tenant)) {
-            return accountVo;
-        }
-
-        User user = userDao.getByDtUicUserId(dtUicUserId);
-        if (Objects.isNull(user)) {
-            return accountVo;
-        }
-
-        Account one = accountDao.getOne(tenant.getId(), user.getId(), accountType,null);
-        if (Objects.isNull(one)) {
-            return accountVo;
-        }
-
-        accountVo.setBindTenantId(dtUicTenantId);
-        accountVo.setAccountType(accountType);
-        accountVo.setBindUserId(dtUicUserId);
-        accountVo.setUsername(user.getUserName());
-        accountVo.setName(one.getName());
-        accountVo.setPassword(StringUtils.isBlank(one.getPassword()) ? "" : Base64Util.baseDecode(one.getPassword()));
-        return accountVo;
     }
 
     private void checkAccountVo(AccountVo accountVo) {

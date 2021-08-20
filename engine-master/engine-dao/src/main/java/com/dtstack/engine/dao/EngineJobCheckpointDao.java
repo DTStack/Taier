@@ -23,6 +23,14 @@ public interface EngineJobCheckpointDao {
                                                        @Param("triggerStart") Long triggerStart,
                                                        @Param("triggerEnd") Long triggerEnd);
 
+    List<EngineJobCheckpoint> listFailedByTaskIdAndRangeTime(@Param("taskId") String taskEngineId,
+                                                       @Param("triggerStart") Long triggerStart,
+                                                       @Param("triggerEnd") Long triggerEnd, @Param("size") Integer size);
+
+    void updateFailedCheckpoint(@Param("checkPointList") List<EngineJobCheckpoint> checkPointList);
+
+    EngineJobCheckpoint findLatestSavepointByTaskId(@Param("taskId") String taskEngineId);
+
     EngineJobCheckpoint getByTaskIdAndEngineTaskId(@Param("taskId") String taskId, @Param("taskEngineId") String taskEngineId);
 
     void batchDeleteByEngineTaskIdAndCheckpointId(@Param("taskEngineId") String taskEngineId, @Param("checkpointId") String checkpointId);

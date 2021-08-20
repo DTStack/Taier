@@ -69,4 +69,8 @@ public interface ComponentService extends DtInsightServer {
     @RequestLine("POST /node/component/testConnects")
     ApiResponse<List<ComponentTestResult>> testConnects(@Param("clusterName") String clusterName);
 
+    @RequestLine("POST /node/component/isYarnSupportGpus")
+    ApiResponse<Boolean> isYarnSupportGpus(@Param("clusterName") String clusterName);
+
+
 }

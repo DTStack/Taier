@@ -78,9 +78,6 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
     @Autowired
     private WorkerOperator workerOperator;
 
-    @Autowired
-    private ScheduleJobService scheduleJobService;
-
     /**
      * key: jobResource, 计算引擎类型
      * value: queue
@@ -243,7 +240,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
         String engineLog = null;
         try {
             EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
-            if ( null == engineJobCache ) {
+            if (null == engineJobCache) {
                 return "";
             }
             String engineType = engineJobCache.getEngineType();

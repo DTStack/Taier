@@ -3,13 +3,13 @@ package com.dtstack.engine.master.config;
 import com.dtstack.engine.common.akka.config.AkkaConfig;
 import com.dtstack.engine.common.akka.config.AkkaLoad;
 import com.dtstack.engine.common.client.ClientOperator;
-import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.common.sftp.SftpFileManage;
 import com.dtstack.engine.master.akka.AkkaMasterServerImpl;
 import com.dtstack.engine.master.akka.MasterServer;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 /**
  * company: www.dtstack.com
  * author: toutian
@@ -34,6 +34,11 @@ public class MasterServerBeanConfig {
     @Bean
     public ClientOperator clientOperator(){
         return ClientOperator.getInstance(environmentContext.getPluginPath());
+    }
+
+    @Bean
+    public SftpFileManage sftpFileManage() {
+        return SftpFileManage.getInstance();
     }
 
 }
