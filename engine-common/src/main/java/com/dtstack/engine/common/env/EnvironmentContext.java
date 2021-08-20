@@ -616,6 +616,10 @@ public class EnvironmentContext {
         return environment.getProperty("plugin.path",  System.getProperty("user.dir") + File.separator +"pluginLibs");
     }
 
+    public int getMaxTenantSize() {
+        return Integer.parseInt(environment.getProperty("max.tenant.size", "20"));
+    }
+
     /**
      * 数据源中心配置地址
      * @return
@@ -643,6 +647,10 @@ public class EnvironmentContext {
      */
     public boolean checkStandalone() {
         return Boolean.parseBoolean(environment.getProperty("check.standalone", "true"));
+    }
+    
+    public Boolean getOpenErrorTop() {
+        return Boolean.parseBoolean(environment.getProperty("open.error.top", "true"));
     }
 
     public int getBatchJobInsertSize() {

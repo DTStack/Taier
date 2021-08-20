@@ -6,6 +6,7 @@
       id,dict_code,dict_name,dict_value,dict_desc,`type`,sort,data_type,depend_name,gmt_create,gmt_modified,is_deleted
     </sql>
 
+
     <select id="listDictByType" resultType="ScheduleDict">
         SELECT
         <include refid="select_content_fragment"/>
@@ -42,6 +43,15 @@
         ORDER BY sort
     </select>
 
+    <update id="update">
+        UPDATE schedule_dict
+        SET dict_value = #{update}
+        WHERE
+        `dict_code` = #{dictCode}
+        AND `dict_name` = #{dictName}
+        AND is_deleted = 0
+        AND dict_value = #{oldUpdate}
+    </update>
     <select id="listById" resultType="com.dtstack.engine.api.domain.ScheduleDict">
         SELECT
         <include refid="select_content_fragment"/>

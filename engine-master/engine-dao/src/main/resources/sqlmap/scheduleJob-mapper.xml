@@ -658,7 +658,29 @@
             #{status}
         </foreach>
         AND bj.type = #{type}
-        AND bj.cyc_time is not null and bj.cyc_time >= #{cycTime}
+        AND bj.id >= (select min(id) from schedule_job where cyc_time >= #{cycTime})
+        group by bj.task_id
+        ORDER BY count(1) desc limit #{pageQuery.start}, #{pageQuery.pageSize}
+    </select>
+
+    <select id="listTopError" resultType="com.dtstack.engine.api.vo.JobTopErrorVO">
+        SELECT bj.task_id AS taskId, count(1) as errorCount
+        FROM schedule_job bj
+        WHERE bj.is_deleted = 0
+        <if test="dtuicTenantId != null and dtuicTenantId != -1">
+            AND bj.dtuic_tenant_id = #{dtuicTenantId}
+        </if>
+        <if test="projectId!=null and projectId != -1">
+            AND bj.project_id = #{projectId}
+        </if>
+        AND bj.app_type = #{appType}
+        AND bj.status in
+        <foreach item="status" index="index" collection="statuses" open="(" separator="," close=")">
+            #{status}
+        </foreach>
+        AND bj.type = #{type}
+        AND bj.cyc_time >= #{startCycTime}
+        AND bj.cyc_time &lt;= #{endCycTime}
         group by bj.task_id
         ORDER BY count(1) desc limit #{pageQuery.start}, #{pageQuery.pageSize}
     </select>
@@ -1851,6 +1873,5 @@
         FROM schedule_job bj
         WHERE flow_job_id = #{jobId} AND is_deleted = 0 order by cyc_time desc LIMIT 1
     </select>
-
 
 </mapper>

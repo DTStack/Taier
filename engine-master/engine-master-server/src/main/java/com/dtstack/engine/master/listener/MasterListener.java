@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.listener;
 
+import com.dtstack.engine.master.cron.ErrorTopCron;
 import com.dtstack.engine.master.failover.FailoverStrategy;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.master.scheduler.ScheduleJobBack;
@@ -29,18 +30,19 @@ public class MasterListener implements LeaderLatchListener, Listener {
     private final AtomicBoolean isMaster = new AtomicBoolean(false);
     private final FailoverStrategy failoverStrategy;
     private final ScheduleJobBack scheduleJobBack;
-
+    private final ErrorTopCron errorTopCron;
     private final ScheduledExecutorService scheduledService;
     private LeaderLatch latch;
 
     public MasterListener(FailoverStrategy failoverStrategy,
                           ScheduleJobBack scheduleJobBack,
                           CuratorFramework curatorFramework,
+                          ErrorTopCron errorTopCron,
                           String latchPath,
                           String localAddress) throws Exception {
         this.failoverStrategy = failoverStrategy;
         this.scheduleJobBack = scheduleJobBack;
-
+        this.errorTopCron = errorTopCron;
         this.latch = new LeaderLatch(curatorFramework, latchPath, localAddress);
         this.latch.addListener(this);
         this.latch.start();
@@ -80,6 +82,7 @@ public class MasterListener implements LeaderLatchListener, Listener {
 
         failoverStrategy.setIsMaster(isMaster.get());
         scheduleJobBack.setIsMaster(isMaster.get());
+        errorTopCron.setIsMaster(isMaster.get());
     }
 
 }

@@ -19,6 +19,8 @@ public interface ScheduleDictDao {
 
     List<ScheduleDict> getByDependName(@Param("type") Integer type,@Param("dependName") String dependName);
 
+    Integer update(@Param("dictCode") String dictCode, @Param("dictName") String dictName, @Param("update") String update,@Param("oldUpdate") String oldUpdate);
+
     List<ScheduleDict> listById(@Param("id") Long id, @Param("size") Integer size);
 
     ScheduleDict getByNameAndCodeAndDependName(@Param("dictCode") String dictCode, @Param("dictName") String dictName, @Param("dependName") String dependName);
