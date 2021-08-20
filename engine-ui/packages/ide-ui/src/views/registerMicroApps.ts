@@ -28,7 +28,7 @@ registerMicroApps([
         activeRule: '#/console-ui',
     },
     {
-        name: 'Database',
+        name: 'Datasource',
         entry: ENTRY_DATABASE,
         container: container,
         activeRule: '#/data-source',
@@ -36,9 +36,12 @@ registerMicroApps([
 ]);
 
 start({
-    sandbox: {
-        experimentalStyleIsolation: true,
-    },
+    /**
+     * TODO: Style renaming isolation has a BUG, removed for now
+     */
+    // sandbox: {
+    //     experimentalStyleIsolation: true,
+    // },
 });
 
 setDefaultMountApp('/');
