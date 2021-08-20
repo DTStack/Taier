@@ -38,7 +38,7 @@
             a.is_deleted = 0
             and b.is_deleted = 0
             and b.`app_type` = #{listQuery.appType}
-            and a.`dtuic_tenant_id` = #{listQuery.dsDtuicTenantId}
+            and a.`dtuic_tenant_id` = #{listQuery.tenantId}
             <if test="listQuery.dataTypeList != null and listQuery.dataTypeList.size() > 0">
                 and a.`data_type` in
                 <foreach collection="listQuery.dataTypeList" item="dataType" open="(" separator="," close=")">
@@ -64,7 +64,7 @@
                 and t.is_deleted = 0
                 and t.project_id = #{listQuery.projectId}
                 and t.app_type = #{listQuery.appType}
-                and t.dtuic_tenant_id = #{listQuery.dsDtuicTenantId}
+                and t.dtuic_tenant_id = #{listQuery.tenantId}
             )
         </where>
     </sql>
@@ -74,7 +74,7 @@
             a.is_deleted = 0
             and b.is_deleted = 0
             and b.`app_type` = #{listQuery.appType}
-            and a.`dtuic_tenant_id` = #{listQuery.dsDtuicTenantId}
+            and a.`dtuic_tenant_id` = #{listQuery.tenantId}
             <if test="listQuery.projectId !=null">
                 and b.project_id = #{listQuery.projectId}
             </if>
@@ -108,7 +108,7 @@
     <sql id="queryDsSql">
         <where>
             a.is_deleted = 0
-            and a.dtuic_tenant_id = #{listQuery.dtuicTenantId}
+            and a.dtuic_tenant_id = #{listQuery.tenantId}
             <if test="listQuery.search != null and listQuery.search != ''">
                 and (
                 a.data_name like concat('%', #{listQuery.search} ,'%')

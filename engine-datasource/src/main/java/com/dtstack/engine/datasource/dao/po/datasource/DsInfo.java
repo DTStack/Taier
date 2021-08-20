@@ -74,9 +74,4 @@ public class DsInfo extends TenantModel<DsInfo> {
     @TableField("schema_name")
     private String schemaName;
 
-//    /**
-//     * 租户主键id
-//     */
-//    @TableField("tenant_id")
-//    private Long tenantId;
 }
