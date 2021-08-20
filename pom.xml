@@ -15,7 +15,7 @@
         <hadoop3.version>3.0.0</hadoop3.version>
         <spring.version>5.2.3.RELEASE</spring.version>
         <fastjson>2.9.6</fastjson>
-        <common.version>4.0.1</common.version>
+        <common.version>4.0.4</common.version>
     </properties>
 
     <modules>
