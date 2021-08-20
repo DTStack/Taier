@@ -159,7 +159,7 @@ const AlarmChannel: React.FC = (props: any) => {
             <Table
                 className='dt-table-fixed-contain-footer'
                 scroll={{ y: true }}
-                style={{ height: 'calc(100vh - 90px)' }}
+                style={{ height: 'calc(100vh - 154px)' }}
                 loading={loading}
                 columns={initColumns()}
                 dataSource={alarmList}

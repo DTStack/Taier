@@ -181,7 +181,7 @@ class ClusterManage extends React.Component<any, any> {
                         }}
                         className='dt-table-fixed-contain-footer'
                         scroll={{ y: true }}
-                        style={{ height: 'calc(100vh - 90px)' }}
+                        style={{ height: 'calc(100vh - 154px)' }}
                         pagination={false}
                         loading={loading}
                         dataSource={dataSource}

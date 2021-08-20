@@ -26,9 +26,11 @@
         display: flex;
         justify-content: center;
         margin-top: 20px;
-        &__desc:first-child {
-            margin-right: 20px;
+
+        &__desc:last-child {
+            margin-right: 0;
         }
+
         &__desc {
             min-width: 128px;
             height: 48px;
@@ -37,9 +39,12 @@
             align-items: center;
             padding: 10px 22px 10px 16px;
             border-radius: 4px;
-            border: 1px solid #DDD;
+            border: 1px solid #ddd;
+            margin-right: 20px;
+            cursor: pointer;
+
             &:hover {
-                border: 1px solid #3F87FF;
+                border: 1px solid #3f87ff;
             }
             .comp-name {
                 line-height: 48px;
@@ -54,7 +59,7 @@
             }
             .anticon-right-circle {
                 font-size: 8px;
-                color: #3F87FF;
+                color: #3f87ff;
                 margin-left: 30px;
             }
         }
@@ -86,7 +91,7 @@
         left: 0px;
         right: 0px;
         .ant-tabs-bar {
-            background-color: #FAFAFA;
+            background-color: #fafafa;
             border: unset;
         }
         .ant-tabs-bar .ant-tabs-nav-container {
@@ -95,7 +100,7 @@
                 min-width: 100px;
                 .ant-tabs-tab {
                     text-align: center;
-                    background: #FAFAFA;
+                    background: #fafafa;
                     padding: 0;
                     font-size: 14px;
                     height: 44px;
