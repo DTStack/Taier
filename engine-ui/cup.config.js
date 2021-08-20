@@ -21,7 +21,7 @@ module.exports = {
             changeOrigin: true,
             secure: false
         },
-        '/api/rdos': {
+        '/api': {
             target: "http://schedule.dtstack.cn:8090", // doraam
             changeOrigin: true,
             secure: false
