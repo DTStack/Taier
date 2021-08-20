@@ -12,6 +12,8 @@ public class ServerConstant {
 
     public static final String SERVER_PATH = "dagschedulex";
 
+    public static final String SERVER_CUTTING_PATH = "@";
+
     public static final String BLOCKING_DISPATCHER = "blocking-dispatcher";
 
     /**

@@ -6,6 +6,7 @@ import com.dtstack.engine.remote.akka.config.AkkaConfig;
 import com.dtstack.engine.remote.exception.RemoteException;
 import com.dtstack.engine.remote.message.Message;
 import com.dtstack.engine.remote.message.TargetInfo;
+import com.dtstack.engine.remote.netty.command.CommandType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,6 +71,9 @@ public class ClientActor extends AbstractLoggingActor {
                         e.printStackTrace();
                         sender().tell(msg.ask(new RemoteException(e), Message.MessageStatue.ERROR),sender());
                     }
+                })
+                .match(CommandType.class,msg->{
+                    getSender().tell(CommandType.PONG,self());
                 })
                 .matchAny(this::unhandled)
                 .build();

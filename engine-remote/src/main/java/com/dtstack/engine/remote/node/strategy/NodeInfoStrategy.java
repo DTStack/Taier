@@ -13,7 +13,9 @@ public interface NodeInfoStrategy {
 
     String CLUSTER_INFO_NAME = "remote.cluster.worker.identifiers";
 
-    String CLUSTER_INFO_NODE_NAME = "remote.cluster.worker.%s.nodes";
+    String CLUSTER_INFO_NODE_NAME_IP = "remote.cluster.worker.%s.nodes.ip";
+
+    String CLUSTER_INFO_NODE_NAME_PORT = "remote.cluster.worker.%s.nodes.port";
 
     /**
      * 获得节点信息

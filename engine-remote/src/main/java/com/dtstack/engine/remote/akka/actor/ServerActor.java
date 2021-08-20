@@ -2,12 +2,16 @@ package com.dtstack.engine.remote.akka.actor;
 
 import akka.actor.AbstractLoggingActor;
 import com.dtstack.engine.remote.akka.config.AkkaConfig;
+import com.dtstack.engine.remote.akka.node.AkkaNode;
+import com.dtstack.engine.remote.constant.ServerConstant;
 import com.dtstack.engine.remote.exception.NoNodeException;
 import com.dtstack.engine.remote.exception.RemoteException;
 import com.dtstack.engine.remote.message.Message;
 import com.dtstack.engine.remote.node.AbstractNode;
 import com.dtstack.engine.remote.node.RemoteNodes;
 import com.dtstack.engine.remote.node.strategy.NodeInfoStrategy;
+import com.dtstack.engine.remote.route.RouteStrategy;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,21 +29,38 @@ public class ServerActor extends AbstractLoggingActor {
     private Map<String, RemoteNodes> roles = new ConcurrentHashMap<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerActor.class);
 
-
-
     @Override
     public void preStart() throws Exception {
+        ActorContext context = getContext();
         // 初始化节点
         NodeInfoStrategy nodeInfoStrategy = AkkaConfig.getNodeInfoStrategy();
-        List<String> identifiers = AkkaConfig.getIdentifiers();
+        RouteStrategy routeStrategy = AkkaConfig.getRouteStrategy();
 
-        for (String identifier : identifiers) {
-            List<String> nodes = AkkaConfig.getNodes(identifier);
+        Map<String, List<String>> nodeInfo = nodeInfoStrategy.getNodeInfo();
+        for (Map.Entry<String, List<String>> entry : nodeInfo.entrySet()) {
+            String identifier = entry.getKey();
+            List<String> value = entry.getValue();
+            RemoteNodes remoteNodes = new RemoteNodes(identifier);
+            remoteNodes.setRouteStrategy(routeStrategy);
+            Map<String, AbstractNode> refs = remoteNodes.getRefs();
+            for (String address : value) {
+                if (StringUtils.isNotBlank(address)) {
+                    String[] split = address.split(":");
 
-
+                    if (split.length < 2) {
+                        LOGGER.warn("node info error : {}", address);
+                        continue;
+                    }
+                    String ip = split[0];
+                    int port = Integer.parseInt(split[1]);
+                    AkkaNode akkaNode = new AkkaNode(identifier, ip, port, getSender(),context);
+                    refs.put(address, akkaNode);
+                }
+            }
+            remoteNodes.start();
+            roles.put(identifier, remoteNodes);
         }
     }
-
 
     @Override
     public Receive createReceive() {

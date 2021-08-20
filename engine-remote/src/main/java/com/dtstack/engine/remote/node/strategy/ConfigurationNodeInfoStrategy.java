@@ -34,7 +34,9 @@ public class ConfigurationNodeInfoStrategy implements NodeInfoStrategy {
 
             for (String identifier : split) {
 
-                String nodes = RemoteConfig.getValueByKey(String.format(CLUSTER_INFO_NODE_NAME,identifier));
+                String ip = RemoteConfig.getValueByKey(String.format(CLUSTER_INFO_NODE_NAME_IP, identifier));
+                String port = RemoteConfig.getValueByKey(String.format(CLUSTER_INFO_NODE_NAME_PORT, identifier));
+                String nodes = ip+":"+port;
 
                 if (StringUtils.isNotBlank(nodes)) {
                     String[] nodeArray = nodes.split(",");
