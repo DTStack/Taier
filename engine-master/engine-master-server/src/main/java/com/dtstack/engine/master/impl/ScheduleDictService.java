@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ComponentConfig;
 import com.dtstack.engine.api.domain.ScheduleDict;
 import com.dtstack.engine.api.pojo.ClientTemplate;
@@ -10,6 +11,7 @@ import com.dtstack.engine.dao.ScheduleDictDao;
 import com.dtstack.engine.master.cache.DictCache;
 import com.dtstack.engine.master.enums.DictType;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +22,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author yuebai
@@ -42,8 +45,7 @@ public class ScheduleDictService {
     private ComponentConfigDao componentConfigDao;
 
     /**
-     * 获取hadoop 和 flink spark组件的版本
-     *
+     * 获取hadoop 和 flink spark组件的版本(有版本选择的才会在这获取)
      * @return
      */
     public Map<String, List<ClientTemplate>> getVersion() {
@@ -91,9 +93,18 @@ public class ScheduleDictService {
         if (CollectionUtils.isEmpty(normalVersionDict)) {
             return new ArrayList<>(0);
         }
+
         return normalVersionDict
                 .stream()
-                .map(s -> new ClientTemplate(s.getDictName(), s.getDictValue()))
+                .map(s -> {
+                    ClientTemplate clientTemplate = new ClientTemplate(s.getDictName(), s.getDictValue());
+                    if (DictType.FLINK_VERSION.type.equals(s.getType()) && StringUtils.isNotBlank(s.getDependName())) {
+                        List<Integer> collect = Stream.of(s.getDependName().split(",")).mapToInt(Integer::parseInt)
+                                .boxed().collect(Collectors.toList());
+                        clientTemplate.setDeployTypes(collect);
+                    }
+                    return clientTemplate;
+                })
                 .collect(Collectors.toList());
     }
 

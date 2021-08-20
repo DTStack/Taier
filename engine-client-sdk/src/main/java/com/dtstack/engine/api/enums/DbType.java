@@ -11,7 +11,9 @@ public enum DbType {
     Oracle(2),
     TiDB(31),
     GREENPLUM6(36),
-    ANALYTICDB_FOR_PG(54);
+    ANALYTICDB_FOR_PG(54),
+    MYSQL(1),
+    OCEANBASE(55);
 
     private int typeCode;
 

@@ -233,7 +233,6 @@ public class ComponentService {
         clusterService.clearStandaloneCache();
         Set<Long> dtUicTenantIds = new HashSet<>();
         if ( null != componentCode && EComponentType.sqlComponent.contains(EComponentType.getByCode(componentCode))) {
-            //tidb 和libra 没有queue
             List<EngineTenantVO> tenantVOS = engineTenantDao.listEngineTenant(engineId);
             if (CollectionUtils.isNotEmpty(tenantVOS)) {
                 for (EngineTenantVO tenantVO : tenantVOS) {
@@ -1646,6 +1645,15 @@ public class ComponentService {
             }
 
         }
+
+        if (componentCode == EComponentType.MYSQL) {
+            String simpleVer = "8";
+            if (version.startsWith("5.")) {
+                simpleVer = "";
+            }
+            return String.format("mysql%s", simpleVer);
+        }
+
         //flink on standalone处理
         if(EComponentType.FLINK.getTypeCode().equals(componentType) && EDeployType.STANDALONE.getType() == deployType){
             return String.format("%s%s",String.format("%s%s",EComponentType.FLINK.name().toLowerCase(),version),"-standalone");
@@ -1660,7 +1668,7 @@ public class ComponentService {
         }
 
         //调度或存储单个组件
-        if (EComponentType.NFS.equals(componentCode) || EComponentType.ResourceScheduling.contains(componentCode)) {
+        if (EComponentType.YARN.equals(componentCode)) {
             return String.format("%s%s", componentCode.name().toLowerCase(), this.formatHadoopVersion(version, componentCode));
         }
 
