@@ -623,7 +623,7 @@
             #{status}
         </foreach>
         AND bj.type = #{type}
-        AND bj.cyc_time is not null and bj.cyc_time >= #{cycTime}
+        AND bj.id >= (select min(id) from schedule_job where cyc_time >= #{cycTime})
         group by bj.task_id
         ORDER BY count(1) desc limit #{pageQuery.start}, #{pageQuery.pageSize}
     </select>
