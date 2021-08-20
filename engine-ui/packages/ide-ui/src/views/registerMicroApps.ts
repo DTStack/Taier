@@ -39,9 +39,9 @@ start({
     /**
      * TODO: Style renaming isolation has a BUG, removed for now
      */
-    // sandbox: {
-    //     experimentalStyleIsolation: true,
-    // },
+    sandbox: {
+        experimentalStyleIsolation: true,
+    },
 });
 
 setDefaultMountApp('/');
