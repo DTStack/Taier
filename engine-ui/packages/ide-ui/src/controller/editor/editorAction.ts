@@ -19,10 +19,8 @@ import {
     isGreenPlumEngine,
 } from '../../comm';
 
-export enum SQLType {
-    /* eslint-disable-next-line */
+enum SQLType {
     Normal = 0,
-    /* eslint-disable-next-line */
     Advanced = 1,
 }
 interface SQLJob {
@@ -214,7 +212,7 @@ function doSelect(
             const { retryLog } = res;
             if (code) showMsg(res);
             if (code !== 1) {
-                dispatch(output(currentTab, createLog('请求异常！', 'error')));
+                dispatch(output(currentTab, createLog(`请求异常！`, 'error')));
             }
             if (data && data.download) {
                 dispatch(
@@ -319,7 +317,7 @@ function doSelect(
                     }
                 }
             } else {
-                dispatch(output(currentTab, createLog('请求异常！', 'error')));
+                dispatch(output(currentTab, createLog(`请求异常！`, 'error')));
                 retationRequestSync(res.data);
             }
         });
@@ -369,7 +367,7 @@ function doSelect(
                     }
                 }
             } else {
-                dispatch(output(currentTab, createLog('请求异常！', 'error')));
+                dispatch(output(currentTab, createLog(`请求异常！`, 'error')));
                 res.data && abnormal(res.data);
                 // data为null时特殊处理，跳出当前运行状态
                 resolve(false);
@@ -452,18 +450,17 @@ function exec(
             dispatch(removeLoadingTab(currentTab));
             return;
         }
-        if (res && res.code && res.message) {
+        if (res && res.code && res.message)
             dispatch(output(currentTab, createLog(`${res.message}`, 'error')));
-        }
         // 执行结束
         if (!res || (res && res.code !== 1)) {
-            dispatch(output(currentTab, createLog('请求异常！', 'error')));
+            dispatch(output(currentTab, createLog(`请求异常！`, 'error')));
             dispatch(removeLoadingTab(currentTab));
             resolve(true);
             return;
         }
         if (res && res.code === 1) {
-            if (res.data && res.data.msg) {
+            if (res.data && res.data.msg)
                 dispatch(
                     output(
                         currentTab,
@@ -473,9 +470,8 @@ function exec(
                         )
                     )
                 );
-            }
             // 在立即执行sql成功后，显示转化之后的任务信息(sqlText)
-            if (res.data && res.data.sqlText) {
+            if (res.data && res.data.sqlText)
                 dispatch(
                     output(
                         currentTab,
@@ -484,7 +480,6 @@ function exec(
                         }\n${createTitle('')}`
                     )
                 );
-            }
             if (res.data.jobId) {
                 runningSql[currentTab] = res.data.jobId;
                 const engineType = res.data.engineType;
@@ -561,30 +556,28 @@ export async function execSparkSQLAdvancedMode(
 ) {
     params.taskId = task.id;
     params.sqlList = sqls;
-    dispatch(output(currentTab, createLog('任务开始执行高级模式', 'info')));
+    dispatch(output(currentTab, createLog(`任务开始执行高级模式`, 'info')));
 
     const res = await API.execSparkSQLAdvancedMode(params);
 
-    if (res && res.code && res.message) {
+    if (res && res.code && res.message)
         dispatch(output(currentTab, createLog(`${res.message}`, 'error')));
-    }
     // 执行结束
     if (!res || (res && res.code !== 1)) {
-        dispatch(output(currentTab, createLog('请求异常！', 'error')));
+        dispatch(output(currentTab, createLog(`请求异常！`, 'error')));
         dispatch(removeLoadingTab(currentTab));
         return;
     }
     if (res && res.code === 1) {
-        if (res.data && res.data.msg) {
+        if (res.data && res.data.msg)
             dispatch(
                 output(
                     currentTab,
                     createLog(`${res.data.msg}`, typeCreate(res.data.status))
                 )
             );
-        }
         // 在立即执行sql成功后，显示转化之后的任务信息(sqlText)
-        if (res.data && res.data.sqlText) {
+        if (res.data && res.data.sqlText)
             dispatch(
                 output(
                     currentTab,
@@ -593,7 +586,6 @@ export async function execSparkSQLAdvancedMode(
                     }\n${createTitle('')}`
                 )
             );
-        }
 
         let jobIndex = 0;
         const jobList: SQLJob[] = res.data?.sqlIdList || [];
@@ -757,19 +749,18 @@ export function execDataSync(currentTab: any, params: any) {
         dispatch(setOutput(currentTab, `同步任务【${params.name}】开始执行`));
         dispatch(addLoadingTab(currentTab));
         const res = await API.execDataSyncImmediately(params);
-        if (res && res.code && res.message) {
+        if (res && res.code && res.message)
             dispatch(output(currentTab, createLog(`${res.message}`, 'error')));
-        }
         // 执行结束
         if (!res || (res && res.code !== 1)) {
-            dispatch(output(currentTab, createLog('请求异常！', 'error')));
+            dispatch(output(currentTab, createLog(`请求异常！`, 'error')));
             dispatch(removeLoadingTab(currentTab));
         }
         if (res && res.code === 1) {
             dispatch(
-                output(currentTab, createLog('已经成功发送执行请求...', 'info'))
+                output(currentTab, createLog(`已经成功发送执行请求...`, 'info'))
             );
-            if (res.data && res.data.msg) {
+            if (res.data && res.data.msg)
                 dispatch(
                     output(
                         currentTab,
@@ -779,7 +770,6 @@ export function execDataSync(currentTab: any, params: any) {
                         )
                     )
                 );
-            }
             if (res.data.jobId) {
                 runningSql[currentTab] = res.data.jobId;
                 selectData(
@@ -793,7 +783,7 @@ export function execDataSync(currentTab: any, params: any) {
                 });
             } else {
                 dispatch(
-                    output(currentTab, createLog('执行返回结果异常', 'error'))
+                    output(currentTab, createLog(`执行返回结果异常`, 'error'))
                 );
                 dispatch(removeLoadingTab(currentTab));
             }

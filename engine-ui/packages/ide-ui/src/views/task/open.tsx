@@ -9,11 +9,11 @@ const Option = Select.Option;
 const formItemLayout = {
     labelCol: {
         xs: { span: 24 },
-        sm: { span: 8 },
+        sm: { span: 6 },
     },
     wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 16 },
+        sm: { span: 14 },
     },
 };
 const tailFormItemLayout = {
@@ -59,7 +59,7 @@ class Open extends React.PureComponent<OpenProps, {}> {
     render() {
         const { getFieldDecorator } = this.props.form;
         return (
-            <Form onSubmit={this.handleSubmit}>
+            <Form onSubmit={this.handleSubmit} className="mo-open-task">
                 <FormItem {...formItemLayout} label="任务名称">
                     {getFieldDecorator('name', {
                         rules: [
@@ -71,9 +71,26 @@ class Open extends React.PureComponent<OpenProps, {}> {
                                 required: true,
                             },
                         ],
-                    })(<Input />)}
+                    })(<Input autoComplete={'off'} />)}
                 </FormItem>
                 <FormItem {...formItemLayout} label="任务类型">
+                    {getFieldDecorator('taskType', {
+                        rules: [
+                            {
+                                required: true,
+                            },
+                        ],
+                    })(
+                        <Select>
+                            {taskType.map((type) => (
+                                <Option key={type.value} value={type.value}>
+                                    {type.text}
+                                </Option>
+                            ))}
+                        </Select>
+                    )}
+                </FormItem>
+                <FormItem {...formItemLayout} label="存储位置">
                     {getFieldDecorator('taskType', {
                         rules: [
                             {

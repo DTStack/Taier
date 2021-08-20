@@ -55,7 +55,7 @@ export const console = (state: any = {}, action: any) => {
         case editorAction.UPDATE_RESULTS: {
             // 更新结果
             const updatedKey = action.key;
-            const updated = cloneDeep(state);
+            let updated = cloneDeep(state);
             const updateArr: any = [...updated[updatedKey].results];
             if (updated[updatedKey] && action.data) {
                 const lastResult = updateArr[updateArr.length - 1];
@@ -78,7 +78,7 @@ export const console = (state: any = {}, action: any) => {
         case editorAction.DELETE_RESULT: {
             // 删除结果
             const key = action.key;
-            const index = action.data;
+            let index = action.data;
             const origin = cloneDeep(state);
             const arr = origin[key].results;
             if (arr.length > 0 && index !== undefined) {
@@ -116,7 +116,7 @@ export const running = (state: any = [], action: any) => {
             return list;
         }
         case editorAction.REMOVE_LOADING_TAB: {
-            const list = state.filter(function (value: any) {
+            let list = state.filter(function (value: any) {
                 return value != action.data.id;
             });
             return list;

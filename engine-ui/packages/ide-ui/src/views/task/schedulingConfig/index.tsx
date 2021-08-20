@@ -18,12 +18,11 @@ export class SchedulingConfig extends React.Component<any, any> {
             selfReliance: undefined,
         };
     }
-
     form: any;
     componentDidMount() {
         this.loadWorkflowConfig();
         const { tabData, isIncrementMode } = this.props;
-        const scheduleConf = JSON.parse(tabData.scheduleConf);
+        let scheduleConf = JSON.parse(tabData.scheduleConf);
         let selfReliance = 0;
         // 此处为兼容代码
         // scheduleConf.selfReliance兼容老代码true or false 值
@@ -225,7 +224,7 @@ export class SchedulingConfig extends React.Component<any, any> {
             tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock;
         const isWorkflowRoot = tabData.taskType == TASK_TYPE.WORKFLOW;
 
-        const initConf = tabData.scheduleConf;
+        let initConf = tabData.scheduleConf;
 
         let scheduleConf = Object.assign(this.getDefaultScheduleConf(0), {
             beginDate: '2001-01-01',

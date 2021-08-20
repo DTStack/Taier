@@ -1,16 +1,25 @@
 import assign from 'object-assign';
 import { cloneDeep, isArray } from 'lodash';
+import { message } from 'antd';
 
 import { offlineWorkbenchDB as idb } from '../database';
 
-import { workbenchAction } from './actionType';
+import { workbenchAction } from './actinTypes';
 import { PROJECT_KEY } from '../../comm/const';
 
 const getProjectId = () => {
     return sessionStorage.getItem(PROJECT_KEY);
 };
 
-export const getWorkbenchInitialState = () => {
+interface WorkbenchStates {
+    tabs: any[];
+    currentTab?: number;
+    isCurrentTabNew?: boolean;
+    taskCustomParams: any[];
+    showPanel: boolean;
+}
+
+export const getWorkbenchInitialState = (): WorkbenchStates => {
     return {
         tabs: [],
         currentTab: undefined,
@@ -27,7 +36,7 @@ export const workbenchReducer = (
     let nextState: any;
 
     // 按原有逻辑读取项目信息，最好还是通过Action传递，由于对老代码业务逻辑有影响，
-    const projectID = getProjectId();
+    let projectID = getProjectId();
 
     switch (action.type) {
         case workbenchAction.LOAD_TASK_DETAIL: {
@@ -64,22 +73,25 @@ export const workbenchReducer = (
             break;
         }
 
-        // case workbenchAction.CLOSE_TASK_TAB: {
-        //     const tabId = action.payload;
-        //     const tabIndex = state.tabs.findIndex((tab: any) => tab.id === tabId);
-        //     nextState = state;
-        //     if (tabIndex > -1) {
-        //         let clone = cloneDeep(state);
-        //         if (tabId === state.currentTab) {
-        //             const nextTab = clone.tabs[tabIndex + 1] || clone.tabs[tabIndex - 1];
-        //             clone.currentTab = nextTab ? nextTab.id : clone.tabs[0].id;
-        //         }
-        //         // 删除
-        //         clone.tabs.splice(tabIndex, 1);
-        //         nextState = clone;
-        //     }
-        //     break;
-        // }
+        case workbenchAction.CLOSE_TASK_TAB: {
+            const tabId = action.payload;
+            const tabIndex = state.tabs.findIndex(
+                (tab: any) => tab.id === tabId
+            );
+            nextState = state;
+            if (tabIndex > -1) {
+                let clone = cloneDeep(state);
+                if (tabId === state.currentTab) {
+                    const nextTab =
+                        clone.tabs[tabIndex + 1] || clone.tabs[tabIndex - 1];
+                    clone.currentTab = nextTab ? nextTab.id : clone.tabs[0].id;
+                }
+                // 删除
+                clone.tabs.splice(tabIndex, 1);
+                nextState = clone;
+            }
+            break;
+        }
 
         case workbenchAction.CLOSE_ALL_TABS: {
             const clone = cloneDeep(state);
@@ -93,7 +105,7 @@ export const workbenchReducer = (
 
         case workbenchAction.CLOSE_OTHER_TABS: {
             const tabId = action.payload;
-            const clone = cloneDeep(state);
+            let clone = cloneDeep(state);
 
             clone.tabs = clone.tabs.filter((tab: any) => {
                 return tab.id === tabId;
@@ -124,15 +136,15 @@ export const workbenchReducer = (
             }
 
             const clone = cloneDeep(state);
-            // clone.tabs = clone.tabs.map((tab: any) => {
-            //     if (tab.id === clone.currentTab) {
-            //         tab.scheduleConf = JSON.stringify(newConf);
-            //         tab.notSynced = true;
-            //         return tab;
-            //     } else {
-            //         return tab;
-            //     }
-            // });
+            clone.tabs = clone.tabs.map((tab: any) => {
+                if (tab.id === clone.currentTab) {
+                    tab.scheduleConf = JSON.stringify(newConf);
+                    tab.notSynced = true;
+                    return tab;
+                } else {
+                    return tab;
+                }
+            });
 
             nextState = clone;
             break;
@@ -142,15 +154,15 @@ export const workbenchReducer = (
             const status = action.payload;
 
             const clone = cloneDeep(state);
-            // clone.tabs = clone.tabs.map((tab: any) => {
-            //     if (tab.id === clone.currentTab) {
-            //         tab.scheduleStatus = status;
-            //         tab.notSynced = true;
-            //         return tab;
-            //     } else {
-            //         return tab;
-            //     }
-            // });
+            clone.tabs = clone.tabs.map((tab: any) => {
+                if (tab.id === clone.currentTab) {
+                    tab.scheduleStatus = status;
+                    tab.notSynced = true;
+                    return tab;
+                } else {
+                    return tab;
+                }
+            });
 
             nextState = clone;
             break;
@@ -160,15 +172,15 @@ export const workbenchReducer = (
             const submitStatus = action.payload;
 
             const clone = cloneDeep(state);
-            // clone.tabs = clone.tabs.map((tab: any) => {
-            //     if (tab.id === clone.currentTab) {
-            //         tab.submitStatus = submitStatus;
-            //         tab.notSynced = false;
-            //         return tab;
-            //     } else {
-            //         return tab;
-            //     }
-            // });
+            clone.tabs = clone.tabs.map((tab: any) => {
+                if (tab.id === clone.currentTab) {
+                    tab.submitStatus = submitStatus;
+                    tab.notSynced = false;
+                    return tab;
+                } else {
+                    return tab;
+                }
+            });
 
             nextState = clone;
             break;
@@ -179,30 +191,30 @@ export const workbenchReducer = (
             const clone = cloneDeep(state);
 
             // debugger;
-            // clone.tabs = clone.tabs.map((tab: any) => {
-            //     if (tab.id === clone.currentTab) {
-            //         let taskVOS = tab.taskVOS || [];
-            //         let duplicated = false;
+            clone.tabs = clone.tabs.map((tab: any) => {
+                if (tab.id === clone.currentTab) {
+                    let taskVOS = tab.taskVOS || [];
+                    let duplicated = false;
 
-            //         for (let o of taskVOS) {
-            //             if (o.id === newVOS.id && o.appType === newVOS.appType) {
-            //                 duplicated = true;
-            //                 break;
-            //             }
-            //         }
+                    for (let o of taskVOS) {
+                        if (o.id === newVOS.id) {
+                            duplicated = true;
+                            break;
+                        }
+                    }
 
-            //         if (duplicated) {
-            //             message.error('该依赖任务存在');
-            //             return tab;
-            //         }
+                    if (duplicated) {
+                        message.error('该依赖任务存在');
+                        return tab;
+                    }
 
-            //         tab.taskVOS = [...tab.taskVOS || [], newVOS];
-            //         tab.notSynced = true;
-            //         return tab;
-            //     } else {
-            //         return tab;
-            //     }
-            // });
+                    tab.taskVOS = [...(tab.taskVOS || []), newVOS];
+                    tab.notSynced = true;
+                    return tab;
+                } else {
+                    return tab;
+                }
+            });
 
             nextState = clone;
             break;
@@ -212,17 +224,17 @@ export const workbenchReducer = (
             const id = action.payload;
             const clone = cloneDeep(state);
 
-            // clone.tabs = clone.tabs.map((tab: any) => {
-            //     if (tab.id === clone.currentTab) {
-            //         tab.taskVOS = tab.taskVOS.filter((vos: any) => {
-            //             return vos.id !== id;
-            //         });
-            //         tab.notSynced = true;
-            //         return tab;
-            //     } else {
-            //         return tab;
-            //     }
-            // });
+            clone.tabs = clone.tabs.map((tab: any) => {
+                if (tab.id === clone.currentTab) {
+                    tab.taskVOS = tab.taskVOS.filter((vos: any) => {
+                        return vos.id !== id;
+                    });
+                    tab.notSynced = true;
+                    return tab;
+                } else {
+                    return tab;
+                }
+            });
 
             nextState = clone;
             break;
@@ -233,26 +245,33 @@ export const workbenchReducer = (
             const obj = action.payload;
             const clone = cloneDeep(state);
 
-            // clone.tabs = clone.tabs.map((tab: any) => {
-            //     if (tab.id === clone.currentTab) {
-            //         // 对任务变量做特殊处理, 合并2个数组
-            //         if (obj.taskVariables && tab.taskVariables && obj.taskVariables.length > 0 && tab.taskVariables.length > 0) {
-            //             const varArr: any = [...obj.taskVariables]
-            //             obj.taskVariables.forEach((item: any, i: any) => {
-            //                 const exist = tab.taskVariables.find((va: any) => va.paramName === item.paramName)
-            //                 if (exist) {
-            //                     varArr[i] = exist
-            //                 }
-            //             })
-            //             obj.taskVariables = varArr
-            //         }
-            //         tab = assign(tab, obj);
-            //         tab.notSynced = true;
-            //         return tab;
-            //     } else {
-            //         return tab;
-            //     }
-            // });
+            clone.tabs = clone.tabs.map((tab: any) => {
+                if (tab.id === clone.currentTab) {
+                    // 对任务变量做特殊处理, 合并2个数组
+                    if (
+                        obj.taskVariables &&
+                        tab.taskVariables &&
+                        obj.taskVariables.length > 0 &&
+                        tab.taskVariables.length > 0
+                    ) {
+                        const varArr: any = [...obj.taskVariables];
+                        obj.taskVariables.forEach((item: any, i: any) => {
+                            const exist = tab.taskVariables.find(
+                                (va: any) => va.paramName === item.paramName
+                            );
+                            if (exist) {
+                                varArr[i] = exist;
+                            }
+                        });
+                        obj.taskVariables = varArr;
+                    }
+                    tab = assign(tab, obj);
+                    tab.notSynced = true;
+                    return tab;
+                } else {
+                    return tab;
+                }
+            });
 
             nextState = clone;
             break;
@@ -262,24 +281,31 @@ export const workbenchReducer = (
             const obj = action.payload;
             const clone = cloneDeep(state);
 
-            // clone.tabs = clone.tabs.map((tab: any) => {
-            //     if (tab.id === obj.id) {
-            //         // 对任务变量做特殊处理, 合并2个数组
-            //         if (obj.taskVariables && tab.taskVariables && obj.taskVariables.length > 0 && tab.taskVariables.length > 0) {
-            //             const varArr: any = [...obj.taskVariables]
-            //             obj.taskVariables.forEach((item: any, i: any) => {
-            //                 const exist = tab.taskVariables.find((va: any) => va.paramName === item.paramName)
-            //                 if (exist) {
-            //                     varArr[i] = exist
-            //                 }
-            //             })
-            //             obj.taskVariables = varArr
-            //         }
-            //         tab = assign(tab, obj);
-            //         return tab;
-            //     }
-            //     return tab;
-            // });
+            clone.tabs = clone.tabs.map((tab: any) => {
+                if (tab.id === obj.id) {
+                    // 对任务变量做特殊处理, 合并2个数组
+                    if (
+                        obj.taskVariables &&
+                        tab.taskVariables &&
+                        obj.taskVariables.length > 0 &&
+                        tab.taskVariables.length > 0
+                    ) {
+                        const varArr: any = [...obj.taskVariables];
+                        obj.taskVariables.forEach((item: any, i: any) => {
+                            const exist = tab.taskVariables.find(
+                                (va: any) => va.paramName === item.paramName
+                            );
+                            if (exist) {
+                                varArr[i] = exist;
+                            }
+                        });
+                        obj.taskVariables = varArr;
+                    }
+                    tab = assign(tab, obj);
+                    return tab;
+                }
+                return tab;
+            });
             nextState = clone;
             break;
         }
@@ -289,15 +315,15 @@ export const workbenchReducer = (
             const obj = action.payload;
 
             // 故意不走immutable, 避免编辑器rerender导致光标回零
-            // state.tabs = state.tabs.map((tab: any) => {
-            //     if (tab.id === state.currentTab) {
-            //         tab = assign(tab, obj);
-            //         tab.notSynced = true;
-            //         return tab;
-            //     } else {
-            //         return tab;
-            //     }
-            // });
+            state.tabs = state.tabs.map((tab: any) => {
+                if (tab.id === state.currentTab) {
+                    tab = assign(tab, obj);
+                    tab.notSynced = true;
+                    return tab;
+                } else {
+                    return tab;
+                }
+            });
 
             nextState = state;
             break;
@@ -308,15 +334,15 @@ export const workbenchReducer = (
             const obj = action.payload;
             const clone = cloneDeep(state);
 
-            // clone.tabs = clone.tabs.map((tab: any) => {
-            //     if (tab.id === clone.currentTab) {
-            //         tab = assign(tab, obj);
-            //         tab.notSynced = true;
-            //         return tab;
-            //     } else {
-            //         return tab;
-            //     }
-            // });
+            clone.tabs = clone.tabs.map((tab: any) => {
+                if (tab.id === clone.currentTab) {
+                    tab = assign(tab, obj);
+                    tab.notSynced = true;
+                    return tab;
+                } else {
+                    return tab;
+                }
+            });
 
             nextState = clone;
             break;
@@ -359,14 +385,14 @@ export const workbenchReducer = (
         case workbenchAction.MAKE_TAB_DIRTY: {
             const clone = cloneDeep(state);
 
-            // clone.tabs = clone.tabs.map((tab: any) => {
-            //     if (tab.id === clone.currentTab) {
-            //         tab.notSynced = true;
-            //         return tab;
-            //     } else {
-            //         return tab;
-            //     }
-            // });
+            clone.tabs = clone.tabs.map((tab: any) => {
+                if (tab.id === clone.currentTab) {
+                    tab.notSynced = true;
+                    return tab;
+                } else {
+                    return tab;
+                }
+            });
 
             nextState = clone;
             break;
@@ -375,14 +401,14 @@ export const workbenchReducer = (
         case workbenchAction.MAKE_TAB_CLEAN: {
             const clone = cloneDeep(state);
 
-            // clone.tabs = clone.tabs.map((tab: any) => {
-            //     if (tab.id === clone.currentTab) {
-            //         tab.notSynced = false;
-            //         return tab;
-            //     } else {
-            //         return tab;
-            //     }
-            // });
+            clone.tabs = clone.tabs.map((tab: any) => {
+                if (tab.id === clone.currentTab) {
+                    tab.notSynced = undefined;
+                    return tab;
+                } else {
+                    return tab;
+                }
+            });
 
             nextState = clone;
             break;

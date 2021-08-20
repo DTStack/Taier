@@ -7,6 +7,7 @@ import {
     PANEL_OUTPUT,
 } from 'molecule/esm/model';
 import { searchById } from 'molecule/esm/services/helper';
+import { workbenchActions } from '../../../controller/dataSync/offlineAction';
 import { resetEditorGroup } from '../utils';
 import Result from '../../task/result';
 import ajax from '../../../api';
@@ -17,6 +18,9 @@ import {
     TASK_RELEASE_ID,
     TASK_OPS_ID,
 } from '../utils/const';
+import store from '../../../store';
+import { matchTaskParams } from '../../../comm';
+import { debounce } from 'lodash';
 
 function initActions() {
     molecule.editor.setDefaultActions([
@@ -180,6 +184,13 @@ function emitEvent() {
     });
 }
 
+const updateTaskVariables = debounce((tab) => {
+    const { taskCustomParams } = (store.getState() as any).workbenchReducer;
+    const data = matchTaskParams(taskCustomParams, tab.data?.value || '');
+    tab.data!.taskVariables = data;
+    molecule.editor.updateTab(tab);
+}, 300);
+
 export default class EditorExtension implements IExtension {
     activate() {
         initActions();
@@ -210,6 +221,13 @@ export default class EditorExtension implements IExtension {
             } else {
                 resetEditorGroup();
             }
+        });
+
+        const actions = workbenchActions(store.dispatch);
+        actions.loadTaskParams();
+
+        molecule.editor.onUpdateTab((tab) => {
+            updateTaskVariables(tab);
         });
     }
 }

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import SplitPane from 'react-split-pane';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { Scrollable } from 'molecule/esm/components';
 import DataSync from './dataSync';
 import { workbenchActions } from '../../controller/dataSync/offlineAction';
 import * as editorActions from '../../controller/dataSync/workbench';
@@ -84,28 +85,30 @@ class DataSyncWorkbench extends React.Component<any, Istate> {
         const { currentTabData } = this.props;
 
         return (
-            <div className="ide-editor">
-                <div style={{ zIndex: 901 }} className="ide-content">
-                    <SplitPane
-                        split="horizontal"
-                        minSize={100}
-                        maxSize={-77}
-                        primary="first"
-                        key={'ide-split-pane'}
-                    >
-                        <div
-                            style={{
-                                width: '100%',
-                                height: '100%',
-                                minHeight: '400px',
-                                position: 'relative',
-                            }}
+            <Scrollable>
+                <div className="ide-editor">
+                    <div style={{ zIndex: 901 }} className="ide-content">
+                        <SplitPane
+                            split="horizontal"
+                            minSize={100}
+                            maxSize={-77}
+                            primary="first"
+                            key={`ide-split-pane`}
                         >
-                            <DataSync currentTabData={currentTabData} />
-                        </div>
-                    </SplitPane>
+                            <div
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    minHeight: '400px',
+                                    position: 'relative',
+                                }}
+                            >
+                                <DataSync currentTabData={currentTabData} />
+                            </div>
+                        </SplitPane>
+                    </div>
                 </div>
-            </div>
+            </Scrollable>
         );
     }
 }

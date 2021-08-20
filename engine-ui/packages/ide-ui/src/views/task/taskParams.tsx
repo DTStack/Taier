@@ -29,7 +29,8 @@ export const paramsRegPattern =
 
 class TaskParams extends React.Component<any, any> {
     onChange = (index: any, value: any) => {
-        const { tabData } = this.props;
+        const { current } = this.props;
+        const tabData = current.tab.data;
 
         if (!value || paramsRegPattern.test(value)) {
             const taskVariables: any = [...tabData.taskVariables];
@@ -42,15 +43,18 @@ class TaskParams extends React.Component<any, any> {
     debounceChange = debounce(this.onChange, 300, { maxWait: 2000 });
 
     removeParams = (index: any) => {
-        const { tabData, onChange } = this.props;
+        const { current, onChange } = this.props;
+        const tabData = current.tab.data;
         const taskVariables: any = [...tabData.taskVariables];
         taskVariables.splice(index, 1);
         onChange({ taskVariables });
     };
 
     getFormItems = () => {
+        const { current } = this.props;
         const { getFieldDecorator } = this.props.form;
-        const { taskVariables } = this.props.tabData;
+        const tabData = current.tab.data;
+        const { taskVariables } = tabData;
         const sysArr: any = [];
         const customArr: any = [];
         const getFormItem = (index: any, param: any) => (
@@ -111,7 +115,22 @@ class TaskParams extends React.Component<any, any> {
     }
 
     render() {
-        const { tabData, couldEdit } = this.props;
+        const { current } = this.props;
+        if (!current) {
+            return (
+                <div
+                    style={{
+                        marginTop: 10,
+                        textAlign: 'center',
+                        color: '#fff',
+                    }}
+                >
+                    无法提供任务参数
+                </div>
+            );
+        }
+        const { tab } = current;
+        const tabData = tab.data;
         const isLocked =
             tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock;
         const formItems = this.getFormItems();
@@ -119,7 +138,7 @@ class TaskParams extends React.Component<any, any> {
         return (
             <molecule.component.Scrollable>
                 <Form className="taskParams" style={{ position: 'relative' }}>
-                    {isLocked || !couldEdit ? (
+                    {isLocked ? (
                         <div className="cover-mask"></div>
                     ) : null}
                     <Collapse

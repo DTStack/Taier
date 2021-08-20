@@ -10,3 +10,8 @@
     background: #fff;
     color: #000;
 }
+
+.mo-editor__group-container .mo-open-task {
+    width: 60%;
+    margin: 20px auto;
+}

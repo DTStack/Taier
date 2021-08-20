@@ -4,7 +4,6 @@ import EditorExtension from './editor';
 import ExplorerExtensions from './explorer';
 import FolderTreeExtension from './folderTree';
 import PanelExtension from './panel';
-import './languages';
 
 export const extensions: IExtension[] = [
     new ExplorerExtensions(),

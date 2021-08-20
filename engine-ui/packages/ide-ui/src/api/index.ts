@@ -1,7 +1,3 @@
-// import utils from "dt-common/src/utils";
-
-// import UserAPI from "dt-common/src/api/user";
-
 import req from './req';
 import http from './http';
 import offlineReq from './reqOffline';
@@ -19,16 +15,9 @@ const api = {
         return http.post(offlineReq.UNLOCK_FILE, params);
     },
 
-    // ========== User ========== //
-    //   logout() {
-    //     // 注销退出
-    //     http.post(req.APP_LOGOUT).then((res: any) => {
-    //       if (res.code === 1) {
-    //         // UserAPI.openLogin();
-    //       }
-    //     });
-    //   },
-
+    getIsStandeAlone(params?: any) {
+        return http.post(req.GET_IS_STANDE_ALONE, params);
+    },
     addRoleUser(user: any) {
         return http.post(req.ADD_ROLE_USRE, user);
     },
@@ -346,6 +335,9 @@ const api = {
     },
     getJobTopTime(params: any) {
         return http.post(offlineReq.GET_JOB_TOP_TIME, params);
+    },
+    getTableInfoByDataSource(params: any) {
+        return http.post(offlineReq.GET_TABLE_INFO_BY_DATASOURCE, params)
     },
     getJobTopError(params?: any) {
         return http.post(offlineReq.GET_JOB_TOP_ERROR, params);

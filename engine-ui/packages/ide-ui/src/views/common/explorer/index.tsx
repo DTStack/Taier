@@ -44,24 +44,7 @@ function initTaskParams() {
         config: {
             grow: 2,
         },
-        renderPanel: () => (
-            <TaskParamsView
-                tabData={{
-                    taskVariables: [
-                        {
-                            paramName: '$system',
-                            paramCommand: 'xiuneng',
-                            type: 0,
-                        },
-                        {
-                            paramName: '$key',
-                            paramCommand: '',
-                            type: 1,
-                        },
-                    ],
-                }}
-            />
-        ),
+        renderPanel: () => <TaskParamsView />,
     });
 }
 
@@ -81,7 +64,7 @@ function initSchedulingConfig() {
                     scheduleStatus: 0,
                 }}
                 updateKey={0}
-                key={'schedule-1'}
+                key={`schedule-1`}
                 isIncrementMode={false}
             />
         ),
