@@ -78,7 +78,7 @@ export default function MyLayout(props: React.PropsWithChildren<any>) {
                                 <a href="/">任务开发</a>
                             </Menu.Item>
                             <Menu.Item key="operation">
-                                <a href="/#/operation-ui/operation">运维中心</a>
+                                <a href="/#/operation-ui">运维中心</a>
                             </Menu.Item>
                             <Menu.Item key="console">
                                 <a href="/#/console-ui">控制台</a>
