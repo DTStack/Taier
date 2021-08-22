@@ -2,6 +2,7 @@ package com.dtstack.engine.common.logstore.mysql;
 
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.logstore.AbstractLogStore;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,13 +36,34 @@ public class MysqlLogStore extends AbstractLogStore {
 
     private static final String TIME_OUT_ERR_INFO = "task lose connect(maybe: engine shutdown)";
 
-    private static final String SELECT_TIME_OUT_TO_FAIL_SQL = " select " +
-            " id, job_id, job_info, log_info, status, gmt_create, gmt_modified, is_deleted " +
-            " from schedule_plugin_job_info " +
-            " where id > ? and status not in (" + StringUtils.join(RdosTaskStatus.getStoppedAndNotFound(), ",") + ") and gmt_modified < ? order by id asc limit ?";
+
+
+    private static final String SELECT_MIN_ID_SQL = " select min(id) as id from schedule_plugin_job_info";
+
+
+    //timeOutDeal
+    private final static List<Integer> JOB_EXECUTE_STATUS = Lists.newArrayList(
+            RdosTaskStatus.SCHEDULED.getStatus(),
+            RdosTaskStatus.RUNNING.getStatus()
+    );
+    private static final String SELECT_JOB_EXECUTE_STATUS_TEMPLATE = " select id from schedule_plugin_job_info " +
+            " where id > ? and id <= ? and status in (" + StringUtils.join(JOB_EXECUTE_STATUS, ",") + ") and gmt_modified < ? order by id asc limit ?";
 
     private static final String UPDATE_TIME_OUT_TO_FAIL_SQL = String.format("update schedule_plugin_job_info set status = 8, log_info = '%s', gmt_modified = NOW() " +
             " where id in ", TIME_OUT_ERR_INFO);
+
+    //clearJob
+    private final static List<Integer> JOB_FINISHED_STATUS = Lists.newArrayList(
+            RdosTaskStatus.CANCELED.getStatus(),
+            RdosTaskStatus.FINISHED.getStatus(),
+            RdosTaskStatus.FAILED.getStatus()
+    );
+    private static final String SELECT_JOB_FINISHED_STATUS_TEMPLATE = " select id from schedule_plugin_job_info " +
+            " where id > ? and id <= ? and status in (" + StringUtils.join(JOB_FINISHED_STATUS, ",") + ") and gmt_modified < ? order by id asc limit ?";
+
+
+    private static final String DELETE_RETAIN_CLEAR_SQL = "delete from schedule_plugin_job_info where id in ";
+
     /**
      * 500行为1个批次
      */
@@ -55,14 +77,11 @@ public class MysqlLogStore extends AbstractLogStore {
     /**
      * 清理数据库中更新时间超过7天的记录
      */
-    private static int retainTime = 604800;
-
-    private static final String DELETE_RETAIN_CLEAR_SQL = "delete from schedule_plugin_job_info where id in ";
+    private static final long RETAIN_TIME = 604800000;
 
     private static MysqlDataConnPool dataConnPool;
 
     private static volatile MysqlLogStore mysqlLogStore = null;
-
 
     private MysqlLogStore() {
     }
@@ -181,7 +200,7 @@ public class MysqlLogStore extends AbstractLogStore {
             while (resultSet.next()) {
                 Timestamp gmtModified = resultSet.getTimestamp("gmt_modified");
                 if (gmtModified.getTime() < System.currentTimeMillis() - TIMEOUT){
-                    batchUpdateJobTimeOutById(UPDATE_TIME_OUT_TO_FAIL_SQL, Collections.singletonList(resultSet.getLong("id")),connection);
+                    batchExecuteJobTimeOutById(UPDATE_TIME_OUT_TO_FAIL_SQL, Collections.singletonList(resultSet.getLong("id")),connection);
                 }
                 return resultSet.getInt("status");
             }
@@ -219,32 +238,34 @@ public class MysqlLogStore extends AbstractLogStore {
 
     @Override
     public void timeOutDeal() {
-        dealBatchDataTimeout(UPDATE_TIME_OUT_TO_FAIL_SQL, TIMEOUT);
+        dealBatchDataTimeout(SELECT_JOB_EXECUTE_STATUS_TEMPLATE, UPDATE_TIME_OUT_TO_FAIL_SQL, TIMEOUT);
     }
 
     @Override
     public void clearJob() {
-        dealBatchDataTimeout(DELETE_RETAIN_CLEAR_SQL, retainTime);
+        dealBatchDataTimeout(SELECT_JOB_FINISHED_STATUS_TEMPLATE, DELETE_RETAIN_CLEAR_SQL, RETAIN_TIME);
     }
 
-    private void dealBatchDataTimeout(String sql, long timeout) {
+    private void dealBatchDataTimeout(String selectSqlTemplate, String dealSql, long timeout) {
         Connection connection = null;
 
-        long startId = 0L;
         long startTime = System.currentTimeMillis() - timeout;
         Timestamp timestamp = new Timestamp(startTime);
         try {
             connection = dataConnPool.getConn();
+
+            long startId = getMinId(connection);
 
             while (true) {
                 PreparedStatement stmt = null;
                 PreparedStatement updateStmt = null;
                 ResultSet resultSet = null;
                 try {
-                    stmt = connection.prepareStatement(SELECT_TIME_OUT_TO_FAIL_SQL);
+                    stmt = connection.prepareStatement(selectSqlTemplate);
                     stmt.setLong(1, startId);
-                    stmt.setTimestamp(2, timestamp);
-                    stmt.setInt(3, BATCH_SIZE);
+                    stmt.setLong(2, startId + (BATCH_SIZE * 10));
+                    stmt.setTimestamp(3, timestamp);
+                    stmt.setInt(4, BATCH_SIZE);
 
 
                     resultSet = stmt.executeQuery();
@@ -258,7 +279,8 @@ public class MysqlLogStore extends AbstractLogStore {
                         break;
                     }
 
-                    updateStmt=batchUpdateJobTimeOutById(sql,ids,connection);
+                    updateStmt= batchExecuteJobTimeOutById(dealSql, ids, connection);
+                    LOG.info("deal SQL:{} affect ids:{}", dealSql, ids);
                 } catch (SQLException e) {
                     LOG.error("", e);
                     break;
@@ -295,7 +317,25 @@ public class MysqlLogStore extends AbstractLogStore {
         }
     }
 
-    private PreparedStatement batchUpdateJobTimeOutById(String sql,List<Long> ids,Connection connection)
+    private long getMinId(Connection connection) {
+        PreparedStatement minIdPs = null;
+        ResultSet minIdRs = null;
+        try {
+            minIdPs = connection.prepareStatement(SELECT_MIN_ID_SQL);
+            minIdRs = minIdPs.executeQuery();
+            while (minIdRs.next()) {
+                Long minId = minIdRs.getLong("id");
+                return minId;
+            }
+        } catch (Exception e) {
+            LOG.error("", e);
+        } finally {
+            closeDBResources(minIdRs, minIdPs,null,null);
+        }
+        return 0L;
+    }
+
+    private PreparedStatement batchExecuteJobTimeOutById(String sql, List<Long> ids, Connection connection)
             throws SQLException {
         StringBuilder prepareStatementSql = new StringBuilder(sql);
         prepareStatementSql.append(" (");
