@@ -15,7 +15,7 @@ import * as editorActions from '../../../controller/dataSync/workbench';
         return {
             editor: state.editor,
             currentTab,
-            currentTabData
+            currentTabData,
         };
     },
     (dispatch: any) => {
@@ -26,12 +26,11 @@ import * as editorActions from '../../../controller/dataSync/workbench';
     }
 ) as any)
 class Markdown extends React.Component<any> {
-
     componentDidMount() {
-        const currentNode = this.props.currentTabData;
-        if (currentNode) {
-            this.props.getTab(currentNode.id); // 初始化console所需的数据结构
-        }
+        // const currentNode = this.props.currentTabData;
+        // if (currentNode) {
+        //     this.props.getTab(currentNode.id); // 初始化console所需的数据结构
+        // }
     }
 
     render() {
@@ -39,8 +38,10 @@ class Markdown extends React.Component<any> {
         const currentTab = currentTabData?.id;
         const consoleData = editor.console;
 
-        const data = consoleData && consoleData[currentTab]
-            ? consoleData[currentTab] : { results: [] };
+        const data =
+            consoleData && consoleData[currentTab]
+                ? consoleData[currentTab]
+                : { results: [] };
         const defaultValue = data && data.log;
         const defaultEditorOptions: any = {
             mode: 'dtlog',
@@ -50,11 +51,14 @@ class Markdown extends React.Component<any> {
             lineNumbers: false,
             autofocus: false,
             lineWrapping: true,
-            readOnly: true
+            readOnly: true,
         };
 
         return (
-            <CodeMirrorEditor value={defaultValue} options={...defaultEditorOptions}/>
+            <CodeMirrorEditor
+                value={defaultValue}
+                options={{ ...defaultEditorOptions }}
+            />
         );
     }
 }

@@ -36,6 +36,10 @@ class Http {
     request(url: any, options: RequestInit) {
         ProgressBar.show();
         options.credentials = 'same-origin';
+        options.headers = {
+            ...this.defaultHeader(),
+            ...options.headers,
+        };
         const projectId = sessionStorage.getItem(PROJECT_KEY);
         if (projectId) {
             options.headers = {

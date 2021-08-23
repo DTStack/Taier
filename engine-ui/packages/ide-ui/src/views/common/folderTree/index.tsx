@@ -9,6 +9,7 @@ import ajax from '../../../api';
 import { TASK_RUN_ID } from '../utils/const';
 import store from '../../../store';
 import { workbenchAction } from '../../../controller/dataSync/actionType';
+import { editorAction } from '../../../controller/editor/actionTypes';
 
 function init() {
     ajax.getOfflineCatalogue({
@@ -115,6 +116,11 @@ function onSelectFile() {
                     store.dispatch({
                         type: workbenchAction.OPEN_TASK_TAB,
                         payload: id,
+                    });
+
+                    store.dispatch({
+                        type: editorAction.GET_TAB,
+                        key: id,
                     });
 
                     // open in molecule
