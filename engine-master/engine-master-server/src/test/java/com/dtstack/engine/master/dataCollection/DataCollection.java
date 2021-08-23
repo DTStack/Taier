@@ -936,6 +936,20 @@ public interface DataCollection {
     /*************************血缘存储*****************************/
 
 
+    @DatabaseInsertOperation(dao = TestLineageDataSetInfoDao.class)
+    default LineageDataSetInfo getDefaultLineageDataSetInfo(){
+        LineageDataSetInfo defaultDataSetInfoTemplate = Template.getDefaultDataSetInfoTemplate();
+        LineageDataSource defaultHiveDataSourceTemplate = Template.getDefaultHiveDataSourceTemplate();
+        defaultDataSetInfoTemplate.setDataInfoId(defaultHiveDataSourceTemplate.getId());
+        return defaultDataSetInfoTemplate;
+    }
+
+    @DatabaseInsertOperation(dao = TestLineageDataSetInfoDao.class)
+    default LineageDataSetInfo getHiveLineageDataSetInfo(){
+        LineageDataSetInfo lineageDataSetInfo = Template.getHiveDataSetInfoTemplate();
+        return lineageDataSetInfo;
+    }
+
     @DatabaseInsertOperation(dao = TestLineageTableTableDao.class)
     default LineageTableTable getLineageTableTable(){
         LineageTableTable lineageTableTable = Template.getLineageTableTableTemplate();
