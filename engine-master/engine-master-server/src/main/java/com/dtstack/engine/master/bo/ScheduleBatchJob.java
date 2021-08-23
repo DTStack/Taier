@@ -93,6 +93,10 @@ public class ScheduleBatchJob {
         this.dependencyChildPrePeriodList = dependencyChildPrePeriodList;
     }
 
+    public Long getJobExecuteOrder() {
+        return scheduleJob.getJobExecuteOrder();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

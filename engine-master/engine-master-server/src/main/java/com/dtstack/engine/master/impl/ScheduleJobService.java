@@ -79,6 +79,7 @@ import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -1491,16 +1492,16 @@ public class ScheduleJobService {
         //存储fill_job name
         String currDayStr = currDateTime.toString(dayFormatter);
         ScheduleFillDataJob scheduleFillDataJob = scheduleFillDataJobService.saveData(fillName, tenantId, projectId, currDayStr, fromDayStr, toDayStr, userId, appType, dtuicTenantId);
-
+        AtomicInteger count = new AtomicInteger();
         for (; !toDateTime.isBefore(fromDateTime); ) {
             try {
                 DateTime cycTime = fromDateTime.plusDays(1);
                 String triggerDay = cycTime.toString(DAY_PATTERN);
                 Map<String, ScheduleBatchJob> result;
                 if (StringUtils.isNotBlank(beginTime) && StringUtils.isNotBlank(endTime)) {
-                    result = jobGraphBuilder.buildFillDataJobGraph(jsonNode, fillName, false, triggerDay, userId, beginTime, endTime, projectId, tenantId, isRoot, appType, scheduleFillDataJob.getId(),dtuicTenantId);
+                    result = jobGraphBuilder.buildFillDataJobGraph(jsonNode, fillName, false, triggerDay, userId, beginTime, endTime, projectId, tenantId, isRoot, appType, scheduleFillDataJob.getId(),dtuicTenantId,count);
                 } else {
-                    result = jobGraphBuilder.buildFillDataJobGraph(jsonNode, fillName, false, triggerDay, userId, projectId, tenantId, isRoot, appType, scheduleFillDataJob.getId(),dtuicTenantId);
+                    result = jobGraphBuilder.buildFillDataJobGraph(jsonNode, fillName, false, triggerDay, userId, projectId, tenantId, isRoot, appType, scheduleFillDataJob.getId(),dtuicTenantId,count);
                 }
                 if (MapUtils.isEmpty(result)) {
                     continue;
@@ -2764,12 +2765,12 @@ public class ScheduleJobService {
             }
             Map<String, String> flowJobId = new ConcurrentHashMap<>();
             List<ScheduleBatchJob> allJobs = new ArrayList<>();
-
+            AtomicInteger count = new AtomicInteger();
             for (ScheduleTaskShade task : taskShades) {
                 try {
                     List<ScheduleBatchJob> cronTrigger = jobGraphBuilder.buildJobRunBean(task, "cronTrigger", EScheduleType.NORMAL_SCHEDULE,
                             true, true, date, "cronJob" + "_" + task.getName(),
-                            null, task.getProjectId(), task.getTenantId());
+                            null, task.getProjectId(), task.getTenantId(),count);
                     allJobs.addAll(cronTrigger);
                     if (SPECIAL_TASK_TYPES.contains(task.getTaskType())) {
                         //工作流或算法实验
@@ -3423,6 +3424,13 @@ public class ScheduleJobService {
         return results;
     }
 
+    public Integer updateFlowJob(String placeholder, String flowJob) {
+        if (StringUtils.isBlank(placeholder)) {
+            return 0;
+        }
+
+        return scheduleJobDao.updateFlowJob(placeholder, flowJob);
+    }
 }
 
 
