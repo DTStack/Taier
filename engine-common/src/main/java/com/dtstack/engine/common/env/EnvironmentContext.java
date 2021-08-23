@@ -431,6 +431,10 @@ public class EnvironmentContext {
         return Integer.parseInt(environment.getProperty("job.submit.concurrent", "1"));
     }
 
+    public boolean getJobGraphBuilderSwitch() {
+        return Boolean.parseBoolean(environment.getProperty("jobGraphBuilderSwitch", "false"));
+    }
+
     public boolean openDataClear() {
         return Boolean.parseBoolean(environment.getProperty("data.clear", "true"));
     }
