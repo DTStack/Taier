@@ -39,7 +39,7 @@ function createTask() {
 
             const onSubmit = (values: any) => {
                 const { name, ...rest } = values;
-                molecule.editor.closeTab('createTask', 1);
+                molecule.editor.closeTab(tabId, 1);
                 molecule.explorer.forceUpdate();
                 const node = new TreeNodeModel({
                     id: new Date().getTime(),
@@ -62,8 +62,10 @@ function createTask() {
                 }
             };
 
+            const tabId = `createTask_${new Date().getTime()}`;
+
             const tabData = {
-                id: 'createTask',
+                id: tabId,
                 modified: false,
                 name: localize('create task', '新建任务'),
                 data: {
@@ -76,7 +78,7 @@ function createTask() {
 
             const { groups = [] } = molecule.editor.getState();
             const isExist = groups.some((group) =>
-                group.data?.some((tab) => tab.id === 'createTask')
+                group.data?.some((tab) => tab.id === tabId)
             );
             if (!isExist) {
                 molecule.editor.open(tabData);
@@ -86,7 +88,7 @@ function createTask() {
             // work through addNode function
             molecule.folderTree.add(
                 new TreeNodeModel({
-                    id: 'folder',
+                    id: new Date().getTime(),
                     name: '',
                     isLeaf: false,
                     fileType: FileTypes.Folder,
