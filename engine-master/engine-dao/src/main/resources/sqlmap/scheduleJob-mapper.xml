@@ -1413,9 +1413,9 @@
         UPDATE
         schedule_job
         set node_address = #{nodeAddress}
-        WHERE id IN
-        <foreach item="id" index="index" collection="ids" open="(" separator="," close=")">
-            #{id}
+        where job_id IN
+        <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
+            #{jobId}
         </foreach>
     </update>
 
@@ -1485,6 +1485,20 @@
         AND is_deleted = 0
         AND `phase_status` = #{phaseStatus}
         order by id, cyc_time asc limit 500
+    </select>
+
+    <select id="listExecJobByJobIds" resultType="ScheduleJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_job bj
+        WHERE
+        node_address = #{nodeAddress}
+        <if test="isRestart != null">
+            AND is_restart = #{isRestart}
+        </if>
+        AND (status = 0 or ((status = 10 or status=4) and task_type in (10, 14,27)))
+        AND is_deleted = 0
+        AND `phase_status` = #{phaseStatus}
     </select>
 
     <update id="updateJobInfoByJobId">

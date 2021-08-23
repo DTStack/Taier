@@ -166,7 +166,13 @@ public class ScheduleJobService {
     private JobGraphTriggerDao jobGraphTriggerDao;
 
     @Autowired
+    private ScheduleJobOperatorRecordDao scheduleJobOperatorRecordDao;
+
+    @Autowired
     private JobParamReplace jobParamReplace;
+
+    @Autowired
+    private EngineJobCacheDao engineJobCacheDao;
 
     @Autowired
     private ScheduleJobFailedDao scheduleJobFailedDao;
@@ -1505,12 +1511,26 @@ public class ScheduleJobService {
                 if (MapUtils.isEmpty(result)) {
                     continue;
                 }
+
                 if (BooleanUtils.isTrue(ignoreCycTime)) {
                     for (ScheduleBatchJob value : result.values()) {
                         value.getScheduleJob().setCycTime(DateTime.now().toString(DateUtil.UN_STANDARD_DATETIME_FORMAT));
                     }
                 }
                 insertJobList(result.values(), EScheduleType.FILL_DATA.getType());
+                List<ScheduleJobOperatorRecord> operatorJobIds = result.values()
+                        .stream()
+                        .map(scheduleBatchJob -> {
+                            ScheduleJobOperatorRecord record = new ScheduleJobOperatorRecord();
+                            record.setJobId(scheduleBatchJob.getJobId());
+                            record.setForceCancelFlag(ForceCancelFlag.NO.getFlag());
+                            record.setOperatorType(OperatorType.FILL_DATA.getType());
+                            record.setNodeAddress(scheduleBatchJob.getScheduleJob().getNodeAddress());
+                            return record;
+                        })
+                        .collect(Collectors.toList());
+
+                scheduleJobOperatorRecordDao.insertBatch(operatorJobIds);
                 addBatchMap.putAll(result);
 
             } catch (RdosDefineException rde) {
@@ -2938,23 +2958,17 @@ public class ScheduleJobService {
         return Boolean.FALSE;
     }
 
-    public Long getListMinId(String nodeAddress,Integer scheduleType, String left, String right,Integer isRestart) {
-        String minJobId = null;
-        try {
-            // 如果没有时间限制, 默认返回0
-            if (StringUtils.isAnyBlank(left,right)){
-                return 0L;
-            }
-            // 如果当前时间范围没有数据, 返回NULL
-            minJobId = jobGraphTriggerDao.getMinJobIdByTriggerTime(left, right);
-            if (StringUtils.isBlank(minJobId)){
-                return 0L;
-            }
-            return Long.parseLong(minJobId);
-        } catch (Exception e) {
-           LOGGER.error("error get ListMinId left {} right {} error ",left,right);
-           return 0L;
+    public Long getListMinId(String left, String right) {
+        // 如果没有时间限制, 默认返回0
+        if (StringUtils.isAnyBlank(left,right)){
+            return 0L;
         }
+        // 如果当前时间范围没有数据, 返回NULL
+        String minJobId = jobGraphTriggerDao.getMinJobIdByTriggerTime(left, right);
+        if (StringUtils.isBlank(minJobId)){
+            return 0L;
+        }
+        return Long.parseLong(minJobId);
     }
 
     public String getJobGraphJSON(String jobId) {
@@ -3295,7 +3309,7 @@ public class ScheduleJobService {
             subJobIds.add(id);
         }
         CompletableFuture.runAsync(new RestartRunnable(id, justRunChild, setSuccess, subJobIds, scheduleJobDao, scheduleTaskShadeDao,
-                scheduleJobJobDao, environmentContext, key, redisTemplate,this));
+                scheduleJobJobDao, environmentContext, key, redisTemplate,this,scheduleJobOperatorRecordDao));
         return true;
     }
 
@@ -3423,6 +3437,37 @@ public class ScheduleJobService {
         return results;
     }
 
+    /**
+     * 移除满足条件的job 操作记录
+     * @param jobIds
+     * @param records
+     */
+    public void removeOperatorRecord(Collection<String> jobIds, Collection<ScheduleJobOperatorRecord> records) {
+        Map<String, ScheduleJobOperatorRecord> recordMap = records.stream().collect(Collectors.toMap(ScheduleJobOperatorRecord::getJobId, k -> k));
+        for (String jobId : jobIds) {
+            ScheduleJobOperatorRecord record = recordMap.get(jobId);
+            if (null == record) {
+                continue;
+            }
+            EngineJobCache cache = engineJobCacheDao.getOne(jobId);
+            if (cache != null && cache.getGmtCreate().after(record.getGmtCreate())) {
+                //has submit to cache
+                scheduleJobOperatorRecordDao.deleteByJobIdAndType(record.getJobId(), record.getOperatorType());
+                LOGGER.info("remove schedule:[{}] operator record:[{}] time: [{}] stage:[{}] type:[{}]", record.getJobId(), record.getId(), cache.getGmtCreate(), cache.getStage(), record.getOperatorType());
+            }
+            ScheduleJob scheduleJob = scheduleJobDao.getByJobId(jobId, null);
+            if (null == scheduleJob) {
+                LOGGER.info("schedule job is null ,remove schedule:[{}] operator record:[{}] type:[{}] ", record.getJobId(), record.getId(), record.getOperatorType());
+                scheduleJobOperatorRecordDao.deleteByJobIdAndType(record.getJobId(), record.getOperatorType());
+            } else if (scheduleJob.getGmtModified().after(record.getGmtCreate())) {
+                if (RdosTaskStatus.STOPPED_STATUS.contains(scheduleJob.getStatus()) || RdosTaskStatus.RUNNING.getStatus().equals(scheduleJob.getStatus())) {
+                    //has running or finish
+                    scheduleJobOperatorRecordDao.deleteByJobIdAndType(record.getJobId(), record.getOperatorType());
+                    LOGGER.info("remove schedule:[{}] operator record:[{}] time: [{}] status:[{}] type:[{}]", record.getJobId(), record.getId(), scheduleJob.getGmtModified(), scheduleJob.getStatus(), record.getOperatorType());
+                }
+            }
+        }
+    }
 }
 
 

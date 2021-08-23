@@ -3,6 +3,7 @@ package com.dtstack.engine.master.schedule;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
 import org.apache.commons.lang3.tuple.Pair;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -19,16 +20,11 @@ public class TestJobRichOperator extends AbstractTest {
 
     @Test
     public void testGetCycTimeLimitEndNow(){
+        Pair<String, String> cycTime = operator.getCycTimeLimitEndNow(false);
+        Pair<String, String> minCycTime = operator.getCycTimeLimitEndNow(true);
 
-        //测试周期实例的cycTime pare
-        Pair<String, String> cycTimeLimitEndNow = operator.getCycTimeLimitEndNow(true,false,false);
-        System.out.println("周期实例,startTime:"+cycTimeLimitEndNow.getLeft()+":"+
-                cycTimeLimitEndNow.getRight());
-        System.out.println("======");
-        //测试周期实例的cycTime pare
-        Pair<String, String> fillTime = operator.getCycTimeLimitEndNow(false,false,false);
-        System.out.println("补数据或重跑,startTime:"+fillTime.getLeft()+":"+
-                fillTime.getRight());
+        Assert.assertEquals(cycTime.getRight(),minCycTime.getRight());
+        Assert.assertNotEquals(cycTime.getLeft(),minCycTime.getLeft());
     }
 
     @Test

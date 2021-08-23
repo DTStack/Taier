@@ -10,6 +10,7 @@ import com.dtstack.engine.api.vo.console.ConsoleJobInfoVO;
 import com.dtstack.engine.api.vo.console.ConsoleJobVO;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
@@ -20,7 +21,6 @@ import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.config.TaskResourceBeanConfig;
-import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.jobdealer.resource.JobComputeResourcePlain;
@@ -79,7 +79,7 @@ public class ConsoleService {
     private ZkService zkService;
 
     @Autowired
-    private EngineJobStopRecordDao engineJobStopRecordDao;
+    private ScheduleJobOperatorRecordDao engineJobStopRecordDao;
 
     @Autowired
     private TenantDao tenantDao;
@@ -359,10 +359,10 @@ public class ConsoleService {
             return;
         }
 
-        EngineJobStopRecord stopRecord = new EngineJobStopRecord();
-        stopRecord.setTaskId(jobId);
+        ScheduleJobOperatorRecord stopRecord = new ScheduleJobOperatorRecord();
+        stopRecord.setJobId(jobId);
         stopRecord.setForceCancelFlag(isForce);
-
+        stopRecord.setOperatorType(OperatorType.STOP.getType());
         engineJobStopRecordDao.insert(stopRecord);
 
     }
@@ -404,9 +404,10 @@ public class ConsoleService {
                         continue;
                     }
 
-                    EngineJobStopRecord stopRecord = new EngineJobStopRecord();
-                    stopRecord.setTaskId(jobId);
+                    ScheduleJobOperatorRecord stopRecord = new ScheduleJobOperatorRecord();
+                    stopRecord.setJobId(jobId);
                     stopRecord.setForceCancelFlag(isForce);
+                    stopRecord.setOperatorType(OperatorType.STOP.getType());
                     engineJobStopRecordDao.insert(stopRecord);
                 }
             }
@@ -448,9 +449,10 @@ public class ConsoleService {
                             continue;
                         }
 
-                        EngineJobStopRecord stopRecord = new EngineJobStopRecord();
-                        stopRecord.setTaskId(jobCache.getJobId());
+                        ScheduleJobOperatorRecord stopRecord = new ScheduleJobOperatorRecord();
+                        stopRecord.setJobId(jobCache.getJobId());
                         stopRecord.setForceCancelFlag(isForce);
+                        stopRecord.setOperatorType(OperatorType.STOP.getType());
                         engineJobStopRecordDao.insert(stopRecord);
                     }
                 }
