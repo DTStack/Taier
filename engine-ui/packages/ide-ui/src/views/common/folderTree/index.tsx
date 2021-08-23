@@ -119,7 +119,7 @@ function onSelectFile() {
 
                     // open in molecule
                     const tabData = {
-                        id,
+                        id: id.toString(),
                         name: file.name,
                         data: {
                             ...data,
@@ -161,7 +161,7 @@ function onSelectFile() {
                         data: {
                             ...data,
                             value: data.sqlText,
-                            taskDesc: file.data.taskDesc
+                            taskDesc: file.data.taskDesc,
                         },
                         breadcrumb:
                             file.location?.split('/')?.map((item: string) => ({
@@ -170,7 +170,7 @@ function onSelectFile() {
                             })) || [],
                         renderPane: () => {
                             return <DataSync currentTabData={tabData} />;
-                        }
+                        },
                     };
                     molecule.editor.open(tabData);
                     molecule.editor.updateActions([
