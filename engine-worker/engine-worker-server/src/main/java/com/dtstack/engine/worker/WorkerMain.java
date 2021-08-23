@@ -1,14 +1,12 @@
 package com.dtstack.engine.worker;
 
+import com.dtstack.engine.common.akka.config.AkkaConfig;
 import com.dtstack.engine.common.akka.config.AkkaLoad;
 import com.dtstack.engine.common.security.NoExitSecurityManager;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
-import com.dtstack.engine.common.akka.config.AkkaConfig;
-import com.dtstack.engine.common.jobdealer.TaskLogStoreDealer;
 import com.dtstack.engine.worker.log.LogbackComponent;
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,12 +21,9 @@ public class WorkerMain {
             LogbackComponent.setupLogger();
             String property = System.getProperty("user.dir");
             Config workerConfig = AkkaConfig.init(AkkaLoad.load(property+"/conf/"));
-            TaskLogStoreDealer.getInstance();
 
-            if (!AkkaConfig.isLocalMode()) {
-                AkkaWorkerServerImpl.getAkkaWorkerServer().start(workerConfig);
-            }
-            ShutdownHookUtil.addShutdownHook(WorkerMain::shutdown, WorkerMain.class.getSimpleName(), LOGGER);
+            AkkaWorkerServerImpl.getAkkaWorkerServer().start(workerConfig);
+            ShutdownHookUtil.addShutdownHook(WorkerMain::shutdown, WorkerMain.class.getSimpleName(), logger);
             System.setSecurityManager(new NoExitSecurityManager());
             LOGGER.info("engine-worker start end...");
         } catch (Throwable e) {

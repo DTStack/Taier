@@ -3,14 +3,11 @@ package com.dtstack.engine.master.scheduler;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ScheduledExecutorService;
@@ -38,8 +35,6 @@ public class JobGraphBuilderTrigger implements Runnable {
 
     @Autowired
     private JobGraphBuilder jobGraphBuilder;
-
-    private DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
 
     private ScheduledExecutorService scheduledService;
 
@@ -83,44 +78,34 @@ public class JobGraphBuilderTrigger implements Runnable {
         LOGGER.info("stop job graph trigger...");
     }
 
-    private long getTimeMillis(String time) {
-        try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
-            SimpleDateFormat dayFormat = new SimpleDateFormat("yy-MM-dd");
-            Date curDate = dateFormat.parse(dayFormat.format(new Date()) + " " + time);
-            return curDate.getTime();
-        } catch (ParseException e) {
-            LOGGER.error("JobGraphBuilderTrigger.getTimeMillis error:", e);
+    private String getTriggerDay(String time) throws Exception {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
+        SimpleDateFormat dayFormat = new SimpleDateFormat("yy-MM-dd");
+        Date triggerDate = dateFormat.parse(dayFormat.format(new Date()) + " " + time);
+        if (triggerDate.after(new Date())) {
+            //校验当天运行的
+            return new DateTime().toString("yyyy-MM-dd");
         }
-        return 0;
+        return new DateTime().plusDays(1).toString("yyyy-MM-dd");
     }
 
     @Override
     public void run() {
         try {
             if (RUNNING.get()) {
-
-                DateTime dateTime = DateTime.now();
-                dateTime = dateTime.plusDays(1);
-
-                String triggerDay = dateTime.toString(dateTimeFormatter);
-                if (getTimeMillis(environmentContext.getJobGraphBuildCron()) > System.currentTimeMillis()) {
-                    LOGGER.warn("---trigger to build job graph time not reach---");
-                    return;
-                }
-                LOGGER.warn("---trigger to build job graph start---");
                 try {
+                    String triggerDay = getTriggerDay(environmentContext.getJobGraphBuildCron());
+                    LOGGER.warn("---check jobGraph build day:{} job graph start!--", triggerDay);
                     jobGraphBuilder.buildTaskJobGraph(triggerDay);
+                    LOGGER.warn("---check jobGraph build day:{} job graph end!--", triggerDay);
                 } catch (Exception e) {
                     LOGGER.error("", e);
                 }
-                //注意不需要将jobList直接加入到缓存队列里面。等待执行到当天数据的时候再去获取
-                LOGGER.warn("---trigger to build day:{} job graph end!--", triggerDay);
             } else {
                 LOGGER.warn("---triggering, but Running is false---");
             }
         } catch (Exception e) {
-            LOGGER.error("---trigger job graph error---",e);
+            LOGGER.error("---trigger job graph error---", e);
         }
     }
 }
