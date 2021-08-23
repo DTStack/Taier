@@ -18,7 +18,7 @@ export default ({ current, onChange }: IEnvParams) => {
     const editorIns = useRef<editor.IStandaloneCodeEditor>();
 
     useEffect(() => {
-        if (current && current.tab?.id !== 'createTask') {
+        if (current && !current.tab?.id?.includes('createTask_')) {
             const model =
                 monacoEditor.getModel(getUniqPath(current.tab?.data.path)) ||
                 monacoEditor.createModel(
