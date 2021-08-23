@@ -1,12 +1,12 @@
 import React from 'react';
 import molecule from 'molecule';
 import { IEditorTab, IExtension, PANEL_OUTPUT, IPanelItem } from 'molecule/esm/model';
-import { MarkdownRender } from 'dt-react-component';
 import { localize } from 'molecule/esm/i18n/localize';
 import { connect } from 'molecule/esm/react';
 import EnvParams from '../../task/envParams';
 import { SchedulingConfig } from '../../task/schedulingConfig';
 import TaskParams from '../../task/taskParams';
+import Markdown from '../markdown';
 import {
     ENV_PARAMS,
     TASK_PARAMS_ID,
@@ -102,9 +102,7 @@ export default class PanelExtension implements IExtension {
             name: '日志',
             sortIndex: 1,
             renderPane: () => (
-                <div>
-                    <MarkdownRender text="[test](https://www.baidu.com)" />
-                </div>
+                <Markdown />
             ),
         });
     }
