@@ -51,14 +51,16 @@ class Markdown extends React.Component<any> {
             lineNumbers: false,
             autofocus: false,
             lineWrapping: true,
-            readOnly: true,
+            readOnly: true
         };
 
         return (
-            <CodeMirrorEditor
-                value={defaultValue}
-                options={{ ...defaultEditorOptions }}
-            />
+            <div className="mo_code_mirror">
+                <CodeMirrorEditor
+                    value={defaultValue}
+                    options={{ ...defaultEditorOptions }}
+                />
+            </div>
         );
     }
 }
