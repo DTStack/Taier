@@ -23,7 +23,7 @@ public class WorkerMain {
             Config workerConfig = AkkaConfig.init(AkkaLoad.load(property+"/conf/"));
 
             AkkaWorkerServerImpl.getAkkaWorkerServer().start(workerConfig);
-            ShutdownHookUtil.addShutdownHook(WorkerMain::shutdown, WorkerMain.class.getSimpleName(), logger);
+            ShutdownHookUtil.addShutdownHook(WorkerMain::shutdown, WorkerMain.class.getSimpleName(), LOGGER);
             System.setSecurityManager(new NoExitSecurityManager());
             LOGGER.info("engine-worker start end...");
         } catch (Throwable e) {
