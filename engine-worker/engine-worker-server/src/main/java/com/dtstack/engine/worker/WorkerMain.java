@@ -21,8 +21,9 @@ public class WorkerMain {
             LogbackComponent.setupLogger();
             String property = System.getProperty("user.dir");
             Config workerConfig = AkkaConfig.init(AkkaLoad.load(property+"/conf/"));
-
-            AkkaWorkerServerImpl.getAkkaWorkerServer().start(workerConfig);
+            if (!AkkaConfig.isLocalMode()) {
+                AkkaWorkerServerImpl.getAkkaWorkerServer().start(workerConfig);
+            }
             ShutdownHookUtil.addShutdownHook(WorkerMain::shutdown, WorkerMain.class.getSimpleName(), LOGGER);
             System.setSecurityManager(new NoExitSecurityManager());
             LOGGER.info("engine-worker start end...");
