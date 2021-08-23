@@ -431,35 +431,8 @@ public class EnvironmentContext {
         return Integer.parseInt(environment.getProperty("job.submit.concurrent", "1"));
     }
 
-    public boolean getJobGraphBuilderSwitch() {
-        return Boolean.parseBoolean(environment.getProperty("jobGraphBuilderSwitch", "false"));
-    }
-
-    /**
-     * 日志数据定时删除
-     */
-    public Integer getHourMax() {
-        return Integer.valueOf(environment.getProperty("hourMax", "15"));
-    }
-
-    public Integer getDayMax() {
-        return Integer.valueOf(environment.getProperty("dayMax", "30"));
-    }
-
-    public Integer getMonthMax() {
-        return Integer.valueOf(environment.getProperty("monthMax", "60"));
-    }
-
-    public String getScheduleJobCron() {
-        return environment.getProperty("job.back.cron", "23:00:00");
-    }
-
-    public boolean openScheduleJobCron() {
-        return Boolean.parseBoolean(environment.getProperty("job.back.cron.open", "false"));
-    }
-
-    public Integer getScheduleJobScope() {
-        return Integer.valueOf(environment.getProperty("job.back.scope", "60000"));
+    public boolean openDataClear() {
+        return Boolean.parseBoolean(environment.getProperty("data.clear", "true"));
     }
 
     public Integer getJobExecutorPoolCorePoolSize() {

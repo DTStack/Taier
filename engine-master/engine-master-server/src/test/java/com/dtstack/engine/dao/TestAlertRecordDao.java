@@ -32,7 +32,7 @@ public interface TestAlertRecordDao {
             "        `node_address`,\n" +
             "        `send_time`,\n" +
             "        `send_end_time`,\n" +
-            "        `gmt_created`,\n" +
+            "        `gmt_create`,\n" +
             "        `gmt_modified`,\n" +
             "        `context`\n" +
             "        )\n" +
@@ -54,7 +54,7 @@ public interface TestAlertRecordDao {
             "            #{record.nodeAddress},\n" +
             "            #{record.sendTime},\n" +
             "            #{record.sendEndTime},\n" +
-            "            #{record.gmtCreated},\n" +
+            "            #{record.gmtCreate},\n" +
             "            #{record.gmtModified},\n" +
             "            #{record.context}\n" +
             "            )"})

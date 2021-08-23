@@ -66,4 +66,14 @@
         FROM schedule_dict
         WHERE `dict_code` = #{dictCode} AND is_deleted = 0 AND depend_name = #{dependName} and dict_name = #{dictName}
     </select>
+
+    <update id="update" parameterType="ScheduleDict">
+        UPDATE schedule_dict
+        <set>
+            <if test="dictValue != null">
+                dict_value = #{dictValue},
+            </if>
+        </set>
+        WHERE `dict_code` = #{dictCode} AND is_deleted = 0 AND dict_name = #{dictName}
+    </update>
 </mapper>

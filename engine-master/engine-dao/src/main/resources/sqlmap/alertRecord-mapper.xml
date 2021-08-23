@@ -9,7 +9,7 @@
         `status`, `job_id`, `alert_record_status`,
         `alert_record_send_status`, `failure_reason`, `is_deleted`,
         `node_address`, `send_time`, `send_end_time`,
-        `gmt_created`, `gmt_modified`,`context`
+        `gmt_create`, `gmt_modified`,`context`
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
@@ -31,7 +31,7 @@
         `node_address`,
         `send_time`,
         `send_end_time`,
-        `gmt_created`,
+        `gmt_create`,
         `gmt_modified`,
         `context`,
         `read_id`
@@ -56,7 +56,7 @@
             #{record.nodeAddress},
             #{record.sendTime},
             #{record.sendEndTime},
-            #{record.gmtCreated},
+            #{record.gmtCreate},
             #{record.gmtModified},
             #{record.context},
             #{record.readId}
@@ -121,8 +121,8 @@
             <if test="record.sendEndTime != null">
                 `send_end_time` = #{record.sendEndTime,jdbcType=VARCHAR},
             </if>
-            <if test="record.gmtCreated != null">
-                `gmt_created` = #{record.gmtCreated,jdbcType=TIMESTAMP},
+            <if test="record.gmtCreate != null">
+                `gmt_create` = #{record.gmtCreate,jdbcType=TIMESTAMP},
             </if>
             <if test="record.gmtModified != null">
                 `gmt_modified` = #{record.gmtModified,jdbcType=TIMESTAMP},
@@ -200,8 +200,8 @@
             <if test="record.sendEndTime != null">
                 `send_end_time` = #{record.sendEndTime,jdbcType=VARCHAR},
             </if>
-            <if test="record.gmtCreated != null">
-                `gmt_created` = #{record.gmtCreated,jdbcType=TIMESTAMP},
+            <if test="record.gmtCreate != null">
+                `gmt_create` = #{record.gmtCreate,jdbcType=TIMESTAMP},
             </if>
             <if test="record.gmtModified != null">
                 `gmt_modified` = #{record.gmtModified,jdbcType=TIMESTAMP},
@@ -219,7 +219,7 @@
 
     <select id="selectQuery" resultType="com.dtstack.engine.domain.AlertRecord">
         SELECT
-        `id`, `tenant_id`,`app_type`,`alert_content_id`, `user_id`, `read_status`,`title`,`status`,`gmt_created`, `gmt_modified`,`context`,`read_id`
+        `id`, `tenant_id`,`app_type`,`alert_content_id`, `user_id`, `read_status`,`title`,`status`,`gmt_create`, `gmt_modified`,`context`,`read_id`
         FROM alert_record
         WHERE
         <trim suffixOverrides="AND">
@@ -277,8 +277,8 @@
             <if test="record.sendEndTime != null">
                 `send_end_time` = #{record.sendEndTime} AND
             </if>
-            <if test="record.gmtCreated != null">
-                `gmt_created` = #{record.gmtCreated} AND
+            <if test="record.gmtCreate != null">
+                `gmt_create` = #{record.gmtCreate} AND
             </if>
             <if test="record.gmtModified != null">
                 `gmt_modified` = #{record.gmtModified} AND
@@ -294,8 +294,8 @@
         SELECT min(id)
         FROM alert_record
         WHERE
-        `gmt_created` &gt;= FROM_UNIXTIME(#{startDate}/1000)
-        AND `gmt_created` &lt;= FROM_UNIXTIME(#{endDate}/1000)
+        `gmt_create` &gt;= FROM_UNIXTIME(#{startDate}/1000)
+        AND `gmt_create` &lt;= FROM_UNIXTIME(#{endDate}/1000)
         AND `node_address` = #{nodeAddress}
         AND `alert_record_status`=#{sendStatus}
         AND `is_deleted`=0
@@ -318,10 +318,10 @@
             AND `id` > #{minId}
         </if>
         <if test="startDate!=null" >
-            AND `gmt_created` &gt;= FROM_UNIXTIME(#{startDate}/1000)
+            AND `gmt_create` &gt;= FROM_UNIXTIME(#{startDate}/1000)
         </if>
         <if test="endDate!=null">
-            AND `gmt_created` &lt;= FROM_UNIXTIME(#{endDate}/1000)
+            AND `gmt_create` &lt;= FROM_UNIXTIME(#{endDate}/1000)
         </if>
         <if test="alertRecordSendStatus != null">
             AND `alert_record_send_status` = #{alertRecordSendStatus}
