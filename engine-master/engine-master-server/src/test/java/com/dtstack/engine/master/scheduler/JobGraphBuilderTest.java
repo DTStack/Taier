@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @Auther: dazhi
@@ -66,11 +67,11 @@ public class JobGraphBuilderTest extends AbstractTest {
         String fillJobName = "P_testSparkSql_2020_10_28_39_44";
         ArrayNode jsonNode = objMapper.readValue(taskJSon, ArrayNode.class);
         String triggerDay = new DateTime().toString(DAY_PATTERN);
-
+        AtomicInteger count = new AtomicInteger();
         Map<String, ScheduleBatchJob> stringScheduleBatchJobMap = jobGraphBuilder.buildFillDataJobGraph(jsonNode,
                 fillJobName, false, triggerDay, scheduleHourTaskShade.getCreateUserId(),
                 null, null, scheduleHourTaskShade.getProjectId(), scheduleHourTaskShade.getDtuicTenantId(),
-                false, scheduleHourTaskShade.getAppType(), 1L, scheduleHourTaskShade.getDtuicTenantId());
+                false, scheduleHourTaskShade.getAppType(), 1L, scheduleHourTaskShade.getDtuicTenantId(),count);
 
         Assert.assertNotNull(stringScheduleBatchJobMap);
     }
