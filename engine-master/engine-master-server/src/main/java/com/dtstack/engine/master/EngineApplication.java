@@ -30,7 +30,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 @EnableRemoteClient(
         identifier = "master",
         basePackage = "com.dtstack.engine.common.api",
-        properties = "application-master-akka.properties")
+        properties = "application-master.properties")
 public class EngineApplication {
 
     private static Logger LOGGER = LoggerFactory.getLogger(EngineApplication.class);

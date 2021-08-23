@@ -7,7 +7,7 @@ import com.dtstack.engine.common.api.message.*;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
-import com.dtstack.engine.worker.client.ClientOperator;
+import com.dtstack.engine.common.client.ClientOperator;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;

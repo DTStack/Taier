@@ -1,4 +1,4 @@
-package com.dtstack.engine.worker.client;
+package com.dtstack.engine.common.client;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.constrant.ConfigConstant;

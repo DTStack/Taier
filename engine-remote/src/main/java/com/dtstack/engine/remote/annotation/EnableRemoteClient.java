@@ -39,7 +39,7 @@ public @interface EnableRemoteClient {
      * 设置transport框架
      *
      */
-    String transport() default "akka";
+    String transport() default "netty";
 
     /**
      * 唯一标识

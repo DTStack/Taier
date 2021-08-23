@@ -1,4 +1,4 @@
-package com.dtstack.engine.worker.client;
+package com.dtstack.engine.common.client;
 
 import com.dtstack.engine.api.pojo.CheckResult;
 import com.dtstack.engine.api.pojo.ClusterResource;
@@ -14,7 +14,6 @@ import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
-import com.dtstack.schedule.common.enums.DataSourceType;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
