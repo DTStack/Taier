@@ -10,7 +10,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import com.dtstack.engine.master.router.DtRequestParam;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
@@ -31,12 +31,12 @@ public class ConsoleController {
     }
 
     @RequestMapping(value="/searchJob", method = {RequestMethod.POST})
-    public ConsoleJobVO searchJob(@DtRequestParam("jobName") String jobName) {
+    public ConsoleJobVO searchJob(@RequestParam("jobName") String jobName) {
         return consoleService.searchJob(jobName);
     }
 
     @RequestMapping(value="/listNames", method = {RequestMethod.POST})
-    public List<String> listNames(@DtRequestParam("jobName") String jobName) {
+    public List<String> listNames(@RequestParam("jobName") String jobName) {
         return consoleService.listNames(jobName);
     }
 
@@ -47,46 +47,46 @@ public class ConsoleController {
 
     @RequestMapping(value="/overview", method = {RequestMethod.POST})
     @ApiOperation(value = "根据计算引擎类型显示任务")
-    public Collection<Map<String, Object>> overview(@DtRequestParam("nodeAddress") String nodeAddress, @DtRequestParam("clusterName") String clusterName) {
+    public Collection<Map<String, Object>> overview(@RequestParam("nodeAddress") String nodeAddress, @RequestParam("clusterName") String clusterName) {
         return consoleService.overview(nodeAddress, clusterName);
     }
 
     @RequestMapping(value="/groupDetail", method = {RequestMethod.POST})
-    public PageResult groupDetail(@DtRequestParam("jobResource") String jobResource,
-                                  @DtRequestParam("nodeAddress") String nodeAddress,
-                                  @DtRequestParam("stage") Integer stage,
-                                  @DtRequestParam("pageSize") Integer pageSize,
-                                  @DtRequestParam("currentPage") Integer currentPage, @DtRequestParam("dtToken") String dtToken) {
+    public PageResult groupDetail(@RequestParam("jobResource") String jobResource,
+                                  @RequestParam("nodeAddress") String nodeAddress,
+                                  @RequestParam("stage") Integer stage,
+                                  @RequestParam("pageSize") Integer pageSize,
+                                  @RequestParam("currentPage") Integer currentPage, @RequestParam("dtToken") String dtToken) {
         return consoleService.groupDetail(jobResource, nodeAddress, stage, pageSize, currentPage, dtToken);
     }
 
     @RequestMapping(value="/jobStick", method = {RequestMethod.POST})
-    public Boolean jobStick(@DtRequestParam("jobId") String jobId) {
+    public Boolean jobStick(@RequestParam("jobId") String jobId) {
         return consoleService.jobStick(jobId);
     }
 
     @RequestMapping(value="/stopJob", method = {RequestMethod.POST})
-    public void stopJob(@DtRequestParam("jobId") String jobId) throws Exception {
+    public void stopJob(@RequestParam("jobId") String jobId) throws Exception {
         consoleService.stopJob(jobId);
     }
 
     @ApiOperation(value = "概览，杀死全部")
     @RequestMapping(value="/stopAll", method = {RequestMethod.POST})
-    public void stopAll(@DtRequestParam("jobResource") String jobResource,
-                        @DtRequestParam("nodeAddress") String nodeAddress) throws Exception {
+    public void stopAll(@RequestParam("jobResource") String jobResource,
+                        @RequestParam("nodeAddress") String nodeAddress) throws Exception {
         consoleService.stopAll(jobResource, nodeAddress);
     }
 
     @RequestMapping(value="/stopJobList", method = {RequestMethod.POST})
-    public void stopJobList(@DtRequestParam("jobResource") String jobResource,
-                            @DtRequestParam("nodeAddress") String nodeAddress,
-                            @DtRequestParam("stage") Integer stage,
-                            @DtRequestParam("jobIdList") List<String> jobIdList) throws Exception {
+    public void stopJobList(@RequestParam("jobResource") String jobResource,
+                            @RequestParam("nodeAddress") String nodeAddress,
+                            @RequestParam("stage") Integer stage,
+                            @RequestParam("jobIdList") List<String> jobIdList) throws Exception {
         consoleService.stopJobList(jobResource, nodeAddress, stage, jobIdList);
     }
 
     @RequestMapping(value="/clusterResources", method = {RequestMethod.POST})
-    public ClusterResource clusterResources(@DtRequestParam("clusterName") String clusterName) {
+    public ClusterResource clusterResources(@RequestParam("clusterName") String clusterName) {
         return consoleService.clusterResources(clusterName,null);
     }
 

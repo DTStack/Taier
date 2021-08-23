@@ -11,7 +11,7 @@ import com.dtstack.engine.api.vo.action.ActionJobStatusVO;
 import com.dtstack.engine.api.vo.action.ActionLogVO;
 import com.dtstack.engine.api.vo.action.ActionRetryLogVO;
 import com.dtstack.engine.master.impl.ActionService;
-import com.dtstack.engine.master.router.DtRequestParam;
+import org.springframework.web.bind.annotation.RequestParam;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -39,7 +39,7 @@ public class ActionController  {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "jobIds", value = "查询的所有job的jobId值", required = true, dataType = "String", allowMultiple = true)
     })
-    public List<ActionJobStatusVO> listJobStatusByJobIds(@DtRequestParam(value = "jobIds") List<String> jobIds) throws Exception {
+    public List<ActionJobStatusVO> listJobStatusByJobIds(@RequestParam(value = "jobIds") List<String> jobIds) throws Exception {
         return actionService.listJobStatusByJobIds(jobIds);
     }
 
@@ -69,7 +69,7 @@ public class ActionController  {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "jobIds", value = "请求停止任务的相关信息，jobIds", required = true, paramType = "body")
     })
-    public Boolean stop(@DtRequestParam(value = "jobIds") List<String> jobIds) throws Exception {
+    public Boolean stop(@RequestParam(value = "jobIds") List<String> jobIds) throws Exception {
         return actionService.stop(jobIds);
     }
 
@@ -78,7 +78,7 @@ public class ActionController  {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "jobIds", value = "请求停止任务的相关信息，jobIds", required = true, paramType = "body")
     })
-    public Boolean stop(@DtRequestParam(value = "jobIds") List<String> jobIds, @DtRequestParam("isForce") Integer isForce) throws Exception {
+    public Boolean stop(@RequestParam(value = "jobIds") List<String> jobIds, @RequestParam("isForce") Integer isForce) throws Exception {
         return actionService.stop(jobIds, isForce);
     }
 
@@ -87,7 +87,7 @@ public class ActionController  {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "jobId", value = "查询的job的jobId值", required = true, dataType = "String"),
     })
-    public Integer status(@DtRequestParam("jobId") String jobId) throws Exception {
+    public Integer status(@RequestParam("jobId") String jobId) throws Exception {
         return actionService.status(jobId);
     }
 
@@ -96,7 +96,7 @@ public class ActionController  {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "jobIds", value = "查询的所有job的jobId值", required = true, dataType = "String", allowMultiple = true),
     })
-    public Map<String, Integer> statusByJobIds(@DtRequestParam(value = "jobIds") List<String> jobIds) throws Exception {
+    public Map<String, Integer> statusByJobIds(@RequestParam(value = "jobIds") List<String> jobIds) throws Exception {
         return actionService.statusByJobIds(jobIds);
     }
 
@@ -105,7 +105,7 @@ public class ActionController  {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "jobId", value = "查询的job的jobId值", required = true, dataType = "String")
     })
-    public Long startTime(@DtRequestParam("jobId") String jobId) throws Exception {
+    public Long startTime(@RequestParam("jobId") String jobId) throws Exception {
         return actionService.startTime(jobId);
     }
 
@@ -115,7 +115,7 @@ public class ActionController  {
             @ApiImplicitParam(name = "jobId", value = "查询的job的jobId值", required = true, dataType = "String"),
             @ApiImplicitParam(name = "computeType", value = "查询的job的computeType值", required = true, dataType = "int")
     })
-    public ActionLogVO log(@DtRequestParam("jobId") String jobId, @DtRequestParam("computeType") Integer computeType) throws Exception {
+    public ActionLogVO log(@RequestParam("jobId") String jobId, @RequestParam("computeType") Integer computeType) throws Exception {
         return actionService.log(jobId, computeType);
     }
 
@@ -125,7 +125,7 @@ public class ActionController  {
             @ApiImplicitParam(name = "jobId", value = "查询的job的jobId值", required = true, dataType = "String"),
             @ApiImplicitParam(name = "pageInfo", value = "重试次数", required = true, dataType = "String"),
     })
-    public JobLogVO logUnite(@DtRequestParam("jobId") String jobId,@DtRequestParam("pageInfo") Integer pageInfo) throws Exception {
+    public JobLogVO logUnite(@RequestParam("jobId") String jobId, @RequestParam("pageInfo") Integer pageInfo) throws Exception {
         return actionService.logUnite(jobId,pageInfo);
     }
 
@@ -134,7 +134,7 @@ public class ActionController  {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "jobId", value = "查询的job的jobId值", required = true, dataType = "String")
     })
-    public String logFromEs(@DtRequestParam("jobId") String jobId) throws Exception {
+    public String logFromEs(@RequestParam("jobId") String jobId) throws Exception {
         return actionService.logFromEs(jobId);
     }
 
@@ -143,7 +143,7 @@ public class ActionController  {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "jobId", value = "查询的job的jobId值", required = true, dataType = "String"),
     })
-    public List<ActionRetryLogVO> retryLog(@DtRequestParam("jobId") String jobId) throws Exception {
+    public List<ActionRetryLogVO> retryLog(@RequestParam("jobId") String jobId) throws Exception {
         return actionService.retryLog(jobId);
     }
 
@@ -153,7 +153,7 @@ public class ActionController  {
             @ApiImplicitParam(name = "jobId", value = "查询的job的jobId值", required = true, dataType = "String"),
             @ApiImplicitParam(name = "retryNum", value = "查询的job的retryNum值", required = true, dataType = "int")
     })
-    public ActionRetryLogVO retryLogDetail(@DtRequestParam("jobId") String jobId, @DtRequestParam("retryNum") Integer retryNum) throws Exception {
+    public ActionRetryLogVO retryLogDetail(@RequestParam("jobId") String jobId, @RequestParam("retryNum") Integer retryNum) throws Exception {
         return actionService.retryLogDetail(jobId, retryNum);
     }
 
@@ -162,7 +162,7 @@ public class ActionController  {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "jobIds", value = "查询的所有job的jobId值", required = true, dataType = "String", allowMultiple = true),
     })
-    public List<ActionJobEntityVO> entitys(@DtRequestParam(value = "jobIds") List<String> jobIds) throws Exception {
+    public List<ActionJobEntityVO> entitys(@RequestParam(value = "jobIds") List<String> jobIds) throws Exception {
         return actionService.entitys(jobIds);
     }
 
@@ -180,7 +180,7 @@ public class ActionController  {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "jobId", value = "重置的job的jobId值", required = true, dataType = "String")
     })
-    public String resetTaskStatus(@DtRequestParam("jobId") String jobId) {
+    public String resetTaskStatus(@RequestParam("jobId") String jobId) {
         return actionService.resetTaskStatus(jobId);
     }
 
@@ -189,7 +189,7 @@ public class ActionController  {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "time", value = "查询的job的调整的时间点", required = true, dataType = "long")
     })
-    public List<ActionJobStatusVO> listJobStatus(@DtRequestParam("time") Long time, @DtRequestParam("appType") Integer appType) {
+    public List<ActionJobStatusVO> listJobStatus(@RequestParam("time") Long time, @RequestParam("appType") Integer appType) {
         return actionService.listJobStatus(time, appType);
     }
 
@@ -198,7 +198,7 @@ public class ActionController  {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "time", value = "查询的job的调整的时间点", required = true, dataType = "long")
     })
-    public List<ScheduleJob> listJobStatusScheduleJob(@DtRequestParam("time") Long time, @DtRequestParam("appType") Integer appType) {
+    public List<ScheduleJob> listJobStatusScheduleJob(@RequestParam("time") Long time, @RequestParam("appType") Integer appType) {
         return actionService.listJobStatusScheduleJob(time, appType);
     }
 

@@ -2,12 +2,8 @@
 
 package com.dtstack.batch.config;
 
-import com.dtstack.engine.master.router.DtArgumentCookieResolver;
-import com.dtstack.engine.master.router.DtArgumentParamOrHeaderResolver;
-import com.dtstack.engine.master.router.DtArgumentResolver;
 import com.dtstack.engine.master.router.login.LoginInterceptor;
 import com.google.common.collect.Lists;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -59,16 +55,6 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
                 );
     }
 
-    @Autowired
-    private DtArgumentResolver dtArgumentResolver;
-
-    @Autowired
-    private DtArgumentCookieResolver dtArgumentCookieResolver;
-
-    @Autowired
-    private DtArgumentParamOrHeaderResolver dtArgumentParamOrHeaderResolver;
-
-
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
@@ -97,9 +83,6 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
     @Override
     protected void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
         super.addArgumentResolvers(argumentResolvers);
-        argumentResolvers.add(dtArgumentResolver);
-        argumentResolvers.add(dtArgumentCookieResolver);
-        argumentResolvers.add(dtArgumentParamOrHeaderResolver);
     }
 
     @Override

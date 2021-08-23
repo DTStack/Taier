@@ -6,7 +6,7 @@ import com.dtstack.engine.api.vo.AccountVo;
 import com.dtstack.engine.api.vo.AccountVoLists;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.impl.AccountService;
-import com.dtstack.engine.master.router.DtRequestParam;
+import org.springframework.web.bind.annotation.RequestParam;
 import com.dtstack.engine.master.router.util.CookieUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -69,14 +69,14 @@ public class AccountController {
 
     @RequestMapping(value="/pageQuery", method = {RequestMethod.POST})
     @ApiOperation(value = "分页查询")
-    public PageResult<List<AccountVo>> pageQuery(@DtRequestParam("dtuicTenantId") Long dtuicTenantId, @DtRequestParam("username") String username, @DtRequestParam("currentPage") Integer currentPage,
-                                                 @DtRequestParam("pageSize") Integer pageSize, @DtRequestParam("engineType") Integer engineType,@DtRequestParam("dtuicUserId") Long dtuicUserId) {
+    public PageResult<List<AccountVo>> pageQuery(@RequestParam("dtuicTenantId") Long dtuicTenantId, @RequestParam("username") String username, @RequestParam("currentPage") Integer currentPage,
+                                                 @RequestParam("pageSize") Integer pageSize, @RequestParam("engineType") Integer engineType, @RequestParam("dtuicUserId") Long dtuicUserId) {
         return accountService.pageQuery(dtuicTenantId, username, currentPage, pageSize, engineType,dtuicUserId);
     }
 
     @RequestMapping(value="/getTenantUnBandList", method = {RequestMethod.POST})
     @ApiOperation(value = "获取租户未绑定用户列表")
-    public List<Map<String, Object>> getTenantUnBandList(@DtRequestParam("dtuicTenantId") Long dtuicTenantId, @DtRequestParam("dtToken") String dtToken, HttpServletRequest request, @DtRequestParam("engineType")Integer engineType) {
+    public List<Map<String, Object>> getTenantUnBandList(@RequestParam("dtuicTenantId") Long dtuicTenantId, @RequestParam("dtToken") String dtToken, HttpServletRequest request, @RequestParam("engineType")Integer engineType) {
         return accountService.getTenantUnBandList(dtuicTenantId, dtToken, CookieUtil.getUserId(request.getCookies()), engineType);
     }
 

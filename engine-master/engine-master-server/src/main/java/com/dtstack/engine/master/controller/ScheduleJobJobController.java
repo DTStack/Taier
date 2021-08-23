@@ -8,7 +8,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import com.dtstack.engine.master.router.DtRequestParam;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -23,8 +23,8 @@ public class ScheduleJobJobController {
     private EnvironmentContext context;
 
     @RequestMapping(value="/displayOffSpring", method = {RequestMethod.POST})
-    public ScheduleJobVO displayOffSpring(@DtRequestParam("jobId") Long jobId,
-                                          @DtRequestParam("level") Integer level) throws Exception {
+    public ScheduleJobVO displayOffSpring(@RequestParam("jobId") Long jobId,
+                                          @RequestParam("level") Integer level) throws Exception {
 
         if(context.getUseOptimize()) {
             return scheduleJobJobService.displayOffSpringNew(jobId, level);
@@ -35,7 +35,7 @@ public class ScheduleJobJobController {
 
     @RequestMapping(value="/displayOffSpringWorkFlow", method = {RequestMethod.POST})
     @ApiOperation(value = "为工作流节点展开子节点")
-    public ScheduleJobVO displayOffSpringWorkFlow(@DtRequestParam("jobId") Long jobId, @DtRequestParam("appType")Integer appType) throws Exception {
+    public ScheduleJobVO displayOffSpringWorkFlow(@RequestParam("jobId") Long jobId, @RequestParam("appType")Integer appType) throws Exception {
         return scheduleJobJobService.displayOffSpringWorkFlow(jobId, appType);
     }
 
@@ -48,7 +48,7 @@ public class ScheduleJobJobController {
      * @return: com.dtstack.engine.api.vo.ScheduleJobVO
      **/
     @RequestMapping(value="/displayForefathers", method = {RequestMethod.POST})
-    public ScheduleJobVO displayForefathers(@DtRequestParam("jobId") Long jobId, @DtRequestParam("level") Integer level) throws Exception {
+    public ScheduleJobVO displayForefathers(@RequestParam("jobId") Long jobId, @RequestParam("level") Integer level) throws Exception {
         if(context.getUseOptimize()) {
             return scheduleJobJobService.displayForefathersNew(jobId, level);
         }else{

@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.router;
 
-import com.dtstack.engine.master.router.DtRequestParam;
+import org.springframework.web.bind.annotation.RequestParam;
 import com.google.common.base.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
@@ -25,11 +25,11 @@ public class DtParamParameterBuilder extends ApiParamParameterBuilder {
 
     @Override
     public void apply(ParameterContext context) {
-        Optional<DtRequestParam> dtRequestParam = context.resolvedMethodParameter().findAnnotation(DtRequestParam.class);
+        Optional<RequestParam> dtRequestParam = context.resolvedMethodParameter().findAnnotation(RequestParam.class);
         if (dtRequestParam.isPresent()) {
-            DtRequestParam annotation = dtRequestParam.get();
+            RequestParam annotation = dtRequestParam.get();
             context.parameterBuilder().name(emptyToNull(annotation.name()))
-                    .description(emptyToNull(annotation.description().equals("") ? annotation.name() : annotation.description()))
+                    .description(emptyToNull(annotation.name()))
                     .required(annotation.required())
                     .parameterType(PARAMETER_TYPE)
                     .order(SWAGGER_PLUGIN_ORDER);
