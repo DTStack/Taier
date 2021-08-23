@@ -156,71 +156,71 @@ class DataSync extends React.Component<any, any> {
     };
 
     getJobData = (params: any) => {
-        //   const { currentTabData } = this.props
-        // const { dataSyncSaved } = currentTabData;
-        // const { taskId } = params;
-        // ajax.getOfflineJobData(params).then((res: any) => {
-        // const { data = {} } = res;
-        // if (data) {
-        //   const { taskId: nextTaskId } = data;
-        //   if (nextTaskId !== taskId) return;
-        //   if (!dataSyncSaved) {
-        //     if (res.data) {
-        //       const { sourceMap } = res.data;
-        //       if (sourceMap.sourceList) {
-        //         const loop = (source: any, index: any) => {
-        //           return {
-        //             ...source,
-        //             key: index == 0 ? "main" : "key" + ~~Math.random() * 10000000,
-        //           };
-        //         };
-        //         sourceMap.sourceList = sourceMap.sourceList.map(loop);
-        //       }
-        //     }
-        //     // this.props.initJobData(res.data);
-        //   } else {
-        //     // tabs中有则把数据取出来
-        //     this.props.getDataSyncSaved(dataSyncSaved);
-        //     this.navtoStep(dataSyncSaved.currentStep.step);
-        //   }
-        // } else {
-        //   if (!dataSyncSaved) {
-        //     this.props.initJobData(res.data);
-        //   } else {
-        //     this.props.getDataSyncSaved(dataSyncSaved);
-        //     if (
-        //       JSON.stringify(dataSyncSaved.targetMap) === "{}" ||
-        //       !dataSyncSaved.targetMap
-        //     ) {
-        //       this.navtoStep(0);
-        //     } else {
-        //       this.navtoStep(dataSyncSaved.currentStep.step);
-        //     }
-        //   }
-        // }
-        // if (!res.data) {
-        //   this.props.setTabNew();
-        // } else {
-        // //   this.props.setTabSaved();
-        //   if (!dataSyncSaved) {
-        //     this.navtoStep(4);
-        //   }
-        // }
-        // this.setState({ loading: false });
-        // });
+        const { currentTabData } = this.props
+        const { dataSyncSaved } = currentTabData;
+        const { taskId } = params;
+        ajax.getOfflineJobData(params).then((res: any) => {
+            const { data = {} } = res;
+            if (res?.code === 1 && data) {
+                const { taskId: nextTaskId } = data;
+                if (nextTaskId !== taskId) return;
+                if (!dataSyncSaved) {
+                    if (res.data) {
+                        const { sourceMap } = res.data;
+                        if (sourceMap.sourceList) {
+                            const loop = (source: any, index: any) => {
+                                return {
+                                    ...source,
+                                    key: index == 0 ? "main" : "key" + ~~Math.random() * 10000000,
+                                };
+                            };
+                            sourceMap.sourceList = sourceMap.sourceList.map(loop);
+                        }
+                    }
+                    // this.props.initJobData(res.data);
+                } else {
+                    // tabs中有则把数据取出来
+                    this.props.getDataSyncSaved(dataSyncSaved);
+                    this.navtoStep(dataSyncSaved.currentStep.step);
+                }
+            } else {
+                if (!dataSyncSaved) {
+                    this.props.initJobData(res.data);
+                } else {
+                    this.props.getDataSyncSaved(dataSyncSaved);
+                    if (
+                        JSON.stringify(dataSyncSaved.targetMap) === "{}" ||
+              !dataSyncSaved.targetMap
+                    ) {
+                        this.navtoStep(0);
+                    } else {
+                        this.navtoStep(dataSyncSaved.currentStep.step);
+                    }
+                }
+            }
+            if (!res.data) {
+                this.props.setTabNew();
+            } else {
+                //   this.props.setTabSaved();
+                if (!dataSyncSaved) {
+                    this.navtoStep(4);
+                }
+            }
+            this.setState({ loading: false });
+        });
     };
 
     // 组件离开保存数据到tabs中
-    // componentWillUnmount() {
-    //   const { currentTabData, dataSync } = this.props;
-    //   if (this.state.loading) {
-    //     return;
-    //   }
-    //   this.props.saveDataSyncToTab({
-    //     id: currentTabData?.id,
-    //     data: dataSync,
-    //   });
-    // }
+    componentWillUnmount() {
+        const { currentTabData, dataSync } = this.props;
+        if (this.state.loading) {
+            return;
+        }
+        this.props.saveDataSyncToTab({
+            id: currentTabData?.id,
+            data: dataSync,
+        });
+    }
 
     next() {
         this.setState({

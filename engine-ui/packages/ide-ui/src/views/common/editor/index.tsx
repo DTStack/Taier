@@ -9,7 +9,7 @@ import {
 import { searchById } from 'molecule/esm/services/helper';
 import { workbenchActions } from '../../../controller/dataSync/offlineAction';
 import { resetEditorGroup } from '../utils';
-import Result from '../../task/result';
+// import Result from '../../task/result';
 import ajax from '../../../api';
 import {
     TASK_RUN_ID,
@@ -122,56 +122,56 @@ function emitEvent() {
                             '\n'
                     );
 
-                    // mock sleeping
-                    await new Promise<void>((resolve) => {
-                        setTimeout(() => {
-                            resolve();
-                        }, 2000);
-                    });
+                    // // mock sleeping
+                    // await new Promise<void>((resolve) => {
+                    //     setTimeout(() => {
+                    //         resolve();
+                    //     }, 2000);
+                    // });
 
-                    molecule.panel.appendOutput(
-                        `${nowDate.getHours()}:${nowDate.getMinutes()}:${nowDate.getSeconds()}<info>第1条任务开始执行` +
-                            '\n'
-                    );
+                    // molecule.panel.appendOutput(
+                    //     `${nowDate.getHours()}:${nowDate.getMinutes()}:${nowDate.getSeconds()}<info>第1条任务开始执行` +
+                    //         '\n'
+                    // );
 
-                    molecule.panel.appendOutput(
-                        `===========任务信息===========${'\n'}`
-                    );
-                    molecule.panel.appendOutput(`show tables${'\n'}`);
-                    molecule.panel.appendOutput(
-                        `============================${'\n'}`
-                    );
-                    ajax.execSQLImmediately({})
-                        .then((res) => {
-                            const nowDate = new Date();
-                            molecule.panel.appendOutput(
-                                `${nowDate.getHours()}:${nowDate.getMinutes()}:${nowDate.getSeconds()}<info>执行完成!` +
-                                    '\n'
-                            );
-                            const resultTable = res.data;
+                    // molecule.panel.appendOutput(
+                    //     `===========任务信息===========${'\n'}`
+                    // );
+                    // molecule.panel.appendOutput(`show tables${'\n'}`);
+                    // molecule.panel.appendOutput(
+                    //     `============================${'\n'}`
+                    // );
+                    ajax.execSql({})
+                    // .then((res) => {
+                    //     const nowDate = new Date();
+                    //     molecule.panel.appendOutput(
+                    //         `${nowDate.getHours()}:${nowDate.getMinutes()}:${nowDate.getSeconds()}<info>执行完成!` +
+                    //             '\n'
+                    //     );
+                    //     const resultTable = res.data;
 
-                            molecule.panel.open({
-                                id: new Date().getTime().toString(),
-                                name: '结果1',
-                                closable: true,
-                                renderPane: () => (
-                                    <Result data={resultTable.result} />
-                                ),
-                            });
-                        })
-                        .finally(() => {
-                            molecule.editor.updateActions([
-                                {
-                                    id: TASK_RUN_ID,
-                                    icon: 'play',
-                                    disabled: false,
-                                },
-                                {
-                                    id: TASK_STOP_ID,
-                                    disabled: true,
-                                },
-                            ]);
-                        });
+                    //     molecule.panel.open({
+                    //         id: new Date().getTime().toString(),
+                    //         name: '结果1',
+                    //         closable: true,
+                    //         renderPane: () => (
+                    //             <Result data={resultTable.result} />
+                    //         ),
+                    //     });
+                    // })
+                    // .finally(() => {
+                    //     molecule.editor.updateActions([
+                    //         {
+                    //             id: TASK_RUN_ID,
+                    //             icon: 'play',
+                    //             disabled: false,
+                    //         },
+                    //         {
+                    //             id: TASK_STOP_ID,
+                    //             disabled: true,
+                    //         },
+                    //     ]);
+                    // });
                 }
                 break;
             }

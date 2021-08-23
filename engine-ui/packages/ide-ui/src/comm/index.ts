@@ -8,8 +8,8 @@ import { syncHistoryWithStore } from 'react-router-redux';
 import { RDB_TYPE_ARRAY, ENGINE_SOURCE_TYPE, DATA_SOURCE } from './const';
 
 // 日志下载
-export function createLinkMark(attrs: any) {
-    return `#link#${JSON.stringify(attrs)}#link#`;
+export function createLinkMark( title: string, attrs: string) {
+    return `[${title}]${JSON.stringify(attrs)}\n`;
 }
 
 /**

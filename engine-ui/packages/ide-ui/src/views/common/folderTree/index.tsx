@@ -138,21 +138,44 @@ function onSelectFile() {
                 }
             });
         } else if (file.data.taskType === 'DataSync') {
-            const tabData = {
-                id: file.id,
-                name: file.name,
-                data: {
-                    ...file.data,
-                    content: file.content,
-                },
-                renderPane: () => {
-                    return <DataSync />;
-                },
-            };
-            molecule.editor.open(tabData);
-            molecule.editor.updateActions([
-                { id: TASK_RUN_ID, disabled: false },
-            ]);
+            const id = file.id;
+            ajax.getOfflineTaskByID({ id }).then((res) => {
+                const { success, data } = res;
+                if (success) {
+                    // save to redux
+                    store.dispatch({
+                        type: workbenchAction.LOAD_TASK_DETAIL,
+                        payload: data,
+                    });
+                    store.dispatch({
+                        type: workbenchAction.OPEN_TASK_TAB,
+                        payload: id,
+                    });
+
+                    // open in molecule
+                    const tabData = {
+                        id,
+                        name: file.name,
+                        data: {
+                            ...data,
+                            value: data.sqlText,
+                            taskDesc: file.data.taskDesc
+                        },
+                        breadcrumb:
+                            file.location?.split('/')?.map((item: string) => ({
+                                id: item,
+                                name: item,
+                            })) || [],
+                        renderPane: () => {
+                            return <DataSync currentTabData={tabData} />;
+                        }
+                    };
+                    molecule.editor.open(tabData);
+                    molecule.editor.updateActions([
+                        { id: TASK_RUN_ID, disabled: false },
+                    ]);
+                }
+            });
         } else {
             resetEditorGroup();
         }

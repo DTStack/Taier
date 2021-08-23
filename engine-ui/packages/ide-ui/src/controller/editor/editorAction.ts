@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import moment from 'moment';
 import API from '../../api';
 import {
@@ -101,10 +102,7 @@ function getDataOver(
         dispatch(
             output(
                 currentTab,
-                `完整日志下载地址：${createLinkMark({
-                    href: res.data.download,
-                    download: '',
-                })}\n`
+                `${createLinkMark('完整日志下载地址：', res.data.download)}`
             )
         );
     }
@@ -164,10 +162,7 @@ function doSelect(
             dispatch(
                 output(
                     currentTab,
-                    `完整日志下载地址：${createLinkMark({
-                        href: data.download,
-                        download: '',
-                    })}\n`
+                    `${createLinkMark('完整日志下载地址：', data.download)}`
                 )
             );
     };
@@ -218,10 +213,7 @@ function doSelect(
                 dispatch(
                     output(
                         currentTab,
-                        `完整日志下载地址：${createLinkMark({
-                            href: res.data.download,
-                            download: '',
-                        })}\n`
+                        `${createLinkMark('完整日志下载地址：', data.download)}`
                     )
                 );
             }
@@ -236,27 +228,27 @@ function doSelect(
     };
     // 获取结果接口
     const selectExecResultData = () => {
-        // API.selectExecResultData({
-        //     jobId: jobId && jobId.jobId ? jobId.jobId : jobId,
-        //     taskId: task.id,
-        //     // type: isTask ? SELECT_TYPE.TASK : SELECT_TYPE.SCRIPT,
-        //     type: type,
-        //     sqlId: jobId && jobId.advancedModeId ? jobId.advancedModeId : null
-        // })
-        //     .then(
-        //         (res: any) => {
-        //             if (stopSign[currentTab]) {
-        //                 stopSign[currentTab] = false;
-        //                 resolve(false)
-        //                 return;
-        //             }
-        //             if (res && res.code !== 1){
-        //                 dispatch(output(currentTab, createLog(`请求异常！`, 'error')))
-        //             }else if (res && res.data?.result) {
-        //                 dispatch(outputRes(currentTab, res.data.result, jobId))
-        //             }
-        //         }
-        //     )
+        API.selectExecResultData(taskType, {
+            jobId: jobId && jobId.jobId ? jobId.jobId : jobId,
+            taskId: task.id,
+            // type: isTask ? SELECT_TYPE.TASK : SELECT_TYPE.SCRIPT,
+            type: type,
+            sqlId: jobId && jobId.advancedModeId ? jobId.advancedModeId : null
+        })
+            .then(
+                (res: any) => {
+                    if (stopSign[currentTab]) {
+                        stopSign[currentTab] = false;
+                        resolve(false)
+                        return;
+                    }
+                    if (res && res.code !== 1){
+                        dispatch(output(currentTab, createLog(`请求异常！`, 'error')))
+                    }else if (res && res.data?.result) {
+                        dispatch(outputRes(currentTab, res.data.result, jobId))
+                    }
+                }
+            )
     };
 
     if (taskType && taskType === TASK_TYPE.SYNC) {
