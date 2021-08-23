@@ -1,5 +1,3 @@
-/* eslint-disable react/no-unescaped-entities */
-// 帮助文档
 import React from 'react';
 import { HELP_DOC_URL } from '../../comm/const';
 

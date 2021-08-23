@@ -138,9 +138,7 @@ class TaskParams extends React.Component<any, any> {
         return (
             <molecule.component.Scrollable>
                 <Form className="taskParams" style={{ position: 'relative' }}>
-                    {isLocked ? (
-                        <div className="cover-mask"></div>
-                    ) : null}
+                    {isLocked ? <div className="cover-mask"></div> : null}
                     <Collapse
                         style={{ background: 'transparent' }}
                         bordered={false}

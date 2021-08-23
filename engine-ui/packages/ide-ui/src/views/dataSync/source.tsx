@@ -876,7 +876,7 @@ class SourceForm extends React.Component<any, any> {
                                             );
                                         }}
                                     >
-                                        {/* {(
+                                        {(
                                             tableListSearch[sourceMap.sourceId] || []
                                         ).map((table: any) => {
                                             return (
@@ -887,10 +887,10 @@ class SourceForm extends React.Component<any, any> {
                                                     {table}
                                                 </Option>
                                             );
-                                        })} */}
-                                        <Option key={'rdb-1'} value={1}>
+                                        })}
+                                        {/* <Option key={'rdb-1'} value={1}>
                                             {1}
-                                        </Option>
+                                        </Option> */}
                                     </Select>
                                 )}
                             </FormItem>
@@ -1622,39 +1622,39 @@ const mapState = (state: any) => {
         isCurrentTabNew,
         currentTab,
         ...dataSync,
-        dataSourceList: [
-            {
-                dataDesc: '',
-                createUserId: 5,
-                gmtModified: 1598798357000,
-                modifyUserId: 5,
-                active: 0,
-                dataName: 'test',
-                dataJson: {
-                    jdbcUrl:
-                        'jdbc:pivotal:greenplum://172.16.10.90:5432;DatabaseName=exampledb',
-                    username: 'gpadmin',
-                },
-                gmtCreate: 1598798357000,
-                type: 1,
-                linkState: 0,
-                modifyUser: {
-                    gmtModified: 1592466563000,
-                    phoneNumber: '17858263016',
-                    isDeleted: 0,
-                    id: 5,
-                    gmtCreate: 1592466563000,
-                    userName: 'admin@dtstack.com',
-                    dtuicUserId: 1,
-                    email: '123456.com@1.com',
-                    status: 0,
-                },
-                isDefault: 1,
-                tenantId: 3,
-                id: 131,
-                projectId: 95,
-            },
-        ],
+        // dataSourceList: [
+        //     {
+        //         dataDesc: '',
+        //         createUserId: 5,
+        //         gmtModified: 1598798357000,
+        //         modifyUserId: 5,
+        //         active: 0,
+        //         dataName: 'test',
+        //         dataJson: {
+        //             jdbcUrl:
+        //                 'jdbc:pivotal:greenplum://172.16.10.90:5432;DatabaseName=exampledb',
+        //             username: 'gpadmin',
+        //         },
+        //         gmtCreate: 1598798357000,
+        //         type: 1,
+        //         linkState: 0,
+        //         modifyUser: {
+        //             gmtModified: 1592466563000,
+        //             phoneNumber: '17858263016',
+        //             isDeleted: 0,
+        //             id: 5,
+        //             gmtCreate: 1592466563000,
+        //             userName: 'admin@dtstack.com',
+        //             dtuicUserId: 1,
+        //             email: '123456.com@1.com',
+        //             status: 0,
+        //         },
+        //         isDefault: 1,
+        //         tenantId: 3,
+        //         id: 131,
+        //         projectId: 95,
+        //     },
+        // ],
         taskVariables,
     };
 };

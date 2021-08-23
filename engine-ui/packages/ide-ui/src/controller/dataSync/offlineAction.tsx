@@ -1056,10 +1056,10 @@ export const workbenchActions = (dispatch?: any) => {
             ) => {
                 return data.children
                     ? data.children.find(
-                          (item: any) =>
-                              item.catalogueType === cateType &&
+                        (item: any) =>
+                            item.catalogueType === cateType &&
                               item.engineType === engineType
-                      )
+                    )
                     : [];
             };
             if (res.code === 1) {

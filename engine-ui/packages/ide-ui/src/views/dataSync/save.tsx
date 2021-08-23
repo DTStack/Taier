@@ -19,7 +19,7 @@ export default class Save extends React.Component<any, any> {
     navtoStep: any;
     render() {
         const { navtoStep } = this;
-        const { notSynced, isIncrementMode, isStandeAlone } = this.props;
+        const { isIncrementMode, isStandeAlone } = this.props;
 
         return (
             <div className="g-step5">
@@ -102,7 +102,7 @@ export default class Save extends React.Component<any, any> {
                     </Button>
                     <Button
                         type="primary"
-                        disabled={!notSynced}
+                        // disabled={!notSynced}
                         onClick={() => this.save(navtoStep)}
                     >
                         保存

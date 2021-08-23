@@ -13,7 +13,6 @@ export default function TaskInfo({ current }: IEditor) {
         );
     const tab = current.tab!;
     //   const taskInfo = props.taskInfo;
-    //   const couldEdit = props.couldEdit;
     const labelPrefix = '任务';
     return (
         <Row className="task-info">
