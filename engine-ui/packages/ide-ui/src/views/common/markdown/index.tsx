@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { MarkdownRender } from 'dt-react-component';
+import CodeMirrorEditor from 'dt-react-codemirror-editor';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { workbenchActions } from '../../../controller/dataSync/offlineAction';
@@ -41,10 +41,20 @@ class Markdown extends React.Component<any> {
 
         const data = consoleData && consoleData[currentTab]
             ? consoleData[currentTab] : { results: [] };
-        const hasLog = data && data.log;
+        const defaultValue = data && data.log;
+        const defaultEditorOptions: any = {
+            mode: 'dtlog',
+            lint: true,
+            indentWithTabs: true,
+            smartIndent: true,
+            lineNumbers: false,
+            autofocus: false,
+            lineWrapping: true,
+            readOnly: true
+        };
 
         return (
-            <MarkdownRender text={hasLog} />
+            <CodeMirrorEditor value={defaultValue} options={...defaultEditorOptions}/>
         );
     }
 }

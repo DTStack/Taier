@@ -2814,6 +2814,11 @@ co@^4.6.0:
   resolved "https://registry.yarnpkg.com/co/-/co-4.6.0.tgz#6ea6bdf3d853ae54ccb8e47bfa0bf3f9031fb184"
   integrity sha1-bqa989hTrlTMuOR7+gvz+QMfsYQ=
 
+codemirror@^5.55.0:
+  version "5.62.3"
+  resolved "https://registry.yarnpkg.com/codemirror/-/codemirror-5.62.3.tgz#5cfdee6931c8b2d1b39ae773aaaaec2cc6b5558e"
+  integrity sha512-zZAyOfN8TU67ngqrxhOgtkSAGV9jSpN1snbl8elPtnh9Z5A11daR405+dhLzLnuXrwX0WCShWlybxPN3QC/9Pg==
+
 collect-v8-coverage@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/collect-v8-coverage/-/collect-v8-coverage-1.0.1.tgz#cc2c8e94fc18bbdffe64d6534570c8a673b27f59"
@@ -3438,6 +3443,14 @@ draft-js@^0.10.0, draft-js@~0.10.0:
     fbjs "^0.8.15"
     immutable "~3.7.4"
     object-assign "^4.1.0"
+
+dt-react-codemirror-editor@^0.9.1:
+  version "0.9.1"
+  resolved "https://registry.yarnpkg.com/dt-react-codemirror-editor/-/dt-react-codemirror-editor-0.9.1.tgz#68c2805af56496bfb8dbd1e9e7699a02f4e3b00e"
+  integrity sha512-x3CNfMEV/UZ0OYJPuvlUDE/w7SxGap3Yr84eiazQOEctszPfZUa9lTW3dHBeEQqh4liDp8dbaazwfuEopdJ67A==
+  dependencies:
+    codemirror "^5.55.0"
+    react "^16.6.3"
 
 dt-react-component@^2.0.8:
   version "2.0.8"
@@ -8002,7 +8015,7 @@ react-syntax-highlighter@^15.4.3:
     prismjs "^1.22.0"
     refractor "^3.2.0"
 
-react@^16.2.0:
+react@^16.2.0, react@^16.6.3:
   version "16.14.0"
   resolved "https://registry.yarnpkg.com/react/-/react-16.14.0.tgz#94d776ddd0aaa37da3eda8fc5b6b18a4c9a3114d"
   integrity sha512-0X2CImDkJGApiAlcf0ODKIneSwBPhqJawOa5wCtKbu7ZECrmS26NvtSILynQ66cgkT/RJ4LidJOc3bUESwmU8g==
