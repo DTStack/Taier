@@ -789,7 +789,16 @@ public class ScheduleJobService {
                 batchJobVO.setExecEndDate(timeFormatter.print(scheduleJob.getExecEndTime().getTime()));
                 engineJob.setExecEndTime(new Timestamp(scheduleJob.getExecEndTime().getTime()));
             }
-            engineJob.setExecTime(scheduleJob.getExecTime());
+
+            if (scheduleJob.getExecTime() == null) {
+                if (scheduleJob.getExecStartTime() != null) {
+                    Long startTime = scheduleJob.getExecStartTime().getTime();
+                    Long currentTimeMillis = System.currentTimeMillis();
+                    engineJob.setExecTime((currentTimeMillis-startTime)/1000);
+                }
+            } else {
+                engineJob.setExecTime(scheduleJob.getExecTime());
+            }
             batchJobVO.setScheduleEngineJob(engineJob);
 
             ScheduleTaskVO taskVO = new ScheduleTaskVO(taskShade);
