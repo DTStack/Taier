@@ -68,14 +68,13 @@ function createTask() {
 
             const onSubmit = (values: any) => {
                 return new Promise<boolean>((resolve)=> {
-                    const { name, ...rest } = values;
                     // addOfflineTask(values, isEditExist, defaultData)
                     const params = { ...values, nodePid: 233, computeType: 1, isUseComponent: 0, lockVersion: 0, version: 0, componentVersion: '2.1' }
                     ajax.addOfflineTask(params)
                         .then((res: any) => {
                             if (res.code === 1) {
                                 const { data } = res;
-                                const { id } = data;
+                                const { id, name } = data;
                                 molecule.editor.closeTab(tabId, 1);
                                 molecule.explorer.forceUpdate();
                                 const node = new TreeNodeModel({
@@ -84,12 +83,12 @@ function createTask() {
                                     fileType: FileTypes.File,
                                     isLeaf: true,
                                     data: {
-                                        ...rest,
+                                        ...data,
                                         language: 'sql',
                                     },
                                 });
     
-                                molecule.folderTree.add(node, id);
+                                molecule.folderTree.add(node, 233);
     
                                 const { current } = molecule.editor.getState();
                                 if (current?.tab?.data.taskType === TASK_TYPE.SQL) {
