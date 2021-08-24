@@ -67,13 +67,9 @@
         WHERE `dict_code` = #{dictCode} AND is_deleted = 0 AND depend_name = #{dependName} and dict_name = #{dictName}
     </select>
 
-    <update id="update" parameterType="ScheduleDict">
+    <update id="updateByCode" parameterType="ScheduleDict">
         UPDATE schedule_dict
-        <set>
-            <if test="dictValue != null">
-                dict_value = #{dictValue},
-            </if>
-        </set>
+        SET dict_value = #{dictValue}
         WHERE `dict_code` = #{dictCode} AND is_deleted = 0 AND dict_name = #{dictName}
     </update>
 </mapper>
