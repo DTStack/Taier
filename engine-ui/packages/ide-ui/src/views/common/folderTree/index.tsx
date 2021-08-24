@@ -11,6 +11,26 @@ import store from '../../../store';
 import { workbenchAction } from '../../../controller/dataSync/actionType';
 import { editorAction } from '../../../controller/editor/actionTypes';
 
+function convertToTreeNode(data: any[]) {
+    if (!data) {
+        return;
+    }
+    return data.map((child) => {
+        const { id, name, children, type } = child;
+        const node: TreeNodeModel = new TreeNodeModel({
+            id,
+            name: !name ? '数据开发' : name,
+            location: name,
+            fileType: type === 'folder' ? FileTypes.Folder : FileTypes.File,
+            isLeaf: type !== 'folder',
+            data: child,
+            children: convertToTreeNode(children),
+        });
+
+        return node;
+    });
+}
+
 function init() {
     ajax.getOfflineCatalogue({
         nodePid: 0,
@@ -19,17 +39,19 @@ function init() {
         taskType: 1,
         appointProjectId: 1,
         projectId: 1,
-        userId: 1
+        userId: 1,
     }).then((res) => {
         if (res.code === 1) {
-            console.log(res, 111)
-            const { id, name = '数据开发', children } = res.data;
+            console.log(res, 111);
+            const { id, name, children } = res.data;
+            // 根目录
             const node = new TreeNodeModel({
                 id,
-                name,
+                name: name || '数据开发',
                 location: name,
                 fileType: FileTypes.RootFolder,
-                children
+                data: res.data,
+                children: convertToTreeNode(children),
             });
 
             molecule.folderTree.add(node);
