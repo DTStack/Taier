@@ -97,12 +97,7 @@ function getDataOver(
         dispatch(outputRes(currentTab, res.data.result, jobId));
     }
     if (res.data && res.data.download) {
-        dispatch(
-            output(
-                currentTab,
-                `${createLinkMark('完整日志下载地址：', res.data.download)}`
-            )
-        );
+        dispatch(output(currentTab, `完整日志下载地址：${createLinkMark({ href: res.data.download, download: '' })}\n`))
     }
 }
 
@@ -160,7 +155,7 @@ function doSelect(
             dispatch(
                 output(
                     currentTab,
-                    `${createLinkMark('完整日志下载地址：', data.download)}`
+                    `完整日志下载地址：${createLinkMark({ href: data.download, download: '' })}\n`
                 )
             );
     };
@@ -208,12 +203,7 @@ function doSelect(
                 dispatch(output(currentTab, createLog(`请求异常！`, 'error')));
             }
             if (data && data.download) {
-                dispatch(
-                    output(
-                        currentTab,
-                        `${createLinkMark('完整日志下载地址：', data.download)}`
-                    )
-                );
+                dispatch(output(currentTab, `完整日志下载地址：${createLinkMark({ href: res.data.download, download: '' })}\n`))
             }
             if (retryLog && num && num <= 3) {
                 selectRunLog(num + 1);
