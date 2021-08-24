@@ -23,6 +23,6 @@ public interface ScheduleDictDao {
 
     ScheduleDict getByNameAndCodeAndDependName(@Param("dictCode") String dictCode, @Param("dictName") String dictName, @Param("dependName") String dependName);
 
-    void update(ScheduleDict scheduleDict);
+    void updateByCode(ScheduleDict scheduleDict);
 
 }

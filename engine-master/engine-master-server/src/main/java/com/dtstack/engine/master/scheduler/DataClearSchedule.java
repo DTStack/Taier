@@ -139,7 +139,7 @@ public class DataClearSchedule {
                     //3. 更新标识
                     clearConfig.put(clearFlag, lastClearId);
                     scheduleDict.setDictValue(clearConfig.toJSONString());
-                    scheduleDictDao.update(scheduleDict);
+                    scheduleDictDao.updateByCode(scheduleDict);
                 } catch (Exception exception) {
                     LOGGER.error("data clear table :{} process error ", tableName, exception);
                 }

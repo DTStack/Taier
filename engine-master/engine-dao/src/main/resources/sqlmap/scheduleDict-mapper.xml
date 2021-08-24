@@ -42,6 +42,15 @@
         ORDER BY sort
     </select>
 
+    <update id="update">
+        UPDATE schedule_dict
+        SET dict_value = #{update}
+        WHERE
+        `dict_code` = #{dictCode}
+        AND `dict_name` = #{dictName}
+        AND is_deleted = 0
+        AND dict_value = #{oldUpdate}
+    </update>
     <select id="listById" resultType="com.dtstack.engine.api.domain.ScheduleDict">
         SELECT
         <include refid="select_content_fragment"/>
@@ -57,13 +66,9 @@
         WHERE `dict_code` = #{dictCode} AND is_deleted = 0 AND depend_name = #{dependName} and dict_name = #{dictName}
     </select>
 
-    <update id="update" parameterType="ScheduleDict">
+    <update id="updateByCode" parameterType="ScheduleDict">
         UPDATE schedule_dict
-        <set>
-            <if test="dictValue != null">
-                dict_value = #{dictValue},
-            </if>
-        </set>
+        SET dict_value = #{dictValue}
         WHERE `dict_code` = #{dictCode} AND is_deleted = 0 AND dict_name = #{dictName}
     </update>
 </mapper>
