@@ -48,7 +48,6 @@ public class DtCookieAspect {
                 ckJson.put(cookie.getName(), cookie.getValue());
             }
         }
-        ckJson.put(Cookies.PROJECT_ID, getProjectFromHead(request));
 
         MethodSignature signature = (MethodSignature) point.getSignature();
         Method method = signature.getMethod();
@@ -72,19 +71,6 @@ public class DtCookieAspect {
             }
         }
         return point.proceed();
-    }
-
-    /**
-     * 从http请求头从获取到projectId
-     * @param httpServletRequest
-     * @return
-     */
-    public static long getProjectFromHead(HttpServletRequest httpServletRequest) {
-        String projectId = httpServletRequest.getHeader("X-Project-ID");
-        if (StringUtils.isNotEmpty(projectId)) {
-            return Long.parseLong(projectId);
-        }
-        return -1L;
     }
 
 }
