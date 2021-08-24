@@ -1,4 +1,4 @@
-package com.dtstack.batch.web.controller;
+package com.dtstack.batch.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;

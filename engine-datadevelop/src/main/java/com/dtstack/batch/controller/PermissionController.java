@@ -1,4 +1,4 @@
-package com.dtstack.batch.web.controller;
+package com.dtstack.batch.controller;
 
 import com.dtstack.batch.mapstruct.vo.PermissionMapstructTransfer;
 import com.dtstack.batch.service.auth.AuthCode;

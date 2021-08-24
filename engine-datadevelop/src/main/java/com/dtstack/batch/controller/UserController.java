@@ -1,4 +1,4 @@
-package com.dtstack.batch.web.controller;
+package com.dtstack.batch.controller;
 
 import com.dtstack.batch.service.impl.BatchUserService;
 import com.dtstack.batch.web.user.vo.query.BatchUserGetVO;

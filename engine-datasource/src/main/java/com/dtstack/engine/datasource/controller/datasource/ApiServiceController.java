@@ -64,15 +64,6 @@ public class ApiServiceController {
 
             @Override
             protected PageResult<List<DsServiceListVO>> process() throws BizException {
-//                DsServiceListVO vo = new DsServiceListVO();
-//                vo.setDataName("test");
-//                vo.setDataInfoId(1L);
-//                vo.setDataDesc("desc");
-//                vo.setIsMeta(0);
-//                vo.setStatus(1);
-//                vo.setLinkJson("{}");
-//                vo.setGmtModified(new Date());
-//                return PageUtil.transfer(Arrays.asList(vo), listParam, 1);
                 return apiServiceFacade.importDsPage(listParam);
             }
         }.execute();
@@ -108,7 +99,6 @@ public class ApiServiceController {
 
             @Override
             protected Boolean process() throws BizException {
-//                return Boolean.TRUE;
                 return apiServiceFacade.productImportDs(importParam);
             }
         }.execute();
@@ -126,7 +116,6 @@ public class ApiServiceController {
 
             @Override
             protected Boolean process() throws BizException {
-//                return Boolean.TRUE;
                 return apiServiceFacade.productCancelDs(importParam);
             }
         }.execute();
@@ -148,10 +137,6 @@ public class ApiServiceController {
 
             @Override
             protected DsShiftReturnVO process() throws BizException {
-//                DsShiftReturnVO vo = new DsShiftReturnVO();
-//                vo.setDataInfoId(99L);
-//                vo.setDataName("达也测试数据库");
-//                return vo;
                 return apiServiceFacade.createMetaDs(createDsParam);
             }
         }.execute();
@@ -177,10 +162,6 @@ public class ApiServiceController {
 
             @Override
             protected List<DsShiftReturnVO> process() throws BizException {
-//                DsShiftReturnVO vo = new DsShiftReturnVO();
-//                vo.setDataInfoId(99L);
-//                vo.setDataName("达也测试数据库");
-//                return Arrays.asList(vo);
                 return apiServiceFacade.shiftAppDs(paramList);
             }
         }.execute();
@@ -197,20 +178,6 @@ public class ApiServiceController {
 
             @Override
             protected DsServiceInfoVO process() throws BizException {
-//                DsServiceInfoVO vo = new DsServiceInfoVO();
-//                vo.setDataInfoId(1L);
-//                vo.setDataType("MySQL");
-//                vo.setDataVersion(null);
-//                vo.setType(1);
-//                vo.setDataName("达也测试数据源");
-//                vo.setDataDesc("数据源简介");
-//                vo.setDataJson("{}");
-//                vo.setLinkJson("{}");
-//                vo.setStatus(1);
-//                vo.setIsMeta(0);
-//                vo.setGmtCreate(new Date());
-//                vo.setGmtModified(new Date());
-//                return vo;
                 return apiServiceFacade.getDsInfoById(dataInfoId);
             }
         }.execute();
@@ -285,13 +252,6 @@ public class ApiServiceController {
 
             @Override
             protected List<DsShiftReturnVO> process() throws BizException {
-//                DsShiftReturnVO vo1 = new DsShiftReturnVO();
-//                DsShiftReturnVO vo2 = new DsShiftReturnVO();
-//                vo1.setDataName("数据源1");
-//                vo1.setDataInfoId(1L);
-//                vo2.setDataName("数据源2");
-//                vo2.setDataInfoId(2L);
-//                return Arrays.asList(vo1, vo2);
                 return apiServiceFacade.editConsoleDs(consoleParam);
             }
         }.execute();
