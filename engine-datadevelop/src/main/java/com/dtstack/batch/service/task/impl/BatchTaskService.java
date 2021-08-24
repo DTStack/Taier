@@ -2360,6 +2360,9 @@ public class BatchTaskService {
         if (task.getOwnerUserId() == null) {
             task.setOwnerUserId(task.getUserId());
         }
+        if (task.getCreateUserId() == null) {
+            task.setCreateUserId(task.getUserId());
+        }
         task.setGmtCreate(task.getGmtModified());
         // 增加注释
         task.setSqlText(this.createAnnotationText(task));
