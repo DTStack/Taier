@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row, Col, Collapse, Radio, message } from 'antd';
+import { Row, Col, Collapse, Radio } from 'antd';
 import FormWrap from './scheduleForm';
 import TaskDependence from './taskDependence';
 import molecule from 'molecule/esm';
@@ -18,11 +18,12 @@ export class SchedulingConfig extends React.Component<any, any> {
             selfReliance: undefined,
         };
     }
+
     form: any;
     componentDidMount() {
         this.loadWorkflowConfig();
         const { tabData, isIncrementMode } = this.props;
-        let scheduleConf = JSON.parse(tabData.scheduleConf);
+        const scheduleConf = JSON.parse(tabData.scheduleConf);
         let selfReliance = 0;
         // 此处为兼容代码
         // scheduleConf.selfReliance兼容老代码true or false 值
@@ -224,7 +225,7 @@ export class SchedulingConfig extends React.Component<any, any> {
             tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock;
         const isWorkflowRoot = tabData.taskType == TASK_TYPE.WORKFLOW;
 
-        let initConf = tabData.scheduleConf;
+        const initConf = tabData.scheduleConf;
 
         let scheduleConf = Object.assign(this.getDefaultScheduleConf(0), {
             beginDate: '2001-01-01',
@@ -288,22 +289,22 @@ export class SchedulingConfig extends React.Component<any, any> {
                         </Panel>
                         {!isWorkflowNode &&
                             tabData.taskType !== TASK_TYPE.VIRTUAL_NODE && (
-                                <Panel key="2" header="任务间依赖">
-                                    <TaskDependence
-                                        // mock redux connect
-                                        tenant={{}}
-                                        // -------------------------- //
-                                        handleAddVOS={this.handleAddVOS.bind(
-                                            this
-                                        )}
-                                        handleDelVOS={this.handleDelVOS.bind(
-                                            this
-                                        )}
-                                        tabData={tabData}
-                                        getTaskDetail={this.props.getTaskDetail}
-                                    />
-                                </Panel>
-                            )}
+                            <Panel key="2" header="任务间依赖">
+                                <TaskDependence
+                                    // mock redux connect
+                                    tenant={{}}
+                                    // -------------------------- //
+                                    handleAddVOS={this.handleAddVOS.bind(
+                                        this
+                                    )}
+                                    handleDelVOS={this.handleDelVOS.bind(
+                                        this
+                                    )}
+                                    tabData={tabData}
+                                    getTaskDetail={this.props.getTaskDetail}
+                                />
+                            </Panel>
+                        )}
                         {!isWorkflowNode && (
                             <Panel key="3" header="跨周期依赖">
                                 <Row style={{ marginBottom: '16px' }}>

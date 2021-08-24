@@ -1,4 +1,4 @@
-import { debounce } from 'lodash';
+import { debounce, endsWith } from 'lodash';
 import moment from 'moment';
 import { browserHistory, hashHistory } from 'react-router';
 import { createLogger } from 'redux-logger';
@@ -6,6 +6,7 @@ import thunkMiddleware from 'redux-thunk';
 import { createStore, applyMiddleware, compose } from 'redux';
 import { syncHistoryWithStore } from 'react-router-redux';
 import { RDB_TYPE_ARRAY, ENGINE_SOURCE_TYPE, DATA_SOURCE } from './const';
+import { Utils } from '@dtinsight/dt-utils';
 
 // 请求防抖动
 export function debounceEventHander(func: any, wait?: number, options?: any) {
@@ -152,3 +153,185 @@ export function getStore(rootReducer: any, routeMode?: any) {
         history,
     };
 }
+
+/**
+ * 过滤sql中的注释
+ * @param {s} app
+ */
+export function filterComments (sql: string) {
+    interface FilterParser {
+        index: number;
+        queue: string;
+        comments: {
+            begin: number;
+            end: number;
+        }[];
+    }
+    // 处理引号
+    function quoteToken (parser: FilterParser, sql: string): string | undefined {
+        const queue = parser.queue;
+        const endsWith = queue[queue.length - 1];
+        if (endsWith == '\'' || endsWith == '"') {
+            const nextToken = sql.indexOf(endsWith, parser.index + 1);
+            if (nextToken != -1) {
+                parser.index = nextToken;
+                parser.queue = '';
+            } else {
+                parser.index = sql.length - 1;
+                parser.queue = '';
+            }
+        } else {
+            return '';
+        }
+    }
+    // 处理单行注释
+    function singleLineCommentToken (parser: FilterParser, sql: string): string | undefined  {
+        const queue = parser.queue;
+        if (queue.endsWith('--')) {
+            const nextToken = sql.indexOf('\n', parser.index + 1);
+            const begin = parser.index - 1;
+            if (nextToken != -1) {
+                const end = nextToken - 1;
+                parser.comments.push({
+                    begin: begin,
+                    end: end
+                })
+                parser.index = end;
+                parser.queue = '';
+            } else {
+                parser.comments.push({
+                    begin: begin,
+                    end: sql.length - 1
+                })
+                parser.index = sql.length - 1;
+                parser.queue = '';
+            }
+        } else {
+            return '';
+        }
+    }
+    // 处理多行注释
+    function multipleLineCommentToken (parser: FilterParser, sql: string): string | undefined  {
+        const queue = parser.queue;
+        if (queue.endsWith('/*')) {
+            const nextToken = sql.indexOf('*/', parser.index + 1);
+            if (nextToken != -1) {
+                parser.comments.push({
+                    begin: parser.index - 1,
+                    end: nextToken + 1
+                })
+                parser.index = nextToken;
+                parser.queue = '';
+            } else {
+                parser.index = sql.length - 1;
+                parser.queue = '';
+            }
+        } else {
+            return '';
+        }
+    }
+    const parser: FilterParser = {
+        index: 0,
+        queue: '',
+        comments: []
+    };
+    for (parser.index = 0; parser.index < sql.length; parser.index++) {
+        const char = sql[parser.index];
+        parser.queue += char;
+        const tokenFuncs = [quoteToken, singleLineCommentToken, multipleLineCommentToken];
+        for (let i = 0; i < tokenFuncs.length; i++) {
+            const err = tokenFuncs[i](parser, sql);
+            if (err) {
+                console.log(err);
+                return null;
+            }
+        }
+    }
+    sql = replaceStrFormIndexArr(sql, ' ', parser.comments)
+    return sql;
+}
+
+/**
+ * 字符串替换（根据索引数组）
+ */
+export function replaceStrFormIndexArr (str: any, replaceStr: any, indexArr: any) {
+    let result = '';
+    let index = 0;
+
+    if (!indexArr || indexArr.length < 1) {
+        return str;
+    }
+    for (let i = 0; i < indexArr.length; i++) {
+        const indexItem = indexArr[i];
+        const begin = indexItem.begin;
+
+        result = result + str.substring(index, begin) + replaceStr;
+        index = indexItem.end + 1;
+
+        if (i == indexArr.length - 1) {
+            result = result + str.substring(index);
+        }
+    }
+
+    return result;
+}
+
+/**
+ * 分割sql
+ * @param {String} sqlText
+ */
+export function splitSql (sqlText: string) {
+    if (!sqlText) {
+        return sqlText;
+    }
+    sqlText = sqlText.trim();
+    if (!endsWith(sqlText, ';')) {
+        sqlText += ';';
+    }
+
+    const results = [];
+    let index = 0;
+    let tmpChar = null;
+    for (let i = 0; i < sqlText.length; i++) {
+        const char = sqlText[i];
+
+        if (char == "'" || char == '"') {
+            if (tmpChar == char) {
+                tmpChar = null;
+            } else if (!tmpChar) {
+                tmpChar = char;
+            }
+        } else if (char == ';') {
+            if (tmpChar == null) {
+                results.push(sqlText.substring(index, i));
+                index = i + 1;
+            }
+        }
+    }
+    // 清空
+    results.push(sqlText.substring(index, sqlText.length));
+
+    return results.filter(Boolean);
+}
+
+export function filterSql (sql: any) {
+    const arr: any = [];
+    let sqls: any = filterComments(sql);
+
+    // 如果有有效内容
+    if (sqls) {
+        sqls = splitSql(sqls);
+    }
+
+    if (sqls && sqls.length > 0) {
+        for (let i = 0; i < sqls.length; i++) {
+            const sql = sqls[i];
+            const trimed = Utils.trim(sql);
+            if (trimed !== '') {
+                // 过滤语句前后空格
+                arr.push(Utils.trimlr(sql));
+            }
+        }
+    }
+    return arr;
+};

@@ -100,6 +100,21 @@ function initResourceManager() {
             title: '刷新',
             icon: 'refresh',
         },
+        {
+            id: 'menus',
+            title: '更多操作',
+            icon: 'menu',
+            contextMenu: [
+                {
+                    id: 'add',
+                    name: '新增',
+                },
+                {
+                    id: 'remove',
+                    name: '删除',
+                },
+            ],
+        },
     ];
 
     molecule.activityBar.add(resourceManager);

@@ -6,8 +6,8 @@ import Open from '../../task/open';
 import { resetEditorGroup, updateStatusBarLanguage } from '../utils';
 import DataSync from '../../dataSync';
 import ajax from '../../../api';
-import { TASK_RUN_ID } from '../utils/const';
 import { TASK_TYPE } from '../../../comm/const';
+import { FOLDERTREE_CONTEXT_EDIT, TASK_RUN_ID } from '../utils/const';
 import store from '../../../store';
 import { workbenchAction } from '../../../controller/dataSync/actionType';
 import { editorAction } from '../../../controller/editor/actionTypes';
@@ -58,6 +58,22 @@ function init() {
 
             molecule.folderTree.add(node);
         }
+    });
+}
+
+// 初始化右键菜单
+function initContenxtMenu() {
+    const { folderTree } = molecule.folderTree.getState();
+    const contextMenu = folderTree?.contextMenu?.concat() || [];
+    contextMenu.push({
+        id: FOLDERTREE_CONTEXT_EDIT,
+        name: '编辑',
+    });
+    molecule.folderTree.setState({
+        folderTree: {
+            ...folderTree,
+            contextMenu,
+        },
     });
 }
 
@@ -172,7 +188,7 @@ function onSelectFile() {
                         data: {
                             ...data,
                             value: data.sqlText,
-                            language: 'sql',
+                            language: 'sparksql',
                             taskDesc: file.data.taskDesc,
                         },
                         breadcrumb:
@@ -243,8 +259,81 @@ function onSelectFile() {
 export default class FolderTreeExtension implements IExtension {
     activate() {
         init();
+        initContenxtMenu();
 
         createTask();
         onSelectFile();
+
+        molecule.folderTree.onContextMenu((treeNode, menu) => {
+            switch (menu.id) {
+                case FOLDERTREE_CONTEXT_EDIT: {
+                    console.log('treeNode:', treeNode);
+                    resetEditorGroup();
+
+                    const onSubmit = (values: any) => {
+                        return new Promise<boolean>((resolve)=> {
+                            // addOfflineTask(values, isEditExist, defaultData)
+                            const params = { ...values, nodePid: 233, computeType: 1, isUseComponent: 0, lockVersion: 0, version: 0, componentVersion: '2.1' }
+                            ajax.addOfflineTask(params)
+                                .then((res: any) => {
+                                    if (res.code === 1) {
+                                        const { data } = res;
+                                        const { id, name } = data;
+                                        molecule.editor.closeTab(tabId, 1);
+                                        molecule.explorer.forceUpdate();
+                                        const node = new TreeNodeModel({
+                                            id,
+                                            name,
+                                            fileType: FileTypes.File,
+                                            isLeaf: true,
+                                            data: {
+                                                ...data,
+                                                language: 'sql',
+                                            },
+                                        });
+            
+                                        molecule.folderTree.add(node, 233);
+            
+                                        const { current } = molecule.editor.getState();
+                                        if (current?.tab?.data.taskType === TASK_TYPE.SQL) {
+                                            molecule.editor.updateActions([
+                                                { id: TASK_RUN_ID, disabled: false },
+                                            ]);
+                                        }
+                                    }
+                                })
+                                .finally(() => {
+                                    resolve(false)
+                                })
+                        })
+                        
+                    };
+
+                    const tabId = `createTask_${new Date().getTime()}`;
+
+                    const tabData = {
+                        id: tabId,
+                        modified: false,
+                        data: {},
+                        name: localize('create task', '新建任务'),
+                        renderPane: () => {
+                            return <Open onSubmit={onSubmit} />;
+                        },
+                    };
+
+                    const { groups = [] } = molecule.editor.getState();
+                    const isExist = groups.some((group) =>
+                        group.data?.some((tab) => tab.id === tabId)
+                    );
+                    if (!isExist) {
+                        molecule.editor.open(tabData);
+                        molecule.explorer.forceUpdate();
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+        });
     }
 }

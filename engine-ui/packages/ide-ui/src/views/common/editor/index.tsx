@@ -17,7 +17,7 @@ import {
     OUTPUT_LOG,
 } from '../utils/const';
 import store from '../../../store';
-import { matchTaskParams } from '../../../comm';
+import { matchTaskParams, filterSql } from '../../../comm';
 import { TASK_TYPE } from '../../../comm/const';
 import { debounce } from 'lodash';
 import { execSql, stopSql } from '../../../controller/editor/editorAction';
@@ -134,7 +134,7 @@ function emitEvent() {
                     };
 
                     // [TODO]
-                    const sqls = [currentTab?.data.value];
+                    const sqls = filterSql(currentTab?.data.value);
                     execSql(
                         currentTab?.id,
                         task,
