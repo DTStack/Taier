@@ -4,7 +4,6 @@ echo 'DAGSchedulex Building...'
 mvn clean package -DskipTests  -pl \
 engine-common,\
 engine-worker/engine-plugins/dummy,\
-engine-worker/engine-plugins/common/gateway-python,\
 engine-worker/engine-plugins/flink/common,\
 engine-worker/engine-plugins/flink/yarn3-hdfs3-flink180,\
 engine-worker/engine-plugins/flink/yarn2-hdfs2-flink180,\
