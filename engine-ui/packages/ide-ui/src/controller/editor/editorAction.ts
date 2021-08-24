@@ -11,14 +11,12 @@ import {
 import { editorAction } from './actionTypes';
 import {
     checkExist,
-    createLinkMark,
-    createLog,
-    createTitle,
     isLibraEngine,
     isTiDBEngine,
     isOracleEngine,
     isGreenPlumEngine,
 } from '../../comm';
+import { createLinkMark, createLog, createTitle } from 'dt-react-codemirror-editor';
 
 enum SQLType {
     Normal = 0,

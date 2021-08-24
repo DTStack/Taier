@@ -4,13 +4,10 @@ import molecule from 'molecule';
 import {
     getEditorInitialActions,
     IExtension,
-    PANEL_OUTPUT,
 } from 'molecule/esm/model';
 import { searchById } from 'molecule/esm/services/helper';
 import { workbenchActions } from '../../../controller/dataSync/offlineAction';
 import { resetEditorGroup } from '../utils';
-// import Result from '../../task/result';
-import ajax from '../../../api';
 import {
     TASK_RUN_ID,
     TASK_STOP_ID,
@@ -21,6 +18,7 @@ import {
 } from '../utils/const';
 import store from '../../../store';
 import { matchTaskParams } from '../../../comm';
+import { TASK_TYPE } from '../../../comm/const';
 import { debounce } from 'lodash';
 import { execSql, stopSql } from '../../../controller/editor/editorAction';
 
@@ -200,7 +198,7 @@ export default class EditorExtension implements IExtension {
             const group = molecule.editor.getGroupById(groupId || current.id!);
             if (group) {
                 const targetTab = group.data?.find(searchById(tabId));
-                if (targetTab?.data.taskType === 'SparkSql') {
+                if (targetTab?.data.taskType === TASK_TYPE.SQL) {
                     molecule.editor.updateActions([
                         { id: TASK_RUN_ID, disabled: false },
                     ]);
@@ -212,7 +210,7 @@ export default class EditorExtension implements IExtension {
 
         molecule.editor.onCloseTab(() => {
             const { current } = molecule.editor.getState();
-            if (current?.tab?.data.taskType === 'SparkSql') {
+            if (current?.tab?.data.taskType === TASK_TYPE.SQL) {
                 molecule.editor.updateActions([
                     { id: TASK_RUN_ID, disabled: false },
                 ]);

@@ -7,6 +7,7 @@ import { resetEditorGroup, updateStatusBarLanguage } from '../utils';
 import DataSync from '../../dataSync';
 import ajax from '../../../api';
 import { TASK_RUN_ID } from '../utils/const';
+import { TASK_TYPE } from '../../../comm/const';
 import store from '../../../store';
 import { workbenchAction } from '../../../controller/dataSync/actionType';
 import { editorAction } from '../../../controller/editor/actionTypes';
@@ -42,16 +43,17 @@ function init() {
         userId: 1,
     }).then((res) => {
         if (res.code === 1) {
-            console.log(res, 111);
-            const { id, name, children } = res.data;
+            const {  children } = res.data;
+            const devData = children.filter((item: any) => item.catalogueType === 'TaskManager')[0].children[0]
+            const { id, name, children: child } = devData;
             // 根目录
             const node = new TreeNodeModel({
                 id,
                 name: name || '数据开发',
                 location: name,
                 fileType: FileTypes.RootFolder,
-                data: res.data,
-                children: convertToTreeNode(children),
+                data: devData,
+                children: convertToTreeNode(child),
             });
 
             molecule.folderTree.add(node);
@@ -65,28 +67,43 @@ function createTask() {
             resetEditorGroup();
 
             const onSubmit = (values: any) => {
-                const { name, ...rest } = values;
-                molecule.editor.closeTab(tabId, 1);
-                molecule.explorer.forceUpdate();
-                const node = new TreeNodeModel({
-                    id: new Date().getTime(),
-                    name,
-                    fileType: FileTypes.File,
-                    isLeaf: true,
-                    data: {
-                        ...rest,
-                        language: 'sql',
-                    },
-                });
-
-                molecule.folderTree.add(node, id);
-
-                const { current } = molecule.editor.getState();
-                if (current?.tab?.data.taskType === 'SparkSql') {
-                    molecule.editor.updateActions([
-                        { id: TASK_RUN_ID, disabled: false },
-                    ]);
-                }
+                return new Promise<boolean>((resolve)=> {
+                    const { name, ...rest } = values;
+                    // addOfflineTask(values, isEditExist, defaultData)
+                    const params = { ...values, nodePid: 233, computeType: 1, isUseComponent: 0, lockVersion: 0, version: 0, componentVersion: '2.1' }
+                    ajax.addOfflineTask(params)
+                        .then((res: any) => {
+                            if (res.code === 1) {
+                                const { data } = res;
+                                const { id } = data;
+                                molecule.editor.closeTab(tabId, 1);
+                                molecule.explorer.forceUpdate();
+                                const node = new TreeNodeModel({
+                                    id,
+                                    name,
+                                    fileType: FileTypes.File,
+                                    isLeaf: true,
+                                    data: {
+                                        ...rest,
+                                        language: 'sql',
+                                    },
+                                });
+    
+                                molecule.folderTree.add(node, id);
+    
+                                const { current } = molecule.editor.getState();
+                                if (current?.tab?.data.taskType === TASK_TYPE.SQL) {
+                                    molecule.editor.updateActions([
+                                        { id: TASK_RUN_ID, disabled: false },
+                                    ]);
+                                }
+                            }
+                        })
+                        .finally(() => {
+                            resolve(false)
+                        })
+                })
+                
             };
 
             const tabId = `createTask_${new Date().getTime()}`;
@@ -129,7 +146,7 @@ function createTask() {
 
 function onSelectFile() {
     molecule.folderTree.onSelectFile((file) => {
-        if (file.data.taskType === 'SparkSql') {
+        if (file.data.taskType === TASK_TYPE.SQL) {
             const id = file.id;
             ajax.getOfflineTaskByID({ id }).then((res) => {
                 const { success, data } = res;
@@ -171,7 +188,7 @@ function onSelectFile() {
                     ]);
                 }
             });
-        } else if (file.data.taskType === 'DataSync') {
+        } else if (file.data.taskType === TASK_TYPE.SYNC) {
             const id = file.id;
             ajax.getOfflineTaskByID({ id }).then((res) => {
                 const { success, data } = res;

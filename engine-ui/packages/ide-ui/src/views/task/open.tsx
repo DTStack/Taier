@@ -3,6 +3,7 @@ import React from 'react';
 import { Button, Form, Input, Select } from 'antd';
 import { WrappedFormUtils } from 'antd/lib/form/Form';
 import FormItem from 'antd/lib/form/FormItem';
+import { TASK_TYPE } from '../../comm/const';
 
 const Option = Select.Option;
 
@@ -31,33 +32,49 @@ const tailFormItemLayout = {
 
 interface OpenProps {
     currentId?: number;
-    onSubmit?: (values: any) => void;
+    onSubmit?: (values: any) => Promise<boolean>;
     form: WrappedFormUtils<any>;
 }
 
 const taskType = [
     {
-        value: 'SparkSql',
+        value: TASK_TYPE.SQL,
         text: 'SparkSql',
     },
     {
-        value: 'DataSync',
+        value: TASK_TYPE.SYNC,
         text: '数据同步',
     },
 ];
 
 class Open extends React.PureComponent<OpenProps, {}> {
+    state = {
+        loading: false
+    }
+
     handleSubmit = (e: any) => {
         e.preventDefault();
         this.props.form.validateFieldsAndScroll((err, values) => {
             if (!err) {
-                this.props.onSubmit?.(values);
+                this.setState({
+                    loading: true
+                }, () => {
+                    this.props.onSubmit?.(values)
+                        .then((loading) => {
+                            this.setState({
+                                loading
+                            })
+                        })
+                   
+                })
+                
             }
         });
     };
 
     render() {
         const { getFieldDecorator } = this.props.form;
+        const { loading } = this.state;
         return (
             <Form onSubmit={this.handleSubmit} className="mo-open-task">
                 <FormItem {...formItemLayout} label="任务名称">
@@ -91,20 +108,14 @@ class Open extends React.PureComponent<OpenProps, {}> {
                     )}
                 </FormItem>
                 <FormItem {...formItemLayout} label="存储位置">
-                    {getFieldDecorator('taskType', {
+                    {getFieldDecorator('nodePid', {
                         rules: [
                             {
                                 required: true,
                             },
                         ],
                     })(
-                        <Select>
-                            {taskType.map((type) => (
-                                <Option key={type.value} value={type.value}>
-                                    {type.text}
-                                </Option>
-                            ))}
-                        </Select>
+                        <Input />
                     )}
                 </FormItem>
                 <FormItem {...formItemLayout} label="描述" hasFeedback>
@@ -118,7 +129,7 @@ class Open extends React.PureComponent<OpenProps, {}> {
                     })(<Input.TextArea disabled={false} rows={4} />)}
                 </FormItem>
                 <FormItem {...tailFormItemLayout}>
-                    <Button type="primary" htmlType="submit">
+                    <Button type="primary" htmlType="submit" loading={loading}>
                         Submit
                     </Button>
                 </FormItem>

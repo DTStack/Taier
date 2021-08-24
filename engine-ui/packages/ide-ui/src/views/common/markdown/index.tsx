@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { workbenchActions } from '../../../controller/dataSync/offlineAction';
 import * as editorActions from '../../../controller/dataSync/workbench';
+import 'dt-react-codemirror-editor/lib/codemirror/style.css'
 
 @(connect(
     (state: any) => {

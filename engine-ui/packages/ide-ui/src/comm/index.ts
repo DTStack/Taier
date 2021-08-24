@@ -7,32 +7,6 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import { syncHistoryWithStore } from 'react-router-redux';
 import { RDB_TYPE_ARRAY, ENGINE_SOURCE_TYPE, DATA_SOURCE } from './const';
 
-// 日志下载
-export function createLinkMark( title: string, attrs: string) {
-    return `[${title}]${JSON.stringify(attrs)}\n`;
-}
-
-/**
- * dtlog日志构造器
- * @param {string} log 日志内容
- * @param {string} type 日志类型
- */
-export function createLog(log: string, type = '') {
-    let now = moment().format('HH:mm:ss');
-    if (process.env.NODE_ENV === 'test') {
-        now = 'test';
-    }
-    return `[${now}] <${type}> ${log}`;
-}
-
-export function createTitle(title = '') {
-    const baseLength = 15;
-    const offsetLength = Math.floor((1.5 * title.length) / 2);
-    const arr = new Array(Math.max(baseLength - offsetLength, 5));
-    const wraptext = arr.join('=');
-    return `${wraptext}${title}${wraptext}`;
-}
-
 // 请求防抖动
 export function debounceEventHander(func: any, wait?: number, options?: any) {
     const debounced = debounce(func, wait, options);
