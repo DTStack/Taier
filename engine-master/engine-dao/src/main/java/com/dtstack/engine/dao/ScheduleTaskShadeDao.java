@@ -20,16 +20,17 @@ public interface ScheduleTaskShadeDao {
 
     ScheduleTaskShade getOne(@Param("taskId") long taskId , @Param("appType")Integer appType);
 
-    List<ScheduleTaskShade> listTaskByStatus(@Param("startId") Long startId, @Param("submitStatus") Integer submitStatus, @Param("projectScheduleStatus") Integer projectScheduleStatus, @Param("batchTaskSize") Integer batchTaskSize);
+    List<ScheduleTaskShade> listTaskByStatus(@Param("startId") Long startId, @Param("submitStatus") Integer submitStatus, @Param("projectScheduleStatus") Integer projectScheduleStatus, @Param("batchTaskSize") Integer batchTaskSize
+    ,@Param("projectIds")Collection<Long> projectIds, @Param("appType")Integer appType);
 
-    Integer countTaskByStatus(@Param("submitStatus") Integer submitStatus, @Param("projectScheduleStatus") Integer projectScheduleStatus);
+    Integer countTaskByStatus(@Param("submitStatus") Integer submitStatus, @Param("projectScheduleStatus") Integer projectScheduleStatus,@Param("projectIds")Collection<Long> projectIds, @Param("appType")Integer appType);
 
     List<ScheduleTaskShadeCountTaskVO> countTaskByType(@Param("tenantId") Long tenantId, @Param("dtuicTenantId") Long dtuicTenantId, @Param("projectIds")List<Long> projectIds, @Param("appType")Integer appType, @Param("taskTypes")List<Integer> taskTypes,
                                                        @Param("flowId") Long flowId);
 
     List<ScheduleTaskShade> listByTaskIds(@Param("taskIds") Collection<Long> taskIds, @Param("isDeleted") Integer isDeleted, @Param("appType")Integer appType);
 
-    List<ScheduleTaskShade> listByNameLike(@Param("projectId") long projectId, @Param("name") String name, @Param("appType")Integer appType, @Param("ownerId") Long ownerId, @Param("projectIds") List<Long> projectIds);
+    List<ScheduleTaskShade> listByNameLike(@Param("projectId") Long projectId, @Param("name") String name, @Param("appType")Integer appType, @Param("ownerId") Long ownerId, @Param("projectIds") List<Long> projectIds);
 
     List<ScheduleTaskShade> listByNameLikeWithSearchType(@Param("projectId") Long projectId, @Param("name") String name, @Param("appType")Integer appType,
                                                    @Param("ownerId") Long ownerId, @Param("projectIds") List<Long> projectIds,@Param("searchType")Integer searchType);
@@ -96,7 +97,7 @@ public interface ScheduleTaskShadeDao {
 
     void updateProjectScheduleStatus(@Param("projectId")Long projectId,@Param("appType")Integer appType,@Param("scheduleStatus") Integer scheduleStatus);
 
-    List<ScheduleTaskShade> findFuzzyTaskNameByCondition(@Param("name") String name, @Param("appType") Integer appType, @Param("uicTenantId") Long uicTenantId, @Param("projectId") Long projectId, @Param("fuzzyProjectByProjectAliasLimit") Integer fuzzyProjectByProjectAliasLimit);
+    List<ScheduleTaskShade> findFuzzyTaskNameByCondition(@Param("name") String name, @Param("appType") Integer appType, @Param("uicTenantId") Long uicTenantId, @Param("projectId") Long projectId, @Param("fuzzyProjectByProjectAliasLimit") Integer fuzzyProjectByProjectAliasLimit,@Param("projectScheduleStatus") Integer projectScheduleStatus);
 
     List<ScheduleTaskShade> getChildTaskByOtherPlatform(@Param("taskId") Long taskId, @Param("appType") Integer appType, @Param("limit") Integer limit);
 

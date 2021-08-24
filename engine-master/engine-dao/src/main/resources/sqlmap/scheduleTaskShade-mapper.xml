@@ -30,6 +30,10 @@
             <if test="model.tenantId != null">
                 AND tenant_id = #{model.tenantId}
             </if>
+
+            <if test="model.dtuicTenantId != null and model.dtuicTenantId != 0">
+                AND dtuic_tenant_id = #{model.dtuicTenantId}
+            </if>
             <if test="model.projectId != null">
                 AND project_id = #{model.projectId}
             </if>
@@ -249,6 +253,15 @@
         <include refid="select_content_fragment_with_sql"/>
         FROM schedule_task_shade
         WHERE id > #{startId} AND submit_status = #{submitStatus} and project_schedule_status = #{projectScheduleStatus} and is_deleted = 0
+        <if test="appType != null">
+            and app_type = #{appType}
+        </if>
+        <if test="projectIds != null and projectIds.size() > 0">
+            and   project_id in
+            <foreach collection="projectIds" open="(" separator="," close=")" item="projectId">
+                #{projectId}
+            </foreach>
+        </if>
         order by id asc
         limit #{batchTaskSize}
     </select>
@@ -258,6 +271,15 @@
         count(1)
         FROM schedule_task_shade
         WHERE submit_status = #{submitStatus} and project_schedule_status = #{projectScheduleStatus} and is_deleted = 0
+        <if test="appType != null">
+            and app_type = #{appType}
+        </if>
+        <if test="projectIds != null and projectIds.size() > 0">
+            and   project_id in
+            <foreach collection="projectIds" open="(" separator="," close=")" item="projectId">
+                #{projectId}
+            </foreach>
+        </if>
     </select>
 
     <select id="listByTaskIds" resultType="ScheduleTaskShade">
@@ -285,7 +307,7 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_task_shade
-        WHERE project_id = #{projectId}  and is_deleted = 0 and app_type = #{appType}
+        WHERE is_deleted = 0 and app_type = #{appType}
         <if test="ownerId!=null">
            AND owner_user_id = #{ownerId}
         </if>
@@ -308,7 +330,7 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_task_shade
-        WHERE project_id = #{projectId}  and is_deleted = 0 and app_type = #{appType}
+        WHERE is_deleted = 0 and app_type = #{appType}
         <if test="ownerId!=null">
             AND owner_user_id = #{ownerId}
         </if>
@@ -750,8 +772,9 @@
         <include refid="simple_select_content_fragment"/>
         FROM `schedule_task_shade`
         WHERE `dtuic_tenant_id` = #{uicTenantId} AND `app_type` = #{appType} AND `project_id` = #{projectId} AND is_deleted = 0 AND flow_id = 0
+        AND `project_schedule_status` = #{projectScheduleStatus}
         <if test="name !=null">
-            AND `name` LIKE '${name}%'
+            AND `name` LIKE '%${name}%'
         </if>
         LIMIT #{fuzzyProjectByProjectAliasLimit}
 

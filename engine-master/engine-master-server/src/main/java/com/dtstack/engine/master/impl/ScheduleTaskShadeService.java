@@ -14,6 +14,7 @@ import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskV
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
 import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
+import com.dtstack.engine.api.vo.task.TaskTypeVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EScheduleStatus;
@@ -85,6 +86,9 @@ public class ScheduleTaskShadeService {
 
     @Autowired
     private ScheduleDictDao scheduleDictDao;
+
+    @Autowired
+    private UserService userService;
 
     /**
      * web 接口
@@ -174,12 +178,12 @@ public class ScheduleTaskShadeService {
     /**
      * 获取所有需要需要生成调度的task 没有sqlText字段
      */
-    public List<ScheduleTaskShade> listTaskByStatus(Long startId, Integer submitStatus, Integer projectSubmitStatus, Integer batchTaskSize) {
-        return scheduleTaskShadeDao.listTaskByStatus(startId, submitStatus, projectSubmitStatus, batchTaskSize);
+    public List<ScheduleTaskShade> listTaskByStatus(Long startId, Integer submitStatus, Integer projectSubmitStatus, Integer batchTaskSize,Collection<Long> projectIds,Integer appType) {
+        return scheduleTaskShadeDao.listTaskByStatus(startId, submitStatus, projectSubmitStatus, batchTaskSize,projectIds,appType);
     }
 
-    public Integer countTaskByStatus(Integer submitStatus, Integer projectSubmitStatus) {
-        return scheduleTaskShadeDao.countTaskByStatus(submitStatus, projectSubmitStatus);
+    public Integer countTaskByStatus(Integer submitStatus, Integer projectSubmitStatus,Collection<Long> projectIds,Integer appType) {
+        return scheduleTaskShadeDao.countTaskByStatus(submitStatus, projectSubmitStatus,projectIds,appType);
     }
 
     /**
@@ -345,6 +349,7 @@ public class ScheduleTaskShadeService {
 
 
     public ScheduleTaskShadePageVO queryTasks(Long tenantId,
+                                              Long dtTenantId,
                                               Long projectId,
                                               String name,
                                               Long ownerId,
@@ -354,7 +359,8 @@ public class ScheduleTaskShadeService {
                                               String taskTypeList,
                                               String periodTypeList,
                                               Integer currentPage,
-                                              Integer pageSize, String  searchType,
+                                              Integer pageSize,
+                                              String  searchType,
                                               Integer appType){
 
 
@@ -369,7 +375,7 @@ public class ScheduleTaskShadeService {
             //过滤掉任务流中的子任务
             batchTaskDTO.setFlowId(0L);
         }
-        setBatchTaskDTO(tenantId, projectId, name, ownerId, startTime, endTime, scheduleStatus, taskTypeList, periodTypeList, searchType, batchTaskDTO,appType);
+        setBatchTaskDTO(tenantId,dtTenantId, projectId, name, ownerId, startTime, endTime, scheduleStatus, taskTypeList, periodTypeList, searchType, batchTaskDTO,appType);
         PageQuery<ScheduleTaskShadeDTO> pageQuery = new PageQuery<>(currentPage, pageSize, "gmt_modified", Sort.DESC.name());
         pageQuery.setModel(batchTaskDTO);
         ScheduleTaskShadePageVO scheduleTaskShadeTaskVO = new ScheduleTaskShadePageVO();
@@ -392,10 +398,14 @@ public class ScheduleTaskShadeService {
             //默认不查询全部工作流子节点
             //vos = dealFlowWorkTasks(vos);
         }
+
+        userService.fillUser(vos);
         PageResult<List<ScheduleTaskVO>> pageResult = new PageResult<>(vos, count, pageQuery);
         scheduleTaskShadeTaskVO.setPageResult(pageResult);
         return scheduleTaskShadeTaskVO;
     }
+
+
 
 
     /**
@@ -415,9 +425,10 @@ public class ScheduleTaskShadeService {
      * @param batchTaskDTO:
      * @return: void
      **/
-    private void setBatchTaskDTO(Long tenantId, Long projectId, String name, Long ownerId, Long startTime, Long endTime, Integer scheduleStatus,
-                                 String taskTypeList, String periodTypeList, String searchType, ScheduleTaskShadeDTO batchTaskDTO,Integer appType) {
+    private void setBatchTaskDTO(Long tenantId,Long dtTenantId, Long projectId, String name, Long ownerId, Long startTime, Long endTime, Integer scheduleStatus, String taskTypeList, String periodTypeList, String searchType, ScheduleTaskShadeDTO batchTaskDTO,Integer appType) {
         batchTaskDTO.setTenantId(tenantId);
+        batchTaskDTO.setDtuicTenantId(dtTenantId);
+        batchTaskDTO.setAppType(appType);
         batchTaskDTO.setProjectId(projectId);
         batchTaskDTO.setSubmitStatus(ESubmitStatus.SUBMIT.getStatus());
         batchTaskDTO.setTaskTypeList(convertStringToList(taskTypeList));
@@ -857,7 +868,7 @@ public class ScheduleTaskShadeService {
         if (StringUtils.isBlank(name)) {
             return buildTypeVo(null);
         }
-        List<ScheduleTaskShade> tasks = scheduleTaskShadeDao.findFuzzyTaskNameByCondition(name, appType, uicTenantId, projectId, environmentContext.getFuzzyProjectByProjectAliasLimit());
+        List<ScheduleTaskShade> tasks = scheduleTaskShadeDao.findFuzzyTaskNameByCondition(name, appType, uicTenantId, projectId, environmentContext.getFuzzyProjectByProjectAliasLimit(),EProjectScheduleStatus.NORMAL.getStatus());
 
         return buildTypeVo(tasks);
     }
@@ -1100,5 +1111,18 @@ public class ScheduleTaskShadeService {
             throw new RdosDefineException(cronExceptionVO.getErrMessage());
         }
 
+    }
+
+    public List<TaskTypeVO> getTaskType() {
+        EScheduleJobType[] values = EScheduleJobType.values();
+        List<TaskTypeVO> taskTypeVOS = Lists.newArrayList();
+        for (EScheduleJobType value : values) {
+            TaskTypeVO vo = new TaskTypeVO();
+            vo.setCode(value.getType());
+            vo.setName(value.getName());
+            vo.setEnumName(value.name());
+            taskTypeVOS.add(vo);
+        }
+        return taskTypeVOS;
     }
 }

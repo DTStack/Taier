@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
  * author: toutian
  * create: 2018/7/16
  */
-@Service("engineTenantService")
+@Service
 public class TenantService {
 
     private static Logger LOGGER = LoggerFactory.getLogger(TenantService.class);

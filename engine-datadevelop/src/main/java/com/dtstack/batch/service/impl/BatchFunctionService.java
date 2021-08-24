@@ -34,6 +34,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -72,7 +73,7 @@ public class BatchFunctionService {
     @Autowired
     private BatchCatalogueDao batchCatalogueDao;
 
-    @Autowired
+    @Resource(name = "batchTenantService")
     private TenantService tenantService;
 
     /**

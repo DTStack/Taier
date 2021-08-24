@@ -1,7 +1,7 @@
 package com.dtstack.engine.datasource.dao.mapper.datasource;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.dtstack.engine.datasource.dao.bo.datasource.DsAuthRefBO;
+import com.dtstack.engine.datasource.dao.mapper.IMapper;
 import com.dtstack.engine.datasource.dao.po.datasource.DsAuthRef;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -14,7 +14,7 @@ import java.util.List;
  * create: 2021/5/10
  */
 @Mapper
-public interface DsAuthRefMapper extends BaseMapper<DsAuthRef> {
+public interface DsAuthRefMapper extends IMapper<DsAuthRef> {
 
     List<DsAuthRefBO> mapDaIdName(@Param("dataInfoIds") List<Long> dataInfoIds);
 

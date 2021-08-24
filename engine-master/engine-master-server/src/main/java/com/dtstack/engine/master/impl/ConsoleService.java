@@ -85,7 +85,7 @@ public class ConsoleService {
     @Autowired
     private TenantDao tenantDao;
 
-    @Resource(name = "engineTenantService")
+    @Autowired
     private TenantService tenantService;
 
     @Autowired

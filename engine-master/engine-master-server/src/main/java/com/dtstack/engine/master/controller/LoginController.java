@@ -52,10 +52,10 @@ public class LoginController {
             throw new RdosDefineException("password not exist");
         }
         DtUicUser uicUser = new DtUicUser();
-        uicUser.setUserId(-1L);
+        uicUser.setUserId(1L);
         uicUser.setUserName(USERNAME);
-        uicUser.setTenantId(-1L);
-        uicUser.setTenantName("");
+        uicUser.setTenantId(1L);
+        uicUser.setTenantName("DAGScheduleX");
         loginService.onAuthenticationSuccess(request, response, uicUser);
         return uicUser.getUserName();
     }

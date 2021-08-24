@@ -10,16 +10,10 @@ import lombok.Data;
 public class PubSvcBaseParam extends DtInsightAuthParam {
 
     @ApiModelProperty(hidden = true)
-    private Long userId;
-
-    @ApiModelProperty(hidden = true)
-    private Long dtuicTenantId;
-
-    @ApiModelProperty(hidden = true)
-    private Long dtuicUserId;
-
-    @ApiModelProperty(hidden = true)
     private Long tenantId;
+
+    @ApiModelProperty(hidden = true)
+    private Long userId;
 
     @ApiModelProperty(hidden = true)
     private String dtToken;

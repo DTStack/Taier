@@ -12,7 +12,7 @@ import com.dtstack.batch.engine.rdbms.service.ITableService;
 import com.dtstack.batch.engine.rdbms.service.impl.Engine2DTOService;
 import com.dtstack.batch.mapping.DataSourceTypeJobTypeMapping;
 import com.dtstack.batch.service.datasource.impl.BatchDataSourceService;
-import com.dtstack.batch.service.impl.UserService;
+import com.dtstack.batch.service.impl.BatchUserService;
 import com.dtstack.batch.service.project.IProjectService;
 import com.dtstack.batch.vo.ProjectEngineVO;
 import com.dtstack.dtcenter.common.annotation.Forbidden;
@@ -54,7 +54,7 @@ public class HadoopProjectService implements IProjectService {
     private BatchDataSourceService batchDataSourceService;
 
     @Autowired
-    private UserService userService;
+    private BatchUserService batchUserService;
 
     @Autowired
     private MultiEngineService multiEngineService;
@@ -113,7 +113,7 @@ public class HadoopProjectService implements IProjectService {
     @Forbidden
     private void initDefaultSource(Long dtuicTenantId, Long projectId, String projectName, Integer dataSourceType, String projectDesc, Long tenantId, Long userId, String dbName) throws IOException, SftpException {
         Long dtUiceUser = null;
-        User user = userService.getUser(userId);
+        User user = batchUserService.getUser(userId);
         if (user != null) {
             dtUiceUser = user.getDtuicUserId();
         }

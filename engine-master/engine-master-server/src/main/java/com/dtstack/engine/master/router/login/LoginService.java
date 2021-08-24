@@ -79,20 +79,32 @@ public class LoginService {
         Objects.requireNonNull(request);
         Objects.requireNonNull(response);
         Objects.requireNonNull(user);
+
+        String token = tokenService.encryption(user.getUserId(), user.getUserName(), user.getTenantId());
+        cookieService.addCookie(request, response, Cookies.DT_USER_ID, user.getUserId());
+        cookieService.addCookie(request, response, Cookies.DT_USER_NAME, user.getUserName());
+        cookieService.addCookie(request, response, Cookies.DT_TOKEN, token);
+        cookieService.addCookie(request, response, Cookies.DT_PROJECT_ID, 1);
+        cookieService.addCookie(request, response, Cookies.DT_PROJECT_NAME, "DAGScheduleX");
+        cookieService.addCookie(request, response, Cookies.DT_APPTYPE_ID, 1);
+
+        cookieService.addCookie(request, response, Cookies.TOKEN, token);
         cookieService.addCookie(request, response, Cookies.USER_ID, user.getUserId());
-        cookieService.addCookie(request, response, Cookies.USER_NAME, user.getUserName());
-        cookieService.addCookie(request, response, Cookies.DT_TOKEN, tokenService.encryption(user.getUserId(), user.getUserName(), user.getTenantId()));
+        cookieService.addCookie(request, response, Cookies.PROJECT_ID, 1);
+        cookieService.addCookie(request, response, Cookies.TENANT_ID, user.getTenantId());
 
         Set<String> clearCookies = new HashSet<>();
-        clearCookies.add(Cookies.TENANT_IS_CREATOR);
-        clearCookies.add(Cookies.TENANT_IS_ADMIN);
+        clearCookies.add(Cookies.DT_TENANT_IS_CREATOR);
+        clearCookies.add(Cookies.DT_TENANT_IS_ADMIN);
 
-        if (Objects.nonNull(user.getTenantId())) {
-            cookieService.addCookie(request, response, Cookies.TENANT_ID, user.getTenantId());
-            cookieService.addCookie(request, response, Cookies.TENANT_NAME, user.getTenantName());
+        if (null != user.getTenantId()) {
+            cookieService.addCookie(request, response, Cookies.DT_TENANT_ID, user.getTenantId());
+            cookieService.addCookie(request, response, Cookies.DT_TENANT_NAME, user.getTenantName());
+            cookieService.addCookie(request, response, Cookies.TENANT_ID, 1);
         } else {
+            clearCookies.add(Cookies.DT_TENANT_ID);
+            clearCookies.add(Cookies.DT_TENANT_NAME);
             clearCookies.add(Cookies.TENANT_ID);
-            clearCookies.add(Cookies.TENANT_NAME);
         }
         Cookie[] cookies = request.getCookies();
         if (cookies != null && cookies.length > 0) {

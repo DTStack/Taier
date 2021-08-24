@@ -4,6 +4,8 @@ import com.dtstack.engine.api.domain.Cluster;
 import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.Engine;
 import com.dtstack.engine.api.domain.EngineTenant;
+import com.dtstack.engine.api.vo.ComponentMultiVersionVO;
+import com.dtstack.engine.api.vo.ComponentVO;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -13,6 +15,7 @@ import com.dtstack.engine.dao.EngineDao;
 import com.dtstack.engine.dao.EngineTenantDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.utils.ValueUtils;
+import org.assertj.core.util.Lists;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,4 +108,31 @@ public class ComponentServiceTest extends AbstractTest {
         }
 
     }
+
+    @Test
+    public void testTwoSpark(){
+        ComponentMultiVersionVO componentVO = new ComponentMultiVersionVO();
+
+        ComponentVO spark210 = new ComponentVO();
+        spark210.setHadoopVersion("210");
+
+        ComponentVO spark240 = new ComponentVO();
+        spark240.setHadoopVersion("240");
+        spark240.setIsDefault(true);
+
+        componentVO.setMultiVersion(Lists.newArrayList(spark210,spark240));
+        ComponentVO component = componentVO.getComponent(null);
+
+        Assert.assertNotNull(component);
+        Assert.assertNotNull(component.getHadoopVersion());
+        Assert.assertEquals(component.getHadoopVersion(),"240");
+
+        ComponentVO versionComponent = componentVO.getComponent("210");
+
+        Assert.assertNotNull(versionComponent);
+        Assert.assertNotNull(versionComponent.getHadoopVersion());
+        Assert.assertEquals(versionComponent.getHadoopVersion(),"210");
+    }
+
+
 }

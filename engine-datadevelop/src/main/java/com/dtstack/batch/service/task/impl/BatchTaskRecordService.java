@@ -5,7 +5,7 @@ import com.dtstack.batch.domain.BatchTaskRecord;
 import com.dtstack.batch.dto.BatchTaskRecordDTO;
 import com.dtstack.batch.enums.TaskOperateType;
 import com.dtstack.batch.mapstruct.vo.TaskMapstructTransfer;
-import com.dtstack.batch.service.impl.UserService;
+import com.dtstack.batch.service.impl.BatchUserService;
 import com.dtstack.batch.vo.BatchTaskRecordVO;
 import com.dtstack.batch.web.pager.PageQuery;
 import com.dtstack.batch.web.pager.PageResult;
@@ -24,7 +24,7 @@ public class BatchTaskRecordService {
     private BatchTaskRecordDao batchTaskRecordDao;
 
     @Autowired
-    private UserService userService;
+    private BatchUserService batchUserService;
 
     public void saveTaskRecord(BatchTaskRecord record) {
         batchTaskRecordDao.insert(record);
@@ -64,7 +64,7 @@ public class BatchTaskRecordService {
                     continue;
                 }
                 tmpId = record.getOperatorId();
-                tmpName = userService.getUserName(tmpId);
+                tmpName = batchUserService.getUserName(tmpId);
                 vo.setOperatorName(tmpName);
             }
             vos.add(vo);

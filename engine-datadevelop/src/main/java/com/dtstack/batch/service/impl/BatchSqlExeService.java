@@ -53,6 +53,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -68,10 +69,10 @@ public class BatchSqlExeService {
 
     public static Logger LOG = LoggerFactory.getLogger(BatchSqlExeService.class);
 
-    @Autowired
+    @Resource(name = "batchProjectService")
     private ProjectService projectService;
 
-    @Autowired
+    @Resource(name = "batchTenantService")
     private TenantService tenantService;
 
     @Autowired
@@ -81,7 +82,7 @@ public class BatchSqlExeService {
     private MultiEngineServiceFactory multiEngineServiceFactory;
 
     @Autowired
-    private UserService userService;
+    private BatchUserService batchUserService;
 
     @Autowired
     private BatchFunctionService batchFunctionService;
@@ -116,7 +117,7 @@ public class BatchSqlExeService {
         final String dbName = this.getDbName(executeContent);
         final ISqlExeService sqlExeService = this.multiEngineServiceFactory.getSqlExeService(engineType, executeContent.getDetailType(), executeContent.getProjectId());
         Long dtuicUserId = null;
-        User user = userService.getUser(executeContent.getUserId());
+        User user = batchUserService.getUser(executeContent.getUserId());
         if (Objects.nonNull(user)) {
             dtuicUserId = user.getDtuicUserId();
         }

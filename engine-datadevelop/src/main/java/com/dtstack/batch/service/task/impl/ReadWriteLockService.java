@@ -4,7 +4,7 @@ import com.dtstack.batch.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.ReadWriteLockDao;
 import com.dtstack.batch.domain.BatchScript;
 import com.dtstack.batch.domain.ReadWriteLock;
-import com.dtstack.batch.service.impl.UserService;
+import com.dtstack.batch.service.impl.BatchUserService;
 import com.dtstack.batch.vo.ReadWriteLockVO;
 import com.dtstack.dtcenter.common.Callback;
 import com.dtstack.dtcenter.common.enums.ReadWriteLockType;
@@ -36,7 +36,7 @@ public class ReadWriteLockService {
     private ReadWriteLockDao readWriteLockDao;
 
     @Autowired
-    private UserService userService;
+    private BatchUserService batchUserService;
 
     private static final String SPLIT = "_";
 
@@ -64,7 +64,7 @@ public class ReadWriteLockService {
             result = readWriteLockDao.updateVersionAndModifyUserId(readWriteLock.getId(), null, userId);
             readWriteLock = readWriteLockDao.getOne(readWriteLock.getId());
             readWriteLockVO = ReadWriteLockVO.toVO(readWriteLock);
-            String userName = userService.getUserName(readWriteLock.getModifyUserId());
+            String userName = batchUserService.getUserName(readWriteLock.getModifyUserId());
             readWriteLockVO.setLastKeepLockUserName(userName);
             if (result != 1) {
                 //获取锁失败
@@ -100,7 +100,7 @@ public class ReadWriteLockService {
         //初始化返回对象
         ReadWriteLockVO readWriteLockVO = new ReadWriteLockVO();
         readWriteLockVO.setGmtModified(readWriteLock.getGmtModified());
-        readWriteLockVO.setLastKeepLockUserName(userService.getUserName(modifyUesrId));
+        readWriteLockVO.setLastKeepLockUserName(batchUserService.getUserName(modifyUesrId));
         //任务版本是否保持一致
         if (relationLocalVersion != relationVersion) {
             //表示已经被提交了
@@ -140,14 +140,14 @@ public class ReadWriteLockService {
         ReadWriteLock readWriteLock = readWriteLockDao.getByProjectIdAndRelationIdAndType(projectId, relationId, type.name());
         if (readWriteLock == null) {
             ReadWriteLockVO readWriteLockVO = new ReadWriteLockVO();
-            readWriteLockVO.setLastKeepLockUserName(userService.getUserName(modifyUserId));
+            readWriteLockVO.setLastKeepLockUserName(batchUserService.getUserName(modifyUserId));
             readWriteLockVO.setIsGetLock(false);
             readWriteLockVO.setGmtModified(gmtModified);
             return readWriteLockVO;
         }
         ReadWriteLockVO readWriteLockVO = ReadWriteLockVO.toVO(readWriteLock);
         readWriteLockVO = this.isGetLock(readWriteLockVO, userId);
-        readWriteLockVO.setLastKeepLockUserName(userService.getUserName(readWriteLockVO.getModifyUserId()));
+        readWriteLockVO.setLastKeepLockUserName(batchUserService.getUserName(readWriteLockVO.getModifyUserId()));
         return readWriteLockVO;
     }
 
@@ -178,7 +178,7 @@ public class ReadWriteLockService {
         if (names.containsKey(userId)) {
             return names.get(userId);
         } else {
-            String name = userService.getUserName(userId);
+            String name = batchUserService.getUserName(userId);
             names.put(userId, name);
             return name;
         }
@@ -191,7 +191,7 @@ public class ReadWriteLockService {
 
             readWriteLock = readWriteLockDao.getOne(readWriteLock.getId());
             ReadWriteLockVO readWriteLockVO = ReadWriteLockVO.toVO(readWriteLock);
-            String userName = userService.getUserName(readWriteLock.getModifyUserId());
+            String userName = batchUserService.getUserName(readWriteLock.getModifyUserId());
             readWriteLockVO.setLastKeepLockUserName(userName);
             readWriteLockVO.setIsGetLock(true);
             return readWriteLockVO;
@@ -215,7 +215,7 @@ public class ReadWriteLockService {
         readWriteLockVO.setVersion(INIT_VERSION);
         readWriteLockVO.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
         readWriteLockVO.setIsGetLock(true);
-        readWriteLockVO.setLastKeepLockUserName(userService.getUserName(userId));
+        readWriteLockVO.setLastKeepLockUserName(batchUserService.getUserName(userId));
         return readWriteLockVO;
     }
 
@@ -272,7 +272,7 @@ public class ReadWriteLockService {
         }
         ReadWriteLockVO readWriteLockVO = new ReadWriteLockVO();
         readWriteLockVO.setGmtModified(readWriteLock.getGmtModified());
-        readWriteLockVO.setLastKeepLockUserName(userService.getUserName(readWriteLock.getModifyUserId()));
+        readWriteLockVO.setLastKeepLockUserName(batchUserService.getUserName(readWriteLock.getModifyUserId()));
         return readWriteLockVO;
     }
 
@@ -317,7 +317,7 @@ public class ReadWriteLockService {
     private String getUserNameMapCached(Long userId, HashMap<Long, String> userMap) {
         String userName = userMap.get(userId);
         if (userName == null) {
-            userName = userService.getUserName(userId);
+            userName = batchUserService.getUserName(userId);
             userMap.put(userId, userName);
         }
         return userName;

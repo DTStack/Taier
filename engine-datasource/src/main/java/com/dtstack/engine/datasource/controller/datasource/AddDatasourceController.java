@@ -111,7 +111,7 @@ public class AddDatasourceController {
             @Override
             protected void checkParams() throws IllegalArgumentException {
                 Asserts.hasText(param.getDtToken(), "用户token不能为空!");
-                Asserts.notNull(param.getDtuicTenantId(), "用户Dtuic租户Id不能为空!");
+                Asserts.notNull(param.getTenantId(), "用户Dtuic租户Id不能为空!");
                 Asserts.hasText(param.getDataType(), "数据源类型不能为空!");
             }
 

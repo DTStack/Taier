@@ -1,6 +1,5 @@
 .idea/
 pluginLibs/
-plugins/
 logs/
 target/
 *.iml
@@ -17,7 +16,6 @@ entrance/dependency-reduced-pom.xml
 .DS_Store
 kerberosConfig/
 tmpK8sConf/
-<<<<<<< HEAD
 *.exec
 *.zip
 /conf
@@ -34,4 +32,3 @@ engine-ui/node_modules
 engine-ui/.yarn-error.log
 engine-ui/out
 .history
-engine-worker/engine-plugins

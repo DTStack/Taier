@@ -7,11 +7,10 @@ import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import com.dtstack.engine.master.router.DtRequestParam;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/node/engine")
@@ -22,17 +21,17 @@ public class EngineController {
     private EngineService engineService;
 
     @RequestMapping(value="/getQueue", method = {RequestMethod.POST})
-    public List<QueueVO> getQueue(@DtRequestParam("engineId") Long engineId) {
+    public List<QueueVO> getQueue(@RequestParam("engineId") Long engineId) {
         return engineService.getQueue(engineId);
     }
 
     @RequestMapping(value="/listSupportEngine", method = {RequestMethod.POST})
-    public List<EngineSupportVO> listSupportEngine(@DtRequestParam("tenantId") Long dtUicTenantId) {
+    public List<EngineSupportVO> listSupportEngine(@RequestParam("tenantId") Long dtUicTenantId) {
         return engineService.listSupportEngine(dtUicTenantId,false);
     }
 
     @RequestMapping(value="/listSupportEngineWithCommon", method = {RequestMethod.POST})
-    public List<EngineSupportVO> listSupportEngineWithCommon(@DtRequestParam("tenantId") Long dtUicTenantId,@DtRequestParam("needCommon")Boolean needCommon) {
+    public List<EngineSupportVO> listSupportEngineWithCommon(@RequestParam("tenantId") Long dtUicTenantId, @RequestParam("needCommon")Boolean needCommon) {
         return engineService.listSupportEngine(dtUicTenantId, Boolean.TRUE.equals(needCommon));
     }
 

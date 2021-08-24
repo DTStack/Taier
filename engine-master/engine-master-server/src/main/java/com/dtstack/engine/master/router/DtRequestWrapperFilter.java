@@ -10,6 +10,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
@@ -55,7 +56,14 @@ public class DtRequestWrapperFilter extends OncePerRequestFilter {
             String reqBody = builder.toString();
             if (StringUtils.isNotBlank(reqBody)) {
                 try {
-                    request.setAttribute(DT_REQUEST_BODY, JSONObject.parseObject(reqBody));
+                    JSONObject bodyJson = JSONObject.parseObject(reqBody);
+                    Cookie[] cookies = request.getCookies();
+                    if (cookies != null && cookies.length > 0) {
+                        for (Cookie cookie : cookies) {
+                            bodyJson.putIfAbsent(cookie.getName(), cookie.getValue());
+                        }
+                    }
+                    request.setAttribute(DT_REQUEST_BODY, bodyJson);
                 } catch (Exception e) {
                     LOGGER.warn(ExceptionUtil.getErrorMessage(e));
                 }

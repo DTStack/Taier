@@ -87,7 +87,7 @@ public class BatchJobService {
 
     private static final String DOWNLOAD_URL = "/api/rdos/download/batch/batchDownload/downloadJobLog?jobId=%s&taskType=%s&projectId=%s";
 
-    @Autowired
+    @Resource(name = "batchProjectService")
     private ProjectService projectService;
 
     @Autowired
@@ -114,7 +114,7 @@ public class BatchJobService {
     @Autowired
     private EnvironmentContext env;
 
-    @Autowired
+    @Resource(name = "batchTenantService")
     private TenantService tenantService;
 
     @Autowired
@@ -127,7 +127,7 @@ public class BatchJobService {
     private ScheduleJobService scheduleJobService;
 
     @Autowired
-    private UserService userService;
+    private BatchUserService batchUserService;
 
     @Autowired
     private BatchTaskService batchTaskService;
@@ -488,9 +488,9 @@ public class BatchJobService {
         }
         User user;
         if (userId == null) {
-            user = userService.getUser(batchTask.getOwnerUserId());
+            user = batchUserService.getUser(batchTask.getOwnerUserId());
         } else {
-            user = userService.getUser(userId);
+            user = batchUserService.getUser(userId);
         }
         if (user != null) {
             actionParam.put("userId", user.getDtuicUserId());
@@ -639,7 +639,9 @@ public class BatchJobService {
         if (Objects.isNull(bizEndDay)) {
             bizEndDay = bizDay;
         }
-        PageResult fillDataJobInfoPreview = scheduleJobService.getFillDataJobInfoPreview(jobName, runDay, bizStartDay, bizEndDay, dutyUserId, projectId, AppType.RDOS.getType(), currentPage, pageSize, tenantId);
+        Long dtUicTenantId = tenantService.getDtuicTenantId(tenantId);
+
+        PageResult fillDataJobInfoPreview = scheduleJobService.getFillDataJobInfoPreview(jobName, runDay, bizStartDay, bizEndDay, dutyUserId, projectId, AppType.RDOS.getType(), currentPage, pageSize, tenantId, dtUicTenantId);
         if (Objects.isNull(fillDataJobInfoPreview) || Objects.isNull(fillDataJobInfoPreview.getData())) {
             return com.dtstack.batch.web.pager.PageResult.EMPTY_PAGE_RESULT;
         }
@@ -726,7 +728,7 @@ public class BatchJobService {
                 userIds.add(record.getBatchTask().getModifyUserId());
             }
         }
-        final Map<Long, User> userMap = this.userService.getUserMap(userIds);
+        final Map<Long, User> userMap = this.batchUserService.getUserMap(userIds);
         if (Objects.nonNull(relatedJobsForFillData.getBatchTask())) {
             final ScheduleTaskVO batchTask = relatedJobsForFillData.getBatchTask();
             this.batchTaskService.buildUserDTOInfo(userMap, batchTask);
@@ -1043,7 +1045,7 @@ public class BatchJobService {
         if (!Objects.isNull(isCheckDDL)) {
             SessionUtil.setValue(dtToken, BatchJobService.IS_CHECK_DDL_KEY, isCheckDDL);
         }
-        final User user = this.userService.getUser(userId);
+        final User user = this.batchUserService.getUser(userId);
         dtToken = String.format("%s;dt_user_id=%s;dt_username=%s;",dtToken,user.getDtuicUserId(),user.getUserName());
         ExecuteResultVO result = new ExecuteResultVO();
         MultiEngineType multiEngineType = null;

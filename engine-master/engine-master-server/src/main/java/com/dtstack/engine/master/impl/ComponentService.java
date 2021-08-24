@@ -15,6 +15,7 @@ import com.dtstack.engine.api.pojo.lineage.ComponentMultiTestResult;
 import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
 import com.dtstack.engine.api.vo.components.ComponentsResultVO;
+import com.dtstack.engine.api.vo.task.TaskGetSupportJobTypesResultVO;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.*;
@@ -41,6 +42,7 @@ import com.dtstack.engine.master.utils.XmlFileUtil;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.util.Base64Util;
+import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.schedule.common.util.Xml2JsonUtil;
 import com.dtstack.schedule.common.util.ZipUtil;
 import com.google.common.collect.HashBasedTable;
@@ -140,7 +142,7 @@ public class ComponentService {
     @Autowired
     private ConsoleService consoleService;
 
-    @javax.annotation.Resource(name = "engineTenantService")
+    @Autowired
     private TenantService tenantService;
 
     @Autowired
@@ -231,7 +233,6 @@ public class ComponentService {
         clusterService.clearStandaloneCache();
         Set<Long> dtUicTenantIds = new HashSet<>();
         if ( null != componentCode && EComponentType.sqlComponent.contains(EComponentType.getByCode(componentCode))) {
-            //tidb 和libra 没有queue
             List<EngineTenantVO> tenantVOS = engineTenantDao.listEngineTenant(engineId);
             if (CollectionUtils.isNotEmpty(tenantVOS)) {
                 for (EngineTenantVO tenantVO : tenantVOS) {
@@ -250,11 +251,14 @@ public class ComponentService {
                 return;
             }
             List<Long> tenantIds = engineTenantDao.listTenantIdByQueueIds(queueIds);
-            dtUicTenantIds = new HashSet<>(tenantDao.listDtUicTenantIdByIds(tenantIds));
+            List<Long> listDtUicTenantIdByIds = tenantDao.listDtUicTenantIdByIds(tenantIds);
+            if (CollectionUtils.isNotEmpty(listDtUicTenantIdByIds)) {
+                dtUicTenantIds = new HashSet<>(listDtUicTenantIdByIds);
+            }
         }
         dataSourceService.publishSqlComponent(clusterId,engineId,componentCode,dtUicTenantIds);
         //缓存刷新
-        if (!dtUicTenantIds.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(dtUicTenantIds)) {
             for (Long uicTenantId : dtUicTenantIds) {
                 consoleCache.publishRemoveMessage(uicTenantId.toString());
             }
@@ -519,18 +523,18 @@ public class ComponentService {
         if (null == engine) {
             throw new RdosDefineException("Engine cannot be empty");
         }
-
+        Component addComponent = new ComponentDTO();
+        BeanUtils.copyProperties(componentDTO, addComponent);
         // 判断是否是更新组件, 需要校验组件版本
-        Component addComponent, dbComponent = componentDao.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode(),ComponentVersionUtil.isMultiVersionComponent(componentCode)?hadoopVersion:null,deployType);
+        Component dbComponent = componentDao.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode(),ComponentVersionUtil.isMultiVersionComponent(componentCode)?hadoopVersion:null,deployType);
+        String dbHadoopVersion = "";
         boolean isUpdate = false;
         boolean isOpenKerberos = isOpenKerberos(kerberosFileName, dbComponent);
         if (null != dbComponent) {
             //更新
+            dbHadoopVersion = dbComponent.getHadoopVersion();
             addComponent = dbComponent;
             isUpdate = true;
-        }else {
-            addComponent = new ComponentDTO();
-            BeanUtils.copyProperties(componentDTO, addComponent);
         }
         componentConfig = this.checkKubernetesConfig(componentConfig, resources, componentType);
 
@@ -552,7 +556,7 @@ public class ComponentService {
         addComponent.setClusterId(clusterId);
         if (isUpdate) {
             componentDao.update(addComponent);
-            refreshVersion(componentType, engine.getId(), addComponent, dbComponent,hadoopVersion);
+            refreshVersion(componentType, engine.getId(), addComponent, dbHadoopVersion,hadoopVersion);
             clusterDao.updateGmtModified(clusterId);
         } else {
             componentDao.insert(addComponent);
@@ -607,9 +611,9 @@ public class ComponentService {
      * @param componentType
      * @param engineId
      * @param addComponent
-     * @param dbComponent
+     * @param dbHadoopVersion
      */
-    public void refreshVersion(EComponentType componentType, Long engineId, Component addComponent, Component dbComponent, String hadoopVersion) {
+    public void refreshVersion(EComponentType componentType, Long engineId, Component addComponent, String dbHadoopVersion, String hadoopVersion) {
         if (!EComponentType.YARN.equals(componentType)) {
             return;
         }
@@ -617,7 +621,7 @@ public class ComponentService {
         if (null == hdfsComponent) {
             return;
         }
-        String oldVersion = formatHadoopVersion(dbComponent.getHadoopVersion(), componentType);
+        String oldVersion = formatHadoopVersion(dbHadoopVersion, componentType);
         String newVersion = formatHadoopVersion(addComponent.getHadoopVersion(), componentType);
         String hdfsVersion = formatHadoopVersion(hdfsComponent.getHadoopVersion(), EComponentType.HDFS);
         if (newVersion.equalsIgnoreCase(oldVersion) && newVersion.equalsIgnoreCase(hdfsVersion)) {
@@ -651,7 +655,7 @@ public class ComponentService {
                         newValue = oldValue.replace(oldTypeNamePrefix, newTypeNamePrefix);
                     }
                     typeNameComponentConfig.setValue(newValue);
-                    LOGGER.info("refresh clusterId {} component {} typeName {} to {}", component.getClusterId(), component.getComponentName(), oldValue, newValue);
+                    LOGGER.info("refresh engineId {} component {} typeName {} to {}", engineId, component.getComponentName(), oldValue, newValue);
                     componentConfigService.updateValueComponentConfig(typeNameComponentConfig);
                 }
             }
@@ -1246,7 +1250,8 @@ public class ComponentService {
         Map<String, Map<String,Object>> xmlConfigMap = this.parseUploadFileToMap(resources);
         boolean isLostXmlFile = xmlConfigMap.keySet().containsAll(xmlName);
         if(!isLostXmlFile){
-            throw new RdosDefineException("Missing necessary configuration file");
+            LOGGER.error("Missing necessary configuration file, maybe the Zip file corrupt, please retry zip files.");
+            throw new RdosDefineException("Missing necessary configuration file, maybe the Zip file corrupt, please retry zip files.");
         }
         //多个配置文件合并为一个map
         if(MapUtils.isNotEmpty(xmlConfigMap)){
@@ -1640,6 +1645,15 @@ public class ComponentService {
             }
 
         }
+
+        if (componentCode == EComponentType.MYSQL) {
+            String simpleVer = "8";
+            if (version.startsWith("5.")) {
+                simpleVer = "";
+            }
+            return String.format("mysql%s", simpleVer);
+        }
+
         //flink on standalone处理
         if(EComponentType.FLINK.getTypeCode().equals(componentType) && EDeployType.STANDALONE.getType() == deployType){
             return String.format("%s%s",String.format("%s%s",EComponentType.FLINK.name().toLowerCase(),version),"-standalone");
@@ -1654,7 +1668,7 @@ public class ComponentService {
         }
 
         //调度或存储单个组件
-        if (EComponentType.NFS.equals(componentCode) || EComponentType.ResourceScheduling.contains(componentCode)) {
+        if (EComponentType.YARN.equals(componentCode)) {
             return String.format("%s%s", componentCode.name().toLowerCase(), this.formatHadoopVersion(version, componentCode));
         }
 
@@ -2444,5 +2458,24 @@ public class ComponentService {
             return componentDao.listByTenantId(tenant.getId());
 
         }
+    }
+
+    /**
+     *
+     * @param appType 后面可能会用
+     * @param projectId 后面可能会用
+     * @param dtuicTenantId 后面可能会用
+     * @return
+     */
+    public List<TaskGetSupportJobTypesResultVO> getSupportJobTypes(Integer appType, Long projectId, Long dtuicTenantId) {
+        EScheduleJobType[] eScheduleJobType = EScheduleJobType.values();
+        List<TaskGetSupportJobTypesResultVO> vos = Lists.newArrayList();
+        for (EScheduleJobType scheduleJobType : eScheduleJobType) {
+            TaskGetSupportJobTypesResultVO vo = new TaskGetSupportJobTypesResultVO();
+            vo.setKey(scheduleJobType.getType());
+            vo.setValue(scheduleJobType.getName());
+            vos.add(vo);
+        }
+        return vos;
     }
 }

@@ -229,10 +229,10 @@ public class BatchDataSourceService {
     @Resource(name = "batchUserDao")
     private UserDao userDao;
 
-    @Autowired
+    @Resource(name = "batchTenantService")
     private TenantService tenantService;
 
-    @Autowired
+    @Resource(name = "batchProjectService")
     private ProjectService projectService;
 
     @Autowired
@@ -251,7 +251,7 @@ public class BatchDataSourceService {
     private EnvironmentContext environmentContext;
 
     @Autowired
-    private UserService userService;
+    private BatchUserService batchUserService;
 
     @Autowired
     private SyncBuilderFactory syncBuilderFactory;

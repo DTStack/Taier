@@ -1,6 +1,6 @@
 package com.dtstack.engine.datasource.dao.mapper.common;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.dtstack.engine.datasource.dao.mapper.IMapper;
 import com.dtstack.engine.datasource.dao.po.common.Event;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -10,5 +10,5 @@ import org.apache.ibatis.annotations.Mapper;
  * create: 2021/5/10
  */
 @Mapper
-public interface EventMapper extends BaseMapper<Event> {
+public interface EventMapper extends IMapper<Event> {
 }

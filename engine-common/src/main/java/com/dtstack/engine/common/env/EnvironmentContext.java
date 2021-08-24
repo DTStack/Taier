@@ -1,8 +1,10 @@
 package com.dtstack.engine.common.env;
 
+import com.dtstack.dtcenter.loader.client.ClientCache;
 import com.dtstack.engine.common.util.AddressUtil;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -18,7 +20,7 @@ import java.io.File;
 @Component("environmentContext")
 @PropertySource(value = "file:${user.dir.conf}/application.properties")
 @Data
-public class EnvironmentContext {
+public class EnvironmentContext implements InitializingBean {
 
 
     @Autowired
@@ -438,6 +440,10 @@ public class EnvironmentContext {
         return Boolean.parseBoolean(environment.getProperty("jobGraphBuilderSwitch", "false"));
     }
 
+    public boolean getJobGraphWhiteList() {
+        return Boolean.parseBoolean(environment.getProperty("jobGraphWhiteList", "false"));
+    }
+
     /**
      * 日志数据定时删除
      */
@@ -549,6 +555,11 @@ public class EnvironmentContext {
         return Boolean.parseBoolean(environment.getProperty("job.schedule", "true"));
     }
 
+
+    public long getForkJoinResultTimeOut() {
+        return Long.parseLong(environment.getProperty("fork.join.timeout", Long.toString(60 * 5)));
+    }
+
     public boolean getKeepAlive() {
         return Boolean.parseBoolean(environment.getProperty("dataSource.keep.alive", "true"));
     }
@@ -582,9 +593,9 @@ public class EnvironmentContext {
         return Integer.valueOf(environment.getProperty("dataSource.max.prepared.statement.per.connection.size", "20"));
     }
 
-    public long getForkJoinResultTimeOut() {
-        return Long.parseLong(environment.getProperty("fork.join.timeout", Long.toString(60L * 5)));
-    }
+//    public long getForkJoinResultTimeOut() {
+//        return Long.parseLong(environment.getProperty("fork.join.timeout", Long.toString(60 * 5)));
+//    }
     /**
      * 是否根据版本加载默认的配置
      *
@@ -733,4 +744,8 @@ public class EnvironmentContext {
     @Value("${engine.console.upload.path:${user.dir}/upload}")
     private String uploadPath;
 
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        ClientCache.setUserDir(getDataSourcePluginPath());
+    }
 }

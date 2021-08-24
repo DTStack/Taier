@@ -9,16 +9,13 @@ import com.dtstack.engine.api.vo.ClusterEngineVO;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.impl.ClusterService;
-import com.dtstack.engine.master.router.DtRequestParam;
+import org.springframework.web.bind.annotation.RequestParam;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -36,40 +33,40 @@ public class ClusterController{
     }
 
     @RequestMapping(value="/pageQuery", method = {RequestMethod.POST})
-    public PageResult<List<ClusterVO>> pageQuery(@DtRequestParam("currentPage") int currentPage, @DtRequestParam("pageSize") int pageSize) {
+    public PageResult<List<ClusterVO>> pageQuery(@RequestParam("currentPage") int currentPage, @RequestParam("pageSize") int pageSize) {
         return clusterService.pageQuery(currentPage, pageSize);
     }
 
     @RequestMapping(value="/clusterInfo", method = {RequestMethod.POST})
-    public String clusterInfo(@DtRequestParam("tenantId") Long tenantId) {
+    public String clusterInfo(@RequestParam("tenantId") Long tenantId) {
         return clusterService.clusterInfo(tenantId);
     }
 
     @RequestMapping(value="/clusterExtInfo", method = {RequestMethod.POST})
-    public ClusterVO clusterExtInfo(@DtRequestParam("tenantId") Long uicTenantId) {
+    public ClusterVO clusterExtInfo(@RequestParam("tenantId") Long uicTenantId) {
         return clusterService.clusterExtInfo(uicTenantId,false);
     }
 
     @RequestMapping(value="/pluginInfoJSON", method = {RequestMethod.POST})
-    public JSONObject pluginInfoJSON(@DtRequestParam("tenantId") Long dtUicTenantId, @DtRequestParam("engineType") String engineTypeStr, @DtRequestParam("dtUicUserId")Long dtUicUserId, @DtRequestParam("deployMode")Integer deployMode) {
+    public JSONObject pluginInfoJSON(@RequestParam("tenantId") Long dtUicTenantId, @RequestParam("engineType") String engineTypeStr, @RequestParam("dtUicUserId")Long dtUicUserId, @RequestParam("deployMode")Integer deployMode) {
         return clusterService.pluginInfoJSON(dtUicTenantId, engineTypeStr, dtUicUserId, deployMode,null);
     }
 
 
     @RequestMapping(value="/pluginInfo", method = {RequestMethod.POST})
-    public String pluginInfo(@DtRequestParam("tenantId") Long dtUicTenantId, @DtRequestParam("engineType") String engineTypeStr,@DtRequestParam("userId") Long dtUicUserId,@DtRequestParam("deployMode")Integer deployMode) {
+    public String pluginInfo(@RequestParam("tenantId") Long dtUicTenantId, @RequestParam("engineType") String engineTypeStr, @RequestParam("userId") Long dtUicUserId, @RequestParam("deployMode")Integer deployMode) {
         return clusterService.pluginInfo(dtUicTenantId, engineTypeStr, dtUicUserId, deployMode);
     }
 
     @RequestMapping(value="/clusterSftpDir", method = {RequestMethod.POST})
     @ApiOperation(value = "获取集群在sftp上的路径")
-    public String clusterSftpDir(@DtRequestParam("tenantId") Long tenantId, @DtRequestParam("componentType") Integer componentType) {
+    public String clusterSftpDir(@RequestParam("tenantId") Long tenantId, @RequestParam("componentType") Integer componentType) {
         return clusterService.clusterSftpDir(tenantId, componentType);
     }
 
     @ApiOperation(value = "获得插件信息")
     @RequestMapping(value="/pluginInfoForType", method = {RequestMethod.POST})
-    public String pluginInfoForType(@DtRequestParam("tenantId") Long dtUicTenantId  , @DtRequestParam("fullKerberos") Boolean fullKerberos, @DtRequestParam("pluginType") EComponentApiType pluginType){
+    public String pluginInfoForType(@RequestParam("tenantId") Long dtUicTenantId  , @RequestParam("fullKerberos") Boolean fullKerberos, @RequestParam("pluginType") EComponentApiType pluginType){
         return clusterService.pluginInfoForType(dtUicTenantId, fullKerberos,pluginType.getTypeCode());
     }
 
@@ -81,7 +78,7 @@ public class ClusterController{
      * @return
      */
     @RequestMapping(value="/hiveInfo", method = {RequestMethod.POST})
-    public String hiveInfo(@DtRequestParam("tenantId") Long dtUicTenantId, @DtRequestParam("fullKerberos") Boolean fullKerberos) {
+    public String hiveInfo(@RequestParam("tenantId") Long dtUicTenantId, @RequestParam("fullKerberos") Boolean fullKerberos) {
         return clusterService.hiveInfo(dtUicTenantId, fullKerberos,null);
     }
 
@@ -93,7 +90,7 @@ public class ClusterController{
      * @return
      */
     @RequestMapping(value="/hiveServerInfo", method = {RequestMethod.POST})
-    public String hiveServerInfo(@DtRequestParam("tenantId") Long dtUicTenantId,@DtRequestParam("fullKerberos") Boolean fullKerberos) {
+    public String hiveServerInfo(@RequestParam("tenantId") Long dtUicTenantId, @RequestParam("fullKerberos") Boolean fullKerberos) {
         return clusterService.hiveServerInfo(dtUicTenantId, fullKerberos,null);
     }
 
@@ -105,7 +102,7 @@ public class ClusterController{
      * @return
      */
     @RequestMapping(value="/hadoopInfo", method = {RequestMethod.POST})
-    public String hadoopInfo(@DtRequestParam("tenantId") Long dtUicTenantId,@DtRequestParam("fullKerberos") Boolean fullKerberos) {
+    public String hadoopInfo(@RequestParam("tenantId") Long dtUicTenantId, @RequestParam("fullKerberos") Boolean fullKerberos) {
         return clusterService.hadoopInfo(dtUicTenantId, fullKerberos,null);
     }
 
@@ -117,7 +114,7 @@ public class ClusterController{
      * @return
      */
     @RequestMapping(value="/carbonInfo", method = {RequestMethod.POST})
-    public String carbonInfo(@DtRequestParam("tenantId") Long dtUicTenantId,@DtRequestParam("fullKerberos") Boolean fullKerberos) {
+    public String carbonInfo(@RequestParam("tenantId") Long dtUicTenantId, @RequestParam("fullKerberos") Boolean fullKerberos) {
         return clusterService.carbonInfo(dtUicTenantId, fullKerberos,null);
     }
 
@@ -129,7 +126,7 @@ public class ClusterController{
      * @return
      */
     @RequestMapping(value="/impalaInfo", method = {RequestMethod.POST})
-    public String impalaInfo(@DtRequestParam("tenantId") Long dtUicTenantId,@DtRequestParam("fullKerberos") Boolean fullKerberos) {
+    public String impalaInfo(@RequestParam("tenantId") Long dtUicTenantId, @RequestParam("fullKerberos") Boolean fullKerberos) {
         return clusterService.impalaInfo(dtUicTenantId, fullKerberos,null);
     }
 
@@ -140,12 +137,12 @@ public class ClusterController{
      * @return
      */
     @RequestMapping(value="/sftpInfo", method = {RequestMethod.POST})
-    public String sftpInfo(@DtRequestParam("tenantId") Long dtUicTenantId) {
+    public String sftpInfo(@RequestParam("tenantId") Long dtUicTenantId) {
         return clusterService.sftpInfo(dtUicTenantId);
     }
 
     @RequestMapping(value="/getConfigByKey", method = {RequestMethod.POST})
-    public String getConfigByKey(@DtRequestParam("dtUicTenantId")Long dtUicTenantId, @DtRequestParam("key") String key, @DtRequestParam("fullKerberos") Boolean fullKerberos) {
+    public String getConfigByKey(@RequestParam("dtUicTenantId")Long dtUicTenantId, @RequestParam("key") String key, @RequestParam("fullKerberos") Boolean fullKerberos) {
         return clusterService.getConfigByKey(dtUicTenantId, key, fullKerberos,null);
     }
 
@@ -163,7 +160,7 @@ public class ClusterController{
      * @return
      */
     @RequestMapping(value="/tiDBInfo", method = {RequestMethod.POST})
-    public String tiDBInfo(@DtRequestParam("tenantId") Long dtUicTenantId, @DtRequestParam("userId") Long dtUicUserId) {
+    public String tiDBInfo(@RequestParam("tenantId") Long dtUicTenantId, @RequestParam("userId") Long dtUicUserId) {
         return clusterService.tiDBInfo(dtUicTenantId, dtUicUserId,null);
     }
 
@@ -175,7 +172,7 @@ public class ClusterController{
      * @return
      */
     @RequestMapping(value="/oracleInfo", method = {RequestMethod.POST})
-    public String oracleInfo(@DtRequestParam("tenantId") Long dtUicTenantId,@DtRequestParam("userId") Long dtUicUserId) {
+    public String oracleInfo(@RequestParam("tenantId") Long dtUicTenantId, @RequestParam("userId") Long dtUicUserId) {
         return clusterService.oracleInfo(dtUicTenantId, dtUicUserId,null);
     }
 
@@ -187,24 +184,24 @@ public class ClusterController{
      * @return
      */
     @RequestMapping(value="/greenplumInfo", method = {RequestMethod.POST})
-    public String greenplumInfo(@DtRequestParam("tenantId") Long dtUicTenantId,@DtRequestParam("userId") Long dtUicUserId) {
+    public String greenplumInfo(@RequestParam("tenantId") Long dtUicTenantId, @RequestParam("userId") Long dtUicUserId) {
         return clusterService.greenplumInfo(dtUicTenantId, dtUicUserId,null);
     }
 
     @RequestMapping(value="/dbInfo", method = {RequestMethod.POST})
-    public String dbInfo(@DtRequestParam("tenantId") Long dtUicTenantId, @DtRequestParam("userId") Long dtUicUserId, @DtRequestParam("type") DbType type) {
+    public String dbInfo(@RequestParam("tenantId") Long dtUicTenantId, @RequestParam("userId") Long dtUicUserId, @RequestParam("type") DbType type) {
         return clusterService.dbInfo(dtUicTenantId, dtUicUserId , type.getTypeCode());
     }
 
     @RequestMapping(value="/deleteCluster", method = {RequestMethod.POST})
     @ApiOperation(value = "删除集群")
-    public void deleteCluster(@DtRequestParam("clusterId")Long clusterId) {
+    public void deleteCluster(@RequestParam("clusterId")Long clusterId) {
         clusterService.deleteCluster(clusterId);
     }
 
     @RequestMapping(value="/getCluster", method = {RequestMethod.POST})
     @ApiOperation(value = "获取集群信息详情")
-    public ClusterVO getCluster(@DtRequestParam("clusterId") Long clusterId, @DtRequestParam("kerberosConfig") Boolean kerberosConfig,@DtRequestParam("removeTypeName") Boolean removeTypeName) {
+    public ClusterVO getCluster(@RequestParam("clusterId") Long clusterId, @RequestParam("kerberosConfig") Boolean kerberosConfig, @RequestParam("removeTypeName") Boolean removeTypeName) {
         return clusterService.getCluster(clusterId, removeTypeName, true,true);
     }
 
@@ -214,7 +211,7 @@ public class ClusterController{
     }
 
     @RequestMapping(value="/prestoInfo", method = {RequestMethod.POST})
-    public String prestoInfo(@DtRequestParam("tenantId") Long dtUicTenantId, @DtRequestParam("fullKerberos") Boolean fullKerberos) {
+    public String prestoInfo(@RequestParam("tenantId") Long dtUicTenantId, @RequestParam("fullKerberos") Boolean fullKerberos) {
         return getConfigByKey(dtUicTenantId, EComponentType.PRESTO_SQL.getConfName(), fullKerberos);
     }
 
@@ -225,7 +222,7 @@ public class ClusterController{
             @ApiImplicitParam(name="aimTenantIds",value="租户id集合",required=true, dataType = "Long", allowMultiple = true)
     })
     @RequestMapping(value="/isSameCluster", method = {RequestMethod.POST})
-    public Boolean isSameCluster(@DtRequestParam("tenantId") Long dtUicTenantId,@DtRequestParam("aimTenantIds") List<Long> dtUicTenantIds){
+    public Boolean isSameCluster(@RequestParam("tenantId") Long dtUicTenantId, @RequestParam("aimTenantIds") List<Long> dtUicTenantIds){
         return clusterService.isSameCluster(dtUicTenantId,dtUicTenantIds);
     }
 
@@ -236,7 +233,7 @@ public class ClusterController{
             @ApiImplicitParam(name = "componentType", value = "组件类型", required = true, dataType = "Integer", allowMultiple = true)
     })
     @RequestMapping(value = "/hasStandalone", method = {RequestMethod.POST, RequestMethod.GET})
-    public Boolean hasStandalone(@DtRequestParam("tenantId") Long dtUicTenantId, @DtRequestParam("componentType") Integer componentType) {
+    public Boolean hasStandalone(@RequestParam("tenantId") Long dtUicTenantId, @RequestParam("componentType") Integer componentType) {
         return clusterService.hasStandalone(dtUicTenantId, componentType);
     }
 }
