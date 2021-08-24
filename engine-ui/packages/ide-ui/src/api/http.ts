@@ -55,10 +55,6 @@ class Http {
                     }, 300);
                     return response.json();
                 })
-                // [TODO] moquerie 测试专用
-                .then((res) => {
-                    return res.data;
-                })
                 //   .then(authAfterFormated)
                 .catch((err: any) => {
                     ProgressBar.hide();

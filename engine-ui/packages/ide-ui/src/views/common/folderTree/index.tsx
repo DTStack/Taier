@@ -14,18 +14,22 @@ import { editorAction } from '../../../controller/editor/actionTypes';
 function init() {
     ajax.getOfflineCatalogue({
         nodePid: 0,
-        isGetFile: false,
+        isGetFile: true,
         catalogueType: 1,
         taskType: 1,
         appointProjectId: 1,
+        projectId: 1,
+        userId: 1
     }).then((res) => {
         if (res.code === 1) {
-            const { id, name } = res.data;
+            console.log(res, 111)
+            const { id, name = '数据开发', children } = res.data;
             const node = new TreeNodeModel({
                 id,
                 name,
                 location: name,
                 fileType: FileTypes.RootFolder,
+                children
             });
 
             molecule.folderTree.add(node);

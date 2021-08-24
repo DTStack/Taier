@@ -12,8 +12,8 @@ module.exports = {
                 secure: false,
             },
             '/api/rdos': {
-                // target: 'http://172.16.101.187:8090/',
-                target: 'http://172.16.100.225:3001',
+                target: 'http://172.16.101.187:8090/',
+                // target: 'http://172.16.100.225:3001',
                 changeOrigin: true,
                 secure: false,
             },
