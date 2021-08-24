@@ -19,3 +19,7 @@ insert into `rdos_batch_catalogue` ( `create_user_id`, `id`, `catalogue_type`, `
 
 
 insert into `rdos_user` ( `status`, `dtuic_user_id`, `default_project_id`, `email`, `gmt_modified`, `gmt_create`, `user_name`, `is_deleted`, `phone_number`) values ( '0', '1', 1, 'admin@dtstack.com', '2017-06-05 20:35:16', '2017-06-05 20:35:16', 'admin@dtstack.com', '0', '11111111111');
+insert into `rdos_tenant` ( `status`, `create_user_id`, `gmt_modified`, `gmt_create`, `dtuic_tenant_id`, `is_deleted`, `tenant_name`, `tenant_desc`) values ( '0', 1, '2020-06-18 15:49:23', '2020-06-18 15:49:23', '1', '0', 'DAGScheduleX租户', null);
+
+insert into `rdos_project` ( `id`, `project_name`, `create_user_id`, `schedule_status`, `is_allow_download`, `gmt_create`, `catalogue_id`, `modify_user_id`, `produce_project_id`, `project_alias`, `tenant_id`, `is_deleted`, `project_type`, `gmt_modified`, `project_Identifier`, `status`, `project_desc`)
+values ( '1', 'DAGScheduleX', '1', '0', '1', '2020-06-18 16:07:48', '231', '1', null, 'DAGScheduleX', '1', '0', '0', '2021-08-23 17:59:40', 'DAGScheduleX', '1', 'DAGScheduleX');
