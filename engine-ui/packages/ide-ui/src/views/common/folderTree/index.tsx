@@ -6,7 +6,7 @@ import Open from '../../task/open';
 import { resetEditorGroup, updateStatusBarLanguage } from '../utils';
 import DataSync from '../../dataSync';
 import ajax from '../../../api';
-import { TASK_RUN_ID } from '../utils/const';
+import { FOLDERTREE_CONTEXT_EDIT, TASK_RUN_ID } from '../utils/const';
 import store from '../../../store';
 import { workbenchAction } from '../../../controller/dataSync/actionType';
 import { editorAction } from '../../../controller/editor/actionTypes';
@@ -56,6 +56,22 @@ function init() {
 
             molecule.folderTree.add(node);
         }
+    });
+}
+
+// 初始化右键菜单
+function initContenxtMenu() {
+    const { folderTree } = molecule.folderTree.getState();
+    const contextMenu = folderTree?.contextMenu?.concat() || [];
+    contextMenu.push({
+        id: FOLDERTREE_CONTEXT_EDIT,
+        name: '编辑',
+    });
+    molecule.folderTree.setState({
+        folderTree: {
+            ...folderTree,
+            contextMenu,
+        },
     });
 }
 
@@ -227,8 +243,67 @@ function onSelectFile() {
 export default class FolderTreeExtension implements IExtension {
     activate() {
         init();
+        initContenxtMenu();
 
         createTask();
         onSelectFile();
+
+        molecule.folderTree.onContextMenu((treeNode, menu) => {
+            switch (menu.id) {
+                case FOLDERTREE_CONTEXT_EDIT: {
+                    console.log('treeNode:', treeNode);
+                    resetEditorGroup();
+
+                    const onSubmit = (values: any) => {
+                        const { name, ...rest } = values;
+                        molecule.editor.closeTab(tabId, 1);
+                        molecule.explorer.forceUpdate();
+                        const node = new TreeNodeModel({
+                            id: new Date().getTime(),
+                            name,
+                            fileType: FileTypes.File,
+                            isLeaf: true,
+                            data: {
+                                ...rest,
+                                language: 'sql',
+                            },
+                        });
+
+                        molecule.folderTree.add(node, node.id);
+
+                        const { current } = molecule.editor.getState();
+                        if (current?.tab?.data.taskType === 'SparkSql') {
+                            molecule.editor.updateActions([
+                                { id: TASK_RUN_ID, disabled: false },
+                            ]);
+                        }
+                    };
+
+                    const tabId = `createTask_${new Date().getTime()}`;
+
+                    const tabData = {
+                        id: tabId,
+                        modified: false,
+                        data: {},
+                        name: localize('create task', '新建任务'),
+                        renderPane: () => {
+                            return <Open onSubmit={onSubmit} />;
+                        },
+                    };
+
+                    const { groups = [] } = molecule.editor.getState();
+                    const isExist = groups.some((group) =>
+                        group.data?.some((tab) => tab.id === tabId)
+                    );
+                    if (!isExist) {
+                        molecule.editor.open(tabData);
+                        molecule.explorer.forceUpdate();
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+        });
     }
 }
