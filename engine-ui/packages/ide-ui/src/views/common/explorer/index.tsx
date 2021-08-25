@@ -4,10 +4,7 @@ import { IExtension, SAMPLE_FOLDER_PANEL_ID } from 'molecule/esm/model';
 import { localize } from 'molecule/esm/i18n/localize';
 import { connect } from 'molecule/esm/react';
 import TaskInfo from '../../task/taskInfo';
-
-import {
-    TASK_ATTRIBUTONS,
-} from '../utils/const';
+import { TASK_ATTRIBUTONS } from '../utils/const';
 
 function changeContextMenuName() {
     const explorerData = molecule.explorer.getState().data?.concat() || [];
@@ -19,6 +16,11 @@ function changeContextMenuName() {
         molecule.explorer.setState({
             data: explorerData,
         });
+
+        // 右键菜单也需要修改
+        const contextMenu = molecule.folderTree.getFolderContextMenu().concat();
+        contextMenu[0].name = '新建任务';
+        molecule.folderTree.setFolderContextMenu(contextMenu);
     }
 }
 
