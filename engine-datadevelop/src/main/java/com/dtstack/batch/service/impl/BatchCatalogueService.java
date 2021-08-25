@@ -18,6 +18,7 @@ import com.dtstack.batch.web.task.vo.result.BatchTaskGetComponentVersionResultVO
 import com.dtstack.dtcenter.common.enums.*;
 import com.dtstack.dtcenter.common.util.PublicUtil;
 import com.dtstack.engine.api.domain.BatchTask;
+import com.dtstack.engine.master.impl.UserService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -67,7 +68,7 @@ public class BatchCatalogueService {
     private DictService dictService;
 
     @Autowired
-    private BatchUserService batchUserService;
+    private UserService userService;
 
     @Autowired
     private BatchDataCatalogueDao batchDataCatalogueDao;
@@ -911,7 +912,7 @@ public class BatchCatalogueService {
                 childTask.setLevel(currentCatalogueVO.getLevel() + 1);
                 childTask.setChildren(null);
                 childTask.setParentId(currentCatalogueVO.getId());
-                childTask.setCreateUser(batchUserService.getUserName(task.getCreateUserId()));
+                childTask.setCreateUser(userService.getUserName(task.getCreateUserId()));
                 if (task.getTaskType().equals(EJobType.PYTHON.getVal())) {
                     JSONObject exeArgs = JSONObject.parseObject(task.getExeArgs());
                     childTask.setOperateModel(exeArgs.getInteger("operateModel"));
@@ -1168,7 +1169,7 @@ public class BatchCatalogueService {
         if (names.containsKey(userId)) {
             return names.get(userId);
         } else {
-            String name = batchUserService.getUserName(userId);
+            String name = userService.getUserName(userId);
             names.put(userId, name);
             return name;
         }

@@ -49,21 +49,6 @@ CREATE TABLE `rdos_tenant` (
   UNIQUE KEY `index_tenant_id` (`dtuic_tenant_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT ='租户表';
 
-CREATE TABLE `rdos_user` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `dtuic_user_id` int(11) NOT NULL COMMENT 'dtuic userid',
-  `user_name` varchar(256) NOT NULL COMMENT '用户名称',
-  `email` varchar(256) NOT NULL COMMENT '用户手机号',
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '用户状态0：正常，1：禁用',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  `default_project_id` int(11) DEFAULT NULL COMMENT '默认项目id',
-  `phone_number` varchar(256) DEFAULT NULL COMMENT '用户手机号',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `index_dtuic_user_id` (`dtuic_user_id`),
-  KEY `index_user_name` (`user_name`(128))
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COMMENT ='用户表';
 
 CREATE TABLE `rdos_dict` (
   `id` int(11) NOT NULL AUTO_INCREMENT,

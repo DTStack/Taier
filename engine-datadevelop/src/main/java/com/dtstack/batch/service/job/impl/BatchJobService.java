@@ -12,7 +12,6 @@ import com.dtstack.batch.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.BatchTaskDao;
 import com.dtstack.batch.dao.BatchTaskShadeDao;
 import com.dtstack.batch.dao.BatchTaskVersionDao;
-import com.dtstack.batch.dao.UserDao;
 import com.dtstack.batch.domain.*;
 import com.dtstack.batch.domain.po.TaskIdAndVersionIdPO;
 import com.dtstack.batch.dto.BatchParamDTO;
@@ -50,6 +49,7 @@ import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.master.impl.ActionService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
+import com.dtstack.engine.master.impl.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -102,8 +102,8 @@ public class BatchJobService {
     @Autowired
     private BatchTaskParamService batchTaskParamService;
 
-    @Resource(name = "batchUserDao")
-    private UserDao userDao;
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private BatchSelectSqlService batchSelectSqlService;
@@ -125,9 +125,6 @@ public class BatchJobService {
 
     @Autowired
     private ScheduleJobService scheduleJobService;
-
-    @Autowired
-    private BatchUserService batchUserService;
 
     @Autowired
     private BatchTaskService batchTaskService;
@@ -199,7 +196,7 @@ public class BatchJobService {
         final Map<Long, BatchTask> batchTaskMap = this.batchTaskDao.listByIds(jobTopOrderVo.stream().map(JobTopOrderVO::getTaskId).collect(Collectors.toList()))
                 .stream().collect(Collectors.toMap(BatchTask::getId, t -> t));
         final List<Long> userIds = batchTaskMap.values().stream().map(BatchTask::getCreateUserId).collect(Collectors.toList());
-        final Map<Long, User> userMap = this.userDao.listByIds(userIds).stream().collect(Collectors.toMap(BaseEntity::getId, t -> t));
+        final Map<Long, User> userMap = userService.listByIds(userIds).stream().collect(Collectors.toMap(BaseEntity::getId, t -> t));
         for (final JobTopOrderVO jobTopOrderVO : jobTopOrderVo) {
             BatchTask task = batchTaskMap.get(jobTopOrderVO.getTaskId());
             if(Objects.isNull(task)){
@@ -226,7 +223,7 @@ public class BatchJobService {
         }
         final Map<Long, BatchTask> batchTaskMap = this.batchTaskDao.listByIds(errors.stream().map(JobTopErrorVO::getTaskId).collect(Collectors.toList()))
                 .stream().collect(Collectors.toMap(BatchTask::getId, t -> t));
-        final Map<Long, User> userMap = this.userDao.listByIds(batchTaskMap.values().stream().map(BatchTask::getCreateUserId).collect(Collectors.toList()))
+        final Map<Long, User> userMap = userService.listByIds(batchTaskMap.values().stream().map(BatchTask::getCreateUserId).collect(Collectors.toList()))
                 .stream().collect(Collectors.toMap(User::getId, u -> u));
         for (final JobTopErrorVO error : errors) {
             BatchTask task = batchTaskMap.get(error.getTaskId());
@@ -288,7 +285,7 @@ public class BatchJobService {
         }
         Map<Long, User> userMap = new HashMap<>();
         if (CollectionUtils.isNotEmpty(userIds)) {
-            userMap = this.userDao.listByIds(userIds).stream().collect(Collectors.toMap(User::getId, u -> u));
+            userMap = userService.listByIds(userIds).stream().collect(Collectors.toMap(User::getId, u -> u));
         }
 
         for (final ScheduleJobVO jobVO : ScheduleJobVOS) {
@@ -332,7 +329,7 @@ public class BatchJobService {
                 }
             }
         }
-        final Map<Long, User> userMap = this.userDao.listByIds(userIds).stream().collect(Collectors.toMap(User::getId, u -> u));
+        final Map<Long, User> userMap = userService.listByIds(userIds).stream().collect(Collectors.toMap(User::getId, u -> u));
         final Map<Long, Project> projectMap = this.projectService.getProjectMap(projectIds);
         fillDataInfoWithQuery(vos, projectMap, userMap);
     }
@@ -488,9 +485,9 @@ public class BatchJobService {
         }
         User user;
         if (userId == null) {
-            user = batchUserService.getUser(batchTask.getOwnerUserId());
+            user = userService.getById(batchTask.getOwnerUserId());
         } else {
-            user = batchUserService.getUser(userId);
+            user = userService.getById(userId);
         }
         if (user != null) {
             actionParam.put("userId", user.getDtuicUserId());
@@ -650,7 +647,7 @@ public class BatchJobService {
 
         List<ScheduleFillDataJobPreViewVO> batchFillDataJobPreViewVOS = (List<ScheduleFillDataJobPreViewVO>) fillDataJobInfoPreview.getData();
         List<Long> dutyUsers = batchFillDataJobPreViewVOS.stream().map(ScheduleFillDataJobPreViewVO::getDutyUserId).collect(Collectors.toList());
-        Map<Long, User> userMap = userDao.listByIds(dutyUsers).stream().collect(Collectors.toMap(User::getId, u -> u));
+        Map<Long, User> userMap = userService.listByIds(dutyUsers).stream().collect(Collectors.toMap(User::getId, u -> u));
 
         for (ScheduleFillDataJobPreViewVO batchFillDataJobPreViewVO : batchFillDataJobPreViewVOS) {
             if (null != batchFillDataJobPreViewVO.getDutyUserId()) {
@@ -683,7 +680,7 @@ public class BatchJobService {
                 .map(r -> r.getBatchTask().getOwnerUserId())
                 .collect(Collectors.toList()));
         if (CollectionUtils.isNotEmpty(userIds)) {
-            Map<Long, User> userMap = userDao.listByIds(userIds).stream().collect(Collectors.toMap(User::getId, u -> u));
+            Map<Long, User> userMap = userService.listByIds(userIds).stream().collect(Collectors.toMap(User::getId, u -> u));
             for (ScheduleFillDataJobDetailVO.FillDataRecord ScheduleJobVO : ScheduleJobVOS) {
                 ScheduleTaskVO batchTask = ScheduleJobVO.getBatchTask();
                 if (Objects.nonNull(batchTask)) {
@@ -728,7 +725,7 @@ public class BatchJobService {
                 userIds.add(record.getBatchTask().getModifyUserId());
             }
         }
-        final Map<Long, User> userMap = this.batchUserService.getUserMap(userIds);
+        final Map<Long, User> userMap = userService.getUserMap(userIds);
         if (Objects.nonNull(relatedJobsForFillData.getBatchTask())) {
             final ScheduleTaskVO batchTask = relatedJobsForFillData.getBatchTask();
             this.batchTaskService.buildUserDTOInfo(userMap, batchTask);
@@ -1045,7 +1042,7 @@ public class BatchJobService {
         if (!Objects.isNull(isCheckDDL)) {
             SessionUtil.setValue(dtToken, BatchJobService.IS_CHECK_DDL_KEY, isCheckDDL);
         }
-        final User user = this.batchUserService.getUser(userId);
+        final User user = userService.getById(userId);
         dtToken = String.format("%s;dt_user_id=%s;dt_username=%s;",dtToken,user.getDtuicUserId(),user.getUserName());
         ExecuteResultVO result = new ExecuteResultVO();
         MultiEngineType multiEngineType = null;

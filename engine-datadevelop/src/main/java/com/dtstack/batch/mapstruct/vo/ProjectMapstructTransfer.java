@@ -2,7 +2,7 @@ package com.dtstack.batch.mapstruct.vo;
 
 import com.dtstack.batch.domain.Project;
 import com.dtstack.engine.api.domain.User;
-import com.dtstack.batch.service.uic.impl.domain.TenantUsersVO;
+import com.dtstack.engine.api.vo.tenant.TenantUsersVO;
 import com.dtstack.batch.vo.*;
 import com.dtstack.batch.web.pager.PageResult;
 import com.dtstack.batch.web.project.vo.query.BatchProjectAddNewEngineVO;

@@ -25,11 +25,13 @@ import com.dtstack.dtcenter.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.common.util.DtStringUtil;
 import com.dtstack.engine.api.domain.BatchTask;
 import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.domain.User;
 import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.api.vo.action.ActionJobEntityVO;
 import com.dtstack.engine.api.vo.lineage.SqlType;
 import com.dtstack.engine.master.impl.ActionService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
+import com.dtstack.engine.master.impl.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -90,7 +92,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
     private BatchFunctionService batchFunctionService;
 
     @Autowired
-    private BatchUserService batchUserService;
+    private UserService userService;
 
     @Autowired
     private ActionService actionService;
@@ -137,7 +139,11 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
     @Override
     public String runSqlByTask(Long dtuicTenantId, ParseResult parseResult, Long tenantId, Long projectId, Long userId, String database, boolean isCreateAs, Long taskId, int type, String preJobId) {
         try {
-            Long dtuicUserId = batchUserService.getUser(userId).getDtuicUserId();
+            User user = userService.getById(userId);
+            Long dtuicUserId = null;
+            if (user != null) {
+                dtuicUserId = user.getDtuicUserId();
+            }
             BuildSqlVO buildSqlVO = buidSql(parseResult, tenantId, projectId, userId, database, isCreateAs, taskId, type);
             // 发送sql任务
             sendSqlTask(dtuicTenantId, buildSqlVO.getSql(), SourceType.TEMP_QUERY, buildSqlVO.getTaskParam(), preJobId, taskId, type, dtuicUserId, projectId);

@@ -12,13 +12,13 @@ import com.dtstack.batch.engine.rdbms.service.ITableService;
 import com.dtstack.batch.engine.rdbms.service.impl.Engine2DTOService;
 import com.dtstack.batch.mapping.DataSourceTypeJobTypeMapping;
 import com.dtstack.batch.service.datasource.impl.BatchDataSourceService;
-import com.dtstack.batch.service.impl.BatchUserService;
 import com.dtstack.batch.service.project.IProjectService;
 import com.dtstack.batch.vo.ProjectEngineVO;
 import com.dtstack.dtcenter.common.annotation.Forbidden;
 import com.dtstack.dtcenter.common.engine.JdbcInfo;
 import com.dtstack.dtcenter.common.enums.MultiEngineType;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.engine.master.impl.UserService;
 import com.google.common.collect.Lists;
 import com.jcraft.jsch.SftpException;
 import org.apache.commons.lang3.StringUtils;
@@ -54,7 +54,7 @@ public class HadoopProjectService implements IProjectService {
     private BatchDataSourceService batchDataSourceService;
 
     @Autowired
-    private BatchUserService batchUserService;
+    private UserService userService;
 
     @Autowired
     private MultiEngineService multiEngineService;
@@ -113,7 +113,7 @@ public class HadoopProjectService implements IProjectService {
     @Forbidden
     private void initDefaultSource(Long dtuicTenantId, Long projectId, String projectName, Integer dataSourceType, String projectDesc, Long tenantId, Long userId, String dbName) throws IOException, SftpException {
         Long dtUiceUser = null;
-        User user = batchUserService.getUser(userId);
+        User user = userService.getById(userId);
         if (user != null) {
             dtUiceUser = user.getDtuicUserId();
         }

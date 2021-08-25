@@ -14,6 +14,7 @@ import com.dtstack.batch.web.pager.PageQuery;
 import com.dtstack.batch.web.pager.PageResult;
 import com.dtstack.dtcenter.common.enums.RoleValue;
 import com.dtstack.dtcenter.common.enums.Sort;
+import com.dtstack.engine.master.impl.UserService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,7 @@ public class RoleService {
     private RoleUserDao roleUserDao;
 
     @Autowired
-    private BatchUserService batchUserService;
+    private UserService userService;
 
     /**
      * 新建或修改角色
@@ -219,7 +220,7 @@ public class RoleService {
             for (Role role : roles) {
                 RoleVO vo = RoleVO.toVO(role);
                 if (vo.getModifyUserId() != null && vo.getModifyUserId() > 0) {
-                    vo.setModifyUserName(batchUserService.getUserName(vo.getModifyUserId()));
+                    vo.setModifyUserName(userService.getUserName(vo.getModifyUserId()));
                 }
                 roleVOS.add(vo);
             }

@@ -20,6 +20,7 @@ import com.dtstack.dtcenter.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.common.util.PublicUtil;
 import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.engine.api.domain.User;
+import com.dtstack.engine.master.impl.UserService;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -56,7 +57,7 @@ public class BatchFunctionService {
     private BatchFunctionResourceDao batchResourceFunctionDao;
 
     @Autowired
-    private UserDao userDao;
+    private UserService userService;
 
     @Autowired
     private BatchResourceService batchResourceService;
@@ -108,8 +109,8 @@ public class BatchFunctionService {
         if (Objects.nonNull(resourceFunctionByFunctionId)){
             vo.setResources(resourceFunctionByFunctionId.getResourceId());
         }
-        vo.setCreateUser(userDao.getOne(batchFunction.getCreateUserId()));
-        vo.setModifyUser(userDao.getOne(batchFunction.getModifyUserId()));
+        vo.setCreateUser(userService.getById(batchFunction.getCreateUserId()));
+        vo.setModifyUser(userService.getById(batchFunction.getModifyUserId()));
         return vo;
     }
 
@@ -180,8 +181,8 @@ public class BatchFunctionService {
 			taskCatalogueVO.setChildren(null);
 			taskCatalogueVO.setParentId(batchFunction.getNodePid());
 
-			User user = userDao.getOne(batchFunction.getCreateUserId());
-			taskCatalogueVO.setCreateUser(user.getUserName());
+            String username = userService.getUserName(batchFunction.getCreateUserId());
+			taskCatalogueVO.setCreateUser(username);
 			return taskCatalogueVO;
 		} catch (Exception e) {
             logger.error("addFunction, functions={},resource={},uicTenantId={}", JSONObject.toJSONString(batchFunction), resourceIds, dtuicTenantId);
@@ -380,7 +381,7 @@ public class BatchFunctionService {
                 userIds.add(f.getCreateUserId());
                 userIds.add(f.getModifyUserId());
             });
-            List<User> users = userDao.listByIds(userIds);
+            List<User> users = userService.listByIds(userIds);
 
             Map<Long, User> idUserMap = new HashMap<>();
             users.forEach(u -> {

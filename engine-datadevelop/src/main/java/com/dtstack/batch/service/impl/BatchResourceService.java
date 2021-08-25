@@ -20,6 +20,7 @@ import com.dtstack.batch.web.pager.PageResult;
 import com.dtstack.dtcenter.common.enums.Deleted;
 import com.dtstack.dtcenter.common.enums.ResourceType;
 import com.dtstack.dtcenter.common.util.PublicUtil;
+import com.dtstack.engine.master.impl.UserService;
 import com.google.common.base.Preconditions;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -61,8 +62,8 @@ public class BatchResourceService {
     @Autowired
     private BatchTaskService batchTaskService;
 
-    @Resource(name = "batchUserDao")
-    private UserDao userDao;
+    @Autowired
+    private UserService userService;
 
     @Autowired
     EnvironmentContext environmentContext;
@@ -137,8 +138,8 @@ public class BatchResourceService {
         catalogueVO.setParentId(catalogue.getId());
         catalogueVO.setResourceType(resourceType);
 
-        final User user = this.userDao.getOne(catalogue.getCreateUserId());
-        catalogueVO.setCreateUser(user.getUserName());
+        String username = userService.getUserName(catalogue.getCreateUserId());
+        catalogueVO.setCreateUser(username);
 
         return catalogueVO;
     }
@@ -239,7 +240,7 @@ public class BatchResourceService {
         BatchResource batchResource = this.getResource(resourceId);
         if (Objects.nonNull(batchResource)) {
             BatchResourceVO vo = BatchResourceVO.toVO(batchResource);
-            vo.setCreateUser(this.userDao.getOne(batchResource.getCreateUserId()));
+            vo.setCreateUser(userService.getById(batchResource.getCreateUserId()));
             //是否是该项目成员
             return vo;
         }
@@ -312,7 +313,7 @@ public class BatchResourceService {
                 userIds.add(r.getModifyUserId());
             });
 
-            final List<User> users = this.userDao.listByIds(userIds);
+            final List<User> users = userService.listByIds(userIds);
             final Map<Long,User> idUserMap = new HashMap<>();
             users.forEach(u -> {
                 idUserMap.put(u.getId(),u);

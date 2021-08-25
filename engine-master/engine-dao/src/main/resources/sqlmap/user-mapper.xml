@@ -62,6 +62,8 @@
             #{userId}
         </foreach>
     </select>
+
+
     <select id="getAllUser" resultType="com.dtstack.engine.api.domain.User">
         SELECT
         <include refid="select_content_fragment"/>
@@ -75,6 +77,7 @@
         VALUES
         (#{dtuicUserId},#{userName},#{email},#{status},#{phoneNumber})
     </insert>
+
     <insert id="insertBatch">
         INSERT IGNORE INTO console_user
         (dtuic_user_id,user_name,email,status,phone_number)
@@ -89,5 +92,72 @@
         <include refid="update_fragment"/>
         WHERE id = #{id} AND is_deleted = 0
     </update>
+
+
+    <select id="listByIds" resultType="User">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM console_user
+        WHERE 1=1
+        <if test="userIds !=null and userIds.size() > 0">
+            AND id IN
+            <foreach item="userId" index="index" collection="userIds" separator="," open="(" close=")">
+                #{userId}
+            </foreach>
+        </if>
+        AND is_deleted=0
+    </select>
+
+    <select id="listByNotInIdsAndName" resultType="User">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM console_user
+        WHERE id NOT IN
+        <foreach item="userId" index="index" collection="ids"  separator="," open="(" close=")">
+            #{userId}
+        </foreach>
+        <if test="userName!=null">
+            AND  user_name LIKE CONCAT('%',#{userName},'%')
+        </if>
+        AND is_deleted=0
+    </select>
+
+
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO console_user
+        (dtuic_user_id,user_name,email,status,default_project_id,phone_number)
+        VALUES
+        <foreach item="user" collection="userList" separator=",">
+            (#{user.dtuicUserId},#{user.userName},#{user.email},#{user.status},#{user.defaultProjectId},#{user.phoneNumber})
+        </foreach>
+    </insert>
+
+    <select id="getUsersByUserNameAndUserIds" resultType="com.dtstack.engine.api.domain.User">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM console_user
+        WHERE is_deleted=0
+        <if test="userIds != null and userIds.size() > 0">
+            AND id IN
+            <foreach item="userId" index="index" collection="userIds" separator="," open="(" close=")">
+                #{userId}
+            </foreach>
+        </if>
+        <if test="userName != null and userName != ''">
+            AND user_name LIKE CONCAT('%', #{userName}, '%')
+        </if>
+        ORDER BY user_name ASC
+        LIMIT 50
+    </select>
+
+    <select id="getUsersByUserName" resultType="com.dtstack.engine.api.domain.User">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM console_user
+        WHERE is_deleted=0
+        <if test="userName != null">
+            AND user_name LIKE CONCAT('%', #{userName}, '%')
+        </if>
+    </select>
 
 </mapper>

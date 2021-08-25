@@ -4,6 +4,8 @@ package com.dtstack.batch.service.task.impl;
 import com.alibaba.fastjson.*;
 import com.dtstack.batch.common.enums.EDeployType;
 import com.dtstack.batch.common.enums.PublishTaskStatusEnum;
+import com.dtstack.batch.service.impl.ProjectService;
+import com.dtstack.batch.service.impl.TenantService;
 import com.dtstack.engine.api.domain.BaseEntity;
 import com.dtstack.engine.api.domain.BatchDataSource;
 import com.dtstack.engine.api.domain.BatchTask;
@@ -58,10 +60,7 @@ import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
 import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
 import com.dtstack.engine.api.vo.task.SaveTaskTaskVO;
 import com.dtstack.engine.api.vo.template.TaskTemplateResultVO;
-import com.dtstack.engine.master.impl.ComponentService;
-import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
-import com.dtstack.engine.master.impl.ScheduleTaskTaskShadeService;
-import com.dtstack.engine.master.impl.TaskParamTemplateService;
+import com.dtstack.engine.master.impl.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -138,7 +137,7 @@ public class BatchTaskService {
     private BatchCatalogueDao batchCatalogueDao;
 
     @Autowired
-    private BatchUserService batchUserService;
+    private UserService userService;
 
     @Autowired
     private BatchDataSourceTaskRefService dataSourceTaskRefService;
@@ -445,7 +444,7 @@ public class BatchTaskService {
             elem = new HashMap<>();
             elem.put("name", task.getName());
             elem.put("id", task.getId());
-            elem.put("createUser", this.batchUserService.getUserName(task.getCreateUserId()));
+            elem.put("createUser", userService.getUserName(task.getCreateUserId()));
             elem.put("taskType", task.getTaskType());
             result.add(elem);
         }
@@ -518,7 +517,7 @@ public class BatchTaskService {
 
                     }
                     // 填充用户名称
-                    ver.setUserName(batchUserService.getUserName(ver.getCreateUserId()));
+                    ver.setUserName(userService.getUserName(ver.getCreateUserId()));
                     return ver;
                 }).collect(Collectors.toList());
         taskVO.setTaskVersions(taskVersions);
@@ -553,7 +552,7 @@ public class BatchTaskService {
         final Set<Long> userIds = new HashSet<>();
         userIds.add(task.getCreateUserId());
         userIds.add(task.getOwnerUserId());
-        final Map<Long, User> userMap = this.batchUserService.getUserMap(userIds);
+        final Map<Long, User> userMap = userService.getUserMap(userIds);
         buildUserDTOInfo(userMap,taskVO);
         return taskVO;
     }
@@ -896,7 +895,7 @@ public class BatchTaskService {
                     userIds.add(Long.valueOf((int) createUserId));
                 }
             }
-            final Map<Long, User> userMap = this.batchUserService.getUserMap(userIds);
+            final Map<Long, User> userMap = userService.getUserMap(userIds);
             for (final Map<String, Object> r : result) {
                 final Project searchProject = this.projectService.getProjectById(searchProjectId);
                 Long userId = null;
@@ -1060,7 +1059,7 @@ public class BatchTaskService {
         if (CollectionUtils.isNotEmpty(vos)) {
             Set<Long> userIds = vos.stream().map(ScheduleTaskVO::getCreateUserId).collect(Collectors.toSet());
             userIds.addAll(vos.stream().map(ScheduleTaskVO::getOwnerUserId).collect(Collectors.toSet()));
-            final Map<Long, User> userMap = this.batchUserService.getUserMap(userIds);
+            final Map<Long, User> userMap = userService.getUserMap(userIds);
             for (final ScheduleTaskVO vo : vos) {
                 final Long taskId = vo.getTaskId();
                 vo.setTaskId(taskId);
@@ -1109,7 +1108,7 @@ public class BatchTaskService {
     private List<ScheduleTaskVO> dealFlowWorkSubTasks(final List<ScheduleTaskVO> vos) {
         final Set<Long> userIds = vos.stream().map(ScheduleTaskVO::getCreateUserId).collect(Collectors.toSet());
         userIds.addAll(vos.stream().map(ScheduleTaskVO::getOwnerUserId).collect(Collectors.toSet()));
-        final Map<Long, User> userMap = this.batchUserService.getUserMap(userIds);
+        final Map<Long, User> userMap = userService.getUserMap(userIds);
         for (final ScheduleTaskVO vo : vos) {
             buildUserDTOInfo(userMap, vo);
         }
@@ -1152,7 +1151,7 @@ public class BatchTaskService {
         userIds.addAll(tasks.stream().map(ScheduleTaskVO::getOwnerUserId).collect(Collectors.toSet()));
         userIds.addAll(tasks.stream().map(ScheduleTaskVO::getModifyUserId).collect(Collectors.toSet()));
 
-        final Map<Long, User> userMap = this.batchUserService.getUserMap(userIds);
+        final Map<Long, User> userMap = userService.getUserMap(userIds);
         if (MapUtils.isEmpty(userMap)) {
             return new BatchTaskBatchVO(batchTask);
         }
@@ -1285,7 +1284,7 @@ public class BatchTaskService {
     public TaskCheckResultVO publishBatchTaskInfo(List<BatchTask> subTasks, Long projectId, Long userId, String publishDesc, Boolean isRoot, Boolean ignoreCheck, String commitId) {
         //判断任务责任人是否存在 如果任务责任人不存在或无权限 不允许提交
         subTasks.forEach(task -> {
-            User user = batchUserService.getUser(task.getOwnerUserId());
+            User user = userService.getById(task.getOwnerUserId());
             if (user == null){
                 throw new RdosDefineException(String.format("%s任务责任人在数栈中不存在", task.getName()));
             }
@@ -1568,7 +1567,7 @@ public class BatchTaskService {
         final PageQuery pageQuery = new PageQuery(pageNo, pageSize, "gmt_create", Sort.DESC.name());
         List<BatchTaskVersionDetail> res = this.batchTaskVersionDao.listByTaskId(taskId, pageQuery);
         for (BatchTaskVersionDetail detail : res) {
-            detail.setUserName(batchUserService.getUserName(detail.getCreateUserId()));
+            detail.setUserName(userService.getUserName(detail.getCreateUserId()));
         }
         return res;
     }
@@ -1578,7 +1577,7 @@ public class BatchTaskService {
         if (taskVersion == null) {
             return null;
         }
-        taskVersion.setUserName(batchUserService.getUserName(taskVersion.getCreateUserId()));
+        taskVersion.setUserName(userService.getUserName(taskVersion.getCreateUserId()));
         if (StringUtils.isNotBlank(taskVersion.getDependencyTaskIds())) {
             List<Map<String, Object>> dependencyTasks = getDependencyTasks(taskVersion.getDependencyTaskIds());
             JSONObject taskParams = new JSONObject();
@@ -1703,7 +1702,7 @@ public class BatchTaskService {
             this.updateTaskRefResource(params);
         }
 
-        final User user = this.batchUserService.getUser(task.getModifyUserId());
+        final User user = userService.getById(task.getModifyUserId());
         if (user != null) {
             taskCatalogueVO.setCreateUser(user.getUserName());
         }
@@ -1713,8 +1712,8 @@ public class BatchTaskService {
             taskCatalogueVO.setDependencyTasks(dependencyTasks);
         }
 
-        final User createUser = this.batchUserService.getUser(task.getCreateUserId());
-        taskCatalogueVO.setCreateUser(createUser.getUserName());
+        String createUserName = userService.getUserName(task.getCreateUserId());
+        taskCatalogueVO.setCreateUser(createUserName);
         taskCatalogueVO.setCatalogueType(CatalogueType.TASK_DEVELOP.getType());
 
         return taskCatalogueVO;
@@ -2108,7 +2107,7 @@ public class BatchTaskService {
         //包括任务名称、任务类型、作者、创建时间、描述；
         sb.append(NOTE_SIGN).append("name ").append(task.getName()).append(ENTER);
         sb.append(NOTE_SIGN).append("type ").append(type).append(ENTER);
-        sb.append(NOTE_SIGN).append("author ").append(batchUserService.getUser(task.getCreateUserId()).getUserName()).append(ENTER);
+        sb.append(NOTE_SIGN).append("author ").append(userService.getUserName(task.getCreateUserId())).append(ENTER);
         final DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         sb.append(NOTE_SIGN).append("create time ").append(sdf.format(task.getGmtCreate())).append(ENTER);
         sb.append(NOTE_SIGN).append("desc ").append(StringUtils.isBlank(task.getTaskDesc()) ? "" : task.getTaskDesc().replace(ENTER, " ")).append(ENTER);
@@ -2917,7 +2916,7 @@ public class BatchTaskService {
 
     public void setOwnerUser(Long ownerUserId, Long taskId, Long userId, Long tenantId, Long projectId,
                              Boolean isRoot) {
-        final User ownerUser = this.batchUserService.getUser(ownerUserId);
+        final User ownerUser = userService.getById(ownerUserId);
         if (ownerUser == null) {
             throw new RdosDefineException(ErrorCode.GET_USER_ERROR);
         }

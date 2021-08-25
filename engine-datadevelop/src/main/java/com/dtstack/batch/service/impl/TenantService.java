@@ -3,7 +3,7 @@ package com.dtstack.batch.service.impl;
 import com.dtstack.batch.dao.TenantDao;
 import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.batch.service.uic.impl.UIcUserTenantRelApiClient;
-import com.dtstack.batch.service.uic.impl.domain.TenantUsersVO;
+import com.dtstack.engine.api.vo.tenant.TenantUsersVO;
 import com.dtstack.dtcenter.common.enums.EComponentType;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.google.common.collect.Lists;

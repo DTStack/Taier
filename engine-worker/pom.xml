@@ -16,6 +16,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>engine-plugin-api</module>
         <module>engine-plugins</module>
         <module>engine-worker-server</module>
     </modules>

@@ -42,6 +42,7 @@ import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.engine.api.domain.User;
 import com.dtstack.engine.api.vo.lineage.SqlType;
 import com.dtstack.engine.lineage.impl.LineageService;
+import com.dtstack.engine.master.impl.UserService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -82,11 +83,12 @@ public class BatchSqlExeService {
     private MultiEngineServiceFactory multiEngineServiceFactory;
 
     @Autowired
-    private BatchUserService batchUserService;
+    private UserService userService;
 
     @Autowired
     private BatchFunctionService batchFunctionService;
 
+    @Autowired
     private LineageService lineageService;
 
     @Autowired
@@ -117,7 +119,7 @@ public class BatchSqlExeService {
         final String dbName = this.getDbName(executeContent);
         final ISqlExeService sqlExeService = this.multiEngineServiceFactory.getSqlExeService(engineType, executeContent.getDetailType(), executeContent.getProjectId());
         Long dtuicUserId = null;
-        User user = batchUserService.getUser(executeContent.getUserId());
+        User user = userService.getById(executeContent.getUserId());
         if (Objects.nonNull(user)) {
             dtuicUserId = user.getDtuicUserId();
         }

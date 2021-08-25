@@ -23,6 +23,7 @@ import com.dtstack.dtcenter.common.console.SecurityResult;
 import com.dtstack.dtcenter.common.enums.ActionType;
 import com.dtstack.dtcenter.common.enums.EntityStatus;
 import com.dtstack.dtcenter.common.enums.RoleValue;
+import com.dtstack.engine.master.impl.UserService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
@@ -61,7 +62,7 @@ public class RoleUserService {
     private RoleService roleService;
 
     @Autowired
-    private BatchUserService batchUserService;
+    private UserService userService;
 
     @Autowired
     private IAuthService authService;
@@ -160,7 +161,7 @@ public class RoleUserService {
         List<String> newUsers = new ArrayList<>();
 
         List<Long> dtUicUserIds = targetUsers.stream().map(BatchRoleUserAddNewMapVO::getUserId).collect(Collectors.toList());
-        List<User> userList =  batchUserService.getUserInUicUserIds(dtUicUserIds);
+        List<User> userList =  userService.getUserInUicUserIds(dtUicUserIds);
         Map<Long, User> userMap = userList.stream().collect(Collectors.toMap(User::getDtuicUserId, Function.identity(), (key1, key2) -> key2));
 
         // 区分已经添加过的用户 和 未添加过的用户
@@ -190,7 +191,7 @@ public class RoleUserService {
         securityResult.addSecurityData("newUser", newUserStr);
         securityResult.setOperatorId(userId);
         //FIXME sessionUtil中添加,使用用户名考虑从缓存中获取
-        securityResult.setOperator(batchUserService.getUser(userId).getUserName());
+        securityResult.setOperator(userService.getUserName(userId));
         securityResult.setTenantId(tenantId);
         return securityResult;
     }
@@ -214,7 +215,7 @@ public class RoleUserService {
             user.setDtuicUserId(uicUserVo.getUserId());
             //用户状态0：正常，1：禁用
             user.setStatus(BooleanUtils.isTrue(uicUserVo.getActive()) ? EntityStatus.normal.getStatus() : EntityStatus.disable.getStatus());
-            uicUsers.add(batchUserService.addUser(user));
+            uicUsers.add(userService.addUser(user));
         });
         return uicUsers;
     }
@@ -304,7 +305,7 @@ public class RoleUserService {
         if(CollectionUtils.isEmpty(userIds)){
             return Maps.newHashMap();
         }
-        List<User> userList = batchUserService.getUserInIds(userIds);
+        List<User> userList = userService.listByIds(userIds);
         Map<Long, User> userMap = userList.stream().collect(Collectors.toMap(User::getId, Function.identity(), (key1, key2) -> key2));
         return userMap;
     }
@@ -372,7 +373,7 @@ public class RoleUserService {
             throw new RdosDefineException("用户不可修改自身角色", ErrorCode.PERMISSION_LIMIT);
         }
 
-        User targetUser = batchUserService.getUser(targetUserId);
+        User targetUser = userService.getById(targetUserId);
         if (targetUser == null) {
             throw new RdosDefineException(ErrorCode.USER_NOT_FIND);
         }
@@ -421,7 +422,7 @@ public class RoleUserService {
         result.setResult(roleUsersResult);
         result.setTenantId(tenantId);
         result.setOperatorId(userId);
-        result.setOperator(batchUserService.getUser(userId).getUserName());
+        result.setOperator(userService.getUserName(userId));
         result.addSecurityData("user",targetUser.getUserName())
                 .addSecurityData("rolesBefore", StringUtils.join(rolesBefore,","))
                 .addSecurityData("rolesAfter",StringUtils.join(rolesAfter,","));
@@ -442,7 +443,7 @@ public class RoleUserService {
             logger.info(String.format("dtuicTenantId: %s is not in batch", dtuicTenantId));
             return;
         }
-        User user = batchUserService.getUserByDtUicUserId(dtuicUserId);
+        User user = userService.getByDtUicUserId(dtuicUserId);
         Long userId = null;
         if (Objects.isNull(user) ){
             // 如果用户不存在，且当前操作是移除租户管理员操作则直接跳过，因为用户不存在，则证明离线中任何肯定无该用户的角色
@@ -561,7 +562,7 @@ public class RoleUserService {
             result.setResult(Lists.newArrayList());
             return result;
         }
-        User user = batchUserService.getUserByDtUicUserId(targetUicUserId);
+        User user = userService.getByDtUicUserId(targetUicUserId);
         List<Long> roleIds = roles.stream().map(Role::getId).distinct().collect(Collectors.toList());
         return updateUserRole(userId, user.getId(), roleIds, tenantId, projectId, isRoot);
     }
@@ -588,9 +589,9 @@ public class RoleUserService {
         SecurityResult<Integer> result = new SecurityResult<>();
         result.setTenantId(tenantId);
         result.setOperatorId(userId);
-        result.setOperator(batchUserService.getUser(userId).getUserName());
+        result.setOperator(userService.getUserName(userId));
         result.setResult(delete);
-        result.addSecurityData("removedUser", batchUserService.getUser(targetUserId).getUserName());
+        result.addSecurityData("removedUser", userService.getUserName(targetUserId));
         return result;
     }
 
@@ -610,7 +611,7 @@ public class RoleUserService {
             return Collections.emptyList();
         }
         // 模糊查询出符合条件的用户(限制50条)
-        List<User> users = batchUserService.getUsersByUserNameAndUserIds(userIds, name);
+        List<User> users = userService.getUsersByUserNameAndUserIds(userIds, name);
 
         return getUserRolePermissionVOS(projectId, oldOwnerUserId, users);
     }
@@ -741,7 +742,7 @@ public class RoleUserService {
 
     @SecurityAudit(actionType = ActionType.REMOVE_USER,orderedKeys = "removedUser")
     public SecurityResult<Integer> removeRoleUserFromSdk(long userId, long targetUserId, long projectId, Long tenantId, Boolean isRoot) {
-        User user = batchUserService.getUserByDtUicUserId(targetUserId);
+        User user = userService.getByDtUicUserId(targetUserId);
         return removeRoleUserFromProject(userId, user.getId(), projectId, tenantId, isRoot);
     }
 
@@ -789,7 +790,7 @@ public class RoleUserService {
      */
     private PageResult<List<UserRoleVO>> getUserRoles(Long projectId, Long tenantId, Long userId, String name, List<Integer> roleValues, PageQuery pageQuery) {
         // 根据名称过滤用户信息
-        List<User> users = batchUserService.getUsersByUserName(name);
+        List<User> users = userService.getUsersByUserName(name);
         if (CollectionUtils.isEmpty(users)) {
             return PageResult.EMPTY_PAGE_RESULT;
         }
@@ -959,7 +960,7 @@ public class RoleUserService {
             }
         }
         if (isRoot && !userMap.containsKey(userId)) {
-            User rootUser = batchUserService.getUser(userId);
+            User rootUser = userService.getById(userId);
             adminUserList.add(rootUser);
         }
         adminUserList.addAll(userMap.values());
@@ -1100,7 +1101,7 @@ public class RoleUserService {
         // 获取该租户下所有项目的租户所有者的roleId
         List<Long> tenantOwnerRoleIds = roles.stream().map(Role::getId).collect(Collectors.toList());
 
-        User oldUser = batchUserService.getUserByDtUicUserId(dtUicOldUserId);
+        User oldUser = userService.getByDtUicUserId(dtUicOldUserId);
         if (oldUser != null){
             //旧角色不为null 才需要删除旧记录
             roleUserDao.deleteByUserIdAndTenantIdAndRoleIds(oldUser.getId(), tenant.getId(), tenantOwnerRoleIds);
@@ -1110,7 +1111,7 @@ public class RoleUserService {
             authService.clearCache(oldUser.getId(), -1L, tenant.getId());
         }
 
-        User newUser = batchUserService.getUserByDtUicUserId(dtUicNewUserId);
+        User newUser = userService.getByDtUicUserId(dtUicNewUserId);
         if (newUser != null){
             //删除 租户下的默认角色
             roleUserDao.deleteByUserIdAndProjectIdAndTenantId(newUser.getId(), tenant.getId(), -1L);

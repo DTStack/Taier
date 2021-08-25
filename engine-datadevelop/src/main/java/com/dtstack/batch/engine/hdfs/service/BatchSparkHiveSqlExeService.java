@@ -16,7 +16,6 @@ import com.dtstack.batch.mapping.DataSourceTypeJobTypeMapping;
 import com.dtstack.batch.service.impl.BatchFunctionService;
 import com.dtstack.batch.service.impl.BatchSqlExeService;
 import com.dtstack.batch.service.impl.ProjectEngineService;
-import com.dtstack.batch.service.impl.BatchUserService;
 import com.dtstack.batch.service.table.impl.BatchSelectSqlService;
 import com.dtstack.batch.vo.ExecuteResultVO;
 import com.dtstack.dtcenter.common.enums.EJobType;
@@ -86,9 +85,6 @@ public class BatchSparkHiveSqlExeService {
 
     @Autowired
     protected BatchFunctionService batchFunctionService;
-
-    @Autowired
-    protected BatchUserService batchUserService;
 
     @Autowired
     private EnvironmentContext environmentContext;

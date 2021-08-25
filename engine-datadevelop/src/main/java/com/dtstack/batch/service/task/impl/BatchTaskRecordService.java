@@ -5,12 +5,12 @@ import com.dtstack.batch.domain.BatchTaskRecord;
 import com.dtstack.batch.dto.BatchTaskRecordDTO;
 import com.dtstack.batch.enums.TaskOperateType;
 import com.dtstack.batch.mapstruct.vo.TaskMapstructTransfer;
-import com.dtstack.batch.service.impl.BatchUserService;
 import com.dtstack.batch.vo.BatchTaskRecordVO;
 import com.dtstack.batch.web.pager.PageQuery;
 import com.dtstack.batch.web.pager.PageResult;
 import com.dtstack.batch.web.task.vo.result.BatchTaskRecordQueryRecordsResultVO;
 import com.dtstack.dtcenter.common.enums.Sort;
+import com.dtstack.engine.master.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +24,7 @@ public class BatchTaskRecordService {
     private BatchTaskRecordDao batchTaskRecordDao;
 
     @Autowired
-    private BatchUserService batchUserService;
+    private UserService userService;
 
     public void saveTaskRecord(BatchTaskRecord record) {
         batchTaskRecordDao.insert(record);
@@ -64,7 +64,7 @@ public class BatchTaskRecordService {
                     continue;
                 }
                 tmpId = record.getOperatorId();
-                tmpName = batchUserService.getUserName(tmpId);
+                tmpName = userService.getUserName(tmpId);
                 vo.setOperatorName(tmpName);
             }
             vos.add(vo);

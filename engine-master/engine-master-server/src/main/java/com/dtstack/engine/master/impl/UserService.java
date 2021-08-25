@@ -1,23 +1,28 @@
 package com.dtstack.engine.master.impl;
 
+import com.dtstack.dtcenter.common.enums.EntityStatus;
 import com.dtstack.engine.api.domain.User;
 import com.dtstack.engine.api.dto.ScheduleTaskForFillDataDTO;
 import com.dtstack.engine.api.dto.UserDTO;
 import com.dtstack.engine.api.vo.ScheduleFillDataJobPreViewVO;
 import com.dtstack.engine.api.vo.ScheduleJobVO;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
+import com.dtstack.engine.api.vo.tenant.TenantUsersVO;
 import com.dtstack.engine.api.vo.user.UserVO;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.dao.UserDao;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -198,5 +203,143 @@ public class UserService {
             userVOS.add(vo);
         }
         return userVOS;
+    }
+
+    public User getById(Long userId) {
+        if (userId == null) {
+            return null;
+        }
+        return userDao.getByUserId(userId);
+    }
+
+    public List<User> listByIds(Collection<Long> userIds) {
+        if (CollectionUtils.isEmpty(userIds)) {
+            return Collections.EMPTY_LIST;
+        }
+        return userDao.listByIds(userIds);
+    }
+
+    public List<User> listByNotInIdsAndName(List<Long> userInIds, String name){
+        return userDao.listByNotInIdsAndName(userInIds, name);
+    }
+
+    /**
+     * 处理该租户下uic用户信息，如果该用户不存在，则新增
+     *
+     * @param tenantUsersVOList
+     * @return
+     */
+    public List<User> dealTenantUicUserList(List<TenantUsersVO> tenantUsersVOList){
+        List<User> userList = new ArrayList<>();
+
+        List<Long> dtuicUserIdList = tenantUsersVOList.stream().map(TenantUsersVO::getId).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(dtuicUserIdList)) {
+            return userList;
+        }
+        // 获取到现在存在的用户信息
+        List<User> existUserList = userDao.getByDtUicUserIds(dtuicUserIdList);
+        userList.addAll(existUserList);
+        Map<Long, User> userMap = existUserList.stream().collect(Collectors.toMap(User::getDtuicUserId, Function.identity(), (key1, key2) -> key2));
+
+        List<User> addUserList = new ArrayList<>();
+        for (TenantUsersVO tenantUsersVO : tenantUsersVOList) {
+            // 判断用户是否存在，如果不存在，则需要增加
+            if (!userMap.containsKey(tenantUsersVO.getId())) {
+                User user = new User();
+                user.setUserName(tenantUsersVO.getUsername());
+                //取账号为邮箱
+                user.setEmail(tenantUsersVO.getUsername());
+                user.setPhoneNumber(tenantUsersVO.getPhone());
+                user.setDtuicUserId(tenantUsersVO.getId());
+                //用户状态0：正常，1：禁用
+                user.setStatus(BooleanUtils.isTrue(tenantUsersVO.getActive()) ? EntityStatus.normal.getStatus() : EntityStatus.disable.getStatus());
+                addUserList.add(user);
+            }
+        }
+
+        if (CollectionUtils.isNotEmpty(addUserList)) {
+            userDao.batchInsert(addUserList);
+            userList.addAll(addUserList);
+        }
+        return userList;
+    }
+
+    /**
+     * 根据id和name模糊查询
+     *
+     * @param userIds
+     * @param userName
+     * @return
+     */
+    public List<User> getUsersByUserNameAndUserIds(List<Long> userIds, String userName) {
+        return userDao.getUsersByUserNameAndUserIds(userIds, userName);
+    }
+
+    public Map<Long, User> getUserMap(Collection<Long> userIds) {
+        Map<Long, User> idUserMap = new HashMap<>();
+        List<User> users = userDao.listByIds(userIds);
+        for (User user : users) {
+            idUserMap.put(user.getId(), user);
+        }
+        return idUserMap;
+    }
+
+    public String getUserName(Long userId) {
+        User user = userDao.getByUserId(userId);
+        if (user != null) {
+            return user.getUserName();
+        }
+        return null;
+    }
+
+    public UserDTO getUserByDTO(Long userId) {
+        if (userId == null) {
+            return null;
+        }
+        User one = userDao.getByUserId(userId);
+        if (Objects.isNull(one)) {
+            return null;
+        }
+        UserDTO userDTO = new UserDTO();
+        BeanUtils.copyProperties(one, userDTO);
+        return userDTO;
+    }
+
+    public User getByDtUicUserId(Long dtuicUserId) {
+        return userDao.getByDtUicUserId(dtuicUserId);
+    }
+
+    /**
+     * 根据dtuicUserId 获取 User 信息
+     *
+     * @param dtUicUserIds
+     * @return
+     */
+    public List<User> getUserInUicUserIds(List<Long> dtUicUserIds) {
+        if (CollectionUtils.isEmpty(dtUicUserIds)) {
+            return Collections.EMPTY_LIST;
+        }
+        return userDao.getByDtUicUserIds(dtUicUserIds);
+    }
+
+    /**
+     * 添加用户信息
+     *
+     * @param user
+     * @return
+     */
+    public Long addUser(User user){
+        userDao.insert(user);
+        return user.getId();
+    }
+
+    /**
+     * 根据用户名模糊查询用户信息
+     *
+     * @param userName
+     * @return
+     */
+    public List<User> getUsersByUserName(String userName) {
+        return userDao.getUsersByUserName(userName);
     }
 }

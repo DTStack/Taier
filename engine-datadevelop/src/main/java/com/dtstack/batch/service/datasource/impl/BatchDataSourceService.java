@@ -15,7 +15,6 @@ import com.dtstack.batch.common.template.Setting;
 import com.dtstack.batch.common.template.Writer;
 import com.dtstack.batch.common.util.JsonUtil;
 import com.dtstack.batch.dao.BatchDataSourceCenterDao;
-import com.dtstack.batch.dao.UserDao;
 import com.dtstack.batch.domain.*;
 import com.dtstack.batch.dto.BatchDataSourceTaskDto;
 import com.dtstack.batch.engine.rdbms.common.HadoopConfTool;
@@ -69,6 +68,7 @@ import com.dtstack.engine.datasource.vo.datasource.api.DsServiceListVO;
 import com.dtstack.engine.datasource.vo.datasource.api.DsShiftReturnVO;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ComponentService;
+import com.dtstack.engine.master.impl.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -226,8 +226,8 @@ public class BatchDataSourceService {
     @Autowired
     private RoleUserService roleUserService;
 
-    @Resource(name = "batchUserDao")
-    private UserDao userDao;
+    @Autowired
+    private UserService userService;
 
     @Resource(name = "batchTenantService")
     private TenantService tenantService;
@@ -249,9 +249,6 @@ public class BatchDataSourceService {
 
     @Autowired
     private EnvironmentContext environmentContext;
-
-    @Autowired
-    private BatchUserService batchUserService;
 
     @Autowired
     private SyncBuilderFactory syncBuilderFactory;
@@ -2021,7 +2018,7 @@ public class BatchDataSourceService {
 
     private void parseModifyUser(DataSourceVO vo) {
         long modifyUserId = vo.getModifyUserId();
-        User modifyUser = userDao.getOne(modifyUserId);
+        User modifyUser = userService.getById(modifyUserId);
         vo.setModifyUser(modifyUser);
     }
 

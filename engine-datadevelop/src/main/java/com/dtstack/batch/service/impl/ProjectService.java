@@ -25,7 +25,7 @@ import com.dtstack.batch.service.table.impl.BatchHiveSelectSqlService;
 import com.dtstack.batch.service.task.impl.BatchTaskService;
 import com.dtstack.batch.service.task.impl.ReadWriteLockService;
 import com.dtstack.batch.service.uic.impl.UIcUserTenantRelApiClient;
-import com.dtstack.batch.service.uic.impl.domain.TenantUsersVO;
+import com.dtstack.engine.api.vo.tenant.TenantUsersVO;
 import com.dtstack.batch.vo.*;
 import com.dtstack.batch.web.pager.PageQuery;
 import com.dtstack.batch.web.pager.PageResult;
@@ -47,6 +47,7 @@ import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusCountVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
+import com.dtstack.engine.master.impl.UserService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -89,8 +90,8 @@ public class ProjectService {
     @Autowired
     private RoleUserDao roleUserDao;
 
-    @Resource(name = "batchUserDao")
-    private UserDao userDao;
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private ApplicationContext context;
@@ -100,9 +101,6 @@ public class ProjectService {
 
     @Autowired
     private RoleService roleService;
-
-    @Autowired
-    private BatchUserService batchUserService;
 
     @Autowired
     private IJdbcService jdbcServiceImpl;
@@ -681,7 +679,7 @@ public class ProjectService {
         List<TenantUsersVO> tenantUsersVOList = tenantService.findUicAdminRoleUserByDtuicTenantId(dtuicTenantId);
         List<User> userList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(tenantUsersVOList)) {
-            userList = batchUserService.dealTenantUicUserList(tenantUsersVOList);
+            userList = userService.dealTenantUicUserList(tenantUsersVOList);
         }
         Map<Long, User> dtuicUserIdUserMap = userList.stream().collect(Collectors.toMap(User::getDtuicUserId, Function.identity(), (key1, key2) -> key2));
 
@@ -1003,7 +1001,7 @@ public class ProjectService {
         List<RoleUser> roleUsers = roleUserDao.listByProjectId(projectId);
         List<Long> userInIds = roleUsers.stream().map(RoleUser::getUserId).collect(Collectors.toList());
         userInIds.add(-1L);
-        return userDao.listByNotInIdsAndName(userInIds, name);
+        return userService.listByNotInIdsAndName(userInIds, name);
     }
 
     /**
@@ -1140,7 +1138,7 @@ public class ProjectService {
     private ProjectVO mapperProject(Project project, boolean isRoot, Long userId) {
         ProjectVO projectVO = new ProjectVO();
         BeanUtils.copyProperties(project, projectVO);
-        projectVO.setCreateUser(batchUserService.getUser(project.getCreateUserId()));
+        projectVO.setCreateUser(userService.getById(project.getCreateUserId()));
         projectVO.setAdminUsers(roleUserService.getProjectAdminUser(project.getId(), isRoot, userId));
         return projectVO;
     }
@@ -1281,7 +1279,7 @@ public class ProjectService {
         List<ProjectDTO> projects = projectDao.listJobSumByIdsAndFuzzyNameAndType(usefulProjectIdList, fuzzyName, projectType, userId, pageQuery, tenantId,
                 null, null, null, EScheduleType.NORMAL_SCHEDULE.getType(), catalogueId);
         for (ProjectDTO projectDTO : projects) {
-            projectDTO.setCreateUserName(batchUserService.getUserName(projectDTO.getCreateUserId()));
+            projectDTO.setCreateUserName(userService.getUserName(projectDTO.getCreateUserId()));
         }
 
         Map<Long, ProjectDTO> projectDTOMap = projects.stream().collect(Collectors.toMap(ProjectDTO::getId, Function.identity()));
@@ -1899,7 +1897,7 @@ public class ProjectService {
         if (Objects.isNull(tenant)) {
             return Collections.EMPTY_LIST;
         }
-        User user = batchUserService.getUserByDtUicUserId(dtuicUserId);
+        User user = userService.getByDtUicUserId(dtuicUserId);
         if (Objects.isNull(user)) {
             return Collections.EMPTY_LIST;
         }
