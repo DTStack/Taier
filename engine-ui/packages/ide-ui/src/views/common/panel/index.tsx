@@ -1,6 +1,11 @@
 import React from 'react';
 import molecule from 'molecule';
-import { IEditorTab, IExtension, PANEL_OUTPUT, IPanelItem } from 'molecule/esm/model';
+import {
+    IEditorTab,
+    IExtension,
+    PANEL_OUTPUT,
+    IPanelItem,
+} from 'molecule/esm/model';
 import { localize } from 'molecule/esm/i18n/localize';
 import { connect } from 'molecule/esm/react';
 import EnvParams from '../../task/envParams';
@@ -11,7 +16,7 @@ import {
     ENV_PARAMS,
     TASK_PARAMS_ID,
     TASK_SCHEDULE_CONFIG,
-    OUTPUT_LOG
+    OUTPUT_LOG,
 } from '../utils/const';
 
 function getEnvParamsUI() {
@@ -90,9 +95,9 @@ function getSchedulingConfigUI() {
 export default class PanelExtension implements IExtension {
     activate() {
         const panelItems: IPanelItem[] = [
-            getSchedulingConfigUI(), 
+            getSchedulingConfigUI(),
             getTaskParamsUI(),
-            getEnvParamsUI()
+            getEnvParamsUI(),
         ];
         molecule.panel.add(panelItems);
 
@@ -100,10 +105,7 @@ export default class PanelExtension implements IExtension {
         molecule.panel.add({
             id: OUTPUT_LOG,
             name: '日志',
-            sortIndex: 1,
-            renderPane: () => (
-                <Markdown />
-            ),
+            renderPane: () => <Markdown />,
         });
     }
 }

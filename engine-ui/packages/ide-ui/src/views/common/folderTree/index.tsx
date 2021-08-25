@@ -11,6 +11,7 @@ import { FOLDERTREE_CONTEXT_EDIT, TASK_RUN_ID } from '../utils/const';
 import store from '../../../store';
 import { workbenchAction } from '../../../controller/dataSync/actionType';
 import { editorAction } from '../../../controller/editor/actionTypes';
+import { cloneDeep } from 'lodash';
 
 function convertToTreeNode(data: any[]) {
     if (!data) {
@@ -43,8 +44,10 @@ function init() {
         userId: 1,
     }).then((res) => {
         if (res.code === 1) {
-            const {  children } = res.data;
-            const devData = children.filter((item: any) => item.catalogueType === 'TaskManager')[0].children[0]
+            const { children } = res.data;
+            const devData = children.filter(
+                (item: any) => item.catalogueType === 'TaskManager'
+            )[0].children[0];
             const { id, name, children: child } = devData;
             // 根目录
             const node = new TreeNodeModel({
@@ -82,10 +85,19 @@ function createTask() {
         if (type === 'File') {
             resetEditorGroup();
 
+            const tabId = `createTask_${new Date().getTime()}`;
+
             const onSubmit = (values: any) => {
-                return new Promise<boolean>((resolve)=> {
-                    // addOfflineTask(values, isEditExist, defaultData)
-                    const params = { ...values, nodePid: 233, computeType: 1, isUseComponent: 0, lockVersion: 0, version: 0, componentVersion: '2.1' }
+                return new Promise<boolean>((resolve) => {
+                    const params = {
+                        ...values,
+                        nodePid: 233,
+                        computeType: 1,
+                        isUseComponent: 0,
+                        lockVersion: 0,
+                        version: 0,
+                        componentVersion: '2.1',
+                    };
                     ajax.addOfflineTask(params)
                         .then((res: any) => {
                             if (res.code === 1) {
@@ -103,11 +115,14 @@ function createTask() {
                                         language: 'sql',
                                     },
                                 });
-    
+
                                 molecule.folderTree.add(node, 233);
-    
+
                                 const { current } = molecule.editor.getState();
-                                if (current?.tab?.data.taskType === TASK_TYPE.SQL) {
+                                if (
+                                    current?.tab?.data.taskType ===
+                                    TASK_TYPE.SQL
+                                ) {
                                     molecule.editor.updateActions([
                                         { id: TASK_RUN_ID, disabled: false },
                                     ]);
@@ -115,13 +130,10 @@ function createTask() {
                             }
                         })
                         .finally(() => {
-                            resolve(false)
-                        })
-                })
-                
+                            resolve(false);
+                        });
+                });
             };
-
-            const tabId = `createTask_${new Date().getTime()}`;
 
             const tabData = {
                 id: tabId,
@@ -267,57 +279,82 @@ export default class FolderTreeExtension implements IExtension {
         molecule.folderTree.onContextMenu((treeNode, menu) => {
             switch (menu.id) {
                 case FOLDERTREE_CONTEXT_EDIT: {
-                    console.log('treeNode:', treeNode);
                     resetEditorGroup();
 
+                    const tabId = `createTask_${new Date().getTime()}`;
+
                     const onSubmit = (values: any) => {
-                        return new Promise<boolean>((resolve)=> {
-                            // addOfflineTask(values, isEditExist, defaultData)
-                            const params = { ...values, nodePid: 233, computeType: 1, isUseComponent: 0, lockVersion: 0, version: 0, componentVersion: '2.1' }
+                        return new Promise<boolean>((resolve) => {
+                            const params = {
+                                id: treeNode.data.id,
+                                ...values,
+                                nodePid: 233,
+                                computeType: 1,
+                                isUseComponent: 0,
+                                lockVersion: 0,
+                                version: 0,
+                                componentVersion: '2.1',
+                            };
                             ajax.addOfflineTask(params)
                                 .then((res: any) => {
                                     if (res.code === 1) {
-                                        const { data } = res;
-                                        const { id, name } = data;
+                                        const nextTreeData =
+                                            cloneDeep(treeNode);
+
+                                        nextTreeData.data = params;
+                                        nextTreeData.name = values.name;
+
+                                        molecule.folderTree.update(treeNode);
+
+                                        // 确保 editor 的 tab 的 id 和 tree 的 id 保持一致
+                                        // 同步去更新 tab 的 name
+                                        const isOpened =
+                                            molecule.editor.isOpened(
+                                                treeNode.id
+                                            );
+                                        if (isOpened) {
+                                            molecule.editor.updateTab({
+                                                id: treeNode.id,
+                                                name: values.name,
+                                            });
+                                        }
+
                                         molecule.editor.closeTab(tabId, 1);
                                         molecule.explorer.forceUpdate();
-                                        const node = new TreeNodeModel({
-                                            id,
-                                            name,
-                                            fileType: FileTypes.File,
-                                            isLeaf: true,
-                                            data: {
-                                                ...data,
-                                                language: 'sql',
-                                            },
-                                        });
-            
-                                        molecule.folderTree.add(node, 233);
-            
-                                        const { current } = molecule.editor.getState();
-                                        if (current?.tab?.data.taskType === TASK_TYPE.SQL) {
+
+                                        // 关闭后编辑任务的 tab 后，需要去更新 actions 的状态
+                                        const { current } =
+                                            molecule.editor.getState();
+                                        if (
+                                            current?.tab?.data.taskType ===
+                                            TASK_TYPE.SQL
+                                        ) {
                                             molecule.editor.updateActions([
-                                                { id: TASK_RUN_ID, disabled: false },
+                                                {
+                                                    id: TASK_RUN_ID,
+                                                    disabled: false,
+                                                },
                                             ]);
                                         }
                                     }
                                 })
                                 .finally(() => {
-                                    resolve(false)
-                                })
-                        })
-                        
+                                    resolve(false);
+                                });
+                        });
                     };
-
-                    const tabId = `createTask_${new Date().getTime()}`;
-
                     const tabData = {
                         id: tabId,
                         modified: false,
                         data: {},
-                        name: localize('create task', '新建任务'),
+                        name: localize('update task', '编辑任务'),
                         renderPane: () => {
-                            return <Open onSubmit={onSubmit} />;
+                            return (
+                                <Open
+                                    record={treeNode.data}
+                                    onSubmit={onSubmit}
+                                />
+                            );
                         },
                     };
 

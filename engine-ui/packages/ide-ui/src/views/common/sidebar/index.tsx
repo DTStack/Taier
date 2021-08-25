@@ -2,6 +2,7 @@ import React from 'react';
 import molecule from 'molecule';
 import { FileTypes, IExtension, TreeNodeModel } from 'molecule/esm/model';
 import ResourceManager from '../../resourceManager';
+import resourceManagerTree from '../../../services/resourceManagerService';
 
 function convertToTreeNode(data: any[]) {
     if (!data) {
@@ -88,11 +89,8 @@ function initResourceManager() {
         children: convertToTreeNode(children),
     });
 
-    const treeData = {
-        data: [node],
-        contextMenu: [{}],
-        folderPanelContextMenu: [],
-    };
+    // 新增节点到资源管理树上
+    resourceManagerTree.add(node);
 
     const headerToolBar = [
         {
@@ -106,16 +104,32 @@ function initResourceManager() {
             icon: 'menu',
             contextMenu: [
                 {
-                    id: 'add',
-                    name: '新增',
+                    id: 'upload',
+                    name: '上传资源',
                 },
                 {
-                    id: 'remove',
-                    name: '删除',
+                    id: 'replace',
+                    name: '替换资源',
+                },
+                {
+                    id: 'create-folder',
+                    name: '新建文件夹',
                 },
             ],
         },
     ];
+
+    const handleUpload = () => {
+        console.log('上传资源');
+    };
+
+    const handleReplace = () => {
+        console.log('替换资源');
+    };
+
+    const handleCreateFolder = () => {
+        console.log('新建文件夹');
+    };
 
     molecule.activityBar.add(resourceManager);
     molecule.sidebar.add({
@@ -123,9 +137,11 @@ function initResourceManager() {
         title: resourceManager.name,
         render: () => (
             <ResourceManager
-                treeData={treeData}
                 panel={resourceManager}
                 headerToolBar={headerToolBar}
+                onUpload={handleUpload}
+                onReplace={handleReplace}
+                onCreateFolder={handleCreateFolder}
             />
         ),
     });

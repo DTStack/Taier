@@ -33,6 +33,7 @@ const tailFormItemLayout = {
 interface OpenProps {
     currentId?: number;
     onSubmit?: (values: any) => Promise<boolean>;
+    record?: any;
     form: WrappedFormUtils<any>;
 }
 
@@ -49,30 +50,43 @@ const taskType = [
 
 class Open extends React.PureComponent<OpenProps, {}> {
     state = {
-        loading: false
-    }
+        loading: false,
+    };
 
     handleSubmit = (e: any) => {
         e.preventDefault();
         this.props.form.validateFieldsAndScroll((err, values) => {
             if (!err) {
-                this.setState({
-                    loading: true
-                }, () => {
-                    this.props.onSubmit?.(values)
-                        .then((loading) => {
+                this.setState(
+                    {
+                        loading: true,
+                    },
+                    () => {
+                        this.props.onSubmit?.(values).then((loading) => {
                             this.setState({
-                                loading
-                            })
-                        })
-                   
-                })
-                
+                                loading,
+                            });
+                        });
+                    }
+                );
             }
         });
     };
 
+    componentDidMount() {
+        const { form, record } = this.props;
+        if (record) {
+            form.setFieldsValue({
+                name: record.name,
+                taskType: record.taskType,
+                nodePid: record.parentId,
+                taskDesc: record.taskDesc,
+            });
+        }
+    }
+
     render() {
+        const { record } = this.props;
         const { getFieldDecorator } = this.props.form;
         const { loading } = this.state;
         return (
@@ -98,7 +112,7 @@ class Open extends React.PureComponent<OpenProps, {}> {
                             },
                         ],
                     })(
-                        <Select>
+                        <Select disabled={!!record}>
                             {taskType.map((type) => (
                                 <Option key={type.value} value={type.value}>
                                     {type.text}
@@ -114,9 +128,7 @@ class Open extends React.PureComponent<OpenProps, {}> {
                                 required: true,
                             },
                         ],
-                    })(
-                        <Input />
-                    )}
+                    })(<Input />)}
                 </FormItem>
                 <FormItem {...formItemLayout} label="描述" hasFeedback>
                     {getFieldDecorator('taskDesc', {
