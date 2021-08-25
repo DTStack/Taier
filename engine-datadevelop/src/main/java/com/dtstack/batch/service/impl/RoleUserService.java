@@ -23,6 +23,7 @@ import com.dtstack.dtcenter.common.console.SecurityResult;
 import com.dtstack.dtcenter.common.enums.ActionType;
 import com.dtstack.dtcenter.common.enums.EntityStatus;
 import com.dtstack.dtcenter.common.enums.RoleValue;
+import com.dtstack.engine.master.impl.TenantService;
 import com.dtstack.engine.master.impl.UserService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -73,7 +74,7 @@ public class RoleUserService {
     @Autowired
     private RoleDao roleDao;
 
-    @Resource(name = "batchTenantService")
+    @Autowired
     private TenantService tenantService;
 
     @Autowired
@@ -437,7 +438,7 @@ public class RoleUserService {
      * @param roleFlag      true 增加角色/false 移除角色
      */
     public void updateUserRoleByEvent(List<Integer> roleValueList, Long dtuicUserId, Long dtuicTenantId, Boolean roleFlag){
-        Tenant tenant = tenantService.getTenantByDtUicTenantId(dtuicTenantId);
+        Tenant tenant = tenantService.getByDtUicTenantId(dtuicTenantId);
         // 如果租户不存在，直接跳过（因为租户不存在，肯定不存在项目，无需做角色任何操作）
         if (Objects.isNull(tenant)) {
             logger.info(String.format("dtuicTenantId: %s is not in batch", dtuicTenantId));
@@ -1091,7 +1092,7 @@ public class RoleUserService {
      * 2.新增该租户下 所有项目下 新用户的租户所有者的角色  删除project_id = -1 角色为访客的记录
      */
     public void changeTenantOwner(Long dtUicOldUserId, Long dtUicNewUserId, Long dtTenantId) {
-        Tenant tenant = tenantService.getTenantByDtUicTenantId(dtTenantId);
+        Tenant tenant = tenantService.getByDtUicTenantId(dtTenantId);
         if (tenant == null){
             logger.info("该租户 {} 不存在",dtTenantId);
             return;

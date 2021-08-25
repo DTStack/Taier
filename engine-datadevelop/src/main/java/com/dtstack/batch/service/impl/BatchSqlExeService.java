@@ -42,6 +42,7 @@ import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.engine.api.domain.User;
 import com.dtstack.engine.api.vo.lineage.SqlType;
 import com.dtstack.engine.lineage.impl.LineageService;
+import com.dtstack.engine.master.impl.TenantService;
 import com.dtstack.engine.master.impl.UserService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -73,7 +74,7 @@ public class BatchSqlExeService {
     @Resource(name = "batchProjectService")
     private ProjectService projectService;
 
-    @Resource(name = "batchTenantService")
+    @Autowired
     private TenantService tenantService;
 
     @Autowired
@@ -128,7 +129,7 @@ public class BatchSqlExeService {
 
     private String getDbName(final ExecuteContent executeContent) {
         String dbName = null;
-        final Tenant tenantByDtUicTenantId = this.tenantService.getTenantByDtUicTenantId(executeContent.getDtuicTenantId());
+        final Tenant tenantByDtUicTenantId = tenantService.getByDtUicTenantId(executeContent.getDtuicTenantId());
         if (null != tenantByDtUicTenantId) {
             Long projectId = executeContent.getProjectId();
             if (projectId == null) {

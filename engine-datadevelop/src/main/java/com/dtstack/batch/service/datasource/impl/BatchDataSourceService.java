@@ -68,6 +68,7 @@ import com.dtstack.engine.datasource.vo.datasource.api.DsServiceListVO;
 import com.dtstack.engine.datasource.vo.datasource.api.DsShiftReturnVO;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ComponentService;
+import com.dtstack.engine.master.impl.TenantService;
 import com.dtstack.engine.master.impl.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
@@ -224,12 +225,9 @@ public class BatchDataSourceService {
     private DictService dictService;
 
     @Autowired
-    private RoleUserService roleUserService;
-
-    @Autowired
     private UserService userService;
 
-    @Resource(name = "batchTenantService")
+    @Autowired
     private TenantService tenantService;
 
     @Resource(name = "batchProjectService")

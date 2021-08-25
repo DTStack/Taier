@@ -18,6 +18,7 @@ import com.dtstack.batch.web.task.vo.result.BatchTaskGetComponentVersionResultVO
 import com.dtstack.dtcenter.common.enums.*;
 import com.dtstack.dtcenter.common.util.PublicUtil;
 import com.dtstack.engine.api.domain.BatchTask;
+import com.dtstack.engine.master.impl.TenantService;
 import com.dtstack.engine.master.impl.UserService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -85,7 +86,7 @@ public class BatchCatalogueService {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
-    @Resource(name = "batchTenantService")
+    @Autowired
     private TenantService tenantService;
 
     private static List<String> FUNCTION_MANAGER = Lists.newArrayList("函数管理");

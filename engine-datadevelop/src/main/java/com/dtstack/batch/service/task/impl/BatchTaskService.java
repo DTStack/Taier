@@ -5,7 +5,6 @@ import com.alibaba.fastjson.*;
 import com.dtstack.batch.common.enums.EDeployType;
 import com.dtstack.batch.common.enums.PublishTaskStatusEnum;
 import com.dtstack.batch.service.impl.ProjectService;
-import com.dtstack.batch.service.impl.TenantService;
 import com.dtstack.engine.api.domain.BaseEntity;
 import com.dtstack.engine.api.domain.BatchDataSource;
 import com.dtstack.engine.api.domain.BatchTask;
@@ -61,6 +60,7 @@ import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
 import com.dtstack.engine.api.vo.task.SaveTaskTaskVO;
 import com.dtstack.engine.api.vo.template.TaskTemplateResultVO;
 import com.dtstack.engine.master.impl.*;
+import com.dtstack.engine.master.impl.TenantService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -172,7 +172,7 @@ public class BatchTaskService {
     @Autowired
     private DictService dictService;
 
-    @Resource(name = "batchTenantService")
+    @Autowired
     private TenantService tenantService;
 
     @Autowired
@@ -903,7 +903,7 @@ public class BatchTaskService {
                     userId = Long.valueOf((int) r.get("createUserId"));
                 }
                 r.put("createUser", userMap.get(userId));
-                r.put("tenantName", this.tenantService.getTenantById(searchProject.getTenantId()).getTenantName());
+                r.put("tenantName", tenantService.getTenantById(searchProject.getTenantId()).getTenantName());
                 r.put("projectName", searchProject.getProjectName());
             }
         }
@@ -1393,7 +1393,7 @@ public class BatchTaskService {
         checkTaskCanSubmit(task);
 
         task.setSubmitStatus(ESubmitStatus.SUBMIT.getStatus());
-        final Long dtuicTenantId = this.tenantService.getDtuicTenantId(task.getTenantId());
+        final Long dtuicTenantId = tenantService.getDtuicTenantId(task.getTenantId());
 
         Integer engineType = null;
         if (!EJobType.WORK_FLOW.getVal().equals(task.getTaskType())
@@ -1588,7 +1588,7 @@ public class BatchTaskService {
                 if (taskShade != null) {
                     JSONObject taskParam = new JSONObject();
                     taskParam.put("taskName", taskShade.getName());
-                    taskParam.put("tenantName", this.tenantService.getTenantById(taskShade.getTenantId()).getTenantName());
+                    taskParam.put("tenantName", tenantService.getTenantById(taskShade.getTenantId()).getTenantName());
                     ScheduleEngineProjectVO engineProjectVO= engineProjectService.findProject(taskShade.getProjectId(),taskShade.getAppType());
                     if (engineProjectVO != null) {
                         taskParam.put("projectName", engineProjectVO.getProjectName());
@@ -3074,7 +3074,7 @@ public class BatchTaskService {
 
         List<Long> tenantIds = batchTasks.stream().map(BatchTask::getTenantId).collect(Collectors.toList());
         List<Long> projectIds = batchTasks.stream().map(BatchTask::getProjectId).collect(Collectors.toList());
-        List<Tenant> tenants = tenantService.listDtuicTenantIdByTenantId(tenantIds);
+        List<Tenant> tenants = tenantService.listByTenantIds(tenantIds);
         Map<Long, Project> projectMap = projectService.getProjectMap(projectIds);
         //key -- tenantId --- value -- dtUicTenantId
         Map<Long, Tenant> dtUicTenantIdMap = tenants.stream().collect(Collectors.toMap(Tenant::getId, Function.identity()));

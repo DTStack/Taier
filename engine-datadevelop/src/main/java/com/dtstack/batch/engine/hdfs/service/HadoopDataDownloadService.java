@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.batch.common.enums.ETableType;
 import com.dtstack.batch.common.enums.TempJobType;
+import com.dtstack.dtcenter.common.enums.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.batch.common.exception.RdosDefineException;
 import com.dtstack.batch.domain.BatchHiveSelectSql;
@@ -15,16 +16,11 @@ import com.dtstack.batch.mapping.DataSourceTypeJobTypeMapping;
 import com.dtstack.batch.mapping.JobTypeDataSourceTypeMapping;
 import com.dtstack.batch.service.datasource.impl.BatchDataSourceService;
 import com.dtstack.batch.service.impl.ProjectEngineService;
-import com.dtstack.batch.service.impl.TenantService;
 import com.dtstack.batch.service.job.impl.BatchJobService;
 import com.dtstack.batch.service.table.IDataDownloadService;
 import com.dtstack.batch.service.table.impl.BatchSelectSqlService;
 import com.dtstack.dtcenter.common.annotation.Forbidden;
 import com.dtstack.dtcenter.common.engine.JdbcInfo;
-import com.dtstack.dtcenter.common.enums.ComputeType;
-import com.dtstack.dtcenter.common.enums.Deleted;
-import com.dtstack.dtcenter.common.enums.EJobType;
-import com.dtstack.dtcenter.common.enums.MultiEngineType;
 import com.dtstack.dtcenter.common.util.PublicUtil;
 import com.dtstack.dtcenter.common.util.RetryUtil;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
@@ -32,6 +28,7 @@ import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.pojo.lineage.Table;
 import com.dtstack.engine.api.vo.action.ActionLogVO;
 import com.dtstack.engine.master.impl.ActionService;
+import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -88,8 +85,8 @@ public class HadoopDataDownloadService implements IDataDownloadService {
     @Autowired
     private EnvironmentContext environmentContext;
 
-    @Resource(name = "batchTenantService")
-    private TenantService tenantService;
+    @Autowired
+    private ClusterService clusterService;
 
     /**
      * 下载sql执行结果
@@ -336,7 +333,7 @@ public class HadoopDataDownloadService implements IDataDownloadService {
 
         if (EJobType.SYNC.getVal().equals(taskType)) {
             //standalone模式的不支持日志下载直接返回null
-            Boolean isStandalone = tenantService.hasStandAlone(dtuicTenantId);
+            Boolean isStandalone = clusterService.hasStandalone(dtuicTenantId, EComponentType.FLINK.getTypeCode());
             if (isStandalone){
                 return null;
             }

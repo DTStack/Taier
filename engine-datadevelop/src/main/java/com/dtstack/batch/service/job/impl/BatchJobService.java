@@ -114,8 +114,8 @@ public class BatchJobService {
     @Autowired
     private EnvironmentContext env;
 
-    @Resource(name = "batchTenantService")
-    private TenantService tenantService;
+    @Autowired
+    private com.dtstack.engine.master.impl.TenantService tenantService;
 
     @Autowired
     private MultiEngineServiceFactory multiEngineServiceFactory;
@@ -429,7 +429,7 @@ public class BatchJobService {
         Long taskId = batchTask.getId();
         // 跨项目的时候 需要依赖 task的project
         final Project project = this.projectService.getProjectById(batchTask.getProjectId());
-        final Long dtuicTenantId = this.tenantService.getDtuicTenantId(batchTask.getTenantId());
+        final Long dtuicTenantId = tenantService.getDtuicTenantId(batchTask.getTenantId());
 
         final Map<String, Object> actionParam = new HashMap<>(10);
 

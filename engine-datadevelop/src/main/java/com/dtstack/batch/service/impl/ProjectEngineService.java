@@ -3,7 +3,6 @@ package com.dtstack.batch.service.impl;
 import com.dtstack.batch.common.exception.ErrorCode;
 import com.dtstack.batch.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.ProjectEngineDao;
-import com.dtstack.batch.dao.TenantDao;
 import com.dtstack.batch.domain.Project;
 import com.dtstack.batch.domain.ProjectEngine;
 import com.dtstack.batch.domain.RoleUser;
@@ -12,9 +11,9 @@ import com.dtstack.batch.mapping.TableTypeEngineTypeMapping;
 import com.dtstack.dtcenter.common.annotation.Forbidden;
 import com.dtstack.dtcenter.common.enums.MultiEngineType;
 import com.dtstack.dtcenter.common.enums.RoleValue;
+import com.dtstack.engine.master.impl.TenantService;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -44,8 +43,8 @@ public class ProjectEngineService {
     @Resource(name = "batchProjectService")
     private ProjectService projectService;
 
-    @Resource(name = "batchTenantDao")
-    private TenantDao tenantDao;
+    @Autowired
+    private TenantService tenantService;
 
     @Autowired
     private RoleUserService roleUserService;
@@ -61,7 +60,7 @@ public class ProjectEngineService {
         if (CollectionUtils.isEmpty(dtuicTenantIdList)) {
             return Lists.newArrayList();
         }
-        List<Tenant> tenants = tenantDao.getByDtUicTenantIds(Sets.newHashSet(dtuicTenantIdList));
+        List<Tenant> tenants = tenantService.listByDtUicTenantIds(dtuicTenantIdList);
         List<Long> tenantIds = tenants.stream().map(Tenant::getId).collect(Collectors.toList());
         List<Project> projects = projectService.listByTenantIds(tenantIds);
         List<Long> projectIds = projects.stream().map(Project::getId).collect(Collectors.toList());

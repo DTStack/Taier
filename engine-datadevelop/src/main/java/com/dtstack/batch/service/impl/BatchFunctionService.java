@@ -20,6 +20,7 @@ import com.dtstack.dtcenter.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.common.util.PublicUtil;
 import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.engine.api.domain.User;
+import com.dtstack.engine.master.impl.TenantService;
 import com.dtstack.engine.master.impl.UserService;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
@@ -74,7 +75,7 @@ public class BatchFunctionService {
     @Autowired
     private BatchCatalogueDao batchCatalogueDao;
 
-    @Resource(name = "batchTenantService")
+    @Autowired
     private TenantService tenantService;
 
     /**

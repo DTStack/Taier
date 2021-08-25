@@ -19,7 +19,6 @@ import com.dtstack.engine.common.util.ComponentVersionUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
-import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.enums.Sort;
@@ -92,9 +91,6 @@ public class ClusterService implements com.dtstack.engine.api.service.ClusterSer
 
     @Autowired
     private EnvironmentContext environmentContext;
-
-    @Autowired
-    private DtUicUserConnect dtUicUserConnect;
 
     @Autowired
     private ComponentConfigService componentConfigService;
@@ -694,19 +690,13 @@ public class ClusterService implements com.dtstack.engine.api.service.ClusterSer
             .build();
 
     private String getLdapUserName(Long dtUicUserId) {
-        if (StringUtils.isBlank(environmentContext.getUicToken()) || StringUtils.isBlank(environmentContext.getDtUicUrl())) {
-            return null;
+        User user = userDao.getByDtUicUserId(dtUicUserId);
+        if (user != null){
+            String ldapUserName = user.getUserName();
+            ldapCache.put(dtUicUserId, ldapUserName);
+            return ldapUserName;
         }
-        String ldapUserName = null;
-        if (environmentContext.isOpenLdapCache()) {
-            ldapUserName = ldapCache.getIfPresent(dtUicUserId);
-            if (null != ldapUserName) {
-                return ldapUserName;
-            }
-        }
-        ldapUserName = dtUicUserConnect.getLdapUserName(dtUicUserId, environmentContext.getUicToken(), environmentContext.getDtUicUrl());
-        ldapCache.put(dtUicUserId, ldapUserName);
-        return ldapUserName;
+        return "";
     }
 
 

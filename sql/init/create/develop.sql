@@ -35,21 +35,6 @@ CREATE TABLE `rdos_project_engine` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT ='项目与engine的关联关系表';
 
-CREATE TABLE `rdos_tenant` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `dtuic_tenant_id` int(11) NOT NULL COMMENT '租户id',
-  `tenant_name` varchar(256) NOT NULL COMMENT '用户名称',
-  `tenant_desc` varchar(256) DEFAULT NULL COMMENT '租户描述',
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '用户状态0：正常，1：禁用',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  `create_user_id` bigint(20) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `index_tenant_id` (`dtuic_tenant_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT ='租户表';
-
-
 CREATE TABLE `rdos_dict` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `type` int(11) NOT NULL DEFAULT '0' COMMENT '区分字典类型，1：数据源字典 ...',

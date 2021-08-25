@@ -7,6 +7,7 @@ import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.AccountTenantVo;
 import com.dtstack.engine.api.vo.AccountVo;
 import com.dtstack.engine.api.vo.ClusterVO;
+import com.dtstack.engine.api.vo.user.UserVO;
 import com.dtstack.engine.common.client.ClientOperator;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.MultiEngineType;
@@ -14,7 +15,6 @@ import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.enums.AccountType;
-import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.engine.master.utils.Template;
 import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
@@ -58,9 +58,6 @@ public class AccountServiceTest extends AbstractTest {
     private AccountService accountService;
 
     @MockBean
-    private DtUicUserConnect dtUicUserConnect;
-
-    @MockBean
     private ClientOperator clientOperator;
 
     @Before
@@ -75,7 +72,6 @@ public class AccountServiceTest extends AbstractTest {
         rootMap.put("createTime", new DateTime().toString());
         users.add(rootMap);
 
-        when(dtUicUserConnect.getAllUicUsers(any(),any(),any(),any())).thenReturn(users);
         when(clientOperator.testConnect(any(), any())).thenReturn(componentTestResult);
         when(clientOperator.executeQuery(any(), any(), any(), any())).thenReturn(new ArrayList());
     }
@@ -147,7 +143,7 @@ public class AccountServiceTest extends AbstractTest {
         //解绑账号信
         accountTenantVo.setModifyDtUicUserId(-1L);
         accountService.unbindAccount(accountTenantVo);
-        List<Map<String, Object>> tenantUnBandList = accountService.getTenantUnBandList(tenant.getDtUicTenantId(), "", user.getDtuicUserId(), MultiEngineType.TIDB.getType());
+        List<UserVO> tenantUnBandList = accountService.getTenantUnBandList(tenant.getDtUicTenantId(), "", user.getDtuicUserId(), MultiEngineType.TIDB.getType());
         Assert.assertNotNull(tenantUnBandList);
     }
 }

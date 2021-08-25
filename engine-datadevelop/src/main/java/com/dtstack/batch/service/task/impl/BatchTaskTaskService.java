@@ -6,7 +6,6 @@ import com.dtstack.engine.api.domain.BatchTask;
 import com.dtstack.batch.domain.BatchTaskTask;
 import com.dtstack.batch.domain.Project;
 import com.dtstack.batch.service.impl.ProjectService;
-import com.dtstack.batch.service.impl.TenantService;
 import com.dtstack.batch.vo.BatchTaskBatchVO;
 import com.dtstack.dtcenter.common.enums.AppType;
 import com.dtstack.dtcenter.common.enums.Deleted;
@@ -16,6 +15,7 @@ import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.api.vo.project.ScheduleEngineProjectVO;
 import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import com.dtstack.engine.master.impl.ScheduleTaskTaskShadeService;
+import com.dtstack.engine.master.impl.TenantService;
 import com.dtstack.engine.master.impl.UserService;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -44,12 +44,9 @@ public class BatchTaskTaskService {
     private BatchTaskTaskDao batchTaskTaskDao;
 
     @Autowired
-    private BatchTaskDao batchTaskDao;
-
-    @Autowired
     private UserService userService;
 
-    @Resource(name = "batchTenantService")
+    @Autowired
     private TenantService tenantService;
 
     @Resource(name = "batchProjectService")
@@ -218,7 +215,7 @@ public class BatchTaskTaskService {
                 if (engineProjectVO != null) {
                     scheduleTaskVO.setProjectName(engineProjectService.findProject(taskShade.getProjectId(),taskShade.getAppType()).getProjectName());
                 }
-                scheduleTaskVO.setTenantName(tenantService.getTenantByDtUicTenantId(taskShade.getDtuicTenantId()).getTenantName());
+                scheduleTaskVO.setTenantName(tenantService.getByDtUicTenantId(taskShade.getDtuicTenantId()).getTenantName());
                 fatherTaskVOs.add(scheduleTaskVO);
             }
         }

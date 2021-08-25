@@ -19,9 +19,6 @@ import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
-import com.dtstack.engine.master.router.login.DtUicUserConnect;
-import com.dtstack.engine.master.router.login.domain.TenantAdmin;
-import com.dtstack.engine.master.router.login.domain.UserTenant;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.schedule.common.enums.Sort;
 import com.google.common.collect.Lists;
@@ -75,9 +72,6 @@ public class TenantService {
 
     @Autowired
     private ComponentService componentService;
-
-    @Autowired
-    private DtUicUserConnect dtUicUserConnect;
 
     public PageResult<List<EngineTenantVO>> pageQuery( Long clusterId,
                                                        Integer engineType,
@@ -151,50 +145,14 @@ public class TenantService {
     }
 
 
-    public List<UserTenantVO> listTenant(String dtToken) {
-        List<UserTenant> tenantList = postTenantList(dtToken);
-        if (CollectionUtils.isEmpty(tenantList)) {
+    public List<Tenant> listTenant() {
+
+        List<Tenant> tenants = tenantDao.listAllDtUicTenantIds();
+        if (tenants.isEmpty()) {
             return Lists.newArrayList();
         }
-
-        List<Long> hasClusterTenantIds = tenantDao.listAllDtUicTenantIds();
-        if (hasClusterTenantIds.isEmpty()) {
-            return Lists.newArrayList();
-        }
-        tenantList.removeIf(tenant -> hasClusterTenantIds.contains(tenant.getTenantId()));
-
-        return beanConversionVo(tenantList);
+        return tenants;
     }
-
-    private List<UserTenantVO> beanConversionVo(List<UserTenant> tenantList) {
-        List<UserTenantVO> vos = Lists.newArrayList();
-        for (UserTenant userTenant : tenantList) {
-            UserTenantVO vo = new UserTenantVO();
-            BeanUtils.copyProperties(userTenant, vo);
-            List<TenantAdmin> adminList = userTenant.getAdminList();
-            List<TenantAdminVO> tenantAdminVOS = Lists.newArrayList();
-            for (TenantAdmin tenantAdmin : adminList) {
-                TenantAdminVO tenantAdminVO = new TenantAdminVO();
-                BeanUtils.copyProperties(tenantAdmin, tenantAdminVO);
-                tenantAdminVOS.add(tenantAdminVO);
-            }
-            vo.setAdminList(tenantAdminVOS);
-        }
-        return vos;
-    }
-
-    private List<UserTenant> postTenantList(String dtToken) {
-        String dtUicUrl = env.getDtUicUrl();
-        //uic对数据量做了限制，可能未查询到租户信息
-        return dtUicUserConnect.getUserTenants(dtUicUrl, dtToken, "");
-    }
-
-
-    private UserTenant getTenantByDtUicTenantId(Long dtUicTenantId,String token){
-        String dtUicUrl = env.getDtUicUrl();
-        return dtUicUserConnect.getTenantByTenantId(dtUicUrl, dtUicTenantId, token);
-    }
-
 
     @Transactional(rollbackFor = Exception.class)
     public void bindingTenant( Long dtUicTenantId,  Long clusterId,
@@ -219,7 +177,6 @@ public class TenantService {
             //hadoop
             updateTenantQueue(tenant.getId(), dtUicTenantId, hadoopEngine.getId(), queueId);
         }
-        //oracle tidb queueId可以为空
     }
 
     private void checkTenantBindStatus(Long tenantId) {
@@ -282,9 +239,11 @@ public class TenantService {
         if(tenant != null){
             return tenant;
         }
-
-        tenant = addTenant(dtUicTenantId, dtToken);
         return tenant;
+    }
+
+    public Tenant getByDtUicTenantId(Long dtUicTenantId) {
+        return tenantDao.getByDtUicTenantId(dtUicTenantId);
     }
 
     public Long getDtuicTenantId(Long id) {
@@ -295,22 +254,8 @@ public class TenantService {
         return null;
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public Tenant addTenant(Long dtUicTenantId, String dtToken){
-        UserTenant userTenant = getTenantByDtUicTenantId(dtUicTenantId, dtToken);
-        if(userTenant == null){
-            throw new RdosDefineException("Tenant not found");
-        }
-        String tenantName = userTenant.getTenantName();
-        String tenantDesc = userTenant.getTenantDesc();
-
-        Tenant tenant = new Tenant();
-        tenant.setTenantName(tenantName);
-        tenant.setTenantDesc(tenantDesc);
-        tenant.setDtUicTenantId(dtUicTenantId);
-        tenantDao.insert(tenant);
-
-        return tenant;
+    public Tenant getTenantById(Long id) {
+        return tenantDao.getOne(id);
     }
 
     public void updateTenantQueue(Long tenantId, Long dtUicTenantId, Long engineId, Long queueId){
@@ -469,5 +414,37 @@ public class TenantService {
         tenantDao.updateByDtUicTenantId(tenant);
     }
 
+
+    /**
+     * 根据TenantIds获取到DtUicTenantIds
+     * @param tenantIds
+     * @return
+     */
+    public List<Long> listDtUicTenantByTenantIds(List<Long> tenantIds) {
+        if (CollectionUtils.isEmpty(tenantIds)) {
+            return Collections.EMPTY_LIST;
+        }
+        return tenantDao.getDtUicTenantIdListByIds(tenantIds);
+    }
+
+    public List<Tenant> listByDtUicTenantIds(List<Long> dtUicTenantIds) {
+        if (CollectionUtils.isEmpty(dtUicTenantIds)) {
+            return Collections.EMPTY_LIST;
+        }
+        return tenantDao.getByDtUicTenantIds(dtUicTenantIds);
+    }
+
+    /**
+     *  根据tenantId集合获取对应租户集合
+     *
+     * @param tenantIds
+     * @return
+     */
+    public List<Tenant> listByTenantIds(List<Long> tenantIds) {
+        if (CollectionUtils.isEmpty(tenantIds)) {
+            return Collections.EMPTY_LIST;
+        }
+        return tenantDao.listDtuicTenantIdByTenantId(tenantIds);
+    }
 
 }

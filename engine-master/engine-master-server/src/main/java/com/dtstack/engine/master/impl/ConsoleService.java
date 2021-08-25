@@ -263,14 +263,6 @@ public class ConsoleService {
                     ScheduleJob scheduleJob = scheduleJobMap.getOrDefault(engineJobCache.getJobId(), new ScheduleJob());
                     //补充租户信息
                     Tenant tenant = tenantMap.get(scheduleJob.getDtuicTenantId());
-                    if(null == tenant && ConfigConstant.DEFAULT_TENANT != scheduleJob.getDtuicTenantId() && scheduleJob.getDtuicTenantId() > 0){
-                        //可能临时运行 租户在tenant表没有 需要添加
-                        try {
-                            tenant = tenantService.addTenant(scheduleJob.getDtuicTenantId(), dtToken);
-                        } catch (Exception e) {
-                            LOGGER.error(" get tenant error {}", scheduleJob.getDtuicTenantId(),e);
-                        }
-                    }
                     this.fillJobInfo(theJobMap, scheduleJob, engineJobCache,tenant,pluginInfoCache);
                     data.add(theJobMap);
                 }

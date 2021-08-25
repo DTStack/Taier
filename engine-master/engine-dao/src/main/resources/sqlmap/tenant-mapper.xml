@@ -26,8 +26,9 @@
         VALUES (#{dtUicTenantId},#{tenantName},#{tenantDesc})
     </insert>
 
-    <select id="listAllDtUicTenantIds" resultType="java.lang.Long">
-        SELECT dt_uic_tenant_id
+    <select id="listAllDtUicTenantIds" resultType="Tenant">
+        SELECT
+        <include refid="tenant_filed"/>
         FROM console_dtuic_tenant
         WHERE is_deleted = 0
     </select>
@@ -91,6 +92,49 @@
         <include refid="tenant_filed"/>
         FROM console_dtuic_tenant
         WHERE id=#{id} AND is_deleted=0
+    </select>
+
+    <select id="getDtUicTenantIdListByIds" resultType="java.lang.Long">
+        select t.dt_uic_tenant_id
+        from console_dtuic_tenant t
+        where t.is_deleted = 0
+        <if test="ids != null and ids.size > 0">
+            and t.id IN
+            <foreach collection="ids" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getByDtUicTenantIds" resultType="Tenant">
+        SELECT
+        <include refid="tenant_filed"/>
+        FROM console_dtuic_tenant
+        <where>
+            is_deleted=0
+            <if test="dtUicTenantIds != null and dtUicTenantIds.size > 0 ">
+                and dt_uic_tenant_id IN
+                <foreach collection="dtUicTenantIds" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+
+    <select id="listDtuicTenantIdByTenantId" resultType="com.dtstack.engine.api.domain.Tenant">
+        SELECT
+        <include refid="tenant_filed"/>
+        FROM console_dtuic_tenant
+        <where>
+            is_deleted=0
+            <if test="ids != null and ids.size > 0 ">
+                and id IN
+                <foreach collection="ids" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
     </select>
 
 </mapper>

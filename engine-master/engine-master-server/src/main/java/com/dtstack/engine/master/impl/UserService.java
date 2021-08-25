@@ -11,7 +11,6 @@ import com.dtstack.engine.api.vo.tenant.TenantUsersVO;
 import com.dtstack.engine.api.vo.user.UserVO;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.dao.UserDao;
-import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.BooleanUtils;
@@ -32,9 +31,6 @@ public class UserService {
 
     @Autowired
     private UserDao userDao;
-
-    @Autowired
-    private DtUicUserConnect dtUicUserConnect;
 
     @Autowired
     private EnvironmentContext environmentContext;
@@ -60,13 +56,9 @@ public class UserService {
         userSetIds.addAll(userIds);
 
         if (CollectionUtils.isNotEmpty(userSetIds)) {
-            List<User> userDb = userDao.getByDtUicUserIds(userSetIds);
+            List<User> users = userDao.getByDtUicUserIds(userSetIds);
 
-            // 查询出库里面没有用用户
-            List<User> users = findUser(userSetIds, userDb);
-
-            userDb.addAll(users);
-            Map<Long, List<User>> userMaps = userDb.stream().collect(Collectors.groupingBy(User::getDtuicUserId));
+            Map<Long, List<User>> userMaps = users.stream().collect(Collectors.groupingBy(User::getDtuicUserId));
             for (ScheduleTaskVO vo : vos) {
                 User user = userMaps.get(vo.getOwnerUserId()) != null ? userMaps.get(vo.getOwnerUserId()).get(0) : null;
                 User createUser = userMaps.get(vo.getCreateUserId()) != null ? userMaps.get(vo.getCreateUserId()).get(0) : null;
@@ -78,22 +70,6 @@ public class UserService {
             }
         }
 
-    }
-
-    private List<User> findUser(Set<Long> userSetIds, List<User> userDb) {
-        List<Long> dbUserId = userDb.stream().map(User::getDtuicUserId).collect(Collectors.toList());
-        List<Long> userUicId = userSetIds.stream().filter(userId -> !dbUserId.contains(userId)).collect(Collectors.toList());
-
-        // 去uic查询这些用户
-        List<User> users = Lists.newArrayList();
-        try {
-            users = dtUicUserConnect.getUserByUserIds(environmentContext.getSdkToken(), environmentContext.getDtUicUrl(), userUicId);
-            // 保存用户
-            saveUser(users);
-        } catch (Exception e) {
-            LOGGER.error("add user error:",e);
-        }
-        return users;
     }
 
     private UserDTO buildUserDTO(User user) {
@@ -122,13 +98,11 @@ public class UserService {
     }
 
     public void fillFillDataJobUserName(List<ScheduleFillDataJobPreViewVO> resultContent) {
-        Set<Long> userId = resultContent.stream().map(ScheduleFillDataJobPreViewVO::getDutyUserId).collect(Collectors.toSet());
-        if (CollectionUtils.isNotEmpty(userId)) {
-            List<User> userDb = userDao.getByDtUicUserIds(userId);
+        Set<Long> userIds = resultContent.stream().map(ScheduleFillDataJobPreViewVO::getDutyUserId).collect(Collectors.toSet());
+        if (CollectionUtils.isNotEmpty(userIds)) {
+            List<User> users = userDao.getByDtUicUserIds(userIds);
 
-            List<User> users = findUser(userId, userDb);
-            userDb.addAll(users);
-            Map<Long, List<User>> userMaps = userDb.stream().collect(Collectors.groupingBy(User::getDtuicUserId));
+            Map<Long, List<User>> userMaps = users.stream().collect(Collectors.groupingBy(User::getDtuicUserId));
 
 
             for (ScheduleFillDataJobPreViewVO viewVO : resultContent) {
@@ -157,13 +131,9 @@ public class UserService {
             userSetIds.addAll(userIds);
 
             if (CollectionUtils.isNotEmpty(userIds)) {
-                List<User> userDb = userDao.getByDtUicUserIds(userSetIds);
+                List<User> users = userDao.getByDtUicUserIds(userSetIds);
 
-                // 查询出库里面没有用用户
-                List<User> users = findUser(userSetIds, userDb);
-
-                userDb.addAll(users);
-                Map<Long, List<User>> userMaps = userDb.stream().collect(Collectors.groupingBy(User::getDtuicUserId));
+                Map<Long, List<User>> userMaps = users.stream().collect(Collectors.groupingBy(User::getDtuicUserId));
                 for (ScheduleTaskForFillDataDTO vo : scheduleTaskForFillDataDTOS) {
                     User user = userMaps.get(vo.getOwnerUserId()) != null ? userMaps.get(vo.getOwnerUserId()).get(0) : null;
                     User createUser = userMaps.get(vo.getCreateUserId()) != null ? userMaps.get(vo.getCreateUserId()).get(0) : null;

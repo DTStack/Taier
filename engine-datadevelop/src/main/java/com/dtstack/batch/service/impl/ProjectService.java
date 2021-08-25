@@ -4,6 +4,7 @@ import com.dtstack.batch.common.enums.ETableType;
 import com.dtstack.batch.common.enums.ProjectCreateModel;
 import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.engine.api.domain.User;
+import com.dtstack.engine.api.vo.user.UserVO;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.batch.common.exception.ErrorCode;
 import com.dtstack.batch.common.exception.RdosDefineException;
@@ -47,6 +48,7 @@ import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusCountVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
+import com.dtstack.engine.master.impl.TenantService;
 import com.dtstack.engine.master.impl.UserService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -105,9 +107,6 @@ public class ProjectService {
     @Autowired
     private IJdbcService jdbcServiceImpl;
 
-    @Resource(name = "batchTenantService")
-    private TenantService tenantService;
-
     @Autowired
     private ProjectStickService projectStickService;
 
@@ -127,7 +126,7 @@ public class ProjectService {
     private IMultiEngineService multiEngineService;
 
     @Autowired
-    private com.dtstack.engine.master.impl.TenantService engineTenantService;
+    private TenantService tenantService;
 
     @Autowired
     private MultiEngineServiceFactory multiEngineServiceFactory;
@@ -533,7 +532,7 @@ public class ProjectService {
             return;
         }
         // 根据tenantId获取到dtUicTenantId
-        List<Long> dtuicTenantIdList = tenantService.getDtUicTenantListByTenantIds(tenantIdList);
+        List<Long> dtuicTenantIdList = tenantService.listDtUicTenantByTenantIds(tenantIdList);
         if (CollectionUtils.isEmpty(dtuicTenantIdList)) {
             throw new RdosDefineException("该项目标识的创建租户不存在");
         }
@@ -625,7 +624,6 @@ public class ProjectService {
         int status = ProjectStatus.NORMAL.getStatus();
         setDatabaseName(project);
         try {
-            initPermissions(project, userId, dtuicTenantId);
             //初始化离线目录
             batchCatalogueService.initCatalogue(project.getTenantId(), dtuicTenantId, project.getId(), project.getCreateUserId(), projectEngineVOS,dtToken);
 
@@ -654,69 +652,6 @@ public class ProjectService {
         engineProjectService.addProjectOrUpdate(scheduleEngineProjectParam);
     }
 
-    /**
-     * 初始化项目成员及其角色权限
-     *
-     * TODO: 平台管理员、租户所有者需等uic接口完善，然后补齐功能
-     *
-     * @param project
-     * @param userId
-     * @param dtuicTenantId
-     */
-    private void initPermissions(ProjectVO project, Long userId, Long dtuicTenantId) {
-        // 初始化项目角色
-        initProjectRole(project.getId(), project.getTenantId(), userId);
-
-        // 得到角色映射关系
-        List<Integer> roleValueList =  Lists.newArrayList(
-                RoleValue.APPADMIN.getRoleValue(), RoleValue.TEANTOWNER.getRoleValue(),
-                RoleValue.TEANTADMIN.getRoleValue(), RoleValue.PROJECTOWNER.getRoleValue(),
-                RoleValue.MEMBER.getRoleValue());
-        List<Role> roleList = roleService.getByProjectIdAndRoleValues(project.getId(), roleValueList);
-        Map<Integer, Role> roleValueRoleMap = roleList.stream().collect(Collectors.toMap(Role::getRoleValue, Function.identity(), (key1, key2) -> key2));
-
-        // 得到需要增加的项目成员信息
-        List<TenantUsersVO> tenantUsersVOList = tenantService.findUicAdminRoleUserByDtuicTenantId(dtuicTenantId);
-        List<User> userList = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(tenantUsersVOList)) {
-            userList = userService.dealTenantUicUserList(tenantUsersVOList);
-        }
-        Map<Long, User> dtuicUserIdUserMap = userList.stream().collect(Collectors.toMap(User::getDtuicUserId, Function.identity(), (key1, key2) -> key2));
-
-        // 初始化 平台管理员、租户所有者、租户管理员 用户到项目成员中
-        Map<Long, List<Long>> userRoleMap = new HashMap<>();
-        for (TenantUsersVO tenantUsersVO : tenantUsersVOList) {
-            List<Long> userRoleIdList = new ArrayList<>();
-            User user = (User) MapUtils.getObject(dtuicUserIdUserMap, tenantUsersVO.getId());
-            if (Objects.isNull(user)) {
-                continue;
-            }
-            // 判断是否是 超级管理员 用户
-            if (BooleanUtils.isTrue(tenantUsersVO.getRoot()) && roleValueRoleMap.containsKey(RoleValue.APPADMIN.getRoleValue())) {
-                userRoleIdList.add(roleValueRoleMap.get(RoleValue.APPADMIN.getRoleValue()).getId());
-            }
-            // 判断是否是 租户所有者 用户 (待uic接口完善加上)
-            // 判断是否是 租户管理者 用户
-            if (BooleanUtils.isTrue(tenantUsersVO.getAdmin()) && roleValueRoleMap.containsKey(RoleValue.TEANTADMIN.getRoleValue())) {
-                userRoleIdList.add(roleValueRoleMap.get(RoleValue.TEANTADMIN.getRoleValue()).getId());
-            }
-            // 默认添加一个访客角色
-            if (roleValueRoleMap.containsKey(RoleValue.MEMBER.getRoleValue())) {
-                userRoleIdList.add(roleValueRoleMap.get(RoleValue.MEMBER.getRoleValue()).getId());
-            }
-            userRoleMap.put(user.getId(), userRoleIdList);
-        }
-
-        // 处理项目创建人的角色
-        List<Long> createUserRoleIdList = userRoleMap.getOrDefault(userId, Lists.newArrayList(roleValueRoleMap.get(RoleValue.MEMBER.getRoleValue()).getId()));
-        createUserRoleIdList.add(roleValueRoleMap.get(RoleValue.PROJECTOWNER.getRoleValue()).getId());
-        userRoleMap.put(userId, createUserRoleIdList);
-
-        // 添加用户默认角色
-        userRoleMap.forEach((targetUserId, targetUserRoleIdList) ->{
-            roleUserService.addDefaultRoleUserList(targetUserRoleIdList, targetUserId, project.getTenantId(), project.getId());
-        });
-    }
 
     private void setDatabaseName(ProjectVO project) {
         for (ProjectEngineVO projectEngineVO : project.getProjectEngineList()) {
@@ -1170,7 +1105,7 @@ public class ProjectService {
      */
     @Forbidden
     public Project getProjectByName(String projectName, Long dtUicTenantId) {
-        Tenant tenant = tenantService.getTenantByDtUicTenantId(dtUicTenantId);
+        Tenant tenant = tenantService.getByDtUicTenantId(dtUicTenantId);
         Project project = projectDao.getByName(projectName, tenant.getId());
         if (project == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_PROJECT);
@@ -1680,7 +1615,7 @@ public class ProjectService {
             }
 
             //移除已经使用过的db
-            List<EngineTenantVO> engineTenantList = engineTenantService.listEngineTenant(dtuicTenantId, engineType);
+            List<EngineTenantVO> engineTenantList = tenantService.listEngineTenant(dtuicTenantId, engineType);
             if (engineTenantList == null){
                 engineTenantList = new ArrayList<>();
             }
@@ -1893,7 +1828,7 @@ public class ProjectService {
         if (Objects.isNull(dtuicTenantId) || Objects.isNull(dtuicUserId)) {
             throw new RdosDefineException("dtuicTenantId or dtuicUserId is null");
         }
-        Tenant tenant = tenantService.getTenantByDtUicTenantId(dtuicTenantId);
+        Tenant tenant = tenantService.getByDtUicTenantId(dtuicTenantId);
         if (Objects.isNull(tenant)) {
             return Collections.EMPTY_LIST;
         }

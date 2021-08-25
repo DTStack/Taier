@@ -89,9 +89,6 @@ public class BatchServerLogService {
     @Autowired
     private ActionService actionService;
 
-    @Resource(name = "batchTenantService")
-    private TenantService tenantService;
-
     @Autowired
     private ClusterService clusterService;
 
@@ -655,7 +652,7 @@ public class BatchServerLogService {
     }
 
     private Pair<String,String> getPrometheusHostAndPort(final Long dtUicTenantId, final String taskParams){
-        Boolean hasStandAlone = tenantService.hasStandAlone(dtUicTenantId);
+        Boolean hasStandAlone = clusterService.hasStandalone(dtUicTenantId, EComponentType.FLINK.getTypeCode());
         JSONObject flinkJsonObject ;
         if (hasStandAlone) {
             String configByKey = clusterService.getConfigByKey(dtUicTenantId, EComponentType.FLINK.getConfName(), false, null);
