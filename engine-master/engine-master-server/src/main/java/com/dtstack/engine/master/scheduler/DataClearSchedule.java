@@ -31,7 +31,6 @@ public class DataClearSchedule {
 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataClearSchedule.class);
-    private static final String clearFlag = "clearFlag";
     private static final String clearDateConfig = "clearDateConfig";
     private static final String deleteDateConfig = "deleteDateConfig";
     private static final String appendWhere = "appendWhere";
@@ -78,9 +77,7 @@ public class DataClearSchedule {
                     if (null == clearConfig || clearConfig.isEmpty()) {
                         clearConfig = new JSONObject();
                     }
-                    long lastClearId = clearConfig.getLongValue(clearFlag);
-
-                    lastClearId = getLastClearId(tableName, lastClearId, statement, resultSet);
+                    long lastClearId = getLastClearId(tableName, statement, resultSet);
 
 
                     String sqlAppendWhere = (String) clearConfig.getOrDefault(appendWhere, "");
@@ -132,14 +129,10 @@ public class DataClearSchedule {
                         LOGGER.info("DataClearSchedule delete sql [{}]", deleteSql);
                         int clearSize = statement.executeUpdate(deleteSql);
                         LOGGER.info("DataClearSchedule clear size [{}]", clearSize);
-                        if (clearSize <= 0 && isAppendWhere) {
+                        if (clearSize <= 0 && endClearId >= lastClearId) {
                             break;
                         }
                     }
-                    //3. 更新标识
-                    clearConfig.put(clearFlag, lastClearId);
-                    scheduleDict.setDictValue(clearConfig.toJSONString());
-                    scheduleDictDao.updateByCode(scheduleDict);
                 } catch (Exception exception) {
                     LOGGER.error("data clear table :{} process error ", tableName, exception);
                 }
@@ -157,25 +150,14 @@ public class DataClearSchedule {
         }
     }
 
-    private long getLastClearId(String tableName, long lastClearId, Statement statement, ResultSet resultSet) throws SQLException {
+    private long getLastClearId(String tableName, Statement statement, ResultSet resultSet) throws SQLException {
         resultSet = statement.executeQuery(String.format("select min(id) from %s", tableName));
         long dbMinClearId = 0L;
         while (resultSet.next()) {
             dbMinClearId = resultSet.getLong(1);
-            LOGGER.info("DataClearSchedule table[{}] dbMinId:[{}] lastClearId:[{}]", tableName, dbMinClearId, lastClearId);
-            lastClearId = Math.max(dbMinClearId, lastClearId);
+            LOGGER.info("DataClearSchedule table[{}] dbMinId:[{}]", tableName, dbMinClearId);
         }
-
-        resultSet = statement.executeQuery(String.format("select max(id) from %s", tableName));
-        while (resultSet.next()) {
-            long dbMaxClearId = resultSet.getLong(1);
-            LOGGER.info("DataClearSchedule table[{}] dbMaxId:[{}] lastClearId:[{}]", tableName, dbMaxClearId, lastClearId);
-            if (lastClearId >= dbMaxClearId) {
-                //reset
-                lastClearId = dbMinClearId;
-            }
-        }
-        return lastClearId;
+        return dbMinClearId;
     }
 
 }

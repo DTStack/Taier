@@ -22,7 +22,4 @@ public interface ScheduleDictDao {
     List<ScheduleDict> listById(@Param("id") Long id, @Param("size") Integer size);
 
     ScheduleDict getByNameAndCodeAndDependName(@Param("dictCode") String dictCode, @Param("dictName") String dictName, @Param("dependName") String dependName);
-
-    void updateByCode(ScheduleDict scheduleDict);
-
 }
