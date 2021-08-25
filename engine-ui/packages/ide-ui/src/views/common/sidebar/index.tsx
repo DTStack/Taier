@@ -1,75 +1,7 @@
 import React from 'react';
 import molecule from 'molecule';
-import { FileTypes, IExtension, TreeNodeModel } from 'molecule/esm/model';
+import { IExtension } from 'molecule/esm/model';
 import ResourceManager from '../../resourceManager';
-import resourceManagerTree from '../../../services/resourceManagerService';
-
-function convertToTreeNode(data: any[]) {
-    if (!data) {
-        return;
-    }
-    return data.map((child) => {
-        const { id, name, children, type } = child;
-        const node: TreeNodeModel = new TreeNodeModel({
-            id,
-            name: !name ? '数据开发' : name,
-            location: name,
-            fileType: type === 'folder' ? FileTypes.Folder : FileTypes.File,
-            isLeaf: type !== 'folder',
-            data: child,
-            children: convertToTreeNode(children),
-        });
-
-        return node;
-    });
-}
-
-// mock 的请求数据
-const requestData = {
-    catalogueType: 'ResourceManager',
-    children: [
-        {
-            catalogueType: 'ResourceManager',
-            children: null,
-            createUser: null,
-            engineType: 0,
-            id: 251,
-            isSubTask: 0,
-            learningType: null,
-            level: 1,
-            name: '资源管理',
-            operateModel: 1,
-            orderVal: null,
-            parentId: 249,
-            projectAlias: null,
-            pythonVersion: null,
-            readWriteLockVO: null,
-            resourceType: null,
-            scriptType: null,
-            status: null,
-            taskType: null,
-            type: 'folder',
-        },
-    ],
-    createUser: null,
-    engineType: 0,
-    id: 249,
-    isSubTask: 0,
-    learningType: null,
-    level: 0,
-    name: '资源管理',
-    operateModel: 1,
-    orderVal: 3,
-    parentId: 0,
-    projectAlias: null,
-    pythonVersion: null,
-    readWriteLockVO: null,
-    resourceType: null,
-    scriptType: null,
-    status: null,
-    taskType: null,
-    type: 'folder',
-};
 
 function initResourceManager() {
     const resourceManager = {
@@ -77,20 +9,6 @@ function initResourceManager() {
         icon: 'sync',
         name: '资源管理',
     };
-
-    const { id, name, children } = requestData;
-    // 根目录
-    const node = new TreeNodeModel({
-        id,
-        name: name || '数据开发',
-        location: name,
-        fileType: FileTypes.RootFolder,
-        data: requestData,
-        children: convertToTreeNode(children),
-    });
-
-    // 新增节点到资源管理树上
-    resourceManagerTree.add(node);
 
     const headerToolBar = [
         {

@@ -12,6 +12,8 @@ import store from '../../../store';
 import { workbenchAction } from '../../../controller/dataSync/actionType';
 import { editorAction } from '../../../controller/editor/actionTypes';
 import { cloneDeep } from 'lodash';
+import functionManagerService from '../../../services/functionManagerService';
+import resourceManagerService from '../../../services/resourceManagerService';
 
 function convertToTreeNode(data: any[]) {
     if (!data) {
@@ -44,13 +46,13 @@ function init() {
         userId: 1,
     }).then((res) => {
         if (res.code === 1) {
-            const { children } = res.data;
-            const devData = children.filter(
-                (item: any) => item.catalogueType === 'TaskManager'
-            )[0].children[0];
+            const {  children } = res.data;
+            const devData = children.filter((item: any) => item.catalogueType === 'TaskManager')[0].children[0]
+            const funcData = children.filter((item: any) => item.catalogueType === 'FunctionManager')[0]
+            const resourceData = children.filter((item: any) => item.catalogueType === 'ResourceManager')[0]
             const { id, name, children: child } = devData;
             // 根目录
-            const node = new TreeNodeModel({
+            const taskNode = new TreeNodeModel({
                 id,
                 name: name || '数据开发',
                 location: name,
@@ -58,8 +60,29 @@ function init() {
                 data: devData,
                 children: convertToTreeNode(child),
             });
+            // 资源根目录
+            const resourceNode = new TreeNodeModel({
+                id: resourceData.id,
+                name: resourceData.name || '资源管理',
+                location: resourceData.name,
+                fileType: FileTypes.RootFolder,
+                data: resourceData,
+                children: convertToTreeNode(resourceData.children),
+            });
+            // 资源根目录
+            const functionNode = new TreeNodeModel({
+                id: funcData.id,
+                name: funcData.name || '函数管理',
+                location: funcData.name,
+                fileType: FileTypes.RootFolder,
+                data: funcData,
+                children: convertToTreeNode(funcData.children),
+            });
 
-            molecule.folderTree.add(node);
+
+            resourceManagerService.add(resourceNode);
+            functionManagerService.add(functionNode);
+            molecule.folderTree.add(taskNode);
         }
     });
 }
