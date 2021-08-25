@@ -132,7 +132,7 @@ public class DataClearSchedule {
                         LOGGER.info("DataClearSchedule delete sql [{}]", deleteSql);
                         int clearSize = statement.executeUpdate(deleteSql);
                         LOGGER.info("DataClearSchedule clear size [{}]", clearSize);
-                        if (clearSize <= 0 && isAppendWhere) {
+                        if (clearSize <= 0 && endClearId >= lastClearId) {
                             break;
                         }
                     }
@@ -163,17 +163,7 @@ public class DataClearSchedule {
         while (resultSet.next()) {
             dbMinClearId = resultSet.getLong(1);
             LOGGER.info("DataClearSchedule table[{}] dbMinId:[{}] lastClearId:[{}]", tableName, dbMinClearId, lastClearId);
-            lastClearId = Math.max(dbMinClearId, lastClearId);
-        }
-
-        resultSet = statement.executeQuery(String.format("select max(id) from %s", tableName));
-        while (resultSet.next()) {
-            long dbMaxClearId = resultSet.getLong(1);
-            LOGGER.info("DataClearSchedule table[{}] dbMaxId:[{}] lastClearId:[{}]", tableName, dbMaxClearId, lastClearId);
-            if (lastClearId >= dbMaxClearId) {
-                //reset
-                lastClearId = dbMinClearId;
-            }
+            lastClearId = Math.min(dbMinClearId, lastClearId);
         }
         return lastClearId;
     }
