@@ -2129,6 +2129,15 @@ public class ScheduleJobService {
         }
         ScheduleTaskVO batchTaskVO = new ScheduleTaskVO();
         String exeTime = DateUtil.getTimeDifference(scheduleJob.getExecTime() == null ? 0L : scheduleJob.getExecTime() * 1000);
+
+        try {
+            if (scheduleJob.getExecTime() == null || scheduleJob.getExecTime() == 0) {
+                exeTime = DateUtil.getTimeDifference(scheduleJob.getExecStartTime() == null ? 0L : (System.currentTimeMillis() - scheduleJob.getExecStartTime().getTime()));
+            }
+        } catch (Exception e) {
+            exeTime =  DateUtil.getTimeDifference(0L);
+        }
+
         Integer showStatus = RdosTaskStatus.getShowStatusWithoutStop(status);
         ScheduleFillDataJobDetailVO.FillDataRecord record = new ScheduleFillDataJobDetailVO.FillDataRecord(scheduleJob.getId(), bizDayVO, taskName,
                 taskType, showStatus, cycTimeVO, exeStartTimeVO, exeTime, null);
