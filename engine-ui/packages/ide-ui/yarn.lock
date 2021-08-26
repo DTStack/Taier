@@ -3452,10 +3452,10 @@ draft-js@^0.10.0, draft-js@~0.10.0:
     immutable "~3.7.4"
     object-assign "^4.1.0"
 
-dt-react-codemirror-editor@^0.9.4:
-  version "0.9.4"
-  resolved "https://registry.yarnpkg.com/dt-react-codemirror-editor/-/dt-react-codemirror-editor-0.9.4.tgz#e77cfbd0be6f45c817e60d2edc162b6fa58370a7"
-  integrity sha512-otGWxMOpda0n6p7pHDB80D+vX4n1kcKxyK6LypesJC8GsqeP5j/ixd5f6coUiH1VQoDfiUUt01hzqcKNhHUoTQ==
+dt-react-codemirror-editor@^0.9.5:
+  version "0.9.5"
+  resolved "https://registry.yarnpkg.com/dt-react-codemirror-editor/-/dt-react-codemirror-editor-0.9.5.tgz#74840207cf2f31f897c27d969c39e48fa9869035"
+  integrity sha512-N7zK2IvTp+XI8NwBe7fZbpLv61KgX4wYIxCwZso8oXOMp8A5hC+sFwn8+J5+lZMxCLPSZui80QHdveMyeRK/WA==
   dependencies:
     codemirror "^5.55.0"
     react "^16.6.3"

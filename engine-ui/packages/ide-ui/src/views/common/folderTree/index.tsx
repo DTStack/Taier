@@ -139,6 +139,7 @@ function createTask() {
                 return new Promise<boolean>((resolve) => {
                     const params = {
                         ...values,
+                        nodePid: 233,
                         computeType: 1,
                         lockVersion: 0,
                         version: 0
@@ -147,22 +148,9 @@ function createTask() {
                         .then((res: any) => {
                             if (res.code === 1) {
                                 const { data } = res;
-                                const { id, name } = data;
                                 molecule.editor.closeTab(tabId, 1);
                                 molecule.explorer.forceUpdate();
                                 updateTree(data);
-                                const node = new TreeNodeModel({
-                                    id,
-                                    name,
-                                    fileType: FileTypes.File,
-                                    isLeaf: true,
-                                    data: {
-                                        ...data,
-                                        language: 'sql',
-                                    },
-                                });
-
-                                molecule.folderTree.add(node, 233);
                                 const { current } = molecule.editor.getState();
                                 if (
                                     current?.tab?.data.taskType ===
