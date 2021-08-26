@@ -36,7 +36,7 @@ export const workbenchReducer = (
     let nextState: any;
 
     // 按原有逻辑读取项目信息，最好还是通过Action传递，由于对老代码业务逻辑有影响，
-    let projectID = getProjectId();
+    const projectID = getProjectId();
 
     switch (action.type) {
         case workbenchAction.LOAD_TASK_DETAIL: {
@@ -80,7 +80,7 @@ export const workbenchReducer = (
             );
             nextState = state;
             if (tabIndex > -1) {
-                let clone = cloneDeep(state);
+                const clone = cloneDeep(state);
                 if (tabId === state.currentTab) {
                     const nextTab =
                         clone.tabs[tabIndex + 1] || clone.tabs[tabIndex - 1];
@@ -105,7 +105,7 @@ export const workbenchReducer = (
 
         case workbenchAction.CLOSE_OTHER_TABS: {
             const tabId = action.payload;
-            let clone = cloneDeep(state);
+            const clone = cloneDeep(state);
 
             clone.tabs = clone.tabs.filter((tab: any) => {
                 return tab.id === tabId;
@@ -193,10 +193,10 @@ export const workbenchReducer = (
             // debugger;
             clone.tabs = clone.tabs.map((tab: any) => {
                 if (tab.id === clone.currentTab) {
-                    let taskVOS = tab.taskVOS || [];
+                    const taskVOS = tab.taskVOS || [];
                     let duplicated = false;
 
-                    for (let o of taskVOS) {
+                    for (const o of taskVOS) {
                         if (o.id === newVOS.id) {
                             duplicated = true;
                             break;

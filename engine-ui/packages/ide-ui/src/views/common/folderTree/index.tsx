@@ -87,6 +87,31 @@ function init() {
     });
 }
 
+function updateTree (data: any) {
+    ajax.getOfflineCatalogue({
+        nodePid: data.parentId,
+        isGetFile: true,
+        catalogueType: data.catalogueType,
+        projectId: 1,
+        userId: 1,
+    }).then((res) => {
+        if (res.code === 1) {
+            const {  data } = res;
+            const { id, name, children } = data;
+            // 更新目录
+            const taskNode = new TreeNodeModel({
+                id,
+                name: name || '数据开发',
+                location: name,
+                fileType: FileTypes.Folder,
+                data: data,
+                children: convertToTreeNode(children),
+            });
+            molecule.folderTree.update(taskNode);
+        }
+    });
+}
+
 // 初始化右键菜单
 function initContenxtMenu() {
     const { folderTree } = molecule.folderTree.getState();
@@ -114,12 +139,9 @@ function createTask() {
                 return new Promise<boolean>((resolve) => {
                     const params = {
                         ...values,
-                        nodePid: 233,
                         computeType: 1,
-                        isUseComponent: 0,
                         lockVersion: 0,
-                        version: 0,
-                        componentVersion: '2.1',
+                        version: 0
                     };
                     ajax.addOfflineTask(params)
                         .then((res: any) => {
@@ -128,6 +150,7 @@ function createTask() {
                                 const { id, name } = data;
                                 molecule.editor.closeTab(tabId, 1);
                                 molecule.explorer.forceUpdate();
+                                updateTree(data);
                                 const node = new TreeNodeModel({
                                     id,
                                     name,
@@ -140,7 +163,6 @@ function createTask() {
                                 });
 
                                 molecule.folderTree.add(node, 233);
-
                                 const { current } = molecule.editor.getState();
                                 if (
                                     current?.tab?.data.taskType ===
@@ -166,7 +188,7 @@ function createTask() {
                     value: id,
                 },
                 renderPane: () => {
-                    return <Open currentId={id} onSubmit={onSubmit} />;
+                    return <Open onSubmit={onSubmit} />;
                 },
             };
 
@@ -311,7 +333,6 @@ export default class FolderTreeExtension implements IExtension {
                             const params = {
                                 id: treeNode.data.id,
                                 ...values,
-                                nodePid: 233,
                                 computeType: 1,
                                 isUseComponent: 0,
                                 lockVersion: 0,

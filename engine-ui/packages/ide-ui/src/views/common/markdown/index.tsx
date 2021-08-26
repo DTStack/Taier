@@ -44,6 +44,7 @@ class Markdown extends React.Component<any> {
                 ? consoleData[currentTab]
                 : { results: [] };
         const defaultValue = data && data.log;
+        console.log(defaultValue)
         const defaultEditorOptions: any = {
             mode: 'dtlog',
             lint: true,
@@ -58,8 +59,10 @@ class Markdown extends React.Component<any> {
         return (
             <div className="mo_code_mirror">
                 <CodeMirrorEditor
+                    style={{ minHeight: 'auto', height: '100%' }}
                     value={defaultValue}
                     options={{ ...defaultEditorOptions }}
+                    sync={true}
                 />
             </div>
         );
