@@ -2648,46 +2648,7 @@ public class BatchDataSourceService {
      * 获取绑定项目下的数据源
      */
     public JSONObject getDataSourceInBingProject(Long tenantId, Long projectId, Long dataSourceId) {
-        Project project = projectService.getProjectById(projectId);
-        BatchDataSource currentSource = getOne(dataSourceId);
-
-        JSONObject result = new JSONObject();
-        JSONObject current = new JSONObject();
-        current.put("id", currentSource.getId());
-        current.put("dataName", currentSource.getDataName());
-        current.put("type", currentSource.getType());
-        current.put("info", "jdbcUrl:xxxx");
-        result.put("currentSource", current);
-
-        result.put("linkSource", null);
-//        BatchTestProduceDataSource sourceSource = batchTestProduceDataSourceDao.getBySourceIdOrLinkSourceId(dataSourceId);
-//        if (sourceSource != null) {
-//            Long linkSourceId = sourceSource.getTestDataSourceId().equals(dataSourceId) ? sourceSource.getProduceDataSourceId() : sourceSource.getTestDataSourceId();
-//            BatchDataSource linkSource = getOneOrNull(linkSourceId);
-//            if (linkSource != null) {
-//                JSONObject link = new JSONObject();
-//                link.put("id", linkSource.getId());
-//                link.put("dataName", linkSource.getDataName());
-//                link.put("type", linkSource.getType());
-//                result.put("linkSource", link);
-//            }
-//        }
-//        List<Long> inUseDataSources = batchTestProduceDataSourceDao.getHasBeenUseDataSources(projectId);
-//        List<BatchDataSource> batchDataSources = getDataSourceByProjectId(project.getProduceProjectId());
-//        JSONArray linkProjectSources = new JSONArray();
-//        for (BatchDataSource batchDataSource : batchDataSources) {
-//            if (inUseDataSources.contains(batchDataSource.getId())) {
-//                continue;
-//            }
-//            JSONObject source = new JSONObject();
-//            source.put("id", batchDataSource.getId());
-//            source.put("dataName", batchDataSource.getDataName());
-//            source.put("type", batchDataSource.getType());
-//            linkProjectSources.add(source);
-//        }
-//
-//        result.put("linkProjectSources", linkProjectSources);
-        return result;
+        return new JSONObject();
     }
 
     /**
@@ -3445,8 +3406,8 @@ public class BatchDataSourceService {
             if(vo.getProjectId() == null){
                 throw new RdosDefineException("查询数据源信息必须传uic租户id");
             }
-            Project project = projectService.getProjectById(vo.getProjectId());
-            Long dtuicTenantId = tenantService.getDtuicTenantId(project.getTenantId());
+            ScheduleEngineProject project = projectService.getProjectById(vo.getProjectId());
+            Long dtuicTenantId = tenantService.getDtuicTenantId(project.getUicTenantId());
             listParam.setDsDtuicTenantId(dtuicTenantId);
         }
 

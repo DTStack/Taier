@@ -143,7 +143,7 @@ public class AccountServiceTest extends AbstractTest {
         //解绑账号信
         accountTenantVo.setModifyDtUicUserId(-1L);
         accountService.unbindAccount(accountTenantVo);
-        List<UserVO> tenantUnBandList = accountService.getTenantUnBandList(tenant.getDtUicTenantId(), "", user.getDtuicUserId(), MultiEngineType.TIDB.getType());
+        List<UserVO> tenantUnBandList = accountService.getTenantUnBandList(tenant.getDtUicTenantId(), MultiEngineType.TIDB.getType());
         Assert.assertNotNull(tenantUnBandList);
     }
 }
