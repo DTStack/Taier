@@ -1,9 +1,9 @@
+/* eslint-disable no-template-curly-in-string */
 import * as React from 'react';
 import { Modal, Input, message, Select } from 'antd';
 
 import { Utils } from '@dtinsight/dt-utils';
 import HelpDoc, { relativeStyle } from '../../../components/helpDoc';
-// eslint-disable-next-line no-template-curly-in-string
 const systemVariable = [
     '${bdp.system.bizdate}',
     '${bdp.system.bizdate2}',

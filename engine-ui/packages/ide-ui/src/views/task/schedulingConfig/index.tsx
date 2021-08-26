@@ -1,10 +1,11 @@
 import React from 'react';
-import { Row, Col, Collapse, Radio } from 'antd';
+import { Row, Col, Collapse, Radio, message } from 'antd';
 import FormWrap from './scheduleForm';
 import TaskDependence from './taskDependence';
 import molecule from 'molecule/esm';
 import { TASK_TYPE } from '../../../comm/const';
 import HelpDoc from '../../../components/helpDoc';
+import Ajax from '../../../api';
 
 const Panel = Collapse.Panel;
 const RadioGroup = Radio.Group;
@@ -82,21 +83,20 @@ export class SchedulingConfig extends React.Component<any, any> {
         const { tabData } = this.props;
         const succInfo = checked ? '冻结成功' : '解冻成功';
         const errInfo = checked ? '冻结失败' : '解冻失败';
-
-        // ajax
-        //   .forzenTask({
-        //     taskIdList: [tabData.id],
-        //     scheduleStatus: status, //  1正常调度, 2暂停 NORMAL(1), PAUSE(2),
-        //   })
-        //   .then((res: any) => {
-        //     if (res.code === 1) {
-        //       // mutate
-        //       this.props.changeScheduleStatus(status);
-        //       message.info(succInfo);
-        //     } else {
-        //       message.error(errInfo);
-        //     }
-        //   });
+        Ajax
+            .forzenTask({
+                taskIdList: [tabData.id],
+                scheduleStatus: status, //  1正常调度, 2暂停 NORMAL(1), PAUSE(2),
+            })
+            .then((res: any) => {
+                if (res.code === 1) {
+                    // mutate
+                    this.props.changeScheduleStatus(status);
+                    message.info(succInfo);
+                } else {
+                    message.error(errInfo);
+                }
+            });
     }
 
     handleScheduleConf = () => {
@@ -215,14 +215,14 @@ export class SchedulingConfig extends React.Component<any, any> {
         const {
             tabData,
             isWorkflowNode,
-            couldEdit,
+            // couldEdit,
             isIncrementMode,
             isScienceTask,
             updateKey,
         } = this.props;
 
-        const isLocked =
-            tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock;
+        // const isLocked =
+        //     tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock;
         const isWorkflowRoot = tabData.taskType == TASK_TYPE.WORKFLOW;
 
         const initConf = tabData.scheduleConf;
@@ -257,9 +257,9 @@ export class SchedulingConfig extends React.Component<any, any> {
         return (
             <molecule.component.Scrollable>
                 <div className="m-scheduling" style={{ position: 'relative' }}>
-                    {isLocked || (!couldEdit && !isScienceTask) ? (
+                    {/* {isLocked || (!couldEdit && !isScienceTask) ? (
                         <div className="cover-mask"></div>
-                    ) : null}
+                    ) : null} */}
                     <Collapse
                         bordered={false}
                         defaultActiveKey={['1', '2', '3']}

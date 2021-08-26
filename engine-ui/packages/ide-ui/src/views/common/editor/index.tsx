@@ -30,6 +30,7 @@ function initActions() {
             icon: 'play',
             place: 'outer',
             disabled: true,
+            title: '运行'
         },
         {
             id: TASK_STOP_ID,
@@ -37,6 +38,7 @@ function initActions() {
             icon: 'debug-pause',
             place: 'outer',
             disabled: true,
+            title: '停止运行'
         },
         {
             id: TASK_SUBMIT_ID,
@@ -44,6 +46,7 @@ function initActions() {
             icon: <Icon type="upload" />,
             place: 'outer',
             disabled: true,
+            title: '提交至调度引擎'
         },
         {
             id: TASK_RELEASE_ID,
@@ -65,10 +68,12 @@ function initActions() {
             ),
             place: 'outer',
             disabled: true,
+            title: '拷贝任务至目标项目，或下载至本地'
         },
         {
             id: TASK_OPS_ID,
             name: '运维',
+            title: '运维',
             icon: (
                 <span style={{ fontSize: 14, display: 'flex' }}>
                     <svg

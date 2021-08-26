@@ -536,8 +536,8 @@ class Keymap extends React.Component<any, any> {
                 ? col.value
                     ? `常量(${col.type})`
                     : `${col.type ? col.type.toUpperCase() : ''}${
-                          col.format ? `(${col.format})` : ''
-                      }`
+                        col.format ? `(${col.format})` : ''
+                    }`
                 : '';
             const type = col ? <ScrollText value={typeValue} /> : '类型';
 
@@ -550,8 +550,8 @@ class Keymap extends React.Component<any, any> {
                                 col.index !== undefined
                                     ? col.index
                                     : col.value
-                                    ? `'${col.key}'`
-                                    : col.key
+                                        ? `'${col.key}'`
+                                        : col.key
                             }
                         />
                     ) : (
@@ -567,9 +567,9 @@ class Keymap extends React.Component<any, any> {
                                 <div className="cell">
                                     {col
                                         ? cellOperation(
-                                              removeOption,
-                                              editOption
-                                          )
+                                            removeOption,
+                                            editOption
+                                        )
                                         : '操作'}
                                 </div>
                             ) : (
@@ -671,8 +671,8 @@ class Keymap extends React.Component<any, any> {
                                 col.index !== undefined
                                     ? col.index
                                     : col.value
-                                    ? `'${col.key}'`
-                                    : col.key
+                                        ? `'${col.key}'`
+                                        : col.key
                             }
                         />
                     ) : (
@@ -978,8 +978,8 @@ class Keymap extends React.Component<any, any> {
                 case DATA_SOURCE.IMPALA: {
                     const typeText = col
                         ? `${col.type.toUpperCase()}${
-                              col.isPart ? '(分区字段)' : ''
-                          }`
+                            col.isPart ? '(分区字段)' : ''
+                        }`
                         : '类型';
                     const fieldName: any = col ? (
                         <ScrollText value={col.key} />
@@ -1009,8 +1009,8 @@ class Keymap extends React.Component<any, any> {
                 default: {
                     const typeText = col
                         ? `${col.type.toUpperCase()}${
-                              col.isPart ? '(分区字段)' : ''
-                          }`
+                            col.isPart ? '(分区字段)' : ''
+                        }`
                         : '类型';
                     const fieldName: any = col ? (
                         <ScrollText value={col.key} />
@@ -1266,8 +1266,8 @@ class Keymap extends React.Component<any, any> {
                     const field = Utils.checkExist(item.index)
                         ? item.index
                         : Utils.checkExist(item.key)
-                        ? item.key
-                        : undefined;
+                            ? item.key
+                            : undefined;
                     if (field !== undefined)
                         initialVal += `${field}:${item.type},\n`;
                 });
