@@ -24,12 +24,14 @@ import com.dtstack.dtcenter.common.enums.*;
 import com.dtstack.dtcenter.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.common.util.DtStringUtil;
 import com.dtstack.engine.api.domain.BatchTask;
+import com.dtstack.engine.api.domain.ScheduleEngineProject;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.User;
 import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.api.vo.action.ActionJobEntityVO;
 import com.dtstack.engine.api.vo.lineage.SqlType;
 import com.dtstack.engine.master.impl.ActionService;
+import com.dtstack.engine.master.impl.ProjectService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.impl.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -64,7 +66,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
     @Autowired
     private BatchHiveSelectSqlDao batchHiveSelectSqlDao;
 
-    @Resource(name = "batchProjectService")
+    @Autowired
     private ProjectService projectService;
 
     @Autowired
@@ -319,8 +321,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
         // 是否需要脱敏，非admin用户并且是sparkSql needMask才会为true ps:hiveSql不支持脱敏
         boolean needMask = !roleUserService.isAdmin(userId, selectSql.getProjectId(), isRoot) && !taskType.equals(EJobType.HIVE_SQL.getVal());
         if (selectSql.getIsSelectSql() == TempJobType.SIMPLE_SELECT.getType()) {
-            Project project = projectService.getProjectById(selectSql.getProjectId());
-            result.setResult(queryData(dtuicTenantId, selectSql.getSqlText(), project.getId(), needMask, taskType));
+            result.setResult(queryData(dtuicTenantId, selectSql.getSqlText(), selectSql.getProjectId(), needMask, taskType));
             result.setSqlText(selectSql.getSqlText());
         } else {
             ActionJobEntityVO engineEntity = null;

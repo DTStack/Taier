@@ -104,5 +104,28 @@
         WHERE  `is_deleted` = 0 AND `white_status` = 1;
     </select>
 
+    <select id="getByName" resultType="com.dtstack.engine.api.domain.ScheduleEngineProject">
+        select
+        `id`, `project_id`, `uic_tenant_id`, `app_type`, `project_name`, `project_alias`, `project_Identifier`, `project_desc`
+        from schedule_engine_project
+        where project_name = #{projectName}  and is_deleted = 0
+        <if test="dtUicTenantId != null">
+            and uic_tenant_id = #{dtUicTenantId}
+        </if>
+        limit 1
+    </select>
+
+    <select id="listByTenantIds" resultType="com.dtstack.engine.api.domain.ScheduleEngineProject">
+        SELECT
+        `id`, `project_id`, `uic_tenant_id`, `app_type`, `project_name`, `project_alias`, `project_Identifier`, `project_desc`
+        FROM rdos_project
+        where is_deleted = 0
+        <if test="dtUicTenantIds != null and dtUicTenantIds.size() > 0">
+            AND uic_tenant_id in
+            <foreach collection="dtUicTenantIds" separator="," item="item" open="(" close=")" index="index">
+                #{item}
+            </foreach>
+        </if>
+    </select>
 
 </mapper>

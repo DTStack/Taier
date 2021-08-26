@@ -18,6 +18,7 @@ import com.dtstack.batch.web.task.vo.result.BatchTaskGetComponentVersionResultVO
 import com.dtstack.dtcenter.common.enums.*;
 import com.dtstack.dtcenter.common.util.PublicUtil;
 import com.dtstack.engine.api.domain.BatchTask;
+import com.dtstack.engine.master.impl.ProjectService;
 import com.dtstack.engine.master.impl.TenantService;
 import com.dtstack.engine.master.impl.UserService;
 import com.google.common.collect.Lists;
@@ -60,9 +61,6 @@ public class BatchCatalogueService {
     private BatchTaskDao batchTaskDao;
 
     @Autowired
-    private ProjectDao projectDao;
-
-    @Autowired
     private BatchFunctionDao batchFunctionDao;
 
     @Autowired
@@ -80,7 +78,7 @@ public class BatchCatalogueService {
     @Autowired
     public BatchTaskTemplateService batchTaskTemplateService;
 
-    @Resource(name = "batchProjectService")
+    @Autowired
     private ProjectService projectService;
 
     @Autowired
@@ -190,25 +188,6 @@ public class BatchCatalogueService {
             // 如果为项目文件夹且存在子节点，则不能删除
             if (RdosBatchCatalogueTypeEnum.PROJECT.getType().equals(batchCatalogue.getCatalogueType())
                     && batchCatalogueDao.getSubAmountsByNodePid(batchCatalogue.getId(), null) > 0) {
-                continue;
-            }
-
-            // 获取所有的项目
-            List<Project> projects = projectService.getProjectsByCatalogueId(batchCatalogue.getId());
-
-            // 如果为空说明是任务目录
-            if (CollectionUtils.isEmpty(projects)) {
-                batchCatalogueDao.deleteById(batchCatalogue.getId());
-                continue;
-            }
-
-            // 如果超过两个，则直接返回
-            if (projects.size() > 1) {
-                continue;
-            }
-
-            // 如果唯一一个不是该项目，则直接返回
-            if (!projectId.equals(projects.get(0).getId())) {
                 continue;
             }
 
@@ -672,61 +651,9 @@ public class BatchCatalogueService {
     }
 
     /**
-     * 获取项目目录  因为前端异步加载有问题  所以显示所有的目录
-     */
-    public CatalogueVO getProjectCatalogue(Long tenantId, boolean isGetFile, Long userId, Boolean isRoot, Boolean isAdmin) {
-
-        CatalogueVO a;
-        List<BatchCatalogue> batchCatalogues = batchCatalogueDao.getListByTenantIdAndCatalogueType(tenantId, RdosBatchCatalogueTypeEnum.PROJECT.getType());
-        List<CatalogueVO> childerCatalogue = batchCatalogues.stream().map(bean -> {
-            CatalogueVO vo = new CatalogueVO();
-            BeanUtils.copyProperties(bean, vo);
-            vo.setCatalogueType(RdosBatchCatalogueTypeEnum.PROJECT.getType().toString());
-            vo.setName(bean.getNodeName());
-            vo.setParentId(bean.getNodePid());
-            vo.setType("folder");
-            vo.setChildren(new ArrayList<>());
-            return vo;
-        }).collect(Collectors.toList());
-        if (isGetFile) {
-            Set<Long> usefulProjectIds = projectService.getUsefulProjectIds(userId, tenantId, isAdmin, isRoot);
-            if(CollectionUtils.isNotEmpty(usefulProjectIds)){
-                List<ProjectCataloguePO> childerroject = projectService.getCatalogueListByTenantIdAndCatalogueId(usefulProjectIds,tenantId, RdosBatchCatalogueTypeEnum.PROJECT.getType());
-                childerCatalogue.addAll(childerroject.stream().map(bean -> {
-                    CatalogueVO vo = new CatalogueVO();
-                    vo.setCatalogueType(RdosBatchCatalogueTypeEnum.PROJECT.getType().toString());
-                    vo.setId(bean.getProjectRealId());
-                    vo.setProjectAlias(bean.getProjectAlias());
-                    vo.setLevel(bean.getLevel() + 1);
-                    vo.setName(bean.getProjectName());
-                    vo.setParentId(bean.getId());
-                    vo.setType("file");
-                    vo.setChildren(null);
-                    vo.setCreateUser("");
-                    return vo;
-                }).collect(Collectors.toList()));
-            }
-        }
-        a = getProjectCatalogueTree(childerCatalogue);
-        return a;
-    }
-
-
-    /**
      * 更新目录（移动和重命名）
      */
     public void updateCatalogue(BatchCatalogueVO catalogueInput, Long userId) {
-        if (RdosBatchCatalogueTypeEnum.PROJECT.getType().equals(catalogueInput.getCatalogueType())) {
-            //如果是项目目录且是移动才走下面这方法
-            if (catalogueInput.getNodePid() != null && (!FOLDER_TYPE.equals(catalogueInput.getType()))) {
-                Project project = new Project();
-                project.setId(catalogueInput.getId());
-                project.setCatalogueId(catalogueInput.getNodePid());
-                project.setModifyUserId(userId);
-                projectDao.update(project);
-                return;
-            }
-        }
 
         BatchCatalogue catalogue = batchCatalogueDao.getOne(catalogueInput.getId());
         catalugeOneNotUpdate(catalogue);
@@ -1366,29 +1293,6 @@ public class BatchCatalogueService {
             }
         }
         return nodePid;
-    }
-
-    /**
-     * 组装成树形结构
-     * 两次循环就可以
-     *
-     * @return
-     */
-    private CatalogueVO getProjectCatalogueTree(List<CatalogueVO> childer) {
-        Map<String, CatalogueVO> treeMap = new HashMap<>();
-        CatalogueVO root = new CatalogueVO();
-        childer.forEach(bean -> {
-            treeMap.put(String.format("%s_%s", bean.getId(), bean.getType()), bean);
-        });
-        for (CatalogueVO catalogue : childer) {
-            if (catalogue.getParentId() == 0) {
-                root = treeMap.get(String.format("%s_%s", catalogue.getId(), catalogue.getType()));
-            }
-            if (treeMap.containsKey(String.format("%s_%s", catalogue.getParentId(), "folder"))) {
-                treeMap.get(String.format("%s_%s", catalogue.getParentId(), "folder")).getChildren().add(catalogue);
-            }
-        }
-        return root;
     }
 
     /**

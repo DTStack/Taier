@@ -529,8 +529,8 @@ public class ActionService {
      */
     public ActionLogVO log( String jobId, Integer computeType) {
 
-        if (StringUtils.isBlank(jobId)||computeType==null){
-            throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
+        if (StringUtils.isBlank(jobId)){
+            throw new RdosDefineException("jobId is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
         ActionLogVO vo = new ActionLogVO();

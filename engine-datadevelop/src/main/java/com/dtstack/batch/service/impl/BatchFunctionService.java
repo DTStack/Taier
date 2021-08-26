@@ -500,49 +500,4 @@ public class BatchFunctionService {
             return StringUtils.EMPTY;
         }
     }
-
-    /**
-     * Spark UDF 脏数据处理
-     */
-    public String sparkUdfCleanAndPublish() {
-        cleanDirtyDataFunction();
-        List<Integer> taskTypes = Lists.newArrayList(EJobType.SPARK_SQL.getVal(), EJobType.HIVE_SQL.getVal());
-        return batchTaskService.againPublishTask(taskTypes);
-    }
-
-
-    /**
-     * 删除函数原来的脏数据
-     */
-    public void cleanDirtyDataFunction() {
-        IFunctionService functionService;
-        // 获取engineType为Hadoop的所有的函数
-        List<BatchFunction> batchFunctions = batchFunctionDao.listProjectFunction(null, FunctionType.USER.getType(), MultiEngineType.HADOOP.getType());
-        if (CollectionUtils.isEmpty(batchFunctions)) {
-            return;
-        }
-        List<Long> projectIds = batchFunctions.stream().map(BatchFunction::getProjectId).collect(Collectors.toList());
-        List<Long> tenantIds = batchFunctions.stream().map(BatchFunction::getTenantId).collect(Collectors.toList());
-
-        // 根据projectIds获取engine_identity
-        List<ProjectEngine> dbNames = projectEngineService.listIdentityByProjectIdAndType(projectIds, MultiEngineType.HADOOP.getType());
-        // 根据tenant_ids获取dtTenant_id
-        List<Tenant> tenants = tenantService.listDtuicTenantIdByTenantId(tenantIds);
-
-        //key: projectId --- value: engineIdentity
-        Map<Long, String> dbNameMap = dbNames.stream().collect(Collectors.toMap(ProjectEngine::getProjectId, ProjectEngine::getEngineIdentity, (key1,key2) -> key2));
-        //key: tenantId --- value: dtUicTenantId
-        Map<Long, Long> dtUicTenantIdMap = tenants.stream().collect(Collectors.toMap(Tenant::getId, Tenant::getDtuicTenantId));
-        for (BatchFunction batchFunction : batchFunctions) {
-            functionService = multiEngineServiceFactory.getFunctionService(batchFunction.getEngineType());
-            try {
-                functionService.deleteFunction(dtUicTenantIdMap.get(batchFunction.getTenantId()), dbNameMap.get(batchFunction.getProjectId()), batchFunction.getName(), batchFunction.getProjectId());
-                // 打印被执行删除的函数
-                logger.info("删除成功的函数：" + String.format(LOGGER_DELETE_FUNCTION, batchFunction.getId(), batchFunction.getName()));
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-                logger.error("删除失败的函数：" + String.format(LOGGER_DELETE_FUNCTION, batchFunction.getId(), batchFunction.getName()));
-            }
-        }
-    }
 }

@@ -29,7 +29,6 @@
         <module>spark</module>
         <module>stores</module>
         <module>schedules</module>
-        <module>common</module>
         <module>local-test</module>
     </modules>
 

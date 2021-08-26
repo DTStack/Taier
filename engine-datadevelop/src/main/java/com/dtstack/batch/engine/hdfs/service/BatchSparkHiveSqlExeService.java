@@ -4,6 +4,7 @@ import com.dtstack.batch.bo.ExecuteContent;
 import com.dtstack.batch.bo.ParseResult;
 import com.dtstack.batch.common.enums.ETableType;
 import com.dtstack.batch.common.enums.TempJobType;
+import com.dtstack.engine.api.domain.ScheduleEngineProject;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.batch.common.exception.ErrorCode;
 import com.dtstack.batch.common.exception.RdosDefineException;
@@ -344,10 +345,10 @@ public class BatchSparkHiveSqlExeService {
 
             //这里增加一条记录，保证简单查询sql也能下载数据
             String jobId = UUID.randomUUID().toString();
-            Project project = getProjectByDbName(db, currentDb, engineType, tenantId);
+            ScheduleEngineProject project = getProjectByDbName(db, currentDb, engineType, tenantId);
 
             String parseColumnsString = "{}";
-            selectSqlService.addSelectSql(jobId, tableName, TempJobType.SIMPLE_SELECT.getType(), tenantId, project.getId(), parseResult.getStandardSql(), userId, parseColumnsString, engineType);
+            selectSqlService.addSelectSql(jobId, tableName, TempJobType.SIMPLE_SELECT.getType(), tenantId, project.getProjectId(), parseResult.getStandardSql(), userId, parseColumnsString, engineType);
             result.setJobId(jobId);
             result.setIsContinue(false);
         } else {
@@ -375,8 +376,8 @@ public class BatchSparkHiveSqlExeService {
      * @param tenantId
      * @return
      */
-    private Project getProjectByDbName(String db, String currentDb, Integer engineType, Long tenantId) {
-        Project project = null;
+    private ScheduleEngineProject getProjectByDbName(String db, String currentDb, Integer engineType, Long tenantId) {
+        ScheduleEngineProject project = null;
         if (StringUtils.isNotEmpty(db) && !db.equals(currentDb)) {
             //当前查询db 和 所属db 不一致
             project = projectEngineService.getProjectByDbName(db, engineType, null);

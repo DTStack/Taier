@@ -4,11 +4,9 @@ package com.dtstack.batch.service.task.impl;
 import com.alibaba.fastjson.*;
 import com.dtstack.batch.common.enums.EDeployType;
 import com.dtstack.batch.common.enums.PublishTaskStatusEnum;
-import com.dtstack.batch.service.impl.ProjectService;
 import com.dtstack.engine.api.domain.BaseEntity;
 import com.dtstack.engine.api.domain.BatchDataSource;
 import com.dtstack.engine.api.domain.BatchTask;
-import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.engine.api.domain.User;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
@@ -60,6 +58,7 @@ import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
 import com.dtstack.engine.api.vo.task.SaveTaskTaskVO;
 import com.dtstack.engine.api.vo.template.TaskTemplateResultVO;
 import com.dtstack.engine.master.impl.*;
+import com.dtstack.engine.master.impl.ProjectService;
 import com.dtstack.engine.master.impl.TenantService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
@@ -87,7 +86,6 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -166,9 +164,6 @@ public class BatchTaskService {
     @Autowired
     private RoleUserService roleUserService;
 
-    @Resource(name = "batchProjectService")
-    private ProjectService projectService;
-
     @Autowired
     private DictService dictService;
 
@@ -183,9 +178,6 @@ public class BatchTaskService {
 
     @Autowired
     private MultiEngineServiceFactory multiEngineServiceFactory;
-
-    @Autowired
-    private ProjectDao projectDao;
 
     @Autowired
     private BatchSqlExeService batchSqlExeService;
@@ -209,7 +201,7 @@ public class BatchTaskService {
     private EnvironmentContext environmentContext;
 
     @Autowired
-    private com.dtstack.engine.master.impl.ProjectService engineProjectService;
+    private ProjectService projectService;
 
     @Autowired
     private ComponentService componentService;
@@ -897,14 +889,14 @@ public class BatchTaskService {
             }
             final Map<Long, User> userMap = userService.getUserMap(userIds);
             for (final Map<String, Object> r : result) {
-                final Project searchProject = this.projectService.getProjectById(searchProjectId);
+                ScheduleEngineProject project = this.projectService.getProjectById(searchProjectId);
                 Long userId = null;
                 if (Objects.nonNull(r.get("createUserId")) && r.get("createUserId") instanceof Integer) {
                     userId = Long.valueOf((int) r.get("createUserId"));
                 }
                 r.put("createUser", userMap.get(userId));
-                r.put("tenantName", tenantService.getTenantById(searchProject.getTenantId()).getTenantName());
-                r.put("projectName", searchProject.getProjectName());
+                r.put("tenantName", tenantService.getByDtUicTenantId(project.getUicTenantId()).getTenantName());
+                r.put("projectName", project.getProjectName());
             }
         }
         return result;
@@ -1542,6 +1534,7 @@ public class BatchTaskService {
         BeanUtils.copyProperties(batchTask, scheduleTaskShadeDTO);
         scheduleTaskShadeDTO.setTaskId(batchTask.getId());
         scheduleTaskShadeDTO.setAppType(AppType.RDOS.getType());
+        scheduleTaskShadeDTO.setScheduleStatus(EScheduleStatus.NORMAL.getVal());
         if (StringUtils.isNotEmpty(batchTask.getScheduleConf())) {
             JSONObject scheduleConfig = JSONObject.parseObject(batchTask.getScheduleConf());
             if (scheduleConfig != null) {
@@ -1550,8 +1543,6 @@ public class BatchTaskService {
                 scheduleTaskShadeDTO.setIsExpire(0);
             }
         }
-        // 设置项目的调度状态
-        scheduleTaskShadeDTO.setProjectScheduleStatus(projectService.getProjectById(batchTask.getProjectId()).getScheduleStatus());
         return scheduleTaskShadeDTO;
     }
 
@@ -1589,9 +1580,9 @@ public class BatchTaskService {
                     JSONObject taskParam = new JSONObject();
                     taskParam.put("taskName", taskShade.getName());
                     taskParam.put("tenantName", tenantService.getTenantById(taskShade.getTenantId()).getTenantName());
-                    ScheduleEngineProjectVO engineProjectVO= engineProjectService.findProject(taskShade.getProjectId(),taskShade.getAppType());
-                    if (engineProjectVO != null) {
-                        taskParam.put("projectName", engineProjectVO.getProjectName());
+                    ScheduleEngineProject project = projectService.getProjectById(taskShade.getProjectId());
+                    if (project != null) {
+                        taskParam.put("projectName", project.getProjectName());
                     } else {
                         taskParam.put("projectName", "");
                     }
@@ -3044,128 +3035,6 @@ public class BatchTaskService {
         batchTask.setOwnerUserId(targetUserId);
         batchTask.setIsDeleted(Deleted.NORMAL.getStatus());
         return batchTaskDao.generalCount(batchTask);
-    }
-
-    /**
-     * 提交特定类型的任务
-     *
-     * @param taskTypes
-     */
-    public String againPublishTask(List<Integer> taskTypes) {
-        return againPublishTask(taskTypes, null);
-    }
-
-    /**
-     * 提交特定类型的任务，根据 filterMode 过滤任务信息
-     *
-     * @param taskTypes
-     * @param filterMode
-     * @return
-     */
-    public String againPublishTask(List<Integer> taskTypes, Integer filterMode) {
-        List<BatchTask> batchTasks = listAllSubmitTask(com.dtstack.batch.enums.ESubmitStatus.SUBMIT.getStatus(), taskTypes);
-        // 过滤任务信息
-        batchTasks = filterTask(batchTasks, 1);
-
-        // 判断处理的任务逻辑
-        if (CollectionUtils.isEmpty(batchTasks)) {
-            return "不存在需要提交的任务";
-        }
-
-        List<Long> tenantIds = batchTasks.stream().map(BatchTask::getTenantId).collect(Collectors.toList());
-        List<Long> projectIds = batchTasks.stream().map(BatchTask::getProjectId).collect(Collectors.toList());
-        List<Tenant> tenants = tenantService.listByTenantIds(tenantIds);
-        Map<Long, Project> projectMap = projectService.getProjectMap(projectIds);
-        //key -- tenantId --- value -- dtUicTenantId
-        Map<Long, Tenant> dtUicTenantIdMap = tenants.stream().collect(Collectors.toMap(Tenant::getId, Function.identity()));
-        CountDownLatch countDownLatch = new CountDownLatch(batchTasks.size());
-        StringBuffer errorTaskMsg = new StringBuffer();
-        for (BatchTask batchTask : batchTasks) {
-            // 校验任务租户和项目是否仍然存在
-            Tenant tenant = dtUicTenantIdMap.get(batchTask.getTenantId());
-            Project project = projectMap.get(batchTask.getProjectId());
-            // 项目或者租户为空，则说明该任务已无效，直接跳过
-            if (tenant == null || project == null) {
-                countDownLatch.countDown();
-                continue;
-            }
-
-            // 获取引擎的版本信息，如果版本信息为空，说明之前任务没提交过则直接跳过，不提交
-            ScheduleTaskShade scheduleTaskShade = scheduleTaskShadeService.getBatchTaskById(batchTask.getId(), AppType.RDOS.getType());
-            if (scheduleTaskShade == null) {
-                countDownLatch.countDown();
-                continue;
-            }
-
-            // 离线数据库最新一次提交的版本信息
-            BatchTaskVersion taskVersion = batchTaskVersionDao.getByTaskIdAndVersion(batchTask.getId(), batchTask.getVersion());
-            // 如果不存在版本信息，但是引擎存在，则说明这部分任务保存之后未提交过，则需要运维手动处理
-            if (taskVersion == null) {
-                errorTaskMsg.append(String.format(LOGGER_TENANT_PROJECT_TASK_ERROR, tenant.getTenantName(), project.getProjectName(), batchTask.getName()));
-                countDownLatch.countDown();
-                continue;
-            }
-
-            // 如果引擎的版本与离线版本不同，则说明为脏数据，需要运维手动处理
-            if (scheduleTaskShade.getVersionId() != taskVersion.getId().intValue()) {
-                errorTaskMsg.append(String.format(LOGGER_TENANT_PROJECT_TASK_ERROR, tenant.getTenantName(), project.getProjectName(), batchTask.getName()));
-                countDownLatch.countDown();
-                continue;
-            }
-
-            TASK_PUBLISH_JOB.submit(() -> {
-                try {
-                    publishTask(batchTask.getProjectId(), batchTask.getId(), batchTask.getOwnerUserId(), "自定义函数数据处理自动提交", YES_IS_ROOT, IGNORE_CHECK, tenant.getDtuicTenantId(), null);
-                    logger.info("提交成功的任务：" + String.format(LOGGER_AGAIN_PUSH_TASK, batchTask.getId(), batchTask.getName()));
-                } catch (Exception e) {
-                    logger.error(e.getMessage());
-                    logger.error("提交失败的任务：" + String.format(LOGGER_AGAIN_PUSH_TASK, batchTask.getId(), batchTask.getName()));
-                } finally {
-                    countDownLatch.countDown();
-                }
-            });
-        }
-
-        try {
-            countDownLatch.await();
-        } catch (InterruptedException e) {
-            logger.error("批量提交任务失败 : ", e.getMessage(), e);
-        }
-
-        return errorTaskMsg.length() == 0 ? "Success" : errorTaskMsg.toString();
-    }
-
-    /**
-     * 过滤任务信息
-     *
-     * @param batchTasks
-     * @param filterMode
-     */
-    public List<BatchTask> filterTask(List<BatchTask> batchTasks, Integer filterMode) {
-        if (CollectionUtils.isEmpty(batchTasks)) {
-            return Lists.newArrayList();
-        }
-
-        // 目前为空，说明过滤非 SparkSQL 和 HiveSQL 任务，且过滤不存在自定义函数的任务
-        if (filterMode == null || filterMode == 1) {
-            return batchTasks.stream()
-                    .filter(task -> EJobType.SPARK_SQL.getVal().equals(task.getTaskType()) || EJobType.HIVE_SQL.getVal().equals(task.getTaskType()))
-                    .filter(task -> batchFunctionService.validContainSelfFunction(task.getSqlText(), task.getProjectId(), FunctionType.USER.getType()))
-                    .collect(Collectors.toList());
-        }
-
-        return batchTasks;
-    }
-
-    /**
-     * 查询所有已提交的Spark sql和Hive sql任务
-     *
-     * @param submitStatus
-     * @param taskType
-     * @return
-     */
-    public List<BatchTask> listAllSubmitTask(Integer submitStatus, List<Integer> taskType) {
-        return batchTaskDao.listAllSubmitTask(submitStatus, taskType);
     }
 
     /**

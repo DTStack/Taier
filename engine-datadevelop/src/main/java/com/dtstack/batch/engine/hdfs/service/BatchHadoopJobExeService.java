@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONPath;
 import com.dtstack.batch.bo.ExecuteContent;
 import com.dtstack.engine.api.domain.BatchDataSource;
 import com.dtstack.engine.api.domain.BatchTask;
+import com.dtstack.engine.api.domain.ScheduleEngineProject;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.batch.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.ProjectEngineDao;
@@ -239,7 +240,7 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
     }
 
     @Override
-    public void readyForTaskStartTrigger(Map<String, Object> actionParam, Long dtuicTenantId, Project project, BatchTask batchTask, List<BatchTaskParamShade> taskParamsToReplace) throws Exception {
+    public void readyForTaskStartTrigger(Map<String, Object> actionParam, Long dtuicTenantId, ScheduleEngineProject project, BatchTask batchTask, List<BatchTaskParamShade> taskParamsToReplace) throws Exception {
 
         String sql = batchTask.getSqlText();
         sql = sql == null ? "" : sql;
@@ -255,7 +256,7 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
             sql = String.format("set hive.default.fileformat=%s;\n ",environmentContext.getCreateTableType())+sql;
             batchTaskParamService.checkParams(sql, taskParamsToReplace);
             // 处理多条sql
-            CheckSyntaxResult result = batchSqlExeService.processSqlText(dtuicTenantId, batchTask.getTaskType(), sql, batchTask.getCreateUserId(), project.getTenantId(),
+            CheckSyntaxResult result = batchSqlExeService.processSqlText(dtuicTenantId, batchTask.getTaskType(), sql, batchTask.getCreateUserId(), project.getUicTenantId(),
                     project.getId(), false, Boolean.FALSE, MultiEngineType.HADOOP.getType(), taskParams);
             sql = result.getSql();
             if (EJobType.HIVE_SQL.getVal().equals(batchTask.getTaskType())) {

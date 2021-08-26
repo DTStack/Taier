@@ -68,9 +68,6 @@ public class RoleUserService {
     @Autowired
     private IAuthService authService;
 
-    @Resource(name = "batchProjectService")
-    private ProjectService projectService;
-
     @Autowired
     private RoleDao roleDao;
 
@@ -428,62 +425,6 @@ public class RoleUserService {
                 .addSecurityData("rolesBefore", StringUtils.join(rolesBefore,","))
                 .addSecurityData("rolesAfter",StringUtils.join(rolesAfter,","));
         return result;
-    }
-
-    /**
-     * 更新用户角色信息(uic回调事件触发)
-     *
-     * @param roleValueList 角色值列表
-     * @param dtuicTenantId uic 租户 ID
-     * @param roleFlag      true 增加角色/false 移除角色
-     */
-    public void updateUserRoleByEvent(List<Integer> roleValueList, Long dtuicUserId, Long dtuicTenantId, Boolean roleFlag){
-        Tenant tenant = tenantService.getByDtUicTenantId(dtuicTenantId);
-        // 如果租户不存在，直接跳过（因为租户不存在，肯定不存在项目，无需做角色任何操作）
-        if (Objects.isNull(tenant)) {
-            logger.info(String.format("dtuicTenantId: %s is not in batch", dtuicTenantId));
-            return;
-        }
-        User user = userService.getByDtUicUserId(dtuicUserId);
-        Long userId = null;
-        if (Objects.isNull(user) ){
-            // 如果用户不存在，且当前操作是移除租户管理员操作则直接跳过，因为用户不存在，则证明离线中任何肯定无该用户的角色
-            if (BooleanUtils.isFalse(roleFlag)) {
-                logger.info(String.format("dtuicUserId: %s is not is batch", dtuicUserId));
-                return;
-            } else {
-                // 添加uic用户信息
-                UICUserVO uicUserVO = uicUserApiClient.getByTenantId(dtuicUserId, dtuicTenantId);
-                if (Objects.isNull(uicUserVO)) {
-                    logger.error(String.format("not get user info by dtuicUserId: %s and dtuicTenantId : %s", dtuicUserId, dtuicTenantId));
-                    return;
-                }
-                BatchRoleUserAddNewMapVO userAddNewMapVO = new BatchRoleUserAddNewMapVO();
-                BeanUtils.copyProperties(uicUserVO, userAddNewMapVO);
-                List<Long> userIds = addUicUser(Lists.newArrayList(userAddNewMapVO));
-                if (CollectionUtils.isEmpty(userIds)) {
-                    return;
-                }
-                userId = userIds.get(0);
-            }
-        } else {
-            userId = user.getId();
-        }
-        // 获取该租户下所有的项目
-        Set<Long> projectIdList =  projectService.getUsefulProjectIds(userId, tenant.getId(), false, true);
-        if (CollectionUtils.isEmpty(projectIdList)) {
-            logger.info(String.format("not found project by tenantId : %s", tenant.getId()));
-            return;
-        }
-        // true 证明须要增加角色， false 证明移除用户
-        if (BooleanUtils.isTrue(roleFlag)) {
-            logger.info("add  user role in project");
-            roleValueList.add(RoleValue.MEMBER.getRoleValue());
-            processProjectAddRoleByEvent(projectIdList, roleValueList, userId, tenant.getId());
-        } else {
-            logger.info("remove  user role in project");
-            processProjectRemoveRoleByEvent(projectIdList, roleValueList, userId, tenant.getId());
-        }
     }
 
     /**

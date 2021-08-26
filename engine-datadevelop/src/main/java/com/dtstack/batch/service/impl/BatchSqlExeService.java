@@ -38,10 +38,12 @@ import com.dtstack.dtcenter.common.enums.*;
 import com.dtstack.dtcenter.common.util.PublicUtil;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.engine.api.domain.BatchTask;
+import com.dtstack.engine.api.domain.ScheduleEngineProject;
 import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.engine.api.domain.User;
 import com.dtstack.engine.api.vo.lineage.SqlType;
 import com.dtstack.engine.lineage.impl.LineageService;
+import com.dtstack.engine.master.impl.ProjectService;
 import com.dtstack.engine.master.impl.TenantService;
 import com.dtstack.engine.master.impl.UserService;
 import com.google.common.base.Preconditions;
@@ -71,7 +73,7 @@ public class BatchSqlExeService {
 
     public static Logger LOG = LoggerFactory.getLogger(BatchSqlExeService.class);
 
-    @Resource(name = "batchProjectService")
+    @Autowired
     private ProjectService projectService;
 
     @Autowired
@@ -129,11 +131,11 @@ public class BatchSqlExeService {
 
     private String getDbName(final ExecuteContent executeContent) {
         String dbName = null;
-        final Tenant tenantByDtUicTenantId = tenantService.getByDtUicTenantId(executeContent.getDtuicTenantId());
-        if (null != tenantByDtUicTenantId) {
+        final Tenant tenant = tenantService.getByDtUicTenantId(executeContent.getDtuicTenantId());
+        if (null != tenant) {
             Long projectId = executeContent.getProjectId();
             if (projectId == null) {
-                final Project project = this.projectService.getByName(executeContent.getProjectName(), tenantByDtUicTenantId.getId());
+                final ScheduleEngineProject project = this.projectService.getByName(executeContent.getProjectName(), tenant.getDtUicTenantId());
                 if (project == null) {
                     throw new RdosDefineException("项目不能为空");
                 }

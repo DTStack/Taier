@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.batch.common.enums.ETableType;
 import com.dtstack.engine.api.domain.BatchDataSource;
 import com.dtstack.engine.api.domain.BatchTask;
+import com.dtstack.engine.api.domain.ScheduleEngineProject;
 import com.dtstack.engine.api.domain.User;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.batch.common.exception.ErrorCode;
@@ -68,6 +69,7 @@ import com.dtstack.engine.datasource.vo.datasource.api.DsServiceListVO;
 import com.dtstack.engine.datasource.vo.datasource.api.DsShiftReturnVO;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ComponentService;
+import com.dtstack.engine.master.impl.ProjectService;
 import com.dtstack.engine.master.impl.TenantService;
 import com.dtstack.engine.master.impl.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -230,7 +232,7 @@ public class BatchDataSourceService {
     @Autowired
     private TenantService tenantService;
 
-    @Resource(name = "batchProjectService")
+    @Autowired
     private ProjectService projectService;
 
     @Autowired
@@ -2069,36 +2071,12 @@ public class BatchDataSourceService {
     @Transactional(rollbackFor = Exception.class)
     public void linkDataSource(Long tenantId, Long projectId, Long sourceId,Long linkSourceId) {
 
-        Project project = projectService.getProjectById(projectId);
-        if (ProjectType.GENERAL.getType().equals(project.getProjectType())) {
-            throw new RdosDefineException("此项目没有绑定任何项目，无法配置数据源映射");
-        }
-
         BatchDataSource source = getOne(sourceId);
         BatchDataSource linkSource = getOne(linkSourceId);
 
         if (!source.getType().equals(linkSource.getType())) {
             throw new RdosDefineException("数据源类型不一致");
         }
-    }
-
-    /**
-     * 从上传的keytab文件中解析出principal账号，在前端进行选择
-     *
-     * @param tmpPath 文件上传路径
-     * @return principal集合
-     */
-    public List<String> listPrincipalWithKeytab(DataSourceVO source, String tmpPath, String originalFilename) {
-        String localKerberosConf = getLocalKerberosConf(source.getId());
-        IKerberos kerberos = ClientCache.getKerberos(source.getType());
-        Map<String, Object> kerberosConfig;
-        try {
-            kerberosConfig = kerberos.parseKerberosFromUpload(tmpPath, localKerberosConf);
-        } catch (IOException e) {
-            throw new RdosDefineException(String.format("解析 Kerberos Zip 文件异常 %s", e.getMessage()), e);
-        }
-        kerberos.prepareKerberosForConnect(kerberosConfig, localKerberosConf);
-        return kerberos.getPrincipals(kerberosConfig);
     }
 
     /**
@@ -2186,25 +2164,6 @@ public class BatchDataSourceService {
 
         BatchDataSource source = convertDsServiceInfoDTOToDataSource(centerSource, dataSourceInfo);
 
-        return source;
-    }
-
-    /**
-     * 根据id获取数据源，如果为空，则返回null
-     * @param sourceId
-     * @return
-     */
-    public BatchDataSource getOneOrNull(Long sourceId) {
-        BatchDataSourceCenter centerSource = batchDataSourceCenterDao.getSourceCenterByCenterId(sourceId);
-        if(centerSource == null){
-            return null;
-        }
-        DsServiceInfoVO dataSourceInfo = apiServiceFacade.getDsInfoById(centerSource.getDtCenterSourceId());
-        if(dataSourceInfo == null){
-            return null;
-        }
-
-        BatchDataSource source = convertDsServiceInfoDTOToDataSource(centerSource, dataSourceInfo);
         return source;
     }
 

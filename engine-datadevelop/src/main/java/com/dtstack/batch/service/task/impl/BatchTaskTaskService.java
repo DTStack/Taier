@@ -1,22 +1,17 @@
 package com.dtstack.batch.service.task.impl;
 
-import com.dtstack.batch.dao.BatchTaskDao;
 import com.dtstack.batch.dao.BatchTaskTaskDao;
 import com.dtstack.engine.api.domain.BatchTask;
 import com.dtstack.batch.domain.BatchTaskTask;
-import com.dtstack.batch.domain.Project;
-import com.dtstack.batch.service.impl.ProjectService;
 import com.dtstack.batch.vo.BatchTaskBatchVO;
 import com.dtstack.dtcenter.common.enums.AppType;
 import com.dtstack.dtcenter.common.enums.Deleted;
+import com.dtstack.engine.api.domain.ScheduleEngineProject;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.vo.ScheduleDetailsVO;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.api.vo.project.ScheduleEngineProjectVO;
-import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
-import com.dtstack.engine.master.impl.ScheduleTaskTaskShadeService;
-import com.dtstack.engine.master.impl.TenantService;
-import com.dtstack.engine.master.impl.UserService;
+import com.dtstack.engine.master.impl.*;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.BeanUtils;
@@ -24,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -49,7 +43,7 @@ public class BatchTaskTaskService {
     @Autowired
     private TenantService tenantService;
 
-    @Resource(name = "batchProjectService")
+    @Autowired
     private ProjectService projectService;
 
     @Autowired
@@ -57,9 +51,6 @@ public class BatchTaskTaskService {
 
     @Autowired
     private ScheduleTaskShadeService scheduleTaskShadeService;
-
-    @Autowired
-    private com.dtstack.engine.master.impl.ProjectService engineProjectService;
 
     @Autowired
     private BatchTaskService batchTaskService;
@@ -211,9 +202,9 @@ public class BatchTaskTaskService {
                 ScheduleTaskVO scheduleTaskVO = new ScheduleTaskVO();
                 BeanUtils.copyProperties(taskShade, scheduleTaskVO);
                 scheduleTaskVO.setId(taskShade.getTaskId());
-                ScheduleEngineProjectVO engineProjectVO= engineProjectService.findProject(taskShade.getProjectId(),taskShade.getAppType());
-                if (engineProjectVO != null) {
-                    scheduleTaskVO.setProjectName(engineProjectService.findProject(taskShade.getProjectId(),taskShade.getAppType()).getProjectName());
+                ScheduleEngineProject project = projectService.getProjectById(taskShade.getProjectId());
+                if (project != null) {
+                    scheduleTaskVO.setProjectName(project.getProjectName());
                 }
                 scheduleTaskVO.setTenantName(tenantService.getByDtUicTenantId(taskShade.getDtuicTenantId()).getTenantName());
                 fatherTaskVOs.add(scheduleTaskVO);
@@ -255,8 +246,8 @@ public class BatchTaskTaskService {
      * @return
      */
     private List<BatchTaskTask> listTaskTaskByProjectId(Long projectId) {
-        Project projectById = projectService.getProjectById(projectId);
-        List<BatchTask> tasks = batchTaskService.getTasksByProjectId(projectById.getTenantId(), projectId, null);
+        ScheduleEngineProject project = projectService.getProjectById(projectId);
+        List<BatchTask> tasks = batchTaskService.getTasksByProjectId(project.getUicTenantId(), projectId, null);
         if (CollectionUtils.isNotEmpty(tasks)) {
             List<Long> taskIds = tasks.stream().map(BatchTask::getId).collect(Collectors.toList());
             return batchTaskTaskDao.listTaskTaskByTaskIds(taskIds);

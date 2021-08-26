@@ -1,24 +1,3 @@
-CREATE TABLE `rdos_project` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `tenant_id` int(11) NOT NULL COMMENT '租户id',
-  `project_name` varchar(256) NOT NULL COMMENT '项目名称',
-  `project_alias` varchar(256) NOT NULL COMMENT '项目别名',
-  `project_Identifier` varchar(256) NOT NULL COMMENT '项目标识',
-  `project_desc` varchar(4000) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '项目状态0：初始化，1：正常,2:禁用,3:失败',
-  `create_user_id` int(11) NOT NULL COMMENT '新建项目的用户id',
-  `modify_user_id` int(11) COMMENT '修改人id',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  `project_type` tinyint(1) NOT NULL DEFAULT '0' COMMENT '项目类型:0-普通项目，1-测试项目，2-生产项目',
-  `produce_project_id` int(11) NULL COMMENT '绑定的生产项目id',
-  `schedule_status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '调度状态：0-开启，1-关闭',
-  `is_allow_download` tinyint(2) NOT NULL DEFAULT '0' COMMENT '是否允许下载查询结果 1-正常 0-禁用',
-  `catalogue_id` int(11) NOT NULL DEFAULT '0' COMMENT '目录id',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COMMENT ='项目表';
-
 
 CREATE TABLE `rdos_project_engine` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
