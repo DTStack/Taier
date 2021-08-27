@@ -5,6 +5,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.ScheduleTaskParamShade;
 import com.dtstack.engine.api.enums.ScheduleEngineType;
+import com.alibaba.fastjson.serializer.PropertyFilter;
+import com.dtstack.engine.api.domain.EngineJobRetry;
+import com.dtstack.engine.api.domain.EngineUniqueSign;
+import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.api.vo.action.ActionJobEntityVO;
@@ -35,7 +40,6 @@ import com.dtstack.engine.master.scheduler.JobRichOperator;
 import com.dtstack.engine.master.scheduler.parser.ScheduleCron;
 import com.dtstack.engine.master.scheduler.parser.ScheduleFactory;
 import com.dtstack.schedule.common.enums.AppType;
-import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.schedule.common.enums.ForceCancelFlag;
 import com.google.common.base.Preconditions;
 import org.apache.commons.collections.CollectionUtils;
@@ -130,13 +134,17 @@ public class ActionService {
                 new CustomThreadFactory("logTimeOutPool"),
                 new CustomThreadRunsPolicy("logTimeOutPool", "log"));
 
+    private static final PropertyFilter propertyFilter = (object, name, value) ->
+            !(name.equalsIgnoreCase("taskParams") || name.equalsIgnoreCase("sqlText"));
+
     /**
      * 接受来自客户端的请求, 并判断节点队列长度。
      * 如在当前节点,则直接处理任务
      */
     public Boolean start(ParamActionExt paramActionExt){
-
-        LOGGER.info("start  actionParam: {}", JSONObject.toJSONString(paramActionExt));
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("start  actionParam: {}", JSONObject.toJSONString(paramActionExt,propertyFilter));
+        }
 
         try{
             checkParam(paramActionExt);

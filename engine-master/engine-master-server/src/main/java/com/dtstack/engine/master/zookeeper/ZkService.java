@@ -3,6 +3,7 @@ package com.dtstack.engine.master.zookeeper;
 import com.dtstack.engine.common.akka.message.WorkerInfo;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.cron.ErrorTopCron;
+import com.dtstack.engine.master.scheduler.DataClearSchedule;
 import com.dtstack.engine.master.zookeeper.data.BrokerHeartNode;
 import com.dtstack.engine.master.zookeeper.data.BrokersNode;
 import com.dtstack.engine.common.env.EnvironmentContext;
@@ -11,7 +12,6 @@ import com.dtstack.engine.master.listener.HeartBeatListener;
 import com.dtstack.engine.master.listener.Listener;
 import com.dtstack.engine.master.listener.MasterListener;
 import com.dtstack.engine.master.failover.FailoverStrategy;
-import com.dtstack.engine.master.scheduler.ScheduleJobBack;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.curator.framework.CuratorFramework;
@@ -63,7 +63,7 @@ public class ZkService implements InitializingBean, DisposableBean {
     private FailoverStrategy failoverStrategy;
 
     @Autowired
-    private ScheduleJobBack scheduleJobBack;
+    private DataClearSchedule dataClearSchedule;
 
     @Autowired
     private ErrorTopCron errorTopCron;
@@ -108,7 +108,7 @@ public class ZkService implements InitializingBean, DisposableBean {
     private void initScheduledExecutorService() throws Exception {
         listeners.add(new HeartBeatListener(this));
         String latchPath = String.format("%s/%s", this.distributeRootNode, "masterLatchLock");
-        MasterListener masterListener = new MasterListener(failoverStrategy, scheduleJobBack, zkClient,errorTopCron, latchPath, localAddress);
+        MasterListener masterListener = new MasterListener(failoverStrategy, zkClient,dataClearSchedule,errorTopCron, latchPath, localAddress);
         listeners.add(masterListener);
         listeners.add(new HeartBeatCheckListener(masterListener, failoverStrategy, this));
     }

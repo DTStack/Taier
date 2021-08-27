@@ -12,6 +12,7 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.AESUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.SecurityLogDao;
+import com.dtstack.schedule.common.enums.Deleted;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -148,6 +149,7 @@ public class SecurityAuditService {
         executor.execute(() -> {
             SecurityLog log = new SecurityLog();
             log.setAction(finalSecurityLogVO.getAction());
+            log.setIsDeleted(Deleted.NORMAL.getStatus());
             log.setAppTag(finalSecurityLogVO.getAppTag());
             log.setOperator(finalSecurityLogVO.getOperator());
             log.setOperatorId(finalSecurityLogVO.getOperatorId());

@@ -91,7 +91,9 @@ public class SftpFactory extends BasePooledObjectFactory<ChannelSftp>  {
         ChannelSftp channelSftp = (ChannelSftp) session.openChannel("sftp");
         channelSftp.connect();
 
-        LOGGER.info("create执行, 与ftp服务器建立连接成功 : " + channelSftp);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("create执行, 与ftp服务器建立连接成功 : " + channelSftp);
+        }
 
         return channelSftp;
 

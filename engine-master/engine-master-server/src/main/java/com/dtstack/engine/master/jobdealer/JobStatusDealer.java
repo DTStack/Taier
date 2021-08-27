@@ -108,7 +108,9 @@ public class  JobStatusDealer implements Runnable {
                     buildSemaphore.acquire();
                     taskStatusPool.submit(() -> {
                         try {
-                            LOGGER.info("jobId:{} before dealJob status:{}", job.getKey(), job.getValue());
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("jobId:{} before dealJob status:{}", job.getKey(), job.getValue());
+                            }
                             dealJob(job.getKey());
                         } catch (Throwable e) {
                             LOGGER.error("jobId:{}", job.getKey(), e);
@@ -166,7 +168,9 @@ public class  JobStatusDealer implements Runnable {
 
             RdosTaskStatus rdosTaskStatus = workerOperator.getJobStatus(jobIdentifier);
 
-            LOGGER.info("------ jobId:{} dealJob status:{}", jobId, rdosTaskStatus);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("------ jobId:{} dealJob status:{}", jobId, rdosTaskStatus);
+            }
 
             if (rdosTaskStatus != null) {
 
@@ -180,7 +184,6 @@ public class  JobStatusDealer implements Runnable {
                 }
 
                 shardCache.updateLocalMemTaskStatus(jobId, status);
-                LOGGER.info("----- jobId:{} updateJobStatusWithPredicate", jobId);
                 updateJobStatusWithPredicate(scheduleJob, jobId, status);
 
                 //数据的更新顺序，先更新job_cache，再更新engine_batch_job
@@ -200,7 +203,9 @@ public class  JobStatusDealer implements Runnable {
                     jobCheckpointDealer.addCheckpointTaskForQueue(scheduleJob.getComputeType(), jobId, jobIdentifier, engineType);
                 }
 
-                LOGGER.info("------ jobId:{} after dealJob status:{}", jobId, rdosTaskStatus);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("------ jobId:{} after dealJob status:{}", jobId, rdosTaskStatus);
+                }
             }
         }
     }
