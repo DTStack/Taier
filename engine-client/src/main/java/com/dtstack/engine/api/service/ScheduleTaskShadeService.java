@@ -92,7 +92,18 @@ public interface ScheduleTaskShadeService extends DtInsightServer {
      */
     @RequestLine("POST /node/scheduleTaskShade/pageQuery")
     @Headers(value={"Content-Type: application/json"})
+    @Deprecated
+    /**
+     * @see ScheduleTaskShadeService#newPageQuery(com.dtstack.engine.api.dto.ScheduleTaskShadeDTO)
+     */
     ApiResponse<PageResult<List<ScheduleTaskShadeVO>>> pageQuery( ScheduleTaskShadeDTO dto);
+
+    /**
+     * 分页查询已提交的任务
+     */
+    @RequestLine("POST /node/scheduleTaskShade/v2/pageQuery")
+    @Headers(value = {"Content-Type: application/json"})
+    ApiResponse<PageResult<List<ScheduleTaskShadeVO>>> newPageQuery(ScheduleTaskShadeDTO dto);
 
 
     @RequestLine("POST /node/scheduleTaskShade/getBatchTaskById")
