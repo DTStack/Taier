@@ -164,7 +164,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
      */
     protected Long getListMinId(String nodeAddress, Integer isRestart) {
         Pair<String, String> cycTime = getCycTime(true);
-        Long listMinId = batchJobService.getListMinId(nodeAddress, getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight(), isRestart);
+        Long listMinId = batchJobService.getListMinId(cycTime.getLeft(), cycTime.getRight());
         LOGGER.info("getListMinId scheduleType {} nodeAddress {} isRestart {} lastMinId is {} . cycStartTime {} cycEndTime {}", getScheduleType(), nodeAddress, isRestart, listMinId, cycTime.getLeft(), cycTime.getRight());
         return listMinId;
     }
@@ -189,8 +189,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                     for (ScheduleBatchJob scheduleBatchJob : listExecJobs) {
                         // 节点检查是否能进入队列
                         try {
-                            Long taskIdUnique = jobRichOperator.getTaskIdUnique(scheduleBatchJob.getAppType(), scheduleBatchJob.getTaskId());
-                            ScheduleTaskShade batchTask=cache.get(scheduleBatchJob.getScheduleJob().getAppType(),scheduleBatchJob.getTaskId());
+                            ScheduleTaskShade batchTask= cache.get(scheduleBatchJob.getScheduleJob().getAppType(),scheduleBatchJob.getTaskId());
 
                             if (batchTask == null) {
                                 String errMsg = JobCheckStatus.NO_TASK.getMsg();
@@ -204,10 +203,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
                             checkJobVersion(scheduleBatchJob.getScheduleJob(),batchTask);
 
-                            Map<Long, ScheduleTaskShade> taskCache = Maps.newHashMapWithExpectedSize(4);
-                            taskCache.put(taskIdUnique, batchTask);
-
-//                          // JobCheckRunInfo checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(), new HashSet<>(), new HashMap<>(), taskCache);
                             JobCheckRunInfo checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(), batchTask);
                             if (EScheduleJobType.WORK_FLOW.getType().equals(type) || EScheduleJobType.ALGORITHM_LAB.getVal().equals(type)) {
                                 LOGGER.info("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB so immediate put queue.", scheduleBatchJob.getJobId(), getScheduleType());
@@ -377,18 +372,13 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     }
 
     /**
-     * CycTimeDayGap 如果为0，则只取当天的调度数据，如果恰好在临界点0点存在上一天的未完成的调度任务，则在下一天会被忽略执行。
+     * CycTimeDayGap 如果为0，取当前时间 往前退 24小时的时间范围
      */
     public Pair<String, String> getCycTime(boolean minJobId) {
-        if (getScheduleType().getType() == EScheduleType.NORMAL_SCHEDULE.getType()) {
-            return jobRichOperator.getCycTimeLimitEndNow(true,false,minJobId);
-        }
-        // 补数据
-        else if(env.getOpenFillDataCycTimeLimit()) {
-            return jobRichOperator.getCycTimeLimitEndNow(false,false,minJobId);
+        if (EScheduleType.NORMAL_SCHEDULE.getType().equals(getScheduleType().getType())) {
+            return jobRichOperator.getCycTimeLimitEndNow(minJobId);
         }
         return new ImmutablePair<>(null, null);
-
     }
 
     public void start(ScheduleBatchJob scheduleBatchJob) {

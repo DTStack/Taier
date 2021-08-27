@@ -1,8 +1,6 @@
 package com.dtstack.engine.master.jobdealer;
 
-import com.dtstack.engine.api.domain.EngineJobStopRecord;
 import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.dao.EngineJobStopRecordDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import org.junit.Assert;
@@ -25,9 +23,6 @@ public class TestJobStopDealer extends AbstractTest {
 
     @Autowired
     private JobStopDealer jobStopDealer;
-
-    @Autowired
-    private EngineJobStopRecordDao stopRecordDao;
 
 
     @Test
@@ -52,16 +47,6 @@ public class TestJobStopDealer extends AbstractTest {
     @Rollback
     public void testDestroy() throws Exception {
         jobStopDealer.destroy();
-    }
-
-
-
-    @Test
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-    @Rollback
-    public void afterPropertiesSet() throws Exception {
-        EngineJobStopRecord scheduleJobStop = DataCollection.getData().getScheduleJobStop();
-        jobStopDealer.afterPropertiesSet();
     }
 
 
