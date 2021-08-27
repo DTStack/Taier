@@ -16,7 +16,8 @@ public enum DictType {
     SPARK_THRIFT_VERSION(3),
     HIVE_VERSION(4),
     COMPONENT_CONFIG(5),
-    TYPENAME_MAPPING(6);
+    TYPENAME_MAPPING(6),
+    DATA_CLEAR_NAME(8);
 
     public Integer type;
 
