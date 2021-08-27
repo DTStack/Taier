@@ -171,7 +171,7 @@ public class RestartRunnable implements Runnable {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    private void batchRestartScheduleJob(Map<String,String> resumeBatchJobs) {
+    public void batchRestartScheduleJob(Map<String,String> resumeBatchJobs) {
         if (MapUtils.isNotEmpty(resumeBatchJobs)) {
             List<String> restartJobId = new ArrayList<>(resumeBatchJobs.size());
             resumeBatchJobs.entrySet()

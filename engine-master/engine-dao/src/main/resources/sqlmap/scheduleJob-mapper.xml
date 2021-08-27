@@ -1702,7 +1702,7 @@
    </select>
 
     <select id="getRdosJobByJobIds" resultType="ScheduleJob">
-        select id,job_id, engine_job_id,application_id,plugin_info_id,status,engine_log,log_info,exec_start_time,exec_end_time,exec_time,retry_num,retry_task_params,gmt_create,gmt_modified,is_deleted,compute_type,dtuic_tenant_id
+        select id,job_id, engine_job_id,application_id,plugin_info_id,status,engine_log,log_info,exec_start_time,exec_end_time,exec_time,retry_num,retry_task_params,gmt_create,gmt_modified,is_deleted,compute_type,dtuic_tenant_id,cyc_time
         from schedule_job
         where job_id IN
         <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
