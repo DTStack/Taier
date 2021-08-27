@@ -354,6 +354,10 @@ public class EnvironmentContext {
         return Boolean.parseBoolean(environment.getProperty("jobGraphBuilderSwitch", "false"));
     }
 
+    public boolean getJobGraphWhiteList() {
+        return Boolean.parseBoolean(environment.getProperty("jobGraphWhiteList", "false"));
+    }
+
 
     public boolean openDataClear() {
         return Boolean.parseBoolean(environment.getProperty("data.clear", "true"));
