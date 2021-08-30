@@ -7,14 +7,12 @@ class RecommentTaskModal extends React.Component<any, any> {
         choosetask: [], // 选择的任务
         selectedRows: [],
     };
-
     resetState() {
         this.setState({
             choosetask: [],
             selectedRows: [],
         });
     }
-
     onOk() {
         const { selectedRows } = this.state;
         if (selectedRows.length == 0) {
@@ -24,12 +22,10 @@ class RecommentTaskModal extends React.Component<any, any> {
         this.props.onOk(selectedRows);
         this.resetState();
     }
-
     onCancel() {
         this.resetState();
         this.props.onCancel();
     }
-
     initColumns() {
         return [
             {
@@ -43,7 +39,6 @@ class RecommentTaskModal extends React.Component<any, any> {
             },
         ];
     }
-
     rowSelection() {
         const { existTask } = this.props;
         return {
@@ -70,7 +65,6 @@ class RecommentTaskModal extends React.Component<any, any> {
             },
         };
     }
-
     render() {
         const { visible, taskList } = this.props;
         return (

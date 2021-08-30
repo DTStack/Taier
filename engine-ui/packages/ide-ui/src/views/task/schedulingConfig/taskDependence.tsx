@@ -39,11 +39,9 @@ class TaskDependence extends React.Component<any, any> {
         tenantId: null,
         projectId: null,
     };
-
     componentDidMount() {
         this.initTenant();
     }
-
     initTenant() {
         const tenantId = get(this.props, 'tenant.currentTenant.tenantId');
         if (tenantId) {
@@ -55,7 +53,6 @@ class TaskDependence extends React.Component<any, any> {
             );
         }
     }
-
     showRecommentTask() {
         const { tabData } = this.props;
         this.setState({
@@ -77,17 +74,14 @@ class TaskDependence extends React.Component<any, any> {
         //     }
         //   });
     }
-
     recommentTaskClose() {
         this.setState({
             recommentTaskModalVisible: false,
         });
     }
-
     goEdit(task: any) {
         this.props.getTaskDetail(task.id);
     }
-
     initColumn() {
         const { project, tenant } = this.props;
         const currentTenantName = tenant.currentTenant.tenantName;
@@ -162,7 +156,6 @@ class TaskDependence extends React.Component<any, any> {
             },
         ];
     }
-
     recommentTaskChoose(list: any) {
         for (let i = 0; i < list.length; i++) {
             this.props.handleAddVOS(list[i]);
@@ -171,7 +164,6 @@ class TaskDependence extends React.Component<any, any> {
             recommentTaskModalVisible: false,
         });
     }
-
     onSelectTenant(value: any) {
         this.setState(
             {
@@ -182,7 +174,6 @@ class TaskDependence extends React.Component<any, any> {
             this.loadProjectList.bind(this)
         );
     }
-
     async loadProjectList() {
         const { tenantId } = this.state;
         // let res = await ajax.getProjectByTenant({ searchTenantId: tenantId });
@@ -195,7 +186,6 @@ class TaskDependence extends React.Component<any, any> {
         //   );
         // }
     }
-
     setDefaultProject = () => {
         const { project, tenant } = this.props;
         const { tenantId } = this.state;
@@ -205,13 +195,11 @@ class TaskDependence extends React.Component<any, any> {
             });
         }
     };
-
     onSelectProject(value: any) {
         this.setState({
             projectId: value,
         });
     }
-
     render() {
         const { tabData, handleAddVOS, tenant } = this.props;
         const {

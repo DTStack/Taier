@@ -107,7 +107,7 @@ export function formJsonValidator(rule: any, value: any, callback: any) {
     let msg: any;
     try {
         if (value) {
-            const t = JSON.parse(value);
+            let t = JSON.parse(value);
             if (typeof t !== 'object') {
                 msg = '请填写正确的JSON';
             }

@@ -4,11 +4,14 @@ import EditorExtension from './editor';
 import ExplorerExtensions from './explorer';
 import FolderTreeExtension from './folderTree';
 import PanelExtension from './panel';
-import './languages';
+import SidebarExtension from './sidebar';
+import { ExtendsSparkSQL } from './languages'
 
 export const extensions: IExtension[] = [
     new ExplorerExtensions(),
     new EditorExtension(),
     new FolderTreeExtension(),
     new PanelExtension(),
+    new SidebarExtension(),
+    new ExtendsSparkSQL()
 ];

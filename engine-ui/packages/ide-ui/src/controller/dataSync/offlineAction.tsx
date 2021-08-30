@@ -1043,9 +1043,10 @@ export const workbenchActions = (dispatch?: any) => {
             isFunc?: any
         ) => {
             const res = await ajax.getOfflineCatalogue({
-                isGetFile: !!1,
+                isGetFile: false,
                 nodePid,
                 catalogueType: type,
+                taskType: 1,
                 ...option,
             });
             const getFuncTree = (
@@ -1055,10 +1056,10 @@ export const workbenchActions = (dispatch?: any) => {
             ) => {
                 return data.children
                     ? data.children.find(
-                          (item: any) =>
-                              item.catalogueType === cateType &&
+                        (item: any) =>
+                            item.catalogueType === cateType &&
                               item.engineType === engineType
-                      )
+                    )
                     : [];
             };
             if (res.code === 1) {
@@ -1554,8 +1555,9 @@ export const getDataSyncReqParams = (dataSyncStore: any) => {
             source: sourceItem,
         };
     }
-    targetColumn.forEach((item: any, index: any) => {
+    targetColumn.map((item: any, index: any) => {
         indexMap[getKey(item)] = index;
+        return item;
     });
 
     tmpTarget.sort((a: any, b: any) => {
@@ -1581,12 +1583,14 @@ export const getDataSyncReqParams = (dataSyncStore: any) => {
     const sourceTypeObj = sourceMap.type;
 
     for (const key in sourceTypeObj) {
-        if (Object.prototype.hasOwnProperty.call(sourceTypeObj, key)) {
+        // eslint-disable-next-line no-prototype-builtins
+        if (sourceTypeObj.hasOwnProperty(key)) {
             sourceMap[key] = sourceTypeObj[key];
         }
     }
     for (const k2 in targetTypeObj) {
-        if (Object.prototype.hasOwnProperty.call(targetTypeObj, k2)) {
+        // eslint-disable-next-line no-prototype-builtins
+        if (targetTypeObj.hasOwnProperty(k2)) {
             targetMap[k2] = targetTypeObj[k2];
         }
     }

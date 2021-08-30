@@ -28,7 +28,6 @@ class ScheduleForm extends React.Component<any, any> {
         this.changeScheduleConf = this.props.handleScheduleConf;
         this.changeScheduleType = this.props.handleScheduleType;
     }
-
     changeScheduleStatus: any;
     changeScheduleConf: any;
     changeScheduleType: any;
@@ -38,13 +37,11 @@ class ScheduleForm extends React.Component<any, any> {
         const date = form.getFieldValue('beginDate');
         return date && currentDate.valueOf() < date;
     };
-
     changeStartDisabledDate = (currentDate: any) => {
         const { form } = this.props;
         const date = form.getFieldValue('endDate');
         return date && currentDate.valueOf() > date;
     };
-
     render() {
         const { getFieldDecorator } = this.props.form;
         const {
@@ -69,7 +66,7 @@ class ScheduleForm extends React.Component<any, any> {
                 wFScheduleConf.periodType === '1');
 
         const generateHours = () => {
-            const options: any = [];
+            let options: any = [];
             for (let i = 0; i <= 23; i++) {
                 options.push(
                     <Option key={i} value={`${i}`}>
@@ -87,7 +84,7 @@ class ScheduleForm extends React.Component<any, any> {
             );
         };
         const generateMins = () => {
-            const options: any = [];
+            let options: any = [];
             for (let i = 0, l = 59; i <= l; i++) {
                 options.push(
                     <Option key={i} value={`${i}`}>
@@ -105,7 +102,7 @@ class ScheduleForm extends React.Component<any, any> {
             );
         };
         const generateDate = () => {
-            const options: any = [];
+            let options: any = [];
             for (let i = 1; i <= 31; i++) {
                 options.push(
                     <Option key={i} value={`${i}`}>{`每月${i}号`}</Option>
@@ -393,7 +390,7 @@ class ScheduleForm extends React.Component<any, any> {
                                                     )}
                                                 >
                                                     {(function () {
-                                                        const options: any = [];
+                                                        let options: any = [];
                                                         for (
                                                             let i = 5;
                                                             i <= 55;
@@ -524,7 +521,7 @@ class ScheduleForm extends React.Component<any, any> {
                                                     disabled={isScienceTask}
                                                 >
                                                     {(function () {
-                                                        const options: any = [];
+                                                        let options: any = [];
                                                         for (
                                                             let i = 1, l = 23;
                                                             i <= l;
@@ -796,7 +793,6 @@ class ScheduleForm extends React.Component<any, any> {
         }
         callback();
     }
-
     checkTimeS1(rule: any, value: any, callback: any) {
         const { form } = this.props;
         const beginHour = +form.getFieldValue('beginHour');
@@ -810,7 +806,6 @@ class ScheduleForm extends React.Component<any, any> {
         }
         callback();
     }
-
     checkTimeE1(rule: any, value: any, callback: any) {
         const { form } = this.props;
         const beginHour = +form.getFieldValue('beginHour');

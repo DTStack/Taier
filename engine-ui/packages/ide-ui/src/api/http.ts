@@ -1,7 +1,7 @@
 import 'whatwg-fetch';
 
-// import ProgressBar from "dt-common/src/widgets/progress-bar";
 // import { authAfterFormated, authBeforeFormate } from "../interceptor";
+import { ProgressBar } from 'dt-react-component';
 import { PROJECT_KEY } from '../comm/const';
 
 class Http {
@@ -32,9 +32,14 @@ class Http {
         return this.request(url, options);
     }
 
-    request(url: any, options: any) {
-        // ProgressBar.show();
+    // eslint-disable-next-line no-undef
+    request(url: any, options: RequestInit) {
+        ProgressBar.show();
         options.credentials = 'same-origin';
+        options.headers = {
+            ...this.defaultHeader(),
+            ...options.headers,
+        };
         const projectId = sessionStorage.getItem(PROJECT_KEY);
         if (projectId) {
             options.headers = {
@@ -46,17 +51,13 @@ class Http {
                 //   .then(authBeforeFormate)
                 .then((response: any) => {
                     setTimeout(() => {
-                        //   ProgressBar.hide();
+                        ProgressBar.hide();
                     }, 300);
                     return response.json();
                 })
-                // [TODO] moquerie 测试专用
-                .then((res) => {
-                    return res.data;
-                })
                 //   .then(authAfterFormated)
                 .catch((err: any) => {
-                    // ProgressBar.hide();
+                    ProgressBar.hide();
                     console.log(err);
                     return err;
                 })

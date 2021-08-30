@@ -9,3 +9,7 @@ export const TASK_PARAMS_ID = 'task.params';
 export const TASK_SCHEDULE_CONFIG = 'task.schedule.config';
 
 export const ENV_PARAMS = 'env.params';
+
+export const OUTPUT_LOG = 'panel.output.log';
+
+export const FOLDERTREE_CONTEXT_EDIT = 'explorer.edit';

@@ -4,13 +4,7 @@ import { IExtension, SAMPLE_FOLDER_PANEL_ID } from 'molecule/esm/model';
 import { localize } from 'molecule/esm/i18n/localize';
 import { connect } from 'molecule/esm/react';
 import TaskInfo from '../../task/taskInfo';
-import TaskParams from '../../task/taskParams';
-import { SchedulingConfig } from '../../task/schedulingConfig';
-import {
-    TASK_ATTRIBUTONS,
-    TASK_PARAMS_ID,
-    TASK_SCHEDULE_CONFIG,
-} from '../utils/const';
+import { TASK_ATTRIBUTONS } from '../utils/const';
 
 function changeContextMenuName() {
     const explorerData = molecule.explorer.getState().data?.concat() || [];
@@ -22,6 +16,11 @@ function changeContextMenuName() {
         molecule.explorer.setState({
             data: explorerData,
         });
+
+        // 右键菜单也需要修改
+        const contextMenu = molecule.folderTree.getFolderContextMenu().concat();
+        contextMenu[0].name = '新建任务';
+        molecule.folderTree.setFolderContextMenu(contextMenu);
     }
 }
 
@@ -35,65 +34,10 @@ function initTaskInfo() {
     });
 }
 
-function initTaskParams() {
-    const TaskParamsView = connect(molecule.editor, TaskParams);
-
-    molecule.explorer.addPanel({
-        id: TASK_PARAMS_ID,
-        name: localize(TASK_PARAMS_ID, '任务参数'),
-        config: {
-            grow: 2,
-        },
-        renderPanel: () => (
-            <TaskParamsView
-                tabData={{
-                    taskVariables: [
-                        {
-                            paramName: '$system',
-                            paramCommand: 'xiuneng',
-                            type: 0,
-                        },
-                        {
-                            paramName: '$key',
-                            paramCommand: '',
-                            type: 1,
-                        },
-                    ],
-                }}
-            />
-        ),
-    });
-}
-
-function initSchedulingConfig() {
-    const SchedulingConfigView = connect(molecule.editor, SchedulingConfig);
-
-    molecule.explorer.addPanel({
-        id: TASK_SCHEDULE_CONFIG,
-        name: localize(TASK_SCHEDULE_CONFIG, '调度依赖'),
-        renderPanel: () => (
-            <SchedulingConfigView
-                isPro={false}
-                couldEdit={false}
-                isScienceTask={false}
-                tabData={{
-                    scheduleConf: '{}',
-                    scheduleStatus: 0,
-                }}
-                updateKey={0}
-                key={'schedule-1'}
-                isIncrementMode={false}
-            />
-        ),
-    });
-}
-
 export default class ExplorerExtensions implements IExtension {
     activate(extensionCtx: molecule.IExtensionService): void {
         changeContextMenuName();
 
         initTaskInfo();
-        initTaskParams();
-        initSchedulingConfig();
     }
 }

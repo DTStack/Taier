@@ -11,7 +11,12 @@ module.exports = {
                 changeOrigin: true,
                 secure: false,
             },
-            '/api': 'http://172.16.100.225:3001',
+            '/api/rdos': {
+                target: 'http://172.16.101.187:8090/',
+                // target: 'http://172.16.100.225:3001',
+                changeOrigin: true,
+                secure: false,
+            },
             '/api/publicService': {
                 target: 'http://172.16.101.189:8077',
                 changeOrigin: true,

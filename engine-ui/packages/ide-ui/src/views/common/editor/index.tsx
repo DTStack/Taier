@@ -4,19 +4,23 @@ import molecule from 'molecule';
 import {
     getEditorInitialActions,
     IExtension,
-    PANEL_OUTPUT,
 } from 'molecule/esm/model';
 import { searchById } from 'molecule/esm/services/helper';
+import { workbenchActions } from '../../../controller/dataSync/offlineAction';
 import { resetEditorGroup } from '../utils';
-import Result from '../../task/result';
-import ajax from '../../../api';
 import {
     TASK_RUN_ID,
     TASK_STOP_ID,
     TASK_SUBMIT_ID,
     TASK_RELEASE_ID,
     TASK_OPS_ID,
+    OUTPUT_LOG,
 } from '../utils/const';
+import store from '../../../store';
+import { matchTaskParams, filterSql } from '../../../comm';
+import { TASK_TYPE } from '../../../comm/const';
+import { debounce } from 'lodash';
+import { execSql, stopSql } from '../../../controller/editor/editorAction';
 
 function initActions() {
     molecule.editor.setDefaultActions([
@@ -26,6 +30,7 @@ function initActions() {
             icon: 'play',
             place: 'outer',
             disabled: true,
+            title: '运行'
         },
         {
             id: TASK_STOP_ID,
@@ -33,6 +38,7 @@ function initActions() {
             icon: 'debug-pause',
             place: 'outer',
             disabled: true,
+            title: '停止运行'
         },
         {
             id: TASK_SUBMIT_ID,
@@ -40,6 +46,7 @@ function initActions() {
             icon: <Icon type="upload" />,
             place: 'outer',
             disabled: true,
+            title: '提交至调度引擎'
         },
         {
             id: TASK_RELEASE_ID,
@@ -61,10 +68,12 @@ function initActions() {
             ),
             place: 'outer',
             disabled: true,
+            title: '拷贝任务至目标项目，或下载至本地'
         },
         {
             id: TASK_OPS_ID,
             name: '运维',
+            title: '运维',
             icon: (
                 <span style={{ fontSize: 14, display: 'flex' }}>
                     <svg
@@ -94,6 +103,7 @@ function emitEvent() {
                 // TODO
                 const value = current.tab?.data.value || '';
                 if (value) {
+                    // 禁用运行按钮，启用停止按钮
                     molecule.editor.updateActions([
                         {
                             id: TASK_RUN_ID,
@@ -106,79 +116,81 @@ function emitEvent() {
                         },
                     ]);
 
+                    // active 日志 窗口
                     const { data } = molecule.panel.getState();
                     molecule.panel.setState({
-                        current: data?.find((item) => item.id === PANEL_OUTPUT),
+                        current: data?.find((item) => item.id === OUTPUT_LOG),
                     });
 
-                    const nowDate = new Date();
-                    molecule.panel.cleanOutput();
-                    molecule.panel.appendOutput(
-                        `${nowDate.getHours()}:${nowDate.getMinutes()}:${nowDate.getSeconds()}<info>正在提交...` +
-                            '\n'
+                    const currentTab = current.tab;
+
+                    const { tabs, currentTab: currentTaskId } = (
+                        store.getState() as any
+                    ).workbenchReducer;
+                    const task = tabs.find(
+                        (tab: any) => tab.id === currentTaskId
                     );
 
-                    // mock sleeping
-                    await new Promise<void>((resolve) => {
-                        setTimeout(() => {
-                            resolve();
-                        }, 2000);
+                    const params: any = {
+                        projectId: currentTab?.id,
+                        taskVariables: currentTab?.data.taskVariables || [],
+                        singleSession: false, // 是否为单 session 模式, 为 true 时，支持batchSession 时，则支持批量SQL，false 则相反
+                        taskParams: currentTab?.data.taskParams,
+                    };
+
+                    // [TODO]
+                    const sqls = filterSql(currentTab?.data.value);
+                    execSql(
+                        currentTab?.id,
+                        task,
+                        params,
+                        sqls
+                    )(store.dispatch).then(() => {
+                        molecule.editor.updateActions([
+                            {
+                                id: TASK_RUN_ID,
+                                icon: 'play',
+                                disabled: false,
+                            },
+                            {
+                                id: TASK_STOP_ID,
+                                disabled: true,
+                            },
+                        ]);
                     });
-
-                    molecule.panel.appendOutput(
-                        `${nowDate.getHours()}:${nowDate.getMinutes()}:${nowDate.getSeconds()}<info>第1条任务开始执行` +
-                            '\n'
-                    );
-
-                    molecule.panel.appendOutput(
-                        `===========任务信息===========${'\n'}`
-                    );
-                    molecule.panel.appendOutput(`show tables${'\n'}`);
-                    molecule.panel.appendOutput(
-                        `============================${'\n'}`
-                    );
-                    ajax.execSQLImmediately({})
-                        .then((res) => {
-                            const nowDate = new Date();
-                            molecule.panel.appendOutput(
-                                `${nowDate.getHours()}:${nowDate.getMinutes()}:${nowDate.getSeconds()}<info>执行完成!` +
-                                    '\n'
-                            );
-                            const resultTable = res.data;
-
-                            molecule.panel.open({
-                                id: new Date().getTime().toString(),
-                                name: '结果1',
-                                closable: true,
-                                renderPane: () => (
-                                    <Result data={resultTable.result} />
-                                ),
-                            });
-                        })
-                        .finally(() => {
-                            molecule.editor.updateActions([
-                                {
-                                    id: TASK_RUN_ID,
-                                    icon: 'play',
-                                    disabled: false,
-                                },
-                                {
-                                    id: TASK_STOP_ID,
-                                    disabled: true,
-                                },
-                            ]);
-                        });
                 }
                 break;
             }
             case TASK_STOP_ID: {
-                // TODO
-                console.log('stop task');
+                const { tabs, currentTab: currentTaskId } = (
+                    store.getState() as any
+                ).workbenchReducer;
+                const task = tabs.find((tab: any) => tab.id === currentTaskId);
+
+                stopSql(task.id, task, false)(store.dispatch, store.getState);
+                molecule.editor.updateActions([
+                    {
+                        id: TASK_RUN_ID,
+                        icon: 'play',
+                        disabled: true,
+                    },
+                    {
+                        id: TASK_STOP_ID,
+                        disabled: false,
+                    },
+                ]);
                 break;
             }
         }
     });
 }
+
+const updateTaskVariables = debounce((tab) => {
+    const { taskCustomParams } = (store.getState() as any).workbenchReducer;
+    const data = matchTaskParams(taskCustomParams, tab.data?.value || '');
+    tab.data!.taskVariables = data;
+    molecule.editor.updateTab(tab);
+}, 300);
 
 export default class EditorExtension implements IExtension {
     activate() {
@@ -191,7 +203,7 @@ export default class EditorExtension implements IExtension {
             const group = molecule.editor.getGroupById(groupId || current.id!);
             if (group) {
                 const targetTab = group.data?.find(searchById(tabId));
-                if (targetTab?.data.taskType === 'SparkSql') {
+                if (targetTab?.data.taskType === TASK_TYPE.SQL) {
                     molecule.editor.updateActions([
                         { id: TASK_RUN_ID, disabled: false },
                     ]);
@@ -203,13 +215,20 @@ export default class EditorExtension implements IExtension {
 
         molecule.editor.onCloseTab(() => {
             const { current } = molecule.editor.getState();
-            if (current?.tab?.data.taskType === 'SparkSql') {
+            if (current?.tab?.data.taskType === TASK_TYPE.SQL) {
                 molecule.editor.updateActions([
                     { id: TASK_RUN_ID, disabled: false },
                 ]);
             } else {
                 resetEditorGroup();
             }
+        });
+
+        const actions = workbenchActions(store.dispatch);
+        actions.loadTaskParams();
+
+        molecule.editor.onUpdateTab((tab) => {
+            updateTaskVariables(tab);
         });
     }
 }

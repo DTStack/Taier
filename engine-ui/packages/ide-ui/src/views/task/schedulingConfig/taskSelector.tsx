@@ -13,7 +13,6 @@ class TaskSelector extends React.Component<any, any> {
 
         this.state = { list: [], emptyError: false };
     }
-
     $input: any;
     searchVOS: any;
     selectVOS: any;
@@ -29,6 +28,7 @@ class TaskSelector extends React.Component<any, any> {
                 list: [],
             });
             this.resetError();
+            return;
         }
 
         // ajax
@@ -74,13 +74,11 @@ class TaskSelector extends React.Component<any, any> {
         //     }
         //   });
     }
-
     resetError() {
         this.setState({
             emptyError: false,
         });
     }
-
     render() {
         const { list, emptyError } = this.state;
         const emptyErrorStyle: any = {
