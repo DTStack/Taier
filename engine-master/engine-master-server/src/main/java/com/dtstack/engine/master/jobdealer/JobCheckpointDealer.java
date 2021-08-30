@@ -210,7 +210,7 @@ public class JobCheckpointDealer implements InitializingBean {
                             checkpointId, checkpointSavePath, status, checkpointCacheKey);
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             engineJobCheckpointDao.insert(taskId, engineTaskId, null, null, null, null);
             logger.error("taskID:{} ,engineTaskId:{}, error:", taskId, engineTaskId, e);
         }
