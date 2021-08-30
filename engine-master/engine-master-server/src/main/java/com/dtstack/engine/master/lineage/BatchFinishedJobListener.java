@@ -21,6 +21,7 @@ import com.dtstack.sqlparser.common.utils.SqlFormatUtil;
 import com.dtstack.sqlparser.common.utils.SqlRegexUtil;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -123,8 +124,10 @@ public class BatchFinishedJobListener extends SqlJobFinishedListener {
     }
 
     private Boolean isLineageSql(String sqlText){
-
-        boolean isInsertInto = sqlText.matches(SqlRegexUtil.INSERT_INTO_TABLE_REGEX);
+        if(StringUtils.isBlank(sqlText)){
+            return false;
+        }
+        boolean isInsertInto = sqlText.trim().matches("(?i)insert\\s+(into|overwrite)+[\\s\\S]+");
         return SqlFormatUtil.isCreateAs(sqlText) || SqlRegexUtil.isAlterSql(sqlText)
                 || SqlRegexUtil.isDropSql(sqlText) || isInsertInto;
 
