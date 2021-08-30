@@ -18,6 +18,7 @@ import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sqlparser.common.utils.SqlFormatUtil;
+import com.dtstack.sqlparser.common.utils.SqlRegexUtil;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -52,11 +53,12 @@ public class BatchFinishedJobListener extends SqlJobFinishedListener {
     @Autowired
     private DataSourceAPIClient dataSourceAPIClient;
 
+
     @Override
     protected void onFocusedJobFinished(Integer type,String engineType,String sqlText,Long  taskId, ScheduleJob scheduleJob, Integer status) {
         //解析sql并存储
         sqlText = sqlText.replaceAll("--.*","");
-        List<String> sqls = SqlFormatUtil.splitSqlText(sqlText);
+        List<String> sqls = SqlFormatUtil.splitSqlWithoutSemi(sqlText);
         if (CollectionUtils.isEmpty(sqls)){
             return;
         }
@@ -87,14 +89,14 @@ public class BatchFinishedJobListener extends SqlJobFinishedListener {
         }
         List<Integer> hadoopList = Arrays.asList(DataSourceType.HIVE.getVal(), DataSourceType.IMPALA.getVal(), DataSourceType.SPARKTHRIFT2_1.getVal());
         if(hadoopList.contains(dataSourceTypeByTaskTypeInt.getVal())){
-            //从数据源中心查询meta数据源 todo
+            //从数据源中心查询meta数据源
             DsServiceListParam dsServiceListParam = getDsServiceListParam(scheduleJob.getDtuicTenantId(),hadoopList,scheduleJob.getProjectId());
-            ApiResponse<PageResult<List<DsServiceListDTO>>> pageResultApiResponse = dataSourceAPIClient.appDsPage(dsServiceListParam);
-            if(pageResultApiResponse.getCode() !=1 ){
+            ApiResponse<List<DsServiceListDTO>> apiResponse = dataSourceAPIClient.appMetaDsPage(dsServiceListParam);
+            if(apiResponse.getCode() !=1 ){
                 logger.error("appDsPage query failed,param:{}",JSON.toJSONString(dsServiceListParam));
                 return;
             }
-            List<DsServiceListDTO> data = pageResultApiResponse.getData().getData();
+            List<DsServiceListDTO> data = apiResponse.getData();
             if(data.size()<1){
                 logger.error("do not find need dataSource,param:{}",JSON.toJSONString(dsServiceListParam));
                 return;
@@ -102,6 +104,9 @@ public class BatchFinishedJobListener extends SqlJobFinishedListener {
             dataSourceTypeByTaskTypeInt = DataSourceType.getSourceType(data.get(0).getType());
         }
         for (String sql : sqls){
+            if(!isLineageSql(sql)){
+                continue;
+            }
             ParseColumnLineageParam columnLineageParam = new ParseColumnLineageParam();
             columnLineageParam.setAppType(AppType.RDOS.getType());
             columnLineageParam.setDataSourceType(dataSourceTypeByTaskTypeInt.getVal());
@@ -115,6 +120,14 @@ public class BatchFinishedJobListener extends SqlJobFinishedListener {
             logger.info("调用字段血缘解析:{}", JSON.toJSON(columnLineageParam));
             lineageService.parseAndSaveColumnLineage(columnLineageParam);
         }
+    }
+
+    private Boolean isLineageSql(String sqlText){
+
+        boolean isInsertInto = sqlText.matches(SqlRegexUtil.INSERT_INTO_TABLE_REGEX);
+        return SqlFormatUtil.isCreateAs(sqlText) || SqlRegexUtil.isAlterSql(sqlText)
+                || SqlRegexUtil.isDropSql(sqlText) || isInsertInto;
+
     }
 
     private DsServiceListParam getDsServiceListParam(Long dtUicTenantId, List<Integer> hadoopList,Long projectId) {
