@@ -465,11 +465,11 @@ public class EnvironmentContext {
     }
 
     public boolean getTestOnBorrow() {
-        return Boolean.parseBoolean(environment.getProperty("dataSource.test.on.borrow", "false"));
+        return Boolean.parseBoolean(environment.getProperty("dataSource.test.on.borrow", "true"));
     }
 
     public boolean getTestOnReturn() {
-        return Boolean.parseBoolean(environment.getProperty("dataSource.test.on.return", "false"));
+        return Boolean.parseBoolean(environment.getProperty("dataSource.test.on.return", "true"));
     }
 
     public boolean getPoolPreparedStatements() {

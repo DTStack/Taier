@@ -54,6 +54,7 @@ public class MybatisConfig {
         dataSource.setTestWhileIdle(environmentContext.getTestWhileIdle());
         dataSource.setTestOnBorrow(environmentContext.getTestOnBorrow());
         dataSource.setTestOnReturn(environmentContext.getTestOnReturn());
+        dataSource.setValidationQuery("select 1");
         dataSource.setPoolPreparedStatements(environmentContext.getPoolPreparedStatements());
         dataSource.setMaxPoolPreparedStatementPerConnectionSize(environmentContext.getMaxPoolPreparedStatementPerConnectionSize());
         return dataSource;
