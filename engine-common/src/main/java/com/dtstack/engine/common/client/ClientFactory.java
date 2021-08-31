@@ -1,8 +1,8 @@
 package com.dtstack.engine.common.client;
 
-import com.dtstack.engine.worker.callback.ClassLoaderCallBackMethod;
+import com.dtstack.engine.common.callback.ClassLoaderCallBackMethod;
 import com.dtstack.engine.common.constrant.ConfigConstant;
-import com.dtstack.engine.worker.loader.DtClassLoader;
+import com.dtstack.engine.common.loader.DtClassLoader;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.google.common.collect.Maps;

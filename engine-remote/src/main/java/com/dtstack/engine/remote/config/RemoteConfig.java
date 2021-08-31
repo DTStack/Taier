@@ -103,4 +103,8 @@ public class RemoteConfig {
     public static Properties getConfig() {
         return config;
     }
+
+    public static long getWorkerTimeout() {
+        return Long.parseLong(getValueWithDefault("worker.client.timeout", "300000"));
+    }
 }

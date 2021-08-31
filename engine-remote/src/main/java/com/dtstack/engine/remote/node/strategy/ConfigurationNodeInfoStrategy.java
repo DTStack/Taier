@@ -36,15 +36,15 @@ public class ConfigurationNodeInfoStrategy implements NodeInfoStrategy {
 
                 String ip = RemoteConfig.getValueByKey(String.format(CLUSTER_INFO_NODE_NAME_IP, identifier));
                 String port = RemoteConfig.getValueByKey(String.format(CLUSTER_INFO_NODE_NAME_PORT, identifier));
-                String nodes = ip+":"+port;
-
-                if (StringUtils.isNotBlank(nodes)) {
-                    String[] nodeArray = nodes.split(",");
-                    List<String> nodeLists = Arrays.asList(nodeArray);
-                    nodeInfoMap.put(identifier,nodeLists);
+                if (StringUtils.isNotBlank(ip) && StringUtils.isNotBlank(port)) {
+                    String nodes = ip+":"+port;
+                    if (StringUtils.isNotBlank(nodes)) {
+                        String[] nodeArray = nodes.split(",");
+                        List<String> nodeLists = Arrays.asList(nodeArray);
+                        nodeInfoMap.put(identifier,nodeLists);
+                    }
                 }
             }
-
             return nodeInfoMap;
         } else {
             return null;

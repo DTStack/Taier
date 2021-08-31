@@ -1,4 +1,4 @@
-package com.dtstack.engine.worker.callback;
+package com.dtstack.engine.common.callback;
 
 /**
  * Created by sishu.yss on 2017/8/28.

@@ -1,23 +1,25 @@
 package com.dtstack.engine.common.client;
 
-import com.dtstack.engine.api.pojo.*;
 import com.dtstack.engine.api.pojo.CheckResult;
+import com.dtstack.engine.api.pojo.ClusterResource;
+import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.api.pojo.DtScriptAgentLabel;
 import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.remote.akka.config.AkkaConfig;
-import com.dtstack.engine.worker.callback.CallBack;
-import com.dtstack.engine.worker.callback.ClassLoaderCallBackMethod;
+import com.dtstack.engine.common.callback.CallBack;
+import com.dtstack.engine.common.callback.ClassLoaderCallBackMethod;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ClientArgumentException;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.LimitResourceException;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.api.pojo.ClusterResource;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
+import com.dtstack.engine.remote.akka.config.AkkaConfig;
+import com.dtstack.engine.remote.config.RemoteConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +48,7 @@ public class ClientProxy implements IClient {
 
     public ClientProxy(IClient targetClient) {
         this.targetClient = targetClient;
-        this.timeout = AkkaConfig.getWorkerTimeout();
+//        this.timeout = EnvironmentContext.getWorkerTimeout();
         executorService = new ThreadPoolExecutor(10, 10, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(), new CustomThreadFactory(targetClient.getClass().getSimpleName() + "_" + this.getClass().getSimpleName()));
     }
