@@ -911,8 +911,17 @@ public class ClusterService implements InitializingBean {
                 componentVoList.forEach(component->{
                     // 组件每个版本设置k8s参数
                     for (ComponentVO componentVO : component.loadComponents()) {
-                        KerberosConfig kerberosConfig = kerberosTable.get(componentVO.getComponentTypeCode(), StringUtils.isBlank(componentVO.getHadoopVersion()) ?
-                                StringUtils.EMPTY : componentVO.getHadoopVersion());
+                        KerberosConfig kerberosConfig;
+                        EComponentType type = EComponentType.getByCode(componentVO.getComponentTypeCode());
+                        if (type == EComponentType.YARN || type == EComponentType.SPARK_THRIFT ||
+                                type == EComponentType.DT_SCRIPT || type == EComponentType.HIVE_SERVER ||
+                                type == EComponentType.IMPALA_SQL || type == EComponentType.LEARNING ||
+                                type == EComponentType.INCEPTOR_SQL) {
+                            kerberosConfig = kerberosTable.get(type.getTypeCode(), StringUtils.EMPTY);
+                        } else {
+                            kerberosConfig = kerberosTable.get(componentVO.getComponentTypeCode(), StringUtils.isBlank(componentVO.getHadoopVersion()) ?
+                                    StringUtils.EMPTY : componentVO.getHadoopVersion());
+                        }
                         if(Objects.nonNull(kerberosConfig)){
                             componentVO.setPrincipal(kerberosConfig.getPrincipal());
                             componentVO.setPrincipals(kerberosConfig.getPrincipals());
