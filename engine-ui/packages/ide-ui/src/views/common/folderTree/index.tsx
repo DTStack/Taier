@@ -1,4 +1,5 @@
 import React from 'react';
+import { message } from 'antd';
 import { FileTypes, IExtension, TreeNodeModel } from 'molecule/esm/model';
 import { localize } from 'molecule/esm/i18n/localize';
 import molecule from 'molecule/esm';
@@ -333,6 +334,22 @@ function onSelectFile() {
     });
 }
 
+function onRemove() {
+    molecule.folderTree.onRemove((id) => {
+        ajax.delOfflineTask({ taskId: id })
+            .then((res: any) => {
+                if (res.code == 1) {
+                    message.success('删除成功');
+                    store.dispatch({
+                        type: workbenchAction.CLOSE_TASK_TAB,
+                        payload: res.data
+                    });
+                }
+                return res;
+            });
+    });
+}
+
 function contextMenu() {
     molecule.folderTree.onContextMenu((treeNode, menu) => {
         switch (menu.id) {
@@ -346,11 +363,11 @@ function contextMenu() {
                         const params = {
                             id: treeNode.data.id,
                             ...values,
-                            computeType: 1,
                             isUseComponent: 0,
+                            nodePid: 233,
+                            computeType: 1,
                             lockVersion: 0,
                             version: 0,
-                            componentVersion: '2.1',
                         };
                         ajax.addOfflineTask(params)
                             .then((res: any) => {
@@ -434,5 +451,6 @@ export default class FolderTreeExtension implements IExtension {
         createTask();
         onSelectFile();
         contextMenu();
+        onRemove();
     }
 }

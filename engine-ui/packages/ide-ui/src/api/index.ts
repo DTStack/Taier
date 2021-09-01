@@ -243,9 +243,6 @@ const api = {
     getOfflineTaskByID(params: any) {
         return http.post(offlineReq.GET_TASK, params);
     },
-    deleteOfflineTask(params: any) {
-        return http.post(offlineReq.DEL_OFFLINE_TASK, params);
-    },
     queryOfflineCataTask(params: any) {
         return http.post(offlineReq.QUERY_CATA_TASK, params);
     },
