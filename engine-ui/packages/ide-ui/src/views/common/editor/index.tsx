@@ -33,7 +33,7 @@ function initActions() {
             name: 'Save Task',
             icon: 'save',
             place: 'outer',
-            disabled: false,
+            disabled: true,
             title: '保存'
         },{
             id: TASK_RUN_ID,
