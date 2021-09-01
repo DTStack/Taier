@@ -160,7 +160,6 @@ function emitEvent() {
                         molecule.editor.updateActions([
                             {
                                 id: TASK_SAVE_ID,
-                                icon: 'play',
                                 disabled: false,
                             },{
                                 id: TASK_RUN_ID,
@@ -213,7 +212,6 @@ function emitEvent() {
                             molecule.editor.updateActions([
                                 {
                                     id: TASK_SAVE_ID,
-                                    icon: 'play',
                                     disabled: false,
                                 },{
                                     id: TASK_RUN_ID,
