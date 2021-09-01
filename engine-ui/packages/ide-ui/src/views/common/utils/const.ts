@@ -1,6 +1,7 @@
 export const TASK_RUN_ID = 'task.run';
 export const TASK_STOP_ID = 'task.stop';
 export const TASK_SUBMIT_ID = 'task.submit';
+export const TASK_SAVE_ID = 'task.save';
 export const TASK_RELEASE_ID = 'task.release';
 export const TASK_OPS_ID = 'task_ops';
 

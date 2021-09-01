@@ -8,7 +8,7 @@ import { resetEditorGroup, updateStatusBarLanguage } from '../utils';
 import DataSync from '../../dataSync';
 import ajax from '../../../api';
 import { TASK_TYPE } from '../../../comm/const';
-import { FOLDERTREE_CONTEXT_EDIT, TASK_RUN_ID } from '../utils/const';
+import { FOLDERTREE_CONTEXT_EDIT, TASK_RUN_ID, TASK_SAVE_ID } from '../utils/const';
 import store from '../../../store';
 import { workbenchAction } from '../../../controller/dataSync/actionType';
 import { editorAction } from '../../../controller/editor/actionTypes';
@@ -278,6 +278,7 @@ function onSelectFile() {
                     molecule.editor.open(tabData);
                     molecule.editor.updateActions([
                         { id: TASK_RUN_ID, disabled: false },
+                        { id: TASK_SAVE_ID, disabled: false },
                     ]);
                 }
             });
