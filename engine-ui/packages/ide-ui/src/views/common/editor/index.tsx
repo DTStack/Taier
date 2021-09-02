@@ -1,5 +1,5 @@
 import React from 'react';
-import { Icon } from 'antd';
+import { Icon, message, Modal, Tag } from 'antd';
 import molecule from 'molecule';
 import {
     getEditorInitialActions,
@@ -7,6 +7,7 @@ import {
 } from 'molecule/esm/model';
 import { searchById } from 'molecule/esm/services/helper';
 import { workbenchActions } from '../../../controller/dataSync/offlineAction';
+import { workbenchAction } from '../../../controller/dataSync/actionType';
 import { resetEditorGroup } from '../utils';
 import {
     TASK_RUN_ID,
@@ -15,16 +16,26 @@ import {
     TASK_RELEASE_ID,
     TASK_OPS_ID,
     OUTPUT_LOG,
+    TASK_SAVE_ID
 } from '../utils/const';
 import store from '../../../store';
-import { matchTaskParams, filterSql } from '../../../comm';
+import { matchTaskParams, filterSql, formatDateTime } from '../../../comm';
 import { TASK_TYPE } from '../../../comm/const';
 import { debounce } from 'lodash';
 import { execSql, stopSql } from '../../../controller/editor/editorAction';
+import ajax from '../../../api'
 
+const confirm = Modal.confirm;
 function initActions() {
     molecule.editor.setDefaultActions([
         {
+            id: TASK_SAVE_ID,
+            name: 'Save Task',
+            icon: 'save',
+            place: 'outer',
+            disabled: true,
+            title: '保存'
+        },{
             id: TASK_RUN_ID,
             name: 'Run Task',
             icon: 'play',
@@ -148,6 +159,9 @@ function emitEvent() {
                     )(store.dispatch).then(() => {
                         molecule.editor.updateActions([
                             {
+                                id: TASK_SAVE_ID,
+                                disabled: false,
+                            },{
                                 id: TASK_RUN_ID,
                                 icon: 'play',
                                 disabled: false,
@@ -181,13 +195,110 @@ function emitEvent() {
                 ]);
                 break;
             }
+            case TASK_SAVE_ID: {
+                const params = {
+                    ...current.tab?.data,
+                    sqlText: current.tab?.data.value
+                }
+                const uploadTask = () => {
+                    const id = params.id;
+                    ajax.getOfflineTaskByID({ id }).then((res) => {
+                        const { success, data } = res;
+                        if (success) {
+                            store.dispatch({
+                                type: workbenchAction.LOAD_TASK_DETAIL,
+                                payload: data,
+                            });
+                            molecule.editor.updateActions([
+                                {
+                                    id: TASK_SAVE_ID,
+                                    disabled: false,
+                                },{
+                                    id: TASK_RUN_ID,
+                                    icon: 'play',
+                                    disabled: false,
+                                },
+                                {
+                                    id: TASK_STOP_ID,
+                                    disabled: true,
+                                },
+                            ]);
+                        }
+                    });
+                }
+                const succCallback = (res: any) => {
+                    if (res.code === 1) {
+                        const fileData = res.data;
+                        const lockInfo = fileData.readWriteLockVO;
+                        const lockStatus = lockInfo?.result; // 1-正常，2-被锁定，3-需同步
+                        if (lockStatus === 0) {
+                            message.success( '保存成功！');
+                            uploadTask();
+                            // 如果是锁定状态，点击确定按钮，强制更新，否则，取消保存
+                        } else if (lockStatus === 1) { // 2-被锁定
+                            confirm({
+                                title: '锁定提醒', // 锁定提示
+                                content: <span>
+                                    文件正在被{lockInfo.lastKeepLockUserName}编辑中，开始编辑时间为
+                                    {formatDateTime(lockInfo.gmtModified)}。
+                                    强制保存可能导致{lockInfo.lastKeepLockUserName}对文件的修改无法正常保存！
+                                </span>,
+                                okText: '确定保存',
+                                okType: 'danger',
+                                cancelText: '取消',
+                                onOk () {
+                                    const succCall = (res: any) => {
+                                        if (res.code === 1) {
+                                            message.success('保存成功！')
+                                            uploadTask();
+                                        }
+                                    }
+                                    ajax.forceUpdateOfflineTask(params).then(succCall)
+                                }
+                            });
+                            // 如果同步状态，则提示会覆盖代码，
+                            // 点击确认，重新拉取代码并覆盖当前代码，取消则退出
+                        } else if (lockStatus === 2) { // 2-需同步
+                            confirm({
+                                title: '保存警告',
+                                content: <span>
+                                    文件已经被{lockInfo.lastKeepLockUserName}编辑过，编辑时间为
+                                    {formatDateTime(lockInfo.gmtModified)}。
+                                    点击确认按钮会<Tag color="orange">覆盖</Tag>
+                                    您本地的代码，请您提前做好备份！
+                                </span>,
+                                okText: '确定覆盖',
+                                okType: 'danger',
+                                cancelText: '取消',
+                                onOk () {
+                                    const reqParams: any = {
+                                        id: params.id,
+                                        lockVersion: lockInfo.version
+                                    }
+                                    // 更新version, getLock信息
+                                    ajax.getOfflineTaskDetail(reqParams).then((res: any) => {
+                                        if (res.code === 1) {
+                                            const taskInfo = res.data
+                                            taskInfo.merged = true;
+                                            uploadTask();
+                                        }
+                                    })
+                                }
+                            });
+                        }
+                        return res;
+                    }
+                }
+                ajax.saveOfflineJobData(params).then(succCallback);
+            }
         }
     });
 }
 
 const updateTaskVariables = debounce((tab) => {
-    const { taskCustomParams } = (store.getState() as any).workbenchReducer;
+    const { taskCustomParams, tabs } = (store.getState() as any).workbenchReducer;
     const data = matchTaskParams(taskCustomParams, tab.data?.value || '');
+    console.log(123, tab)
     tab.data!.taskVariables = data;
     molecule.editor.updateTab(tab);
 }, 300);
@@ -206,6 +317,7 @@ export default class EditorExtension implements IExtension {
                 if (targetTab?.data.taskType === TASK_TYPE.SQL) {
                     molecule.editor.updateActions([
                         { id: TASK_RUN_ID, disabled: false },
+                        { id: TASK_SAVE_ID, disabled: false },
                     ]);
                 } else {
                     resetEditorGroup();
@@ -218,6 +330,7 @@ export default class EditorExtension implements IExtension {
             if (current?.tab?.data.taskType === TASK_TYPE.SQL) {
                 molecule.editor.updateActions([
                     { id: TASK_RUN_ID, disabled: false },
+                    { id: TASK_SAVE_ID, disabled: false },
                 ]);
             } else {
                 resetEditorGroup();

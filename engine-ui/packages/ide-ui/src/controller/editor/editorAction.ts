@@ -391,9 +391,15 @@ function exec(
 ) {
     params.sql = `${sqls[index]}`;
     params.isEnd = sqls.length === index + 1;
-    dispatch(
-        output(currentTab, createLog(`第${index + 1}条任务开始执行`, 'info'))
-    );
+    if (index === 0) {
+        dispatch(
+            setOutput(currentTab, createLog(`第${index + 1}条任务开始执行`, 'info'))
+        );
+    } else {
+        dispatch(
+            output(currentTab, createLog(`第${index + 1}条任务开始执行`, 'info'))
+        );
+    }
     // 判断是否要继续执行SQL
     function judgeIfContinueExec() {
         if (index < sqls.length - 1) {

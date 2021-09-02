@@ -64,45 +64,6 @@ export const workbenchReducer = (
             break;
         }
 
-        // case workbenchAction.CLOSE_TASK_TAB: {
-        //     const tabId = action.payload;
-        //     const tabIndex = state.tabs.findIndex((tab: any) => tab.id === tabId);
-        //     nextState = state;
-        //     if (tabIndex > -1) {
-        //         let clone = cloneDeep(state);
-        //         if (tabId === state.currentTab) {
-        //             const nextTab = clone.tabs[tabIndex + 1] || clone.tabs[tabIndex - 1];
-        //             clone.currentTab = nextTab ? nextTab.id : clone.tabs[0].id;
-        //         }
-        //         // 删除
-        //         clone.tabs.splice(tabIndex, 1);
-        //         nextState = clone;
-        //     }
-        //     break;
-        // }
-
-        case workbenchAction.CLOSE_ALL_TABS: {
-            const clone = cloneDeep(state);
-
-            clone.tabs = [];
-            clone.currentTab = undefined;
-
-            nextState = clone;
-            break;
-        }
-
-        case workbenchAction.CLOSE_OTHER_TABS: {
-            const tabId = action.payload;
-            const clone = cloneDeep(state);
-
-            clone.tabs = clone.tabs.filter((tab: any) => {
-                return tab.id === tabId;
-            });
-
-            nextState = clone;
-            break;
-        }
-
         case workbenchAction.CHANGE_SCHEDULE_CONF: {
             const newConf = action.payload;
 
@@ -300,25 +261,6 @@ export const workbenchReducer = (
             // });
 
             nextState = state;
-            break;
-        }
-
-        // 设置SQL
-        case workbenchAction.SET_TASK_SQL_FIELD_VALUE: {
-            const obj = action.payload;
-            const clone = cloneDeep(state);
-
-            // clone.tabs = clone.tabs.map((tab: any) => {
-            //     if (tab.id === clone.currentTab) {
-            //         tab = assign(tab, obj);
-            //         tab.notSynced = true;
-            //         return tab;
-            //     } else {
-            //         return tab;
-            //     }
-            // });
-
-            nextState = clone;
             break;
         }
 

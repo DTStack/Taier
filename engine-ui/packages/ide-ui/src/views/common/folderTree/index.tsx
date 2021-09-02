@@ -1,4 +1,5 @@
 import React from 'react';
+import { message } from 'antd';
 import { FileTypes, IExtension, TreeNodeModel } from 'molecule/esm/model';
 import { localize } from 'molecule/esm/i18n/localize';
 import molecule from 'molecule/esm';
@@ -7,7 +8,7 @@ import { resetEditorGroup, updateStatusBarLanguage } from '../utils';
 import DataSync from '../../dataSync';
 import ajax from '../../../api';
 import { TASK_TYPE } from '../../../comm/const';
-import { FOLDERTREE_CONTEXT_EDIT, TASK_RUN_ID } from '../utils/const';
+import { FOLDERTREE_CONTEXT_EDIT, TASK_RUN_ID, TASK_SAVE_ID } from '../utils/const';
 import store from '../../../store';
 import { workbenchAction } from '../../../controller/dataSync/actionType';
 import { editorAction } from '../../../controller/editor/actionTypes';
@@ -277,6 +278,7 @@ function onSelectFile() {
                     molecule.editor.open(tabData);
                     molecule.editor.updateActions([
                         { id: TASK_RUN_ID, disabled: false },
+                        { id: TASK_SAVE_ID, disabled: false },
                     ]);
                 }
             });
@@ -333,6 +335,22 @@ function onSelectFile() {
     });
 }
 
+function onRemove() {
+    molecule.folderTree.onRemove((id) => {
+        ajax.delOfflineTask({ taskId: id })
+            .then((res: any) => {
+                if (res.code == 1) {
+                    message.success('删除成功');
+                    store.dispatch({
+                        type: workbenchAction.CLOSE_TASK_TAB,
+                        payload: res.data
+                    });
+                }
+                return res;
+            });
+    });
+}
+
 function contextMenu() {
     molecule.folderTree.onContextMenu((treeNode, menu) => {
         switch (menu.id) {
@@ -346,11 +364,11 @@ function contextMenu() {
                         const params = {
                             id: treeNode.data.id,
                             ...values,
-                            computeType: 1,
                             isUseComponent: 0,
+                            nodePid: 233,
+                            computeType: 1,
                             lockVersion: 0,
                             version: 0,
-                            componentVersion: '2.1',
                         };
                         ajax.addOfflineTask(params)
                             .then((res: any) => {
@@ -434,5 +452,6 @@ export default class FolderTreeExtension implements IExtension {
         createTask();
         onSelectFile();
         contextMenu();
+        onRemove();
     }
 }

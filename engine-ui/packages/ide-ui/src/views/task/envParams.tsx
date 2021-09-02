@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useEffect, useRef }  from 'react';
 import { MonacoEditor } from 'molecule/esm/components';
 import { editor as monacoEditor, Uri } from 'molecule/esm/monaco';
-import { useEffect, useRef } from 'react';
 import { IEditor, IEditorTab } from 'molecule/esm/model';
 import type { editor } from 'molecule/esm/monaco';
 import { ENV_PARAMS } from '../common/utils/const';
