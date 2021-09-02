@@ -10,7 +10,7 @@ import com.dtstack.engine.dao.ClusterDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.WorkerOperator;
 import com.dtstack.engine.master.dataCollection.DataCollection;
-import com.dtstack.engine.master.queue.GroupInfo;
+import com.dtstack.engine.master.server.queue.GroupInfo;
 import com.dtstack.engine.master.utils.CommonUtils;
 import org.junit.Assert;
 import org.junit.Before;

@@ -9,7 +9,7 @@ import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.master.executor.JobExecutorTrigger;
+import com.dtstack.engine.master.server.executor.JobExecutorTrigger;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

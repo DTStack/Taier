@@ -30,7 +30,7 @@ import com.dtstack.engine.dao.TenantResourceDao;
 import com.dtstack.engine.master.druid.DtDruidRemoveAbandoned;
 import com.dtstack.engine.common.util.*;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.master.scheduler.parser.ESchedulePeriodType;
+import com.dtstack.engine.master.server.scheduler.parser.ESchedulePeriodType;
 import com.dtstack.schedule.common.enums.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

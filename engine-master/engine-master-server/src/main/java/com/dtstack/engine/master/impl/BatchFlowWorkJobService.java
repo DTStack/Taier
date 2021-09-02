@@ -7,7 +7,7 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.master.ScheduleBatchJob;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
-import com.dtstack.engine.master.executor.AbstractJobExecutor;
+import com.dtstack.engine.master.server.executor.AbstractJobExecutor;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;

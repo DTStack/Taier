@@ -43,7 +43,7 @@ import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.ScheduleBatchJob;
 import com.dtstack.engine.master.dataCollection.DataCollection;
-import com.dtstack.engine.master.multiengine.engine.HadoopJobStartTrigger;
+import com.dtstack.engine.master.server.multiengine.engine.HadoopJobStartTrigger;
 import com.dtstack.engine.master.utils.Template;
 import com.dtstack.engine.master.utils.ValueUtils;
 import com.dtstack.engine.master.impl.vo.ScheduleJobVO;

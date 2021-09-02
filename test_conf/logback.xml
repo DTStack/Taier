@@ -78,7 +78,7 @@
         <appender-ref ref="allAppender" />
     </logger>
 
-    <logger name="com.dtstack.engine.master.listener" level="error" additivity="false">
+    <logger name="com.dtstack.engine.master.server.listener" level="error" additivity="false">
         <appender-ref ref="zkAppender" />
     </logger>
 
@@ -86,16 +86,16 @@
         <appender-ref ref="worker" />
     </logger>
 
-    <logger name="com.dtstack.engine.master.executor" level="error" additivity="false">
+    <logger name="com.dtstack.engine.master.server.executor" level="error" additivity="false">
         <appender-ref ref="schedule" />
     </logger>
-    <logger name="com.dtstack.engine.master.multiengine" level="error" additivity="false">
+    <logger name="com.dtstack.engine.master.server.multiengine" level="error" additivity="false">
         <appender-ref ref="schedule" />
     </logger>
-    <logger name="com.dtstack.engine.master.scheduler" level="error" additivity="false">
+    <logger name="com.dtstack.engine.master.server.scheduler" level="error" additivity="false">
         <appender-ref ref="schedule" />
     </logger>
-    <logger name="com.dtstack.engine.master.queue.JopPriorityQueue" level="error" additivity="false">
+    <logger name="com.dtstack.engine.master.server.queue.JopPriorityQueue" level="error" additivity="false">
         <appender-ref ref="schedule" />
     </logger>
 

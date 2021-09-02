@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.schedule;
 
 import com.dtstack.engine.master.AbstractTest;
-import com.dtstack.engine.master.scheduler.JobRichOperator;
+import com.dtstack.engine.master.server.scheduler.JobRichOperator;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
