@@ -15,7 +15,6 @@ export const workbenchAction = mc(
         'DEL_VOS',
         'SET_TASK_FIELDS_VALUE',
         'SET_TASK_FIELDS_VALUE_SILENT',
-        'SET_TASK_SQL_FIELD_VALUE',
         'SET_CURRENT_TAB_NEW',
         'SET_CURRENT_TAB_SAVED',
         'MAKE_TAB_DIRTY',

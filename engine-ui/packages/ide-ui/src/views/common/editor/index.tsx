@@ -296,8 +296,9 @@ function emitEvent() {
 }
 
 const updateTaskVariables = debounce((tab) => {
-    const { taskCustomParams } = (store.getState() as any).workbenchReducer;
+    const { taskCustomParams, tabs } = (store.getState() as any).workbenchReducer;
     const data = matchTaskParams(taskCustomParams, tab.data?.value || '');
+    console.log(123, tab)
     tab.data!.taskVariables = data;
     molecule.editor.updateTab(tab);
 }, 300);

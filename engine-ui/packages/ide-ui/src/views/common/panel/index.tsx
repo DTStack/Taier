@@ -23,10 +23,14 @@ function getEnvParamsUI() {
     const EnvParamsView = connect(molecule.editor, EnvParams);
 
     const handleValueChanged = (currentTab: IEditorTab, value: string) => {
-        console.group('handleValueChanged');
-        console.log('currentTab:', currentTab);
-        console.log('value:', value);
-        console.groupEnd();
+        const tab = {
+            ...currentTab,
+            data: {
+                ...currentTab.data,
+                taskParams: value
+            }
+        }
+        molecule.editor.updateTab(tab)
     };
 
     return {

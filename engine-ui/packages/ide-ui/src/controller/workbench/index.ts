@@ -329,25 +329,6 @@ export const workbenchReducer = (
             break;
         }
 
-        // 设置SQL
-        case workbenchAction.SET_TASK_SQL_FIELD_VALUE: {
-            const obj = action.payload;
-            const clone = cloneDeep(state);
-
-            clone.tabs = clone.tabs.map((tab: any) => {
-                if (tab.id === clone.currentTab) {
-                    tab = assign(tab, obj);
-                    tab.notSynced = true;
-                    return tab;
-                } else {
-                    return tab;
-                }
-            });
-
-            nextState = clone;
-            break;
-        }
-
         // 新建的dataSync任务标记
         case workbenchAction.SET_CURRENT_TAB_NEW: {
             nextState = assign({}, state, {
