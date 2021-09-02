@@ -4,7 +4,7 @@ import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.console.ConsoleJobVO;
 import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.master.impl.ConsoleService;
-import com.dtstack.engine.master.vo.TaskTypeResourceTemplateVO;
+import com.dtstack.engine.master.impl.vo.ResourceTemplateVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,7 +92,7 @@ public class ConsoleController {
 
     @ApiOperation(value = "获取任务类型及对应的资源模板")
     @RequestMapping(value = "/getTaskResourceTemplate",method = {RequestMethod.POST})
-    public List<TaskTypeResourceTemplateVO> getTaskResourceTemplate(){
+    public List<ResourceTemplateVO> getTaskResourceTemplate(){
 
         return consoleService.getTaskResourceTemplate();
     }

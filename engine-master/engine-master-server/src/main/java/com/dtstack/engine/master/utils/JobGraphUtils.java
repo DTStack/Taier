@@ -5,7 +5,7 @@ import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.MathUtil;
-import com.dtstack.engine.master.bo.ScheduleBatchJob;
+import com.dtstack.engine.master.ScheduleBatchJob;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.scheduler.parser.*;
 import com.google.common.collect.Lists;

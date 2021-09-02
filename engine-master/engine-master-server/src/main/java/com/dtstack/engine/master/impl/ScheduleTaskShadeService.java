@@ -390,7 +390,7 @@ public class ScheduleTaskShadeService {
         List<ScheduleTaskVO> vos = new ArrayList<>(batchTasks.size());
 
         for (ScheduleTaskShade batchTask : batchTasks) {
-            vos.add(new com.dtstack.engine.master.vo.ScheduleTaskVO(batchTask,true));
+            vos.add(new com.dtstack.engine.master.impl.vo.ScheduleTaskVO(batchTask,true));
         }
         if (queryAll) {
             vos = dealFlowWorkSubTasks(vos,appType);
@@ -484,7 +484,7 @@ public class ScheduleTaskShadeService {
                     } else {
                         ScheduleTaskShade flow = scheduleTaskShadeDao.getOne(flowId, appType);
                         if (flow != null) {
-                            flowVo = new com.dtstack.engine.master.vo.ScheduleTaskVO(flow, true);
+                            flowVo = new com.dtstack.engine.master.impl.vo.ScheduleTaskVO(flow, true);
                             flowVo.setRelatedTasks(Lists.newArrayList(vo));
                             vos.set(vos.indexOf(vo), flowVo);
                             record.put(flowId, flowVo);
@@ -528,12 +528,12 @@ public class ScheduleTaskShadeService {
         if (taskShade == null) {
             return null;
         }
-        ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO(taskShade, true);
+        ScheduleTaskVO vo = new com.dtstack.engine.master.impl.vo.ScheduleTaskVO(taskShade, true);
         if (EScheduleJobType.WORK_FLOW.getVal().equals(vo.getTaskType())) {
             List<ScheduleTaskShade> subtasks = this.getFlowWorkSubTasks(vo.getTaskId(),appType,taskTypes,ownerId);
             if (CollectionUtils.isNotEmpty(subtasks)) {
                 List<ScheduleTaskVO> list = Lists.newArrayList();
-                subtasks.forEach(task -> list.add(new com.dtstack.engine.master.vo.ScheduleTaskVO(task,true)));
+                subtasks.forEach(task -> list.add(new com.dtstack.engine.master.impl.vo.ScheduleTaskVO(task,true)));
                 vo.setRelatedTasks(list);
             }
         }

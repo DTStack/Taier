@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.config;
 
-import com.dtstack.engine.master.vo.TaskTypeResourceTemplateVO;
+import com.dtstack.engine.master.impl.vo.ResourceTemplateVO;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 
 import java.util.ArrayList;
@@ -15,13 +15,13 @@ import java.util.Map;
  */
 public class TaskResourceBeanConfig {
 
-    public static List<TaskTypeResourceTemplateVO> templateList;
+    public static List<ResourceTemplateVO> templateList;
 
     static {
         templateList = new ArrayList<>();
         //1、设置spark类型任务
         //1.1 设置sparkSql类型任务
-        TaskTypeResourceTemplateVO template1 = new TaskTypeResourceTemplateVO();
+        ResourceTemplateVO template1 = new ResourceTemplateVO();
         template1.setTaskType(EScheduleJobType.SPARK_SQL.getType());
         template1.setTaskTypeName(EScheduleJobType.SPARK_SQL.getName());
         Map<String,String> map1 = new HashMap<>(8);
@@ -33,19 +33,19 @@ public class TaskResourceBeanConfig {
         template1.setParams(map1);
         templateList.add(template1);
         //1.2 设置spark类型任务
-        TaskTypeResourceTemplateVO template2 = new TaskTypeResourceTemplateVO();
+        ResourceTemplateVO template2 = new ResourceTemplateVO();
         template2.setTaskType(EScheduleJobType.SPARK.getType());
         template2.setTaskTypeName(EScheduleJobType.SPARK.getName());
         template2.setParams(map1);
         templateList.add(template2);
         //1.3 设置pySpark类型任务
-        TaskTypeResourceTemplateVO template3 = new TaskTypeResourceTemplateVO();
+        ResourceTemplateVO template3 = new ResourceTemplateVO();
         template3.setTaskType(EScheduleJobType.SPARK_PYTHON.getType());
         template3.setTaskTypeName(EScheduleJobType.SPARK_PYTHON.getName());
         template3.setParams(map1);
         templateList.add(template3);
         //2、设置flink类型,数据同步任务
-        TaskTypeResourceTemplateVO template4 = new TaskTypeResourceTemplateVO();
+        ResourceTemplateVO template4 = new ResourceTemplateVO();
         template4.setTaskType(EScheduleJobType.SYNC.getType());
         template4.setTaskTypeName(EScheduleJobType.SYNC.getName());
         Map<String,String> map2 = new HashMap<>(2);
@@ -55,7 +55,7 @@ public class TaskResourceBeanConfig {
         templateList.add(template4);
         //3、设置dtscript类型任务
         //3.1设置python类型任务
-        TaskTypeResourceTemplateVO template5 = new TaskTypeResourceTemplateVO();
+        ResourceTemplateVO template5 = new ResourceTemplateVO();
         template5.setTaskType(EScheduleJobType.PYTHON.getType());
         template5.setTaskTypeName(EScheduleJobType.PYTHON.name());
         Map<String,String> map3 = new HashMap<>(4);
@@ -65,7 +65,7 @@ public class TaskResourceBeanConfig {
         template5.setParams(map3);
         templateList.add(template5);
         //3.2 设置shell类型任务
-        TaskTypeResourceTemplateVO template6 = new TaskTypeResourceTemplateVO();
+        ResourceTemplateVO template6 = new ResourceTemplateVO();
         template6.setTaskType(EScheduleJobType.SHELL.getType());
         template6.setTaskTypeName(EScheduleJobType.SHELL.name());
         template6.setParams(map3);

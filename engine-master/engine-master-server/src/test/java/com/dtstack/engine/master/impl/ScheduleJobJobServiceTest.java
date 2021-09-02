@@ -4,7 +4,7 @@ import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleJobJob;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.utils.Template;
-import com.dtstack.engine.master.vo.ScheduleJobVO;
+import com.dtstack.engine.master.impl.vo.ScheduleJobVO;
 import com.dtstack.schedule.common.enums.AppType;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.Assert;

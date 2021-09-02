@@ -6,7 +6,7 @@ import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.master.AbstractTest;
-import com.dtstack.engine.master.bo.ScheduleBatchJob;
+import com.dtstack.engine.master.ScheduleBatchJob;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.google.common.collect.Lists;

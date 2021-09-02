@@ -34,7 +34,7 @@ import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.api.domain.ScheduleEngineProject;
-import com.dtstack.engine.master.bo.ScheduleBatchJob;
+import com.dtstack.engine.master.ScheduleBatchJob;
 import com.dtstack.engine.master.druid.DtDruidRemoveAbandoned;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
@@ -43,12 +43,12 @@ import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.scheduler.JobParamReplace;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
-import com.dtstack.engine.master.sync.RestartRunnable;
+import com.dtstack.engine.master.impl.restartAsync.RestartRunnable;
 import com.dtstack.engine.master.utils.JobGraphUtils;
 import com.dtstack.engine.master.utils.RequestUtil;
-import com.dtstack.engine.master.vo.BatchSecienceJobChartVO;
-import com.dtstack.engine.master.vo.ScheduleJobVO;
-import com.dtstack.engine.master.vo.ScheduleTaskVO;
+import com.dtstack.engine.master.impl.vo.JobChartDataVO;
+import com.dtstack.engine.master.impl.vo.ScheduleJobVO;
+import com.dtstack.engine.master.impl.vo.ScheduleTaskVO;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.dtstack.schedule.common.enums.*;
 import com.google.common.base.Strings;
@@ -419,7 +419,7 @@ public class ScheduleJobService {
         List<Map<String, Object>> failCnt = scheduleJobDao.listThirtyDayJobs(failedList, EScheduleType.NORMAL_SCHEDULE.getType(), taskTypes, projectId, tenantId);
         List<Map<String, Object>> deployCnt = scheduleJobDao.listThirtyDayJobs(deployList, EScheduleType.NORMAL_SCHEDULE.getType(), taskTypes, projectId, tenantId);
         List<Map<String, Object>> totalCnt = scheduleJobDao.listThirtyDayJobs(null, EScheduleType.NORMAL_SCHEDULE.getType(), taskTypes, projectId, tenantId);
-        BatchSecienceJobChartVO result = new BatchSecienceJobChartVO();
+        JobChartDataVO result = new JobChartDataVO();
         return result.format(totalCnt, successCnt, failCnt, deployCnt);
     }
 

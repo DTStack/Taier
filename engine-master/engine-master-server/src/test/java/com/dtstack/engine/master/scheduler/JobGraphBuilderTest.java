@@ -2,7 +2,7 @@ package com.dtstack.engine.master.scheduler;
 
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.master.AbstractTest;
-import com.dtstack.engine.master.bo.ScheduleBatchJob;
+import com.dtstack.engine.master.ScheduleBatchJob;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;

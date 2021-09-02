@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.engine.master.bo;
+package com.dtstack.engine.master.jobdealer.bo;
 
 import com.dtstack.engine.common.JobIdentifier;
 

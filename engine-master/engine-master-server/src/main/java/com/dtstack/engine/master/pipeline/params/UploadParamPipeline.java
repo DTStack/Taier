@@ -6,7 +6,7 @@ import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskParamShade;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.WorkerOperator;
 import com.dtstack.engine.master.pipeline.IPipeline;
 import com.dtstack.engine.master.scheduler.JobParamReplace;
 import com.dtstack.schedule.common.enums.EScheduleJobType;

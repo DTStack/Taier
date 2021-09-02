@@ -15,10 +15,10 @@ import com.dtstack.engine.dao.TestComponentDao;
 import com.dtstack.engine.dao.TestEngineJobCacheDao;
 import com.dtstack.engine.dao.TestScheduleJobDao;
 import com.dtstack.engine.master.AbstractTest;
-import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.WorkerOperator;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.utils.Template;
-import com.dtstack.engine.master.vo.TaskTypeResourceTemplateVO;
+import com.dtstack.engine.master.impl.vo.ResourceTemplateVO;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.google.common.collect.Lists;
 import org.junit.Assert;
@@ -222,7 +222,7 @@ public class ConsoleServiceTest extends AbstractTest {
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
     public void testGetTaskResourceTemplate() {
-        List<TaskTypeResourceTemplateVO> getTaskResourceTemplate = consoleService.getTaskResourceTemplate();
+        List<ResourceTemplateVO> getTaskResourceTemplate = consoleService.getTaskResourceTemplate();
         Assert.assertTrue(org.apache.commons.collections.CollectionUtils.isNotEmpty(getTaskResourceTemplate));
     }
 }

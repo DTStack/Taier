@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.bo;
+package com.dtstack.engine.master;
 
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleJobJob;

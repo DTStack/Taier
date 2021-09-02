@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.vo;
+package com.dtstack.engine.master.impl.vo;
 
 import java.util.Map;
 
@@ -7,7 +7,7 @@ import java.util.Map;
  * @Description: 任务类型对应的资源限制模板
  * @Date: Created in 8:06 下午 2020/10/14
  */
-public class TaskTypeResourceTemplateVO {
+public class ResourceTemplateVO {
 
     /**任务类型**/
     private Integer taskType;

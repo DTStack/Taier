@@ -2,7 +2,7 @@ package com.dtstack.engine.master.executor;
 
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.enums.EScheduleType;
-import com.dtstack.engine.master.bo.ScheduleBatchJob;
+import com.dtstack.engine.master.ScheduleBatchJob;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.schedule.common.enums.Restarted;
 import org.apache.commons.lang3.tuple.ImmutablePair;

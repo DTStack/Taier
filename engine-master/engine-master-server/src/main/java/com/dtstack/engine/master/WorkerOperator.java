@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.akka;
+package com.dtstack.engine.master;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.pojo.CheckResult;

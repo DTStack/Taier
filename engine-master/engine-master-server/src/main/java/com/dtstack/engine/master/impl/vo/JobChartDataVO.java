@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.vo;
+package com.dtstack.engine.master.impl.vo;
 
 import com.dtstack.engine.api.vo.ChartDataVO;
 import com.dtstack.engine.api.vo.ChartMetaDataVO;
@@ -18,7 +18,7 @@ import java.util.Optional;
  * author: toutian
  * create: 2019/10/25
  */
-public class BatchSecienceJobChartVO extends ChartDataVO {
+public class JobChartDataVO extends ChartDataVO {
 
     private String totalTitle = "总实例数";
     private String successTitle = "成功实例数";
@@ -26,8 +26,8 @@ public class BatchSecienceJobChartVO extends ChartDataVO {
     private String prepareRunTitle = "待运行实例数";
     private static final DateTimeFormatter DF = DateTimeFormatter.ofPattern("MM/dd");
 
-    public BatchSecienceJobChartVO format(List<Map<String, Object>> totalResult, List<Map<String, Object>> successResult,
-                                          List<Map<String, Object>> failResult, List<Map<String, Object>> deployResult) {
+    public JobChartDataVO format(List<Map<String, Object>> totalResult, List<Map<String, Object>> successResult,
+                                 List<Map<String, Object>> failResult, List<Map<String, Object>> deployResult) {
         List<Object> typeData = Arrays.asList(totalTitle, successTitle, failTitle, prepareRunTitle);
         this.type = new ChartMetaDataVO("type", typeData);
         this.x = new ChartMetaDataVO("day", getXValue());
