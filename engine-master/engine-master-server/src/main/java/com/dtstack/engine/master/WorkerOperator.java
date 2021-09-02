@@ -15,7 +15,6 @@ import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ScheduleDictService;
-import com.dtstack.engine.master.plugininfo.PluginWrapper;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

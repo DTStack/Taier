@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.log;
+package com.dtstack.engine.master;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.PropertyFilter;

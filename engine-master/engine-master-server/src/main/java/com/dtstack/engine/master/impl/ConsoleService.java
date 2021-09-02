@@ -24,7 +24,7 @@ import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.jobdealer.resource.JobComputeResourcePlain;
-import com.dtstack.engine.master.plugininfo.PluginWrapper;
+import com.dtstack.engine.master.PluginWrapper;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.impl.vo.ResourceTemplateVO;
 import com.dtstack.engine.master.zookeeper.ZkService;

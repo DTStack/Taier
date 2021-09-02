@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.cache;
+package com.dtstack.engine.master;
 
 import com.dtstack.engine.api.domain.ScheduleDict;
 import com.dtstack.engine.master.impl.ScheduleDictService;

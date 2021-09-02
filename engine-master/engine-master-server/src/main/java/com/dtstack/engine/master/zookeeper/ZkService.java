@@ -8,7 +8,7 @@ import com.dtstack.engine.master.listener.HeartBeatCheckListener;
 import com.dtstack.engine.master.listener.HeartBeatListener;
 import com.dtstack.engine.master.listener.Listener;
 import com.dtstack.engine.master.listener.MasterListener;
-import com.dtstack.engine.master.failover.FailoverStrategy;
+import com.dtstack.engine.master.FailoverStrategy;
 import com.dtstack.engine.master.scheduler.ScheduleJobBack;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;

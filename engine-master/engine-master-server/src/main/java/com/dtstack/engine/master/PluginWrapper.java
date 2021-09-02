@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.plugininfo;
+package com.dtstack.engine.master;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ScheduleJob;

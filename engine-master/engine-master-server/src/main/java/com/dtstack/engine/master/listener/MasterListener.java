@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.listener;
 
-import com.dtstack.engine.master.failover.FailoverStrategy;
+import com.dtstack.engine.master.FailoverStrategy;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.master.scheduler.ScheduleJobBack;
 import org.apache.curator.framework.CuratorFramework;

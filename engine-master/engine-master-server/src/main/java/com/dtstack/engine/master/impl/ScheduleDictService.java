@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.impl;
 
-import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ComponentConfig;
 import com.dtstack.engine.api.domain.ScheduleDict;
 import com.dtstack.engine.api.pojo.ClientTemplate;
@@ -8,10 +7,9 @@ import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.dao.ComponentConfigDao;
 import com.dtstack.engine.dao.ScheduleDictDao;
-import com.dtstack.engine.master.cache.DictCache;
+import com.dtstack.engine.master.DictCache;
 import com.dtstack.engine.master.enums.DictType;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
-import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

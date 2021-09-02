@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.failover;
+package com.dtstack.engine.master;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.CustomThreadFactory;
@@ -7,8 +7,10 @@ import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
+import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
+import com.dtstack.engine.common.util.UrlUtil;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.api.domain.EngineJobCache;
@@ -22,7 +24,6 @@ import com.dtstack.engine.master.impl.NodeRecoverService;
 import com.dtstack.engine.master.queue.JobPartitioner;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.scheduler.JobGraphBuilderTrigger;
-import com.dtstack.engine.master.send.HttpSendClient;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.dtstack.engine.master.zookeeper.data.BrokerHeartNode;
 import com.google.common.collect.Lists;
@@ -55,6 +56,8 @@ public class FailoverStrategy {
     private static final Logger LOGGER = LoggerFactory.getLogger(FailoverStrategy.class);
 
     private BlockingQueue<String> queue = new LinkedBlockingDeque<>();
+
+    private static final String MASTER_TRIGGER_NODE = "/node/nodeRecover/masterTriggerNode";
 
     @Autowired
     private EnvironmentContext environmentContext;
@@ -175,7 +178,8 @@ public class FailoverStrategy {
                             nodeRecoverService.masterTriggerNode();
                             continue;
                         }
-                        HttpSendClient.masterTriggerNode(nodeAddress);
+
+                        PoolHttpClient.post(UrlUtil.getHttpUrl(nodeAddress, MASTER_TRIGGER_NODE), null);
                     }
                     LOGGER.warn("----- nodeAddress:{} node disaster recovery task ends and resumes-----", node);
                 }

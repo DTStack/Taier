@@ -29,7 +29,7 @@ import com.dtstack.engine.common.sftp.SftpFileManage;
 import com.dtstack.engine.common.util.*;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.WorkerOperator;
-import com.dtstack.engine.master.cache.DictCache;
+import com.dtstack.engine.master.DictCache;
 import com.dtstack.engine.master.enums.DictType;
 import com.dtstack.engine.master.enums.DownloadType;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;

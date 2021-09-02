@@ -5,6 +5,7 @@ import com.dtstack.engine.api.domain.Cluster;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.dao.ClusterDao;
 import com.dtstack.engine.master.AbstractTest;
+import com.dtstack.engine.master.PluginWrapper;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.utils.CommonUtils;
 import org.junit.Assert;
