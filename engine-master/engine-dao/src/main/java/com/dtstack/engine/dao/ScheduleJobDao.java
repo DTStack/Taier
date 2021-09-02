@@ -42,6 +42,8 @@ public interface ScheduleJobDao {
 
     List<JobTopErrorVO> listTopErrorByType(@Param("dtuicTenantId") Long dtuicTenantId, @Param("tenantId") Long tenantId, @Param("projectId") Long projectId, @Param("type") Integer type, @Param("cycTime") String cycTime, @Param("statuses") List<Integer> status, @Param("pageQuery") PageQuery pageQuery, @Param("appType") Integer appType);
 
+    List<JobTopErrorVO> listTopError(@Param("dtuicTenantId") Long dtuicTenantId, @Param("projectId") Long projectId, @Param("type") Integer type, @Param("startCycTime") String startCycTime,@Param("endCycTime") String endCycTime, @Param("statuses") List<Integer> status, @Param("pageQuery") PageQuery pageQuery, @Param("appType") Integer appType);
+
     List<Map<String, Object>> listTodayJobs(@Param("today")String today,@Param("statusList") List<Integer> statusList, @Param("type") Integer type, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId);
 
     List<Map<String, Object>> listYesterdayJobs(@Param("yesterday")String yesterday,@Param("today")String today,@Param("statusList") List<Integer> statusList, @Param("type") Integer type, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId);
@@ -170,7 +172,7 @@ public interface ScheduleJobDao {
 
     List<SimpleScheduleJobPO> listSimpleJobByStatusAddress(@Param("startId") Long startId, @Param("statuses") List<Integer> statuses, @Param("nodeAddress") String nodeAddress);
 
-    Integer updateNodeAddress(@Param("nodeAddress") String nodeAddress, @Param("ids") List<Long> ids);
+    Integer updateNodeAddress(@Param("nodeAddress") String nodeAddress, @Param("jobIds") List<String> ids);
 
     Integer updateJobStatusByIds(@Param("status") Integer status, @Param("jobIds") List<String> jobIds);
 
@@ -178,6 +180,8 @@ public interface ScheduleJobDao {
 
     List<ScheduleJob> listExecJobByCycTimeTypeAddress(@Param("startId") Long startId, @Param("nodeAddress") String nodeAddress, @Param("scheduleType") Integer scheduleType, @Param("cycStartTime") String cycStartTime, @Param("cycEndTime") String cycEndTime, @Param("phaseStatus") Integer phaseStatus,
                                                       @Param("isEq") Boolean isEq, @Param("lastTime") Timestamp lastTime,@Param("isRestart") Integer isRestart);
+
+    List<ScheduleJob> listExecJobByJobIds(@Param("nodeAddress") String nodeAddress,@Param("phaseStatus") Integer phaseStatus,@Param("isRestart") Integer isRestart,@Param("jobIds") Collection<String> jobIds);
 
     Integer updateJobInfoByJobId(@Param("jobId") String jobId, @Param("status") Integer status, @Param("execStartTime") Timestamp execStartTime, @Param("execEndTime") Timestamp execEndTime, @Param("execTime") Long execTime, @Param("retryNum") Integer retryNum,@Param("stopStatuses") List<Integer> stopStatuses);
 
@@ -253,4 +257,6 @@ public interface ScheduleJobDao {
     Integer updateJobStatusAndPhaseStatusByIds(@Param("jobIds") List<String> jobIds, @Param("status") Integer status, @Param("phaseStatus") Integer phaseStatus);
 
     List<SimpleScheduleJobPO> listJobByStatusAddressAndPhaseStatus(@Param("startId") Long startId, @Param("statuses") List<Integer> statuses, @Param("nodeAddress") String nodeAddress,@Param("phaseStatus") Integer phaseStatus);
+
+    Integer updateFlowJob(@Param("placeholder") String placeholder, @Param("flowJob") String flowJob);
 }

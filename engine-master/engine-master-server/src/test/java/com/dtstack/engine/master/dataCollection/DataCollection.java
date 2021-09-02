@@ -603,39 +603,6 @@ public interface DataCollection {
         return scheduleTaskShade;
     }
 
-    @DatabaseInsertOperation(dao = TestEngineJobStopDao.class)
-    default EngineJobStopRecord getScheduleJobStop3(){
-
-        EngineJobCache engineJobCache = getEngineJobCache6();
-        EngineJobStopRecord jsr = new EngineJobStopRecord();
-        jsr.setTaskId(engineJobCache.getJobId());
-        jsr.setComputeType(jsr.getComputeType());
-        jsr.setEngineType(jsr.getEngineType());
-        jsr.setForceCancelFlag(1);
-        jsr.setJobResource(engineJobCache.getJobResource());
-        jsr.setOperatorExpired(new java.util.Date());
-        jsr.setTaskType(10);
-        jsr.setVersion(1);
-        return jsr;
-    }
-
-
-    @DatabaseInsertOperation(dao = TestEngineJobStopDao.class)
-    default EngineJobStopRecord getScheduleJobStop(){
-
-        EngineJobCache engineJobCache = getEngineJobCache();
-        EngineJobStopRecord jsr = new EngineJobStopRecord();
-        jsr.setTaskId(engineJobCache.getJobId());
-        jsr.setComputeType(jsr.getComputeType());
-        jsr.setEngineType(jsr.getEngineType());
-        jsr.setForceCancelFlag(1);
-        jsr.setJobResource(engineJobCache.getJobResource());
-        jsr.setOperatorExpired(new java.util.Date());
-        jsr.setTaskType(10);
-        jsr.setVersion(1);
-        return jsr;
-    }
-
 
     @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
     default ScheduleTaskShade getCronMonthTask() {

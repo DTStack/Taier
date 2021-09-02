@@ -6,7 +6,7 @@ import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.master.AbstractTest;
-import com.dtstack.engine.master.ScheduleBatchJob;
+import com.dtstack.engine.master.server.ScheduleBatchJob;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.google.common.collect.Lists;
@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @Auther: dazhi
@@ -71,14 +72,14 @@ public class JobRichOperatorTest extends AbstractTest {
         List<ScheduleBatchJob> jobs = Lists.newArrayList();
         // 生成当天周期任务
         String triggerDay = new DateTime().toString("yyyy-MM-dd");
-
+        AtomicInteger count = new AtomicInteger();
         // 生成前天的周期任务
         String triggerYesterdayDay = new DateTime().minusDays(1).toString("yyyy-MM-dd");
         for (Map.Entry<Long, ScheduleTaskShade> longScheduleTaskShadeEntry : tasks.entrySet()) {
             ScheduleTaskShade task = longScheduleTaskShadeEntry.getValue();
             String cronJobName = CRON_JOB_NAME + "_" + task.getName();
             List<ScheduleBatchJob> scheduleBatchJobs = jobGraphBuilder.buildJobRunBean(task, CRON_TRIGGER_TYPE, EScheduleType.NORMAL_SCHEDULE,
-                    true, true, triggerYesterdayDay, cronJobName, null, task.getProjectId(), task.getTenantId());
+                    true, true, triggerYesterdayDay, cronJobName, null, task.getProjectId(), task.getTenantId(),count);
 
             jobs.addAll(scheduleBatchJobs);
         }
@@ -87,7 +88,7 @@ public class JobRichOperatorTest extends AbstractTest {
             ScheduleTaskShade task = longScheduleTaskShadeEntry.getValue();
             String cronJobName = CRON_JOB_NAME + "_" + task.getName();
             List<ScheduleBatchJob> scheduleBatchJobs = jobGraphBuilder.buildJobRunBean(task, CRON_TRIGGER_TYPE, EScheduleType.NORMAL_SCHEDULE,
-                    true, true, triggerDay, cronJobName, null, task.getProjectId(), task.getTenantId());
+                    true, true, triggerDay, cronJobName, null, task.getProjectId(), task.getTenantId(),count);
 
             jobs.addAll(scheduleBatchJobs);
         }

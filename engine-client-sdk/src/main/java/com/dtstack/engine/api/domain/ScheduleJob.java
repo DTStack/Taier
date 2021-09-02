@@ -119,6 +119,21 @@ public class ScheduleJob extends AppTenantEntity {
 
     private Integer taskRule;
 
+    /**
+     * 提交用户名
+     */
+    @ApiModelProperty(notes = "任务提交用户")
+    private String submitUserName;
+
+    private Long jobExecuteOrder;
+
+    public Long getJobExecuteOrder() {
+        return jobExecuteOrder;
+    }
+
+    public void setJobExecuteOrder(Long jobExecuteOrder) {
+        this.jobExecuteOrder = jobExecuteOrder;
+    }
 
     public Boolean getForce() {
         return isForce;
@@ -127,12 +142,6 @@ public class ScheduleJob extends AppTenantEntity {
     public void setForce(Boolean force) {
         isForce = force;
     }
-
-    /**
-     * 提交用户名
-     */
-    @ApiModelProperty(notes = "任务提交用户")
-    private String submitUserName;
 
     @ApiModelProperty(notes = "业务类型 应用自身定义")
     private String businessType;

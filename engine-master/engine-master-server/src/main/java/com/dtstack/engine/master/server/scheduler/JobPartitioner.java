@@ -1,6 +1,8 @@
-package com.dtstack.engine.master.server.queue;
+package com.dtstack.engine.master.server.scheduler;
 
 import com.dtstack.engine.master.server.listener.QueueListener;
+import com.dtstack.engine.master.server.queue.GroupInfo;
+import com.dtstack.engine.master.server.queue.QueueInfo;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;

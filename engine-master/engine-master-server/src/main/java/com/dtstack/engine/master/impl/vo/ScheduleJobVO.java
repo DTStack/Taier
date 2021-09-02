@@ -95,9 +95,14 @@ public class ScheduleJobVO extends com.dtstack.engine.api.vo.ScheduleJobVO {
                     this.setExecEndTime(scheduleEngineJob.getExecEndTime());
                 }
             }
+
             if (scheduleEngineJob.getExecStartTime() != null && scheduleEngineJob.getExecEndTime() != null) {
                 long exeTime = scheduleEngineJob.getExecTime() == null ? 0L : scheduleEngineJob.getExecTime() * 1000;
                 this.setExecTime(DateUtil.getTimeDifference(exeTime));
+            } else if (scheduleEngineJob.getExecStartTime() != null && scheduleEngineJob.getExecEndTime() == null) {
+                long exeTime = scheduleEngineJob.getExecStartTime().getTime();
+                long currentTimeMillis = System.currentTimeMillis();
+                this.setExecTime(DateUtil.getTimeDifference(currentTimeMillis - exeTime));
             }
         }
         this.batchEngineJob = scheduleEngineJob;

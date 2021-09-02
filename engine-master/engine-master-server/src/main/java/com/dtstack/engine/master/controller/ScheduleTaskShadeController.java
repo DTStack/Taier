@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -99,7 +100,23 @@ public class ScheduleTaskShadeController {
 
     @RequestMapping(value = "/pageQuery", method = {RequestMethod.POST})
     @ApiOperation(value = "分页查询已提交的任务")
+    @Deprecated
     public PageResult<List<ScheduleTaskShadeVO>> pageQuery(@RequestBody ScheduleTaskShadeDTO dto) {
+        if (null != dto) {
+            // 原逻辑 create modify owner UserId 不生效
+            dto.setCreateUserId(null);
+            dto.setModifyUserId(null);
+            dto.setOwnerUserId(null);
+            return scheduleTaskShadeService.pageQuery(dto);
+        }
+        return new PageResult<>(0, 0, 0, 0, new ArrayList<>(0));
+    }
+
+
+
+    @RequestMapping(value="/v2/pageQuery", method = {RequestMethod.POST})
+    @ApiOperation(value = "分页查询已提交的任务")
+    public PageResult<List<ScheduleTaskShadeVO>> newPageQuery(@RequestBody ScheduleTaskShadeDTO dto) {
         return scheduleTaskShadeService.pageQuery(dto);
     }
 

@@ -1,4 +1,4 @@
-package com.dtstack.engine.master;
+package com.dtstack.engine.master.server;
 
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleJobJob;
@@ -91,6 +91,10 @@ public class ScheduleBatchJob {
 
     public void setDependencyChildPrePeriodList(List<ScheduleJob> dependencyChildPrePeriodList) {
         this.dependencyChildPrePeriodList = dependencyChildPrePeriodList;
+    }
+
+    public Long getJobExecuteOrder() {
+        return scheduleJob.getJobExecuteOrder();
     }
 
     @Override

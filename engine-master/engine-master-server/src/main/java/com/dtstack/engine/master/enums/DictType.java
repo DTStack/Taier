@@ -17,7 +17,8 @@ public enum DictType {
     HIVE_VERSION(4),
     COMPONENT_CONFIG(5),
     TYPENAME_MAPPING(6),
-    INCEPTOR_SQL(7);
+    INCEPTOR_SQL(7),
+    DATA_CLEAR_NAME(8);
 
     public Integer type;
 

@@ -8,7 +8,7 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.AbstractTest;
-import com.dtstack.engine.master.FailoverStrategy;
+import com.dtstack.engine.master.server.FailoverStrategy;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.server.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.server.scheduler.JobGraphBuilderTrigger;

@@ -606,7 +606,6 @@ public class ClusterService implements com.dtstack.engine.api.service.ClusterSer
             } else if (EComponentType.DT_SCRIPT == type.getComponentType() || EComponentType.SPARK == type.getComponentType()) {
                 if (clusterVO.getDtUicUserId() != null && clusterVO.getDtUicTenantId() != null) {
                     String ldapUserName = this.getLdapUserName(clusterVO.getDtUicUserId());
-                    LOGGER.info("dtUicUserId:{},dtUicTenantId:{},ldapUserName:{}",clusterVO.getDtUicUserId(),clusterVO.getDtUicTenantId() ,ldapUserName);
                     if (StringUtils.isNotBlank(ldapUserName) && ldapUserName.contains(MAILBOX_CUTTING)) {
                         ldapUserName = ldapUserName.substring(0, ldapUserName.indexOf(MAILBOX_CUTTING));
                     }
@@ -693,6 +692,7 @@ public class ClusterService implements com.dtstack.engine.api.service.ClusterSer
         User user = userDao.getByDtUicUserId(dtUicUserId);
         if (user != null){
             String ldapUserName = user.getUserName();
+            LOGGER.info("dtUicUserId:{},ldapUserName:{}",dtUicUserId,ldapUserName);
             ldapCache.put(dtUicUserId, ldapUserName);
             return ldapUserName;
         }
@@ -924,8 +924,17 @@ public class ClusterService implements com.dtstack.engine.api.service.ClusterSer
                 componentVoList.forEach(component->{
                     // 组件每个版本设置k8s参数
                     for (ComponentVO componentVO : component.loadComponents()) {
-                        KerberosConfig kerberosConfig = kerberosTable.get(componentVO.getComponentTypeCode(), StringUtils.isBlank(componentVO.getHadoopVersion()) ?
-                                StringUtils.EMPTY : componentVO.getHadoopVersion());
+                        KerberosConfig kerberosConfig;
+                        EComponentType type = EComponentType.getByCode(componentVO.getComponentTypeCode());
+                        if (type == EComponentType.YARN || type == EComponentType.SPARK_THRIFT ||
+                                type == EComponentType.DT_SCRIPT || type == EComponentType.HIVE_SERVER ||
+                                type == EComponentType.IMPALA_SQL || type == EComponentType.LEARNING ||
+                                type == EComponentType.INCEPTOR_SQL) {
+                            kerberosConfig = kerberosTable.get(type.getTypeCode(), StringUtils.EMPTY);
+                        } else {
+                            kerberosConfig = kerberosTable.get(componentVO.getComponentTypeCode(), StringUtils.isBlank(componentVO.getHadoopVersion()) ?
+                                    StringUtils.EMPTY : componentVO.getHadoopVersion());
+                        }
                         if(Objects.nonNull(kerberosConfig)){
                             componentVO.setPrincipal(kerberosConfig.getPrincipal());
                             componentVO.setPrincipals(kerberosConfig.getPrincipals());

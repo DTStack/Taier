@@ -87,10 +87,14 @@ public class SftpFileManage implements IFileManage {
         boolean isUsePool = sftpConfig.getIsUsePool();
 
         if (isUsePool) {
-            LOGGER.info("get channelSftp from SftpPool!");
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("get channelSftp from SftpPool!");
+            }
             this.sftpPool = getSftpPool(sftpConfig);
         } else {
-            LOGGER.info("get channelSftp from native!");
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("get channelSftp from native!");
+            }
             this.sftpFactory = new SftpFactory(sftpConfig);
         }
     }

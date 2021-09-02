@@ -1,8 +1,9 @@
 package com.dtstack.engine.master.server.listener;
 
-import com.dtstack.engine.master.FailoverStrategy;
+import com.dtstack.engine.master.server.FailoverStrategy;
 import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.master.server.scheduler.ScheduleJobBack;
+import com.dtstack.engine.master.cron.ErrorTopCron;
+import com.dtstack.engine.master.server.scheduler.JobDataClear;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.leader.LeaderLatch;
 import org.apache.curator.framework.recipes.leader.LeaderLatchListener;
@@ -28,18 +29,21 @@ public class MasterListener implements LeaderLatchListener, Listener {
 
     private final AtomicBoolean isMaster = new AtomicBoolean(false);
     private final FailoverStrategy failoverStrategy;
-    private final ScheduleJobBack scheduleJobBack;
+    private final ErrorTopCron errorTopCron;
 
     private final ScheduledExecutorService scheduledService;
+    private final JobDataClear jobDataClear;
     private LeaderLatch latch;
 
     public MasterListener(FailoverStrategy failoverStrategy,
-                          ScheduleJobBack scheduleJobBack,
                           CuratorFramework curatorFramework,
+                          JobDataClear jobDataClear,
+                          ErrorTopCron errorTopCron,
                           String latchPath,
                           String localAddress) throws Exception {
         this.failoverStrategy = failoverStrategy;
-        this.scheduleJobBack = scheduleJobBack;
+        this.errorTopCron = errorTopCron;
+        this.jobDataClear = jobDataClear;
 
         this.latch = new LeaderLatch(curatorFramework, latchPath, localAddress);
         this.latch.addListener(this);
@@ -79,7 +83,8 @@ public class MasterListener implements LeaderLatchListener, Listener {
         LOGGER.info("i am master:{} ...", isMaster.get());
 
         failoverStrategy.setIsMaster(isMaster.get());
-        scheduleJobBack.setIsMaster(isMaster.get());
+        errorTopCron.setIsMaster(isMaster.get());
+        jobDataClear.setIsMaster(isMaster.get());
     }
 
 }

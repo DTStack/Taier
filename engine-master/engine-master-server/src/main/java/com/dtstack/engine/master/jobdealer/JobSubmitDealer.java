@@ -26,7 +26,7 @@ import com.dtstack.engine.master.WorkerOperator;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.server.queue.GroupInfo;
 import com.dtstack.engine.master.server.queue.GroupPriorityQueue;
-import com.dtstack.engine.master.server.queue.JobPartitioner;
+import com.dtstack.engine.master.server.scheduler.JobPartitioner;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -164,7 +164,9 @@ public class JobSubmitDealer implements Runnable {
         while (true) {
             try {
                 JobClient jobClient = queue.take();
-                LOGGER.info("jobId:{} jobResource:{} queue size:{} take job from priorityQueue.", jobClient.getTaskId(), jobResource, queue.size());
+                if(LOGGER.isDebugEnabled()){
+                    LOGGER.debug("jobId:{} jobResource:{} queue size:{} take job from priorityQueue.", jobClient.getTaskId(), jobResource, queue.size());
+                }
                 if (checkIsFinished(jobClient)) {
                     continue;
                 }
@@ -293,7 +295,7 @@ public class JobSubmitDealer implements Runnable {
             // 判断资源
             JudgeResult judgeResult = workerOperator.judgeSlots(jobClient);
             if (JudgeResult.JudgeType.OK == judgeResult.getResult()) {
-                LOGGER.info("jobId:{} engineType:{} submit jobClient:{} to engine start.", jobClient.getTaskId(), jobClient.getEngineType(), jobClient);
+                LOGGER.info("jobId:{} engineType:{} submit to engine start.", jobClient.getTaskId(), jobClient.getEngineType());
 
                 jobClient.doStatusCallBack(RdosTaskStatus.COMPUTING.getStatus());
 
@@ -302,8 +304,10 @@ public class JobSubmitDealer implements Runnable {
                 // 提交任务
                 jobResult = workerOperator.submitJob(jobClient);
 
-                LOGGER.info("jobId:{} engineType:{} submit jobResult:{}.", jobClient.getTaskId(), jobClient.getEngineType(), jobResult);
-                // 提交任务返回新的任务ID
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("jobId:{} engineType:{} submit jobResult:{}.", jobClient.getTaskId(), jobClient.getEngineType(), jobResult);
+                }
+
                 String jobId = jobResult.getData(JobResult.JOB_ID_KEY);
                 jobClient.setEngineTaskId(jobId);
                 addToTaskListener(jobClient, jobResult);
@@ -385,5 +389,3 @@ public class JobSubmitDealer implements Runnable {
         return submittedQueue;
     }
 }
-
-

@@ -1,4 +1,4 @@
-package com.dtstack.engine.master;
+package com.dtstack.engine.master.server;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.CustomThreadFactory;
@@ -16,14 +16,15 @@ import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.po.SimpleScheduleJobPO;
 import com.dtstack.engine.api.domain.AlertRecord;
+import com.dtstack.engine.dao.ScheduleJobOperatorRecordDao;
 import com.dtstack.engine.master.enums.AlertSendStatusEnum;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.AlertRecordService;
 import com.dtstack.engine.master.impl.NodeRecoverService;
-import com.dtstack.engine.master.server.queue.JobPartitioner;
 import com.dtstack.engine.master.server.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.server.scheduler.JobGraphBuilderTrigger;
+import com.dtstack.engine.master.server.scheduler.JobPartitioner;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.dtstack.engine.master.zookeeper.data.BrokerHeartNode;
 import com.google.common.collect.Lists;
@@ -88,6 +89,9 @@ public class FailoverStrategy {
 
     @Autowired
     private AlertRecordService alertRecordService;
+
+    @Autowired
+    private ScheduleJobOperatorRecordDao scheduleJobOperatorRecordDao;
 
     private FaultTolerantDealer faultTolerantDealer = new FaultTolerantDealer();
 
@@ -209,15 +213,15 @@ public class FailoverStrategy {
                 if (CollectionUtils.isEmpty(jobs)) {
                     break;
                 }
-                List<Long> cronJobIds = Lists.newArrayList();
-                List<Long> fillJobIds = Lists.newArrayList();
+                Set<String> cronJobIds = new HashSet();
+                Set<String> fillJobIds =  new HashSet();
                 List<String> phaseStatus = Lists.newArrayList();
                 for (SimpleScheduleJobPO batchJob : jobs) {
-                    if (EScheduleType.NORMAL_SCHEDULE.getType() == batchJob.getType()) {
-                        cronJobIds.add(batchJob.getId());
+                    if (EScheduleType.NORMAL_SCHEDULE.getType().equals(batchJob.getType())) {
+                        cronJobIds.add(batchJob.getJobId());
                         LOGGER.info("----- nodeAddress:{} distributeBatchJobs {} NORMAL_SCHEDULE -----", nodeAddress, batchJob.getJobId());
                     } else {
-                        fillJobIds.add(batchJob.getId());
+                        fillJobIds.add(batchJob.getJobId());
                         LOGGER.info("----- nodeAddress:{} distributeBatchJobs {} FILL_DATA -----", nodeAddress, batchJob.getJobId());
                     }
                     if (JobPhaseStatus.JOIN_THE_TEAM.getCode().equals(batchJob.getPhaseStatus())) {
@@ -282,15 +286,15 @@ public class FailoverStrategy {
     /**
      * Ps：jobIds  为 batchJob 表的 id 字段（非job_id字段）
      */
-    private void distributeBatchJobs(List<Long> jobIds, Integer scheduleType) {
+    private void distributeBatchJobs(Set<String> jobIds, Integer scheduleType) {
         if (jobIds.isEmpty()) {
             return;
         }
 
-        Iterator<Long> jobIdsIterator = jobIds.iterator();
+        Iterator<String> jobIdsIterator = jobIds.iterator();
 
         //任务多节点分发，每个节点要分发的任务量
-        Map<String, List<Long>> nodeJobs = Maps.newHashMap();
+        Map<String, List<String>> nodeJobs = Maps.newHashMap();
 
         Map<String, Integer> nodeJobSize = jobPartitioner.computeBatchJobSize(scheduleType, jobIds.size());
         for (Map.Entry<String, Integer> nodeJobSizeEntry : nodeJobSize.entrySet()) {
@@ -298,7 +302,7 @@ public class FailoverStrategy {
             int nodeSize = nodeJobSizeEntry.getValue();
             while (nodeSize > 0 && jobIdsIterator.hasNext()) {
                 nodeSize--;
-                List<Long> nodeJobIds = nodeJobs.computeIfAbsent(nodeAddress, k -> Lists.newArrayList());
+                List<String> nodeJobIds = nodeJobs.computeIfAbsent(nodeAddress, k -> Lists.newArrayList());
                 nodeJobIds.add(jobIdsIterator.next());
             }
         }
@@ -306,12 +310,13 @@ public class FailoverStrategy {
         updateBatchJobs(nodeJobs);
     }
 
-    private void updateBatchJobs(Map<String, List<Long>> nodeJobs) {
-        for (Map.Entry<String, List<Long>> nodeEntry : nodeJobs.entrySet()) {
+    private void updateBatchJobs(Map<String, List<String>> nodeJobs) {
+        for (Map.Entry<String, List<String>> nodeEntry : nodeJobs.entrySet()) {
             if (nodeEntry.getValue().isEmpty()) {
                 continue;
             }
             scheduleJobDao.updateNodeAddress(nodeEntry.getKey(), nodeEntry.getValue());
+            scheduleJobOperatorRecordDao.updateNodeAddress(nodeEntry.getKey(),nodeEntry.getValue());
             LOGGER.info("jobIds:{} failover to address:{}", nodeEntry.getValue(), nodeEntry.getKey());
         }
     }

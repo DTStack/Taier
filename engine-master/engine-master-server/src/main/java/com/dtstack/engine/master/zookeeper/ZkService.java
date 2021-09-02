@@ -1,6 +1,8 @@
 package com.dtstack.engine.master.zookeeper;
 
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.master.cron.ErrorTopCron;
+import com.dtstack.engine.master.server.scheduler.JobDataClear;
 import com.dtstack.engine.master.zookeeper.data.BrokerHeartNode;
 import com.dtstack.engine.master.zookeeper.data.BrokersNode;
 import com.dtstack.engine.common.env.EnvironmentContext;
@@ -8,8 +10,7 @@ import com.dtstack.engine.master.server.listener.HeartBeatCheckListener;
 import com.dtstack.engine.master.server.listener.HeartBeatListener;
 import com.dtstack.engine.master.server.listener.Listener;
 import com.dtstack.engine.master.server.listener.MasterListener;
-import com.dtstack.engine.master.FailoverStrategy;
-import com.dtstack.engine.master.server.scheduler.ScheduleJobBack;
+import com.dtstack.engine.master.server.FailoverStrategy;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.curator.framework.CuratorFramework;
@@ -61,7 +62,10 @@ public class ZkService implements InitializingBean, DisposableBean {
     private FailoverStrategy failoverStrategy;
 
     @Autowired
-    private ScheduleJobBack scheduleJobBack;
+    private JobDataClear jobDataClear;
+
+    @Autowired
+    private ErrorTopCron errorTopCron;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -103,7 +107,7 @@ public class ZkService implements InitializingBean, DisposableBean {
     private void initScheduledExecutorService() throws Exception {
         listeners.add(new HeartBeatListener(this));
         String latchPath = String.format("%s/%s", this.distributeRootNode, "masterLatchLock");
-        MasterListener masterListener = new MasterListener(failoverStrategy, scheduleJobBack, zkClient, latchPath, localAddress);
+        MasterListener masterListener = new MasterListener(failoverStrategy, zkClient, jobDataClear, errorTopCron, latchPath, localAddress);
         listeners.add(masterListener);
         listeners.add(new HeartBeatCheckListener(masterListener, failoverStrategy, this));
     }

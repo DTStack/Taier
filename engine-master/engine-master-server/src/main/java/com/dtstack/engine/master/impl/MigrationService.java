@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.master.FailoverStrategy;
+import com.dtstack.engine.master.server.FailoverStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
