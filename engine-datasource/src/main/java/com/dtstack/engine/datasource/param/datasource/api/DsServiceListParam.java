@@ -1,6 +1,6 @@
 package com.dtstack.engine.datasource.param.datasource.api;
 
-import com.dtstack.engine.datasource.param.BasePageParam;
+import com.dtstack.engine.common.param.DtInsightPageAuthParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -14,7 +14,7 @@ import java.util.List;
  */
 @Data
 @ApiModel("外部对接数据源列表查询参数")
-public class DsServiceListParam extends BasePageParam {
+public class DsServiceListParam extends DtInsightPageAuthParam {
 
     @ApiModelProperty(value = "产品type", example = "1", required = true)
     private Integer appType;

@@ -1,4 +1,4 @@
-package com.dtstack.sdk.core.common;
+package com.dtstack.engine.common.param;
 
 
 import io.swagger.annotations.ApiModelProperty;
@@ -23,14 +23,14 @@ class BaseParam {
      */
     @Setter
     @ApiModelProperty(hidden = true)
-    private String channel = SdkAppType.Others.getName();
+    private String channel = "DAGScheduleX";
 
     /**
      * SDK 版本
      */
     @Setter
     @ApiModelProperty(hidden = true)
-    private String sdkVersion = Constant.SDK_VERSION;
+    private String sdkVersion = "v1.0";
 
     /**
      * 当前时间戳
@@ -43,5 +43,5 @@ class BaseParam {
      */
     @Setter
     @ApiModelProperty(hidden = true)
-    private String signType = SignType.DEFAULT.name();
+    private String signType = "DEFAULT";
 }

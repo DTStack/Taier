@@ -1,7 +1,7 @@
 package com.dtstack.batch.web.datasource.vo.query;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.sdk.core.common.DtInsightAuthParam;
+import com.dtstack.engine.common.param.DtInsightAuthParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

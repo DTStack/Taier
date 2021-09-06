@@ -1,7 +1,7 @@
 package com.dtstack.batch.web.project.vo.query;
 
 import com.dtstack.batch.web.user.vo.query.BatchUserBaseVO;
-import com.dtstack.sdk.core.common.DtInsightAuthParam;
+import com.dtstack.engine.common.param.DtInsightAuthParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

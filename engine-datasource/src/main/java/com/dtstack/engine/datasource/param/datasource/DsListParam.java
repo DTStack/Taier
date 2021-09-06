@@ -1,6 +1,6 @@
 package com.dtstack.engine.datasource.param.datasource;
 
-import com.dtstack.engine.datasource.param.BasePageParam;
+import com.dtstack.engine.common.param.DtInsightPageAuthParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -14,7 +14,7 @@ import java.util.List;
  */
 @Data
 @ApiModel("数据源列表查询参数")
-public class DsListParam extends BasePageParam {
+public class DsListParam extends DtInsightPageAuthParam {
 
     @ApiModelProperty("搜索参数")
     private String search;

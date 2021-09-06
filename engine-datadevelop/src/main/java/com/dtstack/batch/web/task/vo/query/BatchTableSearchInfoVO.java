@@ -1,6 +1,6 @@
 package com.dtstack.batch.web.task.vo.query;
 
-import com.dtstack.sdk.core.common.DtInsightAuthParam;
+import com.dtstack.engine.common.param.DtInsightAuthParam;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

@@ -49,11 +49,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-boot-starter</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>dt.insight.plat</groupId>
             <artifactId>dt-insight-lang</artifactId>
         </dependency>

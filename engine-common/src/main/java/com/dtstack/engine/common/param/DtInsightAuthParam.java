@@ -1,4 +1,4 @@
-package com.dtstack.sdk.core.common;
+package com.dtstack.engine.common.param;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -20,10 +20,4 @@ public class DtInsightAuthParam extends BaseParam {
     @ApiModelProperty(hidden = true)
     private String token;
 
-    /**
-     * 自定义的签名方式
-     */
-    protected void calSign(){
-
-    }
 }
