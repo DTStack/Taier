@@ -3,7 +3,6 @@ package com.dtstack.engine.dtscript;
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.pojo.JobResult;

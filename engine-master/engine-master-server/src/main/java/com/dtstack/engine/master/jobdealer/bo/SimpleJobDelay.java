@@ -1,4 +1,4 @@
-package com.dtstack.engine.common.pojo;
+package com.dtstack.engine.master.jobdealer.bo;
 
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;

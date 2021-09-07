@@ -8,16 +8,15 @@ import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.EQueueSourceType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.queue.OrderObject;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.enums.EScheduleJobType;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -30,9 +29,11 @@ import java.util.Properties;
  * @author xuchao
  */
 
-public class JobClient extends OrderObject {
+public class JobClient implements Serializable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JobClient.class);
+
+    protected long priority = 0;
 
     /**
      * 默认的优先级，值越小，优先级越高
@@ -177,9 +178,6 @@ public class JobClient extends OrderObject {
         if (StringUtils.isBlank(groupName)) {
             groupName = ConfigConstant.DEFAULT_GROUP_NAME;
         }
-        //将任务id 标识为对象id
-        this.id = taskId;
-
     }
 
     public String getComponentVersion() {
@@ -214,7 +212,7 @@ public class JobClient extends OrderObject {
         action.setRetryIntervalTime(retryIntervalTime);
         action.setSubmitExpiredTime(submitExpiredTime);
         action.setComponentVersion(componentVersion);
-        if (!Strings.isNullOrEmpty(pluginInfo)) {
+        if (StringUtils.isNotEmpty(pluginInfo)) {
             try {
                 action.setPluginInfo(PublicUtil.jsonStrToObject(pluginInfo, Map.class));
             } catch (Exception e) {
@@ -223,6 +221,14 @@ public class JobClient extends OrderObject {
             }
         }
         return action;
+    }
+
+    public long getPriority() {
+        return priority;
+    }
+
+    public void setPriority(long priority) {
+        this.priority = priority;
     }
 
     public Integer getDeployMode() {

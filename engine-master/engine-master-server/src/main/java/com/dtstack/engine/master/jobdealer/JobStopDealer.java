@@ -9,7 +9,7 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.pojo.StoppedJob;
+import com.dtstack.engine.master.jobdealer.bo.StoppedJob;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
 import com.dtstack.engine.common.util.PublicUtil;

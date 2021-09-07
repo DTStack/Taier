@@ -21,13 +21,13 @@
     </properties>
 
     <dependencies>
+
         <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>1.2.76</version>
-            <scope>provided</scope>
-            <optional>true</optional>
+            <groupId>com.dtstack.engine</groupId>
+            <artifactId>engine-plugin-api</artifactId>
+            <version>1.0.0</version>
         </dependency>
+
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>

@@ -1,4 +1,4 @@
-package com.dtstack.engine.common.pojo;
+package com.dtstack.engine.master.jobdealer.bo;
 
 /**
  * Reason:

@@ -4,11 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.*;
 
-import com.alibaba.fastjson.JSONObject;
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 
@@ -30,21 +26,21 @@ public class PublicUtil {
 		objectMapper.disable(SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS);
     }
 
-	public static <T> T objectToObject(Object params,Class<T> clazz) throws JsonParseException, JsonMappingException, JsonGenerationException, IOException{
+	public static <T> T objectToObject(Object params,Class<T> clazz) throws IOException{
 		if(params ==null) {return null;}
 		return  objectMapper.readValue(objectMapper.writeValueAsBytes(params),clazz);
 	}
 
-	public static <T> T mapToObject(Map<String,Object> params,Class<T> clazz) throws JsonParseException, JsonMappingException, JsonGenerationException, IOException{
+	public static <T> T mapToObject(Map<String,Object> params,Class<T> clazz) throws IOException{
 		return  objectMapper.readValue(objectMapper.writeValueAsBytes(params),clazz);
 	}
 
-	public static <T> T jsonStrToObject(String jsonStr, Class<T> clazz) throws JsonParseException, JsonMappingException, JsonGenerationException, IOException{
+	public static <T> T jsonStrToObject(String jsonStr, Class<T> clazz) throws IOException{
 		return  objectMapper.readValue(jsonStr, clazz);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static Map<String, Object> strToMap(String str) throws  IOException{
+	public static Map<String, Object> strToMap(String str) throws IOException{
 		if(str ==null){
 			return null;
 		}
@@ -52,7 +48,7 @@ public class PublicUtil {
 		return objectMapper.readValue(str, Map.class);
 	}
 
-	public static <T> T strToObject(String str,Class<T> classzz) throws  IOException{
+	public static <T> T strToObject(String str,Class<T> classzz) throws IOException{
 		if(str ==null){
 			return null;
 		}
@@ -61,20 +57,15 @@ public class PublicUtil {
 	}
 
 
-    public static <T> T jsonStrToObjectWithOutNull(String jsonStr, Class<T> clazz) throws JsonParseException, JsonMappingException, JsonGenerationException, IOException {
-        JSONObject origin = JSONObject.parseObject(jsonStr);
-        JSONObject change = new JSONObject();
-        for (String key : origin.keySet()) {
-            if (null != origin.get(key)) {
-                change.put(key, origin.get(key));
-            }
-        }
-        return objectMapper.readValue(change.toJSONString(), clazz);
+    public static <T> T jsonStrToObjectWithOutNull(String jsonStr, Class<T> clazz) throws IOException {
+		Map<String, Object> origin = objectMapper.readValue(jsonStr, Map.class);
+		origin.entrySet().removeIf(item -> (null == item.getValue()));
+        return objectMapper.readValue(objectMapper.writeValueAsBytes(origin), clazz);
     }
 
 
     @SuppressWarnings("unchecked")
-	public static Map<String,Object> objectToMap(Object obj) throws JsonParseException, JsonMappingException, JsonGenerationException, IOException{
+	public static Map<String,Object> objectToMap(Object obj) throws IOException{
 
 		return objectMapper.readValue(objectMapper.writeValueAsBytes(obj), Map.class);
 	}
