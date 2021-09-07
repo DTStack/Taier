@@ -111,5 +111,6 @@ export default class PanelExtension implements IExtension {
             name: '日志',
             renderPane: () => <Markdown />,
         });
+        molecule.panel.setActive(OUTPUT_LOG);
     }
 }

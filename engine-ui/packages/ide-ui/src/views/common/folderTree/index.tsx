@@ -4,7 +4,7 @@ import { FileTypes, IExtension, TreeNodeModel } from 'molecule/esm/model';
 import { localize } from 'molecule/esm/i18n/localize';
 import molecule from 'molecule/esm';
 import Open from '../../task/open';
-import { resetEditorGroup, updateStatusBarLanguage } from '../utils';
+import { resetEditorGroup } from '../utils';
 import DataSync from '../../dataSync';
 import ajax from '../../../api';
 import { TASK_TYPE } from '../../../comm/const';
@@ -15,6 +15,7 @@ import { editorAction } from '../../../controller/editor/actionTypes';
 import { cloneDeep } from 'lodash';
 import functionManagerService from '../../../services/functionManagerService';
 import resourceManagerService from '../../../services/resourceManagerService';
+import { getStatusBarLanguage, updateStatusBarLanguage } from '../statusBar';
 
 function convertToTreeNode(data: any[]) {
     if (!data) {
@@ -326,12 +327,7 @@ function onSelectFile() {
         }
 
         molecule.explorer.forceUpdate();
-        file.data.taskType &&
-            updateStatusBarLanguage({
-                id: 'language',
-                sortIndex: 3,
-                name: file.data.taskType,
-            });
+        updateStatusBarLanguage(getStatusBarLanguage(file.data.taskType));
     });
 }
 
@@ -353,7 +349,7 @@ function onRemove() {
 
 function contextMenu() {
     molecule.folderTree.onContextMenu((treeNode, menu) => {
-        switch (menu.id) {
+        switch (menu!.id) {
             case FOLDERTREE_CONTEXT_EDIT: {
                 resetEditorGroup();
 
