@@ -1,7 +1,5 @@
 package com.dtstack.engine.common.enums;
 
-import com.dtstack.schedule.common.enums.DataSourceType;
-
 import java.util.Objects;
 
 /**

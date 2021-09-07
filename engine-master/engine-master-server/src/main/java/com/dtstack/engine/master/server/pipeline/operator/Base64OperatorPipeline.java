@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.server.pipeline.operator;
 
 import com.dtstack.engine.master.server.pipeline.IPipeline;
-import com.dtstack.schedule.common.util.Base64Util;
+import com.dtstack.engine.common.util.Base64Util;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Map;

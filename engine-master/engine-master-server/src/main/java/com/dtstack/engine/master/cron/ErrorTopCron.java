@@ -2,7 +2,6 @@ package com.dtstack.engine.master.cron;
 
 import com.dtstack.engine.api.domain.ScheduleJobFailed;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.vo.JobTopErrorVO;
 import com.dtstack.engine.common.enums.EScheduleType;
@@ -10,7 +9,7 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.dao.*;
-import com.dtstack.schedule.common.enums.AppType;
+import com.dtstack.engine.common.enums.AppType;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.joda.time.DateTime;

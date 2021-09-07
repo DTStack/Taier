@@ -10,7 +10,6 @@ import com.dtstack.engine.master.anno.DatabaseInsertOperation;
 import com.dtstack.engine.master.anno.IgnoreUniqueRandomSet;
 import com.dtstack.engine.master.utils.DataCollectionProxy;
 import com.dtstack.engine.master.utils.Template;
-import com.dtstack.schedule.common.enums.DataSourceType;
 import org.joda.time.DateTime;
 
 import java.lang.reflect.Proxy;

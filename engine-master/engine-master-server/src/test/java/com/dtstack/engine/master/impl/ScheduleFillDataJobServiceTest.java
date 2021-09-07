@@ -1,10 +1,9 @@
 package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.api.domain.ScheduleFillDataJob;
-import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.engine.master.dataCollection.DataCollection;
-import com.dtstack.schedule.common.enums.AppType;
+import com.dtstack.engine.common.enums.AppType;
 import org.apache.commons.collections.CollectionUtils;
 import org.assertj.core.util.Lists;
 import org.junit.Assert;

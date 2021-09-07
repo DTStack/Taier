@@ -10,8 +10,8 @@ import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.MD5Util;
 import com.dtstack.engine.api.domain.AlertChannel;
 import com.dtstack.engine.api.domain.AlertRecord;
-import com.dtstack.schedule.common.enums.AppType;
-import com.dtstack.schedule.common.enums.DataSourceType;
+import com.dtstack.engine.common.enums.AppType;
+import com.dtstack.engine.common.enums.DataSourceType;
 
 import java.sql.Timestamp;
 import java.util.UUID;

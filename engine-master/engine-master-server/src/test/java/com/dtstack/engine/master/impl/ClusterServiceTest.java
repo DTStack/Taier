@@ -23,7 +23,7 @@ import com.dtstack.engine.master.jobdealer.resource.ComputeResourceType;
 import com.dtstack.engine.master.jobdealer.resource.FlinkResource;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.utils.Template;
-import com.dtstack.schedule.common.enums.AppType;
+import com.dtstack.engine.common.enums.AppType;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;

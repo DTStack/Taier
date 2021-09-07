@@ -4,7 +4,6 @@ import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.rdbs.common.AbstractRdbsClient;
 import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
-import com.dtstack.schedule.common.jdbc.JdbcUrlPropertiesValue;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +20,8 @@ public class ImpalaClient extends AbstractRdbsClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImpalaClient.class);
 
+    public static final int MAX_ROWS = 5000;
+
     @Override
     protected AbstractConnFactory getConnFactory() {
         return new ImpalaConnFactory();
@@ -30,11 +31,10 @@ public class ImpalaClient extends AbstractRdbsClient {
     public List<Column> getAllColumns(String tableName,String schemaName, String dbName) {
 
         List<Column> columns = new ArrayList<>();
-        int maxRows = JdbcUrlPropertiesValue.MAX_ROWS;
         ResultSet res = null;
         try(Connection conn = connFactory.getConn();
             Statement statement = conn.createStatement()){
-            statement.setMaxRows(maxRows);
+            statement.setMaxRows(MAX_ROWS);
             statement.execute("use "+ dbName);
             //首先判断是否是kudu表 是kudu表直接用主键代替 isPart
             res = statement.executeQuery("DESCRIBE " + tableName);

@@ -2,7 +2,7 @@ package com.dtstack.engine.common.util;
 
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.schedule.common.enums.EScheduleJobType;
+import com.dtstack.engine.common.enums.EScheduleJobType;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;

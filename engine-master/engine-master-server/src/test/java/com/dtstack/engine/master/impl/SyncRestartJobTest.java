@@ -10,7 +10,7 @@ import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.utils.Template;
-import com.dtstack.schedule.common.enums.EScheduleJobType;
+import com.dtstack.engine.common.enums.EScheduleJobType;
 import org.assertj.core.util.Lists;
 import org.joda.time.DateTime;
 import org.junit.Assert;

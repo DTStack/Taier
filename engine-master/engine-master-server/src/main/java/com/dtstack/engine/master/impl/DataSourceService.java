@@ -15,7 +15,7 @@ import com.dtstack.engine.dao.KerberosDao;
 import com.dtstack.engine.datasource.facade.datasource.ApiServiceFacade;
 import com.dtstack.engine.datasource.param.datasource.api.EditConsoleParam;
 import com.dtstack.engine.datasource.vo.datasource.api.DsServiceInfoVO;
-import com.dtstack.schedule.common.enums.DataSourceType;
+import com.dtstack.engine.common.enums.DataSourceType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

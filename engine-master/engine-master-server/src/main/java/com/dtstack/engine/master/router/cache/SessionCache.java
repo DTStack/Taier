@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.router.cache;
 
-import com.dtstack.schedule.common.enums.AppType;
+import com.dtstack.engine.common.enums.AppType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.google.common.cache.CacheBuilder;

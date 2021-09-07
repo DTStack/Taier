@@ -1,6 +1,6 @@
 package com.dtstack.engine.lineage.enums;
 
-import com.dtstack.schedule.common.enums.DataSourceType;
+import com.dtstack.engine.common.enums.DataSourceType;
 import com.dtstack.sqlparser.common.client.enums.ETableType;
 import com.google.common.collect.Sets;
 

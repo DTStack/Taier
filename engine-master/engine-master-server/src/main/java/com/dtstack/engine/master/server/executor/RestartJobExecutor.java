@@ -8,7 +8,7 @@ import com.dtstack.engine.common.enums.OperatorType;
 import com.dtstack.engine.dao.ScheduleJobOperatorRecordDao;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.impl.ScheduleJobService;
-import com.dtstack.schedule.common.enums.Restarted;
+import com.dtstack.engine.common.enums.Restarted;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

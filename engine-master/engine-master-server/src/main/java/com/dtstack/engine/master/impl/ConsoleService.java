@@ -28,7 +28,7 @@ import com.dtstack.engine.master.PluginWrapper;
 import com.dtstack.engine.master.server.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.impl.vo.ResourceTemplateVO;
 import com.dtstack.engine.master.zookeeper.ZkService;
-import com.dtstack.schedule.common.enums.ForceCancelFlag;
+import com.dtstack.engine.common.enums.ForceCancelFlag;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;

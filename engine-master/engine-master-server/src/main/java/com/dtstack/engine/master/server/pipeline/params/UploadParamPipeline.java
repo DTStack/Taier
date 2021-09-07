@@ -9,7 +9,7 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.WorkerOperator;
 import com.dtstack.engine.master.server.pipeline.IPipeline;
 import com.dtstack.engine.master.server.scheduler.JobParamReplace;
-import com.dtstack.schedule.common.enums.EScheduleJobType;
+import com.dtstack.engine.common.enums.EScheduleJobType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;

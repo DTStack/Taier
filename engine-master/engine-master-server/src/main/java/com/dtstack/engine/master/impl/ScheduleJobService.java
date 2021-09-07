@@ -50,7 +50,6 @@ import com.dtstack.engine.master.impl.vo.JobChartDataVO;
 import com.dtstack.engine.master.impl.vo.ScheduleJobVO;
 import com.dtstack.engine.master.impl.vo.ScheduleTaskVO;
 import com.dtstack.engine.master.zookeeper.ZkService;
-import com.dtstack.schedule.common.enums.*;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

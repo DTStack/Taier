@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.config;
 
 import com.dtstack.engine.master.impl.vo.ResourceTemplateVO;
-import com.dtstack.schedule.common.enums.EScheduleJobType;
+import com.dtstack.engine.common.enums.EScheduleJobType;
 
 import java.util.ArrayList;
 import java.util.HashMap;

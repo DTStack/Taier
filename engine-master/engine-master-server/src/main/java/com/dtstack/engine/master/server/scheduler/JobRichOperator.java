@@ -20,7 +20,6 @@ import com.dtstack.engine.master.server.scheduler.parser.ESchedulePeriodType;
 import com.dtstack.engine.master.server.scheduler.parser.ScheduleCron;
 import com.dtstack.engine.master.server.scheduler.parser.ScheduleFactory;
 import com.dtstack.engine.master.utils.JobGraphUtils;
-import com.dtstack.schedule.common.enums.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;

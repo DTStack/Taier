@@ -11,7 +11,7 @@ import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.queue.OrderObject;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.schedule.common.enums.EScheduleJobType;
+import com.dtstack.engine.common.enums.EScheduleJobType;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;

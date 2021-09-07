@@ -15,7 +15,7 @@ import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ScheduleDictService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.impl.TaskParamsService;
-import com.dtstack.schedule.common.enums.Deleted;
+import com.dtstack.engine.common.enums.Deleted;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;

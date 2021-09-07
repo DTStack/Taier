@@ -47,7 +47,7 @@ import com.dtstack.engine.master.server.multiengine.engine.HadoopJobStartTrigger
 import com.dtstack.engine.master.utils.Template;
 import com.dtstack.engine.master.utils.ValueUtils;
 import com.dtstack.engine.master.impl.vo.ScheduleJobVO;
-import com.dtstack.schedule.common.enums.EScheduleJobType;
+import com.dtstack.engine.common.enums.EScheduleJobType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.util.Lists;

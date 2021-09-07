@@ -8,7 +8,7 @@ import com.dtstack.engine.api.enums.ScheduleEngineType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.master.server.multiengine.JobStartTriggerBase;
-import com.dtstack.schedule.common.util.TimeParamOperator;
+import com.dtstack.engine.common.util.TimeParamOperatorUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.joda.time.DateTime;
@@ -67,7 +67,7 @@ public class KylinJobStartTrigger extends JobStartTriggerBase {
             }
             //cycTime转化为对应的时间格式
             String paramCommand = taskParamsToReplace.get(0).getParamCommand();
-            String transform = TimeParamOperator.transform(paramCommand, scheduleJob.getCycTime());
+            String transform = TimeParamOperatorUtil.transform(paramCommand, scheduleJob.getCycTime());
             //其中kylinUI上默认的时间是8点整。startTime 和endTime都需要是每天的8点整的毫秒数
             DateTimeFormatter yyyyMMdd = DateTimeFormat.forPattern("yyyyMMdd");
             startTime = DateTime.parse(transform, yyyyMMdd).plusHours(8).getMillis();
