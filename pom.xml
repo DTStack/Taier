@@ -36,7 +36,6 @@
         <module>engine-datadevelop</module>
         <module>engine-ui</module>
         <module>engine-worker</module>
-        <module>engine-worker/engine-plugin-api</module>
     </modules>
 
     <dependencyManagement>

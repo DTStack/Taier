@@ -29,7 +29,6 @@ import com.dtstack.batch.vo.ExecuteSqlParseVO;
 import com.dtstack.dtcenter.common.enums.*;
 import com.dtstack.dtcenter.common.util.Base64Util;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
-import com.dtstack.engine.api.ApiURL;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -90,6 +89,12 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
     private static final String FILES_ARG = "--files";
 
     private static final String CMD_OPT = "--cmd-opts";
+
+    /**
+     * jobId 占位标识符
+     */
+    private static final String JOB_ID = "${jobId}";
+    private static final String UPLOADPATH = "${uploadPath}";
 
 
     /**
@@ -310,7 +315,7 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
             //替换系统参数
             batchTaskParamService.checkParams(batchTask.getSqlText(), taskParamsToReplace);
             taskExeArgs = buildExeArgs(dtuicTenantId, batchTask.getExeArgs(), batchTask.getTaskType(), batchTask.getEngineType(), batchTask.getName(),
-                    batchTask.getSqlText(), resourceList, extResourceList, batchTask.getTenantId(), batchTask.getProjectId(), ApiURL.JOB_ID,
+                    batchTask.getSqlText(), resourceList, extResourceList, batchTask.getTenantId(), batchTask.getProjectId(), JOB_ID,
                     batchTask.getCreateUserId(), taskParamsToReplace);
             if (batchTask.getEngineType().equals(EngineType.Spark.getVal())){
                 if (CollectionUtils.isNotEmpty(resourceList) && StringUtils.isBlank(resourceList.get(0).getUrl())){
@@ -448,9 +453,9 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
             // 资源模式 获取资源的路径
             fileDir = generateResource(resourceList);
         } else {
-            if (ApiURL.JOB_ID.equals(jobId)) {
+            if (JOB_ID.equals(jobId)) {
                 // web编辑 模式 需要 到task 替换参数之后 在上传 这里先用占位符
-                fileDir = ApiURL.UPLOADPATH;
+                fileDir = UPLOADPATH;
             } else {
                 // 临时运行
                 fileDir = uploadSqlTextToHdfs(dtuicTenantId, content, taskType, taskName, tenantId, projectId);
