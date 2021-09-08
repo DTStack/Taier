@@ -65,7 +65,7 @@ public class MybatisConfig {
     public SqlSessionFactory sqlSessionFactory() throws Exception {
         MybatisSqlSessionFactoryBean sqlSessionFactoryBean = new MybatisSqlSessionFactoryBean();
         sqlSessionFactoryBean.setDataSource(dataSource());
-        sqlSessionFactoryBean.setTypeAliasesPackage("com.dtstack.engine.api.domain,com.dtstack.engine.api.domain.po,com.dtstack.batch.domain,com.dtstack.engine.datasource.dao.po.datasource");
+        sqlSessionFactoryBean.setTypeAliasesPackage("com.dtstack.engine.domain,com.dtstack.engine.domain.po,com.dtstack.batch.domain,com.dtstack.engine.datasource.dao.po.datasource");
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         Resource[] resourceDash = resolver.getResources(environmentContext.getMybatisMapperLocations());
         Resource[] resources = (Resource[]) ArrayUtils.addAll(resourceDash);

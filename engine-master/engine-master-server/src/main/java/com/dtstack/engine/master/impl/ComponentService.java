@@ -2,20 +2,22 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.Queue;
-import com.dtstack.engine.api.domain.*;
-import com.dtstack.engine.api.dto.ClusterDTO;
-import com.dtstack.engine.api.dto.ComponentDTO;
-import com.dtstack.engine.api.dto.Resource;
-import com.dtstack.engine.api.pojo.ClientTemplate;
+import com.dtstack.engine.domain.Queue;
+import com.dtstack.engine.domain.*;
+import com.dtstack.engine.domain.po.EngineTenantPO;
+import com.dtstack.engine.dto.ClusterDTO;
+import com.dtstack.engine.dto.ComponentDTO;
+import com.dtstack.engine.dto.Resource;
+import com.dtstack.engine.master.impl.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.pojo.DtScriptAgentLabel;
-import com.dtstack.engine.api.pojo.lineage.ComponentMultiTestResult;
-import com.dtstack.engine.api.vo.*;
-import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
-import com.dtstack.engine.api.vo.components.ComponentsResultVO;
-import com.dtstack.engine.api.vo.task.TaskGetSupportJobTypesResultVO;
+import com.dtstack.engine.master.impl.pojo.ComponentMultiTestResult;
+import com.dtstack.engine.master.utils.ComponentConfigUtils;
+import com.dtstack.engine.master.vo.*;
+import com.dtstack.engine.master.vo.components.ComponentsConfigOfComponentsVO;
+import com.dtstack.engine.master.vo.components.ComponentsResultVO;
+import com.dtstack.engine.master.vo.task.TaskGetSupportJobTypesResultVO;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.*;
@@ -232,11 +234,11 @@ public class ComponentService {
         clusterService.clearStandaloneCache();
         Set<Long> dtUicTenantIds = new HashSet<>();
         if ( null != componentCode && EComponentType.sqlComponent.contains(EComponentType.getByCode(componentCode))) {
-            List<EngineTenantVO> tenantVOS = engineTenantDao.listEngineTenant(engineId);
-            if (CollectionUtils.isNotEmpty(tenantVOS)) {
-                for (EngineTenantVO tenantVO : tenantVOS) {
-                    if (null != tenantVO && null != tenantVO.getTenantId()) {
-                        dtUicTenantIds.add(tenantVO.getTenantId());
+            List<EngineTenantPO> engineTenantPOs = engineTenantDao.listEngineTenant(engineId);
+            if (CollectionUtils.isNotEmpty(engineTenantPOs)) {
+                for (EngineTenantPO engineTenantPO : engineTenantPOs) {
+                    if (null != engineTenantPO && null != engineTenantPO.getTenantId()) {
+                        dtUicTenantIds.add(engineTenantPO.getTenantId());
                     }
                 }
             }

@@ -1,13 +1,13 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.Queue;
-import com.dtstack.engine.api.domain.*;
-import com.dtstack.engine.api.dto.ClusterDTO;
-import com.dtstack.engine.api.pager.PageQuery;
-import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.domain.Queue;
+import com.dtstack.engine.domain.*;
+import com.dtstack.engine.dto.ClusterDTO;
+import com.dtstack.engine.common.pager.PageQuery;
+import com.dtstack.engine.common.pager.PageResult;
 import com.dtstack.engine.api.pojo.ParamAction;
-import com.dtstack.engine.api.vo.*;
+import com.dtstack.engine.master.vo.*;
 import com.dtstack.engine.common.constrant.ComponentConstant;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.*;
@@ -51,7 +51,7 @@ import static com.dtstack.engine.common.constrant.ConfigConstant.*;
 import static java.lang.String.format;
 
 @Service
-public class ClusterService implements com.dtstack.engine.api.service.ClusterService, InitializingBean {
+public class ClusterService implements com.dtstack.engine.api.ClusterService, InitializingBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClusterService.class);
 

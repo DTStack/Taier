@@ -1,10 +1,9 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.engine.api.domain.Tenant;
+import com.dtstack.engine.domain.Tenant;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 
 public interface TenantDao {

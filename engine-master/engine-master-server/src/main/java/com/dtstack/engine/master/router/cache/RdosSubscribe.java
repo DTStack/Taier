@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.router.cache;
 
-import com.dtstack.engine.api.vo.Pair;
+import com.dtstack.engine.master.vo.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.connection.Message;

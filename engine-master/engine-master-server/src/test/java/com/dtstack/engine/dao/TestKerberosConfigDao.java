@@ -1,6 +1,6 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.engine.api.domain.KerberosConfig;
+import com.dtstack.engine.domain.KerberosConfig;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;

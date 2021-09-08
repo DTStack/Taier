@@ -1,11 +1,11 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.domain.Component;
-import com.dtstack.engine.api.domain.Engine;
-import com.dtstack.engine.api.domain.EngineTenant;
-import com.dtstack.engine.api.domain.Tenant;
-import com.dtstack.engine.api.vo.ComponentVO;
-import com.dtstack.engine.api.vo.components.ComponentsResultVO;
+import com.dtstack.engine.domain.Component;
+import com.dtstack.engine.domain.Engine;
+import com.dtstack.engine.domain.EngineTenant;
+import com.dtstack.engine.domain.Tenant;
+import com.dtstack.engine.master.vo.ComponentVO;
+import com.dtstack.engine.master.vo.components.ComponentsResultVO;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.dao.ComponentDao;
 import com.dtstack.engine.dao.EngineDao;

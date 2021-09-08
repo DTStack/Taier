@@ -1,10 +1,10 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.dto.ScheduleTaskForFillDataDTO;
-import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
-import com.dtstack.engine.api.pager.PageQuery;
-import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
+import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.domain.po.ScheduleTaskShadeCountTaskPO;
+import com.dtstack.engine.dto.ScheduleTaskForFillDataDTO;
+import com.dtstack.engine.dto.ScheduleTaskShadeDTO;
+import com.dtstack.engine.common.pager.PageQuery;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Collection;
@@ -25,7 +25,7 @@ public interface ScheduleTaskShadeDao {
 
     Integer countTaskByStatus(@Param("submitStatus") Integer submitStatus, @Param("projectScheduleStatus") Integer projectScheduleStatus,@Param("projectIds")Collection<Long> projectIds, @Param("appType")Integer appType);
 
-    List<ScheduleTaskShadeCountTaskVO> countTaskByType(@Param("tenantId") Long tenantId, @Param("dtuicTenantId") Long dtuicTenantId, @Param("projectIds")List<Long> projectIds, @Param("appType")Integer appType, @Param("taskTypes")List<Integer> taskTypes,
+    List<ScheduleTaskShadeCountTaskPO> countTaskByType(@Param("tenantId") Long tenantId, @Param("dtuicTenantId") Long dtuicTenantId, @Param("projectIds")List<Long> projectIds, @Param("appType")Integer appType, @Param("taskTypes")List<Integer> taskTypes,
                                                        @Param("flowId") Long flowId);
 
     List<ScheduleTaskShade> listByTaskIds(@Param("taskIds") Collection<Long> taskIds, @Param("isDeleted") Integer isDeleted, @Param("appType")Integer appType);

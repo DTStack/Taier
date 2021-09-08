@@ -1,8 +1,8 @@
 package com.dtstack.engine.master.jobdealer;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.common.BlockCallerPolicy;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;

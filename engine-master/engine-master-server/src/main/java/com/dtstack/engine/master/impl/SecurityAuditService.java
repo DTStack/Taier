@@ -1,8 +1,8 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.vo.security.ApiOperateTypeVO;
-import com.dtstack.engine.api.vo.security.SecurityLogVO;
+import com.dtstack.engine.common.pager.PageResult;
+import com.dtstack.engine.master.vo.security.ApiOperateTypeVO;
+import com.dtstack.engine.master.vo.security.SecurityLogVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 

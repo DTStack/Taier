@@ -1,8 +1,8 @@
 package com.dtstack.engine.master.impl.restartAsync;
 
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.ScheduleJobOperatorRecord;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.domain.ScheduleJobOperatorRecord;
+import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.common.enums.OperatorType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.env.EnvironmentContext;

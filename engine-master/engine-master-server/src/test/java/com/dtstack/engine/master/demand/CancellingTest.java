@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.demand;
 
-import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;

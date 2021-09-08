@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.domain.JobGraphTrigger;
+import com.dtstack.engine.domain.JobGraphTrigger;
 import com.dtstack.engine.master.AbstractTest;
 import org.joda.time.DateTime;
 import org.junit.Assert;

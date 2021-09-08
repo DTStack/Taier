@@ -3,12 +3,14 @@ package com.dtstack.engine.master.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.*;
-import com.dtstack.engine.api.pager.PageQuery;
-import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.pojo.lineage.ComponentMultiTestResult;
-import com.dtstack.engine.api.vo.EngineTenantVO;
-import com.dtstack.engine.api.vo.tenant.TenantResourceVO;
+import com.dtstack.engine.domain.*;
+import com.dtstack.engine.common.pager.PageQuery;
+import com.dtstack.engine.common.pager.PageResult;
+import com.dtstack.engine.domain.po.EngineTenantPO;
+import com.dtstack.engine.master.impl.pojo.ComponentMultiTestResult;
+import com.dtstack.engine.master.mapstruct.EngineTenantStruct;
+import com.dtstack.engine.master.vo.EngineTenantVO;
+import com.dtstack.engine.master.vo.tenant.TenantResourceVO;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.env.EnvironmentContext;
@@ -71,6 +73,9 @@ public class TenantService {
     @Autowired
     private ComponentService componentService;
 
+    @Autowired
+    private EngineTenantStruct engineTenantStruct;
+
     public PageResult<List<EngineTenantVO>> pageQuery( Long clusterId,
                                                        Integer engineType,
                                                        String tenantName,
@@ -112,27 +117,30 @@ public class TenantService {
         if(null == engineTenant){
             return Collections.EMPTY_LIST;
         }
-        List<EngineTenantVO> engineTenantVOS = engineTenantDao.listEngineTenant(engineTenant.getEngineId());
-        if(CollectionUtils.isEmpty(engineTenantVOS)){
-            return engineTenantVOS;
+        List<EngineTenantPO> engineTenantPOs = engineTenantDao.listEngineTenant(engineTenant.getEngineId());
+
+        if(CollectionUtils.isEmpty(engineTenantPOs)){
+            return Collections.EMPTY_LIST;
         }
-        fillQueue(engineTenantVOS);
-        return engineTenantVOS;
+
+        List<EngineTenantVO> engineTenantVOs = engineTenantStruct.toEngineTenantVOs(engineTenantPOs);
+        fillQueue(engineTenantVOs);
+        return engineTenantVOs;
     }
 
     private void fillQueue(List<EngineTenantVO> engineTenantVOS){
 
         List<Long> queueIds = engineTenantVOS.stream().filter(v -> v.getQueueId() != null).map(EngineTenantVO::getQueueId).collect(Collectors.toList());
-        Map<Long, com.dtstack.engine.api.domain.Queue> queueMap = new HashMap<>(16);
-        List<com.dtstack.engine.api.domain.Queue> queueList = queueDao.listByIds(queueIds);
-        for (com.dtstack.engine.api.domain.Queue queue : queueList) {
+        Map<Long, com.dtstack.engine.domain.Queue> queueMap = new HashMap<>(16);
+        List<com.dtstack.engine.domain.Queue> queueList = queueDao.listByIds(queueIds);
+        for (com.dtstack.engine.domain.Queue queue : queueList) {
             queueMap.put(queue.getId(), queue);
         }
         for (EngineTenantVO engineTenantVO : engineTenantVOS) {
             if(engineTenantVO.getQueueId() == null){
                 continue;
             }
-            com.dtstack.engine.api.domain.Queue queue = queueMap.get(engineTenantVO.getQueueId());
+            com.dtstack.engine.domain.Queue queue = queueMap.get(engineTenantVO.getQueueId());
             if(queue == null){
                 continue;
             }
@@ -277,7 +285,7 @@ public class TenantService {
     @Transactional(rollbackFor = Exception.class)
     public void bindingQueue( Long queueId,
                               Long dtUicTenantId,String taskTypeResourceJson) {
-        com.dtstack.engine.api.domain.Queue queue = queueDao.getOne(queueId);
+        com.dtstack.engine.domain.Queue queue = queueDao.getOne(queueId);
         if (queue == null) {
             throw new RdosDefineException("Queue does not exist", ErrorCode.DATA_NOT_FIND);
         }
@@ -338,7 +346,7 @@ public class TenantService {
     * @Description 根据租户id查询租户设置的任务资源限制信息
     * @Date 5:26 下午 2020/10/15
     * @Param [dtUicTenantId]
-    * @retrun java.util.List<com.dtstack.engine.api.vo.tenant.TenantResourceVO>
+    * @retrun java.util.List<com.dtstack.engine.master.vo.tenant.TenantResourceVO>
     **/
     public List<TenantResourceVO> queryTaskResourceLimits(Long dtUicTenantId) {
 

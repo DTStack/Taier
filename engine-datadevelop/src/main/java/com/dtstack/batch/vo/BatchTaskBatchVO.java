@@ -1,14 +1,14 @@
 package com.dtstack.batch.vo;
 
 import com.dtstack.batch.domain.BatchResource;
-import com.dtstack.engine.api.domain.BatchTask;
+import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.batch.domain.BatchTaskVersionDetail;
 import com.dtstack.batch.dto.BatchTaskForFillDataDTO;
 import com.dtstack.batch.parser.ESchedulePeriodType;
 import com.dtstack.batch.parser.ScheduleCron;
 import com.dtstack.batch.parser.ScheduleFactory;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.vo.ScheduleTaskVO;
+import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.master.vo.ScheduleTaskVO;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

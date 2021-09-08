@@ -19,17 +19,17 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.ScheduleJobJob;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
-import com.dtstack.engine.api.dto.QueryJobDTO;
-import com.dtstack.engine.api.dto.ScheduleJobDTO;
-import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.vo.*;
-import com.dtstack.engine.api.vo.action.ActionLogVO;
-import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
-import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.domain.ScheduleJobJob;
+import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.domain.ScheduleTaskTaskShade;
+import com.dtstack.engine.dto.QueryJobDTO;
+import com.dtstack.engine.dto.ScheduleJobDTO;
+import com.dtstack.engine.common.pager.PageResult;
+import com.dtstack.engine.master.vo.*;
+import com.dtstack.engine.master.vo.action.ActionLogVO;
+import com.dtstack.engine.master.vo.schedule.job.ScheduleJobScienceJobStatusVO;
+import com.dtstack.engine.master.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.common.enums.EScheduleType;
@@ -719,7 +719,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
         queryJobDTO.setProjectId(scheduleTaskShade.getProjectId());
         queryJobDTO.setAppType(scheduleTaskShade.getAppType());
         queryJobDTO.setJobStatuses(Arrays.stream(RdosTaskStatus.values()).map(RdosTaskStatus::getStatus).map(String::valueOf).collect(Collectors.joining(",")));
-        PageResult<List<com.dtstack.engine.api.vo.ScheduleJobVO>> listPageResult = null;
+        PageResult<List<com.dtstack.engine.master.vo.ScheduleJobVO>> listPageResult = null;
         try {
             listPageResult = scheduleJobService.queryJobs(queryJobDTO);
         } catch (Exception e) {
@@ -768,7 +768,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
         ScheduleJobDTO scheduleJobDTO = new ScheduleJobDTO();
         scheduleJobDTO.setAppType(scheduleTaskShade.getAppType());
         scheduleJobDTO.setTaskId(scheduleTaskShade.getTaskId());
-        List<com.dtstack.engine.api.vo.ScheduleJobVO> scheduleJobVOS = scheduleJobService.minOrHourJobQuery(scheduleJobDTO);
+        List<com.dtstack.engine.master.vo.ScheduleJobVO> scheduleJobVOS = scheduleJobService.minOrHourJobQuery(scheduleJobDTO);
         Assert.assertNotNull(scheduleJobVOS);
         Assert.assertTrue(scheduleJobVOS.stream().anyMatch(v -> v.getTaskId() == scheduleTaskShade.getTaskId()));
         ScheduleJobStatusVO statusCount = scheduleJobService.getStatusCount(scheduleTaskShade.getProjectId(), null, scheduleTaskShade.getAppType(), scheduleTaskShade.getDtuicTenantId());

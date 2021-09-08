@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.domain.BaseEntity;
-import com.dtstack.engine.api.domain.Queue;
+import com.dtstack.engine.domain.BaseEntity;
+import com.dtstack.engine.domain.Queue;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.QueueDao;

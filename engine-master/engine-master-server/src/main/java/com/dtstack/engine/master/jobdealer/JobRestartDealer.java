@@ -1,8 +1,8 @@
 package com.dtstack.engine.master.jobdealer;
 
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.api.domain.EngineJobCheckpoint;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.domain.EngineJobCheckpoint;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.EJobType;

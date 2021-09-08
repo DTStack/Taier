@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.utils;
 
-import com.dtstack.engine.api.annotation.Unique;
-import com.dtstack.engine.api.domain.DataObject;
+import com.dtstack.engine.common.annotation.Unique;
+import com.dtstack.engine.domain.DataObject;
 import com.dtstack.engine.master.anno.DatabaseInsertOperation;
 import com.dtstack.engine.master.anno.IgnoreUniqueRandomSet;
 import com.dtstack.engine.master.dataCollection.DataCollection;

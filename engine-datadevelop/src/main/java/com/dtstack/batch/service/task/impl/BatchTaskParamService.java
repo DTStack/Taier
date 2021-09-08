@@ -15,7 +15,7 @@ import com.dtstack.batch.sync.job.SyncJob;
 import com.dtstack.dtcenter.common.enums.EParamType;
 import com.dtstack.dtcenter.common.util.MathUtil;
 import com.dtstack.dtcenter.common.util.PublicUtil;
-import com.dtstack.engine.api.vo.ScheduleTaskVO;
+import com.dtstack.engine.master.vo.ScheduleTaskVO;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;

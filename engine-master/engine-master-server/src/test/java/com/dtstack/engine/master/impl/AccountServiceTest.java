@@ -1,13 +1,13 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.domain.Tenant;
-import com.dtstack.engine.api.domain.User;
-import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.domain.Tenant;
+import com.dtstack.engine.domain.User;
+import com.dtstack.engine.common.pager.PageResult;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
-import com.dtstack.engine.api.vo.AccountTenantVo;
-import com.dtstack.engine.api.vo.AccountVo;
-import com.dtstack.engine.api.vo.ClusterVO;
-import com.dtstack.engine.api.vo.user.UserVO;
+import com.dtstack.engine.master.vo.AccountTenantVo;
+import com.dtstack.engine.master.vo.AccountVo;
+import com.dtstack.engine.master.vo.ClusterVO;
+import com.dtstack.engine.master.vo.user.UserVO;
 import com.dtstack.engine.common.client.ClientOperator;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.MultiEngineType;

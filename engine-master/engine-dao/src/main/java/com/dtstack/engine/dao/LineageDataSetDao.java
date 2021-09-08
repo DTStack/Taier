@@ -1,6 +1,6 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.engine.api.domain.LineageDataSetInfo;
+import com.dtstack.engine.domain.LineageDataSetInfo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -28,7 +28,7 @@ public interface LineageDataSetDao {
      * @Description 根据id查询表信息
      * @Date 2020/11/11 5:12 下午
      * @param id:
-     * @return: com.dtstack.engine.api.domain.LineageDataSetInfo
+     * @return: com.dtstack.engine.domain.LineageDataSetInfo
      **/
     LineageDataSetInfo getOneById(Long id);
 
@@ -37,7 +37,7 @@ public interface LineageDataSetDao {
      * @Description 根据ids批量查询表信息
      * @Date 2020/11/11 5:15 下午
      * @param ids:
-     * @return: com.dtstack.engine.api.domain.LineageDataSetInfo
+     * @return: com.dtstack.engine.domain.LineageDataSetInfo
      **/
     List<LineageDataSetInfo> getDataSetListByIds(@Param("ids") List<Long> ids);
 

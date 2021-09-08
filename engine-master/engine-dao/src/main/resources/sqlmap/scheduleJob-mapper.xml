@@ -558,7 +558,7 @@
         group by status
     </select>
 
-    <select id="countByStatusAndTypeProjectIds" resultType="com.dtstack.engine.api.pojo.ScheduleJobCount">
+    <select id="countByStatusAndTypeProjectIds" resultType="com.dtstack.engine.domain.po.ScheduleJobCountPO">
         SELECT project_id,status,COUNT(1) as count
         FROM schedule_job ts
         WHERE ts.is_deleted = 0
@@ -645,7 +645,7 @@
         ORDER BY bj.exec_time desc limit #{pageQuery.start}, #{pageQuery.pageSize}
     </select>
 
-    <select id="listTopErrorByType" resultType="com.dtstack.engine.api.vo.JobTopErrorVO">
+    <select id="listTopErrorByType" resultType="com.dtstack.engine.domain.po.JobTopErrorPO">
         SELECT bj.task_id AS taskId, count(1) as errorCount
         FROM schedule_job bj
         WHERE bj.is_deleted = 0
@@ -669,7 +669,7 @@
         ORDER BY count(1) desc limit #{pageQuery.start}, #{pageQuery.pageSize}
     </select>
 
-    <select id="listTopError" resultType="com.dtstack.engine.api.vo.JobTopErrorVO">
+    <select id="listTopError" resultType="com.dtstack.engine.domain.po.JobTopErrorPO">
         SELECT bj.task_id AS taskId, count(1) as errorCount
         FROM schedule_job bj
         WHERE bj.is_deleted = 0
@@ -797,7 +797,7 @@
         GROUP BY hour
     </select>
 
-    <select id="generalScienceQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="ScheduleJob">
+    <select id="generalScienceQuery" parameterType="com.dtstack.engine.common.pager.PageQuery" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         from (
@@ -890,7 +890,7 @@
         AND is_deleted = 0
     </select>
 
-    <select id="listRuleJobByJobKeys" resultType="com.dtstack.engine.api.domain.ScheduleJob">
+    <select id="listRuleJobByJobKeys" resultType="com.dtstack.engine.domain.ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_job bj
@@ -969,7 +969,7 @@
       ,period_type ,left(business_date,8) as groupDate
     </sql>
 
-    <select id="generalQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="ScheduleJob">
+    <select id="generalQuery" parameterType="com.dtstack.engine.common.pager.PageQuery" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_job bj
@@ -987,7 +987,7 @@
 
     </select>
 
-    <select id="minOrHourJobQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="ScheduleJob">
+    <select id="minOrHourJobQuery" parameterType="com.dtstack.engine.common.pager.PageQuery" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         from  schedule_job bj
@@ -1023,7 +1023,7 @@
         limit 1
     </select>
 
-    <select id="generalQueryWithMinAndHour" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="ScheduleJob">
+    <select id="generalQueryWithMinAndHour" parameterType="com.dtstack.engine.common.pager.PageQuery" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         from (
@@ -1879,7 +1879,7 @@
     </select>
 
     <select id="listJobByStatusAddressAndPhaseStatus"
-            resultType="com.dtstack.engine.api.domain.po.SimpleScheduleJobPO">
+            resultType="com.dtstack.engine.domain.po.SimpleScheduleJobPO">
         SELECT id, job_id, type, phase_status
         FROM schedule_job
         WHERE id > #{startId} AND (node_address = #{nodeAddress} or node_address is null)
@@ -1894,7 +1894,7 @@
         order by id asc limit 500
     </select>
 
-    <select id="getSubJobsAndStatusByFlowIdLimit" resultType="com.dtstack.engine.api.domain.ScheduleJob">
+    <select id="getSubJobsAndStatusByFlowIdLimit" resultType="com.dtstack.engine.domain.ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_job bj

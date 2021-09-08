@@ -1,8 +1,8 @@
 package com.dtstack.engine.master.jobdealer.resource;
 
-import com.dtstack.engine.api.domain.Cluster;
-import com.dtstack.engine.api.domain.Queue;
-import com.dtstack.engine.api.enums.ScheduleEngineType;
+import com.dtstack.engine.domain.Cluster;
+import com.dtstack.engine.domain.Queue;
+import com.dtstack.engine.common.enums.ScheduleEngineType;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.env.EnvironmentContext;

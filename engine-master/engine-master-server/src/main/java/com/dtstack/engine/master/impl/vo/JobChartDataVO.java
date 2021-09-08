@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.impl.vo;
 
-import com.dtstack.engine.api.vo.ChartDataVO;
-import com.dtstack.engine.api.vo.ChartMetaDataVO;
+import com.dtstack.engine.master.vo.ChartDataVO;
+import com.dtstack.engine.master.vo.ChartMetaDataVO;
 import org.apache.commons.collections.MapUtils;
 
 import java.time.LocalDateTime;

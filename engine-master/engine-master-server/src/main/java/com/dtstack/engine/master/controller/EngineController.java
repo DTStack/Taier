@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.controller;
 
-import com.dtstack.engine.api.vo.QueueVO;
-import com.dtstack.engine.api.vo.engine.EngineSupportVO;
+import com.dtstack.engine.master.vo.QueueVO;
+import com.dtstack.engine.master.vo.engine.EngineSupportVO;
 import com.dtstack.engine.master.impl.EngineService;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;

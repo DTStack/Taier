@@ -1,13 +1,13 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.ScheduleJobJob;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.dto.ScheduleJobJobDTO;
-import com.dtstack.engine.api.dto.ScheduleJobJobTaskDTO;
-import com.dtstack.engine.api.enums.TaskRuleEnum;
-import com.dtstack.engine.api.vo.ScheduleJobVO;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.domain.ScheduleJobJob;
+import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.dto.ScheduleJobJobDTO;
+import com.dtstack.engine.dto.ScheduleJobJobTaskDTO;
+import com.dtstack.engine.common.enums.TaskRuleEnum;
+import com.dtstack.engine.master.vo.ScheduleJobVO;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ErrorCode;

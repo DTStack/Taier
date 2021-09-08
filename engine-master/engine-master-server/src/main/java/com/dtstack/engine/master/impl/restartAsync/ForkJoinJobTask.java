@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.impl.restartAsync;
 
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.ScheduleJobJob;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.domain.ScheduleJobJob;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.master.utils.JobKeyUtils;

@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.utils;
 
-import com.dtstack.engine.api.vo.Pair;
+import com.dtstack.engine.master.vo.Pair;
 import com.dtstack.engine.common.enums.EComponentType;
 
 import java.util.HashMap;

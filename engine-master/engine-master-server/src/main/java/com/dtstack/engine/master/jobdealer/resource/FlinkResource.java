@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.jobdealer.resource;
 
-import com.dtstack.engine.api.domain.Component;
+import com.dtstack.engine.domain.Component;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EDeployType;

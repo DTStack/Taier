@@ -1,15 +1,15 @@
 package com.dtstack.engine.master.controller;
 
-import com.dtstack.engine.api.domain.Component;
-import com.dtstack.engine.api.domain.KerberosConfig;
-import com.dtstack.engine.api.pojo.ClientTemplate;
+import com.dtstack.engine.domain.Component;
+import com.dtstack.engine.domain.KerberosConfig;
+import com.dtstack.engine.master.impl.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.pojo.DtScriptAgentLabel;
-import com.dtstack.engine.api.pojo.lineage.ComponentMultiTestResult;
-import com.dtstack.engine.api.vo.ComponentUserVO;
-import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
-import com.dtstack.engine.api.vo.components.ComponentsResultVO;
-import com.dtstack.engine.api.vo.task.TaskGetSupportJobTypesResultVO;
+import com.dtstack.engine.master.impl.pojo.ComponentMultiTestResult;
+import com.dtstack.engine.master.vo.ComponentUserVO;
+import com.dtstack.engine.master.vo.components.ComponentsConfigOfComponentsVO;
+import com.dtstack.engine.master.vo.components.ComponentsResultVO;
+import com.dtstack.engine.master.vo.task.TaskGetSupportJobTypesResultVO;
 import com.dtstack.engine.master.impl.ComponentService;
 import org.springframework.web.bind.annotation.RequestParam;
 import io.swagger.annotations.Api;

@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.jobdealer;
 
-import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.jobdealer.bo.JobCompletedInfo;

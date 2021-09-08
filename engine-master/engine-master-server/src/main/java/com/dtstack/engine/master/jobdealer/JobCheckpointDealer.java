@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.jobdealer;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.EngineJobCache;
+import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.common.constrant.JobResultConstant;
 import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
@@ -12,7 +12,7 @@ import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.EngineJobCheckpointDao;
-import com.dtstack.engine.api.domain.EngineJobCheckpoint;
+import com.dtstack.engine.domain.EngineJobCheckpoint;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.WorkerOperator;
 import com.dtstack.engine.master.jobdealer.bo.JobCheckpointInfo;

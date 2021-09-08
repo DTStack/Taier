@@ -1,8 +1,8 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.engine.api.domain.EngineTenant;
-import com.dtstack.engine.api.pager.PageQuery;
-import com.dtstack.engine.api.vo.EngineTenantVO;
+import com.dtstack.engine.domain.EngineTenant;
+import com.dtstack.engine.common.pager.PageQuery;
+import com.dtstack.engine.domain.po.EngineTenantPO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -17,7 +17,7 @@ public interface EngineTenantDao {
 
     Integer generalCount(@Param("engineId") Long engineId, @Param("tenantName") String tenantName);
 
-    List<EngineTenantVO> generalQuery(@Param("query") PageQuery<Object> query, @Param("engineId") Long engineId, @Param("tenantName") String tenantName);
+    List<EngineTenantPO> generalQuery(@Param("query") PageQuery<Object> query, @Param("engineId") Long engineId, @Param("tenantName") String tenantName);
 
     List<EngineTenant> listByEngineIds(@Param("engineIds") List<Long> engineIds);
 
@@ -25,7 +25,7 @@ public interface EngineTenantDao {
 
     Long getQueueIdByTenantId(@Param("tenantId") Long tenantId);
 
-    List<EngineTenantVO> listEngineTenant(Long engineId);
+    List<EngineTenantPO> listEngineTenant(Long engineId);
 
     EngineTenant getByTenantIdAndEngineType(@Param("dtuicTenantId") Long dtuicTenantId, @Param("engineType")Integer engineType);
 

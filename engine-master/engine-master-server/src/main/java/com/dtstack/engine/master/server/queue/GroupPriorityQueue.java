@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.server.queue;
 
-import com.dtstack.engine.api.domain.EngineJobCache;
+import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;

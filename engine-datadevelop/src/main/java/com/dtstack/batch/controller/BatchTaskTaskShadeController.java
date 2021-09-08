@@ -6,7 +6,7 @@ import com.dtstack.batch.web.task.vo.query.BatchScheduleTaskResultVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskTaskGetAllFlowSubTasksVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskTaskShadeAddOrUpdateVO;
 import com.dtstack.dtcenter.common.enums.AppType;
-import com.dtstack.engine.api.vo.ScheduleTaskVO;
+import com.dtstack.engine.master.vo.ScheduleTaskVO;
 import com.dtstack.engine.master.impl.ScheduleTaskTaskShadeService;
 import dt.insight.plat.autoconfigure.web.security.permissions.annotation.Security;
 import dt.insight.plat.lang.coc.template.APITemplate;

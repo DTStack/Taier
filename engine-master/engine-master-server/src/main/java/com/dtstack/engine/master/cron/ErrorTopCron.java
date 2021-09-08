@@ -1,9 +1,10 @@
 package com.dtstack.engine.master.cron;
 
-import com.dtstack.engine.api.domain.ScheduleJobFailed;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.pager.PageQuery;
-import com.dtstack.engine.api.vo.JobTopErrorVO;
+import com.dtstack.engine.domain.ScheduleJobFailed;
+import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.common.pager.PageQuery;
+import com.dtstack.engine.domain.po.JobTopErrorPO;
+import com.dtstack.engine.master.vo.JobTopErrorVO;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.env.EnvironmentContext;
@@ -125,27 +126,27 @@ public class ErrorTopCron implements InitializingBean {
         DateTime yesterdayDate = dateTime.minusDays(1);
         String startCycTime = yesterdayDate.toString("yyyyMMddHHmmss");
         String endCycTime = dateTime.toString("yyyyMMddHHmmss");
-        List<JobTopErrorVO> jobTopErrorVOS = scheduleJobDao.listTopError(uicTenantId, projectId,
+        List<JobTopErrorPO> jobTopErrorPOs = scheduleJobDao.listTopError(uicTenantId, projectId,
                 EScheduleType.NORMAL_SCHEDULE.getType(), startCycTime,endCycTime, FAILED_STATUS, pageQuery, AppType.RDOS.getType());
 
-        if (CollectionUtils.isNotEmpty(jobTopErrorVOS)) {
-            List<ScheduleJobFailed> faileds = buildError(uicTenantId, projectId, yesterdayDate.toDate(), jobTopErrorVOS);
+        if (CollectionUtils.isNotEmpty(jobTopErrorPOs)) {
+            List<ScheduleJobFailed> faileds = buildError(uicTenantId, projectId, yesterdayDate.toDate(), jobTopErrorPOs);
             // 插入top
             scheduleJobFailedDao.insertBatch(faileds);
         }
     }
 
-    private List<ScheduleJobFailed> buildError(Long uicTenantId, Long projectId, Date toDate, List<JobTopErrorVO> jobTopErrorVOS) {
+    private List<ScheduleJobFailed> buildError(Long uicTenantId, Long projectId, Date toDate, List<JobTopErrorPO> jobTopErrorPOs) {
         List<ScheduleJobFailed> faileds = Lists.newArrayList();
 
-        for (JobTopErrorVO jobTopErrorVO : jobTopErrorVOS) {
+        for (JobTopErrorPO jobTopErrorPO : jobTopErrorPOs) {
             ScheduleJobFailed scheduleJobFailed = new ScheduleJobFailed();
             scheduleJobFailed.setAppType(AppType.RDOS.getType());
             scheduleJobFailed.setProjectId(projectId);
             scheduleJobFailed.setUicTenantId(uicTenantId);
             scheduleJobFailed.setGmtCreate(toDate);
-            scheduleJobFailed.setTaskId(jobTopErrorVO.getTaskId());
-            scheduleJobFailed.setErrorCount(jobTopErrorVO.getErrorCount());
+            scheduleJobFailed.setTaskId(jobTopErrorPO.getTaskId());
+            scheduleJobFailed.setErrorCount(jobTopErrorPO.getErrorCount());
             faileds.add(scheduleJobFailed);
         }
 

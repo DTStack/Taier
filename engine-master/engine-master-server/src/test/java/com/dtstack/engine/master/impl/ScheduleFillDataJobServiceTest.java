@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.domain.ScheduleFillDataJob;
-import com.dtstack.engine.api.domain.Tenant;
+import com.dtstack.engine.domain.ScheduleFillDataJob;
+import com.dtstack.engine.domain.Tenant;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.common.enums.AppType;
 import org.apache.commons.collections.CollectionUtils;

@@ -138,7 +138,7 @@
         and cet.tenant_id =  #{tenantId}
         where cc.is_deleted = 0
     </select>
-    <select id="listDefaultByEngineIds" resultType="com.dtstack.engine.api.domain.Component">
+    <select id="listDefaultByEngineIds" resultType="com.dtstack.engine.domain.Component">
         select <include refid="select_content_fragment"/>
         from console_component
         where  is_deleted = 0
@@ -150,7 +150,7 @@
         </if>
         and is_default = 1
     </select>
-    <select id="getNextDefaultComponent" resultType="com.dtstack.engine.api.domain.Component">
+    <select id="getNextDefaultComponent" resultType="com.dtstack.engine.domain.Component">
         SELECT
             cc.id,
             cc.is_default
@@ -189,7 +189,7 @@
         and cc.is_default = 1
         and cc.is_deleted = 0 limit 1
     </select>
-    <select id="getComponentVersionByEngineType" resultType="com.dtstack.engine.api.domain.Component">
+    <select id="getComponentVersionByEngineType" resultType="com.dtstack.engine.domain.Component">
         SELECT
             sd.dict_name as hadoop_version,
             cc.gmt_create,
@@ -229,7 +229,7 @@
     </select>
 
 
-    <select id="getMetadataComponent" resultType="com.dtstack.engine.api.domain.Component">
+    <select id="getMetadataComponent" resultType="com.dtstack.engine.domain.Component">
         SELECT
             c.id,c.engine_id,c.component_name,c.component_type_code,c.gmt_create,c.gmt_modified,c.is_deleted,
             c.hadoop_version,c.upload_file_name,c.kerberos_file_name,c.is_metadata,c.deploy_type

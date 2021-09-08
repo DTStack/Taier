@@ -3,21 +3,24 @@ package com.dtstack.engine.master.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.*;
-import com.dtstack.engine.api.dto.QueryJobDTO;
-import com.dtstack.engine.api.dto.ScheduleJobDTO;
-import com.dtstack.engine.api.dto.ScheduleTaskForFillDataDTO;
-import com.dtstack.engine.api.enums.TaskRuleEnum;
-import com.dtstack.engine.api.pager.PageQuery;
-import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.pojo.ParamActionExt;
-import com.dtstack.engine.api.pojo.ScheduleJobCount;
-import com.dtstack.engine.api.vo.*;
-import com.dtstack.engine.api.vo.action.ActionLogVO;
-import com.dtstack.engine.api.vo.schedule.job.ScheduleJobRuleTimeVO;
-import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
-import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusCountVO;
-import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
+import com.dtstack.engine.domain.*;
+import com.dtstack.engine.domain.po.JobTopErrorPO;
+import com.dtstack.engine.domain.po.ScheduleJobCountPO;
+import com.dtstack.engine.dto.QueryJobDTO;
+import com.dtstack.engine.dto.ScheduleJobDTO;
+import com.dtstack.engine.dto.ScheduleTaskForFillDataDTO;
+import com.dtstack.engine.common.enums.TaskRuleEnum;
+import com.dtstack.engine.common.pager.PageQuery;
+import com.dtstack.engine.common.pager.PageResult;
+import com.dtstack.engine.master.impl.pojo.ParamActionExt;
+import com.dtstack.engine.master.impl.vo.ScheduleJobCountVO;
+import com.dtstack.engine.master.mapstruct.ScheduleJobStruct;
+import com.dtstack.engine.master.vo.*;
+import com.dtstack.engine.master.vo.action.ActionLogVO;
+import com.dtstack.engine.master.vo.schedule.job.ScheduleJobRuleTimeVO;
+import com.dtstack.engine.master.vo.schedule.job.ScheduleJobScienceJobStatusVO;
+import com.dtstack.engine.master.vo.schedule.job.ScheduleJobStatusCountVO;
+import com.dtstack.engine.master.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.common.constrant.GlobalConst;
 import com.dtstack.engine.common.constrant.JobResultConstant;
 import com.dtstack.engine.common.constrant.TaskConstant;
@@ -33,7 +36,7 @@ import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.api.domain.ScheduleEngineProject;
+import com.dtstack.engine.domain.ScheduleEngineProject;
 import com.dtstack.engine.master.server.ScheduleBatchJob;
 import com.dtstack.engine.master.druid.DtDruidRemoveAbandoned;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
@@ -185,6 +188,9 @@ public class ScheduleJobService {
     @Autowired
     private ScheduleJobFailedDao scheduleJobFailedDao;
 
+    @Autowired
+    private ScheduleJobStruct scheduleJobStruct;
+
     private final static List<Integer> FINISH_STATUS = Lists.newArrayList(RdosTaskStatus.FINISHED.getStatus(), RdosTaskStatus.MANUALSUCCESS.getStatus(), RdosTaskStatus.CANCELLING.getStatus(), RdosTaskStatus.CANCELED.getStatus());
     private final static List<Integer> FAILED_STATUS = Lists.newArrayList(RdosTaskStatus.FAILED.getStatus(), RdosTaskStatus.SUBMITFAILD.getStatus(), RdosTaskStatus.KILLED.getStatus());
 
@@ -299,16 +305,16 @@ public class ScheduleJobService {
     }
 
     private void JobStatusCount(List<Long> projectIds, Long tenantId, Integer appType, Long dtuicTenantId, List<ScheduleJobStatusVO> scheduleJobStatusVOS) {
-        List<ScheduleJobCount> scheduleJobCounts = scheduleJobDao.countByStatusAndTypeProjectIds(EScheduleType.NORMAL_SCHEDULE.getType(), DateUtil.getUnStandardFormattedDate(DateUtil.calTodayMills()),
+        List<ScheduleJobCountPO> scheduleJobCounts = scheduleJobDao.countByStatusAndTypeProjectIds(EScheduleType.NORMAL_SCHEDULE.getType(), DateUtil.getUnStandardFormattedDate(DateUtil.calTodayMills()),
                 DateUtil.getUnStandardFormattedDate(DateUtil.TOMORROW_ZERO()), tenantId, projectIds, appType, dtuicTenantId, null);
 
         if (scheduleJobCounts != null) {
-            Map<Long, List<ScheduleJobCount>> listMap = scheduleJobCounts.stream().collect(Collectors.groupingBy(ScheduleJobCount::getProjectId));
+            Map<Long, List<ScheduleJobCountPO>> listMap = scheduleJobCounts.stream().collect(Collectors.groupingBy(ScheduleJobCountPO::getProjectId));
 
             for (Long projectId : projectIds) {
                 ScheduleJobStatusVO scheduleJobStatusVO = new ScheduleJobStatusVO();
                 scheduleJobStatusVO.setProjectId(projectId);
-                List<ScheduleJobCount> dataCount = listMap.get(projectId);
+                List<ScheduleJobCountPO> dataCount = listMap.get(projectId);
                 List<Map<String, Object>> data = toListMap(dataCount);
                 buildCount(scheduleJobStatusVO, data);
                 scheduleJobStatusVOS.add(scheduleJobStatusVO);
@@ -316,15 +322,15 @@ public class ScheduleJobService {
         }
     }
 
-    private List<Map<String, Object>> toListMap(List<ScheduleJobCount> dataCount) {
+    private List<Map<String, Object>> toListMap(List<ScheduleJobCountPO> dataCount) {
         List<Map<String, Object>> data = Lists.newArrayList();
         if (CollectionUtils.isEmpty(dataCount)) {
             return data;
         }
-        for (ScheduleJobCount scheduleJobCount : dataCount) {
+        for (ScheduleJobCountPO scheduleJobCountPO : dataCount) {
             Map<String, Object> map = Maps.newHashMap();
-            map.put("count", scheduleJobCount.getCount());
-            map.put("status", scheduleJobCount.getStatus());
+            map.put("count", scheduleJobCountPO.getCount());
+            map.put("status", scheduleJobCountPO.getStatus());
             data.add(map);
         }
         return data;
@@ -386,11 +392,13 @@ public class ScheduleJobService {
             Timestamp time = new Timestamp(DateUtil.getLastDay(0));
             PageQuery<Object> pageQuery = new PageQuery<>(1, 10);
             String startCycTime = dayFormatterAll.print(getTime(time.getTime(), 0).getTime());
-            List<JobTopErrorVO> jobTopErrorVOS = scheduleJobDao.listTopErrorByType(dtuicTenantId, tenantId, projectId, EScheduleType.NORMAL_SCHEDULE.getType(), startCycTime, FAILED_STATUS, pageQuery, appType);
+            List<JobTopErrorPO> jobTopErrorPOs = scheduleJobDao.listTopErrorByType(dtuicTenantId, tenantId, projectId, EScheduleType.NORMAL_SCHEDULE.getType(), startCycTime, FAILED_STATUS, pageQuery, appType);
+            List<JobTopErrorVO> jobTopErrorVOS = scheduleJobStruct.toJobTopErrorVOs(jobTopErrorPOs);
 
             // 查询前29天任务排名
             Timestamp timeTo = new Timestamp(DateUtil.getLastDay(30));
-            List<JobTopErrorVO> jobTopErrorVOSTo = scheduleJobFailedDao.listTopError(appType, dtuicTenantId, projectId, timeTo);
+            List<JobTopErrorPO> jobTopErrorPOSTo = scheduleJobFailedDao.listTopError(appType, dtuicTenantId, projectId, timeTo);
+            List<JobTopErrorVO> jobTopErrorVOSTo = scheduleJobStruct.toJobTopErrorVOs(jobTopErrorPOSTo);
             List<JobTopErrorVO> merge = merge(jobTopErrorVOS, jobTopErrorVOSTo);
             List<JobTopErrorVO> result = merge.stream().sorted(Comparator.comparing(JobTopErrorVO::getErrorCount).reversed()).collect(Collectors.toList());
 
@@ -403,8 +411,8 @@ public class ScheduleJobService {
             Timestamp time = new Timestamp(DateUtil.getLastDay(30));
             PageQuery<Object> pageQuery = new PageQuery<>(1, 10);
             String startCycTime = dayFormatterAll.print(getTime(time.getTime(), 0).getTime());
-            List<JobTopErrorVO> jobTopErrorVOS = scheduleJobDao.listTopErrorByType(dtuicTenantId, tenantId, projectId, EScheduleType.NORMAL_SCHEDULE.getType(), startCycTime, FAILED_STATUS, pageQuery, appType);
-            return jobTopErrorVOS;
+            List<JobTopErrorPO> jobTopErrorPOs = scheduleJobDao.listTopErrorByType(dtuicTenantId, tenantId, projectId, EScheduleType.NORMAL_SCHEDULE.getType(), startCycTime, FAILED_STATUS, pageQuery, appType);
+            return scheduleJobStruct.toJobTopErrorVOs(jobTopErrorPOs);
         }
     }
 
@@ -522,7 +530,7 @@ public class ScheduleJobService {
      * @return
      * @author toutian
      */
-    public PageResult<List<com.dtstack.engine.api.vo.ScheduleJobVO>> queryJobs(QueryJobDTO vo) {
+    public PageResult<List<com.dtstack.engine.master.vo.ScheduleJobVO>> queryJobs(QueryJobDTO vo) {
 
         if (vo.getType() == null && CollectionUtils.isEmpty(vo.getTypes())) {
             throw new RdosDefineException("Type parameter is required", ErrorCode.INVALID_PARAMETERS);
@@ -552,7 +560,7 @@ public class ScheduleJobService {
         pageQuery.setModel(batchJobDTO);
 
         int count = 0;
-        List<com.dtstack.engine.api.vo.ScheduleJobVO> result = new ArrayList<>();
+        List<com.dtstack.engine.master.vo.ScheduleJobVO> result = new ArrayList<>();
         //先将满足条件的taskId查出来，缩小过滤范围
         if (StringUtils.isNotBlank(vo.getTaskName()) || null != vo.getOwnerId()) {
             List<ScheduleTaskShade> batchTaskShades = scheduleTaskShadeDao.listByNameLikeWithSearchType(vo.getProjectId(), vo.getTaskName(),
@@ -607,7 +615,7 @@ public class ScheduleJobService {
      * @return
      * @throws Exception
      */
-    private int queryNormalJob(ScheduleJobDTO batchJobDTO, boolean queryAll, PageQuery<ScheduleJobDTO> pageQuery, List<com.dtstack.engine.api.vo.ScheduleJobVO> result) {
+    private int queryNormalJob(ScheduleJobDTO batchJobDTO, boolean queryAll, PageQuery<ScheduleJobDTO> pageQuery, List<com.dtstack.engine.master.vo.ScheduleJobVO> result) {
         int count = scheduleJobDao.generalCount(batchJobDTO);
         if (count > 0) {
             List<ScheduleJob> scheduleJobs = scheduleJobDao.generalQuery(pageQuery);
@@ -646,7 +654,7 @@ public class ScheduleJobService {
      * @return
      * @throws Exception
      */
-    private int queryScienceJob(ScheduleJobDTO batchJobDTO, boolean queryAll, PageQuery<ScheduleJobDTO> pageQuery, List<com.dtstack.engine.api.vo.ScheduleJobVO> result)  {
+    private int queryScienceJob(ScheduleJobDTO batchJobDTO, boolean queryAll, PageQuery<ScheduleJobDTO> pageQuery, List<com.dtstack.engine.master.vo.ScheduleJobVO> result)  {
 
         int count = scheduleJobDao.generalScienceCount(batchJobDTO);
         if (count > 0) {
@@ -760,7 +768,7 @@ public class ScheduleJobService {
             Map<Long, ScheduleTaskForFillDataDTO> subShadeMap = this.prepare(subJobs);
             List<ScheduleJobVO> subJobVOs = this.transfer(subJobs, subShadeMap);
 
-            List<com.dtstack.engine.api.vo.ScheduleJobVO> relatedJobVOs= new ArrayList<>(subJobVOs.size());
+            List<com.dtstack.engine.master.vo.ScheduleJobVO> relatedJobVOs= new ArrayList<>(subJobVOs.size());
             subJobVOs.forEach(subJobVO -> relatedJobVOs.add(subJobVO));
             batchJobVO.setRelatedJobs(relatedJobVOs);
             userService.fillScheduleJobVO(Lists.newArrayList(batchJobVO));
@@ -1692,7 +1700,7 @@ public class ScheduleJobService {
      * @param pageSize:
      * @param tenantId:
      * @param batchJobDTO:
-     * @return: com.dtstack.engine.api.pager.PageQuery<com.dtstack.engine.api.dto.ScheduleJobDTO>
+     * @return: com.dtstack.engine.common.pager.PageQuery<com.dtstack.engine.dto.ScheduleJobDTO>
      **/
     private PageQuery<ScheduleJobDTO> getScheduleJobDTOPageQuery(Long runDay, Long bizStartDay, Long bizEndDay, Long dutyUserId, Long projectId, Integer appType, Integer currentPage, Integer pageSize, Long tenantId,Long dtuicTenantId, ScheduleJobDTO batchJobDTO) {
         if (runDay != null) {
@@ -2734,7 +2742,7 @@ public class ScheduleJobService {
      * 分钟任务和小时任务 展开按钮显示
      * @return
      */
-    public List<com.dtstack.engine.api.vo.ScheduleJobVO> minOrHourJobQuery(ScheduleJobDTO batchJobDTO) {
+    public List<com.dtstack.engine.master.vo.ScheduleJobVO> minOrHourJobQuery(ScheduleJobDTO batchJobDTO) {
         PageQuery<ScheduleJobDTO> pageQuery = new PageQuery<>(batchJobDTO.getCurrentPage(), batchJobDTO.getPageSize(), "gmt_modified", Sort.DESC.name());
 
         batchJobDTO.setPageQuery(false);
@@ -2756,7 +2764,7 @@ public class ScheduleJobService {
         } catch (Exception e) {
             throw new RdosDefineException("处理工作流字节点异常");
         }
-        List<com.dtstack.engine.api.vo.ScheduleJobVO> result = new ArrayList<>();
+        List<com.dtstack.engine.master.vo.ScheduleJobVO> result = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(transfer)) {
             transfer.forEach(vo -> result.add(vo));
         }

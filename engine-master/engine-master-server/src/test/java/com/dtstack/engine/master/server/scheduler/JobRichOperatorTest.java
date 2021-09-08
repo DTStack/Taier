@@ -1,8 +1,8 @@
 package com.dtstack.engine.master.server.scheduler;
 
-import com.dtstack.engine.api.domain.ScheduleJobJob;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
+import com.dtstack.engine.domain.ScheduleJobJob;
+import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.master.AbstractTest;

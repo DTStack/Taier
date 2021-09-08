@@ -1,10 +1,10 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.*;
-import com.dtstack.engine.api.enums.TaskRuleEnum;
-import com.dtstack.engine.api.vo.ScheduleTaskVO;
-import com.dtstack.engine.api.vo.task.SaveTaskTaskVO;
+import com.dtstack.engine.domain.*;
+import com.dtstack.engine.common.enums.TaskRuleEnum;
+import com.dtstack.engine.master.vo.ScheduleTaskVO;
+import com.dtstack.engine.master.vo.task.SaveTaskTaskVO;
 import com.dtstack.engine.common.enums.DisplayDirect;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ExceptionUtil;
@@ -12,7 +12,7 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.ScheduleEngineProjectDao;
 import com.dtstack.engine.dao.ScheduleTaskCommitMapper;
 import com.dtstack.engine.dao.ScheduleTaskTaskShadeDao;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.master.druid.DtDruidRemoveAbandoned;
 import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.common.enums.EScheduleJobType;
@@ -783,7 +783,7 @@ public class ScheduleTaskTaskShadeService {
      * @param level:
      * @param directType:
      * @param appType:
-     * @return: java.util.List<com.dtstack.engine.api.vo.ScheduleTaskVO>
+     * @return: java.util.List<com.dtstack.engine.master.vo.ScheduleTaskVO>
      **/
     public List<ScheduleTaskVO> getFlowWorkSubTasksRefTask(Set<Long> taskIds, int level, Integer directType, Integer appType,int max) {
 

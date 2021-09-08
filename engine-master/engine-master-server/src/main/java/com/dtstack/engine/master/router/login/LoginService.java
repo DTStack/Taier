@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.router.login;
 
 
-import com.dtstack.engine.api.dto.UserDTO;
+import com.dtstack.engine.dto.UserDTO;
 import com.dtstack.engine.common.constrant.Cookies;
 import com.dtstack.engine.master.router.login.domain.DTToken;
 import com.dtstack.engine.master.router.login.domain.DtUicUser;

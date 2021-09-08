@@ -1,6 +1,6 @@
 package com.dtstack.engine.config;
 
-import com.dtstack.engine.api.pojo.ClientTemplate;
+import com.dtstack.engine.master.impl.pojo.ClientTemplate;
 import com.dtstack.engine.common.enums.EFrontType;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;

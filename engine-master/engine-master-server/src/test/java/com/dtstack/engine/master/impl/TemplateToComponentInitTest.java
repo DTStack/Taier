@@ -1,11 +1,11 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONArray;
-import com.dtstack.engine.api.domain.ComponentConfig;
-import com.dtstack.engine.api.domain.ScheduleDict;
-import com.dtstack.engine.api.pojo.ClientTemplate;
-import com.dtstack.engine.api.vo.Pair;
-import com.dtstack.engine.common.util.ComponentConfigUtils;
+import com.dtstack.engine.domain.ComponentConfig;
+import com.dtstack.engine.domain.ScheduleDict;
+import com.dtstack.engine.master.impl.pojo.ClientTemplate;
+import com.dtstack.engine.master.vo.Pair;
+import com.dtstack.engine.master.utils.ComponentConfigUtils;
 import com.dtstack.engine.config.YamlConfigParser;
 import com.dtstack.engine.dao.TestScheduleDictDao;
 import com.dtstack.engine.master.AbstractTest;

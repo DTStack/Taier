@@ -1,8 +1,8 @@
 package com.dtstack.engine.master.scheduler;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.ScheduleDict;
-import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.domain.ScheduleDict;
+import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.dao.ScheduleDictDao;
 import com.dtstack.engine.dao.TestScheduleDictDao;
 import com.dtstack.engine.dao.TestScheduleJobDao;

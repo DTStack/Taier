@@ -436,7 +436,7 @@
         where is_deleted = 0
     </select>
 
-    <select id="listAllSubmitTask" resultType="com.dtstack.engine.api.domain.BatchTask">
+    <select id="listAllSubmitTask" resultType="com.dtstack.engine.domain.BatchTask">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task
@@ -450,7 +450,7 @@
         AND is_deleted = 0
     </select>
 
-    <select id="listSubmitTaskByIds" resultType="com.dtstack.engine.api.domain.BatchTask">
+    <select id="listSubmitTaskByIds" resultType="com.dtstack.engine.domain.BatchTask">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task

@@ -1,8 +1,8 @@
 package com.dtstack.engine.master.impl;
 
 import com.dtstack.dtcenter.common.enums.ProjectStatus;
-import com.dtstack.engine.api.domain.ScheduleEngineProject;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.domain.ScheduleEngineProject;
+import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.dao.ScheduleEngineProjectDao;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.dao.TestScheduleProjectDao;

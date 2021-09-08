@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.jobdealer.cache;
 
-import com.dtstack.engine.api.domain.EngineJobCache;
+import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.master.jobdealer.JobStatusDealer;

@@ -7,7 +7,7 @@
     </sql>
 
 
-    <select id="listTopError" resultType="com.dtstack.engine.api.vo.JobTopErrorVO">
+    <select id="listTopError" resultType="com.dtstack.engine.domain.po.JobTopErrorPO">
         SELECT task_id AS taskId, error_count AS errorCount
         FROM schedule_job_failed
         WHERE

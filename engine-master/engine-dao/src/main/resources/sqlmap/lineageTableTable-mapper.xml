@@ -23,7 +23,7 @@
         on duplicate key update gmt_modified=values(gmt_modified)
     </insert>
 
-    <select id="queryTableInputList" resultType="com.dtstack.engine.api.domain.LineageTableTable">
+    <select id="queryTableInputList" resultType="com.dtstack.engine.domain.LineageTableTable">
         select tt.* from lineage_table_table tt join lineage_table_table_unique_key_ref ref on tt.id = ref.lineage_table_table_id where tt.input_table_id = #{tableId}
         and ref.is_deleted = 0
         <if test="appType !=null">
@@ -31,7 +31,7 @@
         </if>
     </select>
 
-    <select id="queryTableResultList" resultType="com.dtstack.engine.api.domain.LineageTableTable">
+    <select id="queryTableResultList" resultType="com.dtstack.engine.domain.LineageTableTable">
         select tt.* from lineage_table_table tt join lineage_table_table_unique_key_ref ref on tt.id = ref.lineage_table_table_id where tt.result_table_id = #{tableId}
         and ref.is_deleted = 0
         <if test="appType !=null">
@@ -59,7 +59,7 @@
 
     </select>
 
-    <select id="queryTableLineageByTaskIdAndAppType" resultType="com.dtstack.engine.api.domain.LineageTableTable">
+    <select id="queryTableLineageByTaskIdAndAppType" resultType="com.dtstack.engine.domain.LineageTableTable">
         select tt.*
         from lineage_table_table tt
         join lineage_table_table_unique_key_ref ref on tt.id = ref.lineage_table_table_id
@@ -67,12 +67,12 @@
 
     </select>
 
-    <select id="queryBTableLineageKey" resultType="com.dtstack.engine.api.domain.LineageTableTable">
+    <select id="queryBTableLineageKey" resultType="com.dtstack.engine.domain.LineageTableTable">
         select <include refid="select_content_fragment"/>
         from lineage_table_table where app_type = #{appType} and table_lineage_key = #{tableLineageKey}
     </select>
 
-    <select id="queryByTableLineageKeys" resultType="com.dtstack.engine.api.domain.LineageTableTable">
+    <select id="queryByTableLineageKeys" resultType="com.dtstack.engine.domain.LineageTableTable">
         select <include refid="select_content_fragment"/> from lineage_table_table
         <where>
             app_type = #{appType}

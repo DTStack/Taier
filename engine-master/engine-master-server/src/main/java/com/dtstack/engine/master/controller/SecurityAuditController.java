@@ -1,10 +1,10 @@
 package com.dtstack.engine.master.controller;
 
-import com.dtstack.engine.api.dto.UserDTO;
-import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.param.SecurityLogParam;
-import com.dtstack.engine.api.vo.security.ApiOperateTypeVO;
-import com.dtstack.engine.api.vo.security.SecurityLogVO;
+import com.dtstack.engine.dto.UserDTO;
+import com.dtstack.engine.common.pager.PageResult;
+import com.dtstack.engine.master.controller.param.SecurityLogParam;
+import com.dtstack.engine.master.vo.security.ApiOperateTypeVO;
+import com.dtstack.engine.master.vo.security.SecurityLogVO;
 import com.dtstack.engine.master.impl.SecurityAuditService;
 import com.dtstack.engine.master.router.login.SessionUtil;
 import io.swagger.annotations.Api;

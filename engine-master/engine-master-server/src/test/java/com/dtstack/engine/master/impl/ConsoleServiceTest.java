@@ -1,13 +1,13 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.Cluster;
-import com.dtstack.engine.api.domain.Component;
-import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.domain.Cluster;
+import com.dtstack.engine.domain.Component;
+import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.common.pager.PageResult;
 import com.dtstack.engine.api.pojo.ClusterResource;
-import com.dtstack.engine.api.vo.console.ConsoleJobVO;
+import com.dtstack.engine.master.vo.console.ConsoleJobVO;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.dao.TestClusterDao;

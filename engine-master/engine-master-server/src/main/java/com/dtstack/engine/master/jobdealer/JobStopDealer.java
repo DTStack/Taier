@@ -1,8 +1,8 @@
 package com.dtstack.engine.master.jobdealer;
 
 
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.ScheduleJobOperatorRecord;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.domain.ScheduleJobOperatorRecord;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.CustomThreadRunsPolicy;
 import com.dtstack.engine.common.JobClient;
@@ -16,7 +16,7 @@ import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobOperatorRecordDao;
-import com.dtstack.engine.api.domain.EngineJobCache;
+import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.common.enums.StoppedStatus;
 import com.dtstack.engine.master.WorkerOperator;
 import com.dtstack.engine.common.env.EnvironmentContext;

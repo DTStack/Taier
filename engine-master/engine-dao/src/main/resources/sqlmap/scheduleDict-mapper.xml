@@ -52,7 +52,7 @@
         AND is_deleted = 0
         AND dict_value = #{oldUpdate}
     </update>
-    <select id="listById" resultType="com.dtstack.engine.api.domain.ScheduleDict">
+    <select id="listById" resultType="com.dtstack.engine.domain.ScheduleDict">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_dict
@@ -60,7 +60,7 @@
         ORDER BY id
         LIMIT #{size}
     </select>
-    <select id="getByNameAndCodeAndDependName" resultType="com.dtstack.engine.api.domain.ScheduleDict">
+    <select id="getByNameAndCodeAndDependName" resultType="com.dtstack.engine.domain.ScheduleDict">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_dict

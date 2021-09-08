@@ -1,9 +1,9 @@
 package com.dtstack.engine.dao;
 
 
-import com.dtstack.engine.api.domain.ScheduleFillDataJob;
-import com.dtstack.engine.api.dto.ScheduleJobDTO;
-import com.dtstack.engine.api.pager.PageQuery;
+import com.dtstack.engine.domain.ScheduleFillDataJob;
+import com.dtstack.engine.dto.ScheduleJobDTO;
+import com.dtstack.engine.common.pager.PageQuery;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

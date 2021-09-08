@@ -1,6 +1,5 @@
 package com.dtstack.batch.service.impl;
 
-import com.alibaba.fastjson.JSONObject;
 import com.csvreader.CsvWriter;
 import com.dtstack.batch.common.enums.TempJobType;
 import com.dtstack.batch.common.exception.RdosDefineException;
@@ -18,8 +17,8 @@ import com.dtstack.dtcenter.common.enums.Deleted;
 import com.dtstack.dtcenter.common.enums.EJobType;
 import com.dtstack.dtcenter.common.enums.MultiEngineType;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
-import com.dtstack.engine.api.vo.action.ActionLogVO;
-import com.dtstack.engine.api.vo.action.ActionRetryLogVO;
+import com.dtstack.engine.master.vo.action.ActionLogVO;
+import com.dtstack.engine.master.vo.action.ActionRetryLogVO;
 import com.dtstack.engine.master.impl.ActionService;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;

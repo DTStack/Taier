@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.server.scheduler;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.ScheduleDict;
+import com.dtstack.engine.domain.ScheduleDict;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.dao.ScheduleDictDao;
 import com.dtstack.engine.master.enums.DictType;

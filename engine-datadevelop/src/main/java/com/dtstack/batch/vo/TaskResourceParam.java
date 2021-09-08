@@ -1,6 +1,6 @@
 package com.dtstack.batch.vo;
 
-import com.dtstack.engine.api.domain.BatchTask;
+import com.dtstack.engine.domain.BatchTask;
 import lombok.Data;
 
 import java.util.List;

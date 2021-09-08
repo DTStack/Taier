@@ -1,13 +1,13 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.domain.TenantResource;
-import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
-import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
-import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
-import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
+import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.domain.TenantResource;
+import com.dtstack.engine.dto.ScheduleTaskShadeDTO;
+import com.dtstack.engine.common.pager.PageResult;
+import com.dtstack.engine.master.vo.ScheduleTaskShadeVO;
+import com.dtstack.engine.master.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
+import com.dtstack.engine.master.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.dao.TenantResourceDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;

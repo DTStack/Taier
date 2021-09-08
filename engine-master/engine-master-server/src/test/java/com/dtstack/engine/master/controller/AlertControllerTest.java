@@ -1,15 +1,15 @@
 package com.dtstack.engine.master.controller;
 
 import com.dtstack.engine.alert.enums.AlertGateTypeEnum;
-import com.dtstack.engine.api.param.AlarmSendParam;
-import com.dtstack.engine.api.param.ClusterAlertPageParam;
-import com.dtstack.engine.api.param.ClusterAlertParam;
-import com.dtstack.engine.api.param.NotifyRecordParam;
-import com.dtstack.engine.api.vo.alert.AlertGateTestVO;
-import com.dtstack.engine.api.vo.alert.AlertGateVO;
-import com.dtstack.engine.api.domain.AlertChannel;
-import com.dtstack.engine.api.domain.AlertContent;
-import com.dtstack.engine.api.domain.AlertRecord;
+import com.dtstack.engine.master.controller.param.AlarmSendParam;
+import com.dtstack.engine.master.controller.param.ClusterAlertPageParam;
+import com.dtstack.engine.master.controller.param.ClusterAlertParam;
+import com.dtstack.engine.master.controller.param.NotifyRecordParam;
+import com.dtstack.engine.master.vo.alert.AlertGateTestVO;
+import com.dtstack.engine.master.vo.alert.AlertGateVO;
+import com.dtstack.engine.domain.AlertChannel;
+import com.dtstack.engine.domain.AlertContent;
+import com.dtstack.engine.domain.AlertRecord;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.google.common.collect.Lists;

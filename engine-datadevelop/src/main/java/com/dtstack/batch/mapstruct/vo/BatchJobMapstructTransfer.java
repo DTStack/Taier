@@ -3,8 +3,8 @@ package com.dtstack.batch.mapstruct.vo;
 import com.dtstack.batch.vo.ExecuteResultVO;
 import com.dtstack.batch.vo.ExecuteSqlParseVO;
 import com.dtstack.batch.web.job.vo.result.*;
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.vo.*;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.master.vo.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 

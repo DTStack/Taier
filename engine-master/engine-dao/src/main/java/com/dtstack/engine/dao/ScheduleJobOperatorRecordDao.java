@@ -1,6 +1,6 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.engine.api.domain.ScheduleJobOperatorRecord;
+import com.dtstack.engine.domain.ScheduleJobOperatorRecord;
 import org.apache.ibatis.annotations.Param;
 
 import java.sql.Timestamp;

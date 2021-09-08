@@ -1,12 +1,12 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.domain.Component;
-import com.dtstack.engine.api.domain.Engine;
-import com.dtstack.engine.api.domain.Queue;
-import com.dtstack.engine.api.domain.Tenant;
-import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.domain.Component;
+import com.dtstack.engine.domain.Engine;
+import com.dtstack.engine.domain.Queue;
+import com.dtstack.engine.domain.Tenant;
+import com.dtstack.engine.common.pager.PageResult;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
-import com.dtstack.engine.api.vo.*;
+import com.dtstack.engine.master.vo.*;
 import com.dtstack.engine.common.client.ClientOperator;
 import com.dtstack.engine.common.enums.EComponentScheduleType;
 import com.dtstack.engine.common.enums.EComponentType;
@@ -31,7 +31,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.when;
 
 /**

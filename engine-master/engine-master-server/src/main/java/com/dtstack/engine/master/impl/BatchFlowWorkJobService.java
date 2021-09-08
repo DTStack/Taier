@@ -1,8 +1,8 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.enums.TaskRuleEnum;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.common.enums.TaskRuleEnum;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.master.server.ScheduleBatchJob;

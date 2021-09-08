@@ -1,9 +1,9 @@
 package com.dtstack.engine.master.jobdealer;
 
-import com.dtstack.engine.api.domain.Cluster;
-import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.api.domain.EngineJobCheckpoint;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.domain.Cluster;
+import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.domain.EngineJobCheckpoint;
+import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.dao.ClusterDao;

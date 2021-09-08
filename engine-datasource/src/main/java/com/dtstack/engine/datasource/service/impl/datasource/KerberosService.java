@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.common.enums.AppType;
 import com.dtstack.dtcenter.common.kerberos.KerberosConfigVerify;
 import com.dtstack.dtcenter.common.sftp.SFTPHandler;
-import com.dtstack.engine.api.service.ClusterService;
+import com.dtstack.engine.api.ClusterService;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.datasource.common.constant.FormNames;
 import com.dtstack.engine.datasource.common.exception.ErrorCode;

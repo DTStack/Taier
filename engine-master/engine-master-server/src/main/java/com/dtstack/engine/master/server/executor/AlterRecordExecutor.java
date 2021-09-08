@@ -10,7 +10,7 @@ import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.DateUtil;
-import com.dtstack.engine.api.domain.AlertRecord;
+import com.dtstack.engine.domain.AlertRecord;
 import com.dtstack.engine.master.enums.AlertSendStatusEnum;
 import com.dtstack.engine.master.impl.AlertRecordService;
 import com.google.common.collect.Lists;

@@ -1,6 +1,6 @@
 package com.dtstack.batch.service.uic.impl;
 
-import com.dtstack.engine.api.vo.tenant.TenantUsersVO;
+import com.dtstack.engine.master.vo.tenant.TenantUsersVO;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;

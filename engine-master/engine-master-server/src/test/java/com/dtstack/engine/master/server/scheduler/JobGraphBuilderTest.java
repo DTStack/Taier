@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.server.scheduler;
 
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.server.ScheduleBatchJob;
 import com.dtstack.engine.master.dataCollection.DataCollection;

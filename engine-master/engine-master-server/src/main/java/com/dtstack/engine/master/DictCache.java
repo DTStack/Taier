@@ -1,6 +1,6 @@
 package com.dtstack.engine.master;
 
-import com.dtstack.engine.api.domain.ScheduleDict;
+import com.dtstack.engine.domain.ScheduleDict;
 import com.dtstack.engine.master.impl.ScheduleDictService;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @Auther: dazhi

@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.jobdealer;
 
-import com.dtstack.engine.api.domain.Cluster;
+import com.dtstack.engine.domain.Cluster;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.dao.ClusterDao;
 import com.dtstack.engine.dao.EngineTenantDao;
@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 /**

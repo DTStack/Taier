@@ -21,14 +21,14 @@
         </set>
     </sql>
 
-    <select id="getOne" resultType="com.dtstack.engine.api.domain.ComponentUser">
+    <select id="getOne" resultType="com.dtstack.engine.domain.ComponentUser">
         select <include refid="select_content_fragment"/>
         from console_component
         where id = #{id} and is_deleted = 0
     </select>
 
 
-    <insert id="insert" parameterType="com.dtstack.engine.api.domain.ComponentUser" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.dtstack.engine.domain.ComponentUser" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO console_component_user(cluster_id,component_id,component_type_code,user_name,password,is_default)
         VALUES (#{clusterId},#{componentId},#{componentTypeCode},#{userName},#{password},#{isDefault})
     </insert>
@@ -50,7 +50,7 @@
     </delete>
 
 
-    <select id="getComponentUserByCluster" resultType="com.dtstack.engine.api.domain.ComponentUser">
+    <select id="getComponentUserByCluster" resultType="com.dtstack.engine.domain.ComponentUser">
         select <include refid="select_content_fragment"/>
 
         from
@@ -59,7 +59,7 @@
             ccu.cluster_id = #{clusterId}
         and ccu.component_type_code = #{componentTypeCode}
     </select>
-    <select id="getComponentUser" resultType="com.dtstack.engine.api.domain.ComponentUser">
+    <select id="getComponentUser" resultType="com.dtstack.engine.domain.ComponentUser">
         select <include refid="select_content_fragment"/>
         from console_component_user
         where cluster_id = #{clusterId}

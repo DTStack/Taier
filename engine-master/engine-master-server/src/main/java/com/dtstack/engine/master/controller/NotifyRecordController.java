@@ -1,12 +1,12 @@
 package com.dtstack.engine.master.controller;
 
 import com.dtstack.engine.alert.enums.AlertGateTypeEnum;
-import com.dtstack.engine.api.dto.*;
-import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.param.AlarmSendParam;
-import com.dtstack.engine.api.param.NotifyRecordPageQueryParam;
-import com.dtstack.engine.api.param.NotifyRecordParam;
-import com.dtstack.engine.api.param.SetAlarmNotifyRecordParam;
+import com.dtstack.engine.dto.*;
+import com.dtstack.engine.common.pager.PageResult;
+import com.dtstack.engine.master.controller.param.AlarmSendParam;
+import com.dtstack.engine.master.controller.param.NotifyRecordPageQueryParam;
+import com.dtstack.engine.master.controller.param.NotifyRecordParam;
+import com.dtstack.engine.master.controller.param.SetAlarmNotifyRecordParam;
 import com.dtstack.engine.common.enums.NotifyMode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;

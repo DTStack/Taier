@@ -2,19 +2,21 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.*;
-import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
-import com.dtstack.engine.api.enums.TaskRuleEnum;
-import com.dtstack.engine.api.pager.PageQuery;
-import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.vo.ScheduleDetailsVO;
-import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
-import com.dtstack.engine.api.vo.ScheduleTaskVO;
-import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
-import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
-import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
-import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
-import com.dtstack.engine.api.vo.task.TaskTypeVO;
+import com.dtstack.engine.domain.*;
+import com.dtstack.engine.domain.po.ScheduleTaskShadeCountTaskPO;
+import com.dtstack.engine.dto.ScheduleTaskShadeDTO;
+import com.dtstack.engine.common.enums.TaskRuleEnum;
+import com.dtstack.engine.common.pager.PageQuery;
+import com.dtstack.engine.common.pager.PageResult;
+import com.dtstack.engine.master.mapstruct.ScheduleTaskShadeStruct;
+import com.dtstack.engine.master.vo.ScheduleDetailsVO;
+import com.dtstack.engine.master.vo.ScheduleTaskShadeVO;
+import com.dtstack.engine.master.vo.ScheduleTaskVO;
+import com.dtstack.engine.master.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
+import com.dtstack.engine.master.vo.schedule.task.shade.ScheduleTaskShadePageVO;
+import com.dtstack.engine.master.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
+import com.dtstack.engine.master.vo.task.NotDeleteTaskVO;
+import com.dtstack.engine.master.vo.task.TaskTypeVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
@@ -87,6 +89,9 @@ public class ScheduleTaskShadeService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ScheduleTaskShadeStruct scheduleTaskShadeStruct;
 
     /**
      * web 接口
@@ -196,11 +201,12 @@ public class ScheduleTaskShadeService {
     public ScheduleTaskShadeCountTaskVO countTaskByType( Long tenantId, Long dtuicTenantId,
                                                 Long projectId,  Integer appType,
                                                 List<Integer> taskTypes){
-        List<ScheduleTaskShadeCountTaskVO> ScheduleTaskShadeCountTaskVOs = scheduleTaskShadeDao.countTaskByType(tenantId, dtuicTenantId, Lists.newArrayList(projectId), appType, taskTypes, AppType.DATASCIENCE.getType() == appType ? 0L : null);
-        if (CollectionUtils.isEmpty(ScheduleTaskShadeCountTaskVOs)) {
+        List<ScheduleTaskShadeCountTaskPO> scheduleTaskShadeCountTaskPOS = scheduleTaskShadeDao.countTaskByType(tenantId, dtuicTenantId, Lists.newArrayList(projectId), appType, taskTypes, AppType.DATASCIENCE.getType() == appType ? 0L : null);
+        if (CollectionUtils.isEmpty(scheduleTaskShadeCountTaskPOS)) {
             return new ScheduleTaskShadeCountTaskVO();
         }
-        return ScheduleTaskShadeCountTaskVOs.get(0);
+
+        return scheduleTaskShadeStruct.toScheduleTaskShadeCountTaskVO(scheduleTaskShadeCountTaskPOS.get(0));
     }
 
     private void buildVO(ScheduleTaskShadeCountTaskVO scheduleTaskShadeCountTaskVO, Map<String, Object> stringObjectMap) {
@@ -211,8 +217,8 @@ public class ScheduleTaskShadeService {
     public List<ScheduleTaskShadeCountTaskVO> countTaskByTypes( Long tenantId, Long dtuicTenantId,
                                                 List<Long> projectIds,  Integer appType,
                                                 List<Integer> taskTypes){
-
-        return scheduleTaskShadeDao.countTaskByType(tenantId, dtuicTenantId, projectIds, appType, taskTypes, AppType.DATASCIENCE.getType() == appType ? 0L : null);
+        List<ScheduleTaskShadeCountTaskPO> scheduleTaskShadeCountTaskPOs = scheduleTaskShadeDao.countTaskByType(tenantId, dtuicTenantId, projectIds, appType, taskTypes, AppType.DATASCIENCE.getType() == appType ? 0L : null);
+        return scheduleTaskShadeStruct.toScheduleTaskShadeCountTaskVOs(scheduleTaskShadeCountTaskPOs);
     }
 
 

@@ -1,10 +1,10 @@
 package com.dtstack.engine.master.server.multiengine.engine;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.dto.ScheduleTaskParamShade;
-import com.dtstack.engine.api.enums.ScheduleEngineType;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.dto.ScheduleTaskParamShade;
+import com.dtstack.engine.common.enums.ScheduleEngineType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.master.server.multiengine.JobStartTriggerBase;

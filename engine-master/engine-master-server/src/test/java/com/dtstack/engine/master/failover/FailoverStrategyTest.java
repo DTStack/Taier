@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.failover;
 
-import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;

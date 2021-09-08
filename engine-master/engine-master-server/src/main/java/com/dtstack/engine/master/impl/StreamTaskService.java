@@ -1,12 +1,12 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.api.domain.EngineJobCheckpoint;
-import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.domain.EngineJobCheckpoint;
+import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.api.pojo.CheckResult;
 import com.dtstack.engine.api.pojo.ParamAction;
-import com.dtstack.engine.api.pojo.ParamActionExt;
+import com.dtstack.engine.master.impl.pojo.ParamActionExt;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;

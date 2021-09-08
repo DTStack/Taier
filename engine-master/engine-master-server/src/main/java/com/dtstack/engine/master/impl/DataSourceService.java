@@ -2,9 +2,9 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.Component;
-import com.dtstack.engine.api.domain.KerberosConfig;
-import com.dtstack.engine.api.vo.KerberosConfigVO;
+import com.dtstack.engine.domain.Component;
+import com.dtstack.engine.domain.KerberosConfig;
+import com.dtstack.engine.master.vo.KerberosConfigVO;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.exception.ExceptionUtil;

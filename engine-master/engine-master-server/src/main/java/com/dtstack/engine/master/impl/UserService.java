@@ -1,14 +1,14 @@
 package com.dtstack.engine.master.impl;
 
 import com.dtstack.dtcenter.common.enums.EntityStatus;
-import com.dtstack.engine.api.domain.User;
-import com.dtstack.engine.api.dto.ScheduleTaskForFillDataDTO;
-import com.dtstack.engine.api.dto.UserDTO;
-import com.dtstack.engine.api.vo.ScheduleFillDataJobPreViewVO;
-import com.dtstack.engine.api.vo.ScheduleJobVO;
-import com.dtstack.engine.api.vo.ScheduleTaskVO;
-import com.dtstack.engine.api.vo.tenant.TenantUsersVO;
-import com.dtstack.engine.api.vo.user.UserVO;
+import com.dtstack.engine.domain.User;
+import com.dtstack.engine.dto.ScheduleTaskForFillDataDTO;
+import com.dtstack.engine.dto.UserDTO;
+import com.dtstack.engine.master.vo.ScheduleFillDataJobPreViewVO;
+import com.dtstack.engine.master.vo.ScheduleJobVO;
+import com.dtstack.engine.master.vo.ScheduleTaskVO;
+import com.dtstack.engine.master.vo.tenant.TenantUsersVO;
+import com.dtstack.engine.master.vo.user.UserVO;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.dao.UserDao;
 import com.google.common.collect.Lists;

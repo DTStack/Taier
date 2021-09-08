@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.server.scheduler;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.domain.*;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.DependencyType;
 import com.dtstack.engine.common.enums.EScheduleType;

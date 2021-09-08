@@ -1,12 +1,12 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.api.pojo.ParamAction;
-import com.dtstack.engine.api.vo.action.ActionJobStatusVO;
-import com.dtstack.engine.api.vo.action.ActionLogVO;
+import com.dtstack.engine.master.vo.action.ActionJobStatusVO;
+import com.dtstack.engine.master.vo.action.ActionLogVO;
 import com.dtstack.engine.common.client.ClientOperator;
-import com.dtstack.engine.api.pojo.ParamActionExt;
+import com.dtstack.engine.master.impl.pojo.ParamActionExt;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.ScheduleJobDao;

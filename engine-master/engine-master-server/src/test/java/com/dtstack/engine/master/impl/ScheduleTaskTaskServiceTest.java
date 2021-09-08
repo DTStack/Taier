@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
+import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.common.enums.DisplayDirect;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.AbstractTest;

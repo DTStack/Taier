@@ -15,7 +15,7 @@ import com.dtstack.dtcenter.common.enums.EJobType;
 import com.dtstack.dtcenter.common.enums.EngineType;
 import com.dtstack.dtcenter.common.enums.MultiEngineType;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
-import com.dtstack.engine.api.vo.lineage.SqlType;
+import com.dtstack.engine.lineage.vo.SqlType;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;

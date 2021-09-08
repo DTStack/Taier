@@ -9,7 +9,7 @@
         `is_deleted`, `content`
     </sql>
 
-    <insert id="insert" parameterType="com.dtstack.engine.api.domain.AlertContent" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.dtstack.engine.domain.AlertContent" useGeneratedKeys="true" keyProperty="id">
         insert into alert_content ( `tenant_id`, `project_id`,
         `app_type`, `status`, `send_info`,
         `alert_message_status`, `gmt_create`, `gmt_modified`,
@@ -57,7 +57,7 @@
         where `id` = #{alertContent.id} AND `is_deleted` = 0
     </update>
 
-    <select id="selectById" resultType="com.dtstack.engine.api.domain.AlertContent">
+    <select id="selectById" resultType="com.dtstack.engine.domain.AlertContent">
         SELECT
         <include refid="filed"/>
         FROM `alert_content`

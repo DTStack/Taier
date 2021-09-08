@@ -1,6 +1,6 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.engine.api.domain.Cluster;
+import com.dtstack.engine.domain.Cluster;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Options;

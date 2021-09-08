@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.utils;
 
-import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.DateUtil;

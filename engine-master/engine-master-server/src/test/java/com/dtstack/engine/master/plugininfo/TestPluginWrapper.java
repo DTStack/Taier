@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.plugininfo;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.Cluster;
+import com.dtstack.engine.domain.Cluster;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.dao.ClusterDao;
 import com.dtstack.engine.master.AbstractTest;

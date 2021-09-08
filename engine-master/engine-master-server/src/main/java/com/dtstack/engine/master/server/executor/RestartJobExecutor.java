@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.server.executor;
 
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.ScheduleJobOperatorRecord;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.domain.ScheduleJobOperatorRecord;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.master.server.ScheduleBatchJob;
 import com.dtstack.engine.common.enums.OperatorType;

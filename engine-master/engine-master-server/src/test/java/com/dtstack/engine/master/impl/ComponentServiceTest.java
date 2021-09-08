@@ -1,11 +1,11 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.domain.Cluster;
-import com.dtstack.engine.api.domain.Component;
-import com.dtstack.engine.api.domain.Engine;
-import com.dtstack.engine.api.domain.EngineTenant;
-import com.dtstack.engine.api.vo.ComponentMultiVersionVO;
-import com.dtstack.engine.api.vo.ComponentVO;
+import com.dtstack.engine.domain.Cluster;
+import com.dtstack.engine.domain.Component;
+import com.dtstack.engine.domain.Engine;
+import com.dtstack.engine.domain.EngineTenant;
+import com.dtstack.engine.master.vo.ComponentMultiVersionVO;
+import com.dtstack.engine.master.vo.ComponentVO;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.exception.RdosDefineException;

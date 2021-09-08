@@ -1,15 +1,15 @@
 package com.dtstack.engine.master.controller;
 
-import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.api.pojo.ParamAction;
-import com.dtstack.engine.api.pojo.ParamActionExt;
-import com.dtstack.engine.api.pojo.ParamTaskAction;
-import com.dtstack.engine.api.vo.AppTypeVO;
-import com.dtstack.engine.api.vo.JobLogVO;
-import com.dtstack.engine.api.vo.action.ActionJobEntityVO;
-import com.dtstack.engine.api.vo.action.ActionJobStatusVO;
-import com.dtstack.engine.api.vo.action.ActionLogVO;
-import com.dtstack.engine.api.vo.action.ActionRetryLogVO;
+import com.dtstack.engine.master.impl.pojo.ParamActionExt;
+import com.dtstack.engine.master.impl.pojo.ParamTaskAction;
+import com.dtstack.engine.master.vo.AppTypeVO;
+import com.dtstack.engine.master.vo.JobLogVO;
+import com.dtstack.engine.master.vo.action.ActionJobEntityVO;
+import com.dtstack.engine.master.vo.action.ActionJobStatusVO;
+import com.dtstack.engine.master.vo.action.ActionLogVO;
+import com.dtstack.engine.master.vo.action.ActionRetryLogVO;
 import com.dtstack.engine.master.impl.ActionService;
 import org.springframework.web.bind.annotation.RequestParam;
 import io.swagger.annotations.Api;

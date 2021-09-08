@@ -1,6 +1,6 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.engine.api.domain.TenantResource;
+import com.dtstack.engine.domain.TenantResource;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -35,7 +35,7 @@ public interface TenantResourceDao {
     * @Description 根据uic租户id和任务类型查找
     * @Date 11:48 上午 2020/10/15
     * @Param [dtUicTenantId, taskType]
-    * @retrun com.dtstack.engine.api.domain.TenantResource
+    * @retrun com.dtstack.engine.domain.TenantResource
     **/
     TenantResource selectByUicTenantIdAndTaskType(@Param("dtUicTenantId") Long dtUicTenantId,@Param("taskType") Integer taskType);
 
@@ -44,7 +44,7 @@ public interface TenantResourceDao {
     * @Description 根据uic租户id查找
     * @Date 5:42 下午 2020/10/15
     * @Param [dtUicTenantId]
-    * @retrun java.util.List<com.dtstack.engine.api.domain.TenantResource>
+    * @retrun java.util.List<com.dtstack.engine.domain.TenantResource>
     **/
     List<TenantResource> selectByUicTenantId(Long dtUicTenantId);
 }

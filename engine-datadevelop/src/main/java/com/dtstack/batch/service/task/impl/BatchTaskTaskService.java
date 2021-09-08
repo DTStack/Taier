@@ -1,16 +1,15 @@
 package com.dtstack.batch.service.task.impl;
 
 import com.dtstack.batch.dao.BatchTaskTaskDao;
-import com.dtstack.engine.api.domain.BatchTask;
+import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.batch.domain.BatchTaskTask;
 import com.dtstack.batch.vo.BatchTaskBatchVO;
 import com.dtstack.dtcenter.common.enums.AppType;
 import com.dtstack.dtcenter.common.enums.Deleted;
-import com.dtstack.engine.api.domain.ScheduleEngineProject;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.vo.ScheduleDetailsVO;
-import com.dtstack.engine.api.vo.ScheduleTaskVO;
-import com.dtstack.engine.api.vo.project.ScheduleEngineProjectVO;
+import com.dtstack.engine.domain.ScheduleEngineProject;
+import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.master.vo.ScheduleDetailsVO;
+import com.dtstack.engine.master.vo.ScheduleTaskVO;
 import com.dtstack.engine.master.impl.*;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;

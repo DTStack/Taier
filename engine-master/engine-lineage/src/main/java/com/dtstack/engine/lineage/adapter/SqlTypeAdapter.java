@@ -1,6 +1,6 @@
 package com.dtstack.engine.lineage.adapter;
 
-import com.dtstack.engine.api.vo.lineage.SqlType;
+import com.dtstack.engine.lineage.vo.SqlType;
 
 import java.util.Objects;
 

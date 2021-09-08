@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.config;
 
-import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.master.event.ScheduleJobBatchEvent;
 import com.dtstack.engine.master.event.ScheduleJobEventPublisher;

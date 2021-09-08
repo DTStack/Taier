@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.server;
 
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.ScheduleJobJob;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.domain.ScheduleJobJob;
 import com.google.common.collect.Lists;
 
 import java.util.List;

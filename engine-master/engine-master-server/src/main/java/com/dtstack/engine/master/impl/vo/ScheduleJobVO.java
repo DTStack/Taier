@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.impl.vo;
 
-import com.dtstack.engine.api.domain.ScheduleEngineJob;
-import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.domain.ScheduleEngineJob;
+import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.master.server.scheduler.parser.ESchedulePeriodType;
@@ -12,7 +12,7 @@ import org.apache.commons.lang3.StringUtils;
  * author: toutian
  * create: 2017/6/6
  */
-public class ScheduleJobVO extends com.dtstack.engine.api.vo.ScheduleJobVO {
+public class ScheduleJobVO extends com.dtstack.engine.master.vo.ScheduleJobVO {
 
     public ScheduleJobVO() {
     }

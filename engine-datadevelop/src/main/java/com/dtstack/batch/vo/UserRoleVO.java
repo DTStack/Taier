@@ -1,7 +1,7 @@
 package com.dtstack.batch.vo;
 
 import com.dtstack.batch.domain.Role;
-import com.dtstack.engine.api.domain.User;
+import com.dtstack.engine.domain.User;
 import lombok.Data;
 
 import java.sql.Timestamp;

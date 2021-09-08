@@ -1,7 +1,7 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.engine.api.domain.ScheduleJobFailed;
-import com.dtstack.engine.api.vo.JobTopErrorVO;
+import com.dtstack.engine.domain.ScheduleJobFailed;
+import com.dtstack.engine.domain.po.JobTopErrorPO;
 import org.apache.ibatis.annotations.Param;
 
 import java.sql.Timestamp;
@@ -17,7 +17,7 @@ import java.util.List;
 public interface ScheduleJobFailedDao {
 
 
-    List<JobTopErrorVO> listTopError(@Param("appType") Integer appType,
+    List<JobTopErrorPO> listTopError(@Param("appType") Integer appType,
                                      @Param("dtuicTenantId") Long dtuicTenantId,
                                      @Param("projectId") Long projectId,
                                      @Param("timeTo") Timestamp timeTo);

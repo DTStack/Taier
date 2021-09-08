@@ -1,8 +1,8 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.EngineJobCheckpoint;
-import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.domain.EngineJobCheckpoint;
+import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.EngineType;

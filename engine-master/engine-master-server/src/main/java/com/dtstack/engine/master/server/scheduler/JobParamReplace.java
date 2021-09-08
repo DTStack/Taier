@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.server.scheduler;
 
-import com.dtstack.engine.api.dto.ScheduleTaskParamShade;
+import com.dtstack.engine.dto.ScheduleTaskParamShade;
 import com.dtstack.engine.common.enums.EParamType;
 import com.dtstack.engine.common.util.TimeParamOperatorUtil;
 import org.apache.commons.collections.CollectionUtils;

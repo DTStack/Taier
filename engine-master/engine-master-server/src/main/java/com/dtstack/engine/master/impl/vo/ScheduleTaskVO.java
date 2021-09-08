@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.impl.vo;
 
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.dto.ScheduleTaskForFillDataDTO;
+import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.dto.ScheduleTaskForFillDataDTO;
 import com.dtstack.engine.master.server.scheduler.parser.ESchedulePeriodType;
 import com.dtstack.engine.master.server.scheduler.parser.ScheduleCron;
 import com.dtstack.engine.master.server.scheduler.parser.ScheduleFactory;
@@ -15,7 +15,7 @@ import org.springframework.beans.BeanUtils;
  * author: toutian
  * create: 2019/10/22
  */
-public class ScheduleTaskVO extends com.dtstack.engine.api.vo.ScheduleTaskVO {
+public class ScheduleTaskVO extends com.dtstack.engine.master.vo.ScheduleTaskVO {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleTaskVO.class);
 

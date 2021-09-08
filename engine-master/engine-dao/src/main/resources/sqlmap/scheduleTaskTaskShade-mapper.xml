@@ -57,7 +57,7 @@
         WHERE parent_task_id = #{parentTaskId} and is_deleted = 0 AND parent_app_type = #{appType}
     </select>
 
-    <select id="listChildTaskLimit" resultType="com.dtstack.engine.api.domain.ScheduleTaskTaskShade">
+    <select id="listChildTaskLimit" resultType="com.dtstack.engine.domain.ScheduleTaskTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_task_task_shade
@@ -107,7 +107,7 @@
         FROM schedule_task_task_shade
         WHERE task_id = #{taskId} and parent_task_id = #{parentTaskId} AND is_deleted = 0 AND app_type = #{appType} LIMIT 1
     </select>
-    <select id="listParentTaskKeys" resultType="com.dtstack.engine.api.domain.ScheduleTaskTaskShade">
+    <select id="listParentTaskKeys" resultType="com.dtstack.engine.domain.ScheduleTaskTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_task_task_shade
@@ -118,7 +118,7 @@
         </foreach>
     </select>
 
-    <select id="listTaskKeys" resultType="com.dtstack.engine.api.domain.ScheduleTaskTaskShade">
+    <select id="listTaskKeys" resultType="com.dtstack.engine.domain.ScheduleTaskTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_task_task_shade
@@ -129,7 +129,7 @@
         </foreach>
     </select>
     <select id="getTaskOtherPlatformByProjectId"
-            resultType="com.dtstack.engine.api.domain.ScheduleTaskTaskShade">
+            resultType="com.dtstack.engine.domain.ScheduleTaskTaskShade">
         SELECT
             tts.id,
             tts.tenant_id,

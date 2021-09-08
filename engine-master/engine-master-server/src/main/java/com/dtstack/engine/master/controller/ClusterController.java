@@ -1,12 +1,12 @@
 package com.dtstack.engine.master.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.dto.ClusterDTO;
-import com.dtstack.engine.api.enums.DbType;
-import com.dtstack.engine.api.enums.EComponentApiType;
-import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.vo.ClusterEngineVO;
-import com.dtstack.engine.api.vo.ClusterVO;
+import com.dtstack.engine.dto.ClusterDTO;
+import com.dtstack.engine.common.enums.DbType;
+import com.dtstack.engine.common.enums.EComponentApiType;
+import com.dtstack.engine.common.pager.PageResult;
+import com.dtstack.engine.master.vo.ClusterEngineVO;
+import com.dtstack.engine.master.vo.ClusterVO;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.impl.ClusterService;
 import org.springframework.web.bind.annotation.RequestParam;

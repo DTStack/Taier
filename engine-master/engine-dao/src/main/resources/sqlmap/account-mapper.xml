@@ -60,7 +60,7 @@
     </update>
 
 
-    <select id="getOne" resultType="com.dtstack.engine.api.domain.Account">
+    <select id="getOne" resultType="com.dtstack.engine.domain.Account">
         select a.*
         from console_account a left JOIN
         console_account_tenant at on a.id = at.account_id

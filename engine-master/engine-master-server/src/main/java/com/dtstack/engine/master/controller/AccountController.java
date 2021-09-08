@@ -1,10 +1,10 @@
 package com.dtstack.engine.master.controller;
 
-import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.vo.AccountTenantVo;
-import com.dtstack.engine.api.vo.AccountVo;
-import com.dtstack.engine.api.vo.AccountVoLists;
-import com.dtstack.engine.api.vo.user.UserVO;
+import com.dtstack.engine.common.pager.PageResult;
+import com.dtstack.engine.master.vo.AccountTenantVo;
+import com.dtstack.engine.master.vo.AccountVo;
+import com.dtstack.engine.master.vo.AccountVoLists;
+import com.dtstack.engine.master.vo.user.UserVO;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.impl.AccountService;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/node/account")

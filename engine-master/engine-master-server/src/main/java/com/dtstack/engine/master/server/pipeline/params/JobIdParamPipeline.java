@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.server.pipeline.params;
 
-import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.server.pipeline.IPipeline;
 

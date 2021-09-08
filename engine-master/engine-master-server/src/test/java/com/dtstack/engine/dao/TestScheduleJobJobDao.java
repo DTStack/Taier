@@ -18,7 +18,7 @@
 
 package com.dtstack.engine.dao;
 
-import com.dtstack.engine.api.domain.ScheduleJobJob;
+import com.dtstack.engine.domain.ScheduleJobJob;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;

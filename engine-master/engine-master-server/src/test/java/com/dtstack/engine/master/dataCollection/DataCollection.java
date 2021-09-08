@@ -1,10 +1,10 @@
 package com.dtstack.engine.master.dataCollection;
 
-import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.domain.*;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.api.domain.AlertChannel;
-import com.dtstack.engine.api.domain.AlertRecord;
+import com.dtstack.engine.domain.AlertChannel;
+import com.dtstack.engine.domain.AlertRecord;
 import com.dtstack.engine.master.anno.DataSource;
 import com.dtstack.engine.master.anno.DatabaseInsertOperation;
 import com.dtstack.engine.master.anno.IgnoreUniqueRandomSet;
@@ -51,7 +51,7 @@ public interface DataCollection {
      * @author newman
      * @Description 获取虚节点任务实例
      * @Date 2020/12/30 7:09 下午
-     * @return: com.dtstack.engine.api.domain.ScheduleJob
+     * @return: com.dtstack.engine.domain.ScheduleJob
      **/
     @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
     default ScheduleJob getScheduleJobVirtual() {
@@ -356,7 +356,7 @@ public interface DataCollection {
      * @author zyd
      * @Description 失败重试的任务
      * @Date 2020/11/14 10:02 上午
-     * @return: com.dtstack.engine.api.domain.EngineJobCache
+     * @return: com.dtstack.engine.domain.EngineJobCache
      **/
     @DatabaseInsertOperation(dao = TestEngineJobCacheDao.class)
     @IgnoreUniqueRandomSet
@@ -375,7 +375,7 @@ public interface DataCollection {
      * @author zyd
      * @Description 构造不同jobId的jobCache，防止被其他线程删掉
      * @Date 2020/11/27 2:46 下午
-     * @return: com.dtstack.engine.api.domain.EngineJobCache
+     * @return: com.dtstack.engine.domain.EngineJobCache
      **/
     @DatabaseInsertOperation(dao = TestEngineJobCacheDao.class)
     @IgnoreUniqueRandomSet
@@ -495,7 +495,7 @@ public interface DataCollection {
      * @author newman
      * @Description 虚节点任务
      * @Date 2020/12/30 7:07 下午
-     * @return: com.dtstack.engine.api.domain.ScheduleTaskShade
+     * @return: com.dtstack.engine.domain.ScheduleTaskShade
      **/
     @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
     @IgnoreUniqueRandomSet

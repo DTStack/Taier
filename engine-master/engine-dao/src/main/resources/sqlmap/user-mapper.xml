@@ -52,7 +52,7 @@
         WHERE id=#{userId} AND is_deleted=0 limit 1
     </select>
 
-    <select id="getByDtUicUserIds" resultType="com.dtstack.engine.api.domain.User">
+    <select id="getByDtUicUserIds" resultType="com.dtstack.engine.domain.User">
         SELECT
         <include refid="select_content_fragment"/>
         FROM console_user
@@ -64,7 +64,7 @@
     </select>
 
 
-    <select id="getAllUser" resultType="com.dtstack.engine.api.domain.User">
+    <select id="getAllUser" resultType="com.dtstack.engine.domain.User">
         SELECT
         <include refid="select_content_fragment"/>
         FROM console_user
@@ -132,7 +132,7 @@
         </foreach>
     </insert>
 
-    <select id="getUsersByUserNameAndUserIds" resultType="com.dtstack.engine.api.domain.User">
+    <select id="getUsersByUserNameAndUserIds" resultType="com.dtstack.engine.domain.User">
         SELECT
         <include refid="select_content_fragment"/>
         FROM console_user
@@ -150,7 +150,7 @@
         LIMIT 50
     </select>
 
-    <select id="getUsersByUserName" resultType="com.dtstack.engine.api.domain.User">
+    <select id="getUsersByUserName" resultType="com.dtstack.engine.domain.User">
         SELECT
         <include refid="select_content_fragment"/>
         FROM console_user

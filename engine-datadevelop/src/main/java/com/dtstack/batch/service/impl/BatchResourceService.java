@@ -1,7 +1,7 @@
 package com.dtstack.batch.service.impl;
 
 import com.dtstack.batch.common.enums.CatalogueType;
-import com.dtstack.engine.api.domain.User;
+import com.dtstack.engine.domain.User;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.batch.common.exception.ErrorCode;
 import com.dtstack.batch.common.exception.RdosDefineException;
@@ -31,7 +31,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;

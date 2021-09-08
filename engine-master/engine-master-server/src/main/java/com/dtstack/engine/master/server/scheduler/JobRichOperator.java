@@ -2,10 +2,10 @@ package com.dtstack.engine.master.server.scheduler;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.ScheduleJobJob;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.enums.TaskRuleEnum;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.domain.ScheduleJobJob;
+import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.common.enums.TaskRuleEnum;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.dao.ScheduleEngineProjectDao;

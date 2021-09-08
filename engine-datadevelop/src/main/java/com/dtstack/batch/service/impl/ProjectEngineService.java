@@ -3,15 +3,12 @@ package com.dtstack.batch.service.impl;
 import com.dtstack.batch.common.exception.ErrorCode;
 import com.dtstack.batch.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.ProjectEngineDao;
-import com.dtstack.batch.domain.Project;
 import com.dtstack.batch.domain.ProjectEngine;
-import com.dtstack.batch.domain.RoleUser;
-import com.dtstack.engine.api.domain.ScheduleEngineProject;
-import com.dtstack.engine.api.domain.Tenant;
+import com.dtstack.engine.domain.ScheduleEngineProject;
+import com.dtstack.engine.domain.Tenant;
 import com.dtstack.batch.mapping.TableTypeEngineTypeMapping;
 import com.dtstack.dtcenter.common.annotation.Forbidden;
 import com.dtstack.dtcenter.common.enums.MultiEngineType;
-import com.dtstack.dtcenter.common.enums.RoleValue;
 import com.dtstack.engine.master.impl.ProjectService;
 import com.dtstack.engine.master.impl.TenantService;
 import com.google.common.collect.HashBasedTable;
@@ -23,10 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**

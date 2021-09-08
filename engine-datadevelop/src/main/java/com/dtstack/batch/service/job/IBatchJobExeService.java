@@ -1,11 +1,10 @@
 package com.dtstack.batch.service.job;
 
-import com.dtstack.engine.api.domain.BatchTask;
+import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.batch.domain.BatchTaskParamShade;
-import com.dtstack.batch.domain.Project;
 import com.dtstack.batch.vo.ExecuteResultVO;
 import com.dtstack.batch.vo.ExecuteSqlParseVO;
-import com.dtstack.engine.api.domain.ScheduleEngineProject;
+import com.dtstack.engine.domain.ScheduleEngineProject;
 
 import java.util.List;
 import java.util.Map;

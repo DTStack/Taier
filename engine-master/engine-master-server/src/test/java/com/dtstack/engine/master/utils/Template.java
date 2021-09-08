@@ -2,14 +2,14 @@ package com.dtstack.engine.master.utils;
 
 import com.dtstack.engine.alert.enums.AlertGateCode;
 import com.dtstack.engine.alert.enums.AlertGateTypeEnum;
-import com.dtstack.engine.api.domain.*;
-import com.dtstack.engine.api.enums.LineageOriginType;
-import com.dtstack.engine.api.enums.TaskRuleEnum;
+import com.dtstack.engine.domain.*;
+import com.dtstack.engine.common.enums.LineageOriginType;
+import com.dtstack.engine.common.enums.TaskRuleEnum;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.MD5Util;
-import com.dtstack.engine.api.domain.AlertChannel;
-import com.dtstack.engine.api.domain.AlertRecord;
+import com.dtstack.engine.domain.AlertChannel;
+import com.dtstack.engine.domain.AlertRecord;
 import com.dtstack.engine.common.enums.AppType;
 import com.dtstack.engine.common.enums.DataSourceType;
 

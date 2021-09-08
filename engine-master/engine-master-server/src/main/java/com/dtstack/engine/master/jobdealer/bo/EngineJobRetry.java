@@ -1,14 +1,14 @@
 package com.dtstack.engine.master.jobdealer.bo;
 
 
-import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.common.JobClient;
 import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author toutian
  */
-public class EngineJobRetry extends com.dtstack.engine.api.domain.EngineJobRetry {
+public class EngineJobRetry extends com.dtstack.engine.domain.EngineJobRetry {
 
     public static EngineJobRetry toEntity(ScheduleJob batchJob, JobClient jobClient) {
         EngineJobRetry batchJobRetry = new EngineJobRetry();
