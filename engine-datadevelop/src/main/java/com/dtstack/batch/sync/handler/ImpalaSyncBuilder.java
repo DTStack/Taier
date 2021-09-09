@@ -15,7 +15,7 @@ import com.dtstack.batch.sync.template.KuduWriter;
 import com.dtstack.batch.sync.util.ImpalaUtils;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
-import com.dtstack.engine.api.pojo.lineage.Column;
+import com.dtstack.engine.common.pojo.Column;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;

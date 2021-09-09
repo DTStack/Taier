@@ -1,7 +1,7 @@
 package com.dtstack.engine.dtscript;
 
 import com.alibaba.fastjson.JSON;
-import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.JobClient;
 
 /**

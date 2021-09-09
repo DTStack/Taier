@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.domain.Engine;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import org.junit.Assert;

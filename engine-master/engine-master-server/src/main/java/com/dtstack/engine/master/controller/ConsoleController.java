@@ -2,7 +2,7 @@ package com.dtstack.engine.master.controller;
 
 import com.dtstack.engine.common.pager.PageResult;
 import com.dtstack.engine.master.vo.console.ConsoleJobVO;
-import com.dtstack.engine.api.pojo.ClusterResource;
+import com.dtstack.engine.common.pojo.ClusterResource;
 import com.dtstack.engine.master.impl.ConsoleService;
 import com.dtstack.engine.master.impl.vo.ResourceTemplateVO;
 import io.swagger.annotations.Api;

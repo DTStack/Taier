@@ -1,8 +1,8 @@
 package com.dtstack.engine.rdbs.hive;
 
-import com.dtstack.engine.api.pojo.ClusterResource;
-import com.dtstack.engine.api.pojo.ParamAction;
-import com.dtstack.engine.api.pojo.lineage.Column;
+import com.dtstack.engine.common.pojo.ClusterResource;
+import com.dtstack.engine.common.pojo.ParamAction;
+import com.dtstack.engine.common.pojo.Column;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MD5Util;

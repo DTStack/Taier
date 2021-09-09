@@ -1,4 +1,4 @@
-package com.dtstack.engine.api.pojo.lineage;
+package com.dtstack.engine.common.pojo;
 
 
 /**

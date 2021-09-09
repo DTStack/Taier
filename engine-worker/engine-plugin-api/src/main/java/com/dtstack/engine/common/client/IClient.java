@@ -1,13 +1,13 @@
 package com.dtstack.engine.common.client;
 
-import com.dtstack.engine.api.pojo.CheckResult;
-import com.dtstack.engine.api.pojo.DtScriptAgentLabel;
-import com.dtstack.engine.api.pojo.lineage.Column;
+import com.dtstack.engine.common.pojo.CheckResult;
+import com.dtstack.engine.common.pojo.DtScriptAgentLabel;
+import com.dtstack.engine.common.pojo.Column;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.api.pojo.ClusterResource;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.common.pojo.ClusterResource;
+import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
 

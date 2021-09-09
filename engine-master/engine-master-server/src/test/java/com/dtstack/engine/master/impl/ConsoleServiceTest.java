@@ -6,7 +6,7 @@ import com.dtstack.engine.domain.Component;
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.common.pager.PageResult;
-import com.dtstack.engine.api.pojo.ClusterResource;
+import com.dtstack.engine.common.pojo.ClusterResource;
 import com.dtstack.engine.master.vo.console.ConsoleJobVO;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.RdosTaskStatus;

@@ -57,7 +57,7 @@ import com.dtstack.dtcenter.loader.source.DataBaseType;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.dtcenter.loader.utils.DBUtil;
 import com.dtstack.engine.dto.DataSourceDTO;
-import com.dtstack.engine.api.pojo.lineage.Column;
+import com.dtstack.engine.common.pojo.Column;
 import com.dtstack.engine.lineage.pojo.Table;
 import com.dtstack.engine.datasource.facade.datasource.ApiServiceFacade;
 import com.dtstack.engine.datasource.param.datasource.api.CreateDsParam;

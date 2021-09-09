@@ -7,7 +7,6 @@ import io.swagger.annotations.ApiModel;
  * author: toutian
  * create: 2017/12/29
  */
-@ApiModel
 public class PageQuery<T> {
 
     private T model;

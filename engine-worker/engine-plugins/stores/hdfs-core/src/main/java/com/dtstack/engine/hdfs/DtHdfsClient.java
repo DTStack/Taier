@@ -1,8 +1,8 @@
 package com.dtstack.engine.hdfs;
 
 
-import com.dtstack.engine.api.pojo.ClusterResource;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.common.pojo.ClusterResource;
+import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.JobClient;

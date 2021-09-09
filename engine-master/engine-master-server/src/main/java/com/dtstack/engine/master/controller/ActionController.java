@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.controller;
 
 import com.dtstack.engine.domain.ScheduleJob;
-import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.master.impl.pojo.ParamActionExt;
 import com.dtstack.engine.master.impl.pojo.ParamTaskAction;
 import com.dtstack.engine.master.vo.AppTypeVO;

@@ -1,7 +1,7 @@
 package com.dtstack.engine.rdbs.mysql;
 
 
-import com.dtstack.engine.api.pojo.lineage.Column;
+import com.dtstack.engine.common.pojo.Column;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.rdbs.common.AbstractRdbsClient;
 import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;

@@ -2,7 +2,7 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.domain.ScheduleJob;
-import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.master.vo.action.ActionJobStatusVO;
 import com.dtstack.engine.master.vo.action.ActionLogVO;
 import com.dtstack.engine.common.client.ClientOperator;

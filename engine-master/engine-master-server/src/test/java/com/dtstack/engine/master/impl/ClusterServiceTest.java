@@ -6,7 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.domain.Queue;
 import com.dtstack.engine.domain.*;
 import com.dtstack.engine.common.pager.PageResult;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.master.vo.*;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.client.ClientOperator;

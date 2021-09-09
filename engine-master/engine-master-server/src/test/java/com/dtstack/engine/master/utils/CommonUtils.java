@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.utils;
 
 import com.dtstack.engine.domain.EngineJobCache;
-import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.master.dataCollection.DataCollection;

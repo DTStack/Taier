@@ -1,6 +1,6 @@
 package com.dtstack.engine.rdbs.inceptor;
 
-import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.util.MD5Util;

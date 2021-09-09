@@ -3,9 +3,9 @@ package com.dtstack.engine.hadoop;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.pojo.ClusterResource;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
-import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.common.pojo.ClusterResource;
+import com.dtstack.engine.common.pojo.ComponentTestResult;
+import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.base.resource.EngineResourceInfo;
 import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.base.util.KerberosUtils;

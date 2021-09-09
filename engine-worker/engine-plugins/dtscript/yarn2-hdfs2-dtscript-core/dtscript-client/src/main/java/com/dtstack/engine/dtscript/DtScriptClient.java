@@ -1,7 +1,7 @@
 package com.dtstack.engine.dtscript;
 
-import com.dtstack.engine.api.pojo.ClusterResource;
-import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.common.pojo.ClusterResource;
+import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.engine.base.util.HadoopConfTool;

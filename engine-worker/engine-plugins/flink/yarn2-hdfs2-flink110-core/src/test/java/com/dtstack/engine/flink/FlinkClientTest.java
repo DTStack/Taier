@@ -1,9 +1,8 @@
 package com.dtstack.engine.flink;
 
-import com.dtstack.engine.api.pojo.CheckResult;
+import com.dtstack.engine.common.pojo.CheckResult;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -13,7 +12,6 @@ import com.dtstack.engine.flink.plugininfo.SqlPluginInfo;
 import com.dtstack.engine.flink.util.FileUtil;
 import com.dtstack.engine.flink.util.FlinkConfUtil;
 import com.dtstack.engine.flink.util.FlinkUtil;
-import com.dtstack.engine.flink.util.HadoopConf;
 import com.google.common.collect.Maps;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.PackagedProgram;
@@ -42,10 +40,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;

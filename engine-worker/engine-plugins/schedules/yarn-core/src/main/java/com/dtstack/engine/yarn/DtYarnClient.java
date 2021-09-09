@@ -3,9 +3,9 @@ package com.dtstack.engine.yarn;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.pojo.ClusterResource;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
-import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.common.pojo.ClusterResource;
+import com.dtstack.engine.common.pojo.ComponentTestResult;
+import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.JobClient;
@@ -44,7 +44,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 
 public class DtYarnClient extends AbstractClient {

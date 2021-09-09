@@ -1,6 +1,6 @@
 package com.dtstack.engine.local.test;
 
-import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.callback.CallBack;

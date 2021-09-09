@@ -1,6 +1,6 @@
 package com.dtstack.engine.rdbs.common;
 
-import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.base.resource.EngineResourceInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;

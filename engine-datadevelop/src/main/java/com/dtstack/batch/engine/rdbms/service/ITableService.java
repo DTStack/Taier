@@ -1,7 +1,7 @@
 package com.dtstack.batch.engine.rdbms.service;
 
 import com.dtstack.batch.common.enums.ETableType;
-import com.dtstack.engine.api.pojo.lineage.Column;
+import com.dtstack.engine.common.pojo.Column;
 import com.dtstack.engine.lineage.pojo.Table;
 
 import java.util.List;

@@ -3,7 +3,7 @@ package com.dtstack.engine.master.impl;
 import com.dtstack.engine.domain.Tenant;
 import com.dtstack.engine.domain.User;
 import com.dtstack.engine.common.pager.PageResult;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.master.vo.AccountTenantVo;
 import com.dtstack.engine.master.vo.AccountVo;
 import com.dtstack.engine.master.vo.ClusterVO;

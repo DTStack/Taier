@@ -1,4 +1,4 @@
-package com.dtstack.engine.api.pojo;
+package com.dtstack.engine.common.pojo;
 
 import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.ApiModel;
@@ -15,7 +15,6 @@ import java.util.Map;
  * @author sishu.yss
  *
  */
-@ApiModel
 public class ParamAction {
 
 	private static final Logger logger = LoggerFactory.getLogger(ParamAction.class);

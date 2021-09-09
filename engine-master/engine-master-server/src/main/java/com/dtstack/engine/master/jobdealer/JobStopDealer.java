@@ -3,7 +3,7 @@ package com.dtstack.engine.master.jobdealer;
 
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleJobOperatorRecord;
-import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.CustomThreadRunsPolicy;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.*;

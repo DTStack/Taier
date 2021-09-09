@@ -2,7 +2,7 @@ package com.dtstack.engine.flink;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.pojo.CheckResult;
+import com.dtstack.engine.common.pojo.CheckResult;
 import com.dtstack.engine.base.filesystem.FilesystemManager;
 import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.engine.base.util.KerberosUtils;
@@ -88,7 +88,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;

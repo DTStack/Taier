@@ -1,7 +1,7 @@
 package com.dtstack.engine.common;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;

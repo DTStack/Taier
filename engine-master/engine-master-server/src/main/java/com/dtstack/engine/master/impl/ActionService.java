@@ -10,7 +10,7 @@ import com.dtstack.engine.domain.EngineJobRetry;
 import com.dtstack.engine.domain.EngineUniqueSign;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.master.impl.pojo.ParamActionExt;
 import com.dtstack.engine.master.vo.AppTypeVO;
 import com.dtstack.engine.master.vo.JobLogVO;

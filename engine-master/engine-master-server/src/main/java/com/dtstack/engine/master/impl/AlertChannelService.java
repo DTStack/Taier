@@ -11,7 +11,7 @@ import com.dtstack.engine.common.pager.PageResult;
 import com.dtstack.engine.master.controller.param.ClusterAlertPageParam;
 import com.dtstack.engine.master.controller.param.ClusterAlertParam;
 import com.dtstack.engine.master.impl.pojo.ClientTemplate;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.master.vo.AlterSftpVO;
 import com.dtstack.engine.master.vo.alert.AlertGateVO;
 import com.dtstack.engine.common.enums.EComponentType;

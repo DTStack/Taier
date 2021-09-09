@@ -1,7 +1,7 @@
 package com.dtstack.engine.lineage.pojo;
 
 import com.dtstack.engine.common.enums.TableOperateEnum;
-import com.dtstack.engine.api.pojo.lineage.Column;
+import com.dtstack.engine.common.pojo.Column;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;

@@ -1,6 +1,6 @@
 package com.dtstack.engine.flink;
 
-import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.base.enums.ClassLoaderType;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;

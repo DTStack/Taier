@@ -6,7 +6,7 @@ import com.dtstack.engine.domain.*;
 import com.dtstack.engine.dto.ClusterDTO;
 import com.dtstack.engine.common.pager.PageQuery;
 import com.dtstack.engine.common.pager.PageResult;
-import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.master.vo.*;
 import com.dtstack.engine.common.constrant.ComponentConstant;
 import com.dtstack.engine.common.constrant.ConfigConstant;

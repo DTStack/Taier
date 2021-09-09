@@ -7,7 +7,6 @@ import io.swagger.annotations.ApiModel;
  * author: toutian
  * create: 2017/4/27
  */
-@ApiModel
 public class PageResult<T> {
 
     public final static PageResult EMPTY_PAGE_RESULT = new PageResult<>();

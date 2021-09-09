@@ -18,7 +18,7 @@
 
 package com.dtstack.engine.flink.factory;
 
-import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.base.enums.ClassLoaderType;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.JarFileInfo;
