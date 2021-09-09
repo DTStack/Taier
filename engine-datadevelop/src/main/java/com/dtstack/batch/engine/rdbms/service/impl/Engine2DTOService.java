@@ -833,7 +833,7 @@ public enum Engine2DTOService {
     public static String getEnginePluginInfo(Long uicTenantId, Integer engineType) {
         List<ComponentsConfigOfComponentsVO> data = componentService.listConfigOfComponents(uicTenantId, engineType,null);
         if (CollectionUtils.isEmpty(data)) {
-            throw new com.dtstack.engine.common.exception.RdosDefineException("Component does not exist");
+            throw new com.dtstack.engine.pluginapi.exception.RdosDefineException("Component does not exist");
         }
         JSONObject enginePluginInfo = new JSONObject();
         for (ComponentsConfigOfComponentsVO vo : data) {

@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.server.scheduler;
 
-import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;

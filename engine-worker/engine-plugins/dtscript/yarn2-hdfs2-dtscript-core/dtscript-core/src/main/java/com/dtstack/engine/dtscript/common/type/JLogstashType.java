@@ -1,7 +1,6 @@
 package com.dtstack.engine.dtscript.common.type;
 
 import ch.qos.logback.classic.Level;
-import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.client.ClientArguments;
 import com.dtstack.engine.dtscript.util.Base64Util;

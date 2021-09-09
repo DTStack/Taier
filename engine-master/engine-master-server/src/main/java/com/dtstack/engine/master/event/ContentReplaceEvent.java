@@ -2,7 +2,7 @@ package com.dtstack.engine.master.event;
 
 import com.dtstack.engine.alert.AdapterEventMonitor;
 import com.dtstack.engine.alert.AlterContext;
-import com.dtstack.engine.common.exception.ExceptionUtil;
+import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.RenderUtil;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;

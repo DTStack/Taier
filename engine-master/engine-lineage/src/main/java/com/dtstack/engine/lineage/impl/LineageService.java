@@ -1,8 +1,8 @@
 package com.dtstack.engine.lineage.impl;
 
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.ErrorCode;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.lineage.enums.SourceType2TableType;
 import com.dtstack.engine.lineage.util.SqlParserClientOperator;
 import com.dtstack.sqlparser.common.client.ISqlParserClient;

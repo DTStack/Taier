@@ -1,9 +1,9 @@
 package com.dtstack.engine.base.util;
 
 import com.dtstack.engine.base.BaseConfig;
-import com.dtstack.engine.common.constrant.ConfigConstant;
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.sftp.SftpFileManage;
+import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.sftp.SftpFileManage;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.MapUtils;

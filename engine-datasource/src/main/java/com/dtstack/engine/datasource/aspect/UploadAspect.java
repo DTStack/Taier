@@ -1,6 +1,6 @@
 package com.dtstack.engine.datasource.aspect;
 
-import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
 import com.dtstack.engine.datasource.param.BaseParam;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;

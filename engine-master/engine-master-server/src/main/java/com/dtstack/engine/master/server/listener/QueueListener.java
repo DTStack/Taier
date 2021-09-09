@@ -3,7 +3,7 @@ package com.dtstack.engine.master.server.listener;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.server.queue.GroupInfo;
 import com.dtstack.engine.common.util.LogCountUtil;
-import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.server.executor.JobExecutorTrigger;
 import com.dtstack.engine.master.server.queue.QueueInfo;

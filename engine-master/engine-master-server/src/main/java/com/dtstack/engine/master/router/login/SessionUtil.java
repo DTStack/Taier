@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.router.login;
 
-import com.dtstack.engine.common.util.MD5Util;
+import com.dtstack.engine.pluginapi.util.MD5Util;
 import com.dtstack.engine.master.router.cache.SessionCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;

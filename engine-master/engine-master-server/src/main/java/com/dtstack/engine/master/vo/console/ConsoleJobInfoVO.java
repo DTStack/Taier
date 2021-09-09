@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.vo.console;
 
-import com.dtstack.engine.common.pojo.ParamAction;
+import com.dtstack.engine.pluginapi.pojo.ParamAction;
 
 import java.sql.Timestamp;
 import java.util.Date;

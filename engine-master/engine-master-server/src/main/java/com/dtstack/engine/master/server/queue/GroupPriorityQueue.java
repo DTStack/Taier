@@ -1,13 +1,13 @@
 package com.dtstack.engine.master.server.queue;
 
 import com.dtstack.engine.domain.EngineJobCache;
-import com.dtstack.engine.common.pojo.ParamAction;
-import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.pluginapi.pojo.ParamAction;
+import com.dtstack.engine.pluginapi.CustomThreadFactory;
+import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.queue.comparator.JobClientComparator;
-import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.server.scheduler.JobPartitioner;

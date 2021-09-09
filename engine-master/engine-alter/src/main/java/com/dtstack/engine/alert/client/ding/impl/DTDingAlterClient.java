@@ -9,7 +9,7 @@ import com.dtstack.engine.alert.enums.AlertGateCode;
 import com.dtstack.engine.alert.enums.DingTypeEnums;
 import com.dtstack.engine.alert.exception.AlterException;
 import com.dtstack.engine.alert.http.HttpKit;
-import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.pluginapi.exception.ErrorCode;
 import dt.insight.plat.lang.web.R;
 import com.dtstack.engine.common.exception.BizException;
 import org.apache.commons.lang3.StringUtils;

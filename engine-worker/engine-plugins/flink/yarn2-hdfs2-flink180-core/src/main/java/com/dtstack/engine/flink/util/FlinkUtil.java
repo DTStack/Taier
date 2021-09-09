@@ -1,7 +1,7 @@
 package com.dtstack.engine.flink.util;
 
 import com.dtstack.engine.base.filesystem.FilesystemManager;
-import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.pluginapi.enums.EJobType;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.base.enums.ClassLoaderType;
 import org.apache.commons.lang3.StringUtils;

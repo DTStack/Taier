@@ -5,7 +5,7 @@ import com.dtstack.engine.domain.Engine;
 import com.dtstack.engine.domain.Queue;
 import com.dtstack.engine.domain.Tenant;
 import com.dtstack.engine.common.pager.PageResult;
-import com.dtstack.engine.common.pojo.ComponentTestResult;
+import com.dtstack.engine.pluginapi.pojo.ComponentTestResult;
 import com.dtstack.engine.master.vo.*;
 import com.dtstack.engine.common.client.ClientOperator;
 import com.dtstack.engine.common.enums.EComponentScheduleType;

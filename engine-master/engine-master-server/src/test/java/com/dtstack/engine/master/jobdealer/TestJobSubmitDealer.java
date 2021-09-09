@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.jobdealer;
 
-import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.server.queue.GroupPriorityQueue;

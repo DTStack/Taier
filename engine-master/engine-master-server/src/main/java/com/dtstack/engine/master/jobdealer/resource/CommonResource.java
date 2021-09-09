@@ -1,8 +1,8 @@
 package com.dtstack.engine.master.jobdealer.resource;
 
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.enums.EngineType;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.enums.EngineType;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.dao.ClusterDao;
 import com.dtstack.engine.dao.EngineDao;
 import com.dtstack.engine.dao.EngineTenantDao;

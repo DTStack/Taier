@@ -1,6 +1,6 @@
 package com.dtstack.engine.base.resource;
 
-import com.dtstack.engine.common.pojo.JudgeResult;
+import com.dtstack.engine.pluginapi.pojo.JudgeResult;
 import com.google.common.collect.Lists;
 import io.fabric8.kubernetes.api.model.Node;
 import io.fabric8.kubernetes.api.model.NodeStatus;
@@ -16,7 +16,6 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 
 /**

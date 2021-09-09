@@ -1,8 +1,8 @@
 package com.dtstack.engine.flink;
 
-import com.dtstack.engine.common.JarFileInfo;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.pluginapi.JarFileInfo;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.enums.ComputeType;
 import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
 import org.junit.Assert;
 import org.junit.Before;

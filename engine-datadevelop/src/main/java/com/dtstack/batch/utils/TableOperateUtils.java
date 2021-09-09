@@ -9,7 +9,7 @@ import com.dtstack.dtcenter.loader.client.IClient;
 import com.dtstack.dtcenter.loader.dto.ColumnMetaDTO;
 import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
-import com.dtstack.engine.common.pojo.Column;
+import com.dtstack.engine.pluginapi.pojo.Column;
 import com.dtstack.engine.lineage.pojo.Table;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.BooleanUtils;

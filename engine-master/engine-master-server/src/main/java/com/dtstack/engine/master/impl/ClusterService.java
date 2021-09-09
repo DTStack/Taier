@@ -6,17 +6,20 @@ import com.dtstack.engine.domain.*;
 import com.dtstack.engine.dto.ClusterDTO;
 import com.dtstack.engine.common.pager.PageQuery;
 import com.dtstack.engine.common.pager.PageResult;
-import com.dtstack.engine.common.pojo.ParamAction;
+import com.dtstack.engine.pluginapi.enums.ComputeType;
+import com.dtstack.engine.pluginapi.enums.EDeployMode;
+import com.dtstack.engine.pluginapi.enums.EngineType;
+import com.dtstack.engine.pluginapi.pojo.ParamAction;
 import com.dtstack.engine.master.vo.*;
-import com.dtstack.engine.common.constrant.ComponentConstant;
-import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.engine.pluginapi.constrant.ComponentConstant;
+import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.EngineAssert;
-import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.ErrorCode;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.common.util.ComponentVersionUtil;
-import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.common.enums.DataSourceType;
@@ -47,7 +50,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.dtstack.engine.common.constrant.ConfigConstant.*;
+import static com.dtstack.engine.pluginapi.constrant.ConfigConstant.*;
 import static java.lang.String.format;
 
 @Service

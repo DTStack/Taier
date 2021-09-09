@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.jobdealer;
 
 import com.dtstack.engine.domain.Cluster;
-import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.dao.ClusterDao;
 import com.dtstack.engine.dao.EngineTenantDao;
 import com.dtstack.engine.master.AbstractTest;

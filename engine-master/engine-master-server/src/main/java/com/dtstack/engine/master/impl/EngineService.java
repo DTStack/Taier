@@ -4,7 +4,7 @@ import com.dtstack.engine.domain.Component;
 import com.dtstack.engine.domain.Engine;
 import com.dtstack.engine.domain.EngineTenant;
 import com.dtstack.engine.domain.Queue;
-import com.dtstack.engine.common.pojo.ComponentTestResult;
+import com.dtstack.engine.pluginapi.pojo.ComponentTestResult;
 import com.dtstack.engine.master.vo.QueueVO;
 import com.dtstack.engine.master.vo.engine.EngineSupportVO;
 import com.dtstack.engine.common.enums.MultiEngineType;

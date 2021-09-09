@@ -20,7 +20,7 @@ package com.dtstack.engine.master.enums;
 
 
 import com.dtstack.engine.common.enums.ScheduleEngineType;
-import com.dtstack.engine.common.constrant.ComponentConstant;
+import com.dtstack.engine.pluginapi.constrant.ComponentConstant;
 import com.dtstack.engine.common.enums.EComponentType;
 
 import java.util.Objects;

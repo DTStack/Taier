@@ -9,10 +9,10 @@ import com.dtstack.engine.master.impl.pojo.ClientTemplate;
 import com.dtstack.engine.master.vo.ComponentMultiVersionVO;
 import com.dtstack.engine.master.vo.ComponentVO;
 import com.dtstack.engine.master.vo.IComponentVO;
-import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EFrontType;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.master.utils.ComponentConfigUtils;
 import com.dtstack.engine.dao.ComponentConfigDao;
 import com.dtstack.engine.dao.ScheduleDictDao;
@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.dtstack.engine.common.constrant.ConfigConstant.TYPE_NAME_KEY;
+import static com.dtstack.engine.pluginapi.constrant.ConfigConstant.TYPE_NAME_KEY;
 
 /**
  * @author yuebai

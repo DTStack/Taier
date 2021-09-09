@@ -1,6 +1,9 @@
 package com.dtstack.engine.common.exception;
 
 
+import com.dtstack.engine.pluginapi.exception.ErrorCode;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+
 public class EngineAssert {
 
     public static void assertTrue(boolean expression, String message){

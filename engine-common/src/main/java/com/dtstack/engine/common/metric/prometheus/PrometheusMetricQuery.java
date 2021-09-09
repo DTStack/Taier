@@ -1,7 +1,7 @@
 package com.dtstack.engine.common.metric.prometheus;
 
 
-import com.dtstack.engine.common.http.PoolHttpClient;
+import com.dtstack.engine.pluginapi.http.PoolHttpClient;
 import com.dtstack.engine.common.metric.IMetricQuery;
 import com.dtstack.engine.common.metric.MetricResult;
 import com.dtstack.engine.common.metric.QueryInfo;

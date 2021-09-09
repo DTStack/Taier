@@ -2,8 +2,8 @@ package com.dtstack.engine.master.impl.vo;
 
 import com.dtstack.engine.domain.ScheduleEngineJob;
 import com.dtstack.engine.domain.ScheduleJob;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.util.DateUtil;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.engine.pluginapi.util.DateUtil;
 import com.dtstack.engine.master.server.scheduler.parser.ESchedulePeriodType;
 import org.apache.commons.lang3.StringUtils;
 

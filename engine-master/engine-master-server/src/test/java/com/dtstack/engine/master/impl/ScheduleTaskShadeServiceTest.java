@@ -13,7 +13,7 @@ import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.utils.Template;
 import com.dtstack.engine.common.enums.EProjectScheduleStatus;
-import com.dtstack.engine.common.enums.EScheduleJobType;
+import com.dtstack.engine.pluginapi.enums.EScheduleJobType;
 import com.dtstack.engine.common.enums.ESubmitStatus;
 import org.apache.commons.collections.CollectionUtils;
 import org.assertj.core.util.Lists;

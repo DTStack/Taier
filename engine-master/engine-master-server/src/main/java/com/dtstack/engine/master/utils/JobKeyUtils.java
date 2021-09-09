@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.utils;
 
-import com.dtstack.engine.common.util.MathUtil;
+import com.dtstack.engine.pluginapi.util.MathUtil;
 
 /**
  * @author yuebai

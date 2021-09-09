@@ -2,7 +2,7 @@ package com.dtstack.engine.master.controller;
 
 import com.dtstack.engine.domain.EngineJobCheckpoint;
 import com.dtstack.engine.domain.ScheduleJob;
-import com.dtstack.engine.common.pojo.CheckResult;
+import com.dtstack.engine.pluginapi.pojo.CheckResult;
 import com.dtstack.engine.master.impl.pojo.ParamActionExt;
 import com.dtstack.engine.master.impl.StreamTaskService;
 import io.swagger.annotations.Api;

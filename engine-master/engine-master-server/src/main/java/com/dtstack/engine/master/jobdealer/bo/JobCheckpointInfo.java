@@ -18,7 +18,7 @@
 
 package com.dtstack.engine.master.jobdealer.bo;
 
-import com.dtstack.engine.common.JobIdentifier;
+import com.dtstack.engine.pluginapi.JobIdentifier;
 
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;

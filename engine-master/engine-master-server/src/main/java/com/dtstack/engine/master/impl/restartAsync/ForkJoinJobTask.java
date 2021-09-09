@@ -5,7 +5,7 @@ import com.dtstack.engine.domain.ScheduleJobJob;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.master.utils.JobKeyUtils;
-import com.dtstack.engine.common.enums.EScheduleJobType;
+import com.dtstack.engine.pluginapi.enums.EScheduleJobType;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;

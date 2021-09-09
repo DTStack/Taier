@@ -20,9 +20,9 @@ package com.dtstack.engine.base.filesystem.factory;
 
 
 import com.dtstack.engine.base.filesystem.FileConfig;
-import com.dtstack.engine.common.IFileManage;
-import com.dtstack.engine.common.sftp.SftpConfig;
-import com.dtstack.engine.common.sftp.SftpFileManage;
+import com.dtstack.engine.pluginapi.IFileManage;
+import com.dtstack.engine.pluginapi.sftp.SftpConfig;
+import com.dtstack.engine.pluginapi.sftp.SftpFileManage;
 
 /**
  *  sftp文件管理

@@ -1,11 +1,11 @@
 package com.dtstack.engine.flink;
 
-import com.dtstack.engine.common.pojo.CheckResult;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.http.PoolHttpClient;
-import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.pluginapi.pojo.CheckResult;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.JobIdentifier;
+import com.dtstack.engine.pluginapi.http.PoolHttpClient;
+import com.dtstack.engine.pluginapi.pojo.JobResult;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
 import com.dtstack.engine.flink.factory.AbstractClientFactory;
 import com.dtstack.engine.flink.factory.PerJobClientFactory;
 import com.dtstack.engine.flink.plugininfo.SqlPluginInfo;

@@ -2,7 +2,7 @@ package com.dtstack.engine.master.jobdealer;
 
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.common.client.ClientOperator;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.WorkerOperator;
 import com.dtstack.engine.master.dataCollection.DataCollection;

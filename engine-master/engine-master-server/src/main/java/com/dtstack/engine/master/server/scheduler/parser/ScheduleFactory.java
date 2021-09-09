@@ -1,8 +1,8 @@
 package com.dtstack.engine.master.server.scheduler.parser;
 
 import com.dtstack.engine.common.enums.DependencyType;
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.MathUtil;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.util.MathUtil;
 import com.google.common.base.Preconditions;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;

@@ -6,7 +6,7 @@ import com.dtstack.engine.alert.client.mail.AbstractMailAlterClient;
 import com.dtstack.engine.alert.client.mail.AlterSendMailBean;
 import com.dtstack.engine.alert.enums.AlertGateCode;
 import com.dtstack.engine.alert.exception.AlterException;
-import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.pluginapi.exception.ErrorCode;
 import dt.insight.plat.lang.web.R;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.EmailException;

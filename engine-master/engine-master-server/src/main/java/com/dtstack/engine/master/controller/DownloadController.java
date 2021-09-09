@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.controller;
 
 import com.dtstack.engine.alert.enums.AlertGateTypeEnum;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.master.impl.ComponentService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;

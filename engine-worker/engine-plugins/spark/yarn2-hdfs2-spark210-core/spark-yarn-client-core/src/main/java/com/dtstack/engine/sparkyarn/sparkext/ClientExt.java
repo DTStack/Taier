@@ -1,7 +1,7 @@
 package com.dtstack.engine.sparkyarn.sparkext;
 
 import com.dtstack.engine.base.filesystem.FilesystemManager;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.sparkyarn.sparkyarn.SparkYarnConfig;
 import com.google.common.base.Strings;
 import com.google.common.io.Files;

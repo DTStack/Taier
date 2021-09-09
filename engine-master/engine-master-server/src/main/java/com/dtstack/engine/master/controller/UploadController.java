@@ -2,7 +2,7 @@ package com.dtstack.engine.master.controller;
 
 import com.dtstack.engine.dto.Resource;
 import com.dtstack.engine.master.vo.ComponentVO;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.master.impl.ComponentService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

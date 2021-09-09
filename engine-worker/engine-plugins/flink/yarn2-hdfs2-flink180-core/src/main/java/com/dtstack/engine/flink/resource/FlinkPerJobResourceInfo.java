@@ -1,8 +1,8 @@
 package com.dtstack.engine.flink.resource;
 
-import com.dtstack.engine.common.pojo.JudgeResult;
-import com.dtstack.engine.common.util.MathUtil;
-import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.pluginapi.pojo.JudgeResult;
+import com.dtstack.engine.pluginapi.util.MathUtil;
+import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.flink.util.FlinkUtil;
 import com.dtstack.engine.base.resource.AbstractYarnResourceInfo;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;

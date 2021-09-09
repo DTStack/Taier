@@ -1,10 +1,10 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.common.pojo.ParamAction;
-import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.pluginapi.pojo.ParamAction;
+import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.common.enums.EJobCacheStage;
-import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.master.jobdealer.JobDealer;

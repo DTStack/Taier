@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.router.login;
 
-import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.ErrorCode;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.master.router.util.CookieUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

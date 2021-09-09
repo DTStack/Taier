@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.zookeeper;
 
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.master.cron.ErrorTopCron;
 import com.dtstack.engine.master.server.scheduler.JobDataClear;
 import com.dtstack.engine.master.zookeeper.data.BrokerHeartNode;

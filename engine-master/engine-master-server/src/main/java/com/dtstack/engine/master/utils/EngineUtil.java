@@ -19,7 +19,7 @@
 package com.dtstack.engine.master.utils;
 
 import com.dtstack.engine.common.enums.MultiEngineType;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.common.enums.EComponentType;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;

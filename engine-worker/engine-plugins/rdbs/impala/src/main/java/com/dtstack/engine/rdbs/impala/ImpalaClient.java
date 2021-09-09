@@ -1,7 +1,7 @@
 package com.dtstack.engine.rdbs.impala;
 
-import com.dtstack.engine.common.pojo.Column;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.pojo.Column;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.rdbs.common.AbstractRdbsClient;
 import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 import org.apache.commons.lang.StringUtils;

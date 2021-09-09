@@ -1,14 +1,14 @@
 package com.dtstack.engine.local.test;
 
-import com.dtstack.engine.common.pojo.ParamAction;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.callback.CallBack;
-import com.dtstack.engine.common.callback.ClassLoaderCallBackMethod;
-import com.dtstack.engine.common.client.IClient;
-import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.util.MD5Util;
-import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.pluginapi.pojo.ParamAction;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.JobIdentifier;
+import com.dtstack.engine.pluginapi.callback.CallBack;
+import com.dtstack.engine.pluginapi.callback.ClassLoaderCallBackMethod;
+import com.dtstack.engine.pluginapi.client.IClient;
+import com.dtstack.engine.pluginapi.pojo.JobResult;
+import com.dtstack.engine.pluginapi.util.MD5Util;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

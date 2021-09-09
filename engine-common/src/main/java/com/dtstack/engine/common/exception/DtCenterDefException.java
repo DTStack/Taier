@@ -1,6 +1,7 @@
 package com.dtstack.engine.common.exception;
 
 import com.dtstack.engine.common.lang.base.Strings;
+import com.dtstack.engine.pluginapi.exception.ExceptionEnums;
 import org.apache.commons.lang3.StringUtils;
 
 /**

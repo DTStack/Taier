@@ -1,9 +1,9 @@
 package com.dtstack.engine.rdbs.common.executor;
 
-import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.logstore.AbstractLogStore;
-import com.dtstack.engine.common.logstore.LogStoreFactory;
+import com.dtstack.engine.pluginapi.CustomThreadFactory;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.logstore.AbstractLogStore;
+import com.dtstack.engine.pluginapi.logstore.LogStoreFactory;
 import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

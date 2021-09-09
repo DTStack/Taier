@@ -7,7 +7,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.master.server.FailoverStrategy;
 import com.dtstack.engine.master.zookeeper.data.BrokerHeartNode;

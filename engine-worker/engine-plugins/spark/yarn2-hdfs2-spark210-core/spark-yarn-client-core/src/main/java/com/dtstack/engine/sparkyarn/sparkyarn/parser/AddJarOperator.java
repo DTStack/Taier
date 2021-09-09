@@ -1,7 +1,7 @@
 package com.dtstack.engine.sparkyarn.sparkyarn.parser;
 
-import com.dtstack.engine.common.JarFileInfo;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.JarFileInfo;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

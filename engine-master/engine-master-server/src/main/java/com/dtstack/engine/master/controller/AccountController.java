@@ -5,7 +5,7 @@ import com.dtstack.engine.master.vo.AccountTenantVo;
 import com.dtstack.engine.master.vo.AccountVo;
 import com.dtstack.engine.master.vo.AccountVoLists;
 import com.dtstack.engine.master.vo.user.UserVO;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.master.impl.AccountService;
 import org.springframework.web.bind.annotation.RequestParam;
 import com.dtstack.engine.master.router.util.CookieUtil;

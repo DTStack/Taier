@@ -1,10 +1,11 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.pluginapi.enums.ComputeType;
 import com.dtstack.engine.common.enums.EComponentType;
-import com.dtstack.engine.common.enums.EDeployMode;
-import com.dtstack.engine.common.enums.EngineType;
+import com.dtstack.engine.pluginapi.enums.EDeployMode;
+import com.dtstack.engine.pluginapi.enums.EngineType;
 import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +65,7 @@ public class TaskParamsService {
     public EDeployMode parseDeployTypeByTaskParams(String taskParams, Integer computeType) {
         try {
             if (!StringUtils.isBlank(taskParams)) {
-                Properties properties = com.dtstack.engine.common.util.PublicUtil.stringToProperties(taskParams);
+                Properties properties = PublicUtil.stringToProperties(taskParams);
                 String flinkTaskRunMode = properties.getProperty("flinkTaskRunMode");
                 if (!StringUtils.isEmpty(flinkTaskRunMode)) {
                     if (flinkTaskRunMode.equalsIgnoreCase("session")) {
@@ -89,7 +90,7 @@ public class TaskParamsService {
 
     public Map<String, Object> convertPropertiesToMap(String taskParams) {
         try {
-            Properties properties = com.dtstack.engine.common.util.PublicUtil.stringToProperties(taskParams);
+            Properties properties = PublicUtil.stringToProperties(taskParams);
             return new HashMap<String, Object>((Map) properties);
         } catch (IOException e) {
             LOGGER.error("convertPropertiesToMap {} error", taskParams, e);

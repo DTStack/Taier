@@ -1,7 +1,7 @@
 package com.dtstack.engine.rdbs.db2;
 
 
-import com.dtstack.engine.common.util.DtStringUtil;
+import com.dtstack.engine.pluginapi.util.DtStringUtil;
 import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 
 import java.util.List;

@@ -1,17 +1,17 @@
 package com.dtstack.engine.master;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.common.pojo.CheckResult;
-import com.dtstack.engine.common.pojo.ClusterResource;
-import com.dtstack.engine.common.pojo.ComponentTestResult;
-import com.dtstack.engine.common.pojo.DtScriptAgentLabel;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.JobIdentifier;
+import com.dtstack.engine.pluginapi.pojo.CheckResult;
+import com.dtstack.engine.pluginapi.pojo.ClusterResource;
+import com.dtstack.engine.pluginapi.pojo.ComponentTestResult;
+import com.dtstack.engine.pluginapi.pojo.DtScriptAgentLabel;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.JobIdentifier;
 import com.dtstack.engine.common.client.ClientOperator;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.pojo.JudgeResult;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.pojo.JobResult;
+import com.dtstack.engine.pluginapi.pojo.JudgeResult;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ScheduleDictService;
@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.dtstack.engine.common.constrant.ConfigConstant.DEPLOY_MODEL;
+import static com.dtstack.engine.pluginapi.constrant.ConfigConstant.DEPLOY_MODEL;
 
 @Component
 public class WorkerOperator {

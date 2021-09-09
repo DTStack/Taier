@@ -3,7 +3,7 @@ package com.dtstack.engine.common.metric.prometheus;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.common.util.MathUtil;
+import com.dtstack.engine.pluginapi.util.MathUtil;
 import com.dtstack.engine.common.metric.MetricData;
 import com.dtstack.engine.common.metric.MetricResult;
 import com.dtstack.engine.common.metric.Tuple;

@@ -6,7 +6,7 @@ import com.dtstack.dtcenter.loader.dto.ColumnMetaDTO;
 import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
-import com.dtstack.engine.common.pojo.Column;
+import com.dtstack.engine.pluginapi.pojo.Column;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;

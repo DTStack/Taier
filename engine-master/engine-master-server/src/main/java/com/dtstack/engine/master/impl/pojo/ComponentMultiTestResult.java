@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.impl.pojo;
 
-import com.dtstack.engine.common.pojo.ComponentTestResult;
+import com.dtstack.engine.pluginapi.pojo.ComponentTestResult;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;

@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.server.listener;
 
 import com.dtstack.engine.common.util.LogCountUtil;
-import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.master.zookeeper.data.BrokerHeartNode;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import org.slf4j.Logger;

@@ -12,7 +12,7 @@ import com.dtstack.engine.master.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.master.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
 import com.dtstack.engine.master.vo.task.NotDeleteTaskVO;
 import com.dtstack.engine.master.vo.task.TaskTypeVO;
-import com.dtstack.engine.common.util.DateUtil;
+import com.dtstack.engine.pluginapi.util.DateUtil;
 import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;

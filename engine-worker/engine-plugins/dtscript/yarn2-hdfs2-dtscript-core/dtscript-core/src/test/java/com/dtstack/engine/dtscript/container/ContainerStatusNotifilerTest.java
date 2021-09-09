@@ -1,6 +1,5 @@
 package com.dtstack.engine.dtscript.container;
 
-import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.am.AppArguments;
 import com.dtstack.engine.dtscript.am.ApplicationContainerListener;
@@ -10,11 +9,7 @@ import com.dtstack.engine.dtscript.api.ApplicationContainerProtocol;
 import com.dtstack.engine.dtscript.api.DtYarnConstants;
 import com.dtstack.engine.dtscript.common.HeartbeatRequest;
 import com.dtstack.engine.dtscript.common.HeartbeatResponse;
-import org.apache.commons.math3.analysis.function.Pow;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.ipc.RPC;
 import org.apache.hadoop.net.NetUtils;
-import org.apache.hadoop.security.authorize.ServiceAuthorizationManager;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.client.api.async.AMRMClientAsync;
 import org.apache.hadoop.yarn.client.api.async.NMClientAsync;
@@ -24,7 +19,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
@@ -33,7 +27,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 

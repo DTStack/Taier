@@ -1,16 +1,16 @@
 package com.dtstack.engine.master.server;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.IsDeletedEnum;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.http.PoolHttpClient;
-import com.dtstack.engine.common.util.DateUtil;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
+import com.dtstack.engine.pluginapi.http.PoolHttpClient;
+import com.dtstack.engine.pluginapi.util.DateUtil;
 import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
-import com.dtstack.engine.common.util.UrlUtil;
+import com.dtstack.engine.pluginapi.util.UrlUtil;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.domain.EngineJobCache;

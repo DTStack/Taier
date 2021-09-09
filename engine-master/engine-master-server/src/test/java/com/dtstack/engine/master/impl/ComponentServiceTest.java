@@ -8,7 +8,7 @@ import com.dtstack.engine.master.vo.ComponentMultiVersionVO;
 import com.dtstack.engine.master.vo.ComponentVO;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.MultiEngineType;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.dao.ClusterDao;
 import com.dtstack.engine.dao.ComponentDao;
 import com.dtstack.engine.dao.EngineDao;

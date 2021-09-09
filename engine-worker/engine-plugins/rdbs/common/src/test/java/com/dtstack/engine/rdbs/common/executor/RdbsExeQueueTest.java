@@ -1,6 +1,6 @@
 package com.dtstack.engine.rdbs.common.executor;
 
-import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.pluginapi.JobClient;
 import com.google.common.collect.Queues;
 import org.junit.Assert;
 import org.junit.Before;

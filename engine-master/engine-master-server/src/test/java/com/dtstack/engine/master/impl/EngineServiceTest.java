@@ -3,7 +3,7 @@ package com.dtstack.engine.master.impl;
 import com.dtstack.engine.domain.Cluster;
 import com.dtstack.engine.domain.Engine;
 import com.dtstack.engine.domain.Queue;
-import com.dtstack.engine.common.pojo.ComponentTestResult;
+import com.dtstack.engine.pluginapi.pojo.ComponentTestResult;
 import com.dtstack.engine.master.vo.QueueVO;
 import com.dtstack.engine.master.vo.engine.EngineSupportVO;
 import com.dtstack.engine.dao.TestComponentDao;

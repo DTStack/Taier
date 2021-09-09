@@ -9,7 +9,7 @@ import com.dtstack.dtcenter.loader.client.ITable;
 import com.dtstack.dtcenter.loader.dto.ColumnMetaDTO;
 import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
-import com.dtstack.engine.common.pojo.Column;
+import com.dtstack.engine.pluginapi.pojo.Column;
 import com.dtstack.engine.lineage.pojo.Table;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;

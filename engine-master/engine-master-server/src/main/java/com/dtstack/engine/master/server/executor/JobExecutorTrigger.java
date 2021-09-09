@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.server.executor;
 
-import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.dao.ScheduleJobDao;

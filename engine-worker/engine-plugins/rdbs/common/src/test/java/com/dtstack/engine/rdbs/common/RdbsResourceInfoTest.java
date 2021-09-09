@@ -1,7 +1,7 @@
 package com.dtstack.engine.rdbs.common;
 
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.pojo.JudgeResult;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.pojo.JudgeResult;
 import com.dtstack.engine.rdbs.common.executor.RdbsExeQueue;
 import org.junit.Assert;
 import org.junit.Before;

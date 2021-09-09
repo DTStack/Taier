@@ -1,6 +1,6 @@
 package com.dtstack.engine.lineage.vo;
 
-import com.dtstack.engine.common.pojo.Column;
+import com.dtstack.engine.pluginapi.pojo.Column;
 
 import java.util.List;
 

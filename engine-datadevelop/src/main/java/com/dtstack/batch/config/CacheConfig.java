@@ -4,7 +4,7 @@ import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.router.cache.RdosSubscribe;
 import com.dtstack.engine.common.enums.AppType;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.master.router.cache.RdosTopic;
 import com.dtstack.engine.master.router.cache.SessionCache;
 import org.apache.commons.collections.CollectionUtils;

@@ -3,9 +3,9 @@ package com.dtstack.engine.dtscript.client;
 
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.base.util.KerberosUtils;
-import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.RetryUtil;
+import com.dtstack.engine.pluginapi.CustomThreadFactory;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.util.RetryUtil;
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.am.ApplicationMaster;
 import com.dtstack.engine.dtscript.api.DtYarnConstants;

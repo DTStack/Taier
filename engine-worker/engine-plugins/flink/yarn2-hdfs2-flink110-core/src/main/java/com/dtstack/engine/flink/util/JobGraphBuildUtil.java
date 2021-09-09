@@ -1,7 +1,7 @@
 package com.dtstack.engine.flink.util;
 
 import com.alibaba.fastjson.JSON;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.flink.entity.LatencyMarkerInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

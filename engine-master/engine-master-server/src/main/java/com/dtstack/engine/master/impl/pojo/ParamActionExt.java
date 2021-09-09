@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.impl.pojo;
 
-import com.dtstack.engine.common.pojo.ParamAction;
+import com.dtstack.engine.pluginapi.pojo.ParamAction;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.slf4j.Logger;

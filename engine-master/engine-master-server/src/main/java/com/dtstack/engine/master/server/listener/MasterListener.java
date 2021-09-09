@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.server.listener;
 
 import com.dtstack.engine.master.server.FailoverStrategy;
-import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.master.cron.ErrorTopCron;
 import com.dtstack.engine.master.server.scheduler.JobDataClear;
 import org.apache.curator.framework.CuratorFramework;

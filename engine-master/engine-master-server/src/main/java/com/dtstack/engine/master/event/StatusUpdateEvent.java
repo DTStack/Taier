@@ -6,7 +6,7 @@ import com.dtstack.engine.alert.AlterContext;
 import com.dtstack.engine.alert.enums.AlertRecordStatusEnum;
 import com.dtstack.engine.alert.exception.AlterEventInterruptException;
 import com.dtstack.engine.common.enums.IsDeletedEnum;
-import com.dtstack.engine.common.exception.ExceptionUtil;
+import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
 import com.dtstack.engine.dao.AlertRecordDao;
 import com.dtstack.engine.domain.AlertRecord;
 import com.dtstack.engine.master.enums.AlertSendStatusEnum;

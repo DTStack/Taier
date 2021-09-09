@@ -18,16 +18,16 @@
 
 package com.dtstack.engine.flink.factory;
 
-import com.dtstack.engine.common.pojo.ParamAction;
+import com.dtstack.engine.pluginapi.pojo.ParamAction;
 import com.dtstack.engine.base.enums.ClassLoaderType;
 import com.dtstack.engine.base.util.KerberosUtils;
-import com.dtstack.engine.common.JarFileInfo;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.constrant.ConfigConstant;
-import com.dtstack.engine.common.enums.ComputeType;
-import com.dtstack.engine.common.enums.EJobType;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.JarFileInfo;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.JobIdentifier;
+import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
+import com.dtstack.engine.pluginapi.enums.ComputeType;
+import com.dtstack.engine.pluginapi.enums.EJobType;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.flink.FlinkClientBuilder;
 import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.base.enums.ClusterMode;

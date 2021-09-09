@@ -3,12 +3,12 @@ package com.dtstack.engine.master;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.common.enums.ScheduleEngineType;
-import com.dtstack.engine.common.pojo.ParamAction;
-import com.dtstack.engine.common.constrant.ConfigConstant;
-import com.dtstack.engine.common.enums.EngineType;
+import com.dtstack.engine.pluginapi.pojo.ParamAction;
+import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
+import com.dtstack.engine.pluginapi.enums.EngineType;
 import com.dtstack.engine.common.enums.MultiEngineType;
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.impl.ClusterService;
@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
-import static com.dtstack.engine.common.constrant.ConfigConstant.DEPLOY_MODEL;
+import static com.dtstack.engine.pluginapi.constrant.ConfigConstant.DEPLOY_MODEL;
 
 @Component
 public class PluginWrapper{

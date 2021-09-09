@@ -18,8 +18,8 @@
 
 package com.dtstack.engine.flink.factory;
 
-import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.JobIdentifier;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.flink.FlinkClientBuilder;
 import com.dtstack.engine.flink.FlinkConfig;
 import org.apache.flink.client.deployment.StandaloneClusterDescriptor;

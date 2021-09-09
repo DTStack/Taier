@@ -1,10 +1,10 @@
 package com.dtstack.engine.rdbs.inceptor;
 
-import com.dtstack.engine.common.pojo.ParamAction;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.util.MD5Util;
-import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.pluginapi.pojo.ParamAction;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.pojo.JobResult;
+import com.dtstack.engine.pluginapi.util.MD5Util;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
 import com.dtstack.engine.rdbs.common.AbstractRdbsClient;
 import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 import org.slf4j.Logger;

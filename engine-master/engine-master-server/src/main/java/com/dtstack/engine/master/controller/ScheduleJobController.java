@@ -10,7 +10,7 @@ import com.dtstack.engine.master.vo.schedule.job.ScheduleJobRuleTimeVO;
 import com.dtstack.engine.master.vo.schedule.job.ScheduleJobScienceJobStatusVO;
 import com.dtstack.engine.master.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import org.springframework.web.bind.annotation.RequestParam;
 import io.swagger.annotations.Api;

@@ -4,7 +4,7 @@ import com.dtstack.engine.domain.ScheduleJobJob;
 import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.common.enums.EScheduleType;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.server.ScheduleBatchJob;
 import com.dtstack.engine.master.dataCollection.DataCollection;

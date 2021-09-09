@@ -1,7 +1,7 @@
 package com.dtstack.engine.common.util;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.pluginapi.enums.ComputeType;
 import org.apache.commons.lang3.StringUtils;
 
 /**

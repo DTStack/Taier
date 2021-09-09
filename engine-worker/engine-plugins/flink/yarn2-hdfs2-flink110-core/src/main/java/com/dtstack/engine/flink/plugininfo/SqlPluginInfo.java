@@ -1,9 +1,9 @@
 package com.dtstack.engine.flink.plugininfo;
 
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.common.JarFileInfo;
-import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
+import com.dtstack.engine.pluginapi.JarFileInfo;
+import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.google.common.base.Charsets;

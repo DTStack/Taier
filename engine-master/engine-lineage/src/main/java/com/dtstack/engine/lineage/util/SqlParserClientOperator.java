@@ -1,6 +1,6 @@
 package com.dtstack.engine.lineage.util;
 
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.sqlparser.common.client.ISqlParserClient;
 import com.dtstack.sqlparser.common.client.SqlParserClientCache;
 import com.dtstack.sqlparser.common.client.exception.ClientAccessException;

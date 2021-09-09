@@ -1,5 +1,8 @@
 package com.dtstack.engine.common.exception;
 
+import com.dtstack.engine.pluginapi.exception.ErrorCode;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+
 /**
  * @Auther: dazhi
  * @Date: 2021/4/9 4:35 下午

@@ -1,8 +1,8 @@
 package com.dtstack.engine.common.enums;
 
 
-import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.ErrorCode;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

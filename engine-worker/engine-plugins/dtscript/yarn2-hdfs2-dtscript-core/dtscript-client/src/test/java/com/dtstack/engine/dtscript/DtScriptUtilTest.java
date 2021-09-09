@@ -1,6 +1,6 @@
 package com.dtstack.engine.dtscript;
 
-import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.pluginapi.JobClient;
 
 import java.util.Arrays;
 

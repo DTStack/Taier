@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.router;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.common.exception.ExceptionUtil;
+import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
