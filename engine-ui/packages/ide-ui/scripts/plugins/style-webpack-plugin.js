@@ -23,7 +23,7 @@ class InsertHTMLPlugin {
                     if (typeof source === 'string') {
                         container.forEach((value, key) => {
                             source = source.replace(
-                                new RegExp(`^${key}`, 'g'),
+                                new RegExp(`${key}`, 'g'),
                                 value
                             );
                         });
