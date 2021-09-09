@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.domain.*;
 import com.dtstack.engine.common.pager.PageQuery;
 import com.dtstack.engine.common.pager.PageResult;
+import com.dtstack.engine.domain.Queue;
 import com.dtstack.engine.domain.po.EngineTenantPO;
 import com.dtstack.engine.master.impl.pojo.ComponentMultiTestResult;
 import com.dtstack.engine.master.mapstruct.EngineTenantStruct;
@@ -98,10 +99,11 @@ public class TenantService {
             return PageResult.EMPTY_PAGE_RESULT;
         }
 
-        List<EngineTenantVO> engineTenantVOS = engineTenantDao.generalQuery(query, engine.getId(), tenantName);
-        fillQueue(engineTenantVOS);
+        List<EngineTenantPO> engineTenantPOs = engineTenantDao.generalQuery(query, engine.getId(), tenantName);
+        List<EngineTenantVO> engineTenantVOs = engineTenantStruct.toEngineTenantVOs(engineTenantPOs);
+        fillQueue(engineTenantVOs);
 
-        return new PageResult<>(engineTenantVOS, count, query);
+        return new PageResult<>(engineTenantVOs, count, query);
     }
 
     /**
@@ -131,16 +133,16 @@ public class TenantService {
     private void fillQueue(List<EngineTenantVO> engineTenantVOS){
 
         List<Long> queueIds = engineTenantVOS.stream().filter(v -> v.getQueueId() != null).map(EngineTenantVO::getQueueId).collect(Collectors.toList());
-        Map<Long, com.dtstack.engine.domain.Queue> queueMap = new HashMap<>(16);
-        List<com.dtstack.engine.domain.Queue> queueList = queueDao.listByIds(queueIds);
-        for (com.dtstack.engine.domain.Queue queue : queueList) {
+        Map<Long, Queue> queueMap = new HashMap<>(16);
+        List<Queue> queueList = queueDao.listByIds(queueIds);
+        for (Queue queue : queueList) {
             queueMap.put(queue.getId(), queue);
         }
         for (EngineTenantVO engineTenantVO : engineTenantVOS) {
             if(engineTenantVO.getQueueId() == null){
                 continue;
             }
-            com.dtstack.engine.domain.Queue queue = queueMap.get(engineTenantVO.getQueueId());
+            Queue queue = queueMap.get(engineTenantVO.getQueueId());
             if(queue == null){
                 continue;
             }
@@ -285,7 +287,7 @@ public class TenantService {
     @Transactional(rollbackFor = Exception.class)
     public void bindingQueue( Long queueId,
                               Long dtUicTenantId,String taskTypeResourceJson) {
-        com.dtstack.engine.domain.Queue queue = queueDao.getOne(queueId);
+        Queue queue = queueDao.getOne(queueId);
         if (queue == null) {
             throw new RdosDefineException("Queue does not exist", ErrorCode.DATA_NOT_FIND);
         }
