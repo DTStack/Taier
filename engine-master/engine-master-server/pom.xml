@@ -26,20 +26,6 @@
             <groupId>com.dtstack.engine</groupId>
             <artifactId>engine-common</artifactId>
             <version>1.0.0</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>zookeeper</artifactId>
-                    <groupId>org.apache.zookeeper</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>spring-data-redis</artifactId>
-                    <groupId>org.springframework.data</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>spring-session-core</artifactId>
-                    <groupId>org.springframework.session</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>

@@ -5,7 +5,6 @@ import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.pluginapi.JobIdentifier;
 import com.dtstack.engine.pluginapi.enums.EJobType;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
-import com.dtstack.engine.common.pojo.*;
 import com.dtstack.engine.pluginapi.pojo.Column;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

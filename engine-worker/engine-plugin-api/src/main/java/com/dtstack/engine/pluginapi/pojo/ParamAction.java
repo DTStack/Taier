@@ -1,7 +1,6 @@
 package com.dtstack.engine.pluginapi.pojo;
 
 import com.alibaba.fastjson.JSONObject;
-import io.swagger.annotations.ApiModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

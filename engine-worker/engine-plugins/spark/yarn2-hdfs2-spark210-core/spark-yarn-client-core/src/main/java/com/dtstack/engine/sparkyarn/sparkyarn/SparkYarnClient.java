@@ -11,7 +11,6 @@ import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.pluginapi.JobIdentifier;
 import com.dtstack.engine.pluginapi.JobParam;
 import com.dtstack.engine.base.util.Splitter;
-import com.dtstack.engine.common.*;
 import com.dtstack.engine.pluginapi.client.AbstractClient;
 import com.dtstack.engine.pluginapi.enums.ComputeType;
 import com.dtstack.engine.pluginapi.enums.EJobType;
