@@ -809,32 +809,7 @@ public class ActionService {
     }
 
     public String generateUniqueSign(){
-
-        String uniqueSign;
-        int index = 100;
-        while(true){
-            try{
-                if(index > 100){
-                    Thread.sleep(100);
-                }
-                index = index+1;
-                uniqueSign = UUID.randomUUID().toString().replace("-","");
-                int len = uniqueSign.length();
-                StringBuilder sb =new StringBuilder();
-                for(int i=0;i<length;i++){
-                    int a = random.nextInt(len) + 1;
-                    sb.append(uniqueSign.substring(a-1, a));
-                }
-                uniqueSign =  sb.toString();
-                EngineUniqueSign generateUniqueSign = new EngineUniqueSign();
-                generateUniqueSign.setUniqueSign(sb.toString());
-                //新增操作
-                engineUniqueSignDao.insert(generateUniqueSign);
-                break;
-            }catch(Exception e){
-            }
-        }
-        return uniqueSign;
+        return UUID.randomUUID().toString();
     }
 
     /**

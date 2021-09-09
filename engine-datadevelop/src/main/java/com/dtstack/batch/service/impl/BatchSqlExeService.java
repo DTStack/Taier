@@ -125,12 +125,12 @@ public class BatchSqlExeService {
         if (Objects.nonNull(user)) {
             dtuicUserId = user.getDtuicUserId();
         }
-        sqlExeService.directExecutionSql(executeContent.getDtuicTenantId(),dtuicUserId, dbName, executeContent.getSql());
+        sqlExeService.directExecutionSql(executeContent.getTenantId(),dtuicUserId, dbName, executeContent.getSql());
     }
 
     private String getDbName(final ExecuteContent executeContent) {
         String dbName = null;
-        final Tenant tenant = tenantService.getByDtUicTenantId(executeContent.getDtuicTenantId());
+        final Tenant tenant = tenantService.getByDtUicTenantId(executeContent.getTenantId());
         if (null != tenant) {
             Long projectId = executeContent.getProjectId();
             if (projectId == null) {
@@ -185,7 +185,7 @@ public class BatchSqlExeService {
         if (StringUtils.isNotBlank(executeContent.getSql())) {
             //校验语法
             if (executeContent.isCheckSyntax()) {
-                sqlExeService.checkSingleSqlSyntax(executeContent.getProjectId(), executeContent.getDtuicTenantId(), executeContent.getSql(), executeContent.getDatabase(), taskParam);
+                sqlExeService.checkSingleSqlSyntax(executeContent.getProjectId(), executeContent.getTenantId(), executeContent.getSql(), executeContent.getDatabase(), taskParam);
             }
 
             final ParseResult parseResult = this.parseSql(executeContent);
@@ -207,7 +207,7 @@ public class BatchSqlExeService {
             executeContent.getSqlList().forEach(x->{
                 if (!x.trim().startsWith("set")){
                     if (executeContent.isCheckSyntax()) {
-                        sqlExeService.checkSingleSqlSyntax(executeContent.getProjectId(), executeContent.getDtuicTenantId(), x, executeContent.getDatabase(), finalTaskParam);
+                        sqlExeService.checkSingleSqlSyntax(executeContent.getProjectId(), executeContent.getTenantId(), x, executeContent.getDatabase(), finalTaskParam);
                         executeContent.setSql(x);
                         final ParseResult batchParseResult = this.parseSql(executeContent);
                         parseResultList.add(batchParseResult);

@@ -263,7 +263,7 @@ public class BatchSparkHiveSqlExeService {
         if (null == executeContent.getParseResult()) {
             throw new RdosDefineException("血缘解析异常，结果为空");
         }
-        Long dtuicTenantId = executeContent.getDtuicTenantId();
+        Long dtuicTenantId = executeContent.getTenantId();
         Long tenantId = executeContent.getTenantId();
         Long projectId = executeContent.getProjectId();
         Long userId = executeContent.getUserId();

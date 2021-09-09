@@ -54,7 +54,7 @@ public class BatchSparkSqlExeService extends BatchSparkHiveSqlExeService impleme
         String preJobId = executeContent.getPreJobId();
         Integer relationType = executeContent.getRelationType();
         String currDb = executeContent.getParseResult().getCurrentDb();
-        Long dtuicTenantId = executeContent.getDtuicTenantId();
+        Long dtuicTenantId = executeContent.getTenantId();
         Long tenantId = executeContent.getTenantId();
         Long projectId = executeContent.getProjectId();
         Long userId = executeContent.getUserId();

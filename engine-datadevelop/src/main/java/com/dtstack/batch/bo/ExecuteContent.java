@@ -30,7 +30,6 @@ import java.util.List;
 @Data
 public class ExecuteContent {
 
-    private Long dtuicTenantId;
     private Long tenantId;
     private Long projectId;
     private String projectName;
@@ -136,11 +135,6 @@ public class ExecuteContent {
 
     public ExecuteContent setEngineType(Integer engineType) {
         this.engineType = engineType;
-        return this;
-    }
-
-    public ExecuteContent setDtuicTenantId(Long dtuicTenantId) {
-        this.dtuicTenantId = dtuicTenantId;
         return this;
     }
 

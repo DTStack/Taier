@@ -1279,17 +1279,6 @@ public class BatchTaskService {
             if (user == null){
                 throw new RdosDefineException(String.format("%s任务责任人在数栈中不存在", task.getName()));
             }
-
-            List<Integer> roleList = roleUserService.listRoleValueByUserIdAndProjectId(task.getOwnerUserId(), task.getTenantId(), task.getProjectId());
-            if (CollectionUtils.isEmpty(roleList)){
-
-                //TODO
-//                Boolean isRootByDtUserId = DtUicUserConnect.getIsRootByDtUserId(environmentContext.getSdkToken(), environmentContext.getDtUicUrl(), user.getDtuicUserId());
-                Boolean isRootByDtUserId = null;
-                if (isRootByDtUserId == null || !isRootByDtUserId) {
-                    throw new RdosDefineException("任务责任人在项目中不存在");
-                }
-            }
         });
 
         TaskCheckResultVO checkResultVO = new TaskCheckResultVO();

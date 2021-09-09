@@ -13,13 +13,13 @@ public class BatchResourceAddVO extends DtInsightAuthParam {
     private String resourceName;
 
     @ApiModelProperty(value = "项目ID", hidden = true)
-    private Long projectId;
+    private Long projectId = 1L;
 
     @ApiModelProperty(value = "租户ID", hidden = true)
-    private Long tenantId;
+    private Long tenantId =1L;
 
     @ApiModelProperty(value = "用户ID", hidden = true)
-    private Long userId;
+    private Long userId = 1L;
 
     @ApiModelProperty(value = "资源ID")
     private Long id = 0L;

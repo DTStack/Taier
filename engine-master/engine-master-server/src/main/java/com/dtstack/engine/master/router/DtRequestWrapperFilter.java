@@ -30,15 +30,16 @@ public class DtRequestWrapperFilter extends OncePerRequestFilter {
 
     public final static String DT_REQUEST_BODY = "DT_REQUEST_BODY";
 
-    private static String[] excludeTargets = {"/node/download/component/downloadFile", "/node/upload/component/config", "/node/upload/component/addOrUpdateComponent"
-            ,"/node/alert/edit","/node/alert/testAlert","/node/upload/component/parseKerberos", "/node/upload/component/uploadKerberos","/node/login/submit","/node/login/logout"};
+    private static String[] excludeTargets = {"/node/download/component/downloadFile", "/node/upload/component/config", "/node/upload/component/addOrUpdateComponent",
+            "/upload/batch/batchResource/addResource","/upload/batch/batchResource/replaceResource",
+            "/node/alert/edit","/node/alert/testAlert","/node/upload/component/parseKerberos", "/node/upload/component/uploadKerberos","/node/login/submit","/node/login/logout"};
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String uri = request.getRequestURI();
         MultiReadHttpServletRequest requestWrapper = new MultiReadHttpServletRequest(request);
         for (String exc: excludeTargets) {
-            if (exc.equals(uri)) {
+            if (uri.endsWith(exc)) {
                 LOGGER.info("Uri: " + uri + ", Params: " + getParameterString(requestWrapper));
                 filterChain.doFilter(requestWrapper, response);
                 return;

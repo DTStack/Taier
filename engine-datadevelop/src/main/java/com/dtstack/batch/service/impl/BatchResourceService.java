@@ -91,7 +91,7 @@ public class BatchResourceService {
             resourceType =  batchResourceAddDTO.getResourceType() == null ? ResourceType.OTHER.getType() : batchResourceAddDTO.getResourceType();
         }
 
-        String hdfsPath = uploadHDFSFileWithResource(batchResourceAddDTO.getDtuicTenantId(), projectId, resourceName,
+        String hdfsPath = uploadHDFSFileWithResource(batchResourceAddDTO.getTenantId(), projectId, resourceName,
                 batchResourceAddDTO.getOriginalFilename(), batchResourceAddDTO.getTmpPath());
 
         BatchResource batchResource = null;
@@ -344,7 +344,7 @@ public class BatchResourceService {
 
         final String resourceName = resourceDb.getResourceName();
 
-        String hdfsPath = uploadHDFSFileWithResource(batchResourceAddDTO.getDtuicTenantId(), projectId, resourceName,
+        String hdfsPath = uploadHDFSFileWithResource(batchResourceAddDTO.getTenantId(), projectId, resourceName,
                 batchResourceAddDTO.getOriginalFilename(), batchResourceAddDTO.getTmpPath());
 
         resourceDb.setUrl(hdfsPath);

@@ -238,7 +238,7 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
             content.setTenantId(tenantId).setProjectId(projectId).setUserId(userId).setSqlList(sqlList).setRelationId(taskId)
                     .setRelationType(TableRelationType.TASK.getType()).setDetailType(task.getTaskType())
                     .setRootUser(isRoot).setCheckSyntax(environmentContext.getExplainEnable()).setIsdirtyDataTable(false).setSessionKey(uniqueKey)
-                    .setEngineType(MultiEngineType.HADOOP.getType()).setTableType(ETableType.HIVE.getType()).setDtuicTenantId(dtuicTenantId).setDatabase(database);
+                    .setEngineType(MultiEngineType.HADOOP.getType()).setTableType(ETableType.HIVE.getType()).setDatabase(database);
             return batchSqlExeService.batchExeSqlParse(content);
         }
         return new ExecuteSqlParseVO();
