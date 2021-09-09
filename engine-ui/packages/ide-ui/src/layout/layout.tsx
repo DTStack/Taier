@@ -43,8 +43,13 @@ const userMenu = (
 export default function MyLayout(props: React.PropsWithChildren<any>) {
     const { children, history } = props;
     const [path, setPath] = useState(history.getCurrentLocation().pathname);
+    const [curItem, setCurItem] = useState(getItem('menuStatus') || 'devTask');
     // eslint-disable-next-line prefer-regex-literals
     const regexp = new RegExp(/(\/login)$/);
+    const handleClick = (menuItem: any) => {
+        setCurItem(menuItem.key);
+        setItem('menuStatus', menuItem.key);
+    };
 
     history.listen((route: any) => {
         if (path !== route.pathname) setPath(route.pathname);
@@ -69,7 +74,8 @@ export default function MyLayout(props: React.PropsWithChildren<any>) {
                         </div>
                         <Menu
                             mode="horizontal"
-                            defaultSelectedKeys={['devTask']}
+                            defaultSelectedKeys={[curItem]}
+                            onClick={handleClick}
                         >
                             <Menu.Item key="dataSource">
                                 <a href="/#/data-source/list">数据源</a>
