@@ -5,6 +5,9 @@ const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const ROOT_PATH = path.resolve(__dirname, '../');
 const APP_PATH = path.resolve(ROOT_PATH, 'src'); // 应用根路径
 const WEB_PUBLIC = path.resolve(ROOT_PATH, 'public'); // 公开资源
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const packageName = require('../package.json').name;
+const StyleWebpackPlugin = require('./plugins/style-webpack-plugin');
 
 module.exports = {
     resolve: {
@@ -56,20 +59,22 @@ module.exports = {
             },
             {
                 test: /\.css$/i,
-                use: ['style-loader', 'css-loader'],
+                use: [MiniCssExtractPlugin.loader, 'css-loader'],
             },
             {
                 test: /\.less$/i,
+                include: /node_modules/,
                 use: [
-                    {
-                        loader: 'style-loader', // creates style nodes from JS strings
-                    },
+                    MiniCssExtractPlugin.loader,
                     {
                         loader: 'css-loader', // translates CSS into CommonJS
                     },
                     {
                         loader: 'less-loader', // compiles Less to CSS
                         options: {
+                            modifyVars: {
+                                '@ant-prefix': packageName,
+                            },
                             javascriptEnabled: true,
                         },
                     },
@@ -78,9 +83,7 @@ module.exports = {
             {
                 test: /\.scss$/i,
                 use: [
-                    {
-                        loader: 'style-loader', // creates style nodes from JS strings
-                    },
+                    MiniCssExtractPlugin.loader,
                     {
                         loader: 'css-loader', // translates CSS into CommonJS
                     },
@@ -99,11 +102,19 @@ module.exports = {
         new MonacoWebpackPlugin({
             languages: ['javascript', 'typescript', 'json', 'clojure'],
         }),
+        new MiniCssExtractPlugin({
+            filename: '[name].css?v=[contenthash:8]',
+        }),
         new webpack.DefinePlugin({
             __DEVELOPMENT__: false,
         }),
         new HtmlWebPackPlugin({
             template: path.resolve(__dirname, '../public/index.html'),
+        }),
+        new StyleWebpackPlugin({
+            modifyVars: {
+                'ant-': `${packageName}-`,
+            },
         }),
     ],
 };

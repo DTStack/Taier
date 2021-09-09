@@ -1,5 +1,4 @@
-import React from 'react';
-import { Component } from 'react';
+import React, { Component } from 'react';
 import { Form } from 'antd';
 import BaseLoginFrom from './login/baseLoginFrom';
 import background from './public/background.jpg';

@@ -1,5 +1,4 @@
-import React from 'react';
-import { Component, Fragment } from 'react';
+import React, { Component, Fragment } from 'react';
 import { setItem } from '../../utils/local';
 import { Form, Button, message as Message } from 'antd';
 import { USER_NAME } from '../../consts';
