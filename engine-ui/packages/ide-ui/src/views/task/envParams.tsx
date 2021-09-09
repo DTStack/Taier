@@ -17,15 +17,15 @@ export default ({ current, onChange }: IEnvParams) => {
     const editorIns = useRef<editor.IStandaloneCodeEditor>();
 
     useEffect(() => {
-        if (current && !current.tab?.id?.includes('createTask_')) {
+        if (current && typeof(current.tab?.id) === 'number') {
             const model =
-                monacoEditor.getModel(getUniqPath(current.tab?.data.path)) ||
-                monacoEditor.createModel(
-                    current.tab?.data.taskParams || '',
-                    'ini',
-                    getUniqPath(current.tab?.data.path)
-                );
-
+                    monacoEditor.getModel(getUniqPath(current.tab?.data.path)) ||
+                    monacoEditor.createModel(
+                        current.tab?.data.taskParams || '',
+                        'ini',
+                        getUniqPath(current.tab?.data.path)
+                    );
+    
             editorIns.current?.setModel(model);
         }
     }, [current?.id && current.tab?.id]);

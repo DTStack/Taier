@@ -12,6 +12,7 @@ import {
     FOLDERTREE_CONTEXT_EDIT,
     TASK_RUN_ID,
     TASK_SAVE_ID,
+    TASK_SUBMIT_ID,
 } from '../utils/const';
 import store from '../../../store';
 import { workbenchAction } from '../../../controller/dataSync/actionType';
@@ -264,6 +265,7 @@ function onSelectFile() {
                     molecule.editor.updateActions([
                         { id: TASK_RUN_ID, disabled: false },
                         { id: TASK_SAVE_ID, disabled: false },
+                        { id: TASK_SUBMIT_ID, disabled: false },
                     ]);
                 }
             });

@@ -1,5 +1,5 @@
-import React from 'react';
-import { Icon, message, Modal, Tag } from 'antd';
+import React, { useState } from 'react';
+import { Icon, message, Modal, Tag, Form, Row, Col, Input } from 'antd';
 import molecule from 'molecule';
 import {
     getEditorInitialActions,
@@ -20,12 +20,14 @@ import {
 } from '../utils/const';
 import store from '../../../store';
 import { matchTaskParams, filterSql, formatDateTime } from '../../../comm';
-import { TASK_TYPE } from '../../../comm/const';
+import { TASK_TYPE, formItemLayout } from '../../../comm/const';
 import { debounce } from 'lodash';
 import { execSql, stopSql } from '../../../controller/editor/editorAction';
 import ajax from '../../../api'
+import ReactDOM from 'react-dom';
 
 const confirm = Modal.confirm;
+const FormItem = Form.Item;
 function initActions() {
     molecule.editor.setDefaultActions([
         {
@@ -106,6 +108,108 @@ function initActions() {
         ...getEditorInitialActions(),
     ]);
 }
+function RenderPublish ( { current } : any ) {
+    const [ publishDesc, changeDesc ] = useState('');
+    const [ visible, changeVisible ] = useState(true);
+    const [ loading, changeLoading ] = useState(false);
+    const submitTab = () => {
+        const params = {
+            ...current.tab?.data,
+            sqlText: current.tab?.data.value,
+            publishDesc
+        }
+        // 添加发布描述信息
+        if (publishDesc.length > 200) {
+            message.error('备注信息不可超过200个字符！')
+            return false;
+        }
+        checkPublishTask(params)
+    }
+    const checkPublishTask = (result: any, ignoreCheck?: boolean) => {
+        result.ignoreCheck = ignoreCheck
+        changeLoading(true);
+        delete (result.dtuicTenantId)
+        delete (result.language)
+        delete (result.appType)
+        delete (result.componentVersion)
+        delete (result.increColumn)
+        delete (result.input)
+        delete (result.isPublishToProduce)
+        ajax.publishOfflineTask(result).then((res: any) => {
+            changeLoading(false);
+            const { data, code } = res;
+            if (code === 1) {
+                switch (data?.errorSign) {
+                    case 0: {
+                        message.success('提交成功！');
+                        changeVisible(false)
+                        break;
+                    }
+                    case 1: {
+                        changeVisible(false)
+                        return Modal.warning({
+                            title: '无法提交任务',
+                            content: <p>{data?.errorMessage || '未知错误'}</p>
+                        });
+                    }
+                    default: {
+                        confirm({
+                            title: '无法提交任务',
+                            content: <p>{data?.errorMessage || '未知错误'}</p>,
+                            okText: '仍要提交',
+                            cancelText: '确定',
+                            onOk () {
+                                checkPublishTask(result, false)
+                            },
+                            onCancel () {
+                                changeVisible(false)
+                            }
+                        });
+                    }
+                }
+            }
+        }).finally(() => {
+            changeLoading(false);
+            changeVisible(false)
+        });
+    } 
+    return (
+        <Modal
+            wrapClassName="vertical-center-modal"
+            title="提交任务"
+            style={{ height: '600px', width: '600px' }}
+            visible={visible}
+            onCancel={() => changeVisible(false)}
+            onOk={() => submitTab()}
+            confirmLoading={loading}
+            cancelText="关闭"
+        >
+            <Form>
+                <FormItem
+                    {...formItemLayout}
+                    label={(
+                        <span>备注</span>
+                    )}
+                    hasFeedback
+                >
+                    <Input.TextArea
+                        value={publishDesc}
+                        name="publishDesc"
+                        rows={4}
+                        onChange={(e) => { 
+                            changeDesc(e.target.value)
+                        }}
+                    />
+                </FormItem>
+            </Form>
+            <Row>
+                <Col offset={6} span={15}>
+                    注意：提交过的任务才能被调度执行及发布到其他项目
+                </Col>
+            </Row>
+        </Modal>
+    )
+}
 
 function emitEvent() {
     molecule.editor.onActionsClick(async (menuId, current) => {
@@ -143,7 +247,6 @@ function emitEvent() {
                     );
 
                     const params: any = {
-                        projectId: currentTab?.id,
                         taskVariables: currentTab?.data.taskVariables || [],
                         singleSession: false, // 是否为单 session 模式, 为 true 时，支持batchSession 时，则支持批量SQL，false 则相反
                         taskParams: currentTab?.data.taskParams,
@@ -222,6 +325,10 @@ function emitEvent() {
                                     id: TASK_STOP_ID,
                                     disabled: true,
                                 },
+                                { 
+                                    id: TASK_SUBMIT_ID, 
+                                    disabled: false 
+                                },
                             ]);
                         }
                     });
@@ -290,15 +397,20 @@ function emitEvent() {
                     }
                 }
                 ajax.saveOfflineJobData(params).then(succCallback);
+                break;
+            }
+            case TASK_SUBMIT_ID: {
+                const node = document.createElement('div')
+                document.body.appendChild(node)
+                ReactDOM.render(<RenderPublish current={current} />, node);
             }
         }
     });
 }
 
 const updateTaskVariables = debounce((tab) => {
-    const { taskCustomParams, tabs } = (store.getState() as any).workbenchReducer;
+    const { taskCustomParams } = (store.getState() as any).workbenchReducer;
     const data = matchTaskParams(taskCustomParams, tab.data?.value || '');
-    console.log(123, tab)
     tab.data!.taskVariables = data;
     molecule.editor.updateTab(tab);
 }, 300);
@@ -318,6 +430,7 @@ export default class EditorExtension implements IExtension {
                     molecule.editor.updateActions([
                         { id: TASK_RUN_ID, disabled: false },
                         { id: TASK_SAVE_ID, disabled: false },
+                        { id: TASK_SUBMIT_ID, disabled: false },
                     ]);
                 } else {
                     resetEditorGroup();
@@ -331,6 +444,7 @@ export default class EditorExtension implements IExtension {
                 molecule.editor.updateActions([
                     { id: TASK_RUN_ID, disabled: false },
                     { id: TASK_SAVE_ID, disabled: false },
+                    { id: TASK_SUBMIT_ID, disabled: false },
                 ]);
             } else {
                 resetEditorGroup();

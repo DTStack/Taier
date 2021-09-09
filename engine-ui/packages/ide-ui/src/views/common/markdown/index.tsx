@@ -44,7 +44,6 @@ class Markdown extends React.Component<any> {
                 ? consoleData[currentTab]
                 : { results: [] };
         const defaultValue = data && data.log;
-        console.log(defaultValue)
         const defaultEditorOptions: any = {
             mode: 'dtlog',
             lint: true,
