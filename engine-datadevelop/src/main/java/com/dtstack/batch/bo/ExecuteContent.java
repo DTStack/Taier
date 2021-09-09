@@ -67,7 +67,7 @@ public class ExecuteContent {
     /**
      * 是否为root用户
      */
-    private boolean isRootUser;
+    private Boolean isRootUser;
 
     /**
      * 是否检查语法
@@ -189,7 +189,7 @@ public class ExecuteContent {
         return this;
     }
 
-    public ExecuteContent setRootUser(boolean rootUser) {
+    public ExecuteContent setRootUser(Boolean rootUser) {
         isRootUser = rootUser;
         return this;
     }

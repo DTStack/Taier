@@ -23,3 +23,4 @@ insert into `console_dtuic_tenant` ( `id`, `dt_uic_tenant_id`, `gmt_modified`, `
 
 insert into `schedule_engine_project` ( `id`, `create_user_id`, `project_name`, `is_deleted`, `white_status`, `gmt_create`, `uic_tenant_id`, `project_alias`, `project_id`, `project_desc`, `app_type`, `gmt_modified`, `status`, `project_Identifier`)
 values ( '1', '1', 'DAGScheduleX', '0', '0', '2021-07-27 16:41:16', '1', 'DAGScheduleX', '1', null, '1', '2021-07-27 16:39:41', '0', 'DAGScheduleX');
+insert into `rdos_project_engine` ( `status`, `create_user_id`, `modify_user_id`, `id`, `tenant_id`, `gmt_modified`, `gmt_create`, `project_id`, `engine_type`, `engine_identity`, `is_deleted`) values ( '1', null, '1', '1', '1', '2021-07-07 17:00:41', '2021-04-20 14:08:19', '1', '1', 'DAGScheduleX', '1');
