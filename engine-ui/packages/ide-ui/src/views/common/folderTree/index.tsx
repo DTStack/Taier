@@ -4,11 +4,15 @@ import { FileTypes, IExtension, TreeNodeModel } from 'molecule/esm/model';
 import { localize } from 'molecule/esm/i18n/localize';
 import molecule from 'molecule/esm';
 import Open from '../../task/open';
-import { resetEditorGroup } from '../utils';
+import { convertToTreeNode, resetEditorGroup } from '../utils';
 import DataSync from '../../dataSync';
 import ajax from '../../../api';
 import { TASK_TYPE } from '../../../comm/const';
-import { FOLDERTREE_CONTEXT_EDIT, TASK_RUN_ID, TASK_SAVE_ID } from '../utils/const';
+import {
+    FOLDERTREE_CONTEXT_EDIT,
+    TASK_RUN_ID,
+    TASK_SAVE_ID,
+} from '../utils/const';
 import store from '../../../store';
 import { workbenchAction } from '../../../controller/dataSync/actionType';
 import { editorAction } from '../../../controller/editor/actionTypes';
@@ -16,26 +20,6 @@ import { cloneDeep } from 'lodash';
 import functionManagerService from '../../../services/functionManagerService';
 import resourceManagerService from '../../../services/resourceManagerService';
 import { getStatusBarLanguage, updateStatusBarLanguage } from '../statusBar';
-
-function convertToTreeNode(data: any[]) {
-    if (!data) {
-        return;
-    }
-    return data.map((child) => {
-        const { id, name, children, type } = child;
-        const node: TreeNodeModel = new TreeNodeModel({
-            id,
-            name: !name ? '数据开发' : name,
-            location: name,
-            fileType: type === 'folder' ? FileTypes.Folder : FileTypes.File,
-            isLeaf: type !== 'folder',
-            data: child,
-            children: convertToTreeNode(children),
-        });
-
-        return node;
-    });
-}
 
 function init() {
     ajax.getOfflineCatalogue({
@@ -333,17 +317,16 @@ function onSelectFile() {
 
 function onRemove() {
     molecule.folderTree.onRemove((id) => {
-        ajax.delOfflineTask({ taskId: id })
-            .then((res: any) => {
-                if (res.code == 1) {
-                    message.success('删除成功');
-                    store.dispatch({
-                        type: workbenchAction.CLOSE_TASK_TAB,
-                        payload: res.data
-                    });
-                }
-                return res;
-            });
+        ajax.delOfflineTask({ taskId: id }).then((res: any) => {
+            if (res.code == 1) {
+                message.success('删除成功');
+                store.dispatch({
+                    type: workbenchAction.CLOSE_TASK_TAB,
+                    payload: res.data,
+                });
+            }
+            return res;
+        });
     });
 }
 

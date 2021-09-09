@@ -37,14 +37,6 @@ function initResourceManager() {
         },
     ];
 
-    const handleUpload = () => {
-        console.log('上传资源');
-    };
-
-    const handleReplace = () => {
-        console.log('替换资源');
-    };
-
     const handleCreateFolder = () => {
         console.log('新建文件夹');
     };
@@ -57,8 +49,6 @@ function initResourceManager() {
             <ResourceManager
                 panel={resourceManager}
                 headerToolBar={headerToolBar}
-                onUpload={handleUpload}
-                onReplace={handleReplace}
                 onCreateFolder={handleCreateFolder}
             />
         ),
