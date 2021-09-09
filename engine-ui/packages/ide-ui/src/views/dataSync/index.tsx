@@ -52,13 +52,7 @@ class DataSyncWorkbench extends React.Component<any, Istate> {
     };
 
     static propTypes = propType;
-    componentDidMount() {
-        const currentNode = this.props.currentTabData;
-        if (currentNode) {
-            this.props.getTab(currentNode.id); // 初始化console所需的数据结构
-        }
-    }
-
+    
     // eslint-disable-next-line
     UNSAFE_componentWillReceiveProps(nextProps: any) {
         const current = nextProps.currentTabData;
