@@ -20,7 +20,7 @@ export default class Root extends React.Component<any, any> {
     render () {
         const { store, history } = this.props
         return (
-            <ConfigProvider locale={zhCN}>
+            <ConfigProvider locale={zhCN} getPopupContainer={() => document.body.querySelector('div[id="app"]')}>
                 <Provider store={store} >
                     <Router routes={routers} history={history} key={Math.random()} {...{ onEnter: () => {
                         console.log('enter')

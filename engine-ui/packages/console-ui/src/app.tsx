@@ -1,7 +1,6 @@
 import './public-path';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { ConfigProvider } from 'antd'
 
 import { getStore } from './utils/reduxUtils';
 import * as log from './utils/log';
@@ -18,9 +17,7 @@ const App = () => {
 
 function render (props) {
     ReactDOM.render(
-        <ConfigProvider getPopupContainer={() => document.body.querySelector('div[id="app"]')}>
-            <App />
-        </ConfigProvider>
+        <App />
         ,
         props.container
             ? props.container.querySelector('#app')
