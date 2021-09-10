@@ -21,6 +21,7 @@ import com.dtstack.engine.datasource.dao.po.datasource.DsAuthRef;
 import com.dtstack.engine.datasource.dao.po.datasource.DsFormField;
 import com.dtstack.engine.datasource.dao.po.datasource.DsInfo;
 import com.dtstack.engine.datasource.facade.dtuic.DtuicFacade;
+import com.dtstack.engine.datasource.mapstruct.DsAppListStruct;
 import com.dtstack.engine.datasource.param.datasource.DsInfoIdParam;
 import com.dtstack.engine.datasource.param.datasource.DsTypeVersionParam;
 import com.dtstack.engine.datasource.service.impl.datasource.*;
@@ -77,6 +78,9 @@ public class DatasourceFacade {
 
     @Autowired
     private DsTypeService typeService;
+
+    @Autowired
+    private DsAppListStruct dsAppListStruct;
 
     public static final String DSC_INFO_CHANGE_CHANNEL = "dscInfoChangeChannel";
 
@@ -563,15 +567,18 @@ public class DatasourceFacade {
                 .setDataVersion(dataSource.getDataVersion());
         typeVersionParam.setDtToken(dsInfoIdParam.getDtToken());
         List<DsAppListVO> dsAppListVOS = queryAppList(typeVersionParam);
-        List<AuthProductListVO> productListVOS = dsAppListVOS
-                .stream().map(x -> Dozers.convert(x, AuthProductListVO.class, (t, s, c) -> {
-                    Integer isAuth = dsAuthRefs.contains(s.getAppType())
-                            ? SystemConst.IS_PRODUCT_AUTH : SystemConst.NOT_IS_PRODUCT_AUTH;
-                    Integer isImport = dsImportRefs.contains(s.getAppType())
-                            ? SystemConst.IS_PRODUCT_AUTH : SystemConst.NOT_IS_PRODUCT_AUTH;
-                    t.setIsAuth(isAuth);
-                    t.setIsImport(isImport);
-                })).collect(Collectors.toList());
+
+        List<AuthProductListVO> productListVOS = dsAppListVOS.stream().map(x -> {
+            AuthProductListVO authProductListVO = dsAppListStruct.toAuthProductListVO(x);
+            Integer isAuth = dsAuthRefs.contains(x.getAppType())
+                    ? SystemConst.IS_PRODUCT_AUTH : SystemConst.NOT_IS_PRODUCT_AUTH;
+            Integer isImport = dsImportRefs.contains(x.getAppType())
+                    ? SystemConst.IS_PRODUCT_AUTH : SystemConst.NOT_IS_PRODUCT_AUTH;
+            authProductListVO.setIsAuth(isAuth);
+            authProductListVO.setIsImport(isImport);
+            return authProductListVO;
+        }).collect(Collectors.toList());
+
         return productListVOS;
     }
 

@@ -13,7 +13,6 @@ import com.dtstack.engine.datasource.common.exception.PubSvcDefineException;
 import com.dtstack.engine.datasource.common.utils.Collects;
 import com.dtstack.engine.datasource.common.utils.CommonUtils;
 import com.dtstack.engine.datasource.common.utils.DataSourceUtils;
-import com.dtstack.engine.datasource.common.utils.Dozers;
 import com.dtstack.engine.datasource.dao.bo.datasource.DsListBO;
 import com.dtstack.engine.datasource.dao.bo.datasource.DsServiceListBO;
 import com.dtstack.engine.datasource.dao.bo.query.DsListQuery;
@@ -22,6 +21,7 @@ import com.dtstack.engine.datasource.dao.mapper.datasource.DsInfoMapper;
 import com.dtstack.engine.datasource.dao.po.datasource.DsImportRef;
 import com.dtstack.engine.datasource.dao.po.datasource.DsInfo;
 import com.dtstack.engine.datasource.facade.datasource.DatasourceFacade;
+import com.dtstack.engine.datasource.mapstruct.DsInfoStruct;
 import com.dtstack.engine.datasource.param.datasource.DsListParam;
 import com.dtstack.engine.datasource.param.datasource.api.DsServiceListParam;
 import com.dtstack.engine.datasource.service.impl.BaseService;
@@ -61,6 +61,9 @@ public class DsInfoService extends BaseService<DsInfoMapper, DsInfo> {
     @Autowired
     private DsInfoMapper dsInfoMapper;
 
+    @Autowired
+    private DsInfoStruct dsInfoStruct;
+
     private static String KERBEROS_CONFIG = "kerberosConfig";
 
     private static String KERBEROS_DIR = "kerberosDir";
@@ -72,7 +75,7 @@ public class DsInfoService extends BaseService<DsInfoMapper, DsInfo> {
      * @return
      */
     public PageResult<List<DsListVO>> dsPage(DsListParam dsListParam) {
-        DsListQuery listQuery = Dozers.convert(dsListParam, DsListQuery.class);
+        DsListQuery listQuery = dsInfoStruct.toDsListQuery(dsListParam);
         listQuery.turn();
         Integer total = this.baseMapper.countDsPage(listQuery);
         if (total == 0) {
@@ -85,12 +88,13 @@ public class DsInfoService extends BaseService<DsInfoMapper, DsInfo> {
         List<Long> dataInfoIdList = CommonUtils.contractField(dsListBOList, "dataInfoId", Long.class);
         List<DsImportRef> importRefList = importRefService.lambdaQuery().in(DsImportRef::getDataInfoId, dataInfoIdList).list();
         Map<Long, List<DsImportRef>> importRefMap = importRefList.stream().collect(Collectors.groupingBy(DsImportRef::getDataInfoId));
-        List<DsListVO> dsListVOs = Dozers.convertList(dsListBOList, DsListVO.class, (retList, target, source, destinationClass) -> {
-            Integer isImport = Objects.nonNull(importRefMap.get(source.getDataInfoId())) ? SystemConst.IS_PRODUCT_AUTH
-                    : SystemConst.NOT_IS_PRODUCT_AUTH;
-            target.setIsImport(isImport);
-            retList.add(target);
-        });
+
+        List<DsListVO> dsListVOs = dsListBOList.stream().map(t -> {
+            DsListVO dsListVO = dsInfoStruct.toDsListVO(t);
+            Integer isImport = Objects.nonNull(importRefMap.get(t.getDataInfoId())) ? SystemConst.IS_PRODUCT_AUTH : SystemConst.NOT_IS_PRODUCT_AUTH;
+            dsListVO.setIsImport(isImport);
+            return dsListVO;
+        }).collect(Collectors.toList());
         return PageUtil.transfer(dsListVOs, dsListParam, total);
     }
 
@@ -102,20 +106,20 @@ public class DsInfoService extends BaseService<DsInfoMapper, DsInfo> {
      */
     public DsDetailVO dsInfoDetail(Long dataInfoId) {
         DsInfo dsInfo = lambdaQuery().eq(DsInfo::getId, dataInfoId).one();
-        return Dozers.convert(dsInfo, DsDetailVO.class, (target, source, destinationClass) -> {
-            String dataJson = source.getDataJson();
-            JSONObject dataSourceJson = DataSourceUtils.getDataSourceJson(dataJson);
-            if(DataSourceUtils.judgeOpenKerberos(dataJson) && null == dataSourceJson.getString(FormNames.PRINCIPAL)){
-                JSONObject kerberosConfig = dataSourceJson.getJSONObject(FormNames.KERBEROS_CONFIG);
-                dataSourceJson.put(FormNames.PRINCIPAL,kerberosConfig.getString(FormNames.PRINCIPAL));
-            }
-            if(DataSourceUtils.judgeOpenKerberos(source.getDataJson()) && source.getDataType().equals(DataSourceTypeEnum.KAFKA.getDataType())){
-                //kafka开启了kerberos认证
-                dataSourceJson.put(FormNames.AUTHENTICATION,FormNames.KERBROS);
-            }
-            target.setDataJson(DataSourceUtils.getEncodeDataSource(dataSourceJson,true));
-            target.setDataInfoId(source.getId());
-        });
+        DsDetailVO dsDetailVO = dsInfoStruct.toDsDetailVO(dsInfo);
+        String dataJson = dsInfo.getDataJson();
+        JSONObject dataSourceJson = DataSourceUtils.getDataSourceJson(dataJson);
+        if(DataSourceUtils.judgeOpenKerberos(dataJson) && null == dataSourceJson.getString(FormNames.PRINCIPAL)){
+            JSONObject kerberosConfig = dataSourceJson.getJSONObject(FormNames.KERBEROS_CONFIG);
+            dataSourceJson.put(FormNames.PRINCIPAL,kerberosConfig.getString(FormNames.PRINCIPAL));
+        }
+        if(DataSourceUtils.judgeOpenKerberos(dsInfo.getDataJson()) && dsInfo.getDataType().equals(DataSourceTypeEnum.KAFKA.getDataType())){
+            //kafka开启了kerberos认证
+            dataSourceJson.put(FormNames.AUTHENTICATION,FormNames.KERBROS);
+        }
+        dsDetailVO.setDataJson(DataSourceUtils.getEncodeDataSource(dataSourceJson,true));
+        dsDetailVO.setDataInfoId(dsInfo.getId());
+        return dsDetailVO;
     }
 
     /**
@@ -159,12 +163,15 @@ public class DsInfoService extends BaseService<DsInfoMapper, DsInfo> {
         DsServiceListQuery listQuery = new DsServiceListQuery();
         BeanUtils.copyProperties(listParam, listQuery);
         List<DsServiceListBO> serviceListBOS = this.baseMapper.queryImportDsPage(listQuery);
-        return Dozers.convertList(serviceListBOS, DsServiceListVO.class, (retList, target, source, destinationClass) -> {
-            DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(source.getDataType(), source.getDataVersion());
-            target.setType(typeEnum.getVal());
-            target.setOpenKerberos(DataSourceUtils.judgeOpenKerberos(source.getDataJson()));
-            retList.add(target);
-        });
+
+        return serviceListBOS.stream().map(t -> {
+            DsServiceListVO dsServiceListVO = dsInfoStruct.toDsServiceInfoVO(t);
+            DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(t.getDataType(), t.getDataVersion());
+            dsServiceListVO.setType(typeEnum.getVal());
+            dsServiceListVO.setOpenKerberos(DataSourceUtils.judgeOpenKerberos(t.getDataJson()));
+            return dsServiceListVO;
+        }).collect(Collectors.toList());
+
     }
 
     /**
@@ -213,16 +220,18 @@ public class DsInfoService extends BaseService<DsInfoMapper, DsInfo> {
                 dataSource.setDataJson(dataSourceJson.toJSONString());
             }
         }).collect(Collectors.toList());
-        return Dozers.convertList(listBOS, DsServiceListVO.class, (retList, target, source, destinationClass) -> {
+
+        return listBOS.stream().map(t -> {
+            DsServiceListVO dsServiceListVO = dsInfoStruct.toDsServiceListVO(t);
             DataSourceTypeEnum typeEnum = null;
             try {
-                typeEnum = DataSourceTypeEnum.typeVersionOf(source.getDataType(), source.getDataVersion());
+                typeEnum = DataSourceTypeEnum.typeVersionOf(t.getDataType(), t.getDataVersion());
             } catch (Exception e) {
-                handleOldFaultDataInfoDataType(source);
+                handleOldFaultDataInfoDataType(t);
             }
-            target.setType(typeEnum==null ? source.getDataTypeCode() : typeEnum.getVal());
-            retList.add(target);
-        });
+            dsServiceListVO.setType(typeEnum==null ? t.getDataTypeCode() : typeEnum.getVal());
+            return dsServiceListVO;
+        }).collect(Collectors.toList());
     }
 
     private void handleOldFaultDataInfoDataType(DsServiceListBO source) {

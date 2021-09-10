@@ -6,11 +6,12 @@ import com.dtstack.engine.datasource.common.constant.SystemConst;
 import com.dtstack.engine.datasource.common.exception.ErrorCode;
 import com.dtstack.engine.datasource.common.exception.PubSvcDefineException;
 import com.dtstack.engine.datasource.common.utils.Collects;
-import com.dtstack.engine.datasource.common.utils.Dozers;
 import com.dtstack.engine.datasource.dao.bo.datasource.DsAuthRefBO;
 import com.dtstack.engine.datasource.dao.mapper.datasource.DsAuthRefMapper;
+import com.dtstack.engine.datasource.dao.po.datasource.DsAppList;
 import com.dtstack.engine.datasource.dao.po.datasource.DsAuthRef;
 import com.dtstack.engine.datasource.dao.po.datasource.DsImportRef;
+import com.dtstack.engine.datasource.mapstruct.DsAppListStruct;
 import com.dtstack.engine.datasource.param.datasource.ProductAuthParam;
 import com.dtstack.engine.datasource.service.impl.BaseService;
 import com.dtstack.engine.datasource.vo.datasource.AuthProductListVO;
@@ -38,6 +39,9 @@ public class DsAuthRefService extends BaseService<DsAuthRefMapper, DsAuthRef> {
 
    @Autowired
    private DsImportRefService dsImportRefService;
+
+   @Autowired
+   private DsAppListStruct dsAppListStruct;
 
 
    /**
@@ -82,13 +86,14 @@ public class DsAuthRefService extends BaseService<DsAuthRefMapper, DsAuthRef> {
    public List<AuthProductListVO> getAuthProductList(Long dataInfoId) {
       Objects.requireNonNull(dataInfoId);
       List<Integer> dsAuthRefs = getCodeByDsId(dataInfoId);
-      List<AuthProductListVO> productListVOS = dsAppListService.list()
-              .stream().map(x -> Dozers.convert(x, AuthProductListVO.class, (t, s, c) -> {
-                 Integer isAuth = dsAuthRefs.contains(s.getAppType())
-                         ? SystemConst.IS_PRODUCT_AUTH : SystemConst.NOT_IS_PRODUCT_AUTH;
-                 t.setIsAuth(isAuth);
-              })).collect(Collectors.toList());
-      return productListVOS;
+
+      List<DsAppList> productListVOS = dsAppListService.list();
+      return productListVOS.stream().map(t -> {
+         AuthProductListVO authProductListVO = dsAppListStruct.dsApp2AuthProductListVO(t);
+         Integer isAuth = dsAuthRefs.contains(t.getAppType()) ? SystemConst.IS_PRODUCT_AUTH : SystemConst.NOT_IS_PRODUCT_AUTH;
+         authProductListVO.setIsAuth(isAuth);
+         return authProductListVO;
+      }).collect(Collectors.toList());
    }
 
    /**

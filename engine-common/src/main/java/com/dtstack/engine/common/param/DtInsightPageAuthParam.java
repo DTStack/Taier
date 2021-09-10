@@ -12,8 +12,6 @@ import java.util.Objects;
  * @Description: 分页鉴权基类
  */
 @Data
-@SuperBuilder
-@NoArgsConstructor
 public class DtInsightPageAuthParam extends DtInsightAuthParam {
     public static final int DEFAULT_PAGE_NO = 1;
     public static final int DEFAULT_PAGE_SIZE = 10;
