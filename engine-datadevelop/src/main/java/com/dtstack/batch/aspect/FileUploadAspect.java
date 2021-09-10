@@ -1,9 +1,10 @@
 package com.dtstack.batch.aspect;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.batch.web.resource.vo.query.BatchResourceAddVO;
 import com.dtstack.dtcenter.common.util.PublicUtil;
-import org.apache.commons.lang.StringUtils;
+import com.dtstack.engine.master.router.DtRequestWrapperFilter;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
@@ -14,13 +15,10 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -47,22 +45,16 @@ public class FileUploadAspect {
     @Before("fileUploadPointCut()")
     public void before(JoinPoint joinPoint) throws Throwable {
         Object[] args = joinPoint.getArgs();
+        if (args.length < 2) {
+            throw new RdosDefineException("upload method args less than 2.");
+        }
+        if (!MultipartFile.class.isAssignableFrom(args[1].getClass())){
+            throw new RdosDefineException("upload method args[1] not AssignableFrom MultipartFile.");
+        }
+
         MultipartFile file = (MultipartFile) args[1];
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
 
-        Cookie[] cookies = request.getCookies();
-        Map<String,Object> ckJson = new HashMap<>();
-        if (cookies != null && cookies.length > 0) {
-            for (Cookie cookie : cookies) {
-                ckJson.put(cookie.getName(), cookie.getValue());
-            }
-        }
-
-        // 做这步的原因是通用参数都从cookie和session中取，但是部分接口会传回tenantId和projectId
-        if (!Objects.isNull(args[0])) {
-            PublicUtil.copyPropertiesIgnoreNull(args[0], ckJson);
-            PublicUtil.copyPropertiesIgnoreNull(ckJson, args[0]);
-        }
         if (file != null) {
             String originalFilename = file.getOriginalFilename();
             String fileName = UUID.randomUUID() + "_" + originalFilename;
@@ -72,11 +64,18 @@ public class FileUploadAspect {
                 tmpFile.mkdirs();
             }
             file.transferTo(tmpFile);
+
             Class clazz = args[0].getClass();
             Method tmpPathMethod = clazz.getDeclaredMethod("setTmpPath", String.class);
             Method originalFilenameMethod = clazz.getDeclaredMethod("setOriginalFilename", String.class);
             tmpPathMethod.invoke(args[0], tmpPath);
             originalFilenameMethod.invoke(args[0], originalFilename);
+
+            JSONObject bodyJson = (JSONObject) request.getAttribute(DtRequestWrapperFilter.DT_REQUEST_BODY);
+
+            Object cjObj = JSON.toJavaObject(bodyJson, clazz);
+            PublicUtil.copyPropertiesIgnoreNull(args[0], cjObj);
+            PublicUtil.copyPropertiesIgnoreNull(cjObj, args[0]);
         }
     }
 
@@ -97,14 +96,5 @@ public class FileUploadAspect {
                 file.delete();
             }
         }
-    }
-
-
-    public static void main(String[] args) {
-        Map<String,Object> ckJson = new HashMap<>();
-        ckJson.put("projectId", 1);
-        BatchResourceAddVO vo = new BatchResourceAddVO();
-        PublicUtil.copyPropertiesIgnoreNull(ckJson, vo);
-        System.out.println(vo);
     }
 }

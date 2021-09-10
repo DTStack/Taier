@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -39,14 +38,6 @@ public class DtCookieAspect {
         Object[] args = point.getArgs();
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 
-        Cookie[] cookies = request.getCookies();
-        JSONObject ckJson = new JSONObject();
-        if (cookies != null && cookies.length > 0) {
-            for (Cookie cookie : cookies) {
-                ckJson.put(cookie.getName(), cookie.getValue());
-            }
-        }
-
         MethodSignature signature = (MethodSignature) point.getSignature();
         Method method = signature.getMethod();
         Parameter[] parameters = method.getParameters();
@@ -59,7 +50,9 @@ public class DtCookieAspect {
                 if (null == argOjb) {
                     argOjb = parameters[0].getType().newInstance();
                 }
-                Object cjObj = JSON.toJavaObject(ckJson, argOjb.getClass());
+
+                JSONObject bodyJson = (JSONObject) request.getAttribute(DtRequestWrapperFilter.DT_REQUEST_BODY);
+                Object cjObj = JSON.toJavaObject(bodyJson, argOjb.getClass());
 
                 // 做这步的原因是通用参数都从cookie和session中取，但是部分接口会传回tenantId和projectId
                 PublicUtil.copyPropertiesIgnoreNull(argOjb, cjObj);
