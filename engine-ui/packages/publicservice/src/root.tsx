@@ -17,7 +17,10 @@ export default class Root extends Component<Props> {
   render() {
     const { store, history } = this.props;
     return (
-      <ConfigProvider locale={zhCN} autoInsertSpaceInButton={false}>
+      <ConfigProvider
+        locale={zhCN}
+        autoInsertSpaceInButton={false}
+        getPopupContainer={() => document.body.querySelector('div[id="app"]')}>
         <Provider store={store}>
           <Router routes={getRoutes()} history={history} />
         </Provider>
