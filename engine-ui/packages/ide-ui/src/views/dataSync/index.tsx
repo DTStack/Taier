@@ -6,7 +6,7 @@ import { bindActionCreators } from 'redux';
 import { Scrollable } from 'molecule/esm/components';
 import DataSync from './dataSync';
 import { workbenchActions } from '../../controller/dataSync/offlineAction';
-import * as editorActions from '../../controller/dataSync/workbench';
+import * as editorActions from '../../controller/editor/editorAction';
 
 const propType: any = {
     editor: PropTypes.object,
