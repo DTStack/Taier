@@ -17,6 +17,7 @@ import {
 import store from '../../../store';
 import { workbenchAction } from '../../../controller/dataSync/actionType';
 import { editorAction } from '../../../controller/editor/actionTypes';
+import { taskTreeAction, resTreeAction } from '../../../controller/catalogue/actionTypes'
 import { cloneDeep } from 'lodash';
 import functionManagerService from '../../../services/functionManagerService';
 import resourceManagerService from '../../../services/resourceManagerService';
@@ -53,6 +54,10 @@ function init() {
                 data: devData,
                 children: convertToTreeNode(child),
             });
+            store.dispatch({
+                type: taskTreeAction.RESET_TASK_TREE,
+                payload: devData
+            })
             // 资源根目录
             const resourceNode = new TreeNodeModel({
                 id: resourceData.id,
@@ -62,7 +67,11 @@ function init() {
                 data: resourceData,
                 children: convertToTreeNode(resourceData.children),
             });
-            // 资源根目录
+            store.dispatch({
+                type: resTreeAction.RESET_RES_TREE,
+                payload: resourceData
+            })
+            // 函数根目录
             const functionNode = new TreeNodeModel({
                 id: funcData.id,
                 name: funcData.name || '函数管理',
