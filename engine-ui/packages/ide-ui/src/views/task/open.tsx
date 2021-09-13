@@ -6,6 +6,8 @@ import { WrappedFormUtils } from 'antd/lib/form/Form';
 import FormItem from 'antd/lib/form/FormItem';
 import { TASK_TYPE } from '../../comm/const';
 
+import FolderPicker from '../../components/folderPicker'
+
 const Option = Select.Option;
 
 const formItemLayout = {
@@ -57,6 +59,7 @@ class Open extends React.PureComponent<OpenProps, {}> {
     handleSubmit = (e: any) => {
         e.preventDefault();
         this.props.form.validateFieldsAndScroll((err, values) => {
+            console.log(values)
             if (!err) {
                 this.setState(
                     {
@@ -131,7 +134,8 @@ class Open extends React.PureComponent<OpenProps, {}> {
                                     required: true,
                                 },
                             ],
-                        })(<Input />)}
+                            initialValue: 'aaa'
+                        })(<FolderPicker nodeNameField='name' treeData={null} onChange={(...rest)=>{console.log(rest)}}/>)}
                     </FormItem>
                     <FormItem {...formItemLayout} label="描述" hasFeedback>
                         {getFieldDecorator('taskDesc', {
