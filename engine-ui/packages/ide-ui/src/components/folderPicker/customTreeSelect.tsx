@@ -27,7 +27,7 @@ class CustomTreeSelect extends PureComponent<CustomTreeSelectProps, any> {
         super(props)
         this.state = {
             realValue: props.value, // 表单收集数据时真正的值，兼容initialValue
-            showName: props.showName // 树组件选择框显示的值，兼容initialName
+            showName: props.showName ?? props.value // 树组件选择框显示的值，兼容initialName
         }
     }
 
