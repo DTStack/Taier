@@ -12,7 +12,7 @@ const TreeNode = TreeSelect.TreeNode
 export interface CustomTreeSelectProps extends TreeSelectProps<any> {
     treeData?: any;
     onChange?: (value?: any, label?: any, extra?: any) => void;
-    showName?: any;
+    defaultShowName?: any;
     nodeNameField?: string;
     showFile: boolean;
     [propName: string]: any;
@@ -27,7 +27,7 @@ class CustomTreeSelect extends PureComponent<CustomTreeSelectProps, any> {
         super(props)
         this.state = {
             realValue: props.value, // 表单收集数据时真正的值，兼容initialValue
-            showName: props.showName ?? props.value // 树组件选择框显示的值，兼容initialName
+            showName: props.defaultShowName ?? props.value // 树组件选择框显示的值，兼容initialName
         }
     }
 
