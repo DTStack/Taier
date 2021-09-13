@@ -107,7 +107,7 @@ export function formJsonValidator(rule: any, value: any, callback: any) {
     let msg: any;
     try {
         if (value) {
-            let t = JSON.parse(value);
+            const t = JSON.parse(value);
             if (typeof t !== 'object') {
                 msg = '请填写正确的JSON';
             }
@@ -116,5 +116,23 @@ export function formJsonValidator(rule: any, value: any, callback: any) {
         msg = '请检查JSON格式，确认无中英文符号混用！';
     } finally {
         callback(msg);
+    }
+}
+
+/**
+ * 遍历树形节点，用新节点替换老节点
+*/
+export function replaceTreeNode (treeNode: any, replace: any) {
+    if (
+        treeNode.id === parseInt(replace.id, 10) && treeNode.type == replace.type
+    ) {
+        treeNode = Object.assign(treeNode, replace);
+        return;
+    }
+    if (treeNode.children) {
+        const children = treeNode.children
+        for (let i = 0; i < children.length; i += 1) {
+            replaceTreeNode(children[i], replace)
+        }
     }
 }

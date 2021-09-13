@@ -1,92 +1,113 @@
 import React, { Component } from 'react'
-import {
-    TreeSelect, Input
-} from 'antd';
+import { connect } from 'react-redux'
 import { omit } from 'lodash'
-import { TreeSelectProps } from 'antd/lib/tree-select'
 
-const TreeNode = TreeSelect.TreeNode
+import CustomTreeSelect ,{ CustomTreeSelectProps } from './customTreeSelect'
+import ajax from '../../api';
+import { 
+    taskTreeAction,
+    resTreeAction,
+    sparkSysFnTreeActon,
+    sparkCustomFnTreeAction 
+} from '../../controller/catalogue/actionTypes'
 
-interface FolderPickerProps extends TreeSelectProps<any> {
-    treeData: any;
-    onChange: (value?: any, label?: any, extra?: any) => void;
-    showName?: any;
-    nodeNameField: string;
-    [propName: string]: any;
+type DataType = 'task'|'resource'|'sparkSysFunction'|'sparkCustomFunction'
+interface FolderPickerProps extends CustomTreeSelectProps {
+    dataType: DataType;
 }
-/**
- * 解决使用异步加载数据情况下，模糊搜索时展示id的问题
- * 使用 Input 和 TreeSelect 组件分别承担 数据收集和选择、展示的功能 
- */
+
 class FolderPicker extends Component<FolderPickerProps, any> {
 
-    constructor (props: FolderPickerProps) {
-        super(props)
-        this.state = {
-            realValue: props.value, // 表单收集数据时真正的值，兼容initialValue
-            showName: props.showName // 树组件选择框显示的值，兼容initialName
+    loadDataAsync = async (treeNode: any) => {
+        const { updateTreeData } = this.props
+        const { catalogueType, id, children } = treeNode.props.dataRef
+        if (children?.length) return Promise.resolve()
+        const res = await ajax.getOfflineCatalogue({
+            isGetFile: !!1,
+            nodePid: id,
+            catalogueType,
+            taskType: 1,
+            appointProjectId: 1,
+            projectId: 1,
+            userId: 1,
+        });
+        if (res.code === 1) {
+            const { data } = res
+            updateTreeData(data)
         }
-    }
-
-    onTreeChange = (value: any, label: any, extra: any) => {
-        // 让 form.getFieldDecorator 正常工作
-        const { onChange } = this.props
-        onChange(value, label, extra) 
-        this.setState({
-            realValue: value
-        })
-    }
-
-    updateShowName = (value: any, node: any) => {
-        const { nodeNameField } = this.props
-        this.setState({
-            showName: node.props?.[nodeNameField]
-        })
-    }
-
-    // TODO: 将generateTreeNodes暴露出去以兼容不同的数据格式
-    generateTreeNodes = () => {
-        const { treeData } = this.props
-        const loop = (data: any) => {
-            const { createUser, id, name } = data;
-            return (
-                <TreeNode
-                    title={
-                        <span title={name}>
-                            { name }&nbsp;
-                            <i className="item-tooltip" title={createUser}>
-                                <span style={{ color: '#ccc' }}>{createUser}</span>
-                            </i>
-                        </span> 
-                    }
-                    value={id}
-                    name={name}
-                    dataRef={data}
-                    key={id}
-                >
-                    {data.children && data.children.map((o: any) => loop(o))}
-                </TreeNode>
-            )
-        }
-        return loop(treeData)
     }
 
     render () {
-        const { realValue, showName } = this.state
+        const { treeData } = this.props
         return (
             <>
-                <Input type='hidden' value={realValue}/>
-                <TreeSelect
-                    value={showName}
-                    onChange={ this.onTreeChange }
-                    onSelect={ this.updateShowName }
-                    {...omit(this.props,['onChange', 'treeData', 'value'])}
-                >
-                    {this.generateTreeNodes()}
-                </TreeSelect>
+                <CustomTreeSelect
+                    {...omit(this.props, ['treeData', 'loadData'])}
+                    showFile={this.props.showFile}
+                    loadData={this.loadDataAsync}
+                    treeData={treeData}
+                />
             </>
         )
     }
 }
 
-export default FolderPicker
+const mapState = (state: any, ownProps: FolderPickerProps) => {
+    const { dataType } = ownProps
+    const { catalogue } = state 
+    let treeData = null
+    switch (dataType) {
+        case 'task': 
+            treeData = catalogue.taskTree;
+            break;
+        case 'resource': 
+            treeData = catalogue.resourceTree;
+            break;
+        case 'sparkCustomFunction':
+            treeData = catalogue.sparkCustomFuncTree;
+            break;
+        case 'sparkSysFunction': 
+            treeData = catalogue.sparkSystemFuncTreeData;
+            break;
+        default: 
+            treeData = catalogue.taskTree;
+            break;
+    }
+    return {
+        treeData
+    };
+}
+
+const mapDispatch = (dispatch: any, ownProps: FolderPickerProps) => {
+    const { dataType } = ownProps
+    let action: any = null
+    switch (dataType) {
+        case 'task': 
+            action = taskTreeAction
+            break;
+        case 'resource': 
+            action = resTreeAction;
+            break;
+        case 'sparkCustomFunction':
+            action = sparkCustomFnTreeAction;
+            break;
+        case 'sparkSysFunction': 
+            action = sparkSysFnTreeActon;
+            break;
+        default: 
+            action = taskTreeAction;
+            break;
+    }
+    return {
+        updateTreeData: (data: any) => {
+            dispatch({
+                type: action.LOAD_FOLDER_CONTENT,
+                payload: data
+            }) 
+        }
+    }
+} 
+
+export default connect(mapState, mapDispatch)(FolderPicker)
+
+

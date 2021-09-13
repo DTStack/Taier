@@ -59,7 +59,6 @@ class Open extends React.PureComponent<OpenProps, {}> {
     handleSubmit = (e: any) => {
         e.preventDefault();
         this.props.form.validateFieldsAndScroll((err, values) => {
-            console.log(values)
             if (!err) {
                 this.setState(
                     {
@@ -135,7 +134,7 @@ class Open extends React.PureComponent<OpenProps, {}> {
                                 },
                             ],
                             initialValue: 'aaa'
-                        })(<FolderPicker nodeNameField='name' treeData={null} onChange={(...rest)=>{console.log(rest)}}/>)}
+                        })(<FolderPicker showFile={false} dataType='task' />)}
                     </FormItem>
                     <FormItem {...formItemLayout} label="描述" hasFeedback>
                         {getFieldDecorator('taskDesc', {

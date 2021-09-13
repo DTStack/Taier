@@ -21,24 +21,21 @@ import {
     targetMapAction,
     keyMapAction,
     workbenchAction,
+    workflowAction,
+} from './actionType';
+
+import {
     taskTreeAction,
     resTreeAction,
-    fnTreeAction,
+    sparkCustomFnTreeAction,
+    sparkSysFnTreeActon,
     sparkFnTreeAction,
-    libraFnTreeAction,
-    libraSysFnTreeActon,
-    tiDBSysFnTreeActon,
-    oracleSysFnTreeActon,
-    greenPlumTreeAction,
-    greenPlumSysFnTreeActon,
     greenPlumProdTreeActon,
     greenPlumFnTreeActon,
-    sysFnTreeActon,
     scriptTreeAction,
     tableTreeAction,
     componentTreeAction,
-    workflowAction,
-} from './actionType';
+} from '../catalogue/actionTypes'
 
 const confirm = Modal.confirm;
 
@@ -1079,36 +1076,36 @@ export const workbenchActions = (dispatch?: any) => {
                     case MENU_TYPE.SPARKFUNC:
                         action = sparkFnTreeAction;
                         break;
-                    case MENU_TYPE.LIBRAFUNC:
-                        action = libraFnTreeAction;
-                        break;
-                    case MENU_TYPE.LIBRASYSFUN:
-                        action = libraSysFnTreeActon;
-                        break;
-                    case MENU_TYPE.TIDB_SYS_FUNC:
-                        action = tiDBSysFnTreeActon;
-                        break;
-                    case MENU_TYPE.ORACLE_SYS_FUNC:
-                        action = oracleSysFnTreeActon;
-                        break;
-                    case MENU_TYPE.GREEN_PLUM_PROD:
-                        action = greenPlumProdTreeActon;
-                        break;
-                    case MENU_TYPE.GREEN_PLUM_SYS_FUNC:
-                        action = greenPlumSysFnTreeActon;
-                        break;
-                    case MENU_TYPE.GREEN_PLUM_FUNC:
-                        action = greenPlumFnTreeActon;
-                        break;
-                    case MENU_TYPE.GREEN_PLUM:
-                        action = greenPlumTreeAction;
-                        break;
-                    case MENU_TYPE.FUNCTION:
+                    // case MENU_TYPE.LIBRAFUNC:
+                    //     action = libraFnTreeAction;
+                    //     break;
+                    // case MENU_TYPE.LIBRASYSFUN:
+                    //     action = libraSysFnTreeActon;
+                    //     break;
+                    // case MENU_TYPE.TIDB_SYS_FUNC:
+                    //     action = tiDBSysFnTreeActon;
+                    //     break;
+                    // case MENU_TYPE.ORACLE_SYS_FUNC:
+                    //     action = oracleSysFnTreeActon;
+                    //     break;
+                    // case MENU_TYPE.GREEN_PLUM_PROD:
+                    //     action = greenPlumProdTreeActon;
+                    //     break;
+                    // case MENU_TYPE.GREEN_PLUM_SYS_FUNC:
+                    //     action = greenPlumSysFnTreeActon;
+                    //     break;
+                    // case MENU_TYPE.GREEN_PLUM_FUNC:
+                    //     action = greenPlumFnTreeActon;
+                    //     break;
+                    // case MENU_TYPE.GREEN_PLUM:
+                    //     action = greenPlumTreeAction;
+                    //     break;
+                    case MENU_TYPE.FUNCTION: 
                     case MENU_TYPE.COSTOMFUC:
-                        action = fnTreeAction;
+                        action = sparkCustomFnTreeAction;
                         break;
                     case MENU_TYPE.SYSFUC:
-                        action = sysFnTreeActon;
+                        action = sparkSysFnTreeActon;
                         break;
                     case MENU_TYPE.SCRIPT:
                         action = scriptTreeAction;
@@ -1135,68 +1132,68 @@ export const workbenchActions = (dispatch?: any) => {
                         MENU_TYPE.SYSFUC,
                         ENGINE_SOURCE_TYPE.HADOOP
                     );
-                    const libraSysFunc = getFuncTree(
-                        data,
-                        MENU_TYPE.SYSFUC,
-                        ENGINE_SOURCE_TYPE.LIBRA
-                    );
-                    const tiDBSysFunc = getFuncTree(
-                        data,
-                        MENU_TYPE.SYSFUC,
-                        ENGINE_SOURCE_TYPE.TI_DB
-                    );
-                    const oracleSysFunc = getFuncTree(
-                        data,
-                        MENU_TYPE.SYSFUC,
-                        ENGINE_SOURCE_TYPE.ORACLE
-                    );
-                    const greenPlumSysFunc = getFuncTree(
-                        data,
-                        MENU_TYPE.SYSFUC,
-                        ENGINE_SOURCE_TYPE.GREEN_PLUM
-                    );
-                    const greenPlumFunc = getFuncTree(
-                        data,
-                        MENU_TYPE.GREEN_PLUM_FUNC,
-                        ENGINE_SOURCE_TYPE.GREEN_PLUM
-                    );
-                    const greenPlumProd = getFuncTree(
-                        data,
-                        MENU_TYPE.GREEN_PLUM_PROD,
-                        ENGINE_SOURCE_TYPE.GREEN_PLUM
-                    );
+                    // const libraSysFunc = getFuncTree(
+                    //     data,
+                    //     MENU_TYPE.SYSFUC,
+                    //     ENGINE_SOURCE_TYPE.LIBRA
+                    // );
+                    // const tiDBSysFunc = getFuncTree(
+                    //     data,
+                    //     MENU_TYPE.SYSFUC,
+                    //     ENGINE_SOURCE_TYPE.TI_DB
+                    // );
+                    // const oracleSysFunc = getFuncTree(
+                    //     data,
+                    //     MENU_TYPE.SYSFUC,
+                    //     ENGINE_SOURCE_TYPE.ORACLE
+                    // );
+                    // const greenPlumSysFunc = getFuncTree(
+                    //     data,
+                    //     MENU_TYPE.SYSFUC,
+                    //     ENGINE_SOURCE_TYPE.GREEN_PLUM
+                    // );
+                    // const greenPlumFunc = getFuncTree(
+                    //     data,
+                    //     MENU_TYPE.GREEN_PLUM_FUNC,
+                    //     ENGINE_SOURCE_TYPE.GREEN_PLUM
+                    // );
+                    // const greenPlumProd = getFuncTree(
+                    //     data,
+                    //     MENU_TYPE.GREEN_PLUM_PROD,
+                    //     ENGINE_SOURCE_TYPE.GREEN_PLUM
+                    // );
                     dispatch({
-                        type: fnTreeAction.RESET_FUC_TREE, // spark自定义函数
+                        type: sparkCustomFnTreeAction.RESET_FUC_TREE, // spark自定义函数
                         payload: sparkCusFunc,
                     });
                     dispatch({
-                        type: sysFnTreeActon.RESET_SYSFUC_TREE, // spark系统函数
+                        type: sparkSysFnTreeActon.RESET_SYSFUC_TREE, // spark系统函数
                         payload: sparkSysFunc,
                     });
-                    dispatch({
-                        type: libraSysFnTreeActon.RESET_SYSFUC_TREE,
-                        payload: libraSysFunc, // libra系统函数
-                    });
-                    dispatch({
-                        type: tiDBSysFnTreeActon.RESET_SYSFUC_TREE,
-                        payload: tiDBSysFunc, // tidb 系统函数
-                    });
-                    dispatch({
-                        type: oracleSysFnTreeActon.RESET_SYSFUC_TREE,
-                        payload: oracleSysFunc, // oracle 系统函数
-                    });
-                    dispatch({
-                        type: greenPlumSysFnTreeActon.RESET_SYSFUC_TREE,
-                        payload: greenPlumSysFunc, // gp
-                    });
-                    dispatch({
-                        type: greenPlumFnTreeActon.RESET_FUC_TREE,
-                        payload: greenPlumFunc, //
-                    });
-                    dispatch({
-                        type: greenPlumProdTreeActon.RESET_FUC_TREE,
-                        payload: greenPlumProd, //
-                    });
+                    // dispatch({
+                    //     type: libraSysFnTreeActon.RESET_SYSFUC_TREE,
+                    //     payload: libraSysFunc, // libra系统函数
+                    // });
+                    // dispatch({
+                    //     type: tiDBSysFnTreeActon.RESET_SYSFUC_TREE,
+                    //     payload: tiDBSysFunc, // tidb 系统函数
+                    // });
+                    // dispatch({
+                    //     type: oracleSysFnTreeActon.RESET_SYSFUC_TREE,
+                    //     payload: oracleSysFunc, // oracle 系统函数
+                    // });
+                    // dispatch({
+                    //     type: greenPlumSysFnTreeActon.RESET_SYSFUC_TREE,
+                    //     payload: greenPlumSysFunc, // gp
+                    // });
+                    // dispatch({
+                    //     type: greenPlumFnTreeActon.RESET_FUC_TREE,
+                    //     payload: greenPlumFunc, //
+                    // });
+                    // dispatch({
+                    //     type: greenPlumProdTreeActon.RESET_FUC_TREE,
+                    //     payload: greenPlumProd, //
+                    // });
                 }
             }
         },
@@ -1273,7 +1270,7 @@ export const workbenchActions = (dispatch?: any) => {
                             break;
                         case MENU_TYPE.FUNCTION:
                         case MENU_TYPE.COSTOMFUC:
-                            action = fnTreeAction;
+                            action = sparkCustomFnTreeAction;
                             break;
                         case MENU_TYPE.SCRIPT:
                             action = scriptTreeAction;
@@ -1452,7 +1449,7 @@ export const workbenchActions = (dispatch?: any) => {
                         });
                     } else {
                         dispatch({
-                            type: fnTreeAction.DEL_OFFLINE_FN,
+                            type: sparkCustomFnTreeAction.DEL_OFFLINE_FN,
                             payload: {
                                 id: params.functionId,
                                 parentId: nodePid,
