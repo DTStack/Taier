@@ -17,7 +17,10 @@ import {
 import store from '../../../store';
 import { workbenchAction } from '../../../controller/dataSync/actionType';
 import { editorAction } from '../../../controller/editor/actionTypes';
-import { taskTreeAction, resTreeAction } from '../../../controller/catalogue/actionTypes'
+import {
+    taskTreeAction,
+    resTreeAction,
+} from '../../../controller/catalogue/actionTypes';
 import { cloneDeep } from 'lodash';
 import functionManagerService from '../../../services/functionManagerService';
 import resourceManagerService from '../../../services/resourceManagerService';
@@ -56,8 +59,8 @@ function init() {
             });
             store.dispatch({
                 type: taskTreeAction.RESET_TASK_TREE,
-                payload: devData
-            })
+                payload: devData,
+            });
             // 资源根目录
             const resourceNode = new TreeNodeModel({
                 id: resourceData.id,
@@ -69,8 +72,8 @@ function init() {
             });
             store.dispatch({
                 type: resTreeAction.RESET_RES_TREE,
-                payload: resourceData
-            })
+                payload: resourceData,
+            });
             // 函数根目录
             const functionNode = new TreeNodeModel({
                 id: funcData.id,
@@ -342,8 +345,8 @@ function onRemove() {
 }
 
 function contextMenu() {
-    molecule.folderTree.onContextMenu((treeNode, menu) => {
-        switch (menu!.id) {
+    molecule.folderTree.onContextMenu((menu, treeNode) => {
+        switch (menu.id) {
             case FOLDERTREE_CONTEXT_EDIT: {
                 resetEditorGroup();
 
@@ -352,7 +355,7 @@ function contextMenu() {
                 const onSubmit = (values: any) => {
                     return new Promise<boolean>((resolve) => {
                         const params = {
-                            id: treeNode.data.id,
+                            id: treeNode!.data.id,
                             ...values,
                             isUseComponent: 0,
                             nodePid: 233,
@@ -363,21 +366,21 @@ function contextMenu() {
                         ajax.addOfflineTask(params)
                             .then((res: any) => {
                                 if (res.code === 1) {
-                                    const nextTreeData = cloneDeep(treeNode);
+                                    const nextTreeData = cloneDeep(treeNode!);
 
                                     nextTreeData.data = params;
                                     nextTreeData.name = values.name;
 
-                                    molecule.folderTree.update(treeNode);
+                                    molecule.folderTree.update(treeNode!);
 
                                     // 确保 editor 的 tab 的 id 和 tree 的 id 保持一致
                                     // 同步去更新 tab 的 name
                                     const isOpened = molecule.editor.isOpened(
-                                        treeNode.id
+                                        treeNode!.id
                                     );
                                     if (isOpened) {
                                         molecule.editor.updateTab({
-                                            id: treeNode.id,
+                                            id: treeNode!.id,
                                             name: values.name,
                                         });
                                     }
@@ -413,7 +416,7 @@ function contextMenu() {
                     name: localize('update task', '编辑任务'),
                     renderPane: () => {
                         return (
-                            <Open record={treeNode.data} onSubmit={onSubmit} />
+                            <Open record={treeNode!.data} onSubmit={onSubmit} />
                         );
                     },
                 };
