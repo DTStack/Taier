@@ -133,7 +133,6 @@ class Open extends React.PureComponent<OpenProps, {}> {
                                     required: true,
                                 },
                             ],
-                            initialValue: 'aaa'
                         })(<FolderPicker showFile={false} dataType='task' />)}
                     </FormItem>
                     <FormItem {...formItemLayout} label="描述" hasFeedback>
