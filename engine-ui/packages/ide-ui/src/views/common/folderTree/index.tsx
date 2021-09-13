@@ -141,7 +141,7 @@ function updateTree(data: any) {
 }
 
 // 初始化右键菜单
-function initContenxtMenu() {
+function initContextMenu() {
     const { folderTree } = molecule.folderTree.getState();
     const contextMenu = folderTree?.contextMenu?.concat() || [];
     contextMenu.push({
@@ -437,7 +437,7 @@ function contextMenu() {
 export default class FolderTreeExtension implements IExtension {
     activate() {
         init();
-        initContenxtMenu();
+        initContextMenu();
 
         createTask();
         onSelectFile();
