@@ -2,6 +2,7 @@ import React from 'react';
 import { Modal, Button, Form, Input, Select, Icon, Spin } from 'antd';
 
 import ajax from '../../api';
+import FolderPicker from '../../components/folderPicker';
 import { RESOURCE_TYPE, formItemLayout } from '../../comm/const';
 
 export function getContainer(id: string) {
@@ -256,7 +257,10 @@ class ResForm extends React.Component<any, any> {
                             ? defaultData.parentId
                             : undefined,
                     })(<Input type="hidden"></Input>)}
-                    <Select
+                    <FolderPicker
+                        dataType="resource"
+                        showFile={false}
+                        onChange={this.handleSelectTreeChange.bind(this)}
                         defaultValue={
                             isCreateNormal
                                 ? this.props.treeData.id
@@ -264,23 +268,7 @@ class ResForm extends React.Component<any, any> {
                                 ? defaultData.parentId
                                 : undefined
                         }
-                        onChange={this.handleSelectTreeChange.bind(this)}
-                    >
-                        <Option value={251}>251</Option>
-                    </Select>
-                    {/* <FolderPicker
-                        type={MENU_TYPE.RESOURCE}
-                        ispicker
-                        treeData={this.props.treeData}
-                        onChange={this.handleSelectTreeChange.bind(this)}
-                        defaultNode={
-                            isCreateNormal
-                                ? this.props.treeData.id
-                                : isCreateFromMenu
-                                ? defaultData.parentId
-                                : undefined
-                        }
-                    /> */}
+                    />
                 </FormItem>,
                 <FormItem {...formItemLayout} label="描述" key="resourceDesc">
                     {getFieldDecorator('resourceDesc', {
@@ -320,7 +308,10 @@ class ResForm extends React.Component<any, any> {
                             ? defaultData.id
                             : undefined,
                     })(<Input type="hidden"></Input>)}
-                    <Select
+                    <FolderPicker
+                        dataType="resource"
+                        showFile
+                        onChange={this.handleCoverTargetChange.bind(this)}
                         defaultValue={
                             isCreateNormal
                                 ? this.props.treeData.id
@@ -330,26 +321,7 @@ class ResForm extends React.Component<any, any> {
                                 ? defaultData.id
                                 : undefined
                         }
-                        onChange={this.handleCoverTargetChange.bind(this)}
-                    >
-                        <Option value={5}>5</Option>
-                    </Select>
-                    {/* <FolderPicker
-                        type={MENU_TYPE.RESOURCE}
-                        ispicker
-                        isFilepicker
-                        treeData={this.props.treeData}
-                        onChange={this.handleCoverTargetChange.bind(this)}
-                        defaultNode={
-                            isCreateNormal
-                                ? this.props.treeData.id
-                                : isCreateFromMenu
-                                ? defaultData.parentId
-                                : isEditExist
-                                ? defaultData.id
-                                : undefined
-                        }
-                    /> */}
+                    />
                 </FormItem>,
                 <FormItem
                     {...formItemLayout}
