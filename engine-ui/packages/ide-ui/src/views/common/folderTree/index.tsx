@@ -26,6 +26,33 @@ import functionManagerService from '../../../services/functionManagerService';
 import resourceManagerService from '../../../services/resourceManagerService';
 import { getStatusBarLanguage, updateStatusBarLanguage } from '../statusBar';
 
+async function loadTreeNode(treeNode: any) {
+    if (!treeNode) return;
+    const res = await ajax.getOfflineCatalogue({
+        isGetFile: !!1,
+        nodePid: treeNode!.id,
+        catalogueType: treeNode.catalogueType,
+        taskType: 1,
+        appointProjectId: 1,
+        projectId: 1,
+        userId: 1,
+    });
+    if (res.code === 1) {
+        const { id, name, children } = res.data;
+        const nextNode = new TreeNodeModel({
+            id,
+            name: name || '文件夹',
+            location: name,
+            fileType: FileTypes.Folder,
+            isLeaf: false,
+            data: res.data,
+            children: convertToTreeNode(children),
+        });
+
+        molecule.folderTree.update(nextNode);
+    }
+}
+
 function init() {
     ajax.getOfflineCatalogue({
         nodePid: 0,
@@ -38,9 +65,12 @@ function init() {
     }).then((res) => {
         if (res.code === 1) {
             const { children } = res.data;
+
+            // Get the Tasks root folder
             const devData = children.filter(
                 (item: any) => item.catalogueType === 'TaskManager'
-            )[0];
+            )[0].children.find((item: any) => item.catalogueType === 'TaskDevelop');
+
             const funcData = children.filter(
                 (item: any) => item.catalogueType === 'FunctionManager'
             )[0];
@@ -86,34 +116,33 @@ function init() {
 
             resourceManagerService.add(resourceNode);
             functionManagerService.add(functionNode);
+            // Load Task folder tree 
             molecule.folderTree.add(taskNode);
+            loadTreeNode(devData);
         }
     });
-
     // 文件夹树异步加载
-    molecule.folderTree.onLoadData(async (treeNode) => {
-        const res = await ajax.getOfflineCatalogue({
-            isGetFile: !!1,
-            nodePid: treeNode.data!.id,
-            catalogueType: treeNode.data!.data.catalogueType,
-            taskType: 1,
-            appointProjectId: 1,
-            projectId: 1,
-            userId: 1,
-        });
-        if (res.code === 1) {
-            const { id, name, children } = res.data;
-            const nextNode = new TreeNodeModel({
-                id,
-                name: name || '资源管理',
-                location: name,
-                fileType: FileTypes.Folder,
-                isLeaf: false,
-                data: res.data,
-                children: convertToTreeNode(children),
-            });
+    molecule.folderTree.onLoadData((treeNode) => {
+        loadTreeNode(treeNode.data!.data);
+    });
 
-            molecule.folderTree.update(nextNode);
+    molecule.explorer.onPanelToolbarClick((panel, toolbarId: string) => {
+
+        const getRootNode = () => molecule.folderTree.getState().folderTree?.data![0];
+        // 如果是任务刷新，执行重新加载
+        if (panel.id === 'sidebar.explore.folders' && toolbarId === 'refresh') {
+            const rootNode = getRootNode();
+            if (rootNode) {
+                loadTreeNode(rootNode.data);
+            }
+        }
+
+        if (panel.id === 'sidebar.explore.folders' && toolbarId === 'collapse') {
+            // TODO implements the reset the ExpandedKeys
+            // const rootNode = getRootNode();
+            // if (rootNode) {
+            //     molecule.folderTree.setExpandedKeys([]);
+            // }
         }
     });
 }
@@ -144,7 +173,7 @@ function updateTree(data: any) {
 }
 
 // 初始化右键菜单
-function initContenxtMenu() {
+function initContextMenu() {
     const { folderTree } = molecule.folderTree.getState();
     const contextMenu = folderTree?.contextMenu?.concat() || [];
     contextMenu.push({
@@ -440,8 +469,7 @@ function contextMenu() {
 export default class FolderTreeExtension implements IExtension {
     activate() {
         init();
-        initContenxtMenu();
-
+        initContextMenu();
         createTask();
         onSelectFile();
         contextMenu();
