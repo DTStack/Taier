@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
 import { Icon, message, Modal, Tag, Form, Row, Col, Input } from 'antd';
 import molecule from 'molecule';
-import {
-    getEditorInitialActions,
-    IExtension,
-} from 'molecule/esm/model';
+import { getEditorInitialActions, IExtension } from 'molecule/esm/model';
 import { searchById } from 'molecule/esm/services/helper';
 import { workbenchActions } from '../../../controller/dataSync/offlineAction';
 import { workbenchAction } from '../../../controller/dataSync/actionType';
@@ -16,14 +13,14 @@ import {
     TASK_RELEASE_ID,
     TASK_OPS_ID,
     OUTPUT_LOG,
-    TASK_SAVE_ID
+    TASK_SAVE_ID,
 } from '../utils/const';
 import store from '../../../store';
 import { matchTaskParams, filterSql, formatDateTime } from '../../../comm';
 import { TASK_TYPE, formItemLayout } from '../../../comm/const';
 import { debounce } from 'lodash';
 import { execSql, stopSql } from '../../../controller/editor/editorAction';
-import ajax from '../../../api'
+import ajax from '../../../api';
 import ReactDOM from 'react-dom';
 
 const confirm = Modal.confirm;
@@ -36,14 +33,15 @@ function initActions() {
             icon: 'save',
             place: 'outer',
             disabled: true,
-            title: '保存'
-        },{
+            title: '保存',
+        },
+        {
             id: TASK_RUN_ID,
             name: 'Run Task',
             icon: 'play',
             place: 'outer',
             disabled: true,
-            title: '运行'
+            title: '运行',
         },
         {
             id: TASK_STOP_ID,
@@ -51,7 +49,7 @@ function initActions() {
             icon: 'debug-pause',
             place: 'outer',
             disabled: true,
-            title: '停止运行'
+            title: '停止运行',
         },
         {
             id: TASK_SUBMIT_ID,
@@ -59,7 +57,29 @@ function initActions() {
             icon: <Icon type="upload" />,
             place: 'outer',
             disabled: true,
-            title: '提交至调度引擎'
+            title: '提交至调度引擎',
+        },
+        {
+            id: TASK_RELEASE_ID,
+            name: '拷贝任务至目标项目，或下载至本地',
+            icon: (
+                <span style={{ fontSize: 14, display: 'flex' }}>
+                    <svg
+                        viewBox="0 0 1024 1024"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="1em"
+                        height="1em"
+                    >
+                        <path
+                            fill="currentColor"
+                            d="M63.508 465.381l266.15 157.138 129.174 265.176 135.447-111.9 159.066 93.937 205.781-733.767L63.508 465.38zm393.848 206.332l-.115 130.788-91.16-187.16 432.344-326.935-341.069 383.307zM146.17 472.828l679.898-250.046-483.777 365.836-196.12-115.79zM731.262 815.34l-231.89-136.931 394.754-443.758L731.262 815.34z"
+                        />
+                    </svg>
+                </span>
+            ),
+            place: 'outer',
+            disabled: true,
+            title: '拷贝任务至目标项目，或下载至本地',
         },
         {
             id: TASK_OPS_ID,
@@ -86,75 +106,83 @@ function initActions() {
         ...getEditorInitialActions(),
     ]);
 }
-function RenderPublish ( { current } : any ) {
-    const [ publishDesc, changeDesc ] = useState('');
-    const [ visible, changeVisible ] = useState(true);
-    const [ loading, changeLoading ] = useState(false);
+function RenderPublish({ current }: any) {
+    const [publishDesc, changeDesc] = useState('');
+    const [visible, changeVisible] = useState(true);
+    const [loading, changeLoading] = useState(false);
     const submitTab = () => {
         const params = {
             ...current.tab?.data,
             sqlText: current.tab?.data.value,
-            publishDesc
-        }
+            publishDesc,
+        };
         // 添加发布描述信息
         if (publishDesc.length > 200) {
-            message.error('备注信息不可超过200个字符！')
+            message.error('备注信息不可超过200个字符！');
             return false;
         }
-        checkPublishTask(params)
-    }
+        checkPublishTask(params);
+    };
     const checkPublishTask = (result: any, ignoreCheck?: boolean) => {
-        result.ignoreCheck = ignoreCheck
+        result.ignoreCheck = ignoreCheck;
         changeLoading(true);
-        delete (result.dtuicTenantId)
-        delete (result.language)
-        delete (result.appType)
-        delete (result.componentVersion)
-        delete (result.increColumn)
-        delete (result.input)
-        delete (result.isPublishToProduce)
-        ajax.publishOfflineTask(result).then((res: any) => {
-            changeLoading(false);
-            const { data, code } = res;
-            if (code === 1) {
-                switch (data?.errorSign) {
-                    case 0: {
-                        message.success('提交成功！');
-                        changeVisible(false)
-                        break;
-                    }
-                    case 1: {
-                        changeVisible(false)
-                        return Modal.warning({
-                            title: '无法提交任务',
-                            content: <p>{data?.errorMessage || '未知错误'}</p>
-                        });
-                    }
-                    default: {
-                        confirm({
-                            title: '无法提交任务',
-                            content: <p>{data?.errorMessage || '未知错误'}</p>,
-                            okText: '仍要提交',
-                            cancelText: '确定',
-                            onOk () {
-                                checkPublishTask(result, false)
-                            },
-                            onCancel () {
-                                changeVisible(false)
-                            }
-                        });
+        delete result.dtuicTenantId;
+        delete result.language;
+        delete result.appType;
+        delete result.componentVersion;
+        delete result.increColumn;
+        delete result.input;
+        delete result.isPublishToProduce;
+        ajax.publishOfflineTask(result)
+            .then((res: any) => {
+                changeLoading(false);
+                const { data, code } = res;
+                if (code === 1) {
+                    switch (data?.errorSign) {
+                        case 0: {
+                            message.success('提交成功！');
+                            changeVisible(false);
+                            break;
+                        }
+                        case 1: {
+                            changeVisible(false);
+                            return Modal.warning({
+                                title: '无法提交任务',
+                                content: (
+                                    <p>{data?.errorMessage || '未知错误'}</p>
+                                ),
+                            });
+                        }
+                        default: {
+                            confirm({
+                                title: '无法提交任务',
+                                content: (
+                                    <p>{data?.errorMessage || '未知错误'}</p>
+                                ),
+                                okText: '仍要提交',
+                                cancelText: '确定',
+                                onOk() {
+                                    checkPublishTask(result, false);
+                                },
+                                onCancel() {
+                                    changeVisible(false);
+                                },
+                            });
+                        }
                     }
                 }
-            }
-        }).finally(() => {
-            changeLoading(false);
-            changeVisible(false)
-        });
-    } 
+            })
+            .finally(() => {
+                changeLoading(false);
+                changeVisible(false);
+            });
+    };
     return (
         <Modal
             wrapClassName="vertical-center-modal"
             title="提交任务"
+            getContainer={() => document.getElementById('molecule')}
+            prefixCls="ide-ui-modal"
             style={{ height: '600px', width: '600px' }}
             visible={visible}
             onCancel={() => changeVisible(false)}
@@ -165,17 +193,15 @@ function RenderPublish ( { current } : any ) {
             <Form>
                 <FormItem
                     {...formItemLayout}
-                    label={(
-                        <span>备注</span>
-                    )}
+                    label={<span>备注</span>}
                     hasFeedback
                 >
                     <Input.TextArea
                         value={publishDesc}
                         name="publishDesc"
                         rows={4}
-                        onChange={(e) => { 
-                            changeDesc(e.target.value)
+                        onChange={(e) => {
+                            changeDesc(e.target.value);
                         }}
                     />
                 </FormItem>
@@ -186,7 +212,7 @@ function RenderPublish ( { current } : any ) {
                 </Col>
             </Row>
         </Modal>
-    )
+    );
 }
 
 function emitEvent() {
@@ -242,7 +268,8 @@ function emitEvent() {
                             {
                                 id: TASK_SAVE_ID,
                                 disabled: false,
-                            },{
+                            },
+                            {
                                 id: TASK_RUN_ID,
                                 icon: 'play',
                                 disabled: false,
@@ -279,8 +306,8 @@ function emitEvent() {
             case TASK_SAVE_ID: {
                 const params = {
                     ...current.tab?.data,
-                    sqlText: current.tab?.data.value
-                }
+                    sqlText: current.tab?.data.value,
+                };
                 const uploadTask = () => {
                     const id = params.id;
                     ajax.getOfflineTaskByID({ id }).then((res) => {
@@ -294,7 +321,8 @@ function emitEvent() {
                                 {
                                     id: TASK_SAVE_ID,
                                     disabled: false,
-                                },{
+                                },
+                                {
                                     id: TASK_RUN_ID,
                                     icon: 'play',
                                     disabled: false,
@@ -303,83 +331,100 @@ function emitEvent() {
                                     id: TASK_STOP_ID,
                                     disabled: true,
                                 },
-                                { 
-                                    id: TASK_SUBMIT_ID, 
-                                    disabled: false 
+                                {
+                                    id: TASK_SUBMIT_ID,
+                                    disabled: false,
                                 },
                             ]);
                         }
                     });
-                }
+                };
                 const succCallback = (res: any) => {
                     if (res.code === 1) {
                         const fileData = res.data;
                         const lockInfo = fileData.readWriteLockVO;
                         const lockStatus = lockInfo?.result; // 1-正常，2-被锁定，3-需同步
                         if (lockStatus === 0) {
-                            message.success( '保存成功！');
+                            message.success('保存成功！');
                             uploadTask();
                             // 如果是锁定状态，点击确定按钮，强制更新，否则，取消保存
-                        } else if (lockStatus === 1) { // 2-被锁定
+                        } else if (lockStatus === 1) {
+                            // 2-被锁定
                             confirm({
                                 title: '锁定提醒', // 锁定提示
-                                content: <span>
-                                    文件正在被{lockInfo.lastKeepLockUserName}编辑中，开始编辑时间为
-                                    {formatDateTime(lockInfo.gmtModified)}。
-                                    强制保存可能导致{lockInfo.lastKeepLockUserName}对文件的修改无法正常保存！
-                                </span>,
+                                content: (
+                                    <span>
+                                        文件正在被
+                                        {lockInfo.lastKeepLockUserName}
+                                        编辑中，开始编辑时间为
+                                        {formatDateTime(lockInfo.gmtModified)}。
+                                        强制保存可能导致
+                                        {lockInfo.lastKeepLockUserName}
+                                        对文件的修改无法正常保存！
+                                    </span>
+                                ),
                                 okText: '确定保存',
                                 okType: 'danger',
                                 cancelText: '取消',
-                                onOk () {
+                                onOk() {
                                     const succCall = (res: any) => {
                                         if (res.code === 1) {
-                                            message.success('保存成功！')
+                                            message.success('保存成功！');
                                             uploadTask();
                                         }
-                                    }
-                                    ajax.forceUpdateOfflineTask(params).then(succCall)
-                                }
+                                    };
+                                    ajax.forceUpdateOfflineTask(params).then(
+                                        succCall
+                                    );
+                                },
                             });
                             // 如果同步状态，则提示会覆盖代码，
                             // 点击确认，重新拉取代码并覆盖当前代码，取消则退出
-                        } else if (lockStatus === 2) { // 2-需同步
+                        } else if (lockStatus === 2) {
+                            // 2-需同步
                             confirm({
                                 title: '保存警告',
-                                content: <span>
-                                    文件已经被{lockInfo.lastKeepLockUserName}编辑过，编辑时间为
-                                    {formatDateTime(lockInfo.gmtModified)}。
-                                    点击确认按钮会<Tag color="orange">覆盖</Tag>
-                                    您本地的代码，请您提前做好备份！
-                                </span>,
+                                content: (
+                                    <span>
+                                        文件已经被
+                                        {lockInfo.lastKeepLockUserName}
+                                        编辑过，编辑时间为
+                                        {formatDateTime(lockInfo.gmtModified)}。
+                                        点击确认按钮会
+                                        <Tag color="orange">覆盖</Tag>
+                                        您本地的代码，请您提前做好备份！
+                                    </span>
+                                ),
                                 okText: '确定覆盖',
                                 okType: 'danger',
                                 cancelText: '取消',
-                                onOk () {
+                                onOk() {
                                     const reqParams: any = {
                                         id: params.id,
-                                        lockVersion: lockInfo.version
-                                    }
+                                        lockVersion: lockInfo.version,
+                                    };
                                     // 更新version, getLock信息
-                                    ajax.getOfflineTaskDetail(reqParams).then((res: any) => {
-                                        if (res.code === 1) {
-                                            const taskInfo = res.data
-                                            taskInfo.merged = true;
-                                            uploadTask();
+                                    ajax.getOfflineTaskDetail(reqParams).then(
+                                        (res: any) => {
+                                            if (res.code === 1) {
+                                                const taskInfo = res.data;
+                                                taskInfo.merged = true;
+                                                uploadTask();
+                                            }
                                         }
-                                    })
-                                }
+                                    );
+                                },
                             });
                         }
                         return res;
                     }
-                }
+                };
                 ajax.saveOfflineJobData(params).then(succCallback);
                 break;
             }
             case TASK_SUBMIT_ID: {
-                const node = document.createElement('div')
-                document.body.appendChild(node)
+                const node = document.createElement('div');
+                document.body.appendChild(node);
                 ReactDOM.render(<RenderPublish current={current} />, node);
             }
         }

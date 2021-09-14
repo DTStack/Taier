@@ -8,6 +8,7 @@ const WEB_PUBLIC = path.resolve(ROOT_PATH, 'public'); // 公开资源
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const packageName = require('../package.json').name;
 const StyleWebpackPlugin = require('./plugins/style-webpack-plugin');
+const ReplaceWebpackPlugin = require('./plugins/prefix-webpack-plugin');
 
 module.exports = {
     resolve: {
@@ -20,6 +21,18 @@ module.exports = {
             'monaco-editor': path.resolve(
                 __dirname,
                 '../node_modules/monaco-editor'
+            ),
+            'antd/lib/modal$': path.resolve(
+                __dirname,
+                '../src/assets/modal/index.js'
+            ),
+            'antd/lib/message$': path.resolve(
+                __dirname,
+                '../src/assets/message/index.js'
+            ),
+            'antd/lib/notification$': path.resolve(
+                __dirname,
+                '../src/assets/notification/index.js'
             ),
         },
         fallback: {
@@ -116,5 +129,6 @@ module.exports = {
                 'ant-': `${packageName}-`,
             },
         }),
+        new ReplaceWebpackPlugin({}),
     ],
 };
