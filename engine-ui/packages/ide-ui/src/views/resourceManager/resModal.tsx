@@ -93,11 +93,13 @@ class ResForm extends React.Component<any, any> {
         this.setState({ file });
         this.props.handleFileChange(file);
     }
+
     resetFile() {
         this.setState({ file: '' });
         this.props.handleFileChange('');
         this.props.form.resetFields(['file']);
     }
+
     renderFormItem = () => {
         const { file, fileType } = this.state;
         const { getFieldDecorator } = this.props.form;
@@ -482,7 +484,7 @@ class ResForm extends React.Component<any, any> {
         const { treeData } = this.props;
         let name: any;
 
-        let loop = (arr: any) => {
+        const loop = (arr: any) => {
             arr.forEach((node: any, i: any) => {
                 if (node.id === id) {
                     name = node.name;
@@ -541,6 +543,7 @@ class ResModal extends React.Component<any, any> {
 
         this.dtcount = 0;
     }
+
     dtcount: any;
     form: any;
     handleSubmit() {
