@@ -39,11 +39,22 @@ module.exports = () => {
         library: `Datasource`,
         libraryTarget: 'umd',
       },
-      alias: {
-        'antd/lib/modal$': path.resolve(__dirname, './src/assets/modal/index.js'),
-        'antd/lib/message$': path.resolve(__dirname, './src/assets/message/index.js'),
-        'antd/lib/notification$': path.resolve(__dirname, './src/assets/notification/index.js'),
-      }
+      resolve: {
+        alias: {
+          'antd/lib/modal$': path.resolve(
+            __dirname,
+            './src/assets/modal/index.js'
+          ),
+          'antd/lib/message$': path.resolve(
+            __dirname,
+            './src/assets/message/index.js'
+          ),
+          'antd/lib/notification$': path.resolve(
+            __dirname,
+            './src/assets/notification/index.js'
+          ),
+        },
+      },
       module: {
         rules: [
           {
