@@ -24,7 +24,7 @@ module.exports = {
             ),
             'antd/lib/modal$': path.resolve(
                 __dirname,
-                './assets/modal/index.js'
+                '../src/assets/modal/index.js'
             ),
         },
         fallback: {
