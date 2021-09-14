@@ -30,6 +30,10 @@ module.exports = {
                 __dirname,
                 '../src/assets/message/index.js'
             ),
+            'antd/lib/notification$': path.resolve(
+                __dirname,
+                '../src/assets/notification/index.js'
+            ),
         },
         fallback: {
             fs: false,
