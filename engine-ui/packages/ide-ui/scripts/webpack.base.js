@@ -26,6 +26,10 @@ module.exports = {
                 __dirname,
                 '../src/assets/modal/index.js'
             ),
+            'antd/lib/message$': path.resolve(
+                __dirname,
+                '../src/assets/message/index.js'
+            ),
         },
         fallback: {
             fs: false,
