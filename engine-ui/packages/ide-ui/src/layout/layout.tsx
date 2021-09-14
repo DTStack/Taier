@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Layout, Menu, Dropdown, Icon, message } from 'antd';
 import { hashHistory } from 'react-router';
 import { AppContainer } from '../views/registerMicroApps';
-import { getItem, setItem } from '../utils/local';
+import { getItem, setItem, clear } from '../utils/session';
 import { USER_NAME } from '../consts';
 
 const { Header, Content } = Layout;
@@ -28,6 +28,7 @@ const userMenu = (
                         if (!body.data || !response.ok) {
                             return message.error('登出失败');
                         }
+                        clear();
                         hashHistory.push({
                             pathname: '/login',
                         });
@@ -75,6 +76,7 @@ export default function MyLayout(props: React.PropsWithChildren<any>) {
                         <Menu
                             mode="horizontal"
                             defaultSelectedKeys={[curItem]}
+                            style={{ minWidth: 450 }}
                             onClick={handleClick}
                         >
                             <Menu.Item key="dataSource">

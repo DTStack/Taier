@@ -2,6 +2,7 @@ import React from 'react';
 import { Modal, Button, Form, Input, Select, Icon, Spin } from 'antd';
 
 import ajax from '../../api';
+import FolderPicker from '../../components/folderPicker';
 import { RESOURCE_TYPE, formItemLayout } from '../../comm/const';
 
 export function getContainer(id: string) {
@@ -93,11 +94,13 @@ class ResForm extends React.Component<any, any> {
         this.setState({ file });
         this.props.handleFileChange(file);
     }
+
     resetFile() {
         this.setState({ file: '' });
         this.props.handleFileChange('');
         this.props.form.resetFields(['file']);
     }
+
     renderFormItem = () => {
         const { file, fileType } = this.state;
         const { getFieldDecorator } = this.props.form;
@@ -254,7 +257,10 @@ class ResForm extends React.Component<any, any> {
                             ? defaultData.parentId
                             : undefined,
                     })(<Input type="hidden"></Input>)}
-                    <Select
+                    <FolderPicker
+                        dataType="resource"
+                        showFile={false}
+                        onChange={this.handleSelectTreeChange.bind(this)}
                         defaultValue={
                             isCreateNormal
                                 ? this.props.treeData.id
@@ -262,23 +268,7 @@ class ResForm extends React.Component<any, any> {
                                 ? defaultData.parentId
                                 : undefined
                         }
-                        onChange={this.handleSelectTreeChange.bind(this)}
-                    >
-                        <Option value={251}>251</Option>
-                    </Select>
-                    {/* <FolderPicker
-                        type={MENU_TYPE.RESOURCE}
-                        ispicker
-                        treeData={this.props.treeData}
-                        onChange={this.handleSelectTreeChange.bind(this)}
-                        defaultNode={
-                            isCreateNormal
-                                ? this.props.treeData.id
-                                : isCreateFromMenu
-                                ? defaultData.parentId
-                                : undefined
-                        }
-                    /> */}
+                    />
                 </FormItem>,
                 <FormItem {...formItemLayout} label="描述" key="resourceDesc">
                     {getFieldDecorator('resourceDesc', {
@@ -318,7 +308,10 @@ class ResForm extends React.Component<any, any> {
                             ? defaultData.id
                             : undefined,
                     })(<Input type="hidden"></Input>)}
-                    <Select
+                    <FolderPicker
+                        dataType="resource"
+                        showFile
+                        onChange={this.handleCoverTargetChange.bind(this)}
                         defaultValue={
                             isCreateNormal
                                 ? this.props.treeData.id
@@ -328,26 +321,7 @@ class ResForm extends React.Component<any, any> {
                                 ? defaultData.id
                                 : undefined
                         }
-                        onChange={this.handleCoverTargetChange.bind(this)}
-                    >
-                        <Option value={5}>5</Option>
-                    </Select>
-                    {/* <FolderPicker
-                        type={MENU_TYPE.RESOURCE}
-                        ispicker
-                        isFilepicker
-                        treeData={this.props.treeData}
-                        onChange={this.handleCoverTargetChange.bind(this)}
-                        defaultNode={
-                            isCreateNormal
-                                ? this.props.treeData.id
-                                : isCreateFromMenu
-                                ? defaultData.parentId
-                                : isEditExist
-                                ? defaultData.id
-                                : undefined
-                        }
-                    /> */}
+                    />
                 </FormItem>,
                 <FormItem
                     {...formItemLayout}
@@ -482,7 +456,7 @@ class ResForm extends React.Component<any, any> {
         const { treeData } = this.props;
         let name: any;
 
-        let loop = (arr: any) => {
+        const loop = (arr: any) => {
             arr.forEach((node: any, i: any) => {
                 if (node.id === id) {
                     name = node.name;
@@ -541,6 +515,7 @@ class ResModal extends React.Component<any, any> {
 
         this.dtcount = 0;
     }
+
     dtcount: any;
     form: any;
     handleSubmit() {

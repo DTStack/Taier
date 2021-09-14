@@ -161,6 +161,8 @@ function RenderPublish({ current }: any) {
         <Modal
             wrapClassName="vertical-center-modal"
             title="提交任务"
+            getContainer={() => document.getElementById('molecule')}
+            prefixCls="ide-ui-modal"
             style={{ height: '600px', width: '600px' }}
             visible={visible}
             onCancel={() => changeVisible(false)}
