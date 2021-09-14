@@ -62,28 +62,6 @@ function initActions() {
             title: '提交至调度引擎'
         },
         {
-            id: TASK_RELEASE_ID,
-            name: '拷贝任务至目标项目，或下载至本地',
-            icon: (
-                <span style={{ fontSize: 14, display: 'flex' }}>
-                    <svg
-                        viewBox="0 0 1024 1024"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="1em"
-                        height="1em"
-                    >
-                        <path
-                            fill="currentColor"
-                            d="M63.508 465.381l266.15 157.138 129.174 265.176 135.447-111.9 159.066 93.937 205.781-733.767L63.508 465.38zm393.848 206.332l-.115 130.788-91.16-187.16 432.344-326.935-341.069 383.307zM146.17 472.828l679.898-250.046-483.777 365.836-196.12-115.79zM731.262 815.34l-231.89-136.931 394.754-443.758L731.262 815.34z"
-                        />
-                    </svg>
-                </span>
-            ),
-            place: 'outer',
-            disabled: true,
-            title: '拷贝任务至目标项目，或下载至本地'
-        },
-        {
             id: TASK_OPS_ID,
             name: '运维',
             title: '运维',
