@@ -92,6 +92,7 @@ module.exports = function () {
             modules: ["node_modules"],
             extensions: [".ts", ".tsx", ".js", ".jsx", ".scss", ".css"], //后缀名自动补全
             alias: {
+                'antd/lib/modal$': path.resolve(MY_PATH.ROOT_PATH, './build/assets/modal/index.js'),
                 'react-dom': '@hot-loader/react-dom'
             }
         },
