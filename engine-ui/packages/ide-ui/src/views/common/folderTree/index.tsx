@@ -14,13 +14,47 @@ import {
     TASK_SAVE_ID,
     TASK_SUBMIT_ID,
 } from '../utils/const';
+import { catalogueTypeToDataType } from '../../../components/func'
 import store from '../../../store';
 import { workbenchAction } from '../../../controller/dataSync/actionType';
 import { editorAction } from '../../../controller/editor/actionTypes';
+import {
+    taskTreeAction,
+    resTreeAction,
+} from '../../../controller/catalogue/actionTypes';
+import { updateCatalogueData } from '../../../controller/catalogue/actionCreator'
 import { cloneDeep } from 'lodash';
 import functionManagerService from '../../../services/functionManagerService';
 import resourceManagerService from '../../../services/resourceManagerService';
 import { getStatusBarLanguage, updateStatusBarLanguage } from '../statusBar';
+
+async function loadTreeNode(treeNode: any) {
+    if (!treeNode) return;
+    const res = await ajax.getOfflineCatalogue({
+        isGetFile: !!1,
+        nodePid: treeNode!.id,
+        catalogueType: treeNode.catalogueType,
+        taskType: 1,
+        appointProjectId: 1,
+        projectId: 1,
+        userId: 1,
+    });
+    if (res.code === 1) {
+        updateCatalogueData(store.dispatch, res.data, catalogueTypeToDataType(treeNode.catalogueType))
+        const { id, name, children } = res.data;
+        const nextNode = new TreeNodeModel({
+            id,
+            name: name || '文件夹',
+            location: name,
+            fileType: FileTypes.Folder,
+            isLeaf: false,
+            data: res.data,
+            children: convertToTreeNode(children),
+        });
+
+        molecule.folderTree.update(nextNode);
+    }
+}
 
 function init() {
     ajax.getOfflineCatalogue({
@@ -34,9 +68,12 @@ function init() {
     }).then((res) => {
         if (res.code === 1) {
             const { children } = res.data;
+
+            // Get the Tasks root folder
             const devData = children.filter(
                 (item: any) => item.catalogueType === 'TaskManager'
-            )[0];
+            )[0].children.find((item: any) => item.catalogueType === 'TaskDevelop');
+
             const funcData = children.filter(
                 (item: any) => item.catalogueType === 'FunctionManager'
             )[0];
@@ -53,6 +90,10 @@ function init() {
                 data: devData,
                 children: convertToTreeNode(child),
             });
+            store.dispatch({
+                type: taskTreeAction.RESET_TASK_TREE,
+                payload: devData,
+            });
             // 资源根目录
             const resourceNode = new TreeNodeModel({
                 id: resourceData.id,
@@ -62,7 +103,11 @@ function init() {
                 data: resourceData,
                 children: convertToTreeNode(resourceData.children),
             });
-            // 资源根目录
+            store.dispatch({
+                type: resTreeAction.RESET_RES_TREE,
+                payload: resourceData,
+            });
+            // 函数根目录
             const functionNode = new TreeNodeModel({
                 id: funcData.id,
                 name: funcData.name || '函数管理',
@@ -74,34 +119,32 @@ function init() {
 
             resourceManagerService.add(resourceNode);
             functionManagerService.add(functionNode);
+            // Load Task folder tree 
             molecule.folderTree.add(taskNode);
+            loadTreeNode(devData);
         }
     });
-
     // 文件夹树异步加载
-    molecule.folderTree.onLoadData(async (treeNode) => {
-        const res = await ajax.getOfflineCatalogue({
-            isGetFile: !!1,
-            nodePid: treeNode.data!.id,
-            catalogueType: treeNode.data!.data.catalogueType,
-            taskType: 1,
-            appointProjectId: 1,
-            projectId: 1,
-            userId: 1,
-        });
-        if (res.code === 1) {
-            const { id, name, children } = res.data;
-            const nextNode = new TreeNodeModel({
-                id,
-                name: name || '资源管理',
-                location: name,
-                fileType: FileTypes.Folder,
-                isLeaf: false,
-                data: res.data,
-                children: convertToTreeNode(children),
-            });
+    molecule.folderTree.onLoadData((treeNode) => {
+        loadTreeNode(treeNode.data!.data);
+    });
 
-            molecule.folderTree.update(nextNode);
+    molecule.explorer.onPanelToolbarClick((panel, toolbarId: string) => {
+
+        const getRootNode = () => molecule.folderTree.getState().folderTree?.data![0];
+        // 如果是任务刷新，执行重新加载
+        if (panel.id === 'sidebar.explore.folders' && toolbarId === 'refresh') {
+            const rootNode = getRootNode();
+            if (rootNode) {
+                loadTreeNode(rootNode.data);
+            }
+        }
+        if (panel.id === 'sidebar.explore.folders' && toolbarId === 'collapse') {
+            // TODO implements the reset the ExpandedKeys
+            // const rootNode = getRootNode();
+            // if (rootNode) {
+            //     molecule.folderTree.setExpandedKeys([]);
+            // }
         }
     });
 }
@@ -132,7 +175,7 @@ function updateTree(data: any) {
 }
 
 // 初始化右键菜单
-function initContenxtMenu() {
+function initContextMenu() {
     const { folderTree } = molecule.folderTree.getState();
     const contextMenu = folderTree?.contextMenu?.concat() || [];
     contextMenu.push({
@@ -333,8 +376,8 @@ function onRemove() {
 }
 
 function contextMenu() {
-    molecule.folderTree.onContextMenu((treeNode, menu) => {
-        switch (menu!.id) {
+    molecule.folderTree.onContextMenu((menu, treeNode) => {
+        switch (menu.id) {
             case FOLDERTREE_CONTEXT_EDIT: {
                 resetEditorGroup();
 
@@ -343,7 +386,7 @@ function contextMenu() {
                 const onSubmit = (values: any) => {
                     return new Promise<boolean>((resolve) => {
                         const params = {
-                            id: treeNode.data.id,
+                            id: treeNode!.data.id,
                             ...values,
                             isUseComponent: 0,
                             nodePid: 233,
@@ -354,21 +397,21 @@ function contextMenu() {
                         ajax.addOfflineTask(params)
                             .then((res: any) => {
                                 if (res.code === 1) {
-                                    const nextTreeData = cloneDeep(treeNode);
+                                    const nextTreeData = cloneDeep(treeNode!);
 
                                     nextTreeData.data = params;
                                     nextTreeData.name = values.name;
 
-                                    molecule.folderTree.update(treeNode);
+                                    molecule.folderTree.update(treeNode!);
 
                                     // 确保 editor 的 tab 的 id 和 tree 的 id 保持一致
                                     // 同步去更新 tab 的 name
                                     const isOpened = molecule.editor.isOpened(
-                                        treeNode.id
+                                        treeNode!.id
                                     );
                                     if (isOpened) {
                                         molecule.editor.updateTab({
-                                            id: treeNode.id,
+                                            id: treeNode!.id,
                                             name: values.name,
                                         });
                                     }
@@ -404,7 +447,7 @@ function contextMenu() {
                     name: localize('update task', '编辑任务'),
                     renderPane: () => {
                         return (
-                            <Open record={treeNode.data} onSubmit={onSubmit} />
+                            <Open record={treeNode!.data} onSubmit={onSubmit} />
                         );
                     },
                 };
@@ -428,8 +471,7 @@ function contextMenu() {
 export default class FolderTreeExtension implements IExtension {
     activate() {
         init();
-        initContenxtMenu();
-
+        initContextMenu();
         createTask();
         onSelectFile();
         contextMenu();

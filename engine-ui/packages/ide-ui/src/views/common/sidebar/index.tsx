@@ -3,11 +3,27 @@ import molecule from 'molecule';
 import { IExtension } from 'molecule/esm/model';
 import ResourceManager from '../../resourceManager';
 
+export const folderMenu = [
+    {
+        id: 'upload',
+        name: '上传资源',
+    },
+    {
+        id: 'replace',
+        name: '替换资源',
+    },
+    {
+        id: 'create-folder',
+        name: '新建文件夹',
+    },
+];
+
 function initResourceManager() {
     const resourceManager = {
         id: 'ResourceManager',
-        icon: 'sync',
+        icon: 'package',
         name: '资源管理',
+        title: '资源管理'
     };
 
     const headerToolBar = [
@@ -20,26 +36,9 @@ function initResourceManager() {
             id: 'menus',
             title: '更多操作',
             icon: 'menu',
-            contextMenu: [
-                {
-                    id: 'upload',
-                    name: '上传资源',
-                },
-                {
-                    id: 'replace',
-                    name: '替换资源',
-                },
-                {
-                    id: 'create-folder',
-                    name: '新建文件夹',
-                },
-            ],
+            contextMenu: folderMenu,
         },
     ];
-
-    const handleCreateFolder = () => {
-        console.log('新建文件夹');
-    };
 
     molecule.activityBar.add(resourceManager);
     molecule.sidebar.add({
@@ -49,7 +48,6 @@ function initResourceManager() {
             <ResourceManager
                 panel={resourceManager}
                 headerToolBar={headerToolBar}
-                onCreateFolder={handleCreateFolder}
             />
         ),
     });
@@ -58,8 +56,9 @@ function initResourceManager() {
 function initFunctionManager() {
     const functionManager = {
         id: 'FunctionManager',
-        icon: 'mortar-board',
+        icon: 'symbol-method',
         name: '函数管理',
+        title: '函数管理'
     };
     molecule.activityBar.add(functionManager);
     molecule.sidebar.add({
