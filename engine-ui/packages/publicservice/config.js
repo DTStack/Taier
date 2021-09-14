@@ -20,7 +20,7 @@ let locatIp = getLocalIP();
 
 const proxy = {
   '/api/publicService': {
-    target: 'http://172.16.101.189:8077',
+    target: 'http://schedule.dtstack.cn:8090',
     changeOrigin: true,
   },
   '/dassets/v1': {
