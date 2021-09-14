@@ -1,6 +1,7 @@
 import React from 'react';
 import { notification, Modal } from 'antd';
 import { NotificationApi } from 'antd/lib/notification';
+import { MENU_TYPE } from '../../comm/const';
 /**
  * 去除空串
  */
@@ -135,4 +136,24 @@ export function replaceTreeNode (treeNode: any, replace: any) {
             replaceTreeNode(children[i], replace)
         }
     }
+}
+
+export function catalogueTypeToDataType (catalogueType: any) {
+    let dataType = ''
+    switch (catalogueType) {
+        case MENU_TYPE.TASK:
+        case MENU_TYPE.TASK_DEV:
+            dataType = 'task';
+            break;
+        case MENU_TYPE.RESOURCE: 
+            dataType = 'resource';
+            break;
+        case MENU_TYPE.SYSFUC:
+            dataType = 'sparkSysFunction';
+            break;
+        case MENU_TYPE.COSTOMFUC:
+            dataType = 'sparkCustomFunction';
+            break;
+    }
+    return dataType
 }

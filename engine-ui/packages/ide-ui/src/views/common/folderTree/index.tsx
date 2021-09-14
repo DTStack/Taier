@@ -14,6 +14,7 @@ import {
     TASK_SAVE_ID,
     TASK_SUBMIT_ID,
 } from '../utils/const';
+import { catalogueTypeToDataType } from '../../../components/func'
 import store from '../../../store';
 import { workbenchAction } from '../../../controller/dataSync/actionType';
 import { editorAction } from '../../../controller/editor/actionTypes';
@@ -21,6 +22,7 @@ import {
     taskTreeAction,
     resTreeAction,
 } from '../../../controller/catalogue/actionTypes';
+import { updateCatalogueData } from '../../../controller/catalogue/actionCreator'
 import { cloneDeep } from 'lodash';
 import functionManagerService from '../../../services/functionManagerService';
 import resourceManagerService from '../../../services/resourceManagerService';
@@ -38,6 +40,7 @@ async function loadTreeNode(treeNode: any) {
         userId: 1,
     });
     if (res.code === 1) {
+        updateCatalogueData(store.dispatch, res.data, catalogueTypeToDataType(treeNode.catalogueType))
         const { id, name, children } = res.data;
         const nextNode = new TreeNodeModel({
             id,
@@ -136,7 +139,6 @@ function init() {
                 loadTreeNode(rootNode.data);
             }
         }
-
         if (panel.id === 'sidebar.explore.folders' && toolbarId === 'collapse') {
             // TODO implements the reset the ExpandedKeys
             // const rootNode = getRootNode();

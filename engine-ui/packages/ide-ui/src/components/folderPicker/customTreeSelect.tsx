@@ -9,6 +9,21 @@ import { Icon } from 'molecule/esm/components';
 
 const TreeNode = TreeSelect.TreeNode
 
+const getFolderName = (treeData: any, id: any) => {
+    let name: any;
+    const loop = (arr: any) => {
+        arr.forEach((node: any, i: any) => {
+            if (node.id === id) {
+                name = node.id;
+            } else {
+                loop(node.children || []);
+            }
+        });
+    };
+    loop([treeData]);
+    return name;
+}
+
 export interface CustomTreeSelectProps extends TreeSelectProps<any> {
     treeData?: any;
     onChange?: (value?: any, label?: any, extra?: any) => void;
@@ -23,6 +38,17 @@ export interface CustomTreeSelectProps extends TreeSelectProps<any> {
  */
 class CustomTreeSelect extends PureComponent<CustomTreeSelectProps, any> {
 
+    componentDidUpdate(prevProps:CustomTreeSelectProps){
+        const { value, treeData } = this.props
+        if(prevProps.value !== value) {
+            const folderName = getFolderName(treeData, value)
+            this.setState({
+                showName: folderName,
+                realValue: value
+            })
+        }
+    }
+
     constructor (props: CustomTreeSelectProps) {
         super(props)
         this.state = {
@@ -32,7 +58,6 @@ class CustomTreeSelect extends PureComponent<CustomTreeSelectProps, any> {
     }
 
     onTreeChange = (value: any, label: any, extra: any) => {
-        console.log(value)
         // 让 form.getFieldDecorator 正常工作
         const { onChange } = this.props
         onChange && onChange(value, label, extra) 

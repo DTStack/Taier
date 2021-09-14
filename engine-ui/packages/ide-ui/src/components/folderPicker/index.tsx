@@ -4,12 +4,8 @@ import { omit } from 'lodash'
 
 import CustomTreeSelect ,{ CustomTreeSelectProps } from './customTreeSelect'
 import ajax from '../../api';
-import { 
-    taskTreeAction,
-    resTreeAction,
-    sparkSysFnTreeActon,
-    sparkCustomFnTreeAction 
-} from '../../controller/catalogue/actionTypes'
+
+import { updateCatalogueData } from '../../controller/catalogue/actionCreator'
 
 type DataType = 'task'|'resource'|'sparkSysFunction'|'sparkCustomFunction'
 interface FolderPickerProps extends CustomTreeSelectProps {
@@ -80,30 +76,9 @@ const mapState = (state: any, ownProps: FolderPickerProps) => {
 
 const mapDispatch = (dispatch: any, ownProps: FolderPickerProps) => {
     const { dataType } = ownProps
-    let action: any = null
-    switch (dataType) {
-        case 'task': 
-            action = taskTreeAction
-            break;
-        case 'resource': 
-            action = resTreeAction;
-            break;
-        case 'sparkCustomFunction':
-            action = sparkCustomFnTreeAction;
-            break;
-        case 'sparkSysFunction': 
-            action = sparkSysFnTreeActon;
-            break;
-        default: 
-            action = taskTreeAction;
-            break;
-    }
     return {
         updateTreeData: (data: any) => {
-            dispatch({
-                type: action.LOAD_FOLDER_CONTENT,
-                payload: data
-            }) 
+            updateCatalogueData(dispatch, data, dataType)
         }
     }
 } 
