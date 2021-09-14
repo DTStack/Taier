@@ -21,8 +21,9 @@ export const folderMenu = [
 function initResourceManager() {
     const resourceManager = {
         id: 'ResourceManager',
-        icon: 'sync',
+        icon: 'package',
         name: '资源管理',
+        title: '资源管理'
     };
 
     const headerToolBar = [
@@ -55,8 +56,9 @@ function initResourceManager() {
 function initFunctionManager() {
     const functionManager = {
         id: 'FunctionManager',
-        icon: 'mortar-board',
+        icon: 'symbol-method',
         name: '函数管理',
+        title: '函数管理'
     };
     molecule.activityBar.add(functionManager);
     molecule.sidebar.add({
