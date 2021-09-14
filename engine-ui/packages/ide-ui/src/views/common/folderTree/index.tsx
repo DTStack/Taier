@@ -4,7 +4,14 @@ import { FileTypes, IExtension, TreeNodeModel } from 'molecule/esm/model';
 import { localize } from 'molecule/esm/i18n/localize';
 import molecule from 'molecule/esm';
 import Open from '../../task/open';
-import { convertToTreeNode, resetEditorGroup } from '../utils';
+import {
+    convertToTreeNode,
+    getCatalogueViaNode,
+    getFunctionManagerRootFolder,
+    getResourceManagerRootFolder,
+    getTaskManagerRootFolder,
+    resetEditorGroup,
+} from '../utils';
 import DataSync from '../../dataSync';
 import ajax from '../../../api';
 import { TASK_TYPE } from '../../../comm/const';
@@ -14,7 +21,6 @@ import {
     TASK_SAVE_ID,
     TASK_SUBMIT_ID,
 } from '../utils/const';
-import { catalogueTypeToDataType } from '../../../components/func'
 import store from '../../../store';
 import { workbenchAction } from '../../../controller/dataSync/actionType';
 import { editorAction } from '../../../controller/editor/actionTypes';
@@ -22,38 +28,25 @@ import {
     taskTreeAction,
     resTreeAction,
 } from '../../../controller/catalogue/actionTypes';
-import { updateCatalogueData } from '../../../controller/catalogue/actionCreator'
 import { cloneDeep } from 'lodash';
 import functionManagerService from '../../../services/functionManagerService';
 import resourceManagerService from '../../../services/resourceManagerService';
 import { getStatusBarLanguage, updateStatusBarLanguage } from '../statusBar';
 
 async function loadTreeNode(treeNode: any) {
-    if (!treeNode) return;
-    const res = await ajax.getOfflineCatalogue({
-        isGetFile: !!1,
-        nodePid: treeNode!.id,
-        catalogueType: treeNode.catalogueType,
-        taskType: 1,
-        appointProjectId: 1,
-        projectId: 1,
-        userId: 1,
+    const data = await getCatalogueViaNode(treeNode);
+    const { id, name, children } = data;
+    const nextNode = new TreeNodeModel({
+        id,
+        name: name || '文件夹',
+        location: name,
+        fileType: FileTypes.Folder,
+        isLeaf: false,
+        data: data,
+        children: convertToTreeNode(children),
     });
-    if (res.code === 1) {
-        updateCatalogueData(store.dispatch, res.data, catalogueTypeToDataType(treeNode.catalogueType))
-        const { id, name, children } = res.data;
-        const nextNode = new TreeNodeModel({
-            id,
-            name: name || '文件夹',
-            location: name,
-            fileType: FileTypes.Folder,
-            isLeaf: false,
-            data: res.data,
-            children: convertToTreeNode(children),
-        });
 
-        molecule.folderTree.update(nextNode);
-    }
+    molecule.folderTree.update(nextNode);
 }
 
 function init() {
@@ -69,17 +62,10 @@ function init() {
         if (res.code === 1) {
             const { children } = res.data;
 
-            // Get the Tasks root folder
-            const devData = children.filter(
-                (item: any) => item.catalogueType === 'TaskManager'
-            )[0].children.find((item: any) => item.catalogueType === 'TaskDevelop');
+            const devData = getTaskManagerRootFolder(children);
 
-            const funcData = children.filter(
-                (item: any) => item.catalogueType === 'FunctionManager'
-            )[0];
-            const resourceData = children.filter(
-                (item: any) => item.catalogueType === 'ResourceManager'
-            )[0];
+            const funcData = getFunctionManagerRootFolder(children);
+            const resourceData = getResourceManagerRootFolder(children);
             const { id, name, children: child } = devData;
             // 根目录
             const taskNode = new TreeNodeModel({
@@ -94,6 +80,7 @@ function init() {
                 type: taskTreeAction.RESET_TASK_TREE,
                 payload: devData,
             });
+
             // 资源根目录
             const resourceNode = new TreeNodeModel({
                 id: resourceData.id,
@@ -107,6 +94,7 @@ function init() {
                 type: resTreeAction.RESET_RES_TREE,
                 payload: resourceData,
             });
+
             // 函数根目录
             const functionNode = new TreeNodeModel({
                 id: funcData.id,
@@ -119,19 +107,15 @@ function init() {
 
             resourceManagerService.add(resourceNode);
             functionManagerService.add(functionNode);
-            // Load Task folder tree 
             molecule.folderTree.add(taskNode);
+
             loadTreeNode(devData);
         }
     });
-    // 文件夹树异步加载
-    molecule.folderTree.onLoadData((treeNode) => {
-        loadTreeNode(treeNode.data!.data);
-    });
 
     molecule.explorer.onPanelToolbarClick((panel, toolbarId: string) => {
-
-        const getRootNode = () => molecule.folderTree.getState().folderTree?.data![0];
+        const getRootNode = () =>
+            molecule.folderTree.getState().folderTree?.data![0];
         // 如果是任务刷新，执行重新加载
         if (panel.id === 'sidebar.explore.folders' && toolbarId === 'refresh') {
             const rootNode = getRootNode();
@@ -139,7 +123,10 @@ function init() {
                 loadTreeNode(rootNode.data);
             }
         }
-        if (panel.id === 'sidebar.explore.folders' && toolbarId === 'collapse') {
+        if (
+            panel.id === 'sidebar.explore.folders' &&
+            toolbarId === 'collapse'
+        ) {
             // TODO implements the reset the ExpandedKeys
             // const rootNode = getRootNode();
             // if (rootNode) {
@@ -468,10 +455,20 @@ function contextMenu() {
     });
 }
 
+// 文件夹树异步加载
+function onLoadTree() {
+    molecule.folderTree.onLoadData((treeNode) => {
+        loadTreeNode(treeNode.data!.data);
+    });
+}
+
 export default class FolderTreeExtension implements IExtension {
     activate() {
         init();
         initContextMenu();
+
+        onLoadTree;
+
         createTask();
         onSelectFile();
         contextMenu();

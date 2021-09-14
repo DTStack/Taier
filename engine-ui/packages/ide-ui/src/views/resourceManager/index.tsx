@@ -6,20 +6,15 @@ import {
     IMenuItemProps,
     ITreeNodeItemProps,
 } from 'molecule/esm/components';
-import molecule from 'molecule/esm';
 import './index.scss';
-import {
-    COMMON_CONTEXT_MENU,
-    FileTypes,
-    TreeNodeModel,
-} from 'molecule/esm/model';
+import { FileTypes, TreeNodeModel } from 'molecule/esm/model';
 import { LoadEventData } from 'molecule/esm/controller';
 import { connect } from 'molecule/esm/react';
 import resourceManagerTree from '../../services/resourceManagerService';
 import ResModal from './resModal';
 import ResViewModal from './resViewModal';
 import ajax from '../../api';
-import { convertToTreeNode } from '../common/utils';
+import { convertToTreeNode, getCatalogueViaNode } from '../common/utils';
 import { folderMenu } from '../common/sidebar';
 import { deleteMenu, editMenu } from './menu';
 import { message, Modal } from 'antd';
@@ -44,28 +39,18 @@ export default ({ panel, headerToolBar }: IResourceProps) => {
     const [rightClickData, setData] = React.useState<any>(undefined);
 
     const updateNodePid = async (node: ITreeNodeItemProps) => {
-        const res = await ajax.getOfflineCatalogue({
-            isGetFile: !!1,
-            nodePid: node.id,
-            catalogueType: 'ResourceManager',
-            taskType: 1,
-            appointProjectId: 1,
-            projectId: 1,
-            userId: 1,
+        const data = await getCatalogueViaNode(node.data);
+        const { id, name, children } = data;
+        const nextNode = new TreeNodeModel({
+            id,
+            name: name || '资源管理',
+            location: name,
+            fileType: FileTypes.Folder,
+            isLeaf: false,
+            data: { ...data },
+            children: convertToTreeNode(children),
         });
-        if (res.code === 1) {
-            const { id, name, children } = res.data;
-            const nextNode = new TreeNodeModel({
-                id,
-                name: name || '资源管理',
-                location: name,
-                fileType: FileTypes.Folder,
-                isLeaf: false,
-                data: { ...res.data },
-                children: convertToTreeNode(children),
-            });
-            resourceManagerTree.update(nextNode);
-        }
+        resourceManagerTree.update(nextNode);
     };
 
     const handleUpload = () => {
@@ -232,30 +217,19 @@ export default ({ panel, headerToolBar }: IResourceProps) => {
     };
 
     const loadData = async (treeNode: LoadEventData) => {
-        const res = await ajax.getOfflineCatalogue({
-            isGetFile: !!1,
-            nodePid: treeNode.data!.id,
-            catalogueType: treeNode.data!.data.catalogueType,
-            taskType: 1,
-            appointProjectId: 1,
-            projectId: 1,
-            userId: 1,
+        const data = await getCatalogueViaNode(treeNode.data!.data);
+        const { id, name, children } = data;
+        const nextNode = new TreeNodeModel({
+            id,
+            name,
+            location: name,
+            fileType: FileTypes.Folder,
+            isLeaf: false,
+            data: data,
+            children: convertToTreeNode(children),
         });
-        if (res.code === 1) {
-            const { id, name, children } = res.data;
-            const rawNode = resourceManagerTree.get(id)!;
-            const nextNode = new TreeNodeModel({
-                id,
-                name: name || '资源管理',
-                location: name,
-                fileType: rawNode.fileType,
-                isLeaf: false,
-                data: { ...res.data },
-                children: convertToTreeNode(children),
-            });
 
-            resourceManagerTree.update(nextNode);
-        }
+        resourceManagerTree.update(nextNode);
     };
 
     const handleRename = (node: ITreeNodeItemProps) => {
@@ -316,21 +290,27 @@ export default ({ panel, headerToolBar }: IResourceProps) => {
 
     // 新增资源
     const handleAddResource = (params: any) => {
-        ajax.addOfflineResource(params).then((res: any) => {
-            if (res.code === 1) {
-                message.success('资源上传成功！');
-                const parentNode = resourceManagerTree.get(params.nodePid)!;
-                updateNodePid(parentNode);
-            }
+        return new Promise((resolve, reject) => {
+            ajax.addOfflineResource(params).then((res: any) => {
+                if (res.code === 1) {
+                    message.success('资源上传成功！');
+                    const parentNode = resourceManagerTree.get(params.nodePid)!;
+                    updateNodePid(parentNode);
+                    resolve(true);
+                }
+            });
         });
     };
 
     // 替换资源
     const handleReplaceResource = (params: any) => {
-        return ajax.replaceOfflineResource(params).then((res: any) => {
-            if (res.code === 1) {
-                message.success('资源替换成功！');
-            }
+        return new Promise((resolve) => {
+            ajax.replaceOfflineResource(params).then((res: any) => {
+                if (res.code === 1) {
+                    message.success('资源替换成功！');
+                    resolve(true);
+                }
+            });
         });
     };
 
