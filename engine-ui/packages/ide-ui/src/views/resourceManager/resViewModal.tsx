@@ -66,10 +66,10 @@ class ResViewModal extends React.Component<any, any> {
                         '系统异常'
                     ) : (
                         <table
-                            className="ant-table ant-table-bordered bd-top bd-left"
+                            className="ide-ui-table ide-ui-table-bordered"
                             style={{ width: '100%' }}
                         >
-                            <tbody className="ant-table-tbody">
+                            <tbody className="ide-ui-table-tbody">
                                 <tr>
                                     <td {...{ width: '20%' }}>资源名称</td>
                                     <td>{data.resourceName}</td>

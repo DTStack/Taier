@@ -1,4 +1,5 @@
 import { FolderTreeService } from 'molecule/esm/services';
+let resourceManagerTree;
 
 class ResourceManagerTree extends FolderTreeService {
     constructor() {
@@ -6,6 +7,8 @@ class ResourceManagerTree extends FolderTreeService {
     }
 }
 
-const resourceManagerTree = new ResourceManagerTree();
+if (!resourceManagerTree) {
+    resourceManagerTree = new ResourceManagerTree();
+}
 
-export default resourceManagerTree;
+export default resourceManagerTree as ResourceManagerTree;

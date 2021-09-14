@@ -20,23 +20,53 @@ import ResModal from './resModal';
 import ResViewModal from './resViewModal';
 import ajax from '../../api';
 import { convertToTreeNode } from '../common/utils';
+import { folderMenu } from '../common/sidebar';
+import { deleteMenu, editMenu } from './menu';
+import { message, Modal } from 'antd';
 
 const FolderTreeView = connect(resourceManagerTree, FolderTree);
 
 interface IResourceProps {
     panel: any;
     headerToolBar: any[];
-
-    onUpload?: () => void;
-    onReplace?: () => void;
-    onCreateFolder?: () => void;
 }
 
-export default ({ panel, headerToolBar, onCreateFolder }: IResourceProps) => {
+enum DELETE_SOURCE {
+    folder,
+    file,
+}
+
+export default ({ panel, headerToolBar }: IResourceProps) => {
     const [isModalShow, setModalShow] = React.useState(false);
     const [isViewModalShow, setViewModalShow] = React.useState(false);
     const [resId, setResId] = React.useState(null);
     const [isCoverUpload, setCoverUpload] = React.useState(false);
+    const [rightClickData, setData] = React.useState<any>(undefined);
+
+    const updateNodePid = async (node: ITreeNodeItemProps) => {
+        const res = await ajax.getOfflineCatalogue({
+            isGetFile: !!1,
+            nodePid: node.id,
+            catalogueType: 'ResourceManager',
+            taskType: 1,
+            appointProjectId: 1,
+            projectId: 1,
+            userId: 1,
+        });
+        if (res.code === 1) {
+            const { id, name, children } = res.data;
+            const nextNode = new TreeNodeModel({
+                id,
+                name: name || '资源管理',
+                location: name,
+                fileType: FileTypes.Folder,
+                isLeaf: false,
+                data: { ...res.data },
+                children: convertToTreeNode(children),
+            });
+            resourceManagerTree.update(nextNode);
+        }
+    };
 
     const handleUpload = () => {
         setModalShow(true);
@@ -50,6 +80,31 @@ export default ({ panel, headerToolBar, onCreateFolder }: IResourceProps) => {
 
     const toggleUploadModal = () => {
         setModalShow(false);
+        setData(undefined);
+    };
+
+    const getCurrentSelectNode = () => {
+        const folderTreeState = resourceManagerTree.getState();
+        const { data, current } = folderTreeState?.folderTree || {};
+        // The current selected node id or the first root node
+        const nodeId = current?.id || data?.[0]?.id;
+        return nodeId;
+    };
+
+    const handleCreate = () => {
+        const nodeId = getCurrentSelectNode();
+        resourceManagerTree.add(
+            new TreeNodeModel({
+                // temporary id
+                id: new Date().getTime(),
+                name: '',
+                fileType: FileTypes.Folder,
+                icon: 'file-code',
+                isLeaf: false,
+                isEditable: true,
+            }),
+            nodeId
+        );
     };
 
     const handleHeaderContextClick = (
@@ -65,16 +120,115 @@ export default ({ panel, headerToolBar, onCreateFolder }: IResourceProps) => {
                 handleReplace();
                 break;
             case 'create-folder':
-                onCreateFolder?.();
+                handleCreate();
                 break;
             default:
                 break;
         }
     };
 
-    const handleRightClick = () => {
-        const menus: IMenuItemProps[] = COMMON_CONTEXT_MENU.concat();
-        return menus.concat(molecule.folderTree.getFolderContextMenu());
+    const handleRightClick = (treeNode: ITreeNodeItemProps) => {
+        switch (treeNode.fileType) {
+            case FileTypes.File: {
+                return [Object.assign({}, deleteMenu)];
+            }
+            case FileTypes.Folder: {
+                if (treeNode.name === '资源管理') {
+                    return folderMenu.concat();
+                }
+                return folderMenu.concat([editMenu, deleteMenu]);
+            }
+            case FileTypes.RootFolder: {
+                // In general, root folder have no contextMenu, because it can't be clicked
+                return folderMenu.concat();
+            }
+            default:
+                break;
+        }
+    };
+
+    const handleDelete = (
+        treeNode: ITreeNodeItemProps,
+        source: keyof typeof DELETE_SOURCE
+    ) => {
+        if (source === 'file') {
+            Modal.confirm({
+                title: '确认要删除此资源吗?',
+                content: '删除的资源无法找回！',
+                onOk() {
+                    const params = {
+                        resourceId: treeNode.data.id,
+                    };
+                    ajax.delOfflineRes(params).then((res: any) => {
+                        if (res.code === 1) {
+                            const parentNode = resourceManagerTree.get(
+                                treeNode.data.parentId
+                            )!;
+                            // update the parent
+                            updateNodePid(parentNode);
+                        }
+                    });
+                },
+                onCancel() {},
+            });
+        } else {
+            Modal.confirm({
+                title: '确认要删除此文件夹吗?',
+                content: '删除的文件夹无法恢复!',
+                onOk() {
+                    const params = {
+                        id: treeNode.data.id,
+                    };
+                    ajax.delOfflineFolder(params).then((res: any) => {
+                        if (res.code === 1) {
+                            const parentNode = resourceManagerTree.get(
+                                treeNode.data.parentId
+                            )!;
+                            // update the parent
+                            updateNodePid(parentNode);
+                        }
+                    });
+                },
+                onCancel() {},
+            });
+        }
+    };
+
+    const handleContextMenu = (
+        contextMenu: IMenuItemProps,
+        treeNode?: ITreeNodeItemProps
+    ) => {
+        const menuId = contextMenu.id;
+        switch (menuId) {
+            case deleteMenu.id: {
+                handleDelete(
+                    treeNode!,
+                    treeNode!.fileType === FileTypes.File ? 'file' : 'folder'
+                );
+                break;
+            }
+            case editMenu.id: {
+                treeNode!.isEditable = true;
+                resourceManagerTree.update(treeNode!);
+                break;
+            }
+            case 'upload': {
+                setData({
+                    parentId: treeNode!.data.id,
+                });
+                handleUpload();
+                break;
+            }
+            case 'replace': {
+                setData({
+                    parentId: treeNode!.data.id,
+                });
+                handleReplace();
+                break;
+            }
+            default:
+                break;
+        }
     };
 
     const loadData = async (treeNode: LoadEventData) => {
@@ -89,23 +243,67 @@ export default ({ panel, headerToolBar, onCreateFolder }: IResourceProps) => {
         });
         if (res.code === 1) {
             const { id, name, children } = res.data;
+            const rawNode = resourceManagerTree.get(id)!;
             const nextNode = new TreeNodeModel({
                 id,
                 name: name || '资源管理',
                 location: name,
-                fileType: FileTypes.Folder,
+                fileType: rawNode.fileType,
                 isLeaf: false,
-                data: res.data,
+                data: { ...res.data },
                 children: convertToTreeNode(children),
             });
 
-            molecule.folderTree.update(nextNode);
+            resourceManagerTree.update(nextNode);
+        }
+    };
+
+    const handleRename = (node: ITreeNodeItemProps) => {
+        if (!node.name) {
+            resourceManagerTree.remove(node.id);
+            return;
+        }
+        // 自增的结点不存在 data 属性，故可以通过这个属性来区分新增还是编辑
+        const isUpdate = !!node.data;
+        if (isUpdate) {
+            ajax.editOfflineCatalogue({
+                type: 'folder',
+                engineCatalogueType: 0,
+                id: node.data.id,
+                nodeName: node.name,
+                nodePid: node.data.parentId,
+            }).then((res: any) => {
+                if (res.code === 1) {
+                    resourceManagerTree.remove(node.id);
+                    const parentNode = resourceManagerTree.get(
+                        node.data.parentId
+                    );
+                    if (parentNode) {
+                        updateNodePid(parentNode);
+                    }
+                }
+            });
+        } else {
+            const nodeId = getCurrentSelectNode();
+            const params = {
+                nodeName: node.name,
+                nodePid: nodeId,
+            };
+            ajax.addOfflineCatalogue(params).then((res: any) => {
+                if (res.code === 1) {
+                    resourceManagerTree.remove(node.id);
+                    const parentNode = resourceManagerTree.get(nodeId);
+                    if (parentNode) {
+                        updateNodePid(parentNode);
+                    }
+                }
+            });
         }
     };
 
     const handleSelect = (file: ITreeNodeItemProps) => {
+        resourceManagerTree.setActive(file.id);
         if (file.isLeaf) {
-            console.log('file:', file);
             setViewModalShow(true);
             setResId(file.data.id);
         }
@@ -114,6 +312,26 @@ export default ({ panel, headerToolBar, onCreateFolder }: IResourceProps) => {
     const handleCloseViewModal = () => {
         setViewModalShow(false);
         setResId(null);
+    };
+
+    // 新增资源
+    const handleAddResource = (params: any) => {
+        ajax.addOfflineResource(params).then((res: any) => {
+            if (res.code === 1) {
+                message.success('资源上传成功！');
+                const parentNode = resourceManagerTree.get(params.nodePid)!;
+                updateNodePid(parentNode);
+            }
+        });
+    };
+
+    // 替换资源
+    const handleReplaceResource = (params: any) => {
+        return ajax.replaceOfflineResource(params).then((res: any) => {
+            if (res.code === 1) {
+                message.success('资源替换成功！');
+            }
+        });
     };
 
     return (
@@ -134,6 +352,8 @@ export default ({ panel, headerToolBar, onCreateFolder }: IResourceProps) => {
                         draggable={false}
                         onSelectFile={handleSelect}
                         onLoadData={loadData}
+                        onUpdateFileName={handleRename}
+                        onClickContextMenu={handleContextMenu}
                         panel={panel}
                     />
                 </div>
@@ -141,6 +361,13 @@ export default ({ panel, headerToolBar, onCreateFolder }: IResourceProps) => {
             <ResModal
                 isModalShow={isModalShow}
                 isCoverUpload={isCoverUpload}
+                resourceTreeData={
+                    resourceManagerTree.getState().folderTree?.data?.[0]
+                        ?.children?.[0]
+                }
+                defaultData={rightClickData}
+                addResource={handleAddResource}
+                replaceResource={handleReplaceResource}
                 toggleUploadModal={toggleUploadModal}
             />
             <ResViewModal

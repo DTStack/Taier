@@ -1,18 +1,18 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { Modal, Button, Form, Input, message, Select, Icon, Spin } from 'antd';
-import { RESOURCE_TYPE, formItemLayout, MENU_TYPE } from '../../comm/const';
-import ajax from '../../api';
+import { Modal, Button, Form, Input, Select, Icon, Spin } from 'antd';
 
-const FormItem = Form.Item;
-const Option = Select.Option;
-const resourceType: any = RESOURCE_TYPE;
+import ajax from '../../api';
+import { RESOURCE_TYPE, formItemLayout } from '../../comm/const';
 
 export function getContainer(id: string) {
     const container = document.createElement('div');
     document.getElementById(id)?.appendChild(container);
     return container;
 }
+
+const FormItem = Form.Item;
+const Option = Select.Option;
+const resourceType: any = RESOURCE_TYPE;
 
 class ResForm extends React.Component<any, any> {
     constructor(props: any) {
@@ -248,12 +248,24 @@ class ResForm extends React.Component<any, any> {
                             },
                         ],
                         // @TODO: 编辑时最后的undefined为obj
-                        // initialValue: isCreateNormal
-                        //     ? this.props.treeData.id
-                        //     : isCreateFromMenu
-                        //     ? defaultData.parentId
-                        //     : undefined,
-                    })(<Input /* type="hidden" */></Input>)}
+                        initialValue: isCreateNormal
+                            ? this.props.treeData.id
+                            : isCreateFromMenu
+                            ? defaultData.parentId
+                            : undefined,
+                    })(<Input type="hidden"></Input>)}
+                    <Select
+                        defaultValue={
+                            isCreateNormal
+                                ? this.props.treeData.id
+                                : isCreateFromMenu
+                                ? defaultData.parentId
+                                : undefined
+                        }
+                        onChange={this.handleSelectTreeChange.bind(this)}
+                    >
+                        <Option value={251}>251</Option>
+                    </Select>
                     {/* <FolderPicker
                         type={MENU_TYPE.RESOURCE}
                         ispicker
@@ -298,14 +310,28 @@ class ResForm extends React.Component<any, any> {
                                 validator: this.checkNotDir.bind(this),
                             },
                         ],
-                        // initialValue: isCreateNormal
-                        //     ? this.props.treeData.id
-                        //     : isCreateFromMenu
-                        //     ? defaultData.parentId
-                        //     : isEditExist
-                        //     ? defaultData.id
-                        //     : undefined,
-                    })(<Input /* type="hidden" */></Input>)}
+                        initialValue: isCreateNormal
+                            ? this.props.treeData.id
+                            : isCreateFromMenu
+                            ? defaultData.parentId
+                            : isEditExist
+                            ? defaultData.id
+                            : undefined,
+                    })(<Input type="hidden"></Input>)}
+                    <Select
+                        defaultValue={
+                            isCreateNormal
+                                ? this.props.treeData.id
+                                : isCreateFromMenu
+                                ? defaultData.parentId
+                                : isEditExist
+                                ? defaultData.id
+                                : undefined
+                        }
+                        onChange={this.handleCoverTargetChange.bind(this)}
+                    >
+                        <Option value={5}>5</Option>
+                    </Select>
                     {/* <FolderPicker
                         type={MENU_TYPE.RESOURCE}
                         ispicker
@@ -478,26 +504,28 @@ class ResForm extends React.Component<any, any> {
      * @param {any} cb
      */
     checkNotDir(rule: any, value: any, callback: any) {
-        const { treeData } = this.props;
-        let nodeType: any;
-
-        let loop = (arr: any) => {
-            arr.forEach((node: any, i: any) => {
-                if (node.id === value) {
-                    nodeType = node.type;
-                } else {
-                    loop(node.children || []);
-                }
-            });
-        };
-
-        loop([treeData]);
-
-        if (nodeType === 'folder') {
-            /* eslint-disable-next-line */
-            callback('请选择具体文件, 而非文件夹');
-        }
+        // TODO
         callback();
+        // const { treeData } = this.props;
+        // let nodeType: any;
+
+        // let loop = (arr: any) => {
+        //     arr.forEach((node: any, i: any) => {
+        //         if (node.id === value) {
+        //             nodeType = node.type;
+        //         } else {
+        //             loop(node.children || []);
+        //         }
+        //     });
+        // };
+
+        // loop([treeData]);
+
+        // if (nodeType === 'folder') {
+        //     /* eslint-disable-next-line */
+        //     callback('请选择具体文件, 而非文件夹');
+        // }
+        // callback();
     }
 }
 
@@ -632,42 +660,4 @@ class ResModal extends React.Component<any, any> {
     }
 }
 
-export default connect(
-    (state: any) => {
-        return {
-            // isModalShow: state.offlineTask.modalShow.upload,
-            // isCoverUpload: state.offlineTask.modalShow.isCoverUpload,
-            // resourceTreeData: state.offlineTask.resourceTree,
-            // defaultData: state.offlineTask.modalShow.defaultData, // 表单默认数据
-        };
-    },
-    (dispatch: any) => {
-        return {
-            addResource: function (params: any) {
-                return ajax.addOfflineResource(params).then((res: any) => {
-                    let { data } = res;
-
-                    if (res.code === 1) {
-                        message.success('资源上传成功！');
-                        // TODO, 刷新目录树
-                        // dispatch({
-                        //     type: resTreeAction.ADD_FOLDER_CHILD,
-                        //     payload: data,
-                        // });
-                        return true;
-                    }
-                });
-            },
-            replaceResource: function (params: any) {
-                return ajax.replaceOfflineResource(params).then((res: any) => {
-                    let { code } = res;
-
-                    if (code === 1) {
-                        message.success('资源替换成功！');
-                        return true;
-                    }
-                });
-            },
-        };
-    }
-)(ResModal);
+export default ResModal;
