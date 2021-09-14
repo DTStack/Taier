@@ -93,6 +93,8 @@ module.exports = function () {
             extensions: [".ts", ".tsx", ".js", ".jsx", ".scss", ".css"], //后缀名自动补全
             alias: {
                 'antd/lib/modal$': path.resolve(MY_PATH.ROOT_PATH, './build/assets/modal/index.js'),
+                'antd/lib/message$': path.resolve(MY_PATH.ROOT_PATH, './build/assets/message/index.js'),
+                'antd/lib/notification$': path.resolve(MY_PATH.ROOT_PATH, './build/assets/notification/index.js'),
                 'react-dom': '@hot-loader/react-dom'
             }
         },
