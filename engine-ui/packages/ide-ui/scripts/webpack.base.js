@@ -113,7 +113,7 @@ module.exports = {
     },
     plugins: [
         new MonacoWebpackPlugin({
-            languages: ['javascript', 'typescript', 'json', 'clojure'],
+            languages: [],
         }),
         new MiniCssExtractPlugin({
             filename: '[name].css?v=[contenthash:8]',
