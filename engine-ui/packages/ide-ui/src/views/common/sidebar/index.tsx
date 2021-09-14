@@ -3,6 +3,21 @@ import molecule from 'molecule';
 import { IExtension } from 'molecule/esm/model';
 import ResourceManager from '../../resourceManager';
 
+export const folderMenu = [
+    {
+        id: 'upload',
+        name: '上传资源',
+    },
+    {
+        id: 'replace',
+        name: '替换资源',
+    },
+    {
+        id: 'create-folder',
+        name: '新建文件夹',
+    },
+];
+
 function initResourceManager() {
     const resourceManager = {
         id: 'ResourceManager',
@@ -20,26 +35,9 @@ function initResourceManager() {
             id: 'menus',
             title: '更多操作',
             icon: 'menu',
-            contextMenu: [
-                {
-                    id: 'upload',
-                    name: '上传资源',
-                },
-                {
-                    id: 'replace',
-                    name: '替换资源',
-                },
-                {
-                    id: 'create-folder',
-                    name: '新建文件夹',
-                },
-            ],
+            contextMenu: folderMenu,
         },
     ];
-
-    const handleCreateFolder = () => {
-        console.log('新建文件夹');
-    };
 
     molecule.activityBar.add(resourceManager);
     molecule.sidebar.add({
@@ -49,7 +47,6 @@ function initResourceManager() {
             <ResourceManager
                 panel={resourceManager}
                 headerToolBar={headerToolBar}
-                onCreateFolder={handleCreateFolder}
             />
         ),
     });
