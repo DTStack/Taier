@@ -1,18 +1,17 @@
 import * as React from 'react';
-
 import { Table, Modal, message } from 'antd';
 
-class RecommentTaskModal extends React.Component<any, any> {
+class RecommendTaskModal extends React.Component<any, any> {
     state: any = {
-        choosetask: [], // 选择的任务
         selectedRows: [],
     };
+
     resetState() {
         this.setState({
-            choosetask: [],
             selectedRows: [],
         });
     }
+
     onOk() {
         const { selectedRows } = this.state;
         if (selectedRows.length == 0) {
@@ -22,10 +21,12 @@ class RecommentTaskModal extends React.Component<any, any> {
         this.props.onOk(selectedRows);
         this.resetState();
     }
+
     onCancel() {
         this.resetState();
         this.props.onCancel();
     }
+
     initColumns() {
         return [
             {
@@ -39,13 +40,14 @@ class RecommentTaskModal extends React.Component<any, any> {
             },
         ];
     }
+
     rowSelection() {
         const { existTask } = this.props;
+        const { selectedRows } = this.state 
         return {
-            selectedRowKeys: this.state.choosetask,
+            selectedRowKeys: selectedRows?.map((item: any) => item.id),
             onChange: (selectedRowKeys: any, selectedRows: any) => {
                 this.setState({
-                    choosetask: selectedRowKeys,
                     selectedRows: selectedRows,
                 });
             },
@@ -53,7 +55,7 @@ class RecommentTaskModal extends React.Component<any, any> {
                 const id = record.id;
                 let isExist = false;
                 existTask &&
-                    existTask.map((item: any) => {
+                    existTask.foreach((item: any) => {
                         if (item.id == id) {
                             isExist = true;
                         }
@@ -65,6 +67,7 @@ class RecommentTaskModal extends React.Component<any, any> {
             },
         };
     }
+
     render() {
         const { visible, taskList } = this.props;
         return (
@@ -74,6 +77,8 @@ class RecommentTaskModal extends React.Component<any, any> {
                 visible={visible}
                 onCancel={this.onCancel.bind(this)}
                 onOk={this.onOk.bind(this)}
+                okText='确定'
+                cancelText='取消'
             >
                 <p style={{ margin: '10px 10px' }}>
                     提示：该分析仅基于您已发布过的任务进行分析
@@ -90,4 +95,4 @@ class RecommentTaskModal extends React.Component<any, any> {
         );
     }
 }
-export default RecommentTaskModal;
+export default RecommendTaskModal;

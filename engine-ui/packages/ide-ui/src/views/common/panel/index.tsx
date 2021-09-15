@@ -74,23 +74,30 @@ function getTaskParamsUI() {
 
 function getSchedulingConfigUI() {
     const SchedulingConfigView = connect(molecule.editor, SchedulingConfig);
-
+    const changeScheduleConf = (currentTab: IEditorTab, value: any) => {
+        const { data } = currentTab
+        const tab = {
+            ...currentTab,
+            data: {
+                ...data,
+                ...value
+            }
+        }
+        molecule.editor.updateTab(tab)
+    };
     return {
         id: TASK_SCHEDULE_CONFIG,
         name: localize(TASK_SCHEDULE_CONFIG, '调度依赖'),
         sortIndex: -3,
         renderPane: () => (
             <SchedulingConfigView
+                changeScheduleConf={changeScheduleConf}
+                key={'schedule-1'}
+                isIncrementMode={false}
                 isPro={false}
                 couldEdit={false}
                 isScienceTask={false}
-                tabData={{
-                    scheduleConf: '{}',
-                    scheduleStatus: 0,
-                }}
-                updateKey={0}
-                key={'schedule-1'}
-                isIncrementMode={false}
+                isWorkflowNode={false}
             />
         ),
     };
