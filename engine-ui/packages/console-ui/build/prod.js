@@ -3,10 +3,7 @@ const webpack = require("webpack");
 const webpackMerge = require("webpack-merge");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const cssLoader = require("./loader/css-loader.js").pro;
-const VersionPlugin = require("./plugins/version-webpack-plugin");
-const InsertHtmlPlugin = require("./plugins/insert-html-webpack-plugin");
 
-const PublicPath = require("./consts").PUBLICPATH
 
 
 // const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
@@ -72,9 +69,7 @@ module.exports = function(env) {
                 minify: htmlMinify
             }),
             // new VersionPlugin()
-            new InsertHtmlPlugin({
-                addCode: PublicPath
-            })
+           
         ],
         module: {
             rules: [...cssLoader]

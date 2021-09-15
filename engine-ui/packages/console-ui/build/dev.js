@@ -7,8 +7,6 @@ const cssLoader = require("./loader/css-loader.js").dev;
 const notifier = require("node-notifier");
 const ForkTsCheckerNotifierWebpackPlugin = require('fork-ts-checker-notifier-webpack-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
-const InsertHtmlPlugin = require('./plugins/insert-html-webpack-plugin')
-const PublicPath = require('./consts').PUBLICPATH
 
 
 const MY_PATH = require("./consts");
@@ -95,9 +93,6 @@ const merged = function(env) {
                 showErrors: true,
                 hash: true
             }),
-            new InsertHtmlPlugin({
-                addCode: PublicPath
-            })
         ],
         module: {
             rules: [...cssLoader]
