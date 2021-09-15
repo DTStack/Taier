@@ -313,15 +313,27 @@ public class DsInfoService extends BaseService<DsInfoMapper, DsInfo> {
         if(StringUtils.isNotBlank(krb5File)) {
             kerberosConfig.put("java.security.krb5.conf", krb5File.substring(krb5File.lastIndexOf("/") + 1));
         }
-        if(null != oldDataInfoId){
-            String kerberosDir;
-            if(isMeta == 1){
-                String remotePath = kerberosConfig.getString("remotePath");
-                kerberosDir = remotePath.substring(remotePath.indexOf("CONSOLE"));
-            }
-            kerberosDir =  AppType.getValue(appType).name()+"_"+oldDataInfoId;
-            kerberosConfig.put(KERBEROS_DIR,kerberosDir);
+    }
+
+    /**
+     * 通过DsListQuery 获取数据源信息
+     * @param dsListQuery
+     * @return
+     */
+    public List<DsInfo> listByDsQuery(DsListQuery dsListQuery) {
+        List<DsInfo> dsInfos = this.baseMapper.listByDsQuery(dsListQuery);
+        if (dsInfos.isEmpty()) {
+            return dsInfos;
         }
+        dsInfos.forEach(dsInfo -> {
+            JSONObject dataSourceJson = DataSourceUtils.getDataSourceJson(dsInfo.getDataJson());
+            if(DataSourceUtils.judgeOpenKerberos(dsInfo.getDataJson())){
+                //处理kerberosConfig
+                handleKerberosConf(dataSourceJson, null, null, null);
+            }
+            dsInfo.setDataJson(dataSourceJson.toJSONString());
+        });
+        return dsInfos;
     }
 
     /**

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.dtcenter.common.pager.PageResult;
+import com.dtstack.engine.datasource.dao.bo.query.DsListQuery;
 import com.dtstack.engine.datasource.dao.po.datasource.*;
 import com.dtstack.engine.datasource.mapstruct.DsInfoStruct;
 import com.dtstack.engine.datasource.param.datasource.api.*;
@@ -317,6 +318,21 @@ public class ApiServiceFacade {
     }
 
 
+    public List<DsServiceInfoVO> listByDsQuery(DsListQuery dsListQuery) {
+        List<DsInfo> dsInfos = dsInfoService.listByDsQuery(dsListQuery);
+        List<DsServiceInfoVO> dsServiceInfoVOs = dsInfos.stream().map(dsInfo -> {
+            DsServiceInfoVO dsServiceInfoVO = dsInfoStruct.toDsServiceInfoVO(dsInfo);
+
+            DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(dsInfo.getDataType(), dsInfo.getDataVersion());
+            Asserts.notNull(typeEnum, ErrorCode.CAN_NOT_FITABLE_SOURCE_TYPE);
+            dsServiceInfoVO.setType(typeEnum.getVal());
+            dsServiceInfoVO.setDataInfoId(dsInfo.getId());
+            dsServiceInfoVO.setLinkJson(DataSourceUtils.getDataSourceJsonStr(dsInfo.getLinkJson()));
+            dsServiceInfoVO.setDataJson(dsInfo.getDataJson());
+            return dsServiceInfoVO;
+        }).collect(Collectors.toList());
+        return dsServiceInfoVOs;
+    }
 
     /**
      * 外部-通过平台数据源实例Id和appType获取全部信息

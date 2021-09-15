@@ -77,6 +77,12 @@ public interface DsInfoMapper extends IMapper<DsInfo> {
     List<DsListBO> queryDsByAppType(@Param("appType") Integer appType, @Param("dtUicTenantId") Long dtUicTenantId);
 
     /**
+     * 根据产品type查询数据源信息
+     * @return
+     */
+    List<DsInfo> listByDsQuery(@Param("listQuery")DsListQuery dsListQuery);
+
+    /**
      * 根据产品type和平台数据源id查询数据源信息
      * @param appType
      * @param oldDataInfoId
