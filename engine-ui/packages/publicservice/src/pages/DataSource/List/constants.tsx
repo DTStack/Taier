@@ -134,13 +134,6 @@ const columns = (props: any) => {
               </a>
             </span>
             <Divider type="vertical" />
-            <span
-              className="data-view"
-              onClick={(event) => toAuth(record, event)}>
-              <a>授权</a>
-            </span>
-            <Divider type="vertical" />
-
             {/* isImport ：0为未应用，1为已应用 */}
             {!record.isMeta && record.isImport !== 1 ? (
               <span className="data-view">

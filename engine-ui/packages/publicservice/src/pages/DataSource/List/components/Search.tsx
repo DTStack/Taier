@@ -122,7 +122,7 @@ function Search(props) {
               })}
           </Select>
         </Form.Item>
-        <Form.Item label="授权产品">
+        {/* <Form.Item label="授权产品">
           <Select
             dropdownClassName="top-search-select"
             className="dt-form-shadow-bg"
@@ -151,6 +151,7 @@ function Search(props) {
               })}
           </Select>
         </Form.Item>
+         */}
         <Form.Item>
           <Checkbox
             onChange={(e) =>
