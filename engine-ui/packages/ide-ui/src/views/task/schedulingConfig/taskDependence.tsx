@@ -1,13 +1,10 @@
 import * as React from 'react';
-// import { connect } from "react-redux";
-import { get } from 'lodash';
+import { debounce, cloneDeep, isArray } from 'lodash';
+import { Row, Col, Form, Button, Table, Select, message } from 'antd';
 
-import { Row, Col, Form, Button, Table, Select } from 'antd';
-import TaskSelector from './taskSelector';
-import RecommentTaskModal from './recommentTaskModal';
-
+import RecommendTaskModal from './recommentTaskModal';
 import { TASK_TYPE } from '../../../comm/const';
-// import ajax from "../../../../api";
+import ajax from "../../../api";
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -24,113 +21,61 @@ const formItemLayout: any = {
     },
 };
 
-// @(connect((state: any) => {
-//   return {
-//     tenant: state.tenant,
-//     project: state.project,
-//   };
-// }) as any)
 class TaskDependence extends React.Component<any, any> {
     state: any = {
         loading: false,
-        recommentTaskModalVisible: false,
-        recommentTaskList: [],
-        projectList: [],
-        tenantId: null,
-        projectId: null,
+        recommendTaskModalVisible: false,
+        recommendTaskList: [],
+        taskListSearch: []
     };
-    componentDidMount() {
-        this.initTenant();
-    }
-    initTenant() {
-        const tenantId = get(this.props, 'tenant.currentTenant.tenantId');
-        if (tenantId) {
-            this.setState(
-                {
-                    tenantId,
-                },
-                this.loadProjectList.bind(this)
-            );
-        }
-    }
-    showRecommentTask() {
+
+
+    showRecommendTask() {
         const { tabData } = this.props;
         this.setState({
             loading: true,
         });
-        // ajax
-        //   .getRecommentTask({
-        //     taskId: tabData.id,
-        //   })
-        //   .then((res: any) => {
-        //     this.setState({
-        //       loading: false,
-        //     });
-        //     if (res.code == 1) {
-        //       this.setState({
-        //         recommentTaskModalVisible: true,
-        //         recommentTaskList: res.data,
-        //       });
-        //     }
-        //   });
+        ajax.getRecommentTask({
+            taskId: tabData.id,
+        })
+            .then((res: any) => {
+                this.setState({
+                    loading: false,
+                });
+                if (res.code == 1) {
+                    this.setState({
+                        recommendTaskModalVisible: true,
+                        recommendTaskList: res.data,
+                    });
+                }
+            });
     }
-    recommentTaskClose() {
+
+    recommendTaskClose() {
         this.setState({
-            recommentTaskModalVisible: false,
+            recommendTaskModalVisible: false,
         });
     }
+
     goEdit(task: any) {
-        this.props.getTaskDetail(task.id);
+        // TODO: 打开任务tab
     }
+
     initColumn() {
-        const { project, tenant } = this.props;
-        const currentTenantName = tenant.currentTenant.tenantName;
-        const currentProjectName = project.projectName;
         return [
-            {
-                title: '租户',
-                dataIndex: 'tenantName',
-                key: 'tenantName',
-                render(tenantName: any) {
-                    if (tenantName) {
-                        return tenantName;
-                    } else {
-                        return currentTenantName;
-                    }
-                },
-            },
-            {
-                title: '项目标识',
-                dataIndex: 'projectName',
-                key: 'projectName',
-                render(projectName: any) {
-                    if (projectName) {
-                        return projectName;
-                    } else {
-                        return currentProjectName;
-                    }
-                },
-            },
             {
                 title: '任务名称',
                 dataIndex: 'name',
                 key: 'name',
                 render: (text: any, record: any) => {
-                    if (
-                        record.tenantName == currentTenantName &&
-                        record.projectName == currentProjectName
-                    ) {
-                        return (
-                            <a
-                                href="javascript:void(0)"
-                                onClick={this.goEdit.bind(this, record)}
-                            >
-                                {text}
-                            </a>
-                        );
-                    } else {
-                        return text;
-                    }
+                    return (
+                        <a
+                            href="javascript:void(0)"
+                            onClick={this.goEdit.bind(this, record)}
+                        >
+                            {text}
+                        </a>
+                    );
                 },
             },
             {
@@ -146,7 +91,7 @@ class TaskDependence extends React.Component<any, any> {
                         <a
                             href="javascript:void(0)"
                             onClick={() => {
-                                this.props.handleDelVOS(record);
+                                this.removeTaskVOS(record)
                             }}
                         >
                             删除
@@ -156,61 +101,78 @@ class TaskDependence extends React.Component<any, any> {
             },
         ];
     }
-    recommentTaskChoose(list: any) {
-        for (let i = 0; i < list.length; i++) {
-            this.props.handleAddVOS(list[i]);
-        }
-        this.setState({
-            recommentTaskModalVisible: false,
-        });
-    }
-    onSelectTenant(value: any) {
-        this.setState(
-            {
-                tenantId: value,
-                projectList: [],
-                projectId: null,
-            },
-            this.loadProjectList.bind(this)
-        );
-    }
-    async loadProjectList() {
-        const { tenantId } = this.state;
-        // let res = await ajax.getProjectByTenant({ searchTenantId: tenantId });
-        // if (res && res.code == 1) {
-        //   this.setState(
-        //     {
-        //       projectList: res.data || [],
-        //     },
-        //     this.setDefaultProject
-        //   );
-        // }
-    }
-    setDefaultProject = () => {
-        const { project, tenant } = this.props;
-        const { tenantId } = this.state;
-        if (tenant.currentTenant.tenantId == tenantId) {
+
+    onTaskVOSSearch = async (value: any) => {
+        const { tabData } = this.props
+        if (value.trim() === '') {
             this.setState({
-                projectId: project.id,
+                taskListSearch: [],
+            });
+            return;
+        }
+        const res = await ajax.getOfflineTaskByName(
+            {
+                name: value,
+                taskId: tabData.id,
+                searchProjectId: 1,
+            })
+        if (res.code === 1) {
+            this.setState({
+                taskListSearch: res.data,
             });
         }
-    };
-    onSelectProject(value: any) {
-        this.setState({
-            projectId: value,
-        });
     }
+
+    removeTaskVOS = (record: any) => {
+        const { tabData, handleTaskVOSChange } = this.props
+        const { taskVOS } = tabData
+        const newTaskVOS = taskVOS?.filter((item: any) => item.id !== record.id)
+        handleTaskVOSChange(newTaskVOS)
+    }
+
+    onTaskVOSSelect = async (value: any) => {
+        const task = JSON.parse(value)
+        const { tabData, handleTaskVOSChange } = this.props
+        const { taskVOS } = tabData
+        if(taskVOS?.find((item: any) =>item.id !== task.id)) {
+            return message.error('不可重复选择同一任务！')
+        }
+        // const res: any = ajax.checkIsLoop({
+        //     taskId: tabData.id,
+        //     dependencyTaskId: task.id,
+        // })
+        // if (res.code !== 1) {
+        //     return message.error('校验循环依赖失败，请稍后再试！');
+        // }
+        // if (res.data) {
+        //     return message.error(
+        //         `添加失败，该任务循环依赖任务${res.data.name || ""}!`
+        //     );
+        // } 
+        const newTaskVOS = taskVOS?.length 
+            ? cloneDeep(taskVOS).push(task)
+            : [task]
+        handleTaskVOSChange(newTaskVOS)
+    }
+
+    recommendTaskChoose(list: any) {
+        const { tabData, handleTaskVOSChange } = this.props
+        const { taskVOS } = tabData
+        const newTaskVOS = isArray(taskVOS) ? [...taskVOS, ...list] : list
+        this.setState({
+            recommendTaskModalVisible: false,
+        });
+        handleTaskVOSChange(newTaskVOS)
+    }
+
     render() {
-        const { tabData, handleAddVOS, tenant } = this.props;
+        const { tabData } = this.props;
         const {
             loading,
-            recommentTaskModalVisible,
-            recommentTaskList,
-            tenantId,
-            projectId,
-            projectList = [],
+            recommendTaskModalVisible,
+            recommendTaskList,
+            taskListSearch
         } = this.state;
-        const tenantList = tenant.tenantList || [];
         const isSql = tabData.taskType == TASK_TYPE.SQL;
         return (
             <React.Fragment>
@@ -219,74 +181,45 @@ class TaskDependence extends React.Component<any, any> {
                         loading={loading}
                         type="primary"
                         style={{ marginBottom: '20px', marginLeft: '12px' }}
-                        onClick={this.showRecommentTask.bind(this)}
+                        onClick={this.showRecommendTask.bind(this)}
                     >
                         自动推荐
                     </Button>
                 )}
-                <Form>
-                    <FormItem {...formItemLayout} label="租户">
-                        <Select
-                            value={tenantId}
-                            onSelect={this.onSelectTenant.bind(this)}
-                        >
-                            {tenantList.map((tenantItem: any) => {
-                                return (
-                                    <Option
-                                        key={tenantItem.tenantId}
-                                        value={tenantItem.tenantId}
-                                    >
-                                        {tenantItem.tenantName}
-                                    </Option>
-                                );
-                            })}
-                        </Select>
-                    </FormItem>
-                    <FormItem {...formItemLayout} label="项目">
-                        <Select
-                            value={projectId}
-                            onSelect={this.onSelectProject.bind(this)}
-                        >
-                            {projectList.map((projectItem: any) => {
-                                return (
-                                    <Option
-                                        key={projectItem.projectId}
-                                        value={projectItem.projectId}
-                                    >
-                                        {projectItem.projectAlias}
-                                    </Option>
-                                );
-                            })}
-                        </Select>
-                    </FormItem>
-                    <FormItem {...formItemLayout} label="上游任务">
-                        <TaskSelector
-                            onSelect={handleAddVOS}
-                            taskId={tabData.id}
-                            projectId={projectId}
-                        />
-                    </FormItem>
-                </Form>
-                {tabData.taskVOS && tabData.taskVOS.length > 0 ? (
-                    <Row>
-                        <Col>
-                            <Table
-                                className="dt-ant-table dt-ant-table--border"
-                                columns={this.initColumn()}
-                                bordered={false}
-                                dataSource={tabData.taskVOS}
-                                rowKey={(record: any) => record.id}
-                            />
-                        </Col>
-                    </Row>
-                ) : (
-                    ''
-                )}
-                <RecommentTaskModal
-                    visible={recommentTaskModalVisible}
-                    taskList={recommentTaskList}
-                    onOk={this.recommentTaskChoose.bind(this)}
-                    onCancel={this.recommentTaskClose.bind(this)}
+                <FormItem {...formItemLayout} label="上游任务">
+                    <Select
+                        onSelect={this.onTaskVOSSelect}
+                        onSearch={debounce(this.onTaskVOSSearch, 500, {
+                            maxWait: 2000,
+                        })}
+                        showSearch
+                        style={{ width: '100%' }}
+                    >
+                        { taskListSearch?.map((item: any) => 
+                            <Option key={item.id} value={JSON.stringify(item)}>{item.name}</Option>
+                        )}
+                    </Select>
+                    {tabData.taskVOS && tabData.taskVOS.length > 0 ? (
+                        <Row>
+                            <Col>
+                                <Table
+                                    className="dt-ant-table dt-ant-table--border"
+                                    columns={this.initColumn()}
+                                    bordered={false}
+                                    dataSource={tabData.taskVOS}
+                                    rowKey={(record: any) => record.id}
+                                />
+                            </Col>
+                        </Row>
+                    ) : (
+                        ''
+                    )}
+                </FormItem>
+                <RecommendTaskModal
+                    visible={recommendTaskModalVisible}
+                    taskList={recommendTaskList}
+                    onOk={this.recommendTaskChoose.bind(this)}
+                    onCancel={this.recommendTaskClose.bind(this)}
                     existTask={tabData.taskVOS}
                 />
             </React.Fragment>
