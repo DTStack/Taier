@@ -141,6 +141,10 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
                 LOGGER.info("jobId:{} scheduleType:{} take job from queue.", scheduleJob.getJobId(), getScheduleType());
                 this.start(scheduleBatchJob);
+            } catch (InterruptedException ie){
+                // swallow the interrupt as it's only possible from either a background
+                // operation and, thus, doesn't apply to this loop or the instance
+                // is being closed in which case the while test will get it
             } catch (Exception e) {
                 LOGGER.error("happens error:", e);
                 try {
