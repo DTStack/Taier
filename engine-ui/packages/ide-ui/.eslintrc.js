@@ -18,7 +18,7 @@ module.exports = {
             version: 'detect',
         },
     },
-    ignorePatterns: ['node_modules'],
+    ignorePatterns: ['node_modules', 'src/assets'],
     rules: {
         indent: [2, 4, { SwitchCase: 1 }],
         'comma-dangle': ['error', 'never'],
