@@ -2,8 +2,12 @@ import React, { useState } from 'react';
 import { Layout, Menu, Dropdown, Icon, message } from 'antd';
 import { hashHistory } from 'react-router';
 import { AppContainer } from '../views/registerMicroApps';
-import { getItem, setItem, clear } from '../utils/session';
-import { clear as localClear } from '../utils/local';
+import { setItem, clear } from '../utils/session';
+import {
+    getItem as localGet,
+    setItem as localSet,
+    clear as localClear,
+} from '../utils/local';
 import { USER_NAME } from '../consts';
 
 const { Header, Content } = Layout;
@@ -21,7 +25,7 @@ const userMenu = (
                 <Menu.Item
                     key={index}
                     onClick={async () => {
-                        setItem(USER_NAME, '');
+                        localSet(USER_NAME, '');
                         const response = await fetch('/node/login/logout', {
                             method: 'POST',
                         });
@@ -46,7 +50,7 @@ const userMenu = (
 export default function MyLayout(props: React.PropsWithChildren<any>) {
     const { children, history } = props;
     const [path, setPath] = useState(history.getCurrentLocation().pathname);
-    const [curItem, setCurItem] = useState(getItem('menuStatus') || 'devTask');
+    const [curItem, setCurItem] = useState(localGet('menuStatus') || 'devTask');
     // eslint-disable-next-line prefer-regex-literals
     const regexp = new RegExp(/(\/login)$/);
     const handleClick = (menuItem: any) => {
@@ -107,7 +111,7 @@ export default function MyLayout(props: React.PropsWithChildren<any>) {
                                     }}
                                 >
                                     <span className="username">
-                                        {getItem(USER_NAME) || '未知用户'}
+                                        {localGet(USER_NAME) || '未知用户'}
                                     </span>
                                     <Icon
                                         style={{
