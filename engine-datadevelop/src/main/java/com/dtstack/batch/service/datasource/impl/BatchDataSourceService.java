@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.batch.common.enums.ETableType;
+import com.dtstack.engine.datasource.dao.bo.query.DsListQuery;
 import com.dtstack.engine.domain.BatchDataSource;
 import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.engine.domain.ScheduleEngineProject;
@@ -15,7 +16,6 @@ import com.dtstack.batch.common.template.Reader;
 import com.dtstack.batch.common.template.Setting;
 import com.dtstack.batch.common.template.Writer;
 import com.dtstack.batch.common.util.JsonUtil;
-import com.dtstack.batch.dao.BatchDataSourceCenterDao;
 import com.dtstack.batch.domain.*;
 import com.dtstack.batch.dto.BatchDataSourceTaskDto;
 import com.dtstack.batch.engine.rdbms.common.HadoopConfTool;
@@ -62,8 +62,6 @@ import com.dtstack.engine.lineage.pojo.Table;
 import com.dtstack.engine.datasource.facade.datasource.ApiServiceFacade;
 import com.dtstack.engine.datasource.param.datasource.api.CreateDsParam;
 import com.dtstack.engine.datasource.param.datasource.api.DsServiceListParam;
-import com.dtstack.engine.datasource.param.datasource.api.ProductImportParam;
-import com.dtstack.engine.datasource.param.datasource.api.RollDsParam;
 import com.dtstack.engine.datasource.vo.datasource.api.DsServiceInfoVO;
 import com.dtstack.engine.datasource.vo.datasource.api.DsServiceListVO;
 import com.dtstack.engine.datasource.vo.datasource.api.DsShiftReturnVO;
@@ -215,9 +213,6 @@ public class BatchDataSourceService {
     private JobParamReplace jobParamReplace;
 
     @Autowired
-    private BatchDataSourceCenterDao batchDataSourceCenterDao;
-
-    @Autowired
     private BatchTaskService taskService;
 
     @Autowired
@@ -305,7 +300,6 @@ public class BatchDataSourceService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void deleteByProjectId(Long tenantId, Long projectId, Long userId) {
-        cancelImportDataSourceByProject(tenantId, projectId, userId);
         batchDataSourceTaskRefService.deleteByProjectId(projectId);
     }
 
@@ -1667,12 +1661,11 @@ public class BatchDataSourceService {
      * @return
      */
     public List<DataSourceVO> list(Long projectId) {
-        List<BatchDataSource> list = getDataSourceByProjectId(projectId);
+        List<BatchDataSource> list = getSourceListByDataSourceCenter(projectId);
         List<DataSourceVO> vos = new ArrayList<>();
         list.forEach(source -> {
             int count = dataSourceTaskRefService.getSourceRefCount(source.getId());
             DataSourceVO vo = DataSourceVO.toVO(source, count);
-            parseModifyUser(vo);
             parseDataJsonForView(vo);
             vos.add(vo);
         });
@@ -1680,19 +1673,6 @@ public class BatchDataSourceService {
         return vos;
     }
 
-    /**
-     * 获取传入的projectId 下所有的数据源信息
-     *
-     * @param projectId
-     * @return
-     */
-    public List<BatchDataSource> getDataSourceByProjectId(Long projectId){
-        List<BatchDataSourceCenter> dataSourceCenterList = batchDataSourceCenterDao.getInfoIdsByProject(projectId);
-        if (CollectionUtils.isEmpty(dataSourceCenterList)){
-            return Lists.newArrayList();
-        }
-        return getSourceListByDataSourceCenter(dataSourceCenterList);
-    }
 
     /**
      * 根据DataSourceCenter 转化为DataSource
@@ -1700,27 +1680,18 @@ public class BatchDataSourceService {
      * @param dataSourceCenterList
      * @return
      */
-    public List<BatchDataSource> getSourceListByDataSourceCenter(List<BatchDataSourceCenter> dataSourceCenterList){
-        List<BatchDataSource> list = new ArrayList<>();
-        if(CollectionUtils.isEmpty(dataSourceCenterList)){
-            return list;
-        }
+    public List<BatchDataSource> getSourceListByDataSourceCenter(Long projectId){
+        List<DsServiceInfoVO> dsServiceInfoVOs = apiServiceFacade.listByDsQuery(new DsListQuery());
 
-        Set<Long> infoIdSet = dataSourceCenterList.stream().map(BatchDataSourceCenter::getDtCenterSourceId).collect(Collectors.toSet());
-        //去数据源中心获取数据源的详细信息
-        List<DsServiceInfoVO> dsInfoListByIdList = apiServiceFacade.getDsInfoListByIdList(new ArrayList<>(infoIdSet));
-        if (CollectionUtils.isEmpty(dsInfoListByIdList)) {
+        if (CollectionUtils.isEmpty(dsServiceInfoVOs)) {
             return Lists.newArrayList();
         }
 
-        //将DsServiceInfoDTOList 转换成map
-        Map<Long, DsServiceInfoVO> dsServiceInfoDTOMap = dsInfoListByIdList.stream().collect(Collectors.toMap(DsServiceInfoVO::getDataInfoId, Function.identity(), (v1, v2) -> v2));
-
         //遍历本地的list，然后去根据数据源的id从map中获取数据源连接信息
         //注意，由于数据源中心同一个数据源可以被离线多个项目引入，所以这里本地list可能比数据源的list多，所以一定是遍历本地list
-        dataSourceCenterList.forEach(dataSourceCenter -> {
-            DsServiceInfoVO dsServiceInfo = dsServiceInfoDTOMap.get(dataSourceCenter.getDtCenterSourceId());
-            list.add(convertDsServiceInfoDTOToDataSource(dataSourceCenter, dsServiceInfo));
+        List<BatchDataSource> list = new ArrayList<>();
+        dsServiceInfoVOs.forEach(dsServiceInfoVO -> {
+            list.add(convertDsServiceInfoVOToDataSource(dsServiceInfoVO));
         });
         return list;
     }
@@ -2011,15 +1982,8 @@ public class BatchDataSourceService {
         int count = dataSourceTaskRefService.getSourceRefCount(source.getId());
         DataSourceVO vo = DataSourceVO.toVO(source, count);
 
-        parseModifyUser(vo);
         parseDataJson(vo);
         return vo;
-    }
-
-    private void parseModifyUser(DataSourceVO vo) {
-        long modifyUserId = vo.getModifyUserId();
-        User modifyUser = userService.getById(modifyUserId);
-        vo.setModifyUser(modifyUser);
     }
 
     /**
@@ -2153,16 +2117,12 @@ public class BatchDataSourceService {
      * @return
      */
     public BatchDataSource getOne(Long sourceId) {
-        BatchDataSourceCenter centerSource = batchDataSourceCenterDao.getSourceCenterByCenterId(sourceId);
-        if(centerSource == null){
-            throw new RdosDefineException("sourceId=" + sourceId + ":" + ErrorCode.CAN_NOT_FIND_DATA_SOURCE.getDescription());
-        }
-        DsServiceInfoVO dataSourceInfo = apiServiceFacade.getDsInfoById(centerSource.getDtCenterSourceId());
+        DsServiceInfoVO dataSourceInfo = apiServiceFacade.getDsInfoById(sourceId);
         if(dataSourceInfo == null){
             throw new RdosDefineException("sourceId=" + sourceId + ":" + ErrorCode.CAN_NOT_FIND_DATA_SOURCE.getDescription());
         }
 
-        BatchDataSource source = convertDsServiceInfoDTOToDataSource(centerSource, dataSourceInfo);
+        BatchDataSource source = convertDsServiceInfoVOToDataSource(dataSourceInfo);
 
         return source;
     }
@@ -2174,21 +2134,18 @@ public class BatchDataSourceService {
      * @param dataSourceInfo
      * @return
      */
-    private BatchDataSource convertDsServiceInfoDTOToDataSource(BatchDataSourceCenter centerSource, DsServiceInfoVO dataSourceInfo) {
+    private BatchDataSource convertDsServiceInfoVOToDataSource(DsServiceInfoVO dsService) {
         BatchDataSource source = new BatchDataSource();
-        BeanUtils.copyProperties(centerSource, source);
-        source.setDataJson(dataSourceInfo.getDataJson());
-        source.setType(dataSourceInfo.getType());
-        source.setLinkState(dataSourceInfo.getStatus());
-        source.setDataName(dataSourceInfo.getDataName());
-        source.setDataDesc(dataSourceInfo.getDataDesc());
-        source.setCreateUserId(centerSource.getCreateUserId());
-        source.setModifyUserId(centerSource.getModifyUserId());
+        source.setDtuicTenantId(dsService.getDtuicTenantId());
+        source.setId(dsService.getDataInfoId());
+        source.setTenantId(dsService.getDtuicTenantId());
+        source.setDataJson(dsService.getDataJson());
+        source.setType(dsService.getType());
+        source.setLinkState(dsService.getStatus());
+        source.setDataName(dsService.getDataName());
+        source.setDataDesc(dsService.getDataDesc());
 
-        Long dtuicTenantId = tenantService.getDtuicTenantId(source.getTenantId());
-        source.setDtuicTenantId(dtuicTenantId);
-
-        Integer sourceRefCount = dataSourceTaskRefService.getSourceRefCount(centerSource.getId());
+        Integer sourceRefCount = dataSourceTaskRefService.getSourceRefCount(dsService.getDataInfoId());
 
         if(sourceRefCount > 0 ){
             source.setActive(1);
@@ -2198,18 +2155,16 @@ public class BatchDataSourceService {
         return source;
     }
 
-    /**
-     * DsServiceInfoDTO 转化为BatchDataSource
-     *
-     * @param centerSource
-     * @param dataSourceInfo
-     * @return
-     */
-    private BatchDataSource convertDsServiceListDTOToDataSource(BatchDataSourceCenter centerSource, DsServiceListVO dataSourceInfo) {
-        DsServiceInfoVO dsServiceInfoDTO = new DsServiceInfoVO();
-        BeanUtils.copyProperties(dataSourceInfo, dsServiceInfoDTO);
-        return convertDsServiceInfoDTOToDataSource(centerSource, dsServiceInfoDTO);
-    }
+//    /**
+//     * DsServiceInfoDTO 转化为BatchDataSource
+//     *
+//     * @param centerSource
+//     * @param dataSourceInfo
+//     * @return
+//     */
+//    private BatchDataSource convertDsServiceListDTOToDataSource(BatchDataSourceCenter centerSource, DsServiceListVO dataSourceInfo) {
+//        return convertDsServiceInfoVOToDataSource(centerSource, dsServiceInfoDTO);
+//    }
     /**
      * 根据sourceId 获取 对应的ISourceDTO
      *
@@ -2783,24 +2738,6 @@ public class BatchDataSourceService {
         }
     }
 
-    public void checkPermission() {
-    }
-
-
-    public BatchDataSource getByName(String name, Long projectId) {
-        BatchDataSourceHaveImportVO vo = new BatchDataSourceHaveImportVO();
-        vo.setProjectId(projectId);
-        vo.setDataName(name);
-        com.dtstack.dtcenter.common.pager.PageResult<List<DsServiceListVO>> listPageResult = this.queryHaveImportedDataSource(vo);
-        List<DsServiceListVO> data = listPageResult.getData();
-        if(CollectionUtils.isNotEmpty(data)){
-            DsServiceListVO dsServiceList = data.get(0);
-            BatchDataSourceCenter dataSourceCenter = batchDataSourceCenterDao.getDataSourceCenterByInfoId(projectId, dsServiceList.getDataInfoId());
-            return convertDsServiceListDTOToDataSource(dataSourceCenter, dsServiceList);
-        }
-        throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_DATA_SOURCE);
-    }
-
     public BatchDataSource getDefaultDataSource(Long projectId, Integer sourceType) {
         List<BatchDataSource> dataSourceList = getDefaultListByProjectId(projectId);
         for (BatchDataSource dataSource : dataSourceList){
@@ -2855,20 +2792,19 @@ public class BatchDataSourceService {
         return getDefaultDataSource(projectId, sourceType.getVal());
     }
 
-    public BatchDataSource getBeanByProjectIdAndDbTypeAndDbName(Long projectId, Integer dataSourceType, String dataSourceName) {
-        BatchDataSourceHaveImportVO vo = new BatchDataSourceHaveImportVO();
-        vo.setProjectId(projectId);
-        vo.setDataName(dataSourceName);
-        vo.setDataTypeCodeList(Lists.newArrayList(dataSourceType));
-        com.dtstack.dtcenter.common.pager.PageResult<List<DsServiceListVO>> listPageResult = this.queryHaveImportedDataSource(vo);
-        List<DsServiceListVO> data = listPageResult.getData();
-        if(CollectionUtils.isNotEmpty(data)){
-            DsServiceListVO dsServiceList = data.get(0);
-            BatchDataSourceCenter dataSourceCenter = batchDataSourceCenterDao.getDataSourceCenterByInfoId(projectId, dsServiceList.getDataInfoId());
-            return convertDsServiceListDTOToDataSource(dataSourceCenter, dsServiceList);
-        }
-        throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_DATA_SOURCE);
-    }
+//    public BatchDataSource getBeanByProjectIdAndDbTypeAndDbName(Long projectId, Integer dataSourceType, String dataSourceName) {
+//        BatchDataSourceHaveImportVO vo = new BatchDataSourceHaveImportVO();
+//        vo.setProjectId(projectId);
+//        vo.setDataName(dataSourceName);
+//        vo.setDataTypeCodeList(Lists.newArrayList(dataSourceType));
+//        com.dtstack.dtcenter.common.pager.PageResult<List<DsServiceListVO>> listPageResult = this.queryHaveImportedDataSource(vo);
+//        List<DsServiceListVO> data = listPageResult.getData();
+//        if(CollectionUtils.isNotEmpty(data)){
+//            DsServiceListVO dsServiceList = data.get(0);
+//            return convertDsServiceListDTOToDataSource(dsServiceList);
+//        }
+//        throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_DATA_SOURCE);
+//    }
 
     public Long getDefaultDataSourceByTableType(final Integer tableType, final Long projectId) {
         final MultiEngineType engineTypeByTableType = TableTypeEngineTypeMapping.getEngineTypeByTableType(tableType);
@@ -2975,24 +2911,11 @@ public class BatchDataSourceService {
     public List<BatchDataSource> getDefaultListByProjectId(Long projectId){
         List<BatchDataSource> batchDataSourceList = Lists.newArrayList();
 
-        //先从本地查询项目下所有的默认数据源
-        List<BatchDataSourceCenter> defaultDataSourceCenterList = batchDataSourceCenterDao.getDefaultDataSourceCenterByProjectId(projectId);
-        if(CollectionUtils.isEmpty(defaultDataSourceCenterList)){
-            return batchDataSourceList;
-        }
-        Map<Long, BatchDataSourceCenter> defaultDataSourceCenterMap = defaultDataSourceCenterList.stream().collect(Collectors.toMap(BatchDataSourceCenter::getDtCenterSourceId, Function.identity(), (key1, key2) -> key1));
-
-        if (MapUtils.isEmpty(defaultDataSourceCenterMap)) {
-            return Lists.newArrayList();
-        }
-
         //然后根据id去数据源中心获取详细信息
-        List<DsServiceInfoVO> data = apiServiceFacade.getDsInfoListByIdList(new ArrayList<>(defaultDataSourceCenterMap.keySet()));
+        List<DsServiceInfoVO> data = apiServiceFacade.listByDsQuery(new DsListQuery());
         if(CollectionUtils.isNotEmpty(data)){
-            for (DsServiceInfoVO infoDTO : data){
-                //转换成BatchDataSource
-                BatchDataSourceCenter dataSourceCenter = defaultDataSourceCenterMap.get(infoDTO.getDataInfoId());
-                BatchDataSource batchDataSource = convertDsServiceInfoDTOToDataSource(dataSourceCenter, infoDTO);
+            for (DsServiceInfoVO infoVO : data){
+                BatchDataSource batchDataSource = convertDsServiceInfoVOToDataSource(infoVO);
                 batchDataSourceList.add(batchDataSource);
             }
         }
@@ -3203,163 +3126,6 @@ public class BatchDataSourceService {
         vo.setNumber(fileList.size());
         return vo;
     }
-    /**
-     * 引入数据源
-     * @param vo
-     */
-    @Transactional
-    public void importDataSource(BatchDataSourceImportVO vo){
-        if(CollectionUtils.isEmpty(vo.getDtCenterSourceIds())){
-            throw new RdosDefineException("引入的数据源不能为空！");
-        }
-        BatchDataSourceCenter batchDataSourceCenter = new BatchDataSourceCenter();
-        batchDataSourceCenter.setTenantId(vo.getTenantId());
-        batchDataSourceCenter.setProjectId(vo.getProjectId());
-        batchDataSourceCenter.setCreateUserId(vo.getUserId());
-        batchDataSourceCenter.setIsDefault(0);
-
-        List<BatchDataSourceCenter> dataSourceCenterList = batchDataSourceCenterDao.getDataSourceCenterByInfoIds(vo.getProjectId(), vo.getDtCenterSourceIds());
-        if(CollectionUtils.isNotEmpty(dataSourceCenterList)){
-            throw new RdosDefineException("数据源中心引入数据源失败，存在已经引入过的数据源！");
-        }
-        for(Long dtCenterSourceId : vo.getDtCenterSourceIds()){
-            batchDataSourceCenter.setDtCenterSourceId(dtCenterSourceId);
-            batchDataSourceCenterDao.insertDataSource(batchDataSourceCenter);
-        }
-
-        ProductImportParam appImportParam = new ProductImportParam();
-        appImportParam.setAppType(AppType.RDOS.getType());
-        appImportParam.setDataInfoIdList(vo.getDtCenterSourceIds());
-        appImportParam.setProjectId(vo.getProjectId());
-        Long dtuicTenantId = tenantService.getDtuicTenantId(vo.getTenantId());
-        appImportParam.setDtUicTenantId(dtuicTenantId);
-        try {
-            Boolean data = apiServiceFacade.productImportDs(appImportParam);
-            if(!BooleanUtils.isTrue(data)){
-                throw new RdosDefineException("数据源中心引入数据源失败，请重试！");
-            }
-        } catch (Exception e) {
-            throw new RdosDefineException("数据源中心引入数据源失败，请重试！" + e.getMessage());
-        }
-    }
-
-    /**
-     * 取消引入数据源
-     * @param vo
-     */
-    @Transactional
-    public void cancelImportDataSource(BatchDataSourceCancelImportVO vo){
-        BatchDataSourceCenter dataSourceCenter = batchDataSourceCenterDao.getDataSourceCenterById(vo.getSourceId());
-
-        if(dataSourceCenter == null || dataSourceCenter.getIsDefault() == 1){
-            throw new RdosDefineException("meta数据源不允许取消引入！");
-        }
-        batchDataSourceCenterDao.deleteById(vo.getSourceId(), vo.getUserId());
-
-        ProductImportParam appImportParam = new ProductImportParam();
-        appImportParam.setAppType(AppType.RDOS.getType());
-        appImportParam.setDataInfoIdList(Lists.newArrayList(dataSourceCenter.getDtCenterSourceId()));
-        appImportParam.setProjectId(vo.getProjectId());
-        Long dtuicTenantId = tenantService.getDtuicTenantId(vo.getTenantId());
-        appImportParam.setDtUicTenantId(dtuicTenantId);
-        try {
-            Boolean data = apiServiceFacade.productCancelDs(appImportParam);
-            if(!BooleanUtils.isTrue(data)){
-                throw new RdosDefineException("数据源中心取消引入数据源失败，请重试！");
-            }
-        } catch (Exception e) {
-            throw new RdosDefineException("数据源中心取消引入数据源失败，请重试！" + e.getMessage());
-        }
-    }
-
-    /**
-     * 根据项目id 删除数据源
-     * @param projectId
-     * @param userId
-     */
-    @Transactional
-    public void cancelImportDataSourceByProject(Long tenantId, Long projectId, Long userId){
-        List<BatchDataSourceCenter> dataSourceCenterList = batchDataSourceCenterDao.getInfoIdsByProject(projectId);
-        if(CollectionUtils.isEmpty(dataSourceCenterList)){
-            return;
-        }
-        Set<Long> infoIdSet = dataSourceCenterList.stream().map(BatchDataSourceCenter::getDtCenterSourceId).collect(Collectors.toSet());
-
-        batchDataSourceCenterDao.deleteByProjectId(projectId, userId);
-
-        ProductImportParam appImportParam = new ProductImportParam();
-        appImportParam.setAppType(AppType.RDOS.getType());
-        appImportParam.setDataInfoIdList(new ArrayList<>(infoIdSet));
-        appImportParam.setProjectId(projectId);
-        Long dtuicTenantId = tenantService.getDtuicTenantId(tenantId);
-        appImportParam.setDtUicTenantId(dtuicTenantId);
-        try {
-            Boolean data = apiServiceFacade.productCancelDs(appImportParam);
-            if(!BooleanUtils.isTrue(data)){
-                throw new RdosDefineException("数据源中心取消引入数据源失败，请重试！");
-            }
-        } catch (Exception e) {
-            throw new RdosDefineException("数据源中心取消引入数据源失败，请重试！" + e.getMessage());
-        }
-    }
-
-    /**
-     * 创建项目失败时，删除本地数据源引入信息，并回滚数据源中心的meta数据源
-     * @param projectId
-     * @param userId
-     */
-    @Transactional
-    public void callbackPubDataSourceByProject(Long tenantId, Long projectId, Long userId){
-        try {
-            List<BatchDataSourceCenter> dataSourceCenterList = batchDataSourceCenterDao.getInfoIdsByProject(projectId);
-            if(CollectionUtils.isEmpty(dataSourceCenterList)){
-                return;
-            }
-            Set<Long> infoIdSet = dataSourceCenterList.stream().map(BatchDataSourceCenter::getDtCenterSourceId).collect(Collectors.toSet());
-
-            batchDataSourceCenterDao.deleteByProjectId(projectId, userId);
-
-            Long dtuicTenantId = tenantService.getDtuicTenantId(tenantId);
-            for(Long dataInfoId : infoIdSet){
-                RollDsParam rollDsParam = new RollDsParam();
-                rollDsParam.setAppType(AppType.RDOS.getType());
-                rollDsParam.setDsTenantId(tenantId);
-                rollDsParam.setDsDtuicTenantId(dtuicTenantId);
-                rollDsParam.setDataInfoId(dataInfoId);
-                Boolean data = apiServiceFacade.rollDsInfoById(rollDsParam);
-                if(!BooleanUtils.isTrue(data)){
-                    logger.error("数据源中心取消引入数据源失败，请重试！");
-                }
-            }
-        } catch (Exception e) {
-            logger.error("数据源中心取消引入数据源失败，请重试！" + e.getMessage());
-        }
-    }
-
-    /**
-     * 查询可以引入的数据源列表
-     * @param vo
-     */
-    public PageResult<List<BatchDataSourceAllowImportResultVO>> queryAllowImportDataSource(BatchDataSourceAllowImportVO vo){
-        DsServiceListParam dsServiceListParam = new DsServiceListParam();
-        BeanUtils.copyProperties(vo, dsServiceListParam);
-        dsServiceListParam.setAppType(AppType.RDOS.getType());
-        dsServiceListParam.setDsDtuicTenantId(vo.getDtuicTenantId());
-        com.dtstack.dtcenter.common.pager.PageResult<List<DsServiceListVO>> pageResult = apiServiceFacade.importDsPage(dsServiceListParam);
-
-        List<DsServiceListVO> dsServiceListVOList = pageResult.getData();
-        List<BatchDataSourceAllowImportResultVO> resultVOList = Lists.newArrayList();
-        for (DsServiceListVO dsServiceListVO : dsServiceListVOList){
-            BatchDataSourceAllowImportResultVO resultVO = new BatchDataSourceAllowImportResultVO();
-            BeanUtils.copyProperties(dsServiceListVO, resultVO);
-            resultVOList.add(resultVO);
-        }
-        PageResult<List<BatchDataSourceAllowImportResultVO>> pageResultVO = new PageResult<>();
-        BeanUtils.copyProperties(pageResult, pageResultVO);
-        pageResultVO.setData(resultVOList);
-        return pageResultVO;
-    }
-
 
     /**
      * 创建meta数据源
@@ -3383,139 +3149,6 @@ public class BatchDataSourceService {
         if(data == null){
             throw new RdosDefineException("数据源中心创建默认数据源失败！");
         }
-        Long dataInfoId = data.getDataInfoId();
-        BatchDataSourceCenter batchDataSourceCenter = new BatchDataSourceCenter();
-        batchDataSourceCenter.setTenantId(tenantId);
-        batchDataSourceCenter.setProjectId(projectId);
-        batchDataSourceCenter.setIsDefault(1);
-        batchDataSourceCenter.setDtCenterSourceId(dataInfoId);
-        batchDataSourceCenter.setCreateUserId(userId);
-        batchDataSourceCenterDao.insertDataSource(batchDataSourceCenter);
-
-    }
-
-    /**
-     * 查询已经引入的数据源信息
-     * @param vo
-     * @return
-     */
-    private com.dtstack.dtcenter.common.pager.PageResult<List<DsServiceListVO>> queryHaveImportedDataSource(BatchDataSourceHaveImportVO vo){
-        DsServiceListParam listParam = new DsServiceListParam();
-        listParam.setDsDtuicTenantId(vo.getDtuicTenantId());
-        if(vo.getDtuicTenantId() == null){
-            if(vo.getProjectId() == null){
-                throw new RdosDefineException("查询数据源信息必须传uic租户id");
-            }
-            ScheduleEngineProject project = projectService.getProjectById(vo.getProjectId());
-            Long dtuicTenantId = tenantService.getDtuicTenantId(project.getUicTenantId());
-            listParam.setDsDtuicTenantId(dtuicTenantId);
-        }
-
-        listParam.setAppType(AppType.RDOS.getType());
-        listParam.setDataTypeCodeList(vo.getDataTypeCodeList());
-        listParam.setProjectId(vo.getProjectId());
-        listParam.setSearch(vo.getSearch());
-        listParam.setPageSize(vo.getPageSize());
-        listParam.setCurrentPage(vo.getCurrentPage());
-        listParam.setDataName(vo.getDataName());
-        com.dtstack.dtcenter.common.pager.PageResult<List<DsServiceListVO>> data = apiServiceFacade.appDsPage(listParam);
-        return data;
-    }
-
-    /**
-     * 根据tenantId 获取本租户下所有的数据源信息
-     *
-     * @param tenantId
-     * @return
-     */
-    public List<BatchDataSource> listByTenantId(Long tenantId){
-        List<BatchDataSourceCenter> dataSourceCenterList = batchDataSourceCenterDao.getListByTenantId(tenantId);
-        if (CollectionUtils.isEmpty(dataSourceCenterList)) {
-            return Lists.newArrayList();
-        }
-       return getSourceListByDataSourceCenter(dataSourceCenterList);
-    }
-
-    /**
-     * 页面查询已经引入的数据源信息
-     * @param vo
-     * @return
-     */
-    public PageResult<List<BatchDataSourceHaveImportResultVO>> queryHaveImportedDataSourceView(BatchDataSourceHaveImportVO vo){
-        com.dtstack.dtcenter.common.pager.PageResult<List<DsServiceListVO>> pageResult = queryHaveImportedDataSource(vo);
-        List<DsServiceListVO> dsServiceListDTOList = pageResult.getData();
-
-        PageResult<List<BatchDataSourceHaveImportResultVO>> pageResultVO = new PageResult<>();
-        if(CollectionUtils.isEmpty(dsServiceListDTOList)){
-            BeanUtils.copyProperties(pageResult, pageResultVO);
-            pageResultVO.setData(Lists.newArrayList());
-            return pageResultVO;
-        }
-        //查询projectEngine表 看一下有没有hadoop引擎
-        ProjectEngine hadoopEngine = projectEngineService.getProjectDb(vo.getProjectId(), MultiEngineType.HADOOP.getType());
-        List<Long> infoIdList = dsServiceListDTOList.stream().map(DsServiceListVO::getDataInfoId).collect(Collectors.toList());
-        List<BatchDataSourceCenter> dataSourceCenterList = batchDataSourceCenterDao.getDataSourceCenterByInfoIds(vo.getProjectId(), infoIdList);
-        Map<Long, BatchDataSourceCenter> infoIdMappingCenterMap = dataSourceCenterList.stream().collect(Collectors.toMap(BatchDataSourceCenter::getDtCenterSourceId, Function.identity(), (key1, key2) -> key1));
-
-        List<BatchDataSourceHaveImportResultVO> resultVOList = Lists.newArrayList();
-        for (DsServiceListVO dsServiceListVO : dsServiceListDTOList){
-            BatchDataSourceHaveImportResultVO resultVO = new BatchDataSourceHaveImportResultVO();
-            BeanUtils.copyProperties(dsServiceListVO, resultVO);
-
-            BatchDataSourceCenter batchDataSourceCenter = infoIdMappingCenterMap.get(dsServiceListVO.getDataInfoId());
-            if(batchDataSourceCenter == null){
-                throw new RdosDefineException("数据源中心引入的数据源，未在离线中找到！名称：" + dsServiceListVO.getDataName());
-            }
-            resultVO.setId(batchDataSourceCenter.getId());
-            resultVO.setIsDefault(batchDataSourceCenter.getIsDefault());
-
-            Integer sourceRefCount = batchDataSourceTaskRefService.getSourceRefCount(batchDataSourceCenter.getId());
-            if(sourceRefCount > 0){
-                resultVO.setActive(1);
-            } else {
-                resultVO.setActive(0);
-            }
-
-//            //查询数据源映射信息
-//            BatchTestProduceDataSource batchTestProduceDataSource = batchTestProduceDataSourceDao.getBySourceIdOrLinkSourceId(batchDataSourceCenter.getId());
-//            resultVO.setLinkStatus(0);
-//            if(batchTestProduceDataSource != null){
-//                resultVO.setLinkStatus(1);
-//                if(resultVO.getId().equals(batchTestProduceDataSource.getProduceDataSourceId())){
-//                    resultVO.setLinkSourceId(batchTestProduceDataSource.getTestDataSourceId());
-//                } else{
-//                    resultVO.setLinkSourceId(batchTestProduceDataSource.getProduceDataSourceId());
-//                }
-//            }
-//
-//            resultVO.setHasHadoopEngine(!Objects.isNull(hadoopEngine));
-            resultVOList.add(resultVO);
-        }
-        BeanUtils.copyProperties(pageResult, pageResultVO);
-        pageResultVO.setData(resultVOList);
-        return pageResultVO;
-    }
-
-    /**
-     * 根据离线数据源id 查询 数据源中心的id
-     * @param sourceId
-     * @return
-     */
-    public Long getInfoIdByCenterId(Long sourceId) {
-        return batchDataSourceCenterDao.getInfoIdByCenterId(sourceId);
-    }
-
-    /**
-     * 根据数据源中心id获取默认数据源对应的projectId
-     * @param dataInfoId
-     * @return
-     */
-    public BatchDataSourceCenter getDefaultDataSourceCenterByDataInfoId(Long dataInfoId) {
-        BatchDataSourceCenter batchDataSourceCenter = batchDataSourceCenterDao.getDefaultDataSourceCenterByDataInfoId(dataInfoId);
-        if (batchDataSourceCenter == null) {
-            throw new RdosDefineException("查询不到对应的默认数据源，dataInfoId：" + dataInfoId);
-        }
-        return batchDataSourceCenter;
     }
 
 }

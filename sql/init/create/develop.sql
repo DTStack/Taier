@@ -127,7 +127,7 @@ CREATE TABLE `rdos_batch_catalogue` (
   KEY `index_catologue_name` (`project_id`,`node_pid`,`node_name`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=132 DEFAULT CHARSET=utf8 COMMENT ='文件夹、目录表';
 
-
+-- 废弃
 CREATE TABLE `rdos_batch_data_source` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `data_name` varchar(128) NOT NULL COMMENT '数据源名称',

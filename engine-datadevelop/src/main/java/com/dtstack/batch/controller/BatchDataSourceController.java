@@ -298,19 +298,6 @@ public class BatchDataSourceController {
         }.execute();
     }
 
-    @PostMapping(value = "checkPermission")
-    @ApiOperation(value = "检查权限")
-    @Security(code = AuthCode.DATAINTEGRATION_BATCH_EDIT)
-    public R<Void> checkPermission() {
-        return new APITemplate<Void>() {
-            @Override
-            protected Void process() {
-                batchDataSourceService.checkPermission();
-                return null;
-            }
-        }.execute();
-    }
-
     @PostMapping(value = "getTableInfoByDataSource")
     @ApiOperation(value = "根据数据源获取表信息")
     @Security(code = AuthCode.DATAINTEGRATION_BATCH_QUERY)
@@ -332,58 +319,6 @@ public class BatchDataSourceController {
             protected BatchFtpPreResultVO process() {
                 FtpRegexVO ftpRegexVO = batchDataSourceService.ftpRegexPre(vo.getTaskParamList(), vo.getSourceId(), vo.getRegexStr());
                 return DataSourceMapstructTransfer.INSTANCE.ftpRegexVOToBatchFtpPreResultVO(ftpRegexVO);
-            }
-        }.execute();
-    }
-
-
-    @PostMapping(value = "queryAllowImportDataSource")
-    @ApiOperation(value = "获取所有可引入的数据源列表")
-    @Security(code = AuthCode.DATAINTEGRATION_BATCH_QUERY)
-    public R<PageResult<List<BatchDataSourceAllowImportResultVO>>> queryAllowImportDataSource(@RequestBody BatchDataSourceAllowImportVO vo) {
-        return new APITemplate<PageResult<List<BatchDataSourceAllowImportResultVO>>>() {
-            @Override
-            protected PageResult<List<BatchDataSourceAllowImportResultVO>> process() {
-                return batchDataSourceService.queryAllowImportDataSource(vo);
-            }
-        }.execute();
-    }
-
-    @PostMapping(value = "queryHaveImportedDataSource")
-    @ApiOperation(value = "获取所有已经引入的数据源列表")
-    @Security(code = AuthCode.DATAINTEGRATION_BATCH_QUERY)
-    public R<PageResult<List<BatchDataSourceHaveImportResultVO>>> queryHaveImportedDataSource(@RequestBody BatchDataSourceHaveImportVO vo) {
-        return new APITemplate<PageResult<List<BatchDataSourceHaveImportResultVO>>>() {
-            @Override
-            protected PageResult<List<BatchDataSourceHaveImportResultVO>> process() {
-                return batchDataSourceService.queryHaveImportedDataSourceView(vo);
-            }
-        }.execute();
-    }
-
-
-    @PostMapping(value = "importDataSource")
-    @ApiOperation(value = "引入数据源")
-    @Security(code = AuthCode.DATAINTEGRATION_BATCH_QUERY)
-    public R<Void> importDataSource(@RequestBody BatchDataSourceImportVO vo) {
-        return new APITemplate<Void>() {
-            @Override
-            protected Void process() {
-                batchDataSourceService.importDataSource(vo);
-                return null;
-            }
-        }.execute();
-    }
-
-    @PostMapping(value = "cancelImportDataSource")
-    @ApiOperation(value = "取消引入数据源")
-    @Security(code = AuthCode.DATAINTEGRATION_BATCH_QUERY)
-    public R<Void> cancelImportDataSource(@RequestBody BatchDataSourceCancelImportVO vo) {
-        return new APITemplate<Void>() {
-            @Override
-            protected Void process() {
-                batchDataSourceService.cancelImportDataSource(vo);
-                return null;
             }
         }.execute();
     }
