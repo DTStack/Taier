@@ -3,6 +3,7 @@ import { Layout, Menu, Dropdown, Icon, message } from 'antd';
 import { hashHistory } from 'react-router';
 import { AppContainer } from '../views/registerMicroApps';
 import { getItem, setItem, clear } from '../utils/session';
+import { clear as localClear } from '../utils/local';
 import { USER_NAME } from '../consts';
 
 const { Header, Content } = Layout;
@@ -29,6 +30,7 @@ const userMenu = (
                             return message.error('登出失败');
                         }
                         clear();
+                        localClear();
                         hashHistory.push({
                             pathname: '/login',
                         });

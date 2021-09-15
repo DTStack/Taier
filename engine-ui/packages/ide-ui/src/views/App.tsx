@@ -21,9 +21,12 @@ function App(props: any) {
     return (
         <ConfigProvider
             prefixCls={packageName}
-            getPopupContainer={() =>
-                document.body!.querySelector('div[id="app"]') as HTMLElement
-            }
+            getPopupContainer={(node) => {
+                if (node) return node;
+                return document.body!.querySelector(
+                    'div[id="app"]'
+                ) as HTMLElement;
+            }}
         >
             <Layout history={history}>
                 <Provider store={store}>

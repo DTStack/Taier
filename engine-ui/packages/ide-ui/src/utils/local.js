@@ -7,3 +7,8 @@ export function getItem(key) {
     // eslint-disable-next-line no-undef
     return localStorage.getItem(key);
 }
+
+export function clear() {
+    // eslint-disable-next-line no-undef
+    return localStorage.clear();
+}

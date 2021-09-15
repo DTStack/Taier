@@ -520,6 +520,7 @@ class ResModal extends React.Component<any, any> {
     form: any;
     handleSubmit() {
         const form = this.form;
+
         form.validateFields((err: any, values: any) => {
             if (!err) {
                 values.file = this.state.file.files[0];
