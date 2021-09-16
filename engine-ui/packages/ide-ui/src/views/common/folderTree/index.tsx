@@ -253,104 +253,127 @@ function createTask() {
     });
 }
 
-function onSelectFile() {
-    molecule.folderTree.onSelectFile((file) => {
-        if (file.data.taskType === TASK_TYPE.SQL) {
-            const id = file.id;
-            ajax.getOfflineTaskByID({ id }).then((res) => {
-                const { success, data } = res;
-                if (success) {
-                    // save to redux
-                    store.dispatch({
-                        type: workbenchAction.LOAD_TASK_DETAIL,
-                        payload: data,
-                    });
-                    store.dispatch({
-                        type: workbenchAction.OPEN_TASK_TAB,
-                        payload: id,
-                    });
+// TODO: refactor, this method should be supported by molecule
+function getGroupIdByTaskId (taskId: string): unknown {
+    const groups = molecule.editor.getState().groups
+    let targetGroupId
+    for (let i = 0; i < (groups?.length ?? 0); i ++ ) {
+        const { id, data } = groups?.[i]!
+        if (data?.find(tab => tab.id === taskId)) {
+            targetGroupId = id;
+            break;
+        }
+    }
+    return targetGroupId
+}
 
-                    store.dispatch({
-                        type: editorAction.GET_TAB,
-                        key: id,
-                    });
+// TODO: refactor, tab 数据可以从molecule中取出，无需存在redux中
+export function openTaskInTab (taskId: any, file?: any) {
+    if (!file) { // 通过id打开任务
+        file = molecule.folderTree.get(taskId)
+        if (!file) return message.error('此任务不存在')
+    }
+    if (molecule.editor.isOpened(taskId.toString())) {
+        const groupId = getGroupIdByTaskId(taskId.toString())
+        molecule.editor.setActive(groupId as number, taskId.toString())
+        return
+    }
 
-                    // open in molecule
-                    const tabData = {
-                        id: id.toString(),
-                        name: file.name,
-                        data: {
-                            ...data,
-                            value: data.sqlText,
-                            language: 'sparksql',
-                            taskDesc: file.data.taskDesc,
-                        },
-                        breadcrumb:
-                            file.location?.split('/')?.map((item: string) => ({
-                                id: item,
-                                name: item,
-                            })) || [],
-                    };
-                    molecule.editor.open(tabData);
-                    molecule.editor.updateActions([
-                        { id: TASK_RUN_ID, disabled: false },
-                        { id: TASK_SAVE_ID, disabled: false },
-                        { id: TASK_SUBMIT_ID, disabled: false },
-                    ]);
-                }
-            });
-        } else if (file.data.taskType === TASK_TYPE.SYNC) {
-            const id = file.id;
-            ajax.getOfflineTaskByID({ id }).then((res) => {
-                const { success, data } = res;
-                if (success) {
-                    // save to redux
-                    store.dispatch({
-                        type: workbenchAction.LOAD_TASK_DETAIL,
-                        payload: data,
-                    });
-                    store.dispatch({
-                        type: workbenchAction.OPEN_TASK_TAB,
-                        payload: id,
-                    });
+    const { id: fileId, name: fileName, data: fileData, location } = file;
+    ajax.getOfflineTaskByID({ id: fileId }).then((res) => {
+        if (fileData.taskType === TASK_TYPE.SQL) {
+        
+            const { success, data } = res;
+            if (success) {
+                // save to redux
+                store.dispatch({
+                    type: workbenchAction.LOAD_TASK_DETAIL,
+                    payload: data,
+                });
+                store.dispatch({
+                    type: workbenchAction.OPEN_TASK_TAB,
+                    payload: fileId,
+                });
 
-                    store.dispatch({
-                        type: editorAction.GET_TAB,
-                        key: id,
-                    });
+                store.dispatch({
+                    type: editorAction.GET_TAB,
+                    key: fileId,
+                });
 
-                    // open in molecule
-                    const tabData = {
-                        id,
-                        name: file.name,
-                        data: {
-                            ...data,
-                            value: data.sqlText,
-                            taskDesc: file.data.taskDesc,
-                        },
-                        breadcrumb:
-                            file.location?.split('/')?.map((item: string) => ({
-                                id: item,
-                                name: item,
-                            })) || [],
-                        renderPane: () => {
-                            return <DataSync currentTabData={tabData} />;
-                        },
-                    };
-                    molecule.editor.open(tabData);
-                    molecule.editor.updateActions([
-                        { id: TASK_RUN_ID, disabled: false },
-                        { id: TASK_SAVE_ID, disabled: false },
-                        { id: TASK_SUBMIT_ID, disabled: false },
-                    ]);
-                }
-            });
+                // open in molecule
+                const tabData = {
+                    id: fileId.toString(),
+                    name: fileName,
+                    data: {
+                        ...data,
+                        value: data.sqlText,
+                        language: 'sparksql',
+                        taskDesc: fileData.taskDesc,
+                    },
+                    breadcrumb:
+                        location?.split('/')?.map((item: string) => ({
+                            id: item,
+                            name: item,
+                        })) || [],
+                };
+                molecule.editor.open(tabData);
+                molecule.editor.updateActions([
+                    { id: TASK_RUN_ID, disabled: false },
+                    { id: TASK_SAVE_ID, disabled: false },
+                    { id: TASK_SUBMIT_ID, disabled: false },
+                ]);
+            }
+
+        } else if (fileData.taskType === TASK_TYPE.SYNC) {
+            const { success, data } = res;
+            if (success) {
+                // save to redux
+                store.dispatch({
+                    type: workbenchAction.LOAD_TASK_DETAIL,
+                    payload: data,
+                });
+                store.dispatch({
+                    type: workbenchAction.OPEN_TASK_TAB,
+                    payload: fileId,
+                });
+
+                // open in molecule
+                const tabData = {
+                    id: fileId.toString(),
+                    name: fileName,
+                    data: {
+                        ...data,
+                        value: data.sqlText,
+                        taskDesc: fileData.taskDesc,
+                    },
+                    breadcrumb:
+                        location?.split('/')?.map((item: string) => ({
+                            id: item,
+                            name: item,
+                        })) || [],
+                    renderPane: () => {
+                        return <DataSync currentTabData={tabData} />;
+                    },
+                };
+                molecule.editor.open(tabData);
+                molecule.editor.updateActions([
+                    { id: TASK_RUN_ID, disabled: false },
+                    { id: TASK_SAVE_ID, disabled: false },
+                    { id: TASK_SUBMIT_ID, disabled: false }
+                ]);
+            }
         } else {
             resetEditorGroup();
         }
+    });
 
-        molecule.explorer.forceUpdate();
-        updateStatusBarLanguage(getStatusBarLanguage(file.data.taskType));
+    molecule.explorer.forceUpdate();
+    updateStatusBarLanguage(getStatusBarLanguage(fileData.taskType));
+}
+
+function onSelectFile() {
+    molecule.folderTree.onSelectFile((file) => {
+        openTaskInTab(file.id, file)
     });
 }
 
@@ -474,7 +497,7 @@ export default class FolderTreeExtension implements IExtension {
         init();
         initContextMenu();
 
-        onLoadTree;
+        onLoadTree();
 
         createTask();
         onSelectFile();
