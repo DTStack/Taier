@@ -33,23 +33,8 @@ function Search(props) {
     }
   };
 
-  const getProductList = async () => {
-    let { data, success } = await API.productList();
-    if (success) {
-      Array.isArray(data) &&
-        data.unshift({
-          appName: '全部',
-          appType: 'all',
-        });
-      setProductList(data || []);
-    } else {
-      message.error('获取授权产品下拉框失败！');
-    }
-  };
-
   useEffect(() => {
     getTypeList();
-    getProductList();
   }, []);
 
   // 新增数据源
