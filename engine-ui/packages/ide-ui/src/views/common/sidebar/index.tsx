@@ -1,6 +1,10 @@
 import React from 'react';
 import molecule from 'molecule';
-import { IExtension } from 'molecule/esm/model';
+import {
+    IExtension,
+    CONTEXT_MENU_SEARCH,
+    ACTIVITY_BAR_GLOBAL_ACCOUNT,
+} from 'molecule/esm/model';
 import ResourceManager from '../../resourceManager';
 
 export const folderMenu = [
@@ -23,7 +27,7 @@ function initResourceManager() {
         id: 'ResourceManager',
         icon: 'package',
         name: '资源管理',
-        title: '资源管理'
+        title: '资源管理',
     };
 
     const headerToolBar = [
@@ -58,8 +62,12 @@ function initFunctionManager() {
         id: 'FunctionManager',
         icon: 'symbol-method',
         name: '函数管理',
-        title: '函数管理'
+        title: '函数管理',
     };
+    molecule.activityBar.remove([
+        CONTEXT_MENU_SEARCH,
+        ACTIVITY_BAR_GLOBAL_ACCOUNT,
+    ]);
     molecule.activityBar.add(functionManager);
     molecule.sidebar.add({
         id: functionManager.id,
