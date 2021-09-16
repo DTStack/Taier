@@ -10,7 +10,12 @@ import Ajax from '../../../api';
 const Panel = Collapse.Panel;
 const RadioGroup = Radio.Group;
 
-const  getDefaultScheduleConf = (value: any) => {
+const radioStyle: any = {
+    display: 'block',
+    height: '30px',
+    lineHeight: '30px',
+};
+const getDefaultScheduleConf = (value: any) => {
     const scheduleConf: any = {
         0: {
             beginMin: 0,
@@ -60,11 +65,15 @@ export class SchedulingConfig extends React.Component<any, any> {
     form: any;
 
     componentDidMount() {
-        console.log('++++++mount +++++') 
         const { current, isIncrementMode } = this.props;
         if(!current) return 
-        const tabData = current?.tab?.data;
-        const scheduleConf = JSON.parse(tabData.scheduleConf);
+        const tabData = current.tab.data!;
+        let scheduleConf
+        try {
+            scheduleConf = JSON.parse(tabData.scheduleConf);
+        } catch (error) {
+            scheduleConf = {}
+        }
         let selfReliance = 0;
         // 此处为兼容代码
         // scheduleConf.selfReliance兼容老代码true or false 值
@@ -121,7 +130,12 @@ export class SchedulingConfig extends React.Component<any, any> {
     handleScheduleConf = () => {
         const { current, changeScheduleConf } = this.props;
         const tabData = current.tab.data;
-        let defaultScheduleConf = JSON.parse(tabData.scheduleConf);
+        let defaultScheduleConf: any
+        try {
+            defaultScheduleConf = JSON.parse(tabData.scheduleConf);
+        } catch (error) {
+            defaultScheduleConf = {}
+        }
         if (!defaultScheduleConf.periodType) {
             defaultScheduleConf = getDefaultScheduleConf(2);
         }
@@ -190,9 +204,40 @@ export class SchedulingConfig extends React.Component<any, any> {
         
     }
 
+    getInitScheduleConf = () => {
+        const { isWorkflowNode, current } = this.props
+        const tabData = current.tab.data
+        let initConf: any
+        try {
+            initConf = JSON.parse(tabData.scheduleConf)
+        } catch (error) {
+            initConf = {}
+        }
+
+        let scheduleConf = Object.assign(getDefaultScheduleConf(0), {
+            beginDate: '2001-01-01',
+            endDate: '2121-01-01',
+        });
+
+        scheduleConf = Object.assign(scheduleConf, initConf);
+        // 工作流更改默认调度时间配置
+        if (isWorkflowNode) {
+            scheduleConf = Object.assign(
+                getDefaultScheduleConf(2),
+                {
+                    beginDate: '2001-01-01',
+                    endDate: '2121-01-01',
+                },
+                scheduleConf
+            );
+            scheduleConf.periodType = 2;
+        }
+
+        return scheduleConf
+    }
+
     render() {
         const { selfReliance } = this.state;
-
         const {
             current,
             isWorkflowNode,
@@ -212,36 +257,8 @@ export class SchedulingConfig extends React.Component<any, any> {
                 </div>
             );
         }
-        const tabData = current?.tab?.data;
-
-        const initConf = tabData?.scheduleConf;
-
-        let scheduleConf = Object.assign(getDefaultScheduleConf(0), {
-            beginDate: '2001-01-01',
-            endDate: '2121-01-01',
-        });
-
-        if (initConf !== '') {
-            scheduleConf = Object.assign(scheduleConf, JSON.parse(initConf));
-        }
-        // 工作流更改默认调度时间配置
-        if (isWorkflowNode) {
-            scheduleConf = Object.assign(
-                getDefaultScheduleConf(2),
-                {
-                    beginDate: '2001-01-01',
-                    endDate: '2121-01-01',
-                },
-                scheduleConf
-            );
-            scheduleConf.periodType = 2;
-        }
-
-        const radioStyle: any = {
-            display: 'block',
-            height: '30px',
-            lineHeight: '30px',
-        };
+        const tabData = current.tab.data;
+        const scheduleConf = this.getInitScheduleConf()
 
         return (
             <molecule.component.Scrollable>
@@ -266,11 +283,11 @@ export class SchedulingConfig extends React.Component<any, any> {
                                 wrappedComponentRef={(el: any) =>
                                     (this.form = el)
                                 }
-                                key={`${tabData.id}-${scheduleConf.periodType}`}
+                                key={`${tabData.id}-${scheduleConf?.periodType}`}
                             />
                         </Panel>
                         {!isWorkflowNode &&
-                            tabData?.taskType !== TASK_TYPE.VIRTUAL_NODE && (
+                            tabData.taskType !== TASK_TYPE.VIRTUAL_NODE && (
                             <Panel key="2" header="任务间依赖">
                                 <TaskDependence
                                     current={current}

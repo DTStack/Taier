@@ -5,6 +5,7 @@ import { Row, Col, Form, Button, Table, Select, message } from 'antd';
 import RecommendTaskModal from './recommentTaskModal';
 import { TASK_TYPE } from '../../../comm/const';
 import ajax from "../../../api";
+import { openTaskInTab } from '../../common/folderTree'; 
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -58,7 +59,7 @@ class TaskDependence extends React.Component<any, any> {
     }
 
     goEdit(task: any) {
-        // TODO: 打开任务tab
+        openTaskInTab(task.id)
     }
 
     initColumn() {
@@ -192,6 +193,7 @@ class TaskDependence extends React.Component<any, any> {
                         onSearch={debounce(this.onTaskVOSSearch, 500, {
                             maxWait: 2000,
                         })}
+                        value={undefined}
                         showSearch
                         style={{ width: '100%' }}
                     >
