@@ -84,7 +84,7 @@ class SourceForm extends React.Component<any, any> {
                 ? ''
                 : sourceMap?.schema
                     ? sourceMap?.schema
-                    : sourceMap.type.schema) || form.getFieldValue('schema');
+                    : sourceMap?.type?.schema) || form.getFieldValue('schema');
         let tableName = '';
         let sourceId = '';
         if (sourceList) {
@@ -342,6 +342,11 @@ class SourceForm extends React.Component<any, any> {
             (dataType === DATA_SOURCE.ORACLE ||
                 dataType === DATA_SOURCE.POSTGRESQL) &&
                 this.getSchemaList(value);
+
+            (dataType !== DATA_SOURCE.KINGBASE
+                && dataType !== DATA_SOURCE.S3
+                && dataType !== DATA_SOURCE.ADB
+            ) && this.getTableList(value);
         }, 0);
         handleSourceChange(this.getDataObjById(value));
         this.resetTable();
@@ -582,7 +587,7 @@ class SourceForm extends React.Component<any, any> {
             this.props;
 
         const disablePreview =
-            isEmpty(sourceMap) || sourceMap.type.type === DATA_SOURCE.HDFS;
+            isEmpty(sourceMap) || sourceMap?.type?.type === DATA_SOURCE.HDFS;
         const { tableListLoading} = this.state;
         const getPopupContainer = this.props.getPopupContainer;
         const disableFix = { disabled: disablePreview };
@@ -817,7 +822,7 @@ class SourceForm extends React.Component<any, any> {
         let formItem: any;
 
         if (isEmpty(sourceMap)) return null;
-        switch (sourceMap.type.type) {
+        switch (sourceMap?.type?.type) {
             case DATA_SOURCE.MYSQL: {
                 const tableValue = isEmpty(sourceMap)
                     ? ''

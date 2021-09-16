@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Icon, message, Modal, Tag, Form, Row, Col, Input, Button } from 'antd';
+import { Icon, message, Modal, Tag, Form, Row, Col, Input } from 'antd';
 import molecule from 'molecule';
 import { getEditorInitialActions, IExtension } from 'molecule/esm/model';
 import { searchById } from 'molecule/esm/services/helper';
@@ -10,7 +10,6 @@ import {
     TASK_RUN_ID,
     TASK_STOP_ID,
     TASK_SUBMIT_ID,
-    TASK_RELEASE_ID,
     TASK_OPS_ID,
     OUTPUT_LOG,
     TASK_SAVE_ID,
@@ -19,7 +18,7 @@ import store from '../../../store';
 import { matchTaskParams, filterSql, formatDateTime } from '../../../comm';
 import { TASK_TYPE, formItemLayout } from '../../../comm/const';
 import { debounce } from 'lodash';
-import { execSql, stopSql } from '../../../controller/editor/editorAction';
+import { execSql, stopSql, execDataSync, stopDataSync } from '../../../controller/editor/editorAction';
 import ajax from '../../../api';
 import ReactDOM from 'react-dom';
 import Result from '../../task/result';
@@ -161,7 +160,7 @@ function RenderPublish({ current }: any) {
         <Modal
             wrapClassName="vertical-center-modal"
             title="提交任务"
-            getContainer={() => document.getElementById('molecule')}
+            getContainer={() => document.getElementById('molecule') as any}
             prefixCls="ide-ui-modal"
             style={{ height: '600px', width: '600px' }}
             visible={visible}
@@ -230,68 +229,73 @@ function emitEvent() {
                         (tab: any) => tab.id === currentTaskId
                     );
 
-                    const params: any = {
-                        taskVariables: currentTab?.data.taskVariables || [],
-                        singleSession: false, // 是否为单 session 模式, 为 true 时，支持batchSession 时，则支持批量SQL，false 则相反
-                        taskParams: currentTab?.data.taskParams,
-                    };
+                    if (task.taskType === TASK_TYPE.SYNC) {
+                        const params: any = { taskId: task.id, name: task.name, taskParams: task?.taskParams };
+                        execDataSync(task.id, params)(store.dispatch);
+                    } else {
+                        const params: any = {
+                            taskVariables: currentTab?.data.taskVariables || [],
+                            singleSession: false, // 是否为单 session 模式, 为 true 时，支持batchSession 时，则支持批量SQL，false 则相反
+                            taskParams: currentTab?.data.taskParams,
+                        };
 
-                    // [TODO]
-                    const sqls = filterSql(currentTab?.data.value);
-                    execSql(
-                        currentTab?.id,
-                        task,
-                        params,
-                        sqls
-                    )(store.dispatch).then(() => {
-                        const results =
-                            (store.getState() as any).editor.console[
-                                currentTab.id!
-                            ]?.results || [];
+                        // [TODO]
+                        const sqls = filterSql(currentTab?.data.value);
+                        execSql(
+                            currentTab?.id,
+                            task,
+                            params,
+                            sqls
+                        )(store.dispatch).then(() => {
+                            const results =
+                                (store.getState() as any).editor.console[
+                                    currentTab.id!
+                                ]?.results || [];
 
-                        // to get the index of this result
-                        const panels = molecule.panel.getState().data || [];
-                        const resultPanles = panels.filter((p) =>
-                            p.name?.includes('结果')
-                        );
-                        const lastIndexOf = Number(
-                            resultPanles[resultPanles.length - 1]?.name?.slice(
-                                2
-                            ) || ''
-                        );
-                        // Open the result panel
-                        molecule.panel.open({
-                            id: `结果${lastIndexOf + 1}`,
-                            name: `结果 ${lastIndexOf + 1}`,
-                            closable: true,
-                            renderPane: () => (
-                                <Result
-                                    isShow
-                                    data={results}
-                                    tab={{
-                                        tableType: 0,
-                                    }}
-                                    extraView={null}
-                                />
-                            ),
+                            // to get the index of this result
+                            const panels = molecule.panel.getState().data || [];
+                            const resultPanles = panels.filter((p) =>
+                                p.name?.includes('结果')
+                            );
+                            const lastIndexOf = Number(
+                                resultPanles[resultPanles.length - 1]?.name?.slice(
+                                    2
+                                ) || ''
+                            );
+                            // Open the result panel
+                            molecule.panel.open({
+                                id: `结果${lastIndexOf + 1}`,
+                                name: `结果 ${lastIndexOf + 1}`,
+                                closable: true,
+                                renderPane: () => (
+                                    <Result
+                                        isShow
+                                        data={results}
+                                        tab={{
+                                            tableType: 0,
+                                        }}
+                                        extraView={null}
+                                    />
+                                ),
+                            });
+                            // update the status of buttons
+                            molecule.editor.updateActions([
+                                {
+                                    id: TASK_SAVE_ID,
+                                    disabled: false,
+                                },
+                                {
+                                    id: TASK_RUN_ID,
+                                    icon: 'play',
+                                    disabled: false,
+                                },
+                                {
+                                    id: TASK_STOP_ID,
+                                    disabled: true,
+                                },
+                            ]);
                         });
-                        // update the status of buttons
-                        molecule.editor.updateActions([
-                            {
-                                id: TASK_SAVE_ID,
-                                disabled: false,
-                            },
-                            {
-                                id: TASK_RUN_ID,
-                                icon: 'play',
-                                disabled: false,
-                            },
-                            {
-                                id: TASK_STOP_ID,
-                                disabled: true,
-                            },
-                        ]);
-                    });
+                    }
                 }
                 break;
             }
@@ -301,16 +305,20 @@ function emitEvent() {
                 ).workbenchReducer;
                 const task = tabs.find((tab: any) => tab.id === currentTaskId);
 
-                stopSql(task.id, task, false)(store.dispatch, store.getState);
+                if (task.taskType === TASK_TYPE.SYNC) {
+                    stopDataSync(task.id, true)(store.dispatch, store.getState);
+                } else {
+                    stopSql(task.id, task, false)(store.dispatch, store.getState);
+                }
                 molecule.editor.updateActions([
                     {
                         id: TASK_RUN_ID,
                         icon: 'play',
-                        disabled: true,
+                        disabled: false,
                     },
                     {
                         id: TASK_STOP_ID,
-                        disabled: false,
+                        disabled: true,
                     },
                 ]);
                 break;

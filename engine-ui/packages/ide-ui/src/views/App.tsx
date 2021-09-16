@@ -22,7 +22,7 @@ function App(props: any) {
         <ConfigProvider
             prefixCls={packageName}
             getPopupContainer={(node) => {
-                if (node) return node;
+                if (node) return document.body;
                 return document.body!.querySelector(
                     'div[id="app"]'
                 ) as HTMLElement;
