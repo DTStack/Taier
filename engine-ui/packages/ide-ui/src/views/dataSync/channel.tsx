@@ -51,7 +51,7 @@ class ChannelForm extends React.Component<any, any> {
         if (this.props.setting.isRestore) {
             this.loadIdFields();
         }
-        if (targetType.type !== DATA_SOURCE.INCEPTOR)
+        if (targetType?.type !== DATA_SOURCE.INCEPTOR)
             return this.setState({ isTransTable: false });
         this.setState({
             loading: true,
@@ -187,7 +187,7 @@ class ChannelForm extends React.Component<any, any> {
             sourceMap,
             form: { getFieldDecorator },
         } = this.props;
-        const sourceType = sourceMap.type.type;
+        const sourceType = sourceMap?.type?.type;
         const targetType = targetMap?.type?.type;
         const isClickHouse =
             targetType === DATA_SOURCE.CLICK_HOUSE ||

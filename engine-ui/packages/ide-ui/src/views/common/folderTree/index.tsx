@@ -314,6 +314,11 @@ function onSelectFile() {
                         payload: id,
                     });
 
+                    store.dispatch({
+                        type: editorAction.GET_TAB,
+                        key: id,
+                    });
+
                     // open in molecule
                     const tabData = {
                         id,
@@ -335,6 +340,8 @@ function onSelectFile() {
                     molecule.editor.open(tabData);
                     molecule.editor.updateActions([
                         { id: TASK_RUN_ID, disabled: false },
+                        { id: TASK_SAVE_ID, disabled: false },
+                        { id: TASK_SUBMIT_ID, disabled: false },
                     ]);
                 }
             });
