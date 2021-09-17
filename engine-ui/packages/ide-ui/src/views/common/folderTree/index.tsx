@@ -3,7 +3,9 @@ import { message } from 'antd';
 import { FileTypes, IExtension, TreeNodeModel } from 'molecule/esm/model';
 import { localize } from 'molecule/esm/i18n/localize';
 import molecule from 'molecule/esm';
+
 import Open from '../../task/open';
+import EditFolder from '../../task/editFolder';
 import {
     convertToTreeNode,
     getCatalogueViaNode,
@@ -241,11 +243,14 @@ function createTask() {
             // work through addNode function
             molecule.folderTree.add(
                 new TreeNodeModel({
-                    id: new Date().getTime(),
+                    id: `create_folder_${new Date().getTime()}`,
                     name: '',
                     isLeaf: false,
                     fileType: FileTypes.Folder,
                     isEditable: true,
+                    data: {
+                        parentId: id
+                    }
                 }),
                 id
             );
@@ -253,8 +258,64 @@ function createTask() {
     });
 }
 
+function editTreeNodeName() {
+    function renameFile (file: any) {
+        const { data, name } = file
+        ajax.saveOfflineJobData({
+            ...data, name
+        }).then((res: any) => {
+            if (res.code === 1) {
+                updateTree({ catalogueType: 'TaskDevelop', parentId: data.parentId })
+                molecule.explorer.forceUpdate();
+            }
+        });
+    }
+    
+    function createFolder (file: any) {
+        const { name, data: { parentId } } = file
+        ajax.addOfflineCatalogue({
+            nodeName: name,
+            nodePid: parentId
+        }).then((res: any) => {
+            if (res.code === 1) {
+                updateTree({ catalogueType: 'TaskDevelop', parentId })
+                molecule.explorer.forceUpdate();
+            }
+        });
+    
+    }
+    
+    function renameFolder (file: any) {
+        const { name, data: { id, parentId } } = file
+        ajax.editOfflineCatalogue({
+            type: 'folder',
+            engineCatalogueType: 0,
+            id,
+            nodeName: name,
+            nodePid: parentId,
+        }).then((res: any) => {
+            if (res.code === 1) {
+                updateTree({ catalogueType: 'TaskDevelop', parentId })
+                molecule.explorer.forceUpdate();
+            }
+        });
+    }
+    molecule.folderTree.onUpdateFileName((file) => {
+        const { fileType, id } = file
+        if (fileType === 'File') {
+            renameFile(file)
+        } else {
+            if (`${id}`.startsWith('create_folder_')){
+                createFolder(file)
+            } else {
+                renameFolder(file)
+            }
+        }
+    })
+}
+
 // TODO: refactor, this method should be supported by molecule
-function getGroupIdByTaskId (taskId: string): unknown {
+function getGroupIdByTaskId(taskId: string): unknown {
     const groups = molecule.editor.getState().groups
     let targetGroupId
     for (let i = 0; i < (groups?.length ?? 0); i ++ ) {
@@ -397,59 +458,66 @@ function contextMenu() {
         switch (menu.id) {
             case FOLDERTREE_CONTEXT_EDIT: {
                 resetEditorGroup();
+                const isFile = treeNode!.fileType === 'File'
 
-                const tabId = `createTask_${new Date().getTime()}`;
+                const tabId = isFile ? 
+                    `editTask_${new Date().getTime()}` 
+                    : `editFolder_${new Date().getTime()}`;
 
+                const afterSubmit = (params: any, values: any) => {
+                    const nextTreeData = cloneDeep(treeNode!);
+
+                    nextTreeData.data = params;
+                    nextTreeData.name = values.name;
+
+                    molecule.folderTree.update(treeNode!);
+
+                    // 确保 editor 的 tab 的 id 和 tree 的 id 保持一致
+                    // 同步去更新 tab 的 name
+                    const isOpened = molecule.editor.isOpened(
+                        treeNode!.id
+                    );
+                    if (isOpened) {
+                        molecule.editor.updateTab({
+                            id: treeNode!.id,
+                            name: values.name,
+                        });
+                    }
+
+                    molecule.editor.closeTab(tabId, 1);
+                    molecule.explorer.forceUpdate();
+
+                    // 关闭后编辑任务的 tab 后，需要去更新 actions 的状态
+                    const { current } =
+                        molecule.editor.getState();
+                    if (
+                        current?.tab?.data.taskType ===
+                        TASK_TYPE.SQL
+                    ) {
+                        molecule.editor.updateActions([
+                            {
+                                id: TASK_RUN_ID,
+                                disabled: false,
+                            },
+                        ]);
+                    }
+                }
+                
                 const onSubmit = (values: any) => {
                     return new Promise<boolean>((resolve) => {
                         const params = {
                             id: treeNode!.data.id,
-                            ...values,
                             isUseComponent: 0,
                             nodePid: 233,
                             computeType: 1,
                             lockVersion: 0,
                             version: 0,
+                            ...values
                         };
                         ajax.addOfflineTask(params)
                             .then((res: any) => {
                                 if (res.code === 1) {
-                                    const nextTreeData = cloneDeep(treeNode!);
-
-                                    nextTreeData.data = params;
-                                    nextTreeData.name = values.name;
-
-                                    molecule.folderTree.update(treeNode!);
-
-                                    // 确保 editor 的 tab 的 id 和 tree 的 id 保持一致
-                                    // 同步去更新 tab 的 name
-                                    const isOpened = molecule.editor.isOpened(
-                                        treeNode!.id
-                                    );
-                                    if (isOpened) {
-                                        molecule.editor.updateTab({
-                                            id: treeNode!.id,
-                                            name: values.name,
-                                        });
-                                    }
-
-                                    molecule.editor.closeTab(tabId, 1);
-                                    molecule.explorer.forceUpdate();
-
-                                    // 关闭后编辑任务的 tab 后，需要去更新 actions 的状态
-                                    const { current } =
-                                        molecule.editor.getState();
-                                    if (
-                                        current?.tab?.data.taskType ===
-                                        TASK_TYPE.SQL
-                                    ) {
-                                        molecule.editor.updateActions([
-                                            {
-                                                id: TASK_RUN_ID,
-                                                disabled: false,
-                                            },
-                                        ]);
-                                    }
+                                    afterSubmit(params, values)
                                 }
                             })
                             .finally(() => {
@@ -457,14 +525,41 @@ function contextMenu() {
                             });
                     });
                 };
+
+                const onSubmitFolder = (values: any) => {
+                    return new Promise<boolean>((resolve) => {
+                        const params = {
+                            id: treeNode!.data.id,
+                            type: 'folder',
+                            ...values
+                        };
+                        ajax.editOfflineCatalogue(params)
+                            .then((res: any) => {
+                                if (res.code === 1) {
+                                    afterSubmit(params, values)
+                                }
+                            })
+                            .finally(() => {
+                                resolve(false);
+                            });
+                    });
+                }
+                            
                 const tabData = {
                     id: tabId,
                     modified: false,
                     data: {},
-                    name: localize('update task', '编辑任务'),
+                    name: isFile ? localize('update task', '编辑任务') : localize('update folder', '编辑文件夹'),
                     renderPane: () => {
                         return (
-                            <Open record={treeNode!.data} onSubmit={onSubmit} />
+                            <>
+                                {
+                                    isFile 
+                                        ? <Open record={treeNode!.data} onSubmit={onSubmit}/>
+                                        : <EditFolder record={treeNode!.data} onSubmitFolder={onSubmitFolder}/>
+                                }
+                                
+                            </>
                         );
                     },
                 };
@@ -503,5 +598,6 @@ export default class FolderTreeExtension implements IExtension {
         onSelectFile();
         contextMenu();
         onRemove();
+        editTreeNodeName()
     }
 }
