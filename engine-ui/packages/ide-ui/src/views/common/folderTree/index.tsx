@@ -398,6 +398,11 @@ export function openTaskInTab (taskId: any, file?: any) {
                     payload: fileId,
                 });
 
+                store.dispatch({
+                    type: editorAction.GET_TAB,
+                    key: fileId,
+                });
+
                 // open in molecule
                 const tabData = {
                     id: fileId.toString(),

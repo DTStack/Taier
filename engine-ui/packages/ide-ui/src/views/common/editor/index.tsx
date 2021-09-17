@@ -306,7 +306,7 @@ function emitEvent() {
                 const task = tabs.find((tab: any) => tab.id === currentTaskId);
 
                 if (task.taskType === TASK_TYPE.SYNC) {
-                    stopDataSync(task.id, true)(store.dispatch, store.getState);
+                    stopDataSync(task.id, false)(store.dispatch, store.getState);
                 } else {
                     stopSql(task.id, task, false)(store.dispatch, store.getState);
                 }
