@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Modal, Form, Select, Icon, Tooltip, Input } from 'antd';
-import { debounce } from 'lodash';
+// import { debounce } from 'lodash';
 
 import API from '../../api/account';
 
@@ -28,9 +28,9 @@ const CustomModal: React.FC = (props: any) => {
         if (visible) { onSearchTenantUser() }
     }, [visible, resetFields])
 
-    const onSearchTenantUser = (value?: string) => {
-        API.getFullTenants(value).then((res: any) => {
-            if (res.success) {
+    const onSearchTenantUser = () => {
+        API.getTenantsList().then((res: any) => {
+            if (res.code === 1) {
                 setTenantList(res.data || [])
             }
         })
@@ -40,7 +40,7 @@ const CustomModal: React.FC = (props: any) => {
         setClusterId(e)
     }
 
-    const debounceSearchTenant = debounce(onSearchTenantUser, 1000);
+    // const debounceSearchTenant = debounce(onSearchTenantUser, 1000);
 
     const getServiceParam = () => {
         let params: any = {
@@ -111,15 +111,15 @@ const CustomModal: React.FC = (props: any) => {
                         })(
                             <Select
                                 allowClear
-                                showSearch
+                                // showSearch
                                 placeholder='请搜索要绑定的租户'
                                 optionFilterProp="title"
                                 disabled={disabled}
-                                onSearch={debounceSearchTenant}
+                                // onSearch={debounceSearchTenant}
                                 filterOption={(input: any, option: any) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                             >
                                 {tenantList && tenantList.map((tenantItem: any) => {
-                                    return <Option key={`${tenantItem.tenantId}`} value={`${tenantItem.tenantId}`} title={tenantItem.tenantName}>{tenantItem.tenantName}</Option>
+                                    return <Option key={`${tenantItem.dtUicTenantId}`} value={`${tenantItem.dtUicTenantId}`} title={tenantItem.tenantName}>{tenantItem.tenantName}</Option>
                                 })}
                             </Select>
                         )}

@@ -25,11 +25,13 @@ table{
 .overflow-x-hidden{
     overflow-x: hidden;
 }
+.overflow-hidden {
+    overflow: hidden;
+}
 .main .container {
     height: 100%;
     position: relative;
     padding: 0;
-    overflow: hidden;
 }
 .contentBox{
     margin:20px;

@@ -95,6 +95,7 @@ export default {
     ACCOUNT_BIND_LIST: `${CONSOLE_BASE_URL}/account/pageQuery`,
     ACCOUNT_UNBIND: `${CONSOLE_BASE_URL}/account/unbindAccount`,
     GET_FULL_TENANT: `${UIC_BASE_URL}/v2/account/user/get-full-tenants-by-name?tenantName=`, // 获取所有租户
+    GET_TENANTS_LIST: `${CONSOLE_BASE_URL}/tenant/dtToken`, // 获取所有租户
 
     // 告警通道
     ADD_OR_UPDATE_ALARM: `${CONSOLE_BASE_URL}/alert/edit`,

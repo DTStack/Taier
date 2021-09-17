@@ -7,7 +7,7 @@ class Main extends React.Component<any, any> {
         return (
             <div className="main">
                 <Layout>
-                    <div className="container overflow-x-hidden" id='JS_console_container'>
+                    <div className="container overflow-hidden" id='JS_console_container'>
                         { children || '加载中....' }
                     </div>
                 </Layout>
