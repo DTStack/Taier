@@ -44,5 +44,9 @@ export default {
     getFullTenants (value?: any) {
         const getTenantsUrl = `${req.GET_FULL_TENANT + (value || '')}`
         return http.get(getTenantsUrl);
+    },
+
+    getTenantsList () {
+        return http.post(req.GET_TENANTS_LIST);
     }
 }
