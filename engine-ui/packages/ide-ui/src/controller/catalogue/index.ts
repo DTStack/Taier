@@ -18,10 +18,11 @@ import {
     greenPlumProdTreeActon,
     scriptTreeAction,
     componentTreeAction,
-    tableTreeAction
+    tableTreeAction,
+    functionTreeAction,
 } from './actionTypes';
 
-import { replaceTreeNode } from '../../components/func'
+import { replaceTreeNode } from '../../components/func';
 
 /**
  * @description 加载文件夹内容
@@ -30,17 +31,19 @@ import { replaceTreeNode } from '../../components/func'
  * @param {any} state
  * @returns immutable state
  */
-function loadFolderContent (action: any, state: any) {
+function loadFolderContent(action: any, state: any) {
     const data = action.payload;
     const id = data.id;
     const level = data.level;
     const clone = cloneDeep(state);
     const loop = (arr: any) => {
         arr.forEach((node: any, i: any) => {
-            if (node.id === id &&
+            if (
+                node.id === id &&
                 node.level === level &&
                 (node.type === 'folder' ||
-                node.type === 'flow')
+                    node.type === 'flow' ||
+                    node.type === 'catalogue')
             ) {
                 node.children = data.children;
                 node._hasLoaded = true;
@@ -53,10 +56,10 @@ function loadFolderContent (action: any, state: any) {
     return clone;
 }
 
-function sortByName (arr: any) {
+function sortByName(arr: any) {
     arr.sort(function (a: any, b: any) {
         return a.name.localeCompare(b.name);
-    })
+    });
 }
 
 /**
@@ -66,14 +69,15 @@ function sortByName (arr: any) {
  * @param {any} state
  * @returns immutable state
  */
-function addFolderChild (action: any, state: any) {
+function addFolderChild(action: any, state: any) {
     const data = action.payload;
     const { parentId } = data;
     const clone = cloneDeep(state);
     const loop = (arr: any) => {
         arr.forEach((node: any, i: any) => {
             if (node.id === parentId) {
-                if (node.children === null || node.children === undefined) node.children = [];
+                if (node.children === null || node.children === undefined)
+                    node.children = [];
                 let fileIndex = 0;
 
                 for (let i = 0; i <= node.children.length - 1; i++) {
@@ -96,9 +100,9 @@ function addFolderChild (action: any, state: any) {
     return clone;
 }
 
-function deleteFolderChild (action: any, state: any) {
+function deleteFolderChild(action: any, state: any) {
     const { id, originPid, parentId } = action.payload;
-    const oPid = originPid || parentId
+    const oPid = originPid || parentId;
     const clone = cloneDeep(state);
     const loop = (arr: any) => {
         arr.forEach((node: any, i: any) => {
@@ -122,10 +126,10 @@ export const clearTreeData = (dispatch: any) => {
     return (dispatch: any) => {
         dispatch({
             type: scriptTreeAction.RESET_SCRIPT_TREE,
-            payload: {}
+            payload: {},
         });
-    }
-}
+    };
+};
 
 export const taskTreeReducer = (state: any = {}, action: any) => {
     switch (action.type) {
@@ -149,12 +153,17 @@ export const taskTreeReducer = (state: any = {}, action: any) => {
         }
 
         case taskTreeAction.EDIT_FOLDER_CHILD: {
-            const payload = assign({}, action.payload, { parentId: action.payload.originPid });
-            return addFolderChild(action, deleteFolderChild({ payload: payload }, state));
+            const payload = assign({}, action.payload, {
+                parentId: action.payload.originPid,
+            });
+            return addFolderChild(
+                action,
+                deleteFolderChild({ payload: payload }, state)
+            );
         }
         case taskTreeAction.EDIT_FOLDER_CHILD_FIELDS: {
-            const updated = cloneDeep(state)
-            replaceTreeNode(updated, action.payload)
+            const updated = cloneDeep(state);
+            replaceTreeNode(updated, action.payload);
             return updated;
         }
         case taskTreeAction.MERGE_FOLDER_CONTENT: {
@@ -180,8 +189,13 @@ export const componentTreeReducer = (state: any = {}, action: any) => {
             return deleteFolderChild(action, state);
         }
         case scriptTreeAction.EDIT_FOLDER_CHILD: {
-            const payload = assign({}, action.payload, { parentId: action.payload.originPid });
-            return addFolderChild(action, deleteFolderChild({ payload: payload }, state));
+            const payload = assign({}, action.payload, {
+                parentId: action.payload.originPid,
+            });
+            return addFolderChild(
+                action,
+                deleteFolderChild({ payload: payload }, state)
+            );
         }
         case componentTreeAction.MERGE_FOLDER_CONTENT: {
             const origin = action.payload;
@@ -215,9 +229,27 @@ export const resourceTreeReducer = (state: any = {}, action: any) => {
         }
 
         case resTreeAction.EDIT_FOLDER_CHILD: {
-            const payload = assign({}, action.payload, { parentId: action.payload.originPid });
-            return addFolderChild(action, deleteFolderChild({ payload: payload }, state));
+            const payload = assign({}, action.payload, {
+                parentId: action.payload.originPid,
+            });
+            return addFolderChild(
+                action,
+                deleteFolderChild({ payload: payload }, state)
+            );
         }
+        default:
+            return state;
+    }
+};
+
+// 这里对 spark，hive，oracle，greenPlum 等函数管理中的 reducer 做一个整合，统一由该 reducer 做分发到对应的 reducer 中
+export const functionTreeReducer = (state: any = {}, action: any) => {
+    switch (action.type) {
+        case functionTreeAction.RESET_FUNCTION_TREE:
+            return assign({}, action.payload);
+        case functionTreeAction.LOAD_FOLDER_CONTENT:
+            return loadFolderContent(action, state);
+
         default:
             return state;
     }
@@ -227,13 +259,13 @@ export const resourceTreeReducer = (state: any = {}, action: any) => {
 export const sparkFnTreeReducer = (state: any = {}, action: any) => {
     switch (action.type) {
         case sparkFnTreeAction.GET_SPARK_ROOT:
-            return assign({}, state, action.payload)
+            return assign({}, state, action.payload);
         case sparkFnTreeAction.LOAD_FOLDER_CONTENT:
-            return assign({}, state, action.payload)
+            return assign({}, state, action.payload);
         default:
             return state;
     }
-}
+};
 
 export const sparkCustFuncTreeReducer = (state: any = {}, action: any) => {
     switch (action.type) {
@@ -257,10 +289,12 @@ export const sparkCustFuncTreeReducer = (state: any = {}, action: any) => {
         }
 
         case sparkCustomFnTreeAction.EDIT_FOLDER_CHILD: {
-            const payload = assign({}, action.payload, { parentId: action.payload.parentId });
-            const y = deleteFolderChild({ payload: payload }, state)
+            const payload = assign({}, action.payload, {
+                parentId: action.payload.parentId,
+            });
+            const y = deleteFolderChild({ payload: payload }, state);
             const x = addFolderChild(action, y);
-            return x
+            return x;
         }
 
         default:
@@ -290,18 +324,17 @@ export const sparkSysFunctionTreeReducer = (state: any = {}, action: any) => {
     }
 };
 
-
 // ===== librA Tree =====
 export const libraFnTreeReducer = (state: any = {}, action: any) => {
     switch (action.type) {
         case libraFnTreeAction.GET_LIBRA_ROOT:
-            return assign({}, state, action.payload)
+            return assign({}, state, action.payload);
         case libraFnTreeAction.LOAD_FOLDER_CONTENT:
-            return assign({}, state, action.payload)
+            return assign({}, state, action.payload);
         default:
             return state;
     }
-}
+};
 
 export const libraSysFnTreeReducer = (state: any = {}, action: any) => {
     switch (action.type) {
@@ -320,13 +353,13 @@ export const libraSysFnTreeReducer = (state: any = {}, action: any) => {
 export const tiDBFnTreeReducer = (state: any = {}, action: any) => {
     switch (action.type) {
         case tiDBFnTreeAction.GET_LIBRA_ROOT:
-            return assign({}, state, action.payload)
+            return assign({}, state, action.payload);
         case tiDBFnTreeAction.LOAD_FOLDER_CONTENT:
-            return assign({}, state, action.payload)
+            return assign({}, state, action.payload);
         default:
             return state;
     }
-}
+};
 export const tiDBSysFnTreeReducer = (state: any = {}, action: any) => {
     switch (action.type) {
         case tiDBSysFnTreeActon.RESET_SYSFUC_TREE:
@@ -358,13 +391,13 @@ export const oracleSysFnTreeReducer = (state: any = {}, action: any) => {
 export const greenPlumTreeReducer = (state: any = {}, action: any) => {
     switch (action.type) {
         case greenPlumTreeAction.GET_SPARK_ROOT:
-            return assign({}, state, action.payload)
+            return assign({}, state, action.payload);
         case greenPlumTreeAction.LOAD_FOLDER_CONTENT:
-            return assign({}, state, action.payload)
+            return assign({}, state, action.payload);
         default:
             return state;
     }
-}
+};
 
 export const greenPlumSysFnTreeReducer = (state: any = {}, action: any) => {
     switch (action.type) {
@@ -399,9 +432,14 @@ export const greenPlumFnTreeReducer = (state: any = {}, action: any) => {
         }
 
         case greenPlumFnTreeActon.EDIT_FOLDER_CHILD: {
-            const payload = assign({}, action.payload, { parentId: action.payload.parentId });
-            const x = addFolderChild(action, deleteFolderChild({ payload: payload }, state));
-            return x
+            const payload = assign({}, action.payload, {
+                parentId: action.payload.parentId,
+            });
+            const x = addFolderChild(
+                action,
+                deleteFolderChild({ payload: payload }, state)
+            );
+            return x;
         }
 
         default:
@@ -431,16 +469,20 @@ export const greenPlumProdTreeReducer = (state: any = {}, action: any) => {
         }
 
         case greenPlumProdTreeActon.EDIT_FOLDER_CHILD: {
-            const payload = assign({}, action.payload, { parentId: action.payload.originPid });
-            const x = addFolderChild(action, deleteFolderChild({ payload: payload }, state));
-            return x
+            const payload = assign({}, action.payload, {
+                parentId: action.payload.originPid,
+            });
+            const x = addFolderChild(
+                action,
+                deleteFolderChild({ payload: payload }, state)
+            );
+            return x;
         }
 
         default:
             return state;
     }
 };
-
 
 export const scriptTreeReducer = (state: any = {}, action: any) => {
     switch (action.type) {
@@ -464,13 +506,18 @@ export const scriptTreeReducer = (state: any = {}, action: any) => {
         }
 
         case scriptTreeAction.EDIT_FOLDER_CHILD: {
-            const payload = assign({}, action.payload, { parentId: action.payload.originPid });
-            return addFolderChild(action, deleteFolderChild({ payload: payload }, state));
+            const payload = assign({}, action.payload, {
+                parentId: action.payload.originPid,
+            });
+            return addFolderChild(
+                action,
+                deleteFolderChild({ payload: payload }, state)
+            );
         }
 
         case scriptTreeAction.EDIT_FOLDER_CHILD_FIELDS: {
-            const updated = cloneDeep(state)
-            replaceTreeNode(updated, action.payload)
+            const updated = cloneDeep(state);
+            replaceTreeNode(updated, action.payload);
             return updated;
         }
 
@@ -507,8 +554,13 @@ export const tableTreeReducer = (state: any = {}, action: any) => {
         }
 
         case tableTreeAction.EDIT_FOLDER_CHILD: {
-            const payload = assign({}, action.payload, { parentId: action.payload.originPid });
-            return addFolderChild(action, deleteFolderChild({ payload: payload }, state));
+            const payload = assign({}, action.payload, {
+                parentId: action.payload.originPid,
+            });
+            return addFolderChild(
+                action,
+                deleteFolderChild({ payload: payload }, state)
+            );
         }
 
         default:
@@ -519,6 +571,7 @@ export const tableTreeReducer = (state: any = {}, action: any) => {
 export const catalogueReducer = combineReducers({
     taskTree: taskTreeReducer,
     resourceTree: resourceTreeReducer,
-    sparkCustomFuncTree:sparkCustFuncTreeReducer,
-    sparkSystemFuncTreeData:sparkSysFunctionTreeReducer,
+    functionTree: functionTreeReducer,
+    // sparkCustomFuncTree:sparkCustFuncTreeReducer,
+    // sparkSystemFuncTreeData:sparkSysFunctionTreeReducer,
 });

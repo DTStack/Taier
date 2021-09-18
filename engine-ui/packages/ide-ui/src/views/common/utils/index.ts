@@ -34,16 +34,43 @@ export function convertToTreeNode(data: any[]) {
     if (!data) {
         return;
     }
+    const folderType = ['folder', 'catalogue'];
     return data.map((child) => {
         const { id, name, children, type } = child;
         const node: TreeNodeModel = new TreeNodeModel({
             id,
             name: !name ? '数据开发' : name,
             location: name,
-            fileType: type === 'folder' ? FileTypes.Folder : FileTypes.File,
-            isLeaf: type !== 'folder',
+            fileType: folderType.includes(type)
+                ? FileTypes.Folder
+                : FileTypes.File,
+            isLeaf: !folderType.includes(type),
             data: child,
             children: convertToTreeNode(children),
+        });
+
+        return node;
+    });
+}
+
+// [TODO]: 把该函数和 convertToTreeNode 整合起来
+export function convertToFunctionsTreeNode(data: any[]) {
+    if (!data) {
+        return;
+    }
+    const folderType = ['folder', 'catalogue'];
+    return data.map((child) => {
+        const { id, name, children, type } = child;
+        const node: TreeNodeModel = new TreeNodeModel({
+            id: `${id}-${folderType.includes(type) ? 'folder' : 'file'}`,
+            name: !name ? '数据开发' : name,
+            location: name,
+            fileType: folderType.includes(type)
+                ? FileTypes.Folder
+                : FileTypes.File,
+            isLeaf: !folderType.includes(type),
+            data: child,
+            children: convertToFunctionsTreeNode(children),
         });
 
         return node;

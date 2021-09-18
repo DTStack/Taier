@@ -1,31 +1,31 @@
 import {
     taskTreeAction,
     resTreeAction,
-    sparkCustomFnTreeAction,
-    sparkSysFnTreeActon,
+    functionTreeAction,
 } from './actionTypes';
 
-export const updateCatalogueData = (dispatch: any, data: any, dataType: any) => {
-    let action: any = null
+export const updateCatalogueData = (
+    dispatch: any,
+    data: any,
+    dataType: any
+) => {
+    let action: any = null;
     switch (dataType) {
-        case 'task': 
-            action = taskTreeAction
+        case 'task':
+            action = taskTreeAction;
             break;
-        case 'resource': 
+        case 'resource':
             action = resTreeAction;
             break;
-        case 'sparkCustomFunction':
-            action = sparkCustomFnTreeAction;
+        case 'function':
+            action = functionTreeAction;
             break;
-        case 'sparkSysFunction': 
-            action = sparkSysFnTreeActon;
-            break;
-        default: 
+        default:
             action = taskTreeAction;
             break;
     }
     dispatch({
         type: action.LOAD_FOLDER_CONTENT,
-        payload: data
-    })
-}
+        payload: data,
+    });
+};

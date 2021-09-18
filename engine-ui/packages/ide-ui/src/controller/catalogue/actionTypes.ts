@@ -37,6 +37,13 @@ export const resTreeAction = mc(
     { prefix: 'catalogue/resTree/' }
 );
 
+export const functionTreeAction = mc(
+    ['RESET_FUNCTION_TREE', 'LOAD_FOLDER_CONTENT'],
+    {
+        prefix: 'catalogue/functionTree/',
+    }
+);
+
 export const sparkFnTreeAction = mc(['GET_SPARK_ROOT', 'LOAD_FOLDER_CONTENT'], {
     prefix: 'catalogue/sparkTree/',
 });
