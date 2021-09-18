@@ -122,38 +122,38 @@ export function formJsonValidator(rule: any, value: any, callback: any) {
 
 /**
  * 遍历树形节点，用新节点替换老节点
-*/
-export function replaceTreeNode (treeNode: any, replace: any) {
+ */
+export function replaceTreeNode(treeNode: any, replace: any) {
     if (
-        treeNode.id === parseInt(replace.id, 10) && treeNode.type == replace.type
+        treeNode.id === parseInt(replace.id, 10) &&
+        treeNode.type == replace.type
     ) {
         treeNode = Object.assign(treeNode, replace);
         return;
     }
     if (treeNode.children) {
-        const children = treeNode.children
+        const children = treeNode.children;
         for (let i = 0; i < children.length; i += 1) {
-            replaceTreeNode(children[i], replace)
+            replaceTreeNode(children[i], replace);
         }
     }
 }
 
-export function catalogueTypeToDataType (catalogueType: any) {
-    let dataType = ''
+export function catalogueTypeToDataType(catalogueType: any) {
+    let dataType = '';
     switch (catalogueType) {
         case MENU_TYPE.TASK:
         case MENU_TYPE.TASK_DEV:
             dataType = 'task';
             break;
-        case MENU_TYPE.RESOURCE: 
+        case MENU_TYPE.RESOURCE:
             dataType = 'resource';
             break;
+        case MENU_TYPE.SPARKFUNC:
         case MENU_TYPE.SYSFUC:
-            dataType = 'sparkSysFunction';
-            break;
         case MENU_TYPE.COSTOMFUC:
-            dataType = 'sparkCustomFunction';
+            dataType = 'function';
             break;
     }
-    return dataType
+    return dataType;
 }

@@ -7,6 +7,7 @@ import molecule from 'molecule/esm';
 import Open from '../../task/open';
 import EditFolder from '../../task/editFolder';
 import {
+    convertToFunctionsTreeNode,
     convertToTreeNode,
     getCatalogueViaNode,
     getFunctionManagerRootFolder,
@@ -29,6 +30,7 @@ import { editorAction } from '../../../controller/editor/actionTypes';
 import {
     taskTreeAction,
     resTreeAction,
+    functionTreeAction,
 } from '../../../controller/catalogue/actionTypes';
 import { cloneDeep } from 'lodash';
 import functionManagerService from '../../../services/functionManagerService';
@@ -49,6 +51,22 @@ async function loadTreeNode(treeNode: any) {
     });
 
     molecule.folderTree.update(nextNode);
+}
+
+async function loadFunctionTreeNode(treeNode: any) {
+    const data = await getCatalogueViaNode(treeNode.data);
+    const { id, name, children, type } = data;
+    const nextNode = new TreeNodeModel({
+        id: `${id}-${type}`,
+        name,
+        location: name,
+        fileType: FileTypes.Folder,
+        isLeaf: false,
+        data: data,
+        children: convertToFunctionsTreeNode(children),
+    });
+
+    functionManagerService.update(nextNode);
 }
 
 function init() {
@@ -99,19 +117,30 @@ function init() {
 
             // 函数根目录
             const functionNode = new TreeNodeModel({
-                id: funcData.id,
+                // 由于函数管理会遇到父子结点具有相同 id 的情况，所以需要通过 type 来另设一个新的不会重复的 id
+                id: `${funcData.id}-folder`,
                 name: funcData.name || '函数管理',
                 location: funcData.name,
                 fileType: FileTypes.RootFolder,
                 data: funcData,
-                children: convertToTreeNode(funcData.children),
+                children: convertToFunctionsTreeNode(
+                    funcData.children.filter(
+                        (item: any) => item.name !== '系统函数'
+                    )
+                ),
+            });
+            store.dispatch({
+                type: functionTreeAction.RESET_FUNCTION_TREE,
+                payload: funcData,
             });
 
             resourceManagerService.add(resourceNode);
             functionManagerService.add(functionNode);
             molecule.folderTree.add(taskNode);
 
+            // TODO：后续优化这里的逻辑
             loadTreeNode(devData);
+            loadFunctionTreeNode(functionNode.children?.[0]);
         }
     });
 
@@ -316,34 +345,34 @@ function editTreeNodeName() {
 
 // TODO: refactor, this method should be supported by molecule
 function getGroupIdByTaskId(taskId: string): unknown {
-    const groups = molecule.editor.getState().groups
-    let targetGroupId
-    for (let i = 0; i < (groups?.length ?? 0); i ++ ) {
-        const { id, data } = groups?.[i]!
-        if (data?.find(tab => tab.id === taskId)) {
+    const groups = molecule.editor.getState().groups;
+    let targetGroupId;
+    for (let i = 0; i < (groups?.length ?? 0); i++) {
+        const { id, data } = groups?.[i]!;
+        if (data?.find((tab) => tab.id === taskId)) {
             targetGroupId = id;
             break;
         }
     }
-    return targetGroupId
+    return targetGroupId;
 }
 
 // TODO: refactor, tab 数据可以从molecule中取出，无需存在redux中
-export function openTaskInTab (taskId: any, file?: any) {
-    if (!file) { // 通过id打开任务
-        file = molecule.folderTree.get(taskId)
-        if (!file) return message.error('此任务不存在')
+export function openTaskInTab(taskId: any, file?: any) {
+    if (!file) {
+        // 通过id打开任务
+        file = molecule.folderTree.get(taskId);
+        if (!file) return message.error('此任务不存在');
     }
     if (molecule.editor.isOpened(taskId.toString())) {
-        const groupId = getGroupIdByTaskId(taskId.toString())
-        molecule.editor.setActive(groupId as number, taskId.toString())
-        return
+        const groupId = getGroupIdByTaskId(taskId.toString());
+        molecule.editor.setActive(groupId as number, taskId.toString());
+        return;
     }
 
     const { id: fileId, name: fileName, data: fileData, location } = file;
     ajax.getOfflineTaskByID({ id: fileId }).then((res) => {
         if (fileData.taskType === TASK_TYPE.SQL) {
-        
             const { success, data } = res;
             if (success) {
                 // save to redux
@@ -384,7 +413,6 @@ export function openTaskInTab (taskId: any, file?: any) {
                     { id: TASK_SUBMIT_ID, disabled: false },
                 ]);
             }
-
         } else if (fileData.taskType === TASK_TYPE.SYNC) {
             const { success, data } = res;
             if (success) {
@@ -425,7 +453,7 @@ export function openTaskInTab (taskId: any, file?: any) {
                 molecule.editor.updateActions([
                     { id: TASK_RUN_ID, disabled: false },
                     { id: TASK_SAVE_ID, disabled: false },
-                    { id: TASK_SUBMIT_ID, disabled: false }
+                    { id: TASK_SUBMIT_ID, disabled: false },
                 ]);
             }
         } else {
@@ -439,7 +467,7 @@ export function openTaskInTab (taskId: any, file?: any) {
 
 function onSelectFile() {
     molecule.folderTree.onSelectFile((file) => {
-        openTaskInTab(file.id, file)
+        openTaskInTab(file.id, file);
     });
 }
 

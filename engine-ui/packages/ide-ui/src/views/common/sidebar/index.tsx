@@ -6,6 +6,8 @@ import {
     ACTIVITY_BAR_GLOBAL_ACCOUNT,
 } from 'molecule/esm/model';
 import ResourceManager from '../../resourceManager';
+import FunctionManager from '../../functionManager';
+import { FUNCTION_NEW_FUNCTION } from '../../functionManager/menu';
 
 export const folderMenu = [
     {
@@ -68,11 +70,31 @@ function initFunctionManager() {
         CONTEXT_MENU_SEARCH,
         ACTIVITY_BAR_GLOBAL_ACCOUNT,
     ]);
+
+    const headerToolBar = [
+        {
+            id: 'refresh',
+            title: '刷新',
+            icon: 'refresh',
+        },
+        {
+            id: 'menus',
+            title: '更多操作',
+            icon: 'menu',
+            contextMenu: [FUNCTION_NEW_FUNCTION],
+        },
+    ];
+
     molecule.activityBar.add(functionManager);
     molecule.sidebar.add({
         id: functionManager.id,
         title: functionManager.name,
-        render: () => <div>123</div>,
+        render: () => (
+            <FunctionManager
+                panel={functionManager}
+                headerToolBar={headerToolBar}
+            />
+        ),
     });
 }
 
