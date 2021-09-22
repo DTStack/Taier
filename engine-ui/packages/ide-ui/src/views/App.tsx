@@ -5,11 +5,13 @@ import routers from '../routers';
 import { Provider } from 'react-redux';
 import { ConfigProvider } from 'antd';
 
+import '@/assets/iconfont/iconfont.css';
 import 'ant-design-dtinsight-theme/theme/dt-theme/reset.less';
 import 'ant-design-dtinsight-theme/theme/dt-theme/index.less';
 
 import './registerMicroApps';
 import '@/styles/App.css';
+import '@/styles/iconTheme.css';
 import 'ant-design-dtinsight-theme/theme/dt-theme/dark/index.less';
 import store from '../store';
 

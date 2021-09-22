@@ -123,16 +123,6 @@ function init() {
                 loadTreeNode(rootNode.data);
             }
         }
-        if (
-            panel.id === 'sidebar.explore.folders' &&
-            toolbarId === 'collapse'
-        ) {
-            // TODO implements the reset the ExpandedKeys
-            // const rootNode = getRootNode();
-            // if (rootNode) {
-            //     molecule.folderTree.setExpandedKeys([]);
-            // }
-        }
     });
 }
 
@@ -467,7 +457,7 @@ export default class FolderTreeExtension implements IExtension {
         init();
         initContextMenu();
 
-        onLoadTree;
+        onLoadTree();
 
         createTask();
         onSelectFile();

@@ -10,6 +10,8 @@ import ajax from '../../../api';
 import { catalogueTypeToDataType } from '../../../components/func';
 import { updateCatalogueData } from '../../../controller/catalogue/actionCreator';
 import store from '../../../store';
+import { TaskType } from '../../../components/status';
+import { TASK_TYPE } from '../../../comm/const';
 
 export function resetEditorGroup() {
     molecule.editor.updateActions([
@@ -30,6 +32,20 @@ export function updateStatusBarLanguage(item: IStatusBarItem) {
     }
 }
 
+export function fileIcon(type: number): string {
+    switch (type) {
+        case TASK_TYPE.SQL: {
+            return 'icon_sparkSQL iconfont'
+        }
+        case TASK_TYPE.SYNC: {
+            return 'sync'
+        }
+        default: {
+            return 'file'
+        }
+    }
+}
+
 export function convertToTreeNode(data: any[]) {
     if (!data) {
         return;
@@ -42,6 +58,7 @@ export function convertToTreeNode(data: any[]) {
             location: name,
             fileType: type === 'folder' ? FileTypes.Folder : FileTypes.File,
             isLeaf: type !== 'folder',
+            icon: fileIcon(child.taskType),
             data: child,
             children: convertToTreeNode(children),
         });
