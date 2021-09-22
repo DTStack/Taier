@@ -291,6 +291,12 @@ export default ({ panel, headerToolBar }: IResourceProps) => {
         });
     };
 
+    const entry = (
+        <div style={{ textAlign: 'center', marginTop: 20 }}>
+            未找到资源管理目录，请联系管理员
+        </div>
+    );
+
     return (
         <div className="resourceManager-container">
             <Header
@@ -311,6 +317,7 @@ export default ({ panel, headerToolBar }: IResourceProps) => {
                         onLoadData={loadData}
                         onUpdateFileName={handleRename}
                         onClickContextMenu={handleContextMenu}
+                        entry={entry}
                         panel={panel}
                     />
                 </div>
