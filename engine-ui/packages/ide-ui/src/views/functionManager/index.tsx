@@ -7,11 +7,8 @@ import {
 import { Content, Header } from 'molecule/esm/workbench/sidebar';
 import { connect } from 'molecule/esm/react';
 import functionManagerService from '../../services/functionManagerService';
-import { FileTypes, IFolderTree, TreeNodeModel } from 'molecule/esm/model';
-import {
-    convertToFunctionsTreeNode,
-    getCatalogueViaNode,
-} from '../common/utils';
+import { IFolderTree } from 'molecule/esm/model';
+import { loadTreeNode } from '../common/utils';
 import { FolderTree } from 'molecule/esm/workbench/sidebar/explore';
 import FnViewModal from './fnViewModal';
 import { LoadEventData } from 'molecule/esm/controller';
@@ -55,19 +52,7 @@ const FunctionManagerView = ({
     const [resId, setResId] = React.useState(null);
 
     const updateNodePid = async (node: ITreeNodeItemProps) => {
-        const data = await getCatalogueViaNode(node.data);
-        const { id, name, children, type } = data;
-        const nextNode = new TreeNodeModel({
-            id: `${id}-${type}`,
-            name,
-            location: name,
-            fileType: FileTypes.Folder,
-            isLeaf: false,
-            data: data,
-            children: convertToFunctionsTreeNode(children),
-        });
-
-        functionManagerService.update(nextNode);
+        loadTreeNode(node.data, 'function');
     };
 
     const loadData = async (treeNode: LoadEventData) => {
