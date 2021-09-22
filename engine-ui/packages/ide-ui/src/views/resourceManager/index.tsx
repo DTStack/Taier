@@ -14,7 +14,7 @@ import resourceManagerTree from '../../services/resourceManagerService';
 import ResModal from './resModal';
 import ResViewModal from './resViewModal';
 import ajax from '../../api';
-import { convertToTreeNode, getCatalogueViaNode } from '../common/utils';
+import { loadTreeNode } from '../common/utils';
 import { folderMenu } from '../common/sidebar';
 import { deleteMenu, editMenu } from './menu';
 import { message, Modal } from 'antd';
@@ -39,18 +39,7 @@ export default ({ panel, headerToolBar }: IResourceProps) => {
     const [rightClickData, setData] = React.useState<any>(undefined);
 
     const updateNodePid = async (node: ITreeNodeItemProps) => {
-        const data = await getCatalogueViaNode(node.data);
-        const { id, name, children } = data;
-        const nextNode = new TreeNodeModel({
-            id,
-            name: name || '资源管理',
-            location: name,
-            fileType: FileTypes.Folder,
-            isLeaf: false,
-            data: { ...data },
-            children: convertToTreeNode(children),
-        });
-        resourceManagerTree.update(nextNode);
+        loadTreeNode(node.data, 'resource');
     };
 
     const handleUpload = () => {
@@ -217,19 +206,7 @@ export default ({ panel, headerToolBar }: IResourceProps) => {
     };
 
     const loadData = async (treeNode: LoadEventData) => {
-        const data = await getCatalogueViaNode(treeNode.data!.data);
-        const { id, name, children } = data;
-        const nextNode = new TreeNodeModel({
-            id,
-            name,
-            location: name,
-            fileType: FileTypes.Folder,
-            isLeaf: false,
-            data: data,
-            children: convertToTreeNode(children),
-        });
-
-        resourceManagerTree.update(nextNode);
+        loadTreeNode(treeNode.data!.data, 'resource');
     };
 
     const handleRename = (node: ITreeNodeItemProps) => {
