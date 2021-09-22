@@ -12,11 +12,13 @@ import { updateCatalogueData } from '../../../controller/catalogue/actionCreator
 import store from '../../../store';
 import resourceManagerTree from '../../../services/resourceManagerService';
 import functionManagerService from '../../../services/functionManagerService';
+import { TASK_TYPE } from '../../../comm/const';
 
 export type Source = 'task' | 'resource' | 'function';
 export interface CatalogueDataProps {
     id: number;
     type: string;
+    taskType: number;
     name: string;
     children: CatalogueDataProps[] | null;
     catalogueType: string;
@@ -39,6 +41,41 @@ export function updateStatusBarLanguage(item: IStatusBarItem) {
     } else {
         molecule.statusBar.add(item, Float.right);
     }
+}
+
+export function fileIcon(type: number): string {
+    switch (type) {
+        case TASK_TYPE.SQL: {
+            return 'icon_sparkSQL iconfont'
+        }
+        case TASK_TYPE.SYNC: {
+            return 'sync'
+        }
+        default: {
+            return 'file'
+        }
+    }
+}
+
+export function convertToTreeNode(data: any[]) {
+    if (!data) {
+        return;
+    }
+    return data.map((child) => {
+        const { id, name, children, type } = child;
+        const node: TreeNodeModel = new TreeNodeModel({
+            id,
+            name: !name ? '数据开发' : name,
+            location: name,
+            fileType: type === 'folder' ? FileTypes.Folder : FileTypes.File,
+            isLeaf: type !== 'folder',
+            icon: fileIcon(child.taskType),
+            data: child,
+            children: convertToTreeNode(children),
+        });
+
+        return node;
+    });
 }
 
 /**
@@ -139,6 +176,7 @@ export function transformCatalogueToTree(
                 name: catalogue.name,
                 location: catalogue.name,
                 fileType,
+                icon: fileIcon(catalogue.taskType),
                 isLeaf: fileType === FileTypes.File,
                 data: catalogue,
                 children,

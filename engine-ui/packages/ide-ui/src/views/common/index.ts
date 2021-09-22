@@ -8,8 +8,11 @@ import PanelExtension from './panel';
 import SidebarExtension from './sidebar';
 import { ExtendsSparkSQL } from './languages';
 import StatusBarExtension from './statusBar';
+import ThemeExtension from './colorTheme';
+import WelcomeExtension from './welcome';
 
 export const extensions: IExtension[] = [
+    new ThemeExtension(),
     new CatalogueExtension(),
     new ExplorerExtensions(),
     new EditorExtension(),
@@ -18,4 +21,5 @@ export const extensions: IExtension[] = [
     new SidebarExtension(),
     new ExtendsSparkSQL(),
     new StatusBarExtension(),
+    new WelcomeExtension(),
 ];

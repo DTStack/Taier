@@ -27,7 +27,7 @@ export const folderMenu = [
 function initResourceManager() {
     const resourceManager = {
         id: 'ResourceManager',
-        icon: 'package',
+        icon: 'icon_ziyuan iconfont',
         name: '资源管理',
         title: '资源管理',
     };
@@ -62,7 +62,7 @@ function initResourceManager() {
 function initFunctionManager() {
     const functionManager = {
         id: 'FunctionManager',
-        icon: 'symbol-method',
+        icon: 'icon_hanshu iconfont',
         name: '函数管理',
         title: '函数管理',
     };

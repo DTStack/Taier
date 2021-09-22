@@ -1,0 +1,9 @@
+.entry { 
+    align-items: center;
+    background-color: var(--panel-background);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+}
