@@ -49,6 +49,12 @@ function init() {
             // }
         }
     });
+
+    molecule.folderTree.setEntry(
+        <div style={{ marginTop: 20, textAlign: 'center' }}>
+            未找到任务开发目录，请联系管理员
+        </div>
+    );
 }
 
 function updateTree(data: any) {

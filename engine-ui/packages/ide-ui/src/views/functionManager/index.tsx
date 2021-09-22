@@ -270,6 +270,12 @@ const FunctionManagerView = ({
         });
     };
 
+    const entry = (
+        <div style={{ textAlign: 'center', marginTop: 20 }}>
+            未找到函数管理目录，请联系管理员
+        </div>
+    );
+
     return (
         <div className="functionManager-container">
             <Header
@@ -290,6 +296,7 @@ const FunctionManagerView = ({
                         onLoadData={loadData}
                         onClickContextMenu={handleContextMenu}
                         panel={panel}
+                        entry={entry}
                     />
                 </div>
             </Content>
