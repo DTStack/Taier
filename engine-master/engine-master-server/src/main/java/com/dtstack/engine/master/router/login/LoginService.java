@@ -90,6 +90,8 @@ public class LoginService {
 
         cookieService.addCookie(request, response, Cookies.TOKEN, token);
         cookieService.addCookie(request, response, Cookies.USER_ID, user.getUserId());
+        cookieService.addCookie(request, response, Cookies.CREATE_USER_ID, user.getUserId());
+        cookieService.addCookie(request, response, Cookies.MODIFY_USER_ID, user.getUserId());
         cookieService.addCookie(request, response, Cookies.PROJECT_ID, 1);
         cookieService.addCookie(request, response, Cookies.TENANT_ID, user.getTenantId());
 

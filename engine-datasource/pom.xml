@@ -39,11 +39,6 @@
         </dependency>
 
         <dependency>
-            <groupId>dt.insight.plat</groupId>
-            <artifactId>dt-insight-web-security-starter</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>

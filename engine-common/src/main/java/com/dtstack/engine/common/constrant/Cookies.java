@@ -20,6 +20,8 @@ public interface Cookies {
 
 
     String USER_ID = "userId";
+    String CREATE_USER_ID = "createUserId";
+    String MODIFY_USER_ID = "modifyUserId";
     String TENANT_ID = "tenantId";
     String PROJECT_ID = "projectId";
 }
