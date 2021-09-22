@@ -2,7 +2,12 @@ import React, { useState } from 'react';
 import { Layout, Menu, Dropdown, Icon, message } from 'antd';
 import { hashHistory } from 'react-router';
 import { AppContainer } from '../views/registerMicroApps';
-import { getItem, setItem } from '../utils/local';
+import { getItem, setItem, clear } from '../utils/session';
+import {
+    getItem as localGet,
+    setItem as localSet,
+    clear as localClear,
+} from '../utils/local';
 import { USER_NAME } from '../consts';
 
 const { Header, Content } = Layout;
@@ -20,7 +25,7 @@ const userMenu = (
                 <Menu.Item
                     key={index}
                     onClick={async () => {
-                        setItem(USER_NAME, '');
+                        localSet(USER_NAME, '');
                         const response = await fetch('/node/login/logout', {
                             method: 'POST',
                         });
@@ -28,6 +33,8 @@ const userMenu = (
                         if (!body.data || !response.ok) {
                             return message.error('登出失败');
                         }
+                        clear();
+                        localClear();
                         hashHistory.push({
                             pathname: '/login',
                         });
@@ -75,6 +82,7 @@ export default function MyLayout(props: React.PropsWithChildren<any>) {
                         <Menu
                             mode="horizontal"
                             defaultSelectedKeys={[curItem]}
+                            style={{ minWidth: 450 }}
                             onClick={handleClick}
                         >
                             <Menu.Item key="dataSource">
@@ -103,7 +111,7 @@ export default function MyLayout(props: React.PropsWithChildren<any>) {
                                     }}
                                 >
                                     <span className="username">
-                                        {getItem(USER_NAME) || '未知用户'}
+                                        {localGet(USER_NAME) || '未知用户'}
                                     </span>
                                     <Icon
                                         style={{

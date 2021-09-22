@@ -11,7 +11,7 @@ import 'ant-design-dtinsight-theme/theme/dt-theme/index.less';
 
 import './registerMicroApps';
 import '@/styles/App.css';
-import '@/styles/iconTheme.css';
+import '@/styles/theme.css';
 import store from '../store';
 
 const packageName = require('../../package.json').name;
@@ -22,9 +22,12 @@ function App(props: any) {
     return (
         <ConfigProvider
             prefixCls={packageName}
-            getPopupContainer={() =>
-                document.body!.querySelector('div[id="app"]') as HTMLElement
-            }
+            getPopupContainer={(node) => {
+                if (node) return document.body;
+                return document.body!.querySelector(
+                    'div[id="app"]'
+                ) as HTMLElement;
+            }}
         >
             <Layout history={history}>
                 <Provider store={store}>

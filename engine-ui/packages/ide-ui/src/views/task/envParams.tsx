@@ -32,7 +32,13 @@ export default ({ current, onChange }: IEnvParams) => {
 
     if (!current || !current.activeTab)
         return (
-            <div style={{ textAlign: 'center', marginTop: 20 }}>
+            <div 
+                style={{
+                    marginTop: 10,
+                    textAlign: 'center',
+                    color: '#fff',
+                }}
+            >
                 无法获取环境参数
             </div>
         );

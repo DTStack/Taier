@@ -177,7 +177,7 @@ class DataSync extends React.Component<any, any> {
                             sourceMap.sourceList = sourceMap.sourceList.map(loop);
                         }
                     }
-                    // this.props.initJobData(res.data);
+                    this.props.initJobData(res.data);
                 } else {
                     // tabs中有则把数据取出来
                     this.props.getDataSyncSaved(dataSyncSaved);
@@ -201,7 +201,7 @@ class DataSync extends React.Component<any, any> {
             if (!res.data) {
                 this.props.setTabNew();
             } else {
-                //   this.props.setTabSaved();
+                this.props.setTabSaved();
                 if (!dataSyncSaved) {
                     this.navtoStep(4);
                 }
@@ -242,7 +242,7 @@ class DataSync extends React.Component<any, any> {
     save() {
         const { dataSync, currentTabData } = this.props;
         const params = getDataSyncSaveTabParams(currentTabData, dataSync);
-        this.props.saveTab(params, true, 'task');
+        this.props.saveTab(params);
     }
 
     getPopupContainer = () => {

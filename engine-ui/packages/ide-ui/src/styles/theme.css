@@ -5,3 +5,7 @@
 .codicon-icon_sparkSQL:before {
     color: #519aba;
 }
+
+.m-scheduling .ant-collapse {
+    background-color: var(--panel-background);
+}

@@ -181,6 +181,11 @@ class TargetForm extends React.Component<any, any> {
         const { handleSourceChange } = this.props;
         const { dataType } = option.props;
         setTimeout(() => {
+            dataType !== DATA_SOURCE.KINGBASE
+            && dataType !== DATA_SOURCE.S3
+            && dataType !== DATA_SOURCE.ADB
+            && this.getTableList(value);
+
             // 有schema才需要获取schemalist
             (dataType === DATA_SOURCE.POSTGRESQL ||
                 dataType === DATA_SOURCE.ORACLE) &&
@@ -513,18 +518,10 @@ class TargetForm extends React.Component<any, any> {
                                     getPopupContainer={getPopupContainer}
                                     showSearch
                                     onSelect={(value, options) => {
-                                        this.setState(
-                                            {
-                                                tableList: [],
-                                                tableListSearch: [],
-                                            },
-                                            () => {
-                                                this.changeSource(
-                                                    value,
-                                                    options
-                                                );
-                                            }
-                                        );
+                                        this.setState({
+                                            tableList: [],
+                                            tableListSearch: []
+                                        }, () => {this.changeSource(value, options)})
                                     }}
                                     optionFilterProp="name"
                                 >

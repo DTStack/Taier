@@ -3493,10 +3493,10 @@ dt-react-component@^2.0.8:
     react-syntax-highlighter "^15.4.3"
     showdown "^1.9.0"
 
-dt-sql-parser@^4.0.0-beta.2.1:
-  version "4.0.0-beta.2.1"
-  resolved "https://registry.yarnpkg.com/dt-sql-parser/-/dt-sql-parser-4.0.0-beta.2.1.tgz#10b8b86ac3157f74dc19328df2cbb74947c14c1c"
-  integrity sha512-cO/pc7UvFOZ3L8YzkcWN8YFDH+4B65x5D6OK2qLq14cfqt5rY6sxabpcqRg8tO5N7y/VfCJw54vYiNdvSXfRfg==
+dt-sql-parser@^4.0.0-beta.2.2:
+  version "4.0.0-beta.2.2"
+  resolved "https://registry.nlark.com/dt-sql-parser/download/dt-sql-parser-4.0.0-beta.2.2.tgz?cache=0&sync_timestamp=1631268356099&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fdt-sql-parser%2Fdownload%2Fdt-sql-parser-4.0.0-beta.2.2.tgz#84fbed385afc19ca6464cd266889e3f52e73083a"
+  integrity sha1-hPvtOFr8GcpkZM0maInj9S5zCDo=
   dependencies:
     "@types/antlr4" "4.7.0"
     antlr4 "4.7.2"
@@ -6378,7 +6378,7 @@ mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@^0.5.5:
     minimist "^1.2.5"
 
 "molecule@file:../molecule":
-  version "0.9.0-alpha.4"
+  version "0.9.0-alpha.5"
   dependencies:
     "@dtinsight/dt-utils" "^1.0.3"
     "@types/react" "^17.0.3"
@@ -6421,12 +6421,12 @@ monaco-editor@^0.23.0:
   resolved "https://registry.yarnpkg.com/monaco-editor/-/monaco-editor-0.23.0.tgz#24844ba5640c7adb3a2a3ff3b520cf2d7170a6f0"
   integrity sha512-q+CP5zMR/aFiMTE9QlIavGyGicKnG2v/H8qVvybLzeFsARM8f6G9fL0sMST2tyVYCwDKkGamZUI6647A0jR/Lg==
 
-monaco-sql-languages@^0.9.2:
-  version "0.9.2"
-  resolved "https://registry.yarnpkg.com/monaco-sql-languages/-/monaco-sql-languages-0.9.2.tgz#fde04cb4625753cebd38ccc9c64fc18f719d2022"
-  integrity sha512-0kRWTh/tkLuJYGoN39VP3WQPdyijj4zfh9N5tehbY/h56O8rqfWiLcS57p3E6rWmpRgnTx5ESYmOLC9nHZKp3A==
+monaco-sql-languages@^0.9.3:
+  version "0.9.3"
+  resolved "https://registry.nlark.com/monaco-sql-languages/download/monaco-sql-languages-0.9.3.tgz#8d587fcc4a63864577b79870fed3d865243d1c68"
+  integrity sha1-jVh/zEpjhkV3t5hw/tPYZSQ9HGg=
   dependencies:
-    dt-sql-parser "^4.0.0-beta.2.1"
+    dt-sql-parser "^4.0.0-beta.2.2"
 
 ms@2.0.0:
   version "2.0.0"

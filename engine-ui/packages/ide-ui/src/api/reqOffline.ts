@@ -107,7 +107,7 @@ const offlineReq = {
     GET_OFFLINE_COLUMNFORSYNCOPATE: `${RDOS_BASE_URL}/batch/batchDataSource/columnForSyncopate`,
     GET_OFFLINE_JOBDATA: `${RDOS_BASE_URL}/batch/batchDataSource/trace`,
     SAVE_OFFLINE_JOBDATA: `${RDOS_BASE_URL}/batch/batchTask/addOrUpdateTask`,
-    ADD_OFFLINE_FUNCTION: `${RDOS_BASE_URL}/batch/batchFunction/addFunction`,
+    ADD_OFFLINE_FUNCTION: `${RDOS_BASE_URL}/batch/batchFunction/addOrUpdateFunction`,
     ADD_OFFLINE_PROCEDURE: `${RDOS_BASE_URL}/batch/batchFunction/addGpProcedureOrFunction`, // 临时
     GET_SCHEMA_NAME: `${RDOS_BASE_URL}/batch/batchFunction/getEngineIdentity`,
     LINK_SOURCE: `${RDOS_BASE_URL}/batch/batchDataSource/linkDataSource`, // 关联映射数据源

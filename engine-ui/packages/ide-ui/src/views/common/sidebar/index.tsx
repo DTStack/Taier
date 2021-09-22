@@ -1,7 +1,13 @@
 import React from 'react';
 import molecule from 'molecule';
-import { IExtension } from 'molecule/esm/model';
+import {
+    IExtension,
+    CONTEXT_MENU_SEARCH,
+    ACTIVITY_BAR_GLOBAL_ACCOUNT,
+} from 'molecule/esm/model';
 import ResourceManager from '../../resourceManager';
+import FunctionManager from '../../functionManager';
+import { FUNCTION_NEW_FUNCTION } from '../../functionManager/menu';
 
 export const folderMenu = [
     {
@@ -23,7 +29,7 @@ function initResourceManager() {
         id: 'ResourceManager',
         icon: 'icon_ziyuan iconfont',
         name: '资源管理',
-        title: '资源管理'
+        title: '资源管理',
     };
 
     const headerToolBar = [
@@ -58,13 +64,37 @@ function initFunctionManager() {
         id: 'FunctionManager',
         icon: 'icon_hanshu iconfont',
         name: '函数管理',
-        title: '函数管理'
+        title: '函数管理',
     };
+    molecule.activityBar.remove([
+        CONTEXT_MENU_SEARCH,
+        ACTIVITY_BAR_GLOBAL_ACCOUNT,
+    ]);
+
+    const headerToolBar = [
+        {
+            id: 'refresh',
+            title: '刷新',
+            icon: 'refresh',
+        },
+        {
+            id: 'menus',
+            title: '更多操作',
+            icon: 'menu',
+            contextMenu: [FUNCTION_NEW_FUNCTION],
+        },
+    ];
+
     molecule.activityBar.add(functionManager);
     molecule.sidebar.add({
         id: functionManager.id,
         title: functionManager.name,
-        render: () => <div>123</div>,
+        render: () => (
+            <FunctionManager
+                panel={functionManager}
+                headerToolBar={headerToolBar}
+            />
+        ),
     });
 }
 

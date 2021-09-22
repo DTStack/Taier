@@ -10,8 +10,19 @@ import ajax from '../../../api';
 import { catalogueTypeToDataType } from '../../../components/func';
 import { updateCatalogueData } from '../../../controller/catalogue/actionCreator';
 import store from '../../../store';
-import { TaskType } from '../../../components/status';
+import resourceManagerTree from '../../../services/resourceManagerService';
+import functionManagerService from '../../../services/functionManagerService';
 import { TASK_TYPE } from '../../../comm/const';
+
+export type Source = 'task' | 'resource' | 'function';
+export interface CatalogueDataProps {
+    id: number;
+    type: string;
+    taskType: number;
+    name: string;
+    children: CatalogueDataProps[] | null;
+    catalogueType: string;
+}
 
 export function resetEditorGroup() {
     molecule.editor.updateActions([
@@ -72,7 +83,9 @@ export function convertToTreeNode(data: any[]) {
  * @param node
  * @returns
  */
-export async function getCatalogueViaNode(node: any) {
+export async function getCatalogueViaNode(
+    node: Pick<CatalogueDataProps, 'id' | 'catalogueType'>
+) {
     return new Promise<any>(async (resolve, reject) => {
         if (!node)
             reject(new Error('[getCatalogueViaNode]: failed to get catelogue'));
@@ -96,19 +109,133 @@ export async function getCatalogueViaNode(node: any) {
     });
 }
 
-// 获取任务管理根目录
-export function getTaskManagerRootFolder(data: any[]) {
-    return data
-        .find((item) => item.catalogueType === 'TaskManager')
-        .children.find((item: any) => item.catalogueType === 'TaskDevelop');
+/**
+ * Get the root folder which distinguished from the source
+ * @param data
+ * @param source
+ * @returns
+ */
+export function getRootFolderViaSource(
+    data: CatalogueDataProps[],
+    source: Source
+) {
+    switch (source) {
+        case 'task': {
+            return data
+                .find((item) => item.catalogueType === 'TaskManager')
+                ?.children?.find(
+                    (item) => item.catalogueType === 'TaskDevelop'
+                );
+        }
+
+        case 'resource': {
+            return data.find(
+                (item) => item.catalogueType === 'ResourceManager'
+            );
+        }
+
+        case 'function': {
+            return data.find(
+                (item) => item.catalogueType === 'FunctionManager'
+            );
+        }
+        default:
+            return undefined;
+    }
 }
 
-// 获取函数管理根目录
-export function getFunctionManagerRootFolder(data: any[]) {
-    return data.find((item) => item.catalogueType === 'FunctionManager');
+/**
+ * Transform the catalogue data from back-end to the tree structure
+ * @param catalogue
+ * @param source
+ * @returns
+ */
+export function transformCatalogueToTree(
+    catalogue: CatalogueDataProps,
+    source: Source,
+    isRootFolder: boolean = false
+): TreeNodeModel | undefined {
+    const folderType = ['folder', 'catalogue'];
+    switch (source) {
+        case 'task':
+        case 'resource': {
+            const children = (catalogue.children || [])
+                .map((child) => transformCatalogueToTree(child, source))
+                .filter(Boolean) as TreeNodeModel[];
+
+            const catalogueType = folderType.includes(catalogue.type)
+                ? FileTypes.Folder
+                : FileTypes.File;
+
+            const fileType = isRootFolder
+                ? FileTypes.RootFolder
+                : catalogueType;
+
+            return new TreeNodeModel({
+                id: catalogue.id,
+                name: catalogue.name,
+                location: catalogue.name,
+                fileType,
+                icon: fileIcon(catalogue.taskType),
+                isLeaf: fileType === FileTypes.File,
+                data: catalogue,
+                children,
+            });
+        }
+        case 'function': {
+            const { id, type, name } = catalogue;
+            const children = (catalogue.children || [])
+                // there is a system function in the children node of root folder, we'd better to filter it
+                .filter((child) => !isRootFolder || child.name !== '系统函数')
+                .map((child) => transformCatalogueToTree(child, source))
+                .filter(Boolean) as TreeNodeModel[];
+
+            const catalogueType = folderType.includes(type)
+                ? FileTypes.Folder
+                : FileTypes.File;
+
+            const fileType = isRootFolder
+                ? FileTypes.RootFolder
+                : catalogueType;
+
+            // Because of the same id in different levels, so we should set another uniq id for each tree node
+            return new TreeNodeModel({
+                id: `${id}-${folderType.includes(type) ? 'folder' : 'file'}`,
+                name,
+                location: name,
+                fileType,
+                isLeaf: fileType === FileTypes.File,
+                data: catalogue,
+                children,
+            });
+        }
+
+        default:
+            return;
+    }
 }
 
-// 获取资源管理根目录
-export function getResourceManagerRootFolder(data: any[]) {
-    return data.find((item) => item.catalogueType === 'ResourceManager');
+/**
+ * Get the children data in node and save it into Service
+ * @param node
+ * @param source
+ */
+export async function loadTreeNode(node: CatalogueDataProps, source: Source) {
+    const data = await getCatalogueViaNode(node);
+    const nextNode = transformCatalogueToTree(data, source);
+    if (nextNode) {
+        switch (source) {
+            case 'task':
+                molecule.folderTree.update(nextNode);
+                break;
+            case 'resource':
+                resourceManagerTree.update(nextNode);
+                break;
+            case 'function':
+                functionManagerService.update(nextNode);
+                break;
+            default:
+                break;
+        }
+    }
 }
