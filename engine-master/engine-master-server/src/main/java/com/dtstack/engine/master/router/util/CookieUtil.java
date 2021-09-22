@@ -17,8 +17,14 @@ public class CookieUtil {
 
     public static final String DT_TOKEN = "dt_token";
     public static final String DT_USERID = "dt_user_id";
+    public static final String DT_TENANT_ID = "dt_tenant_id";
     public static final String dtUsername = "dt_username";
     public static final String dtSource = "req_source";
+    public static final String X_PROJECT_ID = "X-Project-ID";
+
+    public static final String PROJECT_FILED = "projectId";
+    public static final String USER_FILED = "userId";
+    public static final String TENANT_FILED = "tenantId";
 
     public static String getDtUicToken(Cookie[] cookies) {
         Object value = getCookieValue(cookies, DT_TOKEN);

@@ -1112,28 +1112,20 @@ public class BatchCatalogueService {
         if (parentCatalogue.getLevel().equals(CatalogueLevel.SECOND.getLevel()) &&
                 parentCatalogue.getNodeName().equals(TASK_DEVELOPE)) {
             //初始化默认目录
-            List<BatchCatalogue> collect = childCatalogues.stream().filter(new Predicate<BatchCatalogue>() {
-                @Override
-                public boolean test(BatchCatalogue batchCatalogue) {
-                    List<String> values = TemplateCatalogue.getValues();
-                    if (values.contains(batchCatalogue.getNodeName())) {
-                        return true;
-                    }
-                    return false;
+            Map<Boolean, List<BatchCatalogue>> listMap = childCatalogues.stream().collect(Collectors.groupingBy(c -> {
+                List<String> values = TemplateCatalogue.getValues();
+                if (values.contains(c.getNodeName())) {
+                    return true;
                 }
-            }).collect(Collectors.toList());
-            List<BatchCatalogue> batchCatalogueTop5 = new ArrayList<>();
-            if (CollectionUtils.isNotEmpty(childCatalogues)) {
-                Iterator<BatchCatalogue> iterator = childCatalogues.iterator();
-                while (iterator.hasNext()) {
-                    if (collect.contains(iterator.next())) {
-                        iterator.remove();
-                    }
-                }
-                childCatalogues.sort(Comparator.comparing(BatchCatalogue::getNodeName));
-                collect.sort(Comparator.comparing(BatchCatalogue::getId));
-                collect.addAll(childCatalogues);
-                batchCatalogueTop5 = collect;
+                return false;
+            }, Collectors.toList()));
+
+            List<BatchCatalogue> batchCatalogueTop5 = new ArrayList<>(listMap.get(Boolean.TRUE));
+            batchCatalogueTop5.sort(Comparator.comparing(BatchCatalogue::getId));
+            if (CollectionUtils.isNotEmpty(listMap.get(Boolean.FALSE))) {
+                List<BatchCatalogue> selfCatalogue = listMap.get(Boolean.FALSE);
+                selfCatalogue.sort(Comparator.comparing(BatchCatalogue::getNodeName));
+                batchCatalogueTop5.addAll(selfCatalogue);
             }
             return batchCatalogueTop5;
 
