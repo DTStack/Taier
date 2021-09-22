@@ -1,14 +1,12 @@
+.taskParams {
+    color: var(--foreground);
+}
 .taskParams .ant-collapse > .ant-collapse-item > .ant-collapse-header {
-    color: #fff;
+    color: var(--foreground);
 }
 
 .taskParams .ant-form-item-label > label {
-    color: #fff;
-}
-
-.taskParams .ant-input {
-    background: #fff;
-    color: #000;
+    color: var(--foreground);
 }
 
 .mo-editor__group-container .mo-open-task {

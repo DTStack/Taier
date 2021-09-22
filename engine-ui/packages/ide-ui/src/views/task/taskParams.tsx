@@ -146,14 +146,8 @@ class TaskParams extends React.Component<any, any> {
                     >
                         <Panel
                             key="1"
-                            style={{ borderBottomColor: 'transparent' }}
                             header={
-                                <span
-                                    style={{
-                                        background: 'transparent',
-                                        color: '#fff',
-                                    }}
-                                >
+                                <span>
                                     系统参数配置{' '}
                                     <HelpDoc
                                         style={{ position: 'inherit' }}
@@ -168,14 +162,8 @@ class TaskParams extends React.Component<any, any> {
                         </Panel>
                         <Panel
                             key="2"
-                            style={{ borderBottomColor: 'transparent' }}
                             header={
-                                <span
-                                    style={{
-                                        background: 'transparent',
-                                        color: '#fff',
-                                    }}
-                                >
+                                <span>
                                     自定义参数配置{' '}
                                     <HelpDoc
                                         style={{ position: 'inherit' }}
