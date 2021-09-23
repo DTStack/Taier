@@ -3,6 +3,7 @@ import { message } from 'antd';
 import { FileTypes, IExtension, TreeNodeModel } from 'molecule/esm/model';
 import { localize } from 'molecule/esm/i18n/localize';
 import molecule from 'molecule/esm';
+import { connect } from 'molecule/esm/react';
 
 import Open from '../../task/open';
 import EditFolder from '../../task/editFolder';
@@ -26,6 +27,9 @@ import { workbenchAction } from '../../../controller/dataSync/actionType';
 import { editorAction } from '../../../controller/editor/actionTypes';
 import { cloneDeep } from 'lodash';
 import { getStatusBarLanguage, updateStatusBarLanguage } from '../statusBar';
+
+const OpenView = connect(molecule.editor, Open)
+const EditFolderView = connect(molecule.editor, EditFolder)
 
 function init() {
     molecule.explorer.onPanelToolbarClick((panel, toolbarId: string) => {
@@ -121,7 +125,11 @@ function createTask() {
                     value: id,
                 },
                 renderPane: () => {
-                    return <Open onSubmit={onSubmit} />;
+                    return <OpenView 
+                        key={tabId} 
+                        tabId={tabId} 
+                        onSubmit={onSubmit}
+                    />;
                 },
             };
 
@@ -457,12 +465,14 @@ function contextMenu() {
                         return (
                             <>
                                 {isFile ? (
-                                    <Open
+                                    <OpenView
+                                        key={tabId}
                                         record={treeNode!.data}
                                         onSubmit={onSubmit}
                                     />
                                 ) : (
-                                    <EditFolder
+                                    <EditFolderView
+                                        key={tabId}
                                         record={treeNode!.data}
                                         onSubmitFolder={onSubmitFolder}
                                     />
