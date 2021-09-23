@@ -75,8 +75,7 @@ const mapState = (state: any, ownProps: FolderPickerProps) => {
             break;
         case 'function':
             // function manager only support to insert data into custom function
-            const functionTree = catalogue.functionTree;
-            treeData = findCustomNode(functionTree);
+            treeData = findCustomNode(catalogue.functionTree);
             break;
         default:
             treeData = catalogue.taskTree;

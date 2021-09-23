@@ -1,6 +1,7 @@
 // TODO, refactor
 import React from 'react';
 import { Button, Form, Input } from 'antd';
+import molecule from 'molecule/esm';
 import { Scrollable } from 'molecule/esm/components';
 import { WrappedFormUtils } from 'antd/lib/form/Form';
 import FormItem from 'antd/lib/form/FormItem';
@@ -36,6 +37,8 @@ interface EditFolderProps {
     onSubmitFolder?: (values: any) => Promise<boolean>;
     record?: any;
     form: WrappedFormUtils<any>;
+    current?: any;
+    tabId?: string|number
 }
 
 class EditFolder extends React.PureComponent<EditFolderProps, {}> {
@@ -65,13 +68,37 @@ class EditFolder extends React.PureComponent<EditFolderProps, {}> {
     };
 
     componentDidMount() {
-        const { form, record } = this.props;
-        if (record) {
-            form.setFieldsValue({
-                nodeName: record.name,
-                nodePid: record.parentId,
-            });
+        const { record, current, tabId } = this.props;
+        const { tab: { data } } = current
+        if (data.id === undefined) {
+            this.updateTabData({
+                id: record?.id ?? tabId,
+                nodeName: record?.name,
+                nodePid: record?.parentId
+            })
         }
+        this.syncTabData2Form()
+    }
+
+    syncTabData2Form = () => {
+        const { form, current } = this.props
+        const { data } = current.tab
+        const { nodePid, nodeName } = data
+        form.setFieldsValue({
+            nodeName,
+            nodePid
+        });
+    }
+
+    updateTabData = (values: any) => {
+        const { current } = this.props
+        molecule.editor.updateTab({
+            ...current.tab,
+            data: {
+                ...current.tab.data,
+                ...values
+            }
+        })
     }
 
     render() {
@@ -91,7 +118,12 @@ class EditFolder extends React.PureComponent<EditFolderProps, {}> {
                                     required: true,
                                 },
                             ],
-                        })(<Input autoComplete={'off'} />)}
+                        })(<Input
+                            autoComplete={'off'}
+                            onChange={(e: any) => {
+                                this.updateTabData({nodeName: e.target.value})
+                            }}
+                        />)}
                     </FormItem>
                     <FormItem {...formItemLayout} label="选择目录位置">
                         {getFieldDecorator('nodePid', {
@@ -100,7 +132,13 @@ class EditFolder extends React.PureComponent<EditFolderProps, {}> {
                                     required: true,
                                 },
                             ],
-                        })(<FolderPicker showFile={false} dataType='task' />)}
+                        })(<FolderPicker
+                            showFile={false}
+                            dataType='task'
+                            onChange={(value: any) => {
+                                this.updateTabData({nodePid: value})
+                            }}
+                        />)}
                     </FormItem>
                     <FormItem {...tailFormItemLayout}>
                         <Button type="primary" htmlType="submit" loading={loading}>
