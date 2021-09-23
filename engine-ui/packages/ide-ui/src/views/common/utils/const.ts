@@ -14,3 +14,8 @@ export const ENV_PARAMS = 'env.params';
 export const OUTPUT_LOG = 'panel.output.log';
 
 export const FOLDERTREE_CONTEXT_EDIT = 'explorer.edit';
+
+export const CREATE_TASK_PREFIX = 'createTask';
+export const CREATE_FOLDER_PREFIX = 'createFolder';
+export const EDIT_TASK_PREFIX = 'editTask';
+export const EDIT_FOLDER_PREFIX = 'editFolder';

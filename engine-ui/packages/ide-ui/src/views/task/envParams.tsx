@@ -1,9 +1,14 @@
-import React, { useEffect, useRef }  from 'react';
+import React, { useEffect, useRef } from 'react';
 import { MonacoEditor } from 'molecule/esm/components';
 import { editor as monacoEditor, Uri } from 'molecule/esm/monaco';
 import { IEditor, IEditorTab } from 'molecule/esm/model';
 import type { editor } from 'molecule/esm/monaco';
-import { ENV_PARAMS } from '../common/utils/const';
+import {
+    CREATE_TASK_PREFIX,
+    EDIT_FOLDER_PREFIX,
+    EDIT_TASK_PREFIX,
+    ENV_PARAMS,
+} from '../common/utils/const';
 
 const getUniqPath = (path: string) => {
     return Uri.parse(`file://tab/${path}`);
@@ -17,26 +22,31 @@ export default ({ current, onChange }: IEnvParams) => {
     const editorIns = useRef<editor.IStandaloneCodeEditor>();
 
     useEffect(() => {
-        if (current && typeof(current.tab?.id) === 'number') {
+        if (current && typeof current.tab?.id === 'number') {
             const model =
-                    monacoEditor.getModel(getUniqPath(current.tab?.data.path)) ||
-                    monacoEditor.createModel(
-                        current.tab?.data.taskParams || '',
-                        'ini',
-                        getUniqPath(current.tab?.data.path)
-                    );
-    
+                monacoEditor.getModel(getUniqPath(current.tab?.data.path)) ||
+                monacoEditor.createModel(
+                    current.tab?.data.taskParams || '',
+                    'ini',
+                    getUniqPath(current.tab?.data.path)
+                );
+
             editorIns.current?.setModel(model);
         }
     }, [current?.id && current.tab?.id]);
 
-    if (!current || !current.activeTab)
+    if (
+        !current ||
+        !current.activeTab ||
+        current.activeTab.includes(EDIT_TASK_PREFIX) ||
+        current.activeTab.includes(EDIT_FOLDER_PREFIX) ||
+        current.activeTab.includes(CREATE_TASK_PREFIX)
+    )
         return (
-            <div 
+            <div
                 style={{
                     marginTop: 10,
                     textAlign: 'center',
-                    color: '#fff',
                 }}
             >
                 无法获取环境参数

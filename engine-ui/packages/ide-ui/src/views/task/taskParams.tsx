@@ -5,6 +5,11 @@ import { debounce } from 'lodash';
 import './styles.css';
 import molecule from 'molecule/esm';
 import HelpDoc from '../../components/helpDoc';
+import {
+    EDIT_TASK_PREFIX,
+    EDIT_FOLDER_PREFIX,
+    CREATE_TASK_PREFIX,
+} from '../common/utils/const';
 
 const FormItem = Form.Item;
 const Panel = Collapse.Panel;
@@ -116,13 +121,18 @@ class TaskParams extends React.Component<any, any> {
 
     render() {
         const { current } = this.props;
-        if (!current) {
+        if (
+            !current ||
+            !current.activeTab ||
+            current.activeTab.includes(EDIT_TASK_PREFIX) ||
+            current.activeTab.includes(EDIT_FOLDER_PREFIX) ||
+            current.activeTab.includes(CREATE_TASK_PREFIX)
+        ) {
             return (
                 <div
                     style={{
                         marginTop: 10,
                         textAlign: 'center',
-                        color: '#fff',
                     }}
                 >
                     无法提供任务参数
