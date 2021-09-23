@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Content, Header } from 'molecule/esm/workbench/sidebar';
 import { FolderTree } from 'molecule/esm/workbench/sidebar/explore/index';
 import {
@@ -18,6 +18,9 @@ import { loadTreeNode } from '../common/utils';
 import { folderMenu } from '../common/sidebar';
 import { deleteMenu, editMenu } from './menu';
 import { message, Modal } from 'antd';
+import FolderModal from '../functionManager/folderModal';
+
+const { confirm } = Modal;
 
 const FolderTreeView = connect(resourceManagerTree, FolderTree);
 
@@ -32,11 +35,13 @@ enum DELETE_SOURCE {
 }
 
 export default ({ panel, headerToolBar }: IResourceProps) => {
-    const [isModalShow, setModalShow] = React.useState(false);
-    const [isViewModalShow, setViewModalShow] = React.useState(false);
-    const [resId, setResId] = React.useState(null);
-    const [isCoverUpload, setCoverUpload] = React.useState(false);
-    const [rightClickData, setData] = React.useState<any>(undefined);
+    const [isModalShow, setModalShow] = useState(false);
+    const [isViewModalShow, setViewModalShow] = useState(false);
+    const [resId, setResId] = useState(null);
+    const [isCoverUpload, setCoverUpload] = useState(false);
+    const [rightClickData, setData] = useState<any>(undefined);
+    const [folderVisible, setFolderVisible] = useState(false);
+    const [folderData, setFolderData] = useState<any>(undefined);
 
     const updateNodePid = async (node: ITreeNodeItemProps) => {
         loadTreeNode(node.data, 'resource');
@@ -57,28 +62,9 @@ export default ({ panel, headerToolBar }: IResourceProps) => {
         setData(undefined);
     };
 
-    const getCurrentSelectNode = () => {
-        const folderTreeState = resourceManagerTree.getState();
-        const { data, current } = folderTreeState?.folderTree || {};
-        // The current selected node id or the first root node
-        const nodeId = current?.id || data?.[0]?.id;
-        return nodeId;
-    };
-
     const handleCreate = () => {
-        const nodeId = getCurrentSelectNode();
-        resourceManagerTree.add(
-            new TreeNodeModel({
-                // temporary id
-                id: new Date().getTime(),
-                name: '',
-                fileType: FileTypes.Folder,
-                icon: 'file-code',
-                isLeaf: false,
-                isEditable: true,
-            }),
-            nodeId
-        );
+        setFolderVisible(true);
+        setFolderData(undefined);
     };
 
     const handleHeaderContextClick = (
@@ -126,7 +112,7 @@ export default ({ panel, headerToolBar }: IResourceProps) => {
         source: keyof typeof DELETE_SOURCE
     ) => {
         if (source === 'file') {
-            Modal.confirm({
+            confirm({
                 title: '确认要删除此资源吗?',
                 content: '删除的资源无法找回！',
                 onOk() {
@@ -146,7 +132,7 @@ export default ({ panel, headerToolBar }: IResourceProps) => {
                 onCancel() {},
             });
         } else {
-            Modal.confirm({
+            confirm({
                 title: '确认要删除此文件夹吗?',
                 content: '删除的文件夹无法恢复!',
                 onOk() {
@@ -182,8 +168,8 @@ export default ({ panel, headerToolBar }: IResourceProps) => {
                 break;
             }
             case editMenu.id: {
-                treeNode!.isEditable = true;
-                resourceManagerTree.update(treeNode!);
+                setFolderData(treeNode!.data);
+                setFolderVisible(true);
                 break;
             }
             case 'upload': {
@@ -200,6 +186,11 @@ export default ({ panel, headerToolBar }: IResourceProps) => {
                 handleReplace();
                 break;
             }
+            case 'create-folder': {
+                setFolderData({ parentId: treeNode!.data.id });
+                setFolderVisible(true);
+                break;
+            }
             default:
                 break;
         }
@@ -207,49 +198,6 @@ export default ({ panel, headerToolBar }: IResourceProps) => {
 
     const loadData = async (treeNode: LoadEventData) => {
         loadTreeNode(treeNode.data!.data, 'resource');
-    };
-
-    const handleRename = (node: ITreeNodeItemProps) => {
-        if (!node.name) {
-            resourceManagerTree.remove(node.id);
-            return;
-        }
-        // 自增的结点不存在 data 属性，故可以通过这个属性来区分新增还是编辑
-        const isUpdate = !!node.data;
-        if (isUpdate) {
-            ajax.editOfflineCatalogue({
-                type: 'folder',
-                engineCatalogueType: 0,
-                id: node.data.id,
-                nodeName: node.name,
-                nodePid: node.data.parentId,
-            }).then((res: any) => {
-                if (res.code === 1) {
-                    resourceManagerTree.remove(node.id);
-                    const parentNode = resourceManagerTree.get(
-                        node.data.parentId
-                    );
-                    if (parentNode) {
-                        updateNodePid(parentNode);
-                    }
-                }
-            });
-        } else {
-            const nodeId = getCurrentSelectNode();
-            const params = {
-                nodeName: node.name,
-                nodePid: nodeId,
-            };
-            ajax.addOfflineCatalogue(params).then((res: any) => {
-                if (res.code === 1) {
-                    resourceManagerTree.remove(node.id);
-                    const parentNode = resourceManagerTree.get(nodeId);
-                    if (parentNode) {
-                        updateNodePid(parentNode);
-                    }
-                }
-            });
-        }
     };
 
     const handleSelect = (file: ITreeNodeItemProps) => {
@@ -263,6 +211,47 @@ export default ({ panel, headerToolBar }: IResourceProps) => {
     const handleCloseViewModal = () => {
         setViewModalShow(false);
         setResId(null);
+    };
+
+    const handleCloseFolderModal = () => {
+        setFolderVisible(false);
+        setFolderData(undefined);
+    };
+
+    // 添加文件夹
+    const handleAddCatalogue = (params: any) => {
+        return ajax.addOfflineCatalogue(params).then((res: any) => {
+            if (res.code === 1) {
+                const parentNode = resourceManagerTree.get(params.nodePid);
+                if (parentNode) {
+                    updateNodePid(parentNode);
+                }
+                return true;
+            }
+        });
+    };
+
+    // 编辑文件夹
+    const handleEditCatalogue = (params: any) => {
+        return ajax
+            .editOfflineCatalogue({ ...params, type: 'folder' }) // 文件夹编辑，新增参数固定为folder
+            .then((res: any) => {
+                if (res.code === 1) {
+                    const currentNode = resourceManagerTree.get(params.id);
+                    const parentNode = resourceManagerTree.get(params.nodePid);
+                    // the saving position has been changed
+                    if (currentNode?.data.parentId !== params.nodePid) {
+                        const parentNode = resourceManagerTree.get(
+                            currentNode?.data.parentId
+                        );
+                        updateNodePid(parentNode!);
+                    }
+                    if (parentNode) {
+                        updateNodePid(parentNode);
+                    }
+                    return true;
+                }
+            });
     };
 
     // 新增资源
@@ -315,7 +304,6 @@ export default ({ panel, headerToolBar }: IResourceProps) => {
                         draggable={false}
                         onSelectFile={handleSelect}
                         onLoadData={loadData}
-                        onUpdateFileName={handleRename}
                         onClickContextMenu={handleContextMenu}
                         entry={entry}
                         panel={panel}
@@ -338,6 +326,18 @@ export default ({ panel, headerToolBar }: IResourceProps) => {
                 visible={isViewModalShow && resId}
                 resId={resId}
                 closeModal={handleCloseViewModal}
+            />
+            <FolderModal
+                dataType="resource"
+                isModalShow={folderVisible}
+                toggleCreateFolder={handleCloseFolderModal}
+                treeData={
+                    resourceManagerTree.getState().folderTree?.data?.[0]
+                        ?.children?.[0].data
+                }
+                defaultData={folderData}
+                addOfflineCatalogue={handleAddCatalogue}
+                editOfflineCatalogue={handleEditCatalogue}
             />
         </div>
     );
