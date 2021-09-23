@@ -19,7 +19,7 @@ class FolderForm extends React.Component<any, any> {
 
     render() {
         const { getFieldDecorator } = this.props.form;
-        const { defaultData } = this.props;
+        const { defaultData, dataType } = this.props;
         // 没有默认数据
         const isCreateNormal = typeof defaultData === 'undefined';
         return (
@@ -65,7 +65,7 @@ class FolderForm extends React.Component<any, any> {
                     })(<Input type="hidden"></Input>)}
                     <FolderPicker
                         showFile={false}
-                        dataType="function"
+                        dataType={dataType}
                         defaultValue={
                             isCreateNormal
                                 ? this.props.treeData.id
@@ -114,7 +114,10 @@ class FolderModal extends React.Component<any, any> {
         this.state = {
             loading: false,
         };
+
+        this.wrapper = React.createRef<HTMLDivElement>();
     }
+    wrapper: React.RefObject<HTMLDivElement>;
     dtcount: number;
     form: any;
     isCreate: any;
@@ -183,7 +186,7 @@ class FolderModal extends React.Component<any, any> {
     }
 
     render() {
-        const { isModalShow, defaultData, treeData } = this.props;
+        const { isModalShow, defaultData, treeData, dataType } = this.props;
         const { loading } = this.state;
 
         if (!defaultData) this.isCreate = true;
@@ -193,7 +196,7 @@ class FolderModal extends React.Component<any, any> {
         }
 
         return (
-            <div id="JS_folder_modal">
+            <div ref={this.wrapper}>
                 <Modal
                     title={!this.isCreate ? '编辑文件夹' : '新建文件夹'}
                     visible={isModalShow}
@@ -218,11 +221,12 @@ class FolderModal extends React.Component<any, any> {
                         </Button>,
                     ]}
                     onCancel={this.handleCancel}
-                    getContainer={() => getContainer('JS_folder_modal')}
+                    getContainer={() => this.wrapper.current!}
                 >
                     <FolderFormWrapper
                         ref={(el: any) => (this.form = el)}
                         treeData={treeData}
+                        dataType={dataType}
                         defaultData={defaultData}
                     />
                 </Modal>

@@ -85,7 +85,7 @@ const FunctionManagerView = ({
             }
             case FUNCTION_NEW_FOLDER.id: {
                 setFolderVisible(true);
-                setMenuData(treeNode!.data);
+                setEditData({ parentId: treeNode!.data.id });
                 break;
             }
             case FUNCTION_EDIT.id: {
@@ -321,6 +321,7 @@ const FunctionManagerView = ({
             <FolderModal
                 isModalShow={folderVisible}
                 cateType={MENU_TYPE.COSTOMFUC}
+                dataType="function"
                 toggleCreateFolder={handleCloseFolderModal}
                 treeData={currentMenuData}
                 defaultData={editData}
