@@ -22,18 +22,6 @@ module.exports = {
                 __dirname,
                 '../node_modules/monaco-editor'
             ),
-            'antd/lib/modal$': path.resolve(
-                __dirname,
-                '../src/assets/modal/index.js'
-            ),
-            'antd/lib/message$': path.resolve(
-                __dirname,
-                '../src/assets/message/index.js'
-            ),
-            'antd/lib/notification$': path.resolve(
-                __dirname,
-                '../src/assets/notification/index.js'
-            ),
         },
         fallback: {
             fs: false,
