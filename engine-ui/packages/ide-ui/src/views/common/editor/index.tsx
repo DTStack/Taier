@@ -252,6 +252,10 @@ function emitEvent() {
                                     currentTab.id!
                                 ]?.results || [];
 
+                                if(!results.length){
+                                    return;
+                                }
+
                             // to get the index of this result
                             const panels = molecule.panel.getState().data || [];
                             const resultPanles = panels.filter((p) =>
