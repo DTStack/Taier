@@ -2,9 +2,9 @@
 
 @font-face {
   font-family: "iconfont"; /* Project id 1819717 */
-  src: url('http://schedule.dtstack.cn/console/public/iconfont/iconfont.woff2?t=1628843976792') format('woff2'),
-       url('http://schedule.dtstack.cn/console/public/iconfont/iconfont.woff?t=1628843976792') format('woff'),
-       url('http://schedule.dtstack.cn/console/public/iconfont/iconfont.ttf?t=1628843976792') format('truetype');
+  src: url('iconfont.woff2?t=1628843976792') format('woff2'),
+       url('iconfont.woff?t=1628843976792') format('woff'),
+       url('iconfont.ttf?t=1628843976792') format('truetype');
 }
 
 .iconfont {

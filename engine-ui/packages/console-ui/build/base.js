@@ -7,9 +7,7 @@ const HappyPack = require('happypack');
 const ProgressBarPlugin = require('progress-bar-webpack-plugin');
 const os = require('os');
 const happyThreadPool = HappyPack.ThreadPool({ size: os.cpus().length });
-const InsertHtmlPlugin = require("./plugins/insert-html-webpack-plugin");
 
-const PublicPath = require("./consts").PUBLICPATH
 const MY_PATH = require('./consts');
 const monacoConfig = require('./monacoConfig');
 const splitChunksConfig = require('./splitChunksConfig');
@@ -120,9 +118,6 @@ module.exports = function () {
             new MiniCssExtractPlugin({
                 // 提取为外部css代码
                 filename: '[name].css?v=[contenthash:8]'
-            }),
-            new InsertHtmlPlugin({
-                addCode: PublicPath
             }),
             new CopyWebpackPlugin([
                 {
