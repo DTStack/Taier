@@ -38,7 +38,8 @@ interface OpenProps {
     onSubmit?: (values: any) => Promise<boolean>;
     record?: any;
     form: WrappedFormUtils<any>;
-    current?: any
+    current?: any;
+    tabId?: string|number
 }
 
 const taskType = [
@@ -79,24 +80,22 @@ class Open extends React.PureComponent<OpenProps, {}> {
     };
 
     componentDidMount() {
-        const { record, current } = this.props;
+        const { record, current, tabId } = this.props;
         const { tab: { data } } = current
-
-        if (record && !data.id) {
+        if (data.id === undefined) {
             this.updateTabData({
-                id: record.id,
-                name: record.name,
-                taskType: record.taskType,
-                nodePid: record.parentId,
-                taskDesc: record.taskDesc,
+                id: record?.id ?? tabId, // 存入id标识tab中是否有数据
+                name: record?.name,
+                taskType: record?.taskType,
+                nodePid: record?.parentId,
+                taskDesc: record?.taskDesc,
             })
         }
         this.syncTabData2Form()
     }
 
     syncTabData2Form = () => {
-        const { form, current } = this.props
-        const { data } = current.tab
+        const { form, current: { tab: { data } } } = this.props
         const { name, taskType, nodePid, taskDesc } = data
         form.setFieldsValue({
             name,

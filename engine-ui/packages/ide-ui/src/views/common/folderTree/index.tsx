@@ -467,11 +467,13 @@ function contextMenu() {
                                 {isFile ? (
                                     <OpenView
                                         key={tabId}
+                                        tabId={tabId}
                                         record={treeNode!.data}
                                         onSubmit={onSubmit}
                                     />
                                 ) : (
                                     <EditFolderView
+                                        tabId={tabId}
                                         key={tabId}
                                         record={treeNode!.data}
                                         onSubmitFolder={onSubmitFolder}
