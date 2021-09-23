@@ -1,0 +1,49 @@
+diff --git a/node_modules/antd/es/message/index.js b/node_modules/antd/es/message/index.js
+index 859a3a6..50b5cb3 100644
+--- a/node_modules/antd/es/message/index.js
++++ b/node_modules/antd/es/message/index.js
+@@ -7,7 +7,7 @@ var defaultDuration = 3;
+ var defaultTop;
+ var messageInstance;
+ var key = 1;
+-var prefixCls = 'ant-message';
++var prefixCls = 'ide-ui-message';
+ var transitionName = 'move-up';
+ var getContainer;
+ var maxCount;
+diff --git a/node_modules/antd/es/modal/confirm.js b/node_modules/antd/es/modal/confirm.js
+index 8553f14..ce6deb5 100644
+--- a/node_modules/antd/es/modal/confirm.js
++++ b/node_modules/antd/es/modal/confirm.js
+@@ -31,7 +31,7 @@ var ConfirmDialog = function ConfirmDialog(props) {
+ 
+   var icon = props.icon === undefined ? iconType : props.icon;
+   var okType = props.okType || 'primary';
+-  var prefixCls = props.prefixCls || 'ant-modal';
++  var prefixCls = props.prefixCls || 'ide-ui-modal';
+   var contentPrefixCls = "".concat(prefixCls, "-confirm"); // 默认为 true，保持向下兼容
+ 
+   var okCancel = 'okCancel' in props ? props.okCancel : true;
+@@ -95,7 +95,8 @@ var ConfirmDialog = function ConfirmDialog(props) {
+     actionFn: onOk,
+     closeModal: close,
+     autoFocus: autoFocusButton === 'ok',
+-    buttonProps: okButtonProps
++    buttonProps: okButtonProps,
++    prefixCls: 'ide-ui'
+   }, okText))));
+ };
+ 
+diff --git a/node_modules/antd/es/notification/index.js b/node_modules/antd/es/notification/index.js
+index a91b9f9..9f9722d 100644
+--- a/node_modules/antd/es/notification/index.js
++++ b/node_modules/antd/es/notification/index.js
+@@ -129,7 +129,7 @@ var typeToIcon = {
+ };
+ 
+ function notice(args) {
+-  var outerPrefixCls = args.prefixCls || 'ant-notification';
++  var outerPrefixCls = args.prefixCls || 'ide-ui-notification';
+   var prefixCls = "".concat(outerPrefixCls, "-notice");
+   var duration = args.duration === undefined ? defaultDuration : args.duration;
+   var iconNode = null;
