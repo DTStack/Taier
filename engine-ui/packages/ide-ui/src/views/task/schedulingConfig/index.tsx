@@ -6,6 +6,11 @@ import molecule from 'molecule/esm';
 import { TASK_TYPE } from '../../../comm/const';
 import HelpDoc from '../../../components/helpDoc';
 import Ajax from '../../../api';
+import {
+    EDIT_TASK_PREFIX,
+    EDIT_FOLDER_PREFIX,
+    CREATE_TASK_PREFIX,
+} from '../../common/utils/const';
 
 const Panel = Collapse.Panel;
 const RadioGroup = Radio.Group;
@@ -56,7 +61,7 @@ const getDefaultScheduleConf = (value: any) => {
     };
 
     return scheduleConf[value];
-}
+};
 export class SchedulingConfig extends React.Component<any, any> {
     state = {
         selfReliance: undefined,
@@ -66,13 +71,13 @@ export class SchedulingConfig extends React.Component<any, any> {
 
     componentDidMount() {
         const { current, isIncrementMode } = this.props;
-        if(!current) return 
+        if (!current) return;
         const tabData = current.tab.data!;
-        let scheduleConf
+        let scheduleConf;
         try {
             scheduleConf = JSON.parse(tabData.scheduleConf);
         } catch (error) {
-            scheduleConf = {}
+            scheduleConf = {};
         }
         let selfReliance = 0;
         // 此处为兼容代码
@@ -94,7 +99,6 @@ export class SchedulingConfig extends React.Component<any, any> {
         this.setState({
             selfReliance: selfReliance,
         });
-
     }
 
     // 调度状态change处理函数
@@ -102,39 +106,41 @@ export class SchedulingConfig extends React.Component<any, any> {
         const { checked } = evt.target;
         const status = checked ? 2 : 1;
         const { current, changeScheduleConf } = this.props;
-        const {data: tabData} = current.tab;
+        const { data: tabData } = current.tab;
         const sucInfo = checked ? '冻结成功' : '解冻成功';
         const errInfo = checked ? '冻结失败' : '解冻失败';
-        Ajax
-            .forzenTask({
-                taskIdList: [tabData.id],
-                scheduleStatus: status, //  1正常调度, 2暂停 NORMAL(1), PAUSE(2),
-            })
-            .then((res: any) => {
-                if (res.code === 1) {
-                    // mutate
-                    const newData = {
-                        scheduleStatus: status,
-                    }
-                    changeScheduleConf(current.tab, newData);
-                    this.form.props.form.setFieldsValue({scheduleStatus: checked})
-                    message.info(sucInfo);
-                } else {
-                    this.form.props.form.setFieldsValue({scheduleStatus: checked})
-                    message.error(errInfo);
-                }
-            });
+        Ajax.forzenTask({
+            taskIdList: [tabData.id],
+            scheduleStatus: status, //  1正常调度, 2暂停 NORMAL(1), PAUSE(2),
+        }).then((res: any) => {
+            if (res.code === 1) {
+                // mutate
+                const newData = {
+                    scheduleStatus: status,
+                };
+                changeScheduleConf(current.tab, newData);
+                this.form.props.form.setFieldsValue({
+                    scheduleStatus: checked,
+                });
+                message.info(sucInfo);
+            } else {
+                this.form.props.form.setFieldsValue({
+                    scheduleStatus: checked,
+                });
+                message.error(errInfo);
+            }
+        });
     }
 
     // 调度依赖change处理方法
     handleScheduleConf = () => {
         const { current, changeScheduleConf } = this.props;
         const tabData = current.tab.data;
-        let defaultScheduleConf: any
+        let defaultScheduleConf: any;
         try {
             defaultScheduleConf = JSON.parse(tabData.scheduleConf);
         } catch (error) {
-            defaultScheduleConf = {}
+            defaultScheduleConf = {};
         }
         if (!defaultScheduleConf.periodType) {
             defaultScheduleConf = getDefaultScheduleConf(2);
@@ -158,8 +164,8 @@ export class SchedulingConfig extends React.Component<any, any> {
                     formData = Object.assign(defaultScheduleConf, formData);
                     delete formData.scheduleStatus;
                     const newData = {
-                        scheduleConf: JSON.stringify(formData)
-                    }
+                        scheduleConf: JSON.stringify(formData),
+                    };
                     changeScheduleConf(current.tab, newData);
                 }
             }
@@ -185,8 +191,8 @@ export class SchedulingConfig extends React.Component<any, any> {
                 this.form.props.form.getFieldValue('maxRetryNum');
         }
         const newData = {
-            scheduleConf: JSON.stringify(values)
-        }
+            scheduleConf: JSON.stringify(values),
+        };
         changeScheduleConf(current.tab, newData);
     }
 
@@ -194,24 +200,28 @@ export class SchedulingConfig extends React.Component<any, any> {
     handleTaskVOSChange = (newTaskVOS: any) => {
         const { current, changeScheduleConf } = this.props;
         changeScheduleConf(current.tab, { taskVOS: newTaskVOS });
-    }
+    };
 
     setSelfReliance(evt: any) {
         const value = evt.target.value;
-        this.setState({
-            selfReliance: value,
-        },  () => {this.handleScheduleConf()});
-        
+        this.setState(
+            {
+                selfReliance: value,
+            },
+            () => {
+                this.handleScheduleConf();
+            }
+        );
     }
 
     getInitScheduleConf = () => {
-        const { isWorkflowNode, current } = this.props
-        const tabData = current.tab.data
-        let initConf: any
+        const { isWorkflowNode, current } = this.props;
+        const tabData = current.tab.data;
+        let initConf: any;
         try {
-            initConf = JSON.parse(tabData.scheduleConf)
+            initConf = JSON.parse(tabData.scheduleConf);
         } catch (error) {
-            initConf = {}
+            initConf = {};
         }
 
         let scheduleConf = Object.assign(getDefaultScheduleConf(0), {
@@ -233,24 +243,25 @@ export class SchedulingConfig extends React.Component<any, any> {
             scheduleConf.periodType = 2;
         }
 
-        return scheduleConf
-    }
+        return scheduleConf;
+    };
 
     render() {
         const { selfReliance } = this.state;
-        const {
-            current,
-            isWorkflowNode,
-            isIncrementMode,
-            isScienceTask,
-        } = this.props;
-        if (!current) {
+        const { current, isWorkflowNode, isIncrementMode, isScienceTask } =
+            this.props;
+        if (
+            !current ||
+            !current.activeTab ||
+            current.activeTab.includes(EDIT_TASK_PREFIX) ||
+            current.activeTab.includes(EDIT_FOLDER_PREFIX) ||
+            current.activeTab.includes(CREATE_TASK_PREFIX)
+        ) {
             return (
                 <div
                     style={{
                         marginTop: 10,
                         textAlign: 'center',
-                        color: '#fff',
                     }}
                 >
                     无法获取调度依赖
@@ -258,7 +269,7 @@ export class SchedulingConfig extends React.Component<any, any> {
             );
         }
         const tabData = current.tab.data;
-        const scheduleConf = this.getInitScheduleConf()
+        const scheduleConf = this.getInitScheduleConf();
 
         return (
             <molecule.component.Scrollable>
@@ -288,14 +299,16 @@ export class SchedulingConfig extends React.Component<any, any> {
                         </Panel>
                         {!isWorkflowNode &&
                             tabData.taskType !== TASK_TYPE.VIRTUAL_NODE && (
-                            <Panel key="2" header="任务间依赖">
-                                <TaskDependence
-                                    current={current}
-                                    handleTaskVOSChange={this.handleTaskVOSChange}
-                                    tabData={tabData}
-                                />
-                            </Panel>
-                        )}
+                                <Panel key="2" header="任务间依赖">
+                                    <TaskDependence
+                                        current={current}
+                                        handleTaskVOSChange={
+                                            this.handleTaskVOSChange
+                                        }
+                                        tabData={tabData}
+                                    />
+                                </Panel>
+                            )}
                         {!isWorkflowNode && (
                             <Panel key="3" header="跨周期依赖">
                                 <Row style={{ marginBottom: '16px' }}>

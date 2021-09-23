@@ -17,6 +17,10 @@ import DataSync from '../../dataSync';
 import ajax from '../../../api';
 import { TASK_TYPE } from '../../../comm/const';
 import {
+    CREATE_FOLDER_PREFIX,
+    CREATE_TASK_PREFIX,
+    EDIT_FOLDER_PREFIX,
+    EDIT_TASK_PREFIX,
     FOLDERTREE_CONTEXT_EDIT,
     TASK_RUN_ID,
     TASK_SAVE_ID,
@@ -82,7 +86,7 @@ function createTask() {
         if (type === 'File') {
             resetEditorGroup();
 
-            const tabId = `createTask_${new Date().getTime()}`;
+            const tabId = `${CREATE_TASK_PREFIX}_${new Date().getTime()}`;
 
             const onSubmit = (values: any) => {
                 return new Promise<boolean>((resolve) => {
@@ -145,7 +149,7 @@ function createTask() {
             // work through addNode function
             molecule.folderTree.add(
                 new TreeNodeModel({
-                    id: `create_folder_${new Date().getTime()}`,
+                    id: `${CREATE_FOLDER_PREFIX}_${new Date().getTime()}`,
                     name: '',
                     isLeaf: false,
                     fileType: FileTypes.Folder,
@@ -216,7 +220,7 @@ function editTreeNodeName() {
         if (fileType === 'File') {
             renameFile(file);
         } else {
-            if (`${id}`.startsWith('create_folder_')) {
+            if (`${id}`.startsWith(CREATE_FOLDER_PREFIX)) {
                 createFolder(file);
             } else {
                 renameFolder(file);
@@ -376,8 +380,8 @@ function contextMenu() {
                 const isFile = treeNode!.fileType === 'File';
 
                 const tabId = isFile
-                    ? `editTask_${new Date().getTime()}`
-                    : `editFolder_${new Date().getTime()}`;
+                    ? `${EDIT_TASK_PREFIX}_${new Date().getTime()}`
+                    : `${EDIT_FOLDER_PREFIX}_${new Date().getTime()}`;
 
                 const afterSubmit = (params: any, values: any) => {
                     const nextTreeData = cloneDeep(treeNode!);
