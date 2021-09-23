@@ -1,15 +1,10 @@
 const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HAPPY_PACK = require.resolve('happypack/loader');
-const InsertHtmlPlugin = require('./plugins/insert-html-webpack-plugin');
 const BASE_NAME = '/datasource/'; // 资源目录 默认访问路径
 const ROOT_PATH = path.resolve(__dirname, './');
 const BUILD_PATH = path.resolve(ROOT_PATH, `dist${BASE_NAME}`);
 const packageName = require('./package.json').name;
-const PUBLICPATH =
-  process.env.NODE_ENV === 'production'
-    ? 'http://schedule.dtstack.cn/datasource'
-    : `http://localhost:8082`;
 
 const copyConfig = [
   { from: path.resolve(__dirname, 'public/config'), to: 'config' },
@@ -83,10 +78,7 @@ module.exports = () => {
           },
         ],
       },
-      plugins: [
-        new CopyWebpackPlugin(copyConfig),
-        new InsertHtmlPlugin({ addCode: PUBLICPATH }),
-      ],
+      plugins: [new CopyWebpackPlugin(copyConfig)],
       externals: {
         APP_CONF: 'APP_CONF',
       },
