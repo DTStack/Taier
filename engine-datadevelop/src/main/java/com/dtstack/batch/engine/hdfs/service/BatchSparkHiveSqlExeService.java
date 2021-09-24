@@ -78,9 +78,6 @@ public class BatchSparkHiveSqlExeService {
     protected ProjectEngineService projectEngineService;
 
     @Autowired
-    private ITableService tableServiceImpl;
-
-    @Autowired
     protected BatchSelectSqlService selectSqlService;
 
     @Autowired
@@ -329,18 +326,6 @@ public class BatchSparkHiveSqlExeService {
         if (matcher.find()) {
             String db = StringUtils.isEmpty(parseResult.getMainTable().getDb()) ? currentDb : parseResult.getMainTable().getDb();
             String tableName = parseResult.getMainTable().getName();
-            try {
-                if(tableServiceImpl.isView(dtuicTenantId, null, db, ETableType.HIVE, tableName)){
-                    result.setIsContinue(true);
-                    return result;
-                }
-            } catch (Exception e){
-                log.error("", e);
-                result.setIsContinue(false);
-                result.setStatus(TaskStatus.FAILED.getStatus());
-                result.setMsg(e.getMessage());
-                return result;
-            }
 
             //这里增加一条记录，保证简单查询sql也能下载数据
             String jobId = UUID.randomUUID().toString();
