@@ -8,10 +8,14 @@ import { ConfigProvider } from 'antd';
 import '@/assets/iconfont/iconfont.css';
 import 'ant-design-dtinsight-theme/theme/dt-theme/reset.less';
 import 'ant-design-dtinsight-theme/theme/dt-theme/index.less';
+import 'dt-react-component/lib/style/index.css';
 
 import './registerMicroApps';
 import '@/styles/App.css';
-import '@/styles/theme.css';
+import '@/styles/theme.scss';
+// TODO clean the task.scss file
+import '@/styles/task/task.scss';
+
 import store from '../store';
 
 const packageName = require('../../package.json').name;

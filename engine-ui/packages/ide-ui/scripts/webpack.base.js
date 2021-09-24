@@ -75,6 +75,10 @@ module.exports = {
                         options: {
                             modifyVars: {
                                 '@ant-prefix': packageName,
+                                '@link-color': 'var(--textLink-foreground)',
+                                '@border-radius-base': '0px',
+                                '@blue-6': 'var(--button-background)',
+                                '@btn-primary-bg': 'var(--button-background)'
                             },
                             javascriptEnabled: true,
                         },
@@ -101,7 +105,7 @@ module.exports = {
     },
     plugins: [
         new MonacoWebpackPlugin({
-            languages: [],
+            languages: ['json'],
         }),
         new MiniCssExtractPlugin({
             filename: '[name].css?v=[contenthash:8]',

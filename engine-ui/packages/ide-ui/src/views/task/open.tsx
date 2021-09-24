@@ -29,7 +29,7 @@ const tailFormItemLayout = {
         },
         sm: {
             span: 16,
-            offset: 8,
+            offset: 6,
         },
     },
 };
@@ -195,7 +195,7 @@ class Open extends React.PureComponent<OpenProps, {}> {
                     </FormItem>
                     <FormItem {...tailFormItemLayout}>
                         <Button type="primary" htmlType="submit" loading={loading}>
-                        Submit
+                         创建
                         </Button>
                     </FormItem>
                 </Form>

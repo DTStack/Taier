@@ -7,3 +7,10 @@
     text-align: center;
     width: 100%;
 }
+
+.entry .logo {
+    font-size: 32px;
+    font-family: monospace, sans-serif;
+    opacity: 0.1;
+    color: var(--foreground);
+}
