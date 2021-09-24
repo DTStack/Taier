@@ -577,7 +577,6 @@ class ScheduleForm extends React.Component<any, any> {
                                                 initialValue: `${scheduleConf.hour}`,
                                             })(generateHours())}
                                         </Col>
-
                                         <span className="split-text">时</span>
                                         <Col span={6}>
                                             {getFieldDecorator('min', {

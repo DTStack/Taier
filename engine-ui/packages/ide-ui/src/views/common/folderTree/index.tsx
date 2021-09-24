@@ -22,6 +22,7 @@ import {
     EDIT_FOLDER_PREFIX,
     EDIT_TASK_PREFIX,
     FOLDERTREE_CONTEXT_EDIT,
+    TASK_CREATE_ID,
     TASK_RUN_ID,
     TASK_SAVE_ID,
     TASK_SUBMIT_ID,
@@ -82,6 +83,7 @@ function initContextMenu() {
 }
 
 function createTask() {
+
     molecule.folderTree.onCreate((type, id) => {
         if (type === 'File') {
             resetEditorGroup();
@@ -122,7 +124,7 @@ function createTask() {
             };
 
             const tabData = {
-                id: tabId,
+                id: TASK_CREATE_ID,
                 modified: false,
                 name: localize('create task', '新建任务'),
                 data: {

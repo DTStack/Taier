@@ -6,7 +6,7 @@ import './style.css';
 function EditorEntry(props: any) {
     return (
         <div className="entry">
-            <p style={{ fontSize: '18px' }}>DAGScheduleX</p>
+            <p className="logo">DAGScheduleX</p>
         </div>
     )
 }

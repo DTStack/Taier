@@ -713,6 +713,9 @@
                     .task-info-line {
                         border-bottom: 1px solid #e8e8e8;
                     }
+                    .ant-row {
+                        line-height: 25px;
+                    }
                     .txt-left {
                         color: #333333;
                         text-align: left;
@@ -882,8 +885,7 @@
         .steps-content {
             margin-top: 40px;
             border: 1px dashed var(--dropdown-border);
-            border-radius: 6px;
-            background-color: var(--workbenchBackground);
+            border-radius: 0px;
             min-height: 200px;
             padding: 40px 0;
             min-width: 770px;
