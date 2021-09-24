@@ -11,6 +11,19 @@ index 859a3a6..50b5cb3 100644
  var transitionName = 'move-up';
  var getContainer;
  var maxCount;
+diff --git a/node_modules/antd/es/modal/Modal.js b/node_modules/antd/es/modal/Modal.js
+index 8d3109d..1dc7805 100644
+--- a/node_modules/antd/es/modal/Modal.js
++++ b/node_modules/antd/es/modal/Modal.js
+@@ -121,7 +121,7 @@ var Modal = /*#__PURE__*/function (_React$Component) {
+           visible = _a.visible,
+           wrapClassName = _a.wrapClassName,
+           centered = _a.centered,
+-          getContainer = _a.getContainer,
++          getContainer = _a.getContainer || document.getElementById('molecule'),
+           closeIcon = _a.closeIcon,
+           restProps = __rest(_a, ["prefixCls", "footer", "visible", "wrapClassName", "centered", "getContainer", "closeIcon"]);
+ 
 diff --git a/node_modules/antd/es/modal/confirm.js b/node_modules/antd/es/modal/confirm.js
 index 8553f14..ce6deb5 100644
 --- a/node_modules/antd/es/modal/confirm.js
