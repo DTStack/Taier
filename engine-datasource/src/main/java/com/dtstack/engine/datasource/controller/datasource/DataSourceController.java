@@ -43,7 +43,13 @@ public class DataSourceController {
     private DsAuthRefService authRefService;
 
     @Autowired
+    private DsAppListService dsAppListService;
+
+    @Autowired
     private DsTypeService dsTypeService;
+
+    @Autowired
+    private DatasourceFacade datasourceFacade;
 
     @ApiOperation("数据源列表分页信息")
     @PostMapping("page")
@@ -87,6 +93,38 @@ public class DataSourceController {
             @Override
             protected List<DsTypeListVO> process() throws BizException {
                 return dsTypeService.dsTypeList();
+            }
+        }.execute();
+    }
+
+    @ApiOperation("授权产品下拉列表")
+    @PostMapping("product/list")
+    public R<List<ProductListVO>> productList(@RequestBody PubSvcBaseParam baseParam) {
+        return new APITemplate<List<ProductListVO>>() {
+            @Override
+            protected void checkParams() throws IllegalArgumentException {
+                Asserts.hasText(baseParam.getDtToken(), "用户token不能为空!");
+            }
+
+            @Override
+            protected List<ProductListVO> process() throws BizException {
+                return dsAppListService.getAppList(baseParam);
+            }
+        }.execute();
+    }
+
+    @ApiOperation("产品授权界面")
+    @PostMapping("auth/product/list")
+    public R<List<AuthProductListVO>> authProductList(@RequestBody DsInfoIdParam dsInfoIdParam) {
+        return new APITemplate<List<AuthProductListVO>>() {
+            @Override
+            protected void checkParams() throws IllegalArgumentException {
+                Asserts.notNull(dsInfoIdParam.getDataInfoId(), "数据源Id不能为空");
+            }
+
+            @Override
+            protected List<AuthProductListVO> process() throws BizException {
+                return datasourceFacade.authProductList(dsInfoIdParam);
             }
         }.execute();
     }

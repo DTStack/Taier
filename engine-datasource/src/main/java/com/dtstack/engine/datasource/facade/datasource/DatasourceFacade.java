@@ -28,6 +28,7 @@ import com.dtstack.engine.datasource.vo.datasource.AuthProductListVO;
 import com.dtstack.engine.datasource.vo.datasource.DataSourceVO;
 import com.dtstack.engine.datasource.vo.datasource.DsAppListVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import dt.insight.plat.lang.base.Strings;
 import lombok.extern.slf4j.Slf4j;
@@ -79,6 +80,37 @@ public class DatasourceFacade {
     private DsAppListStruct dsAppListStruct;
 
     public static final String DSC_INFO_CHANGE_CHANNEL = "dscInfoChangeChannel";
+
+
+
+    /**
+     * 获取数据源与租户交集的产品列表
+     * @param param
+     * @return
+     */
+    public List<DsAppListVO> queryAppList(DsTypeVersionParam param) {
+        List<AppTypeEnum> uicAppTypeList = Lists.newArrayList(AppTypeEnum.RDOS);
+
+        List<DsAppMapping> dsAppMappingList = appMappingService.lambdaQuery().eq(DsAppMapping::getDataType, param.getDataType())
+                .eq(Strings.isNotBlank(param.getDataVersion()), DsAppMapping::getDataVersion, param.getDataVersion()).list();
+        List<Integer> appTypeList = CommonUtils.contractField(dsAppMappingList, "appType", Integer.class);
+        List<AppTypeEnum> dataTypeList = AppTypeEnum.mappingType(appTypeList);
+
+        List<AppTypeEnum> interAppTypeList = dataTypeList.stream().filter(e -> AppTypeEnum.containAppType(uicAppTypeList, e.getType())).collect(Collectors.toList());
+
+//        Sets.SetView<AppTypeEnum> interAppTypeSet = Sets.intersection(Sets.newHashSet(uicAppTypeList), Sets.newHashSet(dataTypeList));
+        if (Collects.isEmpty(interAppTypeList)) {
+            return Collects.emptyList();
+        }
+        return interAppTypeList.stream().map(e -> {
+            DsAppListVO appListVO = new DsAppListVO();
+            appListVO.setAppCode(e.getAppCode());
+            appListVO.setAppName(e.getName());
+            appListVO.setAppType(e.getType());
+            return appListVO;
+        }).collect(Collectors.toList());
+    }
+
 
     /**
      * 解析kerberos文件获取principal列表
@@ -360,9 +392,9 @@ public class DatasourceFacade {
      * @return
      */
     public Long addOrUpdateSource(DataSourceVO dataSourceVO, Long projectId, Long userId, Long dtuicTenantId) {
-        if (!checkConnectionWithConf(dataSourceVO, null, null)) {
-            throw new PubSvcDefineException("不能添加连接失败的数据源" + ErrorCode.CONFIG_ERROR);
-        }
+//        if (!checkConnectionWithConf(dataSourceVO, null, null)) {
+//            throw new PubSvcDefineException("不能添加连接失败的数据源" + ErrorCode.CONFIG_ERROR);
+//        }
         return addOrUpdate(dataSourceVO, userId, projectId);
     }
 
@@ -515,6 +547,35 @@ public class DatasourceFacade {
         if (kerberosConfig != null) {
             json.put(FormNames.KERBEROS_CONFIG, kerberosConfig);
         }
+    }
+
+    /**
+     * 编辑状态的授权产品列表
+     * @param dsInfoIdParam
+     * @return
+     */
+    public List<AuthProductListVO> authProductList(DsInfoIdParam dsInfoIdParam) {
+        List<Integer> dsAuthRefs = authRefService.getCodeByDsId(dsInfoIdParam.getDataInfoId());
+        List<Integer> dsImportRefs = importRefService.getCodeByDsId(dsInfoIdParam.getDataInfoId());
+        DsInfo dataSource = dsInfoService.getOneById(dsInfoIdParam.getDataInfoId());
+        DsTypeVersionParam typeVersionParam = new DsTypeVersionParam()
+                .setDataType(dataSource.getDataType())
+                .setDataVersion(dataSource.getDataVersion());
+        typeVersionParam.setDtToken(dsInfoIdParam.getDtToken());
+        List<DsAppListVO> dsAppListVOS = queryAppList(typeVersionParam);
+
+        List<AuthProductListVO> productListVOS = dsAppListVOS.stream().map(x -> {
+            AuthProductListVO authProductListVO = dsAppListStruct.toAuthProductListVO(x);
+            Integer isAuth = dsAuthRefs.contains(x.getAppType())
+                    ? SystemConst.IS_PRODUCT_AUTH : SystemConst.NOT_IS_PRODUCT_AUTH;
+            Integer isImport = dsImportRefs.contains(x.getAppType())
+                    ? SystemConst.IS_PRODUCT_AUTH : SystemConst.NOT_IS_PRODUCT_AUTH;
+            authProductListVO.setIsAuth(isAuth);
+            authProductListVO.setIsImport(isImport);
+            return authProductListVO;
+        }).collect(Collectors.toList());
+
+        return productListVOS;
     }
 
     /**

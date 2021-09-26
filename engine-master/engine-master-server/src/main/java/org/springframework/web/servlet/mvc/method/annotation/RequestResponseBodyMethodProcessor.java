@@ -184,7 +184,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
             }
             String infoValue = callBack.apply(servletRequest);
             if(!StringUtils.isNotBlank(infoValue)){
-                infoValue = "-1";
+                infoValue = "1";
                 for (Cookie cookie : servletRequest.getCookies()) {
                     if (cookie.getName().contains(infoName)) {
                         infoValue = cookie.getValue();

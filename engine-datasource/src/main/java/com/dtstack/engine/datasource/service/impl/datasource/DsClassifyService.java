@@ -5,6 +5,7 @@ import com.dtstack.engine.datasource.dao.po.datasource.DsClassify;
 import com.dtstack.engine.datasource.mapstruct.DsClassStruct;
 import com.dtstack.engine.datasource.service.impl.BaseService;
 import com.dtstack.engine.datasource.vo.datasource.DsClassifyVO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
 @Service
 public class DsClassifyService extends BaseService<DsClassifyMapper, DsClassify> {
 
-    @Deprecated
+    @Autowired
     private DsClassStruct dsClassStruct;
 
     /**
