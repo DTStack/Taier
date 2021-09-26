@@ -21,7 +21,7 @@ module.exports = () => {
   return {
     server: {
       host: '127.0.0.1',
-      port: 8082,
+      port: 8083,
     },
     // proxy,
     webpack: {
