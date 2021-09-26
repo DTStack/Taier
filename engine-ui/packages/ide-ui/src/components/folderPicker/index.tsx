@@ -71,7 +71,10 @@ const mapState = (state: any, ownProps: FolderPickerProps) => {
             treeData = catalogue.taskTree;
             break;
         case 'resource':
-            treeData = catalogue.resourceTree;
+            // resource manager NOT support to insert data into root folder
+            treeData = catalogue.resourceTree.children?.find(
+                (item: any) => item.catalogueType === 'ResourceManager'
+            );
             break;
         case 'function':
             // function manager only support to insert data into custom function
