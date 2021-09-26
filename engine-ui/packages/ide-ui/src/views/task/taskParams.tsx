@@ -1,6 +1,8 @@
-import React from 'react';
+import * as React from 'react';
 import { Form, Collapse, Input } from 'antd';
 import { debounce } from 'lodash';
+
+import './styles.css';
 import molecule from 'molecule/esm';
 import HelpDoc from '../../components/helpDoc';
 import {
@@ -8,7 +10,6 @@ import {
     EDIT_FOLDER_PREFIX,
     CREATE_TASK_PREFIX,
 } from '../common/utils/const';
-import './taskParams.scss';
 
 const FormItem = Form.Item;
 const Panel = Collapse.Panel;
