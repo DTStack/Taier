@@ -5,7 +5,7 @@ const container = `#${AppContainer}`;
 
 let ENTRY_CONSOLE = '//local.dtstack.cn:8082/console/';
 let ENTRY_OPERATION = '//local.dtstack.cn:8082/console/';
-let ENTRY_DATABASE = '//local.dtstack.cn:8082/datasource/';
+let ENTRY_DATABASE = '//local.dtstack.cn:8083/datasource/';
 
 // For Production
 if (process.env.NODE_ENV === 'production') {
