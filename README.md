@@ -1,6 +1,6 @@
-# DAGSCheduleX
+# DAGScheduleX
 
-DAGSCheduleX 脱胎于袋鼠云-数栈（一站式大数据开发平台），技术实现来源于数栈分布式调度引擎Engine，是数栈产品的重要基础设施之一，负责平台所有任务实例的调度和提交运行。
+DAGScheduleX 脱胎于袋鼠云-数栈（一站式大数据开发平台），技术实现来源于数栈分布式调度引擎Engine，是数栈产品的重要基础设施之一，负责平台所有任务实例的调度和提交运行。
 
 ## 功能特征
 
@@ -47,11 +47,19 @@ DAGSCheduleX 脱胎于袋鼠云-数栈（一站式大数据开发平台），技
 
 请参考官方文档: [快速开始](docs/quickstart/QuicklyStart.md)
 
+# License
+
+DAGScheduleX is under the Apache 2.0 license. See
+the [LICENSE](http://www.apache.org/licenses/LICENSE-2.0) file for details.
+
 ## 感谢
 DAGScheduleX 使用了Apache的多个开源项目如Flink、Spark 作为计算组件实现数据同步和批处理计算，得益于开源社区才有DAGScheduleX。取之社区，
 回馈社区。DAGScheduleX在整合了后端4个工程之后才有Beta版本，Beta版本这一步迈出代表DAGScheduleX的开源决心，未来我们会整合内部资源
 尽快推出release_1.0.0版本，也欢迎对DAGScheduleX感兴趣的开源伙伴一起参与共建！提出你宝贵的Issue 与 PR！
 
-
-
+## 技术交流
+我们使用[钉钉](https://www.dingtalk.com/) 沟通交流，可以搜索群号[**30537511**]或者扫描下面的二维码进入钉钉群
+<div align=center> 
+ <img src=docs/readme/ding.jpeg width=300 />
+</div>
 
