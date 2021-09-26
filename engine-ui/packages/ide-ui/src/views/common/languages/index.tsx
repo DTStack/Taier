@@ -1,13 +1,30 @@
 import { debounce } from 'lodash';
 import molecule from 'molecule';
-import { IEditorTab, IExtension, IProblemsItem, MarkerSeverity } from 'molecule/esm/model';
+import {
+    IEditorTab,
+    IExtension,
+    IProblemsItem,
+    MarkerSeverity,
+} from 'molecule/esm/model';
 import 'monaco-sql-languages/out/esm/sparksql/sparksql.contribution';
 import { LanguageService } from 'monaco-sql-languages/out/esm/languageService';
 
+interface ValidMessage {
+    endCol: number;
+    endLine: number;
+    message: string;
+    startCol: number;
+    startLine: number;
+}
+
 const languageService = new LanguageService();
 
-function convertMsgToProblemItem(tab: IEditorTab, code: string, msgs = []): IProblemsItem {
-    const rootId = Number(tab.id); 
+function convertMsgToProblemItem(
+    tab: IEditorTab,
+    code: string,
+    msgs: ValidMessage[] = []
+): IProblemsItem {
+    const rootId = Number(tab.id);
     const rootName = `任务: ${tab.name || ''}`;
     const languageProblems: IProblemsItem = {
         id: rootId,
@@ -21,10 +38,10 @@ function convertMsgToProblemItem(tab: IEditorTab, code: string, msgs = []): IPro
             endColumn: 1,
             status: MarkerSeverity.Hint,
         },
-        children: []
-    }
+        children: [],
+    };
 
-    languageProblems.children = msgs.map((msg: any, index: number) => {
+    languageProblems.children = msgs.map((msg, index: number) => {
         return {
             id: rootId + index,
             name: code || '',
@@ -35,25 +52,35 @@ function convertMsgToProblemItem(tab: IEditorTab, code: string, msgs = []): IPro
                 startColumn: Number(msg.startCol),
                 endLineNumber: Number(msg.endLine),
                 endColumn: Number(msg.endLine),
-                status: MarkerSeverity.Error
+                status: MarkerSeverity.Error,
             },
-            children: []
+            children: [],
         };
-    })
+    });
 
     return languageProblems;
-};
+}
 
 function analyseProblems(tab: IEditorTab) {
     if (tab.data) {
         const sql = tab.data.value || '';
-    
-        languageService.valid(tab.data.language || 'sql', sql).then((res) => {
-            const problems = convertMsgToProblemItem(tab, sql, res);
-            molecule.problems.add(problems);
-        });
-    }
 
+        languageService
+            .valid(tab.data.language || 'sql', sql)
+            .then((res: ValidMessage[]) => {
+                if (res.length) {
+                    const problems = convertMsgToProblemItem(tab, sql, res);
+                    molecule.problems.add(problems);
+                } else {
+                    const rootId = Number(tab.id);
+                    const problems = molecule.problems.getState().data;
+                    const isExisted = problems.find((pro) => pro.id === rootId);
+                    if (isExisted) {
+                        molecule.problems.remove(rootId);
+                    }
+                }
+            });
+    }
 }
 
 function registerWorkers() {
@@ -95,6 +122,5 @@ export class ExtendsSparkSQL implements IExtension {
         molecule.editor.onCloseTab((tabId) => {
             molecule.problems.remove(Number(tabId));
         });
-
     }
 }
