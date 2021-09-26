@@ -258,7 +258,7 @@ export function openTaskInTab(taskId: any, file?: any) {
         return;
     }
 
-    const { id: fileId, name: fileName, data: fileData, location } = file;
+    const { id: fileId, name: fileName, data: fileData, location, icon } = file;
     ajax.getOfflineTaskByID({ id: fileId }).then((res) => {
         if (fileData.taskType === TASK_TYPE.SQL) {
             const { success, data } = res;
@@ -288,6 +288,7 @@ export function openTaskInTab(taskId: any, file?: any) {
                         language: 'sparksql',
                         taskDesc: fileData.taskDesc,
                     },
+                    icon,
                     breadcrumb:
                         location?.split('/')?.map((item: string) => ({
                             id: item,
@@ -328,6 +329,7 @@ export function openTaskInTab(taskId: any, file?: any) {
                         value: data.sqlText,
                         taskDesc: fileData.taskDesc,
                     },
+                    icon,
                     breadcrumb:
                         location?.split('/')?.map((item: string) => ({
                             id: item,
