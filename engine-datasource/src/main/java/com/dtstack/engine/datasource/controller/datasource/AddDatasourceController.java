@@ -102,26 +102,6 @@ public class AddDatasourceController {
         }.execute();
     }
 
-    @ApiOperation("获取数据源与租户交集的产品列表")
-    @PostMapping("/queryAppList")
-    public R<List<DsAppListVO>> queryAppList(@RequestBody DsTypeVersionParam param) {
-        return new APITemplate<List<DsAppListVO>>() {
-            //TODO 租户购买的产品和数据源对应的产品交集列表
-
-            @Override
-            protected void checkParams() throws IllegalArgumentException {
-                Asserts.hasText(param.getDtToken(), "用户token不能为空!");
-                Asserts.notNull(param.getTenantId(), "用户Dtuic租户Id不能为空!");
-                Asserts.hasText(param.getDataType(), "数据源类型不能为空!");
-            }
-
-            @Override
-            protected List<DsAppListVO> process() throws BizException {
-                return datasourceFacade.queryAppList(param);
-            }
-        }.execute();
-    }
-
 
     @ApiOperation("测试联通性")
     @PostMapping("/testCon")

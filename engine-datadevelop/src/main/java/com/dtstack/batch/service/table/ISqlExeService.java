@@ -16,15 +16,6 @@ import java.util.List;
 public interface ISqlExeService {
 
     /**
-     * 调用对应的引擎直接执行指定sql  不需要返回值
-     * eg:
-     *    调用hive-jdbc直接执行
-     * @return
-     * @throws Exception
-     */
-    void directExecutionSql(Long dtUicTenantId,Long dtUicUserId, String dbName, String sql) throws Exception;
-
-    /**
      * 执行sql,插件内部逻辑，需要根据sql类型做处理
      */
     ExecuteResultVO executeSql(ExecuteContent content) throws Exception;
@@ -47,17 +38,4 @@ public interface ISqlExeService {
      */
     String process(String sqlText, String database);
 
-    /**
-     * 语法校验
-     *
-     * @param dtuicTenantId
-     * @param sqlText
-     * @param userId
-     * @param projectId
-     * @param taskParam
-     * @return
-     */
-    List<ParseResult> checkMulitSqlSyntax(Long dtuicTenantId, String sqlText, Long userId, Long projectId, String taskParam);
-
-    List<ParseResult> parseLineageFromSqls(List<String> sqls, Long tenantId, Long projectId, String dbName, Long dtUicTenantId);
 }

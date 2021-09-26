@@ -169,11 +169,6 @@ public class EnvironmentContext implements InitializingBean {
         return environment.getProperty("redis.sentinel", "");
     }
 
-    public String getDtUicUrl() {
-        return environment.getProperty("dtuic.url");
-    }
-
-
     public String getUicToken() {
         return environment.getProperty("dtuic.token");
     }
@@ -490,9 +485,6 @@ public class EnvironmentContext implements InitializingBean {
         return Integer.valueOf(environment.getProperty("dataSource.max.prepared.statement.per.connection.size", "20"));
     }
 
-//    public long getForkJoinResultTimeOut() {
-//        return Long.parseLong(environment.getProperty("fork.join.timeout", Long.toString(60 * 5)));
-//    }
     /**
      * 是否根据版本加载默认的配置
      *
@@ -525,22 +517,6 @@ public class EnvironmentContext implements InitializingBean {
 
     public int getMaxTenantSize() {
         return Integer.parseInt(environment.getProperty("max.tenant.size", "20"));
-    }
-
-    /**
-     * 数据源中心配置地址
-     * @return
-     */
-    public String getDatasourceNode() {
-        return environment.getProperty("datasource.node", "");
-    }
-
-    /**
-     * SDK TOKEN
-     * @return
-     */
-    public String getSdkToken() {
-        return environment.getProperty("sdk.token", "");
     }
 
     public String getSqlParserDir(){
@@ -588,9 +564,6 @@ public class EnvironmentContext implements InitializingBean {
     @Value("${hdfs.batch.path:/dtInsight/batch/}")
     private String hdfsBatchPath;
 
-    @Value("${dtuic.url}")
-    private String dtUicUrl;
-
     @Value("${public.service.node:}")
     private String publicServiceNode;
 
@@ -630,9 +603,6 @@ public class EnvironmentContext implements InitializingBean {
      */
     @Value("${delete.merge.file.time:7}")
     private Long deleteMergeFileTime;
-
-    @Value("${sdk.token}")
-    private String sdkToken;
 
     /**
      * 数据保留天数

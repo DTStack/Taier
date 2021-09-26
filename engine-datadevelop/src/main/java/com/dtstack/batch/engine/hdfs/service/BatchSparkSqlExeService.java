@@ -38,11 +38,6 @@ public class BatchSparkSqlExeService extends BatchSparkHiveSqlExeService impleme
 
     private static final String SHOW_LIFECYCLE = "%s表的生命周期为%s天";
 
-    @Override
-    public void directExecutionSql(Long dtUicTenantId,Long dtUicUserId, String dbName, String sql) {
-        directExecutionSql(dtUicTenantId, dtUicUserId, dbName, sql, EJobType.SPARK_SQL);
-    }
-
     @Forbidden
     @Override
     public ExecuteResultVO executeSql(ExecuteContent executeContent) {
@@ -143,19 +138,10 @@ public class BatchSparkSqlExeService extends BatchSparkHiveSqlExeService impleme
         return processSql(sqlText, database);
     }
 
-    @Override
-    public List<ParseResult> checkMulitSqlSyntax(Long dtuicTenantId, String sqlText, Long userId, Long projectId, String taskParam) {
-        return checkMulitSqlSyntax(dtuicTenantId, sqlText, userId, projectId, taskParam, EJobType.SPARK_SQL);
-    }
 
     @Override
     public void checkSingleSqlSyntax(Long projectId, Long dtuicTenantId, String sql, String db, String taskParam) {
         checkSingleSqlSyntax(projectId, dtuicTenantId, sql, db, taskParam, EJobType.SPARK_SQL);
-    }
-
-    @Override
-    public List<ParseResult> parseLineageFromSqls(List<String> sqls, Long tenantId, Long projectId, String dbName, Long dtUicTenantId) {
-        return parseLineageFromSqls(sqls, tenantId, projectId, dbName, dtUicTenantId, DataSourceType.Spark);
     }
 
 }

@@ -86,11 +86,6 @@ public class BatchSparkHiveSqlExeService {
     @Autowired
     private EnvironmentContext environmentContext;
 
-    protected void directExecutionSql(Long dtUicTenantId,Long dtUicUserId, String dbName, String sql, EJobType eJobType) {
-        if (!StringUtils.isEmpty(dbName)) {
-            jdbcServiceImpl.executeQueryWithoutResult(dtUicTenantId, dtUicUserId, eJobType, dbName, sql);
-        }
-    }
 
     /**
      * 直连jdbc执行sql
@@ -145,21 +140,6 @@ public class BatchSparkHiveSqlExeService {
             }
         }
         return sqlBuild.toString();
-    }
-
-    /**
-     * sql逐条血缘解析
-     * @param sqls
-     * @param tenantId
-     * @param projectId
-     * @param dbName
-     * @param dtUicTenantId
-     * @param dataSourceType
-     * @return
-     */
-    protected List<ParseResult> parseLineageFromSqls(List<String> sqls, Long tenantId, Long projectId, String dbName, Long dtUicTenantId, DataSourceType dataSourceType) {
-        List<ParseResult> parseResultList = new ArrayList<>();
-        return parseResultList;
     }
 
     /**
@@ -374,18 +354,5 @@ public class BatchSparkHiveSqlExeService {
         return project;
     }
 
-    /**
-     * sql语法校验
-     * @param dtuicTenantId
-     * @param sqlText
-     * @param userId
-     * @param projectId
-     * @param taskParam
-     * @param eJobType
-     * @return
-     */
-    protected List<ParseResult> checkMulitSqlSyntax(Long dtuicTenantId, String sqlText, Long userId, Long projectId, String taskParam, EJobType eJobType) {
-        return null;
-    }
 
 }

@@ -20,11 +20,6 @@ import java.util.List;
 public class BatchHiveSqlExeService extends BatchSparkHiveSqlExeService implements ISqlExeService {
 
     @Override
-    public void directExecutionSql(Long dtUicTenantId,Long dtUicUserId, String dbName, String sql) {
-        directExecutionSql(dtUicTenantId, dtUicUserId, dbName, sql, EJobType.HIVE_SQL);
-    }
-
-    @Override
     public ExecuteResultVO executeSql(ExecuteContent executeContent) {
         return executeSql(executeContent, EJobType.HIVE_SQL);
     }
@@ -42,16 +37,6 @@ public class BatchHiveSqlExeService extends BatchSparkHiveSqlExeService implemen
     @Override
     public String process(String sqlText, String database) {
         return processSql(sqlText, database);
-    }
-
-    @Override
-    public List<ParseResult> checkMulitSqlSyntax(Long dtuicTenantId, String sqlText, Long userId, Long projectId, String taskParam) {
-        return checkMulitSqlSyntax(dtuicTenantId, sqlText, userId, projectId, taskParam, EJobType.HIVE_SQL);
-    }
-
-    @Override
-    public List<ParseResult> parseLineageFromSqls(List<String> sqls, Long tenantId, Long projectId, String dbName, Long dtUicTenantId) {
-        return parseLineageFromSqls(sqls, tenantId, projectId, dbName, dtUicTenantId, DataSourceType.HIVE);
     }
 
 }
