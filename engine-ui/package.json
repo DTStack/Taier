@@ -3,12 +3,20 @@
   "private": true,
   "scripts": {
     "build": "sh ./scripts/build.sh",
-    "start": "sh ./scripts/start.sh",
+    "start": "node ./scripts/deploy/start.js",
     "pull": ". ./scripts/pull.sh",
-    "deploy": "node ./scripts/deploy/index.js",
+    "deploy": "node ./scripts/deploy/deploy.js",
     "molecule": "lerna run build --scope=molecule && lerna bootstrap --scope=ide-ui"
   },
   "devDependencies": {
     "lerna": "^4.0.0"
+  },
+  "microHost": "http://schedule.dtstack.cn",
+  "microBundle": {
+    "publicservice": "./packages/publicservice/ko.config.js",
+    "console-ui": "./packages/console-ui/build/base.js"
+  },
+  "microIconfont": {
+    "console-ui": "./packages/console-ui/src/public/iconfont/iconfont.css"
   }
 }
