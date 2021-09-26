@@ -2144,6 +2144,7 @@ public class BatchDataSourceService {
         source.setLinkState(dsService.getStatus());
         source.setDataName(dsService.getDataName());
         source.setDataDesc(dsService.getDataDesc());
+        source.setIsDefault(dsService.getIsMeta());
 
         Integer sourceRefCount = dataSourceTaskRefService.getSourceRefCount(dsService.getDataInfoId());
 
