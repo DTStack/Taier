@@ -1,4 +1,5 @@
 import molecule from 'molecule/esm';
+import React from 'react';
 import {
     FileTypes,
     IStatusBarItem,
@@ -12,13 +13,21 @@ import { updateCatalogueData } from '../../../controller/catalogue/actionCreator
 import store from '../../../store';
 import resourceManagerTree from '../../../services/resourceManagerService';
 import functionManagerService from '../../../services/functionManagerService';
-import { TASK_TYPE } from '../../../comm/const';
+import { RESOURCE_TYPE, TASK_TYPE } from '../../../comm/const';
+import {
+    EggIcon,
+    JarIcon,
+    OtherIcon,
+    PythonIcon,
+    ZipIcon,
+} from '../../../components/icon/resouceIcon';
 
 export type Source = 'task' | 'resource' | 'function';
 export interface CatalogueDataProps {
     id: number;
     type: string;
     taskType: number;
+    resourceType: number;
     name: string;
     children: CatalogueDataProps[] | null;
     catalogueType: string;
@@ -43,39 +52,36 @@ export function updateStatusBarLanguage(item: IStatusBarItem) {
     }
 }
 
-export function fileIcon(type: number): string {
-    switch (type) {
-        case TASK_TYPE.SQL: {
-            return 'icon_sparkSQL iconfont'
-        }
-        case TASK_TYPE.SYNC: {
-            return 'sync'
-        }
-        default: {
-            return 'file'
-        }
-    }
-}
+export function fileIcon(type: number, source: Source): string | JSX.Element {
+    let res: string | JSX.Element = '';
 
-export function convertToTreeNode(data: any[]) {
-    if (!data) {
-        return;
+    switch (source) {
+        case 'task': {
+            res = {
+                [TASK_TYPE.SQL]: 'icon_sparkSQL iconfont',
+                [TASK_TYPE.SYNC]: 'sync',
+            }[type];
+            break;
+        }
+        case 'resource': {
+            res = {
+                [RESOURCE_TYPE.OTHER]: <OtherIcon />,
+                [RESOURCE_TYPE.JAR]: <JarIcon />,
+                [RESOURCE_TYPE.PY]: <PythonIcon />,
+                [RESOURCE_TYPE.ZIP]: <ZipIcon />,
+                [RESOURCE_TYPE.EGG]: <EggIcon />,
+            }[type];
+            break;
+        }
+        case 'function': {
+            res = 'file';
+            break;
+        }
+        default:
+            break;
     }
-    return data.map((child) => {
-        const { id, name, children, type } = child;
-        const node: TreeNodeModel = new TreeNodeModel({
-            id,
-            name: !name ? '数据开发' : name,
-            location: name,
-            fileType: type === 'folder' ? FileTypes.Folder : FileTypes.File,
-            isLeaf: type !== 'folder',
-            icon: fileIcon(child.taskType),
-            data: child,
-            children: convertToTreeNode(children),
-        });
 
-        return node;
-    });
+    return res || 'file';
 }
 
 /**
@@ -176,7 +182,12 @@ export function transformCatalogueToTree(
                 name: catalogue.name,
                 location: catalogue.name,
                 fileType,
-                icon: fileIcon(catalogue.taskType),
+                icon: fileIcon(
+                    source === 'task'
+                        ? catalogue.taskType
+                        : catalogue.resourceType,
+                    source
+                ),
                 isLeaf: fileType === FileTypes.File,
                 data: catalogue,
                 children,
@@ -206,6 +217,7 @@ export function transformCatalogueToTree(
                 fileType,
                 isLeaf: fileType === FileTypes.File,
                 data: catalogue,
+                icon: fileIcon(catalogue.taskType, source),
                 children,
             });
         }

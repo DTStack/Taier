@@ -9,6 +9,7 @@
   font-family: "iconfont" !important;
   font-size: 16px;
   font-style: normal;
+  vertical-align: text-bottom;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
