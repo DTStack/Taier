@@ -5,6 +5,9 @@
  * > npm install -g mini-cup
  * > cup config // 按配置文件运行
  */
+const path = require('path');
+const rootPath = path.resolve(__dirname, './');
+const publicURL = require(path.join(rootPath,'./package.json')).microHost;
 
 module.exports = {
     'name': 'DAGScheduleX',
@@ -16,13 +19,13 @@ module.exports = {
         '/data-source': './out/',
     },
     'proxyTable': {
-        '/node': { // 控制台
-            target: 'http://schedule.dtstack.cn:8090', // doraemon
+        '/node': {
+            target: `${publicURL}:8090`, 
             changeOrigin: true,
             secure: false
         },
         '/api': {
-            target: "http://schedule.dtstack.cn:8090", // doraam
+            target: `${publicURL}:8090`, 
             changeOrigin: true,
             secure: false
         },
