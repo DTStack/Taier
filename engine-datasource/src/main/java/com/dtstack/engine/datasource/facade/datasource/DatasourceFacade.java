@@ -392,9 +392,9 @@ public class DatasourceFacade {
      * @return
      */
     public Long addOrUpdateSource(DataSourceVO dataSourceVO, Long projectId, Long userId, Long dtuicTenantId) {
-//        if (!checkConnectionWithConf(dataSourceVO, null, null)) {
-//            throw new PubSvcDefineException("不能添加连接失败的数据源" + ErrorCode.CONFIG_ERROR);
-//        }
+        if (!checkConnectionWithConf(dataSourceVO, null, null)) {
+            throw new PubSvcDefineException("不能添加连接失败的数据源" + ErrorCode.CONFIG_ERROR);
+        }
         return addOrUpdate(dataSourceVO, userId, projectId);
     }
 
