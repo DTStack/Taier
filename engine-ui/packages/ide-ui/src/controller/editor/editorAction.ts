@@ -17,7 +17,6 @@ import {
     isGreenPlumEngine,
 } from '../../comm';
 import {
-    createLinkMark,
     createLog,
     createTitle,
 } from 'dt-react-codemirror-editor';
@@ -53,6 +52,11 @@ function getUniqueKey(id: any) {
 
 function typeCreate(status: any) {
     return status === taskStatus.FAILED ? 'error' : 'info';
+}
+
+// 暂时不展示下载的超链接
+function createLinkMark({ href }: { href: string,download: string }) {
+    return href;
 }
 
 function getDataOver(
@@ -315,7 +319,7 @@ function doSelect(
                     case taskStatus.CANCELED: {
                         abnormal(res.data);
                         dispatch(removeLoadingTab(currentTab));
-                            resolve(true);
+                        resolve(true);
                         return;
                     }
                     default: {
