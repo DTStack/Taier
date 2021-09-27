@@ -12,11 +12,13 @@
     "lerna": "^4.0.0"
   },
   "microHost": "http://schedule.dtstack.cn",
-  "microBundle": {
-    "publicservice": "./packages/publicservice/ko.config.js",
-    "console-ui": "./packages/console-ui/build/base.js"
-  },
-  "microIconfont": {
-    "console-ui": "./packages/console-ui/src/public/iconfont/iconfont.css"
+  "microApp": {
+    "publicservice": {
+      "bundlePath": "./packages/publicservice/ko.config.js"
+    },
+    "console-ui": {
+      "bundlePath": "./packages/console-ui/build/base.js",
+      "iconfontPath": "./packages/console-ui/src/public/iconfont/iconfont.css"
+    }
   }
 }

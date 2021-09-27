@@ -34,7 +34,6 @@ DagScheduleX 目前统一使用 [cup](https://github.com/wewoor/cup) 作为 Web 
 ```bash
 /**
  * GitHub: https://github.com/wewoor/cup/blob/HEAD/README_zh.md
- * 用于本地模拟 NGINX
  * 使用：
  * > npm install -g mini-cup
  * > cup config // 按配置文件运行
@@ -82,17 +81,7 @@ module.exports = {
 
     目前各个前端微应用采用 `monorepo` 方式进行管理，`DAGScheduleX` 采用 `lerna` 作为方案，请确保安装 `4.0.0` 及以上版本的 `lerna` 后，再继续操作，更多详情可查看 [Lerna](https://www.npmjs.com/package/lerna)
 
-3. clone 项目源码
-
-    ```bash
-    $ # http
-    $ git clone https://github.com/DTStack/DAGScheduleX.git
-    $ # ssh
-    $ git clone git@github.com:DTStack/DAGScheduleX.git
-
-    ```
-
-4. 安装依赖环境，并执行构建
+3. 安装依赖环境，并执行构建
 
     ```bash
     $ # 默认 master 分支，如果需要切换到其他版本Tag， 则需要 checkout
@@ -113,8 +102,13 @@ module.exports = {
 | 参数名  | 必填  | 类型  |  默认值 | 备注  |
 | ------------ | ------------ | ------------ | ------------ | ---------- |
 | microHost  |  是 | string  | "http://schedule.dtstack.cn"  |  微前端静态资源如图片、`iconfont` 等，在微前端启动时会被转义为带有 `microHost` 的 `domain`；`cup` 代理服务器 `proxy` 的 `target` 目标 |
-| microBundle  |  是 | object  | 见 package.json | 微前端的打包配置位置，它将在微前端启动和部署的时候起作用 |
-| microIconfont  |  是 | object  | 见 package.json | 微前端的 iconfont 引用 css 的位置，它将在微前端启动和部署的时候起作用 |
+| microApp  |  是 | object  | 见 package.json | 微前端的打包配置位置，它将在微前端启动和部署的时候起作用。其中 bundlePath 表示各微应用的打包器配置路径；iconfontPath 表示各微应用的 iconfont css 文件路径 |
+
+#### 为什么需要提供 microApp 配置
+
+在微前端体系中，每个微应用可以单独启动，也可以以主应用的视角进行访问，此时若微应用需要访问自身 `/public/xx.png` 可以成功取出并展示，而在主应用的视角访问微应用那么在此路径下查无文件，会以 404 作为响应。
+为了解决此问题，在以 DAGScheduleX 作为主应用启动时，我们会在 runtime 时动态插入 `microHost` 将访问路径变成 `http://schedule.dtstack.cn/microApp/public/xx.png` 形式以解决此问题，iconfont 同理。
+如果您的静态资源已经存放在 `OSS` 或以域名的形式进行访问，则不需要设置 microApp。
 
 ## 其他
 
