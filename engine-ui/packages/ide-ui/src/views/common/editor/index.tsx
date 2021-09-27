@@ -18,7 +18,12 @@ import store from '../../../store';
 import { matchTaskParams, filterSql, formatDateTime } from '../../../comm';
 import { TASK_TYPE, formItemLayout } from '../../../comm/const';
 import { debounce } from 'lodash';
-import { execSql, stopSql, execDataSync, stopDataSync } from '../../../controller/editor/editorAction';
+import {
+    execSql,
+    stopSql,
+    execDataSync,
+    stopDataSync,
+} from '../../../controller/editor/editorAction';
 import ajax from '../../../api';
 import ReactDOM from 'react-dom';
 import Result from '../../task/result';
@@ -230,7 +235,11 @@ function emitEvent() {
                     );
 
                     if (task.taskType === TASK_TYPE.SYNC) {
-                        const params: any = { taskId: task.id, name: task.name, taskParams: task?.taskParams };
+                        const params: any = {
+                            taskId: task.id,
+                            name: task.name,
+                            taskParams: task?.taskParams,
+                        };
                         execDataSync(task.id, params)(store.dispatch);
                     } else {
                         const params: any = {
@@ -246,59 +255,73 @@ function emitEvent() {
                             task,
                             params,
                             sqls
-                        )(store.dispatch).then(() => {
-                            const results =
-                                (store.getState() as any).editor.console[
-                                    currentTab.id!
-                                ]?.results || [];
+                        )(store.dispatch)
+                            .then(() => {
+                                const results: {
+                                    jobId: string;
+                                    data: any[];
+                                }[] =
+                                    (store.getState() as any).editor.console[
+                                        task.id
+                                    ]?.results || [];
 
-                                if(!results.length){
+                                if (!results.length) {
                                     return;
                                 }
 
-                            // to get the index of this result
-                            const panels = molecule.panel.getState().data || [];
-                            const resultPanles = panels.filter((p) =>
-                                p.name?.includes('结果')
-                            );
-                            const lastIndexOf = Number(
-                                resultPanles[resultPanles.length - 1]?.name?.slice(
-                                    2
-                                ) || ''
-                            );
-                            // Open the result panel
-                            molecule.panel.open({
-                                id: `结果${lastIndexOf + 1}`,
-                                name: `结果 ${lastIndexOf + 1}`,
-                                closable: true,
-                                renderPane: () => (
-                                    <Result
-                                        isShow
-                                        data={results}
-                                        tab={{
-                                            tableType: 0,
-                                        }}
-                                        extraView={null}
-                                    />
-                                ),
+                                results.forEach((res) => {
+                                    const panel = molecule.panel.getPanel(
+                                        res.jobId
+                                    );
+                                    if (!panel) {
+                                        const panels =
+                                            molecule.panel.getState().data ||
+                                            [];
+                                        const resultPanles = panels.filter(
+                                            (p) => p.name?.includes('结果')
+                                        );
+                                        const lastIndexOf = Number(
+                                            resultPanles[
+                                                resultPanles.length - 1
+                                            ]?.name?.slice(2) || ''
+                                        );
+
+                                        molecule.panel.open({
+                                            id: res.jobId,
+                                            name: `结果 ${lastIndexOf + 1}`,
+                                            closable: true,
+                                            renderPane: () => (
+                                                <Result
+                                                    isShow
+                                                    data={res.data}
+                                                    tab={{
+                                                        tableType: 0,
+                                                    }}
+                                                    extraView={null}
+                                                />
+                                            ),
+                                        });
+                                    }
+                                });
+                            })
+                            .finally(() => {
+                                // update the status of buttons
+                                molecule.editor.updateActions([
+                                    {
+                                        id: TASK_SAVE_ID,
+                                        disabled: false,
+                                    },
+                                    {
+                                        id: TASK_RUN_ID,
+                                        icon: 'play',
+                                        disabled: false,
+                                    },
+                                    {
+                                        id: TASK_STOP_ID,
+                                        disabled: true,
+                                    },
+                                ]);
                             });
-                            // update the status of buttons
-                            molecule.editor.updateActions([
-                                {
-                                    id: TASK_SAVE_ID,
-                                    disabled: false,
-                                },
-                                {
-                                    id: TASK_RUN_ID,
-                                    icon: 'play',
-                                    disabled: false,
-                                },
-                                {
-                                    id: TASK_STOP_ID,
-                                    disabled: true,
-                                },
-                            ]);
-                        });
                     }
                 }
                 break;
@@ -310,9 +333,16 @@ function emitEvent() {
                 const task = tabs.find((tab: any) => tab.id === currentTaskId);
 
                 if (task.taskType === TASK_TYPE.SYNC) {
-                    stopDataSync(task.id, false)(store.dispatch, store.getState);
+                    stopDataSync(task.id, false)(
+                        store.dispatch,
+                        store.getState
+                    );
                 } else {
-                    stopSql(task.id, task, false)(store.dispatch, store.getState);
+                    stopSql(
+                        task.id,
+                        task,
+                        false
+                    )(store.dispatch, store.getState);
                 }
                 molecule.editor.updateActions([
                     {

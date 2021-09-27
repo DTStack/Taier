@@ -16,7 +16,11 @@ import {
     isOracleEngine,
     isGreenPlumEngine,
 } from '../../comm';
-import { createLinkMark, createLog, createTitle } from 'dt-react-codemirror-editor';
+import {
+    createLinkMark,
+    createLog,
+    createTitle,
+} from 'dt-react-codemirror-editor';
 
 enum SQLType {
     Normal = 0,
@@ -97,7 +101,15 @@ function getDataOver(
         dispatch(outputRes(currentTab, res.data.result, jobId));
     }
     if (res.data && res.data.download) {
-        dispatch(output(currentTab, `完整日志下载地址：${createLinkMark({ href: res.data.download, download: '' })}\n`))
+        dispatch(
+            output(
+                currentTab,
+                `完整日志下载地址：${createLinkMark({
+                    href: res.data.download,
+                    download: '',
+                })}\n`
+            )
+        );
     }
 }
 
@@ -155,7 +167,10 @@ function doSelect(
             dispatch(
                 output(
                     currentTab,
-                    `完整日志下载地址：${createLinkMark({ href: data.download, download: '' })}\n`
+                    `完整日志下载地址：${createLinkMark({
+                        href: data.download,
+                        download: '',
+                    })}\n`
                 )
             );
     };
@@ -203,7 +218,15 @@ function doSelect(
                 dispatch(output(currentTab, createLog(`请求异常！`, 'error')));
             }
             if (data && data.download) {
-                dispatch(output(currentTab, `完整日志下载地址：${createLinkMark({ href: res.data.download, download: '' })}\n`))
+                dispatch(
+                    output(
+                        currentTab,
+                        `完整日志下载地址：${createLinkMark({
+                            href: res.data.download,
+                            download: '',
+                        })}\n`
+                    )
+                );
             }
             if (retryLog && num && num <= 3) {
                 selectRunLog(num + 1);
@@ -216,27 +239,38 @@ function doSelect(
     };
     // 获取结果接口
     const selectExecResultData = () => {
-        API.selectExecResultData(taskType, {
-            jobId: jobId && jobId.jobId ? jobId.jobId : jobId,
-            taskId: task.id,
-            // type: isTask ? SELECT_TYPE.TASK : SELECT_TYPE.SCRIPT,
-            type: type,
-            sqlId: jobId && jobId.advancedModeId ? jobId.advancedModeId : null
-        })
-            .then(
-                (res: any) => {
+        return new Promise<void>((resultResolve) => {
+            API.selectExecResultData(
+                {
+                    jobId: jobId && jobId.jobId ? jobId.jobId : jobId,
+                    taskId: task.id,
+                    // type: isTask ? SELECT_TYPE.TASK : SELECT_TYPE.SCRIPT,
+                    type: type,
+                    sqlId:
+                        jobId && jobId.advancedModeId
+                            ? jobId.advancedModeId
+                            : null,
+                },
+                taskType
+            )
+                .then((res: any) => {
                     if (stopSign[currentTab]) {
                         stopSign[currentTab] = false;
-                        resolve(false)
+                        resolve(false);
                         return;
                     }
-                    if (res && res.code !== 1){
-                        dispatch(output(currentTab, createLog(`请求异常！`, 'error')))
-                    }else if (res && res.data?.result) {
-                        dispatch(outputRes(currentTab, res.data.result, jobId))
+                    if (res && res.code !== 1) {
+                        dispatch(
+                            output(currentTab, createLog(`请求异常！`, 'error'))
+                        );
+                    } else if (res && res.data?.result) {
+                        dispatch(outputRes(currentTab, res.data.result, jobId));
                     }
-                }
-            )
+                })
+                .finally(() => {
+                    resultResolve();
+                });
+        });
     };
 
     if (taskType && taskType === TASK_TYPE.SYNC) {
@@ -269,16 +303,19 @@ function doSelect(
                         ) {
                             abnormal(res.data);
                             dispatch(removeLoadingTab(currentTab));
+                            resolve(true);
                             return;
                         } else {
                             // 否则重新执行该请求
                             retationRequestSync(res.data);
+                            resolve(true);
                             return;
                         }
                     }
                     case taskStatus.CANCELED: {
                         abnormal(res.data);
                         dispatch(removeLoadingTab(currentTab));
+                            resolve(true);
                         return;
                     }
                     default: {
@@ -320,9 +357,10 @@ function doSelect(
                     case taskStatus.FINISHED: {
                         // 成功
                         outputStatus(res.data.status, '结果获取中，请稍后');
-                        selectExecResultData();
-                        selectRunLog();
-                        return resolve(true);
+                        return selectExecResultData().then(() => {
+                            selectRunLog();
+                            return resolve(true);
+                        });
                     }
                     case taskStatus.FAILED:
                     case taskStatus.CANCELED: {
@@ -393,11 +431,17 @@ function exec(
     params.isEnd = sqls.length === index + 1;
     if (index === 0) {
         dispatch(
-            setOutput(currentTab, createLog(`第${index + 1}条任务开始执行`, 'info'))
+            setOutput(
+                currentTab,
+                createLog(`第${index + 1}条任务开始执行`, 'info')
+            )
         );
     } else {
         dispatch(
-            output(currentTab, createLog(`第${index + 1}条任务开始执行`, 'info'))
+            output(
+                currentTab,
+                createLog(`第${index + 1}条任务开始执行`, 'info')
+            )
         );
     }
     // 判断是否要继续执行SQL
