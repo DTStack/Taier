@@ -87,6 +87,7 @@
 
 ## 文档
 * [什么是DAGScheduleX](docs/DAGScheduleX github.pdf)
+    * [DAGScheduleX 任务提交快速开始](docs/submit_CH.md)
     
 
 #### 插件文档
