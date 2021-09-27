@@ -14,7 +14,9 @@ DagScheduleX 目前统一使用 [cup](https://github.com/wewoor/cup) 作为 Web 
 > 系统: CentOS Linux release 7.3.1611 (Core)
 > 系统环境依赖: Lerna v4.0.0; pm2 v5.1.0
 
-### 应用部署目录
+<color style="color:#AA0000;" >[cup](https://github.com/wewoor/cup) 服务器仅用快速部署以展示 DAGScheduleX，在实际生产环境中我们推荐使用 `nginx / tengine` 作为代理服务器。</color>
+
+### 前端应用部署目录
 
 ```bash
 | - engine-ui/out # 数据开发
@@ -74,11 +76,11 @@ module.exports = {
 
 1. 安装 Node.js
 
-    目前编译前端项目，需要依赖 `Node.js` 环境，所以如果你没有安装 `Node.js` 的情况下，建议您先安装一下 `12.18.0` 及以上版本后的 `Node.js` 后，再继续操作。
+    目前编译前端项目，需要依赖 `Node.js` 环境，所以如果你没有安装 `Node.js` 的情况下，建议您先安装一下 `12.18.0` 及以上版本后的 `Node.js` 后，再继续操作，更多详情可查看 [Node 官网](http://nodejs.cn/download/)
 
 2. 安装 lerna
 
-    目前各个前端微应用采用 `monorepo` 方式进行管理，`DAGScheduleX` 采用 `lerna` 作为方案，请确保安装 `4.0.0` 及以上版本的 `lerna` 后，再继续操作。
+    目前各个前端微应用采用 `monorepo` 方式进行管理，`DAGScheduleX` 采用 `lerna` 作为方案，请确保安装 `4.0.0` 及以上版本的 `lerna` 后，再继续操作，更多详情可查看 [Lerna](https://www.npmjs.com/package/lerna)
 
 3. clone 项目源码
 
@@ -95,33 +97,16 @@ module.exports = {
     ```bash
     $ # 默认 master 分支，如果需要切换到其他版本Tag， 则需要 checkout
     $ git checkout v1.0.0
-    $ lerna bootstrap // 安装打包所需要的依赖文件
-    $ yarn build // 执行生成环境打包
+    $ lerna bootstrap # 安装打包所需要的依赖文件
+    $ yarn build # 执行生成环境打包
     ```
 
-    运行`build`命令后，会在根目录下生产一份用于成产环境的代码 `out`,
+    运行`build`命令后，会在根目录下生产一份用于生产环境的代码 `out`,
     打包完成后，可以通过`git`提交到远程仓库，或者直接 copy 代码到部署服务器.
 
-    `注意`: 如果安装过程中出现任何 `not found package` 相关的情况，可以反馈给我们。另外，你可以通过手动拷贝缺少的 `package` 名称，执行 `yarn add packageName -D` 命令来进行安装。
+    `注意`: 如果安装过程中出现任何 `not found package` 相关的情况，可以反馈给我们。另外，你可以通过手动拷贝缺少的 `package` 名称，执行 `lerna add package [--scope=Micro Application]` 命令来进行安装。
 
-## 五、 生产程序（dist 目录）结构说明
-
-```bash
-| - out # 根目录
-    | - console # 微应用目录
-        | - index.html # 首页
-        | - public
-                | - config # 公共配置文件
-                    | - config.js
-                    | - defaultApps.json # 仅 dt-common 才有
-                | - img # 图片
-                | - ...
-        | - ... # 其他 js, 静态资源
-    | - ... # 其他微应用
-| - ... # 主应用其他 js，静态资源
-```
-
-## 六、运行 **配置**
+## 五、运行 **配置**
 
 ### package.json 配置项说明
 
