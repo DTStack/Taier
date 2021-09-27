@@ -1,34 +1,41 @@
-/**
- * Note: Before starting,
- * you need to global install pm2 and make sure that the node version is greater than v12.18.0
- */
-
  const path = require('path');
  const fs = require('fs');
  const {
-    resetContent,
-    isDirectory,
-    microAdaptation,
-    logger,
-    automata,
-    packagesPath
-} = require('./base.js');
+     packagesPath,
+     scriptsPath,
+     isDirectory,
+     useSpawn,
+     logger,
+     microAdaptation,
+     resetContent
+ } = require('./base.js');
  
- const fastStart = async () => {
+ const fastBuild = async () => {
      try {
          const files = fs.readdirSync(packagesPath);
          const projects = files.filter((item) => {
              return isDirectory(path.join(packagesPath, item));
          });
+ 
+         /**
+          * git synchronizes the latest code
+          */
+         await useSpawn('yarn', ['pull'], true);
+ 
+         /**
+          * update project dependencies
+          */
+         await useSpawn('lerna', ['bootstrap'], true);
+ 
          /**
           * process webpack to add a common prefix and process iconfont
           */
          microAdaptation(projects);
  
          /**
-          * lerna run start
+          * lerna build
           */
-         await automata(projects);
+         await useSpawn('sh', [`${scriptsPath}/build.sh`], true);
  
          /**
           * restore the scene
@@ -43,5 +50,5 @@
      }
  };
  
- fastStart();
+ fastBuild();
  
