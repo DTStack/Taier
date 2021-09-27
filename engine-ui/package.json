@@ -2,10 +2,10 @@
   "name": "root",
   "private": true,
   "scripts": {
-    "build": "sh ./scripts/build.sh",
+    "build": "node ./scripts/deploy/build.js",
     "start": "node ./scripts/deploy/start.js",
     "pull": ". ./scripts/pull.sh",
-    "deploy": "node ./scripts/deploy/deploy.js",
+    "deploy": "yarn run build && node ./scripts/deploy/deploy.js",
     "molecule": "lerna run build --scope=molecule && lerna bootstrap --scope=ide-ui"
   },
   "devDependencies": {
