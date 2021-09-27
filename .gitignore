@@ -32,3 +32,4 @@ engine-ui/node_modules
 engine-ui/.yarn-error.log
 engine-ui/out
 .history
+*.factorypath
