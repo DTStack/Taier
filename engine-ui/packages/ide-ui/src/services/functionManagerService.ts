@@ -1,4 +1,4 @@
-import { FolderTreeService } from 'molecule/esm/services';
+import { FolderTreeService } from '@dtinsight/molecule/esm/services';
 
 let functionManagerService;
 class FunctionManagerService extends FolderTreeService {

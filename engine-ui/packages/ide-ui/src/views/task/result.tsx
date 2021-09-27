@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pagination, Select } from 'antd';
 import { SpreadSheet } from 'dt-react-component';
-import molecule from 'molecule/esm';
+import molecule from '@dtinsight/molecule/esm';
 import './result.scss';
 
 const defaultOutTable = 1;

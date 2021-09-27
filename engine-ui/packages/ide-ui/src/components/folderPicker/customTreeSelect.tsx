@@ -5,7 +5,7 @@ import {
 } from 'antd';
 
 import { TreeSelectProps } from 'antd/lib/tree-select'
-import { Icon } from 'molecule/esm/components';
+import { Icon } from '@dtinsight/molecule/esm/components';
 
 const TreeNode = TreeSelect.TreeNode
 

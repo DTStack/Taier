@@ -1,5 +1,5 @@
-import molecule from "molecule";
-import { Float, IEditorTab, IExtension, IStatusBarItem } from "molecule/esm/model";
+import molecule from "@dtinsight/molecule";
+import { Float, IEditorTab, IExtension, IStatusBarItem } from "@dtinsight/molecule/esm/model";
 import { TASK_TYPE } from "../../../comm/const";
 
 export const STATUS_BAR_LANGUAGE = {

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import SplitPane from 'react-split-pane';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Scrollable } from 'molecule/esm/components';
+import { Scrollable } from '@dtinsight/molecule/esm/components';
 import DataSync from './dataSync';
 import { workbenchActions, getDataSyncReqParams } from '../../controller/dataSync/offlineAction';
 import * as editorActions from '../../controller/editor/editorAction';

@@ -1,5 +1,5 @@
-import molecule from 'molecule';
-import { IExtension } from 'molecule/esm/model';
+import molecule from '@dtinsight/molecule';
+import { IExtension } from '@dtinsight/molecule/esm/model';
 
 export default class ThemeExtension implements IExtension {
     activate() {

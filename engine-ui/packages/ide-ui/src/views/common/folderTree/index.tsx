@@ -1,9 +1,9 @@
 import React from 'react';
 import { message } from 'antd';
-import { FileTypes, IExtension, TreeNodeModel } from 'molecule/esm/model';
-import { localize } from 'molecule/esm/i18n/localize';
-import molecule from 'molecule/esm';
-import { connect } from 'molecule/esm/react';
+import { FileTypes, IExtension, TreeNodeModel } from '@dtinsight/molecule/esm/model';
+import { localize } from '@dtinsight/molecule/esm/i18n/localize';
+import molecule from '@dtinsight/molecule/esm';
+import { connect } from '@dtinsight/molecule/esm/react';
 
 import Open from '../../task/open';
 import EditFolder from '../../task/editFolder';

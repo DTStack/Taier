@@ -1,5 +1,5 @@
-import molecule from 'molecule/esm';
-import { IExtension } from 'molecule/esm/model';
+import molecule from '@dtinsight/molecule/esm';
+import { IExtension } from '@dtinsight/molecule/esm/model';
 import {
     taskTreeAction,
     resTreeAction,

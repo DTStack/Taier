@@ -1,8 +1,8 @@
 import React from 'react';
 import { Icon, message, Modal, Tag } from 'antd';
-import molecule from 'molecule';
-import { getEditorInitialActions, IExtension } from 'molecule/esm/model';
-import { searchById } from 'molecule/esm/services/helper';
+import molecule from '@dtinsight/molecule';
+import { getEditorInitialActions, IExtension } from '@dtinsight/molecule/esm/model';
+import { searchById } from '@dtinsight/molecule/esm/services/helper';
 import { workbenchActions } from '../../../controller/dataSync/offlineAction';
 import { workbenchAction } from '../../../controller/dataSync/actionType';
 import { resetEditorGroup } from '../utils';
