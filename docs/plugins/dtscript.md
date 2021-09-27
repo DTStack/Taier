@@ -9,7 +9,7 @@
     "computeType": 1,
     "exeArgs": "--files hdfs://ns1/rdos/batch/python_141_99_gfdvvv_1561900891520.py --python-version 2 --app-type python2 --app-name gfdvvv",
     "pluginInfo": {
-        "typeName": "dtyarnshell",
+        "typeName": "yarn2-hdfs2-dtscript",
         "cluster": "default",
         "queue": "c",
         "jlogstashRoot": "/opt/dtstack/jlogstash",
@@ -52,7 +52,7 @@
         },
         "tenantId": 17
     },
-    "engineType": "dtyarnshell",
+    "engineType": "dtscript",
     "taskParams": "worker.memory=512m worker.cores=1",
     "maxRetryNum": 0,
     "taskType": 3,

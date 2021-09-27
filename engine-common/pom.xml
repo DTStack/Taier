@@ -234,15 +234,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <distributionManagement>
-        <repository>
-            <id>releases</id>
-            <url>http://nexus.dev.dtstack.cn/nexus/content/repositories/dtstack-release/</url>
-        </repository>
-        <snapshotRepository>
-            <id>snapshot</id>
-            <url>http://nexus.dev.dtstack.cn/nexus/content/repositories/dtstack-snapshot/</url>
-        </snapshotRepository>
-    </distributionManagement>
 </project>

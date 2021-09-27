@@ -8,7 +8,7 @@
  "sqlText": "use ds_test; create table select_sql_temp_table_1155693631148712 stored as orc as select * from (select count(1) from 01s_h2)temp",
  "computeType": 1,
  "pluginInfo": {
-    "typeName": "spark_yarn",
+    "typeName": "yarn2-hdfs2-spark210",
      "cluster": "default",
      "queue": "c",
      "confHdfsPath": "/hadoop_config/default",

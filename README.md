@@ -1,6 +1,6 @@
 # DAGScheduleX
 
-DAGScheduleX 脱胎于袋鼠云-数栈（一站式大数据开发平台），技术实现来源于数栈分布式调度引擎Engine，是数栈产品的重要基础设施之一，负责平台所有任务实例的调度和提交运行。
+DAGScheduleX 脱胎于[袋鼠云](https://www.dtstack.com/) - [数栈](https://www.dtstack.com/dtinsight/) （一站式大数据开发平台），技术实现来源于数栈分布式调度引擎Engine，是[数栈](https://www.dtstack.com/dtinsight/) 产品的重要基础设施之一，负责平台所有任务实例的调度和提交运行。
 
 ## 功能特征
 
@@ -45,7 +45,7 @@ DAGScheduleX 脱胎于袋鼠云-数栈（一站式大数据开发平台），技
 
 ## 快速开始
 
-请参考官方文档: [快速开始](docs/quickstart/QuicklyStart.md)
+请参考官方文档: [快速开始](docs/quickstart/quicklystart.md)
 
 # License
 
