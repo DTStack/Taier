@@ -1,6 +1,3 @@
-[submodule "engine-ui/packages/console-ui"]
-	path = engine-ui/packages/console-ui
-	url = ssh://git@gitlab.prod.dtstack.cn:10022/dagschedulex/console-ui.git
 [submodule "engine-ui/packages/operation-ui"]
 	path = engine-ui/packages/operation-ui
 	url = ssh://git@gitlab.prod.dtstack.cn:10022/dagschedulex/operation-ui.git
