@@ -1,0 +1,57 @@
+.version-history {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #dddddd;
+  &-content {
+    width: 100%;
+    height: calc(100% - 55px);
+    .ant-table {
+      .ant-table-header {
+        .ant-table-thead {
+          tr {
+            height: 44px !important;
+          }
+          // padding: 0!important;
+          th {
+            // padding: 0!important;
+            padding-top: 13px;
+            padding-bottom: 13px;
+          }
+        }
+      }
+    }
+  }
+  &-footer {
+    width: 100%;
+    height: 55px;
+    border-top: 1px solid #dddddd;
+    line-height: 55px;
+    .pagination-tips {
+      font-size: 12px;
+      font-family: PingFangSC-Regular, PingFang SC;
+      font-weight: 400;
+      color: #666666;
+      .highlight {
+        color: #3f87ff;
+      }
+    }
+  }
+
+  .ml-20 {
+    margin-left: 20px;
+  }
+}
+
+.modal-version-compare.ant-modal {
+  width: 680px !important;
+  .diffOverview {
+    margin-left: 20px;
+  }
+}
+.modal-version-detail.ant-modal {
+  width: 680px !important;
+}
+
+.icon.icon-warn {
+  color: #ffb310;
+}
