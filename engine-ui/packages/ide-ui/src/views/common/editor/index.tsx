@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Icon, message, Modal, Tag, Form, Row, Col, Input } from 'antd';
+import React from 'react';
+import { Icon, message, Modal, Tag } from 'antd';
 import molecule from 'molecule';
 import { getEditorInitialActions, IExtension } from 'molecule/esm/model';
 import { searchById } from 'molecule/esm/services/helper';
@@ -16,7 +16,7 @@ import {
 } from '../utils/const';
 import store from '../../../store';
 import { matchTaskParams, filterSql, formatDateTime } from '../../../comm';
-import { TASK_TYPE, formItemLayout } from '../../../comm/const';
+import { TASK_TYPE } from '../../../comm/const';
 import { debounce } from 'lodash';
 import {
     execSql,
@@ -27,9 +27,9 @@ import {
 import ajax from '../../../api';
 import ReactDOM from 'react-dom';
 import Result from '../../task/result';
+import Publish, { CONTAINER_ID } from '../../task/publish';
 
 const confirm = Modal.confirm;
-const FormItem = Form.Item;
 
 function initActions() {
     molecule.editor.setDefaultActions([
@@ -89,114 +89,6 @@ function initActions() {
         },
         ...getEditorInitialActions(),
     ]);
-}
-function RenderPublish({ current }: any) {
-    const [publishDesc, changeDesc] = useState('');
-    const [visible, changeVisible] = useState(true);
-    const [loading, changeLoading] = useState(false);
-    const submitTab = () => {
-        const params = {
-            ...current.tab?.data,
-            sqlText: current.tab?.data.value,
-            publishDesc,
-        };
-        // 添加发布描述信息
-        if (publishDesc.length > 200) {
-            message.error('备注信息不可超过200个字符！');
-            return false;
-        }
-        checkPublishTask(params);
-    };
-    const checkPublishTask = (result: any, ignoreCheck?: boolean) => {
-        result.ignoreCheck = ignoreCheck;
-        changeLoading(true);
-        delete result.dtuicTenantId;
-        delete result.language;
-        delete result.appType;
-        delete result.componentVersion;
-        delete result.increColumn;
-        delete result.input;
-        delete result.isPublishToProduce;
-        ajax.publishOfflineTask(result)
-            .then((res: any) => {
-                changeLoading(false);
-                const { data, code } = res;
-                if (code === 1) {
-                    switch (data?.errorSign) {
-                        case 0: {
-                            message.success('提交成功！');
-                            changeVisible(false);
-                            break;
-                        }
-                        case 1: {
-                            changeVisible(false);
-                            return Modal.warning({
-                                title: '无法提交任务',
-                                content: (
-                                    <p>{data?.errorMessage || '未知错误'}</p>
-                                ),
-                            });
-                        }
-                        default: {
-                            confirm({
-                                title: '无法提交任务',
-                                content: (
-                                    <p>{data?.errorMessage || '未知错误'}</p>
-                                ),
-                                okText: '仍要提交',
-                                cancelText: '确定',
-                                onOk() {
-                                    checkPublishTask(result, false);
-                                },
-                                onCancel() {
-                                    changeVisible(false);
-                                },
-                            });
-                        }
-                    }
-                }
-            })
-            .finally(() => {
-                changeLoading(false);
-                changeVisible(false);
-            });
-    };
-    return (
-        <Modal
-            wrapClassName="vertical-center-modal"
-            title="提交任务"
-            getContainer={() => document.getElementById('molecule') as any}
-            prefixCls="ide-ui-modal"
-            style={{ height: '600px', width: '600px' }}
-            visible={visible}
-            onCancel={() => changeVisible(false)}
-            onOk={() => submitTab()}
-            confirmLoading={loading}
-            cancelText="关闭"
-        >
-            <Form>
-                <FormItem
-                    {...formItemLayout}
-                    label={<span>备注</span>}
-                    hasFeedback
-                >
-                    <Input.TextArea
-                        value={publishDesc}
-                        name="publishDesc"
-                        rows={4}
-                        onChange={(e) => {
-                            changeDesc(e.target.value);
-                        }}
-                    />
-                </FormItem>
-            </Form>
-            <Row>
-                <Col offset={6} span={15}>
-                    注意：提交过的任务才能被调度执行及发布到其他项目
-                </Col>
-            </Row>
-        </Modal>
-    );
 }
 
 function emitEvent() {
@@ -477,9 +369,19 @@ function emitEvent() {
                 break;
             }
             case TASK_SUBMIT_ID: {
+                const currentTab = current.tab;
+                const root = document.getElementById('molecule')!;
+
+                const target = document.getElementById(CONTAINER_ID);
+                if (target) {
+                    target.parentElement?.removeChild(target);
+                }
                 const node = document.createElement('div');
-                document.body.appendChild(node);
-                ReactDOM.render(<RenderPublish current={current} />, node);
+                node.id = CONTAINER_ID;
+                root.appendChild(node);
+                if (currentTab) {
+                    ReactDOM.render(<Publish data={currentTab.data} />, node);
+                }
             }
         }
     });
