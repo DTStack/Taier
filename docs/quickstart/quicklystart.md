@@ -18,7 +18,7 @@
     * 再执行 `sql/init/insert`
     
     <div align=center> 
-     <img src=docs/quickstart/sqlinit.jpg width=300 />
+     <img src= ./sqlinit.jpg width=300 />
     </div>
 
 #### 表结构升级
@@ -86,7 +86,7 @@
 
 
 ## 文档
-* [什么是DAGScheduleX](docs/DAGScheduleX github.pdf)
+* [什么是DAGScheduleX](https://github.com/DTStack/DAGScheduleX/blob/feat_beat2/docs/DAGScheduleX%20github.pdf)
     * [DAGScheduleX 任务提交快速开始](docs/submit_CH.md)
     
 
