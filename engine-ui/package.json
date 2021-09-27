@@ -4,6 +4,7 @@
   "scripts": {
     "build": "sh ./scripts/build.sh",
     "start": "sh ./scripts/start.sh",
+    "pull": ". ./scripts/pull.sh",
     "molecule": "lerna run build --scope=molecule && lerna bootstrap --scope=ide-ui"
   },
   "devDependencies": {

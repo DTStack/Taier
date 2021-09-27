@@ -11,11 +11,11 @@ lerna run build --scope=console-ui
 echo "Copy the console-ui dist to the out";
 cp -R ./packages/console-ui/dist/* ./out/
 
-echo "Start to build the operation-ui";
-lerna run build --scope=operation-ui
+echo "Start to build the public service";
+lerna run build --scope=public-service
 
-echo "Copy the operation-uii dist to the out";
-cp -R ./packages/operation-ui/dist/* ./out/
+echo "Copy the public service dist to the out";
+cp -R ./packages/publicservice/dist/* ./out/
 
 echo "Start to build the ide-ui";
 lerna run build --scope=ide-ui
