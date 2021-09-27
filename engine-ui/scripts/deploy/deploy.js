@@ -18,11 +18,18 @@ const pluginPath = path.join(
 /**
  * If you modify the micro front end, you need to maintain it here
  */
-const publicURL = require(path.join(rootPath,'./package.json')).microHost
-const bundlePath = require(path.join(rootPath,'./package.json')).microBundle
-const iconfontPath = require(path.join(rootPath,'./package.json')).microIconfont
-
+const packagePath = require(path.join(rootPath,'./package.json'))
+const publicURL = packagePath.microHost
+const appConfig = packagePath.microApp
+const bundlePath = {}
+const iconfontPath = {}
 const sourceFile = new Map();
+
+for(let project in appConfig){
+    const projectConfig=appConfig[project]
+    projectConfig.bundlePath && (bundlePath[project] = projectConfig.bundlePath)
+    projectConfig.iconfontPath && (iconfontPath[project]=projectConfig.iconfontPath)
+}
 
 function isDirectory(filePath) {
     try {
@@ -161,7 +168,7 @@ const fastProvision = async () => {
         const projects = files.filter((item) => {
             return isDirectory(path.join(packagesPath, item));
         });
-
+        
         /**
          * git synchronizes the latest code
          */
