@@ -1,28 +1,28 @@
 package com.dtstack.engine.master.jobdealer;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.api.domain.po.SimpleScheduleJobPO;
-import com.dtstack.engine.api.pojo.ParamAction;
-import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.JobIdentifier;
+import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.domain.po.SimpleScheduleJobPO;
+import com.dtstack.engine.pluginapi.pojo.ParamAction;
+import com.dtstack.engine.pluginapi.CustomThreadFactory;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.JobIdentifier;
 import com.dtstack.engine.common.enums.EJobCacheStage;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.exception.ExceptionUtil;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
-import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
-import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.WorkerOperator;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.impl.TaskParamsService;
 import com.dtstack.engine.master.impl.DataSourceService;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.master.queue.GroupInfo;
-import com.dtstack.engine.master.queue.GroupPriorityQueue;
+import com.dtstack.engine.master.server.queue.GroupInfo;
+import com.dtstack.engine.master.server.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.jobdealer.resource.JobComputeResourcePlain;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -226,7 +226,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
     public void saveCache(JobClient jobClient, String jobResource, int stage, boolean insert) {
         String nodeAddress = environmentContext.getLocalAddress();
         if (insert) {
-            engineJobCacheDao.insert(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobResource);
+            Integer value = engineJobCacheDao.insert(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobResource);
             jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
         } else {
             engineJobCacheDao.updateStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority(), null);

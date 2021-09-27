@@ -1,6 +1,6 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.engine.api.domain.AlertRecord;
+import com.dtstack.engine.domain.AlertRecord;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

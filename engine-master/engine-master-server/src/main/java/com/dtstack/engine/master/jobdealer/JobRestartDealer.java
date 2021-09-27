@@ -1,17 +1,16 @@
 package com.dtstack.engine.master.jobdealer;
 
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.api.domain.EngineJobCheckpoint;
-import com.dtstack.engine.api.pojo.ParamAction;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.enums.EJobType;
-import com.dtstack.engine.common.enums.EngineType;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.common.util.SleepUtil;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.domain.EngineJobCheckpoint;
+import com.dtstack.engine.pluginapi.pojo.ParamAction;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.enums.EJobType;
+import com.dtstack.engine.pluginapi.enums.EngineType;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.master.bo.EngineJobRetry;
+import com.dtstack.engine.master.jobdealer.bo.EngineJobRetry;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;

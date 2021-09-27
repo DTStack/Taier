@@ -4,10 +4,10 @@ import com.dtstack.batch.bo.ExecuteContent;
 import com.dtstack.batch.bo.ParseResult;
 import com.dtstack.batch.common.enums.ETableType;
 import com.dtstack.batch.common.enums.TempJobType;
+import com.dtstack.engine.domain.ScheduleEngineProject;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.batch.common.exception.ErrorCode;
 import com.dtstack.batch.common.exception.RdosDefineException;
-import com.dtstack.batch.domain.Project;
 import com.dtstack.batch.domain.ProjectEngine;
 import com.dtstack.batch.engine.rdbms.common.util.SqlFormatUtil;
 import com.dtstack.batch.engine.rdbms.service.IJdbcService;
@@ -16,7 +16,6 @@ import com.dtstack.batch.mapping.DataSourceTypeJobTypeMapping;
 import com.dtstack.batch.service.impl.BatchFunctionService;
 import com.dtstack.batch.service.impl.BatchSqlExeService;
 import com.dtstack.batch.service.impl.ProjectEngineService;
-import com.dtstack.batch.service.impl.BatchUserService;
 import com.dtstack.batch.service.table.impl.BatchSelectSqlService;
 import com.dtstack.batch.vo.ExecuteResultVO;
 import com.dtstack.dtcenter.common.enums.EJobType;
@@ -24,7 +23,7 @@ import com.dtstack.dtcenter.common.enums.MultiEngineType;
 import com.dtstack.dtcenter.common.enums.TaskStatus;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.dtcenter.loader.utils.DBUtil;
-import com.dtstack.engine.api.vo.lineage.SqlType;
+import com.dtstack.engine.lineage.vo.SqlType;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
@@ -79,25 +78,14 @@ public class BatchSparkHiveSqlExeService {
     protected ProjectEngineService projectEngineService;
 
     @Autowired
-    private ITableService tableServiceImpl;
-
-    @Autowired
     protected BatchSelectSqlService selectSqlService;
 
     @Autowired
     protected BatchFunctionService batchFunctionService;
 
     @Autowired
-    protected BatchUserService batchUserService;
-
-    @Autowired
     private EnvironmentContext environmentContext;
 
-    protected void directExecutionSql(Long dtUicTenantId,Long dtUicUserId, String dbName, String sql, EJobType eJobType) {
-        if (!StringUtils.isEmpty(dbName)) {
-            jdbcServiceImpl.executeQueryWithoutResult(dtUicTenantId, dtUicUserId, eJobType, dbName, sql);
-        }
-    }
 
     /**
      * 直连jdbc执行sql
@@ -152,21 +140,6 @@ public class BatchSparkHiveSqlExeService {
             }
         }
         return sqlBuild.toString();
-    }
-
-    /**
-     * sql逐条血缘解析
-     * @param sqls
-     * @param tenantId
-     * @param projectId
-     * @param dbName
-     * @param dtUicTenantId
-     * @param dataSourceType
-     * @return
-     */
-    protected List<ParseResult> parseLineageFromSqls(List<String> sqls, Long tenantId, Long projectId, String dbName, Long dtUicTenantId, DataSourceType dataSourceType) {
-        List<ParseResult> parseResultList = new ArrayList<>();
-        return parseResultList;
     }
 
     /**
@@ -267,7 +240,7 @@ public class BatchSparkHiveSqlExeService {
         if (null == executeContent.getParseResult()) {
             throw new RdosDefineException("血缘解析异常，结果为空");
         }
-        Long dtuicTenantId = executeContent.getDtuicTenantId();
+        Long dtuicTenantId = executeContent.getTenantId();
         Long tenantId = executeContent.getTenantId();
         Long projectId = executeContent.getProjectId();
         Long userId = executeContent.getUserId();
@@ -333,25 +306,13 @@ public class BatchSparkHiveSqlExeService {
         if (matcher.find()) {
             String db = StringUtils.isEmpty(parseResult.getMainTable().getDb()) ? currentDb : parseResult.getMainTable().getDb();
             String tableName = parseResult.getMainTable().getName();
-            try {
-                if(tableServiceImpl.isView(dtuicTenantId, null, db, ETableType.HIVE, tableName)){
-                    result.setIsContinue(true);
-                    return result;
-                }
-            } catch (Exception e){
-                log.error("", e);
-                result.setIsContinue(false);
-                result.setStatus(TaskStatus.FAILED.getStatus());
-                result.setMsg(e.getMessage());
-                return result;
-            }
 
             //这里增加一条记录，保证简单查询sql也能下载数据
             String jobId = UUID.randomUUID().toString();
-            Project project = getProjectByDbName(db, currentDb, engineType, tenantId);
+            ScheduleEngineProject project = getProjectByDbName(db, currentDb, engineType, tenantId);
 
             String parseColumnsString = "{}";
-            selectSqlService.addSelectSql(jobId, tableName, TempJobType.SIMPLE_SELECT.getType(), tenantId, project.getId(), parseResult.getStandardSql(), userId, parseColumnsString, engineType);
+            selectSqlService.addSelectSql(jobId, tableName, TempJobType.SIMPLE_SELECT.getType(), tenantId, project.getProjectId(), parseResult.getStandardSql(), userId, parseColumnsString, engineType);
             result.setJobId(jobId);
             result.setIsContinue(false);
         } else {
@@ -379,8 +340,8 @@ public class BatchSparkHiveSqlExeService {
      * @param tenantId
      * @return
      */
-    private Project getProjectByDbName(String db, String currentDb, Integer engineType, Long tenantId) {
-        Project project = null;
+    private ScheduleEngineProject getProjectByDbName(String db, String currentDb, Integer engineType, Long tenantId) {
+        ScheduleEngineProject project = null;
         if (StringUtils.isNotEmpty(db) && !db.equals(currentDb)) {
             //当前查询db 和 所属db 不一致
             project = projectEngineService.getProjectByDbName(db, engineType, null);
@@ -393,18 +354,5 @@ public class BatchSparkHiveSqlExeService {
         return project;
     }
 
-    /**
-     * sql语法校验
-     * @param dtuicTenantId
-     * @param sqlText
-     * @param userId
-     * @param projectId
-     * @param taskParam
-     * @param eJobType
-     * @return
-     */
-    protected List<ParseResult> checkMulitSqlSyntax(Long dtuicTenantId, String sqlText, Long userId, Long projectId, String taskParam, EJobType eJobType) {
-        return null;
-    }
 
 }

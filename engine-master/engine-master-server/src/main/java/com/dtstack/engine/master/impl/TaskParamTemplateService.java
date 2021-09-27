@@ -1,8 +1,8 @@
 package com.dtstack.engine.master.impl;
 
 
-import com.dtstack.engine.api.domain.TaskParamTemplate;
-import com.dtstack.engine.api.vo.template.TaskTemplateResultVO;
+import com.dtstack.engine.domain.TaskParamTemplate;
+import com.dtstack.engine.master.vo.template.TaskTemplateResultVO;
 import com.dtstack.engine.dao.TaskParamTemplateDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

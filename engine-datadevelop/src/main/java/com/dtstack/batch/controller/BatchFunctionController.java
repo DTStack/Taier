@@ -118,15 +118,4 @@ public class BatchFunctionController {
         }.execute();
     }
 
-    @PostMapping(value = "sparkUdfCleanAndPublish")
-    @ApiOperation(value = "Spark UDF 脏数据处理")
-    public R<Void> sparkUdfCleanAndPublish() {
-        return new APITemplate<Void>() {
-            @Override
-            protected Void process() {
-              batchFunctionService.sparkUdfCleanAndPublish();
-              return null;
-            }
-        }.execute();
-    }
 }

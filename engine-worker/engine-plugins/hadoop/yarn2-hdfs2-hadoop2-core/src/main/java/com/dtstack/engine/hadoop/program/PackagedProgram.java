@@ -18,8 +18,8 @@
 
 package com.dtstack.engine.hadoop.program;
 
-import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.ErrorCode;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.base.enums.ClassLoaderType;
 import org.apache.hadoop.conf.Configuration;
 

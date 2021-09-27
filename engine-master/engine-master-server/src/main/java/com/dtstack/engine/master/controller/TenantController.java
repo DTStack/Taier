@@ -1,9 +1,9 @@
 package com.dtstack.engine.master.controller;
 
-import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.vo.EngineTenantVO;
-import com.dtstack.engine.api.vo.tenant.TenantResourceVO;
-import com.dtstack.engine.api.vo.tenant.UserTenantVO;
+import com.dtstack.engine.domain.Tenant;
+import com.dtstack.engine.common.pager.PageResult;
+import com.dtstack.engine.master.vo.EngineTenantVO;
+import com.dtstack.engine.master.vo.tenant.TenantResourceVO;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.impl.TenantService;
 import io.swagger.annotations.Api;
@@ -44,8 +44,8 @@ public class TenantController {
     }
 
     @RequestMapping(value="/dtToken", method = {RequestMethod.POST})
-    public List<UserTenantVO> listTenant(@RequestParam("dt_token") String dtToken) {
-        return tenantService.listTenant(dtToken);
+    public List<Tenant> listTenant() {
+        return tenantService.listTenant();
     }
 
     @RequestMapping(value="/bindingTenant", method = {RequestMethod.POST})

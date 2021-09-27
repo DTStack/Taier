@@ -46,7 +46,7 @@ public class BatchResourceAddDTO {
     /**
      * uic租户ID
      */
-    private Long dtuicTenantId;
+    private Long dtuicTenantId =1L;
 
     /**
      * 资源类型

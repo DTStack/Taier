@@ -1,6 +1,6 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.engine.api.domain.EngineUniqueSign;
+import com.dtstack.engine.domain.EngineUniqueSign;
 
 /**
  * company: www.dtstack.com

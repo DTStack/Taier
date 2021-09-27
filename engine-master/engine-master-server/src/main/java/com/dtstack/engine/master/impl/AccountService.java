@@ -1,33 +1,33 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.Account;
-import com.dtstack.engine.api.domain.AccountTenant;
-import com.dtstack.engine.api.domain.Tenant;
-import com.dtstack.engine.api.domain.User;
-import com.dtstack.engine.api.dto.AccountDTO;
-import com.dtstack.engine.api.pager.PageQuery;
-import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.vo.AccountTenantVo;
-import com.dtstack.engine.api.vo.AccountVo;
-import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.engine.domain.Account;
+import com.dtstack.engine.domain.AccountTenant;
+import com.dtstack.engine.domain.Tenant;
+import com.dtstack.engine.domain.User;
+import com.dtstack.engine.dto.AccountDTO;
+import com.dtstack.engine.common.pager.PageQuery;
+import com.dtstack.engine.common.pager.PageResult;
+import com.dtstack.engine.master.vo.AccountTenantVo;
+import com.dtstack.engine.master.vo.AccountVo;
+import com.dtstack.engine.master.vo.user.UserVO;
+import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.MultiEngineType;
-import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.dao.AccountDao;
 import com.dtstack.engine.dao.AccountTenantDao;
 import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.dao.UserDao;
-import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.WorkerOperator;
 import com.dtstack.engine.master.enums.AccountType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
-import com.dtstack.engine.master.router.login.DtUicUserConnect;
-import com.dtstack.schedule.common.enums.DataBaseType;
-import com.dtstack.schedule.common.enums.Deleted;
-import com.dtstack.schedule.common.enums.EntityStatus;
-import com.dtstack.schedule.common.enums.Sort;
-import com.dtstack.schedule.common.util.Base64Util;
+import com.dtstack.engine.common.enums.DataBaseType;
+import com.dtstack.engine.common.enums.Deleted;
+import com.dtstack.engine.common.enums.EntityStatus;
+import com.dtstack.engine.common.enums.Sort;
+import com.dtstack.engine.common.util.Base64Util;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -76,7 +76,7 @@ public class AccountService {
     private WorkerOperator workerOperator;
 
     @Autowired
-    private DtUicUserConnect dtUicUserConnect;
+    private UserService userService;
 
     /**
      * 绑定数据库账号 到对应数栈账号下的集群
@@ -221,7 +221,7 @@ public class AccountService {
      * @Description 插入账号信息
      * @Date 2020-12-22 11:53
      * @param accountVo:
-     * @return: com.dtstack.engine.api.domain.Account
+     * @return: com.dtstack.engine.domain.Account
      **/
     private Account insertAccount(AccountVo accountVo) {
         Account dbAccountByName = new Account();
@@ -428,28 +428,15 @@ public class AccountService {
      * @param dtuicTenantId
      * @return
      */
-    public List<Map<String, Object>> getTenantUnBandList( Long dtuicTenantId,  String dtToken,  Long userId,
-                                                         Integer engineType) {
+    public List<UserVO> getTenantUnBandList(Long dtuicTenantId, Integer engineType) {
         if (null == dtuicTenantId) {
             throw new RdosDefineException("Please select the corresponding tenant");
         }
-        //获取uic下该租户所有用户
-        List<Map<String, Object>> uicUsers = dtUicUserConnect.getAllUicUsers(environmentContext.getDtUicUrl(), "RDOS", dtuicTenantId, dtToken);
         Long tenantId = tenantDao.getIdByDtUicTenantId(dtuicTenantId);
         if (null == tenantId) {
             throw new RdosDefineException("Please bind the tenant to the cluster first");
         }
-        //添加超级管理员
-        User rootUser = userDao.getByUserId(userId);
-        if (null != rootUser) {
-            Map<String, Object> rootMap = new HashMap<>(5);
-            rootMap.put("userName", rootUser.getUserName());
-            rootMap.put("userId", rootUser.getDtuicUserId());
-            rootMap.put("active", true);
-            rootMap.put("createTime", rootUser.getGmtCreate());
-            uicUsers.add(rootMap);
-        }
-
+        List<UserVO> uicUsers = userService.findAllUser();
         if (CollectionUtils.isEmpty(uicUsers)) {
             return new ArrayList<>(0);
         }
@@ -462,9 +449,8 @@ public class AccountService {
         }
         //过滤租户下已绑定的用户
         return uicUsers.stream()
-                .filter((uicUser) -> !userInIds.contains(Long.valueOf(uicUser.get("userId").toString())))
+                .filter((uicUser) -> !userInIds.contains(uicUser.getDtuicUserId()))
                 .collect(Collectors.toList());
-
     }
 
     private void checkAccountVo(AccountVo accountVo) {

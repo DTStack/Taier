@@ -1,21 +1,21 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.*;
-import com.dtstack.engine.api.enums.TaskRuleEnum;
-import com.dtstack.engine.api.vo.ScheduleTaskVO;
-import com.dtstack.engine.api.vo.task.SaveTaskTaskVO;
+import com.dtstack.engine.domain.*;
+import com.dtstack.engine.common.enums.TaskRuleEnum;
+import com.dtstack.engine.master.vo.ScheduleTaskVO;
+import com.dtstack.engine.master.vo.task.SaveTaskTaskVO;
 import com.dtstack.engine.common.enums.DisplayDirect;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.dao.ScheduleEngineProjectDao;
 import com.dtstack.engine.dao.ScheduleTaskCommitMapper;
 import com.dtstack.engine.dao.ScheduleTaskTaskShadeDao;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.master.druid.DtDruidRemoveAbandoned;
 import com.dtstack.engine.dao.TenantDao;
-import com.dtstack.schedule.common.enums.EScheduleJobType;
+import com.dtstack.engine.pluginapi.enums.EScheduleJobType;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -348,10 +348,10 @@ public class ScheduleTaskTaskShadeService {
     }
 
 
-    public com.dtstack.engine.master.vo.ScheduleTaskVO displayOffSpring( Long taskId,
-                                                                         Long projectId,
-                                                                         Integer level,
-                                                                         Integer directType, Integer appType) {
+    public com.dtstack.engine.master.impl.vo.ScheduleTaskVO displayOffSpring(Long taskId,
+                                                                             Long projectId,
+                                                                             Integer level,
+                                                                             Integer directType, Integer appType) {
         ScheduleTaskShade task = taskShadeService.getBatchTaskById(taskId,appType);
         if(null == task){
             return null;
@@ -379,22 +379,22 @@ public class ScheduleTaskTaskShadeService {
      *
      * @author toutian
      */
-    private com.dtstack.engine.master.vo.ScheduleTaskVO getOffSpringNew(ScheduleTaskShade taskShade, int level,
-                                                                        Integer directType, Long currentProjectId, Integer appType, List<String> taskIdRelations) {
+    private com.dtstack.engine.master.impl.vo.ScheduleTaskVO getOffSpringNew(ScheduleTaskShade taskShade, int level,
+                                                                             Integer directType, Long currentProjectId, Integer appType, List<String> taskIdRelations) {
         //1、如果是工作流子节点,则展开全部工作流子节点
         if (!taskShade.getTaskType().equals(EScheduleJobType.WORK_FLOW.getVal()) &&
                 !taskShade.getFlowId().equals(IS_WORK_FLOW_SUBNODE)) {
             //若为工作流子节点，则展开工作流全部子节点
             return getOnlyAllFlowSubTasksNew(taskShade.getFlowId(), appType);
         }
-        com.dtstack.engine.master.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO(taskShade, true);
+        com.dtstack.engine.master.impl.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.impl.vo.ScheduleTaskVO(taskShade, true);
         setTenantAndProjeck(vo,taskShade);
         vo.setCurrentProject(currentProjectId.equals(taskShade.getProjectId()));
         if (EScheduleJobType.WORK_FLOW.getVal().equals(taskShade.getTaskType())) {
             //2、如果是工作流，则获取工作流子节点,包括工作流本身
             //构建父节点信息
-            com.dtstack.engine.master.vo.ScheduleTaskVO parentNode = new com.dtstack.engine.master.vo.ScheduleTaskVO(taskShade, true);
-            com.dtstack.engine.master.vo.ScheduleTaskVO onlyAllFlowSubTasksNew = getOnlyAllFlowSubTasksNew(taskShade.getTaskId(), taskShade.getAppType());
+            com.dtstack.engine.master.impl.vo.ScheduleTaskVO parentNode = new com.dtstack.engine.master.impl.vo.ScheduleTaskVO(taskShade, true);
+            com.dtstack.engine.master.impl.vo.ScheduleTaskVO onlyAllFlowSubTasksNew = getOnlyAllFlowSubTasksNew(taskShade.getTaskId(), taskShade.getAppType());
             parentNode.setSubTaskVOS(Arrays.asList(onlyAllFlowSubTasksNew));
             vo.setSubNodes(parentNode);
         }
@@ -494,14 +494,14 @@ public class ScheduleTaskTaskShadeService {
      * 0 展开上下游, 1:展开上游 2:展开下游
      * @author toutian
      */
-    private com.dtstack.engine.master.vo.ScheduleTaskVO getOffSpring(ScheduleTaskShade taskShade, int level, Integer directType, Long currentProjectId, Integer appType) {
+    private com.dtstack.engine.master.impl.vo.ScheduleTaskVO getOffSpring(ScheduleTaskShade taskShade, int level, Integer directType, Long currentProjectId, Integer appType) {
 
-        com.dtstack.engine.master.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO(taskShade, true);
+        com.dtstack.engine.master.impl.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.impl.vo.ScheduleTaskVO(taskShade, true);
         vo.setCurrentProject(currentProjectId.equals(taskShade.getProjectId()));
         setTenantAndProjeck(vo,taskShade);
         if (EScheduleJobType.WORK_FLOW.getVal().equals(taskShade.getTaskType())) {
             //如果是工作流，则获取工作流及其子节点
-            com.dtstack.engine.master.vo.ScheduleTaskVO subTaskVO = getAllFlowSubTasks(taskShade.getTaskId(),taskShade.getAppType());
+            com.dtstack.engine.master.impl.vo.ScheduleTaskVO subTaskVO = getAllFlowSubTasks(taskShade.getTaskId(),taskShade.getAppType());
             vo.setSubNodes(subTaskVO);
         }
         if (level == 0) {
@@ -555,7 +555,7 @@ public class ScheduleTaskTaskShadeService {
         return vo;
     }
 
-    private void setTenantAndProjeck(com.dtstack.engine.master.vo.ScheduleTaskVO vo, ScheduleTaskShade taskShade) {
+    private void setTenantAndProjeck(com.dtstack.engine.master.impl.vo.ScheduleTaskVO vo, ScheduleTaskShade taskShade) {
         Tenant byDtUicTenantId = tenantDao.getByDtUicTenantId(taskShade.getDtuicTenantId());
 
         if (byDtUicTenantId != null) {
@@ -642,11 +642,11 @@ public class ScheduleTaskTaskShadeService {
      * @param flowId 工作流父节点id
      * @return
      */
-    private com.dtstack.engine.master.vo.ScheduleTaskVO getOnlyAllFlowSubTasksNew(Long flowId, Integer appType) {
+    private com.dtstack.engine.master.impl.vo.ScheduleTaskVO getOnlyAllFlowSubTasksNew(Long flowId, Integer appType) {
 
         //工作流最多展开多少层
         Integer level = context.getWorkFlowLevel();
-        com.dtstack.engine.master.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO();
+        com.dtstack.engine.master.impl.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.impl.vo.ScheduleTaskVO();
         //获取工作流顶部节点
         ScheduleTaskShade beginTaskShade = taskShadeService.getWorkFlowTopNode(flowId,appType);
         if(beginTaskShade!=null) {
@@ -663,9 +663,9 @@ public class ScheduleTaskTaskShadeService {
      * @param flowId 工作流父节点id
      * @return
      */
-    private com.dtstack.engine.master.vo.ScheduleTaskVO getOnlyAllFlowSubTasks(Long flowId, Integer appType) {
+    private com.dtstack.engine.master.impl.vo.ScheduleTaskVO getOnlyAllFlowSubTasks(Long flowId, Integer appType) {
 
-        com.dtstack.engine.master.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO();
+        com.dtstack.engine.master.impl.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.impl.vo.ScheduleTaskVO();
         //获取工作流顶部节点
         ScheduleTaskShade beginTaskShade = taskShadeService.getWorkFlowTopNode(flowId,appType);
         if(beginTaskShade!=null) {
@@ -685,13 +685,13 @@ public class ScheduleTaskTaskShadeService {
      * @param taskId
      * @return
      */
-    public com.dtstack.engine.master.vo.ScheduleTaskVO getAllFlowSubTasks( Long taskId,  Integer appType) {
+    public com.dtstack.engine.master.impl.vo.ScheduleTaskVO getAllFlowSubTasks(Long taskId, Integer appType) {
 
         //工作流任务信息
         ScheduleTaskShade task = taskShadeService.getBatchTaskById(taskId,appType);
         //构建父节点信息
-        com.dtstack.engine.master.vo.ScheduleTaskVO parentNode = new com.dtstack.engine.master.vo.ScheduleTaskVO(task, true);
-        com.dtstack.engine.master.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO();
+        com.dtstack.engine.master.impl.vo.ScheduleTaskVO parentNode = new com.dtstack.engine.master.impl.vo.ScheduleTaskVO(task, true);
+        com.dtstack.engine.master.impl.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.impl.vo.ScheduleTaskVO();
         //获取工作流最顶层结点
         ScheduleTaskShade beginTaskShade = taskShadeService.getWorkFlowTopNode(taskId,appType);
         if(beginTaskShade!=null) {
@@ -711,10 +711,10 @@ public class ScheduleTaskTaskShadeService {
      * @param taskIdRelations 任务id关联列表，用来做成环检测
      * @return
      */
-    private com.dtstack.engine.master.vo.ScheduleTaskVO getFlowWorkOffSpringNew(ScheduleTaskShade taskShade, Integer appType,int level,List<String> taskIdRelations) {
+    private com.dtstack.engine.master.impl.vo.ScheduleTaskVO getFlowWorkOffSpringNew(ScheduleTaskShade taskShade, Integer appType, int level, List<String> taskIdRelations) {
 
 
-        com.dtstack.engine.master.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO(taskShade, true);
+        com.dtstack.engine.master.impl.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.impl.vo.ScheduleTaskVO(taskShade, true);
         //查询子任务列表
         List<ScheduleTaskTaskShade> childTaskTasks = scheduleTaskTaskShadeDao.listChildTask(taskShade.getTaskId(),taskShade.getAppType());
         if (CollectionUtils.isEmpty(childTaskTasks)) {
@@ -752,12 +752,12 @@ public class ScheduleTaskTaskShadeService {
      * @param level
      * @return
      */
-    private com.dtstack.engine.master.vo.ScheduleTaskVO getFlowWorkOffSpring(ScheduleTaskShade taskShade, int level, Integer appType,int max) {
+    private com.dtstack.engine.master.impl.vo.ScheduleTaskVO getFlowWorkOffSpring(ScheduleTaskShade taskShade, int level, Integer appType, int max) {
 
         if(max<=0){
             return null;
         }
-        com.dtstack.engine.master.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO(taskShade, true);
+        com.dtstack.engine.master.impl.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.impl.vo.ScheduleTaskVO(taskShade, true);
         List<ScheduleTaskTaskShade> childTaskTasks = null;
         //查询子任务列表
         childTaskTasks = scheduleTaskTaskShadeDao.listChildTask(taskShade.getTaskId(),taskShade.getAppType());
@@ -783,7 +783,7 @@ public class ScheduleTaskTaskShadeService {
      * @param level:
      * @param directType:
      * @param appType:
-     * @return: java.util.List<com.dtstack.engine.api.vo.ScheduleTaskVO>
+     * @return: java.util.List<com.dtstack.engine.master.vo.ScheduleTaskVO>
      **/
     public List<ScheduleTaskVO> getFlowWorkSubTasksRefTask(Set<Long> taskIds, int level, Integer directType, Integer appType,int max) {
 

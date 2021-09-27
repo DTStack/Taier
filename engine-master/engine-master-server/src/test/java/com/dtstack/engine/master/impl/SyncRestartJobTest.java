@@ -1,16 +1,16 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.ScheduleJobJob;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
-import com.dtstack.engine.api.vo.ScheduleJobKillJobVO;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.domain.ScheduleJobJob;
+import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.dto.ScheduleTaskShadeDTO;
+import com.dtstack.engine.master.vo.ScheduleJobKillJobVO;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.utils.Template;
-import com.dtstack.schedule.common.enums.EScheduleJobType;
+import com.dtstack.engine.pluginapi.enums.EScheduleJobType;
 import org.assertj.core.util.Lists;
 import org.joda.time.DateTime;
 import org.junit.Assert;

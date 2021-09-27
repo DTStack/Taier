@@ -1,6 +1,6 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.engine.api.domain.EngineJobCheckpoint;
+import com.dtstack.engine.domain.EngineJobCheckpoint;
 import org.apache.ibatis.annotations.Param;
 
 import java.sql.Timestamp;

@@ -2,9 +2,9 @@ package com.dtstack.engine.flink;
 
 import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.base.util.KerberosUtils;
-import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.RetryUtil;
+import com.dtstack.engine.pluginapi.CustomThreadFactory;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.util.RetryUtil;
 import com.dtstack.engine.flink.base.enums.ClusterMode;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.util.HadoopConf;

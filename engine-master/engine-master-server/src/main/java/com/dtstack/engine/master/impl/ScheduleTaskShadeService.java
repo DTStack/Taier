@@ -2,36 +2,38 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.*;
-import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
-import com.dtstack.engine.api.enums.TaskRuleEnum;
-import com.dtstack.engine.api.pager.PageQuery;
-import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.vo.ScheduleDetailsVO;
-import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
-import com.dtstack.engine.api.vo.ScheduleTaskVO;
-import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
-import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
-import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
-import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
-import com.dtstack.engine.api.vo.task.TaskTypeVO;
+import com.dtstack.engine.domain.*;
+import com.dtstack.engine.domain.po.ScheduleTaskShadeCountTaskPO;
+import com.dtstack.engine.dto.ScheduleTaskShadeDTO;
+import com.dtstack.engine.common.enums.TaskRuleEnum;
+import com.dtstack.engine.common.pager.PageQuery;
+import com.dtstack.engine.common.pager.PageResult;
+import com.dtstack.engine.master.mapstruct.ScheduleTaskShadeStruct;
+import com.dtstack.engine.master.vo.ScheduleDetailsVO;
+import com.dtstack.engine.master.vo.ScheduleTaskShadeVO;
+import com.dtstack.engine.master.vo.ScheduleTaskVO;
+import com.dtstack.engine.master.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
+import com.dtstack.engine.master.vo.schedule.task.shade.ScheduleTaskShadePageVO;
+import com.dtstack.engine.master.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
+import com.dtstack.engine.master.vo.task.NotDeleteTaskVO;
+import com.dtstack.engine.master.vo.task.TaskTypeVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
-import com.dtstack.engine.common.enums.EComponentType;
-import com.dtstack.engine.common.enums.EScheduleStatus;
+import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.MathUtil;
-import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.common.util.UnitConvertUtil;
+import com.dtstack.engine.pluginapi.enums.EScheduleJobType;
+import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.util.DateUtil;
+import com.dtstack.engine.pluginapi.util.MathUtil;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
+import com.dtstack.engine.pluginapi.util.UnitConvertUtil;
 import com.dtstack.engine.dao.ScheduleTaskCommitMapper;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.dao.TenantResourceDao;
 import com.dtstack.engine.master.druid.DtDruidRemoveAbandoned;
 import com.dtstack.engine.common.util.*;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.master.scheduler.parser.ESchedulePeriodType;
-import com.dtstack.schedule.common.enums.*;
+import com.dtstack.engine.master.server.scheduler.parser.ESchedulePeriodType;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
@@ -89,6 +91,9 @@ public class ScheduleTaskShadeService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ScheduleTaskShadeStruct scheduleTaskShadeStruct;
 
     /**
      * web 接口
@@ -198,11 +203,12 @@ public class ScheduleTaskShadeService {
     public ScheduleTaskShadeCountTaskVO countTaskByType( Long tenantId, Long dtuicTenantId,
                                                 Long projectId,  Integer appType,
                                                 List<Integer> taskTypes){
-        List<ScheduleTaskShadeCountTaskVO> ScheduleTaskShadeCountTaskVOs = scheduleTaskShadeDao.countTaskByType(tenantId, dtuicTenantId, Lists.newArrayList(projectId), appType, taskTypes, AppType.DATASCIENCE.getType() == appType ? 0L : null);
-        if (CollectionUtils.isEmpty(ScheduleTaskShadeCountTaskVOs)) {
+        List<ScheduleTaskShadeCountTaskPO> scheduleTaskShadeCountTaskPOS = scheduleTaskShadeDao.countTaskByType(tenantId, dtuicTenantId, Lists.newArrayList(projectId), appType, taskTypes, AppType.DATASCIENCE.getType() == appType ? 0L : null);
+        if (CollectionUtils.isEmpty(scheduleTaskShadeCountTaskPOS)) {
             return new ScheduleTaskShadeCountTaskVO();
         }
-        return ScheduleTaskShadeCountTaskVOs.get(0);
+
+        return scheduleTaskShadeStruct.toScheduleTaskShadeCountTaskVO(scheduleTaskShadeCountTaskPOS.get(0));
     }
 
     private void buildVO(ScheduleTaskShadeCountTaskVO scheduleTaskShadeCountTaskVO, Map<String, Object> stringObjectMap) {
@@ -213,8 +219,8 @@ public class ScheduleTaskShadeService {
     public List<ScheduleTaskShadeCountTaskVO> countTaskByTypes( Long tenantId, Long dtuicTenantId,
                                                 List<Long> projectIds,  Integer appType,
                                                 List<Integer> taskTypes){
-
-        return scheduleTaskShadeDao.countTaskByType(tenantId, dtuicTenantId, projectIds, appType, taskTypes, AppType.DATASCIENCE.getType() == appType ? 0L : null);
+        List<ScheduleTaskShadeCountTaskPO> scheduleTaskShadeCountTaskPOs = scheduleTaskShadeDao.countTaskByType(tenantId, dtuicTenantId, projectIds, appType, taskTypes, AppType.DATASCIENCE.getType() == appType ? 0L : null);
+        return scheduleTaskShadeStruct.toScheduleTaskShadeCountTaskVOs(scheduleTaskShadeCountTaskPOs);
     }
 
 
@@ -390,7 +396,7 @@ public class ScheduleTaskShadeService {
         List<ScheduleTaskVO> vos = new ArrayList<>(batchTasks.size());
 
         for (ScheduleTaskShade batchTask : batchTasks) {
-            vos.add(new com.dtstack.engine.master.vo.ScheduleTaskVO(batchTask,true));
+            vos.add(new com.dtstack.engine.master.impl.vo.ScheduleTaskVO(batchTask,true));
         }
         if (queryAll) {
             vos = dealFlowWorkSubTasks(vos,appType);
@@ -484,7 +490,7 @@ public class ScheduleTaskShadeService {
                     } else {
                         ScheduleTaskShade flow = scheduleTaskShadeDao.getOne(flowId, appType);
                         if (flow != null) {
-                            flowVo = new com.dtstack.engine.master.vo.ScheduleTaskVO(flow, true);
+                            flowVo = new com.dtstack.engine.master.impl.vo.ScheduleTaskVO(flow, true);
                             flowVo.setRelatedTasks(Lists.newArrayList(vo));
                             vos.set(vos.indexOf(vo), flowVo);
                             record.put(flowId, flowVo);
@@ -528,12 +534,12 @@ public class ScheduleTaskShadeService {
         if (taskShade == null) {
             return null;
         }
-        ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO(taskShade, true);
+        ScheduleTaskVO vo = new com.dtstack.engine.master.impl.vo.ScheduleTaskVO(taskShade, true);
         if (EScheduleJobType.WORK_FLOW.getVal().equals(vo.getTaskType())) {
             List<ScheduleTaskShade> subtasks = this.getFlowWorkSubTasks(vo.getTaskId(),appType,taskTypes,ownerId);
             if (CollectionUtils.isNotEmpty(subtasks)) {
                 List<ScheduleTaskVO> list = Lists.newArrayList();
-                subtasks.forEach(task -> list.add(new com.dtstack.engine.master.vo.ScheduleTaskVO(task,true)));
+                subtasks.forEach(task -> list.add(new com.dtstack.engine.master.impl.vo.ScheduleTaskVO(task,true)));
                 vo.setRelatedTasks(list);
             }
         }

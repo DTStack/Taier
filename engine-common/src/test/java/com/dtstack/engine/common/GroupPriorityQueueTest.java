@@ -1,6 +1,7 @@
 package com.dtstack.engine.common;
 
 import com.dtstack.engine.common.queue.comparator.JobClientComparator;
+import com.dtstack.engine.pluginapi.JobClient;
 import org.junit.Assert;
 import org.junit.Test;
 

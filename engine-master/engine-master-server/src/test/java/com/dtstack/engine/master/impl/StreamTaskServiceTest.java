@@ -1,16 +1,16 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.EngineJobCheckpoint;
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.domain.EngineJobCheckpoint;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.pluginapi.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobCacheStage;
-import com.dtstack.engine.common.enums.EngineType;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.pluginapi.enums.EngineType;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.AbstractTest;
-import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.WorkerOperator;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import org.junit.Assert;
 import org.junit.Before;

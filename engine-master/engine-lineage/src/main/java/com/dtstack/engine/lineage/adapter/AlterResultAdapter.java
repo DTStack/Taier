@@ -1,7 +1,7 @@
 package com.dtstack.engine.lineage.adapter;
 
-import com.dtstack.engine.api.enums.TableOperateEnum;
-import com.dtstack.engine.api.vo.lineage.AlterResult;
+import com.dtstack.engine.common.enums.TableOperateEnum;
+import com.dtstack.engine.lineage.vo.AlterResult;
 
 /**
  * @Author: ZYD

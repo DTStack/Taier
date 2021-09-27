@@ -18,8 +18,7 @@
 
 package org.apache.flink.client.program;
 
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.base.enums.ClassLoaderType;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.Plan;

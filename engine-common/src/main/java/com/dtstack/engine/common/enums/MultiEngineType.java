@@ -1,6 +1,6 @@
 package com.dtstack.engine.common.enums;
 
-import com.dtstack.engine.common.constrant.ComponentConstant;
+import com.dtstack.engine.pluginapi.constrant.ComponentConstant;
 
 /**
  *

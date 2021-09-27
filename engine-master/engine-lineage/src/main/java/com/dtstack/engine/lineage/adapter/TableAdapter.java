@@ -15,11 +15,11 @@ import java.util.stream.Collectors;
  * @Created chener@dtstack.com
  */
 public class TableAdapter {
-    public static com.dtstack.engine.api.pojo.lineage.Table sqlTable2ApiTable(Table sqlTable) {
+    public static com.dtstack.engine.lineage.pojo.Table sqlTable2ApiTable(Table sqlTable) {
         if (Objects.isNull(sqlTable)) {
             return null;
         }
-        com.dtstack.engine.api.pojo.lineage.Table apiTable = new com.dtstack.engine.api.pojo.lineage.Table(sqlTable.getDb(), sqlTable.getName());
+        com.dtstack.engine.lineage.pojo.Table apiTable = new com.dtstack.engine.lineage.pojo.Table(sqlTable.getDb(), sqlTable.getName());
         if (CollectionUtils.isNotEmpty(sqlTable.getColumns())){
             apiTable.setColumns(sqlTable.getColumns().stream().map(ColumnAdapter::sqlColumn2ApiColumn).collect(Collectors.toList()));
         }
@@ -38,7 +38,7 @@ public class TableAdapter {
         apiTable.setTemp(sqlTable.isTemp());
         apiTable.setView(sqlTable.isView());
         TableOperateEnum operate = sqlTable.getOperate();
-        com.dtstack.engine.api.enums.TableOperateEnum operateEnum = com.dtstack.engine.api.enums.TableOperateEnum.getOperateBySqlType(operate.getVal());
+        com.dtstack.engine.common.enums.TableOperateEnum operateEnum = com.dtstack.engine.common.enums.TableOperateEnum.getOperateBySqlType(operate.getVal());
         apiTable.setOperate(operateEnum);
         apiTable.setTableType(sqlTable.getTableType());
         apiTable.setMain(sqlTable.isMain());

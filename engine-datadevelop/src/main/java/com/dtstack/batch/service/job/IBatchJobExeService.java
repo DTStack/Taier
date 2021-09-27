@@ -1,10 +1,10 @@
 package com.dtstack.batch.service.job;
 
-import com.dtstack.engine.api.domain.BatchTask;
+import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.batch.domain.BatchTaskParamShade;
-import com.dtstack.batch.domain.Project;
 import com.dtstack.batch.vo.ExecuteResultVO;
 import com.dtstack.batch.vo.ExecuteSqlParseVO;
+import com.dtstack.engine.domain.ScheduleEngineProject;
 
 import java.util.List;
 import java.util.Map;
@@ -71,7 +71,7 @@ public interface IBatchJobExeService {
      * @param project
      * @throws Exception
      */
-    void readyForTaskStartTrigger(Map<String, Object> actionParam, Long dtuicTenantId, Project project, BatchTask batchTask, List<BatchTaskParamShade> taskParamsToReplace) throws Exception;
+    void readyForTaskStartTrigger(Map<String, Object> actionParam, Long dtuicTenantId, ScheduleEngineProject project, BatchTask batchTask, List<BatchTaskParamShade> taskParamsToReplace) throws Exception;
 
     /**
      * 执行数据前的准备工作

@@ -1,6 +1,6 @@
 package com.dtstack.engine.sparkyarn.sparkyarn;
 
-import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

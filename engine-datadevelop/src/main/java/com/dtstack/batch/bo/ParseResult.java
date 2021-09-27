@@ -1,6 +1,6 @@
 package com.dtstack.batch.bo;
 
-import com.dtstack.engine.api.vo.lineage.ColumnLineageParseInfo;
+import com.dtstack.engine.lineage.vo.ColumnLineageParseInfo;
 
 /**
  * @author beihai

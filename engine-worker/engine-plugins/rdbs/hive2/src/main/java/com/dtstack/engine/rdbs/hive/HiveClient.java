@@ -1,7 +1,7 @@
 package com.dtstack.engine.rdbs.hive;
 
-import com.dtstack.engine.api.pojo.lineage.Column;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.pojo.Column;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.rdbs.common.AbstractRdbsClient;
 import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 import com.google.common.collect.Lists;
@@ -17,7 +17,6 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 
 public class HiveClient extends AbstractRdbsClient {

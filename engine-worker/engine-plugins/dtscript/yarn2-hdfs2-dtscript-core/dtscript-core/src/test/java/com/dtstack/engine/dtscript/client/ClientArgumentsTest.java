@@ -1,7 +1,7 @@
 package com.dtstack.engine.dtscript.client;
 
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.util.RetryUtil;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.util.RetryUtil;
 import com.dtstack.engine.dtscript.DataUtil;
 import com.dtstack.engine.dtscript.DtscriptUtils;
 import com.dtstack.engine.dtscript.api.DtYarnConstants;

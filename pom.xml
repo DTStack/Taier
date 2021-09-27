@@ -29,7 +29,7 @@
     </properties>
 
     <modules>
-        <module>engine-client-sdk</module>
+        <module>engine-api</module>
         <module>engine-common</module>
         <module>engine-master</module>
         <module>engine-datasource</module>
@@ -108,6 +108,29 @@
                 <version>1.4.0.Final</version>
             </dependency>
 
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger2</artifactId>
+                <version>2.9.2</version>
+            </dependency>
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger-ui</artifactId>
+                <version>2.9.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.validation</groupId>
+                <artifactId>validation-api</artifactId>
+                <version>2.0.1.Final</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>${commons-collections.version}</version>
+            </dependency>
+
         </dependencies>
 
     </dependencyManagement>
@@ -140,7 +163,21 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
-                    <encoding>utf-8</encoding>
+                    <compilerVersion>1.8</compilerVersion>
+
+                    <compilerArgument>-XDignore.symbol.file</compilerArgument>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.12</version>
+                        </path>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>1.4.0.Final</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
             <plugin>

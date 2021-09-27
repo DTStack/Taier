@@ -1,12 +1,11 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.domain.Cluster;
-import com.dtstack.engine.api.domain.Engine;
-import com.dtstack.engine.api.domain.Queue;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
-import com.dtstack.engine.api.vo.EngineVO;
-import com.dtstack.engine.api.vo.QueueVO;
-import com.dtstack.engine.api.vo.engine.EngineSupportVO;
+import com.dtstack.engine.domain.Cluster;
+import com.dtstack.engine.domain.Engine;
+import com.dtstack.engine.domain.Queue;
+import com.dtstack.engine.pluginapi.pojo.ComponentTestResult;
+import com.dtstack.engine.master.vo.QueueVO;
+import com.dtstack.engine.master.vo.engine.EngineSupportVO;
 import com.dtstack.engine.dao.TestComponentDao;
 import com.dtstack.engine.dao.TestQueueDao;
 import com.dtstack.engine.master.AbstractTest;

@@ -1,10 +1,11 @@
 package com.dtstack.engine.master.controller;
 
-import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.vo.AccountTenantVo;
-import com.dtstack.engine.api.vo.AccountVo;
-import com.dtstack.engine.api.vo.AccountVoLists;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.pager.PageResult;
+import com.dtstack.engine.master.vo.AccountTenantVo;
+import com.dtstack.engine.master.vo.AccountVo;
+import com.dtstack.engine.master.vo.AccountVoLists;
+import com.dtstack.engine.master.vo.user.UserVO;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.master.impl.AccountService;
 import org.springframework.web.bind.annotation.RequestParam;
 import com.dtstack.engine.master.router.util.CookieUtil;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/node/account")
@@ -76,8 +76,8 @@ public class AccountController {
 
     @RequestMapping(value="/getTenantUnBandList", method = {RequestMethod.POST})
     @ApiOperation(value = "获取租户未绑定用户列表")
-    public List<Map<String, Object>> getTenantUnBandList(@RequestParam("dtuicTenantId") Long dtuicTenantId, @RequestParam("dtToken") String dtToken, HttpServletRequest request, @RequestParam("engineType")Integer engineType) {
-        return accountService.getTenantUnBandList(dtuicTenantId, dtToken, CookieUtil.getUserId(request.getCookies()), engineType);
+    public List<UserVO> getTenantUnBandList(@RequestParam("dtuicTenantId") Long dtuicTenantId,  @RequestParam("engineType")Integer engineType) {
+        return accountService.getTenantUnBandList(dtuicTenantId, engineType);
     }
 
 

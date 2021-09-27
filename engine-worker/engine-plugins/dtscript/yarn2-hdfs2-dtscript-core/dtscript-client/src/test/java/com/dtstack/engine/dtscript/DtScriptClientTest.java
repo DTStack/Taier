@@ -1,14 +1,13 @@
 package com.dtstack.engine.dtscript;
 
 import com.dtstack.engine.base.BaseConfig;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.enums.EJobType;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.pojo.JudgeResult;
-import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.JobIdentifier;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
+import com.dtstack.engine.pluginapi.pojo.JobResult;
+import com.dtstack.engine.pluginapi.pojo.JudgeResult;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
 import com.dtstack.engine.dtscript.am.ApplicationMaster;
 import com.dtstack.engine.dtscript.api.DtYarnConstants;
 import com.dtstack.engine.dtscript.client.Client;

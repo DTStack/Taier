@@ -2,7 +2,7 @@ package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.dao.JobGraphTriggerDao;
-import com.dtstack.engine.api.domain.JobGraphTrigger;
+import com.dtstack.engine.domain.JobGraphTrigger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

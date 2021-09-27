@@ -1,18 +1,18 @@
 package com.dtstack.engine.master.controller;
 
-import com.dtstack.engine.api.domain.CronExceptionVO;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
-import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.vo.ScheduleDetailsVO;
-import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
-import com.dtstack.engine.api.vo.ScheduleTaskVO;
-import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
-import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
-import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
-import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
-import com.dtstack.engine.api.vo.task.TaskTypeVO;
-import com.dtstack.engine.common.util.DateUtil;
+import com.dtstack.engine.domain.CronExceptionVO;
+import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.dto.ScheduleTaskShadeDTO;
+import com.dtstack.engine.common.pager.PageResult;
+import com.dtstack.engine.master.vo.ScheduleDetailsVO;
+import com.dtstack.engine.master.vo.ScheduleTaskShadeVO;
+import com.dtstack.engine.master.vo.ScheduleTaskVO;
+import com.dtstack.engine.master.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
+import com.dtstack.engine.master.vo.schedule.task.shade.ScheduleTaskShadePageVO;
+import com.dtstack.engine.master.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
+import com.dtstack.engine.master.vo.task.NotDeleteTaskVO;
+import com.dtstack.engine.master.vo.task.TaskTypeVO;
+import com.dtstack.engine.pluginapi.util.DateUtil;
 import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -99,7 +100,23 @@ public class ScheduleTaskShadeController {
 
     @RequestMapping(value = "/pageQuery", method = {RequestMethod.POST})
     @ApiOperation(value = "分页查询已提交的任务")
+    @Deprecated
     public PageResult<List<ScheduleTaskShadeVO>> pageQuery(@RequestBody ScheduleTaskShadeDTO dto) {
+        if (null != dto) {
+            // 原逻辑 create modify owner UserId 不生效
+            dto.setCreateUserId(null);
+            dto.setModifyUserId(null);
+            dto.setOwnerUserId(null);
+            return scheduleTaskShadeService.pageQuery(dto);
+        }
+        return new PageResult<>(0, 0, 0, 0, new ArrayList<>(0));
+    }
+
+
+
+    @RequestMapping(value="/v2/pageQuery", method = {RequestMethod.POST})
+    @ApiOperation(value = "分页查询已提交的任务")
+    public PageResult<List<ScheduleTaskShadeVO>> newPageQuery(@RequestBody ScheduleTaskShadeDTO dto) {
         return scheduleTaskShadeService.pageQuery(dto);
     }
 

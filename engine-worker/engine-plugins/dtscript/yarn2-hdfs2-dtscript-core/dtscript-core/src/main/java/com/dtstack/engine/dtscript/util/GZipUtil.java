@@ -1,6 +1,5 @@
 package com.dtstack.engine.dtscript.util;
 
-import com.dtstack.engine.common.exception.ExceptionUtil;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

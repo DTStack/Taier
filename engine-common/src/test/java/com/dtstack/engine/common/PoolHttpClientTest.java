@@ -1,6 +1,6 @@
 package com.dtstack.engine.common;
 
-import com.dtstack.engine.common.http.PoolHttpClient;
+import com.dtstack.engine.pluginapi.http.PoolHttpClient;
 import org.junit.Assert;
 import org.junit.Test;
 

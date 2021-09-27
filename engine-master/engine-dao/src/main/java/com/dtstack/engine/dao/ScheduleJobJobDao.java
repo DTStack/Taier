@@ -1,7 +1,7 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.engine.api.domain.ScheduleJobJob;
-import com.dtstack.engine.api.dto.ScheduleJobJobTaskDTO;
+import com.dtstack.engine.domain.ScheduleJobJob;
+import com.dtstack.engine.dto.ScheduleJobJobTaskDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Collection;

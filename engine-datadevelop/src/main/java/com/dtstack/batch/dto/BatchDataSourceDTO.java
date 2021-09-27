@@ -1,6 +1,6 @@
 package com.dtstack.batch.dto;
 
-import com.dtstack.engine.api.domain.BatchDataSource;
+import com.dtstack.engine.domain.BatchDataSource;
 import lombok.Data;
 
 import java.util.List;

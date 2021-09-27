@@ -1,6 +1,6 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.engine.api.domain.TaskParamTemplate;
+import com.dtstack.engine.domain.TaskParamTemplate;
 import org.apache.ibatis.annotations.Param;
 
 /**

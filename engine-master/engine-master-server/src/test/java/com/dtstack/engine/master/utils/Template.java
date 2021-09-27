@@ -2,27 +2,29 @@ package com.dtstack.engine.master.utils;
 
 import com.dtstack.engine.alert.enums.AlertGateCode;
 import com.dtstack.engine.alert.enums.AlertGateTypeEnum;
-import com.dtstack.engine.api.domain.*;
-import com.dtstack.engine.api.enums.LineageOriginType;
-import com.dtstack.engine.api.enums.TaskRuleEnum;
+import com.dtstack.engine.domain.*;
+import com.dtstack.engine.common.enums.LineageOriginType;
+import com.dtstack.engine.common.enums.TaskRuleEnum;
 import com.dtstack.engine.common.enums.*;
-import com.dtstack.engine.common.util.DateUtil;
-import com.dtstack.engine.common.util.MD5Util;
-import com.dtstack.engine.api.domain.AlertChannel;
-import com.dtstack.engine.api.domain.AlertRecord;
-import com.dtstack.schedule.common.enums.AppType;
-import com.dtstack.schedule.common.enums.DataSourceType;
+import com.dtstack.engine.pluginapi.enums.EJobType;
+import com.dtstack.engine.pluginapi.util.DateUtil;
+import com.dtstack.engine.pluginapi.util.MD5Util;
+import com.dtstack.engine.domain.AlertChannel;
+import com.dtstack.engine.domain.AlertRecord;
+import com.dtstack.engine.common.enums.AppType;
+import com.dtstack.engine.common.enums.DataSourceType;
 
 import java.sql.Timestamp;
+import java.util.UUID;
 
 public class Template {
     public static ScheduleJob getScheduleJobTemplate() {
         ScheduleJob sj = new ScheduleJob();
         sj.setStatus(5);
-        sj.setJobId("testJobId");
+        sj.setJobId(UUID.randomUUID().toString());
         sj.setTenantId(15L);
         sj.setProjectId(-1L);
-        sj.setJobKey("testJobKey");
+        sj.setJobKey(UUID.randomUUID().toString());
         sj.setExecStartTime(new Timestamp(System.currentTimeMillis()));
         sj.setExecEndTime(new Timestamp(System.currentTimeMillis()));
         sj.setTaskId(-1L);

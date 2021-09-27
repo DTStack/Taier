@@ -1,6 +1,6 @@
 package com.dtstack.engine.base.resource;
 
-import com.dtstack.engine.common.pojo.JudgeResult;
+import com.dtstack.engine.pluginapi.pojo.JudgeResult;
 import com.google.common.collect.Lists;
 
 import java.util.List;

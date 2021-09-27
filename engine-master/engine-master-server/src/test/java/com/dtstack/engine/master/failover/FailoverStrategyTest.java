@@ -1,16 +1,17 @@
 package com.dtstack.engine.master.failover;
 
-import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.EScheduleType;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.AbstractTest;
+import com.dtstack.engine.master.server.FailoverStrategy;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
-import com.dtstack.engine.master.scheduler.JobGraphBuilder;
-import com.dtstack.engine.master.scheduler.JobGraphBuilderTrigger;
+import com.dtstack.engine.master.server.scheduler.JobGraphBuilder;
+import com.dtstack.engine.master.server.scheduler.JobGraphBuilderTrigger;
 import com.dtstack.engine.master.utils.Template;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.dtstack.engine.master.zookeeper.data.BrokerHeartNode;

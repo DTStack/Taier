@@ -62,7 +62,7 @@
         id = #{id} AND is_deleted = 0
     </update>
 
-    <select id="pageQueryBySourceId" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="BatchTask">
+    <select id="pageQueryBySourceId" parameterType="com.dtstack.engine.common.pager.PageQuery" resultType="BatchTask">
         select
         task.id,task.name
         from rdos_batch_data_source_task_ref ref

@@ -1,10 +1,10 @@
 package com.dtstack.engine.common.jobdealer;
 
-import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.engine.pluginapi.CustomThreadFactory;
+import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.common.logstore.AbstractLogStore;
-import com.dtstack.engine.common.logstore.LogStoreFactory;
+import com.dtstack.engine.pluginapi.logstore.AbstractLogStore;
+import com.dtstack.engine.pluginapi.logstore.LogStoreFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +50,7 @@ public class TaskLogStoreDealer implements Runnable {
         this.scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName()));
         scheduledService.scheduleWithFixedDelay(
                 this,
-                CHECK_INTERVAL,
+                0,
                 CHECK_INTERVAL,
                 TimeUnit.MILLISECONDS);
     }

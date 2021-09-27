@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.EngineJobCheckpoint;
+import com.dtstack.engine.domain.EngineJobCheckpoint;
 import com.dtstack.engine.dao.EngineJobCheckpointDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;

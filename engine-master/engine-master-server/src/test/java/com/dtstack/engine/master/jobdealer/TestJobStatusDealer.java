@@ -1,16 +1,13 @@
 package com.dtstack.engine.master.jobdealer;
 
-import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.common.JobIdentifier;
+import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.common.client.ClientOperator;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.dao.EngineJobCacheDao;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.master.AbstractTest;
-import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.WorkerOperator;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.jobdealer.cache.ShardManager;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;

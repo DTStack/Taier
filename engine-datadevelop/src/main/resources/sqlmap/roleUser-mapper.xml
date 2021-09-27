@@ -39,7 +39,7 @@
         <result column="user_id" property="userId"/>
         <association property="role" column="role_id" javaType="com.dtstack.batch.domain.Role"
                      select="com.dtstack.batch.dao.RoleDao.getOne" fetchType="eager"/>
-        <association property="user" column="user_id" javaType="com.dtstack.engine.api.domain.User"
+        <association property="user" column="user_id" javaType="com.dtstack.engine.domain.User"
                      select="com.dtstack.batch.dao.UserDao.getOne" fetchType="eager"/>
     </resultMap>
 

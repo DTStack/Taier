@@ -1,16 +1,18 @@
 package com.dtstack.engine.master.dataCollection;
 
-import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.domain.*;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.api.domain.AlertChannel;
-import com.dtstack.engine.api.domain.AlertRecord;
+import com.dtstack.engine.domain.AlertChannel;
+import com.dtstack.engine.domain.AlertRecord;
 import com.dtstack.engine.master.anno.DataSource;
 import com.dtstack.engine.master.anno.DatabaseInsertOperation;
 import com.dtstack.engine.master.anno.IgnoreUniqueRandomSet;
 import com.dtstack.engine.master.utils.DataCollectionProxy;
 import com.dtstack.engine.master.utils.Template;
-import com.dtstack.schedule.common.enums.DataSourceType;
+import com.dtstack.engine.pluginapi.enums.ComputeType;
+import com.dtstack.engine.pluginapi.enums.EJobType;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import org.joda.time.DateTime;
 
 import java.lang.reflect.Proxy;
@@ -52,7 +54,7 @@ public interface DataCollection {
      * @author newman
      * @Description 获取虚节点任务实例
      * @Date 2020/12/30 7:09 下午
-     * @return: com.dtstack.engine.api.domain.ScheduleJob
+     * @return: com.dtstack.engine.domain.ScheduleJob
      **/
     @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
     default ScheduleJob getScheduleJobVirtual() {
@@ -357,7 +359,7 @@ public interface DataCollection {
      * @author zyd
      * @Description 失败重试的任务
      * @Date 2020/11/14 10:02 上午
-     * @return: com.dtstack.engine.api.domain.EngineJobCache
+     * @return: com.dtstack.engine.domain.EngineJobCache
      **/
     @DatabaseInsertOperation(dao = TestEngineJobCacheDao.class)
     @IgnoreUniqueRandomSet
@@ -376,7 +378,7 @@ public interface DataCollection {
      * @author zyd
      * @Description 构造不同jobId的jobCache，防止被其他线程删掉
      * @Date 2020/11/27 2:46 下午
-     * @return: com.dtstack.engine.api.domain.EngineJobCache
+     * @return: com.dtstack.engine.domain.EngineJobCache
      **/
     @DatabaseInsertOperation(dao = TestEngineJobCacheDao.class)
     @IgnoreUniqueRandomSet
@@ -496,7 +498,7 @@ public interface DataCollection {
      * @author newman
      * @Description 虚节点任务
      * @Date 2020/12/30 7:07 下午
-     * @return: com.dtstack.engine.api.domain.ScheduleTaskShade
+     * @return: com.dtstack.engine.domain.ScheduleTaskShade
      **/
     @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
     @IgnoreUniqueRandomSet
@@ -601,39 +603,6 @@ public interface DataCollection {
 
         ScheduleTaskShade scheduleTaskShade = Template.getScheduleTaskShadeTemplate();
         return scheduleTaskShade;
-    }
-
-    @DatabaseInsertOperation(dao = TestEngineJobStopDao.class)
-    default EngineJobStopRecord getScheduleJobStop3(){
-
-        EngineJobCache engineJobCache = getEngineJobCache6();
-        EngineJobStopRecord jsr = new EngineJobStopRecord();
-        jsr.setTaskId(engineJobCache.getJobId());
-        jsr.setComputeType(jsr.getComputeType());
-        jsr.setEngineType(jsr.getEngineType());
-        jsr.setForceCancelFlag(1);
-        jsr.setJobResource(engineJobCache.getJobResource());
-        jsr.setOperatorExpired(new java.util.Date());
-        jsr.setTaskType(10);
-        jsr.setVersion(1);
-        return jsr;
-    }
-
-
-    @DatabaseInsertOperation(dao = TestEngineJobStopDao.class)
-    default EngineJobStopRecord getScheduleJobStop(){
-
-        EngineJobCache engineJobCache = getEngineJobCache();
-        EngineJobStopRecord jsr = new EngineJobStopRecord();
-        jsr.setTaskId(engineJobCache.getJobId());
-        jsr.setComputeType(jsr.getComputeType());
-        jsr.setEngineType(jsr.getEngineType());
-        jsr.setForceCancelFlag(1);
-        jsr.setJobResource(engineJobCache.getJobResource());
-        jsr.setOperatorExpired(new java.util.Date());
-        jsr.setTaskType(10);
-        jsr.setVersion(1);
-        return jsr;
     }
 
 

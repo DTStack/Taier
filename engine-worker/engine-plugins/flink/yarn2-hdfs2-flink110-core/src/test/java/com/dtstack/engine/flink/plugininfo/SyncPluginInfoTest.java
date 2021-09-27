@@ -17,8 +17,8 @@
  */
 package com.dtstack.engine.flink.plugininfo;
 
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.enums.ComputeType;
 import com.dtstack.engine.flink.FlinkClient;
 import com.dtstack.engine.flink.FlinkConfig;
 import com.google.gson.Gson;
@@ -28,7 +28,6 @@ import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 

@@ -1,8 +1,6 @@
 package com.dtstack.engine.master.controller;
 
-import com.dtstack.engine.api.vo.UserIdVO;
-import com.dtstack.engine.api.vo.tenant.UserTenantVO;
-import com.dtstack.engine.api.vo.user.UserVO;
+import com.dtstack.engine.master.vo.user.UserVO;
 import com.dtstack.engine.master.impl.UserService;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;

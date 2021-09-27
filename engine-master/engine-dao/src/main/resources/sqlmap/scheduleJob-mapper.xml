@@ -558,7 +558,7 @@
         group by status
     </select>
 
-    <select id="countByStatusAndTypeProjectIds" resultType="com.dtstack.engine.api.pojo.ScheduleJobCount">
+    <select id="countByStatusAndTypeProjectIds" resultType="com.dtstack.engine.domain.po.ScheduleJobCountPO">
         SELECT project_id,status,COUNT(1) as count
         FROM schedule_job ts
         WHERE ts.is_deleted = 0
@@ -645,7 +645,7 @@
         ORDER BY bj.exec_time desc limit #{pageQuery.start}, #{pageQuery.pageSize}
     </select>
 
-    <select id="listTopErrorByType" resultType="com.dtstack.engine.api.vo.JobTopErrorVO">
+    <select id="listTopErrorByType" resultType="com.dtstack.engine.domain.po.JobTopErrorPO">
         SELECT bj.task_id AS taskId, count(1) as errorCount
         FROM schedule_job bj
         WHERE bj.is_deleted = 0
@@ -664,7 +664,29 @@
             #{status}
         </foreach>
         AND bj.type = #{type}
-        AND bj.cyc_time is not null and bj.cyc_time >= #{cycTime}
+        AND bj.id >= (select min(id) from schedule_job where cyc_time >= #{cycTime})
+        group by bj.task_id
+        ORDER BY count(1) desc limit #{pageQuery.start}, #{pageQuery.pageSize}
+    </select>
+
+    <select id="listTopError" resultType="com.dtstack.engine.domain.po.JobTopErrorPO">
+        SELECT bj.task_id AS taskId, count(1) as errorCount
+        FROM schedule_job bj
+        WHERE bj.is_deleted = 0
+        <if test="dtuicTenantId != null and dtuicTenantId != -1">
+            AND bj.dtuic_tenant_id = #{dtuicTenantId}
+        </if>
+        <if test="projectId!=null and projectId != -1">
+            AND bj.project_id = #{projectId}
+        </if>
+        AND bj.app_type = #{appType}
+        AND bj.status in
+        <foreach item="status" index="index" collection="statuses" open="(" separator="," close=")">
+            #{status}
+        </foreach>
+        AND bj.type = #{type}
+        AND bj.cyc_time >= #{startCycTime}
+        AND bj.cyc_time &lt;= #{endCycTime}
         group by bj.task_id
         ORDER BY count(1) desc limit #{pageQuery.start}, #{pageQuery.pageSize}
     </select>
@@ -775,7 +797,7 @@
         GROUP BY hour
     </select>
 
-    <select id="generalScienceQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="ScheduleJob">
+    <select id="generalScienceQuery" parameterType="com.dtstack.engine.common.pager.PageQuery" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         from (
@@ -868,7 +890,7 @@
         AND is_deleted = 0
     </select>
 
-    <select id="listRuleJobByJobKeys" resultType="com.dtstack.engine.api.domain.ScheduleJob">
+    <select id="listRuleJobByJobKeys" resultType="com.dtstack.engine.domain.ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_job bj
@@ -947,7 +969,7 @@
       ,period_type ,left(business_date,8) as groupDate
     </sql>
 
-    <select id="generalQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="ScheduleJob">
+    <select id="generalQuery" parameterType="com.dtstack.engine.common.pager.PageQuery" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_job bj
@@ -965,7 +987,7 @@
 
     </select>
 
-    <select id="minOrHourJobQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="ScheduleJob">
+    <select id="minOrHourJobQuery" parameterType="com.dtstack.engine.common.pager.PageQuery" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         from  schedule_job bj
@@ -1001,7 +1023,7 @@
         limit 1
     </select>
 
-    <select id="generalQueryWithMinAndHour" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="ScheduleJob">
+    <select id="generalQueryWithMinAndHour" parameterType="com.dtstack.engine.common.pager.PageQuery" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         from (
@@ -1098,11 +1120,11 @@
 
     <insert id="batchInsert" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO schedule_job
-        (tenant_id,project_id,dtuic_tenant_id,app_type,job_id,job_key,job_name,task_id,gmt_create,gmt_modified,create_user_id,is_deleted,type,is_restart,business_date,cyc_time,dependency_type,flow_job_id,period_type,next_cyc_time,task_type,node_address,max_retry_num,version_id,fill_id,task_rule,business_type,compute_type)
+        (tenant_id,project_id,dtuic_tenant_id,app_type,job_id,job_key,job_name,task_id,gmt_create,gmt_modified,create_user_id,is_deleted,type,is_restart,business_date,cyc_time,dependency_type,flow_job_id,period_type,next_cyc_time,task_type,node_address,max_retry_num,version_id,fill_id,task_rule,business_type,compute_type,job_execute_order)
         VALUES
         <foreach item="item" index="index" collection="list" separator=",">
             (#{item.tenantId},#{item.projectId},#{item.dtuicTenantId},#{item.appType},#{item.jobId},#{item.jobKey},#{item.jobName},#{item.taskId},#{item.gmtCreate},#{item.gmtModified},#{item.createUserId},#{item.isDeleted},#{item.type},
-            #{item.isRestart},#{item.businessDate},#{item.cycTime},#{item.dependencyType},#{item.flowJobId},#{item.periodType},#{item.nextCycTime},#{item.taskType},#{item.nodeAddress},#{item.maxRetryNum},#{item.versionId},#{item.fillId},#{item.taskRule},#{item.businessType},#{item.computeType})
+            #{item.isRestart},#{item.businessDate},#{item.cycTime},#{item.dependencyType},#{item.flowJobId},#{item.periodType},#{item.nextCycTime},#{item.taskType},#{item.nodeAddress},#{item.maxRetryNum},#{item.versionId},#{item.fillId},#{item.taskRule},#{item.businessType},#{item.computeType},#{item.jobExecuteOrder})
         </foreach>
     </insert>
 
@@ -1397,9 +1419,9 @@
         UPDATE
         schedule_job
         set node_address = #{nodeAddress}
-        WHERE id IN
-        <foreach item="id" index="index" collection="ids" open="(" separator="," close=")">
-            #{id}
+        where job_id IN
+        <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
+            #{jobId}
         </foreach>
     </update>
 
@@ -1445,10 +1467,10 @@
         WHERE
         node_address = #{nodeAddress}
         <if test="isEq">
-            AND id >= #{startId}
+            AND job_execute_order >= #{startId}
         </if>
         <if test="!isEq">
-            AND id > #{startId}
+            AND job_execute_order > #{startId}
         </if>
         <if test="scheduleType != null">
             AND type = #{scheduleType}
@@ -1468,7 +1490,21 @@
         AND (status = 0 or ((status = 10 or status=4) and task_type in (10, 14,27)))
         AND is_deleted = 0
         AND `phase_status` = #{phaseStatus}
-        order by id, cyc_time asc limit 500
+        order by job_execute_order asc limit 500
+    </select>
+
+    <select id="listExecJobByJobIds" resultType="ScheduleJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_job bj
+        WHERE
+        node_address = #{nodeAddress}
+        <if test="isRestart != null">
+            AND is_restart = #{isRestart}
+        </if>
+        AND (status = 0 or ((status = 10 or status=4) and task_type in (10, 14,27)))
+        AND is_deleted = 0
+        AND `phase_status` = #{phaseStatus}
     </select>
 
     <update id="updateJobInfoByJobId">
@@ -1672,7 +1708,7 @@
    </select>
 
     <select id="getRdosJobByJobIds" resultType="ScheduleJob">
-        select id,job_id, engine_job_id,application_id,plugin_info_id,status,engine_log,log_info,exec_start_time,exec_end_time,exec_time,retry_num,retry_task_params,gmt_create,gmt_modified,is_deleted,compute_type,dtuic_tenant_id
+        select id,job_id, engine_job_id,application_id,plugin_info_id,status,engine_log,log_info,exec_start_time,exec_end_time,exec_time,retry_num,retry_task_params,gmt_create,gmt_modified,is_deleted,compute_type,dtuic_tenant_id,cyc_time
         from schedule_job
         where job_id IN
         <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
@@ -1820,6 +1856,13 @@
             #{jobId}
         </foreach>
     </update>
+    <update id="updateFlowJob">
+        update schedule_job set
+        `gmt_modified`=now(),
+        `flow_job_id` = #{flowJob}
+        where `flow_job_id` = #{placeholder}
+        and `is_deleted`=0
+    </update>
 
     <select id="getJobGraph" resultType="java.lang.String">
         select job_graph from schedule_job where job_id = #{jobId}
@@ -1836,7 +1879,7 @@
     </select>
 
     <select id="listJobByStatusAddressAndPhaseStatus"
-            resultType="com.dtstack.engine.api.domain.po.SimpleScheduleJobPO">
+            resultType="com.dtstack.engine.domain.po.SimpleScheduleJobPO">
         SELECT id, job_id, type, phase_status
         FROM schedule_job
         WHERE id > #{startId} AND (node_address = #{nodeAddress} or node_address is null)
@@ -1851,12 +1894,11 @@
         order by id asc limit 500
     </select>
 
-    <select id="getSubJobsAndStatusByFlowIdLimit" resultType="com.dtstack.engine.api.domain.ScheduleJob">
+    <select id="getSubJobsAndStatusByFlowIdLimit" resultType="com.dtstack.engine.domain.ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_job bj
         WHERE flow_job_id = #{jobId} AND is_deleted = 0 order by cyc_time desc LIMIT 1
     </select>
-
 
 </mapper>

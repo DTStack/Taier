@@ -1,16 +1,16 @@
 package com.dtstack.engine.master.impl;
 
 import com.dtstack.dtcenter.common.enums.ProjectStatus;
-import com.dtstack.engine.api.domain.ScheduleEngineProject;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.domain.ScheduleEngineProject;
+import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.dao.ScheduleEngineProjectDao;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.dao.TestScheduleProjectDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.utils.Template;
 import com.dtstack.engine.master.utils.ValueUtils;
-import com.dtstack.schedule.common.enums.AppType;
-import com.dtstack.schedule.common.enums.EProjectScheduleStatus;
+import com.dtstack.engine.common.enums.AppType;
+import com.dtstack.engine.common.enums.EProjectScheduleStatus;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;

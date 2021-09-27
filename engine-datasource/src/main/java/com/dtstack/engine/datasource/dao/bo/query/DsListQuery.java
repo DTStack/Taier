@@ -1,6 +1,6 @@
 package com.dtstack.engine.datasource.dao.bo.query;
 
-import com.dtstack.engine.datasource.dao.bo.DaoPageParam;
+import com.dtstack.engine.common.param.DtInsightPageAuthParam;
 import lombok.Data;
 
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.List;
  * create: 2021/5/10
  */
 @Data
-public class DsListQuery extends DaoPageParam {
+public class DsListQuery extends DtInsightPageAuthParam {
     /**
      * 搜索参数
      */

@@ -3,15 +3,15 @@ package com.dtstack.batch.service.task.impl;
 import com.dtstack.batch.dao.BatchTaskShadeDao;
 import com.dtstack.batch.dao.BatchTaskVersionDao;
 import com.dtstack.batch.domain.BatchTaskVersionDetail;
-import com.dtstack.engine.api.domain.User;
-import com.dtstack.batch.service.impl.BatchUserService;
+import com.dtstack.engine.domain.User;
 import com.dtstack.batch.web.task.vo.result.BatchTaskShadePageQueryResultVO;
 import com.dtstack.dtcenter.common.annotation.Forbidden;
 import com.dtstack.dtcenter.common.enums.AppType;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
-import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
+import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.dto.ScheduleTaskShadeDTO;
+import com.dtstack.engine.common.pager.PageResult;
+import com.dtstack.engine.master.vo.ScheduleTaskShadeVO;
+import com.dtstack.engine.master.impl.UserService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
@@ -46,7 +46,7 @@ public class BatchTaskShadeService {
     private BatchTaskVersionDao batchTaskVersionDao;
 
     @Autowired
-    private BatchUserService batchUserService;
+    private UserService userService;
 
     @Autowired
     private com.dtstack.engine.master.impl.ScheduleTaskShadeService scheduleTaskShadeService;
@@ -79,7 +79,7 @@ public class BatchTaskShadeService {
                 userIds.add(t.getOwnerUserId());
             });
             taskShades.forEach(t -> taskIds.add(t.getId()));
-            Map<Long, User> userMap = batchUserService.getUserMap(userIds);
+            Map<Long, User> userMap = userService.getUserMap(userIds);
             List<BatchTaskVersionDetail> versions = batchTaskVersionDao.getLatestTaskVersionByTaskIds(taskIds);
             Map<Long, String> descs = Maps.newHashMap();
             versions.forEach(v -> descs.put(v.getTaskId(), v.getPublishDesc()));

@@ -1,8 +1,8 @@
 package com.dtstack.engine.master.jobdealer;
 
-import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.common.enums.EngineType;
+import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.pluginapi.enums.EngineType;
 import com.dtstack.engine.dao.TestEngineJobCacheDao;
 import com.dtstack.engine.dao.TestScheduleJobDao;
 import com.dtstack.engine.master.AbstractTest;

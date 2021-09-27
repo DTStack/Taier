@@ -1,11 +1,11 @@
 package com.dtstack.engine.rdbs.common.executor;
 
-import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.enums.EngineType;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.logstore.LogStoreFactory;
-import com.dtstack.engine.common.util.DateUtil;
+import com.dtstack.engine.pluginapi.CustomThreadFactory;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.enums.EngineType;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.engine.pluginapi.logstore.LogStoreFactory;
+import com.dtstack.engine.pluginapi.util.DateUtil;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import org.apache.commons.collections.CollectionUtils;

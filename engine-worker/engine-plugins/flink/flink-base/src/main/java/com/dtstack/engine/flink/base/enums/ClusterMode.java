@@ -1,6 +1,6 @@
 package com.dtstack.engine.flink.base.enums;
 
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 
 /**
  * Created by sishu.yss on 2018/3/9.

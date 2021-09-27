@@ -1,12 +1,12 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.domain.Component;
-import com.dtstack.engine.api.domain.Engine;
-import com.dtstack.engine.api.domain.EngineTenant;
-import com.dtstack.engine.api.domain.Queue;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
-import com.dtstack.engine.api.vo.QueueVO;
-import com.dtstack.engine.api.vo.engine.EngineSupportVO;
+import com.dtstack.engine.domain.Component;
+import com.dtstack.engine.domain.Engine;
+import com.dtstack.engine.domain.EngineTenant;
+import com.dtstack.engine.domain.Queue;
+import com.dtstack.engine.pluginapi.pojo.ComponentTestResult;
+import com.dtstack.engine.master.vo.QueueVO;
+import com.dtstack.engine.master.vo.engine.EngineSupportVO;
 import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.dao.EngineDao;
 import com.dtstack.engine.dao.EngineTenantDao;
@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import sun.nio.ch.ThreadPool;
 
 import java.util.List;
 import java.util.Map;

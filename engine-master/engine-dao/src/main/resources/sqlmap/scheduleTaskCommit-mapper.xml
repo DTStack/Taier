@@ -62,7 +62,7 @@
         WHERE commit_id = #{commitId} AND is_commit = 0 AND is_deleted = 0
     </select>
 
-    <select id="findTaskCommitByCommitId" resultType="com.dtstack.engine.api.domain.ScheduleTaskCommit">
+    <select id="findTaskCommitByCommitId" resultType="com.dtstack.engine.domain.ScheduleTaskCommit">
         SELECT
         <include refid="filed"/>
         FROM schedule_task_commit
@@ -71,7 +71,7 @@
         LIMIT ${limit}
     </select>
 
-    <select id="getTaskCommitByTaskId" resultType="com.dtstack.engine.api.domain.ScheduleTaskCommit">
+    <select id="getTaskCommitByTaskId" resultType="com.dtstack.engine.domain.ScheduleTaskCommit">
         SELECT
         <include refid="filed"/>
         FROM schedule_task_commit

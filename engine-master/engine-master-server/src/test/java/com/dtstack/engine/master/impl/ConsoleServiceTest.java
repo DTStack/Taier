@@ -1,24 +1,24 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.Cluster;
-import com.dtstack.engine.api.domain.Component;
-import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.pojo.ClusterResource;
-import com.dtstack.engine.api.vo.console.ConsoleJobVO;
-import com.dtstack.engine.common.constrant.ConfigConstant;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.domain.Cluster;
+import com.dtstack.engine.domain.Component;
+import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.common.pager.PageResult;
+import com.dtstack.engine.pluginapi.pojo.ClusterResource;
+import com.dtstack.engine.master.vo.console.ConsoleJobVO;
+import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.dao.TestClusterDao;
 import com.dtstack.engine.dao.TestComponentDao;
 import com.dtstack.engine.dao.TestEngineJobCacheDao;
 import com.dtstack.engine.dao.TestScheduleJobDao;
 import com.dtstack.engine.master.AbstractTest;
-import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.WorkerOperator;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.utils.Template;
-import com.dtstack.engine.master.vo.TaskTypeResourceTemplateVO;
+import com.dtstack.engine.master.impl.vo.ResourceTemplateVO;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.google.common.collect.Lists;
 import org.junit.Assert;
@@ -222,7 +222,7 @@ public class ConsoleServiceTest extends AbstractTest {
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
     public void testGetTaskResourceTemplate() {
-        List<TaskTypeResourceTemplateVO> getTaskResourceTemplate = consoleService.getTaskResourceTemplate();
+        List<ResourceTemplateVO> getTaskResourceTemplate = consoleService.getTaskResourceTemplate();
         Assert.assertTrue(org.apache.commons.collections.CollectionUtils.isNotEmpty(getTaskResourceTemplate));
     }
 }

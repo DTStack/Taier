@@ -3,22 +3,19 @@ package com.dtstack.engine.master.event;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.alert.AdapterEventMonitor;
 import com.dtstack.engine.alert.AlterContext;
-import com.dtstack.engine.api.domain.ComponentConfig;
-import com.dtstack.engine.api.domain.ScheduleDict;
+import com.dtstack.engine.domain.ComponentConfig;
+import com.dtstack.engine.domain.ScheduleDict;
 import com.dtstack.engine.common.constrant.GlobalConst;
 import com.dtstack.engine.common.enums.EComponentType;
-import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.sftp.SftpConfig;
-import com.dtstack.engine.common.sftp.SftpFileManage;
-import com.dtstack.engine.common.util.ComponentConfigUtils;
-import com.dtstack.engine.common.util.ComponentVersionUtil;
+import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
+import com.dtstack.engine.pluginapi.sftp.SftpConfig;
+import com.dtstack.engine.pluginapi.sftp.SftpFileManage;
+import com.dtstack.engine.master.utils.ComponentConfigUtils;
 import com.dtstack.engine.dao.ComponentConfigDao;
 import com.dtstack.engine.dao.ComponentDao;
 import com.dtstack.engine.dao.ScheduleDictDao;
 import com.dtstack.engine.master.enums.DictType;
 import com.dtstack.engine.master.impl.ComponentConfigService;
-import com.dtstack.engine.master.impl.ComponentService;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.apache.commons.collections.CollectionUtils;
@@ -147,7 +144,7 @@ public class SftpDownloadEvent extends AdapterEventMonitor implements Initializi
     private void initSftp() {
         // 加载一下sftp模板
         try {
-            com.dtstack.engine.api.domain.Component component = componentDao.getByClusterIdAndComponentType(-1L, EComponentType.SFTP.getTypeCode(), null,null);
+            com.dtstack.engine.domain.Component component = componentDao.getByClusterIdAndComponentType(-1L, EComponentType.SFTP.getTypeCode(), null,null);
 
             if (component != null) {
                 List<ComponentConfig> componentConfigs = componentConfigDao.listByComponentId(component.getId(), Boolean.FALSE);

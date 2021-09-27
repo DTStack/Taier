@@ -855,7 +855,7 @@ CREATE TABLE `alert_channel` (
 
 CREATE TABLE if not exists `schedule_sql_text_temp` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `job_id` varchar(32) NOT NULL COMMENT '临时运行job的job_id',
+  `job_id` varchar(256) NOT NULL COMMENT '临时运行job的job_id',
   `sql_text` longtext NOT NULL COMMENT '临时运行任务的sql文本内容',
   `engine_type` varchar(64) NOT NULL COMMENT 'engineType类型',
   `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',

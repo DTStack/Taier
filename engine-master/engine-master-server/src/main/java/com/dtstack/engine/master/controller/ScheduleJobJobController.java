@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.controller;
 
-import com.dtstack.engine.api.vo.ScheduleJobVO;
+import com.dtstack.engine.master.vo.ScheduleJobVO;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ScheduleJobJobService;
 import io.swagger.annotations.Api;
@@ -45,7 +45,7 @@ public class ScheduleJobJobController {
      * @Date 2021/1/6 5:49 下午
      * @param jobId:
      * @param level:
-     * @return: com.dtstack.engine.api.vo.ScheduleJobVO
+     * @return: com.dtstack.engine.master.vo.ScheduleJobVO
      **/
     @RequestMapping(value="/displayForefathers", method = {RequestMethod.POST})
     public ScheduleJobVO displayForefathers(@RequestParam("jobId") Long jobId, @RequestParam("level") Integer level) throws Exception {

@@ -1,26 +1,26 @@
 package com.dtstack.engine.master.jobdealer;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.enums.TaskRuleEnum;
-import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.common.enums.TaskRuleEnum;
+import com.dtstack.engine.pluginapi.pojo.ParamAction;
 import com.dtstack.engine.common.BlockCallerPolicy;
-import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.pluginapi.CustomThreadFactory;
+import com.dtstack.engine.pluginapi.JobIdentifier;
+import com.dtstack.engine.pluginapi.enums.ComputeType;
 import com.dtstack.engine.common.enums.EScheduleType;
-import com.dtstack.engine.common.enums.EngineType;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.pluginapi.enums.EngineType;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.common.pojo.JobStatusFrequency;
+import com.dtstack.engine.master.jobdealer.bo.JobStatusFrequency;
 import com.dtstack.engine.common.util.LogCountUtil;
-import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
-import com.dtstack.engine.master.akka.WorkerOperator;
-import com.dtstack.engine.master.bo.JobCheckpointInfo;
-import com.dtstack.engine.master.bo.JobCompletedInfo;
+import com.dtstack.engine.master.WorkerOperator;
+import com.dtstack.engine.master.jobdealer.bo.JobCheckpointInfo;
+import com.dtstack.engine.master.jobdealer.bo.JobCompletedInfo;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.impl.TaskParamsService;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
@@ -108,7 +108,9 @@ public class  JobStatusDealer implements Runnable {
                     buildSemaphore.acquire();
                     taskStatusPool.submit(() -> {
                         try {
-                            LOGGER.info("jobId:{} before dealJob status:{}", job.getKey(), job.getValue());
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("jobId:{} before dealJob status:{}", job.getKey(), job.getValue());
+                            }
                             dealJob(job.getKey());
                         } catch (Throwable e) {
                             LOGGER.error("jobId:{}", job.getKey(), e);
@@ -166,7 +168,9 @@ public class  JobStatusDealer implements Runnable {
 
             RdosTaskStatus rdosTaskStatus = workerOperator.getJobStatus(jobIdentifier);
 
-            LOGGER.info("------ jobId:{} dealJob status:{}", jobId, rdosTaskStatus);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("------ jobId:{} dealJob status:{}", jobId, rdosTaskStatus);
+            }
 
             if (rdosTaskStatus != null) {
 
@@ -180,7 +184,6 @@ public class  JobStatusDealer implements Runnable {
                 }
 
                 shardCache.updateLocalMemTaskStatus(jobId, status);
-                LOGGER.info("----- jobId:{} updateJobStatusWithPredicate", jobId);
                 updateJobStatusWithPredicate(scheduleJob, jobId, status);
 
                 //数据的更新顺序，先更新job_cache，再更新engine_batch_job
@@ -200,7 +203,9 @@ public class  JobStatusDealer implements Runnable {
                     jobCheckpointDealer.addCheckpointTaskForQueue(scheduleJob.getComputeType(), jobId, jobIdentifier, engineType);
                 }
 
-                LOGGER.info("------ jobId:{} after dealJob status:{}", jobId, rdosTaskStatus);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("------ jobId:{} after dealJob status:{}", jobId, rdosTaskStatus);
+                }
             }
         }
     }

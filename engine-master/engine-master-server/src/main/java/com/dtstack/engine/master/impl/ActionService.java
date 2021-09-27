@@ -2,43 +2,48 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.*;
-import com.dtstack.engine.api.dto.ScheduleTaskParamShade;
-import com.dtstack.engine.api.enums.ScheduleEngineType;
-import com.dtstack.engine.api.pojo.ParamAction;
-import com.dtstack.engine.api.pojo.ParamActionExt;
-import com.dtstack.engine.api.vo.AppTypeVO;
-import com.dtstack.engine.api.vo.JobLogVO;
-import com.dtstack.engine.api.vo.action.ActionJobEntityVO;
-import com.dtstack.engine.api.vo.action.ActionJobStatusVO;
-import com.dtstack.engine.api.vo.action.ActionLogVO;
-import com.dtstack.engine.api.vo.action.ActionRetryLogVO;
-import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.domain.*;
+import com.dtstack.engine.dto.ScheduleTaskParamShade;
+import com.dtstack.engine.common.enums.ScheduleEngineType;
+import com.alibaba.fastjson.serializer.PropertyFilter;
+import com.dtstack.engine.domain.EngineJobRetry;
+import com.dtstack.engine.domain.EngineUniqueSign;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.pluginapi.enums.*;
+import com.dtstack.engine.pluginapi.pojo.ParamAction;
+import com.dtstack.engine.master.impl.pojo.ParamActionExt;
+import com.dtstack.engine.master.vo.AppTypeVO;
+import com.dtstack.engine.master.vo.JobLogVO;
+import com.dtstack.engine.master.vo.action.ActionJobEntityVO;
+import com.dtstack.engine.master.vo.action.ActionJobStatusVO;
+import com.dtstack.engine.master.vo.action.ActionLogVO;
+import com.dtstack.engine.master.vo.action.ActionRetryLogVO;
+import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.common.CustomThreadRunsPolicy;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.ErrorCode;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
-import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.WorkerOperator;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
-import com.dtstack.engine.master.multiengine.JobStartTriggerBase;
-import com.dtstack.engine.master.multiengine.factory.MultiEngineFactory;
-import com.dtstack.engine.master.pipeline.IPipeline;
-import com.dtstack.engine.master.pipeline.PipelineBuilder;
-import com.dtstack.engine.master.pipeline.params.UploadParamPipeline;
-import com.dtstack.engine.master.scheduler.JobRichOperator;
-import com.dtstack.engine.master.scheduler.parser.ScheduleCron;
-import com.dtstack.engine.master.scheduler.parser.ScheduleFactory;
-import com.dtstack.schedule.common.enums.AppType;
-import com.dtstack.schedule.common.enums.EScheduleJobType;
-import com.dtstack.schedule.common.enums.ForceCancelFlag;
+import com.dtstack.engine.master.server.multiengine.JobStartTriggerBase;
+import com.dtstack.engine.master.server.multiengine.factory.MultiEngineFactory;
+import com.dtstack.engine.master.server.pipeline.IPipeline;
+import com.dtstack.engine.master.server.pipeline.PipelineBuilder;
+import com.dtstack.engine.master.server.pipeline.params.UploadParamPipeline;
+import com.dtstack.engine.master.server.scheduler.JobRichOperator;
+import com.dtstack.engine.master.server.scheduler.parser.ScheduleCron;
+import com.dtstack.engine.master.server.scheduler.parser.ScheduleFactory;
+import com.dtstack.engine.common.enums.AppType;
+import com.dtstack.engine.common.enums.ForceCancelFlag;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -137,13 +142,17 @@ public class ActionService {
                 new CustomThreadFactory("logTimeOutPool"),
                 new CustomThreadRunsPolicy("logTimeOutPool", "log"));
 
+    private static final PropertyFilter propertyFilter = (object, name, value) ->
+            !(name.equalsIgnoreCase("taskParams") || name.equalsIgnoreCase("sqlText"));
+
     /**
      * 接受来自客户端的请求, 并判断节点队列长度。
      * 如在当前节点,则直接处理任务
      */
     public Boolean start(ParamActionExt paramActionExt){
-
-        LOGGER.info("start  actionParam: {}", JSONObject.toJSONString(paramActionExt));
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("start  actionParam: {}", JSONObject.toJSONString(paramActionExt,propertyFilter));
+        }
 
         try{
             checkParam(paramActionExt);
@@ -529,8 +538,8 @@ public class ActionService {
      */
     public ActionLogVO log( String jobId, Integer computeType) {
 
-        if (StringUtils.isBlank(jobId)||computeType==null){
-            throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
+        if (StringUtils.isBlank(jobId)){
+            throw new RdosDefineException("jobId is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
         ActionLogVO vo = new ActionLogVO();
@@ -800,32 +809,7 @@ public class ActionService {
     }
 
     public String generateUniqueSign(){
-
-        String uniqueSign;
-        int index = 100;
-        while(true){
-            try{
-                if(index > 100){
-                    Thread.sleep(100);
-                }
-                index = index+1;
-                uniqueSign = UUID.randomUUID().toString().replace("-","");
-                int len = uniqueSign.length();
-                StringBuilder sb =new StringBuilder();
-                for(int i=0;i<length;i++){
-                    int a = random.nextInt(len) + 1;
-                    sb.append(uniqueSign.substring(a-1, a));
-                }
-                uniqueSign =  sb.toString();
-                EngineUniqueSign generateUniqueSign = new EngineUniqueSign();
-                generateUniqueSign.setUniqueSign(sb.toString());
-                //新增操作
-                engineUniqueSignDao.insert(generateUniqueSign);
-                break;
-            }catch(Exception e){
-            }
-        }
-        return uniqueSign;
+        return UUID.randomUUID().toString();
     }
 
     /**

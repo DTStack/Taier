@@ -1,18 +1,16 @@
 package com.dtstack.engine.master.jobdealer;
 
-import com.dtstack.engine.api.domain.Cluster;
-import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.api.domain.EngineJobCheckpoint;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.pojo.JudgeResult;
-import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.domain.Cluster;
+import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.domain.EngineJobCheckpoint;
+import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.pojo.JudgeResult;
 import com.dtstack.engine.dao.ClusterDao;
 import com.dtstack.engine.master.AbstractTest;
-import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.WorkerOperator;
 import com.dtstack.engine.master.dataCollection.DataCollection;
-import com.dtstack.engine.master.queue.GroupInfo;
+import com.dtstack.engine.master.server.queue.GroupInfo;
 import com.dtstack.engine.master.utils.CommonUtils;
 import org.junit.Assert;
 import org.junit.Before;

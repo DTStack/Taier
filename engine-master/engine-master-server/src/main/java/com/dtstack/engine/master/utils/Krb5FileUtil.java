@@ -1,10 +1,9 @@
 package com.dtstack.engine.master.utils;
 
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.security.krb5.KrbException;
 
 import java.io.BufferedReader;
 import java.io.File;

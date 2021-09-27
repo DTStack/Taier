@@ -1,6 +1,6 @@
 package com.dtstack.engine.common.util;
 
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 
 import java.util.Objects;
 

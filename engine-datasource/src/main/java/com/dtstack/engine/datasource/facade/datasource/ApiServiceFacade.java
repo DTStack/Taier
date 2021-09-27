@@ -4,7 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.dtcenter.common.pager.PageResult;
+import com.dtstack.engine.datasource.dao.bo.query.DsListQuery;
 import com.dtstack.engine.datasource.dao.po.datasource.*;
+import com.dtstack.engine.datasource.mapstruct.DsInfoStruct;
 import com.dtstack.engine.datasource.param.datasource.api.*;
 import com.dtstack.engine.datasource.service.impl.datasource.*;
 import com.dtstack.engine.datasource.vo.datasource.*;
@@ -16,7 +18,6 @@ import com.dtstack.engine.datasource.common.exception.PubSvcDefineException;
 import com.dtstack.engine.datasource.common.utils.Collects;
 import com.dtstack.engine.datasource.common.utils.CommonUtils;
 import com.dtstack.engine.datasource.common.utils.DataSourceUtils;
-import com.dtstack.engine.datasource.common.utils.Dozers;
 import com.dtstack.engine.datasource.common.utils.datakit.Asserts;
 import com.dtstack.engine.datasource.common.utils.PageUtil;
 import com.google.common.collect.Lists;
@@ -69,6 +70,9 @@ public class ApiServiceFacade {
 
     @Autowired
     private DatasourceFacade datasourceFacade;
+
+    @Autowired
+    private DsInfoStruct dsInfoStruct;
 
 
     /**
@@ -301,17 +305,34 @@ public class ApiServiceFacade {
      */
     public DsServiceInfoVO getDsInfoById(Long dsInfoId) {
         DsInfo dsInfo = dsInfoService.getOneById(dsInfoId);
-        return Dozers.convert(dsInfo, DsServiceInfoVO.class, (t, s, c) -> {
-            DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(s.getDataType(), s.getDataVersion());
-            Asserts.notNull(typeEnum, ErrorCode.CAN_NOT_FITABLE_SOURCE_TYPE);
-            t.setType(typeEnum.getVal());
-            t.setDataInfoId(s.getId());
-            t.setLinkJson(DataSourceUtils.getDataSourceJsonStr(s.getLinkJson()));
-            t.setDataJson(DataSourceUtils.getDataSourceJsonStr(s.getDataJson()));
-        });
+
+        DsServiceInfoVO dsServiceInfoVO = dsInfoStruct.toDsServiceInfoVO(dsInfo);
+
+        DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(dsInfo.getDataType(), dsInfo.getDataVersion());
+        Asserts.notNull(typeEnum, ErrorCode.CAN_NOT_FITABLE_SOURCE_TYPE);
+        dsServiceInfoVO.setType(typeEnum.getVal());
+        dsServiceInfoVO.setDataInfoId(dsInfo.getId());
+        dsServiceInfoVO.setLinkJson(DataSourceUtils.getDataSourceJsonStr(dsInfo.getLinkJson()));
+        dsServiceInfoVO.setDataJson(DataSourceUtils.getDataSourceJsonStr(dsInfo.getDataJson()));
+        return dsServiceInfoVO;
     }
 
 
+    public List<DsServiceInfoVO> listByDsQuery(DsListQuery dsListQuery) {
+        List<DsInfo> dsInfos = dsInfoService.listByDsQuery(dsListQuery);
+        List<DsServiceInfoVO> dsServiceInfoVOs = dsInfos.stream().map(dsInfo -> {
+            DsServiceInfoVO dsServiceInfoVO = dsInfoStruct.toDsServiceInfoVO(dsInfo);
+
+            DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(dsInfo.getDataType(), dsInfo.getDataVersion());
+            Asserts.notNull(typeEnum, ErrorCode.CAN_NOT_FITABLE_SOURCE_TYPE);
+            dsServiceInfoVO.setType(typeEnum.getVal());
+            dsServiceInfoVO.setDataInfoId(dsInfo.getId());
+            dsServiceInfoVO.setLinkJson(DataSourceUtils.getDataSourceJsonStr(dsInfo.getLinkJson()));
+            dsServiceInfoVO.setDataJson(dsInfo.getDataJson());
+            return dsServiceInfoVO;
+        }).collect(Collectors.toList());
+        return dsServiceInfoVOs;
+    }
 
     /**
      * 外部-通过平台数据源实例Id和appType获取全部信息
@@ -323,14 +344,16 @@ public class ApiServiceFacade {
     public DsServiceInfoVO getDsInfoByOldDataInfoId(Long oldDataInfoId,Integer appType) {
 
         DsInfo dsInfo = dsInfoService.queryDsByAppTypeAndOldDataInfoId(oldDataInfoId,appType);
-        return Dozers.convert(dsInfo, DsServiceInfoVO.class, (t, s, c) -> {
-            DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(s.getDataType(), s.getDataVersion());
-            Asserts.notNull(typeEnum, ErrorCode.CAN_NOT_FITABLE_SOURCE_TYPE);
-            t.setType(typeEnum.getVal());
-            t.setDataInfoId(s.getId());
-            t.setLinkJson(DataSourceUtils.getDataSourceJsonStr(s.getLinkJson()));
-            t.setDataJson(s.getDataJson());
-        });
+
+        DsServiceInfoVO dsServiceInfoVO = dsInfoStruct.toDsServiceInfoVO(dsInfo);
+
+        DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(dsInfo.getDataType(), dsInfo.getDataVersion());
+        Asserts.notNull(typeEnum, ErrorCode.CAN_NOT_FITABLE_SOURCE_TYPE);
+        dsServiceInfoVO.setType(typeEnum.getVal());
+        dsServiceInfoVO.setDataInfoId(dsInfo.getId());
+        dsServiceInfoVO.setLinkJson(DataSourceUtils.getDataSourceJsonStr(dsInfo.getLinkJson()));
+        dsServiceInfoVO.setDataJson(dsInfo.getDataJson());
+        return dsServiceInfoVO;
     }
 
 
@@ -620,14 +643,13 @@ public class ApiServiceFacade {
         List<DsInfo> dsInfoList = dsInfoService.getDsInfoListByIdList(dataInfoIdList);
         List<DsServiceInfoVO> dsServiceInfoVOS = new ArrayList<>();
         for (DsInfo dsInfo : dsInfoList) {
-            DsServiceInfoVO infoVO = Dozers.convert(dsInfo, DsServiceInfoVO.class, (t, s, c) -> {
-                DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(s.getDataType(), s.getDataVersion());
-                Asserts.notNull(typeEnum, ErrorCode.CAN_NOT_FITABLE_SOURCE_TYPE);
-                t.setType(typeEnum.getVal());
-                t.setDataInfoId(s.getId());
-                t.setLinkJson(DataSourceUtils.getDataSourceJsonStr(s.getLinkJson()));
-                t.setDataJson(DataSourceUtils.getDataSourceJsonStr(s.getDataJson()));
-            });
+            DsServiceInfoVO infoVO = dsInfoStruct.toDsServiceInfoVO(dsInfo);
+            DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(dsInfo.getDataType(), dsInfo.getDataVersion());
+            Asserts.notNull(typeEnum, ErrorCode.CAN_NOT_FITABLE_SOURCE_TYPE);
+            infoVO.setType(typeEnum.getVal());
+            infoVO.setDataInfoId(dsInfo.getId());
+            infoVO.setLinkJson(DataSourceUtils.getDataSourceJsonStr(dsInfo.getLinkJson()));
+            infoVO.setDataJson(DataSourceUtils.getDataSourceJsonStr(dsInfo.getDataJson()));
             dsServiceInfoVOS.add(infoVO);
         }
         return dsServiceInfoVOS;

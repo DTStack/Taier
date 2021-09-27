@@ -1,6 +1,6 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.engine.api.domain.ScheduleEngineProject;
+import com.dtstack.engine.domain.ScheduleEngineProject;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -27,4 +27,7 @@ public interface ScheduleEngineProjectDao {
 
     List<ScheduleEngineProject> listWhiteListProject();
 
+    ScheduleEngineProject getByName(@Param("projectName") String projectName, @Param("dtUicTenantId") Long dtUicTenantId);
+
+    List<ScheduleEngineProject> listByTenantIds(@Param("dtUicTenantIds") List<Long> tenantIds);
 }

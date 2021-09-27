@@ -1,16 +1,18 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
-import com.dtstack.engine.api.param.ScheduleEngineProjectParam;
-import com.dtstack.engine.api.vo.project.NotDeleteProjectVO;
-import com.dtstack.engine.api.vo.project.ScheduleEngineProjectVO;
-import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
+import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.domain.ScheduleTaskTaskShade;
+import com.dtstack.engine.master.controller.param.ScheduleEngineProjectParam;
+import com.dtstack.engine.master.vo.project.NotDeleteProjectVO;
+import com.dtstack.engine.master.vo.project.ScheduleEngineProjectVO;
+import com.dtstack.engine.master.vo.task.NotDeleteTaskVO;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.ErrorCode;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.dao.ScheduleEngineProjectDao;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
-import com.dtstack.engine.api.domain.ScheduleEngineProject;
+import com.dtstack.engine.domain.ScheduleEngineProject;
+import com.dtstack.engine.common.enums.AppType;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -203,6 +205,18 @@ public class ProjectService {
         return vo;
     }
 
+    public ScheduleEngineProject getProjectById(Long projectId){
+        if (projectId == null) {
+            throw new RdosDefineException("projectId not null");
+        }
+        ScheduleEngineProject project = scheduleEngineProjectDao.getProjectByProjectIdAndApptype(projectId, AppType.RDOS.getType());
+        if (project == null) {
+            LOGGER.error("Project not exist, by projectId : {}", projectId);
+            throw new RdosDefineException("Project not exist");
+        }
+        return project;
+    }
+
     public List<NotDeleteProjectVO> getNotDeleteTaskByProjectId(Long projectId, Integer appType) {
         if (appType == null) {
             throw new RdosDefineException("appType must be passed");
@@ -229,5 +243,21 @@ public class ProjectService {
         return notDeleteTaskVOS;
     }
 
+    public ScheduleEngineProject getByName(String projectName, Long dtUicTenantId) {
+        ScheduleEngineProject pj = scheduleEngineProjectDao.getByName(projectName, dtUicTenantId);
+        if (pj == null) {
+            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_PROJECT);
+        }
+        return pj;
+    }
+
+    /**
+     * 根据租户id列表查询项目
+     * @param tenantIds
+     * @return
+     */
+    public List<ScheduleEngineProject> listByTenantIds(List<Long> tenantIds) {
+        return scheduleEngineProjectDao.listByTenantIds(tenantIds);
+    }
 }
 

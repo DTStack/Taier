@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.controller;
 
-import com.dtstack.engine.api.vo.template.TaskTemplateResultVO;
-import com.dtstack.engine.api.vo.template.TaskTemplateVO;
+import com.dtstack.engine.master.vo.template.TaskTemplateResultVO;
+import com.dtstack.engine.master.vo.template.TaskTemplateVO;
 import com.dtstack.engine.master.impl.TaskParamTemplateService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

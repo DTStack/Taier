@@ -1,7 +1,7 @@
 package com.dtstack.engine.dtscript.client;
 
 import com.dtstack.engine.base.BaseConfig;
-import com.dtstack.engine.common.util.RetryUtil;
+import com.dtstack.engine.pluginapi.util.RetryUtil;
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.api.DtYarnConstants;
 import com.google.gson.Gson;

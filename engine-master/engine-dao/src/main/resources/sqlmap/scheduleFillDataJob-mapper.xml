@@ -49,7 +49,7 @@
             </if>
     </select>
 
-    <select id="listFillJobByPageQuery" resultType="com.dtstack.engine.api.domain.ScheduleFillDataJob">
+    <select id="listFillJobByPageQuery" resultType="com.dtstack.engine.domain.ScheduleFillDataJob">
         SELECT
             sfdj.id,
             sfdj.tenant_id,

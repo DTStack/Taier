@@ -2,34 +2,36 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.Queue;
-import com.dtstack.engine.api.domain.*;
-import com.dtstack.engine.api.dto.ClusterDTO;
-import com.dtstack.engine.api.dto.ComponentDTO;
-import com.dtstack.engine.api.dto.Resource;
-import com.dtstack.engine.api.pojo.ClientTemplate;
-import com.dtstack.engine.api.pojo.ClusterResource;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
-import com.dtstack.engine.api.pojo.DtScriptAgentLabel;
-import com.dtstack.engine.api.pojo.lineage.ComponentMultiTestResult;
-import com.dtstack.engine.api.vo.*;
-import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
-import com.dtstack.engine.api.vo.components.ComponentsResultVO;
-import com.dtstack.engine.api.vo.task.TaskGetSupportJobTypesResultVO;
-import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.engine.domain.Queue;
+import com.dtstack.engine.domain.*;
+import com.dtstack.engine.domain.po.EngineTenantPO;
+import com.dtstack.engine.dto.ClusterDTO;
+import com.dtstack.engine.dto.ComponentDTO;
+import com.dtstack.engine.dto.Resource;
+import com.dtstack.engine.master.impl.pojo.ClientTemplate;
+import com.dtstack.engine.pluginapi.pojo.ClusterResource;
+import com.dtstack.engine.pluginapi.pojo.ComponentTestResult;
+import com.dtstack.engine.pluginapi.pojo.DtScriptAgentLabel;
+import com.dtstack.engine.master.impl.pojo.ComponentMultiTestResult;
+import com.dtstack.engine.master.utils.ComponentConfigUtils;
+import com.dtstack.engine.master.vo.*;
+import com.dtstack.engine.master.vo.components.ComponentsConfigOfComponentsVO;
+import com.dtstack.engine.master.vo.components.ComponentsResultVO;
+import com.dtstack.engine.master.vo.task.TaskGetSupportJobTypesResultVO;
+import com.dtstack.engine.pluginapi.CustomThreadFactory;
+import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.EngineAssert;
-import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.sftp.SftpConfig;
-import com.dtstack.engine.common.sftp.SftpFileManage;
+import com.dtstack.engine.pluginapi.exception.ErrorCode;
+import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.sftp.SftpConfig;
+import com.dtstack.engine.pluginapi.sftp.SftpFileManage;
 import com.dtstack.engine.common.util.*;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.master.akka.WorkerOperator;
-import com.dtstack.engine.master.cache.DictCache;
+import com.dtstack.engine.master.WorkerOperator;
+import com.dtstack.engine.master.DictCache;
 import com.dtstack.engine.master.enums.DictType;
 import com.dtstack.engine.master.enums.DownloadType;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
@@ -39,16 +41,18 @@ import com.dtstack.engine.master.router.cache.RdosTopic;
 import com.dtstack.engine.master.utils.FileUtil;
 import com.dtstack.engine.master.utils.Krb5FileUtil;
 import com.dtstack.engine.master.utils.XmlFileUtil;
-import com.dtstack.schedule.common.enums.AppType;
-import com.dtstack.schedule.common.enums.Deleted;
-import com.dtstack.schedule.common.util.Base64Util;
-import com.dtstack.schedule.common.enums.EScheduleJobType;
-import com.dtstack.schedule.common.util.Xml2JsonUtil;
-import com.dtstack.schedule.common.util.ZipUtil;
+import com.dtstack.engine.common.enums.AppType;
+import com.dtstack.engine.common.enums.Deleted;
+import com.dtstack.engine.common.util.Base64Util;
+import com.dtstack.engine.pluginapi.enums.EScheduleJobType;
+import com.dtstack.engine.common.util.Xml2JsonUtil;
+import com.dtstack.engine.common.util.ZipUtil;
+import com.dtstack.engine.pluginapi.util.MD5Util;
+import com.dtstack.engine.pluginapi.util.MathUtil;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
-import io.swagger.models.auth.In;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
@@ -74,7 +78,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
-import static com.dtstack.engine.common.constrant.ConfigConstant.*;
+import static com.dtstack.engine.pluginapi.constrant.ConfigConstant.*;
 
 @Service
 @DependsOn("rdosSubscribe")
@@ -233,11 +237,11 @@ public class ComponentService {
         clusterService.clearStandaloneCache();
         Set<Long> dtUicTenantIds = new HashSet<>();
         if ( null != componentCode && EComponentType.sqlComponent.contains(EComponentType.getByCode(componentCode))) {
-            List<EngineTenantVO> tenantVOS = engineTenantDao.listEngineTenant(engineId);
-            if (CollectionUtils.isNotEmpty(tenantVOS)) {
-                for (EngineTenantVO tenantVO : tenantVOS) {
-                    if (null != tenantVO && null != tenantVO.getTenantId()) {
-                        dtUicTenantIds.add(tenantVO.getTenantId());
+            List<EngineTenantPO> engineTenantPOs = engineTenantDao.listEngineTenant(engineId);
+            if (CollectionUtils.isNotEmpty(engineTenantPOs)) {
+                for (EngineTenantPO engineTenantPO : engineTenantPOs) {
+                    if (null != engineTenantPO && null != engineTenantPO.getTenantId()) {
+                        dtUicTenantIds.add(engineTenantPO.getTenantId());
                     }
                 }
             }

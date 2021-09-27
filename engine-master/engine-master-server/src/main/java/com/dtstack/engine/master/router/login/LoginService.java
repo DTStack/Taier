@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.router.login;
 
 
-import com.dtstack.engine.api.dto.UserDTO;
+import com.dtstack.engine.dto.UserDTO;
 import com.dtstack.engine.common.constrant.Cookies;
 import com.dtstack.engine.master.router.login.domain.DTToken;
 import com.dtstack.engine.master.router.login.domain.DtUicUser;
@@ -90,6 +90,8 @@ public class LoginService {
 
         cookieService.addCookie(request, response, Cookies.TOKEN, token);
         cookieService.addCookie(request, response, Cookies.USER_ID, user.getUserId());
+        cookieService.addCookie(request, response, Cookies.CREATE_USER_ID, user.getUserId());
+        cookieService.addCookie(request, response, Cookies.MODIFY_USER_ID, user.getUserId());
         cookieService.addCookie(request, response, Cookies.PROJECT_ID, 1);
         cookieService.addCookie(request, response, Cookies.TENANT_ID, user.getTenantId());
 

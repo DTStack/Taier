@@ -1,13 +1,12 @@
 package com.dtstack.engine.master.utils;
 
-import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.api.pojo.ParamAction;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.pluginapi.pojo.ParamAction;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 
 import java.io.File;
-import java.io.IOException;
 
 public class CommonUtils {
     private final static String SEP = File.separator;

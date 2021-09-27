@@ -18,10 +18,7 @@
 
 package org.apache.flink.client.deployment;
 
-import com.dtstack.engine.base.enums.ClassLoaderType;
-import com.dtstack.engine.common.enums.EJobType;
 import org.apache.flink.client.program.PackagedProgram;
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;

@@ -18,7 +18,7 @@
 
 package com.dtstack.engine.base.filesystem.manager;
 
-import com.dtstack.engine.common.IFileManage;
+import com.dtstack.engine.pluginapi.IFileManage;
 import com.google.common.io.Files;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.util.Vector;
 
 /**

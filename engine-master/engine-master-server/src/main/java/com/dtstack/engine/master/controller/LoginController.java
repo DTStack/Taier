@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.controller;
 
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.master.router.login.CookieService;
 import com.dtstack.engine.master.router.login.LoginService;
 import com.dtstack.engine.master.router.login.domain.DtUicUser;

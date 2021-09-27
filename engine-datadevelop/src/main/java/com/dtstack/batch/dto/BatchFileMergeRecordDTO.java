@@ -1,6 +1,6 @@
 package com.dtstack.batch.dto;
 
-import com.dtstack.engine.api.domain.TenantProjectEntity;
+import com.dtstack.engine.domain.TenantProjectEntity;
 import lombok.Data;
 
 import java.util.List;

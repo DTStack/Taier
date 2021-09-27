@@ -2,7 +2,7 @@ package com.dtstack.batch.sync.template;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.batch.common.template.Reader;
-import com.dtstack.engine.api.pojo.lineage.Column;
+import com.dtstack.engine.pluginapi.pojo.Column;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 

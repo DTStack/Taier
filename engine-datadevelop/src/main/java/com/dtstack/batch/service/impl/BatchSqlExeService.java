@@ -37,11 +37,15 @@ import com.dtstack.dtcenter.common.annotation.Forbidden;
 import com.dtstack.dtcenter.common.enums.*;
 import com.dtstack.dtcenter.common.util.PublicUtil;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
-import com.dtstack.engine.api.domain.BatchTask;
-import com.dtstack.engine.api.domain.Tenant;
-import com.dtstack.engine.api.domain.User;
-import com.dtstack.engine.api.vo.lineage.SqlType;
+import com.dtstack.engine.domain.BatchTask;
+import com.dtstack.engine.domain.ScheduleEngineProject;
+import com.dtstack.engine.domain.Tenant;
+import com.dtstack.engine.domain.User;
+import com.dtstack.engine.lineage.vo.SqlType;
 import com.dtstack.engine.lineage.impl.LineageService;
+import com.dtstack.engine.master.impl.ProjectService;
+import com.dtstack.engine.master.impl.TenantService;
+import com.dtstack.engine.master.impl.UserService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -51,9 +55,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -69,10 +71,10 @@ public class BatchSqlExeService {
 
     public static Logger LOG = LoggerFactory.getLogger(BatchSqlExeService.class);
 
-    @Resource(name = "batchProjectService")
+    @Autowired
     private ProjectService projectService;
 
-    @Resource(name = "batchTenantService")
+    @Autowired
     private TenantService tenantService;
 
     @Autowired
@@ -82,11 +84,12 @@ public class BatchSqlExeService {
     private MultiEngineServiceFactory multiEngineServiceFactory;
 
     @Autowired
-    private BatchUserService batchUserService;
+    private UserService userService;
 
     @Autowired
     private BatchFunctionService batchFunctionService;
 
+    @Autowired
     private LineageService lineageService;
 
     @Autowired
@@ -103,6 +106,7 @@ public class BatchSqlExeService {
     private static final String CREATE_TEMP_FUNCTION_SQL = "%s %s";
 
     private static final Set<Integer> notDataMapOpera = new HashSet<>();
+
     static {
         notDataMapOpera.add(EJobType.ORACLE_SQL.getVal());
         notDataMapOpera.add(EJobType.LIBRA_SQL.getVal());
@@ -110,27 +114,16 @@ public class BatchSqlExeService {
         notDataMapOpera.add(EJobType.INCEPTOR_SQL.getVal());
     }
 
-    @Forbidden
-    public void directExecutionSql(final ExecuteContent executeContent) throws Exception {
-        final Integer engineType = this.getEngineType(executeContent);
-        executeContent.setEngineType(engineType);
-        final String dbName = this.getDbName(executeContent);
-        final ISqlExeService sqlExeService = this.multiEngineServiceFactory.getSqlExeService(engineType, executeContent.getDetailType(), executeContent.getProjectId());
-        Long dtuicUserId = null;
-        User user = batchUserService.getUser(executeContent.getUserId());
-        if (Objects.nonNull(user)) {
-            dtuicUserId = user.getDtuicUserId();
-        }
-        sqlExeService.directExecutionSql(executeContent.getDtuicTenantId(),dtuicUserId, dbName, executeContent.getSql());
-    }
-
     private String getDbName(final ExecuteContent executeContent) {
+        if (StringUtils.isNotBlank(executeContent.getDatabase())) {
+            return executeContent.getDatabase();
+        }
         String dbName = null;
-        final Tenant tenantByDtUicTenantId = this.tenantService.getTenantByDtUicTenantId(executeContent.getDtuicTenantId());
-        if (null != tenantByDtUicTenantId) {
+        final Tenant tenant = tenantService.getByDtUicTenantId(executeContent.getTenantId());
+        if (null != tenant) {
             Long projectId = executeContent.getProjectId();
             if (projectId == null) {
-                final Project project = this.projectService.getByName(executeContent.getProjectName(), tenantByDtUicTenantId.getId());
+                final ScheduleEngineProject project = this.projectService.getByName(executeContent.getProjectName(), tenant.getDtUicTenantId());
                 if (project == null) {
                     throw new RdosDefineException("项目不能为空");
                 }
@@ -157,17 +150,17 @@ public class BatchSqlExeService {
         return engineType;
     }
 
-    private void prepareExecuteContent(final ExecuteContent executeContent){
+    private void prepareExecuteContent(final ExecuteContent executeContent) {
         final Integer engineType = this.getEngineType(executeContent);
         String taskParam = "";
-        if (TableRelationType.TASK.getType().equals(executeContent.getRelationType())){
+        if (TableRelationType.TASK.getType().equals(executeContent.getRelationType())) {
             BatchTask one = batchTaskService.getOne(executeContent.getRelationId());
             taskParam = one.getTaskParams();
         }
         final ISqlExeService sqlExeService = this.multiEngineServiceFactory.getSqlExeService(engineType, executeContent.getDetailType(), executeContent.getProjectId());
         final String sql = executeContent.getSql();
         //TODO cache lazy table 暂时不解析血缘，不知道这种类型的sql如何处理
-        if(StringUtils.isNotBlank(sql) && (sql.toLowerCase().trim().startsWith("set") || CACHE_LAZY_SQL_PATTEN.matcher(sql).matches())){
+        if (StringUtils.isNotBlank(sql) && (sql.toLowerCase().trim().startsWith("set") || CACHE_LAZY_SQL_PATTEN.matcher(sql).matches())) {
             //set sql 不解析
             final ParseResult parseResult = new ParseResult();
             parseResult.setParseSuccess(true);
@@ -179,13 +172,13 @@ public class BatchSqlExeService {
 
         //单条sql解析
         if (StringUtils.isNotBlank(executeContent.getSql())) {
-            //校验语法
-            if (executeContent.isCheckSyntax()) {
-                sqlExeService.checkSingleSqlSyntax(executeContent.getProjectId(), executeContent.getDtuicTenantId(), executeContent.getSql(), executeContent.getDatabase(), taskParam);
-            }
-
             final ParseResult parseResult = this.parseSql(executeContent);
             executeContent.setParseResult(parseResult);
+
+            //校验语法
+            if (executeContent.isCheckSyntax()) {
+                sqlExeService.checkSingleSqlSyntax(executeContent.getProjectId(), executeContent.getTenantId(), executeContent.getSql(), executeContent.getDatabase(), taskParam);
+            }
 
             boolean isExecuteSqlLater = false;
             if (SqlType.DROP.equals(parseResult.getSqlType())) {
@@ -198,17 +191,17 @@ public class BatchSqlExeService {
         //批量解析sql
         List<ParseResult> parseResultList = Lists.newLinkedList();
 
-        if (CollectionUtils.isNotEmpty(executeContent.getSqlList())){
+        if (CollectionUtils.isNotEmpty(executeContent.getSqlList())) {
             String finalTaskParam = taskParam;
-            executeContent.getSqlList().forEach(x->{
-                if (!x.trim().startsWith("set")){
+            executeContent.getSqlList().forEach(x -> {
+                if (!x.trim().startsWith("set")) {
                     if (executeContent.isCheckSyntax()) {
-                        sqlExeService.checkSingleSqlSyntax(executeContent.getProjectId(), executeContent.getDtuicTenantId(), x, executeContent.getDatabase(), finalTaskParam);
                         executeContent.setSql(x);
                         final ParseResult batchParseResult = this.parseSql(executeContent);
+                        sqlExeService.checkSingleSqlSyntax(executeContent.getProjectId(), executeContent.getTenantId(), x, executeContent.getDatabase(), finalTaskParam);
                         parseResultList.add(batchParseResult);
                     }
-                }else {
+                } else {
                     //set sql 不解析
                     final ParseResult batchParseResult = new ParseResult();
                     batchParseResult.setParseSuccess(true);
@@ -227,21 +220,19 @@ public class BatchSqlExeService {
      * @param executeContent
      * @return
      */
-    private ParseResult parseSql(final ExecuteContent executeContent){
+    private ParseResult parseSql(final ExecuteContent executeContent) {
         final String dbName = this.getDbName(executeContent);
         executeContent.setDatabase(dbName);
-        final Integer engineType = this.getEngineType(executeContent);
-        final Integer taskType = executeContent.getDetailType();
-        DataSourceType dataSourceType = multiEngineServiceFactory.getDataSourceTypeByEngineTypeAndTaskType(engineType, taskType, executeContent.getProjectId());
+        DataSourceType dataSourceType = multiEngineServiceFactory.getDataSourceTypeByEngineTypeAndTaskType(executeContent.getEngineType(), executeContent.getDetailType(), executeContent.getProjectId());
         ParseResult parseResult = null;
         try {
             com.dtstack.sqlparser.common.client.domain.ParseResult originParseResult = lineageService.parseSql(executeContent.getSql(), dbName, dataSourceType.getVal());
             parseResult = ParseResultUtils.convertParseResult(originParseResult);
         } catch (final Exception e) {
-            BatchSqlExeService.LOG.error("解析sql异常:{}",e);
+            BatchSqlExeService.LOG.error("解析sql异常:{}", e);
             parseResult = new ParseResult();
             //libra解析失败也提交sql执行
-            if (MultiEngineType.HADOOP.getType() == engineType){
+            if (MultiEngineType.HADOOP.getType() == executeContent.getEngineType()) {
                 parseResult.setParseSuccess(false);
             }
             parseResult.setFailedMsg(ExceptionUtils.getStackTrace(e));
@@ -254,54 +245,42 @@ public class BatchSqlExeService {
      *
      */
     @Forbidden
-    @Transactional(rollbackFor = Exception.class)
     public ExecuteResultVO executeSql(final ExecuteContent executeContent) throws Exception {
         final ExecuteResultVO result = new ExecuteResultVO();
-        final Integer engineType = this.getEngineType(executeContent);
-        // 前置操作  权限校验放到最前面
+        this.prepareExecuteContent(executeContent);
+        // 前置操作
         this.preExecuteSql(executeContent);
         result.setSqlText(executeContent.getSql());
 
-        this.prepareExecuteContent(executeContent);
-
-        final ISqlExeService sqlExeService = this.multiEngineServiceFactory.getSqlExeService(engineType, executeContent.getDetailType(), executeContent.getProjectId());
+        final ISqlExeService sqlExeService = this.multiEngineServiceFactory.getSqlExeService(executeContent.getEngineType(), executeContent.getDetailType(), executeContent.getProjectId());
         final ExecuteResultVO engineExecuteResult = sqlExeService.executeSql(executeContent);
         if (!engineExecuteResult.getIsContinue()) {
             return engineExecuteResult;
         }
         PublicUtil.copyPropertiesIgnoreNull(engineExecuteResult, result);
 
+        this.afterExecuteSql(executeContent);
+
         return result;
     }
 
     /**
-     *解析sqlList返回sqlId并且封装sql到引擎执行
+     * 解析sqlList返回sqlId并且封装sql到引擎执行
+     *
      * @param executeContent
      * @return
      * @throws Exception
      */
-    public ExecuteSqlParseVO batchExeSqlParse(final ExecuteContent executeContent)throws Exception {
-        final Integer engineType = this.getEngineType(executeContent);
-//        this.prepareExecuteContent(executeContent);
-//        List<ParseResult> parseResultList = executeContent.getParseResultList();
-//        final ExecuteSqlParseVO sqlParseVO = new ExecuteSqlParseVO();
-//        if (MultiEngineType.HADOOP.getType() == engineType) {
-//            parseResultList.forEach(parseResult -> {
-//                if (!parseResult.isParseSuccess()) {
-//                    sqlParseVO.setStatus(TaskStatus.FAILED.getStatus());
-//                    sqlParseVO.setMsg(parseResult.getFailedMsg());
-//                    sqlParseVO.setSqlText(parseResult.getOriginSql());
-//                }
-//            });
-//            if (Objects.nonNull(sqlParseVO.getStatus()) && TaskStatus.FAILED.getStatus().equals(sqlParseVO.getStatus())){
-//                return sqlParseVO;
-//            }
-//        }
-//        //前置操作
-//        this.preExecuteSql(executeContent);
+    public ExecuteSqlParseVO batchExeSqlParse(final ExecuteContent executeContent) throws Exception {
+        this.prepareExecuteContent(executeContent);
+        //前置操作
+        this.preExecuteSql(executeContent);
 
-        final ISqlExeService sqlExeService = this.multiEngineServiceFactory.getSqlExeService(engineType, executeContent.getDetailType(), executeContent.getProjectId());
-        return sqlExeService.batchExecuteSql(executeContent);
+        final ISqlExeService sqlExeService = this.multiEngineServiceFactory.getSqlExeService(executeContent.getEngineType(), executeContent.getDetailType(), executeContent.getProjectId());
+        ExecuteSqlParseVO executeSqlParseVO = sqlExeService.batchExecuteSql(executeContent);
+
+        this.afterExecuteSql(executeContent);
+        return executeSqlParseVO;
     }
 
     /**
@@ -326,37 +305,6 @@ public class BatchSqlExeService {
         Preconditions.checkNotNull(projectEngine, String.format("project %d not support engine type %d", projectId, engineType));
 
         final ISqlExeService sqlExeService = this.multiEngineServiceFactory.getSqlExeService(engineType, taskType, projectId);
-        // 校验语法
-//        String sqlPlus = buildCustomFunctionSparkSql(sqlText, projectId, taskType, engineType);
-//        String sqls = sqlExeService.process(sqlPlus, projectEngine.getEngineIdentity());
-//        result.setSql(sqls);
-//        if (checkSyntax) {
-//            List<ParseResult> parseResultList;
-//            try {
-//                parseResultList = sqlExeService.checkMulitSqlSyntax(dtuicTenantId, sqls, userId, projectId, taskParam);
-//            }catch (Exception e){
-//                LOG.error(String.format("语法校验失败，原因是:%s", e.getMessage()), e);
-//                result.setMessage(e.getMessage());
-//                result.setCheckResult(false);
-//                return result;
-//            }
-//            ETableType tableType = TableTypeEngineTypeMapping.getTableTypeByEngineType(engineType);
-//            ExecuteContent content;
-//            for (ParseResult parseResult : parseResultList) {
-//                content = new ExecuteContent();
-//                content.setParseResult(parseResult)
-//                        .setTenantId(tenantId)
-//                        .setSql(parseResult.getOriginSql())
-//                        .setUserId(userId)
-//                        .setEngineType(engineType)
-//                        .setProjectId(projectId)
-//                        .setTableType(tableType.getType())
-//                        .setProjectId(projectId)
-//                        .setSql(parseResult.getStandardSql())
-//                        .setRootUser(isRoot);
-//                this.preExecuteSql(content);
-//            }
-//        }
         result.setCheckResult(true);
         return result;
     }
@@ -365,15 +313,9 @@ public class BatchSqlExeService {
     /**
      * 执行sql前的操作,操作权限检查
      */
-    private TaskCheckResultVO preExecuteSql(final ExecuteContent executeContent) {
-        String dbName = getDbName(executeContent);
-        ParseResult parseResult = new ParseResult();
-        parseResult.setSqlType(SqlType.QUERY);
-        parseResult.setStandardSql(SqlFormatUtil.getStandardSql(executeContent.getSql()));
-        executeContent.setParseResult(parseResult);
-        executeContent.setDatabase(dbName);
-        return null;
-    }
+    private void preExecuteSql(final ExecuteContent executeContent) {}
+
+    private void afterExecuteSql(final ExecuteContent content) {}
 
 
 

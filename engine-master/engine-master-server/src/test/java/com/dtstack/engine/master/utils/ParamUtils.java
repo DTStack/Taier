@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.utils;
 
-import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -1,9 +1,9 @@
 package com.dtstack.engine.rdbs.hive;
 
 import com.dtstack.engine.base.util.KerberosUtils;
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.DtStringUtil;
-import com.dtstack.engine.common.util.MathUtil;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.util.DtStringUtil;
+import com.dtstack.engine.pluginapi.util.MathUtil;
 import com.dtstack.engine.rdbs.common.constant.ConfigConstant;
 import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 import org.apache.commons.lang3.StringUtils;

@@ -11,8 +11,8 @@ import com.dtstack.sqlparser.common.client.domain.Column;
  * @Created chener@dtstack.com
  */
 public class ColumnAdapter {
-    public static com.dtstack.engine.api.pojo.lineage.Column sqlColumn2ApiColumn(Column sqlColumn){
-        com.dtstack.engine.api.pojo.lineage.Column column = new com.dtstack.engine.api.pojo.lineage.Column();
+    public static com.dtstack.engine.pluginapi.pojo.Column sqlColumn2ApiColumn(Column sqlColumn){
+        com.dtstack.engine.pluginapi.pojo.Column column = new com.dtstack.engine.pluginapi.pojo.Column();
         column.setAlias(sqlColumn.getAlias());
         column.setComment(sqlColumn.getComment());
         column.setIndex(sqlColumn.getIndex());
@@ -22,7 +22,7 @@ public class ColumnAdapter {
         return column;
     }
 
-    public static Column apiColumn2SqlColumn(com.dtstack.engine.api.pojo.lineage.Column apiColumn){
+    public static Column apiColumn2SqlColumn(com.dtstack.engine.pluginapi.pojo.Column apiColumn){
         Column sqlColumn = new Column();
         sqlColumn.setAlias(apiColumn.getAlias());
         sqlColumn.setComment(apiColumn.getComment());

@@ -1,6 +1,6 @@
 package com.dtstack.engine.common.queue.comparator;
 
-import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.pluginapi.JobClient;
 
 import java.util.Comparator;
 

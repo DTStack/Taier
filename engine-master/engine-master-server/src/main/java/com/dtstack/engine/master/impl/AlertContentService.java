@@ -1,11 +1,11 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.dtstack.engine.api.dto.AlarmSendDTO;
-import com.dtstack.engine.api.dto.AlertContentDTO;
+import com.dtstack.engine.dto.AlarmSendDTO;
+import com.dtstack.engine.dto.AlertContentDTO;
 import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.dao.AlertContentDao;
-import com.dtstack.engine.api.domain.AlertContent;
+import com.dtstack.engine.domain.AlertContent;
 import com.dtstack.engine.master.enums.AlertMessageStatusEnum;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;

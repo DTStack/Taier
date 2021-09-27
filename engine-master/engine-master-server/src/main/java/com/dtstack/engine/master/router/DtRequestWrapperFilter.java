@@ -1,7 +1,6 @@
 package com.dtstack.engine.master.router;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.common.exception.ExceptionUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,21 +29,44 @@ public class DtRequestWrapperFilter extends OncePerRequestFilter {
 
     public final static String DT_REQUEST_BODY = "DT_REQUEST_BODY";
 
-    private static String[] excludeTargets = {"/node/download/component/downloadFile", "/node/upload/component/config", "/node/upload/component/addOrUpdateComponent"
-            ,"/node/alert/edit","/node/alert/testAlert","/node/upload/component/parseKerberos", "/node/upload/component/uploadKerberos","/node/login/submit","/node/login/logout"};
+    private static String[] excludeTargets = {"/node/download/component/downloadFile", "/node/upload/component/config", "/node/upload/component/addOrUpdateComponent",
+            "/upload/batch/batchResource/addResource","/upload/batch/batchResource/replaceResource",
+            "/node/alert/edit","/node/alert/testAlert","/node/upload/component/parseKerberos", "/node/upload/component/uploadKerberos","/node/login/submit","/node/login/logout"};
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String uri = request.getRequestURI();
         MultiReadHttpServletRequest requestWrapper = new MultiReadHttpServletRequest(request);
+
+        boolean isExclude = false;
         for (String exc: excludeTargets) {
-            if (exc.equals(uri)) {
-                LOGGER.info("Uri: " + uri + ", Params: " + getParameterString(requestWrapper));
-                filterChain.doFilter(requestWrapper, response);
-                return;
+            if (uri.endsWith(exc)) {
+                isExclude = true;
+                break;
             }
         }
 
+        LOGGER.info("Uri: " + uri + ", Params: " + getParameterString(requestWrapper));
+        JSONObject reqBody;
+        if (isExclude) {
+            reqBody = new JSONObject();
+        } else {
+            reqBody = getRequestBodyJson(requestWrapper);
+            LOGGER.info("Uri: " + uri + ", Params: " + reqBody);
+        }
+
+
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null && cookies.length > 0) {
+            for (Cookie cookie : cookies) {
+                reqBody.putIfAbsent(cookie.getName(), cookie.getValue());
+            }
+        }
+        request.setAttribute(DT_REQUEST_BODY, reqBody);
+        filterChain.doFilter(requestWrapper, response);
+    }
+
+    private JSONObject getRequestBodyJson(MultiReadHttpServletRequest requestWrapper) throws IOException {
         try (BufferedReader reader = requestWrapper.getReader()) {
             StringBuilder builder = new StringBuilder();
             String line = reader.readLine();
@@ -55,22 +77,11 @@ public class DtRequestWrapperFilter extends OncePerRequestFilter {
             reader.close();
             String reqBody = builder.toString();
             if (StringUtils.isNotBlank(reqBody)) {
-                try {
-                    JSONObject bodyJson = JSONObject.parseObject(reqBody);
-                    Cookie[] cookies = request.getCookies();
-                    if (cookies != null && cookies.length > 0) {
-                        for (Cookie cookie : cookies) {
-                            bodyJson.putIfAbsent(cookie.getName(), cookie.getValue());
-                        }
-                    }
-                    request.setAttribute(DT_REQUEST_BODY, bodyJson);
-                } catch (Exception e) {
-                    LOGGER.warn(ExceptionUtil.getErrorMessage(e));
-                }
+                JSONObject bodyJson = JSONObject.parseObject(reqBody);
+                return bodyJson;
             }
-            LOGGER.info("Uri: " + uri + ", Params: " + reqBody);
         }
-        filterChain.doFilter(requestWrapper, response);
+        return new JSONObject();
     }
 
     private String getParameterString(MultiReadHttpServletRequest requestWrapper) {

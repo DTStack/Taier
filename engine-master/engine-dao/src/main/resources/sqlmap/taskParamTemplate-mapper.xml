@@ -6,7 +6,7 @@
         id,gmt_create,gmt_modified,is_deleted,compute_type,engine_type,params,task_type
     </sql>
 
-    <select id="getByEngineTypeAndComputeType" resultType="com.dtstack.engine.api.domain.TaskParamTemplate">
+    <select id="getByEngineTypeAndComputeType" resultType="com.dtstack.engine.domain.TaskParamTemplate">
         select
         <include refid="select_content_fragment"/>
         from  task_param_template

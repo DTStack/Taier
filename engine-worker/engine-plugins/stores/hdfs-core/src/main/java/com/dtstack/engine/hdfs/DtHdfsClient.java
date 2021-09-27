@@ -1,18 +1,18 @@
 package com.dtstack.engine.hdfs;
 
 
-import com.dtstack.engine.api.pojo.ClusterResource;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.pluginapi.pojo.ClusterResource;
+import com.dtstack.engine.pluginapi.pojo.ComponentTestResult;
 import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.base.util.KerberosUtils;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.client.AbstractClient;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.JobIdentifier;
+import com.dtstack.engine.pluginapi.client.AbstractClient;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.pojo.JobResult;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;

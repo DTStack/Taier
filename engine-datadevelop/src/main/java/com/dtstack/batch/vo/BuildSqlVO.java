@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 /**
+ * @company：dtstack.com
  * @author yunliu
  * @date 2020-04-28 15:43
  * @description 解析sql返回的参数

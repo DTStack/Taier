@@ -1,16 +1,16 @@
 package com.dtstack.engine.master.controller;
 
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.dto.QueryJobDTO;
-import com.dtstack.engine.api.dto.ScheduleJobDTO;
-import com.dtstack.engine.api.pager.PageQuery;
-import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.vo.*;
-import com.dtstack.engine.api.vo.schedule.job.ScheduleJobRuleTimeVO;
-import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
-import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.dto.QueryJobDTO;
+import com.dtstack.engine.dto.ScheduleJobDTO;
+import com.dtstack.engine.common.pager.PageQuery;
+import com.dtstack.engine.common.pager.PageResult;
+import com.dtstack.engine.master.vo.*;
+import com.dtstack.engine.master.vo.schedule.job.ScheduleJobRuleTimeVO;
+import com.dtstack.engine.master.vo.schedule.job.ScheduleJobScienceJobStatusVO;
+import com.dtstack.engine.master.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import org.springframework.web.bind.annotation.RequestParam;
 import io.swagger.annotations.Api;
@@ -392,7 +392,7 @@ public class ScheduleJobController {
      * @author newman
      * @Description 该接口目前只有内部使用
      * @Date 2021/1/12 4:27 下午
-     * @return: java.util.List<com.dtstack.engine.api.domain.ScheduleJob>
+     * @return: java.util.List<com.dtstack.engine.domain.ScheduleJob>
      **/
     @RequestMapping(value = "/listByCyctimeAndJobNameWithStartId", method = {RequestMethod.POST})
     @ApiOperation(value = "按批次根据cycTime和jobName获取，如获取当天的周期实例任务")

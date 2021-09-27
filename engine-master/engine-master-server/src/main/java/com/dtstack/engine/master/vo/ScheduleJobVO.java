@@ -1,105 +1,365 @@
 package com.dtstack.engine.master.vo;
 
-import com.dtstack.engine.api.domain.ScheduleEngineJob;
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.util.DateUtil;
-import com.dtstack.engine.master.scheduler.parser.ESchedulePeriodType;
-import org.apache.commons.lang3.StringUtils;
+import com.dtstack.engine.domain.ScheduleEngineJob;
+import com.dtstack.engine.domain.TenantProjectEntity;
+import io.swagger.annotations.ApiModel;
+
+import java.sql.Timestamp;
+import java.util.List;
 
 /**
  * company: www.dtstack.com
  * author: toutian
  * create: 2017/6/6
  */
-public class ScheduleJobVO extends com.dtstack.engine.api.vo.ScheduleJobVO {
+@ApiModel
+public class ScheduleJobVO extends TenantProjectEntity {
 
-    public ScheduleJobVO() {
+    protected ScheduleTaskVO batchTask;
+    private String tenantName;
+    private String projectName;
+    private String jobId;
+    private String jobKey;
+    private String jobName;
+    private int status;
+    private long taskId;
+    private long createUserId;
+    private Long ownerUserId;
+    private int type;
+    private String businessDate;
+    private String cycTime;
+    private Timestamp execStartTime;
+    private Timestamp execEndTime;
+    private String execTime;
+    private String execStartDate;
+    private String execEndDate;
+    private Integer taskPeriodId;
+    private Integer taskRule;
+    protected String taskPeriodType;
+
+    private List<ScheduleJobVO> jobVOS;
+    private List<ScheduleJobVO> taskRuleJobVOS;
+    protected ScheduleEngineJob batchEngineJob;
+
+    private ScheduleJobVO subNodes;
+
+    private String flowJobId;
+
+    private Integer retryNum;
+
+    private List<ScheduleJobVO> relatedJobs;
+    //增加是否有脏数据标识 1表示有 0 表示无
+    private int isDirty;
+
+    private Integer isRestart;
+    // 增加是否是组任务（分钟或小时任务） 如果是 前端就不显示某些信息
+    protected boolean isGroupTask;
+
+    private Integer version;
+
+    private Integer taskType;
+
+    private Integer appType;
+
+    private Boolean existsOnRule;
+
+    private String businessType;
+
+    public String getBusinessType() {
+        return businessType;
     }
 
-    public ScheduleJobVO(ScheduleJob scheduleJob) {
-        this.setId(scheduleJob.getId());
-        this.setJobId(scheduleJob.getJobId());
-        this.setJobKey(scheduleJob.getJobKey());
-        this.setJobName(scheduleJob.getJobName());
-        this.setTaskId(scheduleJob.getTaskId());
-        this.setCreateUserId(scheduleJob.getCreateUserId());
-        this.setType(scheduleJob.getType());
-        this.setGmtCreate(scheduleJob.getGmtCreate());
-        this.setGmtModified(scheduleJob.getGmtModified());
-        this.setBusinessDate(this.getOnlyDate(scheduleJob.getBusinessDate()));
-        this.setCycTime(DateUtil.addTimeSplit(scheduleJob.getCycTime()));
-        this.setFlowJobId(scheduleJob.getFlowJobId());
-        this.setIsRestart(scheduleJob.getIsRestart());
-        this.setTaskPeriodId(scheduleJob.getPeriodType());
-        this.setStatus(scheduleJob.getStatus());
-        this.setRetryNum(scheduleJob.getRetryNum());
-        this.setScheduleEngineJob(new ScheduleEngineJob(scheduleJob));
-        this.setExecStartTime(scheduleJob.getExecStartTime());
-        this.setExecEndTime(scheduleJob.getExecEndTime());
-        this.setTaskRule(scheduleJob.getTaskRule());
-        this.setAppType(scheduleJob.getAppType());
-        this.setBusinessType(scheduleJob.getBusinessType());
+    public void setBusinessType(String businessType) {
+        this.businessType = businessType;
     }
 
-    private String getOnlyDate(String date){
-        String str = DateUtil.addTimeSplit(date);
-        if (str.length() != 19){
-            return str;
-        }
-        return str.substring(0,11);
+    public Integer getRetryNum() {
+        return retryNum;
+    }
+
+    public void setRetryNum(Integer retryNum) {
+        this.retryNum = retryNum;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
+
+    public ScheduleTaskVO getBatchTask() {
+        return batchTask;
     }
 
     public void setBatchTask(ScheduleTaskVO batchTask) {
-        this.isGroupTask = false;
-        if (StringUtils.isBlank(taskPeriodType) && null!= getTaskPeriodId()) {
-            String taskType = "";
-            if (ESchedulePeriodType.MIN.getVal() == getTaskPeriodId()) {
-                taskType = "分钟任务";
-                this.isGroupTask = true;
-            } else if (ESchedulePeriodType.HOUR.getVal() == getTaskPeriodId()) {
-                taskType = "小时任务";
-                this.isGroupTask = true;
-            } else if (ESchedulePeriodType.DAY.getVal() == getTaskPeriodId()) {
-                taskType = "天任务";
-            } else if (ESchedulePeriodType.WEEK.getVal() == getTaskPeriodId()) {
-                taskType = "周任务";
-            } else if (ESchedulePeriodType.MONTH.getVal() == getTaskPeriodId()) {
-                taskType = "月任务";
-            }
-            this.taskPeriodType = taskType;
-        }
         this.batchTask = batchTask;
     }
 
-    public void setScheduleEngineJob(ScheduleEngineJob scheduleEngineJob) {
-        if (scheduleEngineJob != null && null != scheduleEngineJob.getStatus()) {
+    public Integer getIsRestart() {
+        return isRestart;
+    }
 
-            //将数据库细分状态归并展示
-            this.setStatus(RdosTaskStatus.getShowStatusWithoutStop(scheduleEngineJob.getStatus()));
+    public void setIsRestart(Integer isRestart) {
+        this.isRestart = isRestart;
+    }
 
-            int combineStatus = RdosTaskStatus.getShowStatus(scheduleEngineJob.getStatus());
-            // 任务状态为运行中，运行完成，运行失败时才有开始时间和运行时间
-            if(combineStatus == RdosTaskStatus.RUNNING.getStatus() || combineStatus == RdosTaskStatus.FINISHED.getStatus() || combineStatus == RdosTaskStatus.FAILED.getStatus()){
-                if (scheduleEngineJob.getExecStartTime() != null) {
-                    this.setExecStartDate(DateUtil.getStandardFormattedDate(scheduleEngineJob.getExecStartTime().getTime()));
-                    this.setExecStartTime(scheduleEngineJob.getExecStartTime());
-                }
+    public String getTenantName() {
+        return tenantName;
+    }
 
-            }
+    public void setTenantName(String tenantName) {
+        this.tenantName = tenantName;
+    }
 
-            // 任务状态为运行完成或失败时才有结束时间
-            if(combineStatus == RdosTaskStatus.FINISHED.getStatus() || combineStatus == RdosTaskStatus.FAILED.getStatus()){
-                if (scheduleEngineJob.getExecEndTime() != null) {
-                    this.setExecEndDate(DateUtil.getStandardFormattedDate(scheduleEngineJob.getExecEndTime().getTime()));
-                    this.setExecEndTime(scheduleEngineJob.getExecEndTime());
-                }
-            }
-            if (scheduleEngineJob.getExecStartTime() != null && scheduleEngineJob.getExecEndTime() != null) {
-                long exeTime = scheduleEngineJob.getExecTime() == null ? 0L : scheduleEngineJob.getExecTime() * 1000;
-                this.setExecTime(DateUtil.getTimeDifference(exeTime));
-            }
-        }
-        this.batchEngineJob = scheduleEngineJob;
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+
+    public String getJobId() {
+        return jobId;
+    }
+
+    public void setJobId(String jobId) {
+        this.jobId = jobId;
+    }
+
+    public String getJobKey() {
+        return jobKey;
+    }
+
+    public void setJobKey(String jobKey) {
+        this.jobKey = jobKey;
+    }
+
+    public String getJobName() {
+        return jobName;
+    }
+
+    public void setJobName(String jobName) {
+        this.jobName = jobName;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public long getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(long taskId) {
+        this.taskId = taskId;
+    }
+
+    public long getCreateUserId() {
+        return createUserId;
+    }
+
+    public void setCreateUserId(long createUserId) {
+        this.createUserId = createUserId;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public String getBusinessDate() {
+        return businessDate;
+    }
+
+    public void setBusinessDate(String businessDate) {
+        this.businessDate = businessDate;
+    }
+
+    public String getCycTime() {
+        return cycTime;
+    }
+
+    public void setCycTime(String cycTime) {
+        this.cycTime = cycTime;
+    }
+
+    public Timestamp getExecStartTime() {
+        return execStartTime;
+    }
+
+    public void setExecStartTime(Timestamp execStartTime) {
+        this.execStartTime = execStartTime;
+    }
+
+    public Timestamp getExecEndTime() {
+        return execEndTime;
+    }
+
+    public void setExecEndTime(Timestamp execEndTime) {
+        this.execEndTime = execEndTime;
+    }
+
+    public String getExecStartDate() {
+        return execStartDate;
+    }
+
+    public void setExecStartDate(String execStartDate) {
+        this.execStartDate = execStartDate;
+    }
+
+    public String getExecEndDate() {
+        return execEndDate;
+    }
+
+    public void setExecEndDate(String execEndDate) {
+        this.execEndDate = execEndDate;
+    }
+
+    public String getExecTime() {
+        return execTime;
+    }
+
+    public void setExecTime(String execTime) {
+        this.execTime = execTime;
+    }
+
+    public Integer getTaskPeriodId() {
+        return taskPeriodId;
+    }
+
+    public void setTaskPeriodId(Integer taskPeriodId) {
+        this.taskPeriodId = taskPeriodId;
+    }
+
+    public String getTaskPeriodType() {
+        return taskPeriodType;
+    }
+
+    public void setTaskPeriodType(String taskPeriodType) {
+        this.taskPeriodType = taskPeriodType;
+    }
+
+    public List<ScheduleJobVO> getJobVOS() {
+        return jobVOS;
+    }
+
+    public void setJobVOS(List<ScheduleJobVO> jobVOS) {
+        this.jobVOS = jobVOS;
+    }
+
+
+    public ScheduleJobVO getSubNodes() {
+        return subNodes;
+    }
+
+    public void setSubNodes(ScheduleJobVO subNodes) {
+        this.subNodes = subNodes;
+    }
+
+    public ScheduleEngineJob getBatchEngineJob() {
+        return batchEngineJob;
+    }
+
+    public void setBatchEngineJob(ScheduleEngineJob batchEngineJob) {
+        this.batchEngineJob = batchEngineJob;
+    }
+
+    public boolean isGroupTask() {
+        return isGroupTask;
+    }
+
+    public void setGroupTask(boolean groupTask) {
+        isGroupTask = groupTask;
+    }
+
+    public String getFlowJobId() {
+        return flowJobId;
+    }
+
+    public void setFlowJobId(String flowJobId) {
+        this.flowJobId = flowJobId;
+    }
+
+    public List<ScheduleJobVO> getRelatedJobs() {
+        return relatedJobs;
+    }
+
+    public void setRelatedJobs(List<ScheduleJobVO> relatedJobs) {
+        this.relatedJobs = relatedJobs;
+    }
+
+
+    public int getIsDirty() {
+        return isDirty;
+    }
+
+    public void setIsDirty(int isDirty) {
+        this.isDirty = isDirty;
+    }
+
+    public boolean getIsGroupTask() {
+        return isGroupTask;
+    }
+
+    public void setIsGroupTask(boolean groupTask) {
+        isGroupTask = groupTask;
+    }
+
+    public Long getOwnerUserId() {
+        return ownerUserId;
+    }
+
+    public void setOwnerUserId(Long ownerUserId) {
+        this.ownerUserId = ownerUserId;
+    }
+
+    public Integer getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(Integer taskType) {
+        this.taskType = taskType;
+    }
+
+    public List<ScheduleJobVO> getTaskRuleJobVOS() {
+        return taskRuleJobVOS;
+    }
+
+    public void setTaskRuleJobVOS(List<ScheduleJobVO> taskRuleJobVOS) {
+        this.taskRuleJobVOS = taskRuleJobVOS;
+    }
+
+    public Integer getTaskRule() {
+        return taskRule;
+    }
+
+    public void setTaskRule(Integer taskRule) {
+        this.taskRule = taskRule;
+    }
+
+    public Integer getAppType() {
+        return appType;
+    }
+
+    public void setAppType(Integer appType) {
+        this.appType = appType;
+    }
+
+    public Boolean getExistsOnRule() {
+        return existsOnRule;
+    }
+
+    public void setExistsOnRule(Boolean existsOnRule) {
+        this.existsOnRule = existsOnRule;
     }
 }

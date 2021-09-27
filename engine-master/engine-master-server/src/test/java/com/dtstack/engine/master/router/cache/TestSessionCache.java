@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.router.cache;
 
 import com.dtstack.engine.master.AbstractTest;
-import com.dtstack.schedule.common.enums.AppType;
+import com.dtstack.engine.common.enums.AppType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

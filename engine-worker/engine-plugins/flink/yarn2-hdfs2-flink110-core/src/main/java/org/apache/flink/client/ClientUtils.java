@@ -18,7 +18,7 @@
 
 package org.apache.flink.client;
 
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;

@@ -30,7 +30,6 @@ import java.util.List;
 @Data
 public class ExecuteContent {
 
-    private Long dtuicTenantId;
     private Long tenantId;
     private Long projectId;
     private String projectName;
@@ -67,7 +66,7 @@ public class ExecuteContent {
     /**
      * 是否为root用户
      */
-    private boolean isRootUser;
+    private Boolean isRootUser;
 
     /**
      * 是否检查语法
@@ -139,11 +138,6 @@ public class ExecuteContent {
         return this;
     }
 
-    public ExecuteContent setDtuicTenantId(Long dtuicTenantId) {
-        this.dtuicTenantId = dtuicTenantId;
-        return this;
-    }
-
     public ExecuteContent setSql(String sql) {
         this.sql = sql;
         return this;
@@ -189,7 +183,7 @@ public class ExecuteContent {
         return this;
     }
 
-    public ExecuteContent setRootUser(boolean rootUser) {
+    public ExecuteContent setRootUser(Boolean rootUser) {
         isRootUser = rootUser;
         return this;
     }

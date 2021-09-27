@@ -36,7 +36,7 @@ public class BatchSelectSqlController {
             protected BatchExecuteDataResultVO process() {
                 try {
                     return BatchSqlMapstructTransfer.INSTANCE.executeResultVOToBatchExecuteDataResultVO(batchSelectSqlService.selectData(sqlVO.getJobId(),
-                            sqlVO.getTaskId(), sqlVO.getTenantId(), sqlVO.getProjectId(), sqlVO.getDtuicTenantId(), sqlVO.getUserId(),
+                            sqlVO.getTaskId(), sqlVO.getTenantId(), sqlVO.getProjectId(), sqlVO.getTenantId(), sqlVO.getUserId(),
                             sqlVO.getIsRoot(), sqlVO.getType(), sqlVO.getSqlId()));
                 } catch (Exception e) {
                     throw new RdosDefineException(e.getMessage(), e);
@@ -54,7 +54,7 @@ public class BatchSelectSqlController {
             protected BatchExecuteStatusResultVO process() {
                 try {
                     return BatchSqlMapstructTransfer.INSTANCE.executeResultVOToBatchExecuteStatusResultVO(batchSelectSqlService.selectStatus(sqlVO.getJobId(),
-                            sqlVO.getTaskId(), sqlVO.getTenantId(), sqlVO.getProjectId(), sqlVO.getDtuicTenantId(), sqlVO.getUserId(),
+                            sqlVO.getTaskId(), sqlVO.getTenantId(), sqlVO.getProjectId(), sqlVO.getTenantId(), sqlVO.getUserId(),
                             sqlVO.getIsRoot(), sqlVO.getType(), sqlVO.getSqlId()));
                 } catch (Exception e) {
                     throw new RdosDefineException(e.getMessage(), e);
@@ -72,7 +72,7 @@ public class BatchSelectSqlController {
             protected BatchExecuteRunLogResultVO process() {
                 try {
                     return BatchSqlMapstructTransfer.INSTANCE.executeResultVOToBatchExecuteRunLogResultVO(batchSelectSqlService.selectRunLog(sqlVO.getJobId(),
-                            sqlVO.getTaskId(), sqlVO.getTenantId(), sqlVO.getProjectId(), sqlVO.getDtuicTenantId(), sqlVO.getUserId(),
+                            sqlVO.getTaskId(), sqlVO.getTenantId(), sqlVO.getProjectId(), sqlVO.getTenantId(), sqlVO.getUserId(),
                             sqlVO.getIsRoot(), sqlVO.getType(), sqlVO.getSqlId()));
                 } catch (Exception e) {
                     throw new RdosDefineException(e.getMessage(), e);

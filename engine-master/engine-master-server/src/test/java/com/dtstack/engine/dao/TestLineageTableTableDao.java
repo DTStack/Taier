@@ -1,7 +1,6 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.engine.api.domain.Cluster;
-import com.dtstack.engine.api.domain.LineageTableTable;
+import com.dtstack.engine.domain.LineageTableTable;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;

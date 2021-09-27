@@ -1,13 +1,13 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
+import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.common.enums.DisplayDirect;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.utils.Template;
-import com.dtstack.engine.master.vo.ScheduleTaskVO;
-import com.dtstack.schedule.common.enums.EScheduleJobType;
+import com.dtstack.engine.master.impl.vo.ScheduleTaskVO;
+import com.dtstack.engine.pluginapi.enums.EScheduleJobType;
 import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Test;

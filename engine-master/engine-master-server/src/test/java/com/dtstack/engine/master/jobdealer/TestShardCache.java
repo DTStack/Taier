@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.jobdealer;
 
-import com.dtstack.engine.api.domain.EngineJobCache;
+import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;

@@ -1,7 +1,5 @@
 BEGIN;
 
-INSERT INTO `rdos_user` VALUES ('-1', '-1', 'system@dtstack.com', 'system@dtstack.com', '0', '2017-06-05 20:35:16', '2017-06-05 20:35:16', '0', null, '111111');
-
 INSERT INTO `rdos_role`(id, tenant_id, project_id, role_name, role_type, role_value, role_desc, modify_user_id, gmt_create, gmt_modified, is_deleted, create_user_id)
 VALUES
   ('1', '-1', '-1', '租户所有者', '1', '1', '本项目内的全部权限，具有本租户内的最高权限', '0', now(), now(), '0', 0),

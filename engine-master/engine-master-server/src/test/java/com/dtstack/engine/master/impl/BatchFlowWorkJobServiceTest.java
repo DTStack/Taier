@@ -1,11 +1,9 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.master.bo.ScheduleBatchJob;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.master.server.ScheduleBatchJob;
 import com.dtstack.engine.master.dataCollection.DataCollection;
-import com.dtstack.schedule.common.enums.AppType;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 

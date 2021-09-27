@@ -1,15 +1,15 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.pojo.ParamAction;
-import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.pluginapi.pojo.ParamAction;
+import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.common.enums.EJobCacheStage;
-import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
-import com.dtstack.engine.api.domain.EngineJobCache;
+import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.master.executor.JobExecutorTrigger;
+import com.dtstack.engine.master.server.executor.JobExecutorTrigger;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

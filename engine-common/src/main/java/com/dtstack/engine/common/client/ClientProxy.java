@@ -1,22 +1,17 @@
 package com.dtstack.engine.common.client;
 
-import com.dtstack.engine.api.pojo.*;
-import com.dtstack.engine.api.pojo.CheckResult;
-import com.dtstack.engine.api.pojo.lineage.Column;
-import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.callback.CallBack;
-import com.dtstack.engine.common.callback.ClassLoaderCallBackMethod;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.exception.ClientArgumentException;
-import com.dtstack.engine.common.exception.ExceptionUtil;
+import com.dtstack.engine.pluginapi.client.IClient;
+import com.dtstack.engine.pluginapi.pojo.*;
+import com.dtstack.engine.pluginapi.CustomThreadFactory;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.JobIdentifier;
+import com.dtstack.engine.pluginapi.callback.CallBack;
+import com.dtstack.engine.pluginapi.callback.ClassLoaderCallBackMethod;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.engine.pluginapi.exception.ClientArgumentException;
+import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.LimitResourceException;
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.api.pojo.ClusterResource;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
-import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.pojo.JudgeResult;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

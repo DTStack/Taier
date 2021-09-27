@@ -15,7 +15,7 @@ import com.dtstack.dtcenter.common.enums.EJobType;
 import com.dtstack.dtcenter.common.enums.EngineType;
 import com.dtstack.dtcenter.common.enums.MultiEngineType;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
-import com.dtstack.engine.api.vo.lineage.SqlType;
+import com.dtstack.engine.lineage.vo.SqlType;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
@@ -38,11 +38,6 @@ public class BatchSparkSqlExeService extends BatchSparkHiveSqlExeService impleme
 
     private static final String SHOW_LIFECYCLE = "%s表的生命周期为%s天";
 
-    @Override
-    public void directExecutionSql(Long dtUicTenantId,Long dtUicUserId, String dbName, String sql) {
-        directExecutionSql(dtUicTenantId, dtUicUserId, dbName, sql, EJobType.SPARK_SQL);
-    }
-
     @Forbidden
     @Override
     public ExecuteResultVO executeSql(ExecuteContent executeContent) {
@@ -54,7 +49,7 @@ public class BatchSparkSqlExeService extends BatchSparkHiveSqlExeService impleme
         String preJobId = executeContent.getPreJobId();
         Integer relationType = executeContent.getRelationType();
         String currDb = executeContent.getParseResult().getCurrentDb();
-        Long dtuicTenantId = executeContent.getDtuicTenantId();
+        Long dtuicTenantId = executeContent.getTenantId();
         Long tenantId = executeContent.getTenantId();
         Long projectId = executeContent.getProjectId();
         Long userId = executeContent.getUserId();
@@ -123,9 +118,8 @@ public class BatchSparkSqlExeService extends BatchSparkHiveSqlExeService impleme
         }
 
         String sqlToEngine = StringUtils.join(sqlList,";");
-        Long dtuicUserId = batchUserService.getUser(userId).getDtuicUserId();
         //除简单查询，其他sql发送到engine执行
-        String jobId =  batchHadoopSelectSqlService.sendSqlTask(dtuicTenantId, sqlToEngine, SourceType.TEMP_QUERY, buildSqlVO.getTaskParam(), preJobId, relationId, relationType, dtuicUserId, projectId);
+        String jobId =  batchHadoopSelectSqlService.sendSqlTask(dtuicTenantId, sqlToEngine, SourceType.TEMP_QUERY, buildSqlVO.getTaskParam(), preJobId, relationId, relationType, userId, projectId);
 
         //记录发送到engine的id
         selectSqlService.addSelectSql(jobId, StringUtils.EMPTY, 0, tenantId, projectId,
@@ -144,19 +138,10 @@ public class BatchSparkSqlExeService extends BatchSparkHiveSqlExeService impleme
         return processSql(sqlText, database);
     }
 
-    @Override
-    public List<ParseResult> checkMulitSqlSyntax(Long dtuicTenantId, String sqlText, Long userId, Long projectId, String taskParam) {
-        return checkMulitSqlSyntax(dtuicTenantId, sqlText, userId, projectId, taskParam, EJobType.SPARK_SQL);
-    }
 
     @Override
     public void checkSingleSqlSyntax(Long projectId, Long dtuicTenantId, String sql, String db, String taskParam) {
         checkSingleSqlSyntax(projectId, dtuicTenantId, sql, db, taskParam, EJobType.SPARK_SQL);
-    }
-
-    @Override
-    public List<ParseResult> parseLineageFromSqls(List<String> sqls, Long tenantId, Long projectId, String dbName, Long dtUicTenantId) {
-        return parseLineageFromSqls(sqls, tenantId, projectId, dbName, dtUicTenantId, DataSourceType.Spark);
     }
 
 }

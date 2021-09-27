@@ -1,7 +1,7 @@
 package com.dtstack.engine.base.util;
 
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.MathUtil;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.util.MathUtil;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;

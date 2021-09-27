@@ -2,9 +2,9 @@ package com.dtstack.engine.dtscript;
 
 
 import com.dtstack.engine.base.resource.AbstractYarnResourceInfo;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.exception.ClientArgumentException;
-import com.dtstack.engine.common.pojo.JudgeResult;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.exception.ClientArgumentException;
+import com.dtstack.engine.pluginapi.pojo.JudgeResult;
 import com.dtstack.engine.dtscript.client.ClientArguments;
 import com.google.common.collect.Lists;
 import org.apache.hadoop.yarn.client.api.YarnClient;

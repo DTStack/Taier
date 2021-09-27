@@ -26,20 +26,6 @@
             <groupId>com.dtstack.engine</groupId>
             <artifactId>engine-common</artifactId>
             <version>1.0.0</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>zookeeper</artifactId>
-                    <groupId>org.apache.zookeeper</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>spring-data-redis</artifactId>
-                    <groupId>org.springframework.data</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>spring-session-core</artifactId>
-                    <groupId>org.springframework.session</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
@@ -78,17 +64,6 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-redis</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger2</artifactId>
-            <version>2.9.2</version>
-        </dependency>
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger-ui</artifactId>
-            <version>2.9.2</version>
         </dependency>
 
         <dependency>

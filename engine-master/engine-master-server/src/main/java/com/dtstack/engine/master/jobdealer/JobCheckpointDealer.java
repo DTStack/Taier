@@ -1,21 +1,21 @@
 package com.dtstack.engine.master.jobdealer;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.common.constrant.JobResultConstant;
-import com.dtstack.engine.common.enums.EngineType;
+import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.pluginapi.constrant.JobResultConstant;
+import com.dtstack.engine.pluginapi.enums.EngineType;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
-import com.dtstack.engine.common.util.MathUtil;
-import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.pluginapi.util.MathUtil;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
+import com.dtstack.engine.pluginapi.CustomThreadFactory;
+import com.dtstack.engine.pluginapi.JobIdentifier;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.EngineJobCheckpointDao;
-import com.dtstack.engine.api.domain.EngineJobCheckpoint;
+import com.dtstack.engine.domain.EngineJobCheckpoint;
 import com.dtstack.engine.dao.ScheduleJobDao;
-import com.dtstack.engine.master.akka.WorkerOperator;
-import com.dtstack.engine.master.bo.JobCheckpointInfo;
+import com.dtstack.engine.master.WorkerOperator;
+import com.dtstack.engine.master.jobdealer.bo.JobCheckpointInfo;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ScheduleDictService;
@@ -233,8 +233,8 @@ public class JobCheckpointDealer implements InitializingBean {
                             checkpointId, checkpointSavePath, status, checkpointCacheKey);
                 }
             }
-        } catch (IOException e) {
-            addFailedCheckpoint(taskId, engineTaskId);
+        } catch (Exception e) {
+            engineJobCheckpointDao.insert(taskId, engineTaskId, null, null, null, null);
             LOGGER.error("taskID:{} ,engineTaskId:{}, error:", taskId, engineTaskId, e);
         }
     }

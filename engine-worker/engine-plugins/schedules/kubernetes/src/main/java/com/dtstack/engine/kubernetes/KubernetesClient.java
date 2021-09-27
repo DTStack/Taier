@@ -1,14 +1,14 @@
 package com.dtstack.engine.kubernetes;
 
-import com.dtstack.engine.api.pojo.ComponentTestResult;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.client.AbstractClient;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.pluginapi.pojo.ComponentTestResult;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.JobIdentifier;
+import com.dtstack.engine.pluginapi.client.AbstractClient;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.pojo.JobResult;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;

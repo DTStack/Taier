@@ -1,6 +1,6 @@
 package com.dtstack.engine.base;
 
-import com.dtstack.engine.common.sftp.SftpConfig;
+import com.dtstack.engine.pluginapi.sftp.SftpConfig;
 
 import java.sql.Timestamp;
 

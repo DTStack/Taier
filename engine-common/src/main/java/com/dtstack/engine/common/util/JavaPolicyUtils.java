@@ -1,7 +1,6 @@
 package com.dtstack.engine.common.util;
 
-import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.schedule.common.util.Xml2JsonUtil;
+import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

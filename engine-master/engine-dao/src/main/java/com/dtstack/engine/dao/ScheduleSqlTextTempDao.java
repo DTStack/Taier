@@ -1,6 +1,6 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.engine.api.domain.ScheduleSqlTextTemp;
+import com.dtstack.engine.domain.ScheduleSqlTextTemp;
 
 /**
  * @Author: ZYD

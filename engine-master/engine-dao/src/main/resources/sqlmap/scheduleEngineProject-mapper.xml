@@ -68,14 +68,14 @@
         WHERE `project_id` = #{projectId} AND `app_type` = #{appType}
     </delete>
 
-    <select id="getProjectByProjectIdAndApptype" resultType="com.dtstack.engine.api.domain.ScheduleEngineProject">
+    <select id="getProjectByProjectIdAndApptype" resultType="com.dtstack.engine.domain.ScheduleEngineProject">
         SELECT
             <include refid="Base_Column_List"/>
         FROM schedule_engine_project
         WHERE `project_id` = #{projectId} AND `app_type` = #{appType} AND `is_deleted` = 0
     </select>
 
-    <select id="selectFuzzyProjectByProjectAlias" resultType="com.dtstack.engine.api.domain.ScheduleEngineProject">
+    <select id="selectFuzzyProjectByProjectAlias" resultType="com.dtstack.engine.domain.ScheduleEngineProject">
         SELECT `id`, `project_id`, `uic_tenant_id`, `app_type`, `project_name`, `project_alias`, `project_Identifier`, `project_desc`
         FROM `schedule_engine_project`
         WHERE `uic_tenant_id` = #{uicTenantId} AND `app_type` = #{appType} AND `is_deleted` = 0
@@ -87,7 +87,7 @@
         </if>
         LIMIT #{fuzzyProjectByProjectAliasLimit}
     </select>
-    <select id="listByProjectIds" resultType="com.dtstack.engine.api.domain.ScheduleEngineProject">
+    <select id="listByProjectIds" resultType="com.dtstack.engine.domain.ScheduleEngineProject">
         SELECT `id`, `project_id`, `uic_tenant_id`, `app_type`, `project_name`, `project_alias`, `project_Identifier`, `project_desc`
         FROM `schedule_engine_project`
         WHERE `project_id` IN
@@ -98,11 +98,34 @@
          AND `is_deleted` = 0
     </select>
 
-    <select id="listWhiteListProject" resultType="com.dtstack.engine.api.domain.ScheduleEngineProject">
+    <select id="listWhiteListProject" resultType="com.dtstack.engine.domain.ScheduleEngineProject">
         SELECT `id`, `project_id`, `uic_tenant_id`, `app_type`
         FROM `schedule_engine_project`
         WHERE  `is_deleted` = 0 AND `white_status` = 1;
     </select>
 
+    <select id="getByName" resultType="com.dtstack.engine.domain.ScheduleEngineProject">
+        select
+        `id`, `project_id`, `uic_tenant_id`, `app_type`, `project_name`, `project_alias`, `project_Identifier`, `project_desc`
+        from schedule_engine_project
+        where project_name = #{projectName}  and is_deleted = 0
+        <if test="dtUicTenantId != null">
+            and uic_tenant_id = #{dtUicTenantId}
+        </if>
+        limit 1
+    </select>
+
+    <select id="listByTenantIds" resultType="com.dtstack.engine.domain.ScheduleEngineProject">
+        SELECT
+        `id`, `project_id`, `uic_tenant_id`, `app_type`, `project_name`, `project_alias`, `project_Identifier`, `project_desc`
+        FROM rdos_project
+        where is_deleted = 0
+        <if test="dtUicTenantIds != null and dtUicTenantIds.size() > 0">
+            AND uic_tenant_id in
+            <foreach collection="dtUicTenantIds" separator="," item="item" open="(" close=")" index="index">
+                #{item}
+            </foreach>
+        </if>
+    </select>
 
 </mapper>

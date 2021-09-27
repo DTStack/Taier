@@ -1,8 +1,8 @@
 package com.dtstack.engine.flink.plugininfo;
 
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.JarFileInfo;
-import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.JarFileInfo;
+import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.flink.FlinkClient;
 import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.base.enums.ClusterMode;

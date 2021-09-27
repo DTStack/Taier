@@ -1,228 +1,65 @@
-# Engine
+# DAGScheduleX
 
-## 1. 什么是Engine
+DAGScheduleX 脱胎于[袋鼠云](https://www.dtstack.com/) - [数栈](https://www.dtstack.com/dtinsight/) （一站式大数据开发平台），技术实现来源于数栈分布式调度引擎Engine，是[数栈](https://www.dtstack.com/dtinsight/) 产品的重要基础设施之一，负责平台所有任务实例的调度和提交运行。
 
-> Engine！！！
-><br/>~~~ 是数栈平台的核心应用，核心功能是将不同类型的任务（Job）提交到对应类型的执行引擎组件之上运行。
+## 功能特征
 
-* ***向上*** 负责接收数栈各个应用application所提交的任务（Job）
-* ***内部*** 负责任务的负载均衡 & 优先级调度
-* ***向下*** 负责将各种类型的任务（Job）真正地提交（submit）到具体的执行引擎组件上
-
-<div align=center>
- <img src=docs/images/dtinsight_artifact.png width=600 />
-</div>
-
-## 2. Engine 架构
-
-Engine 在实现上仅依赖于mysql数据库与zookeeper分布式一致性服务，支持分布式部署。
-
-<div align=center>
- <img src=docs/images/engine_artifact.png width=600 />
-</div>
-
-## 3. 快速起步
-
-### 3.1 engine 运行环境
-
-* JDK8及以上
-* Mysql
-* Zookeeper
-
-### 3.2 执行引擎组件版本
-
-* hadoop-2.7.3
-* flink-1.5.4
-* spark-2.1.0
-* hive-2.1.1
-
-### 3.3 打包
-
-进入项目根目录，使用maven打包：
-
-```
-mvn clean package -Dmaven.test.skip
-```
-
-打包结束后，项目根目录下会产生plugin目录，plugin目录下存放已经编译好的各个类型的执行引擎插件的jar包
-
-### 3.4 启动
-
-```
-bin/bash.sh
-```
-
-## 4. 任务（Job）模版
-
-从最高空俯视，一个engine任务（Job）的主要构成很简单，如下：
-
-```
-{
-    "name": "...",
-    "taskId": "...",
-    "computeType": "...",
-    "engineType": "...",
-    "taskType": "...",
-    "sqlText": "...",
-    "exeArgs": "...",
-    "taskParams": "...",
-    "maxRetryNum": "...",
-    "groupName": "...",
-    "pluginInfo": {...}
-}
-```
-
-### 4.1 名词解释
-
-1. name: 任务名称
-
-2. taskId: 全局唯一标识，定位任务（Job）时的主要条件之一
-
-3. computeType: 计算类型
- * stream（流计算）
- * batch（离线计算）
- 
-4. engineType: 执行引擎组件类型
-    * flink
-    * spark
-    * learning
-    * dtyarnshell
-    * mysql
-    * oracle
-    * sqlserver
-    * maxcompute
-    * hadoop
-    * hive
-    * postgreSQL
+#### 稳定性
+    * 单点故障：去中心化的分布式模式
+    * 高可用方式：Zookeeper
+    * 过载处理：分布式节点 + 两级存储策略 + 队列机制。每个节点都可以处理任务调度与提交；任务多时会优先缓存在内存队列，超出可配置的队列最大数量值后会全部落数据库；任务处理以队列方式消费，队列异步从数据库获取可执行实例
+    * 实战检验：经近百家客户实战检验，部分客户的生产日均调度任务超过10万个
     
-5. taskType: 任务类型
- * 0：sql任务
- * 1：mr任务
- * 2：sync数据同步任务
- * 3：python任务
- 
-6. sqlText: sql文本
-7. exeArgs: 执行参数
-8. taskParams: 环境参数
-9. maxRetryNum: 最大重试次数
-10. groupName: 队列名称
-11. pluginInfo: 插件信息
+#### 易用性
+    * 任务类型：Python、Shell、Jupyter、Tersorflow、Pytorch、Hadoop MR、Spark MR、PySpark、Flinkx、Flink MR、FlinkStreamSQL、Kylin、Odps、SQL(MySQL、PostgreSQL、Hive、SparkSQL、Impala、Oracle、SQLServer、TiDB、greenplum、inceptor、kingbase、presto)、Procedure、Sub_Process
+    * 可视化工作流配置：支持封装工作流、支持单任务运行，不必封装工作流、支持拖拽模式绘制DAG
+    * DAG监控界面：运维中心、支持集群资源查看，了解当前集群资源的剩余情况、支持对调度队列中的任务批量停止、任务状态、任务类型、重试次数、任务运行机器、可视化变量等关键信息一目了然
+    * 调度时间配置：可视化配置
+    * 多集群连接：支持一套调度系统连接多套Hadoop集群
 
-### 4.2 pluginInfo
+#### 多版本引擎
+    * 支持Spark 、Flink、Hive、MR等引擎的多个版本共存，例如可同时支持Flink1.10、Flink1.12
+   
+#### Kerberos支持
+    * Flink、HiveSQL、SparkSQL、ImpalaSQL
 
-pluginInfo内容包括执行引擎插件的基础配置信息和hiveConf、hadoopConf和yarnConf三部分，分别描述hive、hadoop和yarn的配置信息
+#### 系统参数
+    * 丰富，支持3种时间基准，且可以灵活设置输出格式
+   
+#### 扩展性
+    * 支持水平扩展   
 
-```
-"pluginInfo":{
-    "...":"...",//此处省略具体某一种执行引擎插件的基础配置信息，详情见控制台（Console）多集群管理
-    "hiveConf": {...},
-    "hadoopConf": {...},
-    "yarnConf": {...},
-}
-```
 
-### 4.3 hiveConf
+## 用户界面
+![datasource](docs/readme/datasource.png)
+![developsync](docs/readme/developsync.png)
+![developsparksql](docs/readme/developsparksql.png)
+![yunwei](docs/readme/yunwei.png)
+![console](docs/readme/console.png)
+![component](docs/readme/component.png)
 
-hiveConf内容包括hive数据源的 jdbcUrl、username和password，用户名或密码为空填写空字符串
 
-```
-    "hiveConf":{
-        "password": "...",
-        "jdbcUrl": "...",
-        "username": "..."
-    }
+## 近期研发计划
+推出 release_1.0.0 正式版本，主要优化engine-datadevelop、engine-datasource、engine-master的工程结构和代码规范
 
-```
 
-### 4.4 hadoopConf
+## 快速开始
 
-hadoopConf内容包括hadoop的链接信息，支持HA模式与非HA模式
+请参考官方文档: [快速开始](docs/quickstart/quicklystart.md)
 
-#### 4.4.1 HA模式
+# License
 
-以 nameservices=ns1、namenode=nn1,nn2 为例
+DAGScheduleX is under the Apache 2.0 license. See
+the [LICENSE](http://www.apache.org/licenses/LICENSE-2.0) file for details.
 
-```HA模式
+## 感谢
+DAGScheduleX 使用了Apache的多个开源项目如Flink、Spark 作为计算组件实现数据同步和批处理计算，得益于开源社区才有DAGScheduleX。取之社区，
+回馈社区。DAGScheduleX在整合了后端4个工程之后才有Beta版本，Beta版本这一步迈出代表DAGScheduleX的开源决心，未来我们会整合内部资源
+尽快推出release_1.0.0版本，也欢迎对DAGScheduleX感兴趣的开源伙伴一起参与共建！提出你宝贵的Issue 与 PR！
 
-    "hadoopConf":{
-        "fs.defaultFS": "hdfs://ns1",
-        "dfs.ha.namenodes.ns1": "nn1,nn2",
-        "dfs.client.failover.proxy.provider.ns1": "...",
-        "dfs.namenode.rpc-address.ns1.nn2": "...",
-        "dfs.namenode.rpc-address.ns1.nn1": "...",
-        "dfs.nameservices": "ns1",
-        "fs.hdfs.impl.disable.cache": "true",
-        "fs.hdfs.impl": "..."
-    }
+## 技术交流
+我们使用[钉钉](https://www.dingtalk.com/) 沟通交流，可以搜索群号[**30537511**]或者扫描下面的二维码进入钉钉群
+<div align=center> 
+ <img src=docs/readme/ding.jpeg width=300 />
+</div>
 
-```
-
-#### 4.4.2 非HA模式
-
-```非HA模式
-
-    "hadoopConf":{
-        "fs.defaultFS": "...",
-        "fs.hdfs.impl.disable.cache": "true",
-        "fs.hdfs.impl": "..."
-    }
-
-```
-
-### 4.5 yarnConf
-
-yarnConf内容包括yarn的链接信息，支持HA模式与非HA模式
-
-#### 4.5.1 HA模式
-
-以 rm-ids=rm1,rm2 为例
-
-```HA模式
-
-    "yarnConf":{
-        "yarn.resourcemanager.ha.enabled": "true",
-        "yarn.resourcemanager.ha.rm-ids": "rm1,rm2",
-        "yarn.resourcemanager.address.rm1": "...",
-        "yarn.resourcemanager.address.rm2": "...",
-        "yarn.resourcemanager.webapp.address.rm2": "...",
-        "yarn.resourcemanager.webapp.address.rm1": "...",
-        "yarn.nodemanager.remote-app-log-dir": "..."
-    }
-
-```
-
-#### 4.5.2 非HA模式
-
-```非HA模式
-
-    "yarnConf":{
-        "yarn.resourcemanager.ha.enabled": "false",
-        "yarn.resourcemanager.address": "...",
-        "yarn.resourcemanager.webapp.address": "...",
-        "yarn.nodemanager.remote-app-log-dir": "..."
-    }
-
-```
-
-## 5. 执行引擎组件的插件
-
-目前使用的频繁度，由上到下排序
-
-* [flink150插件](docs/flink150.md)
-* [spark_yarn插件](docs/spark_yarn.md)
-* [dtyarnshell插件](docs/dtyarnshell.md)
-* [mysql插件](docs/mysql.md)
-  * 使用 mysql插件 用户需要create 权限并且mysql配置要设置 enforce_gtid_consistency=OFF，gtid_mode=OFF
-* [oracle插件](docs/oracle.md)
-* [sqlserver插件](docs/sqlserver.md)
-* [maxcompute插件](docs/maxcompute.md)
-* [hive插件](docs/hive.md)
-* [postgresql插件](docs/postgresql.md)
-* [learning插件](docs/learning.md)
-* [hadoop插件](docs/hadoop.md)
-
-## 6. 其他参考资料
-
-* [在CDH集群中启用及配置Kerberos](docs/在CDH集群中启用及配置Kerberos.docx) @言蹊
-* [开源集群配置Kerberos认证](docs/开源集群配置Kerberos认证.docx) @言蹊
-* [engine引擎](docs/engine.key) @偷天

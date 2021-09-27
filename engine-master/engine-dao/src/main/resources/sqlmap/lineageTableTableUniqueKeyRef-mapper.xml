@@ -14,7 +14,7 @@
         </trim>
     </sql>
 
-    <insert id="batchInsert" parameterType="com.dtstack.engine.api.domain.LineageTableTableUniqueKeyRef"
+    <insert id="batchInsert" parameterType="com.dtstack.engine.domain.LineageTableTableUniqueKeyRef"
             useGeneratedKeys="true" keyProperty="id">
         insert into lineage_table_table_unique_key_ref(app_type,unique_key,lineage_table_table_id,version_id) values
         <foreach collection="list" item="item" open="" close="" separator=",">

@@ -1,6 +1,6 @@
 package com.dtstack.engine.flink.util;
 
-import com.dtstack.engine.common.util.MathUtil;
+import com.dtstack.engine.pluginapi.util.MathUtil;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.configuration.ConfigConstants;

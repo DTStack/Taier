@@ -1,9 +1,9 @@
 package com.dtstack.engine.master.jobdealer.resource;
 
-import com.dtstack.engine.api.domain.Cluster;
-import com.dtstack.engine.api.domain.Queue;
-import com.dtstack.engine.api.enums.ScheduleEngineType;
-import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.domain.Cluster;
+import com.dtstack.engine.domain.Queue;
+import com.dtstack.engine.common.enums.ScheduleEngineType;
+import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.dao.ClusterDao;
@@ -16,8 +16,8 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.dtstack.engine.common.constrant.ConfigConstant.RESOURCE_NAMESPACE_OR_QUEUE_DEFAULT;
-import static com.dtstack.engine.common.constrant.ConfigConstant.SPLIT;
+import static com.dtstack.engine.pluginapi.constrant.ConfigConstant.RESOURCE_NAMESPACE_OR_QUEUE_DEFAULT;
+import static com.dtstack.engine.pluginapi.constrant.ConfigConstant.SPLIT;
 
 /**
  * company: www.dtstack.com

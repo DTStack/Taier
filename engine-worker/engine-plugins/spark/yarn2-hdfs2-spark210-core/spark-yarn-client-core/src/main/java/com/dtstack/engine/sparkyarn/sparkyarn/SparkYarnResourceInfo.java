@@ -1,9 +1,9 @@
 package com.dtstack.engine.sparkyarn.sparkyarn;
 
-import com.dtstack.engine.common.pojo.JudgeResult;
-import com.dtstack.engine.common.util.MathUtil;
-import com.dtstack.engine.common.util.UnitConvertUtil;
-import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.pluginapi.pojo.JudgeResult;
+import com.dtstack.engine.pluginapi.util.MathUtil;
+import com.dtstack.engine.pluginapi.util.UnitConvertUtil;
+import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.base.resource.AbstractYarnResourceInfo;
 import com.google.common.collect.Lists;
 import org.apache.hadoop.yarn.client.api.YarnClient;

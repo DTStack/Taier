@@ -1,11 +1,11 @@
 package com.dtstack.engine.master.jobdealer;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.constrant.JobResultConstant;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.constrant.JobResultConstant;
 import com.dtstack.engine.common.enums.EJobCacheStage;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.engine.pluginapi.pojo.JobResult;
 import com.dtstack.engine.common.util.JobGraphUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**

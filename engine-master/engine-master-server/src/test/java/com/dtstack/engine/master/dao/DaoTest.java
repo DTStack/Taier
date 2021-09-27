@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.dao;
 
-import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.domain.*;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.AbstractTest;
 import com.google.common.collect.Lists;
@@ -11,7 +11,6 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 

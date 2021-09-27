@@ -1,10 +1,10 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.domain.ComponentConfig;
-import com.dtstack.engine.api.pojo.ClientTemplate;
+import com.dtstack.engine.domain.ComponentConfig;
+import com.dtstack.engine.master.impl.pojo.ClientTemplate;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.AbstractTest;
-import com.dtstack.schedule.common.util.Xml2JsonUtil;
+import com.dtstack.engine.common.util.Xml2JsonUtil;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;

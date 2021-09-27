@@ -93,7 +93,7 @@
     </select>
 
 
-    <select id="generalQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="com.dtstack.engine.api.dto.AccountDTO">
+    <select id="generalQuery" parameterType="com.dtstack.engine.common.pager.PageQuery" resultType="com.dtstack.engine.dto.AccountDTO">
         SELECT ca.name AS name,cat.*,cu.user_name,
                (SELECT user_name FROM console_user WHERE dtuic_user_id = cat.modify_user_id ) AS modifyUserName
         FROM console_account_tenant cat
@@ -116,7 +116,7 @@
         <include refid="page_condition"/>
     </select>
 
-    <select id="getTenantUser" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="com.dtstack.engine.api.dto.AccountDTO">
+    <select id="getTenantUser" parameterType="com.dtstack.engine.common.pager.PageQuery" resultType="com.dtstack.engine.dto.AccountDTO">
         select cat.*,cu.dtuic_user_id as dtuicUserId from console_account_tenant cat
                                                               left join console_user cu on cat.user_id = cu.id
                                                               join console_account ca on ca.id=cat.account_id

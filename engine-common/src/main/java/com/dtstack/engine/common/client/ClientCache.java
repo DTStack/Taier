@@ -1,11 +1,12 @@
 package com.dtstack.engine.common.client;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.engine.pluginapi.client.IClient;
+import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
 import com.dtstack.engine.common.exception.ClientAccessException;
-import com.dtstack.engine.common.util.MD5Util;
-import com.dtstack.engine.common.util.MathUtil;
-import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.pluginapi.util.MD5Util;
+import com.dtstack.engine.pluginapi.util.MathUtil;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;

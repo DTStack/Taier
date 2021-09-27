@@ -1,24 +1,3 @@
-CREATE TABLE `rdos_project` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `tenant_id` int(11) NOT NULL COMMENT '租户id',
-  `project_name` varchar(256) NOT NULL COMMENT '项目名称',
-  `project_alias` varchar(256) NOT NULL COMMENT '项目别名',
-  `project_Identifier` varchar(256) NOT NULL COMMENT '项目标识',
-  `project_desc` varchar(4000) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '项目状态0：初始化，1：正常,2:禁用,3:失败',
-  `create_user_id` int(11) NOT NULL COMMENT '新建项目的用户id',
-  `modify_user_id` int(11) COMMENT '修改人id',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  `project_type` tinyint(1) NOT NULL DEFAULT '0' COMMENT '项目类型:0-普通项目，1-测试项目，2-生产项目',
-  `produce_project_id` int(11) NULL COMMENT '绑定的生产项目id',
-  `schedule_status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '调度状态：0-开启，1-关闭',
-  `is_allow_download` tinyint(2) NOT NULL DEFAULT '0' COMMENT '是否允许下载查询结果 1-正常 0-禁用',
-  `catalogue_id` int(11) NOT NULL DEFAULT '0' COMMENT '目录id',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COMMENT ='项目表';
-
 
 CREATE TABLE `rdos_project_engine` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -34,36 +13,6 @@ CREATE TABLE `rdos_project_engine` (
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT ='项目与engine的关联关系表';
-
-CREATE TABLE `rdos_tenant` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `dtuic_tenant_id` int(11) NOT NULL COMMENT '租户id',
-  `tenant_name` varchar(256) NOT NULL COMMENT '用户名称',
-  `tenant_desc` varchar(256) DEFAULT NULL COMMENT '租户描述',
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '用户状态0：正常，1：禁用',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  `create_user_id` bigint(20) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `index_tenant_id` (`dtuic_tenant_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT ='租户表';
-
-CREATE TABLE `rdos_user` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `dtuic_user_id` int(11) NOT NULL COMMENT 'dtuic userid',
-  `user_name` varchar(256) NOT NULL COMMENT '用户名称',
-  `email` varchar(256) NOT NULL COMMENT '用户手机号',
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '用户状态0：正常，1：禁用',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  `default_project_id` int(11) DEFAULT NULL COMMENT '默认项目id',
-  `phone_number` varchar(256) DEFAULT NULL COMMENT '用户手机号',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `index_dtuic_user_id` (`dtuic_user_id`),
-  KEY `index_user_name` (`user_name`(128))
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COMMENT ='用户表';
 
 CREATE TABLE `rdos_dict` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -178,7 +127,7 @@ CREATE TABLE `rdos_batch_catalogue` (
   KEY `index_catologue_name` (`project_id`,`node_pid`,`node_name`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=132 DEFAULT CHARSET=utf8 COMMENT ='文件夹、目录表';
 
-
+-- 废弃
 CREATE TABLE `rdos_batch_data_source` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `data_name` varchar(128) NOT NULL COMMENT '数据源名称',

@@ -1,7 +1,6 @@
 package com.dtstack.batch.service.uic.impl;
 
 import com.dtstack.batch.service.uic.impl.domain.UICUserVO;
-import com.dtstack.engine.api.pager.PageResult;
 import org.springframework.stereotype.Component;
 
 /**

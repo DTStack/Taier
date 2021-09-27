@@ -1,8 +1,8 @@
 package com.dtstack.engine.rdbs.inceptor;
 
 import com.dtstack.engine.base.util.KerberosUtils;
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.DtStringUtil;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.util.DtStringUtil;
 import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 import org.apache.commons.lang3.StringUtils;
 

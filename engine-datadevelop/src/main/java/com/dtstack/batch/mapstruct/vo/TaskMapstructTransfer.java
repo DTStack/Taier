@@ -2,16 +2,16 @@ package com.dtstack.batch.mapstruct.vo;
 
 import com.dtstack.batch.domain.BatchResource;
 import com.dtstack.batch.domain.BatchSysParameter;
-import com.dtstack.engine.api.domain.BatchTask;
+import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.batch.domain.BatchTaskVersionDetail;
 import com.dtstack.batch.vo.*;
 import com.dtstack.batch.web.task.vo.query.*;
 import com.dtstack.batch.web.task.vo.result.*;
-import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
-import com.dtstack.engine.api.vo.ScheduleDetailsVO;
-import com.dtstack.engine.api.vo.ScheduleTaskVO;
-import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
-import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
+import com.dtstack.engine.dto.ScheduleTaskShadeDTO;
+import com.dtstack.engine.master.vo.ScheduleDetailsVO;
+import com.dtstack.engine.master.vo.ScheduleTaskVO;
+import com.dtstack.engine.master.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
+import com.dtstack.engine.master.vo.task.NotDeleteTaskVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -158,12 +158,12 @@ public interface TaskMapstructTransfer {
     ScheduleTaskShadeDTO BatchScheduleTaskShadeVOToScheduleTaskShadeDTO(BatchScheduleTaskShadeVO batchScheduleTaskShadeVO);
 
     /**
-     * com.dtstack.engine.api.pager.PageResult<List<BatchTaskShadePageQueryResultVO>> -> com.dtstack.batch.web.pager.PageResult<List<BatchTaskShadePageQueryResultVO>>
+     * com.dtstack.engine.common.pager.PageResult<List<BatchTaskShadePageQueryResultVO>> -> com.dtstack.batch.web.pager.PageResult<List<BatchTaskShadePageQueryResultVO>>
      *
      * @param pageResult
      * @return
      */
-    com.dtstack.batch.web.pager.PageResult<List<BatchTaskShadePageQueryResultVO>> BatchTaskShadePageQueryResultVOListTOBatchTaskShadePageQueryResultVOList(com.dtstack.engine.api.pager.PageResult<List<BatchTaskShadePageQueryResultVO>> pageResult);
+    com.dtstack.batch.web.pager.PageResult<List<BatchTaskShadePageQueryResultVO>> BatchTaskShadePageQueryResultVOListTOBatchTaskShadePageQueryResultVOList(com.dtstack.engine.common.pager.PageResult<List<BatchTaskShadePageQueryResultVO>> pageResult);
 
     /**
      * List<ScheduleTaskShadeTypeVO> -> List<ScheduleTaskResultVO>

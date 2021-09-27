@@ -1,7 +1,6 @@
 package com.dtstack.engine.master.druid;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import com.dtstack.engine.common.exception.RdosDefineException;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;

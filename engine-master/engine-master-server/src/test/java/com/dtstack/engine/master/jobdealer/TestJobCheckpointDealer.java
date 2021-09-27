@@ -1,15 +1,15 @@
 package com.dtstack.engine.master.jobdealer;
 
-import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.api.domain.EngineJobCheckpoint;
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.common.JobIdentifier;
+import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.domain.EngineJobCheckpoint;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.pluginapi.JobIdentifier;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.EngineJobCheckpointDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.AbstractTest;
-import com.dtstack.engine.master.akka.WorkerOperator;
-import com.dtstack.engine.master.bo.JobCheckpointInfo;
+import com.dtstack.engine.master.WorkerOperator;
+import com.dtstack.engine.master.jobdealer.bo.JobCheckpointInfo;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.impl.ClusterService;
 import org.junit.Before;

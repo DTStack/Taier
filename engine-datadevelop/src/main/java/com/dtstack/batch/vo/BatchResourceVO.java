@@ -1,7 +1,7 @@
 package com.dtstack.batch.vo;
 
 import com.dtstack.batch.domain.BatchResource;
-import com.dtstack.engine.api.domain.User;
+import com.dtstack.engine.domain.User;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;

@@ -1,18 +1,21 @@
 package com.dtstack.engine.master.demand;
 
-import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.AbstractTest;
-import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.WorkerOperator;
 import com.dtstack.engine.master.impl.ActionService;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.jobdealer.JobStatusDealer;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.utils.Template;
+import com.dtstack.engine.pluginapi.enums.ComputeType;
+import com.dtstack.engine.pluginapi.enums.EngineType;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import org.assertj.core.util.Lists;
 import org.junit.Assert;
 import org.junit.Before;

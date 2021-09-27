@@ -1,34 +1,34 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.*;
-import com.dtstack.engine.api.pager.PageQuery;
-import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.pojo.ClusterResource;
-import com.dtstack.engine.api.pojo.ParamAction;
-import com.dtstack.engine.api.vo.console.ConsoleJobInfoVO;
-import com.dtstack.engine.api.vo.console.ConsoleJobVO;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.engine.domain.*;
+import com.dtstack.engine.common.pager.PageQuery;
+import com.dtstack.engine.common.pager.PageResult;
+import com.dtstack.engine.pluginapi.pojo.ClusterResource;
+import com.dtstack.engine.pluginapi.pojo.ParamAction;
+import com.dtstack.engine.master.vo.console.ConsoleJobInfoVO;
+import com.dtstack.engine.master.vo.console.ConsoleJobVO;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
+import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.enums.EJobCacheStage;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.engine.pluginapi.exception.ErrorCode;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.common.util.ComponentVersionUtil;
-import com.dtstack.engine.common.util.DateUtil;
-import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.pluginapi.util.DateUtil;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.WorkerOperator;
 import com.dtstack.engine.master.config.TaskResourceBeanConfig;
-import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.jobdealer.resource.JobComputeResourcePlain;
-import com.dtstack.engine.master.plugininfo.PluginWrapper;
-import com.dtstack.engine.master.queue.GroupPriorityQueue;
-import com.dtstack.engine.master.vo.TaskTypeResourceTemplateVO;
+import com.dtstack.engine.master.PluginWrapper;
+import com.dtstack.engine.master.server.queue.GroupPriorityQueue;
+import com.dtstack.engine.master.impl.vo.ResourceTemplateVO;
 import com.dtstack.engine.master.zookeeper.ZkService;
-import com.dtstack.schedule.common.enums.ForceCancelFlag;
+import com.dtstack.engine.common.enums.ForceCancelFlag;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -39,7 +39,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -80,7 +79,7 @@ public class ConsoleService {
     private ZkService zkService;
 
     @Autowired
-    private EngineJobStopRecordDao engineJobStopRecordDao;
+    private ScheduleJobOperatorRecordDao engineJobStopRecordDao;
 
     @Autowired
     private TenantDao tenantDao;
@@ -263,14 +262,6 @@ public class ConsoleService {
                     ScheduleJob scheduleJob = scheduleJobMap.getOrDefault(engineJobCache.getJobId(), new ScheduleJob());
                     //补充租户信息
                     Tenant tenant = tenantMap.get(scheduleJob.getDtuicTenantId());
-                    if(null == tenant && ConfigConstant.DEFAULT_TENANT != scheduleJob.getDtuicTenantId() && scheduleJob.getDtuicTenantId() > 0){
-                        //可能临时运行 租户在tenant表没有 需要添加
-                        try {
-                            tenant = tenantService.addTenant(scheduleJob.getDtuicTenantId(), dtToken);
-                        } catch (Exception e) {
-                            LOGGER.error(" get tenant error {}", scheduleJob.getDtuicTenantId(),e);
-                        }
-                    }
                     this.fillJobInfo(theJobMap, scheduleJob, engineJobCache,tenant,pluginInfoCache);
                     data.add(theJobMap);
                 }
@@ -360,10 +351,10 @@ public class ConsoleService {
             return;
         }
 
-        EngineJobStopRecord stopRecord = new EngineJobStopRecord();
-        stopRecord.setTaskId(jobId);
+        ScheduleJobOperatorRecord stopRecord = new ScheduleJobOperatorRecord();
+        stopRecord.setJobId(jobId);
         stopRecord.setForceCancelFlag(isForce);
-
+        stopRecord.setOperatorType(OperatorType.STOP.getType());
         engineJobStopRecordDao.insert(stopRecord);
 
     }
@@ -405,9 +396,10 @@ public class ConsoleService {
                         continue;
                     }
 
-                    EngineJobStopRecord stopRecord = new EngineJobStopRecord();
-                    stopRecord.setTaskId(jobId);
+                    ScheduleJobOperatorRecord stopRecord = new ScheduleJobOperatorRecord();
+                    stopRecord.setJobId(jobId);
                     stopRecord.setForceCancelFlag(isForce);
+                    stopRecord.setOperatorType(OperatorType.STOP.getType());
                     engineJobStopRecordDao.insert(stopRecord);
                 }
             }
@@ -449,9 +441,10 @@ public class ConsoleService {
                             continue;
                         }
 
-                        EngineJobStopRecord stopRecord = new EngineJobStopRecord();
-                        stopRecord.setTaskId(jobCache.getJobId());
+                        ScheduleJobOperatorRecord stopRecord = new ScheduleJobOperatorRecord();
+                        stopRecord.setJobId(jobCache.getJobId());
                         stopRecord.setForceCancelFlag(isForce);
+                        stopRecord.setOperatorType(OperatorType.STOP.getType());
                         engineJobStopRecordDao.insert(stopRecord);
                     }
                 }
@@ -514,9 +507,9 @@ public class ConsoleService {
     * @Description 获取任务类型及对应的资源模板
     * @Date 8:13 下午 2020/10/14
     * @Param []
-    * @retrun java.util.List<com.dtstack.engine.master.vo.TaskTypeResourceTemplate>
+    * @retrun java.util.List<com.dtstack.engine.master.impl.vo.TaskTypeResourceTemplate>
     **/
-    public List<TaskTypeResourceTemplateVO> getTaskResourceTemplate() {
+    public List<ResourceTemplateVO> getTaskResourceTemplate() {
 
         return TaskResourceBeanConfig.templateList;
     }

@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.config;
 
 import com.dtstack.engine.common.client.ClientOperator;
-import com.dtstack.engine.common.sftp.SftpFileManage;
+import com.dtstack.engine.pluginapi.sftp.SftpFileManage;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

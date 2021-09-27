@@ -140,7 +140,7 @@
         id = #{id} AND is_deleted = 0
     </update>
 
-    <select id="generalQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="BatchDataSource">
+    <select id="generalQuery" parameterType="com.dtstack.engine.common.pager.PageQuery" resultType="BatchDataSource">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_data_source

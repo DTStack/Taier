@@ -1,7 +1,7 @@
 package com.dtstack.engine.flink;
 
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.JobIdentifier;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.JobIdentifier;
 import com.dtstack.engine.flink.factory.PerJobClientFactory;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;

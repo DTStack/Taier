@@ -1,8 +1,8 @@
 package com.dtstack.engine.master.controller;
 
-import com.dtstack.engine.api.param.ScheduleEngineProjectParam;
-import com.dtstack.engine.api.vo.project.NotDeleteProjectVO;
-import com.dtstack.engine.api.vo.project.ScheduleEngineProjectVO;
+import com.dtstack.engine.master.controller.param.ScheduleEngineProjectParam;
+import com.dtstack.engine.master.vo.project.NotDeleteProjectVO;
+import com.dtstack.engine.master.vo.project.ScheduleEngineProjectVO;
 import com.dtstack.engine.master.impl.ProjectService;
 import org.springframework.web.bind.annotation.RequestParam;
 import io.swagger.annotations.Api;

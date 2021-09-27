@@ -2,10 +2,10 @@ package com.dtstack.engine.datasource.service.impl.datasource;
 
 import com.dtstack.engine.datasource.common.enums.datasource.DsClassifyEnum;
 import com.dtstack.engine.datasource.common.utils.CommonUtils;
-import com.dtstack.engine.datasource.common.utils.Dozers;
 import com.dtstack.engine.datasource.dao.mapper.datasource.DsTypeMapper;
 import com.dtstack.engine.datasource.dao.po.datasource.DsType;
 import com.dtstack.engine.datasource.dao.po.datasource.DsVersion;
+import com.dtstack.engine.datasource.mapstruct.DsTypeStruct;
 import com.dtstack.engine.datasource.param.datasource.DsTypeSearchParam;
 import com.dtstack.engine.datasource.service.impl.BaseService;
 import com.dtstack.engine.datasource.vo.datasource.DsTypeListVO;
@@ -29,6 +29,9 @@ public class DsTypeService extends BaseService<DsTypeMapper, DsType> {
     @Autowired
     private DsVersionService dsVersionService;
 
+    @Autowired
+    private DsTypeStruct dsTypeStruct;
+
     /**
      * 获取数据类型下拉列表
      *
@@ -36,7 +39,8 @@ public class DsTypeService extends BaseService<DsTypeMapper, DsType> {
      */
     public List<DsTypeListVO> dsTypeList() {
         List<DsType> dsTypeList = lambdaQuery().eq(DsType::getInvisible, 0).orderByDesc(DsType::getSorted).orderByAsc(DsType::getId).list();
-        return Dozers.convertList(dsTypeList, DsTypeListVO.class);
+
+        return dsTypeStruct.toDsTypeListVOs(dsTypeList);
     }
 
     /**
@@ -61,10 +65,13 @@ public class DsTypeService extends BaseService<DsTypeMapper, DsType> {
                 .last(DsClassifyEnum.MOST_USE.getClassifyId().equals(classifyId), "limit 8").list();
         List<String> versionList = dsVersionService.list().stream().map(DsVersion::getDataType)
                 .collect(Collectors.toList());
-        return dsTypes.stream().map(x -> Dozers.convert(x, DsTypeVO.class, (t, s, c) -> {
-              t.setTypeId(s.getId());
-              t.setHaveVersion(versionList.contains(s.getDataType()));
-         })).collect(Collectors.toList());
+
+        return dsTypes.stream().map(t -> {
+            DsTypeVO dsTypeVO = dsTypeStruct.toDsTypeVO(t);
+            dsTypeVO.setTypeId(t.getId());
+            dsTypeVO.setHaveVersion(versionList.contains(t.getDataType()));
+            return dsTypeVO;
+        }).collect(Collectors.toList());
    }
 
     /**

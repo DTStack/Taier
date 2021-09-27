@@ -1,6 +1,5 @@
 package com.dtstack.batch.service.impl;
 
-import com.alibaba.fastjson.JSONObject;
 import com.csvreader.CsvWriter;
 import com.dtstack.batch.common.enums.TempJobType;
 import com.dtstack.batch.common.exception.RdosDefineException;
@@ -12,14 +11,14 @@ import com.dtstack.batch.engine.rdbms.common.IDownload;
 import com.dtstack.batch.enums.DownloadType;
 import com.dtstack.batch.mapping.TaskTypeEngineTypeMapping;
 import com.dtstack.batch.service.datasource.impl.BatchDataSourceService;
-import com.dtstack.batch.service.job.impl.BatchJobService;
 import com.dtstack.batch.service.table.IDataDownloadService;
 import com.dtstack.dtcenter.common.enums.ComputeType;
 import com.dtstack.dtcenter.common.enums.Deleted;
 import com.dtstack.dtcenter.common.enums.EJobType;
 import com.dtstack.dtcenter.common.enums.MultiEngineType;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
-import com.dtstack.engine.api.vo.action.ActionRetryLogVO;
+import com.dtstack.engine.master.vo.action.ActionLogVO;
+import com.dtstack.engine.master.vo.action.ActionRetryLogVO;
 import com.dtstack.engine.master.impl.ActionService;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -63,9 +62,6 @@ public class BatchDownloadService {
 
     @Resource
     private BatchHiveSelectSqlDao batchHiveSelectSqlDao;
-
-    @Autowired
-    private BatchJobService batchJobService;
 
     @Autowired
     private RoleUserService roleUserService;
@@ -449,29 +445,27 @@ public class BatchDownloadService {
         StringBuilder log = new StringBuilder();
         //hdfs没有日志就下载engine里的日志
         if (StringUtils.isNotBlank(jobId)) {
-            JSONObject logInfoFromEngine = batchJobService.getLogInfoFromEngine(jobId);
-            if (Objects.nonNull(logInfoFromEngine)) {
-                log.append("=====================提交日志========================\n");
-                if (StringUtils.isNotBlank(logInfoFromEngine.getString("logInfo"))) {
-                    log.append(logInfoFromEngine.getString("logInfo").replace("\\n", "\n").replace("\\t", " "));
-                }
+            ActionLogVO actionLogVO = actionService.log(jobId, ComputeType.BATCH.getType());
+            log.append("=====================提交日志========================\n");
+            if (StringUtils.isNotBlank(actionLogVO.getLogInfo())) {
+                log.append(actionLogVO.getLogInfo().replace("\\n", "\n").replace("\\t", " "));
+            }
+            log.append("\n\n\n");
+            if (StringUtils.isNotBlank(actionLogVO.getEngineLog())) {
+                log.append("=====================运行日志========================\n");
+                log.append(actionLogVO.getEngineLog().replace("\\n", "\n").replace("\\t", " "));
                 log.append("\n\n\n");
-                if (StringUtils.isNotBlank(logInfoFromEngine.getString("engineLog"))) {
-                    log.append("=====================运行日志========================\n");
-                    log.append(logInfoFromEngine.getString("engineLog").replace("\\n", "\n").replace("\\t", " "));
-                    log.append("\n\n\n");
-                }
-                // 添加重试日志
-                Map<String, Object> retryParamsMap = Maps.newHashMap();
-                retryParamsMap.put("jobId", jobId);
-                retryParamsMap.put("computeType", ComputeType.BATCH.getType());
-                //先获取engine的日志总数信息
-                List<ActionRetryLogVO> actionRetryLogVOs = actionService.retryLog(jobId);
-                if (CollectionUtils.isNotEmpty(actionRetryLogVOs)){
-                    int size = actionRetryLogVOs.size();
-                    for (int i = size - 1; i >= 0; i--) {
-                        log.append(buildRetryLog(actionRetryLogVOs.get(i), size - i));
-                    }
+            }
+            // 添加重试日志
+            Map<String, Object> retryParamsMap = Maps.newHashMap();
+            retryParamsMap.put("jobId", jobId);
+            retryParamsMap.put("computeType", ComputeType.BATCH.getType());
+            //先获取engine的日志总数信息
+            List<ActionRetryLogVO> actionRetryLogVOs = actionService.retryLog(jobId);
+            if (CollectionUtils.isNotEmpty(actionRetryLogVOs)){
+                int size = actionRetryLogVOs.size();
+                for (int i = size - 1; i >= 0; i--) {
+                    log.append(buildRetryLog(actionRetryLogVOs.get(i), size - i));
                 }
             }
         }

@@ -7,7 +7,7 @@ import com.dtstack.engine.alert.client.AbstractAlterClient;
 import com.dtstack.engine.alert.enums.AlertGateCode;
 import com.dtstack.engine.alert.exception.AlterException;
 import com.dtstack.engine.alert.load.JarCache;
-import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.pluginapi.exception.ErrorCode;
 import dt.insight.plat.lang.web.R;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.domain.NodeMachine;
+import com.dtstack.engine.domain.NodeMachine;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

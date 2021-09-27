@@ -23,13 +23,16 @@ import com.dtstack.dtcenter.common.engine.JdbcInfo;
 import com.dtstack.dtcenter.common.enums.*;
 import com.dtstack.dtcenter.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.common.util.DtStringUtil;
-import com.dtstack.engine.api.domain.BatchTask;
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.pojo.ParamActionExt;
-import com.dtstack.engine.api.vo.action.ActionJobEntityVO;
-import com.dtstack.engine.api.vo.lineage.SqlType;
+import com.dtstack.engine.domain.BatchTask;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.domain.User;
+import com.dtstack.engine.master.impl.pojo.ParamActionExt;
+import com.dtstack.engine.master.vo.action.ActionJobEntityVO;
+import com.dtstack.engine.lineage.vo.SqlType;
 import com.dtstack.engine.master.impl.ActionService;
+import com.dtstack.engine.master.impl.ProjectService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
+import com.dtstack.engine.master.impl.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -42,7 +45,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -62,7 +64,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
     @Autowired
     private BatchHiveSelectSqlDao batchHiveSelectSqlDao;
 
-    @Resource(name = "batchProjectService")
+    @Autowired
     private ProjectService projectService;
 
     @Autowired
@@ -90,7 +92,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
     private BatchFunctionService batchFunctionService;
 
     @Autowired
-    private BatchUserService batchUserService;
+    private UserService userService;
 
     @Autowired
     private ActionService actionService;
@@ -137,7 +139,11 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
     @Override
     public String runSqlByTask(Long dtuicTenantId, ParseResult parseResult, Long tenantId, Long projectId, Long userId, String database, boolean isCreateAs, Long taskId, int type, String preJobId) {
         try {
-            Long dtuicUserId = batchUserService.getUser(userId).getDtuicUserId();
+            User user = userService.getById(userId);
+            Long dtuicUserId = null;
+            if (user != null) {
+                dtuicUserId = user.getDtuicUserId();
+            }
             BuildSqlVO buildSqlVO = buidSql(parseResult, tenantId, projectId, userId, database, isCreateAs, taskId, type);
             // 发送sql任务
             sendSqlTask(dtuicTenantId, buildSqlVO.getSql(), SourceType.TEMP_QUERY, buildSqlVO.getTaskParam(), preJobId, taskId, type, dtuicUserId, projectId);
@@ -313,8 +319,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
         // 是否需要脱敏，非admin用户并且是sparkSql needMask才会为true ps:hiveSql不支持脱敏
         boolean needMask = !roleUserService.isAdmin(userId, selectSql.getProjectId(), isRoot) && !taskType.equals(EJobType.HIVE_SQL.getVal());
         if (selectSql.getIsSelectSql() == TempJobType.SIMPLE_SELECT.getType()) {
-            Project project = projectService.getProjectById(selectSql.getProjectId());
-            result.setResult(queryData(dtuicTenantId, selectSql.getSqlText(), project.getId(), needMask, taskType));
+            result.setResult(queryData(dtuicTenantId, selectSql.getSqlText(), selectSql.getProjectId(), needMask, taskType));
             result.setSqlText(selectSql.getSqlText());
         } else {
             ActionJobEntityVO engineEntity = null;

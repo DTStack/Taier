@@ -18,7 +18,7 @@
 
 package com.dtstack.engine.base.filesystem;
 
-import com.dtstack.engine.common.sftp.SftpConfig;
+import com.dtstack.engine.pluginapi.sftp.SftpConfig;
 import org.apache.hadoop.conf.Configuration;
 
 /**

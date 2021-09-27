@@ -1,6 +1,6 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.engine.api.domain.ScheduleDict;
+import com.dtstack.engine.domain.ScheduleDict;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -18,6 +18,8 @@ public interface ScheduleDictDao {
     ScheduleDict getByNameValue(@Param("type") Integer type, @Param("dictName") String dictName, @Param("dictValue") String dictValue,@Param("dependName") String dependName);
 
     List<ScheduleDict> getByDependName(@Param("type") Integer type,@Param("dependName") String dependName);
+
+    Integer update(@Param("dictCode") String dictCode, @Param("dictName") String dictName, @Param("update") String update,@Param("oldUpdate") String oldUpdate);
 
     List<ScheduleDict> listById(@Param("id") Long id, @Param("size") Integer size);
 

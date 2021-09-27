@@ -459,7 +459,7 @@
         and  is_deleted = 0
     </select>
 
-    <select id="generalQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="ScheduleTaskShade">
+    <select id="generalQuery" parameterType="com.dtstack.engine.common.pager.PageQuery" resultType="ScheduleTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_task_shade
@@ -501,7 +501,7 @@
         AND is_deleted = 0
     </update>
 
-    <select id="simpleQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="ScheduleTaskShade">
+    <select id="simpleQuery" parameterType="com.dtstack.engine.common.pager.PageQuery" resultType="ScheduleTaskShade">
         SELECT
         <include refid="simple_select_content_fragment"/>
         FROM schedule_task_shade
@@ -612,7 +612,7 @@
         and if(is_publish_to_produce = 0, is_deleted = 0,1=1) and flow_id = 0
     </select>
 
-    <select id="countTaskByType" resultType="com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO">
+    <select id="countTaskByType" resultType="com.dtstack.engine.domain.po.ScheduleTaskShadeCountTaskPO">
         select
         count(1) as deployCount,
         project_id AS projectId
@@ -657,7 +657,7 @@
         and is_publish_to_produce = 1 and is_deleted = 0
     </select>
 
-    <select id="listSimpleTaskByTaskIds" resultType="com.dtstack.engine.api.dto.ScheduleTaskForFillDataDTO">
+    <select id="listSimpleTaskByTaskIds" resultType="com.dtstack.engine.dto.ScheduleTaskForFillDataDTO">
         SELECT
         <include refid="simple_select_content_fragment"/>
         FROM schedule_task_shade
@@ -767,7 +767,7 @@
         where id = #{id} and is_deleted = 0
     </select>
 
-    <select id="findFuzzyTaskNameByCondition" resultType="com.dtstack.engine.api.domain.ScheduleTaskShade">
+    <select id="findFuzzyTaskNameByCondition" resultType="com.dtstack.engine.domain.ScheduleTaskShade">
         SELECT
         <include refid="simple_select_content_fragment"/>
         FROM `schedule_task_shade`
@@ -780,7 +780,7 @@
 
     </select>
 
-    <select id="getChildTaskByOtherPlatform" resultType="com.dtstack.engine.api.domain.ScheduleTaskShade">
+    <select id="getChildTaskByOtherPlatform" resultType="com.dtstack.engine.domain.ScheduleTaskShade">
         SELECT
             t.id,
             t.tenant_id,
@@ -814,7 +814,7 @@
         LIMIT #{limit}
     </select>
 
-    <select id="getTaskOtherPlatformByProjectId" resultType="com.dtstack.engine.api.domain.ScheduleTaskShade">
+    <select id="getTaskOtherPlatformByProjectId" resultType="com.dtstack.engine.domain.ScheduleTaskShade">
         SELECT
             id,
             tenant_id,
@@ -853,7 +853,7 @@
         LIMIT #{limit}
     </select>
 
-    <select id="listTaskRuleTask" resultType="com.dtstack.engine.api.domain.ScheduleTaskShade">
+    <select id="listTaskRuleTask" resultType="com.dtstack.engine.domain.ScheduleTaskShade">
         SELECT
             t.id,
             t.tenant_id,
@@ -884,6 +884,21 @@
         LEFT JOIN `schedule_task_task_shade`  tt
         ON  t.task_id = tt.task_id AND t.app_type = tt.app_type  AND tt.is_deleted = 0
         WHERE t.is_deleted = 0 AND tt.parent_app_type = #{appType} AND tt.parent_task_id = #{taskId}
+    </select>
+
+    <select id="listByUicTenantId" resultType="com.dtstack.engine.domain.ScheduleTaskShade">
+        SELECT
+            dtuic_tenant_id,
+            project_id
+        FROM schedule_task_shade
+        WHERE
+        dtuic_tenant_id IN
+        <foreach item="tenantId" collection="tenantIds" open="(" separator="," close=")">
+            #{tenantId}
+        </foreach>
+        AND app_type = #{appType}
+        and is_deleted = 0
+        GROUP BY project_id
     </select>
 
 

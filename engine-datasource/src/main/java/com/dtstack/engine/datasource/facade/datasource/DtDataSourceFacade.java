@@ -12,11 +12,11 @@ import com.dtstack.engine.datasource.common.exception.ErrorCode;
 import com.dtstack.engine.datasource.common.exception.PubSvcDefineException;
 import com.dtstack.engine.datasource.common.utils.CommonUtils;
 import com.dtstack.engine.datasource.common.utils.DataSourceUtils;
-import com.dtstack.engine.datasource.common.utils.Dozers;
 import com.dtstack.engine.datasource.common.utils.datakit.Asserts;
 import com.dtstack.engine.datasource.common.utils.datakit.Collections;
 import com.dtstack.engine.datasource.dao.bo.datasource.DsListBO;
 import com.dtstack.engine.datasource.dao.po.datasource.DsInfo;
+import com.dtstack.engine.datasource.mapstruct.DsInfoStruct;
 import com.dtstack.engine.datasource.service.impl.datasource.DsInfoService;
 import com.dtstack.engine.datasource.service.impl.datasource.KerberosService;
 import com.dtstack.engine.datasource.vo.datasource.api.DsServiceInfoVO;
@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * company: www.dtstack.com
@@ -44,6 +45,9 @@ public class DtDataSourceFacade {
     @Autowired
     private KerberosService kerberosService;
 
+    @Autowired
+    private DsInfoStruct dsInfoStruct;
+
 
 
     /**
@@ -55,13 +59,11 @@ public class DtDataSourceFacade {
         Objects.requireNonNull(dsId);
         DsInfo dsInfo = dsInfoService.getOneById(dsId);
 
-        return Dozers.convert(dsInfo, DsServiceInfoVO.class, (target, source, destinationClass) -> {
-            target.setDataInfoId(source.getId());
-            DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(source.getDataType(), source.getDataVersion());
-            if (Objects.nonNull(typeEnum)) {
-                target.setType(typeEnum.getVal());
-            }
-        });
+        DsServiceInfoVO dsServiceInfoVO = dsInfoStruct.toDsServiceInfoVO(dsInfo);
+        dsServiceInfoVO.setDataInfoId(dsInfo.getId());
+        DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(dsInfo.getDataType(), dsInfo.getDataVersion());
+        dsServiceInfoVO.setType(typeEnum.getVal());
+        return dsServiceInfoVO;
     }
 
     /**
@@ -95,15 +97,14 @@ public class DtDataSourceFacade {
             return Collections.emptyList();
         }
 
-        return Dozers.convertList(dsInfoService.listByIds(dsIds), DsServiceInfoVO.class,
-                (retList, target, source, destinationClass) -> {
-                    target.setDataInfoId(source.getId());
-                    DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(source.getDataType(), source.getDataVersion());
-                    if (Objects.nonNull(typeEnum)) {
-                        target.setType(typeEnum.getVal());
-                    }
-                    retList.add(target);
-                });
+        List<DsInfo> dsInfos = dsInfoService.listByIds(dsIds);
+        return dsInfos.stream().map(t -> {
+            DsServiceInfoVO dsServiceInfoVO = dsInfoStruct.toDsServiceInfoVO(t);
+            dsServiceInfoVO.setDataInfoId(t.getId());
+            DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(t.getDataType(), t.getDataVersion());
+            dsServiceInfoVO.setType(typeEnum.getVal());
+            return dsServiceInfoVO;
+        }).collect(Collectors.toList());
     }
 
     /**
@@ -119,14 +120,14 @@ public class DtDataSourceFacade {
                 .in(DsInfo::getDataType, Collections.mapperList(dataSourceEnums, DataSourceTypeEnum::getDataType))
                 .orderByDesc(DsInfo::getGmtModified, DsInfo::getDataType)
                 .list();
-        return Dozers.convertList(dsInfoList, DsServiceInfoVO.class, (retList, target, source, destinationClass) -> {
-            target.setDataInfoId(source.getId());
-            DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(source.getDataType(), source.getDataVersion());
-            if (Objects.nonNull(typeEnum)) {
-                target.setType(typeEnum.getVal());
-            }
-            retList.add(target);
-        });
+
+        return dsInfoList.stream().map(t -> {
+            DsServiceInfoVO dsServiceInfoVO = dsInfoStruct.toDsServiceInfoVO(t);
+            dsServiceInfoVO.setDataInfoId(t.getId());
+            DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(t.getDataType(), t.getDataVersion());
+            dsServiceInfoVO.setType(typeEnum.getVal());
+            return dsServiceInfoVO;
+        }).collect(Collectors.toList());
     }
 
     /**
@@ -139,14 +140,14 @@ public class DtDataSourceFacade {
                 .eq(DsInfo::getDtuicTenantId, dtUicTenantId)
 
                 .in(DsInfo::getDataType, DataSourceTypeEnum.IMPALA.getDataType(), DataSourceTypeEnum.Presto.getDataType()).list();
-        return Dozers.convertList(dsInfoList, DsServiceInfoVO.class, (retList, target, source, destinationClass) -> {
-            target.setDataInfoId(source.getId());
-            DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(source.getDataType(), source.getDataVersion());
-            if (Objects.nonNull(typeEnum)) {
-                target.setType(typeEnum.getVal());
-            }
-            retList.add(target);
-        });
+
+        return dsInfoList.stream().map(t -> {
+            DsServiceInfoVO dsServiceInfoVO = dsInfoStruct.toDsServiceInfoVO(t);
+            dsServiceInfoVO.setDataInfoId(t.getId());
+            DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(t.getDataType(), t.getDataVersion());
+            dsServiceInfoVO.setType(typeEnum.getVal());
+            return dsServiceInfoVO;
+        }).collect(Collectors.toList());
     }
 
     /**

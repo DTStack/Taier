@@ -1,8 +1,7 @@
 package com.dtstack.engine.dtscript;
 
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.DtStringUtil;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.util.DtStringUtil;
 import com.dtstack.engine.dtscript.common.type.AppTypeEnum;
 import sun.misc.BASE64Decoder;
 

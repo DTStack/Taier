@@ -1,12 +1,12 @@
 package com.dtstack.engine.master.jobdealer;
 
-import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.exception.ExceptionUtil;
+import com.dtstack.engine.pluginapi.CustomThreadFactory;
+import com.dtstack.engine.pluginapi.JobIdentifier;
+import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
 import com.dtstack.engine.dao.ScheduleJobDao;
-import com.dtstack.engine.master.akka.WorkerOperator;
-import com.dtstack.engine.master.bo.JobCompletedInfo;
+import com.dtstack.engine.master.WorkerOperator;
+import com.dtstack.engine.master.jobdealer.bo.JobCompletedInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;

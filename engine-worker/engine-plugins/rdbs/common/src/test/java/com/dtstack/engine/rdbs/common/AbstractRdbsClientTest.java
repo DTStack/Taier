@@ -1,13 +1,13 @@
 package com.dtstack.engine.rdbs.common;
 
-import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.pluginapi.pojo.ComponentTestResult;
 import com.dtstack.engine.base.resource.EngineResourceInfo;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.enums.EJobType;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.pojo.JudgeResult;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.JobIdentifier;
+import com.dtstack.engine.pluginapi.enums.EJobType;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.engine.pluginapi.pojo.JobResult;
+import com.dtstack.engine.pluginapi.pojo.JudgeResult;
 import com.dtstack.engine.rdbs.common.executor.RdbsExeQueue;
 import org.junit.Assert;
 import org.junit.Before;

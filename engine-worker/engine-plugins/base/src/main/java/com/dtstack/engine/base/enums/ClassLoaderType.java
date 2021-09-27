@@ -1,6 +1,6 @@
 package com.dtstack.engine.base.enums;
 
-import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.pluginapi.enums.EJobType;
 
 /**
  * company: www.dtstack.com

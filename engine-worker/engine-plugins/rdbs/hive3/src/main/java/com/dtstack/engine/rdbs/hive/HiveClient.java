@@ -1,12 +1,12 @@
 package com.dtstack.engine.rdbs.hive;
 
-import com.dtstack.engine.api.pojo.ClusterResource;
-import com.dtstack.engine.api.pojo.ParamAction;
-import com.dtstack.engine.api.pojo.lineage.Column;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.MD5Util;
-import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.pluginapi.pojo.ClusterResource;
+import com.dtstack.engine.pluginapi.pojo.ParamAction;
+import com.dtstack.engine.pluginapi.pojo.Column;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.util.MD5Util;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
 import com.dtstack.engine.rdbs.common.AbstractRdbsClient;
 import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 import com.google.common.collect.Lists;

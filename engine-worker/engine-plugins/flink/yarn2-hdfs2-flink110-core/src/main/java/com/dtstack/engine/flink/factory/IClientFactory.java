@@ -1,6 +1,6 @@
 package com.dtstack.engine.flink.factory;
 
-import com.dtstack.engine.common.JobIdentifier;
+import com.dtstack.engine.pluginapi.JobIdentifier;
 import org.apache.flink.client.program.ClusterClient;
 
 public interface IClientFactory {

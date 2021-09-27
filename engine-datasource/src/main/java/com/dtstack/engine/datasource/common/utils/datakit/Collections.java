@@ -1,6 +1,5 @@
 package com.dtstack.engine.datasource.common.utils.datakit;
 
-import com.dtstack.engine.datasource.common.utils.Dozers;
 import com.dtstack.engine.datasource.common.utils.datakit.struct.Pair;
 import com.google.common.collect.ArrayListMultimap;
 import dt.insight.plat.lang.base.Strings;
@@ -296,32 +295,6 @@ public class Collections {
     }
 
     /**
-     * Constructs a new list containing the elements of the specified collection
-     *
-     * @return LinkedList
-     */
-    public static <T> LinkedList<T> newLinkedList(Collection<T> coll) {
-        return Optional.ofNullable(coll)
-                .map(LinkedList::new)
-                .orElse(new LinkedList<>());
-    }
-
-    /**
-     * List深度拷贝
-     * 元素类必须有可调用的clone方法
-     *
-     * @param src 源数组
-     * @param <T> 数组元素类型
-     * @return 深拷贝后的数组
-     * @throws NoSuchMethodException
-     * @throws InvocationTargetException
-     * @throws IllegalAccessException
-     */
-    public static <T extends Cloneable> List<T> deepCopy(List<T> src) {
-        return deepCopyOf(src, null);
-    }
-
-    /**
      * List深度拷贝
      * 元素类必须有可调用的clone方法
      *
@@ -360,29 +333,5 @@ public class Collections {
         return dest;
     }
 
-    /**
-     * List深度拷贝
-     * 使用Dozer进行对象拷贝
-     *
-     * @param src   源数组
-     * @param <T>   数组元素类型
-     * @param after 拷贝完成后的工作
-     * @return 深拷贝后的数组
-     */
-    public static <T extends Cloneable> List<T> dozerCopyOf(List<T> src, Consumer<T> after) {
-        if (isEmpty(src)) {
-            return emptyList();
-        }
-        Class<? extends Cloneable> clz = src.get(0).getClass();
-        List<T> dest = new ArrayList<>();
-        for (T s : src) {
-            T d = (T) Dozers.convert(s, clz);
-            if (after != null) {
-                after.accept(d);
-            }
-            dest.add(d);
-        }
-        return dest;
-    }
 }
 

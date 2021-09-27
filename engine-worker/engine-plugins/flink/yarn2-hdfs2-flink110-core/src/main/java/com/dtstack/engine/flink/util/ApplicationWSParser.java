@@ -1,19 +1,16 @@
 package com.dtstack.engine.flink.util;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.common.http.HttpClient;
-import com.dtstack.engine.common.http.PoolHttpClient;
+import com.dtstack.engine.pluginapi.http.PoolHttpClient;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;

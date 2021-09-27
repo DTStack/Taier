@@ -1,8 +1,8 @@
 package com.dtstack.engine.flink;
 
-import com.dtstack.engine.common.JarFileInfo;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.pluginapi.JarFileInfo;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.pojo.ParamAction;
 import com.dtstack.engine.base.enums.ClassLoaderType;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.JobSubmissionResult;

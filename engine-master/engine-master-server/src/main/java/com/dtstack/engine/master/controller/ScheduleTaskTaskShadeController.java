@@ -1,8 +1,8 @@
 package com.dtstack.engine.master.controller;
 
-import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
-import com.dtstack.engine.api.vo.ScheduleTaskVO;
-import com.dtstack.engine.api.vo.task.SaveTaskTaskVO;
+import com.dtstack.engine.domain.ScheduleTaskTaskShade;
+import com.dtstack.engine.master.vo.ScheduleTaskVO;
+import com.dtstack.engine.master.vo.task.SaveTaskTaskVO;
 import com.dtstack.engine.master.impl.ScheduleTaskTaskShadeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

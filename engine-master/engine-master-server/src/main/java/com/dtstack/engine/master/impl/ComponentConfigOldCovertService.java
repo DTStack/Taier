@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.domain.ComponentConfig;
+import com.dtstack.engine.domain.ComponentConfig;
 import com.dtstack.engine.dao.ComponentConfigDao;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

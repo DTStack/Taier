@@ -9,7 +9,7 @@ import com.dtstack.batch.engine.rdbms.service.impl.Engine2DTOService;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.batch.common.exception.ErrorCode;
 import com.dtstack.batch.common.exception.RdosDefineException;
-import com.dtstack.engine.api.domain.BatchTask;
+import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.batch.domain.BatchTaskParamShade;
 import com.dtstack.batch.domain.BatchTaskVersionDetail;
 import com.dtstack.batch.engine.rdbms.common.util.SqlFormatterUtil;
@@ -29,18 +29,18 @@ import com.dtstack.dtcenter.common.util.Base64Util;
 import com.dtstack.dtcenter.common.util.DataFilter;
 import com.dtstack.dtcenter.common.util.JsonUtils;
 import com.dtstack.dtcenter.common.util.MathUtil;
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.vo.action.ActionJobEntityVO;
-import com.dtstack.engine.api.vo.action.ActionLogVO;
-import com.dtstack.engine.api.vo.action.ActionRetryLogVO;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.master.vo.action.ActionJobEntityVO;
+import com.dtstack.engine.master.vo.action.ActionLogVO;
+import com.dtstack.engine.master.vo.action.ActionRetryLogVO;
 import com.dtstack.engine.master.impl.ActionService;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
-import com.dtstack.schedule.common.metric.batch.IMetric;
-import com.dtstack.schedule.common.metric.batch.MetricBuilder;
-import com.dtstack.schedule.common.metric.prometheus.PrometheusMetricQuery;
+import com.dtstack.engine.common.metric.batch.IMetric;
+import com.dtstack.engine.common.metric.batch.MetricBuilder;
+import com.dtstack.engine.common.metric.prometheus.PrometheusMetricQuery;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
@@ -88,9 +88,6 @@ public class BatchServerLogService {
 
     @Autowired
     private ActionService actionService;
-
-    @Resource(name = "batchTenantService")
-    private TenantService tenantService;
 
     @Autowired
     private ClusterService clusterService;
@@ -655,7 +652,7 @@ public class BatchServerLogService {
     }
 
     private Pair<String,String> getPrometheusHostAndPort(final Long dtUicTenantId, final String taskParams){
-        Boolean hasStandAlone = tenantService.hasStandAlone(dtUicTenantId);
+        Boolean hasStandAlone = clusterService.hasStandalone(dtUicTenantId, EComponentType.FLINK.getTypeCode());
         JSONObject flinkJsonObject ;
         if (hasStandAlone) {
             String configByKey = clusterService.getConfigByKey(dtUicTenantId, EComponentType.FLINK.getConfName(), false, null);

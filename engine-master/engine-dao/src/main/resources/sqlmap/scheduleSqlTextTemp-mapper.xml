@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.engine.dao.ScheduleSqlTextTempDao">
 
 
-    <insert id="insert" parameterType="com.dtstack.engine.api.domain.ScheduleSqlTextTemp" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.dtstack.engine.domain.ScheduleSqlTextTemp" useGeneratedKeys="true" keyProperty="id">
         insert into schedule_sql_text_temp
         (job_id,sql_text,engine_type)
         values
@@ -12,7 +12,7 @@
     </insert>
 
 
-    <select id="selectByJobId"  resultType="com.dtstack.engine.api.domain.ScheduleSqlTextTemp">
+    <select id="selectByJobId"  resultType="com.dtstack.engine.domain.ScheduleSqlTextTemp">
 
         select id,job_id,sql_text,engine_type,gmt_create,gmt_modified,is_deleted
         from schedule_sql_text_temp

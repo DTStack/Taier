@@ -2,12 +2,12 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.Cluster;
-import com.dtstack.engine.api.domain.Component;
-import com.dtstack.engine.api.domain.ComponentConfig;
-import com.dtstack.engine.api.pojo.ClientTemplate;
+import com.dtstack.engine.domain.Cluster;
+import com.dtstack.engine.domain.Component;
+import com.dtstack.engine.domain.ComponentConfig;
+import com.dtstack.engine.master.impl.pojo.ClientTemplate;
 import com.dtstack.engine.common.enums.EComponentType;
-import com.dtstack.engine.common.util.ComponentConfigUtils;
+import com.dtstack.engine.master.utils.ComponentConfigUtils;
 import com.dtstack.engine.dao.ClusterDao;
 import com.dtstack.engine.dao.ComponentConfigDao;
 import com.dtstack.engine.dao.ComponentDao;

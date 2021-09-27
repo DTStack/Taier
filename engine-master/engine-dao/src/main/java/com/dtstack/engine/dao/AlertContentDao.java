@@ -1,6 +1,6 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.engine.api.domain.AlertContent;
+import com.dtstack.engine.domain.AlertContent;
 import org.apache.ibatis.annotations.Param;
 
 /**

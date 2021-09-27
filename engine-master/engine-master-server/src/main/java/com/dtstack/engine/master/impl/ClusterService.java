@@ -1,29 +1,31 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.Queue;
-import com.dtstack.engine.api.domain.*;
-import com.dtstack.engine.api.dto.ClusterDTO;
-import com.dtstack.engine.api.pager.PageQuery;
-import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.pojo.ParamAction;
-import com.dtstack.engine.api.vo.*;
-import com.dtstack.engine.common.constrant.ComponentConstant;
-import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.engine.domain.Queue;
+import com.dtstack.engine.domain.*;
+import com.dtstack.engine.dto.ClusterDTO;
+import com.dtstack.engine.common.pager.PageQuery;
+import com.dtstack.engine.common.pager.PageResult;
+import com.dtstack.engine.pluginapi.enums.ComputeType;
+import com.dtstack.engine.pluginapi.enums.EDeployMode;
+import com.dtstack.engine.pluginapi.enums.EngineType;
+import com.dtstack.engine.pluginapi.pojo.ParamAction;
+import com.dtstack.engine.master.vo.*;
+import com.dtstack.engine.pluginapi.constrant.ComponentConstant;
+import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.EngineAssert;
-import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.ErrorCode;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.common.util.ComponentVersionUtil;
-import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
-import com.dtstack.engine.master.router.login.DtUicUserConnect;
-import com.dtstack.schedule.common.enums.DataSourceType;
-import com.dtstack.schedule.common.enums.Deleted;
-import com.dtstack.schedule.common.enums.Sort;
-import com.dtstack.schedule.common.util.Base64Util;
+import com.dtstack.engine.common.enums.DataSourceType;
+import com.dtstack.engine.common.enums.Deleted;
+import com.dtstack.engine.common.enums.Sort;
+import com.dtstack.engine.common.util.Base64Util;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -48,11 +50,11 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.dtstack.engine.common.constrant.ConfigConstant.*;
+import static com.dtstack.engine.pluginapi.constrant.ConfigConstant.*;
 import static java.lang.String.format;
 
 @Service
-public class ClusterService implements com.dtstack.engine.api.service.ClusterService, InitializingBean {
+public class ClusterService implements com.dtstack.engine.api.ClusterService, InitializingBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClusterService.class);
 
@@ -92,9 +94,6 @@ public class ClusterService implements com.dtstack.engine.api.service.ClusterSer
 
     @Autowired
     private EnvironmentContext environmentContext;
-
-    @Autowired
-    private DtUicUserConnect dtUicUserConnect;
 
     @Autowired
     private ComponentConfigService componentConfigService;
@@ -610,7 +609,6 @@ public class ClusterService implements com.dtstack.engine.api.service.ClusterSer
             } else if (EComponentType.DT_SCRIPT == type.getComponentType() || EComponentType.SPARK == type.getComponentType()) {
                 if (clusterVO.getDtUicUserId() != null && clusterVO.getDtUicTenantId() != null) {
                     String ldapUserName = this.getLdapUserName(clusterVO.getDtUicUserId());
-                    LOGGER.info("dtUicUserId:{},dtUicTenantId:{},ldapUserName:{}",clusterVO.getDtUicUserId(),clusterVO.getDtUicTenantId() ,ldapUserName);
                     if (StringUtils.isNotBlank(ldapUserName) && ldapUserName.contains(MAILBOX_CUTTING)) {
                         ldapUserName = ldapUserName.substring(0, ldapUserName.indexOf(MAILBOX_CUTTING));
                     }
@@ -694,19 +692,14 @@ public class ClusterService implements com.dtstack.engine.api.service.ClusterSer
             .build();
 
     private String getLdapUserName(Long dtUicUserId) {
-        if (StringUtils.isBlank(environmentContext.getUicToken()) || StringUtils.isBlank(environmentContext.getDtUicUrl())) {
-            return null;
+        User user = userDao.getByDtUicUserId(dtUicUserId);
+        if (user != null){
+            String ldapUserName = user.getUserName();
+            LOGGER.info("dtUicUserId:{},ldapUserName:{}",dtUicUserId,ldapUserName);
+            ldapCache.put(dtUicUserId, ldapUserName);
+            return ldapUserName;
         }
-        String ldapUserName = null;
-        if (environmentContext.isOpenLdapCache()) {
-            ldapUserName = ldapCache.getIfPresent(dtUicUserId);
-            if (null != ldapUserName) {
-                return ldapUserName;
-            }
-        }
-        ldapUserName = dtUicUserConnect.getLdapUserName(dtUicUserId, environmentContext.getUicToken(), environmentContext.getDtUicUrl());
-        ldapCache.put(dtUicUserId, ldapUserName);
-        return ldapUserName;
+        return "";
     }
 
 
@@ -934,8 +927,17 @@ public class ClusterService implements com.dtstack.engine.api.service.ClusterSer
                 componentVoList.forEach(component->{
                     // 组件每个版本设置k8s参数
                     for (ComponentVO componentVO : component.loadComponents()) {
-                        KerberosConfig kerberosConfig = kerberosTable.get(componentVO.getComponentTypeCode(), StringUtils.isBlank(componentVO.getHadoopVersion()) ?
-                                StringUtils.EMPTY : componentVO.getHadoopVersion());
+                        KerberosConfig kerberosConfig;
+                        EComponentType type = EComponentType.getByCode(componentVO.getComponentTypeCode());
+                        if (type == EComponentType.YARN || type == EComponentType.SPARK_THRIFT ||
+                                type == EComponentType.DT_SCRIPT || type == EComponentType.HIVE_SERVER ||
+                                type == EComponentType.IMPALA_SQL || type == EComponentType.LEARNING ||
+                                type == EComponentType.INCEPTOR_SQL) {
+                            kerberosConfig = kerberosTable.get(type.getTypeCode(), StringUtils.EMPTY);
+                        } else {
+                            kerberosConfig = kerberosTable.get(componentVO.getComponentTypeCode(), StringUtils.isBlank(componentVO.getHadoopVersion()) ?
+                                    StringUtils.EMPTY : componentVO.getHadoopVersion());
+                        }
                         if(Objects.nonNull(kerberosConfig)){
                             componentVO.setPrincipal(kerberosConfig.getPrincipal());
                             componentVO.setPrincipals(kerberosConfig.getPrincipals());

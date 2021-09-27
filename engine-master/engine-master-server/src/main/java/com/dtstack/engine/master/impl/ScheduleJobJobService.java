@@ -1,22 +1,22 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.ScheduleJobJob;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.dto.ScheduleJobJobDTO;
-import com.dtstack.engine.api.dto.ScheduleJobJobTaskDTO;
-import com.dtstack.engine.api.enums.TaskRuleEnum;
-import com.dtstack.engine.api.vo.ScheduleJobVO;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.domain.ScheduleJobJob;
+import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.dto.ScheduleJobJobDTO;
+import com.dtstack.engine.dto.ScheduleJobJobTaskDTO;
+import com.dtstack.engine.common.enums.TaskRuleEnum;
+import com.dtstack.engine.master.vo.ScheduleJobVO;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.ErrorCode;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
-import com.dtstack.engine.master.vo.ScheduleTaskVO;
-import com.dtstack.schedule.common.enums.Deleted;
-import com.dtstack.schedule.common.enums.EScheduleJobType;
+import com.dtstack.engine.master.impl.vo.ScheduleTaskVO;
+import com.dtstack.engine.common.enums.Deleted;
+import com.dtstack.engine.pluginapi.enums.EScheduleJobType;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -69,10 +69,10 @@ public class ScheduleJobJobService {
      * @Date 2021/1/5 4:09 下午
      * @param jobId: 任务id
      * @param level: 展开层数
-     * @return: com.dtstack.engine.master.vo.ScheduleJobVO
+     * @return: com.dtstack.engine.master.impl.vo.ScheduleJobVO
      **/
-    public com.dtstack.engine.master.vo.ScheduleJobVO displayOffSpringNew( Long jobId,
-                                                                        Integer level) throws Exception {
+    public com.dtstack.engine.master.impl.vo.ScheduleJobVO displayOffSpringNew(Long jobId,
+                                                                               Integer level) throws Exception {
 
         ScheduleJob job = scheduleJobDao.getOne(jobId);
         if (job == null) {
@@ -87,7 +87,7 @@ public class ScheduleJobJobService {
                     return null;
                 }
                 //工作流下全部实例
-                com.dtstack.engine.master.vo.ScheduleJobVO subJobVO = displayOffSpringForFlowWorkNew(flowJob);
+                com.dtstack.engine.master.impl.vo.ScheduleJobVO subJobVO = displayOffSpringForFlowWorkNew(flowJob);
                 if(null!=subJobVO) {
                     subJobVO.setProjectId(flowJob.getProjectId());
                 }
@@ -136,8 +136,8 @@ public class ScheduleJobJobService {
     /**
      * @author toutian
      */
-    public com.dtstack.engine.master.vo.ScheduleJobVO displayOffSpring( Long jobId,
-                                                                        Integer level) {
+    public com.dtstack.engine.master.impl.vo.ScheduleJobVO displayOffSpring(Long jobId,
+                                                                            Integer level) {
         ScheduleJob job = scheduleJobDao.getOne(jobId);
         if (job == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
@@ -151,7 +151,7 @@ public class ScheduleJobJobService {
             try {
                 ScheduleJob flowJob = scheduleJobDao.getByJobId(job.getFlowJobId(), Deleted.NORMAL.getStatus());
                 //工作流下全部实例,层级level使用int最大值，这个改成最大10层，否则可能会oom
-                com.dtstack.engine.master.vo.ScheduleJobVO subJobVO = displayOffSpringForFlowWork(flowJob);
+                com.dtstack.engine.master.impl.vo.ScheduleJobVO subJobVO = displayOffSpringForFlowWork(flowJob);
                 if(null != subJobVO) {
                     subJobVO.setProjectId(flowJob.getProjectId());
                 }
@@ -419,10 +419,10 @@ public class ScheduleJobJobService {
      * @Description 展开工作流子任务
      * @Date 2021/1/5 4:40 下午
      * @param flowJob:
-     * @return: com.dtstack.engine.master.vo.ScheduleJobVO
+     * @return: com.dtstack.engine.master.impl.vo.ScheduleJobVO
      **/
-    private com.dtstack.engine.master.vo.ScheduleJobVO displayOffSpringForFlowWorkNew(ScheduleJob flowJob) throws Exception {
-        com.dtstack.engine.master.vo.ScheduleJobVO vo = null;
+    private com.dtstack.engine.master.impl.vo.ScheduleJobVO displayOffSpringForFlowWorkNew(ScheduleJob flowJob) throws Exception {
+        com.dtstack.engine.master.impl.vo.ScheduleJobVO vo = null;
         // 递归获取level层的子节点
         Integer level = context.getWorkFlowLevel();
         //获取工作流子节点各层任务依赖关系
@@ -459,8 +459,8 @@ public class ScheduleJobJobService {
 
 
 
-    private com.dtstack.engine.master.vo.ScheduleJobVO displayOffSpringForFlowWork(ScheduleJob flowJob) throws Exception {
-        com.dtstack.engine.master.vo.ScheduleJobVO vo = null;
+    private com.dtstack.engine.master.impl.vo.ScheduleJobVO displayOffSpringForFlowWork(ScheduleJob flowJob) throws Exception {
+        com.dtstack.engine.master.impl.vo.ScheduleJobVO vo = null;
         // 递归获取level层的子节点
         Map<Integer, List<ScheduleJobJob>> result = getSpecifiedLevelJobJobs(flowJob.getJobKey(), environmentContext.getMaxDeepShow(), true, null);
         List<ScheduleJobJob> firstLevel = result.get(1);
@@ -494,11 +494,11 @@ public class ScheduleJobJobService {
         return vo;
     }
 
-    public com.dtstack.engine.master.vo.ScheduleJobVO getOffSpring(
+    public com.dtstack.engine.master.impl.vo.ScheduleJobVO getOffSpring(
             ScheduleJobJobDTO root, Map<String, ScheduleJob> keyJobMap, Map<String, ScheduleTaskShade> idTaskMap, boolean isSubTask) {
 
         ScheduleJob job = keyJobMap.get(root.getJobKey());
-        com.dtstack.engine.master.vo.ScheduleJobVO vo = new com.dtstack.engine.master.vo.ScheduleJobVO(job);
+        com.dtstack.engine.master.impl.vo.ScheduleJobVO vo = new com.dtstack.engine.master.impl.vo.ScheduleJobVO(job);
         vo.setProjectId(job.getProjectId());
 
         if (RdosTaskStatus.RUNNING_TASK_RULE.getStatus().equals(vo.getStatus())) {
@@ -532,7 +532,7 @@ public class ScheduleJobJobService {
             List<ScheduleJobVO> subJobVOs = new ArrayList<>(root.getChildren().size());
             List<ScheduleJobVO> taskRuleJobVOs = new ArrayList<>(root.getChildren().size());
             for (ScheduleJobJobDTO jobJobDTO : root.getChildren()) {
-                com.dtstack.engine.master.vo.ScheduleJobVO subVO = getOffSpring(jobJobDTO, keyJobMap, idTaskMap, isSubTask);
+                com.dtstack.engine.master.impl.vo.ScheduleJobVO subVO = getOffSpring(jobJobDTO, keyJobMap, idTaskMap, isSubTask);
                 if (subVO != null) {
                     if (TaskRuleEnum.NO_RULE.getCode().equals(subVO.getTaskRule())) {
                         subJobVOs.add(subVO);
@@ -547,7 +547,7 @@ public class ScheduleJobJobService {
         return vo;
     }
 
-    private ScheduleJobVO buildRuleBean(com.dtstack.engine.master.vo.ScheduleJobVO subVO) {
+    private ScheduleJobVO buildRuleBean(com.dtstack.engine.master.impl.vo.ScheduleJobVO subVO) {
         // 判断是否是工作流任务，如果是工作流任务，取工作流任务的第一个节点
         if (EScheduleJobType.WORK_FLOW.getType().equals(subVO.getTaskType())) {
             List<ScheduleJobVO> jobVOS = subVO.getJobVOS();
@@ -587,7 +587,7 @@ public class ScheduleJobJobService {
     /**
      * 为工作流节点展开子节点
      */
-    public com.dtstack.engine.master.vo.ScheduleJobVO displayOffSpringWorkFlow( Long jobId, Integer appType) {
+    public com.dtstack.engine.master.impl.vo.ScheduleJobVO displayOffSpringWorkFlow(Long jobId, Integer appType) {
 
         ScheduleJob job = batchJobService.getJobById(jobId);
         if(null == job){
@@ -597,11 +597,11 @@ public class ScheduleJobJobService {
         if(null == batchTaskShade){
             throw new RdosDefineException(ErrorCode.DATA_NOT_FIND);
         }
-        com.dtstack.engine.master.vo.ScheduleJobVO vo = new com.dtstack.engine.master.vo.ScheduleJobVO(job);
+        com.dtstack.engine.master.impl.vo.ScheduleJobVO vo = new com.dtstack.engine.master.impl.vo.ScheduleJobVO(job);
         vo.setBatchTask(new ScheduleTaskVO(batchTaskShade, true));
         if (batchTaskShade.getTaskType().intValue() == EScheduleJobType.WORK_FLOW.getVal() || batchTaskShade.getTaskType().intValue() == EScheduleJobType.ALGORITHM_LAB.getVal()) {
             try {
-                com.dtstack.engine.master.vo.ScheduleJobVO subJobVO;
+                com.dtstack.engine.master.impl.vo.ScheduleJobVO subJobVO;
                 //是否使用优化后的接口
                 if(context.getUseOptimize()) {
                     subJobVO  = this.displayOffSpringForFlowWorkNew(job);
@@ -631,9 +631,9 @@ public class ScheduleJobJobService {
      * @Date 2021/1/6 7:22 下午
      * @param jobId:
      * @param level:
-     * @return: com.dtstack.engine.master.vo.ScheduleJobVO
+     * @return: com.dtstack.engine.master.impl.vo.ScheduleJobVO
      **/
-    public com.dtstack.engine.master.vo.ScheduleJobVO displayForefathersNew( Long jobId,  Integer level) throws Exception {
+    public com.dtstack.engine.master.impl.vo.ScheduleJobVO displayForefathersNew(Long jobId, Integer level) throws Exception {
 
         ScheduleJob job = scheduleJobDao.getOne(jobId);
         if (job == null) {
@@ -654,7 +654,7 @@ public class ScheduleJobJobService {
         return getForefathers(root, keyJobMap, idTaskMap);
     }
 
-    public com.dtstack.engine.master.vo.ScheduleJobVO displayForefathers( Long jobId,  Integer level) {
+    public com.dtstack.engine.master.impl.vo.ScheduleJobVO displayForefathers(Long jobId, Integer level) {
 
         ScheduleJob job = scheduleJobDao.getOne(jobId);
         if (job == null) {
@@ -687,13 +687,13 @@ public class ScheduleJobJobService {
         return getForefathersNew(root, keyJobMap, idTaskMap);
     }
 
-    private com.dtstack.engine.master.vo.ScheduleJobVO getForefathersNew(ScheduleJobJobDTO root, Map<String, ScheduleJob> keyJobMap,
-                                                                      Map<String, ScheduleTaskShade> idTaskMap) {
+    private com.dtstack.engine.master.impl.vo.ScheduleJobVO getForefathersNew(ScheduleJobJobDTO root, Map<String, ScheduleJob> keyJobMap,
+                                                                              Map<String, ScheduleTaskShade> idTaskMap) {
         ScheduleJob job = keyJobMap.get(root.getJobKey());
         if (job == null) {
             return null;
         }
-        com.dtstack.engine.master.vo.ScheduleJobVO vo = new com.dtstack.engine.master.vo.ScheduleJobVO(job);
+        com.dtstack.engine.master.impl.vo.ScheduleJobVO vo = new com.dtstack.engine.master.impl.vo.ScheduleJobVO(job);
         ScheduleTaskShade batchTaskShade = idTaskMap.get(job.getTaskId()+"-"+job.getAppType());
         vo.setBatchTask(getTaskVo(batchTaskShade));
         if (StringUtils.isBlank(job.getJobKey())) {
@@ -709,7 +709,7 @@ public class ScheduleJobJobService {
             List<ScheduleJobVO> fatherVOs = new ArrayList<>();
             List<ScheduleJobVO> taskRuleJobVOs = new ArrayList<>();
             for (ScheduleJobJobDTO jobJobDTO : root.getChildren()) {
-                com.dtstack.engine.master.vo.ScheduleJobVO item = this.getForefathersNew(jobJobDTO, keyJobMap, idTaskMap);
+                com.dtstack.engine.master.impl.vo.ScheduleJobVO item = this.getForefathersNew(jobJobDTO, keyJobMap, idTaskMap);
                 if (item != null) {
                     if (TaskRuleEnum.NO_RULE.getCode().equals(item.getTaskRule())) {
                         fatherVOs.add(item);
@@ -724,13 +724,13 @@ public class ScheduleJobJobService {
         return vo;
     }
 
-    private com.dtstack.engine.master.vo.ScheduleJobVO getForefathers(ScheduleJobJobDTO root, Map<String, ScheduleJob> keyJobMap,
-                                                                      Map<String, ScheduleTaskShade> idTaskMap) {
+    private com.dtstack.engine.master.impl.vo.ScheduleJobVO getForefathers(ScheduleJobJobDTO root, Map<String, ScheduleJob> keyJobMap,
+                                                                           Map<String, ScheduleTaskShade> idTaskMap) {
         ScheduleJob job = keyJobMap.get(root.getJobKey());
         if (job == null) {
             return null;
         }
-        com.dtstack.engine.master.vo.ScheduleJobVO vo = new com.dtstack.engine.master.vo.ScheduleJobVO(job);
+        com.dtstack.engine.master.impl.vo.ScheduleJobVO vo = new com.dtstack.engine.master.impl.vo.ScheduleJobVO(job);
         ScheduleTaskShade batchTaskShade = idTaskMap.get(job.getTaskId() + "-" + job.getAppType());
         vo.setBatchTask(getTaskVo(batchTaskShade));
         if (StringUtils.isBlank(job.getJobKey())) {
@@ -760,7 +760,7 @@ public class ScheduleJobJobService {
             List<ScheduleJobVO> taskRuleJobVOs = new ArrayList<>();
 
             for (ScheduleJobJobDTO jobJobDTO : root.getChildren()) {
-                com.dtstack.engine.master.vo.ScheduleJobVO item = this.getForefathers(jobJobDTO, keyJobMap, idTaskMap);
+                com.dtstack.engine.master.impl.vo.ScheduleJobVO item = this.getForefathers(jobJobDTO, keyJobMap, idTaskMap);
                 if (item != null) {
                     if (TaskRuleEnum.NO_RULE.getCode().equals(item.getTaskRule())) {
                         fatherVOs.add(item);
