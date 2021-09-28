@@ -1,0 +1,14 @@
+.functionManager-container {
+    height: 100%;
+
+    .functionManager-content {
+        outline: 1px solid transparent;
+        outline-offset: -1px;
+        height: 100%;
+        padding: 1px;
+
+        &:focus {
+            outline-color: var(--list-focusOutline);
+        }
+    }
+}
