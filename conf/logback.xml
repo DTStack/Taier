@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <appender name="allAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${user.dir}/logs/rdos_engine.log</file>
+        <file>${user.dir}/logs/engine_all.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${user.dir}/logs/rdos_engine_%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${user.dir}/logs/engine_all_%d{yyyy-MM-dd}.log</fileNamePattern>
             <MaxHistory>5</MaxHistory>
         </rollingPolicy>
         <encoder>
@@ -12,9 +12,9 @@
     </appender>
 
     <appender name="zkAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${user.dir}/logs/rdos_zk.log</file>
+        <file>${user.dir}/logs/engine_zk.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${user.dir}/logs/rdos_zk_%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${user.dir}/logs/engine_zk_%d{yyyy-MM-dd}.log</fileNamePattern>
             <MaxHistory>5</MaxHistory>
         </rollingPolicy>
         <encoder>
@@ -23,9 +23,9 @@
     </appender>
 
     <appender name="request" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${user.dir}/logs/rdos_request.log</file>
+        <file>${user.dir}/logs/engine_request.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${user.dir}/logs/rdos_request_%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${user.dir}/logs/engine_request_%d{yyyy-MM-dd}.log</fileNamePattern>
             <MaxHistory>5</MaxHistory>
         </rollingPolicy>
         <encoder>
@@ -33,10 +33,10 @@
         </encoder>
     </appender>
 
-    <appender name="worker" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${user.dir}/logs/rdos_worker.log</file>
+    <appender name="flinkmonitor" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${user.dir}/logs/engine_flinkmonitor.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${user.dir}/logs/rdos_worker_%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${user.dir}/logs/engine_flinkmonitor_%d{yyyy-MM-dd}.log</fileNamePattern>
             <MaxHistory>5</MaxHistory>
         </rollingPolicy>
         <encoder>
@@ -45,9 +45,9 @@
     </appender>
 
     <appender name="schedule" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${user.dir}/logs/rdos_schedule.log</file>
+        <file>${user.dir}/logs/engine_schedule.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${user.dir}/logs/rdos_schedule_%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${user.dir}/logs/engine_schedule_%d{yyyy-MM-dd}.log</fileNamePattern>
             <MaxHistory>5</MaxHistory>
         </rollingPolicy>
         <encoder>
@@ -56,9 +56,9 @@
     </appender>
 
     <appender name="alert" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${user.dir}/logs/rdos_alert.log</file>
+        <file>${user.dir}/logs/engine_alert.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${user.dir}/logs/rdos_alert_%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${user.dir}/logs/engine_alert_%d{yyyy-MM-dd}.log</fileNamePattern>
             <MaxHistory>5</MaxHistory>
         </rollingPolicy>
         <encoder>
@@ -82,8 +82,8 @@
         <appender-ref ref="zkAppender" />
     </logger>
 
-    <logger name="com.dtstack.engine.worker" level="info" additivity="false">
-        <appender-ref ref="worker" />
+    <logger name="com.dtstack.engine.flink" level="info" additivity="false">
+        <appender-ref ref="flinkmonitor" />
     </logger>
 
     <logger name="com.dtstack.engine.master.server.executor" level="info" additivity="false">
@@ -98,7 +98,6 @@
     <logger name="com.dtstack.engine.master.server.queue.JopPriorityQueue" level="info" additivity="false">
         <appender-ref ref="schedule" />
     </logger>
-
 
     <logger name="com.dtstack.engine.alert" level="info" additivity="false">
         <appender-ref ref="alert" />

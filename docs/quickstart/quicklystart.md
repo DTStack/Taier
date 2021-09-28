@@ -1,4 +1,4 @@
-#快速部署
+# 快速开始
 
 ## 基础软件安装
  * JDK8及以上
@@ -7,7 +7,7 @@
 * Redis：5.0.7
 
 #### DAGScheduleX依赖的其他基础组件
-* DatasourceX（数据源插件）：[4.3.0](https://github.com/DTStack/DatasourceX)
+* DatasourceX（数据源插件）：[4.3.0](https://github.com/DTStack/DatasourceX/releases/tag/v4.3.0)
 * SQLParser（SQL解析插件）
 
 ## 数据库操作
@@ -18,7 +18,7 @@
     * 再执行 `sql/init/insert`
     
     <div align=center> 
-     <img src= ./sqlinit.jpg width=300 />
+     <img src= ./sqlinit.jpg width=300 />ActionService.java:409
     </div>
 
 #### 表结构升级
