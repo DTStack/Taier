@@ -73,6 +73,5 @@ $ npm run changelog
 - [Redmine Issue 追踪](http://redmine.prod.dtstack.cn/projects/dtinsight200)
 - [Confluence 文档](http://confluence.dev.dtstack.cn/display/RDOS/RD-OS)
 - [RDOS API 接口文档](http://git.dtstack.cn/dtstack/rdos-docs)
-- [替换 dt-common 影响范围](https://dtstack.yuque.com/rd-center/sm6war/mc0wwr)
 
 

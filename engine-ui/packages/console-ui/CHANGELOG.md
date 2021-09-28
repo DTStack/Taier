@@ -30,7 +30,6 @@ All notable changes to this project will be documented in this file. See [standa
 
 * adjust config position ([fa8311e](http://git.dtstack.cn/dtstack/data-stack-web/commit/fa8311e144a0a795e6b5b06d0a6c2099140fd977))
 * compatible Windows Edge ([710c7f8](http://git.dtstack.cn/dtstack/data-stack-web/commit/710c7f82ef0f38957ae44af635fea34a99216b6e))
-* upgrade dt-common version ([892b0c1](http://git.dtstack.cn/dtstack/data-stack-web/commit/892b0c1b3bc65dd6f8057a70b797011b982fa1cd))
 
 ## [4.2.0-beta9](http://git.dtstack.cn/dtstack/data-stack-web/compare/v4.2.0-beta8...v4.2.0-beta9) (2021-07-06)
 
@@ -73,16 +72,12 @@ All notable changes to this project will be documented in this file. See [standa
 * add project mark and api list to version monitor ([df9312b](http://git.dtstack.cn/dtstack/data-stack-web/commit/df9312bf15acc887a5dd082cb07ee10439e9d1cc))
 * add project mark to set request version ([c9dfa73](http://git.dtstack.cn/dtstack/data-stack-web/commit/c9dfa733470f7c14d980be2cdc4a82246b156087))
 * clear browser cache ([2a9e38d](http://git.dtstack.cn/dtstack/data-stack-web/commit/2a9e38d823eb43c9dbc7e35ceead3e3a6aa2f5f0))
-<<<<<<< HEAD
-=======
-* handle conflict ([038e6d6](http://git.dtstack.cn/dtstack/data-stack-web/commit/038e6d6c7f07536cab2bc5b6939fb157966e8744))
->>>>>>> release_4.2.x
 * use catch custom action to replace ([8436ffe](http://git.dtstack.cn/dtstack/data-stack-web/commit/8436ffe055f89139d186c338c9729876666b859e))
 
 
 ### Bug Fixes
 
-* update dt-common version ([93d4178](http://git.dtstack.cn/dtstack/data-stack-web/commit/93d417851f537c124a5e604fd27ba5fcb64dcc77))
+* update  version ([93d4178](http://git.dtstack.cn/dtstack/data-stack-web/commit/93d417851f537c124a5e604fd27ba5fcb64dcc77))
 
 ### [4.1.12](http://git.dtstack.cn/dtstack/data-stack-web/compare/v4.1.0-beta1...v4.1.12) (2021-04-15)
 
@@ -148,7 +143,6 @@ All notable changes to this project will be documented in this file. See [standa
 * handle conflict ([7226b71](http://git.dtstack.cn/dtstack/data-stack-web/commit/7226b71813e981ea2af23f51040884fa45450b04))
 * set form field value for mulitple version comp ([6fa9d05](http://git.dtstack.cn/dtstack/data-stack-web/commit/6fa9d05a856ad82921f464221a2daee4affa505f))
 * sync yarn adn hdfs hadoop version ([88f86ed](http://git.dtstack.cn/dtstack/data-stack-web/commit/88f86ed7b67be30b9e27ff7005bb2684633d57c5))
-* update dt-common and theme version ([3c6446b](http://git.dtstack.cn/dtstack/data-stack-web/commit/3c6446ba89c4178fef01f437805d0c52550a5507))
 
 ## [4.2.0-beta4](http://git.dtstack.cn/dtstack/data-stack-web/compare/v4.2.0-beta3...v4.2.0-beta4) (2021-04-21)
 
@@ -309,10 +303,6 @@ All notable changes to this project will be documented in this file. See [standa
 * storage component disappears after refreshing ([9e76b93](http://git.dtstack.cn/dtstack/data-stack-web/commit/9e76b93eb3776e5d2c98427efff69dd95d56874b))
 * storeType defaultValue is not HDFS ([b449f7e](http://git.dtstack.cn/dtstack/data-stack-web/commit/b449f7e3f62a3f1fe3ce8aebbfd0ba761e64d60b))
 * test connectivity failed ([ea7b12c](http://git.dtstack.cn/dtstack/data-stack-web/commit/ea7b12c6f620ac05eb45434c880e69018cc8da83))
-* update dt-common version ([c970056](http://git.dtstack.cn/dtstack/data-stack-web/commit/c97005625bb2216d66d35a8d561a5aea0865f3b8))
-* update dt-common version ([3479584](http://git.dtstack.cn/dtstack/data-stack-web/commit/347958479a9a1dd24603ecb5b219a7329b32e8ad))
-* update dt-common version ([209d38b](http://git.dtstack.cn/dtstack/data-stack-web/commit/209d38b89ad30c6dae28af6981dfe30b837755a1))
-* update dt-common version ([171912e](http://git.dtstack.cn/dtstack/data-stack-web/commit/171912ed3fe4debba35e7c01862fe3ba0ea3359f))
 * update yarn lock file ([9e24f31](http://git.dtstack.cn/dtstack/data-stack-web/commit/9e24f310b294f6f058dbb345efd4810300d72975))
 * useEnv error logic ([9b7467b](http://git.dtstack.cn/dtstack/data-stack-web/commit/9b7467bbe81c1ad740b451d245ca403cc1e5be73))
 * useEnv flag change ([f1f990a](http://git.dtstack.cn/dtstack/data-stack-web/commit/f1f990a1b1af4d6dd48bfe00a9e4c91bdb47d93c))

@@ -8,7 +8,7 @@ module.exports = {
   },
   testResultsProcessor: 'jest-sonar-reporter',
   transformIgnorePatterns: [
-    `/node_modules/(?!(dt-common|dt-react-component|dt-react-codemirror-editor))`, // Ignore modules without dt-common dir
+    `/node_modules/(?!(dt-react-component|dt-react-codemirror-editor))`, // Ignore modules without library dir
   ],
   testPathIgnorePatterns: ['/node_modules/'],
   testMatch: [

@@ -1,7 +1,6 @@
 import { combineReducers } from 'redux';
 import { cloneDeep, assign } from 'lodash';
 import { editorAction } from './actionTypes';
-// import localDb from 'dt-common/src/utils/localDb';
 
 export const KEY_EDITOR_OPTIONS = 'editor_options';
 

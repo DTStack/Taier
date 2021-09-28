@@ -2,13 +2,14 @@ import './public-path';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { getStore } from 'dt-common/src/utils/reduxUtils';
+import { getStore } from './reducers/store';
 import Root from './root';
 import 'assets/styles/index.less';
 
 const render = (props: any) => {
   const rootReducer = require('./reducers').default;
   const { store, history } = getStore(rootReducer, 'hash');
+
   ReactDOM.render(
     <Root store={store} history={history} />,
     props.container
