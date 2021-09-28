@@ -1193,7 +1193,6 @@ class TargetForm extends React.Component<any, any> {
                                 <Option key="writeModeInsert" value="insert">
                                     insert into（当主键/约束冲突，报脏数据）
                                 </Option>
-                                ,
                                 <Option key="writeModeReplace" value="replace">
                                     replace
                                     into（当主键/约束冲突，先delete再insert，未映射的字段会被映射为NULL）
