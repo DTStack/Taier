@@ -2,12 +2,23 @@
   "name": "root",
   "private": true,
   "scripts": {
-    "build": "sh ./scripts/build.sh",
-    "start": "sh ./scripts/start.sh",
+    "build": "node ./scripts/deploy/build.js",
+    "start": "node ./scripts/deploy/start.js",
     "pull": ". ./scripts/pull.sh",
+    "deploy": "yarn run build && node ./scripts/deploy/deploy.js",
     "molecule": "lerna run build --scope=molecule && lerna bootstrap --scope=ide-ui"
   },
   "devDependencies": {
     "lerna": "^4.0.0"
+  },
+  "microHost": "http://schedule.dtstack.cn",
+  "microApp": {
+    "publicservice": {
+      "bundlePath": "./packages/publicservice/ko.config.js"
+    },
+    "console-ui": {
+      "bundlePath": "./packages/console-ui/build/base.js",
+      "iconfontPath": "./packages/console-ui/src/public/iconfont/iconfont.css"
+    }
   }
 }
