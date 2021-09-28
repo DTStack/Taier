@@ -74,6 +74,7 @@
     },
     "dependencies": {
         "@dtinsight/dt-utils": "^1.0.3",
+        "@dtinsight/molecule": "^0.9.0-alpha.5",
         "ant-design-dtinsight-theme": "1.1.3-beta",
         "antd": "3.26.19",
         "babel-plugin-treasure": "^0.9.0",
@@ -82,7 +83,6 @@
         "dt-react-component": "^2.0.8",
         "lodash": "^4.17.21",
         "mirror-creator": "^1.1.0",
-        "molecule": "file:../molecule",
         "monaco-sql-languages": "^0.9.3",
         "object-assign": "^4.1.1",
         "qiankun": "^2.4.2",

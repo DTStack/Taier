@@ -1,10 +1,10 @@
 import React from 'react';
-import molecule from 'molecule';
+import molecule from '@dtinsight/molecule';
 import {
     IExtension,
     CONTEXT_MENU_SEARCH,
     ACTIVITY_BAR_GLOBAL_ACCOUNT,
-} from 'molecule/esm/model';
+} from '@dtinsight/molecule/esm/model';
 import ResourceManager from '../../resourceManager';
 import FunctionManager from '../../functionManager';
 import { FUNCTION_NEW_FUNCTION } from '../../functionManager/menu';

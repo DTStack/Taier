@@ -1,8 +1,8 @@
 import React from 'react';
-import molecule from 'molecule';
-import { IExtension, SAMPLE_FOLDER_PANEL_ID } from 'molecule/esm/model';
-import { localize } from 'molecule/esm/i18n/localize';
-import { connect } from 'molecule/esm/react';
+import molecule from '@dtinsight/molecule';
+import { IExtension, SAMPLE_FOLDER_PANEL_ID } from '@dtinsight/molecule/esm/model';
+import { localize } from '@dtinsight/molecule/esm/i18n/localize';
+import { connect } from '@dtinsight/molecule/esm/react';
 import TaskInfo from '../../task/taskInfo';
 import { TASK_ATTRIBUTONS } from '../utils/const';
 

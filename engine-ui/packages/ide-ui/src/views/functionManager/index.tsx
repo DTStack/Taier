@@ -3,15 +3,15 @@ import {
     ActionBar,
     IMenuItemProps,
     ITreeNodeItemProps,
-} from 'molecule/esm/components';
-import { Content, Header } from 'molecule/esm/workbench/sidebar';
-import { connect } from 'molecule/esm/react';
+} from '@dtinsight/molecule/esm/components';
+import { Content, Header } from '@dtinsight/molecule/esm/workbench/sidebar';
+import { connect } from '@dtinsight/molecule/esm/react';
 import functionManagerService from '../../services/functionManagerService';
-import { IFolderTree } from 'molecule/esm/model';
+import { IFolderTree } from '@dtinsight/molecule/esm/model';
 import { loadTreeNode } from '../common/utils';
-import { FolderTree } from 'molecule/esm/workbench/sidebar/explore';
+import { FolderTree } from '@dtinsight/molecule/esm/workbench/sidebar/explore';
 import FnViewModal from './fnViewModal';
-import { LoadEventData } from 'molecule/esm/controller';
+import { LoadEventData } from '@dtinsight/molecule/esm/controller';
 import './index.scss';
 import {
     FUNCTION_EDIT,

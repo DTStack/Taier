@@ -2,7 +2,7 @@ import React from 'react';
 import { Row, Col, Collapse, Radio, message } from 'antd';
 import FormWrap from './scheduleForm';
 import TaskDependence from './taskDependence';
-import molecule from 'molecule/esm';
+import molecule from '@dtinsight/molecule/esm';
 import { TASK_TYPE } from '../../../comm/const';
 import HelpDoc from '../../../components/helpDoc';
 import Ajax from '../../../api';

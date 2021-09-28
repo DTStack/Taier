@@ -1,8 +1,8 @@
 // TODO, refactor
 import React from 'react';
 import { Button, Form, Input } from 'antd';
-import molecule from 'molecule/esm';
-import { Scrollable } from 'molecule/esm/components';
+import molecule from '@dtinsight/molecule/esm';
+import { Scrollable } from '@dtinsight/molecule/esm/components';
 import { WrappedFormUtils } from 'antd/lib/form/Form';
 import FormItem from 'antd/lib/form/FormItem';
 

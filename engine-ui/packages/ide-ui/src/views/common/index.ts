@@ -1,4 +1,4 @@
-import { IExtension } from 'molecule/esm/model';
+import { IExtension } from '@dtinsight/molecule/esm/model';
 
 import CatalogueExtension from './catalogue';
 import EditorExtension from './editor';

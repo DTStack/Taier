@@ -1,6 +1,6 @@
 import React from 'react';
 import { Col, Row } from 'antd';
-import { IEditor } from 'molecule/esm/model';
+import { IEditor } from '@dtinsight/molecule/esm/model';
 import { TaskType } from '../../components/status';
 import { formatDateTime } from '../../comm';
 

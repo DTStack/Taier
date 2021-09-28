@@ -3,7 +3,7 @@ import { Form, Collapse, Input } from 'antd';
 import { debounce } from 'lodash';
 
 import './styles.css';
-import molecule from 'molecule/esm';
+import molecule from '@dtinsight/molecule/esm';
 import HelpDoc from '../../components/helpDoc';
 import {
     EDIT_TASK_PREFIX,

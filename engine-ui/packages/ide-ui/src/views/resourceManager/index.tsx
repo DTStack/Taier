@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { Content, Header } from 'molecule/esm/workbench/sidebar';
-import { FolderTree } from 'molecule/esm/workbench/sidebar/explore/index';
+import { Content, Header } from '@dtinsight/molecule/esm/workbench/sidebar';
+import { FolderTree } from '@dtinsight/molecule/esm/workbench/sidebar/explore/index';
 import {
     ActionBar,
     IMenuItemProps,
     ITreeNodeItemProps,
-} from 'molecule/esm/components';
+} from '@dtinsight/molecule/esm/components';
 import './index.scss';
-import { FileTypes, TreeNodeModel } from 'molecule/esm/model';
-import { LoadEventData } from 'molecule/esm/controller';
-import { connect } from 'molecule/esm/react';
+import { FileTypes, TreeNodeModel } from '@dtinsight/molecule/esm/model';
+import { LoadEventData } from '@dtinsight/molecule/esm/controller';
+import { connect } from '@dtinsight/molecule/esm/react';
 import resourceManagerTree from '../../services/resourceManagerService';
 import ResModal from './resModal';
 import ResViewModal from './resViewModal';

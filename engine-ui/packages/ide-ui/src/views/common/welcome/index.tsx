@@ -1,6 +1,6 @@
-import molecule from 'molecule';
+import molecule from '@dtinsight/molecule';
 import React from 'react';
-import { IExtension } from 'molecule/esm/model';
+import { IExtension } from '@dtinsight/molecule/esm/model';
 import './style.css';
 
 function EditorEntry(props: any) {

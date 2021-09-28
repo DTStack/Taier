@@ -1,11 +1,11 @@
 import { debounce } from 'lodash';
-import molecule from 'molecule';
+import molecule from '@dtinsight/molecule';
 import {
     IEditorTab,
     IExtension,
     IProblemsItem,
     MarkerSeverity,
-} from 'molecule/esm/model';
+} from '@dtinsight/molecule/esm/model';
 import 'monaco-sql-languages/out/esm/sparksql/sparksql.contribution';
 import { LanguageService } from 'monaco-sql-languages/out/esm/languageService';
 

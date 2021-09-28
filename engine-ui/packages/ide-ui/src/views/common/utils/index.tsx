@@ -1,11 +1,11 @@
-import molecule from 'molecule/esm';
+import molecule from '@dtinsight/molecule/esm';
 import React from 'react';
 import {
     FileTypes,
     IStatusBarItem,
     TreeNodeModel,
     Float,
-} from 'molecule/esm/model';
+} from '@dtinsight/molecule/esm/model';
 import { TASK_RUN_ID, TASK_STOP_ID } from './const';
 import ajax from '../../../api';
 import { catalogueTypeToDataType } from '../../../components/func';

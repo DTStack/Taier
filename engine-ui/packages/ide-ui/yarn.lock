@@ -1044,6 +1044,30 @@
   dependencies:
     lodash "^4.17.15"
 
+"@dtinsight/molecule@^0.9.0-alpha.5":
+  version "0.9.0-alpha.5"
+  resolved "https://registry.npmmirror.com/@dtinsight/molecule/download/@dtinsight/molecule-0.9.0-alpha.5.tgz#ba44da7651b1868584f2da98c9bb05877fc0d27c"
+  integrity sha1-ukTadlGxhoWE8tqYybsFh3/A0nw=
+  dependencies:
+    "@dtinsight/dt-utils" "^1.0.3"
+    "@types/react" "^17.0.3"
+    "@types/react-dom" "^17.0.3"
+    immutability-helper "^3.1.1"
+    lodash "^4.17.21"
+    monaco-editor "^0.23.0"
+    rc-dialog "8.2.1"
+    rc-textarea "~0.3.1"
+    rc-tooltip "^5.1.1"
+    rc-tree "~3.10.0"
+    rc-util "~5.5.0"
+    react-dnd "^9.3.4"
+    react-dnd-html5-backend "^9.3.4"
+    react-scrollbars-custom "^4.0.25"
+    react-split-pane "^2.0.3"
+    reflect-metadata "^0.1.13"
+    tsyringe "4.5.0"
+    vscode-codicons "^0.0.12"
+
 "@eslint/eslintrc@^0.4.3":
   version "0.4.3"
   resolved "https://registry.yarnpkg.com/@eslint/eslintrc/-/eslintrc-0.4.3.tgz#9e42981ef035beb3dd49add17acb96e8ff6f394c"
@@ -6435,28 +6459,6 @@ mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@^0.5.5:
   integrity sha512-NKmAlESf6jMGym1++R0Ra7wvhV+wFW63FaSOFPwRahvea0gMUcGUhVeAg/0BC0wiv9ih5NYPB1Wn1UEI1/L+xQ==
   dependencies:
     minimist "^1.2.5"
-
-"molecule@file:../molecule":
-  version "0.9.0-alpha.5"
-  dependencies:
-    "@dtinsight/dt-utils" "^1.0.3"
-    "@types/react" "^17.0.3"
-    "@types/react-dom" "^17.0.3"
-    immutability-helper "^3.1.1"
-    lodash "^4.17.21"
-    monaco-editor "^0.23.0"
-    rc-dialog "8.2.1"
-    rc-textarea "~0.3.1"
-    rc-tooltip "^5.1.1"
-    rc-tree "~3.10.0"
-    rc-util "~5.5.0"
-    react-dnd "^9.3.4"
-    react-dnd-html5-backend "^9.3.4"
-    react-scrollbars-custom "^4.0.25"
-    react-split-pane "^2.0.3"
-    reflect-metadata "^0.1.13"
-    tsyringe "4.5.0"
-    vscode-codicons "^0.0.12"
 
 moment@2.20.1:
   version "2.20.1"

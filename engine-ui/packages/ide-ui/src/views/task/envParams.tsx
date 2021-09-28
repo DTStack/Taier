@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import { MonacoEditor } from 'molecule/esm/components';
-import { editor as monacoEditor, Uri } from 'molecule/esm/monaco';
-import { IEditor, IEditorTab } from 'molecule/esm/model';
-import type { editor } from 'molecule/esm/monaco';
+import { MonacoEditor } from '@dtinsight/molecule/esm/components';
+import { editor as monacoEditor, Uri } from '@dtinsight/molecule/esm/monaco';
+import { IEditor, IEditorTab } from '@dtinsight/molecule/esm/model';
+import type { editor } from '@dtinsight/molecule/esm/monaco';
 import {
     CREATE_TASK_PREFIX,
     EDIT_FOLDER_PREFIX,
