@@ -4,6 +4,7 @@ import { Modal, Button, Form, Input, Select, Icon, Spin } from 'antd';
 import ajax from '../../api';
 import FolderPicker from '../../components/folderPicker';
 import { RESOURCE_TYPE, formItemLayout } from '../../comm/const';
+import { connect } from 'react-redux';
 
 export function getContainer(id: string) {
     const container = document.createElement('div');
@@ -478,28 +479,26 @@ class ResForm extends React.Component<any, any> {
      * @param {any} cb
      */
     checkNotDir(rule: any, value: any, callback: any) {
-        // TODO
+        const { treeData } = this.props;
+        let nodeType: any;
+
+        let loop = (arr: any) => {
+            arr.forEach((node: any, i: any) => {
+                if (node.id === value) {
+                    nodeType = node.type;
+                } else {
+                    loop(node.children || []);
+                }
+            });
+        };
+
+        loop([treeData]);
+
+        if (nodeType === 'folder') {
+            /* eslint-disable-next-line */
+            callback('请选择具体文件, 而非文件夹');
+        }
         callback();
-        // const { treeData } = this.props;
-        // let nodeType: any;
-
-        // let loop = (arr: any) => {
-        //     arr.forEach((node: any, i: any) => {
-        //         if (node.id === value) {
-        //             nodeType = node.type;
-        //         } else {
-        //             loop(node.children || []);
-        //         }
-        //     });
-        // };
-
-        // loop([treeData]);
-
-        // if (nodeType === 'folder') {
-        //     /* eslint-disable-next-line */
-        //     callback('请选择具体文件, 而非文件夹');
-        // }
-        // callback();
     }
 }
 
@@ -636,4 +635,8 @@ class ResModal extends React.Component<any, any> {
     }
 }
 
-export default ResModal;
+export default connect((state: any) => {
+    return {
+        resTreeData: state.catalogue.resourceTree,
+    };
+})(ResModal);

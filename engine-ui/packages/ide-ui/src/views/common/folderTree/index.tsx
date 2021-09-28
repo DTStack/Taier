@@ -231,19 +231,6 @@ function editTreeNodeName() {
     });
 }
 
-// TODO: refactor, this method should be supported by molecule
-function getGroupIdByTaskId(taskId: string): unknown {
-    const groups = molecule.editor.getState().groups;
-    let targetGroupId;
-    for (let i = 0; i < (groups?.length ?? 0); i++) {
-        const { id, data } = groups?.[i]!;
-        if (data?.find((tab) => tab.id === taskId)) {
-            targetGroupId = id;
-            break;
-        }
-    }
-    return targetGroupId;
-}
 
 // TODO: refactor, tab 数据可以从molecule中取出，无需存在redux中
 export function openTaskInTab(taskId: any, file?: any) {
@@ -253,8 +240,8 @@ export function openTaskInTab(taskId: any, file?: any) {
         if (!file) return message.error('此任务不存在');
     }
     if (molecule.editor.isOpened(taskId.toString())) {
-        const groupId = getGroupIdByTaskId(taskId.toString());
-        molecule.editor.setActive(groupId as number, taskId.toString());
+        const groupId = molecule.editor.getGroupIdByTab(taskId.toString())!;
+        molecule.editor.setActive(groupId, taskId.toString());
         return;
     }
 
