@@ -34,11 +34,6 @@ const proxy = {
       proxyReq.setHeader('X-Real-IP', locatIp);
     },
   },
-  '/dt-common': {
-    target: 'http://dev.insight.dtstack.cn/',
-    changeOrigin: true,
-    secure: false,
-  },
   '/api/dq': {
     target: 'http://172.16.10.251:8089', // 开发环境
     changeOrigin: true,

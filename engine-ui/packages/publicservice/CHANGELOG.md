@@ -4,16 +4,11 @@ All notable changes to this project will be documented in this file. See [standa
 
 ## [4.3.0-beta1](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.4...v4.3.0-beta1) (2021-08-02)
 
-
 ### Bug Fixes
-
-* upgrade dt-common ([c75140d](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/c75140de4cc4d00341206fecc943efae68807b83))
 
 ### [4.2.4](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.3...v4.2.4) (2021-07-27)
 
 ### Bug Fixes
-
-- upgrade dt-common ([c75140d](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/c75140de4cc4d00341206fecc943efae68807b83))
 
 ### [4.2.4](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.3...v4.2.4) (2021-07-27)
 
@@ -26,7 +21,6 @@ All notable changes to this project will be documented in this file. See [standa
 ### Bug Fixes
 
 - data model list data is null ([3b800c4](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/3b800c453cbdd9e9bb7d58263fd652ecf088a2b9))
-- dt-common public directory update ([17a6ee9](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/17a6ee9ff0816be627260660349b90bd8832c12c))
 
 ### [4.2.3](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.2...v4.2.3) (2021-07-21)
 
@@ -61,8 +55,6 @@ All notable changes to this project will be documented in this file. See [standa
 
 - # issue 2655 ([a435001](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/a4350014cfbb0341c8713ceee9e537b3b810d516))
 - compatible Windows Edge to Edg ([f6b86ef](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/f6b86ef3b4e0b90ee5c17a3ffd27bbc27f67cea3))
-- dt-common image path config ([8b6ba62](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/8b6ba62577ad5b6ea78a40f04d0d50ec830e5835))
-- upgrade dt-common@.9.2-temp ([fa3963c](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/fa3963c5702e4d2306634d75199fcad3edadd6e5))
 
 ## [4.2.0-beta10](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/compare/v4.2.0-beta9...v4.2.0-beta10) (2021-07-06)
 
@@ -245,7 +237,6 @@ All notable changes to this project will be documented in this file. See [standa
 - **form-render:** - form render component, support components which are not form ([0c7bf4d](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/0c7bf4de057058591b922102afb39b40af6f2244))
 - **form-render:** add component, form render ([53badb1](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/53badb1411b0aa8335692fd4f8eb0256e7559d75))
 - **header:** hide message & setting entries ([304091b](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/304091b9437d8a2bee2d148cd0e70893f9a5eb91))
-- **lib & layout:** support dt-common main layout & header ([09279f3](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/09279f33c9c12929ca3321230d08dcc55682692f))
 - **list:** data model list, toast fix ([9f9a719](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/9f9a719e7a6e690a95ef16b52c29c30d4ae08ece))
 - **list:** filter for data model list ([e2cb470](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/e2cb470e21bbcd53c3a9d1d71605d7e87649b3d5))
 - **modify:** data model modify ([837317a](http://gitlab.prod.dtstack.cn/dt-insight-front/dt-public-service-front/commit/837317aca8279e6fa9a3d0194807af143befe17f))

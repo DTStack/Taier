@@ -7,9 +7,7 @@ const BUILD_PATH = path.resolve(ROOT_PATH, `dist${BASE_NAME}`);
 const packageName = require('./package.json').name;
 
 const copyConfig = [
-  { from: path.resolve(__dirname, 'public/config'), to: 'config' },
   { from: path.resolve(__dirname, 'public/assets'), to: 'assets' },
-  // dt-common定制化配置
   { from: path.resolve(__dirname, 'public/public'), to: 'public' },
 ];
 
