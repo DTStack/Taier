@@ -1,0 +1,63 @@
+{
+  "data":{
+    "recordList":[],
+    "operationLogs":{
+      "tab1":[{
+        "id":1,
+        "operationType":"订购关系生效",
+        "operator":"曲丽丽",
+        "result":"成功",
+        "operationTime":"2017-10-03 19:23:12",
+        "remark":null
+      },{
+        "id":2,
+        "operationType":"财务复审",
+        "operator":"付小小",
+        "result":"成功",
+        "operationTime":"2017-10-03 19:23:12",
+        "remark":"不通过原因"
+      },
+      {
+        "id":3,
+        "operationType":"部门初审",
+        "operator":"周毛毛",
+        "result":"成功",
+        "operationTime":"2017-10-03 19:23:12",
+        "remark":null
+      },
+      {
+        "id":4,
+        "operationType":"提交订单",
+        "operator":"林东东",
+        "result":"成功",
+        "operationTime":"2017-10-03 19:23:12",
+        "remark":null
+      },{
+        "id":5,
+        "operationType":"创建订单",
+        "operator":"汗牙牙",
+        "result":"成功",
+        "operationTime":"2017-10-03 19:23:12",
+        "remark":null
+      }],
+      "tab2":[{
+        "id":1,
+        "operationType":"订购关系生效",
+        "operator":"曲丽丽",
+        "result":"成功",
+        "operationTime":"2017-10-03 19:23:12",
+        "remark":null
+      }],
+      "tab3":[{
+        "id":1,
+        "operationType":"创建订单",
+        "operator":"汗牙牙",
+        "result":"成功",
+        "operationTime":"2017-10-03 19:23:12",
+        "remark":null
+      }]
+    }
+  },
+  "success": true,
+  "message": "执行成功~~"
+}

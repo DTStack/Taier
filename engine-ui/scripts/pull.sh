@@ -15,6 +15,6 @@ echo "\033[32m Update the IDE UI git commit \033[0m";
 cd $MYDIR/packages/ide-ui
 git pull origin master
 
-echo "\033[32m Update the Public Service git commit \033[0m";
-cd $MYDIR/packages/publicservice
+echo "\033[32m Update the Data Source git commit \033[0m";
+cd $MYDIR/packages/data-source
 git pull origin master

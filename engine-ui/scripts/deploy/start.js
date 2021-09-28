@@ -11,7 +11,8 @@
     microAdaptation,
     logger,
     automata,
-    packagesPath
+    packagesPath,
+    useSpawn
 } = require('./base.js');
  
  const fastStart = async () => {
@@ -20,6 +21,12 @@
          const projects = files.filter((item) => {
              return isDirectory(path.join(packagesPath, item));
          });
+
+         /**
+          * update project dependencies
+          */
+          await useSpawn('lerna', ['bootstrap'], true);
+
          /**
           * process webpack to add a common prefix and process iconfont
           */
