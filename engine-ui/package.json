@@ -13,8 +13,8 @@
   },
   "microHost": "http://schedule.dtstack.cn",
   "microApp": {
-    "publicservice": {
-      "bundlePath": "./packages/publicservice/ko.config.js"
+    "data-source": {
+      "bundlePath": "./packages/data-source/ko.config.js"
     },
     "console-ui": {
       "bundlePath": "./packages/console-ui/build/base.js",

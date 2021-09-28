@@ -15,7 +15,7 @@ echo "Start to build the public service";
 lerna run build --scope=public-service
 
 echo "Copy the public service dist to the out";
-cp -R ./packages/publicservice/dist/* ./out/
+cp -R ./packages/data-source/dist/* ./out/
 
 echo "Start to build the ide-ui";
 lerna run build --scope=ide-ui
