@@ -32,7 +32,7 @@ engine-master/engine-master-server/unzip/
 engine-ui/node_modules
 engine-ui/.yarn-error.log
 engine-ui/out
-engine-ui/**/dist
+engine-ui/**/**/dist
 .history
 node_modules
 
