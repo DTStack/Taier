@@ -1,0 +1,18 @@
+.pane-title {
+  margin-bottom: 12px;
+  .block {
+    width: 4px;
+    height: 12px;
+    background: #3f87ff;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+  .title {
+    width: 56px;
+    font-size: 14px;
+    font-family: PingFangSC-Medium, PingFang SC, sans-serif;
+    font-weight: 500;
+    color: #333333;
+  }
+}

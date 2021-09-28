@@ -1,0 +1,209 @@
+// @import 'styles/const.scss';
+// ==== 颜色 ====
+$bgColor: #f2f7fa; // 背景色
+$bgColor2: #070a1a; // 主色
+
+// ==== 字体 ====
+$font1: 14px;
+$font2: 16px;
+// 字体色
+$fontColor1: #333333;
+$fontColor2: #666666;
+$fontColor3: #999999;
+// 主色
+$linkFontColor: #3f87ff;
+// 辅助色
+$ErrorColor: #ff5f5c;
+$WarningColor: #ffb310;
+$NormalColor: #16de9a;
+// 底色
+$BgColor: #fafafa;
+// ==== 页面大小 ====
+$minWidth: 1260px;
+
+$bgPath: '/assets/imgs/dataModel/bg-relation-view.png';
+
+.graph-editor {
+  position: relative;
+  height: 100%;
+  flex: 1;
+  text-align: center;
+  .graph_loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    background: rgba(255, 255, 255, 0.5);
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    clear: both;
+    overflow: hidden;
+  }
+  .graph_toolbar {
+    position: absolute;
+    right: 10px;
+    bottom: 140px;
+    width: 34px;
+    text-align: center;
+    z-index: 1000;
+    .basic_bar {
+      background: rgba(255, 255, 255, 1);
+      box-shadow: 0px 2px 8px 0px rgba(63, 135, 255, 0.2);
+    }
+    .spread_bar {
+      position: relative;
+      margin-top: 10px;
+      background: rgba(255, 255, 255, 1);
+      box-shadow: 0px 2px 8px 0px rgba(63, 135, 255, 0.2);
+    }
+    .toolbar-icon {
+      display: inline-block;
+      cursor: pointer;
+      width: 34px;
+      height: 34px;
+      line-height: 34px;
+      color: #979797;
+      font-size: 20px;
+      border-bottom: 1px solid #e8e8e8;
+      &.active {
+        color: #3f87ff;
+      }
+    }
+    .outlineContainer {
+      width: 240px;
+      display: none;
+      position: absolute;
+      top: 0px;
+      right: 36px;
+      height: 160px;
+      background: rgba(255, 255, 255, 1);
+      box-shadow: 0px 2px 8px 0px rgba(63, 135, 255, 0.2);
+      .outline_title {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px;
+        border-bottom: 1px solid #e8e8e8;
+        .name {
+          font-size: 12px;
+          font-family: PingFangSC-Semibold, PingFang SC;
+          font-weight: 600;
+          color: rgba(51, 51, 51, 1);
+          line-height: 17px;
+        }
+        .double-right {
+          cursor: pointer;
+          font-size: 12px;
+          color: #666666;
+        }
+      }
+      .outline-content {
+        height: 128px;
+      }
+      &.active {
+        display: block;
+      }
+    }
+  }
+  .graph_container {
+    background: url($bgPath) #ffffff;
+    cursor: pointer;
+    position: absolute;
+    overflow: auto;
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
+    padding: 40px;
+    .t-vertext {
+      width: 200px;
+      text-align: left;
+      background: #fafafa;
+      box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.08);
+    }
+    .vertex-wrap {
+      background: rgba(255, 255, 255, 1);
+      box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.08);
+      border-radius: 2px;
+      width: 200px;
+      position: relative;
+      top: -2px;
+      .vertex-title {
+        height: 32px;
+        line-height: 32px;
+        border-radius: 2px 2px 0px 0px;
+        color: #ffffff;
+        padding: 0 10px;
+        .t_title {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      }
+      .vertex-content {
+        height: 36px;
+        line-height: 36px;
+        .tcolumn {
+          cursor: pointer;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          padding: 0 10px;
+        }
+      }
+      &.current {
+        border: 1px solid #3f87ff;
+        .vertex-title {
+          background: #3f87ff;
+        }
+      }
+      &.prev {
+        border: 1px solid #26d6ae;
+        .vertex-title {
+          background: #26d6ae;
+        }
+      }
+      &.next {
+        border: 1px solid #7460ef;
+        .vertex-title {
+          background: #7460ef;
+        }
+      }
+    }
+  }
+  .graph-legend {
+    position: absolute;
+    left: 0;
+    bottom: 0px;
+    height: 30px;
+    line-height: 30px;
+    width: 100%;
+    text-align: center;
+    background: url($bgPath) #ffffff;
+    .legend-item {
+      // display: inline-block;
+      vertical-align: middle;
+      float: left;
+    }
+    .legend-item-icon {
+      display: inline-block;
+      vertical-align: middle;
+      width: 36px;
+      height: 14px;
+      margin-right: 4px;
+      margin-left: 20px;
+    }
+    .legend-title {
+      font-size: 12px;
+      font-family: PingFangSC-Regular, PingFang SC;
+      font-weight: 400;
+      color: #666666;
+      line-height: 20px;
+    }
+    .border {
+      border: 1px solid #e8e8e8;
+    }
+  }
+}

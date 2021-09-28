@@ -1,0 +1,245 @@
+// top style
+$highlight-color: #3f87ff;
+
+.top-search {
+  margin-bottom: 8px;
+
+  &-form {
+    .ant-form-item-control {
+      line-height: 40px;
+    }
+    .ant-form-item-label {
+      line-height: 39.9999px;
+    }
+    .ant-form-item label {
+      top: unset;
+      transform: unset;
+    }
+  }
+
+  &-select {
+    &.ant-select-dropdown.ant-select-dropdown--multiple {
+      .ant-select-dropdown-menu-item-active,
+      .ant-select-dropdown-menu-item-selected {
+        .ant-select-selected-icon {
+          color: #12bc6a !important;
+        }
+      }
+    }
+
+    .ant-select-dropdown-menu-item-selected {
+      background-color: #fafafa !important;
+    }
+
+    .ant-select-dropdown-menu-item-selected {
+      font-weight: normal !important;
+    }
+  }
+}
+.ant-select-open {
+  z-index: 1;
+}
+.ant-table-content {
+  background-color: #fff;
+}
+// table style
+.source {
+  padding: 20px;
+  background: #f2f7fa;
+  height: calc(100vh - 64px);
+  .bottom {
+    height: calc(100% - 44px);
+    background-color: #fff;
+    .conent-table {
+      height: calc(100% - 101px);
+
+      .ant-table-tbody > tr > td {
+        padding: 12px 20px !important;
+      }
+    }
+    .anticon-left,
+    .anticon-right {
+      color: #666;
+    }
+  }
+  .data-view {
+    color: $highlight-color;
+  }
+}
+
+.ant-badge-status-dot {
+  width: 8px !important;
+  height: 8px !important;
+}
+.ant-badge-status-error {
+  background-color: #ff5f5c !important;
+}
+.ant-badge-status-success {
+  background-color: #12bc6a !important;
+}
+.copy {
+  &:hover {
+    color: $highlight-color;
+  }
+}
+.down-temp {
+  color: $highlight-color;
+  cursor: pointer;
+  margin-left: 8px;
+}
+.operate-forbid {
+  color: #999;
+}
+
+.page-com {
+  position: absolute;
+  bottom: 16px;
+  right: 28px;
+  height: 56px;
+  .ant-pagination {
+    font-size: 12px;
+  }
+}
+
+.ws-form {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+
+  input {
+    width: 40%;
+    margin-right: 10px;
+  }
+  a {
+    position: absolute;
+    right: 0;
+  }
+}
+.ws-add {
+  cursor: pointer;
+  i {
+    margin-right: 5px;
+  }
+}
+.help-doc {
+  position: absolute;
+  right: -20px;
+  top: 0;
+  color: #999;
+  &.help-doc--warn {
+    color: #f5a623;
+  }
+}
+.help-module {
+  // position: absolute;
+  // right: -55px;
+  // top: 0;
+  color: #999;
+  cursor: pointer;
+}
+.help-tooltip {
+  position: absolute;
+  right: -20px;
+  top: -40px;
+  color: #999;
+}
+.filter-status {
+  position: absolute;
+  left: 48px;
+  &:hover {
+    color: #3f87ff;
+  }
+}
+.ant-dropdown-open {
+  .iconfont2 {
+    color: #3f87ff;
+  }
+}
+.ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 180px;
+  display: block;
+}
+.ellipsisSpec {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 145px;
+  float: left;
+}
+.datasource-modal {
+  .ant-modal-header {
+    padding: 15px 20px;
+  }
+  .ant-btn {
+    width: 56px;
+    height: 32px;
+    line-height: 32px;
+    border-radius: 2px;
+    border: 1px solid #ddd;
+  }
+}
+.auth-header {
+  color: #666;
+}
+.ant-modal-footer {
+  border: none;
+}
+.ant-modal .ant-modal-body {
+  padding-bottom: 6px;
+}
+.show-meta {
+  border: 1px solid #3f87ff;
+  color: #3f87ff;
+  background-color: #fff;
+  height: 16px;
+  line-height: 16px;
+}
+//连接信息
+.link-json {
+  display: inline-block;
+  word-break: break-all;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; // 设置两行文字溢出
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ant-input-password-icon {
+  color: #999;
+  &:hover {
+    color: #999;
+  }
+}
+.pop-confirm {
+  .ant-btn-sm {
+    width: 56px;
+    height: 28px;
+    background: #fff;
+    border-radius: 2px;
+    border: 1px solid #ddd;
+  }
+  .ant-btn-danger {
+    border: none;
+  }
+}
+
+.ant-table-middle
+  > .ant-table-content
+  > .ant-table-scroll
+  > .ant-table-header
+  > table
+  > .ant-table-thead
+  > tr
+  > th {
+  padding: 12px 20px !important;
+}
+
+.conent-table {
+  .ant-table .ant-table-thead > tr > th {
+    border: none !important;
+  }
+}
