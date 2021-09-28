@@ -117,10 +117,14 @@ export class ExtendsSparkSQL implements IExtension {
     activate(extensionCtx: molecule.IExtensionService): void {
         registerWorkers();
         molecule.editor.onUpdateTab(debounce(analyseProblems, 600));
-        molecule.editor.onOpenTab(analyseProblems)
+        molecule.editor.onOpenTab(analyseProblems);
 
         molecule.editor.onCloseTab((tabId) => {
+            const { data } = molecule.problems.getState();
+            const isExist = data.find((item) => item.id === Number(tabId));
+            if (isExist) {
             molecule.problems.remove(Number(tabId));
+            }
         });
     }
 }

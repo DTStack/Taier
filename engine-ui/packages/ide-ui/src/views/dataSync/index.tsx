@@ -5,10 +5,17 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Scrollable } from '@dtinsight/molecule/esm/components';
 import DataSync from './dataSync';
-import { workbenchActions, getDataSyncReqParams } from '../../controller/dataSync/offlineAction';
+import {
+    workbenchActions,
+    getDataSyncReqParams,
+} from '../../controller/dataSync/offlineAction';
 import * as editorActions from '../../controller/editor/editorAction';
 import { DATA_SYNC_MODE, TASK_TYPE } from '../../comm/const';
 import { cloneDeep, assign } from 'lodash';
+import { connect as moleculeConnect } from '@dtinsight/molecule/esm/react';
+import molecule from '@dtinsight/molecule';
+import type { IEditor } from '@dtinsight/molecule/esm/model';
+import store from '../../store';
 
 const propType: any = {
     editor: PropTypes.object,
@@ -22,31 +29,16 @@ const initialState = {
 };
 type Istate = typeof initialState;
 
-@(connect(
-    (state: any) => {
-        const { workbench, dataSync } = state.dataSync;
-        const { currentTab, tabs } = workbench;
-        const currentTabData = tabs.filter((tab: any) => {
-            return tab.id === currentTab;
-        })[0];
-
-        return {
-            editor: state.editor,
-            project: state.project,
-            user: state.user,
-            currentTab,
-            currentTabData,
-            dataSync,
-        };
-    },
-    (dispatch: any) => {
-        const taskAc = workbenchActions(dispatch);
-        const editorAc = bindActionCreators(editorActions, dispatch);
-        const actions = Object.assign(editorAc, taskAc);
-        return actions;
-    }
-) as any)
-class DataSyncWorkbench extends React.Component<any, Istate> {
+@(connect(null, (dispatch: any) => {
+    const taskAc = workbenchActions(dispatch);
+    const editorAc = bindActionCreators(editorActions, dispatch);
+    const actions = Object.assign(editorAc, taskAc);
+    return actions;
+}) as any)
+class DataSyncWorkbench extends React.Component<
+    IEditor & ReturnType<typeof workbenchActions>,
+    Istate
+> {
     state = {
         changeTab: true,
         size: undefined,
@@ -54,15 +46,6 @@ class DataSyncWorkbench extends React.Component<any, Istate> {
     };
 
     static propTypes = propType;
-    
-    // eslint-disable-next-line
-    UNSAFE_componentWillReceiveProps(nextProps: any) {
-        const current = nextProps.currentTabData;
-        const old = this.props.currentTabData;
-        if (current && current.id !== old.id) {
-            this.props.getTab(current.id);
-        }
-    }
 
     changeTab = (state: any) => {
         let changeTab = false;
@@ -83,14 +66,17 @@ class DataSyncWorkbench extends React.Component<any, Istate> {
      * @memberof DataSync
      */
 
-    generateRqtBody () {
-        const { currentTabData, dataSync } = this.props;
+    generateRqtBody() {
+        const currentTabData = this.props.current?.tab?.data;
+        const dataSync = (store.getState() as any).dataSync.dataSync;
 
         // deepClone避免直接mutate store
         let reqBody = cloneDeep(currentTabData);
         // 如果当前任务为数据同步任务
         if (currentTabData.taskType === TASK_TYPE.SYNC) {
-            const isIncrementMode = currentTabData.syncModel !== undefined && DATA_SYNC_MODE.INCREMENT === currentTabData.syncModel;
+            const isIncrementMode =
+                currentTabData.syncModel !== undefined &&
+                DATA_SYNC_MODE.INCREMENT === currentTabData.syncModel;
             reqBody = assign(reqBody, getDataSyncReqParams(dataSync));
             if (!isIncrementMode) {
                 reqBody.sourceMap.increColumn = undefined; // Delete increColumn
@@ -113,27 +99,23 @@ class DataSyncWorkbench extends React.Component<any, Istate> {
         return reqBody;
     }
 
-
-    saveTab (isSave: any, saveMode: any) {
+    saveTab(isSave: any, saveMode: any) {
         // 每次保存都意味着当前tab不是第一次打开，重置当前标示
         this.setState({
-            changeTab: false
+            changeTab: false,
         });
-        console.log('******** props', this.props)
         const isButtonSubmit = saveMode == 'popOut';
         this.props.isSaveFInish(false);
         const { saveTab } = this.props;
-        console.log('******** props', this.props)
 
         const saveData = this.generateRqtBody();
-        const type = 'task'
+        const type = 'task';
 
         saveTab(saveData, isSave, type, isButtonSubmit);
     }
 
-
     render() {
-        const { currentTabData } = this.props;
+        const currentTabData = this.props.current?.tab?.data;
 
         return (
             <Scrollable>
@@ -154,7 +136,10 @@ class DataSyncWorkbench extends React.Component<any, Istate> {
                                     position: 'relative',
                                 }}
                             >
-                                <DataSync saveTab={this.saveTab.bind(this, true)} currentTabData={currentTabData} />
+                                <DataSync
+                                    saveTab={this.saveTab.bind(this, true)}
+                                    currentTabData={currentTabData}
+                                />
                             </div>
                         </SplitPane>
                     </div>
@@ -164,4 +149,4 @@ class DataSyncWorkbench extends React.Component<any, Istate> {
     }
 }
 
-export default DataSyncWorkbench;
+export default moleculeConnect(molecule.editor, DataSyncWorkbench);
