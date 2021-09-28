@@ -1,4 +1,3 @@
-// TODO, refactor
 import React from 'react';
 import { Button, Form, Input } from 'antd';
 import molecule from '@dtinsight/molecule/esm';
@@ -142,7 +141,7 @@ class EditFolder extends React.PureComponent<EditFolderProps, {}> {
                     </FormItem>
                     <FormItem {...tailFormItemLayout}>
                         <Button type="primary" htmlType="submit" loading={loading}>
-                        Submit
+                        确认
                         </Button>
                     </FormItem>
                 </Form>
