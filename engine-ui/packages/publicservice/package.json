@@ -12,7 +12,6 @@
     "dev": "ko dev -t",
     "build": "rm -rf dist && export NODE_ENV='production' && ko build -t",
     "swagger": "ko swagger -t",
-    "prepare": "husky install",
     "test": "jest --coverage"
   },
   "dependencies": {
