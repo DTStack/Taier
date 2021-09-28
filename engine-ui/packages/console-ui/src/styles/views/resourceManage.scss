@@ -1,0 +1,209 @@
+.table-border{
+    border-width: 1px 1px 0px 1px;
+    border-color: #dcdcdc;
+    border-style: solid;
+}
+.no-card-table{
+    background: #fff;
+    border-width: 1px 1px 1px 1px;
+    border-color: #dcdcdc;
+    border-style: solid;
+}
+.line-formItem{
+    color:rgba(1,1,1,0.84);
+    font-size: 13px;
+    padding: 10px 0px;
+    padding-left: 130px;
+    
+}
+.single-th-table {
+    .ant-table-thead > tr > th:first-child {
+        background: #f7f7f7;
+        font-weight: 500;
+        transition: background 0.3s ease;
+        text-align: center;
+        color: rgba(0, 0, 0, 0.85);
+        width: 100%;
+    }
+    .ant-table-thead > tr > th:nth-child(2) {
+        display: none;
+    }
+}
+
+.o-div--actionDom {
+    position:absolute;
+    top: -10px;
+    right: -95px;
+    color: #1890ff;
+    cursor: pointer;
+}
+
+.o-icon--actionDom {
+    margin-right: 3px;
+    color: #1890ff;
+}
+
+.o-block--dynamic {
+    width: 92%;
+    background: #fbf8fc;
+    margin: 0 auto;
+    margin-bottom: 20px;
+}
+
+.c-header-dynamicform {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    line-height: 40px;
+    margin-bottom:20px;
+    border-bottom: #dedbdf 1px solid;
+    >span {
+        padding:0 20px;
+    }
+}
+
+// 改版
+.resource-wrapper {
+    padding: 20px;
+    overflow-y: scroll;
+    .cluster-select {
+        float: left;
+    }
+    .terent-button {
+        float: right;
+    }
+    .resource-content {
+        margin-top: 15px;
+        background: #FFFFFF;
+        box-shadow: 0 0 6px 0 rgba(0,0,0,0.10);
+        .console-tabs {
+            .ant-card-body {
+                padding: 0;
+            }
+            .ant-tabs-vertical.ant-tabs-left > .ant-tabs-content {
+                padding: 14px 0px 0 0px;
+            }
+            .ant-tabs-vertical.ant-tabs-left > .ant-tabs-bar {
+                margin-top: 10px;
+            }
+        }
+        .ant-card-wider-padding {
+            padding: 0;
+        }
+    }
+}
+.console-tabs .engine-detail-tabs .ant-tabs-nav .ant-tabs-tab-active {
+    color: #2491F7;
+    background: #ffffff;
+}
+.engine-detail-tabs .ant-tabs-nav .ant-tabs-tab {
+    display: inline-block;
+    height: auto;
+    margin-right: 24px;
+    box-sizing: border-box;
+    position: relative;
+    padding: 8px 20px;
+    transition: color 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+}
+.ant-tabs-bar {
+    border-bottom: 1px solid #dddddd;
+    margin-bottom: 0px;
+    outline: none;
+    transition: padding 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+.ant-tabs:not(.ant-tabs-vertical) > .ant-tabs-content {
+    width: 100%;
+    height: 100%;
+}
+.no-padding-modal .ant-modal-body {
+    padding: 0px;
+    font-size: 12px;
+    line-height: 1.5;
+}
+.info-title {
+    font-family: PingFangSC-Regular;
+    font-size: 13px;
+    color: #333333;
+    width: 100%;
+    height: 50px;
+    line-height: 50px;
+    margin-bottom: 10px;
+    padding-left: 20px;
+    background: #F5F5F5;
+    border-bottom: 1px dashed #DDDDDD;
+}
+.info-title .info-text {
+    display: inline-block;
+    margin-left: 10px;
+    height: 100%;
+}
+.border-item {
+    width: 100%;
+    height: 90px;
+    border-top: 1px dashed #DDDDDD;
+}
+.border-item .engine-title {
+    font-family: PingFangSC-Medium;
+    font-size: 14px;
+    color: #333333;
+    padding: 10px 0 10px 60px;
+}
+.border-item .engine-name {
+    height: 90px;
+    font-family: PingFangSC-Medium;
+    font-size: 12px;
+    color: #333333;
+    display: flex;
+    align-items: center;
+    padding: 0 60px;
+}
+
+.engine-name {
+    margin-top: 10px;
+}
+
+.c-resourceView__container {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 20px;
+}
+
+.c-resourceView__table__container {
+    p {
+        font-size: 14px;
+        font-weight: 600;
+        margin-top: 20px;
+        margin-bottom: 12px;
+    }
+}
+
+.c-resourceCard__container {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    border: 1px solid #e8e8e8;
+    padding: 8px 8px 8px 31px;
+    .c-resourceCard__container__title {
+        color: #333333;
+        font-size:12px;
+        font-weight:600;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        margin-left: 6px;
+        p {
+            margin: 0;
+        }
+    }
+}
+
+.c-ldap__bindModal {
+    margin-bottom: 12px;
+    border: 1px solid #E8E8E8;
+    border-bottom: 0;
+}
