@@ -7,7 +7,7 @@
 * Redis：5.0.7
 
 #### DAGScheduleX依赖的其他基础组件
-* DatasourceX（数据源插件）：[4.3.0](https://github.com/DTStack/DatasourceX)
+* DatasourceX（数据源插件）：[4.3.0](https://github.com/DTStack/DatasourceX/releases/tag/v4.3.0)
 * SQLParser（SQL解析插件）
 
 ## 数据库操作
