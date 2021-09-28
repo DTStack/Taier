@@ -1,4 +1,4 @@
-#快速部署
+# 快速开始
 
 ## 基础软件安装
  * JDK8及以上
@@ -18,7 +18,7 @@
     * 再执行 `sql/init/insert`
     
     <div align=center> 
-     <img src= ./sqlinit.jpg width=300 />
+     <img src= ./sqlinit.jpg width=300 />ActionService.java:409
     </div>
 
 #### 表结构升级

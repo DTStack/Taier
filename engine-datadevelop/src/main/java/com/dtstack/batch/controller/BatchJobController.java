@@ -80,7 +80,7 @@ public class BatchJobController {
 
             @Override
             protected BatchStartSyncResultVO process() throws BizException {
-                return batchJobService.startSyncImmediately(vo.getTaskId(), vo.getUserId(), vo.getIsRoot(), vo.getDtuicTenantId(), vo.getTaskParams());
+                return batchJobService.startSyncImmediately(vo.getTaskId(), vo.getUserId(), vo.getIsRoot(), vo.getTenantId(), vo.getTaskParams());
             }
         }.execute();
     }
