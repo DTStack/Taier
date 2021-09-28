@@ -164,7 +164,6 @@ function resetContent() {
 
 async function automata(projects) {
   for (const project of projects) {
-      if (project !== 'molecule')
       useSpawn('lerna', ['run', 'start', `--scope=${project}`], true);
   }
 }
