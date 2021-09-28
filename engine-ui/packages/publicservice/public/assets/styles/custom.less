@@ -1,0 +1,177 @@
+body {
+  height: 100%;
+  background: #F0F2F5 !important;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;
+}
+
+html {
+  height: 100%;
+  box-sizing: border-box;
+}
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+.no-padding {
+  padding: 0px !important;
+}
+
+.padding-content {
+  padding: 4px 0;
+}
+
+a:focus,
+a:active {
+  outline: none;
+}
+
+a,
+a:focus,
+a:hover {
+  cursor: pointer;
+  color: inherit;
+  text-decoration: none;
+}
+
+div:focus{
+  outline: none;
+ }
+
+.fr {
+  float: right;
+}
+
+.fl {
+  float: left;
+}
+
+.pr-5 {
+  padding-right: 5px;
+}
+
+.pl-5 {
+  padding-left: 5px;
+}
+
+.block {
+  display: block;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+.clearfix {
+  &:after {
+    visibility: hidden;
+    display: block;
+    font-size: 0;
+    content: " ";
+    clear: both;
+    height: 0;
+  }
+}
+.pager{
+  padding:20px;
+}
+
+// form表单上下边距调整成20px
+.dm-form.ant-form {
+  .ant-row {
+    margin-bottom: 20px;
+    &.ant-form-item-with-help {
+      margin-bottom: 0;
+    }
+  }
+  .ant-form-explain {
+    height: 22px;
+    margin-bottom: 0;
+  }
+}
+
+.cus-modal {
+  &.margin-left-40 {
+    margin-left: 40px;
+  }
+  &.icon {
+    color: #ff5f5c;
+    position: absolute;
+    left: 32px;
+    font-size: 24px;
+    transform: translateY(-8px);
+  }
+  &.btn-delete {
+    background: #ff5f5c !important;
+    outline: none;
+    border: none;
+    &:hover {
+      background-color: #ff5f5caa !important;
+    }
+  }
+}
+
+// 表单渲染，宽度600px,textarea无效
+.dm-form-item {
+  width: 600px!important;
+  max-width: 600px!important;
+}
+
+// Step组件，配合stepIconRender
+.dm-steps.ant-steps {
+  .ant-steps-item {
+    .ant-steps-item-container {
+      .ant-steps-item-content {
+        .ant-steps-item-title {
+          &::after {
+            background-color: #E8E8E8;
+          }
+        }
+      }
+    }
+  }
+
+  .ant-steps-item-finish {
+    .step-icon {
+      color: #3F87FF;
+    }
+  }
+
+  .ant-steps-icon {
+    .step-icon-wrapper {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #3F87FF;
+      border-radius: 50%;
+      vertical-align: middle;
+      .step-icon {
+        line-height: 28px;
+        font-size: 28px;
+      }
+      &.border-gray {
+        border: 1px solid #DDDDDD!important;
+        color: #999;
+      }
+      &.filled {
+        background-color: #3F87FF;
+        color: #ffffff!important;
+      }
+    }
+    .font {
+      font-size: 14px;
+      font-weight: 600;
+      vertical-align: middle;
+    }
+  }
+}
+
+.margin-bottom-20 {
+  margin-bottom: 20px;
+}

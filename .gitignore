@@ -18,6 +18,7 @@ kerberosConfig/
 tmpK8sConf/
 *.exec
 *.zip
+*.factorypath
 /conf
 keytab/
 run/
@@ -32,3 +33,4 @@ engine-ui/node_modules
 engine-ui/.yarn-error.log
 engine-ui/out
 .history
+node_modules

@@ -1,0 +1,47 @@
+{
+    "code": 1,
+    "message": "request success.",
+    "result": "",
+    "data": {
+        "id": 123,
+        "gmtCreate": 1493178625000,
+        "gmtModified": 1493178625000,
+        "isDeleted": 0,
+        "projectIdentifier": "toutian_test",
+        "projectName": "偷天dtstack测试",
+        "projectDesc": "偷天测试",
+        "status": 0,
+        "createUserId": 1,
+        "tenantId": 123,
+        "adminUsers": [
+            {
+                "id": 1,
+                "gmtCreate": 1493176301000,
+                "gmtModified": 1493176301000,
+                "isDeleted": 0,
+                "tenantId": 123,
+                "projectId": 123,
+                "userName": "toutian",
+                "phoneNumber": "1111111111",
+                "dtUicUserId": 123,
+                "email": "toutian@dtstack.com",
+                "status": 0
+            },
+            {
+                "id": 2,
+                "gmtCreate": 1493178887000,
+                "gmtModified": 1493178887000,
+                "isDeleted": 0,
+                "tenantId": 123,
+                "projectId": 123,
+                "userName": "xc",
+                "phoneNumber": "111",
+                "dtUicUserId": 123,
+                "email": "xc@123.com",
+                "status": 0
+            }
+        ],
+        "memberUsers": []
+    },
+    "space": "0.3s"
+}

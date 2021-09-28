@@ -1,0 +1,121 @@
+.c-multiVersionComp__intail {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    left: 0px;
+    bottom: 40px;
+    text-align: center;
+    // padding-top: 160px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    &__row {
+        margin-bottom: 20px;
+        .ant-col:first-child {
+            text-align: right;
+        }
+        .ant-col:last-child {
+            text-align: left;
+        }
+    }
+    &__title {
+        font-size: 12px;
+        color: #333;
+    }
+    &__container {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+
+        &__desc:last-child {
+            margin-right: 0;
+        }
+
+        &__desc {
+            min-width: 128px;
+            height: 48px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 22px 10px 16px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin-right: 20px;
+            cursor: pointer;
+
+            &:hover {
+                border: 1px solid #3f87ff;
+            }
+            .comp-name {
+                line-height: 48px;
+                img {
+                    margin-right: 8px;
+                    width: 28px;
+                }
+                span {
+                    font-size: 12px;
+                    font-weight: 500;
+                }
+            }
+            .anticon-right-circle {
+                font-size: 8px;
+                color: #3f87ff;
+                margin-left: 30px;
+            }
+        }
+    }
+}
+
+.c-multiVersionComp > .c-multiVersionComp__tabs > .ant-tabs-content {
+    position: absolute;
+    top: 44px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    height: unset;
+    .ant-tabs-tabpane {
+        position: relative;
+    }
+}
+
+.c-multiVersionComp {
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    &__tabs {
+        position: absolute;
+        top: 0px;
+        bottom: 0px;
+        left: 0px;
+        right: 0px;
+        .ant-tabs-bar {
+            background-color: #fafafa;
+            border: unset;
+        }
+        .ant-tabs-bar .ant-tabs-nav-container {
+            .ant-tabs-nav-wrap > .ant-tabs-nav-scroll > .ant-tabs-nav {
+                height: 44px;
+                min-width: 100px;
+                .ant-tabs-tab {
+                    text-align: center;
+                    background: #fafafa;
+                    padding: 0;
+                    font-size: 14px;
+                    height: 44px;
+                    line-height: 44px;
+                    margin: 0;
+                    // min-width: 112px;
+                    width: 210px;
+                }
+                .ant-tabs-tab-active {
+                    background: #fff;
+                }
+                .ant-tabs-ink-bar {
+                    visibility: hidden;
+                }
+            }
+        }
+    }
+}

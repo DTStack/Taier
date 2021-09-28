@@ -1,0 +1,87 @@
+.load-anim {
+  height: 500px;
+  position: relative;
+  .loading {
+    position: absolute;
+    top: 50%;
+    left: 40%;
+    margin-left: 10%;
+    transform: translate3d(-50%, -50%, 0);
+  }
+  .dot {
+    width: 12px;
+    height: 12px;
+    background: #3f87ff;
+    border-radius: 100%;
+    display: inline-block;
+    animation: slide 1s infinite;
+  }
+  .dot:nth-child(1) {
+    animation-delay: 0.1s;
+    background: #3f87ffcc;
+  }
+  .dot:nth-child(2) {
+    animation-delay: 0.2s;
+    background: #3f87ff99;
+  }
+  .dot:nth-child(3) {
+    animation-delay: 0.3s;
+    background: #16de9a80;
+  }
+  .dot:nth-child(4) {
+    animation-delay: 0.4s;
+    background: #3f87ff4d;
+  }
+  .dot:nth-child(5) {
+    animation-delay: 0.5s;
+    background: #16de9a66;
+  }
+  @-moz-keyframes slide {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.3;
+      transform: scale(2);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  @-webkit-keyframes slide {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.3;
+      transform: scale(2);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  @-o-keyframes slide {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.3;
+      transform: scale(2);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  @keyframes slide {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.3;
+      transform: scale(2);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+}
