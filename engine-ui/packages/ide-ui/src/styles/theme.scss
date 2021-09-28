@@ -7,8 +7,10 @@
 }
 
 .mo {
-
-    .ant-steps-item-wait > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title {
+    .ant-steps-item-wait
+        > .ant-steps-item-container
+        > .ant-steps-item-content
+        > .ant-steps-item-title {
         color: var(--foreground);
     }
 
@@ -16,16 +18,19 @@
         background: var(--textLink-activeForeground);
         border-color: var(--textLink-activeForeground);
     }
-    .ant-steps-item-process > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title {
+    .ant-steps-item-process
+        > .ant-steps-item-container
+        > .ant-steps-item-content
+        > .ant-steps-item-title {
         color: var(--textLink-activeForeground);
     }
 
     .ant {
-
         &-btn {
             background: var(--button-background);
             color: var(--button-foreground);
-            border-radius: 0 !important;;
+            border-radius: 0 !important;
+            border-color: transparent;
         }
 
         &-radio,
@@ -33,6 +38,10 @@
         &-checkbox-wrapper,
         &-radio-wrapper,
         &-form-item,
+        &-modal-close,
+        &-modal-title,
+        &-modal-confirm-title,
+        &-table-tbody > tr > td,
         &-form-item-label > label {
             color: var(--foreground);
         }
@@ -47,6 +56,13 @@
 
         &-steps-item-process &-steps-item-icon {
             background: var(--button-background);
+        }
+
+        &-modal-header,
+        &-modal-body,
+        &-modal-footer {
+            background-color: var(--editor-background);
+            color: var(--foreground);
         }
     }
 

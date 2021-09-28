@@ -66,7 +66,7 @@ class ResViewModal extends React.Component<any, any> {
                         '系统异常'
                     ) : (
                         <table
-                            className="ide-ui-table ide-ui-table-bordered"
+                            className="ide-ui-table ide-ui-table-bordered bd-top bd-left"
                             style={{ width: '100%' }}
                         >
                             <tbody className="ide-ui-table-tbody">
