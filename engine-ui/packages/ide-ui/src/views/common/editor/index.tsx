@@ -1,7 +1,10 @@
 import React from 'react';
 import { Icon, message, Modal, Tag } from 'antd';
 import molecule from '@dtinsight/molecule';
-import { getEditorInitialActions, IExtension } from '@dtinsight/molecule/esm/model';
+import {
+    getEditorInitialActions,
+    IExtension,
+} from '@dtinsight/molecule/esm/model';
 import { searchById } from '@dtinsight/molecule/esm/services/helper';
 import { workbenchActions } from '../../../controller/dataSync/offlineAction';
 import { workbenchAction } from '../../../controller/dataSync/actionType';
@@ -132,7 +135,27 @@ function emitEvent() {
                             name: task.name,
                             taskParams: task?.taskParams,
                         };
-                        execDataSync(task.id, params)(store.dispatch);
+                        execDataSync(
+                            task.id,
+                            params
+                        )(store.dispatch).finally(() => {
+                            // update the status of buttons
+                            molecule.editor.updateActions([
+                                {
+                                    id: TASK_SAVE_ID,
+                                    disabled: false,
+                                },
+                                {
+                                    id: TASK_RUN_ID,
+                                    icon: 'play',
+                                    disabled: false,
+                                },
+                                {
+                                    id: TASK_STOP_ID,
+                                    disabled: true,
+                                },
+                            ]);
+                        });
                     } else {
                         const params: any = {
                             taskVariables: currentTab?.data.taskVariables || [],

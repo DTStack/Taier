@@ -16,10 +16,7 @@ import {
     isOracleEngine,
     isGreenPlumEngine,
 } from '../../comm';
-import {
-    createLog,
-    createTitle,
-} from 'dt-react-codemirror-editor';
+import { createLog, createTitle } from 'dt-react-codemirror-editor';
 
 enum SQLType {
     Normal = 0,
@@ -55,8 +52,8 @@ function typeCreate(status: any) {
 }
 
 // 暂时不展示下载的超链接
-function createLinkMark({ href }: { href: string,download: string }) {
-    return href;
+function createLinkMark(_: any) {
+    return '暂不支持下载日志';
 }
 
 function getDataOver(
@@ -778,50 +775,67 @@ export function stopSql(currentTab: any, currentTabData: any, isSilent: any) {
  * 执行数据同步任务
  */
 export function execDataSync(currentTab: any, params: any) {
-    return async (dispatch: any) => {
-        stopSign[currentTab] = false;
-        dispatch(setOutput(currentTab, `同步任务【${params.name}】开始执行`));
-        dispatch(addLoadingTab(currentTab));
-        const res = await API.execDataSyncImmediately(params);
-        if (res && res.code && res.message)
-            dispatch(output(currentTab, createLog(`${res.message}`, 'error')));
-        // 执行结束
-        if (!res || (res && res.code !== 1)) {
-            dispatch(output(currentTab, createLog(`请求异常！`, 'error')));
-            dispatch(removeLoadingTab(currentTab));
-        }
-        if (res && res.code === 1) {
+    return (dispatch: any) => {
+        return new Promise<boolean>(async (resolve) => {
+            stopSign[currentTab] = false;
             dispatch(
-                output(currentTab, createLog(`已经成功发送执行请求...`, 'info'))
+                setOutput(currentTab, `同步任务【${params.name}】开始执行`)
             );
-            if (res.data && res.data.msg)
+            dispatch(addLoadingTab(currentTab));
+            const res = await API.execDataSyncImmediately(params);
+            if (res && res.code && res.message) {
+                dispatch(
+                    output(currentTab, createLog(`${res.message}`, 'error'))
+                );
+            }
+            // 执行结束
+            if (!res || (res && res.code !== 1)) {
+                dispatch(output(currentTab, createLog(`请求异常！`, 'error')));
+                dispatch(removeLoadingTab(currentTab));
+            }
+            if (res && res.code === 1) {
                 dispatch(
                     output(
                         currentTab,
-                        createLog(
-                            `${res.data.msg}`,
-                            typeCreate(res.data.status)
-                        )
+                        createLog(`已经成功发送执行请求...`, 'info')
                     )
                 );
-            if (res.data.jobId) {
-                runningSql[currentTab] = res.data.jobId;
-                selectData(
-                    dispatch,
-                    res.data.jobId,
-                    currentTab,
-                    params,
-                    TASK_TYPE.SYNC
-                ).then(() => {
+                if (res.data && res.data.msg)
+                    dispatch(
+                        output(
+                            currentTab,
+                            createLog(
+                                `${res.data.msg}`,
+                                typeCreate(res.data.status)
+                            )
+                        )
+                    );
+                if (res.data.jobId) {
+                    runningSql[currentTab] = res.data.jobId;
+                    selectData(
+                        dispatch,
+                        res.data.jobId,
+                        currentTab,
+                        params,
+                        TASK_TYPE.SYNC
+                    ).then(() => {
+                        resolve(true);
+                        dispatch(removeLoadingTab(currentTab));
+                    });
+                } else {
+                    dispatch(
+                        output(
+                            currentTab,
+                            createLog(`执行返回结果异常`, 'error')
+                        )
+                    );
                     dispatch(removeLoadingTab(currentTab));
-                });
+                    resolve(true);
+                }
             } else {
-                dispatch(
-                    output(currentTab, createLog(`执行返回结果异常`, 'error'))
-                );
-                dispatch(removeLoadingTab(currentTab));
+                resolve(true);
             }
-        }
+        });
     };
 }
 
