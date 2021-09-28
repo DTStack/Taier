@@ -336,7 +336,7 @@ export function openTaskInTab(taskId: any, file?: any) {
                             name: item,
                         })) || [],
                     renderPane: () => {
-                        return <DataSync currentTabData={tabData} />;
+                        return <DataSync key={fileId} />;
                     },
                 };
                 molecule.editor.open(tabData);

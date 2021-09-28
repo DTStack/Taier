@@ -63,7 +63,7 @@ class SourceForm extends React.Component<any, any> {
             fetching: false, // 模糊查询后端接口loading动画
             kingbaseId: '', // schema所属数据源 id
             tableListLoading: false,
-            previewPath: ''
+            previewPath: '',
         };
     }
 
@@ -83,8 +83,8 @@ class SourceForm extends React.Component<any, any> {
             (isEmpty(sourceMap)
                 ? ''
                 : sourceMap?.schema
-                    ? sourceMap?.schema
-                    : sourceMap?.type?.schema) || form.getFieldValue('schema');
+                ? sourceMap?.schema
+                : sourceMap?.type?.schema) || form.getFieldValue('schema');
         let tableName = '';
         let sourceId = '';
         if (sourceList) {
@@ -136,8 +136,8 @@ class SourceForm extends React.Component<any, any> {
         const res = await ajax.getIncrementColumns(
             schema
                 ? Object.assign(value, {
-                    schema,
-                })
+                      schema,
+                  })
                 : value
         );
 
@@ -343,10 +343,10 @@ class SourceForm extends React.Component<any, any> {
                 dataType === DATA_SOURCE.POSTGRESQL) &&
                 this.getSchemaList(value);
 
-            (dataType !== DATA_SOURCE.KINGBASE
-                && dataType !== DATA_SOURCE.S3
-                && dataType !== DATA_SOURCE.ADB
-            ) && this.getTableList(value);
+            dataType !== DATA_SOURCE.KINGBASE &&
+                dataType !== DATA_SOURCE.S3 &&
+                dataType !== DATA_SOURCE.ADB &&
+                this.getTableList(value);
         }, 0);
         handleSourceChange(this.getDataObjById(value));
         this.resetTable();
@@ -358,7 +358,7 @@ class SourceForm extends React.Component<any, any> {
         // 这边先隐藏结点，然后再reset，再显示。不然会有一个组件自带bug。
         this.setState(
             {
-                selectHack: true
+                selectHack: true,
             },
             () => {
                 if (key) {
@@ -474,7 +474,6 @@ class SourceForm extends React.Component<any, any> {
         }
     };
 
-
     validateChineseCharacter = (data: any) => {
         const reg = /(，|。|；|[\u4e00-\u9fa5]+)/; // 中文字符，中文逗号，句号，分号
         let has = false;
@@ -583,12 +582,11 @@ class SourceForm extends React.Component<any, any> {
 
     render() {
         const { getFieldDecorator } = this.props.form;
-        const { sourceMap, dataSourceList, navtoStep } =
-            this.props;
+        const { sourceMap, dataSourceList, navtoStep } = this.props;
 
         const disablePreview =
             isEmpty(sourceMap) || sourceMap?.type?.type === DATA_SOURCE.HDFS;
-        const { tableListLoading} = this.state;
+        const { tableListLoading } = this.state;
         const getPopupContainer = this.props.getPopupContainer;
         const disableFix = { disabled: disablePreview };
         return (
@@ -827,11 +825,11 @@ class SourceForm extends React.Component<any, any> {
                 const tableValue = isEmpty(sourceMap)
                     ? ''
                     : supportSubLibrary
-                        ? sourceMap.sourceList[0].tables
-                        : sourceMap.type.table;
+                    ? sourceMap.sourceList[0].tables
+                    : sourceMap.type.table;
                 formItem = [
                     !selectHack ? (
-                        <div>
+                        <div key={DATA_SOURCE.MYSQL}>
                             <FormItem
                                 {...formItemLayout}
                                 label={'表名(批量)'}
@@ -882,7 +880,9 @@ class SourceForm extends React.Component<any, any> {
                                         }}
                                     >
                                         {(
-                                            tableListSearch[sourceMap.sourceId] || []
+                                            tableListSearch[
+                                                sourceMap.sourceId
+                                            ] || []
                                         ).map((table: any) => {
                                             return (
                                                 <Option
@@ -982,7 +982,7 @@ class SourceForm extends React.Component<any, any> {
                     : sourceMap.type.table;
                 formItem = [
                     !selectHack ? (
-                        <div>
+                        <div key={DATA_SOURCE.ORACLE}>
                             <FormItem
                                 {...formItemLayout}
                                 label="schema"
@@ -993,8 +993,8 @@ class SourceForm extends React.Component<any, any> {
                                     initialValue: isEmpty(sourceMap)
                                         ? ''
                                         : sourceMap?.schema
-                                            ? sourceMap?.schema
-                                            : sourceMap.type.schema,
+                                        ? sourceMap?.schema
+                                        : sourceMap.type.schema,
                                 })(
                                     <Select
                                         showSearch
@@ -1166,11 +1166,11 @@ class SourceForm extends React.Component<any, any> {
                 const tableValue = isEmpty(sourceMap)
                     ? ''
                     : supportSubLibrary
-                        ? sourceMap.sourceList[0].tables
-                        : sourceMap.type.table;
+                    ? sourceMap.sourceList[0].tables
+                    : sourceMap.type.table;
                 formItem = [
                     !selectHack ? (
-                        <div>
+                        <div key={DATA_SOURCE.POSTGRESQL}>
                             <FormItem
                                 {...formItemLayout}
                                 label="schema"
@@ -1180,8 +1180,8 @@ class SourceForm extends React.Component<any, any> {
                                     initialValue: isEmpty(sourceMap)
                                         ? ''
                                         : sourceMap?.schema
-                                            ? sourceMap?.schema
-                                            : sourceMap.type.schema,
+                                        ? sourceMap?.schema
+                                        : sourceMap.type.schema,
                                 })(
                                     <Select
                                         showSearch
