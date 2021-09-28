@@ -9,7 +9,7 @@ scanner(
     options: {
       'sonar.scm.disabled': 'true',
       'sonar.projectVersion': VERSION,
-      'sonar.projectName': 'dt-public-service-front',
+      'sonar.projectName': 'dt-data-source-front',
       'sonar.sources': './src',
       'sonar.exclusions': '**/__tests__/**',
       'sonar.tests': './src',

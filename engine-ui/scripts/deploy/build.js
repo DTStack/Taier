@@ -20,7 +20,7 @@
          /**
           * git synchronizes the latest code
           */
-         await useSpawn('yarn', ['pull'], true);
+        //  await useSpawn('yarn', ['pull'], true);
  
          /**
           * update project dependencies
