@@ -1,3 +1,0 @@
-[submodule "engine-ui/packages/molecule"]
-	path = engine-ui/packages/molecule
-	url = git@github.com:DTStack/molecule.git
