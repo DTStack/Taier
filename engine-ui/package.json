@@ -13,6 +13,9 @@
   },
   "microHost": "http://schedule.dtstack.cn",
   "microApp": {
+    "ide-ui": {
+      "bundlePath": "./packages/ide-ui/scripts/webpack.base.js"
+    },
     "data-source": {
       "bundlePath": "./packages/data-source/ko.config.js"
     },

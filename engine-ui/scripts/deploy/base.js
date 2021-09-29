@@ -9,6 +9,10 @@ const pluginPath = path.join(
     scriptsPath,
     './deploy/plugin/insert-html-webpack-plugin.js'
 );
+// const licensePath = path.join(
+//     scriptsPath,
+//     './deploy/plugin/license-webpack-plugin.js'
+// );
 
 /**
  * If you modify the micro front end, you need to maintain it here
@@ -96,7 +100,7 @@ function iconfontInject(iconFilePath) {
             /(?<=url\(')(iconfont)/g,
             `${publicURL}/console/public/iconfont/$1`
         );
-
+        
         sourceFile.set(iconFilePath, content);
         fs.writeFileSync(iconFilePath, finalContent, { encoding: 'utf8' });
     } catch (e) {
@@ -110,6 +114,8 @@ function pluginInject(configFilePath) {
         const randomId = Math.random().toString().replace('.', '');
         const pluginName = `InsertHtmlPlugin${randomId}`;
         const pluginModule = `const ${pluginName} = require('${pluginPath}'); \n`;
+        // const licenseName =  `LicensePlugin${randomId}`;
+        // const licenseModule = `const ${licenseName} = require('${licensePath}'); \n`;
         /**
          * TODO: a better way to do this is to check if there is a plugin module, instead of adding a plugin module by default
          */
@@ -125,7 +131,7 @@ function pluginInject(configFilePath) {
                 item = item.replace(/(?<!\\)\\(?!\\)/g, '');
                 return (total += `${item.replace(/\\\\/g, '\\')}\n`);
             }, '');
-        const finalContent = pluginModule + contentBody;
+        const finalContent = licenseModule + pluginModule + contentBody;
 
         sourceFile.set(configFilePath, content);
         fs.writeFileSync(configFilePath, finalContent, { encoding: 'utf8' });
