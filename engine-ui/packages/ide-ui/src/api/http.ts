@@ -3,6 +3,7 @@ import 'whatwg-fetch';
 // import { authAfterFormated, authBeforeFormate } from "../interceptor";
 import { ProgressBar } from 'dt-react-component';
 import { PROJECT_KEY } from '../comm/const';
+import { message } from 'antd';
 
 class Http {
     get(url: any, params: any) {
@@ -53,6 +54,12 @@ class Http {
                         ProgressBar.hide();
                     }, 300);
                     return response.json();
+                })
+                .then((res) => {
+                    if (res.code !== 1) {
+                        message.error(res.message);
+                    }
+                    return res;
                 })
                 //   .then(authAfterFormated)
                 .catch((err: any) => {
