@@ -121,18 +121,6 @@ export const greenPlumFnTreeActon = mc(
     { prefix: 'catalogue/greenPlumFnTree/' }
 );
 
-export const greenPlumProdTreeActon = mc(
-    [
-        'RESET_FUC_TREE',
-        'LOAD_FOLDER_CONTENT',
-        'ADD_FOLDER_CHILD',
-        'DEL_OFFLINE_FOLDER',
-        'DEL_OFFLINE_FN',
-        'EDIT_FOLDER_CHILD',
-    ],
-    { prefix: 'catalogue/greenPlumProdTree/' }
-);
-
 export const sparkCustomFnTreeAction = mc(
     [
         'RESET_FUC_TREE',

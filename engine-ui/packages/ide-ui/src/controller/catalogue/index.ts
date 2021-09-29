@@ -33,7 +33,6 @@ import {
     greenPlumSysFnTreeActon,
     greenPlumTreeAction,
     greenPlumFnTreeActon,
-    greenPlumProdTreeActon,
     scriptTreeAction,
     componentTreeAction,
     tableTreeAction,
@@ -452,43 +451,6 @@ export const greenPlumFnTreeReducer = (state: any = {}, action: any) => {
         case greenPlumFnTreeActon.EDIT_FOLDER_CHILD: {
             const payload = assign({}, action.payload, {
                 parentId: action.payload.parentId,
-            });
-            const x = addFolderChild(
-                action,
-                deleteFolderChild({ payload: payload }, state)
-            );
-            return x;
-        }
-
-        default:
-            return state;
-    }
-};
-
-export const greenPlumProdTreeReducer = (state: any = {}, action: any) => {
-    switch (action.type) {
-        case greenPlumProdTreeActon.RESET_FUC_TREE:
-            return assign({}, state, action.payload);
-
-        case greenPlumProdTreeActon.LOAD_FOLDER_CONTENT: {
-            return loadFolderContent(action, state);
-        }
-
-        case greenPlumProdTreeActon.ADD_FOLDER_CHILD: {
-            return addFolderChild(action, state);
-        }
-
-        case greenPlumProdTreeActon.DEL_OFFLINE_FOLDER: {
-            return deleteFolderChild(action, state);
-        }
-
-        case greenPlumProdTreeActon.DEL_OFFLINE_FN: {
-            return deleteFolderChild(action, state);
-        }
-
-        case greenPlumProdTreeActon.EDIT_FOLDER_CHILD: {
-            const payload = assign({}, action.payload, {
-                parentId: action.payload.originPid,
             });
             const x = addFolderChild(
                 action,

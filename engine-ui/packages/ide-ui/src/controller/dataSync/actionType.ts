@@ -18,18 +18,6 @@
 
 import mc from 'mirror-creator';
 
-export const commAction = mc(
-    [
-        'GET_TASK_TYPES',
-        'GET_TASK_TYPE_FILTER',
-        'SET_TABLE_LIST',
-        'GET_SCRIPT_TYPES',
-        'GET_COMPONENT_TYPES',
-        'SET_PROJECT_TABLE_LIST',
-    ],
-    { prefix: 'offline/comm/' }
-);
-
 export const modalAction = mc(
     [
         'SET_ENGINE_TYPE',

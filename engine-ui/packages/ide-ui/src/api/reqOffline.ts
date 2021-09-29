@@ -19,12 +19,6 @@
 import { RDOS_BASE_URL } from './req';
 
 const offlineReq = {
-    UNLOCK_FILE: `${RDOS_BASE_URL}/common/readWriteLock/getLock`, // 解锁文件
-
-    // ========================= 离线任务请求 ========================= //
-    SQL_FORMAT: `${RDOS_BASE_URL}/batch/batchTableInfo/sqlFormat`, // SQL格式化服务
-
-    // ===== task模块 ===== //
     SAVE_TASK: `${RDOS_BASE_URL}/batch/batchTask/addOrUpdateTask`, // 添加或者更新任务
     RENAME_TASK: `${RDOS_BASE_URL}/batch/batchTask/renameTask`, // 任务重命名
     FORCE_UPDATE_TASK: `${RDOS_BASE_URL}/batch/batchTask/forceUpdate`, // 强制更新

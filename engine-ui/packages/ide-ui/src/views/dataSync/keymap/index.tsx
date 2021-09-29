@@ -365,9 +365,6 @@ class Keymap extends React.Component<any, any> {
                         });
                     }
                 }
-                /**
-                 * 阿珍爱上了阿强
-                 */
                 if (sourceKeyObj && targetKeyObj) {
                     /**
                      * 存储连线

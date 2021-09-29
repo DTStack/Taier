@@ -20,8 +20,6 @@ import * as React from 'react';
 import { message, Modal, Tag } from 'antd';
 import { uniqBy, cloneDeep, isArray, get, assign } from 'lodash';
 
-import { offlineWorkbenchDB as idb } from '../database';
-
 import ajax from '../../api';
 import {
     MENU_TYPE,
@@ -48,7 +46,6 @@ import {
     sparkCustomFnTreeAction,
     sparkSysFnTreeActon,
     sparkFnTreeAction,
-    greenPlumProdTreeActon,
     greenPlumFnTreeActon,
     scriptTreeAction,
     tableTreeAction,
@@ -252,27 +249,6 @@ export const keyMapActions = (dispatch: any, ownProps: any) => {
 
 // workbenchActions
 export const workbenchActions = (dispatch?: any) => {
-    const closeAll = (tabs: any) => {
-        for (const i in tabs) {
-            dispatch(stopSql(tabs[i].id, null, true));
-        }
-        dispatch({
-            type: workbenchAction.CLOSE_ALL_TABS,
-        });
-    };
-
-    const closeOthers = (id: any, tabs: any) => {
-        for (const i in tabs) {
-            if (tabs[i].id === id) {
-                continue;
-            }
-            dispatch(stopSql(tabs[i].id, null, true));
-        }
-        dispatch({
-            type: workbenchAction.CLOSE_OTHER_TABS,
-            payload: id,
-        });
-    };
 
     const reloadTaskTab = (taskId: any, isScript?: any) => {
         const method: any = isScript ? 'getScriptById' : 'getOfflineTaskDetail';
@@ -355,29 +331,6 @@ export const workbenchActions = (dispatch?: any) => {
         });
     };
 
-    /**
-     * 从IndexDB读取 workbench 缓存数据，
-     * 并初始化
-     */
-    const initWorkbenchCacheData = async (projectId: string | number) => {
-        if (projectId && projectId > 0) {
-            const pid = projectId !== 0 ? projectId : '';
-
-            const db = await idb.open();
-            if (db) {
-                const result: any = await idb.get(
-                    `${pid ? pid + '_' : ''}offline_workbench`
-                );
-                if (result) {
-                    dispatch({
-                        type: workbenchAction.INIT_WORKBENCH,
-                        payload: result,
-                    });
-                }
-            }
-        }
-    };
-
     return {
         dispatch,
 
@@ -396,7 +349,6 @@ export const workbenchActions = (dispatch?: any) => {
         toggleConfirmModal,
         togglePublishModal,
         isSaveFInish,
-        initWorkbenchCacheData,
         /**
          * 更新目录
          */
@@ -962,91 +914,6 @@ export const workbenchActions = (dispatch?: any) => {
                 });
             }
         },
-
-        closeAllorOthers: (action: any, tabs: any, currentTab: any) => {
-            if (action === 'ALL') {
-                let allClean = true;
-
-                for (const tab of tabs) {
-                    console.log('ALL notSynced:', tab.notSynced);
-                    if (tab.notSynced) {
-                        allClean = false;
-                        break;
-                    }
-                }
-
-                if (allClean) {
-                    closeAll(tabs);
-                } else {
-                    confirm({
-                        title: '部分任务修改尚未同步到服务器，是否强制关闭 ?',
-                        content: '强制关闭将丢弃所有修改数据',
-                        onOk() {
-                            closeAll(tabs);
-                        },
-                        onCancel() {},
-                    });
-                }
-            } else {
-                let allClean = true;
-                for (const tab of tabs) {
-                    console.log('notSynced:', tab.notSynced);
-                    if (tab.notSynced && tab.id !== currentTab) {
-                        allClean = false;
-                        break;
-                    }
-                }
-
-                if (allClean) {
-                    closeOthers(currentTab, tabs);
-                } else {
-                    confirm({
-                        title: '部分任务修改尚未同步到服务器，是否强制关闭 ?',
-                        content: '强制关闭将丢弃这些修改数据',
-                        onOk() {
-                            closeOthers(currentTab, tabs);
-                        },
-                        onCancel() {},
-                    });
-                }
-            }
-        },
-
-        /**
-         * 定位文件位置
-         */
-        locateFilePos(data: any, type: any) {
-            if (type === MENU_TYPE.TASK || type === MENU_TYPE.TASK_DEV) {
-                dispatch({
-                    type: taskTreeAction.MERGE_FOLDER_CONTENT,
-                    payload: data,
-                });
-            } else if (MENU_TYPE.SCRIPT) {
-                dispatch({
-                    type: scriptTreeAction.MERGE_FOLDER_CONTENT,
-                    payload: data,
-                });
-            } else if (MENU_TYPE.COMPONENT) {
-                dispatch({
-                    type: componentTreeAction.MERGE_FOLDER_CONTENT,
-                    payload: data,
-                });
-            }
-        },
-        loadTableListNodeByName: (nodePid: any, option = {}) => {
-            ajax.getTableListByName({
-                ...option,
-            }).then((res: any) => {
-                if (res.code === 1) {
-                    const { data } = res;
-                    data.children &&
-                        dispatch({
-                            type: tableTreeAction.LOAD_FOLDER_CONTENT,
-                            payload: data,
-                        });
-                }
-            });
-        },
         /**
          * TODO 代码需重构
          * @param isFunc // 函数管理，默认请求第一层数据
@@ -1094,30 +961,6 @@ export const workbenchActions = (dispatch?: any) => {
                     case MENU_TYPE.SPARKFUNC:
                         action = sparkFnTreeAction;
                         break;
-                    // case MENU_TYPE.LIBRAFUNC:
-                    //     action = libraFnTreeAction;
-                    //     break;
-                    // case MENU_TYPE.LIBRASYSFUN:
-                    //     action = libraSysFnTreeActon;
-                    //     break;
-                    // case MENU_TYPE.TIDB_SYS_FUNC:
-                    //     action = tiDBSysFnTreeActon;
-                    //     break;
-                    // case MENU_TYPE.ORACLE_SYS_FUNC:
-                    //     action = oracleSysFnTreeActon;
-                    //     break;
-                    // case MENU_TYPE.GREEN_PLUM_PROD:
-                    //     action = greenPlumProdTreeActon;
-                    //     break;
-                    // case MENU_TYPE.GREEN_PLUM_SYS_FUNC:
-                    //     action = greenPlumSysFnTreeActon;
-                    //     break;
-                    // case MENU_TYPE.GREEN_PLUM_FUNC:
-                    //     action = greenPlumFnTreeActon;
-                    //     break;
-                    // case MENU_TYPE.GREEN_PLUM:
-                    //     action = greenPlumTreeAction;
-                    //     break;
                     case MENU_TYPE.FUNCTION: 
                     case MENU_TYPE.COSTOMFUC:
                         action = sparkCustomFnTreeAction;
@@ -1150,36 +993,6 @@ export const workbenchActions = (dispatch?: any) => {
                         MENU_TYPE.SYSFUC,
                         ENGINE_SOURCE_TYPE.HADOOP
                     );
-                    // const libraSysFunc = getFuncTree(
-                    //     data,
-                    //     MENU_TYPE.SYSFUC,
-                    //     ENGINE_SOURCE_TYPE.LIBRA
-                    // );
-                    // const tiDBSysFunc = getFuncTree(
-                    //     data,
-                    //     MENU_TYPE.SYSFUC,
-                    //     ENGINE_SOURCE_TYPE.TI_DB
-                    // );
-                    // const oracleSysFunc = getFuncTree(
-                    //     data,
-                    //     MENU_TYPE.SYSFUC,
-                    //     ENGINE_SOURCE_TYPE.ORACLE
-                    // );
-                    // const greenPlumSysFunc = getFuncTree(
-                    //     data,
-                    //     MENU_TYPE.SYSFUC,
-                    //     ENGINE_SOURCE_TYPE.GREEN_PLUM
-                    // );
-                    // const greenPlumFunc = getFuncTree(
-                    //     data,
-                    //     MENU_TYPE.GREEN_PLUM_FUNC,
-                    //     ENGINE_SOURCE_TYPE.GREEN_PLUM
-                    // );
-                    // const greenPlumProd = getFuncTree(
-                    //     data,
-                    //     MENU_TYPE.GREEN_PLUM_PROD,
-                    //     ENGINE_SOURCE_TYPE.GREEN_PLUM
-                    // );
                     dispatch({
                         type: sparkCustomFnTreeAction.RESET_FUC_TREE, // spark自定义函数
                         payload: sparkCusFunc,
@@ -1188,30 +1001,6 @@ export const workbenchActions = (dispatch?: any) => {
                         type: sparkSysFnTreeActon.RESET_SYSFUC_TREE, // spark系统函数
                         payload: sparkSysFunc,
                     });
-                    // dispatch({
-                    //     type: libraSysFnTreeActon.RESET_SYSFUC_TREE,
-                    //     payload: libraSysFunc, // libra系统函数
-                    // });
-                    // dispatch({
-                    //     type: tiDBSysFnTreeActon.RESET_SYSFUC_TREE,
-                    //     payload: tiDBSysFunc, // tidb 系统函数
-                    // });
-                    // dispatch({
-                    //     type: oracleSysFnTreeActon.RESET_SYSFUC_TREE,
-                    //     payload: oracleSysFunc, // oracle 系统函数
-                    // });
-                    // dispatch({
-                    //     type: greenPlumSysFnTreeActon.RESET_SYSFUC_TREE,
-                    //     payload: greenPlumSysFunc, // gp
-                    // });
-                    // dispatch({
-                    //     type: greenPlumFnTreeActon.RESET_FUC_TREE,
-                    //     payload: greenPlumFunc, //
-                    // });
-                    // dispatch({
-                    //     type: greenPlumProdTreeActon.RESET_FUC_TREE,
-                    //     payload: greenPlumProd, //
-                    // });
                 }
             }
         },
@@ -1232,25 +1021,6 @@ export const workbenchActions = (dispatch?: any) => {
                     });
                 }
                 return res;
-            });
-        },
-
-        delOfflineScript(params?: any, nodePid?: any, type?: any) {
-            ajax.deleteScript(params).then((res: any) => {
-                if (res.code === 1) {
-                    message.success('删除成功');
-                    dispatch({
-                        type: scriptTreeAction.DEL_SCRIPT,
-                        payload: {
-                            id: params.scriptId,
-                            parentId: nodePid,
-                        },
-                    });
-                    dispatch({
-                        type: workbenchAction.CLOSE_TASK_TAB,
-                        payload: params.scriptId,
-                    });
-                }
             });
         },
 
@@ -1318,25 +1088,6 @@ export const workbenchActions = (dispatch?: any) => {
                 }
             });
         },
-        saveEngineType(data: any) {
-            // 保存节点engineType
-            dispatch({
-                type: modalAction.SET_ENGINE_TYPE,
-                payload: data,
-            });
-        },
-        setModalKey(data: any) {
-            dispatch({
-                type: modalAction.SET_MODAL_KEY,
-                payload: data,
-            });
-        },
-        setModalDefault(data: any) {
-            dispatch({
-                type: modalAction.SET_MODAL_DEFAULT,
-                payload: data,
-            });
-        },
 
         toggleCreateFolder: function (type: any) {
             dispatch({
@@ -1344,99 +1095,11 @@ export const workbenchActions = (dispatch?: any) => {
                 payload: type,
             });
         },
-
-        toggleCreateTask: function (data?: any) {
-            dispatch({
-                type: modalAction.TOGGLE_CREATE_TASK,
-                payload: data,
-            });
-        },
-        // 克隆任务
-        toggleCloneTask: function (data?: any) {
-            dispatch({
-                type: modalAction.TOGGLE_CLONE_TASK,
-                payload: data,
-            });
-        },
-        // 克隆至工作流
-        toggleCloneToWorkflow: function (data?: any) {
-            dispatch({
-                type: modalAction.TOGGLE_CLONE_TO_WORKFLOW,
-                payload: data,
-            });
-        },
-        // 获取工作流列表
-        getWorkFlowList(params: any) {
-            ajax.getWorkflowList(params).then((res: any) => {
-                if (res.code === 1) {
-                    dispatch({
-                        type: modalAction.GET_WORKFLOW_LIST,
-                        payload: res.data,
-                    });
-                }
-            });
-        },
-        toggleCreateScript: function () {
-            dispatch({
-                type: modalAction.TOGGLE_CREATE_SCRIPT,
-            });
-        },
-
-        toggleCreateComponent: function () {
-            dispatch({
-                type: modalAction.TOGGLE_CREATE_COMPONENT,
-            });
-        },
-
+        
         toggleCreateFn: function (params: any) {
             dispatch({
                 type: modalAction.TOGGLE_CREATE_FN,
                 payload: { fnType: params },
-            });
-        },
-
-        toggleCreateProcedure: function () {
-            dispatch({
-                type: modalAction.TOGGLE_CREATE_PROD,
-            });
-        },
-        toggleChangeProcedure: function (params: any) {
-            dispatch({
-                type: modalAction.TOGGLE_CHANGE_PROD,
-                payload: { data: params },
-            });
-        },
-        toggleChangeFunction: function (params: any) {
-            dispatch({
-                type: modalAction.TOGGLE_CHANGE_FUNC,
-                payload: { data: params, fnType: params.fnType },
-            });
-        },
-        toggleMoveFn: function (params: any) {
-            dispatch({
-                type: modalAction.TOGGLE_MOVE_FN,
-                payload: params,
-            });
-        },
-
-        toggleMoveProd: function (params: any) {
-            dispatch({
-                type: modalAction.TOGGLE_MOVE_PROD,
-                payload: params,
-            });
-        },
-        toggleUpload: function () {
-            dispatch({
-                type: modalAction.TOGGLE_UPLOAD,
-            });
-        },
-
-        toggleCoverUpload: function () {
-            dispatch({
-                type: modalAction.TOGGLE_UPLOAD,
-                payload: {
-                    isCoverUpload: true,
-                },
             });
         },
 
@@ -1476,59 +1139,6 @@ export const workbenchActions = (dispatch?: any) => {
                     }
                 }
             });
-        },
-        delOfflineProd(params: any, nodePid: any) {
-            ajax.delOfflineFn(params).then((res: any) => {
-                if (res.code === 1) {
-                    dispatch({
-                        type: greenPlumProdTreeActon.DEL_OFFLINE_FN,
-                        payload: {
-                            id: params.functionId,
-                            parentId: nodePid,
-                        },
-                    });
-                }
-            });
-        },
-        showFnViewModal(id: any) {
-            dispatch({
-                type: modalAction.SHOW_FNVIEW_MODAL,
-                payload: id,
-            });
-        },
-
-        showResViewModal(id: any) {
-            dispatch({
-                type: modalAction.SHOW_RESVIEW_MODAL,
-                payload: id,
-            });
-        },
-
-        /**
-         *  The below is workflow actions
-         */
-        updateWorkflow(data: any) {
-            dispatch({
-                type: workflowAction.UPDATE,
-                payload: data,
-            });
-        },
-
-        resetWorkflow() {
-            dispatch({
-                type: workflowAction.RESET,
-            });
-        },
-
-        reloadWorkflowTabNode(flowId: any, tabs: any) {
-            if (tabs && tabs.length > 0) {
-                for (let i = 0; i < tabs.length; i++) {
-                    const tab = tabs[i];
-                    if (tab.flowId === flowId) {
-                        reloadTaskTab(tab.id);
-                    }
-                }
-            }
         },
     };
 };

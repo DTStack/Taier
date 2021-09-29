@@ -23,54 +23,6 @@ import dataManageReq from './reqDataManage';
 import { publishType, TASK_TYPE } from '../comm/const';
 
 const api = {
-    sqlFormat(params: any) {
-        // SQL格式化
-        return http.post(offlineReq.SQL_FORMAT, params);
-    },
-
-    unlockFile(params: any) {
-        // 解锁文件
-        return http.post(offlineReq.UNLOCK_FILE, params);
-    },
-
-    getIsStandeAlone(params?: any) {
-        return http.post(req.GET_IS_STANDE_ALONE, params);
-    },
-    addRoleUser(user: any) {
-        return http.post(req.ADD_ROLE_USRE, user);
-    },
-    getLoginedUser() {
-        return http.post(req.GET_USER_BY_ID);
-    },
-    updateUserRole(user: any) {
-        return http.post(req.UPDATE_USER_ROLE, user);
-    },
-    getNotProjectUsers(params: any) {
-        return http.post(req.GET_NOT_PROJECT_USERS, params);
-    },
-
-    searchUICUsers(params: any) {
-        return http.post(req.SEARCH_UIC_USERS, params);
-    },
-    getTenantList(params?: any) {
-        return http.post(req.GET_TENANT_LIST, params);
-    },
-
-    /**
-     * 跟踪采集用户行为
-     * @param {string} target
-     * @param {object} params
-     */
-    //   async trackUserActions(target: any, params: any) {
-    //     const trackTarget = `track_${target}`;
-    //     const tracked = utils.getCookie(trackTarget);
-    //     if (!tracked) {
-    //       const res = await http.post(req.TRACK_USER_ACTIONS, params);
-    //       if (res.code === 1) {
-    //         utils.setCookie(trackTarget, true);
-    //       }
-    //     }
-    //   },
     // ========== Project ========== //
     compareIntrinsicTable(params: any) {
         // hive同步页面中获取新增或删除的表名称
@@ -332,9 +284,6 @@ const api = {
     },
     publishOfflineTask(params: any) {
         return http.post(offlineReq.PUBLISH_TASK, params);
-    },
-    getTaskTypes(params?: any) {
-        return http.post(offlineReq.GET_TASK_TYPES, params);
     },
     getAnalyDataSourceLists(params?: any) {
         return http.post(offlineReq.GET_ANALY_DTATSOURCE_LISTS, params);
@@ -611,9 +560,6 @@ const api = {
     },
     delOfflineFn(params: any) {
         return http.post(offlineReq.DEL_OFFLINE_FN, params);
-    },
-    delOfflineProd(params: any) {
-        return http.post(offlineReq.DEL_OFFLINE_PROD, params);
     },
     moveOfflineFn(params: any) {
         return http.post(offlineReq.MOVE_OFFLINE_FN, params);
