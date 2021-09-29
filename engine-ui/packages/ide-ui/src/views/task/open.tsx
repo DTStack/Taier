@@ -59,6 +59,9 @@ class Open extends React.PureComponent<OpenProps, {}> {
 
     handleSubmit = (e: any) => {
         e.preventDefault();
+        const taskTreeRootId =
+            molecule.folderTree.getState().folderTree?.data?.[0].data.id;
+
         this.props.form.validateFieldsAndScroll((err, values) => {
             if (!err) {
                 this.setState(
@@ -66,7 +69,10 @@ class Open extends React.PureComponent<OpenProps, {}> {
                         loading: true,
                     },
                     () => {
-                        const params = { ...values };
+                        const params = {
+                            ...values,
+                            nodePid: values.nodePid || taskTreeRootId,
+                        };
                         this.props.onSubmit?.(params).then((loading) => {
                             this.setState({
                                 loading,
@@ -88,7 +94,7 @@ class Open extends React.PureComponent<OpenProps, {}> {
                 id: record?.id ?? tabId, // 存入id标识tab中是否有数据
                 name: record?.name,
                 taskType: record?.taskType,
-                nodePid: record?.parentId,
+                nodePid: record?.parentId ?? data.value,
                 taskDesc: record?.taskDesc,
             });
         }
@@ -122,10 +128,15 @@ class Open extends React.PureComponent<OpenProps, {}> {
         });
     };
 
+    handleFolderPickerChange = (value: string) => {
+        this.updateTabData({ nodePid: value });
+    };
+
     render() {
         const { record } = this.props;
         const { getFieldDecorator } = this.props.form;
         const { loading } = this.state;
+
         return (
             <Scrollable>
                 <Form onSubmit={this.handleSubmit} className="mo-open-task">
@@ -133,11 +144,16 @@ class Open extends React.PureComponent<OpenProps, {}> {
                         {getFieldDecorator('name', {
                             rules: [
                                 {
-                                    max: 64,
-                                    message: '任务名称不得超过20个字符！',
+                                    required: true,
+                                    message: `任务名称不可为空！`,
                                 },
                                 {
-                                    required: true,
+                                    max: 128,
+                                    message: `任务名称不得超过128个字符！`,
+                                },
+                                {
+                                    pattern: /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/,
+                                    message: `任务名称只能由字母、数字、中文、下划线组成!`,
                                 },
                             ],
                         })(
@@ -156,6 +172,7 @@ class Open extends React.PureComponent<OpenProps, {}> {
                             rules: [
                                 {
                                     required: true,
+                                    message: `请选择任务类型`,
                                 },
                             ],
                         })(
@@ -178,15 +195,14 @@ class Open extends React.PureComponent<OpenProps, {}> {
                             rules: [
                                 {
                                     required: true,
+                                    message: '存储位置必选！',
                                 },
                             ],
                         })(
                             <FolderPicker
                                 showFile={false}
                                 dataType="task"
-                                onChange={(value: any) => {
-                                    this.updateTabData({ nodePid: value });
-                                }}
+                                onChange={this.handleFolderPickerChange}
                             />
                         )}
                     </FormItem>

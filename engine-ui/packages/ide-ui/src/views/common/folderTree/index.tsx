@@ -1,6 +1,10 @@
 import React from 'react';
 import { message } from 'antd';
-import { FileTypes, IExtension, TreeNodeModel } from '@dtinsight/molecule/esm/model';
+import {
+    FileTypes,
+    IExtension,
+    TreeNodeModel,
+} from '@dtinsight/molecule/esm/model';
 import { localize } from '@dtinsight/molecule/esm/i18n/localize';
 import molecule from '@dtinsight/molecule/esm';
 import { connect } from '@dtinsight/molecule/esm/react';
@@ -33,8 +37,73 @@ import { editorAction } from '../../../controller/editor/actionTypes';
 import { cloneDeep } from 'lodash';
 import { getStatusBarLanguage, updateStatusBarLanguage } from '../statusBar';
 
-const OpenView = connect(molecule.editor, Open)
-const EditFolderView = connect(molecule.editor, EditFolder)
+const OpenView = connect(molecule.editor, Open);
+const EditFolderView = connect(molecule.editor, EditFolder);
+
+/**
+ * Update task tree node
+ * @param data the back-end data
+ */
+function updateTree(data: any) {
+    getCatalogueViaNode({
+        id: data.parentId,
+        catalogueType: data.catalogueType,
+    }).then((data) => {
+        const nextNode = transformCatalogueToTree(data, 'task');
+        nextNode && molecule.folderTree.update(nextNode);
+    });
+}
+
+/**
+ * Open a tab for creating task
+ * @param id the nodePid in tab
+ */
+function openCreateTab(id: number) {
+    const onSubmit = (values: any) => {
+        return new Promise<boolean>((resolve) => {
+            const params = {
+                ...values,
+                computeType: 1,
+                lockVersion: 0,
+                version: 0,
+            };
+            ajax.addOfflineTask(params)
+                .then((res: any) => {
+                    if (res.code === 1) {
+                        const { data } = res;
+                        molecule.editor.closeTab(tabId, 1);
+                        molecule.explorer.forceUpdate();
+                        updateTree(data);
+                        const { current } = molecule.editor.getState();
+                        if (current?.tab?.data.taskType === TASK_TYPE.SQL) {
+                            molecule.editor.updateActions([
+                                { id: TASK_RUN_ID, disabled: false },
+                            ]);
+                        }
+                    }
+                })
+                .finally(() => {
+                    resolve(false);
+                });
+        });
+    };
+
+    const tabId = `${CREATE_TASK_PREFIX}_${new Date().getTime()}`;
+    const tabData = {
+        id: tabId,
+        modified: false,
+        name: localize('create task', '新建任务'),
+        data: {
+            value: id,
+        },
+        renderPane: () => {
+            return <OpenView key={tabId} tabId={tabId} onSubmit={onSubmit} />;
+        },
+    };
+
+    molecule.editor.open(tabData);
+    molecule.explorer.forceUpdate();
+}
 
 function init() {
     molecule.explorer.onPanelToolbarClick((panel, toolbarId: string) => {
@@ -56,97 +125,30 @@ function init() {
     );
 }
 
-function updateTree(data: any) {
-    getCatalogueViaNode({
-        id: data.parentId,
-        catalogueType: data.catalogueType,
-    }).then((data) => {
-        const nextNode = transformCatalogueToTree(data, 'task');
-        nextNode && molecule.folderTree.update(nextNode);
-    });
-}
-
 // 初始化右键菜单
 function initContextMenu() {
-    const { folderTree } = molecule.folderTree.getState();
-    const contextMenu = folderTree?.contextMenu?.concat() || [];
-    contextMenu.push({
-        id: FOLDERTREE_CONTEXT_EDIT,
-        name: '编辑',
-    });
-    molecule.folderTree.setState({
-        folderTree: {
-            ...folderTree,
-            contextMenu,
-        },
+    molecule.folderTree.onRightClick((treeNode, menu) => {
+        if (!treeNode.isLeaf) {
+            // insert these menus into folder context
+            menu.splice(0, 1, { id: 'task.create', name: '新建任务' });
+            menu.splice(3, 0, {
+                id: FOLDERTREE_CONTEXT_EDIT,
+                name: '编辑',
+            });
+        } else {
+            menu.splice(2, 0, {
+                id: FOLDERTREE_CONTEXT_EDIT,
+                name: '编辑',
+            });
+        }
     });
 }
 
 function createTask() {
-
     molecule.folderTree.onCreate((type, id) => {
         if (type === 'File') {
             resetEditorGroup();
-
-            const tabId = `${CREATE_TASK_PREFIX}_${new Date().getTime()}`;
-
-            const onSubmit = (values: any) => {
-                return new Promise<boolean>((resolve) => {
-                    const params = {
-                        ...values,
-                        nodePid: 233,
-                        computeType: 1,
-                        lockVersion: 0,
-                        version: 0,
-                    };
-                    ajax.addOfflineTask(params)
-                        .then((res: any) => {
-                            if (res.code === 1) {
-                                const { data } = res;
-                                molecule.editor.closeTab(tabId, 1);
-                                molecule.explorer.forceUpdate();
-                                updateTree(data);
-                                const { current } = molecule.editor.getState();
-                                if (
-                                    current?.tab?.data.taskType ===
-                                    TASK_TYPE.SQL
-                                ) {
-                                    molecule.editor.updateActions([
-                                        { id: TASK_RUN_ID, disabled: false },
-                                    ]);
-                                }
-                            }
-                        })
-                        .finally(() => {
-                            resolve(false);
-                        });
-                });
-            };
-
-            const tabData = {
-                id: TASK_CREATE_ID,
-                modified: false,
-                name: localize('create task', '新建任务'),
-                data: {
-                    value: id,
-                },
-                renderPane: () => {
-                    return <OpenView 
-                        key={tabId} 
-                        tabId={tabId} 
-                        onSubmit={onSubmit}
-                    />;
-                },
-            };
-
-            const { groups = [] } = molecule.editor.getState();
-            const isExist = groups.some((group) =>
-                group.data?.some((tab) => tab.id === tabId)
-            );
-            if (!isExist) {
-                molecule.editor.open(tabData);
-                molecule.explorer.forceUpdate();
-            }
+            openCreateTab(id!);
         } else if (type === 'Folder') {
             // work through addNode function
             molecule.folderTree.add(
@@ -230,7 +232,6 @@ function editTreeNodeName() {
         }
     });
 }
-
 
 // TODO: refactor, tab 数据可以从molecule中取出，无需存在redux中
 export function openTaskInTab(taskId: any, file?: any) {
@@ -344,6 +345,7 @@ export function openTaskInTab(taskId: any, file?: any) {
 
 function onSelectFile() {
     molecule.folderTree.onSelectFile((file) => {
+        molecule.folderTree.setActive(file.id);
         openTaskInTab(file.id, file);
     });
 }
@@ -366,6 +368,12 @@ function onRemove() {
 function contextMenu() {
     molecule.folderTree.onContextMenu((menu, treeNode) => {
         switch (menu.id) {
+            case 'task.create': {
+                resetEditorGroup();
+
+                openCreateTab(treeNode!.data.id);
+                break;
+            }
             case FOLDERTREE_CONTEXT_EDIT: {
                 resetEditorGroup();
                 const isFile = treeNode!.fileType === 'File';
@@ -375,12 +383,19 @@ function contextMenu() {
                     : `${EDIT_FOLDER_PREFIX}_${new Date().getTime()}`;
 
                 const afterSubmit = (params: any, values: any) => {
-                    const nextTreeData = cloneDeep(treeNode!);
+                    // 更新旧结点所在的文件夹
+                    updateTree({
+                        parentId: treeNode!.data.parentId,
+                        catalogueType: 'TaskDevelop',
+                    });
 
-                    nextTreeData.data = params;
-                    nextTreeData.name = values.name;
-
-                    molecule.folderTree.update(treeNode!);
+                    // 如果文件的位置发生了移动，则还需要更新新结点所在的文件夹
+                    if (treeNode!.data.parentId !== params.nodePid) {
+                        updateTree({
+                            parentId: params.nodePid,
+                            catalogueType: 'TaskDevelop',
+                        });
+                    }
 
                     // 确保 editor 的 tab 的 id 和 tree 的 id 保持一致
                     // 同步去更新 tab 的 name
@@ -392,8 +407,9 @@ function contextMenu() {
                         });
                     }
 
-                    molecule.editor.closeTab(tabId, 1);
-                    molecule.explorer.forceUpdate();
+                    // 关闭当前编辑的 tab
+                    const groupId = molecule.editor.getGroupIdByTab(tabId)!;
+                    molecule.editor.closeTab(tabId, groupId);
 
                     // 关闭后编辑任务的 tab 后，需要去更新 actions 的状态
                     const { current } = molecule.editor.getState();
@@ -412,7 +428,6 @@ function contextMenu() {
                         const params = {
                             id: treeNode!.data.id,
                             isUseComponent: 0,
-                            nodePid: 233,
                             computeType: 1,
                             lockVersion: 0,
                             version: 0,
@@ -504,15 +519,21 @@ function onLoadTree() {
 
 export default class FolderTreeExtension implements IExtension {
     activate() {
+        // 初始化 entry 样式和刷新
         init();
+        // 初始化右键菜单
         initContextMenu();
-
+        // 文件夹异步加载
         onLoadTree();
-
+        // 新建任务
         createTask();
+        // 目录树点击事件
         onSelectFile();
+        // 右键菜单点击事件
         contextMenu();
+        // 删除事件
         onRemove();
+        // 重命名
         editTreeNodeName();
     }
 }

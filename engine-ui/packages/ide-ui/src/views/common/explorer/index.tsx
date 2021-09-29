@@ -16,11 +16,6 @@ function changeContextMenuName() {
         molecule.explorer.setState({
             data: explorerData,
         });
-
-        // 右键菜单也需要修改
-        const contextMenu = molecule.folderTree.getFolderContextMenu().concat();
-        contextMenu[0].name = '新建任务';
-        molecule.folderTree.setFolderContextMenu(contextMenu);
     }
 }
 
