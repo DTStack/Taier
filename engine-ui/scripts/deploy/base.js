@@ -131,7 +131,8 @@ function pluginInject(configFilePath) {
                 item = item.replace(/(?<!\\)\\(?!\\)/g, '');
                 return (total += `${item.replace(/\\\\/g, '\\')}\n`);
             }, '');
-        const finalContent = licenseModule + pluginModule + contentBody;
+        // const finalContent = licenseModule + pluginModule + contentBody;
+        const finalContent = pluginModule + contentBody;
 
         sourceFile.set(configFilePath, content);
         fs.writeFileSync(configFilePath, finalContent, { encoding: 'utf8' });
