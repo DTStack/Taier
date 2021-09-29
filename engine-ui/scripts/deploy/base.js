@@ -90,7 +90,7 @@ function logger(message) {
     console.log('DAG Info:'.padEnd(6, ' '), message);
 }
 
-function iconfontInject(iconFilePath) {
+function iconfontInject(project, iconFilePath) {
     try {
         const content = fs.readFileSync(iconFilePath, { encoding: 'utf8' });
         /**
@@ -98,7 +98,7 @@ function iconfontInject(iconFilePath) {
          */
         const finalContent = content.replace(
             /(?<=url\(')(iconfont)/g,
-            `${publicURL}/console/public/iconfont/$1`
+            `${publicURL}/${project}/public/iconfont/$1`
         );
         
         sourceFile.set(iconFilePath, content);
@@ -108,7 +108,7 @@ function iconfontInject(iconFilePath) {
     }
 }
 
-function pluginInject(configFilePath) {
+function pluginInject(project, configFilePath) {
     try {
         const content = fs.readFileSync(configFilePath, { encoding: 'utf8' });
         const randomId = Math.random().toString().replace('.', '');
@@ -122,7 +122,7 @@ function pluginInject(configFilePath) {
         const contentBody = JSON.stringify(content)
             .replace(
                 /(?<=plugins:\s\[)(.+)(?=\])/,
-                `\n            new ${pluginName}({ addCode: "${publicURL}" }),$1`
+                `\n            new ${pluginName}({ addCode: "${publicURL}/${project}/" }),$1`
             )
             .slice(1)
             .split('\\n')
@@ -131,7 +131,7 @@ function pluginInject(configFilePath) {
                 item = item.replace(/(?<!\\)\\(?!\\)/g, '');
                 return (total += `${item.replace(/\\\\/g, '\\')}\n`);
             }, '');
-        const finalContent = licenseModule + pluginModule + contentBody;
+        const finalContent = pluginModule + contentBody;
 
         sourceFile.set(configFilePath, content);
         fs.writeFileSync(configFilePath, finalContent, { encoding: 'utf8' });
@@ -146,11 +146,11 @@ function microAdaptation(projects) {
     projects.forEach((item) => {
         if (bundlePath.hasOwnProperty(item)) {
             const completePath = path.join(rootPath, bundlePath[item]);
-            pluginInject(completePath);
+            pluginInject(item, completePath);
         }
         if (iconfontPath.hasOwnProperty(item)) {
             const completePath = path.join(rootPath, iconfontPath[item]);
-            iconfontInject(completePath);
+            iconfontInject(item, completePath);
         }
     });
 
