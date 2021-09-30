@@ -21,11 +21,11 @@ import { Modal } from 'antd';
 import './style';
 
 const DtModal = (props: any) => {
-  return (
-    <Modal {...props} className={'dt-modal'}>
-      {props.children}
-    </Modal>
-  );
+	return (
+		<Modal {...props} className={'dt-modal'}>
+			{props.children}
+		</Modal>
+	);
 };
 
 export default DtModal;

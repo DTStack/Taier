@@ -1,145 +1,145 @@
 .dm-list {
-  .search-area {
-    .search {
-      width: 200px;
-    }
-  }
-  .table-area {
-    margin-top: 12px;
-    height: calc(100% - 68px);
-    position: relative;
-    .ant-divider-vertical {
-      background-color: #3f87ff !important;
-    }
-    .table {
-      height: calc(100% - 32px);
+	.search-area {
+		.search {
+			width: 200px;
+		}
+	}
+	.table-area {
+		position: relative;
+		height: calc(100% - 68px);
+		margin-top: 12px;
+		.ant-divider-vertical {
+			background-color: #3f87ff !important;
+		}
+		.table {
+			height: calc(100% - 32px);
 
-      .ant-table-thead > tr > th {
-        padding: 12px 20px;
-      }
+			.ant-table-thead > tr > th {
+				padding: 12px 20px;
+			}
 
-      .ant-table-tbody > tr > td {
-        padding: 18px 20px;
-      }
+			.ant-table-tbody > tr > td {
+				padding: 18px 20px;
+			}
 
-      // .ant-table-fixed-header .ant-table-scroll .ant-table-header {
-      //   margin-bottom: -17px !important;
-      // }
-    }
-    .drawer {
-      height: calc(100% - 148px);
-      top: 128px;
-      .ant-drawer-content-wrapper {
-        max-width: 80vw !important;
-      }
-      .slider {
-        position: absolute;
-        top: 50%;
-        left: 0;
-        transform: translateY(-50%);
-        width: 18px;
-        height: 50px;
-        line-height: 50px;
-        background: #eeeeee;
-        border-radius: 0px 2px 2px 0px;
-        border: 1px solid #dddddd;
-        cursor: pointer;
-        z-index: 1;
-        color: #999999;
-      }
-    }
-    .pagination-container {
-      width: 100%;
-      height: 56px;
-      line-height: 56px;
-      background: #fff;
-      .pagination {
-        left: 0;
-        float: right;
-        margin-top: 16px;
-      }
-      .tips {
-        margin-right: 20px;
-        float: right;
-        font-size: 12px;
-        font-family: PingFangSC-Regular, PingFang SC, sans-serif;
-        font-weight: 400;
-        color: #666666;
-        .highlight {
-          color: #3f87ff;
-        }
-      }
-    }
-    .dot {
-      width: 8px;
-      height: 8px;
-      margin-right: 8px;
-      display: inline-block;
-      border-radius: 50%;
-    }
-    .btn-disabled {
-      color: #999999;
-      cursor: not-allowed;
-    }
-  }
-  .ant-table {
-    .ant-table-content {
-      margin-top: 1px;
-    }
-    .ant-table-thead > tr > th {
-      border: none !important;
-    }
-    .ant-table-fixed-left,
-    .ant-table-fixed-right {
-      td {
-        box-sizing: border-box;
-      }
-      .ant-table-header {
-        .ant-table-fixed {
-          th {
-            border-bottom: none;
-          }
-        }
-      }
-    }
-  }
+			// .ant-table-fixed-header .ant-table-scroll .ant-table-header {
+			//   margin-bottom: -17px !important;
+			// }
+		}
+		.drawer {
+			top: 128px;
+			height: calc(100% - 148px);
+			.ant-drawer-content-wrapper {
+				max-width: 80vw !important;
+			}
+			.slider {
+				position: absolute;
+				top: 50%;
+				left: 0;
+				z-index: 1;
+				width: 18px;
+				height: 50px;
+				color: #999999;
+				line-height: 50px;
+				background: #eeeeee;
+				border: 1px solid #dddddd;
+				border-radius: 0px 2px 2px 0px;
+				transform: translateY(-50%);
+				cursor: pointer;
+			}
+		}
+		.pagination-container {
+			width: 100%;
+			height: 56px;
+			line-height: 56px;
+			background: #fff;
+			.pagination {
+				left: 0;
+				float: right;
+				margin-top: 16px;
+			}
+			.tips {
+				float: right;
+				margin-right: 20px;
+				color: #666666;
+				font-weight: 400;
+				font-size: 12px;
+				font-family: PingFangSC-Regular, PingFang SC, sans-serif;
+				.highlight {
+					color: #3f87ff;
+				}
+			}
+		}
+		.dot {
+			display: inline-block;
+			width: 8px;
+			height: 8px;
+			margin-right: 8px;
+			border-radius: 50%;
+		}
+		.btn-disabled {
+			color: #999999;
+			cursor: not-allowed;
+		}
+	}
+	.ant-table {
+		.ant-table-content {
+			margin-top: 1px;
+		}
+		.ant-table-thead > tr > th {
+			border: none !important;
+		}
+		.ant-table-fixed-left,
+		.ant-table-fixed-right {
+			td {
+				box-sizing: border-box;
+			}
+			.ant-table-header {
+				.ant-table-fixed {
+					th {
+						border-bottom: none;
+					}
+				}
+			}
+		}
+	}
 }
 
 .float-right {
-  float: right;
+	float: right;
 }
 
 .padding-tb-20 {
-  padding: 20px 0;
+	padding: 20px 0;
 }
 
 .overflow-auto {
-  overflow: auto;
+	overflow: auto;
 }
 
 .btn-link {
-  color: #3f87ff;
-  &:hover {
-    color: #3f87ffaa;
-  }
+	color: #3f87ff;
+	&:hover {
+		color: #3f87ffaa;
+	}
 }
 
 .icon-filter {
-  font-size: 16px !important;
-  margin-top: 2px;
-  &.filtered {
-    color: #3f87ff !important;
-  }
+	margin-top: 2px;
+	font-size: 16px !important;
+	&.filtered {
+		color: #3f87ff !important;
+	}
 }
 
 .ant-table {
-  .ant-table-filter-icon {
-    margin-left: 4px;
-  }
+	.ant-table-filter-icon {
+		margin-left: 4px;
+	}
 }
 
 .ant-dropdown-open {
-  .iconfont2 {
-    color: #3f87ff;
-  }
+	.iconfont2 {
+		color: #3f87ff;
+	}
 }

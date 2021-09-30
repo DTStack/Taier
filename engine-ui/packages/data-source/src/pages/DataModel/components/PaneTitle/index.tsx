@@ -20,17 +20,17 @@ import React from 'react';
 import './style';
 
 interface IPropsPaneTitle {
-  title: string;
+	title: string;
 }
 
 const PaneTitle = (props: IPropsPaneTitle) => {
-  const { title } = props;
-  return (
-    <div className="pane-title" data-testid="pane-title">
-      {/* <div className="block" /> */}
-      <span className="title">{title}</span>
-    </div>
-  );
+	const { title } = props;
+	return (
+		<div className="pane-title" data-testid="pane-title">
+			{/* <div className="block" /> */}
+			<span className="title">{title}</span>
+		</div>
+	);
 };
 
 export default PaneTitle;

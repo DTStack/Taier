@@ -1,124 +1,123 @@
 body {
-    margin: 0;
-    padding: 0;
+	margin: 0;
+	padding: 0;
 }
 
 code {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-        monospace;
+	font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
 #root {
-    height: 100%;
+	height: 100%;
 }
 
 #AppContainer > div {
-    width: 100%;
-    height: 100%;
+	width: 100%;
+	height: 100%;
 }
 
 .container {
-    position: absolute;
-    top: 0px;
-    width: 100%;
-    bottom: 0;
+	position: absolute;
+	top: 0px;
+	bottom: 0;
+	width: 100%;
 }
 
 .App-logo {
-    height: 40vmin;
-    pointer-events: none;
+	height: 40vmin;
+	pointer-events: none;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
-    }
+	.App-logo {
+		animation: App-logo-spin infinite 20s linear;
+	}
 }
 
 #root .dt-layout-header {
-    justify-content: normal;
+	justify-content: normal;
 }
 
 .App-header {
-    background-color: #282c34;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	min-height: 100vh;
+	color: white;
+	font-size: calc(10px + 2vmin);
+	background-color: #282c34;
 }
 
 .App-link {
-    color: #61dafb;
+	color: #61dafb;
 }
 
 @keyframes App-logo-spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
 }
 
 .ant-layout-header .left-box {
-    display: flex;
+	display: flex;
 }
 .ant-layout-header .left-box .logo img {
-    width: 112px;
-    height: 28px;
+	width: 112px;
+	height: 28px;
 }
 .ant-layout-header .anticon-down {
-    margin-left: 4px;
+	margin-left: 4px;
 }
 .ant-layout-header .dropdown-menu {
-    cursor: pointer;
+	cursor: pointer;
 }
 .ant-layout-header .nav-dropdown {
-    display: flex;
-    align-items: center;
-    padding-right: 20px;
+	display: flex;
+	align-items: center;
+	padding-right: 20px;
 }
 .ant-layout-header .nav-dropdown .fx-center {
-    display: flex;
-    align-items: center;
+	display: flex;
+	align-items: center;
 }
 .ant-layout-header .nav-dropdown .tenDropText {
-    font-weight: 400;
-    color: #bfbfbf;
-    cursor: pointer;
-    margin-left: 30px;
-    display: inline-block;
-    height: 64px;
-    font-size: 14px;
+	display: inline-block;
+	height: 64px;
+	margin-left: 30px;
+	color: #bfbfbf;
+	font-weight: 400;
+	font-size: 14px;
+	cursor: pointer;
 }
 .ant-layout-header .nav-dropdown .tenDropText .username {
-    display: inline-block;
-    vertical-align: middle;
-    max-width: 220px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+	display: inline-block;
+	max-width: 220px;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	vertical-align: middle;
 }
 .ant-layout-header .nav-dropdown .ant-dropdown-placement-bottomLeft {
-    margin-top: 15px;
+	margin-top: 15px;
 }
 .ant-layout-header .nav-modal .title {
-    font-size: 16px;
-    margin: 0 auto;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 35px;
+	margin: 0 auto;
+	margin-bottom: 35px;
+	font-weight: bold;
+	font-size: 16px;
+	text-align: center;
 }
 .ant-layout-header .nav-modal .ant-form-item-label label {
-    font-size: 14px;
-    font-weight: normal;
-    color: #666666;
+	color: #666666;
+	font-weight: normal;
+	font-size: 14px;
 }
 
 .split-text {
-    float: left;
-    padding: 0px 5px;
+	float: left;
+	padding: 0px 5px;
 }

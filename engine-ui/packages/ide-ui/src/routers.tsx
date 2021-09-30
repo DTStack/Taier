@@ -24,22 +24,22 @@ import IDE from './views/workbench';
 import Login from './uic';
 
 export function isLogin() {
-    const pid = getItem(USER_NAME);
-    if (pid) {
-        hashHistory.push('/');
-    }
+	const pid = getItem(USER_NAME);
+	if (pid) {
+		hashHistory.push('/');
+	}
 }
 
 export function isLogout() {
-    const pid = getItem(USER_NAME);
-    if (!pid) {
-        hashHistory.push('/login');
-    }
+	const pid = getItem(USER_NAME);
+	if (!pid) {
+		hashHistory.push('/login');
+	}
 }
 
 export default (
-    <>
-        <Route path="/login" component={Login} onEnter={isLogin}></Route>
-        <Route path="/" component={IDE} onEnter={isLogout}></Route>
-    </>
+	<>
+		<Route path="/login" component={Login} onEnter={isLogin}></Route>
+		<Route path="/" component={IDE} onEnter={isLogout}></Route>
+	</>
 );

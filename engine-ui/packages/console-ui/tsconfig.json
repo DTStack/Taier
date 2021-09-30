@@ -1,32 +1,21 @@
 {
-    "compilerOptions": {
-        "noEmit": true,  // Don't emit; allow Babel to transform files.
-        "outDir":"./dist/",
-        "baseUrl": ".",
-        "experimentalDecorators": true,
-        "noImplicitAny": false,
-        "esModuleInterop": true,
-        "allowJs": true,
-        "module": "commonjs",
-        "target": "es5",
-        "lib": [ "es6","es2016","dom" ],
-        "jsx": "react",
-        "allowSyntheticDefaultImports": true,
-        "paths": {
-        },
-        "skipLibCheck": true,
-        "typeRoots": [
-            "node",
-            "node_modules/@types",
-            "./typings"
-        ],
-    },
-    "exclude": [
-        "node_modules",
-        "dist",
-        "src/public/**/*"
-    ],
-    "include": [
-        "src/**/*"
-    ]
+	"compilerOptions": {
+		"noEmit": true, // Don't emit; allow Babel to transform files.
+		"outDir": "./dist/",
+		"baseUrl": ".",
+		"experimentalDecorators": true,
+		"noImplicitAny": false,
+		"esModuleInterop": true,
+		"allowJs": true,
+		"module": "commonjs",
+		"target": "es5",
+		"lib": ["es6", "es2016", "dom"],
+		"jsx": "react",
+		"allowSyntheticDefaultImports": true,
+		"paths": {},
+		"skipLibCheck": true,
+		"typeRoots": ["node", "node_modules/@types", "./typings"]
+	},
+	"exclude": ["node_modules", "dist", "src/public/**/*"],
+	"include": ["src/**/*"]
 }

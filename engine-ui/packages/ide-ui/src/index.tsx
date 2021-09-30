@@ -23,8 +23,8 @@ import { hashHistory } from 'react-router';
 import App from './views/App';
 
 ReactDOM.render(
-    <React.StrictMode>
-        <App history={hashHistory} />
-    </React.StrictMode>,
-    document.getElementById('root')
+	<React.StrictMode>
+		<App history={hashHistory} />
+	</React.StrictMode>,
+	document.getElementById('root'),
 );

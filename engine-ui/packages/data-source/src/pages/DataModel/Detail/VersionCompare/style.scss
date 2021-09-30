@@ -1,28 +1,28 @@
 .version-compare {
-  width: 100%;
-  height: 400px;
-  position: relative;
-  .version-title {
-    position: relative;
-    width: 100%;
-    height: 20px;
-    &-prev {
-      position: absolute;
-      left: 0;
-    }
-    &-next {
-      position: absolute;
-      left: 320px;
-    }
-    .text {
-      font-size: 12px;
-      font-family: PingFangSC-Regular, PingFang SC;
-      font-weight: 400;
-      color: #666666;
-      line-height: 20px;
-    }
-  }
-  &-diff {
-    height: 360px;
-  }
+	position: relative;
+	width: 100%;
+	height: 400px;
+	.version-title {
+		position: relative;
+		width: 100%;
+		height: 20px;
+		&-prev {
+			position: absolute;
+			left: 0;
+		}
+		&-next {
+			position: absolute;
+			left: 320px;
+		}
+		.text {
+			color: #666666;
+			font-weight: 400;
+			font-size: 12px;
+			font-family: PingFangSC-Regular, PingFang SC;
+			line-height: 20px;
+		}
+	}
+	&-diff {
+		height: 360px;
+	}
 }

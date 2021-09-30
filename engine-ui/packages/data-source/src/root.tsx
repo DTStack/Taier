@@ -27,22 +27,23 @@ import 'ant-design-dtinsight-theme/theme/dt-theme/reset.less';
 import 'ant-design-dtinsight-theme/theme/dt-theme/index.less';
 
 interface Props {
-  store: any;
-  history?: any;
+	store: any;
+	history?: any;
 }
 
 export default class Root extends Component<Props> {
-  render() {
-    const { store, history } = this.props;
-    return (
-      <ConfigProvider
-        locale={zhCN}
-        autoInsertSpaceInButton={false}
-        getPopupContainer={() => document.body.querySelector('div[id="app"]')}>
-        <Provider store={store}>
-          <Router routes={getRoutes()} history={history} />
-        </Provider>
-      </ConfigProvider>
-    );
-  }
+	render() {
+		const { store, history } = this.props;
+		return (
+			<ConfigProvider
+				locale={zhCN}
+				autoInsertSpaceInButton={false}
+				getPopupContainer={() => document.body.querySelector('div[id="app"]')}
+			>
+				<Provider store={store}>
+					<Router routes={getRoutes()} history={history} />
+				</Provider>
+			</ConfigProvider>
+		);
+	}
 }

@@ -17,6 +17,6 @@
  */
 
 export enum EnumModalActionType {
-  CLOSE = 'CLOSE',
-  OPEN = 'OPEN',
+	CLOSE = 'CLOSE',
+	OPEN = 'OPEN',
 }

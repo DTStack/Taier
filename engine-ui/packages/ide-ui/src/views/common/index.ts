@@ -30,14 +30,14 @@ import ThemeExtension from './colorTheme';
 import WelcomeExtension from './welcome';
 
 export const extensions: IExtension[] = [
-    new ThemeExtension(),
-    new CatalogueExtension(),
-    new ExplorerExtensions(),
-    new EditorExtension(),
-    new FolderTreeExtension(),
-    new PanelExtension(),
-    new SidebarExtension(),
-    new ExtendsSparkSQL(),
-    new StatusBarExtension(),
-    new WelcomeExtension(),
+	new ThemeExtension(),
+	new CatalogueExtension(),
+	new ExplorerExtensions(),
+	new EditorExtension(),
+	new FolderTreeExtension(),
+	new PanelExtension(),
+	new SidebarExtension(),
+	new ExtendsSparkSQL(),
+	new StatusBarExtension(),
+	new WelcomeExtension(),
 ];

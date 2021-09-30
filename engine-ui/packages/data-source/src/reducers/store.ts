@@ -26,19 +26,19 @@ declare var window: any;
 declare var APP: any;
 
 function configureStoreDev(rootReducer: any) {
-  const store = createStore(
-    rootReducer,
-    compose(
-      applyMiddleware(thunkMiddleware, createLogger()),
-      window.devToolsExtension ? window.devToolsExtension() : (fn: any) => fn
-    )
-  );
-  return store;
+	const store = createStore(
+		rootReducer,
+		compose(
+			applyMiddleware(thunkMiddleware, createLogger()),
+			window.devToolsExtension ? window.devToolsExtension() : (fn: any) => fn,
+		),
+	);
+	return store;
 }
 
 function configureStoreProd(rootReducer: any) {
-  const stroe = createStore(rootReducer, applyMiddleware(thunkMiddleware));
-  return stroe;
+	const stroe = createStore(rootReducer, applyMiddleware(thunkMiddleware));
+	return stroe;
 }
 
 /**
@@ -47,15 +47,14 @@ function configureStoreProd(rootReducer: any) {
  * @param { String } routeMode [hash, browser]
  */
 export function getStore(rootReducer: any, routeMode?: any) {
-  const store =
-    process.env.NODE_ENV === 'production'
-      ? configureStoreProd(rootReducer)
-      : configureStoreDev(rootReducer);
-  const bhistory =
-    !routeMode || routeMode !== 'hash' ? browserHistory : hashHistory;
-  const history = syncHistoryWithStore(bhistory, store);
-  return {
-    store,
-    history,
-  };
+	const store =
+		process.env.NODE_ENV === 'production'
+			? configureStoreProd(rootReducer)
+			: configureStoreDev(rootReducer);
+	const bhistory = !routeMode || routeMode !== 'hash' ? browserHistory : hashHistory;
+	const history = syncHistoryWithStore(bhistory, store);
+	return {
+		store,
+		history,
+	};
 }

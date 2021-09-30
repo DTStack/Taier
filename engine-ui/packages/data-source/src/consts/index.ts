@@ -20,5 +20,5 @@
 const FOO = 'foo';
 
 export default {
-  FOO: FOO,
+	FOO: FOO,
 };

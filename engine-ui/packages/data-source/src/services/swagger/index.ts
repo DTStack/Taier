@@ -23,6 +23,6 @@ import dataModel from './data-model';
 import dataSources from './dataSources';
 
 export default {
-  ...dataModel,
-  ...dataSources,
+	...dataModel,
+	...dataSources,
 };

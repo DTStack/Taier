@@ -24,186 +24,186 @@ $minWidth: 1260px;
 $bgPath: '/assets/imgs/dataModel/bg-relation-view.png';
 
 .graph-editor {
-  position: relative;
-  height: 100%;
-  flex: 1;
-  text-align: center;
-  .graph_loading {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: absolute;
-    background: rgba(255, 255, 255, 0.5);
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    z-index: 1000;
-    clear: both;
-    overflow: hidden;
-  }
-  .graph_toolbar {
-    position: absolute;
-    right: 10px;
-    bottom: 140px;
-    width: 34px;
-    text-align: center;
-    z-index: 1000;
-    .basic_bar {
-      background: rgba(255, 255, 255, 1);
-      box-shadow: 0px 2px 8px 0px rgba(63, 135, 255, 0.2);
-    }
-    .spread_bar {
-      position: relative;
-      margin-top: 10px;
-      background: rgba(255, 255, 255, 1);
-      box-shadow: 0px 2px 8px 0px rgba(63, 135, 255, 0.2);
-    }
-    .toolbar-icon {
-      display: inline-block;
-      cursor: pointer;
-      width: 34px;
-      height: 34px;
-      line-height: 34px;
-      color: #979797;
-      font-size: 20px;
-      border-bottom: 1px solid #e8e8e8;
-      &.active {
-        color: #3f87ff;
-      }
-    }
-    .outlineContainer {
-      width: 240px;
-      display: none;
-      position: absolute;
-      top: 0px;
-      right: 36px;
-      height: 160px;
-      background: rgba(255, 255, 255, 1);
-      box-shadow: 0px 2px 8px 0px rgba(63, 135, 255, 0.2);
-      .outline_title {
-        display: flex;
-        justify-content: space-between;
-        padding: 10px;
-        border-bottom: 1px solid #e8e8e8;
-        .name {
-          font-size: 12px;
-          font-family: PingFangSC-Semibold, PingFang SC;
-          font-weight: 600;
-          color: rgba(51, 51, 51, 1);
-          line-height: 17px;
-        }
-        .double-right {
-          cursor: pointer;
-          font-size: 12px;
-          color: #666666;
-        }
-      }
-      .outline-content {
-        height: 128px;
-      }
-      &.active {
-        display: block;
-      }
-    }
-  }
-  .graph_container {
-    background: url($bgPath) #ffffff;
-    cursor: pointer;
-    position: absolute;
-    overflow: auto;
-    top: 0px;
-    left: 0px;
-    bottom: 0px;
-    right: 0px;
-    padding: 40px;
-    .t-vertext {
-      width: 200px;
-      text-align: left;
-      background: #fafafa;
-      box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.08);
-    }
-    .vertex-wrap {
-      background: rgba(255, 255, 255, 1);
-      box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.08);
-      border-radius: 2px;
-      width: 200px;
-      position: relative;
-      top: -2px;
-      .vertex-title {
-        height: 32px;
-        line-height: 32px;
-        border-radius: 2px 2px 0px 0px;
-        color: #ffffff;
-        padding: 0 10px;
-        .t_title {
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-      }
-      .vertex-content {
-        height: 36px;
-        line-height: 36px;
-        .tcolumn {
-          cursor: pointer;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          padding: 0 10px;
-        }
-      }
-      &.current {
-        border: 1px solid #3f87ff;
-        .vertex-title {
-          background: #3f87ff;
-        }
-      }
-      &.prev {
-        border: 1px solid #26d6ae;
-        .vertex-title {
-          background: #26d6ae;
-        }
-      }
-      &.next {
-        border: 1px solid #7460ef;
-        .vertex-title {
-          background: #7460ef;
-        }
-      }
-    }
-  }
-  .graph-legend {
-    position: absolute;
-    left: 0;
-    bottom: 0px;
-    height: 30px;
-    line-height: 30px;
-    width: 100%;
-    text-align: center;
-    background: url($bgPath) #ffffff;
-    .legend-item {
-      // display: inline-block;
-      vertical-align: middle;
-      float: left;
-    }
-    .legend-item-icon {
-      display: inline-block;
-      vertical-align: middle;
-      width: 36px;
-      height: 14px;
-      margin-right: 4px;
-      margin-left: 20px;
-    }
-    .legend-title {
-      font-size: 12px;
-      font-family: PingFangSC-Regular, PingFang SC;
-      font-weight: 400;
-      color: #666666;
-      line-height: 20px;
-    }
-    .border {
-      border: 1px solid #e8e8e8;
-    }
-  }
+	position: relative;
+	flex: 1;
+	height: 100%;
+	text-align: center;
+	.graph_loading {
+		position: absolute;
+		top: 0;
+		left: 0;
+		z-index: 1000;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		clear: both;
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+		background: rgba(255, 255, 255, 0.5);
+	}
+	.graph_toolbar {
+		position: absolute;
+		right: 10px;
+		bottom: 140px;
+		z-index: 1000;
+		width: 34px;
+		text-align: center;
+		.basic_bar {
+			background: rgba(255, 255, 255, 1);
+			box-shadow: 0px 2px 8px 0px rgba(63, 135, 255, 0.2);
+		}
+		.spread_bar {
+			position: relative;
+			margin-top: 10px;
+			background: rgba(255, 255, 255, 1);
+			box-shadow: 0px 2px 8px 0px rgba(63, 135, 255, 0.2);
+		}
+		.toolbar-icon {
+			display: inline-block;
+			width: 34px;
+			height: 34px;
+			color: #979797;
+			font-size: 20px;
+			line-height: 34px;
+			border-bottom: 1px solid #e8e8e8;
+			cursor: pointer;
+			&.active {
+				color: #3f87ff;
+			}
+		}
+		.outlineContainer {
+			position: absolute;
+			top: 0px;
+			right: 36px;
+			display: none;
+			width: 240px;
+			height: 160px;
+			background: rgba(255, 255, 255, 1);
+			box-shadow: 0px 2px 8px 0px rgba(63, 135, 255, 0.2);
+			.outline_title {
+				display: flex;
+				justify-content: space-between;
+				padding: 10px;
+				border-bottom: 1px solid #e8e8e8;
+				.name {
+					color: rgba(51, 51, 51, 1);
+					font-weight: 600;
+					font-size: 12px;
+					font-family: PingFangSC-Semibold, PingFang SC;
+					line-height: 17px;
+				}
+				.double-right {
+					color: #666666;
+					font-size: 12px;
+					cursor: pointer;
+				}
+			}
+			.outline-content {
+				height: 128px;
+			}
+			&.active {
+				display: block;
+			}
+		}
+	}
+	.graph_container {
+		position: absolute;
+		top: 0px;
+		right: 0px;
+		bottom: 0px;
+		left: 0px;
+		padding: 40px;
+		overflow: auto;
+		background: url($bgPath) #ffffff;
+		cursor: pointer;
+		.t-vertext {
+			width: 200px;
+			text-align: left;
+			background: #fafafa;
+			box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.08);
+		}
+		.vertex-wrap {
+			position: relative;
+			top: -2px;
+			width: 200px;
+			background: rgba(255, 255, 255, 1);
+			border-radius: 2px;
+			box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.08);
+			.vertex-title {
+				height: 32px;
+				padding: 0 10px;
+				color: #ffffff;
+				line-height: 32px;
+				border-radius: 2px 2px 0px 0px;
+				.t_title {
+					overflow: hidden;
+					white-space: nowrap;
+					text-overflow: ellipsis;
+				}
+			}
+			.vertex-content {
+				height: 36px;
+				line-height: 36px;
+				.tcolumn {
+					padding: 0 10px;
+					overflow: hidden;
+					white-space: nowrap;
+					text-overflow: ellipsis;
+					cursor: pointer;
+				}
+			}
+			&.current {
+				border: 1px solid #3f87ff;
+				.vertex-title {
+					background: #3f87ff;
+				}
+			}
+			&.prev {
+				border: 1px solid #26d6ae;
+				.vertex-title {
+					background: #26d6ae;
+				}
+			}
+			&.next {
+				border: 1px solid #7460ef;
+				.vertex-title {
+					background: #7460ef;
+				}
+			}
+		}
+	}
+	.graph-legend {
+		position: absolute;
+		bottom: 0px;
+		left: 0;
+		width: 100%;
+		height: 30px;
+		line-height: 30px;
+		text-align: center;
+		background: url($bgPath) #ffffff;
+		.legend-item {
+			float: left;
+			// display: inline-block;
+			vertical-align: middle;
+		}
+		.legend-item-icon {
+			display: inline-block;
+			width: 36px;
+			height: 14px;
+			margin-right: 4px;
+			margin-left: 20px;
+			vertical-align: middle;
+		}
+		.legend-title {
+			color: #666666;
+			font-weight: 400;
+			font-size: 12px;
+			font-family: PingFangSC-Regular, PingFang SC;
+			line-height: 20px;
+		}
+		.border {
+			border: 1px solid #e8e8e8;
+		}
+	}
 }

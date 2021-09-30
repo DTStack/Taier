@@ -1,27 +1,27 @@
 .dt-modal.ant-modal {
-  width: 680px !important;
-  border-radius: 1px;
-  .ant-modal-content {
-    max-height: 80vh;
-    overflow: scroll;
-    .ant-modal-header {
-      padding-top: 14.5px;
-      padding-bottom: 14.5px;
-    }
-    .ant-modal-close {
-      &-x {
-        height: 52px;
-        width: 52px;
-      }
-    }
-    .ant-modal-body {
-      padding-top: 0;
-      padding-bottom: 0;
-      max-height: calc(80vh - 100px - 52px);
-    }
-    .ant-modal-footer {
-      padding: 34px 20px;
-      border-top: none;
-    }
-  }
+	width: 680px !important;
+	border-radius: 1px;
+	.ant-modal-content {
+		max-height: 80vh;
+		overflow: scroll;
+		.ant-modal-header {
+			padding-top: 14.5px;
+			padding-bottom: 14.5px;
+		}
+		.ant-modal-close {
+			&-x {
+				width: 52px;
+				height: 52px;
+			}
+		}
+		.ant-modal-body {
+			max-height: calc(80vh - 100px - 52px);
+			padding-top: 0;
+			padding-bottom: 0;
+		}
+		.ant-modal-footer {
+			padding: 34px 20px;
+			border-top: none;
+		}
+	}
 }

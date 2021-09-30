@@ -1,83 +1,86 @@
 div.mxRubberband {
 	position: absolute;
 	overflow: hidden;
+	background: #0077ff;
+	border-color: #0000ff;
 	border-style: solid;
 	border-width: 1px;
-	border-color: #0000FF;
-	background: #0077FF;
 }
 .mxCellEditor {
+	position: absolute;
+	min-width: 1px;
+	margin: 0px;
+	padding: 0px;
+	overflow: visible;
+	word-wrap: normal;
 	background: url('../images/transparent.gif');
 	border-color: transparent;
 	border-style: solid;
-	position: absolute;
-	overflow: visible;
-	word-wrap: normal;
 	border-width: 0;
-	min-width: 1px;
 	resize: none;
-	padding: 0px;
-	margin: 0px;
 }
 .mxPlainTextEditor * {
-	padding: 0px;
 	margin: 0px;
+	padding: 0px;
 }
 div.mxWindow {
-	-webkit-box-shadow: 3px 3px 12px #C0C0C0;
-	-moz-box-shadow: 3px 3px 12px #C0C0C0;
-	box-shadow: 3px 3px 12px #C0C0C0;
-	background: url('../images/window.gif');
-	border:1px solid #c3c3c3;
 	position: absolute;
-	overflow: hidden;
 	z-index: 1;
+	overflow: hidden;
+	background: url('../images/window.gif');
+	border: 1px solid #c3c3c3;
+	-webkit-box-shadow: 3px 3px 12px #c0c0c0;
+	-moz-box-shadow: 3px 3px 12px #c0c0c0;
+	box-shadow: 3px 3px 12px #c0c0c0;
 }
 table.mxWindow {
-	border-collapse: collapse;
-	table-layout: fixed;
-  	font-family: Arial;
 	font-size: 8pt;
+	font-family: Arial;
+	table-layout: fixed;
+	border-collapse: collapse;
 }
 td.mxWindowTitle {
-	background: url('../images/window-title.gif') repeat-x;
-	text-overflow: ellipsis;
-	white-space: nowrap;
- 	text-align: center;
- 	font-weight: bold;
- 	overflow: hidden;
 	height: 13px;
 	padding: 2px;
- 	padding-top: 4px;
- 	padding-bottom: 6px;
- 	color: black;
+	padding-top: 4px;
+	padding-bottom: 6px;
+	overflow: hidden;
+	color: black;
+	font-weight: bold;
+	white-space: nowrap;
+	text-align: center;
+	text-overflow: ellipsis;
+	background: url('../images/window-title.gif') repeat-x;
 }
 td.mxWindowPane {
-	vertical-align: top;
 	padding: 0px;
+	vertical-align: top;
 }
 div.mxWindowPane {
-	overflow: hidden;
 	position: relative;
+	overflow: hidden;
 }
 td.mxWindowPane td {
-  	font-family: Arial;
 	font-size: 8pt;
+	font-family: Arial;
 }
-td.mxWindowPane input, td.mxWindowPane select, td.mxWindowPane textarea, td.mxWindowPane radio {
-  	border-color: #8C8C8C;
-  	border-style: solid;
-  	border-width: 1px;
-  	font-family: Arial;
+td.mxWindowPane input,
+td.mxWindowPane select,
+td.mxWindowPane textarea,
+td.mxWindowPane radio {
+	padding: 1px;
 	font-size: 8pt;
- 	padding: 1px;
+	font-family: Arial;
+	border-color: #8c8c8c;
+	border-style: solid;
+	border-width: 1px;
 }
 td.mxWindowPane button {
-	background: url('../images/button.gif') repeat-x;
-  	font-family: Arial;
-  	font-size: 8pt;
-  	padding: 2px;
 	float: left;
+	padding: 2px;
+	font-size: 8pt;
+	font-family: Arial;
+	background: url('../images/button.gif') repeat-x;
 }
 img.mxToolbarItem {
 	margin-right: 6px;
@@ -102,59 +105,59 @@ img.mxToolbarModeSelected {
 	margin: 0px;
 	margin-right: 2px;
 	margin-bottom: 2px;
-	border-width: 2px;
 	border-style: inset;
+	border-width: 2px;
 }
 div.mxTooltip {
-	-webkit-box-shadow: 3px 3px 12px #C0C0C0;
-	-moz-box-shadow: 3px 3px 12px #C0C0C0;
-	box-shadow: 3px 3px 12px #C0C0C0;
-	background: #FFFFCC;
-	border-style: solid;
-	border-width: 1px;
-	border-color: black;
-	font-family: Arial;
-	font-size: 8pt;
 	position: absolute;
-	cursor: default;
 	padding: 4px;
 	color: black;
-}
-div.mxPopupMenu {
-	-webkit-box-shadow: 3px 3px 12px #C0C0C0;
-	-moz-box-shadow: 3px 3px 12px #C0C0C0;
-	box-shadow: 3px 3px 12px #C0C0C0;
-	background: url('../images/window.gif');
-	position: absolute;
+	font-size: 8pt;
+	font-family: Arial;
+	background: #ffffcc;
+	border-color: black;
 	border-style: solid;
 	border-width: 1px;
+	-webkit-box-shadow: 3px 3px 12px #c0c0c0;
+	-moz-box-shadow: 3px 3px 12px #c0c0c0;
+	box-shadow: 3px 3px 12px #c0c0c0;
+	cursor: default;
+}
+div.mxPopupMenu {
+	position: absolute;
+	background: url('../images/window.gif');
 	border-color: black;
+	border-style: solid;
+	border-width: 1px;
+	-webkit-box-shadow: 3px 3px 12px #c0c0c0;
+	-moz-box-shadow: 3px 3px 12px #c0c0c0;
+	box-shadow: 3px 3px 12px #c0c0c0;
 }
 table.mxPopupMenu {
-	border-collapse: collapse;
 	margin-top: 1px;
 	margin-bottom: 1px;
+	border-collapse: collapse;
 }
 tr.mxPopupMenuItem {
 	color: black;
 	cursor: pointer;
 }
 tr.mxPopupMenuItemHover {
+	color: #ffffff;
 	background-color: #000066;
-	color: #FFFFFF;
 	cursor: pointer;
 }
 td.mxPopupMenuItem {
 	padding: 2px 30px 2px 10px;
-	white-space: nowrap;
-	font-family: Arial;
 	font-size: 8pt;
+	font-family: Arial;
+	white-space: nowrap;
 }
 td.mxPopupMenuIcon {
-	background-color: #D0D0D0;
 	padding: 2px 4px 2px 4px;
+	background-color: #d0d0d0;
 }
 .mxDisabled {
+	cursor: default !important;
 	opacity: 0.2 !important;
-	cursor:default !important;
 }

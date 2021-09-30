@@ -1,18 +1,18 @@
 .pane-title {
-  margin-bottom: 12px;
-  .block {
-    width: 4px;
-    height: 12px;
-    background: #3f87ff;
-    display: inline-block;
-    vertical-align: middle;
-    margin-right: 8px;
-  }
-  .title {
-    width: 56px;
-    font-size: 14px;
-    font-family: PingFangSC-Medium, PingFang SC, sans-serif;
-    font-weight: 500;
-    color: #333333;
-  }
+	margin-bottom: 12px;
+	.block {
+		display: inline-block;
+		width: 4px;
+		height: 12px;
+		margin-right: 8px;
+		vertical-align: middle;
+		background: #3f87ff;
+	}
+	.title {
+		width: 56px;
+		color: #333333;
+		font-weight: 500;
+		font-size: 14px;
+		font-family: PingFangSC-Medium, PingFang SC, sans-serif;
+	}
 }

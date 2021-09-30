@@ -20,9 +20,9 @@ import { FolderTreeService } from '@dtinsight/molecule/esm/services';
 
 let functionManagerService;
 class FunctionManagerService extends FolderTreeService {
-    constructor() {
-        super();
-    }
+	constructor() {
+		super();
+	}
 }
 
 functionManagerService = functionManagerService || new FunctionManagerService();

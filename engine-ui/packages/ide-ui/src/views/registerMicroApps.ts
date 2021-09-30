@@ -27,39 +27,39 @@ let ENTRY_DATABASE = '//local.dtstack.cn:8083/datasource/';
 
 // For Production
 if (process.env.NODE_ENV === 'production') {
-    ENTRY_CONSOLE = '/console/';
-    ENTRY_OPERATION = '/console/';
-    ENTRY_DATABASE = '/datasource/';
+	ENTRY_CONSOLE = '/console/';
+	ENTRY_OPERATION = '/console/';
+	ENTRY_DATABASE = '/datasource/';
 }
 
 registerMicroApps([
-    {
-        name: 'Operation',
-        entry: ENTRY_OPERATION,
-        container: container,
-        activeRule: '#/operation-ui',
-    },
-    {
-        name: 'DTConsoleApp',
-        entry: ENTRY_CONSOLE,
-        container: container,
-        activeRule: '#/console-ui',
-    },
-    {
-        name: 'Datasource',
-        entry: ENTRY_DATABASE,
-        container: container,
-        activeRule: '#/data-source',
-    },
+	{
+		name: 'Operation',
+		entry: ENTRY_OPERATION,
+		container: container,
+		activeRule: '#/operation-ui',
+	},
+	{
+		name: 'DTConsoleApp',
+		entry: ENTRY_CONSOLE,
+		container: container,
+		activeRule: '#/console-ui',
+	},
+	{
+		name: 'Datasource',
+		entry: ENTRY_DATABASE,
+		container: container,
+		activeRule: '#/data-source',
+	},
 ]);
 
 start({
-    /**
-     * TODO: Style renaming isolation has a BUG, removed for now
-     */
-    // sandbox: {
-    // experimentalStyleIsolation: true,
-    // },
+	/**
+	 * TODO: Style renaming isolation has a BUG, removed for now
+	 */
+	// sandbox: {
+	// experimentalStyleIsolation: true,
+	// },
 });
 
 setDefaultMountApp('/');

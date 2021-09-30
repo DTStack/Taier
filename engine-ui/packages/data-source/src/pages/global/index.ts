@@ -19,7 +19,7 @@
 import global from './redux';
 
 const appReducer = {
-  global,
+	global,
 };
 
 export default appReducer;

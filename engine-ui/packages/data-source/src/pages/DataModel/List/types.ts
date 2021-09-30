@@ -18,7 +18,7 @@
 
 //
 export enum EnumModelActionType {
-  RELEASE,
-  UNRELEASE,
-  DELETE,
+	RELEASE,
+	UNRELEASE,
+	DELETE,
 }

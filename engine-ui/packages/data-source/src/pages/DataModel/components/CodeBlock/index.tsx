@@ -27,44 +27,45 @@ import './style';
 hljs.registerLanguage('sql', sql);
 
 interface IPropsCodeBlock {
-  code: string;
-  overflowEnable?: boolean;
+	code: string;
+	overflowEnable?: boolean;
 }
 
 const CodeBlock = (props: IPropsCodeBlock) => {
-  const { code, overflowEnable } = props;
-  const dom = useRef(null);
-  console.log('====================================');
-  console.log(overflowEnable);
-  console.log('====================================');
+	const { code, overflowEnable } = props;
+	const dom = useRef(null);
+	console.log('====================================');
+	console.log(overflowEnable);
+	console.log('====================================');
 
-  useEffect(() => {
-    if (!dom.current) return;
-    hljs.highlightBlock(dom.current);
-  }, [code]);
-  return (
-    <div data-testid="code-block" className="code-block">
-      <div
-        className={classnames({
-          'code-container': true,
-          'max-height': overflowEnable,
-        })}>
-        {code ? (
-          <pre className="pre">
-            <code
-              ref={dom}
-              className="code"
-              dangerouslySetInnerHTML={{
-                __html: code,
-              }}
-            />
-          </pre>
-        ) : (
-          <Empty description="暂无SQL信息" />
-        )}
-      </div>
-    </div>
-  );
+	useEffect(() => {
+		if (!dom.current) return;
+		hljs.highlightBlock(dom.current);
+	}, [code]);
+	return (
+		<div data-testid="code-block" className="code-block">
+			<div
+				className={classnames({
+					'code-container': true,
+					'max-height': overflowEnable,
+				})}
+			>
+				{code ? (
+					<pre className="pre">
+						<code
+							ref={dom}
+							className="code"
+							dangerouslySetInnerHTML={{
+								__html: code,
+							}}
+						/>
+					</pre>
+				) : (
+					<Empty description="暂无SQL信息" />
+				)}
+			</div>
+		</div>
+	);
 };
 
 export default CodeBlock;

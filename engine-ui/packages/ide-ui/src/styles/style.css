@@ -1,275 +1,259 @@
 .login-container input:-webkit-autofill,
 .login-container textarea:-webkit-autofill,
 .login-container select:-webkit-autofill {
-    -webkit-box-shadow: 0 0 0 1000px #f8f8f8 inset;
+	-webkit-box-shadow: 0 0 0 1000px #f8f8f8 inset;
 }
 .login-container input:focus,
 .login-container input:focus,
 .login-container textarea:focus {
-    -webkit-box-shadow: 0 0 0 1000px #f8f8f8 inset;
-    outline: #3f87ff solid 1px;
+	outline: #3f87ff solid 1px;
+	-webkit-box-shadow: 0 0 0 1000px #f8f8f8 inset;
 }
 .login-container ::-webkit-input-placeholder {
-    color: #999999;
+	color: #999999;
 }
 .login-container :-moz-placeholder {
-    /* Firefox 18- */
-    color: #999999;
+	/* Firefox 18- */
+	color: #999999;
 }
 .login-container ::-moz-placeholder {
-    /* Firefox 19+ */
-    color: #999999;
+	/* Firefox 19+ */
+	color: #999999;
 }
 .login-container :-ms-input-placeholder {
-    color: #999999;
+	color: #999999;
 }
 .login-container .c-login__bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-    z-index: -2;
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: -2;
+	width: 100%;
+	height: 100%;
 }
 .login-container .c-login__wrap {
-    box-shadow: rgba(0, 0, 0, 0.06) 0px 2px 8px 0px;
-    position: fixed;
-    background-color: white;
-    width: 1000px;
-    height: 540px;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    border-radius: 1;
-    box-sizing: border-box;
-    display: flex;
-    justify-content: space-between;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	display: flex;
+	justify-content: space-between;
+	box-sizing: border-box;
+	width: 1000px;
+	height: 540px;
+	background-color: white;
+	border-radius: 1;
+	box-shadow: rgba(0, 0, 0, 0.06) 0px 2px 8px 0px;
+	transform: translate(-50%, -50%);
 }
 .login-container .c-login__wrap .c-login__container__link {
-    display: flex;
-    width: 328px;
-    justify-content: space-between;
-    margin-top: 12px;
+	display: flex;
+	justify-content: space-between;
+	width: 328px;
+	margin-top: 12px;
 }
 .login-container .c-login__wrap .c-login__container {
-    flex: 1;
-    padding: 60px;
+	flex: 1;
+	padding: 60px;
 }
 .login-container .c-login__wrap .c-login__container .c-login__container__title {
-    height: 33px;
-    font-size: 24px;
-    font-family: PingFangSC-Medium, PingFang SC;
-    font-weight: 500;
-    color: #333333;
-    line-height: 33px;
-    margin-bottom: 50px;
+	height: 33px;
+	margin-bottom: 50px;
+	color: #333333;
+	font-weight: 500;
+	font-size: 24px;
+	font-family: PingFangSC-Medium, PingFang SC;
+	line-height: 33px;
 }
 .login-container
-    .c-login__wrap
-    .c-login__container
-    .c-login__container__form
-    .c-login__container__form__span {
-    color: #666666;
-    font-size: 12px;
+	.c-login__wrap
+	.c-login__container
+	.c-login__container__form
+	.c-login__container__form__span {
+	color: #666666;
+	font-size: 12px;
 }
 .login-container
-    .c-login__wrap
-    .c-login__container
-    .c-login__container__form
-    .c-login__container__form__select {
-    border: none;
-    font-size: 14px;
+	.c-login__wrap
+	.c-login__container
+	.c-login__container__form
+	.c-login__container__form__select {
+	font-size: 14px;
+	border: none;
 }
 .login-container
-    .c-login__wrap
-    .c-login__container
-    .c-login__container__form
-    .c-login__container__form__select
-    .ant-select-focused
-    .ant-select-selection,
+	.c-login__wrap
+	.c-login__container
+	.c-login__container__form
+	.c-login__container__form__select
+	.ant-select-focused
+	.ant-select-selection,
 .login-container
-    .c-login__wrap
-    .c-login__container
-    .c-login__container__form
-    .c-login__container__form__select
-    .ant-select-selection:focus,
+	.c-login__wrap
+	.c-login__container
+	.c-login__container__form
+	.c-login__container__form__select
+	.ant-select-selection:focus,
 .login-container
-    .c-login__wrap
-    .c-login__container
-    .c-login__container__form
-    .c-login__container__form__select
-    .ant-select-selection:active {
-    box-shadow: none;
+	.c-login__wrap
+	.c-login__container
+	.c-login__container__form
+	.c-login__container__form__select
+	.ant-select-selection:active {
+	box-shadow: none;
 }
 .login-container
-    .c-login__wrap
-    .c-login__container
-    .c-login__container__form
-    .c-login__container__form__select
-    .ant-select-selection {
-    border: none;
-    background: #f8f8f8;
-    height: 40px;
-    line-height: 40px;
+	.c-login__wrap
+	.c-login__container
+	.c-login__container__form
+	.c-login__container__form__select
+	.ant-select-selection {
+	height: 40px;
+	line-height: 40px;
+	background: #f8f8f8;
+	border: none;
 }
 .login-container
-    .c-login__wrap
-    .c-login__container
-    .c-login__container__form
-    .c-login__container__form__select
-    .ant-select-selection__rendered {
-    height: 40px;
-    line-height: 40px;
+	.c-login__wrap
+	.c-login__container
+	.c-login__container__form
+	.c-login__container__form__select
+	.ant-select-selection__rendered {
+	height: 40px;
+	line-height: 40px;
 }
 .login-container
-    .c-login__wrap
-    .c-login__container
-    .c-login__container__form
-    .c-login__container__form__input {
-    width: 340px;
-    height: 40px;
-    background: #f8f8f8;
-    border-radius: 4px;
-    border: none;
-    padding: 0 16px;
+	.c-login__wrap
+	.c-login__container
+	.c-login__container__form
+	.c-login__container__form__input {
+	width: 340px;
+	height: 40px;
+	padding: 0 16px;
+	background: #f8f8f8;
+	border: none;
+	border-radius: 4px;
 }
 .login-container
-    .c-login__wrap
-    .c-login__container
-    .c-login__container__form
-    .c-login__container__form__code {
-    width: 340px;
-    height: 40px;
-    background: #f8f8f8;
-    border-radius: 4px;
-    border: none;
-    position: relative;
+	.c-login__wrap
+	.c-login__container
+	.c-login__container__form
+	.c-login__container__form__code {
+	position: relative;
+	width: 340px;
+	height: 40px;
+	background: #f8f8f8;
+	border: none;
+	border-radius: 4px;
 }
 .login-container
-    .c-login__wrap
-    .c-login__container
-    .c-login__container__form
-    .c-login__container__form__code
-    .c-login__container__form__code__input {
-    padding: 0 90px 0 16px;
-    width: 340px;
-    height: 40px;
-    background: #f8f8f8;
-    border-radius: 4px;
-    border: none;
+	.c-login__wrap
+	.c-login__container
+	.c-login__container__form
+	.c-login__container__form__code
+	.c-login__container__form__code__input {
+	width: 340px;
+	height: 40px;
+	padding: 0 90px 0 16px;
+	background: #f8f8f8;
+	border: none;
+	border-radius: 4px;
 }
 .login-container
-    .c-login__wrap
-    .c-login__container
-    .c-login__container__form
-    .c-login__container__form__code
-    .code_img {
-    cursor: pointer;
-    position: absolute;
-    right: 6px;
-    top: 6px;
-    height: 28px;
-    background-color: #fff;
+	.c-login__wrap
+	.c-login__container
+	.c-login__container__form
+	.c-login__container__form__code
+	.code_img {
+	position: absolute;
+	top: 6px;
+	right: 6px;
+	height: 28px;
+	background-color: #fff;
+	cursor: pointer;
 }
 .login-container
-    .c-login__wrap
-    .c-login__container
-    .c-login__container__form
-    .c-login__container__form__btn {
-    width: 340px;
-    height: 40px;
-    font-size: 16px;
-    margin-top: 20px;
-    background: #3f87ff;
-    border-radius: 4px;
+	.c-login__wrap
+	.c-login__container
+	.c-login__container__form
+	.c-login__container__form__btn {
+	width: 340px;
+	height: 40px;
+	margin-top: 20px;
+	font-size: 16px;
+	background: #3f87ff;
+	border-radius: 4px;
 }
 .login-container
-    .c-login__wrap
-    .c-login__container
-    .c-login__container__form
-    .has-error
-    .c-login__container__form__input {
-    border-bottom: 1px solid #f5222d;
+	.c-login__wrap
+	.c-login__container
+	.c-login__container__form
+	.has-error
+	.c-login__container__form__input {
+	border-bottom: 1px solid #f5222d;
 }
 .login-container
-    .c-login__wrap
-    .c-login__container
-    .c-login__container__form
-    .has-error
-    .c-login__container__form__code__input {
-    border-bottom: 1px solid #f5222d;
+	.c-login__wrap
+	.c-login__container
+	.c-login__container__form
+	.has-error
+	.c-login__container__form__code__input {
+	border-bottom: 1px solid #f5222d;
 }
 .login-container
-    .c-login__wrap
-    .c-login__container
-    .c-login__container__form
-    .has-error
-    .c-login__container__form__code__input:focus {
-    border-bottom: 1px solid #f5222d;
+	.c-login__wrap
+	.c-login__container
+	.c-login__container__form
+	.has-error
+	.c-login__container__form__code__input:focus {
+	border-bottom: 1px solid #f5222d;
+}
+.login-container .c-login__wrap .c-login__container .c-login__container__form .ant-form-explain {
+	float: right;
+	height: 32px;
+	font-size: 12px;
+}
+.login-container .c-login__wrap .c-login__container .c-login__container__form .ant-form-item {
+	margin-bottom: 20px;
+	padding: 0px;
+}
+.login-container .c-login__wrap .c-login__container .c-login__container__form .ant-form-item-label {
+	height: 17px;
+	padding: 0px;
+	line-height: 17px;
+}
+.login-container .c-login__wrap .c-login__container .c-login__container__form .ant-form-extra {
+	float: right;
+	height: 32px;
+	margin: 0px;
+	color: #f5222d;
+	font-size: 12px;
 }
 .login-container
-    .c-login__wrap
-    .c-login__container
-    .c-login__container__form
-    .ant-form-explain {
-    float: right;
-    font-size: 12px;
-    height: 32px;
-}
-.login-container
-    .c-login__wrap
-    .c-login__container
-    .c-login__container__form
-    .ant-form-item {
-    padding: 0px;
-    margin-bottom: 20px;
-}
-.login-container
-    .c-login__wrap
-    .c-login__container
-    .c-login__container__form
-    .ant-form-item-label {
-    padding: 0px;
-    height: 17px;
-    line-height: 17px;
-}
-.login-container
-    .c-login__wrap
-    .c-login__container
-    .c-login__container__form
-    .ant-form-extra {
-    margin: 0px;
-    font-size: 12px;
-    color: #f5222d;
-    float: right;
-    height: 32px;
-}
-.login-container
-    .c-login__wrap
-    .c-login__container
-    .c-login__container__form
-    .ant-form-item-with-help {
-    margin-bottom: 3px;
+	.c-login__wrap
+	.c-login__container
+	.c-login__container__form
+	.ant-form-item-with-help {
+	margin-bottom: 3px;
 }
 .login-container .c-login__wrap .c-login__container .c-login__container__third {
-    width: 328px;
-    margin-top: 20.5px;
-    border-top: 1px solid #999;
-    position: relative;
+	position: relative;
+	width: 328px;
+	margin-top: 20.5px;
+	border-top: 1px solid #999;
 }
 .login-container
-    .c-login__wrap
-    .c-login__container
-    .c-login__container__third
-    .c-login__container__third__span {
-    color: #3f87ff;
-    font-size: 12px;
-    margin: 0 auto;
-    width: 116px;
-    height: 17px;
-    position: relative;
-    top: -9px;
-    padding: 0 10px;
-    background: #fff;
-    cursor: pointer;
+	.c-login__wrap
+	.c-login__container
+	.c-login__container__third
+	.c-login__container__third__span {
+	position: relative;
+	top: -9px;
+	width: 116px;
+	height: 17px;
+	margin: 0 auto;
+	padding: 0 10px;
+	color: #3f87ff;
+	font-size: 12px;
+	background: #fff;
+	cursor: pointer;
 }

@@ -5,15 +5,16 @@
 @import '../fonts/iconfont/iconfont.css';
 body {
 	height: 100%;
+	font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB,
+		Microsoft YaHei, Arial, sans-serif;
 	background: #f0f2f5 !important;
 	-moz-osx-font-smoothing: grayscale;
 	-webkit-font-smoothing: antialiased;
 	text-rendering: optimizeLegibility;
-	font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;
 }
 html {
-	height: 100%;
 	box-sizing: border-box;
+	height: 100%;
 }
 
 *,
@@ -30,9 +31,9 @@ a:active {
 a,
 a:focus,
 a:hover {
-	cursor: pointer;
 	color: inherit;
 	text-decoration: none;
+	cursor: pointer;
 }
 
 div:focus {
@@ -57,17 +58,17 @@ div:focus {
 
 .clearfix {
 	&:after {
-		visibility: hidden;
 		display: block;
-		font-size: 0;
-		content: ' ';
 		clear: both;
 		height: 0;
+		font-size: 0;
+		visibility: hidden;
+		content: ' ';
 	}
 }
 
 .header-shadow {
-	>div {
+	> div {
 		display: none;
 	}
 }
@@ -75,10 +76,10 @@ div:focus {
 .click-item {
 	display: none !important;
 }
-.space-total-class{
+.space-total-class {
 	display: flex;
-	align-items: center;   
+	align-items: center;
 }
-.ie11-header-transform{
+.ie11-header-transform {
 	transform: translateY(-5px);
 }

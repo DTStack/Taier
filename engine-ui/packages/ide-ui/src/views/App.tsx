@@ -39,25 +39,23 @@ import store from '../store';
 const packageName = require('../../package.json').name;
 
 function App(props: any) {
-    const { history } = props;
+	const { history } = props;
 
-    return (
-        <ConfigProvider
-            prefixCls={packageName}
-            getPopupContainer={(node) => {
-                if (node) return document.body;
-                return document.body!.querySelector(
-                    'div[id="app"]'
-                ) as HTMLElement;
-            }}
-        >
-            <Layout history={history}>
-                <Provider store={store}>
-                    <Router routes={routers} history={history} />
-                </Provider>
-            </Layout>
-        </ConfigProvider>
-    );
+	return (
+		<ConfigProvider
+			prefixCls={packageName}
+			getPopupContainer={(node) => {
+				if (node) return document.body;
+				return document.body!.querySelector('div[id="app"]') as HTMLElement;
+			}}
+		>
+			<Layout history={history}>
+				<Provider store={store}>
+					<Router routes={routers} history={history} />
+				</Provider>
+			</Layout>
+		</ConfigProvider>
+	);
 }
 
 export default App;

@@ -6,92 +6,92 @@
 */
 
 // 最外层背景
-.contentBox{
-    overflow: hidden;
-    background: #fff;
-    box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.1);
-    background: #FFFFFF;
+.contentBox {
+	overflow: hidden;
+	background: #fff;
+	background: #ffffff;
+	box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.1);
 }
 // 表格
 .q-table {
-    // margin: 20px 0 20px 20px;
-    margin-top: 20px;
+	// margin: 20px 0 20px 20px;
+	margin-top: 20px;
 }
 
 // 按任务搜索input框
 .task-search {
-    width: 150px;
-    margin-right: 15px;
+	width: 150px;
+	margin-right: 15px;
 }
 // 下拉框
 .select {
-    overflow: hidden;
-    margin: 20px;
+	margin: 20px;
+	overflow: hidden;
 }
 
 // 杀任务
 .killTask {
-    background: rgba(255, 186, 180, .4);
+	background: rgba(255, 186, 180, 0.4);
 }
 
 // 明细表格
 .detail-table {
-    .ant-table-footer {
-        background: #fff;
-        padding: 10px 0 10px;
-        border-bottom: 0;
-    }
-    .ant-pagination {
-        position: relative;
-        top: -40px;
-        right: 20px;
-        margin-right: 0;
-    }
-    .ant-table-pagination.ant-pagination {
-        margin: 0;
-        float: right;
-    }
-    .ant-row.table-footer {
-        .select-all {
-            padding: 0 16px 0 30px;
-            .ant-checkbox {
-                margin-right: 16px;
-            }
-        }
-        .ant-btn {
-            margin-right: 0;
-            &:nth-child(2) {
-                margin-top: 1px;
-            }
-        }
-    }
+	.ant-table-footer {
+		padding: 10px 0 10px;
+		background: #fff;
+		border-bottom: 0;
+	}
+	.ant-pagination {
+		position: relative;
+		top: -40px;
+		right: 20px;
+		margin-right: 0;
+	}
+	.ant-table-pagination.ant-pagination {
+		float: right;
+		margin: 0;
+	}
+	.ant-row.table-footer {
+		.select-all {
+			padding: 0 16px 0 30px;
+			.ant-checkbox {
+				margin-right: 16px;
+			}
+		}
+		.ant-btn {
+			margin-right: 0;
+			&:nth-child(2) {
+				margin-top: 1px;
+			}
+		}
+	}
 }
 
 .c-taskDetail__container {
-    padding: 20px;
-    &__title {
-        display: flex;
-        justify-content: space-between;
-    }
-    &__radioWrap {
-        margin: 16px 0;
-        line-height: 32px;
-        display: flex;
-        justify-content: space-between;
-        &__refresh {
-            width: 32px;
-            height: 32px;
-            background :rgba(255,255,255,1);
-            box-shadow: 0px 2px 6px 0px rgba(0,0,0,0.08);
-            border-radius: 4px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-    }
-    .ant-table-fixed-header {
-        .ant-table-body-inner {
-            overflow-x: hidden;
-        }
-    }
+	padding: 20px;
+	&__title {
+		display: flex;
+		justify-content: space-between;
+	}
+	&__radioWrap {
+		display: flex;
+		justify-content: space-between;
+		margin: 16px 0;
+		line-height: 32px;
+		&__refresh {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 32px;
+			height: 32px;
+			background: rgba(255, 255, 255, 1);
+			border-radius: 4px;
+			box-shadow: 0px 2px 6px 0px rgba(0, 0, 0, 0.08);
+		}
+	}
+	.ant-table-fixed-header {
+		.ant-table-body-inner {
+			overflow-x: hidden;
+		}
+	}
 }

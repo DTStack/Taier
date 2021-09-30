@@ -1,142 +1,142 @@
 {
-  "id": "2040032",
-  "name": "数栈公共图标",
-  "font_family": "iconfont-common",
-  "css_prefix_text": "icon",
-  "description": "",
-  "glyphs": [
-    {
-      "icon_id": "17752355",
-      "name": "安全审计",
-      "font_class": "-icon_safe",
-      "unicode": "e706",
-      "unicode_decimal": 59142
-    },
-    {
-      "icon_id": "17748793",
-      "name": "engine36",
-      "font_class": "-icon_dropdown_engine",
-      "unicode": "e628",
-      "unicode_decimal": 58920
-    },
-    {
-      "icon_id": "17688940",
-      "name": "首页",
-      "font_class": "-icon_dropdown_homepa",
-      "unicode": "e705",
-      "unicode_decimal": 59141
-    },
-    {
-      "icon_id": "17688398",
-      "name": "角色管理",
-      "font_class": "-role_usermanagement",
-      "unicode": "e700",
-      "unicode_decimal": 59136
-    },
-    {
-      "icon_id": "17688399",
-      "name": "用户管理",
-      "font_class": "-icon_usermanagement",
-      "unicode": "e701",
-      "unicode_decimal": 59137
-    },
-    {
-      "icon_id": "17688400",
-      "name": "退出",
-      "font_class": "-icon_logout",
-      "unicode": "e702",
-      "unicode_decimal": 59138
-    },
-    {
-      "icon_id": "17688401",
-      "name": "切换",
-      "font_class": "-icon_swap",
-      "unicode": "e703",
-      "unicode_decimal": 59139
-    },
-    {
-      "icon_id": "17688402",
-      "name": "用户中心",
-      "font_class": "-icon_uic",
-      "unicode": "e704",
-      "unicode_decimal": 59140
-    },
-    {
-      "icon_id": "16910399",
-      "name": "streamworks36",
-      "font_class": "-icon_dropdown_flow",
-      "unicode": "e6e4",
-      "unicode_decimal": 59108
-    },
-    {
-      "icon_id": "16910278",
-      "name": "aiworks36",
-      "font_class": "-science",
-      "unicode": "e6dc",
-      "unicode_decimal": 59100
-    },
-    {
-      "icon_id": "16910279",
-      "name": "api36",
-      "font_class": "-icon_dropdown_api",
-      "unicode": "e6dd",
-      "unicode_decimal": 59101
-    },
-    {
-      "icon_id": "16910280",
-      "name": "batchworks36",
-      "font_class": "-icon_dropdown_offlin",
-      "unicode": "e6de",
-      "unicode_decimal": 59102
-    },
-    {
-      "icon_id": "16910281",
-      "name": "dataassets36",
-      "font_class": "-dataassets",
-      "unicode": "e6df",
-      "unicode_decimal": 59103
-    },
-    {
-      "icon_id": "16910282",
-      "name": "datatag36",
-      "font_class": "-icon_dropdown_tag",
-      "unicode": "e6e0",
-      "unicode_decimal": 59104
-    },
-    {
-      "icon_id": "16910283",
-      "name": "datavalid36",
-      "font_class": "-icon_dropdown_qualit",
-      "unicode": "e6e1",
-      "unicode_decimal": 59105
-    },
-    {
-      "icon_id": "16910284",
-      "name": "EasyManager36",
-      "font_class": "-easymanager",
-      "unicode": "e6e2",
-      "unicode_decimal": 59106
-    },
-    {
-      "icon_id": "16910285",
-      "name": "EasyIndex36",
-      "font_class": "-easyindex",
-      "unicode": "e6e3",
-      "unicode_decimal": 59107
-    },
-    {
-      "icon_id": "16910287",
-      "name": "MR36*36",
-      "font_class": "-mr",
-      "unicode": "e6e5",
-      "unicode_decimal": 59109
-    },
-    {
-      "icon_id": "16910288",
-      "name": "console36",
-      "font_class": "-icon_dropdown_contro",
-      "unicode": "e6e6",
-      "unicode_decimal": 59110
-    }
-  ]
+	"id": "2040032",
+	"name": "数栈公共图标",
+	"font_family": "iconfont-common",
+	"css_prefix_text": "icon",
+	"description": "",
+	"glyphs": [
+		{
+			"icon_id": "17752355",
+			"name": "安全审计",
+			"font_class": "-icon_safe",
+			"unicode": "e706",
+			"unicode_decimal": 59142
+		},
+		{
+			"icon_id": "17748793",
+			"name": "engine36",
+			"font_class": "-icon_dropdown_engine",
+			"unicode": "e628",
+			"unicode_decimal": 58920
+		},
+		{
+			"icon_id": "17688940",
+			"name": "首页",
+			"font_class": "-icon_dropdown_homepa",
+			"unicode": "e705",
+			"unicode_decimal": 59141
+		},
+		{
+			"icon_id": "17688398",
+			"name": "角色管理",
+			"font_class": "-role_usermanagement",
+			"unicode": "e700",
+			"unicode_decimal": 59136
+		},
+		{
+			"icon_id": "17688399",
+			"name": "用户管理",
+			"font_class": "-icon_usermanagement",
+			"unicode": "e701",
+			"unicode_decimal": 59137
+		},
+		{
+			"icon_id": "17688400",
+			"name": "退出",
+			"font_class": "-icon_logout",
+			"unicode": "e702",
+			"unicode_decimal": 59138
+		},
+		{
+			"icon_id": "17688401",
+			"name": "切换",
+			"font_class": "-icon_swap",
+			"unicode": "e703",
+			"unicode_decimal": 59139
+		},
+		{
+			"icon_id": "17688402",
+			"name": "用户中心",
+			"font_class": "-icon_uic",
+			"unicode": "e704",
+			"unicode_decimal": 59140
+		},
+		{
+			"icon_id": "16910399",
+			"name": "streamworks36",
+			"font_class": "-icon_dropdown_flow",
+			"unicode": "e6e4",
+			"unicode_decimal": 59108
+		},
+		{
+			"icon_id": "16910278",
+			"name": "aiworks36",
+			"font_class": "-science",
+			"unicode": "e6dc",
+			"unicode_decimal": 59100
+		},
+		{
+			"icon_id": "16910279",
+			"name": "api36",
+			"font_class": "-icon_dropdown_api",
+			"unicode": "e6dd",
+			"unicode_decimal": 59101
+		},
+		{
+			"icon_id": "16910280",
+			"name": "batchworks36",
+			"font_class": "-icon_dropdown_offlin",
+			"unicode": "e6de",
+			"unicode_decimal": 59102
+		},
+		{
+			"icon_id": "16910281",
+			"name": "dataassets36",
+			"font_class": "-dataassets",
+			"unicode": "e6df",
+			"unicode_decimal": 59103
+		},
+		{
+			"icon_id": "16910282",
+			"name": "datatag36",
+			"font_class": "-icon_dropdown_tag",
+			"unicode": "e6e0",
+			"unicode_decimal": 59104
+		},
+		{
+			"icon_id": "16910283",
+			"name": "datavalid36",
+			"font_class": "-icon_dropdown_qualit",
+			"unicode": "e6e1",
+			"unicode_decimal": 59105
+		},
+		{
+			"icon_id": "16910284",
+			"name": "EasyManager36",
+			"font_class": "-easymanager",
+			"unicode": "e6e2",
+			"unicode_decimal": 59106
+		},
+		{
+			"icon_id": "16910285",
+			"name": "EasyIndex36",
+			"font_class": "-easyindex",
+			"unicode": "e6e3",
+			"unicode_decimal": 59107
+		},
+		{
+			"icon_id": "16910287",
+			"name": "MR36*36",
+			"font_class": "-mr",
+			"unicode": "e6e5",
+			"unicode_decimal": 59109
+		},
+		{
+			"icon_id": "16910288",
+			"name": "console36",
+			"font_class": "-icon_dropdown_contro",
+			"unicode": "e6e6",
+			"unicode_decimal": 59110
+		}
+	]
 }

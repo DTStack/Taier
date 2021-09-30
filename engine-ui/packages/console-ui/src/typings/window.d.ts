@@ -17,5 +17,5 @@
  */
 
 interface Window {
-    APP_CONF: any;
+	APP_CONF: any;
 }

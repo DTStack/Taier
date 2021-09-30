@@ -16,178 +16,207 @@
  * limitations under the License.
  */
 
-import * as React from 'react'
-import { Button, Popconfirm, Checkbox, Radio,
-    Row, Col, message } from 'antd'
-import * as _ from 'lodash'
+import * as React from 'react';
+import { Button, Popconfirm, Checkbox, Radio, Row, Col, message } from 'antd';
+import * as _ from 'lodash';
 
-import { isSourceTab } from '../../help'
-import { CONFIG_BUTTON_TYPE, COMP_ACTION,
-    COMPONENT_CONFIG_NAME } from '../../const'
+import { isSourceTab } from '../../help';
+import { CONFIG_BUTTON_TYPE, COMP_ACTION, COMPONENT_CONFIG_NAME } from '../../const';
 
 const CheckboxGroup = Checkbox.Group;
 const RadioGroup = Radio.Group;
 
 interface IProps {
-    activeKey: number;
-    comps: any[];
-    popVisible: boolean;
-    handleConfirm: Function;
-    handlePopVisible: Function;
+	activeKey: number;
+	comps: any[];
+	popVisible: boolean;
+	handleConfirm: Function;
+	handlePopVisible: Function;
 }
 
 interface IState {
-    visible: boolean;
-    addComps: any[];
-    initialValues: any[];
+	visible: boolean;
+	addComps: any[];
+	initialValues: any[];
 }
 
 export default class ComponentButton extends React.Component<IProps, IState> {
-    state: IState = {
-        visible: false,
-        addComps: [],
-        initialValues: []
-    }
+	state: IState = {
+		visible: false,
+		addComps: [],
+		initialValues: [],
+	};
 
-    componentDidMount () {
-        this.setState({
-            initialValues: this.getInitialValues()
-        })
-    }
+	componentDidMount() {
+		this.setState({
+			initialValues: this.getInitialValues(),
+		});
+	}
 
-    componentDidUpdate (preProps: any) {
-        const { comps, popVisible } = this.props
-        if ((preProps.comps != comps) || (preProps.popVisible != popVisible && popVisible)) {
-            this.setState({
-                initialValues: this.getInitialValues()
-            })
-        }
-    }
+	componentDidUpdate(preProps: any) {
+		const { comps, popVisible } = this.props;
+		if (preProps.comps != comps || (preProps.popVisible != popVisible && popVisible)) {
+			this.setState({
+				initialValues: this.getInitialValues(),
+			});
+		}
+	}
 
-    getInitialValues = () => {
-        const { comps = [] } = this.props
-        return comps.map((comp: any) => comp?.componentTypeCode)
-    }
+	getInitialValues = () => {
+		const { comps = [] } = this.props;
+		return comps.map((comp: any) => comp?.componentTypeCode);
+	};
 
-    handleSelectValue = () => {
-        const { comps } = this.props
-        const selectValues = comps.map((comp) => comp.componentTypeCode)
-        return selectValues
-    }
+	handleSelectValue = () => {
+		const { comps } = this.props;
+		const selectValues = comps.map((comp) => comp.componentTypeCode);
+		return selectValues;
+	};
 
-    handleCheckValues = (value: any[]) => {
-        const { activeKey } = this.props
-        const initialValues = this.getInitialValues()
+	handleCheckValues = (value: any[]) => {
+		const { activeKey } = this.props;
+		const initialValues = this.getInitialValues();
 
-        if (isSourceTab(activeKey)) {
-            return
-        }
+		if (isSourceTab(activeKey)) {
+			return;
+		}
 
-        // 和初始值取一次合集，一次交集可得增加的组件
-        const unionArr = _.union(value, initialValues)
-        const addComps = _.xor(unionArr, initialValues)
-        this.setState({
-            addComps, initialValues: value
-        })
-    }
+		// 和初始值取一次合集，一次交集可得增加的组件
+		const unionArr = _.union(value, initialValues);
+		const addComps = _.xor(unionArr, initialValues);
+		this.setState({
+			addComps,
+			initialValues: value,
+		});
+	};
 
-    handleRadioValues = (e: any) => {
-        const initialValues = this.getInitialValues()
+	handleRadioValues = (e: any) => {
+		const initialValues = this.getInitialValues();
 
-        /**
-         * 初始值和选中值不一致时，若已选中值，则提示需删除组件
-         */
-        if (!_.isEqual(initialValues[0], e.target.value)) {
-            if (initialValues[0]) {
-                message.error(`先删除${COMPONENT_CONFIG_NAME[initialValues[0]]}，才能切换为${COMPONENT_CONFIG_NAME[e.target.value]}`)
-                return
-            }
-            let addComps = []
-            addComps.push(e.target.value)
-            this.setState({
-                addComps, initialValues: [e.target.value]
-            })
-        }
-    }
+		/**
+		 * 初始值和选中值不一致时，若已选中值，则提示需删除组件
+		 */
+		if (!_.isEqual(initialValues[0], e.target.value)) {
+			if (initialValues[0]) {
+				message.error(
+					`先删除${COMPONENT_CONFIG_NAME[initialValues[0]]}，才能切换为${
+						COMPONENT_CONFIG_NAME[e.target.value]
+					}`,
+				);
+				return;
+			}
+			let addComps = [];
+			addComps.push(e.target.value);
+			this.setState({
+				addComps,
+				initialValues: [e.target.value],
+			});
+		}
+	};
 
-    renderTitle = () => {
-        return <div className="c-componentButton__title">
-            <span>组件配置</span>
-        </div>
-    }
+	renderTitle = () => {
+		return (
+			<div className="c-componentButton__title">
+				<span>组件配置</span>
+			</div>
+		);
+	};
 
-    renderContent = () => {
-        const { activeKey } = this.props
-        const { initialValues } = this.state
+	renderContent = () => {
+		const { activeKey } = this.props;
+		const { initialValues } = this.state;
 
-        if (isSourceTab(activeKey)) {
-            return (<>
-                {this.renderTitle()}
-                <RadioGroup
-                    className="c-componentButton__content"
-                    defaultValue={initialValues[0]}
-                    value={initialValues[0]}
-                    onChange={this.handleRadioValues}
-                >
-                    <Row>
-                        {CONFIG_BUTTON_TYPE[activeKey].map((item: any) => {
-                            return <Col key={`${item.code}`}>
-                                <Radio disabled={this.getInitialValues().indexOf(item.code) > -1} value={item.code}>{item.componentName}</Radio>
-                            </Col>
-                        })}
-                    </Row>
-                </RadioGroup>
-            </>)
-        }
-        return (<>
-            {this.renderTitle()}
-            <CheckboxGroup
-                className="c-componentButton__content"
-                value={initialValues}
-                defaultValue={initialValues}
-                onChange={this.handleCheckValues}
-            >
-                <Row>
-                    {CONFIG_BUTTON_TYPE[activeKey].map((item: any) => {
-                        return <Col key={`${item.code}`}>
-                            <Checkbox disabled={this.getInitialValues().indexOf(item.code) > -1} value={item.code}>{item.componentName}</Checkbox>
-                        </Col>
-                    })}
-                </Row>
-            </CheckboxGroup>
-        </>)
-    }
+		if (isSourceTab(activeKey)) {
+			return (
+				<>
+					{this.renderTitle()}
+					<RadioGroup
+						className="c-componentButton__content"
+						defaultValue={initialValues[0]}
+						value={initialValues[0]}
+						onChange={this.handleRadioValues}
+					>
+						<Row>
+							{CONFIG_BUTTON_TYPE[activeKey].map((item: any) => {
+								return (
+									<Col key={`${item.code}`}>
+										<Radio
+											disabled={
+												this.getInitialValues().indexOf(item.code) > -1
+											}
+											value={item.code}
+										>
+											{item.componentName}
+										</Radio>
+									</Col>
+								);
+							})}
+						</Row>
+					</RadioGroup>
+				</>
+			);
+		}
+		return (
+			<>
+				{this.renderTitle()}
+				<CheckboxGroup
+					className="c-componentButton__content"
+					value={initialValues}
+					defaultValue={initialValues}
+					onChange={this.handleCheckValues}
+				>
+					<Row>
+						{CONFIG_BUTTON_TYPE[activeKey].map((item: any) => {
+							return (
+								<Col key={`${item.code}`}>
+									<Checkbox
+										disabled={this.getInitialValues().indexOf(item.code) > -1}
+										value={item.code}
+									>
+										{item.componentName}
+									</Checkbox>
+								</Col>
+							);
+						})}
+					</Row>
+				</CheckboxGroup>
+			</>
+		);
+	};
 
-    handleConfirm = () => {
-        const { addComps } = this.state
-        this.props.handlePopVisible(false)
-        this.props.handleConfirm(COMP_ACTION.ADD, addComps)
-    }
+	handleConfirm = () => {
+		const { addComps } = this.state;
+		this.props.handlePopVisible(false);
+		this.props.handleConfirm(COMP_ACTION.ADD, addComps);
+	};
 
-    handleCancel = () => {
-        this.setState({
-            addComps: [],
-            visible: false
-        })
-        this.props.handlePopVisible(false)
-    }
+	handleCancel = () => {
+		this.setState({
+			addComps: [],
+			visible: false,
+		});
+		this.props.handlePopVisible(false);
+	};
 
-    render () {
-        return (
-            <>
-                <Popconfirm
-                    icon={null}
-                    placement="topRight"
-                    title={this.renderContent()}
-                    onConfirm={this.handleConfirm}
-                    onCancel={this.handleCancel}
-                >
-                    <Button className="c-editCluster__componentButton" onClick={() => this.props.handlePopVisible()}>
-                        <i className="iconfont icon-zujianpeizhi" style={{ marginRight: 2 }} />
-                        组件配置
-                    </Button>
-                </Popconfirm>
-            </>
-        )
-    }
+	render() {
+		return (
+			<>
+				<Popconfirm
+					icon={null}
+					placement="topRight"
+					title={this.renderContent()}
+					onConfirm={this.handleConfirm}
+					onCancel={this.handleCancel}
+				>
+					<Button
+						className="c-editCluster__componentButton"
+						onClick={() => this.props.handlePopVisible()}
+					>
+						<i className="iconfont icon-zujianpeizhi" style={{ marginRight: 2 }} />
+						组件配置
+					</Button>
+				</Popconfirm>
+			</>
+		);
+	}
 }

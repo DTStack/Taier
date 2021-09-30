@@ -20,13 +20,13 @@ import { FolderTreeService } from '@dtinsight/molecule/esm/services';
 let resourceManagerTree;
 
 class ResourceManagerTree extends FolderTreeService {
-    constructor() {
-        super();
-    }
+	constructor() {
+		super();
+	}
 }
 
 if (!resourceManagerTree) {
-    resourceManagerTree = new ResourceManagerTree();
+	resourceManagerTree = new ResourceManagerTree();
 }
 
 export default resourceManagerTree as ResourceManagerTree;
