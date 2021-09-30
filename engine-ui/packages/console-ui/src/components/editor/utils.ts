@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-
 const commonEvent: any = {
     OPEN_COMMAND_LINE: 'editor.action.quickCommand',
     OPEN_FIND_TOOL: 'actions.find',

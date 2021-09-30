@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-
 import { message, notification } from 'antd'
 import { Cookie, LocalDB } from '@dtinsight/dt-utils'
 

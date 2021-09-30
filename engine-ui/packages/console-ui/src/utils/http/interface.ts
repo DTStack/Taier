@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-
 export default interface HttpInterface {
     /**
      * HTTP Get method
