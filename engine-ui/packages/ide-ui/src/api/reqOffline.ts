@@ -19,11 +19,6 @@
 import { RDOS_BASE_URL } from './req';
 
 const offlineReq = {
-    UNLOCK_FILE: `${RDOS_BASE_URL}/common/readWriteLock/getLock`, // 解锁文件
-
-    // ========================= 离线任务请求 ========================= //
-    SQL_FORMAT: `${RDOS_BASE_URL}/batch/batchTableInfo/sqlFormat`, // SQL格式化服务
-
     // ===== task模块 ===== //
     SAVE_TASK: `${RDOS_BASE_URL}/batch/batchTask/addOrUpdateTask`, // 添加或者更新任务
     RENAME_TASK: `${RDOS_BASE_URL}/batch/batchTask/renameTask`, // 任务重命名
@@ -145,51 +140,7 @@ const offlineReq = {
     GET_RES_DETAIL: `${RDOS_BASE_URL}/batch/batchResource/getResourceById`,
     DATA_PREVIEW: `${RDOS_BASE_URL}/batch/batchDataSource/preview`,
 
-    // ===== alarm告警模块 ===== //
-    GET_ALARM_LIST: `${RDOS_BASE_URL}/batch/batchAlarm/getAlarmList`, // 获取报警规则
-    ADD_ALARM: `${RDOS_BASE_URL}/batch/batchAlarm/createAlarm`, // 创建报警
-    UPDATE_ALARM: `${RDOS_BASE_URL}/batch/batchAlarm/updateAlarm`, // 更新报警
-    CLOSE_ALARM: `${RDOS_BASE_URL}/batch/batchAlarm/closeAlarm`, // 关闭报警
-    OEPN_ALARM: `${RDOS_BASE_URL}/batch/batchAlarm/startAlarm`, // 开启报警
-    DELETE_ALARM: `${RDOS_BASE_URL}/batch/batchAlarm/deleteAlarm`, // 删除报警
-    GET_ALARM_RECORDS: `${RDOS_BASE_URL}/batch/batchAlarmRecord/getAlarmRecordList`, // 获取报警记录
-    ALARM_STATISTICS: `${RDOS_BASE_URL}/batch/batchAlarmRecord/countAlarm`, // 删除报警
-    ALARM_TYPES: `${RDOS_BASE_URL}/batch/batchAlarm/getSendTypeList`, // 告警类型
-
-    // ===== 数据源管理 ===== //
-    SAVE_DATA_SOURCE: `${RDOS_BASE_URL}/batch/batchDataSource/addOrUpdateSource`, // 添加或者更新数据源
-    SAVE_DATA_SOURCE_KERBEROS: `${RDOS_BASE_URL}/upload/batch/batchDataSource/addOrUpdateSourceWithKerberos`, // 添加或者更新数据源当开启kerberos时启用该接口
-    DELETE_DATA_SOURCE: `${RDOS_BASE_URL}/batch/batchDataSource/deleteSource`, // 删除数据源
-    QUERY_DATA_SOURCE: `${RDOS_BASE_URL}/batch/batchDataSource/pageQuery`, // 查询数据源接口
-    GET_DATA_SOURCE_BY_ID: `${RDOS_BASE_URL}/batch/batchDataSource/getBySourceId`, // 根据ID查询数据源接口
-    TEST_DATA_SOURCE_CONNECTION: `${RDOS_BASE_URL}/batch/batchDataSource/checkConnection`, // 测试数据源连通性
-    TEST_DATA_SOURCE_CONNECTION_KERBEROS: `${RDOS_BASE_URL}/upload/batch/batchDataSource/checkConnectionWithKerberos`, // 测试数据源连通性当开启kerberos时启用该接口
-    GET_DATA_SOURCE_TYPES: `${RDOS_BASE_URL}/batch/batchDataSource/getTypes`, // 获取数据源类型列表
     GET_HBASE_COLUMN_FAMILY: `${RDOS_BASE_URL}/batch/batchDataSource/columnfamily`, // 获取Hbase数据表列族
-    GET_TASK_LIST_OF_OFFLINE_SOURCE: `${RDOS_BASE_URL}/batch/batchDataSource/getSourceTaskRef`, // 获取离线数据源的任务
-    CHECK_IS_PERMISSION: `${RDOS_BASE_URL}/batch/batchDataSource/checkPermission`, // 检查是否有权限
-
-    GET_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveCatalogue/getHiveCatalogue`, // 获取表目录
-    ADD_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveCatalogue/addCatalogue`, // 增加目录
-    DEL_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveCatalogue/deleteCatalogue`, // 删除目录
-    UPDATE_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveCatalogue/updateCatalogue`, // 更新目录
-    ADD_TABLE_TO_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveTableCatalogue/updateCatalogue`, // 添加表到数据类目
-    DEL_TABLE_IN_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveTableCatalogue/deleteTableCatalogue`, // 删除数据类目中的表
-
-    SAVE_SYNC_CONFIG: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/saveConfig`, // 保存整库同步配置
-    GET_SYNC_HISTORY: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/list`, // 获取整库同步历史
-    GET_SYNC_DETAIL: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/getDetail`, // 获取整库同步详情
-    PUBLISH_SYNC_TASK: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/task`, // 发布单表
-    TASK_PROGESS: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/taskProgress`, // 获取任务同步进度
-    CHECK_SYNC_CONFIG: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/checkTransformConfig`, // 检查高级配置
-    CHECK_SYNC_PERMISSION: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/checkPermission`, // 检查同步历史是否有权限
-
-    // ===== 项目统计 ===== //
-    PROJECT_TABLE_COUNT: `${RDOS_BASE_URL}/batch/hiveTableCount/tableCount`, // 表总量
-    PROJECT_STORE_COUNT: `${RDOS_BASE_URL}/batch/hiveTableCount/totalSize`, // 表总存储量
-    PROJECT_STORE_TOP: `${RDOS_BASE_URL}/batch/hiveTableCount/projectSizeTopOrder`, // 项目占用排行
-    PROJECT_TABLE_STORE_TOP: `${RDOS_BASE_URL}/batch/hiveTableCount/tableSizeTopOrder`, // 表占用排行
-    PROJECT_DATA_OVERVIEW: `${RDOS_BASE_URL}/batch/hiveTableCount/dataHistory`, // 数据趋势概览
 
     // ===== 组件模块 ===== //
     SAVE_COMPONENT: `${RDOS_BASE_URL}/batch/batchComponent/addOrUpdateComponent`, // 新建、更新组件
