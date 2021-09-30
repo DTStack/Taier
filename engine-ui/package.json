@@ -1,5 +1,5 @@
 {
-	"name": "root",
+	"name": "engine-ui",
 	"private": true,
 	"workspaces": [
 		"packages/*"
@@ -9,11 +9,16 @@
 		"prestart": "node ./scripts/prestart.cjs",
 		"start": "lerna exec --stream -- yarn start",
 		"deploy": "yarn run build && node ./scripts/deploy/deploy.js",
-		"molecule": "lerna run build --scope=molecule && lerna bootstrap --scope=ide-ui"
+		"molecule": "lerna run build --scope=molecule && lerna bootstrap --scope=ide-ui",
+		"prettier": "prettier -c --write './packages/**.*'",
+		"lint": "eslint --ext .ts --format=pretty \"./packages\""
 	},
 	"devDependencies": {
 		"@umijs/fabric": "^2.8.0",
 		"lerna": "^4.0.0"
+	},
+	"resolutions": {
+		"prettier": "^2.0.0"
 	},
 	"microHost": "http://schedule.dtstack.cn",
 	"microApp": {

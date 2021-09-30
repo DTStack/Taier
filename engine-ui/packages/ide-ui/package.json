@@ -42,8 +42,6 @@
         "@types/react-router-dom": "^5.1.7",
         "@types/react-router-redux": "4.0.51",
         "@types/redux-logger": "^3.0.9",
-        "@typescript-eslint/eslint-plugin": "^4.29.1",
-        "@typescript-eslint/parser": "^4.29.1",
         "babel-loader": "^8.2.2",
         "css-loader": "^6.2.0",
         "husky": "^7.0.1",
