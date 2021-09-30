@@ -25,6 +25,7 @@
 
 # ignore the production code
 **/dist/*
+**/assets/*
 
 # ignore the patch
 **/*.patch
