@@ -1,7 +1,0 @@
-# Ignore artifacts:
-umd
-build
-.history
-node_modules
-yarn.lock
-coverage

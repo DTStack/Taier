@@ -1,0 +1,33 @@
+**/*.md
+**/*.cjs
+**/*.html
+**/*.yml
+**/*.sh
+
+# ignore icons
+**/*.ttf
+**/*.eot
+**/*.ico
+**/*.woff
+**/*.woff2
+
+# ignore images
+**/*.png
+**/*.svg
+**/*.gif
+**/*.jpg
+
+# ignore texts
+**/*.txt
+
+# ignore the scripts
+**/scripts/*.*
+
+# ignore the production code
+**/dist/*
+
+# ignore the patch
+**/*.patch
+
+
+.gitignore
