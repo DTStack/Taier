@@ -1,27 +1,31 @@
 {
-  "name": "root",
-  "private": true,
-  "scripts": {
-    "build": "node ./scripts/deploy/build.js",
-    "start": "node ./scripts/deploy/start.js",
-    "pull": ". ./scripts/pull.sh",
-    "deploy": "yarn run build && node ./scripts/deploy/deploy.js",
-    "molecule": "lerna run build --scope=molecule && lerna bootstrap --scope=ide-ui"
-  },
-  "devDependencies": {
-    "lerna": "^4.0.0"
-  },
-  "microHost": "http://schedule.dtstack.cn",
-  "microApp": {
-    "ide-ui": {
-      "bundlePath": "./packages/ide-ui/scripts/webpack.base.js"
-    },
-    "data-source": {
-      "bundlePath": "./packages/data-source/ko.config.js"
-    },
-    "console-ui": {
-      "bundlePath": "./packages/console-ui/build/base.js",
-      "iconfontPath": "./packages/console-ui/src/public/iconfont/iconfont.css"
-    }
-  }
+	"name": "root",
+	"private": true,
+	"workspaces": [
+		"packages/*"
+	],
+	"scripts": {
+		"build": "node ./scripts/deploy/build.js",
+		"prestart": "node ./scripts/prestart.cjs",
+		"start": "lerna exec --stream -- yarn start",
+		"deploy": "yarn run build && node ./scripts/deploy/deploy.js",
+		"molecule": "lerna run build --scope=molecule && lerna bootstrap --scope=ide-ui"
+	},
+	"devDependencies": {
+		"@umijs/fabric": "^2.8.0",
+		"lerna": "^4.0.0"
+	},
+	"microHost": "http://schedule.dtstack.cn",
+	"microApp": {
+		"ide-ui": {
+			"bundlePath": "./packages/ide-ui/scripts/webpack.base.js"
+		},
+		"data-source": {
+			"bundlePath": "./packages/data-source/ko.config.js"
+		},
+		"console-ui": {
+			"bundlePath": "./packages/console-ui/build/base.js",
+			"iconfontPath": "./packages/console-ui/src/public/iconfont/iconfont.css"
+		}
+	}
 }
