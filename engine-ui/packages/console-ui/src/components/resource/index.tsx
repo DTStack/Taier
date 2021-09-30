@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-
 // 剩余资源
 import * as React from 'react';
 import { Modal, Select, Form, Table, Button } from 'antd';
