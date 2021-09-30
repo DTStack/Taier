@@ -189,6 +189,13 @@ function createTask() {
 function editTreeNodeName() {
     function renameFile(file: any) {
         const { data, name } = file;
+        if (!name) {
+            updateTree({
+                catalogueType: 'TaskDevelop',
+                parentId: data.parentId,
+            });
+            return;
+        }
         ajax.saveOfflineJobData({
             ...data,
             name,
@@ -208,6 +215,10 @@ function editTreeNodeName() {
             name,
             data: { parentId },
         } = file;
+
+        if (!name) {
+            return;
+        }
         ajax.addOfflineCatalogue({
             nodeName: name,
             nodePid: parentId,
@@ -224,6 +235,10 @@ function editTreeNodeName() {
             name,
             data: { id, parentId },
         } = file;
+        if (!name) {
+            updateTree({ catalogueType: 'TaskDevelop', parentId });
+            return;
+        }
         ajax.editOfflineCatalogue({
             type: 'folder',
             engineCatalogueType: 0,
