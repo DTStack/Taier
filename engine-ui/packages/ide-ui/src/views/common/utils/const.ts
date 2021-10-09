@@ -38,3 +38,9 @@ export const CREATE_TASK_PREFIX = 'createTask';
 export const CREATE_FOLDER_PREFIX = 'createFolder';
 export const EDIT_TASK_PREFIX = 'editTask';
 export const EDIT_FOLDER_PREFIX = 'editFolder';
+
+export const STATUS_BAR_LANGUAGE = {
+    id: 'TaskLanguage',
+    sortIndex: 3,
+    name: 'SparkSQL',
+};

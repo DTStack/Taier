@@ -31,9 +31,11 @@ import Open from '../../task/open';
 import EditFolder from '../../task/editFolder';
 import {
     getCatalogueViaNode,
+    getStatusBarLanguage,
     loadTreeNode,
     resetEditorGroup,
     transformCatalogueToTree,
+    updateStatusBarLanguage,
 } from '../utils';
 import DataSync from '../../dataSync';
 import ajax from '../../../api';
@@ -52,8 +54,6 @@ import {
 import store from '../../../store';
 import { workbenchAction } from '../../../controller/dataSync/actionType';
 import { editorAction } from '../../../controller/editor/actionTypes';
-import { cloneDeep } from 'lodash';
-import { getStatusBarLanguage, updateStatusBarLanguage } from '../statusBar';
 
 const OpenView = connect(molecule.editor, Open);
 const EditFolderView = connect(molecule.editor, EditFolder);

@@ -24,7 +24,7 @@ import {
     TreeNodeModel,
     Float,
 } from '@dtinsight/molecule/esm/model';
-import { TASK_RUN_ID, TASK_STOP_ID } from './const';
+import { STATUS_BAR_LANGUAGE, TASK_RUN_ID, TASK_STOP_ID } from './const';
 import ajax from '../../../api';
 import { catalogueTypeToDataType } from '../../../components/func';
 import { updateCatalogueData } from '../../../controller/catalogue/actionCreator';
@@ -58,16 +58,35 @@ export function resetEditorGroup() {
     ]);
 }
 
-export function updateStatusBarLanguage(item: IStatusBarItem) {
-    const states = molecule.statusBar.getState();
-    const languageStatus = states.rightItems.find(
-        (item) => item.id === 'language'
+export function updateStatusBarLanguage(item: IStatusBarItem | null) {
+    if (!item) return;
+    const languageStatus = molecule.statusBar.getStatusBarItem(
+        STATUS_BAR_LANGUAGE.id,
+        Float.right
     );
     if (languageStatus) {
-        molecule.statusBar.update(item);
+        molecule.statusBar.update(item, Float.right);
     } else {
         molecule.statusBar.add(item, Float.right);
     }
+}
+
+export function getStatusBarLanguage(language: string) {
+    const languageBar = { ...STATUS_BAR_LANGUAGE };
+    switch (Number(language)) {
+        case TASK_TYPE.SQL: {
+            languageBar.name = 'SparkSQL';
+            break;
+        }
+        case TASK_TYPE.SYNC: {
+            languageBar.name = 'DataSync';
+            break;
+        }
+        default: {
+            return null;
+        }
+    }
+    return languageBar;
 }
 
 export function fileIcon(type: number, source: Source): string | JSX.Element {
