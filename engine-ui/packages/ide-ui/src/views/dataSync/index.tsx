@@ -136,7 +136,7 @@ class DataSyncWorkbench extends React.Component<
         const currentTabData = this.props.current?.tab?.data;
 
         return (
-            <Scrollable>
+            <Scrollable isShowShadow>
                 <div className="ide-editor">
                     <div style={{ zIndex: 901 }} className="ide-content">
                         <SplitPane
