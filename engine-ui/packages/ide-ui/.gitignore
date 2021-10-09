@@ -10,7 +10,7 @@
 
 # production
 /build
-/out
+/.vscode
 
 # misc
 .DS_Store
