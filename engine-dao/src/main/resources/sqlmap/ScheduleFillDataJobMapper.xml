@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.mapper.ScheduleFillDataJobDao">
+
+    <sql id="select_content_fragment">
+      id,dtuic_tenant_id,app_type,tenant_id,project_id,job_name,run_day,from_day,to_day,gmt_create,gmt_modified,create_user_id,is_deleted
+    </sql>
+
+    <select id="getByJobName" resultType="ScheduleFillDataJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_fill_data_job
+        WHERE job_name = #{jobName} and project_id = #{projectId} and is_deleted = 0 LIMIT 1
+    </select>
+
+    <insert id="insert" parameterType="ScheduleFillDataJob" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO schedule_fill_data_job
+          (tenant_id,project_id,job_name,run_day,from_day,to_day,gmt_create,gmt_modified,create_user_id,is_deleted,dtuic_tenant_id,app_type)
+        VALUES
+          (#{tenantId},#{projectId},#{jobName},#{runDay},#{fromDay},#{toDay},#{gmtCreate},#{gmtModified},#{createUserId},#{isDeleted},#{dtuicTenantId},#{appType})
+    </insert>
+
+    <select id="listFillJob" resultType="ScheduleFillDataJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_fill_data_job
+        WHERE project_id = #{projectId} and job_name in
+        <foreach collection="nameList" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        and is_deleted = 0 order by gmt_create desc
+    </select>
+
+    <select id="getFillJobList" resultType="ScheduleFillDataJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_fill_data_job WHERE
+            is_deleted = 0
+            AND project_id = #{projectId}
+            AND id IN
+            <foreach collection="fillIdList" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+            <if test="tenantId !=null">
+                AND tenant_id = #{tenantId}
+            </if>
+            <if test="dtuicTenantId !=null" >
+                AND dtuic_tenant_id = #{dtuicTenantId}
+            </if>
+    </select>
+
+    <select id="listFillJobByPageQuery" resultType="com.dtstack.engine.domain.ScheduleFillDataJob">
+        SELECT
+            sfdj.id,
+            sfdj.tenant_id,
+            sfdj.project_id,
+            sfdj.dtuic_tenant_id,
+            sfdj.app_type,
+            sfdj.job_name,
+            sfdj.run_day,
+            sfdj.from_day,
+            sfdj.to_day,
+            sfdj.gmt_create,
+            sfdj.gmt_modified,
+            sfdj.create_user_id,
+            sfdj.is_deleted
+        FROM schedule_fill_data_job sfdj right join schedule_job sj
+        ON sfdj.id = sj.fill_id
+        WHERE
+         sfdj.app_type = #{model.appType}
+        <if test="model.projectId != null">
+            AND sfdj.project_id = #{model.projectId}
+        </if>
+        <if test="model.tenantId != null">
+            AND sfdj.tenant_id = #{model.tenantId}
+        </if>
+        <if test="model.dtuicTenantId != null">
+            AND sfdj.dtuic_tenant_id = #{model.dtuicTenantId}
+        </if>
+        <if test="model.createUserId != null">
+            AND sfdj.create_user_id = #{model.createUserId}
+        </if>
+        <if test="model.taskIds != null and model.taskIds.size() > 0">
+            AND sj.task_id IN
+            <foreach item="taskId" index="index" collection="model.taskIds" open="(" separator="," close=")">
+                #{taskId}
+            </foreach>
+        </if>
+        <if test="model.startGmtCreate != null">
+            AND to_days(sj.gmt_create) = to_days(#{model.startGmtCreate})
+        </if>
+        <if test="model.bizStartDay != null and model.bizEndDay != null">
+            AND sj.business_date &gt;= ${model.bizStartDay} and sj.business_date &lt; ${model.bizEndDay}
+        </if>
+        <if test="model.cycStartDay != null and model.cycEndDay != null">
+            AND sj.cyc_time <![CDATA[>=]]> #{model.cycStartDay}
+            AND sj.cyc_time <![CDATA[<]]> #{model.cycEndDay}
+        </if>
+        GROUP BY sfdj.id
+        ORDER BY sfdj.gmt_create desc
+        limit #{start} , #{pageSize}
+    </select>
+
+</mapper>

@@ -1,0 +1,7 @@
+.settings/
+target/
+.project
+.classpath
+.idea/
+dtscript-core/dtscript-core.iml
+lib/
