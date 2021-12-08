@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="allAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${user.dir}/logs/engine_all.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${user.dir}/logs/engine_all_%d{yyyy-MM-dd}.log</fileNamePattern>
+            <MaxHistory>5</MaxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} [%file:%line] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="zkAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${user.dir}/logs/engine_zk.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${user.dir}/logs/engine_zk_%d{yyyy-MM-dd}.log</fileNamePattern>
+            <MaxHistory>5</MaxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} [%file:%line] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="request" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${user.dir}/logs/engine_request.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${user.dir}/logs/engine_request_%d{yyyy-MM-dd}.log</fileNamePattern>
+            <MaxHistory>5</MaxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} [%file:%line] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="flinkmonitor" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${user.dir}/logs/engine_flinkmonitor.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${user.dir}/logs/engine_flinkmonitor_%d{yyyy-MM-dd}.log</fileNamePattern>
+            <MaxHistory>5</MaxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} [%file:%line] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="schedule" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${user.dir}/logs/engine_schedule.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${user.dir}/logs/engine_schedule_%d{yyyy-MM-dd}.log</fileNamePattern>
+            <MaxHistory>5</MaxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} [%file:%line] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="alert" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${user.dir}/logs/engine_alert.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${user.dir}/logs/engine_alert_%d{yyyy-MM-dd}.log</fileNamePattern>
+            <MaxHistory>5</MaxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} [%file:%line] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="com.dtstack.engine.master.router" level="info" additivity="false">
+        <appender-ref ref="request" />
+    </logger>
+
+    <logger name="com.dtstack.engine" level="info" additivity="false">
+        <appender-ref ref="allAppender" />
+    </logger>
+
+    <logger name="com.dtstack.batch" level="info" additivity="false">
+        <appender-ref ref="allAppender" />
+    </logger>
+
+    <logger name="com.dtstack.engine.master.server.listener" level="info" additivity="false">
+        <appender-ref ref="zkAppender" />
+    </logger>
+
+    <logger name="com.dtstack.engine.flink" level="info" additivity="false">
+        <appender-ref ref="flinkmonitor" />
+    </logger>
+
+    <logger name="com.dtstack.engine.master.server.executor" level="info" additivity="false">
+        <appender-ref ref="schedule" />
+    </logger>
+    <logger name="com.dtstack.engine.master.server.multiengine" level="info" additivity="false">
+        <appender-ref ref="schedule" />
+    </logger>
+    <logger name="com.dtstack.engine.master.server.scheduler" level="info" additivity="false">
+        <appender-ref ref="schedule" />
+    </logger>
+    <logger name="com.dtstack.engine.master.server.queue.JopPriorityQueue" level="info" additivity="false">
+        <appender-ref ref="schedule" />
+    </logger>
+
+    <logger name="com.dtstack.engine.alert" level="info" additivity="false">
+        <appender-ref ref="alert" />
+    </logger>
+
+    <root level="info">
+        <appender-ref ref="allAppender" />
+    </root>
+
+</configuration>

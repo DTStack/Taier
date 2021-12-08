@@ -1,0 +1,29 @@
+{
+    "code": 1,
+    "message": "request success.",
+    "result": "",
+    "data": {
+        "id": 3,
+        "gmtCreate": 1493263348809,
+        "gmtModified": 1493263348809,
+        "isDeleted": 0,
+        "tenantId": 0,
+        "projectId": 123,
+        "taskId": "TK26b17f367aea478a8837e66841df245d",
+        "engineTaskId": null,
+        "name": "xctest",
+        "status": 0,
+        "taskType": 0,
+        "computeType": 0,
+        "engineType": 0,
+        "sqlText": "",
+        "taskParams": "",
+        "modifyUser": null,
+        "modifyUserId": 1,
+        "createUser": null,
+        "createUserId": 1,
+        "version": 0,
+        "nodePid": 0
+    },
+    "space": "0.3s"
+}

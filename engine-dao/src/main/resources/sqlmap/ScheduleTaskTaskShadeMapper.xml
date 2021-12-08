@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.mapper.ScheduleTaskTaskShadeDao">
+
+    <sql id="select_content_fragment">
+        id,tenant_id,project_id,dtuic_tenant_id,app_type,task_id,parent_task_id,gmt_create,gmt_modified,is_deleted,`parent_app_type`,`task_key`,`parent_task_key`
+    </sql>
+
+    <sql id="update_fragment">
+        <set>
+            <if test="id != null">
+                id = #{id},
+            </if>
+            <if test="taskId != null">
+                task_id = #{taskId},
+            </if>
+            <if test="parentTaskId != null">
+                parent_task_id = #{parentTaskId},
+            </if>
+            <if test="projectId != null">
+                project_id = #{projectId},
+            </if>
+            <if test="tenantId != null">
+                tenant_id = #{tenantId},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified},
+            </if>
+            <if test="gmtModified == null">
+                gmt_modified = NOW(),
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted},
+            </if>
+            <if test="dtuicTenantId !=null">
+                dtuic_tenant_id  = #{dtuicTenantId},
+            </if>
+            <if test="appType!=null">
+                app_type = #{appType},
+            </if>
+            <if test="taskKey!=null">
+                task_key = #{taskKey},
+            </if>
+            <if test="parentTaskKey!=null">
+                parent_task_key = #{parentTaskKey},
+            </if>
+        </set>
+    </sql>
+
+    <select id="listChildTask" resultType="ScheduleTaskTaskShade">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_task_task_shade
+        WHERE parent_task_id = #{parentTaskId} and is_deleted = 0 AND parent_app_type = #{appType}
+    </select>
+
+    <select id="listChildTaskLimit" resultType="com.dtstack.engine.domain.ScheduleTaskTaskShade">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_task_task_shade
+        WHERE parent_task_id = #{parentTaskId} and is_deleted = 0 AND app_type = #{appType} LIMIT #{limit}
+    </select>
+
+    <select id="listParentTask" resultType="ScheduleTaskTaskShade">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_task_task_shade
+        WHERE task_id = #{childTaskId} and is_deleted = 0
+        <if test="appType != null">
+            AND app_type = #{appType}
+        </if>
+    </select>
+
+    <delete id="deleteByTaskId">
+        DELETE FROM schedule_task_task_shade
+        WHERE task_id = #{taskId} AND app_type = #{appType}
+    </delete>
+
+    <insert id="insert" parameterType="ScheduleTaskTaskShade" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO schedule_task_task_shade
+        (dtuic_tenant_id,app_type, task_id,parent_task_id,project_id,tenant_id,gmt_create,gmt_modified,is_deleted,parent_app_type,task_key,parent_task_key)
+        VALUES
+        (#{dtuicTenantId},#{appType}, #{taskId},#{parentTaskId},#{projectId},#{tenantId},#{gmtCreate},#{gmtModified},#{isDeleted},#{parentAppType},#{taskKey},#{parentTaskKey})
+    </insert>
+
+    <update id="update" parameterType="ScheduleTaskTaskShade">
+        UPDATE
+        schedule_task_task_shade
+        <include refid="update_fragment"/>
+        WHERE
+        task_id = #{taskId} AND app_type = #{appType} AND is_deleted = 0
+    </update>
+
+    <select id="getOne" resultType="ScheduleTaskTaskShade">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_task_task_shade
+        WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <select id="getOneByTaskId" resultType="ScheduleTaskTaskShade">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_task_task_shade
+        WHERE task_id = #{taskId} and parent_task_id = #{parentTaskId} AND is_deleted = 0 AND app_type = #{appType} LIMIT 1
+    </select>
+    <select id="listParentTaskKeys" resultType="com.dtstack.engine.domain.ScheduleTaskTaskShade">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_task_task_shade
+        WHERE is_deleted = 0 AND
+        parent_task_key IN
+        <foreach collection="taskKeys" separator="," close=")" open="(" item="taskKey" >
+            #{taskKey}
+        </foreach>
+    </select>
+
+    <select id="listTaskKeys" resultType="com.dtstack.engine.domain.ScheduleTaskTaskShade">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_task_task_shade
+        WHERE is_deleted = 0 AND
+        task_key IN
+        <foreach collection="taskKeys" separator="," close=")" open="(" item="taskKey" >
+            #{taskKey}
+        </foreach>
+    </select>
+    <select id="getTaskOtherPlatformByProjectId"
+            resultType="com.dtstack.engine.domain.ScheduleTaskTaskShade">
+        SELECT
+            tts.id,
+            tts.tenant_id,
+            tts.project_id,
+            tts.dtuic_tenant_id,
+            tts.app_type,
+            tts.task_id,
+            tts.parent_task_id,
+            tts.gmt_create,
+            tts.gmt_modified,
+            tts.is_deleted,
+            tts.parent_app_type,
+            tts.task_key,
+            tts.parent_task_key
+        FROM
+        schedule_task_task_shade tts
+        LEFT JOIN schedule_task_shade ts ON ts.task_id = tts.task_id AND ts.app_type = tts.app_type
+        WHERE
+        tts.parent_task_id IN ( SELECT task_id FROM schedule_task_shade WHERE project_id = #{projectId} AND app_type = #{appType} )
+        AND tts.parent_app_type = #{appType}
+        AND ts.project_id != #{projectId}
+        LIMIT #{listChildTaskLimit}
+    </select>
+
+
+</mapper>

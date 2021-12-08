@@ -1,0 +1,82 @@
+.codicon-sync:before {
+    color: #cbcb41;
+}
+
+.codicon-icon_sparkSQL:before {
+    color: #519aba;
+}
+
+.mo {
+    .ant-steps-item-wait
+        > .ant-steps-item-container
+        > .ant-steps-item-content
+        > .ant-steps-item-title {
+        color: var(--foreground);
+    }
+
+    .ant-steps-item-process .ant-steps-item-icon {
+        background: var(--textLink-activeForeground);
+        border-color: var(--textLink-activeForeground);
+    }
+    .ant-steps-item-process
+        > .ant-steps-item-container
+        > .ant-steps-item-content
+        > .ant-steps-item-title {
+        color: var(--textLink-activeForeground);
+    }
+
+    .ant {
+        &-btn {
+            background: var(--button-background);
+            color: var(--button-foreground);
+            border-radius: 0 !important;
+            border-color: transparent;
+        }
+
+        &-radio,
+        &-steps-item-title,
+        &-checkbox-wrapper,
+        &-radio-wrapper,
+        &-form-item,
+        &-modal-close,
+        &-modal-title,
+        &-modal-confirm-title,
+        &-table-tbody > tr > td,
+        &-form-item-label > label {
+            color: var(--foreground);
+        }
+
+        &-input,
+        &-select-selection,
+        &-checkbox-inner {
+            border-radius: 0px;
+            background: var(--input-background);
+            border-color: var(--input-border);
+        }
+
+        &-steps-item-process &-steps-item-icon {
+            background: var(--button-background);
+        }
+
+        &-modal-header,
+        &-modal-body,
+        &-modal-footer {
+            background-color: var(--editor-background);
+            color: var(--foreground);
+        }
+    }
+
+    .mo-workbench .m-datasync .steps-content {
+        border: 0;
+    }
+
+    .mo-panel {
+        .ant-collapse {
+            background-color: var(--panel-background);
+        }
+
+        .ant-collapse > .ant-collapse-item > .ant-collapse-header {
+            color: var(--foreground);
+        }
+    }
+}

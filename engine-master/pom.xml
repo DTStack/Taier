@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>engine-all</artifactId>
+        <groupId>com.dtstack.engine</groupId>
+        <version>1.0.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>engine-master</artifactId>
+    <name>engine-master</name>
+    <properties>
+        <log4j.version>1.2.17</log4j.version>
+        <slf4j-api.version>1.7.21</slf4j-api.version>
+        <guava.version>26.0-jre</guava.version>
+        <commons-collections.version>3.2.2</commons-collections.version>
+        <httpclient.version>4.5.2</httpclient.version>
+    </properties>
+
+    <packaging>pom</packaging>
+
+
+    <modules>
+        <module>engine-master-server</module>
+    </modules>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/java/</directory>
+            </resource>
+            <resource>
+                <directory>src/main/resources/</directory>
+            </resource>
+        </resources>
+    </build>
+</project>
