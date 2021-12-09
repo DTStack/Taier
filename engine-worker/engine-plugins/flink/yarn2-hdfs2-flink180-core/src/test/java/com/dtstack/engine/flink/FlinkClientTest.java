@@ -321,7 +321,7 @@ public class FlinkClientTest {
 		List<String> files = new ArrayList<>();
 		files.add(tmpFile);
 		Map<String, List<String>> cacheFile = new HashMap<>();
-		cacheFile.put(jobClient.getTaskId(), files);
+		cacheFile.put(jobClient.getJobId(), files);
 
 		MemberModifier.field(FlinkClient.class, "cacheFile")
 			.set(flinkClient, cacheFile);

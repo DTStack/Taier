@@ -359,15 +359,15 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
 
             if (StringUtils.isNotBlank(scheduleJob.getEngineJobId()) && !jobClient.getEngineTaskId().equals(scheduleJob.getEngineJobId())) {
                 this.removeMemStatusAndJobCache(jobElement.jobId);
-                LOGGER.info("jobId:{} stopped success, because of [difference engineJobId].", paramAction.getTaskId());
+                LOGGER.info("jobId:{} stopped success, because of [difference engineJobId].", paramAction.getJobId());
                 return StoppedStatus.STOPPED;
             }
             JobResult jobResult = workerOperator.stopJob(jobClient);
             if (jobResult.getCheckRetry()) {
-                LOGGER.info("jobId:{} is retry.", paramAction.getTaskId());
+                LOGGER.info("jobId:{} is retry.", paramAction.getJobId());
                 return StoppedStatus.RETRY;
             } else {
-                LOGGER.info("jobId:{} is stopping.", paramAction.getTaskId());
+                LOGGER.info("jobId:{} is stopping.", paramAction.getJobId());
                 return StoppedStatus.STOPPING;
             }
         }

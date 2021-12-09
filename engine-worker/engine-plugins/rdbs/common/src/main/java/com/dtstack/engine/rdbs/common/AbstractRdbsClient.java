@@ -140,7 +140,7 @@ public abstract class AbstractRdbsClient extends AbstractClient {
         try {
             return resourceInfo.judgeSlots(jobClient);
         } catch (Exception e) {
-            LOG.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
+            LOG.error("jobId:{} judgeSlots error:", jobClient.getJobId(), e);
             return JudgeResult.exception("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
         }
     }

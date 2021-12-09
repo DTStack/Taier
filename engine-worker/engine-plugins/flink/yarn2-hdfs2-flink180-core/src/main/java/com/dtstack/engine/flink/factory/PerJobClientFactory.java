@@ -94,7 +94,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
     public ClusterClient getClusterClient(JobIdentifier jobIdentifier) {
 
         String applicationId = jobIdentifier.getApplicationId();
-        String taskId = jobIdentifier.getTaskId();
+        String jobId = jobIdentifier.getJobId();
 
         ClusterClient clusterClient = null;
         try {
@@ -102,8 +102,8 @@ public class PerJobClientFactory extends AbstractClientFactory {
                 try {
                     return perJobClientCache.get(applicationId, () -> {
                         ParamAction action = new ParamAction();
-                        action.setTaskId(taskId);
-                        action.setName("taskId-" + taskId);
+                        action.setJobId(jobId);
+                        action.setName("jobId-" + jobId);
                         action.setTaskType(EJobType.SQL.getType());
                         action.setComputeType(ComputeType.STREAM.getType());
                         action.setTenantId(-1L);
@@ -121,7 +121,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
                 }
             }, flinkClientBuilder.getYarnConf());
         } catch (Exception e) {
-            LOG.error("job[{}] get perJobClient exception:{}", taskId, e);
+            LOG.error("job[{}] get perJobClient exception:{}", jobId, e);
             throw new RdosDefineException(e);
         }
 
@@ -226,7 +226,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
             setNoneHaModeConfig(configuration);
         } else {
             configuration.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
-            configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, jobClient.getTaskId());
+            configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, jobClient.getJobId());
         }
 
         if (StringUtils.isNotBlank(flinkConfig.getPluginLoadMode()) && ConfigConstrant.FLINK_PLUGIN_SHIPFILE_LOAD.equalsIgnoreCase(flinkConfig.getPluginLoadMode())) {
@@ -258,7 +258,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
         String remoteDir = flinkConfig.getRemoteDir();
 
         // resource files
-        String taskWorkspace = FlinkUtil.getTaskWorkspace(jobClient.getTaskId());
+        String taskWorkspace = FlinkUtil.getTaskWorkspace(jobClient.getJobId());
         String taskResourceDirPath = taskWorkspace + ConfigConstrant.SP + "resource";
         File taskResourceDir = new File(taskResourceDirPath);
         File[] taskResourceDirFiles = taskResourceDir.listFiles();

@@ -30,7 +30,6 @@ import com.dtstack.engine.dto.StatusCount;
 import com.dtstack.engine.mapper.*;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.impl.pojo.ParamActionExt;
-import com.dtstack.engine.master.impl.restartAsync.RestartRunnable;
 import com.dtstack.engine.master.impl.vo.ScheduleJobVO;
 import com.dtstack.engine.master.impl.vo.ScheduleTaskVO;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
@@ -49,7 +48,6 @@ import com.dtstack.engine.pager.PageQuery;
 import com.dtstack.engine.pager.PageResult;
 import com.dtstack.engine.pluginapi.constrant.JobResultConstant;
 import com.dtstack.engine.pluginapi.enums.ComputeType;
-import com.dtstack.engine.common.enums.EScheduleJobType;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.pluginapi.exception.ErrorCode;
 import com.dtstack.engine.pluginapi.exception.RdosDefineException;
@@ -62,9 +60,7 @@ import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -72,12 +68,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisCallback;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import redis.clients.jedis.commands.JedisCommands;
-import redis.clients.jedis.params.SetParams;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -95,12 +87,6 @@ import java.util.stream.Collectors;
 public class ScheduleJobService {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ScheduleJobService.class);
-
-    private static final ObjectMapper objMapper = new ObjectMapper();
-
-    private static final String DAY_PATTERN = "yyyy-MM-dd";
-
-    private DateTimeFormatter dayFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
 
     private DateTimeFormatter dayFormatterAll = DateTimeFormat.forPattern("yyyyMMddHHmmss");
 
@@ -153,9 +139,6 @@ public class ScheduleJobService {
 
     @Autowired
     private EnvironmentContext environmentContext;
-
-    @Autowired
-    private StringRedisTemplate redisTemplate;
 
     @Autowired
     private JobGraphTriggerDao jobGraphTriggerDao;
@@ -845,12 +828,6 @@ public class ScheduleJobService {
         return details;
     }
 
-    public Integer updateStatusAndLogInfoAndExecTimeById(String jobId, Integer status, String msg,Date execStartTime,Date execEndTime){
-        if (StringUtils.isNotBlank(msg) && msg.length() > 5000) {
-            msg = msg.substring(0, 5000) + "...";
-        }
-        return scheduleJobDao.updateStatusByJobId(jobId, status, msg,null,execStartTime,execEndTime);
-    }
 
     public Integer updateStatusAndLogInfoById(String jobId, Integer status, String msg) {
         if (StringUtils.isNotBlank(msg) && msg.length() > 5000) {
@@ -895,18 +872,12 @@ public class ScheduleJobService {
      * 触发 engine 执行指定task
      */
     public void sendTaskStartTrigger(ScheduleJob scheduleJob) throws Exception {
-
-        if(null == scheduleJob.getTaskId() || null == scheduleJob.getAppType() ){
-            throw new RdosDefineException("任务id和appType不能为空");
-        }
         ScheduleTaskShade batchTask = batchTaskShadeService.getBatchTaskById(scheduleJob.getTaskId());
         if (batchTask == null) {
-            throw new RdosDefineException("can not find task by id:" + scheduleJob.getTaskId());
+            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
         }
-        if (checkIsVirtual(scheduleJob, batchTask)) {
-            return;
-        }
-        if (checkWorkFlow(scheduleJob, batchTask)) {
+        if(EScheduleJobType.WORK_FLOW.getType().equals(batchTask.getTaskType()) || EScheduleJobType.VIRTUAL.getType().equals(batchTask.getTaskType())){
+            runVirtualTask(scheduleJob,batchTask);
             return;
         }
         String extInfoByTaskId = scheduleTaskShadeDao.getExtInfoByTaskId(scheduleJob.getTaskId(), scheduleJob.getAppType());
@@ -929,53 +900,25 @@ public class ScheduleJobService {
         LOGGER.error(" job  {} run fail with info is null",scheduleJob.getJobId());
     }
 
-    /**
-     * @author newman
-     * @Description 工作流或算法实验，保持提交状态
-     * @Date 2020-12-18 16:27
-     * @param scheduleJob:
-     * @param batchTask:
-     * @return: boolean
-     **/
-    private boolean checkWorkFlow(ScheduleJob scheduleJob, ScheduleTaskShade batchTask) {
-        //工作流节点保持提交中状态,状态更新见BatchFlowWorkJobService
-        if (batchTask.getTaskType().equals(EScheduleJobType.WORK_FLOW.getVal())){
-            ScheduleJob updateJob = new ScheduleJob();
-            updateJob.setJobId(scheduleJob.getJobId());
-            updateJob.setAppType(scheduleJob.getAppType());
-            updateJob.setStatus(RdosTaskStatus.SUBMITTING.getStatus());
-            updateJob.setExecStartTime(new Timestamp(System.currentTimeMillis()));
-            updateJob.setGmtModified(new Timestamp(System.currentTimeMillis()));
-            scheduleJobDao.updateStatusWithExecTime(updateJob);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * @author newman
-     * @Description 如果是虚结点，直接完成
-     * @Date 2020-12-18 16:25
-     * @param scheduleJob:
-     * @param batchTask:
-     * @return: boolean
-     **/
-    private boolean checkIsVirtual(ScheduleJob scheduleJob, ScheduleTaskShade batchTask) {
-        //判断是不是虚节点---虚节点直接完成
-        if (batchTask.getTaskType().equals(EScheduleJobType.VIRTUAL.getType())) {
-            //虚节点写入开始时间和结束时间
-            ScheduleJob updateJob = new ScheduleJob();
-            updateJob.setJobId(scheduleJob.getJobId());
-            updateJob.setAppType(scheduleJob.getAppType());
+    private void runVirtualTask(ScheduleJob scheduleJob, ScheduleTaskShade batchTask) {
+        ScheduleJob updateJob = new ScheduleJob();
+        updateJob.setJobId(scheduleJob.getJobId());
+        updateJob.setExecStartTime(new Timestamp(System.currentTimeMillis()));
+        updateJob.setGmtModified(new Timestamp(System.currentTimeMillis()));
+        if (EScheduleJobType.VIRTUAL.getType().equals(batchTask.getTaskType())) {
+            //虚节点直接完成虚节点写入开始时间和结束时间
             updateJob.setStatus(RdosTaskStatus.FINISHED.getStatus());
-            updateJob.setExecStartTime(new Timestamp(System.currentTimeMillis()));
             updateJob.setExecEndTime(new Timestamp(System.currentTimeMillis()));
             updateJob.setGmtModified(new Timestamp(System.currentTimeMillis()));
             updateJob.setExecTime(0L);
             scheduleJobDao.updateStatusWithExecTime(updateJob);
-            return true;
         }
-        return false;
+
+        //工作流节点保持提交中状态
+        if (EScheduleJobType.WORK_FLOW.getVal().equals(batchTask.getTaskType())) {
+            updateJob.setStatus(RdosTaskStatus.SUBMITTING.getStatus());
+        }
+        scheduleJobDao.updateStatusWithExecTime(updateJob);
     }
 
     public void stopJob( long jobId, Integer appType) {
@@ -1144,39 +1087,6 @@ public class ScheduleJobService {
         }
     }
 
-
-    /**
-     * @author newman
-     * @Description 校验补数据任务参数
-     * @Date 2020-12-14 17:47
-     * @param taskJsonStr:
-     * @param fillName:
-     * @param projectId:
-     * @param toDateTime:
-     * @param currDateTime:
-     * @return: void
-     **/
-    private void checkFillDataParams(String taskJsonStr, String fillName, Long projectId, DateTime toDateTime, DateTime currDateTime) {
-
-        if (fillName == null) {
-            throw new RdosDefineException("(fillName 参数不能为空)", ErrorCode.INVALID_PARAMETERS);
-        }
-
-        //补数据的名称中-作为分割名称和后缀信息的分隔符,故不允许使用
-        if (fillName.contains("-")) {
-            throw new RdosDefineException("(fillName 参数不能包含字符 '-')", ErrorCode.INVALID_PARAMETERS);
-        }
-
-        if (!toDateTime.isBefore(currDateTime)) {
-            throw new RdosDefineException("(补数据业务日期开始时间不能晚于结束时间)", ErrorCode.INVALID_PARAMETERS);
-        }
-
-        //判断补数据的名字每个project必须是唯一的
-        boolean existsName = scheduleFillDataJobService.checkExistsName(fillName, projectId);
-        if (existsName) {
-            throw new RdosDefineException("补数据任务名称已存在", ErrorCode.NAME_ALREADY_EXIST);
-        }
-    }
 
 
     /**
@@ -2526,29 +2436,7 @@ public class ScheduleJobService {
      * @return
      */
     public boolean syncRestartJob(Long id, Boolean justRunChild, Boolean setSuccess, List<Long> subJobIds) {
-        String key = "syncRestartJob" + id;
-        if (redisTemplate.hasKey(key)) {
-            LOGGER.info("syncRestartJob  {}  is doing ", key);
-            return false;
-        }
-        String execute = redisTemplate.execute((RedisCallback<String>) connection -> {
-            JedisCommands commands = (JedisCommands) connection.getNativeConnection();
-            SetParams setParams = SetParams.setParams();
-            setParams.nx().ex((int) environmentContext.getForkJoinResultTimeOut() * 2);
-            return commands.set(key, "-1", setParams);
-        });
-        if(StringUtils.isBlank(execute)){
-            return false;
-        }
-        if (BooleanUtils.isTrue(justRunChild) && null != id) {
-            if (null == subJobIds) {
-                subJobIds = new ArrayList<>();
-            }
-            subJobIds.add(id);
-        }
-        CompletableFuture.runAsync(new RestartRunnable(id, justRunChild, setSuccess, subJobIds, scheduleJobDao, scheduleTaskShadeDao,
-                scheduleJobJobDao, environmentContext, key, redisTemplate,this,scheduleJobOperatorRecordDao));
-        return true;
+       return false;
     }
 
 

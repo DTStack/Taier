@@ -33,7 +33,7 @@ public class JobIdentifier implements Serializable {
 
     private String applicationId;
 
-    private String taskId;
+    private String jobId;
 
     private Long tenantId;
 
@@ -59,10 +59,10 @@ public class JobIdentifier implements Serializable {
 
     }
 
-    public JobIdentifier(String engineJobId, String applicationId, String taskId, Long tenantId, String engineType, Integer deployMode, Long userId,String pluginInfo,String componentVersion) {
+    public JobIdentifier(String engineJobId, String applicationId, String jobId, Long tenantId, String engineType, Integer deployMode, Long userId,String pluginInfo,String componentVersion) {
         this.engineJobId = engineJobId;
         this.applicationId = applicationId;
-        this.taskId = taskId;
+        this.jobId = jobId;
         this.tenantId = tenantId;
         this.engineType = engineType;
         this.deployMode = deployMode;
@@ -71,25 +71,25 @@ public class JobIdentifier implements Serializable {
         this.componentVersion = componentVersion;
     }
 
-    public JobIdentifier(String engineJobId, String applicationId, String taskId, Boolean forceCancel){
+    public JobIdentifier(String engineJobId, String applicationId, String jobId, Boolean forceCancel){
         this.engineJobId = engineJobId;
         this.applicationId = applicationId;
-        this.taskId = taskId;
+        this.jobId = jobId;
         this.forceCancel = forceCancel;
     }
 
-    public JobIdentifier(String engineJobId, String applicationId, String taskId){
+    public JobIdentifier(String engineJobId, String applicationId, String jobId){
         this.engineJobId = engineJobId;
         this.applicationId = applicationId;
-        this.taskId = taskId;
+        this.jobId = jobId;
     }
 
-    public static JobIdentifier createInstance(String engineJobId, String applicationId, String taskId, Boolean forceCancel) {
-        return new JobIdentifier(engineJobId, applicationId, taskId, forceCancel);
+    public static JobIdentifier createInstance(String engineJobId, String applicationId, String jobId, Boolean forceCancel) {
+        return new JobIdentifier(engineJobId, applicationId, jobId, forceCancel);
     }
 
-    public static JobIdentifier createInstance(String engineJobId, String applicationId, String taskId) {
-        return new JobIdentifier(engineJobId, applicationId, taskId);
+    public static JobIdentifier createInstance(String engineJobId, String applicationId, String jobId) {
+        return new JobIdentifier(engineJobId, applicationId, jobId);
     }
 
     public Boolean isForceCancel() {
@@ -120,8 +120,8 @@ public class JobIdentifier implements Serializable {
         return applicationId;
     }
 
-    public String getTaskId() {
-        return taskId;
+    public String getJobId() {
+        return jobId;
     }
 
     public Long getTenantId() {
@@ -153,7 +153,7 @@ public class JobIdentifier implements Serializable {
         return "JobIdentifier{" +
                 "engineJobId='" + engineJobId + '\'' +
                 ", applicationId='" + applicationId + '\'' +
-                ", taskId='" + taskId + '\'' +
+                ", jobId='" + jobId + '\'' +
                 ", tenantId=" + tenantId +
                 ", engineType=" + engineType +
                 ", deployMode=" + deployMode +

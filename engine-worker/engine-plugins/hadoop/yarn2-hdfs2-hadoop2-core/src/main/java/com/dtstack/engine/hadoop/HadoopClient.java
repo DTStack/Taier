@@ -277,7 +277,7 @@ public class HadoopClient extends AbstractClient {
         try {
             return KerberosUtils.login(config, () -> resourceInfo.judgeSlots(jobClient), conf);
         } catch (Exception e) {
-            LOG.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
+            LOG.error("jobId:{} judgeSlots error:", jobClient.getJobId(), e);
             return JudgeResult.exception("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
         }
     }
@@ -397,12 +397,12 @@ public class HadoopClient extends AbstractClient {
             }
         }
 
-        cacheFile.put(jobClient.getTaskId(), fileList);
+        cacheFile.put(jobClient.getJobId(), fileList);
     }
 
     @Override
     public void afterSubmitFunc(JobClient jobClient) {
-        List<String> fileList = cacheFile.get(jobClient.getTaskId());
+        List<String> fileList = cacheFile.get(jobClient.getJobId());
         if(CollectionUtils.isEmpty(fileList)){
             return;
         }
@@ -419,7 +419,7 @@ public class HadoopClient extends AbstractClient {
                 LOG.error("", e1);
             }
         }
-        cacheFile.remove(jobClient.getTaskId());
+        cacheFile.remove(jobClient.getJobId());
     }
 
 

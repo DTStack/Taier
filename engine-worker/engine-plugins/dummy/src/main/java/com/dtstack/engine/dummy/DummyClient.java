@@ -58,7 +58,7 @@ public class DummyClient extends AbstractClient {
     @Override
     public String getJobLog(JobIdentifier jobId) {
         Map<String, Object> jobLog = new HashMap<>(2);
-        jobLog.put("jobId", jobId.getTaskId());
+        jobLog.put("jobId", jobId.getJobId());
         jobLog.put("msg_info", System.currentTimeMillis());
         return JSONObject.toJSONString(jobLog);
     }
@@ -70,7 +70,7 @@ public class DummyClient extends AbstractClient {
 
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
-        return JobResult.createSuccessResult(jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId());
+        return JobResult.createSuccessResult(jobIdentifier.getJobId(), jobIdentifier.getEngineJobId());
     }
 
     @Override
@@ -90,7 +90,7 @@ public class DummyClient extends AbstractClient {
 
     @Override
     protected JobResult processSubmitJobWithType(JobClient jobClient) {
-        return JobResult.createSuccessResult(jobClient.getTaskId(), jobClient.getTaskId());
+        return JobResult.createSuccessResult(jobClient.getJobId(), jobClient.getJobId());
     }
 
     @Override
