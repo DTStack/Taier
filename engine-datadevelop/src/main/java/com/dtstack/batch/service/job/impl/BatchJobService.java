@@ -359,7 +359,7 @@ public class BatchJobService {
             scheduleTaskShade.setComponentVersion(batchTask.getComponentVersion());
             paramTaskAction.setBatchTask(scheduleTaskShade);
             ParamActionExt paramActionExt = actionService.paramActionExt(paramTaskAction.getBatchTask(),paramTaskAction.getJobId(),paramTaskAction.getFlowJobId());
-            String jobId = paramActionExt.getTaskId();
+            String jobId = paramActionExt.getJobId();
             actionService.start(paramActionExt);
             String name = MathUtil.getString(actionParam.get("name"));
             String job = MathUtil.getString(actionParam.get("job"));
@@ -559,7 +559,7 @@ public class BatchJobService {
             ParamTaskAction paramTaskAction = getParamTaskAction(task, userId, taskParamsToReplace);
             ParamActionExt paramActionExt = actionService.paramActionExt(paramTaskAction.getBatchTask(),paramTaskAction.getJobId(),paramTaskAction.getFlowJobId());
             sql = paramActionExt.getSqlText();
-            String jobId = paramActionExt.getTaskId();
+            String jobId = paramActionExt.getJobId();
             task.setTaskParams(paramActionExt.getTaskParams());
             multiEngineType = TaskTypeEngineTypeMapping.getEngineTypeByTaskType(task.getTaskType());
 //            final IBatchJobExeService batchJobService = this.multiEngineServiceFactory.getBatchJobExeService(multiEngineType.getType());

@@ -161,7 +161,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
     public void addSubmitJob(JobClient jobClient) {
         String jobResource = jobComputeResourcePlain.getJobResource(jobClient);
         jobClient.setCallBack((jobStatus) -> {
-            updateJobStatus(jobClient.getTaskId(), jobStatus);
+            updateJobStatus(jobClient.getJobId(), jobStatus);
         });
 
         //加入节点的优先级队列
@@ -173,13 +173,13 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
      * @param jobClients
      */
     private void addSubmitJobVast(List<JobClient> jobClients) {
-        List<String> taskIds = jobClients.stream().map(JobClient::getTaskId).collect(Collectors.toList());
-        updateCacheBatch(taskIds, EJobCacheStage.DB.getStage());
-        scheduleJobDao.updateJobStatusByJobIds(taskIds, RdosTaskStatus.WAITENGINE.getStatus());
-        LOGGER.info(" addSubmitJobBatch jobId:{} update", JSONObject.toJSONString(taskIds));
+        List<String> jobIds = jobClients.stream().map(JobClient::getJobId).collect(Collectors.toList());
+        updateCacheBatch(jobIds, EJobCacheStage.DB.getStage());
+        scheduleJobDao.updateJobStatusByJobIds(jobIds, RdosTaskStatus.WAITENGINE.getStatus());
+        LOGGER.info(" addSubmitJobBatch jobId:{} update", JSONObject.toJSONString(jobIds));
         for (JobClient jobClient : jobClients) {
             jobClient.setCallBack((jobStatus) -> {
-                updateJobStatus(jobClient.getTaskId(), jobStatus);
+                updateJobStatus(jobClient.getJobId(), jobStatus);
             });
             //加入节点的优先级队列
             this.addGroupPriorityQueue(jobComputeResourcePlain.getJobResource(jobClient), jobClient, true, false);
@@ -190,10 +190,10 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
      * 容灾时对已经提交到执行组件的任务，进行恢复
      */
     public void afterSubmitJobVast(List<JobClient> jobClients) {
-        List<String> taskIds = jobClients.stream().map(JobClient::getTaskId).collect(Collectors.toList());
-        updateCacheBatch(taskIds, EJobCacheStage.SUBMITTED.getStage());
-        LOGGER.info(" afterSubmitJobBatch jobId:{} update", JSONObject.toJSONString(taskIds));
-        for (String taskId : taskIds) {
+        List<String> jobIds = jobClients.stream().map(JobClient::getJobId).collect(Collectors.toList());
+        updateCacheBatch(jobIds, EJobCacheStage.SUBMITTED.getStage());
+        LOGGER.info(" afterSubmitJobBatch jobId:{} update", JSONObject.toJSONString(jobIds));
+        for (String taskId : jobIds) {
             shardCache.updateLocalMemTaskStatus(taskId, RdosTaskStatus.SUBMITTED.getStatus());
         }
     }
@@ -208,7 +208,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
             return rs;
         } catch (Exception e) {
             LOGGER.error("", e);
-            dealSubmitFailJob(jobClient.getTaskId(), e.toString());
+            dealSubmitFailJob(jobClient.getJobId(), e.toString());
             return false;
         }
     }
@@ -236,10 +236,10 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
     public void saveCache(JobClient jobClient, String jobResource, int stage, boolean insert) {
         String nodeAddress = environmentContext.getLocalAddress();
         if (insert) {
-            Integer value = engineJobCacheDao.insert(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobResource);
+            Integer value = engineJobCacheDao.insert(jobClient.getJobId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobResource);
             jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
         } else {
-            engineJobCacheDao.updateStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority(), null);
+            engineJobCacheDao.updateStage(jobClient.getJobId(), stage, nodeAddress, jobClient.getPriority(), null);
         }
     }
 
@@ -250,7 +250,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
 
     public void updateCache(JobClient jobClient, int stage) {
         String nodeAddress = environmentContext.getLocalAddress();
-        engineJobCacheDao.updateStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority(), null);
+        engineJobCacheDao.updateStage(jobClient.getJobId(), stage, nodeAddress, jobClient.getPriority(), null);
     }
 
     public String getAndUpdateEngineLog(String jobId, String engineJobId, String appId, Long dtuicTenantId) {
@@ -269,7 +269,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
             Map<String, Object> pluginInfo = paramAction.getPluginInfo();
             JobIdentifier jobIdentifier = new JobIdentifier(engineJobId, appId, jobId,dtuicTenantId,engineType,
                     taskParamsService.parseDeployTypeByTaskParams(paramAction.getTaskParams(),engineJobCache.getComputeType(),engineJobCache.getEngineType(),dtuicTenantId).getType(),
-                    paramAction.getUserId(), MapUtils.isEmpty(pluginInfo) ? null : JSONObject.toJSONString(pluginInfo),paramAction.getComponentVersion());
+                    null, MapUtils.isEmpty(pluginInfo) ? null : JSONObject.toJSONString(pluginInfo),paramAction.getComponentVersion());
             //从engine获取log
             engineLog = workerOperator.getEngineLog(jobIdentifier);
             if (engineLog != null) {

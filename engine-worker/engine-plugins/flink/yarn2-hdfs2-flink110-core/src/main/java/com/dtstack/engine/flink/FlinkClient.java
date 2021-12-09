@@ -186,12 +186,12 @@ public class FlinkClient extends AbstractClient {
                     jobResult = submitSyncJob(jobClient);
                 }
                 if (jobResult != null) {
-                    logger.info("taskId: {}, job submit success, result: {}", jobClient.getTaskId(), jobResult.toString());
+                    logger.info("taskId: {}, job submit success, result: {}", jobClient.getJobId(), jobResult.toString());
                 }
                 return jobResult;
             },hadoopConf.getYarnConfiguration());
         } catch (Exception e) {
-            logger.error("taskId: {}, can not submit a job process SubmitJobWithType error: ", jobClient.getTaskId(), e);
+            logger.error("taskId: {}, can not submit a job process SubmitJobWithType error: ", jobClient.getJobId(), e);
             return JobResult.createErrorResult(e);
         }
     }
@@ -239,7 +239,7 @@ public class FlinkClient extends AbstractClient {
                 clusterSpecification.setCreateProgramDelay(true);
                 clusterSpecification.setYarnConfiguration(hadoopConf.getYarnConfiguration());
 
-                logger.info("--------taskId: {} run by PerJob mode-----", jobClient.getTaskId());
+                logger.info("--------taskId: {} run by PerJob mode-----", jobClient.getJobId());
                 runResult = runJobByPerJob(clusterSpecification, jobClient);
                 jobGraph = clusterSpecification.getJobGraph();
                 packagedProgram = clusterSpecification.getProgram();
@@ -251,7 +251,7 @@ public class FlinkClient extends AbstractClient {
                 //只有当程序本身没有指定并行度的时候该参数才生效
                 clearClassPathShipfileLoadMode(packagedProgram);
 
-                logger.info("--------taskId: {} run by Session mode-----", jobClient.getTaskId());
+                logger.info("--------taskId: {} run by Session mode-----", jobClient.getJobId());
                 runResult = runJobBySession(jobGraph);
             }
 
@@ -357,7 +357,7 @@ public class FlinkClient extends AbstractClient {
     private JobResult submitSqlJobForStream(JobClient jobClient) {
 
         try {
-            String taskWorkspace = String.format("%s/%s_%s", ConfigConstrant.TMP_DIR, jobClient.getTaskId(), Thread.currentThread().getId());
+            String taskWorkspace = String.format("%s/%s_%s", ConfigConstrant.TMP_DIR, jobClient.getJobId(), Thread.currentThread().getId());
             //构建args
             List<String> args = sqlPluginInfo.buildExeArgs(jobClient);
             List<String> attachJarLists = cacheFile.get(taskWorkspace);
@@ -394,7 +394,6 @@ public class FlinkClient extends AbstractClient {
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
         try {
             return KerberosUtils.login(flinkConfig, () -> {
-                String taskId = jobIdentifier.getTaskId();
                 String engineJobId = jobIdentifier.getEngineJobId();
                 String appId = jobIdentifier.getApplicationId();
                 RdosTaskStatus rdosTaskStatus = null;
@@ -410,7 +409,7 @@ public class FlinkClient extends AbstractClient {
                                 EDeployMode.STANDALONE == EDeployMode.getByType(deployMode)) {
                             // session job cancel
                             Object ack = targetClusterClient.cancel(jobId).get(jobIdentifier.getTimeout(), TimeUnit.MILLISECONDS);
-                            logger.info("taskId: {}, job[{}] cancel success with ack : {}", taskId, engineJobId, ack.toString());
+                            logger.info("taskId: {}, job[{}] cancel success with ack : {}", jobIdentifier.getJobId(), engineJobId, ack.toString());
                         } else if (EDeployMode.PERJOB == EDeployMode.getByType(deployMode)) {
                             // perJob cancel
                             if(jobIdentifier.isForceCancel()){
@@ -419,23 +418,23 @@ public class FlinkClient extends AbstractClient {
                             CompletableFuture completableFuture = targetClusterClient.cancelWithSavepoint(jobId, null);
                             Object ask = completableFuture.get(jobIdentifier.getTimeout(), TimeUnit.MILLISECONDS);
                             logger.info("taskId: {}, job[{}] cancelWithSavepoint success, savepoint path {}",
-                                    taskId, engineJobId, ask.toString());
+                                    jobIdentifier.getJobId(), engineJobId, ask.toString());
                         } else {
-                            logger.warn("taskId: {}, job[{}] cancel failed Unexpected deployMode type: {}", taskId, engineJobId, deployMode);
+                            logger.warn("taskId: {}, job[{}] cancel failed Unexpected deployMode type: {}", jobIdentifier.getJobId(), engineJobId, deployMode);
                         }
                     }
                     return JobResult.createSuccessResult(jobIdentifier.getEngineJobId());
                 } catch (Exception e) {
                     if (rdosTaskStatus != null){
-                        logger.warn("taskId: {}, cancel job error jobStatus is: {}", taskId, rdosTaskStatus.name());
+                        logger.warn("taskId: {}, cancel job error jobStatus is: {}", jobIdentifier.getJobId(), rdosTaskStatus.name());
                     }
 
-                    logger.error("taskId: {} engineJobId:{} applicationId:{} cancelJob error, try to cancel with yarnClient.", taskId, engineJobId, appId, e);
+                    logger.error("taskId: {} engineJobId:{} applicationId:{} cancelJob error, try to cancel with yarnClient.", jobIdentifier.getJobId(), engineJobId, appId, e);
                     return JobResult.createErrorResult(e);
                 }
             }, hadoopConf.getYarnConfiguration());
         } catch (Exception exception) {
-            logger.error("taskId: {} engineJobId: {} applicationId: {} cancelJob error: ", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId(), exception);
+            logger.error("taskId: {} engineJobId: {} applicationId: {} cancelJob error: ", jobIdentifier.getJobId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId(), exception);
             return JobResult.createErrorResult(exception);
         }
     }
@@ -449,10 +448,10 @@ public class FlinkClient extends AbstractClient {
         try {
             ApplicationId applicationId = ConverterUtils.toApplicationId(jobIdentifier.getApplicationId());
             flinkClientBuilder.getYarnClient().killApplication(applicationId);
-            logger.info("jobId:{} engineJobId:{} applicationId:{} yarnClient kill application success.", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId());
+            logger.info("jobId:{} engineJobId:{} applicationId:{} yarnClient kill application success.", jobIdentifier.getJobId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId());
             return JobResult.createSuccessResult(jobIdentifier.getEngineJobId());
         } catch (Exception killException) {
-            logger.error("jobId:{} engineJobId:{} applicationId:{} yarnClient kill application error:", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId(), killException);
+            logger.error("jobId:{} engineJobId:{} applicationId:{} yarnClient kill application error:", jobIdentifier.getJobId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId(), killException);
             return JobResult.createErrorResult(killException);
         }
     }
@@ -464,12 +463,12 @@ public class FlinkClient extends AbstractClient {
      */
     @Override
     public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) {
-        String taskId = jobIdentifier.getTaskId();
+        String jobId = jobIdentifier.getJobId();
         String engineJobId = jobIdentifier.getEngineJobId();
         String applicationId = jobIdentifier.getApplicationId();
 
         if (StringUtils.isEmpty(engineJobId)) {
-            logger.warn("{} getJobStatus is NOTFOUND, because engineJobId is empty.", taskId);
+            logger.warn("{} getJobStatus is NOTFOUND, because engineJobId is empty.", jobId);
             return RdosTaskStatus.NOTFOUND;
         }
 
@@ -477,7 +476,7 @@ public class FlinkClient extends AbstractClient {
         try {
             clusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
         } catch (Exception e) {
-            logger.error("taskId: {}, get clusterClient error:", taskId, e);
+            logger.error("taskId: {}, get clusterClient error:", jobId, e);
         }
 
         String jobUrlPath = String.format(ConfigConstrant.JOB_URL_FORMAT, engineJobId);
@@ -498,16 +497,16 @@ public class FlinkClient extends AbstractClient {
                 response = getMessageFromJobArchive(engineJobId, jobUrlPath);
             } catch (Exception e) {
                 if (urlException != null) {
-                    logger.error("taskId: {}, Get job status error from webInterface: ", taskId, urlException);
+                    logger.error("taskId: {}, Get job status error from webInterface: ", jobId, urlException);
                 }
-                logger.error("taskId: {}, request job status error from jobArchive: ", taskId, e);
+                logger.error("taskId: {}, request job status error from jobArchive: ", jobId, e);
             }
         }
 
         if (StringUtils.isEmpty(response)) {
             if (StringUtils.isNotEmpty(applicationId)) {
                 RdosTaskStatus rdosTaskStatus = getPerJobStatus(applicationId);
-                logger.info("taskId: {}, try getPerJobStatus with yarnClient, status: {}", taskId, rdosTaskStatus.name());
+                logger.info("taskId: {}, try getPerJobStatus with yarnClient, status: {}", jobId, rdosTaskStatus.name());
                 return rdosTaskStatus;
             }
             return RdosTaskStatus.NOTFOUND;
@@ -528,7 +527,7 @@ public class FlinkClient extends AbstractClient {
             state = StringUtils.upperCase(state);
             return RdosTaskStatus.getTaskStatus(state);
         }catch (Exception e){
-            logger.error("taskId: {}, getJobStatus error: ", taskId, e);
+            logger.error("taskId: {}, getJobStatus error: ", jobId, e);
             return RdosTaskStatus.NOTFOUND;
         }
     }
@@ -658,12 +657,12 @@ public class FlinkClient extends AbstractClient {
 
     @Override
     public String getJobLog(JobIdentifier jobIdentifier) {
-        String taskId = jobIdentifier.getTaskId();
+        String jobId = jobIdentifier.getJobId();
         String engineJobId = jobIdentifier.getEngineJobId();
         String exceptMessage = "";
         try {
             if (engineJobId == null) {
-                logger.error("{} getJobLog is null, because engineJobId is empty", taskId);
+                logger.error("{} getJobLog is null, because engineJobId is empty", jobId);
                 return handleJobLog("", "Get jogLog error, because engineJobId is null", "Job has not submitted to yarn, Please waiting moment.");
             }
             String exceptionUrlPath = String.format(ConfigConstrant.JOB_EXCEPTIONS_URL_FORMAT, engineJobId);
@@ -679,7 +678,7 @@ public class FlinkClient extends AbstractClient {
                 exceptMessage = getMessageByHttp(exceptionUrlPath, reqURL);
             }
             String jobLogContent = FlinkRestParseUtil.parseEngineLog(exceptMessage);
-            logger.info("taskId: {}, job log content: {}", taskId, StringUtils.substring(jobLogContent, 0, 100));
+            logger.info("taskId: {}, job log content: {}", jobId, StringUtils.substring(jobLogContent, 0, 100));
             return jobLogContent;
         } catch (Exception e) {
             logger.error("Get job log error, {}", e.getMessage());
@@ -748,10 +747,10 @@ public class FlinkClient extends AbstractClient {
                 judgeResult = judgeSessionSlot(jobClient, false);
             }
         } catch (Exception e){
-            logger.error("taskId:{} judgeSlots error: ", jobClient.getTaskId(), e);
+            logger.error("taskId:{} judgeSlots error: ", jobClient.getJobId(), e);
             judgeResult = JudgeResult.exception("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
         }
-        logger.info("taskId:{}, judgeResult: {}, reason: {}", jobClient.getTaskId(), judgeResult.getResult(), judgeResult.getReason());
+        logger.info("taskId:{}, judgeResult: {}, reason: {}", jobClient.getJobId(), judgeResult.getResult(), judgeResult.getReason());
         return judgeResult;
     }
 
@@ -765,14 +764,14 @@ public class FlinkClient extends AbstractClient {
         try {
             flinkClusterClientManager.getClusterClient(null);
         } catch (Exception e) {
-            logger.warn("taskId: {}, wait flink session client recover: ", jobClient.getTaskId(), e);
+            logger.warn("taskId: {}, wait flink session client recover: ", jobClient.getJobId(), e);
             return JudgeResult.notOk(ErrorMessageConsts.WAIT_SESSION_RECOVER);
         }
         String slotInfo = null;
         try {
             slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
         } catch (Exception e) {
-            logger.error("taskId: {}, Connection to jobmanager failed, ", jobClient.getTaskId(), e);
+            logger.error("taskId: {}, Connection to jobmanager failed, ", jobClient.getJobId(), e);
             return JudgeResult.notOk("Connection to jobmanager failed");
         }
 
@@ -787,7 +786,7 @@ public class FlinkClient extends AbstractClient {
      */
     @Override
     public List<String> getRollingLogBaseInfo(JobIdentifier jobIdentifier) {
-        String taskId = jobIdentifier.getTaskId();
+        String jobId = jobIdentifier.getJobId();
         String jobMaster = getJobMaster(jobIdentifier);
         String rootURL = UrlUtil.getHttpRootUrl(jobMaster);
         String amRootURl = String.format(ConfigConstrant.YARN_APPLICATION_URL_FORMAT, rootURL, jobIdentifier.getApplicationId());
@@ -800,7 +799,7 @@ public class FlinkClient extends AbstractClient {
                 ApplicationWSParser applicationWsParser = new ApplicationWSParser(response);
                 String amStatue = applicationWsParser.getParamContent(ApplicationWSParser.AM_STATUE);
                 if (!StringUtils.equalsIgnoreCase(amStatue, "RUNNING")) {
-                    logger.info("taskId: {}, am statue is {} not running!", taskId, amStatue);
+                    logger.info("taskId: {}, am statue is {} not running!", jobId, amStatue);
                     return result;
                 }
 
@@ -816,9 +815,9 @@ public class FlinkClient extends AbstractClient {
                 result.addAll(containersLogs);
             }
         } catch (Exception e) {
-            logger.error("taskId:{}, getRollingLogBaseInfo error: ", taskId, e);
+            logger.error("taskId:{}, getRollingLogBaseInfo error: ", jobId, e);
         }
-        logger.info("taskId: {}, getRollingLogBaseInfo: {}", taskId, result);
+        logger.info("taskId: {}, getRollingLogBaseInfo: {}", jobId, result);
         return result;
     }
 
@@ -900,7 +899,7 @@ public class FlinkClient extends AbstractClient {
 
     @Override
     public void beforeSubmitFunc(JobClient jobClient) {
-        logger.info("Job[{}] submit before", jobClient.getTaskId());
+        logger.info("Job[{}] submit before", jobClient.getJobId());
 
         String sql = jobClient.getSql();
         List<String> sqlArr = DtStringUtil.splitIgnoreQuota(sql, ';');
@@ -912,7 +911,7 @@ public class FlinkClient extends AbstractClient {
         Iterator<String> sqlItera = sqlList.iterator();
         List<String> fileList = Lists.newArrayList();
 
-        String taskWorkspace = FlinkUtil.getTaskWorkspace(jobClient.getTaskId());
+        String taskWorkspace = FlinkUtil.getTaskWorkspace(jobClient.getJobId());
         while (sqlItera.hasNext()) {
             String tmpSql = sqlItera.next();
             // handle add jar statements and comment statements on the same line
@@ -972,7 +971,7 @@ public class FlinkClient extends AbstractClient {
 
     @Override
     public void afterSubmitFunc(JobClient jobClient) {
-        String taskWorkspace = FlinkUtil.getTaskWorkspace(jobClient.getTaskId());
+        String taskWorkspace = FlinkUtil.getTaskWorkspace(jobClient.getJobId());
         cacheFile.remove(taskWorkspace);
         File localDir = new File(taskWorkspace);
         if (localDir.exists()){
@@ -987,11 +986,11 @@ public class FlinkClient extends AbstractClient {
     @Override
     public String getCheckpoints(JobIdentifier jobIdentifier) {
 
-        String taskId = jobIdentifier.getTaskId();
+        String jobId = jobIdentifier.getJobId();
         String checkpointMsg = "";
         String engineJobId = jobIdentifier.getEngineJobId();
         if (StringUtils.isEmpty(engineJobId)) {
-            logger.warn("{} getCheckpoints is null, because engineJobId is empty", jobIdentifier.getTaskId());
+            logger.warn("{} getCheckpoints is null, because engineJobId is empty", jobId);
             return checkpointMsg;
         }
 
@@ -1009,9 +1008,9 @@ public class FlinkClient extends AbstractClient {
                 checkpointMsg = getMessageByHttp(checkpointUrlPath, reqURL);
             }
         } catch (Exception e) {
-            logger.error("taskId: {}, taskStatus is {}, Get checkpoint error: ", taskId, taskStatus.name(), e);
+            logger.error("taskId: {}, taskStatus is {}, Get checkpoint error: ", jobId, taskStatus.name(), e);
         }
-        logger.info("taskId: {}, getCheckpoints: {}", taskId, StringUtils.substring(checkpointMsg, 0, 200));
+        logger.info("taskId: {}, getCheckpoints: {}", jobId, StringUtils.substring(checkpointMsg, 0, 200));
         return checkpointMsg;
     }
 
@@ -1043,13 +1042,13 @@ public class FlinkClient extends AbstractClient {
     public CheckResult grammarCheck(JobClient jobClient) {
 
         CheckResult checkResult = CheckResult.success();
-        String taskId = jobClient.getTaskId();
+        String taskId = jobClient.getJobId();
         try {
             // 1. before download jar
             beforeSubmitFunc(jobClient);
 
             // 2. flink sql args
-            String taskWorkspace = FlinkUtil.getTaskWorkspace(jobClient.getTaskId());
+            String taskWorkspace = FlinkUtil.getTaskWorkspace(jobClient.getJobId());
             List<String> args = sqlPluginInfo.buildExeArgs(jobClient);
             List<String> attachJarLists = cacheFile.get(taskWorkspace);
 

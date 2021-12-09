@@ -21,8 +21,6 @@ package com.dtstack.engine.master.impl.pojo;
 import com.dtstack.engine.pluginapi.pojo.ParamAction;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author yuemo
@@ -31,36 +29,8 @@ import org.slf4j.LoggerFactory;
  */
 @ApiModel
 public class ParamActionExt extends ParamAction {
-    private static final Logger logger = LoggerFactory.getLogger(ParamActionExt.class);
-
-    public Integer getAppType() {
-        return appType;
-    }
-
-    public void setAppType(Integer appType) {
-        this.appType = appType;
-    }
-
-    /**
-     * RDOS(1), DQ(2), API(3), TAG(4), MAP(5), CONSOLE(6), STREAM(7), DATASCIENCE(8)
-     */
-    @ApiModelProperty(notes = "RDOS(1), DQ(2), API(3), TAG(4), MAP(5), CONSOLE(6), STREAM(7), DATASCIENCE(8)")
-    private Integer appType;
 
     private String jobKey;
-
-    public Long getTaskSourceId() {
-        return taskSourceId;
-    }
-
-    public void setTaskSourceId(Long taskSourceId) {
-        this.taskSourceId = taskSourceId;
-    }
-
-    /**
-     * 任务id
-     */
-    private Long taskSourceId;
 
     /**
      * 发起操作的用户
@@ -72,16 +42,9 @@ public class ParamActionExt extends ParamAction {
      * 0正常调度 1补数据 2临时运行
      */
     @ApiModelProperty(notes = "0正常调度 1补数据 2临时运行")
-    private Integer type;
+
 
     private Integer isRestart;
-
-    /**
-     * 业务日期 yyyymmddhhmmss,调度时间-1d
-     */
-    @ApiModelProperty(notes = "业务日期 yyyymmddhhmmss,调度时间-1d")
-    private String businessDate;
-
     /***
      * 任务调度时间 yyyymmddhhmmss
      */
@@ -94,19 +57,17 @@ public class ParamActionExt extends ParamAction {
 
     private Integer versionId;
 
-    private Long projectId;
-
-    @Deprecated
-    private Boolean isFailRetry;
 
     private Integer periodType;
 
-    public Long getProjectId() {
-        return projectId;
+    private Long taskId;
+
+    public Long getTaskId() {
+        return taskId;
     }
 
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
     }
 
     public Integer getVersionId() {
@@ -133,14 +94,6 @@ public class ParamActionExt extends ParamAction {
         this.dependencyType = dependencyType;
     }
 
-    public String getBusinessDate() {
-        return businessDate;
-    }
-
-    public void setBusinessDate(String businessDate) {
-        this.businessDate = businessDate;
-    }
-
     public String getCycTime() {
         return cycTime;
     }
@@ -157,14 +110,6 @@ public class ParamActionExt extends ParamAction {
         this.isRestart = isRestart;
     }
 
-    public Integer getType() {
-        return type;
-    }
-
-    public void setType(Integer type) {
-        this.type = type;
-    }
-
     public Long getCreateUserId() {
         return createUserId;
     }
@@ -179,14 +124,6 @@ public class ParamActionExt extends ParamAction {
 
     public void setJobKey(String jobKey) {
         this.jobKey = jobKey;
-    }
-
-    public Boolean getIsFailRetry() {
-        return isFailRetry;
-    }
-
-    public void setIsFailRetry(Boolean failRetry) {
-        isFailRetry = failRetry;
     }
 
     public Integer getPeriodType() {

@@ -161,47 +161,39 @@ public class ActionService {
      * 接受来自客户端的请求, 并判断节点队列长度。
      * 如在当前节点,则直接处理任务
      */
-    public Boolean start(ParamActionExt paramActionExt){
+    public Boolean start(ParamActionExt paramActionExt) {
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("start  actionParam: {}", JSONObject.toJSONString(paramActionExt,propertyFilter));
+            LOGGER.info("start  actionParam: {}", JSONObject.toJSONString(paramActionExt, propertyFilter));
         }
-
-        try{
-            checkParam(paramActionExt);
-            //taskId唯一去重，并发请求时以数据库taskId主键去重返回false
+        try {
             boolean canAccepted = receiveStartJob(paramActionExt);
             //会对重复数据做校验
-            if(canAccepted){
+            if (canAccepted) {
                 JobClient jobClient = new JobClient(paramActionExt);
                 jobClient.setType(getOrDefault(paramActionExt.getType(), EScheduleType.TEMP_JOB.getType()));
                 jobDealer.addSubmitJob(jobClient);
                 return true;
             }
-            LOGGER.warn("Job taskId：" + paramActionExt.getTaskId() + " duplicate submissions are not allowed");
-        }catch (Exception e){
-            LOGGER.error("", e);
-            //任务提交出错 需要将状态从提交中 更新为失败 否则一直在提交中
-            String taskId = paramActionExt.getTaskId();
-            try {
-                if (StringUtils.isNotBlank(taskId)) {
-                    LOGGER.error("Job taskId：" + taskId + " submit error ", e);
-                    ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(taskId);
-                    if (scheduleJob == null) {
-                        //新job 任务
-                        scheduleJob = buildScheduleJob(paramActionExt);
-                        scheduleJob.setStatus(RdosTaskStatus.SUBMITFAILD.getStatus());
-                        scheduleJob.setLogInfo(GenerateErrorMsgUtil.generateErrorMsg(e.getMessage()));
-                        scheduleJobDao.insert(scheduleJob);
-                    } else {
-                        //直接失败
-                        scheduleJobDao.jobFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(e.getMessage()));
-                    }
-                }
-            } catch (Exception ex) {
-                LOGGER.error("", ex);
-            }
+            LOGGER.warn("Job taskId：" + paramActionExt.getJobId() + " duplicate submissions are not allowed");
+        } catch (Exception e) {
+            runJobFail(paramActionExt, e, paramActionExt.getJobId());
         }
         return false;
+    }
+
+    private void runJobFail(ParamActionExt paramActionExt, Exception e, String jobId) {
+        LOGGER.error("Job ：" + jobId + " submit error ", e);
+        ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
+        if (scheduleJob == null) {
+            //新job 任务
+            scheduleJob = buildScheduleJob(paramActionExt);
+            scheduleJob.setStatus(RdosTaskStatus.SUBMITFAILD.getStatus());
+            scheduleJob.setLogInfo(GenerateErrorMsgUtil.generateErrorMsg(e.getMessage()));
+            scheduleJobDao.insert(scheduleJob);
+        } else {
+            //直接失败
+            scheduleJobDao.jobFail(jobId, RdosTaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(e.getMessage()));
+        }
     }
 
     public ParamActionExt paramActionExt(ScheduleTaskShade batchTask, String jobId, String flowJobId) throws Exception {
@@ -216,10 +208,8 @@ public class ActionService {
         }
 
         paramActionExt.setCycTime(scheduleJob.getCycTime());
-        paramActionExt.setTaskSourceId(batchTask.getTaskId());
+        paramActionExt.setTaskId(batchTask.getTaskId());
         paramActionExt.setComponentVersion(batchTask.getComponentVersion());
-        paramActionExt.setBusinessType(batchTask.getBusinessType());
-        paramActionExt.setBusinessDate(scheduleJob.getBusinessDate());
         paramActionExt.setFlowJobId(flowJobId);
         return paramActionExt;
     }
@@ -239,8 +229,8 @@ public class ActionService {
         scheduleJob.setComputeType(batchTask.getComputeType());
 
         scheduleJob.setTenantId(batchTask.getTenantId());
-        scheduleJob.setJobKey(String.format("%s%s", "tempJob", batchTask.getTaskId(), new DateTime().toString("yyyyMMdd")));
-        scheduleJob.setTaskId(-1L);
+        scheduleJob.setJobKey(String.format("%s%s%s", "tempJob", batchTask.getTaskId(), new DateTime().toString("yyyyMMdd")));
+        scheduleJob.setTaskId(batchTask.getTaskId());
         scheduleJob.setCreateUserId(getOrDefault(batchTask.getCreateUserId(), -1L));
 
         scheduleJob.setType(EScheduleType.TEMP_JOB.getType());
@@ -262,7 +252,7 @@ public class ActionService {
         scheduleJob.setTaskType(getOrDefault(batchTask.getTaskType(), -2));
         scheduleJob.setNodeAddress(environmentContext.getLocalAddress());
         scheduleJob.setVersionId(getOrDefault(batchTask.getVersionId(), 0));
-        scheduleJob.setComputeType(getOrDefault(batchTask.getComputeType(), 1));
+        scheduleJob.setComputeType(getOrDefault(batchTask.getComputeType(), ComputeType.BATCH.getType()));
 
         return scheduleJob;
     }
@@ -271,47 +261,42 @@ public class ActionService {
         if (info == null) {
             throw new RdosDefineException("extraInfo can't null or empty string");
         }
-
         Integer multiEngineType = info.getInteger("multiEngineType");
-        String ldapUserName = info.getString("ldapUserName");
-        if (org.apache.commons.lang.StringUtils.isNotBlank(ldapUserName)) {
-            info.remove("ldapUserName");
-            info.remove("ldapPassword");
-            info.remove("dbName");
-        }
         Map<String, Object> actionParam = PublicUtil.strToMap(info.toJSONString());
         dealActionParam(actionParam,multiEngineType,batchTask,scheduleJob);
         actionParam.put("name", scheduleJob.getJobName());
-        actionParam.put("taskId", scheduleJob.getJobId());
+        actionParam.put("jobId", scheduleJob.getJobId());
         actionParam.put("taskType", batchTask.getTaskType());
         actionParam.put("componentVersion",batchTask.getComponentVersion());
         actionParam.put("type",scheduleJob.getType());
-        Object tenantId = actionParam.get("tenantId");
-        if (Objects.isNull(tenantId)) {
-            actionParam.put("tenantId", batchTask.getTenantId());
-        }
-        // 出错重试配置,兼容之前的任务，没有这个参数则默认重试
-        JSONObject scheduleConf = JSONObject.parseObject(batchTask.getScheduleConf());
-        if (scheduleConf != null && scheduleConf.containsKey("isFailRetry")) {
-            actionParam.put("isFailRetry", scheduleConf.getBooleanValue("isFailRetry"));
-            if (scheduleConf.getBooleanValue("isFailRetry")) {
-                int maxRetryNum = scheduleConf.getIntValue("maxRetryNum") == 0 ? 3 : scheduleConf.getIntValue("maxRetryNum");
-                actionParam.put("maxRetryNum", maxRetryNum);
-                //离线 单位 分钟
-                Integer retryIntervalTime = scheduleConf.getInteger("retryIntervalTime");
-                if (null != retryIntervalTime) {
-                    actionParam.put("retryIntervalTime", retryIntervalTime * 60 * 1000);
-                }
-            } else {
-                actionParam.put("maxRetryNum", 0);
-            }
-        }
+        actionParam.put("tenantId", batchTask.getTenantId());
+        actionParam.putAll(parseRetryParam(batchTask));
         if (EJobType.SYNC.getType() == scheduleJob.getTaskType()) {
-            //数据同步需要解析是perjob 还是session
+            //数据同步需要解析是perJob 还是session
             EDeployMode eDeployMode = taskParamsService.parseDeployTypeByTaskParams(batchTask.getTaskParams(),batchTask.getComputeType(), EngineType.Flink.name(),batchTask.getTenantId());
             actionParam.put("deployMode", eDeployMode.getType());
         }
         return PublicUtil.mapToObject(actionParam, ParamActionExt.class);
+    }
+
+    private Map<String,Object> parseRetryParam(ScheduleTaskShade batchTask) {
+        Map<String, Object> retryParam = new HashMap<>();
+        JSONObject scheduleConf = JSONObject.parseObject(batchTask.getScheduleConf());
+        if (scheduleConf != null && scheduleConf.containsKey("isFailRetry")) {
+            retryParam.put("isFailRetry", scheduleConf.getBooleanValue("isFailRetry"));
+            if (scheduleConf.getBooleanValue("isFailRetry")) {
+                int maxRetryNum = scheduleConf.getIntValue("maxRetryNum") == 0 ? 3 : scheduleConf.getIntValue("maxRetryNum");
+                retryParam.put("maxRetryNum", maxRetryNum);
+                //离线 单位 分钟
+                Integer retryIntervalTime = scheduleConf.getInteger("retryIntervalTime");
+                if (null != retryIntervalTime) {
+                    retryParam.put("retryIntervalTime", retryIntervalTime * 60 * 1000);
+                }
+            } else {
+                retryParam.put("maxRetryNum", 0);
+            }
+        }
+        return retryParam;
     }
 
     private void dealActionParam(Map<String, Object> actionParam, Integer multiEngineType, ScheduleTaskShade batchTask, ScheduleJob scheduleJob) throws Exception {
@@ -359,83 +344,45 @@ public class ActionService {
         return true;
     }
 
-    private void checkParam(ParamAction paramAction) throws Exception{
 
-        if(StringUtils.isBlank(paramAction.getTaskId())){
-           throw new RdosDefineException("param taskId is not allow null", ErrorCode.INVALID_PARAMETERS);
-        }
-
-        if(paramAction.getComputeType() == null){
-            throw new RdosDefineException("param computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
-        }
-
-        if(paramAction.getEngineType() == null){
-            throw new RdosDefineException("param engineType is not allow null", ErrorCode.INVALID_PARAMETERS);
-        }
-    }
-
-    /**
-     * 处理从客户的发送过来的任务，会插入到engine_batch/stream_job 表
-     * 修改任务状态为 ENGINEACCEPTED, 没有更新的逻辑
-     *
-     * @param paramActionExt
-     * @return
-     */
-    private boolean receiveStartJob(ParamActionExt paramActionExt){
-        String jobId = paramActionExt.getTaskId();
-        Integer computerType = paramActionExt.getComputeType();
-        //当前任务已经存在在engine里面了
+    private boolean receiveStartJob(ParamActionExt paramActionExt) {
+        String jobId = paramActionExt.getJobId();
         //不允许相同任务同时在engine上运行---考虑将cache的清理放在任务结束的时候(停止，取消，完成)
-        if(engineJobCacheDao.getOne(jobId) != null){
+        if (engineJobCacheDao.getOne(jobId) != null) {
             return false;
         }
-        boolean result = false;
-        try {
-            ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
-            if(scheduleJob == null){
-                scheduleJob = buildScheduleJob(paramActionExt);
-                scheduleJobDao.insert(scheduleJob);
-                result = true;
-            }else{
-                result = RdosTaskStatus.canStart(scheduleJob.getStatus());
-                if (result) {
-                    engineJobRetryDao.removeByJobId(jobId);
-                }
-                if(result && !RdosTaskStatus.ENGINEACCEPTED.getStatus().equals(scheduleJob.getStatus()) ){
-                    scheduleJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus());
-                    scheduleJob.setAppType(paramActionExt.getAppType());
-                    if (AppType.STREAM.getType().equals(paramActionExt.getAppType())) {
-                        scheduleJob.setRetryNum(0);
-                    }
-                    scheduleJobDao.update(scheduleJob);
-                    LOGGER.info("jobId:{} update job status:{}.", scheduleJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus());
-                }
+        ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
+        if (scheduleJob == null) {
+            scheduleJob = buildScheduleJob(paramActionExt);
+            scheduleJobDao.insert(scheduleJob);
+            return true;
+        }
+        boolean result = RdosTaskStatus.canStart(scheduleJob.getStatus());
+        if (result) {
+            engineJobRetryDao.removeByJobId(jobId);
+            if (!RdosTaskStatus.ENGINEACCEPTED.getStatus().equals(scheduleJob.getStatus())) {
+                scheduleJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus());
+                scheduleJobDao.update(scheduleJob);
+                LOGGER.info("jobId:{} update job status:{}.", scheduleJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus());
             }
-            if (result && ComputeType.BATCH.getType().equals(computerType)){
-                engineJobCheckpointDao.deleteByTaskId(jobId);
-            }
-        } catch (Exception e){
-            LOGGER.error("", e);
         }
         return result;
     }
 
     private ScheduleJob buildScheduleJob(ParamActionExt paramActionExt) {
         ScheduleJob scheduleJob = new ScheduleJob();
-        scheduleJob.setJobId(paramActionExt.getTaskId());
+        scheduleJob.setJobId(paramActionExt.getJobId());
         scheduleJob.setJobName(getOrDefault(paramActionExt.getName(),""));
         scheduleJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus());
         scheduleJob.setComputeType(paramActionExt.getComputeType());
 
         scheduleJob.setTenantId(paramActionExt.getTenantId());
-        scheduleJob.setAppType(getOrDefault(paramActionExt.getAppType(), 0));
         scheduleJob.setJobKey(getOrDefault(paramActionExt.getJobKey(), String.format("%s%s%s", "tempJob", paramActionExt.getTaskId(), new DateTime().toString("yyyyMMdd") )));
-        scheduleJob.setTaskId(getOrDefault(paramActionExt.getTaskSourceId(), -1L));
+        scheduleJob.setTaskId(getOrDefault(paramActionExt.getTaskId(), -1L));
         scheduleJob.setCreateUserId(getOrDefault(paramActionExt.getCreateUserId(), -1L));
 
         scheduleJob.setType(getOrDefault(paramActionExt.getType(), EScheduleType.TEMP_JOB.getType()));
         scheduleJob.setIsRestart(getOrDefault(paramActionExt.getIsRestart(), 0));
-        scheduleJob.setBusinessDate(getOrDefault(paramActionExt.getBusinessDate(), ""));
         scheduleJob.setCycTime(getOrDefault(paramActionExt.getCycTime(), ""));
         scheduleJob.setDependencyType(getOrDefault(paramActionExt.getDependencyType(), 0));
         scheduleJob.setFlowJobId(getOrDefault(paramActionExt.getFlowJobId(), "0"));
@@ -445,7 +392,6 @@ public class ActionService {
         scheduleJob.setVersionId(getOrDefault(paramActionExt.getVersionId(), 0));
         scheduleJob.setComputeType(getOrDefault(paramActionExt.getComputeType(), 1));
         scheduleJob.setPeriodType(paramActionExt.getPeriodType());
-        scheduleJob.setBusinessType(paramActionExt.getBusinessType());
         return scheduleJob;
     }
 

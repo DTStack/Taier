@@ -75,7 +75,7 @@ public class GroupPriorityQueue {
     public boolean add(JobClient jobClient, boolean judgeBlock, boolean insert) {
         if (judgeBlock) {
             if (isBlocked()) {
-                LOGGER.info("jobId:{} unable add to queue, because queue is blocked.", jobClient.getTaskId());
+                LOGGER.info("jobId:{} unable add to queue, because queue is blocked.", jobClient.getJobId());
                 return false;
             }
             return addInner(jobClient, insert);
@@ -87,7 +87,7 @@ public class GroupPriorityQueue {
     private boolean addInner(JobClient jobClient, boolean insert) {
         if (this.priorityQueueSize() >= getQueueSizeLimited()) {
             blocked.set(true);
-            LOGGER.info("jobId:{} unable add to queue, because over QueueSizeLimited.", jobClient.getTaskId());
+            LOGGER.info("jobId:{} unable add to queue, because over QueueSizeLimited.", jobClient.getJobId());
             return false;
         }
         return addRedirect(jobClient, insert);
@@ -95,14 +95,14 @@ public class GroupPriorityQueue {
 
     private boolean addRedirect(JobClient jobClient, boolean insert) {
         if (queue.contains(jobClient)) {
-            LOGGER.info("jobId:{} unable add to queue, because jobId already exist.", jobClient.getTaskId());
+            LOGGER.info("jobId:{} unable add to queue, because jobId already exist.", jobClient.getJobId());
             return true;
         }
 
         jobDealer.saveCache(jobClient, jobResource, EJobCacheStage.PRIORITY.getStage(), insert);
 
         queue.put(jobClient);
-        LOGGER.info("jobId:{} redirect add job to queue.", jobClient.getTaskId());
+        LOGGER.info("jobId:{} redirect add job to queue.", jobClient.getJobId());
         return true;
     }
 
@@ -161,11 +161,11 @@ public class GroupPriorityQueue {
                         ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                         JobClient jobClient = new JobClient(paramAction);
                         jobClient.setCallBack((jobStatus) -> {
-                            jobDealer.updateJobStatus(jobClient.getTaskId(), jobStatus);
+                            jobDealer.updateJobStatus(jobClient.getJobId(), jobStatus);
                         });
 
                         boolean addInner = this.addInner(jobClient, false);
-                        LOGGER.info("jobId:{} load from db, {} emit job to queue.", jobClient.getTaskId(), addInner ? "success" : "failed");
+                        LOGGER.info("jobId:{} load from db, {} emit job to queue.", jobClient.getJobId(), addInner ? "success" : "failed");
                         if (!addInner) {
                             empty = false;
                             break outLoop;

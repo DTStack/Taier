@@ -300,7 +300,7 @@ public class DtScriptClient extends AbstractClient {
                 }
             }, conf);
         } catch (Exception e) {
-            LOG.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
+            LOG.error("jobId:{} judgeSlots error:", jobClient.getJobId(), e);
             return JudgeResult.exception("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
         }
     }

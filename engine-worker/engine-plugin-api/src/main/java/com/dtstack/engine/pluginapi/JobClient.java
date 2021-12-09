@@ -18,7 +18,6 @@
 
 package com.dtstack.engine.pluginapi;
 
-import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
 import com.dtstack.engine.pluginapi.enums.ComputeType;
 import com.dtstack.engine.pluginapi.enums.EJobType;
@@ -30,12 +29,9 @@ import com.dtstack.engine.pluginapi.util.MathUtil;
 import com.dtstack.engine.pluginapi.util.PublicUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -47,8 +43,6 @@ import java.util.Properties;
  */
 
 public class JobClient implements Serializable {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(JobClient.class);
 
     protected long priority = 0;
 
@@ -76,7 +70,7 @@ public class JobClient implements Serializable {
 
     private String jobName;
 
-    private String taskId;
+    private String jobId;
 
     private String engineTaskId;
 
@@ -100,13 +94,8 @@ public class JobClient implements Serializable {
      */
     private String classArgs;
 
-    private int again = 1;
 
     private String groupName;
-
-    private int priorityLevel = 0;
-
-    private String pluginInfo;
 
     private long generateTime;
 
@@ -114,14 +103,7 @@ public class JobClient implements Serializable {
 
     private volatile long lackingCount;
 
-    /**
-     * uic租户信息
-     **/
     private Long tenantId;
-
-    private Long userId;
-
-    private Integer appType;
 
     private Integer queueSourceType;
 
@@ -150,6 +132,27 @@ public class JobClient implements Serializable {
 
     private Integer deployMode;
 
+    private String pluginInfo;
+
+    private Long userId;
+
+
+    public String getPluginInfo() {
+        return pluginInfo;
+    }
+
+    public void setPluginInfo(String pluginInfo) {
+        this.pluginInfo = pluginInfo;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
     public JobClient() {
 
     }
@@ -158,7 +161,7 @@ public class JobClient implements Serializable {
         this.sql = paramAction.getSqlText();
         this.taskParams = paramAction.getTaskParams();
         this.jobName = paramAction.getName();
-        this.taskId = paramAction.getTaskId();
+        this.jobId = paramAction.getJobId();
         this.engineTaskId = paramAction.getEngineTaskId();
         this.applicationId = paramAction.getApplicationId();
 //        this.jobType = EJobType.getEjobType(EScheduleJobType.getEngineJobType(paramAction.getTaskType()));
@@ -169,23 +172,18 @@ public class JobClient implements Serializable {
         this.generateTime = paramAction.getGenerateTime();
         this.lackingCount = paramAction.getLackingCount();
         this.tenantId = paramAction.getTenantId();
-        this.userId = paramAction.getUserId();
-        this.appType = paramAction.getAppType();
         this.queueSourceType = EQueueSourceType.NORMAL.getCode();
         this.submitExpiredTime = paramAction.getSubmitExpiredTime();
         this.retryIntervalTime = paramAction.getRetryIntervalTime();
         this.componentVersion = paramAction.getComponentVersion();
 
         this.maxRetryNum = paramAction.getMaxRetryNum() == null ? 0 : paramAction.getMaxRetryNum();
-        if (paramAction.getPluginInfo() != null) {
-            this.pluginInfo = PublicUtil.objToString(paramAction.getPluginInfo());
-        }
         if (taskParams != null) {
             this.confProperties = PublicUtil.stringToProperties(taskParams);
         }
         if (paramAction.getPriority() <= 0) {
             String valStr = confProperties == null ? null : confProperties.getProperty(ConfigConstant.CUSTOMER_PRIORITY_VAL);
-            this.priorityLevel = valStr == null ? DEFAULT_PRIORITY_LEVEL_VALUE : MathUtil.getIntegerVal(valStr);
+            int priorityLevel = valStr == null ? DEFAULT_PRIORITY_LEVEL_VALUE : MathUtil.getIntegerVal(valStr);
             //设置priority值, 值越小，优先级越高
             this.priority = paramAction.getGenerateTime() + (long) priorityLevel * PRIORITY_LEVEL_WEIGHT;
         } else {
@@ -210,7 +208,7 @@ public class JobClient implements Serializable {
         action.setSqlText(sql);
         action.setTaskParams(taskParams);
         action.setName(jobName);
-        action.setTaskId(taskId);
+        action.setJobId(jobId);
         action.setEngineTaskId(engineTaskId);
         action.setTaskType(jobType.getType());
         action.setComputeType(computeType.getType());
@@ -224,19 +222,9 @@ public class JobClient implements Serializable {
         action.setMaxRetryNum(maxRetryNum);
         action.setLackingCount(lackingCount);
         action.setTenantId(tenantId);
-        action.setUserId(userId);
-        action.setAppType(appType);
         action.setRetryIntervalTime(retryIntervalTime);
         action.setSubmitExpiredTime(submitExpiredTime);
         action.setComponentVersion(componentVersion);
-        if (StringUtils.isNotEmpty(pluginInfo)) {
-            try {
-                action.setPluginInfo(PublicUtil.jsonStrToObject(pluginInfo, Map.class));
-            } catch (Exception e) {
-                //不应该走到这个异常,这个数据本身是由map转换过来的
-                LOGGER.error("", e);
-            }
-        }
         return action;
     }
 
@@ -264,13 +252,6 @@ public class JobClient implements Serializable {
         isForceCancel = forceCancel;
     }
 
-    public void setPluginWrapperInfo(Map pluginInfoMap) {
-        if (null == pluginInfoMap) {
-            throw new RdosDefineException("pluginInfo map must not be null.");
-        }
-        this.pluginInfo = JSONObject.toJSONString(pluginInfoMap);
-    }
-
     public Integer getQueueSourceType() {
         return queueSourceType;
     }
@@ -285,22 +266,6 @@ public class JobClient implements Serializable {
 
     public void setTenantId(Long tenantId) {
         this.tenantId = tenantId;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public String getTaskId() {
-        return taskId;
-    }
-
-    public void setTaskId(String taskId) {
-        this.taskId = taskId;
     }
 
     public String getEngineTaskId() {
@@ -399,14 +364,6 @@ public class JobClient implements Serializable {
         this.classArgs = classArgs;
     }
 
-    public int getAgain() {
-        return again;
-    }
-
-    public void setAgain(int again) {
-        this.again = again;
-    }
-
     public void setSql(String sql) {
         this.sql = sql;
     }
@@ -429,22 +386,6 @@ public class JobClient implements Serializable {
 
     public void setGroupName(String groupName) {
         this.groupName = groupName;
-    }
-
-    public int getPriorityLevel() {
-        return priorityLevel;
-    }
-
-    public void setPriorityLevel(int priorityLevel) {
-        this.priorityLevel = priorityLevel;
-    }
-
-    public String getPluginInfo() {
-        return pluginInfo;
-    }
-
-    public void setPluginInfo(String pluginInfo) {
-        this.pluginInfo = pluginInfo;
     }
 
     public JarFileInfo getCoreJarInfo() {
@@ -510,14 +451,6 @@ public class JobClient implements Serializable {
         return lackingCount++;
     }
 
-    public void setAppType(Integer appType) {
-        this.appType = appType;
-    }
-
-    public Integer getAppType() {
-        return appType;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -527,7 +460,7 @@ public class JobClient implements Serializable {
             return false;
         }
         JobClient jobClient = (JobClient) o;
-        return taskId != null ? taskId.equals(jobClient.taskId) : jobClient.taskId == null;
+        return jobId != null ? jobClient.equals(jobClient.jobId) : jobClient.jobId == null;
     }
 
     public Long getSubmitCacheTime() {
@@ -562,6 +495,14 @@ public class JobClient implements Serializable {
         this.type = type;
     }
 
+    public String getJobId() {
+        return jobId;
+    }
+
+    public void setJobId(String jobId) {
+        this.jobId = jobId;
+    }
+
     @Override
     public String toString() {
         return "JobClient{" +
@@ -571,7 +512,7 @@ public class JobClient implements Serializable {
                 ", confProperties=" + confProperties +
                 ", sql='" + sql + '\'' +
                 ", jobName='" + jobName + '\'' +
-                ", taskId='" + taskId + '\'' +
+                ", jobId='" + jobId + '\'' +
                 ", engineTaskId='" + engineTaskId + '\'' +
                 ", applicationId='" + applicationId + '\'' +
                 ", jobType=" + jobType +
@@ -580,15 +521,11 @@ public class JobClient implements Serializable {
                 ", jobResult=" + jobResult +
                 ", externalPath='" + externalPath + '\'' +
                 ", classArgs='" + classArgs + '\'' +
-                ", again=" + again +
                 ", groupName='" + groupName + '\'' +
-                ", priorityLevel=" + priorityLevel +
                 ", generateTime=" + generateTime +
                 ", maxRetryNum=" + maxRetryNum +
                 ", lackingCount=" + lackingCount +
                 ", tenantId=" + tenantId +
-                ", userId=" + userId +
-                ", appType=" + appType +
                 '}';
     }
 }

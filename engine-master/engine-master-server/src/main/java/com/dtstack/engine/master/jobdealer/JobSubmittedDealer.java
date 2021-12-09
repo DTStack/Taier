@@ -75,11 +75,11 @@ public class JobSubmittedDealer implements Runnable {
                 jobClient = queue.take();
 
                 if (jobRestartDealer.checkAndRestartForSubmitResult(jobClient)) {
-                    LOGGER.warn("failed submit job restarting, jobId:{} jobResult:{} ...", jobClient.getTaskId(), jobClient.getJobResult());
+                    LOGGER.warn("failed submit job restarting, jobId:{} jobResult:{} ...", jobClient.getJobId(), jobClient.getJobResult());
                     continue;
                 }
 
-                LOGGER.info("success submit job to Engine, jobId:{} jobResult:{} ...", jobClient.getTaskId(), jobClient.getJobResult());
+                LOGGER.info("success submit job to Engine, jobId:{} jobResult:{} ...", jobClient.getJobId(), jobClient.getJobResult());
 
                 //存储执行日志
                 if (StringUtils.isNotBlank(jobClient.getEngineTaskId())) {
@@ -87,21 +87,21 @@ public class JobSubmittedDealer implements Runnable {
                     String appId = jobResult.getData(JobResult.EXT_ID_KEY);
                     JSONObject jobExtraInfo = jobResult.getExtraInfoJson();
                     jobExtraInfo.put(JobResultConstant.JOB_GRAPH,JobGraphUtil.formatJSON(jobClient.getEngineTaskId(), jobExtraInfo.getString(JobResultConstant.JOB_GRAPH), jobClient.getComputeType()));
-                    scheduleJobDao.updateJobSubmitSuccess(jobClient.getTaskId(), jobClient.getEngineTaskId(), appId, jobClient.getJobResult().getJsonStr(), jobExtraInfo.toJSONString());
+                    scheduleJobDao.updateJobSubmitSuccess(jobClient.getJobId(), jobClient.getEngineTaskId(), appId, jobClient.getJobResult().getJsonStr(), jobExtraInfo.toJSONString());
                     jobDealer.updateCache(jobClient, EJobCacheStage.SUBMITTED.getStage());
                     jobClient.doStatusCallBack(RdosTaskStatus.SUBMITTED.getStatus());
                     JobClient finalJobClient = jobClient;
-                    shardCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.SUBMITTED.getStatus(), (jobId) -> {
+                    shardCache.updateLocalMemTaskStatus(jobClient.getJobId(), RdosTaskStatus.SUBMITTED.getStatus(), (jobId) -> {
                         LOGGER.warn("success submit job to Engine, jobId:{} jobResult:{} but shareManager is not found ...", jobId, finalJobClient.getJobResult());
                         finalJobClient.doStatusCallBack(RdosTaskStatus.CANCELED.getStatus());
                     });
                 } else {
-                    jobClientFail(jobClient.getTaskId(), jobClient.getJobResult().getJsonStr());
+                    jobClientFail(jobClient.getJobId(), jobClient.getJobResult().getJsonStr());
                 }
             } catch (Throwable e) {
-                LOGGER.error("jobId submitted {} jobStatus dealer run error", null == jobClient ? "" : jobClient.getTaskId(), e);
+                LOGGER.error("jobId submitted {} jobStatus dealer run error", null == jobClient ? "" : jobClient.getJobId(), e);
                 if (null != jobClient) {
-                    jobClientFail(jobClient.getTaskId(), JobResult.createErrorResult(e).getJsonStr());
+                    jobClientFail(jobClient.getJobId(), JobResult.createErrorResult(e).getJsonStr());
                 }
             }
         }
