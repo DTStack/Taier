@@ -72,12 +72,12 @@ public class WorkerOperator {
                 return;
             }
             Map<String, Object> pluginInfo = pluginWrapper.wrapperPluginInfo(jobClient.getParamAction());
-            jobClient.setPluginWrapperInfo(pluginInfo);
+            jobClient.setPluginInfo(JSONObject.toJSONString(pluginInfo));
             if(pluginInfo.containsKey(DEPLOY_MODEL)){
                 jobClient.setDeployMode((Integer) pluginInfo.get(DEPLOY_MODEL));
             }
         } catch (Exception e) {
-            LOGGER.error("{} buildPluginInfo failed!",jobClient.getTaskId(), e);
+            LOGGER.error("{} buildPluginInfo failed!",jobClient.getJobId(), e);
             throw new RdosDefineException("buildPluginInfo error",e);
         }
     }

@@ -2792,7 +2792,7 @@ public class BatchTaskService {
     public void checkName(String name, String type, Integer pid, Integer isFile, Long projectId) {
         if (StringUtils.isNotEmpty(name)) {
             if (!isFile.equals(IS_FILE)) {
-                final BatchCatalogue batchCatalogue = this.batchCatalogueDao.getByPidAndName(projectId, null, name);
+                final BatchCatalogue batchCatalogue = this.batchCatalogueDao.getByPidAndName(projectId, pid.longValue(), name);
                 if (batchCatalogue != null) {
                     throw new RdosDefineException("文件夹已存在", ErrorCode.NAME_ALREADY_EXIST);
                 }

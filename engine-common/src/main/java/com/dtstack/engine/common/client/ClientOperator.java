@@ -142,9 +142,9 @@ public class ClientOperator {
 
     public JobResult stopJob(JobClient jobClient) throws Exception {
         if(jobClient.getEngineTaskId() == null){
-            return JobResult.createSuccessResult(jobClient.getTaskId());
+            return JobResult.createSuccessResult(jobClient.getJobId());
         }
-        JobIdentifier jobIdentifier = new JobIdentifier(jobClient.getEngineTaskId(), jobClient.getApplicationId(), jobClient.getTaskId()
+        JobIdentifier jobIdentifier = new JobIdentifier(jobClient.getEngineTaskId(), jobClient.getApplicationId(), jobClient.getJobId()
         ,jobClient.getTenantId(),jobClient.getEngineType(),jobClient.getDeployMode(),jobClient.getUserId(),jobClient.getPluginInfo(),jobClient.getComponentVersion());
         jobIdentifier.setForceCancel(jobClient.getForceCancel());
         checkoutOperator(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
@@ -169,7 +169,7 @@ public class ClientOperator {
     }
 
     public List<String> containerInfos(JobClient jobClient) throws Exception {
-        JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobClient.getEngineTaskId(), jobClient.getApplicationId(), jobClient.getTaskId());
+        JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobClient.getEngineTaskId(), jobClient.getApplicationId(), jobClient.getJobId());
         checkoutOperator(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
         IClient client = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
         return client.getContainerInfos(jobIdentifier);

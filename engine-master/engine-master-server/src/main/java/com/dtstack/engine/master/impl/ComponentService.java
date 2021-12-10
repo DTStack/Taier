@@ -35,7 +35,6 @@ import com.dtstack.engine.master.enums.DictType;
 import com.dtstack.engine.master.enums.DownloadType;
 import com.dtstack.engine.master.impl.pojo.ClientTemplate;
 import com.dtstack.engine.master.impl.pojo.ComponentMultiTestResult;
-import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.utils.ComponentConfigUtils;
 import com.dtstack.engine.master.utils.FileUtil;
 import com.dtstack.engine.master.utils.Krb5FileUtil;
@@ -85,7 +84,6 @@ import java.util.stream.Collectors;
 import static com.dtstack.engine.pluginapi.constrant.ConfigConstant.*;
 
 @Service
-@DependsOn("rdosSubscribe")
 public class ComponentService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ComponentService.class);
@@ -106,9 +104,6 @@ public class ComponentService {
 
     @Autowired
     private ClusterTenantMapper clusterTenantMapper;
-
-    @Autowired
-    private ConsoleCache consoleCache;
 
     @Autowired
     private EnvironmentContext env;
@@ -174,7 +169,7 @@ public class ComponentService {
         //缓存刷新
         if (!tenantIds.isEmpty()) {
             for (Long tenantId : tenantIds) {
-                consoleCache.publishRemoveMessage(tenantId.toString());
+//                consoleCache.publishRemoveMessage(tenantId.toString());
             }
         }
     }

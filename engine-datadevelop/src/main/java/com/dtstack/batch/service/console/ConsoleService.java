@@ -317,7 +317,7 @@ public class ConsoleService {
                 ParamAction paramAction = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), ParamAction.class);
                 JobClient jobClient = new JobClient(paramAction);
                 jobClient.setCallBack((jobStatus) -> {
-                    jobDealer.updateJobStatus(jobClient.getTaskId(), jobStatus);
+                    jobDealer.updateJobStatus(jobClient.getJobId(), jobStatus);
                 });
 
                 Long minPriority = engineJobCacheDao.minPriorityByStage(engineJobCache.getJobResource(), Lists.newArrayList(EJobCacheStage.PRIORITY.getStage()), engineJobCache.getNodeAddress());

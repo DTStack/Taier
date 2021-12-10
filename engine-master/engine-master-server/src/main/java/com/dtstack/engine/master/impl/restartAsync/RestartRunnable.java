@@ -41,7 +41,6 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -62,13 +61,12 @@ public class RestartRunnable implements Runnable {
     private ScheduleJobService scheduleJobService;
     private EnvironmentContext environmentContext;
     private String redisKey;
-    private StringRedisTemplate redisTemplate;
     private ScheduleJobOperatorRecordDao scheduleJobOperatorRecordDao;
 
     public RestartRunnable(Long id, Boolean justRunChild, Boolean setSuccess, List<Long> subJobIds,
                            ScheduleJobDao scheduleJobDao, ScheduleTaskShadeDao scheduleTaskShadeDao,
                            ScheduleJobJobDao scheduleJobJobDao, EnvironmentContext environmentContext,
-                           String redisKey, StringRedisTemplate redisTemplate,ScheduleJobService scheduleJobService,
+                           String redisKey,ScheduleJobService scheduleJobService,
                            ScheduleJobOperatorRecordDao scheduleJobOperatorRecordDao) {
         this.id = id;
         this.justRunChild = BooleanUtils.toBoolean(justRunChild);
@@ -79,7 +77,6 @@ public class RestartRunnable implements Runnable {
         this.environmentContext = environmentContext;
         this.scheduleJobJobDao = scheduleJobJobDao;
         this.redisKey = redisKey;
-        this.redisTemplate =  redisTemplate;
         this.scheduleJobService = scheduleJobService;
         this.scheduleJobOperatorRecordDao = scheduleJobOperatorRecordDao;
     }
@@ -146,7 +143,6 @@ public class RestartRunnable implements Runnable {
         } catch (Exception e) {
             logger.error("restart job {} error", id, e);
         } finally {
-            redisTemplate.delete(redisKey);
             logger.info("release job {} redis key {} ", id, redisKey);
         }
     }

@@ -31,7 +31,6 @@ import com.dtstack.engine.mapper.QueueMapper;
 import com.dtstack.engine.mapper.TenantMapper;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.impl.pojo.ComponentMultiTestResult;
-import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.vo.ClusterTenantVO;
 import com.dtstack.engine.pager.PageQuery;
 import com.dtstack.engine.pager.PageResult;
@@ -69,9 +68,6 @@ public class TenantService {
 
     @Autowired
     private QueueMapper queueMapper;
-
-    @Autowired
-    private ConsoleCache consoleCache;
 
     @Autowired
     private ComponentService componentService;
@@ -202,8 +198,6 @@ public class TenantService {
         if (result == 0) {
             throw new RdosDefineException("The update engine queue failed");
         }
-        //缓存刷新
-        consoleCache.publishRemoveMessage(tenantId.toString());
     }
 
     /**

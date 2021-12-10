@@ -167,13 +167,12 @@ public class DataUtil {
                 "--maxAppAttempts 3" +
                 "--app-name run_pYTHON");
         paramAction.setTaskParams("worker.cores=1\nworker.memory=512");
-        paramAction.setTaskId("35e24e9f");
+        paramAction.setJobId("35e24e9f");
         paramAction.setName("run_Python_task_1606442812431");
         paramAction.setEngineType("dtscript");
         paramAction.setComputeType(1);
         paramAction.setTaskType(3);
         paramAction.setTenantId(395L);
-        paramAction.setDtuicTenantId(395L);
 //        paramAction.set();
         return  new JobClient(paramAction);
     }

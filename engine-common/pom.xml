@@ -29,6 +29,16 @@
         <dependency>
             <groupId>dt.insight.plat</groupId>
             <artifactId>dt-insight-common-base</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>spring-data-redis</artifactId>
+                    <groupId>org.springframework.data</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jedis</artifactId>
+                    <groupId>redis.clients</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
