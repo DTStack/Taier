@@ -190,7 +190,7 @@ public class ActionService {
                         //新job 任务
                         scheduleJob = buildScheduleJob(paramActionExt);
                         scheduleJob.setStatus(RdosTaskStatus.SUBMITFAILD.getStatus());
-                        scheduleJob.setLogInfo(GenerateErrorMsgUtil.generateErrorMsg(e.getMessage()));
+//                        scheduleJob.setLogInfo(GenerateErrorMsgUtil.generateErrorMsg(e.getMessage()));
                         scheduleJobDao.insert(scheduleJob);
                     } else {
                         //直接失败
@@ -219,7 +219,7 @@ public class ActionService {
         paramActionExt.setTaskSourceId(batchTask.getTaskId());
         paramActionExt.setComponentVersion(batchTask.getComponentVersion());
         paramActionExt.setBusinessType(batchTask.getBusinessType());
-        paramActionExt.setBusinessDate(scheduleJob.getBusinessDate());
+//        paramActionExt.setBusinessDate(scheduleJob.getBusinessDate());
         paramActionExt.setFlowJobId(flowJobId);
         return paramActionExt;
     }
@@ -241,10 +241,10 @@ public class ActionService {
         scheduleJob.setTenantId(batchTask.getTenantId());
         scheduleJob.setJobKey(String.format("%s%s", "tempJob", batchTask.getTaskId(), new DateTime().toString("yyyyMMdd")));
         scheduleJob.setTaskId(-1L);
-        scheduleJob.setCreateUserId(getOrDefault(batchTask.getCreateUserId(), -1L));
+//        scheduleJob.setCreateUserId(getOrDefault(batchTask.getCreateUserId(), -1L));
 
         scheduleJob.setType(EScheduleType.TEMP_JOB.getType());
-        scheduleJob.setBusinessDate(getOrDefault(jobRichOperator.getCycTime(-1), ""));
+//        scheduleJob.setBusinessDate(getOrDefault(jobRichOperator.getCycTime(-1), ""));
         scheduleJob.setCycTime(getOrDefault(cycTime, DateTime.now().toString("yyyyMMddHHmmss")));
 
         if (StringUtils.isNotBlank(scheduleConf)) {
@@ -403,7 +403,6 @@ public class ActionService {
                 }
                 if(result && !RdosTaskStatus.ENGINEACCEPTED.getStatus().equals(scheduleJob.getStatus()) ){
                     scheduleJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus());
-                    scheduleJob.setAppType(paramActionExt.getAppType());
                     if (AppType.STREAM.getType().equals(paramActionExt.getAppType())) {
                         scheduleJob.setRetryNum(0);
                     }
@@ -428,14 +427,13 @@ public class ActionService {
         scheduleJob.setComputeType(paramActionExt.getComputeType());
 
         scheduleJob.setTenantId(paramActionExt.getTenantId());
-        scheduleJob.setAppType(getOrDefault(paramActionExt.getAppType(), 0));
         scheduleJob.setJobKey(getOrDefault(paramActionExt.getJobKey(), String.format("%s%s%s", "tempJob", paramActionExt.getTaskId(), new DateTime().toString("yyyyMMdd") )));
         scheduleJob.setTaskId(getOrDefault(paramActionExt.getTaskSourceId(), -1L));
-        scheduleJob.setCreateUserId(getOrDefault(paramActionExt.getCreateUserId(), -1L));
+//        scheduleJob.setCreateUserId(getOrDefault(paramActionExt.getCreateUserId(), -1L));
 
         scheduleJob.setType(getOrDefault(paramActionExt.getType(), EScheduleType.TEMP_JOB.getType()));
         scheduleJob.setIsRestart(getOrDefault(paramActionExt.getIsRestart(), 0));
-        scheduleJob.setBusinessDate(getOrDefault(paramActionExt.getBusinessDate(), ""));
+//        scheduleJob.setBusinessDate(getOrDefault(paramActionExt.getBusinessDate(), ""));
         scheduleJob.setCycTime(getOrDefault(paramActionExt.getCycTime(), ""));
         scheduleJob.setDependencyType(getOrDefault(paramActionExt.getDependencyType(), 0));
         scheduleJob.setFlowJobId(getOrDefault(paramActionExt.getFlowJobId(), "0"));
@@ -445,7 +443,7 @@ public class ActionService {
         scheduleJob.setVersionId(getOrDefault(paramActionExt.getVersionId(), 0));
         scheduleJob.setComputeType(getOrDefault(paramActionExt.getComputeType(), 1));
         scheduleJob.setPeriodType(paramActionExt.getPeriodType());
-        scheduleJob.setBusinessType(paramActionExt.getBusinessType());
+//        scheduleJob.setBusinessType(paramActionExt.getBusinessType());
         return scheduleJob;
     }
 
@@ -481,7 +479,7 @@ public class ActionService {
         ActionLogVO vo = new ActionLogVO();
         ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
         if (scheduleJob != null) {
-            vo.setLogInfo(scheduleJob.getLogInfo());
+//            vo.setLogInfo(scheduleJob.getLogInfo());
             String engineLog = getEngineLog(jobId, scheduleJob);
             vo.setEngineLog(engineLog);
         }
@@ -489,7 +487,7 @@ public class ActionService {
     }
 
     private String getEngineLog(String jobId, ScheduleJob scheduleJob) {
-        String engineLog = scheduleJob.getEngineLog();
+        String engineLog = "";
         try {
             if (StringUtils.isBlank(engineLog)) {
                 engineLog = CompletableFuture.supplyAsync(
@@ -528,8 +526,8 @@ public class ActionService {
         jobLogVO.setComputeType(taskShadeDao.getComputeType());
         jobLogVO.setTaskType(taskShadeDao.getTaskType());
 
-        jobLogVO.setExecEndTime(scheduleJob.getExecEndTime());
-        jobLogVO.setExecStartTime(scheduleJob.getExecStartTime());
+//        jobLogVO.setExecEndTime(scheduleJob.getExecEndTime());
+//        jobLogVO.setExecStartTime(scheduleJob.getExecStartTime());
 
         String engineLog = getEngineLog(jobId, scheduleJob);
         jobLogVO.setEngineLog(engineLog);
@@ -537,10 +535,10 @@ public class ActionService {
         // 封装日志信息
         JSONObject info = new JSONObject();
         try {
-            info = JSON.parseObject(scheduleJob.getLogInfo());
+//            info = JSON.parseObject(scheduleJob.getLogInfo());
         } catch (final Exception e) {
-            LOGGER.error("parse jobId {} } logInfo error {}", jobId, scheduleJob.getLogInfo());
-            info.put("msg_info", scheduleJob.getLogInfo());
+//            LOGGER.error("parse jobId {} } logInfo error {}", jobId, scheduleJob.getLogInfo());
+//            info.put("msg_info", scheduleJob.getLogInfo());
         }
 
         if (info == null) {
@@ -699,9 +697,9 @@ public class ActionService {
                 ActionJobEntityVO vo = new ActionJobEntityVO();
                 vo.setJobId(scheduleJob.getJobId());
                 vo.setStatus(scheduleJob.getStatus());
-                vo.setExecStartTime(scheduleJob.getExecStartTime());
-                vo.setLogInfo(scheduleJob.getLogInfo());
-                vo.setEngineLog(scheduleJob.getEngineLog());
+//                vo.setExecStartTime(scheduleJob.getExecStartTime());
+//                vo.setLogInfo(scheduleJob.getLogInfo());
+//                vo.setEngineLog(scheduleJob.getEngineLog());
                 vo.setEngineJobId(scheduleJob.getEngineJobId());
                 vo.setApplicationId(scheduleJob.getApplicationId());
         		result.add(vo);

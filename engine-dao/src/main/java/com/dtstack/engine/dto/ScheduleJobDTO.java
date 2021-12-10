@@ -13,7 +13,7 @@ import java.util.List;
  * author: toutian
  * create: 2018/1/1
  */
-public class ScheduleJobDTO extends ScheduleJob {
+public class ScheduleJobDTO {
 
     private List<Integer> jobStatuses;
     private String taskNameLike;
@@ -74,8 +74,6 @@ public class ScheduleJobDTO extends ScheduleJob {
 
     private List<Long> projectIds;
 
-    private String businessType;
-
     private List<Integer> types;
     public List<Integer> getTypes() {
         return types;
@@ -83,16 +81,6 @@ public class ScheduleJobDTO extends ScheduleJob {
 
     public void setTypes(List<Integer> types) {
         this.types = types;
-    }
-
-    @Override
-    public String getBusinessType() {
-        return businessType;
-    }
-
-    @Override
-    public void setBusinessType(String businessType) {
-        this.businessType = businessType;
     }
 
     public List<Long> getProjectIds() {
@@ -291,7 +279,7 @@ public class ScheduleJobDTO extends ScheduleJob {
     }
 
     public Long getExecTime() {
-        return execTime;
+        return 0L;
     }
 
     public void setExecTime(Long execTime) {

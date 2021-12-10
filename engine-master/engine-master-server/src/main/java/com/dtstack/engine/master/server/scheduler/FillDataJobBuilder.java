@@ -40,11 +40,14 @@ public class FillDataJobBuilder extends AbstractBuilder  {
     private static final String FILL_DATA_TYPE = "fillData";
     private static final String FILL_DATA_JOB_BUILDER = "FillDataJobBuilder";
 
+    private final ExecutorService jobGraphBuildPool = new ThreadPoolExecutor(MAX_TASK_BUILD_THREAD, MAX_TASK_BUILD_THREAD, 10L, TimeUnit.SECONDS,
+            new LinkedBlockingQueue<>(MAX_TASK_BUILD_THREAD), new CustomThreadFactory(FILL_DATA_JOB_BUILDER));
+
     @Autowired
     private ScheduleJobOperatorRecordDao scheduleJobOperatorRecordDao;
 
     @Transactional(rollbackFor = Exception.class)
-    public void createFillJob(Set<Long> all, Set<Long> run, List<Long> blackTaskKeyList, Long fillId, String fillName, String beginTime, String endTime,
+    public void createFillJob(Set<Long> all, Set<Long> run, Long fillId, String fillName, String beginTime, String endTime,
                               String startDay, String endDay, Long tenantId, Long userId) throws Exception {
         Date startDate = DateUtil.parseDate(startDay, DateUtil.DATE_FORMAT, Locale.CHINA);
         Date endDate = DateUtil.parseDate(endDay, DateUtil.DATE_FORMAT, Locale.CHINA);
@@ -54,18 +57,13 @@ public class FillDataJobBuilder extends AbstractBuilder  {
         while (startTime.getMillis() <= finishTime.getMillis()) {
             startTime = startTime.plusDays(1);
             String triggerDay = startTime.toString(DateUtil.DATE_FORMAT);
-            buildFillDataJobGraph(fillName, fillId, all, run, blackTaskKeyList, triggerDay, beginTime, endTime, tenantId, userId);
+            buildFillDataJobGraph(fillName, fillId, all, run, triggerDay, beginTime, endTime, tenantId, userId);
         }
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void buildFillDataJobGraph(String fillName, Long fillId, Set<Long> all, Set<Long> run,
-                                      List<Long> blackTaskKey, String triggerDay, String beginTime,
+    public void buildFillDataJobGraph(String fillName, Long fillId, Set<Long> all, Set<Long> run, String triggerDay, String beginTime,
                                       String endTime, Long tenantId, Long userId) throws Exception{
-
-        ExecutorService jobGraphBuildPool = new ThreadPoolExecutor(MAX_TASK_BUILD_THREAD, MAX_TASK_BUILD_THREAD, 10L, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<>(MAX_TASK_BUILD_THREAD), new CustomThreadFactory(FILL_DATA_JOB_BUILDER));
-
         // 切割控制并发数
         List<Long> allList = Lists.newArrayList(all);
         List<List<Long>> partition = Lists.partition(allList, TASK_BATCH_SIZE);
@@ -120,7 +118,7 @@ public class FillDataJobBuilder extends AbstractBuilder  {
                                 }
 
                                 for (ScheduleBatchJob batchJob : batchJobs) {
-                                    addMap(fillId, run, blackTaskKey, saveMap, taskId, batchJob);
+                                    addMap(fillId, run, saveMap, taskId, batchJob);
                                 }
                             }
                         } catch (Exception e) {
@@ -159,7 +157,7 @@ public class FillDataJobBuilder extends AbstractBuilder  {
         return result;
     }
 
-    private void addMap(Long fillId, Set<Long> runList, List<Long> blackTaskKey, Map<String, ScheduleBatchJob> allJob, Long taskId, ScheduleBatchJob batchJob) {
+    private void addMap(Long fillId, Set<Long> runList, Map<String, ScheduleBatchJob> allJob, Long taskId, ScheduleBatchJob batchJob) {
         ScheduleJob scheduleJob = batchJob.getScheduleJob();
         scheduleJob.setFillId(fillId);
 

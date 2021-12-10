@@ -174,7 +174,7 @@ public class JobRichOperator {
         }
 
         // 质量任务补数据支持冻结
-        if (scheduleType == EScheduleType.FILL_DATA.getType() && AppType.DQ.getType().equals(scheduleBatchJob.getAppType())
+        if (scheduleType == EScheduleType.FILL_DATA.getType() && AppType.DQ.getType().equals(1)
                 && (EScheduleStatus.PAUSE.getVal().equals(batchTaskShade.getScheduleStatus()) ||
                 EProjectScheduleStatus.PAUSE.getStatus().equals(batchTaskShade.getProjectScheduleStatus()))) {
             // 直接返回冻结
@@ -224,7 +224,7 @@ public class JobRichOperator {
         List<Integer> checkStatus = new ArrayList<>(RdosTaskStatus.RUNNING_STATUS);
         checkStatus.addAll(RdosTaskStatus.WAIT_STATUS);
         checkStatus.addAll(RdosTaskStatus.SUBMITTING_STATUS);
-        List<ScheduleJob> scheduleJobs = scheduleJobDao.listIdByTaskIdAndStatus(scheduleJob.getTaskId(), checkStatus, scheduleJob.getAppType(), todayCycTime, EScheduleType.NORMAL_SCHEDULE.getType());
+        List<ScheduleJob> scheduleJobs = scheduleJobDao.listIdByTaskIdAndStatus(scheduleJob.getTaskId(), checkStatus,1, todayCycTime, EScheduleType.NORMAL_SCHEDULE.getType());
         if (CollectionUtils.isNotEmpty(scheduleJobs)) {
             ScheduleJob waitFinishJob = scheduleJobs.get(0);
             LOGGER.info("jobId {} selfJob {}  has running status [{}],wait running job finish", scheduleJob.getJobId(), waitFinishJob.getJobId(), waitFinishJob.getStatus());
@@ -260,7 +260,7 @@ public class JobRichOperator {
 
             LOGGER.error("job:{} dependency job:{} not exists.", jobjob.getJobKey(), jobjob.getParentJobKey());
             String parentJobKey = jobjob.getParentJobKey();
-            String parentTaskName = batchTaskShadeService.getTaskNameByJobKey(parentJobKey, scheduleBatchJob.getAppType());
+            String parentTaskName = batchTaskShadeService.getTaskNameByJobKey(parentJobKey, 1);
             checkRunInfo.setStatus(JobCheckStatus.FATHER_NO_CREATED);
             checkRunInfo.setExtInfo("(父任务名称为:" + parentTaskName + ")");
             return checkRunInfo;
@@ -321,9 +321,9 @@ public class JobRichOperator {
             return checkRunInfo;
         } else if (RdosTaskStatus.RUNNING_TASK_RULE.getStatus().equals(dependencyJobStatus)){
             // 父节点已经执行完了，判断当前任务是否是规则任务
-            if (TaskRuleEnum.NO_RULE.getCode().equals(scheduleBatchJob.getScheduleJob().getTaskRule())) {
-                checkRunInfo.setStatus(JobCheckStatus.FATHER_JOB_NOT_FINISHED);
-            }
+//            if (TaskRuleEnum.NO_RULE.getCode().equals(scheduleBatchJob.getScheduleJob().getTaskRule())) {
+//                checkRunInfo.setStatus(JobCheckStatus.FATHER_JOB_NOT_FINISHED);
+//            }
             return checkRunInfo;
         } else if (!RdosTaskStatus.FINISHED.getStatus().equals(dependencyJobStatus) &&
                 !RdosTaskStatus.MANUALSUCCESS.getStatus().equals(dependencyJobStatus)) {

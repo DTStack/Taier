@@ -21,9 +21,11 @@ package com.dtstack.engine.domain;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 
+import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * company: www.dtstack.com
@@ -31,112 +33,192 @@ import java.util.List;
  * create: 2019/10/22
  */
 @TableName("schedule_job")
-public class ScheduleJob extends BaseEntity {
+public class ScheduleJob implements Serializable {
 
     /**
-     * 工作任务id
+     * 实例唯一标识
+     */
+    private Long id;
+
+    /**
+     * 租户id
+     */
+    private Long tenantId;
+
+    /**
+     * 实例id
      */
     private String jobId;
 
+    /**
+     * jobKey
+     */
     private String jobKey;
 
+    /**
+     * 实例名称
+     */
     private String jobName;
 
     /**
-     * 任务id
+     * 任务名称
      */
     private Long taskId;
 
     /**
-     * 发起操作的用户
-     */
-    private Long createUserId;
-
-    /**
-     * 0正常调度 1补数据 2临时运行
+     * 任务类型： 0 周期实例，1补数据 2 立即运行
      */
     private Integer type;
 
     /**
-     * 业务日期 yyyymmddhhmmss,调度时间-1d
+     * 是否重试
      */
-    private String businessDate;
+    private Integer isRestart;
 
-    /***
-     * 任务调度时间 yyyymmddhhmmss
+    /**
+     * 计划时间
      */
     private String cycTime;
 
-    private Integer isRestart;
-
+    /**
+     * 依赖类型
+     */
     private Integer dependencyType;
 
+    /**
+     * 工作流目标节点
+     */
     private String flowJobId;
 
-    private Integer versionId;
-
+    /**
+     * 调度类型
+     * 分钟:MIN(0),
+     * 小时:HOUR(1),
+     * 天:DAY(2),
+     * 周:WEEK(3),
+     * 月:MONTH(4),
+     * 自定义cron表达式:CRON(5)
+     */
     private Integer periodType;
 
+    /**
+     * 实例状态
+     */
     private Integer status;
 
+    /**
+     * 任务类型：
+     * 虚节点:VIRTUAL(-)1,
+     * SparkSQL:SPARK_SQL(0),
+     * Spark:SPARK(1),
+     * 数据同步:SYNC(2),
+     * Shell: SHELL(3),
+     * 工作流:WORK_FLOW(1)
+     */
     private Integer taskType;
 
+    /**
+     * 补数据id
+     */
     private Long fillId;
 
+    /**
+     * 实际开始时间
+     */
     private Timestamp execStartTime;
 
+    /**
+     * 实际结束时间
+     */
     private Timestamp execEndTime;
 
-    private Long execTime;
-
-    private Date submitTime;
-
-    private Integer maxRetryNum;
-
-    private Integer retryNum;
-
-    private String nodeAddress;
-
-    private String nextCycTime;
-
-    private String logInfo;
-
-    private List<Integer> taskTypes;
+    /**
+     * 运行时长
+     */
+    private Integer execTime;
 
     /**
-     * 执行引擎任务id
+     * 最大重试次数
+     */
+    private Integer maxRetryNum;
+
+    /**
+     * 当前重试次数
+     */
+    private Integer retryNum;
+
+    /**
+     * 运行实例的ip
+     */
+    private String nodeAddress;
+
+    /**
+     * 实例版本
+     */
+    private Integer versionId;
+
+    /**
+     * 下一个实例计划运行时间
+     */
+    private String nextCycTime;
+
+    /**
+     * yarn运行实例id
      */
     private String engineJobId;
 
+    /**
+     * 应用id
+     */
     private String applicationId;
 
-    private String engineLog;
-
-    private long pluginInfoId;
-
-    private Integer sourceType;
-
-    private String retryTaskParams;
-
+    /**
+     * 计算类型
+     */
     private Integer computeType;
 
+    /**
+     * 阶段类型
+     */
     private Integer phaseStatus;
 
-    private Boolean isForce;
-
-    private Integer taskRule;
-
     /**
-     * 提交用户名
+     * 排序
      */
-    private String submitUserName;
-
     private Long jobExecuteOrder;
 
+    /**
+     * 创建人id
+     */
+    private Long createUserId;
 
-    private Integer appType;
+    /**
+     * 创建时间
+     */
+    private Timestamp gmtCreate;
 
-    private Long tenantId;
+    /**
+     * 修改时间
+     */
+    private Timestamp gmtModified;
+
+    /**
+     * 是否逻辑删除
+     */
+    private Integer isDeleted;
+
+    /**
+     * 补数据实例状态：0 默认值 周期实例，立即运行等非补数据实例的默认值 1 可执行补数据实例 2 中间实例
+     */
+    private Integer fillType;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public Long getTenantId() {
         return tenantId;
@@ -144,120 +226,6 @@ public class ScheduleJob extends BaseEntity {
 
     public void setTenantId(Long tenantId) {
         this.tenantId = tenantId;
-    }
-
-    public Integer getAppType() {
-        return appType;
-    }
-
-    public void setAppType(Integer appType) {
-        this.appType = appType;
-    }
-
-    public Long getJobExecuteOrder() {
-        return jobExecuteOrder;
-    }
-
-    public void setJobExecuteOrder(Long jobExecuteOrder) {
-        this.jobExecuteOrder = jobExecuteOrder;
-    }
-
-    public Boolean getForce() {
-        return isForce;
-    }
-
-    public void setForce(Boolean force) {
-        isForce = force;
-    }
-
-    private String businessType;
-
-    public String getBusinessType() {
-        return businessType;
-    }
-
-    public void setBusinessType(String businessType) {
-        this.businessType = businessType;
-    }
-
-    public String getSubmitUserName() {
-        return submitUserName;
-    }
-
-    public void setSubmitUserName(String submitUserName) {
-        this.submitUserName = submitUserName;
-    }
-
-    public String getEngineJobId() {
-        return engineJobId;
-    }
-
-    public void setEngineJobId(String engineJobId) {
-        this.engineJobId = engineJobId;
-    }
-
-    public String getApplicationId() {
-        return applicationId;
-    }
-
-    public void setApplicationId(String applicationId) {
-        this.applicationId = applicationId;
-    }
-
-    public String getEngineLog() {
-        return engineLog;
-    }
-
-    public void setEngineLog(String engineLog) {
-        this.engineLog = engineLog;
-    }
-
-    public long getPluginInfoId() {
-        return pluginInfoId;
-    }
-
-    public void setPluginInfoId(long pluginInfoId) {
-        this.pluginInfoId = pluginInfoId;
-    }
-
-    public Integer getSourceType() {
-        return sourceType;
-    }
-
-    public void setSourceType(Integer sourceType) {
-        this.sourceType = sourceType;
-    }
-
-    public String getRetryTaskParams() {
-        return retryTaskParams;
-    }
-
-    public void setRetryTaskParams(String retryTaskParams) {
-        this.retryTaskParams = retryTaskParams;
-    }
-
-    public Integer getComputeType() {
-        return computeType;
-    }
-
-    public void setComputeType(Integer computeType) {
-        this.computeType = computeType;
-    }
-
-    public List<Integer> getTaskTypes() {
-        return taskTypes;
-    }
-
-    public void setTaskTypes(List<Integer> taskTypes) {
-        this.taskTypes = taskTypes;
-    }
-
-    public String getLogInfo() {
-        return logInfo;
-    }
-
-    public void setLogInfo(String logInfo) {
-        this.logInfo = logInfo;
     }
 
     public String getJobId() {
@@ -292,14 +260,6 @@ public class ScheduleJob extends BaseEntity {
         this.taskId = taskId;
     }
 
-    public Long getCreateUserId() {
-        return createUserId;
-    }
-
-    public void setCreateUserId(Long createUserId) {
-        this.createUserId = createUserId;
-    }
-
     public Integer getType() {
         return type;
     }
@@ -308,12 +268,12 @@ public class ScheduleJob extends BaseEntity {
         this.type = type;
     }
 
-    public String getBusinessDate() {
-        return businessDate;
+    public Integer getIsRestart() {
+        return isRestart;
     }
 
-    public void setBusinessDate(String businessDate) {
-        this.businessDate = businessDate;
+    public void setIsRestart(Integer isRestart) {
+        this.isRestart = isRestart;
     }
 
     public String getCycTime() {
@@ -322,14 +282,6 @@ public class ScheduleJob extends BaseEntity {
 
     public void setCycTime(String cycTime) {
         this.cycTime = cycTime;
-    }
-
-    public Integer getIsRestart() {
-        return isRestart;
-    }
-
-    public void setIsRestart(Integer isRestart) {
-        this.isRestart = isRestart;
     }
 
     public Integer getDependencyType() {
@@ -346,14 +298,6 @@ public class ScheduleJob extends BaseEntity {
 
     public void setFlowJobId(String flowJobId) {
         this.flowJobId = flowJobId;
-    }
-
-    public Integer getVersionId() {
-        return versionId;
-    }
-
-    public void setVersionId(Integer versionId) {
-        this.versionId = versionId;
     }
 
     public Integer getPeriodType() {
@@ -404,22 +348,13 @@ public class ScheduleJob extends BaseEntity {
         this.execEndTime = execEndTime;
     }
 
-    public Long getExecTime() {
+    public Integer getExecTime() {
         return execTime;
     }
 
-    public void setExecTime(Long execTime) {
+    public void setExecTime(Integer execTime) {
         this.execTime = execTime;
     }
-
-    public Date getSubmitTime() {
-        return submitTime;
-    }
-
-    public void setSubmitTime(Date submitTime) {
-        this.submitTime = submitTime;
-    }
-
 
     public Integer getMaxRetryNum() {
         return maxRetryNum;
@@ -445,12 +380,44 @@ public class ScheduleJob extends BaseEntity {
         this.nodeAddress = nodeAddress;
     }
 
+    public Integer getVersionId() {
+        return versionId;
+    }
+
+    public void setVersionId(Integer versionId) {
+        this.versionId = versionId;
+    }
+
     public String getNextCycTime() {
         return nextCycTime;
     }
 
     public void setNextCycTime(String nextCycTime) {
         this.nextCycTime = nextCycTime;
+    }
+
+    public String getEngineJobId() {
+        return engineJobId;
+    }
+
+    public void setEngineJobId(String engineJobId) {
+        this.engineJobId = engineJobId;
+    }
+
+    public String getApplicationId() {
+        return applicationId;
+    }
+
+    public void setApplicationId(String applicationId) {
+        this.applicationId = applicationId;
+    }
+
+    public Integer getComputeType() {
+        return computeType;
+    }
+
+    public void setComputeType(Integer computeType) {
+        this.computeType = computeType;
     }
 
     public Integer getPhaseStatus() {
@@ -461,12 +428,62 @@ public class ScheduleJob extends BaseEntity {
         this.phaseStatus = phaseStatus;
     }
 
-    public Integer getTaskRule() {
-        return taskRule;
+    public Long getJobExecuteOrder() {
+        return jobExecuteOrder;
     }
 
-    public void setTaskRule(Integer taskRule) {
-        this.taskRule = taskRule;
+    public void setJobExecuteOrder(Long jobExecuteOrder) {
+        this.jobExecuteOrder = jobExecuteOrder;
     }
+
+    public Long getCreateUserId() {
+        return createUserId;
+    }
+
+    public void setCreateUserId(Long createUserId) {
+        this.createUserId = createUserId;
+    }
+
+    public Timestamp getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Timestamp gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Timestamp getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Timestamp gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public void setIsDeleted(Integer isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
+    public Integer getFillType() {
+        return fillType;
+    }
+
+    public void setFillType(Integer fillType) {
+        this.fillType = fillType;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ScheduleJob that = (ScheduleJob) o;
+        return Objects.equals(id, that.id) && Objects.equals(tenantId, that.tenantId) && Objects.equals(jobId, that.jobId) && Objects.equals(jobKey, that.jobKey) && Objects.equals(jobName, that.jobName) && Objects.equals(taskId, that.taskId) && Objects.equals(type, that.type) && Objects.equals(isRestart, that.isRestart) && Objects.equals(cycTime, that.cycTime) && Objects.equals(dependencyType, that.dependencyType) && Objects.equals(flowJobId, that.flowJobId) && Objects.equals(periodType, that.periodType) && Objects.equals(status, that.status) && Objects.equals(taskType, that.taskType) && Objects.equals(fillId, that.fillId) && Objects.equals(execStartTime, that.execStartTime) && Objects.equals(execEndTime, that.execEndTime) && Objects.equals(execTime, that.execTime) && Objects.equals(maxRetryNum, that.maxRetryNum) && Objects.equals(retryNum, that.retryNum) && Objects.equals(nodeAddress, that.nodeAddress) && Objects.equals(versionId, that.versionId) && Objects.equals(nextCycTime, that.nextCycTime) && Objects.equals(engineJobId, that.engineJobId) && Objects.equals(applicationId, that.applicationId) && Objects.equals(computeType, that.computeType) && Objects.equals(phaseStatus, that.phaseStatus) && Objects.equals(jobExecuteOrder, that.jobExecuteOrder) && Objects.equals(createUserId, that.createUserId) && Objects.equals(gmtCreate, that.gmtCreate) && Objects.equals(gmtModified, that.gmtModified) && Objects.equals(isDeleted, that.isDeleted) && Objects.equals(fillType, that.fillType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, tenantId, jobId, jobKey, jobName, taskId, type, isRestart, cycTime, dependencyType, flowJobId, periodType, status, taskType, fillId, execStartTime, execEndTime, execTime, maxRetryNum, retryNum, nodeAddress, versionId, nextCycTime, engineJobId, applicationId, computeType, phaseStatus, jobExecuteOrder, createUserId, gmtCreate, gmtModified, isDeleted, fillType);
+    }
+
 
 }

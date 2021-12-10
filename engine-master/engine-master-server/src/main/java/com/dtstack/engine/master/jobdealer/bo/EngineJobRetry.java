@@ -35,10 +35,8 @@ public class EngineJobRetry extends com.dtstack.engine.domain.EngineJobRetry {
         batchJobRetry.setExecEndTime(batchJob.getExecEndTime());
         batchJobRetry.setRetryNum(batchJob.getRetryNum());
         batchJobRetry.setStatus(batchJob.getStatus());
-        batchJobRetry.setGmtCreate(batchJob.getGmtCreate());
-        batchJobRetry.setGmtModified(batchJob.getGmtModified());
-        batchJobRetry.setEngineLog(batchJob.getEngineLog());
-        batchJobRetry.setRetryTaskParams(batchJob.getRetryTaskParams());
+//        batchJobRetry.setGmtCreate(batchJob.getGmtCreate());
+//        batchJobRetry.setGmtModified(batchJob.getGmtModified());
 
         if (batchJob.getApplicationId() == null) {
             batchJobRetry.setApplicationId(jobClient.getApplicationId());
@@ -50,15 +48,15 @@ public class EngineJobRetry extends com.dtstack.engine.domain.EngineJobRetry {
         } else {
             batchJobRetry.setEngineJobId(batchJob.getEngineJobId());
         }
-        try {
-            if (StringUtils.isEmpty(batchJob.getLogInfo()) && jobClient.getJobResult() != null) {
-                batchJobRetry.setLogInfo(jobClient.getJobResult().getMsgInfo());
-            } else {
-                batchJobRetry.setLogInfo(batchJob.getLogInfo());
-            }
-        } catch (Throwable e) {
-            batchJobRetry.setLogInfo("commit job error，parses log error:" + e.getMessage());
-        }
+//        try {
+//            if (StringUtils.isEmpty(batchJob.getLogInfo()) && jobClient.getJobResult() != null) {
+//                batchJobRetry.setLogInfo(jobClient.getJobResult().getMsgInfo());
+//            } else {
+//                batchJobRetry.setLogInfo(batchJob.getLogInfo());
+//            }
+//        } catch (Throwable e) {
+//            batchJobRetry.setLogInfo("commit job error，parses log error:" + e.getMessage());
+//        }
         return batchJobRetry;
     }
 
