@@ -41,9 +41,9 @@ public class ScheduleJobVO extends com.dtstack.engine.master.vo.ScheduleJobVO {
         this.setTaskId(scheduleJob.getTaskId());
         this.setCreateUserId(scheduleJob.getCreateUserId());
         this.setType(scheduleJob.getType());
-        this.setGmtCreate(scheduleJob.getGmtCreate());
-        this.setGmtModified(scheduleJob.getGmtModified());
-        this.setBusinessDate(this.getOnlyDate(scheduleJob.getBusinessDate()));
+//        this.setGmtCreate(scheduleJob.getGmtCreate());
+//        this.setGmtModified(scheduleJob.getGmtModified());
+//        this.setBusinessDate(this.getOnlyDate(scheduleJob.getBusinessDate()));
         this.setCycTime(DateUtil.addTimeSplit(scheduleJob.getCycTime()));
         this.setFlowJobId(scheduleJob.getFlowJobId());
         this.setIsRestart(scheduleJob.getIsRestart());
@@ -51,11 +51,11 @@ public class ScheduleJobVO extends com.dtstack.engine.master.vo.ScheduleJobVO {
         this.setStatus(scheduleJob.getStatus());
         this.setRetryNum(scheduleJob.getRetryNum());
 //        this.setScheduleEngineJob(new ScheduleEngineJob(scheduleJob));
-        this.setExecStartTime(scheduleJob.getExecStartTime());
-        this.setExecEndTime(scheduleJob.getExecEndTime());
-        this.setTaskRule(scheduleJob.getTaskRule());
-        this.setAppType(scheduleJob.getAppType());
-        this.setBusinessType(scheduleJob.getBusinessType());
+//        this.setExecStartTime(scheduleJob.getExecStartTime());
+//        this.setExecEndTime(scheduleJob.getExecEndTime());
+//        this.setTaskRule(scheduleJob.getTaskRule());
+//        this.setAppType(scheduleJob.getAppType());
+//        this.setBusinessType(scheduleJob.getBusinessType());
     }
 
     private String getOnlyDate(String date){

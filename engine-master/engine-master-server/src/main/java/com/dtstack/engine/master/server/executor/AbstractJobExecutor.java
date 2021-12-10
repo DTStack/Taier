@@ -206,14 +206,14 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 List<ScheduleBatchJob> listExecJobs = this.listExecJob(startId, nodeAddress, Boolean.TRUE);
                 while (CollectionUtils.isNotEmpty(listExecJobs)) {
                     // 按照appType分组
-                    Map<Integer, Set<Long>> groupByAppMap = listExecJobs.stream().collect(Collectors.groupingBy(shade->shade.getScheduleJob().getAppType(),
+                    Map<Integer, Set<Long>> groupByAppMap = listExecJobs.stream().collect(Collectors.groupingBy(shade->1,
                             Collectors.mapping(ScheduleBatchJob::getTaskId, Collectors.toSet())));
                     Table<Integer,Long,ScheduleTaskShade> cache= HashBasedTable.create();
                     batchTaskShadeService.listTaskShadeByIdAndType(groupByAppMap).forEach((k,v)->v.forEach(shade->cache.put(k,shade.getTaskId(),shade)));
                     for (ScheduleBatchJob scheduleBatchJob : listExecJobs) {
                         // 节点检查是否能进入队列
                         try {
-                            ScheduleTaskShade batchTask= cache.get(scheduleBatchJob.getScheduleJob().getAppType(),scheduleBatchJob.getTaskId());
+                            ScheduleTaskShade batchTask= cache.get(1,scheduleBatchJob.getTaskId());
 
                             if (batchTask == null) {
                                 String errMsg = JobCheckStatus.NO_TASK.getMsg();
@@ -297,13 +297,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
             throw new RdosDefineException("job is not null");
         }
 
-        Timestamp execStartTime = scheduleJob.getExecStartTime();
-
-        if (execStartTime == null) {
-            throw new RdosDefineException("not find execStartTime");
-        }
-
-        long time = execStartTime.getTime();
+        long time = 0;
         long currentTimeMillis = System.currentTimeMillis();
 
         if ((currentTimeMillis - time) > timeout) {

@@ -1,9 +1,10 @@
 package com.dtstack.engine.master.action.fill;
 
 import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.master.dto.fill.FillDataInfoDTO;
-import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
-import com.dtstack.engine.master.impl.ScheduleTaskTaskShadeService;
+import com.dtstack.engine.master.service.ScheduleTaskService;
+import com.dtstack.engine.master.service.ScheduleTaskTaskService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -16,6 +17,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @Auther: dazhi
@@ -30,17 +32,14 @@ public abstract class AbstractFillDataTask implements FillDataTask {
 
     protected final FillDataInfoDTO fillDataInfoBO;
 
-    protected final ScheduleTaskShadeService scheduleTaskShadeService;
-
-    protected final ScheduleTaskTaskShadeService scheduleTaskTaskShadeService;
+    protected final ScheduleTaskTaskService scheduleTaskTaskService;
 
     protected final EnvironmentContext environmentContext;
 
     public AbstractFillDataTask(ApplicationContext applicationContext, FillDataInfoDTO fillDataInfoDTO) {
         this.applicationContext = applicationContext;
         this.fillDataInfoBO = fillDataInfoDTO;
-        this.scheduleTaskShadeService = applicationContext.getBean(ScheduleTaskShadeService.class);
-        this.scheduleTaskTaskShadeService = applicationContext.getBean(ScheduleTaskTaskShadeService.class);
+        this.scheduleTaskTaskService = applicationContext.getBean(ScheduleTaskTaskService.class);
         this.environmentContext = applicationContext.getBean(EnvironmentContext.class);
 
     }
@@ -103,22 +102,34 @@ public abstract class AbstractFillDataTask implements FillDataTask {
      */
     private List<Long> getListChildTaskKeyAndFillNodeSide(List<Long> needFindChildTaskKeyList,Map<Long, List<Long>> nodeSide) {
         List<Long> childTaskKeys = Lists.newArrayList();
-//        List<ScheduleTaskTaskShadeDTO> taskTaskShadeDTOS = scheduleTaskTaskShadeService.listChildByTaskKeys(needFindChildTaskKeyList);
-//
-//        if (CollectionUtils.isNotEmpty(taskTaskShadeDTOS)) {
-//            Map<String, List<ScheduleTaskTaskShadeDTO>> keyMaps = taskTaskShadeDTOS.stream().collect(Collectors.groupingBy(ScheduleTaskTaskShadeDTO::getParentTaskKey));
-//
-//            for (Map.Entry<String, List<ScheduleTaskTaskShadeDTO>> entry : keyMaps.entrySet()) {
-//                String key = entry.getKey();
-//                if (!nodeSide.containsKey(key)) {
-//                    List<ScheduleTaskTaskShadeDTO> value = entry.getValue();
-//                    List<String> childValueTaskKeys = value.stream().map(ScheduleTaskTaskShadeDTO::getTaskKey).collect(Collectors.toList());
-//                    nodeSide.put(key, childValueTaskKeys);
-//                    childTaskKeys.addAll(childValueTaskKeys);
-//                }
-//            }
-//        }
+        List<ScheduleTaskTaskShade> scheduleTaskTaskShades = getScheduleTaskTaskShades(needFindChildTaskKeyList);
+
+        if (CollectionUtils.isNotEmpty(scheduleTaskTaskShades)) {
+            Map<Long, List<ScheduleTaskTaskShade>> keyMaps = scheduleTaskTaskShades.stream().collect(Collectors.groupingBy(ScheduleTaskTaskShade::getParentTaskId));
+
+            for (Map.Entry<Long, List<ScheduleTaskTaskShade>> entry : keyMaps.entrySet()) {
+                Long key = entry.getKey();
+                if (!nodeSide.containsKey(key)) {
+                    List<ScheduleTaskTaskShade> value = entry.getValue();
+                    List<Long> childValueTaskKeys = value.stream().map(ScheduleTaskTaskShade::getTaskId).collect(Collectors.toList());
+                    nodeSide.put(key, childValueTaskKeys);
+                    childTaskKeys.addAll(childValueTaskKeys);
+                }
+            }
+        }
         return childTaskKeys;
+    }
+
+    /**
+     * 查询下游节点
+     *
+     * @param taskIds
+     * @return
+     */
+    protected List<ScheduleTaskTaskShade> getScheduleTaskTaskShades(List<Long> taskIds) {
+        return CollectionUtils.isNotEmpty(taskIds) ?
+                scheduleTaskTaskService.lambdaQuery().in(ScheduleTaskTaskShade::getParentTaskId, taskIds).list() :
+                Lists.newArrayList();
     }
 
     /**
@@ -175,11 +186,6 @@ public abstract class AbstractFillDataTask implements FillDataTask {
                                                   Map<Long, DAGNode> dagNodes,
                                                   Set<Long> run,
                                                   Map<Long, List<Long>> nodeSide);
-
-
-    interface FillDataConst{
-        String KEY_DELIMITER = "-";
-    }
 
     protected static class DAGNode {
         // 目标节点（R集合里面的节点）

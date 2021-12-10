@@ -95,7 +95,7 @@ public class RestartRunnable implements Runnable {
 
             ScheduleTaskShade task = scheduleTaskShadeDao.getOne(batchJob.getTaskId());
             if (task == null || Deleted.DELETED.getStatus().equals(task.getIsDeleted())) {
-                logger.error("cat not find taskShade by taskId:{} appType {}", batchJob.getTaskId(), batchJob.getAppType());
+                logger.error("cat not find taskShade by taskId:{} appType {}", batchJob.getTaskId(), 1);
                 return;
             }
 

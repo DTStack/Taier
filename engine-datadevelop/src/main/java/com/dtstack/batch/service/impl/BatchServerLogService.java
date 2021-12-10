@@ -238,8 +238,8 @@ public class BatchServerLogService {
 
         // 增加重试日志
         final String retryLog = this.buildRetryLog(jobId, pageInfo, batchServerLogVO);
-        this.formatForLogInfo(info, job.getType(),scheduleTaskShade.getTaskType(), retryLog, job.getExecStartTime(),
-                job.getExecEndTime(), job.getExecTime(), batchServerLogVO, tenantId,jobId);
+        this.formatForLogInfo(info, job.getType(),scheduleTaskShade.getTaskType(), retryLog, null,
+                null, null, batchServerLogVO, tenantId,jobId);
 
         if (!scheduleTaskShade.getTaskType().equals(EJobType.SYNC.getVal())
                 && !scheduleTaskShade.getTaskType().equals(EJobType.VIRTUAL.getVal())
@@ -253,8 +253,6 @@ public class BatchServerLogService {
         batchServerLogVO.setComputeType(scheduleTaskShade.getComputeType());
         batchServerLogVO.setTaskType(scheduleTaskShade.getTaskType());
 
-        batchServerLogVO.setExecEndTime(job.getExecEndTime());
-        batchServerLogVO.setExecStartTime(job.getExecStartTime());
         return batchServerLogVO;
     }
 

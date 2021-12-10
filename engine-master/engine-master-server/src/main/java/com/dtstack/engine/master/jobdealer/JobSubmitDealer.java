@@ -367,7 +367,7 @@ public class JobSubmitDealer implements Runnable {
                 LOGGER.info("update jobId {} ldap userName {}", jobClient.getTaskId(), ldapUserName);
                 ScheduleJob updateJob = new ScheduleJob();
                 updateJob.setJobId(jobClient.getTaskId());
-                updateJob.setSubmitUserName(ldapUserName);
+//                updateJob.setSubmitUserName(ldapUserName);
                 scheduleJobDao.update(updateJob);
             }
         } catch (Exception e) {
