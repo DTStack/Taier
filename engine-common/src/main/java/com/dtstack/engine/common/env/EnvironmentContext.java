@@ -141,88 +141,6 @@ public class EnvironmentContext implements InitializingBean {
         return httpAddress;
     }
 
-    /**
-     * =========redis=======
-     */
-
-    public int getRedisDB() {
-        return Integer.parseInt(environment.getProperty("redis.db", "1"));
-    }
-
-    public String getRedisUrl() {
-        return environment.getProperty("redis.url", "127.0.0.1");
-    }
-
-    public int getRedisPort() {
-        return Integer.parseInt(environment.getProperty("redis.port", "6379"));
-    }
-
-    public int getMaxIdle() {
-        return Integer.parseInt(environment.getProperty("redis.max.idle", "30"));
-    }
-
-
-    public int getRedisTimeout() {
-        return Integer.parseInt(environment.getProperty("redis.timeout", "3000"));
-    }
-
-
-    public String getRedisPassword() {
-        return environment.getProperty("redis.password");
-    }
-
-    public int getMaxTotal() {
-        return Integer.parseInt(environment.getProperty("redis.max.total", "50"));
-    }
-
-    public int getMaxWaitMills() {
-        return Integer.parseInt(environment.getProperty("redis.max.wait..millis", "1000"));
-    }
-
-    public int getRdosSessionExpired() {
-        return Integer.parseInt(environment.getProperty("web.session.expired", "1800"));
-    }
-
-    public String getRedisSentinel() {
-        return environment.getProperty("redis.sentinel", "");
-    }
-
-    public String getUicToken() {
-        return environment.getProperty("dtuic.token");
-    }
-
-    public boolean isOpenLdapCache(){
-        return Boolean.parseBoolean(environment.getProperty("open.ldap.cache", "true"));
-    }
-
-    /**
-     * ===es====
-     */
-    public String getElasticsearchAddress() {
-        return environment.getProperty("es.address");
-    }
-
-    public String getElasticsearchUsername() {
-        return environment.getProperty("es.username");
-    }
-
-    public String getElasticsearchPassword() {
-        return environment.getProperty("es.password");
-    }
-
-    public String getElasticsearchIndex() {
-        return environment.getProperty("es.index");
-    }
-
-    public String getElasticsearchFetchSize() {
-        return environment.getProperty("es.fetchSize", "500");
-    }
-
-    public String getElasticsearchKeepAlive() {
-        //  默认10分钟
-        return environment.getProperty("es.scroll.keepAlive", "10");
-    }
-
 
     /**
      * ===============hadoop ===============
@@ -256,14 +174,6 @@ public class EnvironmentContext implements InitializingBean {
 
     public String getNodeZkAddress() {
         return environment.getProperty("nodeZkAddress");
-    }
-
-    public int getExeQueueSize() {
-        return Integer.parseInt(environment.getProperty("exeQueueSize", "1"));
-    }
-
-    public boolean isDebug() {
-        return Boolean.parseBoolean(environment.getProperty("isDebug", "false"));
     }
 
     public int getQueueSize() {
@@ -320,24 +230,8 @@ public class EnvironmentContext implements InitializingBean {
         return Long.parseLong(environment.getProperty("jobSubmitExpired", "0"));
     }
 
-    public String getHadoopConfigField() {
-        return environment.getProperty("hadoop.config.field", "confHdfsPath");
-    }
-
-    public String getHadoopConfigHdfsPath() {
-        return environment.getProperty("hadoop.config.hdfsPath", "/dtInsight/console/hadoop_config");
-    }
-
     public String getLocalKerberosDir() {
         return environment.getProperty("local.kerberos.dir", System.getProperty("user.dir") + "/kerberosUploadTempDir");
-    }
-
-    public String getConfigPath() {
-        return environment.getProperty("config.dir", System.getProperty("user.dir") + "/conf/");
-    }
-
-    public long getWorkerNodeTimeout() {
-        return Long.parseLong(environment.getProperty("workerNodeTimeout", "10000"));
     }
 
     public long getJobLogDelay() {
@@ -372,15 +266,6 @@ public class EnvironmentContext implements InitializingBean {
         return Boolean.parseBoolean(environment.getProperty("jobGraphBuilderSwitch", "false"));
     }
 
-    public boolean getJobGraphWhiteList() {
-        return Boolean.parseBoolean(environment.getProperty("jobGraphWhiteList", "false"));
-    }
-
-
-    public boolean openDataClear() {
-        return Boolean.parseBoolean(environment.getProperty("data.clear", "true"));
-    }
-
     public Integer getJobExecutorPoolCorePoolSize() {
         return Integer.valueOf(environment.getProperty("job.executor.pool.core.size", "10"));
     }
@@ -395,10 +280,6 @@ public class EnvironmentContext implements InitializingBean {
 
     public Integer getJobExecutorPoolQueueSize() {
         return Integer.valueOf(environment.getProperty("job.executor.pool.queue.size", "1000"));
-    }
-
-    public Boolean getOpenConsoleSftp() {
-        return Boolean.parseBoolean(environment.getProperty("console.sftp.open", "true"));
     }
 
     public Integer getRetryFrequency() {
@@ -417,17 +298,6 @@ public class EnvironmentContext implements InitializingBean {
         return environment.getProperty("component.jdbc.replace", "/default");
     }
 
-    public Integer getMaxBatchTask() {
-        return Integer.parseInt(environment.getProperty("max.batch.task", "100"));
-    }
-
-    public Integer getMaxBatchTaskInsert() {
-        return Integer.parseInt(environment.getProperty("max.batch.task.insert", "50"));
-    }
-
-    public Integer getMaxBatchTaskSplInsert() {
-        return Integer.parseInt(environment.getProperty("max.batch.task.sql.insert", "10"));
-    }
 
     public Integer getMinEvictableIdleTimeMillis() {
         return Integer.valueOf(environment.getProperty("dataSource.min.evictable.idle.time.millis", "300000"));
@@ -525,33 +395,8 @@ public class EnvironmentContext implements InitializingBean {
         return Integer.parseInt(environment.getProperty("list.child.task.limit", "20"));
     }
 
-    public boolean getOpenDummy() {
-        return Boolean.parseBoolean(environment.getProperty("open.dummy", "false"));
-    }
-
     public String getPluginPath() {
         return environment.getProperty("plugin.path",  System.getProperty("user.dir") + File.separator +"pluginLibs");
-    }
-
-    public int getMaxTenantSize() {
-        return Integer.parseInt(environment.getProperty("max.tenant.size", "20"));
-    }
-
-    public String getSqlParserDir(){
-        return environment.getProperty("sqlParser.dir","/opt/dtstack/DTPlugin/SqlParser");
-    }
-
-    /**
-     * 是否优先走standalone的组件
-     *
-     * @return
-     */
-    public boolean checkStandalone() {
-        return Boolean.parseBoolean(environment.getProperty("check.standalone", "true"));
-    }
-
-    public Boolean getOpenErrorTop() {
-        return Boolean.parseBoolean(environment.getProperty("open.error.top", "true"));
     }
 
     public int getBatchJobInsertSize() {
@@ -578,14 +423,14 @@ public class EnvironmentContext implements InitializingBean {
         return Integer.parseInt(environment.getProperty("fillData.threadPool.queue.size", "100"));
     }
 
-    public int getFillDataRootTaskMaxLevel() {
-        return Integer.parseInt(environment.getProperty("fillData.max.level.size", "1000"));
-    }
 
     public Integer getFillDataLimitSize() {
         return Integer.parseInt(environment.getProperty("fill.data.limit.size", "2000"));
     }
 
+    public int getFillDataRootTaskMaxLevel() {
+        return Integer.parseInt(environment.getProperty("fillData.max.level.size", "1000"));
+    }
 
     /* datadevelop */
 
@@ -664,6 +509,4 @@ public class EnvironmentContext implements InitializingBean {
     public void afterPropertiesSet() throws Exception {
         ClientCache.setUserDir(getDataSourcePluginPath());
     }
-
-
 }

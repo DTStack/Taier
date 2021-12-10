@@ -128,16 +128,16 @@ public class RdbsExeQueue {
 
         try {
             if (LogStoreFactory.getLogStore() != null) {
-                LogStoreFactory.getLogStore().insert(jobClient.getTaskId(), jobClient.getParamAction().toString(), RdosTaskStatus.SCHEDULED.getStatus());
+                LogStoreFactory.getLogStore().insert(jobClient.getJobId(), jobClient.getParamAction().toString(), RdosTaskStatus.SCHEDULED.getStatus());
             }
-            jobCache.put(jobClient.getTaskId(), jobClient);
+            jobCache.put(jobClient.getJobId(), jobClient);
             waitQueue.put(jobClient);
         } catch (InterruptedException e) {
             LOG.error("", e);
             return null;
         }
 
-        return jobClient.getTaskId();
+        return jobClient.getJobId();
     }
 
     public boolean checkCanSubmit() {
@@ -453,7 +453,7 @@ public class RdbsExeQueue {
                     JobClient jobClient = waitQueue.take();
                     String taskName = jobClient.getJobName();
                     String sql = jobClient.getSql();
-                    String jobId = jobClient.getTaskId();
+                    String jobId = jobClient.getJobId();
 
                     RdbsExe rdbsExe = new RdbsExe(taskName, sql, jobId, jobClient.getTaskParams());
                     try {

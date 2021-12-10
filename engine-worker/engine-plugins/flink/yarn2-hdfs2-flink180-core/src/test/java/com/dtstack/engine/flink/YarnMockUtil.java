@@ -119,7 +119,7 @@ public class YarnMockUtil {
             paramAction.setComputeType(1);
         }
 
-        paramAction.setTaskId(taskId);
+        paramAction.setJobId(taskId);
         paramAction.setSqlText(sqlText);
         paramAction.setTenantId(0L);
         paramAction.setTaskParams("{\"test\":\"test\"}");

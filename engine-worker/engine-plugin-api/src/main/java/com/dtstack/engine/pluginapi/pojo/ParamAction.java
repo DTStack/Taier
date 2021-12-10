@@ -36,7 +36,7 @@ public class ParamAction {
 
 	private static final Logger logger = LoggerFactory.getLogger(ParamAction.class);
 
-	private String taskId;
+	private String jobId;
 
 	private String engineTaskId;
 
@@ -61,41 +61,17 @@ public class ParamAction {
 
 	private String groupName;
 
-	//选填参数,如果请求指定集群信息的话需要填写
-	private Map<String, Object> pluginInfo;
-
-	/**
-	 * 0 是从web端发起，1是有内部节点发起，如果是1就会直接执行不会再判断node运行的task任务在进行路由选择
-	 */
-	private Integer requestStart = 0;
-
-	private Integer sourceType;
-
 	private long priority;
 
 	private long generateTime = System.currentTimeMillis();
 
 	private Integer maxRetryNum;
 
-	private long stopJobId;
-
 	private long lackingCount;
 
 	private Long tenantId;
 
-	private Long dtuicTenantId;
-
-	private Long userId;
-
-	private String ldapUserName;
-
-	private String ldapPassword;
-
 	private String deployMode;
-
-	private String dbName;
-
-	private Integer appType;
 
 	/**
 	 * 重试超时时间
@@ -112,46 +88,40 @@ public class ParamAction {
      */
 	private String componentVersion;
 
-	private String businessType;
+	private Map<String, Object> pluginInfo;
 
-    public String getBusinessType() {
-        return businessType;
-    }
+	private Integer type;
 
-    public void setBusinessType(String businessType) {
-        this.businessType = businessType;
-    }
+	public Integer getType() {
+		return type;
+	}
 
-    public String getComponentVersion() {
+	public void setType(Integer type) {
+		this.type = type;
+	}
+
+	public Map<String, Object> getPluginInfo() {
+		return pluginInfo;
+	}
+
+	public void setPluginInfo(Map<String, Object> pluginInfo) {
+		this.pluginInfo = pluginInfo;
+	}
+
+	public String getJobId() {
+		return jobId;
+	}
+
+	public void setJobId(String jobId) {
+		this.jobId = jobId;
+	}
+
+	public String getComponentVersion() {
 		return componentVersion;
 	}
 
 	public void setComponentVersion(String componentVersion) {
 		this.componentVersion = componentVersion;
-	}
-
-	public Integer getAppType() {
-		return appType;
-	}
-
-	public void setAppType(Integer appType) {
-		this.appType = appType;
-	}
-
-	public String getLdapUserName() {
-		return ldapUserName;
-	}
-
-	public void setLdapUserName(String ldapUserName) {
-		this.ldapUserName = ldapUserName;
-	}
-
-	public String getLdapPassword() {
-		return ldapPassword;
-	}
-
-	public void setLdapPassword(String ldapPassword) {
-		this.ldapPassword = ldapPassword;
 	}
 
 	public String getDeployMode() {
@@ -160,30 +130,6 @@ public class ParamAction {
 
 	public void setDeployMode(String deployMode) {
 		this.deployMode = deployMode;
-	}
-
-	public String getDbName() {
-		return dbName;
-	}
-
-	public void setDbName(String dbName) {
-		this.dbName = dbName;
-	}
-
-	public Long getUserId() {
-		return userId;
-	}
-
-	public void setUserId(Long userId) {
-		this.userId = userId;
-	}
-
-	public Integer getRequestStart() {
-		return requestStart;
-	}
-
-	public void setRequestStart(Integer requestStart) {
-		this.requestStart = requestStart;
 	}
 
 	public String getName() {
@@ -224,14 +170,6 @@ public class ParamAction {
 
 	public void setTaskParams(String taskParams) {
 		this.taskParams = taskParams;
-	}
-
-	public String getTaskId() {
-		return taskId;
-	}
-
-	public void setTaskId(String taskId) {
-		this.taskId = taskId;
 	}
 
 	public String getEngineTaskId() {
@@ -276,13 +214,6 @@ public class ParamAction {
 		this.groupName = groupName;
 	}
 
-	public Map<String, Object> getPluginInfo() {
-		return pluginInfo;
-	}
-
-	public void setPluginInfo(Map<String, Object> pluginInfo) {
-		this.pluginInfo = pluginInfo;
-	}
 
 	public long getGenerateTime() {
 		return generateTime;
@@ -316,13 +247,6 @@ public class ParamAction {
 		this.maxRetryNum = maxRetryNum;
 	}
 
-	public long getStopJobId() {
-		return stopJobId;
-	}
-
-	public void setStopJobId(long stopJobId) {
-		this.stopJobId = stopJobId;
-	}
 
 	public long getLackingCount() {
 		return lackingCount;
@@ -340,21 +264,6 @@ public class ParamAction {
 		this.tenantId = tenantId;
 	}
 
-	public Long getDtuicTenantId() {
-		return dtuicTenantId;
-	}
-
-	public void setDtuicTenantId(Long dtuicTenantId) {
-		this.dtuicTenantId = dtuicTenantId;
-	}
-
-	public Integer getSourceType() {
-		return sourceType;
-	}
-
-	public void setSourceType(Integer sourceType) {
-		this.sourceType = sourceType;
-	}
 
 	public long getSubmitExpiredTime() {
 		return submitExpiredTime;

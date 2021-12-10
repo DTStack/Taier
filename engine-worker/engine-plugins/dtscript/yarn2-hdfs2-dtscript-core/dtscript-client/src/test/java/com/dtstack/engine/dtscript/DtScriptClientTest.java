@@ -417,7 +417,7 @@ public class DtScriptClientTest {
     public void testJobLog() throws Exception {
         JobClient jobClient = DataUtil.getJobClient();
 
-        String jobId = jobClient.getTaskId();
+        String jobId = jobClient.getJobId();
 
         JobIdentifier jobIdentifier = PowerMockito.mock(JobIdentifier.class);
         when(jobIdentifier.getEngineJobId()).thenReturn(jobId);
@@ -458,7 +458,7 @@ public class DtScriptClientTest {
         JobIdentifier jobIdentifier = PowerMockito.mock(JobIdentifier.class);
         List<String> results = new ArrayList<>();
 
-        String jobId = jobClient.getTaskId();
+        String jobId = jobClient.getJobId();
         Path remotePath = new Path("/dtInsight/aiworks/staging/application_1605237729642_127145");
 
         FileStatus[] status =  null;

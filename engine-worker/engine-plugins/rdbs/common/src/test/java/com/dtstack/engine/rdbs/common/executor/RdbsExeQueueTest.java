@@ -50,7 +50,7 @@ public class RdbsExeQueueTest {
         BlockingQueue<JobClient> waitQueue = Queues.newLinkedBlockingQueue();
         JobClient jobClient = new JobClient();
         jobClient.setJobName("test");
-        jobClient.setTaskId("test");
+        jobClient.setJobId("test");
         jobClient.setSql("select * from tableTest;");
         jobClient.setTaskParams("{\"task\":\"test\"}");
         waitQueue.add(jobClient);
@@ -63,7 +63,7 @@ public class RdbsExeQueueTest {
     @Test
     public void testSubmit() {
         JobClient jobClient = new JobClient();
-        jobClient.setTaskId("test");
+        jobClient.setJobId("test");
         String submit = rdbsExeQueue.submit(jobClient);
         Assert.assertNotNull(submit);
     }

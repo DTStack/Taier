@@ -111,7 +111,7 @@ public class SyncPluginInfo {
 
         // 数据源keytab
         StringBuilder fileName = new StringBuilder(32);
-        String taskWorkspace = FlinkUtil.getTaskWorkspace(jobClient.getTaskId());
+        String taskWorkspace = FlinkUtil.getTaskWorkspace(jobClient.getJobId());
         String taskKeytabDirPath = taskWorkspace + ConfigConstrant.SP + "resource";
         File taskKeytabDir = new File(taskKeytabDirPath);
         File[] taskKeytabFiles = taskKeytabDir.listFiles();
