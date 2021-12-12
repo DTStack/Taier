@@ -21,8 +21,14 @@ package com.dtstack.batch.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.batch.common.exception.ErrorCode;
 import com.dtstack.batch.common.exception.RdosDefineException;
-import com.dtstack.batch.dao.*;
-import com.dtstack.batch.domain.*;
+import com.dtstack.batch.dao.BatchCatalogueDao;
+import com.dtstack.batch.dao.BatchFunctionDao;
+import com.dtstack.batch.dao.BatchFunctionResourceDao;
+import com.dtstack.batch.domain.BatchCatalogue;
+import com.dtstack.batch.domain.BatchFunction;
+import com.dtstack.batch.domain.BatchFunctionResource;
+import com.dtstack.batch.domain.BatchResource;
+import com.dtstack.batch.domain.ProjectEngine;
 import com.dtstack.batch.dto.BatchFunctionDTO;
 import com.dtstack.batch.engine.rdbms.common.util.SqlFormatUtil;
 import com.dtstack.batch.mapping.TaskTypeEngineTypeMapping;
@@ -33,11 +39,15 @@ import com.dtstack.batch.vo.TaskCatalogueVO;
 import com.dtstack.batch.web.pager.PageQuery;
 import com.dtstack.batch.web.pager.PageResult;
 import com.dtstack.dtcenter.common.constant.PatternConstant;
-import com.dtstack.dtcenter.common.enums.*;
+import com.dtstack.dtcenter.common.enums.CatalogueType;
+import com.dtstack.dtcenter.common.enums.Deleted;
+import com.dtstack.dtcenter.common.enums.FuncType;
+import com.dtstack.dtcenter.common.enums.FunctionType;
+import com.dtstack.dtcenter.common.enums.MultiEngineType;
+import com.dtstack.dtcenter.common.enums.ResourceType;
 import com.dtstack.dtcenter.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.common.util.PublicUtil;
 import com.dtstack.engine.domain.User;
-import com.dtstack.batch.service.console.TenantService;
 import com.dtstack.engine.master.impl.UserService;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
@@ -55,7 +65,12 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -85,14 +100,8 @@ public class BatchFunctionService {
     @Autowired
     private ProjectEngineService projectEngineService;
 
-//    @Autowired
-//    private MultiEngineServiceFactory multiEngineServiceFactory;
-
     @Autowired
     private BatchCatalogueDao batchCatalogueDao;
-
-    @Autowired
-    private TenantService tenantService;
 
     /**
      * 系统函数缓存
@@ -103,10 +112,6 @@ public class BatchFunctionService {
 
     // 创建临时函数
     private static final String CREATE_TEMP_FUNCTION = "create temporary function %s as '%s' using jar '%s';";
-
-    // 删除函数打印使用
-    private static final String LOGGER_DELETE_FUNCTION = "[id : %s , name : %s]";
-
 
     @PostConstruct
     public void init() {

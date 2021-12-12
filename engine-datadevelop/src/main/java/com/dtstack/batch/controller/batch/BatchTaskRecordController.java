@@ -16,13 +16,13 @@
  * limitations under the License.
  */
 
-package com.dtstack.batch.controller;
+package com.dtstack.batch.controller.batch;
 
-import com.dtstack.batch.mapstruct.vo.TaskMapstructTransfer;
+
 import com.dtstack.batch.service.auth.AuthCode;
-import com.dtstack.batch.service.task.impl.BatchTaskResourceService;
-import com.dtstack.batch.web.task.vo.query.BatchTaskResourceGetResourcesVO;
-import com.dtstack.batch.web.task.vo.result.BatchResourceResultVO;
+import com.dtstack.batch.service.task.impl.BatchTaskRecordService;
+import com.dtstack.batch.web.task.vo.query.BatchTaskRecordQueryRecordsVO;
+import com.dtstack.batch.web.task.vo.result.BatchTaskRecordQueryRecordsResultVO;
 import dt.insight.plat.autoconfigure.web.security.permissions.annotation.Security;
 import dt.insight.plat.lang.coc.template.APITemplate;
 import dt.insight.plat.lang.web.R;
@@ -34,26 +34,25 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
-@Api(value = "资源任务管理", tags = {"资源任务管理"})
+@Api(value = "任务操作记录", tags = {"任务操作记录"})
 @RestController
-@RequestMapping(value = "/api/rdos/batch/batchTaskResource")
-public class BatchTaskResourceController {
+@RequestMapping(value = "/api/rdos/batch/batchTaskRecord")
+public class BatchTaskRecordController {
 
     @Autowired
-    private BatchTaskResourceService resourceService;
+    private BatchTaskRecordService recordService;
 
-    @PostMapping(value = "getResources")
-    @ApiOperation("获得 资源-任务 列表")
-    @Security(code = AuthCode.DATADEVELOP_BATCH_TASKMANAGER_QUERY)
-    public R<List<BatchResourceResultVO>> getResources(@RequestBody BatchTaskResourceGetResourcesVO vo) {
-        return new APITemplate<List<BatchResourceResultVO> >() {
+    @PostMapping(value = "queryRecords")
+    @ApiOperation("查询操作记录")
+    @Security(code = AuthCode.MAINTENANCE_BATCH_QUERY)
+    public R<BatchTaskRecordQueryRecordsResultVO> queryRecords(@RequestBody BatchTaskRecordQueryRecordsVO vo) {
+        return new APITemplate<BatchTaskRecordQueryRecordsResultVO>() {
             @Override
-            protected List<BatchResourceResultVO> process() {
-                return TaskMapstructTransfer.INSTANCE.BatchResourceListToBatchResourceResultVOList(resourceService.getResources(vo.getTaskId(),
-                        vo.getProjectId(), vo.getType()));
+            protected BatchTaskRecordQueryRecordsResultVO process() {
+                return recordService.queryRecords(vo .getTaskId(), vo.getCurrentPage(),
+                        vo.getPageSize());
             }
         }.execute();
     }
+
 }

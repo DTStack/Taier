@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.batch.controller;
+package com.dtstack.batch.controller.batch;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.batch.mapstruct.vo.BatchServerLogMapstructTransfer;
