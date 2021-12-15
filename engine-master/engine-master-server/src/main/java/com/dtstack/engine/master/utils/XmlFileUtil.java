@@ -72,7 +72,7 @@ public class XmlFileUtil {
             List<File> xmlFiles = ZipUtil.upzipFile(zipLocation, unzipLocation);
             return CollectionUtils.isEmpty(validXml)? xmlFiles : filterXml(xmlFiles, validXml);
         } catch (Exception e) {
-            LOGGER.error("", e);
+            LOGGER.error(e.getMessage(), e);
             throw new RdosDefineException("Failed to decompress the compressed package");
         }
     }
