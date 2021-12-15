@@ -22,7 +22,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.batch.common.template.Writer;
 import com.dtstack.batch.sync.job.PluginName;
 import com.dtstack.batch.sync.util.ColumnUtil;
-import com.dtstack.dtcenter.common.enums.SftpAuthType;
+import com.dtstack.engine.common.enums.SftpAuthType;
 
 import java.util.Optional;
 

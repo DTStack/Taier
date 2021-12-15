@@ -19,7 +19,7 @@
 package com.dtstack.batch.engine.rdbms.common;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.common.exception.DtCenterDefException;
+import com.dtstack.engine.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.loader.client.ClientCache;
 import com.dtstack.dtcenter.loader.client.IClient;
 import com.dtstack.dtcenter.loader.client.IHdfsFile;
@@ -86,7 +86,7 @@ public class HdfsOperator {
           try {
               canonicalHostName = InetAddress.getLocalHost().getCanonicalHostName();
           } catch (UnknownHostException e) {
-              throw new DtCenterDefException(String.format("获取本地地址失败，原因是：%s", e.getMessage()), e);
+              throw new DtCenterDefException(String.format("获取本地地址失败，原因是：%s", e.getMessage()));
           }
           if(properties!=null){
 		        Set<Map.Entry<Object,Object>> entrys = properties.entrySet();
@@ -267,7 +267,7 @@ public class HdfsOperator {
             IHdfsFile hdfsClient = ClientCache.getHdfs(DataSourceType.HDFS.getVal());
             return hdfsClient.getContentSummary(sourceDTO, targetPath);
         } catch (Exception e) {
-            throw new DtCenterDefException(String.format("获取hdfs文件内容摘要异常!原因是：%s", e.getMessage()), e);
+            throw new DtCenterDefException(String.format("获取hdfs文件内容摘要异常!原因是：%s", e.getMessage()));
         }
     }
 
@@ -285,7 +285,7 @@ public class HdfsOperator {
             IHdfsFile hdfsClient = ClientCache.getHdfs(DataSourceType.HDFS.getVal());
             return hdfsClient.getContentSummary(sourceDTO, targetPaths);
         } catch (Exception e) {
-            throw new DtCenterDefException(String.format("获取hdfs文件内容摘要异常!原因是：%s", e.getMessage()), e);
+            throw new DtCenterDefException(String.format("获取hdfs文件内容摘要异常!原因是：%s", e.getMessage()));
         }
     }
 
@@ -303,7 +303,7 @@ public class HdfsOperator {
             IHdfsFile hdfsClient = ClientCache.getHdfs(DataSourceType.HDFS.getVal());
             hdfsClient.copyDirector(sourceDTO, src, dist);
         } catch (Exception e) {
-            throw new DtCenterDefException(String.format("hdfs内复制文件夹异常!原因是：%s", e.getMessage()), e);
+            throw new DtCenterDefException(String.format("hdfs内复制文件夹异常!原因是：%s", e.getMessage()));
         }
     }
 
@@ -324,7 +324,7 @@ public class HdfsOperator {
             IHdfsFile hdfsClient = ClientCache.getHdfs(DataSourceType.HDFS.getVal());
             hdfsClient.fileMerge(sourceDTO, src, mergePath, fileFormat, maxCombinedFileSize, needCombineFileSizeLimit);
         } catch (Exception e) {
-            throw new DtCenterDefException(String.format("文件合并异常!原因是：%s", e.getMessage()), e);
+            throw new DtCenterDefException(String.format("文件合并异常!原因是：%s", e.getMessage()));
         }
     }
 

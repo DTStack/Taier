@@ -20,6 +20,8 @@ package com.dtstack.engine.pluginapi.util;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.math.BigDecimal;
+
 /**
  * 数字转换
  * Date: 2017/4/21
@@ -28,31 +30,6 @@ import org.apache.commons.lang3.StringUtils;
  */
 
 public class MathUtil {
-
-    public static Long getLongVal(Object obj){
-        if(obj == null){
-            return null;
-        }
-
-        if(obj instanceof String){
-            return Long.valueOf(((String) obj).trim());
-        }else if(obj instanceof Long){
-            return (Long) obj;
-        }else if(obj instanceof Integer){
-            return Long.valueOf(obj.toString());
-        }
-
-        throw new RuntimeException("not support type of " + obj.getClass() + " convert to Long." );
-    }
-
-    public static Long getLongVal(Object obj, Long defaultVal){
-        if(obj == null){
-            return defaultVal;
-        }
-
-        return getLongVal(obj);
-    }
-
 
     public static Integer getIntegerVal(Object obj){
         if(obj == null){
@@ -142,5 +119,107 @@ public class MathUtil {
     public static void main(String[] args) {
         Boolean target = true;
         System.out.println(MathUtil.getBoolean(target, false));
+    }
+
+    public static Long getLongVal(Object obj){
+        if(obj == null){
+            return null;
+        }
+
+        if(obj instanceof String){
+            return Long.valueOf((String) obj);
+        }else if(obj instanceof Long){
+            return (Long) obj;
+        }else if(obj instanceof Integer){
+            return Long.valueOf(obj.toString());
+        }else if(obj instanceof BigDecimal){
+            return ((BigDecimal)obj).longValue();
+        }
+
+        throw new RuntimeException("not support type of " + obj.getClass() + " convert to Long." );
+    }
+
+    public static Long getLongVal(Object obj, long defaultVal){
+        if(obj == null){
+            return defaultVal;
+        }
+
+        return getLongVal(obj);
+    }
+
+    public static Integer getIntegerVal(Object obj, int defaultVal){
+        if(obj == null){
+            return defaultVal;
+        }
+
+        return getIntegerVal(obj);
+    }
+
+    public static Float getFloatVal(Object obj) {
+        if(obj == null){
+            return null;
+        }
+
+        if(obj instanceof String){
+            return Float.valueOf((String) obj);
+        }else if(obj instanceof Float){
+            return (Float) obj;
+        }else if(obj instanceof BigDecimal){
+            return ((BigDecimal)obj).floatValue();
+        }
+
+        throw new RuntimeException("not support type of " + obj.getClass() + " convert to Float." );
+    }
+
+    public static Float getFloatVal(Object obj, float defaultVal) {
+        if (obj == null) {
+            return defaultVal;
+        }
+
+        return getFloatVal(obj);
+    }
+
+    public static Double getDoubleVal(Object obj, double defaultVal){
+        if(obj == null){
+            return defaultVal;
+        }
+
+        return getDoubleVal(obj);
+    }
+
+    public static Boolean getBoolean(Object obj, boolean defaultVal){
+        if(obj == null){
+            return defaultVal;
+        }
+
+        return getBoolean(obj);
+    }
+
+    public static Byte getByte(Object obj){
+        if(obj == null){
+            return null;
+        }
+
+        if(obj instanceof String){
+            return Byte.valueOf((String) obj);
+        }else if(obj instanceof Byte){
+            return (Byte) obj;
+        }
+
+        throw new RuntimeException("not support type of " + obj.getClass() + " convert to Byte." );
+    }
+
+    public static Short getShort(Object obj){
+        if(obj == null){
+            return null;
+        }
+
+        if(obj instanceof String){
+            return Short.valueOf((String) obj);
+        }else if(obj instanceof Short){
+            return (Short) obj;
+        }
+
+        throw new RuntimeException("not support type of " + obj.getClass() + " convert to Short." );
     }
 }

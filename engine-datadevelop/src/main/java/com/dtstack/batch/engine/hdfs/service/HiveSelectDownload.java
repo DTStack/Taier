@@ -20,8 +20,8 @@ package com.dtstack.batch.engine.hdfs.service;
 
 import com.dtstack.batch.engine.rdbms.common.IDownload;
 import com.dtstack.batch.engine.rdbms.service.impl.Engine2DTOService;
-import com.dtstack.dtcenter.common.engine.JdbcInfo;
-import com.dtstack.dtcenter.common.exception.DtCenterDefException;
+import com.dtstack.engine.common.engine.JdbcInfo;
+import com.dtstack.engine.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.loader.IDownloader;
 import com.dtstack.dtcenter.loader.client.ClientCache;
 import com.dtstack.dtcenter.loader.client.IClient;
@@ -216,7 +216,7 @@ public class HiveSelectDownload implements IDownload {
             excludeCol.forEach(index -> data.add(NO_PERMISSION));
             return data;
         } catch (Exception e) {
-            throw new DtCenterDefException(String.format("下载器readNext失败:%s", e.getMessage()), e);
+            throw new DtCenterDefException(String.format("下载器readNext失败:%s", e.getMessage()));
         }
     }
 
