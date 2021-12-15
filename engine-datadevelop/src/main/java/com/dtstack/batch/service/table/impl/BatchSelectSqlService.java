@@ -18,7 +18,7 @@
 
 package com.dtstack.batch.service.table.impl;
 
-import com.dtstack.batch.common.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.BatchHiveSelectSqlDao;
 import com.dtstack.batch.dao.BatchTaskDao;
 import com.dtstack.batch.domain.BatchHiveSelectSql;
@@ -27,8 +27,8 @@ import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.batch.service.job.IBatchSelectSqlService;
 import com.dtstack.batch.vo.ExecuteResultVO;
 import com.dtstack.batch.vo.ExecuteSelectSqlData;
-import com.dtstack.dtcenter.common.enums.ComputeType;
-import com.dtstack.dtcenter.common.exception.DtCenterDefException;
+import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.common.exception.DtCenterDefException;
 import com.dtstack.engine.master.impl.ActionService;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang.StringUtils;

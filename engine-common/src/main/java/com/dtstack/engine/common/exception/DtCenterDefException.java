@@ -19,7 +19,6 @@
 package com.dtstack.engine.common.exception;
 
 import com.dtstack.engine.common.lang.base.Strings;
-import com.dtstack.engine.pluginapi.exception.ExceptionEnums;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -28,6 +27,14 @@ import org.apache.commons.lang3.StringUtils;
 public class DtCenterDefException extends RuntimeException {
     private int code;
 
+    public DtCenterDefException(String message){
+        super(message);
+        this.code = ErrorCode.UNKNOWN_ERROR.getCode();
+    }
+    public DtCenterDefException(String message,Throwable throwable){
+        super(message,throwable);
+        this.code = ErrorCode.UNKNOWN_ERROR.getCode();
+    }
 
     public DtCenterDefException(ExceptionEnums exEnum) {
         super(exEnum.getDescription());
@@ -35,6 +42,7 @@ public class DtCenterDefException extends RuntimeException {
     }
 
     public DtCenterDefException(ExceptionEnums exEnum, String message) {
+
         super(StringUtils.isNotBlank(message) ? message : exEnum.getDescription());
         code = exEnum.getCode();
     }

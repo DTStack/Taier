@@ -18,7 +18,7 @@
 
 package com.dtstack.batch.controller;
 
-import com.dtstack.batch.common.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.batch.mapstruct.vo.BatchSqlMapstructTransfer;
 import com.dtstack.batch.service.auth.AuthCode;
 import com.dtstack.batch.service.table.impl.BatchSelectSqlService;
@@ -57,7 +57,7 @@ public class BatchSelectSqlController {
                             sqlVO.getTaskId(), sqlVO.getTenantId(), sqlVO.getProjectId(), sqlVO.getTenantId(), sqlVO.getUserId(),
                             sqlVO.getIsRoot(), sqlVO.getType(), sqlVO.getSqlId()));
                 } catch (Exception e) {
-                    throw new RdosDefineException(e.getMessage(), e);
+                    throw new RdosDefineException(e.getMessage());
                 }
             }
         }.execute();
@@ -75,7 +75,7 @@ public class BatchSelectSqlController {
                             sqlVO.getTaskId(), sqlVO.getTenantId(), sqlVO.getProjectId(), sqlVO.getTenantId(), sqlVO.getUserId(),
                             sqlVO.getIsRoot(), sqlVO.getType(), sqlVO.getSqlId()));
                 } catch (Exception e) {
-                    throw new RdosDefineException(e.getMessage(), e);
+                    throw new RdosDefineException(e.getMessage());
                 }
             }
         }.execute();
@@ -93,7 +93,7 @@ public class BatchSelectSqlController {
                             sqlVO.getTaskId(), sqlVO.getTenantId(), sqlVO.getProjectId(), sqlVO.getTenantId(), sqlVO.getUserId(),
                             sqlVO.getIsRoot(), sqlVO.getType(), sqlVO.getSqlId()));
                 } catch (Exception e) {
-                    throw new RdosDefineException(e.getMessage(), e);
+                    throw new RdosDefineException(e.getMessage());
                 }
             }
         }.execute();

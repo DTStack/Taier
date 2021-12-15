@@ -18,7 +18,7 @@
 
 package com.dtstack.batch.common.enums;
 
-import com.dtstack.dtcenter.common.exception.DtCenterDefException;
+import com.dtstack.engine.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.google.common.collect.Sets;
 

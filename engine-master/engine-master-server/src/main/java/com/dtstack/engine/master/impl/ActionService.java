@@ -53,10 +53,11 @@ import com.dtstack.engine.master.vo.action.ActionRetryLogVO;
 import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
-import com.dtstack.engine.pluginapi.enums.*;
+import com.dtstack.engine.pluginapi.enums.ComputeType;
+import com.dtstack.engine.pluginapi.enums.EDeployMode;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.pluginapi.exception.ErrorCode;
 import com.dtstack.engine.pluginapi.exception.RdosDefineException;
-import com.dtstack.engine.pluginapi.pojo.ParamAction;
 import com.dtstack.engine.pluginapi.util.PublicUtil;
 import com.google.common.base.Strings;
 import org.apache.commons.collections.CollectionUtils;
@@ -269,7 +270,7 @@ public class ActionService {
         actionParam.put("type",scheduleJob.getType());
         actionParam.put("tenantId", batchTask.getTenantId());
         actionParam.putAll(parseRetryParam(batchTask));
-        if (EJobType.SYNC.getType() == scheduleJob.getTaskType()) {
+        if (EJobType.SYNC.getType().equals(scheduleJob.getTaskType())) {
             //数据同步需要解析是perJob 还是session
             EDeployMode eDeployMode = taskParamsService.parseDeployTypeByTaskParams(batchTask.getTaskParams(),batchTask.getComputeType(), EngineType.Flink.name(),batchTask.getTenantId());
             actionParam.put("deployMode", eDeployMode.getType());

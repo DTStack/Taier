@@ -2548,7 +2548,7 @@ public class ScheduleJobService {
 
         for (final Object idStr : jobIdList) {
             try {
-                final Long id = com.dtstack.dtcenter.common.util.MathUtil.getLongVal(idStr);
+                final Long id = MathUtil.getLongVal(idStr);
                 if (id == null) {
                     throw new RdosDefineException("convert id: " + idStr + " exception.", ErrorCode.SERVER_EXCEPTION);
                 }

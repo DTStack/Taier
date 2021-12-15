@@ -18,7 +18,7 @@
 
 package com.dtstack.batch.sync.format;
 
-import com.dtstack.batch.common.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 
 import java.util.Arrays;
 import java.util.List;

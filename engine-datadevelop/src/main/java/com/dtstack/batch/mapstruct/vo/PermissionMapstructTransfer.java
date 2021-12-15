@@ -21,7 +21,7 @@ package com.dtstack.batch.mapstruct.vo;
 import com.dtstack.batch.vo.RoleVO;
 import com.dtstack.batch.web.permission.vo.result.BatchTreeNodeResultVO;
 import com.dtstack.batch.web.role.vo.result.BatchRoleResultVO;
-import com.dtstack.dtcenter.common.tree.TreeNode;
+import com.dtstack.engine.common.tree.TreeNode;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
