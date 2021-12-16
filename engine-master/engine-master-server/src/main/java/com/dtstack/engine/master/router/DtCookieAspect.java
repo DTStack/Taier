@@ -20,7 +20,7 @@ package com.dtstack.engine.master.router;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.common.util.PublicUtil;
+import com.dtstack.engine.common.util.PublicUtil;
 import org.apache.commons.lang3.ArrayUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;

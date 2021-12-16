@@ -18,13 +18,14 @@
 
 package com.dtstack.batch.service.task.impl;
 
-import com.dtstack.batch.common.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.ReadWriteLockDao;
 import com.dtstack.batch.domain.ReadWriteLock;
 import com.dtstack.batch.vo.ReadWriteLockVO;
-import com.dtstack.dtcenter.common.Callback;
-import com.dtstack.dtcenter.common.enums.ReadWriteLockType;
-import com.dtstack.dtcenter.common.enums.TaskLockStatus;
+import com.dtstack.engine.common.Callback;
+import com.dtstack.engine.common.enums.ReadWriteLockType;
+import com.dtstack.engine.common.enums.TaskLockStatus;
 import com.dtstack.engine.master.impl.UserService;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
@@ -108,7 +109,7 @@ public class ReadWriteLockService {
     private ReadWriteLockVO checkLock(Long userId, long projectId, long relationId, ReadWriteLockType type, int lockVersion, int relationLocalVersion, int relationVersion) {
         ReadWriteLock readWriteLock = readWriteLockDao.getByProjectIdAndRelationIdAndType(projectId, relationId, type.name());
         if (readWriteLock == null) {
-            throw new RdosDefineException("该锁不存在");
+            throw new RdosDefineException(ErrorCode.LOCK_IS_NOT_EXISTS);
         }
         Long modifyUesrId = readWriteLock.getModifyUserId();
         int version = readWriteLock.getVersion();
@@ -137,7 +138,7 @@ public class ReadWriteLockService {
     public ReadWriteLock getReadWriteLock(Long projectId, Long relationId, String type) {
         ReadWriteLock readWriteLock = readWriteLockDao.getByProjectIdAndRelationIdAndType(projectId, relationId, type);
         if (readWriteLock == null) {
-            throw new RdosDefineException("该锁不存在");
+            throw new RdosDefineException(ErrorCode.LOCK_IS_NOT_EXISTS);
         }
         return readWriteLock;
     }
@@ -212,7 +213,7 @@ public class ReadWriteLockService {
             readWriteLockVO.setIsGetLock(true);
             return readWriteLockVO;
         } else {
-            throw new RdosDefineException("锁不存在");
+            throw new RdosDefineException(ErrorCode.LOCK_IS_NOT_EXISTS);
         }
 
     }
@@ -284,7 +285,7 @@ public class ReadWriteLockService {
     private ReadWriteLockVO getLockBasicInfo(long projectId, long relationId, ReadWriteLockType type) {
         ReadWriteLock readWriteLock = readWriteLockDao.getByProjectIdAndRelationIdAndType(projectId, relationId, type.name());
         if (readWriteLock == null) {
-            throw new RdosDefineException("该锁不存在");
+            throw new RdosDefineException(ErrorCode.LOCK_IS_NOT_EXISTS);
         }
         ReadWriteLockVO readWriteLockVO = new ReadWriteLockVO();
         readWriteLockVO.setGmtModified(readWriteLock.getGmtModified());

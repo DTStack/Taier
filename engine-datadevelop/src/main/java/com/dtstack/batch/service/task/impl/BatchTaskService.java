@@ -20,16 +20,17 @@ package com.dtstack.batch.service.task.impl;
 
 
 import com.alibaba.fastjson.*;
+import com.dtstack.batch.common.enums.CatalogueType;
 import com.dtstack.batch.common.enums.EDeployType;
 import com.dtstack.batch.common.enums.PublishTaskStatusEnum;
-import com.dtstack.batch.common.exception.ErrorCode;
-import com.dtstack.batch.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.*;
 import com.dtstack.batch.dao.po.TaskOwnerAndProjectPO;
 import com.dtstack.batch.domain.*;
 import com.dtstack.batch.dto.BatchTaskDTO;
 import com.dtstack.batch.engine.rdbms.common.enums.Constant;
-import com.dtstack.batch.enums.*;
+import com.dtstack.batch.enums.SyncModel;
+import com.dtstack.batch.enums.TaskCreateModelType;
+import com.dtstack.batch.enums.TaskOperateType;
 import com.dtstack.batch.mapping.TaskTypeEngineTypeMapping;
 import com.dtstack.batch.parser.ESchedulePeriodType;
 import com.dtstack.batch.parser.ScheduleCron;
@@ -50,16 +51,13 @@ import com.dtstack.batch.web.task.vo.query.AllProductGlobalSearchVO;
 import com.dtstack.batch.web.task.vo.result.BatchTaskGetComponentVersionResultVO;
 import com.dtstack.batch.web.task.vo.result.BatchTaskGetSupportJobTypesResultVO;
 import com.dtstack.batch.web.task.vo.result.BatchTaskRecentlyRunTimeResultVO;
-import com.dtstack.dtcenter.common.constant.PatternConstant;
-import com.dtstack.dtcenter.common.enums.ESubmitStatus;
-import com.dtstack.dtcenter.common.enums.*;
-import com.dtstack.dtcenter.common.thread.RdosThreadFactory;
-import com.dtstack.dtcenter.common.util.*;
-import com.dtstack.dtcenter.loader.client.ClientCache;
-import com.dtstack.dtcenter.loader.client.IClient;
-import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
-import com.dtstack.engine.common.enums.AppType;
+import com.dtstack.engine.common.constrant.PatternConstant;
+import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.thread.RdosThreadFactory;
+import com.dtstack.engine.common.util.*;
 import com.dtstack.engine.domain.*;
 import com.dtstack.engine.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.dto.UserDTO;
@@ -264,7 +262,7 @@ public class BatchTaskService {
         final List<Dict> yarn = this.dictService.getDictByType(DictType.BATCH_TASK_TYPE_YARN.getValue());
         final List<Pair<Integer, String>> yarnSupportType = yarn.stream().map(dict -> Pair.of(dict.getDictValue(), dict.getDictNameZH())).collect(Collectors.toList());
 
-        final List<Dict> libraDict = this.dictService.getDictByType(DictType.BATCH_TASK_TYPE_LIBRA.getValue());
+        final List<Dict> libraDict = this.dictService.getDictByType(DictType.BATCH_TASK_TYPE_GaussDB.getValue());
         final List<Pair<Integer, String>> libraSupportType = libraDict.stream().map(dict -> Pair.of(dict.getDictValue(), dict.getDictNameZH())).collect(Collectors.toList());
 
         jobSupportTypeMap.put(EDeployType.YARN.getType(), yarnSupportType);
@@ -964,7 +962,8 @@ public class BatchTaskService {
         if (set.contains(taskId)) {
             BatchTask task = batchTaskDao.getOne(taskId);
             if (Objects.nonNull(task)) {
-                throw new RdosDefineException(String.format("%s任务发生依赖闭环", task.getName()));
+                logger.error(" {} 任务发生依赖闭环", task.getName());
+                throw new RdosDefineException(ErrorCode.TASK_DEPENDENCY_LOOP);
             }
         }
         node.add(taskId);
@@ -1281,7 +1280,7 @@ public class BatchTaskService {
         String taskCommitId = "";
         logger.info("待发布任务提交完毕，commitId：{}", taskCommitId);
         if (StringUtils.isBlank(taskCommitId)) {
-            throw new RdosDefineException("engine返回commitId为空");
+            throw new RdosDefineException(ErrorCode.ENGINE_RETURN_NULL);
         }
 
         // 判断任务依赖关系
@@ -1290,7 +1289,8 @@ public class BatchTaskService {
             // 判断任务关系是否正常
             // 失败情况：1、任务成环  2、依赖的任务已经被删除
             if (BooleanUtils.isFalse(saveTaskTaskVO.getSave())) {
-                throw new RdosDefineException(saveTaskTaskVO.getMsg());
+                logger.error("任务保存失败,信息是[{}]",saveTaskTaskVO.getMsg());
+                throw new RdosDefineException(ErrorCode.TASK_SAVE_ERROR);
             }
         }
 
@@ -1302,7 +1302,7 @@ public class BatchTaskService {
                 saveRecordAndUpdateSubmitStatus(task, projectId, userId, TaskOperateType.COMMIT.getType(), ESubmitStatus.SUBMIT.getStatus());
             } catch (Exception e) {
                 logger.error("send task error {} ", task.getId(), e);
-                throw new RdosDefineException(String.format("任务提交异常：%s", e.getMessage()), e);
+                throw new RdosDefineException(ErrorCode.TASK_SUBMIT_ERROR);
             }
         }
         if (StringUtils.isBlank(commitId)) {
@@ -1372,7 +1372,7 @@ public class BatchTaskService {
         String versionSqlText = StringUtils.EMPTY;
 
         if (EJobType.SPARK_SQL.getVal().intValue() == task.getTaskType().intValue()
-                || EJobType.LIBRA_SQL.getVal().intValue() == task.getTaskType().intValue()
+                || EJobType.GaussDB_SQL.getVal().intValue() == task.getTaskType().intValue()
                 || EJobType.HIVE_SQL.getVal().intValue() == task.getTaskType().intValue()) {
             // 语法检测
             List<BatchTaskParam> taskParamsToReplace = batchTaskParamService.getTaskParam(task.getId());
@@ -1614,7 +1614,7 @@ public class BatchTaskService {
         try {
             task = PublicUtil.objectToObject(param, BatchTaskBatchVO.class);
         } catch (IOException e) {
-            throw new RdosDefineException(e.getMessage(), e);
+            throw new RdosDefineException(e.getMessage());
         }
         task.setModifyUserId(param.getUserId());
         task.setVersion(Objects.isNull(param.getVersion()) ? 0 : param.getVersion());
@@ -1759,8 +1759,8 @@ public class BatchTaskService {
             if (param.getDataSourceId() == null) {
                 throw new RdosDefineException("Carbon SQL任务必须关联数据源.", ErrorCode.INVALID_PARAMETERS);
             }
-        } else if (EJobType.LIBRA_SQL.getVal().equals(param.getTaskType())) {
-            engineType = EngineType.Libra.getVal();
+        } else if (EJobType.GaussDB_SQL.getVal().equals(param.getTaskType())) {
+            engineType = EngineType.GaussDB.getVal();
         } else if (EJobType.HIVE_SQL.getVal().equals(param.getTaskType())) {
             //HiveSql任务匹配
             engineType = EngineType.HIVE.getVal();
@@ -2031,7 +2031,7 @@ public class BatchTaskService {
 
         // 需要代码注释模版的任务类型
         Set<Integer> shouldNoteSqlTypes = Sets.newHashSet(EJobType.SPARK_SQL.getVal(), EJobType.CARBON_SQL.getVal(),
-                EJobType.LIBRA_SQL.getVal(), EJobType.IMPALA_SQL.getVal());
+                EJobType.GaussDB_SQL.getVal(), EJobType.IMPALA_SQL.getVal());
 
         if (EJobType.PYTHON.getVal().equals(task.getTaskType())
                 || EJobType.SHELL.getVal().equals(task.getTaskType())) {
@@ -2325,7 +2325,7 @@ public class BatchTaskService {
                 try {
                     scheduleCron = ScheduleFactory.parseFromJson(scConf);
                 } catch (Exception e) {
-                    throw new RdosDefineException(e.getMessage(), e);
+                    throw new RdosDefineException(e.getMessage());
                 }
                 period = scheduleCron.getPeriodType();
             }

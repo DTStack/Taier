@@ -21,8 +21,8 @@ package com.dtstack.batch.service.impl;
 import com.dtstack.batch.common.enums.CatalogueType;
 import com.dtstack.engine.domain.User;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.batch.common.exception.ErrorCode;
-import com.dtstack.batch.common.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.*;
 import com.dtstack.batch.domain.*;
 import com.dtstack.batch.dto.BatchResourceAddDTO;
@@ -35,9 +35,9 @@ import com.dtstack.batch.vo.BatchResourceVO;
 import com.dtstack.batch.vo.CatalogueVO;
 import com.dtstack.batch.web.pager.PageQuery;
 import com.dtstack.batch.web.pager.PageResult;
-import com.dtstack.dtcenter.common.enums.Deleted;
-import com.dtstack.dtcenter.common.enums.ResourceType;
-import com.dtstack.dtcenter.common.util.PublicUtil;
+import com.dtstack.engine.common.enums.Deleted;
+import com.dtstack.engine.common.enums.ResourceType;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.master.impl.UserService;
 import com.google.common.base.Preconditions;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +46,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import java.io.File;
@@ -116,7 +115,7 @@ public class BatchResourceService {
         //重新上传资源
         if (resourceId != null) {
             batchResource = resourceDB;
-            if (batchResource == null || batchResource.getIsDeleted() == Deleted.DELETED.getStatus()) {
+            if (batchResource == null || batchResource.getIsDeleted().equals(Deleted.DELETED.getStatus())) {
                 throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_RESOURCE);
             }
             batchResource.setResourceDesc(batchResourceAddDTO.getResourceDesc());
@@ -132,7 +131,7 @@ public class BatchResourceService {
                 batchResource = PublicUtil.objectToObject(batchResourceAddDTO, BatchResource.class);
                 batchResource.setOriginFileName(batchResourceAddDTO.getOriginalFilename());
             } catch (IOException e) {
-                throw new RdosDefineException(String.format("转化失败：%s", e.getMessage()), e);
+                throw new RdosDefineException(String.format("转化失败：%s", e.getMessage()));
             }
             batchResource.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
         }
