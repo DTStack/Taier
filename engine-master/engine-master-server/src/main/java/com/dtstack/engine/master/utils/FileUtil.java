@@ -18,16 +18,26 @@
 
 package com.dtstack.engine.master.utils;
 
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.kerby.kerberos.kerb.keytab.Keytab;
+import org.apache.kerby.kerberos.kerb.type.base.PrincipalName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
+import java.util.List;
 
 /**
  * @author yuebai
  * @date 2020-05-25
  */
 public class FileUtil {
+    public static final Logger LOGGER = LoggerFactory.getLogger(FileUtil.class);
 
     /**
      * 解析文件 每一行带换行符
+     *
      * @param filePath
      * @return
      * @throws FileNotFoundException
@@ -37,7 +47,7 @@ public class FileUtil {
         if (file.exists()) {
             StringBuilder content = new StringBuilder();
             String line;
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)))){
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
                 while ((line = reader.readLine()) != null) {
                     content.append(line).append(System.lineSeparator());
                 }
@@ -47,5 +57,22 @@ public class FileUtil {
             return content.toString();
         }
         throw new FileNotFoundException("File " + filePath + " not exists.");
+    }
+
+    public static List<PrincipalName> getPrincipal(File file) {
+        if (file == null || !file.exists()) {
+            throw new RdosDefineException("The current keytab file does not exist");
+        }
+        Keytab keytab = null;
+        try {
+            keytab = Keytab.loadKeytab(file);
+        } catch (IOException e) {
+            LOGGER.error("Keytab loadKeytab error ", e);
+            throw new RdosDefineException("Failed to parse keytab file");
+        }
+        if (keytab == null || CollectionUtils.isEmpty(keytab.getPrincipals())) {
+            throw new RdosDefineException("The current keytab file does not contain principal information");
+        }
+        return keytab.getPrincipals();
     }
 }
