@@ -19,13 +19,11 @@
 package com.dtstack.batch.controller;
 
 
-import com.dtstack.batch.service.auth.AuthCode;
 import com.dtstack.batch.service.task.impl.BatchTaskRecordService;
 import com.dtstack.batch.web.task.vo.query.BatchTaskRecordQueryRecordsVO;
 import com.dtstack.batch.web.task.vo.result.BatchTaskRecordQueryRecordsResultVO;
-import dt.insight.plat.autoconfigure.web.security.permissions.annotation.Security;
-import dt.insight.plat.lang.coc.template.APITemplate;
-import dt.insight.plat.lang.web.R;
+import com.dtstack.engine.common.lang.coc.APITemplate;
+import com.dtstack.engine.common.lang.web.R;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +42,6 @@ public class BatchTaskRecordController {
 
     @PostMapping(value = "queryRecords")
     @ApiOperation("查询操作记录")
-    @Security(code = AuthCode.MAINTENANCE_BATCH_QUERY)
     public R<BatchTaskRecordQueryRecordsResultVO> queryRecords(@RequestBody BatchTaskRecordQueryRecordsVO vo) {
         return new APITemplate<BatchTaskRecordQueryRecordsResultVO>() {
             @Override
