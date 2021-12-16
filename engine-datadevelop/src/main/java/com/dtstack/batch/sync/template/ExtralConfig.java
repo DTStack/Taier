@@ -19,7 +19,7 @@
 package com.dtstack.batch.sync.template;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.batch.common.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.HashMap;
@@ -57,7 +57,7 @@ public abstract class ExtralConfig {
             }
             return map;
         } catch (Exception e) {
-            throw new RdosDefineException("数据同步高级配置JSON格式错误", e);
+            throw new RdosDefineException("数据同步高级配置JSON格式错误");
         }
     }
 
@@ -65,7 +65,7 @@ public abstract class ExtralConfig {
         try {
             JSONObject.parseObject(getExtralConfig());
         } catch (Exception e) {
-            throw new RdosDefineException("数据同步高级配置JSON格式错误", e);
+            throw new RdosDefineException("数据同步高级配置JSON格式错误");
         }
     }
 }

@@ -19,9 +19,6 @@
 package com.dtstack.engine.common.exception;
 
 
-import com.dtstack.engine.pluginapi.exception.ErrorCode;
-import com.dtstack.engine.pluginapi.exception.ExceptionEnums;
-
 /**
  * 业务异常
  *

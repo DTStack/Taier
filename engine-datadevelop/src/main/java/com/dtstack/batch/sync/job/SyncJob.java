@@ -21,9 +21,9 @@ package com.dtstack.batch.sync.job;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
-import com.dtstack.batch.common.exception.ErrorCode;
-import com.dtstack.batch.common.exception.RdosDefineException;
-import com.dtstack.dtcenter.common.util.Base64Util;
+import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.Base64Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;

@@ -18,7 +18,7 @@
 
 package com.dtstack.batch.engine.rdbms.common;
 
-import com.dtstack.batch.common.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.RandomAccessFile;
@@ -72,14 +72,14 @@ public class TemplateFileDownload implements IDownload {
         try {
             aFile = new RandomAccessFile(filePath, MODE);
         } catch (Exception e) {
-            throw new RdosDefineException(String.format("文件找不到，原因是：%s", e.getMessage()), e);
+            throw new RdosDefineException(String.format("文件找不到，原因是：%s", e.getMessage()));
         }
         inChannel = aFile.getChannel();
         buf = ByteBuffer.allocate(bufferSize);
         try {
             bytesRead = inChannel.read(buf);
         } catch (Exception e) {
-            throw new RdosDefineException(String.format("读取字节异常，原因是：%s", e.getMessage()), e);
+            throw new RdosDefineException(String.format("读取字节异常，原因是：%s", e.getMessage()));
         }
         //Java.nio.charset.Charset处理了字符转换问题。它通过构造CharsetEncoder和CharsetDecoder将字符序列转换成字节和逆转换。
         Charset charset = Charset.forName(CODE);
@@ -107,7 +107,7 @@ public class TemplateFileDownload implements IDownload {
         try {
             bytesRead = inChannel.read(buf);
         } catch (Exception e) {
-            throw new RdosDefineException(String.format("readNext异常，原因是：%s", e.getMessage()), e);
+            throw new RdosDefineException(String.format("readNext异常，原因是：%s", e.getMessage()));
         }
         return sb.toString();
     }

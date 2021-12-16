@@ -19,8 +19,8 @@
 package com.dtstack.batch.mapping;
 
 import com.dtstack.batch.common.enums.HiveVersion;
-import com.dtstack.batch.common.exception.RdosDefineException;
-import com.dtstack.dtcenter.common.enums.EJobType;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.google.common.collect.Maps;
 

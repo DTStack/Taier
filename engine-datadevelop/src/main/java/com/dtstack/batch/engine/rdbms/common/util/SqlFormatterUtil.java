@@ -18,7 +18,7 @@
 
 package com.dtstack.batch.engine.rdbms.common.util;
 
-import com.dtstack.dtcenter.common.util.Base64Util;
+import com.dtstack.engine.common.util.Base64Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

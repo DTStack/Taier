@@ -23,7 +23,7 @@ import com.dtstack.batch.engine.hdfs.service.BatchSparkHiveSqlExeService;
 import com.dtstack.batch.service.table.ISqlExeService;
 import com.dtstack.batch.vo.ExecuteResultVO;
 import com.dtstack.batch.vo.ExecuteSqlParseVO;
-import com.dtstack.dtcenter.common.enums.EJobType;
+import com.dtstack.engine.common.enums.EJobType;
 import org.springframework.stereotype.Service;
 
 /**
