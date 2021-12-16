@@ -19,8 +19,8 @@
 package com.dtstack.batch.service.datasource.impl;
 
 import com.dtstack.batch.service.multiengine.EngineInfo;
-import com.dtstack.dtcenter.common.enums.EJobType;
-import com.dtstack.dtcenter.common.enums.EScriptType;
+import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.enums.EScriptType;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 
 import java.util.List;

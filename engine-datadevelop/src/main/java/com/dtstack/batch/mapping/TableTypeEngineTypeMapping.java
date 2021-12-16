@@ -19,8 +19,8 @@
 package com.dtstack.batch.mapping;
 
 import com.dtstack.batch.common.enums.ETableType;
-import com.dtstack.batch.common.exception.RdosDefineException;
-import com.dtstack.dtcenter.common.enums.MultiEngineType;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.enums.MultiEngineType;
 import com.google.common.collect.Maps;
 
 import java.util.Map;

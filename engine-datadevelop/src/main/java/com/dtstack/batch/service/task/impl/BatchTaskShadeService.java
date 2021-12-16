@@ -22,7 +22,7 @@ import com.dtstack.batch.dao.BatchTaskShadeDao;
 import com.dtstack.batch.dao.BatchTaskVersionDao;
 import com.dtstack.batch.domain.BatchTaskVersionDetail;
 import com.dtstack.batch.web.task.vo.result.BatchTaskShadePageQueryResultVO;
-import com.dtstack.dtcenter.common.annotation.Forbidden;
+import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.domain.User;
 import com.dtstack.engine.dto.ScheduleTaskShadeDTO;

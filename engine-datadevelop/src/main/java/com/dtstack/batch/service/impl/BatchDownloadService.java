@@ -20,7 +20,7 @@ package com.dtstack.batch.service.impl;
 
 import com.csvreader.CsvWriter;
 import com.dtstack.batch.common.enums.TempJobType;
-import com.dtstack.batch.common.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.BatchHiveSelectSqlDao;
 import com.dtstack.batch.domain.BatchHiveSelectSql;
 import com.dtstack.batch.engine.hdfs.service.SyncDownload;
@@ -29,15 +29,13 @@ import com.dtstack.batch.enums.DownloadType;
 import com.dtstack.batch.mapping.TaskTypeEngineTypeMapping;
 //import com.dtstack.batch.service.datasource.impl.BatchDataSourceService;
 import com.dtstack.batch.service.table.IDataDownloadService;
-import com.dtstack.dtcenter.common.enums.ComputeType;
-import com.dtstack.dtcenter.common.enums.Deleted;
-import com.dtstack.dtcenter.common.enums.EJobType;
-import com.dtstack.dtcenter.common.enums.MultiEngineType;
-import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.common.enums.Deleted;
+import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.master.vo.action.ActionLogVO;
 import com.dtstack.engine.master.vo.action.ActionRetryLogVO;
 import com.dtstack.engine.master.impl.ActionService;
-import com.fasterxml.jackson.databind.deser.DataFormatReaders;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
@@ -195,7 +193,7 @@ public class BatchDownloadService {
 
         if (EJobType.VIRTUAL.getVal().equals(taskType)
                 || EJobType.WORK_FLOW.getVal().equals(taskType)
-                || EJobType.LIBRA_SQL.getVal().equals(taskType)
+                || EJobType.GaussDB_SQL.getVal().equals(taskType)
                 || EJobType.TIDB_SQL.getVal().equals(taskType)
                 || EJobType.GREENPLUM_SQL.getVal().equals(taskType)) {
             throw new RdosDefineException("(虚节点、工作流、LIBRA_SQL、greenplum SQL)的任务日志不支持下载");

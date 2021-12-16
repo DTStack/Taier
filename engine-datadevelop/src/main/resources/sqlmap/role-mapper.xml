@@ -141,7 +141,7 @@
         </if>
     </select>
 
-    <select id="listByTenantIdAndProjectIdAndRoleName" parameterType="com.dtstack.dtcenter.common.pager.PageQuery"
+    <select id="listByTenantIdAndProjectIdAndRoleName" parameterType="com.dtstack.engine.common.pager.PageQuery"
             resultType="com.dtstack.batch.domain.Role">
         SELECT
         <include refid="select_content_fragment"/>

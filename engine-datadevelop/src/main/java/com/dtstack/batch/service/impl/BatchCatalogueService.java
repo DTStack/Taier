@@ -21,8 +21,8 @@ package com.dtstack.batch.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.batch.common.enums.CatalogueType;
 import com.dtstack.batch.common.enums.EngineCatalogueType;
-import com.dtstack.batch.common.exception.ErrorCode;
-import com.dtstack.batch.common.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.BatchCatalogueDao;
 import com.dtstack.batch.dao.BatchDataCatalogueDao;
 import com.dtstack.batch.dao.BatchFunctionDao;
@@ -46,13 +46,13 @@ import com.dtstack.batch.vo.ProjectEngineVO;
 import com.dtstack.batch.vo.ReadWriteLockVO;
 import com.dtstack.batch.vo.TaskResourceParam;
 import com.dtstack.batch.web.task.vo.result.BatchTaskGetComponentVersionResultVO;
-import com.dtstack.dtcenter.common.enums.CatalogueLevel;
-import com.dtstack.dtcenter.common.enums.ComputeType;
-import com.dtstack.dtcenter.common.enums.Deleted;
-import com.dtstack.dtcenter.common.enums.DictType;
-import com.dtstack.dtcenter.common.enums.EJobType;
-import com.dtstack.dtcenter.common.enums.MultiEngineType;
-import com.dtstack.dtcenter.common.enums.ReadWriteLockType;
+import com.dtstack.engine.common.enums.CatalogueLevel;
+import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.common.enums.Deleted;
+import com.dtstack.engine.common.enums.DictType;
+import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.enums.MultiEngineType;
+import com.dtstack.engine.common.enums.ReadWriteLockType;
 import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.engine.master.impl.UserService;
 import com.google.common.collect.Lists;
@@ -392,7 +392,7 @@ public class BatchCatalogueService {
     private List<BatchCatalogue> initTemplateCatalogue(Catalogue sc1, Long tenantId, Long userId, List<Integer> supportEngineType) {
         int taskType = 0;
         if (supportEngineType.size() == 1 && supportEngineType.contains(MultiEngineType.LIBRA.getType())) {
-            taskType = EJobType.LIBRA_SQL.getVal();
+            taskType = EJobType.GaussDB_SQL.getVal();
         } else {
             taskType = EJobType.SPARK_SQL.getVal();
         }

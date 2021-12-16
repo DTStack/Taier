@@ -18,7 +18,7 @@
 
 package com.dtstack.batch.sync.handler;
 
-import com.dtstack.batch.common.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;

@@ -18,7 +18,7 @@
 
 package com.dtstack.batch.engine.rdbms.common;
 
-import com.dtstack.batch.common.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 
 /**
  * shixi
@@ -30,7 +30,7 @@ public class OracleDownloadBuilder {
         try {
             oracleDownload = new OracleDownload(sql, dtuicTenantId, schema);
         } catch (Exception e) {
-            throw new RdosDefineException(String.format("文件不存在，原因是：%s", e.getMessage()), e);
+            throw new RdosDefineException(String.format("文件不存在，原因是：%s", e.getMessage()));
         }
         return oracleDownload;
     }

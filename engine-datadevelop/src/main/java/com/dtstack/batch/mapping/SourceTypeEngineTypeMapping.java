@@ -18,7 +18,7 @@
 
 package com.dtstack.batch.mapping;
 
-import com.dtstack.dtcenter.common.enums.MultiEngineType;
+import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.google.common.collect.Maps;
 

@@ -21,7 +21,7 @@ package com.dtstack.batch.sync.template;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.batch.common.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
