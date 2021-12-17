@@ -18,6 +18,7 @@
 
 package com.dtstack.engine.master.impl;
 
+import com.dtstack.engine.common.enums.EScheduleJobType;
 import com.dtstack.engine.domain.ComponentConfig;
 import com.dtstack.engine.domain.ScheduleDict;
 import com.dtstack.engine.mapper.ComponentConfigMapper;
@@ -149,5 +150,21 @@ public class ScheduleDictService {
             }
         }
         return clientTemplates;
+    }
+
+    public String convertVersionNameToValue(String componentVersion, Integer taskType) {
+        if (StringUtils.isBlank(componentVersion)) {
+            return "";
+        }
+        EScheduleJobType scheduleJobType = EScheduleJobType.getTaskType(taskType);
+        EComponentType componentType = scheduleJobType.getComponentType();
+        Integer dictType = DictType.getByEComponentType(componentType);
+        if (null != dictType) {
+            ScheduleDict versionDict = getByNameAndValue(dictType, componentVersion.trim(), null, null);
+            if (null != versionDict) {
+                return versionDict.getDictValue();
+            }
+        }
+        return "";
     }
 }

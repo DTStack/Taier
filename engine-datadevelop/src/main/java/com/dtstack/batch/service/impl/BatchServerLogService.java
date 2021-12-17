@@ -216,7 +216,7 @@ public class BatchServerLogService {
                 if (CollectionUtils.isNotEmpty(engineEntities)) {
                     engineJobId =  engineEntities.get(0).getEngineJobId();
                 }
-                this.parseIncreInfo(info, jobStr, tenantId, engineJobId, job.getExecStartTime().getTime(), job.getExecEndTime().getTime(),scheduleTaskShade.getTaskParams());
+                this.parseIncreInfo(info, jobStr, tenantId, engineJobId, job.getExecStartTime().getTime(), job.getExecEndTime().getTime(),"");
             }
         }
 
@@ -698,7 +698,7 @@ public class BatchServerLogService {
         final ScheduleTaskShade scheduleTaskShade = this.scheduleTaskShadeService.findTaskId(taskId, null, AppType.RDOS.getType());
 
         final SyncStatusLogInfoVO syncStatusLogInfoVO = new SyncStatusLogInfoVO();
-        final Pair<String, String> prometheusHostAndPort = this.getPrometheusHostAndPort(dtUicTenantId,scheduleTaskShade.getTaskParams());
+        final Pair<String, String> prometheusHostAndPort = this.getPrometheusHostAndPort(dtUicTenantId,"");
         if (prometheusHostAndPort == null){
             return syncStatusLogInfoVO;
         }
@@ -736,7 +736,7 @@ public class BatchServerLogService {
          ScheduleTaskShade scheduleTaskShade = this.scheduleTaskShadeService.findTaskId(taskId, null, AppType.RDOS.getType());
 
          SyncErrorCountInfoVO countInfoVO = new SyncErrorCountInfoVO();
-         Pair<String, String> prometheusHostAndPort = this.getPrometheusHostAndPort(dtUicTenantId,scheduleTaskShade.getTaskParams());
+         Pair<String, String> prometheusHostAndPort = this.getPrometheusHostAndPort(dtUicTenantId,"");
         if (prometheusHostAndPort == null){
             return countInfoVO;
         }

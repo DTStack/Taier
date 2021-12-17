@@ -122,7 +122,7 @@ public class ClientCache {
                 }
 
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             LOGGER.error("-------job.pluginInfo is empty, either can't find plugin('In console is the typeName') which engineType:{}", engineType, e);
             throw new IllegalArgumentException("job.pluginInfo is empty, either can't find plugin('In console is the typeName') which engineType:" + engineType);
         }

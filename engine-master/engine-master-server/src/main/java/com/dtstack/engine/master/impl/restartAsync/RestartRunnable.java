@@ -20,8 +20,8 @@ package com.dtstack.engine.master.impl.restartAsync;
 
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleJobOperatorRecord;
-import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.common.enums.OperatorType;
+import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.mapper.ScheduleJobJobDao;
 import com.dtstack.engine.mapper.ScheduleJobOperatorRecordDao;
 import com.dtstack.engine.mapper.ScheduleTaskShadeDao;
