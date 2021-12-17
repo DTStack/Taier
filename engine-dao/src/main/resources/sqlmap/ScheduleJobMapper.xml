@@ -20,4 +20,38 @@
             </foreach>
         GROUP BY fill_id,status
     </select>
+
+    <select id="getByTaskIdAndStatusOrderByIdLimit" resultType="ScheduleJob">
+        SELECT
+        *
+        FROM schedule_job job
+        WHERE job.task_id = #{taskId} and  #{time} > STR_TO_DATE(job.cyc_time,"%Y%m%d%H%i%s")
+        and job.status = #{status}
+        and job.is_deleted = 0
+        <if test="type !=null">
+            and job.type = #{type}
+        </if>
+        order by job.cyc_time desc limit 1
+    </select>
+
+    <select id="listJobByStatusAddressAndPhaseStatus"
+            resultType="com.dtstack.engine.domain.po.SimpleScheduleJobPO">
+        SELECT id, job_id, type, phase_status
+        FROM schedule_job
+        WHERE id > #{startId} AND (node_address = #{nodeAddress} or node_address is null)
+        <if test="statuses != null">
+            AND status IN
+            <foreach item="status" index="index" collection="statuses" open="(" separator="," close=")">
+                #{status}
+            </foreach>
+        </if>
+        AND is_deleted = 0
+        AND `phase_status` = #{phaseStatus}
+        order by id asc limit 500
+    </select>
+
+    <update id="updateJobStatusAndExecTime">
+        update schedule_job set gmt_modified=now(), exec_end_time=now(), status=#{status}, exec_time=timestampdiff(SECOND, exec_start_time, now()) where job_id=#{jobId};
+    </update>
+
 </mapper>

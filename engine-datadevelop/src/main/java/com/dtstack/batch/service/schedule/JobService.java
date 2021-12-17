@@ -1,14 +1,15 @@
 package com.dtstack.batch.service.schedule;
 
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.batch.mapstruct.fill.FillDataJobMapstructTransfer;
 import com.dtstack.batch.vo.fill.FillDataJobReturnListVO;
 import com.dtstack.batch.vo.fill.FillDataJobVO;
 import com.dtstack.batch.vo.fill.FillDataReturnListVO;
+import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.domain.ScheduleFillDataJob;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.po.CountFillDataJobStatusPO;
@@ -326,4 +327,9 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         }
         return Boolean.TRUE;
     }
+
+    public ScheduleJob getScheduleJob(String jobId){
+        return getBaseMapper().selectOne(Wrappers.lambdaQuery(ScheduleJob.class).eq(ScheduleJob::getJobId, jobId));
+    }
+
 }
