@@ -359,7 +359,7 @@ public class ScheduleJobController {
     }
 
     @RequestMapping(value = "/testTrigger", method = {RequestMethod.POST})
-    public void testTrigger(@RequestParam("jobId") String jobId) {
+    public void testTrigger(@RequestParam("jobId") String jobId) throws Exception{
         scheduleJobService.testTrigger(jobId);
     }
 

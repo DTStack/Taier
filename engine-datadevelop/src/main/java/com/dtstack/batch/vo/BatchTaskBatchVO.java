@@ -49,7 +49,6 @@ public class BatchTaskBatchVO extends ScheduleTaskVO {
         this.setOwnerUserId(task.getOwnerUserId());
         this.setModifyUserId(task.getModifyUserId());
         this.setUserId(task.getUserId());
-        this.setEngineType(task.getEngineType());
         this.setName(task.getName());
         this.setNodePid(task.getNodePid());
         this.setScheduleConf(task.getScheduleConf());
@@ -63,9 +62,6 @@ public class BatchTaskBatchVO extends ScheduleTaskVO {
         this.setIsDeleted(task.getIsDeleted());
         this.setTenantId(task.getTenantId());
         this.setTaskDesc(task.getTaskDesc());
-        this.setMainClass(task.getMainClass());
-        this.setExeArgs(task.getExeArgs());
-        this.setSubmitStatus(task.getSubmitStatus());
         this.setFlowId(task.getFlowId());
         this.setTaskVOS(task.getTaskVOS());
         this.setProjectName(task.getProjectName());
@@ -74,51 +70,9 @@ public class BatchTaskBatchVO extends ScheduleTaskVO {
     }
 
 
-    public BatchTaskBatchVO(BatchTask task) {
-        this.setComputeType(task.getComputeType());
-        this.setCreateUserId(task.getCreateUserId());
-        this.setOwnerUserId(task.getOwnerUserId());
-        this.setModifyUserId(task.getModifyUserId());
-        this.setUserId(task.getModifyUserId());
-        this.setEngineType(task.getEngineType());
-        this.setName(task.getName());
-        this.setNodePid(task.getNodePid());
-        this.setScheduleConf(task.getScheduleConf());
-        this.setScheduleStatus(task.getScheduleStatus());
-        this.setSqlText(task.getSqlText());
-        this.setTaskParams(task.getTaskParams());
-        this.setTaskType(task.getTaskType());
-        this.setGmtCreate(task.getGmtCreate());
-        this.setGmtModified(task.getGmtModified());
-        this.setId(task.getId());
-        this.setIsDeleted(task.getIsDeleted());
-        this.setTenantId(task.getTenantId());
-        this.setTaskDesc(task.getTaskDesc());
-        this.setMainClass(task.getMainClass());
-        this.setExeArgs(task.getExeArgs());
-        this.setSubmitStatus(task.getSubmitStatus());
-        this.setFlowId(task.getFlowId());
-        init();
-    }
 
-    public BatchTaskBatchVO(ScheduleTaskShade taskShade, boolean getSimpleParams) {
-        BeanUtils.copyProperties(taskShade, this);
-        init();
-        if (getSimpleParams) {
-            //精简不需要的参数（尤其是长字符串）
-            setSqlText(EMPYT);
-            setTaskDesc(EMPYT);
-            setTaskParams(EMPYT);
-            setExeArgs(EMPYT);
-            setMainClass(EMPYT);
-            setScheduleConf(EMPYT);
-        }
-    }
 
-    public BatchTaskBatchVO(BatchTaskForFillDataDTO task) {
-        BeanUtils.copyProperties(task, this);
-        init();
-    }
+
 
     private void init() {
 

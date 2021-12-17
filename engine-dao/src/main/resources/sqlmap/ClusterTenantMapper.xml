@@ -76,7 +76,7 @@
                t.tenant_name,
                et.queue_id
         from console_cluster_tenant et
-                 left join console_dtuic_tenant t
+                 left join tenant t
                            on et.tenant_id = t.id
         where et.cluster_id = #{clusterId}
           and et.is_deleted = 0

@@ -82,7 +82,7 @@ public class ClusterController {
     })
     @GetMapping(value = "/getCluster")
     public ClusterVO getCluster(@RequestParam("clusterId") Long clusterId) {
-        return clusterService.getCluster(clusterId, true, true, true);
+        return clusterService.getConsoleClusterInfo(clusterId);
     }
 
 
