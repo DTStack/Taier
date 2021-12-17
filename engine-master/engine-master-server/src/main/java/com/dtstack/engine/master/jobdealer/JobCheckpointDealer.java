@@ -19,24 +19,24 @@
 package com.dtstack.engine.master.jobdealer;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.common.queue.DelayBlockingQueue;
 import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.domain.EngineJobCheckpoint;
 import com.dtstack.engine.mapper.EngineJobCacheDao;
 import com.dtstack.engine.mapper.EngineJobCheckpointDao;
-import com.dtstack.engine.pluginapi.constrant.JobResultConstant;
-import com.dtstack.engine.pluginapi.enums.EngineType;
-import com.dtstack.engine.common.queue.DelayBlockingQueue;
-import com.dtstack.engine.pluginapi.util.MathUtil;
-import com.dtstack.engine.pluginapi.util.PublicUtil;
-import com.dtstack.engine.pluginapi.CustomThreadFactory;
-import com.dtstack.engine.pluginapi.JobIdentifier;
-import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
-import com.dtstack.engine.domain.EngineJobCheckpoint;
 import com.dtstack.engine.mapper.ScheduleJobDao;
 import com.dtstack.engine.master.WorkerOperator;
-import com.dtstack.engine.master.jobdealer.bo.JobCheckpointInfo;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ScheduleDictService;
 import com.dtstack.engine.master.impl.TaskParamsService;
+import com.dtstack.engine.master.jobdealer.bo.JobCheckpointInfo;
+import com.dtstack.engine.pluginapi.CustomThreadFactory;
+import com.dtstack.engine.pluginapi.JobIdentifier;
+import com.dtstack.engine.pluginapi.constrant.JobResultConstant;
+import com.dtstack.engine.pluginapi.enums.EngineType;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.engine.pluginapi.util.MathUtil;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
 import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -51,7 +51,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -270,8 +269,7 @@ public class JobCheckpointDealer implements InitializingBean {
             try {
 //                String componentVersionValue = scheduleDictService.convertVersionNameToValue(jobIdentifier.getComponentVersion(), jobIdentifier.getEngineType());
                 String pluginInfo = clusterService.pluginInfoJSON(jobIdentifier.getTenantId(),
-                        null, jobIdentifier.getUserId(), jobIdentifier.getDeployMode(),
-                        null).toJSONString();
+                        null, jobIdentifier.getDeployMode(),null).toJSONString();
                 retainedNum = getRetainedNumFromPluginInfo(pluginInfo);
             } catch (Exception e) {
                 LOGGER.info("get checkpoint plugin info {} error", taskId, e);
@@ -279,7 +277,7 @@ public class JobCheckpointDealer implements InitializingBean {
             try {
                 taskEngineIdAndRetainedNum.put(jobIdentifier.getEngineJobId(), retainedNum);
 
-                JobCheckpointInfo taskInfo = new JobCheckpointInfo(computeType, taskId, jobIdentifier, engineTypeName, checkpointInterval);
+                JobCheckpointInfo taskInfo = new JobCheckpointInfo(computeType, taskId, jobIdentifier, checkpointInterval);
 
                 delayBlockingQueue.put(taskInfo);
                 queuePutRecord.put(taskId, jobIdentifier.getEngineJobId());

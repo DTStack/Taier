@@ -1496,11 +1496,11 @@ public class BatchTaskService {
         scheduleTaskShadeDTO.setScheduleStatus(EScheduleStatus.NORMAL.getVal());
         if (StringUtils.isNotEmpty(batchTask.getScheduleConf())) {
             JSONObject scheduleConfig = JSONObject.parseObject(batchTask.getScheduleConf());
-            if (scheduleConfig != null) {
+    /*        if (scheduleConfig != null) {
                 scheduleTaskShadeDTO.setIsExpire(scheduleConfig.getBooleanValue("isExpire") ? 1 : 0);
             } else {
                 scheduleTaskShadeDTO.setIsExpire(0);
-            }
+            }*/
         }
         return scheduleTaskShadeDTO;
     }
@@ -1618,7 +1618,6 @@ public class BatchTaskService {
         }
         task.setModifyUserId(param.getUserId());
         task.setVersion(Objects.isNull(param.getVersion()) ? 0 : param.getVersion());
-        task.setEngineType(engineType);
         task.parsePeriodType();
         task = this.updateTask(task, param.getIsEditBaseInfo());
         TaskCatalogueVO taskCatalogueVO = new TaskCatalogueVO(task, task.getNodePid());
@@ -2141,16 +2140,12 @@ public class BatchTaskService {
             throw new RdosDefineException("名称只能由字母、数据、中文、下划线组成", ErrorCode.INVALID_PARAMETERS);
         }
 
-        if (task.getSubmitStatus() == null) {
-            task.setSubmitStatus(ESubmitStatus.UNSUBMIT.getStatus());
-        }
 
         task.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
         BatchTask batchTask = this.batchTaskDao.getByName(task.getName(), null);
 
         boolean isAdd = false;
         if (task.getId() > 0) {//update
-            task.setSubmitStatus(null);
             BatchTask specialTask = this.getOne(task.getId());
             if (task.getTaskType() == null) {
                 task.setTaskType(specialTask.getTaskType());
@@ -2223,7 +2218,7 @@ public class BatchTaskService {
             record.setOperateTime(new Timestamp(System.currentTimeMillis()));
             batchTaskRecordService.saveTaskRecord(record);
 
-            parseCreateTaskExeArgs(task);
+//            parseCreateTaskExeArgs(task);
 
             //新增锁
             ReadWriteLockVO readWriteLockVO = this.readWriteLockService.getLock(
@@ -2265,11 +2260,6 @@ public class BatchTaskService {
         if (StringUtils.isBlank(task.getTaskDesc())) {
             task.setTaskDesc("");
         }
-
-        if (StringUtils.isBlank(task.getMainClass())) {
-            task.setMainClass("");
-        }
-
         if (StringUtils.isBlank(task.getTaskParams())) {
             task.setTaskParams("");
         }
@@ -2292,10 +2282,6 @@ public class BatchTaskService {
             task.setVersion(0);
         }
 
-        if (StringUtils.isBlank(task.getExeArgs())) {
-            task.setExeArgs("");
-        }
-
         if (task.getOwnerUserId() == null) {
             task.setOwnerUserId(task.getUserId());
         }
@@ -2310,10 +2296,9 @@ public class BatchTaskService {
         if (EJobType.CARBON_SQL.getVal().equals(task.getTaskType())) {
             task.setTaskParams(getDefaultTaskParam(task.getTenantId(), EngineType.Carbon.getVal(), task.getComputeType(), task.getTaskType()));
         } else {
-            task.setTaskParams(getDefaultTaskParam(task.getTenantId(), task.getEngineType(), task.getComputeType(), task.getTaskType()));
+            task.setTaskParams(getDefaultTaskParam(task.getTenantId(), -1, task.getComputeType(), task.getTaskType()));
         }
         task.setScheduleStatus(EScheduleStatus.NORMAL.getVal());
-        task.setSubmitStatus(ESubmitStatus.UNSUBMIT.getStatus());
         task.setPeriodType(DEFAULT_SCHEDULE_PERIOD);
         String scConf = DEFAULT_SCHEDULE_CONF;
         int period = DEFAULT_SCHEDULE_PERIOD;
@@ -2343,62 +2328,62 @@ public class BatchTaskService {
      *
      * @param task
      */
-    private void parseCreateTaskExeArgs(final ScheduleTaskVO task) {
-        if (null != task && StringUtils.isNotBlank(task.getExeArgs())) {
-            try {
-                final JSONObject jsonObject = JSON.parseObject(task.getExeArgs());
-                final String opts = jsonObject.getString("--cmd-opts");
-                if (StringUtils.isNotBlank(opts)) {
-                    final String[] opt = opts.split(" ");
-                    List<Map> taskVariables = task.getTaskVariables();
-                    if (Objects.isNull(taskVariables)) {
-                        taskVariables = new ArrayList<>();
-                    }
-                    for (final String exe : opt) {
-                        if (StringUtils.isNotBlank(exe)) {
-                            final String command = exe.trim();
-                            if (command.startsWith("${") && command.endsWith("}")) {
-                                final String line = command.substring(2, command.indexOf("}")).trim();
-                                final BatchSysParameter batchSysParamByName = this.batchSysParamService.getBatchSysParamByName(line);
-                                boolean hasAdd = false;
-                                final Map<String, String> variable = new HashMap<>(3);
-                                variable.put("paramName", line);
-                                if (Objects.nonNull(batchSysParamByName)) {
-                                    for (final Map taskVariable : taskVariables) {
-                                        if (batchSysParamByName.getParamName().equalsIgnoreCase((String) taskVariable.get("paramName"))) {
-                                            hasAdd = true;
-                                        }
-                                    }
-                                    if (!hasAdd) {
-                                        //系统参数
-                                        variable.put("paramCommand", batchSysParamByName.getParamCommand());
-                                        variable.put("type", EParamType.SYS_TYPE.getType() + "");
-                                        taskVariables.add(variable);
-                                    }
-
-                                } else {
-                                    //自定义参数
-                                    for (final Map taskVariable : taskVariables) {
-                                        if (line.equalsIgnoreCase((String) taskVariable.get("paramName"))) {
-                                            hasAdd = true;
-                                        }
-                                    }
-                                    if (!hasAdd) {
-                                        variable.put("paramCommand", "$[]");
-                                        variable.put("type", EParamType.CUSTOMIZE_TYPE.getType() + "");
-                                        taskVariables.add(variable);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    task.setTaskVariables(taskVariables);
-                }
-            } catch (final Exception e) {
-                logger.error("parse exeArgs error {} ", task.getExeArgs(), e);
-            }
-        }
-    }
+//    private void parseCreateTaskExeArgs(final ScheduleTaskVO task) {
+//        if (null != task && StringUtils.isNotBlank(task.getExeArgs())) {
+//            try {
+//                final JSONObject jsonObject = JSON.parseObject(task.getExeArgs());
+//                final String opts = jsonObject.getString("--cmd-opts");
+//                if (StringUtils.isNotBlank(opts)) {
+//                    final String[] opt = opts.split(" ");
+//                    List<Map> taskVariables = task.getTaskVariables();
+//                    if (Objects.isNull(taskVariables)) {
+//                        taskVariables = new ArrayList<>();
+//                    }
+//                    for (final String exe : opt) {
+//                        if (StringUtils.isNotBlank(exe)) {
+//                            final String command = exe.trim();
+//                            if (command.startsWith("${") && command.endsWith("}")) {
+//                                final String line = command.substring(2, command.indexOf("}")).trim();
+//                                final BatchSysParameter batchSysParamByName = this.batchSysParamService.getBatchSysParamByName(line);
+//                                boolean hasAdd = false;
+//                                final Map<String, String> variable = new HashMap<>(3);
+//                                variable.put("paramName", line);
+//                                if (Objects.nonNull(batchSysParamByName)) {
+//                                    for (final Map taskVariable : taskVariables) {
+//                                        if (batchSysParamByName.getParamName().equalsIgnoreCase((String) taskVariable.get("paramName"))) {
+//                                            hasAdd = true;
+//                                        }
+//                                    }
+//                                    if (!hasAdd) {
+//                                        //系统参数
+//                                        variable.put("paramCommand", batchSysParamByName.getParamCommand());
+//                                        variable.put("type", EParamType.SYS_TYPE.getType() + "");
+//                                        taskVariables.add(variable);
+//                                    }
+//
+//                                } else {
+//                                    //自定义参数
+//                                    for (final Map taskVariable : taskVariables) {
+//                                        if (line.equalsIgnoreCase((String) taskVariable.get("paramName"))) {
+//                                            hasAdd = true;
+//                                        }
+//                                    }
+//                                    if (!hasAdd) {
+//                                        variable.put("paramCommand", "$[]");
+//                                        variable.put("type", EParamType.CUSTOMIZE_TYPE.getType() + "");
+//                                        taskVariables.add(variable);
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                    task.setTaskVariables(taskVariables);
+//                }
+//            } catch (final Exception e) {
+//                logger.error("parse exeArgs error {} ", task.getExeArgs(), e);
+//            }
+//        }
+//    }
 
     private Integer getLockVersion(final BatchTaskBatchVO task) {
         final Integer lockVersion;

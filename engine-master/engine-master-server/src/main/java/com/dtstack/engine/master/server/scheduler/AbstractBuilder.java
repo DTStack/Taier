@@ -92,7 +92,7 @@ public abstract class AbstractBuilder {
      */
     public List<ScheduleBatchJob> buildJobRunBean(ScheduleTaskShade task, String keyPreStr, EScheduleType scheduleType, boolean needAddFather,
                                                   boolean needSelfDependency, String triggerDay, String jobName, Long createUserId,
-                                                  String beginTime, String endTime, Long tenantId,AtomicInteger count) throws Exception {
+                                                  String beginTime, String endTime, Long tenantId, AtomicInteger count) throws Exception {
 
         String scheduleStr = task.getScheduleConf();
         ScheduleCron scheduleCron = ScheduleFactory.parseFromJson(scheduleStr);

@@ -19,146 +19,130 @@
 package com.dtstack.engine.domain;
 
 
-public class ScheduleTaskShade extends BaseEntity {
+import com.baomidou.mybatisplus.annotation.TableName;
 
+import java.io.Serializable;
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.Objects;
 
+@TableName("schedule_task_shade")
+public class ScheduleTaskShade implements Serializable {
 
     /**
-     * '任务名称'
+     * 唯一标识
+     */
+    private Long id;
+
+    /**
+     * 租户id
+     */
+    private Long tenantId;
+
+    /**
+     * 任务名称
      */
     private String name;
 
     /**
-     * '任务类型 0 sql，1 mr，2 sync ，3 python
+     * 任务类型：
+     * 虚节点:VIRTUAL(-)1,
+     * SparkSQL:SPARK_SQL(0),
+     * Spark:SPARK(1),
+     * 数据同步:SYNC(2),
+     * Shell: SHELL(3),
+     * 工作流:WORK_FLOW(1)
      */
     private Integer taskType;
 
     /**
-     * '计算类型 0实时，1 离线'
+     * 计算类型： 0 批处理，1 流处理
      */
     private Integer computeType;
 
     /**
-     * '执行引擎类型 0 flink, 1 spark'
-     * {@link com.dtstack.engine.api.enums.ScheduleEngineType}
+     * 离线任务id
      */
-    private Integer engineType;
+    private Long taskId;
 
     /**
-     * 'sql 文本'
-     */
-    private String sqlText;
-
-    /**
-     * '任务参数'
-     */
-    private String taskParams;
-
-    /**
-     * 调度配置
+     * 调度规则
      */
     private String scheduleConf;
 
     /**
-     * 周期类型
+     * 调度的任务类型:
+     * 分钟:MIN(0),
+     * 小时:HOUR(1),
+     * 天:DAY(2),
+     * 周:WEEK(3),
+     * 月:MONTH(4),
+     * 自定义cron表达式:CRON(5)
      */
     private Integer periodType;
 
     /**
-     * 调度状态
+     * 调度状态：0 正常 1冻结 2停止
      */
     private Integer scheduleStatus;
 
     /**
-     * 启动:0
-     * 停止:1
+     * 生成日期
      */
-    private Integer projectScheduleStatus;
-
-    private Integer submitStatus;
+    private Timestamp gmtCreate;
 
     /**
-     * 最后修改task的用户
+     * 最近一次修改日期
      */
-    private Long modifyUserId;
+    private Timestamp gmtModified;
 
     /**
-     * 新建task的用户
+     * 创建人
      */
     private Long createUserId;
 
     /**
-     * 负责人id
+     * 最近一次修改人id
      */
-    private Long ownerUserId;
-
-
-    private Long nodePid;
+    private Long modifyUserId;
 
     /**
-     * 任务描述
+     * 版本id
+     */
+    private Integer versionId;
+
+    /**
+     * 是否逻辑删除
+     */
+    private Integer isDeleted;
+
+    /**
+     * 任务备注
      */
     private String taskDesc;
 
     /**
-     * 入口类
-     */
-    private String mainClass;
-
-    private String exeArgs;
-
-    /**
-     * 所属工作流id
+     * 工作流id
      */
     private Long flowId;
 
-
     /**
-     * 作废字段
-     */
-    @Deprecated
-    private Integer isExpire;
-
-    private String businessType;
-
-    /**
-     * 是否发布到了生产环境
-     */
-    private Long isPublishToProduce;
-
-    private String extraInfo;
-
-    private Long taskId;
-
-    /**
-     * batchJob执行的时候的vesion版本
-     */
-    private Integer versionId;
-    /**
-     * 选择的运行组件版本
-     * e.g Flink 110
+     * 任务组件版本
      */
     private String componentVersion;
 
+    /**
+     * 任务运行参数
+     */
+    private String extraInfo;
 
-    private Long tenantId;
+    /**
+     * 任务负责人id
+     */
+    private Long ownerUserId;
 
 
-    public Integer getComputeType() {
-        return computeType;
-    }
-
-    public void setComputeType(Integer computeType) {
-        this.computeType = computeType;
-    }
-
-    public Integer getEngineType() {
-        return engineType;
-    }
-
-    public void setEngineType(Integer engineType) {
-        this.engineType = engineType;
-    }
+    private String sqlText;
 
     public String getSqlText() {
         return sqlText;
@@ -168,12 +152,54 @@ public class ScheduleTaskShade extends BaseEntity {
         this.sqlText = sqlText;
     }
 
-    public String getTaskParams() {
-        return taskParams;
+    private static final long serialVersionUID = 1L;
+
+    public Long getId() {
+        return id;
     }
 
-    public void setTaskParams(String taskParams) {
-        this.taskParams = taskParams;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Integer getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(Integer taskType) {
+        this.taskType = taskType;
+    }
+
+    public Integer getComputeType() {
+        return computeType;
+    }
+
+    public void setComputeType(Integer computeType) {
+        this.computeType = computeType;
+    }
+
+    public Long getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
     }
 
     public String getScheduleConf() {
@@ -200,28 +226,20 @@ public class ScheduleTaskShade extends BaseEntity {
         this.scheduleStatus = scheduleStatus;
     }
 
-    public Integer getProjectScheduleStatus() {
-        return projectScheduleStatus;
+    public Timestamp getGmtCreate() {
+        return gmtCreate;
     }
 
-    public void setProjectScheduleStatus(Integer projectScheduleStatus) {
-        this.projectScheduleStatus = projectScheduleStatus;
+    public void setGmtCreate(Timestamp gmtCreate) {
+        this.gmtCreate = gmtCreate;
     }
 
-    public Integer getSubmitStatus() {
-        return submitStatus;
+    public Timestamp getGmtModified() {
+        return gmtModified;
     }
 
-    public void setSubmitStatus(Integer submitStatus) {
-        this.submitStatus = submitStatus;
-    }
-
-    public Long getModifyUserId() {
-        return modifyUserId;
-    }
-
-    public void setModifyUserId(Long modifyUserId) {
-        this.modifyUserId = modifyUserId;
+    public void setGmtModified(Timestamp gmtModified) {
+        this.gmtModified = gmtModified;
     }
 
     public Long getCreateUserId() {
@@ -232,20 +250,28 @@ public class ScheduleTaskShade extends BaseEntity {
         this.createUserId = createUserId;
     }
 
-    public Long getOwnerUserId() {
-        return ownerUserId;
+    public Long getModifyUserId() {
+        return modifyUserId;
     }
 
-    public void setOwnerUserId(Long ownerUserId) {
-        this.ownerUserId = ownerUserId;
+    public void setModifyUserId(Long modifyUserId) {
+        this.modifyUserId = modifyUserId;
     }
 
-    public Long getNodePid() {
-        return nodePid;
+    public Integer getVersionId() {
+        return versionId;
     }
 
-    public void setNodePid(Long nodePid) {
-        this.nodePid = nodePid;
+    public void setVersionId(Integer versionId) {
+        this.versionId = versionId;
+    }
+
+    public Integer getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(Integer deleted) {
+        isDeleted = deleted;
     }
 
     public String getTaskDesc() {
@@ -256,68 +282,12 @@ public class ScheduleTaskShade extends BaseEntity {
         this.taskDesc = taskDesc;
     }
 
-    public String getMainClass() {
-        return mainClass;
-    }
-
-    public void setMainClass(String mainClass) {
-        this.mainClass = mainClass;
-    }
-
-    public String getExeArgs() {
-        return exeArgs;
-    }
-
-    public void setExeArgs(String exeArgs) {
-        this.exeArgs = exeArgs;
-    }
-
     public Long getFlowId() {
         return flowId;
     }
 
     public void setFlowId(Long flowId) {
         this.flowId = flowId;
-    }
-
-    public Integer getIsExpire() {
-        return isExpire;
-    }
-
-    public void setIsExpire(Integer isExpire) {
-        this.isExpire = isExpire;
-    }
-
-    public String getBusinessType() {
-        return businessType;
-    }
-
-    public void setBusinessType(String businessType) {
-        this.businessType = businessType;
-    }
-
-    public Long getTenantId() {
-        return tenantId;
-    }
-
-    public void setTenantId(Long tenantId) {
-        this.tenantId = tenantId;
-    }
-
-    public Integer getTaskType() {
-        return taskType;
-    }
-
-    public void setTaskType(Integer taskType) {
-        this.taskType = taskType;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getComponentVersion() {
@@ -328,32 +298,6 @@ public class ScheduleTaskShade extends BaseEntity {
         this.componentVersion = componentVersion;
     }
 
-    private Integer taskRule;
-
-    public Integer getVersionId() {
-        return versionId;
-    }
-
-    public void setVersionId(Integer versionId) {
-        this.versionId = versionId;
-    }
-
-    public Long getTaskId() {
-        return taskId;
-    }
-
-    public void setTaskId(Long taskId) {
-        this.taskId = taskId;
-    }
-
-    public Long getIsPublishToProduce() {
-        return isPublishToProduce;
-    }
-
-    public void setIsPublishToProduce(Long isPublishToProduce) {
-        this.isPublishToProduce = isPublishToProduce;
-    }
-
     public String getExtraInfo() {
         return extraInfo;
     }
@@ -362,11 +306,50 @@ public class ScheduleTaskShade extends BaseEntity {
         this.extraInfo = extraInfo;
     }
 
-    public Integer getTaskRule() {
-        return taskRule;
+    public Long getOwnerUserId() {
+        return ownerUserId;
     }
 
-    public void setTaskRule(Integer taskRule) {
-        this.taskRule = taskRule;
+    public void setOwnerUserId(Long ownerUserId) {
+        this.ownerUserId = ownerUserId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ScheduleTaskShade that = (ScheduleTaskShade) o;
+        return Objects.equals(id, that.id) && Objects.equals(tenantId, that.tenantId) && Objects.equals(name, that.name) && Objects.equals(taskType, that.taskType) && Objects.equals(computeType, that.computeType) && Objects.equals(taskId, that.taskId) && Objects.equals(scheduleConf, that.scheduleConf) && Objects.equals(periodType, that.periodType) && Objects.equals(scheduleStatus, that.scheduleStatus) && Objects.equals(gmtCreate, that.gmtCreate) && Objects.equals(gmtModified, that.gmtModified) && Objects.equals(createUserId, that.createUserId) && Objects.equals(modifyUserId, that.modifyUserId) && Objects.equals(versionId, that.versionId) && Objects.equals(isDeleted, that.isDeleted) && Objects.equals(taskDesc, that.taskDesc) && Objects.equals(flowId, that.flowId) && Objects.equals(componentVersion, that.componentVersion) && Objects.equals(extraInfo, that.extraInfo) && Objects.equals(ownerUserId, that.ownerUserId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, tenantId, name, taskType, computeType, taskId, scheduleConf, periodType, scheduleStatus, gmtCreate, gmtModified, createUserId, modifyUserId, versionId, isDeleted, taskDesc, flowId, componentVersion, extraInfo, ownerUserId);
+    }
+
+    @Override
+    public String toString() {
+        return "ScheduleTask{" +
+                "id=" + id +
+                ", tenantId=" + tenantId +
+                ", name='" + name + '\'' +
+                ", taskType=" + taskType +
+                ", computeType=" + computeType +
+                ", taskId=" + taskId +
+                ", scheduleConf='" + scheduleConf + '\'' +
+                ", periodType=" + periodType +
+                ", scheduleStatus=" + scheduleStatus +
+                ", gmtCreate=" + gmtCreate +
+                ", gmtModified=" + gmtModified +
+                ", createUserId=" + createUserId +
+                ", modifyUserId=" + modifyUserId +
+                ", versionId=" + versionId +
+                ", isDeleted=" + isDeleted +
+                ", taskDesc='" + taskDesc + '\'' +
+                ", flowId=" + flowId +
+                ", componentVersion='" + componentVersion + '\'' +
+                ", extraInfo='" + extraInfo + '\'' +
+                ", ownerUserId=" + ownerUserId +
+                '}';
     }
 }
