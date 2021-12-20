@@ -81,7 +81,7 @@ public interface BatchTaskDao {
 
     Integer countAll();
 
-    List<BatchTask> catalogueListBatchTaskByNodePid(@Param("nodePid") long nodePid, @Param("projectId") long projectId);
+    List<BatchTask> catalogueListBatchTaskByNodePid(@Param("nodePid") Long nodePid, @Param("tenantId") Long tenantId);
 
     Integer updateSqlText(BatchTask batchTask);
 

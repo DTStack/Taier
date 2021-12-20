@@ -50,7 +50,7 @@ public class BatchCatalogueController {
         return new APITemplate<BatchCatalogueResultVO>() {
             @Override
             protected BatchCatalogueResultVO process() {
-                CatalogueVO catalogue = batchCatalogueService.addCatalogue(BatchCatalogueMapstructTransfer.INSTANCE.newCatalogueAddVoToCatalogueVo(vo), vo.getProjectId(), vo.getUserId());
+                CatalogueVO catalogue = batchCatalogueService.addCatalogue(BatchCatalogueMapstructTransfer.INSTANCE.newCatalogueAddVoToCatalogueVo(vo));
                 return BatchCatalogueMapstructTransfer.INSTANCE.newCatalogueVoToCatalogueResultVo(catalogue);
             }
         }.execute();
@@ -63,8 +63,7 @@ public class BatchCatalogueController {
         return new APITemplate<BatchCatalogueResultVO>() {
             @Override
             protected BatchCatalogueResultVO process() {
-                CatalogueVO catalogue = batchCatalogueService.getCatalogue(vo.getAppointProjectId(), vo.getProjectId(), vo.getIsGetFile(),
-                        vo.getNodePid(), vo.getCatalogueType(), vo.getUserId().intValue(), vo.getTenantId(), vo.getTaskType(), vo.getParentId());
+                CatalogueVO catalogue = batchCatalogueService.getCatalogue(vo.getIsGetFile(), vo.getNodePid(), vo.getCatalogueType(), vo.getUserId(), vo.getTenantId(), vo.getTaskType(), vo.getParentId());
                 return BatchCatalogueMapstructTransfer.INSTANCE.newCatalogueVoToCatalogueResultVo(catalogue);
             }
         }.execute();
@@ -102,7 +101,7 @@ public class BatchCatalogueController {
         return new APITemplate<Long>() {
             @Override
             protected Long process() {
-                return batchCatalogueService.createCataloguePath(vo.getNameList(), vo.getRootName(), vo.getProjectId(), vo.getUserId());
+                return batchCatalogueService.createCataloguePath(vo.getNameList(), vo.getRootName(), vo.getTenantId());
             }
         }.execute();
     }

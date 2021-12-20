@@ -30,13 +30,10 @@ public class BatchCatalogueAddVO {
     @ApiModelProperty(value = "父目录")
     private BatchCatalogueAddVO parentCatalogue;
 
-    @ApiModelProperty(value = "用户id", hidden = true)
+    @ApiModelProperty(value = "用户id",example = "1")
     private Long userId;
 
-    @ApiModelProperty(value = "项目id", hidden = true)
-    private Long projectId;
-
-    @ApiModelProperty(value = "租户id", hidden = true)
+    @ApiModelProperty(value = "租户id",example = "1")
     private Long tenantId;
 
     @ApiModelProperty(value = "节点名称", example = "a", required = true)
@@ -60,14 +57,8 @@ public class BatchCatalogueAddVO {
     @ApiModelProperty(value = "目录类型", example = "1", required = true)
     private Integer catalogueType;
 
-    @ApiModelProperty(value = "dtuic租户id")
-    private Long dtuicTenantId;
-
-    @ApiModelProperty(value = "app类型", example = "1")
-    private Integer appType;
-
     @ApiModelProperty(value = "id")
-    private Long id = 0L;
+    private Long id;
 
     @ApiModelProperty(value = "创建时间")
     private Timestamp gmtCreate;
@@ -75,6 +66,4 @@ public class BatchCatalogueAddVO {
     @ApiModelProperty(value = "修改时间")
     private Timestamp gmtModified;
 
-    @ApiModelProperty(value = "是否删除")
-    private Integer isDeleted = 0;
 }

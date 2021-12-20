@@ -89,11 +89,11 @@
         </if>
     </select>
 
-    <select id="listByPidAndProjectId" resultType="BatchResource">
+    <select id="listByPidAndTenantId" resultType="BatchResource">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_resource
-        WHERE project_id = #{projectId} and node_pid = #{nodePid} AND is_deleted = 0
+        WHERE tenant_id = #{tenantId} and node_pid = #{nodePid} AND is_deleted = 0
     </select>
 
     <select id="listByProjectId" resultType="BatchResource">

@@ -32,7 +32,7 @@ public interface ReadWriteLockDao {
 
     Integer updateVersionAndModifyUserId(@Param("id") Long id, @Param("version") Integer version, @Param("modifyUserId")Long modifyUserId);
 
-    ReadWriteLock getByProjectIdAndRelationIdAndType(@Param("projectId") long projectId, @Param("relationId") long relationId, @Param("type") String type);
+    ReadWriteLock getByProjectIdAndRelationIdAndType(@Param("tenantId") Long tenantId, @Param("relationId") Long relationId, @Param("type") String type);
 
     List<ReadWriteLock> getLocksByIds(@Param("projectId") long projectId, @Param("type") String type, @Param("relationIds") List<Long> relationIds);
 

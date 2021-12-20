@@ -111,7 +111,7 @@ public enum ErrorCode implements ExceptionEnums {
     RESOURCE_TYPE_NOT_MATCH(138, "资源类型不匹配"),
     PARENT_NODE_NOT_EXISTS(139, "父节点不存在"),
     SUBDIRECTORY_OR_FILE_AMOUNT_RESTRICTIONS(140, "当前目录下直接一层的子目录或者文件的个数总数不可超过2000"),
-    CREATE_PROJECT_CATALOGUE_LEVE(141, "创建目录层级不能大于3"),
+    CREATE_TENANT_CATALOGUE_LEVE(141, "创建目录层级不能大于3"),
     FILE_NAME_REPETITION(142, "同一路径下不能存在同名文件夹"),
 
 

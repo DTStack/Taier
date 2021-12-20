@@ -46,7 +46,7 @@ public interface BatchResourceDao {
 
     List<BatchResource> listByIds(@Param("ids") List<Long> resourceIdList, @Param("isDeleted") Integer isDeleted);
 
-    List<BatchResource> listByPidAndProjectId(@Param("projectId") Long projectId, @Param("nodePid") Long nodePid);
+    List<BatchResource> listByPidAndTenantId(@Param("tenantId") Long tenantId, @Param("nodePid") Long nodePid);
 
     List<BatchResource> listByProjectId(@Param("projectId") long projectId);
 

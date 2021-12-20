@@ -152,8 +152,8 @@ public class ReadWriteLockService {
         readWriteLockDao.deleteByProjectId(projectId, userId);
     }
 
-    public ReadWriteLockVO getDetail(long projectId, long relationId, ReadWriteLockType type, long userId, Long modifyUserId, Timestamp gmtModified) {
-        ReadWriteLock readWriteLock = readWriteLockDao.getByProjectIdAndRelationIdAndType(projectId, relationId, type.name());
+    public ReadWriteLockVO getDetail(Long tenantId, Long relationId, ReadWriteLockType type, Long userId, Long modifyUserId, Timestamp gmtModified) {
+        ReadWriteLock readWriteLock = readWriteLockDao.getByProjectIdAndRelationIdAndType(tenantId, relationId, type.name());
         if (readWriteLock == null) {
             ReadWriteLockVO readWriteLockVO = new ReadWriteLockVO();
             readWriteLockVO.setLastKeepLockUserName(userService.getUserName(modifyUserId));
