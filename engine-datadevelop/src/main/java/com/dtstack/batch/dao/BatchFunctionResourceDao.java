@@ -39,7 +39,7 @@ public interface BatchFunctionResourceDao {
 
     void updateByFunctionId(BatchFunctionResource batchFunctionResource);
 
-    Integer deleteByProjectId(@Param("projectId") Long projectId);
+    Integer deleteByProjectId(@Param("tenantId") Long tenantId);
 
     /**
      * 根据函数id获取函数资源关联关系

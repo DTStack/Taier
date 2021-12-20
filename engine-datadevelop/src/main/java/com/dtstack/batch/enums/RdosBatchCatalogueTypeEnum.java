@@ -29,9 +29,9 @@ public enum RdosBatchCatalogueTypeEnum {
     NORAML(0),
 
     /**
-     * project
+     * tenant
      */
-    PROJECT(1);
+    TENANT(1);
 
     private Integer type;
 

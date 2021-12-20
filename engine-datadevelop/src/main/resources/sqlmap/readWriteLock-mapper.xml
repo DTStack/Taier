@@ -80,7 +80,7 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_read_write_lock
-        WHERE project_id = #{projectId} AND relation_id = #{relationId} AND type = #{type} AND is_deleted = 0 limit 1
+        WHERE tenant_id = #{tenantId} AND relation_id = #{relationId} AND type = #{type} AND is_deleted = 0 limit 1
     </select>
 
     <select id="getLocksByIds" resultType="com.dtstack.batch.domain.ReadWriteLock">

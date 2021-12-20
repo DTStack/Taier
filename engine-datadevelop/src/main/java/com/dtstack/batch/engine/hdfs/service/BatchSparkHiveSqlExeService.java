@@ -18,26 +18,15 @@
 
 package com.dtstack.batch.engine.hdfs.service;
 
-import com.dtstack.batch.bo.ExecuteContent;
-import com.dtstack.batch.common.enums.TempJobType;
-import com.dtstack.batch.common.exception.ErrorCode;
 import com.dtstack.batch.common.exception.RdosDefineException;
-import com.dtstack.batch.domain.ProjectEngine;
 import com.dtstack.batch.engine.rdbms.common.util.SqlFormatUtil;
 import com.dtstack.batch.engine.rdbms.service.IJdbcService;
-import com.dtstack.batch.mapping.DataSourceTypeJobTypeMapping;
 import com.dtstack.batch.service.impl.BatchFunctionService;
 import com.dtstack.batch.service.impl.BatchSqlExeService;
 import com.dtstack.batch.service.impl.ProjectEngineService;
 import com.dtstack.batch.service.table.impl.BatchSelectSqlService;
-import com.dtstack.batch.vo.ExecuteResultVO;
 import com.dtstack.dtcenter.common.enums.EJobType;
-import com.dtstack.dtcenter.common.enums.MultiEngineType;
-import com.dtstack.dtcenter.common.enums.TaskStatus;
-import com.dtstack.dtcenter.loader.source.DataSourceType;
-import com.dtstack.dtcenter.loader.utils.DBUtil;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -45,10 +34,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Connection;
 import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -215,7 +201,7 @@ public class BatchSparkHiveSqlExeService {
         return false;
     }
 
-    protected void checkSingleSqlSyntax(Long projectId, Long dtuicTenantId, String sql, String db, String taskParam, EJobType eJobType) {
+    protected void checkSingleSqlSyntax(Long tenantId, String sql, String db, String taskParam, EJobType eJobType) {
         try {
             if (sql.trim().matches(EXPLAIN_REDEX)) {
                 return;
@@ -229,9 +215,9 @@ public class BatchSparkHiveSqlExeService {
             sql = SqlFormatUtil.init(sql).removeCatalogue().removeLifecycle().getSql();
             String explainSql = "explain " + sql;
             // 处理自定义函数逻辑
-            List<String> functionVariables = batchFunctionService.buildContainFunctions(sql, projectId);
+            List<String> functionVariables = batchFunctionService.buildContainFunctions(sql, tenantId);
             variables.addAll(functionVariables);
-            List<List<Object>> result = jdbcServiceImpl.executeQueryWithVariables(dtuicTenantId, null, eJobType, db, explainSql, variables, taskParam);
+            List<List<Object>> result = jdbcServiceImpl.executeQueryWithVariables(tenantId, null, eJobType, db, explainSql, variables, taskParam);
             if (CollectionUtils.isNotEmpty(result)) {
                 String plan = result.get(1).get(0).toString();
                 if (plan.matches(SQL_EXCEPTION_REDEX)) {

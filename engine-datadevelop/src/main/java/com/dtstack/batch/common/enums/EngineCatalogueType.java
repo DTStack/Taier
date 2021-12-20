@@ -28,12 +28,12 @@ public enum EngineCatalogueType {
     /**
      *
      */
-    SPARK(-1, "SparkSQL"),
+    SPARK(-1, "Spark SQL"),
 
     /**
      *
      */
-    LIBRA(-2, "LibraSQL"),
+    LIBRA(-2, "Libra SQL"),
 
     /**
      *

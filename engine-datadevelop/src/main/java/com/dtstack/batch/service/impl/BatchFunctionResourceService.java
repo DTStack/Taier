@@ -71,16 +71,6 @@ public class BatchFunctionResourceService {
     }
 
     /**
-     * 根据projectId 删除记录
-     *
-     * @param projectId
-     * @return
-     */
-    public Integer deleteByProjectId(Long projectId) {
-        return batchFunctionResourceDao.deleteByProjectId(projectId);
-    }
-
-    /**
      * 根据functionId 删除记录
      *
      * @param functionId

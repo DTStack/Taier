@@ -105,8 +105,8 @@ public interface IJdbcService {
 
     /**
      * 执行查询  传入taskParam
-     * @param dtuicTenantId
-     * @param dtuicUserId
+     * @param tenantId
+     * @param userId
      * @param eJobType
      * @param schema
      * @param sql
@@ -114,7 +114,7 @@ public interface IJdbcService {
      * @param taskParam
      * @return
      */
-    List<List<Object>> executeQueryWithVariables(Long dtuicTenantId, Long dtuicUserId, EJobType eJobType, String schema, String sql, List<String> variables, String taskParam);
+    List<List<Object>> executeQueryWithVariables(Long tenantId, Long userId, EJobType eJobType, String schema, String sql, List<String> variables, String taskParam);
 
     /**
      * 执行查询 返回map结构

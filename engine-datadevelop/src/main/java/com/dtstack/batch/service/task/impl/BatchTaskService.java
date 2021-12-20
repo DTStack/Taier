@@ -19,17 +19,43 @@
 package com.dtstack.batch.service.task.impl;
 
 
-import com.alibaba.fastjson.*;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONPath;
+import com.alibaba.fastjson.TypeReference;
+import com.dtstack.batch.common.enums.CatalogueType;
 import com.dtstack.batch.common.enums.EDeployType;
 import com.dtstack.batch.common.enums.PublishTaskStatusEnum;
 import com.dtstack.batch.common.exception.ErrorCode;
 import com.dtstack.batch.common.exception.RdosDefineException;
-import com.dtstack.batch.dao.*;
+import com.dtstack.batch.dao.BatchCatalogueDao;
+import com.dtstack.batch.dao.BatchFunctionDao;
+import com.dtstack.batch.dao.BatchResourceDao;
+import com.dtstack.batch.dao.BatchTaskDao;
+import com.dtstack.batch.dao.BatchTaskResourceDao;
+import com.dtstack.batch.dao.BatchTaskVersionDao;
+import com.dtstack.batch.dao.ReadWriteLockDao;
 import com.dtstack.batch.dao.po.TaskOwnerAndProjectPO;
-import com.dtstack.batch.domain.*;
+import com.dtstack.batch.domain.BatchCatalogue;
+import com.dtstack.batch.domain.BatchResource;
+import com.dtstack.batch.domain.BatchSysParameter;
+import com.dtstack.batch.domain.BatchTaskParam;
+import com.dtstack.batch.domain.BatchTaskRecord;
+import com.dtstack.batch.domain.BatchTaskResource;
+import com.dtstack.batch.domain.BatchTaskTask;
+import com.dtstack.batch.domain.BatchTaskVersion;
+import com.dtstack.batch.domain.BatchTaskVersionDetail;
+import com.dtstack.batch.domain.Dict;
+import com.dtstack.batch.domain.ProjectEngine;
+import com.dtstack.batch.domain.ReadWriteLock;
 import com.dtstack.batch.dto.BatchTaskDTO;
 import com.dtstack.batch.engine.rdbms.common.enums.Constant;
-import com.dtstack.batch.enums.*;
+import com.dtstack.batch.enums.DependencyType;
+import com.dtstack.batch.enums.EScheduleStatus;
+import com.dtstack.batch.enums.SyncModel;
+import com.dtstack.batch.enums.TaskCreateModelType;
+import com.dtstack.batch.enums.TaskOperateType;
 import com.dtstack.batch.mapping.TaskTypeEngineTypeMapping;
 import com.dtstack.batch.parser.ESchedulePeriodType;
 import com.dtstack.batch.parser.ScheduleCron;
@@ -38,32 +64,62 @@ import com.dtstack.batch.schedule.JobParamReplace;
 import com.dtstack.batch.service.console.TenantService;
 import com.dtstack.batch.service.datasource.impl.BatchDataSourceTaskRefService;
 import com.dtstack.batch.service.datasource.impl.IMultiEngineService;
-import com.dtstack.batch.service.impl.*;
+import com.dtstack.batch.service.impl.BatchFunctionService;
+import com.dtstack.batch.service.impl.BatchResourceService;
+import com.dtstack.batch.service.impl.BatchSqlExeService;
+import com.dtstack.batch.service.impl.BatchSysParamService;
+import com.dtstack.batch.service.impl.DictService;
+import com.dtstack.batch.service.impl.ProjectEngineService;
 import com.dtstack.batch.service.job.ITaskService;
 import com.dtstack.batch.service.job.impl.BatchJobService;
 import com.dtstack.batch.service.table.ISqlExeService;
 import com.dtstack.batch.sync.job.PluginName;
 import com.dtstack.batch.sync.job.SyncJobCheck;
-import com.dtstack.batch.vo.*;
+import com.dtstack.batch.vo.BatchTaskBatchVO;
+import com.dtstack.batch.vo.CheckSyntaxResult;
+import com.dtstack.batch.vo.ReadWriteLockVO;
+import com.dtstack.batch.vo.TaskCatalogueVO;
+import com.dtstack.batch.vo.TaskCheckResultVO;
+import com.dtstack.batch.vo.TaskResourceParam;
 import com.dtstack.batch.web.pager.PageQuery;
 import com.dtstack.batch.web.task.vo.query.AllProductGlobalSearchVO;
 import com.dtstack.batch.web.task.vo.result.BatchTaskGetComponentVersionResultVO;
 import com.dtstack.batch.web.task.vo.result.BatchTaskGetSupportJobTypesResultVO;
 import com.dtstack.batch.web.task.vo.result.BatchTaskRecentlyRunTimeResultVO;
 import com.dtstack.dtcenter.common.constant.PatternConstant;
+import com.dtstack.dtcenter.common.enums.DictType;
+import com.dtstack.dtcenter.common.enums.EJobType;
 import com.dtstack.dtcenter.common.enums.ESubmitStatus;
-import com.dtstack.dtcenter.common.enums.*;
+import com.dtstack.dtcenter.common.enums.EngineType;
+import com.dtstack.dtcenter.common.enums.FuncType;
+import com.dtstack.dtcenter.common.enums.MultiEngineType;
+import com.dtstack.dtcenter.common.enums.ReadWriteLockType;
+import com.dtstack.dtcenter.common.enums.ResourceRefType;
+import com.dtstack.dtcenter.common.enums.TaskLockStatus;
 import com.dtstack.dtcenter.common.thread.RdosThreadFactory;
-import com.dtstack.dtcenter.common.util.*;
-import com.dtstack.dtcenter.loader.client.ClientCache;
-import com.dtstack.dtcenter.loader.client.IClient;
-import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
+import com.dtstack.dtcenter.common.util.DataFilter;
+import com.dtstack.dtcenter.common.util.JsonUtils;
+import com.dtstack.dtcenter.common.util.NameUtil;
+import com.dtstack.dtcenter.common.util.PublicUtil;
 import com.dtstack.engine.common.enums.AppType;
+import com.dtstack.engine.common.enums.Deleted;
+import com.dtstack.engine.common.enums.EParamType;
+import com.dtstack.engine.common.enums.Sort;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.domain.*;
+import com.dtstack.engine.common.util.Base64Util;
+import com.dtstack.engine.domain.BaseEntity;
+import com.dtstack.engine.domain.BatchTask;
+import com.dtstack.engine.domain.Component;
+import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.domain.ScheduleTaskTaskShade;
+import com.dtstack.engine.domain.User;
 import com.dtstack.engine.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.dto.UserDTO;
-import com.dtstack.engine.master.impl.*;
+import com.dtstack.engine.master.impl.ComponentService;
+import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
+import com.dtstack.engine.master.impl.ScheduleTaskTaskShadeService;
+import com.dtstack.engine.master.impl.TaskParamTemplateService;
+import com.dtstack.engine.master.impl.UserService;
 import com.dtstack.engine.master.impl.vo.CronExceptionVO;
 import com.dtstack.engine.master.vo.ScheduleTaskShadeVO;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
@@ -73,6 +129,7 @@ import com.dtstack.engine.master.vo.task.NotDeleteTaskVO;
 import com.dtstack.engine.master.vo.task.SaveTaskTaskVO;
 import com.dtstack.engine.master.vo.template.TaskTemplateResultVO;
 import com.dtstack.engine.pager.PageResult;
+import com.dtstack.engine.pluginapi.util.MathUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -97,7 +154,19 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -2787,27 +2856,27 @@ public class BatchTaskService {
      * @param type
      * @param pid
      * @param isFile
-     * @param projectId
+     * @param tenantId
      */
-    public void checkName(String name, String type, Integer pid, Integer isFile, Long projectId) {
+    public void checkName(String name, String type, Integer pid, Integer isFile, Long tenantId) {
         if (StringUtils.isNotEmpty(name)) {
             if (!isFile.equals(IS_FILE)) {
-                final BatchCatalogue batchCatalogue = this.batchCatalogueDao.getByPidAndName(projectId, pid.longValue(), name);
+                final BatchCatalogue batchCatalogue = this.batchCatalogueDao.getByPidAndName(tenantId, pid.longValue(), name);
                 if (batchCatalogue != null) {
                     throw new RdosDefineException("文件夹已存在", ErrorCode.NAME_ALREADY_EXIST);
                 }
             } else {
                 final Object obj;
                 if (type.equals(CatalogueType.TASK_DEVELOP.name())) {
-                    obj = this.batchTaskDao.getByName(name, projectId);
+                    obj = this.batchTaskDao.getByName(name, tenantId);
                 } else if (type.equals(CatalogueType.RESOURCE_MANAGER.name())) {
-                    obj = this.batchResourceDao.listByNameAndProjectId(projectId, name, Deleted.NORMAL.getStatus());
+                    obj = this.batchResourceDao.listByNameAndProjectId(tenantId, name, Deleted.NORMAL.getStatus());
                 } else if (type.equals(CatalogueType.CUSTOM_FUNCTION.name())) {
-                    obj = this.batchFunctionDao.listByNameAndProjectId(projectId, name, FuncType.CUSTOM.getType());
+                    obj = this.batchFunctionDao.listByNameAndTenantId(tenantId, name, FuncType.CUSTOM.getType());
                 } else if (type.equals(CatalogueType.PROCEDURE_FUNCTION.name())) {
-                    obj = this.batchFunctionDao.listByNameAndProjectId(projectId, name, FuncType.PROCEDURE.getType());
+                    obj = this.batchFunctionDao.listByNameAndTenantId(tenantId, name, FuncType.PROCEDURE.getType());
                 } else if (type.equals(CatalogueType.GREENPLUM_CUSTOM_FUNCTION.name())) {
-                    obj = this.batchFunctionDao.listByNameAndProjectId(projectId, name, FuncType.CUSTOM.getType());
+                    obj = this.batchFunctionDao.listByNameAndTenantId(tenantId, name, FuncType.CUSTOM.getType());
                 } else if (type.equals(CatalogueType.SYSTEM_FUNCTION.name())) {
                     throw new RdosDefineException("不能添加系统函数");
                 } else {

@@ -42,6 +42,6 @@ public class BatchCataloguePathVO {
     @ApiModelProperty(value = "用户id", hidden = true)
     private Long userId;
 
-    @ApiModelProperty(value = "项目id", hidden = true)
-    private Long projectId;
+    @ApiModelProperty(value = "租户id", hidden = true)
+    private Long tenantId;
 }
