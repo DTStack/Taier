@@ -18,17 +18,15 @@
 
 package com.dtstack.batch.controller;
 
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.batch.mapstruct.vo.BatchSqlMapstructTransfer;
-import com.dtstack.batch.service.auth.AuthCode;
 import com.dtstack.batch.service.table.impl.BatchSelectSqlService;
 import com.dtstack.batch.web.table.vo.query.BatchSelectSqlVO;
 import com.dtstack.batch.web.table.vo.result.BatchExecuteDataResultVO;
 import com.dtstack.batch.web.table.vo.result.BatchExecuteRunLogResultVO;
 import com.dtstack.batch.web.table.vo.result.BatchExecuteStatusResultVO;
-import dt.insight.plat.autoconfigure.web.security.permissions.annotation.Security;
-import dt.insight.plat.lang.coc.template.APITemplate;
-import dt.insight.plat.lang.web.R;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.lang.coc.APITemplate;
+import com.dtstack.engine.common.lang.web.R;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +45,6 @@ public class BatchSelectSqlController {
 
     @PostMapping(value = "selectData")
     @ApiOperation("获取执行结果")
-    @Security(code = AuthCode.DATAMANAGER_HANDLERECORD)
     public R<BatchExecuteDataResultVO> selectData(@RequestBody BatchSelectSqlVO sqlVO) {
         return new APITemplate<BatchExecuteDataResultVO>() {
             @Override
@@ -65,7 +62,6 @@ public class BatchSelectSqlController {
 
     @PostMapping(value = "selectStatus")
     @ApiOperation("获取执行状态")
-    @Security(code = AuthCode.DATAMANAGER_HANDLERECORD)
     public R<BatchExecuteStatusResultVO> selectStatus(@RequestBody BatchSelectSqlVO sqlVO) {
         return new APITemplate<BatchExecuteStatusResultVO>() {
             @Override
@@ -83,7 +79,6 @@ public class BatchSelectSqlController {
 
     @PostMapping(value = "selectRunLog")
     @ApiOperation("获取执行日志")
-    @Security(code = AuthCode.DATAMANAGER_HANDLERECORD)
     public R<BatchExecuteRunLogResultVO> selectRunLog(@RequestBody BatchSelectSqlVO sqlVO) {
         return new APITemplate<BatchExecuteRunLogResultVO>() {
             @Override
