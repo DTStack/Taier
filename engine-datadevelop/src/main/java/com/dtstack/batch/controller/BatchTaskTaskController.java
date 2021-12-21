@@ -19,17 +19,15 @@
 package com.dtstack.batch.controller;
 
 import com.dtstack.batch.mapstruct.vo.TaskMapstructTransfer;
-import com.dtstack.batch.service.auth.AuthCode;
 import com.dtstack.batch.service.task.impl.BatchTaskTaskService;
 import com.dtstack.batch.web.task.vo.query.BatchScheduleTaskResultVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskTaskAddOrUpdateVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskTaskDisplayOffSpringVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskTaskFindTaskRuleTaskVO;
 import com.dtstack.batch.web.task.vo.result.BatchTaskTaskFindTaskRuleTaskResultVO;
-import dt.insight.plat.autoconfigure.web.security.permissions.annotation.Security;
-import dt.insight.plat.lang.coc.template.APITemplate;
-import dt.insight.plat.lang.exception.biz.BizException;
-import dt.insight.plat.lang.web.R;
+import com.dtstack.engine.common.exception.BizException;
+import com.dtstack.engine.common.lang.coc.APITemplate;
+import com.dtstack.engine.common.lang.web.R;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +60,6 @@ public class BatchTaskTaskController {
 
     @PostMapping(value = "displayOffSpring")
     @ApiOperation("所有的任务关联关系的显示都是基于已经发布的任务数据")
-    @Security(code = AuthCode.MAINTENANCE_BATCH_QUERY)
     public R<BatchScheduleTaskResultVO> displayOffSpring(@RequestBody BatchTaskTaskDisplayOffSpringVO taskVO) {
         return new APITemplate<BatchScheduleTaskResultVO>() {
             @Override
