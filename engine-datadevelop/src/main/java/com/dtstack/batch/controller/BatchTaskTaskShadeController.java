@@ -19,16 +19,14 @@
 package com.dtstack.batch.controller;
 
 import com.dtstack.batch.mapstruct.vo.TaskMapstructTransfer;
-import com.dtstack.batch.service.auth.AuthCode;
 import com.dtstack.batch.web.task.vo.query.BatchScheduleTaskResultVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskTaskGetAllFlowSubTasksVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskTaskShadeAddOrUpdateVO;
 import com.dtstack.engine.common.enums.base.AppType;
-import com.dtstack.engine.master.vo.ScheduleTaskVO;
+import com.dtstack.engine.common.lang.coc.APITemplate;
+import com.dtstack.engine.common.lang.web.R;
 import com.dtstack.engine.master.impl.ScheduleTaskTaskShadeService;
-import dt.insight.plat.autoconfigure.web.security.permissions.annotation.Security;
-import dt.insight.plat.lang.coc.template.APITemplate;
-import dt.insight.plat.lang.web.R;
+import com.dtstack.engine.master.vo.ScheduleTaskVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +45,6 @@ public class BatchTaskTaskShadeController {
 
     @PostMapping(value = "addOrUpdateTaskTask")
     @ApiOperation("添加或者修改任务之间的关系")
-    @Security(code = AuthCode.MAINTENANCE_BATCH_QUERY)
     public R<BatchScheduleTaskResultVO> addOrUpdateTaskTask(@RequestBody BatchTaskTaskShadeAddOrUpdateVO shadeVO) {
         return new APITemplate<BatchScheduleTaskResultVO>() {
             @Override
@@ -62,7 +59,6 @@ public class BatchTaskTaskShadeController {
 
     @PostMapping(value = "getAllFlowSubTasks")
     @ApiOperation("查询工作流全部节点信息")
-    @Security(code = AuthCode.MAINTENANCE_BATCH_QUERY)
     public R<BatchScheduleTaskResultVO> getAllFlowSubTasks(@RequestBody BatchTaskTaskGetAllFlowSubTasksVO shadeVO) {
         return new APITemplate<BatchScheduleTaskResultVO>() {
             @Override
