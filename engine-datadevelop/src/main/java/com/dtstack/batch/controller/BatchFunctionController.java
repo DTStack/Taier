@@ -19,16 +19,14 @@
 package com.dtstack.batch.controller;
 
 import com.dtstack.batch.mapstruct.vo.FunctionMapstructTransfer;
-import com.dtstack.batch.service.auth.AuthCode;
 import com.dtstack.batch.service.impl.BatchFunctionService;
 import com.dtstack.batch.vo.TaskCatalogueVO;
 import com.dtstack.batch.web.function.vo.query.*;
 import com.dtstack.batch.web.function.vo.result.BatchFunctionAddResultVO;
 import com.dtstack.batch.web.function.vo.result.BatchFunctionQueryResultVO;
 import com.dtstack.batch.web.pager.PageResult;
-import dt.insight.plat.autoconfigure.web.security.permissions.annotation.Security;
-import dt.insight.plat.lang.coc.template.APITemplate;
-import dt.insight.plat.lang.web.R;
+import com.dtstack.engine.common.lang.coc.APITemplate;
+import com.dtstack.engine.common.lang.web.R;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +47,6 @@ public class BatchFunctionController {
 
     @PostMapping(value = "getFunction")
     @ApiOperation(value = "获取函数")
-    @Security(code = AuthCode.DATADEVELOP_BATCH_FUNCTIONMANAGER)
     public R<BatchFunctionQueryResultVO> getFunction(@RequestBody BatchFunctionBaseVO vo) {
         return new APITemplate<BatchFunctionQueryResultVO>() {
             @Override
@@ -62,7 +59,6 @@ public class BatchFunctionController {
 
     @PostMapping(value = "getEngineIdentity")
     @ApiOperation(value = "获取引擎标识")
-    @Security(code = AuthCode.DATADEVELOP_BATCH_FUNCTIONMANAGER)
     public R<String> getEngineIdentity(@RequestBody BatchFunctionIdentityVO vo) {
         return new APITemplate<String>() {
             @Override
@@ -74,7 +70,6 @@ public class BatchFunctionController {
 
     @PostMapping(value = "addOrUpdateFunction")
     @ApiOperation(value = "添加函数")
-    @Security(code = AuthCode.DATADEVELOP_BATCH_FUNCTIONMANAGER)
     public R<BatchFunctionAddResultVO> addOrUpdateFunction(@RequestBody BatchFunctionAddVO vo) {
         return new APITemplate<BatchFunctionAddResultVO>() {
             @Override
@@ -87,7 +82,6 @@ public class BatchFunctionController {
 
     @PostMapping(value = "moveFunction")
     @ApiOperation(value = "移动函数")
-    @Security(code = AuthCode.DATADEVELOP_BATCH_FUNCTIONMANAGER)
     public R<Void> moveFunction(@RequestBody BatchFunctionMoveVO vo) {
         return new APITemplate<Void>() {
             @Override
@@ -100,7 +94,6 @@ public class BatchFunctionController {
 
     @PostMapping(value = "deleteFunction")
     @ApiOperation(value = "删除函数")
-    @Security(code = AuthCode.DATADEVELOP_BATCH_FUNCTIONMANAGER)
     public R<Void> deleteFunction(@RequestBody BatchFunctionDeleteVO vo) {
         return new APITemplate<Void>() {
             @Override
@@ -113,7 +106,6 @@ public class BatchFunctionController {
 
     @PostMapping(value = "getAllFunctionName")
     @ApiOperation(value = "获取所有函数名")
-    @Security(code = AuthCode.DATADEVELOP_BATCH_FUNCTIONMANAGER)
     public R<List<String>> getAllFunctionName(@RequestBody BatchFunctionNameVO vo) {
         return new APITemplate<List<String>>() {
             @Override
@@ -125,7 +117,6 @@ public class BatchFunctionController {
 
     @PostMapping(value = "pageQuery")
     @ApiOperation(value = "自定义函数分页查询")
-    @Security(code = AuthCode.DATADEVELOP_BATCH_FUNCTIONMANAGER)
     public R<PageResult<List<BatchFunctionQueryResultVO>>> pageQuery(@RequestBody BatchFunctionQueryVO vo) {
         return new APITemplate<PageResult<List<BatchFunctionQueryResultVO>>>() {
             @Override
