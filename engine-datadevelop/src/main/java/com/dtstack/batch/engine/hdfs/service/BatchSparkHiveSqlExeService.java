@@ -18,15 +18,15 @@
 
 package com.dtstack.batch.engine.hdfs.service;
 
-import com.dtstack.batch.common.exception.RdosDefineException;
 import com.dtstack.batch.engine.rdbms.common.util.SqlFormatUtil;
 import com.dtstack.batch.engine.rdbms.service.IJdbcService;
 import com.dtstack.batch.service.impl.BatchFunctionService;
 import com.dtstack.batch.service.impl.BatchSqlExeService;
 import com.dtstack.batch.service.impl.ProjectEngineService;
 import com.dtstack.batch.service.table.impl.BatchSelectSqlService;
-import com.dtstack.dtcenter.common.enums.EJobType;
+import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
