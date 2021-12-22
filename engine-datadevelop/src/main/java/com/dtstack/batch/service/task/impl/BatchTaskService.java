@@ -27,8 +27,6 @@ import com.alibaba.fastjson.TypeReference;
 import com.dtstack.batch.common.enums.CatalogueType;
 import com.dtstack.batch.common.enums.EDeployType;
 import com.dtstack.batch.common.enums.PublishTaskStatusEnum;
-import com.dtstack.batch.common.exception.ErrorCode;
-import com.dtstack.batch.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.BatchCatalogueDao;
 import com.dtstack.batch.dao.BatchFunctionDao;
 import com.dtstack.batch.dao.BatchResourceDao;
@@ -86,27 +84,29 @@ import com.dtstack.batch.web.task.vo.query.AllProductGlobalSearchVO;
 import com.dtstack.batch.web.task.vo.result.BatchTaskGetComponentVersionResultVO;
 import com.dtstack.batch.web.task.vo.result.BatchTaskGetSupportJobTypesResultVO;
 import com.dtstack.batch.web.task.vo.result.BatchTaskRecentlyRunTimeResultVO;
-import com.dtstack.dtcenter.common.constant.PatternConstant;
-import com.dtstack.dtcenter.common.enums.DictType;
-import com.dtstack.dtcenter.common.enums.EJobType;
-import com.dtstack.dtcenter.common.enums.ESubmitStatus;
-import com.dtstack.dtcenter.common.enums.EngineType;
-import com.dtstack.dtcenter.common.enums.FuncType;
-import com.dtstack.dtcenter.common.enums.MultiEngineType;
-import com.dtstack.dtcenter.common.enums.ReadWriteLockType;
-import com.dtstack.dtcenter.common.enums.ResourceRefType;
-import com.dtstack.dtcenter.common.enums.TaskLockStatus;
-import com.dtstack.dtcenter.common.thread.RdosThreadFactory;
-import com.dtstack.dtcenter.common.util.DataFilter;
-import com.dtstack.dtcenter.common.util.JsonUtils;
-import com.dtstack.dtcenter.common.util.NameUtil;
-import com.dtstack.dtcenter.common.util.PublicUtil;
+import com.dtstack.engine.common.constrant.PatternConstant;
 import com.dtstack.engine.common.enums.AppType;
 import com.dtstack.engine.common.enums.Deleted;
+import com.dtstack.engine.common.enums.DictType;
+import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.EParamType;
+import com.dtstack.engine.common.enums.ESubmitStatus;
+import com.dtstack.engine.common.enums.EngineType;
+import com.dtstack.engine.common.enums.FuncType;
+import com.dtstack.engine.common.enums.MultiEngineType;
+import com.dtstack.engine.common.enums.ReadWriteLockType;
+import com.dtstack.engine.common.enums.ResourceRefType;
 import com.dtstack.engine.common.enums.Sort;
+import com.dtstack.engine.common.enums.TaskLockStatus;
 import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.thread.RdosThreadFactory;
 import com.dtstack.engine.common.util.Base64Util;
+import com.dtstack.engine.common.util.DataFilter;
+import com.dtstack.engine.common.util.JsonUtils;
+import com.dtstack.engine.common.util.NameUtil;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.domain.BaseEntity;
 import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.engine.domain.Component;
@@ -333,7 +333,7 @@ public class BatchTaskService {
         final List<Dict> yarn = this.dictService.getDictByType(DictType.BATCH_TASK_TYPE_YARN.getValue());
         final List<Pair<Integer, String>> yarnSupportType = yarn.stream().map(dict -> Pair.of(dict.getDictValue(), dict.getDictNameZH())).collect(Collectors.toList());
 
-        final List<Dict> libraDict = this.dictService.getDictByType(DictType.BATCH_TASK_TYPE_LIBRA.getValue());
+        final List<Dict> libraDict = this.dictService.getDictByType(DictType.BATCH_TASK_TYPE_GaussDB.getValue());
         final List<Pair<Integer, String>> libraSupportType = libraDict.stream().map(dict -> Pair.of(dict.getDictValue(), dict.getDictNameZH())).collect(Collectors.toList());
 
         jobSupportTypeMap.put(EDeployType.YARN.getType(), yarnSupportType);
@@ -1441,7 +1441,7 @@ public class BatchTaskService {
         String versionSqlText = StringUtils.EMPTY;
 
         if (EJobType.SPARK_SQL.getVal().intValue() == task.getTaskType().intValue()
-                || EJobType.LIBRA_SQL.getVal().intValue() == task.getTaskType().intValue()
+                || EJobType.GaussDB_SQL.getVal().intValue() == task.getTaskType().intValue()
                 || EJobType.HIVE_SQL.getVal().intValue() == task.getTaskType().intValue()) {
             // 语法检测
             List<BatchTaskParam> taskParamsToReplace = batchTaskParamService.getTaskParam(task.getId());
@@ -1828,8 +1828,8 @@ public class BatchTaskService {
             if (param.getDataSourceId() == null) {
                 throw new RdosDefineException("Carbon SQL任务必须关联数据源.", ErrorCode.INVALID_PARAMETERS);
             }
-        } else if (EJobType.LIBRA_SQL.getVal().equals(param.getTaskType())) {
-            engineType = EngineType.Libra.getVal();
+        } else if (EJobType.GaussDB_SQL.getVal().equals(param.getTaskType())) {
+            engineType = EngineType.GaussDB.getVal();
         } else if (EJobType.HIVE_SQL.getVal().equals(param.getTaskType())) {
             //HiveSql任务匹配
             engineType = EngineType.HIVE.getVal();
@@ -2100,7 +2100,7 @@ public class BatchTaskService {
 
         // 需要代码注释模版的任务类型
         Set<Integer> shouldNoteSqlTypes = Sets.newHashSet(EJobType.SPARK_SQL.getVal(), EJobType.CARBON_SQL.getVal(),
-                EJobType.LIBRA_SQL.getVal(), EJobType.IMPALA_SQL.getVal());
+                EJobType.GaussDB_SQL.getVal(), EJobType.IMPALA_SQL.getVal());
 
         if (EJobType.PYTHON.getVal().equals(task.getTaskType())
                 || EJobType.SHELL.getVal().equals(task.getTaskType())) {

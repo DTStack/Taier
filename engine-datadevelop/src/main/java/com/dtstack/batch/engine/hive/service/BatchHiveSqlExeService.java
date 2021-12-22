@@ -50,8 +50,8 @@ public class BatchHiveSqlExeService extends BatchSparkHiveSqlExeService implemen
     }
 
     @Override
-    public void checkSingleSqlSyntax(Long projectId, Long dtuicTenantId, String sql, String db, String taskParam) {
-        checkSingleSqlSyntax(projectId, dtuicTenantId, sql, db, taskParam, EJobType.HIVE_SQL);
+    public void checkSingleSqlSyntax(Long projectId, Long tenantId, String sql, String db, String taskParam) {
+        checkSingleSqlSyntax(tenantId, sql, db, taskParam, EJobType.HIVE_SQL);
     }
 
     @Override
