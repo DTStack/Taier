@@ -4,7 +4,7 @@
 
 
     <sql id="engine_simple">
-        `id`,`job_id`,`job_name`,`engine_type`,`compute_type`,`stage`,`node_address`,`gmt_create`,`gmt_modified`,`is_deleted`,`job_priority`
+        `id`,`job_id`,`job_name`,`engine_type`,`compute_type`,`stage`,`node_address`,`gmt_create`,`gmt_modified`,`is_deleted`,`job_priority`,`job_resource`
     </sql>
 
     <select id="listByStage" resultType="EngineJobCache">

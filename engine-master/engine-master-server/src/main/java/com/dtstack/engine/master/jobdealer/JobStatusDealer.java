@@ -83,7 +83,6 @@ public class JobStatusDealer implements Runnable {
     private String jobResource;
     private ScheduleJobService scheduleJobService;
     private ScheduleJobCacheService scheduleJobCacheService;
-    private JobCheckpointDealer jobCheckpointDealer;
     private JobRestartDealer jobRestartDealer;
     private WorkerOperator workerOperator;
     private EnvironmentContext environmentContext;
@@ -197,20 +196,12 @@ public class JobStatusDealer implements Runnable {
 
                 //数据的更新顺序，先更新job_cache，再更新engine_batch_job
                 if (RdosTaskStatus.getStoppedStatus().contains(status)) {
-                   /* if (EngineType.isFlink(engineType)){
-                        jobCheckpointDealer.updateCheckpointImmediately(new JobCheckpointInfo(jobIdentifier), engineTaskId, status);
-                    }*/
-
-
                     jobLogDelayDealer(jobId, jobIdentifier, engineJobCache.getComputeType(),scheduleJob.getType());
                     jobStatusFrequency.remove(jobId);
                     scheduleJobCacheService.deleteByJobId(jobId);
                     LOGGER.info("------ jobId:{} is stop status {} delete jobCache", jobId, status);
                 }
 
-         /*       if (RdosTaskStatus.RUNNING.getStatus().equals(status) && EngineType.isFlink(engineType)) {
-                    jobCheckpointDealer.addCheckpointTaskForQueue(scheduleJob.getComputeType(), jobId, jobIdentifier, engineType);
-                }*/
 
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("------ jobId:{} after dealJob status:{}", jobId, rdosTaskStatus);
@@ -302,7 +293,6 @@ public class JobStatusDealer implements Runnable {
 
     private void setBean() {
         this.environmentContext = applicationContext.getBean(EnvironmentContext.class);
-        this.jobCheckpointDealer = applicationContext.getBean(JobCheckpointDealer.class);
         this.jobRestartDealer = applicationContext.getBean(JobRestartDealer.class);
         this.workerOperator = applicationContext.getBean(WorkerOperator.class);
         this.scheduleJobService = applicationContext.getBean(ScheduleJobService.class);
