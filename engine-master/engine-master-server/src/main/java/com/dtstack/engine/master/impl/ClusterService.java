@@ -70,6 +70,9 @@ public class ClusterService implements com.dtstack.engine.api.ClusterService {
     private ComponentService componentService;
 
     @Autowired
+    private ComponentFileService componentFileService;
+
+    @Autowired
     private ComponentMapper componentMapper;
 
     @Autowired
@@ -182,10 +185,10 @@ public class ClusterService implements com.dtstack.engine.api.ClusterService {
             if (sftpConfig != null) {
                 KerberosConfig kerberosDaoByComponentType = kerberosMapper.getByComponentType(clusterId, componentType, ComponentVersionUtil.isMultiVersionComponent(componentType) ? componentMapper.getDefaultComponentVersionByClusterAndComponentType(clusterId, componentType) : null);
                 if (null != kerberosDaoByComponentType) {
-                    return sftpConfig.get("path") + File.separator + componentService.buildSftpPath(clusterId, componentType) + File.separator +
+                    return sftpConfig.get("path") + File.separator + componentFileService.buildSftpPath(clusterId, componentType) + File.separator +
                             ComponentService.KERBEROS_PATH;
                 }
-                return sftpConfig.get("path") + File.separator + componentService.buildSftpPath(clusterId, componentType);
+                return sftpConfig.get("path") + File.separator + componentFileService.buildSftpPath(clusterId, componentType);
             }
         }
         return null;
@@ -372,7 +375,7 @@ public class ClusterService implements com.dtstack.engine.api.ClusterService {
         if (EComponentType.SPARK.equals(componentType)) {
             JSONObject sftpConfig = clusterConfigJson.getJSONObject(EComponentType.SFTP.getConfName());
             if (Objects.nonNull(sftpConfig)) {
-                String confHdfsPath = sftpConfig.getString("path") + File.separator + componentService.buildConfRemoteDir(clusterVO.getId());
+                String confHdfsPath = sftpConfig.getString("path") + File.separator + componentFileService.buildConfRemoteDir(clusterVO.getId());
                 pluginInfo.put("confHdfsPath", confHdfsPath);
             }
         }

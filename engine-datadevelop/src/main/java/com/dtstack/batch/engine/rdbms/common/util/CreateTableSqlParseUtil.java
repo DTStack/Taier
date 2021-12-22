@@ -19,7 +19,7 @@
 
 package com.dtstack.batch.engine.rdbms.common.util;
 
-import com.dtstack.dtcenter.common.exception.DtCenterDefException;
+import com.dtstack.engine.common.exception.DtCenterDefException;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

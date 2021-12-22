@@ -18,7 +18,7 @@
 
 package com.dtstack.batch.parser;
 
-import com.dtstack.dtcenter.common.util.MathUtil;
+import com.dtstack.engine.common.util.MathUtil;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;

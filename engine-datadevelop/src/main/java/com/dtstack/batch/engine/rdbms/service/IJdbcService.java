@@ -18,7 +18,7 @@
 
 package com.dtstack.batch.engine.rdbms.service;
 
-import com.dtstack.dtcenter.common.enums.EJobType;
+import com.dtstack.engine.common.enums.EJobType;
 
 import java.sql.Connection;
 import java.util.List;

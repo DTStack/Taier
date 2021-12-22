@@ -87,10 +87,6 @@ public class ScheduleBatchJob {
         return scheduleJob.getTaskId();
     }
 
-    public Integer getAppType() {
-        return scheduleJob.getAppType();
-    }
-
     public Integer getScheduleType() {
         return scheduleJob.getType();
     }

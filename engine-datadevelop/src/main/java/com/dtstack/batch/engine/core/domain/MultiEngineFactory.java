@@ -19,8 +19,8 @@
 package com.dtstack.batch.engine.core.domain;
 
 import com.dtstack.batch.service.multiengine.EngineInfo;
-import com.dtstack.dtcenter.common.enums.EComponentType;
-import com.dtstack.dtcenter.common.enums.MultiEngineType;
+import com.dtstack.engine.common.enums.EComponentType;
+import com.dtstack.engine.common.enums.MultiEngineType;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 

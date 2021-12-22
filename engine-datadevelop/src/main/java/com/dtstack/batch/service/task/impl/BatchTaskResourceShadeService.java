@@ -18,7 +18,7 @@
 
 package com.dtstack.batch.service.task.impl;
 
-import com.dtstack.batch.common.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.BatchTaskResourceShadeDao;
 import com.dtstack.batch.domain.BatchResource;
 import com.dtstack.batch.domain.BatchTaskResource;

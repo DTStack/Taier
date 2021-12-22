@@ -19,8 +19,8 @@
 package com.dtstack.batch.engine.rdbms.service.impl;
 
 import com.dtstack.batch.engine.rdbms.service.IJdbcService;
-import com.dtstack.dtcenter.common.engine.JdbcInfo;
-import com.dtstack.dtcenter.common.enums.EJobType;
+import com.dtstack.engine.common.engine.JdbcInfo;
+import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.dtcenter.loader.client.ClientCache;
 import com.dtstack.dtcenter.loader.client.IClient;
 import com.dtstack.dtcenter.loader.dto.ColumnMetaDTO;

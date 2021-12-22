@@ -346,7 +346,6 @@ public class JobSubmitDealer implements Runnable {
         }
     }
 
-
     private void handlerFailedWithRetry(JobClient jobClient, boolean checkRetry, Throwable e) {
         LOGGER.error("jobId:{} engineType:{} submitJob happens system error:", jobClient.getJobId(), jobClient.getEngineType(), e);
         jobClient.setEngineTaskId(null);

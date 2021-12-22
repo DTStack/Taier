@@ -20,12 +20,12 @@ package com.dtstack.batch.sync.template;
 
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.batch.common.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.batch.common.template.Reader;
 import com.dtstack.batch.sync.job.PluginName;
 import com.dtstack.batch.sync.util.ColumnUtil;
-import com.dtstack.dtcenter.common.enums.SftpAuthType;
-import com.dtstack.dtcenter.common.util.PublicUtil;
+import com.dtstack.engine.common.enums.SftpAuthType;
+import com.dtstack.engine.common.util.PublicUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -49,7 +49,7 @@ public class FtpReader extends FtpBase implements Reader {
                 try {
                     parameter.put("path", StringUtils.join(PublicUtil.objectToObject(path,List.class),","));
                 } catch (Exception e){
-                    throw new RdosDefineException(String.format("解析ftp路径出错，报错原因: %s", e.getMessage()), e);
+                    throw new RdosDefineException(String.format("解析ftp路径出错，报错原因: %s", e.getMessage()));
                 }
             }
         } else {

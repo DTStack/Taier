@@ -1,21 +1,19 @@
 package com.dtstack.engine.master.action.fill;
 
-import com.dtstack.engine.master.dto.fill.FillDataChooseProjectDTO;
 import com.dtstack.engine.master.dto.fill.FillDataChooseTaskDTO;
 import com.dtstack.engine.master.dto.fill.FillDataInfoDTO;
+import com.dtstack.engine.master.dto.fill.ScheduleFillDataInfoDTO;
+import com.dtstack.engine.master.dto.fill.ScheduleFillJobParticipateDTO;
 import com.dtstack.engine.master.enums.FillDataTypeEnum;
 import com.dtstack.engine.master.enums.FillGeneratStatusEnum;
 import com.dtstack.engine.master.server.scheduler.FillDataJobBuilder;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @Auther: dazhi
@@ -38,56 +36,33 @@ public class FillDataRunnable implements Runnable {
     private final Long tenantId;
     private final Long userId;
 
-    private final List<FillDataChooseProjectDTO> projects;
-    private final List<FillDataChooseTaskDTO> whitelist;
-    private final List<FillDataChooseTaskDTO> blacklist;
     private final List<FillDataChooseTaskDTO> taskIds;
     private final FillDataChooseTaskDTO rootTaskId;
     private final ApplicationContext applicationContext;
-
-    private final List<Long> blackTaskKeyList;
 
     private final FillFinishEvent fillFinishEvent;
     private final FillDataJobBuilder fillDataJobBuilder;
 
     public FillDataRunnable(Long fillId,
-                            String fillName,
-                            Integer fillDataType,
-                            List<FillDataChooseProjectDTO> projects,
-                            List<FillDataChooseTaskDTO> taskIds,
-                            List<FillDataChooseTaskDTO> whitelist,
-                            List<FillDataChooseTaskDTO> blacklist,
-                            FillDataChooseTaskDTO rootTaskId,
-                            String startDay,
-                            String endDay,
-                            String beginTime,
-                            String endTime,
-                            Long tenantId,
-                            Long userId,
+                            ScheduleFillJobParticipateDTO scheduleFillJobParticipateDTO,
+                            ScheduleFillDataInfoDTO fillDataInfo,
                             FillFinishEvent fillFinishEvent,
                             ApplicationContext applicationContext) {
         this.fillId = fillId;
-        this.fillName = fillName;
-        this.fillDataType = fillDataType;
-        this.projects = projects;
-        this.taskIds = taskIds;
-        this.whitelist = whitelist;
-        this.blacklist = blacklist;
-        this.rootTaskId = rootTaskId;
-        this.startDay = startDay;
-        this.endDay = endDay;
-        this.beginTime = beginTime;
-        this.endTime = endTime;
-        this.tenantId = tenantId;
-        this.userId = userId;
+        this.fillName = scheduleFillJobParticipateDTO.getFillName();
+        this.startDay = scheduleFillJobParticipateDTO.getStartDay();
+        this.endDay = scheduleFillJobParticipateDTO.getEndDay();
+        this.beginTime = scheduleFillJobParticipateDTO.getBeginTime();
+        this.endTime = scheduleFillJobParticipateDTO.getEndTime();
+        this.tenantId = scheduleFillJobParticipateDTO.getTenantId();
+        this.userId = scheduleFillJobParticipateDTO.getUserId();
+        this.fillDataType = fillDataInfo.getFillDataType();
+        this.taskIds = fillDataInfo.getTaskIds();
+        this.rootTaskId = fillDataInfo.getRootTaskId();
         this.fillFinishEvent = fillFinishEvent;
         this.applicationContext = applicationContext;
+
         fillDataJobBuilder = applicationContext.getBean(FillDataJobBuilder.class);
-        if (CollectionUtils.isNotEmpty(blacklist)) {
-            blackTaskKeyList = this.blacklist.stream().map(FillDataChooseTaskDTO::getTaskId).collect(Collectors.toList());
-        } else {
-            blackTaskKeyList = Lists.newArrayList();
-        }
     }
 
     @Override
@@ -117,7 +92,7 @@ public class FillDataRunnable implements Runnable {
             }
 
             // 生成周期实例
-            fillDataJobBuilder.createFillJob(all, run, blackTaskKeyList,fillId,fillName,beginTime,endTime,startDay,endDay, tenantId,userId);
+            fillDataJobBuilder.createFillJob(all, run,fillId,fillName,beginTime,endTime,startDay,endDay, tenantId,userId);
 
         } catch (Throwable e) {
             LOGGER.error("fillId:{} create exception:",fillId,e);
@@ -137,7 +112,7 @@ public class FillDataRunnable implements Runnable {
 
     private FillDataTask getFillDataTask() {
         if (FillDataTypeEnum.BATCH.getType().equals(fillDataType)) {
-            return new BatchFillDataTask(applicationContext, new FillDataInfoDTO(projects, taskIds,rootTaskId, whitelist, blacklist));
+            return new BatchFillDataTask(applicationContext, new FillDataInfoDTO(taskIds,rootTaskId));
         }
         return null;
     }
