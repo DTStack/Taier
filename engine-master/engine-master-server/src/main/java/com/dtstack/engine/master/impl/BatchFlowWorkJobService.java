@@ -156,7 +156,6 @@ public class BatchFlowWorkJobService {
                 bottleStatus = RdosTaskStatus.FROZEN.getStatus();
             }
         }
-        Integer appType = scheduleBatchJob.getAppType();
         LOGGER.info("jobId:{} bottleStatus:{}", jobId,bottleStatus);
         if (RdosTaskStatus.FINISHED.getStatus().equals(bottleStatus) || RdosTaskStatus.FAILED.getStatus().equals(bottleStatus)
                 || RdosTaskStatus.PARENTFAILED.getStatus().equals(bottleStatus) || RdosTaskStatus.SUBMITFAILD.getStatus().equals(bottleStatus)) {
@@ -164,9 +163,9 @@ public class BatchFlowWorkJobService {
             ScheduleJob updateJob = new ScheduleJob();
             updateJob.setJobId(jobId);
             updateJob.setStatus(bottleStatus);
-            updateJob.setAppType(appType);
-            updateJob.setExecEndTime(new Timestamp(System.currentTimeMillis()));
-            updateJob.setGmtModified(new Timestamp(System.currentTimeMillis()));
+//            updateJob.setAppType(appType);
+//            updateJob.setExecEndTime(new Timestamp(System.currentTimeMillis()));
+//            updateJob.setGmtModified(new Timestamp(System.currentTimeMillis()));
             batchJobService.updateStatusWithExecTime(updateJob);
         } else {
             //更新工作流状态

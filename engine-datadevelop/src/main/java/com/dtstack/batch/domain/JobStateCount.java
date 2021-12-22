@@ -18,7 +18,7 @@
 
 package com.dtstack.batch.domain;
 
-import com.dtstack.dtcenter.base.domain.BaseEntity;
+import com.dtstack.engine.common.domain.BaseEntity;
 import lombok.Data;
 
 /**

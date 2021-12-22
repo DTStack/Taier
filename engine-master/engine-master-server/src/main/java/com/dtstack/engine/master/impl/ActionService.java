@@ -53,10 +53,11 @@ import com.dtstack.engine.master.vo.action.ActionRetryLogVO;
 import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
-import com.dtstack.engine.pluginapi.enums.*;
+import com.dtstack.engine.pluginapi.enums.ComputeType;
+import com.dtstack.engine.pluginapi.enums.EDeployMode;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.pluginapi.exception.ErrorCode;
 import com.dtstack.engine.pluginapi.exception.RdosDefineException;
-import com.dtstack.engine.pluginapi.pojo.ParamAction;
 import com.dtstack.engine.pluginapi.util.PublicUtil;
 import com.google.common.base.Strings;
 import org.apache.commons.collections.CollectionUtils;
@@ -188,7 +189,6 @@ public class ActionService {
             //新job 任务
             scheduleJob = buildScheduleJob(paramActionExt);
             scheduleJob.setStatus(RdosTaskStatus.SUBMITFAILD.getStatus());
-            scheduleJob.setLogInfo(GenerateErrorMsgUtil.generateErrorMsg(e.getMessage()));
             scheduleJobDao.insert(scheduleJob);
         } else {
             //直接失败
@@ -234,7 +234,6 @@ public class ActionService {
         scheduleJob.setCreateUserId(getOrDefault(batchTask.getCreateUserId(), -1L));
 
         scheduleJob.setType(EScheduleType.TEMP_JOB.getType());
-        scheduleJob.setBusinessDate(getOrDefault(jobRichOperator.getCycTime(-1), ""));
         scheduleJob.setCycTime(getOrDefault(cycTime, DateTime.now().toString("yyyyMMddHHmmss")));
 
         if (StringUtils.isNotBlank(scheduleConf)) {
@@ -271,7 +270,7 @@ public class ActionService {
         actionParam.put("type",scheduleJob.getType());
         actionParam.put("tenantId", batchTask.getTenantId());
         actionParam.putAll(parseRetryParam(batchTask));
-        if (EJobType.SYNC.getType() == scheduleJob.getTaskType()) {
+        if (EJobType.SYNC.getType().equals(scheduleJob.getTaskType())) {
             //数据同步需要解析是perJob 还是session
             EDeployMode eDeployMode = taskParamsService.parseDeployTypeByTaskParams(batchTask.getTaskParams(),batchTask.getComputeType(), EngineType.Flink.name(),batchTask.getTenantId());
             actionParam.put("deployMode", eDeployMode.getType());
@@ -427,7 +426,7 @@ public class ActionService {
         ActionLogVO vo = new ActionLogVO();
         ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
         if (scheduleJob != null) {
-            vo.setLogInfo(scheduleJob.getLogInfo());
+//            vo.setLogInfo(scheduleJob.getLogInfo());
             String engineLog = getEngineLog(jobId, scheduleJob);
             vo.setEngineLog(engineLog);
         }
@@ -435,7 +434,7 @@ public class ActionService {
     }
 
     private String getEngineLog(String jobId, ScheduleJob scheduleJob) {
-        String engineLog = scheduleJob.getEngineLog();
+        String engineLog = "";
         try {
             if (StringUtils.isBlank(engineLog)) {
                 engineLog = CompletableFuture.supplyAsync(
@@ -474,8 +473,8 @@ public class ActionService {
         jobLogVO.setComputeType(taskShadeDao.getComputeType());
         jobLogVO.setTaskType(taskShadeDao.getTaskType());
 
-        jobLogVO.setExecEndTime(scheduleJob.getExecEndTime());
-        jobLogVO.setExecStartTime(scheduleJob.getExecStartTime());
+//        jobLogVO.setExecEndTime(scheduleJob.getExecEndTime());
+//        jobLogVO.setExecStartTime(scheduleJob.getExecStartTime());
 
         String engineLog = getEngineLog(jobId, scheduleJob);
         jobLogVO.setEngineLog(engineLog);
@@ -483,10 +482,10 @@ public class ActionService {
         // 封装日志信息
         JSONObject info = new JSONObject();
         try {
-            info = JSON.parseObject(scheduleJob.getLogInfo());
+//            info = JSON.parseObject(scheduleJob.getLogInfo());
         } catch (final Exception e) {
-            LOGGER.error("parse jobId {} } logInfo error {}", jobId, scheduleJob.getLogInfo());
-            info.put("msg_info", scheduleJob.getLogInfo());
+//            LOGGER.error("parse jobId {} } logInfo error {}", jobId, scheduleJob.getLogInfo());
+//            info.put("msg_info", scheduleJob.getLogInfo());
         }
 
         if (info == null) {
@@ -645,9 +644,9 @@ public class ActionService {
                 ActionJobEntityVO vo = new ActionJobEntityVO();
                 vo.setJobId(scheduleJob.getJobId());
                 vo.setStatus(scheduleJob.getStatus());
-                vo.setExecStartTime(scheduleJob.getExecStartTime());
-                vo.setLogInfo(scheduleJob.getLogInfo());
-                vo.setEngineLog(scheduleJob.getEngineLog());
+//                vo.setExecStartTime(scheduleJob.getExecStartTime());
+//                vo.setLogInfo(scheduleJob.getLogInfo());
+//                vo.setEngineLog(scheduleJob.getEngineLog());
                 vo.setEngineJobId(scheduleJob.getEngineJobId());
                 vo.setApplicationId(scheduleJob.getApplicationId());
         		result.add(vo);

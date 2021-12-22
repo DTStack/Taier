@@ -77,7 +77,7 @@ public class ScheduleFillDataJob implements Serializable {
     /**
      * 补数据状态
      */
-    private Integer fillGeneratStatus;
+    private Integer fillGenerateStatus;
 
     /**
      * 当前并发运行实例数
@@ -181,12 +181,12 @@ public class ScheduleFillDataJob implements Serializable {
         this.fillDataInfo = fillDataInfo;
     }
 
-    public Integer getFillGeneratStatus() {
-        return fillGeneratStatus;
+    public Integer getFillGenerateStatus() {
+        return fillGenerateStatus;
     }
 
-    public void setFillGeneratStatus(Integer fillGeneratStatus) {
-        this.fillGeneratStatus = fillGeneratStatus;
+    public void setFillGenerateStatus(Integer fillGenerateStatus) {
+        this.fillGenerateStatus = fillGenerateStatus;
     }
 
     public Integer getNumberParallelNum() {

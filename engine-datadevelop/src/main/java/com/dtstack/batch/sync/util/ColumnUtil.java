@@ -19,7 +19,7 @@
 package com.dtstack.batch.sync.util;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.batch.common.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.batch.sync.job.PluginName;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.math.NumberUtils;

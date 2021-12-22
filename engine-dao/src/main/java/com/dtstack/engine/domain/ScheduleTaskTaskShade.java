@@ -20,32 +20,66 @@ package com.dtstack.engine.domain;
 
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+
+import java.io.Serializable;
+import java.sql.Timestamp;
+import java.util.Objects;
 
 /**
  * @author sishu.yss
  */
 @TableName("schedule_task_task_shade")
-public class ScheduleTaskTaskShade extends BaseEntity {
+public class ScheduleTaskTaskShade implements Serializable {
 
+    /**
+     * 唯一标识
+     */
+    private Long id;
+
+    /**
+     * 租户id
+     */
+    private Long tenantId;
+
+    /**
+     * 任务id
+     */
     private Long taskId;
 
+    /**
+     * 父任务id
+     */
     private Long parentTaskId;
 
-    private Integer parentAppType;
+    /**
+     * 创建时间
+     */
+    private Timestamp gmtCreate;
 
-    private String taskKey;
+    /**
+     * 最近一次修改时间
+     */
+    private Timestamp gmtModified;
 
-    private String parentTaskKey;
+    /**
+     * 是否逻辑删除
+     */
+    private Boolean isDeleted;
 
-    private Integer appType;
-
-    public Integer getAppType() {
-        return appType;
+    public Long getId() {
+        return id;
     }
 
-    public void setAppType(Integer appType) {
-        this.appType = appType;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
     }
 
     public Long getTaskId() {
@@ -64,38 +98,53 @@ public class ScheduleTaskTaskShade extends BaseEntity {
         this.parentTaskId = parentTaskId;
     }
 
-    public Integer getParentAppType() {
-        return parentAppType;
+    public Timestamp getGmtCreate() {
+        return gmtCreate;
     }
 
-    public void setParentAppType(Integer parentAppType) {
-        this.parentAppType = parentAppType;
+    public void setGmtCreate(Timestamp gmtCreate) {
+        this.gmtCreate = gmtCreate;
     }
 
-    public String getTaskKey() {
-        if (StringUtils.isBlank(taskKey)) {
-            taskKey = taskId + "-" + getAppType();
-        }
-        return taskKey;
+    public Timestamp getGmtModified() {
+        return gmtModified;
     }
 
-    public void setTaskKey(String taskKey) {
-        this.taskKey = taskKey;
+    public void setGmtModified(Timestamp gmtModified) {
+        this.gmtModified = gmtModified;
     }
 
-    public String getParentTaskKey() {
-        if (StringUtils.isBlank(parentTaskKey) && parentTaskId != null) {
-            Integer parentAppType = getParentAppType();
-            if (parentAppType == null) {
-                parentTaskKey = parentTaskId + "-" + getAppType();
-            } else {
-                parentTaskKey = parentTaskId + "-" + parentAppType;
-            }
-        }
-        return parentTaskKey;
+    public Boolean getIsDeleted() {
+        return isDeleted;
     }
 
-    public void setParentTaskKey(String parentTaskKey) {
-        this.parentTaskKey = parentTaskKey;
+    public void setIsDeleted(Boolean deleted) {
+        isDeleted = deleted;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ScheduleTaskTaskShade that = (ScheduleTaskTaskShade) o;
+        return Objects.equals(id, that.id) && Objects.equals(tenantId, that.tenantId) && Objects.equals(taskId, that.taskId) && Objects.equals(parentTaskId, that.parentTaskId) && Objects.equals(gmtCreate, that.gmtCreate) && Objects.equals(gmtModified, that.gmtModified) && Objects.equals(isDeleted, that.isDeleted);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, tenantId, taskId, parentTaskId, gmtCreate, gmtModified, isDeleted);
+    }
+
+    @Override
+    public String toString() {
+        return "ScheduleTaskTaskShade{" +
+                "id=" + id +
+                ", tenantId=" + tenantId +
+                ", taskId=" + taskId +
+                ", parentTaskId=" + parentTaskId +
+                ", gmtCreate=" + gmtCreate +
+                ", gmtModified=" + gmtModified +
+                ", isDeleted=" + isDeleted +
+                '}';
     }
 }

@@ -16,9 +16,8 @@
  * limitations under the License.
  */
 
-package com.dtstack.batch.common.exception;
+package com.dtstack.engine.common.exception;
 
-import com.dtstack.dtcenter.common.exception.ExceptionEnums;
 
 /**
  * 错误码定义
@@ -66,6 +65,30 @@ public enum ErrorCode implements ExceptionEnums {
     METHOD_NOT_EXIST(49, "方法不存在"),
     METHOD_FORBIDDEN(50, "该方法禁止被调用"),
 
+    JSON_PARSING_FAILED(52,"json parsing failed"),
+    PYTHON_NOT_SUPPORT(10053,"python不支持2.x和3.x之外的版本类型"),
+    TASK_TYPE_NOT_SUPPORT(10054,"不支持的任务类型"),
+    LOCK_IS_NOT_EXISTS(10055,"该锁不存在"),
+    TASK_DEPENDENCY_LOOP(10056,"任务发生依赖闭环"),
+    TASK_SUBMIT_ERROR(10057,"任务提交异常"),
+    ENGINE_RETURN_NULL(10058,"engine返回commitId为空"),
+    TASK_SAVE_ERROR(10059,"任务保存异常"),
+    SYS_BUSINESS_EXCEPTION(501, "业务异常"),
+
+
+
+    CONN_DB_ERROR(529, "连接数据库失败. 请检查您的 账号、密码、数据库名称、IP、Port或者向 DBA 寻求帮助(注意网络环境)."),
+    GET_TABLE_INFO_FAILED(531, "获取表相关信息失败."),
+    GET_COLUMN_INFO_FAILED(530, "获取表字段相关信息失败."),
+    UNSUPPORTED_TYPE(532, "不支持的数据库类型. 请注意查看 FlinkX / DataX 已经支持的数据库类型以及数据库版本."),
+    IP_PORT_CONN_ERROR(533, "数据库服务器端口连接失败,请检查您的数据库配置或服务状态."),
+    USERNAME_PWD_ERROR(534, "用户名或密码错误."),
+    CANNOT_ACQUIRE_CONNECT(535, "应用程序服务器拒绝建立连接."),
+    IP_PORT_FORMAT_ERROR(536, "地址格式错误"),
+    DB_NOT_EXISTS(537, "数据库不存在"),
+    TABLE_NOT_EXISTS(538, "表不存在"),
+    JDBC_FORMAT_ERROR(539, "jdbcUrl格式错误"),
+
 
     /***----------------end 公共模块错误码 end ----------------------------------------****/
 
@@ -81,9 +104,6 @@ public enum ErrorCode implements ExceptionEnums {
 
     ROLE_NOT_FOUND(60, "角色不存在"),
     ROLE_IDS_CANNOT_BE_EMPTY(61, "分配角色不能为空"),
-
-    IP_PORT_FORMAT_ERROR(62, "地址格式错误"),
-    IP_PORT_CONN_ERROR(63, "IP端口连接失败"),
 
     /***----------------end 用户 相关错误码 end ----------------------------------------****/
 
@@ -230,11 +250,6 @@ public enum ErrorCode implements ExceptionEnums {
     JDBC_NULL(526, "JDBC URL为空，请检查配置"),
     JDBC_OB10_ADDRESS_ERROR(527, "JDBC OB10格式错误，请联系askdatax"),
     CONF_ERROR(528, "您的配置错误."),
-    CONN_DB_ERROR(529, "连接数据库失败. 请检查您的 账号、密码、数据库名称、IP、Port或者向 DBA 寻求帮助(注意网络环境)."),
-    GET_COLUMN_INFO_FAILED(530, "获取表字段相关信息失败."),
-    GET_TABLE_INFO_FAILED(531, "获取表相关信息失败."),
-
-    UNSUPPORTED_TYPE(532, "不支持的数据库类型. 请注意查看 DataX 已经支持的数据库类型以及数据库版本."),
 
     COLUMN_SPLIT_ERROR(533, "根据主键进行切分失败."),
 

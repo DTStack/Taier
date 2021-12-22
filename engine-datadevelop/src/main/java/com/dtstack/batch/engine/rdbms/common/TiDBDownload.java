@@ -18,11 +18,11 @@
 
 package com.dtstack.batch.engine.rdbms.common;
 
-import com.dtstack.batch.common.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.batch.engine.rdbms.service.impl.Engine2DTOService;
-import com.dtstack.dtcenter.common.engine.JdbcInfo;
-import com.dtstack.dtcenter.common.enums.EJobType;
-import com.dtstack.dtcenter.common.exception.DtCenterDefException;
+import com.dtstack.engine.common.engine.JdbcInfo;
+import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.loader.IDownloader;
 import com.dtstack.dtcenter.loader.client.ClientCache;
 import com.dtstack.dtcenter.loader.client.IClient;
@@ -66,7 +66,7 @@ public class TiDBDownload implements IDownload {
             if (e instanceof DtLoaderException) {
                 throw (DtLoaderException) e;
             }
-            throw new DtCenterDefException(String.format("下载器configure失败，原因是：%s", e.getMessage()), e);
+            throw new DtCenterDefException(String.format("下载器configure失败，原因是：%s", e.getMessage()));
         }
     }
 
@@ -75,11 +75,11 @@ public class TiDBDownload implements IDownload {
         try {
             return pluginDownloader.getMetaInfo();
         } catch (Exception e) {
-            logger.error("", e);
+            logger.error("{}", e.getMessage());
             if (e instanceof DtLoaderException) {
                 throw (DtLoaderException) e;
             }
-            throw new DtCenterDefException(String.format("下载器getMetaInfo失败，原因是：%s", e.getMessage()), e);
+            throw new DtCenterDefException(String.format("下载器getMetaInfo失败，原因是：%s", e.getMessage()));
         }
     }
 
@@ -91,7 +91,7 @@ public class TiDBDownload implements IDownload {
             if (e instanceof DtLoaderException) {
                 throw (DtLoaderException) e;
             }
-            throw new DtCenterDefException(String.format("下载器readNext失败，原因是：%s", e.getMessage()), e);
+            throw new DtCenterDefException(String.format("下载器readNext失败，原因是：%s", e.getMessage()));
         }
     }
 
@@ -103,7 +103,7 @@ public class TiDBDownload implements IDownload {
             if (e instanceof DtLoaderException) {
                 throw (DtLoaderException) e;
             }
-            throw new RdosDefineException(String.format("下载器reachedEnd失败，原因是：%s", e.getMessage()), e);
+            throw new RdosDefineException(String.format("下载器reachedEnd失败，原因是：%s", e.getMessage()));
         }
     }
 
@@ -115,7 +115,7 @@ public class TiDBDownload implements IDownload {
             if (e instanceof DtLoaderException) {
                 throw (DtLoaderException) e;
             }
-            throw new RdosDefineException(String.format("下载器close失败，原因是：%s", e.getMessage()), e);
+            throw new RdosDefineException(String.format("下载器close失败，原因是：%s", e.getMessage()));
         }
     }
 
@@ -127,7 +127,7 @@ public class TiDBDownload implements IDownload {
             if (e instanceof DtLoaderException) {
                 throw (DtLoaderException) e;
             }
-            logger.error(String.format("获取getFileName失败,原因是%s", e.getMessage()), e);
+            logger.error(String.format("获取getFileName失败,原因是%s", e.getMessage()));
         }
         return "";
     }

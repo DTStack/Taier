@@ -19,7 +19,7 @@
 package com.dtstack.batch.engine.core.service;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.batch.common.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.batch.domain.ProjectEngine;
 import com.dtstack.batch.engine.core.domain.MultiEngineFactory;
 import com.dtstack.batch.engine.rdbms.hive.util.SparkThriftConnectionUtils;
@@ -28,13 +28,13 @@ import com.dtstack.batch.engine.rdbms.service.impl.Engine2DTOService;
 import com.dtstack.batch.service.datasource.impl.IMultiEngineService;
 import com.dtstack.batch.service.impl.ProjectEngineService;
 import com.dtstack.batch.service.multiengine.EngineInfo;
-import com.dtstack.dtcenter.common.engine.JdbcInfo;
-import com.dtstack.dtcenter.common.enums.EComponentType;
-import com.dtstack.dtcenter.common.enums.EJobType;
-import com.dtstack.dtcenter.common.enums.EScriptType;
-import com.dtstack.dtcenter.common.enums.MultiEngineType;
-import com.dtstack.dtcenter.common.exception.DtCenterDefException;
-import com.dtstack.dtcenter.common.util.PublicUtil;
+import com.dtstack.engine.common.engine.JdbcInfo;
+import com.dtstack.engine.common.enums.EComponentType;
+import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.enums.EScriptType;
+import com.dtstack.engine.common.enums.MultiEngineType;
+import com.dtstack.engine.common.exception.DtCenterDefException;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.engine.domain.Component;
 import com.dtstack.engine.master.impl.EngineService;
@@ -101,7 +101,7 @@ public class MultiEngineService implements IMultiEngineService {
         List<EngineSupportVO> engineSupportVOS = Engine2DTOService.listSupportEngine(dtuicTenantId);
         for (EngineSupportVO engineSupportVO : engineSupportVOS) {
             if (MultiEngineType.HADOOP.getType() == engineSupportVO.getEngineType()) {
-                if (EComponentType.HIVE_SERVER.getTypeCode() == engineSupportVO.getMetadataComponent()){
+                if (EComponentType.HIVE_SERVER.getTypeCode().equals(engineSupportVO.getMetadataComponent())){
                     JdbcInfo jdbcInfo = Engine2DTOService.getJdbcInfo(dtuicTenantId, null, EJobType.HIVE_SQL);
                     SparkThriftConnectionUtils.HiveVersion hiveVersion = SparkThriftConnectionUtils.HiveVersion.getByVersion(jdbcInfo.getVersion());
                     if (SparkThriftConnectionUtils.HiveVersion.HIVE_1x.equals(hiveVersion)){
@@ -112,10 +112,10 @@ public class MultiEngineService implements IMultiEngineService {
                         return DataSourceType.HIVE;
                     }
                 }
-                if (EComponentType.SPARK_THRIFT.getTypeCode() == engineSupportVO.getMetadataComponent()){
+                if (EComponentType.SPARK_THRIFT.getTypeCode().equals(engineSupportVO.getMetadataComponent())){
                     return DataSourceType.SparkThrift2_1;
                 }
-                if (EComponentType.IMPALA_SQL.getTypeCode() == engineSupportVO.getMetadataComponent()){
+                if (EComponentType.IMPALA_SQL.getTypeCode().equals(engineSupportVO.getMetadataComponent())){
                     return DataSourceType.IMPALA;
                 }
             }
@@ -184,7 +184,7 @@ public class MultiEngineService implements IMultiEngineService {
                 supportType.add(EJobType.CARBON_SQL);
             }
             if(component.contains(EComponentType.LIBRA_SQL.getTypeCode())){
-                supportType.add(EJobType.LIBRA_SQL);
+                supportType.add(EJobType.GaussDB_SQL);
             }
             if(component.contains(EComponentType.TIDB_SQL.getTypeCode())){
                 supportType.add(EJobType.TIDB_SQL);
@@ -246,7 +246,7 @@ public class MultiEngineService implements IMultiEngineService {
                     }
                 }
                 if (intersection.contains(MultiEngineType.LIBRA.getType())) {
-                    scriptTypes.add(EScriptType.LibrASQL);
+                    scriptTypes.add(EScriptType.GaussDBSQL);
                 }
             }
         }
@@ -266,7 +266,7 @@ public class MultiEngineService implements IMultiEngineService {
             pluginMap = JSONObject.parseObject(jsonStr, HashMap.class);
         } catch (Exception e) {
             LOG.error("get engine plugin with tenantId:{}, type:{} , consoleResultJson:{}", dtuicTenantId, engineType, jsonStr);
-            throw new RdosDefineException(String.format("解析 console 返回json 失败。原因是：%s", e.getMessage()), e);
+            throw new RdosDefineException(String.format("解析 console 返回json 失败。原因是：%s", e.getMessage()));
         }
 
         if (MapUtils.isEmpty(pluginMap)) {

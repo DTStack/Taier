@@ -20,16 +20,14 @@ package com.dtstack.batch.controller.batch;
 
 import com.dtstack.batch.mapstruct.vo.BatchCatalogueMapstructTransfer;
 import com.dtstack.batch.mapstruct.vo.BatchResourceMapstructTransfer;
-import com.dtstack.batch.service.auth.AuthCode;
 import com.dtstack.batch.service.impl.BatchResourceService;
 import com.dtstack.batch.vo.CatalogueVO;
 import com.dtstack.batch.web.catalogue.vo.result.BatchCatalogueResultVO;
 import com.dtstack.batch.web.resource.vo.query.BatchResourceAddVO;
 import com.dtstack.engine.common.annotation.FileUpload;
-import dt.insight.plat.autoconfigure.web.security.permissions.annotation.Security;
-import dt.insight.plat.lang.coc.template.APITemplate;
-import dt.insight.plat.lang.exception.biz.BizException;
-import dt.insight.plat.lang.web.R;
+import com.dtstack.engine.common.exception.BizException;
+import com.dtstack.engine.common.lang.coc.APITemplate;
+import com.dtstack.engine.common.lang.web.R;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +48,6 @@ public class BatchFileUploadController {
 
     @ApiOperation(value = "添加资源")
     @PostMapping(value = "batchResource/addResource")
-    @Security(code = AuthCode.DATADEVELOP_BATCH_RESOURCEMANAGER)
     @FileUpload
     public R<BatchCatalogueResultVO> addResource(BatchResourceAddVO batchResourceAddVO, MultipartFile file) {
         return new APITemplate<BatchCatalogueResultVO>() {
@@ -64,7 +61,6 @@ public class BatchFileUploadController {
 
     @ApiOperation(value = "替换资源")
     @PostMapping(value = "batchResource/replaceResource")
-    @Security(code = AuthCode.DATADEVELOP_BATCH_RESOURCEMANAGER)
     @FileUpload
     public R<Void> replaceResource(BatchResourceAddVO batchResourceAddVO, MultipartFile file) {
         return new APITemplate<Void>() {

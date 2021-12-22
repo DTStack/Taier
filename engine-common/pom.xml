@@ -18,27 +18,10 @@
     </properties>
 
     <dependencies>
-
         <dependency>
             <groupId>com.dtstack.engine</groupId>
             <artifactId>engine-plugin-api</artifactId>
             <version>1.0.0</version>
-        </dependency>
-
-        <!-- 基础依赖 -->
-        <dependency>
-            <groupId>dt.insight.plat</groupId>
-            <artifactId>dt-insight-common-base</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>spring-data-redis</artifactId>
-                    <groupId>org.springframework.data</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jedis</artifactId>
-                    <groupId>redis.clients</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
@@ -62,11 +45,6 @@
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
             <version>3.4.3.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>dt.insight.plat</groupId>
-            <artifactId>dt-insight-lang</artifactId>
         </dependency>
 
         <dependency>
@@ -164,6 +142,8 @@
             </exclusions>
         </dependency>
 
+
+
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
@@ -200,6 +180,11 @@
             <artifactId>junit</artifactId>
             <version>4.12</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
     </dependencies>
 

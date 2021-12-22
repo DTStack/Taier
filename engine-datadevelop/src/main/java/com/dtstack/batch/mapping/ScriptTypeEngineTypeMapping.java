@@ -18,9 +18,9 @@
 
 package com.dtstack.batch.mapping;
 
-import com.dtstack.dtcenter.common.enums.EScriptType;
-import com.dtstack.dtcenter.common.enums.EngineType;
-import com.dtstack.dtcenter.common.enums.MultiEngineType;
+import com.dtstack.engine.common.enums.EScriptType;
+import com.dtstack.engine.common.enums.EngineType;
+import com.dtstack.engine.common.enums.MultiEngineType;
 import com.google.common.collect.Maps;
 
 import java.util.Map;
@@ -43,14 +43,14 @@ public class ScriptTypeEngineTypeMapping {
         refMap.put(EScriptType.Python_2x.getType(), MultiEngineType.HADOOP);
         refMap.put(EScriptType.Python_3x.getType(), MultiEngineType.HADOOP);
         refMap.put(EScriptType.Shell.getType(), MultiEngineType.HADOOP);
-        refMap.put(EScriptType.LibrASQL.getType(), MultiEngineType.LIBRA);
+        refMap.put(EScriptType.GaussDBSQL.getType(), MultiEngineType.LIBRA);
         refMap.put(EScriptType.ImpalaSQL.getType(), MultiEngineType.HADOOP);
 
         jobTypeMap.put(EScriptType.SparkSQL.getType(), EngineType.Spark);
         jobTypeMap.put(EScriptType.Python_2x.getType(), EngineType.Python2);
         jobTypeMap.put(EScriptType.Python_3x.getType(), EngineType.Python3);
         jobTypeMap.put(EScriptType.Shell.getType(), EngineType.Shell);
-        jobTypeMap.put(EScriptType.LibrASQL.getType(), EngineType.Libra);
+        jobTypeMap.put(EScriptType.GaussDBSQL.getType(), EngineType.GaussDB);
     }
 
     public static MultiEngineType getEngineTypeByTaskType(Integer taskType) {

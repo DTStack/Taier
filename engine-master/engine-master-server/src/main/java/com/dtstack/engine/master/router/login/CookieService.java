@@ -21,7 +21,6 @@ package com.dtstack.engine.master.router.login;
 import com.dtstack.engine.common.constrant.Cookies;
 import com.dtstack.engine.common.util.AddressUtil;
 import com.google.common.collect.Maps;
-import dt.insight.plat.lang.Langs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

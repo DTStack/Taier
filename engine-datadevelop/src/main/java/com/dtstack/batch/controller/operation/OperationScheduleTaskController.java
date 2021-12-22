@@ -2,7 +2,7 @@ package com.dtstack.batch.controller.operation;
 
 import com.dtstack.batch.mapstruct.task.ScheduleTaskMapstructTransfer;
 import com.dtstack.batch.vo.schedule.QueryTaskListVO;
-import com.dtstack.batch.service.schedule.ScheduleTaskService;
+import com.dtstack.batch.service.schedule.TaskService;
 import com.dtstack.batch.vo.schedule.ScheduleTaskVO;
 import com.dtstack.engine.pager.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,17 +22,17 @@ import java.util.List;
 public class OperationScheduleTaskController {
 
     @Autowired
-    private ScheduleTaskService scheduleTaskService;
+    private TaskService taskService;
 
     @PostMapping(value = "/queryTasks")
-    public PageResult<ScheduleTaskVO> queryTasks(@RequestBody @Validated QueryTaskListVO vo) {
-        return scheduleTaskService.queryTasks(ScheduleTaskMapstructTransfer.INSTANCE.queryTasksVoToDto(vo));
+    public PageResult<List<ScheduleTaskVO>> queryTasks(@RequestBody @Validated QueryTaskListVO vo) {
+        return taskService.queryTasks(ScheduleTaskMapstructTransfer.INSTANCE.queryTasksVoToDto(vo));
     }
 
     @PostMapping(value = "/frozenTask")
     public void frozenTask(@RequestParam("taskIdList") List<Long> taskIdList,
                            @RequestParam("scheduleStatus") Integer scheduleStatus) {
-        scheduleTaskService.frozenTask(taskIdList, scheduleStatus);
+        taskService.frozenTask(taskIdList, scheduleStatus);
     }
 
 

@@ -18,8 +18,8 @@
 
 package com.dtstack.batch.mapping;
 
-import com.dtstack.batch.common.exception.RdosDefineException;
-import com.dtstack.dtcenter.common.enums.EJobType;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.google.common.collect.Maps;
 
@@ -44,7 +44,7 @@ public class DataSourceTypeJobTypeMapping {
         mappingMap.put(DataSourceType.Oracle.getVal(), EJobType.ORACLE_SQL);
         mappingMap.put(DataSourceType.TiDB.getVal(), EJobType.TIDB_SQL);
         mappingMap.put(DataSourceType.GREENPLUM6.getVal(), EJobType.GREENPLUM_SQL);
-        mappingMap.put(DataSourceType.LIBRA.getVal(), EJobType.LIBRA_SQL);
+        mappingMap.put(DataSourceType.LIBRA.getVal(), EJobType.GaussDB_SQL);
         mappingMap.put(DataSourceType.INCEPTOR.getVal(), EJobType.INCEPTOR_SQL);
         mappingMap.put(DataSourceType.ADB_FOR_PG.getVal(), EJobType.ANALYTICDB_FOR_PG);
     }

@@ -18,7 +18,7 @@
 
 package com.dtstack.batch.engine.rdbms.common;
 
-import com.dtstack.dtcenter.common.exception.DtCenterDefException;
+import com.dtstack.engine.common.exception.DtCenterDefException;
 
 /**
  * @author yuebai
@@ -32,7 +32,7 @@ public class LibraDownloadBuilder {
             libraDownload = new LibraDownload(sql, dtuicTenantId, schema);
             libraDownload.configure();
         } catch (Exception e) {
-            throw new DtCenterDefException(String.format("文件不存在，原因是：%s", e.getMessage()), e);
+            throw new DtCenterDefException(String.format("文件不存在，原因是：%s", e.getMessage()));
         }
         return libraDownload;
     }
