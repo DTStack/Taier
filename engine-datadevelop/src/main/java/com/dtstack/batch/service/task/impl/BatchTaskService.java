@@ -69,7 +69,6 @@ import com.dtstack.engine.master.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.master.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
 import com.dtstack.engine.master.vo.task.NotDeleteTaskVO;
 import com.dtstack.engine.master.vo.task.SaveTaskTaskVO;
-import com.dtstack.engine.master.vo.template.TaskTemplateResultVO;
 import com.dtstack.engine.pager.PageResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
@@ -2294,9 +2293,9 @@ public class BatchTaskService {
 
 
         if (EJobType.CARBON_SQL.getVal().equals(task.getTaskType())) {
-            task.setTaskParams(getDefaultTaskParam(task.getTenantId(), EngineType.Carbon.getVal(), task.getComputeType(), task.getTaskType()));
+            task.setTaskParams(getDefaultTaskParam(task.getTaskType()));
         } else {
-            task.setTaskParams(getDefaultTaskParam(task.getTenantId(), -1, task.getComputeType(), task.getTaskType()));
+            task.setTaskParams(getDefaultTaskParam(task.getTaskType()));
         }
         task.setScheduleStatus(EScheduleStatus.NORMAL.getVal());
         task.setPeriodType(DEFAULT_SCHEDULE_PERIOD);
@@ -2525,25 +2524,14 @@ public class BatchTaskService {
         }
     }
 
-    private String getDefaultTaskParam(Long dtuicTenantId, int engineType, final int computeType, final Integer taskType) {
-        engineType = EJobType.CARBON_SQL.getVal().equals(taskType) ? EngineType.Carbon.getVal() : engineType;
-        return doGetDefaultTaskParam(dtuicTenantId, engineType, computeType);
-    }
-
-    /**
-     * 从参数默认表里面读取
-     *
-     * @author toutian
-     */
-    private String doGetDefaultTaskParam(Long dtuicTenantId, final int engineType, final int computeType) {
-        final TaskTemplateResultVO engineParamTmplByComputeType = this.taskParamTemplateService.getEngineParamTmplByComputeType(engineType, computeType, 0);
-
-        if (engineParamTmplByComputeType == null) {
-            logger.error("systbatchJobem don't have init param of engineType {} of compute Type: {} ,data {}", engineType, computeType, JSON.toJSONString(engineParamTmplByComputeType));
-            throw new RdosDefineException("system don't have init param of engineType: " + engineType + " of compute Type:" + computeType);
+    private String getDefaultTaskParam(Integer taskType) {
+        TaskParamTemplate taskParamTemplate = taskParamTemplateService.getTaskParamTemplate(null, taskType);
+        if(null == taskParamTemplate){
+            return Strings.EMPTY_STRING;
         }
-        return engineParamTmplByComputeType.getParams();
+        return taskParamTemplate.getParams();
     }
+
 
     /**
      * 数据开发-删除任务

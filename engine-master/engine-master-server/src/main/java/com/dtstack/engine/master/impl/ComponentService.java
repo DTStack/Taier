@@ -55,9 +55,7 @@ import com.dtstack.engine.pluginapi.sftp.SftpFileManage;
 import com.dtstack.engine.pluginapi.util.MD5Util;
 import com.dtstack.engine.pluginapi.util.MathUtil;
 import com.dtstack.engine.pluginapi.util.PublicUtil;
-import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Table;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
@@ -71,7 +69,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,7 +76,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.dtstack.engine.pluginapi.constrant.ConfigConstant.*;
@@ -311,7 +311,7 @@ public class ComponentService {
         }
 
         String mergeDirPath = ConfigConstant.LOCAL_KRB5_MERGE_DIR_PARENT + ConfigConstant.SP + UUID.randomUUID();
-        List<Long> clusterDownloadRecords = new ArrayList();
+        List<Long> clusterDownloadRecords = new ArrayList<>();
         try {
             String oldMergeKrb5Content = null;
             String mergeKrb5Path = mergeDirPath + ConfigConstant.SP + ConfigConstant.MERGE_KRB5_NAME;
@@ -1106,7 +1106,7 @@ public class ComponentService {
      * 测试单个组件联通性
      */
     public ComponentTestResult testConnect(Integer componentType, String componentConfig, String clusterName,
-                                           String hadoopVersion, Long engineId, KerberosConfig kerberosConfig, Map<String, String> sftpConfig,Integer storeType,Integer deployType) {
+                                           String hadoopVersion, Long clusterId, KerberosConfig kerberosConfig, Map<String, String> sftpConfig,Integer storeType,Integer deployType) {
         ComponentTestResult componentTestResult = new ComponentTestResult();
         try {
             if (EComponentType.notCheckComponent.contains(EComponentType.getByCode(componentType))) {
@@ -1134,7 +1134,7 @@ public class ComponentService {
             if (EComponentType.YARN.getTypeCode().equals(componentType)
                     && componentTestResult.getResult()
                     && Objects.nonNull(componentTestResult.getClusterResourceDescription())) {
-                    queueService.updateQueue(engineId, componentTestResult.getClusterResourceDescription());
+                    queueService.updateQueue(clusterId, componentTestResult.getClusterResourceDescription());
             }
 
         }catch (Throwable e){
@@ -1649,7 +1649,7 @@ public class ComponentService {
         LOGGER.info(" clear all component cache ");
     }
 
-    public ComponentTestResult testConnect(String clusterName, Integer componentType, Map<Integer,String> componentVersionMap) {
+    public ComponentTestResult testConnect(String clusterName, Integer componentType, String componentVersion) {
         if (StringUtils.isBlank(clusterName)) {
             throw new RdosDefineException("clusterName is null");
         }
@@ -1657,7 +1657,7 @@ public class ComponentService {
         if (null == cluster) {
             throw new RdosDefineException("集群不存在");
         }
-        Component testComponent = componentMapper.getByClusterIdAndComponentType(cluster.getId(), componentType,ComponentVersionUtil.getComponentVersion(componentVersionMap,componentType),null);
+        Component testComponent = componentMapper.getByClusterIdAndComponentType(cluster.getId(), componentType,componentVersion,null);
         if (null == testComponent) {
             throw new RdosDefineException("该组件不存在");
         }
@@ -1684,46 +1684,44 @@ public class ComponentService {
             return new ArrayList<>();
         }
 
-        Map sftpMap = getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class,null);
-        CountDownLatch countDownLatch = new CountDownLatch(components.size());
-        Table<Integer,String , Future<ComponentTestResult>> completableFutures = HashBasedTable.create();
-        for (Component component : components) {
-            Future<ComponentTestResult> testResultFuture = connectPool.submit(() -> {
-                try {
-                    return testComponentWithResult(clusterName, cluster, sftpMap, component);
-                } finally {
-                    countDownLatch.countDown();
-                }
-            });
-            completableFutures.put(component.getComponentTypeCode(),StringUtils.isBlank(component.getHadoopVersion())?StringUtils.EMPTY:component.getHadoopVersion(),testResultFuture);
-        }
-        try {
-            countDownLatch.await(env.getTestConnectTimeout(), TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            LOGGER.error("test connect await {} error ", clusterName, e);
-        }
+        Map sftpMap = getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class, null);
 
-        Map<Integer,ComponentMultiTestResult> multiComponent=new HashMap<>(completableFutures.size());
-        for (Table.Cell<Integer, String, Future<ComponentTestResult>> cell : completableFutures.cellSet()) {
-            Future<ComponentTestResult> completableFuture = cell.getValue();
-            ComponentTestResult testResult = new ComponentTestResult();
-            testResult.setResult(false);
-            try {
-                if (completableFuture.isDone()) {
-                    testResult = completableFuture.get();
-                } else {
-                    testResult.setErrorMsg("test connect time out");
-                    completableFuture.cancel(true);
-                }
-            } catch (Exception e) {
-                testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
-            } finally {
-                testResult.setComponentTypeCode(cell.getRowKey());
-                ComponentMultiTestResult multiTestResult = multiComponent.computeIfAbsent(cell.getRowKey(), k -> new ComponentMultiTestResult(cell.getRowKey()));
-                buildComponentMultiTest(multiTestResult,testResult,cell.getColumnKey());
-            }
+        Map<Component, CompletableFuture<ComponentTestResult>> completableFutureMap = components.stream()
+                .collect(Collectors.toMap(component -> component,
+                        c -> CompletableFuture.supplyAsync(() -> testComponentWithResult(clusterName, cluster, sftpMap, c), connectPool)));
+
+        CompletableFuture<List<ComponentTestResult>> completableFuture = CompletableFuture
+                .allOf(completableFutureMap.values().toArray(new CompletableFuture[0]))
+                .thenApply((f) -> completableFutureMap.keySet().stream().map(component -> {
+                    try {
+                        return completableFutureMap.get(component).get(env.getTestConnectTimeout(), TimeUnit.SECONDS);
+                    } catch (Exception e) {
+                        ComponentTestResult testResult = new ComponentTestResult();
+                        testResult.setResult(false);
+                        testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
+                        testResult.setComponentVersion(component.getHadoopVersion());
+                        testResult.setComponentTypeCode(component.getComponentTypeCode());
+                        return testResult;
+                    }
+                }).collect(Collectors.toList()));
+        try {
+            List<ComponentTestResult> componentTestResults = completableFuture.get();
+            Map<Integer, List<ComponentTestResult>> componentCodeResultMap = componentTestResults.stream()
+                    .collect(Collectors.groupingBy(ComponentTestResult::getComponentTypeCode, Collectors.collectingAndThen(Collectors.toList(), c -> c)));
+            return componentCodeResultMap.keySet().stream().map(componentCode -> {
+                ComponentMultiTestResult multiTestResult = new ComponentMultiTestResult(componentCode);
+                multiTestResult.setMultiVersion(componentCodeResultMap.get(componentCode));
+                List<ComponentTestResult> testResults = componentCodeResultMap.get(componentCode);
+                multiTestResult.setResult(testResults.stream().allMatch(ComponentTestResult::getResult));
+                testResults.stream()
+                        .filter(componentTestResult -> StringUtils.isNotBlank(componentTestResult.getErrorMsg()))
+                        .findFirst()
+                        .ifPresent(errorResult -> multiTestResult.setErrorMsg(errorResult.getErrorMsg()));
+                return multiTestResult;
+            }).collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RdosDefineException(e);
         }
-        return new ArrayList<>(multiComponent.values());
     }
 
     private ComponentTestResult testComponentWithResult(String clusterName, Cluster cluster, Map sftpMap,Component component) {
@@ -1862,24 +1860,6 @@ public class ComponentService {
         componentMapper.updateMetadata(clusterId, componentType, isMetadata ? 1 : 0);
         componentMapper.updateMetadata(clusterId, revertComponentType, isMetadata ? 0 : 1);
         return true;
-    }
-
-    /**
-     * 构建组件多版本测试结果
-     * @param multiTestResult 多版本
-     * @param componentTestResult 单个版本
-     * @param componentVersion 版本,可能为 ""
-     */
-    private void buildComponentMultiTest(ComponentMultiTestResult multiTestResult,ComponentTestResult componentTestResult,String componentVersion){
-        if (!componentTestResult.getResult()){
-            if (multiTestResult.getResult()){
-                multiTestResult.setResult(false);
-                multiTestResult.setErrorMsg(new ArrayList<>(2));
-            }
-            multiTestResult.getErrorMsg().add(new ComponentMultiTestResult.MultiErrorMsg(componentVersion,componentTestResult.getErrorMsg()));
-        }
-        multiTestResult.getMultiVersion().add(componentTestResult);
-
     }
 
 
