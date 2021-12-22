@@ -19,7 +19,7 @@
 package com.dtstack.batch.engine.rdbms.common;
 
 import com.dtstack.batch.engine.rdbms.service.impl.Engine2DTOService;
-import com.dtstack.dtcenter.common.util.PublicUtil;
+import com.dtstack.engine.common.util.PublicUtil;
 import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

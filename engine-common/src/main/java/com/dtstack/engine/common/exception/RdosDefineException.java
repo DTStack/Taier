@@ -16,39 +16,38 @@
  * limitations under the License.
  */
 
-package com.dtstack.batch.common.exception;
+package com.dtstack.engine.common.exception;
 
 
-import com.dtstack.dtcenter.common.exception.DtCenterDefException;
-import com.dtstack.dtcenter.common.exception.ExceptionEnums;
+import com.dtstack.engine.pluginapi.exception.ErrorCode;
 
 /**
  * @author sishu.yss
  */
 public class RdosDefineException extends DtCenterDefException {
-
+    private ErrorCode errorCode;
 
     public RdosDefineException(String message) {
         super(message);
+        this.errorCode = ErrorCode.UNKNOWN_ERROR;
     }
-
     public RdosDefineException(String message, Throwable cause) {
-        super(message, cause);
+        super(message);
+        this.errorCode = ErrorCode.UNKNOWN_ERROR;
     }
 
     public RdosDefineException(ExceptionEnums errorCode) {
         super(errorCode);
     }
-
     public RdosDefineException(String message, ExceptionEnums errorCode) {
-        super(message, errorCode);
+        super(errorCode,message);
     }
 
     public RdosDefineException(ExceptionEnums errorCode, Throwable cause) {
-        super(errorCode, cause);
+        super(cause,errorCode);
     }
 
     public RdosDefineException(String message, ExceptionEnums errorCode, Throwable cause) {
-        super(message, errorCode, cause);
+        super(cause,errorCode,message);
     }
 }

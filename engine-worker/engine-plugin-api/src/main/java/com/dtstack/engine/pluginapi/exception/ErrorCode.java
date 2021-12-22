@@ -204,7 +204,9 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
     SYS_BUSINESS_EXCEPTION(501, "业务异常"),
     TENANT_CAN_NOT_FIND(502, "租户不存在"),
 
-    NOT_USED(10000000, "");
+    NOT_USED(10000000, "")
+
+    ;
 
 
     private int code;

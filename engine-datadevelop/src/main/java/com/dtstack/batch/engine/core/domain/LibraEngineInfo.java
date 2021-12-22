@@ -20,9 +20,9 @@ package com.dtstack.batch.engine.core.domain;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.batch.service.multiengine.EngineInfo;
-import com.dtstack.dtcenter.common.enums.EComponentType;
-import com.dtstack.dtcenter.common.enums.MultiEngineType;
-import com.dtstack.dtcenter.common.util.MathUtil;
+import com.dtstack.engine.common.enums.MultiEngineType;
+import com.dtstack.engine.common.util.MathUtil;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

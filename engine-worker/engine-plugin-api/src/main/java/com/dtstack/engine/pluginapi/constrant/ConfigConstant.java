@@ -37,6 +37,7 @@ public class ConfigConstant {
     public static final String COLON = ":";
     public static final String SEMICOLON = ";";
     public static final String BACKSLASH = "/";
+    public static final String DOT = ".";
 
     /**
      * first clusterName，second queueName
@@ -90,9 +91,11 @@ public class ConfigConstant {
     public static final String LDAP_USER_NAME = "dtProxyUserName";
 
     public static final String ZIP_SUFFIX = ".zip";
+    public static final String XML_SUFFIX = ".xml";
+    public static final String JSON_SUFFIX = ".json";
     public static final String USER_DIR_UNZIP = System.getProperty("user.dir") + File.separator + "unzip";
     public static final String USER_DIR_DOWNLOAD = System.getProperty("user.dir") + File.separator + "download";
-
+    public static final String USER_CONF_PATH = "confPath";
     public static final long DEFAULT_KUBERNETES_PARENT_NODE = -2L;
     public static final long DEFAULT_TENANT  = -1L;
 

@@ -62,9 +62,7 @@ public class RestartJobRunnable extends AbstractRestart implements Runnable {
 
             Map<String, String> resumeBatchJobs = Maps.newHashMap();
 
-            Map<Integer, Set<Long>> appTaskListMapping = jobs.stream()
-                    .collect(Collectors.groupingBy(ScheduleJob::getAppType, Collectors.mapping(ScheduleJob::getTaskId, Collectors.toSet())));
-
+            Map<Integer, Set<Long>> appTaskListMapping = Maps.newHashMap();
             Map<Long, ScheduleTaskShade> taskShadeMap = Maps.newHashMap();
 
             for (Integer appType : appTaskListMapping.keySet()) {
@@ -111,7 +109,7 @@ public class RestartJobRunnable extends AbstractRestart implements Runnable {
 
             ScheduleTaskShade scheduleTaskShade = taskShadeMap.get(job.getTaskId());
             if (scheduleTaskShade == null || Deleted.DELETED.getStatus().equals(scheduleTaskShade.getIsDeleted())) {
-                LOGGER.error("cat not find taskShade by taskId:{} appType {}", job.getTaskId(), job.getAppType());
+                LOGGER.error("cat not find taskShade by taskId:{}", job.getTaskId());
                 continue;
             }
 

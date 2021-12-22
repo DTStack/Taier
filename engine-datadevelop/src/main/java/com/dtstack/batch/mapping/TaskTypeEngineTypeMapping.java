@@ -18,8 +18,8 @@
 
 package com.dtstack.batch.mapping;
 
-import com.dtstack.dtcenter.common.enums.EJobType;
-import com.dtstack.dtcenter.common.enums.MultiEngineType;
+import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.enums.MultiEngineType;
 import com.google.common.collect.Maps;
 
 import java.util.Map;
@@ -50,7 +50,7 @@ public class TaskTypeEngineTypeMapping {
         REF_MAP.put(EJobType.CARBON_SQL.getVal(), MultiEngineType.HADOOP);
         REF_MAP.put(EJobType.ALGORITHM_LAB.getVal(), MultiEngineType.HADOOP);
 
-        REF_MAP.put(EJobType.LIBRA_SQL.getVal(), MultiEngineType.LIBRA);
+        REF_MAP.put(EJobType.GaussDB_SQL.getVal(), MultiEngineType.LIBRA);
         REF_MAP.put(EJobType.HIVE_SQL.getVal(), MultiEngineType.HADOOP);
         REF_MAP.put(EJobType.IMPALA_SQL.getVal(), MultiEngineType.HADOOP);
         REF_MAP.put(EJobType.INCEPTOR_SQL.getVal(), MultiEngineType.HADOOP);

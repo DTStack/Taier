@@ -19,14 +19,15 @@
 package com.dtstack.batch.controller.batch;
 
 import com.dtstack.batch.mapstruct.vo.BatchCatalogueMapstructTransfer;
-import com.dtstack.batch.service.auth.AuthCode;
 import com.dtstack.batch.service.impl.BatchCatalogueService;
 import com.dtstack.batch.vo.CatalogueVO;
-import com.dtstack.batch.web.catalogue.vo.query.*;
+import com.dtstack.batch.web.catalogue.vo.query.BatchCatalogueAddVO;
+import com.dtstack.batch.web.catalogue.vo.query.BatchCatalogueGetVO;
+import com.dtstack.batch.web.catalogue.vo.query.BatchCataloguePathVO;
+import com.dtstack.batch.web.catalogue.vo.query.BatchCatalogueUpdateVO;
 import com.dtstack.batch.web.catalogue.vo.result.BatchCatalogueResultVO;
-import dt.insight.plat.autoconfigure.web.security.permissions.annotation.Security;
-import dt.insight.plat.lang.coc.template.APITemplate;
-import dt.insight.plat.lang.web.R;
+import com.dtstack.engine.common.lang.coc.APITemplate;
+import com.dtstack.engine.common.lang.web.R;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,6 @@ public class BatchCatalogueController {
 
     @PostMapping(value = "addCatalogue")
     @ApiOperation(value = "新增目录")
-    @Security(code = AuthCode.DATADEVELOP_BATCH_RESOURCEMANAGER)
     public R<BatchCatalogueResultVO> addCatalogue(@RequestBody BatchCatalogueAddVO vo) {
         return new APITemplate<BatchCatalogueResultVO>() {
             @Override
@@ -58,7 +58,6 @@ public class BatchCatalogueController {
 
     @PostMapping(value = "getCatalogue")
     @ApiOperation(value = "获取目录")
-    @Security(code = AuthCode.DATADEVELOP_BATCH_TASKMANAGER_QUERY)
     public R<BatchCatalogueResultVO> getCatalogue(@RequestBody BatchCatalogueGetVO vo) {
         return new APITemplate<BatchCatalogueResultVO>() {
             @Override
@@ -71,7 +70,6 @@ public class BatchCatalogueController {
 
     @PostMapping(value = "updateCatalogue")
     @ApiOperation(value = "更新目录")
-    @Security(code = AuthCode.DATADEVELOP_BATCH_RESOURCEMANAGER)
     public R<Void> updateCatalogue(@RequestBody BatchCatalogueUpdateVO vo) {
         return new APITemplate<Void>() {
             @Override
@@ -84,7 +82,6 @@ public class BatchCatalogueController {
 
     @PostMapping(value = "deleteCatalogue")
     @ApiOperation(value = "删除目录")
-    @Security(code = AuthCode.DATADEVELOP_BATCH_RESOURCEMANAGER)
     public R<Void> deleteCatalogue(@RequestBody BatchCatalogueAddVO vo) {
         return new APITemplate<Void>() {
             @Override
