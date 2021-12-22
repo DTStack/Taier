@@ -57,24 +57,13 @@ public class BatchFunctionController {
         }.execute();
     }
 
-    @PostMapping(value = "getEngineIdentity")
-    @ApiOperation(value = "获取引擎标识")
-    public R<String> getEngineIdentity(@RequestBody BatchFunctionIdentityVO vo) {
-        return new APITemplate<String>() {
-            @Override
-            protected String process() {
-                return batchFunctionService.getEngineIdentity(vo.getProjectId(), vo.getEngineType());
-            }
-        }.execute();
-    }
-
     @PostMapping(value = "addOrUpdateFunction")
     @ApiOperation(value = "添加函数")
     public R<BatchFunctionAddResultVO> addOrUpdateFunction(@RequestBody BatchFunctionAddVO vo) {
         return new APITemplate<BatchFunctionAddResultVO>() {
             @Override
             protected BatchFunctionAddResultVO process() {
-                TaskCatalogueVO result = batchFunctionService.addOrUpdateFunction(FunctionMapstructTransfer.INSTANCE.newFunctionAddVoToFunctionVo(vo), vo.getResourceIds(), vo.getDtuicTenantId());
+                TaskCatalogueVO result = batchFunctionService.addOrUpdateFunction(FunctionMapstructTransfer.INSTANCE.newFunctionAddVoToFunctionVo(vo), vo.getResourceIds(), vo.getTenantId());
                 return FunctionMapstructTransfer.INSTANCE.newTaskCatalogueVoToFunctionAddResultVo(result);
             }
         }.execute();
@@ -98,7 +87,7 @@ public class BatchFunctionController {
         return new APITemplate<Void>() {
             @Override
             protected Void process() {
-                batchFunctionService.deleteFunction(vo.getUserId(), vo.getProjectId(), vo.getFunctionId(), vo.getDtuicTenantId());
+                batchFunctionService.deleteFunction(vo.getUserId(), vo.getFunctionId());
                 return null;
             }
         }.execute();
@@ -110,7 +99,7 @@ public class BatchFunctionController {
         return new APITemplate<List<String>>() {
             @Override
             protected List<String> process() {
-                return batchFunctionService.getAllFunctionName(vo.getTenantId(), vo.getProjectId(), vo.getTaskType());
+                return batchFunctionService.getAllFunctionName(vo.getTenantId(), vo.getTaskType());
             }
         }.execute();
     }

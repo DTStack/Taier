@@ -26,7 +26,7 @@ import lombok.Data;
 @Data
 @ApiModel("目录项目表信息")
 public class BatchCatalogueProjectTableListVO extends DtInsightAuthParam {
-    @ApiModelProperty(value = "用户id", hidden = true)
+    @ApiModelProperty(value = "用户id", example = "1")
     private Long userId;
 
     @ApiModelProperty(value = "表名称", example = "test", required = true)
@@ -41,6 +41,6 @@ public class BatchCatalogueProjectTableListVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "表唯一标识", example = "dev", required = true)
     private String projectIdentifier;
 
-    @ApiModelProperty(value = "是否为root", hidden = true)
+    @ApiModelProperty(value = "是否为root", example = "1")
     private Boolean isRoot;
 }

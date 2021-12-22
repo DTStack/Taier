@@ -64,14 +64,8 @@ public class BatchFunctionVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "存储过程sql", example = "test_name")
     private String sqlText;
 
-    @ApiModelProperty(value = "租户id", hidden = true)
+    @ApiModelProperty(value = "租户id", example = "1")
     private Long tenantId;
-
-    @ApiModelProperty(value = "项目id", hidden = true)
-    private Long projectId;
-
-    @ApiModelProperty(value = "dtuic租户id", hidden = true)
-    private Long dtuicTenantId;
 
     @ApiModelProperty(value = "app类型 RDOS(1) DQ(2), API(3) TAG(4) MAP(5) CONSOLE(6) STREAM(7) DATASCIENCE(8)", example = "1", required = true)
     private Integer appType;

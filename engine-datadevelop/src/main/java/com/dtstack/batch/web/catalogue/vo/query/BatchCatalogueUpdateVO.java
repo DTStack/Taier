@@ -34,13 +34,10 @@ public class BatchCatalogueUpdateVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "父目录")
     private BatchCatalogueUpdateVO parentCatalogue;
 
-    @ApiModelProperty(value = "用户id", hidden = true)
+    @ApiModelProperty(value = "用户id", example = "1")
     private Long userId;
 
-    @ApiModelProperty(value = "项目id", hidden = true)
-    private Long projectId;
-
-    @ApiModelProperty(value = "租户id", hidden = true)
+    @ApiModelProperty(value = "租户id", example = "1")
     private Long tenantId;
 
     @ApiModelProperty(value = "节点名称", example = "a", required = true)
@@ -63,9 +60,6 @@ public class BatchCatalogueUpdateVO extends DtInsightAuthParam {
 
     @ApiModelProperty(value = "目录类型", example = "1")
     private Integer catalogueType;
-
-    @ApiModelProperty(value = "dtuic租户id", hidden = true)
-    private Long dtuicTenantId;
 
     @ApiModelProperty(value = "app类型", example = "1")
     private Integer appType;
