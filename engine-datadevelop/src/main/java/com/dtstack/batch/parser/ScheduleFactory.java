@@ -18,9 +18,9 @@
 
 package com.dtstack.batch.parser;
 
-import com.dtstack.batch.common.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.batch.enums.DependencyType;
-import com.dtstack.dtcenter.common.util.MathUtil;
+import com.dtstack.engine.common.util.MathUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import org.apache.commons.collections.MapUtils;

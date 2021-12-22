@@ -193,14 +193,14 @@ public class ScheduleJobJobService {
         for (ScheduleJob scheduleJob : jobs) {
             keyJobMap.put(scheduleJob.getJobKey(), scheduleJob);
 
-            List<Long> taskIds = mapTaskId.get(scheduleJob.getAppType());
+            List<Long> taskIds = mapTaskId.get(1);
 
             if (CollectionUtils.isEmpty(taskIds)) {
                 taskIds = Lists.newArrayList();
             }
 
             taskIds.add(scheduleJob.getTaskId());
-            mapTaskId.put(scheduleJob.getAppType(),taskIds);
+            mapTaskId.put(1,taskIds);
         }
         List<ScheduleTaskShade> taskAllShades = Lists.newArrayList();
 
@@ -510,7 +510,7 @@ public class ScheduleJobJobService {
             vo.setStatus(RdosTaskStatus.RUNNING.getStatus());
         }
 
-        ScheduleTaskShade batchTaskShade = idTaskMap.get(job.getTaskId()+"-"+job.getAppType());
+        ScheduleTaskShade batchTaskShade = idTaskMap.get(job.getTaskId());
         if (batchTaskShade == null) {
             return null;
         }
@@ -678,7 +678,7 @@ public class ScheduleJobJobService {
             return null;
         }
         com.dtstack.engine.master.impl.vo.ScheduleJobVO vo = new com.dtstack.engine.master.impl.vo.ScheduleJobVO(job);
-        ScheduleTaskShade batchTaskShade = idTaskMap.get(job.getTaskId()+"-"+job.getAppType());
+        ScheduleTaskShade batchTaskShade = idTaskMap.get(job.getTaskId());
         vo.setBatchTask(getTaskVo(batchTaskShade));
         if (StringUtils.isBlank(job.getJobKey())) {
             return vo;
@@ -715,7 +715,7 @@ public class ScheduleJobJobService {
             return null;
         }
         com.dtstack.engine.master.impl.vo.ScheduleJobVO vo = new com.dtstack.engine.master.impl.vo.ScheduleJobVO(job);
-        ScheduleTaskShade batchTaskShade = idTaskMap.get(job.getTaskId() + "-" + job.getAppType());
+        ScheduleTaskShade batchTaskShade = idTaskMap.get(job.getTaskId());
         vo.setBatchTask(getTaskVo(batchTaskShade));
         if (StringUtils.isBlank(job.getJobKey())) {
             return vo;

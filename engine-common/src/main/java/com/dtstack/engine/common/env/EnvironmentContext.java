@@ -428,6 +428,9 @@ public class EnvironmentContext implements InitializingBean {
         return Integer.parseInt(environment.getProperty("fill.data.limit.size", "2000"));
     }
 
+    public int getFillDataRootTaskMaxLevel() {
+        return Integer.parseInt(environment.getProperty("fillData.max.level.size", "1000"));
+    }
 
     /* datadevelop */
 
@@ -506,6 +509,4 @@ public class EnvironmentContext implements InitializingBean {
     public void afterPropertiesSet() throws Exception {
         ClientCache.setUserDir(getDataSourcePluginPath());
     }
-
-
 }

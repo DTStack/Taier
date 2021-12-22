@@ -19,7 +19,7 @@
 package com.dtstack.batch.service.multiengine;
 
 
-import com.dtstack.dtcenter.common.enums.MultiEngineType;
+import com.dtstack.engine.common.enums.MultiEngineType;
 
 import java.util.Map;
 

@@ -18,7 +18,7 @@
 
 package com.dtstack.batch.engine.rdbms.common.util;
 
-import com.dtstack.dtcenter.common.util.DtStringUtil;
+import com.dtstack.engine.common.util.DtStringUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;

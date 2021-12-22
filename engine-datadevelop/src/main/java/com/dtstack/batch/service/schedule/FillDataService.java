@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
  * @Description:
  */
 @Service
-public class FillDataJobService extends ServiceImpl<ScheduleFillDataJobMapper, ScheduleFillDataJob> {
+public class FillDataService extends ServiceImpl<ScheduleFillDataJobMapper, ScheduleFillDataJob> {
 
 
     public boolean checkExistsName(String fillName) {

@@ -23,14 +23,10 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.dtstack.batch.common.convert.BinaryConversion;
-import com.dtstack.batch.engine.rdbms.service.impl.Engine2DTOService;
-import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.batch.common.exception.ErrorCode;
-import com.dtstack.batch.common.exception.RdosDefineException;
-import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.batch.domain.BatchTaskParamShade;
 import com.dtstack.batch.domain.BatchTaskVersionDetail;
 import com.dtstack.batch.engine.rdbms.common.util.SqlFormatterUtil;
+import com.dtstack.batch.engine.rdbms.service.impl.Engine2DTOService;
 import com.dtstack.batch.enums.DeployModeEnum;
 import com.dtstack.batch.enums.EScheduleType;
 import com.dtstack.batch.enums.YarnAppLogType;
@@ -42,23 +38,28 @@ import com.dtstack.batch.vo.BatchServerLogVO;
 import com.dtstack.batch.vo.SyncErrorCountInfoVO;
 import com.dtstack.batch.vo.SyncStatusLogInfoVO;
 import com.dtstack.batch.web.server.vo.result.BatchServerLogByAppLogTypeResultVO;
-import com.dtstack.dtcenter.common.enums.*;
-import com.dtstack.dtcenter.common.util.Base64Util;
-import com.dtstack.dtcenter.common.util.DataFilter;
-import com.dtstack.dtcenter.common.util.JsonUtils;
-import com.dtstack.dtcenter.common.util.MathUtil;
+import com.dtstack.engine.common.enums.*;
+import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.metric.batch.IMetric;
+import com.dtstack.engine.common.metric.batch.MetricBuilder;
+import com.dtstack.engine.common.metric.prometheus.PrometheusMetricQuery;
+import com.dtstack.engine.common.util.Base64Util;
+import com.dtstack.engine.common.util.DataFilter;
+import com.dtstack.engine.common.util.JsonUtils;
+import com.dtstack.engine.common.util.MathUtil;
+import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleTaskShade;
-import com.dtstack.engine.master.vo.action.ActionJobEntityVO;
-import com.dtstack.engine.master.vo.action.ActionLogVO;
-import com.dtstack.engine.master.vo.action.ActionRetryLogVO;
 import com.dtstack.engine.master.impl.ActionService;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
-import com.dtstack.engine.common.metric.batch.IMetric;
-import com.dtstack.engine.common.metric.batch.MetricBuilder;
-import com.dtstack.engine.common.metric.prometheus.PrometheusMetricQuery;
+import com.dtstack.engine.master.vo.action.ActionJobEntityVO;
+import com.dtstack.engine.master.vo.action.ActionLogVO;
+import com.dtstack.engine.master.vo.action.ActionRetryLogVO;
+import com.dtstack.engine.pluginapi.enums.ComputeType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
@@ -181,7 +182,7 @@ public class BatchServerLogService {
         }
 
         info.put("status", job.getStatus());
-        if (EJobType.SPARK_SQL.getVal().equals(scheduleTaskShade.getTaskType()) || EJobType.LIBRA_SQL.getVal().equals(scheduleTaskShade.getTaskType())
+        if (EJobType.SPARK_SQL.getVal().equals(scheduleTaskShade.getTaskType()) || EJobType.GaussDB_SQL.getVal().equals(scheduleTaskShade.getTaskType())
                 || EJobType.ORACLE_SQL.getVal().equals(scheduleTaskShade.getTaskType()) || EJobType.TIDB_SQL.getVal().equals(scheduleTaskShade.getTaskType())
                 || EJobType.IMPALA_SQL.getVal().equals(scheduleTaskShade.getTaskType())) {
             // 处理sql注释，先把注释base64编码，再处理非注释的自定义参数
@@ -238,8 +239,8 @@ public class BatchServerLogService {
 
         // 增加重试日志
         final String retryLog = this.buildRetryLog(jobId, pageInfo, batchServerLogVO);
-        this.formatForLogInfo(info, job.getType(),scheduleTaskShade.getTaskType(), retryLog, job.getExecStartTime(),
-                job.getExecEndTime(), job.getExecTime(), batchServerLogVO, tenantId,jobId);
+        this.formatForLogInfo(info, job.getType(),scheduleTaskShade.getTaskType(), retryLog, null,
+                null, null, batchServerLogVO, tenantId,jobId);
 
         if (!scheduleTaskShade.getTaskType().equals(EJobType.SYNC.getVal())
                 && !scheduleTaskShade.getTaskType().equals(EJobType.VIRTUAL.getVal())
@@ -253,8 +254,6 @@ public class BatchServerLogService {
         batchServerLogVO.setComputeType(scheduleTaskShade.getComputeType());
         batchServerLogVO.setTaskType(scheduleTaskShade.getTaskType());
 
-        batchServerLogVO.setExecEndTime(job.getExecEndTime());
-        batchServerLogVO.setExecStartTime(job.getExecStartTime());
         return batchServerLogVO;
     }
 

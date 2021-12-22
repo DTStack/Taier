@@ -1,6 +1,6 @@
 package com.dtstack.batch.controller.operation;
 
-import com.dtstack.batch.common.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.batch.web.server.vo.query.BatchServerGetLogByJobIdVO;
 import com.dtstack.engine.master.enums.RestartType;
 import com.dtstack.engine.master.impl.ActionService;

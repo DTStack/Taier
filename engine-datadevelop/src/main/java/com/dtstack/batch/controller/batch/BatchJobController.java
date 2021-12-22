@@ -19,18 +19,16 @@
 package com.dtstack.batch.controller.batch;
 
 import com.dtstack.batch.mapstruct.vo.BatchJobMapstructTransfer;
-import com.dtstack.batch.service.auth.AuthCode;
 import com.dtstack.batch.service.job.impl.BatchJobService;
 import com.dtstack.batch.vo.ExecuteResultVO;
 import com.dtstack.batch.vo.ExecuteSqlParseVO;
 import com.dtstack.batch.web.job.vo.query.*;
 import com.dtstack.batch.web.job.vo.result.*;
+import com.dtstack.engine.common.exception.BizException;
+import com.dtstack.engine.common.lang.coc.APITemplate;
+import com.dtstack.engine.common.lang.web.R;
 import com.dtstack.engine.domain.ScheduleJob;
-import com.dtstack.engine.master.vo.*;
-import dt.insight.plat.autoconfigure.web.security.permissions.annotation.Security;
-import dt.insight.plat.lang.coc.template.APITemplate;
-import dt.insight.plat.lang.exception.biz.BizException;
-import dt.insight.plat.lang.web.R;
+import com.dtstack.engine.master.vo.ScheduleJobExeStaticsVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +49,6 @@ public class BatchJobController {
     private BatchJobService batchJobService;
 
     @ApiOperation(value = "通过ID更新状态")
-    @Security(code = AuthCode.MAINTENANCE_BATCH_TASKOP)
     @PostMapping(value = "updateStatusById")
     public R<String> updateStatusById(@RequestBody BatchJobUpdateStatusByIdVO vo) {
 
@@ -64,7 +61,6 @@ public class BatchJobController {
     }
 
     @ApiOperation(value = "更新状态")
-    @Security(code = AuthCode.MAINTENANCE_BATCH_TASKOP)
     @PostMapping(value = "updateStatus")
     public R<String> updateStatus(@RequestBody BatchJobUpdateStatusVO vo) {
 
@@ -77,7 +73,6 @@ public class BatchJobController {
     }
 
     @ApiOperation(value = "停止任务")
-    @Security(code = AuthCode.MAINTENANCE_BATCH_TASKOP)
     @PostMapping(value = "stopJob")
     public R<String> stopJob(@RequestBody BatchJobStopJobVO vo) {
 
@@ -90,7 +85,6 @@ public class BatchJobController {
     }
 
     @ApiOperation(value = "运行同步任务")
-    @Security(code = AuthCode.DATADEVELOP_BATCH_TASKMANAGER_EDIT)
     @PostMapping(value = "startSyncImmediately")
     public R<BatchStartSyncResultVO> startSyncImmediately(@RequestBody BatchJobStartSyncVO vo) {
 
@@ -116,7 +110,6 @@ public class BatchJobController {
     }
 
     @ApiOperation(value = "停止同步任务")
-    @Security(code = AuthCode.DATADEVELOP_BATCH_TASKMANAGER_EDIT)
     @PostMapping(value = "stopSyncJob")
     public R<Void> stopSyncJob(@RequestBody BatchJobSyncTaskVO vo) {
 
@@ -131,7 +124,6 @@ public class BatchJobController {
 
     @ApiOperation(value = "运行sql")
     @PostMapping(value = "startSqlImmediately")
-    @Security(code = AuthCode.DATADEVELOP_BATCH_TASKMANAGER_EDIT)
     public R<BatchExecuteResultVO> startSqlImmediately(@RequestBody BatchJobStartSqlVO vo) {
 
         return new APITemplate<BatchExecuteResultVO>() {
@@ -158,7 +150,6 @@ public class BatchJobController {
 
 
     @ApiOperation(value = "停止通过sql任务执行的sql查询语句")
-    @Security(code = AuthCode.DATADEVELOP_BATCH_TASKMANAGER_EDIT)
     @PostMapping(value = "stopSqlImmediately")
     public R<Void> stopSqlImmediately(@RequestBody BatchJobSyncTaskVO vo) {
 
