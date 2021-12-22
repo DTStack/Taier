@@ -45,7 +45,7 @@ public class BatchCatalogueAddVO {
     @ApiModelProperty(value = "目录层级 0:一级 1:二级 n:n+1级", example = "1", required = true)
     private Integer level;
 
-    @ApiModelProperty(value = "创建用户id", hidden = true)
+    @ApiModelProperty(value = "创建用户id", example = "1")
     private Long createUserId;
 
     @ApiModelProperty(value = "engine类型", example = "1", required = true)

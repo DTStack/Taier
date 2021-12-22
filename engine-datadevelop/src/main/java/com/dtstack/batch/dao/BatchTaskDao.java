@@ -47,7 +47,7 @@ public interface BatchTaskDao {
 
     Integer generalCount(@Param("model") Object model);
 
-    List<BatchTask> listBatchTaskByNodePid(@Param("nodePid") long nodePid, @Param("projectId") long projectId);
+    List<BatchTask> listBatchTaskByNodePid(@Param("projectId") long projectId, @Param("nodePid") Long nodePid);
 
     List<BatchTask> listByNameFuzzy(@Param("projectId") long projectId, @Param("name") String name);
 
@@ -81,7 +81,7 @@ public interface BatchTaskDao {
 
     Integer countAll();
 
-    List<BatchTask> catalogueListBatchTaskByNodePid(@Param("nodePid") Long nodePid, @Param("tenantId") Long tenantId);
+    List<BatchTask> catalogueListBatchTaskByNodePid(@Param("tenantId") Long tenantId, @Param("nodePid") Long nodePid);
 
     Integer updateSqlText(BatchTask batchTask);
 

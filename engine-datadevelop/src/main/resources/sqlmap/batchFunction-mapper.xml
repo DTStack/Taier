@@ -144,14 +144,6 @@
         </if>
     </select>
 
-    <select id="countByTenantIdAndType" resultType="java.lang.Integer">
-        select count(id)
-        from rdos_batch_function
-        where tenant_id = #{tenantId}
-          and type = #{type}
-          and is_deleted = 0
-    </select>
-
     <select id="generalQuery" parameterType="com.dtstack.batch.web.pager.PageQuery" resultType="com.dtstack.batch.domain.BatchFunction">
         SELECT
         <include refid="select_content_fragment"/>
@@ -207,9 +199,4 @@
         </if>
     </select>
 
-    <update id="deleteByTenantId" parameterType="java.lang.Long">
-        UPDATE rdos_batch_function
-        SET is_deleted = 1, gmt_modified = now(), modify_user_id = #{userId}
-        WHERE tenant_id = #{tenantId} AND is_deleted = 0;
-    </update>
 </mapper>

@@ -40,13 +40,9 @@ public class CatalogueVO {
         return vo;
     }
 
-    private Long id = 0L;
-    private Long parentId = 0L;
+    private Long id;
+    private Long parentId;
     private String name;
-    /**
-     * 项目别名 中文名
-     */
-    private String projectAlias;
     private Integer level;
     private String type;
     private Integer taskType;
@@ -61,7 +57,7 @@ public class CatalogueVO {
     /**
      * 操作模式 0-资源模式，1-编辑模式
      */
-    private Integer operateModel = 1;
+    private Integer operateModel;
 
     /**
      * 2-python2.x,3-python3.x

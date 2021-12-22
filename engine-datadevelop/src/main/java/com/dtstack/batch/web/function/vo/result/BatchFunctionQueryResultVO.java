@@ -72,12 +72,6 @@ public class BatchFunctionQueryResultVO {
     @ApiModelProperty(value = "租户id")
     private Long tenantId;
 
-    @ApiModelProperty(value = "项目id")
-    private Long projectId;
-
-    @ApiModelProperty(value = "dtuic租户id")
-    private Long dtuicTenantId;
-
     @ApiModelProperty(value = "app类型", example = "1")
     private Integer appType;
 
