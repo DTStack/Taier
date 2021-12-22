@@ -19,7 +19,10 @@
 package com.dtstack.engine.master.impl;
 
 
-import com.dtstack.engine.master.vo.template.TaskTemplateResultVO;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.dtstack.engine.domain.TaskParamTemplate;
+import com.dtstack.engine.mapper.TaskParamTemplateMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -31,8 +34,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class TaskParamTemplateService {
 
+    @Autowired
+    private TaskParamTemplateMapper taskParamTemplateMapper;
 
-    public TaskTemplateResultVO getEngineParamTmplByComputeType(Integer engineType, Integer computeType, Integer taskType) {
-        return null;
+    public TaskParamTemplate getTaskParamTemplate(String version, Integer taskType) {
+      return taskParamTemplateMapper.selectOne(Wrappers.lambdaQuery(TaskParamTemplate.class)
+               .eq(TaskParamTemplate::getTaskType,taskType)
+               .eq(TaskParamTemplate::getTaskVersion,version));
     }
 }

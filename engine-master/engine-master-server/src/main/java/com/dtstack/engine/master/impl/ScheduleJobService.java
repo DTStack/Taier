@@ -148,7 +148,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper,ScheduleJo
     private ScheduleJobOperatorRecordDao scheduleJobOperatorRecordDao;
 
     @Autowired
-    private EngineJobCacheDao engineJobCacheDao;
+    private EngineJobCacheService engineJobCacheService;
 
     @Autowired
     private ScheduleJobMapper scheduleJobMapper;
@@ -2597,7 +2597,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper,ScheduleJo
             if (null == record) {
                 continue;
             }
-            EngineJobCache cache = engineJobCacheDao.getOne(jobId);
+            EngineJobCache cache = engineJobCacheService.getByJobId(jobId);
             if (cache != null && cache.getGmtCreate().after(record.getGmtCreate())) {
                 //has submit to cache
                 scheduleJobOperatorRecordDao.deleteByJobIdAndType(record.getJobId(), record.getOperatorType());
