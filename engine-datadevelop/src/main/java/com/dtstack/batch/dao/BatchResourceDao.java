@@ -31,9 +31,12 @@ import java.util.List;
  */
 public interface BatchResourceDao {
 
+    /**
+     * 根据 id 获取资源信息
+     * @param id
+     * @return
+     */
     BatchResource getOne(@Param("id") Long id);
-
-    BatchResource getByIdIgnoreDeleted(@Param("id") Long id);
 
     /**
      * 根据函数找出资源文件地址
@@ -44,35 +47,69 @@ public interface BatchResourceDao {
     String getResourceURLByFunctionId(@Param("functionId") Long functionId);
 
 
-    List<BatchResource> listByIds(@Param("ids") List<Long> resourceIdList, @Param("isDeleted") Integer isDeleted);
+    /**
+     * 根据 ids 获取资源列表
+     * @param ids
+     * @return
+     */
+    List<BatchResource> listByIds(@Param("ids") List<Long> ids);
 
+    /**
+     * 根据 租户、目录Id 获取资源列表
+     * @param tenantId
+     * @param nodePid
+     * @return
+     */
     List<BatchResource> listByPidAndTenantId(@Param("tenantId") Long tenantId, @Param("nodePid") Long nodePid);
 
-    List<BatchResource> listByProjectId(@Param("projectId") long projectId);
+    /**
+     * 根据 租户 查询资源列表
+     * @param tenantId
+     * @return
+     */
+    List<BatchResource> listByTenantId(@Param("tenantId") Long tenantId);
 
-    Integer deleteById(@Param("id") Long resourceId, @Param("projectId") Long projectId);
+    /**
+     * 根据 id 删除数据
+     * @param id
+     * @return
+     */
+    Integer deleteById(@Param("id") Long id);
 
-    Integer deleteByIds(@Param("ids") List<Long> resourceIds, @Param("projectId") Long projectId);
+    /**
+     * 根据 租户、名称 获取资源列表
+     * @param tenantId
+     * @param resourceName
+     * @return
+     */
+    List<BatchResource> listByNameAndTenantId(@Param("tenantId") Long tenantId, @Param("resourceName") String resourceName);
 
-    String getUrlById(@Param("id") long id);
-
-    List<BatchResource> listByNameAndProjectId(@Param("projectId") Long projectId, @Param("resourceName") String resourceName, @Param("isDeleted") int isDeleted);
-
+    /**
+     * 插入数据
+     * @param batchResource
+     * @return
+     */
     Integer insert(BatchResource batchResource);
 
+    /**
+     * 更新数据
+     * @param batchResource
+     * @return
+     */
     Integer update(BatchResource batchResource);
 
-    Integer batchInsert(@Param("list") List<BatchResource> list);
-
-    Integer countByProjectId(@Param("tenantId") Long tenantId, @Param("projectId") Long projectId);
-
+    /**
+     * 通用查询
+     * @param query
+     * @return
+     */
     List<BatchResource> generalQuery(PageQuery<BatchResourceDTO> query);
 
+    /**
+     * 通用查询统计
+     * @param model
+     * @return
+     */
     Integer generalCount(@Param("model") BatchResourceDTO model);
 
-    BatchResource getByName(@Param("tenantId") Long tenantId, @Param("projectId") Long projectId, @Param("resourceName") String resourceName);
-
-    List<BatchResource> listByUrls(@Param("tenantId") Long tenantId, @Param("projectId") Long projectId, @Param("list") List<String> list);
-
-    Integer deleteByProjectId(@Param("projectId") Long projectId, @Param("userId") Long userId);
 }

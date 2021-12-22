@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.batch.web.function.vo.query;
+package com.dtstack.batch.web.catalogue.vo.query;
 
 import com.dtstack.engine.common.param.DtInsightAuthParam;
 import io.swagger.annotations.ApiModel;
@@ -24,11 +24,20 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
-@ApiModel("函数引擎标识信息")
-public class BatchFunctionIdentityVO extends DtInsightAuthParam {
-    @ApiModelProperty(value = "项目id", hidden = true)
-    private Long projectId;
+@ApiModel("目录项目信息")
+public class BatchCatalogueTenantCataVO extends DtInsightAuthParam {
+    @ApiModelProperty(value = "是否获取文件", example = "false")
+    private Boolean isGetFile;
 
-    @ApiModelProperty(value = "engine类型", example = "1", required = true)
-    private Integer engineType;
+    @ApiModelProperty(value = "用户id", example = "1")
+    private Long userId;
+
+    @ApiModelProperty(value = "租户id", example = "1")
+    private Long tenantId;
+
+    @ApiModelProperty(value = "是否为root", hidden = true)
+    private Boolean isRoot;
+
+    @ApiModelProperty(value = "是否admin用户", hidden = true)
+    private Boolean isAdmin;
 }

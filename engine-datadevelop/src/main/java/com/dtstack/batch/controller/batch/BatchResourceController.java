@@ -19,16 +19,21 @@
 package com.dtstack.batch.controller.batch;
 
 import com.dtstack.batch.domain.BatchResource;
+import com.dtstack.batch.mapstruct.vo.BatchCatalogueMapstructTransfer;
 import com.dtstack.batch.mapstruct.vo.BatchResourceMapstructTransfer;
 import com.dtstack.batch.service.impl.BatchResourceService;
 import com.dtstack.batch.vo.BatchResourceVO;
+import com.dtstack.batch.vo.CatalogueVO;
+import com.dtstack.batch.web.catalogue.vo.result.BatchCatalogueResultVO;
 import com.dtstack.batch.web.pager.PageResult;
+import com.dtstack.batch.web.resource.vo.query.BatchResourceAddVO;
 import com.dtstack.batch.web.resource.vo.query.BatchResourceAddWithUrlVO;
 import com.dtstack.batch.web.resource.vo.query.BatchResourceBaseVO;
 import com.dtstack.batch.web.resource.vo.query.BatchResourcePageQueryVO;
 import com.dtstack.batch.web.resource.vo.query.BatchResourceRenameResourceVO;
 import com.dtstack.batch.web.resource.vo.result.BatchGetResourceByIdResultVO;
 import com.dtstack.batch.web.resource.vo.result.BatchGetResourcesResultVO;
+import com.dtstack.engine.common.annotation.FileUpload;
 import com.dtstack.engine.common.exception.BizException;
 import com.dtstack.engine.common.lang.coc.APITemplate;
 import com.dtstack.engine.common.lang.web.R;
@@ -39,6 +44,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -50,13 +56,39 @@ public class BatchResourceController {
     @Autowired
     private BatchResourceService batchResourceService;
 
+    @ApiOperation(value = "添加资源")
+    @PostMapping(value = "batchResource/addResource")
+    @FileUpload
+    public R<BatchCatalogueResultVO> addResource(BatchResourceAddVO batchResourceAddVO, MultipartFile file) {
+        return new APITemplate<BatchCatalogueResultVO>() {
+            @Override
+            protected BatchCatalogueResultVO process() throws BizException {
+                CatalogueVO catalogue = batchResourceService.addResource(BatchResourceMapstructTransfer.INSTANCE.resourceVOToResourceAddDTO(batchResourceAddVO));
+                return BatchCatalogueMapstructTransfer.INSTANCE.newCatalogueVoToCatalogueResultVo(catalogue);
+            }
+        }.execute();
+    }
+
+    @ApiOperation(value = "替换资源")
+    @PostMapping(value = "batchResource/replaceResource")
+    @FileUpload
+    public R<Void> replaceResource(BatchResourceAddVO batchResourceAddVO, MultipartFile file) {
+        return new APITemplate<Void>() {
+            @Override
+            protected Void process() throws BizException {
+                batchResourceService.replaceResource(BatchResourceMapstructTransfer.INSTANCE.resourceVOToResourceAddDTO(batchResourceAddVO));
+                return null;
+            }
+        }.execute();
+    }
+
     @ApiOperation(value = "添加资源路径")
     @PostMapping(value = "addResourceWithUrl")
     public R<Long> addResourceWithUrl(@RequestBody(required = false) BatchResourceAddWithUrlVO vo) {
         return new APITemplate<Long>() {
             @Override
             protected Long process() throws BizException {
-                return batchResourceService.addResourceWithUrl(vo.getId(), vo.getResourceName(), vo.getOriginFileName(), vo.getUrl(), vo.getResourceDesc(), vo.getResourceType(), vo.getNodePid(), vo.getUserId(), vo.getTenantId(), vo.getProjectId());
+                return batchResourceService.addResourceWithUrl(vo.getId(), vo.getResourceName(), vo.getOriginFileName(), vo.getUrl(), vo.getResourceDesc(), vo.getResourceType(), vo.getNodePid(), vo.getUserId(), vo.getTenantId());
             }
         }.execute();
     }
@@ -103,7 +135,7 @@ public class BatchResourceController {
         return new APITemplate<Long>() {
             @Override
             protected Long process() throws BizException {
-                return batchResourceService.deleteResource(batchResourceBaseVO.getResourceId(), batchResourceBaseVO.getProjectId(), batchResourceBaseVO.getDtuicTenantId());
+                return batchResourceService.deleteResource(batchResourceBaseVO.getTenantId(), batchResourceBaseVO.getResourceId());
             }
         }.execute();
     }
@@ -114,7 +146,7 @@ public class BatchResourceController {
         return new APITemplate<List<BatchGetResourcesResultVO>>() {
             @Override
             protected List<BatchGetResourcesResultVO> process() throws BizException {
-                List<BatchResource> resources = batchResourceService.getResources(batchResourceBaseVO.getProjectId());
+                List<BatchResource> resources = batchResourceService.getResources(batchResourceBaseVO.getTenantId());
                 return BatchResourceMapstructTransfer.INSTANCE.batchResourceListToBatchGetResourcesResultVOList(resources);
             }
         }.execute();

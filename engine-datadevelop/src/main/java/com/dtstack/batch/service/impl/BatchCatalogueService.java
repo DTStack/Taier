@@ -21,15 +21,9 @@ package com.dtstack.batch.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.batch.common.enums.CatalogueType;
 import com.dtstack.batch.common.enums.EngineCatalogueType;
-import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.BatchCatalogueDao;
-import com.dtstack.batch.dao.BatchDataCatalogueDao;
-import com.dtstack.batch.dao.BatchResourceDao;
-import com.dtstack.batch.dao.BatchTaskDao;
 import com.dtstack.batch.domain.BatchCatalogue;
 import com.dtstack.batch.domain.BatchCatalogueVO;
-import com.dtstack.batch.domain.BatchDataCatalogue;
 import com.dtstack.batch.domain.BatchFunction;
 import com.dtstack.batch.domain.BatchResource;
 import com.dtstack.batch.domain.Catalogue;
@@ -52,6 +46,8 @@ import com.dtstack.engine.common.enums.DictType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.enums.ReadWriteLockType;
+import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.engine.master.impl.UserService;
 import com.google.common.collect.Lists;
@@ -61,7 +57,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -92,10 +87,7 @@ public class BatchCatalogueService {
     private BatchCatalogueDao batchCatalogueDao;
 
     @Autowired
-    private BatchResourceDao batchResourceDao;
-
-    @Autowired
-    private BatchTaskDao batchTaskDao;
+    private BatchResourceService batchResourceService;
 
     @Autowired
     private BatchFunctionService batchFunctionService;
@@ -105,9 +97,6 @@ public class BatchCatalogueService {
 
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private BatchDataCatalogueDao batchDataCatalogueDao;
 
     @Autowired
     public BatchTaskService batchTaskService;
@@ -141,7 +130,7 @@ public class BatchCatalogueService {
     /**
      * 如果没有选择对接引擎 就要默认初始化下列目录
      */
-    private static Set<String> NO_ENGINE_CATALOGUE = Sets.newHashSet(CatalogueType.TASK_DEVELOP.getType(), CatalogueType.SCRIPT_MANAGER.getType(), CatalogueType.RESOURCE_MANAGER.getType(), CatalogueType.TABLE_QUERY.getType(), CatalogueType.FUNCTION_MANAGER.getType());
+    private static Set<String> NO_ENGINE_CATALOGUE = Sets.newHashSet(CatalogueType.TASK_DEVELOP.getType(), CatalogueType.SCRIPT_MANAGER.getType(), CatalogueType.RESOURCE_MANAGER.getType(), CatalogueType.FUNCTION_MANAGER.getType());
 
     @Autowired
     private ReadWriteLockService readWriteLockService;
@@ -559,7 +548,7 @@ public class BatchCatalogueService {
             rootCatalugue.setChildren(children);
             rootCatalugue.setType("flow");
             rootCatalugue.setTaskType(EJobType.WORK_FLOW.getVal());
-            BatchTask task = batchTaskDao.getOne(nodePid);
+            BatchTask task = batchTaskService.getOne(nodePid);
             ReadWriteLockVO readWriteLockVO = readWriteLockService.getDetail(
                     tenantId, nodePid,
                     ReadWriteLockType.BATCH_TASK, userId,
@@ -629,8 +618,8 @@ public class BatchCatalogueService {
         }
 
         //判断文件夹下任务
-        List<BatchTask> taskList = batchTaskDao.listBatchTaskByNodePid(catalogue.getId(), 0L);
-        List<BatchResource> resourceList = batchResourceDao.listByPidAndTenantId(0L, catalogue.getId());
+        List<BatchTask> taskList = batchTaskService.listBatchTaskByNodePid(catalogueInput.getTenantId(), catalogue.getId());
+        List<BatchResource> resourceList = batchResourceService.listByPidAndTenantId(catalogueInput.getTenantId(), catalogue.getId());
 
         if (taskList.size() > 0 || resourceList.size() > 0) {
             throw new RdosDefineException(ErrorCode.CATALOGUE_NO_EMPTY);
@@ -708,14 +697,6 @@ public class BatchCatalogueService {
             zeroCatalogueVOs.add(zeroCatalogueVO);
 
             List<BatchCatalogue> oneCatalogues = batchCatalogueDao.listByPidAndTenantId(zeroCatalogue.getId(), 0L);
-            if (CatalogueType.TABLE_QUERY.getType().equals(zeroCatalogueVO.getCatalogueType())) {
-                //如果是tableQuery类型，则需要查询hive_catalogue表所以需要修改rootId
-                Long rootId = batchDataCatalogueDao.getRootIdByTenantId(tenantId);
-                if (rootId == null || rootId < 0) {
-                    throw new RdosDefineException("该租户下数据类目未生成");
-                }
-                oneCatalogues.forEach(one -> one.setId(rootId));
-            }
             if (FUNCTION_MANAGER.contains(zeroCatalogue.getNodeName())) {
                 BatchCatalogue systemFuncCatalogue = batchCatalogueDao.getSystemFunctionCatalogueOne(EngineCatalogueType.SPARK.getType());
                 if (systemFuncCatalogue != null ) {
@@ -822,21 +803,13 @@ public class BatchCatalogueService {
                 ).contains(nodeName);
 
 
-        BatchDataCatalogue hiveCatalogueRoot = null;
-        if (currentCatalogueVO.getCatalogueType().equals(CatalogueType.TABLE_QUERY.getType())) {
-            hiveCatalogueRoot = batchDataCatalogueDao.getRootByTenantId(tenantId);
-            if (hiveCatalogueRoot == null) {
-                throw new RdosDefineException("类目管理根目录初始化失败");
-            }
-        }
-
         Map<Long, String> userNames = Maps.newHashMap();
         //获取目录下的资源或任务列表
         if (isGetFile) {
             List<CatalogueVO> files = new ArrayList<>();
             if (currentCatalogueVO.getCatalogueType().equals(CatalogueType.TASK_DEVELOP.getType())) {
                 Map<Long, List<CatalogueVO>> flowChildren = Maps.newHashMap();
-                List<BatchTask> taskList = batchTaskDao.catalogueListBatchTaskByNodePid(currentCatalogueVO.getId(), tenantId);
+                List<BatchTask> taskList = batchTaskService.catalogueListBatchTaskByNodePid(tenantId, currentCatalogueVO.getId());
                 taskList.sort(Comparator.comparing(BatchTask::getName));
                 if (CollectionUtils.isNotEmpty(taskList)) {
 
@@ -919,7 +892,7 @@ public class BatchCatalogueService {
                 }
 
             } else if (currentCatalogueVO.getCatalogueType().equals(CatalogueType.RESOURCE_MANAGER.getType())) {
-                List<BatchResource> resourceList = batchResourceDao.listByPidAndTenantId(tenantId, currentCatalogueVO.getId());
+                List<BatchResource> resourceList = batchResourceService.listByPidAndTenantId(tenantId, currentCatalogueVO.getId());
                 resourceList.sort(Comparator.comparing(BatchResource::getResourceName));
                 if (CollectionUtils.isNotEmpty(resourceList)) {
                     for (BatchResource resource : resourceList) {
@@ -940,7 +913,7 @@ public class BatchCatalogueService {
         }
 
         //获取目录下的子目录
-        List<BatchCatalogue> childCatalogues = this.getChildCataloguesByType(currentCatalogueVO.getId(), currentCatalogueVO.getCatalogueType(), hiveCatalogueRoot, tenantId);
+        List<BatchCatalogue> childCatalogues = this.getChildCataloguesByType(currentCatalogueVO.getId(), currentCatalogueVO.getCatalogueType(), tenantId);
         childCatalogues = keepInitCatalogueBeTop(childCatalogues, currentCatalogue, userId);
         List<CatalogueVO> children = new ArrayList<>();
         for (BatchCatalogue catalogue : childCatalogues) {
@@ -1091,20 +1064,7 @@ public class BatchCatalogueService {
      * @return
      */
     private BatchCatalogue getBatchCatalogueByType(Long catalogueId, String catalogueType) {
-        BatchCatalogue currentCatalogue = new BatchCatalogue();
-        if (catalogueType.equals(CatalogueType.TABLE_QUERY.getType())) {
-            BatchDataCatalogue hiveCatalogue = batchDataCatalogueDao.getOne(catalogueId);
-            if (hiveCatalogue == null) {
-                return null;
-            }
-            BeanUtils.copyProperties(hiveCatalogue, currentCatalogue);
-            if (hiveCatalogue.getLevel() == 1) {
-                hiveCatalogue.setNodeName("表查询");
-            }
-        } else {
-            currentCatalogue = batchCatalogueDao.getOne(catalogueId);
-        }
-        return currentCatalogue;
+        return batchCatalogueDao.getOne(catalogueId);
     }
 
 
@@ -1112,25 +1072,13 @@ public class BatchCatalogueService {
      * 根据目录类型，获取目录的子目录信息
      * @param catalogueId
      * @param catalogueType
-     * @param hiveCatalogueRoot
      * @param tenantId
      * @param tenantId
      * @return
      */
-    private List<BatchCatalogue> getChildCataloguesByType(Long catalogueId, String catalogueType, BatchDataCatalogue hiveCatalogueRoot, Long tenantId) {
-        List<BatchCatalogue> childCatalogues = new ArrayList<>();
-        if (catalogueType.equals(CatalogueType.TABLE_QUERY.getType())) {
-            List<BatchDataCatalogue> hiveCatalogues = batchDataCatalogueDao.listByTenantIdAndPId(tenantId, catalogueId);
-            for (BatchDataCatalogue hiveCatalogue : hiveCatalogues) {
-                BatchCatalogue batchCatalogue = new BatchCatalogue();
-                BeanUtils.copyProperties(hiveCatalogue, batchCatalogue);
-                batchCatalogue.setLevel(hiveCatalogueRoot.getLevel() == 0L ? batchCatalogue.getLevel() + 1 : batchCatalogue.getLevel());
-                childCatalogues.add(batchCatalogue);
-            }
-        } else {
-            childCatalogues = batchCatalogueDao.listByPidAndTenantId(catalogueId, tenantId);
-            this.replaceSystemFunction(catalogueId, catalogueType, childCatalogues);
-        }
+    private List<BatchCatalogue> getChildCataloguesByType(Long catalogueId, String catalogueType, Long tenantId) {
+        List<BatchCatalogue> childCatalogues = batchCatalogueDao.listByPidAndTenantId(catalogueId, tenantId);
+        this.replaceSystemFunction(catalogueId, catalogueType, childCatalogues);
         return childCatalogues;
     }
 
@@ -1208,4 +1156,12 @@ public class BatchCatalogueService {
     }
 
 
+    /**
+     * 根据 目录Id 查询目录信息
+     * @param nodePid
+     * @return
+     */
+    public BatchCatalogue getOne(Long nodePid) {
+        return batchCatalogueDao.getOne(nodePid);
+    }
 }
