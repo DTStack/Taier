@@ -99,14 +99,6 @@ public interface BatchFunctionDao {
     List<String> listNameByTenantId(@Param("tenantId") Long tenantId, @Param("engineType") Integer engineType);
 
     /**
-     * 根据 租户、类型 统计
-     * @param tenantId
-     * @param type
-     * @return
-     */
-    Integer countByTenantIdAndType(@Param("tenantId") Long tenantId, @Param("type") Integer type);
-
-    /**
      * 通用查询
      * @param query
      * @return
@@ -120,11 +112,4 @@ public interface BatchFunctionDao {
      */
     Integer generalCount(@Param("model") BatchFunctionDTO model);
 
-    /**
-     * 根据 租户 删除
-     * @param tenantId
-     * @param userId
-     * @return
-     */
-    Integer deleteByTenantId(@Param("tenantId") Long tenantId, @Param("userId") Long userId);
 }

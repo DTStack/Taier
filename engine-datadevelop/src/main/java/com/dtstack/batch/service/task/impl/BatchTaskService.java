@@ -2870,7 +2870,7 @@ public class BatchTaskService {
                 if (type.equals(CatalogueType.TASK_DEVELOP.name())) {
                     obj = this.batchTaskDao.getByName(name, tenantId);
                 } else if (type.equals(CatalogueType.RESOURCE_MANAGER.name())) {
-                    obj = this.batchResourceDao.listByNameAndProjectId(tenantId, name, Deleted.NORMAL.getStatus());
+                    obj = this.batchResourceDao.listByNameAndTenantId(tenantId, name);
                 } else if (type.equals(CatalogueType.CUSTOM_FUNCTION.name())) {
                     obj = this.batchFunctionDao.listByNameAndTenantId(tenantId, name, FuncType.CUSTOM.getType());
                 } else if (type.equals(CatalogueType.PROCEDURE_FUNCTION.name())) {
@@ -3262,5 +3262,26 @@ public class BatchTaskService {
         // 取并集
         resultParentTaskIds.retainAll(currentTaskIds);
         return resultParentTaskIds;
+    }
+
+    /**
+     * 根据 租户、目录id 查询任务列表
+     * @param tenantId
+     * @param nodePid
+     * @return
+     */
+    public List<BatchTask> listBatchTaskByNodePid(Long tenantId, Long nodePid) {
+        return batchTaskDao.listBatchTaskByNodePid(tenantId, nodePid);
+    }
+
+    /**
+     * 根据 租户、目录id 查询任务列表
+     * 此方法适合目录信息查询，与上面方法的区别是不返回SqlText等无用的大数据字段
+     * @param tenantId
+     * @param nodePid
+     * @return
+     */
+    public List<BatchTask> catalogueListBatchTaskByNodePid(Long tenantId, Long nodePid) {
+        return batchTaskDao.catalogueListBatchTaskByNodePid(tenantId, nodePid);
     }
 }

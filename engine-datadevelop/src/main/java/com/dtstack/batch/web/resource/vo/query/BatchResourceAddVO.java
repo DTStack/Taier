@@ -30,17 +30,14 @@ public class BatchResourceAddVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "资源名称")
     private String resourceName;
 
-    @ApiModelProperty(value = "项目ID", hidden = true)
-    private Long projectId;
-
-    @ApiModelProperty(value = "租户ID", hidden = true)
+    @ApiModelProperty(value = "租户ID", example = "1")
     private Long tenantId;
 
-    @ApiModelProperty(value = "用户ID", hidden = true)
+    @ApiModelProperty(value = "用户ID", example = "1")
     private Long userId;
 
     @ApiModelProperty(value = "资源ID")
-    private Long id = 0L;
+    private Long id;
 
     @ApiModelProperty(value = "资源描述")
     private String resourceDesc;
@@ -57,14 +54,8 @@ public class BatchResourceAddVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "资源临时存放地址", hidden = true)
     private String tmpPath;
 
-    @ApiModelProperty(value = "UIC租户ID", hidden = true)
-    private Long dtuicTenantId;
-
     @ApiModelProperty(hidden = true)
     private String dtToken;
-
-    @ApiModelProperty(value = "默认项目ID")
-    private Long defaultProjectId;
 
     @ApiModelProperty(value = "新建资源的用户ID", required = true)
     private Long createUserId;

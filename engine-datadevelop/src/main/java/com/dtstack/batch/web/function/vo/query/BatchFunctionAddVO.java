@@ -24,6 +24,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @Data
 @ApiModel("函数添加信息")
@@ -65,14 +66,8 @@ public class BatchFunctionAddVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "存储过程sql", example = "test_name")
     private String sqlText;
 
-    @ApiModelProperty(value = "租户id", hidden = true)
+    @ApiModelProperty(value = "租户id", example = "1")
     private Long tenantId;
-
-    @ApiModelProperty(value = "项目id", hidden = true)
-    private Long projectId;
-
-    @ApiModelProperty(value = "dtuic租户id", hidden = true)
-    private Long dtuicTenantId;
 
     @ApiModelProperty(value = "app类型 RDOS(1) DQ(2), API(3) TAG(4) MAP(5) CONSOLE(6) STREAM(7) DATASCIENCE(8)", example = "1", required = true)
     private Integer appType;
@@ -89,7 +84,7 @@ public class BatchFunctionAddVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "是否删除", example = "1", required = true)
     private Integer isDeleted = 0;
 
-    @ApiModelProperty(value = "资源id列表", example = "1", required = true)
-    private String resourceIds;
+    @ApiModelProperty(value = "资源id列表", required = true)
+    private List<Long> resourceIds;
 
 }

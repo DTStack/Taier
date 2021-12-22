@@ -57,7 +57,7 @@ public class BatchFunctionResourceService {
      * @param batchFunctionResource
      */
     public void updateByFunctionId(BatchFunctionResource batchFunctionResource) {
-        batchFunctionResourceDao.updateByFunctionId(batchFunctionResource);
+        batchFunctionResourceDao.update(batchFunctionResource);
     }
 
     /**
