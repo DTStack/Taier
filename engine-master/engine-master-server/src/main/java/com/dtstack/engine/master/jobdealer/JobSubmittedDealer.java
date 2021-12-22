@@ -19,17 +19,15 @@
 package com.dtstack.engine.master.jobdealer;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.mapper.EngineJobCacheDao;
+import com.dtstack.engine.common.enums.EJobCacheStage;
+import com.dtstack.engine.common.util.JobGraphUtil;
 import com.dtstack.engine.master.impl.ScheduleJobCacheService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
+import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.pluginapi.constrant.JobResultConstant;
-import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.pluginapi.pojo.JobResult;
-import com.dtstack.engine.common.util.JobGraphUtil;
-import com.dtstack.engine.mapper.ScheduleJobDao;
-import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

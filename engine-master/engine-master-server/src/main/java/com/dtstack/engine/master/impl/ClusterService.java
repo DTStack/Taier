@@ -21,8 +21,10 @@ package com.dtstack.engine.master.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.dtstack.engine.common.enums.*;
-import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.common.enums.EComponentScheduleType;
+import com.dtstack.engine.common.enums.EComponentType;
+import com.dtstack.engine.common.enums.EScheduleJobType;
+import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.util.ComponentVersionUtil;
 import com.dtstack.engine.domain.Queue;
@@ -76,9 +78,6 @@ public class ClusterService implements com.dtstack.engine.api.ClusterService {
     private KerberosMapper kerberosMapper;
 
     @Autowired
-    private EnvironmentContext environmentContext;
-
-    @Autowired
     private ComponentConfigService componentConfigService;
 
     public boolean addCluster(String clusterName) {
@@ -98,7 +97,7 @@ public class ClusterService implements com.dtstack.engine.api.ClusterService {
     }
 
     public IPage<Cluster> pageQuery(int currentPage, int pageSize) {
-        Page<Cluster> page = new Page(currentPage, pageSize);
+        Page<Cluster> page = new Page<>(currentPage, pageSize);
         return clusterMapper.selectPage(page, null);
     }
 

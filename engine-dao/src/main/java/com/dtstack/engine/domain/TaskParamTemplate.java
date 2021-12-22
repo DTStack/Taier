@@ -16,29 +16,28 @@
  * limitations under the License.
  */
 
-package com.dtstack.engine.master.vo.template;
-
-import java.sql.Timestamp;
+package com.dtstack.engine.domain;
 
 /**
  * @author yuebai
  * @date 2019-05-17
  */
-public class TaskTemplateResultVO {
-    private Long id;
+public class TaskParamTemplate {
+
     private String params;
-    private Integer computeType;
-    private Integer engineType;
-    private Timestamp gmtModified;
-    private Timestamp gmtCreate;
 
-    public Long getId() {
-        return id;
-    }
+    private Integer taskType;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    /**
+     * 任务版本
+     */
+    private String taskVersion;
+
+    /**
+     * 任务名称
+     */
+    private String taskName;
+
 
     public String getParams() {
         return params;
@@ -48,35 +47,27 @@ public class TaskTemplateResultVO {
         this.params = params;
     }
 
-    public Integer getComputeType() {
-        return computeType;
+    public Integer getTaskType() {
+        return taskType;
     }
 
-    public void setComputeType(Integer computeType) {
-        this.computeType = computeType;
+    public void setTaskType(Integer taskType) {
+        this.taskType = taskType;
     }
 
-    public Integer getEngineType() {
-        return engineType;
+    public String getTaskVersion() {
+        return taskVersion;
     }
 
-    public void setEngineType(Integer engineType) {
-        this.engineType = engineType;
+    public void setTaskVersion(String taskVersion) {
+        this.taskVersion = taskVersion;
     }
 
-    public Timestamp getGmtModified() {
-        return gmtModified;
+    public String getTaskName() {
+        return taskName;
     }
 
-    public void setGmtModified(Timestamp gmtModified) {
-        this.gmtModified = gmtModified;
-    }
-
-    public Timestamp getGmtCreate() {
-        return gmtCreate;
-    }
-
-    public void setGmtCreate(Timestamp gmtCreate) {
-        this.gmtCreate = gmtCreate;
+    public void setTaskName(String taskName) {
+        this.taskName = taskName;
     }
 }

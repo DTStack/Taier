@@ -18,14 +18,15 @@
 
 package com.dtstack.engine.master.jobdealer.cache;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.engine.domain.EngineJobCache;
-import com.dtstack.engine.mapper.EngineJobCacheDao;
-import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
+import com.dtstack.engine.mapper.EngineJobCacheMapper;
+import com.dtstack.engine.master.impl.EngineJobCacheService;
 import com.dtstack.engine.master.jobdealer.JobStatusDealer;
+import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
@@ -46,13 +47,11 @@ public class ShardCache implements ApplicationContextAware {
 
     private ApplicationContext applicationContext;
 
-    @Autowired
-    private EngineJobCacheDao engineJobCacheDao;
-
     private Map<String, ShardManager> jobResourceShardManager = new ConcurrentHashMap<>();
 
     private ShardManager getShardManager(String jobId) {
-        EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
+        EngineJobCacheService engineJobCacheService = applicationContext.getBean(EngineJobCacheService.class);
+        EngineJobCache engineJobCache = engineJobCacheService.getByJobId(jobId);
         if (engineJobCache == null) {
             return null;
         }
