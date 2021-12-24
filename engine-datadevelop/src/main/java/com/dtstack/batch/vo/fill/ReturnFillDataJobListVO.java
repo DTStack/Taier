@@ -9,7 +9,7 @@ import java.util.Objects;
  * @Email:dazhi@dtstack.com
  * @Description:
  */
-public class FillDataJobReturnListVO {
+public class ReturnFillDataJobListVO {
 
     /**
      * 补数据ID
@@ -69,7 +69,7 @@ public class FillDataJobReturnListVO {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        FillDataJobReturnListVO that = (FillDataJobReturnListVO) o;
+        ReturnFillDataJobListVO that = (ReturnFillDataJobListVO) o;
         return Objects.equals(id, that.id) && Objects.equals(fillDataName, that.fillDataName) && Objects.equals(fillGenerateStatus, that.fillGenerateStatus) && Objects.equals(fillDataJobVOLists, that.fillDataJobVOLists);
     }
 

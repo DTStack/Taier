@@ -45,8 +45,8 @@ public class OperationFillDataJobController {
         return jobService.fillData(FillDataJobMapstructTransfer.INSTANCE.scheduleFillJobParticipateVoToScheduleFillJobParticipateDTO(scheduleFillJobParticipateVO));
     }
 
-    @RequestMapping(value = "/fillDataList", method = {RequestMethod.POST})
-    public PageResult<List<FillDataReturnListVO>> fillDataList(@RequestBody @Valid FillDataListVO vo, BindingResult bindingResult) {
+    @RequestMapping(value = "/queryFillDataList", method = {RequestMethod.POST})
+    public PageResult<List<ReturnFillDataListVO>> fillDataList(@RequestBody @Valid QueryFillDataListVO vo, BindingResult bindingResult) {
         if(bindingResult.hasErrors()){
             LOGGER.error(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
             throw new RdosDefineException(bindingResult.getFieldError().getDefaultMessage());
@@ -54,8 +54,8 @@ public class OperationFillDataJobController {
         return jobService.fillDataList(FillDataJobMapstructTransfer.INSTANCE.fillDataListVOToFillDataListDTO(vo));
     }
 
-    @RequestMapping(value = "/fillDataJobList", method = {RequestMethod.POST})
-    public PageResult<FillDataJobReturnListVO> fillDataJobList(@RequestBody @Valid FillDataJobListVO vo, BindingResult bindingResult) {
+    @RequestMapping(value = "/queryFillDataJobList", method = {RequestMethod.POST})
+    public PageResult<ReturnFillDataJobListVO> fillDataJobList(@RequestBody @Valid QueryFillDataJobListVO vo, BindingResult bindingResult) {
         if(bindingResult.hasErrors()){
             LOGGER.error(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
             throw new RdosDefineException(bindingResult.getFieldError().getDefaultMessage());

@@ -1,7 +1,9 @@
 package com.dtstack.engine.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.dtstack.engine.domain.po.JobsStatusStatisticsPO;
 import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.domain.po.StatusCountPO;
 import com.dtstack.engine.domain.po.CountFillDataJobStatusPO;
 import com.dtstack.engine.domain.po.SimpleScheduleJobPO;
 import org.apache.ibatis.annotations.Param;
@@ -31,4 +33,6 @@ public interface ScheduleJobMapper extends BaseMapper<ScheduleJob> {
     List<SimpleScheduleJobPO> listJobByStatusAddressAndPhaseStatus(@Param("startId") Long startId, @Param("statuses") List<Integer> statuses, @Param("nodeAddress") String nodeAddress, @Param("phaseStatus") Integer phaseStatus);
 
     void updateJobStatusAndExecTime(@Param("jobId") String jobId, @Param("status") int status);
+
+    List<StatusCountPO> queryJobsStatusStatistics(@Param("statistics") JobsStatusStatisticsPO statistics);
 }

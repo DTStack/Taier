@@ -29,7 +29,7 @@ import com.dtstack.engine.domain.po.SimpleScheduleJobPO;
 import com.dtstack.engine.dto.QueryJobDTO;
 import com.dtstack.engine.dto.ScheduleJobDTO;
 import com.dtstack.engine.dto.ScheduleTaskForFillDataDTO;
-import com.dtstack.engine.dto.StatusCount;
+import com.dtstack.engine.domain.po.StatusCountPO;
 import com.dtstack.engine.mapper.*;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.impl.pojo.ParamActionExt;
@@ -563,7 +563,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper,ScheduleJo
         //需要查询工作流的子节点
         batchJobDTO.setNeedQuerySonNode(true);
         filterQuery(vo, batchJobDTO);
-        List<StatusCount> statusCountList = scheduleJobDao.getJobsStatusStatistics(batchJobDTO);
+        List<StatusCountPO> statusCountList = scheduleJobDao.getJobsStatusStatistics(batchJobDTO);
         Map<String, Long> attachment = Maps.newHashMap();
         if(CollectionUtils.isEmpty(statusCountList)){
             return attachment;
@@ -583,13 +583,13 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper,ScheduleJo
      * @param totalNum:
      * @return: void
      **/
-    private void mergeStatusAndShow(List<StatusCount> statusCountList, Map<String, Long> attachment, long totalNum) {
+    private void mergeStatusAndShow(List<StatusCountPO> statusCountList, Map<String, Long> attachment, long totalNum) {
         Map<Integer, List<Integer>> statusMap = RdosTaskStatus.getStatusFailedDetail();
         for (Map.Entry<Integer, List<Integer>> entry : statusMap.entrySet()) {
             String statusName = RdosTaskStatus.getCode(entry.getKey());
             List<Integer> statuses = entry.getValue();
             long num = 0;
-            for (StatusCount statusCount : statusCountList) {
+            for (StatusCountPO statusCount : statusCountList) {
                 if (statuses.contains(statusCount.getStatus())) {
                     num += statusCount.getCount();
                 }
@@ -935,7 +935,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper,ScheduleJo
             updateJob.setStatus(RdosTaskStatus.FINISHED.getStatus());
             updateJob.setExecEndTime(new Timestamp(System.currentTimeMillis()));
             updateJob.setGmtModified(new Timestamp(System.currentTimeMillis()));
-            updateJob.setExecTime(0);
+            updateJob.setExecTime(0L);
             scheduleJobDao.updateStatusWithExecTime(updateJob);
         }
 
