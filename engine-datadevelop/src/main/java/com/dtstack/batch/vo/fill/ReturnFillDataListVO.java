@@ -6,7 +6,7 @@ package com.dtstack.batch.vo.fill;
  * @Email:dazhi@dtstack.com
  * @Description:
  */
-public class FillDataReturnListVO {
+public class ReturnFillDataListVO {
 
     /**
      * 补数据标识
