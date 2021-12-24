@@ -1,4 +1,4 @@
-package com.dtstack.engine.dto;
+package com.dtstack.engine.domain.po;
 
 /**
  * @Author: newman
@@ -6,7 +6,7 @@ package com.dtstack.engine.dto;
  * Description: 状态，数量类
  * @since 1.0.0
  */
-public class StatusCount {
+public class StatusCountPO {
 
     /**任务状态**/
     private Integer status;

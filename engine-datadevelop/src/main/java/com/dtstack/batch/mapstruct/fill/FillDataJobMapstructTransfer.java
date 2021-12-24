@@ -3,15 +3,13 @@ package com.dtstack.batch.mapstruct.fill;
 import com.dtstack.batch.vo.fill.*;
 import com.dtstack.engine.domain.ScheduleFillDataJob;
 import com.dtstack.engine.domain.ScheduleJob;
-import com.dtstack.engine.master.dto.fill.FillDataJobListDTO;
-import com.dtstack.engine.master.dto.fill.FillDataListDTO;
+import com.dtstack.engine.master.dto.fill.QueryFillDataJobListDTO;
+import com.dtstack.engine.master.dto.fill.QueryFillDataListDTO;
 import com.dtstack.engine.master.dto.fill.ScheduleFillJobParticipateDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.factory.Mappers;
-
-import java.util.List;
 
 /**
  * @Auther: dazhi
@@ -24,19 +22,33 @@ public interface FillDataJobMapstructTransfer {
 
     FillDataJobMapstructTransfer INSTANCE = Mappers.getMapper(FillDataJobMapstructTransfer.class);
 
-
+    /**
+     * 补数据操作 vo -> dto
+     */
     ScheduleFillJobParticipateDTO scheduleFillJobParticipateVoToScheduleFillJobParticipateDTO(ScheduleFillJobParticipateVO scheduleFillJobParticipateVO);
 
-    FillDataListDTO fillDataListVOToFillDataListDTO(FillDataListVO vo);
+    /**
+     * 补数据列表 vo->dto
+     */
+    QueryFillDataListDTO fillDataListVOToFillDataListDTO(QueryFillDataListVO vo);
 
+    /**
+     * 补数据列表 domain->vo
+     */
     @Mappings({
             @Mapping(target = "fillDataName",source = "jobName"),
             @Mapping(target = "userId",source = "createUserId")
     })
-    FillDataReturnListVO fillDataListDTOToFillDataReturnListVO(ScheduleFillDataJob record);
+    ReturnFillDataListVO fillDataListDTOToFillDataReturnListVO(ScheduleFillDataJob record);
 
-    FillDataJobListDTO fillDataJobListVOToFillDataJobReturnListVO(FillDataJobListVO vo);
+    /**
+     * 补数据实例 vo -> dto
+     */
+    QueryFillDataJobListDTO fillDataJobListVOToFillDataJobReturnListVO(QueryFillDataJobListVO vo);
 
+    /**
+     * 补数据实例 domain -> vo
+     */
     @Mappings({
             @Mapping(target = "userId",source = "createUserId")
     })
