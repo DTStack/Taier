@@ -64,6 +64,8 @@ public enum ErrorCode implements ExceptionEnums {
     SERVICE_FORBIDDEN(48, "该服务禁止请求"),
     METHOD_NOT_EXIST(49, "方法不存在"),
     METHOD_FORBIDDEN(50, "该方法禁止被调用"),
+    CONFIG_ERROR(51, "配置错误"),
+
 
     JSON_PARSING_FAILED(52,"json parsing failed"),
     PYTHON_NOT_SUPPORT(10053,"python不支持2.x和3.x之外的版本类型"),
@@ -131,7 +133,7 @@ public enum ErrorCode implements ExceptionEnums {
     RESOURCE_TYPE_NOT_MATCH(138, "资源类型不匹配"),
     PARENT_NODE_NOT_EXISTS(139, "父节点不存在"),
     SUBDIRECTORY_OR_FILE_AMOUNT_RESTRICTIONS(140, "当前目录下直接一层的子目录或者文件的个数总数不可超过2000"),
-    CREATE_PROJECT_CATALOGUE_LEVE(141, "创建目录层级不能大于3"),
+    CREATE_TENANT_CATALOGUE_LEVE(141, "创建目录层级不能大于3"),
     FILE_NAME_REPETITION(142, "同一路径下不能存在同名文件夹"),
 
 
@@ -146,6 +148,23 @@ public enum ErrorCode implements ExceptionEnums {
     DATA_SOURCE_NAME_ALREADY_EXISTS(154, "数据源名称已存在"),
     DATA_SOURCE_NOT_SET(155, "未配置数据源"),
     CAN_NOT_MODIFY_DEFAULT_DATA_SOURCE(156, "默认数据源不允许修改"),
+    ERROR_DEFAULT_FS_FORMAT(157, "defaultFS格式不正确"),
+    CAN_NOT_FIND_SFTP(158, "开启kerberos认证后，需配置SFTP服务"),
+    DATASOURCE_CONF_ERROR(159, "数据源信息配置错误"),
+    DATASOURCE_DUP_NAME(160, "数据源有重名!"),
+    CAN_NOT_DEL_AUTH_DS(161, "数据源已授权给产品，不可删除"),
+    CAN_NOT_DEL_META_DS(162, "不可删除默认数据源"),
+    SHIFT_DATASOURCE_ERROR(163, "迁移数据源发生错误"),
+    IMPORT_DATA_SOURCE_DUP_FAIL(164, "存在数据源重复引入, 引入失败"),
+    NOT_FIND_EDIT_CONSOLE_DS(165, "控制台修改的数据源不存在, 修改失败"),
+    IMPORT_DS_NOT_MATCH_APP(166, "该数据源类型不属于该产品，无法授权"),
+    CONSOLE_EDIT_JDBC_FORMAT_ERROR(167, "控制台修改jdbcUrl格式不正确!"),
+    CONSOLE_EDIT_CAN_NOT_CONNECT(168, "控制台修改信息连接失败, 无法保存!"),
+    API_CANT_DEL_NOT_META_DS(169, "API服务调用无法删除非默认数据源!"),
+    API_CANT_DEL_NOT_TENANT(170, "该数据源非该租户创建，无法删除!"),
+    IMPORT_DATA_SOURCE_AUTH_FAIL(171, "存在数据源未授权, 引入失败"),
+    CANCEL_AUTH_DATA_SOURCE_FAIL(172, "取消授权的产品已引入该数据源，授权失败"),
+
 
     /***----------------end 数据源 相关错误码 end ----------------------------------------****/
 
@@ -203,8 +222,6 @@ public enum ErrorCode implements ExceptionEnums {
     /***----------------start 数据源 相关错误码 450 ~ 470 start--------------------------****/
     SOURCE_CAN_NOT_AS_INPUT(451, "该数据源不能作为输入数据源"),
     SOURCE_CAN_NOT_AS_OUTPUT(452, "该数据源不能作为输入数据源"),
-    ERROR_DEFAULT_FS_FORMAT(453, "defaultFS格式不正确"),
-    CAN_NOT_FIND_SFTP(454, "需配置SFTP服务"),
     LOADER_ERROR(455, "数据源插件异常"),
     /***----------------end 数据源 相关错误码 end ----------------------------------------****/
 

@@ -39,22 +39,17 @@ public interface IBatchJobExeService {
      * @param userId
      * @param tenantId
      * @param uniqueKey
-     * @param projectId
      * @param taskId
      * @param sql
      * @param isRoot
-     * @param dtuicTenantId
      * @param task
      * @param dtToken
      * @param isEnd
      * @return
      * @throws Exception
      */
-    ExecuteResultVO startSqlImmediately(Long userId, Long tenantId,
-                                        String uniqueKey, long projectId,
-                                        long taskId, String sql,
-                                        Boolean isRoot, Long dtuicTenantId,
-                                        BatchTask task, String dtToken, Boolean isEnd, String jobId) throws Exception;
+    ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, String uniqueKey, Long taskId, String sql,
+                                        Boolean isRoot, BatchTask task, String dtToken, Boolean isEnd, String jobId) throws Exception;
 
 
     /**
@@ -62,21 +57,16 @@ public interface IBatchJobExeService {
      * @param userId
      * @param tenantId
      * @param uniqueKey
-     * @param projectId
      * @param taskId
      * @param sqlList
      * @param isRoot
-     * @param dtuicTenantId
      * @param task
      * @param dtToken
      * @param database
      * @return
      */
-    ExecuteSqlParseVO startSqlSophisticated(Long userId, Long tenantId,
-                                            String uniqueKey, long projectId,
-                                            long taskId, List<String> sqlList,
-                                            Boolean isRoot, Long dtuicTenantId,
-                                            BatchTask task, String dtToken, String database)throws Exception;
+    ExecuteSqlParseVO startSqlSophisticated(Long userId, Long tenantId, String uniqueKey, Long taskId, List<String> sqlList,
+                                            Boolean isRoot, BatchTask task, String dtToken, String database)throws Exception;
 
     /**
      * 组装参数 提交调度
@@ -84,10 +74,10 @@ public interface IBatchJobExeService {
      * eg:
      * 任务sql中参数(包括系统参数和自定义参数)的替换
      * @param actionParam
-     * @param dtuicTenantId
+     * @param tenantId
      * @throws Exception
      */
-    void readyForTaskStartTrigger(Map<String, Object> actionParam, Long dtuicTenantId, BatchTask batchTask, List<BatchTaskParamShade> taskParamsToReplace) throws Exception;
+    void readyForTaskStartTrigger(Map<String, Object> actionParam, Long tenantId, BatchTask batchTask, List<BatchTaskParamShade> taskParamsToReplace) throws Exception;
 
     /**
      * 执行数据前的准备工作
@@ -95,11 +85,10 @@ public interface IBatchJobExeService {
      * 创建分区
      * 拼接engine执行的参数
      * @param batchTask
-     * @param jobId
-     * @param dtuicTenantId
+     * @param tenantId
      * @param isRoot
      * @return
      */
-    Map<String, Object> readyForSyncImmediatelyJob(BatchTask batchTask, Long dtuicTenantId, Boolean isRoot);
+    Map<String, Object> readyForSyncImmediatelyJob(BatchTask batchTask, Long tenantId, Boolean isRoot);
 
 }

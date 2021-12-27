@@ -87,12 +87,7 @@ public enum CatalogueType {
     /**
      * 函数管理
      */
-    FUNCTION_MANAGER("FunctionManager"),
-
-    /**
-     * 表查询
-     */
-    TABLE_QUERY("TableQuery");
+    FUNCTION_MANAGER("FunctionManager");
 
 
     private String type;

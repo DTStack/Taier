@@ -23,23 +23,60 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
+/**
+ * 函数 和 资源 的关联关系
+ */
 public interface BatchFunctionResourceDao {
 
+    /**
+     * 根据 资源id 获取函数和资源的关联关系
+     * @param resourceId
+     * @return
+     */
     List<BatchFunctionResource> listByResourceId(@Param("resourceId") Long resourceId);
 
-    void deleteByFunctionId(@Param("functionId") Long functionId);
+    /**
+     * 根据 函数id 删除函数和资源的关联关系
+     * @param functionId
+     * @return
+     */
+    int deleteByFunctionId(@Param("functionId") Long functionId);
 
-    void insert(BatchFunctionResource batchFunctionResource);
+    /**
+     * 保存函数和资源的关联关系
+     * @param batchFunctionResource
+     * @return
+     */
+    int insert(BatchFunctionResource batchFunctionResource);
 
+    /**
+     * 根据 资源id、函数id 获取函数和资源的关联关系
+     * @param resourceId
+     * @param functionId
+     * @return
+     */
     BatchFunctionResource getBeanByResourceIdAndFunctionId(@Param("resourceId") Long resourceId, @Param("functionId") Long functionId);
 
+    /**
+     * 根据 函数id 查询函数和资源的关联关系的列表
+     * @param functionId
+     * @return
+     */
     List<BatchFunctionResource> listByFunctionId(@Param("functionId") Long functionId);
 
+    /**
+     * 根据 资源id 查询函数和资源关联关系的列表
+     * @param resource_Id
+     * @return
+     */
     List<BatchFunctionResource> listByFunctionResourceId(@Param("resource_Id") Long resource_Id);
 
-    void updateByFunctionId(BatchFunctionResource batchFunctionResource);
-
-    Integer deleteByProjectId(@Param("projectId") Long projectId);
+    /**
+     * 更新 函数、资源的关联关系
+     * @param batchFunctionResource
+     * @return
+     */
+    int update(BatchFunctionResource batchFunctionResource);
 
     /**
      * 根据函数id获取函数资源关联关系
