@@ -20,22 +20,24 @@ package com.dtstack.batch.service.impl;
 
 import com.csvreader.CsvWriter;
 import com.dtstack.batch.common.enums.TempJobType;
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.BatchHiveSelectSqlDao;
 import com.dtstack.batch.domain.BatchHiveSelectSql;
+import com.dtstack.batch.engine.hdfs.service.BatchHadoopSelectSqlService;
 import com.dtstack.batch.engine.hdfs.service.SyncDownload;
 import com.dtstack.batch.engine.rdbms.common.IDownload;
 import com.dtstack.batch.enums.DownloadType;
 import com.dtstack.batch.mapping.TaskTypeEngineTypeMapping;
-//import com.dtstack.batch.service.datasource.impl.BatchDataSourceService;
+import com.dtstack.batch.service.datasource.impl.DatasourceService;
 import com.dtstack.batch.service.table.IDataDownloadService;
 import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.common.enums.DataSourceType;
 import com.dtstack.engine.common.enums.Deleted;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.MultiEngineType;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.master.impl.ActionService;
 import com.dtstack.engine.master.vo.action.ActionLogVO;
 import com.dtstack.engine.master.vo.action.ActionRetryLogVO;
-import com.dtstack.engine.master.impl.ActionService;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
@@ -48,7 +50,11 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
@@ -73,8 +79,8 @@ public class BatchDownloadService {
 
     public static final Integer DEFAULT_LOG_PREVIEW_BYTES = 16383;
 
-//    @Autowired
-//    private MultiEngineServiceFactory multiEngineServiceFactory;
+    @Autowired
+    private MultiEngineServiceFactory multiEngineServiceFactory;
 
     @Resource
     private BatchHiveSelectSqlDao batchHiveSelectSqlDao;
@@ -82,14 +88,14 @@ public class BatchDownloadService {
     @Autowired
     private ActionService actionService;
 
-//    @Autowired
-//    private BatchDataSourceService batchDataSourceService;
+    @Autowired
+    private DatasourceService datasourceService;
 
     private static final String SIMPLE_QUERY_REGEX = "(?i)select\\s+(?<cols>(\\*|[a-zA-Z0-9_,\\s]*?))\\s+from\\s+(((?<db>[0-9a-z_]+)\\.)*(?<name>[0-9a-z_]+))(\\s+limit\\s+(?<num>\\d+))*\\s*";
 
     private static final Pattern SIMPLE_QUERY_PATTERN = Pattern.compile(SIMPLE_QUERY_REGEX);
 
-    public IDownload downloadSqlExeResult(String jobId, Long tenantId, Long projectId, Long dtuicTenantId, Long userId, Boolean isRoot) {
+    public IDownload downloadSqlExeResult(String jobId, Long tenantId, Long userId, Boolean isRoot) {
 
         BatchHiveSelectSql batchHiveSelectSql = batchHiveSelectSqlDao.getByJobId(jobId, tenantId, Deleted.NORMAL.getStatus());
         Preconditions.checkNotNull(batchHiveSelectSql, "不存在该临时查询");
@@ -104,15 +110,14 @@ public class BatchDownloadService {
 
         MultiEngineType engineType = MultiEngineType.getByType(batchHiveSelectSql.getEngineType());
 
-//        IDataDownloadService dataDownloadService = multiEngineServiceFactory.getDataDownloadService(engineType.getType(), batchHiveSelectSql.getOtherType());
-        IDataDownloadService dataDownloadService = null; //todo
+        IDataDownloadService dataDownloadService = multiEngineServiceFactory.getDataDownloadService(engineType.getType(), batchHiveSelectSql.getOtherType());
                 Preconditions.checkNotNull(dataDownloadService, String.format("暂时不支持引擎类型 %d", engineType.getType()));
 
-        return dataDownloadService.downloadSqlExeResult(jobId, tenantId, projectId, dtuicTenantId, false);
+        return dataDownloadService.downloadSqlExeResult(jobId, tenantId);
     }
 
     /**
-     * @param dtuicTenantId
+     * @param tenantId
      * @param tableName
      * @param db
      * @param num
@@ -121,41 +126,39 @@ public class BatchDownloadService {
      * @return
      * @throws Exception
      */
-//    public List<Object> queryDataFromTable(Long dtuicTenantId, Long projectId, String tableName, String db, Integer num,
-//                                           List<String> fieldNameList, Boolean permissionStyle,
-//                                           boolean needMask, Integer engineType) throws Exception {
-//
-//        Integer otherTypes = null;
-//        // 特殊处理Hadoop引擎
-//        if(MultiEngineType.HADOOP.getType() == engineType){
-//            DataSourceType dataSourceType = batchDataSourceService.getHadoopDefaultDataSourceByProjectId(projectId);
-//            if(DataSourceType.IMPALA.getVal().equals(dataSourceType.getVal())){
-//                // 1 代表Impala
-//                otherTypes = 1;
-//            }
-//        }
-//        IDataDownloadService dataDownloadService = multiEngineServiceFactory.getDataDownloadService(engineType, otherTypes);
-//        Preconditions.checkNotNull(dataDownloadService, String.format("暂时不支持引擎类型 %d", engineType));
-//
-//        return dataDownloadService.queryDataFromTable(dtuicTenantId, projectId, tableName, db, num,
-//                fieldNameList, permissionStyle, needMask);
-//    }
+    public List<Object> queryDataFromTable(Long tenantId, String tableName, String db, Integer num,
+                                           List<String> fieldNameList, Boolean permissionStyle, Integer engineType) throws Exception {
+
+        Integer otherTypes = null;
+        // 特殊处理Hadoop引擎
+        if(MultiEngineType.HADOOP.getType() == engineType){
+            DataSourceType dataSourceType = datasourceService.getHadoopDefaultDataSourceByTenantId(tenantId);
+            if(DataSourceType.IMPALA.getVal() == (dataSourceType.getVal())){
+                // 1 代表Impala
+                otherTypes = 1;
+            }
+        }
+        IDataDownloadService dataDownloadService = multiEngineServiceFactory.getDataDownloadService(engineType, otherTypes);
+        Preconditions.checkNotNull(dataDownloadService, String.format("暂时不支持引擎类型 %d", engineType));
+
+        return dataDownloadService.queryDataFromTable(tenantId, tableName, db, num, fieldNameList, permissionStyle);
+    }
 
 
     /**
      * 按行数获取job的log
      *
-     * @param dtuicTenantId
+     * @param tenantId
      * @param taskType      除数据同步和虚节点都可以导出jobLog
      * @param jobId
      * @param byteNum
      * @return
      * @throws Exception
      */
-    public String loadJobLog(Long dtuicTenantId, Integer taskType, String jobId, Integer byteNum) {
+    public String loadJobLog(Long tenantId, Integer taskType, String jobId, Integer byteNum) {
         logger.info("获取job日志下载器-->jobId:{}", jobId);
         IDownload downloader = null;
-        downloader = buildIDownLoad(jobId, taskType, dtuicTenantId, byteNum == null ? DEFAULT_LOG_PREVIEW_BYTES : byteNum);
+        downloader = buildIDownLoad(jobId, taskType, tenantId, byteNum == null ? DEFAULT_LOG_PREVIEW_BYTES : byteNum);
         logger.info("获取job日志下载器完成-->jobId:{}", jobId);
 
         if (downloader == null) {
@@ -177,16 +180,16 @@ public class BatchDownloadService {
      *
      * @param jobId
      * @param taskType      除数据同步、虚节点和工作流都可以导出jobLog
-     * @param dtuicTenantId
+     * @param tenantId
      * @return
      * @throws Exception
      */
-    public IDownload downloadJobLog(String jobId, Integer taskType, Long dtuicTenantId) {
+    public IDownload downloadJobLog(String jobId, Integer taskType, Long tenantId) {
 
-        return buildIDownLoad(jobId, taskType, dtuicTenantId, Integer.MAX_VALUE);
+        return buildIDownLoad(jobId, taskType, tenantId, Integer.MAX_VALUE);
     }
 
-    private IDownload buildIDownLoad(String jobId, Integer taskType, Long dtuicTenantId, Integer limitNum) {
+    private IDownload buildIDownLoad(String jobId, Integer taskType, Long tenantId, Integer limitNum) {
         if (StringUtils.isBlank(jobId)) {
             throw new RdosDefineException("engineJobId 不能为空");
         }
@@ -199,19 +202,17 @@ public class BatchDownloadService {
             throw new RdosDefineException("(虚节点、工作流、LIBRA_SQL、greenplum SQL)的任务日志不支持下载");
         }
         MultiEngineType multiEngineType = TaskTypeEngineTypeMapping.getEngineTypeByTaskType(taskType);
-//        IDataDownloadService dataDownloadService = multiEngineServiceFactory.getDataDownloadService(multiEngineType.getType());
-        IDataDownloadService dataDownloadService = null; //todo
+        IDataDownloadService dataDownloadService = multiEngineServiceFactory.getDataDownloadService(multiEngineType.getType());
         Preconditions.checkNotNull(dataDownloadService, String.format("not support engineType %d", multiEngineType.getType()));
 
-        return dataDownloadService.buildIDownLoad(jobId, taskType, dtuicTenantId, limitNum);
+        return dataDownloadService.buildIDownLoad(jobId, taskType, tenantId, limitNum);
     }
 
 
-    public String downloadAppTypeLog(Long dtuicTenantId, String jobId, Integer limitNum, String logType, Integer taskType) {
+    public String downloadAppTypeLog(Long tenantId, String jobId, Integer limitNum, String logType, Integer taskType) {
         MultiEngineType multiEngineType = TaskTypeEngineTypeMapping.getEngineTypeByTaskType(taskType);
-//        IDataDownloadService dataDownloadService = multiEngineServiceFactory.getDataDownloadService(multiEngineType.getType());
-        IDataDownloadService dataDownloadService = null;   //todo
-        IDownload downloader = dataDownloadService.typeLogDownloader(dtuicTenantId, jobId, limitNum == null ? Integer.MAX_VALUE : limitNum, logType);
+        IDataDownloadService dataDownloadService = multiEngineServiceFactory.getDataDownloadService(multiEngineType.getType());
+        IDownload downloader = dataDownloadService.typeLogDownloader(tenantId, jobId, limitNum == null ? Integer.MAX_VALUE : limitNum, logType);
 
         if (downloader == null) {
             logger.error("-----日志文件导出失败-----");
@@ -252,13 +253,13 @@ public class BatchDownloadService {
      * @param iDownload
      * @param downloadType
      * @param jobId
-     * @param dtuicTenantId
+     * @param tenantId
      * @param tenantId
      * @param userId
      * @param isRoot
      */
     public void handleDownload(HttpServletResponse response, IDownload iDownload, DownloadType downloadType, String jobId,
-                               Long dtuicTenantId, Long tenantId, Long userId, Boolean isRoot) {
+                               Long tenantId, Long userId, Boolean isRoot) {
 
         String downFileName = getDownloadFileName(downloadType);
         response.setHeader("content-type", "application/octet-stream;charset=UTF-8");
@@ -286,8 +287,7 @@ public class BatchDownloadService {
                         Integer limitNum = null;
                         try {
                             //简单sql中如果包含limit  需要下载对应条数
-//                           Matcher matcher = BatchHadoopSelectSqlService.SIMPLE_QUERY_PATTERN.matcher(batchHiveSelectSql.getSqlText());
-                            Matcher matcher = null;      //todo
+                           Matcher matcher = BatchHadoopSelectSqlService.SIMPLE_QUERY_PATTERN.matcher(batchHiveSelectSql.getSqlText());
                             if (matcher.find()) {
                                 String limitStr = matcher.group("num");
                                 if (StringUtils.isNotEmpty(limitStr)) {

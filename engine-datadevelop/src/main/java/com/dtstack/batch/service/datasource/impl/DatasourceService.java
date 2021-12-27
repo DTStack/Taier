@@ -1,39 +1,64 @@
 package com.dtstack.batch.service.datasource.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.batch.common.enums.DataSourceTypeEnum;
 import com.dtstack.batch.common.exception.PubSvcDefineException;
+import com.dtstack.batch.common.util.JsonUtil;
+import com.dtstack.batch.engine.rdbms.service.impl.Engine2DTOService;
+import com.dtstack.batch.enums.RDBMSSourceType;
 import com.dtstack.batch.enums.SourceDTOType;
+import com.dtstack.batch.enums.TableLocationType;
+import com.dtstack.batch.enums.TaskCreateModelType;
+import com.dtstack.batch.sync.format.TypeFormat;
+import com.dtstack.batch.sync.format.writer.HiveWriterFormat;
+import com.dtstack.batch.sync.job.PluginName;
 import com.dtstack.batch.vo.DataSourceVO;
 import com.dtstack.dtcenter.loader.client.ClientCache;
+import com.dtstack.dtcenter.loader.client.IClient;
 import com.dtstack.dtcenter.loader.client.IKerberos;
+import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.kerberos.HadoopConfTool;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.engine.common.constrant.FormNames;
+import com.dtstack.engine.common.enums.EComponentType;
+import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.DtCenterDefException;
 import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.CommonUtils;
 import com.dtstack.engine.common.util.DataSourceUtils;
 import com.dtstack.engine.common.util.Strings;
+import com.dtstack.engine.domain.BatchDataSource;
 import com.dtstack.engine.domain.datasource.DsFormField;
 import com.dtstack.engine.domain.datasource.DsInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.jcraft.jsch.SftpException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.regex.Pattern;
 
 /**
  * 有关数据源中心
@@ -68,7 +93,69 @@ public class DatasourceService {
 
     public static final String DSC_INFO_CHANGE_CHANNEL = "dscInfoChangeChannel";
 
+    public static final String JDBC_URL = "jdbcUrl";
+    public static final String JDBC_USERNAME = "username";
+    public static final String JDBC_PASSWORD = "password";
+    public static final String JDBC_HOSTPORTS = "hostPorts";
+    public static final String SECRET_KEY = "secretKey";
 
+    public static final String HDFS_DEFAULTFS = "defaultFS";
+
+    public static final String HADOOP_CONFIG = "hadoopConfig";
+
+    public static String HIVE_METASTORE_URIS = "hiveMetastoreUris";
+
+    private static final String HBASE_CONFIG = "hbaseConfig";
+
+    public static final String HIVE_PARTITION = "partition";
+
+    public static final String TEMP_TABLE_PREFIX = "select_sql_temp_table_";
+
+    public static final String TEMP_TABLE_PREFIX_FROM_DQ = "temp_data_";
+
+    private static final String KEY = "key";
+
+    private static final String TYPE = "type";
+
+    private static final String COLUMN = "column";
+
+    private static final String EXTRAL_CONFIG = "extralConfig";
+
+    private static final List<String> MYSQL_NUMBERS = Lists.newArrayList("TINYINT", "SMALLINT", "MEDIUMINT", "INT", "BIGINT", "INT UNSIGNED");
+
+    private static final List<String> CLICKHOUSE_NUMBERS = Lists.newArrayList("UINT8", "UINT16", "UINT32", "UINT64", "INT8", "INT16", "INT32", "INT64");
+
+    private static final List<String> ORACLE_NUMBERS = Lists.newArrayList("INT", "SMALLINT", "NUMBER");
+
+    private static final List<String> SQLSERVER_NUMBERS = Lists.newArrayList("INT", "INTEGER", "SMALLINT", "TINYINT", "BIGINT");
+
+    private static final List<String> POSTGRESQL_NUMBERS = Lists.newArrayList("INT2", "INT4", "INT8", "SMALLINT", "INTEGER", "BIGINT", "SMALLSERIAL", "SERIAL", "BIGSERIAL");
+
+    private static final List<String> DB2_NUMBERS = Lists.newArrayList("SMALLINT", "INTEGER", "BIGINT");
+
+    private static final List<String> GBASE_NUMBERS = Lists.newArrayList("SMALLINT", "TINYINT", "INT", "BIGINT", "FLOAT", "DOUBLE", "DECIMAL", "NUMERIC");
+
+    private static final List<String> DMDB_NUMBERS = Lists.newArrayList("INT", "SMALLINT", "BIGINT","NUMBER");
+
+    private static final List<String> GREENPLUM_NUMBERS = Lists.newArrayList("SMALLINT", "INTEGER", "BIGINT");
+
+    private static final List<String> KINGBASE_NUMBERS = Lists.newArrayList("BIGINT", "DOUBLE", "FLOAT", "INT4", "INT8", "FLOAT", "FLOAT8", "NUMERIC");
+
+    private static final List<String> INFLUXDB_NUMBERS = Lists.newArrayList("INTEGER");
+
+    private static final Pattern NUMBER_PATTERN = Pattern.compile("NUMBER\\(\\d+\\)");
+
+    private static final Pattern NUMBER_PATTERN2 = Pattern.compile("NUMBER\\((\\d+),([\\d-]+)\\)");
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    private static final TypeFormat TYPE_FORMAT = new HiveWriterFormat();
+
+    private static final String NO_PERMISSION = "NO PERMISSION";
+
+    private static final String hdfsCustomConfig = "hdfsCustomConfig";
+
+    private static final String KERBEROS_CONFIG = "kerberosConfig";
 
 
     /**
@@ -511,4 +598,364 @@ public class DatasourceService {
         return ClientCache.getClient(typeEnum.getVal()).testCon(sourceDTO);
     }
 
+    public DataSourceType getHadoopDefaultDataSourceByTenantId(Long tenantId) {
+        return DataSourceType.SparkThrift2_1;
+    }
+
+    public String setJobDataSourceInfo(String jobStr, Long dtUicTenentId, Integer createModel) {
+        JSONObject job = JSONObject.parseObject(jobStr);
+        JSONObject jobContent = job.getJSONObject("job");
+        JSONObject content = jobContent.getJSONArray("content").getJSONObject(0);
+        setPluginDataSourceInfo(content.getJSONObject("reader"), dtUicTenentId, createModel);
+        setPluginDataSourceInfo(content.getJSONObject("writer"), dtUicTenentId, createModel);
+        return job.toJSONString();
+    }
+
+
+    private void setPluginDataSourceInfo(JSONObject plugin, Long dtUicTenentId, Integer createModel) {
+        String pluginName = plugin.getString("name");
+        JSONObject param = plugin.getJSONObject("parameter");
+        if (PluginName.MySQLD_R.equals(pluginName)) {
+            JSONArray connections = param.getJSONArray("connection");
+            for (int i = 0; i < connections.size(); i++) {
+                JSONObject conn = connections.getJSONObject(i);
+                if (!conn.containsKey("sourceId")) {
+                    continue;
+                }
+
+                BatchDataSource source = getOne(conn.getLong("sourceId"));
+                JSONObject json = JSONObject.parseObject(source.getDataJson());
+                replaceDataSourceInfoByCreateModel(conn,"username",JsonUtil.getStringDefaultEmpty(json, JDBC_USERNAME),createModel);
+                replaceDataSourceInfoByCreateModel(conn,"password",JsonUtil.getStringDefaultEmpty(json, JDBC_PASSWORD),createModel);
+                replaceDataSourceInfoByCreateModel(conn,"jdbcUrl", Arrays.asList(JsonUtil.getStringDefaultEmpty(json, JDBC_URL)),createModel);
+            }
+        } else {
+            if (!param.containsKey("sourceIds")) {
+                return;
+            }
+
+            List<Long> sourceIds = param.getJSONArray("sourceIds").toJavaList(Long.class);
+            if (CollectionUtils.isEmpty(sourceIds)) {
+                return;
+            }
+
+            BatchDataSource source = getOne(sourceIds.get(0));
+
+            JSONObject json = JSON.parseObject(source.getDataJson());
+            Integer sourceType = source.getType();
+
+            if (Objects.nonNull(RDBMSSourceType.getByDataSourceType(sourceType))
+                    && !DataSourceType.HIVE.getVal().equals(sourceType)
+                    && !DataSourceType.HIVE3X.getVal().equals(sourceType)
+                    && !DataSourceType.HIVE1X.getVal().equals(sourceType)
+                    && !DataSourceType.IMPALA.getVal().equals(sourceType)
+                    && !DataSourceType.SparkThrift2_1.getVal().equals(sourceType)
+                    && !DataSourceType.INCEPTOR.getVal().equals(sourceType)) {
+                replaceDataSourceInfoByCreateModel(param,"username",JsonUtil.getStringDefaultEmpty(json, JDBC_USERNAME),createModel);
+                replaceDataSourceInfoByCreateModel(param,"password",JsonUtil.getStringDefaultEmpty(json, JDBC_PASSWORD),createModel);
+                JSONObject conn = param.getJSONArray("connection").getJSONObject(0);
+                if (conn.get("jdbcUrl") instanceof String) {
+                    replaceDataSourceInfoByCreateModel(conn,"jdbcUrl",JsonUtil.getStringDefaultEmpty(json, JDBC_URL),createModel);
+                } else {
+                    replaceDataSourceInfoByCreateModel(conn,"jdbcUrl",Arrays.asList(JsonUtil.getStringDefaultEmpty(json, JDBC_URL)),createModel);
+                }
+            } else if (DataSourceType.HIVE.getVal().equals(sourceType) || DataSourceType.HDFS.getVal().equals(sourceType)
+                    || DataSourceType.HIVE1X.getVal().equals(sourceType) || DataSourceType.HIVE3X.getVal().equals(sourceType) || DataSourceType.SparkThrift2_1.getVal().equals(sourceType)) {
+                if (DataSourceType.HIVE.getVal().equals(sourceType) || DataSourceType.HIVE3X.getVal().equals(sourceType) || DataSourceType.HIVE1X.getVal().equals(sourceType) || DataSourceType.SparkThrift2_1.getVal().equals(sourceType)) {
+                    if (param.containsKey("connection")) {
+                        JSONObject conn = param.getJSONArray("connection").getJSONObject(0);
+                        replaceDataSourceInfoByCreateModel(conn,JDBC_URL, JsonUtil.getStringDefaultEmpty(json, JDBC_URL),createModel);
+                    }
+                }
+                //非meta数据源从高可用配置中取hadoopConf
+                if (0 == source.getIsDefault()){
+                    replaceDataSourceInfoByCreateModel(param,"defaultFS",JsonUtil.getStringDefaultEmpty(json, HDFS_DEFAULTFS),createModel);
+                    String hadoopConfig = JsonUtil.getStringDefaultEmpty(json, HADOOP_CONFIG);
+                    if (StringUtils.isNotBlank(hadoopConfig)) {
+                        replaceDataSourceInfoByCreateModel(param,HADOOP_CONFIG,JSONObject.parse(hadoopConfig),createModel);
+                    }
+                }else {
+                    //meta数据源从console取配置
+                    //拿取最新配置
+                    String consoleHadoopConfig = this.getConsoleHadoopConfig(dtUicTenentId);
+                    if (StringUtils.isNotBlank(consoleHadoopConfig)) {
+                        //替换新path 页面运行fix
+                        JSONArray connections = param.getJSONArray("connection");
+                        if ((DataSourceType.HIVE.getVal().equals(sourceType) || DataSourceType.HIVE1X.getVal().equals(sourceType) || DataSourceType.HIVE3X.getVal().equals(sourceType) || DataSourceType.SparkThrift2_1.getVal().equals(sourceType)) && Objects.nonNull(connections)){
+                            JSONObject conn = connections.getJSONObject(0);
+                            String hiveTable = conn.getJSONArray("table").get(0).toString();
+                            Map<String, Object> kerberosConfig = fillKerberosConfig(source.getId());
+                            String hiveTablePath = getHiveTablePath(sourceType, hiveTable, json, kerberosConfig);
+                            if (StringUtils.isNotEmpty(hiveTablePath)){
+                                replaceDataSourceInfoByCreateModel(param,"path", hiveTablePath.trim(), createModel);
+                            }
+                        }
+                        replaceDataSourceInfoByCreateModel(param,HADOOP_CONFIG,JSONObject.parse(consoleHadoopConfig),createModel);
+                        JSONObject hadoopConfJson = JSONObject.parseObject(consoleHadoopConfig);
+                        String defaultFs = JsonUtil.getStringDefaultEmpty(hadoopConfJson, "fs.defaultFS");
+                        //替换defaultFs
+                        replaceDataSourceInfoByCreateModel(param,"defaultFS",defaultFs,createModel);
+                    } else {
+                        String hadoopConfig = JsonUtil.getStringDefaultEmpty(json, HADOOP_CONFIG);
+                        if (StringUtils.isNotBlank(hadoopConfig)) {
+                            replaceDataSourceInfoByCreateModel(param, HADOOP_CONFIG, JSONObject.parse(hadoopConfig), createModel);
+                        }
+                    }
+                }
+                setSftpConfig(source.getId(), json, dtUicTenentId, param, HADOOP_CONFIG, false);
+            } else if (DataSourceType.HBASE.getVal().equals(sourceType)) {
+                String jsonStr = json.getString(HBASE_CONFIG);
+                Map jsonMap = new HashMap();
+                if (StringUtils.isNotEmpty(jsonStr)){
+                    try {
+                        jsonMap = objectMapper.readValue(jsonStr,Map.class);
+                    } catch (IOException e) {
+                        log.error("", e);
+                    }
+                }
+                replaceDataSourceInfoByCreateModel(param,HBASE_CONFIG,jsonMap,createModel);
+                if (TaskCreateModelType.GUIDE.getType().equals(createModel)) {
+                    setSftpConfig(source.getId(), json, dtUicTenentId, param, HBASE_CONFIG, false);
+                }
+            } else if (DataSourceType.FTP.getVal().equals(sourceType)) {
+                if (json != null){
+                    json.entrySet().forEach(bean->{
+                        replaceDataSourceInfoByCreateModel(param,bean.getKey(),bean.getValue(),createModel);
+                    });
+                }
+            } else if (DataSourceType.MAXCOMPUTE.getVal().equals(sourceType)) {
+                replaceDataSourceInfoByCreateModel(param,"accessId",json.get("accessId"),createModel);
+                replaceDataSourceInfoByCreateModel(param,"accessKey",json.get("accessKey"),createModel);
+                replaceDataSourceInfoByCreateModel(param,"project",json.get("project"),createModel);
+                replaceDataSourceInfoByCreateModel(param,"endPoint",json.get("endPoint"),createModel);
+            } else if ((DataSourceType.ES.getVal().equals(sourceType))) {
+                replaceDataSourceInfoByCreateModel(param,"address",json.get("address"),createModel);
+            } else if (DataSourceType.REDIS.getVal().equals(sourceType)) {
+                replaceDataSourceInfoByCreateModel(param,"hostPort", JsonUtil.getStringDefaultEmpty(json, "hostPort"),createModel);
+                replaceDataSourceInfoByCreateModel(param,"database",json.getIntValue("database"),createModel);
+                replaceDataSourceInfoByCreateModel(param,"password",JsonUtil.getStringDefaultEmpty(json, "password"),createModel);
+            } else if (DataSourceType.MONGODB.getVal().equals(sourceType)) {
+                replaceDataSourceInfoByCreateModel(param,JDBC_HOSTPORTS,JsonUtil.getStringDefaultEmpty(json, JDBC_HOSTPORTS),createModel);
+                replaceDataSourceInfoByCreateModel(param,"username",JsonUtil.getStringDefaultEmpty(json, "username"),createModel);
+                replaceDataSourceInfoByCreateModel(param,"database",JsonUtil.getStringDefaultEmpty(json, "database"),createModel);
+                replaceDataSourceInfoByCreateModel(param,"password",JsonUtil.getStringDefaultEmpty(json, "password"),createModel);
+            } else if (DataSourceType.Kudu.getVal().equals(sourceType)) {
+                replaceDataSourceInfoByCreateModel(param,"masterAddresses",JsonUtil.getStringDefaultEmpty(json, JDBC_HOSTPORTS),createModel);
+                replaceDataSourceInfoByCreateModel(param,"others",JsonUtil.getStringDefaultEmpty(json, "others"),createModel);
+            } else if (DataSourceType.IMPALA.getVal().equals(sourceType)) {
+                String tableLocation =  param.getString(TableLocationType.key());
+                replaceDataSourceInfoByCreateModel(param,"dataSourceType", DataSourceType.IMPALA.getVal(),createModel);
+                String hadoopConfig = JsonUtil.getStringDefaultEmpty(json, HADOOP_CONFIG);
+                if (StringUtils.isNotBlank(hadoopConfig)) {
+                    replaceDataSourceInfoByCreateModel(param,HADOOP_CONFIG,JSONObject.parse(hadoopConfig),createModel);
+                }
+                if (TableLocationType.HIVE.getValue().equals(tableLocation)) {
+                    replaceDataSourceInfoByCreateModel(param,"username",JsonUtil.getStringDefaultEmpty(json, JDBC_USERNAME),createModel);
+                    replaceDataSourceInfoByCreateModel(param,"password",JsonUtil.getStringDefaultEmpty(json, JDBC_PASSWORD),createModel);
+                    replaceDataSourceInfoByCreateModel(param,"defaultFS",JsonUtil.getStringDefaultEmpty(json, HDFS_DEFAULTFS),createModel);
+                    if (param.containsKey("connection")) {
+                        JSONObject conn = param.getJSONArray("connection").getJSONObject(0);
+                        replaceDataSourceInfoByCreateModel(conn,"jdbcUrl",JsonUtil.getStringDefaultEmpty(json, JDBC_URL),createModel);
+                    }
+                }
+            } else if (DataSourceType.INCEPTOR.getVal().equals(sourceType)) {
+                replaceInceptorDataSource(param, json, createModel, source, dtUicTenentId);
+            } else if (DataSourceType.INFLUXDB.getVal().equals(sourceType)) {
+                replaceDataSourceInfoByCreateModel(param, "username", JsonUtil.getStringDefaultEmpty(json, "username"), createModel);
+                replaceDataSourceInfoByCreateModel(param, "password", JsonUtil.getStringDefaultEmpty(json, "password"), createModel);
+                if (param.containsKey("connection")) {
+                    JSONObject conn = param.getJSONArray("connection").getJSONObject(0);
+                    String url = JsonUtil.getStringDefaultEmpty(json, "url");
+                    replaceDataSourceInfoByCreateModel(conn, "url", Lists.newArrayList(url), createModel);
+                    replaceDataSourceInfoByCreateModel(conn, "measurement", conn.getJSONArray("table"), createModel);
+                    replaceDataSourceInfoByCreateModel(conn, "database", conn.getString("schema"), createModel);
+
+                }
+            }
+        }
+    }
+
+
+    /**
+     * 根据模式 判断是否要覆盖数据源信息
+     * 脚本模式 空缺了再覆盖  向导模式 默认覆盖
+     */
+    private void replaceDataSourceInfoByCreateModel(JSONObject jdbcInfo, String key, Object values, Integer createModel){
+        Boolean isReplace = TaskCreateModelType.TEMPLATE.getType().equals(createModel) && jdbcInfo.containsKey(key);
+        if (isReplace) {
+            return;
+        }
+        jdbcInfo.put(key,values);
+    }
+
+
+    /**
+     * 替换Inceptor 相关的数据源信息
+     *
+     * @param param
+     * @param json
+     * @param createModel
+     * @param source
+     * @param dtUicTenentId
+     */
+    public void replaceInceptorDataSource(JSONObject param, JSONObject json, Integer createModel, BatchDataSource source,
+                                          Long dtUicTenentId){
+        if (param.containsKey("connection")) {
+            JSONObject conn = param.getJSONArray("connection").getJSONObject(0);
+            replaceDataSourceInfoByCreateModel(conn,"jdbcUrl",JsonUtil.getStringDefaultEmpty(json, JDBC_URL),createModel);
+        }
+
+        replaceDataSourceInfoByCreateModel(param,HDFS_DEFAULTFS,JsonUtil.getStringDefaultEmpty(json, HDFS_DEFAULTFS),createModel);
+        replaceDataSourceInfoByCreateModel(param,HIVE_METASTORE_URIS,JsonUtil.getStringDefaultEmpty(json, HIVE_METASTORE_URIS),createModel);
+        String hadoopConfig = JsonUtil.getStringDefaultEmpty(json, HADOOP_CONFIG);
+        JSONObject hadoopConfigJson = new JSONObject();
+        if (StringUtils.isNotBlank(hadoopConfig)) {
+            hadoopConfigJson.putAll(JSONObject.parseObject(hadoopConfig));
+        }
+        hadoopConfigJson.put(HIVE_METASTORE_URIS, JsonUtil.getStringDefaultEmpty(json, HIVE_METASTORE_URIS));
+        replaceDataSourceInfoByCreateModel(param,HADOOP_CONFIG, hadoopConfigJson, createModel);
+
+        // 替换表相关的信息
+        JSONArray connections = param.getJSONArray("connection");
+        JSONObject conn = connections.getJSONObject(0);
+        String hiveTableName = conn.getJSONArray("table").get(0).toString();
+        Map<String, Object> kerberosConfig = fillKerberosConfig(source.getId());
+        com.dtstack.dtcenter.loader.dto.Table tableInfo = getTableInfo(DataSourceType.INCEPTOR.getVal(), hiveTableName, json, kerberosConfig);
+
+        replaceDataSourceInfoByCreateModel(param,"path", tableInfo.getPath().trim(), createModel);
+        replaceDataSourceInfoByCreateModel(param,"schema", tableInfo.getDb(), createModel);
+        replaceDataSourceInfoByCreateModel(param,"table", hiveTableName, createModel);
+        replaceDataSourceInfoByCreateModel(param,"isTransaction", tableInfo.getIsTransTable(), createModel);
+
+        setSftpConfig(source.getId(), json, dtUicTenentId, param, HADOOP_CONFIG, false);
+    }
+
+
+    /**
+     * 添加ftp地址
+     * @param sourceId
+     * @param json
+     * @param dtuicTenantId
+     * @param map
+     * @param confKey
+     */
+    private void setSftpConfig(Long sourceId, JSONObject json, Long dtuicTenantId, Map<String, Object> map, String confKey, boolean downloadKerberos) {
+        JSONObject kerberosConfig = json.getJSONObject(KERBEROS_CONFIG);
+        if (MapUtils.isNotEmpty(kerberosConfig)) {
+            Map<String, String> sftpMap = getSftpMap(dtuicTenantId);
+            Map<String, Object> conf = null;
+            Object confObj = map.get(confKey);
+            if (confObj instanceof String) {
+                conf = JSON.parseObject(confObj.toString());
+            } else if (confObj instanceof Map) {
+                conf = (Map<String, Object>) confObj;
+            }
+            conf = Optional.ofNullable(conf).orElse(new HashMap<>());
+            //flinkx参数
+            conf.putAll(kerberosConfig);
+            conf.put("sftpConf", sftpMap);
+            //替换remotePath 就是ftp上kerberos的相对路径和principalFile
+            String remoteDir = sftpMap.get("path") + File.separator + kerberosConfig.getString("kerberosDir");
+            String principalFile = conf.getOrDefault("principalFile", "").toString();;
+            if (StringUtils.isNotEmpty(principalFile)){
+                conf.put("principalFile", getFileName(principalFile));
+            }
+            conf.put("remoteDir", remoteDir);
+            map.put(confKey, conf);
+
+            if (downloadKerberos) {
+                //hiveBase中连接数据库需要kerberosConfig
+                Map<String, Object> kerberosConfigReplaced = fillKerberosConfig(sourceId);
+                map.put("kerberosConfig", kerberosConfigReplaced);
+            }
+
+            String krb5Conf = conf.getOrDefault("java.security.krb5.conf", "").toString();
+            if (StringUtils.isNotEmpty(krb5Conf)){
+                conf.put("java.security.krb5.conf", getFileName(krb5Conf));
+            }
+            // 开启kerberos认证需要的参数
+            conf.put(com.dtstack.batch.engine.rdbms.common.HadoopConfTool.IS_HADOOP_AUTHORIZATION, "true");
+            conf.put(com.dtstack.batch.engine.rdbms.common.HadoopConfTool.HADOOP_AUTH_TYPE, "kerberos");
+        }
+    }
+
+    public Map<String, String> getSftpMap(Long dtuicTenantId) {
+        Map<String, String> map = new HashMap<>();
+        String cluster = clusterServic.clusterInfo(dtuicTenantId);
+        JSONObject clusterObj = JSON.parseObject(cluster);
+        JSONObject sftpConfig = clusterObj.getJSONObject(EComponentType.SFTP.getConfName());
+        if (Objects.isNull(sftpConfig)) {
+            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_SFTP);
+        } else {
+            for (String key : sftpConfig.keySet()) {
+                map.put(key, sftpConfig.getString(key));
+            }
+        }
+        return map;
+    }
+
+
+    private String getFileName(final String path){
+        if (StringUtils.isEmpty(path)){
+            return path;
+        }
+        final String[] split = path.split(File.separator);
+        return split[split.length-1];
+    }
+
+    /**
+     * 获取表信息
+     *
+     * @param sourceType
+     * @param table
+     * @param dataJson
+     * @param kerberosConfig
+     * @return
+     */
+    private  com.dtstack.dtcenter.loader.dto.Table  getTableInfo(Integer sourceType, String table, JSONObject dataJson, Map<String, Object> kerberosConfig){
+        IClient client = ClientCache.getClient(sourceType);
+        ISourceDTO sourceDTO = SourceDTOType.getSourceDTO(dataJson, sourceType, kerberosConfig);
+
+        com.dtstack.dtcenter.loader.dto.Table tableInfo = client.getTable(sourceDTO, SqlQueryDTO.builder().tableName(table).build());
+        return tableInfo;
+    }
+
+    /**
+     * 获取hadoopconfig最新配置
+     * @param dtUicTenantId
+     * @return
+     */
+    private String getConsoleHadoopConfig(Long dtUicTenantId){
+        if(null == dtUicTenantId){
+            return null;
+        }
+        String enginePluginInfo = Engine2DTOService.getEnginePluginInfo(dtUicTenantId, MultiEngineType.HADOOP.getType());
+        if(StringUtils.isBlank(enginePluginInfo)){
+            return null;
+        }
+        JSONObject jsonObject = JSON.parseObject(enginePluginInfo);
+        return jsonObject.getString(EComponentType.HDFS.getTypeCode() + "");
+    }
+
+
+    /**
+     * 获取table location
+     *
+     * @param sourceType
+     * @param table
+     * @param dataJson
+     * @param kerberosConfig
+     * @return
+     */
+    private String getHiveTablePath(Integer sourceType, String table, JSONObject dataJson, Map<String, Object> kerberosConfig) {
+        com.dtstack.dtcenter.loader.dto.Table tableInfo = getTableInfo(sourceType, table, dataJson, kerberosConfig);
+        return tableInfo.getPath();
+    }
+
+    public BatchDataSource getOne(Long valueOf) {
+        return null;
+    }
+
+    public void createMateDataSource(Long tenantId, Long userId, String toJSONString, String dataSourceName, Integer dataSourceType, String tenantDesc, String dbName) {
+    }
 }

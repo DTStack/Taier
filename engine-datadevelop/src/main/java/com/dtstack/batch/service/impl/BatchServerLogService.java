@@ -38,7 +38,11 @@ import com.dtstack.batch.vo.BatchServerLogVO;
 import com.dtstack.batch.vo.SyncErrorCountInfoVO;
 import com.dtstack.batch.vo.SyncStatusLogInfoVO;
 import com.dtstack.batch.web.server.vo.result.BatchServerLogByAppLogTypeResultVO;
-import com.dtstack.engine.common.enums.*;
+import com.dtstack.engine.common.enums.AppType;
+import com.dtstack.engine.common.enums.EComponentType;
+import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.enums.MultiEngineType;
+import com.dtstack.engine.common.enums.TaskStatus;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -54,7 +58,6 @@ import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.master.impl.ActionService;
 import com.dtstack.engine.master.impl.ClusterService;
-import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import com.dtstack.engine.master.vo.action.ActionJobEntityVO;
 import com.dtstack.engine.master.vo.action.ActionLogVO;
@@ -74,7 +77,12 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class BatchServerLogService {
@@ -110,9 +118,6 @@ public class BatchServerLogService {
 
     @Autowired
     private ClusterService clusterService;
-
-    @Autowired
-    private ComponentService componentService;
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 

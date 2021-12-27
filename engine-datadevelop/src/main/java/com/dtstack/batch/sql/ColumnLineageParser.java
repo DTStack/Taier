@@ -211,7 +211,7 @@ public class ColumnLineageParser {
         return lineage;
     }
 
-    private ColumnNode findColumnParent(ColumnNode columnNode, QueryTableTree leafNode,int ind){
+    private ColumnNode findColumnParent(ColumnNode columnNode, QueryTableTree leafNode, int ind){
         if(null == columnNode){
             return null;
         }
@@ -338,7 +338,7 @@ public class ColumnLineageParser {
         }
     }
 
-    private boolean isSelectAllColumn(QueryTableTree rootTree,String tableAlias){
+    private boolean isSelectAllColumn(QueryTableTree rootTree, String tableAlias){
         if(null == rootTree){
             return false;
         }

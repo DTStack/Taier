@@ -75,7 +75,7 @@ public class BatchSparkSqlExeService extends BatchSparkHiveSqlExeService impleme
         List<ParseResult> parseResultList = executeContent.getParseResultList();
         ExecuteResultVO<List<Object>> result = new ExecuteResultVO<>();
 
-        boolean useSelfFunction = batchFunctionService.validContainSelfFunction(executeContent.getSql());
+        boolean useSelfFunction = batchFunctionService.validContainSelfFunction(executeContent.getSql(), tenantId, null);
         ExecuteSqlParseVO executeSqlParseVO = new ExecuteSqlParseVO();
         List<SqlResultVO> sqlIdList = Lists.newArrayList();
         List<String> sqlList = Lists.newArrayList();
