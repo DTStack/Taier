@@ -1,6 +1,16 @@
 package com.dtstack.batch.vo.schedule;
 
 import com.dtstack.batch.vo.base.PageVO;
+import com.dtstack.batch.vo.fill.QueryFillDataJobListVO;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
+import io.swagger.annotations.ApiModelProperty;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Auther: dazhi
@@ -10,45 +20,43 @@ import com.dtstack.batch.vo.base.PageVO;
  */
 public class QueryTaskListVO extends PageVO {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(QueryFillDataJobListVO.class);
+
     /**
      * 租户
      */
+    @ApiModelProperty(value = "租户id", hidden = true,required = true)
     private Long tenantId;
 
     /**
      * 所属用户
      */
+    @ApiModelProperty(value = "所属用户")
     private Long ownerId;
 
     /**
      * 任务名称
      */
+    @ApiModelProperty(value = "任务名称")
     private String name;
 
     /**
-     * 创建时间
+     * 调度状态：0 正常 1冻结 2停止
      */
-    private Long startTime;
-
-    /**
-     * 结束时间
-     */
-    private Long endTime;
-
-    /**
-     * 调度状态
-     */
+    @ApiModelProperty(value = "调度状态：0 正常 1冻结 2停止", example = "0")
     private Integer scheduleStatus;
 
     /**
      * 任务类型
      */
-    private String taskTypeList;
+    @ApiModelProperty(value = "任务类型")
+    private String taskTypes;
 
     /**
      * 周期类型
      */
-    private String periodTypeList;
+    @ApiModelProperty(value = "周期类型", hidden = true)
+    private String periodTypes;
 
     public Long getTenantId() {
         return tenantId;
@@ -74,22 +82,6 @@ public class QueryTaskListVO extends PageVO {
         this.ownerId = ownerId;
     }
 
-    public Long getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(Long startTime) {
-        this.startTime = startTime;
-    }
-
-    public Long getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(Long endTime) {
-        this.endTime = endTime;
-    }
-
     public Integer getScheduleStatus() {
         return scheduleStatus;
     }
@@ -98,20 +90,45 @@ public class QueryTaskListVO extends PageVO {
         this.scheduleStatus = scheduleStatus;
     }
 
-    public String getTaskTypeList() {
-        return taskTypeList;
+    public String getTaskTypes() {
+        return taskTypes;
     }
 
-    public void setTaskTypeList(String taskTypeList) {
-        this.taskTypeList = taskTypeList;
+    public void setTaskTypes(String taskTypes) {
+        this.taskTypes = taskTypes;
     }
 
-    public String getPeriodTypeList() {
-        return periodTypeList;
+    public List<Integer> getTaskTypeList() {
+        String taskTypes = this.taskTypes;
+        if (StringUtils.isNotBlank(taskTypes)) {
+            try {
+                List<String> taskTypeStrList = Splitter.on(",").omitEmptyStrings().splitToList(taskTypes);
+                return taskTypeStrList.stream().map(Integer::parseInt).collect(Collectors.toList());
+            } catch (Exception e) {
+                LOGGER.error("",e);
+            }
+        }
+        return Lists.newArrayList();
     }
 
-    public void setPeriodTypeList(String periodTypeList) {
-        this.periodTypeList = periodTypeList;
+    public String getPeriodTypes() {
+        return periodTypes;
     }
 
+    public void setPeriodTypes(String periodTypes) {
+        this.periodTypes = periodTypes;
+    }
+
+    public List<Integer> getPeriodTypeList() {
+        String periodTypes = this.periodTypes;
+        if (StringUtils.isNotBlank(periodTypes)) {
+            try {
+                List<String> periodTypesStrList = Splitter.on(",").omitEmptyStrings().splitToList(periodTypes);
+                return periodTypesStrList.stream().map(Integer::parseInt).collect(Collectors.toList());
+            } catch (Exception e) {
+                LOGGER.error("",e);
+            }
+        }
+        return Lists.newArrayList();
+    }
 }

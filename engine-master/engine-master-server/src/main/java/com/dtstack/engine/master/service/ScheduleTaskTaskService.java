@@ -5,6 +5,7 @@ import com.dtstack.engine.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.mapper.ScheduleTaskTaskShadeMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * @Auther: dazhi
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
  * @Email:dazhi@dtstack.com
  * @Description:
  */
+@Service
 public class ScheduleTaskTaskService extends ServiceImpl<ScheduleTaskTaskShadeMapper, ScheduleTaskTaskShade> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleTaskTaskService.class);
 }

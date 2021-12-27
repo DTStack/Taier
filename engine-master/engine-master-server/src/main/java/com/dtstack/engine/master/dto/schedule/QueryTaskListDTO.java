@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.dto.schedule;
 
-import com.dtstack.engine.master.controller.param.PageParam;
+import java.util.List;
 
 /**
  * @Auther: dazhi
@@ -26,29 +26,19 @@ public class QueryTaskListDTO {
     private String name;
 
     /**
-     * 创建时间
-     */
-    private Long startTime;
-
-    /**
-     * 结束时间
-     */
-    private Long endTime;
-
-    /**
-     * 调度状态
+     * 调度状态：0 正常 1冻结 2停止
      */
     private Integer scheduleStatus;
 
     /**
      * 任务类型
      */
-    private String taskTypeList;
+    private List<Integer> taskTypeList;
 
     /**
      * 周期类型
      */
-    private String periodTypeList;
+    private List<Integer> periodTypeList;
 
     /**
      * 当前页
@@ -84,22 +74,6 @@ public class QueryTaskListDTO {
         this.ownerId = ownerId;
     }
 
-    public Long getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(Long startTime) {
-        this.startTime = startTime;
-    }
-
-    public Long getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(Long endTime) {
-        this.endTime = endTime;
-    }
-
     public Integer getScheduleStatus() {
         return scheduleStatus;
     }
@@ -108,19 +82,19 @@ public class QueryTaskListDTO {
         this.scheduleStatus = scheduleStatus;
     }
 
-    public String getTaskTypeList() {
+    public List<Integer> getTaskTypeList() {
         return taskTypeList;
     }
 
-    public void setTaskTypeList(String taskTypeList) {
+    public void setTaskTypeList(List<Integer> taskTypeList) {
         this.taskTypeList = taskTypeList;
     }
 
-    public String getPeriodTypeList() {
+    public List<Integer> getPeriodTypeList() {
         return periodTypeList;
     }
 
-    public void setPeriodTypeList(String periodTypeList) {
+    public void setPeriodTypeList(List<Integer> periodTypeList) {
         this.periodTypeList = periodTypeList;
     }
 

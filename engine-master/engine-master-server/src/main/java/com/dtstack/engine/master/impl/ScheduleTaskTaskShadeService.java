@@ -20,7 +20,6 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.enums.DisplayDirect;
-import com.dtstack.engine.common.enums.TaskRuleEnum;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.domain.ScheduleTaskTaskShade;
@@ -336,8 +335,8 @@ public class ScheduleTaskTaskShadeService {
         if (level == null || level < 1) {
             level = 1;
         }
-        if( level > context.getJobJobLevel()){
-            level = context.getJobJobLevel();
+        if( level > context.getMaxLevel()){
+            level = context.getMaxLevel();
         }
         if(directType == null){
             directType = 0;

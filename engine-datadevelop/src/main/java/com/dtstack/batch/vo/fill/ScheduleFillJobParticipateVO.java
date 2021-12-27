@@ -1,5 +1,7 @@
 package com.dtstack.batch.vo.fill;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -19,7 +21,8 @@ public class ScheduleFillJobParticipateVO {
      * 必填
      */
     @NotBlank(message = "fillName is not null")
-    @Size(max = 256,message = "The length of the fill name (fillName) field ranges from 0 to 256, please control the length of the fill name field")
+    @Size(max = 256, message = "The length of the fill name (fillName) field ranges from 0 to 256, please control the length of the fill name field")
+    @ApiModelProperty(value = "补数据名称",required = true)
     private String fillName;
 
     /**
@@ -30,6 +33,7 @@ public class ScheduleFillJobParticipateVO {
     @NotBlank(message = "startDay is not null")
     @Pattern(regexp = "^(?:(?!0000)[0-9]{4}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-8])|(?:0[13-9]|1[0-2])-(?:29|30)|(?:0[13578]|1[02])-31)|(?:[0-9]{2}(?:0[48]|[2468][048]|[13579][26])|(?:0[48]|[2468][048]|[13579][26])00)-02-29)$",
             message = "startDay need format yyyy-MM-dd")
+    @ApiModelProperty(value = "开始日期：精确到日 时间格式： yyyy-MM-dd",required = true)
     private String startDay;
 
     /**
@@ -40,6 +44,7 @@ public class ScheduleFillJobParticipateVO {
     @NotBlank(message = "endDay is not null")
     @Pattern(regexp = "^(?:(?!0000)[0-9]{4}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-8])|(?:0[13-9]|1[0-2])-(?:29|30)|(?:0[13578]|1[02])-31)|(?:[0-9]{2}(?:0[48]|[2468][048]|[13579][26])|(?:0[48]|[2468][048]|[13579][26])00)-02-29)$",
             message = "endDay need format yyyy-MM-dd")
+    @ApiModelProperty(value = "结束时间：精确到日 时间格式： yyyy-MM-dd",required = true)
     private String endDay;
 
     /**
@@ -48,6 +53,7 @@ public class ScheduleFillJobParticipateVO {
      */
     @Pattern(regexp = "^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
             message = "beginTime need format HH:mm")
+    @ApiModelProperty(value = "结束时间：精确到日 时间格式： yyyy-MM-dd",required = true)
     private String beginTime;
 
     /**
@@ -56,6 +62,7 @@ public class ScheduleFillJobParticipateVO {
      */
     @Pattern(regexp = "^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
             message = "beginTime need format HH:mm")
+    @ApiModelProperty(value = "每天补数据的结束时间 时间格式：HH:mm")
     private String endTime;
 
     /**
@@ -63,18 +70,14 @@ public class ScheduleFillJobParticipateVO {
      * 必填
      */
     @NotNull(message = "userId is not null")
+    @ApiModelProperty(value = "触发补数据事件的用户uicId" ,required = true)
     private Long userId;
 
     /**
      * 租户id
      */
+    @ApiModelProperty(value = "租户id" ,required = true)
     private Long tenantId;
-
-    /**
-     * 最大并行数，默认 0 不限制
-     * 该字段范围 0~100，如果小于0 会当做0使用，如果大于100，会被当做100使用
-     */
-    private Integer maxParallelNum;
 
     /**
      * 补数据运行信息
@@ -137,17 +140,6 @@ public class ScheduleFillJobParticipateVO {
 
     public void setTenantId(Long tenantId) {
         this.tenantId = tenantId;
-    }
-
-    public Integer getMaxParallelNum() {
-        if (maxParallelNum == null) {
-            return 0;
-        }
-        return maxParallelNum;
-    }
-
-    public void setMaxParallelNum(Integer maxParallelNum) {
-        this.maxParallelNum = maxParallelNum;
     }
 
     public ScheduleFillDataInfoVO getFillDataInfo() {

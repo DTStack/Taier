@@ -1,12 +1,12 @@
 package com.dtstack.batch.mapstruct.job;
 
-import com.dtstack.batch.vo.schedule.QueryJobListVO;
-import com.dtstack.batch.vo.schedule.QueryJobStatusStatisticsVO;
-import com.dtstack.batch.vo.schedule.ReturnJobListVO;
+import com.dtstack.batch.vo.schedule.*;
 import com.dtstack.engine.domain.po.JobsStatusStatisticsPO;
 import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.master.dto.schedule.QueryJobDisplayDTO;
 import com.dtstack.engine.master.dto.schedule.QueryJobListDTO;
 import com.dtstack.engine.master.dto.schedule.QueryJobStatusStatisticsDTO;
+import com.dtstack.engine.master.dto.schedule.QueryTaskDisplayDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -40,4 +40,14 @@ public interface JobMapstructTransfer {
      * 周期实例 dto -> JobsStatusStatistics
      */
     JobsStatusStatisticsPO queryJobStatusStatisticsDTOToJobsStatusStatistics(QueryJobStatusStatisticsDTO dto);
+
+    /**
+     * 任务依赖关系 vo -> dto
+     */
+    QueryTaskDisplayDTO queryTaskDisplayVOToQueryTaskDisplayDTO(QueryTaskDisplayVO vo);
+
+    /**
+     * 实例依赖关系 vo -> dto
+     */
+    QueryJobDisplayDTO queryJobDisplayVOToReturnJobDisplayVO(QueryJobDisplayVO vo);
 }

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.dtstack.batch.event.FillStatusUpdateFinishEvent;
 import com.dtstack.batch.mapstruct.fill.FillDataJobMapstructTransfer;
 import com.dtstack.batch.mapstruct.job.JobMapstructTransfer;
 import com.dtstack.batch.vo.fill.ReturnFillDataJobListVO;
@@ -60,16 +61,19 @@ import java.util.stream.Collectors;
 public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
 
     @Autowired
-    private ApplicationContext applicationContext;
+    private TaskService taskService;
 
     @Autowired
     private FillDataService fillDataJobService;
 
     @Autowired
+    private ApplicationContext applicationContext;
+
+    @Autowired
     private FillDataThreadPoolExecutor fillDataThreadPoolExecutor;
 
     @Autowired
-    private TaskService taskService;
+    private FillStatusUpdateFinishEvent fillStatusUpdateFinishEvent;
 
     /**
      * 查询周期实例列表
@@ -142,7 +146,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
      */
     public List<ReturnJobStatusStatisticsVO> queryJobsStatusStatistics(QueryJobStatusStatisticsDTO dto) {
         // 关联任务
-        List<Long> taskIds = null;
+        List<Long> taskIds;
         if (StringUtils.isNotBlank(dto.getTaskName()) || dto.getUserId() != null) {
             taskIds = taskService.findTaskIdByTaskName(dto.getTaskName(), dto.getUserId());
             if (CollectionUtils.isEmpty(taskIds)) {
@@ -176,13 +180,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         fillDataJobService.save(fillDataJob);
 
         // 提交补数据任务
-        fillDataThreadPoolExecutor.submit(new FillDataRunnable(fillDataJob.getId(),dto,dto.getFillDataInfo(),(fillId,originalStatus,currentStatus)->{
-                            ScheduleFillDataJob updateFillDataJob = new ScheduleFillDataJob();
-                            updateFillDataJob.setFillGenerateStatus(currentStatus);
-                            fillDataJobService.lambdaUpdate()
-                                .eq(ScheduleFillDataJob::getId,fillId)
-                                .eq(ScheduleFillDataJob::getFillGenerateStatus,originalStatus)
-                                .update(updateFillDataJob);},applicationContext));
+        fillDataThreadPoolExecutor.submit(new FillDataRunnable(fillDataJob.getId(),dto,dto.getFillDataInfo(),fillStatusUpdateFinishEvent,applicationContext));
         return fillDataJob.getId();
     }
 
@@ -348,11 +346,9 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         scheduleFillDataJob.setFromDay(scheduleFillJobParticipateDTO.getStartDay());
         scheduleFillDataJob.setToDay(scheduleFillJobParticipateDTO.getEndDay());
         scheduleFillDataJob.setJobName(scheduleFillJobParticipateDTO.getFillName());
-        scheduleFillDataJob.setMaxParallelNum(scheduleFillJobParticipateDTO.getMaxParallelNum());
         scheduleFillDataJob.setTenantId(scheduleFillJobParticipateDTO.getTenantId());
         scheduleFillDataJob.setCreateUserId(scheduleFillJobParticipateDTO.getUserId());
         scheduleFillDataJob.setRunDay(DateTime.now().toString(DateUtil.DATE_FORMAT));
-        scheduleFillDataJob.setNumberParallelNum(scheduleFillJobParticipateDTO.getMaxParallelNum());
         scheduleFillDataJob.setGmtCreate(new Timestamp(System.currentTimeMillis()));
         scheduleFillDataJob.setGmtModified(new Timestamp(System.currentTimeMillis()));
         return scheduleFillDataJob;
