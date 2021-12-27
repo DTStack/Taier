@@ -22,6 +22,7 @@ import com.dtstack.batch.domain.BatchFunction;
 import com.dtstack.batch.engine.rdbms.service.IJdbcService;
 import com.dtstack.batch.engine.rdbms.service.impl.HiveSqlBuildService;
 import com.dtstack.batch.mapping.DataSourceTypeJobTypeMapping;
+import com.dtstack.batch.service.datasource.impl.DatasourceService;
 import com.dtstack.batch.service.table.IFunctionService;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,18 +46,18 @@ public class BatchHiveFunctionService implements IFunctionService {
     private IJdbcService jdbcServiceImpl;
 
     @Autowired
-    private BatchDataSourceService batchDataSourceService;
+    private DatasourceService datasourceService;
 
     @Override
     public void addFunction(Long tenantId, String dbName, String funcName, String className, String resource) throws Exception {
-        DataSourceType metaDataSourceType = batchDataSourceService.getHadoopDefaultDataSourceByTenantId(tenantId);
+        DataSourceType metaDataSourceType = datasourceService.getHadoopDefaultDataSourceByTenantId(tenantId);
         String sql = hiveSqlBuildService.buildAddFuncSql(funcName, className, resource);
         jdbcServiceImpl.executeQueryWithoutResult(tenantId, null, DataSourceTypeJobTypeMapping.getTaskTypeByDataSourceType(metaDataSourceType.getVal()), dbName, sql);
     }
 
     @Override
     public void deleteFunction(Long tenantId, String dbName, String functionName) throws Exception {
-        DataSourceType metaDataSourceType = batchDataSourceService.getHadoopDefaultDataSourceByTenantId(tenantId);
+        DataSourceType metaDataSourceType = datasourceService.getHadoopDefaultDataSourceByTenantId(tenantId);
         String sql = hiveSqlBuildService.buildDropFuncSql(functionName);
         jdbcServiceImpl.executeQueryWithoutResult(tenantId, null, DataSourceTypeJobTypeMapping.getTaskTypeByDataSourceType(metaDataSourceType.getVal()), dbName, sql);
     }

@@ -70,7 +70,7 @@ public class BatchSparkHiveSqlExeService {
 
     private static final Pattern SIMPLE_QUERY_PATTERN = Pattern.compile(SIMPLE_QUERY_REGEX);
 
-//    private static final List<SqlType> CreateTableTypeList = Lists.newArrayList(SqlType.CREATE, SqlType.CREATE_AS, SqlType.CREATE_LIKE);
+    private static final List<SqlType> CreateTableTypeList = Lists.newArrayList(SqlType.CREATE, SqlType.CREATE_AS, SqlType.CREATE_LIKE);
 
     private static final String EXPLAIN_REDEX = "(?i)\\bexplain\\b[\\w\\W]*";
 
@@ -264,10 +264,10 @@ public class BatchSparkHiveSqlExeService {
         Integer relationType = executeContent.getRelationType();
         String currDb = executeContent.getParseResult().getCurrentDb();
         ParseResult parseResult = executeContent.getParseResult();
-        boolean useFunction = batchFunctionService.validContainSelfFunction(executeContent.getSql());
+        boolean useSelfFunction = batchFunctionService.validContainSelfFunction(executeContent.getSql(), tenantId, null);
 
         ExecuteResultVO<List<Object>> result = new ExecuteResultVO<>();
-        if (Objects.nonNull(parseResult) && Objects.nonNull(parseResult.getStandardSql()) && isSimpleQuery(parseResult.getStandardSql()) && !useFunction) {
+        if (Objects.nonNull(parseResult) && Objects.nonNull(parseResult.getStandardSql()) && isSimpleQuery(parseResult.getStandardSql()) && !useSelfFunction) {
             result = simpleQuery(tenantId, parseResult, currDb, userId, executeContent.getEngineType(), eJobType);
             if (!result.getIsContinue()) {
                 return result;
@@ -283,7 +283,7 @@ public class BatchSparkHiveSqlExeService {
         } else if (SqlType.INSERT.equals(parseResult.getSqlType())
                 || SqlType.INSERT_OVERWRITE.equals(parseResult.getSqlType())
                 || SqlType.QUERY.equals(parseResult.getSqlType())
-                || useFunction) {
+                || useSelfFunction) {
             String jobId = batchHadoopSelectSqlService.runSqlByTask(tenantId, parseResult, userId, currDb.toLowerCase(), relationId, relationType, preJobId);
             result.setJobId(jobId);
         } else {

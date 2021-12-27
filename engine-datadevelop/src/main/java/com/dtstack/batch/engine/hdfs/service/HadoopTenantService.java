@@ -25,6 +25,7 @@ import com.dtstack.batch.engine.rdbms.service.IJdbcService;
 import com.dtstack.batch.engine.rdbms.service.ITableService;
 import com.dtstack.batch.engine.rdbms.service.impl.Engine2DTOService;
 import com.dtstack.batch.mapping.DataSourceTypeJobTypeMapping;
+import com.dtstack.batch.service.datasource.impl.DatasourceService;
 import com.dtstack.batch.service.tenant.ITenantService;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.engine.common.annotation.Forbidden;
@@ -61,7 +62,7 @@ public class HadoopTenantService implements ITenantService {
     private ITableService iTableServiceImpl;
 
     @Autowired
-    private BatchDataSourceService batchDataSourceService;
+    private DatasourceService datasourceService;
 
     @Autowired
     private UserService userService;
@@ -96,7 +97,7 @@ public class HadoopTenantService implements ITenantService {
      * @throws Exception
      */
     public List<String> getTableNameList(Long tenantId, String database)  {
-        DataSourceType metaDataSourceType = batchDataSourceService.getHadoopDefaultDataSourceByTenantId(tenantId);
+        DataSourceType metaDataSourceType = datasourceService.getHadoopDefaultDataSourceByTenantId(tenantId);
         List<String> tables = jdbcServiceImpl.getTableList(tenantId, null, DataSourceTypeJobTypeMapping.getTaskTypeByDataSourceType(metaDataSourceType.getVal()), database);
         return tables;
     }
@@ -131,13 +132,13 @@ public class HadoopTenantService implements ITenantService {
         JdbcInfo hive = Engine2DTOService.getJdbcInfo(tenantId, null, DataSourceTypeJobTypeMapping.getTaskTypeByDataSourceType(dataSourceType));
         JSONObject kerberosConfig = hive.getKerberosConfig();
         if (Objects.nonNull(kerberosConfig)) {
-            Map<String, String> sftpMap = batchDataSourceService.getSftpMap(tenantId);
+            Map<String, String> sftpMap = datasourceService.getSftpMap(tenantId);
             String remotePath = kerberosConfig.getString("remotePath");
             kerberosConfig.put("remotePath", remotePath.replaceAll(sftpMap.get("path"), ""));
             kerberosConfig.put("hive.server2.authentication", "KERBEROS");
             dataJson.put("kerberosConfig", hive.getKerberosConfig());
         }
-        batchDataSourceService.createMateDataSource(tenantId, userId, dataJson.toJSONString(), dataSourceName, dataSourceType, tenantDesc, dbName);
+        datasourceService.createMateDataSource(tenantId, userId, dataJson.toJSONString(), dataSourceName, dataSourceType, tenantDesc, dbName);
     }
 
     //TODO 需要抽取出来一个公用的方法

@@ -199,4 +199,25 @@
         </if>
     </select>
 
+    <select id="listProjectFunction" resultType="com.dtstack.batch.domain.BatchFunction">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_function
+        WHERE is_deleted = 0
+        <if test="functionType != null">
+            AND type = #{functionType}
+        </if>
+        <choose>
+            <when test="projectId != null">
+                AND project_Id in (#{projectId}, -1)
+            </when>
+            <otherwise>
+                AND project_Id = -1
+            </otherwise>
+        </choose>
+        <if test="engineType !=null">
+            AND engine_type = #{engineType}
+        </if>
+    </select>
+
 </mapper>

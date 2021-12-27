@@ -48,7 +48,6 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -66,7 +65,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -459,29 +457,34 @@ public class BatchFunctionService {
      * 校验是否包含了函数
      *
      * @param sql
+     * @param tenantId
+     * @param functionType
      * @return
      */
-    public boolean validContainSelfFunction(String sql) {
-        if (StringUtils.isBlank(sql)) {
+    public boolean validContainSelfFunction(String sql, Long tenantId, Integer functionType) {
+        if (StringUtils.isBlank(sql) || tenantId == null) {
             return false;
         }
-        Set<String> sqlFunctionNames = getFunctionNames(sql);
-        return CollectionUtils.isNotEmpty(sqlFunctionNames);
-    }
-
-
-    /**
-     * 根据sql获取函数集合
-     * @param sql
-     * @return
-     */
-    public Set<String> getFunctionNames(String sql) {
-        if (StringUtils.isEmpty(sql)) {
-            return Sets.newTreeSet();
-        }
         sql = SqlFormatUtil.formatSql(sql).toLowerCase();
-        Set<String> functionNames = BatchSqlParseUtils.parseFunction(sql);
-        return functionNames;
+        // sql中的自定义函数
+        List<String> sqlFunctionNames = SqlFormatUtil.splitSqlWithoutSemi(sql);
+        if (CollectionUtils.isEmpty(sqlFunctionNames)) {
+            return false;
+        }
+        // 获取此项目下的自定义函数名称
+        List<BatchFunction> projectFunctions = listTenantFunction(tenantId, functionType, MultiEngineType.HADOOP.getType());
+        if (CollectionUtils.isEmpty(projectFunctions)) {
+            return false;
+        }
+        List<String> projectFunctionNames = projectFunctions.stream().map(BatchFunction::getName).collect(Collectors.toList());
+        // 循环sql中的函数判断是否是项目中的名称
+        for (String sqlFunctionName : sqlFunctionNames) {
+            // 如果sql中的函数存在于此项目下
+            if (projectFunctionNames.contains(sqlFunctionName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
