@@ -27,19 +27,13 @@ import lombok.Data;
 @ApiModel("添加资源路径信息")
 public class BatchResourceAddWithUrlVO extends DtInsightAuthParam {
 
-    @ApiModelProperty(value = "用户 ID", hidden = true)
+    @ApiModelProperty(value = "用户 ID", example = "1")
     private Long userId;
 
-    @ApiModelProperty(value = "UIC 租户 ID", hidden = true)
-    private Long dtuicTenantId;
-
-    @ApiModelProperty(value = "项目 ID", hidden = true)
-    private Long projectId;
-
-    @ApiModelProperty(value = "租户 ID", hidden = true)
+    @ApiModelProperty(value = "租户 ID", example = "1")
     private Long tenantId;
 
-    @ApiModelProperty(value = "资源 ID", hidden = true)
+    @ApiModelProperty(value = "资源 ID", example = "1")
     private Long id;
 
     @ApiModelProperty(value = "资源名称", example = "我是资源", required = true)

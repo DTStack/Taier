@@ -31,13 +31,10 @@ public class BatchCatalogueResultVO {
     private Long id = 0L;
 
     @ApiModelProperty(value = "父目录id", example = "0")
-    private Long parentId = 0L;
+    private Long parentId;
 
     @ApiModelProperty(value = "目录名称", example = "name")
     private String name;
-
-    @ApiModelProperty(value = "项目别名", example = "project_alia")
-    private String projectAlias;
 
     @ApiModelProperty(value = "目录层级", example = "1")
     private Integer level;

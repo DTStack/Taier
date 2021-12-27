@@ -93,12 +93,6 @@ public class BatchFunctionTaskVO {
     @ApiModelProperty(value = "租户 ID")
     private Long tenantId;
 
-    @ApiModelProperty(value = "项目 ID")
-    private Long projectId;
-
-    @ApiModelProperty(value = "uic 租户 ID")
-    private Long dtuicTenantId;
-
     @ApiModelProperty(value = "平台类别", example = "1")
     private Integer appType;
 

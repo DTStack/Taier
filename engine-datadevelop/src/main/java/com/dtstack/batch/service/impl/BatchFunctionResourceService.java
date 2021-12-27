@@ -57,7 +57,7 @@ public class BatchFunctionResourceService {
      * @param batchFunctionResource
      */
     public void updateByFunctionId(BatchFunctionResource batchFunctionResource) {
-        batchFunctionResourceDao.updateByFunctionId(batchFunctionResource);
+        batchFunctionResourceDao.update(batchFunctionResource);
     }
 
     /**
@@ -68,16 +68,6 @@ public class BatchFunctionResourceService {
      */
     public BatchFunctionResource getResourceFunctionByFunctionId(Long functionId) {
         return batchFunctionResourceDao.getResourceFunctionByFunctionId(functionId);
-    }
-
-    /**
-     * 根据projectId 删除记录
-     *
-     * @param projectId
-     * @return
-     */
-    public Integer deleteByProjectId(Long projectId) {
-        return batchFunctionResourceDao.deleteByProjectId(projectId);
     }
 
     /**

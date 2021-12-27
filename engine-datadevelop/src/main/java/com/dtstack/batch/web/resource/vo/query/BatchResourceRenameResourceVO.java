@@ -29,7 +29,7 @@ public class BatchResourceRenameResourceVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "资源名称", example = "资源1", required = true)
     private String name;
 
-    @ApiModelProperty(value = "用户 ID", hidden = true)
+    @ApiModelProperty(value = "用户 ID", example = "1")
     private Long userId;
 
     @ApiModelProperty(value = "资源 ID", required = true)
