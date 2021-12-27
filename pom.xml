@@ -40,6 +40,27 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>dt.insight.plat</groupId>
+                <artifactId>dt-insight-common-base</artifactId>
+                <version>${dt-insight-common-base.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>dt.insight.plat</groupId>
+                <artifactId>dt-insight-lang</artifactId>
+                <version>${dt-insight-lang.version}</version>
+            </dependency>
+            <!-- 鉴权包 -->
+            <dependency>
+                <groupId>dt.insight.plat</groupId>
+                <artifactId>dt-insight-web-security-starter</artifactId>
+                <version>${dt-insight-web-security.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.dtstack.dtcenter</groupId>
@@ -107,6 +128,12 @@
                 <groupId>commons-collections</groupId>
                 <artifactId>commons-collections</artifactId>
                 <version>${commons-collections.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-test</artifactId>
+                <version>${spring.version}</version>
+                <scope>test</scope>
             </dependency>
 
         </dependencies>

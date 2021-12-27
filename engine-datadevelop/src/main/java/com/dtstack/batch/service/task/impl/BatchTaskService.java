@@ -135,6 +135,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.ListUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -2737,7 +2738,7 @@ public class BatchTaskService {
 
     public List<BatchTask> getTaskByIds(final List<Long> taskIdArray) {
         if (CollectionUtils.isEmpty(taskIdArray)) {
-            return Collections.EMPTY_LIST;
+            return ListUtils.EMPTY_LIST;
         }
 
         return this.batchTaskDao.listByIds(taskIdArray);
