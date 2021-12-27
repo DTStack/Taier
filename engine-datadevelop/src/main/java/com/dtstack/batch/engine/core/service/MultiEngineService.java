@@ -20,13 +20,13 @@ package com.dtstack.batch.engine.core.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.batch.domain.ProjectEngine;
+import com.dtstack.batch.domain.TenantEngine;
 import com.dtstack.batch.engine.core.domain.MultiEngineFactory;
 import com.dtstack.batch.engine.rdbms.hive.util.SparkThriftConnectionUtils;
 import com.dtstack.batch.engine.rdbms.service.impl.Engine2DTOService;
 //import com.dtstack.batch.service.datasource.impl.BatchDataSourceService;
 import com.dtstack.batch.service.datasource.impl.IMultiEngineService;
-import com.dtstack.batch.service.impl.ProjectEngineService;
+import com.dtstack.batch.service.impl.TenantEngineService;
 import com.dtstack.batch.service.multiengine.EngineInfo;
 import com.dtstack.engine.common.engine.JdbcInfo;
 import com.dtstack.engine.common.enums.EComponentType;
@@ -67,7 +67,7 @@ public class MultiEngineService implements IMultiEngineService {
     private static final Logger LOG = LoggerFactory.getLogger(MultiEngineService.class);
 
     @Autowired
-    private ProjectEngineService projectEngineService;
+    private TenantEngineService projectEngineService;
 
 //    @Autowired
 //    private BatchDataSourceService batchDataSourceService;
@@ -289,7 +289,7 @@ public class MultiEngineService implements IMultiEngineService {
 //                pluginMap.put("metePluginInfo", pluginMap.get(eComponentType + ""));
             }
 
-            ProjectEngine projectEngine = projectEngineService.getProjectDb(projectId, engineType);
+            TenantEngine projectEngine = projectEngineService.getByTenantAndEngineType(projectId, engineType);
             String dbName = projectEngine == null? null : projectEngine.getEngineIdentity();
 //            String pluginInfo = pluginMap.get(eComponentType + "");
 //            if (StringUtils.isNotBlank(dbName) && StringUtils.isNotBlank(pluginInfo)) {

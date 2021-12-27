@@ -31,7 +31,7 @@ public class BatchHiveSelectSqlService {
     private BatchHiveSelectSqlDao batchHiveSelectSqlDao;
 
     public void deleteByProjectId(Long projectId) {
-        batchHiveSelectSqlDao.deleteByProjectId(projectId);
+        batchHiveSelectSqlDao.deleteByTenantId(projectId);
     }
 
     /**

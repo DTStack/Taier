@@ -38,9 +38,6 @@ public class DtInsightAuthParam extends BaseParam {
     private Long tenantId;
 
     @ApiModelProperty(hidden = true)
-    private Long projectId;
-
-    @ApiModelProperty(hidden = true)
     private Long userId;
 
 }

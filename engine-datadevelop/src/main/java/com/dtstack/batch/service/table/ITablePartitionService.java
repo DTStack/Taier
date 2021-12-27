@@ -26,5 +26,15 @@ package com.dtstack.batch.service.table;
  */
 public interface ITablePartitionService {
 
-    boolean isPartitionExist(Long dtuicTenantId, String partitionVal, String tableName, String db, Long projectId, Integer tableType);
+    /**
+     * 判断分区是否存在
+     *
+     * @param tenantId
+     * @param partitionVal
+     * @param tableName
+     * @param db
+     * @param tableType
+     * @return
+     */
+    Boolean isPartitionExist(Long tenantId, String partitionVal, String tableName, String db, Integer tableType);
 }

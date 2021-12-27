@@ -18,7 +18,8 @@
 
 package com.dtstack.batch.web.pager;
 
-import com.dtstack.batch.web.pager.PageResult;
+import com.dtstack.batch.utils.Asserts;
+import com.dtstack.engine.common.param.DtInsightPageAuthParam;
 
 import java.util.List;
 
@@ -29,6 +30,27 @@ import java.util.List;
  * @Description：分页工具
  */
 public class PageUtil {
+
+    private final static int DEFAULT_CURRENT_PAGE = 1;
+    private final static int DEFAULT_PAGE_SIZE = 10;
+
+
+
+    /**
+     * 视图层page
+     *
+     * @return 视图层page
+     */
+    public static <V> com.dtstack.engine.common.pager.PageResult<List<V>> transfer(List<V> dataList, DtInsightPageAuthParam param, int total) {
+        Asserts.notNull(param);
+        int pageSize = param.getPageSize() == null || param.getPageSize() == 0 ? DEFAULT_PAGE_SIZE : param.getPageSize();
+        int currentPage = param.getCurrentPage() == null ? DEFAULT_CURRENT_PAGE : param.getCurrentPage();
+        int totalPage = total / pageSize;
+        totalPage = (total % pageSize == 0 ? totalPage : totalPage + 1); // 计算总页数
+        return new com.dtstack.engine.common.pager.PageResult <>(currentPage, pageSize, total, totalPage, dataList);
+    }
+
+
     /**
      * 自定义分页器
      *

@@ -27,18 +27,12 @@ import lombok.Data;
 @ApiModel("资源基础信息")
 public class BatchResourceBaseVO extends DtInsightAuthParam {
 
-    @ApiModelProperty(value = "用户 ID", hidden = true)
+    @ApiModelProperty(value = "用户 ID", example = "1")
     private Long userId;
 
-    @ApiModelProperty(value = "UIC 租户 ID", hidden = true)
-    private Long dtuicTenantId;
-
-    @ApiModelProperty(value = "项目 ID", hidden = true)
-    private Long projectId;
-
-    @ApiModelProperty(value = "租户 ID", hidden = true)
+    @ApiModelProperty(value = "租户 ID", example = "1")
     private Long tenantId;
 
-    @ApiModelProperty(value = "资源 ID", required = true)
+    @ApiModelProperty(value = "资源 ID", example = "1", required = true)
     private Long resourceId;
 }
