@@ -21,7 +21,7 @@ package com.dtstack.batch.service.impl;
 
 import com.dtstack.batch.bo.ExecuteContent;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.batch.domain.ProjectEngine;
+import com.dtstack.batch.domain.TenantEngine;
 import com.dtstack.batch.mapping.TableTypeEngineTypeMapping;
 import com.dtstack.batch.service.table.ISqlExeService;
 import com.dtstack.batch.service.task.impl.BatchTaskService;
@@ -63,7 +63,7 @@ public class BatchSqlExeService {
     private TenantService tenantService;
 
     @Autowired
-    private ProjectEngineService projectEngineService;
+    private TenantEngineService projectEngineService;
 
 //    @Autowired
 //    private MultiEngineServiceFactory multiEngineServiceFactory;
@@ -106,7 +106,7 @@ public class BatchSqlExeService {
         if (null != tenant) {
             Long projectId = executeContent.getProjectId();
 
-            final ProjectEngine projectDb = this.projectEngineService.getProjectDb(projectId, executeContent.getEngineType());
+            final TenantEngine projectDb = this.projectEngineService.getByTenantAndEngineType(projectId, executeContent.getEngineType());
             if (projectDb == null) {
                 throw new RdosDefineException("引擎不能为空");
             }
@@ -188,7 +188,7 @@ public class BatchSqlExeService {
     public CheckSyntaxResult processSqlText(final Long dtuicTenantId, Integer taskType, final String sqlText, final Long userId, final Long tenantId, final Long projectId,
                                             final boolean checkSyntax, final Boolean isRoot, final Integer engineType, String taskParam) {
         CheckSyntaxResult result = new CheckSyntaxResult();
-        ProjectEngine projectEngine = this.projectEngineService.getProjectDb(projectId, engineType);
+        TenantEngine projectEngine = this.projectEngineService.getByTenantAndEngineType(projectId, engineType);
         Preconditions.checkNotNull(projectEngine, String.format("project %d not support engine type %d", projectId, engineType));
 
 //        final ISqlExeService sqlExeService = this.multiEngineServiceFactory.getSqlExeService(engineType, taskType, projectId);

@@ -48,6 +48,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -65,6 +66,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -452,4 +454,34 @@ public class BatchFunctionService {
     public List<BatchFunction> listByNodePidAndTenantId(Long tenantId, Long nodePid){
         return batchFunctionDao.listByNodePidAndTenantId(tenantId, nodePid);
     }
+
+    /**
+     * 校验是否包含了函数
+     *
+     * @param sql
+     * @return
+     */
+    public boolean validContainSelfFunction(String sql) {
+        if (StringUtils.isBlank(sql)) {
+            return false;
+        }
+        Set<String> sqlFunctionNames = getFunctionNames(sql);
+        return CollectionUtils.isNotEmpty(sqlFunctionNames);
+    }
+
+
+    /**
+     * 根据sql获取函数集合
+     * @param sql
+     * @return
+     */
+    public Set<String> getFunctionNames(String sql) {
+        if (StringUtils.isEmpty(sql)) {
+            return Sets.newTreeSet();
+        }
+        sql = SqlFormatUtil.formatSql(sql).toLowerCase();
+        Set<String> functionNames = BatchSqlParseUtils.parseFunction(sql);
+        return functionNames;
+    }
+
 }

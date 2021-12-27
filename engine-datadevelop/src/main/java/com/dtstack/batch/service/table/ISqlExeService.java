@@ -41,7 +41,7 @@ public interface ISqlExeService {
      */
     ExecuteSqlParseVO batchExecuteSql(ExecuteContent content) throws Exception;
 
-    void checkSingleSqlSyntax(Long projectId, Long dtuicTenantId, String sql, String db, String taskParam);
+    void checkSingleSqlSyntax(Long tenantId, String sql, String db, String taskParam);
 
     /**
      * sql 语句整理

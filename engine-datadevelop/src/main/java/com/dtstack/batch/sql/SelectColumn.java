@@ -16,38 +16,55 @@
  * limitations under the License.
  */
 
-package com.dtstack.batch.domain;
 
-import com.dtstack.engine.domain.BaseEntity;
-import lombok.Data;
+package com.dtstack.batch.sql;
 
 /**
- * 项目引擎类型关联表
- * Date: 2019/6/1
- * Company: www.dtstack.com
- * @author xuchao
+ * 查询中的字段
+ *
+ * @author jiangbo
+ * @date 2019/5/22
  */
-@Data
-public class ProjectEngine extends BaseEntity {
+public class SelectColumn {
 
-    private Long projectId;
-
-    private Long tenantId;
-
-    private Integer engineType;
-
-    private Integer status;
-
-    private String engineIdentity;
+    public static final String CONSTANT = "_CONSTANT_";
 
     /**
-     * 创建人id
+     * 字段名称，格式：tb.name
      */
-    private Long createUserId;
+    private String name;
 
     /**
-     * 修改人id
+     * 字段别名 as alias
      */
-    private Long modifyUserId;
+    private String alias;
 
+    public SelectColumn() {
+    }
+
+    public SelectColumn(String name, String alias) {
+        this.name = name;
+        this.alias = alias == null ? name : alias;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getAlias() {
+        return alias;
+    }
+
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
+
+    @Override
+    public SelectColumn clone() {
+        return new SelectColumn(name, alias);
+    }
 }

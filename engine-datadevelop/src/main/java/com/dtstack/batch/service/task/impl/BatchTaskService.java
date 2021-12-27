@@ -45,7 +45,7 @@ import com.dtstack.batch.domain.BatchTaskTask;
 import com.dtstack.batch.domain.BatchTaskVersion;
 import com.dtstack.batch.domain.BatchTaskVersionDetail;
 import com.dtstack.batch.domain.Dict;
-import com.dtstack.batch.domain.ProjectEngine;
+import com.dtstack.batch.domain.TenantEngine;
 import com.dtstack.batch.domain.ReadWriteLock;
 import com.dtstack.batch.dto.BatchTaskDTO;
 import com.dtstack.batch.engine.rdbms.common.enums.Constant;
@@ -67,7 +67,7 @@ import com.dtstack.batch.service.impl.BatchResourceService;
 import com.dtstack.batch.service.impl.BatchSqlExeService;
 import com.dtstack.batch.service.impl.BatchSysParamService;
 import com.dtstack.batch.service.impl.DictService;
-import com.dtstack.batch.service.impl.ProjectEngineService;
+import com.dtstack.batch.service.impl.TenantEngineService;
 import com.dtstack.batch.service.job.ITaskService;
 import com.dtstack.batch.service.job.impl.BatchJobService;
 import com.dtstack.batch.service.table.ISqlExeService;
@@ -271,7 +271,7 @@ public class BatchTaskService {
     private ScheduleTaskTaskShadeService scheduleTaskTaskShadeService;
 
     @Autowired
-    private ProjectEngineService projectEngineService;
+    private TenantEngineService projectEngineService;
 
     @Autowired
     private BatchJobService batchJobService;
@@ -1429,7 +1429,7 @@ public class BatchTaskService {
 //            final ITaskService taskService = this.multiEngineServiceFactory.getTaskService(multiEngineType.getType());
             final ITaskService taskService = null;
             if (Objects.nonNull(taskService)) {
-                taskService.readyForPublishTaskInfo(task, dtuicTenantId, projectId);
+                taskService.readyForPublishTaskInfo(task, dtuicTenantId);
             }
         }
 
@@ -1463,7 +1463,7 @@ public class BatchTaskService {
             // 语法检测
             List<BatchTaskParam> taskParamsToReplace = batchTaskParamService.getTaskParam(task.getId());
             versionSqlText = jobParamReplace.paramReplace(task.getSqlText(), taskParamsToReplace, sdf.format(new Date()));
-            ProjectEngine projectEngine = projectEngineService.getProjectDb(projectId, engineType);
+            TenantEngine projectEngine = projectEngineService.getByTenantAndEngineType(projectId, engineType);
 //            ISqlExeService sqlExeService = multiEngineServiceFactory.getSqlExeService(engineType, null, projectId);
             ISqlExeService sqlExeService = null; //todo
             String sql = sqlExeService.process(versionSqlText, projectEngine.getEngineIdentity());
@@ -2273,7 +2273,7 @@ public class BatchTaskService {
             //如果是工作流获取父任务的锁 用来保证父任务一定会更新成功 这里有并发问题 如果同时对一个工作流添加子任务 会丢失
             if (task.getFlowId()>0){
                 BatchTask parentTask = batchTaskDao.getOne(task.getFlowId());
-                ReadWriteLock readWriteLock = readWriteLockDao.getByProjectIdAndRelationIdAndType(0L, parentTask.getId(), ReadWriteLockType.BATCH_TASK.name());
+                ReadWriteLock readWriteLock = readWriteLockDao.getByTenantIdAndRelationIdAndType(0L, parentTask.getId(), ReadWriteLockType.BATCH_TASK.name());
                 if (readWriteLock == null) {
                     throw new RdosDefineException("父任务锁不存在");
                 }
