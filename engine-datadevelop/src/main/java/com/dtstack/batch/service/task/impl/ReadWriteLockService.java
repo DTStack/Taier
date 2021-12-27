@@ -61,21 +61,36 @@ public class ReadWriteLockService {
 
     /**
      * 获取锁
+     * @param tenantId
+     * @param userId
+     * @param type
+     * @param fileId
+     * @param subFileIds
+     * @return
      */
-    public ReadWriteLockVO getLock(Long tenantId, Long userId, String type, Long fileId, long projectId, Integer lockVersion, List<Long> subFileIds) {
+    public ReadWriteLockVO getLock(Long tenantId, Long userId, String type, Long fileId, List<Long> subFileIds) {
         if (CollectionUtils.isNotEmpty(subFileIds)) {
             //解锁子任务
-            subFileIds.forEach(id -> addOrUpdateLock(tenantId, userId, type, id, projectId));
+            subFileIds.forEach(id -> addOrUpdateLock(tenantId, userId, type, id));
         }
-        return addOrUpdateLock(tenantId, userId, type, fileId, projectId);
+        return addOrUpdateLock(tenantId, userId, type, fileId);
     }
 
+
+    /**
+     * 新增、更新 锁信息
+     * @param tenantId
+     * @param userId
+     * @param type
+     * @param fileId
+     * @return
+     */
     @Transactional(rollbackFor = Exception.class)
-    public ReadWriteLockVO addOrUpdateLock(Long tenantId, Long userId, String type, Long fileId, Long projectId) {
+    public ReadWriteLockVO addOrUpdateLock(Long tenantId, Long userId, String type, Long fileId) {
         ReadWriteLockVO readWriteLockVO;
-        ReadWriteLock readWriteLock = readWriteLockDao.getByProjectIdAndRelationIdAndType(projectId, fileId, type);
+        ReadWriteLock readWriteLock = readWriteLockDao.getByTenantIdAndRelationIdAndType(tenantId, fileId, type);
         if (readWriteLock == null) {
-            readWriteLockVO = this.insert(tenantId, projectId, fileId, type, userId);
+            readWriteLockVO = this.insert(tenantId, fileId, type, userId);
         } else {
             Integer result = 0;
             result = readWriteLockDao.updateVersionAndModifyUserId(readWriteLock.getId(), null, userId);
@@ -106,25 +121,37 @@ public class ReadWriteLockService {
         return lockVO;
     }
 
-    private ReadWriteLockVO checkLock(Long userId, long projectId, long relationId, ReadWriteLockType type, int lockVersion, int relationLocalVersion, int relationVersion) {
-        ReadWriteLock readWriteLock = readWriteLockDao.getByProjectIdAndRelationIdAndType(projectId, relationId, type.name());
+
+    /**
+     * 锁检查，判断是否有其他人也在修改相同的文件
+     * @param userId
+     * @param tenantId
+     * @param relationId
+     * @param type
+     * @param lockVersion
+     * @param relationLocalVersion
+     * @param relationVersion
+     * @return
+     */
+    private ReadWriteLockVO checkLock(Long userId, Long tenantId, Long relationId, ReadWriteLockType type, Integer lockVersion, Integer relationLocalVersion, Integer relationVersion) {
+        ReadWriteLock readWriteLock = readWriteLockDao.getByTenantIdAndRelationIdAndType(tenantId, relationId, type.name());
         if (readWriteLock == null) {
             throw new RdosDefineException(ErrorCode.LOCK_IS_NOT_EXISTS);
         }
-        Long modifyUesrId = readWriteLock.getModifyUserId();
+        Long modifyUserId = readWriteLock.getModifyUserId();
         int version = readWriteLock.getVersion();
 
         //初始化返回对象
         ReadWriteLockVO readWriteLockVO = new ReadWriteLockVO();
         readWriteLockVO.setGmtModified(readWriteLock.getGmtModified());
-        readWriteLockVO.setLastKeepLockUserName(userService.getUserName(modifyUesrId));
+        readWriteLockVO.setLastKeepLockUserName(userService.getUserName(modifyUserId));
         //任务版本是否保持一致
-        if (relationLocalVersion != relationVersion) {
+        if (!relationLocalVersion.equals(relationVersion)) {
             //表示已经被提交了
             //提示任务版本已经更新不能在提交，是否保存到本地，或取消修改
             readWriteLockVO.setResult(TaskLockStatus.UPDATE_COMPLETED.getVal());
             return readWriteLockVO;
-        } else if (modifyUesrId.equals(userId) && version == lockVersion) {
+        } else if (modifyUserId.equals(userId) && version == lockVersion) {
             readWriteLockVO.setResult(TaskLockStatus.TO_UPDATE.getVal());
             readWriteLockVO.setVersion(lockVersion);
             readWriteLockVO.setIsGetLock(true);
@@ -135,26 +162,49 @@ public class ReadWriteLockService {
         }
     }
 
-    public ReadWriteLock getReadWriteLock(Long projectId, Long relationId, String type) {
-        ReadWriteLock readWriteLock = readWriteLockDao.getByProjectIdAndRelationIdAndType(projectId, relationId, type);
+
+    /**
+     * 获取读写锁
+     * @param tenantId
+     * @param relationId
+     * @param type
+     * @return
+     */
+    public ReadWriteLock getReadWriteLock(Long tenantId, Long relationId, String type) {
+        ReadWriteLock readWriteLock = readWriteLockDao.getByTenantIdAndRelationIdAndType(tenantId, relationId, type);
         if (readWriteLock == null) {
             throw new RdosDefineException(ErrorCode.LOCK_IS_NOT_EXISTS);
         }
         return readWriteLock;
     }
 
-    private String uniteName(long project, long taskId, String type) {
+
+    /**
+     * 构建锁的名称
+     * @param tenantId
+     * @param taskId
+     * @param type
+     * @return
+     */
+    private String uniteName(Long tenantId, Long taskId, String type) {
         StringBuilder builder = new StringBuilder();
-        builder.append(project).append(SPLIT).append(taskId).append(SPLIT).append(type);
+        builder.append(tenantId).append(SPLIT).append(taskId).append(SPLIT).append(type);
         return builder.toString();
     }
 
-    public void deleteByProjectId(Long projectId, Long userId) {
-        readWriteLockDao.deleteByProjectId(projectId, userId);
-    }
 
-    public ReadWriteLockVO getDetail(long projectId, long relationId, ReadWriteLockType type, long userId, Long modifyUserId, Timestamp gmtModified) {
-        ReadWriteLock readWriteLock = readWriteLockDao.getByProjectIdAndRelationIdAndType(projectId, relationId, type.name());
+    /**
+     * 获取锁VO对象
+     * @param tenantId
+     * @param relationId
+     * @param type
+     * @param userId
+     * @param modifyUserId
+     * @param gmtModified
+     * @return
+     */
+    public ReadWriteLockVO getDetail(Long tenantId, Long relationId, ReadWriteLockType type, Long userId, Long modifyUserId, Timestamp gmtModified) {
+        ReadWriteLock readWriteLock = readWriteLockDao.getByTenantIdAndRelationIdAndType(tenantId, relationId, type.name());
         if (readWriteLock == null) {
             ReadWriteLockVO readWriteLockVO = new ReadWriteLockVO();
             readWriteLockVO.setLastKeepLockUserName(userService.getUserName(modifyUserId));
@@ -168,8 +218,18 @@ public class ReadWriteLockService {
         return readWriteLockVO;
     }
 
-    public Map<Long, ReadWriteLockVO> getLocks(long projectId, ReadWriteLockType type, List<Long> relationIds, long userId, Map<Long, String> names) {
-        List<ReadWriteLock> ls = readWriteLockDao.getLocksByIds(projectId, type.name(), relationIds);
+
+    /**
+     * 根据 锁对象ids 批量获取锁信息
+     * @param tenantId
+     * @param type
+     * @param relationIds
+     * @param userId
+     * @param names
+     * @return
+     */
+    public Map<Long, ReadWriteLockVO> getLocks(Long tenantId, ReadWriteLockType type, List<Long> relationIds, long userId, Map<Long, String> names) {
+        List<ReadWriteLock> ls = readWriteLockDao.getLocksByIds(tenantId, type.name(), relationIds);
         Map<Long, ReadWriteLock> records = ls.stream()
                 .collect(Collectors.toMap(r -> r.getRelationId(), r -> r, (v1, v2) -> v2));
         Map<Long, ReadWriteLockVO> result = Maps.newHashMap();
@@ -191,6 +251,13 @@ public class ReadWriteLockService {
         return result;
     }
 
+
+    /**
+     * 根据用户id从缓存中获取用户名称
+     * @param names
+     * @param userId
+     * @return
+     */
     private String getUserNameInMemory(Map<Long, String> names, Long userId) {
         if (names.containsKey(userId)) {
             return names.get(userId);
@@ -201,8 +268,17 @@ public class ReadWriteLockService {
         }
     }
 
-    private ReadWriteLockVO forceUpdateLock(Long userId, ReadWriteLockType type, Long relationId, Long projectId) {
-        ReadWriteLock readWriteLock = readWriteLockDao.getByProjectIdAndRelationIdAndType(projectId, relationId, type.name());
+
+    /**
+     *
+     * @param userId
+     * @param type
+     * @param relationId
+     * @param tenantId
+     * @return
+     */
+    private ReadWriteLockVO forceUpdateLock(Long userId, ReadWriteLockType type, Long relationId, Long tenantId) {
+        ReadWriteLock readWriteLock = readWriteLockDao.getByTenantIdAndRelationIdAndType(tenantId, relationId, type.name());
         if (readWriteLock != null) {
             readWriteLockDao.updateVersionAndModifyUserIdDefinitized(readWriteLock.getId(), userId);
 
@@ -218,13 +294,12 @@ public class ReadWriteLockService {
 
     }
 
-    private ReadWriteLockVO insert(Long tenantId, Long projectId, Long fileId, String type, Long userId) {
+    private ReadWriteLockVO insert(Long tenantId, Long fileId, String type, Long userId) {
         ReadWriteLock readWriteLock = new ReadWriteLock();
         readWriteLock.setTenantId(tenantId);
-        readWriteLock.setLockName(uniteName(fileId, projectId, type));
+        readWriteLock.setLockName(uniteName(fileId, tenantId, type));
         readWriteLock.setCreateUserId(userId);
         readWriteLock.setModifyUserId(userId);
-        readWriteLock.setProjectId(projectId);
         readWriteLock.setRelationId(fileId);
         readWriteLock.setType(type);
         readWriteLockDao.insert(readWriteLock);
@@ -239,7 +314,7 @@ public class ReadWriteLockService {
     /**
      * 利用回调函数实现锁机制
      *
-     * @param projectId
+     * @param tenantId
      * @param relationId
      * @param type
      * @param userId
@@ -250,25 +325,25 @@ public class ReadWriteLockService {
      * @param forceUpdate
      * @return
      */
-    public ReadWriteLockVO dealWithLock(long projectId, long relationId, ReadWriteLockType type, Long userId,
-                                        int lockVersion, int relationLocalVersion, int relationVersion,
-                                        Callback<Void> callback, boolean forceUpdate) {
+    public ReadWriteLockVO dealWithLock(Long tenantId, Long relationId, ReadWriteLockType type, Long userId,
+                                        Integer lockVersion, Integer relationLocalVersion, Integer relationVersion,
+                                        Callback<Void> callback, Boolean forceUpdate) {
 
         ReadWriteLockVO readWriteLockVO = null;
         if (forceUpdate) {
             Integer update = (Integer) callback.submit(null);
             if (update != 1) {
-                readWriteLockVO = getLockBasicInfo(projectId, relationId, type);
+                readWriteLockVO = getLockBasicInfo(tenantId, relationId, type);
                 readWriteLockVO.setResult(TaskLockStatus.UPDATE_COMPLETED.getVal());
                 return readWriteLockVO;
             } else {
-                readWriteLockVO = forceUpdateLock(userId, type, relationId, projectId);
+                readWriteLockVO = forceUpdateLock(userId, type, relationId, tenantId);
                 readWriteLockVO.setResult(TaskLockStatus.TO_UPDATE.getVal());
                 return readWriteLockVO;
             }
         } else {
             readWriteLockVO = checkLock(
-                    userId, projectId,
+                    userId, tenantId,
                     relationId, type,
                     lockVersion, relationLocalVersion,
                     relationVersion);
@@ -282,8 +357,8 @@ public class ReadWriteLockService {
         }
     }
 
-    private ReadWriteLockVO getLockBasicInfo(long projectId, long relationId, ReadWriteLockType type) {
-        ReadWriteLock readWriteLock = readWriteLockDao.getByProjectIdAndRelationIdAndType(projectId, relationId, type.name());
+    private ReadWriteLockVO getLockBasicInfo(Long tenantId, long relationId, ReadWriteLockType type) {
+        ReadWriteLock readWriteLock = readWriteLockDao.getByTenantIdAndRelationIdAndType(tenantId, relationId, type.name());
         if (readWriteLock == null) {
             throw new RdosDefineException(ErrorCode.LOCK_IS_NOT_EXISTS);
         }

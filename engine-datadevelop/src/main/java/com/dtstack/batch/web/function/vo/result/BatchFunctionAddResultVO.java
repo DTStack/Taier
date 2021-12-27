@@ -59,9 +59,6 @@ public class BatchFunctionAddResultVO {
     @ApiModelProperty(value = "目录名称")
     private String name;
 
-    @ApiModelProperty(value = "项目别名", example = "project_alia")
-    private String projectAlias;
-
     @ApiModelProperty(value = "目录层级", example = "1")
     private Integer level;
 

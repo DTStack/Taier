@@ -26,11 +26,8 @@ import lombok.Data;
 @Data
 @ApiModel("函数名称信息")
 public class BatchFunctionNameVO extends DtInsightAuthParam {
-    @ApiModelProperty(value = "租户id", hidden = true)
+    @ApiModelProperty(value = "租户id", example = "1")
     private Long tenantId;
-
-    @ApiModelProperty(value = "项目id", hidden = true)
-    private Long projectId;
 
     @ApiModelProperty(value = "任务类型", example = "1", required = true)
     private Integer taskType;

@@ -32,11 +32,6 @@ public class BatchResourceAddDTO {
     private String resourceName;
 
     /**
-     * 项目ID
-     */
-    private Long projectId;
-
-    /**
      * 租户ID
      */
     private Long tenantId;

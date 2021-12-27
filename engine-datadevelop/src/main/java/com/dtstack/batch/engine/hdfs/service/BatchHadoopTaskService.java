@@ -51,29 +51,25 @@ public class BatchHadoopTaskService implements ITaskService {
 
     /**
      * 执行sql或者脚本上传到hdfs
-     * @param dtuicTenantId
+     * @param tenantId
      * @param content
      * @param taskType
      * @param taskName
      * @param tenantId
-     * @param projectId
      * @return
      */
     @Override
-    public String uploadSqlText(final Long dtuicTenantId, String content, final Integer taskType, final String taskName, final Long tenantId, final Long projectId) {
+    public String uploadSqlText(Long tenantId, String content, Integer taskType, String taskName) {
         String hdfsPath = null;
         try {
             // shell任务，创建脚本文件
             String fileName = null;
             if (taskType.equals(EJobType.SHELL.getVal())) {
-                fileName = String.format("shell_%s_%s_%s_%s.sh", tenantId, projectId,
-                        taskName, System.currentTimeMillis());
+                fileName = String.format("shell_%s_%s_%s.sh", tenantId, taskName, System.currentTimeMillis());
             } else if (taskType.equals(EJobType.PYTHON.getVal())) {
-                fileName = String.format("python_%s_%s_%s_%s.py", tenantId, projectId,
-                        taskName, System.currentTimeMillis());
+                fileName = String.format("python_%s_%s_%s.py", tenantId, taskName, System.currentTimeMillis());
             } else if (taskType.equals(EJobType.SPARK_PYTHON.getVal())) {
-                fileName = String.format("pyspark_%s_%s_%s_%s.py", tenantId, projectId,
-                        taskName, System.currentTimeMillis());
+                fileName = String.format("pyspark_%s_%s_%s.py", tenantId, taskName, System.currentTimeMillis());
             }
 
             if (fileName != null) {
@@ -81,24 +77,23 @@ public class BatchHadoopTaskService implements ITaskService {
                 if (taskType.equals(EJobType.SHELL.getVal())) {
                     content = content.replaceAll("\r\n", System.getProperty("line.separator"));
                 }
-                HdfsOperator.uploadInputStreamToHdfs(HadoopConf.getConfiguration(dtuicTenantId),HadoopConf.getHadoopKerberosConf(dtuicTenantId), content.getBytes(), hdfsPath);
+                HdfsOperator.uploadInputStreamToHdfs(HadoopConf.getConfiguration(tenantId),HadoopConf.getHadoopKerberosConf(tenantId), content.getBytes(), hdfsPath);
             }
         } catch (final Exception e) {
             BatchHadoopTaskService.LOG.error("", e);
             throw new RdosDefineException("Update task to HDFS failure:" + e.getMessage());
         }
 
-        return HadoopConf.getDefaultFs(dtuicTenantId) + hdfsPath;
+        return HadoopConf.getDefaultFs(tenantId) + hdfsPath;
     }
 
     @Override
-    public void readyForPublishTaskInfo(final BatchTask task, final Long dtuicTenantId, final Long projectId) {
+    public void readyForPublishTaskInfo(final BatchTask task, final Long tenantId) {
 
         if (task.getTaskType().equals(EJobType.SPARK_PYTHON.getVal()) && StringUtils.isNotBlank(task.getExeArgs())) {
             final JSONObject args = JSON.parseObject(task.getExeArgs());
             if (args.getInteger("operateModel").equals(TaskOperateType.EDIT.getType())) {
-                final String fileDir = this.uploadSqlText(dtuicTenantId, task.getSqlText(),
-                        task.getTaskType(), task.getName(), task.getTenantId(), projectId);
+                final String fileDir = this.uploadSqlText(tenantId, task.getSqlText(), task.getTaskType(), task.getName());
                 args.put("hdfsPath", fileDir);
                 task.setExeArgs(args.toJSONString());
             }

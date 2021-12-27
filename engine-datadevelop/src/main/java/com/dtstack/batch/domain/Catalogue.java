@@ -19,17 +19,13 @@
 package com.dtstack.batch.domain;
 
 import com.dtstack.engine.domain.TenantEntity;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
  * company: www.dtstack.com
  * author: toutian
  * create: 2017/5/4
  */
-@SuppressWarnings("serial")
-@Data
-@EqualsAndHashCode(callSuper = true)
+
 public class Catalogue extends TenantEntity {
 
     /**
@@ -63,4 +59,59 @@ public class Catalogue extends TenantEntity {
 
     private Integer catalogueType;
 
+    public String getNodeName() {
+        return nodeName;
+    }
+
+    public void setNodeName(String nodeName) {
+        this.nodeName = nodeName;
+    }
+
+    public Long getNodePid() {
+        return nodePid;
+    }
+
+    public void setNodePid(Long nodePid) {
+        this.nodePid = nodePid;
+    }
+
+    public Long getCreateUserId() {
+        return createUserId;
+    }
+
+    public void setCreateUserId(Long createUserId) {
+        this.createUserId = createUserId;
+    }
+
+    public Integer getLevel() {
+        return level;
+    }
+
+    public void setLevel(Integer level) {
+        this.level = level;
+    }
+
+    public Integer getEngineType() {
+        return engineType;
+    }
+
+    public void setEngineType(Integer engineType) {
+        this.engineType = engineType;
+    }
+
+    public Integer getOrderVal() {
+        return orderVal;
+    }
+
+    public void setOrderVal(Integer orderVal) {
+        this.orderVal = orderVal;
+    }
+
+    public Integer getCatalogueType() {
+        return catalogueType;
+    }
+
+    public void setCatalogueType(Integer catalogueType) {
+        this.catalogueType = catalogueType;
+    }
 }

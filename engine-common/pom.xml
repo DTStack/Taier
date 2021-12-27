@@ -30,25 +30,6 @@
             </exclusions>
         </dependency>
 
-        <!-- 基础依赖 -->
-        <dependency>
-            <groupId>dt.insight.plat</groupId>
-            <artifactId>dt-insight-common-base</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>spring-data-redis</artifactId>
-                    <groupId>org.springframework.data</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jedis</artifactId>
-                    <groupId>redis.clients</groupId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.commons</groupId>
-                    <artifactId>commons-lang3</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
 
         <dependency>
             <groupId>com.dtstack.dtcenter</groupId>
