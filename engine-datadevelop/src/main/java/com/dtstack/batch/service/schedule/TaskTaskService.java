@@ -13,8 +13,8 @@ import com.dtstack.engine.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.mapper.ScheduleTaskTaskShadeMapper;
 import com.dtstack.engine.master.dto.schedule.QueryTaskDisplayDTO;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.curator.shaded.com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -192,7 +192,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
      */
     public PageResult<List<ReturnFillDataListVO>> fillDataList(QueryFillDataListDTO dto) {
         Page<ScheduleFillDataJob> page = new Page<>(dto.getCurrentPage(), dto.getPageSize());
-        long bizDay = DateUtil.getTimestamp(dto.getBizDay(), DateUtil.DATE_FORMAT);
+        Long bizDay = DateUtil.getTimestamp(dto.getBizDay(), DateUtil.DATE_FORMAT);
         page = fillDataJobService.lambdaQuery()
                 .like(StringUtils.isNotBlank(dto.getJobName()), ScheduleFillDataJob::getJobName, dto.getJobName())
                 .eq(dto.getUserId() != null, ScheduleFillDataJob::getCreateUserId, dto.getUserId())
