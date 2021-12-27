@@ -1,10 +1,10 @@
 package com.dtstack.batch.common.convert;
 
 import com.dtstack.batch.bo.datasource.AddDataSourceParam;
-import com.dtstack.batch.utils.DataSourceUtils;
 import com.dtstack.batch.vo.DataSourceVO;
-import dt.insight.plat.lang.base.Strings;
-import dt.insight.plat.lang.coc.convert.Converter;
+import com.dtstack.engine.common.lang.convert.Converter;
+import com.dtstack.engine.common.util.DataSourceUtils;
+import com.dtstack.engine.common.util.Strings;
 
 /**
  * AddDataSourceParam 转 DataSourceVO

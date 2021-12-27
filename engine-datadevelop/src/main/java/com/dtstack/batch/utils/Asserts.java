@@ -1,11 +1,10 @@
 package com.dtstack.batch.utils;
 
 
-import com.dtstack.batch.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.BizException;
+import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.lang.base.Validates;
 import com.dtstack.engine.common.util.Collections;
-import dt.insight.plat.lang.base.Strings;
-import dt.insight.plat.lang.base.Validates;
-import dt.insight.plat.lang.exception.biz.BizException;
 
 import java.util.Collection;
 
