@@ -20,12 +20,10 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.common.util.ComponentVersionUtil;
 import com.dtstack.engine.domain.Component;
 import com.dtstack.engine.domain.ComponentConfig;
 import com.dtstack.engine.domain.ScheduleDict;
 import com.dtstack.engine.mapper.ComponentConfigMapper;
-import com.dtstack.engine.mapper.ComponentMapper;
 import com.dtstack.engine.mapper.DictMapper;
 import com.dtstack.engine.master.impl.pojo.ClientTemplate;
 import com.dtstack.engine.master.vo.ComponentMultiVersionVO;
@@ -42,8 +40,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -70,9 +66,6 @@ public class ComponentConfigService {
 
     @Autowired
     private DictMapper dictMapper;
-
-    @Autowired
-    private ComponentMapper componentMapper;
 
     /**
      * 保存页面展示数据
@@ -254,23 +247,4 @@ public class ComponentConfigService {
     public void updateValueComponentConfig(ComponentConfig componentConfig) {
         componentConfigMapper.update(componentConfig);
     }
-
-    @Cacheable(cacheNames = "component")
-    public Map<String, Object> getCacheComponentConfigMap(Long clusterId, Integer componentType, boolean isFilter, Map<Integer, String> componentVersionMap, Long componentId) {
-        if (null != componentId) {
-            return convertComponentConfigToMap(componentId, isFilter);
-        }
-        Component component = componentMapper.getByClusterIdAndComponentType(clusterId, componentType, ComponentVersionUtil.getComponentVersion(componentVersionMap, componentType),null);
-        if (null == component) {
-            return null;
-        }
-        return convertComponentConfigToMap(component.getId(), isFilter);
-    }
-
-    @CacheEvict(cacheNames = "component", allEntries = true)
-    public void clearComponentCache() {
-        logger.info(" clear all component cache ");
-    }
-
-
 }

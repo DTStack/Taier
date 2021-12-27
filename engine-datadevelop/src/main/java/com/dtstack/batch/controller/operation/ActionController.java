@@ -1,10 +1,13 @@
 package com.dtstack.batch.controller.operation;
 
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.batch.service.schedule.JobService;
 import com.dtstack.batch.web.server.vo.query.BatchServerGetLogByJobIdVO;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.master.enums.RestartType;
 import com.dtstack.engine.master.impl.ActionService;
 import com.dtstack.engine.master.vo.JobLogVO;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +29,9 @@ public class ActionController {
     @Autowired
     private ActionService actionService;
 
+    @Autowired
+    private JobService jobService;
+
     @PostMapping(value = "/log/unite")
     public JobLogVO logUnite(@RequestBody BatchServerGetLogByJobIdVO vo) {
         return actionService.logUnite(vo.getJobId(),vo.getPageInfo());
@@ -46,7 +52,8 @@ public class ActionController {
 
     @PostMapping(value = "/status")
     public Integer status(@RequestParam("jobId") String jobId) throws Exception {
-        return actionService.status(jobId);
+        ScheduleJob scheduleJob = jobService.getScheduleJob(jobId);
+        return null == scheduleJob ? RdosTaskStatus.NOTFOUND.getStatus() : scheduleJob.getStatus();
     }
 
     @PostMapping(value = "/generateUniqueSign")

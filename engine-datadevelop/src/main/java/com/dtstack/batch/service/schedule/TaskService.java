@@ -6,8 +6,8 @@ import com.dtstack.batch.mapstruct.task.ScheduleTaskMapstructTransfer;
 import com.dtstack.batch.vo.schedule.ScheduleTaskVO;
 import com.dtstack.engine.common.enums.EScheduleStatus;
 import com.dtstack.engine.common.enums.IsDeletedEnum;
-import com.dtstack.engine.domain.ScheduleTask;
-import com.dtstack.engine.mapper.ScheduleTaskMapper;
+import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.mapper.ScheduleTaskShadeMapper;
 import com.dtstack.engine.master.dto.schedule.QueryTaskListDTO;
 import com.dtstack.engine.pager.PageResult;
 import com.google.common.collect.Lists;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  * @Description:
  */
 @Service
-public class TaskService extends ServiceImpl<ScheduleTaskMapper, ScheduleTask> {
+public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTaskShade> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskService.class);
 
@@ -39,15 +39,15 @@ public class TaskService extends ServiceImpl<ScheduleTaskMapper, ScheduleTask> {
      * @return
      */
     public PageResult<List<ScheduleTaskVO>> queryTasks(QueryTaskListDTO dto) {
-        Page<ScheduleTask> page = new Page<>(dto.getCurrentPage(), dto.getPageSize());
+        Page<ScheduleTaskShade> page = new Page<>(dto.getCurrentPage(), dto.getPageSize());
         // 分页查询
-        Page<ScheduleTask> resultPage = this.lambdaQuery()
-                .like(StringUtils.isNotBlank(dto.getName()), ScheduleTask::getName, dto.getName())
-                .eq(dto.getOwnerId() != null, ScheduleTask::getOwnerUserId, dto.getOwnerId())
-                .eq(dto.getTenantId() != null, ScheduleTask::getTenantId, dto.getTenantId())
-                .eq(dto.getScheduleStatus() != null, ScheduleTask::getScheduleStatus, dto.getScheduleStatus())
-                .in(StringUtils.isNotBlank(dto.getTaskTypeList()), ScheduleTask::getTaskType, Arrays.asList(dto.getTaskTypeList().split(",")))
-                .in(StringUtils.isNotBlank(dto.getPeriodTypeList()), ScheduleTask::getPeriodType, Arrays.asList(dto.getPeriodTypeList().split(",")))
+        Page<ScheduleTaskShade> resultPage = this.lambdaQuery()
+                .like(StringUtils.isNotBlank(dto.getName()), ScheduleTaskShade::getName, dto.getName())
+                .eq(dto.getOwnerId() != null, ScheduleTaskShade::getOwnerUserId, dto.getOwnerId())
+                .eq(dto.getTenantId() != null, ScheduleTaskShade::getTenantId, dto.getTenantId())
+                .eq(dto.getScheduleStatus() != null, ScheduleTaskShade::getScheduleStatus, dto.getScheduleStatus())
+                .in(StringUtils.isNotBlank(dto.getTaskTypeList()), ScheduleTaskShade::getTaskType, Arrays.asList(dto.getTaskTypeList().split(",")))
+                .in(StringUtils.isNotBlank(dto.getPeriodTypeList()), ScheduleTaskShade::getPeriodType, Arrays.asList(dto.getPeriodTypeList().split(",")))
                 .page(page);
         List<ScheduleTaskVO> scheduleTaskVOS = ScheduleTaskMapstructTransfer.INSTANCE.beanToTaskVO(resultPage.getRecords());
         return new PageResult<>(dto.getCurrentPage(), dto.getPageSize(), resultPage.getTotal(), (int) resultPage.getPages(), scheduleTaskVOS);
@@ -71,11 +71,11 @@ public class TaskService extends ServiceImpl<ScheduleTaskMapper, ScheduleTask> {
             return Boolean.FALSE;
         }
 
-        ScheduleTask scheduleTask = new ScheduleTask();
+        ScheduleTaskShade scheduleTask = new ScheduleTaskShade();
         scheduleTask.setScheduleStatus(scheduleStatus);
         return this.lambdaUpdate()
-                .in(ScheduleTask::getTaskId)
-                .eq(ScheduleTask::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .in(ScheduleTaskShade::getTaskId)
+                .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
                 .update(scheduleTask);
     }
 
@@ -89,8 +89,8 @@ public class TaskService extends ServiceImpl<ScheduleTaskMapper, ScheduleTask> {
             return Lists.newArrayList();
         }
         return this.lambdaQuery()
-                .eq(userId != null, ScheduleTask::getOwnerUserId, userId)
-                .like(StringUtils.isNotBlank(taskName), ScheduleTask::getName, taskName)
-                .list().stream().map(ScheduleTask::getTaskId).collect(Collectors.toList());
+                .eq(userId != null, ScheduleTaskShade::getOwnerUserId, userId)
+                .like(StringUtils.isNotBlank(taskName), ScheduleTaskShade::getName, taskName)
+                .list().stream().map(ScheduleTaskShade::getTaskId).collect(Collectors.toList());
     }
 }
