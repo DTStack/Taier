@@ -57,7 +57,11 @@
                 <artifactId>dt-insight-web-security-starter</artifactId>
                 <version>${dt-insight-web-security.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.dtstack.dtcenter</groupId>
                 <artifactId>common.loader.core</artifactId>
@@ -124,6 +128,12 @@
                 <groupId>commons-collections</groupId>
                 <artifactId>commons-collections</artifactId>
                 <version>${commons-collections.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-test</artifactId>
+                <version>${spring.version}</version>
+                <scope>test</scope>
             </dependency>
 
         </dependencies>

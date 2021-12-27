@@ -19,14 +19,11 @@
 package com.dtstack.batch.vo;
 
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.common.util.Base64Util;
-import com.dtstack.engine.domain.BatchDataSource;
 import com.dtstack.engine.domain.User;
 import lombok.Data;
-
-import java.sql.Timestamp;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,108 +34,132 @@ import java.util.Map;
 @Data
 public class DataSourceVO{
 
+    /**
+     * 数据源 ID
+     */
     private Long id = 0L;
+    /**
+     * 用户id
+     */
+    private Long userId;
+    /**
+     * dtuic 租户id
+     */
+    private Long dtuicTenantId;
 
-    private Timestamp gmtCreate;
+//    /**
+//     * 数据源主键id
+//     */
+//    private Long dataInfoId = 0L;
 
-    private Timestamp gmtModified;
+    /**
+     * 创建时间
+     */
+    private Date gmtCreate;
 
+    /**
+     * 修改时间
+     */
+    private Date gmtModified;
+
+    /**
+     * 租户 ID
+     */
     private Long tenantId;
 
+    /**
+     * 项目 ID
+     */
     private Long projectId;
 
+    /**
+     * 数据源名称
+     */
     private String dataName;
 
+    /**
+     * 数据源描述
+     */
     private String dataDesc;
 
+    /**
+     * 数据源类型
+     */
     private Integer type;
 
+    /**
+     * 数据源类型
+     */
+    private String dataType;
+
+    /**数据源类型编码**/
+    private Integer dataTypeCode;
+
+    /**
+     * 数据源版本
+     */
+    private String dataVersion;
+
+    /**
+     * 是否被使用
+     */
     private Integer active;
 
+    /**
+     * 是否有效
+     */
     private Integer linkState;
 
+    /**
+     * 修改人 ID
+     */
     private Long modifyUserId;
 
+    /**
+     * 创建人 ID
+     */
     private Long createUserId;
 
+    /**
+     * 修改人
+     */
     private User modifyUser;
 
+    /**
+     * 数据源相关信息
+     */
     private JSONObject dataJson;
 
+    /**
+     * 数据源加密字符
+     */
     private String dataJsonString;
 
-    private Long linkSourceId;
-
-    private String linkSourceName;
-
-    private Integer isDefault;
-
+    /**
+     * Kerberos 信息
+     */
     private Map<String, Object> kerberosConfig;
 
+    /**
+     * 本地 Kerberos 地址
+     */
     private String localKerberosConf;
 
-    public BatchDataSource toEntity() {
-        BatchDataSource source = new BatchDataSource();
-        source.setId(this.getId());
-        source.setTenantId(this.getTenantId());
-        source.setGmtCreate(this.getGmtCreate());
-        source.setGmtModified(this.getGmtModified());
-        source.setCreateUserId(this.getCreateUserId());
-        source.setDataName(this.getDataName());
-        source.setDataDesc(this.getDataDesc());
-        source.setDataJson(Base64Util.baseEncode(this.dataJson.toJSONString()));
-        source.setType(this.getType());
-        source.setCreateUserId(this.getCreateUserId());
-        source.setModifyUserId(this.getModifyUserId());
-        source.setActive(this.active);
-        source.setLinkState(this.linkState);
-        source.setIsDefault(this.isDefault);
-        return source;
-    }
+    /**
+     * 授权产品编码 可为空
+     */
+    private List<Integer> appTypeList;
 
-    public static DataSourceVO toVO(BatchDataSource source, int active) {
-        DataSourceVO vo = new DataSourceVO();
-        vo.setId(source.getId());
-        vo.setGmtCreate(source.getGmtCreate());
-        vo.setGmtModified(source.getGmtModified());
-        vo.setTenantId(source.getTenantId());
-        vo.setDataName(source.getDataName());
-        vo.setDataDesc(source.getDataDesc());
-        vo.setType(source.getType());
-        vo.setModifyUserId(source.getModifyUserId());
-        vo.setDataJson(JSON.parseObject(source.getDataJson()));
-        vo.setCreateUserId(source.getCreateUserId());
-        vo.setIsDefault(source.getIsDefault());
-        vo.setLinkState(source.getLinkState());
-        //兼容之前的设定0:未使用, 1:使用
-        if(active > 0){
-            vo.setActive(1);
-        }else{
-            vo.setActive(0);
-        }
+    /**
+     * 数组字符串
+     */
+    private String appTypeListString;
 
-        return vo;
-    }
+    /**
+     * 是否为默认数据源 0-否 1-是
+     */
+    private Integer isMeta;
 
-    @Override
-    public String toString() {
-        return "DataSourceVO{" +
-                "id=" + id +
-                ", gmtCreate=" + gmtCreate +
-                ", gmtModified=" + gmtModified +
-                ", tenantId=" + tenantId +
-                ", projectId=" + projectId +
-                ", dataName='" + dataName + '\'' +
-                ", dataDesc='" + dataDesc + '\'' +
-                ", type=" + type +
-                ", active=" + active +
-                ", linkState=" + linkState +
-                ", modifyUserId=" + modifyUserId +
-                ", createUserId=" + createUserId +
-                ", modifyUser=" + modifyUser +
-                ", dataJson=" + dataJson +
-                ", linkSourceId=" + linkSourceId +
-                ", linkSourceName='" + linkSourceName + '\'' +
-                '}';
-    }
+    /**数据库名称**/
+    private String schemaName;
 }

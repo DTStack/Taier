@@ -27,6 +27,8 @@ import com.dtstack.dtcenter.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.loader.dto.source.*;
 import com.dtstack.dtcenter.loader.enums.RedisMode;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.engine.common.constrant.FormNames;
+import com.dtstack.engine.common.util.DataSourceUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
@@ -1098,6 +1100,33 @@ public enum SourceDTOType {
     public abstract ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap);
 
     public abstract ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema);
+
+
+    /**
+     * 根据数据源获取对应的sourceDTO，供外调用
+     *
+     * @param data       未解码的数据信息
+     * @param sourceType
+     * @param confMap
+     * @return
+     */
+    public static ISourceDTO getSourceDTO(String data, Integer sourceType, Map<String, Object> confMap) {
+        JSONObject dataJson = DataSourceUtils.getDataSourceJson(data);
+        SourceDTOType sourceDTOType = getSourceDTOType(sourceType);
+        return sourceDTOType.getSourceDTO(dataJson, confMap);
+    }
+
+    /**
+     * 根据数据源获取对应的sourceDTO，供外调用
+     *
+     * @param dataJson
+     * @param sourceType
+     * @return
+     */
+    public static ISourceDTO getSourceDTO(JSONObject dataJson, Integer sourceType) {
+        JSONObject kerberosConfig = dataJson.getJSONObject(FormNames.KERBEROS_CONFIG);
+        return getSourceDTO(dataJson, sourceType, kerberosConfig);
+    }
 
     /**
      * 根据枚举值获取数据源类型
