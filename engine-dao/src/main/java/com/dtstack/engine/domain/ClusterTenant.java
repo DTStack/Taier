@@ -8,14 +8,14 @@ public class ClusterTenant extends BaseEntity {
 
     private Long clusterId;
 
-    private Long dtUicTenantId;
+    private String tenantName;
 
-    public Long getDtUicTenantId() {
-        return dtUicTenantId;
+    public String getTenantName() {
+        return tenantName;
     }
 
-    public void setDtUicTenantId(Long dtUicTenantId) {
-        this.dtUicTenantId = dtUicTenantId;
+    public void setTenantName(String tenantName) {
+        this.tenantName = tenantName;
     }
 
     public Long getClusterId() {

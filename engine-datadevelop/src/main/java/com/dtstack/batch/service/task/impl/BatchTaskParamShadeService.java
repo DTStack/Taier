@@ -18,13 +18,13 @@
 
 package com.dtstack.batch.service.task.impl;
 
-import com.dtstack.batch.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.BatchTaskParamShadeDao;
 import com.dtstack.batch.domain.BatchSysParameter;
 import com.dtstack.batch.domain.BatchTaskParam;
 import com.dtstack.batch.domain.BatchTaskParamShade;
 import com.dtstack.batch.service.impl.BatchSysParamService;
-import com.dtstack.dtcenter.common.enums.EParamType;
+import com.dtstack.engine.common.enums.EParamType;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;

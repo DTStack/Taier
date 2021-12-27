@@ -19,14 +19,17 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.domain.*;
+import com.dtstack.engine.domain.po.SimpleScheduleJobPO;
 import com.dtstack.engine.dto.QueryJobDTO;
 import com.dtstack.engine.dto.ScheduleJobDTO;
 import com.dtstack.engine.dto.ScheduleTaskForFillDataDTO;
-import com.dtstack.engine.dto.StatusCount;
+import com.dtstack.engine.domain.po.StatusCountPO;
 import com.dtstack.engine.mapper.*;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.impl.pojo.ParamActionExt;
@@ -72,6 +75,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -84,7 +88,7 @@ import java.util.stream.Collectors;
  * create: 2017/5/3
  */
 @Service
-public class ScheduleJobService {
+public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper,ScheduleJob> {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ScheduleJobService.class);
 
@@ -112,9 +116,6 @@ public class ScheduleJobService {
 
     @Autowired
     private ScheduleFillDataJobDao scheduleFillDataJobDao;
-
-    @Autowired
-    private ScheduleFillDataJobService scheduleFillDataJobService;
 
     @Autowired
     private ScheduleJobJobService batchJobJobService;
@@ -147,7 +148,13 @@ public class ScheduleJobService {
     private ScheduleJobOperatorRecordDao scheduleJobOperatorRecordDao;
 
     @Autowired
-    private EngineJobCacheDao engineJobCacheDao;
+    private EngineJobCacheService engineJobCacheService;
+
+    @Autowired
+    private ScheduleJobMapper scheduleJobMapper;
+
+    @Autowired
+    private ScheduleJobExpandMapper scheduleJobExpandMapper;
 
     private final static List<Integer> FINISH_STATUS = Lists.newArrayList(RdosTaskStatus.FINISHED.getStatus(), RdosTaskStatus.MANUALSUCCESS.getStatus(), RdosTaskStatus.CANCELLING.getStatus(), RdosTaskStatus.CANCELED.getStatus());
 
@@ -556,7 +563,7 @@ public class ScheduleJobService {
         //需要查询工作流的子节点
         batchJobDTO.setNeedQuerySonNode(true);
         filterQuery(vo, batchJobDTO);
-        List<StatusCount> statusCountList = scheduleJobDao.getJobsStatusStatistics(batchJobDTO);
+        List<StatusCountPO> statusCountList = scheduleJobDao.getJobsStatusStatistics(batchJobDTO);
         Map<String, Long> attachment = Maps.newHashMap();
         if(CollectionUtils.isEmpty(statusCountList)){
             return attachment;
@@ -576,13 +583,13 @@ public class ScheduleJobService {
      * @param totalNum:
      * @return: void
      **/
-    private void mergeStatusAndShow(List<StatusCount> statusCountList, Map<String, Long> attachment, long totalNum) {
+    private void mergeStatusAndShow(List<StatusCountPO> statusCountList, Map<String, Long> attachment, long totalNum) {
         Map<Integer, List<Integer>> statusMap = RdosTaskStatus.getStatusFailedDetail();
         for (Map.Entry<Integer, List<Integer>> entry : statusMap.entrySet()) {
             String statusName = RdosTaskStatus.getCode(entry.getKey());
             List<Integer> statuses = entry.getValue();
             long num = 0;
-            for (StatusCount statusCount : statusCountList) {
+            for (StatusCountPO statusCount : statusCountList) {
                 if (statuses.contains(statusCount.getStatus())) {
                     num += statusCount.getCount();
                 }
@@ -822,11 +829,21 @@ public class ScheduleJobService {
         if (StringUtils.isNotBlank(msg) && msg.length() > 5000) {
             msg = msg.substring(0, 5000) + "...";
         }
-        return scheduleJobDao.updateStatusByJobId(jobId, status, msg,null,null,null);
+        ScheduleJob scheduleJob = new ScheduleJob();
+        scheduleJob.setJobId(jobId);
+        scheduleJob.setStatus(status);
+        scheduleJob.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
+        updateByJobId(scheduleJob);
+        return updateExpandByJobId(jobId,null,msg);
     }
 
-    public Integer updateStatusByJobId(String jobId, Integer status,Integer versionId) {
-        return scheduleJobDao.updateStatusByJobId(jobId, status, null,versionId,null,null);
+    public Integer updateStatusByJobId(String jobId, Integer status, Integer versionId) {
+        ScheduleJob scheduleJob = new ScheduleJob();
+        scheduleJob.setJobId(jobId);
+        scheduleJob.setStatus(status);
+        scheduleJob.setVersionId(versionId);
+        scheduleJob.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
+        return updateByJobId(scheduleJob);
     }
 
     public Long startJob(ScheduleJob scheduleJob) throws Exception {
@@ -846,14 +863,10 @@ public class ScheduleJobService {
         return scheduleJobDao.updateStatusWithExecTime(updateJob);
     }
 
-    public void testTrigger( String jobId) {
-        ScheduleJob rdosJobByJobId = scheduleJobDao.getRdosJobByJobId(jobId);
-        if (null != rdosJobByJobId) {
-            try {
-                this.sendTaskStartTrigger(rdosJobByJobId);
-            } catch (Exception e) {
-                LOGGER.error(" job  {} run fail with info is null",rdosJobByJobId.getJobId(),e);
-            }
+    public void testTrigger(String jobId) throws Exception{
+        ScheduleJob scheduleJob = getByJobId(jobId);
+        if (null != scheduleJob) {
+            sendTaskStartTrigger(scheduleJob);
         }
     }
 
@@ -861,7 +874,7 @@ public class ScheduleJobService {
      * 触发 engine 执行指定task
      */
     public void sendTaskStartTrigger(ScheduleJob scheduleJob) throws Exception {
-        ScheduleTaskShade batchTask = batchTaskShadeService.getBatchTaskById(scheduleJob.getTaskId());
+        ScheduleTaskShade batchTask = batchTaskShadeService.getByTaskId(scheduleJob.getTaskId());
         if (batchTask == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
         }
@@ -877,7 +890,7 @@ public class ScheduleJobService {
                 if (null != info ) {
                     ParamActionExt paramActionExt = actionService.paramActionExt(batchTask, scheduleJob, info);
                     if (paramActionExt != null) {
-                        this.updateStatusByJobId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus(),batchTask.getVersionId());
+                        updateStatusByJobId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus(),batchTask.getVersionId());
                         actionService.start(paramActionExt);
                         return;
                     }
@@ -922,7 +935,7 @@ public class ScheduleJobService {
             updateJob.setStatus(RdosTaskStatus.FINISHED.getStatus());
             updateJob.setExecEndTime(new Timestamp(System.currentTimeMillis()));
             updateJob.setGmtModified(new Timestamp(System.currentTimeMillis()));
-            updateJob.setExecTime(0);
+            updateJob.setExecTime(0L);
             scheduleJobDao.updateStatusWithExecTime(updateJob);
         }
 
@@ -1724,7 +1737,7 @@ public class ScheduleJobService {
         }
 
         if (null != taskShade) {
-            batchTaskVO.setId(taskShade.getTaskId());
+            batchTaskVO.setTaskId(taskShade.getTaskId());
             batchTaskVO.setGmtModified(taskShade.getGmtModified());
             batchTaskVO.setName(taskShade.getName());
             batchTaskVO.setIsDeleted(taskShade.getIsDeleted());
@@ -2548,7 +2561,7 @@ public class ScheduleJobService {
 
         for (final Object idStr : jobIdList) {
             try {
-                final Long id = com.dtstack.dtcenter.common.util.MathUtil.getLongVal(idStr);
+                final Long id = MathUtil.getLongVal(idStr);
                 if (id == null) {
                     throw new RdosDefineException("convert id: " + idStr + " exception.", ErrorCode.SERVER_EXCEPTION);
                 }
@@ -2584,7 +2597,7 @@ public class ScheduleJobService {
             if (null == record) {
                 continue;
             }
-            EngineJobCache cache = engineJobCacheDao.getOne(jobId);
+            EngineJobCache cache = engineJobCacheService.getByJobId(jobId);
             if (cache != null && cache.getGmtCreate().after(record.getGmtCreate())) {
                 //has submit to cache
                 scheduleJobOperatorRecordDao.deleteByJobIdAndType(record.getJobId(), record.getOperatorType());
@@ -2641,6 +2654,84 @@ public class ScheduleJobService {
                 LOGGER.info("reset job {}", jobIds);
             }
         }
+    }
+
+    public ScheduleJob getByJobId(String jobId) {
+        return scheduleJobMapper
+                .selectOne(Wrappers.lambdaQuery(ScheduleJob.class).eq(ScheduleJob::getJobId, jobId));
+    }
+
+    public List<ScheduleJob> getByJobIds(List<String> jobId) {
+        return scheduleJobMapper
+                .selectList(Wrappers.lambdaQuery(ScheduleJob.class).in(ScheduleJob::getJobId, jobId));
+    }
+
+    public int updateByJobId(ScheduleJob scheduleJob) {
+        if (null == scheduleJob || StringUtils.isBlank(scheduleJob.getJobId())) {
+            return 0;
+        }
+        return scheduleJobMapper.update(scheduleJob,
+                Wrappers.lambdaQuery(ScheduleJob.class)
+                        .eq(ScheduleJob::getJobId, scheduleJob.getJobId()));
+    }
+
+    public int updateExpandByJobId(String jobId,String engineLog,String logInfo) {
+        if (StringUtils.isBlank(jobId)) {
+            return 0;
+        }
+        ScheduleJobExpand scheduleJobExpand = new ScheduleJobExpand();
+        scheduleJobExpand.setJobId(jobId);
+        scheduleJobExpand.setEngineLog(engineLog);
+        scheduleJobExpand.setLogInfo(logInfo);
+        return scheduleJobExpandMapper.update(scheduleJobExpand,
+                Wrappers.lambdaQuery(ScheduleJobExpand.class)
+                        .eq(ScheduleJobExpand::getJobId, scheduleJobExpand.getJobId()));
+    }
+
+    public int insert(ScheduleJob scheduleJob) {
+       return scheduleJobMapper.insert(scheduleJob);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void jobFail(String jobId, Integer status, String generateErrorMsg) {
+        ScheduleJob updateScheduleJob = new ScheduleJob();
+        updateScheduleJob.setJobId(jobId);
+        updateScheduleJob.setStatus(status);
+        scheduleJobMapper.updateById(updateScheduleJob);
+        updateExpandByJobId(jobId,null,generateErrorMsg);
+    }
+
+    public int updateJobStatusByJobIds(List<String> jobIds, Integer status,Integer phaseStatus) {
+        ScheduleJob scheduleJob = new ScheduleJob();
+        scheduleJob.setStatus(status);
+        scheduleJob.setPhaseStatus(phaseStatus);
+        return scheduleJobMapper.update(scheduleJob,Wrappers.lambdaQuery(ScheduleJob.class)
+                        .in(ScheduleJob::getJobId, jobIds));
+    }
+
+    public List<SimpleScheduleJobPO> listJobByStatusAddressAndPhaseStatus(long jobStartId, List<Integer> unSubmitStatus, String localAddress, Integer phaseStatus) {
+        return scheduleJobMapper.listJobByStatusAddressAndPhaseStatus(jobStartId,unSubmitStatus,localAddress,phaseStatus);
+    }
+
+    public void updateJobSubmitSuccess(String jobId, String engineJobId, String appId) {
+        ScheduleJob scheduleJob  = new ScheduleJob();
+        scheduleJob.setJobId(jobId);
+        scheduleJob.setApplicationId(appId);
+        scheduleJob.setEngineJobId(engineJobId);
+        scheduleJob.setExecStartTime(Timestamp.valueOf(LocalDateTime.now()));
+        scheduleJob.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
+        updateByJobId(scheduleJob);
+    }
+
+    public void updateStatus(String jobId, Integer status) {
+        ScheduleJob updateScheduleJob = new ScheduleJob();
+        updateScheduleJob.setJobId(jobId);
+        updateScheduleJob.setStatus(status);
+        scheduleJobMapper.updateById(updateScheduleJob);
+    }
+
+    public void updateJobStatusAndExecTime(String jobId, Integer status) {
+        scheduleJobMapper.updateJobStatusAndExecTime(jobId,status);
     }
 }
 

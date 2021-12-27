@@ -68,13 +68,6 @@ public class ScheduleJobController {
         return scheduleJobService.getStatusCount(projectId, tenantId, appType, dtuicTenantId);
     }
 
-
-    @RequestMapping(value = "/queryJobs", method = {RequestMethod.POST})
-    @ApiOperation(value = "任务运维 - 搜索")
-    public PageResult<List<ScheduleJobVO>> queryJobs(@RequestBody QueryJobDTO vo) throws Exception {
-        return scheduleJobService.queryJobs(vo);
-    }
-
     @RequestMapping(value = "/displayPeriods", method = {RequestMethod.POST})
     public List<SchedulePeriodInfoVO> displayPeriods(@RequestParam("isAfter") boolean isAfter, @RequestParam("jobId") Long jobId, @RequestParam("projectId") Long projectId, @RequestParam("limit") int limit) throws Exception {
         return scheduleJobService.displayPeriods(isAfter, jobId, projectId, limit);
@@ -85,12 +78,6 @@ public class ScheduleJobController {
     @ApiOperation(value = "获取工作流节点的父节点和子节点关联信息")
     public ScheduleJobVO getRelatedJobs(@RequestParam("jobId") String jobId, @RequestParam("vo") String query) throws Exception {
         return scheduleJobService.getRelatedJobs(jobId, query);
-    }
-
-    @RequestMapping(value = "/queryJobsStatusStatistics", method = {RequestMethod.POST})
-    @ApiOperation(value = "获取任务的状态统计信息")
-    public Map<String, Long> queryJobsStatusStatistics(@RequestBody QueryJobDTO vo) {
-        return scheduleJobService.queryJobsStatusStatistics(vo);
     }
 
     @RequestMapping(value = "/jobDetail", method = {RequestMethod.POST})
@@ -359,7 +346,7 @@ public class ScheduleJobController {
     }
 
     @RequestMapping(value = "/testTrigger", method = {RequestMethod.POST})
-    public void testTrigger(@RequestParam("jobId") String jobId) {
+    public void testTrigger(@RequestParam("jobId") String jobId) throws Exception{
         scheduleJobService.testTrigger(jobId);
     }
 

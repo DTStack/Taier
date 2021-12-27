@@ -31,7 +31,7 @@ import lombok.Data;
 public class ProjectEngineVO {
 
     /**
-     * 引擎类型：{@link com.dtstack.dtcenter.common.enums.MultiEngineType}
+     * 引擎类型：{@link com.dtstack.engine.common.enums.MultiEngineType}
      */
     private Integer engineType;
 

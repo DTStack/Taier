@@ -25,10 +25,10 @@ import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.domain.po.SimpleScheduleJobPO;
-import com.dtstack.engine.mapper.EngineJobCacheDao;
 import com.dtstack.engine.mapper.ScheduleJobDao;
 import com.dtstack.engine.mapper.ScheduleJobOperatorRecordDao;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
+import com.dtstack.engine.master.impl.EngineJobCacheService;
 import com.dtstack.engine.master.impl.NodeRecoverService;
 import com.dtstack.engine.master.server.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.server.scheduler.JobGraphBuilderTrigger;
@@ -89,7 +89,7 @@ public class FailoverStrategy {
     private JobPartitioner jobPartitioner;
 
     @Autowired
-    private EngineJobCacheDao engineJobCacheDao;
+    private EngineJobCacheService engineJobCacheService;
 
     @Autowired
     private ScheduleJobDao rdosEngineBatchJobDao;
@@ -217,8 +217,8 @@ public class FailoverStrategy {
                 if (CollectionUtils.isEmpty(jobs)) {
                     break;
                 }
-                Set<String> cronJobIds = new HashSet();
-                Set<String> fillJobIds =  new HashSet();
+                Set<String> cronJobIds = new HashSet<>();
+                Set<String> fillJobIds =  new HashSet<>();
                 List<String> phaseStatus = Lists.newArrayList();
                 for (SimpleScheduleJobPO batchJob : jobs) {
                     if (EScheduleType.NORMAL_SCHEDULE.getType().equals(batchJob.getType())) {
@@ -308,7 +308,7 @@ public class FailoverStrategy {
             LOGGER.warn("----- nodeAddress:{} JobCache mission begins to resume----", nodeAddress);
             long startId = 0L;
             while (true) {
-                List<EngineJobCache> jobCaches = engineJobCacheDao.listByStage(startId, nodeAddress, null, null);
+                List<EngineJobCache> jobCaches = engineJobCacheService.listByStage(startId, nodeAddress, null, null);
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     break;
                 }
@@ -333,7 +333,7 @@ public class FailoverStrategy {
                 distributeSubmittedJobs(submittedJobs);
             }
             //在迁移任务的时候，可能出现要迁移的节点也宕机了，任务没有正常接收
-            List<EngineJobCache> jobCaches = engineJobCacheDao.listByStage(0L, nodeAddress, null, null);
+            List<EngineJobCache> jobCaches = engineJobCacheService.listByStage(0L, nodeAddress, null, null);
             if (CollectionUtils.isNotEmpty(jobCaches)) {
                 //如果尚有任务未迁移完成，重置 nodeAddress 继续恢复
                 zkService.updateSynchronizedLocalBrokerHeartNode(nodeAddress, BrokerHeartNode.initNullBrokerHeartNode(), true);
@@ -398,7 +398,7 @@ public class FailoverStrategy {
                 continue;
             }
 
-            engineJobCacheDao.updateNodeAddressFailover(nodeEntry.getKey(), nodeEntry.getValue(), stage);
+            engineJobCacheService.updateNodeAddressFailover(nodeEntry.getKey(), nodeEntry.getValue(), stage);
             LOGGER.info("jobIds:{} failover to address:{}, set stage={}", nodeEntry.getValue(), nodeEntry.getKey(), stage);
         }
     }
@@ -407,10 +407,10 @@ public class FailoverStrategy {
      * master 节点分发任务失败
      * @param taskId
      */
-    public void dealSubmitFailJob(String taskId, String errorMsg){
-        engineJobCacheDao.delete(taskId);
-        rdosEngineBatchJobDao.jobFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(errorMsg));
-        LOGGER.info("jobId:{} update job status:{}, job is finished.", taskId, RdosTaskStatus.SUBMITFAILD.getStatus());
+    public void dealSubmitFailJob(String jobId, String errorMsg){
+        engineJobCacheService.deleteByJobId(jobId);
+        rdosEngineBatchJobDao.jobFail(jobId, RdosTaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(errorMsg));
+        LOGGER.info("jobId:{} update job status:{}, job is finished.", jobId, RdosTaskStatus.SUBMITFAILD.getStatus());
     }
 }
 

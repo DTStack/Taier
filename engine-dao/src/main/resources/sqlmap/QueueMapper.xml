@@ -50,8 +50,8 @@
         select  t1.id,t1.parent_queue_id from console_queue t1, console_queue t2  where
         t1.id=t2.parent_queue_id
         AND t.id = t1.id AND t2.is_deleted = 0 and t1.is_deleted = 0
-        AND t1.cluster_id = #{clusterId}
-        AND is_deleted = 0
+        AND t1.cluster_id = #{clusterId})
+        AND t.is_deleted = 0
         AND t.cluster_id = #{clusterId}
     </select>
 

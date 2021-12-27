@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @Auther: dazhi
@@ -97,7 +96,7 @@ public class RestartJobRunnable extends AbstractRestart implements Runnable {
      * @param resumeBatchJobs
      * @return
      */
-    private List<ScheduleJob> findCanResetJob(List<ScheduleJob> jobs, Map<Long,ScheduleTaskShade> taskShadeMap, Map<String, String> resumeBatchJobs) {
+    private List<ScheduleJob> findCanResetJob(List<ScheduleJob> jobs, Map<Long, ScheduleTaskShade> taskShadeMap, Map<String, String> resumeBatchJobs) {
         List<ScheduleJob> canResetList = Lists.newArrayList();
         for (ScheduleJob job : jobs) {
             Integer jobStatus = job.getStatus();

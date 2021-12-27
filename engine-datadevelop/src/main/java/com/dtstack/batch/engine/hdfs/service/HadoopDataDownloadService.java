@@ -24,7 +24,7 @@
 //import com.dtstack.batch.common.enums.TempJobType;
 //import com.dtstack.dtcenter.common.enums.*;
 //import com.dtstack.engine.common.env.EnvironmentContext;
-//import com.dtstack.batch.common.exception.RdosDefineException;
+//import com.dtstack.engine.common.exception.RdosDefineException;
 //import com.dtstack.batch.domain.BatchHiveSelectSql;
 //import com.dtstack.batch.domain.ProjectEngine;
 //import com.dtstack.batch.engine.rdbms.common.IDownload;

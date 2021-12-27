@@ -20,15 +20,20 @@ package com.dtstack.engine.master.utils;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.domain.ComponentConfig;
 import com.dtstack.engine.master.impl.pojo.ClientTemplate;
 import com.dtstack.engine.common.enums.EFrontType;
+import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.sftp.SftpConfig;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -480,4 +485,24 @@ public class ComponentConfigUtils {
         return clientTemplates;
     }
 
+    public static SftpConfig getSFTPConfig(String sftpConfigStr, Integer componentCode, String componentTemplate) {
+        // sftpConfigStr 不为空，则直接作为 SftpConfig 解析
+        if (StringUtils.isNotBlank(sftpConfigStr)) {
+            return JSONObject.parseObject(sftpConfigStr, SftpConfig.class);
+        }
+
+        // only parse sftp
+        if (!EComponentType.SFTP.getTypeCode().equals(componentCode)) {
+            throw new RdosDefineException("Please configure the sftp server to upload files!");
+        }
+
+        try {
+            // 获取 config
+            List<ClientTemplate> clientTemplates = JSONArray.parseArray(componentTemplate, ClientTemplate.class);
+            Map<String, Object> configMap = convertClientTemplateToMap(clientTemplates);
+            return PublicUtil.mapToObject(configMap, SftpConfig.class);
+        } catch (IOException e) {
+            throw new RdosDefineException("sftp配置信息不正确");
+        }
+    }
 }

@@ -21,17 +21,17 @@ package com.dtstack.batch.engine.rdbms.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.batch.common.enums.ETableType;
 import com.dtstack.batch.common.enums.HiveVersion;
-import com.dtstack.batch.common.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.batch.engine.rdbms.common.HadoopConf;
-import com.dtstack.dtcenter.common.engine.JdbcInfo;
-import com.dtstack.dtcenter.common.engine.JdbcUrlPropertiesValue;
-import com.dtstack.dtcenter.common.engine.KerberosConfig;
-import com.dtstack.dtcenter.common.enums.EComponentType;
-import com.dtstack.dtcenter.common.enums.EJobType;
-import com.dtstack.dtcenter.common.enums.MultiEngineType;
-import com.dtstack.dtcenter.common.exception.DtCenterDefException;
-import com.dtstack.dtcenter.common.kerberos.KerberosConfigVerify;
-import com.dtstack.dtcenter.common.util.PublicUtil;
+import com.dtstack.engine.common.engine.JdbcInfo;
+import com.dtstack.engine.common.engine.JdbcUrlPropertiesValue;
+import com.dtstack.engine.common.engine.KerberosConfig;
+import com.dtstack.engine.common.enums.EComponentType;
+import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.enums.MultiEngineType;
+import com.dtstack.engine.common.exception.DtCenterDefException;
+import com.dtstack.engine.common.kerberos.KerberosConfigVerify;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.dtcenter.loader.cache.pool.config.PoolConfig;
 import com.dtstack.dtcenter.loader.dto.source.*;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
@@ -439,7 +439,7 @@ public enum Engine2DTOService {
                 jdbcInfo = getOracleJDBC(dtUicTenantId, dtUicUserId);
             } else if (EJobType.IMPALA_SQL.equals(eJobType)) {
                 jdbcInfo = getImpalaJDBC(dtUicTenantId);
-            } else if (EJobType.LIBRA_SQL.equals(eJobType)) {
+            } else if (EJobType.GaussDB_SQL.equals(eJobType)) {
                 jdbcInfo = getLibraJDBC(dtUicTenantId);
             } else if (EJobType.SPARK_SQL.equals(eJobType)) {
                 jdbcInfo = getSparkThrift(dtUicTenantId);
@@ -495,7 +495,7 @@ public enum Engine2DTOService {
         try {
             config = PublicUtil.objectToStr(HadoopConf.getConfiguration(dtUicUserId));
         } catch (IOException e) {
-            throw new DtCenterDefException(String.format("hadoop配置转换异常，原因是：%s", e.getMessage()), e);
+            throw new DtCenterDefException(String.format("hadoop配置转换异常，原因是：%s", e.getMessage()));
         }
         return config;
     }
@@ -568,7 +568,7 @@ public enum Engine2DTOService {
             return DataSourceType.GREENPLUM6;
         } else if (EJobType.ORACLE_SQL.equals(eJobType)) {
             return DataSourceType.Oracle;
-        } else if (EJobType.LIBRA_SQL.equals(eJobType)) {
+        } else if (EJobType.GaussDB_SQL.equals(eJobType)) {
             return DataSourceType.LIBRA;
         } else if (EJobType.TIDB_SQL.equals(eJobType)) {
             return DataSourceType.TiDB;
@@ -947,7 +947,7 @@ public enum Engine2DTOService {
                 }
             }
         } catch (SftpException | IOException e) {
-            throw new DtCenterDefException("下载kerberos文件失败", e);
+            throw new DtCenterDefException("下载kerberos文件失败");
         }
     }
 
