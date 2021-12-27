@@ -62,8 +62,8 @@ public enum EScheduleJobType {
         this.name = name;
     }
 
-    public void setEngineJobType(Integer engineJobType) {
-        this.engineJobType = engineJobType;
+    public Integer getEngineJobType() {
+        return engineJobType;
     }
 
     public Integer getSort() {
@@ -96,7 +96,7 @@ public enum EScheduleJobType {
     }
 
 
-    public static EScheduleJobType getEngineJobType(int type) {
+    public static EScheduleJobType getTaskType(int type) {
         EScheduleJobType[] eJobTypes = EScheduleJobType.values();
         for (EScheduleJobType eJobType : eJobTypes) {
             if (eJobType.type == type) {
@@ -109,5 +109,6 @@ public enum EScheduleJobType {
         }
         throw new RdosDefineException("不支持的任务类型");
     }
+
 
 }

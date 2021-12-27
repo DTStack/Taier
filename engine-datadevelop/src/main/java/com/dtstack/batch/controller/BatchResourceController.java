@@ -20,7 +20,6 @@ package com.dtstack.batch.controller;
 
 import com.dtstack.batch.domain.BatchResource;
 import com.dtstack.batch.mapstruct.vo.BatchResourceMapstructTransfer;
-import com.dtstack.batch.service.auth.AuthCode;
 import com.dtstack.batch.service.impl.BatchResourceService;
 import com.dtstack.batch.vo.BatchResourceVO;
 import com.dtstack.batch.web.pager.PageResult;
@@ -30,10 +29,9 @@ import com.dtstack.batch.web.resource.vo.query.BatchResourcePageQueryVO;
 import com.dtstack.batch.web.resource.vo.query.BatchResourceRenameResourceVO;
 import com.dtstack.batch.web.resource.vo.result.BatchGetResourceByIdResultVO;
 import com.dtstack.batch.web.resource.vo.result.BatchGetResourcesResultVO;
-import dt.insight.plat.autoconfigure.web.security.permissions.annotation.Security;
-import dt.insight.plat.lang.coc.template.APITemplate;
-import dt.insight.plat.lang.exception.biz.BizException;
-import dt.insight.plat.lang.web.R;
+import com.dtstack.engine.common.exception.BizException;
+import com.dtstack.engine.common.lang.coc.APITemplate;
+import com.dtstack.engine.common.lang.web.R;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,7 +75,6 @@ public class BatchResourceController {
 
     @ApiOperation(value = "修改资源名称", response = BatchResource.class)
     @PostMapping(value = "renameResource")
-    @Security(code = AuthCode.DATADEVELOP_BATCH_RESOURCEMANAGER)
     public R<BatchGetResourcesResultVO> renameResource(@RequestBody(required = false) BatchResourceRenameResourceVO vo) {
         return new APITemplate<BatchGetResourcesResultVO>() {
             @Override
@@ -90,7 +87,6 @@ public class BatchResourceController {
 
     @ApiOperation(value = "获取资源详情", response = BatchResourceVO.class)
     @PostMapping(value = "getResourceById")
-    @Security(code = AuthCode.DATADEVELOP_BATCH_RESOURCEMANAGER)
     public R<BatchGetResourceByIdResultVO> getResourceById(@RequestBody BatchResourceBaseVO batchResourceBaseVO) {
         return new APITemplate<BatchGetResourceByIdResultVO>() {
             @Override
@@ -103,7 +99,6 @@ public class BatchResourceController {
 
     @ApiOperation(value = "删除资源")
     @PostMapping(value = "deleteResource")
-    @Security(code = AuthCode.DATADEVELOP_BATCH_RESOURCEMANAGER)
     public R<Long> deleteResource(@RequestBody(required = false) BatchResourceBaseVO batchResourceBaseVO) {
         return new APITemplate<Long>() {
             @Override
@@ -115,7 +110,6 @@ public class BatchResourceController {
 
     @ApiOperation(value = "获取资源列表")
     @PostMapping(value = "getResources")
-    @Security(code = AuthCode.DATADEVELOP_BATCH_RESOURCEMANAGER)
     public R<List<BatchGetResourcesResultVO>> getResources(@RequestBody BatchResourceBaseVO batchResourceBaseVO) {
         return new APITemplate<List<BatchGetResourcesResultVO>>() {
             @Override

@@ -18,11 +18,11 @@
 
 package com.dtstack.batch.engine.core.service;
 
-import com.dtstack.dtcenter.common.engine.EngineResult;
-import com.dtstack.dtcenter.common.exception.DtCenterDefException;
-import com.dtstack.dtcenter.common.exception.ExceptionEnums;
-import com.dtstack.dtcenter.common.http.PoolHttpClient;
-import com.dtstack.dtcenter.common.util.PublicUtil;
+import com.dtstack.engine.common.engine.EngineResult;
+import com.dtstack.engine.common.exception.DtCenterDefException;
+import com.dtstack.engine.common.exception.ExceptionEnums;
+import com.dtstack.engine.common.http.PoolHttpClient;
+import com.dtstack.engine.common.util.PublicUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,13 +84,13 @@ public class BatchSqlSend {
                         return null;
                     }
                 };
-                throw new DtCenterDefException("node inner error..., msg:" + result.getErrorMsg(), exEnum);
+                throw new DtCenterDefException("node inner error..., msg:" + result.getErrorMsg());
             }
 
             return result.getData();
         } catch (Exception e) {
             logger.error(String.format("%s---->%s:", url, bodyData), e);
-            throw new DtCenterDefException(e.getMessage(), e instanceof DtCenterDefException ? ((DtCenterDefException) e).getErrorCode() : null);
+            throw new DtCenterDefException(e.getMessage());
         }
     }
 }

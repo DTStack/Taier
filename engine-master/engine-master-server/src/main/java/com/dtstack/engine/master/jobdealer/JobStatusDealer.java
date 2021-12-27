@@ -25,12 +25,10 @@ import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.domain.ScheduleJob;
-import com.dtstack.engine.mapper.EngineJobCacheDao;
-import com.dtstack.engine.mapper.ScheduleJobDao;
 import com.dtstack.engine.master.WorkerOperator;
+import com.dtstack.engine.master.impl.ScheduleJobCacheService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.impl.TaskParamsService;
-import com.dtstack.engine.master.jobdealer.bo.JobCheckpointInfo;
 import com.dtstack.engine.master.jobdealer.bo.JobCompletedInfo;
 import com.dtstack.engine.master.jobdealer.bo.JobStatusFrequency;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
@@ -38,7 +36,6 @@ import com.dtstack.engine.master.jobdealer.cache.ShardManager;
 import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.pluginapi.JobIdentifier;
 import com.dtstack.engine.pluginapi.enums.ComputeType;
-import com.dtstack.engine.pluginapi.enums.EngineType;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.pluginapi.pojo.ParamAction;
 import com.dtstack.engine.pluginapi.util.PublicUtil;
@@ -62,7 +59,7 @@ import java.util.stream.Collectors;
  * @author toutian
  *         create: 2020/01/17
  */
-public class  JobStatusDealer implements Runnable {
+public class JobStatusDealer implements Runnable {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(JobStatusDealer.class);
 
@@ -84,15 +81,13 @@ public class  JobStatusDealer implements Runnable {
     private ShardManager shardManager;
     private ShardCache shardCache;
     private String jobResource;
-    private ScheduleJobDao scheduleJobDao;
-    private EngineJobCacheDao engineJobCacheDao;
-    private JobCheckpointDealer jobCheckpointDealer;
+    private ScheduleJobService scheduleJobService;
+    private ScheduleJobCacheService scheduleJobCacheService;
     private JobRestartDealer jobRestartDealer;
     private WorkerOperator workerOperator;
     private EnvironmentContext environmentContext;
     private long jobLogDelay;
     private JobCompletedLogDelayDealer jobCompletedLogDelayDealer;
-    private ScheduleJobService batchJobService;
 
     private int taskStatusDealerPoolSize;
     private TaskParamsService taskParamsService;
@@ -119,7 +114,6 @@ public class  JobStatusDealer implements Runnable {
             jobs = jobs.stream().filter(job -> !RdosTaskStatus.needClean(job.getValue())).collect(Collectors.toList());
 
             Semaphore buildSemaphore = new Semaphore(taskStatusDealerPoolSize);
-            CountDownLatch ctl = new CountDownLatch(jobs.size());
             for (Map.Entry<String, Integer> job : jobs) {
                 try {
                     buildSemaphore.acquire();
@@ -133,16 +127,13 @@ public class  JobStatusDealer implements Runnable {
                             LOGGER.error("jobId:{}", job.getKey(), e);
                         } finally {
                             buildSemaphore.release();
-                            ctl.countDown();
                         }
                     });
                 } catch (Throwable e) {
                     LOGGER.error("jobId:{} [acquire pool error]:",job.getKey(), e);
                     buildSemaphore.release();
-                    ctl.countDown();
                 }
             }
-            ctl.await();
 
         } catch (Throwable e) {
             LOGGER.error("jobResource:{} run error:", jobResource, e);
@@ -151,8 +142,8 @@ public class  JobStatusDealer implements Runnable {
 
 
     private void dealJob(String jobId) throws Exception {
-        ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
-        EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
+        ScheduleJob scheduleJob = scheduleJobService.getByJobId(jobId);
+        EngineJobCache engineJobCache = scheduleJobCacheService.getJobCacheByJobId(jobId);
         if (scheduleJob == null || engineJobCache == null || StringUtils.isBlank(scheduleJob.getEngineJobId())) {
             shardCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
 
@@ -164,23 +155,23 @@ public class  JobStatusDealer implements Runnable {
                 if (RdosTaskStatus.getStoppedStatus().contains(scheduleJob.getStatus())) {
                     status = scheduleJob.getStatus();
                 } else {
-                    scheduleJobDao.updateJobStatusAndExecTime(jobId, status);
+                    scheduleJobService.updateJobStatusAndExecTime(jobId, status);
                 }
             } else {
-                scheduleJobDao.updateJobStatusAndExecTime(jobId, status);
+                scheduleJobService.updateJobStatusAndExecTime(jobId, status);
             }
 
-            engineJobCacheDao.delete(jobId);
+            scheduleJobCacheService.deleteByJobId(jobId);
             LOGGER.info("jobId:{} set job finished, status:{}, scheduleJob is {} null, engineJobCache is {} null, engineJobId is {} blank.",
                     jobId, status, scheduleJob == null ? "" : "not", engineJobCache == null ? "" : "not", engineJobId == null ? "" : "not");
         } else {
             String engineTaskId = scheduleJob.getEngineJobId();
             String appId = scheduleJob.getApplicationId();
-            String engineType = engineJobCache.getEngineType();
             ParamAction paramAction = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), ParamAction.class);
+            Integer taskType = paramAction.getTaskType();
             Map<String, Object> pluginInfo = paramAction.getPluginInfo();
-            JobIdentifier jobIdentifier = new JobIdentifier(engineTaskId, appId, jobId,scheduleJob.getTenantId(),engineType,
-                    taskParamsService.parseDeployTypeByTaskParams(paramAction.getTaskParams(),scheduleJob.getComputeType(),engineType,scheduleJob.getTenantId()).getType(),
+            JobIdentifier jobIdentifier = new JobIdentifier(engineTaskId, appId, jobId,scheduleJob.getTenantId(),taskType,
+                    taskParamsService.parseDeployTypeByTaskParams(paramAction.getTaskParams(),scheduleJob.getComputeType()).getType(),
                     null,  MapUtils.isEmpty(pluginInfo) ? null : JSONObject.toJSONString(pluginInfo),paramAction.getComponentVersion());
 
             RdosTaskStatus rdosTaskStatus = workerOperator.getJobStatus(jobIdentifier);
@@ -205,20 +196,12 @@ public class  JobStatusDealer implements Runnable {
 
                 //数据的更新顺序，先更新job_cache，再更新engine_batch_job
                 if (RdosTaskStatus.getStoppedStatus().contains(status)) {
-                    if (EngineType.isFlink(engineType)){
-                        jobCheckpointDealer.updateCheckpointImmediately(new JobCheckpointInfo(jobIdentifier, engineType), engineTaskId, status);
-                    }
-
-
-                    jobLogDelayDealer(jobId, jobIdentifier, engineType, engineJobCache.getComputeType(),scheduleJob.getType());
+                    jobLogDelayDealer(jobId, jobIdentifier, engineJobCache.getComputeType(),scheduleJob.getType());
                     jobStatusFrequency.remove(jobId);
-                    engineJobCacheDao.delete(jobId);
+                    scheduleJobCacheService.deleteByJobId(jobId);
                     LOGGER.info("------ jobId:{} is stop status {} delete jobCache", jobId, status);
                 }
 
-                if (RdosTaskStatus.RUNNING.getStatus().equals(status) && EngineType.isFlink(engineType)) {
-                    jobCheckpointDealer.addCheckpointTaskForQueue(scheduleJob.getComputeType(), jobId, jobIdentifier, engineType);
-                }
 
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("------ jobId:{} after dealJob status:{}", jobId, rdosTaskStatus);
@@ -243,9 +226,9 @@ public class  JobStatusDealer implements Runnable {
         if (ComputeType.BATCH.getType().equals(scheduleJob.getComputeType()) || isStreamUpdateConditions.test(scheduleJob) || isStreamCancellingConditions.test(scheduleJob)) {
             if (RdosTaskStatus.getStoppedStatus().contains(status)) {
                 // 如果是停止状态 更新停止时间
-                scheduleJobDao.updateJobStatusAndExecTime(jobId, status);
+                scheduleJobService.updateJobStatusAndExecTime(jobId, status);
             } else {
-                scheduleJobDao.updateJobStatus(jobId, status);
+                scheduleJobService.updateStatus(jobId, status);
             }
         }
     }
@@ -263,9 +246,9 @@ public class  JobStatusDealer implements Runnable {
     }
 
 
-    private void jobLogDelayDealer(String jobId, JobIdentifier jobIdentifier, String engineType, int computeType,Integer type) {
+    private void jobLogDelayDealer(String jobId, JobIdentifier jobIdentifier, int computeType,Integer type) {
         //临时运行的任务立马去获取日志
-        jobCompletedLogDelayDealer.addCompletedTaskInfo(new JobCompletedInfo(jobId, jobIdentifier, engineType, computeType, EScheduleType.TEMP_JOB.getType() == type ? 0 : jobLogDelay));
+        jobCompletedLogDelayDealer.addCompletedTaskInfo(new JobCompletedInfo(jobId, jobIdentifier, computeType, EScheduleType.TEMP_JOB.getType().equals(type) ? 0 : jobLogDelay));
     }
 
 
@@ -310,13 +293,10 @@ public class  JobStatusDealer implements Runnable {
 
     private void setBean() {
         this.environmentContext = applicationContext.getBean(EnvironmentContext.class);
-        this.scheduleJobDao = applicationContext.getBean(ScheduleJobDao.class);
-        this.engineJobCacheDao = applicationContext.getBean(EngineJobCacheDao.class);
-        this.jobCheckpointDealer = applicationContext.getBean(JobCheckpointDealer.class);
         this.jobRestartDealer = applicationContext.getBean(JobRestartDealer.class);
         this.workerOperator = applicationContext.getBean(WorkerOperator.class);
-        this.scheduleJobDao = applicationContext.getBean(ScheduleJobDao.class);
-        this.batchJobService = applicationContext.getBean(ScheduleJobService.class);
+        this.scheduleJobService = applicationContext.getBean(ScheduleJobService.class);
+        this.scheduleJobCacheService = applicationContext.getBean(ScheduleJobCacheService.class);
         this.taskParamsService = applicationContext.getBean(TaskParamsService.class);
 
     }

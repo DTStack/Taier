@@ -55,7 +55,6 @@
 //
 //    @PostMapping(value = "canSetIncreConf")
 //    @ApiOperation(value = "判断任务是否可以配置增量标识")
-//    @Security(code = AuthCode.DATADEVELOP_BATCH_TASKMANAGER_EDIT)
 //    public R<Boolean> canSetIncreConf(@RequestBody BatchDataSourceIncreVO vo) {
 //        return new APITemplate<Boolean>() {
 //            @Override
@@ -67,7 +66,6 @@
 //
 //    @PostMapping(value = "trace")
 //    @ApiOperation(value = "追踪")
-//    @Security(code = AuthCode.DATAINTEGRATION_BATCH_QUERY)
 //    public R<JSONObject> trace(@RequestBody BatchDataSourceTraceVO vo) {
 //        return new APITemplate<JSONObject>() {
 //            @Override
@@ -79,7 +77,6 @@
 //
 //    @PostMapping(value = "list")
 //    @ApiOperation(value = "获得项目下所有数据源")
-//    @Security(code = AuthCode.DATAINTEGRATION_BATCH_QUERY)
 //    public R<List<BatchDataSourceResultVO>> list(@RequestBody(required = false) BatchDataSourceListVO vo) {
 //        return new APITemplate< List<BatchDataSourceResultVO>>() {
 //            @Override
@@ -92,7 +89,6 @@
 //
 //    @PostMapping(value = "tableLocation")
 //    @ApiOperation(value = "获取表的底层存储信息")
-//    @Security(code = AuthCode.DATAINTEGRATION_BATCH_QUERY)
 //    public R<JSONObject> tableLocation(@RequestBody BatchDataSourceTableLocationVO vo) {
 //        return new APITemplate<JSONObject>() {
 //            @Override
@@ -104,7 +100,6 @@
 //
 //    @PostMapping(value = "tablelist")
 //    @ApiOperation(value = "获取表列表")
-//    @Security(code = AuthCode.DATAINTEGRATION_BATCH_QUERY)
 //    public R<List<String>> tablelist(@RequestBody(required = false) BatchDataSourceTableListVO sourceVO) {
 //        return new APITemplate<List<String>>() {
 //            @Override
@@ -118,7 +113,6 @@
 //
 //    @PostMapping(value = "tablecolumn")
 //    @ApiOperation(value = "获取表字段信息")
-//    @Security(code = AuthCode.DATAINTEGRATION_BATCH_QUERY)
 //    public R<List<JSONObject>> tablecolumn(@RequestBody BatchDataSourceTableColumnVO vo) {
 //        return new APITemplate<List<JSONObject>>() {
 //            @Override
@@ -130,7 +124,6 @@
 //
 //    @PostMapping(value = "getHivePartitions")
 //    @ApiOperation(value = "获取hive分区")
-//    @Security(code = AuthCode.DATAINTEGRATION_BATCH_QUERY)
 //    public R<Set<String>> getHivePartitions(@RequestBody BatchDataSourceTableLocationVO vo) {
 //        return new APITemplate<Set<String>>() {
 //            @Override
@@ -142,7 +135,6 @@
 //
 //    @PostMapping(value = "getIncreColumn")
 //    @ApiOperation(value = "获取可以作为增量标识的字段")
-//    @Security(code = AuthCode.DATAINTEGRATION_BATCH_QUERY)
 //    public R<List<JSONObject>> getIncreColumn(@RequestBody(required = false) BatchDataSourceIncreColumnVO vo) {
 //        return new APITemplate<List<JSONObject>>() {
 //            @Override
@@ -154,7 +146,6 @@
 //
 //    @PostMapping(value = "preview")
 //    @ApiOperation(value = "获取预览数据")
-//    @Security(code = AuthCode.DATAINTEGRATION_BATCH_QUERY)
 //    public R<JSONObject> preview(@RequestBody BatchDataSourcePreviewVO vo) {
 //        return new APITemplate<JSONObject>() {
 //            @Override
@@ -167,7 +158,6 @@
 //
 //    @PostMapping(value = "getBySourceId")
 //    @ApiOperation(value = "根据ID获取数据源信息")
-//    @Security(code = AuthCode.DATAINTEGRATION_BATCH_QUERY)
 //    public R<BatchDataSourceResultVO> getBySourceId(@RequestBody BatchDataSourceGetVO vo) {
 //        return new APITemplate<BatchDataSourceResultVO>() {
 //            @Override
@@ -180,7 +170,6 @@
 //
 //    @PostMapping(value = "getTypes")
 //    @ApiOperation(value = "获取数据源类型")
-//    @Security(code = AuthCode.DATAINTEGRATION_BATCH_QUERY)
 //    public R<List<BatchDataSourceTypeResultVO>> getTypes(@RequestBody(required = false) BatchDataSourceListVO vo) {
 //        return new APITemplate<List<BatchDataSourceTypeResultVO>>() {
 //            @Override
@@ -194,7 +183,6 @@
 //
 //    @PostMapping(value = "getAnalysisSource")
 //    @ApiOperation(value = "获取分析数据源信息")
-//    @Security(code = AuthCode.DATAINTEGRATION_BATCH_QUERY)
 //    public R<List<BatchDataSourceResultVO>> getAnalysisSource(@RequestBody(required = false) BatchDataSourceListVO vo) {
 //        return new APITemplate<List<BatchDataSourceResultVO>>() {
 //            @Override
@@ -208,7 +196,6 @@
 //
 //    @PostMapping(value = "linkDataSource")
 //    @ApiOperation(value = "关联数据源")
-//    @Security(code = AuthCode.DATAINTEGRATION_BATCH_EDIT)
 //    public R<Void> linkDataSource(@RequestBody BatchDataSourceLinkVO vo) {
 //        return new APITemplate<Void>() {
 //            @Override
@@ -221,7 +208,6 @@
 //
 //    @PostMapping(value = "parseDataJsonForView")
 //    @ApiOperation(value = "对外展示数据源信息")
-//    @Security(code = AuthCode.DATAINTEGRATION_BATCH_QUERY)
 //    public R<JSONObject> parseDataJsonForView(@RequestBody BatchDataSourceBaseVO vo) {
 //        return new APITemplate<JSONObject>() {
 //            @Override
@@ -233,7 +219,6 @@
 //
 //    @PostMapping(value = "getSourceTaskRef")
 //    @ApiOperation(value = "获取使用该数据源任务列表")
-//    @Security(code = AuthCode.DATAINTEGRATION_BATCH_QUERY)
 //    public R<PageResult<List<BatchDataSourceTaskRefResultVO>>> getSourceTaskRef(@RequestBody BatchDataSourceTaskRefVO vo) {
 //        return new APITemplate<PageResult<List<BatchDataSourceTaskRefResultVO>>>() {
 //            @Override
@@ -246,7 +231,6 @@
 //
 //    @PostMapping(value = "columnForSyncopate")
 //    @ApiOperation(value = "返回切分键需要的列名")
-//    @Security(code = AuthCode.DATAINTEGRATION_BATCH_QUERY)
 //    public R<Set<JSONObject>> columnForSyncopate(@RequestBody BatchDataSourceColumnForSyncopateVO vo) {
 //        return new APITemplate<Set<JSONObject>>() {
 //            @Override
@@ -258,7 +242,6 @@
 //
 //    @PostMapping(value = "getDataSourceInBingProject")
 //    @ApiOperation(value = "获取绑定项目下的数据源")
-//    @Security(code = AuthCode.DATAINTEGRATION_BATCH_QUERY)
 //    public R<JSONObject> getDataSourceInBingProject(@RequestBody BatchDataSourceBindVO vo) {
 //        return new APITemplate<JSONObject>() {
 //            @Override
@@ -270,7 +253,6 @@
 //
 //    @PostMapping(value = "convertToHiveColumns")
 //    @ApiOperation(value = "字段类型转成hive类型")
-//    @Security(code = AuthCode.DATAINTEGRATION_BATCH_QUERY)
 //    public R<JSONObject> convertToHiveColumns(@RequestBody BatchDataSourceColumnsVO vo) {
 //        return new APITemplate<JSONObject>() {
 //            @Override
@@ -282,7 +264,6 @@
 //
 //    @PostMapping(value = "isNativeHive")
 //    @ApiOperation(value = "判断是否是标准分区表")
-//    @Security(code = AuthCode.DATAINTEGRATION_BATCH_QUERY)
 //    public R<Boolean> isNativeHive(@RequestBody BatchDataSourceTableLocationVO vo) {
 //        return new APITemplate<Boolean>() {
 //            @Override
@@ -294,7 +275,6 @@
 //
 //    @PostMapping(value = "getDataSourcePassword")
 //    @ApiOperation(value = "获取指定数据源密码")
-//    @Security(code = AuthCode.DATAINTEGRATION_BATCH_EDIT)
 //    public R<String> getDataSourcePassword(@RequestBody BatchDataSourceGetVO vo) {
 //        return new APITemplate<String>() {
 //            @Override
@@ -306,7 +286,6 @@
 //
 //    @PostMapping(value = "getAllSchemas")
 //    @ApiOperation(value = "获取所有schema")
-//    @Security(code = AuthCode.DATAINTEGRATION_BATCH_QUERY)
 //    public R<List<String>> getAllSchemas(@RequestBody BatchDataSourceGetVO vo) {
 //        return new APITemplate<List<String>>() {
 //            @Override
@@ -318,7 +297,6 @@
 //
 //    @PostMapping(value = "getTableInfoByDataSource")
 //    @ApiOperation(value = "根据数据源获取表信息")
-//    @Security(code = AuthCode.DATAINTEGRATION_BATCH_QUERY)
 //    public R<BatchDataSourceTableInfoResultVO> getTableInfoByDataSource(@RequestBody BatchDataSourceTableInfoQueryVO vo) {
 //        return new APITemplate<BatchDataSourceTableInfoResultVO>() {
 //            @Override
@@ -343,7 +321,6 @@
 //
 //    @PostMapping(value = "getDataSourceVersion")
 //    @ApiOperation(value = "查询数据源的版本")
-//    @Security(code = AuthCode.DATAINTEGRATION_BATCH_QUERY)
 //    public R<String> getDataSourceVersion(@RequestBody BatchDataSourceVersionQueryVO vo) {
 //        return new APITemplate<String>() {
 //            @Override

@@ -20,6 +20,7 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.EngineAssert;
@@ -54,9 +55,7 @@ import com.dtstack.engine.pluginapi.sftp.SftpFileManage;
 import com.dtstack.engine.pluginapi.util.MD5Util;
 import com.dtstack.engine.pluginapi.util.MathUtil;
 import com.dtstack.engine.pluginapi.util.PublicUtil;
-import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Table;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
@@ -70,7 +69,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -78,7 +76,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.dtstack.engine.pluginapi.constrant.ConfigConstant.*;
@@ -310,7 +311,7 @@ public class ComponentService {
         }
 
         String mergeDirPath = ConfigConstant.LOCAL_KRB5_MERGE_DIR_PARENT + ConfigConstant.SP + UUID.randomUUID();
-        List<Long> clusterDownloadRecords = new ArrayList();
+        List<Long> clusterDownloadRecords = new ArrayList<>();
         try {
             String oldMergeKrb5Content = null;
             String mergeKrb5Path = mergeDirPath + ConfigConstant.SP + ConfigConstant.MERGE_KRB5_NAME;
@@ -823,7 +824,7 @@ public class ComponentService {
         }
         if (EComponentType.typeComponentVersion.contains(componentType)) {
             //添加typeName
-            ClientTemplate typeNameClientTemplate = ComponentConfigUtils.buildOthers(TYPE_NAME_KEY, this.convertComponentTypeToClient(clusterName, componentType.getTypeCode(), convertHadoopVersion,storeType,null,deployType));
+            ClientTemplate typeNameClientTemplate = ComponentConfigUtils.buildOthers(TYPE_NAME_KEY, this.convertComponentTypeToClient(clusterName, componentType.getTypeCode(), convertHadoopVersion,storeType,deployType));
             templates.add(typeNameClientTemplate);
         }
         if (!StringUtils.isBlank(md5Key)) {
@@ -1105,7 +1106,7 @@ public class ComponentService {
      * 测试单个组件联通性
      */
     public ComponentTestResult testConnect(Integer componentType, String componentConfig, String clusterName,
-                                           String hadoopVersion, Long engineId, KerberosConfig kerberosConfig, Map<String, String> sftpConfig,Integer storeType,Map<Integer,String > componentVersionMap,Integer deployType) {
+                                           String hadoopVersion, Long clusterId, KerberosConfig kerberosConfig, Map<String, String> sftpConfig,Integer storeType,Integer deployType) {
         ComponentTestResult componentTestResult = new ComponentTestResult();
         try {
             if (EComponentType.notCheckComponent.contains(EComponentType.getByCode(componentType))) {
@@ -1118,7 +1119,7 @@ public class ComponentService {
                 //HDFS 测试连通性走hdfs2 其他走yarn2-hdfs2-hadoop
                 pluginType = EComponentType.HDFS.name().toLowerCase() + this.formatHadoopVersion(hadoopVersion, EComponentType.HDFS);
             } else {
-                pluginType = this.convertComponentTypeToClient(clusterName, componentType, hadoopVersion,storeType,componentVersionMap,deployType);
+                pluginType = this.convertComponentTypeToClient(clusterName, componentType, hadoopVersion,storeType,deployType);
             }
 
             componentTestResult = workerOperator.testConnect(pluginType,
@@ -1133,7 +1134,7 @@ public class ComponentService {
             if (EComponentType.YARN.getTypeCode().equals(componentType)
                     && componentTestResult.getResult()
                     && Objects.nonNull(componentTestResult.getClusterResourceDescription())) {
-                    queueService.updateQueue(engineId, componentTestResult.getClusterResourceDescription());
+                    queueService.updateQueue(clusterId, componentTestResult.getClusterResourceDescription());
             }
 
         }catch (Throwable e){
@@ -1328,7 +1329,7 @@ public class ComponentService {
                 if (StringUtils.isBlank(component.getUploadFileName())) {
                     // 一种是  全部手动填写的 如flink
                     EComponentType type = EComponentType.getByCode(componentType);
-                    String componentConfig = getComponentByClusterId(clusterId,type.getTypeCode(),true,String.class,Collections.singletonMap(type.getTypeCode(),componentVersion));
+                    String componentConfig = getComponentByClusterId(clusterId,type.getTypeCode(),true,String.class,componentVersion);
                     try {
                         localDownLoadPath = localDownLoadPath + ".json";
                         FileUtils.write(new File(localDownLoadPath), filterConfigMessage(componentConfig));
@@ -1408,7 +1409,7 @@ public class ComponentService {
         List<ComponentConfig> componentConfigs = new ArrayList<>();
         String yarnVersion = EComponentType.YARN.getTypeCode().equals(componentType) ? originVersion : null;
         if (!EComponentType.noControlComponents.contains(component)) {
-            String typeName = convertComponentTypeToClient(clusterName, componentType, componentVersion, storeType,null,deployType);
+            String typeName = convertComponentTypeToClient(clusterName, componentType, componentVersion, storeType,deployType);
             componentConfigs = componentConfigService.loadDefaultTemplate(typeName);
             ClusterVO clusterByName = clusterService.getClusterByName(clusterName);
             Component yarnComponent = componentMapper.getByClusterIdAndComponentType(clusterByName.getClusterId(), EComponentType.YARN.getTypeCode(),null,null);
@@ -1435,7 +1436,7 @@ public class ComponentService {
      * @param version
      * @return
      */
-    public String convertComponentTypeToClient(String clusterName, Integer componentType, String version, Integer storeType,Map<Integer,String> componentVersionMap,Integer deployType) {
+    public String convertComponentTypeToClient(String clusterName, Integer componentType, String version, Integer storeType,Integer deployType) {
         //普通rdb插件
         EComponentType componentCode = EComponentType.getByCode(componentType);
         String pluginName = EComponentType.convertPluginNameByComponent(componentCode);
@@ -1490,8 +1491,8 @@ public class ComponentService {
         if (StringUtils.isBlank(computeSign)) {
             throw new RdosDefineException("Unsupported components");
         }
-        Component yarn = componentMapper.getByClusterIdAndComponentType(cluster.getId(), EComponentType.YARN.getTypeCode(), ComponentVersionUtil.getComponentVersion(componentVersionMap,EComponentType.YARN),null);
-        Component kubernetes = componentMapper.getByClusterIdAndComponentType(cluster.getId(), EComponentType.KUBERNETES.getTypeCode(),ComponentVersionUtil.getComponentVersion(componentVersionMap,EComponentType.KUBERNETES),null);
+        Component yarn = componentMapper.getByClusterIdAndComponentType(cluster.getId(), EComponentType.YARN.getTypeCode(), null,null);
+        Component kubernetes = componentMapper.getByClusterIdAndComponentType(cluster.getId(), EComponentType.KUBERNETES.getTypeCode(),null,null);
         if (null == yarn && null == kubernetes) {
             throw new RdosDefineException("Please configure the scheduling component first");
         }
@@ -1612,8 +1613,8 @@ public class ComponentService {
      * @return
      */
     @SuppressWarnings("unchecked")
-    public <T> T getComponentByClusterId(Long clusterId, Integer componentType, boolean isFilter, Class<T> clazz,Map<Integer,String > componentVersionMap,Long componentId) {
-        Map<String, Object> configMap = getCacheComponentConfigMap(clusterId, componentType, isFilter,componentVersionMap,componentId);
+    public <T> T getComponentByClusterId(Long clusterId, Integer componentType, boolean isFilter, Class<T> clazz,String componentVersion,Long componentId) {
+        Map<String, Object> configMap = getCacheComponentConfigMap(clusterId, componentType, isFilter,componentVersion,componentId);
         if(MapUtils.isEmpty(configMap)){
             return null;
         }
@@ -1627,20 +1628,16 @@ public class ComponentService {
         return JSONObject.parseObject(configStr, clazz);
     }
 
-    public <T> T getComponentByClusterId(Long clusterId, Integer componentType, boolean isFilter, Class<T> clazz,Map<Integer,String > componentVersionMap) {
-        return getComponentByClusterId(clusterId,componentType,isFilter,clazz,componentVersionMap,null);
-    }
-
-    public <T> T getComponentByClusterId(Long componentId,boolean isFilter, Class<T> clazz) {
-        return getComponentByClusterId(null,null,isFilter,clazz,null,componentId);
+    public <T> T getComponentByClusterId(Long clusterId, Integer componentType, boolean isFilter, Class<T> clazz,String componentVersion) {
+        return getComponentByClusterId(clusterId,componentType,isFilter,clazz,componentVersion,null);
     }
 
     @Cacheable(cacheNames = "component")
-    public Map<String, Object> getCacheComponentConfigMap(Long clusterId, Integer componentType, boolean isFilter, Map<Integer, String> componentVersionMap, Long componentId) {
+    public Map<String, Object> getCacheComponentConfigMap(Long clusterId, Integer componentType, boolean isFilter, String componentVersion, Long componentId) {
         if (null != componentId) {
             return componentConfigService.convertComponentConfigToMap(componentId, isFilter);
         }
-        Component component = componentMapper.getByClusterIdAndComponentType(clusterId, componentType, ComponentVersionUtil.getComponentVersion(componentVersionMap, componentType),null);
+        Component component = componentMapper.getByClusterIdAndComponentType(clusterId, componentType, componentVersion,null);
         if (null == component) {
             return null;
         }
@@ -1652,7 +1649,7 @@ public class ComponentService {
         LOGGER.info(" clear all component cache ");
     }
 
-    public ComponentTestResult testConnect(String clusterName, Integer componentType, Map<Integer,String> componentVersionMap) {
+    public ComponentTestResult testConnect(String clusterName, Integer componentType, String componentVersion) {
         if (StringUtils.isBlank(clusterName)) {
             throw new RdosDefineException("clusterName is null");
         }
@@ -1660,7 +1657,7 @@ public class ComponentService {
         if (null == cluster) {
             throw new RdosDefineException("集群不存在");
         }
-        Component testComponent = componentMapper.getByClusterIdAndComponentType(cluster.getId(), componentType,ComponentVersionUtil.getComponentVersion(componentVersionMap,componentType),null);
+        Component testComponent = componentMapper.getByClusterIdAndComponentType(cluster.getId(), componentType,componentVersion,null);
         if (null == testComponent) {
             throw new RdosDefineException("该组件不存在");
         }
@@ -1687,46 +1684,44 @@ public class ComponentService {
             return new ArrayList<>();
         }
 
-        Map sftpMap = getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class,null);
-        CountDownLatch countDownLatch = new CountDownLatch(components.size());
-        Table<Integer,String , Future<ComponentTestResult>> completableFutures = HashBasedTable.create();
-        for (Component component : components) {
-            Future<ComponentTestResult> testResultFuture = connectPool.submit(() -> {
-                try {
-                    return testComponentWithResult(clusterName, cluster, sftpMap, component);
-                } finally {
-                    countDownLatch.countDown();
-                }
-            });
-            completableFutures.put(component.getComponentTypeCode(),StringUtils.isBlank(component.getHadoopVersion())?StringUtils.EMPTY:component.getHadoopVersion(),testResultFuture);
-        }
-        try {
-            countDownLatch.await(env.getTestConnectTimeout(), TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            LOGGER.error("test connect await {} error ", clusterName, e);
-        }
+        Map sftpMap = getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class, null);
 
-        Map<Integer,ComponentMultiTestResult> multiComponent=new HashMap<>(completableFutures.size());
-        for (Table.Cell<Integer, String, Future<ComponentTestResult>> cell : completableFutures.cellSet()) {
-            Future<ComponentTestResult> completableFuture = cell.getValue();
-            ComponentTestResult testResult = new ComponentTestResult();
-            testResult.setResult(false);
-            try {
-                if (completableFuture.isDone()) {
-                    testResult = completableFuture.get();
-                } else {
-                    testResult.setErrorMsg("test connect time out");
-                    completableFuture.cancel(true);
-                }
-            } catch (Exception e) {
-                testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
-            } finally {
-                testResult.setComponentTypeCode(cell.getRowKey());
-                ComponentMultiTestResult multiTestResult = multiComponent.computeIfAbsent(cell.getRowKey(), k -> new ComponentMultiTestResult(cell.getRowKey()));
-                buildComponentMultiTest(multiTestResult,testResult,cell.getColumnKey());
-            }
+        Map<Component, CompletableFuture<ComponentTestResult>> completableFutureMap = components.stream()
+                .collect(Collectors.toMap(component -> component,
+                        c -> CompletableFuture.supplyAsync(() -> testComponentWithResult(clusterName, cluster, sftpMap, c), connectPool)));
+
+        CompletableFuture<List<ComponentTestResult>> completableFuture = CompletableFuture
+                .allOf(completableFutureMap.values().toArray(new CompletableFuture[0]))
+                .thenApply((f) -> completableFutureMap.keySet().stream().map(component -> {
+                    try {
+                        return completableFutureMap.get(component).get(env.getTestConnectTimeout(), TimeUnit.SECONDS);
+                    } catch (Exception e) {
+                        ComponentTestResult testResult = new ComponentTestResult();
+                        testResult.setResult(false);
+                        testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
+                        testResult.setComponentVersion(component.getHadoopVersion());
+                        testResult.setComponentTypeCode(component.getComponentTypeCode());
+                        return testResult;
+                    }
+                }).collect(Collectors.toList()));
+        try {
+            List<ComponentTestResult> componentTestResults = completableFuture.get();
+            Map<Integer, List<ComponentTestResult>> componentCodeResultMap = componentTestResults.stream()
+                    .collect(Collectors.groupingBy(ComponentTestResult::getComponentTypeCode, Collectors.collectingAndThen(Collectors.toList(), c -> c)));
+            return componentCodeResultMap.keySet().stream().map(componentCode -> {
+                ComponentMultiTestResult multiTestResult = new ComponentMultiTestResult(componentCode);
+                multiTestResult.setMultiVersion(componentCodeResultMap.get(componentCode));
+                List<ComponentTestResult> testResults = componentCodeResultMap.get(componentCode);
+                multiTestResult.setResult(testResults.stream().allMatch(ComponentTestResult::getResult));
+                testResults.stream()
+                        .filter(componentTestResult -> StringUtils.isNotBlank(componentTestResult.getErrorMsg()))
+                        .findFirst()
+                        .ifPresent(errorResult -> multiTestResult.setErrorMsg(errorResult.getErrorMsg()));
+                return multiTestResult;
+            }).collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RdosDefineException(e);
         }
-        return new ArrayList<>(multiComponent.values());
     }
 
     private ComponentTestResult testComponentWithResult(String clusterName, Cluster cluster, Map sftpMap,Component component) {
@@ -1734,7 +1729,7 @@ public class ComponentService {
         try {
             KerberosConfig kerberosConfig = kerberosMapper.getByComponentType(cluster.getId(), component.getComponentTypeCode(),ComponentVersionUtil.isMultiVersionComponent(component.getComponentTypeCode())?StringUtils.isNotBlank(component.getHadoopVersion())?component.getHadoopVersion():componentMapper.getDefaultComponentVersionByClusterAndComponentType(cluster.getId(),component.getComponentTypeCode()):null);
             String componentConfig = getComponentByClusterId(cluster.getId(), component.getComponentTypeCode(), false, String.class,null);
-            testResult = this.testConnect(component.getComponentTypeCode(), componentConfig, clusterName, component.getHadoopVersion(), component.getClusterId(), kerberosConfig, sftpMap,component.getStoreType(),null,component.getDeployType());
+            testResult = this.testConnect(component.getComponentTypeCode(), componentConfig, clusterName, component.getHadoopVersion(), component.getClusterId(), kerberosConfig, sftpMap,component.getStoreType(),component.getDeployType());
             //测试联通性
             if (EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode()) && testResult.getResult()) {
                 if (null != testResult.getClusterResourceDescription()) {
@@ -1867,36 +1862,18 @@ public class ComponentService {
         return true;
     }
 
-    /**
-     * 构建组件多版本测试结果
-     * @param multiTestResult 多版本
-     * @param componentTestResult 单个版本
-     * @param componentVersion 版本,可能为 ""
-     */
-    private void buildComponentMultiTest(ComponentMultiTestResult multiTestResult,ComponentTestResult componentTestResult,String componentVersion){
-        if (!componentTestResult.getResult()){
-            if (multiTestResult.getResult()){
-                multiTestResult.setResult(false);
-                multiTestResult.setErrorMsg(new ArrayList<>(2));
-            }
-            multiTestResult.getErrorMsg().add(new ComponentMultiTestResult.MultiErrorMsg(componentVersion,componentTestResult.getErrorMsg()));
-        }
-        multiTestResult.getMultiVersion().add(componentTestResult);
 
-    }
-
-
-    public List<Component> getComponentVersionByEngineType(Long tenantId, Integer  taskType) {
-        EScheduleJobType scheduleJobType = EScheduleJobType.getEngineJobType(taskType);
+    public List<Component> getComponentVersionByEngineType(Long tenantId, Integer taskType) {
+        EScheduleJobType scheduleJobType = EScheduleJobType.getTaskType(taskType);
         EComponentType componentType = scheduleJobType.getComponentType();
-        List<Component > componentVersionList = componentMapper.getComponentVersionByEngineType(tenantId,componentType.getTypeCode());
-        if (CollectionUtils.isEmpty(componentVersionList)){
+        List<Component> componentVersionList = componentMapper.getComponentVersionByEngineType(tenantId, componentType.getTypeCode());
+        if (CollectionUtils.isEmpty(componentVersionList)) {
             return Collections.emptyList();
         }
         Set<String> distinct = new HashSet<>(2);
-        List<Component> components =new ArrayList<>(2);
+        List<Component> components = new ArrayList<>(2);
         for (Component component : componentVersionList) {
-            if (distinct.add(component.getHadoopVersion())){
+            if (distinct.add(component.getHadoopVersion())) {
                 components.add(component);
             }
         }
@@ -1916,5 +1893,9 @@ public class ComponentService {
 
     public List<ComponentsConfigOfComponentsVO> listConfigOfComponents(Long uicTenantId, int type, Object o) {
         return null;
+    }
+
+    public List<Component> listAllComponents(Long clusterId) {
+       return componentMapper.selectList(Wrappers.lambdaQuery(Component.class).eq(Component::getClusterId,clusterId));
     }
 }
