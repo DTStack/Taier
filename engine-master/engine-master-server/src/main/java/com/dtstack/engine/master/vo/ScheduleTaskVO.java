@@ -123,6 +123,34 @@ public class ScheduleTaskVO extends ScheduleTaskShade {
 
     private Integer taskType;
 
+    private Long nodePid;
+
+    private String taskParams;
+
+    public boolean isForceUpdate() {
+        return forceUpdate;
+    }
+
+    public boolean isCurrentProject() {
+        return currentProject;
+    }
+
+    public String getTaskParams() {
+        return taskParams;
+    }
+
+    public void setTaskParams(String taskParams) {
+        this.taskParams = taskParams;
+    }
+
+    public Long getNodePid() {
+        return nodePid;
+    }
+
+    public void setNodePid(Long nodePid) {
+        this.nodePid = nodePid;
+    }
+
     public Integer getTaskType() {
         return taskType;
     }

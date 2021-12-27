@@ -31,7 +31,7 @@ import com.dtstack.engine.domain.Component;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.dto.ScheduleTaskParamShade;
-import com.dtstack.engine.mapper.ScheduleJobDao;
+import com.dtstack.engine.mapper.ScheduleJobMapper;
 import com.dtstack.engine.master.WorkerOperator;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ComponentService;
@@ -41,7 +41,6 @@ import com.dtstack.engine.master.server.scheduler.JobParamReplace;
 import com.dtstack.engine.master.vo.components.ComponentsConfigOfComponentsVO;
 import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
 import com.dtstack.engine.pluginapi.enums.EDeployMode;
-import com.dtstack.engine.pluginapi.enums.EngineType;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
 import com.dtstack.engine.pluginapi.exception.RdosDefineException;
@@ -77,7 +76,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
     private JobParamReplace jobParamReplace;
 
     @Autowired
-    private ScheduleJobDao scheduleJobDao;
+    private ScheduleJobMapper scheduleJobMapper;
 
     @Autowired
     private ClusterService clusterService;
@@ -119,7 +118,8 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         String sql = (String) actionParam.get("sqlText");
         sql = sql == null ? "" : sql;
 
-        String taskParams = taskShade.getTaskParams();
+        String taskParams = (String) actionParam.get("taskParams");
+
 
         List<ScheduleTaskParamShade> taskParamsToReplace = JSONObject.parseArray((String) actionParam.get("taskParamsToReplace"), ScheduleTaskParamShade.class);
         //统一替换下sql
@@ -131,7 +131,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         if (EScheduleJobType.SPARK_SQL.getVal().equals(taskShade.getTaskType())) {
         } else if (EScheduleJobType.SYNC.getVal().equals(taskShade.getTaskType())) {
             String job = (String) actionParam.get("job");
-            job = this.replaceSyncJobString(actionParam, taskShade, scheduleJob, taskParamsToReplace, job);
+            job = this.replaceSyncJobString(actionParam, taskShade, scheduleJob, taskParamsToReplace, job,taskParams);
 
             // 构造savepoint参数
             String savepointArgs = null;
@@ -165,7 +165,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
      * @param job
      * @return
      */
-    private String replaceSyncJobString(Map<String, Object> actionParam, ScheduleTaskShade taskShade, ScheduleJob scheduleJob, List<ScheduleTaskParamShade> taskParamsToReplace, String job) {
+    private String replaceSyncJobString(Map<String, Object> actionParam, ScheduleTaskShade taskShade, ScheduleJob scheduleJob, List<ScheduleTaskParamShade> taskParamsToReplace, String job,String taskParams) {
         if (StringUtils.isBlank(job)) {
             throw new RdosDefineException("Data synchronization information cannot be empty");
         }
@@ -173,7 +173,6 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         //替换系统参数
         job = jobParamReplace.paramReplace(job, taskParamsToReplace, scheduleJob.getCycTime());
 
-        //TODO 数据资产任务值为空 需要设置默认值
         Integer sourceType = (Integer) actionParam.getOrDefault("dataSourceType", DataSourceType.HIVE.getVal());
         //有可能 mysql-kudu 脏数据表是hive 用以区分数据同步目标表类型 还是脏数据表类型
         Integer dirtyDataSourceType = (Integer) actionParam.getOrDefault("dirtyDataSourceType", DataSourceType.HIVE.getVal());
@@ -195,8 +194,8 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
 
 
         // 查找上一次同步位置
-        if (scheduleJob.getType() == EScheduleType.NORMAL_SCHEDULE.getType()) {
-            job = getLastSyncLocation(taskShade.getTaskId(), job, scheduleJob.getCycTime(),taskShade.getTenantId(),null,taskShade.getTaskParams(),
+        if (EScheduleType.NORMAL_SCHEDULE.getType().equals(scheduleJob.getType())) {
+            job = getLastSyncLocation(taskShade.getTaskId(), job, scheduleJob.getCycTime(),taskShade.getTenantId(),taskParams,
                     scheduleJob.getJobId());
         } else {
             job = removeIncreConf(job);
@@ -433,18 +432,18 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
      *
      * @return
      */
-    private String getLastSyncLocation(Long taskId, String jobContent, String cycTime, Long dtuicTenantId, Integer appType, String taskparams, String jobId) {
+    private String getLastSyncLocation(Long taskId, String jobContent, String cycTime, Long tenantId, String taskParams, String jobId) {
         JSONObject jsonJob = JSONObject.parseObject(jobContent);
 
         Timestamp time = new Timestamp(dayFormatterAll.parseDateTime(cycTime).toDate().getTime());
         // 查找上一次成功的job
-        ScheduleJob job = scheduleJobDao.getByTaskIdAndStatusOrderByIdLimit(taskId, RdosTaskStatus.FINISHED.getStatus(), time, appType);
+        ScheduleJob job = scheduleJobMapper.getByTaskIdAndStatusOrderByIdLimit(taskId, RdosTaskStatus.FINISHED.getStatus(), time,EScheduleType.NORMAL_SCHEDULE.getType());
         if (job != null && StringUtils.isNotEmpty(job.getEngineJobId())) {
             try {
                 JSONObject reader = (JSONObject) JSONPath.eval(jsonJob, "$.job.content[0].reader");
                 Object increCol = JSONPath.eval(reader, "$.parameter.increColumn");
                 if (null != increCol && null != job.getExecStartTime() && null != job.getExecEndTime()) {
-                    String lastEndLocation = this.queryLastLocation(dtuicTenantId, job.getEngineJobId(), job.getExecStartTime().getTime(), job.getExecEndTime().getTime(), taskparams, job.getComputeType(), jobId);
+                    String lastEndLocation = this.queryLastLocation(tenantId, job.getEngineJobId(), job.getExecStartTime().getTime(), job.getExecEndTime().getTime(), taskParams, job.getComputeType(), jobId);
                     LOGGER.info("job {} last job {} applicationId {} startTime {} endTime {} location {}", job, job.getJobId(), job.getEngineJobId(), job.getExecStartTime(), job.getExecEndTime(), lastEndLocation);
                     reader.getJSONObject("parameter").put("startLocation", lastEndLocation);
                 }
@@ -457,14 +456,14 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         return jsonJob.toJSONString();
     }
 
-    public String queryLastLocation(Long dtUicTenantId, String engineJobId, long startTime, long endTime, String taskParam,Integer computeType,String jobId) {
+    public String queryLastLocation(Long tenantId, String engineJobId, long startTime, long endTime, String taskParam,Integer computeType,String jobId) {
         endTime = endTime + 1000 * 60;
         List<ComponentsConfigOfComponentsVO> componentsConfigOfComponentsVOS = null;
         Optional<ComponentsConfigOfComponentsVO> flinkComponent = componentsConfigOfComponentsVOS.stream().filter(c -> c.getComponentTypeCode().equals(EComponentType.FLINK.getTypeCode())).findFirst();
         if(flinkComponent.isPresent()){
             ComponentsConfigOfComponentsVO componentsVO = flinkComponent.get();
             JSONObject flinkJsonObject = JSONObject.parseObject(componentsVO.getComponentConfig());
-            EDeployMode eDeployMode = taskParamsService.parseDeployTypeByTaskParams(taskParam,computeType, EngineType.Flink.name(),dtUicTenantId);
+            EDeployMode eDeployMode = taskParamsService.parseDeployTypeByTaskParams(taskParam,computeType);
             JSONObject flinkConfig = flinkJsonObject.getJSONObject(eDeployMode.getMode());
             String prometheusHost = flinkConfig.getString("prometheusHost");
             String prometheusPort = flinkConfig.getString("prometheusPort");

@@ -20,7 +20,6 @@ package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.pluginapi.enums.ComputeType;
 import com.dtstack.engine.pluginapi.enums.EDeployMode;
-import com.dtstack.engine.pluginapi.enums.EngineType;
 import com.dtstack.engine.pluginapi.util.PublicUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -42,29 +41,6 @@ import java.util.Properties;
 public class TaskParamsService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskParamsService.class);
-
-    /**
-     * 集群配置了standalone 以standalone 为优先
-     * 其他的走正常逻辑
-     *
-     *
-     * 除了flink任务有perjob和session之分外，
-     * 其他任务默认全部为perjob模式
-     * @param taskParams
-     * @param computeType
-     * @param engineType
-     * @param tenantId uic 租户id
-     * @return
-     */
-    public EDeployMode parseDeployTypeByTaskParams(String taskParams, Integer computeType, String engineType,Long tenantId) {
-        if (StringUtils.isBlank(engineType) || !EngineType.isFlink(engineType)){
-            return EDeployMode.PERJOB;
-        }
- /*       if(environmentContext.checkStandalone() && clusterService.hasStandalone(tenantId, EComponentType.FLINK.getTypeCode())){
-            return EDeployMode.STANDALONE;
-        }*/
-        return parseDeployTypeByTaskParams(taskParams, computeType);
-    }
 
     /**
      * 解析对应数据同步任务的环境参数 获取对应数据同步模式

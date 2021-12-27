@@ -356,7 +356,6 @@ public class BatchJobService {
             JSONObject extroInfoObj = JSON.parseObject(extroInfo);
             extroInfoObj.put("engineType", EngineType.Flink.getEngineName());
             scheduleTaskShade.setExtraInfo(JSON.toJSONString(extroInfoObj));
-            scheduleTaskShade.setEngineType(batchTask.getEngineType());
             scheduleTaskShade.setTaskId(batchTask.getId());
             scheduleTaskShade.setScheduleConf(batchTask.getScheduleConf());
             scheduleTaskShade.setComponentVersion(batchTask.getComponentVersion());
@@ -767,7 +766,6 @@ public class BatchJobService {
         BeanUtils.copyProperties(batchTask, scheduleTaskShade);
         scheduleTaskShade.setTaskId(batchTask.getId());
         scheduleTaskShade.setTaskType(getParamTaskActionTaskType(batchTask.getTaskType()));
-        scheduleTaskShade.setEngineType(batchTask.getEngineType());
         String extraInfo = getExtraInfo(batchTask, userId, taskParamsToReplace);
         JSONObject jsonObject = JSON.parseObject(extraInfo);
         if (jsonObject.containsKey("sqlText")) {

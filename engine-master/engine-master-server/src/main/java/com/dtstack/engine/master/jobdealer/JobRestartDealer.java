@@ -19,12 +19,10 @@
 package com.dtstack.engine.master.jobdealer;
 
 import com.dtstack.engine.domain.EngineJobCache;
-import com.dtstack.engine.domain.EngineJobCheckpoint;
 import com.dtstack.engine.domain.ScheduleJob;
-import com.dtstack.engine.mapper.EngineJobCacheDao;
-import com.dtstack.engine.mapper.EngineJobCheckpointDao;
 import com.dtstack.engine.mapper.EngineJobRetryDao;
 import com.dtstack.engine.mapper.ScheduleJobDao;
+import com.dtstack.engine.master.impl.EngineJobCacheService;
 import com.dtstack.engine.master.jobdealer.bo.EngineJobRetry;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.pluginapi.JobClient;
@@ -56,16 +54,13 @@ public class JobRestartDealer {
     private static final Logger LOGGER = LoggerFactory.getLogger(JobRestartDealer.class);
 
     @Autowired
-    private EngineJobCacheDao engineJobCacheDao;
+    private EngineJobCacheService engineJobCacheService;
 
     @Autowired
     private ScheduleJobDao scheduleJobDao;
 
     @Autowired
     private EngineJobRetryDao engineJobRetryDao;
-
-    @Autowired
-    private EngineJobCheckpointDao engineJobCheckpointDao;
 
     @Autowired
     private ShardCache shardCache;
@@ -186,10 +181,10 @@ public class JobRestartDealer {
             return;
         }
 
-        EngineJobCheckpoint taskCheckpoint = engineJobCheckpointDao.getByTaskId(jobClient.getJobId());
+      /*  EngineJobCheckpoint taskCheckpoint = engineJobCheckpointDao.getByTaskId(jobClient.getJobId());
         if(taskCheckpoint != null){
             jobClient.setExternalPath(taskCheckpoint.getCheckpointSavepath());
-        }
+        }*/
         LOGGER.info("jobId:{} set checkpoint path:{}", jobClient.getJobId(), jobClient.getExternalPath());
     }
 
@@ -219,7 +214,7 @@ public class JobRestartDealer {
     }
 
     private boolean restartJob(JobClient jobClient){
-        EngineJobCache jobCache = engineJobCacheDao.getOne(jobClient.getJobId());
+        EngineJobCache jobCache = engineJobCacheService.getByJobId(jobClient.getJobId());
         if (jobCache == null) {
             LOGGER.info("jobId:{} restart but jobCache is null.", jobClient.getJobId());
             return false;

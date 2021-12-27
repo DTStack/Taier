@@ -19,16 +19,15 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.engine.common.constrant.TaskConstant;
-import com.dtstack.engine.common.enums.Deleted;
-import com.dtstack.engine.common.enums.EProjectScheduleStatus;
-import com.dtstack.engine.common.enums.ESubmitStatus;
-import com.dtstack.engine.common.enums.Sort;
+import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.domain.Tenant;
 import com.dtstack.engine.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.mapper.ScheduleTaskShadeDao;
+import com.dtstack.engine.mapper.ScheduleTaskShadeMapper;
 import com.dtstack.engine.mapper.TenantMapper;
 import com.dtstack.engine.master.impl.vo.CronExceptionVO;
 import com.dtstack.engine.master.vo.ScheduleTaskShadeVO;
@@ -39,7 +38,6 @@ import com.dtstack.engine.master.vo.task.NotDeleteTaskVO;
 import com.dtstack.engine.master.vo.task.TaskTypeVO;
 import com.dtstack.engine.pager.PageQuery;
 import com.dtstack.engine.pager.PageResult;
-import com.dtstack.engine.common.enums.EScheduleJobType;
 import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
 import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.util.DateUtil;
@@ -83,6 +81,9 @@ public class ScheduleTaskShadeService {
     @Autowired
     private EnvironmentContext environmentContext;
 
+    @Autowired
+    private ScheduleTaskShadeMapper scheduleTaskShadeMapper;
+
     /**
      * web 接口
      * 例如：离线计算BatchTaskService.publishTaskInfo 触发 batchTaskShade 保存task的必要信息
@@ -95,18 +96,8 @@ public class ScheduleTaskShadeService {
             batchTaskShadeDTO.setGmtModified(new Timestamp(System.currentTimeMillis()));
             scheduleTaskShadeDao.update(batchTaskShadeDTO);
         } else {
-            if (null == batchTaskShadeDTO.getProjectScheduleStatus()) {
-                batchTaskShadeDTO.setProjectScheduleStatus(EProjectScheduleStatus.NORMAL.getStatus());
-            }
-            if (null == batchTaskShadeDTO.getNodePid()) {
-                batchTaskShadeDTO.setNodePid(0L);
-            }
             if (null == batchTaskShadeDTO.getFlowId()) {
                 batchTaskShadeDTO.setFlowId(0L);
-            }
-
-            if (null == batchTaskShadeDTO.getTaskRule()) {
-                batchTaskShadeDTO.setTaskRule(0);
             }
             if (StringUtils.isNotBlank(batchTaskShadeDTO.getComponentVersion())) {
                 batchTaskShadeDTO.setComponentVersion(batchTaskShadeDTO.getComponentVersion());
@@ -278,11 +269,11 @@ public class ScheduleTaskShadeService {
             for (ScheduleTaskShade taskShade : taskShades) {
                 ScheduleTaskShadeVO taskShadeVO = new ScheduleTaskShadeVO();
                 BeanUtils.copyProperties(taskShade,taskShadeVO);
-                taskShadeVO.setId(taskShade.getTaskId());
+//                taskShadeVO.setId(taskShade.getTaskId());
                 taskShadeVO.setTaskName(taskShade.getName());
-                taskShadeVO.setTaskType(taskShade.getTaskType());
-                taskShadeVO.setGmtModified(taskShade.getGmtModified());
-                taskShadeVO.setIsDeleted(taskShade.getIsDeleted());
+//                taskShadeVO.setTaskType(taskShade.getTaskType());
+//                taskShadeVO.setGmtModified(taskShade.getGmtModified());
+//                taskShadeVO.setIsDeleted(taskShade.getIsDeleted());
                 data.add(taskShadeVO);
             }
         }
@@ -297,6 +288,15 @@ public class ScheduleTaskShadeService {
         }
         ScheduleTaskShade taskShade = scheduleTaskShadeDao.getOne(taskId);
         if (taskShade == null || Deleted.DELETED.getStatus().equals(taskShade.getIsDeleted())) {
+            return null;
+        }
+        return taskShade;
+    }
+
+    public ScheduleTaskShade getByTaskId(Long taskId) {
+        ScheduleTaskShade taskShade = scheduleTaskShadeMapper.selectOne(
+                Wrappers.lambdaQuery(ScheduleTaskShade.class).eq(ScheduleTaskShade::getTaskId,taskId));
+        if (taskShade == null) {
             return null;
         }
         return taskShade;
@@ -381,8 +381,8 @@ public class ScheduleTaskShadeService {
      * @return: void
      **/
     private void setBatchTaskDTO(Long tenantId,Long dtTenantId, Long projectId, String name, Long ownerId, Long startTime, Long endTime, Integer scheduleStatus, String taskTypeList, String periodTypeList, String searchType, ScheduleTaskShadeDTO batchTaskDTO,Integer appType) {
-        batchTaskDTO.setTenantId(tenantId);
-        batchTaskDTO.setSubmitStatus(ESubmitStatus.SUBMIT.getStatus());
+//        batchTaskDTO.setTenantId(tenantId);
+//        batchTaskDTO.setSubmitStatus(ESubmitStatus.SUBMIT.getStatus());
         batchTaskDTO.setTaskTypeList(convertStringToList(taskTypeList));
         batchTaskDTO.setPeriodTypeList(convertStringToList(periodTypeList));
         if (StringUtils.isNotBlank(name)) {
@@ -414,7 +414,7 @@ public class ScheduleTaskShadeService {
     private List<ScheduleTaskVO> dealFlowWorkSubTasks(List<ScheduleTaskVO> vos, Integer appType) {
         Map<Long, ScheduleTaskVO> record = Maps.newHashMap();
         Map<Long, Integer> voIndex = Maps.newHashMap();
-        vos.forEach(task -> voIndex.put(task.getId(), vos.indexOf(task)));
+        vos.forEach(task -> voIndex.put(task.getTaskId(), vos.indexOf(task)));
         Iterator<ScheduleTaskVO> iterator = vos.iterator();
         List<ScheduleTaskVO> vosCopy = new ArrayList<>(vos);
         while (iterator.hasNext()) {
@@ -612,11 +612,10 @@ public class ScheduleTaskShadeService {
         List<ScheduleTaskShadeTypeVO> vos = Lists.newArrayList();
         for (ScheduleTaskShade task : tasks) {
             ScheduleTaskShadeTypeVO vo = new ScheduleTaskShadeTypeVO();
-            vo.setId(task.getId());
+//            vo.setId(task.getId());
             vo.setTaskId(task.getTaskId());
             vo.setName(task.getName());
             vo.setTaskType(task.getTaskType());
-            vo.setEngineType(task.getEngineType());
             vo.setComputeType(task.getComputeType());
 
             Tenant tenant = tenantMapper.selectById(task.getTenantId());

@@ -1,7 +1,7 @@
 package com.dtstack.engine.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.dtstack.engine.domain.ScheduleTask;
+import com.dtstack.engine.domain.ScheduleTaskShade;
 
 /**
  * @Auther: dazhi
@@ -9,5 +9,5 @@ import com.dtstack.engine.domain.ScheduleTask;
  * @Email:dazhi@dtstack.com
  * @Description:
  */
-public interface ScheduleTaskMapper extends BaseMapper<ScheduleTask> {
+public interface ScheduleTaskShadeMapper extends BaseMapper<ScheduleTaskShade> {
 }

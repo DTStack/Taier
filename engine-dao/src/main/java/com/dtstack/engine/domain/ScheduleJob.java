@@ -133,7 +133,7 @@ public class ScheduleJob implements Serializable {
     /**
      * 运行时长
      */
-    private Integer execTime;
+    private Long execTime;
 
     /**
      * 最大重试次数
@@ -353,11 +353,11 @@ public class ScheduleJob implements Serializable {
         this.execEndTime = execEndTime;
     }
 
-    public Integer getExecTime() {
+    public Long getExecTime() {
         return execTime;
     }
 
-    public void setExecTime(Integer execTime) {
+    public void setExecTime(Long execTime) {
         this.execTime = execTime;
     }
 
@@ -463,6 +463,10 @@ public class ScheduleJob implements Serializable {
 
     public void setGmtModified(Timestamp gmtModified) {
         this.gmtModified = gmtModified;
+    }
+
+    public Integer getIsDeleted() {
+        return isDeleted;
     }
 
     public void setIsDeleted(Integer isDeleted) {
