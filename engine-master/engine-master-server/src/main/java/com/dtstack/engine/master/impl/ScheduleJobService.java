@@ -1908,15 +1908,15 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper,ScheduleJo
      * 返回这些jobId对应的父节点的jobMap
      *
      * @param jobIdList
-     * @param projectId
+     * @param tenantId
      * @return
      */
-    public Map<String, ScheduleJob> getLabTaskRelationMap( List<String> jobIdList,  Long projectId) {
+    public Map<String, ScheduleJob> getLabTaskRelationMap( List<String> jobIdList,  Long tenantId) {
 
         if(CollectionUtils.isEmpty(jobIdList)){
             return Collections.EMPTY_MAP;
         }
-        List<ScheduleJob> scheduleJobs = scheduleJobDao.listByJobIdList(jobIdList, projectId);
+        List<ScheduleJob> scheduleJobs = scheduleJobDao.listByJobIdList(jobIdList, tenantId);
         if (CollectionUtils.isNotEmpty(scheduleJobs)) {
             Map<String, ScheduleJob> jobMap = new HashMap<>();
             for (ScheduleJob scheduleJob : scheduleJobs) {
