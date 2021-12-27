@@ -23,7 +23,6 @@ import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.Date;
 import java.util.Objects;
 
 @TableName("schedule_task_shade")
@@ -143,6 +142,8 @@ public class ScheduleTaskShade implements Serializable {
 
 
     private String sqlText;
+
+    private Integer isExpire;
 
     public String getSqlText() {
         return sqlText;
@@ -351,5 +352,13 @@ public class ScheduleTaskShade implements Serializable {
                 ", extraInfo='" + extraInfo + '\'' +
                 ", ownerUserId=" + ownerUserId +
                 '}';
+    }
+
+    public Integer getIsExpire() {
+        return isExpire;
+    }
+
+    public void setIsExpire(Integer isExpire) {
+        this.isExpire = isExpire;
     }
 }

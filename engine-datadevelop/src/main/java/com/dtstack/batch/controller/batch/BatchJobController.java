@@ -79,7 +79,7 @@ public class BatchJobController {
         return new APITemplate<String>() {
             @Override
             protected String process() throws BizException {
-                return batchJobService.stopJob(vo.getJobId(), vo.getUserId(), vo.getProjectId(), vo.getTenantId(), vo.getDtuicTenantId(), vo.getIsRoot());
+                return batchJobService.stopJob(vo.getJobId(), vo.getUserId(), vo.getIsRoot());
             }
         }.execute();
     }
@@ -104,7 +104,7 @@ public class BatchJobController {
         return new APITemplate<BatchGetSyncTaskStatusInnerResultVO>() {
             @Override
             protected BatchGetSyncTaskStatusInnerResultVO process() throws BizException {
-                return batchJobService.getSyncTaskStatus(vo.getTenantId(), vo.getJobId(), vo.getUserId(), vo.getProjectId());
+                return batchJobService.getSyncTaskStatus(vo.getTenantId(), vo.getJobId(), vo.getUserId());
             }
         }.execute();
     }
@@ -129,7 +129,7 @@ public class BatchJobController {
         return new APITemplate<BatchExecuteResultVO>() {
             @Override
             protected BatchExecuteResultVO process() throws BizException {
-                ExecuteResultVO executeResultVO = batchJobService.startSqlImmediately(vo.getUserId(), vo.getTenantId(), vo.getProjectId(), vo.getTaskId(), vo.getUniqueKey(), vo.getSql(), vo.getTaskVariables(), vo.getDtToken(), vo.getIsCheckDDL(), vo.getIsRoot(), vo.getIsEnd(), vo.getDtuicTenantId(), vo.getTaskParams());
+                ExecuteResultVO executeResultVO = batchJobService.startSqlImmediately(vo.getUserId(), vo.getTenantId(), vo.getTaskId(), vo.getUniqueKey(), vo.getSql(), vo.getTaskVariables(), vo.getDtToken(), vo.getIsCheckDDL(), vo.getIsRoot(), vo.getIsEnd(), vo.getTaskParams());
                 return BatchJobMapstructTransfer.INSTANCE.executeResultVOToBatchExecuteResultVO(executeResultVO);
             }
         }.execute();
@@ -142,7 +142,7 @@ public class BatchJobController {
         return new APITemplate<BatchExecuteSqlParseResultVO>() {
             @Override
             protected BatchExecuteSqlParseResultVO process() throws BizException {
-                ExecuteSqlParseVO executeSqlParseVO = batchJobService.startSqlSophisticated(vo.getUserId(), vo.getTenantId(), vo.getProjectId(), vo.getTaskId(), vo.getUniqueKey(), vo.getSqlList(), vo.getTaskVariables(), vo.getDtToken(), vo.getIsCheckDDL(), vo.getIsRoot(), vo.getDtuicTenantId());
+                ExecuteSqlParseVO executeSqlParseVO = batchJobService.startSqlSophisticated(vo.getUserId(), vo.getTenantId(), vo.getTaskId(), vo.getUniqueKey(), vo.getSqlList(), vo.getTaskVariables(), vo.getDtToken(), vo.getIsCheckDDL(), vo.getIsRoot());
                 return BatchJobMapstructTransfer.INSTANCE.executeSqlParseVOToBatchExecuteSqlParseResultVO(executeSqlParseVO);
             }
         }.execute();
@@ -156,7 +156,7 @@ public class BatchJobController {
         return new APITemplate<Void>() {
             @Override
             protected Void process() throws BizException {
-                batchJobService.stopSqlImmediately(vo.getJobId(), vo.getTenantId(), vo.getProjectId(), vo.getDtuicTenantId());
+                batchJobService.stopSqlImmediately(vo.getJobId(), vo.getTenantId());
                 return null;
             }
         }.execute();

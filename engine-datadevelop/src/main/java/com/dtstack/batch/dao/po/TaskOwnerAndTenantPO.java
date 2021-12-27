@@ -29,7 +29,7 @@ import java.io.Serializable;
  * @Description：任务以及项目用户
  */
 @Data
-public class TaskOwnerAndProjectPO implements Serializable {
+public class TaskOwnerAndTenantPO implements Serializable {
     private Long ownerId;
 
     private Long projectId;
