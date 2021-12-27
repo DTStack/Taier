@@ -677,8 +677,7 @@ public class BatchServerLogService {
         Boolean hasStandAlone = clusterService.hasStandalone(dtUicTenantId, EComponentType.FLINK.getTypeCode());
         JSONObject flinkJsonObject ;
         if (hasStandAlone) {
-            String configByKey = clusterService.getConfigByKey(dtUicTenantId, EComponentType.FLINK.getConfName(), false, null);
-            flinkJsonObject = JSONObject.parseObject(configByKey);
+            flinkJsonObject = clusterService.getConfigByKey(dtUicTenantId, EComponentType.FLINK.getConfName(), null);
         }else {
             String enginePluginInfo = Engine2DTOService.getEnginePluginInfo(dtUicTenantId, MultiEngineType.HADOOP.getType());
             if (StringUtils.isBlank(enginePluginInfo)) {
