@@ -496,5 +496,11 @@ public class ClusterService implements com.dtstack.engine.api.ClusterService {
         }
         return vo;
     }
+
+    //todo getSftp
+    public JSONObject getSftpByTenantId(Long tenantId){
+
+        return null;
+    }
 }
 
