@@ -1,7 +1,8 @@
 package com.dtstack.batch.common.exception;
 
-import com.dtstack.dtcenter.common.exception.ExceptionEnums;
-import dt.insight.plat.lang.exception.biz.BizException;
+import com.dtstack.engine.common.exception.BizException;
+import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.ExceptionEnums;
 
 /**
  * Created by 袋鼠云-数栈产研部-应用研发中心.
@@ -34,5 +35,8 @@ public class PubSvcDefineException extends BizException {
 
     public PubSvcDefineException(String message, ExceptionEnums errorCode, Throwable cause) {
         super(message, errorCode, cause);
+    }
+
+    public PubSvcDefineException(ErrorCode canNotFitableSourceType) {
     }
 }

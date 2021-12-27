@@ -5,9 +5,9 @@
 
 package com.dtstack.engine.common.util;
 
-import dt.insight.plat.lang.exception.base.DtCenterDefException;
-import dt.insight.plat.lang.exception.biz.BizException;
-import dt.insight.plat.lang.web.R;
+import com.dtstack.engine.common.exception.BizException;
+import com.dtstack.engine.common.exception.DtCenterDefException;
+import com.dtstack.engine.common.lang.web.R;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

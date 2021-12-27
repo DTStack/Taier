@@ -1,7 +1,5 @@
 package com.dtstack.engine.common.exception;
 
-import com.dtstack.dtcenter.common.exception.ExceptionEnums;
-import dt.insight.plat.lang.exception.biz.BizException;
 
 /**
  * Created by 袋鼠云-数栈产研部-应用研发中心.
