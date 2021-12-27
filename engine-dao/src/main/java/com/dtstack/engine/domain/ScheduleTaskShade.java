@@ -23,7 +23,6 @@ import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.Date;
 import java.util.Objects;
 
 @TableName("schedule_task_shade")
@@ -59,6 +58,16 @@ public class ScheduleTaskShade implements Serializable {
      * 计算类型： 0 批处理，1 流处理
      */
     private Integer computeType;
+
+    /**
+     * 存储sql字段
+     */
+    private String sqlText;
+
+    /**
+     * 任务环境参数
+     */
+    private String taskParams;
 
     /**
      * 离线任务id
@@ -107,6 +116,16 @@ public class ScheduleTaskShade implements Serializable {
     private Long modifyUserId;
 
     /**
+     * 任务负责人id
+     */
+    private Long ownerUserId;
+
+    /**
+     * 任务运行参数
+     */
+    private String extraInfo;
+
+    /**
      * 版本id
      */
     private Integer versionId;
@@ -130,29 +149,6 @@ public class ScheduleTaskShade implements Serializable {
      * 任务组件版本
      */
     private String componentVersion;
-
-    /**
-     * 任务运行参数
-     */
-    private String extraInfo;
-
-    /**
-     * 任务负责人id
-     */
-    private Long ownerUserId;
-
-
-    private String sqlText;
-
-    public String getSqlText() {
-        return sqlText;
-    }
-
-    public void setSqlText(String sqlText) {
-        this.sqlText = sqlText;
-    }
-
-    private static final long serialVersionUID = 1L;
 
     public Long getId() {
         return id;
@@ -192,6 +188,22 @@ public class ScheduleTaskShade implements Serializable {
 
     public void setComputeType(Integer computeType) {
         this.computeType = computeType;
+    }
+
+    public String getSqlText() {
+        return sqlText;
+    }
+
+    public void setSqlText(String sqlText) {
+        this.sqlText = sqlText;
+    }
+
+    public String getTaskParam() {
+        return taskParams;
+    }
+
+    public void setTaskParam(String taskParams) {
+        this.taskParams = taskParams;
     }
 
     public Long getTaskId() {
@@ -258,6 +270,22 @@ public class ScheduleTaskShade implements Serializable {
         this.modifyUserId = modifyUserId;
     }
 
+    public Long getOwnerUserId() {
+        return ownerUserId;
+    }
+
+    public void setOwnerUserId(Long ownerUserId) {
+        this.ownerUserId = ownerUserId;
+    }
+
+    public String getExtraInfo() {
+        return extraInfo;
+    }
+
+    public void setExtraInfo(String extraInfo) {
+        this.extraInfo = extraInfo;
+    }
+
     public Integer getVersionId() {
         return versionId;
     }
@@ -270,8 +298,8 @@ public class ScheduleTaskShade implements Serializable {
         return isDeleted;
     }
 
-    public void setIsDeleted(Integer deleted) {
-        isDeleted = deleted;
+    public void setIsDeleted(Integer isDeleted) {
+        this.isDeleted = isDeleted;
     }
 
     public String getTaskDesc() {
@@ -296,22 +324,6 @@ public class ScheduleTaskShade implements Serializable {
 
     public void setComponentVersion(String componentVersion) {
         this.componentVersion = componentVersion;
-    }
-
-    public String getExtraInfo() {
-        return extraInfo;
-    }
-
-    public void setExtraInfo(String extraInfo) {
-        this.extraInfo = extraInfo;
-    }
-
-    public Long getOwnerUserId() {
-        return ownerUserId;
-    }
-
-    public void setOwnerUserId(Long ownerUserId) {
-        this.ownerUserId = ownerUserId;
     }
 
     @Override

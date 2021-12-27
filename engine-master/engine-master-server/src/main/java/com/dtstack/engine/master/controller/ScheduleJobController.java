@@ -24,7 +24,6 @@ import com.dtstack.engine.dto.QueryJobDTO;
 import com.dtstack.engine.dto.ScheduleJobDTO;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.vo.*;
-import com.dtstack.engine.master.vo.schedule.job.ScheduleJobRuleTimeVO;
 import com.dtstack.engine.master.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.pager.PageQuery;
 import com.dtstack.engine.pager.PageResult;
@@ -238,7 +237,7 @@ public class ScheduleJobController {
     @ApiOperation(value = "查询出指定job的所有关联的子job")
     public List<ScheduleJob> getAllChildJobWithSameDay(@RequestBody ScheduleJob scheduleJob,
                                                        @RequestParam("isOnlyNextChild") boolean isOnlyNextChild, @RequestParam("appType") Integer appType) {
-        Integer jobLevel = context.getJobJobLevel();
+        Integer jobLevel = context.getMaxLevel();
         return scheduleJobService.getAllChildJobWithSameDay(scheduleJob, isOnlyNextChild, appType, jobLevel);
     }
 

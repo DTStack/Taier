@@ -1,6 +1,8 @@
 package com.dtstack.engine.domain;
 
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
@@ -17,6 +19,7 @@ public class ScheduleFillDataJob implements Serializable {
     /**
      * 补数据id
      */
+    @TableId(value="id", type= IdType.AUTO)
     private Long id;
 
     /**
@@ -65,11 +68,6 @@ public class ScheduleFillDataJob implements Serializable {
     private Integer isDeleted;
 
     /**
-     * 最大并行数
-     */
-    private Integer maxParallelNum;
-
-    /**
      * 补数据上下文
      */
     private String fillDataInfo;
@@ -78,11 +76,6 @@ public class ScheduleFillDataJob implements Serializable {
      * 补数据状态
      */
     private Integer fillGenerateStatus;
-
-    /**
-     * 当前并发运行实例数
-     */
-    private Integer numberParallelNum;
 
 
     public Long getId() {
@@ -165,14 +158,6 @@ public class ScheduleFillDataJob implements Serializable {
         this.isDeleted = isDeleted;
     }
 
-    public Integer getMaxParallelNum() {
-        return maxParallelNum;
-    }
-
-    public void setMaxParallelNum(Integer maxParallelNum) {
-        this.maxParallelNum = maxParallelNum;
-    }
-
     public String getFillDataInfo() {
         return fillDataInfo;
     }
@@ -187,13 +172,5 @@ public class ScheduleFillDataJob implements Serializable {
 
     public void setFillGenerateStatus(Integer fillGenerateStatus) {
         this.fillGenerateStatus = fillGenerateStatus;
-    }
-
-    public Integer getNumberParallelNum() {
-        return numberParallelNum;
-    }
-
-    public void setNumberParallelNum(Integer numberParallelNum) {
-        this.numberParallelNum = numberParallelNum;
     }
 }
