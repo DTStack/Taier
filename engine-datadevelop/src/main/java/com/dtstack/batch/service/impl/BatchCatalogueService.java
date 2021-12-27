@@ -35,7 +35,7 @@ import com.dtstack.batch.service.task.impl.BatchTaskService;
 import com.dtstack.batch.service.task.impl.BatchTaskTemplateService;
 import com.dtstack.batch.service.task.impl.ReadWriteLockService;
 import com.dtstack.batch.vo.CatalogueVO;
-import com.dtstack.batch.vo.ProjectEngineVO;
+import com.dtstack.batch.vo.TenantEngineVO;
 import com.dtstack.batch.vo.ReadWriteLockVO;
 import com.dtstack.batch.vo.TaskResourceParam;
 import com.dtstack.batch.web.task.vo.result.BatchTaskGetComponentVersionResultVO;
@@ -236,9 +236,9 @@ public class BatchCatalogueService {
      * @param projectEngineVOS
      */
     @Transactional(rollbackFor = Exception.class)
-    public void initCatalogue(Long tenantId, Long userId, List<ProjectEngineVO> projectEngineVOS) {
+    public void initCatalogue(Long tenantId, Long userId, List<TenantEngineVO> projectEngineVOS) {
         List<Dict> batchCatalogueDicts = dictService.getDictByType(DictType.BATCH_CATALOGUE.getValue());
-        List<Integer> supportEngineType = projectEngineVOS.stream().map(ProjectEngineVO::getEngineType).collect(Collectors.toList());
+        List<Integer> supportEngineType = projectEngineVOS.stream().map(TenantEngineVO::getEngineType).collect(Collectors.toList());
         List<Dict> batchCatalogueDictLevelOne = this.initCatalogueDictLevelByEngineType(supportEngineType);
 
         Map<Integer, Set<String>> catalogueMapping = batchCatalogueDictLevelOne

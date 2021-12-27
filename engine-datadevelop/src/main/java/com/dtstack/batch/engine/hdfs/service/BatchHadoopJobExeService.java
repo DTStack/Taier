@@ -23,11 +23,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.dtstack.batch.bo.ExecuteContent;
 import com.dtstack.batch.common.enums.ETableType;
-import com.dtstack.batch.dao.ProjectEngineDao;
+import com.dtstack.batch.dao.TenantEngineDao;
 import com.dtstack.batch.domain.BatchResource;
 import com.dtstack.batch.domain.BatchTaskParam;
 import com.dtstack.batch.domain.BatchTaskParamShade;
-import com.dtstack.batch.domain.ProjectEngine;
+import com.dtstack.batch.domain.TenantEngine;
 import com.dtstack.batch.engine.rdbms.common.HadoopConf;
 import com.dtstack.batch.engine.rdbms.common.HdfsOperator;
 import com.dtstack.batch.enums.TableRelationType;
@@ -42,7 +42,6 @@ import com.dtstack.batch.sync.job.SourceType;
 import com.dtstack.batch.vo.CheckSyntaxResult;
 import com.dtstack.batch.vo.ExecuteResultVO;
 import com.dtstack.batch.vo.ExecuteSqlParseVO;
-import com.dtstack.engine.common.util.Base64Util;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.EngineType;
@@ -50,6 +49,8 @@ import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.enums.ResourceRefType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.Base64Util;
+import com.dtstack.engine.domain.BatchDataSource;
 import com.dtstack.engine.domain.BatchTask;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -62,7 +63,13 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
 
 /**
  * hadoop 相关类型Job执行
@@ -77,11 +84,11 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
 
     private static final Logger LOG = LoggerFactory.getLogger(BatchHadoopJobExeService.class);
 
-//    @Autowired
-//    private BatchHadoopSelectSqlService batchHadoopSelectSqlService;
+    @Autowired
+    private BatchHadoopSelectSqlService batchHadoopSelectSqlService;
 
-//    @Autowired
-//    private BatchDataSourceService batchDataSourceService;
+    @Autowired
+    private BatchDataSourceService batchDataSourceService;
 
     @Autowired
     private BatchTaskResourceShadeService batchTaskResourceShadeService;
@@ -96,7 +103,7 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
     private BatchSqlExeService batchSqlExeService;
 
     @Autowired
-    private ProjectEngineDao projectEngineDao;
+    private TenantEngineDao tenantEngineDao;
 
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
@@ -132,7 +139,7 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
     }
 
     @Override
-    public Map<String, Object> readyForSyncImmediatelyJob(BatchTask batchTask, Long dtuicTenantId, Boolean isRoot) {
+    public Map<String, Object> readyForSyncImmediatelyJob(BatchTask batchTask, Long tenantId, Boolean isRoot) {
 
 
         if (!batchTask.getTaskType().equals(EJobType.SYNC.getVal())) {
@@ -151,10 +158,10 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
             String job = syncJob.getString("job");
 
             // 向导模式根据job中的sourceId填充数据源信息，保证每次运行取到最新的连接信息
-//            job = batchDataSourceService.setJobDataSourceInfo(job, dtuicTenantId, syncJob.getIntValue("createModel"));
+            job = batchDataSourceService.setJobDataSourceInfo(job, tenantId, syncJob.getIntValue("createModel"));
             // 获取脏数据存储路径
             //todo skip
-//            job = batchHadoopDirtyDataService.replaceTablePath(false, job, batchTask.getId(), batchTask.getName(), batchTask.getCreateUserId(), batchTask.getTenantId(), 0L, isRoot, actionParam);
+            job = batchHadoopDirtyDataService.replaceTablePath(false, job, batchTask.getId(), batchTask.getName(), batchTask.getCreateUserId(), batchTask.getTenantId(), 0L, isRoot, actionParam);
 
             batchTaskParamService.checkParams(batchTaskParamService.checkSyncJobParams(job), taskParamsToReplace);
 
@@ -166,7 +173,7 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
             actionParam.put("computeType", batchTask.getComputeType());
             actionParam.put("sqlText", "");
             actionParam.put("taskParams", taskParams);
-            actionParam.put("tenantId", dtuicTenantId);
+            actionParam.put("tenantId", tenantId);
             actionParam.put("sourceType", SourceType.TEMP_QUERY.getType());
             actionParam.put("isFailRetry", false);
             actionParam.put("maxRetryNum", 0);
@@ -212,19 +219,14 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
     }
 
     @Override
-    public ExecuteResultVO startSqlImmediately(Long userId, Long tenantId,
-                                               String uniqueKey, long projectId,
-                                               long taskId, String sql,
-                                               Boolean isRoot, Long dtuicTenantId,
-                                               BatchTask task, String dtToken,
-                                               Boolean isEnd,
-                                               String jobId) throws Exception {
+    public ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, String uniqueKey, Long taskId, String sql,
+                                               Boolean isRoot, BatchTask task, String dtToken, Boolean isEnd, String jobId) throws Exception {
         ExecuteResultVO result;
         if (EJobType.SPARK_SQL.getVal().equals(task.getTaskType())
                 || EJobType.HIVE_SQL.getVal().equals(task.getTaskType())
         ) {
             ExecuteContent content = new ExecuteContent();
-            content.setTenantId(tenantId).setProjectId(projectId).setUserId(userId).setSql(sql).setRelationId(taskId)
+            content.setTenantId(tenantId).setUserId(userId).setSql(sql).setRelationId(taskId)
                     .setRelationType(TableRelationType.TASK.getType()).setDetailType(task.getTaskType())
                     .setRootUser(isRoot).setCheckSyntax(environmentContext.getExplainEnable()).setIsdirtyDataTable(false).setSessionKey(uniqueKey).setEnd(isEnd)
                     .setEngineType(MultiEngineType.HADOOP.getType()).setTableType(ETableType.HIVE.getType()).setPreJobId(jobId);
@@ -244,20 +246,18 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
      * @param userId
      * @param tenantId
      * @param uniqueKey
-     * @param projectId
      * @param taskId
      * @param sqlList
      * @param isRoot
-     * @param dtuicTenantId
      * @param task
      * @param dtToken
      * @return
      */
     @Override
-    public ExecuteSqlParseVO startSqlSophisticated(Long userId, Long tenantId, String uniqueKey, long projectId, long taskId, List<String> sqlList, Boolean isRoot, Long dtuicTenantId, BatchTask task, String dtToken, String database)throws Exception {
+    public ExecuteSqlParseVO startSqlSophisticated(Long userId, Long tenantId, String uniqueKey, Long taskId, List<String> sqlList, Boolean isRoot, BatchTask task, String dtToken, String database)throws Exception {
         if (task.getTaskType().equals(EJobType.SPARK_SQL.getVal())){
             ExecuteContent content = new ExecuteContent();
-            content.setTenantId(tenantId).setProjectId(projectId).setUserId(userId).setSqlList(sqlList).setRelationId(taskId)
+            content.setTenantId(tenantId).setUserId(userId).setSqlList(sqlList).setRelationId(taskId)
                     .setRelationType(TableRelationType.TASK.getType()).setDetailType(task.getTaskType())
                     .setRootUser(isRoot).setCheckSyntax(environmentContext.getExplainEnable()).setIsdirtyDataTable(false).setSessionKey(uniqueKey)
                     .setEngineType(MultiEngineType.HADOOP.getType()).setTableType(ETableType.HIVE.getType()).setDatabase(database);
@@ -267,7 +267,7 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
     }
 
     @Override
-    public void readyForTaskStartTrigger(Map<String, Object> actionParam, Long dtuicTenantId, BatchTask batchTask, List<BatchTaskParamShade> taskParamsToReplace) throws Exception {
+    public void readyForTaskStartTrigger(Map<String, Object> actionParam, Long tenantId, BatchTask batchTask, List<BatchTaskParamShade> taskParamsToReplace) throws Exception {
 
         String sql = batchTask.getSqlText();
         sql = sql == null ? "" : sql;
@@ -283,7 +283,7 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
             sql = String.format("set hive.default.fileformat=%s;\n ",environmentContext.getCreateTableType())+sql;
             batchTaskParamService.checkParams(sql, taskParamsToReplace);
             // 处理多条sql
-            CheckSyntaxResult result = batchSqlExeService.processSqlText(dtuicTenantId, batchTask.getTaskType(), sql, batchTask.getCreateUserId(), batchTask.getTenantId(),
+            CheckSyntaxResult result = batchSqlExeService.processSqlText(tenantId, batchTask.getTaskType(), sql, batchTask.getCreateUserId(), batchTask.getTenantId(),
                     0L, false, Boolean.FALSE, MultiEngineType.HADOOP.getType(), taskParams);
             sql = result.getSql();
             if (EJobType.HIVE_SQL.getVal().equals(batchTask.getTaskType())) {
@@ -296,26 +296,26 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
             String job = syncJob.getString("job");
 
             // 向导模式根据job中的sourceId填充数据源信息，保证每次运行取到最新的连接信息
-//            job = batchDataSourceService.setJobDataSourceInfo(job, dtuicTenantId, syncJob.getIntValue("createModel"));
+            job = batchDataSourceService.setJobDataSourceInfo(job, tenantId, syncJob.getIntValue("createModel"));
 
             // 获取脏数据存储路径
             //todo skip dirtyData
-//            job = batchHadoopDirtyDataService.replaceTablePath(true, job, batchTask.getId(), batchTask.getName(), batchTask.getCreateUserId(), batchTask.getTenantId(), 0L, Boolean.FALSE, actionParam);
+            job = batchHadoopDirtyDataService.replaceTablePath(true, job, batchTask.getId(), batchTask.getName(), batchTask.getCreateUserId(), batchTask.getTenantId(), 0L, Boolean.FALSE, actionParam);
 
             batchTaskParamService.checkParams(batchTaskParamService.checkSyncJobParams(job), taskParamsToReplace);
             actionParam.put("job", job);
             //需要添加额外脏数据信息
-            ProjectEngine projectDb = projectEngineDao.getByProjectAndEngineType(0L, MultiEngineType.HADOOP.getType());
-            if (Objects.nonNull(projectDb)) {
-                actionParam.put("engineIdentity", projectDb.getEngineIdentity());
+            TenantEngine tenantEngine = tenantEngineDao.getByTenantAndEngineType(0L, MultiEngineType.HADOOP.getType());
+            if (Objects.nonNull(tenantEngine)) {
+                actionParam.put("engineIdentity", tenantEngine.getEngineIdentity());
                 try {
                     Object eval = JSONPath.eval(JSON.parseObject(job), "$.job.content[0].writer.parameter.sourceIds[0]");
                     final String sourceId = eval==null?null:eval.toString();
                     if (StringUtils.isNotBlank(sourceId)) {
-//                        BatchDataSource writeDataSource = batchDataSourceService.getOne(Long.valueOf(sourceId));
-//                        if (Objects.nonNull(writeDataSource)) {
-//                            actionParam.put("dataSourceType", writeDataSource.getType());
-//                        }
+                        BatchDataSource writeDataSource = batchDataSourceService.getOne(Long.valueOf(sourceId));
+                        if (Objects.nonNull(writeDataSource)) {
+                            actionParam.put("dataSourceType", writeDataSource.getType());
+                        }
                     }
                 } catch (Exception e) {
                     LOG.info("get write datasource error {} ", job, e);
@@ -336,15 +336,14 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
             taskParams = formatLearnTaskParams(batchTask.getTaskParams());
             //替换系统参数
             batchTaskParamService.checkParams(batchTask.getSqlText(), taskParamsToReplace);
-            taskExeArgs = buildExeArgs(dtuicTenantId, batchTask.getExeArgs(), batchTask.getTaskType(), batchTask.getEngineType(), batchTask.getName(),
-                    batchTask.getSqlText(), resourceList, extResourceList, batchTask.getTenantId(), 0L, JOB_ID,
-                    batchTask.getCreateUserId(), taskParamsToReplace);
+            taskExeArgs = buildExeArgs(tenantId, batchTask.getExeArgs(), batchTask.getTaskType(), batchTask.getEngineType(), batchTask.getName(),
+                    batchTask.getSqlText(), resourceList, extResourceList, batchTask.getTenantId(), JOB_ID, batchTask.getCreateUserId(), taskParamsToReplace);
             if (batchTask.getEngineType().equals(EngineType.Spark.getVal())){
                 if (CollectionUtils.isNotEmpty(resourceList) && StringUtils.isBlank(resourceList.get(0).getUrl())){
-                    LOG.error(String.format("任务= %s 运行时依赖的jar包未找到 taskId= %s,projectId= %s",batchTask.getName(),batchTask.getId(),0L));
+                    LOG.error(String.format("任务= %s 运行时依赖的jar包未找到 taskId= %s,tenantId= %s",batchTask.getName(),batchTask.getId(),0L));
                     resourceList = batchTaskResourceShadeService.listResourceByTaskId(batchTask.getId(), ResourceRefType.MAIN_RES.getType(), 0L);
                     if (CollectionUtils.isEmpty(resourceList)){
-                        BatchHadoopJobExeService.LOG.error(String.format("任务= %s 运行时依赖的jar包未找到,再次查询时仍未找到 taskId= %s,projectId= %s",batchTask.getName(),batchTask.getId(),0L));
+                        BatchHadoopJobExeService.LOG.error(String.format("任务= %s 运行时依赖的jar包未找到,再次查询时仍未找到 taskId= %s,tenantId= %s",batchTask.getName(),batchTask.getId(),0L));
                         throw new RdosDefineException("spark jar not find");
                     }else {
                         String url = resourceList.get(0).getUrl();
@@ -436,18 +435,17 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
 
     }
 
-    public String buildExeArgs(Long dtuicTenantId, String exeArgs, Integer taskType, Integer engineType, String taskName, String content,
-                               List<BatchResource> resourceList, List<BatchResource> extResource, Long tenantId, Long projectId, String jobId, Long userId,
-                               List<BatchTaskParamShade> taskParamsToReplace) {
+    public String buildExeArgs(Long tenantId, String exeArgs, Integer taskType, Integer engineType, String taskName, String content,
+                               List<BatchResource> resourceList, List<BatchResource> extResource, String jobId, Long userId, List<BatchTaskParamShade> taskParamsToReplace) {
         JSONObject exeArgsJson = JSON.parseObject(exeArgs);
         if (null == exeArgsJson) {
             return "";
         }
         String componentType = exeArgsJson.getString("componentType");
         //init 执行参数
-        setCmdOpt(exeArgsJson, exeArgs, jobId, componentType, userId, projectId, tenantId, dtuicTenantId);
+        setCmdOpt(exeArgsJson, exeArgs, jobId, componentType, userId, tenantId);
         //init 执行路径
-        String fileDir = setFileDir(exeArgsJson, componentType, resourceList, content, taskType, taskName, projectId, tenantId, dtuicTenantId,jobId);
+        String fileDir = setFileDir(exeArgsJson, componentType, resourceList, content, taskType, taskName, tenantId, jobId);
 
         exeArgsJson = collectArgs(exeArgsJson, taskType, engineType, extResource, resourceList, fileDir, taskParamsToReplace);
 
@@ -462,14 +460,13 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
         return resultString.toString().trim();
     }
 
-    private void setCmdOpt(JSONObject exeArgsJson, String exeArgs, String jobId, String componentType, Long userId, Long projectId, Long tenantId, Long dtuicTenantId) {
+    private void setCmdOpt(JSONObject exeArgsJson, String exeArgs, String jobId, String componentType, Long userId, Long tenantId) {
         if (StringUtils.isEmpty(exeArgsJson.getString(CMD_OPT))) {
             exeArgsJson.remove("--cmd-opts");
         }
     }
 
-    private String setFileDir(JSONObject exeArgsJson, String componentType, List<BatchResource> resourceList, String content, Integer taskType, String taskName, Long projectId, Long tenantId, Long dtuicTenantId,
-                              String jobId) {
+    private String setFileDir(JSONObject exeArgsJson, String componentType, List<BatchResource> resourceList, String content, Integer taskType, String taskName, Long tenantId, String jobId) {
         String fileDir;
         if (exeArgsJson.getInteger(OPERATE_MODEL) == null || TaskOperateType.RESOURCE.getType() == exeArgsJson.getInteger(OPERATE_MODEL)) {
             // 资源模式 获取资源的路径
@@ -480,7 +477,7 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
                 fileDir = UPLOADPATH;
             } else {
                 // 临时运行
-                fileDir = uploadSqlTextToHdfs(dtuicTenantId, content, taskType, taskName, tenantId, projectId);
+                fileDir = uploadSqlTextToHdfs(tenantId, content, taskType, taskName);
                 if(Objects.isNull(resourceList)){
                     resourceList = new ArrayList<>();
                 }
@@ -491,20 +488,17 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
         return fileDir;
     }
 
-    public String uploadSqlTextToHdfs(Long dtuicTenantId, String content, Integer taskType, String taskName, Long tenantId, Long projectId) {
+    public String uploadSqlTextToHdfs(Long tenantId, String content, Integer taskType, String taskName) {
         String hdfsPath = null;
         try {
             // shell任务，创建脚本文件
             String fileName = null;
             if (taskType.equals(EJobType.SHELL.getVal())) {
-                fileName = String.format("shell_%s_%s_%s_%s.sh", tenantId, projectId,
-                        taskName, System.currentTimeMillis());
+                fileName = String.format("shell_%s_%s_%s.sh", tenantId, taskName, System.currentTimeMillis());
             } else if (taskType.equals(EJobType.PYTHON.getVal())) {
-                fileName = String.format("python_%s_%s_%s_%s.py", tenantId, projectId,
-                        taskName, System.currentTimeMillis());
+                fileName = String.format("python_%s_%s_%s.py", tenantId, taskName, System.currentTimeMillis());
             } else if (taskType.equals(EJobType.SPARK_PYTHON.getVal())) {
-                fileName = String.format("pyspark_%s_%s_%s_%s.py", tenantId, projectId,
-                        taskName, System.currentTimeMillis());
+                fileName = String.format("pyspark_%s_%s_%s.py", tenantId, taskName, System.currentTimeMillis());
             }
 
             if (fileName != null) {
@@ -512,8 +506,8 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
                 if (taskType.equals(EJobType.SHELL.getVal())) {
                     content = content.replaceAll("\r\n", System.getProperty("line.separator"));
                 }
-                Map<String, Object> configuration = HadoopConf.getConfiguration(dtuicTenantId);
-                Map<String, Object> kerberosConf = HadoopConf.getHadoopKerberosConf(dtuicTenantId);
+                Map<String, Object> configuration = HadoopConf.getConfiguration(tenantId);
+                Map<String, Object> kerberosConf = HadoopConf.getHadoopKerberosConf(tenantId);
                 HdfsOperator.uploadInputStreamToHdfs(configuration,kerberosConf, content.getBytes(), hdfsPath);
             }
         } catch (Exception e) {
@@ -521,7 +515,7 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
             throw new RdosDefineException("Update task to HDFS failure:" + e.getMessage());
         }
 
-        return HadoopConf.getDefaultFs(dtuicTenantId) + hdfsPath;
+        return HadoopConf.getDefaultFs(tenantId) + hdfsPath;
     }
 
     private JSONObject collectArgs(JSONObject exeArgsJson, Integer taskType, Integer engineType, List<BatchResource> extResource, List<BatchResource> resourceList, String fileDir,
