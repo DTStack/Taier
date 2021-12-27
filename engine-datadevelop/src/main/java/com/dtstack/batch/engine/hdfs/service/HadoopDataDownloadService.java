@@ -29,11 +29,11 @@ import com.dtstack.batch.engine.rdbms.hive.service.LogPluginDownload;
 import com.dtstack.batch.engine.rdbms.service.impl.Engine2DTOService;
 import com.dtstack.batch.mapping.DataSourceTypeJobTypeMapping;
 import com.dtstack.batch.mapping.JobTypeDataSourceTypeMapping;
+import com.dtstack.batch.service.datasource.impl.DatasourceService;
 import com.dtstack.batch.service.impl.TenantEngineService;
 import com.dtstack.batch.service.job.impl.BatchJobService;
 import com.dtstack.batch.service.table.IDataDownloadService;
 import com.dtstack.batch.service.table.impl.BatchSelectSqlService;
-import com.dtstack.batch.sql.Table;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.common.engine.JdbcInfo;
@@ -86,7 +86,7 @@ public class HadoopDataDownloadService implements IDataDownloadService {
     private BatchSelectSqlService batchSelectSqlService;
 
     @Autowired
-    private BatchDataSourceService batchDataSourceService;
+    private DatasourceService datasourceService;
 
     @Autowired
     private ActionService actionService;
@@ -120,16 +120,11 @@ public class HadoopDataDownloadService implements IDataDownloadService {
         if (StringUtils.isEmpty(jobId)) {
             throw new RdosDefineException("当前下载只支持通过临时表查询的下载");
         }
-        DataSourceType dataSourceType = batchDataSourceService.getHadoopDefaultDataSourceByTenantId(tenantId);
+        DataSourceType dataSourceType = datasourceService.getHadoopDefaultDataSourceByTenantId(tenantId);
         Integer jobType = DataSourceTypeJobTypeMapping.getJobTypeByDataSourceType(dataSourceType.getVal());
 
         BatchHiveSelectSql batchHiveSelectSql = batchSelectSqlService.getByJobId(jobId, tenantId, Deleted.NORMAL.getStatus());
         tableName = batchHiveSelectSql.getTempTableName();
-        if (batchHiveSelectSql.getIsSelectSql() == TempJobType.CARBON_SQL.getType()) {
-            JSONObject conf = JSON.parseObject(batchHiveSelectSql.getParsedColumns());
-            Table baseInfo = batchDataSourceService.getOrcTableInfoForCarbonData(conf, tableName, conf.getJSONObject("kerberosConfig"));
-            return getDownloader(tenantId,baseInfo.getName(),baseInfo.getDb(), null, null, dataSourceType.getVal());
-        }
 
         TenantEngine tenantEngine = tenantEngineService.getByTenantAndEngineType(0L, MultiEngineType.HADOOP.getType());
         Preconditions.checkNotNull(tenantEngine, String.format("tenant %d not support hadoop engine.", tenantId));
@@ -155,7 +150,7 @@ public class HadoopDataDownloadService implements IDataDownloadService {
     @Forbidden
     @Override
     public List<Object> queryDataFromTable(Long tenantId, String tableName, String db, Integer num, List<String> fieldNameList, Boolean permissionStyle) throws Exception {
-        DataSourceType dataSourceType = batchDataSourceService.getHadoopDefaultDataSourceByTenantId(tenantId);
+        DataSourceType dataSourceType = datasourceService.getHadoopDefaultDataSourceByTenantId(tenantId);
         Integer eJobType = DataSourceTypeJobTypeMapping.getJobTypeByDataSourceType(dataSourceType.getVal());
         IDownload selectDownLoader = getSelectDownLoader(tenantId, fieldNameList.contains("*") ? null : fieldNameList, Lists.newArrayList(fieldNameList), permissionStyle, db, tableName, null, eJobType);
         JdbcInfo jdbcInfo = Engine2DTOService.getJdbcInfo(tenantId, null, DataSourceTypeJobTypeMapping.getTaskTypeByDataSourceType(dataSourceType.getVal()));
@@ -187,7 +182,7 @@ public class HadoopDataDownloadService implements IDataDownloadService {
      * @throws Exception
      */
     public List<Object> queryDataFromTempTable(Long tenantId, String tableName, String db) throws Exception {
-        DataSourceType dataSourceType = batchDataSourceService.getHadoopDefaultDataSourceByTenantId(tenantId);
+        DataSourceType dataSourceType = datasourceService.getHadoopDefaultDataSourceByTenantId(tenantId);
         IDownload downloader = getDownloader(tenantId, tableName, db, dataSourceType.getVal());
         List<Object> result = new ArrayList<>();
         List<String> alias = downloader.getMetaInfo();
