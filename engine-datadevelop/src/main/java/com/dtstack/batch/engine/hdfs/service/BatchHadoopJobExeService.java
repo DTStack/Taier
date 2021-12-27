@@ -33,6 +33,7 @@ import com.dtstack.batch.engine.rdbms.common.HdfsOperator;
 import com.dtstack.batch.enums.TableRelationType;
 import com.dtstack.batch.enums.TaskOperateType;
 import com.dtstack.batch.mapping.TaskTypeEngineTypeMapping;
+import com.dtstack.batch.service.datasource.impl.DatasourceService;
 import com.dtstack.batch.service.impl.BatchSqlExeService;
 import com.dtstack.batch.service.job.IBatchJobExeService;
 import com.dtstack.batch.service.task.impl.BatchTaskParamService;
@@ -88,7 +89,7 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
     private BatchHadoopSelectSqlService batchHadoopSelectSqlService;
 
     @Autowired
-    private BatchDataSourceService batchDataSourceService;
+    private DatasourceService datasourceService;
 
     @Autowired
     private BatchTaskResourceShadeService batchTaskResourceShadeService;
@@ -158,10 +159,10 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
             String job = syncJob.getString("job");
 
             // 向导模式根据job中的sourceId填充数据源信息，保证每次运行取到最新的连接信息
-            job = batchDataSourceService.setJobDataSourceInfo(job, tenantId, syncJob.getIntValue("createModel"));
+            job = datasourceService.setJobDataSourceInfo(job, tenantId, syncJob.getIntValue("createModel"));
             // 获取脏数据存储路径
             //todo skip
-            job = batchHadoopDirtyDataService.replaceTablePath(false, job, batchTask.getId(), batchTask.getName(), batchTask.getCreateUserId(), batchTask.getTenantId(), 0L, isRoot, actionParam);
+//            job = batchHadoopDirtyDataService.replaceTablePath(false, job, batchTask.getId(), batchTask.getName(), batchTask.getCreateUserId(), batchTask.getTenantId(), 0L, isRoot, actionParam);
 
             batchTaskParamService.checkParams(batchTaskParamService.checkSyncJobParams(job), taskParamsToReplace);
 
@@ -283,8 +284,8 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
             sql = String.format("set hive.default.fileformat=%s;\n ",environmentContext.getCreateTableType())+sql;
             batchTaskParamService.checkParams(sql, taskParamsToReplace);
             // 处理多条sql
-            CheckSyntaxResult result = batchSqlExeService.processSqlText(tenantId, batchTask.getTaskType(), sql, batchTask.getCreateUserId(), batchTask.getTenantId(),
-                    0L, false, Boolean.FALSE, MultiEngineType.HADOOP.getType(), taskParams);
+            CheckSyntaxResult result = batchSqlExeService.processSqlText(tenantId, batchTask.getTaskType(), sql, batchTask.getCreateUserId(),
+                    false, Boolean.FALSE, MultiEngineType.HADOOP.getType(), taskParams);
             sql = result.getSql();
             if (EJobType.HIVE_SQL.getVal().equals(batchTask.getTaskType())) {
                 sql = sql.replace("\n", "");
@@ -296,11 +297,11 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
             String job = syncJob.getString("job");
 
             // 向导模式根据job中的sourceId填充数据源信息，保证每次运行取到最新的连接信息
-            job = batchDataSourceService.setJobDataSourceInfo(job, tenantId, syncJob.getIntValue("createModel"));
+            job = datasourceService.setJobDataSourceInfo(job, tenantId, syncJob.getIntValue("createModel"));
 
             // 获取脏数据存储路径
             //todo skip dirtyData
-            job = batchHadoopDirtyDataService.replaceTablePath(true, job, batchTask.getId(), batchTask.getName(), batchTask.getCreateUserId(), batchTask.getTenantId(), 0L, Boolean.FALSE, actionParam);
+//            job = batchHadoopDirtyDataService.replaceTablePath(true, job, batchTask.getId(), batchTask.getName(), batchTask.getCreateUserId(), batchTask.getTenantId(), 0L, Boolean.FALSE, actionParam);
 
             batchTaskParamService.checkParams(batchTaskParamService.checkSyncJobParams(job), taskParamsToReplace);
             actionParam.put("job", job);
@@ -312,7 +313,7 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
                     Object eval = JSONPath.eval(JSON.parseObject(job), "$.job.content[0].writer.parameter.sourceIds[0]");
                     final String sourceId = eval==null?null:eval.toString();
                     if (StringUtils.isNotBlank(sourceId)) {
-                        BatchDataSource writeDataSource = batchDataSourceService.getOne(Long.valueOf(sourceId));
+                        BatchDataSource writeDataSource = datasourceService.getOne(Long.valueOf(sourceId));
                         if (Objects.nonNull(writeDataSource)) {
                             actionParam.put("dataSourceType", writeDataSource.getType());
                         }
@@ -337,7 +338,7 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
             //替换系统参数
             batchTaskParamService.checkParams(batchTask.getSqlText(), taskParamsToReplace);
             taskExeArgs = buildExeArgs(tenantId, batchTask.getExeArgs(), batchTask.getTaskType(), batchTask.getEngineType(), batchTask.getName(),
-                    batchTask.getSqlText(), resourceList, extResourceList, batchTask.getTenantId(), JOB_ID, batchTask.getCreateUserId(), taskParamsToReplace);
+                    batchTask.getSqlText(), resourceList, extResourceList, JOB_ID, batchTask.getCreateUserId(), taskParamsToReplace);
             if (batchTask.getEngineType().equals(EngineType.Spark.getVal())){
                 if (CollectionUtils.isNotEmpty(resourceList) && StringUtils.isBlank(resourceList.get(0).getUrl())){
                     LOG.error(String.format("任务= %s 运行时依赖的jar包未找到 taskId= %s,tenantId= %s",batchTask.getName(),batchTask.getId(),0L));

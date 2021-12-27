@@ -30,14 +30,13 @@ import com.dtstack.batch.domain.Catalogue;
 import com.dtstack.batch.domain.Dict;
 import com.dtstack.batch.enums.RdosBatchCatalogueTypeEnum;
 import com.dtstack.batch.enums.TemplateCatalogue;
-import com.dtstack.batch.service.console.TenantService;
 import com.dtstack.batch.service.task.impl.BatchTaskService;
 import com.dtstack.batch.service.task.impl.BatchTaskTemplateService;
 import com.dtstack.batch.service.task.impl.ReadWriteLockService;
 import com.dtstack.batch.vo.CatalogueVO;
-import com.dtstack.batch.vo.TenantEngineVO;
 import com.dtstack.batch.vo.ReadWriteLockVO;
 import com.dtstack.batch.vo.TaskResourceParam;
+import com.dtstack.batch.vo.TenantEngineVO;
 import com.dtstack.batch.web.task.vo.result.BatchTaskGetComponentVersionResultVO;
 import com.dtstack.engine.common.enums.CatalogueLevel;
 import com.dtstack.engine.common.enums.ComputeType;
@@ -103,9 +102,6 @@ public class BatchCatalogueService {
 
     @Autowired
     public BatchTaskTemplateService batchTaskTemplateService;
-
-    @Autowired
-    private TenantService tenantService;
 
     private static List<String> FUNCTION_MANAGER = Lists.newArrayList("函数管理");
 
@@ -476,7 +472,7 @@ public class BatchCatalogueService {
                 taskVariables.add(variable);
                 batchTask.setTaskVariables(taskVariables);
                 if (taskType == EJobType.SPARK_SQL.getVal()) {
-                    List<BatchTaskGetComponentVersionResultVO> hadoopVersions = batchTaskService.getComponentVersionByTaskType(tenantService.getDtuicTenantId(tenantId), taskType);
+                    List<BatchTaskGetComponentVersionResultVO> hadoopVersions = batchTaskService.getComponentVersionByTaskType(tenantId, taskType);
                     if (CollectionUtils.isNotEmpty(hadoopVersions)) {
                         batchTask.setComponentVersion(hadoopVersions.get(0).getComponentVersion());
                     }
