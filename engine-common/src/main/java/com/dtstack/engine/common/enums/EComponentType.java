@@ -321,15 +321,6 @@ public enum EComponentType {
             EComponentType.PRESTO_SQL
     );
 
-    /**没有queue的组件**/
-    public static List<EComponentType> noQueueComponents = Lists.newArrayList(
-            EComponentType.ORACLE_SQL, EComponentType.TIDB_SQL,
-            EComponentType.LIBRA_SQL, EComponentType.GREENPLUM_SQL,
-            EComponentType.PRESTO_SQL, EComponentType.MYSQL,
-            EComponentType.SQL_SERVER, EComponentType.DB2,
-            EComponentType.OCEANBASE
-    );
-
     //SQL组件
     public static List<EComponentType> sqlComponent = Lists.newArrayList(
             EComponentType.SPARK_THRIFT, EComponentType.HIVE_SERVER,

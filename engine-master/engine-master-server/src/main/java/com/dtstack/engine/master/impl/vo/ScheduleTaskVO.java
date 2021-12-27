@@ -20,10 +20,6 @@ package com.dtstack.engine.master.impl.vo;
 
 import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.dto.ScheduleTaskForFillDataDTO;
-import com.dtstack.engine.master.server.scheduler.parser.ESchedulePeriodType;
-import com.dtstack.engine.master.server.scheduler.parser.ScheduleCron;
-import com.dtstack.engine.master.server.scheduler.parser.ScheduleFactory;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -42,8 +38,6 @@ public class ScheduleTaskVO extends com.dtstack.engine.master.vo.ScheduleTaskVO 
 
     public ScheduleTaskVO(ScheduleTaskShade taskShade, boolean getSimpleParams) {
         BeanUtils.copyProperties(taskShade, this);
-        //需要将task复制给id
-        this.setId(taskShade.getTaskId());
         init();
         if (getSimpleParams) {
             /*//精简不需要的参数（尤其是长字符串）

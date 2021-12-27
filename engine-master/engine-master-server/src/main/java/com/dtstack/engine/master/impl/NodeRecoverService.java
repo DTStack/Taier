@@ -18,16 +18,15 @@
 
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.mapper.EngineJobCacheDao;
-import com.dtstack.engine.pluginapi.pojo.ParamAction;
-import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.common.enums.EJobCacheStage;
-import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
-import com.dtstack.engine.pluginapi.util.PublicUtil;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.master.jobdealer.JobDealer;
-import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.server.executor.JobExecutorTrigger;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
+import com.dtstack.engine.pluginapi.pojo.ParamAction;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +53,7 @@ public class NodeRecoverService {
     private EnvironmentContext environmentContext;
 
     @Autowired
-    private EngineJobCacheDao engineJobCacheDao;
+    private EngineJobCacheService engineJobCacheService;
 
     @Autowired
     private JobDealer jobDealer;
@@ -78,7 +77,7 @@ public class NodeRecoverService {
         try {
             long startId = 0L;
             while (true) {
-                List<EngineJobCache> jobCaches = engineJobCacheDao.listByFailover(startId, localAddress, EJobCacheStage.SUBMITTED.getStage());
+                List<EngineJobCache> jobCaches = engineJobCacheService.listByStage(startId, localAddress, EJobCacheStage.SUBMITTED.getStage(),null);
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     break;
                 }

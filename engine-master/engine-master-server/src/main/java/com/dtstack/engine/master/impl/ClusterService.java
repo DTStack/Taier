@@ -21,8 +21,10 @@ package com.dtstack.engine.master.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.dtstack.engine.common.enums.*;
-import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.common.enums.EComponentScheduleType;
+import com.dtstack.engine.common.enums.EComponentType;
+import com.dtstack.engine.common.enums.EScheduleJobType;
+import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.util.ComponentVersionUtil;
 import com.dtstack.engine.domain.Queue;
@@ -70,16 +72,10 @@ public class ClusterService implements com.dtstack.engine.api.ClusterService {
     private ComponentService componentService;
 
     @Autowired
-    private ComponentFileService componentFileService;
-
-    @Autowired
     private ComponentMapper componentMapper;
 
     @Autowired
     private KerberosMapper kerberosMapper;
-
-    @Autowired
-    private EnvironmentContext environmentContext;
 
     @Autowired
     private ComponentConfigService componentConfigService;
@@ -101,7 +97,7 @@ public class ClusterService implements com.dtstack.engine.api.ClusterService {
     }
 
     public IPage<Cluster> pageQuery(int currentPage, int pageSize) {
-        Page<Cluster> page = new Page(currentPage, pageSize);
+        Page<Cluster> page = new Page<>(currentPage, pageSize);
         return clusterMapper.selectPage(page, null);
     }
 
@@ -109,8 +105,8 @@ public class ClusterService implements com.dtstack.engine.api.ClusterService {
     /**
      * 内部使用
      */
-    public JSONObject pluginInfoJSON(Long tenantId, Integer taskType, Long dtUicUserId, Integer deployMode, Map<Integer, String> componentVersionMap) {
-        EScheduleJobType engineJobType = EScheduleJobType.getEngineJobType(taskType);
+    public JSONObject pluginInfoJSON(Long tenantId, Integer taskType, Integer deployMode, String componentVersion) {
+        EScheduleJobType engineJobType = EScheduleJobType.getTaskType(taskType);
         EComponentType componentType = engineJobType.getComponentType();
         if (componentType == null) {
             return null;
@@ -119,21 +115,15 @@ public class ClusterService implements com.dtstack.engine.api.ClusterService {
         if (null == clusterId) {
             clusterId = DEFAULT_CLUSTER_ID;
         }
-        ClusterVO cluster = getCluster(clusterId, false, true);
-        if (cluster == null) {
-            String msg = format("The tenant [%s] is not bound to any cluster", tenantId);
-            throw new RdosDefineException(msg);
-        }
-        JSONObject clusterConfigJson = buildClusterConfig(cluster, componentVersionMap);
-        JSONObject pluginJson = convertPluginInfo(clusterConfigJson, componentType, cluster, deployMode, componentVersionMap);
+        JSONObject clusterConfigJson = buildClusterConfig(clusterId, componentVersion,componentType);
+        JSONObject pluginJson = convertPluginInfo(clusterConfigJson, componentType, clusterId, deployMode);
         if (pluginJson == null) {
             throw new RdosDefineException(format("The cluster is not configured [%s] engine", componentType));
         }
 
-        Queue queue = getQueue(tenantId, cluster.getClusterId());
+        Queue queue = getQueue(tenantId, clusterId);
         pluginJson.put(QUEUE, queue == null ? "" : queue.getQueueName());
-        pluginJson.put(CLUSTER, cluster.getClusterName());
-        setComponentSftpDir(cluster.getClusterId(), clusterConfigJson, pluginJson, componentType);
+        setComponentSftpDir(clusterId, clusterConfigJson, pluginJson, componentType);
         return pluginJson;
     }
 
@@ -185,10 +175,10 @@ public class ClusterService implements com.dtstack.engine.api.ClusterService {
             if (sftpConfig != null) {
                 KerberosConfig kerberosDaoByComponentType = kerberosMapper.getByComponentType(clusterId, componentType, ComponentVersionUtil.isMultiVersionComponent(componentType) ? componentMapper.getDefaultComponentVersionByClusterAndComponentType(clusterId, componentType) : null);
                 if (null != kerberosDaoByComponentType) {
-                    return sftpConfig.get("path") + File.separator + componentFileService.buildSftpPath(clusterId, componentType) + File.separator +
+                    return sftpConfig.get("path") + File.separator + componentService.buildSftpPath(clusterId, componentType) + File.separator +
                             ComponentService.KERBEROS_PATH;
                 }
-                return sftpConfig.get("path") + File.separator + componentFileService.buildSftpPath(clusterId, componentType);
+                return sftpConfig.get("path") + File.separator + componentService.buildSftpPath(clusterId, componentType);
             }
         }
         return null;
@@ -211,32 +201,25 @@ public class ClusterService implements com.dtstack.engine.api.ClusterService {
     }
 
 
-    public JSONObject buildClusterConfig(ClusterVO cluster, Map<Integer, String> componentVersionMap) {
-        JSONObject config = new JSONObject();
-        List<SchedulingVo> scheduling = cluster.getScheduling();
-        if (CollectionUtils.isNotEmpty(scheduling)) {
-            for (SchedulingVo schedulingVo : scheduling) {
-                List<IComponentVO> components = schedulingVo.getComponents();
-                if (CollectionUtils.isNotEmpty(components)) {
-                    for (IComponentVO componentVO : components) {
-                        String version = MapUtils.isEmpty(componentVersionMap) ? "" : componentVersionMap.getOrDefault(componentVO.getComponentTypeCode(), "");
-                        EComponentType type = EComponentType.getByCode(componentVO.getComponentTypeCode());
-                        //IComponentVO contains  flink on standalone and on yarn
-                        ComponentVO component = componentVO.getComponent(version);
-                        if (null == component) {
-                            continue;
-                        }
-                        JSONObject componentConfig = componentService.getComponentByClusterId(component.getId(), false, JSONObject.class);
-                        if (EComponentType.FLINK.equals(type) && EDeployType.STANDALONE.getType() == component.getDeployType()) {
-                            config.put(FLINK_ON_STANDALONE_CONF, componentConfig);
-                            continue;
-                        }
-                        config.put(type.getConfName(), componentConfig);
-                    }
-                }
-            }
+    public JSONObject buildClusterConfig(Long clusterId, String componentVersion, EComponentType computeComponentType) {
+        Cluster cluster = clusterMapper.getOne(clusterId);
+        if (null == cluster) {
+            throw new RdosDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER);
         }
-        config.put("clusterName", cluster.getClusterName());
+        JSONObject config = new JSONObject();
+        List<Component> components = componentService.listAllComponents(clusterId);
+        for (Component component : components) {
+            EComponentType componentType = EComponentType.getByCode(component.getComponentTypeCode());
+            if (!EComponentScheduleType.COMPUTE.equals(EComponentType.getScheduleTypeByComponent(component.getComponentTypeCode()))) {
+                JSONObject componentConfig = componentService.getComponentByClusterId(clusterId, componentType.getTypeCode(), false, JSONObject.class, null);
+                config.put(componentType.getConfName(), componentConfig);
+            } else if (componentType.equals(computeComponentType)) {
+                JSONObject componentConfig = componentService.getComponentByClusterId(clusterId, componentType.getTypeCode(), false, JSONObject.class, componentVersion);
+                config.put(componentType.getConfName(), componentConfig);
+            }
+            // ignore other compute component
+        }
+        config.put(CLUSTER, cluster.getClusterName());
         return config;
     }
 
@@ -245,20 +228,19 @@ public class ClusterService implements com.dtstack.engine.api.ClusterService {
         return clusterMapper.selectById(clusterId);
     }
 
-    public String getConfigByKey(Long tenantId, String componentConfName, Boolean fullKerberos, Map<Integer, String> componentVersionMap) {
+    public String getConfigByKey(Long tenantId, String componentConfName, Boolean fullKerberos, String componentVersion) {
         Long clusterId = Optional.ofNullable(clusterTenantMapper.getClusterIdByTenantId(tenantId)).orElse(DEFAULT_CLUSTER_ID);
         //根据组件区分kerberos
         EComponentType componentType = EComponentType.getByConfName(componentConfName);
-        Component component = componentMapper.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode(), ComponentVersionUtil.getComponentVersion(componentVersionMap, componentType), null);
+        Component component = componentMapper.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode(), componentVersion, null);
         if (null == component) {
             return "{}";
         }
-        JSONObject configObj = componentService.getComponentByClusterId(clusterId, component.getComponentTypeCode(), false, JSONObject.class, componentVersionMap);
+        JSONObject configObj = componentService.getComponentByClusterId(clusterId, component.getComponentTypeCode(), false, JSONObject.class, componentVersion);
         if (configObj != null) {
             KerberosConfig kerberosConfig = null;
             if (StringUtils.isNotBlank(component.getKerberosFileName())) {
                 //开启kerberos的kerberosFileName不为空
-                String componentVersion = ComponentVersionUtil.getComponentVersion(componentVersionMap, componentType.getTypeCode());
                 kerberosConfig = kerberosMapper.getByComponentType(clusterId, componentType.getTypeCode(),
                         ComponentVersionUtil.isMultiVersionComponent(componentType.getTypeCode()) ? StringUtils.isNotBlank(componentVersion) ? componentVersion :
                                 componentMapper.getDefaultComponentVersionByClusterAndComponentType(clusterId, componentType.getTypeCode()) : null);
@@ -279,74 +261,21 @@ public class ClusterService implements com.dtstack.engine.api.ClusterService {
     }
 
 
-    public JSONObject convertPluginInfo(JSONObject clusterConfigJson, EComponentType componentType, ClusterVO clusterVO, Integer deployMode, Map<Integer, String> componentVersionMap) {
-        JSONObject pluginInfo = new JSONObject();
-        if (EComponentType.HDFS == componentType) {
-            //hdfs yarn%s-hdfs%s-hadoop%s的版本
-            JSONObject hadoopConf = clusterConfigJson.getJSONObject(EComponentType.HDFS.getConfName());
-            String typeName = hadoopConf.getString(TYPE_NAME);
-            pluginInfo.put(TYPE_NAME, typeName);
-            pluginInfo.put(EComponentType.HDFS.getConfName(), hadoopConf);
-            pluginInfo.put(EComponentType.YARN.getConfName(), clusterConfigJson.getJSONObject(EComponentType.YARN.getConfName()));
-
-        } else {
-            //flink spark 需要区分任务类型
-            if (EComponentType.FLINK.equals(componentType) || EComponentType.SPARK.equals(componentType)) {
-                pluginInfo = this.buildDeployMode(clusterConfigJson, componentType, clusterVO, deployMode);
-            } else if (EComponentType.DT_SCRIPT.equals(componentType)) {
-                //DT_SCRIPT 需要将common配置放在外边
-                JSONObject dtscriptConf = clusterConfigJson.getJSONObject(componentType.getConfName());
-                JSONObject commonConf = dtscriptConf.getJSONObject("commonConf");
-                dtscriptConf.remove("commonConf");
-                pluginInfo = dtscriptConf;
-                pluginInfo.putAll(commonConf);
-            } else {
-                pluginInfo = clusterConfigJson.getJSONObject(componentType.getConfName());
-            }
-
-            if (pluginInfo == null) {
-                return null;
-            }
-
-            for (Iterator<Map.Entry<String, Object>> it = clusterConfigJson.entrySet().iterator(); it.hasNext(); ) {
-                Map.Entry<String, Object> entry = it.next();
-                if (!EComponentType.BASE_CONFIG.contains(entry.getKey())) {
-                    it.remove();
-                    continue;
-                }
-                if (EComponentType.DT_SCRIPT == componentType && EComponentType.SPARK_THRIFT.getConfName().equals(entry.getKey())) {
-                    //dt-script  不需要hive-site配置
-                    continue;
-                }
-
-                pluginInfo.put(entry.getKey(), entry.getValue());
-            }
-            if (EComponentType.HIVE_SERVER == componentType) {
-                this.buildHiveVersion(clusterVO, pluginInfo, componentVersionMap);
-            }
-            pluginInfo.put(ConfigConstant.MD5_SUM_KEY, getZipFileMD5(clusterConfigJson));
-            removeMd5FieldInHadoopConf(pluginInfo);
+    public JSONObject convertPluginInfo(JSONObject clusterConfigJson, EComponentType componentType, Long clusterId, Integer deployMode) {
+        JSONObject computePluginInfo = new JSONObject();
+        //flink spark 需要区分任务类型
+        if (EComponentType.FLINK.equals(componentType) || EComponentType.SPARK.equals(componentType)) {
+            computePluginInfo = buildDeployMode(clusterConfigJson, componentType, clusterId, deployMode);
         }
-
-        return pluginInfo;
-    }
-
-    private void buildHiveVersion(ClusterVO clusterVO, JSONObject pluginInfo, Map<Integer, String> componentVersionMap) {
-        Component hiveServer = componentMapper.getByClusterIdAndComponentType(clusterVO.getId(), EComponentType.HIVE_SERVER.getTypeCode(), ComponentVersionUtil.getComponentVersion(componentVersionMap, EComponentType.HIVE_SERVER), null);
-        if (null == hiveServer) {
-            throw new RdosDefineException("hive component cannot be empty");
-        }
-        String jdbcUrl = pluginInfo.getString("jdbcUrl");
-        //%s替换成默认的 供插件使用
-        jdbcUrl = jdbcUrl.replace("/%s", environmentContext.getComponentJdbcToReplace());
-        pluginInfo.put("jdbcUrl", jdbcUrl);
-        String typeName = componentService.convertComponentTypeToClient(clusterVO.getClusterName(),
-                EComponentType.HIVE_SERVER.getTypeCode(), hiveServer.getHadoopVersion(), hiveServer.getStoreType(), componentVersionMap, null);
-        pluginInfo.put(TYPE_NAME, typeName);
+        clusterConfigJson.remove(componentType.getConfName());
+        clusterConfigJson.putAll(computePluginInfo);
+        computePluginInfo.put(ConfigConstant.MD5_SUM_KEY, getZipFileMD5(clusterConfigJson));
+        removeMd5FieldInHadoopConf(clusterConfigJson);
+        return clusterConfigJson;
     }
 
 
-    private JSONObject buildDeployMode(JSONObject clusterConfigJson, EComponentType componentType, ClusterVO clusterVO, Integer deployMode) {
+    private JSONObject buildDeployMode(JSONObject clusterConfigJson, EComponentType componentType, Long clusterId, Integer deployMode) {
         JSONObject pluginInfo;
         //默认为session
         EDeployMode deploy = EComponentType.FLINK.equals(componentType) ? EDeployMode.SESSION : EDeployMode.PERJOB;
@@ -356,7 +285,7 @@ public class ClusterService implements com.dtstack.engine.api.ClusterService {
         }
         JSONObject confConfig = null;
         if (EComponentType.FLINK.equals(componentType) && EDeployMode.STANDALONE.getType().equals(deployMode)) {
-            confConfig = clusterConfigJson.getJSONObject(FLINK_ON_STANDALONE_CONF);
+            confConfig = clusterConfigJson.getJSONObject(EComponentType.FLINK.getConfName());
             return confConfig;
         } else {
             confConfig = clusterConfigJson.getJSONObject(componentType.getConfName());
@@ -375,7 +304,7 @@ public class ClusterService implements com.dtstack.engine.api.ClusterService {
         if (EComponentType.SPARK.equals(componentType)) {
             JSONObject sftpConfig = clusterConfigJson.getJSONObject(EComponentType.SFTP.getConfName());
             if (Objects.nonNull(sftpConfig)) {
-                String confHdfsPath = sftpConfig.getString("path") + File.separator + componentFileService.buildConfRemoteDir(clusterVO.getId());
+                String confHdfsPath = sftpConfig.getString("path") + File.separator + componentService.buildConfRemoteDir(clusterId);
                 pluginInfo.put("confHdfsPath", confHdfsPath);
             }
         }
@@ -423,40 +352,25 @@ public class ClusterService implements com.dtstack.engine.api.ClusterService {
     }
 
     /**
-     * 获取集群配置
-     *
-     * @param clusterId      集群id
-     * @param removeTypeName
-     * @param multiVersion   组件默认版本
-     * @return
-     */
-    public ClusterVO getCluster(Long clusterId, Boolean removeTypeName, boolean multiVersion) {
-        return getCluster(clusterId, removeTypeName, false, multiVersion);
-    }
-
-    /**
      * 获取集群信息详情 需要根据组件分组
      *
      * @param clusterId
      * @return
      */
-    public ClusterVO getCluster(Long clusterId, Boolean removeTypeName,boolean isFullPrincipal,boolean multiVersion) {
+    public ClusterVO getConsoleClusterInfo(Long clusterId) {
         Cluster cluster = clusterMapper.getOne(clusterId);
         EngineAssert.assertTrue(cluster != null, ErrorCode.DATA_NOT_FIND.getDescription());
         ClusterVO clusterVO = ClusterVO.toVO(cluster);
         // 查询默认版本或者多个版本
-        List<Component> components = componentMapper.listByClusterId(clusterId,null,!multiVersion);
+        List<Component> components = componentMapper.listByClusterId(clusterId,null,false);
 
-        List<IComponentVO> componentConfigs = componentConfigService.getComponentVoByComponent(components,
-                null == removeTypeName || removeTypeName , clusterId,true, multiVersion);
+        List<IComponentVO> componentConfigs = componentConfigService.getComponentVoByComponent(components, true , clusterId,true, true);
         Table<Integer,String ,KerberosConfig> kerberosTable = null;
         // kerberos的配置
-        if(isFullPrincipal){
-            kerberosTable= HashBasedTable.create();
-            for (KerberosConfig kerberosConfig : kerberosMapper.getByClusters(clusterId)) {
-                kerberosTable.put(kerberosConfig.getComponentType(), StringUtils.isBlank(kerberosConfig.getComponentVersion())?
-                        StringUtils.EMPTY:kerberosConfig.getComponentVersion(),kerberosConfig);
-            }
+        kerberosTable= HashBasedTable.create();
+        for (KerberosConfig kerberosConfig : kerberosMapper.getByClusters(clusterId)) {
+            kerberosTable.put(kerberosConfig.getComponentType(), StringUtils.isBlank(kerberosConfig.getComponentVersion())?
+                    StringUtils.EMPTY:kerberosConfig.getComponentVersion(),kerberosConfig);
         }
 
         Map<EComponentScheduleType, List<IComponentVO>> scheduleType = new HashMap<>(4);
@@ -543,7 +457,7 @@ public class ClusterService implements com.dtstack.engine.api.ClusterService {
 
     public ClusterEngineVO getClusterEngine(Long clusterId) {
         Cluster cluster = clusterMapper.selectById(clusterId);
-        List<Component> components = componentMapper.listByClusterId(clusterId, null, false);
+        List<Component> components = componentService.listAllComponents(clusterId);
         Map<Long, Set<MultiEngineType>> clusterEngineMapping = new HashMap<>();
         if(CollectionUtils.isNotEmpty(components)){
             clusterEngineMapping = components.stream().filter(c -> {

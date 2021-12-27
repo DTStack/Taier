@@ -19,30 +19,27 @@
 package com.dtstack.engine.master.jobdealer;
 
 
+import com.dtstack.engine.common.CustomThreadRunsPolicy;
+import com.dtstack.engine.common.enums.*;
+import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.common.queue.DelayBlockingQueue;
+import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleJobOperatorRecord;
-import com.dtstack.engine.mapper.EngineJobCacheDao;
+import com.dtstack.engine.mapper.ScheduleJobDao;
 import com.dtstack.engine.mapper.ScheduleJobOperatorRecordDao;
+import com.dtstack.engine.master.WorkerOperator;
+import com.dtstack.engine.master.impl.EngineJobCacheService;
+import com.dtstack.engine.master.jobdealer.bo.StoppedJob;
+import com.dtstack.engine.master.jobdealer.cache.ShardCache;
+import com.dtstack.engine.pluginapi.CustomThreadFactory;
+import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.pluginapi.enums.ComputeType;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
-import com.dtstack.engine.pluginapi.pojo.ParamAction;
-import com.dtstack.engine.common.CustomThreadRunsPolicy;
-import com.dtstack.engine.pluginapi.JobClient;
-import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.pojo.JobResult;
-import com.dtstack.engine.master.jobdealer.bo.StoppedJob;
-import com.dtstack.engine.pluginapi.CustomThreadFactory;
-import com.dtstack.engine.common.queue.DelayBlockingQueue;
+import com.dtstack.engine.pluginapi.pojo.ParamAction;
 import com.dtstack.engine.pluginapi.util.PublicUtil;
-import com.dtstack.engine.mapper.ScheduleJobDao;
-import com.dtstack.engine.domain.EngineJobCache;
-import com.dtstack.engine.common.enums.StoppedStatus;
-import com.dtstack.engine.master.WorkerOperator;
-import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.master.jobdealer.cache.ShardCache;
-import com.dtstack.engine.common.enums.EScheduleJobType;
-import com.dtstack.engine.common.enums.ForceCancelFlag;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -55,12 +52,7 @@ import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 /**
@@ -77,7 +69,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
     private ShardCache shardCache;
 
     @Autowired
-    private EngineJobCacheDao engineJobCacheDao;
+    private EngineJobCacheService engineJobCacheService;
 
     @Autowired
     private ScheduleJobOperatorRecordDao engineJobStopRecordDao;
@@ -220,7 +212,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                         break;
                     }
                     List<String> jobIds = jobStopRecords.stream().map(ScheduleJobOperatorRecord::getJobId).collect(Collectors.toList());
-                    List<EngineJobCache> jobCaches = engineJobCacheDao.getByJobIds(jobIds);
+                    List<EngineJobCache> jobCaches = engineJobCacheService.getByJobIds(jobIds);
 
                     //为了下面兼容异常状态的任务停止
                     Map<String, EngineJobCache> jobCacheMap = new HashMap<>(jobCaches.size());
@@ -318,7 +310,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
     }
 
     private StoppedStatus stopJob(JobElement jobElement) throws Exception {
-        EngineJobCache jobCache = engineJobCacheDao.getOne(jobElement.jobId);
+        EngineJobCache jobCache = engineJobCacheService.getByJobId(jobElement.jobId);
         ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobElement.jobId);
         if (jobCache == null) {
             if (scheduleJob != null && RdosTaskStatus.isStopped(scheduleJob.getStatus())) {
@@ -376,14 +368,14 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
 
     private void removeMemStatusAndJobCache(String jobId) {
         shardCache.removeIfPresent(jobId);
-        engineJobCacheDao.delete(jobId);
+        engineJobCacheService.deleteByJobId(jobId);
         //修改任务状态
         scheduleJobDao.updateJobStatusAndExecTime(jobId, RdosTaskStatus.CANCELED.getStatus());
         LOGGER.info("jobId:{} delete jobCache and update job status:{}, job set finished.", jobId, RdosTaskStatus.CANCELED.getStatus());
     }
 
     private boolean checkExpired(JobElement jobElement) {
-        EngineJobCache jobCache = engineJobCacheDao.getOne(jobElement.jobId);
+        EngineJobCache jobCache = engineJobCacheService.getByJobId(jobElement.jobId);
         Timestamp getGmtCreate = engineJobStopRecordDao.getJobCreateTimeById(jobElement.stopJobId);
         if (jobCache != null && getGmtCreate != null) {
             return jobCache.getGmtCreate().after(getGmtCreate);

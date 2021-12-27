@@ -18,9 +18,9 @@ import java.util.stream.Collectors;
  * @Email:dazhi@dtstack.com
  * @Description:
  */
-public class FillDataJobListVO extends PageVO {
+public class QueryFillDataJobListVO extends PageVO {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FillDataJobListVO.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(QueryFillDataJobListVO.class);
 
     /**
      * 补数据id
@@ -236,7 +236,7 @@ public class FillDataJobListVO extends PageVO {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        FillDataJobListVO that = (FillDataJobListVO) o;
+        QueryFillDataJobListVO that = (QueryFillDataJobListVO) o;
         return Objects.equals(fillId, that.fillId) && Objects.equals(tenantId, that.tenantId) && Objects.equals(taskName, that.taskName) && Objects.equals(cycStartDay, that.cycStartDay) && Objects.equals(cycEndDay, that.cycEndDay) && Objects.equals(flowJobIdList, that.flowJobIdList) && Objects.equals(userId, that.userId) && Objects.equals(taskTypes, that.taskTypes) && Objects.equals(jobStatuses, that.jobStatuses) && Objects.equals(businessDateSort, that.businessDateSort) && Objects.equals(cycSort, that.cycSort) && Objects.equals(execTimeSort, that.execTimeSort) && Objects.equals(execStartSort, that.execStartSort) && Objects.equals(retryNumSort, that.retryNumSort);
     }
 

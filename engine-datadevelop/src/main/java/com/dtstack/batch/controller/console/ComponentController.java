@@ -37,7 +37,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -149,7 +148,7 @@ public class ComponentController {
             @ApiImplicitParam(name = "componentVersion", value = "组件版本", required = true, dataType = "String"),
     })
     public ComponentTestResult testConnect(@RequestParam("clusterName") String clusterName, @RequestParam("componentType") Integer componentType, @RequestParam("componentVersion") String componentVersion) {
-        return componentService.testConnect(clusterName, componentType, StringUtils.isBlank(componentVersion) ? null : Collections.singletonMap(componentType, componentVersion));
+        return componentService.testConnect(clusterName, componentType, StringUtils.isBlank(componentVersion) ? null : componentVersion);
     }
 
 }

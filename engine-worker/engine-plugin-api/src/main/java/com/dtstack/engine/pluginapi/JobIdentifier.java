@@ -24,6 +24,7 @@ import java.io.Serializable;
 
 /**
  * Company: www.dtstack.com
+ *
  * @author yuebai
  */
 
@@ -37,7 +38,7 @@ public class JobIdentifier implements Serializable {
 
     private Long tenantId;
 
-    private String engineType;
+    private Integer taskType;
 
     /**
      * 默认 perjob
@@ -56,29 +57,28 @@ public class JobIdentifier implements Serializable {
 
 
     private JobIdentifier() {
-
     }
 
-    public JobIdentifier(String engineJobId, String applicationId, String jobId, Long tenantId, String engineType, Integer deployMode, Long userId,String pluginInfo,String componentVersion) {
+    public JobIdentifier(String engineJobId, String applicationId, String jobId, Long tenantId, Integer taskType, Integer deployMode, Long userId, String pluginInfo, String componentVersion) {
         this.engineJobId = engineJobId;
         this.applicationId = applicationId;
         this.jobId = jobId;
         this.tenantId = tenantId;
-        this.engineType = engineType;
+        this.taskType = taskType;
         this.deployMode = deployMode;
         this.userId = userId;
         this.pluginInfo = pluginInfo;
         this.componentVersion = componentVersion;
     }
 
-    public JobIdentifier(String engineJobId, String applicationId, String jobId, Boolean forceCancel){
+    public JobIdentifier(String engineJobId, String applicationId, String jobId, Boolean forceCancel) {
         this.engineJobId = engineJobId;
         this.applicationId = applicationId;
         this.jobId = jobId;
         this.forceCancel = forceCancel;
     }
 
-    public JobIdentifier(String engineJobId, String applicationId, String jobId){
+    public JobIdentifier(String engineJobId, String applicationId, String jobId) {
         this.engineJobId = engineJobId;
         this.applicationId = applicationId;
         this.jobId = jobId;
@@ -128,8 +128,8 @@ public class JobIdentifier implements Serializable {
         return tenantId;
     }
 
-    public String getEngineType() {
-        return engineType;
+    public Integer getTaskType() {
+        return taskType;
     }
 
     public Integer getDeployMode() {
@@ -155,7 +155,7 @@ public class JobIdentifier implements Serializable {
                 ", applicationId='" + applicationId + '\'' +
                 ", jobId='" + jobId + '\'' +
                 ", tenantId=" + tenantId +
-                ", engineType=" + engineType +
+                ", taskType=" + taskType +
                 ", deployMode=" + deployMode +
                 ", userId=" + userId +
                 ", timeout=" + timeout +

@@ -43,6 +43,6 @@ public interface TenantTransfer {
 
     @Mapping(source = "queue.maxCapacity", target = "maxCapacity", defaultExpression = "java(NumberUtils.toDouble(queue.getMaxCapacity(),0) * 100 + \"%\")")
     @Mapping(source = "queue.capacity", target = "minCapacity", defaultExpression = "java(NumberUtils.toDouble(queue.getCapacity(),0) * 100 + \"%\")")
-    @Mapping(source = "queue.queuePath", target = "queue")
+    @Mapping(source = "queue.queueName", target = "queue")
     ClusterTenantVO toClusterTenantVO(ClusterTenant clusterTenant, Queue queue);
 }

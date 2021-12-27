@@ -54,7 +54,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -208,7 +207,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                     // 按照appType分组
                     Map<Integer, Set<Long>> groupByAppMap = listExecJobs.stream().collect(Collectors.groupingBy(shade->1,
                             Collectors.mapping(ScheduleBatchJob::getTaskId, Collectors.toSet())));
-                    Table<Integer,Long,ScheduleTaskShade> cache= HashBasedTable.create();
+                    Table<Integer,Long, ScheduleTaskShade> cache= HashBasedTable.create();
                     batchTaskShadeService.listTaskShadeByIdAndType(groupByAppMap).forEach((k,v)->v.forEach(shade->cache.put(k,shade.getTaskId(),shade)));
                     for (ScheduleBatchJob scheduleBatchJob : listExecJobs) {
                         // 节点检查是否能进入队列
