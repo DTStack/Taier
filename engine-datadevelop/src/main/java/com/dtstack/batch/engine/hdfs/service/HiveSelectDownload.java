@@ -53,56 +53,83 @@ public class HiveSelectDownload implements IDownload {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HiveSelectDownload.class);
 
-    // common-loader中定义的download
+    /**
+     * common-loader中定义的download
+     */
     private IDownloader pluginDownloader;
 
-    // hadoop相关配置
+    /**
+     * hadoop相关配置
+     */
     private Map<String, Object> hadoopConfig;
 
-    // jdbc连接信息
+    /**
+     * jdbc连接信息
+     */
     private JdbcInfo jdbcInfo;
 
-    // 查询字段集合
+    /**
+     * 查询字段集合
+     */
     private List<String> queryFieldNames;
 
-    // 查询字段别名集合
+    /**
+     * 查询字段别名集合
+     */
     private List<String> fieldNamesShow;
 
-    // 是否展示无权限字段 false：不展示， true：展示
+    /**
+     * 是否展示无权限字段 false：不展示， true：展示
+     */
     boolean permissionStyle;
 
-    // 是否需要脱敏
-    boolean needMask;
+    /**
+     * 租户ID
+     */
+    Long tenantId;
 
-    // uic租户ID
-    Long uicTenantId;
-
-    // 数据源类型
+    /**
+     * 数据源类型
+     */
     Integer dataSourceType;
 
-    // 查询的库名
+    /**
+     * 查询的库名
+     */
     private String db;
 
-    // 查询的表名
+    /**
+     * 查询的表名
+     */
     private String tableName;
 
-    // 指定下载分区
+    /**
+     * 指定下载分区
+     */
     private String partition;
 
-    // 该表的所有字段列表
+    /**
+     * 该表的所有字段列表
+     */
     private List<String> columnNames;
 
-    // 不需要进行展示的列
+    /**
+     * 不需要进行展示的列
+     */
     private List<String> excludeCol = new ArrayList<>();
 
-    // 无权限字段展示
+    /**
+     * 无权限字段展示
+     */
     private static final String NO_PERMISSION = "NO PERMISSION";
 
-    // hive空字符串处理
+    /**
+     * hive空字符串处理
+     */
     private static final String TEXT_STORE_NULL = "\\N";
 
     public HiveSelectDownload(Map<String, Object> hadoopConfig, JdbcInfo jdbcInfo, List<String> queryFieldNames,
-                              List<String> fieldNamesShow, boolean permissionStyle, boolean needMask, Long uicTenantId,
+                              List<String> fieldNamesShow, boolean permissionStyle, Long tenantId,
                               String db, String tableName, String partition,
                               Integer dataSourceType) throws Exception{
         this.hadoopConfig = hadoopConfig;
@@ -110,8 +137,7 @@ public class HiveSelectDownload implements IDownload {
         this.queryFieldNames = queryFieldNames;
         this.fieldNamesShow = fieldNamesShow;
         this.permissionStyle = permissionStyle;
-        this.needMask = needMask;
-        this.uicTenantId = uicTenantId;
+        this.tenantId = tenantId;
         this.db = db;
         this.tableName = tableName;
         this.partition = partition;
@@ -132,7 +158,7 @@ public class HiveSelectDownload implements IDownload {
             }
         }
         // 获取client
-        ISourceDTO sourceDTO = Engine2DTOService.get(uicTenantId, null, dataSourceType, db, jdbcInfo);
+        ISourceDTO sourceDTO = Engine2DTOService.get(tenantId, null, dataSourceType, db, jdbcInfo);
         IClient client = ClientCache.getClient(dataSourceType);
         SqlQueryDTO queryDTO = SqlQueryDTO.builder()
                 .tableName(tableName)

@@ -59,16 +59,14 @@ public class BatchSelectSqlService {
     @Autowired
     private ActionService actionService;
 
-//    @Autowired
-//    private MultiEngineServiceFactory multiEngineServiceFactory;
+    @Autowired
+    private MultiEngineServiceFactory multiEngineServiceFactory;
 
     /**
      * 查询sql运行结果
      * @param jobId
      * @param taskId
      * @param tenantId
-     * @param projectId
-     * @param dtuicTenantId
      * @param userId
      * @param isRoot
      * @param type
@@ -79,15 +77,12 @@ public class BatchSelectSqlService {
     public ExecuteResultVO selectData(String jobId,
                                       Long taskId,
                                       Long tenantId,
-                                      Long projectId,
-                                      Long dtuicTenantId,
                                       Long userId,
                                       Boolean isRoot,
                                       Integer type,
                                       String sqlId) throws Exception {
         ExecuteSelectSqlData selectSqlData = beforeGetResult(jobId, taskId, tenantId, type, sqlId);
-        return selectSqlData.getIBatchSelectSqlService().selectData(selectSqlData.getBatchTask(), selectSqlData.getBatchHiveSelectSql(), tenantId, projectId,
-                dtuicTenantId, userId, isRoot, selectSqlData.getTaskType());
+        return selectSqlData.getIBatchSelectSqlService().selectData(selectSqlData.getBatchTask(), selectSqlData.getBatchHiveSelectSql(), tenantId, userId, isRoot, selectSqlData.getTaskType());
     }
 
     /**
@@ -95,8 +90,6 @@ public class BatchSelectSqlService {
      * @param jobId
      * @param taskId
      * @param tenantId
-     * @param projectId
-     * @param dtuicTenantId
      * @param userId
      * @param isRoot
      * @param type
@@ -107,15 +100,12 @@ public class BatchSelectSqlService {
     public ExecuteResultVO selectStatus(String jobId,
                                         Long taskId,
                                         Long tenantId,
-                                        Long projectId,
-                                        Long dtuicTenantId,
                                         Long userId,
                                         Boolean isRoot,
                                         Integer type,
                                         String sqlId) throws Exception {
         ExecuteSelectSqlData selectSqlData = beforeGetResult(jobId, taskId, tenantId, type, sqlId);
-        return selectSqlData.getIBatchSelectSqlService().selectStatus(selectSqlData.getBatchTask(), selectSqlData.getBatchHiveSelectSql(), tenantId, projectId,
-                dtuicTenantId, userId, isRoot, selectSqlData.getTaskType());
+        return selectSqlData.getIBatchSelectSqlService().selectStatus(selectSqlData.getBatchTask(), selectSqlData.getBatchHiveSelectSql(), tenantId, userId, isRoot, selectSqlData.getTaskType());
     }
 
     /**
@@ -123,8 +113,6 @@ public class BatchSelectSqlService {
      * @param jobId
      * @param taskId
      * @param tenantId
-     * @param projectId
-     * @param dtuicTenantId
      * @param userId
      * @param isRoot
      * @param type
@@ -135,15 +123,12 @@ public class BatchSelectSqlService {
     public ExecuteResultVO selectRunLog(String jobId,
                                         Long taskId,
                                         Long tenantId,
-                                        Long projectId,
-                                        Long dtuicTenantId,
                                         Long userId,
                                         Boolean isRoot,
                                         Integer type,
                                         String sqlId) throws Exception {
         ExecuteSelectSqlData selectSqlData = beforeGetResult(jobId, taskId, tenantId, type, sqlId);
-        return selectSqlData.getIBatchSelectSqlService().selectRunLog(selectSqlData.getBatchTask(), selectSqlData.getBatchHiveSelectSql(), tenantId, projectId,
-                dtuicTenantId, userId, isRoot, selectSqlData.getTaskType());
+        return selectSqlData.getIBatchSelectSqlService().selectRunLog(selectSqlData.getBatchTask(), selectSqlData.getBatchHiveSelectSql(), tenantId, userId, isRoot, selectSqlData.getTaskType());
     }
 
     /**
@@ -163,7 +148,7 @@ public class BatchSelectSqlService {
             batchHiveSelectSql.setFatherJobId(jobId);
             batchHiveSelectSql.setJobId(sqlId);
         }
-//        IBatchSelectSqlService selectSqlService = multiEngineServiceFactory.getBatchSelectSqlService(batchHiveSelectSql.getEngineType());
+        IBatchSelectSqlService selectSqlService = multiEngineServiceFactory.getBatchSelectSqlService(batchHiveSelectSql.getEngineType());
         IBatchSelectSqlService selectSqlService = null;   //todo
         Preconditions.checkNotNull(selectSqlService, String.format("不支持引擎类型 %d", batchHiveSelectSql.getEngineType()));
         BatchTask batchTask = batchTaskDao.getOne(taskId);;
@@ -186,25 +171,23 @@ public class BatchSelectSqlService {
         return selectSql;
     }
 
-    public void stopSelectJob(String jobId,Long tenantId,Long projectId){
+    public void stopSelectJob(String jobId,Long tenantId){
         try {
             actionService.stop(Collections.singletonList(jobId), ComputeType.BATCH.getType());
             // 这里用逻辑删除，是为了在调度端删除可能生成的临时表
-            batchHiveSelectSqlDao.deleteByJobId(jobId,tenantId,projectId);
+            batchHiveSelectSqlDao.deleteByJobId(jobId, tenantId);
         }catch (Exception e){
             LOGGER.error(e.getMessage(), e);
         }
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void addSelectSql(String jobId, String tempTable, int isSelectSql,Long tenantId,
-                             Long projectId,String sql,Long userId, int engineType) {
-        this.addSelectSql(jobId, tempTable, isSelectSql, tenantId, projectId, sql, userId, null,engineType);
+    public void addSelectSql(String jobId, String tempTable, int isSelectSql, Long tenantId, String sql, Long userId, Integer engineType) {
+        this.addSelectSql(jobId, tempTable, isSelectSql, tenantId, sql, userId, null,engineType);
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void addSelectSql(String jobId, String tempTable, int isSelectSql, Long tenantId, Long projectId,
-                             String sql, Long userId, String parsedColumns, int engineType){
+    public void addSelectSql(String jobId, String tempTable, Integer isSelectSql, Long tenantId, String sql, Long userId, String parsedColumns, Integer engineType){
         BatchHiveSelectSql hiveSelectSql = new BatchHiveSelectSql();
         hiveSelectSql.setJobId(jobId);
         hiveSelectSql.setTempTableName(tempTable);
@@ -218,7 +201,7 @@ public class BatchSelectSqlService {
         batchHiveSelectSqlDao.insert(hiveSelectSql);
     }
 
-    public int updateGmtModify(String jobId, Long tenantId, Long projectId){
-        return batchHiveSelectSqlDao.updateGmtModify(jobId, tenantId, projectId);
+    public int updateGmtModify(String jobId, Long tenantId){
+        return batchHiveSelectSqlDao.updateGmtModify(jobId, tenantId);
     }
 }

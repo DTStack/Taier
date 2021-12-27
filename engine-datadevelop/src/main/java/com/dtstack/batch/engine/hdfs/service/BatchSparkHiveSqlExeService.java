@@ -18,15 +18,28 @@
 
 package com.dtstack.batch.engine.hdfs.service;
 
+import com.dtstack.batch.bo.ExecuteContent;
+import com.dtstack.batch.common.enums.TempJobType;
+import com.dtstack.batch.domain.TenantEngine;
 import com.dtstack.batch.engine.rdbms.common.util.SqlFormatUtil;
 import com.dtstack.batch.engine.rdbms.service.IJdbcService;
+import com.dtstack.batch.mapping.DataSourceTypeJobTypeMapping;
 import com.dtstack.batch.service.impl.BatchFunctionService;
 import com.dtstack.batch.service.impl.BatchSqlExeService;
-import com.dtstack.batch.service.impl.ProjectEngineService;
+import com.dtstack.batch.service.impl.TenantEngineService;
 import com.dtstack.batch.service.table.impl.BatchSelectSqlService;
+import com.dtstack.batch.sql.ParseResult;
+import com.dtstack.batch.vo.ExecuteResultVO;
+import com.dtstack.dtcenter.loader.utils.DBUtil;
+import com.dtstack.engine.common.enums.DataSourceType;
 import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.enums.MultiEngineType;
+import com.dtstack.engine.common.enums.SqlType;
+import com.dtstack.engine.common.enums.TaskStatus;
 import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -34,7 +47,10 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Connection;
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -54,7 +70,7 @@ public class BatchSparkHiveSqlExeService {
 
     private static final Pattern SIMPLE_QUERY_PATTERN = Pattern.compile(SIMPLE_QUERY_REGEX);
 
-//    private static final List<SqlType> CreateTableTypeList = Lists.newArrayList(SqlType.CREATE, SqlType.CREATE_AS, SqlType.CREATE_LIKE);
+    private static final List<SqlType> CreateTableTypeList = Lists.newArrayList(SqlType.CREATE, SqlType.CREATE_AS, SqlType.CREATE_LIKE);
 
     private static final String EXPLAIN_REDEX = "(?i)\\bexplain\\b[\\w\\W]*";
 
@@ -72,11 +88,11 @@ public class BatchSparkHiveSqlExeService {
     @Autowired
     private BatchSqlExeService batchSqlExeService;
 
-//    @Autowired
-//    protected BatchHadoopSelectSqlService batchHadoopSelectSqlService;
+    @Autowired
+    protected BatchHadoopSelectSqlService batchHadoopSelectSqlService;
 
     @Autowired
-    protected ProjectEngineService projectEngineService;
+    protected TenantEngineService tenantEngineService;
 
     @Autowired
     protected BatchSelectSqlService selectSqlService;
@@ -91,27 +107,27 @@ public class BatchSparkHiveSqlExeService {
     /**
      * 直连jdbc执行sql
      * @param executeContent
-     * @param dtuicTenantId
+     * @param tenantId
      * @param parseResult
      * @param result
-     * @param projectDb
+     * @param tenantEngine
      * @param dataSourceType
      */
-//    protected void exeSqlDirect(ExecuteContent executeContent, Long dtuicTenantId, ParseResult parseResult, ExecuteResultVO<List<Object>> result, ProjectEngine projectDb, DataSourceType dataSourceType) {
-//        try {
-//            if (SqlType.getShowType().contains(parseResult.getSqlType())
-//                    && !parseResult.getStandardSql().matches(INSERT_REGEX)) {
-//                List<List<Object>> executeResult = jdbcServiceImpl.executeQuery(dtuicTenantId, null, DataSourceTypeJobTypeMapping.getTaskTypeByDataSourceType(dataSourceType.getVal()), projectDb.getEngineIdentity(), parseResult.getStandardSql());
-//                batchSqlExeService.dealResultDoubleList(executeResult);
-//                result.setResult(executeResult);
-//            } else {
-//                jdbcServiceImpl.executeQueryWithoutResult(dtuicTenantId, null, DataSourceTypeJobTypeMapping.getTaskTypeByDataSourceType(dataSourceType.getVal()), projectDb.getEngineIdentity(), parseResult.getStandardSql());
-//            }
-//        } catch (Exception e) {
-//            log.error("exeHiveSqlDirect error {}", executeContent.getSql(),e);
-//            throw e;
-//        }
-//    }
+    protected void exeSqlDirect(ExecuteContent executeContent, Long tenantId, ParseResult parseResult, ExecuteResultVO<List<Object>> result, TenantEngine tenantEngine, DataSourceType dataSourceType) {
+        try {
+            if (SqlType.getShowType().contains(parseResult.getSqlType())
+                    && !parseResult.getStandardSql().matches(INSERT_REGEX)) {
+                List<List<Object>> executeResult = jdbcServiceImpl.executeQuery(tenantId, null, DataSourceTypeJobTypeMapping.getTaskTypeByDataSourceType(dataSourceType.getVal()), tenantEngine.getEngineIdentity(), parseResult.getStandardSql());
+                batchSqlExeService.dealResultDoubleList(executeResult);
+                result.setResult(executeResult);
+            } else {
+                jdbcServiceImpl.executeQueryWithoutResult(tenantId, null, DataSourceTypeJobTypeMapping.getTaskTypeByDataSourceType(dataSourceType.getVal()), tenantEngine.getEngineIdentity(), parseResult.getStandardSql());
+            }
+        } catch (Exception e) {
+            log.error("exeHiveSqlDirect error {}", executeContent.getSql(),e);
+            throw e;
+        }
+    }
 
     /**
      * 逐条处理sql
@@ -146,24 +162,24 @@ public class BatchSparkHiveSqlExeService {
     /**
      * 执行create语句
      * @param parseResult
-     * @param dtUicTenantId
+     * @param tenantId
      * @param db
      * @param eJobType
      */
-//    protected void executeCreateTableSql(ParseResult parseResult, Long dtUicTenantId, String db, EJobType eJobType) {
-//        Connection connection = null;
-//        try {
-//            connection = jdbcServiceImpl.getConnection(dtUicTenantId, null, eJobType, db);
-//            jdbcServiceImpl.executeQueryWithoutResult(dtUicTenantId, null, eJobType, db, String.format("set hive.default.fileformat=%s", environmentContext.getCreateTableType()), connection);
-//            parseResult.getMainTable().setStoreType(environmentContext.getCreateTableType());
-//            jdbcServiceImpl.executeQueryWithoutResult(dtUicTenantId, null, eJobType, db, parseResult.getStandardSql(), connection);
-//        } catch (Exception e) {
-//            log.error("", e);
-//            throw new RdosDefineException(ErrorCode.CREATE_TABLE_ERR, e);
-//        } finally {
-//            DBUtil.closeDBResources(null, null, connection);
-//        }
-//    }
+    protected void executeCreateTableSql(ParseResult parseResult, Long tenantId, String db, EJobType eJobType) {
+        Connection connection = null;
+        try {
+            connection = jdbcServiceImpl.getConnection(tenantId, null, eJobType, db);
+            jdbcServiceImpl.executeQueryWithoutResult(tenantId, null, eJobType, db, String.format("set hive.default.fileformat=%s", environmentContext.getCreateTableType()), connection);
+            parseResult.getMainTable().setStoreType(environmentContext.getCreateTableType());
+            jdbcServiceImpl.executeQueryWithoutResult(tenantId, null, eJobType, db, parseResult.getStandardSql(), connection);
+        } catch (Exception e) {
+            log.error("", e);
+            throw new RdosDefineException(ErrorCode.CREATE_TABLE_ERR, e);
+        } finally {
+            DBUtil.closeDBResources(null, null, connection);
+        }
+    }
 
     /**
      * 判断是否简单查询
@@ -201,7 +217,7 @@ public class BatchSparkHiveSqlExeService {
         return false;
     }
 
-    protected void checkSingleSqlSyntax(Long projectId, Long dtuicTenantId, String sql, String db, String taskParam, EJobType eJobType) {
+    protected void checkSingleSqlSyntax(Long tenantId, String sql, String db, String taskParam, EJobType eJobType) {
         try {
             if (sql.trim().matches(EXPLAIN_REDEX)) {
                 return;
@@ -215,9 +231,9 @@ public class BatchSparkHiveSqlExeService {
             sql = SqlFormatUtil.init(sql).removeCatalogue().removeLifecycle().getSql();
             String explainSql = "explain " + sql;
             // 处理自定义函数逻辑
-            List<String> functionVariables = batchFunctionService.buildContainFunctions(sql, projectId);
+            List<String> functionVariables = batchFunctionService.buildContainFunctions(sql, tenantId);
             variables.addAll(functionVariables);
-            List<List<Object>> result = jdbcServiceImpl.executeQueryWithVariables(dtuicTenantId, null, eJobType, db, explainSql, variables, taskParam);
+            List<List<Object>> result = jdbcServiceImpl.executeQueryWithVariables(tenantId, null, eJobType, db, explainSql, variables, taskParam);
             if (CollectionUtils.isNotEmpty(result)) {
                 String plan = result.get(1).get(0).toString();
                 if (plan.matches(SQL_EXCEPTION_REDEX)) {
@@ -226,7 +242,7 @@ public class BatchSparkHiveSqlExeService {
             }
         } catch (Exception e) {
             log.error("", e);
-            throw new RdosDefineException(e.getMessage());
+            throw new RdosDefineException(e.getMessage(), e);
         }
     }
 
@@ -236,63 +252,59 @@ public class BatchSparkHiveSqlExeService {
      * @param eJobType
      * @return
      */
-//    protected ExecuteResultVO executeSql(ExecuteContent executeContent, EJobType eJobType) {
-//        // 判断血缘解析结果，防止空指针
-//        if (null == executeContent.getParseResult()) {
-//            throw new RdosDefineException("血缘解析异常，结果为空");
-//        }
-//        Long dtuicTenantId = executeContent.getTenantId();
-//        Long tenantId = executeContent.getTenantId();
-//        Long projectId = executeContent.getProjectId();
-//        Long userId = executeContent.getUserId();
-//        Long relationId = executeContent.getRelationId();
-//        String preJobId = executeContent.getPreJobId();
-//        Integer relationType = executeContent.getRelationType();
-//        String currDb = executeContent.getParseResult().getCurrentDb();
-//        ParseResult parseResult = executeContent.getParseResult();
-//        boolean useFunction = batchFunctionService.validContainSelfFunction(executeContent.getSql(), projectId, null);
-//
-//        ExecuteResultVO<List<Object>> result = new ExecuteResultVO<>();
-//        if (Objects.nonNull(parseResult) && Objects.nonNull(parseResult.getStandardSql()) && isSimpleQuery(parseResult.getStandardSql()) && !useFunction) {
-//            result = simpleQuery(dtuicTenantId, parseResult, currDb, tenantId, userId, executeContent.getEngineType(), eJobType);
-//            if (!result.getIsContinue()) {
-//                return result;
-//            }
-//        }
-//
-//        DataSourceType dataSourceType = eJobType == EJobType.SPARK_SQL ? DataSourceType.Spark : DataSourceType.HIVE;
-//        if (SqlType.CREATE_AS.equals(parseResult.getSqlType())) {
-//            String jobId = batchHadoopSelectSqlService.runSqlByTask(dtuicTenantId, parseResult, tenantId, projectId, userId,
-//                    currDb.toLowerCase(), true, relationId, relationType, preJobId);
-//            result.setJobId(jobId);
-//            result.setIsContinue(false);
-//            return result;
-//        } else if (SqlType.INSERT.equals(parseResult.getSqlType())
-//                || SqlType.INSERT_OVERWRITE.equals(parseResult.getSqlType())
-//                || SqlType.QUERY.equals(parseResult.getSqlType())
-//                || useFunction) {
-//            String jobId = batchHadoopSelectSqlService.runSqlByTask(dtuicTenantId, parseResult, tenantId, projectId,
-//                    userId, currDb.toLowerCase(), relationId, relationType, preJobId);
-//            result.setJobId(jobId);
-//        } else {
-//            if (!executeContent.isExecuteSqlLater()) {
-//                ProjectEngine projectDb = projectEngineService.getProjectDb(executeContent.getProjectId(), MultiEngineType.HADOOP.getType());
-//                Preconditions.checkNotNull(projectDb, "引擎不能为空");
-//                if (SqlType.CREATE.equals(parseResult.getSqlType())
-//                        || SqlType.CREATE_LIKE.equals(parseResult.getSqlType())) {
-//                    executeCreateTableSql(parseResult, dtuicTenantId, projectDb.getEngineIdentity().toLowerCase(), eJobType);
-//                } else {
-//                    this.exeSqlDirect(executeContent, dtuicTenantId, parseResult, result, projectDb, dataSourceType);
-//                }
-//            }
-//        }
-//        result.setIsContinue(true);
-//        return result;
-//    }
+    protected ExecuteResultVO executeSql(ExecuteContent executeContent, EJobType eJobType) {
+        // 判断血缘解析结果，防止空指针
+        if (null == executeContent.getParseResult()) {
+            throw new RdosDefineException("血缘解析异常，结果为空");
+        }
+        Long tenantId = executeContent.getTenantId();
+        Long userId = executeContent.getUserId();
+        Long relationId = executeContent.getRelationId();
+        String preJobId = executeContent.getPreJobId();
+        Integer relationType = executeContent.getRelationType();
+        String currDb = executeContent.getParseResult().getCurrentDb();
+        ParseResult parseResult = executeContent.getParseResult();
+        boolean useSelfFunction = batchFunctionService.validContainSelfFunction(executeContent.getSql(), tenantId, null);
+
+        ExecuteResultVO<List<Object>> result = new ExecuteResultVO<>();
+        if (Objects.nonNull(parseResult) && Objects.nonNull(parseResult.getStandardSql()) && isSimpleQuery(parseResult.getStandardSql()) && !useSelfFunction) {
+            result = simpleQuery(tenantId, parseResult, currDb, userId, executeContent.getEngineType(), eJobType);
+            if (!result.getIsContinue()) {
+                return result;
+            }
+        }
+
+        DataSourceType dataSourceType = eJobType == EJobType.SPARK_SQL ? DataSourceType.Spark : DataSourceType.HIVE;
+        if (SqlType.CREATE_AS.equals(parseResult.getSqlType())) {
+            String jobId = batchHadoopSelectSqlService.runSqlByTask(tenantId, parseResult, userId, currDb.toLowerCase(), true, relationId, relationType, preJobId);
+            result.setJobId(jobId);
+            result.setIsContinue(false);
+            return result;
+        } else if (SqlType.INSERT.equals(parseResult.getSqlType())
+                || SqlType.INSERT_OVERWRITE.equals(parseResult.getSqlType())
+                || SqlType.QUERY.equals(parseResult.getSqlType())
+                || useSelfFunction) {
+            String jobId = batchHadoopSelectSqlService.runSqlByTask(tenantId, parseResult, userId, currDb.toLowerCase(), relationId, relationType, preJobId);
+            result.setJobId(jobId);
+        } else {
+            if (!executeContent.isExecuteSqlLater()) {
+                TenantEngine tenantEngine = tenantEngineService.getByTenantAndEngineType(executeContent.getTenantId(), MultiEngineType.HADOOP.getType());
+                Preconditions.checkNotNull(tenantEngine, "引擎不能为空");
+                if (SqlType.CREATE.equals(parseResult.getSqlType())
+                        || SqlType.CREATE_LIKE.equals(parseResult.getSqlType())) {
+                    executeCreateTableSql(parseResult, tenantId, tenantEngine.getEngineIdentity().toLowerCase(), eJobType);
+                } else {
+                    this.exeSqlDirect(executeContent, tenantId, parseResult, result, tenantEngine, dataSourceType);
+                }
+            }
+        }
+        result.setIsContinue(true);
+        return result;
+    }
 
     /**
      * 简单查询结果
-     * @param dtuicTenantId
+     * @param tenantId
      * @param parseResult
      * @param currentDb
      * @param tenantId
@@ -301,35 +313,35 @@ public class BatchSparkHiveSqlExeService {
      * @param eJobType
      * @return
      */
-//    protected ExecuteResultVO<List<Object>> simpleQuery(Long dtuicTenantId, ParseResult parseResult, String currentDb, Long tenantId, Long userId, Integer engineType, EJobType eJobType) {
-//        ExecuteResultVO<List<Object>> result = new ExecuteResultVO<>();
-//        Matcher matcher = SIMPLE_QUERY_PATTERN.matcher(parseResult.getStandardSql());
-//        if (matcher.find()) {
-//            String db = StringUtils.isEmpty(parseResult.getMainTable().getDb()) ? currentDb : parseResult.getMainTable().getDb();
-//            String tableName = parseResult.getMainTable().getName();
-//
-//            //这里增加一条记录，保证简单查询sql也能下载数据
-//            String jobId = UUID.randomUUID().toString();
-//
-//            String parseColumnsString = "{}";
-//            selectSqlService.addSelectSql(jobId, tableName, TempJobType.SIMPLE_SELECT.getType(), tenantId, 0L, parseResult.getStandardSql(), userId, parseColumnsString, engineType);
-//            result.setJobId(jobId);
-//            result.setIsContinue(false);
-//        } else {
-//            try {
-//                List<List<Object>> executeResult = jdbcServiceImpl.executeQuery(dtuicTenantId, null, eJobType, currentDb.toLowerCase(), parseResult.getStandardSql());
-//                batchSqlExeService.dealResultDoubleList(executeResult);
-//                result.setStatus(TaskStatus.FINISHED.getStatus());
-//                result.setResult(executeResult);
-//            } catch (Exception e) {
-//                log.error("", e);
-//                result.setStatus(TaskStatus.FAILED.getStatus());
-//                result.setMsg(e.getMessage());
-//            }
-//
-//            result.setIsContinue(false);
-//        }
-//        return result;
-//    }
+    protected ExecuteResultVO<List<Object>> simpleQuery(Long tenantId, ParseResult parseResult, String currentDb, Long userId, Integer engineType, EJobType eJobType) {
+        ExecuteResultVO<List<Object>> result = new ExecuteResultVO<>();
+        Matcher matcher = SIMPLE_QUERY_PATTERN.matcher(parseResult.getStandardSql());
+        if (matcher.find()) {
+            String db = StringUtils.isEmpty(parseResult.getMainTable().getDb()) ? currentDb : parseResult.getMainTable().getDb();
+            String tableName = parseResult.getMainTable().getName();
+
+            //这里增加一条记录，保证简单查询sql也能下载数据
+            String jobId = UUID.randomUUID().toString();
+
+            String parseColumnsString = "{}";
+            selectSqlService.addSelectSql(jobId, tableName, TempJobType.SIMPLE_SELECT.getType(), tenantId, parseResult.getStandardSql(), userId, parseColumnsString, engineType);
+            result.setJobId(jobId);
+            result.setIsContinue(false);
+        } else {
+            try {
+                List<List<Object>> executeResult = jdbcServiceImpl.executeQuery(tenantId, null, eJobType, currentDb.toLowerCase(), parseResult.getStandardSql());
+                batchSqlExeService.dealResultDoubleList(executeResult);
+                result.setStatus(TaskStatus.FINISHED.getStatus());
+                result.setResult(executeResult);
+            } catch (Exception e) {
+                log.error("", e);
+                result.setStatus(TaskStatus.FAILED.getStatus());
+                result.setMsg(e.getMessage());
+            }
+
+            result.setIsContinue(false);
+        }
+        return result;
+    }
 
 }

@@ -20,29 +20,30 @@ package com.dtstack.batch.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.batch.common.enums.CatalogueType;
-import com.dtstack.batch.dao.BatchCatalogueDao;
 import com.dtstack.batch.dao.BatchFunctionDao;
 import com.dtstack.batch.dao.BatchFunctionResourceDao;
-import com.dtstack.batch.domain.*;
+import com.dtstack.batch.domain.BatchCatalogue;
+import com.dtstack.batch.domain.BatchFunction;
+import com.dtstack.batch.domain.BatchFunctionResource;
+import com.dtstack.batch.domain.BatchResource;
 import com.dtstack.batch.dto.BatchFunctionDTO;
 import com.dtstack.batch.engine.rdbms.common.util.SqlFormatUtil;
 import com.dtstack.batch.mapping.TaskTypeEngineTypeMapping;
-import com.dtstack.batch.service.console.TenantService;
-import com.dtstack.batch.service.table.IFunctionService;
 import com.dtstack.batch.service.task.impl.BatchTaskService;
 import com.dtstack.batch.vo.BatchFunctionVO;
 import com.dtstack.batch.vo.TaskCatalogueVO;
 import com.dtstack.batch.web.pager.PageQuery;
 import com.dtstack.batch.web.pager.PageResult;
 import com.dtstack.engine.common.constrant.PatternConstant;
-import com.dtstack.engine.common.enums.*;
-import com.dtstack.engine.common.exception.DtCenterDefException;
+import com.dtstack.engine.common.enums.Deleted;
+import com.dtstack.engine.common.enums.FuncType;
+import com.dtstack.engine.common.enums.FunctionType;
+import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.domain.User;
 import com.dtstack.engine.master.impl.UserService;
-import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
@@ -58,7 +59,12 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -86,38 +92,44 @@ public class BatchFunctionService {
     private BatchTaskService batchTaskService;
 
     @Autowired
-    private ProjectEngineService projectEngineService;
-
-//    @Autowired
-//    private MultiEngineServiceFactory multiEngineServiceFactory;
-
-    @Autowired
-    private BatchCatalogueDao batchCatalogueDao;
-
-    @Autowired
-    private TenantService tenantService;
+    private BatchCatalogueService batchCatalogueService;
 
     /**
      * 系统函数缓存
      */
     private Cache<String, Map<String, BatchFunction>> systemFunctions = CacheBuilder.newBuilder().expireAfterWrite(30 * (long)60, TimeUnit.SECONDS).maximumSize(10).build();
 
-    private static String system = "systemFunctions";
 
-    // 创建临时函数
+    private static String SYSTEM_FUNCTIONS = "systemFunctions";
+
+    /**
+     * 创建临时函数
+     */
     private static final String CREATE_TEMP_FUNCTION = "create temporary function %s as '%s' using jar '%s';";
 
-    // 删除函数打印使用
-    private static final String LOGGER_DELETE_FUNCTION = "[id : %s , name : %s]";
 
-
+    /**
+     * 启动服务时，就初始化系统函数到缓存中
+     */
     @PostConstruct
     public void init() {
-        systemFunctions.put(system, getSystemFunctions());
+        Map<String, BatchFunction> batchFunctionMap = systemFunctions.getIfPresent(SYSTEM_FUNCTIONS);
+        if (batchFunctionMap == null || batchFunctionMap.size() == 0) {
+            List<BatchFunction> listSystemFunction = batchFunctionDao.listSystemFunction(null);
+            batchFunctionMap = Maps.newConcurrentMap();
+            for (BatchFunction systemFunction : listSystemFunction) {
+                batchFunctionMap.put(systemFunction.getName(), systemFunction);
+            }
+            systemFunctions.put(SYSTEM_FUNCTIONS, batchFunctionMap);
+        }
+        systemFunctions.put(SYSTEM_FUNCTIONS, batchFunctionMap);
     }
+
 
     /**
      * 根据id获取函数
+     * @param functionId
+     * @return
      */
     public BatchFunctionVO getFunction(Long functionId) {
         BatchFunction batchFunction = batchFunctionDao.getOne(functionId);
@@ -125,6 +137,7 @@ public class BatchFunctionService {
             return new BatchFunctionVO();
         }
         BatchFunctionVO vo = BatchFunctionVO.toVO(batchFunction);
+        //如果函数有资源，则设置函数的资源
         BatchFunctionResource resourceFunctionByFunctionId = batchResourceFunctionDao.getResourceFunctionByFunctionId(batchFunction.getId());
         if (Objects.nonNull(resourceFunctionByFunctionId)){
             vo.setResources(resourceFunctionByFunctionId.getResourceId());
@@ -134,53 +147,25 @@ public class BatchFunctionService {
         return vo;
     }
 
-    public Map<String, BatchFunction> getSystemFunctions() {
-        Map<String, BatchFunction> bfs = systemFunctions.getIfPresent(system);
-        if (bfs == null || bfs.size() == 0) {
-            List<BatchFunction> bf = batchFunctionDao.listSystemFunction(null);
-            bfs = Maps.newConcurrentMap();
-            for (BatchFunction bb : bf) {
-                bfs.put(bb.getName(), bb);
-            }
-            systemFunctions.put(system, bfs);
-        }
-        return bfs;
-    }
-
-    /**
-     * 默认engineIdentity
-     * @param projectId
-     * @param engineType
-     * @return
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public String getEngineIdentity(Long projectId, Integer engineType) {
-        ProjectEngine projectEngine = projectEngineService.getProjectDb(projectId, engineType);
-        Preconditions.checkNotNull(projectEngine, String.format("project %d not support engine %d.", projectId, engineType));
-        return projectEngine.getEngineIdentity();
-    }
 
     /**
      * 添加函数
      */
     @Transactional(rollbackFor = Exception.class)
-    public TaskCatalogueVO addOrUpdateFunction(BatchFunction batchFunction, String resourceIds, Long dtuicTenantId) {
+    public TaskCatalogueVO addOrUpdateFunction(BatchFunction batchFunction, List<Long> resourceIds, Long tenantId) {
         if (!PublicUtil.matcher(batchFunction.getName(), PatternConstant.FUNCTIONPATTERN)) {
             throw new RdosDefineException("注意名称只允许存在字母、数字、下划线、横线，hive函数不支持大写字母", ErrorCode.NAME_FORMAT_ERROR);
         }
-        if (StringUtils.isEmpty(resourceIds)) {
+        if (CollectionUtils.isEmpty(resourceIds)) {
             throw new RdosDefineException("新增函数必须添加资源", ErrorCode.INVALID_PARAMETERS);
         } else {
-            checkResourceType(resourceIds, ResourceType.JAR.getType());
+            checkResourceType(resourceIds);
         }
-        BatchCatalogue parentNode = batchCatalogueDao.getOne(batchFunction.getNodePid());
+        BatchCatalogue parentNode = batchCatalogueService.getOne(batchFunction.getNodePid());
         if (null != parentNode && parentNode.getEngineType() > 0 && batchFunction.getEngineType() == null) {
             batchFunction.setEngineType(parentNode.getEngineType());
         }
         try {
-			ProjectEngine projectEngine = projectEngineService.getProjectDb(0L, batchFunction.getEngineType());
-			Preconditions.checkNotNull(projectEngine, String.format("project %d not support engine %d.", 0L, batchFunction.getEngineType()));
-
 			// id小于0走新增逻辑
 			if (Objects.isNull(batchFunction.getId()) || batchFunction.getId() < 1) {
                 //名称重复校验
@@ -191,7 +176,7 @@ public class BatchFunctionService {
 			batchFunction.setType(FuncType.CUSTOM.getType());
 			batchFunction.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
 			addOrUpdate(batchFunction);
-            addOrUpdateFunctionResource(batchFunction, Long.valueOf(resourceIds));
+            addOrUpdateFunctionResource(batchFunction, resourceIds.get(0));
 			// 添加类目关系
 			TaskCatalogueVO taskCatalogueVO = new TaskCatalogueVO();
 			taskCatalogueVO.setId(batchFunction.getId());
@@ -205,7 +190,7 @@ public class BatchFunctionService {
 			taskCatalogueVO.setCreateUser(username);
 			return taskCatalogueVO;
 		} catch (Exception e) {
-            logger.error("addFunction, functions={},resource={},uicTenantId={}", JSONObject.toJSONString(batchFunction), resourceIds, dtuicTenantId);
+            logger.error("addFunction, functions={},resource={},uicTenantId={}", JSONObject.toJSONString(batchFunction), resourceIds, tenantId);
             logger.error(e.getMessage(), e);
             if (e instanceof RdosDefineException) {
                 throw e;
@@ -234,7 +219,7 @@ public class BatchFunctionService {
             batchFunctionResource.setGmtCreate(new Timestamp(System.currentTimeMillis()));
             batchResourceFunctionDao.insert(batchFunctionResource);
         }else {
-            batchResourceFunctionDao.updateByFunctionId(batchFunctionResource);
+            batchResourceFunctionDao.update(batchFunctionResource);
         }
     }
 
@@ -248,21 +233,24 @@ public class BatchFunctionService {
     }
 
 
-    @Transactional(rollbackFor = Exception.class)
-    public void deleteByProjectId(Long projectId, Long userId) {
-        batchFunctionDao.deleteByProjectId(projectId, userId);
-        batchResourceFunctionDao.deleteByProjectId(projectId);
-    }
-
-    private void checkResourceType(String resources, int resourceType) {
-        List<Long> resourceIdList = stringToList(resources);
-        List<BatchResource> resourceList = batchResourceService.getResourceList(resourceIdList);
+    /**
+     * 校验资源是否存在
+     * @param resourceIds
+     */
+    private void checkResourceType(List<Long> resourceIds) {
+        List<BatchResource> resourceList = batchResourceService.getResourceList(resourceIds);
         if (resourceList == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_RESOURCE);
         }
     }
 
-    public BatchFunction addOrUpdate(BatchFunction batchFunction) {
+
+    /**
+     * 新增、更新 函数信息
+     * @param batchFunction
+     * @return
+     */
+    private BatchFunction addOrUpdate(BatchFunction batchFunction) {
         if (batchFunction.getId() > 0) {
             batchFunctionDao.update(batchFunction);
         } else {
@@ -274,6 +262,9 @@ public class BatchFunctionService {
 
     /**
      * 移动函数
+     * @param userId
+     * @param functionId
+     * @param nodePid
      */
     public void moveFunction(Long userId, Long functionId, Long nodePid) {
 
@@ -294,98 +285,62 @@ public class BatchFunctionService {
 
     /**
      * 删除函数
+     * @param userId
+     * @param functionId
      */
     @Transactional(rollbackFor = Exception.class)
-    public void deleteFunction(Long userId, Long projectId, Long functionId, Long dtuicTenantId) {
-        BatchFunction bf = batchFunctionDao.getOne(functionId);
-        if (bf == null) {
+    public void deleteFunction(Long userId, Long functionId) {
+        BatchFunction batchFunction = batchFunctionDao.getOne(functionId);
+        if (batchFunction == null) {
             throw new RdosDefineException(ErrorCode.FUNCTION_CAN_NOT_FIND);
         }
 
-        if (FuncType.SYSTEM.getType().equals(bf.getType())) {
+        if (FuncType.SYSTEM.getType().equals(batchFunction.getType())) {
             throw new RdosDefineException(ErrorCode.SYSTEM_FUNCTION_CAN_NOT_MODIFY);
         }
 
-        Integer engineType = bf.getEngineType();
-        try {
-            if (engineType.intValue() == MultiEngineType.GREENPLUM.getType()) {
-                this.deleteGreenplumFunction(projectId, dtuicTenantId, bf);
-            }
-        } catch (DtCenterDefException e) {
-                throw e;
-        } catch (Exception e) {
-            throw new RdosDefineException("删除函数出错");
-        }
-        if (engineType.intValue() != MultiEngineType.GREENPLUM.getType()) {
-            batchResourceFunctionDao.deleteByFunctionId(functionId);
-        }
-        bf = new BatchFunction();
-        bf.setId(functionId);
-        bf.setIsDeleted(Deleted.DELETED.getStatus());
-        bf.setModifyUserId(userId);
-        bf.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
-        addOrUpdate(bf);
+        batchResourceFunctionDao.deleteByFunctionId(functionId);
+        batchFunction = new BatchFunction();
+        batchFunction.setId(functionId);
+        batchFunction.setIsDeleted(Deleted.DELETED.getStatus());
+        batchFunction.setModifyUserId(userId);
+        batchFunction.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
+        addOrUpdate(batchFunction);
     }
+
 
     /**
-     * 删除greenplum存储过程或者函数
-     * @param projectId
-     * @param dtuicTenantId
-     * @param bf
+     * 获取任务类型的所有函数
+     * @param tenantId
+     * @param taskType
+     * @return
      */
-    private void deleteGreenplumFunction(Long projectId, Long dtuicTenantId, BatchFunction bf) throws Exception {
-        ProjectEngine projectEngine = projectEngineService.getProjectDb(projectId, bf.getEngineType());
-        Preconditions.checkNotNull(projectEngine, String.format("project %d not support engine %d.", projectId, bf.getEngineType()));
-//        IFunctionService functionService = multiEngineServiceFactory.getFunctionService(bf.getEngineType());
-        IFunctionService functionService = null; //todo
-                String name = bf.getName();
-        String dropSqlPre = String.format("drop function %s.%s", projectEngine.getEngineIdentity(), name);
-        String sqlText = bf.getSqlText();
-        String dropSqlSuf = null;
-        if (FuncType.CUSTOM.getType() == bf.getType()) {
-            dropSqlSuf = sqlText.substring(sqlText.indexOf("("), sqlText.indexOf(")")+1);
-        } else if (FuncType.PROCEDURE.getType() == bf.getType()){
-            String[] typeSqls = sqlText.substring(sqlText.indexOf("(")+1, sqlText.indexOf(")")).split(",");
-            List<String> types = Lists.newArrayList();
-            for (String typeSql : typeSqls) {
-                typeSql = typeSql.replace("\n", "").replace("\r", "").trim();
-                types.add(typeSql.substring(typeSql.lastIndexOf(" ")+1));
-            }
-            dropSqlSuf = "(" + StringUtils.join(types, ",") + ")";
-        }
-        bf.setSqlText(dropSqlPre + dropSqlSuf);
-        functionService.deleteFunction(dtuicTenantId, projectEngine.getEngineIdentity(), bf.getSqlText(), projectId);
-    }
-
-    private List<Long> stringToList(String dataStr) {
-        String[] dataStrArray = dataStr.split(",");
-        List<Long> dataList = new ArrayList<>();
-        for (String d : dataStrArray) {
-            dataList.add(Long.valueOf(d));
-        }
-
-        return dataList;
-    }
-
-    public List<String> getAllFunctionName(Long tenantId, Long projectId, Integer taskType) {
+    public List<String> getAllFunctionName(Long tenantId, Integer taskType) {
         MultiEngineType engineType = TaskTypeEngineTypeMapping.getEngineTypeByTaskType(taskType);
-        List<String> nameList = batchFunctionDao.listNameByProjectId(tenantId, projectId, null == engineType ? null : engineType.getType());
+        List<String> nameList = batchFunctionDao.listNameByTenantId(tenantId, null == engineType ? null : engineType.getType());
         List<BatchFunction> systemFunction = batchFunctionDao.listSystemFunction(null == engineType ? null : engineType.getType());
         List<String> systemNames = systemFunction.stream().map(BatchFunction::getName).collect(Collectors.toList());
         systemNames.addAll(nameList);
         return systemNames;
     }
 
-    public boolean isEmpty(Long tenantId, Long projectId) {
-        return batchFunctionDao.countByProjectIdAndType(tenantId, projectId, FunctionType.USER.getType()) == 0;
-    }
-
-    public List<BatchFunction> listProjectFunction(Long projectId, Integer functionType, Integer engineType) {
-        return batchFunctionDao.listProjectFunction(projectId, functionType, engineType);
-    }
 
     /**
-     * 自定义函数分页查询
+     * 根据 租户、函数类型、引擎类型 获取函数列表
+     * @param tenantId
+     * @param functionType
+     * @param engineType
+     * @return
+     */
+    public List<BatchFunction> listTenantFunction(Long tenantId, Integer functionType, Integer engineType) {
+        return batchFunctionDao.listTenantFunction(tenantId, functionType, engineType);
+    }
+
+
+    /**
+     * 自定义函数的分页查询
+     * @param functionDTO
+     * @return
      */
     public PageResult<List<BatchFunctionVO>> pageQuery(BatchFunctionDTO functionDTO) {
         PageQuery<BatchFunctionDTO> query = new PageQuery<>(functionDTO.getPageIndex(), functionDTO.getPageSize(), "gmt_modified", functionDTO.getSort());
@@ -425,11 +380,11 @@ public class BatchFunctionService {
      * 处理并返回 sql 自定义函数的 SQL
      *
      * @param sql
-     * @param projectId
+     * @param tenantId
      * @return
      */
-    public List<String> buildContainFunctions(String sql, Long projectId) {
-        String buildContainFunction = buildContainFunction(sql, projectId);
+    public List<String> buildContainFunctions(String sql, Long tenantId) {
+        String buildContainFunction = buildContainFunction(sql, tenantId);
         if (StringUtils.isNotBlank(buildContainFunction)) {
             return Arrays.asList(buildContainFunction.split(";"));
         }
@@ -441,10 +396,10 @@ public class BatchFunctionService {
      * 判断sql是否包含自定义函数
      *
      * @param sql
-     * @param projectId
+     * @param tenantId
      * @return
      */
-    public String buildContainFunction(String sql, Long projectId) {
+    public String buildContainFunction(String sql, Long tenantId) {
         StringBuilder sb = new StringBuilder();
         sql = SqlFormatUtil.formatSql(sql).toLowerCase();
         // sql中的自定义函数
@@ -453,54 +408,22 @@ public class BatchFunctionService {
             return StringUtils.EMPTY;
         }
         // 获取此项目下的自定义函数名称
-        List<BatchFunction> projectCustomFunctions = listProjectFunction(projectId, FunctionType.USER.getType(), MultiEngineType.HADOOP.getType());
-        if (CollectionUtils.isEmpty(projectCustomFunctions)) {
+        List<BatchFunction> tenantCustomFunctions = listTenantFunction(tenantId, FunctionType.USER.getType(), MultiEngineType.HADOOP.getType());
+        if (CollectionUtils.isEmpty(tenantCustomFunctions)) {
             return StringUtils.EMPTY;
         }
-        List<String> customFunctionNames = projectCustomFunctions.stream().map(BatchFunction::getName).collect(Collectors.toList());
+        List<String> customFunctionNames = tenantCustomFunctions.stream().map(BatchFunction::getName).collect(Collectors.toList());
         // 循环sql中的函数判断是否是项目中的名称
         for (String sqlFunctionName : sqlFunctionNames) {
             // 如果sql中的函数存在于此项目下
             if (customFunctionNames.contains(sqlFunctionName)) {
-                BatchFunction byNameAndProjectId = batchFunctionDao.getByNameAndProjectId(projectId, sqlFunctionName);
-                sb.append(createTempUDF(byNameAndProjectId));
+                BatchFunction byNameAndTenantId = batchFunctionDao.getByNameAndTenantId(tenantId, sqlFunctionName);
+                sb.append(createTempUDF(byNameAndTenantId));
             }
         }
         return sb.toString();
     }
 
-    /**
-     * 校验是否包含了函数
-     *
-     * @param sql
-     * @param projectId
-     * @return
-     */
-    public boolean validContainSelfFunction(String sql, Long projectId, Integer functionType) {
-        if (StringUtils.isBlank(sql) || projectId == null) {
-            return false;
-        }
-        sql = SqlFormatUtil.formatSql(sql).toLowerCase();
-        // sql中的自定义函数
-        List<String> sqlFunctionNames = SqlFormatUtil.splitSqlWithoutSemi(sql);
-        if (CollectionUtils.isEmpty(sqlFunctionNames)) {
-            return false;
-        }
-        // 获取此项目下的自定义函数名称
-        List<BatchFunction> projectFunctions = listProjectFunction(projectId, functionType, MultiEngineType.HADOOP.getType());
-        if (CollectionUtils.isEmpty(projectFunctions)) {
-            return false;
-        }
-        List<String> projectFunctionNames = projectFunctions.stream().map(BatchFunction::getName).collect(Collectors.toList());
-        // 循环sql中的函数判断是否是项目中的名称
-        for (String sqlFunctionName : sqlFunctionNames) {
-            // 如果sql中的函数存在于此项目下
-            if (projectFunctionNames.contains(sqlFunctionName)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     /**
      * 创建临时函数
@@ -519,4 +442,49 @@ public class BatchFunctionService {
             return StringUtils.EMPTY;
         }
     }
+
+    /**
+     * 根据 租户、父目录id 查询
+     * @param tenantId
+     * @param nodePid
+     * @return
+     */
+    public List<BatchFunction> listByNodePidAndTenantId(Long tenantId, Long nodePid){
+        return batchFunctionDao.listByNodePidAndTenantId(tenantId, nodePid);
+    }
+
+    /**
+     * 校验是否包含了函数
+     *
+     * @param sql
+     * @param tenantId
+     * @param functionType
+     * @return
+     */
+    public boolean validContainSelfFunction(String sql, Long tenantId, Integer functionType) {
+        if (StringUtils.isBlank(sql) || tenantId == null) {
+            return false;
+        }
+        sql = SqlFormatUtil.formatSql(sql).toLowerCase();
+        // sql中的自定义函数
+        List<String> sqlFunctionNames = SqlFormatUtil.splitSqlWithoutSemi(sql);
+        if (CollectionUtils.isEmpty(sqlFunctionNames)) {
+            return false;
+        }
+        // 获取此项目下的自定义函数名称
+        List<BatchFunction> projectFunctions = listTenantFunction(tenantId, functionType, MultiEngineType.HADOOP.getType());
+        if (CollectionUtils.isEmpty(projectFunctions)) {
+            return false;
+        }
+        List<String> projectFunctionNames = projectFunctions.stream().map(BatchFunction::getName).collect(Collectors.toList());
+        // 循环sql中的函数判断是否是项目中的名称
+        for (String sqlFunctionName : sqlFunctionNames) {
+            // 如果sql中的函数存在于此项目下
+            if (projectFunctionNames.contains(sqlFunctionName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

@@ -28,13 +28,10 @@ import java.sql.Timestamp;
 @Data
 @ApiModel("函数查询信息")
 public class BatchFunctionQueryVO extends DtInsightAuthParam {
-    @ApiModelProperty(value = "租户id", hidden = true)
+    @ApiModelProperty(value = "租户id", example = "1")
     private Long tenantId;
 
-    @ApiModelProperty(value = "项目id", hidden = true)
-    private Long projectId;
-
-    @ApiModelProperty(value = "函数修改用户id", hidden = true)
+    @ApiModelProperty(value = "函数修改用户id", example = "1")
     private Long functionModifyUserId;
 
     @ApiModelProperty(value = "开始时间", example = "2020-08-14 14:41:55")

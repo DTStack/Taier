@@ -28,33 +28,89 @@ import java.util.List;
 
 public interface BatchFunctionDao {
 
+    /**
+     * 根据id查询
+     * @param id
+     * @return
+     */
     BatchFunction getOne(@Param("id") Long id);
 
-    List<BatchFunction> listByNodePidAndProjectId(@Param("projectId") Long projectId, @Param("nodePid") Long nodePid);
+    /**
+     * 根据 租户、父目录id 查询
+     * @param tenantId
+     * @param nodePid
+     * @return
+     */
+    List<BatchFunction> listByNodePidAndTenantId(@Param("tenantId") Long tenantId, @Param("nodePid") Long nodePid);
 
+    /**
+     * 根据引擎类型 查询对应函数的跟目录
+     * @param engineType
+     * @return
+     */
     List<BatchFunction> listSystemFunction(@Param("engineType") Integer engineType);
 
-    List<BatchFunction> listProjectFunction(@Param("projectId") Long projectId, @Param("functionType") Integer functionType, @Param("engineType") Integer engineType);
+    /**
+     * 根据 租户 查询
+     * @param tenantId
+     * @param functionType
+     * @param engineType
+     * @return
+     */
+    List<BatchFunction> listTenantFunction(@Param("tenantId") Long tenantId, @Param("functionType") Integer functionType, @Param("engineType") Integer engineType);
 
-    List<BatchFunction> listByNameAndProjectId(@Param("projectId") Long projectId, @Param("name") String name, @Param("type") Integer type);
+    /**
+     * 根据 租户、名称、类型 查询
+     * @param tenantId
+     * @param name
+     * @param type
+     * @return
+     */
+    List<BatchFunction> listByNameAndTenantId(@Param("tenantId") Long tenantId, @Param("name") String name, @Param("type") Integer type);
 
-    BatchFunction getByNameAndProjectId(@Param("projectId") Long projectId, @Param("name") String name);
+    /**
+     * 根据 租户、名称 查询
+     * @param tenantId
+     * @param name
+     * @return
+     */
+    BatchFunction getByNameAndTenantId(@Param("tenantId") Long tenantId, @Param("name") String name);
 
+    /**
+     * 插入数据
+     * @param batchFunction
+     * @return
+     */
     Integer insert(BatchFunction batchFunction);
 
+    /**
+     * 更新数据
+     * @param batchFunction
+     * @return
+     */
     Integer update(BatchFunction batchFunction);
 
-    List<String> listNameByProjectId(@Param("tenantId") Long tenantId, @Param("projectId") Long projectId, @Param("engineType") Integer engineType);
+    /**
+     * 根据 租户、名称查询
+     * @param tenantId
+     * @param engineType
+     * @return
+     */
+    List<String> listNameByTenantId(@Param("tenantId") Long tenantId, @Param("engineType") Integer engineType);
 
-    Integer countByProjectIdAndType(@Param("tenantId") Long tenantId, @Param("projectId") Long projectId, @Param("type") Integer type);
-
+    /**
+     * 通用查询
+     * @param query
+     * @return
+     */
     List<BatchFunction> generalQuery(PageQuery<BatchFunctionDTO> query);
 
+    /**
+     * 通用查询统计
+     * @param model
+     * @return
+     */
     Integer generalCount(@Param("model") BatchFunctionDTO model);
 
-    List<BatchFunction> listByIds(@Param("tenantId") Long tenantId, @Param("projectId") Long projectId, @Param("list") List<Long> list, @Param("isDeleted") Integer isDeleted, @Param("type") Integer type);
-
-    List<BatchFunction> listByProjectIdAndType(@Param("projectId") Long projectId, @Param("type") Integer type);
-
-    Integer deleteByProjectId(@Param("projectId") Long projectId, @Param("userId") Long userId);
+    List<BatchFunction> listProjectFunction(@Param("projectId") Long projectId, @Param("functionType") Integer functionType, @Param("engineType") Integer engineType);
 }

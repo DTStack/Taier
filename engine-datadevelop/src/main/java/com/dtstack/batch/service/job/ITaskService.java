@@ -32,15 +32,13 @@ public interface ITaskService {
      * 上传sql到指定的位置
      * eg:
      *    hadoop平台的会将执行sql上传到hdfs上
-     * @param dtuicTenantId
+     * @param tenantId
      * @param content
      * @param taskType
      * @param taskName
-     * @param tenantId
-     * @param projectId
      * @return
      */
-    String uploadSqlText(Long dtuicTenantId, String content, Integer taskType, String taskName, Long tenantId, Long projectId);
+    String uploadSqlText(Long tenantId, String content, Integer taskType, String taskName);
 
-    void readyForPublishTaskInfo(BatchTask task, Long dtuicTenantId, Long projectId);
+    void readyForPublishTaskInfo(BatchTask task, Long tenantId);
 }
