@@ -23,9 +23,6 @@ public class DsListParam extends BasePageParam {
     @ApiModelProperty(value = "数据源类型")
     private List<String> dataTypeList;
 
-    @ApiModelProperty(value = "产品类型")
-    private List<Integer> appTypeList;
-
     @ApiModelProperty("是否显示默认数据库，0为不显示，1为显示")
     private Integer isMeta;
 

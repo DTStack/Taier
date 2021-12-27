@@ -25,7 +25,6 @@
         a.status as status,
         a.is_meta as isMeta,
         a.tenant_id as tenantId,
-        a.dtuic_tenant_id as dtuicTenantId,
         a.is_deleted as deleted,
         a.gmt_modified as gmtModified,
         a.gmt_create as gmtCreate,
@@ -39,7 +38,7 @@
             a.is_deleted = 0
             and b.is_deleted = 0
             and b.`app_type` = #{listQuery.appType}
-            and a.`dtuic_tenant_id` = #{listQuery.dsDtuicTenantId}
+            and a.`tenant_id` = #{listQuery.tenant_id}
             <if test="listQuery.dataTypeList != null and listQuery.dataTypeList.size() > 0">
                 and a.`data_type` in
                 <foreach collection="listQuery.dataTypeList" item="dataType" open="(" separator="," close=")">
@@ -65,7 +64,7 @@
                 and t.is_deleted = 0
                 and t.project_id = #{listQuery.projectId}
                 and t.app_type = #{listQuery.appType}
-                and t.dtuic_tenant_id = #{listQuery.dsDtuicTenantId}
+                and t.tenant_id = #{listQuery.tenantId}
             )
         </where>
     </sql>
@@ -75,7 +74,7 @@
             a.is_deleted = 0
             and b.is_deleted = 0
             and b.`app_type` = #{listQuery.appType}
-            and a.`dtuic_tenant_id` = #{listQuery.dsDtuicTenantId}
+            and a.`tenant_id` = #{listQuery.tenantId}
             <if test="listQuery.projectId !=null">
                 and b.project_id = #{listQuery.projectId}
             </if>
@@ -109,7 +108,7 @@
     <sql id="queryDsSql">
         <where>
             a.is_deleted = 0
-            and a.dtuic_tenant_id = #{listQuery.dtuicTenantId}
+            and a.tenant_id = #{listQuery.tenantId}
             <if test="listQuery.search != null and listQuery.search != ''">
                 and (
                 a.data_name like concat('%', #{listQuery.search} ,'%')
@@ -186,16 +185,6 @@
         )
     </select>
 
-
-    <select id="getConsoleSftp" resultType="com.dtstack.engine.domain.datasource.DsInfo">
-
-        select
-        <include refid="select_content_fragment" />
-        from dsc_info a
-        where dtuic_tenant_id = #{dtuicTenantId}
-        and is_deleted = 0 and is_meta = 2
-        and data_type_code = 9;
-    </select>
 
 
     <select id="queryListByDataTypeAndVersion" resultType="com.dtstack.engine.domain.datasource.DsInfo">

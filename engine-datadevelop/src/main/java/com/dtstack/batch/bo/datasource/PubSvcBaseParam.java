@@ -18,12 +18,6 @@ public class PubSvcBaseParam {
     private Long userId;
 
     @ApiModelProperty(hidden = true)
-    private Long dtuicTenantId;
-
-    @ApiModelProperty(hidden = true)
-    private Long dtuicUserId;
-
-    @ApiModelProperty(hidden = true)
     private Long tenantId;
 
     @ApiModelProperty(hidden = true)

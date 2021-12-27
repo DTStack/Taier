@@ -161,7 +161,7 @@ public class DsInfoService  extends BaseService<DsInfoMapper, DsInfo>{
      */
     public Boolean checkDataNameDup(DsInfo dsInfo) {
         List<DsInfo> dsInfoList = this.lambdaQuery().eq(DsInfo::getDataName, dsInfo.getDataName())
-                .eq(DsInfo::getDtuicTenantId, dsInfo.getDtuicTenantId())
+                .eq(DsInfo::getTenantId, dsInfo.getTenantId())
                 .ne(Objects.nonNull(dsInfo.getId()), DsInfo::getId, dsInfo.getId()).list();
         return CollectionUtils.isNotEmpty(dsInfoList);
     }

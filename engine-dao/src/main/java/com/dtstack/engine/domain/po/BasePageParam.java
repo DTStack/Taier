@@ -33,9 +33,6 @@ public class BasePageParam extends DtInsightPageAuthParam {
     private Integer end;
 
     @ApiModelProperty(hidden = true)
-    private Long dtuicTenantId;
-
-    @ApiModelProperty(hidden = true)
     private Long tenantId;
 
     /**

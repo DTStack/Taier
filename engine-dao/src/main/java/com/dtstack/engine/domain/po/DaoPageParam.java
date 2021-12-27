@@ -27,8 +27,6 @@ public class DaoPageParam {
      */
     private Integer end;
 
-    private Long dtuicTenantId;
-
     private Long tenantId;
 
     private Integer pageSize;
