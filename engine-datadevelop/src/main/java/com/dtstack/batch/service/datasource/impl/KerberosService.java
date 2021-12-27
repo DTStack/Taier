@@ -114,29 +114,6 @@ public class KerberosService {
         return prefix + "_" + Optional.ofNullable(sourceId).orElse(0L);
     }
 
-    /**
-     * ssl证书地址规则
-     * @param sourceId
-     * @param prefix
-     * @return
-     */
-    public String getSSLKey(Long sourceId, String prefix) {
-        return String.format("%s%s","ssl_",getSourceKey(sourceId,prefix));
-    }
-
-    /**
-     * 从SFTP上下载特定数据源的ssl信息
-     * @param sourceId
-     * @param dataJson
-     * @param dtuicTenantId
-     * @throws SftpException
-     */
-    public void downloadSSLFromSftp(Integer isMeta, Long sourceId, JSONObject dataJson, String localSSLConf, Long dtuicTenantId) throws SftpException {
-        // 需要读取配置文件
-        Map<String, String> sftpMap = getSftpMap(dtuicTenantId);
-        String sslPath = getSSLKey(sourceId,null);
-        KerberosConfigVerify.downloadKerberosFromSftp(sslPath, localSSLConf, sftpMap, null);
-    }
 
     /**
      * 从SFTP上下载特定数据源的信息
@@ -162,15 +139,13 @@ public class KerberosService {
 
     /**
      * 获取集群SFTP配置信息
-     * @param dtuicTenantId
+     * @param tenantId
      * @return
      */
-    public Map<String, String> getSftpMap(Long dtuicTenantId) {
+    public Map<String, String> getSftpMap(Long tenantId) {
         Map<String,String> map = new HashMap<>();
         // 解析SFTP配置信息
-        // todo 获取集群信息
-        JSONObject clusterJson = new JSONObject();
-        JSONObject sftpConfig = clusterJson.getJSONObject(SFTP_CONF);
+        JSONObject sftpConfig = clusterService.getSftpByTenantId(tenantId);
         if (Objects.isNull(sftpConfig)) {
             throw new PubSvcDefineException(ErrorCode.CAN_NOT_FIND_SFTP);
         } else {
@@ -191,7 +166,7 @@ public class KerberosService {
             return;
         }
         try {
-            // 获取kerberos本地路径 TODO 数据查询
+            // 获取kerberos本地路径
             String localKerberosConf = getLocalKerberosPath(dsInfoBO.getId());
             downloadKerberosFromSftp(dsInfoBO.getIsMeta(), dsInfoBO.getId(),
                     DataSourceUtils.getDataSourceJson(dsInfoBO.getDataJson()), localKerberosConf, dsInfoBO.getDtuicTenantId());

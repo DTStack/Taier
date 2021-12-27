@@ -19,13 +19,6 @@ public class TenantModel<T extends Model<?>> extends BaseModel {
     @TableField(value = MP.COLUMN_TENANT_ID)
     private Long tenantId;
 
-    /**
-     * dtuic 租户id
-     */
-    @TableField(value = MP.COLUMN_DTUIC_TENANT_ID)
-    private Long dtuicTenantId;
-
-
     public Long getTenantId() {
         return tenantId;
     }
@@ -34,11 +27,4 @@ public class TenantModel<T extends Model<?>> extends BaseModel {
         this.tenantId = tenantId;
     }
 
-    public Long getDtuicTenantId() {
-        return dtuicTenantId;
-    }
-
-    public void setDtuicTenantId(Long dtuicTenantId) {
-        this.dtuicTenantId = dtuicTenantId;
-    }
 }

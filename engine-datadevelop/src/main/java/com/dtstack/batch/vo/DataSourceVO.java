@@ -43,14 +43,9 @@ public class DataSourceVO{
      */
     private Long userId;
     /**
-     * dtuic 租户id
+     * 租户id
      */
-    private Long dtuicTenantId;
-
-//    /**
-//     * 数据源主键id
-//     */
-//    private Long dataInfoId = 0L;
+    private Long tenantId;
 
     /**
      * 创建时间
@@ -61,11 +56,6 @@ public class DataSourceVO{
      * 修改时间
      */
     private Date gmtModified;
-
-    /**
-     * 租户 ID
-     */
-    private Long tenantId;
 
     /**
      * 项目 ID

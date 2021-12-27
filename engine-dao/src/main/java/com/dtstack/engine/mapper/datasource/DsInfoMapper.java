@@ -71,11 +71,6 @@ public interface DsInfoMapper extends IMapper<DsInfo> {
      * @param dataTypeCode
      */
     void updateDataTypeByDataTypeCode(@Param("dataType") String dataType,@Param("dataVersion") String dataVersion, @Param("dataTypeCode") Integer dataTypeCode);
-    /**
-     * 获取控制台配置的sftp信息
-     * @param dtuicTenantId
-     * @return
-     */
-    DsInfo getConsoleSftp(Long dtuicTenantId);
+
 
 }

@@ -138,7 +138,7 @@ public class DatasourceService {
      */
     public Map<String, Object> fillKerberosConfig(Long sourceId) {
         DsInfo dataSource = dsInfoService.getOneById(sourceId);
-        Long dtuicTenantId = dataSource.getDtuicTenantId();
+        Long tenantId = dataSource.getTenantId();
         // 获取Kerberos客户端
         JSONObject kerberosConfig = DataSourceUtils.getOriginKerberosConfig(dataSource.getDataJson(), false);
 
@@ -149,7 +149,7 @@ public class DatasourceService {
         try {
             // 获取kerberos本地路径
             String localKerberosConf = kerberosService.getLocalKerberosPath(sourceId);
-            kerberosService.downloadKerberosFromSftp(dataSource.getIsMeta(), sourceId, DataSourceUtils.getDataSourceJson(dataSource.getDataJson()), localKerberosConf, dtuicTenantId);
+            kerberosService.downloadKerberosFromSftp(dataSource.getIsMeta(), sourceId, DataSourceUtils.getDataSourceJson(dataSource.getDataJson()), localKerberosConf, tenantId);
         } catch (SftpException e) {
             throw new DtCenterDefException(String.format("获取kerberos认证文件失败,Caused by: %s", e.getMessage()), e);
         }
@@ -406,7 +406,7 @@ public class DatasourceService {
         dsInfo.setStatus(1);
         dsInfo.setIsMeta(dataSourceVO.getIsMeta());
         dsInfo.setTenantId(dataSourceVO.getTenantId());
-        dsInfo.setDtuicTenantId(dataSourceVO.getDtuicTenantId());
+        dsInfo.setTenantId(dataSourceVO.getTenantId());
         dsInfo.setSchemaName(dataSourceVO.getSchemaName());
         DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(dataSourceVO.getDataType(), dataSourceVO.getDataVersion());
         dsInfo.setDataTypeCode(typeEnum.getVal());

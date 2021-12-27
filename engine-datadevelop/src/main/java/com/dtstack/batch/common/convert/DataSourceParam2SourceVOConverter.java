@@ -19,7 +19,7 @@ public class DataSourceParam2SourceVOConverter extends Converter<AddDataSourcePa
         DataSourceVO returnVo = new DataSourceVO();
         returnVo.setId(source.getId());
         returnVo.setUserId(source.getUserId());
-        returnVo.setDtuicTenantId(source.getDtuicTenantId());
+        returnVo.setTenantId(source.getTenantId());
         returnVo.setTenantId(source.getTenantId());
         returnVo.setDataName(source.getDataName());
         returnVo.setDataDesc(source.getDataDesc());
@@ -29,7 +29,6 @@ public class DataSourceParam2SourceVOConverter extends Converter<AddDataSourcePa
         if (Strings.isNotBlank(source.getDataJsonString())) {
             returnVo.setDataJson(DataSourceUtils.getDataSourceJson(source.getDataJsonString()));
         }
-        returnVo.setAppTypeList(source.getAppTypeList());
         return returnVo;
     }
 }
