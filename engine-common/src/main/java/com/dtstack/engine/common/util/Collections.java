@@ -1,7 +1,6 @@
 package com.dtstack.engine.common.util;
 
 import com.google.common.collect.ArrayListMultimap;
-import dt.insight.plat.lang.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

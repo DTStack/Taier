@@ -1,12 +1,12 @@
 package com.dtstack.batch.common.enums;
 
-import com.dtstack.batch.common.exception.ErrorCode;
 import com.dtstack.batch.common.exception.PubSvcDefineException;
 import com.dtstack.batch.utils.Asserts;
+import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.util.Strings;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
-import dt.insight.plat.lang.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

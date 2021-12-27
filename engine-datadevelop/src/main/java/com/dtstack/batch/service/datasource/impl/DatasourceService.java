@@ -3,12 +3,9 @@ package com.dtstack.batch.service.datasource.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.batch.common.enums.DataSourceTypeEnum;
-import com.dtstack.batch.common.exception.ErrorCode;
 import com.dtstack.batch.common.exception.PubSvcDefineException;
 import com.dtstack.batch.enums.SourceDTOType;
-import com.dtstack.batch.utils.DataSourceUtils;
 import com.dtstack.batch.vo.DataSourceVO;
-import com.dtstack.dtcenter.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.loader.client.ClientCache;
 import com.dtstack.dtcenter.loader.client.IKerberos;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
@@ -16,13 +13,16 @@ import com.dtstack.dtcenter.loader.kerberos.HadoopConfTool;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.engine.common.constrant.FormNames;
 import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.common.exception.DtCenterDefException;
+import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.util.CommonUtils;
+import com.dtstack.engine.common.util.DataSourceUtils;
+import com.dtstack.engine.common.util.Strings;
 import com.dtstack.engine.domain.datasource.DsFormField;
 import com.dtstack.engine.domain.datasource.DsInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import com.jcraft.jsch.SftpException;
-import dt.insight.plat.lang.base.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -34,7 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 有关数据源中心
