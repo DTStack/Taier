@@ -71,11 +71,8 @@ public class HiveSelectDownload implements IDownload {
     // 是否展示无权限字段 false：不展示， true：展示
     boolean permissionStyle;
 
-    // 是否需要脱敏
-    boolean needMask;
-
-    // uic租户ID
-    Long uicTenantId;
+    // 租户ID
+    Long tenantId;
 
     // 数据源类型
     Integer dataSourceType;
@@ -102,7 +99,7 @@ public class HiveSelectDownload implements IDownload {
     private static final String TEXT_STORE_NULL = "\\N";
 
     public HiveSelectDownload(Map<String, Object> hadoopConfig, JdbcInfo jdbcInfo, List<String> queryFieldNames,
-                              List<String> fieldNamesShow, boolean permissionStyle, boolean needMask, Long uicTenantId,
+                              List<String> fieldNamesShow, boolean permissionStyle, Long tenantId,
                               String db, String tableName, String partition,
                               Integer dataSourceType) throws Exception{
         this.hadoopConfig = hadoopConfig;
@@ -110,8 +107,7 @@ public class HiveSelectDownload implements IDownload {
         this.queryFieldNames = queryFieldNames;
         this.fieldNamesShow = fieldNamesShow;
         this.permissionStyle = permissionStyle;
-        this.needMask = needMask;
-        this.uicTenantId = uicTenantId;
+        this.tenantId = tenantId;
         this.db = db;
         this.tableName = tableName;
         this.partition = partition;
@@ -132,7 +128,7 @@ public class HiveSelectDownload implements IDownload {
             }
         }
         // 获取client
-        ISourceDTO sourceDTO = Engine2DTOService.get(uicTenantId, null, dataSourceType, db, jdbcInfo);
+        ISourceDTO sourceDTO = Engine2DTOService.get(tenantId, null, dataSourceType, db, jdbcInfo);
         IClient client = ClientCache.getClient(dataSourceType);
         SqlQueryDTO queryDTO = SqlQueryDTO.builder()
                 .tableName(tableName)

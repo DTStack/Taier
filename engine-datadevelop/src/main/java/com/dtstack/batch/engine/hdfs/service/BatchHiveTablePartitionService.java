@@ -44,16 +44,16 @@ public class BatchHiveTablePartitionService implements ITablePartitionService {
     /**
      * 判断分区是否存在
      *
-     * @param dtuicTenantId
+     * @param tenantId
      * @param partitionVal
      * @param tableName
      * @param db
-     * @param projectId
+     * @param tableType
      * @return
      */
     @Override
-    public boolean isPartitionExist(Long dtuicTenantId, String partitionVal, String tableName, String db, Long projectId, Integer tableType) {
-        return this.iTableServiceImpl.isPartitionExist(dtuicTenantId, null, partitionVal, db, ETableType.getTableType(tableType), tableName);
+    public Boolean isPartitionExist(Long tenantId, String partitionVal, String tableName, String db, Integer tableType) {
+        return this.iTableServiceImpl.isPartitionExist(tenantId, null, partitionVal, db, ETableType.getTableType(tableType), tableName);
     }
 
 }

@@ -28,7 +28,7 @@ import lombok.Data;
  * @author xuchao
  */
 @Data
-public class ProjectEngineVO {
+public class TenantEngineVO {
 
     /**
      * 引擎类型：{@link com.dtstack.engine.common.enums.MultiEngineType}
