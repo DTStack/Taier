@@ -22,7 +22,7 @@ import com.dtstack.batch.engine.rdbms.common.dto.ColumnDTO;
 import com.dtstack.batch.engine.rdbms.common.dto.TableDTO;
 import com.dtstack.batch.engine.rdbms.common.enums.StoredType;
 import com.dtstack.batch.engine.rdbms.service.ISqlBuildService;
-import com.dtstack.dtcenter.common.exception.DtCenterDefException;
+import com.dtstack.engine.common.exception.DtCenterDefException;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;

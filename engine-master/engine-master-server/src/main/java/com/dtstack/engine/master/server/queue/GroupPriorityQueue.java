@@ -18,20 +18,20 @@
 
 package com.dtstack.engine.master.server.queue;
 
-import com.dtstack.engine.domain.EngineJobCache;
-import com.dtstack.engine.mapper.EngineJobCacheDao;
-import com.dtstack.engine.pluginapi.pojo.ParamAction;
-import com.dtstack.engine.pluginapi.CustomThreadFactory;
-import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.queue.comparator.JobClientComparator;
-import com.dtstack.engine.pluginapi.util.PublicUtil;
+import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.mapper.ScheduleJobDao;
-import com.dtstack.engine.master.server.scheduler.JobPartitioner;
 import com.dtstack.engine.master.WorkerOperator;
+import com.dtstack.engine.master.impl.EngineJobCacheService;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.jobdealer.JobSubmitDealer;
+import com.dtstack.engine.master.server.scheduler.JobPartitioner;
+import com.dtstack.engine.pluginapi.CustomThreadFactory;
+import com.dtstack.engine.pluginapi.JobClient;
+import com.dtstack.engine.pluginapi.pojo.ParamAction;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -60,7 +60,7 @@ public class GroupPriorityQueue {
 
     private ApplicationContext applicationContext;
     private EnvironmentContext environmentContext;
-    private EngineJobCacheDao engineJobCacheDao;
+    private EngineJobCacheService engineJobCacheService;
     private ScheduleJobDao scheduleJobDao;
     private JobDealer jobDealer;
     private JobPartitioner jobPartitioner;
@@ -151,7 +151,7 @@ public class GroupPriorityQueue {
             long startId = 0L;
             outLoop:
             while (true) {
-                List<EngineJobCache> jobCaches = engineJobCacheDao.listByStage(startId, localAddress, EJobCacheStage.DB.getStage(), jobResource);
+                List<EngineJobCache> jobCaches = engineJobCacheService.listByStage(startId, localAddress, EJobCacheStage.DB.getStage(), jobResource);
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     empty = true;
                     break;
@@ -202,7 +202,7 @@ public class GroupPriorityQueue {
         public void run() {
             try {
                 if (Boolean.FALSE == blocked.get()) {
-                    int jobSize = engineJobCacheDao.countByStage(jobResource, EJobCacheStage.unSubmitted(), environmentContext.getLocalAddress());
+                    int jobSize = engineJobCacheService.countByStage(jobResource, EJobCacheStage.unSubmitted(), environmentContext.getLocalAddress());
                     if (jobSize == 0) {
                         return;
                     }
@@ -244,9 +244,6 @@ public class GroupPriorityQueue {
         if (null == environmentContext) {
             throw new RuntimeException("environmentContext is null.");
         }
-        if (null == engineJobCacheDao) {
-            throw new RuntimeException("engineJobCacheDao is null.");
-        }
         if (null == scheduleJobDao) {
             throw new RuntimeException("scheduleJobDao is null.");
         }
@@ -266,7 +263,7 @@ public class GroupPriorityQueue {
      */
     public GroupPriorityQueue build() {
         this.environmentContext = applicationContext.getBean(EnvironmentContext.class);
-        this.engineJobCacheDao = applicationContext.getBean(EngineJobCacheDao.class);
+        this.engineJobCacheService = applicationContext.getBean(EngineJobCacheService.class);
         this.scheduleJobDao = applicationContext.getBean(ScheduleJobDao.class);
         this.jobPartitioner = applicationContext.getBean(JobPartitioner.class);
         this.workerOperator = applicationContext.getBean(WorkerOperator.class);

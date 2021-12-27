@@ -18,7 +18,7 @@
     <select id="generalCount" resultType="java.lang.Integer">
         select count(*)
         from console_cluster_tenant et
-                 left join console_dtuic_tenant t
+                 left join tenant t
                            on et.tenant_id = t.id
         where et.cluster_id = #{clusterId}
           and t.tenant_name like concat(concat('%', #{tenantName}), '%')
@@ -28,8 +28,8 @@
 
     <select id="generalQuery" resultType="com.dtstack.engine.domain.ClusterTenant">
         select
-        t.id as tenant_id,t.tenant_name,et.queue_id
-        from console_cluster_tenant et left join console_dtuic_tenant t
+        t.id as tenant_id,t.tenant_name,et.queue_id,et.cluster_id,et.gmt_modified,et.gmt_create
+        from console_cluster_tenant et left join tenant t
         on et.tenant_id = t.id
         where et.cluster_id = #{clusterId} and t.tenant_name like concat(concat('%',#{tenantName}),'%')
         and et.is_deleted = 0
@@ -76,7 +76,7 @@
                t.tenant_name,
                et.queue_id
         from console_cluster_tenant et
-                 left join console_dtuic_tenant t
+                 left join tenant t
                            on et.tenant_id = t.id
         where et.cluster_id = #{clusterId}
           and et.is_deleted = 0

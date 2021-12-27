@@ -21,7 +21,7 @@ package com.dtstack.engine.mapper;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.po.SimpleScheduleJobPO;
 import com.dtstack.engine.dto.ScheduleJobDTO;
-import com.dtstack.engine.dto.StatusCount;
+import com.dtstack.engine.domain.po.StatusCountPO;
 import com.dtstack.engine.pager.PageQuery;
 import org.apache.ibatis.annotations.Param;
 
@@ -70,7 +70,7 @@ public interface ScheduleJobDao {
 
     Integer generalCount(@Param("model") ScheduleJobDTO object);
 
-    List<StatusCount> getJobsStatusStatistics(@Param("model") ScheduleJobDTO object);
+    List<StatusCountPO> getJobsStatusStatistics(@Param("model") ScheduleJobDTO object);
 
     Integer batchInsert(Collection batchJobs);
 

@@ -22,11 +22,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleJobJob;
-import com.dtstack.engine.domain.ScheduleTaskShade;
-import com.dtstack.engine.common.enums.TaskRuleEnum;
 import com.dtstack.engine.common.enums.*;
+import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.mapper.ScheduleJobJobDao;
-import com.dtstack.engine.mapper.TenantMapper;
 import com.dtstack.engine.common.enums.EScheduleJobType;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.pluginapi.util.MathUtil;
@@ -166,8 +164,7 @@ public class JobRichOperator {
 
         //正常调度---判断当前任务是不是处于暂停状态--暂停状态直接返回冻结
         if (scheduleType == EScheduleType.NORMAL_SCHEDULE.getType()
-                && (EScheduleStatus.PAUSE.getVal().equals(batchTaskShade.getScheduleStatus()) ||
-                EProjectScheduleStatus.PAUSE.getStatus().equals(batchTaskShade.getProjectScheduleStatus()))) {
+                && (EScheduleStatus.PAUSE.getVal().equals(batchTaskShade.getScheduleStatus()))) {
             //查询缓存
             checkRunInfo.setStatus(JobCheckStatus.TASK_PAUSE);
             return Boolean.FALSE;
@@ -175,8 +172,7 @@ public class JobRichOperator {
 
         // 质量任务补数据支持冻结
         if (scheduleType == EScheduleType.FILL_DATA.getType() && AppType.DQ.getType().equals(1)
-                && (EScheduleStatus.PAUSE.getVal().equals(batchTaskShade.getScheduleStatus()) ||
-                EProjectScheduleStatus.PAUSE.getStatus().equals(batchTaskShade.getProjectScheduleStatus()))) {
+                && (EScheduleStatus.PAUSE.getVal().equals(batchTaskShade.getScheduleStatus()))) {
             // 直接返回冻结
             checkRunInfo.setStatus(JobCheckStatus.TASK_PAUSE);
             return Boolean.FALSE;

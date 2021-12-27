@@ -276,18 +276,6 @@ public class ConsoleService {
         theJobMap.put("waitTime", waitTime);
         theJobMap.put("waitReason", engineJobCache.getWaitReason());
         theJobMap.put("tenantName", null == tenant ? "" : tenant.getTenantName());
-        String jobInfo = (String) theJobMap.get("jobInfo");
-        JSONObject jobInfoJSON = JSONObject.parseObject(jobInfo);
-        if (null == jobInfoJSON) {
-            jobInfoJSON = new JSONObject();
-        }
-        if (!jobInfoJSON.containsKey(PluginWrapper.PLUGIN_INFO)) {
-            //获取插件信息
-            String pluginInfo = pluginWrapper.getPluginInfo(jobInfoJSON.getString("taskParams"), engineJobCache.getComputeType(), engineJobCache.getEngineType(),
-                    null == tenant ? -1L : tenant.getId(), jobInfoJSON.getLong("userId"),pluginInfoCache,jobInfoJSON.getString("componentVersion"));
-            jobInfoJSON.put(PluginWrapper.PLUGIN_INFO, JSONObject.parseObject(pluginInfo));
-            theJobMap.put("jobInfo", jobInfoJSON);
-        }
     }
 
     private ConsoleJobInfoVO fillJobInfo(ParamAction paramAction, ScheduleJob scheduleJob, EngineJobCache engineJobCache, Tenant tenant) {
@@ -486,7 +474,7 @@ public class ConsoleService {
             if (StringUtils.isBlank(typeName)) {
                 //获取对应的插件名称
                 typeName = componentService.convertComponentTypeToClient(cluster.getClusterName(),
-                        EComponentType.YARN.getTypeCode(), yarnComponent.getHadoopVersion(),null,null,null);
+                        EComponentType.YARN.getTypeCode(),null,null,null);
             }
             pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,typeName);
             return workerOperator.clusterResource(typeName, pluginInfo.toJSONString());

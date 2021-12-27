@@ -27,7 +27,7 @@ import com.dtstack.batch.vo.BatchTaskRecordVO;
 import com.dtstack.batch.web.pager.PageQuery;
 import com.dtstack.batch.web.pager.PageResult;
 import com.dtstack.batch.web.task.vo.result.BatchTaskRecordQueryRecordsResultVO;
-import com.dtstack.dtcenter.common.enums.Sort;
+import com.dtstack.engine.common.enums.Sort;
 import com.dtstack.engine.master.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

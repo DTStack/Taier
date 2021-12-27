@@ -19,31 +19,26 @@
 package com.dtstack.engine.master;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.pluginapi.pojo.CheckResult;
-import com.dtstack.engine.pluginapi.pojo.ClusterResource;
-import com.dtstack.engine.pluginapi.pojo.ComponentTestResult;
-import com.dtstack.engine.pluginapi.pojo.DtScriptAgentLabel;
+import com.dtstack.engine.common.client.ClientOperator;
+import com.dtstack.engine.common.enums.EScheduleJobType;
 import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.pluginapi.JobIdentifier;
-import com.dtstack.engine.common.client.ClientOperator;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.pojo.ClusterResource;
+import com.dtstack.engine.pluginapi.pojo.ComponentTestResult;
 import com.dtstack.engine.pluginapi.pojo.JobResult;
 import com.dtstack.engine.pluginapi.pojo.JudgeResult;
-import com.dtstack.engine.master.impl.ClusterService;
-import com.dtstack.engine.master.impl.ScheduleDictService;
-import com.google.common.collect.Lists;
+import com.dtstack.engine.pluginapi.util.PublicUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-
-import static com.dtstack.engine.pluginapi.constrant.ConfigConstant.DEPLOY_MODEL;
 
 @Component
 public class WorkerOperator {
@@ -54,35 +49,22 @@ public class WorkerOperator {
     private PluginWrapper pluginWrapper;
 
     @Autowired
-    private ClusterService clusterService;
-
-    @Autowired
     private ClientOperator clientOperator;
 
-    @Autowired
-    private ScheduleDictService scheduleDictService;
-
-
-    private void buildPluginInfo(JobClient jobClient){
-        //补充插件配置信息
+    private void buildPluginInfo(JobClient jobClient) {
         try {
-            //jobClient中如果有pluginInfo(数据质量)以jobClient自带优先
             JSONObject info = JSONObject.parseObject(jobClient.getPluginInfo());
             if (null != info && !info.isEmpty()) {
                 return;
             }
-            Map<String, Object> pluginInfo = pluginWrapper.wrapperPluginInfo(jobClient.getParamAction());
-            jobClient.setPluginInfo(JSONObject.toJSONString(pluginInfo));
-            if(pluginInfo.containsKey(DEPLOY_MODEL)){
-                jobClient.setDeployMode((Integer) pluginInfo.get(DEPLOY_MODEL));
-            }
+            pluginWrapper.wrapperJobClient(jobClient);
         } catch (Exception e) {
-            LOGGER.error("{} buildPluginInfo failed!",jobClient.getJobId(), e);
-            throw new RdosDefineException("buildPluginInfo error",e);
+            LOGGER.error("{} buildPluginInfo failed!", jobClient.getJobId(), e);
+            throw new RdosDefineException("buildPluginInfo error", e);
         }
     }
 
-    private String getPluginInfo(JobIdentifier jobIdentifier){
+    private String getPluginInfo(JobIdentifier jobIdentifier) {
         if (null != jobIdentifier) {
             JSONObject info = JSONObject.parseObject(jobIdentifier.getPluginInfo());
             if (null != info && !info.isEmpty()) {
@@ -90,18 +72,19 @@ public class WorkerOperator {
             }
         }
 
-        if (null == jobIdentifier || null == jobIdentifier.getEngineType() || null == jobIdentifier.getTenantId()) {
+        if (null == jobIdentifier || null == jobIdentifier.getTaskType() || null == jobIdentifier.getTenantId()) {
             LOGGER.error("pluginInfo params lost {}", jobIdentifier);
             throw new RdosDefineException("pluginInfo params lost");
         }
-    /*    EngineTypeComponentType engineTypeComponentType = EngineTypeComponentType.getByEngineName(jobIdentifier.getEngineType());
-        String componentVersionValue = scheduleDictService.convertVersionNameToValue(jobIdentifier.getComponentVersion(), engineTypeComponentType.getScheduleEngineType().getEngineName());
-        JSONObject info = clusterService.pluginInfoJSON(jobIdentifier.getTenantId(), jobIdentifier.getEngineType(), jobIdentifier.getUserId(), jobIdentifier.getDeployMode(),
-                Collections.singletonMap(engineTypeComponentType.getComponentType().getTypeCode(),componentVersionValue));
+        Map<String, Object> info = pluginWrapper.wrapperPluginInfo(jobIdentifier.getTaskType(), jobIdentifier.getComponentVersion(), jobIdentifier.getTenantId(), jobIdentifier.getDeployMode());
         if(null == info){
             return null;
         }
-        return info.toJSONString();*/
+        try {
+            return PublicUtil.objToString(info);
+        } catch (IOException e) {
+            LOGGER.error("{} buildPluginInfo failed!", jobIdentifier.getJobId(), e);
+        }
         return null;
     }
 
@@ -116,67 +99,35 @@ public class WorkerOperator {
     }
 
     public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) {
-        RdosTaskStatus status = clientOperator.getJobStatus(jobIdentifier.getEngineType(), this.getPluginInfo(jobIdentifier), jobIdentifier);
+        String taskName = EScheduleJobType.getTaskType(jobIdentifier.getTaskType()).name();
+        RdosTaskStatus status = clientOperator.getJobStatus(taskName, this.getPluginInfo(jobIdentifier), jobIdentifier);
         if (null == status) {
             status = RdosTaskStatus.NOTFOUND;
         }
         return status;
     }
 
-    @Deprecated
-    public String getEngineMessageByHttp(String engineType, String path, String pluginInfo) {
-        return "";
-    }
-
     public String getEngineLog(JobIdentifier jobIdentifier) {
-        String engineLog = clientOperator.getEngineLog(jobIdentifier.getEngineType(), this.getPluginInfo(jobIdentifier), jobIdentifier);
+        String taskName = EScheduleJobType.getTaskType(jobIdentifier.getTaskType()).name();
+        String engineLog = clientOperator.getEngineLog(taskName, this.getPluginInfo(jobIdentifier), jobIdentifier);
         if (null == engineLog) {
-            engineLog = org.apache.commons.lang3.StringUtils.EMPTY;
+            engineLog = StringUtils.EMPTY;
         }
         return engineLog;
     }
 
     public String getCheckpoints(JobIdentifier jobIdentifier) {
-        String checkPoints = clientOperator.getCheckpoints(jobIdentifier.getEngineType(), this.getPluginInfo(jobIdentifier), jobIdentifier);
+        String taskName = EScheduleJobType.getTaskType(jobIdentifier.getTaskType()).name();
+        String checkPoints = clientOperator.getCheckpoints(taskName, this.getPluginInfo(jobIdentifier), jobIdentifier);
         if (null == checkPoints) {
-            checkPoints = org.apache.commons.lang3.StringUtils.EMPTY;
+            checkPoints = StringUtils.EMPTY;
         }
         return checkPoints;
-    }
-
-    public List<String> getRollingLogBaseInfo(JobIdentifier jobIdentifier) {
-        List<String> rollingLogBaseInfo = clientOperator.getRollingLogBaseInfo(jobIdentifier.getEngineType(), this.getPluginInfo(jobIdentifier), jobIdentifier);
-        if (null == rollingLogBaseInfo || rollingLogBaseInfo.size() == 0) {
-            rollingLogBaseInfo = Lists.newArrayList();
-        }
-        return rollingLogBaseInfo;
-    }
-
-    public String getJobMaster(JobIdentifier jobIdentifier) throws Exception {
-        String jobMaster = clientOperator.getJobMaster(jobIdentifier.getEngineType(), this.getPluginInfo(jobIdentifier), jobIdentifier);
-        if (null == jobMaster) {
-            jobMaster = org.apache.commons.lang3.StringUtils.EMPTY;
-        }
-        return jobMaster;
     }
 
     public JobResult stopJob(JobClient jobClient) throws Exception {
         this.buildPluginInfo(jobClient);
         return clientOperator.stopJob(jobClient);
-    }
-
-    public List<String> containerInfos(JobClient jobClient) {
-        this.buildPluginInfo(jobClient);
-        try {
-            List<String> containerInfos = clientOperator.containerInfos(jobClient);
-            if (null == containerInfos) {
-                containerInfos = new ArrayList<>(0);
-            }
-            return containerInfos;
-        } catch (Exception e) {
-            LOGGER.error("getCheckpoints failed!", e);
-            return null;
-        }
     }
 
     public ComponentTestResult testConnect(String engineType, String pluginInfo) {
@@ -198,14 +149,5 @@ public class WorkerOperator {
 
     public ClusterResource clusterResource(String engineType, String pluginInfo) throws Exception {
         return clientOperator.getClusterResource(engineType, pluginInfo);
-    }
-
-    public CheckResult grammarCheck(JobClient jobClient) throws Exception {
-        this.buildPluginInfo(jobClient);
-        return clientOperator.grammarCheck(jobClient);
-    }
-
-    public List<DtScriptAgentLabel> getDtScriptAgentLabel(String engineType,String pluginInfo) throws Exception {
-        return clientOperator.getDtScriptAgentLabel(engineType,pluginInfo);
     }
 }

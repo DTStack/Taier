@@ -22,7 +22,7 @@
 //import com.alibaba.fastjson.JSONException;
 //import com.alibaba.fastjson.JSONObject;
 //import com.dtstack.batch.common.enums.TempJobType;
-//import com.dtstack.batch.common.exception.RdosDefineException;
+//import com.dtstack.engine.common.exception.RdosDefineException;
 //import com.dtstack.batch.dao.BatchHiveSelectSqlDao;
 //import com.dtstack.batch.domain.*;
 //import com.dtstack.batch.engine.rdbms.common.IDownload;

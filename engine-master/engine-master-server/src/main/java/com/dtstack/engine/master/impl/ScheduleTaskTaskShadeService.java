@@ -34,7 +34,6 @@ import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -520,48 +519,6 @@ public class ScheduleTaskTaskShadeService {
         return vo;
     }
 
-
-    public List<ScheduleTaskVO> getRefTaskNew(Map<Integer, List<ScheduleTaskTaskShade>> listMap, int level, Integer directType,
-                                              Long currentProjectId,List<String> taskIdRelations,List<ScheduleTaskVO> taskVOList){
-        List<ScheduleTaskShade> tasks = getScheduleTaskShades(listMap,directType);
-
-        if (CollectionUtils.isEmpty(tasks)) {
-            return null;
-        }
-        List<ScheduleTaskVO> refTaskVoList = new ArrayList<>(tasks.size());
-        for (ScheduleTaskShade task : tasks) {
-            Integer taskRule = task.getTaskRule();
-
-            if (TaskRuleEnum.NO_RULE.getCode().equals(taskRule)) {
-                refTaskVoList.add(this.getOffSpringNew(task, level, directType, currentProjectId,null,taskIdRelations));
-            } else {
-                // 规则任务
-                taskVOList.add(this.getOffSpringNew(task, level, directType, currentProjectId,null,taskIdRelations));
-            }
-        }
-        return refTaskVoList;
-    }
-
-    private List<ScheduleTaskShade> getScheduleTaskShades(Map<Integer, List<ScheduleTaskTaskShade>> listMap,Integer directType) {
-        List<ScheduleTaskShade> tasks = Lists.newArrayList();
-        //获得所有父节点task
-        for (Map.Entry<Integer, List<ScheduleTaskTaskShade>> entry : listMap.entrySet()) {
-            Integer appType = entry.getKey();
-            List<ScheduleTaskTaskShade> value = entry.getValue();
-            if (CollectionUtils.isNotEmpty(value)) {
-                List<Long> taskId = Lists.newArrayList();
-                if (DisplayDirect.FATHER.getType().equals(directType)) {
-                   taskId = value.stream().map(ScheduleTaskTaskShade::getParentTaskId).collect(Collectors.toList());
-                } else if (DisplayDirect.CHILD.getType().equals(directType)) {
-                   taskId = value.stream().map(ScheduleTaskTaskShade::getTaskId).collect(Collectors.toList());
-                }
-                tasks.addAll(taskShadeService.getTaskByIds(new ArrayList<>(taskId), appType));
-
-            }
-        }
-        return tasks;
-    }
-
     public List<ScheduleTaskVO> getRefTask(Set<Long> taskIds, int level, Integer directType, Long currentProjectId, Integer appType, List<ScheduleTaskVO> ruleTaskList){
 
         if (CollectionUtils.isEmpty(ruleTaskList)) {
@@ -574,15 +531,6 @@ public class ScheduleTaskTaskShadeService {
             return null;
         }
         List<ScheduleTaskVO> refTaskVoList = new ArrayList<>(tasks.size());
-        for (ScheduleTaskShade task : tasks) {
-            Integer taskRule = task.getTaskRule();
-
-            if (TaskRuleEnum.NO_RULE.getCode().equals(taskRule)) {
-                refTaskVoList.add(this.getOffSpring(task, level, directType, currentProjectId,null));
-            } else {
-                ruleTaskList.add(this.getOffSpring(task, level, directType, currentProjectId,null));
-            }
-        }
         return refTaskVoList;
     }
 
