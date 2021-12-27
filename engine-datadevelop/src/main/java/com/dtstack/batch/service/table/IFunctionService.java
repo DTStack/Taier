@@ -31,28 +31,28 @@ public interface IFunctionService {
 
     /**
      * 添加函数
-     * @param dtuicTenantId
+     * @param tenantId
      * @param dbName
      * @param funcName
      * @param className
      * @param resource
      * @throws Exception
      */
-    void addFunction(Long dtuicTenantId, String dbName, String funcName, String className, String resource, Long projectId) throws Exception;
+    void addFunction(Long tenantId, String dbName, String funcName, String className, String resource) throws Exception;
 
     /**
      * 删除函数
-     * @param dtuicTenantId
+     * @param tenantId
      * @param dbName
      * @param functionName
      */
-    void deleteFunction(Long dtuicTenantId, String dbName, String functionName, Long projectId) throws Exception;
+    void deleteFunction(Long tenantId, String dbName, String functionName) throws Exception;
 
     /**
      * 新增存储过程
-     * @param dtuicTenantId
+     * @param tenantId
      * @param dbName
      * @param batchFunction
      */
-    void addProcedure(Long dtuicTenantId, String dbName, BatchFunction batchFunction);
+    void addProcedure(Long tenantId, String dbName, BatchFunction batchFunction);
 }

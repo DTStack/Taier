@@ -127,8 +127,8 @@ public class JdbcServiceImpl implements IJdbcService {
     }
 
     @Override
-    public List<List<Object>> executeQueryWithVariables(Long dtuicTenantId, Long dtuicUserId, EJobType eJobType, String schema, String sql, List<String> variables, String taskParam) {
-        return executeQueryWithVariables(dtuicTenantId, dtuicUserId, eJobType, schema, sql, variables, null, taskParam);
+    public List<List<Object>> executeQueryWithVariables(Long tenantId, Long userId, EJobType eJobType, String schema, String sql, List<String> variables, String taskParam) {
+        return executeQueryWithVariables(tenantId, userId, eJobType, schema, sql, variables, null, taskParam);
     }
 
     /**
@@ -192,11 +192,11 @@ public class JdbcServiceImpl implements IJdbcService {
     }
 
 
-    public List<List<Object>> executeQueryWithVariables(Long dtuicTenantId, Long dtuicUserId, EJobType eJobType, String schema, String sql, List<String> variables, Integer limit, String taskParam) {
+    public List<List<Object>> executeQueryWithVariables(Long tenantId, Long userId, EJobType eJobType, String schema, String sql, List<String> variables, Integer limit, String taskParam) {
         List<List<Object>> returnList = new ArrayList<>();
-        JdbcInfo jdbcInfo = Engine2DTOService.getJdbcInfo(dtuicTenantId, dtuicUserId, eJobType);
+        JdbcInfo jdbcInfo = Engine2DTOService.getJdbcInfo(tenantId, userId, eJobType);
         Integer maxRows = limit == null || limit == 0 ? jdbcInfo.getMaxRows() : limit;
-        ISourceDTO iSourceDTO = Engine2DTOService.get(dtuicTenantId, dtuicUserId, Engine2DTOService.jobTypeTransitionDataSourceType(eJobType, jdbcInfo.getVersion()).getVal(), schema, jdbcInfo);
+        ISourceDTO iSourceDTO = Engine2DTOService.get(tenantId, userId, Engine2DTOService.jobTypeTransitionDataSourceType(eJobType, jdbcInfo.getVersion()).getVal(), schema, jdbcInfo);
 
         IClient client = ClientCache.getClient(iSourceDTO.getSourceType());
         // 率先获取Con，复用，为什么不使用try with resource，因为关闭捕获的异常太大了
@@ -219,7 +219,7 @@ public class JdbcServiceImpl implements IJdbcService {
                 list = client.executeQuery(iSourceDTO, SqlQueryDTO.builder().sql(sql).limit(maxRows)
                         .queryTimeout(jdbcInfo.getQueryTimeout()).build());
             }
-            log.info("集群执行SQL查询，dtUicTenantId:{}，dtUicUserId:{}，jobType:{}，schema:{}，sql:{}", dtuicTenantId, dtuicUserId, eJobType.getType(), schema, sql);
+            log.info("集群执行SQL查询，dtUicTenantId:{}，dtUicUserId:{}，jobType:{}，schema:{}，sql:{}", tenantId, userId, eJobType.getType(), schema, sql);
 
             List<ColumnMetaDTO> columnMetaDataWithSql = client.getColumnMetaDataWithSql(iSourceDTO, SqlQueryDTO.builder().sql(sql).limit(0)
                     .queryTimeout(jdbcInfo.getQueryTimeout()).build());

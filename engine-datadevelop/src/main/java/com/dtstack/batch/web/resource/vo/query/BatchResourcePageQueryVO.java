@@ -29,10 +29,7 @@ import java.sql.Timestamp;
 @ApiModel("资源信息")
 public class BatchResourcePageQueryVO extends DtInsightAuthParam {
 
-    @ApiModelProperty(value = "项目 ID", hidden = true)
-    private Long projectId;
-
-    @ApiModelProperty(value = "租户 ID", hidden = true)
+    @ApiModelProperty(value = "租户 ID", example = "1")
     private Long tenantId;
 
     @ApiModelProperty(value = "资源修改用户 ID", example = "1", required = true)
