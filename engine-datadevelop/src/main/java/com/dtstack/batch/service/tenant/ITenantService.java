@@ -16,9 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.batch.service.project;
-
-import com.dtstack.batch.vo.ProjectEngineVO;
+package com.dtstack.batch.service.tenant;
 
 import java.util.List;
 
@@ -28,31 +26,15 @@ import java.util.List;
  * Company: www.dtstack.com
  * @author xuchao
  */
-public interface IProjectService {
+public interface ITenantService {
 
     Integer NORMAL_TABLE = 0;
-
-    /**
-     *TODO 是否应该返回更明确的创建信息和失败信息
-     * 创建项目
-     * @param projectId
-     * @param projectName
-     * @param projectDesc
-     * @param userId
-     * @param tenantId
-     * @param dtuicTenantId
-     * @param projectEngineVO
-     * @return
-     * @throws Exception
-     */
-    int createProject(Long projectId, String projectName, String projectDesc, Long userId, Long tenantId,
-                      Long dtuicTenantId, ProjectEngineVO projectEngineVO) throws Exception;
 
     /**
      * 获取已经存在的database
      * @return
      */
-    List<String> getRetainDB(Long dtuicTenantId,Long userId) throws Exception;
+    List<String> getRetainDB(Long tenantId,Long userId) throws Exception;
 
-    List<String> getDBTableList(Long dtuicTenantId, Long userId, String dbName, Long projectId) throws Exception;
+    List<String> getDBTableList(Long tenantId, Long userId, String dbName) throws Exception;
 }
