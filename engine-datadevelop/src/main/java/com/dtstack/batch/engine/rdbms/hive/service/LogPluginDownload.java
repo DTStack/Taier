@@ -19,8 +19,8 @@
 package com.dtstack.batch.engine.rdbms.hive.service;
 
 import com.dtstack.batch.engine.rdbms.common.IDownload;
-import com.dtstack.dtcenter.common.exception.DtCenterDefException;
-import com.dtstack.dtcenter.common.util.PublicUtil;
+import com.dtstack.engine.common.exception.DtCenterDefException;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.dtcenter.loader.IDownloader;
 import com.dtstack.dtcenter.loader.client.ClientCache;
 import com.dtstack.dtcenter.loader.client.IHdfsFile;
@@ -96,7 +96,7 @@ public class LogPluginDownload implements IDownload {
         try {
             hdfsLogDownloader.configure();
         } catch (Exception e) {
-            throw new DtCenterDefException(String.format("下载器configure失败，原因是：%s", e.getMessage()), e);
+            throw new DtCenterDefException(String.format("下载器configure失败，原因是：%s", e.getMessage()));
         }
     }
 
@@ -105,7 +105,7 @@ public class LogPluginDownload implements IDownload {
         try {
             return hdfsLogDownloader.getMetaInfo();
         } catch (Exception e) {
-            throw new DtCenterDefException(String.format("下载器getMetaInfo失败，原因是：%s", e.getMessage()), e);
+            throw new DtCenterDefException(String.format("下载器getMetaInfo失败，原因是：%s", e.getMessage()));
         }
     }
 
@@ -114,7 +114,7 @@ public class LogPluginDownload implements IDownload {
         try {
             return hdfsLogDownloader.readNext();
         } catch (Exception e) {
-            throw new DtCenterDefException(String.format("下载器readNext失败，原因是：%s", e.getMessage()), e);
+            throw new DtCenterDefException(String.format("下载器readNext失败，原因是：%s", e.getMessage()));
         }
     }
 
@@ -123,7 +123,7 @@ public class LogPluginDownload implements IDownload {
         try {
             return hdfsLogDownloader.reachedEnd();
         } catch (Exception e) {
-            throw new DtCenterDefException(String.format("下载器reachedEnd失败，原因是：%s", e.getMessage()), e);
+            throw new DtCenterDefException(String.format("下载器reachedEnd失败，原因是：%s", e.getMessage()));
         }
     }
 
@@ -132,7 +132,7 @@ public class LogPluginDownload implements IDownload {
         try {
             hdfsLogDownloader.close();
         } catch (Exception e) {
-            throw new DtCenterDefException(String.format("下载器close失败，原因是：%s", e.getMessage()), e);
+            throw new DtCenterDefException(String.format("下载器close失败，原因是：%s", e.getMessage()));
         }
     }
 

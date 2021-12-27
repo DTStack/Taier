@@ -18,26 +18,15 @@
 
 package com.dtstack.batch.engine.hdfs.service;
 
-import com.dtstack.batch.bo.ExecuteContent;
-import com.dtstack.batch.common.enums.TempJobType;
-import com.dtstack.batch.common.exception.ErrorCode;
-import com.dtstack.batch.common.exception.RdosDefineException;
-import com.dtstack.batch.domain.ProjectEngine;
 import com.dtstack.batch.engine.rdbms.common.util.SqlFormatUtil;
 import com.dtstack.batch.engine.rdbms.service.IJdbcService;
-import com.dtstack.batch.mapping.DataSourceTypeJobTypeMapping;
 import com.dtstack.batch.service.impl.BatchFunctionService;
 import com.dtstack.batch.service.impl.BatchSqlExeService;
 import com.dtstack.batch.service.impl.ProjectEngineService;
 import com.dtstack.batch.service.table.impl.BatchSelectSqlService;
-import com.dtstack.batch.vo.ExecuteResultVO;
-import com.dtstack.dtcenter.common.enums.EJobType;
-import com.dtstack.dtcenter.common.enums.MultiEngineType;
-import com.dtstack.dtcenter.common.enums.TaskStatus;
-import com.dtstack.dtcenter.loader.source.DataSourceType;
-import com.dtstack.dtcenter.loader.utils.DBUtil;
+import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.google.common.base.Preconditions;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -45,10 +34,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Connection;
 import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -240,7 +226,7 @@ public class BatchSparkHiveSqlExeService {
             }
         } catch (Exception e) {
             log.error("", e);
-            throw new RdosDefineException(e.getMessage(), e);
+            throw new RdosDefineException(e.getMessage());
         }
     }
 

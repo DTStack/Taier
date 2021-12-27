@@ -18,7 +18,7 @@
 
 package com.dtstack.batch.common.enums;
 
-import com.dtstack.dtcenter.common.enums.MultiEngineType;
+import com.dtstack.engine.common.enums.MultiEngineType;
 
 /**
  * @author yuebai

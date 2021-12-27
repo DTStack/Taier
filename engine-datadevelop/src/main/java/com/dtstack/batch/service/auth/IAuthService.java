@@ -19,7 +19,7 @@
 package com.dtstack.batch.service.auth;
 
 import com.dtstack.batch.common.constant.PublicConstent;
-import com.dtstack.dtcenter.common.login.domain.LicenseProductComponent;
+import com.dtstack.engine.common.login.domain.LicenseProductComponent;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 

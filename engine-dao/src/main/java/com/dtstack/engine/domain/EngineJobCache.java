@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
  * @author xuchao
  */
 
-@TableName("engine_job_cache")
+@TableName("schedule_engine_job_cache")
 public class EngineJobCache extends BaseEntity{
 
     private String jobId;

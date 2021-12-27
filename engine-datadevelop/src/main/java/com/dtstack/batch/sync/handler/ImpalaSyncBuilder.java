@@ -20,7 +20,7 @@ package com.dtstack.batch.sync.handler;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.batch.common.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.batch.common.template.Reader;
 import com.dtstack.batch.common.template.Writer;
 import com.dtstack.batch.enums.SourceDTOType;

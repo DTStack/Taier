@@ -18,7 +18,7 @@
 
 package com.dtstack.batch.enums;
 
-import com.dtstack.dtcenter.common.enums.EJobType;
+import com.dtstack.engine.common.enums.EJobType;
 import com.google.common.collect.Lists;
 
 import java.util.Arrays;
@@ -75,7 +75,7 @@ public enum TemplateCatalogue {
     public static List<TemplateCatalogue> getValues(Integer type){
         List<TemplateCatalogue> list = Lists.newLinkedList();
         for (TemplateCatalogue temp : TemplateCatalogue.values()){
-           if (ODS_LIBRA.getType().equals(temp.getType()) && !EJobType.LIBRA_SQL.getVal().equals(type)){
+           if (ODS_LIBRA.getType().equals(temp.getType()) && !EJobType.GaussDB_SQL.getVal().equals(type)){
                 continue;
            }
            list.add(temp);

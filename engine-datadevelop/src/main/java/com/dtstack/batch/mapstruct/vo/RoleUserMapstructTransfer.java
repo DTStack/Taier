@@ -42,7 +42,7 @@ public interface RoleUserMapstructTransfer {
      * @param mapSecurityResult
      * @return
      */
-    SecurityResultRoleUserAdd mapSecurityResultTOBatchRoleUserResultVO(com.dtstack.dtcenter.common.console.SecurityResult<Map<Long, List<RoleUser>>> mapSecurityResult);
+    SecurityResultRoleUserAdd mapSecurityResultTOBatchRoleUserResultVO(com.dtstack.engine.common.console.SecurityResult<Map<Long, List<RoleUser>>> mapSecurityResult);
 
 
     /**
@@ -69,7 +69,7 @@ public interface RoleUserMapstructTransfer {
      * @param integerSecurityResult
      * @return
      */
-    SecurityResultRoleUserRemove integerSecurityResultTOMySecurityResult(com.dtstack.dtcenter.common.console.SecurityResult<Integer> integerSecurityResult);
+    SecurityResultRoleUserRemove integerSecurityResultTOMySecurityResult(com.dtstack.engine.common.console.SecurityResult<Integer> integerSecurityResult);
 
 
     /**
@@ -78,7 +78,7 @@ public interface RoleUserMapstructTransfer {
      * @param listSecurityResult
      * @return
      */
-    SecurityResultRoleUserUpdate listSecurityResultTOMySecurityResult(com.dtstack.dtcenter.common.console.SecurityResult<List<RoleUser>> listSecurityResult);
+    SecurityResultRoleUserUpdate listSecurityResultTOMySecurityResult(com.dtstack.engine.common.console.SecurityResult<List<RoleUser>> listSecurityResult);
 
     /**
      * List<UserRolePermissionVO>  -> List<BatchUserRolePermissionResultVO>

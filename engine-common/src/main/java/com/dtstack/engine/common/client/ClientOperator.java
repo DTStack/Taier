@@ -93,18 +93,6 @@ public class ClientOperator {
         }
     }
 
-    public String getEngineMessageByHttp(String engineType, String path, String pluginInfo) {
-        String message;
-
-        try {
-            IClient client = clientCache.getClient(engineType, pluginInfo);
-            message = client.getMessageByHttp(path);
-        } catch (Exception e) {
-            message = ExceptionUtil.getErrorMessage(e);
-        }
-
-        return message;
-    }
 
     public String getEngineLog(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
         checkoutOperator(engineType, pluginInfo, jobIdentifier);
@@ -130,22 +118,13 @@ public class ClientOperator {
         }
     }
 
-    public String getJobMaster(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
-        checkoutOperator(engineType, pluginInfo, jobIdentifier);
-        try {
-            IClient client = clientCache.getClient(engineType, pluginInfo);
-            return client.getJobMaster(jobIdentifier);
-        } catch (Exception e) {
-            throw new RdosDefineException("get job master exception:" + ExceptionUtil.getErrorMessage(e));
-        }
-    }
 
     public JobResult stopJob(JobClient jobClient) throws Exception {
         if(jobClient.getEngineTaskId() == null){
             return JobResult.createSuccessResult(jobClient.getJobId());
         }
         JobIdentifier jobIdentifier = new JobIdentifier(jobClient.getEngineTaskId(), jobClient.getApplicationId(), jobClient.getJobId()
-        ,jobClient.getTenantId(),jobClient.getEngineType(),jobClient.getDeployMode(),jobClient.getUserId(),jobClient.getPluginInfo(),jobClient.getComponentVersion());
+        ,jobClient.getTenantId(),jobClient.getTaskType(),jobClient.getDeployMode(),jobClient.getUserId(),jobClient.getPluginInfo(),jobClient.getComponentVersion());
         jobIdentifier.setForceCancel(jobClient.getForceCancel());
         checkoutOperator(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
 
@@ -166,13 +145,6 @@ public class ClientOperator {
             timeout = Long.valueOf(taskProps.getProperty(ConfigConstant.FLINK_CHECKPOINT_TIMEOUT));
         }
         return timeout;
-    }
-
-    public List<String> containerInfos(JobClient jobClient) throws Exception {
-        JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobClient.getEngineTaskId(), jobClient.getApplicationId(), jobClient.getJobId());
-        checkoutOperator(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
-        IClient client = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
-        return client.getContainerInfos(jobIdentifier);
     }
 
     private void checkoutOperator(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
@@ -209,25 +181,5 @@ public class ClientOperator {
     public ClusterResource getClusterResource(String engineType, String pluginInfo) throws ClientAccessException{
         IClient client = clientCache.getClient(engineType, pluginInfo);
         return client.getClusterResource();
-    }
-
-    public List<String> getRollingLogBaseInfo(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
-        checkoutOperator(engineType, pluginInfo, jobIdentifier);
-        try {
-            IClient client = clientCache.getClient(engineType, pluginInfo);
-            return client.getRollingLogBaseInfo(jobIdentifier);
-        } catch (Exception e) {
-            throw new RdosDefineException("get job rollingLogBaseInfo:" + jobIdentifier.getEngineJobId() + " exception:" + ExceptionUtil.getErrorMessage(e));
-        }
-    }
-
-    public CheckResult grammarCheck(JobClient jobClient) throws ClientAccessException {
-        IClient clusterClient = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
-        return clusterClient.grammarCheck(jobClient);
-    }
-
-    public List<DtScriptAgentLabel> getDtScriptAgentLabel(String engineType,String pluginInfo) {
-        IClient client = clientCache.getDefaultPlugin(engineType);
-        return client.getDtScriptAgentLabel(pluginInfo);
     }
 }

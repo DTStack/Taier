@@ -20,7 +20,7 @@
 package com.dtstack.batch.service.impl;
 
 import com.dtstack.batch.bo.ExecuteContent;
-import com.dtstack.batch.common.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.batch.domain.ProjectEngine;
 import com.dtstack.batch.mapping.TableTypeEngineTypeMapping;
 import com.dtstack.batch.service.table.ISqlExeService;
@@ -28,9 +28,9 @@ import com.dtstack.batch.service.task.impl.BatchTaskService;
 import com.dtstack.batch.vo.CheckSyntaxResult;
 import com.dtstack.batch.vo.ExecuteResultVO;
 import com.dtstack.batch.vo.ExecuteSqlParseVO;
-import com.dtstack.dtcenter.common.annotation.Forbidden;
-import com.dtstack.dtcenter.common.enums.EJobType;
-import com.dtstack.dtcenter.common.util.PublicUtil;
+import com.dtstack.engine.common.annotation.Forbidden;
+import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.domain.Tenant;
 import com.dtstack.batch.service.console.TenantService;
 import com.dtstack.engine.master.impl.UserService;
@@ -92,7 +92,7 @@ public class BatchSqlExeService {
 
     static {
         notDataMapOpera.add(EJobType.ORACLE_SQL.getVal());
-        notDataMapOpera.add(EJobType.LIBRA_SQL.getVal());
+        notDataMapOpera.add(EJobType.GaussDB_SQL.getVal());
         notDataMapOpera.add(EJobType.GREENPLUM_SQL.getVal());
         notDataMapOpera.add(EJobType.INCEPTOR_SQL.getVal());
     }

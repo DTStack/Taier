@@ -20,7 +20,7 @@ package com.dtstack.batch.service.impl;
 
 import com.dtstack.batch.dao.BatchSysParamDao;
 import com.dtstack.batch.domain.BatchSysParameter;
-import com.dtstack.dtcenter.common.annotation.Forbidden;
+import com.dtstack.engine.common.annotation.Forbidden;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

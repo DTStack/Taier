@@ -19,15 +19,15 @@
 package com.dtstack.engine.master.jobdealer;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.mapper.EngineJobCacheDao;
+import com.dtstack.engine.common.enums.EJobCacheStage;
+import com.dtstack.engine.common.util.JobGraphUtil;
+import com.dtstack.engine.master.impl.ScheduleJobCacheService;
+import com.dtstack.engine.master.impl.ScheduleJobService;
+import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.pluginapi.constrant.JobResultConstant;
-import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.pluginapi.pojo.JobResult;
-import com.dtstack.engine.common.util.JobGraphUtil;
-import com.dtstack.engine.mapper.ScheduleJobDao;
-import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,10 +49,10 @@ public class JobSubmittedDealer implements Runnable {
     private LinkedBlockingQueue<JobClient> queue;
 
     @Autowired
-    private ScheduleJobDao scheduleJobDao;
+    private ScheduleJobService scheduleJobService;
 
     @Autowired
-    private EngineJobCacheDao engineJobCacheDao;
+    private ScheduleJobCacheService scheduleJobCacheService;
 
     @Autowired
     private ShardCache shardCache;
@@ -87,7 +87,7 @@ public class JobSubmittedDealer implements Runnable {
                     String appId = jobResult.getData(JobResult.EXT_ID_KEY);
                     JSONObject jobExtraInfo = jobResult.getExtraInfoJson();
                     jobExtraInfo.put(JobResultConstant.JOB_GRAPH,JobGraphUtil.formatJSON(jobClient.getEngineTaskId(), jobExtraInfo.getString(JobResultConstant.JOB_GRAPH), jobClient.getComputeType()));
-                    scheduleJobDao.updateJobSubmitSuccess(jobClient.getJobId(), jobClient.getEngineTaskId(), appId, jobClient.getJobResult().getJsonStr(), jobExtraInfo.toJSONString());
+                    scheduleJobService.updateJobSubmitSuccess(jobClient.getJobId(), jobClient.getEngineTaskId(), appId);
                     jobDealer.updateCache(jobClient, EJobCacheStage.SUBMITTED.getStage());
                     jobClient.doStatusCallBack(RdosTaskStatus.SUBMITTED.getStatus());
                     JobClient finalJobClient = jobClient;
@@ -107,13 +107,13 @@ public class JobSubmittedDealer implements Runnable {
         }
     }
 
-    private void jobClientFail(String taskId, String info) {
+    private void jobClientFail(String jobId, String info) {
         try {
-            scheduleJobDao.jobFail(taskId, RdosTaskStatus.FAILED.getStatus(), info);
-            LOGGER.info("jobId:{} update job status:{}, job is finished.", taskId, RdosTaskStatus.FAILED.getStatus());
-            engineJobCacheDao.delete(taskId);
+            scheduleJobService.jobFail(jobId, RdosTaskStatus.FAILED.getStatus(), info);
+            LOGGER.info("jobId:{} update job status:{}, job is finished.", jobId, RdosTaskStatus.FAILED.getStatus());
+            scheduleJobCacheService.deleteByJobId(jobId);
         } catch (Exception e) {
-            LOGGER.error("jobId:{} update job fail {}  error", taskId, info, e);
+            LOGGER.error("jobId:{} update job fail {}  error", jobId, info, e);
         }
     }
 

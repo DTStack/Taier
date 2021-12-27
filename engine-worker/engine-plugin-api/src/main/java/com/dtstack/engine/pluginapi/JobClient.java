@@ -136,6 +136,8 @@ public class JobClient implements Serializable {
 
     private Long userId;
 
+    private Integer taskType;
+
 
     public String getPluginInfo() {
         return pluginInfo;
@@ -164,7 +166,6 @@ public class JobClient implements Serializable {
         this.jobId = paramAction.getJobId();
         this.engineTaskId = paramAction.getEngineTaskId();
         this.applicationId = paramAction.getApplicationId();
-//        this.jobType = EJobType.getEjobType(EScheduleJobType.getEngineJobType(paramAction.getTaskType()));
         this.computeType = ComputeType.getType(paramAction.getComputeType());
         this.externalPath = paramAction.getExternalPath();
         this.engineType = paramAction.getEngineType();
@@ -176,6 +177,7 @@ public class JobClient implements Serializable {
         this.submitExpiredTime = paramAction.getSubmitExpiredTime();
         this.retryIntervalTime = paramAction.getRetryIntervalTime();
         this.componentVersion = paramAction.getComponentVersion();
+        this.taskType = paramAction.getTaskType();
 
         this.maxRetryNum = paramAction.getMaxRetryNum() == null ? 0 : paramAction.getMaxRetryNum();
         if (taskParams != null) {
@@ -210,7 +212,6 @@ public class JobClient implements Serializable {
         action.setName(jobName);
         action.setJobId(jobId);
         action.setEngineTaskId(engineTaskId);
-        action.setTaskType(jobType.getType());
         action.setComputeType(computeType.getType());
         action.setExternalPath(externalPath);
         action.setEngineType(engineType);
@@ -225,7 +226,17 @@ public class JobClient implements Serializable {
         action.setRetryIntervalTime(retryIntervalTime);
         action.setSubmitExpiredTime(submitExpiredTime);
         action.setComponentVersion(componentVersion);
+        action.setTaskType(taskType);
         return action;
+    }
+
+
+    public Integer getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(Integer taskType) {
+        this.taskType = taskType;
     }
 
     public long getPriority() {

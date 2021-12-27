@@ -18,8 +18,8 @@
 
 package com.dtstack.batch.enums;
 
-import com.dtstack.dtcenter.common.enums.EJobType;
-import com.dtstack.dtcenter.common.enums.MultiEngineType;
+import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.enums.MultiEngineType;
 
 /**
  * @author chener
@@ -72,7 +72,7 @@ public enum TaskEngineType {
     /**
      * LIBRA_SQL
      */
-    LIBRA_SQL(EJobType.LIBRA_SQL, MultiEngineType.LIBRA),
+    LIBRA_SQL(EJobType.GaussDB_SQL, MultiEngineType.LIBRA),
     /**
      * HIVE_SQL
      */

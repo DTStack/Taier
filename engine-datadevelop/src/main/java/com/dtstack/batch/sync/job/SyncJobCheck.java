@@ -21,11 +21,11 @@ package com.dtstack.batch.sync.job;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
-import com.dtstack.batch.common.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.batch.common.template.CheckFormat;
 import com.dtstack.batch.enums.TaskCreateModelType;
 import com.dtstack.batch.sync.template.*;
-import com.dtstack.dtcenter.common.exception.DtCenterDefException;
+import com.dtstack.engine.common.exception.DtCenterDefException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -76,7 +76,7 @@ public class SyncJobCheck {
                 checkRwiter((JSONObject) JSONPath.eval(job, JobElementPath.WRITER));
             }
         } catch (JSONException e) {
-            throw new RdosDefineException(String.format("json格式解析失败，原因是: %s", e.getMessage()), e);
+            throw new RdosDefineException(String.format("json格式解析失败，原因是: %s", e.getMessage()));
         }
     }
 
